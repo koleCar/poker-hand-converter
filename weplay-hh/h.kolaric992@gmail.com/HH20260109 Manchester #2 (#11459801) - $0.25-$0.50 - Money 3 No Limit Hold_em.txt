@@ -1,0 +1,1068 @@
+﻿Weplay Hand #72075028:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 16:59:41 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 3: KoTBalu ($21.30 in chips)
+Seat 4: Liam ($31.72 in chips)
+Seat 5: AimLaAKs ($40.50 in chips)
+Seat 6: Orphelins17 ($50.76 in chips)
+Seat 7: guerillAA13 ($55.77 in chips)
+Seat 8: kole1992 ($50 in chips)
+guerillAA13: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 6d]
+KoTBalu: folds
+Liam: folds
+AimLaAKs: calls $0.50
+Orphelins17: raises $1.50 to $1.50
+guerillAA13: folds
+kole1992: calls $1
+AimLaAKs: calls $1
+*** FLOP *** [7s 4d Js]
+kole1992: checks
+AimLaAKs: bets $3.17
+Orphelins17: calls $3.17
+kole1992: folds
+*** TURN *** [7s 4d Js] [6c]
+AimLaAKs: checks
+Orphelins17: checks
+*** RIVER *** [7s 4d Js 6c] [6s]
+AimLaAKs: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+AimLaAKs: shows [8s Td] (a pair of Sixes)
+Orphelins17: shows [Jc 9c] (two pair, Jacks and Sixes)
+Orphelins17 collected $11.09 from pot
+*** SUMMARY ***
+Total pot $11.09 | Rake $0.55 
+Board [7s 4d Js 6c 6s]
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 5: AimLaAKs showed [8s Td] and lost with a pair of Sixes
+Seat 6: Orphelins17 (button) showed [Jc 9c] and won ($11.09) with two pair, Jacks and Sixes
+Seat 7: guerillAA13 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded on the Flop 
+
+
+Weplay Hand #72075054:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:00:56 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 3: KoTBalu ($21.30 in chips)
+Seat 4: Liam ($31.72 in chips)
+Seat 5: AimLaAKs ($35.83 in chips)
+Seat 6: Orphelins17 ($56.63 in chips)
+Seat 7: guerillAA13 ($55.52 in chips)
+Seat 8: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 3d]
+Liam: folds
+AimLaAKs: calls $0.50
+Orphelins17: raises $1.50 to $1.50
+guerillAA13: folds
+kole1992: folds
+KoTBalu: folds
+AimLaAKs: calls $1
+*** FLOP *** [8s Ts Ah]
+AimLaAKs: checks
+Orphelins17: bets $1.50
+AimLaAKs: folds
+Uncalled bet ($1.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [8s Ts Ah]
+Seat 3: KoTBalu (big blind) folded before Flop 
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 5: AimLaAKs folded on the Flop 
+Seat 6: Orphelins17 collected ($3.75)
+Seat 7: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #72075107:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:01:47 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 3: KoTBalu ($20.80 in chips)
+Seat 4: Liam ($31.72 in chips)
+Seat 5: AimLaAKs ($34.33 in chips)
+Seat 6: Orphelins17 ($58.70 in chips)
+Seat 7: guerillAA13 ($55.52 in chips)
+Seat 8: kole1992 ($50 in chips)
+KoTBalu: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Jh]
+AimLaAKs: raises $1 to $1
+Orphelins17: calls $1
+guerillAA13: raises $6.01 to $6.01
+kole1992: folds
+KoTBalu: folds
+Liam: folds
+AimLaAKs: folds
+Orphelins17: folds
+Uncalled bet ($5.01) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0 
+Seat 3: KoTBalu (small blind) folded before Flop 
+Seat 4: Liam (big blind) folded before Flop 
+Seat 5: AimLaAKs folded before Flop 
+Seat 6: Orphelins17 folded before Flop 
+Seat 7: guerillAA13 collected ($3.75)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72075143:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:02:33 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 3: KoTBalu ($20.55 in chips)
+Seat 4: Liam ($31.22 in chips)
+Seat 5: AimLaAKs ($33.33 in chips)
+Seat 6: Orphelins17 ($57.70 in chips)
+Seat 7: guerillAA13 ($58.27 in chips)
+Seat 8: kole1992 ($50 in chips)
+Liam: posts small blind $0.25
+AimLaAKs: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 3c]
+Orphelins17: folds
+guerillAA13: folds
+kole1992: folds
+KoTBalu: folds
+Liam: folds
+Uncalled bet ($0.25) returned to AimLaAKs
+*** SHOW DOWN ***
+AimLaAKs: doesn't show hand
+AimLaAKs collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: KoTBalu (button) folded before Flop (didn't bet)
+Seat 4: Liam (small blind) folded before Flop 
+Seat 5: AimLaAKs (big blind) collected ($0.50)
+Seat 6: Orphelins17 folded before Flop (didn't bet)
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72075154:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:02:49 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 3: KoTBalu ($20.55 in chips)
+Seat 4: Liam ($30.97 in chips)
+Seat 5: AimLaAKs ($33.58 in chips)
+Seat 6: Orphelins17 ($57.70 in chips)
+Seat 7: guerillAA13 ($58.27 in chips)
+Seat 8: kole1992 ($50 in chips)
+AimLaAKs: posts small blind $0.25
+Orphelins17: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Ad]
+guerillAA13: folds
+kole1992: folds
+KoTBalu: folds
+Liam: folds
+AimLaAKs: raises $1.75 to $2
+Orphelins17: folds
+Uncalled bet ($1.50) returned to AimLaAKs
+*** SHOW DOWN ***
+AimLaAKs: doesn't show hand
+AimLaAKs collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 4: Liam (button) folded before Flop (didn't bet)
+Seat 5: AimLaAKs (small blind) collected ($1)
+Seat 6: Orphelins17 (big blind) folded before Flop 
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72075182:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:03:14 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 3: KoTBalu ($20.55 in chips)
+Seat 4: Liam ($30.97 in chips)
+Seat 5: AimLaAKs ($34.08 in chips)
+Seat 6: Orphelins17 ($57.20 in chips)
+Seat 7: guerillAA13 ($58.27 in chips)
+Seat 8: kole1992 ($50 in chips)
+Orphelins17: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Qc]
+kole1992: raises $1 to $1
+KoTBalu: folds
+Liam: folds
+AimLaAKs: calls $1
+Orphelins17: calls $0.75
+guerillAA13: calls $0.50
+*** FLOP *** [6c Jh Jd]
+Orphelins17: bets $2
+guerillAA13: folds
+kole1992: calls $2
+AimLaAKs: folds
+*** TURN *** [6c Jh Jd] [Js]
+Orphelins17: checks
+kole1992: checks
+*** RIVER *** [6c Jh Jd Js] [Ac]
+Orphelins17: checks
+kole1992: bets $4
+Orphelins17: folds
+Uncalled bet ($4) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [6c Jh Jd Js Ac]
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 5: AimLaAKs (button) folded on the Flop 
+Seat 6: Orphelins17 (small blind) folded on the River 
+Seat 7: guerillAA13 (big blind) folded on the Flop 
+Seat 8: kole1992 collected ($8)
+
+
+Weplay Hand #72075272:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:04:47 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 3: KoTBalu ($20.55 in chips)
+Seat 5: AimLaAKs ($33.08 in chips)
+Seat 6: Orphelins17 ($54.20 in chips)
+Seat 7: guerillAA13 ($57.27 in chips)
+Seat 8: kole1992 ($54.60 in chips)
+guerillAA13: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Qd]
+KoTBalu: raises $1.25 to $1.25
+AimLaAKs: folds
+Orphelins17: raises $4 to $4
+guerillAA13: folds
+kole1992: folds
+KoTBalu: folds
+Uncalled bet ($2.75) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 3: KoTBalu folded before Flop 
+Seat 5: AimLaAKs folded before Flop (didn't bet)
+Seat 6: Orphelins17 (button) collected ($3.25)
+Seat 7: guerillAA13 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #72075298:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:05:11 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 3: KoTBalu ($19.30 in chips)
+Seat 5: AimLaAKs ($33.08 in chips)
+Seat 6: Orphelins17 ($56.20 in chips)
+Seat 7: guerillAA13 ($57.02 in chips)
+Seat 8: kole1992 ($54.10 in chips)
+kole1992: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Qs]
+AimLaAKs: raises $1 to $1
+Orphelins17: folds
+guerillAA13: folds
+kole1992: calls $0.75
+KoTBalu: calls $0.50
+*** FLOP *** [Jd 4c Kh]
+kole1992: checks
+KoTBalu: checks
+AimLaAKs: checks
+*** TURN *** [Jd 4c Kh] [6h]
+kole1992: checks
+KoTBalu: checks
+AimLaAKs: checks
+*** RIVER *** [Jd 4c Kh 6h] [2c]
+kole1992: bets $1.49
+KoTBalu: folds
+AimLaAKs: folds
+Uncalled bet ($1.49) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Jd 4c Kh 6h 2c]
+Seat 3: KoTBalu (big blind) folded on the River 
+Seat 5: AimLaAKs folded on the River 
+Seat 6: Orphelins17 folded before Flop (didn't bet)
+Seat 7: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) collected ($3)
+
+
+Weplay Hand #72076384:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:06:37 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 3: KoTBalu ($20 in chips)
+Seat 5: AimLaAKs ($32.08 in chips)
+Seat 6: Orphelins17 ($56.20 in chips)
+Seat 7: guerillAA13 ($57.02 in chips)
+Seat 8: kole1992 ($55.95 in chips)
+KoTBalu: posts small blind $0.25
+AimLaAKs: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 9c]
+Orphelins17: calls $0.50
+guerillAA13: folds
+kole1992: folds
+490700_7267 joins the table at seat #2
+KoTBalu: folds
+AimLaAKs: checks
+*** FLOP *** [7s 8h Kc]
+AimLaAKs: checks
+Orphelins17: checks
+*** TURN *** [7s 8h Kc] [9d]
+AimLaAKs: checks
+Orphelins17: checks
+*** RIVER *** [7s 8h Kc 9d] [3d]
+AimLaAKs: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+AimLaAKs: shows [Qc Th] (high card King)
+Orphelins17: shows [2d 2h] (a pair of Deuces)
+Orphelins17 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [7s 8h Kc 9d 3d]
+Seat 3: KoTBalu (small blind) folded before Flop 
+Seat 5: AimLaAKs (big blind) showed [Qc Th] and lost with high card King
+Seat 6: Orphelins17 showed [2d 2h] and won ($1.25) with a pair of Deuces
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72076427:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:07:21 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 2: 490700_7267 ($20.32 in chips)
+Seat 3: KoTBalu ($19.75 in chips)
+Seat 5: AimLaAKs ($31.58 in chips)
+Seat 6: Orphelins17 ($56.89 in chips)
+Seat 7: guerillAA13 ($57.02 in chips)
+Seat 8: kole1992 ($55.95 in chips)
+AimLaAKs: posts small blind $0.25
+Orphelins17: posts big blind $0.50
+490700_7267: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Kd]
+guerillAA13: folds
+kole1992: folds
+490700_7267: checks
+KoTBalu has timed out
+KoTBalu: folds
+AimLaAKs: raises $0.75 to $1
+Orphelins17: folds
+490700_7267: calls $0.50
+*** FLOP *** [Ks Jc 8s]
+AimLaAKs: bets $1
+490700_7267: calls $1
+*** TURN *** [Ks Jc 8s] [2h]
+AimLaAKs: bets $3.38
+490700_7267: folds
+Uncalled bet ($3.38) returned to AimLaAKs
+*** SHOW DOWN ***
+AimLaAKs: doesn't show hand
+AimLaAKs collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Ks Jc 8s 2h]
+Seat 2: 490700_7267 (big blind) folded on the Turn 
+Seat 3: KoTBalu (button) folded before Flop (didn't bet)
+Seat 5: AimLaAKs (small blind) collected ($4.50)
+Seat 6: Orphelins17 (big blind) folded before Flop 
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72076497:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:08:26 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 2: 490700_7267 ($18.32 in chips)
+Seat 3: KoTBalu ($19.75 in chips)
+Seat 5: AimLaAKs ($33.86 in chips)
+Seat 6: Orphelins17 ($56.39 in chips)
+Seat 7: guerillAA13 ($57.02 in chips)
+Seat 8: kole1992 ($55.95 in chips)
+Orphelins17: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Qh]
+kole1992: folds
+490700_7267: calls $0.50
+KoTBalu: folds
+AimLaAKs: folds
+Orphelins17: raises $0.75 to $1
+guerillAA13: calls $0.50
+490700_7267: calls $0.50
+*** FLOP *** [Th Ah Ad]
+Orphelins17: checks
+guerillAA13: checks
+490700_7267: checks
+*** TURN *** [Th Ah Ad] [3h]
+Orphelins17: bets $2
+guerillAA13: folds
+490700_7267: folds
+Uncalled bet ($2) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Th Ah Ad 3h]
+Seat 2: 490700_7267 folded on the Turn 
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 5: AimLaAKs (button) folded before Flop (didn't bet)
+Seat 6: Orphelins17 (small blind) collected ($3)
+Seat 7: guerillAA13 (big blind) folded on the Turn 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72076545:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:09:13 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 2: 490700_7267 ($17.32 in chips)
+Seat 3: KoTBalu ($19.75 in chips)
+Seat 5: AimLaAKs ($33.86 in chips)
+Seat 6: Orphelins17 ($58.24 in chips)
+Seat 7: guerillAA13 ($56.02 in chips)
+Seat 8: kole1992 ($55.95 in chips)
+guerillAA13: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 4d]
+490700_7267: calls $0.50
+KoTBalu: folds
+AimLaAKs: calls $0.50
+Orphelins17: raises $1.25 to $1.25
+guerillAA13: raises $7.26 to $7.51
+kole1992: folds
+490700_7267: folds
+AimLaAKs: calls $7.01
+Orphelins17: calls $6.26
+*** FLOP *** [9h 8h Td]
+guerillAA13: checks
+AimLaAKs: checks
+Orphelins17: checks
+*** TURN *** [9h 8h Td] [5s]
+guerillAA13: checks
+AimLaAKs: bets $26.35 and is all-in
+Orphelins17: folds
+guerillAA13: folds
+Uncalled bet ($26.35) returned to AimLaAKs
+*** SHOW DOWN ***
+AimLaAKs: doesn't show hand
+AimLaAKs collected $23.53 from pot
+*** SUMMARY ***
+Total pot $23.53 | Rake $1.17 
+Board [9h 8h Td 5s]
+Seat 2: 490700_7267 folded before Flop 
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 5: AimLaAKs collected ($23.53)
+Seat 6: Orphelins17 (button) folded on the Turn 
+Seat 7: guerillAA13 (small blind) folded on the Turn 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #72076610:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:10:22 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 2: 490700_7267 ($16.82 in chips)
+Seat 3: KoTBalu ($19.75 in chips)
+Seat 5: AimLaAKs ($48.71 in chips)
+Seat 6: Orphelins17 ($50.73 in chips)
+Seat 7: guerillAA13 ($50 in chips)
+Seat 8: kole1992 ($55.45 in chips)
+kole1992: posts small blind $0.25
+490700_7267: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 3h]
+KoTBalu: folds
+AimLaAKs: calls $0.50
+Orphelins17: calls $0.50
+guerillAA13: folds
+kole1992: folds
+490700_7267: checks
+*** FLOP *** [Jh 4h Ac]
+490700_7267: checks
+AimLaAKs: bets $1.50
+Orphelins17: raises $3.25 to $3.25
+490700_7267: calls $3.25
+AimLaAKs: calls $1.75
+*** TURN *** [Jh 4h Ac] [7d]
+490700_7267: checks
+Domagoj87 joins the table at seat #1
+AimLaAKs: bets $7.67
+Orphelins17: calls $7.67
+490700_7267: folds
+*** RIVER *** [Jh 4h Ac 7d] [5h]
+AimLaAKs: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+AimLaAKs: shows [Jc Ad] (two pair, Aces and Jacks)
+Orphelins17: mucks hand
+AimLaAKs collected $26.84 from pot
+*** SUMMARY ***
+Total pot $26.84 | Rake $1.34 
+Board [Jh 4h Ac 7d 5h]
+Seat 2: 490700_7267 (big blind) folded on the Turn 
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 5: AimLaAKs showed [Jc Ad] and won ($26.84) with two pair, Aces and Jacks
+Seat 6: Orphelins17 mucked
+Seat 7: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #72076678:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:11:31 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 2: 490700_7267 ($13.07 in chips)
+Seat 3: KoTBalu ($19.75 in chips)
+Seat 5: AimLaAKs ($62.79 in chips)
+Seat 6: Orphelins17 ($50 in chips)
+Seat 7: guerillAA13 ($50 in chips)
+Seat 8: kole1992 ($55.20 in chips)
+490700_7267: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Th]
+AimLaAKs: calls $0.50
+Orphelins17: raises $1.25 to $1.25
+guerillAA13: folds
+kole1992: folds
+490700_7267: folds
+KoTBalu: folds
+AimLaAKs: calls $0.75
+*** FLOP *** [2c 8d 9h]
+AimLaAKs: checks
+Orphelins17: bets $1
+AimLaAKs: folds
+Uncalled bet ($1) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [2c 8d 9h]
+Seat 2: 490700_7267 (small blind) folded before Flop 
+Seat 3: KoTBalu (big blind) folded before Flop 
+Seat 5: AimLaAKs folded on the Flop 
+Seat 6: Orphelins17 collected ($3.25)
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72076729:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:12:19 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Domagoj87 ($73.21 in chips)
+Seat 2: 490700_7267 ($12.82 in chips)
+Seat 3: KoTBalu ($19.25 in chips)
+Seat 5: AimLaAKs ($61.54 in chips)
+Seat 6: Orphelins17 ($51.84 in chips)
+Seat 7: guerillAA13 ($50 in chips)
+Seat 8: kole1992 ($55.20 in chips)
+KoTBalu: posts small blind $0.25
+AimLaAKs: posts big blind $0.50
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Kd]
+Orphelins17: folds
+guerillAA13: folds
+kole1992: raises $1.75 to $1.75
+Domagoj87: folds
+490700_7267: calls $1.75
+KoTBalu: folds
+AimLaAKs: calls $1.25
+*** FLOP *** [7c 5h 2d]
+AimLaAKs: bets $4
+kole1992: folds
+490700_7267: folds
+Uncalled bet ($4) returned to AimLaAKs
+*** SHOW DOWN ***
+AimLaAKs: doesn't show hand
+AimLaAKs collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [7c 5h 2d]
+Seat 1: Domagoj87 (big blind) folded before Flop 
+Seat 2: 490700_7267 (button) folded on the Flop 
+Seat 3: KoTBalu (small blind) folded before Flop 
+Seat 5: AimLaAKs (big blind) collected ($6)
+Seat 6: Orphelins17 folded before Flop (didn't bet)
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 folded on the Flop 
+
+
+Weplay Hand #72076782:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:13:22 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Domagoj87 ($72.71 in chips)
+Seat 2: 490700_7267 ($11.07 in chips)
+Seat 3: KoTBalu ($19 in chips)
+Seat 5: AimLaAKs ($65.49 in chips)
+Seat 6: Orphelins17 ($51.84 in chips)
+Seat 7: guerillAA13 ($50 in chips)
+Seat 8: kole1992 ($53.45 in chips)
+AimLaAKs: posts small blind $0.25
+Orphelins17: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 7h]
+guerillAA13: folds
+kole1992: folds
+Domagoj87: raises $1.25 to $1.25
+490700_7267: calls $1.25
+KoTBalu: folds
+Liam leaves the table
+AimLaAKs: calls $1
+Orphelins17: calls $0.75
+*** FLOP *** [Ac 6c 3d]
+AimLaAKs: bets $2.50
+Orphelins17: folds
+Domagoj87: folds
+490700_7267: folds
+Uncalled bet ($2.50) returned to AimLaAKs
+*** SHOW DOWN ***
+AimLaAKs: doesn't show hand
+AimLaAKs collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [Ac 6c 3d]
+Seat 1: Domagoj87 folded on the Flop 
+Seat 2: 490700_7267 folded on the Flop 
+Seat 3: KoTBalu (button) folded before Flop (didn't bet)
+Seat 5: AimLaAKs (small blind) collected ($5)
+Seat 6: Orphelins17 (big blind) folded on the Flop 
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72076821:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:14:10 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Domagoj87 ($71.46 in chips)
+Seat 2: 490700_7267 ($9.82 in chips)
+Seat 3: KoTBalu ($19 in chips)
+Seat 5: AimLaAKs ($68.99 in chips)
+Seat 6: Orphelins17 ($50.59 in chips)
+Seat 7: guerillAA13 ($50 in chips)
+Seat 8: kole1992 ($53.45 in chips)
+Orphelins17: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 4h]
+kole1992: folds
+Domagoj87: raises $1.25 to $1.25
+490700_7267: calls $1.25
+KoTBalu: calls $1.25
+AimLaAKs: folds
+Orphelins17: calls $1
+guerillAA13: folds
+*** FLOP *** [3s Js 9h]
+Orphelins17: checks
+Domagoj87: checks
+490700_7267: checks
+KoTBalu: checks
+*** TURN *** [3s Js 9h] [8d]
+Orphelins17: checks
+490700_7267 is disconnected 
+Domagoj87: checks
+490700_7267 is connected 
+490700_7267: checks
+KoTBalu: checks
+*** RIVER *** [3s Js 9h 8d] [8c]
+Orphelins17: checks
+Domagoj87: checks
+490700_7267: bets $2.50
+KoTBalu: folds
+Orphelins17: folds
+Domagoj87: folds
+Uncalled bet ($2.50) returned to 490700_7267
+*** SHOW DOWN ***
+490700_7267 has timed out
+490700_7267: doesn't show hand
+490700_7267 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [3s Js 9h 8d 8c]
+Seat 1: Domagoj87 folded on the River 
+Seat 2: 490700_7267 collected ($5.50)
+Seat 3: KoTBalu folded on the River 
+Seat 5: AimLaAKs (button) folded before Flop (didn't bet)
+Seat 6: Orphelins17 (small blind) folded on the River 
+Seat 7: guerillAA13 (big blind) folded before Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72076898:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:15:33 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Domagoj87 ($70.21 in chips)
+Seat 2: 490700_7267 ($13.80 in chips)
+Seat 3: KoTBalu ($20 in chips)
+Seat 5: AimLaAKs ($68.99 in chips)
+Seat 6: Orphelins17 ($50 in chips)
+Seat 7: guerillAA13 ($50 in chips)
+Seat 8: kole1992 ($53.45 in chips)
+guerillAA13: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 6s]
+Domagoj87: raises $1.25 to $1.25
+490700_7267: folds
+KoTBalu: folds
+AimLaAKs: folds
+Orphelins17: folds
+guerillAA13: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87 has timed out
+Domagoj87: doesn't show hand
+Domagoj87 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Domagoj87 collected ($1.25)
+Seat 2: 490700_7267 folded before Flop (didn't bet)
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 5: AimLaAKs folded before Flop (didn't bet)
+Seat 6: Orphelins17 (button) folded before Flop (didn't bet)
+Seat 7: guerillAA13 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #72076914:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:15:56 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Domagoj87 ($70.96 in chips)
+Seat 2: 490700_7267 ($13.80 in chips)
+Seat 3: KoTBalu ($20 in chips)
+Seat 5: AimLaAKs ($68.99 in chips)
+Seat 6: Orphelins17 ($50 in chips)
+Seat 7: guerillAA13 ($50 in chips)
+Seat 8: kole1992 ($52.95 in chips)
+kole1992: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Ts]
+490700_7267: calls $0.50
+KoTBalu: raises $2.50 to $2.50
+AimLaAKs: calls $2.50
+Orphelins17: folds
+guerillAA13: raises $8.25 to $8.25
+kole1992: folds
+Domagoj87: folds
+490700_7267: folds
+KoTBalu: folds
+AimLaAKs: folds
+Uncalled bet ($5.75) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $8.75 from pot
+*** SUMMARY ***
+Total pot $8.75 | Rake $0 
+Seat 1: Domagoj87 (big blind) folded before Flop 
+Seat 2: 490700_7267 folded before Flop 
+Seat 3: KoTBalu folded before Flop 
+Seat 5: AimLaAKs folded before Flop 
+Seat 6: Orphelins17 folded before Flop (didn't bet)
+Seat 7: guerillAA13 (button) collected ($8.75)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #72076959:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:16:42 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Domagoj87 ($70.46 in chips)
+Seat 2: 490700_7267 ($13.30 in chips)
+Seat 3: KoTBalu ($20 in chips)
+Seat 5: AimLaAKs ($66.49 in chips)
+Seat 6: Orphelins17 ($50 in chips)
+Seat 7: guerillAA13 ($56.25 in chips)
+Seat 8: kole1992 ($52.70 in chips)
+Domagoj87: posts small blind $0.25
+490700_7267: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 8s]
+KoTBalu: folds
+AimLaAKs: folds
+Orphelins17: calls $0.50
+guerillAA13: folds
+kole1992: folds
+Domagoj87: folds
+490700_7267: checks
+*** FLOP *** [6c 5c 3h]
+490700_7267: checks
+Orphelins17: checks
+*** TURN *** [6c 5c 3h] [Th]
+490700_7267: checks
+Orphelins17: checks
+*** RIVER *** [6c 5c 3h Th] [2s]
+490700_7267: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+490700_7267: shows [Ks Qh] (high card King)
+Orphelins17: mucks hand
+490700_7267 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [6c 5c 3h Th 2s]
+Seat 1: Domagoj87 (small blind) folded before Flop 
+Seat 2: 490700_7267 (big blind) showed [Ks Qh] and won ($1.25) with high card King
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 5: AimLaAKs folded before Flop (didn't bet)
+Seat 6: Orphelins17 mucked
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72076994:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:17:30 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Domagoj87 ($70.21 in chips)
+Seat 2: 490700_7267 ($13.99 in chips)
+Seat 3: KoTBalu ($20 in chips)
+Seat 5: AimLaAKs ($66.49 in chips)
+Seat 6: Orphelins17 ($50 in chips)
+Seat 7: guerillAA13 ($56.25 in chips)
+Seat 8: kole1992 ($52.70 in chips)
+490700_7267: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Ac]
+AimLaAKs: folds
+Orphelins17: calls $0.50
+guerillAA13: folds
+kole1992: folds
+Domagoj87: folds
+490700_7267: calls $0.25
+KoTBalu: checks
+*** FLOP *** [Kc 8s 6s]
+490700_7267: checks
+KoTBalu: checks
+Orphelins17: checks
+*** TURN *** [Kc 8s 6s] [Ks]
+490700_7267: checks
+KoTBalu: checks
+Orphelins17: checks
+*** RIVER *** [Kc 8s 6s Ks] [Qs]
+490700_7267: bets $0.50
+KoTBalu: folds
+Orphelins17: folds
+Uncalled bet ($0.50) returned to 490700_7267
+*** SHOW DOWN ***
+490700_7267: doesn't show hand
+490700_7267 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [Kc 8s 6s Ks Qs]
+Seat 1: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 2: 490700_7267 (small blind) collected ($1.50)
+Seat 3: KoTBalu (big blind) folded on the River 
+Seat 5: AimLaAKs folded before Flop (didn't bet)
+Seat 6: Orphelins17 folded on the River 
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72077036:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:18:19 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Domagoj87 ($70.21 in chips)
+Seat 2: 490700_7267 ($14.92 in chips)
+Seat 3: KoTBalu ($19.50 in chips)
+Seat 5: AimLaAKs ($66.49 in chips)
+Seat 6: Orphelins17 ($50 in chips)
+Seat 7: guerillAA13 ($56.25 in chips)
+Seat 8: kole1992 ($52.70 in chips)
+KoTBalu: posts small blind $0.25
+AimLaAKs: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Qs]
+Orphelins17: calls $0.50
+guerillAA13: folds
+kole1992: folds
+Domagoj87: raises $2.25 to $2.25
+490700_7267: calls $2.25
+KoTBalu: raises $19.25 to $19.50 and is all-in
+AimLaAKs: folds
+Orphelins17: folds
+Domagoj87: folds
+490700_7267: folds
+Uncalled bet ($17.25) returned to KoTBalu
+*** SHOW DOWN ***
+KoTBalu: doesn't show hand
+KoTBalu collected $7.75 from pot
+*** SUMMARY ***
+Total pot $7.75 | Rake $0 
+Seat 1: Domagoj87 folded before Flop 
+Seat 2: 490700_7267 (button) folded before Flop 
+Seat 3: KoTBalu (small blind) collected ($7.75)
+Seat 5: AimLaAKs (big blind) folded before Flop 
+Seat 6: Orphelins17 folded before Flop 
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72077072:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:18:58 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Domagoj87 ($67.96 in chips)
+Seat 2: 490700_7267 ($12.67 in chips)
+Seat 3: KoTBalu ($25 in chips)
+Seat 5: AimLaAKs ($65.99 in chips)
+Seat 6: Orphelins17 ($50 in chips)
+Seat 7: guerillAA13 ($56.25 in chips)
+Seat 8: kole1992 ($52.70 in chips)
+AimLaAKs: posts small blind $0.25
+Orphelins17: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 5h]
+guerillAA13: folds
+kole1992: folds
+Domagoj87: raises $1.25 to $1.25
+490700_7267: raises $3 to $3
+Liam joins the table at seat #4
+KoTBalu: folds
+AimLaAKs: folds
+Orphelins17: folds
+Domagoj87: raises $8.50 to $9.75
+490700_7267: raises $9.67 to $12.67 and is all-in
+Domagoj87: calls $2.92
+*** FIRST FLOP *** [9s 8s Js]
+*** FIRST TURN *** [9s 8s Js] [2s]
+*** FIRST RIVER *** [9s 8s Js 2s] [Qh]
+*** SECOND FLOP *** [Ac Jc 2d]
+*** SECOND TURN *** [Ac Jc 2d] [9c]
+*** SECOND RIVER *** [Ac Jc 2d 9c] [Jd]
+*** SHOW DOWN ***
+Domagoj87: shows [As Kh] (a flush, Ace high)
+490700_7267: shows [8h 8c] (three of a kind, Eights)
+Domagoj87 collected $26.09 from pot
+*** SUMMARY ***
+Total pot $26.09 | Rake $1.30 
+Hand was run two times
+FIRST Board [9s 8s Js 2s Qh]
+SECOND Board [Ac Jc 2d 9c Jd]
+Seat 1: Domagoj87 showed [As Kh] and won ($26.09) with a flush, Ace high
+Seat 2: 490700_7267 showed [8h 8c] and lost with three of a kind, Eights
+Seat 3: KoTBalu (button) folded before Flop (didn't bet)
+Seat 5: AimLaAKs (small blind) folded before Flop 
+Seat 6: Orphelins17 (big blind) folded before Flop 
+Seat 7: guerillAA13 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72077123:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:19:50 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Domagoj87 ($80.08 in chips)
+Seat 3: KoTBalu ($25 in chips)
+Seat 5: AimLaAKs ($65.74 in chips)
+Seat 6: Orphelins17 ($50 in chips)
+Seat 7: guerillAA13 ($56.25 in chips)
+Seat 8: kole1992 ($52.70 in chips)
+Orphelins17: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Th]
+490700_7267 is disconnected 
+kole1992: folds
+Domagoj87: folds
+KoTBalu: folds
+AimLaAKs: calls $0.50
+Orphelins17: folds
+guerillAA13: checks
+*** FLOP *** [8h 2h Jd]
+guerillAA13: checks
+AimLaAKs: checks
+*** TURN *** [8h 2h Jd] [4d]
+guerillAA13: checks
+AimLaAKs: checks
+*** RIVER *** [8h 2h Jd 4d] [Kd]
+guerillAA13: checks
+AimLaAKs: checks
+*** SHOW DOWN ***
+guerillAA13: shows [9s 6h] (high card King)
+AimLaAKs: shows [Ks 6c] (a pair of Kings)
+AimLaAKs collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [8h 2h Jd 4d Kd]
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 5: AimLaAKs (button) showed [Ks 6c] and won ($1.25) with a pair of Kings
+Seat 6: Orphelins17 (small blind) folded before Flop 
+Seat 7: guerillAA13 (big blind) showed [9s 6h] and lost with high card King
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72077151:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:20:21 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Domagoj87 ($80.08 in chips)
+Seat 3: KoTBalu ($25 in chips)
+Seat 5: AimLaAKs ($66.43 in chips)
+Seat 6: Orphelins17 ($50 in chips)
+Seat 7: guerillAA13 ($55.75 in chips)
+Seat 8: kole1992 ($52.70 in chips)
+guerillAA13: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Tc]
+Domagoj87: folds
+KoTBalu: folds
+AimLaAKs: folds
+Orphelins17: raises $1 to $1
+guerillAA13: folds
+kole1992: calls $0.50
+*** FLOP *** [2d Ts Ah]
+kole1992: checks
+490700_7267 leaves the table
+Orphelins17: checks
+*** TURN *** [2d Ts Ah] [Jd]
+kole1992: checks
+Orphelins17: checks
+*** RIVER *** [2d Ts Ah Jd] [9c]
+kole1992: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+kole1992: shows [Kd Tc] (a pair of Tens)
+Orphelins17: mucks hand
+kole1992 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [2d Ts Ah Jd 9c]
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 5: AimLaAKs folded before Flop (didn't bet)
+Seat 6: Orphelins17 (button) mucked
+Seat 7: guerillAA13 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) showed [Kd Tc] and won ($2.25) with a pair of Tens
+
+
+Weplay Hand #72077200:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:21:24 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Domagoj87 ($80.08 in chips)
+Seat 3: KoTBalu ($25 in chips)
+Seat 5: AimLaAKs ($66.43 in chips)
+Seat 6: Orphelins17 ($50 in chips)
+Seat 7: guerillAA13 ($55.50 in chips)
+Seat 8: kole1992 ($53.84 in chips)
+kole1992: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 4d]
+KoTBalu: folds
+AimLaAKs: folds
+Orphelins17: calls $0.50
+guerillAA13: raises $2.25 to $2.25
+kole1992: folds
+Domagoj87: raises $7 to $7.50
+Orphelins17: folds
+guerillAA13: calls $5.25
+*** FLOP *** [2c Jc 4s]
+Domagoj87: checks
+guerillAA13: bets $8.87
+kole1992: sits out 
+Domagoj87: folds
+Uncalled bet ($8.87) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $15.75 from pot
+*** SUMMARY ***
+Total pot $15.75 | Rake $0.78 
+Board [2c Jc 4s]
+Seat 1: Domagoj87 (big blind) folded on the Flop 
+Seat 3: KoTBalu folded before Flop (didn't bet)
+Seat 5: AimLaAKs folded before Flop (didn't bet)
+Seat 6: Orphelins17 folded before Flop 
+Seat 7: guerillAA13 (button) collected ($15.75)
+Seat 8: kole1992 (small blind) folded before Flop 

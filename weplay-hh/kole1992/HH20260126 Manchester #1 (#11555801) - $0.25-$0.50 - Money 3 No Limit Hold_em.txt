@@ -1,0 +1,1063 @@
+﻿Weplay Hand #73832320:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:55:18 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: sadam ($55.93 in chips)
+Seat 2: Tone91 ($93.76 in chips)
+Seat 3: kole1992 ($50 in chips)
+Seat 4: JTs98o ($72.32 in chips)
+Seat 5: betting18 ($72.18 in chips)
+Seat 6: Doumby ($72.95 in chips)
+Seat 7: AndrejT1000 ($55.74 in chips)
+Seat 8: KoTBalu ($25.93 in chips)
+Tone91: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Kd]
+JTs98o: folds
+betting18: folds
+Doumby: folds
+AndrejT1000: raises $1.50 to $1.50
+KoTBalu: folds
+sadam: folds
+Tone91: folds
+kole1992: folds
+Uncalled bet ($1) returned to AndrejT1000
+*** SHOW DOWN ***
+AndrejT1000: doesn't show hand
+AndrejT1000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: sadam (button) folded before Flop (didn't bet)
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: JTs98o folded before Flop (didn't bet)
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 collected ($1.25)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832329:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:55:52 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: sadam ($55.93 in chips)
+Seat 2: Tone91 ($93.51 in chips)
+Seat 3: kole1992 ($50 in chips)
+Seat 4: JTs98o ($72.32 in chips)
+Seat 5: betting18 ($72.18 in chips)
+Seat 6: Doumby ($72.95 in chips)
+Seat 7: AndrejT1000 ($56.49 in chips)
+Seat 8: KoTBalu ($25.93 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Jd]
+betting18: folds
+Doumby: folds
+AndrejT1000: folds
+KoTBalu: folds
+sadam: folds
+Tone91: raises $1.25 to $1.25
+kole1992: raises $4.75 to $5
+JTs98o: folds
+Tone91: folds
+Uncalled bet ($3.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 (button) folded before Flop 
+Seat 3: kole1992 (small blind) collected ($3)
+Seat 4: JTs98o (big blind) folded before Flop 
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832340:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:56:30 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: sadam ($55.93 in chips)
+Seat 2: Tone91 ($92.26 in chips)
+Seat 3: kole1992 ($51.75 in chips)
+Seat 4: JTs98o ($71.82 in chips)
+Seat 5: betting18 ($72.18 in chips)
+Seat 6: Doumby ($72.95 in chips)
+Seat 7: AndrejT1000 ($56.49 in chips)
+Seat 8: KoTBalu ($25.93 in chips)
+JTs98o: posts small blind $0.25
+betting18: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 4d]
+Doumby: folds
+AndrejT1000: folds
+KoTBalu: folds
+sadam: folds
+Tone91: folds
+kole1992: raises $1.25 to $1.25
+JTs98o: raises $5.25 to $5.50
+betting18: folds
+kole1992: folds
+Uncalled bet ($4.25) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop 
+Seat 4: JTs98o (small blind) collected ($3)
+Seat 5: betting18 (big blind) folded before Flop 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832351:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:57:04 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: sadam ($55.93 in chips)
+Seat 2: Tone91 ($92.26 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 4: JTs98o ($73.57 in chips)
+Seat 5: betting18 ($71.68 in chips)
+Seat 6: Doumby ($72.95 in chips)
+Seat 7: AndrejT1000 ($56.49 in chips)
+Seat 8: KoTBalu ($25.93 in chips)
+betting18: posts small blind $0.25
+Doumby: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 9c]
+AndrejT1000: folds
+KoTBalu: folds
+sadam: raises $1.25 to $1.25
+Tone91: raises $4.50 to $4.50
+kole1992: folds
+JTs98o: folds
+betting18: folds
+JTs98o leaves the table
+Doumby: folds
+sadam: folds
+Uncalled bet ($3.25) returned to Tone91
+*** SHOW DOWN ***
+Tone91: doesn't show hand
+Tone91 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: sadam folded before Flop 
+Seat 2: Tone91 collected ($3.25)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: JTs98o (button) folded before Flop (didn't bet)
+Seat 5: betting18 (small blind) folded before Flop 
+Seat 6: Doumby (big blind) folded before Flop 
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832361:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:57:46 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: sadam ($54.68 in chips)
+Seat 2: Tone91 ($94.26 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 5: betting18 ($71.43 in chips)
+Seat 6: Doumby ($72.45 in chips)
+Seat 7: AndrejT1000 ($56.49 in chips)
+Seat 8: KoTBalu ($25.93 in chips)
+Doumby: posts small blind $0.25
+AndrejT1000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 5c]
+KoTBalu has timed out
+KoTBalu: folds
+sadam: folds
+Tone91: folds
+kole1992: folds
+betting18: raises $1 to $1
+Doumby: raises $4 to $4.25
+AndrejT1000: folds
+betting18: calls $3.25
+*** FLOP *** [Kd Ad 3c]
+Doumby: bets $4
+betting18: calls $4
+*** TURN *** [Kd Ad 3c] [3s]
+Doumby: bets $12.50
+betting18: calls $12.50
+*** RIVER *** [Kd Ad 3c 3s] [Jd]
+Doumby: checks
+betting18: checks
+*** SHOW DOWN ***
+Doumby: shows [Ah 6h] (two pair, Aces and Threes)
+betting18: shows [As Qc] (two pair, Aces and Threes)
+betting18 collected $21 from pot
+Doumby collected $21 from pot
+*** SUMMARY ***
+Total pot $42 | Rake $2.10 
+Board [Kd Ad 3c 3s Jd]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: betting18 (button) showed [As Qc] and won ($21) with two pair, Aces and Threes
+Seat 6: Doumby (small blind) showed [Ah 6h] and won ($21) with two pair, Aces and Threes
+Seat 7: AndrejT1000 (big blind) folded before Flop 
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832380:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:59:01 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: sadam ($54.68 in chips)
+Seat 2: Tone91 ($94.26 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 5: betting18 ($70.63 in chips)
+Seat 6: Doumby ($71.65 in chips)
+Seat 7: AndrejT1000 ($55.99 in chips)
+Seat 8: KoTBalu ($25.93 in chips)
+AndrejT1000: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 8d]
+sadam: folds
+Tone91: folds
+kole1992: folds
+betting18: raises $1 to $1
+Doumby: calls $1
+AndrejT1000: folds
+KoTBalu: folds
+*** FLOP *** [7d 6s 5c]
+betting18: checks
+Doumby: bets $1
+betting18: folds
+Uncalled bet ($1) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [7d 6s 5c]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: betting18 folded on the Flop 
+Seat 6: Doumby (button) collected ($2.75)
+Seat 7: AndrejT1000 (small blind) folded before Flop 
+Seat 8: KoTBalu (big blind) folded before Flop 
+
+
+Weplay Hand #73832387:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:59:33 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: sadam ($54.68 in chips)
+Seat 2: Tone91 ($94.26 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($73.27 in chips)
+Seat 7: AndrejT1000 ($55.74 in chips)
+Seat 8: KoTBalu ($25.43 in chips)
+KoTBalu: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Td]
+Tone91: folds
+kole1992: folds
+betting18: folds
+Doumby: folds
+AndrejT1000: folds
+KoTBalu: folds
+Uncalled bet ($0.25) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: sadam (big blind) collected ($0.50)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 (button) folded before Flop (didn't bet)
+Seat 8: KoTBalu (small blind) folded before Flop 
+
+
+Weplay Hand #73832394:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:59:51 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: sadam ($54.93 in chips)
+Seat 2: Tone91 ($94.26 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($73.27 in chips)
+Seat 7: AndrejT1000 ($55.74 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+sadam: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 5c]
+kole1992: folds
+betting18: folds
+Doumby: raises $1.25 to $1.25
+AndrejT1000: folds
+KoTBalu: folds
+sadam: calls $1
+kole1992 is disconnected 
+Tone91: folds
+*** FLOP *** [8h 3s Th]
+kole1992 is connected 
+sadam: checks
+Doumby: checks
+*** TURN *** [8h 3s Th] [9c]
+sadam: checks
+Doumby: bets $2.25
+sadam: calls $2.25
+*** RIVER *** [8h 3s Th 9c] [6c]
+sadam: checks
+Doumby: checks
+*** SHOW DOWN ***
+sadam: shows [Kh Js] (high card King)
+Doumby: shows [Ah 9d] (a pair of Nines)
+Doumby collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [8h 3s Th 9c 6c]
+Seat 1: sadam (small blind) showed [Kh Js] and lost with high card King
+Seat 2: Tone91 (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby showed [Ah 9d] and won ($7.50) with a pair of Nines
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73832425:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:00:55 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: sadam ($51.43 in chips)
+Seat 2: Tone91 ($93.76 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($76.90 in chips)
+Seat 7: AndrejT1000 ($55.74 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+Tone91: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 2d]
+betting18: folds
+Doumby: folds
+AndrejT1000: folds
+KoTBalu: folds
+sadam: folds
+Tone91: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: sadam (button) folded before Flop (didn't bet)
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) collected ($0.50)
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832440:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:01:12 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: sadam ($51.43 in chips)
+Seat 2: Tone91 ($93.51 in chips)
+Seat 3: kole1992 ($50.75 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($76.90 in chips)
+Seat 7: AndrejT1000 ($55.74 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+kole1992: posts small blind $0.25
+betting18: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Qc]
+Doumby: folds
+AndrejT1000: folds
+KoTBalu: folds
+sadam: folds
+Tone91: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to betting18
+*** SHOW DOWN ***
+betting18: doesn't show hand
+betting18 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: betting18 (big blind) collected ($0.50)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832455:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:01:32 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: sadam ($51.43 in chips)
+Seat 2: Tone91 ($93.51 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 5: betting18 ($69.88 in chips)
+Seat 6: Doumby ($76.90 in chips)
+Seat 7: AndrejT1000 ($55.74 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+betting18: posts small blind $0.25
+Doumby: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 8h]
+AndrejT1000: folds
+KoTBalu: folds
+sadam: folds
+Tone91: folds
+kole1992: raises $1.25 to $1.25
+betting18: folds
+Doumby: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 (button) collected ($1.25)
+Seat 5: betting18 (small blind) folded before Flop 
+Seat 6: Doumby (big blind) folded before Flop 
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832470:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:01:57 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: sadam ($51.43 in chips)
+Seat 2: Tone91 ($93.51 in chips)
+Seat 3: kole1992 ($51.25 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($76.40 in chips)
+Seat 7: AndrejT1000 ($55.74 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+Doumby: posts small blind $0.25
+AndrejT1000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 4s]
+KoTBalu: folds
+sadam: folds
+Tone91: folds
+kole1992: folds
+betting18: folds
+Doumby: folds
+Uncalled bet ($0.25) returned to AndrejT1000
+*** SHOW DOWN ***
+AndrejT1000: doesn't show hand
+AndrejT1000 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: betting18 (button) folded before Flop (didn't bet)
+Seat 6: Doumby (small blind) folded before Flop 
+Seat 7: AndrejT1000 (big blind) collected ($0.50)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832481:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:02:19 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: sadam ($51.43 in chips)
+Seat 2: Tone91 ($93.51 in chips)
+Seat 3: kole1992 ($51.25 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($76.15 in chips)
+Seat 7: AndrejT1000 ($55.99 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+AndrejT1000: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 9d]
+sadam: folds
+Tone91: raises $1 to $1
+kole1992: folds
+betting18: folds
+Doumby: calls $1
+AndrejT1000: folds
+KoTBalu: folds
+*** FLOP *** [2h 9h 3h]
+Tone91: checks
+Doumby: bets $1
+Tone91: folds
+Uncalled bet ($1) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [2h 9h 3h]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 folded on the Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby (button) collected ($2.75)
+Seat 7: AndrejT1000 (small blind) folded before Flop 
+Seat 8: KoTBalu (big blind) folded before Flop 
+
+
+Weplay Hand #73832513:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:02:58 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: sadam ($51.43 in chips)
+Seat 2: Tone91 ($92.51 in chips)
+Seat 3: kole1992 ($51.25 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($77.77 in chips)
+Seat 7: AndrejT1000 ($55.74 in chips)
+Seat 8: KoTBalu ($24.68 in chips)
+KoTBalu: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 3h]
+Tone91: folds
+kole1992: folds
+betting18: folds
+Doumby: folds
+AndrejT1000: folds
+KoTBalu: raises $1 to $1.25
+sadam: folds
+Uncalled bet ($0.75) returned to KoTBalu
+*** SHOW DOWN ***
+KoTBalu: doesn't show hand
+KoTBalu collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: sadam (big blind) folded before Flop 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 (button) folded before Flop (didn't bet)
+Seat 8: KoTBalu (small blind) collected ($1)
+
+
+Weplay Hand #73832534:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:03:24 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: sadam ($50.93 in chips)
+Seat 2: Tone91 ($92.51 in chips)
+Seat 3: kole1992 ($51.25 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($77.77 in chips)
+Seat 7: AndrejT1000 ($55.74 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+sadam: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 7c]
+kole1992: folds
+betting18: folds
+Doumby: raises $1.25 to $1.25
+AndrejT1000: folds
+KoTBalu: folds
+sadam: raises $4.75 to $5
+Tone91: folds
+Doumby: folds
+Uncalled bet ($3.75) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: sadam (small blind) collected ($3)
+Seat 2: Tone91 (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop 
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73832558:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:03:53 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: sadam ($52.68 in chips)
+Seat 2: Tone91 ($92.01 in chips)
+Seat 3: kole1992 ($51.25 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($76.52 in chips)
+Seat 7: AndrejT1000 ($55.74 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+Tone91: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 6h]
+betting18: folds
+Doumby: folds
+AndrejT1000: raises $1.50 to $1.50
+KoTBalu: folds
+sadam: folds
+Tone91: folds
+kole1992: folds
+Uncalled bet ($1) returned to AndrejT1000
+*** SHOW DOWN ***
+PapitroN joins the table at seat #4
+AndrejT1000: doesn't show hand
+AndrejT1000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: sadam (button) folded before Flop (didn't bet)
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 collected ($1.25)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832574:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:04:18 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: sadam ($52.68 in chips)
+Seat 2: Tone91 ($91.76 in chips)
+Seat 3: kole1992 ($50.75 in chips)
+Seat 4: PapitroN ($50 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($76.52 in chips)
+Seat 7: AndrejT1000 ($56.49 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+kole1992: posts small blind $0.25
+PapitroN: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 7d]
+betting18: folds
+Doumby: folds
+AndrejT1000: raises $1.50 to $1.50
+KoTBalu: folds
+sadam: folds
+Tone91: raises $4.50 to $4.50
+kole1992: folds
+PapitroN: folds
+AndrejT1000: calls $3
+*** FLOP *** [Qd Ts 8d]
+AndrejT1000: checks
+Tone91: checks
+*** TURN *** [Qd Ts 8d] [7c]
+AndrejT1000: checks
+Tone91: checks
+*** RIVER *** [Qd Ts 8d 7c] [3s]
+AndrejT1000: checks
+Tone91: checks
+*** SHOW DOWN ***
+AndrejT1000: shows [Js Jc] (a pair of Jacks)
+Tone91: mucks hand
+AndrejT1000 collected $9.75 from pot
+*** SUMMARY ***
+Total pot $9.75 | Rake $0.48 
+Board [Qd Ts 8d 7c 3s]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 (button) mucked
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: PapitroN (big blind) folded before Flop 
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 showed [Js Jc] and won ($9.75) with a pair of Jacks
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832634:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:05:39 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: sadam ($52.68 in chips)
+Seat 2: Tone91 ($87.26 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 4: PapitroN ($50 in chips)
+Seat 5: betting18 ($69.63 in chips)
+Seat 6: Doumby ($76.52 in chips)
+Seat 7: AndrejT1000 ($61.26 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+PapitroN: posts small blind $0.25
+betting18: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Kh]
+Doumby: folds
+AndrejT1000: folds
+KoTBalu: folds
+sadam: folds
+Tone91: folds
+kole1992: folds
+PapitroN: raises $1.25 to $1.50
+betting18: calls $1
+*** FLOP *** [Qh 7d Ac]
+PapitroN: bets $0.99
+betting18: calls $0.99
+*** TURN *** [Qh 7d Ac] [9c]
+PapitroN: bets $2.49
+betting18: folds
+Uncalled bet ($2.49) returned to PapitroN
+*** SHOW DOWN ***
+PapitroN: doesn't show hand
+PapitroN collected $4.98 from pot
+*** SUMMARY ***
+Total pot $4.98 | Rake $0.24 
+Board [Qh 7d Ac 9c]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: PapitroN (small blind) collected ($4.98)
+Seat 5: betting18 (big blind) folded on the Turn 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832660:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:06:15 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: sadam ($52.68 in chips)
+Seat 2: Tone91 ($87.26 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 4: PapitroN ($52.25 in chips)
+Seat 5: betting18 ($67.14 in chips)
+Seat 6: Doumby ($76.52 in chips)
+Seat 7: AndrejT1000 ($61.26 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+betting18: posts small blind $0.25
+Doumby: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 2s]
+AndrejT1000: folds
+KoTBalu: folds
+sadam: folds
+Tone91: raises $1 to $1
+kole1992: folds
+PapitroN: folds
+betting18: folds
+Doumby: calls $0.50
+*** FLOP *** [5h 8d 3d]
+Doumby: checks
+Tone91: bets $1.75
+Doumby: calls $1.75
+*** TURN *** [5h 8d 3d] [2h]
+Doumby: checks
+Tone91: bets $11
+Doumby: folds
+Uncalled bet ($11) returned to Tone91
+*** SHOW DOWN ***
+Tone91: doesn't show hand
+Tone91 collected $5.75 from pot
+*** SUMMARY ***
+Total pot $5.75 | Rake $0.28 
+Board [5h 8d 3d 2h]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 collected ($5.75)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: PapitroN (button) folded before Flop (didn't bet)
+Seat 5: betting18 (small blind) folded before Flop 
+Seat 6: Doumby (big blind) folded on the Turn 
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832705:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:07:32 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: sadam ($52.68 in chips)
+Seat 2: Tone91 ($89.98 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 4: PapitroN ($52.25 in chips)
+Seat 5: betting18 ($66.89 in chips)
+Seat 6: Doumby ($73.77 in chips)
+Seat 7: AndrejT1000 ($61.26 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+Doumby: posts small blind $0.25
+AndrejT1000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Kh]
+KoTBalu: folds
+sadam: folds
+Tone91: folds
+kole1992: folds
+PapitroN: folds
+betting18: raises $1 to $1
+Doumby: folds
+AndrejT1000: calls $0.50
+*** FLOP *** [Qd As 6s]
+AndrejT1000: checks
+betting18: bets $0.75
+AndrejT1000: calls $0.75
+*** TURN *** [Qd As 6s] [Ks]
+AndrejT1000: checks
+betting18: checks
+*** RIVER *** [Qd As 6s Ks] [2s]
+AndrejT1000: checks
+betting18: checks
+*** SHOW DOWN ***
+AndrejT1000: shows [2h Ac] (two pair, Aces and Deuces)
+betting18: shows [7s Jh] (a flush, Ace high)
+betting18 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [Qd As 6s Ks 2s]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: PapitroN folded before Flop (didn't bet)
+Seat 5: betting18 (button) showed [7s Jh] and won ($3.75) with a flush, Ace high
+Seat 6: Doumby (small blind) folded before Flop 
+Seat 7: AndrejT1000 (big blind) showed [2h Ac] and lost with two pair, Aces and Deuces
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832740:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:08:28 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: sadam ($52.68 in chips)
+Seat 2: Tone91 ($89.98 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 4: PapitroN ($52.25 in chips)
+Seat 5: betting18 ($68.71 in chips)
+Seat 6: Doumby ($73.52 in chips)
+Seat 7: AndrejT1000 ($59.51 in chips)
+Seat 8: KoTBalu ($25.18 in chips)
+AndrejT1000: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 2c]
+sadam: folds
+Tone91: folds
+kole1992: folds
+PapitroN: folds
+betting18: raises $1 to $1
+Doumby: raises $3.50 to $3.50
+AndrejT1000: folds
+KoTBalu: folds
+betting18: folds
+Uncalled bet ($2.50) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: PapitroN folded before Flop (didn't bet)
+Seat 5: betting18 folded before Flop 
+Seat 6: Doumby (button) collected ($2.75)
+Seat 7: AndrejT1000 (small blind) folded before Flop 
+Seat 8: KoTBalu (big blind) folded before Flop 
+
+
+Weplay Hand #73832758:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:08:52 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: sadam ($52.68 in chips)
+Seat 2: Tone91 ($89.98 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 4: PapitroN ($52.25 in chips)
+Seat 5: betting18 ($67.71 in chips)
+Seat 6: Doumby ($75.27 in chips)
+Seat 7: AndrejT1000 ($59.26 in chips)
+Seat 8: KoTBalu ($24.68 in chips)
+KoTBalu: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Js]
+Tone91: folds
+kole1992: folds
+PapitroN: raises $1.50 to $1.50
+betting18: folds
+Doumby: folds
+AndrejT1000: folds
+KoTBalu: raises $4.25 to $4.50
+sadam: calls $4
+PapitroN: calls $3
+*** FLOP *** [2d Jd Ts]
+KoTBalu: bets $10.15
+KoTBalu is disconnected 
+sadam: calls $10.15
+PapitroN: folds
+*** TURN *** [2d Jd Ts] [Jh]
+KoTBalu is connected 
+KoTBalu: bets $10.03 and is all-in
+sadam: calls $10.03
+*** FIRST RIVER *** [2d Jd Ts Jh] [8s]
+*** SECOND RIVER *** [2d Jd Ts Jh] [5h]
+*** SHOW DOWN ***
+KoTBalu: shows [Jc Ac] (three of a kind, Jacks)
+sadam: shows [Qd Ad] (a pair of Jacks)
+KoTBalu collected $53.86 from pot
+*** SUMMARY ***
+Total pot $53.86 | Rake $2.69 
+Hand was run two times
+FIRST Board [2d Jd Ts Jh 8s]
+SECOND Board [2d Jd Ts Jh 5h]
+Seat 1: sadam (big blind) showed [Qd Ad] and lost with a pair of Jacks
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: PapitroN folded on the Flop 
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 (button) folded before Flop (didn't bet)
+Seat 8: KoTBalu (small blind) showed [Jc Ac] and won ($53.86) with three of a kind, Jacks
+
+
+Weplay Hand #73832815:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:10:12 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 2: Tone91 ($89.98 in chips)
+Seat 3: kole1992 ($50.50 in chips)
+Seat 4: PapitroN ($50 in chips)
+Seat 5: betting18 ($67.71 in chips)
+Seat 6: Doumby ($75.27 in chips)
+Seat 7: AndrejT1000 ($59.26 in chips)
+Seat 8: KoTBalu ($51.17 in chips)
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Js]
+kole1992: raises $1.10 to $1.10
+PapitroN: folds
+betting18: folds
+Doumby: folds
+AndrejT1000: folds
+Majstorsmora joins the table at seat #1
+KoTBalu: folds
+Tone91: calls $0.60
+*** FLOP *** [Kh 4h Qh]
+Tone91: checks
+kole1992: checks
+*** TURN *** [Kh 4h Qh] [As]
+Tone91: checks
+kole1992: bets $1.25
+Tone91: folds
+Uncalled bet ($1.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.20 from pot
+*** SUMMARY ***
+Total pot $2.20 | Rake $0.11 
+Board [Kh 4h Qh As]
+Seat 2: Tone91 (big blind) folded on the Turn 
+Seat 3: kole1992 collected ($2.20)
+Seat 4: PapitroN folded before Flop (didn't bet)
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73832852:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:11:09 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 2: Tone91 ($88.88 in chips)
+Seat 3: kole1992 ($51.49 in chips)
+Seat 4: PapitroN ($50 in chips)
+Seat 5: betting18 ($67.71 in chips)
+Seat 6: Doumby ($75.27 in chips)
+Seat 7: AndrejT1000 ($59.26 in chips)
+Seat 8: KoTBalu ($51.17 in chips)
+Tone91: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9d]
+PapitroN: folds
+betting18: calls $0.50
+Doumby: calls $0.50
+AndrejT1000: folds
+KoTBalu: folds
+Tone91: calls $0.25
+kole1992: checks
+*** FLOP *** [Th 3h 4h]
+Tone91: checks
+kole1992: checks
+betting18: checks
+Doumby: bets $1.25
+Tone91: folds
+kole1992: folds
+betting18: calls $1.25
+*** TURN *** [Th 3h 4h] [Jc]
+betting18: checks
+Doumby: bets $3.50
+betting18: folds
+Uncalled bet ($3.50) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Th 3h 4h Jc]
+Seat 2: Tone91 (small blind) folded on the Flop 
+Seat 3: kole1992 (big blind) folded on the Flop 
+Seat 4: PapitroN folded before Flop (didn't bet)
+Seat 5: betting18 folded on the Turn 
+Seat 6: Doumby collected ($4.50)
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832912:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:12:39 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 2: Tone91 ($88.38 in chips)
+Seat 3: kole1992 ($50.99 in chips)
+Seat 4: PapitroN ($50 in chips)
+Seat 5: betting18 ($65.96 in chips)
+Seat 6: Doumby ($77.80 in chips)
+Seat 7: AndrejT1000 ($59.26 in chips)
+Seat 8: KoTBalu ($51.17 in chips)
+kole1992: posts small blind $0.25
+PapitroN: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Js]
+betting18: folds
+Doumby: folds
+AndrejT1000: folds
+KoTBalu: folds
+Tone91: folds
+kole1992: raises $1.25 to $1.50
+PapitroN: calls $1
+*** FLOP *** [2d Qs Jh]
+kole1992: checks
+PapitroN: checks
+*** TURN *** [2d Qs Jh] [7c]
+kole1992: checks
+PapitroN: checks
+*** RIVER *** [2d Qs Jh 7c] [2c]
+kole1992: checks
+PapitroN: checks
+*** SHOW DOWN ***
+kole1992: shows [8h Js] (two pair, Jacks and Deuces)
+PapitroN: mucks hand
+kole1992 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [2d Qs Jh 7c 2c]
+Seat 2: Tone91 (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) showed [8h Js] and won ($3) with two pair, Jacks and Deuces
+Seat 4: PapitroN (big blind) mucked
+Seat 5: betting18 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832945:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:13:23 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 2: Tone91 ($88.38 in chips)
+Seat 3: kole1992 ($52.34 in chips)
+Seat 4: PapitroN ($50 in chips)
+Seat 5: betting18 ($65.96 in chips)
+Seat 6: Doumby ($77.80 in chips)
+Seat 7: AndrejT1000 ($59.26 in chips)
+Seat 8: KoTBalu ($51.17 in chips)
+PapitroN: posts small blind $0.25
+betting18: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Jh]
+Doumby: folds
+AndrejT1000: folds
+KoTBalu: folds
+Tone91: raises $1.25 to $1.25
+kole1992 has timed out
+kole1992: folds
+PapitroN: folds
+betting18: folds
+Uncalled bet ($0.75) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Tone91 collected ($1.25)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: PapitroN (small blind) folded before Flop 
+Seat 5: betting18 (big blind) folded before Flop 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: AndrejT1000 folded before Flop (didn't bet)
+Seat 8: KoTBalu folded before Flop (didn't bet)

@@ -1,0 +1,1017 @@
+﻿Weplay Hand #72047793:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:22:18 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: WinHof ($155.61 in chips)
+Seat 3: KellySlater ($126.21 in chips)
+Seat 5: Mohammadashkar ($36.75 in chips)
+Seat 7: Inglorious ($98 in chips)
+Seat 8: kole1992 ($100 in chips)
+Inglorious: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 2d]
+WinHof: folds
+KellySlater: folds
+Mohammadashkar: calls $1
+Inglorious: raises $2.50 to $3
+mekkmester leaves the table
+kole1992: folds
+Mohammadashkar: calls $2
+*** FLOP *** [7c Kc 3d]
+Inglorious: checks
+Mohammadashkar: checks
+*** TURN *** [7c Kc 3d] [Qs]
+Inglorious: bets $3.50
+Mohammadashkar: folds
+Uncalled bet ($3.50) returned to Inglorious
+*** SHOW DOWN ***
+Inglorious has timed out
+Inglorious: doesn't show hand
+Inglorious collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [7c Kc 3d Qs]
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 3: KellySlater folded before Flop (didn't bet)
+Seat 5: Mohammadashkar (button) folded on the Turn 
+Seat 7: Inglorious (small blind) collected ($7)
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #72047805:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:23:13 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: WinHof ($155.61 in chips)
+Seat 3: KellySlater ($126.21 in chips)
+Seat 5: Mohammadashkar ($33.75 in chips)
+Seat 7: Inglorious ($101.65 in chips)
+Seat 8: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+WinHof: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 6c]
+KellySlater: raises $2.50 to $2.50
+Mohammadashkar: calls $2.50
+Inglorious: folds
+kole1992: folds
+WinHof: calls $1.50
+*** FLOP *** [6h Jd 7s]
+WinHof: bets $6
+KellySlater: calls $6
+Mohammadashkar: calls $6
+*** TURN *** [6h Jd 7s] [9h]
+WinHof: bets $17.50
+KellySlater: folds
+Mohammadashkar: calls $17.50
+*** RIVER *** [6h Jd 7s 9h] [6s]
+WinHof: checks
+Mohammadashkar: checks
+*** SHOW DOWN ***
+WinHof: shows [Tc Jh] (two pair, Jacks and Sixes)
+Mohammadashkar has timed out
+Mohammadashkar: mucks hand
+WinHof collected $61 from pot
+*** SUMMARY ***
+Total pot $61 | Rake $3.05 
+Board [6h Jd 7s 9h 6s]
+Seat 1: WinHof (big blind) showed [Tc Jh] and won ($61) with two pair, Jacks and Sixes
+Seat 3: KellySlater folded on the Turn 
+Seat 5: Mohammadashkar mucked
+Seat 7: Inglorious (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #72047824:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:24:12 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: WinHof ($187.56 in chips)
+Seat 3: KellySlater ($117.71 in chips)
+Seat 5: Mohammadashkar ($7.75 in chips)
+Seat 7: Inglorious ($101.65 in chips)
+Seat 8: kole1992 ($100 in chips)
+WinHof: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 3s]
+Mohammadashkar: raises $5 to $5
+Inglorious: calls $5
+kole1992: folds
+WinHof: folds
+KellySlater: folds
+*** FLOP *** [2d 8c 3d]
+Mohammadashkar: checks
+Inglorious: bets $11.50
+Mohammadashkar: calls $2.75 and is all-in
+Uncalled bet ($8.75) returned to Inglorious
+*** TURN *** [2d 8c 3d] [8h]
+*** RIVER *** [2d 8c 3d 8h] [Td]
+*** SHOW DOWN ***
+Mohammadashkar: shows [4c Qd] (a pair of Eights)
+Inglorious: shows [Qs Kh] (a pair of Eights)
+Inglorious collected $17 from pot
+*** SUMMARY ***
+Total pot $17 | Rake $0.85 
+Board [2d 8c 3d 8h Td]
+Seat 1: WinHof (small blind) folded before Flop 
+Seat 3: KellySlater (big blind) folded before Flop 
+Seat 5: Mohammadashkar showed [4c Qd] and lost with a pair of Eights
+Seat 7: Inglorious showed [Qs Kh] and won ($17) with a pair of Eights
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72047834:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:24:59 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #1 is the button
+Seat 1: WinHof ($187.06 in chips)
+Seat 3: KellySlater ($116.71 in chips)
+Seat 7: Inglorious ($110.05 in chips)
+Seat 8: kole1992 ($100 in chips)
+KellySlater: posts small blind $0.50
+Inglorious: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Kc]
+kole1992: folds
+WinHof: raises $2.50 to $2.50
+KellySlater: folds
+Inglorious: calls $1.50
+*** FLOP *** [7h 5c 9c]
+Inglorious: bets $2.75
+WinHof: calls $2.75
+*** TURN *** [7h 5c 9c] [4c]
+Inglorious: checks
+WinHof: checks
+*** RIVER *** [7h 5c 9c 4c] [9d]
+Inglorious: checks
+WinHof: checks
+*** SHOW DOWN ***
+Inglorious: shows [Td 5d] (two pair, Nines and Fives)
+WinHof: mucks hand
+Inglorious collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [7h 5c 9c 4c 9d]
+Seat 1: WinHof (button) mucked
+Seat 3: KellySlater (small blind) folded before Flop 
+Seat 7: Inglorious (big blind) showed [Td 5d] and won ($11) with two pair, Nines and Fives
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72047846:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:25:51 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 1: WinHof ($181.81 in chips)
+Seat 3: KellySlater ($116.21 in chips)
+Seat 7: Inglorious ($115.25 in chips)
+Seat 8: kole1992 ($100 in chips)
+Inglorious: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Qc]
+WinHof: raises $3 to $3
+KellySlater: folds
+Inglorious: folds
+kole1992: calls $2
+*** FLOP *** [Js 9d 5s]
+kole1992: checks
+WinHof: bets $4.90
+kole1992: calls $4.90
+*** TURN *** [Js 9d 5s] [Th]
+kole1992: checks
+WinHof: bets $11.20
+kole1992: folds
+Uncalled bet ($11.20) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $16.30 from pot
+*** SUMMARY ***
+Total pot $16.30 | Rake $0.81 
+Board [Js 9d 5s Th]
+Seat 1: WinHof collected ($16.30)
+Seat 3: KellySlater (button) folded before Flop (didn't bet)
+Seat 7: Inglorious (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded on the Turn 
+
+
+Weplay Hand #72047856:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:26:53 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: WinHof ($189.40 in chips)
+Seat 3: KellySlater ($116.21 in chips)
+Seat 5: Mohammadashkar ($100 in chips)
+Seat 7: Inglorious ($114.75 in chips)
+Seat 8: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+WinHof: posts big blind $1
+Mohammadashkar: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 7h]
+KellySlater: folds
+Mohammadashkar: checks
+Inglorious: raises $3 to $3
+kole1992: folds
+WinHof: calls $2
+Mohammadashkar: calls $2
+*** FLOP *** [Jc Ks 5c]
+WinHof: checks
+Mohammadashkar: checks
+Inglorious: bets $4.75
+WinHof: folds
+Mohammadashkar: calls $4.75
+*** TURN *** [Jc Ks 5c] [Qh]
+Mohammadashkar: checks
+Inglorious: bets $12
+Mohammadashkar: folds
+Uncalled bet ($12) returned to Inglorious
+*** SHOW DOWN ***
+Inglorious has timed out
+Inglorious: doesn't show hand
+Inglorious collected $19 from pot
+*** SUMMARY ***
+Total pot $19 | Rake $0.95 
+Board [Jc Ks 5c Qh]
+Seat 1: WinHof (big blind) folded on the Flop 
+Seat 3: KellySlater folded before Flop (didn't bet)
+Seat 5: Mohammadashkar (big blind) folded on the Turn 
+Seat 7: Inglorious (button) collected ($19)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #72047866:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:27:40 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: WinHof ($186.40 in chips)
+Seat 3: KellySlater ($116.21 in chips)
+Seat 5: Mohammadashkar ($92.25 in chips)
+Seat 7: Inglorious ($125.05 in chips)
+Seat 8: kole1992 ($100 in chips)
+WinHof: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 6h]
+Mohammadashkar: calls $1
+Inglorious: folds
+kole1992: raises $3 to $3
+WinHof: folds
+KellySlater: folds
+Mohammadashkar: calls $2
+*** FLOP *** [7c 7s 4h]
+Mohammadashkar: checks
+kole1992: bets $2
+Mohammadashkar: calls $2
+*** TURN *** [7c 7s 4h] [4c]
+Mohammadashkar: checks
+kole1992: checks
+*** RIVER *** [7c 7s 4h 4c] [5c]
+Mohammadashkar: bets $10
+kole1992: raises $30 to $30
+Mohammadashkar: calls $20
+*** SHOW DOWN ***
+kole1992: shows [7h 6h] (a full house, Sevens full of Fours)
+Mohammadashkar has timed out
+Mohammadashkar: mucks hand
+kole1992 collected $71.50 from pot
+*** SUMMARY ***
+Total pot $71.50 | Rake $3.57 
+Board [7c 7s 4h 4c 5c]
+Seat 1: WinHof (small blind) folded before Flop 
+Seat 3: KellySlater (big blind) folded before Flop 
+Seat 5: Mohammadashkar mucked
+Seat 7: Inglorious folded before Flop (didn't bet)
+Seat 8: kole1992 (button) showed [7h 6h] and won ($71.50) with a full house, Sevens full of Fours
+
+
+Weplay Hand #72047884:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:28:53 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #1 is the button
+Seat 1: WinHof ($185.90 in chips)
+Seat 3: KellySlater ($115.21 in chips)
+Seat 5: Mohammadashkar ($57.25 in chips)
+Seat 7: Inglorious ($125.05 in chips)
+Seat 8: kole1992 ($132.93 in chips)
+KellySlater: posts small blind $0.50
+Mohammadashkar: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 8s]
+Inglorious: raises $2.50 to $2.50
+kole1992: calls $2.50
+WinHof: calls $2.50
+KellySlater: folds
+Mohammadashkar: calls $1.50
+*** FLOP *** [Ks Js 9h]
+Mohammadashkar: checks
+Inglorious: checks
+kole1992: checks
+WinHof: bets $10.50
+Mohammadashkar: calls $10.50
+Inglorious: calls $10.50
+kole1992: folds
+*** TURN *** [Ks Js 9h] [9d]
+Mohammadashkar: checks
+Inglorious: checks
+WinHof: checks
+*** RIVER *** [Ks Js 9h 9d] [Qh]
+Mohammadashkar: bets $44.25 and is all-in
+Inglorious: folds
+WinHof: folds
+Uncalled bet ($44.25) returned to Mohammadashkar
+*** SHOW DOWN ***
+Mohammadashkar has timed out
+Mohammadashkar: doesn't show hand
+Mohammadashkar collected $42 from pot
+*** SUMMARY ***
+Total pot $42 | Rake $2.10 
+Board [Ks Js 9h 9d Qh]
+Seat 1: WinHof (button) folded on the River 
+Seat 3: KellySlater (small blind) folded before Flop 
+Seat 5: Mohammadashkar (big blind) collected ($42)
+Seat 7: Inglorious folded on the River 
+Seat 8: kole1992 folded on the Flop 
+
+
+Weplay Hand #72047905:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:30:07 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 1: WinHof ($172.90 in chips)
+Seat 3: KellySlater ($114.71 in chips)
+Seat 5: Mohammadashkar ($84.15 in chips)
+Seat 7: Inglorious ($112.05 in chips)
+Seat 8: kole1992 ($130.43 in chips)
+Mohammadashkar: posts small blind $0.50
+Inglorious: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd As]
+kole1992: raises $2 to $2
+WinHof: raises $8 to $8
+KellySlater: folds
+Mohammadashkar: folds
+Inglorious: folds
+kole1992: folds
+Uncalled bet ($6) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: WinHof collected ($5.50)
+Seat 3: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: Mohammadashkar (small blind) folded before Flop 
+Seat 7: Inglorious (big blind) folded before Flop 
+Seat 8: kole1992 folded before Flop 
+
+
+Weplay Hand #72047910:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:30:31 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: WinHof ($176.40 in chips)
+Seat 3: KellySlater ($114.71 in chips)
+Seat 5: Mohammadashkar ($83.65 in chips)
+Seat 7: Inglorious ($111.05 in chips)
+Seat 8: kole1992 ($128.43 in chips)
+Inglorious: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Ad]
+WinHof: folds
+KellySlater: folds
+Mohammadashkar: calls $1
+Inglorious: calls $0.50
+kole1992: raises $4.50 to $5.50
+Mohammadashkar: calls $4.50
+Inglorious: folds
+*** FLOP *** [5c Ks Kd]
+kole1992: checks
+Mohammadashkar: checks
+*** TURN *** [5c Ks Kd] [4c]
+kole1992: checks
+Mohammadashkar: checks
+*** RIVER *** [5c Ks Kd 4c] [5d]
+kole1992: checks
+Mohammadashkar: checks
+*** SHOW DOWN ***
+kole1992: shows [Qs Ad] (two pair, Kings and Fives)
+Mohammadashkar has timed out
+Mohammadashkar: mucks hand
+kole1992 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [5c Ks Kd 4c 5d]
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 3: KellySlater folded before Flop (didn't bet)
+Seat 5: Mohammadashkar (button) mucked
+Seat 7: Inglorious (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) showed [Qs Ad] and won ($12) with two pair, Kings and Fives
+
+
+Weplay Hand #72047922:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:31:17 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: WinHof ($176.40 in chips)
+Seat 3: KellySlater ($114.71 in chips)
+Seat 5: Mohammadashkar ($78.15 in chips)
+Seat 7: Inglorious ($110.05 in chips)
+Seat 8: kole1992 ($134.33 in chips)
+kole1992: posts small blind $0.50
+WinHof: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Th]
+KellySlater: folds
+Mohammadashkar: calls $1
+Inglorious: raises $2.50 to $2.50
+kole1992: folds
+WinHof: folds
+Mohammadashkar: calls $1.50
+*** FLOP *** [4d Kd 6s]
+Mohammadashkar: checks
+Inglorious: bets $3.25
+Mohammadashkar: calls $3.25
+*** TURN *** [4d Kd 6s] [8s]
+BeatrixKiddo joins the table at seat #2
+Mohammadashkar: checks
+Inglorious: bets $6.50
+Mohammadashkar: calls $6.50
+*** RIVER *** [4d Kd 6s 8s] [3s]
+Mohammadashkar: checks
+Inglorious: checks
+*** SHOW DOWN ***
+Mohammadashkar: shows [7h Ad] (high card Ace)
+Inglorious: shows [6d As] (a pair of Sixes)
+Inglorious collected $26 from pot
+*** SUMMARY ***
+Total pot $26 | Rake $1.30 
+Board [4d Kd 6s 8s 3s]
+Seat 1: WinHof (big blind) folded before Flop 
+Seat 3: KellySlater folded before Flop (didn't bet)
+Seat 5: Mohammadashkar showed [7h Ad] and lost with high card Ace
+Seat 7: Inglorious (button) showed [6d As] and won ($26) with a pair of Sixes
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #72047934:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:32:14 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: WinHof ($175.40 in chips)
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($114.71 in chips)
+Seat 5: Mohammadashkar ($65.90 in chips)
+Seat 7: Inglorious ($122.50 in chips)
+Seat 8: kole1992 ($133.83 in chips)
+WinHof: posts small blind $0.50
+BeatrixKiddo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Ts]
+KellySlater: folds
+Mohammadashkar: calls $1
+Inglorious: folds
+kole1992: folds
+WinHof: folds
+BeatrixKiddo: checks
+*** FLOP *** [Kc Js 8c]
+BeatrixKiddo: checks
+Mohammadashkar: checks
+*** TURN *** [Kc Js 8c] [7s]
+BeatrixKiddo: checks
+Mohammadashkar: checks
+*** RIVER *** [Kc Js 8c 7s] [7c]
+BeatrixKiddo: bets $3
+Mohammadashkar: raises $25 to $25
+BeatrixKiddo: folds
+Uncalled bet ($22) returned to Mohammadashkar
+*** SHOW DOWN ***
+Mohammadashkar has timed out
+Mohammadashkar: doesn't show hand
+Mohammadashkar collected $8.50 from pot
+*** SUMMARY ***
+Total pot $8.50 | Rake $0.42 
+Board [Kc Js 8c 7s 7c]
+Seat 1: WinHof (small blind) folded before Flop 
+Seat 2: BeatrixKiddo (big blind) folded on the River 
+Seat 3: KellySlater folded before Flop (didn't bet)
+Seat 5: Mohammadashkar collected ($8.50)
+Seat 7: Inglorious folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72047943:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:33:01 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #1 is the button
+Seat 1: WinHof ($174.90 in chips)
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($114.71 in chips)
+Seat 5: Mohammadashkar ($69.98 in chips)
+Seat 7: Inglorious ($122.50 in chips)
+Seat 8: kole1992 ($133.83 in chips)
+BeatrixKiddo: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Jh]
+Mohammadashkar: calls $1
+Inglorious: raises $2 to $2
+kole1992: folds
+WinHof: folds
+BeatrixKiddo: folds
+KellySlater: folds
+Mohammadashkar: calls $1
+*** FLOP *** [Kh 3d Ac]
+Mohammadashkar: checks
+Inglorious: checks
+*** TURN *** [Kh 3d Ac] [2s]
+Mohammadashkar: checks
+Inglorious: checks
+*** RIVER *** [Kh 3d Ac 2s] [Tc]
+Mohammadashkar: checks
+Inglorious: checks
+*** SHOW DOWN ***
+Mohammadashkar: shows [Js 2c] (a pair of Deuces)
+Inglorious has timed out
+Inglorious: mucks hand
+Mohammadashkar collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Kh 3d Ac 2s Tc]
+Seat 1: WinHof (button) folded before Flop (didn't bet)
+Seat 2: BeatrixKiddo (small blind) folded before Flop 
+Seat 3: KellySlater (big blind) folded before Flop 
+Seat 5: Mohammadashkar showed [Js 2c] and won ($5.50) with a pair of Deuces
+Seat 7: Inglorious mucked
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72047953:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:33:48 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #2 is the button
+Seat 1: WinHof ($174.90 in chips)
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($113.71 in chips)
+Seat 5: Mohammadashkar ($73.21 in chips)
+Seat 7: Inglorious ($120.50 in chips)
+Seat 8: kole1992 ($133.83 in chips)
+KellySlater: posts small blind $0.50
+Mohammadashkar: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9c]
+Inglorious: raises $2.50 to $2.50
+kole1992: folds
+WinHof: calls $2.50
+BeatrixKiddo: folds
+KellySlater: folds
+Mohammadashkar: calls $1.50
+*** FLOP *** [4s 3h Kh]
+Mohammadashkar: checks
+Inglorious: bets $4
+KellySlater is disconnected 
+KellySlater is connected 
+WinHof: folds
+Mohammadashkar: folds
+Uncalled bet ($4) returned to Inglorious
+*** SHOW DOWN ***
+Inglorious has timed out
+Inglorious: doesn't show hand
+Inglorious collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [4s 3h Kh]
+Seat 1: WinHof folded on the Flop 
+Seat 2: BeatrixKiddo (button) folded before Flop (didn't bet)
+Seat 3: KellySlater (small blind) folded before Flop 
+Seat 5: Mohammadashkar (big blind) folded on the Flop 
+Seat 7: Inglorious collected ($8)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72047965:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:34:29 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 1: WinHof ($172.40 in chips)
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($113.21 in chips)
+Seat 5: Mohammadashkar ($70.71 in chips)
+Seat 7: Inglorious ($125.60 in chips)
+Seat 8: kole1992 ($133.83 in chips)
+Mohammadashkar: posts small blind $0.50
+Inglorious: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Qc]
+kole1992: folds
+WinHof: raises $3 to $3
+BeatrixKiddo: folds
+KellySlater: folds
+Mohammadashkar: calls $2.50
+Inglorious: calls $2
+*** FLOP *** [8d 3h 9s]
+Mohammadashkar: checks
+Inglorious: checks
+WinHof: checks
+*** TURN *** [8d 3h 9s] [2c]
+Mohammadashkar: checks
+Inglorious: bets $2.97
+WinHof: calls $2.97
+Mohammadashkar: folds
+*** RIVER *** [8d 3h 9s 2c] [4d]
+Inglorious: bets $11.21
+WinHof is disconnected 
+WinHof is connected 
+WinHof: raises $166.43 to $166.43 and is all-in
+Inglorious: calls $108.42 and is all-in
+Uncalled bet ($46.80) returned to WinHof
+*** SHOW DOWN ***
+WinHof: shows [Ah 5d] (a straight, Ace to Five)
+Inglorious: shows [Ad 5s] (a straight, Ace to Five)
+WinHof collected $127.10 from pot
+Inglorious collected $127.10 from pot
+*** SUMMARY ***
+Total pot $254.20 | Rake $6.50 
+Board [8d 3h 9s 2c 4d]
+Seat 1: WinHof showed [Ah 5d] and won ($127.10) with a straight, Ace to Five
+Seat 2: BeatrixKiddo folded before Flop (didn't bet)
+Seat 3: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: Mohammadashkar (small blind) folded on the Turn 
+Seat 7: Inglorious (big blind) showed [Ad 5s] and won ($127.10) with a straight, Ace to Five
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72047981:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:35:39 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: WinHof ($170.65 in chips)
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($113.21 in chips)
+Seat 5: Mohammadashkar ($67.71 in chips)
+Seat 7: Inglorious ($123.85 in chips)
+Seat 8: kole1992 ($133.83 in chips)
+Inglorious: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 7d]
+WinHof: raises $3 to $3
+BeatrixKiddo: folds
+KellySlater: folds
+Mohammadashkar: calls $3
+Inglorious: folds
+kole1992: calls $2
+*** FLOP *** [4s 5s 8h]
+kole1992: checks
+WinHof: bets $9.50
+Mohammadashkar: folds
+Stefano joins the table at seat #4
+kole1992: calls $9.50
+*** TURN *** [4s 5s 8h] [6h]
+kole1992: checks
+WinHof: bets $16.30
+Meze188 joins the table at seat #6
+kole1992: raises $38.47 to $38.47
+WinHof: folds
+Uncalled bet ($22.17) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $61.10 from pot
+*** SUMMARY ***
+Total pot $61.10 | Rake $3.05 
+Board [4s 5s 8h 6h]
+Seat 1: WinHof folded on the Turn 
+Seat 2: BeatrixKiddo folded before Flop (didn't bet)
+Seat 3: KellySlater folded before Flop (didn't bet)
+Seat 5: Mohammadashkar (button) folded on the Flop 
+Seat 7: Inglorious (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) collected ($61.10)
+
+
+Weplay Hand #72048001:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:37:16 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: WinHof ($141.85 in chips)
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($113.21 in chips)
+Seat 4: Stefano ($30 in chips)
+Seat 5: Mohammadashkar ($64.71 in chips)
+Seat 6: Meze188 ($100 in chips)
+Seat 7: Inglorious ($123.35 in chips)
+Seat 8: kole1992 ($163.08 in chips)
+kole1992: posts small blind $0.50
+WinHof: posts big blind $1
+Stefano: posts big blind $1
+Meze188: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 8c]
+BeatrixKiddo: folds
+KellySlater: raises $5.50 to $5.50
+Stefano: calls $4.50
+Mohammadashkar: calls $5.50
+Meze188: folds
+Inglorious: folds
+kole1992: folds
+WinHof: calls $4.50
+*** FLOP *** [9h Js Td]
+WinHof: checks
+KellySlater: checks
+Stefano: checks
+Mohammadashkar: checks
+*** TURN *** [9h Js Td] [Jd]
+WinHof: checks
+KellySlater: bets $17.60
+Stefano: folds
+Mohammadashkar: calls $17.60
+WinHof: folds
+*** RIVER *** [9h Js Td Jd] [Ad]
+KellySlater: bets $90.11 and is all-in
+Mohammadashkar: calls $41.61 and is all-in
+Uncalled bet ($48.50) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: shows [Qh Jh] (three of a kind, Jacks)
+Mohammadashkar: shows [Jc 5d] (three of a kind, Jacks)
+KellySlater collected $141.92 from pot
+*** SUMMARY ***
+Total pot $141.92 | Rake $6.50 
+Board [9h Js Td Jd Ad]
+Seat 1: WinHof (big blind) folded on the Turn 
+Seat 2: BeatrixKiddo folded before Flop (didn't bet)
+Seat 3: KellySlater showed [Qh Jh] and won ($141.92) with three of a kind, Jacks
+Seat 4: Stefano (big blind) folded on the Turn 
+Seat 5: Mohammadashkar showed [Jc 5d] and lost with three of a kind, Jacks
+Seat 6: Meze188 (big blind) folded before Flop 
+Seat 7: Inglorious (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #72048017:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:38:14 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: WinHof ($136.35 in chips)
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($183.92 in chips)
+Seat 4: Stefano ($24.50 in chips)
+Seat 6: Meze188 ($100 in chips)
+Seat 7: Inglorious ($123.35 in chips)
+Seat 8: kole1992 ($162.58 in chips)
+WinHof: posts small blind $0.50
+BeatrixKiddo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 9d]
+KellySlater: raises $2.50 to $2.50
+Stefano: calls $2.50
+Meze188: folds
+Inglorious: folds
+kole1992: folds
+WinHof: calls $2
+BeatrixKiddo: calls $1.50
+*** FLOP *** [7d 8s 5h]
+WinHof: bets $10
+BeatrixKiddo: folds
+KellySlater: folds
+Stefano: raises $22 to $22 and is all-in
+WinHof: calls $12
+*** TURN *** [7d 8s 5h] [Ks]
+*** FIRST RIVER *** [7d 8s 5h Ks] [Kd]
+*** SECOND TURN *** [7d 8s 5h] [Kc]
+*** SECOND RIVER *** [7d 8s 5h Kc] [5s]
+*** SHOW DOWN ***
+WinHof: shows [7s Tc] (two pair, Kings and Sevens)
+Stefano: shows [Ah 8c] (two pair, Kings and Eights)
+Stefano collected $54 from pot
+*** SUMMARY ***
+Total pot $54 | Rake $2.70 
+Hand was run two times
+FIRST Board [7d 8s 5h Ks Kd]
+SECOND Board [7d 8s 5h Kc 5s]
+Seat 1: WinHof (small blind) showed [7s Tc] and lost with two pair, Kings and Sevens
+Seat 2: BeatrixKiddo (big blind) folded on the Flop 
+Seat 3: KellySlater folded on the Flop 
+Seat 4: Stefano showed [Ah 8c] and won ($54) with two pair, Kings and Eights
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: Inglorious folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72048029:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:39:23 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #1 is the button
+Seat 1: WinHof ($111.85 in chips)
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($181.42 in chips)
+Seat 4: Stefano ($51.30 in chips)
+Seat 5: Mohammadashkar ($100 in chips)
+Seat 6: Meze188 ($100 in chips)
+Seat 7: Inglorious ($123.35 in chips)
+Seat 8: kole1992 ($162.58 in chips)
+BeatrixKiddo: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 8s]
+Stefano: folds
+Mohammadashkar: calls $1
+Meze188: folds
+Inglorious: folds
+kole1992: raises $3.50 to $3.50
+WinHof: calls $3.50
+BeatrixKiddo: raises $14.50 to $15
+KellySlater: folds
+Mohammadashkar: calls $14
+kole1992: folds
+WinHof: calls $11.50
+*** FLOP *** [3c 9c 3d]
+BeatrixKiddo: bets $16.50
+Mohammadashkar: calls $16.50
+WinHof: calls $16.50
+*** TURN *** [3c 9c 3d] [Jd]
+BeatrixKiddo: bets $68.50 and is all-in
+Mohammadashkar: calls $68.50 and is all-in
+WinHof: calls $68.50
+*** RIVER *** [3c 9c 3d Jd] [Qs]
+*** SHOW DOWN ***
+BeatrixKiddo: shows [Kd Ks] (two pair, Kings and Threes)
+Mohammadashkar: shows [Ad Ac] (two pair, Aces and Threes)
+WinHof: shows [Jc Kc] (two pair, Jacks and Threes)
+Mohammadashkar collected $304.50 from pot
+*** SUMMARY ***
+Total pot $304.50 | Rake $6.50 
+Board [3c 9c 3d Jd Qs]
+Seat 1: WinHof (button) showed [Jc Kc] and lost with two pair, Jacks and Threes
+Seat 2: BeatrixKiddo (small blind) showed [Kd Ks] and lost with two pair, Kings and Threes
+Seat 3: KellySlater (big blind) folded before Flop 
+Seat 4: Stefano folded before Flop (didn't bet)
+Seat 5: Mohammadashkar showed [Ad Ac] and won ($304.50) with two pair, Aces and Threes
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: Inglorious folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop 
+
+
+Weplay Hand #72048061:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:41:20 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #2 is the button
+Seat 1: WinHof ($11.85 in chips)
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($180.42 in chips)
+Seat 4: Stefano ($51.30 in chips)
+Seat 5: Mohammadashkar ($298 in chips)
+Seat 6: Meze188 ($100 in chips)
+Seat 7: Inglorious ($123.35 in chips)
+Seat 8: kole1992 ($159.08 in chips)
+KellySlater: posts small blind $0.50
+Stefano: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 4h]
+WinHof leaves the table
+Mohammadashkar: calls $1
+Meze188: folds
+Inglorious: calls $1
+kole1992: folds
+BeatrixKiddo: folds
+KellySlater: calls $0.50
+Stefano: checks
+*** FLOP *** [4c 7c Ks]
+KellySlater: checks
+Stefano: checks
+Mohammadashkar: checks
+Inglorious: bets $2
+KellySlater: folds
+Stefano: folds
+Mohammadashkar: calls $2
+*** TURN *** [4c 7c Ks] [Qs]
+Stefano leaves the table
+Mohammadashkar: checks
+Inglorious: bets $6
+Mohammadashkar: folds
+Uncalled bet ($6) returned to Inglorious
+*** SHOW DOWN ***
+Inglorious has timed out
+Inglorious: doesn't show hand
+Inglorious collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [4c 7c Ks Qs]
+Seat 2: BeatrixKiddo (button) folded before Flop (didn't bet)
+Seat 3: KellySlater (small blind) folded on the Flop 
+Seat 4: Stefano (big blind) folded on the Flop 
+Seat 5: Mohammadashkar folded on the Turn 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: Inglorious collected ($8)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72048080:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:42:27 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($179.42 in chips)
+Seat 5: Mohammadashkar ($295 in chips)
+Seat 6: Meze188 ($100 in chips)
+Seat 7: Inglorious ($127.95 in chips)
+Seat 8: kole1992 ($159.08 in chips)
+Mohammadashkar: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 4c]
+Meze188: folds
+Inglorious: raises $3 to $3
+kole1992: folds
+BeatrixKiddo: folds
+KellySlater: raises $12 to $12
+Mohammadashkar: folds
+Inglorious: calls $9
+*** FLOP *** [Qd Js Kc]
+Inglorious: checks
+KellySlater: bets $8.30
+Inglorious: calls $8.30
+*** TURN *** [Qd Js Kc] [Td]
+Inglorious: checks
+KellySlater: bets $31.20
+Mohammadashkar leaves the table
+Inglorious: raises $107.65 to $107.65 and is all-in
+KellySlater: calls $76.45
+*** RIVER *** [Qd Js Kc Td] [4h]
+*** SHOW DOWN ***
+Inglorious: shows [7c Ac] (a straight, Ten to Ace)
+KellySlater: shows [Kh As] (a straight, Ten to Ace)
+KellySlater collected $128.45 from pot
+Inglorious collected $128.45 from pot
+*** SUMMARY ***
+Total pot $256.90 | Rake $6.50 
+Board [Qd Js Kc Td 4h]
+Seat 2: BeatrixKiddo folded before Flop (didn't bet)
+Seat 3: KellySlater (button) showed [Kh As] and won ($128.45) with a straight, Ten to Ace
+Seat 5: Mohammadashkar (big blind) folded before Flop 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: Inglorious showed [7c Ac] and won ($128.45) with a straight, Ten to Ace
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72048095:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:43:30 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #4 is the button
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($176.67 in chips)
+Seat 6: Meze188 ($100 in chips)
+Seat 7: Inglorious ($125.20 in chips)
+Seat 8: kole1992 ($159.08 in chips)
+Meze188: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 9h]
+Inglorious: folds
+kole1992: folds
+BeatrixKiddo: raises $2.30 to $2.30
+KellySlater: folds
+Meze188: raises $10 to $11
+JTs98o joins the table at seat #5
+BeatrixKiddo: folds
+Uncalled bet ($8.70) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $4.60 from pot
+*** SUMMARY ***
+Total pot $4.60 | Rake $0 
+Seat 2: BeatrixKiddo folded before Flop 
+Seat 3: KellySlater folded before Flop (didn't bet)
+Seat 6: Meze188 (big blind) collected ($4.60)
+Seat 7: Inglorious folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72048108:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:44:08 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($176.67 in chips)
+Seat 5: JTs98o ($285.40 in chips)
+Seat 6: Meze188 ($102.30 in chips)
+Seat 7: Inglorious ($125.20 in chips)
+Seat 8: kole1992 ($159.08 in chips)
+Meze188: posts small blind $0.50
+Inglorious: posts big blind $1
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Kh]
+kole1992: folds
+BeatrixKiddo: folds
+KellySlater: folds
+JTs98o: checks
+Meze188: folds
+Inglorious: checks
+*** FLOP *** [2d 9s 4d]
+Inglorious: checks
+JTs98o: bets $1.70
+Inglorious: folds
+Uncalled bet ($1.70) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [2d 9s 4d]
+Seat 2: BeatrixKiddo folded before Flop (didn't bet)
+Seat 3: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o (button) (big blind) collected ($2.50)
+Seat 6: Meze188 (small blind) folded before Flop 
+Seat 7: Inglorious (big blind) folded on the Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72048121:  Hold'em No Limit ($0.50/$1) - 2026/01/09 14:44:59 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 2: BeatrixKiddo ($100 in chips)
+Seat 3: KellySlater ($176.67 in chips)
+Seat 5: JTs98o ($286.78 in chips)
+Seat 6: Meze188 ($101.80 in chips)
+Seat 7: Inglorious ($124.20 in chips)
+Seat 8: kole1992 ($159.08 in chips)
+Inglorious: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 4d]
+BeatrixKiddo: folds
+KellySlater: folds
+JTs98o: raises $2.50 to $2.50
+Meze188: folds
+Inglorious: folds
+kole1992: calls $1.50
+*** FLOP *** [Ac 7s 7c]
+kole1992: checks
+JTs98o: bets $1.40
+kole1992: folds
+Uncalled bet ($1.40) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Ac 7s 7c]
+Seat 2: BeatrixKiddo folded before Flop (didn't bet)
+Seat 3: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o collected ($5.50)
+Seat 6: Meze188 (button) folded before Flop (didn't bet)
+Seat 7: Inglorious (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded on the Flop 

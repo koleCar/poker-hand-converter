@@ -1,0 +1,1163 @@
+﻿Weplay Hand #76168609:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 9:59:34 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #2 is the button
+Seat 1: Domagoj87 ($89.18 in chips)
+Seat 2: markanen0 ($52.24 in chips)
+Seat 3: Jaanu ($14.15 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: Nothingtown ($85.30 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($51.49 in chips)
+Seat 8: yidasss ($50 in chips)
+Jaanu: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Ah]
+Nothingtown: folds
+KratkiLucky: folds
+podjerrr: raises $1.50 to $1.50
+yidasss: folds
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992: calls $1
+*** FLOP *** [8c 9h Th]
+kole1992: checks
+podjerrr: checks
+*** TURN *** [8c 9h Th] [Jh]
+kole1992: checks
+podjerrr: checks
+*** RIVER *** [8c 9h Th Jh] [Kh]
+kole1992: bets $2.32
+podjerrr: folds
+Uncalled bet ($2.32) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [8c 9h Th Jh Kh]
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 (button) folded before Flop (didn't bet)
+Seat 3: Jaanu (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) collected ($3.25)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: podjerrr folded on the River 
+Seat 8: yidasss folded before Flop (didn't bet)
+
+
+Weplay Hand #76168635:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:01:06 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #3 is the button
+Seat 1: Domagoj87 ($89.18 in chips)
+Seat 2: markanen0 ($52.24 in chips)
+Seat 3: Jaanu ($13.90 in chips)
+Seat 4: kole1992 ($51.59 in chips)
+Seat 5: Nothingtown ($85.30 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($49.99 in chips)
+Seat 8: yidasss ($50 in chips)
+kole1992: posts small blind $0.25
+Nothingtown: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Jd]
+KratkiLucky: raises $1.25 to $1.25
+podjerrr: folds
+yidasss: folds
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+Uncalled bet ($0.75) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: Nothingtown (big blind) folded before Flop 
+Seat 6: KratkiLucky collected ($1.25)
+Seat 7: podjerrr folded before Flop (didn't bet)
+Seat 8: yidasss folded before Flop (didn't bet)
+
+
+Weplay Hand #76168641:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:01:35 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #4 is the button
+Seat 1: Domagoj87 ($89.18 in chips)
+Seat 2: markanen0 ($52.24 in chips)
+Seat 3: Jaanu ($13.90 in chips)
+Seat 4: kole1992 ($51.34 in chips)
+Seat 5: Nothingtown ($84.80 in chips)
+Seat 6: KratkiLucky ($50.75 in chips)
+Seat 7: podjerrr ($49.99 in chips)
+Seat 8: yidasss ($50 in chips)
+Nothingtown: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 8c]
+podjerrr: raises $1.50 to $1.50
+yidasss: folds
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: folds
+Uncalled bet ($1) returned to podjerrr
+*** SHOW DOWN ***
+podjerrr has timed out
+podjerrr: doesn't show hand
+podjerrr collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Nothingtown (small blind) folded before Flop 
+Seat 6: KratkiLucky (big blind) folded before Flop 
+Seat 7: podjerrr collected ($1.25)
+Seat 8: yidasss folded before Flop (didn't bet)
+
+
+Weplay Hand #76168656:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:02:12 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #5 is the button
+Seat 1: Domagoj87 ($89.18 in chips)
+Seat 2: markanen0 ($52.24 in chips)
+Seat 3: Jaanu ($13.90 in chips)
+Seat 4: kole1992 ($51.34 in chips)
+Seat 5: Nothingtown ($84.55 in chips)
+Seat 6: KratkiLucky ($50.25 in chips)
+Seat 7: podjerrr ($50.74 in chips)
+Seat 8: yidasss ($50 in chips)
+KratkiLucky: posts small blind $0.25
+podjerrr: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Tc]
+yidasss: folds
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: raises $1.25 to $1.50
+podjerrr: calls $1
+*** FLOP *** [Ks 5c Ah]
+KratkiLucky: bets $1
+podjerrr: calls $1
+*** TURN *** [Ks 5c Ah] [Js]
+KratkiLucky: checks
+podjerrr: checks
+*** RIVER *** [Ks 5c Ah Js] [3h]
+KratkiLucky: bets $3.50
+podjerrr: calls $3.50
+*** SHOW DOWN ***
+KratkiLucky: shows [Qc As] (a pair of Aces)
+podjerrr: mucks hand
+KratkiLucky collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [Ks 5c Ah Js 3h]
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown (button) folded before Flop (didn't bet)
+Seat 6: KratkiLucky (small blind) showed [Qc As] and won ($12) with a pair of Aces
+Seat 7: podjerrr (big blind) mucked
+Seat 8: yidasss folded before Flop (didn't bet)
+
+
+Weplay Hand #76168685:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:03:18 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #6 is the button
+Seat 1: Domagoj87 ($89.18 in chips)
+Seat 2: markanen0 ($52.24 in chips)
+Seat 3: Jaanu ($13.90 in chips)
+Seat 4: kole1992 ($51.34 in chips)
+Seat 5: Nothingtown ($84.55 in chips)
+Seat 6: KratkiLucky ($55.65 in chips)
+Seat 7: podjerrr ($44.74 in chips)
+Seat 8: yidasss ($50 in chips)
+podjerrr: posts small blind $0.25
+yidasss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 9d]
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992: folds
+Nothingtown: raises $1.25 to $1.25
+KratkiLucky: raises $3.75 to $3.75
+podjerrr: folds
+yidasss: folds
+Nothingtown: folds
+Uncalled bet ($2.50) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop 
+Seat 6: KratkiLucky (button) collected ($3.25)
+Seat 7: podjerrr (small blind) folded before Flop 
+Seat 8: yidasss (big blind) folded before Flop 
+
+
+Weplay Hand #76168694:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:03:50 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #7 is the button
+Seat 1: Domagoj87 ($89.18 in chips)
+Seat 2: markanen0 ($52.24 in chips)
+Seat 3: Jaanu ($13.90 in chips)
+Seat 4: kole1992 ($51.34 in chips)
+Seat 5: Nothingtown ($83.30 in chips)
+Seat 6: KratkiLucky ($57.65 in chips)
+Seat 7: podjerrr ($44.49 in chips)
+Seat 8: yidasss ($50 in chips)
+yidasss: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Kc]
+markanen0: raises $1.25 to $1.25
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: folds
+podjerrr: folds
+yidasss: folds
+Domagoj87: folds
+Uncalled bet ($0.75) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Domagoj87 (big blind) folded before Flop 
+Seat 2: markanen0 collected ($1.25)
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: podjerrr (button) folded before Flop (didn't bet)
+Seat 8: yidasss (small blind) folded before Flop 
+
+
+Weplay Hand #76168706:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:04:17 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #8 is the button
+Seat 1: Domagoj87 ($88.68 in chips)
+Seat 2: markanen0 ($52.99 in chips)
+Seat 3: Jaanu ($13.90 in chips)
+Seat 4: kole1992 ($51.34 in chips)
+Seat 5: Nothingtown ($83.30 in chips)
+Seat 6: KratkiLucky ($57.65 in chips)
+Seat 7: podjerrr ($44.49 in chips)
+Seat 8: yidasss ($50 in chips)
+Domagoj87: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 2d]
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: raises $1.25 to $1.25
+podjerrr: folds
+yidasss: folds
+Domagoj87: raises $4 to $4.25
+markanen0: folds
+KratkiLucky: calls $3
+*** FLOP *** [Js As 7c]
+Domagoj87: bets $4.50
+KratkiLucky: folds
+Uncalled bet ($4.50) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87 has timed out
+Domagoj87: doesn't show hand
+Domagoj87 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [Js As 7c]
+Seat 1: Domagoj87 (small blind) collected ($9)
+Seat 2: markanen0 (big blind) folded before Flop 
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded on the Flop 
+Seat 7: podjerrr folded before Flop (didn't bet)
+Seat 8: yidasss (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76168721:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:05:02 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #1 is the button
+Seat 1: Domagoj87 ($92.98 in chips)
+Seat 2: markanen0 ($52.49 in chips)
+Seat 3: Jaanu ($13.90 in chips)
+Seat 4: kole1992 ($51.34 in chips)
+Seat 5: Nothingtown ($83.30 in chips)
+Seat 6: KratkiLucky ($53.40 in chips)
+Seat 7: podjerrr ($44.49 in chips)
+Seat 8: yidasss ($50 in chips)
+markanen0: posts small blind $0.25
+Jaanu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Jd]
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: folds
+podjerrr: folds
+yidasss: calls $0.50
+Domagoj87: folds
+markanen0: folds
+Jaanu: checks
+*** FLOP *** [6c 8h 3s]
+Jaanu: checks
+yidasss: checks
+*** TURN *** [6c 8h 3s] [7c]
+Jaanu: bets $3
+yidasss: folds
+Uncalled bet ($3) returned to Jaanu
+*** SHOW DOWN ***
+Jaanu has timed out
+Jaanu: doesn't show hand
+Jaanu collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [6c 8h 3s 7c]
+Seat 1: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 2: markanen0 (small blind) folded before Flop 
+Seat 3: Jaanu (big blind) collected ($1.25)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: podjerrr folded before Flop (didn't bet)
+Seat 8: yidasss folded on the Turn 
+
+
+Weplay Hand #76168739:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:05:46 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #2 is the button
+Seat 1: Domagoj87 ($92.98 in chips)
+Seat 2: markanen0 ($52.24 in chips)
+Seat 3: Jaanu ($14.59 in chips)
+Seat 4: kole1992 ($51.34 in chips)
+Seat 5: Nothingtown ($83.30 in chips)
+Seat 6: KratkiLucky ($53.40 in chips)
+Seat 7: podjerrr ($44.49 in chips)
+Seat 8: yidasss ($50 in chips)
+Jaanu: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 9c]
+Nothingtown: folds
+KratkiLucky: folds
+podjerrr: folds
+yidasss: raises $1.50 to $1.50
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992: calls $1
+*** FLOP *** [7s Th Ts]
+kole1992: checks
+yidasss: checks
+*** TURN *** [7s Th Ts] [8c]
+kole1992: bets $1.07
+yidasss: calls $1.07
+*** RIVER *** [7s Th Ts 8c] [Jd]
+kole1992: bets $2.03
+yidasss: calls $2.03
+*** SHOW DOWN ***
+kole1992: shows [Kc 9c] (a straight, Seven to Jack)
+yidasss: mucks hand
+kole1992 collected $9.45 from pot
+*** SUMMARY ***
+Total pot $9.45 | Rake $0.47 
+Board [7s Th Ts 8c Jd]
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 (button) folded before Flop (didn't bet)
+Seat 3: Jaanu (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) showed [Kc 9c] and won ($9.45) with a straight, Seven to Jack
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: podjerrr folded before Flop (didn't bet)
+Seat 8: yidasss mucked
+
+
+Weplay Hand #76168761:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:06:40 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #3 is the button
+Seat 1: Domagoj87 ($92.98 in chips)
+Seat 2: markanen0 ($52.24 in chips)
+Seat 3: Jaanu ($14.34 in chips)
+Seat 4: kole1992 ($55.72 in chips)
+Seat 5: Nothingtown ($83.30 in chips)
+Seat 6: KratkiLucky ($53.40 in chips)
+Seat 7: podjerrr ($44.49 in chips)
+Seat 8: yidasss ($50 in chips)
+kole1992: posts small blind $0.25
+Nothingtown: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 5s]
+KratkiLucky has timed out
+KratkiLucky: folds
+podjerrr: raises $1.50 to $1.50
+yidasss: folds
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+Uncalled bet ($1) returned to podjerrr
+*** SHOW DOWN ***
+podjerrr has timed out
+podjerrr: doesn't show hand
+podjerrr collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: Nothingtown (big blind) folded before Flop 
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: podjerrr collected ($1.25)
+Seat 8: yidasss folded before Flop (didn't bet)
+
+
+Weplay Hand #76168775:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:07:20 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #4 is the button
+Seat 1: Domagoj87 ($92.98 in chips)
+Seat 2: markanen0 ($52.24 in chips)
+Seat 3: Jaanu ($14.34 in chips)
+Seat 4: kole1992 ($55.47 in chips)
+Seat 5: Nothingtown ($82.80 in chips)
+Seat 6: KratkiLucky ($53.40 in chips)
+Seat 7: podjerrr ($45.24 in chips)
+Seat 8: yidasss ($50 in chips)
+Nothingtown: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 9d]
+podjerrr: folds
+yidasss: folds
+Domagoj87: raises $1.25 to $1.25
+markanen0: calls $1.25
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: folds
+*** FLOP *** [7c 7d Jh]
+Domagoj87: checks
+markanen0: checks
+*** TURN *** [7c 7d Jh] [Kc]
+Domagoj87: checks
+markanen0: bets $1.62
+Domagoj87: calls $1.62
+*** RIVER *** [7c 7d Jh Kc] [6d]
+Domagoj87: checks
+markanen0: checks
+*** SHOW DOWN ***
+Domagoj87: shows [Kd 8d] (two pair, Kings and Sevens)
+markanen0 has timed out
+markanen0: mucks hand
+Domagoj87 collected $6.49 from pot
+*** SUMMARY ***
+Total pot $6.49 | Rake $0.32 
+Board [7c 7d Jh Kc 6d]
+Seat 1: Domagoj87 showed [Kd 8d] and won ($6.49) with two pair, Kings and Sevens
+Seat 2: markanen0 mucked
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Nothingtown (small blind) folded before Flop 
+Seat 6: KratkiLucky (big blind) folded before Flop 
+Seat 7: podjerrr folded before Flop (didn't bet)
+Seat 8: yidasss folded before Flop (didn't bet)
+
+
+Weplay Hand #76168802:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:08:19 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #5 is the button
+Seat 1: Domagoj87 ($96.28 in chips)
+Seat 2: markanen0 ($49.37 in chips)
+Seat 3: Jaanu ($14.34 in chips)
+Seat 4: kole1992 ($55.47 in chips)
+Seat 5: Nothingtown ($82.55 in chips)
+Seat 6: KratkiLucky ($52.90 in chips)
+Seat 7: podjerrr ($45.24 in chips)
+Seat 8: yidasss ($50 in chips)
+KratkiLucky: posts small blind $0.25
+podjerrr: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 3s]
+yidasss: calls $0.50
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: folds
+podjerrr: checks
+*** FLOP *** [9h 6d 6s]
+podjerrr: checks
+yidasss: checks
+*** TURN *** [9h 6d 6s] [Th]
+podjerrr: checks
+yidasss: checks
+*** RIVER *** [9h 6d 6s Th] [3c]
+podjerrr: checks
+yidasss: bets $0.50
+podjerrr: calls $0.50
+*** SHOW DOWN ***
+yidasss: shows [2s Qs] (a pair of Sixes)
+podjerrr: shows [5h Kd] (a pair of Sixes)
+podjerrr collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [9h 6d 6s Th 3c]
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown (button) folded before Flop (didn't bet)
+Seat 6: KratkiLucky (small blind) folded before Flop 
+Seat 7: podjerrr (big blind) showed [5h Kd] and won ($2.25) with a pair of Sixes
+Seat 8: yidasss showed [2s Qs] and lost with a pair of Sixes
+
+
+Weplay Hand #76168824:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:09:24 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #6 is the button
+Seat 1: Domagoj87 ($96.28 in chips)
+Seat 2: markanen0 ($49.37 in chips)
+Seat 3: Jaanu ($14.34 in chips)
+Seat 4: kole1992 ($55.47 in chips)
+Seat 5: Nothingtown ($82.55 in chips)
+Seat 6: KratkiLucky ($52.65 in chips)
+Seat 7: podjerrr ($46.38 in chips)
+Seat 8: yidasss ($50 in chips)
+podjerrr: posts small blind $0.25
+yidasss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 6d]
+Domagoj87: raises $1.25 to $1.25
+markanen0: folds
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: raises $3.75 to $3.75
+podjerrr: folds
+yidasss: raises $11 to $11.50
+Domagoj87: folds
+KratkiLucky: folds
+Uncalled bet ($7.75) returned to yidasss
+*** SHOW DOWN ***
+yidasss: doesn't show hand
+yidasss collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0 
+Seat 1: Domagoj87 folded before Flop 
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky (button) folded before Flop 
+Seat 7: podjerrr (small blind) folded before Flop 
+Seat 8: yidasss (big blind) collected ($9)
+
+
+Weplay Hand #76168838:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:10:07 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #7 is the button
+Seat 1: Domagoj87 ($95.03 in chips)
+Seat 2: markanen0 ($49.37 in chips)
+Seat 3: Jaanu ($14.34 in chips)
+Seat 4: kole1992 ($55.47 in chips)
+Seat 5: Nothingtown ($82.55 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($46.13 in chips)
+Seat 8: yidasss ($55.25 in chips)
+yidasss: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Jc]
+markanen0: folds
+Jaanu: calls $0.50
+kole1992: raises $1.50 to $1.50
+Nothingtown: folds
+KratkiLucky: folds
+podjerrr: folds
+yidasss: calls $1.25
+Domagoj87: folds
+Jaanu: raises $13.84 to $14.34 and is all-in
+kole1992: folds
+yidasss: calls $12.84
+*** FLOP *** [7d 4c Td]
+*** TURN *** [7d 4c Td] [4h]
+*** RIVER *** [7d 4c Td 4h] [6c]
+*** SHOW DOWN ***
+yidasss: shows [Js Jh] (two pair, Jacks and Fours)
+Jaanu: shows [Ac Ks] (a pair of Fours)
+podjerrr: shows [] (a pair of Fours)
+yidasss collected $30.68 from pot
+*** SUMMARY ***
+Total pot $30.68 | Rake $1.53 
+Board [7d 4c Td 4h 6c]
+Seat 1: Domagoj87 (big blind) folded before Flop 
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu showed [Ac Ks] and lost with a pair of Fours
+Seat 4: kole1992 folded before Flop 
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: podjerrr (button) folded before Flop (didn't bet)showed [Kh 9s] and lost with a pair of Fours
+Seat 8: yidasss (small blind) showed [Js Jh] and won ($30.68) with two pair, Jacks and Fours
+
+
+Weplay Hand #76168861:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:11:15 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #8 is the button
+Seat 1: Domagoj87 ($94.53 in chips)
+Seat 2: markanen0 ($49.37 in chips)
+Seat 4: kole1992 ($53.97 in chips)
+Seat 5: Nothingtown ($82.55 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($46.13 in chips)
+Seat 8: yidasss ($70.06 in chips)
+Domagoj87: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 8d]
+kole1992 has timed out
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: folds
+podjerrr: raises $1.50 to $1.50
+yidasss: calls $1.50
+Domagoj87: folds
+markanen0: folds
+*** FLOP *** [5c Ah 3s]
+podjerrr: bets $1.75
+yidasss: folds
+Uncalled bet ($1.75) returned to podjerrr
+*** SHOW DOWN ***
+podjerrr has timed out
+podjerrr: doesn't show hand
+podjerrr collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [5c Ah 3s]
+Seat 1: Domagoj87 (small blind) folded before Flop 
+Seat 2: markanen0 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: podjerrr collected ($3.75)
+Seat 8: yidasss (button) folded on the Flop 
+
+
+Weplay Hand #76168883:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:12:13 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #1 is the button
+Seat 1: Domagoj87 ($94.28 in chips)
+Seat 2: markanen0 ($48.87 in chips)
+Seat 3: Jaanu ($15 in chips)
+Seat 4: kole1992 ($53.97 in chips)
+Seat 5: Nothingtown ($82.55 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($48.20 in chips)
+Seat 8: yidasss ($68.56 in chips)
+markanen0: posts small blind $0.25
+Jaanu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 3d]
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: raises $1.25 to $1.25
+podjerrr: raises $5 to $5
+yidasss: folds
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+KratkiLucky: folds
+Uncalled bet ($3.75) returned to podjerrr
+*** SHOW DOWN ***
+podjerrr has timed out
+podjerrr: doesn't show hand
+podjerrr collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 2: markanen0 (small blind) folded before Flop 
+Seat 3: Jaanu (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop 
+Seat 7: podjerrr collected ($3.25)
+Seat 8: yidasss folded before Flop (didn't bet)
+
+
+Weplay Hand #76168891:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:12:40 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #2 is the button
+Seat 1: Domagoj87 ($94.28 in chips)
+Seat 2: markanen0 ($48.62 in chips)
+Seat 3: Jaanu ($14.50 in chips)
+Seat 4: kole1992 ($53.97 in chips)
+Seat 5: Nothingtown ($82.55 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($50.20 in chips)
+Seat 8: yidasss ($68.56 in chips)
+Jaanu: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Jh]
+Nothingtown: raises $1.25 to $1.25
+KratkiLucky: folds
+podjerrr: calls $1.25
+yidasss: folds
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992: calls $0.75
+*** FLOP *** [Qc Tc 7h]
+kole1992: checks
+Nothingtown: checks
+podjerrr: checks
+*** TURN *** [Qc Tc 7h] [4s]
+kole1992: checks
+Nothingtown: bets $2
+podjerrr: folds
+kole1992: calls $2
+*** RIVER *** [Qc Tc 7h 4s] [Jc]
+kole1992: checks
+Nothingtown: bets $8
+kole1992: folds
+Uncalled bet ($8) returned to Nothingtown
+*** SHOW DOWN ***
+Nothingtown: doesn't show hand
+Nothingtown collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [Qc Tc 7h 4s Jc]
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 (button) folded before Flop (didn't bet)
+Seat 3: Jaanu (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded on the River 
+Seat 5: Nothingtown collected ($8)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: podjerrr folded on the Turn 
+Seat 8: yidasss folded before Flop (didn't bet)
+
+
+Weplay Hand #76168927:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:14:31 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #3 is the button
+Seat 1: Domagoj87 ($94.28 in chips)
+Seat 2: markanen0 ($48.62 in chips)
+Seat 3: Jaanu ($14.25 in chips)
+Seat 4: kole1992 ($50.72 in chips)
+Seat 5: Nothingtown ($86.90 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($48.95 in chips)
+Seat 8: yidasss ($68.56 in chips)
+kole1992: posts small blind $0.25
+Nothingtown: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Kh]
+KratkiLucky: folds
+podjerrr: calls $0.50
+yidasss: folds
+Domagoj87: folds
+markanen0: raises $1 to $1
+Jaanu: folds
+kole1992: raises $4.75 to $5
+Nothingtown: folds
+podjerrr: calls $4.50
+markanen0: folds
+*** FLOP *** [6c 7c Ac]
+kole1992: checks
+podjerrr: checks
+*** TURN *** [6c 7c Ac] [2d]
+kole1992: bets $2.76
+podjerrr: calls $2.76
+*** RIVER *** [6c 7c Ac 2d] [5h]
+kole1992: bets $5.61
+podjerrr: folds
+Uncalled bet ($5.61) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $17.02 from pot
+*** SUMMARY ***
+Total pot $17.02 | Rake $0.85 
+Board [6c 7c Ac 2d 5h]
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 folded before Flop 
+Seat 3: Jaanu (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) collected ($17.02)
+Seat 5: Nothingtown (big blind) folded before Flop 
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: podjerrr folded on the River 
+Seat 8: yidasss folded before Flop (didn't bet)
+
+
+Weplay Hand #76168961:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:16:07 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #4 is the button
+Seat 1: Domagoj87 ($94.28 in chips)
+Seat 2: markanen0 ($47.62 in chips)
+Seat 3: Jaanu ($14.25 in chips)
+Seat 4: kole1992 ($59.13 in chips)
+Seat 5: Nothingtown ($86.40 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($41.19 in chips)
+Seat 8: yidasss ($68.56 in chips)
+Nothingtown: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 2d]
+podjerrr: calls $0.50
+yidasss: raises $2 to $2
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: folds
+podjerrr: calls $1.50
+*** FLOP *** [Qd 4c 9h]
+podjerrr: checks
+yidasss: bets $2
+podjerrr: folds
+Uncalled bet ($2) returned to yidasss
+*** SHOW DOWN ***
+yidasss: doesn't show hand
+yidasss collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [Qd 4c 9h]
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Nothingtown (small blind) folded before Flop 
+Seat 6: KratkiLucky (big blind) folded before Flop 
+Seat 7: podjerrr folded on the Flop 
+Seat 8: yidasss collected ($4.75)
+
+
+Weplay Hand #76168973:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:16:46 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #5 is the button
+Seat 1: Domagoj87 ($94.28 in chips)
+Seat 2: markanen0 ($47.62 in chips)
+Seat 3: Jaanu ($14.25 in chips)
+Seat 4: kole1992 ($59.13 in chips)
+Seat 5: Nothingtown ($86.15 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($39.19 in chips)
+Seat 8: yidasss ($71.08 in chips)
+KratkiLucky: posts small blind $0.25
+podjerrr: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h As]
+yidasss: folds
+Domagoj87: folds
+markanen0: folds
+Jaanu: folds
+kole1992 has timed out
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: folds
+Uncalled bet ($0.25) returned to podjerrr
+*** SHOW DOWN ***
+podjerrr has timed out
+podjerrr: doesn't show hand
+podjerrr collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Domagoj87 folded before Flop (didn't bet)
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown (button) folded before Flop (didn't bet)
+Seat 6: KratkiLucky (small blind) folded before Flop 
+Seat 7: podjerrr (big blind) collected ($0.50)
+Seat 8: yidasss folded before Flop (didn't bet)
+
+
+Weplay Hand #76168985:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:17:18 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #6 is the button
+Seat 1: Domagoj87 ($94.28 in chips)
+Seat 2: markanen0 ($47.62 in chips)
+Seat 3: Jaanu ($14.25 in chips)
+Seat 4: kole1992 ($59.13 in chips)
+Seat 5: Nothingtown ($86.15 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($39.44 in chips)
+Seat 8: yidasss ($71.08 in chips)
+podjerrr: posts small blind $0.25
+yidasss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Jc]
+Domagoj87: raises $1.25 to $1.25
+markanen0: folds
+Jaanu: folds
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: folds
+podjerrr: folds
+yidasss: calls $0.75
+*** FLOP *** [2s 8d 5c]
+yidasss: bets $1.38
+Domagoj87: folds
+Uncalled bet ($1.38) returned to yidasss
+*** SHOW DOWN ***
+yidasss: doesn't show hand
+yidasss collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [2s 8d 5c]
+Seat 1: Domagoj87 folded on the Flop 
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 7: podjerrr (small blind) folded before Flop 
+Seat 8: yidasss (big blind) collected ($2.75)
+
+
+Weplay Hand #76168998:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:17:54 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #7 is the button
+Seat 1: Domagoj87 ($93.03 in chips)
+Seat 2: markanen0 ($47.62 in chips)
+Seat 3: Jaanu ($14.25 in chips)
+Seat 4: kole1992 ($59.13 in chips)
+Seat 5: Nothingtown ($86.15 in chips)
+Seat 6: KratkiLucky ($50 in chips)
+Seat 7: podjerrr ($39.19 in chips)
+Seat 8: yidasss ($72.45 in chips)
+yidasss: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Js]
+markanen0: folds
+Jaanu: calls $0.50
+kole1992: folds
+Nothingtown: folds
+KratkiLucky: folds
+podjerrr: calls $0.50
+yidasss: calls $0.25
+Domagoj87: checks
+*** FLOP *** [4d 3s Tc]
+yidasss: checks
+Domagoj87: checks
+Jaanu: bets $2
+podjerrr: calls $2
+yidasss: calls $2
+KratkiLucky leaves the table
+JTs98o joins the table at seat #6
+Domagoj87: folds
+*** TURN *** [4d 3s Tc] [2c]
+yidasss: checks
+Jaanu: bets $11.75 and is all-in
+Domagoj87: sits out 
+podjerrr: calls $11.75
+yidasss: raises $69.95 to $69.95 and is all-in
+Domagoj87 leaves the table
+podjerrr: calls $24.94 and is all-in
+Uncalled bet ($33.26) returned to yidasss
+*** RIVER *** [4d 3s Tc 2c] [4s]
+*** SHOW DOWN ***
+antananarivo joins the table at seat #1
+yidasss: shows [5c Ac] (a straight, Ace to Five)
+Jaanu: shows [Ad As] (two pair, Aces and Fours)
+podjerrr: shows [6d 5h] (a straight, Deuce to Six)
+podjerrr collected $49.88 from side pot
+podjerrr collected $43.25 from main pot
+*** SUMMARY ***
+Total pot $93.13 Main pot $43.25. Side pot $49.88. | Rake $4 
+Board [4d 3s Tc 2c 4s]
+Seat 1: Domagoj87 (big blind) folded on the Flop 
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Jaanu showed [Ad As] and lost with two pair, Aces and Fours
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: podjerrr (button) showed [6d 5h] and won ($93.13) with a straight, Deuce to Six
+Seat 8: yidasss (small blind) showed [5c Ac] and lost with a straight, Ace to Five
+
+
+Weplay Hand #76169022:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:19:07 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #8 is the button
+Seat 2: markanen0 ($47.62 in chips)
+Seat 4: kole1992 ($59.13 in chips)
+Seat 5: Nothingtown ($86.15 in chips)
+Seat 6: JTs98o ($50 in chips)
+Seat 7: podjerrr ($89.13 in chips)
+Seat 8: yidasss ($50 in chips)
+markanen0: posts big blind $0.50
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 7s]
+Jaanu leaves the table
+Tone91 joins the table at seat #3
+kole1992 has timed out
+kole1992: folds
+Nothingtown: folds
+JTs98o: checks
+podjerrr: calls $0.50
+yidasss: raises $1.50 to $1.50
+markanen0: folds
+JTs98o: folds
+podjerrr: calls $1
+*** FLOP *** [8s 6s 9h]
+podjerrr: checks
+yidasss: bets $3
+podjerrr: folds
+Uncalled bet ($3) returned to yidasss
+*** SHOW DOWN ***
+yidasss: doesn't show hand
+yidasss collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [8s 6s 9h]
+Seat 2: markanen0 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: JTs98o (big blind) folded before Flop 
+Seat 7: podjerrr folded on the Flop 
+Seat 8: yidasss (button) collected ($4)
+
+
+Weplay Hand #76169035:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:19:59 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #1 is the button
+Seat 2: markanen0 ($47.12 in chips)
+Seat 3: Tone91 ($50 in chips)
+Seat 4: kole1992 ($59.13 in chips)
+Seat 5: Nothingtown ($86.15 in chips)
+Seat 6: JTs98o ($50 in chips)
+Seat 7: podjerrr ($87.63 in chips)
+Seat 8: yidasss ($52.30 in chips)
+markanen0: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Ks]
+kole1992: folds
+Nothingtown: folds
+JTs98o: folds
+podjerrr: folds
+yidasss: raises $1.75 to $1.75
+markanen0: folds
+Tone91: calls $1.25
+*** FLOP *** [7s 6h 7h]
+Tone91: checks
+yidasss: checks
+*** TURN *** [7s 6h 7h] [9c]
+Tone91: bets $2.51
+yidasss: folds
+Uncalled bet ($2.51) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [7s 6h 7h 9c]
+Seat 2: markanen0 (small blind) folded before Flop 
+Seat 3: Tone91 (big blind) collected ($3.75)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+Seat 7: podjerrr folded before Flop (didn't bet)
+Seat 8: yidasss folded on the Turn 
+
+
+Weplay Hand #76169056:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:21:17 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #2 is the button
+Seat 2: markanen0 ($46.87 in chips)
+Seat 3: Tone91 ($51.82 in chips)
+Seat 4: kole1992 ($59.13 in chips)
+Seat 5: Nothingtown ($86.15 in chips)
+Seat 6: JTs98o ($50 in chips)
+Seat 7: podjerrr ($87.63 in chips)
+Seat 8: yidasss ($50.55 in chips)
+Tone91: posts small blind $0.25
+JTs98o is disconnected 
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Jh]
+JTs98o is connected 
+Nothingtown: folds
+JTs98o: folds
+podjerrr: folds
+yidasss: raises $1 to $1
+markanen0: folds
+Tone91: folds
+kole1992: calls $0.50
+*** FLOP *** [8s 4s Kh]
+kole1992: checks
+yidasss: checks
+*** TURN *** [8s 4s Kh] [9s]
+JTs98o is disconnected 
+JTs98o is connected 
+kole1992: bets $0.75
+yidasss: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [8s 4s Kh 9s]
+Seat 2: markanen0 (button) folded before Flop (didn't bet)
+Seat 3: Tone91 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) collected ($2.25)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+Seat 7: podjerrr folded before Flop (didn't bet)
+Seat 8: yidasss folded on the Turn 
+
+
+Weplay Hand #76169076:  Hold'em No Limit ($0.25/$0.50) - 2026/02/19 10:22:16 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #3 is the button
+Seat 2: markanen0 ($46.87 in chips)
+Seat 3: Tone91 ($51.57 in chips)
+Seat 4: kole1992 ($60.27 in chips)
+Seat 5: Nothingtown ($86.15 in chips)
+Seat 6: JTs98o ($50 in chips)
+Seat 7: podjerrr ($87.63 in chips)
+Seat 8: yidasss ($50 in chips)
+kole1992: posts small blind $0.25
+Nothingtown: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 5d]
+JTs98o has timed out
+JTs98o: folds
+podjerrr: calls $0.50
+yidasss: folds
+markanen0: folds
+Tone91: folds
+kole1992: folds
+Nothingtown: checks
+*** FLOP *** [2h Qh 3h]
+Nothingtown: checks
+podjerrr: bets $0.50
+Nothingtown: calls $0.50
+*** TURN *** [2h Qh 3h] [7c]
+Nothingtown: checks
+podjerrr: bets $1
+Nothingtown: calls $1
+*** RIVER *** [2h Qh 3h 7c] [Ac]
+Nothingtown: checks
+podjerrr: bets $4.25
+Nothingtown: calls $4.25
+*** SHOW DOWN ***
+podjerrr: shows [Js 4s] (high card Ace)
+Nothingtown: shows [Qs 3d] (two pair, Queens and Threes)
+Nothingtown collected $12.75 from pot
+*** SUMMARY ***
+Total pot $12.75 | Rake $0.63 
+Board [2h Qh 3h 7c Ac]
+Seat 2: markanen0 folded before Flop (didn't bet)
+Seat 3: Tone91 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: Nothingtown (big blind) showed [Qs 3d] and won ($12.75) with two pair, Queens and Threes
+Seat 6: JTs98o folded before Flop (didn't bet)
+Seat 7: podjerrr showed [Js 4s] and lost with high card Ace
+Seat 8: yidasss folded before Flop (didn't bet)

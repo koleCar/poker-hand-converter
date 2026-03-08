@@ -1,0 +1,3136 @@
+﻿Weplay Hand #75288470:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:38:47 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: Dimling ($27.80 in chips)
+Seat 2: Hoku_Two ($109.56 in chips)
+Seat 4: rossi1616 ($50.44 in chips)
+Seat 5: Seigerud ($12.81 in chips)
+Seat 6: markanen0 ($47.85 in chips)
+Seat 7: vladimirche1 ($59.58 in chips)
+Seat 8: kole1992 ($50 in chips)
+vladimirche1: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 3d]
+Dimling: folds
+Hoku_Two: folds
+rossi1616: folds
+Seigerud: folds
+markanen0: raises $1.75 to $1.75
+Badbunny joins the table at seat #3
+vladimirche1: folds
+kole1992: folds
+Uncalled bet ($1.25) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Dimling folded before Flop (didn't bet)
+Seat 2: Hoku_Two folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Seigerud folded before Flop (didn't bet)
+Seat 6: markanen0 (button) collected ($1.25)
+Seat 7: vladimirche1 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75288501:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:39:35 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: Dimling ($27.80 in chips)
+Seat 2: Hoku_Two ($109.56 in chips)
+Seat 3: Badbunny ($22.37 in chips)
+Seat 4: rossi1616 ($50.44 in chips)
+Seat 5: Seigerud ($12.81 in chips)
+Seat 6: markanen0 ($48.60 in chips)
+Seat 7: vladimirche1 ($59.33 in chips)
+Seat 8: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+Dimling: posts big blind $0.50
+Badbunny: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 2c]
+Hoku_Two: folds
+Badbunny: checks
+rossi1616: folds
+Seigerud: calls $0.50
+markanen0: folds
+vladimirche1: raises $2.75 to $2.75
+kole1992: folds
+Dimling: folds
+Badbunny: calls $2.25
+Seigerud: folds
+*** FLOP *** [4h 6c Jd]
+Badbunny: checks
+vladimirche1: bets $3.37
+Badbunny: folds
+Uncalled bet ($3.37) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $6.75 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0.33 
+Board [4h 6c Jd]
+Seat 1: Dimling (big blind) folded before Flop 
+Seat 2: Hoku_Two folded before Flop (didn't bet)
+Seat 3: Badbunny (big blind) folded on the Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Seigerud folded before Flop 
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: vladimirche1 (button) collected ($6.75)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75288526:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:40:18 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: Dimling ($27.30 in chips)
+Seat 2: Hoku_Two ($109.56 in chips)
+Seat 3: Badbunny ($19.62 in chips)
+Seat 4: rossi1616 ($50.44 in chips)
+Seat 5: Seigerud ($12.31 in chips)
+Seat 6: markanen0 ($48.60 in chips)
+Seat 7: vladimirche1 ($63 in chips)
+Seat 8: kole1992 ($50 in chips)
+Dimling: posts small blind $0.25
+Hoku_Two: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Jc]
+Badbunny: calls $0.50
+rossi1616: folds
+Seigerud: calls $0.50
+markanen0: folds
+vladimirche1: folds
+Dimling is disconnected 
+Dimling is connected 
+kole1992: raises $2.75 to $2.75
+Dimling: folds
+Hoku_Two: folds
+Badbunny: calls $2.25
+Seigerud: calls $2.25
+*** FLOP *** [Qs 9h 5d]
+Badbunny: bets $2.50
+Seigerud: raises $9.56 to $9.56 and is all-in
+kole1992: raises $31.91 to $31.91
+Badbunny: folds
+Uncalled bet ($22.35) returned to kole1992
+*** TURN *** [Qs 9h 5d] [As]
+*** RIVER *** [Qs 9h 5d As] [Kd]
+*** SHOW DOWN ***
+Seigerud: shows [3s 3d] (a pair of Threes)
+kole1992: shows [Qh Jc] (a pair of Queens)
+kole1992 collected $30.62 from pot
+*** SUMMARY ***
+Total pot $30.62 | Rake $1.53 
+Board [Qs 9h 5d As Kd]
+Seat 1: Dimling (small blind) folded before Flop 
+Seat 2: Hoku_Two (big blind) folded before Flop 
+Seat 3: Badbunny folded on the Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Seigerud showed [3s 3d] and lost with a pair of Threes
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: vladimirche1 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) showed [Qh Jc] and won ($30.62) with a pair of Queens
+
+
+Weplay Hand #75288586:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:41:57 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: Dimling ($27.05 in chips)
+Seat 2: Hoku_Two ($109.06 in chips)
+Seat 3: Badbunny ($14.37 in chips)
+Seat 4: rossi1616 ($50.44 in chips)
+Seat 6: markanen0 ($48.60 in chips)
+Seat 7: vladimirche1 ($63 in chips)
+Seat 8: kole1992 ($66.78 in chips)
+Dimling: posts the ante $1.68
+Hoku_Two: posts the ante $1.68
+Badbunny: posts the ante $1.68
+rossi1616: posts the ante $1.68
+markanen0: posts the ante $1.68
+vladimirche1: posts the ante $1.68
+kole1992: posts the ante $1.68
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 9s]
+*** FLOP *** [9h Th Ah]
+Badbunny: bets $12.69 and is all-in
+rossi1616: folds
+markanen0: folds
+vladimirche1: folds
+kole1992: folds
+Dimling: calls $12.69
+Hoku_Two: folds
+*** TURN *** [9h Th Ah] [8h]
+*** RIVER *** [9h Th Ah 8h] [Jd]
+*** SHOW DOWN ***
+Badbunny: shows [Kc Ac] (a pair of Aces)
+Dimling: shows [8d Qh] (a flush, Ace high)
+Dimling collected $37.14 from pot
+*** SUMMARY ***
+Total pot $37.14 | Rake $1.85 
+Board [9h Th Ah 8h Jd]
+Seat 1: Dimling showed [8d Qh] and won ($37.14) with a flush, Ace high
+Seat 2: Hoku_Two (button) folded on the Flop 
+Seat 3: Badbunny showed [Kc Ac] and lost with a pair of Aces
+Seat 4: rossi1616 folded on the Flop 
+Seat 6: markanen0 folded on the Flop 
+Seat 7: vladimirche1 folded on the Flop 
+Seat 8: kole1992 folded on the Flop 
+
+
+Weplay Hand #75288615:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:42:53 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Dimling ($47.97 in chips)
+Seat 2: Hoku_Two ($107.38 in chips)
+Seat 4: rossi1616 ($50 in chips)
+Seat 6: markanen0 ($46.92 in chips)
+Seat 7: vladimirche1 ($61.32 in chips)
+Seat 8: kole1992 ($65.10 in chips)
+Hoku_Two: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Qs]
+Nitay44567 joins the table at seat #5
+markanen0: folds
+vladimirche1: folds
+kole1992: raises $1 to $1
+Badbunny is disconnected 
+Dimling has timed out
+Dimling: folds
+Hoku_Two: calls $0.75
+rossi1616: calls $0.50
+*** FLOP *** [6h Jh 5h]
+Hoku_Two: checks
+rossi1616: checks
+Dimling is disconnected 
+kole1992: checks
+*** TURN *** [6h Jh 5h] [4c]
+Hoku_Two: bets $1.58
+Dimling is connected 
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($1.58) returned to Hoku_Two
+*** SHOW DOWN ***
+Hoku_Two: doesn't show hand
+Hoku_Two collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [6h Jh 5h 4c]
+Seat 1: Dimling (button) folded before Flop (didn't bet)
+Seat 2: Hoku_Two (small blind) collected ($3)
+Seat 4: rossi1616 (big blind) folded on the Turn 
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: vladimirche1 folded before Flop (didn't bet)
+Seat 8: kole1992 folded on the Turn 
+
+
+Weplay Hand #75288656:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:44:08 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: Dimling ($47.97 in chips)
+Seat 2: Hoku_Two ($109.23 in chips)
+Seat 4: rossi1616 ($50 in chips)
+Seat 5: Nitay44567 ($15 in chips)
+Seat 6: markanen0 ($46.92 in chips)
+Seat 7: vladimirche1 ($61.32 in chips)
+Seat 8: kole1992 ($64.10 in chips)
+rossi1616: posts small blind $0.25
+Nitay44567: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 5d]
+markanen0: folds
+vladimirche1: folds
+kole1992: folds
+Badbunny leaves the table
+Dimling has timed out
+Dimling: folds
+Hoku_Two: raises $1.25 to $1.25
+rossi1616: folds
+Nitay44567: calls $0.75
+*** FLOP *** [Ac 4h 2d]
+Nitay44567: bets $0.50
+Hoku_Two: raises $2.38 to $2.38
+Nitay44567: folds
+Uncalled bet ($1.88) returned to Hoku_Two
+*** SHOW DOWN ***
+Hoku_Two: doesn't show hand
+Hoku_Two collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [Ac 4h 2d]
+Seat 1: Dimling folded before Flop (didn't bet)
+Seat 2: Hoku_Two (button) collected ($3.75)
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: Nitay44567 (big blind) folded on the Flop 
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: vladimirche1 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75288699:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:45:11 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: Dimling ($47.97 in chips)
+Seat 2: Hoku_Two ($111.05 in chips)
+Seat 4: rossi1616 ($50 in chips)
+Seat 5: Nitay44567 ($13.25 in chips)
+Seat 6: markanen0 ($46.92 in chips)
+Seat 7: vladimirche1 ($61.32 in chips)
+Seat 8: kole1992 ($64.10 in chips)
+Nitay44567: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 9c]
+vladimirche1: folds
+kole1992: raises $1.25 to $1.25
+Dimling: folds
+Hoku_Two: calls $1.25
+rossi1616: folds
+Nitay44567: folds
+markanen0: calls $0.75
+*** FLOP *** [Js As Kd]
+markanen0: checks
+Nitay44567 is disconnected 
+kole1992: checks
+Hoku_Two: checks
+*** TURN *** [Js As Kd] [Kh]
+markanen0: bets $2
+kole1992: calls $2
+Hoku_Two: folds
+*** RIVER *** [Js As Kd Kh] [6c]
+markanen0: bets $8
+kole1992: folds
+Uncalled bet ($8) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [Js As Kd Kh 6c]
+Seat 1: Dimling folded before Flop (didn't bet)
+Seat 2: Hoku_Two folded on the Turn 
+Seat 4: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: Nitay44567 (small blind) folded before Flop 
+Seat 6: markanen0 (big blind) collected ($8)
+Seat 7: vladimirche1 folded before Flop (didn't bet)
+Seat 8: kole1992 folded on the River 
+
+
+Weplay Hand #75288753:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:46:44 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: Dimling ($47.97 in chips)
+Seat 2: Hoku_Two ($109.80 in chips)
+Seat 4: rossi1616 ($50 in chips)
+Seat 5: Nitay44567 ($13 in chips)
+Seat 6: markanen0 ($51.27 in chips)
+Seat 7: vladimirche1 ($61.32 in chips)
+Seat 8: kole1992 ($60.85 in chips)
+markanen0: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Js]
+kole1992: folds
+Dimling: raises $2 to $2
+Hoku_Two: calls $2
+rossi1616: folds
+Nitay44567: folds
+markanen0: calls $1.75
+vladimirche1: calls $1.50
+*** FLOP *** [Jh Jc 9d]
+markanen0: checks
+vladimirche1: checks
+Dimling: bets $3
+Hoku_Two: calls $3
+markanen0: folds
+vladimirche1: folds
+*** TURN *** [Jh Jc 9d] [Kc]
+Dimling: bets $5
+Hoku_Two: calls $5
+*** RIVER *** [Jh Jc 9d Kc] [Qs]
+Dimling: checks
+Hoku_Two: checks
+*** SHOW DOWN ***
+Dimling: shows [Qc 3c] (two pair, Queens and Jacks)
+Hoku_Two: mucks hand
+Dimling collected $24 from pot
+*** SUMMARY ***
+Total pot $24 | Rake $1.20 
+Board [Jh Jc 9d Kc Qs]
+Seat 1: Dimling showed [Qc 3c] and won ($24) with two pair, Queens and Jacks
+Seat 2: Hoku_Two mucked
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Nitay44567 (button) folded before Flop (didn't bet)
+Seat 6: markanen0 (small blind) folded on the Flop 
+Seat 7: vladimirche1 (big blind) folded on the Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75288803:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:47:50 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: Dimling ($60.77 in chips)
+Seat 2: Hoku_Two ($99.80 in chips)
+Seat 4: rossi1616 ($50 in chips)
+Seat 5: Nitay44567 ($13 in chips)
+Seat 6: markanen0 ($49.27 in chips)
+Seat 7: vladimirche1 ($59.32 in chips)
+Seat 8: kole1992 ($60.85 in chips)
+vladimirche1: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Js]
+Dimling: calls $0.50
+Hoku_Two: raises $1.50 to $1.50
+rossi1616: folds
+Nitay44567: folds
+markanen0: folds
+vladimirche1: calls $1.25
+kole1992: folds
+Dimling: raises $2 to $2.50
+Hoku_Two: calls $1
+vladimirche1: calls $1
+*** FLOP *** [Qh 8d 3c]
+vladimirche1: checks
+Dimling: checks
+Hoku_Two: checks
+*** TURN *** [Qh 8d 3c] [6c]
+vladimirche1: bets $4
+Evan_JunY joins the table at seat #3
+Nitay44567 leaves the table
+Dimling: calls $4
+Hoku_Two: folds
+*** RIVER *** [Qh 8d 3c 6c] [3h]
+vladimirche1: checks
+Dimling: bets $6
+vladimirche1: calls $6
+*** SHOW DOWN ***
+Dimling: shows [Td Jc] (a pair of Threes)
+vladimirche1: shows [8s 5s] (two pair, Eights and Threes)
+vladimirche1 collected $28 from pot
+*** SUMMARY ***
+Total pot $28 | Rake $1.40 
+Board [Qh 8d 3c 6c 3h]
+Seat 1: Dimling showed [Td Jc] and lost with a pair of Threes
+Seat 2: Hoku_Two folded on the Turn 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Nitay44567 folded before Flop (didn't bet)
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: vladimirche1 (small blind) showed [8s 5s] and won ($28) with two pair, Eights and Threes
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75288854:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:49:23 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: Dimling ($48.27 in chips)
+Seat 2: Hoku_Two ($97.30 in chips)
+Seat 4: rossi1616 ($50 in chips)
+Seat 6: markanen0 ($49.27 in chips)
+Seat 7: vladimirche1 ($73.42 in chips)
+Seat 8: kole1992 ($60.35 in chips)
+kole1992: posts small blind $0.25
+Dimling: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Qd]
+Hoku_Two: raises $1.25 to $1.25
+rossi1616: folds
+markanen0: folds
+vladimirche1: folds
+kole1992: folds
+Dimling: calls $0.75
+*** FLOP *** [Ah Qs Js]
+Dimling: checks
+Nitay44567 joins the table at seat #5
+Hoku_Two: bets $2.06
+Dimling: calls $2.06
+*** TURN *** [Ah Qs Js] [4c]
+Dimling: checks
+Hoku_Two: bets $10
+Dimling: folds
+Uncalled bet ($10) returned to Hoku_Two
+*** SHOW DOWN ***
+Hoku_Two: doesn't show hand
+Hoku_Two collected $6.87 from pot
+*** SUMMARY ***
+Total pot $6.87 | Rake $0.34 
+Board [Ah Qs Js 4c]
+Seat 1: Dimling (big blind) folded on the Turn 
+Seat 2: Hoku_Two collected ($6.87)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: vladimirche1 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75288880:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:50:07 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Dimling ($44.96 in chips)
+Seat 2: Hoku_Two ($100.52 in chips)
+Seat 4: rossi1616 ($50 in chips)
+Seat 5: Nitay44567 ($15 in chips)
+Seat 6: markanen0 ($49.27 in chips)
+Seat 7: vladimirche1 ($73.42 in chips)
+Seat 8: kole1992 ($60.10 in chips)
+Dimling: posts the ante $1.86
+Hoku_Two: posts the ante $1.86
+rossi1616: posts the ante $1.86
+Nitay44567: posts the ante $1.86
+markanen0: posts the ante $1.86
+vladimirche1: posts the ante $1.86
+kole1992: posts the ante $1.86
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 6d]
+*** FLOP *** [7c 7s 3s]
+Hoku_Two: checks
+rossi1616: checks
+Nitay44567: bets $0.80
+markanen0: folds
+vladimirche1: folds
+kole1992: folds
+Dimling: raises $3 to $3
+Hoku_Two: folds
+rossi1616: folds
+Nitay44567: calls $2.20
+*** TURN *** [7c 7s 3s] [Qc]
+Nitay44567: bets $0.90
+Dimling: raises $5 to $5
+Nitay44567: calls $4.10
+*** RIVER *** [7c 7s 3s Qc] [5d]
+Nitay44567: bets $2.50
+Dimling: raises $35.10 to $35.10 and is all-in
+Nitay44567: calls $2.64 and is all-in
+Uncalled bet ($29.96) returned to Dimling
+*** SHOW DOWN ***
+Dimling: shows [5c 7h] (a full house, Sevens full of Fives)
+Nitay44567: shows [Qd Ks] (two pair, Queens and Sevens)
+Dimling collected $39.30 from pot
+*** SUMMARY ***
+Total pot $39.30 | Rake $1.96 
+Board [7c 7s 3s Qc 5d]
+Seat 1: Dimling (button) showed [5c 7h] and won ($39.30) with a full house, Sevens full of Fives
+Seat 2: Hoku_Two folded on the Flop 
+Seat 4: rossi1616 folded on the Flop 
+Seat 5: Nitay44567 showed [Qd Ks] and lost with two pair, Queens and Sevens
+Seat 6: markanen0 folded on the Flop 
+Seat 7: vladimirche1 folded on the Flop 
+Seat 8: kole1992 folded on the Flop 
+
+
+Weplay Hand #75288922:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:51:29 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: Dimling ($67.30 in chips)
+Seat 2: Hoku_Two ($98.66 in chips)
+Seat 4: rossi1616 ($50 in chips)
+Seat 6: markanen0 ($47.41 in chips)
+Seat 7: vladimirche1 ($71.56 in chips)
+Seat 8: kole1992 ($58.24 in chips)
+Dimling: posts small blind $0.25
+Hoku_Two: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 2c]
+rossi1616: raises $1.50 to $1.50
+markanen0: folds
+vladimirche1: folds
+kole1992: folds
+Dimling: calls $1.25
+Hoku_Two: folds
+*** FLOP *** [7c Td 5d]
+Dimling: bets $1.75
+rossi1616: raises $5.25 to $5.25
+Dimling: folds
+Uncalled bet ($3.50) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [7c Td 5d]
+Seat 1: Dimling (small blind) folded on the Flop 
+Seat 2: Hoku_Two (big blind) folded before Flop 
+Seat 4: rossi1616 collected ($7)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: vladimirche1 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75288956:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:52:22 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Dimling ($64.05 in chips)
+Seat 2: Hoku_Two ($98.16 in chips)
+Seat 3: Evan_JunY ($15 in chips)
+Seat 4: rossi1616 ($53.40 in chips)
+Seat 6: markanen0 ($47.41 in chips)
+Seat 7: vladimirche1 ($71.56 in chips)
+Seat 8: kole1992 ($58.24 in chips)
+Hoku_Two: posts small blind $0.25
+Evan_JunY: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Js]
+rossi1616 has timed out
+rossi1616: folds
+markanen0: folds
+vladimirche1: folds
+kole1992: raises $1 to $1
+Dimling: calls $1
+Hoku_Two: calls $0.75
+Evan_JunY: folds
+*** FLOP *** [Kh 9s 4s]
+Hoku_Two: checks
+kole1992: checks
+Dimling: bets $2
+Hoku_Two: folds
+Nitay44567 leaves the table
+kole1992: calls $2
+*** TURN *** [Kh 9s 4s] [2d]
+kole1992: checks
+Dimling: bets $3.50
+kole1992: folds
+Uncalled bet ($3.50) returned to Dimling
+*** SHOW DOWN ***
+Dimling has timed out
+Dimling: doesn't show hand
+Dimling collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [Kh 9s 4s 2d]
+Seat 1: Dimling (button) collected ($7.50)
+Seat 2: Hoku_Two (small blind) folded on the Flop 
+Seat 3: Evan_JunY (big blind) folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: vladimirche1 folded before Flop (didn't bet)
+Seat 8: kole1992 folded on the Turn 
+
+
+Weplay Hand #75289017:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:54:10 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: Dimling ($68.18 in chips)
+Seat 2: Hoku_Two ($97.16 in chips)
+Seat 3: Evan_JunY ($14.50 in chips)
+Seat 4: rossi1616 ($53.40 in chips)
+Seat 6: markanen0 ($47.41 in chips)
+Seat 7: vladimirche1 ($71.56 in chips)
+Seat 8: kole1992 ($55.24 in chips)
+Evan_JunY: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 8s]
+markanen0: folds
+vladimirche1: folds
+kole1992: folds
+Dimling: folds
+Hoku_Two: folds
+Evan_JunY: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Dimling folded before Flop (didn't bet)
+Seat 2: Hoku_Two (button) folded before Flop (didn't bet)
+Seat 3: Evan_JunY (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) collected ($0.50)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: vladimirche1 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75289035:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:54:43 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: Dimling ($68.18 in chips)
+Seat 2: Hoku_Two ($97.16 in chips)
+Seat 3: Evan_JunY ($14.25 in chips)
+Seat 4: rossi1616 ($53.65 in chips)
+Seat 6: markanen0 ($47.41 in chips)
+Seat 7: vladimirche1 ($71.56 in chips)
+Seat 8: kole1992 ($55.24 in chips)
+rossi1616: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Jh]
+vladimirche1: folds
+kole1992: folds
+Dimling is disconnected 
+Dimling has timed out while being disconnected
+Dimling: folds
+Dimling is connected 
+Hoku_Two: raises $1.25 to $1.25
+Evan_JunY: raises $4.09 to $4.09
+rossi1616: folds
+markanen0: folds
+Hoku_Two: calls $2.84
+*** FLOP *** [2s 5d Tc]
+Hoku_Two: checks
+Evan_JunY: bets $10.16 and is all-in
+Hoku_Two: folds
+Uncalled bet ($10.16) returned to Evan_JunY
+*** SHOW DOWN ***
+Evan_JunY: doesn't show hand
+Evan_JunY collected $8.93 from pot
+*** SUMMARY ***
+Total pot $8.93 | Rake $0.44 
+Board [2s 5d Tc]
+Seat 1: Dimling folded before Flop (didn't bet)
+Seat 2: Hoku_Two folded on the Flop 
+Seat 3: Evan_JunY (button) collected ($8.93)
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 6: markanen0 (big blind) folded before Flop 
+Seat 7: vladimirche1 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75318884:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:21:36 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($94.68 in chips)
+Seat 3: rossi1616 ($52.05 in chips)
+Seat 4: howoprime ($11.46 in chips)
+Seat 5: Casseta24 ($50 in chips)
+Seat 6: slagalica ($57.20 in chips)
+Seat 7: quiquepaz ($159.81 in chips)
+Seat 8: Meze188 ($51.69 in chips)
+Meze188: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 2s]
+rossi1616: raises $1.50 to $1.50
+SEJK718 leaves the table
+howoprime: calls $1.50
+KratkiLucky joins the table at seat #2
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+kole1992: folds
+*** FLOP *** [7d 8d Ac]
+rossi1616: checks
+howoprime: bets $0.50
+rossi1616: folds
+Uncalled bet ($0.50) returned to howoprime
+*** SHOW DOWN ***
+howoprime: doesn't show hand
+howoprime collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [7d 8d Ac]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 3: rossi1616 folded on the Flop 
+Seat 4: howoprime collected ($3.75)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz (button) folded before Flop (didn't bet)
+Seat 8: Meze188 (small blind) folded before Flop 
+
+
+Weplay Hand #75318919:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:22:14 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: kole1992 ($94.18 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50.55 in chips)
+Seat 4: howoprime ($13.53 in chips)
+Seat 5: Casseta24 ($50 in chips)
+Seat 6: slagalica ($57.20 in chips)
+Seat 7: quiquepaz ($159.81 in chips)
+Seat 8: Meze188 ($51.44 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 8s]
+rossi1616: raises $1.50 to $1.50
+howoprime: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: calls $1.50
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+*** FLOP *** [As 3d Ad]
+rossi1616: bets $2.50
+quiquepaz: calls $2.50
+*** TURN *** [As 3d Ad] [8d]
+rossi1616: checks
+quiquepaz: checks
+*** RIVER *** [As 3d Ad 8d] [5d]
+rossi1616: checks
+quiquepaz: checks
+*** SHOW DOWN ***
+rossi1616: shows [Jc Js] (two pair, Aces and Jacks)
+quiquepaz: shows [6c Ac] (three of a kind, Aces)
+quiquepaz collected $8.75 from pot
+*** SUMMARY ***
+Total pot $8.75 | Rake $0.43 
+Board [As 3d Ad 8d 5d]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: KratkiLucky (big blind) folded before Flop 
+Seat 3: rossi1616 showed [Jc Js] and lost with two pair, Aces and Jacks
+Seat 4: howoprime folded before Flop (didn't bet)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz showed [6c Ac] and won ($8.75) with three of a kind, Aces
+Seat 8: Meze188 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75318966:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:23:14 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($93.93 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: howoprime ($13.53 in chips)
+Seat 5: Casseta24 ($50 in chips)
+Seat 6: slagalica ($57.20 in chips)
+Seat 7: quiquepaz ($164.13 in chips)
+Seat 8: Meze188 ($51.44 in chips)
+KratkiLucky: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Kh]
+howoprime: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: calls $0.50
+Meze188: raises $2.50 to $2.50
+kole1992: calls $2.50
+KratkiLucky: folds
+rossi1616: folds
+quiquepaz: raises $12.50 to $13
+Meze188: folds
+kole1992: folds
+Uncalled bet ($10.50) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $8.25 from pot
+*** SUMMARY ***
+Total pot $8.25 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop 
+Seat 2: KratkiLucky (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: howoprime folded before Flop (didn't bet)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz collected ($8.25)
+Seat 8: Meze188 folded before Flop 
+
+
+Weplay Hand #75319009:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:24:03 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($91.43 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: howoprime ($13.53 in chips)
+Seat 5: Casseta24 ($50 in chips)
+Seat 6: slagalica ($57.20 in chips)
+Seat 7: quiquepaz ($169.88 in chips)
+Seat 8: Meze188 ($50 in chips)
+rossi1616: posts small blind $0.25
+howoprime: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 2c]
+Casseta24: folds
+slagalica: folds
+quiquepaz: raises $1 to $1
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+howoprime: calls $0.50
+*** FLOP *** [Qh 3h 8d]
+howoprime: checks
+quiquepaz: bets $1.69
+howoprime: calls $1.69
+*** TURN *** [Qh 3h 8d] [5h]
+howoprime: checks
+quiquepaz: checks
+*** RIVER *** [Qh 3h 8d 5h] [Kh]
+howoprime: checks
+quiquepaz: checks
+*** SHOW DOWN ***
+howoprime: shows [Kd Qd] (two pair, Kings and Queens)
+quiquepaz: mucks hand
+howoprime collected $5.63 from pot
+*** SUMMARY ***
+Total pot $5.63 | Rake $0.28 
+Board [Qh 3h 8d 5h Kh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: howoprime (big blind) showed [Kd Qd] and won ($5.63) with two pair, Kings and Queens
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz mucked
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75319062:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:25:07 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($91.43 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: howoprime ($16.19 in chips)
+Seat 5: Casseta24 ($50 in chips)
+Seat 6: slagalica ($57.20 in chips)
+Seat 7: quiquepaz ($167.19 in chips)
+Seat 8: Meze188 ($50 in chips)
+kole1992: posts the ante $2.41
+KratkiLucky: posts the ante $2.41
+rossi1616: posts the ante $2.41
+howoprime: posts the ante $2.41
+Casseta24: posts the ante $2.41
+slagalica: posts the ante $2.41
+quiquepaz: posts the ante $2.41
+Meze188: posts the ante $2.41
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Qd]
+*** FLOP *** [Qh Jh Ts]
+Casseta24: checks
+slagalica: checks
+quiquepaz: checks
+Meze188: checks
+kole1992: bets $1.75
+KratkiLucky has timed out
+KratkiLucky: folds
+KratkiLucky: sits out 
+rossi1616 has timed out
+rossi1616: folds
+rossi1616: sits out 
+howoprime: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: calls $1.75
+Meze188: folds
+*** TURN *** [Qh Jh Ts] [8h]
+quiquepaz: checks
+kole1992: checks
+*** RIVER *** [Qh Jh Ts 8h] [3h]
+quiquepaz: checks
+kole1992: bets $12.28
+quiquepaz: calls $12.28
+*** SHOW DOWN ***
+kole1992: shows [Kh Qd] (a flush, King high)
+quiquepaz: mucks hand
+kole1992 collected $47.34 from pot
+*** SUMMARY ***
+Total pot $47.34 | Rake $2.36 
+Board [Qh Jh Ts 8h 3h]
+Seat 1: kole1992 showed [Kh Qd] and won ($47.34) with a flush, King high
+Seat 2: KratkiLucky folded on the Flop 
+Seat 3: rossi1616 folded on the Flop 
+Seat 4: howoprime (button) folded on the Flop 
+Seat 5: Casseta24 folded on the Flop 
+Seat 6: slagalica folded on the Flop 
+Seat 7: quiquepaz mucked
+Seat 8: Meze188 folded on the Flop 
+
+
+Weplay Hand #75319157:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:27:02 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($119.97 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: howoprime ($13.78 in chips)
+Seat 5: Casseta24 ($50 in chips)
+Seat 6: slagalica ($54.79 in chips)
+Seat 7: quiquepaz ($150.75 in chips)
+Seat 8: Meze188 ($50 in chips)
+howoprime: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Ts]
+slagalica: folds
+quiquepaz: calls $0.50
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616 has timed out
+rossi1616: folds
+howoprime: folds
+Casseta24: checks
+*** FLOP *** [Ac 7d 3c]
+Casseta24: checks
+quiquepaz: checks
+*** TURN *** [Ac 7d 3c] [9c]
+Casseta24: checks
+quiquepaz: checks
+*** RIVER *** [Ac 7d 3c 9c] [8h]
+Casseta24: checks
+quiquepaz: checks
+*** SHOW DOWN ***
+Casseta24: shows [3d 2d] (a pair of Threes)
+quiquepaz: shows [Jh Jd] (a pair of Jacks)
+quiquepaz collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [Ac 7d 3c 9c 8h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: howoprime (small blind) folded before Flop 
+Seat 5: Casseta24 (big blind) showed [3d 2d] and lost with a pair of Threes
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz showed [Jh Jd] and won ($1.25) with a pair of Jacks
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75319225:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:28:23 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($119.97 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: howoprime ($13.53 in chips)
+Seat 5: Casseta24 ($50 in chips)
+Seat 6: slagalica ($54.79 in chips)
+Seat 7: quiquepaz ($151.44 in chips)
+Seat 8: Meze188 ($50 in chips)
+Casseta24: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 8h]
+quiquepaz: calls $0.50
+Meze188: folds
+kole1992: folds
+KratkiLucky: raises $2.25 to $2.25
+rossi1616: folds
+howoprime: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+Uncalled bet ($1.75) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky collected ($1.75)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: howoprime (button) folded before Flop (didn't bet)
+Seat 5: Casseta24 (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: quiquepaz folded before Flop 
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75319269:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:29:04 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($119.97 in chips)
+Seat 2: KratkiLucky ($51.25 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: howoprime ($13.53 in chips)
+Seat 5: Casseta24 ($50 in chips)
+Seat 6: slagalica ($54.29 in chips)
+Seat 7: quiquepaz ($150.94 in chips)
+Seat 8: Meze188 ($50 in chips)
+slagalica: posts small blind $0.25
+quiquepaz: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Th]
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+howoprime: folds
+Casseta24: folds
+slagalica: folds
+Uncalled bet ($0.25) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: howoprime folded before Flop (didn't bet)
+Seat 5: Casseta24 (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+Seat 7: quiquepaz (big blind) collected ($0.50)
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75319284:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:29:18 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($119.97 in chips)
+Seat 2: KratkiLucky ($51.25 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: howoprime ($13.53 in chips)
+Seat 5: Casseta24 ($50 in chips)
+Seat 6: slagalica ($54.04 in chips)
+Seat 7: quiquepaz ($151.19 in chips)
+Seat 8: Meze188 ($50 in chips)
+quiquepaz: posts small blind $0.25
+Meze188: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 3s]
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+howoprime: folds
+Casseta24: folds
+slagalica: raises $1.25 to $1.25
+quiquepaz: folds
+Meze188: folds
+Uncalled bet ($0.75) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: howoprime folded before Flop (didn't bet)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica (button) collected ($1.25)
+Seat 7: quiquepaz (small blind) folded before Flop 
+Seat 8: Meze188 (big blind) folded before Flop 
+
+
+Weplay Hand #75319304:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:29:42 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($119.97 in chips)
+Seat 2: KratkiLucky ($51.25 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: howoprime ($13.53 in chips)
+Seat 5: Casseta24 ($50 in chips)
+Seat 6: slagalica ($54.79 in chips)
+Seat 7: quiquepaz ($150.94 in chips)
+Seat 8: Meze188 ($50 in chips)
+Meze188: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 2d]
+KratkiLucky: folds
+rossi1616: folds
+howoprime: folds
+Casseta24: raises $1.50 to $1.50
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+kole1992: folds
+Uncalled bet ($1) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: howoprime folded before Flop (didn't bet)
+Seat 5: Casseta24 collected ($1.25)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz (button) folded before Flop (didn't bet)
+Seat 8: Meze188 (small blind) folded before Flop 
+
+
+Weplay Hand #75320328:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:30:10 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($119.47 in chips)
+Seat 2: KratkiLucky ($51.25 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: howoprime ($13.53 in chips)
+Seat 5: Casseta24 ($50.75 in chips)
+Seat 6: slagalica ($54.79 in chips)
+Seat 7: quiquepaz ($150.94 in chips)
+Seat 8: Meze188 ($50 in chips)
+kole1992: posts the ante $2.11
+KratkiLucky: posts the ante $2.11
+rossi1616: posts the ante $2.11
+howoprime: posts the ante $2.11
+Casseta24: posts the ante $2.11
+slagalica: posts the ante $2.11
+quiquepaz: posts the ante $2.11
+Meze188: posts the ante $2.11
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 7d]
+*** FLOP *** [Qh Ad 6c]
+rossi1616: checks
+howoprime: bets $11.42 and is all-in
+Casseta24: calls $11.42
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+*** TURN *** [Qh Ad 6c] [2s]
+*** RIVER *** [Qh Ad 6c 2s] [6s]
+*** SHOW DOWN ***
+howoprime: shows [4h Ac] (two pair, Aces and Sixes)
+Casseta24: shows [Kc Ah] (two pair, Aces and Sixes)
+Casseta24 collected $39.72 from pot
+*** SUMMARY ***
+Total pot $39.72 | Rake $1.98 
+Board [Qh Ad 6c 2s 6s]
+Seat 1: kole1992 folded on the Flop 
+Seat 2: KratkiLucky (button) folded on the Flop 
+Seat 3: rossi1616 folded on the Flop 
+Seat 4: howoprime showed [4h Ac] and lost with two pair, Aces and Sixes
+Seat 5: Casseta24 showed [Kc Ah] and won ($39.72) with two pair, Aces and Sixes
+Seat 6: slagalica folded on the Flop 
+Seat 7: quiquepaz folded on the Flop 
+Seat 8: Meze188 folded on the Flop 
+
+
+Weplay Hand #75320375:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:30:59 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: kole1992 ($117.36 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 5: Casseta24 ($74.96 in chips)
+Seat 6: slagalica ($52.68 in chips)
+Seat 7: quiquepaz ($148.83 in chips)
+Seat 8: Meze188 ($50 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 3s]
+howoprime leaves the table
+rossi1616: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: raises $1.25 to $1.25
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+Uncalled bet ($0.75) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: KratkiLucky (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz collected ($1.25)
+Seat 8: Meze188 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75320398:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:31:25 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($117.11 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 5: Casseta24 ($74.96 in chips)
+Seat 6: slagalica ($52.68 in chips)
+Seat 7: quiquepaz ($149.58 in chips)
+Seat 8: Meze188 ($50 in chips)
+KratkiLucky: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Ac]
+Casseta24: folds
+slagalica: raises $1.25 to $1.25
+quiquepaz: folds
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Uncalled bet ($0.75) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: KratkiLucky (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica collected ($1.25)
+Seat 7: quiquepaz folded before Flop (didn't bet)
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75320426:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:31:54 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($117.11 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 5: Casseta24 ($74.96 in chips)
+Seat 6: slagalica ($53.43 in chips)
+Seat 7: quiquepaz ($149.58 in chips)
+Seat 8: Meze188 ($50 in chips)
+rossi1616: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Qd]
+slagalica: folds
+quiquepaz: folds
+Meze188: raises $1.25 to $1.25
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Casseta24: folds
+Uncalled bet ($0.75) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 5: Casseta24 (big blind) folded before Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz folded before Flop (didn't bet)
+Seat 8: Meze188 collected ($1.25)
+
+
+Weplay Hand #75320450:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:32:20 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($117.11 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 5: Casseta24 ($74.46 in chips)
+Seat 6: slagalica ($53.43 in chips)
+Seat 7: quiquepaz ($149.58 in chips)
+Seat 8: Meze188 ($50.75 in chips)
+Casseta24: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 2h]
+quiquepaz: raises $1.50 to $1.50
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Casseta24: folds
+slagalica: folds
+Uncalled bet ($1) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: Casseta24 (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: quiquepaz collected ($1.25)
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75320465:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:32:40 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($117.11 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 5: Casseta24 ($74.21 in chips)
+Seat 6: slagalica ($52.93 in chips)
+Seat 7: quiquepaz ($150.33 in chips)
+Seat 8: Meze188 ($50.75 in chips)
+slagalica: posts small blind $0.25
+quiquepaz: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 4h]
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Casseta24: folds
+slagalica: folds
+Uncalled bet ($0.25) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: Casseta24 (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+Seat 7: quiquepaz (big blind) collected ($0.50)
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75320490:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:33:09 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($117.11 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 5: Casseta24 ($74.21 in chips)
+Seat 6: slagalica ($52.68 in chips)
+Seat 7: quiquepaz ($150.58 in chips)
+Seat 8: Meze188 ($50.75 in chips)
+quiquepaz: posts small blind $0.25
+Meze188: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 6c]
+kole1992: folds
+KratkiLucky: folds
+rossi1616: raises $1.75 to $1.75
+Casseta24: folds
+slagalica: folds
+quiquepaz: calls $1.50
+Meze188: folds
+*** FLOP *** [6s 8s 9h]
+quiquepaz: checks
+rossi1616: bets $3
+quiquepaz: calls $3
+*** TURN *** [6s 8s 9h] [9d]
+quiquepaz: checks
+rossi1616: bets $6.66
+quiquepaz: folds
+Uncalled bet ($6.66) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [6s 8s 9h 9d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 collected ($10)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 7: quiquepaz (small blind) folded on the Turn 
+Seat 8: Meze188 (big blind) folded before Flop 
+
+
+Weplay Hand #75320546:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:34:17 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($117.11 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($54.75 in chips)
+Seat 5: Casseta24 ($74.21 in chips)
+Seat 6: slagalica ($52.68 in chips)
+Seat 7: quiquepaz ($145.83 in chips)
+Seat 8: Meze188 ($50.25 in chips)
+kole1992: posts the ante $2.08
+KratkiLucky: posts the ante $2.08
+rossi1616: posts the ante $2.08
+Casseta24: posts the ante $2.08
+slagalica: posts the ante $2.08
+quiquepaz: posts the ante $2.08
+Meze188: posts the ante $2.08
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 2d]
+*** FLOP *** [5d Ac 5h]
+Casseta24: checks
+slagalica: checks
+quiquepaz: checks
+Meze188: checks
+kole1992: checks
+KratkiLucky has timed out
+KratkiLucky: checks
+rossi1616: checks
+*** TURN *** [5d Ac 5h] [7h]
+Casseta24: checks
+slagalica: checks
+quiquepaz: checks
+Meze188: bets $5.30
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Casseta24: calls $5.30
+slagalica: folds
+quiquepaz: folds
+*** RIVER *** [5d Ac 5h 7h] [7s]
+Casseta24: checks
+Meze188: checks
+*** SHOW DOWN ***
+Casseta24: shows [Ah 3c] (two pair, Aces and Sevens)
+Meze188: shows [Ks 5c] (a full house, Fives full of Sevens)
+Meze188 collected $25.16 from pot
+*** SUMMARY ***
+Total pot $25.16 | Rake $1.25 
+Board [5d Ac 5h 7h 7s]
+Seat 1: kole1992 folded on the Turn 
+Seat 2: KratkiLucky folded on the Turn 
+Seat 3: rossi1616 (button) folded on the Turn 
+Seat 5: Casseta24 showed [Ah 3c] and lost with two pair, Aces and Sevens
+Seat 6: slagalica folded on the Turn 
+Seat 7: quiquepaz folded on the Turn 
+Seat 8: Meze188 showed [Ks 5c] and won ($25.16) with a full house, Fives full of Sevens
+
+
+Weplay Hand #75320629:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:35:50 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($115.03 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($52.67 in chips)
+Seat 5: Casseta24 ($66.83 in chips)
+Seat 6: slagalica ($50.60 in chips)
+Seat 7: quiquepaz ($143.75 in chips)
+Seat 8: Meze188 ($66.78 in chips)
+Meze188: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 8d]
+KratkiLucky: folds
+rossi1616: folds
+Casseta24: raises $1.50 to $1.50
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+kole1992: folds
+Uncalled bet ($1) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: Casseta24 collected ($1.25)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz (button) folded before Flop (didn't bet)
+Seat 8: Meze188 (small blind) folded before Flop 
+
+
+Weplay Hand #75320647:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:36:12 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: kole1992 ($114.53 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($52.67 in chips)
+Seat 5: Casseta24 ($67.58 in chips)
+Seat 6: slagalica ($50.60 in chips)
+Seat 7: quiquepaz ($143.75 in chips)
+Seat 8: Meze188 ($66.53 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Td]
+rossi1616: raises $1.25 to $1.25
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+kole1992: raises $4.25 to $4.50
+KratkiLucky: folds
+rossi1616: folds
+Uncalled bet ($3.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: kole1992 (small blind) collected ($3)
+Seat 2: KratkiLucky (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop 
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz folded before Flop (didn't bet)
+Seat 8: Meze188 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75320692:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:36:55 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($116.28 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($51.42 in chips)
+Seat 5: Casseta24 ($67.58 in chips)
+Seat 6: slagalica ($50.60 in chips)
+Seat 7: quiquepaz ($143.75 in chips)
+Seat 8: Meze188 ($66.53 in chips)
+KratkiLucky: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 8c]
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+kole1992: raises $1.25 to $1.25
+KratkiLucky: folds
+rossi1616: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (button) collected ($1.25)
+Seat 2: KratkiLucky (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz folded before Flop (didn't bet)
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75320710:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:37:14 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($117.03 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50.92 in chips)
+Seat 5: Casseta24 ($67.58 in chips)
+Seat 6: slagalica ($50.60 in chips)
+Seat 7: quiquepaz ($143.75 in chips)
+Seat 8: Meze188 ($66.53 in chips)
+rossi1616: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 6d]
+slagalica: folds
+quiquepaz: raises $1 to $1
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Casseta24: calls $0.50
+*** FLOP *** [7s Kd Qc]
+Casseta24: checks
+quiquepaz: checks
+*** TURN *** [7s Kd Qc] [9c]
+Casseta24: checks
+quiquepaz: checks
+*** RIVER *** [7s Kd Qc 9c] [8s]
+Casseta24: checks
+quiquepaz: checks
+*** SHOW DOWN ***
+Casseta24: shows [2s 2d] (a pair of Deuces)
+quiquepaz: mucks hand
+Casseta24 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [7s Kd Qc 9c 8s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 5: Casseta24 (big blind) showed [2s 2d] and won ($2.25) with a pair of Deuces
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz mucked
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75320772:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:38:12 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($117.03 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50.67 in chips)
+Seat 5: Casseta24 ($68.72 in chips)
+Seat 6: slagalica ($50.60 in chips)
+Seat 7: quiquepaz ($142.75 in chips)
+Seat 8: Meze188 ($66.53 in chips)
+Casseta24: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Ad]
+quiquepaz: calls $0.50
+Meze188: folds
+kole1992: raises $1.75 to $1.75
+KratkiLucky: folds
+rossi1616: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+Uncalled bet ($1.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: kole1992 collected ($1.75)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: Casseta24 (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: quiquepaz folded before Flop 
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75320794:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:38:38 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($118.28 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50.67 in chips)
+Seat 5: Casseta24 ($68.47 in chips)
+Seat 6: slagalica ($50.10 in chips)
+Seat 7: quiquepaz ($142.25 in chips)
+Seat 8: Meze188 ($66.53 in chips)
+slagalica: posts small blind $0.25
+quiquepaz: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 5d]
+Meze188: folds
+kole1992: folds
+KratkiLucky: raises $1.25 to $1.25
+rossi1616: folds
+Casseta24: folds
+slagalica: calls $1
+quiquepaz: folds
+*** FLOP *** [Kc 2s 6d]
+slagalica: checks
+Evan_JunY joins the table at seat #4
+KratkiLucky: checks
+*** TURN *** [Kc 2s 6d] [5c]
+slagalica: bets $1.50
+KratkiLucky: folds
+Uncalled bet ($1.50) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Kc 2s 6d 5c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded on the Turn 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: Casseta24 (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) collected ($3)
+Seat 7: quiquepaz (big blind) folded before Flop 
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75320839:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:39:26 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($118.28 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50.67 in chips)
+Seat 5: Casseta24 ($68.47 in chips)
+Seat 6: slagalica ($51.70 in chips)
+Seat 7: quiquepaz ($141.75 in chips)
+Seat 8: Meze188 ($66.53 in chips)
+quiquepaz: posts small blind $0.25
+Meze188: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 4h]
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Casseta24: raises $1.50 to $1.50
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+Uncalled bet ($1) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: Casseta24 collected ($1.25)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 7: quiquepaz (small blind) folded before Flop 
+Seat 8: Meze188 (big blind) folded before Flop 
+
+
+Weplay Hand #75320854:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:39:49 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($118.28 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50.67 in chips)
+Seat 5: Casseta24 ($69.22 in chips)
+Seat 6: slagalica ($51.70 in chips)
+Seat 7: quiquepaz ($141.50 in chips)
+Seat 8: Meze188 ($66.03 in chips)
+Meze188: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 7h]
+KratkiLucky: folds
+rossi1616: raises $1.75 to $1.75
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+kole1992: folds
+Uncalled bet ($1.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 collected ($1.25)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz (button) folded before Flop (didn't bet)
+Seat 8: Meze188 (small blind) folded before Flop 
+
+
+Weplay Hand #75320901:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:40:36 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: kole1992 ($117.78 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($51.42 in chips)
+Seat 5: Casseta24 ($69.22 in chips)
+Seat 6: slagalica ($51.70 in chips)
+Seat 7: quiquepaz ($141.50 in chips)
+Seat 8: Meze188 ($65.78 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 2c]
+rossi1616: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+Meze188: raises $1.25 to $1.25
+kole1992: folds
+KratkiLucky: folds
+Uncalled bet ($0.75) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: KratkiLucky (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz folded before Flop (didn't bet)
+Seat 8: Meze188 (button) collected ($1.25)
+
+
+Weplay Hand #75320918:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:40:59 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($117.53 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 4: Evan_JunY ($15 in chips)
+Seat 5: Casseta24 ($69.22 in chips)
+Seat 6: slagalica ($51.70 in chips)
+Seat 7: quiquepaz ($141.50 in chips)
+Seat 8: Meze188 ($66.53 in chips)
+kole1992: posts the ante $1.91
+KratkiLucky: posts the ante $1.91
+Evan_JunY: posts the ante $1.91
+Casseta24: posts the ante $1.91
+slagalica: posts the ante $1.91
+quiquepaz: posts the ante $1.91
+Meze188: posts the ante $1.91
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Qc]
+*** FLOP *** [5d 9c 6s]
+KratkiLucky: checks
+Evan_JunY: checks
+Casseta24: checks
+slagalica: checks
+quiquepaz: checks
+Meze188: checks
+kole1992: checks
+*** TURN *** [5d 9c 6s] [9h]
+KratkiLucky: checks
+Evan_JunY: checks
+Casseta24: checks
+slagalica: checks
+quiquepaz: checks
+Meze188: checks
+kole1992: bets $6.77
+KratkiLucky: folds
+Evan_JunY: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+Uncalled bet ($6.77) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $13.37 from pot
+*** SUMMARY ***
+Total pot $13.37 | Rake $0.66 
+Board [5d 9c 6s 9h]
+Seat 1: kole1992 (button) collected ($13.37)
+Seat 2: KratkiLucky folded on the Turn 
+Seat 4: Evan_JunY folded on the Turn 
+Seat 5: Casseta24 folded on the Turn 
+Seat 6: slagalica folded on the Turn 
+Seat 7: quiquepaz folded on the Turn 
+Seat 8: Meze188 folded on the Turn 
+
+
+Weplay Hand #75321002:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:42:29 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($128.33 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 4: Evan_JunY ($13.09 in chips)
+Seat 5: Casseta24 ($67.31 in chips)
+Seat 6: slagalica ($49.79 in chips)
+Seat 7: quiquepaz ($139.59 in chips)
+Seat 8: Meze188 ($64.62 in chips)
+KratkiLucky: posts small blind $0.25
+Evan_JunY: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 8s]
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+kole1992: raises $1.25 to $1.25
+KratkiLucky: folds
+Evan_JunY: raises $12.59 to $13.09 and is all-in
+kole1992: folds
+Uncalled bet ($11.84) returned to Evan_JunY
+*** SHOW DOWN ***
+Evan_JunY: doesn't show hand
+Evan_JunY collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop 
+Seat 2: KratkiLucky (small blind) folded before Flop 
+Seat 4: Evan_JunY (big blind) collected ($2.75)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz folded before Flop (didn't bet)
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75321027:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:42:53 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($127.08 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 4: Evan_JunY ($14.59 in chips)
+Seat 5: Casseta24 ($67.31 in chips)
+Seat 6: slagalica ($49.79 in chips)
+Seat 7: quiquepaz ($139.59 in chips)
+Seat 8: Meze188 ($64.62 in chips)
+Evan_JunY: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 7c]
+slagalica: folds
+quiquepaz: folds
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+Evan_JunY: folds
+Uncalled bet ($0.25) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 4: Evan_JunY (small blind) folded before Flop 
+Seat 5: Casseta24 (big blind) collected ($0.50)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz folded before Flop (didn't bet)
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75321043:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:43:10 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($127.08 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 4: Evan_JunY ($14.34 in chips)
+Seat 5: Casseta24 ($67.56 in chips)
+Seat 6: slagalica ($49.79 in chips)
+Seat 7: quiquepaz ($139.59 in chips)
+Seat 8: Meze188 ($64.62 in chips)
+Casseta24: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 7h]
+quiquepaz: folds
+Meze188: raises $1.25 to $1.25
+kole1992: folds
+KratkiLucky: folds
+Evan_JunY: folds
+Casseta24: folds
+slagalica: folds
+Uncalled bet ($0.75) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Evan_JunY (button) folded before Flop (didn't bet)
+Seat 5: Casseta24 (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: quiquepaz folded before Flop (didn't bet)
+Seat 8: Meze188 collected ($1.25)
+
+
+Weplay Hand #75321063:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:43:37 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($127.08 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 4: Evan_JunY ($14.34 in chips)
+Seat 5: Casseta24 ($67.31 in chips)
+Seat 6: slagalica ($49.29 in chips)
+Seat 7: quiquepaz ($139.59 in chips)
+Seat 8: Meze188 ($65.37 in chips)
+slagalica: posts small blind $0.25
+quiquepaz: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Kh]
+Meze188: folds
+kole1992: folds
+KratkiLucky: folds
+Evan_JunY: folds
+Casseta24: folds
+slagalica: raises $1 to $1.25
+quiquepaz: calls $0.75
+*** FLOP *** [Jh Ad 7d]
+slagalica: checks
+quiquepaz: bets $0.50
+slagalica: folds
+Uncalled bet ($0.50) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Jh Ad 7d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Evan_JunY folded before Flop (didn't bet)
+Seat 5: Casseta24 (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded on the Flop 
+Seat 7: quiquepaz (big blind) collected ($2.50)
+Seat 8: Meze188 folded before Flop (didn't bet)
+
+
+Weplay Hand #75321092:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:44:01 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($127.08 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 4: Evan_JunY ($14.34 in chips)
+Seat 5: Casseta24 ($67.31 in chips)
+Seat 6: slagalica ($48.04 in chips)
+Seat 7: quiquepaz ($140.72 in chips)
+Seat 8: Meze188 ($65.37 in chips)
+quiquepaz: posts small blind $0.25
+Meze188: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 5s]
+kole1992: folds
+KratkiLucky: folds
+Evan_JunY: folds
+Casseta24: folds
+slagalica: raises $1.25 to $1.25
+quiquepaz: calls $1
+Meze188: folds
+*** FLOP *** [7c 5c 9c]
+quiquepaz: checks
+slagalica: bets $2.25
+quiquepaz: folds
+Uncalled bet ($2.25) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [7c 5c 9c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Evan_JunY folded before Flop (didn't bet)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica (button) collected ($3)
+Seat 7: quiquepaz (small blind) folded on the Flop 
+Seat 8: Meze188 (big blind) folded before Flop 
+
+
+Weplay Hand #75321135:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:44:39 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($127.08 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 4: Evan_JunY ($14.34 in chips)
+Seat 5: Casseta24 ($67.31 in chips)
+Seat 6: slagalica ($49.64 in chips)
+Seat 7: quiquepaz ($139.47 in chips)
+Seat 8: Meze188 ($64.87 in chips)
+Meze188: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Qc]
+KratkiLucky: folds
+Evan_JunY: folds
+Casseta24: folds
+slagalica: raises $1.25 to $1.25
+quiquepaz: folds
+Meze188: folds
+kole1992: calls $0.75
+*** FLOP *** [Ts 9d 4s]
+kole1992: checks
+slagalica: checks
+*** TURN *** [Ts 9d 4s] [8s]
+kole1992: checks
+slagalica: checks
+*** RIVER *** [Ts 9d 4s 8s] [Th]
+kole1992: checks
+slagalica: checks
+*** SHOW DOWN ***
+Meze188: sits out 
+kole1992: shows [Kh Qc] (a pair of Tens)
+slagalica: shows [Jh Ad] (a pair of Tens)
+slagalica collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Ts 9d 4s 8s Th]
+Seat 1: kole1992 (big blind) showed [Kh Qc] and lost with a pair of Tens
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Evan_JunY folded before Flop (didn't bet)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica showed [Jh Ad] and won ($2.75) with a pair of Tens
+Seat 7: quiquepaz (button) folded before Flop (didn't bet)
+Seat 8: Meze188 (small blind) folded before Flop 
+
+
+Weplay Hand #75321195:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:45:51 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: kole1992 ($125.83 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 4: Evan_JunY ($14.34 in chips)
+Seat 5: Casseta24 ($67.31 in chips)
+Seat 6: slagalica ($51.01 in chips)
+Seat 7: quiquepaz ($139.47 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 4d]
+Evan_JunY: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: KratkiLucky (big blind) collected ($0.50)
+Seat 4: Evan_JunY folded before Flop (didn't bet)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz folded before Flop (didn't bet)
+
+
+Weplay Hand #75321205:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:46:04 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($125.58 in chips)
+Seat 2: KratkiLucky ($50.25 in chips)
+Seat 4: Evan_JunY ($14.34 in chips)
+Seat 5: Casseta24 ($67.31 in chips)
+Seat 6: slagalica ($51.01 in chips)
+Seat 7: quiquepaz ($139.47 in chips)
+KratkiLucky: posts small blind $0.25
+Evan_JunY: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Qc]
+Casseta24: folds
+slagalica: raises $1.25 to $1.25
+quiquepaz: calls $1.25
+kole1992: folds
+KratkiLucky: folds
+Evan_JunY: folds
+*** FLOP *** [As Qs 3d]
+slagalica: checks
+quiquepaz: bets $0.50
+slagalica: folds
+Uncalled bet ($0.50) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [As Qs 3d]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: KratkiLucky (small blind) folded before Flop 
+Seat 4: Evan_JunY (big blind) folded before Flop 
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded on the Flop 
+Seat 7: quiquepaz collected ($3.25)
+
+
+Weplay Hand #75321234:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:46:41 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($125.58 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 4: Evan_JunY ($13.84 in chips)
+Seat 5: Casseta24 ($67.31 in chips)
+Seat 6: slagalica ($49.76 in chips)
+Seat 7: quiquepaz ($141.31 in chips)
+Evan_JunY: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 3s]
+slagalica: folds
+quiquepaz: raises $1.50 to $1.50
+kole1992: folds
+KratkiLucky: folds
+Meze188 leaves the table
+Evan_JunY: calls $1.25
+Casseta24: folds
+*** FLOP *** [Jd 7d Ks]
+Evan_JunY: bets $1.84
+quiquepaz: calls $1.84
+*** TURN *** [Jd 7d Ks] [9h]
+Evan_JunY: bets $10.50 and is all-in
+quiquepaz: folds
+Uncalled bet ($10.50) returned to Evan_JunY
+*** SHOW DOWN ***
+Evan_JunY: doesn't show hand
+Evan_JunY collected $7.18 from pot
+*** SUMMARY ***
+Total pot $7.18 | Rake $0.35 
+Board [Jd 7d Ks 9h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 4: Evan_JunY (small blind) collected ($7.18)
+Seat 5: Casseta24 (big blind) folded before Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz folded on the Turn 
+
+
+Weplay Hand #75321277:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:47:29 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($125.58 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($51.42 in chips)
+Seat 4: Evan_JunY ($17.33 in chips)
+Seat 5: Casseta24 ($66.81 in chips)
+Seat 6: slagalica ($49.76 in chips)
+Seat 7: quiquepaz ($137.97 in chips)
+kole1992: posts the ante $1.74
+KratkiLucky: posts the ante $1.74
+rossi1616: posts the ante $1.74
+Evan_JunY: posts the ante $1.74
+Casseta24: posts the ante $1.74
+slagalica: posts the ante $1.74
+quiquepaz: posts the ante $1.74
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Ts]
+*** FLOP *** [Th 4s 9d]
+kole1992: checks
+KratkiLucky: checks
+rossi1616: checks
+Evan_JunY: checks
+Casseta24 has timed out
+Casseta24: checks
+slagalica: checks
+quiquepaz: bets $3.50
+kole1992: calls $3.50
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: folds
+slagalica: folds
+*** TURN *** [Th 4s 9d] [Tc]
+kole1992: checks
+quiquepaz: bets $5.50
+kole1992: calls $5.50
+*** RIVER *** [Th 4s 9d Tc] [7c]
+kole1992: checks
+quiquepaz: checks
+*** SHOW DOWN ***
+kole1992: shows [Qh Ts] (three of a kind, Tens)
+quiquepaz: shows [Td Ks] (three of a kind, Tens)
+quiquepaz collected $30.18 from pot
+*** SUMMARY ***
+Total pot $30.18 | Rake $1.50 
+Board [Th 4s 9d Tc 7c]
+Seat 1: kole1992 showed [Qh Ts] and lost with three of a kind, Tens
+Seat 2: KratkiLucky folded on the Flop 
+Seat 3: rossi1616 folded on the Flop 
+Seat 4: Evan_JunY folded on the Flop 
+Seat 5: Casseta24 folded on the Flop 
+Seat 6: slagalica folded on the Flop 
+Seat 7: quiquepaz (button) showed [Td Ks] and won ($30.18) with three of a kind, Tens
+
+
+Weplay Hand #75322356:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:48:58 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($114.84 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($15.59 in chips)
+Seat 5: Casseta24 ($65.07 in chips)
+Seat 6: slagalica ($48.02 in chips)
+Seat 7: quiquepaz ($155.91 in chips)
+Casseta24: posts small blind $0.25
+slagalica: posts big blind $0.50
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Qc]
+quiquepaz: raises $1.75 to $1.75
+kole1992: raises $5.50 to $5.50
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: calls $3.75
+*** FLOP *** [5s As Ah]
+quiquepaz: checks
+kole1992: bets $4.04
+quiquepaz: folds
+Uncalled bet ($4.04) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12.25 from pot
+*** SUMMARY ***
+Total pot $12.25 | Rake $0.61 
+Board [5s As Ah]
+Seat 1: kole1992 collected ($12.25)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: Evan_JunY (button) folded before Flop (didn't bet)
+Seat 5: Casseta24 (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: quiquepaz folded on the Flop 
+
+
+Weplay Hand #75322402:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:49:50 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($120.98 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($15.59 in chips)
+Seat 5: Casseta24 ($64.82 in chips)
+Seat 6: slagalica ($47.52 in chips)
+Seat 7: quiquepaz ($150.41 in chips)
+slagalica: posts small blind $0.25
+quiquepaz: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Qs]
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: raises $1.59 to $1.59
+Casseta24: folds
+slagalica: folds
+quiquepaz: calls $1.09
+*** FLOP *** [Ac 9h 6d]
+quiquepaz: checks
+Evan_JunY: bets $1.13
+quiquepaz: folds
+Uncalled bet ($1.13) returned to Evan_JunY
+*** SHOW DOWN ***
+Evan_JunY: doesn't show hand
+Evan_JunY collected $3.43 from pot
+*** SUMMARY ***
+Total pot $3.43 | Rake $0.17 
+Board [Ac 9h 6d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Evan_JunY collected ($3.43)
+Seat 5: Casseta24 (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+Seat 7: quiquepaz (big blind) folded on the Flop 
+
+
+Weplay Hand #75322433:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:50:28 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($120.98 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($17.26 in chips)
+Seat 5: Casseta24 ($64.82 in chips)
+Seat 6: slagalica ($47.27 in chips)
+Seat 7: quiquepaz ($148.82 in chips)
+quiquepaz: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 4d]
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: folds
+slagalica: folds
+quiquepaz: raises $1.50 to $1.75
+MrHem joins the table at seat #8
+MrHem leaves the table
+kole1992: folds
+Uncalled bet ($1.25) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Evan_JunY folded before Flop (didn't bet)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 7: quiquepaz (small blind) collected ($1)
+
+
+Weplay Hand #75322463:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:51:02 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($120.48 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($17.26 in chips)
+Seat 5: Casseta24 ($64.82 in chips)
+Seat 6: slagalica ($47.27 in chips)
+Seat 7: quiquepaz ($149.32 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 2c]
+rossi1616: folds
+Evan_JunY: calls $0.50
+Casseta24: raises $2.50 to $2.50
+slagalica: folds
+quiquepaz: folds
+kole1992: folds
+KratkiLucky: folds
+Evan_JunY: calls $2
+*** FLOP *** [Ts 3d 7d]
+Evan_JunY: checks
+MrHem joins the table at seat #8
+Casseta24: bets $1.90
+Evan_JunY: calls $1.90
+*** TURN *** [Ts 3d 7d] [Ks]
+Evan_JunY: checks
+Casseta24: bets $14.35
+Evan_JunY: folds
+Uncalled bet ($14.35) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $9.55 from pot
+*** SUMMARY ***
+Total pot $9.55 | Rake $0.47 
+Board [Ts 3d 7d Ks]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: KratkiLucky (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Evan_JunY folded on the Turn 
+Seat 5: Casseta24 collected ($9.55)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75322494:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:51:43 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($120.23 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($12.86 in chips)
+Seat 5: Casseta24 ($69.50 in chips)
+Seat 6: slagalica ($47.27 in chips)
+Seat 7: quiquepaz ($149.32 in chips)
+KratkiLucky: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 3s]
+Evan_JunY: raises $1.50 to $1.50
+Casseta24: folds
+slagalica: folds
+quiquepaz: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Uncalled bet ($1) returned to Evan_JunY
+*** SHOW DOWN ***
+Evan_JunY: doesn't show hand
+Evan_JunY collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: KratkiLucky (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: Evan_JunY collected ($1.25)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz folded before Flop (didn't bet)
+
+
+Weplay Hand #75322504:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:51:58 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($120.23 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($13.61 in chips)
+Seat 5: Casseta24 ($69.50 in chips)
+Seat 6: slagalica ($47.27 in chips)
+Seat 7: quiquepaz ($149.32 in chips)
+Seat 8: MrHem ($50 in chips)
+kole1992: posts the ante $2.29
+KratkiLucky: posts the ante $2.29
+rossi1616: posts the ante $2.29
+Evan_JunY: posts the ante $2.29
+Casseta24: posts the ante $2.29
+slagalica: posts the ante $2.29
+quiquepaz: posts the ante $2.29
+MrHem: posts the ante $2.29
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 3s]
+*** FLOP *** [3h 7s 7c]
+Casseta24: checks
+slagalica: checks
+quiquepaz: checks
+MrHem: checks
+kole1992: checks
+KratkiLucky: checks
+rossi1616: checks
+Evan_JunY: checks
+*** TURN *** [3h 7s 7c] [2d]
+Casseta24: bets $9.15
+slagalica: folds
+quiquepaz: folds
+MrHem: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Uncalled bet ($9.15) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $18.32 from pot
+*** SUMMARY ***
+Total pot $18.32 | Rake $0.91 
+Board [3h 7s 7c 2d]
+Seat 1: kole1992 folded on the Turn 
+Seat 2: KratkiLucky folded on the Turn 
+Seat 3: rossi1616 folded on the Turn 
+Seat 4: Evan_JunY (button) folded on the Turn 
+Seat 5: Casseta24 collected ($18.32)
+Seat 6: slagalica folded on the Turn 
+Seat 7: quiquepaz folded on the Turn 
+Seat 8: MrHem folded on the Turn 
+
+
+Weplay Hand #75322567:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:53:18 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($117.94 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($11.32 in chips)
+Seat 5: Casseta24 ($84.62 in chips)
+Seat 6: slagalica ($44.98 in chips)
+Seat 7: quiquepaz ($147.03 in chips)
+Seat 8: MrHem ($47.71 in chips)
+rossi1616: posts small blind $0.25
+Evan_JunY: posts big blind $0.50
+MrHem: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 4h]
+Casseta24: folds
+slagalica: folds
+quiquepaz: calls $0.50
+MrHem: checks
+kole1992: folds
+KratkiLucky: folds
+rossi1616: raises $2.25 to $2.50
+Evan_JunY: calls $2
+quiquepaz: calls $2
+MrHem: folds
+*** FLOP *** [Ah 3d 3c]
+rossi1616: bets $6
+Evan_JunY: calls $6
+quiquepaz: folds
+*** TURN *** [Ah 3d 3c] [2d]
+rossi1616: bets $15
+Evan_JunY: calls $2.82 and is all-in
+Uncalled bet ($12.18) returned to rossi1616
+*** FIRST RIVER *** [Ah 3d 3c 2d] [Kc]
+*** SECOND RIVER *** [Ah 3d 3c 2d] [9s]
+*** SHOW DOWN ***
+rossi1616: shows [Js As] (two pair, Aces and Threes)
+Evan_JunY: shows [Ad Qh] (two pair, Aces and Threes)
+rossi1616 collected $6.41 from pot
+Evan_JunY collected $19.23 from pot
+*** SUMMARY ***
+Total pot $25.64 | Rake $1.28 
+Hand was run two times
+FIRST Board [Ah 3d 3c 2d Kc]
+SECOND Board [Ah 3d 3c 2d 9s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) showed [Js As] and won ($6.41) with two pair, Aces and Threes
+Seat 4: Evan_JunY (big blind) showed [Ad Qh] and won ($19.23) with two pair, Aces and Threes
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz folded on the Flop 
+Seat 8: MrHem (big blind) folded before Flop 
+
+
+Weplay Hand #75322631:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:54:39 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($117.94 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($18.27 in chips)
+Seat 5: Casseta24 ($84.62 in chips)
+Seat 6: slagalica ($44.98 in chips)
+Seat 7: quiquepaz ($144.53 in chips)
+Seat 8: MrHem ($47.21 in chips)
+Evan_JunY: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 9h]
+slagalica: folds
+quiquepaz: calls $0.50
+MrHem: folds
+kole1992 has timed out
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: checks
+*** FLOP *** [Qd Tc 5d]
+Casseta24: bets $0.50
+quiquepaz: raises $1.75 to $1.75
+Casseta24: folds
+Uncalled bet ($1.25) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [Qd Tc 5d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: Evan_JunY (small blind) folded before Flop 
+Seat 5: Casseta24 (big blind) folded on the Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: quiquepaz collected ($2.25)
+Seat 8: MrHem folded before Flop (didn't bet)
+
+
+Weplay Hand #75322664:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:55:46 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($117.94 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($18.02 in chips)
+Seat 5: Casseta24 ($83.62 in chips)
+Seat 6: slagalica ($44.98 in chips)
+Seat 7: quiquepaz ($145.67 in chips)
+Seat 8: MrHem ($47.21 in chips)
+Casseta24: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Ah]
+quiquepaz: folds
+MrHem: calls $0.50
+kole1992: folds
+KratkiLucky: raises $2.50 to $2.50
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: calls $2.25
+slagalica: calls $2
+MrHem: calls $2
+*** FLOP *** [Kh 7h 9c]
+Casseta24: checks
+slagalica: checks
+MrHem: checks
+KratkiLucky: checks
+*** TURN *** [Kh 7h 9c] [4d]
+Casseta24: checks
+slagalica: checks
+MrHem: bets $2
+KratkiLucky: folds
+Casseta24: folds
+slagalica: folds
+Uncalled bet ($2) returned to MrHem
+*** SHOW DOWN ***
+slagalica: sits out 
+MrHem has timed out
+MrHem: doesn't show hand
+MrHem collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [Kh 7h 9c 4d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded on the Turn 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Evan_JunY (button) folded before Flop (didn't bet)
+Seat 5: Casseta24 (small blind) folded on the Turn 
+Seat 6: slagalica (big blind) folded on the Turn 
+Seat 7: quiquepaz folded before Flop (didn't bet)
+Seat 8: MrHem collected ($10)
+
+
+Weplay Hand #75322704:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:57:36 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($117.94 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($18.02 in chips)
+Seat 5: Casseta24 ($81.12 in chips)
+Seat 7: quiquepaz ($145.67 in chips)
+Seat 8: MrHem ($54.21 in chips)
+quiquepaz: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 4d]
+MrHem: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: raises $1.50 to $1.50
+quiquepaz: folds
+Uncalled bet ($1) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Evan_JunY folded before Flop (didn't bet)
+Seat 5: Casseta24 (button) collected ($1)
+Seat 7: quiquepaz (big blind) folded before Flop 
+Seat 8: MrHem folded before Flop (didn't bet)
+
+
+Weplay Hand #75322715:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:58:09 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($117.94 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($18.02 in chips)
+Seat 5: Casseta24 ($81.62 in chips)
+Seat 7: quiquepaz ($145.17 in chips)
+Seat 8: MrHem ($54.21 in chips)
+kole1992: posts the ante $1.89
+KratkiLucky: posts the ante $1.89
+rossi1616: posts the ante $1.89
+Evan_JunY: posts the ante $1.89
+Casseta24: posts the ante $1.89
+quiquepaz: posts the ante $1.89
+MrHem: posts the ante $1.89
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 4c]
+*** FLOP *** [Jd Ks Td]
+rossi1616: checks
+Evan_JunY: checks
+Casseta24: checks
+quiquepaz: checks
+MrHem: checks
+kole1992: checks
+KratkiLucky: checks
+*** TURN *** [Jd Ks Td] [5d]
+rossi1616: checks
+Evan_JunY: checks
+Casseta24: checks
+quiquepaz: bets $8.82
+markezinjo joins the table at seat #6
+MrHem: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: folds
+Uncalled bet ($8.82) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $13.23 from pot
+*** SUMMARY ***
+Total pot $13.23 | Rake $0.66 
+Board [Jd Ks Td 5d]
+Seat 1: kole1992 folded on the Turn 
+Seat 2: KratkiLucky (button) folded on the Turn 
+Seat 3: rossi1616 folded on the Turn 
+Seat 4: Evan_JunY folded on the Turn 
+Seat 5: Casseta24 folded on the Turn 
+Seat 7: quiquepaz collected ($13.23)
+Seat 8: MrHem folded on the Turn 
+
+
+Weplay Hand #75322740:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 20:59:39 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($116.05 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($16.13 in chips)
+Seat 5: Casseta24 ($79.73 in chips)
+Seat 6: markezinjo ($50 in chips)
+Seat 7: quiquepaz ($155.85 in chips)
+Seat 8: MrHem ($52.32 in chips)
+quiquepaz: posts small blind $0.25
+MrHem: posts big blind $0.50
+markezinjo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Qc]
+kole1992: raises $1.60 to $1.60
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: calls $1.60
+markezinjo: folds
+quiquepaz: calls $1.35
+MrHem: folds
+*** FLOP *** [As Qs 8d]
+quiquepaz: bets $3.87
+kole1992: folds
+Casseta24: folds
+Uncalled bet ($3.87) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $5.80 from pot
+*** SUMMARY ***
+Total pot $5.80 | Rake $0.29 
+Board [As Qs 8d]
+Seat 1: kole1992 folded on the Flop 
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Evan_JunY folded before Flop (didn't bet)
+Seat 5: Casseta24 folded on the Flop 
+Seat 6: markezinjo (button) (big blind) folded before Flop 
+Seat 7: quiquepaz (small blind) collected ($5.80)
+Seat 8: MrHem (big blind) folded before Flop 
+
+
+Weplay Hand #75322767:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 21:00:51 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($114.45 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($16.13 in chips)
+Seat 5: Casseta24 ($78.13 in chips)
+Seat 6: markezinjo ($50 in chips)
+Seat 7: quiquepaz ($159.76 in chips)
+Seat 8: MrHem ($51.82 in chips)
+MrHem: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Td]
+KratkiLucky: folds
+rossi1616: raises $1.50 to $1.50
+Evan_JunY: raises $4.78 to $4.78
+Casseta24: folds
+markezinjo: folds
+quiquepaz: folds
+MrHem: folds
+kole1992: folds
+rossi1616: folds
+Uncalled bet ($3.28) returned to Evan_JunY
+*** SHOW DOWN ***
+Evan_JunY: doesn't show hand
+Evan_JunY collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop 
+Seat 4: Evan_JunY collected ($3.75)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: markezinjo folded before Flop (didn't bet)
+Seat 7: quiquepaz (button) folded before Flop (didn't bet)
+Seat 8: MrHem (small blind) folded before Flop 
+
+
+Weplay Hand #75322776:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 21:01:19 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: kole1992 ($113.95 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($18.38 in chips)
+Seat 5: Casseta24 ($78.13 in chips)
+Seat 6: markezinjo ($50 in chips)
+Seat 7: quiquepaz ($159.76 in chips)
+Seat 8: MrHem ($51.57 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Kd]
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: folds
+markezinjo: folds
+quiquepaz: raises $1.25 to $1.25
+MrHem: folds
+kole1992: raises $4.75 to $5
+KratkiLucky: folds
+quiquepaz: calls $3.75
+*** FLOP *** [4d Qh Ah]
+kole1992: bets $3.46
+quiquepaz: folds
+Uncalled bet ($3.46) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $10.50 from pot
+*** SUMMARY ***
+Total pot $10.50 | Rake $0.52 
+Board [4d Qh Ah]
+Seat 1: kole1992 (small blind) collected ($10.50)
+Seat 2: KratkiLucky (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Evan_JunY folded before Flop (didn't bet)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: markezinjo folded before Flop (didn't bet)
+Seat 7: quiquepaz folded on the Flop 
+Seat 8: MrHem (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75322822:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 21:02:15 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($118.93 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($18.38 in chips)
+Seat 5: Casseta24 ($78.13 in chips)
+Seat 6: markezinjo ($50 in chips)
+Seat 7: quiquepaz ($154.76 in chips)
+Seat 8: MrHem ($51.57 in chips)
+KratkiLucky: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 5d]
+Evan_JunY: calls $0.50
+Casseta24: folds
+markezinjo: folds
+quiquepaz: calls $0.50
+MrHem: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: raises $1 to $1.50
+Evan_JunY: calls $1
+quiquepaz: folds
+*** FLOP *** [6d Jh 7s]
+rossi1616: checks
+Evan_JunY: bets $1.24
+rossi1616: folds
+Uncalled bet ($1.24) returned to Evan_JunY
+*** SHOW DOWN ***
+Evan_JunY: doesn't show hand
+Evan_JunY collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [6d Jh 7s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: KratkiLucky (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded on the Flop 
+Seat 4: Evan_JunY collected ($3.75)
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: markezinjo folded before Flop (didn't bet)
+Seat 7: quiquepaz folded before Flop 
+Seat 8: MrHem folded before Flop (didn't bet)
+
+
+Weplay Hand #75322860:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 21:03:04 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($118.93 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($20.45 in chips)
+Seat 5: Casseta24 ($78.13 in chips)
+Seat 6: markezinjo ($50 in chips)
+Seat 7: quiquepaz ($154.26 in chips)
+Seat 8: MrHem ($51.57 in chips)
+rossi1616: posts small blind $0.25
+Evan_JunY: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 9c]
+Casseta24: folds
+markezinjo: raises $1.25 to $1.25
+quiquepaz: folds
+MrHem: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: calls $0.75
+*** FLOP *** [8c 8d 9s]
+Evan_JunY: checks
+markezinjo: bets $1.37
+Evan_JunY: calls $1.37
+*** TURN *** [8c 8d 9s] [Jh]
+Evan_JunY: checks
+markezinjo: bets $2.74
+Evan_JunY: folds
+Uncalled bet ($2.74) returned to markezinjo
+*** SHOW DOWN ***
+markezinjo has timed out
+markezinjo: doesn't show hand
+markezinjo collected $5.49 from pot
+*** SUMMARY ***
+Total pot $5.49 | Rake $0.27 
+Board [8c 8d 9s Jh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: Evan_JunY (big blind) folded on the Turn 
+Seat 5: Casseta24 folded before Flop (didn't bet)
+Seat 6: markezinjo collected ($5.49)
+Seat 7: quiquepaz folded before Flop (didn't bet)
+Seat 8: MrHem folded before Flop (didn't bet)
+
+
+Weplay Hand #75322904:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 21:04:03 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($118.93 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Evan_JunY ($17.83 in chips)
+Seat 5: Casseta24 ($78.13 in chips)
+Seat 6: markezinjo ($52.60 in chips)
+Seat 7: quiquepaz ($154.26 in chips)
+Seat 8: MrHem ($51.57 in chips)
+Evan_JunY: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Th]
+markezinjo: folds
+quiquepaz: calls $0.50
+MrHem: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: raises $1.50 to $1.50
+Evan_JunY: folds
+Casseta24: folds
+quiquepaz: raises $5.50 to $6
+rossi1616: calls $4.50
+*** FLOP *** [Js 6s 8h]
+quiquepaz: checks
+rossi1616: bets $8.50
+quiquepaz: calls $8.50
+*** TURN *** [Js 6s 8h] [5h]
+quiquepaz: checks
+rossi1616: bets $25
+quiquepaz: folds
+Uncalled bet ($25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $29.75 from pot
+*** SUMMARY ***
+Total pot $29.75 | Rake $1.48 
+Board [Js 6s 8h 5h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) collected ($29.75)
+Seat 4: Evan_JunY (small blind) folded before Flop 
+Seat 5: Casseta24 (big blind) folded before Flop 
+Seat 6: markezinjo folded before Flop (didn't bet)
+Seat 7: quiquepaz folded on the Turn 
+Seat 8: MrHem folded before Flop (didn't bet)
+
+
+Weplay Hand #75322953:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 21:05:15 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($118.93 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($63.77 in chips)
+Seat 4: Evan_JunY ($17.58 in chips)
+Seat 5: Casseta24 ($77.63 in chips)
+Seat 6: markezinjo ($52.60 in chips)
+Seat 7: quiquepaz ($139.76 in chips)
+Seat 8: MrHem ($51.57 in chips)
+Casseta24: posts small blind $0.25
+markezinjo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 3c]
+quiquepaz: raises $1.50 to $1.50
+MrHem: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: folds
+markezinjo: folds
+Uncalled bet ($1) returned to quiquepaz
+*** SHOW DOWN ***
+quiquepaz: doesn't show hand
+quiquepaz collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Evan_JunY (button) folded before Flop (didn't bet)
+Seat 5: Casseta24 (small blind) folded before Flop 
+Seat 6: markezinjo (big blind) folded before Flop 
+Seat 7: quiquepaz collected ($1.25)
+Seat 8: MrHem folded before Flop (didn't bet)
+
+
+Weplay Hand #75322979:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 21:05:41 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($118.93 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($63.77 in chips)
+Seat 4: Evan_JunY ($17.58 in chips)
+Seat 5: Casseta24 ($77.38 in chips)
+Seat 6: markezinjo ($52.10 in chips)
+Seat 7: quiquepaz ($140.51 in chips)
+Seat 8: MrHem ($51.57 in chips)
+kole1992: posts the ante $1.67
+KratkiLucky: posts the ante $1.67
+rossi1616: posts the ante $1.67
+Evan_JunY: posts the ante $1.67
+Casseta24: posts the ante $1.67
+markezinjo: posts the ante $1.67
+quiquepaz: posts the ante $1.67
+MrHem: posts the ante $1.67
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Th]
+*** FLOP *** [5h Kd 3c]
+markezinjo: bets $4.40
+quiquepaz: folds
+MrHem: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: calls $4.40
+*** TURN *** [5h Kd 3c] [7s]
+markezinjo: bets $8.09
+Casseta24: calls $8.09
+*** RIVER *** [5h Kd 3c 7s] [8s]
+markezinjo: bets $12.65
+Casseta24: folds
+Uncalled bet ($12.65) returned to markezinjo
+*** SHOW DOWN ***
+markezinjo has timed out
+markezinjo: doesn't show hand
+markezinjo collected $38.34 from pot
+*** SUMMARY ***
+Total pot $38.34 | Rake $1.91 
+Board [5h Kd 3c 7s 8s]
+Seat 1: kole1992 folded on the Flop 
+Seat 2: KratkiLucky folded on the Flop 
+Seat 3: rossi1616 folded on the Flop 
+Seat 4: Evan_JunY folded on the Flop 
+Seat 5: Casseta24 (button) folded on the River 
+Seat 6: markezinjo collected ($38.34)
+Seat 7: quiquepaz folded on the Flop 
+Seat 8: MrHem folded on the Flop 
+
+
+Weplay Hand #75323040:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 21:07:03 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($117.26 in chips)
+Seat 2: KratkiLucky ($50 in chips)
+Seat 3: rossi1616 ($62.10 in chips)
+Seat 4: Evan_JunY ($15.91 in chips)
+Seat 5: Casseta24 ($63.22 in chips)
+Seat 6: markezinjo ($74.37 in chips)
+Seat 7: quiquepaz ($138.84 in chips)
+Seat 8: MrHem ($49.90 in chips)
+markezinjo: posts small blind $0.25
+quiquepaz: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 9c]
+MrHem: folds
+kole1992: folds
+KratkiLucky: folds
+rossi1616: folds
+Evan_JunY: folds
+Casseta24: raises $1.25 to $1.25
+markezinjo: raises $5.25 to $5.50
+quiquepaz: folds
+Casseta24: folds
+Uncalled bet ($4.25) returned to markezinjo
+*** SHOW DOWN ***
+markezinjo has timed out
+markezinjo: doesn't show hand
+markezinjo collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: KratkiLucky folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Evan_JunY folded before Flop (didn't bet)
+Seat 5: Casseta24 (button) folded before Flop 
+Seat 6: markezinjo (small blind) collected ($3)
+Seat 7: quiquepaz (big blind) folded before Flop 
+Seat 8: MrHem folded before Flop (didn't bet)

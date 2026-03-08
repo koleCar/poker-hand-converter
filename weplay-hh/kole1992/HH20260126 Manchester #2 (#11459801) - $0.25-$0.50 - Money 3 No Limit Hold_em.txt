@@ -1,0 +1,1316 @@
+﻿Weplay Hand #73831141:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:50:14 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 2: BaronRojo ($49.61 in chips)
+Seat 3: Minihats ($58.50 in chips)
+Seat 4: ryzenn ($50 in chips)
+Seat 5: sadam ($50.45 in chips)
+Seat 6: Cona80 ($94.36 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($14.50 in chips)
+Cona80: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 9h]
+SEJK718: calls $0.50
+BaronRojo: calls $0.50
+Minihats: folds
+ryzenn: folds
+sadam: folds
+Cona80: raises $1.25 to $1.50
+kole1992: folds
+SEJK718: calls $1
+BaronRojo: calls $1
+*** FLOP *** [2h 7h Jd]
+Cona80: bets $1.65
+SEJK718: folds
+BaronRojo: calls $1.65
+*** TURN *** [2h 7h Jd] [2s]
+Cona80: bets $2.74
+BaronRojo: calls $2.74
+*** RIVER *** [2h 7h Jd 2s] [8c]
+Cona80: bets $10.34
+BaronRojo: calls $10.34
+*** SHOW DOWN ***
+Cona80: shows [Qs 8s] (two pair, Eights and Deuces)
+BaronRojo: shows [8h 7s] (two pair, Eights and Sevens)
+BaronRojo collected $34.46 from pot
+*** SUMMARY ***
+Total pot $34.46 | Rake $1.72 
+Board [2h 7h Jd 2s 8c]
+Seat 2: BaronRojo showed [8h 7s] and won ($34.46) with two pair, Eights and Sevens
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: ryzenn folded before Flop (didn't bet)
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: Cona80 (small blind) showed [Qs 8s] and lost with two pair, Eights and Deuces
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: SEJK718 folded on the Flop 
+
+
+Weplay Hand #73831186:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:51:34 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 2: BaronRojo ($66.12 in chips)
+Seat 3: Minihats ($58.50 in chips)
+Seat 4: ryzenn ($50 in chips)
+Seat 5: sadam ($50.45 in chips)
+Seat 6: Cona80 ($78.13 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($13 in chips)
+kole1992: posts small blind $0.25
+SEJK718: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9d]
+BaronRojo: folds
+Minihats: raises $1.25 to $1.25
+ryzenn: folds
+sadam: folds
+Cona80: raises $3 to $3
+kole1992: folds
+SEJK718: folds
+Minihats: calls $1.75
+*** FLOP *** [Qh Tc Td]
+Minihats: checks
+Cona80: bets $6.75
+Minihats: calls $6.75
+*** TURN *** [Qh Tc Td] [7c]
+Minihats: checks
+Cona80: bets $20.25
+Minihats: calls $20.25
+*** RIVER *** [Qh Tc Td 7c] [2d]
+Minihats: checks
+Cona80: checks
+*** SHOW DOWN ***
+Minihats: shows [Kc Qs] (two pair, Queens and Tens)
+Cona80 has timed out
+Cona80: mucks hand
+Minihats collected $60.75 from pot
+*** SUMMARY ***
+Total pot $60.75 | Rake $3.03 
+Board [Qh Tc Td 7c 2d]
+Seat 2: BaronRojo folded before Flop (didn't bet)
+Seat 3: Minihats showed [Kc Qs] and won ($60.75) with two pair, Queens and Tens
+Seat 4: ryzenn folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Cona80 (button) mucked
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: SEJK718 (big blind) folded before Flop 
+
+
+Weplay Hand #73831239:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:52:53 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 2: BaronRojo ($66.12 in chips)
+Seat 3: Minihats ($86.22 in chips)
+Seat 4: ryzenn ($50 in chips)
+Seat 5: sadam ($50.45 in chips)
+Seat 6: Cona80 ($48.13 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($12.50 in chips)
+SEJK718: posts small blind $0.25
+BaronRojo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 9d]
+Minihats: folds
+ryzenn: folds
+sadam: folds
+Cona80: raises $1.50 to $1.50
+kole1992: folds
+SEJK718: folds
+BaronRojo: calls $1
+*** FLOP *** [6d 3h 5d]
+BaronRojo: checks
+Cona80: bets $3.25
+BaronRojo: folds
+Uncalled bet ($3.25) returned to Cona80
+*** SHOW DOWN ***
+Cona80 has timed out
+Cona80: doesn't show hand
+Cona80 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [6d 3h 5d]
+Seat 2: BaronRojo (big blind) folded on the Flop 
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: ryzenn folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Cona80 collected ($3.25)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: SEJK718 (small blind) folded before Flop 
+
+
+Weplay Hand #73831262:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:53:27 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 2: BaronRojo ($64.62 in chips)
+Seat 3: Minihats ($86.22 in chips)
+Seat 4: ryzenn ($50 in chips)
+Seat 5: sadam ($50.45 in chips)
+Seat 6: Cona80 ($49.72 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($12.25 in chips)
+BaronRojo: posts small blind $0.25
+Minihats: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Th]
+ryzenn: raises $1.25 to $1.25
+sadam: folds
+Cona80: raises $2 to $2
+kole1992: raises $6 to $6
+SEJK718: folds
+BaronRojo: folds
+Minihats: calls $5.50
+ryzenn: folds
+Cona80: calls $4
+*** FLOP *** [3d Ks 5d]
+Minihats: checks
+Cona80: checks
+kole1992: checks
+*** TURN *** [3d Ks 5d] [6d]
+Minihats: bets $5.50
+Cona80: raises $15.57 to $15.57
+ryzenn leaves the table
+kole1992: folds
+Minihats: calls $10.07
+*** RIVER *** [3d Ks 5d 6d] [8h]
+Minihats: checks
+Cona80: checks
+*** SHOW DOWN ***
+Minihats: shows [Ad Jd] (a flush, Ace high)
+Cona80 has timed out
+Cona80: mucks hand
+Minihats collected $50.64 from pot
+*** SUMMARY ***
+Total pot $50.64 | Rake $2.53 
+Board [3d Ks 5d 6d 8h]
+Seat 2: BaronRojo (small blind) folded before Flop 
+Seat 3: Minihats (big blind) showed [Ad Jd] and won ($50.64) with a flush, Ace high
+Seat 4: ryzenn folded before Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Cona80 mucked
+Seat 7: kole1992 folded on the Turn 
+Seat 8: SEJK718 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73831311:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:54:53 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 2: BaronRojo ($64.37 in chips)
+Seat 3: Minihats ($112.76 in chips)
+Seat 5: sadam ($50.45 in chips)
+Seat 6: Cona80 ($28.15 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($12.25 in chips)
+Minihats: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 5c]
+pusszihunter joins the table at seat #4
+Cona80: folds
+kole1992: folds
+SEJK718: folds
+BaronRojo: folds
+Minihats: raises $1.25 to $1.50
+sadam: folds
+Uncalled bet ($1) returned to Minihats
+*** SHOW DOWN ***
+Minihats has timed out
+Minihats: doesn't show hand
+Minihats collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: BaronRojo (button) folded before Flop (didn't bet)
+Seat 3: Minihats (small blind) collected ($1)
+Seat 5: sadam (big blind) folded before Flop 
+Seat 6: Cona80 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 folded before Flop (didn't bet)
+
+
+Weplay Hand #73832322:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:55:20 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 2: BaronRojo ($64.37 in chips)
+Seat 3: Minihats ($113.26 in chips)
+Seat 5: sadam ($49.95 in chips)
+Seat 6: Cona80 ($28.15 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($12.25 in chips)
+sadam: posts small blind $0.25
+Cona80: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 3s]
+kole1992: folds
+SEJK718: calls $0.50
+BaronRojo: folds
+Minihats: raises $2 to $2
+sadam: folds
+Cona80: raises $6.50 to $7
+SEJK718: raises $11.75 to $12.25 and is all-in
+Minihats: folds
+Cona80: calls $5.25
+*** FLOP *** [Ks 2h Jc]
+*** TURN *** [Ks 2h Jc] [Qh]
+*** RIVER *** [Ks 2h Jc Qh] [Qc]
+*** SHOW DOWN ***
+Cona80: shows [Ts 8h] (a pair of Queens)
+SEJK718: shows [Kc As] (two pair, Kings and Queens)
+SEJK718 collected $26.75 from pot
+*** SUMMARY ***
+Total pot $26.75 | Rake $1.33 
+Board [Ks 2h Jc Qh Qc]
+Seat 2: BaronRojo folded before Flop (didn't bet)
+Seat 3: Minihats (button) folded before Flop 
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: Cona80 (big blind) showed [Ts 8h] and lost with a pair of Queens
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 showed [Kc As] and won ($26.75) with two pair, Kings and Queens
+
+
+Weplay Hand #73832333:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:56:00 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 2: BaronRojo ($64.37 in chips)
+Seat 3: Minihats ($111.26 in chips)
+Seat 4: pusszihunter ($35.50 in chips)
+Seat 5: sadam ($49.70 in chips)
+Seat 6: Cona80 ($15.90 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($25.42 in chips)
+Cona80: posts small blind $0.25
+kole1992: posts big blind $0.50
+pusszihunter: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Kc]
+SEJK718: calls $0.50
+BaronRojo: calls $0.50
+Minihats: folds
+pusszihunter: raises $0.50 to $1
+sadam: folds
+Cona80: raises $15.65 to $15.90 and is all-in
+kole1992: folds
+SEJK718: folds
+BaronRojo: folds
+pusszihunter: folds
+Uncalled bet ($14.90) returned to Cona80
+*** SHOW DOWN ***
+Cona80 has timed out
+Cona80: doesn't show hand
+Cona80 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 2: BaronRojo folded before Flop 
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter (big blind) folded before Flop 
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: Cona80 (small blind) collected ($3.50)
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: SEJK718 folded before Flop 
+
+
+Weplay Hand #73832341:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:56:32 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 2: BaronRojo ($63.87 in chips)
+Seat 3: Minihats ($111.26 in chips)
+Seat 4: pusszihunter ($34.50 in chips)
+Seat 5: sadam ($49.70 in chips)
+Seat 6: Cona80 ($18.40 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($24.92 in chips)
+kole1992: posts small blind $0.25
+SEJK718: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 7s]
+BaronRojo: folds
+Minihats: folds
+pusszihunter: raises $1 to $1
+sadam: folds
+Cona80: raises $4 to $4
+kole1992: folds
+SEJK718: folds
+pusszihunter: calls $3
+*** FLOP *** [3d 4c Qs]
+pusszihunter: checks
+Cona80: bets $14.40 and is all-in
+pusszihunter: folds
+Uncalled bet ($14.40) returned to Cona80
+*** SHOW DOWN ***
+Cona80 has timed out
+Cona80: doesn't show hand
+Cona80 collected $8.75 from pot
+*** SUMMARY ***
+Total pot $8.75 | Rake $0.43 
+Board [3d 4c Qs]
+Seat 2: BaronRojo folded before Flop (didn't bet)
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter folded on the Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Cona80 (button) collected ($8.75)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: SEJK718 (big blind) folded before Flop 
+
+
+Weplay Hand #73832353:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:57:07 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 2: BaronRojo ($63.87 in chips)
+Seat 3: Minihats ($111.26 in chips)
+Seat 4: pusszihunter ($30.50 in chips)
+Seat 5: sadam ($49.70 in chips)
+Seat 6: Cona80 ($22.72 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($24.42 in chips)
+SEJK718: posts small blind $0.25
+BaronRojo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 7h]
+Sukurrr leaves the table
+Minihats: raises $1.25 to $1.25
+Tone91 joins the table at seat #1
+pusszihunter: folds
+sadam: folds
+Cona80: raises $9 to $9
+kole1992: folds
+SEJK718: folds
+BaronRojo: folds
+Minihats: folds
+Uncalled bet ($7.75) returned to Cona80
+*** SHOW DOWN ***
+Cona80 has timed out
+Cona80: doesn't show hand
+Cona80 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 2: BaronRojo (big blind) folded before Flop 
+Seat 3: Minihats folded before Flop 
+Seat 4: pusszihunter folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Cona80 collected ($3.25)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: SEJK718 (small blind) folded before Flop 
+
+
+Weplay Hand #73832362:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:57:48 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 2: BaronRojo ($63.37 in chips)
+Seat 3: Minihats ($110.01 in chips)
+Seat 4: pusszihunter ($30.50 in chips)
+Seat 5: sadam ($49.70 in chips)
+Seat 6: Cona80 ($24.72 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($24.17 in chips)
+BaronRojo: posts small blind $0.25
+Minihats: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 2h]
+pusszihunter: calls $0.50
+sadam: folds
+Cona80: raises $5.50 to $5.50
+kole1992: folds
+SEJK718: folds
+BaronRojo: folds
+Minihats: raises $21.50 to $22
+pusszihunter: folds
+Cona80: calls $16.50
+*** FLOP *** [7d Ts Ah]
+Minihats: bets $3
+Cona80: calls $2.72 and is all-in
+Uncalled bet ($0.28) returned to Minihats
+*** TURN *** [7d Ts Ah] [7s]
+*** RIVER *** [7d Ts Ah 7s] [6c]
+*** SHOW DOWN ***
+Minihats: shows [Qd Ad] (two pair, Aces and Sevens)
+Cona80: shows [4c Ks] (a pair of Sevens)
+Minihats collected $50.19 from pot
+*** SUMMARY ***
+Total pot $50.19 | Rake $2.50 
+Board [7d Ts Ah 7s 6c]
+Seat 2: BaronRojo (small blind) folded before Flop 
+Seat 3: Minihats (big blind) showed [Qd Ad] and won ($50.19) with two pair, Aces and Sevens
+Seat 4: pusszihunter folded before Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Cona80 showed [4c Ks] and lost with a pair of Sevens
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73832374:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:58:28 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tone91 ($50 in chips)
+Seat 2: BaronRojo ($63.12 in chips)
+Seat 3: Minihats ($132.98 in chips)
+Seat 4: pusszihunter ($30 in chips)
+Seat 5: sadam ($49.70 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($24.17 in chips)
+Minihats: posts small blind $0.25
+pusszihunter: posts big blind $0.50
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 4c]
+sadam: folds
+kole1992: folds
+SEJK718: calls $0.50
+Cona80 leaves the table
+Tone91: checks
+BaronRojo: raises $2.50 to $2.50
+Minihats: raises $7.75 to $8
+pusszihunter: folds
+SEJK718: calls $7.50
+Tone91: folds
+BaronRojo: raises $21.50 to $24
+Minihats: folds
+SEJK718: calls $16
+*** FLOP *** [Jc 9c 4h]
+SEJK718: bets $0.17 and is all-in
+BaronRojo: calls $0.17
+*** FIRST TURN *** [Jc 9c 4h] [Jd]
+*** FIRST RIVER *** [Jc 9c 4h Jd] [Qc]
+*** SECOND TURN *** [Jc 9c 4h] [5s]
+*** SECOND RIVER *** [Jc 9c 4h 5s] [6c]
+*** SHOW DOWN ***
+SEJK718: shows [Qs Js] (a full house, Jacks full of Queens)
+BaronRojo: shows [Ad Ac] (two pair, Aces and Jacks)
+SEJK718 collected $28.67 from pot
+BaronRojo collected $28.67 from pot
+*** SUMMARY ***
+Total pot $57.34 | Rake $2.86 
+Hand was run two times
+FIRST Board [Jc 9c 4h Jd Qc]
+SECOND Board [Jc 9c 4h 5s 6c]
+Seat 1: Tone91 (big blind) folded before Flop 
+Seat 2: BaronRojo (button) showed [Ad Ac] and won ($28.67) with two pair, Aces and Jacks
+Seat 3: Minihats (small blind) folded before Flop 
+Seat 4: pusszihunter (big blind) folded before Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 showed [Qs Js] and won ($28.67) with a full house, Jacks full of Queens
+
+
+Weplay Hand #73832390:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:59:37 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tone91 ($50 in chips)
+Seat 2: BaronRojo ($66.19 in chips)
+Seat 3: Minihats ($124.98 in chips)
+Seat 4: pusszihunter ($29.50 in chips)
+Seat 5: sadam ($49.70 in chips)
+Seat 6: Cona80 ($50 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($27.24 in chips)
+Cona80 joins the table at seat #6
+pusszihunter: posts small blind $0.25
+sadam: posts big blind $0.50
+Cona80: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 4d]
+Cona80: raises $1 to $1.50
+kole1992: folds
+SEJK718: folds
+Tone91: folds
+BaronRojo: calls $1.50
+Minihats: folds
+pusszihunter: calls $1.25
+sadam: calls $1
+*** FLOP *** [7c Jc 3h]
+pusszihunter: bets $1.50
+kole1992 is disconnected 
+sadam: folds
+kole1992 is connected 
+Cona80: raises $10.50 to $10.50
+BaronRojo: folds
+pusszihunter: folds
+Uncalled bet ($9) returned to Cona80
+*** SHOW DOWN ***
+Cona80 has timed out
+Cona80: doesn't show hand
+Cona80 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [7c Jc 3h]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: BaronRojo folded on the Flop 
+Seat 3: Minihats (button) folded before Flop (didn't bet)
+Seat 4: pusszihunter (small blind) folded on the Flop 
+Seat 5: sadam (big blind) folded on the Flop 
+Seat 6: Cona80 (big blind) collected ($9)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 folded before Flop (didn't bet)
+
+
+Weplay Hand #73832412:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:00:30 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tone91 ($50 in chips)
+Seat 2: BaronRojo ($64.69 in chips)
+Seat 3: Minihats ($124.98 in chips)
+Seat 4: pusszihunter ($26.50 in chips)
+Seat 5: sadam ($48.20 in chips)
+Seat 6: Cona80 ($55.55 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($27.24 in chips)
+sadam: posts small blind $0.25
+Cona80: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 2h]
+kole1992: folds
+SEJK718: calls $0.50
+Tone91: raises $2 to $2
+BaronRojo: folds
+Minihats: folds
+pusszihunter: folds
+sadam: folds
+Cona80: calls $1.50
+SEJK718: calls $1.50
+*** FLOP *** [9s 8h Ah]
+Cona80: checks
+SEJK718: checks
+Tone91: bets $4.70
+Cona80: folds
+SEJK718: folds
+Uncalled bet ($4.70) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $6.25 from pot
+*** SUMMARY ***
+Total pot $6.25 | Rake $0.31 
+Board [9s 8h Ah]
+Seat 1: Tone91 collected ($6.25)
+Seat 2: BaronRojo folded before Flop (didn't bet)
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter (button) folded before Flop (didn't bet)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: Cona80 (big blind) folded on the Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 folded on the Flop 
+
+
+Weplay Hand #73832441:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:01:13 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tone91 ($53.94 in chips)
+Seat 2: BaronRojo ($64.69 in chips)
+Seat 3: Minihats ($124.98 in chips)
+Seat 4: pusszihunter ($26.50 in chips)
+Seat 5: sadam ($47.95 in chips)
+Seat 6: Cona80 ($53.55 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($25.24 in chips)
+Cona80: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 9h]
+SEJK718: calls $0.50
+Tone91: folds
+BaronRojo: calls $0.50
+Minihats: folds
+pusszihunter: calls $0.50
+sadam: folds
+Cona80: raises $5.75 to $6
+kole1992: folds
+SEJK718: calls $5.50
+BaronRojo: folds
+pusszihunter: folds
+*** FLOP *** [Kd 9s Qc]
+Cona80: checks
+SEJK718: checks
+*** TURN *** [Kd 9s Qc] [Jh]
+Cona80: bets $13.50
+SEJK718: raises $19.24 to $19.24 and is all-in
+Cona80: calls $5.74
+*** RIVER *** [Kd 9s Qc Jh] [Kh]
+*** SHOW DOWN ***
+Cona80: shows [Ah Ac] (two pair, Aces and Kings)
+SEJK718: shows [Kc 9c] (a full house, Kings full of Nines)
+SEJK718 collected $51.98 from pot
+*** SUMMARY ***
+Total pot $51.98 | Rake $2.59 
+Board [Kd 9s Qc Jh Kh]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: BaronRojo folded before Flop 
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter folded before Flop 
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: Cona80 (small blind) showed [Ah Ac] and lost with two pair, Aces and Kings
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: SEJK718 showed [Kc 9c] and won ($51.98) with a full house, Kings full of Nines
+
+
+Weplay Hand #73832479:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:02:16 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tone91 ($53.94 in chips)
+Seat 2: BaronRojo ($64.19 in chips)
+Seat 3: Minihats ($124.98 in chips)
+Seat 4: pusszihunter ($26 in chips)
+Seat 5: sadam ($47.95 in chips)
+Seat 6: Cona80 ($28.31 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($49.39 in chips)
+kole1992: posts small blind $0.25
+SEJK718: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 6s]
+Tone91: folds
+BaronRojo: raises $1.50 to $1.50
+Minihats: folds
+pusszihunter: folds
+sadam: folds
+Cona80: raises $8 to $8
+kole1992: folds
+SEJK718: folds
+BaronRojo: raises $62.69 to $64.19 and is all-in
+Cona80: calls $20.31 and is all-in
+Uncalled bet ($35.88) returned to BaronRojo
+*** FLOP *** [8d 6d 7s]
+*** TURN *** [8d 6d 7s] [6c]
+*** RIVER *** [8d 6d 7s 6c] [4c]
+*** SHOW DOWN ***
+BaronRojo: shows [Qd Ac] (a pair of Sixes)
+Cona80: shows [Qc Jd] (a pair of Sixes)
+BaronRojo collected $57.37 from pot
+*** SUMMARY ***
+Total pot $57.37 | Rake $2.86 
+Board [8d 6d 7s 6c 4c]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: BaronRojo showed [Qd Ac] and won ($57.37) with a pair of Sixes
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Cona80 (button) showed [Qc Jd] and lost with a pair of Sixes
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: SEJK718 (big blind) folded before Flop 
+
+
+Weplay Hand #73832511:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:02:57 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tone91 ($53.94 in chips)
+Seat 2: BaronRojo ($90.39 in chips)
+Seat 3: Minihats ($124.98 in chips)
+Seat 4: pusszihunter ($26 in chips)
+Seat 5: sadam ($47.95 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($48.89 in chips)
+SEJK718: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 4s]
+BaronRojo: folds
+Minihats: folds
+pusszihunter: raises $1 to $1
+sadam: folds
+kole1992: folds
+SEJK718: folds
+Tone91: folds
+Uncalled bet ($0.50) returned to pusszihunter
+*** SHOW DOWN ***
+pusszihunter: doesn't show hand
+pusszihunter collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Tone91 (big blind) folded before Flop 
+Seat 2: BaronRojo folded before Flop (didn't bet)
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter collected ($1.25)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: SEJK718 (small blind) folded before Flop 
+
+
+Weplay Hand #73832529:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:03:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tone91 ($53.44 in chips)
+Seat 2: BaronRojo ($90.39 in chips)
+Seat 3: Minihats ($124.98 in chips)
+Seat 4: pusszihunter ($26.75 in chips)
+Seat 5: sadam ($47.95 in chips)
+Seat 6: Cona80 ($31.70 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($48.64 in chips)
+Tone91: posts small blind $0.25
+BaronRojo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Ts]
+Minihats: folds
+pusszihunter: calls $0.50
+sadam: folds
+Cona80: raises $5 to $5
+kole1992: folds
+SEJK718: folds
+Tone91: folds
+BaronRojo: folds
+pusszihunter: calls $4.50
+*** FLOP *** [As Jh 5c]
+pusszihunter: checks
+Cona80: bets $10.75
+pusszihunter: raises $21.75 to $21.75 and is all-in
+Cona80: calls $11
+*** TURN *** [As Jh 5c] [8h]
+*** RIVER *** [As Jh 5c 8h] [Ad]
+*** SHOW DOWN ***
+pusszihunter: shows [Jc 8s] (two pair, Aces and Jacks)
+Cona80: shows [Tc 6h] (a pair of Aces)
+pusszihunter collected $54.25 from pot
+*** SUMMARY ***
+Total pot $54.25 | Rake $2.71 
+Board [As Jh 5c 8h Ad]
+Seat 1: Tone91 (small blind) folded before Flop 
+Seat 2: BaronRojo (big blind) folded before Flop 
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter showed [Jc 8s] and won ($54.25) with two pair, Aces and Jacks
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Cona80 showed [Tc 6h] and lost with a pair of Aces
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73832575:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:04:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tone91 ($53.19 in chips)
+Seat 2: BaronRojo ($89.89 in chips)
+Seat 3: Minihats ($124.98 in chips)
+Seat 4: pusszihunter ($51.54 in chips)
+Seat 5: sadam ($47.95 in chips)
+Seat 6: Cona80 ($4.95 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($48.64 in chips)
+BaronRojo: posts small blind $0.25
+Minihats: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Th]
+pusszihunter: raises $5 to $5
+sadam: folds
+Cona80: calls $4.95 and is all-in
+kole1992: folds
+SEJK718: folds
+Tone91: folds
+BaronRojo: folds
+Minihats: calls $4.50
+*** FLOP *** [9c Qs 6h]
+Minihats: checks
+pusszihunter: bets $4
+Minihats: folds
+Uncalled bet ($4) returned to pusszihunter
+*** TURN *** [9c Qs 6h] [8s]
+*** RIVER *** [9c Qs 6h 8s] [7h]
+*** SHOW DOWN ***
+pusszihunter: shows [2h 4h] (high card Queen)
+Cona80: shows [5d Js] (a straight, Five to Nine)
+pusszihunter collected $0.10 from side pot
+Cona80 collected $15.10 from main pot
+*** SUMMARY ***
+Total pot $15.20 Main pot $15.10. Side pot $0.10. | Rake $0.76 
+Board [9c Qs 6h 8s 7h]
+Seat 1: Tone91 (button) folded before Flop (didn't bet)
+Seat 2: BaronRojo (small blind) folded before Flop 
+Seat 3: Minihats (big blind) folded on the Flop 
+Seat 4: pusszihunter showed [2h 4h] and won ($0.10) with high card Queen
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Cona80 showed [5d Js] and won ($15.10) with a straight, Five to Nine
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 folded before Flop (didn't bet)
+
+
+Weplay Hand #73832608:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:05:06 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tone91 ($53.19 in chips)
+Seat 2: BaronRojo ($89.64 in chips)
+Seat 3: Minihats ($119.98 in chips)
+Seat 4: pusszihunter ($46.64 in chips)
+Seat 5: sadam ($47.95 in chips)
+Seat 6: Cona80 ($14.34 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($48.64 in chips)
+Minihats: posts small blind $0.25
+pusszihunter: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Kc]
+sadam: folds
+Cona80: raises $14.34 to $14.34 and is all-in
+kole1992: folds
+SEJK718: folds
+Tone91: folds
+BaronRojo: folds
+Minihats: calls $14.09
+pusszihunter: folds
+*** FLOP *** [Qc 8s Kd]
+*** TURN *** [Qc 8s Kd] [2h]
+*** RIVER *** [Qc 8s Kd 2h] [7s]
+*** SHOW DOWN ***
+Minihats: shows [4d 4s] (a pair of Fours)
+Cona80: shows [9s 6s] (high card King)
+Minihats collected $29.18 from pot
+*** SUMMARY ***
+Total pot $29.18 | Rake $1.45 
+Board [Qc 8s Kd 2h 7s]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: BaronRojo (button) folded before Flop (didn't bet)
+Seat 3: Minihats (small blind) showed [4d 4s] and won ($29.18) with a pair of Fours
+Seat 4: pusszihunter (big blind) folded before Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Cona80 showed [9s 6s] and lost with high card King
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 folded before Flop (didn't bet)
+
+
+Weplay Hand #73832629:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:05:34 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tone91 ($53.19 in chips)
+Seat 2: BaronRojo ($89.64 in chips)
+Seat 3: Minihats ($133.37 in chips)
+Seat 4: pusszihunter ($46.14 in chips)
+Seat 5: sadam ($47.95 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($48.64 in chips)
+pusszihunter: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Js]
+Cona80 leaves the table
+kole1992: folds
+SEJK718: calls $0.50
+Tone91: folds
+betting18 joins the table at seat #6
+BaronRojo: calls $0.50
+Minihats: folds
+pusszihunter: raises $1 to $1.25
+sadam: folds
+SEJK718: calls $0.75
+BaronRojo: calls $0.75
+*** FLOP *** [4h 8d 9c]
+pusszihunter: bets $2.13
+SEJK718: folds
+BaronRojo: calls $2.13
+*** TURN *** [4h 8d 9c] [6d]
+pusszihunter: bets $3
+BaronRojo: calls $3
+*** RIVER *** [4h 8d 9c 6d] [3s]
+pusszihunter: checks
+BaronRojo: checks
+*** SHOW DOWN ***
+pusszihunter: shows [Ts Ah] (high card Ace)
+BaronRojo: shows [8h Ac] (a pair of Eights)
+BaronRojo collected $14.51 from pot
+*** SUMMARY ***
+Total pot $14.51 | Rake $0.72 
+Board [4h 8d 9c 6d 3s]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: BaronRojo showed [8h Ac] and won ($14.51) with a pair of Eights
+Seat 3: Minihats (button) folded before Flop (didn't bet)
+Seat 4: pusszihunter (small blind) showed [Ts Ah] and lost with high card Ace
+Seat 5: sadam (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 folded on the Flop 
+
+
+Weplay Hand #73832670:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:06:45 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tone91 ($53.19 in chips)
+Seat 2: BaronRojo ($97.05 in chips)
+Seat 3: Minihats ($133.37 in chips)
+Seat 4: pusszihunter ($39.76 in chips)
+Seat 5: sadam ($47.45 in chips)
+Seat 6: betting18 ($50 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($47.39 in chips)
+sadam: posts small blind $0.25
+betting18: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 8c]
+kole1992: folds
+SEJK718: calls $0.50
+Tone91: folds
+BaronRojo: folds
+Minihats: folds
+pusszihunter: raises $1 to $1
+sadam: folds
+betting18: folds
+SEJK718: calls $0.50
+*** FLOP *** [As 9d Js]
+SEJK718: bets $2.75
+pusszihunter: raises $5.50 to $5.50
+SEJK718: folds
+Uncalled bet ($2.75) returned to pusszihunter
+*** SHOW DOWN ***
+pusszihunter has timed out
+pusszihunter: doesn't show hand
+pusszihunter collected $8.25 from pot
+*** SUMMARY ***
+Total pot $8.25 | Rake $0.41 
+Board [As 9d Js]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: BaronRojo folded before Flop (didn't bet)
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter (button) collected ($8.25)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: betting18 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 folded on the Flop 
+
+
+Weplay Hand #73832702:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:07:29 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tone91 ($53.19 in chips)
+Seat 2: BaronRojo ($97.05 in chips)
+Seat 3: Minihats ($133.37 in chips)
+Seat 4: pusszihunter ($43.85 in chips)
+Seat 5: sadam ($47.20 in chips)
+Seat 6: betting18 ($50 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($43.64 in chips)
+betting18: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 4c]
+SEJK718: folds
+Tone91: raises $1 to $1
+BaronRojo: folds
+Minihats: folds
+pusszihunter: calls $1
+sadam: folds
+betting18: folds
+kole1992: folds
+*** FLOP *** [3h Tc 3d]
+Tone91: checks
+pusszihunter: checks
+*** TURN *** [3h Tc 3d] [Ah]
+Tone91: bets $2.05
+pusszihunter: folds
+Uncalled bet ($2.05) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [3h Tc 3d Ah]
+Seat 1: Tone91 collected ($2.75)
+Seat 2: BaronRojo folded before Flop (didn't bet)
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter folded on the Turn 
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: betting18 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: SEJK718 folded before Flop (didn't bet)
+
+
+Weplay Hand #73832725:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:08:04 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tone91 ($54.81 in chips)
+Seat 2: BaronRojo ($97.05 in chips)
+Seat 3: Minihats ($133.37 in chips)
+Seat 4: pusszihunter ($42.85 in chips)
+Seat 5: sadam ($47.20 in chips)
+Seat 6: betting18 ($50 in chips)
+Seat 7: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 7s]
+BaronRojo: calls $0.50
+Minihats: raises $2.50 to $2.50
+pusszihunter: calls $2.50
+sadam: folds
+betting18: folds
+kole1992: folds
+Tone91: folds
+BaronRojo: calls $2
+*** FLOP *** [Js 7c 6s]
+BaronRojo: checks
+Minihats: bets $3
+pusszihunter: calls $3
+BaronRojo: folds
+*** TURN *** [Js 7c 6s] [4s]
+Minihats: checks
+pusszihunter: bets $6.50
+Minihats: calls $6.50
+*** RIVER *** [Js 7c 6s 4s] [9s]
+Minihats: checks
+pusszihunter: checks
+*** SHOW DOWN ***
+Minihats: shows [Qc Ad] (high card Ace)
+pusszihunter: shows [Qh Ts] (a flush, Jack high)
+pusszihunter collected $27.25 from pot
+*** SUMMARY ***
+Total pot $27.25 | Rake $1.36 
+Board [Js 7c 6s 4s 9s]
+Seat 1: Tone91 (big blind) folded before Flop 
+Seat 2: BaronRojo folded on the Flop 
+Seat 3: Minihats showed [Qc Ad] and lost with high card Ace
+Seat 4: pusszihunter showed [Qh Ts] and won ($27.25) with a flush, Jack high
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: betting18 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #73832767:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:09:04 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tone91 ($54.31 in chips)
+Seat 2: BaronRojo ($94.55 in chips)
+Seat 3: Minihats ($121.37 in chips)
+Seat 4: pusszihunter ($56.74 in chips)
+Seat 5: sadam ($47.20 in chips)
+Seat 6: betting18 ($50 in chips)
+Seat 7: kole1992 ($50 in chips)
+Tone91: posts small blind $0.25
+BaronRojo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 5h]
+Minihats: folds
+pusszihunter: raises $1 to $1
+sadam: folds
+betting18: folds
+kole1992: folds
+Tone91: calls $0.75
+sadam leaves the table
+AndrejT1000 joins the table at seat #5
+BaronRojo: folds
+*** FLOP *** [As Ks 8h]
+Tone91: checks
+pusszihunter: checks
+*** TURN *** [As Ks 8h] [6c]
+Tone91: bets $3.75
+pusszihunter: calls $3.75
+*** RIVER *** [As Ks 8h 6c] [4c]
+Tone91: bets $15
+pusszihunter: folds
+Uncalled bet ($15) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [As Ks 8h 6c 4c]
+Seat 1: Tone91 (small blind) collected ($10)
+Seat 2: BaronRojo (big blind) folded before Flop 
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter folded on the River 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: betting18 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73832806:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:10:02 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tone91 ($59.06 in chips)
+Seat 2: BaronRojo ($94.05 in chips)
+Seat 3: Minihats ($121.37 in chips)
+Seat 4: pusszihunter ($51.99 in chips)
+Seat 5: AndrejT1000 ($50 in chips)
+Seat 6: betting18 ($50 in chips)
+Seat 7: kole1992 ($50 in chips)
+BaronRojo: posts small blind $0.25
+Minihats: posts big blind $0.50
+AndrejT1000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 3s]
+pusszihunter: raises $1 to $1
+AndrejT1000: calls $0.50
+betting18: folds
+kole1992: folds
+Tone91: folds
+BaronRojo: folds
+Minihats: calls $0.50
+*** FLOP *** [Td Th 4s]
+Minihats: checks
+pusszihunter: bets $3
+AndrejT1000: folds
+Minihats: raises $8.50 to $8.50
+pusszihunter: folds
+Uncalled bet ($5.50) returned to Minihats
+*** SHOW DOWN ***
+Minihats has timed out
+Minihats: doesn't show hand
+Minihats collected $9.25 from pot
+*** SUMMARY ***
+Total pot $9.25 | Rake $0.46 
+Board [Td Th 4s]
+Seat 1: Tone91 (button) folded before Flop (didn't bet)
+Seat 2: BaronRojo (small blind) folded before Flop 
+Seat 3: Minihats (big blind) collected ($9.25)
+Seat 4: pusszihunter folded on the Flop 
+Seat 5: AndrejT1000 (big blind) folded on the Flop 
+Seat 6: betting18 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #73832839:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:10:56 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tone91 ($59.06 in chips)
+Seat 2: BaronRojo ($93.80 in chips)
+Seat 3: Minihats ($126.16 in chips)
+Seat 4: pusszihunter ($47.99 in chips)
+Seat 5: AndrejT1000 ($49 in chips)
+Seat 6: betting18 ($50 in chips)
+Seat 7: kole1992 ($50 in chips)
+Minihats: posts small blind $0.25
+pusszihunter: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 9h]
+AndrejT1000: folds
+betting18: folds
+kole1992: folds
+Tone91: folds
+BaronRojo: raises $1.25 to $1.25
+Minihats: folds
+pusszihunter: calls $0.75
+*** FLOP *** [8h 2h Ts]
+pusszihunter: bets $0.50
+BaronRojo: raises $1.50 to $1.50
+pusszihunter: calls $1
+*** TURN *** [8h 2h Ts] [4c]
+pusszihunter: bets $0.50
+BaronRojo: raises $3.50 to $3.50
+pusszihunter: calls $3
+*** RIVER *** [8h 2h Ts 4c] [3d]
+pusszihunter: checks
+BaronRojo: bets $4.50
+pusszihunter: folds
+Uncalled bet ($4.50) returned to BaronRojo
+*** SHOW DOWN ***
+BaronRojo: doesn't show hand
+BaronRojo collected $12.75 from pot
+*** SUMMARY ***
+Total pot $12.75 | Rake $0.63 
+Board [8h 2h Ts 4c 3d]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: BaronRojo (button) collected ($12.75)
+Seat 3: Minihats (small blind) folded before Flop 
+Seat 4: pusszihunter (big blind) folded on the River 
+Seat 5: AndrejT1000 folded before Flop (didn't bet)
+Seat 6: betting18 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #73832877:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:11:47 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tone91 ($59.06 in chips)
+Seat 2: BaronRojo ($99.67 in chips)
+Seat 3: Minihats ($125.91 in chips)
+Seat 4: pusszihunter ($41.74 in chips)
+Seat 5: AndrejT1000 ($49 in chips)
+Seat 6: betting18 ($50 in chips)
+Seat 7: kole1992 ($50 in chips)
+pusszihunter: posts small blind $0.25
+AndrejT1000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 9d]
+betting18: folds
+kole1992: raises $1.10 to $1.10
+Tone91: folds
+BaronRojo: folds
+Minihats: folds
+pusszihunter: calls $0.85
+AndrejT1000: calls $0.60
+*** FLOP *** [7h Tc Jh]
+pusszihunter: bets $2.48
+AndrejT1000: folds
+kole1992: calls $2.48
+*** TURN *** [7h Tc Jh] [7s]
+pusszihunter: bets $6.20
+kole1992: folds
+Uncalled bet ($6.20) returned to pusszihunter
+*** SHOW DOWN ***
+pusszihunter: doesn't show hand
+pusszihunter collected $8.26 from pot
+*** SUMMARY ***
+Total pot $8.26 | Rake $0.41 
+Board [7h Tc Jh 7s]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: BaronRojo folded before Flop (didn't bet)
+Seat 3: Minihats (button) folded before Flop (didn't bet)
+Seat 4: pusszihunter (small blind) collected ($8.26)
+Seat 5: AndrejT1000 (big blind) folded on the Flop 
+Seat 6: betting18 folded before Flop (didn't bet)
+Seat 7: kole1992 folded on the Turn 
+
+
+Weplay Hand #73832913:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:12:40 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tone91 ($59.06 in chips)
+Seat 2: BaronRojo ($99.67 in chips)
+Seat 3: Minihats ($125.91 in chips)
+Seat 4: pusszihunter ($46.01 in chips)
+Seat 5: AndrejT1000 ($47.90 in chips)
+Seat 6: betting18 ($50 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($43.64 in chips)
+AndrejT1000: posts small blind $0.25
+betting18: posts big blind $0.50
+SEJK718: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Qs]
+kole1992: folds
+SEJK718: checks
+Tone91: folds
+BaronRojo: folds
+Minihats: folds
+pusszihunter: raises $1 to $1
+AndrejT1000: folds
+betting18: calls $0.50
+SEJK718: calls $0.50
+*** FLOP *** [Tc 9s 9d]
+betting18: checks
+SEJK718: bets $3.25
+pusszihunter: folds
+betting18: folds
+Uncalled bet ($3.25) returned to SEJK718
+*** SHOW DOWN ***
+SEJK718 has timed out
+SEJK718: doesn't show hand
+SEJK718 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [Tc 9s 9d]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: BaronRojo folded before Flop (didn't bet)
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter (button) folded on the Flop 
+Seat 5: AndrejT1000 (small blind) folded before Flop 
+Seat 6: betting18 (big blind) folded on the Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SEJK718 (big blind) collected ($3.25)
+
+
+Weplay Hand #73832944:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:13:23 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tone91 ($59.06 in chips)
+Seat 2: BaronRojo ($99.67 in chips)
+Seat 3: Minihats ($125.91 in chips)
+Seat 4: pusszihunter ($45.01 in chips)
+Seat 5: AndrejT1000 ($47.65 in chips)
+Seat 6: betting18 ($50 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: SEJK718 ($45.73 in chips)
+betting18: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 5c]
+SEJK718: folds
+Tone91: folds
+BaronRojo: folds
+Minihats: folds
+pusszihunter: folds
+BaronRojo is disconnected 
+AndrejT1000: raises $1 to $1
+BaronRojo is connected 
+betting18: calls $0.75
+kole1992: calls $0.50
+*** FLOP *** [Tc 6s Ac]
+betting18: checks
+kole1992: checks
+AndrejT1000: checks
+*** TURN *** [Tc 6s Ac] [6c]
+betting18: checks
+kole1992: bets $1.25
+AndrejT1000: raises $3.62 to $3.62
+betting18: folds
+kole1992: calls $2.37
+*** RIVER *** [Tc 6s Ac 6c] [Kc]
+kole1992: checks
+AndrejT1000: checks
+*** SHOW DOWN ***
+kole1992: shows [7c 5c] (a flush, Ace high)
+AndrejT1000: mucks hand
+kole1992 collected $10.24 from pot
+*** SUMMARY ***
+Total pot $10.24 | Rake $0.51 
+Board [Tc 6s Ac 6c Kc]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: BaronRojo folded before Flop (didn't bet)
+Seat 3: Minihats folded before Flop (didn't bet)
+Seat 4: pusszihunter folded before Flop (didn't bet)
+Seat 5: AndrejT1000 (button) mucked
+Seat 6: betting18 (small blind) folded on the Turn 
+Seat 7: kole1992 (big blind) showed [7c 5c] and won ($10.24) with a flush, Ace high
+Seat 8: SEJK718 folded before Flop (didn't bet)

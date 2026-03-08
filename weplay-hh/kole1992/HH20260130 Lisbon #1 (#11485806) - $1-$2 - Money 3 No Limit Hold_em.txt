@@ -1,0 +1,1233 @@
+﻿Weplay Hand #74160536:  Hold'em No Limit ($1/$2) - 2026/01/30 10:12:16 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($63.85 in chips)
+Seat 3: tuPaTu ($259.15 in chips)
+Seat 6: Janka_Kupala ($59 in chips)
+Janka_Kupala: posts small blind $1
+kole1992: posts big blind $2
+Makundubhai: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 8c]
+Makundubhai: calls $2
+tuPaTu: raises $7 to $7
+Janka_Kupala: folds
+kole1992: folds
+Makundubhai: folds
+Uncalled bet ($5) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 8c]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Makundubhai folded before Flop 
+Seat 3: tuPaTu (button) collected ($7)
+Seat 6: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #74160580:  Hold'em No Limit ($1/$2) - 2026/01/30 10:12:37 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($61.85 in chips)
+Seat 3: tuPaTu ($264.15 in chips)
+Seat 6: Janka_Kupala ($58 in chips)
+kole1992: posts small blind $1
+Makundubhai: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 4d]
+tuPaTu: folds
+Janka_Kupala: raises $4 to $4
+kole1992: folds
+Makundubhai: calls $2
+*** FLOP *** [Ah Ks 4s]
+Makundubhai: bets $4.50
+Janka_Kupala: folds
+Uncalled bet ($4.50) returned to Makundubhai
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 4d]
+Makundubhai: doesn't show hand
+Makundubhai collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [Ah Ks 4s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Makundubhai (big blind) collected ($9)
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 6: Janka_Kupala (button) folded on the Flop 
+
+
+Weplay Hand #74160633:  Hold'em No Limit ($1/$2) - 2026/01/30 10:12:59 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($66.40 in chips)
+Seat 3: tuPaTu ($264.15 in chips)
+Seat 6: Janka_Kupala ($54 in chips)
+Makundubhai: posts small blind $1
+tuPaTu: posts big blind $2
+Janka_Kupala: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 4s]
+Janka_Kupala: folds
+kole1992: folds
+Makundubhai: folds
+Uncalled bet ($1) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 4s]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Makundubhai (small blind) folded before Flop 
+Seat 3: tuPaTu (big blind) collected ($2)
+Seat 6: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #74160659:  Hold'em No Limit ($1/$2) - 2026/01/30 10:13:10 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($65.40 in chips)
+Seat 3: tuPaTu ($265.15 in chips)
+Seat 6: Janka_Kupala ($54 in chips)
+tuPaTu: posts small blind $1
+Janka_Kupala: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Ks]
+kole1992: raises $4 to $4
+Makundubhai: folds
+tuPaTu: folds
+Janka_Kupala: calls $2
+*** FLOP *** [Jc 8s 8c]
+Janka_Kupala: checks
+kole1992: bets $2.97
+Janka_Kupala: raises $10.40 to $10.40
+kole1992: folds
+Uncalled bet ($7.43) returned to Janka_Kupala
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Ks]
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $14.94 from pot
+*** SUMMARY ***
+Total pot $14.94 | Rake $0.74 
+Board [Jc 8s 8c]
+Seat 1: kole1992 folded on the Flop 
+Seat 2: Makundubhai (button) folded before Flop (didn't bet)
+Seat 3: tuPaTu (small blind) folded before Flop 
+Seat 6: Janka_Kupala (big blind) collected ($14.94)
+
+
+Weplay Hand #74160756:  Hold'em No Limit ($1/$2) - 2026/01/30 10:13:50 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($65.40 in chips)
+Seat 3: tuPaTu ($264.15 in chips)
+Seat 6: Janka_Kupala ($61.23 in chips)
+Janka_Kupala: posts small blind $1
+kole1992: posts big blind $2
+Makundubhai: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 7d]
+Makundubhai: raises $5 to $5
+tuPaTu: folds
+Janka_Kupala: folds
+kole1992: folds
+Uncalled bet ($3) returned to Makundubhai
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 7d]
+Makundubhai has timed out
+Makundubhai: doesn't show hand
+Makundubhai collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Makundubhai collected ($5)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 6: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #74160788:  Hold'em No Limit ($1/$2) - 2026/01/30 10:14:06 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($68.40 in chips)
+Seat 3: tuPaTu ($264.15 in chips)
+Seat 6: Janka_Kupala ($60.23 in chips)
+kole1992: posts small blind $1
+Makundubhai: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4c As]
+tuPaTu: folds
+Janka_Kupala: raises $4 to $4
+kole1992: folds
+Makundubhai: folds
+Uncalled bet ($2) returned to Janka_Kupala
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4c As]
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Makundubhai (big blind) folded before Flop 
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 6: Janka_Kupala (button) collected ($5)
+
+
+Weplay Hand #74160840:  Hold'em No Limit ($1/$2) - 2026/01/30 10:14:30 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($66.40 in chips)
+Seat 3: tuPaTu ($264.15 in chips)
+Seat 6: Janka_Kupala ($63.23 in chips)
+Makundubhai: posts small blind $1
+tuPaTu: posts big blind $2
+Janka_Kupala: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 8d]
+Janka_Kupala: folds
+kole1992: folds
+Makundubhai: calls $1
+tuPaTu: checks
+*** FLOP *** [4s 3s 4d]
+Makundubhai: checks
+tuPaTu: checks
+*** TURN *** [4s 3s 4d] [6d]
+Makundubhai: checks
+tuPaTu: checks
+*** RIVER *** [4s 3s 4d 6d] [Ts]
+Makundubhai: checks
+tuPaTu: bets $2.68
+Makundubhai: calls $2.68
+*** SHOW DOWN ***
+tuPaTu: shows [7c Jh] (a pair of Fours)
+Makundubhai: shows [Tc 7s] (two pair, Tens and Fours)
+Makundubhai collected $9.36 from pot
+*** SUMMARY ***
+Total pot $9.36 | Rake $0.46 
+Board [4s 3s 4d 6d Ts]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Makundubhai (small blind) showed [Tc 7s] and won ($9.36) with two pair, Tens and Fours
+Seat 3: tuPaTu (big blind) showed [7c Jh] and lost with a pair of Fours
+Seat 6: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #74160915:  Hold'em No Limit ($1/$2) - 2026/01/30 10:15:01 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($70.62 in chips)
+Seat 3: tuPaTu ($259.47 in chips)
+Seat 6: Janka_Kupala ($63.23 in chips)
+tuPaTu: posts small blind $1
+Janka_Kupala: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Ts]
+kole1992: folds
+Makundubhai: calls $2
+tuPaTu: calls $1
+Janka_Kupala: checks
+*** FLOP *** [Ah Kd 6c]
+tuPaTu: bets $2.40
+Janka_Kupala: folds
+Makundubhai: folds
+Uncalled bet ($2.40) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Ts]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Ah Kd 6c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Makundubhai (button) folded on the Flop 
+Seat 3: tuPaTu (small blind) collected ($6)
+Seat 6: Janka_Kupala (big blind) folded on the Flop 
+
+
+Weplay Hand #74160970:  Hold'em No Limit ($1/$2) - 2026/01/30 10:15:28 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($68.62 in chips)
+Seat 3: tuPaTu ($263.17 in chips)
+Seat 6: Janka_Kupala ($61.23 in chips)
+Janka_Kupala: posts small blind $1
+kole1992: posts big blind $2
+Makundubhai: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 7h]
+Makundubhai: folds
+tuPaTu: folds
+Janka_Kupala: calls $1
+kole1992: checks
+*** FLOP *** [3h 2s 7d]
+Janka_Kupala: bets $3
+kole1992: raises $11 to $11
+Janka_Kupala: raises $21 to $24
+kole1992: calls $13
+*** TURN *** [3h 2s 7d] [2c]
+Janka_Kupala: bets $35.23 and is all-in
+kole1992: calls $35.23
+*** RIVER *** [3h 2s 7d 2c] [2d]
+*** SHOW DOWN ***
+Janka_Kupala: shows [7s Ac] (a full house, Deuces full of Sevens)
+kole1992: shows [Ks 7h] (a full house, Deuces full of Sevens)
+kole1992 collected $61.23 from pot
+Janka_Kupala collected $61.23 from pot
+*** SUMMARY ***
+Total pot $122.46 | Rake $6.12 
+Board [3h 2s 7d 2c 2d]
+Seat 1: kole1992 (big blind) showed [Ks 7h] and won ($61.23) with a full house, Deuces full of Sevens
+Seat 2: Makundubhai folded before Flop (didn't bet)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 6: Janka_Kupala (small blind) showed [7s Ac] and won ($61.23) with a full house, Deuces full of Sevens
+
+
+Weplay Hand #74161118:  Hold'em No Limit ($1/$2) - 2026/01/30 10:16:30 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($68.62 in chips)
+Seat 3: tuPaTu ($263.17 in chips)
+Seat 6: Janka_Kupala ($58.17 in chips)
+kole1992: posts small blind $1
+Makundubhai: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Jd]
+tuPaTu: folds
+Janka_Kupala: raises $5 to $5
+kole1992: folds
+Makundubhai: folds
+Uncalled bet ($3) returned to Janka_Kupala
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Jd]
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Makundubhai (big blind) folded before Flop 
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 6: Janka_Kupala (button) collected ($5)
+
+
+Weplay Hand #74161153:  Hold'em No Limit ($1/$2) - 2026/01/30 10:16:48 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($66.62 in chips)
+Seat 3: tuPaTu ($263.17 in chips)
+Seat 6: Janka_Kupala ($61.17 in chips)
+Makundubhai: posts small blind $1
+tuPaTu: posts big blind $2
+Janka_Kupala: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8d As]
+Janka_Kupala: raises $4 to $4
+kole1992: folds
+Makundubhai: calls $3
+tuPaTu: calls $2
+*** FLOP *** [Qh 3h 6d]
+Makundubhai: checks
+tuPaTu: checks
+Janka_Kupala: bets $4
+Makundubhai: folds
+tuPaTu: folds
+Uncalled bet ($4) returned to Janka_Kupala
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8d As]
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [Qh 3h 6d]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Makundubhai (small blind) folded on the Flop 
+Seat 3: tuPaTu (big blind) folded on the Flop 
+Seat 6: Janka_Kupala collected ($12)
+
+
+Weplay Hand #74161236:  Hold'em No Limit ($1/$2) - 2026/01/30 10:17:24 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($62.62 in chips)
+Seat 3: tuPaTu ($259.17 in chips)
+Seat 6: Janka_Kupala ($68.57 in chips)
+tuPaTu: posts small blind $1
+Janka_Kupala: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 2d]
+kole1992: folds
+Makundubhai: folds
+tuPaTu: raises $4 to $5
+Janka_Kupala: calls $3
+*** FLOP *** [2s 8d Ts]
+tuPaTu: checks
+Janka_Kupala: checks
+*** TURN *** [2s 8d Ts] [8c]
+tuPaTu: checks
+Janka_Kupala: checks
+*** RIVER *** [2s 8d Ts 8c] [Js]
+tuPaTu: checks
+Janka_Kupala: bets $7.60
+hoipolloi joins the table at seat #4
+tuPaTu: folds
+Uncalled bet ($7.60) returned to Janka_Kupala
+*** SHOW DOWN ***
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [2s 8d Ts 8c Js]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Makundubhai (button) folded before Flop (didn't bet)
+Seat 3: tuPaTu (small blind) folded on the River 
+Seat 6: Janka_Kupala (big blind) collected ($10)
+
+
+Weplay Hand #74161338:  Hold'em No Limit ($1/$2) - 2026/01/30 10:18:09 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($62.62 in chips)
+Seat 3: tuPaTu ($254.17 in chips)
+Seat 6: Janka_Kupala ($73.07 in chips)
+Janka_Kupala: posts small blind $1
+kole1992: posts big blind $2
+Makundubhai: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 2c]
+Makundubhai: folds
+tuPaTu: folds
+Janka_Kupala: raises $5 to $6
+kole1992: folds
+Uncalled bet ($4) returned to Janka_Kupala
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 2c]
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Makundubhai folded before Flop (didn't bet)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 6: Janka_Kupala (small blind) collected ($4)
+
+
+Weplay Hand #74161380:  Hold'em No Limit ($1/$2) - 2026/01/30 10:18:28 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($62.62 in chips)
+Seat 3: tuPaTu ($254.17 in chips)
+Seat 6: Janka_Kupala ($75.07 in chips)
+kole1992: posts small blind $1
+Makundubhai: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 8s]
+tuPaTu: raises $5 to $5
+Janka_Kupala: raises $12.40 to $12.40
+kole1992: folds
+Makundubhai: folds
+tuPaTu: raises $249.17 to $254.17 and is all-in
+Janka_Kupala: calls $62.67 and is all-in
+Uncalled bet ($179.10) returned to tuPaTu
+*** FIRST FLOP *** [Td Tc Th]
+*** FIRST TURN *** [Td Tc Th] [Kc]
+*** FIRST RIVER *** [Td Tc Th Kc] [Jd]
+*** SECOND FLOP *** [Jh 6c 4c]
+*** SECOND TURN *** [Jh 6c 4c] [5c]
+*** SECOND RIVER *** [Jh 6c 4c 5c] [Jc]
+*** SHOW DOWN ***
+tuPaTu: shows [9c 9d] (a full house, Tens full of Nines)
+Janka_Kupala: shows [Ad Ac] (a full house, Tens full of Aces)
+Janka_Kupala collected $153.14 from pot
+*** SUMMARY ***
+Total pot $153.14 | Rake $7.65 
+Hand was run two times
+FIRST Board [Td Tc Th Kc Jd]
+SECOND Board [Jh 6c 4c 5c Jc]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Makundubhai (big blind) folded before Flop 
+Seat 3: tuPaTu showed [9c 9d] and lost with a full house, Tens full of Nines
+Seat 6: Janka_Kupala (button) showed [Ad Ac] and won ($153.14) with a full house, Tens full of Aces
+
+
+Weplay Hand #74161463:  Hold'em No Limit ($1/$2) - 2026/01/30 10:19:08 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($60.62 in chips)
+Seat 3: tuPaTu ($200 in chips)
+Seat 6: Janka_Kupala ($145.49 in chips)
+Makundubhai: posts small blind $1
+tuPaTu: posts big blind $2
+Janka_Kupala: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 5h]
+Janka_Kupala: raises $5 to $5
+kole1992: folds
+Makundubhai: folds
+tuPaTu: folds
+Uncalled bet ($3) returned to Janka_Kupala
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 5h]
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Makundubhai (small blind) folded before Flop 
+Seat 3: tuPaTu (big blind) folded before Flop 
+Seat 6: Janka_Kupala collected ($5)
+
+
+Weplay Hand #74161498:  Hold'em No Limit ($1/$2) - 2026/01/30 10:19:23 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($59.62 in chips)
+Seat 3: tuPaTu ($200 in chips)
+Seat 4: hoipolloi ($60 in chips)
+Seat 6: Janka_Kupala ($148.49 in chips)
+tuPaTu: posts small blind $1
+hoipolloi: posts big blind $2
+Janka_Kupala: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 7d]
+Janka_Kupala: folds
+kole1992: folds
+Makundubhai: calls $2
+Janka_Kupala leaves the table
+tuPaTu: raises $7 to $8
+hoipolloi: folds
+Makundubhai: calls $6
+*** FLOP *** [Ts 3h Th]
+tuPaTu: checks
+Makundubhai: checks
+*** TURN *** [Ts 3h Th] [3d]
+tuPaTu: checks
+Makundubhai: checks
+*** RIVER *** [Ts 3h Th 3d] [Jd]
+tuPaTu: bets $12.06
+Makundubhai: folds
+Uncalled bet ($12.06) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $18 from pot
+*** SUMMARY ***
+Total pot $18 | Rake $0.90 
+Board [Ts 3h Th 3d Jd]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Makundubhai (button) folded on the River 
+Seat 3: tuPaTu (small blind) collected ($18)
+Seat 4: hoipolloi (big blind) folded before Flop 
+Seat 6: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #74161583:  Hold'em No Limit ($1/$2) - 2026/01/30 10:20:01 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($51.62 in chips)
+Seat 3: tuPaTu ($209.10 in chips)
+Seat 4: hoipolloi ($58 in chips)
+hoipolloi: posts small blind $1
+kole1992: posts big blind $2
+Makundubhai: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 6c]
+Makundubhai: folds
+tuPaTu: folds
+hoipolloi: raises $5 to $6
+kole1992: calls $4
+*** FLOP *** [5s Qs 2c]
+hoipolloi: bets $5
+kole1992: folds
+Uncalled bet ($5) returned to hoipolloi
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 6c]
+hoipolloi: doesn't show hand
+hoipolloi collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [5s Qs 2c]
+Seat 1: kole1992 (big blind) folded on the Flop 
+Seat 2: Makundubhai folded before Flop (didn't bet)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 4: hoipolloi (small blind) collected ($12)
+
+
+Weplay Hand #74161678:  Hold'em No Limit ($1/$2) - 2026/01/30 10:20:39 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($51.62 in chips)
+Seat 3: tuPaTu ($209.10 in chips)
+Seat 4: hoipolloi ($63.40 in chips)
+kole1992: posts small blind $1
+Makundubhai: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 9c]
+tuPaTu: raises $5 to $5
+hoipolloi: folds
+kole1992: folds
+Makundubhai: folds
+Uncalled bet ($3) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 9c]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Makundubhai (big blind) folded before Flop 
+Seat 3: tuPaTu collected ($5)
+Seat 4: hoipolloi (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74161709:  Hold'em No Limit ($1/$2) - 2026/01/30 10:20:53 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($49.62 in chips)
+Seat 3: tuPaTu ($212.10 in chips)
+Seat 4: hoipolloi ($63.40 in chips)
+Makundubhai: posts small blind $1
+tuPaTu: posts big blind $2
+hoipolloi has timed out
+hoipolloi: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 9h]
+hoipolloi: folds
+kole1992: raises $5 to $5
+Makundubhai: calls $4
+tuPaTu: folds
+*** FLOP *** [7d 4d 6h]
+Makundubhai: checks
+kole1992: checks
+*** TURN *** [7d 4d 6h] [6s]
+Makundubhai: bets $6
+kole1992: calls $6
+*** RIVER *** [7d 4d 6h 6s] [Jd]
+Makundubhai: checks
+kole1992: checks
+*** SHOW DOWN ***
+Makundubhai: shows [9d 9c] (two pair, Nines and Sixes)
+kole1992: mucks hand
+Makundubhai collected $24 from pot
+*** SUMMARY ***
+Total pot $24 | Rake $1.20 
+Board [7d 4d 6h 6s Jd]
+Seat 1: kole1992 (button) mucked
+Seat 2: Makundubhai (small blind) showed [9d 9c] and won ($24) with two pair, Nines and Sixes
+Seat 3: tuPaTu (big blind) folded before Flop 
+Seat 4: hoipolloi folded before Flop (didn't bet)
+
+
+Weplay Hand #74161869:  Hold'em No Limit ($1/$2) - 2026/01/30 10:22:05 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($61.42 in chips)
+Seat 3: tuPaTu ($210.10 in chips)
+Seat 4: hoipolloi ($63.40 in chips)
+tuPaTu: posts small blind $1
+hoipolloi: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 8c]
+kole1992: raises $4 to $4
+Makundubhai: folds
+tuPaTu: folds
+hoipolloi: calls $2
+*** FLOP *** [9d 8s Tc]
+hoipolloi: checks
+kole1992: checks
+*** TURN *** [9d 8s Tc] [5c]
+hoipolloi: checks
+kole1992: bets $5
+hoipolloi: raises $16 to $16
+kole1992: calls $11
+*** RIVER *** [9d 8s Tc 5c] [Th]
+hoipolloi: bets $43.40 and is all-in
+kole1992: folds
+Uncalled bet ($43.40) returned to hoipolloi
+*** SHOW DOWN ***
+hoipolloi: doesn't show hand
+hoipolloi collected $41 from pot
+*** SUMMARY ***
+Total pot $41 | Rake $2.05 
+Board [9d 8s Tc 5c Th]
+Seat 1: kole1992 folded on the River 
+Seat 2: Makundubhai (button) folded before Flop (didn't bet)
+Seat 3: tuPaTu (small blind) folded before Flop 
+Seat 4: hoipolloi (big blind) collected ($41)
+
+
+Weplay Hand #74162069:  Hold'em No Limit ($1/$2) - 2026/01/30 10:23:41 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($61.42 in chips)
+Seat 3: tuPaTu ($209.10 in chips)
+Seat 4: hoipolloi ($82.35 in chips)
+hoipolloi: posts small blind $1
+kole1992: posts big blind $2
+Makundubhai: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Tc]
+Makundubhai: folds
+tuPaTu: raises $5 to $5
+hoipolloi: folds
+kole1992: folds
+Uncalled bet ($3) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Tc]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Makundubhai folded before Flop (didn't bet)
+Seat 3: tuPaTu (button) collected ($5)
+Seat 4: hoipolloi (small blind) folded before Flop 
+
+
+Weplay Hand #74162108:  Hold'em No Limit ($1/$2) - 2026/01/30 10:23:59 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Makundubhai ($61.42 in chips)
+Seat 3: tuPaTu ($212.10 in chips)
+Seat 4: hoipolloi ($81.35 in chips)
+kole1992: posts small blind $1
+Makundubhai: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 7d]
+tuPaTu: folds
+hoipolloi: raises $4 to $4
+kole1992: raises $13 to $14
+Makundubhai: folds
+Makundubhai leaves the table
+hoipolloi: raises $77.35 to $81.35 and is all-in
+kole1992: folds
+Uncalled bet ($67.35) returned to hoipolloi
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 7d]
+hoipolloi: doesn't show hand
+hoipolloi collected $30 from pot
+*** SUMMARY ***
+Total pot $30 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Makundubhai (big blind) folded before Flop 
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: hoipolloi (button) collected ($30)
+
+
+Weplay Hand #74162180:  Hold'em No Limit ($1/$2) - 2026/01/30 10:24:29 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 3: tuPaTu ($212.10 in chips)
+Seat 4: hoipolloi ($97.35 in chips)
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 5d]
+hoipolloi: folds
+kole1992: folds
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: tuPaTu (big blind) collected ($2)
+Seat 4: hoipolloi folded before Flop (didn't bet)
+
+
+Weplay Hand #74162232:  Hold'em No Limit ($1/$2) - 2026/01/30 10:24:50 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 3: tuPaTu ($212.10 in chips)
+Seat 4: hoipolloi ($97.35 in chips)
+tuPaTu: posts small blind $1
+hoipolloi: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Ks]
+kole1992: raises $4 to $4
+tuPaTu: raises $19.18 to $20.18
+hoipolloi: folds
+kole1992: folds
+Uncalled bet ($16.18) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Ks]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0 
+Seat 1: kole1992 folded before Flop 
+Seat 3: tuPaTu (small blind) collected ($10)
+Seat 4: hoipolloi (big blind) folded before Flop 
+
+
+Weplay Hand #74162292:  Hold'em No Limit ($1/$2) - 2026/01/30 10:25:19 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 3: tuPaTu ($218.10 in chips)
+Seat 4: hoipolloi ($95.35 in chips)
+hoipolloi: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 3c]
+tuPaTu: folds
+hoipolloi: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($2)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 4: hoipolloi (small blind) folded before Flop 
+
+
+Weplay Hand #74162332:  Hold'em No Limit ($1/$2) - 2026/01/30 10:25:38 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($201 in chips)
+Seat 3: tuPaTu ($218.10 in chips)
+Seat 4: hoipolloi ($94.35 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 8d]
+hoipolloi has timed out
+hoipolloi: folds
+kole1992: raises $5 to $6
+tuPaTu: calls $4
+*** FLOP *** [6s 5h As]
+kole1992: bets $3.96
+tuPaTu: raises $15.92 to $15.92
+kole1992: folds
+Uncalled bet ($11.96) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 8d]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $19.92 from pot
+*** SUMMARY ***
+Total pot $19.92 | Rake $0.49 
+Board [6s 5h As]
+Seat 1: kole1992 (small blind) folded on the Flop 
+Seat 3: tuPaTu (big blind) collected ($19.92)
+Seat 4: hoipolloi (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74162482:  Hold'em No Limit ($1/$2) - 2026/01/30 10:26:42 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 3: tuPaTu ($227.57 in chips)
+Seat 4: hoipolloi ($94.35 in chips)
+tuPaTu: posts small blind $1
+hoipolloi: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Tc]
+kole1992: raises $5 to $5
+tuPaTu: folds
+hoipolloi: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (button) collected ($5)
+Seat 3: tuPaTu (small blind) folded before Flop 
+Seat 4: hoipolloi (big blind) folded before Flop 
+
+
+Weplay Hand #74162538:  Hold'em No Limit ($1/$2) - 2026/01/30 10:27:01 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($203 in chips)
+Seat 3: tuPaTu ($226.57 in chips)
+Seat 4: hoipolloi ($92.35 in chips)
+hoipolloi: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Jh]
+tuPaTu: raises $5 to $5
+hoipolloi: folds
+kole1992: folds
+Uncalled bet ($3) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Jh]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu (button) collected ($5)
+Seat 4: hoipolloi (small blind) folded before Flop 
+
+
+Weplay Hand #74162580:  Hold'em No Limit ($1/$2) - 2026/01/30 10:27:21 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($201 in chips)
+Seat 3: tuPaTu ($229.57 in chips)
+Seat 4: hoipolloi ($91.35 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Qc]
+hoipolloi: folds
+kole1992: raises $5 to $6
+tuPaTu: raises $18.03 to $20.03
+kole1992: raises $45.10 to $51.10
+tuPaTu: calls $31.07
+*** FLOP *** [5h Js Jc]
+kole1992: bets $23.54
+tuPaTu: calls $23.54
+*** TURN *** [5h Js Jc] [9s]
+kole1992: bets $33.99
+tuPaTu: calls $33.99
+*** RIVER *** [5h Js Jc 9s] [2d]
+kole1992: bets $92.37 and is all-in
+tuPaTu: calls $92.37
+*** SHOW DOWN ***
+kole1992: shows [Qs Qc] (two pair, Queens and Jacks)
+tuPaTu: shows [Kh Jh] (three of a kind, Jacks)
+tuPaTu collected $402 from pot
+*** SUMMARY ***
+Total pot $402 | Rake $10 
+Board [5h Js Jc 9s 2d]
+Seat 1: kole1992 (small blind) showed [Qs Qc] and lost with two pair, Queens and Jacks
+Seat 3: tuPaTu (big blind) showed [Kh Jh] and won ($402) with three of a kind, Jacks
+Seat 4: hoipolloi (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74162857:  Hold'em No Limit ($1/$2) - 2026/01/30 10:29:27 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 3: tuPaTu ($420.57 in chips)
+Seat 4: hoipolloi ($91.35 in chips)
+tuPaTu: posts small blind $1
+hoipolloi: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 2h]
+kole1992: folds
+tuPaTu: folds
+Uncalled bet ($1) returned to hoipolloi
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 2h]
+hoipolloi: doesn't show hand
+hoipolloi collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: tuPaTu (small blind) folded before Flop 
+Seat 4: hoipolloi (big blind) collected ($2)
+
+
+Weplay Hand #74162874:  Hold'em No Limit ($1/$2) - 2026/01/30 10:29:35 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 3: tuPaTu ($419.57 in chips)
+Seat 4: hoipolloi ($92.35 in chips)
+hoipolloi: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Kc]
+tuPaTu: raises $5 to $5
+hoipolloi: folds
+kole1992: calls $3
+*** FLOP *** [Ad Th Ks]
+kole1992: checks
+tuPaTu: bets $2.75
+kole1992: calls $2.75
+*** TURN *** [Ad Th Ks] [9c]
+kole1992: checks
+tuPaTu: bets $16.60
+kole1992: calls $16.60
+*** RIVER *** [Ad Th Ks 9c] [6c]
+kole1992: checks
+tuPaTu: checks
+*** SHOW DOWN ***
+kole1992: shows [9s Kc] (two pair, Kings and Nines)
+tuPaTu has timed out
+tuPaTu: mucks hand
+kole1992 collected $49.70 from pot
+*** SUMMARY ***
+Total pot $49.70 | Rake $1.24 
+Board [Ad Th Ks 9c 6c]
+Seat 1: kole1992 (big blind) showed [9s Kc] and won ($49.70) with two pair, Kings and Nines
+Seat 3: tuPaTu (button) mucked
+Seat 4: hoipolloi (small blind) folded before Flop 
+
+
+Weplay Hand #74163032:  Hold'em No Limit ($1/$2) - 2026/01/30 10:30:59 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($224.11 in chips)
+Seat 3: tuPaTu ($395.22 in chips)
+Seat 4: hoipolloi ($91.35 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Jd]
+hoipolloi: raises $4 to $4
+kole1992: raises $13 to $14
+tuPaTu: folds
+hoipolloi: folds
+Uncalled bet ($10) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0 
+Seat 1: kole1992 (small blind) collected ($10)
+Seat 3: tuPaTu (big blind) folded before Flop 
+Seat 4: hoipolloi (button) folded before Flop 
+
+
+Weplay Hand #74163096:  Hold'em No Limit ($1/$2) - 2026/01/30 10:31:35 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($230.11 in chips)
+Seat 3: tuPaTu ($393.22 in chips)
+tuPaTu: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 6s]
+tuPaTu: raises $4 to $5
+hoipolloi leaves the table
+kole1992: folds
+Uncalled bet ($3) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 6s]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu (button) (small blind) collected ($4)
+
+
+Weplay Hand #74163119:  Hold'em No Limit ($1/$2) - 2026/01/30 10:31:49 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($228.11 in chips)
+Seat 3: tuPaTu ($395.22 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 8h]
+kole1992: raises $4 to $5
+tuPaTu: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (button) (small blind) collected ($4)
+Seat 3: tuPaTu (big blind) folded before Flop 
+
+
+Weplay Hand #74163139:  Hold'em No Limit ($1/$2) - 2026/01/30 10:32:00 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($230.11 in chips)
+Seat 3: tuPaTu ($393.22 in chips)
+tuPaTu: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 8s]
+tuPaTu: raises $4 to $5
+kole1992: folds
+Uncalled bet ($3) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 8s]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu (button) (small blind) collected ($4)
+
+
+Weplay Hand #74163171:  Hold'em No Limit ($1/$2) - 2026/01/30 10:32:15 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($228.11 in chips)
+Seat 3: tuPaTu ($395.22 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 6h]
+kole1992: raises $4 to $5
+tuPaTu: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (button) (small blind) collected ($4)
+Seat 3: tuPaTu (big blind) folded before Flop 
+
+
+Weplay Hand #74163190:  Hold'em No Limit ($1/$2) - 2026/01/30 10:32:26 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($230.11 in chips)
+Seat 3: tuPaTu ($393.22 in chips)
+tuPaTu: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 8d]
+tuPaTu: raises $4 to $5
+kole1992: folds
+Uncalled bet ($3) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 8d]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu (button) (small blind) collected ($4)
+
+
+Weplay Hand #74163214:  Hold'em No Limit ($1/$2) - 2026/01/30 10:32:38 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($228.11 in chips)
+Seat 3: tuPaTu ($395.22 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh As]
+kole1992: raises $4 to $5
+tuPaTu: raises $20.04 to $22.04
+kole1992: raises $47.08 to $52.08
+tuPaTu: calls $30.04
+*** FLOP *** [Jc Ts 5h]
+tuPaTu: checks
+kole1992: bets $28.55
+tuPaTu: folds
+Uncalled bet ($28.55) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $104.16 from pot
+*** SUMMARY ***
+Total pot $104.16 | Rake $2.60 
+Board [Jc Ts 5h]
+Seat 1: kole1992 (button) (small blind) collected ($104.16)
+Seat 3: tuPaTu (big blind) folded on the Flop 
+
+
+Weplay Hand #74163304:  Hold'em No Limit ($1/$2) - 2026/01/30 10:33:35 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($277.59 in chips)
+Seat 3: tuPaTu ($342.14 in chips)
+tuPaTu: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 3s]
+tuPaTu: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($2)
+Seat 3: tuPaTu (button) (small blind) folded before Flop 
+
+
+Weplay Hand #74163319:  Hold'em No Limit ($1/$2) - 2026/01/30 10:33:43 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($278.59 in chips)
+Seat 3: tuPaTu ($341.14 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 5h]
+kole1992: folds
+Uncalled bet ($1) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 5h]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (button) (small blind) folded before Flop 
+Seat 3: tuPaTu (big blind) collected ($2)
+
+
+Weplay Hand #74163340:  Hold'em No Limit ($1/$2) - 2026/01/30 10:33:53 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($277.59 in chips)
+Seat 3: tuPaTu ($342.14 in chips)
+tuPaTu: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 6d]
+tuPaTu: raises $4 to $5
+kole1992: folds
+Uncalled bet ($3) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 6d]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu (button) (small blind) collected ($4)
+
+
+Weplay Hand #74163361:  Hold'em No Limit ($1/$2) - 2026/01/30 10:34:05 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($275.59 in chips)
+Seat 3: tuPaTu ($344.14 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Ah]
+kole1992: raises $4 to $5
+tuPaTu: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (button) (small blind) collected ($4)
+Seat 3: tuPaTu (big blind) folded before Flop 

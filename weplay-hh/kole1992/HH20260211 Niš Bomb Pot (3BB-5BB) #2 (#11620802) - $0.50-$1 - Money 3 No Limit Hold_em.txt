@@ -1,0 +1,235 @@
+﻿Weplay Hand #75426051:  Hold'em No Limit ($0.50/$1) - 2026/02/11 21:56:27 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #2 is the button
+Seat 2: Tjukk ($100 in chips)
+Seat 4: RunRun ($156.88 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 7: JTs98o ($297.98 in chips)
+Seat 8: drPokermarv ($238.36 in chips)
+RunRun: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 7d]
+JTs98o: raises $3 to $3
+drPokermarv: folds
+Tjukk: folds
+RunRun: folds
+kole1992: folds
+Uncalled bet ($2) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Tjukk (button) folded before Flop (didn't bet)
+Seat 4: RunRun (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 7: JTs98o collected ($2.50)
+Seat 8: drPokermarv folded before Flop (didn't bet)
+
+
+Weplay Hand #75426056:  Hold'em No Limit ($0.50/$1) - 2026/02/11 21:56:48 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #4 is the button
+Seat 2: Tjukk ($100 in chips)
+Seat 4: RunRun ($156.38 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 7: JTs98o ($299.48 in chips)
+Seat 8: drPokermarv ($238.36 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Jc]
+drPokermarv: raises $2 to $2
+Tjukk: folds
+RunRun: calls $2
+kole1992: raises $13.50 to $14
+JTs98o: folds
+drPokermarv: folds
+RunRun: calls $12
+*** FLOP *** [5s 3h 3s]
+kole1992: checks
+RunRun: checks
+*** TURN *** [5s 3h 3s] [6c]
+kole1992: checks
+RunRun: bets $1
+kole1992: calls $1
+*** RIVER *** [5s 3h 3s 6c] [5d]
+kole1992: checks
+RunRun: checks
+*** SHOW DOWN ***
+kole1992: shows [Qc Jc] (two pair, Fives and Threes)
+RunRun has timed out
+RunRun: mucks hand
+kole1992 collected $33 from pot
+*** SUMMARY ***
+Total pot $33 | Rake $1.65 
+Board [5s 3h 3s 6c 5d]
+Seat 2: Tjukk folded before Flop (didn't bet)
+Seat 4: RunRun (button) mucked
+Seat 5: kole1992 (small blind) showed [Qc Jc] and won ($33) with two pair, Fives and Threes
+Seat 7: JTs98o (big blind) folded before Flop 
+Seat 8: drPokermarv folded before Flop 
+
+
+Weplay Hand #75426076:  Hold'em No Limit ($0.50/$1) - 2026/02/11 21:58:20 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #5 is the button
+Seat 2: Tjukk ($100 in chips)
+Seat 4: RunRun ($141.38 in chips)
+Seat 5: kole1992 ($116.35 in chips)
+Seat 7: JTs98o ($298.48 in chips)
+Seat 8: drPokermarv ($236.36 in chips)
+JTs98o: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 4h]
+Tjukk: raises $3 to $3
+RunRun: calls $3
+kole1992: folds
+JTs98o: folds
+drPokermarv: calls $2
+*** FLOP *** [Jd Tc 2c]
+drPokermarv: checks
+Tjukk: bets $6.41
+RunRun: folds
+drPokermarv: folds
+Uncalled bet ($6.41) returned to Tjukk
+*** SHOW DOWN ***
+Tjukk: doesn't show hand
+Tjukk collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [Jd Tc 2c]
+Seat 2: Tjukk collected ($9.50)
+Seat 4: RunRun folded on the Flop 
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: JTs98o (small blind) folded before Flop 
+Seat 8: drPokermarv (big blind) folded on the Flop 
+
+
+Weplay Hand #75426106:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:00:28 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #8 is the button
+Seat 2: Tjukk ($115.05 in chips)
+Seat 4: RunRun ($138.38 in chips)
+Seat 5: kole1992 ($116.35 in chips)
+Seat 7: JTs98o ($297.98 in chips)
+Seat 8: drPokermarv ($223.34 in chips)
+Tjukk: posts small blind $0.50
+RunRun: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 7d]
+kole1992: folds
+JTs98o: raises $2.50 to $2.50
+drPokermarv: folds
+Tjukk: calls $2
+RunRun: calls $1.50
+*** FLOP *** [3h 8h 7s]
+Tjukk: checks
+RunRun: checks
+JTs98o: checks
+*** TURN *** [3h 8h 7s] [2c]
+Tjukk: bets $5.85
+RunRun: calls $5.85
+JTs98o: folds
+*** RIVER *** [3h 8h 7s 2c] [Ac]
+Tjukk: bets $106.70 and is all-in
+RunRun: folds
+Uncalled bet ($106.70) returned to Tjukk
+*** SHOW DOWN ***
+Tjukk: doesn't show hand
+Tjukk collected $19.20 from pot
+*** SUMMARY ***
+Total pot $19.20 | Rake $0.96 
+Board [3h 8h 7s 2c Ac]
+Seat 2: Tjukk (small blind) collected ($19.20)
+Seat 4: RunRun (big blind) folded on the River 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 7: JTs98o folded on the Turn 
+Seat 8: drPokermarv (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75426140:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:01:36 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #2 is the button
+Seat 2: Tjukk ($124.94 in chips)
+Seat 4: RunRun ($130.03 in chips)
+Seat 5: kole1992 ($116.35 in chips)
+Seat 7: JTs98o ($295.48 in chips)
+Seat 8: drPokermarv ($223.34 in chips)
+Tjukk: posts the ante $4.01
+RunRun: posts the ante $4.01
+kole1992: posts the ante $4.01
+JTs98o: posts the ante $4.01
+drPokermarv: posts the ante $4.01
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 2c]
+*** FLOP *** [Tc Ac 4d]
+RunRun: checks
+kole1992: checks
+JTs98o: checks
+drPokermarv: bets $5
+Tjukk: folds
+Tjukk leaves the table
+RunRun: calls $5
+kole1992: folds
+JTs98o: folds
+*** TURN *** [Tc Ac 4d] [5h]
+RunRun: checks
+drPokermarv: bets $30
+RunRun: folds
+Uncalled bet ($30) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $30.05 from pot
+*** SUMMARY ***
+Total pot $30.05 | Rake $1.50 
+Board [Tc Ac 4d 5h]
+Seat 2: Tjukk (button) folded on the Flop 
+Seat 4: RunRun folded on the Turn 
+Seat 5: kole1992 folded on the Flop 
+Seat 7: JTs98o folded on the Flop 
+Seat 8: drPokermarv collected ($30.05)
+
+
+Weplay Hand #75426173:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:02:53 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #2 is the button
+Seat 4: RunRun ($121.02 in chips)
+Seat 5: kole1992 ($112.34 in chips)
+Seat 8: drPokermarv ($242.88 in chips)
+RunRun: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 7h]
+drPokermarv: folds
+JTs98o leaves the table
+RunRun: folds
+RunRun: sits out 
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+RunRun leaves the table
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: RunRun (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) collected ($1)
+Seat 8: drPokermarv folded before Flop (didn't bet)
+
+
+Weplay Hand #75426180:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:03:08 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #5 is the button
+Seat 5: kole1992 ($112.84 in chips)
+Seat 8: drPokermarv ($242.88 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Tc]
+kole1992: folds
+Uncalled bet ($0.50) returned to drPokermarv
+*** SHOW DOWN ***
+kole1992: sits out 
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 5: kole1992 (button) (small blind) folded before Flop 
+Seat 8: drPokermarv (big blind) collected ($1)

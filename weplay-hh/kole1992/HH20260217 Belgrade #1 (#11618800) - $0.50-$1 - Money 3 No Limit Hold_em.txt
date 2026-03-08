@@ -1,0 +1,1324 @@
+﻿Weplay Hand #75987552:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:21:17 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 2: MilkMeMom ($95.48 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($100.67 in chips)
+MilkMeMom: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 4d]
+Noakis89: calls $1
+MilkMeMom: folds
+kole1992: checks
+*** FLOP *** [Jd 7h Qh]
+kole1992: checks
+Noakis89: bets $2
+kole1992: calls $2
+*** TURN *** [Jd 7h Qh] [Ah]
+kole1992: checks
+Noakis89: bets $3.25
+kole1992: folds
+Uncalled bet ($3.25) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.16 
+Board [Jd 7h Qh Ah]
+Seat 2: MilkMeMom (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded on the Turn 
+Seat 5: Noakis89 (button) collected ($6.50)
+
+
+Weplay Hand #75987569:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:22:10 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 2: MilkMeMom ($94.98 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($104.01 in chips)
+kole1992: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 4d]
+MilkMeMom: folds
+kole1992: raises $2.50 to $3
+Noakis89: calls $2
+*** FLOP *** [6s 5d Jd]
+kole1992: checks
+Noakis89: checks
+*** TURN *** [6s 5d Jd] [Js]
+kole1992: checks
+Noakis89: checks
+*** RIVER *** [6s 5d Jd Js] [2s]
+kole1992: checks
+Noakis89: bets $3
+kole1992: calls $3
+*** SHOW DOWN ***
+Noakis89: shows [2h 9h] (two pair, Jacks and Deuces)
+kole1992: mucks hand
+Noakis89 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.30 
+Board [6s 5d Jd Js 2s]
+Seat 2: MilkMeMom (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) mucked
+Seat 5: Noakis89 (big blind) showed [2h 9h] and won ($12) with two pair, Jacks and Deuces
+
+
+Weplay Hand #75987586:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:22:49 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($443.53 in chips)
+Seat 2: MilkMeMom ($94.98 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($109.71 in chips)
+Noakis89: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 6h]
+MilkMeMom: raises $2.50 to $2.50
+kole1992: folds
+Noakis89: calls $2
+drPokermarv: raises $14 to $15
+MilkMeMom: calls $12.50
+Noakis89: folds
+*** FLOP *** [5c 2c 3s]
+drPokermarv: bets $16.30
+MilkMeMom: calls $16.30
+*** TURN *** [5c 2c 3s] [Qh]
+drPokermarv: checks
+MilkMeMom: bets $63.68 and is all-in
+drPokermarv: calls $63.68
+*** RIVER *** [5c 2c 3s Qh] [8d]
+*** SHOW DOWN ***
+drPokermarv: shows [Ac Qc] (a pair of Queens)
+MilkMeMom: shows [As 8s] (a pair of Eights)
+drPokermarv collected $192.46 from pot
+*** SUMMARY ***
+Total pot $192.46 | Rake $6.50 
+Board [5c 2c 3s Qh 8d]
+Seat 1: drPokermarv (big blind) showed [Ac Qc] and won ($192.46) with a pair of Queens
+Seat 2: MilkMeMom showed [As 8s] and lost with a pair of Eights
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Noakis89 (small blind) folded before Flop 
+
+
+Weplay Hand #75987608:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:24:02 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($534.51 in chips)
+Seat 2: MilkMeMom ($100 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($107.21 in chips)
+drPokermarv: posts small blind $0.50
+MilkMeMom: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 6c]
+kole1992: folds
+Noakis89: calls $1
+drPokermarv: folds
+MilkMeMom: checks
+*** FLOP *** [3h 9s Js]
+MilkMeMom: checks
+Noakis89: bets $2
+MilkMeMom: raises $7 to $7
+Noakis89: calls $5
+*** TURN *** [3h 9s Js] [Ac]
+MilkMeMom: checks
+Noakis89: checks
+*** RIVER *** [3h 9s Js Ac] [Kc]
+MilkMeMom: checks
+Noakis89: bets $9.25
+MilkMeMom: folds
+Uncalled bet ($9.25) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $16.50 from pot
+*** SUMMARY ***
+Total pot $16.50 | Rake $0.82 
+Board [3h 9s Js Ac Kc]
+Seat 1: drPokermarv (small blind) folded before Flop 
+Seat 2: MilkMeMom (big blind) folded on the River 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Noakis89 (button) collected ($16.50)
+
+
+Weplay Hand #75987625:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:24:57 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($534.01 in chips)
+Seat 2: MilkMeMom ($92 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($114.89 in chips)
+MilkMeMom: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 2s]
+Noakis89: folds
+drPokermarv: folds
+MilkMeMom: raises $2 to $2.50
+kole1992: calls $1.50
+*** FLOP *** [Jh 7s 3s]
+MilkMeMom: checks
+kole1992: checks
+*** TURN *** [Jh 7s 3s] [Ad]
+MilkMeMom: checks
+kole1992: checks
+*** RIVER *** [Jh 7s 3s Ad] [Ts]
+MilkMeMom: checks
+kole1992: bets $4
+MilkMeMom: calls $4
+*** SHOW DOWN ***
+kole1992: shows [Ah 2s] (a pair of Aces)
+MilkMeMom: mucks hand
+kole1992 collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [Jh 7s 3s Ad Ts]
+Seat 1: drPokermarv (button) folded before Flop (didn't bet)
+Seat 2: MilkMeMom (small blind) mucked
+Seat 3: kole1992 (big blind) showed [Ah 2s] and won ($13) with a pair of Aces
+Seat 5: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75987641:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:25:37 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: drPokermarv ($534.01 in chips)
+Seat 2: MilkMeMom ($85.50 in chips)
+Seat 3: kole1992 ($105.85 in chips)
+Seat 5: Noakis89 ($114.89 in chips)
+kole1992: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 9s]
+drPokermarv: folds
+MilkMeMom: raises $2.50 to $2.50
+kole1992: folds
+Noakis89: calls $1.50
+*** FLOP *** [3d Td 7c]
+Noakis89: checks
+MilkMeMom: bets $4.10
+Noakis89: calls $4.10
+*** TURN *** [3d Td 7c] [Jh]
+Noakis89: checks
+MilkMeMom: checks
+*** RIVER *** [3d Td 7c Jh] [Jc]
+Noakis89: checks
+MilkMeMom: checks
+*** SHOW DOWN ***
+Noakis89: shows [5d 2d] (a pair of Jacks)
+MilkMeMom: shows [7h Kh] (two pair, Jacks and Sevens)
+MilkMeMom collected $13.70 from pot
+*** SUMMARY ***
+Total pot $13.70 | Rake $0.68 
+Board [3d Td 7c Jh Jc]
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: MilkMeMom (button) showed [7h Kh] and won ($13.70) with two pair, Jacks and Sevens
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: Noakis89 (big blind) showed [5d 2d] and lost with a pair of Jacks
+
+
+Weplay Hand #75987657:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:26:18 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($534.01 in chips)
+Seat 2: MilkMeMom ($91.92 in chips)
+Seat 3: kole1992 ($105.35 in chips)
+Seat 5: Noakis89 ($108.29 in chips)
+Noakis89: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 5c]
+MilkMeMom: folds
+kole1992: folds
+Noakis89: folds
+Uncalled bet ($0.50) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: drPokermarv (big blind) collected ($1)
+Seat 2: MilkMeMom folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Noakis89 (small blind) folded before Flop 
+
+
+Weplay Hand #75987663:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:26:29 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($534.51 in chips)
+Seat 2: MilkMeMom ($91.92 in chips)
+Seat 3: kole1992 ($105.35 in chips)
+Seat 5: Noakis89 ($107.79 in chips)
+drPokermarv: posts small blind $0.50
+MilkMeMom: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Qc]
+kole1992: raises $2 to $2
+Noakis89: folds
+drPokermarv: folds
+MilkMeMom: calls $1
+*** FLOP *** [Ah 8h Ts]
+MilkMeMom: checks
+kole1992: bets $2.50
+MilkMeMom: calls $2.50
+*** TURN *** [Ah 8h Ts] [Kc]
+MilkMeMom: checks
+kole1992: bets $7.94
+MilkMeMom: folds
+Uncalled bet ($7.94) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [Ah 8h Ts Kc]
+Seat 1: drPokermarv (small blind) folded before Flop 
+Seat 2: MilkMeMom (big blind) folded on the Turn 
+Seat 3: kole1992 collected ($9.50)
+Seat 5: Noakis89 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75987674:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:27:03 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($534.01 in chips)
+Seat 2: MilkMeMom ($87.42 in chips)
+Seat 3: kole1992 ($109.88 in chips)
+Seat 5: Noakis89 ($107.79 in chips)
+MilkMeMom: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Qh]
+Noakis89: calls $1
+drPokermarv: folds
+MilkMeMom: calls $0.50
+kole1992: checks
+*** FLOP *** [Qd 5d 4h]
+MilkMeMom: checks
+kole1992: checks
+Noakis89: bets $2
+MilkMeMom: calls $2
+kole1992: calls $2
+*** TURN *** [Qd 5d 4h] [8h]
+MilkMeMom: checks
+kole1992: checks
+Noakis89: bets $4.50
+MilkMeMom: calls $4.50
+kole1992: folds
+*** RIVER *** [Qd 5d 4h 8h] [Jc]
+MilkMeMom: checks
+Noakis89: bets $9
+MilkMeMom: folds
+Uncalled bet ($9) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $18 from pot
+*** SUMMARY ***
+Total pot $18 | Rake $0.90 
+Board [Qd 5d 4h 8h Jc]
+Seat 1: drPokermarv (button) folded before Flop (didn't bet)
+Seat 2: MilkMeMom (small blind) folded on the River 
+Seat 3: kole1992 (big blind) folded on the Turn 
+Seat 5: Noakis89 collected ($18)
+
+
+Weplay Hand #75987702:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:28:28 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: drPokermarv ($534.01 in chips)
+Seat 2: MilkMeMom ($92.50 in chips)
+Seat 3: kole1992 ($106.88 in chips)
+Seat 5: Noakis89 ($117.39 in chips)
+kole1992: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 5h]
+drPokermarv: raises $2 to $2
+MilkMeMom: folds
+kole1992: folds
+Noakis89: calls $1
+*** FLOP *** [3c 9s 6h]
+Noakis89: checks
+drPokermarv: bets $3.20
+Noakis89: calls $3.20
+*** TURN *** [3c 9s 6h] [9c]
+Noakis89: checks
+drPokermarv: bets $16.40
+Noakis89: folds
+Uncalled bet ($16.40) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $10.90 from pot
+*** SUMMARY ***
+Total pot $10.90 | Rake $0.54 
+Board [3c 9s 6h 9c]
+Seat 1: drPokermarv collected ($10.90)
+Seat 2: MilkMeMom (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: Noakis89 (big blind) folded on the Turn 
+
+
+Weplay Hand #75987710:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:29:06 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($539.17 in chips)
+Seat 2: MilkMeMom ($100 in chips)
+Seat 3: kole1992 ($106.38 in chips)
+Seat 5: Noakis89 ($112.19 in chips)
+Noakis89: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 2c]
+MilkMeMom: folds
+kole1992: folds
+Noakis89: raises $2.50 to $3
+drPokermarv: calls $2
+*** FLOP *** [5c Qh Kd]
+Noakis89: bets $4
+drPokermarv: folds
+Uncalled bet ($4) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [5c Qh Kd]
+Seat 1: drPokermarv (big blind) folded on the Flop 
+Seat 2: MilkMeMom folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Noakis89 (small blind) collected ($6)
+
+
+Weplay Hand #75987720:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:29:31 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($536.17 in chips)
+Seat 2: MilkMeMom ($100 in chips)
+Seat 3: kole1992 ($106.38 in chips)
+Seat 5: Noakis89 ($114.89 in chips)
+drPokermarv: posts small blind $0.50
+MilkMeMom: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 2h]
+kole1992: folds
+Noakis89: folds
+drPokermarv: raises $2.50 to $3
+MilkMeMom: calls $2
+*** FLOP *** [Qc 9s 3s]
+drPokermarv: checks
+MilkMeMom: checks
+*** TURN *** [Qc 9s 3s] [Qs]
+drPokermarv: checks
+MilkMeMom: checks
+*** RIVER *** [Qc 9s 3s Qs] [2c]
+drPokermarv: checks
+MilkMeMom: checks
+*** SHOW DOWN ***
+drPokermarv: shows [7d Ac] (a pair of Queens)
+MilkMeMom: mucks hand
+drPokermarv collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Qc 9s 3s Qs 2c]
+Seat 1: drPokermarv (small blind) showed [7d Ac] and won ($6) with a pair of Queens
+Seat 2: MilkMeMom (big blind) mucked
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Noakis89 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75987731:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:30:10 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($538.87 in chips)
+Seat 2: MilkMeMom ($97 in chips)
+Seat 3: kole1992 ($106.38 in chips)
+Seat 5: Noakis89 ($114.89 in chips)
+MilkMeMom: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 8c]
+Noakis89: raises $3 to $3
+drPokermarv: raises $7.50 to $7.50
+MilkMeMom: folds
+kole1992: folds
+Noakis89: calls $4.50
+*** FLOP *** [6h Ac Qc]
+Noakis89: checks
+drPokermarv: bets $5.50
+Noakis89: calls $5.50
+*** TURN *** [6h Ac Qc] [Qh]
+Noakis89: bets $15.75
+drPokermarv: folds
+Uncalled bet ($15.75) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: shows [Kc 2c] (a pair of Queens)
+Noakis89 collected $27.50 from pot
+*** SUMMARY ***
+Total pot $27.50 | Rake $1.37 
+Board [6h Ac Qc Qh]
+Seat 1: drPokermarv (button) folded on the Turn 
+Seat 2: MilkMeMom (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 5: Noakis89 collected ($27.50)
+
+
+Weplay Hand #75987750:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:31:11 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: drPokermarv ($525.87 in chips)
+Seat 2: MilkMeMom ($96.50 in chips)
+Seat 3: kole1992 ($105.38 in chips)
+Seat 5: Noakis89 ($128.02 in chips)
+kole1992: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Jc]
+drPokermarv: folds
+MilkMeMom: raises $2.50 to $2.50
+kole1992: folds
+Noakis89: folds
+Uncalled bet ($1.50) returned to MilkMeMom
+*** SHOW DOWN ***
+MilkMeMom: doesn't show hand
+MilkMeMom collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: MilkMeMom (button) collected ($2.50)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: Noakis89 (big blind) folded before Flop 
+
+
+Weplay Hand #75987764:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:31:42 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($525.87 in chips)
+Seat 2: MilkMeMom ($98 in chips)
+Seat 3: kole1992 ($104.88 in chips)
+Seat 5: Noakis89 ($127.02 in chips)
+Noakis89: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Jh]
+MilkMeMom: folds
+kole1992: folds
+Noakis89: calls $0.50
+drPokermarv: raises $3 to $4
+Noakis89: folds
+Uncalled bet ($3) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: drPokermarv (big blind) collected ($2)
+Seat 2: MilkMeMom folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Noakis89 (small blind) folded before Flop 
+
+
+Weplay Hand #75987769:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:32:00 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($526.87 in chips)
+Seat 2: MilkMeMom ($98 in chips)
+Seat 3: kole1992 ($104.88 in chips)
+Seat 5: Noakis89 ($126.02 in chips)
+drPokermarv: posts small blind $0.50
+MilkMeMom: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Td]
+kole1992: raises $2.50 to $2.50
+Noakis89: folds
+drPokermarv: folds
+MilkMeMom: calls $1.50
+*** FLOP *** [3c 3s Qd]
+MilkMeMom: checks
+kole1992: checks
+*** TURN *** [3c 3s Qd] [7s]
+MilkMeMom: bets $2.80
+kole1992: calls $2.80
+*** RIVER *** [3c 3s Qd 7s] [7h]
+MilkMeMom: checks
+kole1992: checks
+*** SHOW DOWN ***
+MilkMeMom: shows [Ks Qc] (two pair, Queens and Sevens)
+kole1992: mucks hand
+MilkMeMom collected $11.10 from pot
+*** SUMMARY ***
+Total pot $11.10 | Rake $0.55 
+Board [3c 3s Qd 7s 7h]
+Seat 1: drPokermarv (small blind) folded before Flop 
+Seat 2: MilkMeMom (big blind) showed [Ks Qc] and won ($11.10) with two pair, Queens and Sevens
+Seat 3: kole1992 mucked
+Seat 5: Noakis89 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75987783:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:32:44 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($526.37 in chips)
+Seat 2: MilkMeMom ($103.25 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($126.02 in chips)
+MilkMeMom: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 3c]
+Noakis89: folds
+drPokermarv: raises $2.50 to $2.50
+MilkMeMom: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: drPokermarv (button) collected ($2.50)
+Seat 2: MilkMeMom (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 5: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75987790:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:33:01 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: drPokermarv ($527.87 in chips)
+Seat 2: MilkMeMom ($102.75 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($126.02 in chips)
+kole1992: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 5d]
+drPokermarv: folds
+MilkMeMom: folds
+kole1992: raises $2.50 to $3
+Noakis89: calls $2
+*** FLOP *** [5c Tc 6h]
+kole1992: checks
+Noakis89: checks
+*** TURN *** [5c Tc 6h] [Ac]
+kole1992: checks
+Noakis89: bets $5
+kole1992: folds
+Uncalled bet ($5) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [5c Tc 6h Ac]
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: MilkMeMom (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded on the Turn 
+Seat 5: Noakis89 (big blind) collected ($6)
+
+
+Weplay Hand #75987808:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:33:55 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($527.87 in chips)
+Seat 2: MilkMeMom ($102.75 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($128.72 in chips)
+Noakis89: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 4h]
+MilkMeMom: raises $2.50 to $2.50
+kole1992: folds
+Noakis89: folds
+drPokermarv: folds
+Uncalled bet ($1.50) returned to MilkMeMom
+*** SHOW DOWN ***
+MilkMeMom: doesn't show hand
+MilkMeMom collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: drPokermarv (big blind) folded before Flop 
+Seat 2: MilkMeMom collected ($2.50)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Noakis89 (small blind) folded before Flop 
+
+
+Weplay Hand #75987814:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:34:14 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($526.87 in chips)
+Seat 2: MilkMeMom ($104.25 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($128.22 in chips)
+drPokermarv: posts small blind $0.50
+MilkMeMom: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 5s]
+kole1992: folds
+Noakis89: calls $1
+drPokermarv: folds
+MilkMeMom: folds
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: drPokermarv (small blind) folded before Flop 
+Seat 2: MilkMeMom (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Noakis89 (button) collected ($2.50)
+
+
+Weplay Hand #75987821:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:34:25 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($526.37 in chips)
+Seat 2: MilkMeMom ($103.25 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($129.72 in chips)
+MilkMeMom: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Ah]
+Noakis89: raises $2.25 to $2.25
+drPokermarv: folds
+MilkMeMom: calls $1.75
+kole1992: folds
+*** FLOP *** [Kc 4c Ks]
+MilkMeMom: checks
+Noakis89: bets $2.75
+MilkMeMom: calls $2.75
+*** TURN *** [Kc 4c Ks] [Ts]
+MilkMeMom: checks
+Noakis89: checks
+*** RIVER *** [Kc 4c Ks Ts] [5h]
+MilkMeMom: checks
+Noakis89: bets $5.50
+MilkMeMom: calls $5.50
+*** SHOW DOWN ***
+Noakis89: shows [9d 9c] (two pair, Kings and Nines)
+MilkMeMom: mucks hand
+Noakis89 collected $22 from pot
+*** SUMMARY ***
+Total pot $22 | Rake $1.10 
+Board [Kc 4c Ks Ts 5h]
+Seat 1: drPokermarv (button) folded before Flop (didn't bet)
+Seat 2: MilkMeMom (small blind) mucked
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 5: Noakis89 showed [9d 9c] and won ($22) with two pair, Kings and Nines
+
+
+Weplay Hand #75987832:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:35:16 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: drPokermarv ($526.37 in chips)
+Seat 2: MilkMeMom ($92.75 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($140.12 in chips)
+kole1992: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Th]
+drPokermarv: folds
+MilkMeMom: raises $2.50 to $2.50
+kole1992: raises $10.50 to $11
+Noakis89: folds
+MilkMeMom: raises $90.25 to $92.75 and is all-in
+kole1992: calls $81.75
+*** FLOP *** [5c 2d Kh]
+*** TURN *** [5c 2d Kh] [8s]
+*** RIVER *** [5c 2d Kh 8s] [9h]
+*** SHOW DOWN ***
+kole1992: shows [Td Th] (a pair of Tens)
+MilkMeMom: shows [Ah Kd] (a pair of Kings)
+MilkMeMom collected $186.50 from pot
+*** SUMMARY ***
+Total pot $186.50 | Rake $6.50 
+Board [5c 2d Kh 8s 9h]
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: MilkMeMom (button) showed [Ah Kd] and won ($186.50) with a pair of Kings
+Seat 3: kole1992 (small blind) showed [Td Th] and lost with a pair of Tens
+Seat 5: Noakis89 (big blind) folded before Flop 
+
+
+Weplay Hand #75987850:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:35:56 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($526.37 in chips)
+Seat 2: MilkMeMom ($180 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($139.12 in chips)
+Noakis89: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 5s]
+MilkMeMom: folds
+kole1992: raises $2.50 to $2.50
+Noakis89: calls $2
+drPokermarv: folds
+*** FLOP *** [Ac Qc 5h]
+Noakis89: checks
+kole1992: checks
+*** TURN *** [Ac Qc 5h] [Jc]
+Noakis89: checks
+kole1992: checks
+*** RIVER *** [Ac Qc 5h Jc] [6s]
+Noakis89: bets $6
+kole1992: folds
+Uncalled bet ($6) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Ac Qc 5h Jc 6s]
+Seat 1: drPokermarv (big blind) folded before Flop 
+Seat 2: MilkMeMom folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded on the River 
+Seat 5: Noakis89 (small blind) collected ($6)
+
+
+Weplay Hand #75987868:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:36:49 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($525.37 in chips)
+Seat 2: MilkMeMom ($180 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($142.32 in chips)
+drPokermarv: posts small blind $0.50
+MilkMeMom: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 7s]
+kole1992: folds
+Noakis89: raises $3 to $3
+drPokermarv: folds
+MilkMeMom: calls $2
+*** FLOP *** [Td 7h 6c]
+MilkMeMom: checks
+Noakis89: checks
+*** TURN *** [Td 7h 6c] [4s]
+MilkMeMom: bets $4.90
+Noakis89: folds
+Uncalled bet ($4.90) returned to MilkMeMom
+*** SHOW DOWN ***
+MilkMeMom: doesn't show hand
+MilkMeMom collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [Td 7h 6c 4s]
+Seat 1: drPokermarv (small blind) folded before Flop 
+Seat 2: MilkMeMom (big blind) collected ($6.50)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Noakis89 (button) folded on the Turn 
+
+
+Weplay Hand #75987883:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:37:31 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($524.87 in chips)
+Seat 2: MilkMeMom ($183.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Noakis89 ($139.32 in chips)
+MilkMeMom: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 9c]
+Noakis89: raises $2 to $2
+drPokermarv: folds
+MilkMeMom: folds
+kole1992: calls $1
+*** FLOP *** [Qc 4s Qh]
+kole1992: checks
+Noakis89: checks
+*** TURN *** [Qc 4s Qh] [5c]
+kole1992: bets $1.48
+Noakis89: calls $1.48
+*** RIVER *** [Qc 4s Qh 5c] [Js]
+kole1992: bets $4.36
+Noakis89: raises $12.45 to $12.45
+kole1992: calls $8.09
+*** SHOW DOWN ***
+Noakis89: shows [As Ac] (two pair, Aces and Queens)
+kole1992: shows [Qd 9c] (three of a kind, Queens)
+kole1992 collected $32.36 from pot
+*** SUMMARY ***
+Total pot $32.36 | Rake $1.61 
+Board [Qc 4s Qh 5c Js]
+Seat 1: drPokermarv (button) folded before Flop (didn't bet)
+Seat 2: MilkMeMom (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) showed [Qd 9c] and won ($32.36) with three of a kind, Queens
+Seat 5: Noakis89 showed [As Ac] and lost with two pair, Aces and Queens
+
+
+Weplay Hand #75987900:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:38:29 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: drPokermarv ($524.87 in chips)
+Seat 2: MilkMeMom ($182.68 in chips)
+Seat 3: kole1992 ($114.82 in chips)
+Seat 5: Noakis89 ($123.39 in chips)
+kole1992: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As 6h]
+drPokermarv: folds
+MilkMeMom: raises $2.50 to $2.50
+kole1992: folds
+Noakis89: folds
+Uncalled bet ($1.50) returned to MilkMeMom
+*** SHOW DOWN ***
+MilkMeMom: doesn't show hand
+MilkMeMom collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: MilkMeMom (button) collected ($2.50)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: Noakis89 (big blind) folded before Flop 
+
+
+Weplay Hand #75987909:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:38:47 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($524.87 in chips)
+Seat 2: MilkMeMom ($184.18 in chips)
+Seat 3: kole1992 ($114.32 in chips)
+Seat 5: Noakis89 ($122.39 in chips)
+Noakis89: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 5d]
+MilkMeMom: folds
+kole1992: folds
+Noakis89: calls $0.50
+drPokermarv: checks
+*** FLOP *** [Ks 7s Ts]
+Noakis89: bets $1
+drPokermarv: calls $1
+*** TURN *** [Ks 7s Ts] [Kd]
+Noakis89: bets $2
+drPokermarv: calls $2
+*** RIVER *** [Ks 7s Ts Kd] [4h]
+Noakis89: checks
+drPokermarv: checks
+*** SHOW DOWN ***
+Noakis89: shows [4s Qc] (two pair, Kings and Fours)
+drPokermarv: shows [6s Th] (two pair, Kings and Tens)
+drPokermarv collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [Ks 7s Ts Kd 4h]
+Seat 1: drPokermarv (big blind) showed [6s Th] and won ($8) with two pair, Kings and Tens
+Seat 2: MilkMeMom folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Noakis89 (small blind) showed [4s Qc] and lost with two pair, Kings and Fours
+
+
+Weplay Hand #75987919:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:39:29 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($528.47 in chips)
+Seat 2: MilkMeMom ($184.18 in chips)
+Seat 3: kole1992 ($114.32 in chips)
+Seat 5: Noakis89 ($118.39 in chips)
+drPokermarv: posts small blind $0.50
+MilkMeMom: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Tc]
+kole1992: folds
+Noakis89: raises $3 to $3
+drPokermarv: folds
+MilkMeMom: folds
+Uncalled bet ($2) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: drPokermarv (small blind) folded before Flop 
+Seat 2: MilkMeMom (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Noakis89 (button) collected ($2.50)
+
+
+Weplay Hand #75987926:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:39:49 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($527.97 in chips)
+Seat 2: MilkMeMom ($183.18 in chips)
+Seat 3: kole1992 ($114.32 in chips)
+Seat 5: Noakis89 ($119.89 in chips)
+MilkMeMom: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 4c]
+Noakis89: folds
+drPokermarv: folds
+MilkMeMom: raises $2 to $2.50
+kole1992: calls $1.50
+*** FLOP *** [Ah 3s 4h]
+MilkMeMom: checks
+kole1992: checks
+*** TURN *** [Ah 3s 4h] [Ks]
+MilkMeMom: checks
+kole1992: checks
+*** RIVER *** [Ah 3s 4h Ks] [6h]
+MilkMeMom: checks
+kole1992: checks
+*** SHOW DOWN ***
+MilkMeMom: shows [Jc Qh] (high card Ace)
+kole1992: shows [5s 4c] (a pair of Fours)
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [Ah 3s 4h Ks 6h]
+Seat 1: drPokermarv (button) folded before Flop (didn't bet)
+Seat 2: MilkMeMom (small blind) showed [Jc Qh] and lost with high card Ace
+Seat 3: kole1992 (big blind) showed [5s 4c] and won ($5) with a pair of Fours
+Seat 5: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75987947:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:40:59 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: drPokermarv ($527.97 in chips)
+Seat 2: MilkMeMom ($180.68 in chips)
+Seat 3: kole1992 ($116.57 in chips)
+Seat 5: Noakis89 ($119.89 in chips)
+kole1992: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 4s]
+drPokermarv: folds
+MilkMeMom: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: MilkMeMom (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: Noakis89 (big blind) collected ($1)
+
+
+Weplay Hand #75987952:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:41:14 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($527.97 in chips)
+Seat 2: MilkMeMom ($180.68 in chips)
+Seat 3: kole1992 ($116.07 in chips)
+Seat 5: Noakis89 ($120.39 in chips)
+Noakis89: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 6d]
+MilkMeMom: raises $2.50 to $2.50
+kole1992: folds
+Noakis89: calls $2
+drPokermarv: folds
+*** FLOP *** [Td 7d 6s]
+Noakis89: checks
+MilkMeMom: bets $3
+Noakis89: calls $3
+*** TURN *** [Td 7d 6s] [Qc]
+Noakis89: checks
+MilkMeMom: bets $9
+Noakis89: folds
+Uncalled bet ($9) returned to MilkMeMom
+*** SHOW DOWN ***
+MilkMeMom: doesn't show hand
+MilkMeMom collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [Td 7d 6s Qc]
+Seat 1: drPokermarv (big blind) folded before Flop 
+Seat 2: MilkMeMom collected ($12)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Noakis89 (small blind) folded on the Turn 
+
+
+Weplay Hand #75987967:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:41:52 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($526.97 in chips)
+Seat 2: MilkMeMom ($186.58 in chips)
+Seat 3: kole1992 ($116.07 in chips)
+Seat 5: Noakis89 ($114.89 in chips)
+drPokermarv: posts small blind $0.50
+MilkMeMom: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Th]
+kole1992: folds
+Noakis89: folds
+drPokermarv: folds
+Uncalled bet ($0.50) returned to MilkMeMom
+*** SHOW DOWN ***
+MilkMeMom: doesn't show hand
+MilkMeMom collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: drPokermarv (small blind) folded before Flop 
+Seat 2: MilkMeMom (big blind) collected ($1)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Noakis89 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75987970:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:42:01 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($526.47 in chips)
+Seat 2: MilkMeMom ($187.08 in chips)
+Seat 3: kole1992 ($116.07 in chips)
+Seat 5: Noakis89 ($114.89 in chips)
+MilkMeMom: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 2s]
+Noakis89: folds
+drPokermarv: raises $2.50 to $2.50
+MilkMeMom: calls $2
+kole1992: folds
+*** FLOP *** [9c 6d Ks]
+MilkMeMom: checks
+drPokermarv: bets $4.20
+MilkMeMom: folds
+Uncalled bet ($4.20) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [9c 6d Ks]
+Seat 1: drPokermarv (button) collected ($6)
+Seat 2: MilkMeMom (small blind) folded on the Flop 
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 5: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75987981:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:42:33 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: drPokermarv ($529.67 in chips)
+Seat 2: MilkMeMom ($184.58 in chips)
+Seat 3: kole1992 ($115.07 in chips)
+Seat 5: Noakis89 ($114.89 in chips)
+kole1992: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 5d]
+drPokermarv: folds
+MilkMeMom: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: MilkMeMom (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: Noakis89 (big blind) collected ($1)
+
+
+Weplay Hand #75987985:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:42:46 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($529.67 in chips)
+Seat 2: MilkMeMom ($184.58 in chips)
+Seat 3: kole1992 ($114.57 in chips)
+Seat 5: Noakis89 ($115.39 in chips)
+Noakis89: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 2h]
+MilkMeMom: raises $2.50 to $2.50
+kole1992: folds
+Noakis89: calls $2
+drPokermarv: folds
+*** FLOP *** [8h Ac Jc]
+Noakis89: checks
+MilkMeMom: bets $2
+Noakis89: calls $2
+*** TURN *** [8h Ac Jc] [Kd]
+Noakis89: checks
+MilkMeMom: checks
+*** RIVER *** [8h Ac Jc Kd] [7s]
+Noakis89: bets $10
+MilkMeMom: calls $10
+*** SHOW DOWN ***
+Noakis89: shows [Ad Qd] (a pair of Aces)
+MilkMeMom: mucks hand
+Noakis89 collected $30 from pot
+*** SUMMARY ***
+Total pot $30 | Rake $1.50 
+Board [8h Ac Jc Kd 7s]
+Seat 1: drPokermarv (big blind) folded before Flop 
+Seat 2: MilkMeMom mucked
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Noakis89 (small blind) showed [Ad Qd] and won ($30) with a pair of Aces
+
+
+Weplay Hand #75988001:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:43:37 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($528.67 in chips)
+Seat 2: MilkMeMom ($170.08 in chips)
+Seat 3: kole1992 ($114.57 in chips)
+Seat 5: Noakis89 ($129.39 in chips)
+drPokermarv: posts small blind $0.50
+MilkMeMom: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Jd]
+kole1992: folds
+Noakis89: folds
+drPokermarv: raises $2.50 to $3
+MilkMeMom: calls $2
+*** FLOP *** [4d 9d 8h]
+drPokermarv: checks
+MilkMeMom: bets $3
+drPokermarv: calls $3
+*** TURN *** [4d 9d 8h] [4h]
+drPokermarv: checks
+MilkMeMom: bets $9
+drPokermarv: raises $35 to $35
+Nemesis joins the table at seat #4
+MilkMeMom: folds
+Uncalled bet ($26) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $30 from pot
+*** SUMMARY ***
+Total pot $30 | Rake $1.50 
+Board [4d 9d 8h 4h]
+Seat 1: drPokermarv (small blind) collected ($30)
+Seat 2: MilkMeMom (big blind) folded on the Turn 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Noakis89 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75988016:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:44:36 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($542.17 in chips)
+Seat 2: MilkMeMom ($155.08 in chips)
+Seat 3: kole1992 ($114.57 in chips)
+Seat 4: Nemesis ($100 in chips)
+Seat 5: Noakis89 ($129.39 in chips)
+MilkMeMom: posts small blind $0.50
+kole1992: posts big blind $1
+Nemesis: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 7d]
+Nemesis: checks
+Noakis89: calls $1
+drPokermarv: raises $5 to $5
+MilkMeMom: calls $4.50
+kole1992: folds
+Nemesis: folds
+Noakis89: calls $4
+*** FLOP *** [9c 8s 4d]
+MilkMeMom: checks
+Noakis89: checks
+drPokermarv: checks
+*** TURN *** [9c 8s 4d] [7s]
+MilkMeMom: checks
+Noakis89: checks
+drPokermarv: checks
+*** RIVER *** [9c 8s 4d 7s] [2h]
+MilkMeMom: checks
+Noakis89: checks
+drPokermarv: checks
+*** SHOW DOWN ***
+MilkMeMom: shows [Jc Qd] (high card Queen)
+Noakis89: shows [Ad 3d] (high card Ace)
+drPokermarv: shows [6h Ah] (high card Ace)
+drPokermarv collected $17 from pot
+*** SUMMARY ***
+Total pot $17 | Rake $0.85 
+Board [9c 8s 4d 7s 2h]
+Seat 1: drPokermarv (button) showed [6h Ah] and won ($17) with high card Ace
+Seat 2: MilkMeMom (small blind) showed [Jc Qd] and lost with high card Queen
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: Nemesis (big blind) folded before Flop 
+Seat 5: Noakis89 showed [Ad 3d] and lost with high card Ace
+
+
+Weplay Hand #75988033:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:45:27 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: drPokermarv ($553.32 in chips)
+Seat 2: MilkMeMom ($150.08 in chips)
+Seat 3: kole1992 ($113.57 in chips)
+Seat 4: Nemesis ($99 in chips)
+Seat 5: Noakis89 ($124.39 in chips)
+kole1992: posts small blind $0.50
+Nemesis: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 6d]
+Noakis89: folds
+drPokermarv: folds
+MilkMeMom: raises $2.50 to $2.50
+kole1992: folds
+Nemesis: folds
+Uncalled bet ($1.50) returned to MilkMeMom
+*** SHOW DOWN ***
+MilkMeMom: doesn't show hand
+MilkMeMom collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: MilkMeMom (button) collected ($2.50)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Nemesis (big blind) folded before Flop 
+Seat 5: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75988039:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:45:56 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($553.32 in chips)
+Seat 2: MilkMeMom ($151.58 in chips)
+Seat 3: kole1992 ($113.07 in chips)
+Seat 4: Nemesis ($98 in chips)
+Seat 5: Noakis89 ($124.39 in chips)
+Nemesis: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Kd]
+drPokermarv: folds
+MilkMeMom: raises $2.50 to $2.50
+kole1992: raises $6.50 to $6.50
+Nemesis: folds
+Noakis89: folds
+MilkMeMom: calls $4
+*** FLOP *** [5h 5s Tc]
+MilkMeMom: checks
+kole1992: checks
+*** TURN *** [5h 5s Tc] [3c]
+MilkMeMom: bets $4.80
+kole1992: folds
+Uncalled bet ($4.80) returned to MilkMeMom
+*** SHOW DOWN ***
+MilkMeMom: doesn't show hand
+MilkMeMom collected $14.50 from pot
+*** SUMMARY ***
+Total pot $14.50 | Rake $0.72 
+Board [5h 5s Tc 3c]
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: MilkMeMom collected ($14.50)
+Seat 3: kole1992 (button) folded on the Turn 
+Seat 4: Nemesis (small blind) folded before Flop 
+Seat 5: Noakis89 (big blind) folded before Flop 
+
+
+Weplay Hand #75988055:  Hold'em No Limit ($0.50/$1) - 2026/02/17 5:46:36 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #4 is the button
+Seat 1: drPokermarv ($553.32 in chips)
+Seat 2: MilkMeMom ($158.86 in chips)
+Seat 3: kole1992 ($106.57 in chips)
+Seat 4: Nemesis ($97.50 in chips)
+Seat 5: Noakis89 ($123.39 in chips)
+Noakis89: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Jh]
+MilkMeMom: folds
+kole1992: folds
+Nemesis: raises $2.50 to $2.50
+Noakis89: calls $2
+drPokermarv: folds
+*** FLOP *** [Ah Th 7s]
+Noakis89: checks
+Nemesis: bets $1.50
+Noakis89: folds
+Uncalled bet ($1.50) returned to Nemesis
+*** SHOW DOWN ***
+Nemesis has timed out
+Nemesis: doesn't show hand
+Nemesis collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Ah Th 7s]
+Seat 1: drPokermarv (big blind) folded before Flop 
+Seat 2: MilkMeMom folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Nemesis (button) collected ($6)
+Seat 5: Noakis89 (small blind) folded on the Flop 

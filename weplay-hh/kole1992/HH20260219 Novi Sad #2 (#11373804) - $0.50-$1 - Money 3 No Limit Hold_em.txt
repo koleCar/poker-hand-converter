@@ -1,0 +1,2255 @@
+﻿Weplay Hand #76168551:  Hold'em No Limit ($0.50/$1) - 2026/02/19 9:55:46 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Gerrard68 ($100 in chips)
+Seat 3: markanen0 ($157.10 in chips)
+Seat 4: Adhm5522 ($86.69 in chips)
+Seat 5: Nothingtown ($85.90 in chips)
+Seat 6: KratkiLucky ($145.95 in chips)
+Seat 7: yeser07 ($26.94 in chips)
+Seat 8: kole1992 ($100 in chips)
+yeser07: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 8c]
+Gerrard68: calls $1
+markanen0: folds
+Adhm5522: calls $1
+Nothingtown: raises $5.50 to $5.50
+KratkiLucky: folds
+yeser07: folds
+kole1992: folds
+Gerrard68: folds
+Adhm5522: folds
+Uncalled bet ($4.50) returned to Nothingtown
+*** SHOW DOWN ***
+Nothingtown: doesn't show hand
+Nothingtown collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 2: Gerrard68 folded before Flop 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 folded before Flop 
+Seat 5: Nothingtown collected ($4.50)
+Seat 6: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 7: yeser07 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #76168560:  Hold'em No Limit ($0.50/$1) - 2026/02/19 9:56:19 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 2: Gerrard68 ($100 in chips)
+Seat 3: markanen0 ($157.10 in chips)
+Seat 4: Adhm5522 ($85.69 in chips)
+Seat 5: Nothingtown ($89.40 in chips)
+Seat 6: KratkiLucky ($145.95 in chips)
+Seat 7: yeser07 ($26.44 in chips)
+Seat 8: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+Gerrard68: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Ks]
+markanen0: folds
+Adhm5522: calls $1
+Nothingtown: folds
+KratkiLucky: raises $2.50 to $2.50
+yeser07: folds
+kole1992: raises $10.50 to $11
+Gerrard68: folds
+Adhm5522: folds
+KratkiLucky: folds
+Uncalled bet ($8.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0 
+Seat 2: Gerrard68 (big blind) folded before Flop 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 folded before Flop 
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop 
+Seat 7: yeser07 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) collected ($7)
+
+
+Weplay Hand #76168571:  Hold'em No Limit ($0.50/$1) - 2026/02/19 9:56:55 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Gerrard68 ($100 in chips)
+Seat 3: markanen0 ($157.10 in chips)
+Seat 4: Adhm5522 ($84.69 in chips)
+Seat 5: Nothingtown ($89.40 in chips)
+Seat 6: KratkiLucky ($143.45 in chips)
+Seat 7: yeser07 ($26.44 in chips)
+Seat 8: kole1992 ($104.50 in chips)
+Gerrard68: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Jh]
+Adhm5522: calls $1
+Nothingtown: folds
+KratkiLucky: folds
+yeser07: calls $1
+kole1992: folds
+Gerrard68: folds
+markanen0: checks
+*** FLOP *** [Kh Ad Kc]
+markanen0: checks
+Adhm5522: checks
+yeser07: checks
+*** TURN *** [Kh Ad Kc] [5d]
+markanen0: checks
+Adhm5522: bets $2.63
+yeser07: calls $2.63
+markanen0: folds
+*** RIVER *** [Kh Ad Kc 5d] [8d]
+Adhm5522: checks
+yeser07: checks
+*** SHOW DOWN ***
+Adhm5522: shows [5s 2s] (two pair, Kings and Fives)
+yeser07: shows [4h 5c] (two pair, Kings and Fives)
+Adhm5522 collected $4.39 from pot
+yeser07 collected $4.37 from pot
+*** SUMMARY ***
+Total pot $8.76 | Rake $0.43 
+Board [Kh Ad Kc 5d 8d]
+Seat 2: Gerrard68 (small blind) folded before Flop 
+Seat 3: markanen0 (big blind) folded on the Turn 
+Seat 4: Adhm5522 showed [5s 2s] and won ($4.39) with two pair, Kings and Fives
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 showed [4h 5c] and won ($4.37) with two pair, Kings and Fives
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76168586:  Hold'em No Limit ($0.50/$1) - 2026/02/19 9:57:58 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Gerrard68 ($100 in chips)
+Seat 3: markanen0 ($156.10 in chips)
+Seat 4: Adhm5522 ($85.23 in chips)
+Seat 5: Nothingtown ($89.40 in chips)
+Seat 6: KratkiLucky ($143.45 in chips)
+Seat 7: yeser07 ($26.97 in chips)
+Seat 8: kole1992 ($104.50 in chips)
+markanen0: posts small blind $0.50
+Adhm5522: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Ad]
+Nothingtown: raises $2.50 to $2.50
+KratkiLucky: folds
+yeser07: folds
+kole1992: raises $5.50 to $5.50
+Gerrard68: folds
+markanen0: folds
+Adhm5522: calls $4.50
+Nothingtown: folds
+*** FLOP *** [Qs 5c 2h]
+Adhm5522: checks
+kole1992: bets $3.36
+Adhm5522: folds
+Uncalled bet ($3.36) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [Qs 5c 2h]
+Seat 2: Gerrard68 (button) folded before Flop (didn't bet)
+Seat 3: markanen0 (small blind) folded before Flop 
+Seat 4: Adhm5522 (big blind) folded on the Flop 
+Seat 5: Nothingtown folded before Flop 
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 folded before Flop (didn't bet)
+Seat 8: kole1992 collected ($14)
+
+
+Weplay Hand #76168597:  Hold'em No Limit ($0.50/$1) - 2026/02/19 9:58:41 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Gerrard68 ($100 in chips)
+Seat 3: markanen0 ($155.60 in chips)
+Seat 4: Adhm5522 ($79.73 in chips)
+Seat 5: Nothingtown ($86.90 in chips)
+Seat 6: KratkiLucky ($143.45 in chips)
+Seat 7: yeser07 ($26.97 in chips)
+Seat 8: kole1992 ($112.30 in chips)
+Adhm5522: posts small blind $0.50
+Nothingtown: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 2s]
+KratkiLucky: folds
+Allinfans72 joins the table at seat #1
+yeser07: calls $1
+kole1992: folds
+Gerrard68: folds
+markanen0: folds
+Adhm5522: calls $0.50
+Nothingtown: checks
+*** FLOP *** [2d 3d Qs]
+Adhm5522: checks
+Nothingtown: checks
+yeser07: checks
+*** TURN *** [2d 3d Qs] [5c]
+Adhm5522: checks
+Nothingtown: checks
+yeser07: checks
+*** RIVER *** [2d 3d Qs 5c] [As]
+Adhm5522: checks
+Nothingtown: checks
+yeser07: bets $3
+Adhm5522: folds
+Nothingtown: folds
+Uncalled bet ($3) returned to yeser07
+*** SHOW DOWN ***
+yeser07: doesn't show hand
+yeser07 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [2d 3d Qs 5c As]
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 (button) folded before Flop (didn't bet)
+Seat 4: Adhm5522 (small blind) folded on the River 
+Seat 5: Nothingtown (big blind) folded on the River 
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 collected ($3)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168618:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:00:23 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 2: Gerrard68 ($100 in chips)
+Seat 3: markanen0 ($155.60 in chips)
+Seat 4: Adhm5522 ($78.73 in chips)
+Seat 5: Nothingtown ($85.90 in chips)
+Seat 6: KratkiLucky ($143.45 in chips)
+Seat 7: yeser07 ($28.82 in chips)
+Seat 8: kole1992 ($112.30 in chips)
+Nothingtown: posts small blind $0.50
+KratkiLucky: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Ts]
+yeser07: calls $1
+kole1992: folds
+Gerrard68: folds
+markanen0: folds
+Adhm5522: calls $1
+Nothingtown: folds
+KratkiLucky: checks
+*** FLOP *** [5d Ac 8s]
+KratkiLucky: checks
+yeser07: bets $3
+Adhm5522: folds
+KratkiLucky: calls $3
+*** TURN *** [5d Ac 8s] [6h]
+KratkiLucky: checks
+yeser07: checks
+*** RIVER *** [5d Ac 8s 6h] [9d]
+KratkiLucky: checks
+yeser07: bets $6.33
+KratkiLucky: folds
+Uncalled bet ($6.33) returned to yeser07
+*** SHOW DOWN ***
+yeser07: doesn't show hand
+yeser07 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [5d Ac 8s 6h 9d]
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 (button) folded on the Flop 
+Seat 5: Nothingtown (small blind) folded before Flop 
+Seat 6: KratkiLucky (big blind) folded on the River 
+Seat 7: yeser07 collected ($9.50)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168657:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:02:13 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Gerrard68 ($100 in chips)
+Seat 3: markanen0 ($155.60 in chips)
+Seat 4: Adhm5522 ($77.73 in chips)
+Seat 5: Nothingtown ($85.40 in chips)
+Seat 6: KratkiLucky ($139.45 in chips)
+Seat 7: yeser07 ($33.85 in chips)
+Seat 8: kole1992 ($112.30 in chips)
+KratkiLucky: posts small blind $0.50
+yeser07: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 2d]
+kole1992: folds
+Gerrard68: calls $1
+markanen0: folds
+Adhm5522: folds
+Nothingtown: folds
+KratkiLucky: raises $7.50 to $8
+yeser07: folds
+Gerrard68: folds
+Uncalled bet ($7) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 2: Gerrard68 folded before Flop 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 folded before Flop (didn't bet)
+Seat 5: Nothingtown (button) folded before Flop (didn't bet)
+Seat 6: KratkiLucky (small blind) collected ($3)
+Seat 7: yeser07 (big blind) folded before Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168670:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:02:51 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Gerrard68 ($100 in chips)
+Seat 3: markanen0 ($155.60 in chips)
+Seat 4: Adhm5522 ($77.73 in chips)
+Seat 5: Nothingtown ($85.40 in chips)
+Seat 6: KratkiLucky ($141.45 in chips)
+Seat 7: yeser07 ($32.85 in chips)
+Seat 8: kole1992 ($112.30 in chips)
+yeser07: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Td]
+Gerrard68: folds
+markanen0: folds
+Adhm5522: calls $1
+Nothingtown: folds
+KratkiLucky: raises $4.50 to $4.50
+yeser07: folds
+kole1992: folds
+Adhm5522: calls $3.50
+*** FLOP *** [7h 6h Qs]
+Adhm5522: checks
+KratkiLucky: bets $5
+Adhm5522: folds
+Uncalled bet ($5) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $10.50 from pot
+*** SUMMARY ***
+Total pot $10.50 | Rake $0.52 
+Board [7h 6h Qs]
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 folded on the Flop 
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky (button) collected ($10.50)
+Seat 7: yeser07 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #76168696:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:03:52 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: Allinfans72 ($70 in chips)
+Seat 2: Gerrard68 ($100 in chips)
+Seat 3: markanen0 ($155.60 in chips)
+Seat 4: Adhm5522 ($73.23 in chips)
+Seat 5: Nothingtown ($85.40 in chips)
+Seat 6: KratkiLucky ($146.93 in chips)
+Seat 7: yeser07 ($32.35 in chips)
+Seat 8: kole1992 ($111.30 in chips)
+kole1992: posts small blind $0.50
+Allinfans72: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 3h]
+Gerrard68: calls $1
+markanen0: folds
+Adhm5522: calls $1
+Nothingtown: folds
+KratkiLucky: folds
+yeser07: folds
+kole1992: folds
+Allinfans72: checks
+*** FLOP *** [3c 9s 7d]
+Allinfans72: checks
+Gerrard68: checks
+Adhm5522: checks
+*** TURN *** [3c 9s 7d] [Kd]
+Allinfans72: checks
+Gerrard68: checks
+Adhm5522: checks
+*** RIVER *** [3c 9s 7d Kd] [Ad]
+Allinfans72: checks
+Gerrard68: checks
+Adhm5522: checks
+*** SHOW DOWN ***
+Allinfans72: shows [2d Qh] (high card Ace)
+Gerrard68: shows [Tc Th] (a pair of Tens)
+Adhm5522 has timed out
+Adhm5522: mucks hand
+Gerrard68 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [3c 9s 7d Kd Ad]
+Seat 1: Allinfans72 (big blind) showed [2d Qh] and lost with high card Ace
+Seat 2: Gerrard68 showed [Tc Th] and won ($3.50) with a pair of Tens
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 mucked
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #76168719:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:04:57 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: Allinfans72 ($69 in chips)
+Seat 2: Gerrard68 ($102.33 in chips)
+Seat 3: markanen0 ($155.60 in chips)
+Seat 4: Adhm5522 ($72.23 in chips)
+Seat 5: Nothingtown ($85.40 in chips)
+Seat 6: KratkiLucky ($146.93 in chips)
+Seat 7: yeser07 ($32.35 in chips)
+Seat 8: kole1992 ($110.80 in chips)
+Allinfans72: posts small blind $0.50
+Gerrard68: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 6c]
+markanen0: folds
+Adhm5522: calls $1
+Nothingtown: folds
+KratkiLucky: folds
+yeser07: calls $1
+kole1992: folds
+Allinfans72: calls $0.50
+Gerrard68: checks
+*** FLOP *** [6s 5h 3d]
+Allinfans72: checks
+Gerrard68: checks
+Adhm5522: checks
+yeser07: checks
+*** TURN *** [6s 5h 3d] [4d]
+Allinfans72: checks
+Gerrard68: checks
+Adhm5522: checks
+yeser07: checks
+*** RIVER *** [6s 5h 3d 4d] [5c]
+Allinfans72: bets $5
+Gerrard68: folds
+Adhm5522: folds
+yeser07: calls $5
+*** SHOW DOWN ***
+Allinfans72: shows [5d 3c] (a full house, Fives full of Threes)
+yeser07: mucks hand
+Allinfans72 collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [6s 5h 3d 4d 5c]
+Seat 1: Allinfans72 (small blind) showed [5d 3c] and won ($14) with a full house, Fives full of Threes
+Seat 2: Gerrard68 (big blind) folded on the River 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 folded on the River 
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 mucked
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76168746:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:06:01 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: Allinfans72 ($76.30 in chips)
+Seat 2: Gerrard68 ($101.33 in chips)
+Seat 3: markanen0 ($155.60 in chips)
+Seat 4: Adhm5522 ($71.23 in chips)
+Seat 5: Nothingtown ($85.40 in chips)
+Seat 6: KratkiLucky ($146.93 in chips)
+Seat 7: yeser07 ($26.35 in chips)
+Seat 8: kole1992 ($110.80 in chips)
+Gerrard68: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 9s]
+Adhm5522: calls $1
+Nothingtown: folds
+KratkiLucky: raises $4.50 to $4.50
+yeser07: folds
+kole1992: folds
+Allinfans72: folds
+Gerrard68: calls $4
+markanen0: folds
+Adhm5522: calls $3.50
+*** FLOP *** [5c 6d Ah]
+Gerrard68: checks
+Adhm5522: checks
+KratkiLucky: checks
+*** TURN *** [5c 6d Ah] [4d]
+Gerrard68: checks
+Adhm5522: checks
+KratkiLucky: checks
+*** RIVER *** [5c 6d Ah 4d] [5d]
+Gerrard68: checks
+Adhm5522: checks
+KratkiLucky: checks
+*** SHOW DOWN ***
+Gerrard68: shows [8s 4s] (two pair, Fives and Fours)
+Adhm5522: mucks hand
+KratkiLucky has timed out
+KratkiLucky: mucks hand
+Gerrard68 collected $14.50 from pot
+*** SUMMARY ***
+Total pot $14.50 | Rake $0.72 
+Board [5c 6d Ah 4d 5d]
+Seat 1: Allinfans72 (button) folded before Flop (didn't bet)
+Seat 2: Gerrard68 (small blind) showed [8s 4s] and won ($14.50) with two pair, Fives and Fours
+Seat 3: markanen0 (big blind) folded before Flop 
+Seat 4: Adhm5522 mucked
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky mucked
+Seat 7: yeser07 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168777:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:07:21 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: Allinfans72 ($76.30 in chips)
+Seat 2: Gerrard68 ($110.61 in chips)
+Seat 3: markanen0 ($154.60 in chips)
+Seat 4: Adhm5522 ($66.73 in chips)
+Seat 5: Nothingtown ($85.40 in chips)
+Seat 6: KratkiLucky ($142.43 in chips)
+Seat 7: yeser07 ($26.35 in chips)
+Seat 8: kole1992 ($110.80 in chips)
+markanen0: posts small blind $0.50
+Adhm5522: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 6h]
+Nothingtown: folds
+KratkiLucky: folds
+yeser07: folds
+kole1992: folds
+Allinfans72: folds
+Gerrard68: raises $3.50 to $3.50
+markanen0: folds
+Adhm5522: calls $2.50
+*** FLOP *** [9s Tc Qc]
+Adhm5522: checks
+Gerrard68: bets $5
+Adhm5522: calls $5
+*** TURN *** [9s Tc Qc] [Qd]
+Adhm5522: checks
+Gerrard68: checks
+*** RIVER *** [9s Tc Qc Qd] [Qh]
+Adhm5522: checks
+Gerrard68: checks
+*** SHOW DOWN ***
+Adhm5522: shows [8c Td] (a full house, Queens full of Tens)
+Gerrard68: mucks hand
+Adhm5522 collected $17.50 from pot
+*** SUMMARY ***
+Total pot $17.50 | Rake $0.87 
+Board [9s Tc Qc Qd Qh]
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: Gerrard68 (button) mucked
+Seat 3: markanen0 (small blind) folded before Flop 
+Seat 4: Adhm5522 (big blind) showed [8c Td] and won ($17.50) with a full house, Queens full of Tens
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168799:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:08:11 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: Allinfans72 ($76.30 in chips)
+Seat 2: Gerrard68 ($102.11 in chips)
+Seat 3: markanen0 ($154.10 in chips)
+Seat 4: Adhm5522 ($74.86 in chips)
+Seat 5: Nothingtown ($85.40 in chips)
+Seat 6: KratkiLucky ($142.43 in chips)
+Seat 7: yeser07 ($26.35 in chips)
+Seat 8: kole1992 ($110.80 in chips)
+Adhm5522: posts small blind $0.50
+Nothingtown: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Js]
+KratkiLucky: folds
+yeser07: folds
+kole1992: folds
+Allinfans72: folds
+Gerrard68: folds
+markanen0: folds
+Adhm5522: calls $0.50
+Nothingtown: checks
+*** FLOP *** [4s Kd Td]
+Adhm5522: checks
+Nothingtown: bets $1
+Adhm5522: calls $1
+*** TURN *** [4s Kd Td] [Qs]
+Adhm5522: checks
+Nothingtown: checks
+*** RIVER *** [4s Kd Td Qs] [9s]
+Adhm5522: checks
+Nothingtown: checks
+*** SHOW DOWN ***
+Adhm5522: shows [Kh 3c] (a pair of Kings)
+Nothingtown: mucks hand
+Adhm5522 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [4s Kd Td Qs 9s]
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 (button) folded before Flop (didn't bet)
+Seat 4: Adhm5522 (small blind) showed [Kh 3c] and won ($4) with a pair of Kings
+Seat 5: Nothingtown (big blind) mucked
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168819:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:09:10 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: Allinfans72 ($76.30 in chips)
+Seat 2: Gerrard68 ($102.11 in chips)
+Seat 3: markanen0 ($154.10 in chips)
+Seat 4: Adhm5522 ($76.66 in chips)
+Seat 5: Nothingtown ($83.40 in chips)
+Seat 6: KratkiLucky ($142.43 in chips)
+Seat 7: yeser07 ($26.35 in chips)
+Seat 8: kole1992 ($110.80 in chips)
+Nothingtown: posts small blind $0.50
+KratkiLucky: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Ac]
+yeser07: calls $1
+kole1992: folds
+Allinfans72: raises $4 to $4
+Gerrard68: folds
+markanen0: folds
+Adhm5522: folds
+Nothingtown: folds
+KratkiLucky: folds
+yeser07: calls $3
+*** FLOP *** [2h Kh 3d]
+yeser07: checks
+Allinfans72: checks
+*** TURN *** [2h Kh 3d] [As]
+yeser07: checks
+Allinfans72: bets $4
+yeser07: folds
+Uncalled bet ($4) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72 has timed out
+Allinfans72: doesn't show hand
+Allinfans72 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [2h Kh 3d As]
+Seat 1: Allinfans72 collected ($9.50)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 (button) folded before Flop (didn't bet)
+Seat 5: Nothingtown (small blind) folded before Flop 
+Seat 6: KratkiLucky (big blind) folded before Flop 
+Seat 7: yeser07 folded on the Turn 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168834:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:09:57 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: Allinfans72 ($81.33 in chips)
+Seat 2: Gerrard68 ($102.11 in chips)
+Seat 3: markanen0 ($154.10 in chips)
+Seat 4: Adhm5522 ($76.66 in chips)
+Seat 5: Nothingtown ($82.90 in chips)
+Seat 6: KratkiLucky ($141.43 in chips)
+Seat 7: yeser07 ($22.35 in chips)
+Seat 8: kole1992 ($110.80 in chips)
+KratkiLucky: posts small blind $0.50
+yeser07: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 5c]
+kole1992: folds
+Allinfans72: folds
+Gerrard68: folds
+markanen0: raises $2 to $2
+Adhm5522: calls $2
+Nothingtown: folds
+KratkiLucky: raises $12 to $12.50
+yeser07: folds
+markanen0: folds
+Adhm5522: folds
+Uncalled bet ($10.50) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0 
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop 
+Seat 4: Adhm5522 folded before Flop 
+Seat 5: Nothingtown (button) folded before Flop (didn't bet)
+Seat 6: KratkiLucky (small blind) collected ($7)
+Seat 7: yeser07 (big blind) folded before Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168850:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:10:44 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: Allinfans72 ($81.33 in chips)
+Seat 2: Gerrard68 ($102.11 in chips)
+Seat 3: markanen0 ($152.10 in chips)
+Seat 4: Adhm5522 ($74.66 in chips)
+Seat 5: Nothingtown ($82.90 in chips)
+Seat 6: KratkiLucky ($146.43 in chips)
+Seat 7: yeser07 ($21.35 in chips)
+Seat 8: kole1992 ($110.80 in chips)
+yeser07: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Qh]
+Allinfans72: folds
+Gerrard68: folds
+markanen0: raises $2 to $2
+Adhm5522: folds
+Nothingtown: raises $7 to $7
+KratkiLucky: folds
+yeser07: folds
+kole1992: folds
+markanen0: calls $5
+*** FLOP *** [7c 5c Qc]
+markanen0: checks
+Nothingtown: bets $3.50
+markanen0: folds
+Uncalled bet ($3.50) returned to Nothingtown
+*** SHOW DOWN ***
+Nothingtown: doesn't show hand
+Nothingtown collected $15.50 from pot
+*** SUMMARY ***
+Total pot $15.50 | Rake $0.77 
+Board [7c 5c Qc]
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded on the Flop 
+Seat 4: Adhm5522 folded before Flop (didn't bet)
+Seat 5: Nothingtown collected ($15.50)
+Seat 6: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 7: yeser07 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #76168870:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:11:32 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: Allinfans72 ($81.33 in chips)
+Seat 2: Gerrard68 ($102.11 in chips)
+Seat 3: markanen0 ($145.10 in chips)
+Seat 4: Adhm5522 ($74.66 in chips)
+Seat 5: Nothingtown ($90.63 in chips)
+Seat 6: KratkiLucky ($146.43 in chips)
+Seat 7: yeser07 ($20.85 in chips)
+Seat 8: kole1992 ($109.80 in chips)
+kole1992: posts small blind $0.50
+Allinfans72: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Tc]
+Gerrard68: folds
+markanen0: folds
+Adhm5522: folds
+Nothingtown: folds
+KratkiLucky: raises $2.50 to $2.50
+yeser07: folds
+kole1992: folds
+Allinfans72: calls $1.50
+*** FLOP *** [Ad 3s 3h]
+Allinfans72: checks
+KratkiLucky: checks
+*** TURN *** [Ad 3s 3h] [4s]
+Allinfans72: bets $3
+KratkiLucky: folds
+Uncalled bet ($3) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72 has timed out
+Allinfans72: doesn't show hand
+Allinfans72 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Ad 3s 3h 4s]
+Seat 1: Allinfans72 (big blind) collected ($5.50)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded on the Turn 
+Seat 7: yeser07 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #76168885:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:12:24 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: Allinfans72 ($84.06 in chips)
+Seat 2: Gerrard68 ($102.11 in chips)
+Seat 3: markanen0 ($145.10 in chips)
+Seat 4: Adhm5522 ($74.66 in chips)
+Seat 5: Nothingtown ($90.63 in chips)
+Seat 6: KratkiLucky ($143.93 in chips)
+Seat 7: yeser07 ($20.85 in chips)
+Seat 8: kole1992 ($109.30 in chips)
+Allinfans72: posts small blind $0.50
+Gerrard68: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 4d]
+markanen0: folds
+Adhm5522: folds
+Nothingtown: folds
+KratkiLucky: folds
+yeser07: calls $1
+kole1992: raises $3 to $3
+Allinfans72: folds
+Gerrard68: calls $2
+yeser07: calls $2
+*** FLOP *** [Kc 9d 3h]
+Gerrard68: checks
+yeser07: checks
+kole1992: checks
+*** TURN *** [Kc 9d 3h] [Ah]
+Gerrard68: bets $4.75
+yeser07: calls $4.75
+kole1992: folds
+*** RIVER *** [Kc 9d 3h Ah] [5s]
+Gerrard68: checks
+yeser07: checks
+*** SHOW DOWN ***
+Gerrard68: shows [As 4s] (a pair of Aces)
+yeser07: mucks hand
+Gerrard68 collected $19 from pot
+*** SUMMARY ***
+Total pot $19 | Rake $0.95 
+Board [Kc 9d 3h Ah 5s]
+Seat 1: Allinfans72 (small blind) folded before Flop 
+Seat 2: Gerrard68 (big blind) showed [As 4s] and won ($19) with a pair of Aces
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 mucked
+Seat 8: kole1992 (button) folded on the Turn 
+
+
+Weplay Hand #76168911:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:13:41 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: Allinfans72 ($83.56 in chips)
+Seat 2: Gerrard68 ($112.41 in chips)
+Seat 3: markanen0 ($145.10 in chips)
+Seat 4: Adhm5522 ($74.66 in chips)
+Seat 5: Nothingtown ($90.63 in chips)
+Seat 6: KratkiLucky ($143.93 in chips)
+Seat 7: yeser07 ($13.10 in chips)
+Seat 8: kole1992 ($106.30 in chips)
+Gerrard68: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 5s]
+Adhm5522: calls $1
+Nothingtown: folds
+KratkiLucky: folds
+yeser07: calls $1
+kole1992: folds
+Allinfans72: folds
+Gerrard68: calls $0.50
+markanen0: checks
+*** FLOP *** [9s 9h Qs]
+Gerrard68: checks
+markanen0: checks
+Adhm5522: bets $2
+yeser07: folds
+Gerrard68: calls $2
+markanen0: folds
+*** TURN *** [9s 9h Qs] [6d]
+Gerrard68: checks
+Adhm5522: bets $4
+Gerrard68: folds
+Uncalled bet ($4) returned to Adhm5522
+*** SHOW DOWN ***
+Adhm5522: doesn't show hand
+Adhm5522 collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [9s 9h Qs 6d]
+Seat 1: Allinfans72 (button) folded before Flop (didn't bet)
+Seat 2: Gerrard68 (small blind) folded on the Turn 
+Seat 3: markanen0 (big blind) folded on the Flop 
+Seat 4: Adhm5522 collected ($8)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 folded on the Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168923:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:14:24 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: Allinfans72 ($83.56 in chips)
+Seat 2: Gerrard68 ($109.41 in chips)
+Seat 3: markanen0 ($144.10 in chips)
+Seat 4: Adhm5522 ($79.26 in chips)
+Seat 5: Nothingtown ($90.63 in chips)
+Seat 6: KratkiLucky ($143.93 in chips)
+Seat 7: yeser07 ($12.10 in chips)
+Seat 8: kole1992 ($106.30 in chips)
+markanen0: posts small blind $0.50
+Adhm5522: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Qd]
+Nothingtown: folds
+KratkiLucky: folds
+yeser07: folds
+kole1992: folds
+Allinfans72: folds
+Gerrard68: folds
+markanen0: folds
+Uncalled bet ($0.50) returned to Adhm5522
+*** SHOW DOWN ***
+Adhm5522: doesn't show hand
+Adhm5522 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: Gerrard68 (button) folded before Flop (didn't bet)
+Seat 3: markanen0 (small blind) folded before Flop 
+Seat 4: Adhm5522 (big blind) collected ($1)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168931:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:14:40 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: Allinfans72 ($83.56 in chips)
+Seat 2: Gerrard68 ($109.41 in chips)
+Seat 3: markanen0 ($143.60 in chips)
+Seat 4: Adhm5522 ($79.76 in chips)
+Seat 5: Nothingtown ($90.63 in chips)
+Seat 6: KratkiLucky ($143.93 in chips)
+Seat 7: yeser07 ($12.10 in chips)
+Seat 8: kole1992 ($106.30 in chips)
+Adhm5522: posts small blind $0.50
+Nothingtown: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 4h]
+KratkiLucky: folds
+yeser07: calls $1
+kole1992: folds
+Allinfans72: folds
+Gerrard68: calls $1
+markanen0: calls $1
+Adhm5522: calls $0.50
+Nothingtown: checks
+*** FLOP *** [8d Js 2h]
+Adhm5522: checks
+Nothingtown: checks
+yeser07: checks
+Gerrard68: bets $3.75
+markanen0: folds
+Adhm5522: calls $3.75
+Nothingtown: folds
+yeser07: calls $3.75
+*** TURN *** [8d Js 2h] [Kc]
+Adhm5522: checks
+yeser07: bets $7.35 and is all-in
+Gerrard68: folds
+Adhm5522: calls $7.35
+*** RIVER *** [8d Js 2h Kc] [9c]
+*** SHOW DOWN ***
+Adhm5522: shows [Kh Jc] (two pair, Kings and Jacks)
+yeser07: shows [8h 9d] (two pair, Nines and Eights)
+Adhm5522 collected $30.95 from pot
+*** SUMMARY ***
+Total pot $30.95 | Rake $1.54 
+Board [8d Js 2h Kc 9c]
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded on the Turn 
+Seat 3: markanen0 (button) folded on the Flop 
+Seat 4: Adhm5522 (small blind) showed [Kh Jc] and won ($30.95) with two pair, Kings and Jacks
+Seat 5: Nothingtown (big blind) folded on the Flop 
+Seat 6: KratkiLucky folded before Flop (didn't bet)
+Seat 7: yeser07 showed [8h 9d] and lost with two pair, Nines and Eights
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168960:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:16:03 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: Allinfans72 ($83.56 in chips)
+Seat 2: Gerrard68 ($104.66 in chips)
+Seat 3: markanen0 ($142.60 in chips)
+Seat 4: Adhm5522 ($97.07 in chips)
+Seat 5: Nothingtown ($89.63 in chips)
+Seat 6: KratkiLucky ($143.93 in chips)
+Seat 8: kole1992 ($106.30 in chips)
+Nothingtown: posts small blind $0.50
+KratkiLucky: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 7s]
+kole1992: folds
+Allinfans72: folds
+yeser07 leaves the table
+JTs98o joins the table at seat #7
+Gerrard68: raises $3 to $3
+markanen0: folds
+Adhm5522: folds
+Nothingtown: folds
+KratkiLucky: folds
+Uncalled bet ($2) returned to Gerrard68
+*** SHOW DOWN ***
+Gerrard68: doesn't show hand
+Gerrard68 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: Gerrard68 collected ($2.50)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 (button) folded before Flop (didn't bet)
+Seat 5: Nothingtown (small blind) folded before Flop 
+Seat 6: KratkiLucky (big blind) folded before Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76168966:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:16:20 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: Allinfans72 ($83.56 in chips)
+Seat 2: Gerrard68 ($106.16 in chips)
+Seat 3: markanen0 ($142.60 in chips)
+Seat 4: Adhm5522 ($97.07 in chips)
+Seat 5: Nothingtown ($89.13 in chips)
+Seat 6: KratkiLucky ($142.93 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: kole1992 ($106.30 in chips)
+KratkiLucky: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts As]
+kole1992: raises $2 to $2
+Allinfans72: folds
+Gerrard68: folds
+markanen0: folds
+Adhm5522: calls $2
+Nothingtown: folds
+KratkiLucky: folds
+JTs98o: folds
+*** FLOP *** [Qs 3d 4c]
+kole1992: checks
+Adhm5522: checks
+*** TURN *** [Qs 3d 4c] [8h]
+kole1992: checks
+Adhm5522: bets $2.75
+kole1992: folds
+Uncalled bet ($2.75) returned to Adhm5522
+*** SHOW DOWN ***
+Adhm5522: doesn't show hand
+Adhm5522 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Qs 3d 4c 8h]
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 collected ($5.50)
+Seat 5: Nothingtown (button) folded before Flop (didn't bet)
+Seat 6: KratkiLucky (small blind) folded before Flop 
+Seat 7: JTs98o (big blind) folded before Flop 
+Seat 8: kole1992 folded on the Turn 
+
+
+Weplay Hand #76168991:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:17:36 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: Allinfans72 ($83.56 in chips)
+Seat 2: Gerrard68 ($106.16 in chips)
+Seat 3: markanen0 ($142.60 in chips)
+Seat 4: Adhm5522 ($100.30 in chips)
+Seat 5: Nothingtown ($89.13 in chips)
+Seat 6: KratkiLucky ($142.43 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: kole1992 ($104.30 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 4s]
+Allinfans72: folds
+Gerrard68: calls $1
+Allinfans72 leaves the table
+markanen0: folds
+Adhm5522: calls $1
+Nothingtown: folds
+KratkiLucky: folds
+Noakis89 joins the table at seat #1
+JTs98o: folds
+kole1992: checks
+*** FLOP *** [Ks 3c 6d]
+kole1992: checks
+Gerrard68: checks
+Adhm5522: checks
+*** TURN *** [Ks 3c 6d] [5s]
+kole1992: checks
+Gerrard68: checks
+Adhm5522: checks
+*** RIVER *** [Ks 3c 6d 5s] [2d]
+KratkiLucky leaves the table
+kole1992: bets $1
+Gerrard68: folds
+Adhm5522: raises $3.75 to $3.75
+antananarivo joins the table at seat #6
+kole1992: raises $6.50 to $7.50
+Adhm5522 is disconnected 
+Adhm5522 is connected 
+Adhm5522: calls $3.75
+*** SHOW DOWN ***
+kole1992: shows [5c 4s] (a straight, Deuce to Six)
+Adhm5522: shows [Ac 4c] (a straight, Deuce to Six)
+Adhm5522 collected $9.25 from pot
+kole1992 collected $9.25 from pot
+*** SUMMARY ***
+Total pot $18.50 | Rake $0.92 
+Board [Ks 3c 6d 5s 2d]
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded on the River 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 showed [Ac 4c] and won ($9.25) with a straight, Deuce to Six
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 7: JTs98o (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) showed [5c 4s] and won ($9.25) with a straight, Deuce to Six
+
+
+Weplay Hand #76169023:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:19:10 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: Noakis89 ($100 in chips)
+Seat 2: Gerrard68 ($105.16 in chips)
+Seat 3: markanen0 ($142.60 in chips)
+Seat 4: Adhm5522 ($100.59 in chips)
+Seat 5: Nothingtown ($89.13 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: kole1992 ($104.59 in chips)
+kole1992: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 9h]
+Gerrard68: calls $1
+markanen0: raises $2 to $2
+Adhm5522: folds
+Nothingtown: raises $7.50 to $7.50
+JTs98o: folds
+kole1992: folds
+Noakis89: folds
+Gerrard68: folds
+markanen0: calls $5.50
+*** FLOP *** [7d Jc Qs]
+markanen0: checks
+Nothingtown: bets $5.80
+markanen0: folds
+Uncalled bet ($5.80) returned to Nothingtown
+*** SHOW DOWN ***
+Nothingtown: doesn't show hand
+Nothingtown collected $17.50 from pot
+*** SUMMARY ***
+Total pot $17.50 | Rake $0.87 
+Board [7d Jc Qs]
+Seat 1: Noakis89 (big blind) folded before Flop 
+Seat 2: Gerrard68 folded before Flop 
+Seat 3: markanen0 folded on the Flop 
+Seat 4: Adhm5522 folded before Flop (didn't bet)
+Seat 5: Nothingtown collected ($17.50)
+Seat 7: JTs98o (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #76169036:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:20:01 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: Noakis89 ($99 in chips)
+Seat 2: Gerrard68 ($104.16 in chips)
+Seat 3: markanen0 ($135.10 in chips)
+Seat 4: Adhm5522 ($100.59 in chips)
+Seat 5: Nothingtown ($98.26 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: kole1992 ($104.09 in chips)
+Noakis89: posts small blind $0.50
+Gerrard68: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 6c]
+markanen0: folds
+Adhm5522: calls $1
+Nothingtown: folds
+JTs98o: folds
+kole1992: folds
+Noakis89: calls $0.50
+Gerrard68: checks
+*** FLOP *** [Js 8d 6h]
+Noakis89: checks
+Gerrard68: checks
+Adhm5522: checks
+*** TURN *** [Js 8d 6h] [5s]
+Noakis89: checks
+Gerrard68: checks
+Adhm5522: checks
+*** RIVER *** [Js 8d 6h 5s] [7h]
+Noakis89: bets $3
+Gerrard68: folds
+Adhm5522: folds
+Uncalled bet ($3) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Js 8d 6h 5s 7h]
+Seat 1: Noakis89 (small blind) collected ($3)
+Seat 2: Gerrard68 (big blind) folded on the River 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: Adhm5522 folded on the River 
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76169049:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:20:52 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: Noakis89 ($100.85 in chips)
+Seat 2: Gerrard68 ($103.16 in chips)
+Seat 3: markanen0 ($135.10 in chips)
+Seat 4: Adhm5522 ($99.59 in chips)
+Seat 5: Nothingtown ($98.26 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: kole1992 ($104.09 in chips)
+Gerrard68: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 4c]
+Adhm5522: calls $1
+Nothingtown: folds
+JTs98o has timed out
+JTs98o: folds
+kole1992: raises $3 to $3
+JTs98o is disconnected 
+JTs98o is connected 
+Noakis89: calls $3
+Gerrard68: folds
+markanen0: calls $2
+Adhm5522: calls $2
+*** FLOP *** [3s 6s Qh]
+markanen0: checks
+Adhm5522: checks
+kole1992: checks
+Noakis89: checks
+*** TURN *** [3s 6s Qh] [8s]
+JTs98o is disconnected 
+markanen0: bets $6.25
+JTs98o is connected 
+Adhm5522: folds
+kole1992: folds
+Noakis89: folds
+Uncalled bet ($6.25) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $12.50 from pot
+*** SUMMARY ***
+Total pot $12.50 | Rake $0.62 
+Board [3s 6s Qh 8s]
+Seat 1: Noakis89 (button) folded on the Turn 
+Seat 2: Gerrard68 (small blind) folded before Flop 
+Seat 3: markanen0 (big blind) collected ($12.50)
+Seat 4: Adhm5522 folded on the Turn 
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: kole1992 folded on the Turn 
+
+
+Weplay Hand #76169075:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:22:13 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: Noakis89 ($97.85 in chips)
+Seat 2: Gerrard68 ($102.66 in chips)
+Seat 3: markanen0 ($143.98 in chips)
+Seat 4: Adhm5522 ($96.59 in chips)
+Seat 5: Nothingtown ($98.26 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: kole1992 ($101.09 in chips)
+markanen0: posts small blind $0.50
+Adhm5522: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Tc]
+Nothingtown: folds
+JTs98o: folds
+kole1992: folds
+Noakis89: folds
+Gerrard68: folds
+markanen0: folds
+Uncalled bet ($0.50) returned to Adhm5522
+*** SHOW DOWN ***
+Adhm5522 has timed out
+Adhm5522: doesn't show hand
+Adhm5522 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Noakis89 folded before Flop (didn't bet)
+Seat 2: Gerrard68 (button) folded before Flop (didn't bet)
+Seat 3: markanen0 (small blind) folded before Flop 
+Seat 4: Adhm5522 (big blind) collected ($1)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76170427:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:49:32 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: Noakis89 ($115.29 in chips)
+Seat 2: Gerrard68 ($115.53 in chips)
+Seat 3: markanen0 ($132.48 in chips)
+Seat 4: kole1992 ($101.09 in chips)
+Seat 5: Nothingtown ($98.80 in chips)
+Seat 8: Tone91 ($101.50 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 7c]
+JTs98o is disconnected 
+Nothingtown: folds
+JTs98o is connected 
+Tone91: folds
+Noakis89: folds
+Gerrard68: raises $3.50 to $3.50
+markanen0: folds
+kole1992: folds
+Uncalled bet ($2.50) returned to Gerrard68
+*** SHOW DOWN ***
+Gerrard68: doesn't show hand
+Gerrard68 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Noakis89 folded before Flop (didn't bet)
+Seat 2: Gerrard68 (button) collected ($2.50)
+Seat 3: markanen0 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 8: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #76170432:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:50:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: Noakis89 ($115.29 in chips)
+Seat 2: Gerrard68 ($117.03 in chips)
+Seat 3: markanen0 ($131.98 in chips)
+Seat 4: kole1992 ($100.09 in chips)
+Seat 5: Nothingtown ($98.80 in chips)
+Seat 7: JTs98o ($127.12 in chips)
+Seat 8: Tone91 ($101.50 in chips)
+kole1992: posts small blind $0.50
+Nothingtown: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Ac]
+JTs98o has timed out
+JTs98o: folds
+Tone91: folds
+JTs98o is disconnected 
+Noakis89: calls $1
+Gerrard68: folds
+JTs98o is connected 
+markanen0: raises $6.50 to $6.50
+kole1992: folds
+Nothingtown: folds
+Noakis89: folds
+Uncalled bet ($5.50) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: Noakis89 folded before Flop 
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 (button) collected ($3.50)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: Nothingtown (big blind) folded before Flop 
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #76170445:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:50:48 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: Noakis89 ($114.29 in chips)
+Seat 2: Gerrard68 ($117.03 in chips)
+Seat 3: markanen0 ($134.48 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($97.80 in chips)
+Seat 7: JTs98o ($127.12 in chips)
+Seat 8: Tone91 ($101.50 in chips)
+Nothingtown: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 6h]
+Tone91: raises $2.50 to $2.50
+Noakis89: folds
+Gerrard68: folds
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+JTs98o: folds
+Uncalled bet ($1.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Noakis89 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Nothingtown (small blind) folded before Flop 
+Seat 7: JTs98o (big blind) folded before Flop 
+Seat 8: Tone91 collected ($2.50)
+
+
+Weplay Hand #76170454:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:51:29 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: Noakis89 ($114.29 in chips)
+Seat 2: Gerrard68 ($117.03 in chips)
+Seat 3: markanen0 ($134.48 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($97.30 in chips)
+Seat 7: JTs98o ($126.12 in chips)
+Seat 8: Tone91 ($103 in chips)
+JTs98o: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 3d]
+Noakis89: folds
+Gerrard68: raises $3 to $3
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+JTs98o: folds
+Tone91: folds
+Uncalled bet ($2) returned to Gerrard68
+*** SHOW DOWN ***
+Gerrard68: doesn't show hand
+Gerrard68 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Noakis89 folded before Flop (didn't bet)
+Seat 2: Gerrard68 collected ($2.50)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown (button) folded before Flop (didn't bet)
+Seat 7: JTs98o (small blind) folded before Flop 
+Seat 8: Tone91 (big blind) folded before Flop 
+
+
+Weplay Hand #76170458:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:51:56 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: Noakis89 ($114.29 in chips)
+Seat 2: Gerrard68 ($118.53 in chips)
+Seat 3: markanen0 ($134.48 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($97.30 in chips)
+Seat 7: JTs98o ($125.62 in chips)
+Seat 8: Tone91 ($102 in chips)
+Tone91: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Th]
+Gerrard68: raises $3 to $3
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+JTs98o: folds
+Tone91: folds
+Noakis89: folds
+Uncalled bet ($2) returned to Gerrard68
+*** SHOW DOWN ***
+Gerrard68: doesn't show hand
+Gerrard68 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Noakis89 (big blind) folded before Flop 
+Seat 2: Gerrard68 collected ($2.50)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 7: JTs98o (button) folded before Flop (didn't bet)
+Seat 8: Tone91 (small blind) folded before Flop 
+
+
+Weplay Hand #76170463:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:52:21 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: Noakis89 ($113.29 in chips)
+Seat 2: Gerrard68 ($120.03 in chips)
+Seat 3: markanen0 ($134.48 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($97.30 in chips)
+Seat 7: JTs98o ($125.62 in chips)
+Seat 8: Tone91 ($101.50 in chips)
+Noakis89: posts small blind $0.50
+Gerrard68: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 7d]
+markanen0: folds
+kole1992: folds
+Nothingtown: raises $2.50 to $2.50
+JTs98o has timed out
+JTs98o: folds
+Tone91: calls $2.50
+Noakis89: folds
+JTs98o is disconnected 
+JTs98o is connected 
+Gerrard68: folds
+*** FLOP *** [Th 3s As]
+Nothingtown: checks
+Tone91: bets $7.28
+Nothingtown: raises $25.10 to $25.10
+Tone91: folds
+Uncalled bet ($17.82) returned to Nothingtown
+*** SHOW DOWN ***
+Nothingtown: doesn't show hand
+Nothingtown collected $21.06 from pot
+*** SUMMARY ***
+Total pot $21.06 | Rake $1.05 
+Board [Th 3s As]
+Seat 1: Noakis89 (small blind) folded before Flop 
+Seat 2: Gerrard68 (big blind) folded before Flop 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown collected ($21.06)
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: Tone91 (button) folded on the Flop 
+
+
+Weplay Hand #76170479:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:53:43 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: Noakis89 ($112.79 in chips)
+Seat 2: Gerrard68 ($119.03 in chips)
+Seat 3: markanen0 ($134.48 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($107.53 in chips)
+Seat 7: JTs98o ($125.62 in chips)
+Seat 8: Tone91 ($100 in chips)
+Gerrard68: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 6c]
+kole1992 has timed out
+kole1992: folds
+Nothingtown: raises $2.50 to $2.50
+JTs98o: raises $7.50 to $7.50
+antananarivo leaves the table
+Tone91: calls $7.50
+Noakis89: folds
+Gerrard68: folds
+markanen0: folds
+Nothingtown: calls $5
+*** FLOP *** [6s 7h 8h]
+Nothingtown: checks
+JTs98o: checks
+Tone91: bets $9.60
+Nothingtown: calls $9.60
+JTs98o: raises $118.12 to $118.12 and is all-in
+Tone91: folds
+Nothingtown: calls $90.43 and is all-in
+Uncalled bet ($18.09) returned to JTs98o
+*** TURN *** [6s 7h 8h] [Qc]
+*** FIRST RIVER *** [6s 7h 8h Qc] [Qs]
+*** SECOND TURN *** [6s 7h 8h] [Jh]
+*** SECOND RIVER *** [6s 7h 8h Jh] [7c]
+*** SHOW DOWN ***
+Nothingtown: shows [8d 8s] (a full house, Eights full of Queens)
+JTs98o: shows [Ah 4h] (a pair of Queens)
+Nothingtown collected $233.66 from pot
+*** SUMMARY ***
+Total pot $233.66 | Rake $6.50 
+Hand was run two times
+FIRST Board [6s 7h 8h Qc Qs]
+SECOND Board [6s 7h 8h Jh 7c]
+Seat 1: Noakis89 (button) folded before Flop (didn't bet)
+Seat 2: Gerrard68 (small blind) folded before Flop 
+Seat 3: markanen0 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown showed [8d 8s] and won ($233.66) with a full house, Eights full of Queens
+Seat 7: JTs98o showed [Ah 4h] and lost with a pair of Queens
+Seat 8: Tone91 folded on the Flop 
+
+
+Weplay Hand #76170504:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:55:36 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: Noakis89 ($112.79 in chips)
+Seat 2: Gerrard68 ($118.53 in chips)
+Seat 3: markanen0 ($133.48 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($227.16 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: Tone91 ($100 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Ks]
+Nothingtown: folds
+JTs98o: folds
+Tone91: raises $2.50 to $2.50
+Noakis89: folds
+Gerrard68: folds
+markanen0: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Noakis89 folded before Flop (didn't bet)
+Seat 2: Gerrard68 (button) folded before Flop (didn't bet)
+Seat 3: markanen0 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: Tone91 collected ($2.50)
+
+
+Weplay Hand #76170512:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:56:08 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: Noakis89 ($112.79 in chips)
+Seat 2: Gerrard68 ($118.53 in chips)
+Seat 3: markanen0 ($132.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($227.16 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: Tone91 ($101.50 in chips)
+kole1992: posts small blind $0.50
+Nothingtown: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 7h]
+JTs98o: folds
+Tone91: raises $2.50 to $2.50
+Noakis89: folds
+Gerrard68: folds
+markanen0: folds
+kole1992: folds
+Nothingtown: raises $11 to $12
+Tone91: calls $9.50
+*** FLOP *** [4h 9h 5c]
+Nothingtown: bets $8.10
+podjerrr joins the table at seat #6
+Tone91: calls $8.10
+*** TURN *** [4h 9h 5c] [6c]
+Nothingtown: checks
+Tone91: checks
+*** RIVER *** [4h 9h 5c 6c] [Ts]
+Nothingtown: checks
+Tone91: checks
+*** SHOW DOWN ***
+Nothingtown: shows [Ks As] (high card Ace)
+Tone91: shows [Qs Qh] (a pair of Queens)
+Tone91 collected $40.70 from pot
+*** SUMMARY ***
+Total pot $40.70 | Rake $2.03 
+Board [4h 9h 5c 6c Ts]
+Seat 1: Noakis89 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: Nothingtown (big blind) showed [Ks As] and lost with high card Ace
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: Tone91 showed [Qs Qh] and won ($40.70) with a pair of Queens
+
+
+Weplay Hand #76170538:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:58:21 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: Noakis89 ($112.79 in chips)
+Seat 2: Gerrard68 ($118.53 in chips)
+Seat 3: markanen0 ($132.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($207.06 in chips)
+Seat 6: podjerrr ($100 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: Tone91 ($120.07 in chips)
+Nothingtown: posts small blind $0.50
+podjerrr: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Td]
+JTs98o: folds
+Tone91: folds
+Noakis89: calls $1
+Gerrard68: folds
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+podjerrr: checks
+*** FLOP *** [3c 8c Qh]
+podjerrr: checks
+Noakis89: bets $2
+podjerrr: folds
+Uncalled bet ($2) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [3c 8c Qh]
+Seat 1: Noakis89 collected ($2.50)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Nothingtown (small blind) folded before Flop 
+Seat 6: podjerrr (big blind) folded on the Flop 
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #76170542:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:58:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: Noakis89 ($114.17 in chips)
+Seat 2: Gerrard68 ($118.53 in chips)
+Seat 3: markanen0 ($132.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($206.56 in chips)
+Seat 6: podjerrr ($99 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: Tone91 ($120.07 in chips)
+podjerrr: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 7s]
+Tone91: folds
+Noakis89: folds
+Gerrard68: calls $1
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+podjerrr: calls $0.50
+JTs98o: checks
+*** FLOP *** [Kd Ts Kh]
+podjerrr: checks
+JTs98o: checks
+Gerrard68: checks
+*** TURN *** [Kd Ts Kh] [4h]
+podjerrr: checks
+JTs98o: checks
+Gerrard68: checks
+*** RIVER *** [Kd Ts Kh 4h] [Js]
+podjerrr: bets $1
+JTs98o: folds
+Gerrard68: folds
+Uncalled bet ($1) returned to podjerrr
+*** SHOW DOWN ***
+podjerrr has timed out
+podjerrr: doesn't show hand
+podjerrr collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Kd Ts Kh 4h Js]
+Seat 1: Noakis89 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded on the River 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown (button) folded before Flop (didn't bet)
+Seat 6: podjerrr (small blind) collected ($3)
+Seat 7: JTs98o (big blind) folded on the River 
+Seat 8: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #76170551:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:59:40 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: Noakis89 ($114.17 in chips)
+Seat 2: Gerrard68 ($117.53 in chips)
+Seat 3: markanen0 ($132.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($206.56 in chips)
+Seat 6: podjerrr ($100.85 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: Tone91 ($120.07 in chips)
+JTs98o: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 3s]
+Noakis89: calls $1
+Gerrard68: folds
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+podjerrr: folds
+JTs98o: folds
+Tone91: checks
+*** FLOP *** [Qd 7d Ac]
+Tone91: checks
+Noakis89: checks
+*** TURN *** [Qd 7d Ac] [As]
+Tone91: checks
+Noakis89: checks
+*** RIVER *** [Qd 7d Ac As] [Ts]
+Tone91: checks
+Noakis89: checks
+*** SHOW DOWN ***
+Tone91: shows [Kh 4d] (a pair of Aces)
+Noakis89 has timed out
+Noakis89: mucks hand
+Tone91 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Qd 7d Ac As Ts]
+Seat 1: Noakis89 mucked
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: podjerrr (button) folded before Flop (didn't bet)
+Seat 7: JTs98o (small blind) folded before Flop 
+Seat 8: Tone91 (big blind) showed [Kh 4d] and won ($2.50) with a pair of Aces
+
+
+Weplay Hand #76170618:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:00:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: Noakis89 ($113.17 in chips)
+Seat 2: Gerrard68 ($117.53 in chips)
+Seat 3: markanen0 ($132.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($206.56 in chips)
+Seat 6: podjerrr ($100.85 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: Tone91 ($121.45 in chips)
+Tone91: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 3s]
+Gerrard68: folds
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+podjerrr: calls $1
+JTs98o: folds
+Tone91: folds
+Noakis89: checks
+*** FLOP *** [2d 6c Ks]
+Noakis89: checks
+podjerrr has timed out
+podjerrr: checks
+*** TURN *** [2d 6c Ks] [Td]
+Noakis89: bets $2
+podjerrr: calls $2
+*** RIVER *** [2d 6c Ks Td] [6s]
+Noakis89: checks
+podjerrr: checks
+*** SHOW DOWN ***
+Noakis89: shows [Qd 7d] (a pair of Sixes)
+podjerrr: shows [Ts 4s] (two pair, Tens and Sixes)
+podjerrr collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [2d 6c Ks Td 6s]
+Seat 1: Noakis89 (big blind) showed [Qd 7d] and lost with a pair of Sixes
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: podjerrr showed [Ts 4s] and won ($6.50) with two pair, Tens and Sixes
+Seat 7: JTs98o (button) folded before Flop (didn't bet)
+Seat 8: Tone91 (small blind) folded before Flop 
+
+
+Weplay Hand #76170710:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:02:21 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: Noakis89 ($110.17 in chips)
+Seat 2: Gerrard68 ($117.53 in chips)
+Seat 3: markanen0 ($132.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($206.56 in chips)
+Seat 6: podjerrr ($104.03 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: Tone91 ($120.95 in chips)
+Noakis89: posts small blind $0.50
+Gerrard68: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 7h]
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+podjerrr: folds
+JTs98o: folds
+Tone91: raises $2.50 to $2.50
+Noakis89: folds
+Gerrard68: calls $1.50
+*** FLOP *** [3c 3d 4d]
+Gerrard68: checks
+Tone91: checks
+*** TURN *** [3c 3d 4d] [6s]
+Gerrard68: checks
+Tone91: bets $7.18
+Gerrard68: calls $7.18
+*** RIVER *** [3c 3d 4d 6s] [4c]
+Gerrard68: checks
+Tone91: checks
+*** SHOW DOWN ***
+Gerrard68: shows [5d Kd] (two pair, Fours and Threes)
+Tone91: mucks hand
+Gerrard68 collected $19.86 from pot
+*** SUMMARY ***
+Total pot $19.86 | Rake $0.99 
+Board [3c 3d 4d 6s 4c]
+Seat 1: Noakis89 (small blind) folded before Flop 
+Seat 2: Gerrard68 (big blind) showed [5d Kd] and won ($19.86) with two pair, Fours and Threes
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: podjerrr folded before Flop (didn't bet)
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: Tone91 (button) mucked
+
+
+Weplay Hand #76170846:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:03:26 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: Noakis89 ($109.67 in chips)
+Seat 2: Gerrard68 ($126.72 in chips)
+Seat 3: markanen0 ($132.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($206.56 in chips)
+Seat 6: podjerrr ($104.03 in chips)
+Seat 7: JTs98o ($100 in chips)
+Seat 8: Tone91 ($111.27 in chips)
+Gerrard68: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9c]
+kole1992: raises $2 to $2
+Nothingtown: folds
+podjerrr: calls $2
+JTs98o: raises $8.50 to $8.50
+Tone91: folds
+Noakis89: folds
+Gerrard68: folds
+markanen0: folds
+kole1992: folds
+podjerrr: calls $6.50
+*** FLOP *** [Ah 3s 4d]
+podjerrr: checks
+JTs98o: bets $8.20
+podjerrr: raises $22 to $22
+JTs98o: calls $13.80
+*** TURN *** [Ah 3s 4d] [9d]
+podjerrr: bets $73.53 and is all-in
+JTs98o: calls $69.50 and is all-in
+Uncalled bet ($4.03) returned to podjerrr
+*** FIRST RIVER *** [Ah 3s 4d 9d] [8d]
+*** SECOND RIVER *** [Ah 3s 4d 9d] [Th]
+*** SHOW DOWN ***
+podjerrr: shows [3h 4h] (two pair, Fours and Threes)
+JTs98o: shows [Td Ad] (a flush, Ace high)
+JTs98o collected $203.50 from pot
+*** SUMMARY ***
+Total pot $203.50 | Rake $6.50 
+Hand was run two times
+FIRST Board [Ah 3s 4d 9d 8d]
+SECOND Board [Ah 3s 4d 9d Th]
+Seat 1: Noakis89 (button) folded before Flop (didn't bet)
+Seat 2: Gerrard68 (small blind) folded before Flop 
+Seat 3: markanen0 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop 
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: podjerrr showed [3h 4h] and lost with two pair, Fours and Threes
+Seat 7: JTs98o showed [Td Ad] and won ($203.50) with a flush, Ace high
+Seat 8: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #76171049:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:04:59 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: Noakis89 ($109.67 in chips)
+Seat 2: Gerrard68 ($126.22 in chips)
+Seat 3: markanen0 ($131.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($206.56 in chips)
+Seat 6: podjerrr ($4.03 in chips)
+Seat 7: JTs98o ($197 in chips)
+Seat 8: Tone91 ($111.27 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 3d]
+Nothingtown: folds
+podjerrr: folds
+JTs98o: folds
+Tone91: folds
+Noakis89: raises $3 to $3
+Gerrard68: folds
+markanen0: folds
+kole1992: folds
+Uncalled bet ($2) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Noakis89 collected ($2.50)
+Seat 2: Gerrard68 (button) folded before Flop (didn't bet)
+Seat 3: markanen0 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 6: podjerrr folded before Flop (didn't bet)
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #76171125:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:05:32 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: Noakis89 ($111.17 in chips)
+Seat 2: Gerrard68 ($126.22 in chips)
+Seat 3: markanen0 ($131.48 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($206.56 in chips)
+Seat 6: podjerrr ($4.03 in chips)
+Seat 7: JTs98o ($197 in chips)
+Seat 8: Tone91 ($111.27 in chips)
+kole1992: posts small blind $0.50
+Nothingtown: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 8d]
+podjerrr: raises $4.03 to $4.03 and is all-in
+JTs98o: folds
+Tone91: folds
+Noakis89: calls $4.03
+Gerrard68: folds
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+*** FLOP *** [5d Js 9d]
+*** TURN *** [5d Js 9d] [2h]
+*** RIVER *** [5d Js 9d 2h] [Th]
+*** SHOW DOWN ***
+podjerrr: shows [Qc Jh] (a pair of Jacks)
+Noakis89: shows [As Td] (a pair of Tens)
+podjerrr collected $9.56 from pot
+*** SUMMARY ***
+Total pot $9.56 | Rake $0.47 
+Board [5d Js 9d 2h Th]
+Seat 1: Noakis89 showed [As Td] and lost with a pair of Tens
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: Nothingtown (big blind) folded before Flop 
+Seat 6: podjerrr showed [Qc Jh] and won ($9.56) with a pair of Jacks
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #76171217:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:06:18 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: Noakis89 ($107.14 in chips)
+Seat 2: Gerrard68 ($126.22 in chips)
+Seat 3: markanen0 ($131.48 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($205.56 in chips)
+Seat 6: podjerrr ($9.09 in chips)
+Seat 7: JTs98o ($197 in chips)
+Seat 8: Tone91 ($111.27 in chips)
+Nothingtown: posts small blind $0.50
+podjerrr: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 6h]
+JTs98o: raises $2.50 to $2.50
+Tone91: folds
+Noakis89: folds
+Gerrard68: folds
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+podjerrr: calls $1.50
+*** FLOP *** [2s 7h 2d]
+podjerrr: checks
+JTs98o: checks
+*** TURN *** [2s 7h 2d] [2h]
+podjerrr: checks
+JTs98o: checks
+*** RIVER *** [2s 7h 2d 2h] [9h]
+podjerrr: checks
+JTs98o: checks
+*** SHOW DOWN ***
+podjerrr: shows [3s 8s] (three of a kind, Deuces)
+JTs98o: shows [Qd Jd] (three of a kind, Deuces)
+JTs98o collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [2s 7h 2d 2h 9h]
+Seat 1: Noakis89 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Nothingtown (small blind) folded before Flop 
+Seat 6: podjerrr (big blind) showed [3s 8s] and lost with three of a kind, Deuces
+Seat 7: JTs98o showed [Qd Jd] and won ($5.50) with three of a kind, Deuces
+Seat 8: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #76172343:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:07:14 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: Noakis89 ($107.14 in chips)
+Seat 2: Gerrard68 ($126.22 in chips)
+Seat 3: markanen0 ($131.48 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($205.06 in chips)
+Seat 6: podjerrr ($6.59 in chips)
+Seat 7: JTs98o ($199.73 in chips)
+Seat 8: Tone91 ($111.27 in chips)
+podjerrr: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 6h]
+Tone91: folds
+Noakis89: folds
+Gerrard68: folds
+markanen0: raises $3.50 to $3.50
+kole1992: folds
+Nothingtown: folds
+podjerrr: folds
+JTs98o: folds
+Uncalled bet ($2.50) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Noakis89 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded before Flop (didn't bet)
+Seat 3: markanen0 collected ($2.50)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown (button) folded before Flop (didn't bet)
+Seat 6: podjerrr (small blind) folded before Flop 
+Seat 7: JTs98o (big blind) folded before Flop 
+Seat 8: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #76172404:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:07:43 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: Noakis89 ($107.14 in chips)
+Seat 2: Gerrard68 ($126.22 in chips)
+Seat 3: markanen0 ($132.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($205.06 in chips)
+Seat 6: podjerrr ($6.09 in chips)
+Seat 7: JTs98o ($198.73 in chips)
+Seat 8: Tone91 ($111.27 in chips)
+JTs98o: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Kh]
+Noakis89: folds
+Gerrard68: raises $3 to $3
+markanen0: folds
+kole1992: calls $3
+Nothingtown: raises $12 to $12
+podjerrr: calls $6.09 and is all-in
+JTs98o: folds
+Tone91: folds
+Gerrard68: calls $9
+kole1992: calls $9
+*** FLOP *** [3d Td Qs]
+Gerrard68: checks
+kole1992: checks
+Nothingtown: bets $8.50
+Gerrard68: folds
+kole1992: calls $8.50
+*** TURN *** [3d Td Qs] [7s]
+kole1992: checks
+Nothingtown: bets $20
+kole1992: folds
+Uncalled bet ($20) returned to Nothingtown
+*** RIVER *** [3d Td Qs 7s] [Ks]
+*** SHOW DOWN ***
+Nothingtown: shows [Qc Ad] (a pair of Queens)
+podjerrr: shows [6h 4h] (high card King)
+Nothingtown collected $34.73 from side pot
+Nothingtown collected $25.86 from main pot
+*** SUMMARY ***
+Total pot $60.59 Main pot $25.86. Side pot $34.73. | Rake $3.02 
+Board [3d Td Qs 7s Ks]
+Seat 1: Noakis89 folded before Flop (didn't bet)
+Seat 2: Gerrard68 folded on the Flop 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 folded on the Turn 
+Seat 5: Nothingtown showed [Qc Ad] and won ($60.59) with a pair of Queens
+Seat 6: podjerrr (button) showed [6h 4h] and lost with high card King
+Seat 7: JTs98o (small blind) folded before Flop 
+Seat 8: Tone91 (big blind) folded before Flop 
+
+
+Weplay Hand #76172635:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:09:27 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: Noakis89 ($107.14 in chips)
+Seat 2: Gerrard68 ($114.22 in chips)
+Seat 3: markanen0 ($132.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($242.13 in chips)
+Seat 7: JTs98o ($198.23 in chips)
+Seat 8: Tone91 ($110.27 in chips)
+podjerrr leaves the table
+Tone91: posts small blind $0.50
+Noakis89: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As 4c]
+Gerrard68: calls $1
+markanen0: folds
+kole1992: folds
+Nothingtown: folds
+JTs98o has timed out
+JTs98o: folds
+Tone91: folds
+Noakis89: raises $2 to $3
+Gerrard68: calls $2
+*** FLOP *** [5s 4h 6s]
+Noakis89: checks
+Gerrard68: checks
+*** TURN *** [5s 4h 6s] [5h]
+Noakis89: checks
+Gerrard68: checks
+*** RIVER *** [5s 4h 6s 5h] [Kh]
+Noakis89: bets $4
+Gerrard68: folds
+Uncalled bet ($4) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [5s 4h 6s 5h Kh]
+Seat 1: Noakis89 (big blind) collected ($6.50)
+Seat 2: Gerrard68 folded on the River 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 7: JTs98o (button) folded before Flop (didn't bet)
+Seat 8: Tone91 (small blind) folded before Flop 
+
+
+Weplay Hand #76172770:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:10:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: Noakis89 ($110.32 in chips)
+Seat 2: Gerrard68 ($111.22 in chips)
+Seat 3: markanen0 ($132.98 in chips)
+Seat 4: kole1992 ($100 in chips)
+Seat 5: Nothingtown ($242.13 in chips)
+Seat 7: JTs98o ($198.23 in chips)
+Seat 8: Tone91 ($109.77 in chips)
+Noakis89: posts small blind $0.50
+Gerrard68: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Ad]
+markanen0: folds
+kole1992: raises $2 to $2
+Nothingtown: folds
+JTs98o: folds
+Tone91: folds
+Noakis89: folds
+Gerrard68: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Noakis89 (small blind) folded before Flop 
+Seat 2: Gerrard68 (big blind) folded before Flop 
+Seat 3: markanen0 folded before Flop (didn't bet)
+Seat 4: kole1992 collected ($2.50)
+Seat 5: Nothingtown folded before Flop (didn't bet)
+Seat 7: JTs98o folded before Flop (didn't bet)
+Seat 8: Tone91 (button) folded before Flop (didn't bet)

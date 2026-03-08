@@ -1,0 +1,89 @@
+﻿Weplay Hand #72101852:  Hold'em No Limit ($1/$2) - 2026/01/09 23:26:31 UTC
+Table 'Braga Bomb Pot (3BB-5BB) #1'(11333801) 8-max (Money 3) Seat #4 is the button
+Seat 1: pali0217 ($113 in chips)
+Seat 2: Anonymous0 ($149.90 in chips)
+Seat 3: Elgringo ($306.06 in chips)
+Seat 4: FireWalkWithMe ($197 in chips)
+Seat 6: kole1992 ($200 in chips)
+Seat 7: Bastille ($259.02 in chips)
+Seat 8: zeteking ($190.41 in chips)
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 2c]
+Bastille: folds
+zeteking: raises $4 to $4
+pali0217: folds
+Anonymous0: folds
+Elgringo: calls $4
+FireWalkWithMe: folds
+kole1992: folds
+*** FLOP *** [5s 7h Kh]
+zeteking: bets $3.40
+Elgringo: raises $13 to $13
+zeteking: folds
+Uncalled bet ($9.60) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $16.80 from pot
+*** SUMMARY ***
+Total pot $16.80 | Rake $0.84 
+Board [5s 7h Kh]
+Seat 1: pali0217 folded before Flop (didn't bet)
+Seat 2: Anonymous0 folded before Flop (didn't bet)
+Seat 3: Elgringo collected ($16.80)
+Seat 4: FireWalkWithMe (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: Bastille folded before Flop (didn't bet)
+Seat 8: zeteking folded on the Flop 
+
+
+Weplay Hand #72101874:  Hold'em No Limit ($1/$2) - 2026/01/09 23:27:18 UTC
+Table 'Braga Bomb Pot (3BB-5BB) #1'(11333801) 8-max (Money 3) Seat #5 is the button
+Seat 1: pali0217 ($113 in chips)
+Seat 2: Anonymous0 ($149.90 in chips)
+Seat 3: Elgringo ($314.62 in chips)
+Seat 4: FireWalkWithMe ($197 in chips)
+Seat 5: Mohammadashkar ($80.73 in chips)
+Seat 6: kole1992 ($200 in chips)
+Seat 7: Bastille ($259.02 in chips)
+Seat 8: zeteking ($183.01 in chips)
+kole1992: posts small blind $1
+Bastille: posts big blind $2
+Mohammadashkar: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Ah]
+zeteking: folds
+pali0217: folds
+Anonymous0: calls $2
+Elgringo: raises $12 to $12
+FireWalkWithMe: folds
+Mohammadashkar: folds
+kole1992: raises $39 to $40
+Bastille: folds
+Anonymous0: folds
+Elgringo: calls $28
+*** FLOP *** [Kc 6d As]
+kole1992: bets $18
+Elgringo: calls $18
+*** TURN *** [Kc 6d As] [2d]
+kole1992: bets $35.26
+Elgringo: calls $35.26
+*** RIVER *** [Kc 6d As 2d] [Tc]
+kole1992: bets $106.74 and is all-in
+Elgringo: calls $106.74
+*** SHOW DOWN ***
+kole1992: shows [Qc Ah] (a pair of Aces)
+Elgringo: shows [Kh Th] (two pair, Kings and Tens)
+Elgringo collected $406 from pot
+*** SUMMARY ***
+Total pot $406 | Rake $10 
+Board [Kc 6d As 2d Tc]
+Seat 1: pali0217 folded before Flop (didn't bet)
+Seat 2: Anonymous0 folded before Flop 
+Seat 3: Elgringo showed [Kh Th] and won ($406) with two pair, Kings and Tens
+Seat 4: FireWalkWithMe folded before Flop (didn't bet)
+Seat 5: Mohammadashkar (button) (big blind) folded before Flop 
+Seat 6: kole1992 (small blind) showed [Qc Ah] and lost with a pair of Aces
+Seat 7: Bastille (big blind) folded before Flop 
+Seat 8: zeteking folded before Flop (didn't bet)

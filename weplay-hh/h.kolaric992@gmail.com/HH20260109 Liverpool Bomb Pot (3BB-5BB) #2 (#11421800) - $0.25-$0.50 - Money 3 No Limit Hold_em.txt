@@ -1,0 +1,917 @@
+﻿Weplay Hand #72075042:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:00:25 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #7 is the button
+Seat 2: petike21 ($76.64 in chips)
+Seat 3: Dave96 ($45.20 in chips)
+Seat 4: Liam ($47.60 in chips)
+Seat 5: guerillAA13 ($74.40 in chips)
+Seat 6: KoTBalu ($36.68 in chips)
+Seat 7: Bastille ($53.32 in chips)
+Seat 8: kole1992 ($50 in chips)
+petike21: posts the ante $2.23
+Dave96: posts the ante $2.23
+Liam: posts the ante $2.23
+guerillAA13: posts the ante $2.23
+KoTBalu: posts the ante $2.23
+Bastille: posts the ante $2.23
+kole1992: posts the ante $2.23
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Ks]
+*** FLOP *** [Ad 3c 7d]
+kole1992 has timed out
+kole1992: checks
+petike21: bets $4.68
+Dave96: folds
+Liam has timed out
+Liam: folds
+Liam: sits out 
+guerillAA13: folds
+KoTBalu: folds
+Bastille: folds
+kole1992: folds
+Uncalled bet ($4.68) returned to petike21
+*** SHOW DOWN ***
+petike21: doesn't show hand
+petike21 collected $15.61 from pot
+*** SUMMARY ***
+Total pot $15.61 | Rake $0.78 
+Board [Ad 3c 7d]
+Seat 2: petike21 collected ($15.61)
+Seat 3: Dave96 folded on the Flop 
+Seat 4: Liam folded on the Flop 
+Seat 5: guerillAA13 folded on the Flop 
+Seat 6: KoTBalu folded on the Flop 
+Seat 7: Bastille (button) folded on the Flop 
+Seat 8: kole1992 folded on the Flop 
+
+
+Weplay Hand #72075058:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:01:19 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #6 is the button
+Seat 2: petike21 ($89.24 in chips)
+Seat 3: Dave96 ($42.97 in chips)
+Seat 5: guerillAA13 ($72.17 in chips)
+Seat 6: KoTBalu ($34.45 in chips)
+Seat 7: Bastille ($51.09 in chips)
+Seat 8: kole1992 ($50 in chips)
+Bastille: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 6d]
+petike21 leaves the table
+Dave96: folds
+guerillAA13: raises $1.25 to $1.25
+KoTBalu: folds
+Bastille: calls $1
+kole1992: folds
+*** FLOP *** [Tc 9h 4d]
+Bastille: checks
+guerillAA13: checks
+*** TURN *** [Tc 9h 4d] [8d]
+Bastille: bets $2
+guerillAA13: folds
+Uncalled bet ($2) returned to Bastille
+*** SHOW DOWN ***
+Bastille: doesn't show hand
+Bastille collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Tc 9h 4d 8d]
+Seat 3: Dave96 folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded on the Turn 
+Seat 6: KoTBalu (button) folded before Flop (didn't bet)
+Seat 7: Bastille (small blind) collected ($3)
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #72075121:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:02:10 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #7 is the button
+Seat 3: Dave96 ($42.97 in chips)
+Seat 4: Liam ($45.37 in chips)
+Seat 5: guerillAA13 ($70.92 in chips)
+Seat 6: KoTBalu ($34.45 in chips)
+Seat 7: Bastille ($52.69 in chips)
+Seat 8: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+Dave96: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 8s]
+Liam: folds
+guerillAA13: raises $1.25 to $1.25
+KoTBalu: folds
+Bastille: calls $1.25
+kole1992: folds
+Dave96: calls $0.75
+*** FLOP *** [Jh Js 2d]
+Dave96: checks
+guerillAA13: bets $1.33
+Bastille: folds
+Dave96: folds
+Uncalled bet ($1.33) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [Jh Js 2d]
+Seat 3: Dave96 (big blind) folded on the Flop 
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 5: guerillAA13 collected ($4)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+Seat 7: Bastille (button) folded on the Flop 
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #72075169:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:03:00 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #8 is the button
+Seat 3: Dave96 ($41.72 in chips)
+Seat 4: Liam ($45.37 in chips)
+Seat 5: guerillAA13 ($73.47 in chips)
+Seat 6: KoTBalu ($34.45 in chips)
+Seat 7: Bastille ($51.44 in chips)
+Seat 8: kole1992 ($50 in chips)
+Dave96: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 7s]
+guerillAA13: raises $1.25 to $1.25
+KoTBalu: folds
+Bastille has timed out
+Bastille: folds
+kole1992: folds
+Dave96: raises $3.75 to $4
+Liam: folds
+Liam: sits out 
+guerillAA13: calls $2.75
+*** FLOP *** [6c 5h 9c]
+Dave96: bets $6.38
+guerillAA13: raises $69.47 to $69.47 and is all-in
+Dave96: folds
+Uncalled bet ($63.09) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $21.26 from pot
+*** SUMMARY ***
+Total pot $21.26 | Rake $1.06 
+Board [6c 5h 9c]
+Seat 3: Dave96 (small blind) folded on the Flop 
+Seat 4: Liam (big blind) folded before Flop 
+Seat 5: guerillAA13 collected ($21.26)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+Seat 7: Bastille folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72075231:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:04:07 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #3 is the button
+Seat 3: Dave96 ($31.34 in chips)
+Seat 5: guerillAA13 ($83.29 in chips)
+Seat 6: KoTBalu ($34.45 in chips)
+Seat 8: kole1992 ($50 in chips)
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 7c]
+KoTBalu: folds
+kole1992: folds
+Dave96: calls $0.50
+guerillAA13: checks
+*** FLOP *** [5s 7h 5h]
+guerillAA13: checks
+Dave96: bets $1
+guerillAA13: calls $1
+*** TURN *** [5s 7h 5h] [Jd]
+guerillAA13: checks
+Dave96: bets $1.50
+guerillAA13: calls $1.50
+*** RIVER *** [5s 7h 5h Jd] [Td]
+guerillAA13: checks
+Dave96: bets $1.98
+guerillAA13: folds
+Uncalled bet ($1.98) returned to Dave96
+*** SHOW DOWN ***
+Dave96: doesn't show hand
+Dave96 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [5s 7h 5h Jd Td]
+Seat 3: Dave96 (button) collected ($6)
+Seat 5: guerillAA13 (big blind) folded on the River 
+Seat 6: KoTBalu folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72075286:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:05:02 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #4 is the button
+Seat 3: Dave96 ($34.04 in chips)
+Seat 5: guerillAA13 ($80.29 in chips)
+Seat 6: KoTBalu ($34.45 in chips)
+Seat 8: kole1992 ($50 in chips)
+guerillAA13: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Ah]
+kole1992: folds
+A1Flaks joins the table at seat #2
+Dave96: folds
+guerillAA13: folds
+Uncalled bet ($0.25) returned to KoTBalu
+*** SHOW DOWN ***
+KoTBalu: doesn't show hand
+KoTBalu collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: Dave96 folded before Flop (didn't bet)
+Seat 5: guerillAA13 (small blind) folded before Flop 
+Seat 6: KoTBalu (big blind) collected ($0.50)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72075304:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:05:17 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #3 is the button
+Seat 2: A1Flaks ($115.04 in chips)
+Seat 3: Dave96 ($34.04 in chips)
+Seat 5: guerillAA13 ($80.04 in chips)
+Seat 6: KoTBalu ($34.70 in chips)
+Seat 7: Bastille ($51.44 in chips)
+Seat 8: kole1992 ($50 in chips)
+A1Flaks: posts the ante $2.37
+Dave96: posts the ante $2.37
+guerillAA13: posts the ante $2.37
+KoTBalu: posts the ante $2.37
+Bastille: posts the ante $2.37
+kole1992: posts the ante $2.37
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 3h]
+*** FLOP *** [Qd 3d Ac]
+guerillAA13: checks
+KoTBalu: checks
+Bastille: checks
+kole1992: checks
+A1Flaks: checks
+Dave96: checks
+*** TURN *** [Qd 3d Ac] [Tc]
+guerillAA13: checks
+KoTBalu: checks
+Bastille: checks
+kole1992: checks
+A1Flaks: bets $12
+Dave96: folds
+guerillAA13: folds
+KoTBalu: folds
+Bastille: folds
+kole1992: folds
+Uncalled bet ($12) returned to A1Flaks
+*** SHOW DOWN ***
+A1Flaks: doesn't show hand
+A1Flaks collected $14.22 from pot
+*** SUMMARY ***
+Total pot $14.22 | Rake $0.71 
+Board [Qd 3d Ac Tc]
+Seat 2: A1Flaks collected ($14.22)
+Seat 3: Dave96 (button) folded on the Turn 
+Seat 5: guerillAA13 folded on the Turn 
+Seat 6: KoTBalu folded on the Turn 
+Seat 7: Bastille folded on the Turn 
+Seat 8: kole1992 folded on the Turn 
+
+
+Weplay Hand #72076370:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:06:23 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #5 is the button
+Seat 2: A1Flaks ($126.18 in chips)
+Seat 3: Dave96 ($31.67 in chips)
+Seat 5: guerillAA13 ($77.67 in chips)
+Seat 6: KoTBalu ($32.33 in chips)
+Seat 7: Bastille ($49.07 in chips)
+Seat 8: kole1992 ($50 in chips)
+KoTBalu: posts small blind $0.25
+Bastille: posts big blind $0.50
+A1Flaks: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 4h]
+kole1992: folds
+A1Flaks: checks
+Dave96: calls $0.50
+guerillAA13: folds
+KoTBalu: calls $0.25
+Bastille: checks
+*** FLOP *** [Js Th 8c]
+KoTBalu: bets $1.50
+Bastille: folds
+A1Flaks: calls $1.50
+Dave96: calls $1.50
+*** TURN *** [Js Th 8c] [3c]
+KoTBalu: checks
+A1Flaks: checks
+Dave96: checks
+*** RIVER *** [Js Th 8c 3c] [8d]
+KoTBalu: checks
+A1Flaks: checks
+Dave96: bets $3.25
+KoTBalu: calls $3.25
+A1Flaks: folds
+*** SHOW DOWN ***
+Dave96: shows [8s Qc] (three of a kind, Eights)
+KoTBalu: mucks hand
+Dave96 collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [Js Th 8c 3c 8d]
+Seat 2: A1Flaks (big blind) folded on the River 
+Seat 3: Dave96 showed [8s Qc] and won ($13) with three of a kind, Eights
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: KoTBalu (small blind) mucked
+Seat 7: Bastille (big blind) folded on the Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72076448:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:07:39 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #6 is the button
+Seat 2: A1Flaks ($124.18 in chips)
+Seat 3: Dave96 ($38.77 in chips)
+Seat 5: guerillAA13 ($77.67 in chips)
+Seat 6: KoTBalu ($27.08 in chips)
+Seat 7: Bastille ($48.57 in chips)
+Seat 8: kole1992 ($50 in chips)
+Bastille: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Kc]
+A1Flaks: calls $0.50
+Dave96: calls $0.50
+guerillAA13: calls $0.50
+KoTBalu: folds
+Bastille: calls $0.25
+kole1992: raises $4.50 to $5
+A1Flaks: folds
+Dave96: folds
+guerillAA13: folds
+A1Flaks leaves the table
+Bastille: folds
+Uncalled bet ($4.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: A1Flaks folded before Flop 
+Seat 3: Dave96 folded before Flop 
+Seat 5: guerillAA13 folded before Flop 
+Seat 6: KoTBalu (button) folded before Flop (didn't bet)
+Seat 7: Bastille (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) collected ($2.50)
+
+
+Weplay Hand #72076503:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:08:29 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #7 is the button
+Seat 3: Dave96 ($38.27 in chips)
+Seat 5: guerillAA13 ($77.17 in chips)
+Seat 6: KoTBalu ($27.08 in chips)
+Seat 7: Bastille ($48.07 in chips)
+Seat 8: kole1992 ($52 in chips)
+kole1992: posts small blind $0.25
+Dave96: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 4c]
+guerillAA13: folds
+KoTBalu has timed out
+KoTBalu: folds
+Bastille: folds
+kole1992: raises $1.25 to $1.50
+Dave96: calls $1
+*** FLOP *** [2c 6d 8s]
+kole1992: checks
+Dave96: bets $0.99
+kole1992: folds
+Uncalled bet ($0.99) returned to Dave96
+*** SHOW DOWN ***
+Dave96: doesn't show hand
+Dave96 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [2c 6d 8s]
+Seat 3: Dave96 (big blind) collected ($3)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+Seat 7: Bastille (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded on the Flop 
+
+
+Weplay Hand #72076552:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:09:21 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #8 is the button
+Seat 3: Dave96 ($39.62 in chips)
+Seat 5: guerillAA13 ($77.17 in chips)
+Seat 6: KoTBalu ($27.08 in chips)
+Seat 7: Bastille ($48.07 in chips)
+Seat 8: kole1992 ($50.50 in chips)
+Dave96: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 9d]
+KoTBalu: folds
+Bastille: folds
+kole1992: folds
+Dave96: calls $0.25
+guerillAA13: raises $1.75 to $2.25
+Dave96: calls $1.75
+*** FLOP *** [8c 9c 6h]
+Dave96: checks
+guerillAA13: checks
+*** TURN *** [8c 9c 6h] [Ac]
+Dave96: checks
+guerillAA13: checks
+*** RIVER *** [8c 9c 6h Ac] [8s]
+Dave96: checks
+guerillAA13: bets $1.50
+Dave96: raises $5.20 to $5.20
+guerillAA13: folds
+Uncalled bet ($3.70) returned to Dave96
+*** SHOW DOWN ***
+Dave96 has timed out
+Dave96: doesn't show hand
+Dave96 collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [8c 9c 6h Ac 8s]
+Seat 3: Dave96 (small blind) collected ($7.50)
+Seat 5: guerillAA13 (big blind) folded on the River 
+Seat 6: KoTBalu folded before Flop (didn't bet)
+Seat 7: Bastille folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72076608:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:10:21 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #3 is the button
+Seat 3: Dave96 ($43 in chips)
+Seat 5: guerillAA13 ($73.42 in chips)
+Seat 6: KoTBalu ($27.08 in chips)
+Seat 7: Bastille ($48.07 in chips)
+Seat 8: kole1992 ($50.50 in chips)
+guerillAA13: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Kc]
+Domagoj87 joins the table at seat #2
+Bastille has timed out
+Bastille: folds
+kole1992: folds
+Dave96: folds
+guerillAA13: folds
+Uncalled bet ($0.25) returned to KoTBalu
+*** SHOW DOWN ***
+KoTBalu: doesn't show hand
+KoTBalu collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: Dave96 (button) folded before Flop (didn't bet)
+Seat 5: guerillAA13 (small blind) folded before Flop 
+Seat 6: KoTBalu (big blind) collected ($0.50)
+Seat 7: Bastille folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72076639:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:10:48 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #3 is the button
+Seat 2: Domagoj87 ($50 in chips)
+Seat 3: Dave96 ($43 in chips)
+Seat 5: guerillAA13 ($73.17 in chips)
+Seat 6: KoTBalu ($27.33 in chips)
+Seat 7: Bastille ($48.07 in chips)
+Seat 8: kole1992 ($50.50 in chips)
+Domagoj87: posts the ante $2.20
+Dave96: posts the ante $2.20
+guerillAA13: posts the ante $2.20
+KoTBalu: posts the ante $2.20
+Bastille: posts the ante $2.20
+kole1992: posts the ante $2.20
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 7c]
+*** FLOP *** [Ac 9c 5d]
+guerillAA13: checks
+Dave96 is disconnected 
+Dave96 is connected 
+KoTBalu has timed out
+KoTBalu: checks
+Bastille: checks
+kole1992: bets $0.92
+Domagoj87: folds
+Dave96: calls $0.92
+guerillAA13: folds
+KoTBalu: folds
+Bastille: folds
+*** TURN *** [Ac 9c 5d] [Jd]
+Stefano joins the table at seat #1
+kole1992: checks
+Dave96: bets $9.60
+kole1992: folds
+Uncalled bet ($9.60) returned to Dave96
+*** SHOW DOWN ***
+Dave96: doesn't show hand
+Dave96 collected $15.04 from pot
+*** SUMMARY ***
+Total pot $15.04 | Rake $0.75 
+Board [Ac 9c 5d Jd]
+Seat 2: Domagoj87 folded on the Flop 
+Seat 3: Dave96 (button) collected ($15.04)
+Seat 5: guerillAA13 folded on the Flop 
+Seat 6: KoTBalu folded on the Flop 
+Seat 7: Bastille folded on the Flop 
+Seat 8: kole1992 folded on the Turn 
+
+
+Weplay Hand #72076720:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:12:12 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #5 is the button
+Seat 1: Stefano ($15 in chips)
+Seat 2: Domagoj87 ($47.80 in chips)
+Seat 3: Dave96 ($54.17 in chips)
+Seat 5: guerillAA13 ($70.97 in chips)
+Seat 6: KoTBalu ($25.13 in chips)
+Seat 7: Bastille ($45.87 in chips)
+Seat 8: kole1992 ($50 in chips)
+KoTBalu: posts small blind $0.25
+Bastille: posts big blind $0.50
+Stefano: posts big blind $0.50
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 8h]
+kole1992: folds
+Stefano: checks
+Domagoj87: checks
+Dave96: folds
+guerillAA13: folds
+KoTBalu: folds
+Bastille: checks
+*** FLOP *** [As 5h 2h]
+Bastille: checks
+Stefano: checks
+Domagoj87: checks
+*** TURN *** [As 5h 2h] [9s]
+Bastille: checks
+Stefano: checks
+Domagoj87: checks
+*** RIVER *** [As 5h 2h 9s] [Qs]
+Bastille: checks
+Stefano: checks
+Domagoj87: checks
+*** SHOW DOWN ***
+Bastille: shows [5s 7h] (a pair of Fives)
+Stefano has timed out
+Stefano: mucks hand
+Domagoj87 has timed out
+Domagoj87: mucks hand
+Bastille collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0.08 
+Board [As 5h 2h 9s Qs]
+Seat 1: Stefano (big blind) mucked
+Seat 2: Domagoj87 (big blind) mucked
+Seat 3: Dave96 folded before Flop (didn't bet)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: KoTBalu (small blind) folded before Flop 
+Seat 7: Bastille (big blind) showed [5s 7h] and won ($1.75) with a pair of Fives
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72076776:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:13:18 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #6 is the button
+Seat 1: Stefano ($14.50 in chips)
+Seat 2: Domagoj87 ($47.30 in chips)
+Seat 3: Dave96 ($54.17 in chips)
+Seat 5: guerillAA13 ($70.97 in chips)
+Seat 6: KoTBalu ($24.88 in chips)
+Seat 7: Bastille ($50 in chips)
+Seat 8: kole1992 ($50 in chips)
+Bastille: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Ah]
+Stefano: calls $0.50
+Domagoj87: folds
+Dave96: calls $0.50
+guerillAA13: raises $2.75 to $2.75
+KoTBalu: folds
+Bastille: folds
+Liam leaves the table
+kole1992: folds
+Stefano: folds
+Dave96: calls $2.25
+*** FLOP *** [Jd Kc Th]
+Dave96: bets $3.38
+guerillAA13: calls $3.38
+*** TURN *** [Jd Kc Th] [3c]
+Dave96: bets $10.13
+guerillAA13: calls $10.13
+*** RIVER *** [Jd Kc Th 3c] [8d]
+Dave96: checks
+guerillAA13: bets $24.84
+Dave96: folds
+Uncalled bet ($24.84) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $33.77 from pot
+*** SUMMARY ***
+Total pot $33.77 | Rake $1.68 
+Board [Jd Kc Th 3c 8d]
+Seat 1: Stefano folded before Flop 
+Seat 2: Domagoj87 folded before Flop (didn't bet)
+Seat 3: Dave96 folded on the River 
+Seat 5: guerillAA13 collected ($33.77)
+Seat 6: KoTBalu (button) folded before Flop (didn't bet)
+Seat 7: Bastille (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #72076864:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:14:57 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #7 is the button
+Seat 1: Stefano ($14 in chips)
+Seat 2: Domagoj87 ($47.30 in chips)
+Seat 3: Dave96 ($37.91 in chips)
+Seat 5: guerillAA13 ($86.80 in chips)
+Seat 6: KoTBalu ($24.88 in chips)
+Seat 7: Bastille ($49.75 in chips)
+Seat 8: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+Stefano: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 5h]
+Domagoj87 has timed out
+Domagoj87: folds
+Dave96: folds
+guerillAA13: folds
+KoTBalu: folds
+Bastille: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to Stefano
+*** SHOW DOWN ***
+Stefano has timed out
+Stefano: doesn't show hand
+Stefano collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Stefano (big blind) collected ($0.50)
+Seat 2: Domagoj87 folded before Flop (didn't bet)
+Seat 3: Dave96 folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+Seat 7: Bastille (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #72076894:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:15:27 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #8 is the button
+Seat 1: Stefano ($14.25 in chips)
+Seat 2: Domagoj87 ($47.30 in chips)
+Seat 3: Dave96 ($37.91 in chips)
+Seat 5: guerillAA13 ($86.80 in chips)
+Seat 6: KoTBalu ($24.88 in chips)
+Seat 7: Bastille ($49.75 in chips)
+Seat 8: kole1992 ($50 in chips)
+Stefano: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 3s]
+Dave96: folds
+guerillAA13: raises $1.25 to $1.25
+KoTBalu: raises $4 to $4
+Bastille: folds
+kole1992: folds
+Vermundo joins the table at seat #4
+Stefano: folds
+Domagoj87: folds
+guerillAA13: folds
+Uncalled bet ($2.75) returned to KoTBalu
+*** SHOW DOWN ***
+KoTBalu: doesn't show hand
+KoTBalu collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: Stefano (small blind) folded before Flop 
+Seat 2: Domagoj87 (big blind) folded before Flop 
+Seat 3: Dave96 folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop 
+Seat 6: KoTBalu collected ($3.25)
+Seat 7: Bastille folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72076940:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:16:25 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Stefano ($14 in chips)
+Seat 2: Domagoj87 ($46.80 in chips)
+Seat 3: Dave96 ($37.91 in chips)
+Seat 4: Vermundo ($50 in chips)
+Seat 5: guerillAA13 ($85.55 in chips)
+Seat 6: KoTBalu ($26.88 in chips)
+Seat 7: Bastille ($49.75 in chips)
+Seat 8: kole1992 ($50 in chips)
+Domagoj87: posts small blind $0.25
+Dave96: posts big blind $0.50
+Vermundo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Qs]
+Vermundo: raises $0.50 to $1
+guerillAA13: folds
+KoTBalu: folds
+Bastille: folds
+kole1992: folds
+Stefano: calls $1
+Domagoj87: folds
+Dave96: calls $0.50
+*** FLOP *** [Kc Qh 2s]
+Dave96: checks
+Vermundo: bets $2.50
+Stefano: folds
+Dave96: raises $6.40 to $6.40
+Vermundo: folds
+Uncalled bet ($3.90) returned to Dave96
+*** SHOW DOWN ***
+Dave96: doesn't show hand
+Dave96 collected $8.25 from pot
+*** SUMMARY ***
+Total pot $8.25 | Rake $0.41 
+Board [Kc Qh 2s]
+Seat 1: Stefano (button) folded on the Flop 
+Seat 2: Domagoj87 (small blind) folded before Flop 
+Seat 3: Dave96 (big blind) collected ($8.25)
+Seat 4: Vermundo (big blind) folded on the Flop 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+Seat 7: Bastille folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72077022:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:18:02 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #2 is the button
+Seat 1: Stefano ($13 in chips)
+Seat 2: Domagoj87 ($46.55 in chips)
+Seat 3: Dave96 ($42.25 in chips)
+Seat 4: Vermundo ($46.50 in chips)
+Seat 5: guerillAA13 ($85.55 in chips)
+Seat 6: KoTBalu ($26.88 in chips)
+Seat 7: Bastille ($49.75 in chips)
+Seat 8: kole1992 ($50 in chips)
+Dave96: posts small blind $0.25
+Vermundo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Kd]
+guerillAA13: folds
+KoTBalu: folds
+Bastille: raises $1.25 to $1.25
+kole1992: raises $3.50 to $3.50
+Stefano: folds
+Domagoj87: raises $12.50 to $12.50
+Dave96: folds
+Vermundo: folds
+Bastille: folds
+kole1992: folds
+Uncalled bet ($9) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87 has timed out
+Domagoj87: doesn't show hand
+Domagoj87 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0 
+Seat 1: Stefano folded before Flop (didn't bet)
+Seat 2: Domagoj87 (button) collected ($9)
+Seat 3: Dave96 (small blind) folded before Flop 
+Seat 4: Vermundo (big blind) folded before Flop 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+Seat 7: Bastille folded before Flop 
+Seat 8: kole1992 folded before Flop 
+
+
+Weplay Hand #72077064:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:18:49 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #3 is the button
+Seat 1: Stefano ($13 in chips)
+Seat 2: Domagoj87 ($52.05 in chips)
+Seat 3: Dave96 ($42 in chips)
+Seat 4: Vermundo ($46 in chips)
+Seat 5: guerillAA13 ($85.55 in chips)
+Seat 6: KoTBalu ($26.88 in chips)
+Seat 7: Bastille ($50 in chips)
+Seat 8: kole1992 ($50 in chips)
+Vermundo: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 5s]
+KoTBalu: raises $1.25 to $1.25
+Bastille: raises $4.50 to $4.50
+kole1992: folds
+Stefano: calls $4.50
+Domagoj87: folds
+Dave96: folds
+Vermundo: folds
+guerillAA13: folds
+Dave96 leaves the table
+Liam joins the table at seat #3
+KoTBalu: folds
+*** FLOP *** [9d 8d 2s]
+Bastille: bets $5.50
+Stefano: raises $8.50 to $8.50 and is all-in
+Bastille: calls $3
+*** TURN *** [9d 8d 2s] [Jc]
+*** FIRST RIVER *** [9d 8d 2s Jc] [Ah]
+*** SECOND TURN *** [9d 8d 2s] [3h]
+*** SECOND RIVER *** [9d 8d 2s 3h] [Ac]
+*** SHOW DOWN ***
+Bastille: shows [Ks Ad] (a pair of Aces)
+Stefano: shows [2h 2d] (three of a kind, Deuces)
+Stefano collected $28 from pot
+*** SUMMARY ***
+Total pot $28 | Rake $1.40 
+Hand was run two times
+FIRST Board [9d 8d 2s Jc Ah]
+SECOND Board [9d 8d 2s 3h Ac]
+Seat 1: Stefano showed [2h 2d] and won ($28) with three of a kind, Deuces
+Seat 2: Domagoj87 folded before Flop (didn't bet)
+Seat 3: Dave96 (button) folded before Flop (didn't bet)
+Seat 4: Vermundo (small blind) folded before Flop 
+Seat 5: guerillAA13 (big blind) folded before Flop 
+Seat 6: KoTBalu folded before Flop 
+Seat 7: Bastille showed [Ks Ad] and lost with a pair of Aces
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #72077156:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:20:30 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Stefano ($26.60 in chips)
+Seat 2: Domagoj87 ($52.05 in chips)
+Seat 4: Vermundo ($45.75 in chips)
+Seat 5: guerillAA13 ($85.05 in chips)
+Seat 6: KoTBalu ($25.63 in chips)
+Seat 7: Bastille ($50 in chips)
+Seat 8: kole1992 ($50 in chips)
+Stefano: posts the ante $1.70
+Domagoj87: posts the ante $1.70
+Vermundo: posts the ante $1.70
+guerillAA13: posts the ante $1.70
+KoTBalu: posts the ante $1.70
+Bastille: posts the ante $1.70
+kole1992: posts the ante $1.70
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 3c]
+*** FLOP *** [4d 5c Js]
+Domagoj87: checks
+Vermundo: checks
+guerillAA13: checks
+KoTBalu: bets $3.95
+Bastille: calls $3.95
+kole1992: folds
+Stefano: folds
+Stefano: sits out 
+Stefano leaves the table
+Domagoj87: folds
+Vermundo: folds
+guerillAA13: folds
+*** TURN *** [4d 5c Js] [Ah]
+KoTBalu: checks
+Bastille: checks
+*** RIVER *** [4d 5c Js Ah] [6h]
+KoTBalu: bets $6.55
+Bastille: raises $39.45 to $39.45
+KoTBalu: folds
+Uncalled bet ($32.90) returned to Bastille
+*** SHOW DOWN ***
+Bastille: doesn't show hand
+Bastille collected $32.90 from pot
+*** SUMMARY ***
+Total pot $32.90 | Rake $1.64 
+Board [4d 5c Js Ah 6h]
+Seat 1: Stefano (button) folded on the Flop 
+Seat 2: Domagoj87 folded on the Flop 
+Seat 4: Vermundo folded on the Flop 
+Seat 5: guerillAA13 folded on the Flop 
+Seat 6: KoTBalu folded on the River 
+Seat 7: Bastille collected ($32.90)
+Seat 8: kole1992 folded on the Flop 
+
+
+Weplay Hand #72077213:  Hold'em No Limit ($0.25/$0.50) - 2026/01/09 17:21:32 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #2'(11421800) 8-max (Money 3) Seat #4 is the button
+Seat 2: Domagoj87 ($50.35 in chips)
+Seat 4: Vermundo ($44.05 in chips)
+Seat 5: guerillAA13 ($83.35 in chips)
+Seat 6: KoTBalu ($20 in chips)
+Seat 7: Bastille ($69.06 in chips)
+Seat 8: kole1992 ($50 in chips)
+guerillAA13: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Kc]
+Bastille: raises $1.25 to $1.25
+kole1992 has timed out
+kole1992: folds
+Domagoj87: folds
+Vermundo: folds
+guerillAA13: folds
+KoTBalu: folds
+Uncalled bet ($0.75) returned to Bastille
+*** SHOW DOWN ***
+Bastille: doesn't show hand
+Bastille collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Domagoj87 folded before Flop (didn't bet)
+Seat 4: Vermundo (button) folded before Flop (didn't bet)
+Seat 5: guerillAA13 (small blind) folded before Flop 
+Seat 6: KoTBalu (big blind) folded before Flop 
+Seat 7: Bastille collected ($1.25)
+Seat 8: kole1992 folded before Flop (didn't bet)

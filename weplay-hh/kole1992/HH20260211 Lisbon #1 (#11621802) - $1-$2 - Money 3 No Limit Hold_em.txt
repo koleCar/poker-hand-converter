@@ -1,0 +1,2614 @@
+﻿Weplay Hand #75426889:  Hold'em No Limit ($1/$2) - 2026/02/11 21:54:43 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Ekim170213 ($101.04 in chips)
+Seat 3: nekaidezivot ($260.10 in chips)
+Seat 4: Ophus79 ($171.22 in chips)
+Seat 5: Elgringo ($195.11 in chips)
+Seat 6: Mickey75 ($233.66 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Ekim170213: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Td]
+Ekim170213: folds
+nekaidezivot: folds
+Ophus79: calls $2
+Elgringo: raises $8 to $8
+Mickey75: folds
+kole1992: calls $6
+Ophus79: calls $6
+*** FLOP *** [4s 5h As]
+kole1992: checks
+Ophus79: checks
+Elgringo: checks
+*** TURN *** [4s 5h As] [7d]
+kole1992: checks
+Ophus79: bets $10
+Elgringo: calls $10
+kole1992: folds
+*** RIVER *** [4s 5h As 7d] [Qd]
+Ophus79: bets $25
+Elgringo: calls $25
+*** SHOW DOWN ***
+Ophus79: shows [3c 7c] (a pair of Sevens)
+Elgringo: shows [Ac Kc] (a pair of Aces)
+Elgringo collected $95 from pot
+*** SUMMARY ***
+Total pot $95 | Rake $4.75 
+Board [4s 5h As 7d Qd]
+Seat 1: kole1992 (big blind) folded on the Turn 
+Seat 2: Ekim170213 folded before Flop (didn't bet)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Ophus79 showed [3c 7c] and lost with a pair of Sevens
+Seat 5: Elgringo (button) showed [Ac Kc] and won ($95) with a pair of Aces
+Seat 6: Mickey75 (small blind) folded before Flop 
+
+
+Weplay Hand #75426912:  Hold'em No Limit ($1/$2) - 2026/02/11 21:56:01 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Ekim170213 ($101.04 in chips)
+Seat 3: nekaidezivot ($260.10 in chips)
+Seat 4: Ophus79 ($128.22 in chips)
+Seat 5: Elgringo ($242.36 in chips)
+Seat 6: Mickey75 ($232.66 in chips)
+kole1992: posts small blind $1
+Ekim170213: posts big blind $2
+nekaidezivot: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 4s]
+nekaidezivot: raises $5 to $5
+Ophus79: folds
+Ophus79 leaves the table
+Elgringo: calls $5
+Mickey75: folds
+kole1992: folds
+Ekim170213: folds
+*** FLOP *** [5h 6c Ac]
+nekaidezivot: checks
+Elgringo: checks
+*** TURN *** [5h 6c Ac] [Qs]
+nekaidezivot: checks
+Elgringo: checks
+*** RIVER *** [5h 6c Ac Qs] [7d]
+nekaidezivot: checks
+Elgringo: checks
+*** SHOW DOWN ***
+nekaidezivot: shows [Kh 6h] (a pair of Sixes)
+Elgringo: shows [Jd Ks] (high card Ace)
+nekaidezivot collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [5h 6c Ac Qs 7d]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Ekim170213 (big blind) folded before Flop 
+Seat 3: nekaidezivot showed [Kh 6h] and won ($13) with a pair of Sixes
+Seat 4: Ophus79 folded before Flop (didn't bet)
+Seat 5: Elgringo showed [Jd Ks] and lost with high card Ace
+Seat 6: Mickey75 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75426928:  Hold'em No Limit ($1/$2) - 2026/02/11 21:56:52 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Ekim170213 ($99.04 in chips)
+Seat 3: nekaidezivot ($267.45 in chips)
+Seat 5: Elgringo ($237.36 in chips)
+Seat 6: Mickey75 ($232.66 in chips)
+Ekim170213: posts small blind $1
+nekaidezivot: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 9c]
+Mickey75: folds
+kole1992: raises $10 to $10
+Ekim170213: calls $9
+nekaidezivot: folds
+Elgringo: calls $6
+*** FLOP *** [Th 6c 2h]
+Ekim170213: checks
+Elgringo: checks
+kole1992: checks
+*** TURN *** [Th 6c 2h] [4d]
+Ekim170213: bets $10
+Elgringo: calls $10
+kole1992: folds
+*** RIVER *** [Th 6c 2h 4d] [7d]
+Ekim170213: bets $79.04 and is all-in
+Elgringo: folds
+Uncalled bet ($79.04) returned to Ekim170213
+*** SHOW DOWN ***
+Elgringo: shows [6h ##] (a pair of Sixes)
+Ekim170213: doesn't show hand
+Ekim170213 collected $52 from pot
+*** SUMMARY ***
+Total pot $52 | Rake $2.60 
+Board [Th 6c 2h 4d 7d]
+Seat 1: kole1992 (button) folded on the Turn 
+Seat 2: Ekim170213 (small blind) collected ($52)
+Seat 3: nekaidezivot (big blind) folded before Flop 
+Seat 5: Elgringo folded on the River 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75426978:  Hold'em No Limit ($1/$2) - 2026/02/11 21:59:58 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($210.95 in chips)
+Seat 2: Ekim170213 ($119.44 in chips)
+Seat 3: nekaidezivot ($264.45 in chips)
+Seat 5: Elgringo ($215.36 in chips)
+Seat 6: Mickey75 ($232.66 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Ad]
+kole1992: raises $4 to $4
+Ekim170213: calls $4
+nekaidezivot: folds
+Elgringo: folds
+Mickey75: folds
+*** FLOP *** [3s Qc 6c]
+Elgringo is disconnected 
+kole1992: bets $3.63
+Ekim170213: folds
+Uncalled bet ($3.63) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [3s Qc 6c]
+Seat 1: kole1992 collected ($11)
+Seat 2: Ekim170213 folded on the Flop 
+Seat 3: nekaidezivot (button) folded before Flop (didn't bet)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Mickey75 (big blind) folded before Flop 
+
+
+Weplay Hand #75426995:  Hold'em No Limit ($1/$2) - 2026/02/11 22:00:23 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($217.40 in chips)
+Seat 2: Ekim170213 ($115.44 in chips)
+Seat 3: nekaidezivot ($264.45 in chips)
+Seat 6: Mickey75 ($230.66 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Ekim170213: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Ks]
+Ekim170213: calls $2
+Elgringo is connected 
+nekaidezivot: folds
+Mickey75: calls $1
+kole1992: checks
+*** FLOP *** [6d Ac Tc]
+Mickey75: bets $4.50
+kole1992: folds
+Ekim170213: folds
+Uncalled bet ($4.50) returned to Mickey75
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Ks]
+Mickey75: doesn't show hand
+Mickey75 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [6d Ac Tc]
+Seat 1: kole1992 (big blind) folded on the Flop 
+Seat 2: Ekim170213 folded on the Flop 
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 6: Mickey75 (small blind) collected ($6)
+
+
+Weplay Hand #75427011:  Hold'em No Limit ($1/$2) - 2026/02/11 22:00:56 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($215.40 in chips)
+Seat 2: Ekim170213 ($113.44 in chips)
+Seat 3: nekaidezivot ($264.45 in chips)
+Seat 5: Elgringo ($214.36 in chips)
+Seat 6: Mickey75 ($234.36 in chips)
+kole1992: posts small blind $1
+Ekim170213: posts big blind $2
+Elgringo: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 2h]
+Elgringo: calls $2
+Mickey75: folds
+kole1992: folds
+Ekim170213: calls $2
+nekaidezivot: raises $14 to $18
+Elgringo: folds
+Ekim170213: folds
+Uncalled bet ($14) returned to nekaidezivot
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 2h]
+nekaidezivot has timed out
+nekaidezivot: doesn't show hand
+nekaidezivot collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Ekim170213 (big blind) folded before Flop 
+Seat 3: nekaidezivot collected ($13)
+Seat 5: Elgringo (big blind) folded before Flop 
+Seat 6: Mickey75 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75427035:  Hold'em No Limit ($1/$2) - 2026/02/11 22:01:42 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($214.40 in chips)
+Seat 2: Ekim170213 ($109.44 in chips)
+Seat 3: nekaidezivot ($273.45 in chips)
+Seat 5: Elgringo ($210.36 in chips)
+Seat 6: Mickey75 ($234.36 in chips)
+Ekim170213: posts small blind $1
+nekaidezivot: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Js]
+Mickey75: folds
+kole1992: raises $12 to $12
+Ekim170213: folds
+nekaidezivot: folds
+Elgringo: calls $8
+*** FLOP *** [Ad 3d 5s]
+Elgringo: checks
+kole1992: checks
+*** TURN *** [Ad 3d 5s] [3s]
+Elgringo: checks
+kole1992: checks
+*** RIVER *** [Ad 3d 5s 3s] [Td]
+Elgringo: bets $15
+kole1992: folds
+Uncalled bet ($15) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $27 from pot
+*** SUMMARY ***
+Total pot $27 | Rake $1.35 
+Board [Ad 3d 5s 3s Td]
+Seat 1: kole1992 (button) folded on the River 
+Seat 2: Ekim170213 (small blind) folded before Flop 
+Seat 3: nekaidezivot (big blind) folded before Flop 
+Seat 5: Elgringo collected ($27)
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75427076:  Hold'em No Limit ($1/$2) - 2026/02/11 22:03:10 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($202.40 in chips)
+Seat 2: Ekim170213 ($108.44 in chips)
+Seat 3: nekaidezivot ($271.45 in chips)
+Seat 5: Elgringo ($224.01 in chips)
+Seat 6: Mickey75 ($234.36 in chips)
+nekaidezivot: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 8d]
+Mickey75: folds
+kole1992: folds
+Ekim170213: calls $2
+nekaidezivot: folds
+Elgringo: checks
+*** FLOP *** [2h Js 7d]
+Elgringo: checks
+Ekim170213: checks
+*** TURN *** [2h Js 7d] [2d]
+Elgringo: checks
+Ekim170213: checks
+*** RIVER *** [2h Js 7d 2d] [4h]
+Elgringo: checks
+Ekim170213: bets $5
+Elgringo: calls $5
+*** SHOW DOWN ***
+Ekim170213: shows [4d 3d] (two pair, Fours and Deuces)
+Elgringo: mucks hand
+Ekim170213 collected $15 from pot
+*** SUMMARY ***
+Total pot $15 | Rake $0.75 
+Board [2h Js 7d 2d 4h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Ekim170213 (button) showed [4d 3d] and won ($15) with two pair, Fours and Deuces
+Seat 3: nekaidezivot (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) mucked
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75427093:  Hold'em No Limit ($1/$2) - 2026/02/11 22:03:45 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($202.40 in chips)
+Seat 2: Ekim170213 ($115.69 in chips)
+Seat 3: nekaidezivot ($270.45 in chips)
+Seat 5: Elgringo ($217.01 in chips)
+Seat 6: Mickey75 ($234.36 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Kh]
+kole1992: raises $5 to $5
+Ekim170213: folds
+nekaidezivot: folds
+Elgringo: folds
+Mickey75: calls $3
+*** FLOP *** [Kc 5h 7c]
+Mickey75: checks
+kole1992: bets $3.63
+Mickey75: calls $3.63
+*** TURN *** [Kc 5h 7c] [4c]
+Mickey75: checks
+kole1992: checks
+*** RIVER *** [Kc 5h 7c 4c] [6s]
+Mickey75: checks
+kole1992: checks
+*** SHOW DOWN ***
+Mickey75: shows [8s 7s] (a straight, Four to Eight)
+kole1992: mucks hand
+Mickey75 collected $18.26 from pot
+*** SUMMARY ***
+Total pot $18.26 | Rake $0.91 
+Board [Kc 5h 7c 4c 6s]
+Seat 1: kole1992 mucked
+Seat 2: Ekim170213 folded before Flop (didn't bet)
+Seat 3: nekaidezivot (button) folded before Flop (didn't bet)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Mickey75 (big blind) showed [8s 7s] and won ($18.26) with a straight, Four to Eight
+
+
+Weplay Hand #75427121:  Hold'em No Limit ($1/$2) - 2026/02/11 22:04:48 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Ekim170213 ($115.69 in chips)
+Seat 3: nekaidezivot ($270.45 in chips)
+Seat 5: Elgringo ($216.01 in chips)
+Seat 6: Mickey75 ($243.08 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Ekim170213: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Ah]
+Ekim170213: raises $5 to $5
+nekaidezivot: folds
+Elgringo: calls $5
+Mickey75: folds
+kole1992: folds
+*** FLOP *** [4h Jc Kh]
+Ekim170213: bets $5
+Elgringo: calls $5
+*** TURN *** [4h Jc Kh] [5h]
+Ekim170213: checks
+Elgringo: checks
+*** RIVER *** [4h Jc Kh 5h] [3c]
+Ekim170213: bets $5
+Elgringo: calls $5
+*** SHOW DOWN ***
+Ekim170213: shows [Tc Th] (a pair of Tens)
+Elgringo: shows [Jh Ts] (a pair of Jacks)
+Elgringo collected $33 from pot
+*** SUMMARY ***
+Total pot $33 | Rake $1.65 
+Board [4h Jc Kh 5h 3c]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Ekim170213 showed [Tc Th] and lost with a pair of Tens
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 5: Elgringo (button) showed [Jh Ts] and won ($33) with a pair of Jacks
+Seat 6: Mickey75 (small blind) folded before Flop 
+
+
+Weplay Hand #75427150:  Hold'em No Limit ($1/$2) - 2026/02/11 22:05:36 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Ekim170213 ($100.69 in chips)
+Seat 3: nekaidezivot ($270.45 in chips)
+Seat 5: Elgringo ($232.36 in chips)
+Seat 6: Mickey75 ($242.08 in chips)
+kole1992: posts small blind $1
+Ekim170213: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 6d]
+Elgringo: calls $4
+Mickey75: raises $22 to $22
+kole1992: folds
+Ekim170213: folds
+nekaidezivot: folds
+Elgringo: calls $18
+*** FLOP *** [8c 9c 3c]
+Elgringo: checks
+Mickey75: bets $25.50
+Elgringo: folds
+Uncalled bet ($25.50) returned to Mickey75
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 6d]
+Mickey75: doesn't show hand
+Mickey75 collected $51 from pot
+*** SUMMARY ***
+Total pot $51 | Rake $2.55 
+Board [8c 9c 3c]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Ekim170213 (big blind) folded before Flop 
+Seat 3: nekaidezivot folded before Flop 
+Seat 5: Elgringo folded on the Flop 
+Seat 6: Mickey75 (button) collected ($51)
+
+
+Weplay Hand #75427173:  Hold'em No Limit ($1/$2) - 2026/02/11 22:06:23 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Ekim170213 ($98.69 in chips)
+Seat 3: nekaidezivot ($266.45 in chips)
+Seat 5: Elgringo ($210.36 in chips)
+Seat 6: Mickey75 ($268.53 in chips)
+Ekim170213: posts small blind $1
+nekaidezivot: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Jc]
+Mickey75: folds
+kole1992: raises $11 to $11
+Ekim170213: folds
+nekaidezivot: calls $9
+Elgringo: calls $7
+*** FLOP *** [Jd 5s Ks]
+nekaidezivot: checks
+Elgringo: checks
+kole1992: checks
+*** TURN *** [Jd 5s Ks] [2d]
+nekaidezivot: checks
+Elgringo: checks
+kole1992: checks
+*** RIVER *** [Jd 5s Ks 2d] [8s]
+nekaidezivot: checks
+Elgringo: checks
+kole1992: bets $21
+nekaidezivot: folds
+Elgringo: folds
+Uncalled bet ($21) returned to kole1992
+*** SHOW DOWN ***
+Elgringo: shows [## 8c] (a pair of Eights)
+kole1992: doesn't show hand
+kole1992 collected $34 from pot
+*** SUMMARY ***
+Total pot $34 | Rake $1.70 
+Board [Jd 5s Ks 2d 8s]
+Seat 1: kole1992 (button) collected ($34)
+Seat 2: Ekim170213 (small blind) folded before Flop 
+Seat 3: nekaidezivot (big blind) folded on the River 
+Seat 5: Elgringo folded on the River 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75427218:  Hold'em No Limit ($1/$2) - 2026/02/11 22:08:03 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($221.30 in chips)
+Seat 2: Ekim170213 ($97.69 in chips)
+Seat 3: nekaidezivot ($255.45 in chips)
+Seat 5: Elgringo ($199.36 in chips)
+Seat 6: Mickey75 ($268.53 in chips)
+nekaidezivot: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 8d]
+Mickey75: folds
+kole1992 has timed out
+kole1992: folds
+Ekim170213: calls $2
+nekaidezivot: folds
+Elgringo: raises $8 to $10
+Ekim170213: calls $8
+*** FLOP *** [Jc 6d Ts]
+Elgringo: bets $7
+Ekim170213: calls $7
+*** TURN *** [Jc 6d Ts] [4h]
+Elgringo: bets $15
+Ekim170213: calls $15
+*** RIVER *** [Jc 6d Ts 4h] [Qh]
+Elgringo: checks
+Ekim170213: bets $65.69 and is all-in
+Elgringo: folds
+Uncalled bet ($65.69) returned to Ekim170213
+*** SHOW DOWN ***
+Elgringo: shows [Td Ad] (a pair of Tens)
+Ekim170213: doesn't show hand
+Ekim170213 collected $65 from pot
+*** SUMMARY ***
+Total pot $65 | Rake $3.25 
+Board [Jc 6d Ts 4h Qh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Ekim170213 (button) collected ($65)
+Seat 3: nekaidezivot (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) folded on the River 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75427256:  Hold'em No Limit ($1/$2) - 2026/02/11 22:09:36 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($221.30 in chips)
+Seat 2: Ekim170213 ($127.44 in chips)
+Seat 3: nekaidezivot ($254.45 in chips)
+Seat 5: Elgringo ($167.36 in chips)
+Seat 6: Mickey75 ($268.53 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Ad]
+kole1992: folds
+Ekim170213: calls $2
+nekaidezivot: folds
+Elgringo: calls $1
+Mickey75: checks
+*** FLOP *** [Ac 7h Qd]
+Elgringo: checks
+Mickey75: checks
+Ekim170213: checks
+*** TURN *** [Ac 7h Qd] [Js]
+Elgringo: checks
+Mickey75: checks
+Ekim170213: checks
+*** RIVER *** [Ac 7h Qd Js] [5h]
+Elgringo: checks
+Mickey75: checks
+Ekim170213: checks
+*** SHOW DOWN ***
+Elgringo: shows [8h 7c] (a pair of Sevens)
+Mickey75: shows [2s Jd] (a pair of Jacks)
+Ekim170213: mucks hand
+Mickey75 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Ac 7h Qd Js 5h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Ekim170213 mucked
+Seat 3: nekaidezivot (button) folded before Flop (didn't bet)
+Seat 5: Elgringo (small blind) showed [8h 7c] and lost with a pair of Sevens
+Seat 6: Mickey75 (big blind) showed [2s Jd] and won ($6) with a pair of Jacks
+
+
+Weplay Hand #75427281:  Hold'em No Limit ($1/$2) - 2026/02/11 22:10:25 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($221.30 in chips)
+Seat 2: Ekim170213 ($125.44 in chips)
+Seat 3: nekaidezivot ($254.45 in chips)
+Seat 5: Elgringo ($165.36 in chips)
+Seat 6: Mickey75 ($272.23 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Ekim170213: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 6h]
+Ekim170213: raises $5 to $5
+nekaidezivot: folds
+Elgringo: calls $5
+Mickey75: folds
+kole1992: folds
+*** FLOP *** [3c Kd Kh]
+Ekim170213: checks
+Elgringo: bets $6.50
+Ekim170213: calls $6.50
+*** TURN *** [3c Kd Kh] [6c]
+Ekim170213: checks
+Elgringo: checks
+*** RIVER *** [3c Kd Kh 6c] [Ks]
+Ekim170213: bets $15
+Elgringo: folds
+Uncalled bet ($15) returned to Ekim170213
+*** SHOW DOWN ***
+Elgringo: shows [As Th] (three of a kind, Kings)
+Ekim170213: doesn't show hand
+Ekim170213 collected $26 from pot
+*** SUMMARY ***
+Total pot $26 | Rake $1.30 
+Board [3c Kd Kh 6c Ks]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Ekim170213 collected ($26)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 5: Elgringo (button) folded on the River 
+Seat 6: Mickey75 (small blind) folded before Flop 
+
+
+Weplay Hand #75428316:  Hold'em No Limit ($1/$2) - 2026/02/11 22:11:31 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($219.30 in chips)
+Seat 2: Ekim170213 ($138.64 in chips)
+Seat 3: nekaidezivot ($254.45 in chips)
+Seat 5: Elgringo ($153.86 in chips)
+Seat 6: Mickey75 ($271.23 in chips)
+kole1992: posts small blind $1
+Ekim170213: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 7s]
+Elgringo: folds
+Mickey75: raises $12 to $12
+kole1992: folds
+Ekim170213: calls $10
+nekaidezivot: calls $8
+*** FLOP *** [5d Kd Ks]
+Ekim170213: checks
+nekaidezivot: checks
+Mickey75: bets $12.33
+Ekim170213: folds
+nekaidezivot: folds
+Uncalled bet ($12.33) returned to Mickey75
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 7s]
+Mickey75: doesn't show hand
+Mickey75 collected $37 from pot
+*** SUMMARY ***
+Total pot $37 | Rake $1.85 
+Board [5d Kd Ks]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Ekim170213 (big blind) folded on the Flop 
+Seat 3: nekaidezivot folded on the Flop 
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Mickey75 (button) collected ($37)
+
+
+Weplay Hand #75428337:  Hold'em No Limit ($1/$2) - 2026/02/11 22:12:22 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($218.30 in chips)
+Seat 2: Ekim170213 ($126.64 in chips)
+Seat 3: nekaidezivot ($242.45 in chips)
+Seat 5: Elgringo ($153.86 in chips)
+Seat 6: Mickey75 ($294.38 in chips)
+Ekim170213: posts small blind $1
+nekaidezivot: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5h]
+Mickey75: folds
+kole1992: folds
+Ekim170213: folds
+nekaidezivot: folds
+Uncalled bet ($2) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5h]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Ekim170213 (small blind) folded before Flop 
+Seat 3: nekaidezivot (big blind) folded before Flop 
+Seat 5: Elgringo collected ($5)
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75428346:  Hold'em No Limit ($1/$2) - 2026/02/11 22:12:43 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($218.30 in chips)
+Seat 2: Ekim170213 ($125.64 in chips)
+Seat 3: nekaidezivot ($240.45 in chips)
+Seat 5: Elgringo ($156.86 in chips)
+Seat 6: Mickey75 ($294.38 in chips)
+nekaidezivot: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 4d]
+Mickey75: folds
+kole1992: folds
+Ekim170213: raises $5 to $5
+nekaidezivot: folds
+Elgringo: folds
+Uncalled bet ($3) returned to Ekim170213
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 4d]
+Ekim170213: doesn't show hand
+Ekim170213 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Ekim170213 (button) collected ($5)
+Seat 3: nekaidezivot (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) folded before Flop 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75428372:  Hold'em No Limit ($1/$2) - 2026/02/11 22:13:34 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($218.30 in chips)
+Seat 2: Ekim170213 ($128.64 in chips)
+Seat 3: nekaidezivot ($242.45 in chips)
+Seat 5: Elgringo ($153.86 in chips)
+Seat 6: Mickey75 ($292.38 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Ekim170213: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Tc]
+Ekim170213: folds
+nekaidezivot: folds
+Elgringo: folds
+Mickey75: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($2)
+Seat 2: Ekim170213 folded before Flop (didn't bet)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 5: Elgringo (button) folded before Flop (didn't bet)
+Seat 6: Mickey75 (small blind) folded before Flop 
+
+
+Weplay Hand #75428378:  Hold'em No Limit ($1/$2) - 2026/02/11 22:13:52 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($219.30 in chips)
+Seat 2: Ekim170213 ($128.64 in chips)
+Seat 3: nekaidezivot ($242.45 in chips)
+Seat 5: Elgringo ($153.86 in chips)
+Seat 6: Mickey75 ($291.38 in chips)
+kole1992: posts small blind $1
+Ekim170213: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 6d]
+Elgringo: folds
+Mickey75: folds
+kole1992: folds
+Ekim170213: raises $10 to $12
+nekaidezivot: calls $8
+*** FLOP *** [7h 8s 6s]
+Ekim170213: bets $18
+nekaidezivot: raises $48 to $48
+Ekim170213: folds
+Uncalled bet ($30) returned to nekaidezivot
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 6d]
+nekaidezivot has timed out
+nekaidezivot: doesn't show hand
+nekaidezivot collected $61 from pot
+*** SUMMARY ***
+Total pot $61 | Rake $3.05 
+Board [7h 8s 6s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Ekim170213 (big blind) folded on the Flop 
+Seat 3: nekaidezivot collected ($61)
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Mickey75 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75428405:  Hold'em No Limit ($1/$2) - 2026/02/11 22:14:45 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($218.30 in chips)
+Seat 2: Ekim170213 ($98.64 in chips)
+Seat 3: nekaidezivot ($270.40 in chips)
+Seat 5: Elgringo ($153.86 in chips)
+Seat 6: Mickey75 ($291.38 in chips)
+Ekim170213: posts small blind $1
+nekaidezivot: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 9s]
+Mickey75: folds
+Elgringo is disconnected 
+kole1992: raises $11 to $11
+Elgringo is connected 
+Ekim170213: folds
+nekaidezivot: folds
+Elgringo: folds
+Uncalled bet ($7) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0 
+Seat 1: kole1992 (button) collected ($11)
+Seat 2: Ekim170213 (small blind) folded before Flop 
+Seat 3: nekaidezivot (big blind) folded before Flop 
+Seat 5: Elgringo folded before Flop 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75428418:  Hold'em No Limit ($1/$2) - 2026/02/11 22:15:12 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($225.30 in chips)
+Seat 2: Ekim170213 ($97.64 in chips)
+Seat 3: nekaidezivot ($268.40 in chips)
+Seat 5: Elgringo ($149.86 in chips)
+Seat 6: Mickey75 ($291.38 in chips)
+nekaidezivot: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 4c]
+Mickey75: raises $5 to $5
+kole1992: folds
+Ekim170213: folds
+nekaidezivot: folds
+Elgringo: calls $3
+*** FLOP *** [7s Ah Ts]
+Elgringo: checks
+Mickey75: checks
+*** TURN *** [7s Ah Ts] [8h]
+Elgringo: bets $8.25
+Mickey75: folds
+Uncalled bet ($8.25) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 4c]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [7s Ah Ts 8h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Ekim170213 (button) folded before Flop (didn't bet)
+Seat 3: nekaidezivot (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) collected ($11)
+Seat 6: Mickey75 folded on the Turn 
+
+
+Weplay Hand #75428432:  Hold'em No Limit ($1/$2) - 2026/02/11 22:15:48 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($225.30 in chips)
+Seat 2: Ekim170213 ($97.64 in chips)
+Seat 3: nekaidezivot ($267.40 in chips)
+Seat 5: Elgringo ($155.31 in chips)
+Seat 6: Mickey75 ($286.38 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 5s]
+kole1992: folds
+Ekim170213: calls $2
+nekaidezivot: calls $2
+Elgringo: folds
+Mickey75: checks
+*** FLOP *** [Ad Ac 2s]
+Mickey75: checks
+Ekim170213: checks
+nekaidezivot: checks
+*** TURN *** [Ad Ac 2s] [8c]
+Mickey75: checks
+Ekim170213: checks
+nekaidezivot: bets $5.25
+Mickey75: folds
+Ekim170213 is disconnected 
+Ekim170213 is connected 
+Ekim170213: folds
+Uncalled bet ($5.25) returned to nekaidezivot
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 5s]
+nekaidezivot has timed out
+nekaidezivot: doesn't show hand
+nekaidezivot collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [Ad Ac 2s 8c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Ekim170213 folded on the Turn 
+Seat 3: nekaidezivot (button) collected ($7)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Mickey75 (big blind) folded on the Turn 
+
+
+Weplay Hand #75428464:  Hold'em No Limit ($1/$2) - 2026/02/11 22:16:51 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($225.30 in chips)
+Seat 2: Ekim170213 ($95.64 in chips)
+Seat 3: nekaidezivot ($272.05 in chips)
+Seat 5: Elgringo ($154.31 in chips)
+Seat 6: Mickey75 ($284.38 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Ekim170213: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 6h]
+Olaf193 joins the table at seat #4
+Ekim170213: folds
+nekaidezivot: folds
+Elgringo: raises $6 to $6
+Mickey75: folds
+kole1992: calls $4
+*** FLOP *** [Qc 6s 4h]
+kole1992: checks
+Elgringo: checks
+*** TURN *** [Qc 6s 4h] [Kd]
+kole1992: checks
+Elgringo: checks
+*** RIVER *** [Qc 6s 4h Kd] [8s]
+kole1992: bets $2
+Elgringo: raises $15 to $15
+kole1992: raises $52 to $54
+Elgringo: calls $39
+*** SHOW DOWN ***
+kole1992: shows [8h 6h] (two pair, Eights and Sixes)
+Elgringo: shows [8c Qd] (two pair, Queens and Eights)
+Elgringo collected $121 from pot
+*** SUMMARY ***
+Total pot $121 | Rake $6.05 
+Board [Qc 6s 4h Kd 8s]
+Seat 1: kole1992 (big blind) showed [8h 6h] and lost with two pair, Eights and Sixes
+Seat 2: Ekim170213 folded before Flop (didn't bet)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 5: Elgringo (button) showed [8c Qd] and won ($121) with two pair, Queens and Eights
+Seat 6: Mickey75 (small blind) folded before Flop 
+
+
+Weplay Hand #75428500:  Hold'em No Limit ($1/$2) - 2026/02/11 22:18:19 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Ekim170213 ($95.64 in chips)
+Seat 3: nekaidezivot ($272.05 in chips)
+Seat 4: Olaf193 ($60 in chips)
+Seat 5: Elgringo ($209.26 in chips)
+Seat 6: Mickey75 ($283.38 in chips)
+kole1992: posts small blind $1
+Ekim170213: posts big blind $2
+Olaf193: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Qc]
+Olaf193: raises $4 to $6
+Elgringo: calls $6
+Mickey75: folds
+kole1992: folds
+Ekim170213: calls $4
+nekaidezivot: folds
+*** FLOP *** [7s Tc 2c]
+Ekim170213: checks
+Olaf193: bets $17.25
+Elgringo: folds
+Ekim170213: calls $17.25
+*** TURN *** [7s Tc 2c] [Kh]
+Ekim170213: checks
+Olaf193: checks
+*** RIVER *** [7s Tc 2c Kh] [8s]
+Ekim170213: checks
+Olaf193: checks
+*** SHOW DOWN ***
+Ekim170213: shows [9s 8c] (a pair of Eights)
+Olaf193: shows [9h Th] (a pair of Tens)
+Olaf193 collected $57.50 from pot
+*** SUMMARY ***
+Total pot $57.50 | Rake $2.87 
+Board [7s Tc 2c Kh 8s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Ekim170213 (big blind) showed [9s 8c] and lost with a pair of Eights
+Seat 3: nekaidezivot folded before Flop 
+Seat 4: Olaf193 (big blind) showed [9h Th] and won ($57.50) with a pair of Tens
+Seat 5: Elgringo folded on the Flop 
+Seat 6: Mickey75 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75428533:  Hold'em No Limit ($1/$2) - 2026/02/11 22:19:16 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Ekim170213 ($72.39 in chips)
+Seat 3: nekaidezivot ($268.05 in chips)
+Seat 4: Olaf193 ($91.38 in chips)
+Seat 5: Elgringo ($203.26 in chips)
+Seat 6: Mickey75 ($283.38 in chips)
+Ekim170213: posts small blind $1
+nekaidezivot: posts big blind $2
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 8c]
+Olaf193: calls $2
+Elgringo: calls $2
+Mickey75: folds
+kole1992: raises $10 to $10
+Ekim170213: folds
+nekaidezivot: folds
+Olaf193: calls $8
+Elgringo: calls $8
+*** FLOP *** [8s 2c Ah]
+Olaf193: checks
+Elgringo: checks
+kole1992: bets $7.92
+Olaf193: folds
+Elgringo: folds
+Uncalled bet ($7.92) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $33 from pot
+*** SUMMARY ***
+Total pot $33 | Rake $1.65 
+Board [8s 2c Ah]
+Seat 1: kole1992 (button) collected ($33)
+Seat 2: Ekim170213 (small blind) folded before Flop 
+Seat 3: nekaidezivot (big blind) folded before Flop 
+Seat 4: Olaf193 folded on the Flop 
+Seat 5: Elgringo folded on the Flop 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75428559:  Hold'em No Limit ($1/$2) - 2026/02/11 22:20:14 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($221.35 in chips)
+Seat 2: Ekim170213 ($71.39 in chips)
+Seat 3: nekaidezivot ($266.05 in chips)
+Seat 4: Olaf193 ($81.38 in chips)
+Seat 5: Elgringo ($193.26 in chips)
+Seat 6: Mickey75 ($283.38 in chips)
+nekaidezivot: posts small blind $1
+Olaf193: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Ad]
+Mickey75: folds
+kole1992: raises $10 to $10
+Ekim170213: calls $10
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: calls $6
+*** FLOP *** [6h Kh 3d]
+Elgringo: checks
+kole1992: checks
+Ekim170213: checks
+*** TURN *** [6h Kh 3d] [7c]
+Elgringo: bets $10.89
+kole1992: folds
+Ekim170213: folds
+Uncalled bet ($10.89) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Ad]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $33 from pot
+*** SUMMARY ***
+Total pot $33 | Rake $1.65 
+Board [6h Kh 3d 7c]
+Seat 1: kole1992 folded on the Turn 
+Seat 2: Ekim170213 (button) folded on the Turn 
+Seat 3: nekaidezivot (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) folded before Flop 
+Seat 5: Elgringo collected ($33)
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75428586:  Hold'em No Limit ($1/$2) - 2026/02/11 22:21:20 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($211.35 in chips)
+Seat 2: Ekim170213 ($61.39 in chips)
+Seat 3: nekaidezivot ($265.05 in chips)
+Seat 4: Olaf193 ($79.38 in chips)
+Seat 5: Elgringo ($214.61 in chips)
+Seat 6: Mickey75 ($283.38 in chips)
+Olaf193: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Jc]
+Mickey75: raises $5 to $5
+kole1992: folds
+Ekim170213: calls $5
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: calls $3
+*** FLOP *** [8s Tc Jd]
+Elgringo: checks
+Mickey75: checks
+Ekim170213: bets $15
+Elgringo: calls $15
+Mickey75: calls $15
+*** TURN *** [8s Tc Jd] [Qd]
+Elgringo: checks
+Mickey75: checks
+Ekim170213: bets $25
+Elgringo: calls $25
+Mickey75: calls $25
+*** RIVER *** [8s Tc Jd Qd] [5c]
+Elgringo: checks
+Mickey75: checks
+Ekim170213: bets $16.39 and is all-in
+Elgringo: calls $16.39
+Mickey75: folds
+*** SHOW DOWN ***
+Ekim170213: shows [Td Ts] (three of a kind, Tens)
+Elgringo: shows [9c 8d] (a straight, Eight to Queen)
+Elgringo collected $168.78 from pot
+*** SUMMARY ***
+Total pot $168.78 | Rake $8.43 
+Board [8s Tc Jd Qd 5c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Ekim170213 showed [Td Ts] and lost with three of a kind, Tens
+Seat 3: nekaidezivot (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) showed [9c 8d] and won ($168.78) with a straight, Eight to Queen
+Seat 6: Mickey75 folded on the River 
+
+
+Weplay Hand #75428633:  Hold'em No Limit ($1/$2) - 2026/02/11 22:22:59 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($211.35 in chips)
+Seat 3: nekaidezivot ($265.05 in chips)
+Seat 4: Olaf193 ($78.38 in chips)
+Seat 5: Elgringo ($313.57 in chips)
+Seat 6: Mickey75 ($238.38 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 9h]
+kole1992: folds
+nekaidezivot: folds
+Olaf193: calls $2
+Elgringo: folds
+Dobri joins the table at seat #2
+Mickey75: checks
+*** FLOP *** [Ts Qd Qh]
+Mickey75: checks
+Olaf193: bets $6.38
+Mickey75: folds
+Uncalled bet ($6.38) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 9h]
+Olaf193: doesn't show hand
+Olaf193 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [Ts Qd Qh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) collected ($5)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Mickey75 (big blind) folded on the Flop 
+
+
+Weplay Hand #75428646:  Hold'em No Limit ($1/$2) - 2026/02/11 22:23:34 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($211.35 in chips)
+Seat 2: Dobri ($60 in chips)
+Seat 3: nekaidezivot ($265.05 in chips)
+Seat 4: Olaf193 ($81.13 in chips)
+Seat 5: Elgringo ($312.57 in chips)
+Seat 6: Mickey75 ($236.38 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Dobri: posts big blind $2
+Dobri has timed out
+Dobri: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Ks]
+Dobri: checks
+nekaidezivot: folds
+Olaf193: calls $2
+Elgringo: folds
+Mickey75: folds
+kole1992: checks
+*** FLOP *** [9d 5s Qh]
+kole1992: checks
+Dobri: checks
+Olaf193: bets $5.13
+kole1992: folds
+Mickey75 is disconnected 
+Dobri: folds
+Uncalled bet ($5.13) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Ks]
+Olaf193: doesn't show hand
+Olaf193 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [9d 5s Qh]
+Seat 1: kole1992 (big blind) folded on the Flop 
+Seat 2: Dobri (big blind) folded on the Flop 
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Olaf193 collected ($7)
+Seat 5: Elgringo (button) folded before Flop (didn't bet)
+Seat 6: Mickey75 (small blind) folded before Flop 
+
+
+Weplay Hand #75428684:  Hold'em No Limit ($1/$2) - 2026/02/11 22:24:35 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($209.35 in chips)
+Seat 2: Dobri ($58 in chips)
+Seat 3: nekaidezivot ($265.05 in chips)
+Seat 4: Olaf193 ($85.78 in chips)
+Seat 5: Elgringo ($312.57 in chips)
+Seat 6: Mickey75 ($235.38 in chips)
+kole1992: posts small blind $1
+Dobri: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [9s As]
+Olaf193: folds
+Elgringo: calls $4
+Mickey75: folds
+kole1992: folds
+Dobri: calls $2
+nekaidezivot: checks
+*** FLOP *** [5h 2h Jd]
+Dobri: checks
+nekaidezivot: checks
+Elgringo: checks
+*** TURN *** [5h 2h Jd] [Kh]
+Dobri: bets $4
+nekaidezivot: folds
+Elgringo: raises $13.50 to $13.50
+Dobri: calls $9.50
+*** RIVER *** [5h 2h Jd Kh] [6c]
+Dobri: bets $40.50 and is all-in
+Elgringo: calls $40.50
+*** SHOW DOWN ***
+Dobri: shows [7d Kd] (a pair of Kings)
+Elgringo: shows [Qh Ah] (a flush, Ace high)
+Elgringo collected $121 from pot
+*** SUMMARY ***
+Total pot $121 | Rake $6.05 
+Board [5h 2h Jd Kh 6c]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Dobri (big blind) showed [7d Kd] and lost with a pair of Kings
+Seat 3: nekaidezivot folded on the Turn 
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Elgringo showed [Qh Ah] and won ($121) with a flush, Ace high
+Seat 6: Mickey75 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75428715:  Hold'em No Limit ($1/$2) - 2026/02/11 22:25:40 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($208.35 in chips)
+Seat 3: nekaidezivot ($261.05 in chips)
+Seat 4: Olaf193 ($85.78 in chips)
+Seat 5: Elgringo ($369.52 in chips)
+Seat 6: Mickey75 ($235.38 in chips)
+nekaidezivot: posts big blind $2
+Mickey75: posts big blind $2
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 4s]
+Olaf193: raises $4 to $4
+Elgringo: raises $16 to $16
+Mickey75: folds
+kole1992: folds
+nekaidezivot: folds
+Olaf193: folds
+Uncalled bet ($12) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 4s]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: nekaidezivot (big blind) folded before Flop 
+Seat 4: Olaf193 folded before Flop 
+Seat 5: Elgringo collected ($12)
+Seat 6: Mickey75 (big blind) folded before Flop 
+
+
+Weplay Hand #75428731:  Hold'em No Limit ($1/$2) - 2026/02/11 22:26:03 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($208.35 in chips)
+Seat 2: Dobri ($60 in chips)
+Seat 3: nekaidezivot ($259.05 in chips)
+Seat 4: Olaf193 ($81.78 in chips)
+Seat 5: Elgringo ($377.52 in chips)
+Seat 6: Mickey75 ($233.38 in chips)
+nekaidezivot: posts small blind $1
+Olaf193: posts big blind $2
+Dobri: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Kd]
+Mickey75: folds
+kole1992: raises $15.04 to $15.04
+Dobri: folds
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: calls $11.04
+*** FLOP *** [7h 8d Qc]
+Elgringo: checks
+kole1992: bets $25.60
+Elgringo: calls $25.60
+*** TURN *** [7h 8d Qc] [Jc]
+Elgringo: checks
+kole1992: bets $49
+Elgringo: calls $49
+*** RIVER *** [7h 8d Qc Jc] [Kh]
+Elgringo: checks
+kole1992: checks
+*** SHOW DOWN ***
+Elgringo: shows [Ah As] (a pair of Aces)
+kole1992: mucks hand
+Elgringo collected $184.28 from pot
+*** SUMMARY ***
+Total pot $184.28 | Rake $9.21 
+Board [7h 8d Qc Jc Kh]
+Seat 1: kole1992 mucked
+Seat 2: Dobri (button) (big blind) folded before Flop 
+Seat 3: nekaidezivot (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) folded before Flop 
+Seat 5: Elgringo showed [Ah As] and won ($184.28) with a pair of Aces
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75428776:  Hold'em No Limit ($1/$2) - 2026/02/11 22:27:45 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($58 in chips)
+Seat 3: nekaidezivot ($258.05 in chips)
+Seat 4: Olaf193 ($79.78 in chips)
+Seat 5: Elgringo ($462.95 in chips)
+Seat 6: Mickey75 ($233.38 in chips)
+Olaf193: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 6h]
+Mickey75: folds
+kole1992: folds
+Dobri: calls $2
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: checks
+*** FLOP *** [As 5s 8c]
+Elgringo: checks
+Dobri: checks
+*** TURN *** [As 5s 8c] [6d]
+Elgringo: checks
+Dobri: bets $6
+Elgringo: folds
+Uncalled bet ($6) returned to Dobri
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 6h]
+Dobri has timed out
+Dobri: doesn't show hand
+Dobri collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [As 5s 8c 6d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri collected ($5)
+Seat 3: nekaidezivot (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) folded on the Turn 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75428798:  Hold'em No Limit ($1/$2) - 2026/02/11 22:28:26 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($60.75 in chips)
+Seat 3: nekaidezivot ($258.05 in chips)
+Seat 4: Olaf193 ($78.78 in chips)
+Seat 5: Elgringo ($460.95 in chips)
+Seat 6: Mickey75 ($233.38 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 6c]
+nekaidezivot is connected 
+kole1992: raises $4 to $4
+Dobri: calls $4
+nekaidezivot: folds
+Olaf193: calls $4
+Elgringo: folds
+Mickey75: calls $2
+*** FLOP *** [Qc 5c Js]
+Mickey75: checks
+kole1992: checks
+Dobri: bets $4
+Olaf193: folds
+Mickey75: calls $4
+kole1992: folds
+*** TURN *** [Qc 5c Js] [8d]
+Mickey75: checks
+Dobri: bets $6
+Mickey75: calls $6
+*** RIVER *** [Qc 5c Js 8d] [6h]
+Mickey75: checks
+Dobri: bets $46.75 and is all-in
+Mickey75: folds
+Uncalled bet ($46.75) returned to Dobri
+*** SHOW DOWN ***
+Dobri has timed out
+Dobri: doesn't show hand
+Dobri collected $37 from pot
+*** SUMMARY ***
+Total pot $37 | Rake $1.85 
+Board [Qc 5c Js 8d 6h]
+Seat 1: kole1992 folded on the Flop 
+Seat 2: Dobri collected ($37)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) folded on the Flop 
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Mickey75 (big blind) folded on the River 
+
+
+Weplay Hand #75428846:  Hold'em No Limit ($1/$2) - 2026/02/11 22:30:10 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($81.90 in chips)
+Seat 3: nekaidezivot ($258.05 in chips)
+Seat 4: Olaf193 ($74.78 in chips)
+Seat 5: Elgringo ($459.95 in chips)
+Seat 6: Mickey75 ($219.38 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Dobri has timed out
+Dobri: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 9s]
+Dobri: calls $2
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: calls $2
+Mickey75: calls $1
+kole1992: checks
+*** FLOP *** [8d Qc 4c]
+Mickey75: checks
+kole1992: checks
+Dobri: checks
+Elgringo: checks
+*** TURN *** [8d Qc 4c] [Td]
+Mickey75: bets $6
+kole1992: folds
+Dobri: folds
+Elgringo: folds
+Uncalled bet ($6) returned to Mickey75
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 9s]
+Mickey75: doesn't show hand
+Mickey75 collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [8d Qc 4c Td]
+Seat 1: kole1992 (big blind) folded on the Turn 
+Seat 2: Dobri folded on the Turn 
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Elgringo (button) folded on the Turn 
+Seat 6: Mickey75 (small blind) collected ($8)
+
+
+Weplay Hand #75428882:  Hold'em No Limit ($1/$2) - 2026/02/11 22:31:26 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($79.90 in chips)
+Seat 3: nekaidezivot ($258.05 in chips)
+Seat 4: Olaf193 ($74.78 in chips)
+Seat 5: Elgringo ($457.95 in chips)
+Seat 6: Mickey75 ($224.98 in chips)
+kole1992: posts small blind $1
+Dobri: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Td]
+Olaf193: folds
+Elgringo: calls $4
+Mickey75: folds
+kole1992: folds
+Dobri: folds
+nekaidezivot: checks
+*** FLOP *** [7h 9c 4h]
+nekaidezivot: checks
+Elgringo: checks
+*** TURN *** [7h 9c 4h] [Kc]
+nekaidezivot: checks
+Elgringo: bets $7.50
+nekaidezivot: folds
+Uncalled bet ($7.50) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Td]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [7h 9c 4h Kc]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Dobri (big blind) folded before Flop 
+Seat 3: nekaidezivot folded on the Turn 
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Elgringo collected ($11)
+Seat 6: Mickey75 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75428914:  Hold'em No Limit ($1/$2) - 2026/02/11 22:32:19 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($77.90 in chips)
+Seat 3: nekaidezivot ($254.05 in chips)
+Seat 4: Olaf193 ($74.78 in chips)
+Seat 5: Elgringo ($464.40 in chips)
+Seat 6: Mickey75 ($224.98 in chips)
+Dobri: posts small blind $1
+nekaidezivot: posts big blind $2
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 3h]
+Olaf193: folds
+Elgringo: raises $6 to $6
+Mickey75: folds
+kole1992: folds
+Dobri: folds
+nekaidezivot: folds
+Uncalled bet ($4) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 3h]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Dobri (small blind) folded before Flop 
+Seat 3: nekaidezivot (big blind) folded before Flop 
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Elgringo collected ($5)
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75428935:  Hold'em No Limit ($1/$2) - 2026/02/11 22:32:56 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($76.90 in chips)
+Seat 3: nekaidezivot ($252.05 in chips)
+Seat 4: Olaf193 ($74.78 in chips)
+Seat 5: Elgringo ($467.40 in chips)
+Seat 6: Mickey75 ($224.98 in chips)
+nekaidezivot: posts small blind $1
+Olaf193: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9h]
+Mickey75: folds
+kole1992: folds
+Dobri: calls $4
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: checks
+*** FLOP *** [6h 5s 8h]
+Elgringo: checks
+Dobri: bets $6
+Elgringo: calls $6
+*** TURN *** [6h 5s 8h] [8s]
+Elgringo: checks
+Dobri: bets $66.90 and is all-in
+Elgringo: folds
+Uncalled bet ($66.90) returned to Dobri
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9h]
+Dobri has timed out
+Dobri: doesn't show hand
+Dobri collected $23 from pot
+*** SUMMARY ***
+Total pot $23 | Rake $1.15 
+Board [6h 5s 8h 8s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri (button) collected ($23)
+Seat 3: nekaidezivot (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) folded before Flop 
+Seat 5: Elgringo folded on the Turn 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75428969:  Hold'em No Limit ($1/$2) - 2026/02/11 22:33:50 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($88.75 in chips)
+Seat 3: nekaidezivot ($251.05 in chips)
+Seat 4: Olaf193 ($72.78 in chips)
+Seat 5: Elgringo ($457.40 in chips)
+Seat 6: Mickey75 ($224.98 in chips)
+Olaf193: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Td]
+Mickey75: folds
+kole1992: raises $4.40 to $4.40
+Dobri: folds
+nekaidezivot: raises $16.80 to $16.80
+Olaf193: folds
+Elgringo: folds
+kole1992: calls $12.40
+*** FLOP *** [2d 6d Ac]
+kole1992: checks
+nekaidezivot: bets $12.74
+kole1992: calls $12.74
+*** TURN *** [2d 6d Ac] [3d]
+kole1992: checks
+nekaidezivot: checks
+*** RIVER *** [2d 6d Ac 3d] [Kh]
+kole1992: checks
+nekaidezivot: checks
+*** SHOW DOWN ***
+kole1992: shows [Ts Td] (a pair of Tens)
+nekaidezivot: shows [Qd Ah] (a pair of Aces)
+nekaidezivot collected $62.08 from pot
+*** SUMMARY ***
+Total pot $62.08 | Rake $3.10 
+Board [2d 6d Ac 3d Kh]
+Seat 1: kole1992 showed [Ts Td] and lost with a pair of Tens
+Seat 2: Dobri folded before Flop (didn't bet)
+Seat 3: nekaidezivot (button) showed [Qd Ah] and won ($62.08) with a pair of Aces
+Seat 4: Olaf193 (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) folded before Flop 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75429011:  Hold'em No Limit ($1/$2) - 2026/02/11 22:35:16 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($88.75 in chips)
+Seat 3: nekaidezivot ($280.49 in chips)
+Seat 4: Olaf193 ($71.78 in chips)
+Seat 5: Elgringo ($455.40 in chips)
+Seat 6: Mickey75 ($224.98 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 2c]
+kole1992: folds
+Dobri: calls $2
+nekaidezivot: raises $12 to $12
+Olaf193: calls $12
+Elgringo: calls $11
+Mickey75: folds
+Dobri: folds
+*** FLOP *** [4h Ts Jd]
+Elgringo: checks
+nekaidezivot: checks
+Olaf193: checks
+*** TURN *** [4h Ts Jd] [4d]
+Elgringo: bets $25
+nekaidezivot: calls $25
+Olaf193: calls $25
+*** RIVER *** [4h Ts Jd 4d] [Jh]
+Elgringo: checks
+nekaidezivot: checks
+Olaf193: checks
+*** SHOW DOWN ***
+Elgringo: shows [4s As] (a full house, Fours full of Jacks)
+nekaidezivot has timed out
+nekaidezivot: mucks hand
+Olaf193: mucks hand
+Elgringo collected $115 from pot
+*** SUMMARY ***
+Total pot $115 | Rake $5.75 
+Board [4h Ts Jd 4d Jh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri folded before Flop 
+Seat 3: nekaidezivot mucked
+Seat 4: Olaf193 (button) mucked
+Seat 5: Elgringo (small blind) showed [4s As] and won ($115) with a full house, Fours full of Jacks
+Seat 6: Mickey75 (big blind) folded before Flop 
+
+
+Weplay Hand #75429052:  Hold'em No Limit ($1/$2) - 2026/02/11 22:36:34 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($86.75 in chips)
+Seat 3: nekaidezivot ($243.49 in chips)
+Seat 4: Olaf193 ($34.78 in chips)
+Seat 5: Elgringo ($527.65 in chips)
+Seat 6: Mickey75 ($222.98 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Dobri has timed out
+Dobri: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 3s]
+Dobri: folds
+nekaidezivot: folds
+Olaf193: raises $5 to $5
+Elgringo: calls $5
+Mickey75: folds
+kole1992: folds
+*** FLOP *** [Qc 8s Kd]
+Olaf193: checks
+Elgringo: checks
+*** TURN *** [Qc 8s Kd] [6c]
+Olaf193: checks
+Elgringo: checks
+*** RIVER *** [Qc 8s Kd 6c] [2c]
+Olaf193: checks
+Elgringo: checks
+*** SHOW DOWN ***
+Olaf193: shows [Ts 7s] (high card King)
+Elgringo: shows [4s 4h] (a pair of Fours)
+Elgringo collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [Qc 8s Kd 6c 2c]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Dobri folded before Flop (didn't bet)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Olaf193 showed [Ts 7s] and lost with high card King
+Seat 5: Elgringo (button) showed [4s 4h] and won ($13) with a pair of Fours
+Seat 6: Mickey75 (small blind) folded before Flop 
+
+
+Weplay Hand #75429078:  Hold'em No Limit ($1/$2) - 2026/02/11 22:37:33 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($86.75 in chips)
+Seat 3: nekaidezivot ($243.49 in chips)
+Seat 4: Olaf193 ($29.78 in chips)
+Seat 5: Elgringo ($535 in chips)
+Seat 6: Mickey75 ($221.98 in chips)
+kole1992: posts small blind $1
+Dobri: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 7s]
+Olaf193: calls $4
+Elgringo: folds
+Mickey75: folds
+kole1992: folds
+Dobri: folds
+nekaidezivot: checks
+*** FLOP *** [8s 4d Jh]
+nekaidezivot: checks
+Olaf193: checks
+*** TURN *** [8s 4d Jh] [8h]
+nekaidezivot: checks
+Olaf193: bets $11
+nekaidezivot: folds
+Uncalled bet ($11) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 7s]
+Olaf193: doesn't show hand
+Olaf193 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [8s 4d Jh 8h]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Dobri (big blind) folded before Flop 
+Seat 3: nekaidezivot folded on the Turn 
+Seat 4: Olaf193 collected ($11)
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Mickey75 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75429092:  Hold'em No Limit ($1/$2) - 2026/02/11 22:38:02 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($84.75 in chips)
+Seat 3: nekaidezivot ($239.49 in chips)
+Seat 4: Olaf193 ($36.23 in chips)
+Seat 5: Elgringo ($535 in chips)
+Seat 6: Mickey75 ($221.98 in chips)
+Dobri: posts small blind $1
+nekaidezivot: posts big blind $2
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Td]
+Olaf193: calls $2
+Elgringo has timed out
+Elgringo: folds
+Mickey75: raises $9 to $9
+kole1992: folds
+Dobri: folds
+nekaidezivot: folds
+Olaf193: folds
+Uncalled bet ($7) returned to Mickey75
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Td]
+Mickey75: doesn't show hand
+Mickey75 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Dobri (small blind) folded before Flop 
+Seat 3: nekaidezivot (big blind) folded before Flop 
+Seat 4: Olaf193 folded before Flop 
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Mickey75 collected ($7)
+
+
+Weplay Hand #75429115:  Hold'em No Limit ($1/$2) - 2026/02/11 22:38:51 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($83.75 in chips)
+Seat 3: nekaidezivot ($237.49 in chips)
+Seat 4: Olaf193 ($34.23 in chips)
+Seat 5: Elgringo ($535 in chips)
+Seat 6: Mickey75 ($226.98 in chips)
+nekaidezivot: posts small blind $1
+Olaf193: posts big blind $2
+Elgringo has timed out
+Elgringo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 5d]
+Elgringo: folds
+Mickey75: raises $5 to $5
+kole1992: folds
+Dobri: calls $5
+nekaidezivot: folds
+Olaf193: raises $6 to $8
+Mickey75: raises $221.98 to $226.98 and is all-in
+Dobri: folds
+Olaf193: calls $26.23 and is all-in
+Uncalled bet ($192.75) returned to Mickey75
+*** FLOP *** [Td Jh As]
+*** TURN *** [Td Jh As] [6c]
+*** RIVER *** [Td Jh As 6c] [Jd]
+*** SHOW DOWN ***
+Olaf193: shows [Qd Ad] (two pair, Aces and Jacks)
+Mickey75: shows [Qh Ah] (two pair, Aces and Jacks)
+Olaf193 collected $37.23 from pot
+Mickey75 collected $37.23 from pot
+*** SUMMARY ***
+Total pot $74.46 | Rake $3.72 
+Board [Td Jh As 6c Jd]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri (button) folded before Flop 
+Seat 3: nekaidezivot (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) showed [Qd Ad] and won ($37.23) with two pair, Aces and Jacks
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Mickey75 showed [Qh Ah] and won ($37.23) with two pair, Aces and Jacks
+
+
+Weplay Hand #75429145:  Hold'em No Limit ($1/$2) - 2026/02/11 22:40:00 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($78.75 in chips)
+Seat 3: nekaidezivot ($236.49 in chips)
+Seat 4: Olaf193 ($35.37 in chips)
+Seat 5: Elgringo ($535 in chips)
+Seat 6: Mickey75 ($228.12 in chips)
+Olaf193: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 2c]
+Mickey75: raises $5 to $5
+kole1992: folds
+Dobri: folds
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: calls $3
+*** FLOP *** [Jd 8d 2h]
+Elgringo: checks
+Mickey75: bets $8.25
+Elgringo: folds
+Uncalled bet ($8.25) returned to Mickey75
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 2c]
+Mickey75: doesn't show hand
+Mickey75 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [Jd 8d 2h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri folded before Flop (didn't bet)
+Seat 3: nekaidezivot (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) folded on the Flop 
+Seat 6: Mickey75 collected ($11)
+
+
+Weplay Hand #75429159:  Hold'em No Limit ($1/$2) - 2026/02/11 22:40:31 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Dobri ($78.75 in chips)
+Seat 3: nekaidezivot ($236.49 in chips)
+Seat 4: Olaf193 ($34.37 in chips)
+Seat 5: Elgringo ($530 in chips)
+Seat 6: Mickey75 ($233.57 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Js]
+kole1992: folds
+Dobri has timed out
+Dobri: folds
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: folds
+Uncalled bet ($1) returned to Mickey75
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Js]
+Mickey75: doesn't show hand
+Mickey75 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri folded before Flop (didn't bet)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) folded before Flop (didn't bet)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Mickey75 (big blind) collected ($2)
+
+
+Weplay Hand #75429179:  Hold'em No Limit ($1/$2) - 2026/02/11 22:41:03 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 3: nekaidezivot ($236.49 in chips)
+Seat 4: Olaf193 ($34.37 in chips)
+Seat 5: Elgringo ($529 in chips)
+Seat 6: Mickey75 ($234.57 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Js]
+Olaf193: folds
+Elgringo: folds
+Mickey75: folds
+kole1992: raises $10 to $12
+nekaidezivot: calls $8
+*** FLOP *** [9d Tc Ts]
+kole1992: checks
+nekaidezivot: checks
+*** TURN *** [9d Tc Ts] [7d]
+kole1992: checks
+nekaidezivot: checks
+*** RIVER *** [9d Tc Ts 7d] [7c]
+kole1992: checks
+nekaidezivot: checks
+*** SHOW DOWN ***
+kole1992: shows [9s Js] (two pair, Tens and Nines)
+nekaidezivot has timed out
+nekaidezivot: mucks hand
+kole1992 collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $1.25 
+Board [9d Tc Ts 7d 7c]
+Seat 1: kole1992 (big blind) showed [9s Js] and won ($25) with two pair, Tens and Nines
+Seat 3: nekaidezivot mucked
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Elgringo (button) folded before Flop (didn't bet)
+Seat 6: Mickey75 (small blind) folded before Flop 
+
+
+Weplay Hand #75429208:  Hold'em No Limit ($1/$2) - 2026/02/11 22:42:09 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($211.75 in chips)
+Seat 2: Dobri ($78.75 in chips)
+Seat 3: nekaidezivot ($224.49 in chips)
+Seat 4: Olaf193 ($34.37 in chips)
+Seat 5: Elgringo ($529 in chips)
+Seat 6: Mickey75 ($233.57 in chips)
+kole1992: posts small blind $1
+Dobri: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Th]
+Olaf193: calls $4
+Elgringo: calls $4
+Mickey75: folds
+kole1992: folds
+Dobri: calls $2
+nekaidezivot: raises $26 to $30
+Olaf193: raises $30.37 to $34.37 and is all-in
+Elgringo: folds
+Dobri: folds
+nekaidezivot: calls $4.37
+*** FLOP *** [6s Kc 7s]
+*** TURN *** [6s Kc 7s] [8d]
+*** RIVER *** [6s Kc 7s 8d] [8h]
+*** SHOW DOWN ***
+nekaidezivot: shows [Ks Kh] (a full house, Kings full of Eights)
+Olaf193: shows [2s 2h] (two pair, Eights and Deuces)
+nekaidezivot collected $77.74 from pot
+*** SUMMARY ***
+Total pot $77.74 | Rake $3.88 
+Board [6s Kc 7s 8d 8h]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Dobri (big blind) folded before Flop 
+Seat 3: nekaidezivot showed [Ks Kh] and won ($77.74) with a full house, Kings full of Eights
+Seat 4: Olaf193 showed [2s 2h] and lost with two pair, Eights and Deuces
+Seat 5: Elgringo folded before Flop 
+Seat 6: Mickey75 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75429234:  Hold'em No Limit ($1/$2) - 2026/02/11 22:43:04 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($210.75 in chips)
+Seat 2: Dobri ($74.75 in chips)
+Seat 3: nekaidezivot ($263.98 in chips)
+Seat 4: Olaf193 ($60 in chips)
+Seat 5: Elgringo ($525 in chips)
+Seat 6: Mickey75 ($233.57 in chips)
+Dobri: posts small blind $1
+nekaidezivot: posts big blind $2
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Kh]
+Olaf193: folds
+Elgringo: folds
+Mickey75: folds
+kole1992: raises $5 to $5
+Dobri: folds
+nekaidezivot: calls $3
+*** FLOP *** [Td 7h Qd]
+nekaidezivot: checks
+kole1992: bets $8.03
+nekaidezivot: folds
+Uncalled bet ($8.03) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [Td 7h Qd]
+Seat 1: kole1992 (button) collected ($11)
+Seat 2: Dobri (small blind) folded before Flop 
+Seat 3: nekaidezivot (big blind) folded on the Flop 
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75429253:  Hold'em No Limit ($1/$2) - 2026/02/11 22:43:46 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($216.20 in chips)
+Seat 2: Dobri ($73.75 in chips)
+Seat 3: nekaidezivot ($258.98 in chips)
+Seat 4: Olaf193 ($60 in chips)
+Seat 5: Elgringo ($525 in chips)
+Seat 6: Mickey75 ($233.57 in chips)
+nekaidezivot: posts small blind $1
+Olaf193: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Qc]
+Mickey75: folds
+kole1992: raises $11.03 to $11.03
+Dobri: folds
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: folds
+Uncalled bet ($7.03) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0 
+Seat 1: kole1992 collected ($11)
+Seat 2: Dobri (button) folded before Flop (didn't bet)
+Seat 3: nekaidezivot (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) folded before Flop 
+Seat 5: Elgringo folded before Flop 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75429271:  Hold'em No Limit ($1/$2) - 2026/02/11 22:44:23 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($223.20 in chips)
+Seat 2: Dobri ($73.75 in chips)
+Seat 3: nekaidezivot ($257.98 in chips)
+Seat 4: Olaf193 ($58 in chips)
+Seat 5: Elgringo ($521 in chips)
+Seat 6: Mickey75 ($233.57 in chips)
+Olaf193: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Jc]
+Mickey75: folds
+kole1992: folds
+Dobri: calls $2
+nekaidezivot: folds
+Olaf193: raises $3 to $4
+Elgringo: calls $2
+Dobri: calls $2
+*** FLOP *** [9s 4d Ad]
+Olaf193: checks
+Elgringo: checks
+Dobri: checks
+*** TURN *** [9s 4d Ad] [Qh]
+Olaf193: bets $3.96
+Elgringo: folds
+Dobri: folds
+Uncalled bet ($3.96) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Jc]
+Olaf193 has timed out
+Olaf193: doesn't show hand
+Olaf193 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [9s 4d Ad Qh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri folded on the Turn 
+Seat 3: nekaidezivot (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) collected ($12)
+Seat 5: Elgringo (big blind) folded on the Turn 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75429300:  Hold'em No Limit ($1/$2) - 2026/02/11 22:45:21 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($223.20 in chips)
+Seat 2: Dobri ($69.75 in chips)
+Seat 3: nekaidezivot ($257.98 in chips)
+Seat 4: Olaf193 ($65.40 in chips)
+Seat 5: Elgringo ($517 in chips)
+Seat 6: Mickey75 ($233.57 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 7c]
+kole1992: folds
+Dobri: calls $2
+nekaidezivot: folds
+Olaf193: raises $5 to $5
+Elgringo: folds
+Mickey75: folds
+Dobri: calls $3
+*** FLOP *** [Ac Qd 4d]
+Dobri: checks
+Olaf193: bets $6.50
+Dobri: folds
+Uncalled bet ($6.50) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 7c]
+Olaf193: doesn't show hand
+Olaf193 collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [Ac Qd 4d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri folded on the Flop 
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) collected ($13)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Mickey75 (big blind) folded before Flop 
+
+
+Weplay Hand #75429318:  Hold'em No Limit ($1/$2) - 2026/02/11 22:46:06 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($223.20 in chips)
+Seat 2: Dobri ($64.75 in chips)
+Seat 3: nekaidezivot ($257.98 in chips)
+Seat 4: Olaf193 ($72.75 in chips)
+Seat 5: Elgringo ($516 in chips)
+Seat 6: Mickey75 ($231.57 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Dobri has timed out
+Dobri: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 5h]
+Dobri: folds
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: raises $6 to $6
+Mickey75: folds
+kole1992: folds
+Uncalled bet ($4) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 5h]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Dobri folded before Flop (didn't bet)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Elgringo (button) collected ($5)
+Seat 6: Mickey75 (small blind) folded before Flop 
+
+
+Weplay Hand #75429335:  Hold'em No Limit ($1/$2) - 2026/02/11 22:46:36 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($221.20 in chips)
+Seat 2: Dobri ($64.75 in chips)
+Seat 3: nekaidezivot ($257.98 in chips)
+Seat 4: Olaf193 ($72.75 in chips)
+Seat 5: Elgringo ($519 in chips)
+Seat 6: Mickey75 ($230.57 in chips)
+kole1992: posts small blind $1
+Dobri: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Qd]
+Olaf193: folds
+Elgringo has timed out
+Elgringo: folds
+Mickey75: folds
+kole1992: folds
+Dobri: raises $4 to $6
+nekaidezivot: calls $2
+*** FLOP *** [Kc Js 6s]
+Dobri: checks
+nekaidezivot: checks
+*** TURN *** [Kc Js 6s] [Jh]
+Dobri: bets $4
+nekaidezivot: calls $4
+*** RIVER *** [Kc Js 6s Jh] [5d]
+Dobri: bets $8
+nekaidezivot: folds
+Uncalled bet ($8) returned to Dobri
+*** SHOW DOWN ***
+Dobri has timed out
+Dobri: doesn't show hand
+Dobri collected $21 from pot
+*** SUMMARY ***
+Total pot $21 | Rake $1.05 
+Board [Kc Js 6s Jh 5d]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Dobri (big blind) collected ($21)
+Seat 3: nekaidezivot folded on the River 
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Mickey75 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75429360:  Hold'em No Limit ($1/$2) - 2026/02/11 22:47:37 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($220.20 in chips)
+Seat 2: Dobri ($74.70 in chips)
+Seat 3: nekaidezivot ($247.98 in chips)
+Seat 4: Olaf193 ($72.75 in chips)
+Seat 5: Elgringo ($519 in chips)
+Seat 6: Mickey75 ($230.57 in chips)
+Dobri: posts small blind $1
+nekaidezivot: posts big blind $2
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 7d]
+Olaf193: folds
+Elgringo: folds
+Mickey75: folds
+kole1992: folds
+Dobri: calls $1
+nekaidezivot: checks
+*** FLOP *** [Ks Kh Js]
+Dobri: checks
+nekaidezivot: checks
+*** TURN *** [Ks Kh Js] [2d]
+Dobri: checks
+nekaidezivot: checks
+*** RIVER *** [Ks Kh Js 2d] [Ad]
+Dobri: bets $12
+nekaidezivot: folds
+Uncalled bet ($12) returned to Dobri
+*** SHOW DOWN ***
+Dobri has timed out
+Dobri: doesn't show hand
+Dobri collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [Ks Kh Js 2d Ad]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Dobri (small blind) collected ($4)
+Seat 3: nekaidezivot (big blind) folded on the River 
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75429383:  Hold'em No Limit ($1/$2) - 2026/02/11 22:48:35 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($220.20 in chips)
+Seat 2: Dobri ($76.50 in chips)
+Seat 3: nekaidezivot ($245.98 in chips)
+Seat 4: Olaf193 ($72.75 in chips)
+Seat 5: Elgringo ($519 in chips)
+Seat 6: Mickey75 ($230.57 in chips)
+nekaidezivot: posts small blind $1
+Olaf193: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 9h]
+Mickey75: folds
+kole1992: folds
+Dobri: calls $4
+nekaidezivot: folds
+Olaf193: calls $2
+Elgringo: checks
+*** FLOP *** [Kc 7c 8d]
+Olaf193: checks
+Elgringo: bets $7
+Dobri: folds
+Olaf193: calls $7
+*** TURN *** [Kc 7c 8d] [Ks]
+Olaf193: checks
+Elgringo: checks
+*** RIVER *** [Kc 7c 8d Ks] [Ac]
+Olaf193: checks
+Elgringo: bets $66
+Olaf193: folds
+Uncalled bet ($66) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $27 from pot
+*** SUMMARY ***
+Total pot $27 | Rake $1.35 
+Board [Kc 7c 8d Ks Ac]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri (button) folded on the Flop 
+Seat 3: nekaidezivot (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) folded on the River 
+Seat 5: Elgringo collected ($27)
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75429432:  Hold'em No Limit ($1/$2) - 2026/02/11 22:50:01 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($220.20 in chips)
+Seat 2: Dobri ($72.50 in chips)
+Seat 3: nekaidezivot ($244.98 in chips)
+Seat 4: Olaf193 ($61.75 in chips)
+Seat 5: Elgringo ($533.65 in chips)
+Seat 6: Mickey75 ($230.57 in chips)
+Olaf193: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Jd]
+Mickey75: folds
+kole1992: folds
+Dobri: calls $2
+nekaidezivot: raises $10 to $10
+Olaf193: folds
+Elgringo: folds
+Dobri: raises $16 to $18
+nekaidezivot: calls $8
+*** FLOP *** [2s 7c 8s]
+Dobri: bets $54.50 and is all-in
+nekaidezivot: folds
+Uncalled bet ($54.50) returned to Dobri
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Jd]
+Dobri has timed out
+Dobri: doesn't show hand
+Dobri collected $39 from pot
+*** SUMMARY ***
+Total pot $39 | Rake $1.95 
+Board [2s 7c 8s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri collected ($39)
+Seat 3: nekaidezivot (button) folded on the Flop 
+Seat 4: Olaf193 (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) folded before Flop 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75429456:  Hold'em No Limit ($1/$2) - 2026/02/11 22:51:00 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($220.20 in chips)
+Seat 2: Dobri ($91.55 in chips)
+Seat 3: nekaidezivot ($226.98 in chips)
+Seat 4: Olaf193 ($60.75 in chips)
+Seat 5: Elgringo ($531.65 in chips)
+Seat 6: Mickey75 ($230.57 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Jc]
+kole1992: folds
+Dobri: calls $2
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: folds
+Mickey75: checks
+*** FLOP *** [9h Jh Ks]
+Mickey75: checks
+Dobri: bets $2
+Mickey75: folds
+Uncalled bet ($2) returned to Dobri
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Jc]
+Dobri has timed out
+Dobri: doesn't show hand
+Dobri collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [9h Jh Ks]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri collected ($5)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) folded before Flop (didn't bet)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Mickey75 (big blind) folded on the Flop 
+
+
+Weplay Hand #75429485:  Hold'em No Limit ($1/$2) - 2026/02/11 22:51:54 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($220.20 in chips)
+Seat 2: Dobri ($94.30 in chips)
+Seat 3: nekaidezivot ($226.98 in chips)
+Seat 4: Olaf193 ($60.75 in chips)
+Seat 5: Elgringo ($530.65 in chips)
+Seat 6: Mickey75 ($228.57 in chips)
+Mickey75: posts small blind $1
+kole1992: posts big blind $2
+Dobri has timed out
+Dobri: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 2s]
+Dobri: folds
+nekaidezivot: folds
+Olaf193: folds
+Elgringo: folds
+Mickey75: raises $5 to $6
+kole1992: folds
+Uncalled bet ($4) returned to Mickey75
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 2s]
+Mickey75: doesn't show hand
+Mickey75 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Dobri folded before Flop (didn't bet)
+Seat 3: nekaidezivot folded before Flop (didn't bet)
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Elgringo (button) folded before Flop (didn't bet)
+Seat 6: Mickey75 (small blind) collected ($4)
+
+
+Weplay Hand #75429500:  Hold'em No Limit ($1/$2) - 2026/02/11 22:52:28 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($218.20 in chips)
+Seat 2: Dobri ($94.30 in chips)
+Seat 3: nekaidezivot ($226.98 in chips)
+Seat 5: Elgringo ($530.65 in chips)
+Seat 6: Mickey75 ($230.57 in chips)
+kole1992: posts small blind $1
+Dobri: posts big blind $2
+nekaidezivot: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 3s]
+Elgringo: raises $15 to $15
+Mickey75: folds
+kole1992: folds
+Dobri: folds
+nekaidezivot: folds
+Uncalled bet ($11) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 3s]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Dobri (big blind) folded before Flop 
+Seat 3: nekaidezivot folded before Flop 
+Seat 5: Elgringo collected ($11)
+Seat 6: Mickey75 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75429515:  Hold'em No Limit ($1/$2) - 2026/02/11 22:53:02 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($217.20 in chips)
+Seat 2: Dobri ($92.30 in chips)
+Seat 3: nekaidezivot ($222.98 in chips)
+Seat 5: Elgringo ($537.65 in chips)
+Seat 6: Mickey75 ($230.57 in chips)
+Dobri: posts small blind $1
+nekaidezivot: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Jc]
+Mickey75: folds
+kole1992: raises $11 to $11
+Dobri: folds
+nekaidezivot: folds
+Elgringo: calls $7
+*** FLOP *** [Ks 9s Jh]
+Elgringo: checks
+kole1992: bets $8.25
+Elgringo: calls $8.25
+*** TURN *** [Ks 9s Jh] [5h]
+Elgringo: checks
+kole1992: bets $29.30
+Elgringo: folds
+Uncalled bet ($29.30) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $41.50 from pot
+*** SUMMARY ***
+Total pot $41.50 | Rake $2.07 
+Board [Ks 9s Jh 5h]
+Seat 1: kole1992 (button) collected ($41.50)
+Seat 2: Dobri (small blind) folded before Flop 
+Seat 3: nekaidezivot (big blind) folded before Flop 
+Seat 5: Elgringo folded on the Turn 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75429545:  Hold'em No Limit ($1/$2) - 2026/02/11 22:54:37 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($237.38 in chips)
+Seat 2: Dobri ($91.30 in chips)
+Seat 3: nekaidezivot ($220.98 in chips)
+Seat 5: Elgringo ($518.40 in chips)
+Seat 6: Mickey75 ($230.57 in chips)
+nekaidezivot: posts small blind $1
+Elgringo: posts big blind $2
+Mickey75: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 6d]
+Mickey75: folds
+kole1992: folds
+Dobri: calls $2
+nekaidezivot: raises $11 to $12
+Elgringo: folds
+Dobri: folds
+Uncalled bet ($10) returned to nekaidezivot
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 6d]
+nekaidezivot has timed out
+nekaidezivot: doesn't show hand
+nekaidezivot collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri (button) folded before Flop 
+Seat 3: nekaidezivot (small blind) collected ($6)
+Seat 5: Elgringo (big blind) folded before Flop 
+Seat 6: Mickey75 folded before Flop (didn't bet)
+
+
+Weplay Hand #75429554:  Hold'em No Limit ($1/$2) - 2026/02/11 22:55:02 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($237.38 in chips)
+Seat 2: Dobri ($89.30 in chips)
+Seat 3: nekaidezivot ($224.98 in chips)
+Seat 5: Elgringo ($516.40 in chips)
+Seat 6: Mickey75 ($230.57 in chips)
+Elgringo: posts small blind $1
+Mickey75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 5c]
+kole1992: folds
+Dobri: folds
+nekaidezivot: raises $5 to $5
+Elgringo: folds
+Mickey75: folds
+Uncalled bet ($3) returned to nekaidezivot
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 5c]
+nekaidezivot has timed out
+nekaidezivot: doesn't show hand
+nekaidezivot collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Dobri folded before Flop (didn't bet)
+Seat 3: nekaidezivot (button) collected ($5)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Mickey75 (big blind) folded before Flop 

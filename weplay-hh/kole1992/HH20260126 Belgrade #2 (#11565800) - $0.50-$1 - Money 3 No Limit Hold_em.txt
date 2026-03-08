@@ -1,0 +1,1301 @@
+﻿Weplay Hand #73831080:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:48:54 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($71.68 in chips)
+Seat 3: 490700_7267 ($55.64 in chips)
+Seat 4: Doumby ($117.82 in chips)
+Seat 5: UribnP ($106.16 in chips)
+Seat 6: TidlauS ($116.95 in chips)
+TidlauS: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Jh]
+Elgringo: folds
+490700_7267: raises $3 to $3
+Doumby: folds
+UribnP: folds
+TidlauS: folds
+kole1992: folds
+Uncalled bet ($2) returned to 490700_7267
+*** SHOW DOWN ***
+490700_7267 has timed out
+490700_7267: doesn't show hand
+490700_7267 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: 490700_7267 collected ($2.50)
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 5: UribnP (button) folded before Flop (didn't bet)
+Seat 6: TidlauS (small blind) folded before Flop 
+
+
+Weplay Hand #73831105:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:49:28 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($71.68 in chips)
+Seat 3: 490700_7267 ($57.14 in chips)
+Seat 4: Doumby ($117.82 in chips)
+Seat 5: UribnP ($106.16 in chips)
+Seat 6: TidlauS ($116.45 in chips)
+kole1992: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 3s]
+490700_7267: folds
+Doumby: raises $2 to $2
+UribnP has timed out
+UribnP: folds
+TidlauS: folds
+kole1992: folds
+Elgringo: folds
+Uncalled bet ($1) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) folded before Flop 
+Seat 3: 490700_7267 folded before Flop (didn't bet)
+Seat 4: Doumby collected ($2.50)
+Seat 5: UribnP folded before Flop (didn't bet)
+Seat 6: TidlauS (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73831126:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:49:59 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($70.68 in chips)
+Seat 3: 490700_7267 ($57.14 in chips)
+Seat 4: Doumby ($119.32 in chips)
+Seat 5: UribnP ($106.16 in chips)
+Seat 6: TidlauS ($116.45 in chips)
+Elgringo: posts small blind $0.50
+490700_7267: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 6d]
+Doumby: folds
+UribnP: folds
+TidlauS: folds
+kole1992: folds
+Elgringo: folds
+Uncalled bet ($0.50) returned to 490700_7267
+*** SHOW DOWN ***
+490700_7267 has timed out
+490700_7267: doesn't show hand
+490700_7267 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 3: 490700_7267 (big blind) collected ($1)
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 5: UribnP folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73831146:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:50:21 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($70.18 in chips)
+Seat 3: 490700_7267 ($57.64 in chips)
+Seat 4: Doumby ($119.32 in chips)
+Seat 5: UribnP ($106.16 in chips)
+Seat 6: TidlauS ($116.45 in chips)
+490700_7267: posts small blind $0.50
+Doumby: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 7s]
+UribnP has timed out
+UribnP: folds
+TidlauS: folds
+kole1992: folds
+Elgringo: folds
+490700_7267: raises $1.50 to $2
+Doumby: calls $1
+*** FLOP *** [6c Kc 3s]
+490700_7267: checks
+Doumby: checks
+*** TURN *** [6c Kc 3s] [8h]
+490700_7267: bets $2
+Doumby: folds
+Uncalled bet ($2) returned to 490700_7267
+*** SHOW DOWN ***
+490700_7267: doesn't show hand
+490700_7267 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [6c Kc 3s 8h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo (button) folded before Flop (didn't bet)
+Seat 3: 490700_7267 (small blind) collected ($4)
+Seat 4: Doumby (big blind) folded on the Turn 
+Seat 5: UribnP folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73831172:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:51:06 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($70.18 in chips)
+Seat 3: 490700_7267 ($59.44 in chips)
+Seat 4: Doumby ($117.32 in chips)
+Seat 5: UribnP ($106.16 in chips)
+Seat 6: TidlauS ($116.45 in chips)
+Doumby: posts small blind $0.50
+UribnP: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Jc]
+TidlauS: folds
+kole1992: folds
+Elgringo: folds
+490700_7267: calls $1
+Doumby: raises $4.50 to $5
+UribnP: folds
+490700_7267: folds
+Uncalled bet ($4) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: 490700_7267 (button) folded before Flop 
+Seat 4: Doumby (small blind) collected ($3)
+Seat 5: UribnP (big blind) folded before Flop 
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73831181:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:51:23 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($70.18 in chips)
+Seat 3: 490700_7267 ($58.44 in chips)
+Seat 4: Doumby ($119.32 in chips)
+Seat 5: UribnP ($105.16 in chips)
+Seat 6: TidlauS ($116.45 in chips)
+UribnP: posts small blind $0.50
+TidlauS: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Ts]
+kole1992: folds
+Elgringo: folds
+490700_7267: calls $1
+Doumby: folds
+UribnP: calls $0.50
+TidlauS: checks
+*** FLOP *** [3h 4h Ks]
+UribnP: checks
+TidlauS: checks
+490700_7267: checks
+*** TURN *** [3h 4h Ks] [Td]
+UribnP: bets $2
+TidlauS: folds
+490700_7267: folds
+Uncalled bet ($2) returned to UribnP
+*** SHOW DOWN ***
+UribnP has timed out
+UribnP: doesn't show hand
+UribnP collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [3h 4h Ks Td]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: 490700_7267 folded on the Turn 
+Seat 4: Doumby (button) folded before Flop (didn't bet)
+Seat 5: UribnP (small blind) collected ($3)
+Seat 6: TidlauS (big blind) folded on the Turn 
+
+
+Weplay Hand #73831215:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:52:19 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($70.18 in chips)
+Seat 3: 490700_7267 ($57.44 in chips)
+Seat 4: Doumby ($119.32 in chips)
+Seat 5: UribnP ($107.01 in chips)
+Seat 6: TidlauS ($115.45 in chips)
+TidlauS: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Kh]
+Elgringo: folds
+490700_7267: calls $1
+Doumby: folds
+UribnP: folds
+TidlauS: folds
+kole1992: checks
+*** FLOP *** [Kd Tc 5s]
+kole1992: checks
+490700_7267: checks
+*** TURN *** [Kd Tc 5s] [4h]
+kole1992: bets $1.50
+490700_7267: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Kd Tc 5s 4h]
+Seat 1: kole1992 (big blind) collected ($2.50)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: 490700_7267 folded on the Turn 
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 5: UribnP (button) folded before Flop (didn't bet)
+Seat 6: TidlauS (small blind) folded before Flop 
+
+
+Weplay Hand #73831249:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:53:14 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($101.38 in chips)
+Seat 2: Elgringo ($70.18 in chips)
+Seat 3: 490700_7267 ($56.44 in chips)
+Seat 4: Doumby ($119.32 in chips)
+Seat 5: UribnP ($107.01 in chips)
+Seat 6: TidlauS ($114.95 in chips)
+kole1992: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 4h]
+490700_7267: calls $1
+Doumby: folds
+UribnP: folds
+TidlauS: folds
+kole1992: folds
+Elgringo: checks
+*** FLOP *** [Jh 6h 3h]
+Elgringo: checks
+490700_7267: checks
+*** TURN *** [Jh 6h 3h] [2h]
+Elgringo: bets $1.25
+490700_7267: folds
+Uncalled bet ($1.25) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Jh 6h 3h 2h]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) collected ($2.50)
+Seat 3: 490700_7267 folded on the Turn 
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 5: UribnP folded before Flop (didn't bet)
+Seat 6: TidlauS (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73831271:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:53:48 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100.88 in chips)
+Seat 2: Elgringo ($71.56 in chips)
+Seat 3: 490700_7267 ($55.44 in chips)
+Seat 4: Doumby ($119.32 in chips)
+Seat 5: UribnP ($107.01 in chips)
+Seat 6: TidlauS ($114.95 in chips)
+Elgringo: posts small blind $0.50
+490700_7267: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Td]
+Doumby: raises $3 to $3
+UribnP: folds
+TidlauS: calls $3
+kole1992: folds
+Elgringo: calls $2.50
+490700_7267: calls $2
+*** FLOP *** [Qs Js 6d]
+Elgringo: checks
+490700_7267: checks
+Doumby: checks
+TidlauS: checks
+*** TURN *** [Qs Js 6d] [Ad]
+Elgringo: checks
+490700_7267: bets $2
+Doumby: folds
+TidlauS: folds
+Elgringo: folds
+Uncalled bet ($2) returned to 490700_7267
+*** SHOW DOWN ***
+490700_7267: doesn't show hand
+490700_7267 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [Qs Js 6d Ad]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded on the Turn 
+Seat 3: 490700_7267 (big blind) collected ($12)
+Seat 4: Doumby folded on the Turn 
+Seat 5: UribnP folded before Flop (didn't bet)
+Seat 6: TidlauS folded on the Turn 
+
+
+Weplay Hand #73831299:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:54:28 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100.88 in chips)
+Seat 2: Elgringo ($68.56 in chips)
+Seat 3: 490700_7267 ($63.84 in chips)
+Seat 4: Doumby ($116.32 in chips)
+Seat 5: UribnP ($107.01 in chips)
+Seat 6: TidlauS ($111.95 in chips)
+490700_7267: posts small blind $0.50
+Doumby: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh As]
+UribnP: folds
+TidlauS: folds
+kole1992: raises $2 to $2
+Elgringo: raises $9 to $9
+490700_7267: folds
+Doumby: folds
+kole1992: raises $98.88 to $100.88 and is all-in
+Elgringo: folds
+Uncalled bet ($91.88) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $19.50 from pot
+*** SUMMARY ***
+Total pot $19.50 | Rake $0 
+Seat 1: kole1992 collected ($19.50)
+Seat 2: Elgringo (button) folded before Flop 
+Seat 3: 490700_7267 (small blind) folded before Flop 
+Seat 4: Doumby (big blind) folded before Flop 
+Seat 5: UribnP folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73832316:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:55:09 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($111.38 in chips)
+Seat 2: Elgringo ($59.56 in chips)
+Seat 3: 490700_7267 ($63.34 in chips)
+Seat 4: Doumby ($115.32 in chips)
+Seat 5: UribnP ($107.01 in chips)
+Seat 6: TidlauS ($111.95 in chips)
+Doumby: posts small blind $0.50
+UribnP: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 8s]
+TidlauS: folds
+kole1992: folds
+Elgringo: folds
+490700_7267: raises $3 to $3
+Doumby: folds
+UribnP: calls $2
+*** FLOP *** [8c As 4s]
+UribnP: checks
+490700_7267: checks
+*** TURN *** [8c As 4s] [Tc]
+UribnP: checks
+490700_7267: checks
+*** RIVER *** [8c As 4s Tc] [Jc]
+UribnP: checks
+490700_7267: bets $6.50
+UribnP: calls $6.50
+*** SHOW DOWN ***
+490700_7267: shows [Ah Kc] (a pair of Aces)
+UribnP has timed out
+UribnP: mucks hand
+490700_7267 collected $19.50 from pot
+*** SUMMARY ***
+Total pot $19.50 | Rake $0.97 
+Board [8c As 4s Tc Jc]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: 490700_7267 (button) showed [Ah Kc] and won ($19.50) with a pair of Aces
+Seat 4: Doumby (small blind) folded before Flop 
+Seat 5: UribnP (big blind) mucked
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73832337:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:56:16 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($111.38 in chips)
+Seat 2: Elgringo ($59.56 in chips)
+Seat 3: 490700_7267 ($72.37 in chips)
+Seat 4: Doumby ($114.82 in chips)
+Seat 5: UribnP ($100 in chips)
+Seat 6: TidlauS ($111.95 in chips)
+UribnP: posts small blind $0.50
+TidlauS: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Kh]
+kole1992: raises $2 to $2
+Elgringo: folds
+490700_7267: folds
+Doumby: folds
+UribnP: folds
+TidlauS: raises $9 to $10
+kole1992: folds
+Uncalled bet ($8) returned to TidlauS
+*** SHOW DOWN ***
+TidlauS: doesn't show hand
+TidlauS collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 1: kole1992 folded before Flop 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: 490700_7267 folded before Flop (didn't bet)
+Seat 4: Doumby (button) folded before Flop (didn't bet)
+Seat 5: UribnP (small blind) folded before Flop 
+Seat 6: TidlauS (big blind) collected ($4.50)
+
+
+Weplay Hand #73832349:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:56:53 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($109.38 in chips)
+Seat 2: Elgringo ($59.56 in chips)
+Seat 3: 490700_7267 ($72.37 in chips)
+Seat 4: Doumby ($114.82 in chips)
+Seat 5: UribnP ($100 in chips)
+Seat 6: TidlauS ($114.45 in chips)
+TidlauS: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 8d]
+Elgringo: raises $3 to $3
+490700_7267: folds
+Doumby: folds
+UribnP: folds
+TidlauS: folds
+kole1992: folds
+Uncalled bet ($2) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Elgringo collected ($2.50)
+Seat 3: 490700_7267 folded before Flop (didn't bet)
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 5: UribnP (button) folded before Flop (didn't bet)
+Seat 6: TidlauS (small blind) folded before Flop 
+
+
+Weplay Hand #73832354:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:57:13 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($108.38 in chips)
+Seat 3: 490700_7267 ($72.37 in chips)
+Seat 4: Doumby ($114.82 in chips)
+Seat 5: UribnP ($100 in chips)
+Seat 6: TidlauS ($113.95 in chips)
+Elgringo leaves the table
+kole1992: posts small blind $0.50
+490700_7267: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 9s]
+Doumby: folds
+UribnP: raises $2.50 to $2.50
+TidlauS: raises $12 to $12
+kole1992: folds
+490700_7267: folds
+JTs98o joins the table at seat #2
+UribnP: folds
+Uncalled bet ($9.50) returned to TidlauS
+*** SHOW DOWN ***
+TidlauS: doesn't show hand
+TidlauS collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 3: 490700_7267 (big blind) folded before Flop 
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 5: UribnP folded before Flop 
+Seat 6: TidlauS (button) collected ($6.50)
+
+
+Weplay Hand #73832363:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:57:54 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($107.88 in chips)
+Seat 3: 490700_7267 ($71.37 in chips)
+Seat 4: Doumby ($114.82 in chips)
+Seat 5: UribnP ($100 in chips)
+Seat 6: TidlauS ($117.95 in chips)
+490700_7267: posts small blind $0.50
+Doumby: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Kd]
+UribnP: folds
+TidlauS: folds
+kole1992: folds
+490700_7267: calls $0.50
+Doumby: checks
+*** FLOP *** [Td 5s 7d]
+490700_7267: checks
+Doumby: bets $1.60
+490700_7267: folds
+Uncalled bet ($1.60) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [Td 5s 7d]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: 490700_7267 (small blind) folded on the Flop 
+Seat 4: Doumby (big blind) collected ($2)
+Seat 5: UribnP folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73832369:  Hold'em No Limit ($0.50/$1) - 2026/01/26 19:58:15 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($107.88 in chips)
+Seat 2: JTs98o ($100 in chips)
+Seat 3: 490700_7267 ($70.37 in chips)
+Seat 4: Doumby ($115.72 in chips)
+Seat 5: UribnP ($100 in chips)
+Seat 6: TidlauS ($117.95 in chips)
+Doumby: posts small blind $0.50
+UribnP: posts big blind $1
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 7c]
+TidlauS: folds
+kole1992: folds
+JTs98o: checks
+490700_7267: calls $1
+Doumby: folds
+UribnP: checks
+*** FLOP *** [Ac Th Kc]
+UribnP: checks
+JTs98o: checks
+490700_7267: checks
+*** TURN *** [Ac Th Kc] [9d]
+UribnP: checks
+JTs98o: checks
+490700_7267: checks
+*** RIVER *** [Ac Th Kc 9d] [7d]
+kole1992 is disconnected 
+UribnP is disconnected 
+UribnP has timed out while being disconnected
+UribnP: checks
+JTs98o: checks
+kole1992 is connected 
+UribnP is connected 
+490700_7267: bets $3
+UribnP has timed out
+UribnP: folds
+UribnP: sits out 
+JTs98o: folds
+Uncalled bet ($3) returned to 490700_7267
+*** SHOW DOWN ***
+490700_7267: doesn't show hand
+490700_7267 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [Ac Th Kc 9d 7d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o (big blind) folded on the River 
+Seat 3: 490700_7267 (button) collected ($3.50)
+Seat 4: Doumby (small blind) folded before Flop 
+Seat 5: UribnP (big blind) folded on the River 
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73832414:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:00:38 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($107.88 in chips)
+Seat 2: JTs98o ($100 in chips)
+Seat 3: 490700_7267 ($72.70 in chips)
+Seat 4: Doumby ($115.22 in chips)
+Seat 6: TidlauS ($117.95 in chips)
+TidlauS: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 8h]
+kole1992: folds
+JTs98o: folds
+490700_7267: calls $1
+Doumby: folds
+TidlauS: checks
+*** FLOP *** [5d As 6h]
+TidlauS: bets $1.50
+490700_7267: folds
+Uncalled bet ($1.50) returned to TidlauS
+*** SHOW DOWN ***
+TidlauS: doesn't show hand
+TidlauS collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [5d As 6h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: 490700_7267 folded on the Flop 
+Seat 4: Doumby (button) folded before Flop (didn't bet)
+Seat 6: TidlauS (big blind) collected ($2)
+
+
+Weplay Hand #73832426:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:00:57 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($107.88 in chips)
+Seat 2: JTs98o ($100 in chips)
+Seat 3: 490700_7267 ($71.70 in chips)
+Seat 4: Doumby ($115.22 in chips)
+Seat 6: TidlauS ($118.85 in chips)
+TidlauS: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As 4h]
+JTs98o: folds
+490700_7267: calls $1
+Doumby: raises $4 to $4
+TidlauS: folds
+kole1992: folds
+490700_7267: folds
+Uncalled bet ($3) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: 490700_7267 folded before Flop 
+Seat 4: Doumby collected ($3.50)
+Seat 6: TidlauS (small blind) folded before Flop 
+
+
+Weplay Hand #73832445:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:01:20 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($106.88 in chips)
+Seat 2: JTs98o ($100 in chips)
+Seat 3: 490700_7267 ($70.70 in chips)
+Seat 4: Doumby ($117.72 in chips)
+Seat 6: TidlauS ($118.35 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 6d]
+490700_7267: folds
+Doumby: folds
+TidlauS: raises $2.50 to $2.50
+kole1992: folds
+JTs98o: calls $1.50
+*** FLOP *** [8h 8c 6s]
+JTs98o: checks
+TidlauS: bets $3
+JTs98o: raises $10 to $10
+TidlauS: folds
+Uncalled bet ($7) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $11.50 from pot
+*** SUMMARY ***
+Total pot $11.50 | Rake $0.57 
+Board [8h 8c 6s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) collected ($11.50)
+Seat 3: 490700_7267 folded before Flop (didn't bet)
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 6: TidlauS (button) folded on the Flop 
+
+
+Weplay Hand #73832475:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:02:05 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($106.38 in chips)
+Seat 2: JTs98o ($105.43 in chips)
+Seat 3: 490700_7267 ($70.70 in chips)
+Seat 4: Doumby ($117.72 in chips)
+Seat 6: TidlauS ($112.85 in chips)
+JTs98o: posts small blind $0.50
+490700_7267: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Jh]
+Doumby: folds
+TidlauS: folds
+kole1992: raises $2.50 to $2.50
+JTs98o: folds
+490700_7267: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (button) collected ($2.50)
+Seat 2: JTs98o (small blind) folded before Flop 
+Seat 3: 490700_7267 (big blind) folded before Flop 
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73832498:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:02:37 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($107.88 in chips)
+Seat 2: JTs98o ($104.93 in chips)
+Seat 3: 490700_7267 ($69.70 in chips)
+Seat 4: Doumby ($117.72 in chips)
+Seat 6: TidlauS ($112.85 in chips)
+490700_7267: posts small blind $0.50
+Doumby: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 5h]
+TidlauS: folds
+kole1992: folds
+JTs98o: folds
+490700_7267: calls $0.50
+Doumby: checks
+*** FLOP *** [9d Kh Kd]
+490700_7267: checks
+Doumby: bets $1
+490700_7267: folds
+Uncalled bet ($1) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [9d Kh Kd]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: 490700_7267 (small blind) folded on the Flop 
+Seat 4: Doumby (big blind) collected ($2)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73832520:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:03:12 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($107.88 in chips)
+Seat 2: JTs98o ($104.93 in chips)
+Seat 3: 490700_7267 ($68.70 in chips)
+Seat 4: Doumby ($118.62 in chips)
+Seat 5: UribnP ($100 in chips)
+Seat 6: TidlauS ($112.85 in chips)
+Doumby: posts small blind $0.50
+UribnP: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 7c]
+TidlauS: folds
+kole1992: folds
+JTs98o: raises $2.50 to $2.50
+490700_7267: calls $2.50
+Doumby: folds
+UribnP has timed out
+UribnP: folds
+UribnP: sits out 
+*** FLOP *** [2s Ts 4c]
+JTs98o: bets $4.40
+490700_7267: folds
+Uncalled bet ($4.40) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [2s Ts 4c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o collected ($6.50)
+Seat 3: 490700_7267 (button) folded on the Flop 
+Seat 4: Doumby (small blind) folded before Flop 
+Seat 5: UribnP (big blind) folded before Flop 
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73832560:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:03:56 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($107.88 in chips)
+Seat 2: JTs98o ($108.61 in chips)
+Seat 3: 490700_7267 ($66.20 in chips)
+Seat 4: Doumby ($118.12 in chips)
+Seat 5: UribnP ($100 in chips)
+Seat 6: TidlauS ($112.85 in chips)
+UribnP: posts small blind $0.50
+TidlauS: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 5s]
+kole1992: folds
+JTs98o: folds
+490700_7267: calls $1
+Doumby: folds
+UribnP: folds
+TidlauS: checks
+*** FLOP *** [4c Qh 2d]
+TidlauS: checks
+490700_7267: checks
+*** TURN *** [4c Qh 2d] [3h]
+TidlauS: checks
+490700_7267: checks
+*** RIVER *** [4c Qh 2d 3h] [6c]
+TidlauS: checks
+490700_7267: checks
+*** SHOW DOWN ***
+TidlauS: shows [7s 9c] (high card Queen)
+490700_7267: shows [Th 8h] (high card Queen)
+490700_7267 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [4c Qh 2d 3h 6c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: 490700_7267 showed [Th 8h] and won ($2.50) with high card Queen
+Seat 4: Doumby (button) folded before Flop (didn't bet)
+Seat 5: UribnP (small blind) folded before Flop 
+Seat 6: TidlauS (big blind) showed [7s 9c] and lost with high card Queen
+
+
+Weplay Hand #73832583:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:04:33 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($107.88 in chips)
+Seat 2: JTs98o ($108.61 in chips)
+Seat 3: 490700_7267 ($67.58 in chips)
+Seat 4: Doumby ($118.12 in chips)
+Seat 5: UribnP ($100 in chips)
+Seat 6: TidlauS ($111.85 in chips)
+TidlauS: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Ah]
+JTs98o: folds
+490700_7267: calls $1
+Doumby: folds
+UribnP: folds
+TidlauS: folds
+kole1992: raises $3.50 to $4.50
+490700_7267: calls $3.50
+*** FLOP *** [Tc 7s Ac]
+kole1992: checks
+490700_7267: checks
+*** TURN *** [Tc 7s Ac] [6d]
+kole1992: checks
+490700_7267: bets $2
+kole1992: calls $2
+*** RIVER *** [Tc 7s Ac 6d] [4h]
+UribnP leaves the table
+kole1992: checks
+490700_7267: bets $4
+kole1992: calls $4
+*** SHOW DOWN ***
+490700_7267: shows [2s As] (a pair of Aces)
+kole1992: shows [Qs Ah] (a pair of Aces)
+kole1992 collected $21.50 from pot
+*** SUMMARY ***
+Total pot $21.50 | Rake $1.07 
+Board [Tc 7s Ac 6d 4h]
+Seat 1: kole1992 (big blind) showed [Qs Ah] and won ($21.50) with a pair of Aces
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: 490700_7267 showed [2s As] and lost with a pair of Aces
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 5: UribnP (button) folded before Flop (didn't bet)
+Seat 6: TidlauS (small blind) folded before Flop 
+
+
+Weplay Hand #73832641:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:05:49 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($117.81 in chips)
+Seat 2: JTs98o ($108.61 in chips)
+Seat 3: 490700_7267 ($57.08 in chips)
+Seat 4: Doumby ($118.12 in chips)
+Seat 6: TidlauS ($111.35 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Ac]
+490700_7267: calls $1
+Doumby: folds
+TidlauS: raises $4.75 to $4.75
+kole1992: folds
+JTs98o: folds
+490700_7267: folds
+Uncalled bet ($3.75) returned to TidlauS
+*** SHOW DOWN ***
+TidlauS: doesn't show hand
+TidlauS collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) folded before Flop 
+Seat 3: 490700_7267 folded before Flop 
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 6: TidlauS (button) collected ($3.50)
+
+
+Weplay Hand #73832656:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:06:13 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($117.31 in chips)
+Seat 2: JTs98o ($107.61 in chips)
+Seat 3: 490700_7267 ($56.08 in chips)
+Seat 4: Doumby ($118.12 in chips)
+Seat 6: TidlauS ($113.85 in chips)
+JTs98o: posts small blind $0.50
+490700_7267: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 7c]
+Doumby: folds
+TidlauS: raises $3 to $3
+kole1992: folds
+JTs98o: folds
+490700_7267: folds
+Uncalled bet ($2) returned to TidlauS
+*** SHOW DOWN ***
+TidlauS: doesn't show hand
+TidlauS collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: JTs98o (small blind) folded before Flop 
+Seat 3: 490700_7267 (big blind) folded before Flop 
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 6: TidlauS collected ($2.50)
+
+
+Weplay Hand #73832666:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:06:33 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($117.31 in chips)
+Seat 2: JTs98o ($107.11 in chips)
+Seat 3: 490700_7267 ($55.08 in chips)
+Seat 4: Doumby ($118.12 in chips)
+Seat 6: TidlauS ($115.35 in chips)
+490700_7267: posts small blind $0.50
+Doumby: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 3d]
+TidlauS: raises $3 to $3
+kole1992 has timed out
+kole1992: folds
+JTs98o: folds
+490700_7267: folds
+Doumby: calls $2
+*** FLOP *** [As Qc Jc]
+Doumby: checks
+TidlauS: bets $3.25
+Doumby: calls $3.25
+*** TURN *** [As Qc Jc] [Tc]
+Doumby: checks
+TidlauS: bets $8
+Doumby: calls $8
+*** RIVER *** [As Qc Jc Tc] [5d]
+Doumby: checks
+TidlauS: bets $30
+Doumby: calls $30
+*** SHOW DOWN ***
+TidlauS: shows [3h 3s] (a pair of Threes)
+Doumby: shows [Qd Ks] (a straight, Ten to Ace)
+Doumby collected $89 from pot
+*** SUMMARY ***
+Total pot $89 | Rake $4.45 
+Board [As Qc Jc Tc 5d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: 490700_7267 (small blind) folded before Flop 
+Seat 4: Doumby (big blind) showed [Qd Ks] and won ($89) with a straight, Ten to Ace
+Seat 6: TidlauS showed [3h 3s] and lost with a pair of Threes
+
+
+Weplay Hand #73832716:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:07:48 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($117.31 in chips)
+Seat 2: JTs98o ($107.11 in chips)
+Seat 3: 490700_7267 ($54.58 in chips)
+Seat 4: Doumby ($158.42 in chips)
+Seat 6: TidlauS ($71.10 in chips)
+Doumby: posts small blind $0.50
+TidlauS: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 7c]
+kole1992: raises $2 to $2
+JTs98o: raises $6 to $6
+490700_7267: folds
+Doumby: folds
+TidlauS: folds
+kole1992: calls $4
+*** FLOP *** [8h 9d 3d]
+kole1992: checks
+Szekimo joins the table at seat #5
+JTs98o: bets $5.40
+kole1992: raises $15.42 to $15.42
+JTs98o: raises $32.60 to $38
+kole1992: calls $22.58
+*** TURN *** [8h 9d 3d] [Qs]
+kole1992: checks
+490700_7267 is disconnected 
+JTs98o: bets $63.11 and is all-in
+490700_7267 is connected 
+kole1992: folds
+Uncalled bet ($63.11) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $89.50 from pot
+*** SUMMARY ***
+Total pot $89.50 | Rake $4.47 
+Board [8h 9d 3d Qs]
+Seat 1: kole1992 folded on the Turn 
+Seat 2: JTs98o collected ($89.50)
+Seat 3: 490700_7267 (button) folded before Flop (didn't bet)
+Seat 4: Doumby (small blind) folded before Flop 
+Seat 6: TidlauS (big blind) folded before Flop 
+
+
+Weplay Hand #73832786:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:09:32 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: JTs98o ($148.14 in chips)
+Seat 3: 490700_7267 ($54.58 in chips)
+Seat 4: Doumby ($157.92 in chips)
+Seat 6: TidlauS ($100 in chips)
+TidlauS: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Ad]
+JTs98o: folds
+490700_7267: folds
+Doumby: folds
+TidlauS: raises $2.50 to $3
+kole1992: calls $2
+*** FLOP *** [Jh Kh 9c]
+TidlauS: checks
+kole1992: checks
+*** TURN *** [Jh Kh 9c] [Tc]
+TidlauS: bets $4
+kole1992: calls $4
+*** RIVER *** [Jh Kh 9c Tc] [4d]
+TidlauS: checks
+kole1992: checks
+*** SHOW DOWN ***
+TidlauS: shows [3c 7c] (high card King)
+kole1992: shows [Ts Ad] (a pair of Tens)
+kole1992 collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [Jh Kh 9c Tc 4d]
+Seat 1: kole1992 (big blind) showed [Ts Ad] and won ($14) with a pair of Tens
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: 490700_7267 folded before Flop (didn't bet)
+Seat 4: Doumby (button) folded before Flop (didn't bet)
+Seat 6: TidlauS (small blind) showed [3c 7c] and lost with high card King
+
+
+Weplay Hand #73832828:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:10:32 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($106.30 in chips)
+Seat 2: JTs98o ($148.14 in chips)
+Seat 3: 490700_7267 ($54.58 in chips)
+Seat 4: Doumby ($157.92 in chips)
+Seat 5: Szekimo ($100 in chips)
+Seat 6: TidlauS ($93 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+Szekimo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Ts]
+490700_7267: calls $1
+Doumby: folds
+Szekimo: checks
+TidlauS: folds
+kole1992: calls $0.50
+JTs98o: checks
+*** FLOP *** [Kc 7d 4d]
+kole1992: checks
+JTs98o: checks
+490700_7267: checks
+Szekimo: checks
+*** TURN *** [Kc 7d 4d] [Kd]
+kole1992: checks
+JTs98o: checks
+490700_7267: checks
+Szekimo: checks
+*** RIVER *** [Kc 7d 4d Kd] [Jd]
+kole1992: checks
+JTs98o: bets $1.60
+490700_7267: calls $1.60
+Szekimo: folds
+kole1992: folds
+*** SHOW DOWN ***
+JTs98o: shows [3h Qd] (a flush, King high)
+490700_7267 has timed out
+490700_7267: mucks hand
+JTs98o collected $7.20 from pot
+*** SUMMARY ***
+Total pot $7.20 | Rake $0.36 
+Board [Kc 7d 4d Kd Jd]
+Seat 1: kole1992 (small blind) folded on the River 
+Seat 2: JTs98o (big blind) showed [3h Qd] and won ($7.20) with a flush, King high
+Seat 3: 490700_7267 mucked
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 5: Szekimo (big blind) folded on the River 
+Seat 6: TidlauS (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73832870:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:11:31 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($105.30 in chips)
+Seat 2: JTs98o ($152.38 in chips)
+Seat 3: 490700_7267 ($51.98 in chips)
+Seat 4: Doumby ($157.92 in chips)
+Seat 5: Szekimo ($99 in chips)
+Seat 6: TidlauS ($100 in chips)
+JTs98o: posts small blind $0.50
+490700_7267: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 2c]
+Doumby: folds
+Szekimo: calls $1
+TidlauS: raises $4 to $4
+kole1992: folds
+JTs98o: folds
+490700_7267: folds
+Szekimo: calls $3
+*** FLOP *** [3h Kd 4d]
+Szekimo: checks
+TidlauS: bets $4
+Szekimo: calls $4
+*** TURN *** [3h Kd 4d] [5d]
+Szekimo: checks
+TidlauS: checks
+*** RIVER *** [3h Kd 4d 5d] [Qh]
+Szekimo: bets $5.78
+TidlauS: folds
+Uncalled bet ($5.78) returned to Szekimo
+*** SHOW DOWN ***
+Szekimo has timed out
+Szekimo: doesn't show hand
+Szekimo collected $17.50 from pot
+*** SUMMARY ***
+Total pot $17.50 | Rake $0.87 
+Board [3h Kd 4d 5d Qh]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: JTs98o (small blind) folded before Flop 
+Seat 3: 490700_7267 (big blind) folded before Flop 
+Seat 4: Doumby folded before Flop (didn't bet)
+Seat 5: Szekimo collected ($17.50)
+Seat 6: TidlauS folded on the River 
+
+
+Weplay Hand #73832900:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:12:20 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($105.30 in chips)
+Seat 2: JTs98o ($151.88 in chips)
+Seat 3: 490700_7267 ($50.98 in chips)
+Seat 4: Doumby ($157.92 in chips)
+Seat 5: Szekimo ($107.63 in chips)
+Seat 6: TidlauS ($92 in chips)
+490700_7267: posts small blind $0.50
+Doumby: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Js]
+Szekimo: folds
+TidlauS: raises $3 to $3
+kole1992: folds
+JTs98o: folds
+490700_7267: folds
+Doumby: folds
+Uncalled bet ($2) returned to TidlauS
+*** SHOW DOWN ***
+TidlauS: doesn't show hand
+TidlauS collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: 490700_7267 (small blind) folded before Flop 
+Seat 4: Doumby (big blind) folded before Flop 
+Seat 5: Szekimo folded before Flop (didn't bet)
+Seat 6: TidlauS collected ($2.50)
+
+
+Weplay Hand #73832909:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:12:36 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($105.30 in chips)
+Seat 2: JTs98o ($151.88 in chips)
+Seat 3: 490700_7267 ($50.48 in chips)
+Seat 4: Doumby ($156.92 in chips)
+Seat 5: Szekimo ($107.63 in chips)
+Seat 6: TidlauS ($100 in chips)
+Doumby: posts small blind $0.50
+Szekimo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Jd]
+TidlauS: folds
+kole1992: raises $2 to $2
+JTs98o: folds
+490700_7267: calls $2
+Doumby: folds
+Szekimo: folds
+*** FLOP *** [6c 9h 3d]
+kole1992: bets $3.50
+490700_7267: folds
+Uncalled bet ($3.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [6c 9h 3d]
+Seat 1: kole1992 collected ($5.50)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: 490700_7267 (button) folded on the Flop 
+Seat 4: Doumby (small blind) folded before Flop 
+Seat 5: Szekimo (big blind) folded before Flop 
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #73832928:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:12:59 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($108.53 in chips)
+Seat 2: JTs98o ($151.88 in chips)
+Seat 3: 490700_7267 ($48.48 in chips)
+Seat 4: Doumby ($156.42 in chips)
+Seat 5: Szekimo ($106.63 in chips)
+Seat 6: TidlauS ($100 in chips)
+Szekimo: posts small blind $0.50
+TidlauS: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Jc]
+kole1992: folds
+JTs98o: folds
+490700_7267: folds
+Doumby: raises $2.50 to $2.50
+Szekimo: folds
+TidlauS: folds
+Uncalled bet ($1.50) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: 490700_7267 folded before Flop (didn't bet)
+Seat 4: Doumby (button) collected ($2.50)
+Seat 5: Szekimo (small blind) folded before Flop 
+Seat 6: TidlauS (big blind) folded before Flop 
+
+
+Weplay Hand #73832939:  Hold'em No Limit ($0.50/$1) - 2026/01/26 20:13:13 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($108.53 in chips)
+Seat 2: JTs98o ($151.88 in chips)
+Seat 3: 490700_7267 ($48.48 in chips)
+Seat 4: Doumby ($157.92 in chips)
+Seat 5: Szekimo ($106.13 in chips)
+Seat 6: TidlauS ($99 in chips)
+TidlauS: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Qd]
+JTs98o: folds
+490700_7267: calls $1
+Doumby: calls $1
+Szekimo: calls $1
+TidlauS: folds
+kole1992: raises $6.02 to $7.02
+490700_7267: folds
+Doumby: folds
+Szekimo: folds
+Uncalled bet ($6.02) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($4.50)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: 490700_7267 folded before Flop 
+Seat 4: Doumby folded before Flop 
+Seat 5: Szekimo (button) folded before Flop 
+Seat 6: TidlauS (small blind) folded before Flop 

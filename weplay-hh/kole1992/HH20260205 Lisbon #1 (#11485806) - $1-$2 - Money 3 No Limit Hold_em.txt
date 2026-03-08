@@ -1,0 +1,1518 @@
+﻿Weplay Hand #74751042:  Hold'em No Limit ($1/$2) - 2026/02/05 11:21:21 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: Negreanu10 ($253.58 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: tuPaTu ($310.58 in chips)
+Seat 4: joaomsfpb ($115.71 in chips)
+Seat 5: BaronRojo ($169 in chips)
+Seat 6: antananarivo ($194 in chips)
+Negreanu10: posts small blind $1
+kole1992: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 3h]
+tuPaTu: raises $5 to $5
+joaomsfpb: calls $5
+BaronRojo: folds
+antananarivo: raises $18 to $18
+Negreanu10: folds
+kole1992: folds
+tuPaTu: raises $45.03 to $50.03
+joaomsfpb: folds
+antananarivo: folds
+Uncalled bet ($32.03) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 3h]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $44 from pot
+*** SUMMARY ***
+Total pot $44 | Rake $0 
+Seat 1: Negreanu10 (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu collected ($44)
+Seat 4: joaomsfpb folded before Flop 
+Seat 5: BaronRojo folded before Flop (didn't bet)
+Seat 6: antananarivo (button) folded before Flop 
+
+
+Weplay Hand #74751082:  Hold'em No Limit ($1/$2) - 2026/02/05 11:22:02 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: Negreanu10 ($252.58 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: tuPaTu ($336.58 in chips)
+Seat 4: joaomsfpb ($110.71 in chips)
+Seat 5: BaronRojo ($169 in chips)
+Seat 6: antananarivo ($200 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+joaomsfpb: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Td]
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: folds
+kole1992: raises $15 to $16
+tuPaTu: folds
+joaomsfpb: folds
+Uncalled bet ($12) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0 
+Seat 1: Negreanu10 (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) collected ($10)
+Seat 3: tuPaTu (big blind) folded before Flop 
+Seat 4: joaomsfpb folded before Flop 
+Seat 5: BaronRojo folded before Flop (didn't bet)
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74751108:  Hold'em No Limit ($1/$2) - 2026/02/05 11:22:28 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: Negreanu10 ($252.58 in chips)
+Seat 2: kole1992 ($206 in chips)
+Seat 3: tuPaTu ($334.58 in chips)
+Seat 4: joaomsfpb ($106.71 in chips)
+Seat 5: BaronRojo ($169 in chips)
+Seat 6: antananarivo ($200 in chips)
+tuPaTu: posts small blind $1
+joaomsfpb: posts big blind $2
+BaronRojo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Ah]
+BaronRojo: raises $6 to $6
+antananarivo: folds
+Negreanu10: folds
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: calls $4
+*** FLOP *** [2s 7h Ac]
+joaomsfpb: checks
+BaronRojo: bets $6
+joaomsfpb: folds
+Uncalled bet ($6) returned to BaronRojo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Ah]
+BaronRojo: doesn't show hand
+BaronRojo collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [2s 7h Ac]
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: tuPaTu (small blind) folded before Flop 
+Seat 4: joaomsfpb (big blind) folded on the Flop 
+Seat 5: BaronRojo collected ($13)
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74751156:  Hold'em No Limit ($1/$2) - 2026/02/05 11:23:12 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: Negreanu10 ($252.58 in chips)
+Seat 2: kole1992 ($206 in chips)
+Seat 3: tuPaTu ($333.58 in chips)
+Seat 4: joaomsfpb ($100.71 in chips)
+Seat 5: BaronRojo ($175.35 in chips)
+Seat 6: antananarivo ($200 in chips)
+joaomsfpb: posts small blind $1
+BaronRojo: posts big blind $2
+antananarivo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 8d]
+antananarivo: folds
+Negreanu10: folds
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: raises $3 to $4
+BaronRojo: raises $12 to $14
+joaomsfpb: calls $10
+*** FLOP *** [8h 3h Kd]
+joaomsfpb: checks
+BaronRojo: bets $10
+joaomsfpb: folds
+Uncalled bet ($10) returned to BaronRojo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 8d]
+BaronRojo: doesn't show hand
+BaronRojo collected $28 from pot
+*** SUMMARY ***
+Total pot $28 | Rake $1.40 
+Board [8h 3h Kd]
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 4: joaomsfpb (small blind) folded on the Flop 
+Seat 5: BaronRojo (big blind) collected ($28)
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74751191:  Hold'em No Limit ($1/$2) - 2026/02/05 11:23:49 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: Negreanu10 ($252.58 in chips)
+Seat 2: kole1992 ($206 in chips)
+Seat 3: tuPaTu ($333.58 in chips)
+Seat 4: joaomsfpb ($86.71 in chips)
+Seat 5: BaronRojo ($187.95 in chips)
+Seat 6: antananarivo ($200 in chips)
+BaronRojo: posts small blind $1
+antananarivo: posts big blind $2
+Negreanu10: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Js]
+Negreanu10: folds
+kole1992: raises $4 to $4
+tuPaTu: folds
+joaomsfpb: calls $4
+BaronRojo: folds
+antananarivo: folds
+*** FLOP *** [8c 9s 9c]
+kole1992: checks
+joaomsfpb: bets $11
+kole1992: folds
+Uncalled bet ($11) returned to joaomsfpb
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Js]
+joaomsfpb has timed out
+joaomsfpb: doesn't show hand
+joaomsfpb collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [8c 9s 9c]
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 folded on the Flop 
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: joaomsfpb (button) collected ($11)
+Seat 5: BaronRojo (small blind) folded before Flop 
+Seat 6: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #74751259:  Hold'em No Limit ($1/$2) - 2026/02/05 11:25:02 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 1: Negreanu10 ($252.58 in chips)
+Seat 2: kole1992 ($202 in chips)
+Seat 3: tuPaTu ($333.58 in chips)
+Seat 4: joaomsfpb ($93.16 in chips)
+Seat 5: BaronRojo ($186.95 in chips)
+Seat 6: antananarivo ($198 in chips)
+antananarivo: posts small blind $1
+Negreanu10: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 4d]
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: calls $2
+BaronRojo: calls $2
+antananarivo: calls $1
+Negreanu10: checks
+*** FLOP *** [9s Qc 4c]
+antananarivo: checks
+Negreanu10: checks
+joaomsfpb: bets $4
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: folds
+Uncalled bet ($4) returned to joaomsfpb
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 4d]
+joaomsfpb has timed out
+joaomsfpb: doesn't show hand
+joaomsfpb collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [9s Qc 4c]
+Seat 1: Negreanu10 (big blind) folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: joaomsfpb collected ($8)
+Seat 5: BaronRojo (button) folded on the Flop 
+Seat 6: antananarivo (small blind) folded on the Flop 
+
+
+Weplay Hand #74751296:  Hold'em No Limit ($1/$2) - 2026/02/05 11:25:52 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: Negreanu10 ($250.58 in chips)
+Seat 2: kole1992 ($202 in chips)
+Seat 3: tuPaTu ($333.58 in chips)
+Seat 4: joaomsfpb ($98.76 in chips)
+Seat 5: BaronRojo ($184.95 in chips)
+Seat 6: antananarivo ($196 in chips)
+Negreanu10: posts small blind $1
+kole1992: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 4s]
+tuPaTu: folds
+joaomsfpb: raises $4 to $4
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: folds
+kole1992: folds
+Uncalled bet ($2) returned to joaomsfpb
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 4s]
+joaomsfpb has timed out
+joaomsfpb: doesn't show hand
+joaomsfpb collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: Negreanu10 (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: joaomsfpb collected ($5)
+Seat 5: BaronRojo folded before Flop (didn't bet)
+Seat 6: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74751310:  Hold'em No Limit ($1/$2) - 2026/02/05 11:26:11 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: Negreanu10 ($249.58 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: tuPaTu ($333.58 in chips)
+Seat 4: joaomsfpb ($101.76 in chips)
+Seat 5: BaronRojo ($184.95 in chips)
+Seat 6: antananarivo ($196 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+joaomsfpb: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 9h]
+joaomsfpb: calls $2
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: folds
+kole1992: raises $7 to $8
+tuPaTu: folds
+joaomsfpb: calls $6
+*** FLOP *** [Js Qc Qh]
+kole1992: bets $5.94
+joaomsfpb: calls $5.94
+*** TURN *** [Js Qc Qh] [2h]
+kole1992: bets $19
+joaomsfpb: folds
+Uncalled bet ($19) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $29.88 from pot
+*** SUMMARY ***
+Total pot $29.88 | Rake $1.49 
+Board [Js Qc Qh 2h]
+Seat 1: Negreanu10 (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) collected ($29.88)
+Seat 3: tuPaTu (big blind) folded before Flop 
+Seat 4: joaomsfpb folded on the Turn 
+Seat 5: BaronRojo folded before Flop (didn't bet)
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74752360:  Hold'em No Limit ($1/$2) - 2026/02/05 11:27:23 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: Negreanu10 ($249.58 in chips)
+Seat 2: kole1992 ($214.45 in chips)
+Seat 3: tuPaTu ($331.58 in chips)
+Seat 4: joaomsfpb ($87.82 in chips)
+Seat 5: BaronRojo ($184.95 in chips)
+Seat 6: antananarivo ($196 in chips)
+tuPaTu: posts small blind $1
+joaomsfpb: posts big blind $2
+BaronRojo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 4c]
+BaronRojo: raises $6 to $6
+antananarivo: folds
+Negreanu10: folds
+kole1992: activates time bank
+kole1992: folds
+tuPaTu: raises $23 to $24
+joaomsfpb: calls $22
+BaronRojo: calls $18
+*** FLOP *** [Qd Th Kd]
+tuPaTu: bets $28.80
+joaomsfpb: raises $63.82 to $63.82 and is all-in
+BaronRojo: folds
+tuPaTu: calls $35.02
+tuPaTu is disconnected 
+*** TURN *** [Qd Th Kd] [Kc]
+*** FIRST RIVER *** [Qd Th Kd Kc] [5h]
+*** SECOND TURN *** [Qd Th Kd] [8s]
+tuPaTu is connected 
+*** SECOND RIVER *** [Qd Th Kd 8s] [6h]
+*** SHOW DOWN ***
+tuPaTu: shows [Tc Ts] (a full house, Tens full of Kings)
+joaomsfpb: shows [Ks Td] (a full house, Kings full of Tens)
+joaomsfpb collected $99.82 from pot
+tuPaTu collected $99.82 from pot
+*** SUMMARY ***
+Total pot $199.64 | Rake $9.98 
+Hand was run two times
+FIRST Board [Qd Th Kd Kc 5h]
+SECOND Board [Qd Th Kd 8s 6h]
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: tuPaTu (small blind) showed [Tc Ts] and won ($99.82) with a full house, Tens full of Kings
+Seat 4: joaomsfpb (big blind) showed [Ks Td] and won ($99.82) with a full house, Kings full of Tens
+Seat 5: BaronRojo folded on the Flop 
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74752430:  Hold'em No Limit ($1/$2) - 2026/02/05 11:29:11 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: Negreanu10 ($249.58 in chips)
+Seat 2: kole1992 ($214.45 in chips)
+Seat 3: tuPaTu ($338.59 in chips)
+Seat 4: joaomsfpb ($94.83 in chips)
+Seat 5: BaronRojo ($160.95 in chips)
+Seat 6: antananarivo ($196 in chips)
+joaomsfpb: posts small blind $1
+BaronRojo: posts big blind $2
+antananarivo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 3s]
+antananarivo: raises $5 to $5
+Negreanu10: folds
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: folds
+BaronRojo: calls $3
+*** FLOP *** [8c 4h 6h]
+BaronRojo: checks
+antananarivo: checks
+*** TURN *** [8c 4h 6h] [Ac]
+BaronRojo: checks
+antananarivo: bets $20
+BaronRojo: folds
+Uncalled bet ($20) returned to antananarivo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 3s]
+antananarivo: doesn't show hand
+antananarivo collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [8c 4h 6h Ac]
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 4: joaomsfpb (small blind) folded before Flop 
+Seat 5: BaronRojo (big blind) folded on the Turn 
+Seat 6: antananarivo collected ($11)
+
+
+Weplay Hand #74752466:  Hold'em No Limit ($1/$2) - 2026/02/05 11:30:15 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: Negreanu10 ($249.58 in chips)
+Seat 2: kole1992 ($214.45 in chips)
+Seat 3: tuPaTu ($338.59 in chips)
+Seat 4: joaomsfpb ($93.83 in chips)
+Seat 5: BaronRojo ($155.95 in chips)
+Seat 6: antananarivo ($201.45 in chips)
+BaronRojo: posts small blind $1
+antananarivo: posts big blind $2
+Negreanu10: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 3d]
+Negreanu10: folds
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: calls $2
+BaronRojo: calls $1
+antananarivo: checks
+*** FLOP *** [8d 5h 6d]
+BaronRojo: checks
+antananarivo: checks
+joaomsfpb: bets $2
+BaronRojo: calls $2
+antananarivo: folds
+*** TURN *** [8d 5h 6d] [9c]
+BaronRojo: checks
+joaomsfpb: checks
+*** RIVER *** [8d 5h 6d 9c] [Kd]
+BaronRojo: bets $18
+joaomsfpb: folds
+Uncalled bet ($18) returned to BaronRojo
+*** SHOW DOWN ***
+BaronRojo: doesn't show hand
+BaronRojo collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [8d 5h 6d 9c Kd]
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: joaomsfpb (button) folded on the River 
+Seat 5: BaronRojo (small blind) collected ($10)
+Seat 6: antananarivo (big blind) folded on the Flop 
+
+
+Weplay Hand #74752506:  Hold'em No Limit ($1/$2) - 2026/02/05 11:31:22 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 1: Negreanu10 ($249.58 in chips)
+Seat 2: kole1992 ($214.45 in chips)
+Seat 3: tuPaTu ($338.59 in chips)
+Seat 4: joaomsfpb ($89.83 in chips)
+Seat 5: BaronRojo ($161.45 in chips)
+Seat 6: antananarivo ($199.45 in chips)
+antananarivo: posts small blind $1
+Negreanu10: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 6c]
+kole1992: folds
+tuPaTu: raises $5 to $5
+joaomsfpb: folds
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: folds
+Uncalled bet ($3) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 6c]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: Negreanu10 (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu collected ($5)
+Seat 4: joaomsfpb folded before Flop (didn't bet)
+Seat 5: BaronRojo (button) folded before Flop (didn't bet)
+Seat 6: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #74752523:  Hold'em No Limit ($1/$2) - 2026/02/05 11:31:49 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: Negreanu10 ($247.58 in chips)
+Seat 2: kole1992 ($214.45 in chips)
+Seat 3: tuPaTu ($341.59 in chips)
+Seat 4: joaomsfpb ($89.83 in chips)
+Seat 5: BaronRojo ($161.45 in chips)
+Seat 6: antananarivo ($198.45 in chips)
+Negreanu10: posts small blind $1
+kole1992: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 6h]
+tuPaTu: folds
+joaomsfpb: calls $2
+BaronRojo: calls $2
+antananarivo: folds
+Negreanu10: calls $1
+kole1992: raises $12.02 to $14.02
+joaomsfpb: folds
+BaronRojo: folds
+Negreanu10: folds
+Uncalled bet ($12.02) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0 
+Seat 1: Negreanu10 (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) collected ($8)
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: joaomsfpb folded before Flop 
+Seat 5: BaronRojo folded before Flop 
+Seat 6: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74752557:  Hold'em No Limit ($1/$2) - 2026/02/05 11:32:45 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: Negreanu10 ($245.58 in chips)
+Seat 2: kole1992 ($220.45 in chips)
+Seat 3: tuPaTu ($341.59 in chips)
+Seat 4: joaomsfpb ($87.83 in chips)
+Seat 5: BaronRojo ($159.45 in chips)
+Seat 6: antananarivo ($198.45 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+joaomsfpb: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 9h]
+BaronRojo: raises $12 to $12
+antananarivo: folds
+Negreanu10: folds
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: folds
+Uncalled bet ($8) returned to BaronRojo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 9h]
+BaronRojo: doesn't show hand
+BaronRojo collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0 
+Seat 1: Negreanu10 (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: tuPaTu (big blind) folded before Flop 
+Seat 4: joaomsfpb folded before Flop 
+Seat 5: BaronRojo collected ($11)
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74752571:  Hold'em No Limit ($1/$2) - 2026/02/05 11:33:12 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: Negreanu10 ($245.58 in chips)
+Seat 2: kole1992 ($219.45 in chips)
+Seat 3: tuPaTu ($339.59 in chips)
+Seat 4: joaomsfpb ($83.83 in chips)
+Seat 5: BaronRojo ($166.45 in chips)
+Seat 6: antananarivo ($198.45 in chips)
+tuPaTu: posts small blind $1
+joaomsfpb: posts big blind $2
+BaronRojo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Tc]
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: raises $5 to $5
+kole1992: folds
+tuPaTu: raises $23.02 to $24.02
+joaomsfpb: calls $22.02
+Negreanu10: folds
+*** FLOP *** [9s Qc 8d]
+tuPaTu: checks
+joaomsfpb: bets $53.04
+tuPaTu: folds
+Uncalled bet ($53.04) returned to joaomsfpb
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Tc]
+joaomsfpb has timed out
+joaomsfpb: doesn't show hand
+joaomsfpb collected $53.04 from pot
+*** SUMMARY ***
+Total pot $53.04 | Rake $2.65 
+Board [9s Qc 8d]
+Seat 1: Negreanu10 folded before Flop 
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: tuPaTu (small blind) folded on the Flop 
+Seat 4: joaomsfpb (big blind) collected ($53.04)
+Seat 5: BaronRojo folded before Flop (didn't bet)
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74752592:  Hold'em No Limit ($1/$2) - 2026/02/05 11:34:00 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: Negreanu10 ($240.58 in chips)
+Seat 2: kole1992 ($219.45 in chips)
+Seat 3: tuPaTu ($315.57 in chips)
+Seat 4: joaomsfpb ($110.20 in chips)
+Seat 5: BaronRojo ($166.45 in chips)
+Seat 6: antananarivo ($198.45 in chips)
+joaomsfpb: posts small blind $1
+BaronRojo: posts big blind $2
+antananarivo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 8s]
+antananarivo: folds
+Negreanu10: folds
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: calls $1
+BaronRojo: checks
+*** FLOP *** [5d 2h 8c]
+joaomsfpb: checks
+BaronRojo: checks
+*** TURN *** [5d 2h 8c] [Jc]
+joaomsfpb: checks
+BaronRojo: checks
+*** RIVER *** [5d 2h 8c Jc] [3s]
+joaomsfpb: checks
+BaronRojo: checks
+*** SHOW DOWN ***
+joaomsfpb: shows [Qs 6s] (high card Queen)
+BaronRojo: shows [6c Kh] (high card King)
+BaronRojo collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [5d 2h 8c Jc 3s]
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 4: joaomsfpb (small blind) showed [Qs 6s] and lost with high card Queen
+Seat 5: BaronRojo (big blind) showed [6c Kh] and won ($4) with high card King
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74752610:  Hold'em No Limit ($1/$2) - 2026/02/05 11:34:38 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: Negreanu10 ($240.58 in chips)
+Seat 2: kole1992 ($219.45 in chips)
+Seat 3: tuPaTu ($315.57 in chips)
+Seat 4: joaomsfpb ($108.20 in chips)
+Seat 5: BaronRojo ($168.25 in chips)
+Seat 6: antananarivo ($198.45 in chips)
+BaronRojo: posts small blind $1
+antananarivo: posts big blind $2
+Negreanu10: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 6d]
+Negreanu10: folds
+kole1992: folds
+tuPaTu: folds
+joaomsfpb has timed out
+joaomsfpb: folds
+BaronRojo: folds
+Uncalled bet ($1) returned to antananarivo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 6d]
+antananarivo: doesn't show hand
+antananarivo collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: joaomsfpb (button) folded before Flop (didn't bet)
+Seat 5: BaronRojo (small blind) folded before Flop 
+Seat 6: antananarivo (big blind) collected ($2)
+
+
+Weplay Hand #74752630:  Hold'em No Limit ($1/$2) - 2026/02/05 11:35:09 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 1: Negreanu10 ($240.58 in chips)
+Seat 2: kole1992 ($219.45 in chips)
+Seat 3: tuPaTu ($315.57 in chips)
+Seat 4: joaomsfpb ($108.20 in chips)
+Seat 5: BaronRojo ($167.25 in chips)
+Seat 6: antananarivo ($199.45 in chips)
+antananarivo: posts small blind $1
+Negreanu10: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 5s]
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: calls $2
+BaronRojo: folds
+antananarivo: calls $1
+Negreanu10: checks
+*** FLOP *** [Tc 2s Ad]
+antananarivo: checks
+Negreanu10: checks
+joaomsfpb: checks
+*** TURN *** [Tc 2s Ad] [2c]
+antananarivo: checks
+Negreanu10: bets $3
+joaomsfpb: calls $3
+antananarivo: folds
+*** RIVER *** [Tc 2s Ad 2c] [Jh]
+Negreanu10: bets $3.96
+joaomsfpb: folds
+Uncalled bet ($3.96) returned to Negreanu10
+*** SHOW DOWN ***
+Negreanu10: doesn't show hand
+Negreanu10 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [Tc 2s Ad 2c Jh]
+Seat 1: Negreanu10 (big blind) collected ($12)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: joaomsfpb folded on the River 
+Seat 5: BaronRojo (button) folded before Flop (didn't bet)
+Seat 6: antananarivo (small blind) folded on the Turn 
+
+
+Weplay Hand #74752653:  Hold'em No Limit ($1/$2) - 2026/02/05 11:36:02 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: Negreanu10 ($246.98 in chips)
+Seat 2: kole1992 ($219.45 in chips)
+Seat 3: tuPaTu ($315.57 in chips)
+Seat 4: joaomsfpb ($103.20 in chips)
+Seat 5: BaronRojo ($167.25 in chips)
+Seat 6: antananarivo ($197.45 in chips)
+Negreanu10: posts small blind $1
+kole1992: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 2c]
+tuPaTu: folds
+joaomsfpb: raises $4 to $4
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: calls $3
+kole1992: folds
+*** FLOP *** [9h 3d Td]
+Negreanu10: checks
+joaomsfpb: bets $5
+Negreanu10: calls $5
+*** TURN *** [9h 3d Td] [Kh]
+Negreanu10: checks
+joaomsfpb: bets $15
+Negreanu10: folds
+Uncalled bet ($15) returned to joaomsfpb
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 2c]
+joaomsfpb has timed out
+joaomsfpb: doesn't show hand
+joaomsfpb collected $20 from pot
+*** SUMMARY ***
+Total pot $20 | Rake $1 
+Board [9h 3d Td Kh]
+Seat 1: Negreanu10 (small blind) folded on the Turn 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: joaomsfpb collected ($20)
+Seat 5: BaronRojo folded before Flop (didn't bet)
+Seat 6: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74752676:  Hold'em No Limit ($1/$2) - 2026/02/05 11:36:46 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: Negreanu10 ($237.98 in chips)
+Seat 2: kole1992 ($217.45 in chips)
+Seat 3: tuPaTu ($315.57 in chips)
+Seat 4: joaomsfpb ($113.20 in chips)
+Seat 5: BaronRojo ($167.25 in chips)
+Seat 6: antananarivo ($197.45 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+joaomsfpb: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Qd]
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: raises $22 to $22
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: folds
+Uncalled bet ($18) returned to Negreanu10
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Qd]
+Negreanu10: doesn't show hand
+Negreanu10 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0 
+Seat 1: Negreanu10 (button) collected ($11)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: tuPaTu (big blind) folded before Flop 
+Seat 4: joaomsfpb folded before Flop 
+Seat 5: BaronRojo folded before Flop (didn't bet)
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74752690:  Hold'em No Limit ($1/$2) - 2026/02/05 11:37:13 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: Negreanu10 ($244.98 in chips)
+Seat 2: kole1992 ($216.45 in chips)
+Seat 3: tuPaTu ($313.57 in chips)
+Seat 4: joaomsfpb ($109.20 in chips)
+Seat 5: BaronRojo ($167.25 in chips)
+Seat 6: antananarivo ($197.45 in chips)
+tuPaTu: posts small blind $1
+joaomsfpb: posts big blind $2
+BaronRojo has timed out
+BaronRojo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Js]
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: raises $6 to $6
+kole1992: calls $6
+tuPaTu: folds
+joaomsfpb: calls $4
+*** FLOP *** [As Ad 5h]
+joaomsfpb: bets $9.50
+Negreanu10: calls $9.50
+kole1992: folds
+*** TURN *** [As Ad 5h] [6s]
+joaomsfpb: bets $12.54
+Negreanu10: raises $59.85 to $59.85
+joaomsfpb: calls $47.31
+*** RIVER *** [As Ad 5h 6s] [3h]
+joaomsfpb: checks
+Negreanu10: bets $78.85
+joaomsfpb: folds
+Uncalled bet ($78.85) returned to Negreanu10
+*** SHOW DOWN ***
+Negreanu10: doesn't show hand
+Negreanu10 collected $157.70 from pot
+*** SUMMARY ***
+Total pot $157.70 | Rake $7.88 
+Board [As Ad 5h 6s 3h]
+Seat 1: Negreanu10 collected ($157.70)
+Seat 2: kole1992 (button) folded on the Flop 
+Seat 3: tuPaTu (small blind) folded before Flop 
+Seat 4: joaomsfpb (big blind) folded on the River 
+Seat 5: BaronRojo folded before Flop (didn't bet)
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74752719:  Hold'em No Limit ($1/$2) - 2026/02/05 11:38:27 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: Negreanu10 ($319.45 in chips)
+Seat 2: kole1992 ($210.45 in chips)
+Seat 3: tuPaTu ($312.57 in chips)
+Seat 4: joaomsfpb ($33.85 in chips)
+Seat 5: BaronRojo ($167.25 in chips)
+Seat 6: antananarivo ($197.45 in chips)
+joaomsfpb: posts small blind $1
+BaronRojo: posts big blind $2
+antananarivo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 4d]
+antananarivo: folds
+Negreanu10: folds
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: calls $1
+BaronRojo: checks
+*** FLOP *** [2d 7d 8h]
+joaomsfpb: checks
+BaronRojo: bets $2
+joaomsfpb: raises $4 to $4
+BaronRojo: calls $2
+*** TURN *** [2d 7d 8h] [6h]
+joaomsfpb: bets $6
+BaronRojo: folds
+Uncalled bet ($6) returned to joaomsfpb
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 4d]
+joaomsfpb has timed out
+joaomsfpb: doesn't show hand
+joaomsfpb collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [2d 7d 8h 6h]
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 4: joaomsfpb (small blind) collected ($12)
+Seat 5: BaronRojo (big blind) folded on the Turn 
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74752744:  Hold'em No Limit ($1/$2) - 2026/02/05 11:39:20 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: Negreanu10 ($319.45 in chips)
+Seat 2: kole1992 ($210.45 in chips)
+Seat 3: tuPaTu ($312.57 in chips)
+Seat 4: joaomsfpb ($39.25 in chips)
+Seat 5: BaronRojo ($161.25 in chips)
+Seat 6: antananarivo ($197.45 in chips)
+BaronRojo: posts small blind $1
+antananarivo: posts big blind $2
+Negreanu10: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Kc]
+Negreanu10: raises $5 to $5
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: folds
+BaronRojo: folds
+antananarivo: folds
+Uncalled bet ($3) returned to Negreanu10
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Kc]
+Negreanu10: doesn't show hand
+Negreanu10 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: Negreanu10 collected ($5)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: joaomsfpb (button) folded before Flop (didn't bet)
+Seat 5: BaronRojo (small blind) folded before Flop 
+Seat 6: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #74752757:  Hold'em No Limit ($1/$2) - 2026/02/05 11:39:52 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 1: Negreanu10 ($322.45 in chips)
+Seat 2: kole1992 ($210.45 in chips)
+Seat 3: tuPaTu ($312.57 in chips)
+Seat 4: joaomsfpb ($39.25 in chips)
+Seat 5: BaronRojo ($160.25 in chips)
+Seat 6: antananarivo ($195.45 in chips)
+antananarivo: posts small blind $1
+Negreanu10: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5c]
+kole1992: folds
+tuPaTu: folds
+joaomsfpb: raises $4 to $4
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: calls $2
+*** FLOP *** [8s Qh 4s]
+Negreanu10: checks
+joaomsfpb: bets $4.50
+Negreanu10: folds
+Uncalled bet ($4.50) returned to joaomsfpb
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5c]
+joaomsfpb has timed out
+joaomsfpb: doesn't show hand
+joaomsfpb collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [8s Qh 4s]
+Seat 1: Negreanu10 (big blind) folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 4: joaomsfpb collected ($9)
+Seat 5: BaronRojo (button) folded before Flop (didn't bet)
+Seat 6: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #74753016:  Hold'em No Limit ($1/$2) - 2026/02/05 11:49:58 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: Negreanu10 ($288.69 in chips)
+Seat 2: kole1992 ($210.45 in chips)
+Seat 3: tuPaTu ($306.02 in chips)
+Seat 5: BaronRojo ($149.95 in chips)
+Seat 6: antananarivo ($269.20 in chips)
+Negreanu10: posts small blind $1
+kole1992: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [As 8c]
+tuPaTu: folds
+BaronRojo: folds
+antananarivo: folds
+Negreanu10: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: Negreanu10 (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) collected ($2)
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 5: BaronRojo folded before Flop (didn't bet)
+Seat 6: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74753028:  Hold'em No Limit ($1/$2) - 2026/02/05 11:50:11 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: Negreanu10 ($287.69 in chips)
+Seat 2: kole1992 ($211.45 in chips)
+Seat 3: tuPaTu ($306.02 in chips)
+Seat 5: BaronRojo ($149.95 in chips)
+Seat 6: antananarivo ($269.20 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+BaronRojo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 8c]
+BaronRojo: folds
+BaronRojo leaves the table
+Laci87 joins the table at seat #5
+antananarivo: raises $5 to $5
+Negreanu10: raises $22 to $22
+kole1992: folds
+tuPaTu: calls $20
+antananarivo: folds
+*** FLOP *** [5c Kd Jh]
+tuPaTu: checks
+Negreanu10: checks
+*** TURN *** [5c Kd Jh] [7d]
+tuPaTu: bets $26.13
+joaomsfpb leaves the table
+Negreanu10: calls $26.13
+*** RIVER *** [5c Kd Jh 7d] [5s]
+tuPaTu: bets $50.92
+Negreanu10: folds
+Uncalled bet ($50.92) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $102.26 from pot
+*** SUMMARY ***
+Total pot $102.26 | Rake $5.11 
+Board [5c Kd Jh 7d 5s]
+Seat 1: Negreanu10 (button) folded on the River 
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: tuPaTu (big blind) collected ($102.26)
+Seat 5: BaronRojo folded before Flop (didn't bet)
+Seat 6: antananarivo folded before Flop 
+
+
+Weplay Hand #74753069:  Hold'em No Limit ($1/$2) - 2026/02/05 11:51:52 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: Negreanu10 ($239.56 in chips)
+Seat 2: kole1992 ($210.45 in chips)
+Seat 3: tuPaTu ($355.04 in chips)
+Seat 5: Laci87 ($62.17 in chips)
+Seat 6: antananarivo ($264.20 in chips)
+tuPaTu: posts small blind $1
+Laci87: posts big blind $2
+antananarivo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Ac]
+antananarivo: folds
+Negreanu10: folds
+kole1992: raises $4.40 to $4.40
+tuPaTu: folds
+Laci87: folds
+Uncalled bet ($2.40) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 (button) collected ($5)
+Seat 3: tuPaTu (small blind) folded before Flop 
+Seat 5: Laci87 (big blind) folded before Flop 
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74753078:  Hold'em No Limit ($1/$2) - 2026/02/05 11:52:13 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: Negreanu10 ($239.56 in chips)
+Seat 2: kole1992 ($213.45 in chips)
+Seat 3: tuPaTu ($354.04 in chips)
+Seat 5: Laci87 ($60.17 in chips)
+Seat 6: antananarivo ($264.20 in chips)
+Laci87: posts small blind $1
+antananarivo: posts big blind $2
+Negreanu10: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Jc]
+Negreanu10: folds
+kole1992: folds
+tuPaTu: folds
+Laci87: calls $1
+antananarivo: checks
+*** FLOP *** [4s 6c 9s]
+Laci87: checks
+antananarivo: bets $3
+Laci87: calls $3
+*** TURN *** [4s 6c 9s] [3h]
+Laci87: checks
+antananarivo: bets $7.60
+Laci87: calls $7.60
+*** RIVER *** [4s 6c 9s 3h] [Th]
+Laci87: checks
+antananarivo: checks
+*** SHOW DOWN ***
+Laci87: shows [3s As] (a pair of Threes)
+antananarivo: shows [Jd 9c] (a pair of Nines)
+antananarivo collected $25.20 from pot
+*** SUMMARY ***
+Total pot $25.20 | Rake $1.26 
+Board [4s 6c 9s 3h Th]
+Seat 1: Negreanu10 folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 5: Laci87 (small blind) showed [3s As] and lost with a pair of Threes
+Seat 6: antananarivo (big blind) showed [Jd 9c] and won ($25.20) with a pair of Nines
+
+
+Weplay Hand #74753107:  Hold'em No Limit ($1/$2) - 2026/02/05 11:53:27 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 1: Negreanu10 ($239.56 in chips)
+Seat 2: kole1992 ($213.45 in chips)
+Seat 3: tuPaTu ($354.04 in chips)
+Seat 5: Laci87 ($47.57 in chips)
+Seat 6: antananarivo ($275.54 in chips)
+antananarivo: posts small blind $1
+Negreanu10: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Ad]
+kole1992: raises $4 to $4
+tuPaTu has timed out
+tuPaTu: folds
+Laci87: calls $4
+antananarivo: folds
+Negreanu10: folds
+*** FLOP *** [8d Ts 5h]
+kole1992: checks
+Laci87: checks
+*** TURN *** [8d Ts 5h] [Th]
+kole1992: bets $4
+Laci87: calls $4
+*** RIVER *** [8d Ts 5h Th] [6s]
+kole1992: bets $9
+Laci87: folds
+Uncalled bet ($9) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $19 from pot
+*** SUMMARY ***
+Total pot $19 | Rake $0.95 
+Board [8d Ts 5h Th 6s]
+Seat 1: Negreanu10 (big blind) folded before Flop 
+Seat 2: kole1992 collected ($19)
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 5: Laci87 (button) folded on the River 
+Seat 6: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #74753126:  Hold'em No Limit ($1/$2) - 2026/02/05 11:54:27 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: Negreanu10 ($237.56 in chips)
+Seat 2: kole1992 ($223.50 in chips)
+Seat 3: tuPaTu ($354.04 in chips)
+Seat 5: Laci87 ($39.57 in chips)
+Seat 6: antananarivo ($274.54 in chips)
+Negreanu10: posts small blind $1
+kole1992: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 5h]
+tuPaTu: raises $5 to $5
+Laci87: calls $5
+antananarivo: folds
+Negreanu10: folds
+kole1992: folds
+*** FLOP *** [8c Td 9h]
+tuPaTu: checks
+Laci87: bets $9.75
+tuPaTu: raises $49.48 to $49.48
+Laci87: calls $24.82 and is all-in
+Uncalled bet ($14.91) returned to tuPaTu
+Negreanu10 is disconnected 
+*** TURN *** [8c Td 9h] [7c]
+*** RIVER *** [8c Td 9h 7c] [6s]
+*** SHOW DOWN ***
+tuPaTu: shows [Ks 9s] (a straight, Six to Ten)
+Laci87: shows [Th Jd] (a straight, Seven to Jack)
+Laci87 collected $82.14 from pot
+*** SUMMARY ***
+Total pot $82.14 | Rake $4.10 
+Board [8c Td 9h 7c 6s]
+Seat 1: Negreanu10 (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu showed [Ks 9s] and lost with a straight, Six to Ten
+Seat 5: Laci87 showed [Th Jd] and won ($82.14) with a straight, Seven to Jack
+Seat 6: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74753140:  Hold'em No Limit ($1/$2) - 2026/02/05 11:55:08 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 2: kole1992 ($221.50 in chips)
+Seat 3: tuPaTu ($314.47 in chips)
+Seat 5: Laci87 ($78.04 in chips)
+Seat 6: antananarivo ($274.54 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+Laci87: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Jd]
+Laci87: folds
+antananarivo: folds
+kole1992: folds
+Uncalled bet ($1) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Jd]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: tuPaTu (big blind) collected ($2)
+Seat 5: Laci87 folded before Flop (didn't bet)
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74753144:  Hold'em No Limit ($1/$2) - 2026/02/05 11:55:30 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($220.50 in chips)
+Seat 3: tuPaTu ($315.47 in chips)
+Seat 5: Laci87 ($78.04 in chips)
+Seat 6: antananarivo ($274.54 in chips)
+tuPaTu: posts small blind $1
+Laci87: posts big blind $2
+antananarivo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Kh]
+Negreanu10 is connected 
+antananarivo: folds
+kole1992: raises $4 to $4
+tuPaTu: raises $19.01 to $20.01
+Laci87: calls $18.01
+kole1992: folds
+*** FLOP *** [Qc Th Js]
+tuPaTu: checks
+Laci87: checks
+*** TURN *** [Qc Th Js] [2h]
+Negreanu10 leaves the table
+tuPaTu: checks
+Laci87: checks
+*** RIVER *** [Qc Th Js 2h] [6c]
+tuPaTu: bets $295.46 and is all-in
+Laci87: folds
+Uncalled bet ($295.46) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $44.02 from pot
+*** SUMMARY ***
+Total pot $44.02 | Rake $2.20 
+Board [Qc Th Js 2h 6c]
+Seat 2: kole1992 (button) folded before Flop 
+Seat 3: tuPaTu (small blind) collected ($44.02)
+Seat 5: Laci87 (big blind) folded on the River 
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74753162:  Hold'em No Limit ($1/$2) - 2026/02/05 11:56:47 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 2: kole1992 ($216.50 in chips)
+Seat 3: tuPaTu ($337.28 in chips)
+Seat 5: Laci87 ($58.03 in chips)
+Seat 6: antananarivo ($274.54 in chips)
+Laci87: posts small blind $1
+antananarivo: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Ah]
+kole1992: raises $4 to $4
+tuPaTu: calls $4
+Laci87: folds
+antananarivo: folds
+*** FLOP *** [4d 3d Qd]
+kole1992: checks
+tuPaTu: bets $2.75
+kole1992: folds
+Uncalled bet ($2.75) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Ah]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [4d 3d Qd]
+Seat 2: kole1992 folded on the Flop 
+Seat 3: tuPaTu (button) collected ($11)
+Seat 5: Laci87 (small blind) folded before Flop 
+Seat 6: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #74753177:  Hold'em No Limit ($1/$2) - 2026/02/05 11:57:27 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($212.50 in chips)
+Seat 3: tuPaTu ($343.73 in chips)
+Seat 5: Laci87 ($57.03 in chips)
+Seat 6: antananarivo ($272.54 in chips)
+antananarivo: posts small blind $1
+kole1992: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 3s]
+tuPaTu: folds
+Laci87: folds
+antananarivo: raises $5 to $6
+kole1992: folds
+Uncalled bet ($4) returned to antananarivo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 3s]
+antananarivo: doesn't show hand
+antananarivo collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 5: Laci87 (button) folded before Flop (didn't bet)
+Seat 6: antananarivo (small blind) collected ($4)
+
+
+Weplay Hand #74753182:  Hold'em No Limit ($1/$2) - 2026/02/05 11:57:46 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 2: kole1992 ($210.50 in chips)
+Seat 3: tuPaTu ($343.73 in chips)
+Seat 5: Laci87 ($57.03 in chips)
+Seat 6: antananarivo ($274.54 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+Laci87 has timed out
+Laci87: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Qs]
+Laci87: folds
+antananarivo: raises $5 to $5
+kole1992: raises $19.02 to $20.02
+tuPaTu: folds
+antananarivo: folds
+Uncalled bet ($15.02) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 2: kole1992 (small blind) collected ($12)
+Seat 3: tuPaTu (big blind) folded before Flop 
+Seat 5: Laci87 folded before Flop (didn't bet)
+Seat 6: antananarivo (button) folded before Flop 
+
+
+Weplay Hand #74753193:  Hold'em No Limit ($1/$2) - 2026/02/05 11:58:16 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($217.50 in chips)
+Seat 3: tuPaTu ($341.73 in chips)
+Seat 5: Laci87 ($57.03 in chips)
+Seat 6: antananarivo ($269.54 in chips)
+tuPaTu: posts small blind $1
+Laci87: posts big blind $2
+antananarivo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 4h]
+antananarivo: folds
+kole1992: folds
+tuPaTu: folds
+Uncalled bet ($1) returned to Laci87
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 4h]
+Laci87 has timed out
+Laci87: doesn't show hand
+Laci87 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: tuPaTu (small blind) folded before Flop 
+Seat 5: Laci87 (big blind) collected ($2)
+Seat 6: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #74753202:  Hold'em No Limit ($1/$2) - 2026/02/05 11:58:31 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 2: kole1992 ($217.50 in chips)
+Seat 3: tuPaTu ($340.73 in chips)
+Seat 5: Laci87 ($58.03 in chips)
+Seat 6: antananarivo ($269.54 in chips)
+Laci87: posts small blind $1
+antananarivo: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Kh]
+kole1992: folds
+tuPaTu: folds
+Laci87: raises $5 to $6
+antananarivo: raises $267.54 to $269.54 and is all-in
+Laci87: calls $52.03 and is all-in
+Uncalled bet ($211.51) returned to antananarivo
+*** FLOP *** [4h 9c 2d]
+*** TURN *** [4h 9c 2d] [Th]
+*** RIVER *** [4h 9c 2d Th] [5c]
+*** SHOW DOWN ***
+Laci87: shows [Ac Tc] (a pair of Tens)
+antananarivo: shows [2c 2h] (three of a kind, Deuces)
+antananarivo collected $116.06 from pot
+*** SUMMARY ***
+Total pot $116.06 | Rake $5.80 
+Board [4h 9c 2d Th 5c]
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: tuPaTu (button) folded before Flop (didn't bet)
+Seat 5: Laci87 (small blind) showed [Ac Tc] and lost with a pair of Tens
+Seat 6: antananarivo (big blind) showed [2c 2h] and won ($116.06) with three of a kind, Deuces
+
+
+Weplay Hand #74753216:  Hold'em No Limit ($1/$2) - 2026/02/05 11:59:03 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($217.50 in chips)
+Seat 3: tuPaTu ($340.73 in chips)
+Seat 6: antananarivo ($321.77 in chips)
+antananarivo: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 2c]
+tuPaTu: folds
+antananarivo: raises $5 to $6
+kole1992: folds
+Uncalled bet ($4) returned to antananarivo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 2c]
+antananarivo: doesn't show hand
+antananarivo collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu folded before Flop (didn't bet)
+Seat 6: antananarivo (small blind) collected ($4)
+
+
+Weplay Hand #74753232:  Hold'em No Limit ($1/$2) - 2026/02/05 11:59:29 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 2: kole1992 ($215.50 in chips)
+Seat 3: tuPaTu ($340.73 in chips)
+Seat 6: antananarivo ($323.77 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 2s]
+antananarivo: folds
+kole1992: folds
+Uncalled bet ($1) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 2s]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: tuPaTu (big blind) collected ($2)
+Seat 6: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74753238:  Hold'em No Limit ($1/$2) - 2026/02/05 11:59:50 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 2: kole1992 ($214.50 in chips)
+Seat 3: tuPaTu ($341.73 in chips)
+tuPaTu: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 6d]
+tuPaTu: raises $4 to $5
+kole1992: folds
+Uncalled bet ($3) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 6d]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: tuPaTu (button) (small blind) collected ($4)
+
+
+Weplay Hand #74753247:  Hold'em No Limit ($1/$2) - 2026/02/05 12:00:02 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($212.50 in chips)
+Seat 3: tuPaTu ($343.73 in chips)
+kole1992: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Th As]
+kole1992: raises $4 to $5
+tuPaTu: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 2: kole1992 (button) (small blind) collected ($4)
+Seat 3: tuPaTu (big blind) folded before Flop 

@@ -1,0 +1,44 @@
+﻿Weplay Hand #71749253:  Hold'em No Limit ($0.50/$1) - 2026/01/06 12:25:15 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 2: KratkiLucky ($100 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: markanen0 ($126.11 in chips)
+Seat 5: Topboy93 ($54.45 in chips)
+Seat 7: djmaxv5han1 ($100 in chips)
+Seat 8: ryzenn ($166.17 in chips)
+KratkiLucky: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 5h]
+markanen0: folds
+Topboy93: raises $2 to $2
+djmaxv5han1: calls $2
+ryzenn: folds
+KratkiLucky: calls $1.50
+kole1992: folds
+*** FLOP *** [4h 2c 2s]
+KratkiLucky: checks
+Topboy93: checks
+djmaxv5han1: checks
+*** TURN *** [4h 2c 2s] [8s]
+KratkiLucky: checks
+Topboy93: bets $1
+djmaxv5han1: calls $1
+KratkiLucky: folds
+*** RIVER *** [4h 2c 2s 8s] [Ac]
+Topboy93: checks
+djmaxv5han1: checks
+*** SHOW DOWN ***
+kole1992: sits out 
+Topboy93: shows [Ks 4s] (two pair, Fours and Deuces)
+djmaxv5han1: shows [Ah 5s] (two pair, Aces and Deuces)
+djmaxv5han1 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [4h 2c 2s 8s Ac]
+Seat 2: KratkiLucky (small blind) folded on the Turn 
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: Topboy93 showed [Ks 4s] and lost with two pair, Fours and Deuces
+Seat 7: djmaxv5han1 showed [Ah 5s] and won ($9) with two pair, Aces and Deuces
+Seat 8: ryzenn (button) folded before Flop (didn't bet)

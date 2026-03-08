@@ -1,0 +1,5976 @@
+﻿Weplay Hand #76343717:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:21:03 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($177.73 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($97.81 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 9s]
+antananarivo: raises $2.50 to $2.50
+Orphelins17: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 8: antananarivo (button) collected ($2.50)
+
+
+Weplay Hand #76343720:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:21:24 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($177.23 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($99.31 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Tc]
+Orphelins17: raises $3 to $3
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($2) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (button) collected ($2.50)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76343725:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:21:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($178.73 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($98.31 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 9s]
+kole1992: folds
+antananarivo: raises $2.50 to $3
+Orphelins17: folds
+Uncalled bet ($2) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: Orphelins17 (big blind) folded before Flop 
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) collected ($2)
+
+
+Weplay Hand #76343729:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:22:04 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($177.73 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($99.31 in chips)
+Orphelins17: posts small blind $0.50
+focus700 joins the table at seat #3
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Ah]
+antananarivo: folds
+Orphelins17: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) collected ($1)
+Seat 8: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76343733:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:22:13 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($177.23 in chips)
+Seat 5: kole1992 ($100.50 in chips)
+Seat 8: antananarivo ($99.31 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Qd]
+Orphelins17: raises $2 to $2
+kole1992: folds
+antananarivo: calls $1
+*** FLOP *** [5c Kh Qh]
+antananarivo: checks
+Orphelins17: checks
+*** TURN *** [5c Kh Qh] [6d]
+antananarivo: checks
+Orphelins17: checks
+*** RIVER *** [5c Kh Qh 6d] [7d]
+antananarivo: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+antananarivo: shows [As 4s] (high card Ace)
+Orphelins17: mucks hand
+antananarivo collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.11 
+Board [5c Kh Qh 6d 7d]
+Seat 2: Orphelins17 (button) mucked
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) showed [As 4s] and won ($4.50) with high card Ace
+
+
+Weplay Hand #76343741:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:22:46 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($175.23 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($101.70 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Kh]
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($0.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (big blind) collected ($1)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76343744:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:22:59 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($175.73 in chips)
+Seat 3: focus700 ($30 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($101.20 in chips)
+Orphelins17: posts small blind $0.50
+focus700: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Jd]
+kole1992: folds
+antananarivo: raises $2.50 to $2.50
+Orphelins17: folds
+focus700: calls $1.50
+*** FLOP *** [6d 9h 3d]
+focus700: checks
+antananarivo: checks
+*** TURN *** [6d 9h 3d] [9c]
+focus700: checks
+antananarivo: checks
+*** RIVER *** [6d 9h 3d 9c] [6h]
+vbryandcaq leaves the table
+focus700: bets $4.12
+antananarivo: calls $4.12
+*** SHOW DOWN ***
+focus700: shows [6s Kd] (a full house, Sixes full of Nines)
+antananarivo: mucks hand
+focus700 collected $13.74 from pot
+*** SUMMARY ***
+Total pot $13.74 | Rake $0.68 
+Board [6d 9h 3d 9c 6h]
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 3: focus700 (big blind) showed [6s Kd] and won ($13.74) with a full house, Sixes full of Nines
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 8: antananarivo (button) mucked
+
+
+Weplay Hand #76343753:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:23:37 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($175.23 in chips)
+Seat 3: focus700 ($36.44 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($94.58 in chips)
+focus700: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Jc]
+antananarivo: folds
+Orphelins17: calls $1
+focus700: calls $0.50
+kole1992: raises $4.50 to $5.50
+Orphelins17: folds
+focus700: folds
+Uncalled bet ($4.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 2: Orphelins17 (button) folded before Flop 
+Seat 3: focus700 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) collected ($3)
+Seat 8: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76343764:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:24:08 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Orphelins17 ($174.23 in chips)
+Seat 3: focus700 ($35.44 in chips)
+Seat 5: kole1992 ($102 in chips)
+Seat 8: antananarivo ($100 in chips)
+kole1992: posts small blind $0.50
+yaroni1 joins the table at seat #4
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 8c]
+Orphelins17: raises $3.50 to $3.50
+focus700: folds
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($2.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 collected ($2.50)
+Seat 3: focus700 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76343770:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:24:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($175.73 in chips)
+Seat 3: focus700 ($35.44 in chips)
+Seat 4: yaroni1 ($52.27 in chips)
+Seat 5: kole1992 ($101.50 in chips)
+Seat 8: antananarivo ($99 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+yaroni1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 6d]
+focus700: calls $1
+yaroni1: checks
+kole1992: folds
+antananarivo: folds
+Orphelins17: checks
+*** FLOP *** [9c 3d 3s]
+Orphelins17: checks
+focus700: checks
+yaroni1: checks
+*** TURN *** [9c 3d 3s] [Qs]
+Orphelins17: checks
+focus700: bets $3
+yaroni1: folds
+Orphelins17: calls $3
+*** RIVER *** [9c 3d 3s Qs] [Ac]
+Orphelins17: checks
+focus700: checks
+*** SHOW DOWN ***
+Orphelins17: shows [9s 2d] (two pair, Nines and Threes)
+focus700: mucks hand
+Orphelins17 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [9c 3d 3s Qs Ac]
+Seat 2: Orphelins17 (big blind) showed [9s 2d] and won ($9.50) with two pair, Nines and Threes
+Seat 3: focus700 mucked
+Seat 4: yaroni1 (big blind) folded on the Turn 
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76343785:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:25:19 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($180.76 in chips)
+Seat 3: focus700 ($31.44 in chips)
+Seat 4: yaroni1 ($51.27 in chips)
+Seat 5: kole1992 ($101.50 in chips)
+Seat 8: antananarivo ($98.50 in chips)
+Orphelins17: posts small blind $0.50
+focus700: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 7h]
+yaroni1: folds
+kole1992: folds
+antananarivo: raises $2.50 to $2.50
+Orphelins17: folds
+focus700: folds
+Uncalled bet ($1.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 3: focus700 (big blind) folded before Flop 
+Seat 4: yaroni1 folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 8: antananarivo (button) collected ($2.50)
+
+
+Weplay Hand #76343793:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:25:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($180.26 in chips)
+Seat 3: focus700 ($30.44 in chips)
+Seat 4: yaroni1 ($51.27 in chips)
+Seat 5: kole1992 ($101.50 in chips)
+Seat 8: antananarivo ($100 in chips)
+focus700: posts small blind $0.50
+yaroni1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 3c]
+kole1992: raises $2 to $2
+antananarivo: calls $2
+Orphelins17: calls $2
+focus700: calls $1.50
+yaroni1: calls $1
+*** FLOP *** [Tc Ts 5s]
+focus700: checks
+yaroni1: checks
+kole1992: checks
+antananarivo: checks
+Orphelins17: bets $3
+focus700: calls $3
+yaroni1: folds
+kole1992: folds
+antananarivo: folds
+*** TURN *** [Tc Ts 5s] [Ah]
+focus700: checks
+Orphelins17: bets $12
+focus700: folds
+Uncalled bet ($12) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $16 from pot
+*** SUMMARY ***
+Total pot $16 | Rake $0.80 
+Board [Tc Ts 5s Ah]
+Seat 2: Orphelins17 (button) collected ($16)
+Seat 3: focus700 (small blind) folded on the Turn 
+Seat 4: yaroni1 (big blind) folded on the Flop 
+Seat 5: kole1992 folded on the Flop 
+Seat 8: antananarivo folded on the Flop 
+
+
+Weplay Hand #76343811:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:26:41 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Orphelins17 ($190.46 in chips)
+Seat 3: focus700 ($25.44 in chips)
+Seat 4: yaroni1 ($49.27 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($98 in chips)
+yaroni1: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 5d]
+antananarivo: folds
+Orphelins17: calls $1
+focus700: folds
+yaroni1: folds
+kole1992: checks
+*** FLOP *** [5c 4s 3c]
+kole1992: bets $1
+Orphelins17: raises $3.50 to $3.50
+kole1992: calls $2.50
+*** TURN *** [5c 4s 3c] [4c]
+kole1992: checks
+Orphelins17: checks
+*** RIVER *** [5c 4s 3c 4c] [6c]
+kole1992: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+kole1992: shows [6d 5d] (two pair, Sixes and Fives)
+Orphelins17: shows [6s 7h] (a straight, Three to Seven)
+Orphelins17 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [5c 4s 3c 4c 6c]
+Seat 2: Orphelins17 showed [6s 7h] and won ($9.50) with a straight, Three to Seven
+Seat 3: focus700 (button) folded before Flop (didn't bet)
+Seat 4: yaroni1 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) showed [6d 5d] and lost with two pair, Sixes and Fives
+Seat 8: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76343836:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:27:44 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 2: Orphelins17 ($194.99 in chips)
+Seat 3: focus700 ($25.44 in chips)
+Seat 4: yaroni1 ($48.77 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($98 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Js]
+Orphelins17: raises $2 to $2
+focus700: raises $8 to $8
+yaroni1: calls $8
+kole1992: folds
+antananarivo: folds
+Orphelins17: folds
+*** FLOP *** [2c Kh 9c]
+focus700: bets $17.44 and is all-in
+yaroni1: calls $17.44
+*** TURN *** [2c Kh 9c] [Qc]
+*** RIVER *** [2c Kh 9c Qc] [4d]
+*** SHOW DOWN ***
+focus700: shows [Th Tc] (a pair of Tens)
+yaroni1: shows [Kc Jd] (a pair of Kings)
+yaroni1 collected $54.38 from pot
+*** SUMMARY ***
+Total pot $54.38 | Rake $2.71 
+Board [2c Kh 9c Qc 4d]
+Seat 2: Orphelins17 folded before Flop 
+Seat 3: focus700 showed [Th Tc] and lost with a pair of Tens
+Seat 4: yaroni1 (button) showed [Kc Jd] and won ($54.38) with a pair of Kings
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76343849:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:28:22 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($192.99 in chips)
+Seat 4: yaroni1 ($75 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($97 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 2d]
+yaroni1: folds
+focus700 leaves the table
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($0.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (big blind) collected ($1)
+Seat 4: yaroni1 folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76343854:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:28:37 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($193.49 in chips)
+Seat 4: yaroni1 ($75 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($96.50 in chips)
+Orphelins17: posts small blind $0.50
+yaroni1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 2h]
+kole1992: folds
+antananarivo: raises $2.50 to $2.50
+Orphelins17: calls $2
+yaroni1: calls $1.50
+*** FLOP *** [Tc 7c Qs]
+Orphelins17: checks
+yaroni1: checks
+antananarivo: checks
+*** TURN *** [Tc 7c Qs] [Qh]
+Orphelins17: checks
+yaroni1: checks
+antananarivo: checks
+*** RIVER *** [Tc 7c Qs Qh] [3d]
+Orphelins17: bets $5.62
+yaroni1: calls $5.62
+antananarivo: folds
+*** SHOW DOWN ***
+Orphelins17: shows [7d Qc] (a full house, Queens full of Sevens)
+yaroni1 has timed out
+yaroni1: mucks hand
+Orphelins17 collected $18.74 from pot
+*** SUMMARY ***
+Total pot $18.74 | Rake $0.93 
+Board [Tc 7c Qs Qh 3d]
+Seat 2: Orphelins17 (small blind) showed [7d Qc] and won ($18.74) with a full house, Queens full of Sevens
+Seat 4: yaroni1 (big blind) mucked
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 8: antananarivo (button) folded on the River 
+
+
+Weplay Hand #76343875:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:29:31 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($203.18 in chips)
+Seat 4: yaroni1 ($66.88 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($100 in chips)
+yaroni1: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 7h]
+antananarivo: raises $2.50 to $2.50
+Orphelins17: calls $2.50
+yaroni1: folds
+kole1992: calls $1.50
+*** FLOP *** [2s 9d Kh]
+kole1992: checks
+antananarivo: bets $2.60
+Orphelins17: raises $9 to $9
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($6.40) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $13.20 from pot
+*** SUMMARY ***
+Total pot $13.20 | Rake $0.66 
+Board [2s 9d Kh]
+Seat 2: Orphelins17 (button) collected ($13.20)
+Seat 4: yaroni1 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded on the Flop 
+Seat 8: antananarivo folded on the Flop 
+
+
+Weplay Hand #76343894:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:30:22 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 2: Orphelins17 ($210.62 in chips)
+Seat 4: yaroni1 ($66.38 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($100 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Th]
+Orphelins17: raises $3.50 to $3.50
+yaroni1: calls $3.50
+kole1992: folds
+antananarivo: calls $2.50
+*** FLOP *** [Jh Jc 7d]
+antananarivo: checks
+Orphelins17: checks
+yaroni1: checks
+*** TURN *** [Jh Jc 7d] [6d]
+antananarivo: checks
+Orphelins17: checks
+yaroni1: checks
+*** RIVER *** [Jh Jc 7d 6d] [Js]
+antananarivo: checks
+Orphelins17: checks
+yaroni1: checks
+*** SHOW DOWN ***
+antananarivo: shows [2h 2s] (a full house, Jacks full of Deuces)
+Orphelins17: mucks hand
+yaroni1 has timed out
+yaroni1: mucks hand
+antananarivo collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [Jh Jc 7d 6d Js]
+Seat 2: Orphelins17 mucked
+Seat 4: yaroni1 (button) mucked
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) showed [2h 2s] and won ($11) with a full house, Jacks full of Deuces
+
+
+Weplay Hand #76343915:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:31:18 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($207.12 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($106.95 in chips)
+antananarivo: posts small blind $0.50
+yaroni1 leaves the table
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 4c]
+kole1992 has timed out
+kole1992: folds
+antananarivo: raises $2.50 to $3
+Orphelins17: calls $2
+*** FLOP *** [3s Qc 9s]
+antananarivo: checks
+Orphelins17: bets $1
+antananarivo: folds
+Uncalled bet ($1) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.15 
+Board [3s Qc 9s]
+Seat 2: Orphelins17 (big blind) collected ($6)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) folded on the Flop 
+
+
+Weplay Hand #76343936:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:32:06 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($209.97 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($103.95 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh As]
+antananarivo: raises $2.50 to $2.50
+Orphelins17: calls $2
+kole1992: raises $13.50 to $14.50
+antananarivo: calls $12
+Orphelins17: folds
+*** FLOP *** [8h Ts 6s]
+kole1992: checks
+antananarivo: bets $10.40
+kole1992: calls $10.40
+*** TURN *** [8h Ts 6s] [2h]
+kole1992: checks
+antananarivo: bets $39.20
+kole1992: folds
+Uncalled bet ($39.20) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $52.30 from pot
+*** SUMMARY ***
+Total pot $52.30 | Rake $1.30 
+Board [8h Ts 6s 2h]
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded on the Turn 
+Seat 8: antananarivo (button) collected ($52.30)
+
+
+Weplay Hand #76343965:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:33:34 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($207.47 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($130.05 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Jd]
+Orphelins17: raises $2 to $2
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($1) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (button) collected ($2.50)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76343970:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:33:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($208.97 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($129.05 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 3c]
+kole1992: raises $2.50 to $2.50
+antananarivo: calls $2
+Orphelins17: calls $1.50
+*** FLOP *** [Ac 5c Qs]
+antananarivo: checks
+Orphelins17: bets $5
+kole1992: folds
+antananarivo: calls $5
+*** TURN *** [Ac 5c Qs] [5h]
+antananarivo: checks
+Orphelins17: checks
+*** RIVER *** [Ac 5c Qs 5h] [Kd]
+antananarivo: bets $3
+Orphelins17: raises $28 to $28
+antananarivo: calls $25
+*** SHOW DOWN ***
+Orphelins17: shows [Qd 5d] (a full house, Fives full of Queens)
+antananarivo: mucks hand
+Orphelins17 collected $73.50 from pot
+*** SUMMARY ***
+Total pot $73.50 | Rake $1.83 
+Board [Ac 5c Qs 5h Kd]
+Seat 2: Orphelins17 (big blind) showed [Qd 5d] and won ($73.50) with a full house, Fives full of Queens
+Seat 5: kole1992 (button) folded on the Flop 
+Seat 8: antananarivo (small blind) mucked
+
+
+Weplay Hand #76343992:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:34:46 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($245.14 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($93.55 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 3d]
+antananarivo: folds
+Orphelins17: raises $3.50 to $4
+kole1992: folds
+Uncalled bet ($3) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: Orphelins17 (small blind) collected ($2)
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 8: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76344001:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:35:01 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($246.14 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($100 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 9c]
+Orphelins17: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) collected ($1)
+
+
+Weplay Hand #76344005:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:35:15 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($246.14 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($100.50 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Ah]
+kole1992: raises $2.50 to $2.50
+antananarivo: folds
+Orphelins17: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (big blind) folded before Flop 
+Seat 5: kole1992 (button) collected ($2.50)
+Seat 8: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76344011:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:35:31 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($245.14 in chips)
+Seat 5: kole1992 ($101.50 in chips)
+Seat 8: antananarivo ($100 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 8c]
+antananarivo: folds
+Orphelins17: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) collected ($1)
+Seat 8: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76344015:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:35:42 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($244.64 in chips)
+Seat 5: kole1992 ($102 in chips)
+Seat 8: antananarivo ($100 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 9s]
+Orphelins17: raises $2 to $2
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($1) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (button) collected ($2.50)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76344020:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:35:59 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($246.14 in chips)
+Seat 5: kole1992 ($101.50 in chips)
+Seat 8: antananarivo ($99 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 4h]
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($0.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (big blind) collected ($1)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76344026:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:36:13 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($246.64 in chips)
+Seat 5: kole1992 ($101.50 in chips)
+Seat 8: antananarivo ($98.50 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 7c]
+antananarivo: raises $2.50 to $2.50
+Orphelins17: calls $2
+kole1992: folds
+*** FLOP *** [8c Qd 2c]
+Orphelins17: checks
+antananarivo: bets $3
+Orphelins17: folds
+Uncalled bet ($3) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.15 
+Board [8c Qd 2c]
+Seat 2: Orphelins17 (small blind) folded on the Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 8: antananarivo (button) collected ($6)
+
+
+Weplay Hand #76344035:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:36:49 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($244.14 in chips)
+Seat 5: kole1992 ($100.50 in chips)
+Seat 8: antananarivo ($101.85 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 8s]
+PMONKEYP joins the table at seat #3
+Orphelins17: raises $2 to $2
+kole1992: raises $9.50 to $10
+antananarivo: folds
+Orphelins17: folds
+Uncalled bet ($8) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 2: Orphelins17 (button) folded before Flop 
+Seat 5: kole1992 (small blind) collected ($5)
+Seat 8: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76344045:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:37:11 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($242.14 in chips)
+Seat 3: PMONKEYP ($30 in chips)
+Seat 5: kole1992 ($103.50 in chips)
+Seat 8: antananarivo ($100.85 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+PMONKEYP: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 8s]
+PMONKEYP: raises $1.50 to $2.50
+kole1992: folds
+antananarivo: folds
+Orphelins17: folds
+Uncalled bet ($1.50) returned to PMONKEYP
+*** SHOW DOWN ***
+PMONKEYP: doesn't show hand
+PMONKEYP collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (big blind) folded before Flop 
+Seat 3: PMONKEYP (big blind) collected ($2.50)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76344049:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:37:25 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($241.14 in chips)
+Seat 3: PMONKEYP ($31.50 in chips)
+Seat 5: kole1992 ($103.50 in chips)
+Seat 8: antananarivo ($100.35 in chips)
+Orphelins17: posts small blind $0.50
+PMONKEYP: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Qc]
+kole1992: raises $2 to $2
+antananarivo: raises $7 to $7
+Orphelins17: folds
+PMONKEYP: folds
+kole1992: folds
+Uncalled bet ($5) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 3: PMONKEYP (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 8: antananarivo (button) collected ($5.50)
+
+
+Weplay Hand #76344058:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:37:56 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($240.64 in chips)
+Seat 3: PMONKEYP ($30.50 in chips)
+Seat 5: kole1992 ($101.50 in chips)
+Seat 8: antananarivo ($103.85 in chips)
+PMONKEYP: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 8h]
+antananarivo: folds
+Orphelins17: calls $1
+PMONKEYP: calls $0.50
+kole1992: checks
+*** FLOP *** [Kc Jh 2d]
+PMONKEYP: checks
+kole1992: checks
+Orphelins17: checks
+*** TURN *** [Kc Jh 2d] [Ad]
+PMONKEYP: bets $2.25
+kole1992: calls $2.25
+Orphelins17: folds
+*** RIVER *** [Kc Jh 2d Ad] [9s]
+PMONKEYP: checks
+kole1992: bets $3.50
+PMONKEYP: folds
+Uncalled bet ($3.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [Kc Jh 2d Ad 9s]
+Seat 2: Orphelins17 (button) folded on the Turn 
+Seat 3: PMONKEYP (small blind) folded on the River 
+Seat 5: kole1992 (big blind) collected ($7.50)
+Seat 8: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76344077:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:39:11 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Orphelins17 ($239.64 in chips)
+Seat 3: PMONKEYP ($27.25 in chips)
+Seat 5: kole1992 ($105.38 in chips)
+Seat 8: antananarivo ($103.85 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Ah]
+Orphelins17: folds
+PMONKEYP: folds
+kole1992: raises $2.50 to $3
+antananarivo: folds
+Uncalled bet ($2) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: Orphelins17 folded before Flop (didn't bet)
+Seat 3: PMONKEYP (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) collected ($2)
+Seat 8: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76344088:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:39:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($239.64 in chips)
+Seat 3: PMONKEYP ($27.25 in chips)
+Seat 5: kole1992 ($106.38 in chips)
+Seat 8: antananarivo ($102.85 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 7h]
+PMONKEYP: raises $2.50 to $2.50
+kole1992: folds
+antananarivo: raises $8.50 to $9
+Orphelins17: folds
+PMONKEYP: folds
+Uncalled bet ($6.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 2: Orphelins17 (big blind) folded before Flop 
+Seat 3: PMONKEYP folded before Flop 
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) collected ($6)
+
+
+Weplay Hand #76344097:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:39:56 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($238.64 in chips)
+Seat 3: PMONKEYP ($24.75 in chips)
+Seat 5: kole1992 ($106.38 in chips)
+Seat 8: antananarivo ($106.35 in chips)
+Orphelins17: posts small blind $0.50
+PMONKEYP: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 2h]
+kole1992: folds
+antananarivo: raises $2 to $2
+Orphelins17: calls $1.50
+PMONKEYP: folds
+*** FLOP *** [6s 2c Ad]
+Orphelins17: bets $2
+antananarivo: raises $7 to $7
+Orphelins17: raises $16 to $18
+Nothingtown joins the table at seat #4
+antananarivo: folds
+Uncalled bet ($11) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $19 from pot
+*** SUMMARY ***
+Total pot $19 | Rake $0.95 
+Board [6s 2c Ad]
+Seat 2: Orphelins17 (small blind) collected ($19)
+Seat 3: PMONKEYP (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 8: antananarivo (button) folded on the Flop 
+
+
+Weplay Hand #76344108:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:40:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($247.69 in chips)
+Seat 3: PMONKEYP ($23.75 in chips)
+Seat 4: Nothingtown ($100 in chips)
+Seat 5: kole1992 ($106.38 in chips)
+Seat 8: antananarivo ($97.35 in chips)
+PMONKEYP: posts small blind $0.50
+Nothingtown: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 2d]
+kole1992: folds
+antananarivo: raises $2 to $2
+Orphelins17: calls $2
+PMONKEYP: folds
+Nothingtown: calls $1
+*** FLOP *** [Js 9h Kh]
+Nothingtown: checks
+antananarivo: checks
+Orphelins17: checks
+*** TURN *** [Js 9h Kh] [Jh]
+Nothingtown: checks
+antananarivo: bets $3.30
+Orphelins17: calls $3.30
+Nothingtown: calls $3.30
+*** RIVER *** [Js 9h Kh Jh] [2c]
+Nothingtown: checks
+antananarivo: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+Nothingtown: shows [9d Kd] (two pair, Kings and Jacks)
+antananarivo: shows [7d Jd] (three of a kind, Jacks)
+Orphelins17: mucks hand
+antananarivo collected $16.40 from pot
+*** SUMMARY ***
+Total pot $16.40 | Rake $0.82 
+Board [Js 9h Kh Jh 2c]
+Seat 2: Orphelins17 (button) mucked
+Seat 3: PMONKEYP (small blind) folded before Flop 
+Seat 4: Nothingtown (big blind) showed [9d Kd] and lost with two pair, Kings and Jacks
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 8: antananarivo showed [7d Jd] and won ($16.40) with three of a kind, Jacks
+
+
+Weplay Hand #76344140:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:42:02 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Orphelins17 ($242.39 in chips)
+Seat 3: PMONKEYP ($23.25 in chips)
+Seat 4: Nothingtown ($94.70 in chips)
+Seat 5: kole1992 ($106.38 in chips)
+Seat 8: antananarivo ($107.63 in chips)
+Nothingtown: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 8c]
+antananarivo: folds
+Orphelins17: calls $1
+PMONKEYP: folds
+Nothingtown: folds
+kole1992: checks
+*** FLOP *** [Th 7d 6d]
+kole1992: checks
+Orphelins17: checks
+*** TURN *** [Th 7d 6d] [3c]
+kole1992: bets $1
+Orphelins17: calls $1
+*** RIVER *** [Th 7d 6d 3c] [Ah]
+kole1992: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+kole1992: shows [2h 8c] (high card Ace)
+Orphelins17: shows [8h Kd] (high card Ace)
+Orphelins17 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Th 7d 6d 3c Ah]
+Seat 2: Orphelins17 showed [8h Kd] and won ($4.50) with high card Ace
+Seat 3: PMONKEYP (button) folded before Flop (didn't bet)
+Seat 4: Nothingtown (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) showed [2h 8c] and lost with high card Ace
+Seat 8: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76344161:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:43:13 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 2: Orphelins17 ($244.67 in chips)
+Seat 3: PMONKEYP ($23.25 in chips)
+Seat 4: Nothingtown ($94.20 in chips)
+Seat 5: kole1992 ($104.38 in chips)
+Seat 8: antananarivo ($107.63 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As 2s]
+Orphelins17: raises $2 to $2
+PMONKEYP: folds
+Nothingtown: folds
+kole1992: folds
+antananarivo: raises $8 to $9
+Orphelins17: folds
+Uncalled bet ($7) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 2: Orphelins17 folded before Flop 
+Seat 3: PMONKEYP folded before Flop (didn't bet)
+Seat 4: Nothingtown (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) collected ($4.50)
+
+
+Weplay Hand #76344169:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:43:42 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($242.67 in chips)
+Seat 3: PMONKEYP ($23.25 in chips)
+Seat 4: Nothingtown ($94.20 in chips)
+Seat 5: kole1992 ($103.88 in chips)
+Seat 8: antananarivo ($110.13 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 6d]
+PMONKEYP: raises $2.50 to $2.50
+Nothingtown: folds
+kole1992: folds
+antananarivo: folds
+Orphelins17: calls $1.50
+*** FLOP *** [As 8c 2h]
+Orphelins17: checks
+PMONKEYP: bets $1.82
+Orphelins17: folds
+Uncalled bet ($1.82) returned to PMONKEYP
+*** SHOW DOWN ***
+PMONKEYP: doesn't show hand
+PMONKEYP collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [As 8c 2h]
+Seat 2: Orphelins17 (big blind) folded on the Flop 
+Seat 3: PMONKEYP collected ($5.50)
+Seat 4: Nothingtown folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76344183:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:44:20 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($240.17 in chips)
+Seat 3: PMONKEYP ($25.98 in chips)
+Seat 4: Nothingtown ($94.20 in chips)
+Seat 5: kole1992 ($103.88 in chips)
+Seat 8: antananarivo ($109.63 in chips)
+Orphelins17: posts small blind $0.50
+PMONKEYP: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 4c]
+Nothingtown: folds
+kole1992: folds
+antananarivo: raises $2 to $2
+Orphelins17: calls $1.50
+PMONKEYP: calls $1
+*** FLOP *** [Tc 4d Qc]
+Orphelins17: checks
+PMONKEYP: checks
+antananarivo: checks
+*** TURN *** [Tc 4d Qc] [Ac]
+Orphelins17: checks
+PMONKEYP: checks
+antananarivo: bets $3
+Orphelins17: folds
+PMONKEYP: folds
+Uncalled bet ($3) returned to antananarivo
+*** SHOW DOWN ***
+yaroni1 joins the table at seat #6
+antananarivo: doesn't show hand
+antananarivo collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Tc 4d Qc Ac]
+Seat 2: Orphelins17 (small blind) folded on the Turn 
+Seat 3: PMONKEYP (big blind) folded on the Turn 
+Seat 4: Nothingtown folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 8: antananarivo (button) collected ($6)
+
+
+Weplay Hand #76344202:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:45:23 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($238.17 in chips)
+Seat 3: PMONKEYP ($23.98 in chips)
+Seat 4: Nothingtown ($94.20 in chips)
+Seat 5: kole1992 ($103.88 in chips)
+Seat 6: yaroni1 ($62.88 in chips)
+Seat 8: antananarivo ($113.33 in chips)
+PMONKEYP: posts small blind $0.50
+Nothingtown: posts big blind $1
+yaroni1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 8s]
+kole1992: folds
+yaroni1: checks
+antananarivo: folds
+Orphelins17: calls $1
+PMONKEYP: calls $0.50
+Nothingtown: checks
+*** FLOP *** [6s 3d 7h]
+PMONKEYP: checks
+Nothingtown: checks
+yaroni1: checks
+Orphelins17: checks
+*** TURN *** [6s 3d 7h] [Td]
+PMONKEYP: checks
+Nothingtown: checks
+yaroni1: checks
+Orphelins17: checks
+*** RIVER *** [6s 3d 7h Td] [2h]
+PMONKEYP: checks
+Nothingtown: checks
+yaroni1: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+PMONKEYP: shows [9h Ks] (high card King)
+Nothingtown: shows [2c 5d] (a pair of Deuces)
+yaroni1: shows [Ah Ts] (a pair of Tens)
+Orphelins17: mucks hand
+yaroni1 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [6s 3d 7h Td 2h]
+Seat 2: Orphelins17 (button) mucked
+Seat 3: PMONKEYP (small blind) showed [9h Ks] and lost with high card King
+Seat 4: Nothingtown (big blind) showed [2c 5d] and lost with a pair of Deuces
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: yaroni1 (big blind) showed [Ah Ts] and won ($4) with a pair of Tens
+Seat 8: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76344221:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:46:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Orphelins17 ($237.17 in chips)
+Seat 3: PMONKEYP ($22.98 in chips)
+Seat 4: Nothingtown ($93.20 in chips)
+Seat 5: kole1992 ($103.88 in chips)
+Seat 6: yaroni1 ($65.68 in chips)
+Seat 8: antananarivo ($113.33 in chips)
+Nothingtown: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Td]
+yaroni1: calls $1
+antananarivo: raises $4 to $4
+Orphelins17: folds
+PMONKEYP: folds
+Nothingtown: folds
+kole1992: folds
+yaroni1: folds
+Uncalled bet ($3) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 2: Orphelins17 folded before Flop (didn't bet)
+Seat 3: PMONKEYP (button) folded before Flop (didn't bet)
+Seat 4: Nothingtown (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: yaroni1 folded before Flop 
+Seat 8: antananarivo collected ($3.50)
+
+
+Weplay Hand #76344236:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:47:10 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 2: Orphelins17 ($237.17 in chips)
+Seat 3: PMONKEYP ($22.98 in chips)
+Seat 4: Nothingtown ($92.70 in chips)
+Seat 5: kole1992 ($102.88 in chips)
+Seat 6: yaroni1 ($64.68 in chips)
+Seat 8: antananarivo ($115.83 in chips)
+kole1992: posts small blind $0.50
+yaroni1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Jc]
+antananarivo: folds
+Orphelins17: calls $1
+PMONKEYP: calls $1
+Nothingtown: raises $5.50 to $5.50
+kole1992: folds
+yaroni1: folds
+Orphelins17: folds
+PMONKEYP: folds
+Uncalled bet ($4.50) returned to Nothingtown
+*** SHOW DOWN ***
+Nothingtown: doesn't show hand
+Nothingtown collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 2: Orphelins17 folded before Flop 
+Seat 3: PMONKEYP folded before Flop 
+Seat 4: Nothingtown (button) collected ($4.50)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: yaroni1 (big blind) folded before Flop 
+Seat 8: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76344249:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:47:48 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($236.17 in chips)
+Seat 3: PMONKEYP ($21.98 in chips)
+Seat 4: Nothingtown ($96.20 in chips)
+Seat 5: kole1992 ($102.38 in chips)
+Seat 6: yaroni1 ($63.68 in chips)
+Seat 8: antananarivo ($115.83 in chips)
+yaroni1: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 4s]
+Orphelins17: calls $1
+PMONKEYP: calls $1
+Nothingtown: folds
+kole1992: folds
+yaroni1: folds
+antananarivo: checks
+*** FLOP *** [Ah 8d Jc]
+antananarivo: bets $1.80
+Orphelins17: calls $1.80
+PMONKEYP: calls $1.80
+*** TURN *** [Ah 8d Jc] [Jd]
+antananarivo: checks
+Orphelins17: checks
+PMONKEYP: bets $4.45
+antananarivo: calls $4.45
+Orphelins17: raises $17 to $17
+PMONKEYP: folds
+antananarivo: folds
+Uncalled bet ($12.55) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $22.25 from pot
+*** SUMMARY ***
+Total pot $22.25 | Rake $1.11 
+Board [Ah 8d Jc Jd]
+Seat 2: Orphelins17 collected ($22.25)
+Seat 3: PMONKEYP folded on the Turn 
+Seat 4: Nothingtown folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: yaroni1 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) folded on the Turn 
+
+
+Weplay Hand #76344274:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:49:02 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($250.06 in chips)
+Seat 3: PMONKEYP ($14.73 in chips)
+Seat 4: Nothingtown ($96.20 in chips)
+Seat 5: kole1992 ($102.38 in chips)
+Seat 6: yaroni1 ($63.18 in chips)
+Seat 8: antananarivo ($108.58 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Kc]
+PMONKEYP: folds
+Nothingtown: folds
+kole1992: folds
+yaroni1: folds
+antananarivo: calls $0.50
+Orphelins17: raises $2 to $3
+antananarivo: folds
+Uncalled bet ($2) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: Orphelins17 (big blind) collected ($2)
+Seat 3: PMONKEYP folded before Flop (didn't bet)
+Seat 4: Nothingtown folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: yaroni1 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76344287:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:49:39 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($251.06 in chips)
+Seat 3: PMONKEYP ($14.73 in chips)
+Seat 4: Nothingtown ($96.20 in chips)
+Seat 5: kole1992 ($102.38 in chips)
+Seat 6: yaroni1 ($63.18 in chips)
+Seat 8: antananarivo ($107.58 in chips)
+Orphelins17: posts small blind $0.50
+PMONKEYP: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Ad]
+Nothingtown: folds
+kole1992: raises $2 to $2
+yaroni1: folds
+antananarivo: folds
+Orphelins17: calls $1.50
+PMONKEYP: calls $1
+*** FLOP *** [4s 7s 6c]
+Orphelins17: checks
+PMONKEYP: checks
+kole1992: checks
+*** TURN *** [4s 7s 6c] [9h]
+yaroni1 leaves the table
+Orphelins17: checks
+PMONKEYP: checks
+kole1992: checks
+*** RIVER *** [4s 7s 6c 9h] [5s]
+Orphelins17: checks
+PMONKEYP: checks
+kole1992: bets $6
+Orphelins17: folds
+PMONKEYP: folds
+Uncalled bet ($6) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [4s 7s 6c 9h 5s]
+Seat 2: Orphelins17 (small blind) folded on the River 
+Seat 3: PMONKEYP (big blind) folded on the River 
+Seat 4: Nothingtown folded before Flop (didn't bet)
+Seat 5: kole1992 collected ($6)
+Seat 6: yaroni1 folded before Flop (didn't bet)
+Seat 8: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76349316:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:51:13 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($249.06 in chips)
+Seat 3: PMONKEYP ($12.73 in chips)
+Seat 4: Nothingtown ($96.20 in chips)
+Seat 5: kole1992 ($106.08 in chips)
+Seat 8: antananarivo ($107.58 in chips)
+PMONKEYP: posts small blind $0.50
+Nothingtown: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Jh]
+kole1992: folds
+antananarivo: raises $2.50 to $2.50
+Orphelins17: folds
+PMONKEYP: folds
+Nothingtown: folds
+Uncalled bet ($1.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (button) folded before Flop (didn't bet)
+Seat 3: PMONKEYP (small blind) folded before Flop 
+Seat 4: Nothingtown (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 8: antananarivo collected ($2.50)
+
+
+Weplay Hand #76349323:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:51:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Orphelins17 ($249.06 in chips)
+Seat 3: PMONKEYP ($12.23 in chips)
+Seat 4: Nothingtown ($95.20 in chips)
+Seat 5: kole1992 ($106.08 in chips)
+Seat 8: antananarivo ($109.08 in chips)
+Nothingtown: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 9h]
+antananarivo: folds
+Orphelins17: calls $1
+PMONKEYP: folds
+Nothingtown: folds
+kole1992: checks
+*** FLOP *** [5d 3c 3s]
+kole1992: checks
+Orphelins17: checks
+*** TURN *** [5d 3c 3s] [2h]
+kole1992: checks
+Orphelins17: checks
+*** RIVER *** [5d 3c 3s 2h] [7s]
+kole1992: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+kole1992: shows [Ad 9h] (a pair of Threes)
+Orphelins17: shows [Ks Ah] (a pair of Threes)
+Orphelins17 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [5d 3c 3s 2h 7s]
+Seat 2: Orphelins17 showed [Ks Ah] and won ($2.50) with a pair of Threes
+Seat 3: PMONKEYP (button) folded before Flop (didn't bet)
+Seat 4: Nothingtown (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) showed [Ad 9h] and lost with a pair of Threes
+Seat 8: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76349346:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:52:26 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 2: Orphelins17 ($250.44 in chips)
+Seat 3: PMONKEYP ($12.23 in chips)
+Seat 4: Nothingtown ($94.70 in chips)
+Seat 5: kole1992 ($105.08 in chips)
+Seat 8: antananarivo ($109.08 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 7h]
+Orphelins17: folds
+PMONKEYP: raises $2.50 to $2.50
+Nothingtown: raises $7.50 to $7.50
+kole1992: folds
+antananarivo: folds
+PMONKEYP: raises $9.73 to $12.23 and is all-in
+Nothingtown: calls $4.73
+kole1992: sits out 
+*** FIRST FLOP *** [Js 3h As]
+*** FIRST TURN *** [Js 3h As] [5d]
+*** FIRST RIVER *** [Js 3h As 5d] [8d]
+*** SECOND FLOP *** [3d Qh Kd]
+*** SECOND TURN *** [3d Qh Kd] [5c]
+*** SECOND RIVER *** [3d Qh Kd 5c] [4s]
+*** SHOW DOWN ***
+PMONKEYP: shows [Qc Th] (high card Ace)
+Nothingtown: shows [Jh Kh] (a pair of Jacks)
+Nothingtown collected $25.96 from pot
+*** SUMMARY ***
+Total pot $25.96 | Rake $1.29 
+Hand was run two times
+FIRST Board [Js 3h As 5d 8d]
+SECOND Board [3d Qh Kd 5c 4s]
+Seat 2: Orphelins17 folded before Flop (didn't bet)
+Seat 3: PMONKEYP showed [Qc Th] and lost with high card Ace
+Seat 4: Nothingtown (button) showed [Jh Kh] and won ($25.96) with a pair of Jacks
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76349389:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:54:07 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($246.44 in chips)
+Seat 4: Nothingtown ($107.14 in chips)
+Seat 5: kole1992 ($104.58 in chips)
+Seat 8: antananarivo ($111.88 in chips)
+Orphelins17: posts small blind $0.50
+Nothingtown: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Qh]
+kole1992: folds
+antananarivo: folds
+Orphelins17: folds
+Uncalled bet ($0.50) returned to Nothingtown
+*** SHOW DOWN ***
+Nothingtown: doesn't show hand
+Nothingtown collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 4: Nothingtown (big blind) collected ($1)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 8: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76349398:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:54:26 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($245.94 in chips)
+Seat 4: Nothingtown ($107.64 in chips)
+Seat 5: kole1992 ($104.58 in chips)
+Seat 8: antananarivo ($111.88 in chips)
+Nothingtown: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Js]
+antananarivo: raises $2.50 to $2.50
+Orphelins17: calls $2.50
+Nothingtown: folds
+kole1992: calls $1.50
+*** FLOP *** [7c 3s Tc]
+kole1992: checks
+antananarivo: bets $2.60
+Orphelins17: raises $9 to $9
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($6.40) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $13.20 from pot
+*** SUMMARY ***
+Total pot $13.20 | Rake $0.66 
+Board [7c 3s Tc]
+Seat 2: Orphelins17 (button) collected ($13.20)
+Seat 4: Nothingtown (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded on the Flop 
+Seat 8: antananarivo folded on the Flop 
+
+
+Weplay Hand #76349417:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:55:13 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 2: Orphelins17 ($253.38 in chips)
+Seat 4: Nothingtown ($107.14 in chips)
+Seat 5: kole1992 ($102.08 in chips)
+Seat 8: antananarivo ($106.78 in chips)
+kole1992: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 3h]
+Orphelins17: raises $3.50 to $3.50
+Nothingtown: folds
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($2.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 collected ($2.50)
+Seat 4: Nothingtown (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76349421:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:55:27 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($254.88 in chips)
+Seat 4: Nothingtown ($107.14 in chips)
+Seat 5: kole1992 ($101.58 in chips)
+Seat 8: antananarivo ($105.78 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Ah]
+Nothingtown: folds
+kole1992: raises $2.50 to $2.50
+antananarivo: folds
+Orphelins17: calls $1.50
+*** FLOP *** [9h 6d Ad]
+Orphelins17: checks
+kole1992: bets $3.50
+Orphelins17: calls $3.50
+*** TURN *** [9h 6d Ad] [4s]
+Orphelins17: checks
+kole1992: bets $11.16
+Orphelins17: calls $11.16
+*** RIVER *** [9h 6d Ad 4s] [7c]
+Orphelins17: bets $17.41
+kole1992: calls $17.41
+*** SHOW DOWN ***
+Orphelins17: shows [4d 9d] (two pair, Nines and Fours)
+kole1992: mucks hand
+Orphelins17 collected $69.64 from pot
+*** SUMMARY ***
+Total pot $69.64 | Rake $3.48 
+Board [9h 6d Ad 4s 7c]
+Seat 2: Orphelins17 (big blind) showed [4d 9d] and won ($69.64) with two pair, Nines and Fours
+Seat 4: Nothingtown folded before Flop (didn't bet)
+Seat 5: kole1992 (button) mucked
+Seat 8: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76349435:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:56:21 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($286.47 in chips)
+Seat 4: Nothingtown ($107.14 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($105.28 in chips)
+Orphelins17: posts small blind $0.50
+Nothingtown: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 3d]
+kole1992: folds
+antananarivo: raises $2.50 to $2.50
+Orphelins17: calls $2
+Nothingtown: folds
+*** FLOP *** [6c Ts Kd]
+Orphelins17: bets $2
+antananarivo: calls $2
+*** TURN *** [6c Ts Kd] [2s]
+Orphelins17: checks
+antananarivo: checks
+*** RIVER *** [6c Ts Kd 2s] [Ac]
+Orphelins17: checks
+antananarivo: checks
+*** SHOW DOWN ***
+Orphelins17: shows [9s Qs] (high card Ace)
+antananarivo: shows [Td Qc] (a pair of Tens)
+antananarivo collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [6c Ts Kd 2s Ac]
+Seat 2: Orphelins17 (small blind) showed [9s Qs] and lost with high card Ace
+Seat 4: Nothingtown (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 8: antananarivo (button) showed [Td Qc] and won ($10) with a pair of Tens
+
+
+Weplay Hand #76349445:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:56:58 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($281.97 in chips)
+Seat 4: Nothingtown ($106.14 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($110.28 in chips)
+Nothingtown: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Tc]
+antananarivo: folds
+Orphelins17: calls $1
+Nothingtown: calls $0.50
+kole1992: checks
+*** FLOP *** [Ts 9c 7s]
+Nothingtown: checks
+kole1992: checks
+Orphelins17: bets $1
+antananarivo leaves the table
+Nothingtown: folds
+kole1992: calls $1
+*** TURN *** [Ts 9c 7s] [8s]
+kole1992: checks
+Orphelins17: checks
+*** RIVER *** [Ts 9c 7s 8s] [8d]
+kole1992: bets $5
+Orphelins17: calls $5
+*** SHOW DOWN ***
+kole1992: shows [8h Tc] (a full house, Eights full of Tens)
+Orphelins17: mucks hand
+kole1992 collected $15 from pot
+*** SUMMARY ***
+Total pot $15 | Rake $0.75 
+Board [Ts 9c 7s 8s 8d]
+Seat 2: Orphelins17 (button) mucked
+Seat 4: Nothingtown (small blind) folded on the Flop 
+Seat 5: kole1992 (big blind) showed [8h Tc] and won ($15) with a full house, Eights full of Tens
+Seat 8: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76349468:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:58:19 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 2: Orphelins17 ($274.97 in chips)
+Seat 4: Nothingtown ($105.14 in chips)
+Seat 5: kole1992 ($107.25 in chips)
+kole1992: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As Jd]
+Nothingtown: folds
+kole1992: raises $2.50 to $3
+Orphelins17: calls $2
+*** FLOP *** [4c Qh 8d]
+kole1992: checks
+Orphelins17: checks
+*** TURN *** [4c Qh 8d] [Jc]
+Nothingtown leaves the table
+kole1992: bets $3
+Orphelins17: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.15 
+Board [4c Qh 8d Jc]
+Seat 2: Orphelins17 (big blind) folded on the Turn 
+Seat 4: Nothingtown (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) collected ($6)
+
+
+Weplay Hand #76349480:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:59:04 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($271.97 in chips)
+Seat 5: kole1992 ($110.10 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 9c]
+Orphelins17: raises $2 to $2.50
+kole1992: calls $1.50
+*** FLOP *** [Qd Ks Qh]
+kole1992: checks
+Orphelins17: checks
+*** TURN *** [Qd Ks Qh] [Jd]
+kole1992: checks
+Orphelins17: bets $2
+kole1992: folds
+Uncalled bet ($2) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.12 
+Board [Qd Ks Qh Jd]
+Seat 2: Orphelins17 (button) (small blind) collected ($5)
+Seat 5: kole1992 (big blind) folded on the Turn 
+
+
+Weplay Hand #76349491:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:59:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($274.35 in chips)
+Seat 5: kole1992 ($107.60 in chips)
+kole1992: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 6s]
+kole1992: folds
+Uncalled bet ($0.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (big blind) collected ($1)
+Seat 5: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76349493:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:59:56 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($274.85 in chips)
+Seat 5: kole1992 ($107.10 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 9c]
+Orphelins17: calls $0.50
+kole1992: checks
+*** FLOP *** [5c 9s Qs]
+kole1992: checks
+Orphelins17: bets $2
+kole1992: calls $2
+*** TURN *** [5c 9s Qs] [Js]
+kole1992: checks
+Orphelins17: bets $3.50
+kole1992: calls $3.50
+*** RIVER *** [5c 9s Qs Js] [Th]
+kole1992: checks
+fullseat joins the table at seat #8
+Orphelins17: bets $4.50
+kole1992: calls $4.50
+*** SHOW DOWN ***
+Orphelins17: shows [5d Kh] (a straight, Nine to King)
+kole1992: shows [Kd 9c] (a straight, Nine to King)
+Orphelins17 collected $10.99 from pot
+kole1992 collected $11.01 from pot
+*** SUMMARY ***
+Total pot $22 | Rake $0.55 
+Board [5c 9s Qs Js Th]
+Seat 2: Orphelins17 (button) (small blind) showed [5d Kh] and won ($10.99) with a straight, Nine to King
+Seat 5: kole1992 (big blind) showed [Kd 9c] and won ($11.01) with a straight, Nine to King
+
+
+Weplay Hand #76349607:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:00:51 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($274.57 in chips)
+Seat 5: kole1992 ($106.83 in chips)
+Seat 8: fullseat ($30 in chips)
+kole1992: posts small blind $0.50
+fullseat: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 2d]
+Orphelins17: calls $1
+kole1992: folds
+fullseat: checks
+*** FLOP *** [Kd Th 4h]
+fullseat: checks
+Orphelins17: bets $1.88
+fullseat: folds
+Uncalled bet ($1.88) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.06 
+Board [Kd Th 4h]
+Seat 2: Orphelins17 (button) collected ($2.50)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: fullseat (big blind) folded on the Flop 
+
+
+Weplay Hand #76349706:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:01:16 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($276.01 in chips)
+Seat 5: kole1992 ($106.33 in chips)
+Seat 8: fullseat ($29 in chips)
+fullseat: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 8d]
+kole1992: raises $2.50 to $2.50
+fullseat: folds
+Orphelins17: calls $1.50
+*** FLOP *** [Tc 7c 7s]
+Orphelins17: checks
+kole1992: checks
+*** TURN *** [Tc 7c 7s] [2d]
+Orphelins17: checks
+kole1992: bets $9.50
+Orphelins17: folds
+Uncalled bet ($9.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.13 
+Board [Tc 7c 7s 2d]
+Seat 2: Orphelins17 (big blind) folded on the Turn 
+Seat 5: kole1992 (button) collected ($5.50)
+Seat 8: fullseat (small blind) folded before Flop 
+
+
+Weplay Hand #76349730:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:01:54 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($273.51 in chips)
+Seat 5: kole1992 ($109.20 in chips)
+Seat 8: fullseat ($28.50 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Qc]
+fullseat: calls $1
+Orphelins17: calls $0.50
+kole1992: checks
+*** FLOP *** [7s 4s 4c]
+Orphelins17: checks
+kole1992: checks
+fullseat: bets $1
+Orphelins17: folds
+kole1992: folds
+Uncalled bet ($1) returned to fullseat
+*** SHOW DOWN ***
+fullseat: doesn't show hand
+fullseat collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.07 
+Board [7s 4s 4c]
+Seat 2: Orphelins17 (small blind) folded on the Flop 
+Seat 5: kole1992 (big blind) folded on the Flop 
+Seat 8: fullseat (button) collected ($3)
+
+
+Weplay Hand #76349784:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:02:32 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($272.51 in chips)
+Seat 5: kole1992 ($108.20 in chips)
+Seat 8: fullseat ($30.43 in chips)
+kole1992: posts small blind $0.50
+fullseat: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 9s]
+Orphelins17: calls $1
+kole1992: raises $4 to $4.50
+ryzenn joins the table at seat #6
+fullseat: raises $12 to $13
+Orphelins17: folds
+kole1992: folds
+Uncalled bet ($8.50) returned to fullseat
+*** SHOW DOWN ***
+fullseat: doesn't show hand
+fullseat collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0 
+Seat 2: Orphelins17 (button) folded before Flop 
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 8: fullseat (big blind) collected ($10)
+
+
+Weplay Hand #76349870:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:02:59 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($271.51 in chips)
+Seat 5: kole1992 ($103.70 in chips)
+Seat 8: fullseat ($35.93 in chips)
+fullseat: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Ah]
+kole1992: raises $2.50 to $2.50
+fullseat: folds
+Orphelins17: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (big blind) folded before Flop 
+Seat 5: kole1992 (button) collected ($2.50)
+Seat 8: fullseat (small blind) folded before Flop 
+
+
+Weplay Hand #76349934:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:03:18 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: Orphelins17 ($270.51 in chips)
+Seat 5: kole1992 ($105.20 in chips)
+Seat 6: ryzenn ($100 in chips)
+Seat 8: fullseat ($35.43 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Th]
+ryzenn: checks
+fullseat: calls $1
+Orphelins17: calls $0.50
+kole1992: raises $5.51 to $6.51
+ryzenn: folds
+fullseat: raises $18.28 to $19.28
+Orphelins17: folds
+kole1992: raises $98.69 to $105.20 and is all-in
+fullseat: calls $16.15 and is all-in
+Uncalled bet ($69.77) returned to kole1992
+*** FIRST FLOP *** [Tc 7c Td]
+*** FIRST TURN *** [Tc 7c Td] [Qs]
+*** FIRST RIVER *** [Tc 7c Td Qs] [4h]
+*** SECOND FLOP *** [7d 3c 6s]
+*** SECOND TURN *** [7d 3c 6s] [Js]
+*** SECOND RIVER *** [7d 3c 6s Js] [8d]
+*** SHOW DOWN ***
+kole1992: shows [Ts Th] (four of a kind, Tens)
+fullseat: shows [Kd Ah] (a pair of Tens)
+kole1992 collected $72.86 from pot
+*** SUMMARY ***
+Total pot $72.86 | Rake $3.64 
+Hand was run two times
+FIRST Board [Tc 7c Td Qs 4h]
+SECOND Board [7d 3c 6s Js 8d]
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) showed [Ts Th] and won ($72.86) with four of a kind, Tens
+Seat 6: ryzenn (big blind) folded before Flop 
+Seat 8: fullseat (button) showed [Kd Ah] and lost with a pair of Tens
+
+
+Weplay Hand #76350176:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:04:27 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($269.51 in chips)
+Seat 5: kole1992 ($138.99 in chips)
+Seat 6: ryzenn ($100 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 7d]
+fullseat leaves the table
+Orphelins17: raises $2 to $2
+kole1992: folds
+ryzenn: calls $1
+*** FLOP *** [Qs 9h 5s]
+ryzenn: checks
+Orphelins17: checks
+*** TURN *** [Qs 9h 5s] [2c]
+ryzenn: checks
+Orphelins17: checks
+*** RIVER *** [Qs 9h 5s 2c] [4s]
+ryzenn: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+ryzenn: shows [5d 6c] (a pair of Fives)
+Orphelins17: shows [Qc 8h] (a pair of Queens)
+Orphelins17 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.11 
+Board [Qs 9h 5s 2c 4s]
+Seat 2: Orphelins17 (button) showed [Qc 8h] and won ($4.50) with a pair of Queens
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) showed [5d 6c] and lost with a pair of Fives
+
+
+Weplay Hand #76351359:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:05:18 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($271.90 in chips)
+Seat 5: kole1992 ($138.49 in chips)
+Seat 6: ryzenn ($100 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Ks]
+kole1992: raises $2.50 to $2.50
+ryzenn: folds
+Orphelins17: calls $1.50
+*** FLOP *** [2c Qc 2h]
+Orphelins17: checks
+kole1992: bets $1.81
+Orphelins17: calls $1.81
+*** TURN *** [2c Qc 2h] [Jd]
+Orphelins17: checks
+kole1992: bets $9.42
+Orphelins17: calls $9.42
+*** RIVER *** [2c Qc 2h Jd] [5s]
+Orphelins17: checks
+kole1992: bets $28
+Orphelins17: calls $28
+*** SHOW DOWN ***
+kole1992: shows [Kc Ks] (two pair, Kings and Deuces)
+Orphelins17: mucks hand
+kole1992 collected $83.96 from pot
+*** SUMMARY ***
+Total pot $83.96 | Rake $2.09 
+Board [2c Qc 2h Jd 5s]
+Seat 2: Orphelins17 (big blind) mucked
+Seat 5: kole1992 (button) showed [Kc Ks] and won ($83.96) with two pair, Kings and Deuces
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #76351531:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:06:12 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($230.17 in chips)
+Seat 5: kole1992 ($178.63 in chips)
+Seat 6: ryzenn ($100 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 9h]
+ryzenn: raises $2.50 to $2.50
+Orphelins17: calls $2
+kole1992: folds
+*** FLOP *** [3h Js Jh]
+Orphelins17: checks
+ryzenn: bets $2.40
+Orphelins17: folds
+Uncalled bet ($2.40) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.15 
+Board [3h Js Jh]
+Seat 2: Orphelins17 (small blind) folded on the Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: ryzenn (button) collected ($6)
+
+
+Weplay Hand #76351641:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:06:42 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($227.67 in chips)
+Seat 5: kole1992 ($177.63 in chips)
+Seat 6: ryzenn ($103.35 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 4s]
+Orphelins17: raises $7 to $7
+kole1992: folds
+ryzenn: calls $6
+*** FLOP *** [6s 3s 4c]
+ryzenn: checks
+Orphelins17: checks
+*** TURN *** [6s 3s 4c] [5s]
+ryzenn: checks
+Orphelins17: checks
+*** RIVER *** [6s 3s 4c 5s] [9d]
+ryzenn: checks
+Orphelins17: checks
+*** SHOW DOWN ***
+ryzenn: shows [Qc Kc] (high card King)
+Orphelins17: shows [As 6c] (a pair of Sixes)
+Orphelins17 collected $14.50 from pot
+*** SUMMARY ***
+Total pot $14.50 | Rake $0.36 
+Board [6s 3s 4c 5s 9d]
+Seat 2: Orphelins17 (button) showed [As 6c] and won ($14.50) with a pair of Sixes
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) showed [Qc Kc] and lost with high card King
+
+
+Weplay Hand #76351806:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:07:36 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($234.81 in chips)
+Seat 5: kole1992 ($177.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 8h]
+kole1992: raises $2.50 to $2.50
+ryzenn: folds
+Orphelins17: calls $1.50
+*** FLOP *** [Qs 5d 7c]
+Orphelins17: checks
+kole1992: checks
+*** TURN *** [Qs 5d 7c] [Tc]
+Orphelins17: checks
+kole1992: checks
+*** RIVER *** [Qs 5d 7c Tc] [Ad]
+Orphelins17: checks
+kole1992: checks
+*** SHOW DOWN ***
+Orphelins17: shows [2c Qd] (a pair of Queens)
+kole1992: mucks hand
+Orphelins17 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.13 
+Board [Qs 5d 7c Tc Ad]
+Seat 2: Orphelins17 (big blind) showed [2c Qd] and won ($5.50) with a pair of Queens
+Seat 5: kole1992 (button) mucked
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #76351946:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:08:22 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($237.68 in chips)
+Seat 5: kole1992 ($174.63 in chips)
+Seat 6: ryzenn ($100 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 4h]
+ryzenn: folds
+Orphelins17: raises $3 to $3.50
+kole1992: calls $2.50
+*** FLOP *** [3s 6c 8s]
+Orphelins17: checks
+kole1992: checks
+*** TURN *** [3s 6c 8s] [Td]
+Orphelins17: checks
+kole1992: checks
+*** RIVER *** [3s 6c 8s Td] [Ts]
+Orphelins17: checks
+kole1992: checks
+*** SHOW DOWN ***
+Orphelins17: shows [Js 4s] (a flush, Jack high)
+kole1992: mucks hand
+Orphelins17 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.17 
+Board [3s 6c 8s Td Ts]
+Seat 2: Orphelins17 (small blind) showed [Js 4s] and won ($7) with a flush, Jack high
+Seat 5: kole1992 (big blind) mucked
+Seat 6: ryzenn (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76352070:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:09:02 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($241.01 in chips)
+Seat 5: kole1992 ($171.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 8h]
+Orphelins17: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn: doesn't show hand
+ryzenn collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) collected ($1)
+
+
+Weplay Hand #76352115:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:09:17 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($241.01 in chips)
+Seat 5: kole1992 ($170.63 in chips)
+Seat 6: ryzenn ($100.50 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Ts]
+kole1992: raises $2.50 to $2.50
+ryzenn: folds
+Orphelins17: raises $8.50 to $9.50
+kole1992: folds
+Uncalled bet ($7) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 2: Orphelins17 (big blind) collected ($5.50)
+Seat 5: kole1992 (button) folded before Flop 
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #76352183:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:09:41 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($244.01 in chips)
+Seat 5: kole1992 ($168.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 6d]
+ryzenn: raises $2.50 to $2.50
+Orphelins17: calls $2
+kole1992: folds
+*** FLOP *** [Jc Ac 5d]
+Orphelins17: checks
+ryzenn: bets $4.50
+Orphelins17: folds
+Uncalled bet ($4.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.15 
+Board [Jc Ac 5d]
+Seat 2: Orphelins17 (small blind) folded on the Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: ryzenn (button) collected ($6)
+
+
+Weplay Hand #76352257:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:10:05 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($241.51 in chips)
+Seat 5: kole1992 ($167.13 in chips)
+Seat 6: ryzenn ($103.35 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Ad]
+Orphelins17: folds
+kole1992: raises $2.50 to $3
+ryzenn: folds
+Uncalled bet ($2) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: Orphelins17 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) collected ($2)
+Seat 6: ryzenn (big blind) folded before Flop 
+
+
+Weplay Hand #76352297:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:10:19 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($241.51 in chips)
+Seat 5: kole1992 ($168.13 in chips)
+Seat 6: ryzenn ($102.35 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 6s]
+kole1992: folds
+ryzenn: folds
+Uncalled bet ($0.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (big blind) collected ($1)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #76353339:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:10:35 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($242.01 in chips)
+Seat 5: kole1992 ($168.13 in chips)
+Seat 6: ryzenn ($101.85 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Jc]
+ryzenn: raises $2.50 to $2.50
+Orphelins17: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: ryzenn (button) collected ($2.50)
+
+
+Weplay Hand #76353401:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:10:57 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($241.51 in chips)
+Seat 5: kole1992 ($167.13 in chips)
+Seat 6: ryzenn ($103.35 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 6h]
+Orphelins17: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) collected ($1)
+
+
+Weplay Hand #76353456:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:11:17 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($241.51 in chips)
+Seat 5: kole1992 ($166.63 in chips)
+Seat 6: ryzenn ($103.85 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 7c]
+kole1992: folds
+ryzenn: folds
+Uncalled bet ($0.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (big blind) collected ($1)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #76353496:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:11:31 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($242.01 in chips)
+Seat 5: kole1992 ($166.63 in chips)
+Seat 6: ryzenn ($103.35 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd As]
+ryzenn: raises $2.50 to $2.50
+Orphelins17: calls $2
+kole1992: raises $13.51 to $14.51
+ryzenn: folds
+Orphelins17: folds
+Uncalled bet ($12.01) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0 
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) collected ($7.50)
+Seat 6: ryzenn (button) folded before Flop 
+
+
+Weplay Hand #76353574:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:11:58 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($239.51 in chips)
+Seat 5: kole1992 ($171.63 in chips)
+Seat 6: ryzenn ($100.85 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 2h]
+Orphelins17: raises $7 to $7
+kole1992: folds
+ryzenn: folds
+Uncalled bet ($6) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Orphelins17 (button) collected ($2.50)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) folded before Flop 
+
+
+Weplay Hand #76353626:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:12:16 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($241.01 in chips)
+Seat 5: kole1992 ($171.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Th]
+kole1992: folds
+ryzenn: raises $2.50 to $3
+Orphelins17: calls $2
+*** FLOP *** [Kh Tc 6s]
+ryzenn: bets $2.40
+Orphelins17: raises $8.50 to $8.50
+ryzenn: folds
+Uncalled bet ($6.10) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $10.80 from pot
+*** SUMMARY ***
+Total pot $10.80 | Rake $0.27 
+Board [Kh Tc 6s]
+Seat 2: Orphelins17 (big blind) collected ($10.80)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) folded on the Flop 
+
+
+Weplay Hand #76353717:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:12:47 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($246.14 in chips)
+Seat 5: kole1992 ($171.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+Orphelins17: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 6h]
+ryzenn: raises $2.50 to $2.50
+Orphelins17: raises $9.50 to $10
+kole1992: folds
+Percopt joins the table at seat #3
+ryzenn: folds
+Uncalled bet ($7.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 2: Orphelins17 (small blind) collected ($6)
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: ryzenn (button) folded before Flop 
+
+
+Weplay Hand #76353819:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:13:18 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($249.64 in chips)
+Seat 5: kole1992 ($170.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 6c]
+Orphelins17: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) collected ($1)
+
+
+Weplay Hand #76353857:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:13:33 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($249.64 in chips)
+Seat 3: Percopt ($70 in chips)
+Seat 5: kole1992 ($169.63 in chips)
+Seat 6: ryzenn ($100.50 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+Percopt: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Tc]
+Percopt: checks
+kole1992: raises $4.50 to $4.50
+ryzenn: folds
+Orphelins17: calls $3.50
+Percopt: calls $3.50
+*** FLOP *** [6h 5d 2s]
+Orphelins17: bets $9.33
+Percopt: folds
+kole1992: folds
+Uncalled bet ($9.33) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [6h 5d 2s]
+Seat 2: Orphelins17 (big blind) collected ($14)
+Seat 3: Percopt (big blind) folded on the Flop 
+Seat 5: kole1992 (button) folded on the Flop 
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #76353931:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:14:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($258.44 in chips)
+Seat 3: Percopt ($65.50 in chips)
+Seat 5: kole1992 ($165.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+Orphelins17: posts small blind $0.50
+Percopt: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d As]
+kole1992: folds
+ryzenn: raises $2.50 to $2.50
+Orphelins17: calls $2
+Percopt: folds
+*** FLOP *** [5c 4s 9c]
+Orphelins17: checks
+ryzenn: checks
+*** TURN *** [5c 4s 9c] [9d]
+Orphelins17: checks
+ryzenn: checks
+*** RIVER *** [5c 4s 9c 9d] [3s]
+Orphelins17: checks
+ryzenn: checks
+*** SHOW DOWN ***
+Orphelins17: shows [Qc Ad] (a pair of Nines)
+ryzenn: mucks hand
+Orphelins17 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [5c 4s 9c 9d 3s]
+Seat 2: Orphelins17 (small blind) showed [Qc Ad] and won ($6) with a pair of Nines
+Seat 3: Percopt (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: ryzenn (button) mucked
+
+
+Weplay Hand #76354102:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:14:54 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($261.64 in chips)
+Seat 3: Percopt ($64.50 in chips)
+Seat 5: kole1992 ($165.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+Percopt: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 4d]
+ryzenn: folds
+Orphelins17: calls $1
+Percopt: calls $0.50
+kole1992: checks
+*** FLOP *** [6c 7c 8s]
+Percopt: bets $1
+kole1992: calls $1
+Orphelins17: calls $1
+*** TURN *** [6c 7c 8s] [4s]
+Percopt: checks
+kole1992: checks
+Orphelins17: checks
+*** RIVER *** [6c 7c 8s 4s] [Jd]
+Percopt: checks
+kole1992: checks
+Orphelins17: bets $4.50
+Percopt: folds
+kole1992: folds
+Uncalled bet ($4.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [6c 7c 8s 4s Jd]
+Seat 2: Orphelins17 (button) collected ($6)
+Seat 3: Percopt (small blind) folded on the River 
+Seat 5: kole1992 (big blind) folded on the River 
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #76354282:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:15:56 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Orphelins17 ($265.34 in chips)
+Seat 3: Percopt ($62.50 in chips)
+Seat 5: kole1992 ($163.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Ah]
+Orphelins17: calls $1
+Percopt: folds
+kole1992: calls $0.50
+ryzenn: raises $19 to $20
+Orphelins17: folds
+kole1992: folds
+Uncalled bet ($19) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 2: Orphelins17 folded before Flop 
+Seat 3: Percopt (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) collected ($3)
+
+
+Weplay Hand #76354390:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:16:35 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($264.34 in chips)
+Seat 3: Percopt ($62.50 in chips)
+Seat 5: kole1992 ($162.13 in chips)
+Seat 6: ryzenn ($102 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 4h]
+Percopt: raises $2 to $2
+kole1992: folds
+ryzenn: raises $8.50 to $9
+Orphelins17: folds
+Percopt: calls $7
+*** FLOP *** [6h 9s Ad]
+ryzenn: checks
+Percopt: checks
+*** TURN *** [6h 9s Ad] [9c]
+ryzenn: checks
+Percopt: bets $14.25
+ryzenn: calls $14.25
+*** RIVER *** [6h 9s Ad 9c] [9h]
+ryzenn: checks
+Percopt: bets $39.25 and is all-in
+ryzenn: calls $39.25
+*** SHOW DOWN ***
+Percopt: shows [Qc 9d] (four of a kind, Nines)
+ryzenn: shows [8c Ac] (a full house, Nines full of Aces)
+Percopt collected $126 from pot
+*** SUMMARY ***
+Total pot $126 | Rake $6.30 
+Board [6h 9s Ad 9c 9h]
+Seat 2: Orphelins17 (big blind) folded before Flop 
+Seat 3: Percopt showed [Qc 9d] and won ($126) with four of a kind, Nines
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) showed [8c Ac] and lost with a full house, Nines full of Aces
+
+
+Weplay Hand #76354579:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:17:44 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($263.34 in chips)
+Seat 3: Percopt ($119.70 in chips)
+Seat 5: kole1992 ($162.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+Orphelins17: posts small blind $0.50
+Percopt: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Qc]
+kole1992: folds
+ryzenn: folds
+Orphelins17: folds
+Uncalled bet ($0.50) returned to Percopt
+*** SHOW DOWN ***
+Percopt has timed out
+Percopt: doesn't show hand
+Percopt collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 3: Percopt (big blind) collected ($1)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: ryzenn (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76354616:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:17:58 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($262.84 in chips)
+Seat 3: Percopt ($120.20 in chips)
+Seat 5: kole1992 ($162.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+Percopt: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 8s]
+ryzenn: folds
+Orphelins17: calls $1
+Percopt: calls $0.50
+kole1992: checks
+*** FLOP *** [5s Ks 4s]
+Percopt: bets $1.50
+kole1992: folds
+Orphelins17: calls $1.50
+*** TURN *** [5s Ks 4s] [8c]
+Percopt: bets $6
+Orphelins17: folds
+Uncalled bet ($6) returned to Percopt
+*** SHOW DOWN ***
+Percopt has timed out
+Percopt: doesn't show hand
+Percopt collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [5s Ks 4s 8c]
+Seat 2: Orphelins17 (button) folded on the Turn 
+Seat 3: Percopt (small blind) collected ($6)
+Seat 5: kole1992 (big blind) folded on the Flop 
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #76354752:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:18:46 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Orphelins17 ($260.34 in chips)
+Seat 3: Percopt ($123.40 in chips)
+Seat 5: kole1992 ($161.13 in chips)
+Seat 6: ryzenn ($100 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Ts]
+Orphelins17: calls $1
+Percopt: raises $6 to $6
+kole1992: folds
+ryzenn: folds
+Orphelins17: calls $5
+*** FLOP *** [9c 8h 2h]
+Orphelins17: checks
+Percopt: bets $4.46
+Orphelins17: calls $4.46
+*** TURN *** [9c 8h 2h] [7h]
+Orphelins17: checks
+Percopt: checks
+*** RIVER *** [9c 8h 2h 7h] [6d]
+Orphelins17: checks
+Percopt: checks
+*** SHOW DOWN ***
+Orphelins17: shows [6s 7s] (two pair, Sevens and Sixes)
+Percopt has timed out
+Percopt: mucks hand
+Orphelins17 collected $22.42 from pot
+*** SUMMARY ***
+Total pot $22.42 | Rake $1.12 
+Board [9c 8h 2h 7h 6d]
+Seat 2: Orphelins17 showed [6s 7s] and won ($22.42) with two pair, Sevens and Sixes
+Seat 3: Percopt (button) mucked
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) folded before Flop 
+
+
+Weplay Hand #76354906:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:19:43 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($271.18 in chips)
+Seat 3: Percopt ($112.94 in chips)
+Seat 5: kole1992 ($160.63 in chips)
+Seat 6: ryzenn ($100 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Ts]
+Percopt: folds
+kole1992: folds
+ryzenn: folds
+Uncalled bet ($0.50) returned to Orphelins17
+*** SHOW DOWN ***
+Orphelins17: doesn't show hand
+Orphelins17 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Orphelins17 (big blind) collected ($1)
+Seat 3: Percopt folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #76354946:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:19:57 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($271.68 in chips)
+Seat 3: Percopt ($112.94 in chips)
+Seat 5: kole1992 ($160.63 in chips)
+Seat 6: ryzenn ($100 in chips)
+Orphelins17: posts small blind $0.50
+Percopt: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 6c]
+kole1992: folds
+ryzenn: folds
+Orphelins17: raises $3 to $3.50
+Percopt: calls $2.50
+*** FLOP *** [4d Ts 3s]
+Orphelins17: checks
+Percopt: checks
+*** TURN *** [4d Ts 3s] [5d]
+Orphelins17: checks
+Percopt: bets $3.50
+Orphelins17: calls $3.50
+*** RIVER *** [4d Ts 3s 5d] [Qs]
+Orphelins17: checks
+Percopt: bets $10.50
+Orphelins17: calls $10.50
+*** SHOW DOWN ***
+Percopt: shows [Qc 6d] (a pair of Queens)
+Orphelins17: mucks hand
+Percopt collected $35 from pot
+*** SUMMARY ***
+Total pot $35 | Rake $1.75 
+Board [4d Ts 3s 5d Qs]
+Seat 2: Orphelins17 (small blind) mucked
+Seat 3: Percopt (big blind) showed [Qc 6d] and won ($35) with a pair of Queens
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: ryzenn (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76355082:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:20:43 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($254.18 in chips)
+Seat 3: Percopt ($128.69 in chips)
+Seat 5: kole1992 ($160.63 in chips)
+Seat 6: ryzenn ($100 in chips)
+Percopt: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 6d]
+ryzenn: raises $2.50 to $2.50
+Orphelins17: folds
+Percopt: calls $2
+kole1992: folds
+*** FLOP *** [Th 8c 5h]
+Percopt: checks
+ryzenn: bets $4.50
+Percopt: calls $4.50
+*** TURN *** [Th 8c 5h] [6s]
+Percopt: checks
+ryzenn: checks
+*** RIVER *** [Th 8c 5h 6s] [6h]
+Percopt: bets $6
+ryzenn: calls $6
+*** SHOW DOWN ***
+Percopt: shows [Tc Qs] (two pair, Tens and Sixes)
+ryzenn: shows [Kc 6c] (three of a kind, Sixes)
+ryzenn collected $27 from pot
+*** SUMMARY ***
+Total pot $27 | Rake $1.35 
+Board [Th 8c 5h 6s 6h]
+Seat 2: Orphelins17 (button) folded before Flop (didn't bet)
+Seat 3: Percopt (small blind) showed [Tc Qs] and lost with two pair, Tens and Sixes
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: ryzenn showed [Kc 6c] and won ($27) with three of a kind, Sixes
+
+
+Weplay Hand #76355277:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:21:57 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Orphelins17 ($254.18 in chips)
+Seat 3: Percopt ($115.69 in chips)
+Seat 5: kole1992 ($159.63 in chips)
+Seat 6: ryzenn ($112.65 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 7h]
+Orphelins17: calls $1
+Percopt: raises $6 to $6
+kole1992: folds
+ryzenn: folds
+Orphelins17: calls $5
+*** FLOP *** [8c Qh Qc]
+Orphelins17: checks
+Percopt: bets $4
+Orphelins17: calls $4
+*** TURN *** [8c Qh Qc] [Kh]
+Orphelins17: checks
+Percopt: bets $16.13
+Orphelins17: folds
+Uncalled bet ($16.13) returned to Percopt
+*** SHOW DOWN ***
+Percopt has timed out
+Percopt: doesn't show hand
+Percopt collected $21.50 from pot
+*** SUMMARY ***
+Total pot $21.50 | Rake $1.07 
+Board [8c Qh Qc Kh]
+Seat 2: Orphelins17 folded on the Turn 
+Seat 3: Percopt (button) collected ($21.50)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) folded before Flop 
+
+
+Weplay Hand #76355440:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:22:56 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($244.18 in chips)
+Seat 3: Percopt ($126.12 in chips)
+Seat 5: kole1992 ($159.13 in chips)
+Seat 6: ryzenn ($111.65 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 6h]
+Percopt: raises $2.50 to $2.50
+kole1992: folds
+ryzenn: folds
+Orphelins17: calls $1.50
+*** FLOP *** [Ad Ah 2h]
+Orphelins17: bets $2.75
+Percopt: calls $2.75
+*** TURN *** [Ad Ah 2h] [7c]
+Orphelins17: checks
+Percopt: bets $5
+Orphelins17: folds
+Uncalled bet ($5) returned to Percopt
+*** SHOW DOWN ***
+Percopt has timed out
+Percopt: doesn't show hand
+Percopt collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [Ad Ah 2h 7c]
+Seat 2: Orphelins17 (big blind) folded on the Turn 
+Seat 3: Percopt collected ($11)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #76355599:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:23:53 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($238.93 in chips)
+Seat 3: Percopt ($131.32 in chips)
+Seat 5: kole1992 ($159.13 in chips)
+Seat 6: ryzenn ($111.15 in chips)
+Orphelins17: posts small blind $0.50
+Percopt: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 9c]
+kole1992: raises $2 to $2
+ryzenn: folds
+Orphelins17: folds
+Percopt: calls $1
+*** FLOP *** [Th As 2h]
+Percopt: checks
+kole1992: checks
+*** TURN *** [Th As 2h] [9h]
+Percopt: checks
+kole1992: checks
+*** RIVER *** [Th As 2h 9h] [2d]
+Percopt: checks
+kole1992: checks
+*** SHOW DOWN ***
+Percopt: shows [9s 8s] (two pair, Nines and Deuces)
+kole1992: shows [7c 9c] (two pair, Nines and Deuces)
+Percopt collected $2.25 from pot
+kole1992 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Th As 2h 9h 2d]
+Seat 2: Orphelins17 (small blind) folded before Flop 
+Seat 3: Percopt (big blind) showed [9s 8s] and won ($2.25) with two pair, Nines and Deuces
+Seat 5: kole1992 showed [7c 9c] and won ($2.25) with two pair, Nines and Deuces
+Seat 6: ryzenn (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76355755:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:24:53 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: Orphelins17 ($238.43 in chips)
+Seat 3: Percopt ($131.46 in chips)
+Seat 5: kole1992 ($159.27 in chips)
+Seat 6: ryzenn ($111.15 in chips)
+Percopt: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Kh]
+ryzenn: raises $2.50 to $2.50
+Orphelins17: calls $2.50
+Percopt: calls $2
+kole1992: folds
+*** FLOP *** [3h Qd 3d]
+Percopt: checks
+ryzenn: checks
+Orphelins17: checks
+*** TURN *** [3h Qd 3d] [Kd]
+Percopt: bets $6.38
+ryzenn: folds
+Orphelins17: calls $6.38
+*** RIVER *** [3h Qd 3d Kd] [3c]
+Percopt: bets $15.95
+Orphelins17: folds
+Uncalled bet ($15.95) returned to Percopt
+*** SHOW DOWN ***
+Percopt has timed out
+Percopt: doesn't show hand
+Percopt collected $21.26 from pot
+*** SUMMARY ***
+Total pot $21.26 | Rake $1.06 
+Board [3h Qd 3d Kd 3c]
+Seat 2: Orphelins17 (button) folded on the River 
+Seat 3: Percopt (small blind) collected ($21.26)
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: ryzenn folded on the Turn 
+
+
+Weplay Hand #76355943:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:25:59 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 2: Orphelins17 ($229.55 in chips)
+Seat 3: Percopt ($142.78 in chips)
+Seat 5: kole1992 ($158.27 in chips)
+Seat 6: ryzenn ($108.65 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 5s]
+Orphelins17: calls $1
+Percopt: raises $6 to $6
+kole1992: folds
+ryzenn: raises $21 to $22
+Orphelins17: folds
+Percopt: folds
+Uncalled bet ($16) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $13.50 from pot
+*** SUMMARY ***
+Total pot $13.50 | Rake $0 
+Seat 2: Orphelins17 folded before Flop 
+Seat 3: Percopt (button) folded before Flop 
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) collected ($13.50)
+
+
+Weplay Hand #76356035:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:26:35 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($228.55 in chips)
+Seat 3: Percopt ($136.78 in chips)
+Seat 5: kole1992 ($157.77 in chips)
+Seat 6: ryzenn ($116.15 in chips)
+ryzenn: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Qc]
+Percopt: folds
+kole1992: raises $2.50 to $2.50
+ryzenn: folds
+Orphelins17: calls $1.50
+*** FLOP *** [9d As Jh]
+yaroni1 joins the table at seat #4
+Orphelins17: checks
+kole1992: checks
+*** TURN *** [9d As Jh] [Js]
+Orphelins17: checks
+kole1992: bets $4.50
+Orphelins17: calls $4.50
+*** RIVER *** [9d As Jh Js] [6c]
+Orphelins17: checks
+kole1992: bets $14.50
+Orphelins17: calls $14.50
+*** SHOW DOWN ***
+kole1992: shows [4c Qc] (a pair of Jacks)
+Orphelins17: shows [Ad 2d] (two pair, Aces and Jacks)
+Orphelins17 collected $43.50 from pot
+*** SUMMARY ***
+Total pot $43.50 | Rake $2.17 
+Board [9d As Jh Js 6c]
+Seat 2: Orphelins17 (big blind) showed [Ad 2d] and won ($43.50) with two pair, Aces and Jacks
+Seat 3: Percopt folded before Flop (didn't bet)
+Seat 5: kole1992 (button) showed [4c Qc] and lost with a pair of Jacks
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #76356190:  Hold'em No Limit ($0.50/$1) - 2026/02/21 15:27:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: Orphelins17 ($248.38 in chips)
+Seat 3: Percopt ($136.78 in chips)
+Seat 4: yaroni1 ($63.18 in chips)
+Seat 5: kole1992 ($136.27 in chips)
+Seat 6: ryzenn ($115.65 in chips)
+Orphelins17: posts small blind $0.50
+Percopt: posts big blind $1
+yaroni1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 4s]
+yaroni1: checks
+kole1992: folds
+ryzenn: folds
+Orphelins17: raises $1.50 to $2
+Percopt: raises $2 to $3
+yaroni1: folds
+Orphelins17: calls $1
+*** FLOP *** [3d 9s Ts]
+HorhePorhe1 joins the table at seat #1
+Orphelins17: checks
+Percopt: bets $2
+Orphelins17: folds
+Uncalled bet ($2) returned to Percopt
+*** SHOW DOWN ***
+Percopt has timed out
+Percopt: doesn't show hand
+Percopt collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [3d 9s Ts]
+Seat 2: Orphelins17 (small blind) folded on the Flop 
+Seat 3: Percopt (big blind) collected ($7)
+Seat 4: yaroni1 (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: ryzenn (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76388556:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:05:33 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: antananarivo ($149.37 in chips)
+Seat 2: Bazsakuki ($19.76 in chips)
+Seat 3: ConnorMG1 ($165.50 in chips)
+Seat 4: Badbunny ($40.67 in chips)
+Seat 5: bigfish2004 ($146.11 in chips)
+Seat 6: JTs98o ($114.64 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Szopinyul ($75.93 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 3c]
+Szopinyul: folds
+antananarivo: folds
+Bazsakuki: calls $1
+ConnorMG1: folds
+Badbunny: calls $1
+bigfish2004: folds
+JTs98o: calls $0.50
+kole1992: checks
+*** FLOP *** [6h 2h Td]
+JTs98o: checks
+kole1992: checks
+Bazsakuki: checks
+Badbunny: bets $2
+JTs98o: folds
+kole1992: folds
+Bazsakuki: folds
+Uncalled bet ($2) returned to Badbunny
+*** SHOW DOWN ***
+Badbunny has timed out
+Badbunny: doesn't show hand
+Badbunny collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [6h 2h Td]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki folded on the Flop 
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny collected ($4)
+Seat 5: bigfish2004 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded on the Flop 
+Seat 7: kole1992 (big blind) folded on the Flop 
+Seat 8: Szopinyul folded before Flop (didn't bet)
+
+
+Weplay Hand #76388583:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:06:17 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: antananarivo ($149.37 in chips)
+Seat 2: Bazsakuki ($18.76 in chips)
+Seat 3: ConnorMG1 ($165.50 in chips)
+Seat 4: Badbunny ($43.47 in chips)
+Seat 5: bigfish2004 ($146.11 in chips)
+Seat 6: JTs98o ($113.64 in chips)
+Seat 7: kole1992 ($99 in chips)
+Seat 8: Szopinyul ($75.93 in chips)
+kole1992: posts small blind $0.50
+Szopinyul: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 4h]
+antananarivo: folds
+Bazsakuki: calls $1
+ConnorMG1: folds
+Badbunny has timed out
+Badbunny: folds
+bigfish2004: folds
+JTs98o: folds
+kole1992: folds
+Szopinyul: checks
+*** FLOP *** [Jd Jh 3h]
+Szopinyul: bets $2.50
+Bazsakuki: folds
+Uncalled bet ($2.50) returned to Szopinyul
+*** SHOW DOWN ***
+Szopinyul has timed out
+Szopinyul: doesn't show hand
+Szopinyul collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Jd Jh 3h]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki folded on the Flop 
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny folded before Flop (didn't bet)
+Seat 5: bigfish2004 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Szopinyul (big blind) collected ($2.50)
+
+
+Weplay Hand #76388611:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:07:14 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: antananarivo ($149.37 in chips)
+Seat 2: Bazsakuki ($17.76 in chips)
+Seat 3: ConnorMG1 ($165.50 in chips)
+Seat 4: Badbunny ($43.47 in chips)
+Seat 5: bigfish2004 ($146.11 in chips)
+Seat 6: JTs98o ($113.64 in chips)
+Seat 7: kole1992 ($98.50 in chips)
+Seat 8: Szopinyul ($77.31 in chips)
+Szopinyul: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 4d]
+Bazsakuki: folds
+ConnorMG1: folds
+Badbunny: calls $1
+bigfish2004: raises $4.50 to $4.50
+JTs98o has timed out
+JTs98o: folds
+kole1992: folds
+Szopinyul: folds
+antananarivo: folds
+Badbunny: calls $3.50
+*** FLOP *** [Ac 3h Kc]
+Badbunny: checks
+bigfish2004: bets $5.30
+Bazsakuki is disconnected 
+Badbunny: folds
+Uncalled bet ($5.30) returned to bigfish2004
+*** SHOW DOWN ***
+bigfish2004: doesn't show hand
+bigfish2004 collected $10.50 from pot
+*** SUMMARY ***
+Total pot $10.50 | Rake $0.52 
+Board [Ac 3h Kc]
+Seat 1: antananarivo (big blind) folded before Flop 
+Seat 2: Bazsakuki folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny folded on the Flop 
+Seat 5: bigfish2004 collected ($10.50)
+Seat 6: JTs98o folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Szopinyul (small blind) folded before Flop 
+
+
+Weplay Hand #76388643:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:08:23 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: antananarivo ($148.37 in chips)
+Seat 3: ConnorMG1 ($165.50 in chips)
+Seat 4: Badbunny ($38.97 in chips)
+Seat 5: bigfish2004 ($151.59 in chips)
+Seat 6: JTs98o ($113.64 in chips)
+Seat 7: kole1992 ($98.50 in chips)
+Seat 8: Szopinyul ($76.81 in chips)
+antananarivo: posts small blind $0.50
+ConnorMG1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Js]
+Badbunny: calls $1
+Bazsakuki is connected 
+bigfish2004: folds
+JTs98o: folds
+kole1992: raises $4 to $4
+Szopinyul: calls $4
+antananarivo: raises $15.50 to $16
+ConnorMG1: folds
+Badbunny: calls $15
+kole1992: folds
+JTs98o leaves the table
+Szopinyul: folds
+*** FLOP *** [8s 6d 6s]
+Meze188 joins the table at seat #6
+antananarivo: bets $6
+Badbunny: raises $22.97 to $22.97 and is all-in
+antananarivo: calls $16.97
+*** TURN *** [8s 6d 6s] [Jc]
+*** FIRST RIVER *** [8s 6d 6s Jc] [8d]
+*** SECOND TURN *** [8s 6d 6s] [7d]
+*** SECOND RIVER *** [8s 6d 6s 7d] [9c]
+*** SHOW DOWN ***
+antananarivo: shows [Kd Ks] (two pair, Kings and Eights)
+Badbunny: shows [Td Tc] (two pair, Tens and Eights)
+antananarivo collected $43.47 from pot
+Badbunny collected $43.47 from pot
+*** SUMMARY ***
+Total pot $86.94 | Rake $4.34 
+Hand was run two times
+FIRST Board [8s 6d 6s Jc 8d]
+SECOND Board [8s 6d 6s 7d 9c]
+Seat 1: antananarivo (small blind) showed [Kd Ks] and won ($43.47) with two pair, Kings and Eights
+Seat 3: ConnorMG1 (big blind) folded before Flop 
+Seat 4: Badbunny showed [Td Tc] and won ($43.47) with two pair, Tens and Eights
+Seat 5: bigfish2004 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop 
+Seat 8: Szopinyul (button) folded before Flop 
+
+
+Weplay Hand #76388694:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:09:49 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: antananarivo ($150.70 in chips)
+Seat 3: ConnorMG1 ($164.50 in chips)
+Seat 4: Badbunny ($41.30 in chips)
+Seat 5: bigfish2004 ($151.59 in chips)
+Seat 7: kole1992 ($94.50 in chips)
+Seat 8: Szopinyul ($72.81 in chips)
+ConnorMG1: posts small blind $0.50
+Badbunny: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Jh]
+bigfish2004: folds
+kole1992: raises $2 to $2
+Szopinyul: raises $3 to $3
+antananarivo: folds
+ConnorMG1: folds
+Badbunny: folds
+kole1992: calls $1
+*** FLOP *** [9s 8s 6d]
+kole1992: checks
+Szopinyul: bets $3.75
+kole1992: raises $14.70 to $14.70
+Szopinyul: folds
+Uncalled bet ($10.95) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $15 from pot
+*** SUMMARY ***
+Total pot $15 | Rake $0.75 
+Board [9s 8s 6d]
+Seat 1: antananarivo (button) folded before Flop (didn't bet)
+Seat 3: ConnorMG1 (small blind) folded before Flop 
+Seat 4: Badbunny (big blind) folded before Flop 
+Seat 5: bigfish2004 folded before Flop (didn't bet)
+Seat 7: kole1992 collected ($15)
+Seat 8: Szopinyul folded on the Flop 
+
+
+Weplay Hand #76388727:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:10:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: antananarivo ($150.70 in chips)
+Seat 2: Bazsakuki ($17.76 in chips)
+Seat 3: ConnorMG1 ($164 in chips)
+Seat 4: Badbunny ($40.30 in chips)
+Seat 5: bigfish2004 ($151.59 in chips)
+Seat 7: kole1992 ($102 in chips)
+Seat 8: Szopinyul ($66.06 in chips)
+Badbunny: posts small blind $0.50
+bigfish2004: posts big blind $1
+Bazsakuki: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Kc]
+kole1992: folds
+Szopinyul: raises $2 to $2
+antananarivo: folds
+Bazsakuki: calls $1
+ConnorMG1: raises $9.50 to $9.50
+Badbunny: folds
+bigfish2004: folds
+Szopinyul: calls $7.50
+Bazsakuki: calls $7.50
+*** FLOP *** [Ks Ts Qc]
+Szopinyul: checks
+Bazsakuki: checks
+ConnorMG1: checks
+*** TURN *** [Ks Ts Qc] [Js]
+Szopinyul: bets $15
+Bazsakuki: folds
+ConnorMG1: raises $154.50 to $154.50 and is all-in
+Szopinyul: calls $41.56 and is all-in
+Uncalled bet ($97.94) returned to ConnorMG1
+*** RIVER *** [Ks Ts Qc Js] [Kh]
+*** SECOND RIVER *** [Ks Ts Qc Js] [4s]
+*** SHOW DOWN ***
+Szopinyul: shows [2h Ad] (a straight, Ten to Ace)
+ConnorMG1: shows [Ac Th] (a straight, Ten to Ace)
+ConnorMG1 collected $71.54 from pot
+Szopinyul collected $71.58 from pot
+*** SUMMARY ***
+Total pot $143.12 | Rake $6.50 
+Hand was run two times
+FIRST Board [Ks Ts Qc Js Kh]
+SECOND Board [Ks Ts Qc Js 4s]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki (big blind) folded on the Turn 
+Seat 3: ConnorMG1 (button) showed [Ac Th] and won ($71.54) with a straight, Ten to Ace
+Seat 4: Badbunny (small blind) folded before Flop 
+Seat 5: bigfish2004 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Szopinyul showed [2h Ad] and won ($71.58) with a straight, Ten to Ace
+
+
+Weplay Hand #76388785:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:12:22 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: antananarivo ($150.70 in chips)
+Seat 2: Bazsakuki ($8.26 in chips)
+Seat 3: ConnorMG1 ($166.24 in chips)
+Seat 4: Badbunny ($39.80 in chips)
+Seat 5: bigfish2004 ($150.59 in chips)
+Seat 6: Meze188 ($100 in chips)
+Seat 7: kole1992 ($102 in chips)
+Seat 8: Szopinyul ($68.32 in chips)
+bigfish2004: posts small blind $0.50
+Meze188: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 8h]
+kole1992: folds
+Szopinyul: calls $1
+antananarivo: folds
+Bazsakuki: folds
+ConnorMG1: folds
+Badbunny: calls $1
+bigfish2004: folds
+Meze188: checks
+*** FLOP *** [8s 9s Ac]
+Meze188: checks
+Szopinyul: bets $3.50
+Badbunny: calls $3.50
+Meze188: folds
+*** TURN *** [8s 9s Ac] [2d]
+Szopinyul: bets $3.47
+Badbunny: calls $3.47
+*** RIVER *** [8s 9s Ac 2d] [4c]
+Szopinyul: checks
+Badbunny: bets $10
+Szopinyul: calls $10
+*** SHOW DOWN ***
+Badbunny: shows [Ad 4d] (two pair, Aces and Fours)
+Szopinyul has timed out
+Szopinyul: mucks hand
+Badbunny collected $37.44 from pot
+*** SUMMARY ***
+Total pot $37.44 | Rake $1.87 
+Board [8s 9s Ac 2d 4c]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny (button) showed [Ad 4d] and won ($37.44) with two pair, Aces and Fours
+Seat 5: bigfish2004 (small blind) folded before Flop 
+Seat 6: Meze188 (big blind) folded on the Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Szopinyul mucked
+
+
+Weplay Hand #76388833:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:13:53 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: antananarivo ($150.70 in chips)
+Seat 2: Bazsakuki ($8.26 in chips)
+Seat 3: ConnorMG1 ($166.24 in chips)
+Seat 4: Badbunny ($57.40 in chips)
+Seat 5: bigfish2004 ($150.09 in chips)
+Seat 6: Meze188 ($100 in chips)
+Seat 7: kole1992 ($102 in chips)
+Seat 8: Szopinyul ($50.35 in chips)
+Meze188: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 6h]
+Szopinyul leaves the table
+antananarivo: folds
+Bazsakuki: raises $8.26 to $8.26 and is all-in
+ConnorMG1: folds
+SickDay joins the table at seat #8
+Badbunny: folds
+bigfish2004 has timed out
+bigfish2004: folds
+Meze188: raises $23 to $23.50
+kole1992: folds
+Uncalled bet ($15.24) returned to Meze188
+*** FLOP *** [Ac 3c 6c]
+*** TURN *** [Ac 3c 6c] [7h]
+*** RIVER *** [Ac 3c 6c 7h] [2s]
+*** SHOW DOWN ***
+Meze188: shows [Qc As] (a pair of Aces)
+Bazsakuki: shows [Ad Kc] (a pair of Aces)
+Bazsakuki collected $17.52 from pot
+*** SUMMARY ***
+Total pot $17.52 | Rake $0.87 
+Board [Ac 3c 6c 7h 2s]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki showed [Ad Kc] and won ($17.52) with a pair of Aces
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny folded before Flop (didn't bet)
+Seat 5: bigfish2004 (button) folded before Flop (didn't bet)
+Seat 6: Meze188 (small blind) showed [Qc As] and lost with a pair of Aces
+Seat 7: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #76388868:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:14:48 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: antananarivo ($150.70 in chips)
+Seat 2: Bazsakuki ($16.65 in chips)
+Seat 3: ConnorMG1 ($166.24 in chips)
+Seat 4: Badbunny ($57.40 in chips)
+Seat 6: Meze188 ($100 in chips)
+Seat 7: kole1992 ($101 in chips)
+Seat 8: SickDay ($100 in chips)
+kole1992: posts small blind $0.50
+SickDay: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 4d]
+antananarivo: folds
+Bazsakuki: calls $1
+ConnorMG1: raises $3 to $3
+Badbunny has timed out
+Badbunny: folds
+Meze188: calls $3
+kole1992: folds
+SickDay: folds
+Bazsakuki: calls $2
+*** FLOP *** [Qd Js 4s]
+Bazsakuki: checks
+ConnorMG1: checks
+Meze188: bets $6.80
+Bazsakuki: calls $6.80
+ConnorMG1: calls $6.80
+*** TURN *** [Qd Js 4s] [3c]
+Bazsakuki: bets $6.85 and is all-in
+ConnorMG1: calls $6.85
+Meze188: calls $6.85
+*** RIVER *** [Qd Js 4s 3c] [Jh]
+ConnorMG1: checks
+Meze188: bets $17.50
+ConnorMG1: folds
+Uncalled bet ($17.50) returned to Meze188
+*** SHOW DOWN ***
+Meze188: shows [Jd Ts] (three of a kind, Jacks)
+Bazsakuki: shows [Kh Tc] (a pair of Jacks)
+Meze188 collected $51.45 from pot
+*** SUMMARY ***
+Total pot $51.45 | Rake $2.57 
+Board [Qd Js 4s 3c Jh]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki showed [Kh Tc] and lost with a pair of Jacks
+Seat 3: ConnorMG1 folded on the River 
+Seat 4: Badbunny folded before Flop (didn't bet)
+Seat 6: Meze188 (button) showed [Jd Ts] and won ($51.45) with three of a kind, Jacks
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: SickDay (big blind) folded before Flop 
+
+
+Weplay Hand #76388925:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:16:33 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: antananarivo ($150.70 in chips)
+Seat 3: ConnorMG1 ($149.59 in chips)
+Seat 4: Badbunny ($57.40 in chips)
+Seat 6: Meze188 ($132.23 in chips)
+Seat 7: kole1992 ($100.50 in chips)
+Seat 8: SickDay ($99 in chips)
+SickDay: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 5d]
+ConnorMG1: folds
+Badbunny: folds
+Meze188: folds
+kole1992: folds
+SickDay: folds
+Uncalled bet ($0.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: antananarivo (big blind) collected ($1)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny folded before Flop (didn't bet)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: SickDay (small blind) folded before Flop 
+
+
+Weplay Hand #76388938:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:17:10 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: antananarivo ($151.20 in chips)
+Seat 2: Bazsakuki ($31.91 in chips)
+Seat 3: ConnorMG1 ($149.59 in chips)
+Seat 4: Badbunny ($57.40 in chips)
+Seat 6: Meze188 ($132.23 in chips)
+Seat 7: kole1992 ($100.50 in chips)
+Seat 8: SickDay ($98.50 in chips)
+antananarivo: posts small blind $0.50
+Bazsakuki: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 5h]
+ConnorMG1: folds
+Badbunny: folds
+Meze188: raises $2.50 to $2.50
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+Bazsakuki: folds
+Uncalled bet ($1.50) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: antananarivo (small blind) folded before Flop 
+Seat 2: Bazsakuki (big blind) folded before Flop 
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny folded before Flop (didn't bet)
+Seat 6: Meze188 collected ($2.50)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76388948:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:17:40 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: antananarivo ($150.70 in chips)
+Seat 2: Bazsakuki ($30.91 in chips)
+Seat 3: ConnorMG1 ($149.59 in chips)
+Seat 4: Badbunny ($57.40 in chips)
+Seat 6: Meze188 ($133.73 in chips)
+Seat 7: kole1992 ($100.50 in chips)
+Seat 8: SickDay ($98.50 in chips)
+Bazsakuki: posts small blind $0.50
+ConnorMG1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Ac]
+Badbunny: calls $1
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+Bazsakuki: calls $0.50
+ConnorMG1: checks
+*** FLOP *** [7c Ks 9s]
+Bazsakuki: checks
+ConnorMG1: checks
+Badbunny: checks
+*** TURN *** [7c Ks 9s] [Kh]
+Bazsakuki: checks
+ConnorMG1: checks
+Badbunny: checks
+*** RIVER *** [7c Ks 9s Kh] [8s]
+Bazsakuki: checks
+ConnorMG1: bets $1
+Badbunny: folds
+Bazsakuki: calls $1
+*** SHOW DOWN ***
+ConnorMG1: shows [2s 4h] (a pair of Kings)
+Bazsakuki: shows [3d Ad] (a pair of Kings)
+Bazsakuki collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [7c Ks 9s Kh 8s]
+Seat 1: antananarivo (button) folded before Flop (didn't bet)
+Seat 2: Bazsakuki (small blind) showed [3d Ad] and won ($5) with a pair of Kings
+Seat 3: ConnorMG1 (big blind) showed [2s 4h] and lost with a pair of Kings
+Seat 4: Badbunny folded on the River 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76388981:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:18:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: antananarivo ($150.70 in chips)
+Seat 2: Bazsakuki ($33.66 in chips)
+Seat 3: ConnorMG1 ($147.59 in chips)
+Seat 4: Badbunny ($56.40 in chips)
+Seat 6: Meze188 ($133.73 in chips)
+Seat 7: kole1992 ($100.50 in chips)
+Seat 8: SickDay ($98.50 in chips)
+ConnorMG1: posts small blind $0.50
+Badbunny: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 3s]
+Meze188: folds
+kole1992: folds
+SickDay: raises $3 to $3
+antananarivo: folds
+Bazsakuki: folds
+ConnorMG1: calls $2.50
+Badbunny: folds
+*** FLOP *** [2d 2c 7s]
+ConnorMG1: checks
+SickDay: bets $5.04
+ConnorMG1: folds
+Uncalled bet ($5.04) returned to SickDay
+*** SHOW DOWN ***
+SickDay: doesn't show hand
+SickDay collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [2d 2c 7s]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki (button) folded before Flop (didn't bet)
+Seat 3: ConnorMG1 (small blind) folded on the Flop 
+Seat 4: Badbunny (big blind) folded before Flop 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay collected ($7)
+
+
+Weplay Hand #76388999:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:19:29 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: antananarivo ($150.70 in chips)
+Seat 2: Bazsakuki ($33.66 in chips)
+Seat 3: ConnorMG1 ($144.59 in chips)
+Seat 4: Badbunny ($55.40 in chips)
+Seat 6: Meze188 ($133.73 in chips)
+Seat 7: kole1992 ($100.50 in chips)
+Seat 8: SickDay ($102.15 in chips)
+Badbunny: posts small blind $0.50
+Meze188: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 9h]
+kole1992: folds
+SickDay: folds
+antananarivo: raises $2.50 to $2.50
+Bazsakuki: calls $2.50
+ConnorMG1: folds
+Badbunny: folds
+Meze188: folds
+*** FLOP *** [9d 8s Qd]
+antananarivo: bets $4.90
+Bazsakuki: calls $4.90
+*** TURN *** [9d 8s Qd] [2s]
+antananarivo: bets $43
+Bazsakuki: folds
+Uncalled bet ($43) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $16.30 from pot
+*** SUMMARY ***
+Total pot $16.30 | Rake $0.81 
+Board [9d 8s Qd 2s]
+Seat 1: antananarivo collected ($16.30)
+Seat 2: Bazsakuki folded on the Turn 
+Seat 3: ConnorMG1 (button) folded before Flop (didn't bet)
+Seat 4: Badbunny (small blind) folded before Flop 
+Seat 6: Meze188 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76389033:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:20:26 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: antananarivo ($158.79 in chips)
+Seat 2: Bazsakuki ($26.26 in chips)
+Seat 3: ConnorMG1 ($144.59 in chips)
+Seat 4: Badbunny ($54.90 in chips)
+Seat 6: Meze188 ($132.73 in chips)
+Seat 7: kole1992 ($100.50 in chips)
+Seat 8: SickDay ($102.15 in chips)
+Meze188: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 5d]
+SickDay: folds
+antananarivo: folds
+Bazsakuki: folds
+ConnorMG1: raises $2.50 to $2.50
+Badbunny: calls $2.50
+Meze188: folds
+kole1992: folds
+*** FLOP *** [Ac 7d 7c]
+ConnorMG1: bets $2.15
+Badbunny: calls $2.15
+*** TURN *** [Ac 7d 7c] [Js]
+ConnorMG1: checks
+Badbunny: bets $3
+ConnorMG1: folds
+Uncalled bet ($3) returned to Badbunny
+*** SHOW DOWN ***
+Badbunny has timed out
+Badbunny: doesn't show hand
+Badbunny collected $10.80 from pot
+*** SUMMARY ***
+Total pot $10.80 | Rake $0.54 
+Board [Ac 7d 7c Js]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded on the Turn 
+Seat 4: Badbunny (button) collected ($10.80)
+Seat 6: Meze188 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76389055:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:21:20 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: antananarivo ($158.79 in chips)
+Seat 2: Bazsakuki ($26.26 in chips)
+Seat 3: ConnorMG1 ($139.94 in chips)
+Seat 4: Badbunny ($60.51 in chips)
+Seat 6: Meze188 ($132.23 in chips)
+Seat 7: kole1992 ($99.50 in chips)
+Seat 8: SickDay ($102.15 in chips)
+kole1992: posts small blind $0.50
+SickDay: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 9c]
+antananarivo: folds
+Bazsakuki: calls $1
+ConnorMG1: raises $3 to $3
+Badbunny: calls $3
+Meze188: folds
+kole1992: folds
+SickDay: folds
+Bazsakuki: calls $2
+*** FLOP *** [6s 8d Th]
+Bazsakuki: checks
+ConnorMG1: checks
+Badbunny: checks
+*** TURN *** [6s 8d Th] [Qs]
+Bazsakuki: checks
+ConnorMG1: checks
+Badbunny: checks
+*** RIVER *** [6s 8d Th Qs] [Qd]
+Bazsakuki: bets $5
+ConnorMG1: calls $5
+Badbunny: folds
+*** SHOW DOWN ***
+Bazsakuki: shows [7c 9h] (a straight, Six to Ten)
+ConnorMG1: mucks hand
+Bazsakuki collected $20.50 from pot
+*** SUMMARY ***
+Total pot $20.50 | Rake $1.02 
+Board [6s 8d Th Qs Qd]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki showed [7c 9h] and won ($20.50) with a straight, Six to Ten
+Seat 3: ConnorMG1 mucked
+Seat 4: Badbunny folded on the River 
+Seat 6: Meze188 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: SickDay (big blind) folded before Flop 
+
+
+Weplay Hand #76389104:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:22:40 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: antananarivo ($158.79 in chips)
+Seat 2: Bazsakuki ($37.74 in chips)
+Seat 3: ConnorMG1 ($131.94 in chips)
+Seat 4: Badbunny ($57.51 in chips)
+Seat 6: Meze188 ($132.23 in chips)
+Seat 7: kole1992 ($99 in chips)
+Seat 8: SickDay ($101.15 in chips)
+SickDay: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 5d]
+Bazsakuki: folds
+ConnorMG1: folds
+Badbunny: calls $1
+Meze188: folds
+kole1992: folds
+SickDay: calls $0.50
+antananarivo: checks
+*** FLOP *** [As Kd Tc]
+SickDay: checks
+antananarivo: checks
+Badbunny: checks
+*** TURN *** [As Kd Tc] [6h]
+SickDay: checks
+antananarivo: bets $2.30
+Badbunny: calls $2.30
+SickDay: folds
+*** RIVER *** [As Kd Tc 6h] [2s]
+antananarivo: bets $7.60
+Badbunny: folds
+Uncalled bet ($7.60) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $7.60 from pot
+*** SUMMARY ***
+Total pot $7.60 | Rake $0.38 
+Board [As Kd Tc 6h 2s]
+Seat 1: antananarivo (big blind) collected ($7.60)
+Seat 2: Bazsakuki folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny folded on the River 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: SickDay (small blind) folded on the Turn 
+
+
+Weplay Hand #76389155:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:24:07 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: antananarivo ($162.71 in chips)
+Seat 2: Bazsakuki ($37.74 in chips)
+Seat 3: ConnorMG1 ($131.94 in chips)
+Seat 4: Badbunny ($54.21 in chips)
+Seat 6: Meze188 ($132.23 in chips)
+Seat 7: kole1992 ($99 in chips)
+Seat 8: SickDay ($100.15 in chips)
+antananarivo: posts small blind $0.50
+Bazsakuki: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Jc]
+Bazsakuki is disconnected 
+ConnorMG1: folds
+Badbunny: calls $1
+Meze188: folds
+kole1992: folds
+SickDay: raises $3 to $3
+antananarivo: folds
+Bazsakuki has timed out while being disconnected
+Bazsakuki: folds
+Badbunny: calls $2
+*** FLOP *** [2s Qc Kh]
+Badbunny: checks
+SickDay: bets $5.40
+Badbunny: calls $5.40
+*** TURN *** [2s Qc Kh] [Th]
+Badbunny: bets $11
+Bazsakuki is connected 
+SickDay: folds
+Uncalled bet ($11) returned to Badbunny
+*** SHOW DOWN ***
+Badbunny has timed out
+Badbunny: doesn't show hand
+Badbunny collected $18.30 from pot
+*** SUMMARY ***
+Total pot $18.30 | Rake $0.91 
+Board [2s Qc Kh Th]
+Seat 1: antananarivo (small blind) folded before Flop 
+Seat 2: Bazsakuki (big blind) folded before Flop 
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny collected ($18.30)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay (button) folded on the Turn 
+
+
+Weplay Hand #76389217:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:25:54 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: antananarivo ($162.21 in chips)
+Seat 2: Bazsakuki ($36.74 in chips)
+Seat 3: ConnorMG1 ($131.94 in chips)
+Seat 4: Badbunny ($63.20 in chips)
+Seat 6: Meze188 ($132.23 in chips)
+Seat 7: kole1992 ($99 in chips)
+Seat 8: SickDay ($91.75 in chips)
+Bazsakuki: posts small blind $0.50
+ConnorMG1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Qs]
+Badbunny: calls $1
+Meze188: folds
+kole1992: raises $3.50 to $3.50
+SickDay: folds
+antananarivo: folds
+Bazsakuki is disconnected 
+Bazsakuki is connected 
+Bazsakuki: folds
+ConnorMG1: folds
+Badbunny: calls $2.50
+*** FLOP *** [3d 6d Th]
+Badbunny: checks
+kole1992: checks
+*** TURN *** [3d 6d Th] [Jd]
+Badbunny: checks
+kole1992: bets $2.50
+Badbunny: calls $2.50
+*** RIVER *** [3d 6d Th Jd] [Ah]
+Badbunny: checks
+kole1992: bets $19
+Badbunny: folds
+Uncalled bet ($19) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $13.50 from pot
+*** SUMMARY ***
+Total pot $13.50 | Rake $0.67 
+Board [3d 6d Th Jd Ah]
+Seat 1: antananarivo (button) folded before Flop (didn't bet)
+Seat 2: Bazsakuki (small blind) folded before Flop 
+Seat 3: ConnorMG1 (big blind) folded before Flop 
+Seat 4: Badbunny folded on the River 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 collected ($13.50)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76389253:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:27:09 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: antananarivo ($162.21 in chips)
+Seat 2: Bazsakuki ($36.24 in chips)
+Seat 3: ConnorMG1 ($130.94 in chips)
+Seat 4: Badbunny ($57.20 in chips)
+Seat 6: Meze188 ($132.23 in chips)
+Seat 7: kole1992 ($105.83 in chips)
+Seat 8: SickDay ($91.75 in chips)
+ConnorMG1: posts small blind $0.50
+Badbunny: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Th]
+Meze188: folds
+kole1992: folds
+SickDay: raises $3 to $3
+antananarivo: folds
+Bazsakuki: folds
+ConnorMG1: folds
+Badbunny: calls $2
+*** FLOP *** [3d 2h 5s]
+Bazsakuki is disconnected 
+Badbunny: checks
+Bazsakuki is connected 
+SickDay: bets $4.68
+Badbunny: folds
+Uncalled bet ($4.68) returned to SickDay
+*** SHOW DOWN ***
+SickDay: doesn't show hand
+SickDay collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [3d 2h 5s]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki (button) folded before Flop (didn't bet)
+Seat 3: ConnorMG1 (small blind) folded before Flop 
+Seat 4: Badbunny (big blind) folded on the Flop 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay collected ($6.50)
+
+
+Weplay Hand #76389273:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:27:48 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: antananarivo ($162.21 in chips)
+Seat 2: Bazsakuki ($36.24 in chips)
+Seat 3: ConnorMG1 ($130.44 in chips)
+Seat 4: Badbunny ($54.20 in chips)
+Seat 5: bigfish2004 ($150.09 in chips)
+Seat 6: Meze188 ($132.23 in chips)
+Seat 7: kole1992 ($105.83 in chips)
+Seat 8: SickDay ($94.93 in chips)
+Badbunny: posts small blind $0.50
+bigfish2004: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As 7s]
+Meze188: folds
+kole1992: raises $2 to $2
+SickDay: calls $2
+antananarivo: folds
+Bazsakuki: calls $2
+ConnorMG1: folds
+Badbunny: folds
+bigfish2004: folds
+*** FLOP *** [6h Kc 9c]
+kole1992: checks
+SickDay: checks
+Bazsakuki: checks
+*** TURN *** [6h Kc 9c] [5d]
+kole1992: checks
+SickDay: checks
+Bazsakuki: checks
+*** RIVER *** [6h Kc 9c 5d] [Ad]
+kole1992: checks
+SickDay: checks
+Bazsakuki: checks
+*** SHOW DOWN ***
+kole1992: shows [As 7s] (a pair of Aces)
+SickDay: mucks hand
+Bazsakuki has timed out
+Bazsakuki: mucks hand
+kole1992 collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [6h Kc 9c 5d Ad]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki mucked
+Seat 3: ConnorMG1 (button) folded before Flop (didn't bet)
+Seat 4: Badbunny (small blind) folded before Flop 
+Seat 5: bigfish2004 (big blind) folded before Flop 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 showed [As 7s] and won ($7.50) with a pair of Aces
+Seat 8: SickDay mucked
+
+
+Weplay Hand #76389311:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:29:09 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: antananarivo ($162.21 in chips)
+Seat 2: Bazsakuki ($34.24 in chips)
+Seat 3: ConnorMG1 ($130.44 in chips)
+Seat 4: Badbunny ($53.70 in chips)
+Seat 5: bigfish2004 ($149.09 in chips)
+Seat 6: Meze188 ($132.23 in chips)
+Seat 7: kole1992 ($110.96 in chips)
+Seat 8: SickDay ($92.93 in chips)
+bigfish2004: posts small blind $0.50
+Meze188: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 9d]
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+Bazsakuki: folds
+ConnorMG1: folds
+Badbunny: folds
+bigfish2004: raises $1.50 to $2
+Meze188: calls $1
+*** FLOP *** [Kh 3s Ah]
+bigfish2004: bets $1
+Meze188: calls $1
+*** TURN *** [Kh 3s Ah] [Qc]
+Bazsakuki is disconnected 
+bigfish2004: bets $9
+Meze188: folds
+Uncalled bet ($9) returned to bigfish2004
+*** SHOW DOWN ***
+bigfish2004: doesn't show hand
+bigfish2004 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Kh 3s Ah Qc]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny (button) folded before Flop (didn't bet)
+Seat 5: bigfish2004 (small blind) collected ($6)
+Seat 6: Meze188 (big blind) folded on the Turn 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390341:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:30:14 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: antananarivo ($162.21 in chips)
+Seat 2: Bazsakuki ($34.24 in chips)
+Seat 3: ConnorMG1 ($130.44 in chips)
+Seat 4: Badbunny ($53.70 in chips)
+Seat 5: bigfish2004 ($151.79 in chips)
+Seat 6: Meze188 ($129.23 in chips)
+Seat 7: kole1992 ($110.96 in chips)
+Seat 8: SickDay ($92.93 in chips)
+Meze188: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 9s]
+SickDay: folds
+antananarivo: folds
+Bazsakuki: raises $2 to $2
+ConnorMG1: folds
+Badbunny: calls $2
+bigfish2004: folds
+Meze188: calls $1.50
+kole1992: calls $1
+*** FLOP *** [Ac 5c 4d]
+Meze188: checks
+kole1992: checks
+Bazsakuki: bets $2
+Badbunny: calls $2
+Meze188: folds
+kole1992: folds
+*** TURN *** [Ac 5c 4d] [2c]
+Bazsakuki: bets $3
+Badbunny: folds
+Uncalled bet ($3) returned to Bazsakuki
+*** SHOW DOWN ***
+Bazsakuki has timed out
+Bazsakuki: doesn't show hand
+Bazsakuki collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [Ac 5c 4d 2c]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki collected ($12)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny folded on the Turn 
+Seat 5: bigfish2004 (button) folded before Flop (didn't bet)
+Seat 6: Meze188 (small blind) folded on the Flop 
+Seat 7: kole1992 (big blind) folded on the Flop 
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390371:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:31:20 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: antananarivo ($162.21 in chips)
+Seat 2: Bazsakuki ($41.64 in chips)
+Seat 3: ConnorMG1 ($130.44 in chips)
+Seat 4: Badbunny ($49.70 in chips)
+Seat 5: bigfish2004 ($151.79 in chips)
+Seat 6: Meze188 ($127.23 in chips)
+Seat 7: kole1992 ($108.96 in chips)
+Seat 8: SickDay ($92.93 in chips)
+kole1992: posts small blind $0.50
+SickDay: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 8s]
+antananarivo: folds
+Bazsakuki: folds
+ConnorMG1: folds
+Badbunny: folds
+bigfish2004: raises $2 to $2
+Meze188: folds
+kole1992: folds
+SickDay: calls $1
+*** FLOP *** [8d 4s Ts]
+SickDay: checks
+bigfish2004: bets $2.30
+SickDay: folds
+Uncalled bet ($2.30) returned to bigfish2004
+*** SHOW DOWN ***
+bigfish2004: doesn't show hand
+bigfish2004 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [8d 4s Ts]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny folded before Flop (didn't bet)
+Seat 5: bigfish2004 collected ($4.50)
+Seat 6: Meze188 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: SickDay (big blind) folded on the Flop 
+
+
+Weplay Hand #76390393:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:32:08 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: antananarivo ($162.21 in chips)
+Seat 2: Bazsakuki ($41.64 in chips)
+Seat 3: ConnorMG1 ($130.44 in chips)
+Seat 4: Badbunny ($49.70 in chips)
+Seat 5: bigfish2004 ($154.07 in chips)
+Seat 6: Meze188 ($127.23 in chips)
+Seat 7: kole1992 ($108.46 in chips)
+Seat 8: SickDay ($90.93 in chips)
+SickDay: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 5s]
+Bazsakuki: calls $1
+ConnorMG1: folds
+Badbunny: calls $1
+bigfish2004: raises $5.50 to $5.50
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: calls $4.50
+Bazsakuki: calls $4.50
+Badbunny: folds
+*** FLOP *** [4s 3c Qh]
+antananarivo: checks
+Bazsakuki: bets $3
+bigfish2004: raises $10 to $10
+antananarivo: folds
+Bazsakuki: calls $7
+*** TURN *** [4s 3c Qh] [3s]
+Bazsakuki: bets $11
+bigfish2004: raises $138.57 to $138.57 and is all-in
+Bazsakuki: calls $15.14 and is all-in
+Uncalled bet ($112.43) returned to bigfish2004
+*** RIVER *** [4s 3c Qh 3s] [Kh]
+*** SHOW DOWN ***
+Bazsakuki: shows [Qd 8c] (two pair, Queens and Threes)
+bigfish2004: shows [8s 8d] (two pair, Eights and Threes)
+Bazsakuki collected $90.28 from pot
+*** SUMMARY ***
+Total pot $90.28 | Rake $4.51 
+Board [4s 3c Qh 3s Kh]
+Seat 1: antananarivo (big blind) folded on the Flop 
+Seat 2: Bazsakuki showed [Qd 8c] and won ($90.28) with two pair, Queens and Threes
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny folded before Flop 
+Seat 5: bigfish2004 showed [8s 8d] and lost with two pair, Eights and Threes
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: SickDay (small blind) folded before Flop 
+
+
+Weplay Hand #76390434:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:33:36 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: antananarivo ($156.71 in chips)
+Seat 2: Bazsakuki ($85.77 in chips)
+Seat 3: ConnorMG1 ($130.44 in chips)
+Seat 4: Badbunny ($48.70 in chips)
+Seat 5: bigfish2004 ($112.43 in chips)
+Seat 6: Meze188 ($127.23 in chips)
+Seat 7: kole1992 ($108.46 in chips)
+Seat 8: SickDay ($90.43 in chips)
+antananarivo: posts small blind $0.50
+Bazsakuki: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 8d]
+ConnorMG1: folds
+Badbunny: folds
+bigfish2004: folds
+Meze188: raises $2.50 to $2.50
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+Bazsakuki: calls $1.50
+*** FLOP *** [2s Kh 9h]
+Bazsakuki: checks
+Meze188: bets $2.80
+Bazsakuki: folds
+Uncalled bet ($2.80) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [2s Kh 9h]
+Seat 1: antananarivo (small blind) folded before Flop 
+Seat 2: Bazsakuki (big blind) folded on the Flop 
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: Badbunny folded before Flop (didn't bet)
+Seat 5: bigfish2004 folded before Flop (didn't bet)
+Seat 6: Meze188 collected ($5.50)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76390456:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:34:16 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: antananarivo ($156.21 in chips)
+Seat 2: Bazsakuki ($83.27 in chips)
+Seat 3: ConnorMG1 ($130.44 in chips)
+Seat 4: Badbunny ($48.70 in chips)
+Seat 5: bigfish2004 ($112.43 in chips)
+Seat 6: Meze188 ($129.96 in chips)
+Seat 7: kole1992 ($108.46 in chips)
+Seat 8: SickDay ($90.43 in chips)
+Bazsakuki: posts small blind $0.50
+ConnorMG1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As Ts]
+Badbunny: folds
+bigfish2004: folds
+Meze188: folds
+kole1992: raises $2 to $2
+SickDay: folds
+antananarivo: calls $2
+Bazsakuki: folds
+ConnorMG1: folds
+*** FLOP *** [Td 2s Js]
+kole1992: checks
+antananarivo: checks
+*** TURN *** [Td 2s Js] [8s]
+kole1992: bets $2
+antananarivo: folds
+Uncalled bet ($2) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Td 2s Js 8s]
+Seat 1: antananarivo (button) folded on the Turn 
+Seat 2: Bazsakuki (small blind) folded before Flop 
+Seat 3: ConnorMG1 (big blind) folded before Flop 
+Seat 4: Badbunny folded before Flop (didn't bet)
+Seat 5: bigfish2004 folded before Flop (didn't bet)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 collected ($5.50)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390479:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:35:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: antananarivo ($154.21 in chips)
+Seat 2: Bazsakuki ($82.77 in chips)
+Seat 3: ConnorMG1 ($129.44 in chips)
+Seat 4: Badbunny ($48.70 in chips)
+Seat 5: bigfish2004 ($112.43 in chips)
+Seat 6: Meze188 ($129.96 in chips)
+Seat 7: kole1992 ($111.69 in chips)
+Seat 8: SickDay ($90.43 in chips)
+ConnorMG1: posts small blind $0.50
+Badbunny: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Jh]
+bigfish2004: folds
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+Bazsakuki: calls $1
+ConnorMG1: calls $0.50
+Badbunny: checks
+*** FLOP *** [Kh 3h 6s]
+ConnorMG1: checks
+Badbunny: checks
+Bazsakuki: bets $1
+ConnorMG1: folds
+Badbunny: folds
+Uncalled bet ($1) returned to Bazsakuki
+*** SHOW DOWN ***
+Bazsakuki has timed out
+Bazsakuki: doesn't show hand
+Bazsakuki collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Kh 3h 6s]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: Bazsakuki (button) collected ($3)
+Seat 3: ConnorMG1 (small blind) folded on the Flop 
+Seat 4: Badbunny (big blind) folded on the Flop 
+Seat 5: bigfish2004 folded before Flop (didn't bet)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390508:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:36:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: antananarivo ($154.21 in chips)
+Seat 2: Bazsakuki ($84.62 in chips)
+Seat 3: ConnorMG1 ($128.44 in chips)
+Seat 4: Badbunny ($47.70 in chips)
+Seat 6: Meze188 ($129.96 in chips)
+Seat 7: kole1992 ($111.69 in chips)
+Seat 8: SickDay ($90.43 in chips)
+Badbunny: posts small blind $0.50
+Meze188: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 5s]
+kole1992: folds
+Bazsakuki leaves the table
+SickDay has timed out
+SickDay: folds
+antananarivo: folds
+ConnorMG1: folds
+JTs98o joins the table at seat #2
+Badbunny: calls $0.50
+Meze188: checks
+*** FLOP *** [Kh 2c 3c]
+Badbunny: checks
+Meze188: bets $1.30
+Badbunny: folds
+Uncalled bet ($1.30) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [Kh 2c 3c]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 3: ConnorMG1 (button) folded before Flop (didn't bet)
+Seat 4: Badbunny (small blind) folded on the Flop 
+Seat 6: Meze188 (big blind) collected ($2)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390543:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:37:16 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: antananarivo ($154.21 in chips)
+Seat 2: JTs98o ($113.64 in chips)
+Seat 3: ConnorMG1 ($128.44 in chips)
+Seat 4: Badbunny ($46.70 in chips)
+Seat 6: Meze188 ($130.86 in chips)
+Seat 7: kole1992 ($111.69 in chips)
+Seat 8: SickDay ($90.43 in chips)
+Meze188: posts small blind $0.50
+kole1992: posts big blind $1
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 2d]
+Badbunny leaves the table
+lastTime87 joins the table at seat #4
+SickDay: folds
+antananarivo: raises $4 to $4
+JTs98o: folds
+ConnorMG1: folds
+bigfish2004 is disconnected 
+Meze188: calls $3.50
+kole1992: folds
+*** FLOP *** [Js 3d 5h]
+Meze188: checks
+antananarivo: bets $5
+Meze188: calls $5
+*** TURN *** [Js 3d 5h] [8c]
+Meze188: checks
+antananarivo: bets $17
+Meze188: folds
+Uncalled bet ($17) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $20 from pot
+*** SUMMARY ***
+Total pot $20 | Rake $1 
+Board [Js 3d 5h 8c]
+Seat 1: antananarivo collected ($20)
+Seat 2: JTs98o (big blind) folded before Flop 
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 6: Meze188 (small blind) folded on the Turn 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390581:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:38:46 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: antananarivo ($164.21 in chips)
+Seat 2: JTs98o ($112.64 in chips)
+Seat 3: ConnorMG1 ($128.44 in chips)
+Seat 6: Meze188 ($121.86 in chips)
+Seat 7: kole1992 ($110.69 in chips)
+Seat 8: SickDay ($90.43 in chips)
+kole1992: posts small blind $0.50
+SickDay: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 2c]
+bigfish2004 is connected 
+antananarivo: folds
+JTs98o: folds
+ConnorMG1: raises $2.50 to $2.50
+Meze188: folds
+kole1992: folds
+SickDay: folds
+Uncalled bet ($1.50) returned to ConnorMG1
+*** SHOW DOWN ***
+ConnorMG1: doesn't show hand
+ConnorMG1 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 collected ($2.50)
+Seat 6: Meze188 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: SickDay (big blind) folded before Flop 
+
+
+Weplay Hand #76390590:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:39:07 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: antananarivo ($164.21 in chips)
+Seat 2: JTs98o ($112.64 in chips)
+Seat 3: ConnorMG1 ($129.94 in chips)
+Seat 6: Meze188 ($121.86 in chips)
+Seat 7: kole1992 ($110.19 in chips)
+Seat 8: SickDay ($89.43 in chips)
+SickDay: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 3c]
+JTs98o: folds
+ConnorMG1: folds
+Meze188: folds
+kole1992: folds
+SickDay: folds
+Uncalled bet ($0.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: antananarivo (big blind) collected ($1)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: SickDay (small blind) folded before Flop 
+
+
+Weplay Hand #76390596:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:39:19 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: antananarivo ($164.71 in chips)
+Seat 2: JTs98o ($112.64 in chips)
+Seat 3: ConnorMG1 ($129.94 in chips)
+Seat 6: Meze188 ($121.86 in chips)
+Seat 7: kole1992 ($110.19 in chips)
+Seat 8: SickDay ($88.93 in chips)
+antananarivo: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Td]
+ConnorMG1: folds
+Meze188: raises $2.50 to $2.50
+kole1992: folds
+SickDay: calls $2.50
+antananarivo: folds
+JTs98o: folds
+*** FLOP *** [3d 6h 2d]
+Meze188: checks
+SickDay: checks
+*** TURN *** [3d 6h 2d] [As]
+Meze188: checks
+SickDay: checks
+*** RIVER *** [3d 6h 2d As] [Kc]
+Meze188: bets $2.70
+SickDay: folds
+Uncalled bet ($2.70) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [3d 6h 2d As Kc]
+Seat 1: antananarivo (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) folded before Flop 
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 6: Meze188 collected ($6.50)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay (button) folded on the River 
+
+
+Weplay Hand #76390610:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:39:58 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: antananarivo ($164.21 in chips)
+Seat 2: JTs98o ($111.64 in chips)
+Seat 3: ConnorMG1 ($129.94 in chips)
+Seat 6: Meze188 ($125.54 in chips)
+Seat 7: kole1992 ($110.19 in chips)
+Seat 8: SickDay ($86.43 in chips)
+JTs98o: posts small blind $0.50
+ConnorMG1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 3s]
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+JTs98o: folds
+Uncalled bet ($0.50) returned to ConnorMG1
+*** SHOW DOWN ***
+ConnorMG1: doesn't show hand
+ConnorMG1 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: antananarivo (button) folded before Flop (didn't bet)
+Seat 2: JTs98o (small blind) folded before Flop 
+Seat 3: ConnorMG1 (big blind) collected ($1)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390619:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:40:12 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: antananarivo ($164.21 in chips)
+Seat 2: JTs98o ($111.14 in chips)
+Seat 3: ConnorMG1 ($130.44 in chips)
+Seat 4: lastTime87 ($30 in chips)
+Seat 6: Meze188 ($125.54 in chips)
+Seat 7: kole1992 ($110.19 in chips)
+Seat 8: SickDay ($86.43 in chips)
+ConnorMG1: posts small blind $0.50
+lastTime87: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Ah]
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+JTs98o: raises $2.50 to $2.50
+ConnorMG1: folds
+lastTime87: calls $1.50
+*** FLOP *** [Kc Td Qc]
+lastTime87: checks
+JTs98o: bets $3.68
+lastTime87: folds
+Uncalled bet ($3.68) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Kc Td Qc]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o (button) collected ($5.50)
+Seat 3: ConnorMG1 (small blind) folded before Flop 
+Seat 4: lastTime87 (big blind) folded on the Flop 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390636:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:40:53 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: antananarivo ($164.21 in chips)
+Seat 2: JTs98o ($113.87 in chips)
+Seat 3: ConnorMG1 ($129.94 in chips)
+Seat 4: lastTime87 ($27.50 in chips)
+Seat 6: Meze188 ($125.54 in chips)
+Seat 7: kole1992 ($110.19 in chips)
+Seat 8: SickDay ($86.43 in chips)
+lastTime87: posts small blind $0.50
+Meze188: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 5s]
+kole1992: folds
+SickDay: calls $1
+antananarivo: raises $4 to $4
+bigfish2004 leaves the table
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: folds
+Meze188: folds
+SickDay: folds
+Uncalled bet ($3) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: antananarivo collected ($3.50)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 (button) folded before Flop (didn't bet)
+Seat 4: lastTime87 (small blind) folded before Flop 
+Seat 6: Meze188 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop 
+
+
+Weplay Hand #76390651:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:41:24 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: antananarivo ($166.71 in chips)
+Seat 2: JTs98o ($113.87 in chips)
+Seat 3: ConnorMG1 ($129.94 in chips)
+Seat 4: lastTime87 ($27 in chips)
+Seat 6: Meze188 ($124.54 in chips)
+Seat 7: kole1992 ($110.19 in chips)
+Seat 8: SickDay ($85.43 in chips)
+Meze188: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 6s]
+SickDay: folds
+antananarivo: raises $2.50 to $2.50
+JTs98o: folds
+ConnorMG1: raises $8 to $8
+lastTime87: folds
+Meze188: folds
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($5.50) returned to ConnorMG1
+*** SHOW DOWN ***
+ConnorMG1: doesn't show hand
+ConnorMG1 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: antananarivo folded before Flop 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 collected ($6.50)
+Seat 4: lastTime87 (button) folded before Flop (didn't bet)
+Seat 6: Meze188 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390666:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:41:52 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: antananarivo ($164.21 in chips)
+Seat 2: JTs98o ($113.87 in chips)
+Seat 3: ConnorMG1 ($133.94 in chips)
+Seat 4: lastTime87 ($27 in chips)
+Seat 6: Meze188 ($124.04 in chips)
+Seat 7: kole1992 ($109.19 in chips)
+Seat 8: SickDay ($85.43 in chips)
+kole1992: posts small blind $0.50
+SickDay: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Js]
+antananarivo: raises $2.50 to $2.50
+JTs98o: folds
+ConnorMG1: raises $8 to $8
+lastTime87: folds
+Meze188: folds
+kole1992: folds
+SickDay: folds
+Robi8813 joins the table at seat #5
+antananarivo: calls $5.50
+*** FLOP *** [2h Tc Qh]
+antananarivo: checks
+ConnorMG1: checks
+*** TURN *** [2h Tc Qh] [Td]
+antananarivo: checks
+ConnorMG1: checks
+*** RIVER *** [2h Tc Qh Td] [Jh]
+antananarivo: checks
+ConnorMG1: bets $17.50
+antananarivo: folds
+Uncalled bet ($17.50) returned to ConnorMG1
+*** SHOW DOWN ***
+ConnorMG1: doesn't show hand
+ConnorMG1 collected $17.50 from pot
+*** SUMMARY ***
+Total pot $17.50 | Rake $0.87 
+Board [2h Tc Qh Td Jh]
+Seat 1: antananarivo folded on the River 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 collected ($17.50)
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 6: Meze188 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: SickDay (big blind) folded before Flop 
+
+
+Weplay Hand #76390689:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:42:46 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: antananarivo ($156.21 in chips)
+Seat 2: JTs98o ($113.87 in chips)
+Seat 3: ConnorMG1 ($142.57 in chips)
+Seat 4: lastTime87 ($27 in chips)
+Seat 5: Robi8813 ($30 in chips)
+Seat 6: Meze188 ($124.04 in chips)
+Seat 7: kole1992 ($108.69 in chips)
+Seat 8: SickDay ($84.43 in chips)
+SickDay: posts small blind $0.50
+antananarivo: posts big blind $1
+Robi8813: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 3c]
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: calls $1
+Robi8813: checks
+Meze188: folds
+kole1992: folds
+SickDay: calls $0.50
+antananarivo: checks
+*** FLOP *** [Jc Tc Kd]
+SickDay: bets $1
+antananarivo: folds
+lastTime87: calls $1
+Robi8813: calls $1
+*** TURN *** [Jc Tc Kd] [4s]
+SickDay: bets $2
+lastTime87: folds
+Robi8813: calls $2
+*** RIVER *** [Jc Tc Kd 4s] [7c]
+SickDay: bets $3
+Robi8813: calls $3
+*** SHOW DOWN ***
+SickDay: shows [Kc 6h] (a pair of Kings)
+Robi8813: shows [Qs Ac] (a straight, Ten to Ace)
+Robi8813 collected $17 from pot
+*** SUMMARY ***
+Total pot $17 | Rake $0.85 
+Board [Jc Tc Kd 4s 7c]
+Seat 1: antananarivo (big blind) folded on the Flop 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 folded on the Turn 
+Seat 5: Robi8813 (big blind) showed [Qs Ac] and won ($17) with a straight, Ten to Ace
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: SickDay (small blind) showed [Kc 6h] and lost with a pair of Kings
+
+
+Weplay Hand #76390725:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:43:58 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: antananarivo ($155.21 in chips)
+Seat 2: JTs98o ($113.87 in chips)
+Seat 3: ConnorMG1 ($142.57 in chips)
+Seat 4: lastTime87 ($25 in chips)
+Seat 5: Robi8813 ($39.15 in chips)
+Seat 6: Meze188 ($124.04 in chips)
+Seat 7: kole1992 ($108.69 in chips)
+Seat 8: SickDay ($77.43 in chips)
+antananarivo: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 5s]
+ConnorMG1: folds
+lastTime87: raises $3 to $3
+Robi8813: folds
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+JTs98o: folds
+Uncalled bet ($2) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: antananarivo (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) folded before Flop 
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 collected ($2.50)
+Seat 5: Robi8813 folded before Flop (didn't bet)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76390738:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:44:29 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: antananarivo ($154.71 in chips)
+Seat 2: JTs98o ($112.87 in chips)
+Seat 3: ConnorMG1 ($142.57 in chips)
+Seat 4: lastTime87 ($26.50 in chips)
+Seat 5: Robi8813 ($39.15 in chips)
+Seat 6: Meze188 ($124.04 in chips)
+Seat 7: kole1992 ($108.69 in chips)
+Seat 8: SickDay ($77.43 in chips)
+JTs98o: posts small blind $0.50
+ConnorMG1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9s]
+lastTime87: raises $3 to $3
+Robi8813: folds
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: raises $9 to $9
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: folds
+Uncalled bet ($6) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0 
+Seat 1: antananarivo (button) collected ($7.50)
+Seat 2: JTs98o (small blind) folded before Flop 
+Seat 3: ConnorMG1 (big blind) folded before Flop 
+Seat 4: lastTime87 folded before Flop 
+Seat 5: Robi8813 folded before Flop (didn't bet)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390752:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:45:03 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: antananarivo ($159.21 in chips)
+Seat 2: JTs98o ($112.37 in chips)
+Seat 3: ConnorMG1 ($141.57 in chips)
+Seat 4: lastTime87 ($23.50 in chips)
+Seat 5: Robi8813 ($39.15 in chips)
+Seat 6: Meze188 ($124.04 in chips)
+Seat 7: kole1992 ($108.69 in chips)
+Seat 8: SickDay ($77.43 in chips)
+ConnorMG1: posts small blind $0.50
+lastTime87: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 4s]
+Robi8813: calls $1
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: raises $4 to $4
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: calls $3
+Robi8813: calls $3
+*** FLOP *** [3c 2d 4c]
+lastTime87: checks
+Robi8813: checks
+antananarivo: bets $4.10
+lastTime87: folds
+Robi8813: calls $4.10
+*** TURN *** [3c 2d 4c] [3s]
+Robi8813: checks
+antananarivo: checks
+*** RIVER *** [3c 2d 4c 3s] [Tc]
+Robi8813: checks
+antananarivo: bets $13.50
+Robi8813: folds
+Uncalled bet ($13.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $20.70 from pot
+*** SUMMARY ***
+Total pot $20.70 | Rake $1.03 
+Board [3c 2d 4c 3s Tc]
+Seat 1: antananarivo collected ($20.70)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: ConnorMG1 (small blind) folded before Flop 
+Seat 4: lastTime87 (big blind) folded on the Flop 
+Seat 5: Robi8813 folded on the River 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390783:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:46:26 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: antananarivo ($170.78 in chips)
+Seat 2: JTs98o ($112.37 in chips)
+Seat 3: ConnorMG1 ($141.07 in chips)
+Seat 4: lastTime87 ($19.50 in chips)
+Seat 5: Robi8813 ($31.05 in chips)
+Seat 6: Meze188 ($124.04 in chips)
+Seat 7: kole1992 ($108.69 in chips)
+Seat 8: SickDay ($77.43 in chips)
+lastTime87: posts small blind $0.50
+Robi8813: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Qs]
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+JTs98o: folds
+ConnorMG1: raises $2.50 to $2.50
+lastTime87: calls $2
+Robi8813: calls $1.50
+*** FLOP *** [5h Ac 7s]
+lastTime87: bets $3
+Robi8813: folds
+ConnorMG1: folds
+Uncalled bet ($3) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [5h Ac 7s]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 (button) folded on the Flop 
+Seat 4: lastTime87 (small blind) collected ($7.50)
+Seat 5: Robi8813 (big blind) folded on the Flop 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390808:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:47:29 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: antananarivo ($170.78 in chips)
+Seat 2: JTs98o ($112.37 in chips)
+Seat 3: ConnorMG1 ($138.57 in chips)
+Seat 4: lastTime87 ($24.13 in chips)
+Seat 5: Robi8813 ($28.55 in chips)
+Seat 6: Meze188 ($124.04 in chips)
+Seat 7: kole1992 ($108.69 in chips)
+Seat 8: SickDay ($77.43 in chips)
+Robi8813: posts small blind $0.50
+Meze188: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 4d]
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: folds
+Robi8813: calls $0.50
+Meze188: checks
+*** FLOP *** [As Th Ts]
+Robi8813: checks
+Meze188: bets $1
+Robi8813: calls $1
+*** TURN *** [As Th Ts] [5d]
+Robi8813: checks
+Meze188: checks
+*** RIVER *** [As Th Ts 5d] [9s]
+Robi8813: checks
+Meze188: checks
+*** SHOW DOWN ***
+Robi8813: shows [Kd 7d] (a pair of Tens)
+Meze188: shows [5h 9c] (two pair, Tens and Nines)
+Meze188 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [As Th Ts 5d 9s]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 (button) folded before Flop (didn't bet)
+Seat 5: Robi8813 (small blind) showed [Kd 7d] and lost with a pair of Tens
+Seat 6: Meze188 (big blind) showed [5h 9c] and won ($4) with two pair, Tens and Nines
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390831:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:48:26 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: antananarivo ($170.78 in chips)
+Seat 2: JTs98o ($112.37 in chips)
+Seat 3: ConnorMG1 ($138.57 in chips)
+Seat 4: lastTime87 ($24.13 in chips)
+Seat 5: Robi8813 ($26.55 in chips)
+Seat 6: Meze188 ($125.84 in chips)
+Seat 7: kole1992 ($108.69 in chips)
+Seat 8: SickDay ($77.43 in chips)
+Meze188: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Ah]
+SickDay has timed out
+SickDay: folds
+antananarivo: folds
+JTs98o: folds
+ConnorMG1: calls $1
+lastTime87: raises $4 to $4
+Robi8813: folds
+Meze188: folds
+kole1992: calls $3
+ConnorMG1: raises $19 to $20
+lastTime87: folds
+kole1992: folds
+Uncalled bet ($16) returned to ConnorMG1
+*** SHOW DOWN ***
+ConnorMG1: doesn't show hand
+ConnorMG1 collected $12.50 from pot
+*** SUMMARY ***
+Total pot $12.50 | Rake $0 
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 collected ($12.50)
+Seat 4: lastTime87 folded before Flop 
+Seat 5: Robi8813 (button) folded before Flop (didn't bet)
+Seat 6: Meze188 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76390861:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:49:36 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: antananarivo ($170.78 in chips)
+Seat 2: JTs98o ($112.37 in chips)
+Seat 3: ConnorMG1 ($147.07 in chips)
+Seat 4: lastTime87 ($20.13 in chips)
+Seat 5: Robi8813 ($26.55 in chips)
+Seat 6: Meze188 ($125.34 in chips)
+Seat 7: kole1992 ($104.69 in chips)
+Seat 8: SickDay ($77.43 in chips)
+kole1992: posts small blind $0.50
+SickDay: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Kh]
+antananarivo: raises $2.50 to $2.50
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: folds
+Robi8813: folds
+Meze188: calls $2.50
+kole1992: folds
+SickDay: calls $1.50
+*** FLOP *** [3d 6s 7c]
+SickDay: checks
+antananarivo: checks
+Meze188: bets $5.70
+SickDay: folds
+antananarivo: calls $5.70
+*** TURN *** [3d 6s 7c] [2c]
+antananarivo: checks
+Meze188: bets $21.60
+antananarivo: folds
+Uncalled bet ($21.60) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $19.40 from pot
+*** SUMMARY ***
+Total pot $19.40 | Rake $0.97 
+Board [3d 6s 7c 2c]
+Seat 1: antananarivo folded on the Turn 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: Robi8813 folded before Flop (didn't bet)
+Seat 6: Meze188 (button) collected ($19.40)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: SickDay (big blind) folded on the Flop 
+
+
+Weplay Hand #76390891:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:51:06 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: antananarivo ($162.58 in chips)
+Seat 2: JTs98o ($112.37 in chips)
+Seat 3: ConnorMG1 ($147.07 in chips)
+Seat 4: lastTime87 ($20.13 in chips)
+Seat 5: Robi8813 ($26.55 in chips)
+Seat 6: Meze188 ($135.57 in chips)
+Seat 7: kole1992 ($104.19 in chips)
+Seat 8: SickDay ($74.93 in chips)
+SickDay: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 4d]
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: raises $3 to $3
+Robi8813: folds
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+Uncalled bet ($2) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: antananarivo (big blind) folded before Flop 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 collected ($2.50)
+Seat 5: Robi8813 folded before Flop (didn't bet)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: SickDay (small blind) folded before Flop 
+
+
+Weplay Hand #76390904:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:51:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: antananarivo ($161.58 in chips)
+Seat 2: JTs98o ($112.37 in chips)
+Seat 3: ConnorMG1 ($147.07 in chips)
+Seat 4: lastTime87 ($21.63 in chips)
+Seat 5: Robi8813 ($26.55 in chips)
+Seat 6: Meze188 ($135.57 in chips)
+Seat 7: kole1992 ($104.19 in chips)
+Seat 8: SickDay ($74.43 in chips)
+antananarivo: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 6c]
+ConnorMG1: folds
+lastTime87: calls $1
+Robi8813: calls $1
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+JTs98o: checks
+*** FLOP *** [7s 9h Jh]
+JTs98o: checks
+lastTime87: checks
+Robi8813: checks
+*** TURN *** [7s 9h Jh] [7d]
+JTs98o: bets $4.06
+lastTime87: calls $4.06
+Robi8813: calls $4.06
+*** RIVER *** [7s 9h Jh 7d] [9c]
+JTs98o: checks
+lastTime87: checks
+Robi8813: checks
+*** SHOW DOWN ***
+JTs98o: shows [6d 8d] (two pair, Nines and Sevens)
+lastTime87: shows [Qs Jd] (two pair, Jacks and Nines)
+Robi8813: shows [6h 7h] (a full house, Sevens full of Nines)
+Robi8813 collected $15.68 from pot
+*** SUMMARY ***
+Total pot $15.68 | Rake $0.78 
+Board [7s 9h Jh 7d 9c]
+Seat 1: antananarivo (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) showed [6d 8d] and lost with two pair, Nines and Sevens
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 showed [Qs Jd] and lost with two pair, Jacks and Nines
+Seat 5: Robi8813 showed [6h 7h] and won ($15.68) with a full house, Sevens full of Nines
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76390931:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:52:35 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: antananarivo ($161.08 in chips)
+Seat 2: JTs98o ($107.31 in chips)
+Seat 3: ConnorMG1 ($147.07 in chips)
+Seat 4: lastTime87 ($16.57 in chips)
+Seat 5: Robi8813 ($36.39 in chips)
+Seat 6: Meze188 ($135.57 in chips)
+Seat 7: kole1992 ($104.19 in chips)
+Seat 8: SickDay ($74.43 in chips)
+JTs98o: posts small blind $0.50
+ConnorMG1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Jc]
+lastTime87: folds
+Robi8813: folds
+Meze188: folds
+kole1992: folds
+SickDay: raises $3 to $3
+antananarivo: folds
+JTs98o: calls $2.50
+ConnorMG1: folds
+*** FLOP *** [Qs 6d 2c]
+JTs98o: checks
+SickDay: bets $5.04
+JTs98o: raises $13.88 to $13.88
+SickDay: folds
+Uncalled bet ($8.84) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $17.08 from pot
+*** SUMMARY ***
+Total pot $17.08 | Rake $0.85 
+Board [Qs 6d 2c]
+Seat 1: antananarivo (button) folded before Flop (didn't bet)
+Seat 2: JTs98o (small blind) collected ($17.08)
+Seat 3: ConnorMG1 (big blind) folded before Flop 
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: Robi8813 folded before Flop (didn't bet)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded on the Flop 
+
+
+Weplay Hand #76390957:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:53:25 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: antananarivo ($161.08 in chips)
+Seat 2: JTs98o ($115.50 in chips)
+Seat 3: ConnorMG1 ($146.07 in chips)
+Seat 4: lastTime87 ($16.57 in chips)
+Seat 5: Robi8813 ($36.39 in chips)
+Seat 6: Meze188 ($135.57 in chips)
+Seat 7: kole1992 ($104.19 in chips)
+Seat 8: SickDay ($66.39 in chips)
+ConnorMG1: posts small blind $0.50
+lastTime87: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Ks]
+Robi8813: calls $1
+Meze188: folds
+kole1992: folds
+SickDay: calls $1
+antananarivo: folds
+JTs98o: calls $1
+ConnorMG1: raises $4.94 to $5.44
+lastTime87: calls $4.44
+Robi8813: calls $4.44
+SickDay: calls $4.44
+JTs98o: calls $4.44
+*** FLOP *** [7c 5c 4d]
+ConnorMG1: checks
+lastTime87: checks
+Robi8813: bets $10
+SickDay: calls $10
+JTs98o: calls $10
+ConnorMG1: folds
+lastTime87: folds
+*** TURN *** [7c 5c 4d] [7d]
+Robi8813: bets $10
+SickDay: folds
+JTs98o: calls $10
+*** RIVER *** [7c 5c 4d 7d] [2c]
+Robi8813: bets $10.95 and is all-in
+JTs98o: calls $10.95
+*** SHOW DOWN ***
+Robi8813: shows [7h 7s] (four of a kind, Sevens)
+JTs98o: shows [3c Jc] (a flush, Jack high)
+Robi8813 collected $99.10 from pot
+*** SUMMARY ***
+Total pot $99.10 | Rake $4.95 
+Board [7c 5c 4d 7d 2c]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o (button) showed [3c Jc] and lost with a flush, Jack high
+Seat 3: ConnorMG1 (small blind) folded on the Flop 
+Seat 4: lastTime87 (big blind) folded on the Flop 
+Seat 5: Robi8813 showed [7h 7s] and won ($99.10) with four of a kind, Sevens
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded on the Turn 
+
+
+Weplay Hand #76391000:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:55:22 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: antananarivo ($161.08 in chips)
+Seat 2: JTs98o ($100 in chips)
+Seat 3: ConnorMG1 ($140.63 in chips)
+Seat 4: lastTime87 ($11.13 in chips)
+Seat 5: Robi8813 ($94.15 in chips)
+Seat 6: Meze188 ($135.57 in chips)
+Seat 7: kole1992 ($104.19 in chips)
+Seat 8: SickDay ($50.95 in chips)
+lastTime87: posts small blind $0.50
+Robi8813: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Th]
+Meze188: folds
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+JTs98o: raises $2.50 to $2.50
+ConnorMG1: folds
+lastTime87: folds
+Robi8813: calls $1.50
+*** FLOP *** [Jc Qc 8d]
+Robi8813: checks
+JTs98o: checks
+*** TURN *** [Jc Qc 8d] [4h]
+Robi8813: bets $2.75
+JTs98o: calls $2.75
+*** RIVER *** [Jc Qc 8d 4h] [7c]
+Robi8813: bets $5.50
+JTs98o: folds
+Uncalled bet ($5.50) returned to Robi8813
+*** SHOW DOWN ***
+Robi8813 has timed out
+Robi8813: doesn't show hand
+Robi8813 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [Jc Qc 8d 4h 7c]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o folded on the River 
+Seat 3: ConnorMG1 (button) folded before Flop (didn't bet)
+Seat 4: lastTime87 (small blind) folded before Flop 
+Seat 5: Robi8813 (big blind) collected ($11)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76391011:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:56:12 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: antananarivo ($161.08 in chips)
+Seat 2: JTs98o ($100 in chips)
+Seat 3: ConnorMG1 ($140.63 in chips)
+Seat 4: lastTime87 ($10.63 in chips)
+Seat 5: Robi8813 ($99.35 in chips)
+Seat 6: Meze188 ($135.57 in chips)
+Seat 7: kole1992 ($104.19 in chips)
+Seat 8: SickDay ($50.95 in chips)
+Robi8813: posts small blind $0.50
+Meze188: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Kd]
+kole1992: folds
+SickDay: folds
+antananarivo: folds
+JTs98o: raises $2.50 to $2.50
+ConnorMG1: folds
+lastTime87: folds
+Robi8813: calls $2
+Meze188: folds
+*** FLOP *** [6s Td 7s]
+Robi8813: checks
+JTs98o: bets $6.96
+Robi8813: folds
+Uncalled bet ($6.96) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [6s Td 7s]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o collected ($6)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 (button) folded before Flop (didn't bet)
+Seat 5: Robi8813 (small blind) folded on the Flop 
+Seat 6: Meze188 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76391023:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:56:41 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: antananarivo ($161.08 in chips)
+Seat 2: JTs98o ($103.20 in chips)
+Seat 3: ConnorMG1 ($140.63 in chips)
+Seat 4: lastTime87 ($10.63 in chips)
+Seat 5: Robi8813 ($96.85 in chips)
+Seat 6: Meze188 ($134.57 in chips)
+Seat 7: kole1992 ($104.19 in chips)
+Seat 8: SickDay ($50.95 in chips)
+Meze188: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Kh]
+SickDay: folds
+antananarivo: folds
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: folds
+Robi8813: calls $1
+Meze188: folds
+kole1992: checks
+*** FLOP *** [3d Kd 2h]
+kole1992: checks
+Robi8813: checks
+*** TURN *** [3d Kd 2h] [Ac]
+kole1992: checks
+Robi8813: checks
+*** RIVER *** [3d Kd 2h Ac] [8d]
+kole1992: checks
+Robi8813: checks
+*** SHOW DOWN ***
+kole1992: shows [5h Kh] (a pair of Kings)
+Robi8813: shows [Ks Jd] (a pair of Kings)
+Robi8813 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [3d Kd 2h Ac 8d]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: Robi8813 (button) showed [Ks Jd] and won ($2.50) with a pair of Kings
+Seat 6: Meze188 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) showed [5h Kh] and lost with a pair of Kings
+Seat 8: SickDay folded before Flop (didn't bet)
+
+
+Weplay Hand #76391035:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:57:36 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: antananarivo ($161.08 in chips)
+Seat 2: JTs98o ($103.20 in chips)
+Seat 3: ConnorMG1 ($140.63 in chips)
+Seat 4: lastTime87 ($10.63 in chips)
+Seat 5: Robi8813 ($98.23 in chips)
+Seat 6: Meze188 ($134.07 in chips)
+Seat 7: kole1992 ($103.19 in chips)
+Seat 8: SickDay ($50.95 in chips)
+kole1992: posts small blind $0.50
+SickDay: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 8s]
+antananarivo: folds
+JTs98o: calls $1
+ConnorMG1: folds
+lastTime87: folds
+Robi8813: calls $1
+Meze188: folds
+kole1992: folds
+SickDay: checks
+*** FLOP *** [Ac Tc 4s]
+SickDay: checks
+JTs98o: bets $2.34
+Robi8813: calls $2.34
+SickDay: calls $2.34
+*** TURN *** [Ac Tc 4s] [6c]
+SickDay: checks
+JTs98o: checks
+Robi8813: checks
+*** RIVER *** [Ac Tc 4s 6c] [5d]
+SickDay: bets $6.31
+JTs98o: calls $6.31
+Robi8813: folds
+*** SHOW DOWN ***
+SickDay: shows [Jc Qc] (a flush, Ace high)
+JTs98o: mucks hand
+SickDay collected $23.14 from pot
+*** SUMMARY ***
+Total pot $23.14 | Rake $1.15 
+Board [Ac Tc 4s 6c 5d]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o mucked
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: Robi8813 folded on the River 
+Seat 6: Meze188 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: SickDay (big blind) showed [Jc Qc] and won ($23.14) with a flush, Ace high
+
+
+Weplay Hand #76391057:  Hold'em No Limit ($0.50/$1) - 2026/02/21 21:59:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: antananarivo ($161.08 in chips)
+Seat 2: JTs98o ($100 in chips)
+Seat 3: ConnorMG1 ($140.63 in chips)
+Seat 4: lastTime87 ($10.63 in chips)
+Seat 5: Robi8813 ($94.89 in chips)
+Seat 6: Meze188 ($134.07 in chips)
+Seat 7: kole1992 ($102.69 in chips)
+Seat 8: SickDay ($63.29 in chips)
+SickDay: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 5d]
+JTs98o: calls $1
+ConnorMG1: calls $1
+lastTime87: folds
+Robi8813: folds
+Meze188: folds
+kole1992: folds
+SickDay: calls $0.50
+antananarivo: checks
+*** FLOP *** [5c 2c 3s]
+SickDay: bets $2.88
+antananarivo: folds
+JTs98o: raises $14.20 to $14.20
+ConnorMG1: folds
+SickDay: raises $30.76 to $33.64
+JTs98o: raises $67.19 to $81.39
+SickDay: calls $28.65 and is all-in
+Uncalled bet ($19.10) returned to JTs98o
+*** TURN *** [5c 2c 3s] [6c]
+*** RIVER *** [5c 2c 3s 6c] [7s]
+*** SHOW DOWN ***
+SickDay: shows [3h 5h] (two pair, Fives and Threes)
+JTs98o: shows [8c Ac] (a flush, Ace high)
+JTs98o collected $128.58 from pot
+*** SUMMARY ***
+Total pot $128.58 | Rake $6.42 
+Board [5c 2c 3s 6c 7s]
+Seat 1: antananarivo (big blind) folded on the Flop 
+Seat 2: JTs98o showed [8c Ac] and won ($128.58) with a flush, Ace high
+Seat 3: ConnorMG1 folded on the Flop 
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: Robi8813 folded before Flop (didn't bet)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: SickDay (small blind) showed [3h 5h] and lost with two pair, Fives and Threes
+
+
+Weplay Hand #76391078:  Hold'em No Limit ($0.50/$1) - 2026/02/21 22:00:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: antananarivo ($160.08 in chips)
+Seat 2: JTs98o ($158.87 in chips)
+Seat 3: ConnorMG1 ($139.63 in chips)
+Seat 4: lastTime87 ($10.63 in chips)
+Seat 5: Robi8813 ($94.89 in chips)
+Seat 6: Meze188 ($134.07 in chips)
+Seat 7: kole1992 ($102.69 in chips)
+antananarivo: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 9d]
+SickDay leaves the table
+ConnorMG1: raises $2.50 to $2.50
+lastTime87: calls $2.50
+Robi8813: calls $2.50
+Meze188: folds
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+*** FLOP *** [8c 2d 5h]
+ConnorMG1: checks
+lastTime87: checks
+Robi8813: checks
+*** TURN *** [8c 2d 5h] [5s]
+ConnorMG1: checks
+lastTime87: checks
+Robi8813: checks
+*** RIVER *** [8c 2d 5h 5s] [Qs]
+ConnorMG1: checks
+lastTime87: checks
+Robi8813: checks
+*** SHOW DOWN ***
+ConnorMG1: shows [4h 4c] (two pair, Fives and Fours)
+lastTime87: shows [Qh 7c] (two pair, Queens and Fives)
+Robi8813 has timed out
+Robi8813: mucks hand
+lastTime87 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [8c 2d 5h 5s Qs]
+Seat 1: antananarivo (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) folded before Flop 
+Seat 3: ConnorMG1 showed [4h 4c] and lost with two pair, Fives and Fours
+Seat 4: lastTime87 showed [Qh 7c] and won ($9) with two pair, Queens and Fives
+Seat 5: Robi8813 mucked
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76391100:  Hold'em No Limit ($0.50/$1) - 2026/02/21 22:00:54 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: antananarivo ($159.58 in chips)
+Seat 2: JTs98o ($157.87 in chips)
+Seat 3: ConnorMG1 ($137.13 in chips)
+Seat 4: lastTime87 ($16.68 in chips)
+Seat 5: Robi8813 ($92.39 in chips)
+Seat 6: Meze188 ($134.07 in chips)
+Seat 7: kole1992 ($102.69 in chips)
+JTs98o: posts small blind $0.50
+ConnorMG1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 8s]
+lastTime87: calls $1
+Robi8813: calls $1
+Meze188: folds
+kole1992: folds
+antananarivo: raises $5 to $5
+JTs98o: raises $14.50 to $15
+ConnorMG1: folds
+lastTime87: folds
+Robi8813: folds
+antananarivo: calls $10
+*** FLOP *** [Ks Kh 7c]
+JTs98o: checks
+antananarivo: checks
+*** TURN *** [Ks Kh 7c] [2h]
+JTs98o: checks
+antananarivo: bets $16.50
+JTs98o: raises $45 to $45
+antananarivo: folds
+Uncalled bet ($28.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $66 from pot
+*** SUMMARY ***
+Total pot $66 | Rake $3.30 
+Board [Ks Kh 7c 2h]
+Seat 1: antananarivo (button) folded on the Turn 
+Seat 2: JTs98o (small blind) collected ($66)
+Seat 3: ConnorMG1 (big blind) folded before Flop 
+Seat 4: lastTime87 folded before Flop 
+Seat 5: Robi8813 folded before Flop 
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76391145:  Hold'em No Limit ($0.50/$1) - 2026/02/21 22:02:19 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: antananarivo ($128.08 in chips)
+Seat 2: JTs98o ($189.07 in chips)
+Seat 3: ConnorMG1 ($136.13 in chips)
+Seat 4: lastTime87 ($15.68 in chips)
+Seat 5: Robi8813 ($91.39 in chips)
+Seat 6: Meze188 ($134.07 in chips)
+Seat 7: kole1992 ($102.69 in chips)
+ConnorMG1: posts small blind $0.50
+lastTime87: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 9h]
+Robi8813: calls $1
+Meze188: raises $4.50 to $4.50
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: calls $3.50
+Robi8813: folds
+*** FLOP *** [Ac 9c 8c]
+lastTime87: checks
+Meze188: bets $3.50
+lastTime87: folds
+Uncalled bet ($3.50) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $10.50 from pot
+*** SUMMARY ***
+Total pot $10.50 | Rake $0.52 
+Board [Ac 9c 8c]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: ConnorMG1 (small blind) folded before Flop 
+Seat 4: lastTime87 (big blind) folded on the Flop 
+Seat 5: Robi8813 folded before Flop 
+Seat 6: Meze188 collected ($10.50)
+Seat 7: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76391169:  Hold'em No Limit ($0.50/$1) - 2026/02/21 22:03:04 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: antananarivo ($128.08 in chips)
+Seat 2: JTs98o ($189.07 in chips)
+Seat 3: ConnorMG1 ($135.63 in chips)
+Seat 4: lastTime87 ($11.18 in chips)
+Seat 5: Robi8813 ($90.39 in chips)
+Seat 6: Meze188 ($139.55 in chips)
+Seat 7: kole1992 ($102.69 in chips)
+lastTime87: posts small blind $0.50
+Robi8813: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 7d]
+Meze188: folds
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: folds
+Uncalled bet ($0.50) returned to Robi8813
+*** SHOW DOWN ***
+Robi8813 has timed out
+Robi8813: doesn't show hand
+Robi8813 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 (button) folded before Flop (didn't bet)
+Seat 4: lastTime87 (small blind) folded before Flop 
+Seat 5: Robi8813 (big blind) collected ($1)
+Seat 6: Meze188 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76391182:  Hold'em No Limit ($0.50/$1) - 2026/02/21 22:03:33 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: antananarivo ($128.08 in chips)
+Seat 2: JTs98o ($189.07 in chips)
+Seat 3: ConnorMG1 ($135.63 in chips)
+Seat 4: lastTime87 ($10.68 in chips)
+Seat 5: Robi8813 ($90.89 in chips)
+Seat 6: Meze188 ($139.55 in chips)
+Seat 7: kole1992 ($102.69 in chips)
+Robi8813: posts small blind $0.50
+Meze188: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Td]
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Lovesa joins the table at seat #8
+ConnorMG1: folds
+lastTime87: folds
+Robi8813: calls $0.50
+Meze188: checks
+*** FLOP *** [6d 5s 9c]
+Robi8813: checks
+Meze188: bets $1.50
+Robi8813: folds
+Uncalled bet ($1.50) returned to Meze188
+*** SHOW DOWN ***
+Meze188: doesn't show hand
+Meze188 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [6d 5s 9c]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 (button) folded before Flop (didn't bet)
+Seat 5: Robi8813 (small blind) folded on the Flop 
+Seat 6: Meze188 (big blind) collected ($2)
+Seat 7: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76391209:  Hold'em No Limit ($0.50/$1) - 2026/02/21 22:04:15 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: antananarivo ($128.08 in chips)
+Seat 2: JTs98o ($189.07 in chips)
+Seat 3: ConnorMG1 ($135.63 in chips)
+Seat 4: lastTime87 ($10.68 in chips)
+Seat 5: Robi8813 ($89.89 in chips)
+Seat 6: Meze188 ($140.45 in chips)
+Seat 7: kole1992 ($102.69 in chips)
+Seat 8: Lovesa ($63.59 in chips)
+Meze188: posts small blind $0.50
+kole1992: posts big blind $1
+Lovesa: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 4s]
+Lovesa: raises $1 to $2
+antananarivo: folds
+JTs98o: folds
+ConnorMG1: folds
+lastTime87: calls $2
+Robi8813: calls $2
+Meze188: folds
+kole1992: calls $1
+*** FLOP *** [8s Ks 7d]
+kole1992: checks
+Lovesa: bets $7
+lastTime87: folds
+Robi8813: calls $7
+kole1992: folds
+*** TURN *** [8s Ks 7d] [Td]
+kole1992: sits out 
+Lovesa: checks
+Robi8813: checks
+*** RIVER *** [8s Ks 7d Td] [Ac]
+Lovesa: bets $15
+Robi8813: calls $15
+*** SHOW DOWN ***
+Lovesa: shows [8d As] (two pair, Aces and Eights)
+Robi8813: shows [6h 9c] (a straight, Six to Ten)
+Robi8813 collected $52.50 from pot
+*** SUMMARY ***
+Total pot $52.50 | Rake $2.62 
+Board [8s Ks 7d Td Ac]
+Seat 1: antananarivo folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: ConnorMG1 folded before Flop (didn't bet)
+Seat 4: lastTime87 folded on the Flop 
+Seat 5: Robi8813 (button) showed [6h 9c] and won ($52.50) with a straight, Six to Ten
+Seat 6: Meze188 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded on the Flop 
+Seat 8: Lovesa (big blind) showed [8d As] and lost with two pair, Aces and Eights

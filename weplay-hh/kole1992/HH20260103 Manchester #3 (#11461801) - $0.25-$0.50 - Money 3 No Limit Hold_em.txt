@@ -1,0 +1,1472 @@
+﻿Weplay Hand #71494692:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:07:03 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #6 is the button
+Seat 1: FerreiraM ($30.15 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($50 in chips)
+Seat 4: blazzze ($55.68 in chips)
+Seat 5: Minihats ($58.42 in chips)
+Seat 6: Lecita13 ($38.22 in chips)
+FerreiraM: posts small blind $0.25
+kole1992: posts big blind $0.50
+cosmicmind: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Kc]
+cosmicmind: checks
+blazzze has timed out
+blazzze: folds
+Minihats: folds
+Lecita13: raises $1.50 to $1.50
+FerreiraM: calls $1.25
+kole1992: calls $1
+cosmicmind: raises $49.50 to $50 and is all-in
+Lecita13: folds
+FerreiraM has timed out
+FerreiraM: folds
+FerreiraM: sits out 
+kole1992: folds
+Uncalled bet ($48.50) returned to cosmicmind
+*** SHOW DOWN ***
+cosmicmind: doesn't show hand
+cosmicmind collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 1: FerreiraM (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: cosmicmind (big blind) collected ($6)
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Minihats folded before Flop (didn't bet)
+Seat 6: Lecita13 (button) folded before Flop 
+
+
+Weplay Hand #71494745:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:08:42 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #1 is the button
+Seat 1: FerreiraM ($28.65 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($54.50 in chips)
+Seat 4: blazzze ($55.68 in chips)
+Seat 5: Minihats ($58.42 in chips)
+Seat 6: Lecita13 ($36.72 in chips)
+kole1992: posts small blind $0.25
+cosmicmind: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 7d]
+blazzze: folds
+Minihats: raises $1.50 to $1.50
+Lecita13: folds
+FerreiraM: calls $1.50
+kole1992: folds
+cosmicmind: folds
+*** FLOP *** [4d 9d 6s]
+Minihats: bets $1.20
+FerreiraM: calls $1.20
+*** TURN *** [4d 9d 6s] [Th]
+Minihats: bets $1.70
+FerreiraM: calls $1.70
+*** RIVER *** [4d 9d 6s Th] [Qc]
+Minihats: bets $2.20
+FerreiraM: raises $4.40 to $4.40
+Minihats: calls $2.20
+*** SHOW DOWN ***
+FerreiraM: shows [Tc 9c] (two pair, Tens and Nines)
+Minihats has timed out
+Minihats: mucks hand
+FerreiraM collected $18.35 from pot
+*** SUMMARY ***
+Total pot $18.35 | Rake $0.91 
+Board [4d 9d 6s Th Qc]
+Seat 1: FerreiraM (button) showed [Tc 9c] and won ($18.35) with two pair, Tens and Nines
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: cosmicmind (big blind) folded before Flop 
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Minihats mucked
+Seat 6: Lecita13 folded before Flop (didn't bet)
+
+
+Weplay Hand #71494768:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:09:36 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #2 is the button
+Seat 1: FerreiraM ($37.29 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($54 in chips)
+Seat 4: blazzze ($55.68 in chips)
+Seat 5: Minihats ($49.62 in chips)
+Seat 6: Lecita13 ($36.72 in chips)
+cosmicmind: posts small blind $0.25
+blazzze: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Jc]
+Minihats: folds
+Lecita13: folds
+FerreiraM: calls $0.50
+kole1992: folds
+cosmicmind: folds
+blazzze: checks
+*** FLOP *** [5s 5d 7s]
+blazzze: checks
+FerreiraM: checks
+*** TURN *** [5s 5d 7s] [4s]
+blazzze: checks
+FerreiraM: checks
+*** RIVER *** [5s 5d 7s 4s] [Td]
+blazzze: bets $0.83
+FerreiraM: folds
+Uncalled bet ($0.83) returned to blazzze
+*** SHOW DOWN ***
+blazzze: doesn't show hand
+blazzze collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [5s 5d 7s 4s Td]
+Seat 1: FerreiraM folded on the River 
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: cosmicmind (small blind) folded before Flop 
+Seat 4: blazzze (big blind) collected ($1.25)
+Seat 5: Minihats folded before Flop (didn't bet)
+Seat 6: Lecita13 folded before Flop (didn't bet)
+
+
+Weplay Hand #71494783:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:10:13 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #3 is the button
+Seat 1: FerreiraM ($36.79 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($53.75 in chips)
+Seat 4: blazzze ($56.37 in chips)
+Seat 5: Minihats ($49.62 in chips)
+Seat 6: Lecita13 ($36.72 in chips)
+blazzze: posts small blind $0.25
+Minihats: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 9s]
+Lecita13: folds
+FerreiraM: raises $3 to $3
+kole1992: folds
+cosmicmind: folds
+blazzze: folds
+Minihats: folds
+Uncalled bet ($2.50) returned to FerreiraM
+*** SHOW DOWN ***
+FerreiraM has timed out
+FerreiraM: doesn't show hand
+FerreiraM collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: FerreiraM collected ($1.25)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind (button) folded before Flop (didn't bet)
+Seat 4: blazzze (small blind) folded before Flop 
+Seat 5: Minihats (big blind) folded before Flop 
+Seat 6: Lecita13 folded before Flop (didn't bet)
+
+
+Weplay Hand #71494796:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:10:45 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #4 is the button
+Seat 1: FerreiraM ($37.54 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($53.75 in chips)
+Seat 4: blazzze ($56.12 in chips)
+Seat 5: Minihats ($49.12 in chips)
+Seat 6: Lecita13 ($36.72 in chips)
+Minihats: posts small blind $0.25
+Lecita13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 5h]
+FerreiraM: folds
+kole1992: folds
+cosmicmind: raises $1.25 to $1.25
+blazzze: folds
+Minihats: folds
+Lecita13: calls $0.75
+*** FLOP *** [Jh 4c 9h]
+Lecita13: checks
+cosmicmind: bets $0.90
+Lecita13: folds
+Uncalled bet ($0.90) returned to cosmicmind
+*** SHOW DOWN ***
+cosmicmind: doesn't show hand
+cosmicmind collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Jh 4c 9h]
+Seat 1: FerreiraM folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind collected ($2.75)
+Seat 4: blazzze (button) folded before Flop (didn't bet)
+Seat 5: Minihats (small blind) folded before Flop 
+Seat 6: Lecita13 (big blind) folded on the Flop 
+
+
+Weplay Hand #71494812:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:11:19 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #5 is the button
+Seat 1: FerreiraM ($37.54 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($55.12 in chips)
+Seat 4: blazzze ($56.12 in chips)
+Seat 5: Minihats ($48.87 in chips)
+Seat 6: Lecita13 ($35.47 in chips)
+Lecita13: posts small blind $0.25
+FerreiraM: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 6h]
+kole1992: folds
+cosmicmind: raises $1.25 to $1.25
+blazzze: folds
+Minihats: calls $1.25
+Lecita13: folds
+FerreiraM: calls $0.75
+*** FLOP *** [9c 4s Ks]
+FerreiraM: checks
+cosmicmind: checks
+Minihats: bets $4
+FerreiraM: folds
+cosmicmind: folds
+Uncalled bet ($4) returned to Minihats
+*** SHOW DOWN ***
+Minihats has timed out
+Minihats: doesn't show hand
+Minihats collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [9c 4s Ks]
+Seat 1: FerreiraM (big blind) folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind folded on the Flop 
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Minihats (button) collected ($4)
+Seat 6: Lecita13 (small blind) folded before Flop 
+
+
+Weplay Hand #71494826:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:12:05 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #6 is the button
+Seat 1: FerreiraM ($36.29 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($53.87 in chips)
+Seat 4: blazzze ($56.12 in chips)
+Seat 5: Minihats ($51.42 in chips)
+Seat 6: Lecita13 ($35.22 in chips)
+FerreiraM: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 4c]
+cosmicmind: folds
+blazzze: folds
+Minihats: raises $1.50 to $1.50
+Lecita13: calls $1.50
+FerreiraM: calls $1.25
+kole1992: folds
+*** FLOP *** [Jd 9s 5s]
+FerreiraM: checks
+Minihats: bets $1.20
+Lecita13: calls $1.20
+FerreiraM: calls $1.20
+*** TURN *** [Jd 9s 5s] [2s]
+FerreiraM: checks
+Minihats: checks
+Lecita13: checks
+*** RIVER *** [Jd 9s 5s 2s] [Kh]
+FerreiraM: bets $4.30
+Minihats: folds
+Lecita13: folds
+Uncalled bet ($4.30) returned to FerreiraM
+*** SHOW DOWN ***
+FerreiraM has timed out
+FerreiraM: doesn't show hand
+FerreiraM collected $8.60 from pot
+*** SUMMARY ***
+Total pot $8.60 | Rake $0.43 
+Board [Jd 9s 5s 2s Kh]
+Seat 1: FerreiraM (small blind) collected ($8.60)
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Minihats folded on the River 
+Seat 6: Lecita13 (button) folded on the River 
+
+
+Weplay Hand #71494850:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:13:15 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #1 is the button
+Seat 1: FerreiraM ($41.76 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($53.87 in chips)
+Seat 4: blazzze ($56.12 in chips)
+Seat 5: Minihats ($48.72 in chips)
+Seat 6: Lecita13 ($32.52 in chips)
+kole1992: posts small blind $0.25
+cosmicmind: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 9c]
+blazzze: folds
+Minihats: raises $1.50 to $1.50
+Lecita13: calls $1.50
+FerreiraM: folds
+kole1992: folds
+JTs98o joins the table at seat #7
+JTs98o leaves the table
+cosmicmind: folds
+*** FLOP *** [5h 4c Jc]
+Minihats: checks
+Lecita13: checks
+*** TURN *** [5h 4c Jc] [6h]
+Minihats: bets $1.20
+JTs98o joins the table at seat #8
+Lecita13: calls $1.20
+*** RIVER *** [5h 4c Jc 6h] [Ah]
+Minihats: bets $2.20
+Lecita13: calls $2.20
+*** SHOW DOWN ***
+Minihats: shows [Qc Js] (a pair of Jacks)
+Lecita13 has timed out
+Lecita13: mucks hand
+Minihats collected $10.55 from pot
+*** SUMMARY ***
+Total pot $10.55 | Rake $0.52 
+Board [5h 4c Jc 6h Ah]
+Seat 1: FerreiraM (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: cosmicmind (big blind) folded before Flop 
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Minihats showed [Qc Js] and won ($10.55) with a pair of Jacks
+Seat 6: Lecita13 mucked
+
+
+Weplay Hand #71494875:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:14:19 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #2 is the button
+Seat 1: FerreiraM ($41.76 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($53.37 in chips)
+Seat 4: blazzze ($56.12 in chips)
+Seat 5: Minihats ($53.85 in chips)
+Seat 6: Lecita13 ($27.62 in chips)
+Seat 8: JTs98o ($50 in chips)
+cosmicmind: posts small blind $0.25
+blazzze: posts big blind $0.50
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 8c]
+Minihats: folds
+Lecita13: folds
+JTs98o: raises $1.25 to $1.75
+FerreiraM: raises $3 to $3
+kole1992: folds
+cosmicmind: folds
+blazzze: folds
+JTs98o: calls $1.25
+*** FLOP *** [2d 7d 6d]
+JTs98o: checks
+FerreiraM: checks
+*** TURN *** [2d 7d 6d] [3d]
+JTs98o: checks
+FerreiraM: bets $5.06
+JTs98o: folds
+Uncalled bet ($5.06) returned to FerreiraM
+*** SHOW DOWN ***
+FerreiraM has timed out
+FerreiraM: doesn't show hand
+FerreiraM collected $6.75 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0.33 
+Board [2d 7d 6d 3d]
+Seat 1: FerreiraM collected ($6.75)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: cosmicmind (small blind) folded before Flop 
+Seat 4: blazzze (big blind) folded before Flop 
+Seat 5: Minihats folded before Flop (didn't bet)
+Seat 6: Lecita13 folded before Flop (didn't bet)
+Seat 8: JTs98o (big blind) folded on the Turn 
+
+
+Weplay Hand #71494903:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:15:09 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #3 is the button
+Seat 1: FerreiraM ($45.18 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($53.12 in chips)
+Seat 4: blazzze ($55.62 in chips)
+Seat 5: Minihats ($53.85 in chips)
+Seat 6: Lecita13 ($27.62 in chips)
+Seat 8: JTs98o ($50 in chips)
+blazzze: posts small blind $0.25
+Minihats: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Jd]
+Lecita13: raises $1 to $1
+JTs98o: folds
+FerreiraM: calls $1
+kole1992: folds
+cosmicmind: calls $1
+blazzze: folds
+Minihats: calls $0.50
+*** FLOP *** [3c 2c Js]
+Minihats: checks
+Lecita13: checks
+FerreiraM: checks
+cosmicmind: checks
+*** TURN *** [3c 2c Js] [Th]
+Minihats: checks
+Lecita13: bets $0.50
+FerreiraM: calls $0.50
+cosmicmind: raises $2.65 to $2.65
+Minihats: folds
+Lecita13: calls $2.15
+FerreiraM: calls $2.15
+*** RIVER *** [3c 2c Js Th] [6s]
+Lecita13: checks
+FerreiraM: checks
+cosmicmind: checks
+*** SHOW DOWN ***
+Lecita13: shows [7d 8d] (high card Jack)
+FerreiraM: shows [8c Td] (a pair of Tens)
+cosmicmind: shows [Ts Ah] (a pair of Tens)
+cosmicmind collected $12.20 from pot
+*** SUMMARY ***
+Total pot $12.20 | Rake $0.61 
+Board [3c 2c Js Th 6s]
+Seat 1: FerreiraM showed [8c Td] and lost with a pair of Tens
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind (button) showed [Ts Ah] and won ($12.20) with a pair of Tens
+Seat 4: blazzze (small blind) folded before Flop 
+Seat 5: Minihats (big blind) folded on the Turn 
+Seat 6: Lecita13 showed [7d 8d] and lost with high card Jack
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71494940:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:16:26 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #4 is the button
+Seat 1: FerreiraM ($41.53 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($61.06 in chips)
+Seat 4: blazzze ($55.37 in chips)
+Seat 5: Minihats ($52.85 in chips)
+Seat 6: Lecita13 ($23.97 in chips)
+Seat 8: JTs98o ($50 in chips)
+Minihats: posts small blind $0.25
+Lecita13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 8d]
+JTs98o: folds
+FerreiraM: folds
+kole1992: folds
+cosmicmind: folds
+blazzze: raises $1.50 to $1.50
+Minihats: folds
+Lecita13: calls $1
+*** FLOP *** [Jd 4h As]
+Lecita13: bets $1.05
+blazzze: raises $6.40 to $6.40
+Lecita13: calls $5.35
+*** TURN *** [Jd 4h As] [Ah]
+Lecita13: bets $8.05
+blazzze: raises $24.12 to $24.12
+Lecita13: folds
+Uncalled bet ($16.07) returned to blazzze
+*** SHOW DOWN ***
+blazzze: doesn't show hand
+blazzze collected $32.15 from pot
+*** SUMMARY ***
+Total pot $32.15 | Rake $1.60 
+Board [Jd 4h As Ah]
+Seat 1: FerreiraM folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze (button) collected ($32.15)
+Seat 5: Minihats (small blind) folded before Flop 
+Seat 6: Lecita13 (big blind) folded on the Turn 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71494978:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:17:51 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #5 is the button
+Seat 1: FerreiraM ($41.53 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($61.06 in chips)
+Seat 4: blazzze ($69.97 in chips)
+Seat 5: Minihats ($52.60 in chips)
+Seat 6: Lecita13 ($8.02 in chips)
+Seat 8: JTs98o ($50 in chips)
+Lecita13: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 6s]
+FerreiraM: raises $1 to $1
+kole1992: folds
+cosmicmind: calls $1
+blazzze: calls $1
+Minihats: folds
+Lecita13: raises $1.25 to $1.50
+JTs98o: folds
+FerreiraM: calls $0.50
+cosmicmind: calls $0.50
+blazzze: folds
+*** FLOP *** [5h Jd 7h]
+Lecita13: checks
+FerreiraM: checks
+cosmicmind: checks
+*** TURN *** [5h Jd 7h] [3c]
+Lecita13: checks
+FerreiraM: bets $3
+cosmicmind: folds
+Lecita13: folds
+Uncalled bet ($3) returned to FerreiraM
+*** SHOW DOWN ***
+FerreiraM has timed out
+FerreiraM: doesn't show hand
+FerreiraM collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [5h Jd 7h 3c]
+Seat 1: FerreiraM collected ($6)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind folded on the Turn 
+Seat 4: blazzze folded before Flop 
+Seat 5: Minihats (button) folded before Flop (didn't bet)
+Seat 6: Lecita13 (small blind) folded on the Turn 
+Seat 8: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #71495004:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:18:58 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #6 is the button
+Seat 1: FerreiraM ($45.73 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($59.56 in chips)
+Seat 4: blazzze ($68.97 in chips)
+Seat 5: Minihats ($52.60 in chips)
+Seat 6: Lecita13 ($6.52 in chips)
+Seat 8: JTs98o ($50 in chips)
+JTs98o: posts small blind $0.25
+FerreiraM: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 9h]
+kole1992: folds
+cosmicmind: folds
+blazzze: raises $1.25 to $1.25
+Minihats: folds
+Lecita13: calls $1.25
+JTs98o: calls $1
+FerreiraM: folds
+*** FLOP *** [Ts 6s 5d]
+JTs98o: checks
+blazzze: checks
+Lecita13: checks
+*** TURN *** [Ts 6s 5d] [Ks]
+JTs98o: checks
+blazzze: checks
+Lecita13: checks
+*** RIVER *** [Ts 6s 5d Ks] [8c]
+JTs98o: checks
+blazzze: checks
+Lecita13: checks
+*** SHOW DOWN ***
+JTs98o: shows [4d 4h] (a pair of Fours)
+blazzze: mucks hand
+Lecita13: shows [4c 4s] (a pair of Fours)
+Lecita13 collected $2.12 from pot
+JTs98o collected $2.13 from pot
+*** SUMMARY ***
+Total pot $4.25 | Rake $0.21 
+Board [Ts 6s 5d Ks 8c]
+Seat 1: FerreiraM (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze mucked
+Seat 5: Minihats folded before Flop (didn't bet)
+Seat 6: Lecita13 (button) showed [4c 4s] and won ($2.12) with a pair of Fours
+Seat 8: JTs98o (small blind) showed [4d 4h] and won ($2.13) with a pair of Fours
+
+
+Weplay Hand #71495038:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:20:12 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #8 is the button
+Seat 1: FerreiraM ($45.23 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($59.56 in chips)
+Seat 4: blazzze ($67.72 in chips)
+Seat 5: Minihats ($52.60 in chips)
+Seat 6: Lecita13 ($7.29 in chips)
+Seat 8: JTs98o ($50.77 in chips)
+FerreiraM: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 5h]
+cosmicmind: folds
+blazzze: folds
+Minihats: raises $1.50 to $1.50
+Lecita13: raises $4 to $4
+JTs98o: folds
+FerreiraM: folds
+kole1992: folds
+Minihats: raises $8.50 to $10
+Lecita13: calls $3.29 and is all-in
+Uncalled bet ($2.71) returned to Minihats
+*** FIRST FLOP *** [4h 2c Qh]
+*** FIRST TURN *** [4h 2c Qh] [9s]
+*** FIRST RIVER *** [4h 2c Qh 9s] [7s]
+*** SECOND FLOP *** [Jh Td 8c]
+*** SECOND TURN *** [Jh Td 8c] [Kh]
+*** SECOND RIVER *** [Jh Td 8c Kh] [6s]
+*** SHOW DOWN ***
+Minihats: shows [Jc Kc] (high card King)
+Lecita13: shows [Jd Js] (a pair of Jacks)
+Lecita13 collected $15.33 from pot
+*** SUMMARY ***
+Total pot $15.33 | Rake $0.76 
+Hand was run two times
+FIRST Board [4h 2c Qh 9s 7s]
+SECOND Board [Jh Td 8c Kh 6s]
+Seat 1: FerreiraM (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Minihats showed [Jc Kc] and lost with high card King
+Seat 6: Lecita13 showed [Jd Js] and won ($15.33) with a pair of Jacks
+Seat 8: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71495070:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:21:18 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #1 is the button
+Seat 1: FerreiraM ($44.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($59.56 in chips)
+Seat 4: blazzze ($67.72 in chips)
+Seat 5: Minihats ($45.31 in chips)
+Seat 6: Lecita13 ($14.57 in chips)
+Seat 8: JTs98o ($50.77 in chips)
+kole1992: posts small blind $0.25
+cosmicmind: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Jc]
+blazzze: raises $1.25 to $1.25
+Minihats: raises $4.50 to $4.50
+Lecita13: calls $4.50
+JTs98o: folds
+FerreiraM: calls $4.50
+kole1992: folds
+cosmicmind: folds
+blazzze: folds
+*** FLOP *** [6s 9d 9c]
+Minihats: bets $3
+Lecita13: raises $10.07 to $10.07 and is all-in
+FerreiraM: calls $10.07
+Minihats: raises $37.81 to $40.81 and is all-in
+FerreiraM: calls $30.41 and is all-in
+Uncalled bet ($0.33) returned to Minihats
+*** TURN *** [6s 9d 9c] [As]
+*** RIVER *** [6s 9d 9c As] [8s]
+*** SHOW DOWN ***
+Minihats: shows [Ac 9s] (a full house, Nines full of Aces)
+Lecita13: shows [Ts Tc] (two pair, Tens and Nines)
+FerreiraM: shows [Jh Js] (two pair, Jacks and Nines)
+Minihats collected $60.82 from side pot
+Minihats collected $45.71 from main pot
+*** SUMMARY ***
+Total pot $106.53 Main pot $45.71. Side pot $60.82. | Rake $4 
+Board [6s 9d 9c As 8s]
+Seat 1: FerreiraM (button) showed [Jh Js] and lost with two pair, Jacks and Nines
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: cosmicmind (big blind) folded before Flop 
+Seat 4: blazzze folded before Flop 
+Seat 5: Minihats showed [Ac 9s] and won ($106.53) with a full house, Nines full of Aces
+Seat 6: Lecita13 showed [Ts Tc] and lost with two pair, Tens and Nines
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71495111:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:22:47 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($59.06 in chips)
+Seat 4: blazzze ($66.47 in chips)
+Seat 5: Minihats ($102.86 in chips)
+Seat 8: JTs98o ($50.77 in chips)
+cosmicmind: posts small blind $0.25
+blazzze: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 2c]
+Minihats: raises $1.50 to $1.50
+FerreiraM is disconnected 
+JTs98o: raises $4 to $4
+kole1992: folds
+cosmicmind: folds
+blazzze: folds
+Minihats: calls $2.50
+*** FLOP *** [3h 4s Th]
+Minihats: checks
+Lecita13 leaves the table
+JTs98o: bets $2.20
+Minihats: calls $2.20
+*** TURN *** [3h 4s Th] [2s]
+Minihats: checks
+JTs98o: bets $15.25
+Minihats: calls $15.25
+*** RIVER *** [3h 4s Th 2s] [Qd]
+Minihats: checks
+JTs98o: bets $29.32 and is all-in
+Minihats: folds
+Uncalled bet ($29.32) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $43.65 from pot
+*** SUMMARY ***
+Total pot $43.65 | Rake $2.18 
+Board [3h 4s Th 2s Qd]
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: cosmicmind (small blind) folded before Flop 
+Seat 4: blazzze (big blind) folded before Flop 
+Seat 5: Minihats folded on the River 
+Seat 8: JTs98o collected ($43.65)
+
+
+Weplay Hand #71495146:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:23:44 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #3 is the button
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($58.81 in chips)
+Seat 4: blazzze ($65.97 in chips)
+Seat 5: Minihats ($81.41 in chips)
+Seat 8: JTs98o ($70.79 in chips)
+blazzze: posts small blind $0.25
+Minihats: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9d]
+JTs98o: folds
+kole1992: folds
+Minihats is disconnected 
+cosmicmind: folds
+blazzze: raises $1.25 to $1.50
+Minihats: folds
+Uncalled bet ($1) returned to blazzze
+*** SHOW DOWN ***
+Minihats leaves the table
+blazzze: doesn't show hand
+blazzze collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind (button) folded before Flop (didn't bet)
+Seat 4: blazzze (small blind) collected ($1)
+Seat 5: Minihats (big blind) folded before Flop 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71495157:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:24:10 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #4 is the button
+Seat 2: kole1992 ($50 in chips)
+Seat 3: cosmicmind ($58.81 in chips)
+Seat 4: blazzze ($66.47 in chips)
+Seat 8: JTs98o ($70.79 in chips)
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Js]
+FerreiraM leaves the table
+kole1992: raises $1 to $1
+cosmicmind: folds
+blazzze: calls $1
+JTs98o: folds
+*** FLOP *** [8c 5d 3d]
+kole1992: checks
+blazzze: checks
+*** TURN *** [8c 5d 3d] [6h]
+kole1992: bets $1.50
+blazzze: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [8c 5d 3d 6h]
+Seat 2: kole1992 collected ($2.50)
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze (button) folded on the Turn 
+Seat 8: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #71495180:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:24:52 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($51.38 in chips)
+Seat 3: cosmicmind ($58.81 in chips)
+Seat 4: blazzze ($65.47 in chips)
+Seat 8: JTs98o ($70.29 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Ac]
+cosmicmind: folds
+blazzze: folds
+JTs98o: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: kole1992 (big blind) collected ($0.50)
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 8: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #71495188:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:25:08 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #8 is the button
+Seat 2: kole1992 ($51.63 in chips)
+Seat 3: cosmicmind ($58.81 in chips)
+Seat 4: blazzze ($65.47 in chips)
+Seat 8: JTs98o ($70.04 in chips)
+kole1992: posts small blind $0.25
+cosmicmind: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts As]
+blazzze: folds
+JTs98o: folds
+kole1992: raises $1.25 to $1.50
+Misu88 joins the table at seat #5
+cosmicmind: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: kole1992 (small blind) collected ($1)
+Seat 3: cosmicmind (big blind) folded before Flop 
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 8: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71495201:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:25:34 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($52.13 in chips)
+Seat 3: cosmicmind ($58.31 in chips)
+Seat 4: blazzze ($65.47 in chips)
+Seat 5: Misu88 ($46.47 in chips)
+Seat 8: JTs98o ($70.04 in chips)
+cosmicmind: posts small blind $0.25
+blazzze: posts big blind $0.50
+Misu88: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h As]
+Misu88: checks
+JTs98o: folds
+kole1992: folds
+cosmicmind: folds
+blazzze: checks
+*** FLOP *** [3h Ts 4d]
+blazzze: checks
+Misu88: bets $0.63
+blazzze: folds
+Uncalled bet ($0.63) returned to Misu88
+*** SHOW DOWN ***
+Misu88 has timed out
+Misu88: doesn't show hand
+Misu88 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [3h Ts 4d]
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: cosmicmind (small blind) folded before Flop 
+Seat 4: blazzze (big blind) folded on the Flop 
+Seat 5: Misu88 (big blind) collected ($1.25)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71495226:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:26:23 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #3 is the button
+Seat 2: kole1992 ($52.13 in chips)
+Seat 3: cosmicmind ($58.06 in chips)
+Seat 4: blazzze ($64.97 in chips)
+Seat 5: Misu88 ($47.16 in chips)
+Seat 8: JTs98o ($70.04 in chips)
+blazzze: posts small blind $0.25
+Misu88: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Qd]
+JTs98o: folds
+kole1992: folds
+cosmicmind: folds
+blazzze: folds
+Uncalled bet ($0.25) returned to Misu88
+*** SHOW DOWN ***
+Misu88 has timed out
+Misu88: doesn't show hand
+Misu88 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind (button) folded before Flop (didn't bet)
+Seat 4: blazzze (small blind) folded before Flop 
+Seat 5: Misu88 (big blind) collected ($0.50)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71495245:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:26:55 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #4 is the button
+Seat 2: kole1992 ($52.13 in chips)
+Seat 3: cosmicmind ($58.06 in chips)
+Seat 4: blazzze ($64.72 in chips)
+Seat 5: Misu88 ($47.41 in chips)
+Seat 8: JTs98o ($70.04 in chips)
+Misu88: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh As]
+kole1992: raises $1.10 to $1.10
+cosmicmind: folds
+blazzze: folds
+Misu88: calls $0.85
+JTs98o: raises $6 to $6.50
+kole1992: raises $11.80 to $12.90
+Misu88: folds
+JTs98o: folds
+Uncalled bet ($6.40) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $14.10 from pot
+*** SUMMARY ***
+Total pot $14.10 | Rake $0 
+Seat 2: kole1992 collected ($14.10)
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze (button) folded before Flop (didn't bet)
+Seat 5: Misu88 (small blind) folded before Flop 
+Seat 8: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #71495274:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:27:52 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($59.73 in chips)
+Seat 3: cosmicmind ($58.06 in chips)
+Seat 4: blazzze ($64.72 in chips)
+Seat 5: Misu88 ($46.31 in chips)
+Seat 8: JTs98o ($63.54 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Ah]
+cosmicmind: folds
+blazzze: folds
+Misu88: calls $0.50
+JTs98o: folds
+kole1992: raises $2 to $2.50
+Misu88: calls $2
+*** FLOP *** [Ts 6h 8s]
+kole1992: checks
+Misu88: bets $2.63
+kole1992: folds
+Uncalled bet ($2.63) returned to Misu88
+*** SHOW DOWN ***
+Misu88 has timed out
+Misu88: doesn't show hand
+Misu88 collected $5.25 from pot
+*** SUMMARY ***
+Total pot $5.25 | Rake $0.26 
+Board [Ts 6h 8s]
+Seat 2: kole1992 (big blind) folded on the Flop 
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Misu88 (button) collected ($5.25)
+Seat 8: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #71495293:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:28:34 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #8 is the button
+Seat 2: kole1992 ($57.23 in chips)
+Seat 3: cosmicmind ($58.06 in chips)
+Seat 4: blazzze ($64.72 in chips)
+Seat 5: Misu88 ($48.80 in chips)
+Seat 8: JTs98o ($63.29 in chips)
+kole1992: posts small blind $0.25
+cosmicmind: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Kh]
+blazzze: folds
+Misu88: folds
+JTs98o: folds
+kole1992: raises $1.25 to $1.50
+cosmicmind: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: kole1992 (small blind) collected ($1)
+Seat 3: cosmicmind (big blind) folded before Flop 
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Misu88 folded before Flop (didn't bet)
+Seat 8: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71495302:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:28:59 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($57.73 in chips)
+Seat 3: cosmicmind ($57.56 in chips)
+Seat 4: blazzze ($64.72 in chips)
+Seat 5: Misu88 ($48.80 in chips)
+Seat 8: JTs98o ($63.29 in chips)
+cosmicmind: posts small blind $0.25
+blazzze: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 7c]
+Misu88: calls $0.50
+JTs98o: raises $1.25 to $1.25
+kole1992: calls $1.25
+cosmicmind: folds
+blazzze: calls $0.75
+Misu88: calls $0.75
+*** FLOP *** [3c 6d 6s]
+blazzze: checks
+Misu88: checks
+JTs98o: checks
+kole1992: bets $1.50
+blazzze: folds
+Misu88: calls $1.50
+JTs98o: folds
+*** TURN *** [3c 6d 6s] [5s]
+Misu88: checks
+kole1992: bets $6.77
+Misu88: calls $6.77
+*** RIVER *** [3c 6d 6s 5s] [Th]
+Misu88: checks
+kole1992: checks
+*** SHOW DOWN ***
+Misu88: shows [Ks 8s] (a pair of Sixes)
+kole1992: shows [7d 7c] (two pair, Sevens and Sixes)
+kole1992 collected $21.79 from pot
+*** SUMMARY ***
+Total pot $21.79 | Rake $1.08 
+Board [3c 6d 6s 5s Th]
+Seat 2: kole1992 (button) showed [7d 7c] and won ($21.79) with two pair, Sevens and Sixes
+Seat 3: cosmicmind (small blind) folded before Flop 
+Seat 4: blazzze (big blind) folded on the Flop 
+Seat 5: Misu88 showed [Ks 8s] and lost with a pair of Sixes
+Seat 8: JTs98o folded on the Flop 
+
+
+Weplay Hand #71496346:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:30:24 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #3 is the button
+Seat 2: kole1992 ($68.92 in chips)
+Seat 3: cosmicmind ($57.31 in chips)
+Seat 4: blazzze ($63.47 in chips)
+Seat 5: Misu88 ($39.28 in chips)
+Seat 8: JTs98o ($62.04 in chips)
+blazzze: posts small blind $0.25
+Misu88: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Ah]
+JTs98o: folds
+kole1992: raises $1 to $1
+cosmicmind: folds
+blazzze: folds
+Misu88: raises $38.78 to $39.28 and is all-in
+kole1992: folds
+Uncalled bet ($38.28) returned to Misu88
+*** SHOW DOWN ***
+Misu88: doesn't show hand
+Misu88 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0 
+Seat 2: kole1992 folded before Flop 
+Seat 3: cosmicmind (button) folded before Flop (didn't bet)
+Seat 4: blazzze (small blind) folded before Flop 
+Seat 5: Misu88 (big blind) collected ($2.25)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71496361:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:31:00 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #4 is the button
+Seat 2: kole1992 ($67.92 in chips)
+Seat 3: cosmicmind ($57.31 in chips)
+Seat 4: blazzze ($63.22 in chips)
+Seat 5: Misu88 ($40.53 in chips)
+Seat 8: JTs98o ($62.04 in chips)
+Misu88: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 6c]
+kole1992: folds
+cosmicmind: raises $1.25 to $1.25
+blazzze has timed out
+blazzze: folds
+Misu88: folds
+JTs98o: folds
+Uncalled bet ($0.75) returned to cosmicmind
+*** SHOW DOWN ***
+cosmicmind: doesn't show hand
+cosmicmind collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind collected ($1.25)
+Seat 4: blazzze (button) folded before Flop (didn't bet)
+Seat 5: Misu88 (small blind) folded before Flop 
+Seat 8: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #71496377:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:31:30 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($67.92 in chips)
+Seat 3: cosmicmind ($58.06 in chips)
+Seat 5: Misu88 ($40.28 in chips)
+Seat 8: JTs98o ($61.54 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Ac]
+cosmicmind: folds
+Misu88: calls $0.50
+cosmicmind leaves the table
+JTs98o: raises $2.25 to $2.50
+kole1992: folds
+Misu88: raises $39.78 to $40.28 and is all-in
+JTs98o: folds
+Uncalled bet ($37.78) returned to Misu88
+*** SHOW DOWN ***
+Misu88 has timed out
+Misu88: doesn't show hand
+Misu88 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 5: Misu88 (button) collected ($5.50)
+Seat 8: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #71496387:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:31:52 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #8 is the button
+Seat 2: kole1992 ($67.42 in chips)
+Seat 4: blazzze ($63.22 in chips)
+Seat 5: Misu88 ($43.28 in chips)
+Seat 8: JTs98o ($59.04 in chips)
+kole1992: posts small blind $0.25
+blazzze: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 9s]
+Misu88: calls $0.50
+JTs98o: folds
+kole1992: calls $0.25
+blazzze: checks
+*** FLOP *** [Td Ac 3d]
+kole1992: checks
+blazzze: checks
+Misu88: bets $0.75
+kole1992: folds
+simke1133 joins the table at seat #1
+cosmicmind joins the table at seat #3
+blazzze: folds
+Uncalled bet ($0.75) returned to Misu88
+*** SHOW DOWN ***
+Misu88 has timed out
+Misu88: doesn't show hand
+Misu88 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [Td Ac 3d]
+Seat 2: kole1992 (small blind) folded on the Flop 
+Seat 4: blazzze (big blind) folded on the Flop 
+Seat 5: Misu88 collected ($1.50)
+Seat 8: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71496408:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:32:35 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #2 is the button
+Seat 1: simke1133 ($50 in chips)
+Seat 2: kole1992 ($66.92 in chips)
+Seat 4: blazzze ($62.72 in chips)
+Seat 5: Misu88 ($44.21 in chips)
+Seat 8: JTs98o ($59.04 in chips)
+blazzze: posts small blind $0.25
+Misu88: posts big blind $0.50
+simke1133: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As Kd]
+JTs98o: folds
+simke1133: checks
+kole1992: raises $1.50 to $1.50
+blazzze: folds
+Misu88: calls $1
+simke1133: calls $1
+*** FLOP *** [Ts 6d 5h]
+Misu88: checks
+simke1133: checks
+kole1992: checks
+*** TURN *** [Ts 6d 5h] [8c]
+Misu88: checks
+simke1133: checks
+kole1992: checks
+*** RIVER *** [Ts 6d 5h 8c] [7s]
+Misu88: checks
+simke1133: checks
+kole1992: checks
+*** SHOW DOWN ***
+Misu88: shows [3c Qs] (high card Queen)
+simke1133: shows [8s Js] (a pair of Eights)
+kole1992: mucks hand
+simke1133 collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [Ts 6d 5h 8c 7s]
+Seat 1: simke1133 (big blind) showed [8s Js] and won ($4.75) with a pair of Eights
+Seat 2: kole1992 (button) mucked
+Seat 4: blazzze (small blind) folded before Flop 
+Seat 5: Misu88 (big blind) showed [3c Qs] and lost with high card Queen
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71496445:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:33:56 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #4 is the button
+Seat 1: simke1133 ($53.02 in chips)
+Seat 2: kole1992 ($65.42 in chips)
+Seat 3: cosmicmind ($58.06 in chips)
+Seat 4: blazzze ($62.47 in chips)
+Seat 5: Misu88 ($42.71 in chips)
+Seat 8: JTs98o ($59.04 in chips)
+Misu88: posts small blind $0.25
+JTs98o: posts big blind $0.50
+cosmicmind: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Ks]
+simke1133: folds
+kole1992: folds
+cosmicmind: checks
+blazzze: raises $2.25 to $2.25
+Misu88: calls $2
+JTs98o: folds
+cosmicmind: folds
+*** FLOP *** [Qs 5c 5d]
+Misu88: checks
+blazzze: bets $4.12
+Misu88: calls $4.12
+*** TURN *** [Qs 5c 5d] [Kc]
+Misu88: checks
+blazzze: checks
+*** RIVER *** [Qs 5c 5d Kc] [8s]
+Misu88: checks
+blazzze: checks
+*** SHOW DOWN ***
+Misu88: shows [As Td] (a pair of Fives)
+blazzze: shows [Ts Th] (two pair, Tens and Fives)
+blazzze collected $13.74 from pot
+*** SUMMARY ***
+Total pot $13.74 | Rake $0.68 
+Board [Qs 5c 5d Kc 8s]
+Seat 1: simke1133 folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind (big blind) folded before Flop 
+Seat 4: blazzze (button) showed [Ts Th] and won ($13.74) with two pair, Tens and Fives
+Seat 5: Misu88 (small blind) showed [As Td] and lost with a pair of Fives
+Seat 8: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #71496474:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:34:57 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #5 is the button
+Seat 1: simke1133 ($53.02 in chips)
+Seat 2: kole1992 ($65.42 in chips)
+Seat 3: cosmicmind ($57.56 in chips)
+Seat 4: blazzze ($69.16 in chips)
+Seat 5: Misu88 ($36.34 in chips)
+Seat 8: JTs98o ($58.54 in chips)
+JTs98o: posts small blind $0.25
+simke1133: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Jc]
+kole1992: folds
+cosmicmind: folds
+blazzze: folds
+Misu88: raises $1.50 to $1.50
+JTs98o: folds
+simke1133: calls $1
+*** FLOP *** [Jd 2d 5c]
+simke1133: checks
+Misu88: bets $1.63
+simke1133: raises $4.26 to $4.26
+Misu88: raises $33.21 to $34.84 and is all-in
+simke1133: calls $30.58
+*** TURN *** [Jd 2d 5c] [8h]
+*** RIVER *** [Jd 2d 5c 8h] [8c]
+*** SHOW DOWN ***
+simke1133: shows [Ad 7d] (a pair of Eights)
+Misu88: shows [8d Kd] (three of a kind, Eights)
+Misu88 collected $72.93 from pot
+*** SUMMARY ***
+Total pot $72.93 | Rake $3.64 
+Board [Jd 2d 5c 8h 8c]
+Seat 1: simke1133 (big blind) showed [Ad 7d] and lost with a pair of Eights
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Misu88 (button) showed [8d Kd] and won ($72.93) with three of a kind, Eights
+Seat 8: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #71496507:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:36:05 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #8 is the button
+Seat 1: simke1133 ($16.68 in chips)
+Seat 2: kole1992 ($65.42 in chips)
+Seat 3: cosmicmind ($57.56 in chips)
+Seat 4: blazzze ($69.16 in chips)
+Seat 5: Misu88 ($69.29 in chips)
+Seat 8: JTs98o ($58.29 in chips)
+simke1133: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 4s]
+cosmicmind: folds
+blazzze: folds
+Misu88: folds
+JTs98o: raises $1.25 to $1.25
+simke1133: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: simke1133 (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Misu88 folded before Flop (didn't bet)
+Seat 8: JTs98o (button) collected ($1.25)
+
+
+Weplay Hand #71496523:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:36:41 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #1 is the button
+Seat 1: simke1133 ($16.43 in chips)
+Seat 2: kole1992 ($64.92 in chips)
+Seat 3: cosmicmind ($57.56 in chips)
+Seat 4: blazzze ($69.16 in chips)
+Seat 5: Misu88 ($69.29 in chips)
+Seat 8: JTs98o ($59.04 in chips)
+kole1992: posts small blind $0.25
+cosmicmind: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 5d]
+blazzze has timed out
+blazzze: folds
+Misu88: raises $1.50 to $1.50
+JTs98o: folds
+simke1133: folds
+kole1992: folds
+cosmicmind: raises $5.50 to $6
+Misu88: calls $4.50
+*** FLOP *** [Jd 8h 3h]
+cosmicmind: checks
+Misu88: checks
+*** TURN *** [Jd 8h 3h] [3d]
+cosmicmind: checks
+Misu88: checks
+*** RIVER *** [Jd 8h 3h 3d] [Kc]
+cosmicmind: bets $9.20
+Misu88: folds
+Uncalled bet ($9.20) returned to cosmicmind
+*** SHOW DOWN ***
+cosmicmind: doesn't show hand
+cosmicmind collected $12.25 from pot
+*** SUMMARY ***
+Total pot $12.25 | Rake $0.61 
+Board [Jd 8h 3h 3d Kc]
+Seat 1: simke1133 (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: cosmicmind (big blind) collected ($12.25)
+Seat 4: blazzze folded before Flop (didn't bet)
+Seat 5: Misu88 folded on the River 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71496566:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:38:05 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #2 is the button
+Seat 1: simke1133 ($16.43 in chips)
+Seat 2: kole1992 ($64.67 in chips)
+Seat 3: cosmicmind ($63.20 in chips)
+Seat 4: blazzze ($69.16 in chips)
+Seat 5: Misu88 ($63.29 in chips)
+Seat 8: JTs98o ($59.04 in chips)
+cosmicmind: posts small blind $0.25
+blazzze: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Qs]
+Misu88: calls $0.50
+JTs98o: folds
+simke1133 has timed out
+simke1133: folds
+kole1992: folds
+cosmicmind: folds
+blazzze: checks
+*** FLOP *** [Kh 5c Kd]
+blazzze: checks
+Misu88: checks
+*** TURN *** [Kh 5c Kd] [7d]
+blazzze: checks
+Misu88: checks
+*** RIVER *** [Kh 5c Kd 7d] [8c]
+blazzze: checks
+Misu88: checks
+*** SHOW DOWN ***
+blazzze: shows [Js 6h] (a pair of Kings)
+Misu88 has timed out
+Misu88: mucks hand
+blazzze collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [Kh 5c Kd 7d 8c]
+Seat 1: simke1133 folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: cosmicmind (small blind) folded before Flop 
+Seat 4: blazzze (big blind) showed [Js 6h] and won ($1.25) with a pair of Kings
+Seat 5: Misu88 mucked
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71496610:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:39:35 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #3 is the button
+Seat 1: simke1133 ($16.43 in chips)
+Seat 2: kole1992 ($64.67 in chips)
+Seat 3: cosmicmind ($62.95 in chips)
+Seat 4: blazzze ($69.85 in chips)
+Seat 5: Misu88 ($62.79 in chips)
+Seat 8: JTs98o ($59.04 in chips)
+blazzze: posts small blind $0.25
+Misu88: posts big blind $0.50
+Misu88: sits out 
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9h]
+JTs98o: folds
+simke1133: raises $2 to $2
+kole1992: folds
+cosmicmind: folds
+blazzze: folds
+Misu88: folds
+Uncalled bet ($1.50) returned to simke1133
+*** SHOW DOWN ***
+Misu88 leaves the table
+simke1133 has timed out
+simke1133: doesn't show hand
+simke1133 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: simke1133 collected ($1.25)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind (button) folded before Flop (didn't bet)
+Seat 4: blazzze (small blind) folded before Flop 
+Seat 5: Misu88 (big blind) folded before Flop 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71496614:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:39:55 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #4 is the button
+Seat 1: simke1133 ($17.18 in chips)
+Seat 2: kole1992 ($64.67 in chips)
+Seat 3: cosmicmind ($62.95 in chips)
+Seat 4: blazzze ($69.60 in chips)
+Seat 8: JTs98o ($59.04 in chips)
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 7h]
+simke1133: folds
+kole1992: folds
+cosmicmind: folds
+blazzze: folds
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: simke1133 folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: cosmicmind folded before Flop (didn't bet)
+Seat 4: blazzze (button) folded before Flop (didn't bet)
+Seat 8: JTs98o (big blind) collected ($0.50)

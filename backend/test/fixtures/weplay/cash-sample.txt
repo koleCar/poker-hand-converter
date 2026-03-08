@@ -1,0 +1,41 @@
+Weplay Hand #76346675:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 14:19:54 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: vickyshienh ($36.94 in chips)
+Seat 2: MiMoMo ($65.37 in chips)
+Seat 3: miracleee ($73.40 in chips)
+Seat 4: werdan_ ($23.20 in chips)
+Seat 5: kole1992 ($50 in chips)
+Seat 6: yaroni1 ($4.95 in chips)
+Seat 7: antananarivo ($89.74 in chips)
+werdan_: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 5h]
+yaroni1: calls $0.50
+antananarivo: folds
+vickyshienh: calls $0.50
+MiMoMo: calls $0.50
+miracleee: folds
+werdan_: folds
+kole1992: checks
+*** FLOP *** [7c Qs Ad]
+kole1992: checks
+yaroni1: checks
+vickyshienh: checks
+MiMoMo: checks
+*** TURN *** [7c Qs Ad] [4h]
+kole1992: checks
+yaroni1: checks
+vickyshienh: bets $0.50
+MiMoMo: folds
+kole1992: folds
+yaroni1: folds
+Uncalled bet ($0.50) returned to vickyshienh
+*** SHOW DOWN ***
+vickyshienh has timed out
+vickyshienh: doesn't show hand
+vickyshienh collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [7c Qs Ad 4h]
+Seat 1: vickyshienh collected ($2.25)

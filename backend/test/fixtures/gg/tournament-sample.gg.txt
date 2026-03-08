@@ -1,0 +1,43 @@
+Poker Hand #HD75876391: Tournament (ILWP series - MAIN EVENT - In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level VI (100/200) - 2026/02/15 19:02:03
+Table '11275334 24' 9-max Seat #5 is the button
+Seat 1: kylienCarbad (19785 in chips)
+Seat 2: Antondomld (17408 in chips)
+Seat 3: Pirateschips (30592 in chips)
+Seat 4: MaeMan6 (38880 in chips)
+Seat 5: postjoy75 (28340 in chips)
+Seat 6: kole1992 (29836 in chips)
+Seat 7: agafac (22305 in chips)
+Seat 8: Wandeinreich59 (18313 in chips)
+Seat 9: lokicola123 (19835 in chips)
+kylienCarbad: posts the ante 35
+Antondomld: posts the ante 35
+Pirateschips: posts the ante 35
+MaeMan6: posts the ante 35
+postjoy75: posts the ante 35
+kole1992: posts the ante 35
+agafac: posts the ante 35
+Wandeinreich59: posts the ante 35
+lokicola123: posts the ante 35
+kole1992: posts small blind 150
+agafac: posts big blind 300
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Jh]
+Wandeinreich59: raises 650 to 650
+lokicola123: folds
+kylienCarbad: calls 650
+Antondomld: folds
+Pirateschips: folds
+MaeMan6: calls 650
+postjoy75: folds
+kole1992: raises 3880 to 4030
+agafac: folds
+Wandeinreich59: folds
+kylienCarbad: folds
+MaeMan6: folds
+Uncalled bet (3380) returned to kole1992
+*** SHOWDOWN ***
+kole1992: doesn't show hand
+kole1992 collected 3215 from pot
+*** SUMMARY ***
+Total pot 3215 | Rake 0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0
+Seat 6: kole1992 (small blind) collected (3215)

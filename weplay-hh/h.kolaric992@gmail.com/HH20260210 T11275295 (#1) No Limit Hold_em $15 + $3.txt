@@ -1,0 +1,2399 @@
+﻿Weplay Hand #75318519: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level IX (100/200) - 2026/02/10 20:15:04 UTC
+Table '11275295 16'(11622005) 9-max Seat #8 is the button
+Seat 1: Bivoiceihe71 (44828 in chips)
+Seat 2: IicisFeFelIix (43610 in chips)
+Seat 3: aAnder07788 (45940 in chips)
+Seat 4: IIhadAplann (19900 in chips)
+Seat 5: telashalli (40780 in chips)
+Seat 6: Alifaelhofd (20400 in chips)
+Seat 7: kole1992 (22643 in chips)
+Seat 8: TheMandalaFish (28658 in chips)
+Seat 9: GGG.ChampioNn (26529 in chips)
+Bivoiceihe71: posts the ante 100
+IicisFeFelIix: posts the ante 100
+aAnder07788: posts the ante 100
+IIhadAplann: posts the ante 100
+telashalli: posts the ante 100
+Alifaelhofd: posts the ante 100
+kole1992: posts the ante 100
+TheMandalaFish: posts the ante 100
+GGG.ChampioNn: posts the ante 100
+GGG.ChampioNn: posts small blind 350
+Bivoiceihe71: posts big blind 700
+*** HOLE CARDS ***
+Dealt to kole1992 [As Qh]
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: folds
+telashalli: folds
+Alifaelhofd: folds
+kole1992: raises 1400 to 1400
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: calls 700
+*** FLOP *** [Ks 6c Td]
+Bivoiceihe71: checks
+kole1992: bets 1336
+Bivoiceihe71: calls 1336
+*** TURN *** [Ks 6c Td] [3h]
+Bivoiceihe71: checks
+kole1992: checks
+*** RIVER *** [Ks 6c Td 3h] [Ah]
+Bivoiceihe71: checks
+kole1992: bets 3279
+Bivoiceihe71: folds
+Uncalled bet (3279) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 6722 from pot
+*** SUMMARY ***
+Total pot 6722 | Rake 0 
+Board [Ks 6c Td 3h Ah]
+Seat 1: Bivoiceihe71 (big blind) folded on the River 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: telashalli folded before Flop 
+Seat 6: Alifaelhofd folded before Flop 
+Seat 7: kole1992 collected (6722)
+Seat 8: TheMandalaFish (button) folded before Flop 
+Seat 9: GGG.ChampioNn (small blind) folded before Flop 
+
+
+Weplay Hand #75318596: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level IX (100/200) - 2026/02/10 20:16:28 UTC
+Table '11275295 16'(11622005) 9-max Seat #9 is the button
+Seat 1: Bivoiceihe71 (41992 in chips)
+Seat 2: IicisFeFelIix (43510 in chips)
+Seat 3: aAnder07788 (45840 in chips)
+Seat 4: IIhadAplann (19800 in chips)
+Seat 5: telashalli (40680 in chips)
+Seat 6: Alifaelhofd (20300 in chips)
+Seat 7: kole1992 (26529 in chips)
+Seat 8: TheMandalaFish (28558 in chips)
+Seat 9: GGG.ChampioNn (26079 in chips)
+Bivoiceihe71: posts the ante 100
+IicisFeFelIix: posts the ante 100
+aAnder07788: posts the ante 100
+IIhadAplann: posts the ante 100
+telashalli: posts the ante 100
+Alifaelhofd: posts the ante 100
+kole1992: posts the ante 100
+TheMandalaFish: posts the ante 100
+GGG.ChampioNn: posts the ante 100
+Bivoiceihe71: posts small blind 350
+IicisFeFelIix: posts big blind 700
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 8c]
+aAnder07788: folds
+IIhadAplann: folds
+telashalli: raises 1600 to 1600
+Alifaelhofd: folds
+kole1992: raises 3550 to 3550
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+telashalli: folds
+Uncalled bet (1950) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 5150 from pot
+*** SUMMARY ***
+Total pot 5150 | Rake 0 
+Seat 1: Bivoiceihe71 (small blind) folded before Flop 
+Seat 2: IicisFeFelIix (big blind) folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: telashalli folded before Flop 
+Seat 6: Alifaelhofd folded before Flop 
+Seat 7: kole1992 collected (5150)
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn (button) folded before Flop 
+
+
+Weplay Hand #75318651: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level IX (100/200) - 2026/02/10 20:17:20 UTC
+Table '11275295 16'(11622005) 9-max Seat #1 is the button
+Seat 1: Bivoiceihe71 (41542 in chips)
+Seat 2: IicisFeFelIix (42710 in chips)
+Seat 3: aAnder07788 (45740 in chips)
+Seat 4: IIhadAplann (19700 in chips)
+Seat 5: telashalli (38980 in chips)
+Seat 6: Alifaelhofd (20200 in chips)
+Seat 7: kole1992 (29979 in chips)
+Seat 8: TheMandalaFish (28458 in chips)
+Seat 9: GGG.ChampioNn (25979 in chips)
+Bivoiceihe71: posts the ante 100
+IicisFeFelIix: posts the ante 100
+aAnder07788: posts the ante 100
+IIhadAplann: posts the ante 100
+telashalli: posts the ante 100
+Alifaelhofd: posts the ante 100
+kole1992: posts the ante 100
+TheMandalaFish: posts the ante 100
+GGG.ChampioNn: posts the ante 100
+IicisFeFelIix: posts small blind 350
+aAnder07788: posts big blind 700
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 2d]
+IIhadAplann: folds
+telashalli: folds
+Alifaelhofd: raises 1400 to 1400
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: calls 1050
+aAnder07788: calls 700
+*** FLOP *** [9s Kc 3d]
+IicisFeFelIix: checks
+aAnder07788: checks
+Alifaelhofd: bets 2000
+IicisFeFelIix: folds
+aAnder07788: calls 2000
+*** TURN *** [9s Kc 3d] [Qh]
+aAnder07788: checks
+Alifaelhofd: bets 4550
+aAnder07788: calls 4550
+*** RIVER *** [9s Kc 3d Qh] [6d]
+aAnder07788: checks
+Alifaelhofd: checks
+*** SHOW DOWN ***
+aAnder07788: shows [9d Td] (a pair of Nines)
+Alifaelhofd: mucks hand
+aAnder07788 collected 18200 from pot
+*** SUMMARY ***
+Total pot 18200 | Rake 0 
+Board [9s Kc 3d Qh 6d]
+Seat 1: Bivoiceihe71 (button) folded before Flop 
+Seat 2: IicisFeFelIix (small blind) folded on the Flop 
+Seat 3: aAnder07788 (big blind) showed [9d Td] and won (18200) with a pair of Nines
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: telashalli folded before Flop 
+Seat 6: Alifaelhofd mucked
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75318730: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level IX (100/200) - 2026/02/10 20:18:42 UTC
+Table '11275295 16'(11622005) 9-max Seat #2 is the button
+Seat 1: Bivoiceihe71 (41442 in chips)
+Seat 2: IicisFeFelIix (41210 in chips)
+Seat 3: aAnder07788 (55890 in chips)
+Seat 4: IIhadAplann (19600 in chips)
+Seat 5: telashalli (38880 in chips)
+Seat 6: Alifaelhofd (12150 in chips)
+Seat 7: kole1992 (29879 in chips)
+Seat 8: TheMandalaFish (28358 in chips)
+Seat 9: GGG.ChampioNn (25879 in chips)
+Bivoiceihe71: posts the ante 100
+IicisFeFelIix: posts the ante 100
+aAnder07788: posts the ante 100
+IIhadAplann: posts the ante 100
+telashalli: posts the ante 100
+Alifaelhofd: posts the ante 100
+kole1992: posts the ante 100
+TheMandalaFish: posts the ante 100
+GGG.ChampioNn: posts the ante 100
+aAnder07788: posts small blind 350
+IIhadAplann: posts big blind 700
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 9s]
+telashalli: folds
+Alifaelhofd: folds
+kole1992: folds
+TheMandalaFish: raises 1400 to 1400
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: raises 18800 to 19500 and is all-in
+TheMandalaFish: folds
+Uncalled bet (18100) returned to IIhadAplann
+*** SHOW DOWN ***
+IIhadAplann: doesn't show hand
+IIhadAplann collected 4050 from pot
+*** SUMMARY ***
+Total pot 4050 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix (button) folded before Flop 
+Seat 3: aAnder07788 (small blind) folded before Flop 
+Seat 4: IIhadAplann (big blind) collected (4050)
+Seat 5: telashalli folded before Flop 
+Seat 6: Alifaelhofd folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75318768: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level IX (100/200) - 2026/02/10 20:19:23 UTC
+Table '11275295 16'(11622005) 9-max Seat #3 is the button
+Seat 1: Bivoiceihe71 (41342 in chips)
+Seat 2: IicisFeFelIix (41110 in chips)
+Seat 3: aAnder07788 (55440 in chips)
+Seat 4: IIhadAplann (22150 in chips)
+Seat 6: Alifaelhofd (12050 in chips)
+Seat 7: kole1992 (29779 in chips)
+Seat 8: TheMandalaFish (26858 in chips)
+Seat 9: GGG.ChampioNn (25779 in chips)
+Bivoiceihe71: posts the ante 100
+IicisFeFelIix: posts the ante 100
+aAnder07788: posts the ante 100
+IIhadAplann: posts the ante 100
+Alifaelhofd: posts the ante 100
+kole1992: posts the ante 100
+TheMandalaFish: posts the ante 100
+GGG.ChampioNn: posts the ante 100
+IIhadAplann: posts small blind 350
+Alifaelhofd: posts big blind 700
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 3s]
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: raises 1600 to 1600
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: folds
+cowbe00 joins the table at seat #5
+cowbe00 is connected 
+IIhadAplann: folds
+Alifaelhofd: calls 900
+*** FLOP *** [6s 3d Tc]
+Alifaelhofd: checks
+GGG.ChampioNn: bets 3262
+Alifaelhofd: raises 10350 to 10350 and is all-in
+GGG.ChampioNn: folds
+Uncalled bet (7088) returned to Alifaelhofd
+*** SHOW DOWN ***
+Alifaelhofd: doesn't show hand
+Alifaelhofd collected 10874 from pot
+*** SUMMARY ***
+Total pot 10874 | Rake 0 
+Board [6s 3d Tc]
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 (button) folded before Flop 
+Seat 4: IIhadAplann (small blind) folded before Flop 
+Seat 6: Alifaelhofd (big blind) collected (10874)
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded on the Flop 
+
+
+Weplay Hand #75318809: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level X (100/200) - 2026/02/10 20:20:09 UTC
+Table '11275295 16'(11622005) 9-max Seat #4 is the button
+Seat 1: Bivoiceihe71 (41242 in chips)
+Seat 2: IicisFeFelIix (41010 in chips)
+Seat 3: aAnder07788 (55340 in chips)
+Seat 4: IIhadAplann (21700 in chips)
+Seat 6: Alifaelhofd (17962 in chips)
+Seat 7: kole1992 (29679 in chips)
+Seat 8: TheMandalaFish (26758 in chips)
+Seat 9: GGG.ChampioNn (20817 in chips)
+Bivoiceihe71: posts the ante 120
+IicisFeFelIix: posts the ante 120
+aAnder07788: posts the ante 120
+IIhadAplann: posts the ante 120
+Alifaelhofd: posts the ante 120
+kole1992: posts the ante 120
+TheMandalaFish: posts the ante 120
+GGG.ChampioNn: posts the ante 120
+Alifaelhofd: posts small blind 400
+kole1992: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 2d]
+TheMandalaFish: folds
+GGG.ChampioNn: raises 1600 to 1600
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: calls 1600
+IIhadAplann: raises 21580 to 21580 and is all-in
+Alifaelhofd: folds
+kole1992: folds
+GGG.ChampioNn: folds
+aAnder07788: folds
+Uncalled bet (19980) returned to IIhadAplann
+*** SHOW DOWN ***
+IIhadAplann: doesn't show hand
+IIhadAplann collected 6960 from pot
+*** SUMMARY ***
+Total pot 6960 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann (button) collected (6960)
+Seat 6: Alifaelhofd (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75318865: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level X (100/200) - 2026/02/10 20:21:14 UTC
+Table '11275295 16'(11622005) 9-max Seat #6 is the button
+Seat 1: Bivoiceihe71 (41122 in chips)
+Seat 2: IicisFeFelIix (40890 in chips)
+Seat 3: aAnder07788 (53620 in chips)
+Seat 4: IIhadAplann (26940 in chips)
+Seat 5: cowbe00 (20000 in chips)
+Seat 6: Alifaelhofd (17442 in chips)
+Seat 7: kole1992 (28759 in chips)
+Seat 8: TheMandalaFish (26638 in chips)
+Seat 9: GGG.ChampioNn (19097 in chips)
+Bivoiceihe71: posts the ante 120
+IicisFeFelIix: posts the ante 120
+aAnder07788: posts the ante 120
+IIhadAplann: posts the ante 120
+cowbe00: posts the ante 120
+Alifaelhofd: posts the ante 120
+kole1992: posts the ante 120
+TheMandalaFish: posts the ante 120
+GGG.ChampioNn: posts the ante 120
+kole1992: posts small blind 400
+TheMandalaFish: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 8d]
+GGG.ChampioNn: raises 1600 to 1600
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: folds
+cowbe00: calls 1600
+Alifaelhofd: folds
+kole1992: folds
+TheMandalaFish: calls 800
+*** FLOP *** [Jh 2d Qh]
+TheMandalaFish: checks
+GGG.ChampioNn: checks
+cowbe00: bets 2072
+TheMandalaFish: calls 2072
+GGG.ChampioNn: folds
+*** TURN *** [Jh 2d Qh] [Td]
+TheMandalaFish: checks
+cowbe00: bets 2606
+TheMandalaFish: calls 2606
+*** RIVER *** [Jh 2d Qh Td] [Tc]
+TheMandalaFish: checks
+cowbe00: bets 10424
+TheMandalaFish: calls 10424
+*** SHOW DOWN ***
+cowbe00: shows [Qd Ah] (two pair, Queens and Tens)
+TheMandalaFish has timed out
+TheMandalaFish: mucks hand
+cowbe00 collected 36484 from pot
+*** SUMMARY ***
+Total pot 36484 | Rake 0 
+Board [Jh 2d Qh Td Tc]
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 showed [Qd Ah] and won (36484) with two pair, Queens and Tens
+Seat 6: Alifaelhofd (button) folded before Flop 
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: TheMandalaFish (big blind) mucked
+Seat 9: GGG.ChampioNn folded on the Flop 
+
+
+Weplay Hand #75318945: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level X (100/200) - 2026/02/10 20:22:48 UTC
+Table '11275295 16'(11622005) 9-max Seat #7 is the button
+Seat 1: Bivoiceihe71 (41002 in chips)
+Seat 2: IicisFeFelIix (40770 in chips)
+Seat 3: aAnder07788 (53500 in chips)
+Seat 4: IIhadAplann (26820 in chips)
+Seat 5: cowbe00 (39662 in chips)
+Seat 6: Alifaelhofd (17322 in chips)
+Seat 7: kole1992 (28239 in chips)
+Seat 8: TheMandalaFish (9816 in chips)
+Seat 9: GGG.ChampioNn (17377 in chips)
+Bivoiceihe71: posts the ante 120
+IicisFeFelIix: posts the ante 120
+aAnder07788: posts the ante 120
+IIhadAplann: posts the ante 120
+cowbe00: posts the ante 120
+Alifaelhofd: posts the ante 120
+kole1992: posts the ante 120
+TheMandalaFish: posts the ante 120
+GGG.ChampioNn: posts the ante 120
+TheMandalaFish: posts small blind 400
+GGG.ChampioNn: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 6d]
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: raises 1800 to 1800
+cowbe00: folds
+Alifaelhofd: calls 1800
+kole1992: folds
+TheMandalaFish: raises 9296 to 9696 and is all-in
+GGG.ChampioNn: folds
+IIhadAplann: folds
+Alifaelhofd: calls 7896
+*** FLOP *** [Jh Tc 6s]
+*** TURN *** [Jh Tc 6s] [7c]
+*** RIVER *** [Jh Tc 6s 7c] [8c]
+*** SHOW DOWN ***
+TheMandalaFish: shows [7s 7d] (three of a kind, Sevens)
+Alifaelhofd: shows [Jd Ad] (a pair of Jacks)
+TheMandalaFish collected 23072 from pot
+*** SUMMARY ***
+Total pot 23072 | Rake 0 
+Board [Jh Tc 6s 7c 8c]
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: Alifaelhofd showed [Jd Ad] and lost with a pair of Jacks
+Seat 7: kole1992 (button) folded before Flop 
+Seat 8: TheMandalaFish (small blind) showed [7s 7d] and won (23072) with three of a kind, Sevens
+Seat 9: GGG.ChampioNn (big blind) folded before Flop 
+
+
+Weplay Hand #75318996: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level X (100/200) - 2026/02/10 20:23:46 UTC
+Table '11275295 16'(11622005) 9-max Seat #8 is the button
+Seat 1: Bivoiceihe71 (40882 in chips)
+Seat 2: IicisFeFelIix (40650 in chips)
+Seat 3: aAnder07788 (53380 in chips)
+Seat 4: IIhadAplann (24900 in chips)
+Seat 5: cowbe00 (39542 in chips)
+Seat 6: Alifaelhofd (7506 in chips)
+Seat 7: kole1992 (28119 in chips)
+Seat 8: TheMandalaFish (23072 in chips)
+Seat 9: GGG.ChampioNn (16457 in chips)
+Bivoiceihe71: posts the ante 120
+IicisFeFelIix: posts the ante 120
+aAnder07788: posts the ante 120
+IIhadAplann: posts the ante 120
+cowbe00: posts the ante 120
+Alifaelhofd: posts the ante 120
+kole1992: posts the ante 120
+TheMandalaFish: posts the ante 120
+GGG.ChampioNn: posts the ante 120
+GGG.ChampioNn: posts small blind 400
+Bivoiceihe71: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 2d]
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: folds
+cowbe00: folds
+Alifaelhofd: raises 7386 to 7386 and is all-in
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+Uncalled bet (6586) returned to Alifaelhofd
+*** SHOW DOWN ***
+Alifaelhofd: doesn't show hand
+Alifaelhofd collected 3080 from pot
+*** SUMMARY ***
+Total pot 3080 | Rake 0 
+Seat 1: Bivoiceihe71 (big blind) folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: Alifaelhofd collected (3080)
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish (button) folded before Flop 
+Seat 9: GGG.ChampioNn (small blind) folded before Flop 
+
+
+Weplay Hand #75319016: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level X (100/200) - 2026/02/10 20:24:15 UTC
+Table '11275295 15'(11622005) 9-max Seat #9 is the button
+Seat 1: Bivoiceihe71 (39962 in chips)
+Seat 2: IicisFeFelIix (40530 in chips)
+Seat 3: aAnder07788 (53260 in chips)
+Seat 4: IIhadAplann (24780 in chips)
+Seat 5: cowbe00 (39422 in chips)
+Seat 6: Alifaelhofd (9666 in chips)
+Seat 7: kole1992 (27999 in chips)
+Seat 8: TheMandalaFish (22952 in chips)
+Seat 9: GGG.ChampioNn (15937 in chips)
+Bivoiceihe71: posts the ante 120
+IicisFeFelIix: posts the ante 120
+aAnder07788: posts the ante 120
+IIhadAplann: posts the ante 120
+cowbe00: posts the ante 120
+Alifaelhofd: posts the ante 120
+kole1992: posts the ante 120
+TheMandalaFish: posts the ante 120
+GGG.ChampioNn: posts the ante 120
+Bivoiceihe71: posts small blind 400
+IicisFeFelIix: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 2c]
+aAnder07788: folds
+IIhadAplann: folds
+cowbe00: folds
+Alifaelhofd: folds
+kole1992: folds
+TheMandalaFish: raises 1600 to 1600
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: calls 800
+*** FLOP *** [7h Qs Ks]
+IicisFeFelIix: bets 1800
+TheMandalaFish: calls 1800
+*** TURN *** [7h Qs Ks] [Kh]
+IicisFeFelIix: checks
+TheMandalaFish: bets 3200
+IicisFeFelIix: folds
+Uncalled bet (3200) returned to TheMandalaFish
+*** SHOW DOWN ***
+TheMandalaFish has timed out
+TheMandalaFish: doesn't show hand
+TheMandalaFish collected 8280 from pot
+*** SUMMARY ***
+Total pot 8280 | Rake 0 
+Board [7h Qs Ks Kh]
+Seat 1: Bivoiceihe71 (small blind) folded before Flop 
+Seat 2: IicisFeFelIix (big blind) folded on the Turn 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: Alifaelhofd folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish collected (8280)
+Seat 9: GGG.ChampioNn (button) folded before Flop 
+
+
+Weplay Hand #75319192: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XI (100/200) - 2026/02/10 20:27:39 UTC
+Table '11275295 15'(11622005) 9-max Seat #2 is the button
+Seat 1: Bivoiceihe71 (27105 in chips)
+Seat 2: IicisFeFelIix (36490 in chips)
+Seat 3: aAnder07788 (51420 in chips)
+Seat 4: IIhadAplann (24540 in chips)
+Seat 5: cowbe00 (39182 in chips)
+Seat 6: Alifaelhofd (9426 in chips)
+Seat 7: kole1992 (46873 in chips)
+Seat 8: TheMandalaFish (23775 in chips)
+Seat 9: GGG.ChampioNn (15697 in chips)
+Bivoiceihe71: posts the ante 150
+IicisFeFelIix: posts the ante 150
+aAnder07788: posts the ante 150
+IIhadAplann: posts the ante 150
+cowbe00: posts the ante 150
+Alifaelhofd: posts the ante 150
+kole1992: posts the ante 150
+TheMandalaFish: posts the ante 150
+GGG.ChampioNn: posts the ante 150
+aAnder07788: posts small blind 500
+IIhadAplann: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Jh]
+cowbe00: folds
+Alifaelhofd: folds
+TheMandalaFish is disconnected 
+kole1992: folds
+TheMandalaFish is connected 
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: folds
+Uncalled bet (500) returned to IIhadAplann
+*** SHOW DOWN ***
+IIhadAplann: doesn't show hand
+IIhadAplann collected 2350 from pot
+*** SUMMARY ***
+Total pot 2350 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix (button) folded before Flop 
+Seat 3: aAnder07788 (small blind) folded before Flop 
+Seat 4: IIhadAplann (big blind) collected (2350)
+Seat 5: cowbe00 folded before Flop 
+Seat 6: Alifaelhofd folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75319236: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XI (100/200) - 2026/02/10 20:28:30 UTC
+Table '11275295 15'(11622005) 9-max Seat #3 is the button
+Seat 1: Bivoiceihe71 (26955 in chips)
+Seat 2: IicisFeFelIix (36340 in chips)
+Seat 3: aAnder07788 (50770 in chips)
+Seat 4: IIhadAplann (26240 in chips)
+Seat 5: cowbe00 (39032 in chips)
+Seat 6: Alifaelhofd (9276 in chips)
+Seat 7: kole1992 (46723 in chips)
+Seat 8: TheMandalaFish (23625 in chips)
+Seat 9: GGG.ChampioNn (15547 in chips)
+Bivoiceihe71: posts the ante 150
+IicisFeFelIix: posts the ante 150
+aAnder07788: posts the ante 150
+IIhadAplann: posts the ante 150
+cowbe00: posts the ante 150
+Alifaelhofd: posts the ante 150
+kole1992: posts the ante 150
+TheMandalaFish: posts the ante 150
+GGG.ChampioNn: posts the ante 150
+IIhadAplann: posts small blind 500
+cowbe00: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Qc]
+Alifaelhofd: raises 9126 to 9126 and is all-in
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: raises 26805 to 26805 and is all-in
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: folds
+cowbe00: folds
+Uncalled bet (17679) returned to Bivoiceihe71
+*** FLOP *** [9h 7d Tc]
+*** TURN *** [9h 7d Tc] [Ah]
+*** RIVER *** [9h 7d Tc Ah] [Th]
+*** SHOW DOWN ***
+Alifaelhofd: shows [9s Qs] (two pair, Tens and Nines)
+Bivoiceihe71: shows [Kh Kd] (two pair, Kings and Tens)
+Bivoiceihe71 collected 21102 from pot
+*** SUMMARY ***
+Total pot 21102 | Rake 0 
+Board [9h 7d Tc Ah Th]
+Seat 1: Bivoiceihe71 showed [Kh Kd] and won (21102) with two pair, Kings and Tens
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 (button) folded before Flop 
+Seat 4: IIhadAplann (small blind) folded before Flop 
+Seat 5: cowbe00 (big blind) folded before Flop 
+Seat 6: Alifaelhofd showed [9s Qs] and lost with two pair, Tens and Nines
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75319292: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XI (100/200) - 2026/02/10 20:29:29 UTC
+Table '11275295 15'(11622005) 9-max Seat #4 is the button
+Seat 1: Bivoiceihe71 (38781 in chips)
+Seat 2: IicisFeFelIix (36190 in chips)
+Seat 3: aAnder07788 (50620 in chips)
+Seat 4: IIhadAplann (25590 in chips)
+Seat 5: cowbe00 (37882 in chips)
+Seat 7: kole1992 (46573 in chips)
+Seat 8: TheMandalaFish (23475 in chips)
+Seat 9: GGG.ChampioNn (15397 in chips)
+Bivoiceihe71: posts the ante 150
+IicisFeFelIix: posts the ante 150
+aAnder07788: posts the ante 150
+IIhadAplann: posts the ante 150
+cowbe00: posts the ante 150
+kole1992: posts the ante 150
+TheMandalaFish: posts the ante 150
+GGG.ChampioNn: posts the ante 150
+cowbe00: posts small blind 500
+sheikdamoab joins the table at seat #6
+kole1992: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 3d]
+TheMandalaFish: folds
+GGG.ChampioNn: raises 2000 to 2000
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: folds
+cowbe00: folds
+kole1992: folds
+Uncalled bet (1000) returned to GGG.ChampioNn
+*** SHOW DOWN ***
+GGG.ChampioNn: doesn't show hand
+GGG.ChampioNn collected 3700 from pot
+*** SUMMARY ***
+Total pot 3700 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann (button) folded before Flop 
+Seat 5: cowbe00 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn collected (3700)
+
+
+Weplay Hand #75320325: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XI (100/200) - 2026/02/10 20:30:05 UTC
+Table '11275295 15'(11622005) 9-max Seat #5 is the button
+Seat 1: Bivoiceihe71 (38631 in chips)
+Seat 2: IicisFeFelIix (36040 in chips)
+Seat 3: aAnder07788 (50470 in chips)
+Seat 4: IIhadAplann (25440 in chips)
+Seat 5: cowbe00 (37232 in chips)
+Seat 7: kole1992 (45423 in chips)
+Seat 8: TheMandalaFish (23325 in chips)
+Seat 9: GGG.ChampioNn (17947 in chips)
+Bivoiceihe71: posts the ante 150
+IicisFeFelIix: posts the ante 150
+aAnder07788: posts the ante 150
+IIhadAplann: posts the ante 150
+cowbe00: posts the ante 150
+kole1992: posts the ante 150
+TheMandalaFish: posts the ante 150
+GGG.ChampioNn: posts the ante 150
+kole1992: posts small blind 500
+TheMandalaFish: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 3c]
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: raises 2300 to 2300
+aAnder07788: folds
+IIhadAplann: calls 2300
+cowbe00: folds
+kole1992: folds
+TheMandalaFish: calls 1300
+*** FLOP *** [3s 3h 8d]
+TheMandalaFish: checks
+IicisFeFelIix: bets 4300
+IIhadAplann: raises 22990 to 22990 and is all-in
+TheMandalaFish: folds
+IicisFeFelIix: folds
+Uncalled bet (18690) returned to IIhadAplann
+*** SHOW DOWN ***
+IIhadAplann: doesn't show hand
+IIhadAplann collected 17200 from pot
+*** SUMMARY ***
+Total pot 17200 | Rake 0 
+Board [3s 3h 8d]
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded on the Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann collected (17200)
+Seat 5: cowbe00 (button) folded before Flop 
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: TheMandalaFish (big blind) folded on the Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75320380: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XI (100/200) - 2026/02/10 20:31:04 UTC
+Table '11275295 15'(11622005) 9-max Seat #7 is the button
+Seat 1: Bivoiceihe71 (38481 in chips)
+Seat 2: IicisFeFelIix (29290 in chips)
+Seat 3: aAnder07788 (50320 in chips)
+Seat 4: IIhadAplann (35890 in chips)
+Seat 5: cowbe00 (37082 in chips)
+Seat 6: sheikdamoab (21620 in chips)
+Seat 7: kole1992 (44773 in chips)
+Seat 8: TheMandalaFish (20875 in chips)
+Seat 9: GGG.ChampioNn (17797 in chips)
+Bivoiceihe71: posts the ante 150
+IicisFeFelIix: posts the ante 150
+aAnder07788: posts the ante 150
+IIhadAplann: posts the ante 150
+cowbe00: posts the ante 150
+sheikdamoab: posts the ante 150
+kole1992: posts the ante 150
+TheMandalaFish: posts the ante 150
+GGG.ChampioNn: posts the ante 150
+TheMandalaFish: posts small blind 500
+GGG.ChampioNn: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Jc]
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: folds
+cowbe00: folds
+sheikdamoab: folds
+kole1992: folds
+TheMandalaFish: folds
+Uncalled bet (500) returned to GGG.ChampioNn
+*** SHOW DOWN ***
+GGG.ChampioNn: doesn't show hand
+GGG.ChampioNn collected 2350 from pot
+*** SUMMARY ***
+Total pot 2350 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 (button) folded before Flop 
+Seat 8: TheMandalaFish (small blind) folded before Flop 
+Seat 9: GGG.ChampioNn (big blind) collected (2350)
+
+
+Weplay Hand #75320408: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XI (100/200) - 2026/02/10 20:31:36 UTC
+Table '11275295 15'(11622005) 9-max Seat #8 is the button
+Seat 1: Bivoiceihe71 (38331 in chips)
+Seat 2: IicisFeFelIix (29140 in chips)
+Seat 3: aAnder07788 (50170 in chips)
+Seat 4: IIhadAplann (35740 in chips)
+Seat 5: cowbe00 (36932 in chips)
+Seat 6: sheikdamoab (21470 in chips)
+Seat 7: kole1992 (44623 in chips)
+Seat 8: TheMandalaFish (20225 in chips)
+Seat 9: GGG.ChampioNn (19497 in chips)
+Bivoiceihe71: posts the ante 150
+IicisFeFelIix: posts the ante 150
+aAnder07788: posts the ante 150
+IIhadAplann: posts the ante 150
+cowbe00: posts the ante 150
+sheikdamoab: posts the ante 150
+kole1992: posts the ante 150
+TheMandalaFish: posts the ante 150
+GGG.ChampioNn: posts the ante 150
+GGG.ChampioNn: posts small blind 500
+Bivoiceihe71: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Th]
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: calls 1000
+cowbe00: folds
+sheikdamoab: folds
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: checks
+*** FLOP *** [4d 3c Qs]
+Bivoiceihe71: checks
+IIhadAplann: bets 1500
+Bivoiceihe71: folds
+Uncalled bet (1500) returned to IIhadAplann
+*** SHOW DOWN ***
+IIhadAplann: doesn't show hand
+IIhadAplann collected 3850 from pot
+*** SUMMARY ***
+Total pot 3850 | Rake 0 
+Board [4d 3c Qs]
+Seat 1: Bivoiceihe71 (big blind) folded on the Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann collected (3850)
+Seat 5: cowbe00 folded before Flop 
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish (button) folded before Flop 
+Seat 9: GGG.ChampioNn (small blind) folded before Flop 
+
+
+Weplay Hand #75320461: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XI (100/200) - 2026/02/10 20:32:31 UTC
+Table '11275295 15'(11622005) 9-max Seat #9 is the button
+Seat 1: Bivoiceihe71 (37181 in chips)
+Seat 2: IicisFeFelIix (28990 in chips)
+Seat 3: aAnder07788 (50020 in chips)
+Seat 4: IIhadAplann (38440 in chips)
+Seat 5: cowbe00 (36782 in chips)
+Seat 6: sheikdamoab (21320 in chips)
+Seat 7: kole1992 (44473 in chips)
+Seat 8: TheMandalaFish (20075 in chips)
+Seat 9: GGG.ChampioNn (18847 in chips)
+Bivoiceihe71: posts the ante 150
+IicisFeFelIix: posts the ante 150
+aAnder07788: posts the ante 150
+IIhadAplann: posts the ante 150
+cowbe00: posts the ante 150
+sheikdamoab: posts the ante 150
+kole1992: posts the ante 150
+TheMandalaFish: posts the ante 150
+GGG.ChampioNn: posts the ante 150
+Bivoiceihe71: posts small blind 500
+IicisFeFelIix: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Js]
+aAnder07788: folds
+IIhadAplann: folds
+cowbe00: folds
+sheikdamoab: folds
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: raises 2000 to 2000
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+Uncalled bet (1000) returned to GGG.ChampioNn
+*** SHOW DOWN ***
+GGG.ChampioNn: doesn't show hand
+GGG.ChampioNn collected 3850 from pot
+*** SUMMARY ***
+Total pot 3850 | Rake 0 
+Seat 1: Bivoiceihe71 (small blind) folded before Flop 
+Seat 2: IicisFeFelIix (big blind) folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn (button) collected (3850)
+
+
+Weplay Hand #75320498: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XI (100/200) - 2026/02/10 20:33:15 UTC
+Table '11275295 15'(11622005) 9-max Seat #1 is the button
+Seat 1: Bivoiceihe71 (36531 in chips)
+Seat 2: IicisFeFelIix (27840 in chips)
+Seat 3: aAnder07788 (49870 in chips)
+Seat 4: IIhadAplann (38290 in chips)
+Seat 5: cowbe00 (36632 in chips)
+Seat 6: sheikdamoab (21170 in chips)
+Seat 7: kole1992 (44323 in chips)
+Seat 8: TheMandalaFish (19925 in chips)
+Seat 9: GGG.ChampioNn (21547 in chips)
+Bivoiceihe71: posts the ante 150
+IicisFeFelIix: posts the ante 150
+aAnder07788: posts the ante 150
+IIhadAplann: posts the ante 150
+cowbe00: posts the ante 150
+sheikdamoab: posts the ante 150
+kole1992: posts the ante 150
+TheMandalaFish: posts the ante 150
+GGG.ChampioNn: posts the ante 150
+IicisFeFelIix: posts small blind 500
+aAnder07788: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 7h]
+IIhadAplann: calls 1000
+cowbe00: folds
+sheikdamoab: folds
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: calls 500
+aAnder07788: checks
+*** FLOP *** [2d Kc Ad]
+IicisFeFelIix: checks
+aAnder07788: checks
+IIhadAplann: checks
+*** TURN *** [2d Kc Ad] [7c]
+IicisFeFelIix: checks
+aAnder07788: checks
+IIhadAplann: checks
+*** RIVER *** [2d Kc Ad 7c] [2c]
+IicisFeFelIix: checks
+aAnder07788: bets 3262
+IIhadAplann: calls 3262
+IicisFeFelIix: calls 3262
+*** SHOW DOWN ***
+aAnder07788: shows [3h 9d] (a pair of Deuces)
+IIhadAplann: shows [Qd Ts] (a pair of Deuces)
+IicisFeFelIix: shows [Ks 7d] (two pair, Kings and Sevens)
+IicisFeFelIix collected 14136 from pot
+*** SUMMARY ***
+Total pot 14136 | Rake 0 
+Board [2d Kc Ad 7c 2c]
+Seat 1: Bivoiceihe71 (button) folded before Flop 
+Seat 2: IicisFeFelIix (small blind) showed [Ks 7d] and won (14136) with two pair, Kings and Sevens
+Seat 3: aAnder07788 (big blind) showed [3h 9d] and lost with a pair of Deuces
+Seat 4: IIhadAplann showed [Qd Ts] and lost with a pair of Deuces
+Seat 5: cowbe00 folded before Flop 
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75320565: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XI (100/200) - 2026/02/10 20:34:34 UTC
+Table '11275295 15'(11622005) 9-max Seat #2 is the button
+Seat 1: Bivoiceihe71 (36381 in chips)
+Seat 2: IicisFeFelIix (37564 in chips)
+Seat 3: aAnder07788 (45458 in chips)
+Seat 4: IIhadAplann (33878 in chips)
+Seat 5: cowbe00 (36482 in chips)
+Seat 6: sheikdamoab (21020 in chips)
+Seat 7: kole1992 (44173 in chips)
+Seat 8: TheMandalaFish (19775 in chips)
+Seat 9: GGG.ChampioNn (21397 in chips)
+Bivoiceihe71: posts the ante 150
+IicisFeFelIix: posts the ante 150
+aAnder07788: posts the ante 150
+IIhadAplann: posts the ante 150
+cowbe00: posts the ante 150
+sheikdamoab: posts the ante 150
+kole1992: posts the ante 150
+TheMandalaFish: posts the ante 150
+GGG.ChampioNn: posts the ante 150
+aAnder07788: posts small blind 500
+IIhadAplann: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 4s]
+cowbe00: folds
+sheikdamoab: folds
+kole1992: folds
+TheMandalaFish: raises 2000 to 2000
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: calls 1000
+*** FLOP *** [Ad As 9h]
+IIhadAplann: checks
+TheMandalaFish: checks
+*** TURN *** [Ad As 9h] [3c]
+IIhadAplann: checks
+TheMandalaFish: bets 2000
+IIhadAplann: folds
+Uncalled bet (2000) returned to TheMandalaFish
+*** SHOW DOWN ***
+TheMandalaFish has timed out
+TheMandalaFish: doesn't show hand
+TheMandalaFish collected 5850 from pot
+*** SUMMARY ***
+Total pot 5850 | Rake 0 
+Board [Ad As 9h 3c]
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix (button) folded before Flop 
+Seat 3: aAnder07788 (small blind) folded before Flop 
+Seat 4: IIhadAplann (big blind) folded on the Turn 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish collected (5850)
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75320624: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XII (100/200) - 2026/02/10 20:35:46 UTC
+Table '11275295 15'(11622005) 9-max Seat #3 is the button
+Seat 1: Bivoiceihe71 (36231 in chips)
+Seat 2: IicisFeFelIix (37414 in chips)
+Seat 3: aAnder07788 (44808 in chips)
+Seat 4: IIhadAplann (31728 in chips)
+Seat 5: cowbe00 (36332 in chips)
+Seat 6: sheikdamoab (20870 in chips)
+Seat 7: kole1992 (44023 in chips)
+Seat 8: TheMandalaFish (23475 in chips)
+Seat 9: GGG.ChampioNn (21247 in chips)
+Bivoiceihe71: posts the ante 180
+IicisFeFelIix: posts the ante 180
+aAnder07788: posts the ante 180
+IIhadAplann: posts the ante 180
+cowbe00: posts the ante 180
+sheikdamoab: posts the ante 180
+kole1992: posts the ante 180
+TheMandalaFish: posts the ante 180
+GGG.ChampioNn: posts the ante 180
+IIhadAplann: posts small blind 600
+cowbe00: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 8c]
+sheikdamoab: folds
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: raises 2700 to 2700
+IIhadAplann: folds
+cowbe00: folds
+Uncalled bet (1500) returned to aAnder07788
+*** SHOW DOWN ***
+aAnder07788: doesn't show hand
+aAnder07788 collected 4620 from pot
+*** SUMMARY ***
+Total pot 4620 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 (button) collected (4620)
+Seat 4: IIhadAplann (small blind) folded before Flop 
+Seat 5: cowbe00 (big blind) folded before Flop 
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75320667: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XII (100/200) - 2026/02/10 20:36:30 UTC
+Table '11275295 15'(11622005) 9-max Seat #4 is the button
+Seat 1: Bivoiceihe71 (36051 in chips)
+Seat 2: IicisFeFelIix (37234 in chips)
+Seat 3: aAnder07788 (48048 in chips)
+Seat 4: IIhadAplann (30948 in chips)
+Seat 5: cowbe00 (34952 in chips)
+Seat 6: sheikdamoab (20690 in chips)
+Seat 7: kole1992 (43843 in chips)
+Seat 8: TheMandalaFish (23295 in chips)
+Seat 9: GGG.ChampioNn (21067 in chips)
+Bivoiceihe71: posts the ante 180
+IicisFeFelIix: posts the ante 180
+aAnder07788: posts the ante 180
+IIhadAplann: posts the ante 180
+cowbe00: posts the ante 180
+sheikdamoab: posts the ante 180
+kole1992: posts the ante 180
+TheMandalaFish: posts the ante 180
+GGG.ChampioNn: posts the ante 180
+cowbe00: posts small blind 600
+sheikdamoab: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Qh]
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: calls 1200
+cowbe00: folds
+sheikdamoab: checks
+*** FLOP *** [3h 9s Qs]
+sheikdamoab: checks
+IIhadAplann: checks
+*** TURN *** [3h 9s Qs] [3d]
+sheikdamoab: bets 1524
+IIhadAplann: folds
+Uncalled bet (1524) returned to sheikdamoab
+*** SHOW DOWN ***
+sheikdamoab: doesn't show hand
+sheikdamoab collected 4620 from pot
+*** SUMMARY ***
+Total pot 4620 | Rake 0 
+Board [3h 9s Qs 3d]
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann (button) folded on the Turn 
+Seat 5: cowbe00 (small blind) folded before Flop 
+Seat 6: sheikdamoab (big blind) collected (4620)
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75320749: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XII (100/200) - 2026/02/10 20:37:50 UTC
+Table '11275295 15'(11622005) 9-max Seat #5 is the button
+Seat 1: Bivoiceihe71 (35871 in chips)
+Seat 2: IicisFeFelIix (37054 in chips)
+Seat 3: aAnder07788 (47868 in chips)
+Seat 4: IIhadAplann (29568 in chips)
+Seat 5: cowbe00 (34172 in chips)
+Seat 6: sheikdamoab (23930 in chips)
+Seat 7: kole1992 (43663 in chips)
+Seat 8: TheMandalaFish (23115 in chips)
+Seat 9: GGG.ChampioNn (20887 in chips)
+Bivoiceihe71: posts the ante 180
+IicisFeFelIix: posts the ante 180
+aAnder07788: posts the ante 180
+IIhadAplann: posts the ante 180
+cowbe00: posts the ante 180
+sheikdamoab: posts the ante 180
+kole1992: posts the ante 180
+TheMandalaFish: posts the ante 180
+GGG.ChampioNn: posts the ante 180
+sheikdamoab: posts small blind 600
+kole1992: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 8d]
+TheMandalaFish: folds
+GGG.ChampioNn: raises 2400 to 2400
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: calls 2400
+IIhadAplann: folds
+cowbe00: folds
+sheikdamoab: folds
+kole1992: calls 1200
+*** FLOP *** [7d Qd 3s]
+kole1992: checks
+GGG.ChampioNn: checks
+aAnder07788: checks
+*** TURN *** [7d Qd 3s] [8h]
+kole1992: bets 1800
+GGG.ChampioNn: calls 1800
+aAnder07788: raises 7065 to 7065
+kole1992: calls 5265
+GGG.ChampioNn: folds
+*** RIVER *** [7d Qd 3s 8h] [Kd]
+kole1992: bets 8365
+aAnder07788: calls 8365
+*** SHOW DOWN ***
+kole1992: shows [5d 8d] (a flush, King high)
+aAnder07788: mucks hand
+kole1992 collected 42080 from pot
+*** SUMMARY ***
+Total pot 42080 | Rake 0 
+Board [7d Qd 3s 8h Kd]
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 mucked
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 (button) folded before Flop 
+Seat 6: sheikdamoab (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) showed [5d 8d] and won (42080) with a flush, King high
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded on the Turn 
+
+
+Weplay Hand #75320926: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XII (100/200) - 2026/02/10 20:41:04 UTC
+Table '11275295 15'(11622005) 9-max Seat #7 is the button
+Seat 1: Bivoiceihe71 (35511 in chips)
+Seat 2: IicisFeFelIix (28279 in chips)
+Seat 3: aAnder07788 (29678 in chips)
+Seat 4: IIhadAplann (29208 in chips)
+Seat 5: cowbe00 (33812 in chips)
+Seat 6: sheikdamoab (22970 in chips)
+Seat 7: kole1992 (66953 in chips)
+Seat 8: TheMandalaFish (33390 in chips)
+Seat 9: GGG.ChampioNn (16327 in chips)
+Bivoiceihe71: posts the ante 180
+IicisFeFelIix: posts the ante 180
+aAnder07788: posts the ante 180
+IIhadAplann: posts the ante 180
+cowbe00: posts the ante 180
+sheikdamoab: posts the ante 180
+kole1992: posts the ante 180
+TheMandalaFish: posts the ante 180
+GGG.ChampioNn: posts the ante 180
+TheMandalaFish: posts small blind 600
+GGG.ChampioNn: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 9c]
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: folds
+IIhadAplann: folds
+cowbe00: folds
+sheikdamoab: folds
+kole1992: raises 2400 to 2400
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Uncalled bet (1200) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 4620 from pot
+*** SUMMARY ***
+Total pot 4620 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 (button) collected (4620)
+Seat 8: TheMandalaFish (small blind) folded before Flop 
+Seat 9: GGG.ChampioNn (big blind) folded before Flop 
+
+
+Weplay Hand #75320960: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XII (100/200) - 2026/02/10 20:41:41 UTC
+Table '11275295 15'(11622005) 9-max Seat #8 is the button
+Seat 1: Bivoiceihe71 (35331 in chips)
+Seat 2: IicisFeFelIix (28099 in chips)
+Seat 3: aAnder07788 (29498 in chips)
+Seat 4: IIhadAplann (29028 in chips)
+Seat 5: cowbe00 (33632 in chips)
+Seat 6: sheikdamoab (22790 in chips)
+Seat 7: kole1992 (70193 in chips)
+Seat 8: TheMandalaFish (32610 in chips)
+Seat 9: GGG.ChampioNn (14947 in chips)
+Bivoiceihe71: posts the ante 180
+IicisFeFelIix: posts the ante 180
+aAnder07788: posts the ante 180
+IIhadAplann: posts the ante 180
+cowbe00: posts the ante 180
+sheikdamoab: posts the ante 180
+kole1992: posts the ante 180
+TheMandalaFish: posts the ante 180
+GGG.ChampioNn: posts the ante 180
+GGG.ChampioNn: posts small blind 600
+Bivoiceihe71: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Tc]
+IicisFeFelIix: folds
+TheMandalaFish is disconnected 
+aAnder07788: folds
+IIhadAplann: folds
+cowbe00: raises 2400 to 2400
+TheMandalaFish is connected 
+sheikdamoab: folds
+kole1992: folds
+TheMandalaFish: raises 6000 to 6000
+GGG.ChampioNn: raises 14167 to 14767 and is all-in
+Bivoiceihe71: folds
+cowbe00: folds
+TheMandalaFish: calls 8767
+*** FLOP *** [6d Td 7c]
+*** TURN *** [6d Td 7c] [5s]
+*** RIVER *** [6d Td 7c 5s] [4s]
+*** SHOW DOWN ***
+GGG.ChampioNn: shows [8h 8c] (a straight, Four to Eight)
+TheMandalaFish: shows [As Ac] (a pair of Aces)
+GGG.ChampioNn collected 34754 from pot
+*** SUMMARY ***
+Total pot 34754 | Rake 0 
+Board [6d Td 7c 5s 4s]
+Seat 1: Bivoiceihe71 (big blind) folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish (button) showed [As Ac] and lost with a pair of Aces
+Seat 9: GGG.ChampioNn (small blind) showed [8h 8c] and won (34754) with a straight, Four to Eight
+
+
+Weplay Hand #75321011: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XII (100/200) - 2026/02/10 20:42:41 UTC
+Table '11275295 15'(11622005) 9-max Seat #9 is the button
+Seat 1: Bivoiceihe71 (33951 in chips)
+Seat 2: IicisFeFelIix (27919 in chips)
+Seat 3: aAnder07788 (29318 in chips)
+Seat 4: IIhadAplann (28848 in chips)
+Seat 5: cowbe00 (31052 in chips)
+Seat 6: sheikdamoab (22610 in chips)
+Seat 7: kole1992 (70013 in chips)
+Seat 8: TheMandalaFish (17663 in chips)
+Seat 9: GGG.ChampioNn (34754 in chips)
+Bivoiceihe71: posts the ante 180
+IicisFeFelIix: posts the ante 180
+aAnder07788: posts the ante 180
+IIhadAplann: posts the ante 180
+cowbe00: posts the ante 180
+sheikdamoab: posts the ante 180
+kole1992: posts the ante 180
+TheMandalaFish: posts the ante 180
+GGG.ChampioNn: posts the ante 180
+Bivoiceihe71: posts small blind 600
+IicisFeFelIix: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 2c]
+aAnder07788: folds
+IIhadAplann: folds
+TheMandalaFish is disconnected 
+cowbe00: folds
+sheikdamoab: folds
+kole1992: raises 2400 to 2400
+TheMandalaFish has timed out while being disconnected
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+TheMandalaFish is connected 
+IicisFeFelIix: calls 1200
+*** FLOP *** [6c 8h Ts]
+TheMandalaFish is disconnected 
+IicisFeFelIix: bets 2800
+kole1992: folds
+Uncalled bet (2800) returned to IicisFeFelIix
+*** SHOW DOWN ***
+IicisFeFelIix: doesn't show hand
+IicisFeFelIix collected 7020 from pot
+*** SUMMARY ***
+Total pot 7020 | Rake 0 
+Board [6c 8h Ts]
+Seat 1: Bivoiceihe71 (small blind) folded before Flop 
+Seat 2: IicisFeFelIix (big blind) collected (7020)
+Seat 3: aAnder07788 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 folded on the Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn (button) folded before Flop 
+
+
+Weplay Hand #75321095: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIII (100/200) - 2026/02/10 20:44:04 UTC
+Table '11275295 15'(11622005) 9-max Seat #1 is the button
+Seat 1: Bivoiceihe71 (33171 in chips)
+Seat 2: IicisFeFelIix (32359 in chips)
+Seat 3: aAnder07788 (29138 in chips)
+Seat 4: IIhadAplann (28668 in chips)
+Seat 5: cowbe00 (30872 in chips)
+Seat 6: sheikdamoab (22430 in chips)
+Seat 7: kole1992 (67433 in chips)
+Seat 8: TheMandalaFish (17483 in chips)
+Seat 9: GGG.ChampioNn (34574 in chips)
+Bivoiceihe71: posts the ante 250
+IicisFeFelIix: posts the ante 250
+aAnder07788: posts the ante 250
+IIhadAplann: posts the ante 250
+cowbe00: posts the ante 250
+sheikdamoab: posts the ante 250
+kole1992: posts the ante 250
+TheMandalaFish: posts the ante 250
+GGG.ChampioNn: posts the ante 250
+IicisFeFelIix: posts small blind 800
+aAnder07788: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 3d]
+TheMandalaFish is connected 
+IIhadAplann: calls 1600
+cowbe00: folds
+sheikdamoab: folds
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+aAnder07788: checks
+*** FLOP *** [Qc 6s 3h]
+aAnder07788: bets 2500
+IIhadAplann: calls 2500
+*** TURN *** [Qc 6s 3h] [Ks]
+aAnder07788: checks
+IIhadAplann: bets 10000
+aAnder07788: calls 10000
+*** RIVER *** [Qc 6s 3h Ks] [6d]
+aAnder07788: checks
+IIhadAplann: bets 14318 and is all-in
+aAnder07788: calls 14318
+*** SHOW DOWN ***
+IIhadAplann: shows [Tc Kc] (two pair, Kings and Sixes)
+aAnder07788: shows [7s Qd] (two pair, Queens and Sixes)
+IIhadAplann collected 59886 from pot
+*** SUMMARY ***
+Total pot 59886 | Rake 0 
+Board [Qc 6s 3h Ks 6d]
+Seat 1: Bivoiceihe71 (button) folded before Flop 
+Seat 2: IicisFeFelIix (small blind) folded before Flop 
+Seat 3: aAnder07788 (big blind) showed [7s Qd] and lost with two pair, Queens and Sixes
+Seat 4: IIhadAplann showed [Tc Kc] and won (59886) with two pair, Kings and Sixes
+Seat 5: cowbe00 folded before Flop 
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75321144: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIII (100/200) - 2026/02/10 20:44:54 UTC
+Table '11275295 14'(11622005) 9-max Seat #2 is the button
+Seat 1: Bivoiceihe71 (32921 in chips)
+Seat 2: IicisFeFelIix (31309 in chips)
+Seat 3: aAnder07788 (470 in chips)
+Seat 4: IIhadAplann (59886 in chips)
+Seat 5: cowbe00 (30622 in chips)
+Seat 6: sheikdamoab (22180 in chips)
+Seat 7: kole1992 (67183 in chips)
+Seat 8: TheMandalaFish (17233 in chips)
+Seat 9: GGG.ChampioNn (34324 in chips)
+Bivoiceihe71: posts the ante 250
+IicisFeFelIix: posts the ante 250
+aAnder07788: posts the ante 250
+IIhadAplann: posts the ante 250
+cowbe00: posts the ante 250
+sheikdamoab: posts the ante 250
+kole1992: posts the ante 250
+TheMandalaFish: posts the ante 250
+GGG.ChampioNn: posts the ante 250
+aAnder07788: posts small blind 220 and is all-in
+IIhadAplann: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 4d]
+cowbe00: raises 3200 to 3200
+sheikdamoab: folds
+kole1992: folds
+TheMandalaFish: calls 3200
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+IIhadAplann: folds
+*** FLOP *** [Ks 5s 4s]
+cowbe00: checks
+TheMandalaFish: bets 3200
+cowbe00: raises 27172 to 27172 and is all-in
+TheMandalaFish: calls 10583 and is all-in
+Uncalled bet (13389) returned to cowbe00
+*** TURN *** [Ks 5s 4s] [Ah]
+*** RIVER *** [Ks 5s 4s Ah] [9d]
+*** SHOW DOWN ***
+aAnder07788: shows [Th 2s] (high card Ace)
+cowbe00: shows [Qd Js] (high card Ace)
+TheMandalaFish: shows [6s 6h] (a pair of Sixes)
+TheMandalaFish collected 34906 from side pot
+TheMandalaFish collected 3130 from main pot
+*** SUMMARY ***
+Total pot 38036 Main pot 3130. Side pot 34906. | Rake 0 
+Board [Ks 5s 4s Ah 9d]
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix (button) folded before Flop 
+Seat 3: aAnder07788 (small blind) showed [Th 2s] and lost with high card Ace
+Seat 4: IIhadAplann (big blind) folded before Flop 
+Seat 5: cowbe00 showed [Qd Js] and lost with high card Ace
+Seat 6: sheikdamoab folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish showed [6s 6h] and won (38036) with a pair of Sixes
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75321215: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIII (100/200) - 2026/02/10 20:46:13 UTC
+Table '11275295 14'(11622005) 9-max Seat #3 is the button
+Seat 1: Bivoiceihe71 (32671 in chips)
+Seat 2: IicisFeFelIix (31059 in chips)
+Seat 4: IIhadAplann (58036 in chips)
+Seat 5: cowbe00 (13389 in chips)
+Seat 6: sheikdamoab (21930 in chips)
+Seat 7: kole1992 (66933 in chips)
+Seat 8: TheMandalaFish (38036 in chips)
+Seat 9: GGG.ChampioNn (34074 in chips)
+Bivoiceihe71: posts the ante 250
+IicisFeFelIix: posts the ante 250
+IIhadAplann: posts the ante 250
+cowbe00: posts the ante 250
+sheikdamoab: posts the ante 250
+kole1992: posts the ante 250
+TheMandalaFish: posts the ante 250
+GGG.ChampioNn: posts the ante 250
+IIhadAplann: posts small blind 800
+cowbe00: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 4h]
+sheikdamoab: raises 21680 to 21680 and is all-in
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: raises 33824 to 33824 and is all-in
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+IIhadAplann: folds
+cowbe00: calls 11539 and is all-in
+Uncalled bet (12144) returned to GGG.ChampioNn
+*** FLOP *** [4c 7d 6c]
+*** TURN *** [4c 7d 6c] [4s]
+*** RIVER *** [4c 7d 6c 4s] [Kh]
+*** SHOW DOWN ***
+cowbe00: shows [Qc Qh] (two pair, Queens and Fours)
+sheikdamoab: shows [Ah 8h] (a pair of Fours)
+GGG.ChampioNn: shows [9s 9c] (two pair, Nines and Fours)
+GGG.ChampioNn collected 17082 from side pot
+cowbe00 collected 42217 from main pot
+*** SUMMARY ***
+Total pot 59299 Main pot 42217. Side pot 17082. | Rake 0 
+Board [4c 7d 6c 4s Kh]
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 4: IIhadAplann (small blind) folded before Flop 
+Seat 5: cowbe00 (big blind) showed [Qc Qh] and won (42217) with two pair, Queens and Fours
+Seat 6: sheikdamoab showed [Ah 8h] and lost with a pair of Fours
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn showed [9s 9c] and won (17082) with two pair, Nines and Fours
+
+
+Weplay Hand #75321237: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIII (100/200) - 2026/02/10 20:46:46 UTC
+Table '11275295 14'(11622005) 9-max Seat #4 is the button
+Seat 1: Bivoiceihe71 (32421 in chips)
+Seat 2: IicisFeFelIix (30809 in chips)
+Seat 4: IIhadAplann (56986 in chips)
+Seat 5: cowbe00 (42217 in chips)
+Seat 7: kole1992 (66683 in chips)
+Seat 8: TheMandalaFish (37786 in chips)
+Seat 9: GGG.ChampioNn (29226 in chips)
+Bivoiceihe71: posts the ante 250
+IicisFeFelIix: posts the ante 250
+IIhadAplann: posts the ante 250
+cowbe00: posts the ante 250
+kole1992: posts the ante 250
+TheMandalaFish: posts the ante 250
+GGG.ChampioNn: posts the ante 250
+cowbe00: posts small blind 800
+kole1992: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 9h]
+IanTheSho0 joins the table at seat #6
+IanTheSho0 is connected 
+TheMandalaFish has timed out while being disconnected
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+TheMandalaFish is connected 
+Bivoiceihe71: raises 3200 to 3200
+IicisFeFelIix: folds
+IIhadAplann: folds
+losna46 joins the table at seat #3
+losna46 is connected 
+cowbe00: folds
+kole1992: calls 1600
+*** FLOP *** [2s 3s Qs]
+kole1992: checks
+Bivoiceihe71: bets 3580
+kole1992: folds
+Uncalled bet (3580) returned to Bivoiceihe71
+*** SHOW DOWN ***
+Bivoiceihe71: doesn't show hand
+Bivoiceihe71 collected 8950 from pot
+*** SUMMARY ***
+Total pot 8950 | Rake 0 
+Board [2s 3s Qs]
+Seat 1: Bivoiceihe71 collected (8950)
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 4: IIhadAplann (button) folded before Flop 
+Seat 5: cowbe00 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded on the Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75321293: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIII (100/200) - 2026/02/10 20:47:47 UTC
+Table '11275295 14'(11622005) 9-max Seat #5 is the button
+Seat 1: Bivoiceihe71 (37921 in chips)
+Seat 2: IicisFeFelIix (30559 in chips)
+Seat 3: losna46 (20000 in chips)
+Seat 4: IIhadAplann (56736 in chips)
+Seat 5: cowbe00 (41167 in chips)
+Seat 7: kole1992 (63233 in chips)
+Seat 8: TheMandalaFish (37536 in chips)
+Seat 9: GGG.ChampioNn (28976 in chips)
+Bivoiceihe71: posts the ante 250
+IicisFeFelIix: posts the ante 250
+losna46: posts the ante 250
+IIhadAplann: posts the ante 250
+cowbe00: posts the ante 250
+kole1992: posts the ante 250
+TheMandalaFish: posts the ante 250
+GGG.ChampioNn: posts the ante 250
+kole1992: posts small blind 800
+TheMandalaFish: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 6s]
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+losna46: raises 19750 to 19750 and is all-in
+IIhadAplann: folds
+cowbe00: folds
+kole1992: folds
+TheMandalaFish: folds
+Uncalled bet (18150) returned to losna46
+*** SHOW DOWN ***
+losna46: doesn't show hand
+losna46 collected 6000 from pot
+*** SUMMARY ***
+Total pot 6000 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: losna46 collected (6000)
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 (button) folded before Flop 
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: TheMandalaFish (big blind) folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75322328: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIII (100/200) - 2026/02/10 20:48:27 UTC
+Table '11275295 14'(11622005) 9-max Seat #7 is the button
+Seat 1: Bivoiceihe71 (37671 in chips)
+Seat 2: IicisFeFelIix (30309 in chips)
+Seat 3: losna46 (24150 in chips)
+Seat 4: IIhadAplann (56486 in chips)
+Seat 5: cowbe00 (40917 in chips)
+Seat 6: IanTheSho0 (20000 in chips)
+Seat 7: kole1992 (62183 in chips)
+Seat 8: TheMandalaFish (35686 in chips)
+Seat 9: GGG.ChampioNn (28726 in chips)
+Bivoiceihe71: posts the ante 250
+IicisFeFelIix: posts the ante 250
+losna46: posts the ante 250
+IIhadAplann: posts the ante 250
+cowbe00: posts the ante 250
+IanTheSho0: posts the ante 250
+kole1992: posts the ante 250
+TheMandalaFish: posts the ante 250
+GGG.ChampioNn: posts the ante 250
+TheMandalaFish: posts small blind 800
+GGG.ChampioNn: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 8c]
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+losna46: raises 3200 to 3200
+IIhadAplann: folds
+cowbe00: folds
+IanTheSho0: folds
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Uncalled bet (1600) returned to losna46
+*** SHOW DOWN ***
+losna46: doesn't show hand
+losna46 collected 6250 from pot
+*** SUMMARY ***
+Total pot 6250 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: losna46 collected (6250)
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: IanTheSho0 folded before Flop 
+Seat 7: kole1992 (button) folded before Flop 
+Seat 8: TheMandalaFish (small blind) folded before Flop 
+Seat 9: GGG.ChampioNn (big blind) folded before Flop 
+
+
+Weplay Hand #75322372: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIII (100/200) - 2026/02/10 20:49:18 UTC
+Table '11275295 14'(11622005) 9-max Seat #8 is the button
+Seat 1: Bivoiceihe71 (37421 in chips)
+Seat 2: IicisFeFelIix (30059 in chips)
+Seat 3: losna46 (28550 in chips)
+Seat 4: IIhadAplann (56236 in chips)
+Seat 5: cowbe00 (40667 in chips)
+Seat 6: IanTheSho0 (19750 in chips)
+Seat 7: kole1992 (61933 in chips)
+Seat 8: TheMandalaFish (34636 in chips)
+Seat 9: GGG.ChampioNn (26876 in chips)
+Bivoiceihe71: posts the ante 250
+IicisFeFelIix: posts the ante 250
+losna46: posts the ante 250
+IIhadAplann: posts the ante 250
+cowbe00: posts the ante 250
+IanTheSho0: posts the ante 250
+kole1992: posts the ante 250
+TheMandalaFish: posts the ante 250
+GGG.ChampioNn: posts the ante 250
+GGG.ChampioNn: posts small blind 800
+Bivoiceihe71: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 6c]
+IicisFeFelIix: folds
+losna46: folds
+IIhadAplann: folds
+cowbe00: raises 3200 to 3200
+IanTheSho0: folds
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+Uncalled bet (1600) returned to cowbe00
+*** SHOW DOWN ***
+cowbe00: doesn't show hand
+cowbe00 collected 6250 from pot
+*** SUMMARY ***
+Total pot 6250 | Rake 0 
+Seat 1: Bivoiceihe71 (big blind) folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: losna46 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 collected (6250)
+Seat 6: IanTheSho0 folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish (button) folded before Flop 
+Seat 9: GGG.ChampioNn (small blind) folded before Flop 
+
+
+Weplay Hand #75322408: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIII (100/200) - 2026/02/10 20:49:54 UTC
+Table '11275295 14'(11622005) 9-max Seat #9 is the button
+Seat 1: Bivoiceihe71 (35571 in chips)
+Seat 2: IicisFeFelIix (29809 in chips)
+Seat 3: losna46 (28300 in chips)
+Seat 4: IIhadAplann (55986 in chips)
+Seat 5: cowbe00 (45067 in chips)
+Seat 6: IanTheSho0 (19500 in chips)
+Seat 7: kole1992 (61683 in chips)
+Seat 8: TheMandalaFish (34386 in chips)
+Seat 9: GGG.ChampioNn (25826 in chips)
+Bivoiceihe71: posts the ante 250
+IicisFeFelIix: posts the ante 250
+losna46: posts the ante 250
+IIhadAplann: posts the ante 250
+cowbe00: posts the ante 250
+IanTheSho0: posts the ante 250
+kole1992: posts the ante 250
+TheMandalaFish: posts the ante 250
+GGG.ChampioNn: posts the ante 250
+Bivoiceihe71: posts small blind 800
+IicisFeFelIix: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Ts]
+losna46: raises 3200 to 3200
+IIhadAplann: folds
+cowbe00: folds
+IanTheSho0: folds
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: raises 34521 to 35321 and is all-in
+IicisFeFelIix: folds
+losna46: calls 24850 and is all-in
+Uncalled bet (7271) returned to Bivoiceihe71
+*** FLOP *** [Ad Kh 2c]
+*** TURN *** [Ad Kh 2c] [Kc]
+*** RIVER *** [Ad Kh 2c Kc] [3h]
+*** SHOW DOWN ***
+Bivoiceihe71: shows [Jh Jc] (two pair, Kings and Jacks)
+losna46: shows [Qc Ac] (two pair, Aces and Kings)
+losna46 collected 59950 from pot
+*** SUMMARY ***
+Total pot 59950 | Rake 0 
+Board [Ad Kh 2c Kc 3h]
+Seat 1: Bivoiceihe71 (small blind) showed [Jh Jc] and lost with two pair, Kings and Jacks
+Seat 2: IicisFeFelIix (big blind) folded before Flop 
+Seat 3: losna46 showed [Qc Ac] and won (59950) with two pair, Aces and Kings
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: IanTheSho0 folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn (button) folded before Flop 
+
+
+Weplay Hand #75322444: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIII (100/200) - 2026/02/10 20:50:37 UTC
+Table '11275295 14'(11622005) 9-max Seat #1 is the button
+Seat 1: Bivoiceihe71 (7271 in chips)
+Seat 2: IicisFeFelIix (27959 in chips)
+Seat 3: losna46 (59950 in chips)
+Seat 4: IIhadAplann (55736 in chips)
+Seat 5: cowbe00 (44817 in chips)
+Seat 6: IanTheSho0 (19250 in chips)
+Seat 7: kole1992 (61433 in chips)
+Seat 8: TheMandalaFish (34136 in chips)
+Seat 9: GGG.ChampioNn (25576 in chips)
+Bivoiceihe71: posts the ante 250
+IicisFeFelIix: posts the ante 250
+losna46: posts the ante 250
+IIhadAplann: posts the ante 250
+cowbe00: posts the ante 250
+IanTheSho0: posts the ante 250
+kole1992: posts the ante 250
+TheMandalaFish: posts the ante 250
+GGG.ChampioNn: posts the ante 250
+IicisFeFelIix: posts small blind 800
+losna46: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [As 9d]
+IIhadAplann: folds
+cowbe00: folds
+IanTheSho0: folds
+kole1992: raises 3200 to 3200
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: raises 7021 to 7021 and is all-in
+IicisFeFelIix: folds
+losna46: folds
+kole1992: calls 3821
+*** FLOP *** [2c Td 9c]
+*** TURN *** [2c Td 9c] [2h]
+*** RIVER *** [2c Td 9c 2h] [3h]
+*** SHOW DOWN ***
+kole1992: shows [As 9d] (two pair, Nines and Deuces)
+Bivoiceihe71: shows [Ts Ad] (two pair, Tens and Deuces)
+Bivoiceihe71 collected 18692 from pot
+*** SUMMARY ***
+Total pot 18692 | Rake 0 
+Board [2c Td 9c 2h 3h]
+Seat 1: Bivoiceihe71 (button) showed [Ts Ad] and won (18692) with two pair, Tens and Deuces
+Seat 2: IicisFeFelIix (small blind) folded before Flop 
+Seat 3: losna46 (big blind) folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: IanTheSho0 folded before Flop 
+Seat 7: kole1992 showed [As 9d] and lost with two pair, Nines and Deuces
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75322473: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIII (100/200) - 2026/02/10 20:51:20 UTC
+Table '11275295 14'(11622005) 9-max Seat #2 is the button
+Seat 1: Bivoiceihe71 (18692 in chips)
+Seat 2: IicisFeFelIix (26909 in chips)
+Seat 3: losna46 (58100 in chips)
+Seat 4: IIhadAplann (55486 in chips)
+Seat 5: cowbe00 (44567 in chips)
+Seat 6: IanTheSho0 (19000 in chips)
+Seat 7: kole1992 (54162 in chips)
+Seat 8: TheMandalaFish (33886 in chips)
+Seat 9: GGG.ChampioNn (25326 in chips)
+Bivoiceihe71: posts the ante 250
+IicisFeFelIix: posts the ante 250
+losna46: posts the ante 250
+IIhadAplann: posts the ante 250
+cowbe00: posts the ante 250
+IanTheSho0: posts the ante 250
+kole1992: posts the ante 250
+TheMandalaFish: posts the ante 250
+GGG.ChampioNn: posts the ante 250
+losna46: posts small blind 800
+IIhadAplann: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 8h]
+cowbe00: folds
+IanTheSho0: folds
+kole1992: folds
+TheMandalaFish is disconnected 
+TheMandalaFish has timed out while being disconnected
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: raises 4000 to 4000
+IicisFeFelIix: folds
+TheMandalaFish is connected 
+losna46: folds
+IIhadAplann: folds
+Uncalled bet (2400) returned to Bivoiceihe71
+*** SHOW DOWN ***
+Bivoiceihe71: doesn't show hand
+Bivoiceihe71 collected 6250 from pot
+*** SUMMARY ***
+Total pot 6250 | Rake 0 
+Seat 1: Bivoiceihe71 collected (6250)
+Seat 2: IicisFeFelIix (button) folded before Flop 
+Seat 3: losna46 (small blind) folded before Flop 
+Seat 4: IIhadAplann (big blind) folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: IanTheSho0 folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75322509: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIV (100/200) - 2026/02/10 20:52:08 UTC
+Table '11275295 14'(11622005) 9-max Seat #3 is the button
+Seat 1: Bivoiceihe71 (23092 in chips)
+Seat 2: IicisFeFelIix (26659 in chips)
+Seat 3: losna46 (57050 in chips)
+Seat 4: IIhadAplann (53636 in chips)
+Seat 5: cowbe00 (44317 in chips)
+Seat 6: IanTheSho0 (18750 in chips)
+Seat 7: kole1992 (53912 in chips)
+Seat 8: TheMandalaFish (33636 in chips)
+Seat 9: GGG.ChampioNn (25076 in chips)
+Bivoiceihe71: posts the ante 300
+IicisFeFelIix: posts the ante 300
+losna46: posts the ante 300
+IIhadAplann: posts the ante 300
+cowbe00: posts the ante 300
+IanTheSho0: posts the ante 300
+kole1992: posts the ante 300
+TheMandalaFish: posts the ante 300
+GGG.ChampioNn: posts the ante 300
+IIhadAplann: posts small blind 1000
+cowbe00: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [5h As]
+IanTheSho0: folds
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: raises 24776 to 24776 and is all-in
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+losna46: folds
+IIhadAplann: folds
+cowbe00: folds
+Uncalled bet (22776) returned to GGG.ChampioNn
+*** SHOW DOWN ***
+GGG.ChampioNn: doesn't show hand
+GGG.ChampioNn collected 7700 from pot
+*** SUMMARY ***
+Total pot 7700 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: losna46 (button) folded before Flop 
+Seat 4: IIhadAplann (small blind) folded before Flop 
+Seat 5: cowbe00 (big blind) folded before Flop 
+Seat 6: IanTheSho0 folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn collected (7700)
+
+
+Weplay Hand #75322539: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIV (100/200) - 2026/02/10 20:52:44 UTC
+Table '11275295 13'(11622005) 9-max Seat #4 is the button
+Seat 1: Bivoiceihe71 (22792 in chips)
+Seat 2: IicisFeFelIix (26359 in chips)
+Seat 3: losna46 (56750 in chips)
+Seat 4: IIhadAplann (52336 in chips)
+Seat 5: cowbe00 (42017 in chips)
+Seat 6: IanTheSho0 (18450 in chips)
+Seat 7: kole1992 (53612 in chips)
+Seat 8: TheMandalaFish (33336 in chips)
+Seat 9: GGG.ChampioNn (30476 in chips)
+Bivoiceihe71: posts the ante 300
+IicisFeFelIix: posts the ante 300
+losna46: posts the ante 300
+IIhadAplann: posts the ante 300
+cowbe00: posts the ante 300
+IanTheSho0: posts the ante 300
+kole1992: posts the ante 300
+TheMandalaFish: posts the ante 300
+GGG.ChampioNn: posts the ante 300
+cowbe00: posts small blind 1000
+IanTheSho0: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 6d]
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: raises 26059 to 26059 and is all-in
+TheMandalaFish is disconnected 
+losna46: folds
+IIhadAplann: folds
+cowbe00: folds
+TheMandalaFish is connected 
+IanTheSho0: folds
+Uncalled bet (24059) returned to IicisFeFelIix
+*** SHOW DOWN ***
+IicisFeFelIix: doesn't show hand
+IicisFeFelIix collected 7700 from pot
+*** SUMMARY ***
+Total pot 7700 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix collected (7700)
+Seat 3: losna46 folded before Flop 
+Seat 4: IIhadAplann (button) folded before Flop 
+Seat 5: cowbe00 (small blind) folded before Flop 
+Seat 6: IanTheSho0 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75322581: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIV (100/200) - 2026/02/10 20:53:35 UTC
+Table '11275295 13'(11622005) 9-max Seat #5 is the button
+Seat 1: Bivoiceihe71 (22492 in chips)
+Seat 2: IicisFeFelIix (31759 in chips)
+Seat 3: losna46 (56450 in chips)
+Seat 4: IIhadAplann (52036 in chips)
+Seat 5: cowbe00 (40717 in chips)
+Seat 6: IanTheSho0 (16150 in chips)
+Seat 7: kole1992 (53312 in chips)
+Seat 8: TheMandalaFish (33036 in chips)
+Seat 9: GGG.ChampioNn (30176 in chips)
+Bivoiceihe71: posts the ante 300
+IicisFeFelIix: posts the ante 300
+losna46: posts the ante 300
+IIhadAplann: posts the ante 300
+cowbe00: posts the ante 300
+IanTheSho0: posts the ante 300
+kole1992: posts the ante 300
+TheMandalaFish: posts the ante 300
+GGG.ChampioNn: posts the ante 300
+IanTheSho0: posts small blind 1000
+kole1992: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 3d]
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+Bivoiceihe71: folds
+IicisFeFelIix: raises 4000 to 4000
+losna46: folds
+IIhadAplann: folds
+cowbe00: folds
+TheMandalaFish is disconnected 
+IanTheSho0: folds
+TheMandalaFish is connected 
+kole1992: folds
+Uncalled bet (2000) returned to IicisFeFelIix
+*** SHOW DOWN ***
+IicisFeFelIix: doesn't show hand
+IicisFeFelIix collected 7700 from pot
+*** SUMMARY ***
+Total pot 7700 | Rake 0 
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix collected (7700)
+Seat 3: losna46 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 (button) folded before Flop 
+Seat 6: IanTheSho0 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75322618: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIV (100/200) - 2026/02/10 20:54:25 UTC
+Table '11275295 13'(11622005) 9-max Seat #6 is the button
+Seat 1: Bivoiceihe71 (22192 in chips)
+Seat 2: IicisFeFelIix (37159 in chips)
+Seat 3: losna46 (56150 in chips)
+Seat 4: IIhadAplann (51736 in chips)
+Seat 5: cowbe00 (40417 in chips)
+Seat 6: IanTheSho0 (14850 in chips)
+Seat 7: kole1992 (51012 in chips)
+Seat 8: TheMandalaFish (32736 in chips)
+Seat 9: GGG.ChampioNn (29876 in chips)
+Bivoiceihe71: posts the ante 300
+IicisFeFelIix: posts the ante 300
+losna46: posts the ante 300
+IIhadAplann: posts the ante 300
+cowbe00: posts the ante 300
+IanTheSho0: posts the ante 300
+kole1992: posts the ante 300
+TheMandalaFish: posts the ante 300
+GGG.ChampioNn: posts the ante 300
+kole1992: posts small blind 1000
+TheMandalaFish: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Ts]
+GGG.ChampioNn: folds
+Bivoiceihe71: raises 21892 to 21892 and is all-in
+IicisFeFelIix: folds
+losna46: folds
+IIhadAplann: folds
+cowbe00: folds
+IanTheSho0: calls 14550 and is all-in
+kole1992: folds
+TheMandalaFish: folds
+Uncalled bet (7342) returned to Bivoiceihe71
+*** FLOP *** [3d 5d 4d]
+*** TURN *** [3d 5d 4d] [Jd]
+*** RIVER *** [3d 5d 4d Jd] [Ac]
+*** SHOW DOWN ***
+Bivoiceihe71: shows [Kc Kh] (a pair of Kings)
+IanTheSho0: shows [Qs As] (a pair of Aces)
+IanTheSho0 collected 34800 from pot
+*** SUMMARY ***
+Total pot 34800 | Rake 0 
+Board [3d 5d 4d Jd Ac]
+Seat 1: Bivoiceihe71 showed [Kc Kh] and lost with a pair of Kings
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: losna46 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: IanTheSho0 (button) showed [Qs As] and won (34800) with a pair of Aces
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: TheMandalaFish (big blind) folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75322790: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIV (100/200) - 2026/02/10 21:01:43 UTC
+Table '11275295 13'(11622005) 9-max Seat #7 is the button
+Seat 1: Bivoiceihe71 (7342 in chips)
+Seat 2: IicisFeFelIix (36859 in chips)
+Seat 3: losna46 (55850 in chips)
+Seat 4: IIhadAplann (51436 in chips)
+Seat 5: cowbe00 (40117 in chips)
+Seat 6: IanTheSho0 (34800 in chips)
+Seat 7: kole1992 (49712 in chips)
+Seat 8: TheMandalaFish (30436 in chips)
+Seat 9: GGG.ChampioNn (29576 in chips)
+Bivoiceihe71: posts the ante 300
+IicisFeFelIix: posts the ante 300
+losna46: posts the ante 300
+IIhadAplann: posts the ante 300
+cowbe00: posts the ante 300
+IanTheSho0: posts the ante 300
+kole1992: posts the ante 300
+TheMandalaFish: posts the ante 300
+GGG.ChampioNn: posts the ante 300
+TheMandalaFish: posts small blind 1000
+GGG.ChampioNn: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Td]
+Bivoiceihe71: folds
+IicisFeFelIix: folds
+losna46: folds
+IIhadAplann: folds
+cowbe00: folds
+IanTheSho0: raises 4000 to 4000
+kole1992: calls 4000
+TheMandalaFish: folds
+GGG.ChampioNn: calls 2000
+*** FLOP *** [8h Ad Ah]
+GGG.ChampioNn: checks
+IanTheSho0: bets 4710
+kole1992: folds
+GGG.ChampioNn: folds
+Uncalled bet (4710) returned to IanTheSho0
+*** SHOW DOWN ***
+IanTheSho0: doesn't show hand
+IanTheSho0 collected 15700 from pot
+*** SUMMARY ***
+Total pot 15700 | Rake 0 
+Board [8h Ad Ah]
+Seat 1: Bivoiceihe71 folded before Flop 
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: losna46 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: IanTheSho0 collected (15700)
+Seat 7: kole1992 (button) folded on the Flop 
+Seat 8: TheMandalaFish (small blind) folded before Flop 
+Seat 9: GGG.ChampioNn (big blind) folded on the Flop 
+
+
+Weplay Hand #75322848: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIV (100/200) - 2026/02/10 21:02:44 UTC
+Table '11275295 13'(11622005) 9-max Seat #8 is the button
+Seat 1: Bivoiceihe71 (7042 in chips)
+Seat 2: IicisFeFelIix (36559 in chips)
+Seat 3: losna46 (55550 in chips)
+Seat 4: IIhadAplann (51136 in chips)
+Seat 5: cowbe00 (39817 in chips)
+Seat 6: IanTheSho0 (46200 in chips)
+Seat 7: kole1992 (45412 in chips)
+Seat 8: TheMandalaFish (29136 in chips)
+Seat 9: GGG.ChampioNn (25276 in chips)
+Bivoiceihe71: posts the ante 300
+IicisFeFelIix: posts the ante 300
+losna46: posts the ante 300
+IIhadAplann: posts the ante 300
+cowbe00: posts the ante 300
+IanTheSho0: posts the ante 300
+kole1992: posts the ante 300
+TheMandalaFish: posts the ante 300
+GGG.ChampioNn: posts the ante 300
+GGG.ChampioNn: posts small blind 1000
+Bivoiceihe71: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [As 9s]
+IicisFeFelIix: folds
+losna46: folds
+IIhadAplann: folds
+cowbe00: folds
+IanTheSho0: folds
+kole1992: raises 4000 to 4000
+TheMandalaFish: raises 28836 to 28836 and is all-in
+GGG.ChampioNn: folds
+Bivoiceihe71: calls 4742 and is all-in
+kole1992: calls 24836
+*** FLOP *** [Tc 6d 9d]
+*** TURN *** [Tc 6d 9d] [8s]
+*** RIVER *** [Tc 6d 9d 8s] [7d]
+*** SHOW DOWN ***
+Bivoiceihe71: shows [3s 3c] (a straight, Six to Ten)
+kole1992: shows [As 9s] (a straight, Six to Ten)
+TheMandalaFish: shows [Jh Ks] (a straight, Seven to Jack)
+TheMandalaFish collected 44188 from side pot
+TheMandalaFish collected 23926 from main pot
+*** SUMMARY ***
+Total pot 68114 Main pot 23926. Side pot 44188. | Rake 0 
+Board [Tc 6d 9d 8s 7d]
+Seat 1: Bivoiceihe71 (big blind) showed [3s 3c] and lost with a straight, Six to Ten
+Seat 2: IicisFeFelIix folded before Flop 
+Seat 3: losna46 folded before Flop 
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: IanTheSho0 folded before Flop 
+Seat 7: kole1992 showed [As 9s] and lost with a straight, Six to Ten
+Seat 8: TheMandalaFish (button) showed [Jh Ks] and won (68114) with a straight, Seven to Jack
+Seat 9: GGG.ChampioNn (small blind) folded before Flop 
+
+
+Weplay Hand #75322885: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIV (100/200) - 2026/02/10 21:03:36 UTC
+Table '11275295 13'(11622005) 9-max Seat #9 is the button
+Seat 2: IicisFeFelIix (36259 in chips)
+Seat 3: losna46 (55250 in chips)
+Seat 4: IIhadAplann (50836 in chips)
+Seat 5: cowbe00 (39517 in chips)
+Seat 6: IanTheSho0 (45900 in chips)
+Seat 7: kole1992 (16276 in chips)
+Seat 8: TheMandalaFish (68114 in chips)
+Seat 9: GGG.ChampioNn (23976 in chips)
+IicisFeFelIix: posts the ante 300
+losna46: posts the ante 300
+IIhadAplann: posts the ante 300
+cowbe00: posts the ante 300
+IanTheSho0: posts the ante 300
+kole1992: posts the ante 300
+TheMandalaFish: posts the ante 300
+GGG.ChampioNn: posts the ante 300
+IicisFeFelIix: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 3d]
+losna46: folds
+IIhadAplann: raises 4000 to 4000
+cowbe00: folds
+IanTheSho0: folds
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+IicisFeFelIix: folds
+Uncalled bet (2000) returned to IIhadAplann
+*** SHOW DOWN ***
+IIhadAplann: doesn't show hand
+IIhadAplann collected 6400 from pot
+*** SUMMARY ***
+Total pot 6400 | Rake 0 
+Seat 2: IicisFeFelIix (big blind) folded before Flop 
+Seat 3: losna46 folded before Flop 
+Seat 4: IIhadAplann collected (6400)
+Seat 5: cowbe00 folded before Flop 
+Seat 6: IanTheSho0 folded before Flop 
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn (button) folded before Flop 
+
+
+Weplay Hand #75322896: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIV (100/200) - 2026/02/10 21:03:56 UTC
+Table '11275295 12'(11622005) 9-max Seat #1 is the button
+Seat 2: IicisFeFelIix (33959 in chips)
+Seat 3: losna46 (54950 in chips)
+Seat 4: IIhadAplann (54936 in chips)
+Seat 5: cowbe00 (39217 in chips)
+Seat 6: IanTheSho0 (45600 in chips)
+Seat 7: kole1992 (15976 in chips)
+Seat 8: TheMandalaFish (67814 in chips)
+Seat 9: GGG.ChampioNn (23676 in chips)
+IicisFeFelIix: posts the ante 300
+losna46: posts the ante 300
+IIhadAplann: posts the ante 300
+cowbe00: posts the ante 300
+IanTheSho0: posts the ante 300
+kole1992: posts the ante 300
+TheMandalaFish: posts the ante 300
+GGG.ChampioNn: posts the ante 300
+IicisFeFelIix: posts small blind 1000
+losna46: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 5c]
+IIhadAplann: folds
+crazZy2play joins the table at seat #1
+cowbe00: folds
+IanTheSho0: raises 4000 to 4000
+kole1992: folds
+TheMandalaFish: folds
+GGG.ChampioNn: folds
+IicisFeFelIix: folds
+losna46: calls 2000
+*** FLOP *** [4h Jh 8s]
+losna46: checks
+IanTheSho0: checks
+*** TURN *** [4h Jh 8s] [6c]
+losna46: bets 8550
+IanTheSho0: calls 8550
+*** RIVER *** [4h Jh 8s 6c] [7d]
+losna46: checks
+IanTheSho0: checks
+*** SHOW DOWN ***
+losna46: shows [9h Ks] (high card King)
+IanTheSho0: shows [Qd Ad] (high card Ace)
+IanTheSho0 collected 28500 from pot
+*** SUMMARY ***
+Total pot 28500 | Rake 0 
+Board [4h Jh 8s 6c 7d]
+Seat 2: IicisFeFelIix (small blind) folded before Flop 
+Seat 3: losna46 (big blind) showed [9h Ks] and lost with high card King
+Seat 4: IIhadAplann folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: IanTheSho0 showed [Qd Ad] and won (28500) with high card Ace
+Seat 7: kole1992 folded before Flop 
+Seat 8: TheMandalaFish folded before Flop 
+Seat 9: GGG.ChampioNn folded before Flop 
+
+
+Weplay Hand #75322963: Tournament (ILWP series - Red Rose PKO)#11275295, $15+$3 Hold'em No Limit - Level XIV (100/200) - 2026/02/10 21:05:21 UTC
+Table '11275295 12'(11622005) 9-max Seat #2 is the button
+Seat 1: crazZy2play (15800 in chips)
+Seat 2: IicisFeFelIix (32659 in chips)
+Seat 3: losna46 (42100 in chips)
+Seat 4: IIhadAplann (54636 in chips)
+Seat 5: cowbe00 (38917 in chips)
+Seat 6: IanTheSho0 (61250 in chips)
+Seat 7: kole1992 (15676 in chips)
+Seat 8: TheMandalaFish (67514 in chips)
+Seat 9: GGG.ChampioNn (23376 in chips)
+crazZy2play: posts the ante 300
+IicisFeFelIix: posts the ante 300
+losna46: posts the ante 300
+IIhadAplann: posts the ante 300
+cowbe00: posts the ante 300
+IanTheSho0: posts the ante 300
+kole1992: posts the ante 300
+TheMandalaFish: posts the ante 300
+GGG.ChampioNn: posts the ante 300
+losna46: posts small blind 1000
+IIhadAplann: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 6c]
+cowbe00: folds
+IanTheSho0: folds
+kole1992: raises 11000 to 11000
+TheMandalaFish: raises 24850 to 24850
+GGG.ChampioNn: folds
+crazZy2play: folds
+IicisFeFelIix: folds
+losna46: folds
+IIhadAplann: folds
+kole1992: calls 4376 and is all-in
+Uncalled bet (9474) returned to TheMandalaFish
+*** FLOP *** [3h Ts 5d]
+*** TURN *** [3h Ts 5d] [Tc]
+*** RIVER *** [3h Ts 5d Tc] [9d]
+*** SHOW DOWN ***
+kole1992: shows [7c 6c] (a pair of Tens)
+TheMandalaFish: shows [6h 6d] (two pair, Tens and Sixes)
+TheMandalaFish collected 36452 from pot
+*** SUMMARY ***
+Total pot 36452 | Rake 0 
+Board [3h Ts 5d Tc 9d]
+Seat 1: crazZy2play folded before Flop 
+Seat 2: IicisFeFelIix (button) folded before Flop 
+Seat 3: losna46 (small blind) folded before Flop 
+Seat 4: IIhadAplann (big blind) folded before Flop 
+Seat 5: cowbe00 folded before Flop 
+Seat 6: IanTheSho0 folded before Flop 
+Seat 7: kole1992 showed [7c 6c] and lost with a pair of Tens
+Seat 8: TheMandalaFish showed [6h 6d] and won (36452) with two pair, Tens and Sixes
+Seat 9: GGG.ChampioNn folded before Flop 

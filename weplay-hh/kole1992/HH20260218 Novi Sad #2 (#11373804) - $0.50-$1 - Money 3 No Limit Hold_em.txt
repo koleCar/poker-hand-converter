@@ -1,0 +1,2330 @@
+﻿Weplay Hand #76068613:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:45:29 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($287.65 in chips)
+Seat 6: kole1992 ($100 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 4c]
+Mamen97: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($1)
+
+
+Weplay Hand #76068616:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:45:41 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($287.15 in chips)
+Seat 6: kole1992 ($100.50 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 7s]
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76068621:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:45:51 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($287.65 in chips)
+Seat 6: kole1992 ($100 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Qs]
+Mamen97: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($1)
+
+
+Weplay Hand #76068624:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:46:02 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($287.15 in chips)
+Seat 6: kole1992 ($100.50 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 6c]
+kole1992: raises $2 to $2.50
+Mamen97: raises $3 to $4
+kole1992: calls $1.50
+*** FLOP *** [As Tc Ts]
+Mamen97: bets $4
+kole1992: folds
+Uncalled bet ($4) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.20 
+Board [As Tc Ts]
+Seat 4: Mamen97 (big blind) collected ($8)
+Seat 6: kole1992 (button) (small blind) folded on the Flop 
+
+
+Weplay Hand #76068636:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:46:34 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($290.95 in chips)
+Seat 6: kole1992 ($100 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 3h]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [8s Qs Ad]
+kole1992: checks
+Mamen97: checks
+*** TURN *** [8s Qs Ad] [4c]
+kole1992: bets $2
+Mamen97: calls $2
+*** RIVER *** [8s Qs Ad 4c] [Ks]
+kole1992: bets $5
+Mamen97: folds
+Uncalled bet ($5) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.15 
+Board [8s Qs Ad 4c Ks]
+Seat 4: Mamen97 (button) (small blind) folded on the River 
+Seat 6: kole1992 (big blind) collected ($6)
+
+
+Weplay Hand #76068649:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:47:25 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($287.95 in chips)
+Seat 6: kole1992 ($102.85 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Kh]
+kole1992: raises $2 to $2.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 6: kole1992 (button) (small blind) collected ($2)
+
+
+Weplay Hand #76068653:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:47:39 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($286.95 in chips)
+Seat 6: kole1992 ($103.85 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 5s]
+Mamen97: raises $2 to $2.50
+kole1992: calls $1.50
+*** FLOP *** [Ac 7s 7d]
+kole1992: checks
+Mamen97: bets $2
+kole1992: calls $2
+*** TURN *** [Ac 7s 7d] [Ks]
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [Ac 7s 7d Ks] [9d]
+kole1992: checks
+Mamen97: bets $4
+kole1992: calls $4
+*** SHOW DOWN ***
+Mamen97: shows [9h Td] (two pair, Nines and Sevens)
+kole1992: mucks hand
+Mamen97 collected $17 from pot
+*** SUMMARY ***
+Total pot $17 | Rake $0.42 
+Board [Ac 7s 7d Ks 9d]
+Seat 4: Mamen97 (button) (small blind) showed [9h Td] and won ($17) with two pair, Nines and Sevens
+Seat 6: kole1992 (big blind) mucked
+
+
+Weplay Hand #76068672:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:48:58 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($295.03 in chips)
+Seat 6: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 8h]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [9h 5c 2c]
+Mamen97: checks
+kole1992: bets $3.65
+Mamen97: folds
+Uncalled bet ($3.65) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.12 
+Board [9h 5c 2c]
+Seat 4: Mamen97 (big blind) folded on the Flop 
+Seat 6: kole1992 (button) (small blind) collected ($5)
+
+
+Weplay Hand #76068682:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:49:32 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($292.53 in chips)
+Seat 6: kole1992 ($102.38 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 2h]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [6h Kc 7d]
+kole1992: checks
+Mamen97: checks
+*** TURN *** [6h Kc 7d] [2s]
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [6h Kc 7d 2s] [Js]
+kole1992: checks
+Mamen97: checks
+*** SHOW DOWN ***
+kole1992: shows [4s 2h] (a pair of Deuces)
+Mamen97 has timed out
+Mamen97: mucks hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [6h Kc 7d 2s Js]
+Seat 4: Mamen97 (button) (small blind) mucked
+Seat 6: kole1992 (big blind) showed [4s 2h] and won ($2) with a pair of Deuces
+
+
+Weplay Hand #76068690:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:50:01 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($291.53 in chips)
+Seat 6: kole1992 ($103.33 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 5d]
+kole1992: raises $2 to $2.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 6: kole1992 (button) (small blind) collected ($2)
+
+
+Weplay Hand #76068695:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:50:21 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($290.53 in chips)
+Seat 6: kole1992 ($104.33 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Kh]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [6c Ks 3d]
+kole1992: checks
+Mamen97: checks
+*** TURN *** [6c Ks 3d] [2d]
+kole1992: checks
+Mamen97: bets $2
+kole1992: calls $2
+*** RIVER *** [6c Ks 3d 2d] [Ah]
+kole1992: checks
+Mamen97: bets $5
+kole1992: calls $5
+*** SHOW DOWN ***
+Mamen97: shows [4s Ac] (a pair of Aces)
+kole1992: mucks hand
+Mamen97 collected $16 from pot
+*** SUMMARY ***
+Total pot $16 | Rake $0.40 
+Board [6c Ks 3d 2d Ah]
+Seat 4: Mamen97 (button) (small blind) showed [4s Ac] and won ($16) with a pair of Aces
+Seat 6: kole1992 (big blind) mucked
+
+
+Weplay Hand #76068709:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:51:26 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($298.13 in chips)
+Seat 6: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 7s]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [6d 5s 2h]
+Mamen97: checks
+kole1992: checks
+*** TURN *** [6d 5s 2h] [5d]
+Mamen97: checks
+kole1992: bets $4.50
+Mamen97: folds
+Uncalled bet ($4.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.12 
+Board [6d 5s 2h 5d]
+Seat 4: Mamen97 (big blind) folded on the Turn 
+Seat 6: kole1992 (button) (small blind) collected ($5)
+
+
+Weplay Hand #76068718:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:51:54 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($295.63 in chips)
+Seat 6: kole1992 ($102.38 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Qh]
+Mamen97: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($1)
+
+
+Weplay Hand #76068721:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:52:03 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($295.13 in chips)
+Seat 6: kole1992 ($102.88 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 4s]
+kole1992: raises $2 to $2.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 6: kole1992 (button) (small blind) collected ($2)
+
+
+Weplay Hand #76068723:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:52:14 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($294.13 in chips)
+Seat 6: kole1992 ($103.88 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As Ks]
+Mamen97: raises $1.50 to $2
+kole1992: raises $9 to $10
+Mamen97: folds
+Uncalled bet ($8) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($4)
+
+
+Weplay Hand #76068732:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:52:36 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($292.13 in chips)
+Seat 6: kole1992 ($105.88 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 9h]
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76068733:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:52:46 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($292.63 in chips)
+Seat 6: kole1992 ($105.38 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 6h]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [6d 8c 7s]
+kole1992: checks
+Mamen97: bets $1.50
+kole1992: folds
+Uncalled bet ($1.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [6d 8c 7s]
+Seat 4: Mamen97 (button) (small blind) collected ($2)
+Seat 6: kole1992 (big blind) folded on the Flop 
+
+
+Weplay Hand #76068741:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:53:06 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($293.58 in chips)
+Seat 6: kole1992 ($104.38 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Th]
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76068745:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:53:20 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($294.08 in chips)
+Seat 6: kole1992 ($103.88 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Td]
+Mamen97: raises $2 to $2.50
+kole1992: calls $1.50
+*** FLOP *** [3d Kd 2c]
+kole1992: checks
+Mamen97: bets $2
+kole1992: calls $2
+*** TURN *** [3d Kd 2c] [5s]
+kole1992: checks
+Mamen97: bets $4
+kole1992: raises $14.92 to $14.92
+Mamen97: calls $10.92
+*** RIVER *** [3d Kd 2c 5s] [2h]
+kole1992: bets $25.50
+Mamen97: calls $25.50
+*** SHOW DOWN ***
+kole1992: shows [Qs Td] (a pair of Deuces)
+Mamen97: shows [Kc Jh] (two pair, Kings and Deuces)
+Mamen97 collected $89.84 from pot
+*** SUMMARY ***
+Total pot $89.84 | Rake $2.24 
+Board [3d Kd 2c 5s 2h]
+Seat 4: Mamen97 (button) (small blind) showed [Kc Jh] and won ($89.84) with two pair, Kings and Deuces
+Seat 6: kole1992 (big blind) showed [Qs Td] and lost with a pair of Deuces
+
+
+Weplay Hand #76068763:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:54:33 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($336.76 in chips)
+Seat 6: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Kh]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [7d 4c 3h]
+Mamen97: checks
+kole1992: bets $2.15
+Mamen97: calls $2.15
+*** TURN *** [7d 4c 3h] [Jh]
+Mamen97: checks
+kole1992: checks
+*** RIVER *** [7d 4c 3h Jh] [2c]
+Mamen97: bets $4.50
+kole1992: folds
+Uncalled bet ($4.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $9.30 from pot
+*** SUMMARY ***
+Total pot $9.30 | Rake $0.23 
+Board [7d 4c 3h Jh 2c]
+Seat 4: Mamen97 (big blind) collected ($9.30)
+Seat 6: kole1992 (button) (small blind) folded on the River 
+
+
+Weplay Hand #76068777:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:55:39 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($341.18 in chips)
+Seat 6: kole1992 ($100 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Js]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [Ad 9h 4h]
+kole1992: checks
+Mamen97: checks
+*** TURN *** [Ad 9h 4h] [Jc]
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [Ad 9h 4h Jc] [Ts]
+kole1992: checks
+Mamen97: checks
+*** SHOW DOWN ***
+kole1992: shows [2h Js] (a pair of Jacks)
+Mamen97 has timed out
+Mamen97: mucks hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [Ad 9h 4h Jc Ts]
+Seat 4: Mamen97 (button) (small blind) mucked
+Seat 6: kole1992 (big blind) showed [2h Js] and won ($2) with a pair of Jacks
+
+
+Weplay Hand #76068780:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:56:05 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($340.18 in chips)
+Seat 6: kole1992 ($100.95 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Qh]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [Qs Ts Qd]
+Mamen97: bets $4
+kole1992: calls $4
+*** TURN *** [Qs Ts Qd] [2d]
+Mamen97: checks
+kole1992: bets $9.99
+Mamen97: calls $9.99
+*** RIVER *** [Qs Ts Qd 2d] [2c]
+Mamen97: checks
+kole1992: bets $33
+Mamen97: folds
+Uncalled bet ($33) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $32.98 from pot
+*** SUMMARY ***
+Total pot $32.98 | Rake $0.82 
+Board [Qs Ts Qd 2d 2c]
+Seat 4: Mamen97 (big blind) folded on the River 
+Seat 6: kole1992 (button) (small blind) collected ($32.98)
+
+
+Weplay Hand #76068793:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:57:11 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($323.69 in chips)
+Seat 6: kole1992 ($116.62 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Jd]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [Jc Ks 8s]
+kole1992: checks
+Mamen97: bets $2
+kole1992: calls $2
+*** TURN *** [Jc Ks 8s] [6d]
+kole1992: checks
+Mamen97: bets $5
+kole1992: calls $5
+*** RIVER *** [Jc Ks 8s 6d] [7d]
+kole1992: checks
+Mamen97: bets $7
+kole1992: raises $25.50 to $25.50
+Mamen97: calls $18.50
+*** SHOW DOWN ***
+kole1992: shows [7s Jd] (two pair, Jacks and Sevens)
+Mamen97 has timed out
+Mamen97: mucks hand
+kole1992 collected $67 from pot
+*** SUMMARY ***
+Total pot $67 | Rake $1.67 
+Board [Jc Ks 8s 6d 7d]
+Seat 4: Mamen97 (button) (small blind) mucked
+Seat 6: kole1992 (big blind) showed [7s Jd] and won ($67) with two pair, Jacks and Sevens
+
+
+Weplay Hand #76068800:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:58:14 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($290.19 in chips)
+Seat 6: kole1992 ($148.45 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Qd]
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76068802:  Hold'em No Limit ($0.50/$1) - 2026/02/18 3:58:23 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($290.69 in chips)
+Seat 6: kole1992 ($147.95 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Kh]
+Mamen97: calls $0.50
+kole1992: raises $3.50 to $4.50
+Mamen97: calls $3.50
+*** FLOP *** [3c 7c 3d]
+kole1992: checks
+Mamen97: checks
+*** TURN *** [3c 7c 3d] [8s]
+kole1992: bets $6
+Mamen97: calls $6
+*** RIVER *** [3c 7c 3d 8s] [Qh]
+kole1992: bets $15.33
+Mamen97: raises $30.66 to $30.66
+kole1992: folds
+Uncalled bet ($15.33) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $51.66 from pot
+*** SUMMARY ***
+Total pot $51.66 | Rake $1.29 
+Board [3c 7c 3d 8s Qh]
+Seat 4: Mamen97 (button) (small blind) collected ($51.66)
+Seat 6: kole1992 (big blind) folded on the River 
+
+
+Weplay Hand #76068817:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:00:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($315.23 in chips)
+Seat 6: kole1992 ($122.12 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 2c]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [7c Kh 8s]
+Mamen97: checks
+kole1992: bets $3.65
+Mamen97: calls $3.65
+*** TURN *** [7c Kh 8s] [7d]
+Mamen97: checks
+kole1992: checks
+*** RIVER *** [7c Kh 8s 7d] [Js]
+Mamen97: bets $20
+kole1992: folds
+Uncalled bet ($20) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $12.30 from pot
+*** SUMMARY ***
+Total pot $12.30 | Rake $0.30 
+Board [7c Kh 8s 7d Js]
+Seat 4: Mamen97 (big blind) collected ($12.30)
+Seat 6: kole1992 (button) (small blind) folded on the River 
+
+
+Weplay Hand #76068828:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:00:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($321.08 in chips)
+Seat 6: kole1992 ($115.97 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Td]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [4h Ts 8s]
+kole1992: checks
+nami joins the table at seat #5
+nami leaves the table
+Mamen97: bets $1.50
+kole1992: calls $1.50
+*** TURN *** [4h Ts 8s] [7c]
+nami joins the table at seat #5
+kole1992: checks
+Mamen97: bets $5
+kole1992: calls $5
+*** RIVER *** [4h Ts 8s 7c] [Kd]
+kole1992: checks
+Mamen97: bets $15
+kole1992: calls $15
+*** SHOW DOWN ***
+Mamen97: shows [4s 7s] (two pair, Sevens and Fours)
+kole1992: shows [7d Td] (two pair, Tens and Sevens)
+kole1992 collected $45 from pot
+*** SUMMARY ***
+Total pot $45 | Rake $1.12 
+Board [4h Ts 8s 7c Kd]
+Seat 4: Mamen97 (button) (small blind) showed [4s 7s] and lost with two pair, Sevens and Fours
+Seat 6: kole1992 (big blind) showed [7d Td] and won ($45) with two pair, Tens and Sevens
+
+
+Weplay Hand #76068841:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:01:46 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($298.58 in chips)
+Seat 6: kole1992 ($137.35 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 3s]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [5d 9d 6h]
+Mamen97: checks
+kole1992: checks
+*** TURN *** [5d 9d 6h] [Jh]
+Mamen97: bets $2.50
+kole1992: folds
+Uncalled bet ($2.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.12 
+Board [5d 9d 6h Jh]
+Seat 4: Mamen97 (big blind) collected ($5)
+Seat 6: kole1992 (button) (small blind) folded on the Turn 
+
+
+Weplay Hand #76068847:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:02:17 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($300.96 in chips)
+Seat 5: nami ($38 in chips)
+Seat 6: kole1992 ($134.85 in chips)
+Mamen97: posts small blind $0.50
+nami: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 8c]
+kole1992: raises $2.50 to $2.50
+Mamen97: folds
+nami: calls $1.50
+*** FLOP *** [Jd Ts 3s]
+nami: checks
+kole1992: bets $3.51
+nami: calls $3.51
+*** TURN *** [Jd Ts 3s] [Td]
+nami: checks
+kole1992: checks
+*** RIVER *** [Jd Ts 3s Td] [7h]
+nami: checks
+kole1992: bets $33.50
+nami: folds
+Uncalled bet ($33.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12.52 from pot
+*** SUMMARY ***
+Total pot $12.52 | Rake $0.31 
+Board [Jd Ts 3s Td 7h]
+Seat 4: Mamen97 (small blind) folded before Flop 
+Seat 5: nami (big blind) folded on the River 
+Seat 6: kole1992 (button) collected ($12.52)
+
+
+Weplay Hand #76068862:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:03:19 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($300.46 in chips)
+Seat 5: nami ($31.99 in chips)
+Seat 6: kole1992 ($141.05 in chips)
+nami: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 6c]
+Mamen97: calls $1
+nami: calls $0.50
+kole1992: checks
+*** FLOP *** [3h 7c Tc]
+nami: checks
+kole1992: checks
+Mamen97: bets $1.50
+nami: calls $1.50
+kole1992: calls $1.50
+*** TURN *** [3h 7c Tc] [4s]
+nami: checks
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [3h 7c Tc 4s] [5s]
+nami: bets $7.50
+kole1992: raises $21.95 to $21.95
+Mamen97: folds
+nami: calls $14.45
+*** SHOW DOWN ***
+kole1992: shows [Th 6c] (a straight, Three to Seven)
+nami: shows [3c 6h] (a straight, Three to Seven)
+nami collected $25.70 from pot
+kole1992 collected $25.70 from pot
+*** SUMMARY ***
+Total pot $51.40 | Rake $1.28 
+Board [3h 7c Tc 4s 5s]
+Seat 4: Mamen97 (button) folded on the River 
+Seat 5: nami (small blind) showed [3c 6h] and won ($25.70) with a straight, Three to Seven
+Seat 6: kole1992 (big blind) showed [Th 6c] and won ($25.70) with a straight, Three to Seven
+
+
+Weplay Hand #76068887:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:05:15 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 4: Mamen97 ($297.96 in chips)
+Seat 5: nami ($32.60 in chips)
+Seat 6: kole1992 ($141.66 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 4h]
+nami: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 5: nami (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #76068891:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:05:36 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($298.46 in chips)
+Seat 5: nami ($32.60 in chips)
+Seat 6: kole1992 ($141.16 in chips)
+Mamen97: posts small blind $0.50
+nami: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Ac]
+kole1992: raises $2.50 to $2.50
+Mamen97: calls $2
+nami: calls $1.50
+*** FLOP *** [Ad Tc 6h]
+Mamen97: checks
+nami: checks
+kole1992: bets $2.50
+Mamen97: folds
+nami: calls $2.50
+*** TURN *** [Ad Tc 6h] [Jh]
+nami: checks
+kole1992: bets $7.14
+nami: calls $7.14
+*** RIVER *** [Ad Tc 6h Jh] [7s]
+nami: checks
+kole1992: bets $21.11
+nami: folds
+Uncalled bet ($21.11) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $26.78 from pot
+*** SUMMARY ***
+Total pot $26.78 | Rake $0.66 
+Board [Ad Tc 6h Jh 7s]
+Seat 4: Mamen97 (small blind) folded on the Flop 
+Seat 5: nami (big blind) folded on the River 
+Seat 6: kole1992 (button) collected ($26.78)
+
+
+Weplay Hand #76068909:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:06:59 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($295.96 in chips)
+Seat 5: nami ($20.46 in chips)
+Seat 6: kole1992 ($155.14 in chips)
+nami: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 8c]
+Mamen97: calls $1
+nami: calls $0.50
+kole1992 has timed out
+kole1992: checks
+*** FLOP *** [8h 9d Qh]
+nami: checks
+kole1992 has timed out
+kole1992: checks
+Mamen97: bets $1.50
+nami: folds
+kole1992 has timed out
+kole1992: folds
+Uncalled bet ($1.50) returned to Mamen97
+kole1992: sits out 
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.07 
+Board [8h 9d Qh]
+Seat 4: Mamen97 (button) collected ($3)
+Seat 5: nami (small blind) folded on the Flop 
+Seat 6: kole1992 (big blind) folded on the Flop 
+
+
+Weplay Hand #76068951:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:10:06 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($293.89 in chips)
+Seat 5: nami ($23.26 in chips)
+Seat 6: kole1992 ($154.14 in chips)
+nami: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 4h]
+Mamen97: folds
+nami: raises $2.50 to $3
+kole1992 has timed out
+kole1992: folds
+Uncalled bet ($2) returned to nami
+kole1992: sits out 
+*** SHOW DOWN ***
+nami has timed out
+nami: doesn't show hand
+nami collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (button) folded before Flop (didn't bet)
+Seat 5: nami (small blind) collected ($2)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #76068958:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:10:35 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 4: Mamen97 ($293.89 in chips)
+Seat 5: nami ($24.26 in chips)
+Seat 6: kole1992 ($153.14 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Jh]
+nami: calls $1
+kole1992: calls $0.50
+Mamen97: raises $3 to $4
+nami: calls $3
+kole1992: folds
+*** FLOP *** [7h 9s 4h]
+Mamen97: bets $5
+nami: raises $20.26 to $20.26 and is all-in
+Mamen97: calls $15.26
+*** TURN *** [7h 9s 4h] [Ks]
+*** FIRST RIVER *** [7h 9s 4h Ks] [2s]
+*** SECOND TURN *** [7h 9s 4h] [Jc]
+*** SECOND RIVER *** [7h 9s 4h Jc] [Js]
+*** SHOW DOWN ***
+Mamen97: shows [Th Ts] (a pair of Tens)
+nami: shows [Kh Qh] (a pair of Kings)
+nami collected $24.77 from pot
+Mamen97 collected $24.75 from pot
+*** SUMMARY ***
+Total pot $49.52 | Rake $1.23 
+Hand was run two times
+FIRST Board [7h 9s 4h Ks 2s]
+SECOND Board [7h 9s 4h Jc Js]
+Seat 4: Mamen97 (big blind) showed [Th Ts] and won ($24.75) with a pair of Tens
+Seat 5: nami (button) showed [Kh Qh] and won ($24.77) with a pair of Kings
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #76068969:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:11:38 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($293.77 in chips)
+Seat 5: nami ($24.15 in chips)
+Seat 6: kole1992 ($152.14 in chips)
+Mamen97: posts small blind $0.50
+nami: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 6c]
+kole1992: raises $2 to $2
+Mamen97: raises $5.50 to $6
+nami: calls $5
+kole1992: folds
+*** FLOP *** [8c 5d Th]
+Mamen97: bets $19
+nami: calls $18.15 and is all-in
+Uncalled bet ($0.85) returned to Mamen97
+*** FIRST TURN *** [8c 5d Th] [7h]
+*** FIRST RIVER *** [8c 5d Th 7h] [3d]
+*** SECOND TURN *** [8c 5d Th] [5s]
+*** SECOND RIVER *** [8c 5d Th 5s] [Ac]
+*** SHOW DOWN ***
+Mamen97: shows [Jd Js] (a pair of Jacks)
+nami: shows [7c 9s] (a pair of Sevens)
+Mamen97 collected $50.30 from pot
+*** SUMMARY ***
+Total pot $50.30 | Rake $1.25 
+Hand was run two times
+FIRST Board [8c 5d Th 7h 3d]
+SECOND Board [8c 5d Th 5s Ac]
+Seat 4: Mamen97 (small blind) showed [Jd Js] and won ($50.30) with a pair of Jacks
+Seat 5: nami (big blind) showed [7c 9s] and lost with a pair of Sevens
+Seat 6: kole1992 (button) folded before Flop 
+
+
+Weplay Hand #76068980:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:12:38 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($318.67 in chips)
+Seat 6: kole1992 ($150.14 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 7d]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [3d 4s Jc]
+kole1992: checks
+nami is disconnected 
+Mamen97: checks
+*** TURN *** [3d 4s Jc] [9s]
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [3d 4s Jc 9s] [Ks]
+kole1992: checks
+Mamen97: checks
+*** SHOW DOWN ***
+kole1992: shows [Qc 7d] (high card King)
+Mamen97: shows [4h 7c] (a pair of Fours)
+Mamen97 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [3d 4s Jc 9s Ks]
+Seat 4: Mamen97 (button) (small blind) showed [4h 7c] and won ($2) with a pair of Fours
+Seat 6: kole1992 (big blind) showed [Qc 7d] and lost with high card King
+
+
+Weplay Hand #76068993:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:13:47 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($319.62 in chips)
+Seat 6: kole1992 ($149.14 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Th]
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76068997:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:13:58 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($320.12 in chips)
+Seat 6: kole1992 ($148.64 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 6h]
+Mamen97: raises $2 to $2.50
+kole1992: folds
+Uncalled bet ($1.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) collected ($2)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #76069002:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:14:16 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($321.12 in chips)
+Seat 6: kole1992 ($147.64 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 6h]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [2d 9s Kh]
+nami leaves the table
+Mamen97: checks
+kole1992: bets $1.65
+Mamen97: calls $1.65
+*** TURN *** [2d 9s Kh] [Tc]
+Mamen97: checks
+kole1992: bets $13.50
+Mamen97: folds
+Uncalled bet ($13.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $8.30 from pot
+*** SUMMARY ***
+Total pot $8.30 | Rake $0.20 
+Board [2d 9s Kh Tc]
+Seat 4: Mamen97 (big blind) folded on the Turn 
+Seat 6: kole1992 (button) (small blind) collected ($8.30)
+
+
+Weplay Hand #76069014:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:15:10 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($316.97 in chips)
+Seat 6: kole1992 ($151.59 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Qc]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [Ah 5d 2c]
+kole1992: checks
+Mamen97: checks
+*** TURN *** [Ah 5d 2c] [8s]
+kole1992: bets $2
+Mamen97: folds
+Uncalled bet ($2) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [Ah 5d 2c 8s]
+Seat 4: Mamen97 (button) (small blind) folded on the Turn 
+Seat 6: kole1992 (big blind) collected ($2)
+
+
+Weplay Hand #76069023:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:16:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($315.97 in chips)
+Seat 6: kole1992 ($152.54 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 6c]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [9c Tc 5s]
+Mamen97: checks
+kole1992: bets $2.65
+Mamen97: calls $2.65
+*** TURN *** [9c Tc 5s] [5c]
+Mamen97: checks
+kole1992: checks
+*** RIVER *** [9c Tc 5s 5c] [Qs]
+Mamen97: checks
+kole1992: checks
+*** SHOW DOWN ***
+Mamen97: shows [7s Ts] (two pair, Tens and Fives)
+kole1992: mucks hand
+Mamen97 collected $10.30 from pot
+*** SUMMARY ***
+Total pot $10.30 | Rake $0.25 
+Board [9c Tc 5s 5c Qs]
+Seat 4: Mamen97 (big blind) showed [7s Ts] and won ($10.30) with two pair, Tens and Fives
+Seat 6: kole1992 (button) (small blind) mucked
+
+
+Weplay Hand #76069030:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:16:44 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($320.87 in chips)
+Seat 6: kole1992 ($147.39 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Kh]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [6h Ac 4s]
+kole1992: checks
+Mamen97: bets $1
+kole1992: calls $1
+*** TURN *** [6h Ac 4s] [5s]
+kole1992: checks
+Mamen97: bets $1
+kole1992: folds
+Uncalled bet ($1) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.10 
+Board [6h Ac 4s 5s]
+Seat 4: Mamen97 (button) (small blind) collected ($4)
+Seat 6: kole1992 (big blind) folded on the Turn 
+
+
+Weplay Hand #76069043:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:17:40 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($322.77 in chips)
+Seat 6: kole1992 ($145.39 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Ac]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [3c Qd Ks]
+Mamen97: checks
+kole1992: checks
+*** TURN *** [3c Qd Ks] [5c]
+Mamen97: checks
+kole1992: checks
+*** RIVER *** [3c Qd Ks 5c] [2c]
+Mamen97: bets $5
+kole1992: calls $5
+*** SHOW DOWN ***
+Mamen97: shows [3s 5s] (two pair, Fives and Threes)
+kole1992: mucks hand
+Mamen97 collected $15 from pot
+*** SUMMARY ***
+Total pot $15 | Rake $0.37 
+Board [3c Qd Ks 5c 2c]
+Seat 4: Mamen97 (big blind) showed [3s 5s] and won ($15) with two pair, Fives and Threes
+Seat 6: kole1992 (button) (small blind) mucked
+
+
+Weplay Hand #76069057:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:18:35 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($329.90 in chips)
+Seat 6: kole1992 ($137.89 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 2d]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [8d 5h 3d]
+kole1992: checks
+Mamen97: checks
+*** TURN *** [8d 5h 3d] [7h]
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [8d 5h 3d 7h] [2s]
+kole1992: bets $1.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [8d 5h 3d 7h 2s]
+Seat 4: Mamen97 (button) (small blind) folded on the River 
+Seat 6: kole1992 (big blind) collected ($2)
+
+
+Weplay Hand #76069068:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:19:21 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($328.90 in chips)
+Seat 6: kole1992 ($138.84 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Qs]
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76069072:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:19:39 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($329.40 in chips)
+Seat 6: kole1992 ($138.34 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 6h]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [7d 2c 3s]
+kole1992: checks
+Mamen97: checks
+*** TURN *** [7d 2c 3s] [Qd]
+kole1992: bets $1
+Mamen97: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [7d 2c 3s Qd]
+Seat 4: Mamen97 (button) (small blind) folded on the Turn 
+Seat 6: kole1992 (big blind) collected ($2)
+
+
+Weplay Hand #76069079:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:20:06 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($328.40 in chips)
+Seat 6: kole1992 ($139.29 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 7h]
+kole1992: raises $2 to $2.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 6: kole1992 (button) (small blind) collected ($2)
+
+
+Weplay Hand #76069082:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:20:22 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($327.40 in chips)
+Seat 6: kole1992 ($140.29 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Qs]
+Mamen97: raises $2 to $2.50
+kole1992: raises $10.01 to $11.01
+Mamen97: folds
+Uncalled bet ($8.51) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($5)
+
+
+Weplay Hand #76069089:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:20:42 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($324.90 in chips)
+Seat 6: kole1992 ($142.79 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Ah]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [7h 7s 4c]
+Mamen97: checks
+kole1992: checks
+*** TURN *** [7h 7s 4c] [6c]
+Mamen97: bets $2
+kole1992: calls $2
+*** RIVER *** [7h 7s 4c 6c] [Jc]
+Mamen97: checks
+kole1992: checks
+*** SHOW DOWN ***
+Mamen97: shows [8c 9d] (a pair of Sevens)
+kole1992: shows [6d Ah] (two pair, Sevens and Sixes)
+kole1992 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.22 
+Board [7h 7s 4c 6c Jc]
+Seat 4: Mamen97 (big blind) showed [8c 9d] and lost with a pair of Sevens
+Seat 6: kole1992 (button) (small blind) showed [6d Ah] and won ($9) with two pair, Sevens and Sixes
+
+
+Weplay Hand #76069102:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:21:52 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($320.40 in chips)
+Seat 6: kole1992 ($147.07 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Qh]
+Mamen97: calls $0.50
+kole1992: raises $3.50 to $4.50
+Mamen97: folds
+Uncalled bet ($3.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($2)
+
+
+Weplay Hand #76069107:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:22:10 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($319.40 in chips)
+Seat 6: kole1992 ($148.07 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Tc]
+kole1992: raises $2 to $2.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 6: kole1992 (button) (small blind) collected ($2)
+
+
+Weplay Hand #76069110:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:22:23 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($318.40 in chips)
+Seat 6: kole1992 ($149.07 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Tc]
+Mamen97: raises $2 to $2.50
+kole1992: folds
+Uncalled bet ($1.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) collected ($2)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #76069117:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:22:37 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($319.40 in chips)
+Seat 6: kole1992 ($148.07 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 7d]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [8c Ad 2h]
+Mamen97: checks
+kole1992: checks
+*** TURN *** [8c Ad 2h] [3c]
+Mamen97: checks
+kole1992: checks
+*** RIVER *** [8c Ad 2h 3c] [7s]
+Mamen97: checks
+kole1992: bets $4
+Mamen97: folds
+Uncalled bet ($4) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.12 
+Board [8c Ad 2h 3c 7s]
+Seat 4: Mamen97 (big blind) folded on the River 
+Seat 6: kole1992 (button) (small blind) collected ($5)
+
+
+Weplay Hand #76069125:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:23:21 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($316.90 in chips)
+Seat 6: kole1992 ($150.45 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Kc]
+Mamen97: raises $2 to $2.50
+kole1992: raises $10 to $11
+Mamen97: calls $8.50
+*** FLOP *** [5s Qc Js]
+kole1992: bets $13.07
+Mamen97: calls $13.07
+*** TURN *** [5s Qc Js] [8h]
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [5s Qc Js 8h] [Ts]
+kole1992: checks
+Mamen97: checks
+*** SHOW DOWN ***
+kole1992: shows [Tc Kc] (a pair of Tens)
+Mamen97: shows [Jc Ah] (a pair of Jacks)
+Mamen97 collected $48.14 from pot
+*** SUMMARY ***
+Total pot $48.14 | Rake $1.20 
+Board [5s Qc Js 8h Ts]
+Seat 4: Mamen97 (button) (small blind) showed [Jc Ah] and won ($48.14) with a pair of Jacks
+Seat 6: kole1992 (big blind) showed [Tc Kc] and lost with a pair of Tens
+
+
+Weplay Hand #76069142:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:24:35 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($339.77 in chips)
+Seat 6: kole1992 ($126.38 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Ac]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [8h 3d Ks]
+Mamen97: checks
+kole1992: checks
+*** TURN *** [8h 3d Ks] [3h]
+Mamen97: bets $5
+kole1992: folds
+Uncalled bet ($5) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.12 
+Board [8h 3d Ks 3h]
+Seat 4: Mamen97 (big blind) collected ($5)
+Seat 6: kole1992 (button) (small blind) folded on the Turn 
+
+
+Weplay Hand #76069153:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:25:27 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($342.15 in chips)
+Seat 6: kole1992 ($123.88 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 6h]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [7s 2c 4d]
+kole1992: checks
+Mamen97: checks
+*** TURN *** [7s 2c 4d] [Ks]
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [7s 2c 4d Ks] [5c]
+kole1992: checks
+Mamen97: checks
+*** SHOW DOWN ***
+kole1992: shows [2d 6h] (a pair of Deuces)
+Mamen97: shows [5h 9h] (a pair of Fives)
+Mamen97 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [7s 2c 4d Ks 5c]
+Seat 4: Mamen97 (button) (small blind) showed [5h 9h] and won ($2) with a pair of Fives
+Seat 6: kole1992 (big blind) showed [2d 6h] and lost with a pair of Deuces
+
+
+Weplay Hand #76069165:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:26:27 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($343.10 in chips)
+Seat 6: kole1992 ($122.88 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As 2h]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [2d Kh 7c]
+Mamen97: checks
+kole1992: checks
+*** TURN *** [2d Kh 7c] [6d]
+Mamen97: checks
+kole1992: bets $2.50
+Mamen97: calls $2.50
+*** RIVER *** [2d Kh 7c 6d] [Td]
+Mamen97: checks
+kole1992: checks
+*** SHOW DOWN ***
+Mamen97: shows [Kc 8s] (a pair of Kings)
+kole1992: mucks hand
+Mamen97 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.25 
+Board [2d Kh 7c 6d Td]
+Seat 4: Mamen97 (big blind) showed [Kc 8s] and won ($10) with a pair of Kings
+Seat 6: kole1992 (button) (small blind) mucked
+
+
+Weplay Hand #76069178:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:27:10 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($347.85 in chips)
+Seat 6: kole1992 ($117.88 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Qs]
+Mamen97: calls $0.50
+kole1992: raises $3.50 to $4.50
+Mamen97: folds
+Uncalled bet ($3.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($2)
+
+
+Weplay Hand #76069182:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:27:23 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($346.85 in chips)
+Seat 6: kole1992 ($118.88 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Ad]
+kole1992: raises $2 to $2.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 6: kole1992 (button) (small blind) collected ($2)
+
+
+Weplay Hand #76069185:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:27:34 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($345.85 in chips)
+Seat 6: kole1992 ($119.88 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 8s]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [8c 4s Qd]
+kole1992: checks
+Mamen97: checks
+*** TURN *** [8c 4s Qd] [2c]
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [8c 4s Qd 2c] [Qh]
+kole1992: bets $1
+Mamen97: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [8c 4s Qd 2c Qh]
+Seat 4: Mamen97 (button) (small blind) folded on the River 
+Seat 6: kole1992 (big blind) collected ($2)
+
+
+Weplay Hand #76069193:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:28:13 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($344.85 in chips)
+Seat 6: kole1992 ($120.83 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 7h]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [Qh Th Jh]
+Mamen97: checks
+kole1992: bets $1.15
+Mamen97: calls $1.15
+*** TURN *** [Qh Th Jh] [Qs]
+Mamen97: checks
+kole1992: bets $4.50
+Mamen97: calls $4.50
+*** RIVER *** [Qh Th Jh Qs] [6h]
+Mamen97: checks
+kole1992: checks
+*** SHOW DOWN ***
+Mamen97: shows [Ah 8s] (a flush, Ace high)
+kole1992: mucks hand
+Mamen97 collected $16.30 from pot
+*** SUMMARY ***
+Total pot $16.30 | Rake $0.40 
+Board [Qh Th Jh Qs 6h]
+Seat 4: Mamen97 (big blind) showed [Ah 8s] and won ($16.30) with a flush, Ace high
+Seat 6: kole1992 (button) (small blind) mucked
+
+
+Weplay Hand #76069205:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:29:07 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($352.60 in chips)
+Seat 6: kole1992 ($112.68 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Ks]
+Mamen97: raises $2 to $2.50
+kole1992: raises $10.01 to $11.01
+Mamen97: folds
+Uncalled bet ($8.51) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($5)
+
+
+Weplay Hand #76069214:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:29:35 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($350.10 in chips)
+Seat 6: kole1992 ($115.18 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Qs]
+kole1992: raises $2 to $2.50
+Mamen97: raises $6 to $7
+kole1992: folds
+Uncalled bet ($4.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($5)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76069215:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:29:57 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($352.60 in chips)
+Seat 6: kole1992 ($112.68 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 2s]
+Mamen97: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($1)
+
+
+Weplay Hand #76069220:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:30:06 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($352.10 in chips)
+Seat 6: kole1992 ($113.18 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 5d]
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76069223:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:30:18 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($352.60 in chips)
+Seat 6: kole1992 ($112.68 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 8c]
+Mamen97: raises $2 to $2.50
+kole1992: calls $1.50
+*** FLOP *** [7s 5h 9d]
+kole1992: checks
+Mamen97: bets $2.50
+kole1992: calls $2.50
+*** TURN *** [7s 5h 9d] [Kc]
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [7s 5h 9d Kc] [Ah]
+kole1992: checks
+Mamen97: checks
+*** SHOW DOWN ***
+kole1992: shows [9s 8c] (a pair of Nines)
+Mamen97 has timed out
+Mamen97: mucks hand
+kole1992 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.25 
+Board [7s 5h 9d Kc Ah]
+Seat 4: Mamen97 (button) (small blind) mucked
+Seat 6: kole1992 (big blind) showed [9s 8c] and won ($10) with a pair of Nines
+
+
+Weplay Hand #76069231:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:30:58 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($347.60 in chips)
+Seat 6: kole1992 ($117.43 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 5d]
+kole1992: raises $2 to $2.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 6: kole1992 (button) (small blind) collected ($2)
+
+
+Weplay Hand #76069233:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:31:09 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($346.60 in chips)
+Seat 6: kole1992 ($118.43 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 3h]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [7d 5s Td]
+kole1992: checks
+Mamen97: bets $1
+kole1992: folds
+Uncalled bet ($1) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [7d 5s Td]
+Seat 4: Mamen97 (button) (small blind) collected ($2)
+Seat 6: kole1992 (big blind) folded on the Flop 
+
+
+Weplay Hand #76069237:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:31:26 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($347.55 in chips)
+Seat 6: kole1992 ($117.43 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 2s]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [3c 4c 9c]
+Mamen97: checks
+kole1992: bets $1.20
+Mamen97: calls $1.20
+*** TURN *** [3c 4c 9c] [5h]
+Mamen97: checks
+kole1992: checks
+*** RIVER *** [3c 4c 9c 5h] [3h]
+Mamen97: checks
+kole1992: bets $4.50
+Mamen97: folds
+Uncalled bet ($4.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $7.40 from pot
+*** SUMMARY ***
+Total pot $7.40 | Rake $0.18 
+Board [3c 4c 9c 5h 3h]
+Seat 4: Mamen97 (big blind) folded on the River 
+Seat 6: kole1992 (button) (small blind) collected ($7.40)
+
+
+Weplay Hand #76069250:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:32:18 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($343.85 in chips)
+Seat 6: kole1992 ($120.95 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 9d]
+Mamen97: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($1)
+
+
+Weplay Hand #76069251:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:32:28 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($343.35 in chips)
+Seat 6: kole1992 ($121.45 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 2c]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [9c Qc Kd]
+Mamen97: checks
+kole1992: bets $5.75
+Mamen97: folds
+Uncalled bet ($5.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.12 
+Board [9c Qc Kd]
+Seat 4: Mamen97 (big blind) folded on the Flop 
+Seat 6: kole1992 (button) (small blind) collected ($5)
+
+
+Weplay Hand #76069261:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:33:10 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($340.85 in chips)
+Seat 6: kole1992 ($123.83 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Ks]
+Mamen97: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($1)
+
+
+Weplay Hand #76069262:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:33:19 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($340.35 in chips)
+Seat 6: kole1992 ($124.33 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Ts]
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76069264:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:33:29 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($340.85 in chips)
+Seat 6: kole1992 ($123.83 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 3c]
+Mamen97: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($1)
+
+
+Weplay Hand #76069269:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:33:39 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($340.35 in chips)
+Seat 6: kole1992 ($124.33 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Ac]
+kole1992: raises $2 to $2.50
+Mamen97: raises $4 to $5
+kole1992: calls $2.50
+*** FLOP *** [Kc 5d 3s]
+Mamen97: bets $5
+kole1992: calls $5
+*** TURN *** [Kc 5d 3s] [7h]
+Mamen97: bets $5
+kole1992: calls $5
+*** RIVER *** [Kc 5d 3s 7h] [4s]
+Mamen97: bets $5
+kole1992: calls $5
+*** SHOW DOWN ***
+Mamen97: shows [Jd Jc] (a pair of Jacks)
+kole1992: mucks hand
+Mamen97 collected $40 from pot
+*** SUMMARY ***
+Total pot $40 | Rake $1 
+Board [Kc 5d 3s 7h 4s]
+Seat 4: Mamen97 (big blind) showed [Jd Jc] and won ($40) with a pair of Jacks
+Seat 6: kole1992 (button) (small blind) mucked
+
+
+Weplay Hand #76069279:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:34:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($359.35 in chips)
+Seat 6: kole1992 ($104.33 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Ah]
+Mamen97: calls $0.50
+kole1992: raises $3.50 to $4.50
+Mamen97: calls $3.50
+*** FLOP *** [7h Qc Th]
+kole1992: bets $6.08
+Mamen97: folds
+Uncalled bet ($6.08) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.22 
+Board [7h Qc Th]
+Seat 4: Mamen97 (button) (small blind) folded on the Flop 
+Seat 6: kole1992 (big blind) collected ($9)
+
+
+Weplay Hand #76069282:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:35:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($354.85 in chips)
+Seat 6: kole1992 ($108.61 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 4h]
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76069285:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:35:11 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($355.35 in chips)
+Seat 6: kole1992 ($108.11 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Jc]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [4h 7s 2s]
+kole1992: checks
+Mamen97: bets $1
+kole1992: raises $3.50 to $3.50
+Mamen97: calls $2.50
+*** TURN *** [4h 7s 2s] [6c]
+kole1992: bets $2.97
+Mamen97: calls $2.97
+*** RIVER *** [4h 7s 2s 6c] [Jh]
+kole1992: bets $12.44
+Mamen97: calls $12.44
+*** SHOW DOWN ***
+kole1992: shows [8s Jc] (a pair of Jacks)
+Mamen97: shows [Js Ad] (a pair of Jacks)
+Mamen97 collected $39.82 from pot
+*** SUMMARY ***
+Total pot $39.82 | Rake $0.99 
+Board [4h 7s 2s 6c Jh]
+Seat 4: Mamen97 (button) (small blind) showed [Js Ad] and won ($39.82) with a pair of Jacks
+Seat 6: kole1992 (big blind) showed [8s Jc] and lost with a pair of Jacks
+
+
+Weplay Hand #76069298:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:36:01 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($374.27 in chips)
+Seat 6: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Ks]
+kole1992: raises $2 to $2.50
+Mamen97: calls $1.50
+*** FLOP *** [2h 4s Qs]
+Mamen97: checks
+kole1992: bets $1.65
+Mamen97: calls $1.65
+*** TURN *** [2h 4s Qs] [7s]
+Mamen97: checks
+kole1992: bets $6.50
+Mamen97: calls $6.50
+*** RIVER *** [2h 4s Qs 7s] [9s]
+Mamen97: bets $20
+kole1992: calls $20
+*** SHOW DOWN ***
+Mamen97: shows [As 7c] (a flush, Ace high)
+kole1992: mucks hand
+Mamen97 collected $61.30 from pot
+*** SUMMARY ***
+Total pot $61.30 | Rake $1.53 
+Board [2h 4s Qs 7s 9s]
+Seat 4: Mamen97 (big blind) showed [As 7c] and won ($61.30) with a flush, Ace high
+Seat 6: kole1992 (button) (small blind) mucked
+
+
+Weplay Hand #76069305:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:36:41 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($403.39 in chips)
+Seat 6: kole1992 ($100 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 7d]
+Mamen97: raises $2 to $2.50
+kole1992: folds
+Uncalled bet ($1.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) collected ($2)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #76069310:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:36:55 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($404.39 in chips)
+Seat 6: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 8c]
+kole1992: raises $2 to $2.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 6: kole1992 (button) (small blind) collected ($2)
+
+
+Weplay Hand #76069312:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:37:06 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($403.39 in chips)
+Seat 6: kole1992 ($101 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As Ah]
+Mamen97: calls $0.50
+kole1992: raises $3.50 to $4.50
+Mamen97: folds
+Uncalled bet ($3.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($2)
+
+
+Weplay Hand #76070314:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:37:20 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($402.39 in chips)
+Seat 6: kole1992 ($102 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 9c]
+kole1992: folds
+Uncalled bet ($0.50) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 4: Mamen97 (big blind) collected ($1)
+Seat 6: kole1992 (button) (small blind) folded before Flop 
+
+
+Weplay Hand #76070317:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:37:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($402.89 in chips)
+Seat 6: kole1992 ($101.50 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c As]
+Mamen97: raises $2.50 to $3
+kole1992: calls $2
+*** FLOP *** [Ac Ks 3d]
+kole1992: checks
+Mamen97: bets $3
+kole1992: calls $3
+*** TURN *** [Ac Ks 3d] [4d]
+kole1992: checks
+Mamen97: checks
+*** RIVER *** [Ac Ks 3d 4d] [Qd]
+kole1992: checks
+Mamen97: checks
+*** SHOW DOWN ***
+kole1992: shows [3c As] (two pair, Aces and Threes)
+Mamen97 has timed out
+Mamen97: mucks hand
+kole1992 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.30 
+Board [Ac Ks 3d 4d Qd]
+Seat 4: Mamen97 (button) (small blind) mucked
+Seat 6: kole1992 (big blind) showed [3c As] and won ($12) with two pair, Aces and Threes
+
+
+Weplay Hand #76070324:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:38:08 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($396.89 in chips)
+Seat 6: kole1992 ($107.20 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Ts]
+kole1992: raises $2 to $2.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 6: kole1992 (button) (small blind) collected ($2)
+
+
+Weplay Hand #76070330:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:38:20 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($395.89 in chips)
+Seat 6: kole1992 ($108.20 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 3d]
+Mamen97: raises $2.50 to $3
+kole1992: folds
+Uncalled bet ($2) returned to Mamen97
+*** SHOW DOWN ***
+Mamen97 has timed out
+Mamen97: doesn't show hand
+Mamen97 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (button) (small blind) collected ($2)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #76070333:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:38:33 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Mamen97 ($396.89 in chips)
+Seat 6: kole1992 ($107.20 in chips)
+kole1992: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 8s]
+kole1992: raises $2 to $2.50
+Mamen97: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 6: kole1992 (button) (small blind) collected ($2)
+
+
+Weplay Hand #76070335:  Hold'em No Limit ($0.50/$1) - 2026/02/18 4:38:43 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Mamen97 ($395.89 in chips)
+Seat 6: kole1992 ($108.20 in chips)
+Mamen97: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 2h]
+Mamen97: calls $0.50
+kole1992: checks
+*** FLOP *** [Qh Kc Ks]
+kole1992: checks
+Mamen97 is disconnected 
+Mamen97 has timed out while being disconnected
+Mamen97: checks
+*** TURN *** [Qh Kc Ks] [Jc]
+kole1992: bets $1
+Mamen97 has timed out while being disconnected
+Mamen97: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [Qh Kc Ks Jc]
+Seat 4: Mamen97 (button) (small blind) folded on the Turn 
+Seat 6: kole1992 (big blind) collected ($2)

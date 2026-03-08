@@ -1,0 +1,1950 @@
+﻿Weplay Hand #75318931:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:22:33 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($117.09 in chips)
+Seat 3: slagalica ($97.50 in chips)
+Seat 4: Tone91 ($157.59 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($246.69 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 3h]
+drPokermarv: folds
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($1)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75318941:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:22:45 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100.50 in chips)
+Seat 2: drPokermarv ($117.09 in chips)
+Seat 3: slagalica ($97.50 in chips)
+Seat 4: Tone91 ($157.59 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($246.19 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 2c]
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: raises $2.50 to $2.50
+kole1992: folds
+drPokermarv: folds
+Uncalled bet ($1.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: drPokermarv (big blind) folded before Flop 
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o (button) collected ($2.50)
+
+
+Weplay Hand #75318956:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:22:59 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($116.09 in chips)
+Seat 3: slagalica ($97.50 in chips)
+Seat 4: Tone91 ($157.59 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($247.69 in chips)
+drPokermarv: posts small blind $0.50
+slagalica: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Kh]
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+drPokermarv: raises $2.50 to $3
+slagalica: folds
+Uncalled bet ($2) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: drPokermarv (small blind) collected ($2)
+Seat 3: slagalica (big blind) folded before Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75318974:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:23:23 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($117.09 in chips)
+Seat 3: slagalica ($96.50 in chips)
+Seat 4: Tone91 ($157.59 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($247.69 in chips)
+slagalica: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 2d]
+tuPaTu: folds
+JTs98o: raises $2.20 to $2.20
+kole1992: folds
+drPokermarv: raises $6 to $6
+slagalica: folds
+Tone91: folds
+JTs98o: raises $15.80 to $18
+drPokermarv: folds
+Uncalled bet ($12) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $13.50 from pot
+*** SUMMARY ***
+Total pot $13.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) folded before Flop 
+Seat 3: slagalica (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded before Flop 
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o collected ($13.50)
+
+
+Weplay Hand #75319029:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:24:28 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($111.09 in chips)
+Seat 3: slagalica ($96 in chips)
+Seat 4: Tone91 ($156.59 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($255.19 in chips)
+Tone91: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 7c]
+JTs98o: raises $2.50 to $2.50
+kole1992: folds
+drPokermarv: folds
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+Uncalled bet ($1.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: tuPaTu (big blind) folded before Flop 
+Seat 6: JTs98o collected ($2.50)
+
+
+Weplay Hand #75319048:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:24:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($111.09 in chips)
+Seat 3: slagalica ($96 in chips)
+Seat 4: Tone91 ($156.09 in chips)
+Seat 5: tuPaTu ($215.18 in chips)
+Seat 6: JTs98o ($256.69 in chips)
+tuPaTu: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 4s]
+kole1992: folds
+drPokermarv: raises $2 to $2
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: calls $1
+*** FLOP *** [4c 3d 6s]
+JTs98o: checks
+drPokermarv: bets $3.50
+JTs98o: raises $11.20 to $11.20
+drPokermarv: calls $7.70
+*** TURN *** [4c 3d 6s] [Js]
+JTs98o: checks
+drPokermarv: bets $19
+JTs98o: folds
+Uncalled bet ($19) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $26.90 from pot
+*** SUMMARY ***
+Total pot $26.90 | Rake $1.34 
+Board [4c 3d 6s Js]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv collected ($26.90)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: tuPaTu (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded on the Turn 
+
+
+Weplay Hand #75319123:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:26:20 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($123.45 in chips)
+Seat 3: slagalica ($96 in chips)
+Seat 4: Tone91 ($156.09 in chips)
+Seat 5: tuPaTu ($214.68 in chips)
+Seat 6: JTs98o ($243.49 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 2d]
+drPokermarv: folds
+slagalica: folds
+Tone91: folds
+tuPaTu: raises $2.50 to $2.50
+JTs98o: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu (button) collected ($2.50)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75319141:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:26:40 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($123.45 in chips)
+Seat 3: slagalica ($96 in chips)
+Seat 4: Tone91 ($156.09 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($242.99 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 7c]
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: drPokermarv (big blind) collected ($1)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75319148:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:26:53 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($123.95 in chips)
+Seat 3: slagalica ($96 in chips)
+Seat 4: Tone91 ($156.09 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($242.99 in chips)
+drPokermarv: posts small blind $0.50
+slagalica: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 5c]
+Tone91: folds
+tuPaTu: folds
+JTs98o: raises $2.50 to $2.50
+kole1992: folds
+drPokermarv: folds
+slagalica: raises $11 to $12
+JTs98o: folds
+Uncalled bet ($9.50) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: drPokermarv (small blind) folded before Flop 
+Seat 3: slagalica (big blind) collected ($5.50)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop 
+
+
+Weplay Hand #75319181:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:27:28 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($123.45 in chips)
+Seat 3: slagalica ($99 in chips)
+Seat 4: Tone91 ($156.09 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($240.49 in chips)
+slagalica: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 6c]
+tuPaTu: folds
+JTs98o: raises $2.50 to $2.50
+kole1992: folds
+drPokermarv: folds
+slagalica: raises $11.50 to $12
+Tone91: folds
+JTs98o: calls $9.50
+*** FLOP *** [Qs 2c 3c]
+slagalica: bets $18.75
+JTs98o: folds
+Uncalled bet ($18.75) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $1.25 
+Board [Qs 2c 3c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: slagalica (small blind) collected ($25)
+Seat 4: Tone91 (big blind) folded before Flop 
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded on the Flop 
+
+
+Weplay Hand #75319205:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:27:58 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($123.45 in chips)
+Seat 3: slagalica ($110.75 in chips)
+Seat 4: Tone91 ($155.09 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($228.49 in chips)
+Tone91: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Qh]
+JTs98o: folds
+kole1992: raises $2 to $2
+drPokermarv: folds
+slagalica: folds
+Tone91: raises $10 to $10.50
+tuPaTu: folds
+kole1992: folds
+Uncalled bet ($8.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 folded before Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) collected ($5)
+Seat 5: tuPaTu (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75319240:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:28:35 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($123.45 in chips)
+Seat 3: slagalica ($110.75 in chips)
+Seat 4: Tone91 ($158.09 in chips)
+Seat 5: tuPaTu ($215.18 in chips)
+Seat 6: JTs98o ($228.49 in chips)
+tuPaTu: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 7s]
+kole1992: folds
+drPokermarv: folds
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+Uncalled bet ($0.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: tuPaTu (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) collected ($1)
+
+
+Weplay Hand #75319257:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:28:52 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($123.45 in chips)
+Seat 3: slagalica ($110.75 in chips)
+Seat 4: Tone91 ($158.09 in chips)
+Seat 5: tuPaTu ($214.68 in chips)
+Seat 6: JTs98o ($228.99 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 3c]
+drPokermarv: folds
+slagalica: folds
+Tone91: folds
+tuPaTu: raises $2.50 to $2.50
+JTs98o: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu (button) collected ($2.50)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75319279:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:29:14 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($123.45 in chips)
+Seat 3: slagalica ($110.75 in chips)
+Seat 4: Tone91 ($158.09 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($228.49 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd As]
+slagalica: raises $2.50 to $2.50
+Tone91: raises $7.50 to $7.50
+tuPaTu: folds
+JTs98o: folds
+kole1992: raises $15.50 to $16
+drPokermarv: folds
+slagalica: raises $108.25 to $110.75 and is all-in
+Tone91: folds
+kole1992: folds
+Uncalled bet ($94.75) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $40.50 from pot
+*** SUMMARY ***
+Total pot $40.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: drPokermarv (big blind) folded before Flop 
+Seat 3: slagalica collected ($40.50)
+Seat 4: Tone91 folded before Flop 
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75320333:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:30:17 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($122.45 in chips)
+Seat 3: slagalica ($135.25 in chips)
+Seat 4: Tone91 ($150.59 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($228.49 in chips)
+drPokermarv: posts small blind $0.50
+slagalica: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 8h]
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+kole1992: raises $2.50 to $2.50
+drPokermarv: folds
+slagalica: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (button) collected ($2.50)
+Seat 2: drPokermarv (small blind) folded before Flop 
+Seat 3: slagalica (big blind) folded before Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320349:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:30:32 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($101.50 in chips)
+Seat 2: drPokermarv ($121.95 in chips)
+Seat 3: slagalica ($134.25 in chips)
+Seat 4: Tone91 ($150.59 in chips)
+Seat 5: tuPaTu ($216.18 in chips)
+Seat 6: JTs98o ($228.49 in chips)
+slagalica: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Kh]
+tuPaTu: raises $2.50 to $2.50
+JTs98o: folds
+kole1992: folds
+drPokermarv has timed out
+drPokermarv: folds
+slagalica: folds
+Tone91: calls $1.50
+*** FLOP *** [Jc 2d Ad]
+Tone91: checks
+tuPaTu: checks
+*** TURN *** [Jc 2d Ad] [Qs]
+Tone91: bets $6.50
+tuPaTu: folds
+Uncalled bet ($6.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Jc 2d Ad Qs]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: slagalica (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) collected ($5.50)
+Seat 5: tuPaTu folded on the Turn 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320415:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:31:43 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($101.50 in chips)
+Seat 2: drPokermarv ($121.95 in chips)
+Seat 3: slagalica ($133.75 in chips)
+Seat 4: Tone91 ($153.32 in chips)
+Seat 5: tuPaTu ($213.68 in chips)
+Seat 6: JTs98o ($228.49 in chips)
+Tone91: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 9c]
+JTs98o: folds
+kole1992: folds
+drPokermarv: raises $2 to $2
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+Uncalled bet ($1) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv collected ($2.50)
+Seat 3: slagalica (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: tuPaTu (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320434:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:32:04 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($101.50 in chips)
+Seat 2: drPokermarv ($123.45 in chips)
+Seat 3: slagalica ($133.75 in chips)
+Seat 4: Tone91 ($152.82 in chips)
+Seat 5: tuPaTu ($212.68 in chips)
+Seat 6: JTs98o ($228.49 in chips)
+tuPaTu: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 7c]
+kole1992: folds
+drPokermarv: folds
+slagalica: folds
+Tone91: raises $2.50 to $2.50
+tuPaTu: folds
+JTs98o: calls $1.50
+*** FLOP *** [6c As 9c]
+JTs98o: checks
+Tone91: bets $3.68
+JTs98o: calls $3.68
+*** TURN *** [6c As 9c] [Th]
+JTs98o: checks
+Tone91: checks
+*** RIVER *** [6c As 9c Th] [4s]
+JTs98o: bets $8.61
+Tone91: calls $8.61
+*** SHOW DOWN ***
+JTs98o: shows [Ac Jh] (a pair of Aces)
+Tone91: shows [Ad 4d] (two pair, Aces and Fours)
+Tone91 collected $30.08 from pot
+*** SUMMARY ***
+Total pot $30.08 | Rake $1.50 
+Board [6c As 9c Th 4s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 (button) showed [Ad 4d] and won ($30.08) with two pair, Aces and Fours
+Seat 5: tuPaTu (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) showed [Ac Jh] and lost with a pair of Aces
+
+
+Weplay Hand #75320474:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:32:50 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($101.50 in chips)
+Seat 2: drPokermarv ($123.45 in chips)
+Seat 3: slagalica ($133.75 in chips)
+Seat 4: Tone91 ($166.61 in chips)
+Seat 5: tuPaTu ($212.18 in chips)
+Seat 6: JTs98o ($213.70 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 4h]
+drPokermarv: folds
+slagalica: raises $2.50 to $2.50
+Tone91: folds
+tuPaTu: folds
+JTs98o: raises $11.50 to $12
+kole1992: folds
+slagalica: calls $9.50
+*** FLOP *** [As 2s 3h]
+JTs98o: bets $6.25
+slagalica: folds
+Uncalled bet ($6.25) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $1.25 
+Board [As 2s 3h]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded on the Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) collected ($25)
+
+
+Weplay Hand #75320505:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:33:22 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100.50 in chips)
+Seat 2: drPokermarv ($123.45 in chips)
+Seat 3: slagalica ($121.75 in chips)
+Seat 4: Tone91 ($166.61 in chips)
+Seat 5: tuPaTu ($212.18 in chips)
+Seat 6: JTs98o ($225.45 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 6s]
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: raises $2.50 to $2.50
+kole1992: folds
+drPokermarv: folds
+Uncalled bet ($1.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: drPokermarv (big blind) folded before Flop 
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o (button) collected ($2.50)
+
+
+Weplay Hand #75320525:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:33:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($122.45 in chips)
+Seat 3: slagalica ($121.75 in chips)
+Seat 4: Tone91 ($166.61 in chips)
+Seat 5: tuPaTu ($212.18 in chips)
+Seat 6: JTs98o ($226.95 in chips)
+drPokermarv: posts small blind $0.50
+slagalica: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 6c]
+Tone91: raises $2.50 to $2.50
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+drPokermarv: raises $12 to $12.50
+slagalica: folds
+Tone91: calls $10
+*** FLOP *** [7c Kc As]
+drPokermarv: bets $15
+Tone91: folds
+Uncalled bet ($15) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $26 from pot
+*** SUMMARY ***
+Total pot $26 | Rake $1.30 
+Board [7c Kc As]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: drPokermarv (small blind) collected ($26)
+Seat 3: slagalica (big blind) folded before Flop 
+Seat 4: Tone91 folded on the Flop 
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320572:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:34:41 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($134.65 in chips)
+Seat 3: slagalica ($120.75 in chips)
+Seat 4: Tone91 ($154.11 in chips)
+Seat 5: tuPaTu ($212.18 in chips)
+Seat 6: JTs98o ($226.95 in chips)
+slagalica: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Ks]
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+drPokermarv: raises $2.50 to $2.50
+slagalica: folds
+Tone91: folds
+Uncalled bet ($1.50) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) collected ($2.50)
+Seat 3: slagalica (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded before Flop 
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320586:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:34:59 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($136.15 in chips)
+Seat 3: slagalica ($120.25 in chips)
+Seat 4: Tone91 ($153.11 in chips)
+Seat 5: tuPaTu ($212.18 in chips)
+Seat 6: JTs98o ($226.95 in chips)
+Tone91: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c As]
+JTs98o: folds
+kole1992: folds
+drPokermarv: folds
+slagalica: folds
+Tone91: raises $2.50 to $3
+tuPaTu: calls $2
+*** FLOP *** [Td Qc Ks]
+Tone91: bets $6
+tuPaTu: calls $6
+*** TURN *** [Td Qc Ks] [7h]
+Tone91: checks
+tuPaTu: bets $4.50
+Tone91: folds
+Uncalled bet ($4.50) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $18 from pot
+*** SUMMARY ***
+Total pot $18 | Rake $0.90 
+Board [Td Qc Ks 7h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded on the Turn 
+Seat 5: tuPaTu (big blind) collected ($18)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320635:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:36:02 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($136.15 in chips)
+Seat 3: slagalica ($120.25 in chips)
+Seat 4: Tone91 ($144.11 in chips)
+Seat 5: tuPaTu ($220.28 in chips)
+Seat 6: JTs98o ($226.95 in chips)
+tuPaTu: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 4s]
+kole1992: folds
+drPokermarv: folds
+slagalica: folds
+Tone91: raises $2.50 to $2.50
+tuPaTu: raises $11.53 to $12.03
+JTs98o: folds
+Tone91: calls $9.53
+*** FLOP *** [8d Ad Ac]
+tuPaTu: bets $6.26
+Tone91: calls $6.26
+*** TURN *** [8d Ad Ac] [2h]
+tuPaTu: bets $15.03
+Tone91: folds
+Uncalled bet ($15.03) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $37.58 from pot
+*** SUMMARY ***
+Total pot $37.58 | Rake $1.87 
+Board [8d Ad Ac 2h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded on the Turn 
+Seat 5: tuPaTu (small blind) collected ($37.58)
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75320716:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:37:18 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($136.15 in chips)
+Seat 3: slagalica ($120.25 in chips)
+Seat 4: Tone91 ($125.82 in chips)
+Seat 5: tuPaTu ($237.70 in chips)
+Seat 6: JTs98o ($225.95 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 2c]
+drPokermarv: folds
+slagalica: folds
+Tone91: raises $2.50 to $2.50
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 collected ($2.50)
+Seat 5: tuPaTu (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75320743:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:37:45 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($136.15 in chips)
+Seat 3: slagalica ($120.25 in chips)
+Seat 4: Tone91 ($127.32 in chips)
+Seat 5: tuPaTu ($237.70 in chips)
+Seat 6: JTs98o ($225.45 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 7h]
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: drPokermarv (big blind) collected ($1)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75320766:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:38:09 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($136.65 in chips)
+Seat 3: slagalica ($120.25 in chips)
+Seat 4: Tone91 ($127.32 in chips)
+Seat 5: tuPaTu ($237.70 in chips)
+Seat 6: JTs98o ($225.45 in chips)
+drPokermarv: posts small blind $0.50
+slagalica: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 6h]
+Tone91: raises $2.50 to $2.50
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+drPokermarv: raises $12 to $12.50
+slagalica: folds
+Tone91: raises $23 to $25.50
+drPokermarv: calls $13
+*** FLOP *** [Qc 5c 2s]
+drPokermarv: checks
+Tone91: bets $20.80
+drPokermarv: folds
+Uncalled bet ($20.80) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $52 from pot
+*** SUMMARY ***
+Total pot $52 | Rake $2.60 
+Board [Qc 5c 2s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: drPokermarv (small blind) folded on the Flop 
+Seat 3: slagalica (big blind) folded before Flop 
+Seat 4: Tone91 collected ($52)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320835:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:39:21 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($111.15 in chips)
+Seat 3: slagalica ($119.25 in chips)
+Seat 4: Tone91 ($151.22 in chips)
+Seat 5: tuPaTu ($237.70 in chips)
+Seat 6: JTs98o ($225.45 in chips)
+slagalica: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 2c]
+tuPaTu: raises $2.50 to $2.50
+JTs98o: raises $7.50 to $7.50
+kole1992: folds
+drPokermarv: folds
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+Uncalled bet ($5) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: slagalica (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded before Flop 
+Seat 5: tuPaTu folded before Flop 
+Seat 6: JTs98o collected ($6.50)
+
+
+Weplay Hand #75320855:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:39:50 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($111.15 in chips)
+Seat 3: slagalica ($118.75 in chips)
+Seat 4: Tone91 ($150.22 in chips)
+Seat 5: tuPaTu ($235.20 in chips)
+Seat 6: JTs98o ($229.45 in chips)
+Tone91: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 5d]
+JTs98o: folds
+kole1992: folds
+drPokermarv: raises $2 to $2
+slagalica: folds
+Tone91: folds
+tuPaTu: calls $1
+*** FLOP *** [Tc Ad 5s]
+tuPaTu: checks
+drPokermarv: checks
+*** TURN *** [Tc Ad 5s] [7c]
+tuPaTu: checks
+drPokermarv: bets $3.50
+tuPaTu: folds
+Uncalled bet ($3.50) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Tc Ad 5s 7c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv collected ($4.50)
+Seat 3: slagalica (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: tuPaTu (big blind) folded on the Turn 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320895:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:40:30 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($113.43 in chips)
+Seat 3: slagalica ($118.75 in chips)
+Seat 4: Tone91 ($149.72 in chips)
+Seat 5: tuPaTu ($233.20 in chips)
+Seat 6: JTs98o ($229.45 in chips)
+tuPaTu: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 7h]
+kole1992: folds
+drPokermarv: raises $2 to $2
+slagalica: folds
+Tone91: folds
+tuPaTu: raises $9.53 to $10.03
+JTs98o: folds
+drPokermarv: calls $8.03
+*** FLOP *** [Qc Ac 7s]
+tuPaTu: bets $5.26
+drPokermarv: calls $5.26
+*** TURN *** [Qc Ac 7s] [Td]
+tuPaTu: checks
+drPokermarv: bets $21
+tuPaTu: calls $21
+*** RIVER *** [Qc Ac 7s Td] [5s]
+tuPaTu: checks
+drPokermarv: checks
+*** SHOW DOWN ***
+tuPaTu: shows [Jc As] (a pair of Aces)
+drPokermarv: shows [Qs Ts] (two pair, Queens and Tens)
+drPokermarv collected $73.58 from pot
+*** SUMMARY ***
+Total pot $73.58 | Rake $3.67 
+Board [Qc Ac 7s Td 5s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv showed [Qs Ts] and won ($73.58) with two pair, Queens and Tens
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: tuPaTu (small blind) showed [Jc As] and lost with a pair of Aces
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75321003:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:42:29 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: drPokermarv ($147.05 in chips)
+Seat 3: slagalica ($118.75 in chips)
+Seat 4: Tone91 ($149.72 in chips)
+Seat 5: tuPaTu ($196.91 in chips)
+Seat 6: JTs98o ($228.45 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Ac]
+drPokermarv: folds
+slagalica: folds
+Tone91: raises $2.50 to $2.50
+tuPaTu: folds
+JTs98o: folds
+kole1992: raises $11.50 to $12.50
+Tone91: folds
+Uncalled bet ($10) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($5.50)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop 
+Seat 5: tuPaTu (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75321038:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:43:01 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($103 in chips)
+Seat 2: drPokermarv ($147.05 in chips)
+Seat 3: slagalica ($118.75 in chips)
+Seat 4: Tone91 ($147.22 in chips)
+Seat 5: tuPaTu ($196.91 in chips)
+Seat 6: JTs98o ($227.95 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 5c]
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+kole1992: raises $2.50 to $3
+drPokermarv: calls $2
+*** FLOP *** [Ad 8d 2h]
+kole1992: checks
+drPokermarv: checks
+*** TURN *** [Ad 8d 2h] [9h]
+kole1992: checks
+drPokermarv: checks
+*** RIVER *** [Ad 8d 2h 9h] [6s]
+kole1992: checks
+drPokermarv: checks
+*** SHOW DOWN ***
+kole1992: shows [8c 5c] (a pair of Eights)
+drPokermarv has timed out
+drPokermarv: mucks hand
+kole1992 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Ad 8d 2h 9h 6s]
+Seat 1: kole1992 (small blind) showed [8c 5c] and won ($6) with a pair of Eights
+Seat 2: drPokermarv (big blind) mucked
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75321118:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:44:29 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($105.70 in chips)
+Seat 2: drPokermarv ($144.05 in chips)
+Seat 3: slagalica ($118.75 in chips)
+Seat 4: Tone91 ($147.22 in chips)
+Seat 5: tuPaTu ($196.91 in chips)
+Seat 6: JTs98o ($227.95 in chips)
+drPokermarv: posts small blind $0.50
+slagalica: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 4h]
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+drPokermarv: folds
+Uncalled bet ($0.50) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: drPokermarv (small blind) folded before Flop 
+Seat 3: slagalica (big blind) collected ($1)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75321143:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:44:54 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($105.70 in chips)
+Seat 2: drPokermarv ($143.55 in chips)
+Seat 3: slagalica ($119.25 in chips)
+Seat 4: Tone91 ($147.22 in chips)
+Seat 5: tuPaTu ($196.91 in chips)
+Seat 6: JTs98o ($227.95 in chips)
+slagalica: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9h]
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+drPokermarv: raises $2.50 to $2.50
+slagalica: folds
+Tone91: calls $1.50
+*** FLOP *** [Qs Qd Js]
+Tone91: checks
+drPokermarv: bets $2.80
+Tone91: calls $2.80
+*** TURN *** [Qs Qd Js] [3s]
+Tone91: checks
+drPokermarv: checks
+*** RIVER *** [Qs Qd Js 3s] [Qh]
+Tone91: checks
+drPokermarv: bets $22
+Tone91: folds
+Uncalled bet ($22) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $11.10 from pot
+*** SUMMARY ***
+Total pot $11.10 | Rake $0.55 
+Board [Qs Qd Js 3s Qh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) collected ($11.10)
+Seat 3: slagalica (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded on the River 
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75321227:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:46:30 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($105.70 in chips)
+Seat 2: drPokermarv ($148.80 in chips)
+Seat 3: slagalica ($118.75 in chips)
+Seat 4: Tone91 ($141.92 in chips)
+Seat 5: tuPaTu ($196.91 in chips)
+Seat 6: JTs98o ($227.95 in chips)
+Tone91: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Kc]
+JTs98o: folds
+kole1992: raises $2 to $2
+drPokermarv: folds
+slagalica: folds
+Tone91: folds
+tuPaTu: calls $1
+*** FLOP *** [3c 3d 4c]
+tuPaTu: checks
+kole1992: checks
+*** TURN *** [3c 3d 4c] [8d]
+tuPaTu: bets $11.30
+kole1992: folds
+Uncalled bet ($11.30) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [3c 3d 4c 8d]
+Seat 1: kole1992 folded on the Turn 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: tuPaTu (big blind) collected ($4.50)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75321299:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:47:54 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($103.70 in chips)
+Seat 2: drPokermarv ($148.80 in chips)
+Seat 3: slagalica ($118.75 in chips)
+Seat 4: Tone91 ($141.42 in chips)
+Seat 5: tuPaTu ($199.19 in chips)
+Seat 6: JTs98o ($227.95 in chips)
+tuPaTu: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 4c]
+kole1992: folds
+drPokermarv: folds
+slagalica: raises $2.50 to $2.50
+Tone91: raises $7.50 to $7.50
+tuPaTu: folds
+JTs98o: folds
+slagalica: folds
+Uncalled bet ($5) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop 
+Seat 4: Tone91 (button) collected ($6.50)
+Seat 5: tuPaTu (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75322327:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:48:26 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($103.70 in chips)
+Seat 2: drPokermarv ($148.80 in chips)
+Seat 3: slagalica ($116.25 in chips)
+Seat 4: Tone91 ($145.42 in chips)
+Seat 5: tuPaTu ($198.69 in chips)
+Seat 6: JTs98o ($226.95 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Jd]
+drPokermarv: folds
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: raises $2.50 to $3
+kole1992: raises $8 to $9
+JTs98o: folds
+Uncalled bet ($6) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($6)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75322362:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:49:08 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($106.70 in chips)
+Seat 2: drPokermarv ($148.80 in chips)
+Seat 3: slagalica ($116.25 in chips)
+Seat 4: Tone91 ($145.42 in chips)
+Seat 5: tuPaTu ($198.69 in chips)
+Seat 6: JTs98o ($223.95 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Th]
+slagalica: folds
+Tone91: folds
+tuPaTu: raises $2.50 to $2.50
+JTs98o: folds
+kole1992: folds
+drPokermarv: calls $1.50
+*** FLOP *** [Tc 2d 2c]
+drPokermarv: checks
+tuPaTu: bets $2.20
+drPokermarv: raises $7 to $7
+tuPaTu: calls $4.80
+*** TURN *** [Tc 2d 2c] [8d]
+drPokermarv: bets $13.70
+tuPaTu: calls $13.70
+*** RIVER *** [Tc 2d 2c 8d] [Jc]
+drPokermarv: bets $32.80
+tuPaTu: calls $32.80
+*** SHOW DOWN ***
+drPokermarv: shows [3c Kc] (a flush, King high)
+tuPaTu has timed out
+tuPaTu: mucks hand
+drPokermarv collected $112.50 from pot
+*** SUMMARY ***
+Total pot $112.50 | Rake $5.62 
+Board [Tc 2d 2c 8d Jc]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: drPokermarv (big blind) showed [3c Kc] and won ($112.50) with a flush, King high
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu mucked
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75322445:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:50:38 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($106.20 in chips)
+Seat 2: drPokermarv ($199.68 in chips)
+Seat 3: slagalica ($116.25 in chips)
+Seat 4: Tone91 ($145.42 in chips)
+Seat 5: tuPaTu ($142.69 in chips)
+Seat 6: JTs98o ($223.95 in chips)
+drPokermarv: posts small blind $0.50
+slagalica: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 5c]
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+drPokermarv: folds
+Uncalled bet ($0.50) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: drPokermarv (small blind) folded before Flop 
+Seat 3: slagalica (big blind) collected ($1)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322465:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:51:05 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($106.20 in chips)
+Seat 2: drPokermarv ($199.18 in chips)
+Seat 3: slagalica ($116.75 in chips)
+Seat 4: Tone91 ($145.42 in chips)
+Seat 5: tuPaTu ($142.69 in chips)
+Seat 6: JTs98o ($223.95 in chips)
+slagalica: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Ks]
+tuPaTu: folds
+JTs98o: raises $2.50 to $2.50
+kole1992: folds
+drPokermarv: folds
+slagalica: folds
+Tone91: calls $1.50
+*** FLOP *** [7c 9h 2d]
+Tone91: checks
+JTs98o: checks
+*** TURN *** [7c 9h 2d] [7d]
+Tone91: checks
+JTs98o: checks
+*** RIVER *** [7c 9h 2d 7d] [Qh]
+Tone91: checks
+JTs98o: bets $5.18
+Tone91: calls $5.18
+*** SHOW DOWN ***
+JTs98o: shows [Kh Qc] (two pair, Queens and Sevens)
+Tone91 has timed out
+Tone91: mucks hand
+JTs98o collected $15.86 from pot
+*** SUMMARY ***
+Total pot $15.86 | Rake $0.79 
+Board [7c 9h 2d 7d Qh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: slagalica (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) mucked
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o showed [Kh Qc] and won ($15.86) with two pair, Queens and Sevens
+
+
+Weplay Hand #75322505:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:52:04 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($106.20 in chips)
+Seat 2: drPokermarv ($199.18 in chips)
+Seat 3: slagalica ($116.25 in chips)
+Seat 4: Tone91 ($137.74 in chips)
+Seat 5: tuPaTu ($142.69 in chips)
+Seat 6: JTs98o ($231.34 in chips)
+Tone91: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Qd]
+JTs98o: folds
+kole1992: folds
+drPokermarv: folds
+slagalica: raises $2.50 to $2.50
+Tone91: folds
+tuPaTu: folds
+Uncalled bet ($1.50) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica (button) collected ($2.50)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: tuPaTu (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322538:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:52:43 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($106.20 in chips)
+Seat 2: drPokermarv ($199.18 in chips)
+Seat 3: slagalica ($117.75 in chips)
+Seat 4: Tone91 ($137.24 in chips)
+Seat 5: tuPaTu ($141.69 in chips)
+Seat 6: JTs98o ($231.34 in chips)
+tuPaTu: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 4s]
+kole1992: folds
+drPokermarv: folds
+slagalica: folds
+Tone91: folds
+tuPaTu: raises $2.50 to $3
+JTs98o: folds
+Uncalled bet ($2) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: tuPaTu (small blind) collected ($2)
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75322559:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:53:13 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($106.20 in chips)
+Seat 2: drPokermarv ($199.18 in chips)
+Seat 3: slagalica ($117.75 in chips)
+Seat 4: Tone91 ($137.24 in chips)
+Seat 5: tuPaTu ($142.69 in chips)
+Seat 6: JTs98o ($230.34 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Kh]
+drPokermarv: raises $2 to $2
+slagalica: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+Uncalled bet ($1) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: drPokermarv collected ($2.50)
+Seat 3: slagalica folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75322591:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:53:51 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($105.20 in chips)
+Seat 2: drPokermarv ($200.68 in chips)
+Seat 3: slagalica ($117.75 in chips)
+Seat 4: Tone91 ($137.24 in chips)
+Seat 5: tuPaTu ($142.69 in chips)
+Seat 6: JTs98o ($229.84 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Qh]
+slagalica: raises $2.50 to $2.50
+Tone91: folds
+tuPaTu: folds
+JTs98o: raises $7.50 to $7.50
+kole1992: folds
+drPokermarv: folds
+slagalica: raises $22 to $24.50
+JTs98o: calls $17
+*** FLOP *** [Kc Tc Th]
+slagalica: bets $93.25 and is all-in
+JTs98o: folds
+Uncalled bet ($93.25) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $50.50 from pot
+*** SUMMARY ***
+Total pot $50.50 | Rake $2.52 
+Board [Kc Tc Th]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: drPokermarv (big blind) folded before Flop 
+Seat 3: slagalica collected ($50.50)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded on the Flop 
+
+
+Weplay Hand #75322630:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:54:38 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($104.70 in chips)
+Seat 2: drPokermarv ($199.68 in chips)
+Seat 3: slagalica ($141.23 in chips)
+Seat 4: Tone91 ($137.24 in chips)
+Seat 5: tuPaTu ($142.69 in chips)
+Seat 6: JTs98o ($205.34 in chips)
+drPokermarv: posts small blind $0.50
+slagalica: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 7d]
+Tone91: folds
+tuPaTu: folds
+JTs98o: raises $2.50 to $2.50
+kole1992: folds
+drPokermarv: folds
+slagalica: calls $1.50
+*** FLOP *** [9s 5d Kc]
+slagalica: checks
+JTs98o: checks
+*** TURN *** [9s 5d Kc] [4s]
+slagalica: checks
+JTs98o: checks
+*** RIVER *** [9s 5d Kc 4s] [7h]
+slagalica: checks
+JTs98o: checks
+*** SHOW DOWN ***
+slagalica: shows [Jd 8d] (high card King)
+JTs98o: shows [8h Ac] (high card Ace)
+JTs98o collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [9s 5d Kc 4s 7h]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: drPokermarv (small blind) folded before Flop 
+Seat 3: slagalica (big blind) showed [Jd 8d] and lost with high card King
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o showed [8h Ac] and won ($5.50) with high card Ace
+
+
+Weplay Hand #75322656:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:55:23 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($104.70 in chips)
+Seat 2: drPokermarv ($199.18 in chips)
+Seat 3: slagalica ($138.73 in chips)
+Seat 4: Tone91 ($137.24 in chips)
+Seat 5: tuPaTu ($142.69 in chips)
+Seat 6: JTs98o ($208.07 in chips)
+slagalica: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Th]
+tuPaTu: folds
+JTs98o: folds
+kole1992: raises $2.20 to $2.20
+drPokermarv: folds
+slagalica: folds
+Tone91: folds
+Uncalled bet ($1.20) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 collected ($2.50)
+Seat 2: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: slagalica (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded before Flop 
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322669:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:55:51 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($106.20 in chips)
+Seat 2: drPokermarv ($199.18 in chips)
+Seat 3: slagalica ($138.23 in chips)
+Seat 4: Tone91 ($136.24 in chips)
+Seat 5: tuPaTu ($142.69 in chips)
+Seat 6: JTs98o ($208.07 in chips)
+Tone91: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 8d]
+JTs98o: folds
+kole1992: folds
+drPokermarv: raises $2 to $2
+slagalica: folds
+Tone91: folds
+tuPaTu: raises $12.02 to $13.02
+drPokermarv: calls $11.02
+*** FLOP *** [2c 4d Qs]
+tuPaTu: bets $10.61
+slagalica leaves the table
+KratkiLucky joins the table at seat #3
+drPokermarv: folds
+Uncalled bet ($10.61) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $26.54 from pot
+*** SUMMARY ***
+Total pot $26.54 | Rake $1.32 
+Board [2c 4d Qs]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded on the Flop 
+Seat 3: slagalica (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: tuPaTu (big blind) collected ($26.54)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322691:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:57:00 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($106.20 in chips)
+Seat 2: drPokermarv ($186.16 in chips)
+Seat 3: KratkiLucky ($100 in chips)
+Seat 4: Tone91 ($135.74 in chips)
+Seat 5: tuPaTu ($154.89 in chips)
+Seat 6: JTs98o ($208.07 in chips)
+tuPaTu: posts small blind $0.50
+JTs98o: posts big blind $1
+KratkiLucky: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Tc]
+kole1992: folds
+drPokermarv: raises $2.50 to $2.50
+KratkiLucky: calls $1.50
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+*** FLOP *** [6c 4s Ac]
+drPokermarv: bets $4
+KratkiLucky: folds
+Uncalled bet ($4) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [6c 4s Ac]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv collected ($6.50)
+Seat 3: KratkiLucky (big blind) folded on the Flop 
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: tuPaTu (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75322707:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:57:49 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($106.20 in chips)
+Seat 2: drPokermarv ($189.84 in chips)
+Seat 3: KratkiLucky ($100 in chips)
+Seat 4: Tone91 ($135.74 in chips)
+Seat 5: tuPaTu ($154.39 in chips)
+Seat 6: JTs98o ($207.07 in chips)
+JTs98o: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Kd]
+drPokermarv: folds
+KratkiLucky: folds
+Tone91: folds
+tuPaTu: raises $2.50 to $2.50
+JTs98o: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu (button) collected ($2.50)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75322716:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:58:13 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($105.20 in chips)
+Seat 2: drPokermarv ($189.84 in chips)
+Seat 3: KratkiLucky ($100 in chips)
+Seat 4: Tone91 ($135.74 in chips)
+Seat 5: tuPaTu ($155.89 in chips)
+Seat 6: JTs98o ($206.57 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Kd]
+KratkiLucky: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: raises $2.50 to $2.50
+kole1992: raises $9.51 to $10.01
+drPokermarv: folds
+JTs98o: calls $7.51
+*** FLOP *** [Qs Kc 2d]
+kole1992: bets $6.93
+JTs98o: calls $6.93
+*** TURN *** [Qs Kc 2d] [Ac]
+kole1992: bets $13.50
+JTs98o: calls $13.50
+*** RIVER *** [Qs Kc 2d Ac] [4h]
+kole1992: bets $74.76 and is all-in
+JTs98o: folds
+Uncalled bet ($74.76) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $61.88 from pot
+*** SUMMARY ***
+Total pot $61.88 | Rake $3.09 
+Board [Qs Kc 2d Ac 4h]
+Seat 1: kole1992 (small blind) collected ($61.88)
+Seat 2: drPokermarv (big blind) folded before Flop 
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded on the River 
+
+
+Weplay Hand #75322743:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:59:45 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($133.55 in chips)
+Seat 2: drPokermarv ($188.84 in chips)
+Seat 3: KratkiLucky ($100 in chips)
+Seat 4: Tone91 ($135.74 in chips)
+Seat 5: tuPaTu ($155.89 in chips)
+Seat 6: JTs98o ($176.13 in chips)
+drPokermarv: posts small blind $0.50
+KratkiLucky: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 3h]
+Tone91: folds
+tuPaTu: folds
+JTs98o: folds
+kole1992: folds
+drPokermarv: raises $2.50 to $3
+KratkiLucky: folds
+Uncalled bet ($2) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: drPokermarv (small blind) collected ($2)
+Seat 3: KratkiLucky (big blind) folded before Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: tuPaTu folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322756:  Hold'em No Limit ($0.50/$1) - 2026/02/10 21:00:20 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($133.55 in chips)
+Seat 2: drPokermarv ($189.84 in chips)
+Seat 3: KratkiLucky ($100 in chips)
+Seat 4: Tone91 ($135.74 in chips)
+Seat 5: tuPaTu ($155.89 in chips)
+Seat 6: JTs98o ($176.13 in chips)
+KratkiLucky: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 2s]
+tuPaTu: raises $2.50 to $2.50
+JTs98o: folds
+kole1992: folds
+drPokermarv: folds
+KratkiLucky: folds
+Tone91: folds
+Uncalled bet ($1.50) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: KratkiLucky (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded before Flop 
+Seat 5: tuPaTu collected ($2.50)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322769:  Hold'em No Limit ($0.50/$1) - 2026/02/10 21:00:57 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($133.55 in chips)
+Seat 2: drPokermarv ($189.84 in chips)
+Seat 3: KratkiLucky ($100 in chips)
+Seat 4: Tone91 ($134.74 in chips)
+Seat 5: tuPaTu ($157.39 in chips)
+Seat 6: JTs98o ($176.13 in chips)
+Tone91: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 3d]
+JTs98o: folds
+kole1992: folds
+drPokermarv: folds
+KratkiLucky: folds
+Tone91: folds
+Uncalled bet ($0.50) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: tuPaTu (big blind) collected ($1)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322779:  Hold'em No Limit ($0.50/$1) - 2026/02/10 21:01:25 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($133.55 in chips)
+Seat 2: drPokermarv ($189.84 in chips)
+Seat 3: KratkiLucky ($100 in chips)
+Seat 4: Tone91 ($134.24 in chips)
+Seat 5: tuPaTu ($157.89 in chips)
+Seat 6: JTs98o ($176.13 in chips)
+tuPaTu: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 7h]
+kole1992: raises $2 to $2
+drPokermarv: folds
+KratkiLucky: folds
+Tone91: folds
+tuPaTu: folds
+JTs98o: raises $9 to $10
+kole1992: calls $8
+*** FLOP *** [4h Qs Td]
+JTs98o: bets $17
+kole1992: folds
+Uncalled bet ($17) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $20.50 from pot
+*** SUMMARY ***
+Total pot $20.50 | Rake $1.02 
+Board [4h Qs Td]
+Seat 1: kole1992 folded on the Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: tuPaTu (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) collected ($20.50)

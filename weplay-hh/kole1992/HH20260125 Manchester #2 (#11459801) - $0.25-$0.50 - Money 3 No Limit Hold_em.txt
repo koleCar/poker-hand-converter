@@ -1,0 +1,454 @@
+﻿Weplay Hand #73726291:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:42:02 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: KoTBalu ($89.51 in chips)
+Seat 2: rossi1616 ($69.60 in chips)
+Seat 3: hezonjaa ($22.18 in chips)
+Seat 4: Kissallin ($86.05 in chips)
+Seat 5: Tone91 ($112.17 in chips)
+Seat 6: kole1992 ($50 in chips)
+Seat 7: Sukurrr ($73.47 in chips)
+Seat 8: Majstorsmora ($34.53 in chips)
+Tone91: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 5c]
+Sukurrr: folds
+Majstorsmora: folds
+KoTBalu: folds
+rossi1616: folds
+hezonjaa: calls $0.50
+Kissallin: folds
+Tone91: calls $0.25
+kole1992: checks
+*** FLOP *** [Kh 7d Tc]
+Tone91: checks
+kole1992: checks
+hezonjaa: checks
+*** TURN *** [Kh 7d Tc] [7c]
+Tone91: checks
+kole1992: bets $1
+hezonjaa: folds
+Tone91: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [Kh 7d Tc 7c]
+Seat 1: KoTBalu folded before Flop (didn't bet)
+Seat 2: rossi1616 folded before Flop (didn't bet)
+Seat 3: hezonjaa folded on the Turn 
+Seat 4: Kissallin (button) folded before Flop (didn't bet)
+Seat 5: Tone91 (small blind) folded on the Turn 
+Seat 6: kole1992 (big blind) collected ($1.50)
+Seat 7: Sukurrr folded before Flop (didn't bet)
+Seat 8: Majstorsmora folded before Flop (didn't bet)
+
+
+Weplay Hand #73727355:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:43:25 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: KoTBalu ($89.51 in chips)
+Seat 2: rossi1616 ($69.60 in chips)
+Seat 3: hezonjaa ($21.68 in chips)
+Seat 4: Kissallin ($86.05 in chips)
+Seat 5: Tone91 ($111.67 in chips)
+Seat 6: kole1992 ($50.93 in chips)
+Seat 7: Sukurrr ($73.47 in chips)
+Seat 8: Majstorsmora ($34.53 in chips)
+kole1992: posts small blind $0.25
+Sukurrr: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9d]
+Majstorsmora: folds
+KoTBalu: raises $1.25 to $1.25
+rossi1616: folds
+hezonjaa: folds
+Kissallin: folds
+Tone91: folds
+kole1992: folds
+Sukurrr: folds
+Uncalled bet ($0.75) returned to KoTBalu
+*** SHOW DOWN ***
+KoTBalu: doesn't show hand
+KoTBalu collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: KoTBalu collected ($1.25)
+Seat 2: rossi1616 folded before Flop (didn't bet)
+Seat 3: hezonjaa folded before Flop (didn't bet)
+Seat 4: Kissallin folded before Flop (didn't bet)
+Seat 5: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: Sukurrr (big blind) folded before Flop 
+Seat 8: Majstorsmora folded before Flop (didn't bet)
+
+
+Weplay Hand #73727394:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:44:14 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: KoTBalu ($90.26 in chips)
+Seat 2: rossi1616 ($69.60 in chips)
+Seat 3: hezonjaa ($21.68 in chips)
+Seat 4: Kissallin ($86.05 in chips)
+Seat 5: Tone91 ($111.67 in chips)
+Seat 6: kole1992 ($50.68 in chips)
+Seat 7: Sukurrr ($72.97 in chips)
+Seat 8: Majstorsmora ($34.53 in chips)
+Sukurrr: posts small blind $0.25
+Majstorsmora: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 5h]
+KoTBalu: folds
+rossi1616: raises $1.50 to $1.50
+hezonjaa: folds
+Kissallin: raises $4.50 to $4.50
+Tone91: folds
+kole1992: folds
+Sukurrr: calls $4.25
+Majstorsmora: folds
+rossi1616: calls $3
+*** FLOP *** [2h 8h Tc]
+Sukurrr: checks
+rossi1616: checks
+Kissallin: checks
+*** TURN *** [2h 8h Tc] [Qs]
+Sukurrr: bets $5
+rossi1616: calls $5
+Kissallin: calls $5
+*** RIVER *** [2h 8h Tc Qs] [Js]
+Sukurrr: checks
+rossi1616: bets $14.50
+Kissallin: folds
+Sukurrr: folds
+Uncalled bet ($14.50) returned to rossi1616
+*** SHOW DOWN ***
+Sukurrr: shows [Jd Jc] (three of a kind, Jacks)
+rossi1616: doesn't show hand
+rossi1616 collected $29 from pot
+*** SUMMARY ***
+Total pot $29 | Rake $1.45 
+Board [2h 8h Tc Qs Js]
+Seat 1: KoTBalu folded before Flop (didn't bet)
+Seat 2: rossi1616 collected ($29)
+Seat 3: hezonjaa folded before Flop (didn't bet)
+Seat 4: Kissallin folded on the River 
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: Sukurrr (small blind) folded on the River 
+Seat 8: Majstorsmora (big blind) folded before Flop 
+
+
+Weplay Hand #73727473:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:46:00 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: KoTBalu ($90.26 in chips)
+Seat 2: rossi1616 ($87.65 in chips)
+Seat 3: hezonjaa ($21.68 in chips)
+Seat 4: Kissallin ($76.55 in chips)
+Seat 5: Tone91 ($111.67 in chips)
+Seat 6: kole1992 ($50.68 in chips)
+Seat 7: Sukurrr ($63.47 in chips)
+Seat 8: Majstorsmora ($34.03 in chips)
+Majstorsmora: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Qh]
+rossi1616: folds
+hezonjaa: folds
+Kissallin: raises $1.25 to $1.25
+Tone91: folds
+kole1992: folds
+Sukurrr: folds
+Majstorsmora: folds
+KoTBalu: folds
+Uncalled bet ($0.75) returned to Kissallin
+*** SHOW DOWN ***
+Kissallin: doesn't show hand
+Kissallin collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: KoTBalu (big blind) folded before Flop 
+Seat 2: rossi1616 folded before Flop (didn't bet)
+Seat 3: hezonjaa folded before Flop (didn't bet)
+Seat 4: Kissallin collected ($1.25)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: Sukurrr (button) folded before Flop (didn't bet)
+Seat 8: Majstorsmora (small blind) folded before Flop 
+
+
+Weplay Hand #73727507:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:46:45 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: KoTBalu ($89.76 in chips)
+Seat 2: rossi1616 ($87.65 in chips)
+Seat 3: hezonjaa ($21.68 in chips)
+Seat 4: Kissallin ($77.30 in chips)
+Seat 5: Tone91 ($111.67 in chips)
+Seat 6: kole1992 ($50.68 in chips)
+Seat 7: Sukurrr ($63.47 in chips)
+Seat 8: Majstorsmora ($33.78 in chips)
+KoTBalu: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 7c]
+hezonjaa: folds
+Kissallin: folds
+Tone91: folds
+kole1992: folds
+Sukurrr: folds
+Majstorsmora: raises $1.25 to $1.25
+KoTBalu: folds
+rossi1616: folds
+Uncalled bet ($0.75) returned to Majstorsmora
+*** SHOW DOWN ***
+Majstorsmora: doesn't show hand
+Majstorsmora collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: KoTBalu (small blind) folded before Flop 
+Seat 2: rossi1616 (big blind) folded before Flop 
+Seat 3: hezonjaa folded before Flop (didn't bet)
+Seat 4: Kissallin folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: Sukurrr folded before Flop (didn't bet)
+Seat 8: Majstorsmora (button) collected ($1.25)
+
+
+Weplay Hand #73727526:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:47:06 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: KoTBalu ($89.51 in chips)
+Seat 2: rossi1616 ($87.15 in chips)
+Seat 3: hezonjaa ($21.68 in chips)
+Seat 4: Kissallin ($77.30 in chips)
+Seat 5: Tone91 ($111.67 in chips)
+Seat 6: kole1992 ($50.68 in chips)
+Seat 7: Sukurrr ($63.47 in chips)
+Seat 8: Majstorsmora ($34.53 in chips)
+rossi1616: posts small blind $0.25
+hezonjaa: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 6c]
+Kissallin: folds
+Tone91: raises $1 to $1
+kole1992: folds
+Sukurrr: folds
+Majstorsmora: folds
+KoTBalu: folds
+rossi1616: folds
+hezonjaa: folds
+Uncalled bet ($0.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: KoTBalu (button) folded before Flop (didn't bet)
+Seat 2: rossi1616 (small blind) folded before Flop 
+Seat 3: hezonjaa (big blind) folded before Flop 
+Seat 4: Kissallin folded before Flop (didn't bet)
+Seat 5: Tone91 collected ($1.25)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: Sukurrr folded before Flop (didn't bet)
+Seat 8: Majstorsmora folded before Flop (didn't bet)
+
+
+Weplay Hand #73727562:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:47:49 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: KoTBalu ($89.51 in chips)
+Seat 2: rossi1616 ($86.90 in chips)
+Seat 3: hezonjaa ($21.18 in chips)
+Seat 4: Kissallin ($77.30 in chips)
+Seat 5: Tone91 ($112.42 in chips)
+Seat 6: kole1992 ($50.68 in chips)
+Seat 7: Sukurrr ($63.47 in chips)
+Seat 8: Majstorsmora ($34.53 in chips)
+hezonjaa: posts small blind $0.25
+Kissallin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 5c]
+Tone91: raises $1 to $1
+kole1992: folds
+Sukurrr: folds
+Majstorsmora: folds
+KoTBalu: calls $1
+rossi1616: folds
+hezonjaa: calls $0.75
+Kissallin: raises $7.50 to $8
+Tone91: folds
+KoTBalu: folds
+hezonjaa: folds
+Uncalled bet ($7) returned to Kissallin
+*** SHOW DOWN ***
+Kissallin: doesn't show hand
+Kissallin collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: KoTBalu folded before Flop 
+Seat 2: rossi1616 (button) folded before Flop (didn't bet)
+Seat 3: hezonjaa (small blind) folded before Flop 
+Seat 4: Kissallin (big blind) collected ($4)
+Seat 5: Tone91 folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: Sukurrr folded before Flop (didn't bet)
+Seat 8: Majstorsmora folded before Flop (didn't bet)
+
+
+Weplay Hand #73727607:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:48:43 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: KoTBalu ($88.51 in chips)
+Seat 2: rossi1616 ($86.90 in chips)
+Seat 3: hezonjaa ($20.18 in chips)
+Seat 4: Kissallin ($80.30 in chips)
+Seat 5: Tone91 ($111.42 in chips)
+Seat 6: kole1992 ($50.68 in chips)
+Seat 7: Sukurrr ($63.47 in chips)
+Seat 8: Majstorsmora ($34.53 in chips)
+Kissallin: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 7s]
+kole1992: folds
+Sukurrr: folds
+Majstorsmora: folds
+KoTBalu: raises $1.25 to $1.25
+rossi1616: calls $1.25
+hezonjaa: raises $5.75 to $5.75
+Kissallin: folds
+Tone91: folds
+KoTBalu: folds
+rossi1616: folds
+Uncalled bet ($4.50) returned to hezonjaa
+*** SHOW DOWN ***
+hezonjaa has timed out
+hezonjaa: doesn't show hand
+hezonjaa collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 1: KoTBalu folded before Flop 
+Seat 2: rossi1616 folded before Flop 
+Seat 3: hezonjaa (button) collected ($4.50)
+Seat 4: Kissallin (small blind) folded before Flop 
+Seat 5: Tone91 (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: Sukurrr folded before Flop (didn't bet)
+Seat 8: Majstorsmora folded before Flop (didn't bet)
+
+
+Weplay Hand #73727640:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:49:23 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: KoTBalu ($87.26 in chips)
+Seat 2: rossi1616 ($85.65 in chips)
+Seat 3: hezonjaa ($23.43 in chips)
+Seat 4: Kissallin ($80.05 in chips)
+Seat 5: Tone91 ($110.92 in chips)
+Seat 6: kole1992 ($50.68 in chips)
+Seat 7: Sukurrr ($63.47 in chips)
+Seat 8: Majstorsmora ($34.53 in chips)
+Tone91: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 5c]
+Sukurrr: folds
+Majstorsmora: folds
+KoTBalu: folds
+rossi1616: folds
+hezonjaa: raises $1.75 to $1.75
+Kissallin: folds
+Tone91: folds
+kole1992: folds
+Uncalled bet ($1.25) returned to hezonjaa
+*** SHOW DOWN ***
+hezonjaa has timed out
+hezonjaa: doesn't show hand
+hezonjaa collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: KoTBalu folded before Flop (didn't bet)
+Seat 2: rossi1616 folded before Flop (didn't bet)
+Seat 3: hezonjaa collected ($1.25)
+Seat 4: Kissallin (button) folded before Flop (didn't bet)
+Seat 5: Tone91 (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: Sukurrr folded before Flop (didn't bet)
+Seat 8: Majstorsmora folded before Flop (didn't bet)
+
+
+Weplay Hand #73727673:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:50:04 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: KoTBalu ($87.26 in chips)
+Seat 2: rossi1616 ($85.65 in chips)
+Seat 3: hezonjaa ($24.18 in chips)
+Seat 4: Kissallin ($80.05 in chips)
+Seat 5: Tone91 ($110.67 in chips)
+Seat 6: kole1992 ($50.18 in chips)
+Seat 7: Sukurrr ($63.47 in chips)
+Seat 8: Majstorsmora ($34.53 in chips)
+kole1992: posts small blind $0.25
+Sukurrr: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Qh]
+Majstorsmora: folds
+KoTBalu: folds
+rossi1616: raises $1.50 to $1.50
+hezonjaa: folds
+Kissallin: folds
+Tone91: raises $4.50 to $4.50
+kole1992: folds
+Sukurrr: raises $14.75 to $15.25
+rossi1616: folds
+Tone91: folds
+Uncalled bet ($10.75) returned to Sukurrr
+*** SHOW DOWN ***
+Sukurrr has timed out
+Sukurrr: doesn't show hand
+Sukurrr collected $10.75 from pot
+*** SUMMARY ***
+Total pot $10.75 | Rake $0 
+Seat 1: KoTBalu folded before Flop (didn't bet)
+Seat 2: rossi1616 folded before Flop 
+Seat 3: hezonjaa folded before Flop (didn't bet)
+Seat 4: Kissallin folded before Flop (didn't bet)
+Seat 5: Tone91 (button) folded before Flop 
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: Sukurrr (big blind) collected ($10.75)
+Seat 8: Majstorsmora folded before Flop (didn't bet)
+
+
+Weplay Hand #73727708:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:50:47 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: KoTBalu ($87.26 in chips)
+Seat 2: rossi1616 ($84.15 in chips)
+Seat 3: hezonjaa ($24.18 in chips)
+Seat 4: Kissallin ($80.05 in chips)
+Seat 5: Tone91 ($106.17 in chips)
+Seat 6: kole1992 ($50 in chips)
+Seat 7: Sukurrr ($69.72 in chips)
+Seat 8: Majstorsmora ($34.53 in chips)
+Sukurrr: posts small blind $0.25
+Majstorsmora: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Tc]
+KoTBalu: folds
+rossi1616: folds
+hezonjaa: folds
+Kissallin: folds
+Tone91: raises $1.25 to $1.25
+kole1992: raises $3 to $3
+Sukurrr: folds
+Majstorsmora: folds
+Tone91: folds
+Uncalled bet ($1.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: KoTBalu folded before Flop (didn't bet)
+Seat 2: rossi1616 folded before Flop (didn't bet)
+Seat 3: hezonjaa folded before Flop (didn't bet)
+Seat 4: Kissallin folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop 
+Seat 6: kole1992 (button) collected ($3.25)
+Seat 7: Sukurrr (small blind) folded before Flop 
+Seat 8: Majstorsmora (big blind) folded before Flop 

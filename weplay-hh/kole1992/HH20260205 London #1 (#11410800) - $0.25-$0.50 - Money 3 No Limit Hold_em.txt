@@ -1,0 +1,6178 @@
+﻿Weplay Hand #74740691:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:15:34 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 3: NIKO80 ($12.36 in chips)
+Seat 4: miracleee ($64.53 in chips)
+Seat 5: guerillAA13 ($59.30 in chips)
+Seat 6: Domagoj87 ($29.51 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Jc]
+NIKO80: calls $0.50
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: checks
+*** FLOP *** [4h 9h 8d]
+kole1992: checks
+NIKO80: checks
+*** TURN *** [4h 9h 8d] [5s]
+kole1992: bets $0.50
+NIKO80: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [4h 9h 8d 5s]
+Seat 1: kole1992 (big blind) collected ($1.25)
+Seat 3: NIKO80 folded on the Turn 
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74740707:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:16:18 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($50.69 in chips)
+Seat 2: Krisz0000 ($35.80 in chips)
+Seat 3: NIKO80 ($11.86 in chips)
+Seat 4: miracleee ($64.53 in chips)
+Seat 5: guerillAA13 ($59.30 in chips)
+Seat 6: Domagoj87 ($29.26 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 2h]
+NIKO80: calls $0.50
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: checks
+*** FLOP *** [4h 4d 3s]
+Krisz0000: checks
+NIKO80: checks
+*** TURN *** [4h 4d 3s] [5c]
+Krisz0000: checks
+NIKO80: bets $0.50
+Krisz0000: calls $0.50
+*** RIVER *** [4h 4d 3s 5c] [Jd]
+Krisz0000: checks
+NIKO80: checks
+*** SHOW DOWN ***
+Krisz0000: shows [7h 8d] (a pair of Fours)
+NIKO80: shows [As Ah] (two pair, Aces and Fours)
+NIKO80 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [4h 4d 3s 5c Jd]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) showed [7h 8d] and lost with a pair of Fours
+Seat 3: NIKO80 showed [As Ah] and won ($2.25) with two pair, Aces and Fours
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74740725:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:17:21 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($50.44 in chips)
+Seat 2: Krisz0000 ($34.80 in chips)
+Seat 3: NIKO80 ($13 in chips)
+Seat 4: miracleee ($64.53 in chips)
+Seat 5: guerillAA13 ($59.30 in chips)
+Seat 6: Domagoj87 ($29.26 in chips)
+Krisz0000: posts small blind $0.25
+NIKO80: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Td]
+miracleee: raises $1.50 to $1.50
+guerillAA13: folds
+Domagoj87: raises $5.25 to $5.25
+kole1992: folds
+Krisz0000: folds
+NIKO80: folds
+miracleee: folds
+Uncalled bet ($3.75) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87 has timed out
+Domagoj87: doesn't show hand
+Domagoj87 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) folded before Flop 
+Seat 3: NIKO80 (big blind) folded before Flop 
+Seat 4: miracleee folded before Flop 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 collected ($3.75)
+
+
+Weplay Hand #74740733:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:17:41 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($50.44 in chips)
+Seat 2: Krisz0000 ($34.55 in chips)
+Seat 3: NIKO80 ($12.50 in chips)
+Seat 4: miracleee ($63.03 in chips)
+Seat 5: guerillAA13 ($59.30 in chips)
+Seat 6: Domagoj87 ($31.51 in chips)
+NIKO80: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 7h]
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: folds
+NIKO80: raises $1.50 to $1.75
+miracleee: raises $62.53 to $63.03 and is all-in
+NIKO80: folds
+Uncalled bet ($61.28) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 (button) folded before Flop (didn't bet)
+Seat 3: NIKO80 (small blind) folded before Flop 
+Seat 4: miracleee (big blind) collected ($3.50)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74740743:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:18:14 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($50.44 in chips)
+Seat 2: Krisz0000 ($34.55 in chips)
+Seat 3: NIKO80 ($10.75 in chips)
+Seat 4: miracleee ($64.78 in chips)
+Seat 5: guerillAA13 ($59.30 in chips)
+Seat 6: Domagoj87 ($31.51 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 8c]
+Domagoj87: raises $1.25 to $1.25
+kole1992: folds
+Krisz0000: calls $1.25
+NIKO80: folds
+miracleee: calls $1
+guerillAA13: calls $0.75
+*** FLOP *** [2c As 2d]
+miracleee: checks
+guerillAA13: checks
+Domagoj87: checks
+Krisz0000: checks
+*** TURN *** [2c As 2d] [Kh]
+miracleee: checks
+guerillAA13: checks
+Domagoj87: checks
+Krisz0000: checks
+*** RIVER *** [2c As 2d Kh] [Qh]
+miracleee: checks
+guerillAA13: checks
+Domagoj87: checks
+Krisz0000: checks
+*** SHOW DOWN ***
+miracleee: shows [Jh 4h] (a pair of Deuces)
+guerillAA13: shows [7h 6c] (a pair of Deuces)
+Domagoj87: shows [Td Qd] (two pair, Queens and Deuces)
+Krisz0000 has timed out
+Krisz0000: mucks hand
+Domagoj87 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [2c As 2d Kh Qh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 mucked
+Seat 3: NIKO80 (button) folded before Flop (didn't bet)
+Seat 4: miracleee (small blind) showed [Jh 4h] and lost with a pair of Deuces
+Seat 5: guerillAA13 (big blind) showed [7h 6c] and lost with a pair of Deuces
+Seat 6: Domagoj87 showed [Td Qd] and won ($5) with two pair, Queens and Deuces
+
+
+Weplay Hand #74740772:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:19:35 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($50.44 in chips)
+Seat 2: Krisz0000 ($33.30 in chips)
+Seat 3: NIKO80 ($10.75 in chips)
+Seat 4: miracleee ($63.53 in chips)
+Seat 5: guerillAA13 ($58.05 in chips)
+Seat 6: Domagoj87 ($35.01 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Qh]
+kole1992: folds
+Krisz0000: raises $1.50 to $1.50
+NIKO80: folds
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 collected ($1.25)
+Seat 3: NIKO80 folded before Flop (didn't bet)
+Seat 4: miracleee (button) folded before Flop (didn't bet)
+Seat 5: guerillAA13 (small blind) folded before Flop 
+Seat 6: Domagoj87 (big blind) folded before Flop 
+
+
+Weplay Hand #74740778:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:19:56 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($50.44 in chips)
+Seat 2: Krisz0000 ($34.05 in chips)
+Seat 3: NIKO80 ($10.75 in chips)
+Seat 4: miracleee ($63.53 in chips)
+Seat 5: guerillAA13 ($57.80 in chips)
+Seat 6: Domagoj87 ($34.51 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 6h]
+Krisz0000: raises $1 to $1
+NIKO80: calls $1
+miracleee: folds
+guerillAA13: raises $6.26 to $6.26
+Domagoj87: folds
+kole1992: folds
+Krisz0000: folds
+NIKO80: folds
+Uncalled bet ($5.26) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Krisz0000 folded before Flop 
+Seat 3: NIKO80 folded before Flop 
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 (button) collected ($3.75)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74740790:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:20:33 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Krisz0000 ($33.05 in chips)
+Seat 3: NIKO80 ($9.75 in chips)
+Seat 4: miracleee ($63.53 in chips)
+Seat 5: guerillAA13 ($60.55 in chips)
+Seat 6: Domagoj87 ($34.26 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Kh]
+NIKO80: calls $0.50
+miracleee: folds
+guerillAA13: calls $0.50
+Domagoj87: raises $3 to $3
+kole1992: folds
+Krisz0000: folds
+NIKO80: raises $9.25 to $9.75 and is all-in
+guerillAA13: folds
+Domagoj87: calls $6.75
+*** FIRST FLOP *** [Js 2c 8d]
+*** FIRST TURN *** [Js 2c 8d] [7c]
+*** FIRST RIVER *** [Js 2c 8d 7c] [9s]
+*** SECOND FLOP *** [7h 5d 3c]
+*** SECOND TURN *** [7h 5d 3c] [Kc]
+*** SECOND RIVER *** [7h 5d 3c Kc] [Tc]
+*** SHOW DOWN ***
+NIKO80: shows [Qc Qd] (a pair of Queens)
+Domagoj87: shows [As Ad] (a pair of Aces)
+Domagoj87 collected $20.75 from pot
+*** SUMMARY ***
+Total pot $20.75 | Rake $1.03 
+Hand was run two times
+FIRST Board [Js 2c 8d 7c 9s]
+SECOND Board [7h 5d 3c Kc Tc]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) folded before Flop 
+Seat 3: NIKO80 showed [Qc Qd] and lost with a pair of Queens
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop 
+Seat 6: Domagoj87 (button) showed [As Ad] and won ($20.75) with a pair of Aces
+
+
+Weplay Hand #74740812:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:21:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Krisz0000 ($32.55 in chips)
+Seat 4: miracleee ($63.53 in chips)
+Seat 5: guerillAA13 ($60.05 in chips)
+Seat 6: Domagoj87 ($44.23 in chips)
+Krisz0000: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 5h]
+guerillAA13: folds
+Domagoj87: folds
+NIKO80 leaves the table
+kole1992: folds
+Krisz0000: calls $0.25
+miracleee: raises $1 to $1.50
+Krisz0000: calls $1
+*** FLOP *** [8s 7h Ts]
+Krisz0000: checks
+miracleee: checks
+*** TURN *** [8s 7h Ts] [Jh]
+Krisz0000: checks
+miracleee: checks
+*** RIVER *** [8s 7h Ts Jh] [6h]
+Krisz0000: bets $0.50
+miracleee: calls $0.50
+*** SHOW DOWN ***
+Krisz0000: shows [6c Ad] (a pair of Sixes)
+miracleee: shows [Tc 3c] (a pair of Tens)
+miracleee collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [8s 7h Ts Jh 6h]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) showed [6c Ad] and lost with a pair of Sixes
+Seat 4: miracleee (big blind) showed [Tc 3c] and won ($4) with a pair of Tens
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74740830:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:22:26 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Krisz0000 ($30.55 in chips)
+Seat 4: miracleee ($65.33 in chips)
+Seat 5: guerillAA13 ($60.05 in chips)
+Seat 6: Domagoj87 ($44.23 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Kd]
+Domagoj87: raises $1.25 to $1.25
+kole1992: folds
+Krisz0000: folds
+miracleee: folds
+guerillAA13: calls $0.75
+*** FLOP *** [6c 9c 3d]
+guerillAA13: checks
+Domagoj87: checks
+*** TURN *** [6c 9c 3d] [Qd]
+guerillAA13: bets $1.37
+Domagoj87: folds
+Uncalled bet ($1.37) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [6c 9c 3d Qd]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 (button) folded before Flop (didn't bet)
+Seat 4: miracleee (small blind) folded before Flop 
+Seat 5: guerillAA13 (big blind) collected ($2.75)
+Seat 6: Domagoj87 folded on the Turn 
+
+
+Weplay Hand #74740842:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:22:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Krisz0000 ($30.55 in chips)
+Seat 4: miracleee ($65.08 in chips)
+Seat 5: guerillAA13 ($61.42 in chips)
+Seat 6: Domagoj87 ($42.98 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Ks]
+kole1992: folds
+Krisz0000: calls $0.50
+miracleee: folds
+guerillAA13: calls $0.25
+Domagoj87: checks
+*** FLOP *** [7c 9d 8c]
+guerillAA13: checks
+Domagoj87: checks
+Krisz0000: checks
+*** TURN *** [7c 9d 8c] [4s]
+guerillAA13: checks
+Domagoj87: checks
+Krisz0000: checks
+*** RIVER *** [7c 9d 8c 4s] [Js]
+guerillAA13: checks
+Domagoj87: checks
+Krisz0000: checks
+*** SHOW DOWN ***
+guerillAA13: shows [6d 7d] (a pair of Sevens)
+Domagoj87: shows [8d As] (a pair of Eights)
+Krisz0000 has timed out
+Krisz0000: mucks hand
+Domagoj87 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [7c 9d 8c 4s Js]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 mucked
+Seat 4: miracleee (button) folded before Flop (didn't bet)
+Seat 5: guerillAA13 (small blind) showed [6d 7d] and lost with a pair of Sevens
+Seat 6: Domagoj87 (big blind) showed [8d As] and won ($1.50) with a pair of Eights
+
+
+Weplay Hand #74740857:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:23:47 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Krisz0000 ($30.05 in chips)
+Seat 4: miracleee ($65.08 in chips)
+Seat 5: guerillAA13 ($60.92 in chips)
+Seat 6: Domagoj87 ($43.91 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 9h]
+Krisz0000: raises $1.50 to $1.50
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: calls $1
+*** FLOP *** [9s 7s 3h]
+kole1992: checks
+Krisz0000: bets $3.25
+kole1992: calls $3.25
+*** TURN *** [9s 7s 3h] [2s]
+kole1992: checks
+Krisz0000: checks
+*** RIVER *** [9s 7s 3h 2s] [3c]
+kole1992: bets $1.25
+Krisz0000: calls $1.25
+*** SHOW DOWN ***
+kole1992: shows [As 9h] (two pair, Nines and Threes)
+Krisz0000 has timed out
+Krisz0000: mucks hand
+kole1992 collected $12.25 from pot
+*** SUMMARY ***
+Total pot $12.25 | Rake $0.61 
+Board [9s 7s 3h 2s 3c]
+Seat 1: kole1992 (big blind) showed [As 9h] and won ($12.25) with two pair, Nines and Threes
+Seat 2: Krisz0000 mucked
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74740878:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:25:05 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($55.64 in chips)
+Seat 2: Krisz0000 ($24.05 in chips)
+Seat 4: miracleee ($65.08 in chips)
+Seat 5: guerillAA13 ($60.92 in chips)
+Seat 6: Domagoj87 ($43.66 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 9c]
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) collected ($0.50)
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74740882:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:25:20 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($55.39 in chips)
+Seat 2: Krisz0000 ($24.30 in chips)
+Seat 4: miracleee ($65.08 in chips)
+Seat 5: guerillAA13 ($60.92 in chips)
+Seat 6: Domagoj87 ($43.66 in chips)
+Krisz0000: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Kd]
+guerillAA13: raises $1.25 to $1.25
+Domagoj87: folds
+kole1992: calls $1.25
+Krisz0000: calls $1
+miracleee: calls $0.75
+*** FLOP *** [2s Ac 3h]
+Krisz0000: checks
+miracleee: checks
+guerillAA13: bets $3.75
+kole1992: folds
+Krisz0000: folds
+miracleee: folds
+Uncalled bet ($3.75) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [2s Ac 3h]
+Seat 1: kole1992 (button) folded on the Flop 
+Seat 2: Krisz0000 (small blind) folded on the Flop 
+Seat 4: miracleee (big blind) folded on the Flop 
+Seat 5: guerillAA13 collected ($5)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74740895:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:26:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($54.14 in chips)
+Seat 2: Krisz0000 ($23.05 in chips)
+Seat 4: miracleee ($63.83 in chips)
+Seat 5: guerillAA13 ($64.42 in chips)
+Seat 6: Domagoj87 ($43.66 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 7s]
+Domagoj87: raises $1.25 to $1.25
+kole1992: folds
+Krisz0000: folds
+miracleee: calls $1
+guerillAA13: calls $0.75
+*** FLOP *** [4h 6h 8d]
+miracleee: checks
+guerillAA13: checks
+Domagoj87: checks
+*** TURN *** [4h 6h 8d] [Ah]
+miracleee: bets $4
+guerillAA13: calls $4
+Domagoj87: folds
+*** RIVER *** [4h 6h 8d Ah] [3d]
+miracleee: bets $8.81
+guerillAA13: calls $8.81
+*** SHOW DOWN ***
+miracleee: shows [Jh 8h] (a flush, Ace high)
+guerillAA13: mucks hand
+miracleee collected $29.37 from pot
+*** SUMMARY ***
+Total pot $29.37 | Rake $1.46 
+Board [4h 6h 8d Ah 3d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 (button) folded before Flop (didn't bet)
+Seat 4: miracleee (small blind) showed [Jh 8h] and won ($29.37) with a flush, Ace high
+Seat 5: guerillAA13 (big blind) mucked
+Seat 6: Domagoj87 folded on the Turn 
+
+
+Weplay Hand #74740907:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:27:06 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($54.14 in chips)
+Seat 2: Krisz0000 ($23.05 in chips)
+Seat 4: miracleee ($77.68 in chips)
+Seat 5: guerillAA13 ($50.36 in chips)
+Seat 6: Domagoj87 ($42.41 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Ks]
+kole1992: folds
+Krisz0000: raises $1.50 to $1.50
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 collected ($1.25)
+Seat 4: miracleee (button) folded before Flop (didn't bet)
+Seat 5: guerillAA13 (small blind) folded before Flop 
+Seat 6: Domagoj87 (big blind) folded before Flop 
+
+
+Weplay Hand #74740909:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:27:20 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($54.14 in chips)
+Seat 2: Krisz0000 ($23.80 in chips)
+Seat 4: miracleee ($77.68 in chips)
+Seat 5: guerillAA13 ($50.11 in chips)
+Seat 6: Domagoj87 ($41.91 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 7h]
+Krisz0000: calls $0.50
+miracleee: raises $1.25 to $1.25
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $0.75
+*** FLOP *** [8d 7c Js]
+Krisz0000: checks
+miracleee: checks
+*** TURN *** [8d 7c Js] [Ks]
+Krisz0000: checks
+miracleee: checks
+*** RIVER *** [8d 7c Js Ks] [8s]
+Krisz0000: bets $0.50
+miracleee: calls $0.50
+*** SHOW DOWN ***
+Krisz0000: shows [5h Qs] (a pair of Eights)
+miracleee: shows [4h Ah] (a pair of Eights)
+miracleee collected $4.25 from pot
+*** SUMMARY ***
+Total pot $4.25 | Rake $0.21 
+Board [8d 7c Js Ks 8s]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Krisz0000 showed [5h Qs] and lost with a pair of Eights
+Seat 4: miracleee showed [4h Ah] and won ($4.25) with a pair of Eights
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74740919:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:28:01 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($53.64 in chips)
+Seat 2: Krisz0000 ($22.05 in chips)
+Seat 4: miracleee ($79.97 in chips)
+Seat 5: guerillAA13 ($50.11 in chips)
+Seat 6: Domagoj87 ($41.66 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 4s]
+miracleee: raises $1.50 to $1.50
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $1
+*** FLOP *** [9h 9d Ah]
+Krisz0000: checks
+kole1992: sits out 
+miracleee: checks
+*** TURN *** [9h 9d Ah] [8s]
+Krisz0000: bets $1.63
+miracleee: folds
+Uncalled bet ($1.63) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [9h 9d Ah 8s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) collected ($3.25)
+Seat 4: miracleee folded on the Turn 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74740993:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:32:39 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($53.39 in chips)
+Seat 2: Krisz0000 ($47.61 in chips)
+Seat 4: miracleee ($62.77 in chips)
+Seat 5: guerillAA13 ($50.19 in chips)
+Seat 6: Domagoj87 ($31.05 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 9s]
+Krisz0000: calls $0.50
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: checks
+*** FLOP *** [Ac Qs 8s]
+kole1992: checks
+Krisz0000: bets $1.25
+kole1992: calls $1.25
+*** TURN *** [Ac Qs 8s] [Kh]
+kole1992: checks
+Krisz0000: checks
+*** RIVER *** [Ac Qs 8s Kh] [Ad]
+kole1992: checks
+Krisz0000: checks
+*** SHOW DOWN ***
+kole1992: shows [Qc 9s] (two pair, Aces and Queens)
+Krisz0000 has timed out
+Krisz0000: mucks hand
+kole1992 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [Ac Qs 8s Kh Ad]
+Seat 1: kole1992 (big blind) showed [Qc 9s] and won ($3.75) with two pair, Aces and Queens
+Seat 2: Krisz0000 mucked
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74741002:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:33:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($55.21 in chips)
+Seat 2: Krisz0000 ($45.86 in chips)
+Seat 4: miracleee ($62.77 in chips)
+Seat 5: guerillAA13 ($50.19 in chips)
+Seat 6: Domagoj87 ($30.80 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 6c]
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: raises $1.25 to $1.50
+Krisz0000: calls $1
+*** FLOP *** [9d 2d Kc]
+kole1992: checks
+Krisz0000: checks
+*** TURN *** [9d 2d Kc] [5h]
+kole1992: checks
+Krisz0000: bets $1.50
+kole1992: raises $8.25 to $8.25
+Krisz0000: folds
+Uncalled bet ($6.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [9d 2d Kc 5h]
+Seat 1: kole1992 (small blind) collected ($6)
+Seat 2: Krisz0000 (big blind) folded on the Turn 
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74741018:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:34:22 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($57.91 in chips)
+Seat 2: Krisz0000 ($42.86 in chips)
+Seat 4: miracleee ($62.77 in chips)
+Seat 5: guerillAA13 ($50.19 in chips)
+Seat 6: Domagoj87 ($30.80 in chips)
+Krisz0000: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Td]
+guerillAA13: folds
+Domagoj87: folds
+kole1992: raises $1.25 to $1.25
+Krisz0000: folds
+miracleee: raises $3.75 to $4.25
+kole1992: calls $3
+*** FLOP *** [Ad 8d 2h]
+miracleee: checks
+kole1992: checks
+*** TURN *** [Ad 8d 2h] [Tc]
+miracleee: checks
+kole1992: checks
+*** RIVER *** [Ad 8d 2h Tc] [6s]
+miracleee: checks
+kole1992: checks
+*** SHOW DOWN ***
+miracleee: shows [Ah Js] (a pair of Aces)
+kole1992: shows [Ts Td] (three of a kind, Tens)
+kole1992 collected $8.75 from pot
+*** SUMMARY ***
+Total pot $8.75 | Rake $0.43 
+Board [Ad 8d 2h Tc 6s]
+Seat 1: kole1992 (button) showed [Ts Td] and won ($8.75) with three of a kind, Tens
+Seat 2: Krisz0000 (small blind) folded before Flop 
+Seat 4: miracleee (big blind) showed [Ah Js] and lost with a pair of Aces
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74741028:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:35:02 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($61.98 in chips)
+Seat 2: Krisz0000 ($42.61 in chips)
+Seat 4: miracleee ($58.52 in chips)
+Seat 5: guerillAA13 ($50.19 in chips)
+Seat 6: Domagoj87 ($30.80 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 6c]
+Domagoj87: raises $1.25 to $1.25
+kole1992: folds
+Krisz0000: calls $1.25
+miracleee: raises $5.75 to $6
+guerillAA13: folds
+Domagoj87: folds
+Krisz0000: folds
+Uncalled bet ($4.75) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $4.25 from pot
+*** SUMMARY ***
+Total pot $4.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 (button) folded before Flop 
+Seat 4: miracleee (small blind) collected ($4.25)
+Seat 5: guerillAA13 (big blind) folded before Flop 
+Seat 6: Domagoj87 folded before Flop 
+
+
+Weplay Hand #74741033:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:35:29 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($61.98 in chips)
+Seat 2: Krisz0000 ($41.36 in chips)
+Seat 4: miracleee ($61.52 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($29.55 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Ks]
+kole1992: folds
+Krisz0000: calls $0.50
+miracleee: raises $1.25 to $1.25
+guerillAA13: raises $5.25 to $5.50
+Domagoj87: folds
+Krisz0000: folds
+miracleee: folds
+Uncalled bet ($4.25) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 folded before Flop 
+Seat 4: miracleee (button) folded before Flop 
+Seat 5: guerillAA13 (small blind) collected ($3.50)
+Seat 6: Domagoj87 (big blind) folded before Flop 
+
+
+Weplay Hand #74741044:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:36:01 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($61.98 in chips)
+Seat 2: Krisz0000 ($40.86 in chips)
+Seat 4: miracleee ($60.27 in chips)
+Seat 5: guerillAA13 ($52.25 in chips)
+Seat 6: Domagoj87 ($29.05 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Qh]
+Krisz0000: raises $1.50 to $1.50
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Krisz0000 collected ($1.25)
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74741049:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:36:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($61.48 in chips)
+Seat 2: Krisz0000 ($41.61 in chips)
+Seat 4: miracleee ($60.27 in chips)
+Seat 5: guerillAA13 ($52.25 in chips)
+Seat 6: Domagoj87 ($28.80 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 3h]
+miracleee: raises $1.50 to $1.50
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $1
+*** FLOP *** [Td Ks Ah]
+Krisz0000: checks
+miracleee: bets $1.62
+Krisz0000: calls $1.62
+*** TURN *** [Td Ks Ah] [Js]
+Krisz0000: checks
+miracleee: bets $1.75
+Krisz0000: calls $1.75
+*** RIVER *** [Td Ks Ah Js] [Ad]
+Krisz0000: checks
+miracleee: checks
+*** SHOW DOWN ***
+Krisz0000: shows [2h As] (three of a kind, Aces)
+miracleee: shows [Jh Qc] (a straight, Ten to Ace)
+miracleee collected $9.99 from pot
+*** SUMMARY ***
+Total pot $9.99 | Rake $0.49 
+Board [Td Ks Ah Js Ad]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) showed [2h As] and lost with three of a kind, Aces
+Seat 4: miracleee showed [Jh Qc] and won ($9.99) with a straight, Ten to Ace
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74741065:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:37:18 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($61.23 in chips)
+Seat 2: Krisz0000 ($36.74 in chips)
+Seat 4: miracleee ($64.90 in chips)
+Seat 5: guerillAA13 ($52.25 in chips)
+Seat 6: Domagoj87 ($28.80 in chips)
+Krisz0000: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Js]
+guerillAA13: folds
+Domagoj87: folds
+kole1992: raises $1.25 to $1.25
+Krisz0000: calls $1
+miracleee: folds
+*** FLOP *** [4h 5d 4d]
+Krisz0000: checks
+MilkMeMom joins the table at seat #3
+kole1992: checks
+*** TURN *** [4h 5d 4d] [Jd]
+Krisz0000: bets $0.50
+kole1992: raises $2.25 to $2.25
+Krisz0000: folds
+Uncalled bet ($1.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [4h 5d 4d Jd]
+Seat 1: kole1992 (button) collected ($4)
+Seat 2: Krisz0000 (small blind) folded on the Turn 
+Seat 4: miracleee (big blind) folded before Flop 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74741076:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:38:06 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($63.28 in chips)
+Seat 2: Krisz0000 ($34.99 in chips)
+Seat 4: miracleee ($64.40 in chips)
+Seat 5: guerillAA13 ($52.25 in chips)
+Seat 6: Domagoj87 ($28.80 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Ks]
+Domagoj87: folds
+kole1992: folds
+Krisz0000: folds
+miracleee: raises $1.50 to $1.75
+guerillAA13: folds
+Uncalled bet ($1.25) returned to miracleee
+*** SHOW DOWN ***
+MilkMeMom leaves the table
+miracleee: doesn't show hand
+miracleee collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 (button) folded before Flop (didn't bet)
+Seat 4: miracleee (small blind) collected ($1)
+Seat 5: guerillAA13 (big blind) folded before Flop 
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74741087:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:38:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($63.28 in chips)
+Seat 2: Krisz0000 ($34.99 in chips)
+Seat 4: miracleee ($64.90 in chips)
+Seat 5: guerillAA13 ($51.75 in chips)
+Seat 6: Domagoj87 ($28.80 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 7c]
+fullseat joins the table at seat #3
+kole1992: folds
+Krisz0000: raises $1.50 to $1.50
+miracleee: calls $1.50
+guerillAA13: folds
+Domagoj87: folds
+*** FLOP *** [Jh 7s 8c]
+Krisz0000: checks
+miracleee: bets $1.50
+Krisz0000: folds
+Uncalled bet ($1.50) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [Jh 7s 8c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 folded on the Flop 
+Seat 4: miracleee (button) collected ($3.75)
+Seat 5: guerillAA13 (small blind) folded before Flop 
+Seat 6: Domagoj87 (big blind) folded before Flop 
+
+
+Weplay Hand #74741098:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:39:07 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($63.28 in chips)
+Seat 2: Krisz0000 ($33.49 in chips)
+Seat 4: miracleee ($66.97 in chips)
+Seat 5: guerillAA13 ($51.50 in chips)
+Seat 6: Domagoj87 ($28.30 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 3c]
+Krisz0000: calls $0.50
+miracleee: raises $1.25 to $1.25
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $0.75
+*** FLOP *** [6c Qh 3h]
+Krisz0000: checks
+miracleee: bets $2.17
+Krisz0000: folds
+Uncalled bet ($2.17) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [6c Qh 3h]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Krisz0000 folded on the Flop 
+Seat 4: miracleee collected ($3.25)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74741111:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:40:17 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($62.78 in chips)
+Seat 2: Krisz0000 ($32.24 in chips)
+Seat 4: miracleee ($68.81 in chips)
+Seat 5: guerillAA13 ($51.50 in chips)
+Seat 6: Domagoj87 ($28.05 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 5h]
+miracleee: raises $1.50 to $1.50
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $1
+*** FLOP *** [9h Ac Ah]
+Krisz0000: checks
+miracleee: bets $2.17
+Krisz0000: folds
+Uncalled bet ($2.17) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [9h Ac Ah]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) folded on the Flop 
+Seat 4: miracleee collected ($3.25)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74741120:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:40:45 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($62.53 in chips)
+Seat 2: Krisz0000 ($30.74 in chips)
+Seat 3: fullseat ($15 in chips)
+Seat 4: miracleee ($70.40 in chips)
+Seat 5: guerillAA13 ($51.50 in chips)
+Seat 6: Domagoj87 ($28.05 in chips)
+Krisz0000: posts small blind $0.25
+fullseat: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Qs]
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: raises $1.25 to $1.50
+fullseat: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) collected ($1)
+Seat 3: fullseat (big blind) folded before Flop 
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74741125:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:41:09 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($62.53 in chips)
+Seat 2: Krisz0000 ($31.24 in chips)
+Seat 3: fullseat ($14.50 in chips)
+Seat 4: miracleee ($70.40 in chips)
+Seat 5: guerillAA13 ($51.50 in chips)
+Seat 6: Domagoj87 ($28.05 in chips)
+fullseat: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 6h]
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $0.50
+fullseat: calls $0.25
+miracleee: checks
+*** FLOP *** [7c 8h 3h]
+fullseat: checks
+miracleee: checks
+Krisz0000: checks
+*** TURN *** [7c 8h 3h] [5s]
+fullseat: checks
+miracleee: bets $1
+Krisz0000: calls $1
+fullseat: raises $3.75 to $3.75
+miracleee: folds
+Krisz0000: folds
+Uncalled bet ($2.75) returned to fullseat
+*** SHOW DOWN ***
+fullseat: doesn't show hand
+fullseat collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [7c 8h 3h 5s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 (button) folded on the Turn 
+Seat 3: fullseat (small blind) collected ($4.50)
+Seat 4: miracleee (big blind) folded on the Turn 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74741143:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:42:27 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($62.53 in chips)
+Seat 2: Krisz0000 ($29.74 in chips)
+Seat 3: fullseat ($17.28 in chips)
+Seat 4: miracleee ($68.90 in chips)
+Seat 5: guerillAA13 ($51.50 in chips)
+Seat 6: Domagoj87 ($28.05 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 2h]
+Domagoj87: folds
+kole1992: folds
+Krisz0000: raises $1 to $1
+fullseat: folds
+miracleee: calls $0.75
+guerillAA13: folds
+*** FLOP *** [Td 8h Qh]
+miracleee: bets $1.67
+Krisz0000: folds
+Uncalled bet ($1.67) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Td 8h Qh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 folded on the Flop 
+Seat 3: fullseat (button) folded before Flop (didn't bet)
+Seat 4: miracleee (small blind) collected ($2.50)
+Seat 5: guerillAA13 (big blind) folded before Flop 
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74741149:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:42:52 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($62.53 in chips)
+Seat 2: Krisz0000 ($28.74 in chips)
+Seat 3: fullseat ($17.28 in chips)
+Seat 4: miracleee ($70.28 in chips)
+Seat 5: guerillAA13 ($51 in chips)
+Seat 6: Domagoj87 ($28.05 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 9s]
+kole1992: folds
+Krisz0000: calls $0.50
+fullseat: folds
+miracleee: folds
+guerillAA13: folds
+Domagoj87: checks
+*** FLOP *** [Js Ah 4h]
+Domagoj87: checks
+Krisz0000: checks
+*** TURN *** [Js Ah 4h] [7h]
+Domagoj87: checks
+Krisz0000: bets $1.25
+Domagoj87: folds
+Uncalled bet ($1.25) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [Js Ah 4h 7h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 collected ($1.25)
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee (button) folded before Flop (didn't bet)
+Seat 5: guerillAA13 (small blind) folded before Flop 
+Seat 6: Domagoj87 (big blind) folded on the Turn 
+
+
+Weplay Hand #74741157:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:43:28 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($62.53 in chips)
+Seat 2: Krisz0000 ($29.43 in chips)
+Seat 3: fullseat ($17.28 in chips)
+Seat 4: miracleee ($70.28 in chips)
+Seat 5: guerillAA13 ($50.75 in chips)
+Seat 6: Domagoj87 ($27.55 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Ts]
+Krisz0000: calls $0.50
+fullseat: calls $0.50
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: raises $3 to $3.50
+Krisz0000: folds
+fullseat: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($1.75)
+Seat 2: Krisz0000 folded before Flop 
+Seat 3: fullseat folded before Flop 
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74741168:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:44:06 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($63.78 in chips)
+Seat 2: Krisz0000 ($28.93 in chips)
+Seat 3: fullseat ($16.78 in chips)
+Seat 4: miracleee ($70.28 in chips)
+Seat 5: guerillAA13 ($50.75 in chips)
+Seat 6: Domagoj87 ($27.30 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 6h]
+fullseat: folds
+miracleee: calls $0.50
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: checks
+*** FLOP *** [8h 3d Kh]
+Krisz0000: bets $1.25
+miracleee: folds
+Uncalled bet ($1.25) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [8h 3d Kh]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) collected ($1.25)
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee folded on the Flop 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74741181:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:44:42 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($63.53 in chips)
+Seat 2: Krisz0000 ($29.62 in chips)
+Seat 3: fullseat ($16.78 in chips)
+Seat 4: miracleee ($69.78 in chips)
+Seat 5: guerillAA13 ($50.75 in chips)
+Seat 6: Domagoj87 ($27.30 in chips)
+Krisz0000: posts small blind $0.25
+fullseat: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 6c]
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: raises $1.25 to $1.50
+fullseat: calls $1
+*** FLOP *** [9h Tc 8s]
+Krisz0000: bets $1.50
+fullseat: calls $1.50
+*** TURN *** [9h Tc 8s] [Ac]
+Krisz0000: checks
+fullseat: checks
+*** RIVER *** [9h Tc 8s Ac] [8c]
+Krisz0000: checks
+fullseat: checks
+*** SHOW DOWN ***
+Krisz0000: shows [4s Qs] (a pair of Eights)
+fullseat: shows [Jd Kc] (a pair of Eights)
+fullseat collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [9h Tc 8s Ac 8c]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) showed [4s Qs] and lost with a pair of Eights
+Seat 3: fullseat (big blind) showed [Jd Kc] and won ($6) with a pair of Eights
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74741203:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:45:50 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($63.53 in chips)
+Seat 2: Krisz0000 ($26.62 in chips)
+Seat 3: fullseat ($19.48 in chips)
+Seat 4: miracleee ($69.78 in chips)
+Seat 5: guerillAA13 ($50.75 in chips)
+Seat 6: Domagoj87 ($27.30 in chips)
+fullseat: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc As]
+guerillAA13: folds
+Domagoj87: folds
+kole1992: raises $1.10 to $1.10
+Krisz0000: calls $1.10
+fullseat: calls $0.85
+miracleee: calls $0.60
+*** FLOP *** [Qh Ah Ad]
+fullseat: checks
+miracleee: checks
+kole1992: bets $1
+Krisz0000: calls $1
+fullseat: folds
+miracleee: calls $1
+*** TURN *** [Qh Ah Ad] [5d]
+miracleee: checks
+kole1992: bets $5.40
+Krisz0000: folds
+miracleee: folds
+Uncalled bet ($5.40) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $7.40 from pot
+*** SUMMARY ***
+Total pot $7.40 | Rake $0.37 
+Board [Qh Ah Ad 5d]
+Seat 1: kole1992 collected ($7.40)
+Seat 2: Krisz0000 (button) folded on the Turn 
+Seat 3: fullseat (small blind) folded on the Flop 
+Seat 4: miracleee (big blind) folded on the Turn 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74741224:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:46:52 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($68.46 in chips)
+Seat 2: Krisz0000 ($24.52 in chips)
+Seat 3: fullseat ($18.38 in chips)
+Seat 4: miracleee ($67.68 in chips)
+Seat 5: guerillAA13 ($50.75 in chips)
+Seat 6: Domagoj87 ($27.30 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 9c]
+Domagoj87: folds
+kole1992: raises $1 to $1
+Krisz0000: folds
+fullseat: folds
+miracleee: calls $0.75
+guerillAA13: folds
+*** FLOP *** [Kh Qh 9h]
+miracleee: bets $1.67
+kole1992: calls $1.67
+*** TURN *** [Kh Qh 9h] [6d]
+miracleee: checks
+kole1992: bets $3.75
+miracleee: calls $3.75
+*** RIVER *** [Kh Qh 9h 6d] [8h]
+miracleee: checks
+kole1992: checks
+*** SHOW DOWN ***
+miracleee: shows [Ah Js] (a flush, Ace high)
+kole1992: mucks hand
+miracleee collected $13.34 from pot
+*** SUMMARY ***
+Total pot $13.34 | Rake $0.66 
+Board [Kh Qh 9h 6d 8h]
+Seat 1: kole1992 mucked
+Seat 2: Krisz0000 folded before Flop (didn't bet)
+Seat 3: fullseat (button) folded before Flop (didn't bet)
+Seat 4: miracleee (small blind) showed [Ah Js] and won ($13.34) with a flush, Ace high
+Seat 5: guerillAA13 (big blind) folded before Flop 
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74741242:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:47:48 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($62.04 in chips)
+Seat 2: Krisz0000 ($24.52 in chips)
+Seat 3: fullseat ($18.38 in chips)
+Seat 4: miracleee ($73.94 in chips)
+Seat 5: guerillAA13 ($50.25 in chips)
+Seat 6: Domagoj87 ($27.30 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 7d]
+kole1992: folds
+Krisz0000: folds
+fullseat: folds
+miracleee: raises $1.50 to $1.50
+guerillAA13: folds
+Domagoj87: folds
+Uncalled bet ($1) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 folded before Flop (didn't bet)
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee (button) collected ($1.25)
+Seat 5: guerillAA13 (small blind) folded before Flop 
+Seat 6: Domagoj87 (big blind) folded before Flop 
+
+
+Weplay Hand #74741257:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:48:20 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($62.04 in chips)
+Seat 2: Krisz0000 ($24.52 in chips)
+Seat 3: fullseat ($18.38 in chips)
+Seat 4: miracleee ($74.69 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.80 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Th]
+Krisz0000: raises $1.50 to $1.50
+fullseat: folds
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Krisz0000 collected ($1.25)
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74741267:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:48:47 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($61.54 in chips)
+Seat 2: Krisz0000 ($25.27 in chips)
+Seat 3: fullseat ($18.38 in chips)
+Seat 4: miracleee ($74.69 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.55 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 5s]
+fullseat: folds
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: raises $1.25 to $1.50
+Krisz0000: calls $1
+*** FLOP *** [Qc 7s 2s]
+kole1992: checks
+Krisz0000: checks
+*** TURN *** [Qc 7s 2s] [9c]
+kole1992: bets $3.75
+Krisz0000: folds
+Uncalled bet ($3.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Qc 7s 2s 9c]
+Seat 1: kole1992 (small blind) collected ($3)
+Seat 2: Krisz0000 (big blind) folded on the Turn 
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74741282:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:49:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($62.89 in chips)
+Seat 2: Krisz0000 ($23.77 in chips)
+Seat 3: fullseat ($18.38 in chips)
+Seat 4: miracleee ($74.69 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.55 in chips)
+Krisz0000: posts small blind $0.25
+fullseat: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Kc]
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $0.25
+fullseat: raises $1 to $1.50
+Krisz0000: calls $1
+*** FLOP *** [4h Qd 4s]
+Krisz0000: checks
+fullseat: bets $0.99
+Krisz0000: calls $0.99
+*** TURN *** [4h Qd 4s] [3h]
+Krisz0000: checks
+fullseat: checks
+*** RIVER *** [4h Qd 4s 3h] [9s]
+Krisz0000: bets $2.49
+fullseat: folds
+Uncalled bet ($2.49) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $4.98 from pot
+*** SUMMARY ***
+Total pot $4.98 | Rake $0.24 
+Board [4h Qd 4s 3h 9s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) collected ($4.98)
+Seat 3: fullseat (big blind) folded on the River 
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74741305:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:50:34 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($62.89 in chips)
+Seat 2: Krisz0000 ($26.02 in chips)
+Seat 3: fullseat ($15.89 in chips)
+Seat 4: miracleee ($74.69 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.55 in chips)
+fullseat: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 8d]
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: folds
+fullseat: raises $1.25 to $1.50
+miracleee: calls $1
+*** FLOP *** [3c 9d 2c]
+fullseat: bets $0.99
+miracleee: raises $3.75 to $3.75
+fullseat: calls $2.76
+*** TURN *** [3c 9d 2c] [6d]
+fullseat: checks
+miracleee: bets $69.44 and is all-in
+fullseat: calls $10.64 and is all-in
+Uncalled bet ($58.80) returned to miracleee
+*** RIVER *** [3c 9d 2c 6d] [Jh]
+*** SECOND RIVER *** [3c 9d 2c 6d] [5c]
+*** SHOW DOWN ***
+fullseat: shows [6c 4c] (a pair of Sixes)
+miracleee: shows [9s Th] (a pair of Nines)
+miracleee collected $15.89 from pot
+fullseat collected $15.89 from pot
+*** SUMMARY ***
+Total pot $31.78 | Rake $1.58 
+Hand was run two times
+FIRST Board [3c 9d 2c 6d Jh]
+SECOND Board [3c 9d 2c 6d 5c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 (button) folded before Flop (didn't bet)
+Seat 3: fullseat (small blind) showed [6c 4c] and won ($15.89) with a pair of Sixes
+Seat 4: miracleee (big blind) showed [9s Th] and won ($15.89) with a pair of Nines
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742329:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:51:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($62.89 in chips)
+Seat 2: Krisz0000 ($26.02 in chips)
+Seat 3: fullseat ($15.10 in chips)
+Seat 4: miracleee ($73.90 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.55 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 3s]
+Domagoj87: folds
+kole1992: folds
+Krisz0000: raises $1.50 to $1.50
+fullseat: folds
+miracleee: folds
+guerillAA13: calls $1
+*** FLOP *** [4h 7h 4c]
+guerillAA13: checks
+Krisz0000: bets $1.63
+guerillAA13: folds
+Uncalled bet ($1.63) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [4h 7h 4c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 collected ($3.25)
+Seat 3: fullseat (button) folded before Flop (didn't bet)
+Seat 4: miracleee (small blind) folded before Flop 
+Seat 5: guerillAA13 (big blind) folded on the Flop 
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742343:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:52:13 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($62.89 in chips)
+Seat 2: Krisz0000 ($27.61 in chips)
+Seat 3: fullseat ($15.10 in chips)
+Seat 4: miracleee ($73.65 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.55 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Js]
+kole1992: folds
+Krisz0000: raises $1.50 to $1.50
+fullseat: folds
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 collected ($1.25)
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee (button) folded before Flop (didn't bet)
+Seat 5: guerillAA13 (small blind) folded before Flop 
+Seat 6: Domagoj87 (big blind) folded before Flop 
+
+
+Weplay Hand #74742347:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:52:30 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($62.89 in chips)
+Seat 2: Krisz0000 ($28.36 in chips)
+Seat 3: fullseat ($15.10 in chips)
+Seat 4: miracleee ($73.65 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.05 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 2s]
+Krisz0000: calls $0.50
+fullseat: calls $0.50
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: checks
+*** FLOP *** [Jd Jc 5d]
+kole1992: checks
+Krisz0000: checks
+fullseat: bets $0.58
+kole1992: folds
+Krisz0000: folds
+Uncalled bet ($0.58) returned to fullseat
+*** SHOW DOWN ***
+fullseat: doesn't show hand
+fullseat collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0.08 
+Board [Jd Jc 5d]
+Seat 1: kole1992 (big blind) folded on the Flop 
+Seat 2: Krisz0000 folded on the Flop 
+Seat 3: fullseat collected ($1.75)
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74742371:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:53:25 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($62.39 in chips)
+Seat 2: Krisz0000 ($27.86 in chips)
+Seat 3: fullseat ($16.27 in chips)
+Seat 4: miracleee ($73.65 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($25.80 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Kh]
+fullseat: folds
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: raises $1.25 to $1.50
+Krisz0000: calls $1
+*** FLOP *** [6c 5h Kc]
+kole1992: bets $1.24
+Krisz0000: calls $1.24
+*** TURN *** [6c 5h Kc] [8s]
+kole1992: checks
+Krisz0000: bets $1.81
+kole1992: calls $1.81
+*** RIVER *** [6c 5h Kc 8s] [Qc]
+kole1992: checks
+Krisz0000: bets $4.55
+kole1992: calls $4.55
+*** SHOW DOWN ***
+Krisz0000: shows [5c 6h] (two pair, Sixes and Fives)
+kole1992: shows [Qh Kh] (two pair, Kings and Queens)
+kole1992 collected $18.20 from pot
+*** SUMMARY ***
+Total pot $18.20 | Rake $0.91 
+Board [6c 5h Kc 8s Qc]
+Seat 1: kole1992 (small blind) showed [Qh Kh] and won ($18.20) with two pair, Kings and Queens
+Seat 2: Krisz0000 (big blind) showed [5c 6h] and lost with two pair, Sixes and Fives
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74742404:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:54:49 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($70.58 in chips)
+Seat 2: Krisz0000 ($18.76 in chips)
+Seat 3: fullseat ($16.27 in chips)
+Seat 4: miracleee ($73.65 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($25.80 in chips)
+Krisz0000: posts small blind $0.25
+fullseat: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 6c]
+miracleee: raises $1 to $1
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $0.75
+fullseat: calls $0.50
+*** FLOP *** [Kc 3s 2c]
+Krisz0000: checks
+fullseat: checks
+miracleee: bets $1
+Krisz0000: folds
+fullseat: calls $1
+*** TURN *** [Kc 3s 2c] [Ac]
+fullseat: bets $2.50
+miracleee: calls $2.50
+*** RIVER *** [Kc 3s 2c Ac] [Ks]
+fullseat: checks
+miracleee: bets $69.15 and is all-in
+fullseat: folds
+Uncalled bet ($69.15) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [Kc 3s 2c Ac Ks]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) folded on the Flop 
+Seat 3: fullseat (big blind) folded on the River 
+Seat 4: miracleee collected ($10)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742427:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:55:54 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($70.58 in chips)
+Seat 2: Krisz0000 ($17.76 in chips)
+Seat 3: fullseat ($11.77 in chips)
+Seat 4: miracleee ($78.65 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($25.80 in chips)
+fullseat: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Jd]
+guerillAA13: folds
+Domagoj87: raises $1.25 to $1.25
+kole1992: folds
+Krisz0000: calls $1.25
+fullseat: folds
+miracleee: folds
+*** FLOP *** [2s 9c 7d]
+Domagoj87: bets $1.62
+Krisz0000: calls $1.62
+*** TURN *** [2s 9c 7d] [3c]
+Domagoj87: bets $6.49
+Krisz0000: folds
+Uncalled bet ($6.49) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87 has timed out
+Domagoj87: doesn't show hand
+Domagoj87 collected $6.49 from pot
+*** SUMMARY ***
+Total pot $6.49 | Rake $0.32 
+Board [2s 9c 7d 3c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 (button) folded on the Turn 
+Seat 3: fullseat (small blind) folded before Flop 
+Seat 4: miracleee (big blind) folded before Flop 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 collected ($6.49)
+
+
+Weplay Hand #74742432:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:56:33 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($70.58 in chips)
+Seat 2: Krisz0000 ($14.89 in chips)
+Seat 3: fullseat ($11.52 in chips)
+Seat 4: miracleee ($78.15 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($29.10 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 8d]
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $0.50
+fullseat: calls $0.50
+miracleee: folds
+guerillAA13: checks
+*** FLOP *** [6c 6h 5s]
+guerillAA13: checks
+Krisz0000: checks
+fullseat: checks
+*** TURN *** [6c 6h 5s] [Qc]
+guerillAA13: checks
+Krisz0000: checks
+fullseat: checks
+*** RIVER *** [6c 6h 5s Qc] [6s]
+guerillAA13: checks
+Krisz0000: checks
+fullseat: checks
+*** SHOW DOWN ***
+guerillAA13: shows [7s Jc] (three of a kind, Sixes)
+Krisz0000: shows [8h Jd] (three of a kind, Sixes)
+fullseat: shows [2h Qd] (a full house, Sixes full of Queens)
+fullseat collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0.08 
+Board [6c 6h 5s Qc 6s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 showed [8h Jd] and lost with three of a kind, Sixes
+Seat 3: fullseat (button) showed [2h Qd] and won ($1.75) with a full house, Sixes full of Queens
+Seat 4: miracleee (small blind) folded before Flop 
+Seat 5: guerillAA13 (big blind) showed [7s Jc] and lost with three of a kind, Sixes
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742452:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:57:24 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($70.58 in chips)
+Seat 2: Krisz0000 ($14.39 in chips)
+Seat 3: fullseat ($12.69 in chips)
+Seat 4: miracleee ($77.90 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($29.10 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 6h]
+kole1992: folds
+Krisz0000: calls $0.50
+fullseat: calls $0.50
+miracleee: raises $1.25 to $1.25
+guerillAA13: calls $1
+Domagoj87: folds
+Krisz0000: calls $0.75
+fullseat: calls $0.75
+*** FLOP *** [Ah 6c 9s]
+guerillAA13: checks
+Krisz0000: checks
+fullseat: bets $3.63
+miracleee: raises $8.50 to $8.50
+guerillAA13: folds
+Krisz0000: raises $13.14 to $13.14 and is all-in
+fullseat: folds
+miracleee: calls $4.64
+*** TURN *** [Ah 6c 9s] [5h]
+*** RIVER *** [Ah 6c 9s 5h] [2d]
+*** SHOW DOWN ***
+Krisz0000: shows [9h 6d] (two pair, Nines and Sixes)
+miracleee: shows [Ad Ts] (a pair of Aces)
+Krisz0000 collected $35.41 from pot
+*** SUMMARY ***
+Total pot $35.41 | Rake $1.77 
+Board [Ah 6c 9s 5h 2d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 showed [9h 6d] and won ($35.41) with two pair, Nines and Sixes
+Seat 3: fullseat folded on the Flop 
+Seat 4: miracleee (button) showed [Ad Ts] and lost with a pair of Aces
+Seat 5: guerillAA13 (small blind) folded on the Flop 
+Seat 6: Domagoj87 (big blind) folded before Flop 
+
+
+Weplay Hand #74742472:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:58:40 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($70.58 in chips)
+Seat 2: Krisz0000 ($33.64 in chips)
+Seat 3: fullseat ($7.81 in chips)
+Seat 4: miracleee ($63.51 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($28.60 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 3d]
+Krisz0000: calls $0.50
+fullseat: raises $2 to $2
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: folds
+Uncalled bet ($1.50) returned to fullseat
+*** SHOW DOWN ***
+fullseat: doesn't show hand
+fullseat collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Krisz0000 folded before Flop 
+Seat 3: fullseat collected ($1.75)
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74742479:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:59:03 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($70.08 in chips)
+Seat 2: Krisz0000 ($33.14 in chips)
+Seat 3: fullseat ($9.06 in chips)
+Seat 4: miracleee ($63.51 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($28.35 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 7s]
+fullseat: folds
+miracleee: folds
+guerillAA13: raises $1.25 to $1.25
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $0.75
+*** FLOP *** [3c Ks 3d]
+Krisz0000: checks
+guerillAA13: bets $1
+Krisz0000: calls $1
+*** TURN *** [3c Ks 3d] [Js]
+Krisz0000: checks
+guerillAA13: bets $2.12
+Krisz0000: calls $2.12
+*** RIVER *** [3c Ks 3d Js] [6s]
+Krisz0000: checks
+guerillAA13: checks
+*** SHOW DOWN ***
+Krisz0000: shows [Jd Kh] (two pair, Kings and Jacks)
+guerillAA13: mucks hand
+Krisz0000 collected $8.99 from pot
+*** SUMMARY ***
+Total pot $8.99 | Rake $0.44 
+Board [3c Ks 3d Js 6s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) showed [Jd Kh] and won ($8.99) with two pair, Kings and Jacks
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 mucked
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74742493:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 9:59:49 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($69.83 in chips)
+Seat 2: Krisz0000 ($37.32 in chips)
+Seat 3: fullseat ($9.06 in chips)
+Seat 4: miracleee ($63.51 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($28.35 in chips)
+Krisz0000: posts small blind $0.25
+fullseat: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 2d]
+miracleee: raises $1.50 to $1.50
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $1.25
+fullseat: folds
+*** FLOP *** [6c 4c Kc]
+Krisz0000: checks
+miracleee: bets $3.75
+Krisz0000: folds
+Uncalled bet ($3.75) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [6c 4c Kc]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) folded on the Flop 
+Seat 3: fullseat (big blind) folded before Flop 
+Seat 4: miracleee collected ($3.50)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742511:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:00:26 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($69.83 in chips)
+Seat 2: Krisz0000 ($35.82 in chips)
+Seat 3: fullseat ($8.56 in chips)
+Seat 4: miracleee ($65.34 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($28.35 in chips)
+fullseat: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 8h]
+guerillAA13: folds
+Domagoj87: folds
+kole1992: raises $1.10 to $1.10
+Krisz0000: calls $1.10
+fullseat: folds
+miracleee: folds
+*** FLOP *** [6d 2d Ts]
+kole1992: checks
+Krisz0000: bets $1.48
+kole1992: calls $1.48
+*** TURN *** [6d 2d Ts] [As]
+kole1992: checks
+Krisz0000: checks
+*** RIVER *** [6d 2d Ts As] [9c]
+kole1992: bets $14.25
+Krisz0000: folds
+Uncalled bet ($14.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.91 from pot
+*** SUMMARY ***
+Total pot $5.91 | Rake $0.29 
+Board [6d 2d Ts As 9c]
+Seat 1: kole1992 collected ($5.91)
+Seat 2: Krisz0000 (button) folded on the River 
+Seat 3: fullseat (small blind) folded before Flop 
+Seat 4: miracleee (big blind) folded before Flop 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742541:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:01:50 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($72.87 in chips)
+Seat 2: Krisz0000 ($33.24 in chips)
+Seat 3: fullseat ($8.31 in chips)
+Seat 4: miracleee ($64.84 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($28.35 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 3d]
+Domagoj87: raises $1.25 to $1.25
+kole1992: folds
+Krisz0000: calls $1.25
+fullseat: raises $5.08 to $5.08
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+Krisz0000: folds
+Uncalled bet ($3.83) returned to fullseat
+*** SHOW DOWN ***
+fullseat: doesn't show hand
+fullseat collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 folded before Flop 
+Seat 3: fullseat (button) collected ($4.50)
+Seat 4: miracleee (small blind) folded before Flop 
+Seat 5: guerillAA13 (big blind) folded before Flop 
+Seat 6: Domagoj87 folded before Flop 
+
+
+Weplay Hand #74742555:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:02:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($72.87 in chips)
+Seat 2: Krisz0000 ($31.99 in chips)
+Seat 3: fullseat ($11.56 in chips)
+Seat 4: miracleee ($64.59 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($27.10 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Qc]
+kole1992: folds
+Krisz0000: raises $1.50 to $1.50
+fullseat: folds
+miracleee: calls $1.50
+guerillAA13: folds
+Domagoj87: folds
+*** FLOP *** [8h 3s 7c]
+Krisz0000: checks
+miracleee: bets $1.50
+Krisz0000: calls $1.50
+*** TURN *** [8h 3s 7c] [Ts]
+Krisz0000: checks
+miracleee: checks
+*** RIVER *** [8h 3s 7c Ts] [Jd]
+Krisz0000: bets $3.38
+miracleee: folds
+Uncalled bet ($3.38) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $6.75 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0.33 
+Board [8h 3s 7c Ts Jd]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 collected ($6.75)
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee (button) folded on the River 
+Seat 5: guerillAA13 (small blind) folded before Flop 
+Seat 6: Domagoj87 (big blind) folded before Flop 
+
+
+Weplay Hand #74742573:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:02:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($72.87 in chips)
+Seat 2: Krisz0000 ($35.41 in chips)
+Seat 3: fullseat ($11.56 in chips)
+Seat 4: miracleee ($61.59 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.60 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Ah]
+Krisz0000: raises $1.50 to $1.50
+fullseat: folds
+miracleee: calls $1.50
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+*** FLOP *** [Jh 5s 5d]
+Krisz0000: bets $1.88
+miracleee: calls $1.88
+*** TURN *** [Jh 5s 5d] [Jc]
+Krisz0000: checks
+miracleee: bets $5.63
+Krisz0000: folds
+Uncalled bet ($5.63) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $7.51 from pot
+*** SUMMARY ***
+Total pot $7.51 | Rake $0.37 
+Board [Jh 5s 5d Jc]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Krisz0000 folded on the Turn 
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee collected ($7.51)
+Seat 5: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74742602:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:03:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($72.37 in chips)
+Seat 2: Krisz0000 ($32.03 in chips)
+Seat 3: fullseat ($11.56 in chips)
+Seat 4: miracleee ($65.35 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.35 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 5h]
+fullseat: folds
+miracleee: raises $1.50 to $1.50
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: calls $1
+*** FLOP *** [2s Jc 8s]
+Krisz0000: checks
+miracleee: checks
+*** TURN *** [2s Jc 8s] [9s]
+Krisz0000: bets $1.63
+miracleee: calls $1.63
+*** RIVER *** [2s Jc 8s 9s] [9d]
+Krisz0000: checks
+miracleee: checks
+*** SHOW DOWN ***
+Krisz0000: shows [3c Tc] (a pair of Nines)
+miracleee: shows [9h As] (three of a kind, Nines)
+miracleee collected $6.51 from pot
+*** SUMMARY ***
+Total pot $6.51 | Rake $0.32 
+Board [2s Jc 8s 9s 9d]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) showed [3c Tc] and lost with a pair of Nines
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee showed [9h As] and won ($6.51) with three of a kind, Nines
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74742620:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:04:46 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($72.12 in chips)
+Seat 2: Krisz0000 ($28.90 in chips)
+Seat 3: fullseat ($11.56 in chips)
+Seat 4: miracleee ($68.41 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.35 in chips)
+Krisz0000: posts small blind $0.25
+fullseat: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 6d]
+miracleee: folds
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: raises $1.25 to $1.50
+fullseat: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) collected ($1)
+Seat 3: fullseat (big blind) folded before Flop 
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742627:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:05:09 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($72.12 in chips)
+Seat 2: Krisz0000 ($29.40 in chips)
+Seat 3: fullseat ($11.06 in chips)
+Seat 4: miracleee ($68.41 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.35 in chips)
+fullseat: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Tc]
+guerillAA13: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: raises $1.50 to $1.50
+fullseat: folds
+miracleee: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 (button) collected ($1.25)
+Seat 3: fullseat (small blind) folded before Flop 
+Seat 4: miracleee (big blind) folded before Flop 
+Seat 5: guerillAA13 folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742636:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:05:33 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($72.12 in chips)
+Seat 2: Krisz0000 ($30.15 in chips)
+Seat 3: fullseat ($10.81 in chips)
+Seat 4: miracleee ($67.91 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.35 in chips)
+miracleee: posts small blind $0.25
+guerillAA13: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 4s]
+Domagoj87: folds
+kole1992: folds
+Krisz0000: raises $1.50 to $1.50
+fullseat: folds
+miracleee: calls $1.25
+guerillAA13: folds
+*** FLOP *** [Kc Jc 7d]
+miracleee: checks
+Krisz0000: bets $1.75
+miracleee: calls $1.75
+*** TURN *** [Kc Jc 7d] [2h]
+miracleee: bets $5.25
+Krisz0000: folds
+Uncalled bet ($5.25) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [Kc Jc 7d 2h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 folded on the Turn 
+Seat 3: fullseat (button) folded before Flop (didn't bet)
+Seat 4: miracleee (small blind) collected ($7)
+Seat 5: guerillAA13 (big blind) folded before Flop 
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742651:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:06:12 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($72.12 in chips)
+Seat 2: Krisz0000 ($26.90 in chips)
+Seat 3: fullseat ($10.81 in chips)
+Seat 4: miracleee ($71.31 in chips)
+Seat 5: guerillAA13 ($50 in chips)
+Seat 6: Domagoj87 ($26.35 in chips)
+guerillAA13: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 5h]
+kole1992: folds
+Krisz0000: calls $0.50
+fullseat: calls $0.50
+miracleee: folds
+guerillAA13: calls $0.25
+Domagoj87: checks
+*** FLOP *** [Ts 9h Qh]
+guerillAA13: checks
+Domagoj87: checks
+Krisz0000: checks
+fullseat: checks
+*** TURN *** [Ts 9h Qh] [3h]
+guerillAA13: checks
+Domagoj87: checks
+Krisz0000: checks
+fullseat: bets $1.32
+guerillAA13: folds
+guerillAA13: sits out 
+Domagoj87: folds
+Krisz0000: folds
+Uncalled bet ($1.32) returned to fullseat
+*** SHOW DOWN ***
+fullseat: doesn't show hand
+fullseat collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [Ts 9h Qh 3h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 folded on the Turn 
+Seat 3: fullseat collected ($2)
+Seat 4: miracleee (button) folded before Flop (didn't bet)
+Seat 5: guerillAA13 (small blind) folded on the Turn 
+Seat 6: Domagoj87 (big blind) folded on the Turn 
+
+
+Weplay Hand #74742683:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:07:31 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($72.12 in chips)
+Seat 2: Krisz0000 ($26.40 in chips)
+Seat 3: fullseat ($12.21 in chips)
+Seat 4: miracleee ($71.31 in chips)
+Seat 6: Domagoj87 ($25.85 in chips)
+guerillAA13 leaves the table
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Qc]
+Krisz0000: raises $1.50 to $1.50
+fullseat: folds
+miracleee: folds
+Domagoj87: folds
+kole1992: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Krisz0000 collected ($1.25)
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74742696:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:08:03 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($71.62 in chips)
+Seat 2: Krisz0000 ($27.15 in chips)
+Seat 3: fullseat ($12.21 in chips)
+Seat 4: miracleee ($71.31 in chips)
+Seat 6: Domagoj87 ($25.60 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As Jc]
+fullseat: folds
+miracleee: raises $1 to $1
+Domagoj87: calls $1
+kole1992: folds
+Krisz0000: calls $0.50
+*** FLOP *** [Jd 7s 5d]
+Krisz0000: checks
+miracleee: checks
+Domagoj87: checks
+*** TURN *** [Jd 7s 5d] [3d]
+Krisz0000: checks
+miracleee: bets $2.17
+Domagoj87: folds
+Krisz0000: folds
+Uncalled bet ($2.17) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [Jd 7s 5d 3d]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) folded on the Turn 
+Seat 3: fullseat folded before Flop (didn't bet)
+Seat 4: miracleee collected ($3.25)
+Seat 6: Domagoj87 (button) folded on the Turn 
+
+
+Weplay Hand #74742713:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:08:56 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($71.37 in chips)
+Seat 2: Krisz0000 ($26.15 in chips)
+Seat 3: fullseat ($12.21 in chips)
+Seat 4: miracleee ($73.40 in chips)
+Seat 6: Domagoj87 ($24.60 in chips)
+Krisz0000: posts small blind $0.25
+fullseat: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Qh]
+miracleee: folds
+Domagoj87: folds
+kole1992: folds
+Krisz0000: raises $1.25 to $1.50
+fullseat: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) collected ($1)
+Seat 3: fullseat (big blind) folded before Flop 
+Seat 4: miracleee folded before Flop (didn't bet)
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742730:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:09:21 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($71.37 in chips)
+Seat 2: Krisz0000 ($26.65 in chips)
+Seat 3: fullseat ($11.71 in chips)
+Seat 4: miracleee ($73.40 in chips)
+Seat 6: Domagoj87 ($24.60 in chips)
+fullseat: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Th]
+Domagoj87: folds
+kole1992: folds
+Krisz0000: raises $1.50 to $1.50
+fullseat: raises $5.75 to $6
+miracleee: folds
+Krisz0000: raises $25.15 to $26.65 and is all-in
+fullseat: calls $5.71 and is all-in
+Uncalled bet ($14.94) returned to Krisz0000
+*** FLOP *** [6c 4h 9d]
+*** TURN *** [6c 4h 9d] [3s]
+*** RIVER *** [6c 4h 9d 3s] [4d]
+*** SHOW DOWN ***
+fullseat: shows [Ts As] (a pair of Fours)
+Krisz0000: shows [Ac Qs] (a pair of Fours)
+Krisz0000 collected $23.92 from pot
+*** SUMMARY ***
+Total pot $23.92 | Rake $1.19 
+Board [6c 4h 9d 3s 4d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Krisz0000 (button) showed [Ac Qs] and won ($23.92) with a pair of Fours
+Seat 3: fullseat (small blind) showed [Ts As] and lost with a pair of Fours
+Seat 4: miracleee (big blind) folded before Flop 
+Seat 6: Domagoj87 folded before Flop (didn't bet)
+
+
+Weplay Hand #74742747:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:10:04 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($71.37 in chips)
+Seat 2: Krisz0000 ($37.67 in chips)
+Seat 4: miracleee ($72.90 in chips)
+Seat 6: Domagoj87 ($24.60 in chips)
+miracleee: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 8s]
+kole1992: raises $1.50 to $1.50
+Krisz0000: calls $1.50
+fullseat leaves the table
+miracleee: raises $6.75 to $7
+Domagoj87: folds
+kole1992: folds
+Krisz0000: folds
+Uncalled bet ($5.50) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 folded before Flop 
+Seat 2: Krisz0000 folded before Flop 
+Seat 4: miracleee (small blind) collected ($5)
+Seat 6: Domagoj87 (big blind) folded before Flop 
+
+
+Weplay Hand #74742769:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:10:49 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($69.87 in chips)
+Seat 2: Krisz0000 ($36.17 in chips)
+Seat 4: miracleee ($76.40 in chips)
+Seat 6: Domagoj87 ($24.10 in chips)
+Domagoj87: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 3h]
+Krisz0000: folds
+miracleee: folds
+Domagoj87: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($0.50)
+Seat 2: Krisz0000 folded before Flop (didn't bet)
+Seat 4: miracleee (button) folded before Flop (didn't bet)
+Seat 6: Domagoj87 (small blind) folded before Flop 
+
+
+Weplay Hand #74742775:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:11:09 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($70.12 in chips)
+Seat 2: Krisz0000 ($36.17 in chips)
+Seat 4: miracleee ($76.40 in chips)
+Seat 6: Domagoj87 ($23.85 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 5d]
+miracleee: calls $0.50
+Domagoj87: folds
+kole1992: calls $0.25
+Krisz0000: checks
+*** FLOP *** [4d 7h 5h]
+kole1992: checks
+Krisz0000: checks
+miracleee: checks
+*** TURN *** [4d 7h 5h] [9c]
+kole1992: checks
+Krisz0000: checks
+miracleee: checks
+*** RIVER *** [4d 7h 5h 9c] [8s]
+kole1992: checks
+Krisz0000: checks
+miracleee: checks
+*** SHOW DOWN ***
+kole1992: shows [Kd 5d] (a pair of Fives)
+Krisz0000 has timed out
+Krisz0000: mucks hand
+miracleee: mucks hand
+kole1992 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [4d 7h 5h 9c 8s]
+Seat 1: kole1992 (small blind) showed [Kd 5d] and won ($1.50) with a pair of Fives
+Seat 2: Krisz0000 (big blind) mucked
+Seat 4: miracleee mucked
+Seat 6: Domagoj87 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74742821:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:13:00 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($71.05 in chips)
+Seat 2: Krisz0000 ($35.67 in chips)
+Seat 4: miracleee ($75.90 in chips)
+Krisz0000: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Ts]
+kole1992 has timed out
+kole1992: folds
+Krisz0000: raises $1.25 to $1.50
+Domagoj87 leaves the table
+miracleee: folds
+Uncalled bet ($1) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) collected ($1)
+Seat 4: miracleee (big blind) folded before Flop 
+
+
+Weplay Hand #74742831:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:13:30 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($71.05 in chips)
+Seat 2: Krisz0000 ($36.17 in chips)
+Seat 4: miracleee ($75.40 in chips)
+miracleee: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 7s]
+Krisz0000: folds
+miracleee: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($0.50)
+Seat 2: Krisz0000 (button) folded before Flop (didn't bet)
+Seat 4: miracleee (small blind) folded before Flop 
+
+
+Weplay Hand #74742833:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:13:42 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($71.30 in chips)
+Seat 2: Krisz0000 ($36.17 in chips)
+Seat 4: miracleee ($75.15 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Kh]
+miracleee: folds
+kole1992: raises $1.25 to $1.50
+Krisz0000: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (small blind) collected ($1)
+Seat 2: Krisz0000 (big blind) folded before Flop 
+Seat 4: miracleee (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74742837:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:14:00 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($71.80 in chips)
+Seat 2: Krisz0000 ($35.67 in chips)
+Seat 4: miracleee ($75.15 in chips)
+Krisz0000: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 6d]
+kole1992: folds
+Krisz0000: raises $1.25 to $1.50
+miracleee: calls $1
+*** FLOP *** [Td Qh Js]
+Krisz0000: checks
+miracleee: bets $0.50
+Krisz0000: calls $0.50
+*** TURN *** [Td Qh Js] [7c]
+Krisz0000: checks
+miracleee: checks
+*** RIVER *** [Td Qh Js 7c] [6s]
+Krisz0000: checks
+miracleee: checks
+*** SHOW DOWN ***
+Krisz0000: shows [2s 3s] (high card Queen)
+miracleee: shows [Ac 4h] (high card Ace)
+miracleee collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.10 
+Board [Td Qh Js 7c 6s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Krisz0000 (small blind) showed [2s 3s] and lost with high card Queen
+Seat 4: miracleee (big blind) showed [Ac 4h] and won ($4) with high card Ace
+
+
+Weplay Hand #74742851:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:15:03 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($71.80 in chips)
+Seat 2: Krisz0000 ($33.67 in chips)
+Seat 4: miracleee ($77.05 in chips)
+miracleee: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 5d]
+Krisz0000 has timed out
+Krisz0000: folds
+miracleee: raises $1.50 to $1.75
+kole1992: calls $1.25
+*** FLOP *** [2c Jd Jc]
+miracleee: checks
+kole1992: checks
+*** TURN *** [2c Jd Jc] [Ac]
+miracleee: checks
+kole1992: checks
+*** RIVER *** [2c Jd Jc Ac] [5c]
+miracleee: checks
+BaronRojo joins the table at seat #3
+kole1992: checks
+*** SHOW DOWN ***
+miracleee: shows [5h 5s] (a full house, Fives full of Jacks)
+kole1992: mucks hand
+miracleee collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.08 
+Board [2c Jd Jc Ac 5c]
+Seat 1: kole1992 (big blind) mucked
+Seat 2: Krisz0000 (button) folded before Flop (didn't bet)
+Seat 4: miracleee (small blind) showed [5h 5s] and won ($3.50) with a full house, Fives full of Jacks
+
+
+Weplay Hand #74742874:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 10:16:21 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($70.05 in chips)
+Seat 2: Krisz0000 ($33.67 in chips)
+Seat 3: BaronRojo ($53.54 in chips)
+Seat 4: miracleee ($78.72 in chips)
+kole1992: posts small blind $0.25
+Krisz0000: posts big blind $0.50
+BaronRojo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 9c]
+BaronRojo: checks
+miracleee: raises $1.25 to $1.25
+kole1992 has timed out
+kole1992: folds
+kole1992: sits out 
+Krisz0000: calls $0.75
+BaronRojo: folds
+*** FLOP *** [4s 7s 7d]
+Krisz0000: checks
+miracleee: checks
+*** TURN *** [4s 7s 7d] [6s]
+Krisz0000: bets $1.63
+miracleee: folds
+Uncalled bet ($1.63) returned to Krisz0000
+*** SHOW DOWN ***
+Krisz0000 has timed out
+Krisz0000: doesn't show hand
+Krisz0000 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [4s 7s 7d 6s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Krisz0000 (big blind) collected ($3.25)
+Seat 3: BaronRojo (big blind) folded before Flop 
+Seat 4: miracleee (button) folded on the Turn 
+
+
+Weplay Hand #74834554:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:37:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 3: hanna1five ($99.22 in chips)
+Seat 4: TurnerQur ($4.65 in chips)
+Seat 5: antananarivo ($139.62 in chips)
+Seat 6: slagalica ($45.81 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Qc]
+hanna1five: folds
+Minisnaff1 leaves the table
+TurnerQur: folds
+antananarivo: folds
+slagalica: raises $1 to $1.25
+kole1992: folds
+Uncalled bet ($0.75) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 3: hanna1five folded before Flop (didn't bet)
+Seat 4: TurnerQur folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) collected ($1)
+
+
+Weplay Hand #74834565:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:38:25 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 3: hanna1five ($99.22 in chips)
+Seat 4: TurnerQur ($4.65 in chips)
+Seat 5: antananarivo ($139.62 in chips)
+Seat 6: slagalica ($46.31 in chips)
+kole1992: posts small blind $0.25
+hanna1five: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 3h]
+TurnerQur: folds
+antananarivo: raises $1.25 to $1.25
+slagalica: raises $4.75 to $4.75
+kole1992: folds
+hanna1five: folds
+antananarivo: folds
+Uncalled bet ($3.50) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 3: hanna1five (big blind) folded before Flop 
+Seat 4: TurnerQur folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop 
+Seat 6: slagalica (button) collected ($3.25)
+
+
+Weplay Hand #74834577:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:38:51 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 3: hanna1five ($98.72 in chips)
+Seat 4: TurnerQur ($4.65 in chips)
+Seat 5: antananarivo ($138.37 in chips)
+Seat 6: slagalica ($48.31 in chips)
+hanna1five: posts small blind $0.25
+TurnerQur: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 2d]
+antananarivo: raises $1.25 to $1.25
+Szekimo joins the table at seat #2
+slagalica: calls $1.25
+kole1992: folds
+hanna1five: folds
+TurnerQur: folds
+*** FLOP *** [7s Kc 3d]
+antananarivo: checks
+slagalica: checks
+*** TURN *** [7s Kc 3d] [6s]
+antananarivo: bets $2.15
+slagalica: folds
+Uncalled bet ($2.15) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [7s Kc 3d 6s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: hanna1five (small blind) folded before Flop 
+Seat 4: TurnerQur (big blind) folded before Flop 
+Seat 5: antananarivo collected ($3.25)
+Seat 6: slagalica folded on the Turn 
+
+
+Weplay Hand #74834591:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:39:26 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Szekimo ($50 in chips)
+Seat 3: hanna1five ($98.47 in chips)
+Seat 4: TurnerQur ($4.15 in chips)
+Seat 5: antananarivo ($140.21 in chips)
+Seat 6: slagalica ($47.06 in chips)
+TurnerQur: posts small blind $0.25
+antananarivo: posts big blind $0.50
+Szekimo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 5h]
+slagalica: folds
+kole1992: folds
+Szekimo: checks
+hanna1five: calls $0.50
+TurnerQur: raises $1.96 to $2.21
+antananarivo: raises $3.42 to $3.92
+Szekimo: folds
+hanna1five: folds
+TurnerQur: raises $1.94 to $4.15 and is all-in
+antananarivo: calls $0.23
+*** FLOP *** [Kc 5d 5s]
+*** TURN *** [Kc 5d 5s] [9d]
+*** RIVER *** [Kc 5d 5s 9d] [2c]
+*** SHOW DOWN ***
+TurnerQur: shows [Ac 6h] (a pair of Fives)
+antananarivo: shows [Qs Js] (a pair of Fives)
+TurnerQur collected $9.30 from pot
+*** SUMMARY ***
+Total pot $9.30 | Rake $0.46 
+Board [Kc 5d 5s 9d 2c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo (big blind) folded before Flop 
+Seat 3: hanna1five (button) folded before Flop 
+Seat 4: TurnerQur (small blind) showed [Ac 6h] and won ($9.30) with a pair of Fives
+Seat 5: antananarivo (big blind) showed [Qs Js] and lost with a pair of Fives
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74834620:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:40:26 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Szekimo ($49.50 in chips)
+Seat 3: hanna1five ($97.97 in chips)
+Seat 4: TurnerQur ($8.84 in chips)
+Seat 5: antananarivo ($136.06 in chips)
+Seat 6: slagalica ($47.06 in chips)
+antananarivo: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 9c]
+kole1992: folds
+Szekimo: folds
+hanna1five: raises $1.25 to $1.25
+TurnerQur: folds
+antananarivo: raises $4.75 to $5
+slagalica: folds
+hanna1five: folds
+Uncalled bet ($3.75) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five folded before Flop 
+Seat 4: TurnerQur (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) collected ($3)
+Seat 6: slagalica (big blind) folded before Flop 
+
+
+Weplay Hand #74834632:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:40:54 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Szekimo ($49.50 in chips)
+Seat 3: hanna1five ($96.72 in chips)
+Seat 4: TurnerQur ($8.84 in chips)
+Seat 5: antananarivo ($137.81 in chips)
+Seat 6: slagalica ($46.56 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Jc]
+Szekimo: calls $0.50
+hanna1five: folds
+TurnerQur: calls $0.50
+antananarivo: folds
+slagalica: folds
+kole1992: checks
+*** FLOP *** [2c 4c 2h]
+kole1992: checks
+Szekimo: checks
+TurnerQur: checks
+*** TURN *** [2c 4c 2h] [8c]
+kole1992: checks
+Szekimo: checks
+TurnerQur: bets $0.88
+kole1992: raises $5.26 to $5.26
+Szekimo: folds
+TurnerQur: folds
+Uncalled bet ($4.38) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3.51 from pot
+*** SUMMARY ***
+Total pot $3.51 | Rake $0.17 
+Board [2c 4c 2h 8c]
+Seat 1: kole1992 (big blind) collected ($3.51)
+Seat 2: Szekimo folded on the Turn 
+Seat 3: hanna1five folded before Flop (didn't bet)
+Seat 4: TurnerQur folded on the Turn 
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+
+
+Weplay Hand #74834671:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:42:17 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($51.96 in chips)
+Seat 2: Szekimo ($49 in chips)
+Seat 3: hanna1five ($96.72 in chips)
+Seat 4: TurnerQur ($7.46 in chips)
+Seat 5: antananarivo ($137.81 in chips)
+Seat 6: slagalica ($46.31 in chips)
+kole1992: posts small blind $0.25
+Szekimo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 2h]
+hanna1five: calls $0.50
+TurnerQur: calls $0.50
+antananarivo: folds
+slagalica: raises $4.51 to $4.51
+kole1992: folds
+Szekimo: folds
+hanna1five: folds
+TurnerQur: folds
+Uncalled bet ($4.01) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Szekimo (big blind) folded before Flop 
+Seat 3: hanna1five folded before Flop 
+Seat 4: TurnerQur folded before Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: slagalica (button) collected ($2.25)
+
+
+Weplay Hand #74834684:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:42:47 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($51.71 in chips)
+Seat 2: Szekimo ($48.50 in chips)
+Seat 3: hanna1five ($96.22 in chips)
+Seat 4: TurnerQur ($6.96 in chips)
+Seat 5: antananarivo ($137.81 in chips)
+Seat 6: slagalica ($48.06 in chips)
+Szekimo: posts small blind $0.25
+hanna1five: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Ks]
+TurnerQur: folds
+antananarivo: folds
+slagalica: folds
+kole1992: raises $1.25 to $1.25
+Szekimo: calls $1
+hanna1five: calls $0.75
+*** FLOP *** [Ac 4d Ad]
+Szekimo: checks
+hanna1five: checks
+kole1992: checks
+*** TURN *** [Ac 4d Ad] [Kc]
+Szekimo: bets $0.50
+hanna1five: calls $0.50
+kole1992: raises $2.25 to $2.25
+Szekimo: folds
+hanna1five: folds
+Uncalled bet ($1.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.25 from pot
+*** SUMMARY ***
+Total pot $5.25 | Rake $0.26 
+Board [Ac 4d Ad Kc]
+Seat 1: kole1992 (button) collected ($5.25)
+Seat 2: Szekimo (small blind) folded on the Turn 
+Seat 3: hanna1five (big blind) folded on the Turn 
+Seat 4: TurnerQur folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74834721:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:44:02 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($54.95 in chips)
+Seat 2: Szekimo ($46.75 in chips)
+Seat 3: hanna1five ($94.47 in chips)
+Seat 4: TurnerQur ($6.96 in chips)
+Seat 5: antananarivo ($137.81 in chips)
+Seat 6: slagalica ($48.06 in chips)
+hanna1five: posts small blind $0.25
+TurnerQur: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 3s]
+antananarivo: folds
+slagalica: raises $1.25 to $1.25
+antananarivo leaves the table
+kole1992: folds
+Szekimo: calls $1.25
+hanna1five: raises $4.50 to $4.75
+TurnerQur: folds
+philinbebettin joins the table at seat #5
+slagalica: calls $3.50
+Szekimo: calls $3.50
+*** FLOP *** [6s Qh 5d]
+hanna1five: checks
+slagalica: bets $11.06
+Szekimo: folds
+hanna1five: calls $11.06
+*** TURN *** [6s Qh 5d] [As]
+hanna1five: checks
+slagalica: bets $32.25 and is all-in
+hanna1five: folds
+Uncalled bet ($32.25) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $36.87 from pot
+*** SUMMARY ***
+Total pot $36.87 | Rake $1.84 
+Board [6s Qh 5d As]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo (button) folded on the Flop 
+Seat 3: hanna1five (small blind) folded on the Turn 
+Seat 4: TurnerQur (big blind) folded before Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: slagalica collected ($36.87)
+
+
+Weplay Hand #74834746:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:45:00 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($54.95 in chips)
+Seat 2: Szekimo ($42 in chips)
+Seat 3: hanna1five ($78.66 in chips)
+Seat 4: TurnerQur ($6.46 in chips)
+Seat 5: philinbebettin ($77.71 in chips)
+Seat 6: slagalica ($67.28 in chips)
+TurnerQur: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Jd]
+slagalica: folds
+kole1992: folds
+Szekimo: folds
+hanna1five: folds
+TurnerQur: raises $1.25 to $1.50
+philinbebettin: folds
+Uncalled bet ($1) returned to TurnerQur
+*** SHOW DOWN ***
+TurnerQur: doesn't show hand
+TurnerQur collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five (button) folded before Flop (didn't bet)
+Seat 4: TurnerQur (small blind) collected ($1)
+Seat 5: philinbebettin (big blind) folded before Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74834759:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:45:21 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($54.95 in chips)
+Seat 2: Szekimo ($42 in chips)
+Seat 3: hanna1five ($78.66 in chips)
+Seat 4: TurnerQur ($6.96 in chips)
+Seat 5: philinbebettin ($77.21 in chips)
+Seat 6: slagalica ($67.28 in chips)
+philinbebettin: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As Ad]
+kole1992: raises $1 to $1
+Szekimo: folds
+hanna1five: folds
+TurnerQur: folds
+philinbebettin: folds
+slagalica: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 collected ($1.25)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five folded before Flop (didn't bet)
+Seat 4: TurnerQur (button) folded before Flop (didn't bet)
+Seat 5: philinbebettin (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+
+
+Weplay Hand #74834767:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:45:41 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($55.70 in chips)
+Seat 2: Szekimo ($42 in chips)
+Seat 3: hanna1five ($78.66 in chips)
+Seat 4: TurnerQur ($6.96 in chips)
+Seat 5: philinbebettin ($76.96 in chips)
+Seat 6: slagalica ($66.78 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 7s]
+Szekimo: folds
+hanna1five: folds
+TurnerQur: raises $1.25 to $1.25
+philinbebettin: folds
+slagalica: folds
+kole1992: calls $0.75
+*** FLOP *** [6h Td Qd]
+kole1992: checks
+TurnerQur: checks
+*** TURN *** [6h Td Qd] [5h]
+kole1992: checks
+TurnerQur: checks
+*** RIVER *** [6h Td Qd 5h] [2s]
+kole1992: checks
+TurnerQur: checks
+*** SHOW DOWN ***
+kole1992: shows [Ts 7s] (a pair of Tens)
+TurnerQur: mucks hand
+kole1992 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [6h Td Qd 5h 2s]
+Seat 1: kole1992 (big blind) showed [Ts 7s] and won ($2.75) with a pair of Tens
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five folded before Flop (didn't bet)
+Seat 4: TurnerQur mucked
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+
+
+Weplay Hand #74834799:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:46:45 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($57.07 in chips)
+Seat 2: Szekimo ($42 in chips)
+Seat 3: hanna1five ($78.66 in chips)
+Seat 4: TurnerQur ($5.71 in chips)
+Seat 5: philinbebettin ($76.96 in chips)
+Seat 6: slagalica ($66.53 in chips)
+kole1992: posts small blind $0.25
+Szekimo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 7c]
+hanna1five: folds
+TurnerQur: raises $1.25 to $1.25
+philinbebettin: folds
+slagalica: folds
+kole1992: folds
+Szekimo: folds
+Uncalled bet ($0.75) returned to TurnerQur
+*** SHOW DOWN ***
+TurnerQur: doesn't show hand
+TurnerQur collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Szekimo (big blind) folded before Flop 
+Seat 3: hanna1five folded before Flop (didn't bet)
+Seat 4: TurnerQur collected ($1.25)
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74834812:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:47:07 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($56.82 in chips)
+Seat 2: Szekimo ($41.50 in chips)
+Seat 3: hanna1five ($78.66 in chips)
+Seat 4: TurnerQur ($6.46 in chips)
+Seat 5: philinbebettin ($76.96 in chips)
+Seat 6: slagalica ($66.53 in chips)
+Szekimo: posts small blind $0.25
+hanna1five: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 6c]
+TurnerQur: folds
+philinbebettin: raises $1.50 to $1.50
+slagalica: folds
+kole1992: folds
+Szekimo: calls $1.25
+hanna1five: calls $1
+*** FLOP *** [3h 8d 8s]
+Szekimo: checks
+hanna1five: checks
+philinbebettin: checks
+*** TURN *** [3h 8d 8s] [4s]
+Szekimo: checks
+hanna1five: bets $3
+philinbebettin: folds
+Szekimo: folds
+Uncalled bet ($3) returned to hanna1five
+*** SHOW DOWN ***
+hanna1five: doesn't show hand
+hanna1five collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [3h 8d 8s 4s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Szekimo (small blind) folded on the Turn 
+Seat 3: hanna1five (big blind) collected ($4.50)
+Seat 4: TurnerQur folded before Flop (didn't bet)
+Seat 5: philinbebettin folded on the Turn 
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74834839:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:47:55 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($56.82 in chips)
+Seat 2: Szekimo ($40 in chips)
+Seat 3: hanna1five ($81.44 in chips)
+Seat 4: TurnerQur ($6.46 in chips)
+Seat 5: philinbebettin ($75.46 in chips)
+Seat 6: slagalica ($66.53 in chips)
+hanna1five: posts small blind $0.25
+TurnerQur: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 3s]
+philinbebettin: calls $0.50
+slagalica: raises $2.50 to $2.50
+kole1992: folds
+Szekimo: folds
+hanna1five: folds
+TurnerQur: folds
+philinbebettin: calls $2
+*** FLOP *** [Ks 8h 4s]
+philinbebettin: checks
+slagalica: checks
+*** TURN *** [Ks 8h 4s] [Qh]
+philinbebettin: checks
+slagalica: checks
+*** RIVER *** [Ks 8h 4s Qh] [Ad]
+philinbebettin: checks
+slagalica: checks
+*** SHOW DOWN ***
+philinbebettin: shows [Ac 5c] (a pair of Aces)
+slagalica: shows [Tc As] (a pair of Aces)
+slagalica collected $5.75 from pot
+*** SUMMARY ***
+Total pot $5.75 | Rake $0.28 
+Board [Ks 8h 4s Qh Ad]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo (button) folded before Flop (didn't bet)
+Seat 3: hanna1five (small blind) folded before Flop 
+Seat 4: TurnerQur (big blind) folded before Flop 
+Seat 5: philinbebettin showed [Ac 5c] and lost with a pair of Aces
+Seat 6: slagalica showed [Tc As] and won ($5.75) with a pair of Aces
+
+
+Weplay Hand #74834862:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:48:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($56.82 in chips)
+Seat 2: Szekimo ($40 in chips)
+Seat 3: hanna1five ($81.19 in chips)
+Seat 4: TurnerQur ($5.96 in chips)
+Seat 5: philinbebettin ($72.96 in chips)
+Seat 6: slagalica ($69.50 in chips)
+TurnerQur: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 2c]
+slagalica: folds
+kole1992: folds
+Szekimo: folds
+hanna1five: calls $0.50
+TurnerQur: calls $0.25
+philinbebettin: checks
+*** FLOP *** [7s 5c Kd]
+TurnerQur: checks
+philinbebettin: checks
+hanna1five: checks
+*** TURN *** [7s 5c Kd] [Th]
+TurnerQur: checks
+philinbebettin: checks
+hanna1five: bets $1
+TurnerQur: folds
+philinbebettin: folds
+Uncalled bet ($1) returned to hanna1five
+*** SHOW DOWN ***
+hanna1five: doesn't show hand
+hanna1five collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [7s 5c Kd Th]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five (button) collected ($1.50)
+Seat 4: TurnerQur (small blind) folded on the Turn 
+Seat 5: philinbebettin (big blind) folded on the Turn 
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74834884:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:49:31 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($56.82 in chips)
+Seat 2: Szekimo ($40 in chips)
+Seat 3: hanna1five ($82.12 in chips)
+Seat 4: TurnerQur ($5.46 in chips)
+Seat 5: philinbebettin ($72.46 in chips)
+Seat 6: slagalica ($69.50 in chips)
+philinbebettin: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 5h]
+kole1992: folds
+Szekimo: raises $1.50 to $1.50
+hanna1five: calls $1.50
+TurnerQur: folds
+philinbebettin: calls $1.25
+slagalica: folds
+*** FLOP *** [Ah As 3d]
+philinbebettin: checks
+Szekimo: checks
+hanna1five: checks
+*** TURN *** [Ah As 3d] [Kh]
+philinbebettin: checks
+Szekimo: checks
+hanna1five: checks
+*** RIVER *** [Ah As 3d Kh] [Kd]
+philinbebettin: checks
+Szekimo: bets $0.50
+hanna1five: calls $0.50
+philinbebettin: folds
+*** SHOW DOWN ***
+Szekimo: shows [Qd Ad] (a full house, Aces full of Kings)
+hanna1five: mucks hand
+Szekimo collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Ah As 3d Kh Kd]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo showed [Qd Ad] and won ($6) with a full house, Aces full of Kings
+Seat 3: hanna1five mucked
+Seat 4: TurnerQur (button) folded before Flop (didn't bet)
+Seat 5: philinbebettin (small blind) folded on the River 
+Seat 6: slagalica (big blind) folded before Flop 
+
+
+Weplay Hand #74834921:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:50:35 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($56.82 in chips)
+Seat 2: Szekimo ($43.70 in chips)
+Seat 3: hanna1five ($80.12 in chips)
+Seat 4: TurnerQur ($5.46 in chips)
+Seat 5: philinbebettin ($70.96 in chips)
+Seat 6: slagalica ($69 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 5d]
+Szekimo: folds
+hanna1five: folds
+TurnerQur: raises $1.25 to $1.25
+philinbebettin: calls $1.25
+slagalica: folds
+kole1992: folds
+*** FLOP *** [Jd 6s Ac]
+TurnerQur: bets $4.21 and is all-in
+philinbebettin: calls $4.21
+*** TURN *** [Jd 6s Ac] [Td]
+*** RIVER *** [Jd 6s Ac Td] [4h]
+*** SHOW DOWN ***
+TurnerQur: shows [Ks 2h] (high card Ace)
+philinbebettin: shows [Ts Ad] (two pair, Aces and Tens)
+philinbebettin collected $11.67 from pot
+*** SUMMARY ***
+Total pot $11.67 | Rake $0.58 
+Board [Jd 6s Ac Td 4h]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five folded before Flop (didn't bet)
+Seat 4: TurnerQur showed [Ks 2h] and lost with high card Ace
+Seat 5: philinbebettin (button) showed [Ts Ad] and won ($11.67) with two pair, Aces and Tens
+Seat 6: slagalica (small blind) folded before Flop 
+
+
+Weplay Hand #74834942:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:51:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($56.32 in chips)
+Seat 2: Szekimo ($43.70 in chips)
+Seat 3: hanna1five ($80.12 in chips)
+Seat 5: philinbebettin ($76.59 in chips)
+Seat 6: slagalica ($68.75 in chips)
+kole1992: posts small blind $0.25
+Szekimo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Qd]
+TurnerQur leaves the table
+hanna1five: calls $0.50
+philinbebettin: folds
+slagalica: folds
+kole1992: calls $0.25
+Szekimo: checks
+*** FLOP *** [8s Ts 9d]
+kole1992: checks
+Szekimo: bets $0.50
+hanna1five: calls $0.50
+kole1992: folds
+*** TURN *** [8s Ts 9d] [4c]
+Szekimo: bets $0.50
+hanna1five: raises $2.50 to $2.50
+Szekimo: calls $2
+*** RIVER *** [8s Ts 9d 4c] [Td]
+Szekimo: bets $2.48
+hanna1five: calls $2.48
+*** SHOW DOWN ***
+Szekimo: shows [Tc Kc] (three of a kind, Tens)
+hanna1five: mucks hand
+Szekimo collected $12.46 from pot
+*** SUMMARY ***
+Total pot $12.46 | Rake $0.62 
+Board [8s Ts 9d 4c Td]
+Seat 1: kole1992 (small blind) folded on the Flop 
+Seat 2: Szekimo (big blind) showed [Tc Kc] and won ($12.46) with three of a kind, Tens
+Seat 3: hanna1five mucked
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74834971:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:52:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($55.82 in chips)
+Seat 2: Szekimo ($49.56 in chips)
+Seat 3: hanna1five ($74.14 in chips)
+Seat 5: philinbebettin ($76.59 in chips)
+Seat 6: slagalica ($68.75 in chips)
+Szekimo: posts small blind $0.25
+hanna1five: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 8h]
+philinbebettin: folds
+slagalica: folds
+kole1992: folds
+Szekimo: calls $0.25
+hanna1five: checks
+*** FLOP *** [2s 8d Jd]
+Szekimo: checks
+hanna1five: checks
+*** TURN *** [2s 8d Jd] [4s]
+Szekimo: bets $0.50
+hanna1five: calls $0.50
+*** RIVER *** [2s 8d Jd 4s] [Kc]
+Szekimo: checks
+hanna1five: checks
+*** SHOW DOWN ***
+Szekimo: shows [Ad 4c] (a pair of Fours)
+hanna1five: mucks hand
+Szekimo collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [2s 8d Jd 4s Kc]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Szekimo (small blind) showed [Ad 4c] and won ($2) with a pair of Fours
+Seat 3: hanna1five (big blind) mucked
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74834991:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:53:04 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($55.82 in chips)
+Seat 2: Szekimo ($50.46 in chips)
+Seat 3: hanna1five ($73.14 in chips)
+Seat 5: philinbebettin ($76.59 in chips)
+Seat 6: slagalica ($68.75 in chips)
+Darkoo joins the table at seat #4
+hanna1five: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 4h]
+slagalica: folds
+kole1992: folds
+Szekimo: calls $0.50
+hanna1five: calls $0.25
+philinbebettin: checks
+*** FLOP *** [Ad 8s Kc]
+hanna1five: checks
+philinbebettin: checks
+Szekimo: checks
+*** TURN *** [Ad 8s Kc] [2h]
+hanna1five: checks
+philinbebettin: checks
+Szekimo: checks
+*** RIVER *** [Ad 8s Kc 2h] [6s]
+hanna1five: bets $1.50
+philinbebettin: folds
+Szekimo: folds
+Uncalled bet ($1.50) returned to hanna1five
+*** SHOW DOWN ***
+hanna1five: doesn't show hand
+hanna1five collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [Ad 8s Kc 2h 6s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo (button) folded on the River 
+Seat 3: hanna1five (small blind) collected ($1.50)
+Seat 5: philinbebettin (big blind) folded on the River 
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74835024:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:54:14 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($55.82 in chips)
+Seat 2: Szekimo ($49.96 in chips)
+Seat 3: hanna1five ($74.07 in chips)
+Seat 5: philinbebettin ($76.09 in chips)
+Seat 6: slagalica ($68.75 in chips)
+philinbebettin: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 8d]
+kole1992: folds
+Szekimo: folds
+hanna1five: folds
+philinbebettin: folds
+Uncalled bet ($0.25) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five (button) folded before Flop (didn't bet)
+Seat 5: philinbebettin (small blind) folded before Flop 
+Seat 6: slagalica (big blind) collected ($0.50)
+
+
+Weplay Hand #74835034:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:54:41 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($55.82 in chips)
+Seat 2: Szekimo ($49.96 in chips)
+Seat 3: hanna1five ($74.07 in chips)
+Seat 4: Darkoo ($29.01 in chips)
+Seat 5: philinbebettin ($75.84 in chips)
+Seat 6: slagalica ($69 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 3c]
+Szekimo: folds
+hanna1five: folds
+Darkoo: checks
+philinbebettin: folds
+slagalica: folds
+kole1992: checks
+*** FLOP *** [4h 4s 9d]
+kole1992: checks
+Darkoo: checks
+*** TURN *** [4h 4s 9d] [4c]
+kole1992: checks
+Darkoo: checks
+*** RIVER *** [4h 4s 9d 4c] [8s]
+kole1992: checks
+Darkoo: checks
+*** SHOW DOWN ***
+kole1992: shows [Jd 3c] (three of a kind, Fours)
+Darkoo: shows [Qc 6d] (three of a kind, Fours)
+Darkoo collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [4h 4s 9d 4c 8s]
+Seat 1: kole1992 (big blind) showed [Jd 3c] and lost with three of a kind, Fours
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five folded before Flop (didn't bet)
+Seat 4: Darkoo (big blind) showed [Qc 6d] and won ($1.25) with three of a kind, Fours
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+
+
+Weplay Hand #74835052:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:55:30 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($55.32 in chips)
+Seat 2: Szekimo ($49.96 in chips)
+Seat 3: hanna1five ($74.07 in chips)
+Seat 4: Darkoo ($29.70 in chips)
+Seat 5: philinbebettin ($75.84 in chips)
+Seat 6: slagalica ($68.75 in chips)
+kole1992: posts small blind $0.25
+Szekimo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 2d]
+hanna1five: folds
+Darkoo: folds
+philinbebettin: folds
+slagalica: raises $1.25 to $1.25
+kole1992: folds
+Szekimo: folds
+Uncalled bet ($0.75) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Szekimo (big blind) folded before Flop 
+Seat 3: hanna1five folded before Flop (didn't bet)
+Seat 4: Darkoo folded before Flop (didn't bet)
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: slagalica (button) collected ($1.25)
+
+
+Weplay Hand #74835064:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:55:57 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($55.07 in chips)
+Seat 2: Szekimo ($49.46 in chips)
+Seat 3: hanna1five ($74.07 in chips)
+Seat 4: Darkoo ($29.70 in chips)
+Seat 5: philinbebettin ($75.84 in chips)
+Seat 6: slagalica ($69.50 in chips)
+Szekimo: posts small blind $0.25
+hanna1five: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5s]
+Darkoo: raises $1.50 to $1.50
+philinbebettin: folds
+slagalica: folds
+kole1992: folds
+Szekimo: folds
+hanna1five: calls $1
+*** FLOP *** [3c Ts 5h]
+hanna1five: checks
+Darkoo: bets $1.50
+hanna1five: folds
+Uncalled bet ($1.50) returned to Darkoo
+*** SHOW DOWN ***
+Darkoo has timed out
+Darkoo: doesn't show hand
+Darkoo collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [3c Ts 5h]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Szekimo (small blind) folded before Flop 
+Seat 3: hanna1five (big blind) folded on the Flop 
+Seat 4: Darkoo collected ($3.25)
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74835077:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:56:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($55.07 in chips)
+Seat 2: Szekimo ($49.21 in chips)
+Seat 3: hanna1five ($72.57 in chips)
+Seat 4: Darkoo ($31.29 in chips)
+Seat 5: philinbebettin ($75.84 in chips)
+Seat 6: slagalica ($69.50 in chips)
+hanna1five: posts small blind $0.25
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Th]
+philinbebettin: folds
+slagalica: folds
+kole1992: folds
+Szekimo: folds
+hanna1five: raises $0.75 to $1
+Darkoo: calls $0.50
+*** FLOP *** [Ks Js 3c]
+hanna1five: bets $1
+Darkoo: folds
+Uncalled bet ($1) returned to hanna1five
+*** SHOW DOWN ***
+hanna1five: doesn't show hand
+hanna1five collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [Ks Js 3c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo (button) folded before Flop (didn't bet)
+Seat 3: hanna1five (small blind) collected ($2)
+Seat 4: Darkoo (big blind) folded on the Flop 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74835093:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:57:13 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($55.07 in chips)
+Seat 2: Szekimo ($49.21 in chips)
+Seat 3: hanna1five ($73.47 in chips)
+Seat 4: Darkoo ($30.29 in chips)
+Seat 5: philinbebettin ($75.84 in chips)
+Seat 6: slagalica ($69.50 in chips)
+Darkoo: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 7d]
+slagalica: folds
+kole1992: folds
+Szekimo: folds
+hanna1five: calls $0.50
+Darkoo: calls $0.25
+philinbebettin: checks
+*** FLOP *** [4d 3s 3h]
+Darkoo: checks
+philinbebettin: checks
+hanna1five: checks
+*** TURN *** [4d 3s 3h] [Kd]
+Darkoo: bets $1.50
+philinbebettin: folds
+hanna1five: folds
+Uncalled bet ($1.50) returned to Darkoo
+*** SHOW DOWN ***
+Darkoo has timed out
+Darkoo: doesn't show hand
+Darkoo collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [4d 3s 3h Kd]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five (button) folded on the Turn 
+Seat 4: Darkoo (small blind) collected ($1.50)
+Seat 5: philinbebettin (big blind) folded on the Turn 
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74835110:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:58:02 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($55.07 in chips)
+Seat 2: Szekimo ($49.21 in chips)
+Seat 3: hanna1five ($72.97 in chips)
+Seat 4: Darkoo ($31.22 in chips)
+Seat 5: philinbebettin ($75.34 in chips)
+Seat 6: slagalica ($69.50 in chips)
+philinbebettin: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 9d]
+kole1992: folds
+Szekimo: calls $0.50
+hanna1five: folds
+Darkoo: calls $0.50
+philinbebettin: calls $0.25
+slagalica: checks
+*** FLOP *** [5s Ts 6c]
+philinbebettin: checks
+slagalica: checks
+Szekimo: bets $0.50
+Darkoo: folds
+philinbebettin: folds
+slagalica: folds
+Uncalled bet ($0.50) returned to Szekimo
+*** SHOW DOWN ***
+Szekimo has timed out
+Szekimo: doesn't show hand
+Szekimo collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [5s Ts 6c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo collected ($2)
+Seat 3: hanna1five folded before Flop (didn't bet)
+Seat 4: Darkoo (button) folded on the Flop 
+Seat 5: philinbebettin (small blind) folded on the Flop 
+Seat 6: slagalica (big blind) folded on the Flop 
+
+
+Weplay Hand #74835122:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:58:34 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($55.07 in chips)
+Seat 2: Szekimo ($50.61 in chips)
+Seat 3: hanna1five ($72.97 in chips)
+Seat 4: Darkoo ($30.72 in chips)
+Seat 5: philinbebettin ($74.84 in chips)
+Seat 6: slagalica ($69 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Qd]
+Szekimo: folds
+hanna1five: calls $0.50
+Darkoo: calls $0.50
+philinbebettin: folds
+slagalica: folds
+kole1992: checks
+*** FLOP *** [3h 8c Td]
+kole1992: checks
+hanna1five: checks
+Darkoo: checks
+*** TURN *** [3h 8c Td] [8d]
+kole1992: checks
+hanna1five: bets $1.50
+Darkoo: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to hanna1five
+*** SHOW DOWN ***
+hanna1five: doesn't show hand
+hanna1five collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0.08 
+Board [3h 8c Td 8d]
+Seat 1: kole1992 (big blind) folded on the Turn 
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five collected ($1.75)
+Seat 4: Darkoo folded on the Turn 
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+
+
+Weplay Hand #74835143:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 20:59:30 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($54.57 in chips)
+Seat 2: Szekimo ($50.61 in chips)
+Seat 3: hanna1five ($74.14 in chips)
+Seat 4: Darkoo ($30.22 in chips)
+Seat 5: philinbebettin ($74.84 in chips)
+Seat 6: slagalica ($68.75 in chips)
+kole1992: posts small blind $0.25
+Szekimo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Js]
+hanna1five: calls $0.50
+Darkoo: calls $0.50
+philinbebettin: folds
+slagalica: raises $4.25 to $4.25
+kole1992: folds
+Szekimo: folds
+hanna1five: calls $3.75
+Darkoo: folds
+*** FLOP *** [4h Kh 5d]
+hanna1five: checks
+slagalica: bets $7.81
+hanna1five: calls $7.81
+*** TURN *** [4h Kh 5d] [7c]
+hanna1five: checks
+slagalica: bets $19.02
+hanna1five: raises $62.08 to $62.08 and is all-in
+slagalica: folds
+Uncalled bet ($43.06) returned to hanna1five
+*** SHOW DOWN ***
+hanna1five: doesn't show hand
+hanna1five collected $63.41 from pot
+*** SUMMARY ***
+Total pot $63.41 | Rake $3.17 
+Board [4h Kh 5d 7c]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Szekimo (big blind) folded before Flop 
+Seat 3: hanna1five collected ($63.41)
+Seat 4: Darkoo folded before Flop 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded on the Turn 
+
+
+Weplay Hand #74835174:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:00:43 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($54.32 in chips)
+Seat 2: Szekimo ($50.11 in chips)
+Seat 3: hanna1five ($103.30 in chips)
+Seat 4: Darkoo ($29.72 in chips)
+Seat 5: philinbebettin ($74.84 in chips)
+Seat 6: slagalica ($50 in chips)
+Szekimo: posts small blind $0.25
+hanna1five: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 6d]
+Darkoo: calls $0.50
+philinbebettin: calls $0.50
+slagalica: folds
+kole1992: folds
+Szekimo: folds
+hanna1five: checks
+*** FLOP *** [Ac Jc As]
+hanna1five: checks
+Darkoo: checks
+philinbebettin: checks
+*** TURN *** [Ac Jc As] [5s]
+hanna1five: checks
+Darkoo: checks
+philinbebettin: bets $1.31
+hanna1five: calls $1.31
+Darkoo: folds
+*** RIVER *** [Ac Jc As 5s] [8h]
+hanna1five: checks
+philinbebettin: bets $2.19
+hanna1five: folds
+Uncalled bet ($2.19) returned to philinbebettin
+*** SHOW DOWN ***
+philinbebettin has timed out
+philinbebettin: doesn't show hand
+philinbebettin collected $4.37 from pot
+*** SUMMARY ***
+Total pot $4.37 | Rake $0.21 
+Board [Ac Jc As 5s 8h]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Szekimo (small blind) folded before Flop 
+Seat 3: hanna1five (big blind) folded on the River 
+Seat 4: Darkoo folded on the Turn 
+Seat 5: philinbebettin collected ($4.37)
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74835211:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:01:47 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($54.32 in chips)
+Seat 2: Szekimo ($49.86 in chips)
+Seat 3: hanna1five ($101.49 in chips)
+Seat 4: Darkoo ($29.22 in chips)
+Seat 5: philinbebettin ($77.19 in chips)
+Seat 6: slagalica ($50 in chips)
+hanna1five: posts small blind $0.25
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 3c]
+philinbebettin: raises $1.50 to $1.50
+slagalica: folds
+kole1992: folds
+Szekimo: calls $1.50
+hanna1five: calls $1.25
+Darkoo: calls $1
+*** FLOP *** [5d 3d 4h]
+hanna1five: checks
+Darkoo: bets $2
+philinbebettin: calls $2
+Szekimo: calls $2
+hanna1five: calls $2
+*** TURN *** [5d 3d 4h] [7c]
+hanna1five: checks
+Darkoo: checks
+philinbebettin: checks
+Szekimo: checks
+*** RIVER *** [5d 3d 4h 7c] [6h]
+hanna1five: bets $7
+Darkoo: folds
+philinbebettin: folds
+Szekimo: folds
+Uncalled bet ($7) returned to hanna1five
+*** SHOW DOWN ***
+hanna1five: doesn't show hand
+hanna1five collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [5d 3d 4h 7c 6h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo (button) folded on the River 
+Seat 3: hanna1five (small blind) collected ($14)
+Seat 4: Darkoo (big blind) folded on the River 
+Seat 5: philinbebettin folded on the River 
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74835247:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:02:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($54.32 in chips)
+Seat 2: Szekimo ($46.36 in chips)
+Seat 3: hanna1five ($111.29 in chips)
+Seat 4: Darkoo ($25.72 in chips)
+Seat 5: philinbebettin ($73.69 in chips)
+Seat 6: slagalica ($50 in chips)
+Darkoo: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 8c]
+slagalica: raises $1.25 to $1.25
+kole1992: folds
+Szekimo: folds
+hanna1five: calls $1.25
+Darkoo: calls $1
+philinbebettin: folds
+*** FLOP *** [8s 4d 2c]
+Darkoo: checks
+slagalica: checks
+hanna1five: bets $1.50
+Darkoo: folds
+slagalica: folds
+Uncalled bet ($1.50) returned to hanna1five
+*** SHOW DOWN ***
+hanna1five: doesn't show hand
+hanna1five collected $4.25 from pot
+*** SUMMARY ***
+Total pot $4.25 | Rake $0.21 
+Board [8s 4d 2c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five (button) collected ($4.25)
+Seat 4: Darkoo (small blind) folded on the Flop 
+Seat 5: philinbebettin (big blind) folded before Flop 
+Seat 6: slagalica folded on the Flop 
+
+
+Weplay Hand #74835268:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:03:40 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($54.32 in chips)
+Seat 2: Szekimo ($46.36 in chips)
+Seat 3: hanna1five ($114.08 in chips)
+Seat 4: Darkoo ($35.72 in chips)
+Seat 5: philinbebettin ($73.19 in chips)
+Seat 6: slagalica ($48.75 in chips)
+philinbebettin: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 8d]
+kole1992 has timed out
+kole1992: folds
+Szekimo: folds
+hanna1five: calls $0.50
+Darkoo: calls $0.50
+philinbebettin: folds
+slagalica: checks
+*** FLOP *** [Ad 5c Ts]
+slagalica: checks
+hanna1five: checks
+Darkoo: bets $0.50
+slagalica: folds
+hanna1five: calls $0.50
+*** TURN *** [Ad 5c Ts] [9c]
+hanna1five: checks
+Darkoo: checks
+*** RIVER *** [Ad 5c Ts 9c] [7d]
+hanna1five: checks
+Darkoo: bets $4.01
+hanna1five: folds
+Uncalled bet ($4.01) returned to Darkoo
+*** SHOW DOWN ***
+Darkoo has timed out
+Darkoo: doesn't show hand
+Darkoo collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Ad 5c Ts 9c 7d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five folded on the River 
+Seat 4: Darkoo (button) collected ($2.75)
+Seat 5: philinbebettin (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded on the Flop 
+
+
+Weplay Hand #74835304:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:04:59 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($54.32 in chips)
+Seat 2: Szekimo ($46.36 in chips)
+Seat 3: hanna1five ($113.08 in chips)
+Seat 4: Darkoo ($37.34 in chips)
+Seat 5: philinbebettin ($72.94 in chips)
+Seat 6: slagalica ($48.25 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Qh]
+Szekimo: folds
+hanna1five: folds
+Darkoo: calls $0.50
+philinbebettin: folds
+slagalica: raises $4.25 to $4.50
+kole1992: folds
+Darkoo: folds
+Uncalled bet ($4) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five folded before Flop (didn't bet)
+Seat 4: Darkoo folded before Flop 
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) collected ($1.50)
+
+
+Weplay Hand #74836320:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:05:25 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($53.82 in chips)
+Seat 2: Szekimo ($46.36 in chips)
+Seat 3: hanna1five ($113.08 in chips)
+Seat 4: Darkoo ($36.84 in chips)
+Seat 5: philinbebettin ($72.94 in chips)
+Seat 6: slagalica ($49.25 in chips)
+kole1992: posts small blind $0.25
+Szekimo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 8s]
+hanna1five: calls $0.50
+Darkoo: raises $1.50 to $1.50
+philinbebettin: folds
+slagalica: folds
+kole1992: folds
+Szekimo: folds
+hanna1five: folds
+Uncalled bet ($1) returned to Darkoo
+*** SHOW DOWN ***
+Darkoo has timed out
+Darkoo: doesn't show hand
+Darkoo collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Szekimo (big blind) folded before Flop 
+Seat 3: hanna1five folded before Flop 
+Seat 4: Darkoo collected ($1.75)
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74836345:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:05:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($53.57 in chips)
+Seat 2: Szekimo ($45.86 in chips)
+Seat 3: hanna1five ($112.58 in chips)
+Seat 4: Darkoo ($38.09 in chips)
+Seat 5: philinbebettin ($72.94 in chips)
+Seat 6: slagalica ($49.25 in chips)
+Szekimo: posts small blind $0.25
+hanna1five: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Qs]
+Darkoo: calls $0.50
+philinbebettin: calls $0.50
+slagalica: folds
+kole1992: raises $2.75 to $2.75
+Szekimo: folds
+hanna1five: calls $2.25
+Darkoo: calls $2.25
+philinbebettin: folds
+*** FLOP *** [4s 5c Ks]
+hanna1five: checks
+Darkoo: checks
+kole1992: bets $2.98
+hanna1five: calls $2.98
+Darkoo: calls $2.98
+*** TURN *** [4s 5c Ks] [7s]
+hanna1five: checks
+Darkoo: checks
+kole1992: checks
+*** RIVER *** [4s 5c Ks 7s] [4d]
+hanna1five: checks
+Darkoo: checks
+kole1992: checks
+*** SHOW DOWN ***
+hanna1five: shows [7c 3c] (two pair, Sevens and Fours)
+Darkoo: shows [7h 8d] (two pair, Sevens and Fours)
+kole1992: shows [Kc Qs] (two pair, Kings and Fours)
+kole1992 collected $17.94 from pot
+*** SUMMARY ***
+Total pot $17.94 | Rake $0.89 
+Board [4s 5c Ks 7s 4d]
+Seat 1: kole1992 (button) showed [Kc Qs] and won ($17.94) with two pair, Kings and Fours
+Seat 2: Szekimo (small blind) folded before Flop 
+Seat 3: hanna1five (big blind) showed [7c 3c] and lost with two pair, Sevens and Fours
+Seat 4: Darkoo showed [7h 8d] and lost with two pair, Sevens and Fours
+Seat 5: philinbebettin folded before Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74836394:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:07:16 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($64.89 in chips)
+Seat 2: Szekimo ($45.61 in chips)
+Seat 3: hanna1five ($106.85 in chips)
+Seat 4: Darkoo ($32.36 in chips)
+Seat 5: philinbebettin ($72.44 in chips)
+Seat 6: slagalica ($49.25 in chips)
+hanna1five: posts small blind $0.25
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 4c]
+philinbebettin: folds
+slagalica: folds
+kole1992: folds
+Szekimo: folds
+hanna1five: raises $0.75 to $1
+Darkoo: calls $0.50
+*** FLOP *** [Ts 5c Th]
+hanna1five: bets $1
+Darkoo: folds
+Uncalled bet ($1) returned to hanna1five
+*** SHOW DOWN ***
+hanna1five: doesn't show hand
+hanna1five collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [Ts 5c Th]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo (button) folded before Flop (didn't bet)
+Seat 3: hanna1five (small blind) collected ($2)
+Seat 4: Darkoo (big blind) folded on the Flop 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74836410:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:07:43 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($64.89 in chips)
+Seat 2: Szekimo ($45.61 in chips)
+Seat 3: hanna1five ($107.75 in chips)
+Seat 4: Darkoo ($31.36 in chips)
+Seat 5: philinbebettin ($72.44 in chips)
+Seat 6: slagalica ($49.25 in chips)
+Darkoo: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Qc]
+slagalica: folds
+kole1992: folds
+Szekimo: calls $0.50
+hanna1five: calls $0.50
+Darkoo: calls $0.25
+philinbebettin: checks
+*** FLOP *** [Th Qh 2c]
+Darkoo: checks
+philinbebettin: checks
+Szekimo: checks
+hanna1five: bets $1.50
+Darkoo: calls $1.50
+philinbebettin: folds
+Szekimo: folds
+*** TURN *** [Th Qh 2c] [Kc]
+Darkoo: checks
+hanna1five: bets $1.50
+Darkoo: calls $1.50
+*** RIVER *** [Th Qh 2c Kc] [6c]
+Darkoo: checks
+hanna1five: bets $2.25
+Darkoo: raises $16.51 to $16.51
+hanna1five: calls $14.26
+*** SHOW DOWN ***
+Darkoo: shows [9s Jd] (a straight, Nine to King)
+hanna1five: shows [Js As] (a straight, Ten to Ace)
+hanna1five collected $41.02 from pot
+*** SUMMARY ***
+Total pot $41.02 | Rake $2.05 
+Board [Th Qh 2c Kc 6c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo folded on the Flop 
+Seat 3: hanna1five (button) showed [Js As] and won ($41.02) with a straight, Ten to Ace
+Seat 4: Darkoo (small blind) showed [9s Jd] and lost with a straight, Nine to King
+Seat 5: philinbebettin (big blind) folded on the Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+
+
+Weplay Hand #74836453:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:08:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($64.89 in chips)
+Seat 2: Szekimo ($45.11 in chips)
+Seat 3: hanna1five ($126.71 in chips)
+Seat 4: Darkoo ($11.35 in chips)
+Seat 5: philinbebettin ($71.94 in chips)
+Seat 6: slagalica ($49.25 in chips)
+philinbebettin: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Ac]
+kole1992: raises $1.10 to $1.10
+Szekimo: folds
+hanna1five: calls $1.10
+Darkoo: calls $1.10
+philinbebettin: calls $0.85
+slagalica: folds
+*** FLOP *** [Jd 9h 5s]
+philinbebettin: checks
+kole1992: checks
+hanna1five: checks
+Darkoo: folds
+*** TURN *** [Jd 9h 5s] [2h]
+Darkoo leaves the table
+philinbebettin: checks
+lastTime87 joins the table at seat #4
+kole1992: checks
+hanna1five: bets $2.45
+philinbebettin: folds
+kole1992: folds
+Uncalled bet ($2.45) returned to hanna1five
+*** SHOW DOWN ***
+hanna1five: doesn't show hand
+hanna1five collected $4.90 from pot
+*** SUMMARY ***
+Total pot $4.90 | Rake $0.24 
+Board [Jd 9h 5s 2h]
+Seat 1: kole1992 folded on the Turn 
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five collected ($4.90)
+Seat 4: Darkoo (button) folded on the Flop 
+Seat 5: philinbebettin (small blind) folded on the Turn 
+Seat 6: slagalica (big blind) folded before Flop 
+
+
+Weplay Hand #74836508:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:10:15 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($63.79 in chips)
+Seat 2: Szekimo ($45.11 in chips)
+Seat 3: hanna1five ($130.27 in chips)
+Seat 5: philinbebettin ($70.84 in chips)
+Seat 6: slagalica ($48.75 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Ah]
+Szekimo: folds
+hanna1five: calls $0.50
+philinbebettin: folds
+slagalica: raises $4 to $4.25
+kole1992: raises $12.27 to $12.77
+hanna1five: folds
+slagalica: folds
+Uncalled bet ($8.52) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($9)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 3: hanna1five folded before Flop 
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+
+
+Weplay Hand #74836534:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:10:50 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($68.54 in chips)
+Seat 2: Szekimo ($45.11 in chips)
+Seat 3: hanna1five ($129.77 in chips)
+Seat 5: philinbebettin ($70.84 in chips)
+Seat 6: slagalica ($44.50 in chips)
+kole1992: posts small blind $0.25
+Szekimo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 2d]
+hanna1five: calls $0.50
+philinbebettin: folds
+slagalica: folds
+kole1992: folds
+Szekimo: checks
+*** FLOP *** [3h Jc As]
+Szekimo: bets $0.50
+hanna1five: calls $0.50
+*** TURN *** [3h Jc As] [2c]
+Szekimo: bets $0.50
+hanna1five: raises $2.25 to $2.25
+Szekimo: calls $1.75
+*** RIVER *** [3h Jc As 2c] [4c]
+slagalica leaves the table
+Szekimo: bets $0.50
+hanna1five: calls $0.50
+*** SHOW DOWN ***
+Szekimo: shows [Ts Jd] (a pair of Jacks)
+hanna1five: mucks hand
+Szekimo collected $7.75 from pot
+*** SUMMARY ***
+Total pot $7.75 | Rake $0.38 
+Board [3h Jc As 2c 4c]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Szekimo (big blind) showed [Ts Jd] and won ($7.75) with a pair of Jacks
+Seat 3: hanna1five mucked
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74836567:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:11:34 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($68.29 in chips)
+Seat 2: Szekimo ($48.73 in chips)
+Seat 3: hanna1five ($126.02 in chips)
+Seat 5: philinbebettin ($70.84 in chips)
+Szekimo: posts small blind $0.25
+hanna1five: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 9h]
+philinbebettin: folds
+kole1992: raises $1.25 to $1.25
+Szekimo: folds
+hanna1five: calls $0.75
+*** FLOP *** [6s Td 2h]
+hanna1five: checks
+Darkoo joins the table at seat #6
+kole1992: bets $2.40
+hanna1five: folds
+Uncalled bet ($2.40) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [6s Td 2h]
+Seat 1: kole1992 (button) collected ($2.75)
+Seat 2: Szekimo (small blind) folded before Flop 
+Seat 3: hanna1five (big blind) folded on the Flop 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+
+
+Weplay Hand #74836597:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:12:13 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($69.66 in chips)
+Seat 2: Szekimo ($48.48 in chips)
+Seat 3: hanna1five ($124.77 in chips)
+Seat 4: lastTime87 ($15 in chips)
+Seat 5: philinbebettin ($70.84 in chips)
+Seat 6: Darkoo ($25 in chips)
+hanna1five: posts small blind $0.25
+lastTime87: posts big blind $0.50
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 3s]
+philinbebettin: folds
+Darkoo: checks
+kole1992: folds
+Szekimo: calls $0.50
+hanna1five: calls $0.25
+lastTime87: raises $1.75 to $2.25
+Darkoo: calls $1.75
+Szekimo: calls $1.75
+hanna1five: calls $1.75
+*** FLOP *** [7c Ad As]
+hanna1five: checks
+lastTime87: checks
+Darkoo: checks
+Szekimo: bets $0.50
+hanna1five: calls $0.50
+lastTime87: calls $0.50
+Darkoo: calls $0.50
+*** TURN *** [7c Ad As] [5s]
+hanna1five: checks
+lastTime87: checks
+Darkoo: checks
+Szekimo: bets $0.50
+hanna1five: calls $0.50
+lastTime87: calls $0.50
+Darkoo: calls $0.50
+*** RIVER *** [7c Ad As 5s] [Qs]
+hanna1five: checks
+lastTime87: checks
+Darkoo: checks
+Szekimo: checks
+*** SHOW DOWN ***
+hanna1five: shows [6h 7s] (two pair, Aces and Sevens)
+lastTime87: mucks hand
+Darkoo has timed out
+Darkoo: mucks hand
+Szekimo: shows [8d 8h] (two pair, Aces and Eights)
+Szekimo collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [7c Ad As 5s Qs]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo (button) showed [8d 8h] and won ($13) with two pair, Aces and Eights
+Seat 3: hanna1five (small blind) showed [6h 7s] and lost with two pair, Aces and Sevens
+Seat 4: lastTime87 (big blind) mucked
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo (big blind) mucked
+
+
+Weplay Hand #74836655:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:13:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($69.66 in chips)
+Seat 2: Szekimo ($57.58 in chips)
+Seat 4: lastTime87 ($11.75 in chips)
+Seat 5: philinbebettin ($70.84 in chips)
+Seat 6: Darkoo ($21.75 in chips)
+lastTime87: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 8d]
+Darkoo: calls $0.50
+kole1992: folds
+Szekimo: folds
+lastTime87: raises $1.50 to $1.75
+philinbebettin: folds
+Darkoo: folds
+Uncalled bet ($1.25) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 4: lastTime87 (small blind) collected ($1.50)
+Seat 5: philinbebettin (big blind) folded before Flop 
+Seat 6: Darkoo folded before Flop 
+
+
+Weplay Hand #74836673:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:13:56 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($69.66 in chips)
+Seat 2: Szekimo ($57.58 in chips)
+Seat 4: lastTime87 ($12.75 in chips)
+Seat 5: philinbebettin ($70.34 in chips)
+Seat 6: Darkoo ($21.25 in chips)
+philinbebettin: posts small blind $0.25
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 4c]
+kole1992 has timed out
+kole1992: folds
+Szekimo: folds
+lastTime87: folds
+philinbebettin: folds
+Uncalled bet ($0.25) returned to Darkoo
+*** SHOW DOWN ***
+Darkoo has timed out
+Darkoo: doesn't show hand
+Darkoo collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 4: lastTime87 (button) folded before Flop (didn't bet)
+Seat 5: philinbebettin (small blind) folded before Flop 
+Seat 6: Darkoo (big blind) collected ($0.50)
+
+
+Weplay Hand #74836697:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:14:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($69.66 in chips)
+Seat 2: Szekimo ($57.58 in chips)
+Seat 4: lastTime87 ($12.75 in chips)
+Seat 5: philinbebettin ($70.09 in chips)
+Seat 6: Darkoo ($21.50 in chips)
+Darkoo: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 6c]
+Szekimo: folds
+lastTime87: folds
+Szekimo leaves the table
+philinbebettin: folds
+Darkoo: calls $0.25
+kole1992: raises $1.75 to $2.25
+Darkoo: folds
+Uncalled bet ($1.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($1)
+Seat 2: Szekimo folded before Flop (didn't bet)
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: Darkoo (small blind) folded before Flop 
+
+
+Weplay Hand #74836720:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:14:55 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($70.16 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($12.75 in chips)
+Seat 5: philinbebettin ($70.09 in chips)
+Seat 6: Darkoo ($21 in chips)
+kole1992: posts small blind $0.25
+yidasss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Ah]
+lastTime87: calls $0.50
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: raises $3.25 to $3.50
+yidasss: folds
+lastTime87: calls $3
+Darkoo: calls $3
+*** FLOP *** [3s 4d Jh]
+kole1992: checks
+lastTime87: checks
+Darkoo: bets $3.50
+kole1992: calls $3.50
+lastTime87: calls $3.50
+*** TURN *** [3s 4d Jh] [7h]
+kole1992: checks
+lastTime87: bets $5.75 and is all-in
+Darkoo: folds
+kole1992: calls $5.75
+*** RIVER *** [3s 4d Jh 7h] [Th]
+*** SECOND RIVER *** [3s 4d Jh 7h] [2s]
+*** SHOW DOWN ***
+kole1992: shows [Jd Ah] (a pair of Jacks)
+lastTime87: shows [Ac Jc] (a pair of Jacks)
+kole1992 collected $16.51 from pot
+lastTime87 collected $16.49 from pot
+*** SUMMARY ***
+Total pot $33 | Rake $1.65 
+Hand was run two times
+FIRST Board [3s 4d Jh 7h Th]
+SECOND Board [3s 4d Jh 7h 2s]
+Seat 1: kole1992 (small blind) showed [Jd Ah] and won ($16.51) with a pair of Jacks
+Seat 3: yidasss (big blind) folded before Flop 
+Seat 4: lastTime87 showed [Ac Jc] and won ($16.49) with a pair of Jacks
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo (button) folded on the Turn 
+
+
+Weplay Hand #74836792:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:16:47 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($73.09 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($15.67 in chips)
+Seat 5: philinbebettin ($70.09 in chips)
+Seat 6: Darkoo ($14 in chips)
+yidasss: posts small blind $0.25
+lastTime87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 4c]
+philinbebettin: raises $1.50 to $1.50
+Darkoo: calls $1.50
+kole1992: folds
+yidasss: folds
+Rahulparamanik joins the table at seat #2
+lastTime87: calls $1
+*** FLOP *** [5c 7c 6h]
+lastTime87: checks
+philinbebettin: checks
+Darkoo: checks
+*** TURN *** [5c 7c 6h] [Th]
+lastTime87: checks
+philinbebettin: checks
+Darkoo: checks
+*** RIVER *** [5c 7c 6h Th] [5d]
+lastTime87: bets $14.17 and is all-in
+philinbebettin: folds
+Darkoo: folds
+Uncalled bet ($14.17) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [5c 7c 6h Th 5d]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: yidasss (small blind) folded before Flop 
+Seat 4: lastTime87 (big blind) collected ($4.75)
+Seat 5: philinbebettin folded on the River 
+Seat 6: Darkoo folded on the River 
+
+
+Weplay Hand #74836824:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:17:35 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($73.09 in chips)
+Seat 2: Rahulparamanik ($15 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($18.69 in chips)
+Seat 5: philinbebettin ($68.59 in chips)
+Seat 6: Darkoo ($25.50 in chips)
+lastTime87: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+Rahulparamanik: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Js]
+Darkoo: folds
+kole1992: folds
+Rahulparamanik: checks
+yidasss: calls $0.50
+lastTime87: folds
+philinbebettin: checks
+*** FLOP *** [3d Qd Jh]
+philinbebettin: checks
+Rahulparamanik: checks
+yidasss: bets $1.50
+philinbebettin: calls $1.50
+Rahulparamanik: folds
+*** TURN *** [3d Qd Jh] [6s]
+philinbebettin: checks
+yidasss: checks
+*** RIVER *** [3d Qd Jh 6s] [2d]
+philinbebettin: checks
+yidasss: checks
+*** SHOW DOWN ***
+philinbebettin: shows [Qs 2s] (two pair, Queens and Deuces)
+yidasss: mucks hand
+philinbebettin collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [3d Qd Jh 6s 2d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Rahulparamanik (big blind) folded on the Flop 
+Seat 3: yidasss (button) mucked
+Seat 4: lastTime87 (small blind) folded before Flop 
+Seat 5: philinbebettin (big blind) showed [Qs 2s] and won ($4.75) with two pair, Queens and Deuces
+Seat 6: Darkoo folded before Flop (didn't bet)
+
+
+Weplay Hand #74836859:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:18:34 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($73.09 in chips)
+Seat 2: Rahulparamanik ($14.50 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($18.44 in chips)
+Seat 5: philinbebettin ($71.11 in chips)
+Seat 6: Darkoo ($25.50 in chips)
+philinbebettin: posts small blind $0.25
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Jc]
+kole1992: folds
+Rahulparamanik: calls $0.50
+yidasss: folds
+lastTime87: raises $2 to $2
+philinbebettin: folds
+Darkoo: calls $1.50
+Rahulparamanik: folds
+*** FLOP *** [Js 6h 3c]
+Darkoo: checks
+lastTime87: checks
+*** TURN *** [Js 6h 3c] [4s]
+Darkoo: checks
+lastTime87: checks
+*** RIVER *** [Js 6h 3c 4s] [Ad]
+Darkoo: checks
+lastTime87: checks
+*** SHOW DOWN ***
+Darkoo: shows [Qd As] (a pair of Aces)
+lastTime87: mucks hand
+Darkoo collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [Js 6h 3c 4s Ad]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Rahulparamanik folded before Flop 
+Seat 3: yidasss folded before Flop (didn't bet)
+Seat 4: lastTime87 (button) mucked
+Seat 5: philinbebettin (small blind) folded before Flop 
+Seat 6: Darkoo (big blind) showed [Qd As] and won ($4.75) with a pair of Aces
+
+
+Weplay Hand #74836882:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:19:15 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($73.09 in chips)
+Seat 2: Rahulparamanik ($14 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($16.44 in chips)
+Seat 5: philinbebettin ($70.86 in chips)
+Seat 6: Darkoo ($28.02 in chips)
+Darkoo: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 7h]
+Rahulparamanik: folds
+yidasss: raises $1.50 to $1.50
+lastTime87: calls $1.50
+philinbebettin: folds
+Darkoo: calls $1.25
+kole1992: folds
+*** FLOP *** [9s 2c 7c]
+Darkoo: checks
+yidasss: checks
+lastTime87: checks
+*** TURN *** [9s 2c 7c] [Ad]
+Darkoo: checks
+yidasss: bets $3.33
+lastTime87: raises $14.94 to $14.94 and is all-in
+Darkoo: calls $14.94
+yidasss: folds
+*** RIVER *** [9s 2c 7c Ad] [2s]
+*** SECOND RIVER *** [9s 2c 7c Ad] [8c]
+*** SHOW DOWN ***
+Darkoo: shows [8h 6h] (a pair of Deuces)
+lastTime87: shows [5d As] (two pair, Aces and Deuces)
+lastTime87 collected $38.21 from pot
+*** SUMMARY ***
+Total pot $38.21 | Rake $1.91 
+Hand was run two times
+FIRST Board [9s 2c 7c Ad 2s]
+SECOND Board [9s 2c 7c Ad 8c]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Rahulparamanik folded before Flop (didn't bet)
+Seat 3: yidasss folded on the Turn 
+Seat 4: lastTime87 showed [5d As] and won ($38.21) with two pair, Aces and Deuces
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: Darkoo (small blind) showed [8h 6h] and lost with a pair of Deuces
+
+
+Weplay Hand #74836934:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:20:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($72.59 in chips)
+Seat 2: Rahulparamanik ($14 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($36.30 in chips)
+Seat 5: philinbebettin ($70.86 in chips)
+Seat 6: Darkoo ($11.58 in chips)
+kole1992: posts small blind $0.25
+Rahulparamanik: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 8h]
+yidasss: folds
+lastTime87: calls $0.50
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: folds
+Rahulparamanik: raises $0.50 to $1
+lastTime87: calls $0.50
+Darkoo: calls $0.50
+*** FLOP *** [Th 3d 3s]
+Rahulparamanik: bets $1.50
+lastTime87: calls $1.50
+Darkoo: folds
+*** TURN *** [Th 3d 3s] [9s]
+Rahulparamanik: bets $11.50 and is all-in
+lastTime87: folds
+Uncalled bet ($11.50) returned to Rahulparamanik
+*** SHOW DOWN ***
+Rahulparamanik has timed out
+Rahulparamanik: doesn't show hand
+Rahulparamanik collected $6.25 from pot
+*** SUMMARY ***
+Total pot $6.25 | Rake $0.31 
+Board [Th 3d 3s 9s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Rahulparamanik (big blind) collected ($6.25)
+Seat 3: yidasss folded before Flop (didn't bet)
+Seat 4: lastTime87 folded on the Turn 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo (button) folded on the Flop 
+
+
+Weplay Hand #74836976:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:21:40 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($72.34 in chips)
+Seat 2: Rahulparamanik ($17.44 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($33.80 in chips)
+Seat 5: philinbebettin ($70.86 in chips)
+Seat 6: Darkoo ($24 in chips)
+Rahulparamanik: posts small blind $0.25
+yidasss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 9h]
+lastTime87: folds
+philinbebettin: raises $1.50 to $1.50
+Darkoo: calls $1.50
+kole1992: folds
+Rahulparamanik: folds
+yidasss: folds
+*** FLOP *** [5s 4s Kc]
+philinbebettin: checks
+Darkoo: checks
+*** TURN *** [5s 4s Kc] [6c]
+philinbebettin: bets $1.88
+Darkoo: folds
+Uncalled bet ($1.88) returned to philinbebettin
+*** SHOW DOWN ***
+philinbebettin has timed out
+philinbebettin: doesn't show hand
+philinbebettin collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [5s 4s Kc 6c]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Rahulparamanik (small blind) folded before Flop 
+Seat 3: yidasss (big blind) folded before Flop 
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: philinbebettin collected ($3.75)
+Seat 6: Darkoo folded on the Turn 
+
+
+Weplay Hand #74837011:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:22:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($72.34 in chips)
+Seat 2: Rahulparamanik ($17.19 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($33.80 in chips)
+Seat 5: philinbebettin ($72.93 in chips)
+Seat 6: Darkoo ($22.50 in chips)
+yidasss: posts small blind $0.25
+lastTime87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Kh]
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: folds
+Rahulparamanik: calls $0.50
+yidasss: folds
+lastTime87: raises $1.50 to $2
+Darkoo: calls $1.50
+Rahulparamanik: folds
+*** FLOP *** [4c 2d Jc]
+lastTime87: bets $2
+Darkoo: folds
+Uncalled bet ($2) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [4c 2d Jc]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Rahulparamanik (button) folded before Flop 
+Seat 3: yidasss (small blind) folded before Flop 
+Seat 4: lastTime87 (big blind) collected ($4.75)
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo folded on the Flop 
+
+
+Weplay Hand #74837036:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:23:07 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($72.34 in chips)
+Seat 2: Rahulparamanik ($16.69 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($36.32 in chips)
+Seat 5: philinbebettin ($72.93 in chips)
+Seat 6: Darkoo ($20.50 in chips)
+lastTime87: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 2d]
+Darkoo: folds
+kole1992: folds
+Rahulparamanik: raises $1 to $1
+yidasss: calls $1
+lastTime87: folds
+philinbebettin: folds
+*** FLOP *** [Ah Td 7h]
+Rahulparamanik: checks
+yidasss: bets $0.50
+Rahulparamanik: calls $0.50
+*** TURN *** [Ah Td 7h] [7d]
+Rahulparamanik: checks
+yidasss: bets $2.81
+Rahulparamanik: calls $2.81
+*** RIVER *** [Ah Td 7h 7d] [6d]
+Rahulparamanik: checks
+yidasss: bets $45.69 and is all-in
+Rahulparamanik: calls $12.38 and is all-in
+Uncalled bet ($33.31) returned to yidasss
+*** SHOW DOWN ***
+yidasss: shows [3c Jc] (a pair of Sevens)
+Rahulparamanik: shows [Ts Ad] (two pair, Aces and Tens)
+Rahulparamanik collected $34.13 from pot
+*** SUMMARY ***
+Total pot $34.13 | Rake $1.70 
+Board [Ah Td 7h 7d 6d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Rahulparamanik showed [Ts Ad] and won ($34.13) with two pair, Aces and Tens
+Seat 3: yidasss (button) showed [3c Jc] and lost with a pair of Sevens
+Seat 4: lastTime87 (small blind) folded before Flop 
+Seat 5: philinbebettin (big blind) folded before Flop 
+Seat 6: Darkoo folded before Flop (didn't bet)
+
+
+Weplay Hand #74837079:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:24:00 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($72.34 in chips)
+Seat 2: Rahulparamanik ($32.43 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($36.07 in chips)
+Seat 5: philinbebettin ($72.43 in chips)
+Seat 6: Darkoo ($20.50 in chips)
+philinbebettin: posts small blind $0.25
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 6s]
+kole1992: folds
+Rahulparamanik: raises $1 to $1
+yidasss: folds
+lastTime87: calls $1
+philinbebettin: folds
+Darkoo: calls $0.50
+*** FLOP *** [Qs 7s Td]
+Darkoo: checks
+Rahulparamanik: checks
+lastTime87: checks
+*** TURN *** [Qs 7s Td] [4s]
+Darkoo: bets $0.50
+Rahulparamanik: raises $1 to $1
+lastTime87: calls $1
+Darkoo: calls $0.50
+*** RIVER *** [Qs 7s Td 4s] [Jc]
+Darkoo: checks
+Rahulparamanik: checks
+lastTime87: bets $3.12
+Darkoo: folds
+Rahulparamanik: folds
+Uncalled bet ($3.12) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $6.25 from pot
+*** SUMMARY ***
+Total pot $6.25 | Rake $0.31 
+Board [Qs 7s Td 4s Jc]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Rahulparamanik folded on the River 
+Seat 3: yidasss folded before Flop (didn't bet)
+Seat 4: lastTime87 (button) collected ($6.25)
+Seat 5: philinbebettin (small blind) folded before Flop 
+Seat 6: Darkoo (big blind) folded on the River 
+
+
+Weplay Hand #74837122:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:25:07 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($72.34 in chips)
+Seat 2: Rahulparamanik ($30.43 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($40.01 in chips)
+Seat 5: philinbebettin ($72.18 in chips)
+Seat 6: Darkoo ($18.50 in chips)
+Darkoo: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Ts]
+Rahulparamanik: raises $1 to $1
+yidasss: folds
+lastTime87: folds
+philinbebettin: folds
+Darkoo: calls $0.75
+kole1992: raises $4.76 to $5.26
+Rahulparamanik: calls $4.26
+Darkoo: folds
+*** FLOP *** [2c Jc Ah]
+kole1992: checks
+Rahulparamanik: checks
+*** TURN *** [2c Jc Ah] [5d]
+kole1992: checks
+Rahulparamanik: bets $3
+kole1992: folds
+Uncalled bet ($3) returned to Rahulparamanik
+*** SHOW DOWN ***
+Rahulparamanik has timed out
+Rahulparamanik: doesn't show hand
+Rahulparamanik collected $11.52 from pot
+*** SUMMARY ***
+Total pot $11.52 | Rake $0.57 
+Board [2c Jc Ah 5d]
+Seat 1: kole1992 (big blind) folded on the Turn 
+Seat 2: Rahulparamanik collected ($11.52)
+Seat 3: yidasss folded before Flop (didn't bet)
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: Darkoo (small blind) folded before Flop 
+
+
+Weplay Hand #74837169:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:26:22 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($67.08 in chips)
+Seat 2: Rahulparamanik ($36.12 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($40.01 in chips)
+Seat 5: philinbebettin ($72.18 in chips)
+Seat 6: Darkoo ($17.50 in chips)
+kole1992: posts small blind $0.25
+Rahulparamanik: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 8h]
+yidasss: calls $0.50
+lastTime87: calls $0.50
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: folds
+Rahulparamanik: checks
+*** FLOP *** [4c 3h 5d]
+Rahulparamanik: bets $1
+yidasss: folds
+lastTime87: calls $1
+Darkoo: calls $1
+*** TURN *** [4c 3h 5d] [Ad]
+Rahulparamanik: bets $2.50
+lastTime87: folds
+Darkoo: raises $16 to $16 and is all-in
+Rahulparamanik: calls $13.50
+*** RIVER *** [4c 3h 5d Ad] [8s]
+*** SHOW DOWN ***
+Rahulparamanik: shows [As 3c] (two pair, Aces and Threes)
+Darkoo: shows [9c 2d] (a straight, Ace to Five)
+Darkoo collected $37.25 from pot
+*** SUMMARY ***
+Total pot $37.25 | Rake $1.86 
+Board [4c 3h 5d Ad 8s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Rahulparamanik (big blind) showed [As 3c] and lost with two pair, Aces and Threes
+Seat 3: yidasss folded on the Flop 
+Seat 4: lastTime87 folded on the Turn 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo (button) showed [9c 2d] and won ($37.25) with a straight, Ace to Five
+
+
+Weplay Hand #74837220:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:27:44 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($66.83 in chips)
+Seat 2: Rahulparamanik ($18.62 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($38.51 in chips)
+Seat 5: philinbebettin ($72.18 in chips)
+Seat 6: Darkoo ($48.90 in chips)
+Rahulparamanik: posts small blind $0.25
+yidasss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Jd]
+lastTime87: calls $0.50
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: folds
+Rahulparamanik: raises $2.75 to $3
+yidasss: folds
+lastTime87: folds
+Darkoo: folds
+Uncalled bet ($2.50) returned to Rahulparamanik
+*** SHOW DOWN ***
+Rahulparamanik has timed out
+Rahulparamanik: doesn't show hand
+Rahulparamanik collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Rahulparamanik (small blind) collected ($2)
+Seat 3: yidasss (big blind) folded before Flop 
+Seat 4: lastTime87 folded before Flop 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo folded before Flop 
+
+
+Weplay Hand #74837249:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:28:29 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($66.83 in chips)
+Seat 2: Rahulparamanik ($20.12 in chips)
+Seat 3: yidasss ($50 in chips)
+Seat 4: lastTime87 ($38.01 in chips)
+Seat 5: philinbebettin ($72.18 in chips)
+Seat 6: Darkoo ($48.40 in chips)
+yidasss: posts small blind $0.25
+lastTime87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 3d]
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: folds
+Rahulparamanik: calls $0.50
+yidasss: raises $1.50 to $1.75
+lastTime87: folds
+Darkoo: calls $1.25
+Rahulparamanik: calls $1.25
+*** FLOP *** [Td 4s Ts]
+yidasss: bets $3.83
+Darkoo: calls $3.83
+Rahulparamanik: folds
+*** TURN *** [Td 4s Ts] [4c]
+yidasss: bets $4
+Darkoo: raises $8 to $8
+yidasss: raises $40.42 to $44.42 and is all-in
+Darkoo: folds
+Uncalled bet ($36.42) returned to yidasss
+*** SHOW DOWN ***
+yidasss: doesn't show hand
+yidasss collected $29.41 from pot
+*** SUMMARY ***
+Total pot $29.41 | Rake $1.47 
+Board [Td 4s Ts 4c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Rahulparamanik (button) folded on the Flop 
+Seat 3: yidasss (small blind) collected ($29.41)
+Seat 4: lastTime87 (big blind) folded before Flop 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo folded on the Turn 
+
+
+Weplay Hand #74837288:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:29:35 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($66.83 in chips)
+Seat 2: Rahulparamanik ($18.37 in chips)
+Seat 3: yidasss ($64.36 in chips)
+Seat 4: lastTime87 ($37.51 in chips)
+Seat 5: philinbebettin ($72.18 in chips)
+Seat 6: Darkoo ($34.82 in chips)
+lastTime87: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 8h]
+Darkoo: calls $0.50
+kole1992: folds
+Rahulparamanik: raises $2 to $2
+yidasss: folds
+lastTime87: folds
+philinbebettin: folds
+Darkoo: folds
+Uncalled bet ($1.50) returned to Rahulparamanik
+*** SHOW DOWN ***
+Rahulparamanik has timed out
+Rahulparamanik: doesn't show hand
+Rahulparamanik collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Rahulparamanik collected ($1.75)
+Seat 3: yidasss (button) folded before Flop (didn't bet)
+Seat 4: lastTime87 (small blind) folded before Flop 
+Seat 5: philinbebettin (big blind) folded before Flop 
+Seat 6: Darkoo folded before Flop 
+
+
+Weplay Hand #74837298:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:30:00 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($66.83 in chips)
+Seat 2: Rahulparamanik ($19.62 in chips)
+Seat 3: yidasss ($64.36 in chips)
+Seat 4: lastTime87 ($37.26 in chips)
+Seat 5: philinbebettin ($71.68 in chips)
+Seat 6: Darkoo ($34.32 in chips)
+philinbebettin: posts small blind $0.25
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Kh]
+kole1992: folds
+Rahulparamanik: calls $0.50
+yidasss: calls $0.50
+lastTime87: calls $0.50
+philinbebettin: calls $0.25
+Darkoo: checks
+*** FLOP *** [9s 8c 3s]
+philinbebettin: checks
+Darkoo: bets $1.50
+Rahulparamanik: folds
+yidasss: calls $1.50
+lastTime87: calls $1.50
+philinbebettin: folds
+*** TURN *** [9s 8c 3s] [Js]
+Darkoo: bets $1
+yidasss: raises $6 to $6
+lastTime87: folds
+Darkoo: folds
+Uncalled bet ($5) returned to yidasss
+*** SHOW DOWN ***
+yidasss: doesn't show hand
+yidasss collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [9s 8c 3s Js]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Rahulparamanik folded on the Flop 
+Seat 3: yidasss collected ($9)
+Seat 4: lastTime87 (button) folded on the Turn 
+Seat 5: philinbebettin (small blind) folded on the Flop 
+Seat 6: Darkoo (big blind) folded on the Turn 
+
+
+Weplay Hand #74838345:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:31:20 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($66.83 in chips)
+Seat 2: Rahulparamanik ($19.12 in chips)
+Seat 3: yidasss ($69.91 in chips)
+Seat 4: lastTime87 ($35.26 in chips)
+Seat 5: philinbebettin ($71.18 in chips)
+Seat 6: Darkoo ($31.32 in chips)
+Darkoo: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 4s]
+Rahulparamanik: raises $1 to $1
+yidasss: folds
+lastTime87: folds
+philinbebettin: folds
+Darkoo: calls $0.75
+kole1992: folds
+*** FLOP *** [9d Kc 7d]
+Darkoo: checks
+Rahulparamanik: bets $0.50
+Darkoo: calls $0.50
+*** TURN *** [9d Kc 7d] [Qc]
+Darkoo: checks
+Rahulparamanik: bets $0.50
+Darkoo: calls $0.50
+*** RIVER *** [9d Kc 7d Qc] [Jd]
+Darkoo: checks
+Rahulparamanik: checks
+*** SHOW DOWN ***
+Darkoo: shows [Th Jc] (a straight, Nine to King)
+Rahulparamanik has timed out
+Rahulparamanik: mucks hand
+Darkoo collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [9d Kc 7d Qc Jd]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Rahulparamanik mucked
+Seat 3: yidasss folded before Flop (didn't bet)
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: Darkoo (small blind) showed [Th Jc] and won ($4.50) with a straight, Nine to King
+
+
+Weplay Hand #74838375:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:31:57 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($66.33 in chips)
+Seat 2: Rahulparamanik ($17.12 in chips)
+Seat 3: yidasss ($69.91 in chips)
+Seat 4: lastTime87 ($35.26 in chips)
+Seat 5: philinbebettin ($71.18 in chips)
+Seat 6: Darkoo ($33.60 in chips)
+kole1992: posts small blind $0.25
+Rahulparamanik: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 6s]
+yidasss: folds
+lastTime87: calls $0.50
+philinbebettin: folds
+Darkoo: raises $33.60 to $33.60 and is all-in
+kole1992: folds
+Rahulparamanik: folds
+lastTime87: folds
+Uncalled bet ($33.10) returned to Darkoo
+*** SHOW DOWN ***
+Darkoo has timed out
+Darkoo: doesn't show hand
+Darkoo collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Rahulparamanik (big blind) folded before Flop 
+Seat 3: yidasss folded before Flop (didn't bet)
+Seat 4: lastTime87 folded before Flop 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo (button) collected ($1.75)
+
+
+Weplay Hand #74838398:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:32:28 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($66.08 in chips)
+Seat 2: Rahulparamanik ($16.62 in chips)
+Seat 3: yidasss ($69.91 in chips)
+Seat 4: lastTime87 ($34.76 in chips)
+Seat 5: philinbebettin ($71.18 in chips)
+Seat 6: Darkoo ($34.85 in chips)
+Rahulparamanik: posts small blind $0.25
+yidasss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 2s]
+lastTime87: raises $1 to $1
+philinbebettin: folds
+Darkoo: calls $1
+kole1992: folds
+Rahulparamanik: calls $0.75
+yidasss: folds
+*** FLOP *** [5s 8d 3d]
+Rahulparamanik: checks
+lastTime87: checks
+Darkoo: checks
+*** TURN *** [5s 8d 3d] [9d]
+Rahulparamanik: checks
+lastTime87: checks
+Darkoo: checks
+*** RIVER *** [5s 8d 3d 9d] [Kh]
+Rahulparamanik: checks
+lastTime87: checks
+Darkoo: checks
+*** SHOW DOWN ***
+Rahulparamanik: shows [4s Th] (high card King)
+lastTime87: shows [Ts 9s] (a pair of Nines)
+Darkoo has timed out
+Darkoo: mucks hand
+lastTime87 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [5s 8d 3d 9d Kh]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Rahulparamanik (small blind) showed [4s Th] and lost with high card King
+Seat 3: yidasss (big blind) folded before Flop 
+Seat 4: lastTime87 showed [Ts 9s] and won ($3.50) with a pair of Nines
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo mucked
+
+
+Weplay Hand #74838435:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:33:24 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($66.08 in chips)
+Seat 2: Rahulparamanik ($15.62 in chips)
+Seat 3: yidasss ($69.41 in chips)
+Seat 4: lastTime87 ($37.09 in chips)
+Seat 5: philinbebettin ($71.18 in chips)
+Seat 6: Darkoo ($33.85 in chips)
+yidasss: posts small blind $0.25
+lastTime87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 2s]
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: folds
+Rahulparamanik: folds
+yidasss: calls $0.25
+lastTime87: checks
+*** FLOP *** [4s Jc Qh]
+Rahulparamanik leaves the table
+yidasss: bets $1
+lastTime87: folds
+Darkoo: folds
+Uncalled bet ($1) returned to yidasss
+*** SHOW DOWN ***
+yidasss: doesn't show hand
+yidasss collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [4s Jc Qh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Rahulparamanik (button) folded before Flop (didn't bet)
+Seat 3: yidasss (small blind) collected ($1.50)
+Seat 4: lastTime87 (big blind) folded on the Flop 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo folded on the Flop 
+
+
+Weplay Hand #74838456:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:33:56 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($66.08 in chips)
+Seat 3: yidasss ($70.34 in chips)
+Seat 4: lastTime87 ($36.59 in chips)
+Seat 5: philinbebettin ($71.18 in chips)
+Seat 6: Darkoo ($33.35 in chips)
+lastTime87: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 3s]
+Darkoo: calls $0.50
+kole1992: folds
+yidasss: calls $0.50
+lastTime87: calls $0.25
+philinbebettin: checks
+*** FLOP *** [5s 8d 6s]
+lastTime87: checks
+philinbebettin: checks
+Darkoo: bets $1
+yidasss: calls $1
+lastTime87: folds
+philinbebettin: folds
+*** TURN *** [5s 8d 6s] [9s]
+Darkoo: checks
+yidasss: bets $1.50
+ChadUlf joins the table at seat #2
+Darkoo: calls $1.50
+*** RIVER *** [5s 8d 6s 9s] [4c]
+Darkoo: checks
+yidasss: checks
+*** SHOW DOWN ***
+Darkoo: shows [7h 5d] (a straight, Five to Nine)
+yidasss: shows [Js 4s] (a flush, Jack high)
+yidasss collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [5s 8d 6s 9s 4c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 3: yidasss (button) showed [Js 4s] and won ($7) with a flush, Jack high
+Seat 4: lastTime87 (small blind) folded on the Flop 
+Seat 5: philinbebettin (big blind) folded on the Flop 
+Seat 6: Darkoo showed [7h 5d] and lost with a straight, Five to Nine
+
+
+Weplay Hand #74838498:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:35:03 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($66.08 in chips)
+Seat 3: yidasss ($73.99 in chips)
+Seat 4: lastTime87 ($36.09 in chips)
+Seat 5: philinbebettin ($70.68 in chips)
+Seat 6: Darkoo ($30.35 in chips)
+philinbebettin: posts small blind $0.25
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Th]
+kole1992: raises $1 to $1
+yidasss: folds
+lastTime87: calls $1
+philinbebettin: folds
+Darkoo: calls $0.50
+*** FLOP *** [Ts Kc 9s]
+Darkoo: checks
+kole1992: bets $1.75
+lastTime87: calls $1.75
+Darkoo: folds
+*** TURN *** [Ts Kc 9s] [5s]
+kole1992: checks
+lastTime87: bets $2
+kole1992: raises $9.11 to $9.11
+lastTime87: folds
+Uncalled bet ($7.11) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $10.75 from pot
+*** SUMMARY ***
+Total pot $10.75 | Rake $0.53 
+Board [Ts Kc 9s 5s]
+Seat 1: kole1992 collected ($10.75)
+Seat 3: yidasss folded before Flop (didn't bet)
+Seat 4: lastTime87 (button) folded on the Turn 
+Seat 5: philinbebettin (small blind) folded before Flop 
+Seat 6: Darkoo (big blind) folded on the Flop 
+
+
+Weplay Hand #74838532:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:36:03 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($71.55 in chips)
+Seat 3: yidasss ($73.99 in chips)
+Seat 4: lastTime87 ($31.34 in chips)
+Seat 5: philinbebettin ($70.43 in chips)
+Seat 6: Darkoo ($29.35 in chips)
+Darkoo: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 6s]
+yidasss: calls $0.50
+lastTime87: calls $0.50
+philinbebettin: folds
+Darkoo: calls $0.25
+kole1992: checks
+*** FLOP *** [Ah Tc Ad]
+Darkoo: checks
+kole1992: checks
+yidasss: checks
+lastTime87: bets $1.50
+Darkoo: folds
+kole1992: folds
+yidasss: folds
+Uncalled bet ($1.50) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [Ah Tc Ad]
+Seat 1: kole1992 (big blind) folded on the Flop 
+Seat 3: yidasss folded on the Flop 
+Seat 4: lastTime87 collected ($2)
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: Darkoo (small blind) folded on the Flop 
+
+
+Weplay Hand #74838568:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:37:01 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($71.05 in chips)
+Seat 2: ChadUlf ($50 in chips)
+Seat 3: yidasss ($73.49 in chips)
+Seat 4: lastTime87 ($32.74 in chips)
+Seat 5: philinbebettin ($70.43 in chips)
+Seat 6: Darkoo ($28.85 in chips)
+kole1992: posts small blind $0.25
+ChadUlf: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 8s]
+yidasss: folds
+lastTime87: folds
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: raises $1.75 to $2
+ChadUlf: calls $1.50
+Darkoo: calls $1.50
+*** FLOP *** [3c Kh Tc]
+kole1992: checks
+ChadUlf: checks
+Darkoo: checks
+*** TURN *** [3c Kh Tc] [6c]
+kole1992: checks
+ChadUlf: checks
+Darkoo: checks
+*** RIVER *** [3c Kh Tc 6c] [4s]
+kole1992: checks
+ChadUlf: bets $4
+Darkoo: folds
+Darkoo leaves the table
+kole1992: folds
+Uncalled bet ($4) returned to ChadUlf
+*** SHOW DOWN ***
+Darkoo joins the table at seat #6
+ChadUlf: doesn't show hand
+ChadUlf collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [3c Kh Tc 6c 4s]
+Seat 1: kole1992 (small blind) folded on the River 
+Seat 2: ChadUlf (big blind) collected ($6)
+Seat 3: yidasss folded before Flop (didn't bet)
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo (button) folded on the River 
+
+
+Weplay Hand #74838633:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:38:45 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($69.05 in chips)
+Seat 2: ChadUlf ($53.70 in chips)
+Seat 3: yidasss ($73.49 in chips)
+Seat 4: lastTime87 ($32.74 in chips)
+Seat 5: philinbebettin ($70.43 in chips)
+Seat 6: Darkoo ($26.85 in chips)
+ChadUlf: posts small blind $0.25
+yidasss: posts big blind $0.50
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 4s]
+lastTime87: calls $0.50
+philinbebettin: folds
+Darkoo: checks
+kole1992: folds
+ChadUlf: calls $0.25
+yidasss: checks
+*** FLOP *** [8d 6c Ts]
+ChadUlf: checks
+yidasss: checks
+lastTime87: bets $2.25
+Darkoo: folds
+ChadUlf: folds
+yidasss: folds
+Uncalled bet ($2.25) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [8d 6c Ts]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: ChadUlf (small blind) folded on the Flop 
+Seat 3: yidasss (big blind) folded on the Flop 
+Seat 4: lastTime87 collected ($2)
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo (big blind) folded on the Flop 
+
+
+Weplay Hand #74838657:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:39:28 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($69.05 in chips)
+Seat 2: ChadUlf ($53.20 in chips)
+Seat 3: yidasss ($72.99 in chips)
+Seat 4: lastTime87 ($34.14 in chips)
+Seat 5: philinbebettin ($70.43 in chips)
+Seat 6: Darkoo ($26.35 in chips)
+yidasss: posts small blind $0.25
+lastTime87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 4d]
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: folds
+ChadUlf: folds
+yidasss: folds
+lastTime87: checks
+*** FLOP *** [2c 8h Jc]
+lastTime87: checks
+Darkoo: bets $1.50
+lastTime87: folds
+Uncalled bet ($1.50) returned to Darkoo
+*** SHOW DOWN ***
+Darkoo has timed out
+Darkoo: doesn't show hand
+Darkoo collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [2c 8h Jc]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ChadUlf (button) folded before Flop (didn't bet)
+Seat 3: yidasss (small blind) folded before Flop 
+Seat 4: lastTime87 (big blind) folded on the Flop 
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo collected ($1.25)
+
+
+Weplay Hand #74838675:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:39:56 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($69.05 in chips)
+Seat 2: ChadUlf ($53.20 in chips)
+Seat 3: yidasss ($72.74 in chips)
+Seat 4: lastTime87 ($33.64 in chips)
+Seat 5: philinbebettin ($70.43 in chips)
+Seat 6: Darkoo ($27.04 in chips)
+lastTime87: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Qc]
+Darkoo: calls $0.50
+kole1992: folds
+ChadUlf: folds
+yidasss: raises $2 to $2
+lastTime87: folds
+philinbebettin: folds
+Darkoo: calls $1.50
+*** FLOP *** [7s 7d 6h]
+Darkoo: checks
+yidasss: bets $1.50
+Darkoo: calls $1.50
+*** TURN *** [7s 7d 6h] [Ts]
+Darkoo: checks
+yidasss: checks
+*** RIVER *** [7s 7d 6h Ts] [2c]
+Darkoo: checks
+yidasss: checks
+*** SHOW DOWN ***
+Darkoo: shows [7c Td] (a full house, Sevens full of Tens)
+yidasss: mucks hand
+Darkoo collected $7.75 from pot
+*** SUMMARY ***
+Total pot $7.75 | Rake $0.38 
+Board [7s 7d 6h Ts 2c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ChadUlf folded before Flop (didn't bet)
+Seat 3: yidasss (button) mucked
+Seat 4: lastTime87 (small blind) folded before Flop 
+Seat 5: philinbebettin (big blind) folded before Flop 
+Seat 6: Darkoo showed [7c Td] and won ($7.75) with a full house, Sevens full of Tens
+
+
+Weplay Hand #74838708:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:40:56 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($69.05 in chips)
+Seat 2: ChadUlf ($53.20 in chips)
+Seat 3: yidasss ($69.24 in chips)
+Seat 4: lastTime87 ($33.39 in chips)
+Seat 5: philinbebettin ($69.93 in chips)
+Seat 6: Darkoo ($30.91 in chips)
+philinbebettin: posts small blind $0.25
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 3h]
+kole1992: folds
+ChadUlf: folds
+yidasss: calls $0.50
+lastTime87: calls $0.50
+philinbebettin: folds
+Darkoo: checks
+*** FLOP *** [5c 2h 2s]
+Darkoo: checks
+yidasss: checks
+lastTime87: checks
+*** TURN *** [5c 2h 2s] [6h]
+Darkoo: checks
+yidasss: bets $1.50
+lastTime87: folds
+Darkoo: calls $1.50
+*** RIVER *** [5c 2h 2s 6h] [7h]
+Darkoo: checks
+yidasss: checks
+*** SHOW DOWN ***
+Darkoo: shows [Qs 4d] (a pair of Deuces)
+yidasss: shows [Kh Kc] (two pair, Kings and Deuces)
+yidasss collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [5c 2h 2s 6h 7h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ChadUlf folded before Flop (didn't bet)
+Seat 3: yidasss showed [Kh Kc] and won ($4.75) with two pair, Kings and Deuces
+Seat 4: lastTime87 (button) folded on the Turn 
+Seat 5: philinbebettin (small blind) folded before Flop 
+Seat 6: Darkoo (big blind) showed [Qs 4d] and lost with a pair of Deuces
+
+
+Weplay Hand #74838753:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:42:12 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($69.05 in chips)
+Seat 2: ChadUlf ($53.20 in chips)
+Seat 3: yidasss ($71.76 in chips)
+Seat 4: lastTime87 ($32.89 in chips)
+Seat 5: philinbebettin ($69.68 in chips)
+Seat 6: Darkoo ($28.91 in chips)
+Darkoo: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Ad]
+ChadUlf: folds
+yidasss: calls $0.50
+lastTime87: folds
+philinbebettin has timed out
+philinbebettin: folds
+Darkoo: calls $0.25
+kole1992: raises $2.50 to $3
+yidasss: calls $2.50
+Darkoo: calls $2.50
+*** FLOP *** [4c 6h Ks]
+Darkoo: checks
+kole1992: bets $2.98
+yidasss: calls $2.98
+Darkoo: folds
+*** TURN *** [4c 6h Ks] [Ah]
+kole1992: bets $5.44
+yidasss: folds
+Uncalled bet ($5.44) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $14.96 from pot
+*** SUMMARY ***
+Total pot $14.96 | Rake $0.74 
+Board [4c 6h Ks Ah]
+Seat 1: kole1992 (big blind) collected ($14.96)
+Seat 2: ChadUlf folded before Flop (didn't bet)
+Seat 3: yidasss folded on the Turn 
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: philinbebettin (button) folded before Flop (didn't bet)
+Seat 6: Darkoo (small blind) folded on the Flop 
+
+
+Weplay Hand #74838797:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:43:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($77.29 in chips)
+Seat 2: ChadUlf ($53.20 in chips)
+Seat 3: yidasss ($65.78 in chips)
+Seat 4: lastTime87 ($32.89 in chips)
+Seat 5: philinbebettin ($69.68 in chips)
+Seat 6: Darkoo ($25.91 in chips)
+kole1992: posts small blind $0.25
+ChadUlf: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 2d]
+yidasss: raises $1.50 to $1.50
+lastTime87: raises $4.50 to $4.50
+philinbebettin: folds
+Darkoo: folds
+kole1992: folds
+ChadUlf: folds
+yidasss: calls $3
+*** FLOP *** [6c 8d Ac]
+yidasss: checks
+lastTime87: checks
+*** TURN *** [6c 8d Ac] [7h]
+yidasss: checks
+lastTime87: checks
+*** RIVER *** [6c 8d Ac 7h] [Th]
+yidasss: checks
+lastTime87: bets $28.39 and is all-in
+yidasss: folds
+Uncalled bet ($28.39) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $9.75 from pot
+*** SUMMARY ***
+Total pot $9.75 | Rake $0.48 
+Board [6c 8d Ac 7h Th]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: ChadUlf (big blind) folded before Flop 
+Seat 3: yidasss folded on the River 
+Seat 4: lastTime87 collected ($9.75)
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74838829:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:44:31 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($77.04 in chips)
+Seat 2: ChadUlf ($52.70 in chips)
+Seat 3: yidasss ($61.28 in chips)
+Seat 4: lastTime87 ($37.66 in chips)
+Seat 5: philinbebettin ($69.68 in chips)
+Seat 6: Darkoo ($25.91 in chips)
+ChadUlf: posts small blind $0.25
+yidasss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 7d]
+lastTime87: folds
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: folds
+ChadUlf: folds
+yidasss: checks
+*** FLOP *** [9d 8d Ad]
+yidasss: checks
+Darkoo: bets $1
+yidasss: raises $2.25 to $2.25
+Darkoo: raises $2.50 to $3.50
+yidasss: folds
+Uncalled bet ($1.25) returned to Darkoo
+*** SHOW DOWN ***
+Darkoo has timed out
+Darkoo: doesn't show hand
+Darkoo collected $5.75 from pot
+*** SUMMARY ***
+Total pot $5.75 | Rake $0.28 
+Board [9d 8d Ad]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: ChadUlf (small blind) folded before Flop 
+Seat 3: yidasss (big blind) folded on the Flop 
+Seat 4: lastTime87 folded before Flop (didn't bet)
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo collected ($5.75)
+
+
+Weplay Hand #74838861:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:45:20 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($77.04 in chips)
+Seat 2: ChadUlf ($52.45 in chips)
+Seat 3: yidasss ($58.53 in chips)
+Seat 4: lastTime87 ($37.66 in chips)
+Seat 5: philinbebettin ($69.68 in chips)
+Seat 6: Darkoo ($28.63 in chips)
+yidasss: posts small blind $0.25
+lastTime87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Ts]
+philinbebettin: folds
+Darkoo: calls $0.50
+kole1992: raises $1.25 to $1.25
+ChadUlf: calls $1.25
+yidasss: folds
+lastTime87: calls $0.75
+Darkoo: calls $0.75
+*** FLOP *** [Qh 5d 9c]
+lastTime87: checks
+Darkoo: checks
+kole1992: checks
+ChadUlf: checks
+*** TURN *** [Qh 5d 9c] [5s]
+lastTime87: bets $1.50
+Darkoo: folds
+kole1992: folds
+ChadUlf: folds
+Uncalled bet ($1.50) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $5.25 from pot
+*** SUMMARY ***
+Total pot $5.25 | Rake $0.26 
+Board [Qh 5d 9c 5s]
+Seat 1: kole1992 folded on the Turn 
+Seat 2: ChadUlf (button) folded on the Turn 
+Seat 3: yidasss (small blind) folded before Flop 
+Seat 4: lastTime87 (big blind) collected ($5.25)
+Seat 5: philinbebettin folded before Flop (didn't bet)
+Seat 6: Darkoo folded on the Turn 
+
+
+Weplay Hand #74838896:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:46:25 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($75.79 in chips)
+Seat 2: ChadUlf ($51.20 in chips)
+Seat 3: yidasss ($58.28 in chips)
+Seat 4: lastTime87 ($41.40 in chips)
+Seat 5: philinbebettin ($69.68 in chips)
+Seat 6: Darkoo ($27.38 in chips)
+lastTime87: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 4h]
+Darkoo: calls $0.50
+kole1992: folds
+ChadUlf: folds
+yidasss: calls $0.50
+lastTime87: folds
+philinbebettin: checks
+*** FLOP *** [6d 2s As]
+philinbebettin: checks
+Darkoo: checks
+yidasss: checks
+*** TURN *** [6d 2s As] [9s]
+philinbebettin: checks
+Darkoo: bets $1
+yidasss: calls $1
+philinbebettin: calls $1
+*** RIVER *** [6d 2s As 9s] [5h]
+philinbebettin: checks
+Darkoo: checks
+yidasss: checks
+*** SHOW DOWN ***
+philinbebettin: shows [Ah 9h] (two pair, Aces and Nines)
+Darkoo has timed out
+Darkoo: mucks hand
+yidasss: mucks hand
+philinbebettin collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [6d 2s As 9s 5h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ChadUlf folded before Flop (didn't bet)
+Seat 3: yidasss (button) mucked
+Seat 4: lastTime87 (small blind) folded before Flop 
+Seat 5: philinbebettin (big blind) showed [Ah 9h] and won ($4.75) with two pair, Aces and Nines
+Seat 6: Darkoo mucked
+
+
+Weplay Hand #74838937:  Hold'em No Limit ($0.25/$0.50) - 2026/02/05 21:47:31 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($75.79 in chips)
+Seat 2: ChadUlf ($51.20 in chips)
+Seat 3: yidasss ($56.78 in chips)
+Seat 4: lastTime87 ($41.15 in chips)
+Seat 5: philinbebettin ($72.70 in chips)
+Seat 6: Darkoo ($25.88 in chips)
+philinbebettin: posts small blind $0.25
+Darkoo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Jh]
+kole1992: raises $1 to $1
+ChadUlf: raises $3 to $3
+yidasss: folds
+lastTime87: calls $3
+philinbebettin: folds
+Darkoo: calls $2.50
+kole1992: calls $2
+*** FLOP *** [Ts 7c 3c]
+Darkoo: checks
+kole1992: checks
+ChadUlf: bets $4.05
+lastTime87: raises $12 to $12
+Darkoo: folds
+kole1992: folds
+kole1992: sits out 
+ChadUlf: folds
+Uncalled bet ($7.95) returned to lastTime87
+*** SHOW DOWN ***
+lastTime87: doesn't show hand
+lastTime87 collected $20.35 from pot
+*** SUMMARY ***
+Total pot $20.35 | Rake $1.01 
+Board [Ts 7c 3c]
+Seat 1: kole1992 folded on the Flop 
+Seat 2: ChadUlf folded on the Flop 
+Seat 3: yidasss folded before Flop (didn't bet)
+Seat 4: lastTime87 (button) collected ($20.35)
+Seat 5: philinbebettin (small blind) folded before Flop 
+Seat 6: Darkoo (big blind) folded on the Flop 

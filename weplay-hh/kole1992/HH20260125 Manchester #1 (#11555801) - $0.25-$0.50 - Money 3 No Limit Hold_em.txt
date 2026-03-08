@@ -1,0 +1,714 @@
+﻿Weplay Hand #73726026:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:36:24 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: ryclk ($31.82 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Topboy93 ($18.54 in chips)
+Seat 4: Tone91 ($51.42 in chips)
+Seat 5: Kissallin ($86.46 in chips)
+Seat 6: Majstorsmora ($124.06 in chips)
+Seat 7: rossi1616 ($104.25 in chips)
+Seat 8: JTs98o ($53.59 in chips)
+JTs98o: posts small blind $0.25
+ryclk: posts big blind $0.50
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Qs]
+kole1992: checks
+Topboy93: raises $18.54 to $18.54 and is all-in
+Tone91: folds
+Kissallin: folds
+Majstorsmora: folds
+rossi1616: folds
+JTs98o: folds
+ryclk: folds
+kole1992: folds
+Uncalled bet ($18.04) returned to Topboy93
+*** SHOW DOWN ***
+Topboy93: doesn't show hand
+Topboy93 collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: ryclk (big blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: Topboy93 collected ($1.75)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Kissallin folded before Flop (didn't bet)
+Seat 6: Majstorsmora folded before Flop (didn't bet)
+Seat 7: rossi1616 (button) folded before Flop (didn't bet)
+Seat 8: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #73726055:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:37:06 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: ryclk ($31.32 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Topboy93 ($19.79 in chips)
+Seat 4: Tone91 ($51.42 in chips)
+Seat 5: Kissallin ($86.46 in chips)
+Seat 6: Majstorsmora ($124.06 in chips)
+Seat 7: rossi1616 ($104.25 in chips)
+Seat 8: JTs98o ($53.34 in chips)
+ryclk: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 6h]
+Topboy93: calls $0.50
+Tone91: folds
+Kissallin: folds
+Majstorsmora: folds
+rossi1616: raises $1.25 to $1.25
+JTs98o: folds
+ryclk: folds
+kole1992: folds
+Topboy93: calls $0.75
+*** FLOP *** [9h 7s 4h]
+Topboy93: checks
+rossi1616: bets $2.43
+Topboy93: raises $18.54 to $18.54 and is all-in
+rossi1616: calls $16.11
+*** TURN *** [9h 7s 4h] [9c]
+*** RIVER *** [9h 7s 4h 9c] [Jc]
+*** SHOW DOWN ***
+Topboy93: shows [Ts Jd] (two pair, Jacks and Nines)
+rossi1616: shows [3h Ah] (a pair of Nines)
+Topboy93 collected $40.33 from pot
+*** SUMMARY ***
+Total pot $40.33 | Rake $2.01 
+Board [9h 7s 4h 9c Jc]
+Seat 1: ryclk (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: Topboy93 showed [Ts Jd] and won ($40.33) with two pair, Jacks and Nines
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Kissallin folded before Flop (didn't bet)
+Seat 6: Majstorsmora folded before Flop (didn't bet)
+Seat 7: rossi1616 showed [3h Ah] and lost with a pair of Nines
+Seat 8: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73726109:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:38:10 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: ryclk ($31.07 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Topboy93 ($38.32 in chips)
+Seat 4: Tone91 ($51.42 in chips)
+Seat 5: Kissallin ($86.46 in chips)
+Seat 6: Majstorsmora ($124.06 in chips)
+Seat 7: rossi1616 ($84.46 in chips)
+Seat 8: JTs98o ($53.34 in chips)
+kole1992: posts small blind $0.25
+Topboy93: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Ah]
+JTs98o leaves the table
+Tone91: folds
+Kissallin: folds
+Doumby joins the table at seat #8
+Majstorsmora: raises $1.25 to $1.25
+rossi1616: folds
+ryclk: folds
+kole1992: folds
+Topboy93: calls $0.75
+*** FLOP *** [6h As Kh]
+Topboy93: checks
+Majstorsmora: bets $0.90
+Topboy93: calls $0.90
+*** TURN *** [6h As Kh] [5c]
+Topboy93: checks
+Majstorsmora: checks
+*** RIVER *** [6h As Kh 5c] [Jd]
+Topboy93: checks
+Majstorsmora: bets $4
+Topboy93: folds
+Uncalled bet ($4) returned to Majstorsmora
+*** SHOW DOWN ***
+Majstorsmora: doesn't show hand
+Majstorsmora collected $4.55 from pot
+*** SUMMARY ***
+Total pot $4.55 | Rake $0.22 
+Board [6h As Kh 5c Jd]
+Seat 1: ryclk (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: Topboy93 (big blind) folded on the River 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Kissallin folded before Flop (didn't bet)
+Seat 6: Majstorsmora collected ($4.55)
+Seat 7: rossi1616 folded before Flop (didn't bet)
+
+
+Weplay Hand #73726176:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:39:32 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: ryclk ($31.07 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Topboy93 ($36.17 in chips)
+Seat 4: Tone91 ($51.42 in chips)
+Seat 5: Kissallin ($86.46 in chips)
+Seat 6: Majstorsmora ($126.24 in chips)
+Seat 7: rossi1616 ($84.46 in chips)
+Topboy93: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Qd]
+Kissallin: folds
+Majstorsmora: folds
+rossi1616: folds
+ryclk: calls $0.50
+kole1992: raises $1.50 to $1.50
+Topboy93: calls $1.25
+Tone91: folds
+ryclk: calls $1
+*** FLOP *** [5s 3c 9c]
+Topboy93: bets $5
+ryclk: folds
+kole1992: folds
+Uncalled bet ($5) returned to Topboy93
+*** SHOW DOWN ***
+Topboy93: doesn't show hand
+Topboy93 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [5s 3c 9c]
+Seat 1: ryclk folded on the Flop 
+Seat 2: kole1992 (button) folded on the Flop 
+Seat 3: Topboy93 (small blind) collected ($5)
+Seat 4: Tone91 (big blind) folded before Flop 
+Seat 5: Kissallin folded before Flop (didn't bet)
+Seat 6: Majstorsmora folded before Flop (didn't bet)
+Seat 7: rossi1616 folded before Flop (didn't bet)
+
+
+Weplay Hand #73726203:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:40:11 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: ryclk ($29.57 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Topboy93 ($39.42 in chips)
+Seat 4: Tone91 ($50.92 in chips)
+Seat 5: Kissallin ($86.46 in chips)
+Seat 6: Majstorsmora ($126.24 in chips)
+Seat 7: rossi1616 ($84.46 in chips)
+Tone91: posts small blind $0.25
+Kissallin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 5c]
+Majstorsmora: folds
+rossi1616: folds
+ryclk: folds
+kole1992: folds
+Topboy93: raises $1.25 to $1.25
+Tone91: folds
+Kissallin: folds
+Uncalled bet ($0.75) returned to Topboy93
+*** SHOW DOWN ***
+Topboy93: doesn't show hand
+Topboy93 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: ryclk folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Topboy93 (button) collected ($1.25)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: Kissallin (big blind) folded before Flop 
+Seat 6: Majstorsmora folded before Flop (didn't bet)
+Seat 7: rossi1616 folded before Flop (didn't bet)
+
+
+Weplay Hand #73726227:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:40:40 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: ryclk ($29.57 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Topboy93 ($40.17 in chips)
+Seat 4: Tone91 ($50.67 in chips)
+Seat 5: Kissallin ($85.96 in chips)
+Seat 6: Majstorsmora ($126.24 in chips)
+Seat 7: rossi1616 ($84.46 in chips)
+Kissallin: posts small blind $0.25
+Majstorsmora: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 6h]
+rossi1616: folds
+ryclk: calls $0.50
+kole1992: folds
+Topboy93: raises $1.50 to $1.50
+Tone91: folds
+Kissallin: folds
+Majstorsmora: folds
+ryclk: calls $1
+*** FLOP *** [Th 6d 8s]
+ryclk: checks
+Topboy93: bets $1.24
+ryclk: folds
+Uncalled bet ($1.24) returned to Topboy93
+*** SHOW DOWN ***
+Topboy93: doesn't show hand
+Topboy93 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [Th 6d 8s]
+Seat 1: ryclk folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Topboy93 collected ($3.75)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: Kissallin (small blind) folded before Flop 
+Seat 6: Majstorsmora (big blind) folded before Flop 
+Seat 7: rossi1616 folded before Flop (didn't bet)
+
+
+Weplay Hand #73726254:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:41:16 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: ryclk ($28.07 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Topboy93 ($42.24 in chips)
+Seat 4: Tone91 ($50.67 in chips)
+Seat 5: Kissallin ($85.71 in chips)
+Seat 6: Majstorsmora ($125.74 in chips)
+Seat 7: rossi1616 ($84.46 in chips)
+Majstorsmora: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 9d]
+ryclk: folds
+kole1992: folds
+Topboy93: raises $1.50 to $1.50
+Tone91: folds
+Kissallin: folds
+Majstorsmora: folds
+rossi1616: folds
+Uncalled bet ($1) returned to Topboy93
+*** SHOW DOWN ***
+Topboy93: doesn't show hand
+Topboy93 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: ryclk folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Topboy93 collected ($1.25)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Kissallin (button) folded before Flop (didn't bet)
+Seat 6: Majstorsmora (small blind) folded before Flop 
+Seat 7: rossi1616 (big blind) folded before Flop 
+
+
+Weplay Hand #73726269:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:41:39 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: ryclk ($28.07 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Topboy93 ($42.99 in chips)
+Seat 4: Tone91 ($50.67 in chips)
+Seat 5: Kissallin ($85.71 in chips)
+Seat 6: Majstorsmora ($125.49 in chips)
+Seat 7: rossi1616 ($83.96 in chips)
+Seat 8: Doumby ($50 in chips)
+rossi1616: posts small blind $0.25
+Doumby: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 2s]
+ryclk: calls $0.50
+kole1992: folds
+Topboy93: calls $0.50
+Tone91: folds
+Kissallin: raises $2.50 to $2.50
+Majstorsmora: folds
+rossi1616: folds
+Doumby: folds
+ryclk: calls $2
+Topboy93: calls $2
+*** FLOP *** [Qs Kh As]
+ryclk: checks
+Topboy93: folds
+Kissallin: bets $2.75
+ryclk: folds
+Uncalled bet ($2.75) returned to Kissallin
+*** SHOW DOWN ***
+Kissallin: doesn't show hand
+Kissallin collected $8.25 from pot
+*** SUMMARY ***
+Total pot $8.25 | Rake $0.41 
+Board [Qs Kh As]
+Seat 1: ryclk folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Topboy93 folded on the Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Kissallin collected ($8.25)
+Seat 6: Majstorsmora (button) folded before Flop (didn't bet)
+Seat 7: rossi1616 (small blind) folded before Flop 
+Seat 8: Doumby (big blind) folded before Flop 
+
+
+Weplay Hand #73727318:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:42:41 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: ryclk ($25.57 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Topboy93 ($40.49 in chips)
+Seat 4: Tone91 ($50.67 in chips)
+Seat 5: Kissallin ($91.05 in chips)
+Seat 6: Majstorsmora ($125.49 in chips)
+Seat 7: rossi1616 ($83.71 in chips)
+Seat 8: Doumby ($49.50 in chips)
+Doumby: posts small blind $0.25
+ryclk: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 5c]
+kole1992: folds
+Topboy93: calls $0.50
+Tone91: folds
+Kissallin: folds
+Majstorsmora: raises $1.25 to $1.25
+rossi1616: folds
+Doumby: folds
+ryclk: raises $25.07 to $25.57 and is all-in
+Topboy93: raises $39.99 to $40.49 and is all-in
+Majstorsmora: folds
+Uncalled bet ($14.92) returned to Topboy93
+*** FLOP *** [5d 8h 9c]
+*** TURN *** [5d 8h 9c] [Qc]
+*** RIVER *** [5d 8h 9c Qc] [3c]
+*** SHOW DOWN ***
+ryclk: shows [Ts As] (high card Ace)
+Topboy93: shows [2c 2s] (a pair of Deuces)
+Topboy93 collected $52.64 from pot
+*** SUMMARY ***
+Total pot $52.64 | Rake $2.63 
+Board [5d 8h 9c Qc 3c]
+Seat 1: ryclk (big blind) showed [Ts As] and lost with high card Ace
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Topboy93 showed [2c 2s] and won ($52.64) with a pair of Deuces
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Kissallin folded before Flop (didn't bet)
+Seat 6: Majstorsmora folded before Flop 
+Seat 7: rossi1616 (button) folded before Flop (didn't bet)
+Seat 8: Doumby (small blind) folded before Flop 
+
+
+Weplay Hand #73727359:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:43:29 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Topboy93 ($64.93 in chips)
+Seat 4: Tone91 ($50.67 in chips)
+Seat 5: Kissallin ($91.05 in chips)
+Seat 6: Majstorsmora ($124.24 in chips)
+Seat 7: rossi1616 ($83.71 in chips)
+Seat 8: Doumby ($49.25 in chips)
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Js]
+Topboy93: calls $0.50
+ryclk leaves the table
+Tone91: folds
+Kissallin: folds
+Majstorsmora: folds
+rossi1616: folds
+Doumby: folds
+kole1992: checks
+*** FLOP *** [Jc Kc Jh]
+kole1992: checks
+Topboy93: bets $0.50
+kole1992: calls $0.50
+*** TURN *** [Jc Kc Jh] [Tc]
+kole1992: checks
+Topboy93: bets $0.50
+kole1992: raises $5.25 to $5.25
+Topboy93: folds
+Uncalled bet ($4.75) returned to kole1992
+*** SHOW DOWN ***
+Topboy93: shows [## 2s] (a pair of Jacks)
+kole1992: doesn't show hand
+kole1992 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Jc Kc Jh Tc]
+Seat 2: kole1992 (big blind) collected ($3)
+Seat 3: Topboy93 folded on the Turn 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Kissallin folded before Flop (didn't bet)
+Seat 6: Majstorsmora folded before Flop (didn't bet)
+Seat 7: rossi1616 folded before Flop (didn't bet)
+Seat 8: Doumby (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73727397:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:44:18 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 2: kole1992 ($51.35 in chips)
+Seat 3: Topboy93 ($63.43 in chips)
+Seat 4: Tone91 ($50.67 in chips)
+Seat 5: Kissallin ($91.05 in chips)
+Seat 6: Majstorsmora ($124.24 in chips)
+Seat 7: rossi1616 ($83.71 in chips)
+Seat 8: Doumby ($49.25 in chips)
+kole1992: posts small blind $0.25
+Topboy93: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Jd]
+Tone91: folds
+Kissallin: folds
+Majstorsmora: raises $1.25 to $1.25
+rossi1616: calls $1.25
+Doumby: folds
+kole1992: folds
+Topboy93: calls $0.75
+*** FLOP *** [4c 5s 8s]
+Topboy93: bets $4
+Majstorsmora: calls $4
+rossi1616: raises $14.66 to $14.66
+Topboy93: folds
+Khamos joins the table at seat #1
+Majstorsmora: calls $10.66
+*** TURN *** [4c 5s 8s] [8h]
+Majstorsmora: checks
+rossi1616: checks
+*** RIVER *** [4c 5s 8s 8h] [6h]
+Majstorsmora: checks
+rossi1616: bets $24.88
+Majstorsmora: folds
+Uncalled bet ($24.88) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $37.32 from pot
+*** SUMMARY ***
+Total pot $37.32 | Rake $1.86 
+Board [4c 5s 8s 8h 6h]
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: Topboy93 (big blind) folded on the Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Kissallin folded before Flop (didn't bet)
+Seat 6: Majstorsmora folded on the River 
+Seat 7: rossi1616 collected ($37.32)
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73727458:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:45:37 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Khamos ($26.53 in chips)
+Seat 2: kole1992 ($51.10 in chips)
+Seat 3: Topboy93 ($58.18 in chips)
+Seat 4: Tone91 ($50.67 in chips)
+Seat 5: Kissallin ($91.05 in chips)
+Seat 6: Majstorsmora ($108.33 in chips)
+Seat 7: rossi1616 ($103.26 in chips)
+Seat 8: Doumby ($50 in chips)
+Topboy93: posts small blind $0.25
+Tone91: posts big blind $0.50
+Khamos: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 7h]
+Kissallin: folds
+Majstorsmora: folds
+rossi1616: folds
+Doumby: folds
+Khamos: checks
+kole1992: folds
+Topboy93: calls $0.25
+Tone91: checks
+*** FLOP *** [7c 9h Td]
+Topboy93: checks
+Tone91: checks
+Khamos: bets $0.50
+Topboy93: calls $0.50
+Tone91: folds
+*** TURN *** [7c 9h Td] [2c]
+Topboy93: checks
+Khamos: bets $0.50
+Topboy93: calls $0.50
+*** RIVER *** [7c 9h Td 2c] [8h]
+Topboy93: checks
+Khamos: bets $1.75
+Topboy93: calls $1.75
+*** SHOW DOWN ***
+Khamos: shows [2s Ah] (a pair of Deuces)
+Topboy93: shows [6s Qs] (a straight, Six to Ten)
+Topboy93 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [7c 9h Td 2c 8h]
+Seat 1: Khamos (big blind) showed [2s Ah] and lost with a pair of Deuces
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: Topboy93 (small blind) showed [6s Qs] and won ($7) with a straight, Six to Ten
+Seat 4: Tone91 (big blind) folded on the Flop 
+Seat 5: Kissallin folded before Flop (didn't bet)
+Seat 6: Majstorsmora folded before Flop (didn't bet)
+Seat 7: rossi1616 folded before Flop (didn't bet)
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73727497:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:46:31 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Khamos ($23.28 in chips)
+Seat 2: kole1992 ($51.10 in chips)
+Seat 3: Topboy93 ($61.58 in chips)
+Seat 4: Tone91 ($50.17 in chips)
+Seat 5: Kissallin ($91.05 in chips)
+Seat 6: Majstorsmora ($108.33 in chips)
+Seat 7: rossi1616 ($103.26 in chips)
+Seat 8: Doumby ($50 in chips)
+Tone91: posts small blind $0.25
+Kissallin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Ac]
+Majstorsmora: raises $1 to $1
+rossi1616: folds
+Doumby: folds
+Khamos: calls $1
+kole1992: raises $4.76 to $4.76
+Topboy93: calls $4.76
+Tone91: folds
+Kissallin: folds
+Majstorsmora: folds
+Khamos: folds
+*** FLOP *** [4c Qh Ad]
+kole1992: checks
+Topboy93: checks
+*** TURN *** [4c Qh Ad] [2c]
+kole1992: bets $9.50
+Topboy93: folds
+Uncalled bet ($9.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12.27 from pot
+*** SUMMARY ***
+Total pot $12.27 | Rake $0.61 
+Board [4c Qh Ad 2c]
+Seat 1: Khamos folded before Flop 
+Seat 2: kole1992 collected ($12.27)
+Seat 3: Topboy93 (button) folded on the Turn 
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: Kissallin (big blind) folded before Flop 
+Seat 6: Majstorsmora folded before Flop 
+Seat 7: rossi1616 folded before Flop (didn't bet)
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73727584:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:48:10 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Khamos ($22.28 in chips)
+Seat 2: kole1992 ($58 in chips)
+Seat 3: Topboy93 ($56.82 in chips)
+Seat 4: Tone91 ($49.92 in chips)
+Seat 5: Kissallin ($90.55 in chips)
+Seat 6: Majstorsmora ($107.33 in chips)
+Seat 7: rossi1616 ($103.26 in chips)
+Seat 8: Doumby ($50 in chips)
+Kissallin: posts small blind $0.25
+Majstorsmora: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 3c]
+rossi1616: folds
+Doumby: raises $1.50 to $1.50
+Khamos: calls $1.50
+kole1992: folds
+Topboy93: calls $1.50
+Tone91: folds
+Kissallin: folds
+Majstorsmora: calls $1
+*** FLOP *** [6d 9h 8h]
+Majstorsmora: checks
+Doumby: checks
+Khamos: checks
+Topboy93: bets $6.25
+Majstorsmora: folds
+Doumby: calls $6.25
+Khamos: folds
+*** TURN *** [6d 9h 8h] [Kc]
+Doumby: checks
+Topboy93: bets $6.19
+Doumby: calls $6.19
+*** RIVER *** [6d 9h 8h Kc] [Kh]
+Doumby: checks
+Topboy93: bets $42.88 and is all-in
+Doumby: folds
+Uncalled bet ($42.88) returned to Topboy93
+*** SHOW DOWN ***
+Topboy93: doesn't show hand
+Topboy93 collected $31.13 from pot
+*** SUMMARY ***
+Total pot $31.13 | Rake $1.55 
+Board [6d 9h 8h Kc Kh]
+Seat 1: Khamos folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Topboy93 collected ($31.13)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: Kissallin (small blind) folded before Flop 
+Seat 6: Majstorsmora (big blind) folded on the Flop 
+Seat 7: rossi1616 folded before Flop (didn't bet)
+Seat 8: Doumby folded on the River 
+
+
+Weplay Hand #73727658:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:49:41 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Khamos ($20.78 in chips)
+Seat 2: kole1992 ($58 in chips)
+Seat 3: Topboy93 ($72.46 in chips)
+Seat 4: Tone91 ($49.92 in chips)
+Seat 5: Kissallin ($90.30 in chips)
+Seat 6: Majstorsmora ($105.83 in chips)
+Seat 7: rossi1616 ($103.26 in chips)
+Seat 8: Doumby ($50 in chips)
+Majstorsmora: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Jc]
+Doumby: raises $1.50 to $1.50
+Khamos: folds
+kole1992: folds
+Topboy93: calls $1.50
+Tone91: folds
+Kissallin: folds
+Majstorsmora: folds
+rossi1616: folds
+*** FLOP *** [2h Ad 2s]
+Doumby: bets $1
+Topboy93: folds
+Uncalled bet ($1) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [2h Ad 2s]
+Seat 1: Khamos folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Topboy93 folded on the Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Kissallin (button) folded before Flop (didn't bet)
+Seat 6: Majstorsmora (small blind) folded before Flop 
+Seat 7: rossi1616 (big blind) folded before Flop 
+Seat 8: Doumby collected ($3.75)
+
+
+Weplay Hand #73727682:  Hold'em No Limit ($0.25/$0.50) - 2026/01/25 19:50:11 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Khamos ($20.78 in chips)
+Seat 2: kole1992 ($58 in chips)
+Seat 3: Topboy93 ($70.96 in chips)
+Seat 4: Tone91 ($49.92 in chips)
+Seat 5: Kissallin ($90.30 in chips)
+Seat 6: Majstorsmora ($105.58 in chips)
+Seat 7: rossi1616 ($102.76 in chips)
+Seat 8: Doumby ($52.07 in chips)
+rossi1616: posts small blind $0.25
+Doumby: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 9h]
+Khamos: calls $0.50
+kole1992: folds
+Topboy93: calls $0.50
+Tone91: folds
+Kissallin: folds
+Majstorsmora: raises $2.50 to $2.50
+rossi1616: folds
+Doumby: calls $2
+Khamos: folds
+Topboy93: raises $70.46 to $70.96 and is all-in
+Majstorsmora: folds
+Doumby: folds
+Uncalled bet ($68.46) returned to Topboy93
+*** SHOW DOWN ***
+Topboy93: doesn't show hand
+Topboy93 collected $8.25 from pot
+*** SUMMARY ***
+Total pot $8.25 | Rake $0 
+Seat 1: Khamos folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Topboy93 collected ($8.25)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Kissallin folded before Flop (didn't bet)
+Seat 6: Majstorsmora (button) folded before Flop 
+Seat 7: rossi1616 (small blind) folded before Flop 
+Seat 8: Doumby (big blind) folded before Flop 

@@ -1,0 +1,4984 @@
+﻿Weplay Hand #75278331:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:02:45 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: philinbebettin ($48.95 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Nitay44567 ($6.64 in chips)
+Seat 4: Domagoj87 ($34.85 in chips)
+Seat 6: Jaanu ($33.95 in chips)
+Seat 7: Falcaoo9 ($51.40 in chips)
+Seat 8: SweetieFox ($50 in chips)
+philinbebettin: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 6s]
+Nitay44567: raises $1 to $1
+Domagoj87: folds
+Jaanu: folds
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: calls $0.75
+kole1992: folds
+*** FLOP *** [2s 4c As]
+philinbebettin: checks
+Nitay44567: bets $0.50
+philinbebettin: calls $0.50
+*** TURN *** [2s 4c As] [7d]
+philinbebettin: checks
+Nitay44567: bets $0.50
+philinbebettin: calls $0.50
+*** RIVER *** [2s 4c As 7d] [8h]
+philinbebettin: checks
+Nitay44567: bets $1.50
+philinbebettin: calls $1.50
+*** SHOW DOWN ***
+Nitay44567: shows [8s Kd] (a pair of Eights)
+philinbebettin has timed out
+philinbebettin: mucks hand
+Nitay44567 collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [2s 4c As 7d 8h]
+Seat 1: philinbebettin (small blind) mucked
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: Nitay44567 showed [8s Kd] and won ($7.50) with a pair of Eights
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 6: Jaanu folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75278371:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:04:19 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: philinbebettin ($45.45 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Nitay44567 ($10.27 in chips)
+Seat 4: Domagoj87 ($34.85 in chips)
+Seat 6: Jaanu ($33.95 in chips)
+Seat 7: Falcaoo9 ($51.40 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts small blind $0.25
+Nitay44567: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 8c]
+Domagoj87: folds
+Jaanu: folds
+Falcaoo9: folds
+Jaanu leaves the table
+SweetieFox: raises $1.50 to $1.50
+philinbebettin: folds
+kole1992: folds
+Nitay44567: calls $1
+*** FLOP *** [Tc 9d 7c]
+Nitay44567: bets $0.50
+SweetieFox: calls $0.50
+*** TURN *** [Tc 9d 7c] [3c]
+Nitay44567: bets $0.50
+SweetieFox: folds
+Uncalled bet ($0.50) returned to Nitay44567
+*** SHOW DOWN ***
+Nitay44567: doesn't show hand
+Nitay44567 collected $4.25 from pot
+*** SUMMARY ***
+Total pot $4.25 | Rake $0.21 
+Board [Tc 9d 7c 3c]
+Seat 1: philinbebettin (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: Nitay44567 (big blind) collected ($4.25)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 6: Jaanu folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded on the Turn 
+
+
+Weplay Hand #75278390:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:04:51 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Nitay44567 ($12.31 in chips)
+Seat 4: Domagoj87 ($34.85 in chips)
+Seat 7: Falcaoo9 ($51.40 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Nitay44567: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Qs]
+Falcaoo9: raises $1.35 to $1.35
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+Nitay44567: folds
+Domagoj87: calls $0.85
+*** FLOP *** [Kh 7c 8s]
+Domagoj87: checks
+Falcaoo9 has timed out
+Falcaoo9: checks
+*** TURN *** [Kh 7c 8s] [6d]
+Domagoj87: checks
+Falcaoo9: bets $2.04
+Domagoj87: calls $2.04
+*** RIVER *** [Kh 7c 8s 6d] [Qd]
+Domagoj87: checks
+Falcaoo9: bets $5.10
+Domagoj87: folds
+Uncalled bet ($5.10) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $7.03 from pot
+*** SUMMARY ***
+Total pot $7.03 | Rake $0.35 
+Board [Kh 7c 8s 6d Qd]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: Nitay44567 (small blind) folded before Flop 
+Seat 4: Domagoj87 (big blind) folded on the River 
+Seat 7: Falcaoo9 collected ($7.03)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278417:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:06:02 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Nitay44567 ($12.06 in chips)
+Seat 4: Domagoj87 ($31.46 in chips)
+Seat 7: Falcaoo9 ($54.69 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Domagoj87: posts small blind $0.25
+Falcaoo9: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 8s]
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+Nitay44567: calls $0.50
+Domagoj87: raises $1.75 to $2
+Falcaoo9: folds
+Nitay44567: folds
+Uncalled bet ($1.50) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87 has timed out
+Domagoj87: doesn't show hand
+Domagoj87 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Nitay44567 (button) folded before Flop 
+Seat 4: Domagoj87 (small blind) collected ($1.50)
+Seat 7: Falcaoo9 (big blind) folded before Flop 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278427:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:06:30 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Nitay44567 ($11.56 in chips)
+Seat 4: Domagoj87 ($32.46 in chips)
+Seat 7: Falcaoo9 ($54.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Falcaoo9: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 5h]
+philinbebettin: folds
+kole1992: folds
+Nitay44567: calls $0.50
+Domagoj87: folds
+Falcaoo9: folds
+SweetieFox: checks
+*** FLOP *** [3d 4c Th]
+SweetieFox: checks
+Nitay44567: bets $0.50
+SweetieFox: folds
+Uncalled bet ($0.50) returned to Nitay44567
+*** SHOW DOWN ***
+Nitay44567: doesn't show hand
+Nitay44567 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [3d 4c Th]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Nitay44567 collected ($1.25)
+Seat 4: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) folded on the Flop 
+
+
+Weplay Hand #75278442:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:07:03 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Nitay44567 ($12.25 in chips)
+Seat 4: Domagoj87 ($32.46 in chips)
+Seat 7: Falcaoo9 ($53.94 in chips)
+Seat 8: SweetieFox ($50 in chips)
+SweetieFox: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 2h]
+kole1992: folds
+Nitay44567: calls $0.50
+Domagoj87: folds
+Falcaoo9: raises $2.50 to $2.50
+SweetieFox: folds
+philinbebettin: folds
+Nitay44567: folds
+Uncalled bet ($2) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: philinbebettin (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Nitay44567 folded before Flop 
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (button) collected ($1.75)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #75278456:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:07:44 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: philinbebettin ($49.50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Nitay44567 ($11.75 in chips)
+Seat 4: Domagoj87 ($32.46 in chips)
+Seat 7: Falcaoo9 ($55.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+philinbebettin: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 3h]
+Nitay44567: calls $0.50
+Domagoj87: raises $1.25 to $1.25
+Falcaoo9: raises $4.53 to $4.53
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+Nitay44567: folds
+Domagoj87: folds
+Uncalled bet ($3.28) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0 
+Seat 1: philinbebettin (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: Nitay44567 folded before Flop 
+Seat 4: Domagoj87 folded before Flop 
+Seat 7: Falcaoo9 collected ($3.75)
+Seat 8: SweetieFox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75278465:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:08:23 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: philinbebettin ($49.25 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: Nitay44567 ($11.25 in chips)
+Seat 4: Domagoj87 ($31.21 in chips)
+Seat 7: Falcaoo9 ($57.69 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts small blind $0.25
+Nitay44567: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Jd]
+Domagoj87: folds
+Falcaoo9: raises $1.50 to $1.50
+SweetieFox: folds
+philinbebettin: folds
+kole1992: raises $5.25 to $5.50
+Nitay44567: folds
+Falcaoo9: calls $4
+*** FLOP *** [Kh Tc Ah]
+kole1992: checks
+Nitay44567 is disconnected 
+Nitay44567 is connected 
+Falcaoo9: checks
+*** TURN *** [Kh Tc Ah] [Qd]
+kole1992: bets $3.79
+Falcaoo9: folds
+Uncalled bet ($3.79) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $11.50 from pot
+*** SUMMARY ***
+Total pot $11.50 | Rake $0.57 
+Board [Kh Tc Ah Qd]
+Seat 1: philinbebettin (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) collected ($11.50)
+Seat 3: Nitay44567 (big blind) folded before Flop 
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded on the Turn 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278494:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:10:08 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: philinbebettin ($49.25 in chips)
+Seat 2: kole1992 ($55.43 in chips)
+Seat 3: Nitay44567 ($10.75 in chips)
+Seat 4: Domagoj87 ($31.21 in chips)
+Seat 7: Falcaoo9 ($52.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Nitay44567: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 2d]
+Falcaoo9: raises $1.65 to $1.65
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+Nitay44567: calls $1.40
+Domagoj87: folds
+*** FLOP *** [4d 7d 9c]
+Nitay44567: bets $0.50
+Falcaoo9: calls $0.50
+*** TURN *** [4d 7d 9c] [Qc]
+Nitay44567: bets $0.50
+Falcaoo9: raises $9.50 to $9.50
+FullAdjMeg joins the table at seat #5
+Nitay44567: calls $8.10 and is all-in
+Uncalled bet ($0.90) returned to Falcaoo9
+*** RIVER *** [4d 7d 9c Qc] [6d]
+*** SHOW DOWN ***
+Nitay44567: shows [4c 2c] (a pair of Fours)
+Falcaoo9: shows [Js Ah] (high card Ace)
+Nitay44567 collected $22 from pot
+*** SUMMARY ***
+Total pot $22 | Rake $1.10 
+Board [4d 7d 9c Qc 6d]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: Nitay44567 (small blind) showed [4c 2c] and won ($22) with a pair of Fours
+Seat 4: Domagoj87 (big blind) folded before Flop 
+Seat 7: Falcaoo9 showed [Js Ah] and lost with high card Ace
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278513:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:11:33 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: philinbebettin ($49.25 in chips)
+Seat 2: kole1992 ($55.43 in chips)
+Seat 3: Nitay44567 ($20.90 in chips)
+Seat 4: Domagoj87 ($30.71 in chips)
+Seat 5: FullAdjMeg ($30 in chips)
+Seat 7: Falcaoo9 ($41.44 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Domagoj87: posts small blind $0.25
+FullAdjMeg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 7d]
+Falcaoo9: raises $1.25 to $1.25
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+Nitay44567: folds
+Domagoj87: calls $1
+FullAdjMeg: folds
+*** FLOP *** [2d 8c Js]
+Domagoj87: checks
+FullAdjMeg is disconnected 
+Falcaoo9: bets $2.03
+Domagoj87: folds
+Uncalled bet ($2.03) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [2d 8c Js]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Nitay44567 (button) folded before Flop (didn't bet)
+Seat 4: Domagoj87 (small blind) folded on the Flop 
+Seat 5: FullAdjMeg (big blind) folded before Flop 
+Seat 7: Falcaoo9 collected ($3)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278527:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:12:12 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: philinbebettin ($49.25 in chips)
+Seat 2: kole1992 ($55.43 in chips)
+Seat 3: Nitay44567 ($20.90 in chips)
+Seat 4: Domagoj87 ($29.46 in chips)
+Seat 7: Falcaoo9 ($43.04 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Falcaoo9: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Kd]
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+Nitay44567: calls $0.50
+Domagoj87: folds
+Falcaoo9: checks
+*** FLOP *** [Jd Ks Qs]
+Falcaoo9: checks
+FullAdjMeg is connected 
+Nitay44567: bets $0.50
+Falcaoo9: folds
+Uncalled bet ($0.50) returned to Nitay44567
+*** SHOW DOWN ***
+Nitay44567: doesn't show hand
+Nitay44567 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [Jd Ks Qs]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Nitay44567 collected ($1)
+Seat 4: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (big blind) folded on the Flop 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278540:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:12:43 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: philinbebettin ($49.25 in chips)
+Seat 2: kole1992 ($55.43 in chips)
+Seat 3: Nitay44567 ($21.35 in chips)
+Seat 4: Domagoj87 ($29.46 in chips)
+Seat 5: FullAdjMeg ($29.50 in chips)
+Seat 7: Falcaoo9 ($42.54 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Falcaoo9: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+FullAdjMeg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 6c]
+philinbebettin: folds
+kole1992: folds
+Nitay44567: calls $0.50
+Domagoj87: folds
+FullAdjMeg: raises $3 to $3.50
+Falcaoo9: folds
+SweetieFox: folds
+Nitay44567: folds
+Uncalled bet ($3) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Nitay44567 folded before Flop 
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg (button) (big blind) collected ($1.75)
+Seat 7: Falcaoo9 (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) folded before Flop 
+
+
+Weplay Hand #75278547:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:13:11 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: philinbebettin ($49.25 in chips)
+Seat 2: kole1992 ($55.43 in chips)
+Seat 3: Nitay44567 ($20.85 in chips)
+Seat 4: Domagoj87 ($29.46 in chips)
+Seat 5: FullAdjMeg ($30.75 in chips)
+Seat 7: Falcaoo9 ($42.29 in chips)
+Seat 8: SweetieFox ($50 in chips)
+SweetieFox: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Kd]
+kole1992: raises $1 to $1
+Nitay44567: folds
+Domagoj87: folds
+FullAdjMeg: calls $1
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: calls $0.50
+*** FLOP *** [Jc 3d 2h]
+philinbebettin: checks
+kole1992: checks
+FullAdjMeg: bets $2
+philinbebettin: folds
+kole1992: folds
+Uncalled bet ($2) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [Jc 3d 2h]
+Seat 1: philinbebettin (big blind) folded on the Flop 
+Seat 2: kole1992 folded on the Flop 
+Seat 3: Nitay44567 folded before Flop (didn't bet)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg collected ($3.25)
+Seat 7: Falcaoo9 (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #75278561:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:14:10 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: philinbebettin ($48.25 in chips)
+Seat 2: kole1992 ($54.43 in chips)
+Seat 3: Nitay44567 ($20.85 in chips)
+Seat 4: Domagoj87 ($29.46 in chips)
+Seat 5: FullAdjMeg ($32.84 in chips)
+Seat 7: Falcaoo9 ($42.29 in chips)
+Seat 8: SweetieFox ($50 in chips)
+philinbebettin: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 3c]
+Nitay44567: calls $0.50
+Domagoj87: raises $1.25 to $1.25
+FullAdjMeg: calls $1.25
+Falcaoo9: calls $1.25
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+Nitay44567: calls $0.75
+*** FLOP *** [6h Kh Jd]
+Nitay44567: bets $1.50
+Domagoj87: calls $1.50
+FullAdjMeg: folds
+Falcaoo9: calls $1.50
+*** TURN *** [6h Kh Jd] [2c]
+Nitay44567: bets $1.50
+Domagoj87: raises $8.12 to $8.12
+Falcaoo9: folds
+Nitay44567: calls $6.62
+*** RIVER *** [6h Kh Jd 2c] [9s]
+Nitay44567: checks
+Domagoj87: bets $18.59 and is all-in
+Nitay44567: calls $9.98 and is all-in
+Uncalled bet ($8.61) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87: shows [Kc Jc] (two pair, Kings and Jacks)
+Nitay44567: shows [4h Kd] (a pair of Kings)
+Domagoj87 collected $46.45 from pot
+*** SUMMARY ***
+Total pot $46.45 | Rake $2.32 
+Board [6h Kh Jd 2c 9s]
+Seat 1: philinbebettin (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: Nitay44567 showed [4h Kd] and lost with a pair of Kings
+Seat 4: Domagoj87 showed [Kc Jc] and won ($46.45) with two pair, Kings and Jacks
+Seat 5: FullAdjMeg folded on the Flop 
+Seat 7: Falcaoo9 folded on the Turn 
+Seat 8: SweetieFox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75278591:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:15:27 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: philinbebettin ($48 in chips)
+Seat 2: kole1992 ($53.93 in chips)
+Seat 4: Domagoj87 ($52.74 in chips)
+Seat 5: FullAdjMeg ($31.59 in chips)
+Seat 7: Falcaoo9 ($39.54 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts small blind $0.25
+Nitay44567 is disconnected 
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Ks]
+FullAdjMeg: folds
+FullAdjMeg is disconnected 
+Falcaoo9: raises $1.35 to $1.35
+SweetieFox: folds
+philinbebettin: folds
+ChadUlf joins the table at seat #6
+kole1992: folds
+Domagoj87: folds
+Uncalled bet ($0.85) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: philinbebettin (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 4: Domagoj87 (big blind) folded before Flop 
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 7: Falcaoo9 collected ($1.25)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278600:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:15:56 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: philinbebettin ($48 in chips)
+Seat 2: kole1992 ($53.68 in chips)
+Seat 4: Domagoj87 ($52.24 in chips)
+Seat 6: ChadUlf ($57.12 in chips)
+Seat 7: Falcaoo9 ($40.29 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Domagoj87: posts small blind $0.25
+ChadUlf: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Kh]
+Falcaoo9: folds
+FullAdjMeg is connected 
+SweetieFox: folds
+philinbebettin: folds
+FullAdjMeg is disconnected 
+kole1992: raises $1.25 to $1.25
+Domagoj87: folds
+ChadUlf: raises $3.25 to $3.75
+Nitay44567 leaves the table
+kole1992: raises $8 to $9.25
+FullAdjMeg is connected 
+ChadUlf: raises $53.37 to $57.12 and is all-in
+kole1992: folds
+Uncalled bet ($47.87) returned to ChadUlf
+*** SHOW DOWN ***
+ChadUlf: doesn't show hand
+ChadUlf collected $18.75 from pot
+*** SUMMARY ***
+Total pot $18.75 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop 
+Seat 4: Domagoj87 (small blind) folded before Flop 
+Seat 6: ChadUlf (big blind) collected ($18.75)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278622:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:17:03 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: philinbebettin ($48 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Domagoj87 ($51.99 in chips)
+Seat 6: ChadUlf ($66.62 in chips)
+Seat 7: Falcaoo9 ($40.29 in chips)
+Seat 8: SweetieFox ($50 in chips)
+ChadUlf: posts small blind $0.25
+Falcaoo9: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 7c]
+SweetieFox: folds
+FullAdjMeg is disconnected 
+philinbebettin: folds
+kole1992: folds
+Domagoj87: folds
+ChadUlf: raises $1.75 to $2
+FullAdjMeg is connected 
+Falcaoo9: calls $1.50
+*** FLOP *** [5s 8d As]
+ChadUlf: checks
+Falcaoo9: bets $2.65
+ChadUlf: folds
+Uncalled bet ($2.65) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [5s 8d As]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 6: ChadUlf (small blind) folded on the Flop 
+Seat 7: Falcaoo9 (big blind) collected ($4)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278640:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:17:55 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: philinbebettin ($48 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Domagoj87 ($51.99 in chips)
+Seat 5: FullAdjMeg ($31.59 in chips)
+Seat 6: ChadUlf ($64.62 in chips)
+Seat 7: Falcaoo9 ($42.09 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Falcaoo9: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+FullAdjMeg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 4c]
+philinbebettin: folds
+kole1992: folds
+Domagoj87: raises $1.25 to $1.25
+FullAdjMeg: calls $0.75
+ChadUlf: folds
+Falcaoo9: folds
+SweetieFox: folds
+*** FLOP *** [8h 5h Ts]
+Domagoj87: checks
+FullAdjMeg: bets $2
+Domagoj87: folds
+Uncalled bet ($2) returned to FullAdjMeg
+*** SHOW DOWN ***
+KratkiLucky joins the table at seat #3
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [8h 5h Ts]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Domagoj87 folded on the Flop 
+Seat 5: FullAdjMeg (big blind) collected ($3.25)
+Seat 6: ChadUlf (button) folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) folded before Flop 
+
+
+Weplay Hand #75278659:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:18:53 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($50 in chips)
+Seat 4: Domagoj87 ($50.74 in chips)
+Seat 5: FullAdjMeg ($33.43 in chips)
+Seat 6: ChadUlf ($64.62 in chips)
+Seat 7: Falcaoo9 ($41.84 in chips)
+Seat 8: SweetieFox ($50 in chips)
+SweetieFox: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Ts]
+kole1992: raises $2.25 to $2.25
+KratkiLucky: folds
+Domagoj87: folds
+FullAdjMeg: folds
+ChadUlf: folds
+Falcaoo9: folds
+FullAdjMeg is disconnected 
+SweetieFox: folds
+philinbebettin: folds
+Uncalled bet ($1.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: philinbebettin (big blind) folded before Flop 
+Seat 2: kole1992 collected ($1.75)
+Seat 3: KratkiLucky (big blind) folded before Flop 
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #75278672:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:19:32 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: philinbebettin ($49.50 in chips)
+Seat 2: kole1992 ($51.25 in chips)
+Seat 3: KratkiLucky ($50 in chips)
+Seat 4: Domagoj87 ($50.74 in chips)
+Seat 6: ChadUlf ($64.62 in chips)
+Seat 7: Falcaoo9 ($41.84 in chips)
+Seat 8: SweetieFox ($50 in chips)
+philinbebettin: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 9d]
+KratkiLucky: folds
+FullAdjMeg is connected 
+Domagoj87: folds
+ChadUlf: folds
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: raises $1.25 to $1.50
+kole1992: folds
+Uncalled bet ($1) returned to philinbebettin
+*** SHOW DOWN ***
+philinbebettin has timed out
+philinbebettin: doesn't show hand
+philinbebettin collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: philinbebettin (small blind) collected ($1)
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75278686:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:20:17 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($50.75 in chips)
+Seat 3: KratkiLucky ($50 in chips)
+Seat 4: Domagoj87 ($50.74 in chips)
+Seat 5: FullAdjMeg ($33.43 in chips)
+Seat 6: ChadUlf ($64.62 in chips)
+Seat 7: Falcaoo9 ($41.84 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 2h]
+Domagoj87: folds
+FullAdjMeg: calls $0.50
+ChadUlf: folds
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: checks
+*** FLOP *** [2d Ad Tc]
+KratkiLucky: checks
+FullAdjMeg: checks
+*** TURN *** [2d Ad Tc] [6h]
+KratkiLucky: checks
+FullAdjMeg: checks
+*** RIVER *** [2d Ad Tc 6h] [4d]
+KratkiLucky: bets $0.50
+FullAdjMeg: folds
+Uncalled bet ($0.50) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [2d Ad Tc 6h 4d]
+Seat 1: philinbebettin (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: KratkiLucky (big blind) collected ($1.25)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg folded on the River 
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278701:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:20:59 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($50.50 in chips)
+Seat 3: KratkiLucky ($50.69 in chips)
+Seat 4: Domagoj87 ($50.74 in chips)
+Seat 5: FullAdjMeg ($32.93 in chips)
+Seat 6: ChadUlf ($64.62 in chips)
+Seat 7: Falcaoo9 ($41.84 in chips)
+Seat 8: SweetieFox ($50 in chips)
+KratkiLucky: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 3c]
+FullAdjMeg: calls $0.50
+ChadUlf: folds
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: raises $3 to $3
+kole1992: folds
+KratkiLucky: folds
+Domagoj87: folds
+FullAdjMeg: folds
+Uncalled bet ($2.50) returned to philinbebettin
+*** SHOW DOWN ***
+philinbebettin has timed out
+philinbebettin: doesn't show hand
+philinbebettin collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: philinbebettin collected ($1.75)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: KratkiLucky (small blind) folded before Flop 
+Seat 4: Domagoj87 (big blind) folded before Flop 
+Seat 5: FullAdjMeg folded before Flop 
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278709:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:21:27 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50.50 in chips)
+Seat 3: KratkiLucky ($50.44 in chips)
+Seat 4: Domagoj87 ($50.24 in chips)
+Seat 5: FullAdjMeg ($32.43 in chips)
+Seat 6: ChadUlf ($64.62 in chips)
+Seat 7: Falcaoo9 ($41.84 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Domagoj87: posts small blind $0.25
+FullAdjMeg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 3h]
+ChadUlf: raises $1.25 to $1.25
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: folds
+kole1992 has timed out
+kole1992: folds
+KratkiLucky: folds
+Domagoj87: folds
+FullAdjMeg: calls $0.75
+*** FLOP *** [9c 3d Js]
+FullAdjMeg: checks
+ChadUlf: bets $0.90
+FullAdjMeg: calls $0.90
+*** TURN *** [9c 3d Js] [8d]
+FullAdjMeg: bets $4
+ChadUlf: calls $4
+*** RIVER *** [9c 3d Js 8d] [Ac]
+FullAdjMeg: bets $9.50
+ChadUlf: folds
+Uncalled bet ($9.50) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $12.55 from pot
+*** SUMMARY ***
+Total pot $12.55 | Rake $0.62 
+Board [9c 3d Js 8d Ac]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 4: Domagoj87 (small blind) folded before Flop 
+Seat 5: FullAdjMeg (big blind) collected ($12.55)
+Seat 6: ChadUlf folded on the River 
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278739:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:23:07 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50.50 in chips)
+Seat 3: KratkiLucky ($50.44 in chips)
+Seat 4: Domagoj87 ($49.99 in chips)
+Seat 5: FullAdjMeg ($38.21 in chips)
+Seat 6: ChadUlf ($58.47 in chips)
+Seat 7: Falcaoo9 ($41.84 in chips)
+Seat 8: SweetieFox ($50 in chips)
+FullAdjMeg: posts small blind $0.25
+ChadUlf: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Qd]
+Falcaoo9: raises $1.25 to $1.25
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: raises $3.75 to $3.75
+Domagoj87: folds
+FullAdjMeg: calls $3.50
+ChadUlf: folds
+Falcaoo9: calls $2.50
+*** FLOP *** [8s 2c 9h]
+FullAdjMeg: checks
+Falcaoo9: checks
+KratkiLucky: bets $4.18
+FullAdjMeg: folds
+Falcaoo9: folds
+Uncalled bet ($4.18) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $11.75 from pot
+*** SUMMARY ***
+Total pot $11.75 | Rake $0.58 
+Board [8s 2c 9h]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky collected ($11.75)
+Seat 4: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 5: FullAdjMeg (small blind) folded on the Flop 
+Seat 6: ChadUlf (big blind) folded before Flop 
+Seat 7: Falcaoo9 folded on the Flop 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278761:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:24:25 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50.50 in chips)
+Seat 3: KratkiLucky ($57.86 in chips)
+Seat 4: Domagoj87 ($49.99 in chips)
+Seat 5: FullAdjMeg ($34.46 in chips)
+Seat 6: ChadUlf ($57.97 in chips)
+Seat 7: Falcaoo9 ($38.09 in chips)
+Seat 8: SweetieFox ($50 in chips)
+ChadUlf: posts small blind $0.25
+Falcaoo9: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Kc]
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: raises $1.25 to $1.25
+Domagoj87: folds
+FullAdjMeg: folds
+ChadUlf: folds
+Falcaoo9: calls $0.75
+*** FLOP *** [Tc 5h Td]
+Falcaoo9: checks
+KratkiLucky: checks
+*** TURN *** [Tc 5h Td] [9d]
+Falcaoo9: checks
+KratkiLucky: checks
+*** RIVER *** [Tc 5h Td 9d] [5d]
+Falcaoo9: checks
+KratkiLucky: checks
+*** SHOW DOWN ***
+Falcaoo9: shows [6s 3s] (two pair, Tens and Fives)
+KratkiLucky: shows [Qc Kd] (two pair, Tens and Fives)
+KratkiLucky collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Tc 5h Td 9d 5d]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky showed [Qc Kd] and won ($2.75) with two pair, Tens and Fives
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg (button) folded before Flop (didn't bet)
+Seat 6: ChadUlf (small blind) folded before Flop 
+Seat 7: Falcaoo9 (big blind) showed [6s 3s] and lost with two pair, Tens and Fives
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278783:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:25:33 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50.50 in chips)
+Seat 3: KratkiLucky ($59.23 in chips)
+Seat 4: Domagoj87 ($49.99 in chips)
+Seat 5: FullAdjMeg ($34.46 in chips)
+Seat 6: ChadUlf ($57.72 in chips)
+Seat 7: Falcaoo9 ($36.84 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Falcaoo9: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 2h]
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: folds
+Domagoj87: folds
+FullAdjMeg: raises $2 to $2
+ChadUlf: folds
+Falcaoo9: folds
+SweetieFox: folds
+Uncalled bet ($1.50) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg collected ($1.25)
+Seat 6: ChadUlf (button) folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) folded before Flop 
+
+
+Weplay Hand #75278794:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:26:01 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50.50 in chips)
+Seat 3: KratkiLucky ($59.23 in chips)
+Seat 4: Domagoj87 ($49.99 in chips)
+Seat 5: FullAdjMeg ($35.21 in chips)
+Seat 6: ChadUlf ($57.72 in chips)
+Seat 7: Falcaoo9 ($36.59 in chips)
+Seat 8: SweetieFox ($50 in chips)
+SweetieFox: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Td]
+kole1992: folds
+KratkiLucky: folds
+Domagoj87: folds
+FullAdjMeg: folds
+ChadUlf: folds
+FullAdjMeg is disconnected 
+Falcaoo9: folds
+SweetieFox: folds
+Uncalled bet ($0.25) returned to philinbebettin
+*** SHOW DOWN ***
+philinbebettin has timed out
+philinbebettin: doesn't show hand
+philinbebettin collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: philinbebettin (big blind) collected ($0.50)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #75278810:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:26:42 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: philinbebettin ($51.50 in chips)
+Seat 2: kole1992 ($50.50 in chips)
+Seat 3: KratkiLucky ($59.23 in chips)
+Seat 4: Domagoj87 ($49.99 in chips)
+Seat 6: ChadUlf ($57.72 in chips)
+Seat 7: Falcaoo9 ($36.59 in chips)
+Seat 8: SweetieFox ($50 in chips)
+philinbebettin: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Js]
+FullAdjMeg is connected 
+KratkiLucky: folds
+Domagoj87: raises $1.25 to $1.25
+FullAdjMeg is disconnected 
+ChadUlf: folds
+Falcaoo9: folds
+SweetieFox: folds
+FullAdjMeg is connected 
+philinbebettin: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87 has timed out
+Domagoj87: doesn't show hand
+Domagoj87 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: philinbebettin (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Domagoj87 collected ($1.25)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75278830:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:27:30 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($59.23 in chips)
+Seat 4: Domagoj87 ($50.74 in chips)
+Seat 5: FullAdjMeg ($35.21 in chips)
+Seat 6: ChadUlf ($57.72 in chips)
+Seat 7: Falcaoo9 ($36.59 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Jd]
+Domagoj87: folds
+FullAdjMeg: calls $0.50
+ChadUlf: folds
+Falcaoo9: raises $3 to $3
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: folds
+FullAdjMeg: calls $2.50
+*** FLOP *** [4c Qs Th]
+FullAdjMeg: checks
+Falcaoo9: bets $2.40
+FullAdjMeg: calls $2.40
+*** TURN *** [4c Qs Th] [5d]
+FullAdjMeg: bets $7
+Falcaoo9: folds
+Uncalled bet ($7) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $11.55 from pot
+*** SUMMARY ***
+Total pot $11.55 | Rake $0.57 
+Board [4c Qs Th 5d]
+Seat 1: philinbebettin (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: KratkiLucky (big blind) folded before Flop 
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg collected ($11.55)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded on the Turn 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278864:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:29:01 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($58.73 in chips)
+Seat 4: Domagoj87 ($50.74 in chips)
+Seat 5: FullAdjMeg ($40.79 in chips)
+Seat 6: ChadUlf ($57.72 in chips)
+Seat 7: Falcaoo9 ($31.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+KratkiLucky: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 6c]
+FullAdjMeg: folds
+ChadUlf: folds
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: folds
+kole1992: raises $1.25 to $1.25
+FullAdjMeg is disconnected 
+KratkiLucky: raises $5.25 to $5.50
+Domagoj87: folds
+kole1992: folds
+Uncalled bet ($4.25) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop 
+Seat 3: KratkiLucky (small blind) collected ($3)
+Seat 4: Domagoj87 (big blind) folded before Flop 
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278879:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:29:33 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($60.48 in chips)
+Seat 4: Domagoj87 ($50.24 in chips)
+Seat 6: ChadUlf ($57.72 in chips)
+Seat 7: Falcaoo9 ($31.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Domagoj87: posts small blind $0.25
+ChadUlf: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 2s]
+Falcaoo9: folds
+SweetieFox: raises $1.50 to $1.50
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: calls $1.50
+FullAdjMeg is connected 
+Domagoj87: folds
+ChadUlf: folds
+*** FLOP *** [Qd 8c Js]
+SweetieFox: checks
+KratkiLucky: checks
+*** TURN *** [Qd 8c Js] [As]
+SweetieFox: checks
+KratkiLucky: checks
+*** RIVER *** [Qd 8c Js As] [8s]
+SweetieFox: checks
+KratkiLucky: bets $1
+SweetieFox: calls $1
+*** SHOW DOWN ***
+KratkiLucky: shows [Ah 4h] (two pair, Aces and Eights)
+SweetieFox has timed out
+SweetieFox: mucks hand
+KratkiLucky collected $5.75 from pot
+*** SUMMARY ***
+Total pot $5.75 | Rake $0.28 
+Board [Qd 8c Js As 8s]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky (button) showed [Ah 4h] and won ($5.75) with two pair, Aces and Eights
+Seat 4: Domagoj87 (small blind) folded before Flop 
+Seat 6: ChadUlf (big blind) folded before Flop 
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox mucked
+
+
+Weplay Hand #75278909:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:30:46 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($63.45 in chips)
+Seat 4: Domagoj87 ($49.99 in chips)
+Seat 6: ChadUlf ($57.22 in chips)
+Seat 7: Falcaoo9 ($31.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+ChadUlf: posts small blind $0.25
+Falcaoo9: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 6c]
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: folds
+Domagoj87: folds
+ChadUlf: folds
+Uncalled bet ($0.25) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 6: ChadUlf (small blind) folded before Flop 
+Seat 7: Falcaoo9 (big blind) collected ($0.50)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278917:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:31:09 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($63.45 in chips)
+Seat 4: Domagoj87 ($49.99 in chips)
+Seat 5: FullAdjMeg ($40.79 in chips)
+Seat 6: ChadUlf ($56.97 in chips)
+Seat 7: Falcaoo9 ($31.44 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Falcaoo9: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+FullAdjMeg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 3c]
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: raises $2.25 to $2.25
+Domagoj87: folds
+FullAdjMeg: folds
+ChadUlf: folds
+Falcaoo9: folds
+FullAdjMeg is disconnected 
+SweetieFox: folds
+Uncalled bet ($1.75) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky collected ($1.75)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg (big blind) folded before Flop 
+Seat 6: ChadUlf (button) folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) folded before Flop 
+
+
+Weplay Hand #75278935:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:31:39 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: philinbebettin ($51.25 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($64.70 in chips)
+Seat 4: Domagoj87 ($49.99 in chips)
+Seat 6: ChadUlf ($56.97 in chips)
+Seat 7: Falcaoo9 ($31.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+SweetieFox: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Td]
+kole1992: raises $1 to $1
+KratkiLucky: raises $3 to $3
+Domagoj87: folds
+FullAdjMeg is connected 
+ChadUlf: folds
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+Uncalled bet ($2) returned to KratkiLucky
+*** SHOW DOWN ***
+FullAdjMeg is disconnected 
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0 
+Seat 1: philinbebettin (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop 
+Seat 3: KratkiLucky collected ($2.75)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #75278947:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:32:22 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: philinbebettin ($50.75 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($66.45 in chips)
+Seat 4: Domagoj87 ($49.99 in chips)
+Seat 5: FullAdjMeg ($40.29 in chips)
+Seat 6: ChadUlf ($56.97 in chips)
+Seat 7: Falcaoo9 ($31.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+philinbebettin: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 6s]
+KratkiLucky: folds
+Domagoj87: folds
+FullAdjMeg: folds
+ChadUlf: folds
+Falcaoo9: folds
+SweetieFox: raises $1.50 to $1.50
+philinbebettin: raises $4.75 to $5
+kole1992: folds
+SweetieFox: folds
+Uncalled bet ($3.50) returned to philinbebettin
+*** SHOW DOWN ***
+philinbebettin has timed out
+philinbebettin: doesn't show hand
+philinbebettin collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: philinbebettin (small blind) collected ($3.50)
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) folded before Flop 
+
+
+Weplay Hand #75278970:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:33:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: philinbebettin ($52.75 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($66.45 in chips)
+Seat 4: Domagoj87 ($49.99 in chips)
+Seat 5: FullAdjMeg ($40.29 in chips)
+Seat 6: ChadUlf ($56.97 in chips)
+Seat 7: Falcaoo9 ($31.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 2s]
+Domagoj87: raises $1.25 to $1.25
+FullAdjMeg: raises $6 to $6
+ChadUlf: folds
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: folds
+Domagoj87: raises $17.50 to $18.75
+FullAdjMeg: calls $12.75
+*** FLOP *** [2c 6d Jc]
+Domagoj87: bets $31.24 and is all-in
+FullAdjMeg: calls $21.54 and is all-in
+Uncalled bet ($9.70) returned to Domagoj87
+*** FIRST TURN *** [2c 6d Jc] [8h]
+*** FIRST RIVER *** [2c 6d Jc 8h] [3h]
+*** SECOND TURN *** [2c 6d Jc] [Jd]
+*** SECOND RIVER *** [2c 6d Jc Jd] [4h]
+*** SHOW DOWN ***
+Domagoj87: shows [Ks Ah] (high card Ace)
+FullAdjMeg: shows [Qd Ac] (high card Ace)
+Domagoj87 collected $81.33 from pot
+*** SUMMARY ***
+Total pot $81.33 | Rake $4 
+Hand was run two times
+FIRST Board [2c 6d Jc 8h 3h]
+SECOND Board [2c 6d Jc Jd 4h]
+Seat 1: philinbebettin (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: KratkiLucky (big blind) folded before Flop 
+Seat 4: Domagoj87 showed [Ks Ah] and won ($81.33) with high card Ace
+Seat 5: FullAdjMeg showed [Qd Ac] and lost with high card Ace
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75278996:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:34:28 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: philinbebettin ($52.75 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($65.95 in chips)
+Seat 4: Domagoj87 ($87.03 in chips)
+Seat 6: ChadUlf ($56.97 in chips)
+Seat 7: Falcaoo9 ($31.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+KratkiLucky: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Qh]
+FullAdjMeg is disconnected 
+ChadUlf: raises $1.25 to $1.25
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: folds
+kole1992: raises $3 to $3
+KratkiLucky: folds
+Domagoj87: folds
+ChadUlf: calls $1.75
+*** FLOP *** [9h 6d 3c]
+FullAdjMeg is connected 
+ChadUlf: checks
+kole1992: checks
+*** TURN *** [9h 6d 3c] [5s]
+FullAdjMeg is disconnected 
+ChadUlf: bets $4.50
+kole1992: folds
+Uncalled bet ($4.50) returned to ChadUlf
+*** SHOW DOWN ***
+ChadUlf: doesn't show hand
+ChadUlf collected $6.75 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0.33 
+Board [9h 6d 3c 5s]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded on the Turn 
+Seat 3: KratkiLucky (small blind) folded before Flop 
+Seat 4: Domagoj87 (big blind) folded before Flop 
+Seat 6: ChadUlf collected ($6.75)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75279025:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:35:46 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: philinbebettin ($52.75 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($65.70 in chips)
+Seat 4: Domagoj87 ($86.53 in chips)
+Seat 6: ChadUlf ($60.39 in chips)
+Seat 7: Falcaoo9 ($31.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Domagoj87: posts small blind $0.25
+ChadUlf: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 3h]
+FullAdjMeg is connected 
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: folds
+Domagoj87: folds
+Uncalled bet ($0.25) returned to ChadUlf
+*** SHOW DOWN ***
+ChadUlf: doesn't show hand
+ChadUlf collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 4: Domagoj87 (small blind) folded before Flop 
+Seat 6: ChadUlf (big blind) collected ($0.50)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75279034:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:36:10 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: philinbebettin ($52.75 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($65.70 in chips)
+Seat 4: Domagoj87 ($86.28 in chips)
+Seat 6: ChadUlf ($60.64 in chips)
+Seat 7: Falcaoo9 ($31.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+ChadUlf is disconnected 
+ChadUlf: posts small blind $0.25
+Falcaoo9: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Ad]
+SweetieFox: folds
+philinbebettin: folds
+ChadUlf is connected 
+kole1992: raises $1 to $1
+KratkiLucky: folds
+Domagoj87: folds
+FullAdjMeg is disconnected 
+ChadUlf: raises $3.75 to $4
+Falcaoo9: folds
+kole1992: calls $3
+*** FLOP *** [4h 8d 2d]
+ChadUlf: checks
+kole1992: checks
+*** TURN *** [4h 8d 2d] [3h]
+FullAdjMeg is connected 
+ChadUlf: bets $4.25
+kole1992: calls $4.25
+*** RIVER *** [4h 8d 2d 3h] [7s]
+ChadUlf: bets $5
+kole1992: folds
+Uncalled bet ($5) returned to ChadUlf
+*** SHOW DOWN ***
+ChadUlf: doesn't show hand
+ChadUlf collected $17 from pot
+*** SUMMARY ***
+Total pot $17 | Rake $0.85 
+Board [4h 8d 2d 3h 7s]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded on the River 
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 6: ChadUlf (small blind) collected ($17)
+Seat 7: Falcaoo9 (big blind) folded before Flop 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75279067:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:37:39 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: philinbebettin ($52.75 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($65.70 in chips)
+Seat 4: Domagoj87 ($86.28 in chips)
+Seat 5: FullAdjMeg ($30 in chips)
+Seat 7: Falcaoo9 ($30.69 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Falcaoo9: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+FullAdjMeg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 6h]
+ChadUlf leaves the table
+philinbebettin: raises $1.50 to $1.50
+kole1992: folds
+KratkiLucky: folds
+Domagoj87: folds
+FullAdjMeg: raises $5.50 to $6
+Lovesa joins the table at seat #6
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: calls $4.50
+*** FLOP *** [7h 6c Ts]
+philinbebettin: checks
+FullAdjMeg: bets $8
+philinbebettin: calls $8
+*** TURN *** [7h 6c Ts] [Ah]
+philinbebettin: checks
+FullAdjMeg: bets $16 and is all-in
+philinbebettin: folds
+Uncalled bet ($16) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $28.75 from pot
+*** SUMMARY ***
+Total pot $28.75 | Rake $1.43 
+Board [7h 6c Ts Ah]
+Seat 1: philinbebettin folded on the Turn 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg (big blind) collected ($28.75)
+Seat 7: Falcaoo9 (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) folded before Flop 
+
+
+Weplay Hand #75279094:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:38:53 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: philinbebettin ($38.75 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($65.70 in chips)
+Seat 4: Domagoj87 ($86.28 in chips)
+Seat 5: FullAdjMeg ($43.32 in chips)
+Seat 6: Lovesa ($50 in chips)
+Seat 7: Falcaoo9 ($30.44 in chips)
+Seat 8: SweetieFox ($50 in chips)
+SweetieFox: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+Lovesa: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Ad]
+kole1992: folds
+KratkiLucky: folds
+Domagoj87: calls $0.50
+FullAdjMeg: folds
+Lovesa: checks
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: checks
+*** FLOP *** [Ts 8d Kh]
+FullAdjMeg is disconnected 
+philinbebettin: checks
+Domagoj87: checks
+Lovesa: checks
+*** TURN *** [Ts 8d Kh] [7d]
+philinbebettin: checks
+Domagoj87: checks
+Lovesa: checks
+*** RIVER *** [Ts 8d Kh 7d] [9c]
+philinbebettin: checks
+Domagoj87: checks
+Lovesa: checks
+*** SHOW DOWN ***
+philinbebettin: shows [Kd 5h] (a pair of Kings)
+FullAdjMeg is connected 
+Domagoj87 has timed out
+Domagoj87: mucks hand
+Lovesa: mucks hand
+philinbebettin collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0.08 
+Board [Ts 8d Kh 7d 9c]
+Seat 1: philinbebettin (big blind) showed [Kd 5h] and won ($1.75) with a pair of Kings
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: Domagoj87 mucked
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 6: Lovesa (big blind) mucked
+Seat 7: Falcaoo9 (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #75279124:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:40:12 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($65.70 in chips)
+Seat 4: Domagoj87 ($85.78 in chips)
+Seat 5: FullAdjMeg ($43.32 in chips)
+Seat 7: Falcaoo9 ($30.44 in chips)
+Seat 8: SweetieFox ($50 in chips)
+philinbebettin: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 5c]
+Lovesa leaves the table
+KratkiLucky: raises $1.25 to $1.25
+Domagoj87: folds
+FullAdjMeg: folds
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: philinbebettin (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: KratkiLucky collected ($1.25)
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75279140:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:40:39 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: philinbebettin ($49.75 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($66.45 in chips)
+Seat 4: Domagoj87 ($85.78 in chips)
+Seat 5: FullAdjMeg ($43.32 in chips)
+Seat 7: Falcaoo9 ($30.44 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Jd]
+Domagoj87 has timed out
+Domagoj87: folds
+FullAdjMeg: folds
+Falcaoo9: folds
+SweetieFox: raises $1.50 to $1.50
+philinbebettin: folds
+Domagoj87 leaves the table
+FullAdjMeg is disconnected 
+kole1992: raises $5.50 to $5.75
+FullAdjMeg is connected 
+KratkiLucky: folds
+SweetieFox: folds
+Uncalled bet ($4.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: philinbebettin (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) collected ($3.50)
+Seat 3: KratkiLucky (big blind) folded before Flop 
+Seat 4: Domagoj87 folded before Flop (didn't bet)
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop 
+
+
+Weplay Hand #75279165:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:41:48 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: philinbebettin ($49.75 in chips)
+Seat 2: kole1992 ($52 in chips)
+Seat 3: KratkiLucky ($65.95 in chips)
+Seat 5: FullAdjMeg ($43.32 in chips)
+Seat 7: Falcaoo9 ($30.44 in chips)
+Seat 8: SweetieFox ($50 in chips)
+KratkiLucky: posts small blind $0.25
+FullAdjMeg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Kc]
+Falcaoo9: folds
+SweetieFox: raises $1.50 to $1.50
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: folds
+FullAdjMeg: folds
+Uncalled bet ($1) returned to SweetieFox
+*** SHOW DOWN ***
+SweetieFox has timed out
+SweetieFox: doesn't show hand
+SweetieFox collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: KratkiLucky (small blind) folded before Flop 
+Seat 5: FullAdjMeg (big blind) folded before Flop 
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox collected ($1.25)
+
+
+Weplay Hand #75279178:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:42:16 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: philinbebettin ($49.75 in chips)
+Seat 2: kole1992 ($52 in chips)
+Seat 3: KratkiLucky ($65.70 in chips)
+Seat 5: FullAdjMeg ($42.82 in chips)
+Seat 7: Falcaoo9 ($30.44 in chips)
+Seat 8: SweetieFox ($50.75 in chips)
+FullAdjMeg: posts small blind $0.25
+Falcaoo9: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Jd]
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: folds
+FullAdjMeg: folds
+Uncalled bet ($0.25) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 5: FullAdjMeg (small blind) folded before Flop 
+Seat 7: Falcaoo9 (big blind) collected ($0.50)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75279184:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:42:30 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: philinbebettin ($49.75 in chips)
+Seat 2: kole1992 ($52 in chips)
+Seat 3: KratkiLucky ($65.70 in chips)
+Seat 5: FullAdjMeg ($42.57 in chips)
+Seat 7: Falcaoo9 ($30.69 in chips)
+Seat 8: SweetieFox ($50.75 in chips)
+Falcaoo9: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Ts]
+philinbebettin: folds
+kole1992: raises $1.10 to $1.10
+KratkiLucky: folds
+FullAdjMeg: calls $1.10
+Falcaoo9: raises $5.25 to $5.50
+SweetieFox: folds
+kole1992: calls $4.40
+FullAdjMeg: folds
+*** FLOP *** [Qs Jh 6d]
+Falcaoo9: bets $4.35
+kole1992: folds
+Uncalled bet ($4.35) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $12.60 from pot
+*** SUMMARY ***
+Total pot $12.60 | Rake $0.63 
+Board [Qs Jh 6d]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded on the Flop 
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 5: FullAdjMeg (button) folded before Flop 
+Seat 7: Falcaoo9 (small blind) collected ($12.60)
+Seat 8: SweetieFox (big blind) folded before Flop 
+
+
+Weplay Hand #75279209:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:44:02 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: philinbebettin ($49.75 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($65.70 in chips)
+Seat 5: FullAdjMeg ($41.47 in chips)
+Seat 7: Falcaoo9 ($37.16 in chips)
+Seat 8: SweetieFox ($50.25 in chips)
+SweetieFox: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Jh]
+kole1992: folds
+KratkiLucky: folds
+FullAdjMeg: raises $3 to $3
+Falcaoo9: calls $3
+SweetieFox: folds
+philinbebettin: folds
+*** FLOP *** [Ts 2h 4c]
+FullAdjMeg: bets $5.50
+Falcaoo9: folds
+Uncalled bet ($5.50) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $6.75 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0.33 
+Board [Ts 2h 4c]
+Seat 1: philinbebettin (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 5: FullAdjMeg collected ($6.75)
+Seat 7: Falcaoo9 (button) folded on the Flop 
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #75279234:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:45:00 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: philinbebettin ($49.25 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($65.70 in chips)
+Seat 5: FullAdjMeg ($44.89 in chips)
+Seat 7: Falcaoo9 ($34.16 in chips)
+Seat 8: SweetieFox ($50 in chips)
+philinbebettin: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 3c]
+KratkiLucky: folds
+FullAdjMeg: folds
+Falcaoo9: folds
+FullAdjMeg is disconnected 
+SweetieFox: folds
+philinbebettin: raises $1.25 to $1.50
+kole1992: folds
+Uncalled bet ($1) returned to philinbebettin
+*** SHOW DOWN ***
+philinbebettin has timed out
+philinbebettin: doesn't show hand
+philinbebettin collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: philinbebettin (small blind) collected ($1)
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75279251:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:45:32 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: philinbebettin ($49.75 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: KratkiLucky ($65.70 in chips)
+Seat 7: Falcaoo9 ($34.16 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Qd]
+FullAdjMeg is connected 
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: folds
+kole1992: raises $1.25 to $1.50
+KratkiLucky: raises $4 to $4.50
+kole1992: raises $11 to $12.50
+KratkiLucky: calls $8
+*** FLOP *** [4c 7s Qc]
+FullAdjMeg is disconnected 
+kole1992: bets $6
+KratkiLucky: calls $6
+*** TURN *** [4c 7s Qc] [Td]
+FullAdjMeg is connected 
+kole1992: checks
+BlackMurder joins the table at seat #4
+KratkiLucky: bets $8.26
+kole1992: raises $31.50 to $31.50 and is all-in
+KratkiLucky: folds
+Uncalled bet ($23.24) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $53.52 from pot
+*** SUMMARY ***
+Total pot $53.52 | Rake $2.67 
+Board [4c 7s Qc Td]
+Seat 1: philinbebettin (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) collected ($53.52)
+Seat 3: KratkiLucky (big blind) folded on the Turn 
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75279303:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:47:35 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: philinbebettin ($49.75 in chips)
+Seat 2: kole1992 ($74.09 in chips)
+Seat 3: KratkiLucky ($50 in chips)
+Seat 4: BlackMurder ($19.50 in chips)
+Seat 5: FullAdjMeg ($44.89 in chips)
+Seat 7: Falcaoo9 ($34.16 in chips)
+Seat 8: SweetieFox ($50 in chips)
+KratkiLucky: posts small blind $0.25
+BlackMurder: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 3h]
+Falcaoo9 is disconnected 
+FullAdjMeg: folds
+Falcaoo9 is connected 
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: raises $1.50 to $1.50
+kole1992: folds
+KratkiLucky: raises $5.75 to $6
+BlackMurder: folds
+philinbebettin: folds
+Uncalled bet ($4.50) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: philinbebettin folded before Flop 
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: KratkiLucky (small blind) collected ($3.50)
+Seat 4: BlackMurder (big blind) folded before Flop 
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75280324:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:48:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: philinbebettin ($48.25 in chips)
+Seat 2: kole1992 ($74.09 in chips)
+Seat 3: KratkiLucky ($52 in chips)
+Seat 4: BlackMurder ($19 in chips)
+Seat 5: FullAdjMeg ($44.89 in chips)
+Seat 7: Falcaoo9 ($34.16 in chips)
+Seat 8: SweetieFox ($50 in chips)
+BlackMurder: posts small blind $0.25
+FullAdjMeg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 7d]
+Falcaoo9: folds
+SweetieFox: raises $1.50 to $1.50
+FullAdjMeg is disconnected 
+philinbebettin: calls $1.50
+FullAdjMeg is connected 
+kole1992: folds
+KratkiLucky: folds
+BlackMurder: calls $1.25
+FullAdjMeg: calls $1
+*** FLOP *** [4h Kd 2h]
+BlackMurder: bets $3
+FullAdjMeg: folds
+SweetieFox: folds
+philinbebettin: folds
+Uncalled bet ($3) returned to BlackMurder
+*** SHOW DOWN ***
+BlackMurder has timed out
+BlackMurder: doesn't show hand
+BlackMurder collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [4h Kd 2h]
+Seat 1: philinbebettin folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 4: BlackMurder (small blind) collected ($6)
+Seat 5: FullAdjMeg (big blind) folded on the Flop 
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded on the Flop 
+
+
+Weplay Hand #75280343:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:49:20 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($74.09 in chips)
+Seat 3: KratkiLucky ($52 in chips)
+Seat 4: BlackMurder ($23.20 in chips)
+Seat 5: FullAdjMeg ($43.39 in chips)
+Seat 7: Falcaoo9 ($34.16 in chips)
+Seat 8: SweetieFox ($50 in chips)
+FullAdjMeg: posts small blind $0.25
+Falcaoo9: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 8s]
+SweetieFox: folds
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: folds
+BlackMurder: calls $0.50
+FullAdjMeg: folds
+Falcaoo9: checks
+*** FLOP *** [8d 2c 6d]
+Falcaoo9: checks
+BlackMurder: checks
+*** TURN *** [8d 2c 6d] [Td]
+FullAdjMeg is disconnected 
+Falcaoo9: bets $0.65
+FullAdjMeg is connected 
+BlackMurder: calls $0.65
+*** RIVER *** [8d 2c 6d Td] [Jd]
+Falcaoo9: checks
+BlackMurder: checks
+*** SHOW DOWN ***
+Falcaoo9: shows [7d 6h] (a flush, Jack high)
+BlackMurder has timed out
+BlackMurder: mucks hand
+Falcaoo9 collected $2.55 from pot
+*** SUMMARY ***
+Total pot $2.55 | Rake $0.12 
+Board [8d 2c 6d Td Jd]
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: BlackMurder (button) mucked
+Seat 5: FullAdjMeg (small blind) folded before Flop 
+Seat 7: Falcaoo9 (big blind) showed [7d 6h] and won ($2.55) with a flush, Jack high
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75280379:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:50:29 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($74.09 in chips)
+Seat 3: KratkiLucky ($52 in chips)
+Seat 4: BlackMurder ($22.05 in chips)
+Seat 5: FullAdjMeg ($43.14 in chips)
+Seat 7: Falcaoo9 ($35.44 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Falcaoo9: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 8h]
+philinbebettin: folds
+kole1992: folds
+KratkiLucky: folds
+BlackMurder: calls $0.50
+FullAdjMeg: raises $3 to $3
+Falcaoo9: folds
+SweetieFox: folds
+BlackMurder: folds
+Uncalled bet ($2.50) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: philinbebettin folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: BlackMurder folded before Flop 
+Seat 5: FullAdjMeg (button) collected ($1.75)
+Seat 7: Falcaoo9 (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) folded before Flop 
+
+
+Weplay Hand #75280391:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:51:02 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: philinbebettin ($50 in chips)
+Seat 2: kole1992 ($74.09 in chips)
+Seat 3: KratkiLucky ($52 in chips)
+Seat 4: BlackMurder ($21.55 in chips)
+Seat 5: FullAdjMeg ($44.39 in chips)
+Seat 7: Falcaoo9 ($35.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+SweetieFox: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Ks]
+kole1992: raises $1.25 to $1.25
+KratkiLucky: folds
+BlackMurder: folds
+FullAdjMeg: raises $3.50 to $3.50
+Falcaoo9: folds
+SweetieFox: folds
+philinbebettin: folds
+philinbebettin leaves the table
+kole1992: folds
+Uncalled bet ($2.25) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: philinbebettin (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop 
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: BlackMurder folded before Flop (didn't bet)
+Seat 5: FullAdjMeg collected ($3.25)
+Seat 7: Falcaoo9 (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #75280409:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:51:40 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 2: kole1992 ($72.84 in chips)
+Seat 3: KratkiLucky ($52 in chips)
+Seat 4: BlackMurder ($21.55 in chips)
+Seat 5: FullAdjMeg ($46.39 in chips)
+Seat 7: Falcaoo9 ($35.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 9d]
+KratkiLucky: folds
+BlackMurder: calls $0.50
+FullAdjMeg: folds
+Falcaoo9: raises $2.75 to $2.75
+SweetieFox: folds
+kole1992: folds
+BlackMurder: folds
+Uncalled bet ($2.25) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: BlackMurder folded before Flop 
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 7: Falcaoo9 collected ($1.50)
+Seat 8: SweetieFox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75280423:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:52:14 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 2: kole1992 ($72.34 in chips)
+Seat 3: KratkiLucky ($52 in chips)
+Seat 4: BlackMurder ($21.05 in chips)
+Seat 5: FullAdjMeg ($46.39 in chips)
+Seat 7: Falcaoo9 ($36.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 8d]
+BlackMurder: calls $0.50
+FullAdjMeg: folds
+Falcaoo9: folds
+SweetieFox: folds
+kole1992: folds
+KratkiLucky: checks
+*** FLOP *** [2h 4s 5h]
+KratkiLucky: checks
+BlackMurder: checks
+*** TURN *** [2h 4s 5h] [7c]
+KratkiLucky: checks
+BlackMurder: checks
+*** RIVER *** [2h 4s 5h 7c] [2s]
+KratkiLucky: bets $1
+BlackMurder: calls $1
+*** SHOW DOWN ***
+KratkiLucky: shows [2c 9c] (three of a kind, Deuces)
+BlackMurder has timed out
+BlackMurder: mucks hand
+KratkiLucky collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [2h 4s 5h 7c 2s]
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: KratkiLucky (big blind) showed [2c 9c] and won ($3.25) with three of a kind, Deuces
+Seat 4: BlackMurder mucked
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75280449:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:53:04 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($72.09 in chips)
+Seat 3: KratkiLucky ($53.59 in chips)
+Seat 4: BlackMurder ($19.55 in chips)
+Seat 5: FullAdjMeg ($46.39 in chips)
+Seat 7: Falcaoo9 ($36.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+KratkiLucky: posts small blind $0.25
+BlackMurder: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 9d]
+FullAdjMeg: raises $3 to $3
+Falcaoo9: folds
+SweetieFox: folds
+kole1992: folds
+KratkiLucky: folds
+BlackMurder: folds
+Uncalled bet ($2.50) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: KratkiLucky (small blind) folded before Flop 
+Seat 4: BlackMurder (big blind) folded before Flop 
+Seat 5: FullAdjMeg collected ($1.25)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75280466:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:53:38 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 2: kole1992 ($72.09 in chips)
+Seat 3: KratkiLucky ($53.34 in chips)
+Seat 4: BlackMurder ($19.05 in chips)
+Seat 5: FullAdjMeg ($47.14 in chips)
+Seat 7: Falcaoo9 ($36.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+BlackMurder: posts small blind $0.25
+FullAdjMeg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 2d]
+Falcaoo9: folds
+SweetieFox: folds
+kole1992: folds
+KratkiLucky: raises $1.25 to $1.25
+BlackMurder: calls $1
+FullAdjMeg: folds
+*** FLOP *** [Kh 4c 5d]
+BlackMurder: checks
+KratkiLucky: bets $1
+BlackMurder: folds
+Uncalled bet ($1) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Kh 4c 5d]
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky (button) collected ($3)
+Seat 4: BlackMurder (small blind) folded on the Flop 
+Seat 5: FullAdjMeg (big blind) folded before Flop 
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75280483:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:54:19 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 2: kole1992 ($72.09 in chips)
+Seat 3: KratkiLucky ($54.94 in chips)
+Seat 4: BlackMurder ($17.80 in chips)
+Seat 5: FullAdjMeg ($46.64 in chips)
+Seat 7: Falcaoo9 ($36.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+FullAdjMeg: posts small blind $0.25
+Falcaoo9: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 2d]
+SweetieFox: folds
+kole1992: folds
+KratkiLucky: raises $1.25 to $1.25
+BlackMurder: calls $1.25
+FullAdjMeg: raises $6.75 to $7
+Falcaoo9: folds
+KratkiLucky: folds
+BlackMurder: calls $5.75
+*** FLOP *** [6d 7d Kd]
+FullAdjMeg: bets $18
+BlackMurder: folds
+Uncalled bet ($18) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $15.75 from pot
+*** SUMMARY ***
+Total pot $15.75 | Rake $0.78 
+Board [6d 7d Kd]
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop 
+Seat 4: BlackMurder (button) folded on the Flop 
+Seat 5: FullAdjMeg (small blind) collected ($15.75)
+Seat 7: Falcaoo9 (big blind) folded before Flop 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75280511:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:55:44 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($72.09 in chips)
+Seat 3: KratkiLucky ($53.69 in chips)
+Seat 4: BlackMurder ($10.80 in chips)
+Seat 5: FullAdjMeg ($54.61 in chips)
+Seat 7: Falcaoo9 ($35.69 in chips)
+Seat 8: SweetieFox ($50 in chips)
+Falcaoo9: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Qd]
+kole1992: folds
+KratkiLucky: folds
+BlackMurder: folds
+FullAdjMeg: folds
+Falcaoo9: raises $1.50 to $1.75
+SweetieFox: folds
+Uncalled bet ($1.25) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: BlackMurder folded before Flop (didn't bet)
+Seat 5: FullAdjMeg (button) folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (small blind) collected ($1)
+Seat 8: SweetieFox (big blind) folded before Flop 
+
+
+Weplay Hand #75280517:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:56:10 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 2: kole1992 ($72.09 in chips)
+Seat 3: KratkiLucky ($53.69 in chips)
+Seat 5: FullAdjMeg ($54.61 in chips)
+Seat 7: Falcaoo9 ($36.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+FullAdjMeg is disconnected 
+SweetieFox: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 4d]
+KratkiLucky: raises $1.25 to $1.25
+FullAdjMeg has timed out while being disconnected
+FullAdjMeg: folds
+Falcaoo9: folds
+SweetieFox: folds
+FullAdjMeg is connected 
+kole1992: folds
+Uncalled bet ($0.75) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: KratkiLucky collected ($1.25)
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 7: Falcaoo9 (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #75280530:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:56:46 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 2: kole1992 ($71.59 in chips)
+Seat 3: KratkiLucky ($54.44 in chips)
+Seat 5: FullAdjMeg ($54.61 in chips)
+Seat 7: Falcaoo9 ($36.19 in chips)
+Seat 8: SweetieFox ($50 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 7s]
+BlackMurder leaves the table
+FullAdjMeg: folds
+Falcaoo9: folds
+SweetieFox: raises $1.50 to $1.50
+kole1992: folds
+KratkiLucky: folds
+Uncalled bet ($1) returned to SweetieFox
+*** SHOW DOWN ***
+SweetieFox has timed out
+SweetieFox: doesn't show hand
+SweetieFox collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: KratkiLucky (big blind) folded before Flop 
+Seat 5: FullAdjMeg folded before Flop (didn't bet)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) collected ($1.25)
+
+
+Weplay Hand #75280536:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:57:14 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($71.34 in chips)
+Seat 3: KratkiLucky ($53.94 in chips)
+Seat 5: FullAdjMeg ($54.61 in chips)
+Seat 7: Falcaoo9 ($36.19 in chips)
+Seat 8: SweetieFox ($50.75 in chips)
+KratkiLucky: posts small blind $0.25
+FullAdjMeg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 4s]
+Falcaoo9: folds
+SweetieFox: folds
+kole1992: folds
+KratkiLucky: folds
+Uncalled bet ($0.25) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: KratkiLucky (small blind) folded before Flop 
+Seat 5: FullAdjMeg (big blind) collected ($0.50)
+Seat 7: Falcaoo9 folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75280540:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:57:30 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 2: kole1992 ($71.34 in chips)
+Seat 3: KratkiLucky ($53.69 in chips)
+Seat 5: FullAdjMeg ($54.86 in chips)
+Seat 7: Falcaoo9 ($36.19 in chips)
+Seat 8: SweetieFox ($50.75 in chips)
+FullAdjMeg: posts small blind $0.25
+Falcaoo9: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 3c]
+SweetieFox: folds
+kole1992: folds
+KratkiLucky: folds
+FullAdjMeg: raises $4.75 to $5
+Falcaoo9: folds
+Uncalled bet ($4.50) returned to FullAdjMeg
+*** SHOW DOWN ***
+FullAdjMeg has timed out
+FullAdjMeg: doesn't show hand
+FullAdjMeg collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 5: FullAdjMeg (small blind) collected ($1)
+Seat 7: Falcaoo9 (big blind) folded before Flop 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #75280545:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 13:57:50 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($71.34 in chips)
+Seat 3: KratkiLucky ($53.69 in chips)
+Seat 5: FullAdjMeg ($55.36 in chips)
+Seat 7: Falcaoo9 ($35.69 in chips)
+Seat 8: SweetieFox ($50.75 in chips)
+Falcaoo9: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Ad]
+kole1992: raises $1.10 to $1.10
+KratkiLucky: folds
+FullAdjMeg: calls $1.10
+Falcaoo9: calls $0.85
+SweetieFox: calls $0.60
+*** FLOP *** [Td 3h Js]
+Falcaoo9: checks
+SweetieFox: checks
+kole1992: checks
+FullAdjMeg: bets $1
+Falcaoo9: calls $1
+SweetieFox: calls $1
+kole1992: calls $1
+*** TURN *** [Td 3h Js] [Qc]
+Falcaoo9: checks
+SweetieFox: checks
+kole1992: checks
+FullAdjMeg: checks
+*** RIVER *** [Td 3h Js Qc] [7d]
+Falcaoo9: bets $5.80
+SweetieFox: calls $5.80
+kole1992: folds
+FullAdjMeg: raises $25.60 to $25.60
+Falcaoo9: folds
+SweetieFox: calls $19.80
+*** SHOW DOWN ***
+FullAdjMeg: shows [7c 7s] (three of a kind, Sevens)
+SweetieFox: shows [9d 8d] (a straight, Eight to Queen)
+SweetieFox collected $65.40 from pot
+*** SUMMARY ***
+Total pot $65.40 | Rake $3.27 
+Board [Td 3h Js Qc 7d]
+Seat 2: kole1992 folded on the River 
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 5: FullAdjMeg (button) showed [7c 7s] and lost with three of a kind, Sevens
+Seat 7: Falcaoo9 (small blind) folded on the River 
+Seat 8: SweetieFox (big blind) showed [9d 8d] and won ($65.40) with a straight, Eight to Queen
+
+
+Weplay Hand #75302352:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:05:06 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: 2469840_411750 ($25.08 in chips)
+Seat 2: Tone91 ($53.65 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($48.05 in chips)
+Seat 6: kole1992 ($50 in chips)
+Seat 7: markanen0 ($45.66 in chips)
+Seat 8: Noakis89 ($45.25 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 8d]
+markanen0: folds
+Noakis89: calls $0.50
+2469840_411750: calls $0.50
+Tone91: folds
+Casseta24: folds
+sadam: folds
+kole1992: checks
+*** FLOP *** [6c 3s 2h]
+kole1992: checks
+Noakis89: checks
+2469840_411750: bets $1
+kole1992: folds
+Noakis89: calls $1
+*** TURN *** [6c 3s 2h] [8h]
+Noakis89: checks
+2469840_411750: bets $1
+Noakis89: folds
+Uncalled bet ($1) returned to 2469840_411750
+*** SHOW DOWN ***
+2469840_411750 has timed out
+2469840_411750: doesn't show hand
+2469840_411750 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [6c 3s 2h 8h]
+Seat 1: 2469840_411750 collected ($3.75)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 4: Casseta24 (button) folded before Flop (didn't bet)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded on the Flop 
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded on the Turn 
+
+
+Weplay Hand #75302501:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:06:06 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: 2469840_411750 ($27.15 in chips)
+Seat 2: Tone91 ($53.65 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($47.80 in chips)
+Seat 6: kole1992 ($50 in chips)
+Seat 7: markanen0 ($45.66 in chips)
+Seat 8: Noakis89 ($43.75 in chips)
+kole1992: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Jc]
+Noakis89: folds
+2469840_411750: calls $0.50
+Tone91: folds
+Casseta24: folds
+sadam: raises $1.25 to $1.25
+kole1992: raises $6.25 to $6.50
+markanen0: folds
+2469840_411750: folds
+sadam: folds
+Uncalled bet ($5.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: 2469840_411750 folded before Flop 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam (button) folded before Flop 
+Seat 6: kole1992 (small blind) collected ($3.50)
+Seat 7: markanen0 (big blind) folded before Flop 
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75302578:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:06:36 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: 2469840_411750 ($26.65 in chips)
+Seat 2: Tone91 ($53.65 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($46.55 in chips)
+Seat 6: kole1992 ($52.25 in chips)
+Seat 7: markanen0 ($45.16 in chips)
+Seat 8: Noakis89 ($43.75 in chips)
+markanen0: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 9c]
+2469840_411750: calls $0.50
+Tone91: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: checks
+*** FLOP *** [7s 6s Qc]
+Noakis89: checks
+2469840_411750: checks
+*** TURN *** [7s 6s Qc] [6d]
+Noakis89: checks
+2469840_411750: checks
+*** RIVER *** [7s 6s Qc 6d] [8h]
+Noakis89: checks
+2469840_411750: bets $0.50
+Noakis89: folds
+Uncalled bet ($0.50) returned to 2469840_411750
+*** SHOW DOWN ***
+2469840_411750 has timed out
+2469840_411750: doesn't show hand
+2469840_411750 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [7s 6s Qc 6d 8h]
+Seat 1: 2469840_411750 collected ($1.25)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: markanen0 (small blind) folded before Flop 
+Seat 8: Noakis89 (big blind) folded on the River 
+
+
+Weplay Hand #75302676:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:07:11 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: 2469840_411750 ($27.34 in chips)
+Seat 2: Tone91 ($53.65 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($46.55 in chips)
+Seat 6: kole1992 ($52.25 in chips)
+Seat 7: markanen0 ($44.91 in chips)
+Seat 8: Noakis89 ($43.25 in chips)
+Noakis89: posts small blind $0.25
+2469840_411750: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d As]
+Tone91: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: raises $1.25 to $1.50
+2469840_411750: calls $1
+*** FLOP *** [3d Qd Ks]
+Noakis89: bets $2
+2469840_411750: folds
+Uncalled bet ($2) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [3d Qd Ks]
+Seat 1: 2469840_411750 (big blind) folded on the Flop 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 (button) folded before Flop (didn't bet)
+Seat 8: Noakis89 (small blind) collected ($3)
+
+
+Weplay Hand #75302752:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:07:39 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: 2469840_411750 ($25.84 in chips)
+Seat 2: Tone91 ($53.65 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($46.55 in chips)
+Seat 6: kole1992 ($52.25 in chips)
+Seat 7: markanen0 ($44.91 in chips)
+Seat 8: Noakis89 ($44.60 in chips)
+2469840_411750: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 3c]
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: calls $0.50
+2469840_411750: calls $0.25
+Tone91: checks
+*** FLOP *** [Th 6s 7c]
+2469840_411750: checks
+Tone91: checks
+Noakis89: bets $1
+2469840_411750: calls $1
+Tone91: folds
+*** TURN *** [Th 6s 7c] [Kd]
+2469840_411750: checks
+Noakis89: checks
+*** RIVER *** [Th 6s 7c Kd] [7h]
+2469840_411750: checks
+Noakis89: checks
+*** SHOW DOWN ***
+2469840_411750: shows [4s 9c] (a pair of Sevens)
+Noakis89: shows [As 8c] (a pair of Sevens)
+Noakis89 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [Th 6s 7c Kd 7h]
+Seat 1: 2469840_411750 (small blind) showed [4s 9c] and lost with a pair of Sevens
+Seat 2: Tone91 (big blind) folded on the Flop 
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 (button) showed [As 8c] and won ($3.50) with a pair of Sevens
+
+
+Weplay Hand #75302850:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:08:17 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: 2469840_411750 ($24.34 in chips)
+Seat 2: Tone91 ($53.15 in chips)
+Seat 3: Liam ($96.95 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($46.55 in chips)
+Seat 6: kole1992 ($52.25 in chips)
+Seat 7: markanen0 ($44.91 in chips)
+Seat 8: Noakis89 ($46.43 in chips)
+Tone91: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 9s]
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: calls $0.50
+2469840_411750: calls $0.50
+Tone91: folds
+Liam: checks
+*** FLOP *** [7d 4s 4h]
+Liam: checks
+Noakis89: checks
+2469840_411750: checks
+*** TURN *** [7d 4s 4h] [Js]
+Liam: checks
+Noakis89: bets $1.50
+2469840_411750: folds
+Liam: folds
+Uncalled bet ($1.50) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0.08 
+Board [7d 4s 4h Js]
+Seat 1: 2469840_411750 (button) folded on the Turn 
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: Liam (big blind) folded on the Turn 
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 collected ($1.75)
+
+
+Weplay Hand #75302956:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:09:00 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: 2469840_411750 ($23.84 in chips)
+Seat 2: Tone91 ($52.90 in chips)
+Seat 3: Liam ($96.45 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($46.55 in chips)
+Seat 6: kole1992 ($52.25 in chips)
+Seat 7: markanen0 ($44.91 in chips)
+Seat 8: Noakis89 ($47.60 in chips)
+Liam: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 4s]
+sadam: folds
+kole1992: folds
+markanen0: raises $1 to $1
+Noakis89: calls $1
+2469840_411750: calls $1
+Tone91: folds
+Liam: folds
+Casseta24: folds
+*** FLOP *** [8s 7h 2h]
+markanen0: bets $1.87
+Noakis89: folds
+2469840_411750: calls $1.87
+*** TURN *** [8s 7h 2h] [3s]
+markanen0: bets $3.74
+2469840_411750: calls $3.74
+*** RIVER *** [8s 7h 2h 3s] [4c]
+markanen0: checks
+2469840_411750: checks
+*** SHOW DOWN ***
+markanen0: shows [6c 6d] (a pair of Sixes)
+2469840_411750: shows [Js 7s] (a pair of Sevens)
+2469840_411750 collected $14.97 from pot
+*** SUMMARY ***
+Total pot $14.97 | Rake $0.74 
+Board [8s 7h 2h 3s 4c]
+Seat 1: 2469840_411750 showed [Js 7s] and won ($14.97) with a pair of Sevens
+Seat 2: Tone91 (button) folded before Flop (didn't bet)
+Seat 3: Liam (small blind) folded before Flop 
+Seat 4: Casseta24 (big blind) folded before Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 showed [6c 6d] and lost with a pair of Sixes
+Seat 8: Noakis89 folded on the Flop 
+
+
+Weplay Hand #75303117:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:10:08 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: 2469840_411750 ($31.46 in chips)
+Seat 2: Tone91 ($52.90 in chips)
+Seat 3: Liam ($96.20 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($46.55 in chips)
+Seat 6: kole1992 ($52.25 in chips)
+Seat 7: markanen0 ($38.30 in chips)
+Seat 8: Noakis89 ($46.60 in chips)
+Casseta24: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Kh]
+kole1992: folds
+markanen0: folds
+Noakis89: calls $0.50
+2469840_411750: calls $0.50
+Tone91: folds
+Liam: folds
+Casseta24: raises $2.75 to $3
+sadam: folds
+Noakis89: calls $2.50
+2469840_411750: calls $2.50
+*** FLOP *** [4h 3h 9s]
+Casseta24: checks
+Noakis89: bets $4.25
+2469840_411750: folds
+Casseta24: folds
+Uncalled bet ($4.25) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [4h 3h 9s]
+Seat 1: 2469840_411750 folded on the Flop 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam (button) folded before Flop (didn't bet)
+Seat 4: Casseta24 (small blind) folded on the Flop 
+Seat 5: sadam (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 collected ($9.50)
+
+
+Weplay Hand #75303255:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:11:07 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: 2469840_411750 ($28.46 in chips)
+Seat 2: Tone91 ($52.90 in chips)
+Seat 3: Liam ($96.20 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($46.05 in chips)
+Seat 6: kole1992 ($52.25 in chips)
+Seat 7: markanen0 ($38.30 in chips)
+Seat 8: Noakis89 ($52.63 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 6s]
+markanen0: folds
+Noakis89: folds
+2469840_411750: calls $0.50
+Tone91: folds
+Liam: raises $4.25 to $4.25
+Casseta24: folds
+sadam: folds
+kole1992: folds
+2469840_411750: folds
+Uncalled bet ($3.75) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: 2469840_411750 folded before Flop 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam collected ($1.75)
+Seat 4: Casseta24 (button) folded before Flop (didn't bet)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75303309:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:11:31 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: 2469840_411750 ($27.96 in chips)
+Seat 2: Tone91 ($52.90 in chips)
+Seat 3: Liam ($97.45 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($45.80 in chips)
+Seat 6: kole1992 ($51.75 in chips)
+Seat 7: markanen0 ($38.30 in chips)
+Seat 8: Noakis89 ($52.63 in chips)
+kole1992: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 2s]
+Noakis89: raises $1.50 to $1.50
+2469840_411750: calls $1.50
+Tone91: calls $1.50
+Liam: folds
+Casseta24: folds
+sadam: raises $9.01 to $9.01
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+2469840_411750: folds
+Tone91: folds
+Uncalled bet ($7.51) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $6.75 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0 
+Seat 1: 2469840_411750 folded before Flop 
+Seat 2: Tone91 folded before Flop 
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam (button) collected ($6.75)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: markanen0 (big blind) folded before Flop 
+Seat 8: Noakis89 folded before Flop 
+
+
+Weplay Hand #75303416:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:12:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: 2469840_411750 ($26.46 in chips)
+Seat 2: Tone91 ($51.40 in chips)
+Seat 3: Liam ($97.45 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($51.05 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($37.80 in chips)
+Seat 8: Noakis89 ($51.13 in chips)
+markanen0: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 9s]
+2469840_411750: calls $0.50
+Tone91: calls $0.50
+Liam has timed out
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: checks
+*** FLOP *** [6c Jc 9d]
+Noakis89: checks
+2469840_411750: checks
+Tone91: checks
+*** TURN *** [6c Jc 9d] [Qs]
+Noakis89: checks
+2469840_411750: checks
+Tone91: checks
+*** RIVER *** [6c Jc 9d Qs] [9c]
+Noakis89: checks
+2469840_411750: checks
+Tone91: checks
+*** SHOW DOWN ***
+Noakis89: shows [5d Tc] (a pair of Nines)
+2469840_411750: shows [2d 2c] (two pair, Nines and Deuces)
+Tone91: shows [7s 7d] (two pair, Nines and Sevens)
+Tone91 collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0.08 
+Board [6c Jc 9d Qs 9c]
+Seat 1: 2469840_411750 showed [2d 2c] and lost with two pair, Nines and Deuces
+Seat 2: Tone91 showed [7s 7d] and won ($1.75) with two pair, Nines and Sevens
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: markanen0 (small blind) folded before Flop 
+Seat 8: Noakis89 (big blind) showed [5d Tc] and lost with a pair of Nines
+
+
+Weplay Hand #75303546:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:13:16 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: 2469840_411750 ($25.96 in chips)
+Seat 2: Tone91 ($52.57 in chips)
+Seat 3: Liam ($97.45 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($51.05 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($37.55 in chips)
+Seat 8: Noakis89 ($50.63 in chips)
+Noakis89: posts small blind $0.25
+2469840_411750: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 6c]
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+Uncalled bet ($0.25) returned to 2469840_411750
+*** SHOW DOWN ***
+2469840_411750 has timed out
+2469840_411750: doesn't show hand
+2469840_411750 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: 2469840_411750 (big blind) collected ($0.50)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 (button) folded before Flop (didn't bet)
+Seat 8: Noakis89 (small blind) folded before Flop 
+
+
+Weplay Hand #75303579:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:13:32 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: 2469840_411750 ($26.21 in chips)
+Seat 2: Tone91 ($52.57 in chips)
+Seat 3: Liam ($97.45 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($51.05 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($37.55 in chips)
+Seat 8: Noakis89 ($50.38 in chips)
+2469840_411750: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 5c]
+Liam: raises $1 to $1
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: calls $1
+2469840_411750: calls $0.75
+Tone91: folds
+*** FLOP *** [Tc 2h 3c]
+2469840_411750: checks
+Liam: checks
+Noakis89: checks
+*** TURN *** [Tc 2h 3c] [Ts]
+2469840_411750: bets $1
+Liam: folds
+Noakis89: folds
+Uncalled bet ($1) returned to 2469840_411750
+*** SHOW DOWN ***
+2469840_411750 has timed out
+2469840_411750: doesn't show hand
+2469840_411750 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [Tc 2h 3c Ts]
+Seat 1: 2469840_411750 (small blind) collected ($3.50)
+Seat 2: Tone91 (big blind) folded before Flop 
+Seat 3: Liam folded on the Turn 
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 (button) folded on the Turn 
+
+
+Weplay Hand #75303742:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:14:47 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: 2469840_411750 ($28.54 in chips)
+Seat 2: Tone91 ($52.07 in chips)
+Seat 3: Liam ($96.45 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($51.05 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($37.55 in chips)
+Seat 8: Noakis89 ($49.38 in chips)
+Tone91: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 4c]
+Casseta24 has timed out
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+2469840_411750: calls $0.50
+Tone91: folds
+Liam: checks
+*** FLOP *** [2h Jc Qs]
+Liam: checks
+2469840_411750: checks
+*** TURN *** [2h Jc Qs] [Kc]
+Liam: bets $1.25
+2469840_411750: folds
+Uncalled bet ($1.25) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [2h Jc Qs Kc]
+Seat 1: 2469840_411750 (button) folded on the Turn 
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: Liam (big blind) collected ($1.25)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75303830:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:15:28 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: 2469840_411750 ($28.04 in chips)
+Seat 2: Tone91 ($51.82 in chips)
+Seat 3: Liam ($97.14 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($51.05 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($37.55 in chips)
+Seat 8: Noakis89 ($49.38 in chips)
+Liam: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Qh]
+sadam: folds
+kole1992: raises $1 to $1
+markanen0: raises $3.75 to $3.75
+Noakis89: folds
+2469840_411750: calls $3.75
+Tone91: folds
+Liam: folds
+Casseta24: folds
+kole1992: calls $2.75
+*** FLOP *** [6s Qc 5c]
+kole1992: checks
+markanen0: bets $6
+2469840_411750: folds
+kole1992: calls $6
+*** TURN *** [6s Qc 5c] [8h]
+kole1992: checks
+markanen0: bets $27.80 and is all-in
+kole1992: folds
+Uncalled bet ($27.80) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $24 from pot
+*** SUMMARY ***
+Total pot $24 | Rake $1.20 
+Board [6s Qc 5c 8h]
+Seat 1: 2469840_411750 folded on the Flop 
+Seat 2: Tone91 (button) folded before Flop (didn't bet)
+Seat 3: Liam (small blind) folded before Flop 
+Seat 4: Casseta24 (big blind) folded before Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded on the Turn 
+Seat 7: markanen0 collected ($24)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75304003:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:16:58 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: 2469840_411750 ($24.29 in chips)
+Seat 2: Tone91 ($51.82 in chips)
+Seat 3: Liam ($96.89 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($51.05 in chips)
+Seat 6: kole1992 ($50 in chips)
+Seat 7: markanen0 ($50.60 in chips)
+Seat 8: Noakis89 ($49.38 in chips)
+Casseta24: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Js]
+kole1992: raises $1.10 to $1.10
+markanen0: folds
+Noakis89: folds
+2469840_411750: calls $1.10
+Tone91: calls $1.10
+Liam: folds
+Casseta24: folds
+sadam: raises $7.01 to $7.51
+kole1992: folds
+2469840_411750: folds
+Tone91: folds
+Uncalled bet ($6.41) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $4.65 from pot
+*** SUMMARY ***
+Total pot $4.65 | Rake $0 
+Seat 1: 2469840_411750 folded before Flop 
+Seat 2: Tone91 folded before Flop 
+Seat 3: Liam (button) folded before Flop (didn't bet)
+Seat 4: Casseta24 (small blind) folded before Flop 
+Seat 5: sadam (big blind) collected ($4.65)
+Seat 6: kole1992 folded before Flop 
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75304093:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:17:45 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: 2469840_411750 ($23.19 in chips)
+Seat 2: Tone91 ($50.72 in chips)
+Seat 3: Liam ($96.89 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($54.60 in chips)
+Seat 6: kole1992 ($50 in chips)
+Seat 7: markanen0 ($50.60 in chips)
+Seat 8: Noakis89 ($49.38 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Js]
+markanen0: folds
+Noakis89: folds
+2469840_411750: calls $0.50
+Tone91: folds
+Liam: folds
+Casseta24: raises $2.50 to $2.50
+sadam: folds
+kole1992: folds
+2469840_411750: calls $2
+*** FLOP *** [9s 2d 7c]
+2469840_411750: checks
+Casseta24: bets $1.90
+2469840_411750: calls $1.90
+*** TURN *** [9s 2d 7c] [Td]
+2469840_411750: checks
+Casseta24: checks
+*** RIVER *** [9s 2d 7c Td] [9d]
+2469840_411750: bets $8.50
+Casseta24: folds
+Uncalled bet ($8.50) returned to 2469840_411750
+*** SHOW DOWN ***
+2469840_411750 has timed out
+2469840_411750: doesn't show hand
+2469840_411750 collected $9.55 from pot
+*** SUMMARY ***
+Total pot $9.55 | Rake $0.47 
+Board [9s 2d 7c Td 9d]
+Seat 1: 2469840_411750 collected ($9.55)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 (button) folded on the River 
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75304168:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:18:30 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: 2469840_411750 ($27.87 in chips)
+Seat 2: Tone91 ($50.72 in chips)
+Seat 3: Liam ($96.89 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($54.35 in chips)
+Seat 6: kole1992 ($50 in chips)
+Seat 7: markanen0 ($50.60 in chips)
+Seat 8: Noakis89 ($49.38 in chips)
+kole1992: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 4c]
+Noakis89: calls $0.50
+2469840_411750: calls $0.50
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: checks
+*** FLOP *** [Jc Ad As]
+markanen0: checks
+Noakis89: checks
+2469840_411750: bets $0.50
+markanen0: calls $0.50
+Noakis89: folds
+*** TURN *** [Jc Ad As] [9d]
+markanen0: checks
+2469840_411750: bets $0.50
+markanen0: calls $0.50
+*** RIVER *** [Jc Ad As 9d] [Tc]
+markanen0: checks
+2469840_411750: bets $2.50
+markanen0: folds
+Uncalled bet ($2.50) returned to 2469840_411750
+*** SHOW DOWN ***
+2469840_411750: shows [2c 6s] (a pair of Aces)
+2469840_411750 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [Jc Ad As 9d Tc]
+Seat 1: 2469840_411750 collected ($3.75)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: markanen0 (big blind) folded on the River 
+Seat 8: Noakis89 folded on the Flop 
+
+
+Weplay Hand #75304238:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:19:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: 2469840_411750 ($29.94 in chips)
+Seat 2: Tone91 ($50.72 in chips)
+Seat 3: Liam ($96.89 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($54.35 in chips)
+Seat 6: kole1992 ($50 in chips)
+Seat 7: markanen0 ($49.10 in chips)
+Seat 8: Noakis89 ($48.88 in chips)
+markanen0: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 3d]
+2469840_411750: calls $0.50
+Tone91: raises $2.25 to $2.25
+Liam: calls $2.25
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+2469840_411750: calls $1.75
+*** FLOP *** [3h 6d Kc]
+2469840_411750: checks
+Tone91: bets $3
+Liam: calls $3
+2469840_411750: folds
+*** TURN *** [3h 6d Kc] [2c]
+Tone91: bets $9.04
+Liam: calls $9.04
+*** RIVER *** [3h 6d Kc 2c] [7d]
+Tone91: bets $36
+Liam: folds
+Uncalled bet ($36) returned to Tone91
+*** SHOW DOWN ***
+Liam: shows [Kd ##] (a pair of Kings)
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $31.58 from pot
+*** SUMMARY ***
+Total pot $31.58 | Rake $1.57 
+Board [3h 6d Kc 2c 7d]
+Seat 1: 2469840_411750 folded on the Flop 
+Seat 2: Tone91 collected ($31.58)
+Seat 3: Liam folded on the River 
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: markanen0 (small blind) folded before Flop 
+Seat 8: Noakis89 (big blind) folded before Flop 
+
+
+Weplay Hand #75305374:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:20:49 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: 2469840_411750 ($27.69 in chips)
+Seat 2: Tone91 ($66.44 in chips)
+Seat 3: Liam ($82.60 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($54.35 in chips)
+Seat 6: kole1992 ($50 in chips)
+Seat 7: markanen0 ($48.85 in chips)
+Seat 8: Noakis89 ($48.38 in chips)
+Noakis89: posts small blind $0.25
+2469840_411750: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 3d]
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: raises $1.10 to $1.10
+markanen0: folds
+Noakis89: folds
+2469840_411750: calls $0.60
+*** FLOP *** [Qc 7d 6s]
+2469840_411750: checks
+kole1992: checks
+*** TURN *** [Qc 7d 6s] [6h]
+2469840_411750: checks
+kole1992: checks
+*** RIVER *** [Qc 7d 6s 6h] [Td]
+2469840_411750: bets $0.50
+kole1992: calls $0.50
+*** SHOW DOWN ***
+2469840_411750: shows [4s 8d] (a pair of Sixes)
+kole1992: shows [3c 3d] (two pair, Sixes and Threes)
+kole1992 collected $3.45 from pot
+*** SUMMARY ***
+Total pot $3.45 | Rake $0.17 
+Board [Qc 7d 6s 6h Td]
+Seat 1: 2469840_411750 (big blind) showed [4s 8d] and lost with a pair of Sixes
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 showed [3c 3d] and won ($3.45) with two pair, Sixes and Threes
+Seat 7: markanen0 (button) folded before Flop (didn't bet)
+Seat 8: Noakis89 (small blind) folded before Flop 
+
+
+Weplay Hand #75305427:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:21:30 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: 2469840_411750 ($26.09 in chips)
+Seat 2: Tone91 ($66.44 in chips)
+Seat 3: Liam ($82.60 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($54.35 in chips)
+Seat 6: kole1992 ($51.68 in chips)
+Seat 7: markanen0 ($48.85 in chips)
+Seat 8: Noakis89 ($48.13 in chips)
+2469840_411750: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Kd]
+Liam: folds
+Casseta24: folds
+sadam: raises $1.25 to $1.25
+kole1992: folds
+markanen0: folds
+Noakis89: calls $1.25
+2469840_411750: calls $1
+Tone91: folds
+*** FLOP *** [4d 8c Ks]
+2469840_411750: checks
+sadam: checks
+Noakis89: checks
+*** TURN *** [4d 8c Ks] [7s]
+2469840_411750: checks
+sadam: checks
+Noakis89: checks
+*** RIVER *** [4d 8c Ks 7s] [Jd]
+2469840_411750: bets $2
+sadam: folds
+Noakis89: calls $2
+*** SHOW DOWN ***
+2469840_411750: shows [Js 2h] (a pair of Jacks)
+Noakis89: shows [Qh Jh] (a pair of Jacks)
+Noakis89 collected $8.25 from pot
+*** SUMMARY ***
+Total pot $8.25 | Rake $0.41 
+Board [4d 8c Ks 7s Jd]
+Seat 1: 2469840_411750 (small blind) showed [Js 2h] and lost with a pair of Jacks
+Seat 2: Tone91 (big blind) folded before Flop 
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded on the River 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 (button) showed [Qh Jh] and won ($8.25) with a pair of Jacks
+
+
+Weplay Hand #75305475:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:22:13 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: 2469840_411750 ($22.84 in chips)
+Seat 2: Tone91 ($65.94 in chips)
+Seat 3: Liam ($82.60 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($53.10 in chips)
+Seat 6: kole1992 ($51.68 in chips)
+Seat 7: markanen0 ($48.85 in chips)
+Seat 8: Noakis89 ($52.72 in chips)
+Tone91: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 7s]
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+2469840_411750: calls $0.50
+Tone91: calls $0.25
+Liam: raises $2.50 to $3
+2469840_411750: calls $2.50
+Tone91: folds
+*** FLOP *** [2h 7h 4s]
+Liam: checks
+2469840_411750: bets $1.50
+Liam: folds
+Uncalled bet ($1.50) returned to 2469840_411750
+*** SHOW DOWN ***
+2469840_411750 has timed out
+2469840_411750: doesn't show hand
+2469840_411750 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [2h 7h 4s]
+Seat 1: 2469840_411750 (button) collected ($6.50)
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: Liam (big blind) folded on the Flop 
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75305536:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:23:03 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: 2469840_411750 ($26.02 in chips)
+Seat 2: Tone91 ($65.44 in chips)
+Seat 3: Liam ($79.60 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($53.10 in chips)
+Seat 6: kole1992 ($51.68 in chips)
+Seat 7: markanen0 ($48.85 in chips)
+Seat 8: Noakis89 ($52.72 in chips)
+Liam: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 9h]
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: raises $1.50 to $1.50
+2469840_411750: raises $3 to $3
+Tone91: folds
+Liam: folds
+Casseta24: folds
+Noakis89: raises $7.75 to $9.25
+2469840_411750: calls $6.25
+*** FLOP *** [As Kh 5c]
+Noakis89: bets $6.50
+2469840_411750: calls $6.50
+*** TURN *** [As Kh 5c] [Ks]
+Noakis89: bets $14.13
+2469840_411750: calls $10.27 and is all-in
+Uncalled bet ($3.86) returned to Noakis89
+*** RIVER *** [As Kh 5c Ks] [8c]
+*** SHOW DOWN ***
+Noakis89: shows [Ad Ac] (a full house, Aces full of Kings)
+2469840_411750: shows [Qd Qs] (two pair, Kings and Queens)
+Noakis89 collected $52.79 from pot
+*** SUMMARY ***
+Total pot $52.79 | Rake $2.63 
+Board [As Kh 5c Ks 8c]
+Seat 1: 2469840_411750 showed [Qd Qs] and lost with two pair, Kings and Queens
+Seat 2: Tone91 (button) folded before Flop (didn't bet)
+Seat 3: Liam (small blind) folded before Flop 
+Seat 4: Casseta24 (big blind) folded before Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 showed [Ad Ac] and won ($52.79) with a full house, Aces full of Kings
+
+
+Weplay Hand #75305614:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:24:07 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 2: Tone91 ($65.44 in chips)
+Seat 3: Liam ($79.35 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($53.10 in chips)
+Seat 6: kole1992 ($51.68 in chips)
+Seat 7: markanen0 ($48.85 in chips)
+Seat 8: Noakis89 ($76.86 in chips)
+Casseta24: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Jh]
+2469840_411750 is disconnected 
+kole1992: folds
+markanen0: folds
+Noakis89: calls $0.50
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: checks
+*** FLOP *** [7h 7c Qd]
+sadam: checks
+Noakis89: bets $1
+sadam: folds
+Uncalled bet ($1) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [7h 7c Qd]
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam (button) folded before Flop (didn't bet)
+Seat 4: Casseta24 (small blind) folded before Flop 
+Seat 5: sadam (big blind) folded on the Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 collected ($1.25)
+
+
+Weplay Hand #75305650:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:24:46 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 2: Tone91 ($65.44 in chips)
+Seat 3: Liam ($79.35 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($52.60 in chips)
+Seat 6: kole1992 ($51.68 in chips)
+Seat 7: markanen0 ($48.85 in chips)
+Seat 8: Noakis89 ($77.55 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 2c]
+markanen0: folds
+Noakis89: folds
+Tone91: folds
+Liam: folds
+Casseta24: raises $1.25 to $1.25
+sadam: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 (button) collected ($1.25)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75305680:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:25:14 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 2: Tone91 ($65.44 in chips)
+Seat 3: Liam ($79.35 in chips)
+Seat 4: Casseta24 ($50.75 in chips)
+Seat 5: sadam ($52.35 in chips)
+Seat 6: kole1992 ($51.18 in chips)
+Seat 7: markanen0 ($48.85 in chips)
+Seat 8: Noakis89 ($77.55 in chips)
+kole1992: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 3s]
+Noakis89: folds
+Tone91: folds
+Liam: folds
+Casseta24: folds
+2469840_411750 leaves the table
+sadam: raises $1.25 to $1.25
+kole1992: folds
+markanen0: folds
+Uncalled bet ($0.75) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam (button) collected ($1.25)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: markanen0 (big blind) folded before Flop 
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75305701:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:25:37 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 2: Tone91 ($65.44 in chips)
+Seat 3: Liam ($79.35 in chips)
+Seat 4: Casseta24 ($50.75 in chips)
+Seat 5: sadam ($53.10 in chips)
+Seat 6: kole1992 ($50.93 in chips)
+Seat 7: markanen0 ($48.35 in chips)
+Seat 8: Noakis89 ($77.55 in chips)
+markanen0: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 6d]
+Tone91: folds
+Liam: folds
+Casseta24: raises $1.50 to $1.50
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: calls $1
+*** FLOP *** [4d 9c 5d]
+Noakis89: checks
+Casseta24: bets $2.45
+Noakis89: folds
+Uncalled bet ($2.45) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [4d 9c 5d]
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 collected ($3.25)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: markanen0 (small blind) folded before Flop 
+Seat 8: Noakis89 (big blind) folded on the Flop 
+
+
+Weplay Hand #75305740:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:26:21 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 2: Tone91 ($65.44 in chips)
+Seat 3: Liam ($79.35 in chips)
+Seat 4: Casseta24 ($52.34 in chips)
+Seat 5: sadam ($53.10 in chips)
+Seat 6: kole1992 ($50.93 in chips)
+Seat 7: markanen0 ($48.10 in chips)
+Seat 8: Noakis89 ($76.05 in chips)
+Noakis89: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Ac]
+Liam has timed out
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: calls $0.25
+Tone91: checks
+*** FLOP *** [Tc 8h Ts]
+Noakis89: bets $1
+Tone91: calls $1
+*** TURN *** [Tc 8h Ts] [9c]
+Noakis89: bets $2
+Tone91: calls $2
+*** RIVER *** [Tc 8h Ts 9c] [Qh]
+Noakis89: checks
+Tone91: checks
+*** SHOW DOWN ***
+Noakis89: shows [8d 7c] (two pair, Tens and Eights)
+Tone91: shows [2s Th] (three of a kind, Tens)
+Tone91 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [Tc 8h Ts 9c Qh]
+Seat 2: Tone91 (big blind) showed [2s Th] and won ($7) with three of a kind, Tens
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 (button) folded before Flop (didn't bet)
+Seat 8: Noakis89 (small blind) showed [8d 7c] and lost with two pair, Tens and Eights
+
+
+Weplay Hand #75305798:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:27:28 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 2: Tone91 ($68.59 in chips)
+Seat 4: Casseta24 ($52.34 in chips)
+Seat 5: sadam ($53.10 in chips)
+Seat 6: kole1992 ($50.93 in chips)
+Seat 7: markanen0 ($48.10 in chips)
+Seat 8: Noakis89 ($72.55 in chips)
+Tone91: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 6h]
+sadam: folds
+kole1992: raises $1.10 to $1.10
+markanen0: folds
+Noakis89: calls $1.10
+Tone91: folds
+Casseta24: folds
+*** FLOP *** [3d 4s Jd]
+kole1992: bets $1.25
+Noakis89: folds
+Uncalled bet ($1.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.95 from pot
+*** SUMMARY ***
+Total pot $2.95 | Rake $0.14 
+Board [3d 4s Jd]
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 4: Casseta24 (big blind) folded before Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 collected ($2.95)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 (button) folded on the Flop 
+
+
+Weplay Hand #75305833:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:28:04 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 2: Tone91 ($68.34 in chips)
+Seat 4: Casseta24 ($51.84 in chips)
+Seat 5: sadam ($53.10 in chips)
+Seat 6: kole1992 ($52.64 in chips)
+Seat 7: markanen0 ($48.10 in chips)
+Seat 8: Noakis89 ($71.45 in chips)
+Casseta24: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 3s]
+kole1992: folds
+markanen0: folds
+Noakis89: calls $0.50
+Tone91: raises $2.25 to $2.25
+Casseta24: raises $5.75 to $6
+sadam: folds
+Noakis89: folds
+Tone91: calls $3.75
+*** FLOP *** [Kc 2d 6d]
+Casseta24: bets $4.30
+Tone91: calls $4.30
+*** TURN *** [Kc 2d 6d] [Ks]
+Casseta24: bets $15.20
+Tone91: raises $58.04 to $58.04 and is all-in
+Casseta24: folds
+Uncalled bet ($42.84) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $52 from pot
+*** SUMMARY ***
+Total pot $52 | Rake $2.60 
+Board [Kc 2d 6d Ks]
+Seat 2: Tone91 (button) collected ($52)
+Seat 4: Casseta24 (small blind) folded on the Turn 
+Seat 5: sadam (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop 
+
+
+Weplay Hand #75305919:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:29:55 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 2: Tone91 ($92.24 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($52.60 in chips)
+Seat 6: kole1992 ($52.64 in chips)
+Seat 7: markanen0 ($48.10 in chips)
+Seat 8: Noakis89 ($70.95 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Jh]
+markanen0: folds
+Noakis89: folds
+Tone91: raises $1.25 to $1.25
+Casseta24: folds
+sadam: folds
+kole1992: calls $0.75
+*** FLOP *** [8d Jc 5s]
+kole1992: checks
+Tone91: bets $1.10
+kole1992: calls $1.10
+*** TURN *** [8d Jc 5s] [9s]
+kole1992: checks
+Tone91: checks
+*** RIVER *** [8d Jc 5s 9s] [2s]
+kole1992: bets $3.50
+Tone91: folds
+Uncalled bet ($3.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4.95 from pot
+*** SUMMARY ***
+Total pot $4.95 | Rake $0.24 
+Board [8d Jc 5s 9s 2s]
+Seat 2: Tone91 folded on the River 
+Seat 4: Casseta24 (button) folded before Flop (didn't bet)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($4.95)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75306006:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:31:37 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 2: Tone91 ($89.89 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($52.35 in chips)
+Seat 6: kole1992 ($55 in chips)
+Seat 7: markanen0 ($48.10 in chips)
+Seat 8: Noakis89 ($70.95 in chips)
+kole1992: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Jh]
+Noakis89: raises $1.50 to $1.50
+Tone91: folds
+Casseta24: calls $1.50
+sadam: folds
+kole1992: folds
+markanen0: calls $1
+*** FLOP *** [Tc 9d 5s]
+markanen0: checks
+Noakis89: bets $2.38
+Casseta24: folds
+markanen0: folds
+Uncalled bet ($2.38) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [Tc 9d 5s]
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 4: Casseta24 folded on the Flop 
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: markanen0 (big blind) folded on the Flop 
+Seat 8: Noakis89 collected ($4.75)
+
+
+Weplay Hand #75306034:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:32:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 2: Tone91 ($89.89 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($52.35 in chips)
+Seat 6: kole1992 ($54.75 in chips)
+Seat 7: markanen0 ($46.60 in chips)
+Seat 8: Noakis89 ($73.97 in chips)
+markanen0: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 9h]
+Tone91: raises $1.25 to $1.25
+Casseta24: folds
+sadam: calls $1.25
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+*** FLOP *** [5c Kh Tc]
+Tone91: checks
+sadam: checks
+*** TURN *** [5c Kh Tc] [3c]
+Tone91: bets $2.17
+sadam: folds
+Uncalled bet ($2.17) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [5c Kh Tc 3c]
+Seat 2: Tone91 collected ($3.25)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded on the Turn 
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: markanen0 (small blind) folded before Flop 
+Seat 8: Noakis89 (big blind) folded before Flop 
+
+
+Weplay Hand #75306084:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:33:26 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 2: Tone91 ($91.73 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($51.10 in chips)
+Seat 6: kole1992 ($54.75 in chips)
+Seat 7: markanen0 ($46.35 in chips)
+Seat 8: Noakis89 ($73.47 in chips)
+Noakis89: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Qd]
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: calls $0.25
+Tone91: checks
+*** FLOP *** [8d Ac Jc]
+Noakis89: bets $0.50
+Tone91: folds
+Uncalled bet ($0.50) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [8d Ac Jc]
+Seat 2: Tone91 (big blind) folded on the Flop 
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 (button) folded before Flop (didn't bet)
+Seat 8: Noakis89 (small blind) collected ($1)
+
+
+Weplay Hand #75306102:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:33:50 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 2: Tone91 ($91.23 in chips)
+Seat 3: Liam ($79.35 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($51.10 in chips)
+Seat 6: kole1992 ($54.75 in chips)
+Seat 7: markanen0 ($46.35 in chips)
+Seat 8: Noakis89 ($73.92 in chips)
+Tone91: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 5d]
+Casseta24: raises $1.50 to $1.50
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+Tone91: folds
+Liam: folds
+Uncalled bet ($1) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: Liam (big blind) folded before Flop 
+Seat 4: Casseta24 collected ($1.25)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75306116:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:34:09 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 2: Tone91 ($90.98 in chips)
+Seat 3: Liam ($78.85 in chips)
+Seat 4: Casseta24 ($50.75 in chips)
+Seat 5: sadam ($51.10 in chips)
+Seat 6: kole1992 ($54.75 in chips)
+Seat 7: markanen0 ($46.35 in chips)
+Seat 8: Noakis89 ($73.92 in chips)
+Liam: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 5s]
+sadam has timed out
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+Tone91: raises $1.25 to $1.25
+Liam: folds
+Casseta24: raises $5.50 to $6
+Tone91: calls $4.75
+*** FLOP *** [8h 3c 2c]
+Casseta24: checks
+Tone91: bets $3.06
+Casseta24: calls $3.06
+*** TURN *** [8h 3c 2c] [Js]
+Casseta24: checks
+Tone91: bets $9.25
+Casseta24: folds
+Uncalled bet ($9.25) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $18.37 from pot
+*** SUMMARY ***
+Total pot $18.37 | Rake $0.91 
+Board [8h 3c 2c Js]
+Seat 2: Tone91 (button) collected ($18.37)
+Seat 3: Liam (small blind) folded before Flop 
+Seat 4: Casseta24 (big blind) folded on the Turn 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75306201:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:35:57 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 2: Tone91 ($99.38 in chips)
+Seat 3: Liam ($78.60 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($51.10 in chips)
+Seat 6: kole1992 ($54.75 in chips)
+Seat 7: markanen0 ($46.35 in chips)
+Seat 8: Noakis89 ($73.92 in chips)
+Casseta24: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 6d]
+kole1992: folds
+markanen0: folds
+Noakis89: calls $0.50
+Tone91: folds
+Liam has timed out
+Liam: folds
+Casseta24: folds
+sadam: checks
+*** FLOP *** [7h Ad 3s]
+sadam: checks
+Noakis89: checks
+*** TURN *** [7h Ad 3s] [5h]
+sadam: checks
+Noakis89: bets $1
+sadam: folds
+Uncalled bet ($1) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [7h Ad 3s 5h]
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam (button) folded before Flop (didn't bet)
+Seat 4: Casseta24 (small blind) folded before Flop 
+Seat 5: sadam (big blind) folded on the Turn 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 collected ($1.25)
+
+
+Weplay Hand #75306250:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:37:01 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 2: Tone91 ($99.38 in chips)
+Seat 3: Liam ($78.60 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($50.60 in chips)
+Seat 6: kole1992 ($54.75 in chips)
+Seat 7: markanen0 ($46.35 in chips)
+Seat 8: Noakis89 ($74.61 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Qs]
+markanen0: folds
+Noakis89: calls $0.50
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: raises $2.25 to $2.75
+Noakis89: calls $2.25
+*** FLOP *** [8c 5c Js]
+kole1992: checks
+Noakis89: bets $2.88
+kole1992: folds
+Uncalled bet ($2.88) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $5.75 from pot
+*** SUMMARY ***
+Total pot $5.75 | Rake $0.28 
+Board [8c 5c Js]
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 (button) folded before Flop (didn't bet)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded on the Flop 
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 collected ($5.75)
+
+
+Weplay Hand #75306281:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:37:48 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 2: Tone91 ($99.38 in chips)
+Seat 3: Liam ($78.60 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($50.35 in chips)
+Seat 6: kole1992 ($52 in chips)
+Seat 7: markanen0 ($46.35 in chips)
+Seat 8: Noakis89 ($77.33 in chips)
+kole1992: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Ks]
+Noakis89: folds
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: raises $1.25 to $1.50
+markanen0: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) collected ($1)
+Seat 7: markanen0 (big blind) folded before Flop 
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75306305:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:38:23 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 2: Tone91 ($99.38 in chips)
+Seat 3: Liam ($78.60 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($50.35 in chips)
+Seat 6: kole1992 ($52.50 in chips)
+Seat 7: markanen0 ($45.85 in chips)
+Seat 8: Noakis89 ($77.33 in chips)
+markanen0: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Qc]
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Uncalled bet ($0.25) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: markanen0 (small blind) folded before Flop 
+Seat 8: Noakis89 (big blind) collected ($0.50)
+
+
+Weplay Hand #75307329:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:38:53 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 2: Tone91 ($99.38 in chips)
+Seat 3: Liam ($78.60 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($50.35 in chips)
+Seat 6: kole1992 ($52.50 in chips)
+Seat 7: markanen0 ($45.60 in chips)
+Seat 8: Noakis89 ($77.58 in chips)
+Noakis89: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Kc]
+Liam: folds
+Casseta24: raises $1.50 to $1.50
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: calls $1.25
+Tone91: calls $1
+*** FLOP *** [4h Jh 5c]
+Noakis89: checks
+Tone91: checks
+Casseta24: checks
+*** TURN *** [4h Jh 5c] [Ks]
+Noakis89: checks
+Tone91: bets $3.01
+Casseta24: folds
+Noakis89: folds
+Uncalled bet ($3.01) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [4h Jh 5c Ks]
+Seat 2: Tone91 (big blind) collected ($4.50)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded on the Turn 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 (button) folded before Flop (didn't bet)
+Seat 8: Noakis89 (small blind) folded on the Turn 
+
+
+Weplay Hand #75307375:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:39:45 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 2: Tone91 ($102.16 in chips)
+Seat 3: Liam ($78.60 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($50.35 in chips)
+Seat 6: kole1992 ($52.50 in chips)
+Seat 7: markanen0 ($45.60 in chips)
+Seat 8: Noakis89 ($76.08 in chips)
+Tone91: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 8c]
+Casseta24: folds
+sadam: folds
+kole1992: raises $1 to $1
+markanen0: calls $1
+Noakis89: calls $1
+Tone91: folds
+Liam: folds
+*** FLOP *** [6s 9d 5d]
+kole1992: checks
+markanen0: bets $1.87
+Noakis89: calls $1.87
+kole1992: folds
+*** TURN *** [6s 9d 5d] [Ad]
+markanen0: checks
+Noakis89: checks
+*** RIVER *** [6s 9d 5d Ad] [Kd]
+markanen0: checks
+Noakis89: bets $3.75
+markanen0: folds
+Uncalled bet ($3.75) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89: doesn't show hand
+Noakis89 collected $7.49 from pot
+*** SUMMARY ***
+Total pot $7.49 | Rake $0.37 
+Board [6s 9d 5d Ad Kd]
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: Liam (big blind) folded before Flop 
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded on the Flop 
+Seat 7: markanen0 folded on the River 
+Seat 8: Noakis89 (button) collected ($7.49)
+
+
+Weplay Hand #75307432:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:40:57 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 2: Tone91 ($101.91 in chips)
+Seat 3: Liam ($78.10 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($50.35 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($42.73 in chips)
+Seat 8: Noakis89 ($80.33 in chips)
+Liam: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 2d]
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+Tone91: folds
+Liam: folds
+Uncalled bet ($0.25) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Tone91 (button) folded before Flop (didn't bet)
+Seat 3: Liam (small blind) folded before Flop 
+Seat 4: Casseta24 (big blind) collected ($0.50)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75307444:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:41:15 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 2: Tone91 ($101.91 in chips)
+Seat 3: Liam ($77.85 in chips)
+Seat 4: Casseta24 ($50.25 in chips)
+Seat 5: sadam ($50.35 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($42.73 in chips)
+Seat 8: Noakis89 ($80.33 in chips)
+Casseta24: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 5h]
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+Tone91: raises $1.25 to $1.25
+Liam: raises $4.50 to $4.50
+Casseta24: folds
+sadam: folds
+Tone91: raises $11.75 to $13
+Liam: raises $73.35 to $77.85 and is all-in
+Tone91: calls $64.85
+*** FLOP *** [4h 5c Jh]
+*** TURN *** [4h 5c Jh] [Kc]
+*** RIVER *** [4h 5c Jh Kc] [Th]
+*** SHOW DOWN ***
+Tone91: shows [Kh Kd] (three of a kind, Kings)
+Liam: shows [Ac As] (a pair of Aces)
+Tone91 collected $156.45 from pot
+*** SUMMARY ***
+Total pot $156.45 | Rake $4 
+Board [4h 5c Jh Kc Th]
+Seat 2: Tone91 showed [Kh Kd] and won ($156.45) with three of a kind, Kings
+Seat 3: Liam (button) showed [Ac As] and lost with a pair of Aces
+Seat 4: Casseta24 (small blind) folded before Flop 
+Seat 5: sadam (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75307482:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:42:09 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 2: Tone91 ($176.51 in chips)
+Seat 3: Liam ($49.20 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($49.85 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($42.73 in chips)
+Seat 8: Noakis89 ($80.33 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 5d]
+markanen0: folds
+Noakis89: folds
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 (button) folded before Flop (didn't bet)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($0.50)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75307490:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:42:27 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 2: Tone91 ($176.51 in chips)
+Seat 3: Liam ($49.20 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($49.60 in chips)
+Seat 6: kole1992 ($51.75 in chips)
+Seat 7: markanen0 ($42.73 in chips)
+Seat 8: Noakis89 ($80.33 in chips)
+kole1992: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 3h]
+Noakis89: folds
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: markanen0 (big blind) collected ($0.50)
+Seat 8: Noakis89 folded before Flop (didn't bet)
+
+
+Weplay Hand #75307513:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:42:54 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 2: Tone91 ($176.51 in chips)
+Seat 3: Liam ($49.20 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($49.60 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($42.98 in chips)
+Seat 8: Noakis89 ($80.33 in chips)
+markanen0: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 3h]
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Uncalled bet ($0.25) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: markanen0 (small blind) folded before Flop 
+Seat 8: Noakis89 (big blind) collected ($0.50)
+
+
+Weplay Hand #75307521:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:43:10 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 2: Tone91 ($176.51 in chips)
+Seat 3: Liam ($49.20 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($49.60 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($42.73 in chips)
+Seat 8: Noakis89 ($80.58 in chips)
+Noakis89: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 6s]
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: calls $0.25
+Tone91: checks
+*** FLOP *** [7c 4s 9h]
+Noakis89: checks
+Tone91: checks
+*** TURN *** [7c 4s 9h] [6c]
+Noakis89: checks
+Tone91: checks
+*** RIVER *** [7c 4s 9h 6c] [8s]
+Noakis89: checks
+Tone91: checks
+*** SHOW DOWN ***
+Noakis89: shows [Jd Qc] (high card Queen)
+Tone91: shows [2s Ac] (high card Ace)
+Tone91 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [7c 4s 9h 6c 8s]
+Seat 2: Tone91 (big blind) showed [2s Ac] and won ($1) with high card Ace
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 (button) folded before Flop (didn't bet)
+Seat 8: Noakis89 (small blind) showed [Jd Qc] and lost with high card Queen
+
+
+Weplay Hand #75307548:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:43:56 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 2: Tone91 ($176.96 in chips)
+Seat 3: Liam ($49.20 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($49.60 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 7: markanen0 ($42.73 in chips)
+Seat 8: Noakis89 ($80.08 in chips)
+Tone91: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh As]
+Casseta24: folds
+sadam: folds
+kole1992: raises $1.10 to $1.10
+markanen0: folds
+Noakis89: folds
+Tone91: folds
+Liam: folds
+Uncalled bet ($0.60) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: Liam (big blind) folded before Flop 
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 collected ($1.25)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75307565:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:44:22 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 2: Tone91 ($176.71 in chips)
+Seat 3: Liam ($48.70 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($49.60 in chips)
+Seat 6: kole1992 ($52.25 in chips)
+Seat 7: markanen0 ($42.73 in chips)
+Seat 8: Noakis89 ($80.08 in chips)
+Liam: posts small blind $0.25
+Casseta24: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 2s]
+sadam: folds
+kole1992: folds
+markanen0: folds
+Noakis89: calls $0.50
+Tone91: folds
+Liam: folds
+Casseta24: raises $2 to $2.50
+Noakis89: calls $2
+*** FLOP *** [5c Td 3s]
+Casseta24: bets $1.75
+Noakis89: raises $4 to $4
+Casseta24: calls $2.25
+*** TURN *** [5c Td 3s] [6s]
+Casseta24: checks
+Noakis89: bets $8.63
+Casseta24: folds
+Uncalled bet ($8.63) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $13.25 from pot
+*** SUMMARY ***
+Total pot $13.25 | Rake $0.66 
+Board [5c Td 3s 6s]
+Seat 2: Tone91 (button) folded before Flop (didn't bet)
+Seat 3: Liam (small blind) folded before Flop 
+Seat 4: Casseta24 (big blind) folded on the Turn 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded before Flop (didn't bet)
+Seat 8: Noakis89 collected ($13.25)
+
+
+Weplay Hand #75307633:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:46:00 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 2: Tone91 ($176.71 in chips)
+Seat 3: Liam ($48.45 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($49.60 in chips)
+Seat 6: kole1992 ($52.25 in chips)
+Seat 7: markanen0 ($42.73 in chips)
+Seat 8: Noakis89 ($86.17 in chips)
+Casseta24: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 2d]
+kole1992: folds
+markanen0: raises $1.25 to $1.25
+Noakis89: calls $1.25
+Tone91: folds
+Liam: folds
+Casseta24: folds
+sadam: folds
+*** FLOP *** [Jd 9c 9h]
+markanen0: bets $1.62
+Noakis89: calls $1.62
+*** TURN *** [Jd 9c 9h] [2c]
+markanen0: checks
+Noakis89: checks
+*** RIVER *** [Jd 9c 9h 2c] [Qs]
+markanen0: bets $3.24
+Noakis89: raises $16.21 to $16.21
+markanen0: folds
+Uncalled bet ($12.97) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $12.97 from pot
+*** SUMMARY ***
+Total pot $12.97 | Rake $0.64 
+Board [Jd 9c 9h 2c Qs]
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam (button) folded before Flop (didn't bet)
+Seat 4: Casseta24 (small blind) folded before Flop 
+Seat 5: sadam (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: markanen0 folded on the River 
+Seat 8: Noakis89 collected ($12.97)
+
+
+Weplay Hand #75307682:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:47:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 2: Tone91 ($176.71 in chips)
+Seat 3: Liam ($48.45 in chips)
+Seat 4: Casseta24 ($50 in chips)
+Seat 5: sadam ($49.10 in chips)
+Seat 6: kole1992 ($52.25 in chips)
+Seat 7: markanen0 ($36.62 in chips)
+Seat 8: Noakis89 ($92.39 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 3h]
+markanen0: raises $1.25 to $1.25
+Noakis89: calls $1.25
+Tone91: folds
+Liam: folds
+Casseta24: calls $1.25
+sadam: folds
+kole1992: folds
+*** FLOP *** [Jd As 6h]
+markanen0: checks
+Noakis89: checks
+Casseta24: bets $1.50
+markanen0: folds
+Noakis89: folds
+Uncalled bet ($1.50) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Jd As 6h]
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 (button) collected ($4.50)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: markanen0 folded on the Flop 
+Seat 8: Noakis89 folded on the Flop 
+
+
+Weplay Hand #75307718:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:48:11 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 2: Tone91 ($176.71 in chips)
+Seat 3: Liam ($48.45 in chips)
+Seat 4: Casseta24 ($53.03 in chips)
+Seat 5: sadam ($48.85 in chips)
+Seat 6: kole1992 ($51.75 in chips)
+Seat 8: Noakis89 ($91.14 in chips)
+kole1992: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 7d]
+Tone91: raises $1.25 to $1.25
+Liam: folds
+Casseta24: folds
+sadam: folds
+kole1992: folds
+Noakis89: calls $0.75
+*** FLOP *** [3h 6h 4d]
+Noakis89: bets $1.88
+Tone91: folds
+Uncalled bet ($1.88) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [3h 6h 4d]
+Seat 2: Tone91 folded on the Flop 
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 folded before Flop (didn't bet)
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 8: Noakis89 (big blind) collected ($2.75)
+
+
+Weplay Hand #75307744:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:48:55 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 2: Tone91 ($175.46 in chips)
+Seat 3: Liam ($48.45 in chips)
+Seat 4: Casseta24 ($53.03 in chips)
+Seat 5: sadam ($48.85 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 8: Noakis89 ($92.51 in chips)
+Noakis89: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 8h]
+Liam: folds
+Casseta24: raises $1.50 to $1.50
+sadam: folds
+kole1992: folds
+Noakis89: calls $1.25
+Tone91: folds
+*** FLOP *** [4d Ts 9d]
+Noakis89: checks
+Casseta24: bets $1.15
+Noakis89: calls $1.15
+*** TURN *** [4d Ts 9d] [2h]
+Noakis89: checks
+Casseta24: bets $4.35
+Noakis89: folds
+Uncalled bet ($4.35) returned to Casseta24
+*** SHOW DOWN ***
+Casseta24 has timed out
+Casseta24: doesn't show hand
+Casseta24 collected $5.80 from pot
+*** SUMMARY ***
+Total pot $5.80 | Rake $0.29 
+Board [4d Ts 9d 2h]
+Seat 2: Tone91 (big blind) folded before Flop 
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: Casseta24 collected ($5.80)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Noakis89 (small blind) folded on the Turn 
+
+
+Weplay Hand #75307773:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:49:40 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 2: Tone91 ($174.96 in chips)
+Seat 3: Liam ($48.45 in chips)
+Seat 4: Casseta24 ($55.89 in chips)
+Seat 5: sadam ($48.85 in chips)
+Seat 6: kole1992 ($51.50 in chips)
+Seat 8: Noakis89 ($89.86 in chips)
+Tone91: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 3c]
+Casseta24: raises $1.50 to $1.50
+sadam: folds
+kole1992: folds
+Noakis89: calls $1.50
+Tone91: folds
+Liam: folds
+*** FLOP *** [Jd 3s 6h]
+Casseta24: checks
+Noakis89: checks
+*** TURN *** [Jd 3s 6h] [Qc]
+Casseta24: bets $1.25
+Noakis89: calls $1.25
+*** RIVER *** [Jd 3s 6h Qc] [Jc]
+Casseta24: checks
+Noakis89: bets $4.13
+Casseta24: folds
+Uncalled bet ($4.13) returned to Noakis89
+*** SHOW DOWN ***
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $6.25 from pot
+*** SUMMARY ***
+Total pot $6.25 | Rake $0.31 
+Board [Jd 3s 6h Qc Jc]
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: Liam (big blind) folded before Flop 
+Seat 4: Casseta24 folded on the River 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 8: Noakis89 (button) collected ($6.25)

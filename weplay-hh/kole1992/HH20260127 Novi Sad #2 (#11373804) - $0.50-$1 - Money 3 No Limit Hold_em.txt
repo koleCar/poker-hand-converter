@@ -1,0 +1,2100 @@
+﻿Weplay Hand #73887212:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:05:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: Fix ($32.80 in chips)
+Seat 2: LukasFlopovski ($226.95 in chips)
+Seat 3: Mohammadashkar ($30.28 in chips)
+Seat 4: BaronRojo ($88 in chips)
+Seat 5: MissEleve ($106.30 in chips)
+Seat 6: markanen0 ($98 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: betting18 ($117.03 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 5c]
+betting18: folds
+Fix: calls $1
+LukasFlopovski: folds
+Mohammadashkar: calls $1
+BaronRojo: folds
+MissEleve: folds
+markanen0: folds
+markanen0 is disconnected 
+kole1992: checks
+*** FLOP *** [Qd 2d 6h]
+markanen0 is connected 
+kole1992: checks
+Fix: checks
+Mohammadashkar: checks
+*** TURN *** [Qd 2d 6h] [Ad]
+kole1992: checks
+Fix: bets $2
+Mohammadashkar: folds
+kole1992: folds
+Uncalled bet ($2) returned to Fix
+*** SHOW DOWN ***
+Fix has timed out
+Fix: doesn't show hand
+Fix collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [Qd 2d 6h Ad]
+Seat 1: Fix collected ($3.50)
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 3: Mohammadashkar folded on the Turn 
+Seat 4: BaronRojo folded before Flop (didn't bet)
+Seat 5: MissEleve (button) folded before Flop (didn't bet)
+Seat 6: markanen0 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded on the Turn 
+Seat 8: betting18 folded before Flop (didn't bet)
+
+
+Weplay Hand #73888360:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:05:50 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 1: Fix ($35.13 in chips)
+Seat 2: LukasFlopovski ($226.95 in chips)
+Seat 3: Mohammadashkar ($29.28 in chips)
+Seat 4: BaronRojo ($88 in chips)
+Seat 5: MissEleve ($106.30 in chips)
+Seat 6: markanen0 ($97.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: betting18 ($117.03 in chips)
+kole1992: posts small blind $0.50
+betting18: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Ac]
+Fix: calls $1
+LukasFlopovski: folds
+Mohammadashkar: folds
+BaronRojo: folds
+MissEleve: calls $1
+Mohammadashkar leaves the table
+markanen0: raises $5.50 to $5.50
+kole1992: folds
+betting18: folds
+Fix: folds
+MissEleve: folds
+Uncalled bet ($4.50) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 1: Fix folded before Flop 
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 3: Mohammadashkar folded before Flop (didn't bet)
+Seat 4: BaronRojo folded before Flop (didn't bet)
+Seat 5: MissEleve folded before Flop 
+Seat 6: markanen0 (button) collected ($4.50)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: betting18 (big blind) folded before Flop 
+
+
+Weplay Hand #73888458:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:06:25 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: Fix ($34.13 in chips)
+Seat 2: LukasFlopovski ($226.95 in chips)
+Seat 4: BaronRojo ($88 in chips)
+Seat 5: MissEleve ($105.30 in chips)
+Seat 6: markanen0 ($101 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: betting18 ($116.03 in chips)
+betting18: posts small blind $0.50
+Fix: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 3h]
+LukasFlopovski: folds
+BaronRojo: folds
+MissEleve: folds
+markanen0: folds
+kole1992: folds
+betting18: raises $1.50 to $2
+Fix: calls $1
+*** FLOP *** [Qs 8s Qc]
+betting18: bets $1.30
+Fix: folds
+Uncalled bet ($1.30) returned to betting18
+*** SHOW DOWN ***
+betting18: doesn't show hand
+betting18 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [Qs 8s Qc]
+Seat 1: Fix (big blind) folded on the Flop 
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 4: BaronRojo folded before Flop (didn't bet)
+Seat 5: MissEleve folded before Flop (didn't bet)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: betting18 (small blind) collected ($4)
+
+
+Weplay Hand #73888530:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:06:54 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 1: Fix ($32.13 in chips)
+Seat 2: LukasFlopovski ($226.95 in chips)
+Seat 4: BaronRojo ($88 in chips)
+Seat 5: MissEleve ($105.30 in chips)
+Seat 6: markanen0 ($101 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: betting18 ($117.83 in chips)
+Fix: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Tc]
+BaronRojo: folds
+MissEleve: calls $1
+markanen0: folds
+kole1992: folds
+betting18: folds
+Fix: raises $1.50 to $2
+LukasFlopovski: folds
+MissEleve: calls $1
+*** FLOP *** [Ad 2d 9d]
+Fix: checks
+MissEleve: bets $3.33
+Fix: folds
+Uncalled bet ($3.33) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [Ad 2d 9d]
+Seat 1: Fix (small blind) folded on the Flop 
+Seat 2: LukasFlopovski (big blind) folded before Flop 
+Seat 4: BaronRojo folded before Flop (didn't bet)
+Seat 5: MissEleve collected ($5)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: betting18 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73888678:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:07:49 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: Fix ($30.13 in chips)
+Seat 2: LukasFlopovski ($225.95 in chips)
+Seat 4: BaronRojo ($88 in chips)
+Seat 5: MissEleve ($108.05 in chips)
+Seat 6: markanen0 ($101 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: betting18 ($117.83 in chips)
+LukasFlopovski: posts small blind $0.50
+BaronRojo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 4h]
+MissEleve: calls $1
+markanen0: folds
+kole1992: folds
+betting18: folds
+Fix: folds
+LukasFlopovski: calls $0.50
+BaronRojo: checks
+*** FLOP *** [9h Th Jh]
+LukasFlopovski: checks
+BaronRojo: checks
+MissEleve: checks
+*** TURN *** [9h Th Jh] [6d]
+LukasFlopovski: checks
+BaronRojo: checks
+MissEleve: checks
+*** RIVER *** [9h Th Jh 6d] [Ad]
+LukasFlopovski: bets $1.50
+BaronRojo: folds
+MissEleve: raises $8 to $8
+LukasFlopovski: folds
+Uncalled bet ($6.50) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [9h Th Jh 6d Ad]
+Seat 1: Fix (button) folded before Flop (didn't bet)
+Seat 2: LukasFlopovski (small blind) folded on the River 
+Seat 4: BaronRojo (big blind) folded on the River 
+Seat 5: MissEleve collected ($6)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: betting18 folded before Flop (didn't bet)
+
+
+Weplay Hand #73888862:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:08:59 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: Fix ($30.13 in chips)
+Seat 2: LukasFlopovski ($223.45 in chips)
+Seat 4: BaronRojo ($87 in chips)
+Seat 5: MissEleve ($111.25 in chips)
+Seat 6: markanen0 ($101 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: betting18 ($117.83 in chips)
+BaronRojo: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Qs]
+markanen0: folds
+kole1992: raises $2 to $2
+betting18: folds
+Fix: folds
+LukasFlopovski: raises $7 to $7
+BaronRojo: folds
+MissEleve: folds
+kole1992: calls $5
+*** FLOP *** [Kd 8h 9h]
+kole1992: checks
+LukasFlopovski: bets $5.30
+kole1992: folds
+Uncalled bet ($5.30) returned to LukasFlopovski
+*** SHOW DOWN ***
+LukasFlopovski: doesn't show hand
+LukasFlopovski collected $15.50 from pot
+*** SUMMARY ***
+Total pot $15.50 | Rake $0.77 
+Board [Kd 8h 9h]
+Seat 1: Fix folded before Flop (didn't bet)
+Seat 2: LukasFlopovski (button) collected ($15.50)
+Seat 4: BaronRojo (small blind) folded before Flop 
+Seat 5: MissEleve (big blind) folded before Flop 
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 folded on the Flop 
+Seat 8: betting18 folded before Flop (didn't bet)
+
+
+Weplay Hand #73889020:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:10:01 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: Fix ($30.13 in chips)
+Seat 2: LukasFlopovski ($231.18 in chips)
+Seat 4: BaronRojo ($86.50 in chips)
+Seat 5: MissEleve ($110.25 in chips)
+Seat 6: markanen0 ($101 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: betting18 ($117.83 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 5s]
+kole1992: raises $2 to $2
+betting18: calls $2
+Fix: calls $2
+LukasFlopovski: folds
+BaronRojo: folds
+MissEleve: folds
+markanen0: folds
+*** FLOP *** [Qh 2c 4c]
+kole1992: checks
+betting18: checks
+Fix: checks
+*** TURN *** [Qh 2c 4c] [9h]
+kole1992: checks
+betting18: checks
+Fix: bets $3.76
+kole1992: folds
+betting18: folds
+Uncalled bet ($3.76) returned to Fix
+*** SHOW DOWN ***
+betting18: sits out 
+Fix has timed out
+Fix: doesn't show hand
+Fix collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [Qh 2c 4c 9h]
+Seat 1: Fix collected ($7.50)
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 4: BaronRojo (button) folded before Flop (didn't bet)
+Seat 5: MissEleve (small blind) folded before Flop 
+Seat 6: markanen0 (big blind) folded before Flop 
+Seat 7: kole1992 folded on the Turn 
+Seat 8: betting18 folded on the Turn 
+
+
+Weplay Hand #73889174:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:11:03 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: Fix ($35.26 in chips)
+Seat 2: LukasFlopovski ($231.18 in chips)
+Seat 4: BaronRojo ($86.50 in chips)
+Seat 5: MissEleve ($109.75 in chips)
+Seat 6: markanen0 ($100 in chips)
+Seat 7: kole1992 ($100 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 4c]
+Fix: calls $1
+LukasFlopovski: folds
+BaronRojo: calls $1
+MissEleve: raises $2.50 to $2.50
+markanen0: folds
+betting18 leaves the table
+kole1992: folds
+Fix: calls $1.50
+BaronRojo: calls $1.50
+*** FLOP *** [2c 9c Ts]
+Fix: checks
+BaronRojo: checks
+MissEleve: bets $3
+Fix: folds
+BaronRojo: calls $3
+*** TURN *** [2c 9c Ts] [Kh]
+BaronRojo: checks
+Fix leaves the table
+MissEleve: bets $11.25
+BaronRojo: raises $25.50 to $25.50
+Janka_Kupala joins the table at seat #8
+MissEleve: folds
+Uncalled bet ($14.25) returned to BaronRojo
+*** SHOW DOWN ***
+BaronRojo: doesn't show hand
+BaronRojo collected $37.50 from pot
+*** SUMMARY ***
+Total pot $37.50 | Rake $1.87 
+Board [2c 9c Ts Kh]
+Seat 1: Fix folded on the Flop 
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 4: BaronRojo collected ($37.50)
+Seat 5: MissEleve (button) folded on the Turn 
+Seat 6: markanen0 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #73889347:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:12:13 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: LukasFlopovski ($231.18 in chips)
+Seat 4: BaronRojo ($105.38 in chips)
+Seat 5: MissEleve ($100 in chips)
+Seat 6: markanen0 ($99.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($100.83 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 4c]
+LukasFlopovski: folds
+BaronRojo: folds
+MissEleve: folds
+markanen0: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to Janka_Kupala
+*** SHOW DOWN ***
+BaronRojo leaves the table
+Janka_Kupala has timed out
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 4: BaronRojo folded before Flop (didn't bet)
+Seat 5: MissEleve folded before Flop (didn't bet)
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Janka_Kupala (big blind) collected ($1)
+
+
+Weplay Hand #73889383:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:12:27 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 2: LukasFlopovski ($231.18 in chips)
+Seat 5: MissEleve ($100 in chips)
+Seat 6: markanen0 ($99.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($101.33 in chips)
+Janka_Kupala: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 6c]
+MissEleve: raises $2 to $2
+markanen0: folds
+kole1992: folds
+Janka_Kupala: folds
+LukasFlopovski: calls $1
+*** FLOP *** [5h 3h Kc]
+LukasFlopovski: checks
+MissEleve: bets $2
+LukasFlopovski: calls $2
+*** TURN *** [5h 3h Kc] [9h]
+LukasFlopovski: checks
+MissEleve: bets $3
+LukasFlopovski: folds
+Uncalled bet ($3) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $8.50 from pot
+*** SUMMARY ***
+Total pot $8.50 | Rake $0.42 
+Board [5h 3h Kc 9h]
+Seat 2: LukasFlopovski (big blind) folded on the Turn 
+Seat 5: MissEleve collected ($8.50)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #73889522:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:13:26 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: LukasFlopovski ($227.18 in chips)
+Seat 5: MissEleve ($104.08 in chips)
+Seat 6: markanen0 ($99.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($100.83 in chips)
+LukasFlopovski: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Kc]
+markanen0: folds
+kole1992: folds
+Janka_Kupala: raises $2 to $2
+LukasFlopovski: folds
+MissEleve: folds
+Uncalled bet ($1) returned to Janka_Kupala
+*** SHOW DOWN ***
+Janka_Kupala has timed out
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: LukasFlopovski (small blind) folded before Flop 
+Seat 5: MissEleve (big blind) folded before Flop 
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (button) collected ($2.50)
+
+
+Weplay Hand #73889587:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:13:54 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: LukasFlopovski ($226.68 in chips)
+Seat 5: MissEleve ($103.08 in chips)
+Seat 6: markanen0 ($99.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($102.33 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Ks]
+kole1992: folds
+Janka_Kupala: raises $2 to $2
+LukasFlopovski: folds
+MissEleve: folds
+markanen0: folds
+Uncalled bet ($1) returned to Janka_Kupala
+*** SHOW DOWN ***
+Janka_Kupala has timed out
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: LukasFlopovski (button) folded before Flop (didn't bet)
+Seat 5: MissEleve (small blind) folded before Flop 
+Seat 6: markanen0 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala collected ($2.50)
+
+
+Weplay Hand #73889664:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:14:18 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: LukasFlopovski ($226.68 in chips)
+Seat 5: MissEleve ($102.58 in chips)
+Seat 6: markanen0 ($98.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($103.83 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Td]
+Janka_Kupala: folds
+LukasFlopovski: folds
+MissEleve: raises $3 to $3
+markanen0: folds
+kole1992: calls $2
+*** FLOP *** [3s 6c Ts]
+kole1992: checks
+MissEleve: checks
+*** TURN *** [3s 6c Ts] [7d]
+kole1992: checks
+MissEleve: checks
+*** RIVER *** [3s 6c Ts 7d] [3d]
+kole1992: bets $4.14
+MissEleve: folds
+Uncalled bet ($4.14) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [3s 6c Ts 7d 3d]
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 5: MissEleve (button) folded on the River 
+Seat 6: markanen0 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) collected ($6.50)
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73889869:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:15:43 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: LukasFlopovski ($226.68 in chips)
+Seat 5: MissEleve ($100 in chips)
+Seat 6: markanen0 ($98 in chips)
+Seat 7: kole1992 ($103.18 in chips)
+Seat 8: Janka_Kupala ($103.83 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts As]
+LukasFlopovski: raises $2.30 to $2.30
+MissEleve: calls $2.30
+markanen0: folds
+kole1992: raises $13.23 to $13.73
+Janka_Kupala: folds
+LukasFlopovski: folds
+MissEleve: folds
+Uncalled bet ($11.43) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $7.90 from pot
+*** SUMMARY ***
+Total pot $7.90 | Rake $0 
+Seat 2: LukasFlopovski folded before Flop 
+Seat 5: MissEleve folded before Flop 
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) collected ($7.90)
+Seat 8: Janka_Kupala (big blind) folded before Flop 
+
+
+Weplay Hand #73889953:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:16:15 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 2: LukasFlopovski ($224.38 in chips)
+Seat 5: MissEleve ($100 in chips)
+Seat 6: markanen0 ($98 in chips)
+Seat 7: kole1992 ($108.78 in chips)
+Seat 8: Janka_Kupala ($102.83 in chips)
+Janka_Kupala: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Js]
+MissEleve: raises $2 to $2
+markanen0: folds
+kole1992: folds
+Janka_Kupala: folds
+LukasFlopovski: folds
+Uncalled bet ($1) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: LukasFlopovski (big blind) folded before Flop 
+Seat 5: MissEleve collected ($2.50)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #73890026:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:16:42 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: LukasFlopovski ($223.38 in chips)
+Seat 5: MissEleve ($101.50 in chips)
+Seat 6: markanen0 ($98 in chips)
+Seat 7: kole1992 ($108.78 in chips)
+Seat 8: Janka_Kupala ($102.33 in chips)
+LukasFlopovski: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Qh]
+markanen0: raises $2 to $2
+kole1992: folds
+Janka_Kupala: folds
+LukasFlopovski: folds
+MissEleve: calls $1
+*** FLOP *** [Jd 3d Jh]
+MissEleve: checks
+markanen0: checks
+*** TURN *** [Jd 3d Jh] [Qs]
+MissEleve: checks
+markanen0: checks
+*** RIVER *** [Jd 3d Jh Qs] [2d]
+MissEleve: checks
+markanen0: checks
+*** SHOW DOWN ***
+MissEleve: shows [8h 7c] (a pair of Jacks)
+markanen0: shows [6c 6s] (two pair, Jacks and Sixes)
+markanen0 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Jd 3d Jh Qs 2d]
+Seat 2: LukasFlopovski (small blind) folded before Flop 
+Seat 5: MissEleve (big blind) showed [8h 7c] and lost with a pair of Jacks
+Seat 6: markanen0 showed [6c 6s] and won ($4.50) with two pair, Jacks and Sixes
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73890129:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:17:24 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: LukasFlopovski ($222.88 in chips)
+Seat 5: MissEleve ($100 in chips)
+Seat 6: markanen0 ($100.28 in chips)
+Seat 7: kole1992 ($108.78 in chips)
+Seat 8: Janka_Kupala ($102.33 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 2d]
+kole1992: folds
+Janka_Kupala: folds
+LukasFlopovski: folds
+MissEleve: raises $3 to $3.50
+markanen0: folds
+Uncalled bet ($2.50) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: LukasFlopovski (button) folded before Flop (didn't bet)
+Seat 5: MissEleve (small blind) collected ($2)
+Seat 6: markanen0 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73890204:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:17:52 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: LukasFlopovski ($222.88 in chips)
+Seat 5: MissEleve ($101 in chips)
+Seat 6: markanen0 ($99.28 in chips)
+Seat 7: kole1992 ($108.78 in chips)
+Seat 8: Janka_Kupala ($102.33 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 9d]
+Janka_Kupala: folds
+LukasFlopovski: folds
+MissEleve: calls $1
+markanen0: calls $0.50
+kole1992: checks
+*** FLOP *** [Qd Jd 4s]
+markanen0: bets $1.50
+kole1992: folds
+MissEleve: folds
+Uncalled bet ($1.50) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Qd Jd 4s]
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 5: MissEleve (button) folded on the Flop 
+Seat 6: markanen0 (small blind) collected ($3)
+Seat 7: kole1992 (big blind) folded on the Flop 
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73890288:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:18:28 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: LukasFlopovski ($222.88 in chips)
+Seat 5: MissEleve ($100 in chips)
+Seat 6: markanen0 ($101.13 in chips)
+Seat 7: kole1992 ($107.78 in chips)
+Seat 8: Janka_Kupala ($102.33 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 4d]
+LukasFlopovski: folds
+MissEleve: raises $3.50 to $3.50
+markanen0: folds
+kole1992: folds
+Janka_Kupala: folds
+Uncalled bet ($2.50) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 5: MissEleve collected ($2.50)
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Janka_Kupala (big blind) folded before Flop 
+
+
+Weplay Hand #73891364:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:18:56 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 2: LukasFlopovski ($222.88 in chips)
+Seat 5: MissEleve ($101.50 in chips)
+Seat 6: markanen0 ($101.13 in chips)
+Seat 7: kole1992 ($107.28 in chips)
+Seat 8: Janka_Kupala ($101.33 in chips)
+Janka_Kupala: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Qh]
+MissEleve: folds
+markanen0: raises $2.25 to $2.25
+kole1992: raises $6 to $6
+Janka_Kupala: folds
+LukasFlopovski: folds
+markanen0: folds
+Uncalled bet ($3.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 2: LukasFlopovski (big blind) folded before Flop 
+Seat 5: MissEleve folded before Flop (didn't bet)
+Seat 6: markanen0 folded before Flop 
+Seat 7: kole1992 (button) collected ($6)
+Seat 8: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #73891461:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:19:33 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: LukasFlopovski ($221.88 in chips)
+Seat 5: MissEleve ($101.50 in chips)
+Seat 6: markanen0 ($98.88 in chips)
+Seat 7: kole1992 ($111.03 in chips)
+Seat 8: Janka_Kupala ($100.83 in chips)
+LukasFlopovski: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Jh]
+markanen0: folds
+kole1992: folds
+Janka_Kupala: folds
+LukasFlopovski: folds
+Uncalled bet ($0.50) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: LukasFlopovski (small blind) folded before Flop 
+Seat 5: MissEleve (big blind) collected ($1)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73891502:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:19:52 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: LukasFlopovski ($221.38 in chips)
+Seat 5: MissEleve ($102 in chips)
+Seat 6: markanen0 ($98.88 in chips)
+Seat 7: kole1992 ($111.03 in chips)
+Seat 8: Janka_Kupala ($100.83 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 5s]
+kole1992: folds
+Janka_Kupala: raises $2.50 to $2.50
+LukasFlopovski: folds
+MissEleve: folds
+markanen0: folds
+Uncalled bet ($1.50) returned to Janka_Kupala
+*** SHOW DOWN ***
+Janka_Kupala has timed out
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: LukasFlopovski (button) folded before Flop (didn't bet)
+Seat 5: MissEleve (small blind) folded before Flop 
+Seat 6: markanen0 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala collected ($2.50)
+
+
+Weplay Hand #73891540:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:20:07 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: LukasFlopovski ($221.38 in chips)
+Seat 5: MissEleve ($101.50 in chips)
+Seat 6: markanen0 ($97.88 in chips)
+Seat 7: kole1992 ($111.03 in chips)
+Seat 8: Janka_Kupala ($102.33 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Jc]
+Janka_Kupala: folds
+LukasFlopovski: folds
+MissEleve: raises $3 to $3
+markanen0: folds
+kole1992: folds
+Uncalled bet ($2) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 5: MissEleve (button) collected ($2.50)
+Seat 6: markanen0 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73891611:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:20:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: LukasFlopovski ($221.38 in chips)
+Seat 5: MissEleve ($103 in chips)
+Seat 6: markanen0 ($97.38 in chips)
+Seat 7: kole1992 ($110.03 in chips)
+Seat 8: Janka_Kupala ($102.33 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 3d]
+LukasFlopovski: raises $2.30 to $2.30
+MissEleve: calls $2.30
+markanen0: folds
+kole1992: folds
+Janka_Kupala: raises $13 to $14
+LukasFlopovski: folds
+MissEleve: folds
+Uncalled bet ($11.70) returned to Janka_Kupala
+*** SHOW DOWN ***
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $7.40 from pot
+*** SUMMARY ***
+Total pot $7.40 | Rake $0 
+Seat 2: LukasFlopovski folded before Flop 
+Seat 5: MissEleve folded before Flop 
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Janka_Kupala (big blind) collected ($7.40)
+
+
+Weplay Hand #73891715:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:21:11 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 2: LukasFlopovski ($219.08 in chips)
+Seat 5: MissEleve ($100.70 in chips)
+Seat 6: markanen0 ($97.38 in chips)
+Seat 7: kole1992 ($109.53 in chips)
+Seat 8: Janka_Kupala ($107.43 in chips)
+Janka_Kupala: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Jh]
+MissEleve: folds
+markanen0: folds
+kole1992: raises $2.50 to $2.50
+Janka_Kupala: folds
+LukasFlopovski: calls $1.50
+*** FLOP *** [Kd 3c 3s]
+LukasFlopovski: checks
+kole1992: bets $1.81
+LukasFlopovski: calls $1.81
+*** TURN *** [Kd 3c 3s] [5s]
+LukasFlopovski: checks
+kole1992: checks
+*** RIVER *** [Kd 3c 3s 5s] [8c]
+LukasFlopovski: bets $7.10
+kole1992: calls $7.10
+*** SHOW DOWN ***
+LukasFlopovski: shows [3h Ah] (three of a kind, Threes)
+kole1992: mucks hand
+LukasFlopovski collected $23.32 from pot
+*** SUMMARY ***
+Total pot $23.32 | Rake $1.16 
+Board [Kd 3c 3s 5s 8c]
+Seat 2: LukasFlopovski (big blind) showed [3h Ah] and won ($23.32) with three of a kind, Threes
+Seat 5: MissEleve folded before Flop (didn't bet)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) mucked
+Seat 8: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #73891933:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:22:38 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: LukasFlopovski ($229.83 in chips)
+Seat 5: MissEleve ($100.70 in chips)
+Seat 6: markanen0 ($97.38 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($106.93 in chips)
+LukasFlopovski: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 9d]
+markanen0: folds
+kole1992: folds
+Janka_Kupala: folds
+LukasFlopovski: folds
+Uncalled bet ($0.50) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: LukasFlopovski (small blind) folded before Flop 
+Seat 5: MissEleve (big blind) collected ($1)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73891983:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:22:56 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 2: LukasFlopovski ($229.33 in chips)
+Seat 5: MissEleve ($101.20 in chips)
+Seat 6: markanen0 ($97.38 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($106.93 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 7d]
+kole1992: folds
+Janka_Kupala: raises $2.50 to $2.50
+LukasFlopovski: folds
+MissEleve: folds
+markanen0: calls $1.50
+*** FLOP *** [Kc 2c 7h]
+markanen0: checks
+Janka_Kupala: bets $1.80
+markanen0: calls $1.80
+*** TURN *** [Kc 2c 7h] [4h]
+markanen0: checks
+Janka_Kupala: checks
+*** RIVER *** [Kc 2c 7h 4h] [8c]
+markanen0: bets $11
+Janka_Kupala: folds
+Uncalled bet ($11) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $9.10 from pot
+*** SUMMARY ***
+Total pot $9.10 | Rake $0.45 
+Board [Kc 2c 7h 4h 8c]
+Seat 2: LukasFlopovski (button) folded before Flop (didn't bet)
+Seat 5: MissEleve (small blind) folded before Flop 
+Seat 6: markanen0 (big blind) collected ($9.10)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala folded on the River 
+
+
+Weplay Hand #73892127:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:23:51 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: LukasFlopovski ($229.33 in chips)
+Seat 5: MissEleve ($100.70 in chips)
+Seat 6: markanen0 ($101.73 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($102.63 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d As]
+Janka_Kupala: folds
+LukasFlopovski: raises $2.50 to $2.50
+MissEleve: calls $2.50
+markanen0: folds
+kole1992: folds
+*** FLOP *** [Th 6d 7h]
+LukasFlopovski: checks
+MissEleve: checks
+*** TURN *** [Th 6d 7h] [6c]
+LukasFlopovski: checks
+MissEleve: checks
+*** RIVER *** [Th 6d 7h 6c] [Ad]
+LukasFlopovski: bets $4.30
+MissEleve: raises $20 to $20
+LukasFlopovski: folds
+Uncalled bet ($15.70) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $15.10 from pot
+*** SUMMARY ***
+Total pot $15.10 | Rake $0.75 
+Board [Th 6d 7h 6c Ad]
+Seat 2: LukasFlopovski folded on the River 
+Seat 5: MissEleve (button) collected ($15.10)
+Seat 6: markanen0 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73892292:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:24:55 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 2: LukasFlopovski ($222.53 in chips)
+Seat 5: MissEleve ($108.25 in chips)
+Seat 6: markanen0 ($101.23 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($102.63 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 3s]
+LukasFlopovski: folds
+MissEleve: raises $3 to $3
+markanen0: folds
+kole1992: folds
+Janka_Kupala: folds
+Uncalled bet ($2) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: LukasFlopovski folded before Flop (didn't bet)
+Seat 5: MissEleve collected ($2.50)
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Janka_Kupala (big blind) folded before Flop 
+
+
+Weplay Hand #73892348:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:25:15 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 2: LukasFlopovski ($222.53 in chips)
+Seat 5: MissEleve ($109.75 in chips)
+Seat 6: markanen0 ($101.23 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($101.63 in chips)
+Janka_Kupala: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Th]
+MissEleve: calls $1
+markanen0: folds
+kole1992: raises $3.50 to $3.50
+Janka_Kupala: raises $12.50 to $13
+LukasFlopovski: folds
+MissEleve: folds
+kole1992: folds
+Uncalled bet ($9.50) returned to Janka_Kupala
+*** SHOW DOWN ***
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0 
+Seat 2: LukasFlopovski (big blind) folded before Flop 
+Seat 5: MissEleve folded before Flop 
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop 
+Seat 8: Janka_Kupala (small blind) collected ($9)
+
+
+Weplay Hand #73892446:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:25:59 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 2: LukasFlopovski ($221.53 in chips)
+Seat 5: MissEleve ($108.75 in chips)
+Seat 6: markanen0 ($101.23 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($107.13 in chips)
+LukasFlopovski: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 2c]
+markanen0: folds
+kole1992: folds
+Janka_Kupala: raises $2 to $2
+LukasFlopovski: folds
+MissEleve: calls $1
+*** FLOP *** [8h 7d Kd]
+MissEleve: bets $3
+Janka_Kupala: raises $10.90 to $10.90
+LukasFlopovski: sits out 
+MissEleve: folds
+Uncalled bet ($7.90) returned to Janka_Kupala
+*** SHOW DOWN ***
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $10.50 from pot
+*** SUMMARY ***
+Total pot $10.50 | Rake $0.52 
+Board [8h 7d Kd]
+Seat 2: LukasFlopovski (small blind) folded before Flop 
+Seat 5: MissEleve (big blind) folded on the Flop 
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (button) collected ($10.50)
+
+
+Weplay Hand #73892519:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:26:31 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 5: MissEleve ($103.75 in chips)
+Seat 6: markanen0 ($101.23 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($112.11 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 9c]
+kole1992: folds
+Janka_Kupala: raises $2 to $2
+MissEleve: calls $1.50
+markanen0: folds
+*** FLOP *** [Kh Th Ts]
+LukasFlopovski leaves the table
+MissEleve: bets $2
+Janka_Kupala: calls $2
+*** TURN *** [Kh Th Ts] [Qd]
+MissEleve: checks
+Janka_Kupala: checks
+*** RIVER *** [Kh Th Ts Qd] [Qh]
+MissEleve: checks
+Janka_Kupala: checks
+*** SHOW DOWN ***
+MissEleve: shows [8s Ah] (two pair, Queens and Tens)
+Janka_Kupala: mucks hand
+MissEleve collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [Kh Th Ts Qd Qh]
+Seat 5: MissEleve (small blind) showed [8s Ah] and won ($9) with two pair, Queens and Tens
+Seat 6: markanen0 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala mucked
+
+
+Weplay Hand #73892656:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:27:28 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 5: MissEleve ($108.30 in chips)
+Seat 6: markanen0 ($100.23 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($108.11 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 9h]
+Janka_Kupala: folds
+MissEleve: raises $3 to $3
+markanen0: folds
+kole1992: raises $9.50 to $10.50
+MissEleve: calls $7.50
+*** FLOP *** [Ks 8h Td]
+kole1992: checks
+MissEleve: bets $3
+kole1992: calls $3
+*** TURN *** [Ks 8h Td] [7s]
+kole1992: checks
+MissEleve: checks
+*** RIVER *** [Ks 8h Td 7s] [Qc]
+kole1992: checks
+MissEleve: checks
+*** SHOW DOWN ***
+kole1992: shows [9c 9h] (a pair of Nines)
+MissEleve: shows [Ac Qs] (a pair of Queens)
+MissEleve collected $27.50 from pot
+*** SUMMARY ***
+Total pot $27.50 | Rake $1.37 
+Board [Ks 8h Td 7s Qc]
+Seat 5: MissEleve (button) showed [Ac Qs] and won ($27.50) with a pair of Queens
+Seat 6: markanen0 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) showed [9c 9h] and lost with a pair of Nines
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73892826:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:28:41 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 5: MissEleve ($120.93 in chips)
+Seat 6: markanen0 ($99.73 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: Janka_Kupala ($108.11 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9c]
+MissEleve: raises $3.50 to $3.50
+markanen0: folds
+kole1992: calls $3
+Janka_Kupala: folds
+*** FLOP *** [Th 3c 3s]
+kole1992: checks
+MissEleve: checks
+*** TURN *** [Th 3c 3s] [8h]
+kole1992: checks
+MissEleve: checks
+*** RIVER *** [Th 3c 3s 8h] [Qd]
+kole1992: checks
+MissEleve: checks
+*** SHOW DOWN ***
+kole1992: shows [8c 9c] (two pair, Eights and Threes)
+MissEleve: mucks hand
+kole1992 collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [Th 3c 3s 8h Qd]
+Seat 5: MissEleve mucked
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) showed [8c 9c] and won ($8) with two pair, Eights and Threes
+Seat 8: Janka_Kupala (big blind) folded before Flop 
+
+
+Weplay Hand #73892921:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:29:21 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 5: MissEleve ($117.43 in chips)
+Seat 6: markanen0 ($99.73 in chips)
+Seat 7: kole1992 ($104.10 in chips)
+Seat 8: Janka_Kupala ($107.11 in chips)
+Janka_Kupala: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Ks]
+markanen0: folds
+kole1992: raises $3 to $3
+Janka_Kupala: folds
+MissEleve: calls $2
+*** FLOP *** [6h 5h 8s]
+MissEleve: bets $3.25
+kole1992: calls $3.25
+*** TURN *** [6h 5h 8s] [5s]
+MissEleve: checks
+kole1992: bets $11
+MissEleve: folds
+Uncalled bet ($11) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [6h 5h 8s 5s]
+Seat 5: MissEleve (big blind) folded on the Turn 
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) collected ($13)
+Seat 8: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #73893044:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:30:20 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 5: MissEleve ($111.18 in chips)
+Seat 6: markanen0 ($99.73 in chips)
+Seat 7: kole1992 ($110.20 in chips)
+Seat 8: Janka_Kupala ($106.61 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 8d]
+kole1992: folds
+Janka_Kupala: raises $2 to $2
+MissEleve: calls $1.50
+markanen0: folds
+*** FLOP *** [Ac 5h 8h]
+MissEleve: bets $2
+Janka_Kupala: raises $8.80 to $8.80
+MissEleve: calls $6.80
+*** TURN *** [Ac 5h 8h] [7d]
+MissEleve: checks
+Fix joins the table at seat #4
+Janka_Kupala: bets $11.30
+MissEleve: calls $11.30
+*** RIVER *** [Ac 5h 8h 7d] [2h]
+MissEleve: checks
+Janka_Kupala: bets $33.90
+MissEleve: raises $89.08 to $89.08 and is all-in
+Janka_Kupala: folds
+Uncalled bet ($55.18) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $113 from pot
+*** SUMMARY ***
+Total pot $113 | Rake $5.65 
+Board [Ac 5h 8h 7d 2h]
+Seat 5: MissEleve (small blind) collected ($113)
+Seat 6: markanen0 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (button) folded on the River 
+
+
+Weplay Hand #73893236:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:31:47 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 4: Fix ($32.76 in chips)
+Seat 5: MissEleve ($162.53 in chips)
+Seat 6: markanen0 ($98.73 in chips)
+Seat 7: kole1992 ($110.20 in chips)
+Seat 8: Janka_Kupala ($50.61 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+Fix: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Td]
+Janka_Kupala: folds
+Fix: checks
+MissEleve: folds
+markanen0: folds
+kole1992: checks
+*** FLOP *** [9c 4c 8d]
+kole1992: checks
+Fix: bets $1
+kole1992: calls $1
+*** TURN *** [9c 4c 8d] [4h]
+kole1992: checks
+Fix: checks
+*** RIVER *** [9c 4c 8d 4h] [6c]
+kole1992: checks
+Fix: bets $2.25
+kole1992: calls $2.25
+*** SHOW DOWN ***
+Fix: shows [6d 6s] (a full house, Sixes full of Fours)
+kole1992: mucks hand
+Fix collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [9c 4c 8d 4h 6c]
+Seat 4: Fix (big blind) showed [6d 6s] and won ($9) with a full house, Sixes full of Fours
+Seat 5: MissEleve (button) folded before Flop (didn't bet)
+Seat 6: markanen0 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) mucked
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73893397:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:33:01 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Fix ($37.06 in chips)
+Seat 5: MissEleve ($162.53 in chips)
+Seat 6: markanen0 ($98.23 in chips)
+Seat 7: kole1992 ($105.95 in chips)
+Seat 8: Janka_Kupala ($50.61 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Qc]
+Fix: calls $1
+MissEleve: calls $1
+markanen0: folds
+kole1992: raises $6 to $6.50
+Janka_Kupala: folds
+Fix: folds
+MissEleve: folds
+Uncalled bet ($5.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 4: Fix folded before Flop 
+Seat 5: MissEleve folded before Flop 
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) collected ($4)
+Seat 8: Janka_Kupala (big blind) folded before Flop 
+
+
+Weplay Hand #73893464:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:33:35 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 4: Fix ($36.06 in chips)
+Seat 5: MissEleve ($161.53 in chips)
+Seat 6: markanen0 ($98.23 in chips)
+Seat 7: kole1992 ($108.95 in chips)
+Seat 8: Janka_Kupala ($49.61 in chips)
+Janka_Kupala: posts small blind $0.50
+Fix: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 3h]
+MissEleve: calls $1
+markanen0: raises $4.50 to $4.50
+kole1992: folds
+Janka_Kupala: folds
+Fix: folds
+MissEleve: folds
+Uncalled bet ($3.50) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 4: Fix (big blind) folded before Flop 
+Seat 5: MissEleve folded before Flop 
+Seat 6: markanen0 collected ($3.50)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #73893506:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:33:55 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 4: Fix ($35.06 in chips)
+Seat 5: MissEleve ($160.53 in chips)
+Seat 6: markanen0 ($100.73 in chips)
+Seat 7: kole1992 ($108.95 in chips)
+Seat 8: Janka_Kupala ($49.11 in chips)
+Fix: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 5d]
+markanen0: folds
+kole1992: folds
+Janka_Kupala: folds
+Fix: calls $0.50
+MissEleve: checks
+*** FLOP *** [8c 4c 8d]
+Fix: checks
+MissEleve: checks
+*** TURN *** [8c 4c 8d] [Ac]
+Fix: checks
+MissEleve: checks
+*** RIVER *** [8c 4c 8d Ac] [Th]
+Fix: checks
+MissEleve: bets $2
+Fix: folds
+Uncalled bet ($2) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [8c 4c 8d Ac Th]
+Seat 4: Fix (small blind) folded on the River 
+Seat 5: MissEleve (big blind) collected ($2)
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73893600:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:34:38 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Fix ($34.06 in chips)
+Seat 5: MissEleve ($161.43 in chips)
+Seat 6: markanen0 ($100.73 in chips)
+Seat 7: kole1992 ($108.95 in chips)
+Seat 8: Janka_Kupala ($49.11 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Kc]
+kole1992: folds
+Janka_Kupala: folds
+Fix: calls $1
+MissEleve: calls $0.50
+markanen0: checks
+*** FLOP *** [3s 6s Ad]
+MissEleve: checks
+markanen0: checks
+Fix: checks
+*** TURN *** [3s 6s Ad] [4h]
+MissEleve: bets $3
+markanen0: folds
+Fix: folds
+Uncalled bet ($3) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [3s 6s Ad 4h]
+Seat 4: Fix (button) folded on the Turn 
+Seat 5: MissEleve (small blind) collected ($3)
+Seat 6: markanen0 (big blind) folded on the Turn 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73893699:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:35:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 4: Fix ($33.06 in chips)
+Seat 5: MissEleve ($163.28 in chips)
+Seat 6: markanen0 ($99.73 in chips)
+Seat 7: kole1992 ($108.95 in chips)
+Seat 8: Janka_Kupala ($49.11 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Qd]
+Janka_Kupala: raises $2 to $2
+Fix: calls $2
+MissEleve: calls $2
+markanen0: folds
+kole1992: calls $1
+*** FLOP *** [Kh 5h Js]
+kole1992: checks
+Janka_Kupala: checks
+Fix: checks
+MissEleve: checks
+*** TURN *** [Kh 5h Js] [Ah]
+kole1992: checks
+Janka_Kupala: checks
+Fix: checks
+MissEleve: checks
+*** RIVER *** [Kh 5h Js Ah] [Jd]
+kole1992: bets $3.50
+Janka_Kupala: folds
+Fix: folds
+MissEleve: folds
+Uncalled bet ($3.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $8.50 from pot
+*** SUMMARY ***
+Total pot $8.50 | Rake $0.42 
+Board [Kh 5h Js Ah Jd]
+Seat 4: Fix folded on the River 
+Seat 5: MissEleve (button) folded on the River 
+Seat 6: markanen0 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) collected ($8.50)
+Seat 8: Janka_Kupala folded on the River 
+
+
+Weplay Hand #73893883:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:37:12 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Fix ($31.06 in chips)
+Seat 5: MissEleve ($161.28 in chips)
+Seat 6: markanen0 ($99.23 in chips)
+Seat 7: kole1992 ($115.03 in chips)
+Seat 8: Janka_Kupala ($47.11 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 2c]
+Fix: calls $1
+MissEleve: calls $1
+markanen0: folds
+kole1992: folds
+Janka_Kupala: checks
+*** FLOP *** [Ac 3c 7c]
+Janka_Kupala: checks
+Fix: checks
+MissEleve: bets $3
+Janka_Kupala: folds
+Fix: folds
+Uncalled bet ($3) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [Ac 3c 7c]
+Seat 4: Fix folded on the Flop 
+Seat 5: MissEleve collected ($3.50)
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Janka_Kupala (big blind) folded on the Flop 
+
+
+Weplay Hand #73893944:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:37:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 4: Fix ($30.06 in chips)
+Seat 5: MissEleve ($163.61 in chips)
+Seat 6: markanen0 ($99.23 in chips)
+Seat 7: kole1992 ($114.53 in chips)
+Seat 8: Janka_Kupala ($46.11 in chips)
+Janka_Kupala: posts small blind $0.50
+Fix: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Kh]
+MissEleve: calls $1
+markanen0: raises $4.50 to $4.50
+kole1992: folds
+Janka_Kupala: folds
+Fix: folds
+MissEleve: folds
+Uncalled bet ($3.50) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 4: Fix (big blind) folded before Flop 
+Seat 5: MissEleve folded before Flop 
+Seat 6: markanen0 collected ($3.50)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #73894004:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:38:18 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 4: Fix ($29.06 in chips)
+Seat 5: MissEleve ($162.61 in chips)
+Seat 6: markanen0 ($101.73 in chips)
+Seat 7: kole1992 ($114.53 in chips)
+Seat 8: Janka_Kupala ($45.61 in chips)
+Fix: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 8d]
+markanen0: folds
+kole1992: folds
+Janka_Kupala: raises $2 to $2
+Fix: calls $1.50
+MissEleve: calls $1
+*** FLOP *** [Qh Jc 3d]
+Fix: checks
+MissEleve: checks
+Janka_Kupala: checks
+*** TURN *** [Qh Jc 3d] [5d]
+Fix: bets $2
+MissEleve: calls $2
+Janka_Kupala: folds
+*** RIVER *** [Qh Jc 3d 5d] [Ts]
+Fix: checks
+MissEleve: checks
+*** SHOW DOWN ***
+Fix: shows [7h 4h] (high card Queen)
+MissEleve: shows [As 2h] (high card Ace)
+MissEleve collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [Qh Jc 3d 5d Ts]
+Seat 4: Fix (small blind) showed [7h 4h] and lost with high card Queen
+Seat 5: MissEleve (big blind) showed [As 2h] and won ($10) with high card Ace
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (button) folded on the Turn 
+
+
+Weplay Hand #73894121:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:39:33 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Fix ($25.06 in chips)
+Seat 5: MissEleve ($168.11 in chips)
+Seat 6: markanen0 ($101.73 in chips)
+Seat 7: kole1992 ($114.53 in chips)
+Seat 8: Janka_Kupala ($43.61 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Jd]
+kole1992: folds
+Janka_Kupala: folds
+Fix: raises $2 to $2
+MissEleve: calls $1.50
+markanen0: raises $8 to $9
+Fix: calls $7
+MissEleve: calls $7
+*** FLOP *** [Th 2d 4h]
+MissEleve: checks
+markanen0: bets $13.50
+Fix: folds
+MissEleve: calls $13.50
+*** TURN *** [Th 2d 4h] [2c]
+MissEleve: checks
+markanen0: bets $25
+MissEleve: calls $25
+*** RIVER *** [Th 2d 4h 2c] [2h]
+MissEleve: checks
+markanen0: bets $54.23 and is all-in
+MissEleve: calls $54.23
+*** SHOW DOWN ***
+markanen0: shows [Ad Ah] (a full house, Deuces full of Aces)
+MissEleve: shows [8c Ts] (a full house, Deuces full of Tens)
+markanen0 collected $212.46 from pot
+*** SUMMARY ***
+Total pot $212.46 | Rake $6.50 
+Board [Th 2d 4h 2c 2h]
+Seat 4: Fix (button) folded on the Flop 
+Seat 5: MissEleve (small blind) showed [8c Ts] and lost with a full house, Deuces full of Tens
+Seat 6: markanen0 (big blind) showed [Ad Ah] and won ($212.46) with a full house, Deuces full of Aces
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73894207:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:40:40 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 4: Fix ($16.06 in chips)
+Seat 5: MissEleve ($100 in chips)
+Seat 6: markanen0 ($205.96 in chips)
+Seat 7: kole1992 ($114.53 in chips)
+Seat 8: Janka_Kupala ($43.61 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Tc]
+Janka_Kupala: folds
+Fix: calls $1
+MissEleve: calls $1
+markanen0: folds
+kole1992: checks
+*** FLOP *** [3c Qd Qs]
+kole1992: checks
+Fix: checks
+MissEleve: checks
+*** TURN *** [3c Qd Qs] [2s]
+kole1992: checks
+Fix: checks
+MissEleve: bets $3
+kole1992: folds
+Fix: folds
+Uncalled bet ($3) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [3c Qd Qs 2s]
+Seat 4: Fix folded on the Turn 
+Seat 5: MissEleve (button) collected ($3.50)
+Seat 6: markanen0 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded on the Turn 
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73894284:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:41:31 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 4: Fix ($15.06 in chips)
+Seat 5: MissEleve ($102.33 in chips)
+Seat 6: markanen0 ($205.46 in chips)
+Seat 7: kole1992 ($113.53 in chips)
+Seat 8: Janka_Kupala ($43.61 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 6c]
+Fix: calls $1
+MissEleve: raises $3 to $3
+markanen0: folds
+kole1992: folds
+Janka_Kupala: folds
+Fix: folds
+Uncalled bet ($2) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 4: Fix folded before Flop 
+Seat 5: MissEleve collected ($3.50)
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Janka_Kupala (big blind) folded before Flop 
+
+
+Weplay Hand #73894338:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:42:15 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 4: Fix ($14.06 in chips)
+Seat 5: MissEleve ($104.83 in chips)
+Seat 6: markanen0 ($205.46 in chips)
+Seat 7: kole1992 ($113.03 in chips)
+Seat 8: Janka_Kupala ($42.61 in chips)
+Janka_Kupala: posts small blind $0.50
+Fix: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 9h]
+MissEleve: calls $1
+markanen0: folds
+kole1992: folds
+Janka_Kupala: folds
+Fix: checks
+*** FLOP *** [8s Jd 9c]
+Fix: checks
+MissEleve: checks
+*** TURN *** [8s Jd 9c] [7h]
+Fix: checks
+MissEleve: checks
+*** RIVER *** [8s Jd 9c 7h] [7s]
+Fix: checks
+MissEleve: checks
+*** SHOW DOWN ***
+Fix: shows [5d 4c] (a pair of Sevens)
+MissEleve: shows [Td As] (a straight, Seven to Jack)
+MissEleve collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [8s Jd 9c 7h 7s]
+Seat 4: Fix (big blind) showed [5d 4c] and lost with a pair of Sevens
+Seat 5: MissEleve showed [Td As] and won ($2.50) with a straight, Seven to Jack
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #73894396:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:43:07 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 4: Fix ($13.06 in chips)
+Seat 5: MissEleve ($106.21 in chips)
+Seat 6: markanen0 ($205.46 in chips)
+Seat 7: kole1992 ($113.03 in chips)
+Seat 8: Janka_Kupala ($42.11 in chips)
+Fix: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Kc]
+markanen0: folds
+kole1992: raises $2 to $2
+Janka_Kupala: folds
+Fix: calls $1.50
+MissEleve: folds
+*** FLOP *** [4h 6h Kh]
+Fix: checks
+kole1992: checks
+*** TURN *** [4h 6h Kh] [7c]
+Fix: checks
+kole1992: bets $2.66
+Fix: folds
+Uncalled bet ($2.66) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [4h 6h Kh 7c]
+Seat 4: Fix (small blind) folded on the Turn 
+Seat 5: MissEleve (big blind) folded before Flop 
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 collected ($5)
+Seat 8: Janka_Kupala (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73894454:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:44:00 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 4: Fix ($11.06 in chips)
+Seat 5: MissEleve ($105.21 in chips)
+Seat 6: markanen0 ($205.46 in chips)
+Seat 7: kole1992 ($115.78 in chips)
+Seat 8: Janka_Kupala ($42.11 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 4d]
+kole1992: folds
+Janka_Kupala: folds
+Fix: calls $1
+MissEleve: folds
+markanen0: raises $4.50 to $5.50
+Fix: calls $4.50
+*** FLOP *** [5c Td 9h]
+markanen0: bets $7.75
+Fix: calls $5.56 and is all-in
+Uncalled bet ($2.19) returned to markanen0
+*** TURN *** [5c Td 9h] [Qs]
+*** RIVER *** [5c Td 9h Qs] [5d]
+*** SHOW DOWN ***
+markanen0: shows [As Ac] (two pair, Aces and Fives)
+Fix: shows [Qd 3h] (two pair, Queens and Fives)
+markanen0 collected $22.62 from pot
+*** SUMMARY ***
+Total pot $22.62 | Rake $1.13 
+Board [5c Td 9h Qs 5d]
+Seat 4: Fix (button) showed [Qd 3h] and lost with two pair, Queens and Fives
+Seat 5: MissEleve (small blind) folded before Flop 
+Seat 6: markanen0 (big blind) showed [As Ac] and won ($22.62) with two pair, Aces and Fives
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73894489:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:44:34 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 5: MissEleve ($104.71 in chips)
+Seat 6: markanen0 ($215.89 in chips)
+Seat 7: kole1992 ($115.78 in chips)
+Seat 8: Janka_Kupala ($42.11 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 5c]
+Janka_Kupala: folds
+Fix leaves the table
+MissEleve: raises $2 to $2
+markanen0: calls $1.50
+kole1992: calls $1
+*** FLOP *** [6d 8d Jd]
+markanen0: checks
+kole1992: checks
+MissEleve: checks
+*** TURN *** [6d 8d Jd] [Ts]
+markanen0: checks
+kole1992: checks
+MissEleve: checks
+*** RIVER *** [6d 8d Jd Ts] [4h]
+markanen0: checks
+kole1992: checks
+MissEleve: checks
+*** SHOW DOWN ***
+markanen0: shows [As 7s] (high card Ace)
+kole1992: shows [4c 5c] (a pair of Fours)
+MissEleve: shows [7c 6c] (a pair of Sixes)
+MissEleve collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [6d 8d Jd Ts 4h]
+Seat 5: MissEleve (button) showed [7c 6c] and won ($6) with a pair of Sixes
+Seat 6: markanen0 (small blind) showed [As 7s] and lost with high card Ace
+Seat 7: kole1992 (big blind) showed [4c 5c] and lost with a pair of Fours
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73894573:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:45:55 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 5: MissEleve ($108.41 in chips)
+Seat 6: markanen0 ($213.89 in chips)
+Seat 7: kole1992 ($113.78 in chips)
+Seat 8: Janka_Kupala ($42.11 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 3d]
+MissEleve: folds
+markanen0: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to Janka_Kupala
+*** SHOW DOWN ***
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 5: MissEleve folded before Flop (didn't bet)
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Janka_Kupala (big blind) collected ($1)
+
+
+Weplay Hand #73894593:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:46:15 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 5: MissEleve ($108.41 in chips)
+Seat 6: markanen0 ($213.89 in chips)
+Seat 7: kole1992 ($113.28 in chips)
+Seat 8: Janka_Kupala ($42.61 in chips)
+Janka_Kupala: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 8h]
+markanen0: folds
+kole1992: raises $2.20 to $2.20
+Janka_Kupala: folds
+MissEleve: calls $1.20
+*** FLOP *** [3h 5h Kh]
+MissEleve: checks
+kole1992: bets $1
+MissEleve: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4.90 from pot
+*** SUMMARY ***
+Total pot $4.90 | Rake $0.24 
+Board [3h 5h Kh]
+Seat 5: MissEleve (big blind) folded on the Flop 
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) collected ($4.90)
+Seat 8: Janka_Kupala (small blind) folded before Flop 
+
+
+Weplay Hand #73894635:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:46:57 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 5: MissEleve ($106.21 in chips)
+Seat 6: markanen0 ($213.89 in chips)
+Seat 7: kole1992 ($115.74 in chips)
+Seat 8: Janka_Kupala ($42.11 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 5c]
+kole1992: folds
+Janka_Kupala: folds
+MissEleve: raises $3.50 to $4
+markanen0: folds
+Uncalled bet ($3) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 5: MissEleve (small blind) collected ($2)
+Seat 6: markanen0 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73894660:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:47:24 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 5: MissEleve ($107.21 in chips)
+Seat 6: markanen0 ($212.89 in chips)
+Seat 7: kole1992 ($115.74 in chips)
+Seat 8: Janka_Kupala ($42.11 in chips)
+markanen0: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Ah]
+Janka_Kupala: folds
+MissEleve: raises $3 to $3
+markanen0: raises $9.50 to $10
+kole1992: folds
+MissEleve: folds
+Uncalled bet ($7) returned to markanen0
+*** SHOW DOWN ***
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0 
+Seat 5: MissEleve (button) folded before Flop 
+Seat 6: markanen0 (small blind) collected ($7)
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #73894690:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:47:59 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #6 is the button
+Seat 5: MissEleve ($104.21 in chips)
+Seat 6: markanen0 ($216.89 in chips)
+Seat 7: kole1992 ($114.74 in chips)
+Seat 8: Janka_Kupala ($42.11 in chips)
+kole1992: posts small blind $0.50
+Janka_Kupala: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 8h]
+MissEleve: raises $3.50 to $3.50
+markanen0: folds
+kole1992: folds
+Janka_Kupala: folds
+Uncalled bet ($2.50) returned to MissEleve
+*** SHOW DOWN ***
+MissEleve: doesn't show hand
+MissEleve collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 5: MissEleve collected ($2.50)
+Seat 6: markanen0 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Janka_Kupala (big blind) folded before Flop 
+
+
+Weplay Hand #73894704:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:48:15 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 5: MissEleve ($105.71 in chips)
+Seat 6: markanen0 ($216.89 in chips)
+Seat 7: kole1992 ($114.24 in chips)
+Seat 8: Janka_Kupala ($41.11 in chips)
+Janka_Kupala: posts small blind $0.50
+MissEleve: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 9d]
+markanen0: folds
+kole1992: folds
+Janka_Kupala: raises $2.50 to $3
+MissEleve: calls $2
+*** FLOP *** [Tc Ah As]
+Janka_Kupala: bets $2
+MissEleve: calls $2
+*** TURN *** [Tc Ah As] [Td]
+Janka_Kupala: checks
+MissEleve: checks
+*** RIVER *** [Tc Ah As Td] [7h]
+Janka_Kupala: checks
+MissEleve: checks
+*** SHOW DOWN ***
+Janka_Kupala: shows [9h 3h] (two pair, Aces and Tens)
+MissEleve: shows [7c Qc] (two pair, Aces and Tens)
+MissEleve collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [Tc Ah As Td 7h]
+Seat 5: MissEleve (big blind) showed [7c Qc] and won ($10) with two pair, Aces and Tens
+Seat 6: markanen0 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (small blind) showed [9h 3h] and lost with two pair, Aces and Tens
+
+
+Weplay Hand #73894756:  Hold'em No Limit ($0.50/$1) - 2026/01/27 14:49:17 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #8 is the button
+Seat 5: MissEleve ($110.21 in chips)
+Seat 6: markanen0 ($216.89 in chips)
+Seat 7: kole1992 ($114.24 in chips)
+Seat 8: Janka_Kupala ($36.11 in chips)
+MissEleve: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Jd]
+kole1992: folds
+Janka_Kupala: raises $2 to $2
+MissEleve: folds
+markanen0: folds
+Uncalled bet ($1) returned to Janka_Kupala
+*** SHOW DOWN ***
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 5: MissEleve (small blind) folded before Flop 
+Seat 6: markanen0 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Janka_Kupala (button) collected ($2.50)

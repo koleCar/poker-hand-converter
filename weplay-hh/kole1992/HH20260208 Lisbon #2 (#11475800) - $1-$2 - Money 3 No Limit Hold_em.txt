@@ -1,0 +1,1763 @@
+﻿Weplay Hand #75145900:  Hold'em No Limit ($1/$2) - 2026/02/08 21:26:32 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 1: TrashPanda ($119.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 4: Kayzho ($100.97 in chips)
+Seat 5: Elgringo ($420.35 in chips)
+Seat 6: Tone91 ($273.33 in chips)
+TrashPanda: posts small blind $1
+kole1992: posts big blind $2
+Kayzho: posts big blind $2
+Kayzho has timed out
+Kayzho: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Js]
+Kayzho: checks
+Elgringo: raises $10 to $10
+Tone91: folds
+TrashPanda: folds
+kole1992: folds
+Kayzho: folds
+Uncalled bet ($8) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Js]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0 
+Seat 1: TrashPanda (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 4: Kayzho (big blind) folded before Flop 
+Seat 5: Elgringo collected ($7)
+Seat 6: Tone91 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75145916:  Hold'em No Limit ($1/$2) - 2026/02/08 21:27:02 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #1 is the button
+Seat 1: TrashPanda ($118.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($76.46 in chips)
+Seat 4: Kayzho ($98.97 in chips)
+Seat 5: Elgringo ($425.35 in chips)
+Seat 6: Tone91 ($273.33 in chips)
+kole1992: posts small blind $1
+gfffyfff: posts big blind $2
+Kayzho: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 5s]
+Kayzho: folds
+Elgringo: folds
+Tone91: raises $5 to $5
+TrashPanda: folds
+kole1992: folds
+gfffyfff: folds
+Uncalled bet ($3) returned to Tone91
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 5s]
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: TrashPanda (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: gfffyfff (big blind) folded before Flop 
+Seat 4: Kayzho folded before Flop (didn't bet)
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Tone91 collected ($5)
+
+
+Weplay Hand #75145934:  Hold'em No Limit ($1/$2) - 2026/02/08 21:27:33 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 1: TrashPanda ($118.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($74.46 in chips)
+Seat 4: Kayzho ($98.97 in chips)
+Seat 5: Elgringo ($425.35 in chips)
+Seat 6: Tone91 ($276.33 in chips)
+gfffyfff: posts small blind $1
+Kayzho: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 3c]
+Tone91: folds
+TrashPanda: folds
+kole1992: folds
+gfffyfff: folds
+Kayzho: calls $2
+Elgringo: checks
+*** FLOP *** [Qc Ac 4h]
+Kayzho: checks
+Elgringo: checks
+*** TURN *** [Qc Ac 4h] [Jd]
+Kayzho: bets $6.50
+Elgringo: folds
+Uncalled bet ($6.50) returned to Kayzho
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 3c]
+Kayzho has timed out
+Kayzho: doesn't show hand
+Kayzho collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [Qc Ac 4h Jd]
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: gfffyfff (small blind) folded before Flop 
+Seat 4: Kayzho (big blind) collected ($9)
+Seat 5: Elgringo folded on the Turn 
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75145949:  Hold'em No Limit ($1/$2) - 2026/02/08 21:28:03 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #3 is the button
+Seat 1: TrashPanda ($118.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($73.46 in chips)
+Seat 4: Kayzho ($103.52 in chips)
+Seat 5: Elgringo ($421.35 in chips)
+Seat 6: Tone91 ($276.33 in chips)
+Kayzho: posts small blind $1
+Elgringo: posts big blind $2
+Tone91: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 6d]
+Tone91: raises $5 to $5
+TrashPanda: folds
+kole1992: folds
+gfffyfff: folds
+Kayzho: folds
+Elgringo: calls $3
+*** FLOP *** [9h Ah Kc]
+Elgringo: checks
+Tone91: bets $12.40
+Elgringo: calls $12.40
+*** TURN *** [9h Ah Kc] [As]
+Elgringo: checks
+Tone91: checks
+*** RIVER *** [9h Ah Kc As] [Td]
+Elgringo: bets $22
+Tone91: folds
+Uncalled bet ($22) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $35.80 from pot
+*** SUMMARY ***
+Total pot $35.80 | Rake $1.79 
+Board [9h Ah Kc As Td]
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: gfffyfff (button) folded before Flop (didn't bet)
+Seat 4: Kayzho (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) collected ($35.80)
+Seat 6: Tone91 folded on the River 
+
+
+Weplay Hand #75145985:  Hold'em No Limit ($1/$2) - 2026/02/08 21:29:16 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #4 is the button
+Seat 1: TrashPanda ($118.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($73.46 in chips)
+Seat 4: Kayzho ($102.52 in chips)
+Seat 5: Elgringo ($437.96 in chips)
+Seat 6: Tone91 ($258.93 in chips)
+Elgringo: posts small blind $1
+Tone91: posts big blind $2
+TrashPanda has timed out
+TrashPanda: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 2h]
+TrashPanda: folds
+kole1992: folds
+gfffyfff: folds
+Kayzho: raises $4 to $4
+Elgringo: folds
+Tone91: calls $2
+*** FLOP *** [9c Ks 7h]
+Tone91: checks
+Kayzho: bets $4
+Tone91: calls $4
+*** TURN *** [9c Ks 7h] [4c]
+Tone91: checks
+Kayzho: checks
+*** RIVER *** [9c Ks 7h 4c] [Ts]
+Tone91: checks
+Kayzho: bets $15
+Tone91: folds
+Uncalled bet ($15) returned to Kayzho
+*** SHOW DOWN ***
+Kayzho has timed out
+Kayzho: doesn't show hand
+Kayzho collected $17 from pot
+*** SUMMARY ***
+Total pot $17 | Rake $0.85 
+Board [9c Ks 7h 4c Ts]
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: gfffyfff folded before Flop (didn't bet)
+Seat 4: Kayzho (button) collected ($17)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Tone91 (big blind) folded on the River 
+
+
+Weplay Hand #75146025:  Hold'em No Limit ($1/$2) - 2026/02/08 21:30:33 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 1: TrashPanda ($118.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($73.46 in chips)
+Seat 4: Kayzho ($110.67 in chips)
+Seat 5: Elgringo ($436.96 in chips)
+Seat 6: Tone91 ($250.93 in chips)
+Tone91: posts small blind $1
+TrashPanda: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 3d]
+kole1992: folds
+gfffyfff: raises $5 to $5
+Kayzho: folds
+Elgringo: calls $5
+Tone91: calls $4
+Kayzho is disconnected 
+TrashPanda: calls $3
+*** FLOP *** [Kc Jc 7h]
+Kayzho is connected 
+Tone91: checks
+TrashPanda: checks
+gfffyfff: bets $8
+Elgringo: folds
+Tone91: folds
+TrashPanda: folds
+Uncalled bet ($8) returned to gfffyfff
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 3d]
+gfffyfff has timed out
+gfffyfff: doesn't show hand
+gfffyfff collected $20 from pot
+*** SUMMARY ***
+Total pot $20 | Rake $1 
+Board [Kc Jc 7h]
+Seat 1: TrashPanda (big blind) folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: gfffyfff collected ($20)
+Seat 4: Kayzho folded before Flop (didn't bet)
+Seat 5: Elgringo (button) folded on the Flop 
+Seat 6: Tone91 (small blind) folded on the Flop 
+
+
+Weplay Hand #75146073:  Hold'em No Limit ($1/$2) - 2026/02/08 21:31:48 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 1: TrashPanda ($113.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($87.46 in chips)
+Seat 4: Kayzho ($110.67 in chips)
+Seat 5: Elgringo ($431.96 in chips)
+Seat 6: Tone91 ($245.93 in chips)
+TrashPanda: posts small blind $1
+kole1992: posts big blind $2
+gfffyfff has timed out
+gfffyfff: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2s As]
+gfffyfff: folds
+Kayzho: raises $4 to $4
+Elgringo: raises $14 to $14
+Tone91: folds
+TrashPanda: folds
+kole1992: folds
+Kayzho: calls $10
+*** FLOP *** [6h 4c 7h]
+Kayzho: checks
+Elgringo: checks
+*** TURN *** [6h 4c 7h] [8c]
+Kayzho: bets $13.50
+Elgringo: calls $13.50
+*** RIVER *** [6h 4c 7h 8c] [2c]
+Kayzho: checks
+Elgringo: checks
+*** SHOW DOWN ***
+Kayzho: shows [7d Ad] (a pair of Sevens)
+Elgringo: mucks hand
+Kayzho collected $58 from pot
+*** SUMMARY ***
+Total pot $58 | Rake $2.90 
+Board [6h 4c 7h 8c 2c]
+Seat 1: TrashPanda (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: gfffyfff folded before Flop (didn't bet)
+Seat 4: Kayzho showed [7d Ad] and won ($58) with a pair of Sevens
+Seat 5: Elgringo mucked
+Seat 6: Tone91 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75146105:  Hold'em No Limit ($1/$2) - 2026/02/08 21:32:43 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #1 is the button
+Seat 1: TrashPanda ($112.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($87.46 in chips)
+Seat 4: Kayzho ($138.27 in chips)
+Seat 5: Elgringo ($404.46 in chips)
+Seat 6: Tone91 ($245.93 in chips)
+kole1992: posts small blind $1
+gfffyfff: posts big blind $2
+Kayzho: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 9c]
+Elgringo: folds
+Tone91: raises $10 to $10
+TrashPanda: folds
+kole1992: folds
+gfffyfff: folds
+Kayzho: folds
+Uncalled bet ($6) returned to Tone91
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 9c]
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0 
+Seat 1: TrashPanda (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: gfffyfff (big blind) folded before Flop 
+Seat 4: Kayzho folded before Flop 
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Tone91 collected ($11)
+
+
+Weplay Hand #75146117:  Hold'em No Limit ($1/$2) - 2026/02/08 21:33:06 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 1: TrashPanda ($112.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($85.46 in chips)
+Seat 4: Kayzho ($134.27 in chips)
+Seat 5: Elgringo ($404.46 in chips)
+Seat 6: Tone91 ($252.93 in chips)
+gfffyfff: posts small blind $1
+Kayzho: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 9d]
+Tone91: folds
+TrashPanda: folds
+kole1992: folds
+gfffyfff: raises $5 to $6
+Kayzho: folds
+Elgringo: raises $14 to $18
+gfffyfff: calls $12
+*** FLOP *** [Td 7h 3d]
+Kayzho is disconnected 
+gfffyfff: bets $17
+Kayzho is connected 
+Elgringo: raises $196 to $196
+gfffyfff: folds
+Uncalled bet ($179) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 9d]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $72 from pot
+*** SUMMARY ***
+Total pot $72 | Rake $3.60 
+Board [Td 7h 3d]
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: gfffyfff (small blind) folded on the Flop 
+Seat 4: Kayzho (big blind) folded before Flop 
+Seat 5: Elgringo collected ($72)
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75146155:  Hold'em No Limit ($1/$2) - 2026/02/08 21:34:04 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #3 is the button
+Seat 1: TrashPanda ($112.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($50.46 in chips)
+Seat 4: Kayzho ($132.27 in chips)
+Seat 5: Elgringo ($437.86 in chips)
+Seat 6: Tone91 ($252.93 in chips)
+Kayzho: posts small blind $1
+Elgringo: posts big blind $2
+Tone91: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 3c]
+Tone91: folds
+TrashPanda: raises $5 to $5
+kole1992: folds
+gfffyfff: calls $5
+Kayzho: calls $4
+Elgringo: calls $3
+*** FLOP *** [6h 3h 6s]
+Kayzho: checks
+Elgringo: checks
+TrashPanda: checks
+gfffyfff: bets $6
+Kayzho: folds
+Elgringo: folds
+TrashPanda: folds
+Uncalled bet ($6) returned to gfffyfff
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 3c]
+gfffyfff has timed out
+gfffyfff: doesn't show hand
+gfffyfff collected $20 from pot
+*** SUMMARY ***
+Total pot $20 | Rake $1 
+Board [6h 3h 6s]
+Seat 1: TrashPanda folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: gfffyfff (button) collected ($20)
+Seat 4: Kayzho (small blind) folded on the Flop 
+Seat 5: Elgringo (big blind) folded on the Flop 
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75146181:  Hold'em No Limit ($1/$2) - 2026/02/08 21:34:56 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #4 is the button
+Seat 1: TrashPanda ($107.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($64.46 in chips)
+Seat 4: Kayzho ($127.27 in chips)
+Seat 5: Elgringo ($432.86 in chips)
+Seat 6: Tone91 ($252.93 in chips)
+Elgringo: posts small blind $1
+Tone91: posts big blind $2
+TrashPanda has timed out
+TrashPanda: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 3h]
+TrashPanda: folds
+kole1992: raises $4.40 to $4.40
+gfffyfff: folds
+Kayzho: folds
+Elgringo: calls $3.40
+Tone91: calls $2.40
+*** FLOP *** [6h Kh Ts]
+Elgringo: checks
+Tone91: checks
+kole1992: checks
+*** TURN *** [6h Kh Ts] [7s]
+Elgringo: bets $9
+Tone91: folds
+kole1992: folds
+Uncalled bet ($9) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 3h]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $13.20 from pot
+*** SUMMARY ***
+Total pot $13.20 | Rake $0.66 
+Board [6h Kh Ts 7s]
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 folded on the Turn 
+Seat 3: gfffyfff folded before Flop (didn't bet)
+Seat 4: Kayzho (button) folded before Flop (didn't bet)
+Seat 5: Elgringo (small blind) collected ($13.20)
+Seat 6: Tone91 (big blind) folded on the Turn 
+
+
+Weplay Hand #75146219:  Hold'em No Limit ($1/$2) - 2026/02/08 21:36:04 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 1: TrashPanda ($107.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($64.46 in chips)
+Seat 4: Kayzho ($127.27 in chips)
+Seat 5: Elgringo ($441 in chips)
+Seat 6: Tone91 ($248.53 in chips)
+Tone91: posts small blind $1
+TrashPanda: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 5c]
+kole1992: folds
+gfffyfff: raises $5 to $5
+Kayzho: folds
+Elgringo: calls $5
+Tone91: folds
+TrashPanda: calls $3
+*** FLOP *** [8s 4h Qd]
+TrashPanda: checks
+gfffyfff: checks
+Elgringo: checks
+*** TURN *** [8s 4h Qd] [8c]
+TrashPanda: bets $11
+gfffyfff: calls $11
+Elgringo: folds
+*** RIVER *** [8s 4h Qd 8c] [3d]
+TrashPanda: bets $21
+gfffyfff: calls $21
+*** SHOW DOWN ***
+TrashPanda: shows [Jh 7h] (a pair of Eights)
+gfffyfff: shows [Kc Kd] (two pair, Kings and Eights)
+gfffyfff collected $80 from pot
+*** SUMMARY ***
+Total pot $80 | Rake $4 
+Board [8s 4h Qd 8c 3d]
+Seat 1: TrashPanda (big blind) showed [Jh 7h] and lost with a pair of Eights
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: gfffyfff showed [Kc Kd] and won ($80) with two pair, Kings and Eights
+Seat 4: Kayzho folded before Flop (didn't bet)
+Seat 5: Elgringo (button) folded on the Turn 
+Seat 6: Tone91 (small blind) folded before Flop 
+
+
+Weplay Hand #75146254:  Hold'em No Limit ($1/$2) - 2026/02/08 21:37:00 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 1: TrashPanda ($70.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($103.46 in chips)
+Seat 4: Kayzho ($127.27 in chips)
+Seat 5: Elgringo ($436 in chips)
+Seat 6: Tone91 ($247.53 in chips)
+TrashPanda: posts small blind $1
+kole1992: posts big blind $2
+gfffyfff has timed out
+gfffyfff: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 6c]
+gfffyfff: raises $6 to $6
+Kayzho: folds
+Elgringo: folds
+Tone91: folds
+TrashPanda: calls $5
+kole1992: folds
+*** FLOP *** [7h 7s 9c]
+TrashPanda: checks
+gfffyfff: checks
+*** TURN *** [7h 7s 9c] [3c]
+TrashPanda: bets $7
+gfffyfff: calls $7
+*** RIVER *** [7h 7s 9c 3c] [Jh]
+TrashPanda: checks
+gfffyfff: bets $15
+TrashPanda: calls $15
+*** SHOW DOWN ***
+gfffyfff: shows [Js Jc] (a full house, Jacks full of Sevens)
+TrashPanda: mucks hand
+gfffyfff collected $58 from pot
+*** SUMMARY ***
+Total pot $58 | Rake $2.90 
+Board [7h 7s 9c 3c Jh]
+Seat 1: TrashPanda (small blind) mucked
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: gfffyfff showed [Js Jc] and won ($58) with a full house, Jacks full of Sevens
+Seat 4: Kayzho folded before Flop (didn't bet)
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Tone91 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75146282:  Hold'em No Limit ($1/$2) - 2026/02/08 21:37:41 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #1 is the button
+Seat 1: TrashPanda ($42.85 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($130.56 in chips)
+Seat 4: Kayzho ($127.27 in chips)
+Seat 5: Elgringo ($436 in chips)
+Seat 6: Tone91 ($247.53 in chips)
+kole1992: posts small blind $1
+gfffyfff: posts big blind $2
+Kayzho: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 2h]
+Elgringo: folds
+Tone91: folds
+TrashPanda: raises $11 to $11
+kole1992: folds
+gfffyfff: folds
+Kayzho: calls $7
+*** FLOP *** [5d Ts Th]
+Kayzho: checks
+TrashPanda: bets $10
+Kayzho: folds
+Uncalled bet ($10) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 2h]
+TrashPanda: doesn't show hand
+TrashPanda collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $1.25 
+Board [5d Ts Th]
+Seat 1: TrashPanda (button) collected ($25)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: gfffyfff (big blind) folded before Flop 
+Seat 4: Kayzho folded on the Flop 
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75146298:  Hold'em No Limit ($1/$2) - 2026/02/08 21:38:16 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 1: TrashPanda ($55.60 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($128.56 in chips)
+Seat 4: Kayzho ($116.27 in chips)
+Seat 5: Elgringo ($436 in chips)
+Seat 6: Tone91 ($247.53 in chips)
+gfffyfff: posts small blind $1
+Kayzho: posts big blind $2
+Elgringo has timed out
+Elgringo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 4c]
+Elgringo: folds
+Tone91: folds
+TrashPanda: folds
+kole1992: raises $5 to $5
+gfffyfff: folds
+Kayzho: raises $12 to $14
+kole1992: calls $9
+*** FLOP *** [5c Jd 8h]
+Kayzho: checks
+kole1992: bets $15.57
+Kayzho: raises $102.27 to $102.27 and is all-in
+kole1992: folds
+Uncalled bet ($86.70) returned to Kayzho
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 4c]
+Kayzho has timed out
+Kayzho: doesn't show hand
+Kayzho collected $60.14 from pot
+*** SUMMARY ***
+Total pot $60.14 | Rake $3 
+Board [5c Jd 8h]
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded on the Flop 
+Seat 3: gfffyfff (small blind) folded before Flop 
+Seat 4: Kayzho (big blind) collected ($60.14)
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75146344:  Hold'em No Limit ($1/$2) - 2026/02/08 21:39:35 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #3 is the button
+Seat 1: TrashPanda ($55.60 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($127.56 in chips)
+Seat 4: Kayzho ($143.84 in chips)
+Seat 5: Elgringo ($436 in chips)
+Seat 6: Tone91 ($247.53 in chips)
+Kayzho: posts small blind $1
+Elgringo: posts big blind $2
+Tone91 has timed out
+Tone91: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 3c]
+Tone91: folds
+TrashPanda: folds
+kole1992: folds
+gfffyfff: calls $2
+Kayzho: raises $3 to $4
+Elgringo: folds
+gfffyfff: calls $2
+*** FLOP *** [6s Td Qs]
+Kayzho: bets $4
+gfffyfff: calls $4
+*** TURN *** [6s Td Qs] [2h]
+Kayzho: checks
+gfffyfff: bets $18
+Kayzho: folds
+Uncalled bet ($18) returned to gfffyfff
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 3c]
+gfffyfff has timed out
+gfffyfff: doesn't show hand
+gfffyfff collected $18 from pot
+*** SUMMARY ***
+Total pot $18 | Rake $0.90 
+Board [6s Td Qs 2h]
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: gfffyfff (button) collected ($18)
+Seat 4: Kayzho (small blind) folded on the Turn 
+Seat 5: Elgringo (big blind) folded before Flop 
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75146380:  Hold'em No Limit ($1/$2) - 2026/02/08 21:40:29 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #4 is the button
+Seat 1: TrashPanda ($55.60 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($136.66 in chips)
+Seat 4: Kayzho ($135.84 in chips)
+Seat 5: Elgringo ($434 in chips)
+Seat 6: Tone91 ($247.53 in chips)
+Elgringo: posts small blind $1
+Tone91: posts big blind $2
+TrashPanda has timed out
+TrashPanda: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 3h]
+TrashPanda: folds
+kole1992: folds
+gfffyfff: calls $2
+Kayzho: raises $6 to $6
+Elgringo: folds
+Tone91: folds
+gfffyfff: calls $4
+*** FLOP *** [4d Ks 8s]
+gfffyfff: bets $8
+Kayzho: calls $8
+*** TURN *** [4d Ks 8s] [6d]
+gfffyfff: bets $9
+Kayzho: calls $9
+*** RIVER *** [4d Ks 8s 6d] [Jc]
+gfffyfff: bets $25
+Kayzho: folds
+Uncalled bet ($25) returned to gfffyfff
+*** SHOW DOWN ***
+gfffyfff has timed out
+gfffyfff: doesn't show hand
+gfffyfff collected $49 from pot
+*** SUMMARY ***
+Total pot $49 | Rake $2.45 
+Board [4d Ks 8s 6d Jc]
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: gfffyfff collected ($49)
+Seat 4: Kayzho (button) folded on the River 
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Tone91 (big blind) folded before Flop 
+
+
+Weplay Hand #75146408:  Hold'em No Limit ($1/$2) - 2026/02/08 21:41:17 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 1: TrashPanda ($55.60 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($160.21 in chips)
+Seat 4: Kayzho ($112.84 in chips)
+Seat 5: Elgringo ($433 in chips)
+Seat 6: Tone91 ($245.53 in chips)
+Tone91: posts small blind $1
+TrashPanda: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Kd]
+kole1992: folds
+gfffyfff: folds
+Kayzho: folds
+Elgringo: raises $6 to $6
+Tone91: calls $5
+TrashPanda is disconnected 
+TrashPanda has timed out while being disconnected
+TrashPanda: folds
+*** FLOP *** [Ah 9d 7s]
+Tone91: checks
+Elgringo: checks
+*** TURN *** [Ah 9d 7s] [5h]
+Tone91: checks
+TrashPanda is connected 
+Elgringo: bets $8
+Tone91: calls $8
+*** RIVER *** [Ah 9d 7s 5h] [5s]
+Tone91: checks
+Elgringo: bets $17.50
+Tone91: calls $17.50
+*** SHOW DOWN ***
+Elgringo: shows [Td Tc] (two pair, Tens and Fives)
+Tone91: shows [Js Jc] (two pair, Jacks and Fives)
+Tone91 collected $65 from pot
+*** SUMMARY ***
+Total pot $65 | Rake $3.25 
+Board [Ah 9d 7s 5h 5s]
+Seat 1: TrashPanda (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: gfffyfff folded before Flop (didn't bet)
+Seat 4: Kayzho folded before Flop (didn't bet)
+Seat 5: Elgringo (button) showed [Td Tc] and lost with two pair, Tens and Fives
+Seat 6: Tone91 (small blind) showed [Js Jc] and won ($65) with two pair, Jacks and Fives
+
+
+Weplay Hand #75146453:  Hold'em No Limit ($1/$2) - 2026/02/08 21:42:44 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 1: TrashPanda ($53.60 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($160.21 in chips)
+Seat 4: Kayzho ($112.84 in chips)
+Seat 5: Elgringo ($401.50 in chips)
+Seat 6: Tone91 ($275.78 in chips)
+TrashPanda: posts small blind $1
+kole1992: posts big blind $2
+gfffyfff has timed out
+gfffyfff: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Ah]
+gfffyfff: folds
+Kayzho: raises $4 to $4
+Elgringo: calls $4
+Tone91: folds
+TrashPanda: folds
+kole1992: calls $2
+*** FLOP *** [Kc Th Qc]
+kole1992: checks
+Kayzho: bets $6
+Elgringo: calls $6
+kole1992: folds
+*** TURN *** [Kc Th Qc] [Ac]
+Kayzho is disconnected 
+Kayzho is connected 
+Kayzho: checks
+Elgringo: bets $26.50
+Kayzho: folds
+Uncalled bet ($26.50) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Ah]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $1.25 
+Board [Kc Th Qc Ac]
+Seat 1: TrashPanda (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded on the Flop 
+Seat 3: gfffyfff folded before Flop (didn't bet)
+Seat 4: Kayzho folded on the Turn 
+Seat 5: Elgringo collected ($25)
+Seat 6: Tone91 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75146497:  Hold'em No Limit ($1/$2) - 2026/02/08 21:44:00 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #1 is the button
+Seat 1: TrashPanda ($52.60 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($160.21 in chips)
+Seat 4: Kayzho ($102.84 in chips)
+Seat 5: Elgringo ($415.25 in chips)
+Seat 6: Tone91 ($275.78 in chips)
+kole1992: posts small blind $1
+gfffyfff: posts big blind $2
+Kayzho: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Ad]
+Elgringo: folds
+Tone91: raises $10 to $10
+TrashPanda: calls $10
+kole1992: folds
+gfffyfff: folds
+Kayzho: calls $6
+*** FLOP *** [6h Js Qs]
+Kayzho: checks
+Tone91: checks
+TrashPanda: bets $42.60 and is all-in
+Kayzho: folds
+Tone91: folds
+Uncalled bet ($42.60) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Ad]
+TrashPanda: doesn't show hand
+TrashPanda collected $33 from pot
+*** SUMMARY ***
+Total pot $33 | Rake $1.65 
+Board [6h Js Qs]
+Seat 1: TrashPanda (button) collected ($33)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: gfffyfff (big blind) folded before Flop 
+Seat 4: Kayzho folded on the Flop 
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Tone91 folded on the Flop 
+
+
+Weplay Hand #75146520:  Hold'em No Limit ($1/$2) - 2026/02/08 21:44:43 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 1: TrashPanda ($73.95 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: gfffyfff ($158.21 in chips)
+Seat 4: Kayzho ($92.84 in chips)
+Seat 5: Elgringo ($415.25 in chips)
+Seat 6: Tone91 ($265.78 in chips)
+gfffyfff: posts small blind $1
+Kayzho: posts big blind $2
+Elgringo has timed out
+Elgringo: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Ah]
+Elgringo: folds
+Tone91: folds
+TrashPanda: folds
+kole1992: raises $4.40 to $4.40
+gfffyfff: raises $7.80 to $8.80
+Kayzho: calls $6.80
+kole1992: calls $4.40
+*** FLOP *** [6s 9s Th]
+gfffyfff: bets $19.80
+Kayzho: calls $19.80
+kole1992: calls $19.80
+*** TURN *** [6s 9s Th] [7h]
+gfffyfff: bets $29.60
+Kayzho: calls $29.60
+Kayzho is disconnected 
+Kayzho is connected 
+kole1992: raises $171.40 to $171.40 and is all-in
+gfffyfff: folds
+Kayzho: calls $34.64 and is all-in
+Uncalled bet ($107.16) returned to kole1992
+*** RIVER *** [6s 9s Th 7h] [2h]
+*** SECOND RIVER *** [6s 9s Th 7h] [Ac]
+*** SHOW DOWN ***
+Kayzho: shows [Jd Qc] (high card Queen)
+kole1992: shows [Td Ah] (a pair of Tens)
+kole1992 collected $243.88 from pot
+*** SUMMARY ***
+Total pot $243.88 | Rake $10 
+Hand was run two times
+FIRST Board [6s 9s Th 7h 2h]
+SECOND Board [6s 9s Th 7h Ac]
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 (button) showed [Td Ah] and won ($243.88) with a pair of Tens
+Seat 3: gfffyfff (small blind) folded on the Turn 
+Seat 4: Kayzho (big blind) showed [Jd Qc] and lost with high card Queen
+Seat 5: Elgringo folded before Flop (didn't bet)
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75146579:  Hold'em No Limit ($1/$2) - 2026/02/08 21:46:32 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #3 is the button
+Seat 1: TrashPanda ($73.95 in chips)
+Seat 2: kole1992 ($341.04 in chips)
+Seat 3: gfffyfff ($100.01 in chips)
+Seat 5: Elgringo ($415.25 in chips)
+Seat 6: Tone91 ($265.78 in chips)
+Elgringo: posts big blind $2
+Tone91: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 8d]
+Tone91: raises $5 to $5
+TrashPanda: folds
+kole1992: calls $5
+gfffyfff: folds
+Elgringo: calls $3
+*** FLOP *** [Kd 7d Js]
+Elgringo: checks
+Tone91: checks
+kole1992: checks
+*** TURN *** [Kd 7d Js] [5s]
+Elgringo: checks
+Tone91: checks
+kole1992: checks
+*** RIVER *** [Kd 7d Js 5s] [Ac]
+Elgringo: checks
+Tone91: checks
+kole1992: checks
+*** SHOW DOWN ***
+Elgringo: shows [6s 3d] (high card Ace)
+Tone91: shows [Jc 9c] (a pair of Jacks)
+kole1992: mucks hand
+Tone91 collected $15 from pot
+*** SUMMARY ***
+Total pot $15 | Rake $0.75 
+Board [Kd 7d Js 5s Ac]
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 mucked
+Seat 3: gfffyfff (button) folded before Flop (didn't bet)
+Seat 5: Elgringo (big blind) showed [6s 3d] and lost with high card Ace
+Seat 6: Tone91 showed [Jc 9c] and won ($15) with a pair of Jacks
+
+
+Weplay Hand #75146633:  Hold'em No Limit ($1/$2) - 2026/02/08 21:48:00 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #4 is the button
+Seat 1: TrashPanda ($73.95 in chips)
+Seat 2: kole1992 ($336.04 in chips)
+Seat 3: gfffyfff ($100.01 in chips)
+Seat 5: Elgringo ($410.25 in chips)
+Seat 6: Tone91 ($275.03 in chips)
+Elgringo: posts small blind $1
+Tone91: posts big blind $2
+TrashPanda has timed out
+TrashPanda: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 8s]
+TrashPanda: raises $5 to $5
+kole1992: folds
+gfffyfff: calls $5
+Elgringo: calls $4
+Tone91: raises $28 to $30
+TrashPanda: folds
+gfffyfff: calls $25
+Elgringo: folds
+*** FLOP *** [4s 2h Ah]
+Tone91: bets $22
+gfffyfff: raises $70.01 to $70.01 and is all-in
+Tone91: folds
+Uncalled bet ($48.01) returned to gfffyfff
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 8s]
+gfffyfff has timed out
+gfffyfff: doesn't show hand
+gfffyfff collected $114 from pot
+*** SUMMARY ***
+Total pot $114 | Rake $5.70 
+Board [4s 2h Ah]
+Seat 1: TrashPanda folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: gfffyfff collected ($114)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Tone91 (big blind) folded on the Flop 
+
+
+Weplay Hand #75146684:  Hold'em No Limit ($1/$2) - 2026/02/08 21:49:18 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 1: TrashPanda ($68.95 in chips)
+Seat 2: kole1992 ($336.04 in chips)
+Seat 3: gfffyfff ($156.31 in chips)
+Seat 5: Elgringo ($405.25 in chips)
+Seat 6: Tone91 ($223.03 in chips)
+Tone91: posts small blind $1
+TrashPanda: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 2d]
+kole1992: folds
+gfffyfff: raises $9 to $9
+Elgringo: raises $22 to $22
+Tone91: folds
+TrashPanda: folds
+gfffyfff: calls $13
+*** FLOP *** [6d Qc Qd]
+gfffyfff: checks
+Elgringo: bets $5
+gfffyfff: calls $5
+*** TURN *** [6d Qc Qd] [5h]
+gfffyfff: bets $32
+Elgringo: calls $32
+*** RIVER *** [6d Qc Qd 5h] [Kh]
+gfffyfff: bets $97.31 and is all-in
+Elgringo: calls $97.31
+*** SHOW DOWN ***
+gfffyfff: shows [Ah Jh] (a pair of Queens)
+Elgringo: shows [Qh Qs] (four of a kind, Queens)
+Elgringo collected $315.62 from pot
+*** SUMMARY ***
+Total pot $315.62 | Rake $10 
+Board [6d Qc Qd 5h Kh]
+Seat 1: TrashPanda (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: gfffyfff showed [Ah Jh] and lost with a pair of Queens
+Seat 5: Elgringo (button) showed [Qh Qs] and won ($315.62) with four of a kind, Queens
+Seat 6: Tone91 (small blind) folded before Flop 
+
+
+Weplay Hand #75146726:  Hold'em No Limit ($1/$2) - 2026/02/08 21:50:27 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 1: TrashPanda ($66.95 in chips)
+Seat 2: kole1992 ($336.04 in chips)
+Seat 5: Elgringo ($554.56 in chips)
+Seat 6: Tone91 ($222.03 in chips)
+TrashPanda: posts small blind $1
+kole1992: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 3h]
+gfffyfff is disconnected 
+Tone91: folds
+TrashPanda: folds
+kole1992: folds
+Uncalled bet ($2) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 3h]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: TrashPanda (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 5: Elgringo collected ($5)
+Seat 6: Tone91 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75146739:  Hold'em No Limit ($1/$2) - 2026/02/08 21:50:51 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #1 is the button
+Seat 1: TrashPanda ($65.95 in chips)
+Seat 2: kole1992 ($334.04 in chips)
+Seat 5: Elgringo ($557.56 in chips)
+Seat 6: Tone91 ($222.03 in chips)
+kole1992: posts small blind $1
+Elgringo: posts big blind $2
+Tone91: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 6s]
+Tone91: folds
+TrashPanda: raises $4 to $4
+kole1992: folds
+Elgringo: calls $2
+*** FLOP *** [7d 5c Ad]
+Elgringo: checks
+TrashPanda: checks
+*** TURN *** [7d 5c Ad] [4h]
+Elgringo: checks
+TrashPanda: bets $5
+Elgringo: folds
+Uncalled bet ($5) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 6s]
+TrashPanda: doesn't show hand
+TrashPanda collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [7d 5c Ad 4h]
+Seat 1: TrashPanda (button) collected ($9)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) folded on the Turn 
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75146772:  Hold'em No Limit ($1/$2) - 2026/02/08 21:51:38 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 1: TrashPanda ($70.50 in chips)
+Seat 2: kole1992 ($333.04 in chips)
+Seat 5: Elgringo ($553.56 in chips)
+Seat 6: Tone91 ($222.03 in chips)
+Elgringo: posts small blind $1
+Tone91: posts big blind $2
+TrashPanda has timed out
+TrashPanda: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh As]
+gfffyfff leaves the table
+TrashPanda: folds
+kole1992: raises $5 to $5
+Elgringo: folds
+Tone91: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: TrashPanda folded before Flop (didn't bet)
+Seat 2: kole1992 (button) collected ($5)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Tone91 (big blind) folded before Flop 
+
+
+Weplay Hand #75146793:  Hold'em No Limit ($1/$2) - 2026/02/08 21:52:13 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 1: TrashPanda ($70.50 in chips)
+Seat 2: kole1992 ($336.04 in chips)
+Seat 5: Elgringo ($552.56 in chips)
+Seat 6: Tone91 ($220.03 in chips)
+Tone91: posts small blind $1
+TrashPanda: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 9d]
+kole1992: folds
+Elgringo: folds
+Tone91: folds
+Uncalled bet ($1) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 9d]
+TrashPanda: doesn't show hand
+TrashPanda collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: TrashPanda (big blind) collected ($2)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 5: Elgringo (button) folded before Flop (didn't bet)
+Seat 6: Tone91 (small blind) folded before Flop 
+
+
+Weplay Hand #75146808:  Hold'em No Limit ($1/$2) - 2026/02/08 21:52:36 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 1: TrashPanda ($71.50 in chips)
+Seat 2: kole1992 ($336.04 in chips)
+Seat 5: Elgringo ($552.56 in chips)
+Seat 6: Tone91 ($219.03 in chips)
+TrashPanda: posts small blind $1
+kole1992: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 9c]
+Tone91: raises $14 to $14
+Mousemode joins the table at seat #4
+TrashPanda: raises $70.50 to $71.50 and is all-in
+kole1992: folds
+Elgringo: folds
+Tone91: calls $57.50
+*** FLOP *** [4s 7s 5c]
+*** TURN *** [4s 7s 5c] [Qc]
+*** RIVER *** [4s 7s 5c Qc] [8c]
+*** SHOW DOWN ***
+TrashPanda: shows [As Kd] (high card Ace)
+Tone91: shows [8h Kh] (a pair of Eights)
+Tone91 collected $149 from pot
+*** SUMMARY ***
+Total pot $149 | Rake $7.45 
+Board [4s 7s 5c Qc 8c]
+Seat 1: TrashPanda (small blind) showed [As Kd] and lost with high card Ace
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 5: Elgringo folded before Flop 
+Seat 6: Tone91 (button) showed [8h Kh] and won ($149) with a pair of Eights
+
+
+Weplay Hand #75146835:  Hold'em No Limit ($1/$2) - 2026/02/08 21:53:24 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #1 is the button
+Seat 2: kole1992 ($334.04 in chips)
+Seat 4: Mousemode ($83 in chips)
+Seat 5: Elgringo ($548.56 in chips)
+Seat 6: Tone91 ($289.08 in chips)
+kole1992: posts small blind $1
+Mousemode: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Ad]
+Tone91: folds
+kole1992: raises $13 to $14
+Mousemode: folds
+Elgringo: calls $10
+*** FLOP *** [Jd 8c 5h]
+kole1992: checks
+Elgringo: checks
+*** TURN *** [Jd 8c 5h] [6h]
+kole1992: checks
+Elgringo: checks
+*** RIVER *** [Jd 8c 5h 6h] [Ks]
+kole1992: bets $20.96
+Elgringo: raises $65 to $65
+kole1992: folds
+Uncalled bet ($44.04) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $71.92 from pot
+*** SUMMARY ***
+Total pot $71.92 | Rake $3.59 
+Board [Jd 8c 5h 6h Ks]
+Seat 2: kole1992 (small blind) folded on the River 
+Seat 4: Mousemode (big blind) folded before Flop 
+Seat 5: Elgringo collected ($71.92)
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75146882:  Hold'em No Limit ($1/$2) - 2026/02/08 21:54:45 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($299.08 in chips)
+Seat 4: Mousemode ($81 in chips)
+Seat 5: Elgringo ($581.93 in chips)
+Seat 6: Tone91 ($289.08 in chips)
+Mousemode: posts small blind $1
+TrashPanda is disconnected 
+Elgringo: posts big blind $2
+Tone91: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 8c]
+Tone91: folds
+kole1992: raises $5 to $5
+Mousemode: folds
+Elgringo: raises $18 to $20
+kole1992: folds
+Uncalled bet ($15) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 8c]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0 
+Seat 2: kole1992 (button) folded before Flop 
+Seat 4: Mousemode (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) collected ($11)
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75146900:  Hold'em No Limit ($1/$2) - 2026/02/08 21:55:11 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #4 is the button
+Seat 2: kole1992 ($294.08 in chips)
+Seat 4: Mousemode ($80 in chips)
+Seat 5: Elgringo ($587.93 in chips)
+Seat 6: Tone91 ($289.08 in chips)
+Elgringo: posts small blind $1
+Tone91: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Kc]
+kole1992: raises $4.40 to $4.40
+Mousemode: folds
+TrashPanda leaves the table
+Elgringo: calls $3.40
+Tone91: calls $2.40
+*** FLOP *** [7d Ac Th]
+Elgringo: checks
+Tone91: checks
+kole1992: checks
+*** TURN *** [7d Ac Th] [Jh]
+Elgringo: checks
+Tone91: bets $8.80
+kole1992: calls $8.80
+Elgringo: folds
+*** RIVER *** [7d Ac Th Jh] [4h]
+Tone91: bets $18.40
+kole1992: calls $18.40
+*** SHOW DOWN ***
+Tone91: shows [8c 9d] (a straight, Seven to Jack)
+kole1992: shows [Qs Kc] (a straight, Ten to Ace)
+kole1992 collected $67.60 from pot
+*** SUMMARY ***
+Total pot $67.60 | Rake $3.38 
+Board [7d Ac Th Jh 4h]
+Seat 2: kole1992 showed [Qs Kc] and won ($67.60) with a straight, Ten to Ace
+Seat 4: Mousemode (button) folded before Flop (didn't bet)
+Seat 5: Elgringo (small blind) folded on the Turn 
+Seat 6: Tone91 (big blind) showed [8c 9d] and lost with a straight, Seven to Jack
+
+
+Weplay Hand #75146928:  Hold'em No Limit ($1/$2) - 2026/02/08 21:57:10 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($326.70 in chips)
+Seat 4: Mousemode ($80 in chips)
+Seat 5: Elgringo ($583.53 in chips)
+Seat 6: Tone91 ($257.48 in chips)
+Tone91: posts small blind $1
+kole1992: posts big blind $2
+Mousemode: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh As]
+Mousemode: calls $2
+Elgringo: raises $6 to $6
+Tone91: folds
+kole1992: calls $4
+Mousemode: calls $4
+*** FLOP *** [7c Qs 7s]
+kole1992: checks
+Mousemode: checks
+Elgringo: checks
+*** TURN *** [7c Qs 7s] [7d]
+kole1992: checks
+Mousemode: checks
+Elgringo: checks
+*** RIVER *** [7c Qs 7s 7d] [Jc]
+kole1992: checks
+Mousemode: checks
+Elgringo: checks
+*** SHOW DOWN ***
+kole1992: shows [Kh As] (three of a kind, Sevens)
+Mousemode: mucks hand
+Elgringo has timed out
+Elgringo: mucks hand
+kole1992 collected $19 from pot
+*** SUMMARY ***
+Total pot $19 | Rake $0.95 
+Board [7c Qs 7s 7d Jc]
+Seat 2: kole1992 (big blind) showed [Kh As] and won ($19) with three of a kind, Sevens
+Seat 4: Mousemode mucked
+Seat 5: Elgringo (button) mucked
+Seat 6: Tone91 (small blind) folded before Flop 
+
+
+Weplay Hand #75146943:  Hold'em No Limit ($1/$2) - 2026/02/08 21:58:14 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 2: kole1992 ($338.75 in chips)
+Seat 4: Mousemode ($74 in chips)
+Seat 5: Elgringo ($577.53 in chips)
+Seat 6: Tone91 ($256.48 in chips)
+kole1992: posts small blind $1
+Mousemode: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Td]
+Tone91: folds
+kole1992: folds
+Mousemode: calls $2
+Elgringo: checks
+*** FLOP *** [8d 4s 9d]
+Mousemode: checks
+Elgringo: checks
+*** TURN *** [8d 4s 9d] [Ts]
+Mousemode: checks
+Elgringo: checks
+*** RIVER *** [8d 4s 9d Ts] [Kd]
+Mousemode: bets $2
+Elgringo: folds
+Uncalled bet ($2) returned to Mousemode
+*** SHOW DOWN ***
+Mousemode: doesn't show hand
+Mousemode collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [8d 4s 9d Ts Kd]
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 4: Mousemode (big blind) collected ($9)
+Seat 5: Elgringo folded on the River 
+Seat 6: Tone91 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75146963:  Hold'em No Limit ($1/$2) - 2026/02/08 21:59:06 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($337.75 in chips)
+Seat 4: Mousemode ($78.55 in chips)
+Seat 5: Elgringo ($573.53 in chips)
+Seat 6: Tone91 ($256.48 in chips)
+Mousemode: posts small blind $1
+Elgringo: posts big blind $2
+Tone91: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 3c]
+Tone91: raises $5 to $5
+kole1992: folds
+Mousemode: folds
+Elgringo: calls $3
+*** FLOP *** [Ah 4h 8d]
+Elgringo: checks
+Tone91: checks
+*** TURN *** [Ah 4h 8d] [8s]
+Elgringo: checks
+Tone91: checks
+*** RIVER *** [Ah 4h 8d 8s] [8c]
+Elgringo: checks
+Tone91: checks
+*** SHOW DOWN ***
+Elgringo: shows [Ts Ks] (three of a kind, Eights)
+Tone91: mucks hand
+Elgringo collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [Ah 4h 8d 8s 8c]
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Mousemode (small blind) folded before Flop 
+Seat 5: Elgringo (big blind) showed [Ts Ks] and won ($11) with three of a kind, Eights
+Seat 6: Tone91 mucked
+
+
+Weplay Hand #75146976:  Hold'em No Limit ($1/$2) - 2026/02/08 22:00:04 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #4 is the button
+Seat 2: kole1992 ($337.75 in chips)
+Seat 4: Mousemode ($77.55 in chips)
+Seat 5: Elgringo ($578.98 in chips)
+Seat 6: Tone91 ($251.48 in chips)
+Elgringo: posts small blind $1
+Tone91: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Ad]
+kole1992: folds
+Mousemode: folds
+Elgringo: folds
+Uncalled bet ($1) returned to Tone91
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Ad]
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Mousemode (button) folded before Flop (didn't bet)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Tone91 (big blind) collected ($2)
+
+
+Weplay Hand #75146986:  Hold'em No Limit ($1/$2) - 2026/02/08 22:00:39 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($337.75 in chips)
+Seat 4: Mousemode ($77.55 in chips)
+Seat 5: Elgringo ($577.98 in chips)
+Seat 6: Tone91 ($252.48 in chips)
+Tone91: posts small blind $1
+kole1992: posts big blind $2
+Mousemode: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 8s]
+Mousemode: calls $2
+Elgringo: calls $2
+Tone91: folds
+kole1992: checks
+*** FLOP *** [9d 6h 2d]
+kole1992: checks
+Mousemode: checks
+Elgringo: bets $3.50
+kole1992: folds
+Mousemode: folds
+Uncalled bet ($3.50) returned to Elgringo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 8s]
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [9d 6h 2d]
+Seat 2: kole1992 (big blind) folded on the Flop 
+Seat 4: Mousemode folded on the Flop 
+Seat 5: Elgringo (button) collected ($7)
+Seat 6: Tone91 (small blind) folded before Flop 
+
+
+Weplay Hand #75147009:  Hold'em No Limit ($1/$2) - 2026/02/08 22:01:21 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 2: kole1992 ($335.75 in chips)
+Seat 4: Mousemode ($75.55 in chips)
+Seat 5: Elgringo ($582.63 in chips)
+Seat 6: Tone91 ($251.48 in chips)
+kole1992: posts small blind $1
+Mousemode: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 5h]
+Tone91: folds
+kole1992: folds
+Mousemode: calls $2
+Elgringo: checks
+*** FLOP *** [Ts As Th]
+Mousemode: bets $2
+Elgringo: folds
+Uncalled bet ($2) returned to Mousemode
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 5h]
+Mousemode: doesn't show hand
+Mousemode collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [Ts As Th]
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 4: Mousemode (big blind) collected ($9)
+Seat 5: Elgringo folded on the Flop 
+Seat 6: Tone91 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75147025:  Hold'em No Limit ($1/$2) - 2026/02/08 22:01:59 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($334.75 in chips)
+Seat 4: Mousemode ($80.10 in chips)
+Seat 5: Elgringo ($578.63 in chips)
+Seat 6: Tone91 ($251.48 in chips)
+Mousemode: posts small blind $1
+Elgringo: posts big blind $2
+Tone91: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 5s]
+Tone91: raises $5 to $5
+kole1992: folds
+Mousemode: calls $4
+Elgringo: calls $3
+*** FLOP *** [9h Td 8c]
+Mousemode: bets $8
+Elgringo: folds
+Tone91: folds
+Uncalled bet ($8) returned to Mousemode
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 5s]
+Mousemode: doesn't show hand
+Mousemode collected $15 from pot
+*** SUMMARY ***
+Total pot $15 | Rake $0.75 
+Board [9h Td 8c]
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Mousemode (small blind) collected ($15)
+Seat 5: Elgringo (big blind) folded on the Flop 
+Seat 6: Tone91 folded on the Flop 
+
+
+Weplay Hand #75147045:  Hold'em No Limit ($1/$2) - 2026/02/08 22:02:36 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #4 is the button
+Seat 2: kole1992 ($334.75 in chips)
+Seat 4: Mousemode ($89.35 in chips)
+Seat 5: Elgringo ($573.63 in chips)
+Seat 6: Tone91 ($246.48 in chips)
+Elgringo: posts small blind $1
+Tone91: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 9h]
+kole1992: folds
+Mousemode: calls $2
+Elgringo: folds
+Tone91: checks
+*** FLOP *** [4h 2c 4s]
+Tone91: checks
+Mousemode: checks
+*** TURN *** [4h 2c 4s] [Ks]
+Tone91: checks
+Mousemode: checks
+*** RIVER *** [4h 2c 4s Ks] [Ah]
+Tone91: checks
+Mousemode: bets $6
+Tone91: folds
+Uncalled bet ($6) returned to Mousemode
+*** SHOW DOWN ***
+Mousemode: doesn't show hand
+Mousemode collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [4h 2c 4s Ks Ah]
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Mousemode (button) collected ($5)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Tone91 (big blind) folded on the River 
+
+
+Weplay Hand #75147066:  Hold'em No Limit ($1/$2) - 2026/02/08 22:03:20 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($334.75 in chips)
+Seat 4: Mousemode ($92.10 in chips)
+Seat 5: Elgringo ($572.63 in chips)
+Seat 6: Tone91 ($244.48 in chips)
+Tone91: posts small blind $1
+kole1992: posts big blind $2
+Mousemode: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Qh]
+Mousemode: calls $2
+Elgringo: folds
+Tone91: calls $1
+kole1992: raises $9 to $11
+Mousemode: folds
+Tone91: folds
+Uncalled bet ($9) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 2: kole1992 (big blind) collected ($6)
+Seat 4: Mousemode folded before Flop 
+Seat 5: Elgringo (button) folded before Flop (didn't bet)
+Seat 6: Tone91 (small blind) folded before Flop 
+
+
+Weplay Hand #75147080:  Hold'em No Limit ($1/$2) - 2026/02/08 22:03:52 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 2: kole1992 ($338.75 in chips)
+Seat 4: Mousemode ($89.10 in chips)
+Seat 5: Elgringo ($572.63 in chips)
+Seat 6: Tone91 ($242.48 in chips)
+kole1992: posts small blind $1
+Mousemode: posts big blind $2
+Elgringo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 2h]
+Tone91: raises $14 to $14
+kole1992: folds
+Mousemode: calls $12
+Elgringo: calls $10
+*** FLOP *** [8d 9d 2c]
+Mousemode: bets $16
+Elgringo: calls $16
+Tone91: raises $70 to $70
+Mousemode: calls $54
+Elgringo: folds
+*** TURN *** [8d 9d 2c] [6d]
+Mousemode: checks
+Tone91: bets $6
+Mousemode: calls $5.10 and is all-in
+Uncalled bet ($0.90) returned to Tone91
+*** RIVER *** [8d 9d 2c 6d] [2d]
+*** SHOW DOWN ***
+Mousemode: shows [Ac 9h] (two pair, Nines and Deuces)
+Tone91: shows [Tc Td] (a flush, Ten high)
+Tone91 collected $209.20 from pot
+*** SUMMARY ***
+Total pot $209.20 | Rake $10 
+Board [8d 9d 2c 6d 2d]
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 4: Mousemode (big blind) showed [Ac 9h] and lost with two pair, Nines and Deuces
+Seat 5: Elgringo folded on the Flop 
+Seat 6: Tone91 (button) showed [Tc Td] and won ($209.20) with a flush, Ten high
+
+
+Weplay Hand #75147119:  Hold'em No Limit ($1/$2) - 2026/02/08 22:05:19 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 2: kole1992 ($337.75 in chips)
+Seat 5: Elgringo ($542.63 in chips)
+Seat 6: Tone91 ($352.58 in chips)
+Elgringo: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [As 4d]
+Tone91: folds
+kole1992: raises $5 to $5
+Elgringo: calls $3
+*** FLOP *** [2c 7h 3c]
+Elgringo: checks
+kole1992: checks
+*** TURN *** [2c 7h 3c] [Kc]
+Elgringo: checks
+kole1992: checks
+*** RIVER *** [2c 7h 3c Kc] [6d]
+Elgringo: checks
+kole1992: checks
+*** SHOW DOWN ***
+Elgringo: shows [3d Ah] (a pair of Threes)
+kole1992: mucks hand
+Elgringo collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.25 
+Board [2c 7h 3c Kc 6d]
+Seat 2: kole1992 (button) mucked
+Seat 5: Elgringo (big blind) showed [3d Ah] and won ($10) with a pair of Threes
+Seat 6: Tone91 folded before Flop (didn't bet)
+
+
+Weplay Hand #75147146:  Hold'em No Limit ($1/$2) - 2026/02/08 22:06:07 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #4 is the button
+Seat 2: kole1992 ($332.75 in chips)
+Seat 5: Elgringo ($547.38 in chips)
+Seat 6: Tone91 ($352.58 in chips)
+Elgringo: posts small blind $1
+Tone91: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 5c]
+kole1992: folds
+Elgringo: folds
+Uncalled bet ($1) returned to Tone91
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 5c]
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 5: Elgringo (small blind) folded before Flop 
+Seat 6: Tone91 (big blind) collected ($2)
+
+
+Weplay Hand #75147151:  Hold'em No Limit ($1/$2) - 2026/02/08 22:06:20 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 2: kole1992 ($332.75 in chips)
+Seat 5: Elgringo ($546.38 in chips)
+Seat 6: Tone91 ($353.58 in chips)
+Tone91: posts small blind $1
+kole1992: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Qh]
+Elgringo: raises $6 to $6
+Tone91: raises $27 to $28
+kole1992: folds
+Elgringo: folds
+Uncalled bet ($22) returned to Tone91
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Qh]
+kole1992: sits out 
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 5: Elgringo (button) folded before Flop 
+Seat 6: Tone91 (small blind) collected ($14)

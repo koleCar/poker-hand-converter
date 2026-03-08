@@ -1,0 +1,4118 @@
+﻿Weplay Hand #75110806:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:12:27 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($211.31 in chips)
+Seat 3: GizmoGradac ($92.88 in chips)
+Seat 4: KellySlater ($103.25 in chips)
+Seat 5: JTs98o ($160.17 in chips)
+Seat 6: Elgringo ($106.08 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 8s]
+ryzenn: raises $2.50 to $2.50
+GizmoGradac: raises $9 to $9
+KellySlater: folds
+JTs98o: folds
+Elgringo: raises $26.50 to $27
+kole1992: folds
+ryzenn: folds
+GizmoGradac: raises $83.88 to $92.88 and is all-in
+Elgringo: calls $65.88
+*** FLOP *** [Jc 2h 3h]
+*** TURN *** [Jc 2h 3h] [7s]
+*** RIVER *** [Jc 2h 3h 7s] [7d]
+*** SHOW DOWN ***
+Elgringo: shows [Th Tc] (two pair, Tens and Sevens)
+GizmoGradac: shows [Ts Td] (two pair, Tens and Sevens)
+GizmoGradac collected $94.63 from pot
+Elgringo collected $94.63 from pot
+*** SUMMARY ***
+Total pot $189.26 | Rake $6.50 
+Board [Jc 2h 3h 7s 7d]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: ryzenn folded before Flop 
+Seat 3: GizmoGradac showed [Ts Td] and won ($94.63) with two pair, Tens and Sevens
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: Elgringo (small blind) showed [Th Tc] and won ($94.63) with two pair, Tens and Sevens
+
+
+Weplay Hand #75110849:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:13:13 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($208.81 in chips)
+Seat 3: GizmoGradac ($91.38 in chips)
+Seat 4: KellySlater ($103.25 in chips)
+Seat 5: JTs98o ($160.17 in chips)
+Seat 6: Elgringo ($104.58 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Td]
+GizmoGradac: folds
+KellySlater: folds
+JTs98o: folds
+Elgringo: folds
+kole1992: raises $2.50 to $3
+ryzenn: raises $8 to $9
+kole1992: folds
+Uncalled bet ($6) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: ryzenn (big blind) collected ($6)
+Seat 3: GizmoGradac folded before Flop (didn't bet)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75110879:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:13:45 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($211.81 in chips)
+Seat 3: GizmoGradac ($91.38 in chips)
+Seat 4: KellySlater ($103.25 in chips)
+Seat 5: JTs98o ($160.17 in chips)
+Seat 6: Elgringo ($104.58 in chips)
+ryzenn: posts small blind $0.50
+GizmoGradac: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 8s]
+KellySlater: folds
+JTs98o: folds
+Elgringo: raises $3 to $3
+kole1992: folds
+ryzenn: folds
+GizmoGradac: calls $2
+*** FLOP *** [Kd 3s 7s]
+GizmoGradac: checks
+Elgringo: bets $2.15
+GizmoGradac: folds
+Uncalled bet ($2.15) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [Kd 3s 7s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: ryzenn (small blind) folded before Flop 
+Seat 3: GizmoGradac (big blind) folded on the Flop 
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo collected ($6.50)
+
+
+Weplay Hand #75110912:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:14:19 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($211.31 in chips)
+Seat 3: GizmoGradac ($88.38 in chips)
+Seat 4: KellySlater ($103.25 in chips)
+Seat 5: JTs98o ($160.17 in chips)
+Seat 6: Elgringo ($107.76 in chips)
+GizmoGradac: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Qd]
+JTs98o: folds
+Elgringo: folds
+kole1992: raises $2.50 to $2.50
+ryzenn: calls $2.50
+GizmoGradac: raises $10.50 to $11
+KellySlater: folds
+kole1992: folds
+ryzenn: calls $8.50
+*** FLOP *** [Kd 2d Kc]
+GizmoGradac: bets $11
+ryzenn: calls $11
+*** TURN *** [Kd 2d Kc] [Th]
+GizmoGradac: bets $22
+ryzenn: calls $22
+*** RIVER *** [Kd 2d Kc Th] [9c]
+GizmoGradac: checks
+ryzenn: bets $137.25
+GizmoGradac: folds
+Uncalled bet ($137.25) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $91.50 from pot
+*** SUMMARY ***
+Total pot $91.50 | Rake $4.57 
+Board [Kd 2d Kc Th 9c]
+Seat 1: kole1992 folded before Flop 
+Seat 2: ryzenn (button) collected ($91.50)
+Seat 3: GizmoGradac (small blind) folded on the River 
+Seat 4: KellySlater (big blind) folded before Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75110989:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:15:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($254.24 in chips)
+Seat 3: GizmoGradac ($44.38 in chips)
+Seat 4: KellySlater ($102.25 in chips)
+Seat 5: JTs98o ($160.17 in chips)
+Seat 6: Elgringo ($107.76 in chips)
+KellySlater: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 2s]
+Elgringo: folds
+kole1992: folds
+ryzenn: folds
+GizmoGradac: folds
+KellySlater: raises $2.50 to $3
+JTs98o: calls $2
+*** FLOP *** [Js Ad 9c]
+KellySlater: checks
+JTs98o: bets $4
+KellySlater: folds
+Uncalled bet ($4) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Js Ad 9c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac (button) folded before Flop (didn't bet)
+Seat 4: KellySlater (small blind) folded on the Flop 
+Seat 5: JTs98o (big blind) collected ($6)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75111035:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:16:42 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($254.24 in chips)
+Seat 3: GizmoGradac ($44.38 in chips)
+Seat 4: KellySlater ($99.25 in chips)
+Seat 5: JTs98o ($162.87 in chips)
+Seat 6: Elgringo ($107.76 in chips)
+JTs98o: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 2c]
+kole1992: folds
+ryzenn: raises $2.50 to $2.50
+GizmoGradac: calls $2.50
+KellySlater: folds
+JTs98o: folds
+Elgringo: folds
+*** FLOP *** [7s 4d 5d]
+ryzenn: checks
+GizmoGradac: bets $3
+ryzenn: folds
+Uncalled bet ($3) returned to GizmoGradac
+*** SHOW DOWN ***
+GizmoGradac: doesn't show hand
+GizmoGradac collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [7s 4d 5d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn folded on the Flop 
+Seat 3: GizmoGradac collected ($6.50)
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: Elgringo (big blind) folded before Flop 
+
+
+Weplay Hand #75111082:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:17:36 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($251.74 in chips)
+Seat 3: GizmoGradac ($48.06 in chips)
+Seat 4: KellySlater ($99.25 in chips)
+Seat 5: JTs98o ($162.37 in chips)
+Seat 6: Elgringo ($106.76 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Kd]
+ryzenn: folds
+GizmoGradac: calls $1
+KellySlater: folds
+JTs98o: folds
+Elgringo: calls $0.50
+kole1992: checks
+*** FLOP *** [Td Ac Jh]
+Elgringo: checks
+kole1992: checks
+GizmoGradac: checks
+*** TURN *** [Td Ac Jh] [Ah]
+Elgringo: bets $1.50
+kole1992: folds
+GizmoGradac: calls $1.50
+*** RIVER *** [Td Ac Jh Ah] [8h]
+Elgringo: bets $4.50
+GizmoGradac: folds
+Uncalled bet ($4.50) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Td Ac Jh Ah 8h]
+Seat 1: kole1992 (big blind) folded on the Turn 
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac folded on the River 
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: Elgringo (small blind) collected ($6)
+
+
+Weplay Hand #75111151:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:18:49 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($251.74 in chips)
+Seat 3: GizmoGradac ($45.56 in chips)
+Seat 4: KellySlater ($99.25 in chips)
+Seat 5: JTs98o ($162.37 in chips)
+Seat 6: Elgringo ($109.96 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 2s]
+GizmoGradac has timed out
+GizmoGradac: folds
+KellySlater: folds
+JTs98o: folds
+Elgringo: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn: doesn't show hand
+ryzenn collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: ryzenn (big blind) collected ($1)
+Seat 3: GizmoGradac folded before Flop (didn't bet)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75111172:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:19:17 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($252.24 in chips)
+Seat 3: GizmoGradac ($45.56 in chips)
+Seat 4: KellySlater ($99.25 in chips)
+Seat 5: JTs98o ($162.37 in chips)
+Seat 6: Elgringo ($109.96 in chips)
+ryzenn: posts small blind $0.50
+GizmoGradac: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 4d]
+KellySlater: folds
+JTs98o: raises $2.50 to $2.50
+Elgringo: calls $2.50
+kole1992: folds
+ryzenn: folds
+GizmoGradac: raises $44.56 to $45.56 and is all-in
+JTs98o: folds
+Elgringo: calls $43.06
+*** FLOP *** [8d 7d 6h]
+*** TURN *** [8d 7d 6h] [Qd]
+*** RIVER *** [8d 7d 6h Qd] [9s]
+*** SHOW DOWN ***
+GizmoGradac: shows [7h 7c] (three of a kind, Sevens)
+Elgringo: shows [8s As] (a pair of Eights)
+GizmoGradac collected $94.12 from pot
+*** SUMMARY ***
+Total pot $94.12 | Rake $4.70 
+Board [8d 7d 6h Qd 9s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: ryzenn (small blind) folded before Flop 
+Seat 3: GizmoGradac (big blind) showed [7h 7c] and won ($94.12) with three of a kind, Sevens
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop 
+Seat 6: Elgringo showed [8s As] and lost with a pair of Eights
+
+
+Weplay Hand #75111213:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:19:59 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($251.74 in chips)
+Seat 3: GizmoGradac ($89.42 in chips)
+Seat 4: KellySlater ($99.25 in chips)
+Seat 5: JTs98o ($159.87 in chips)
+Seat 6: Elgringo ($100 in chips)
+GizmoGradac: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Kd]
+JTs98o: raises $2.50 to $2.50
+Elgringo: folds
+kole1992: folds
+ryzenn: folds
+GizmoGradac: folds
+KellySlater: folds
+Uncalled bet ($1.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn (button) folded before Flop (didn't bet)
+Seat 3: GizmoGradac (small blind) folded before Flop 
+Seat 4: KellySlater (big blind) folded before Flop 
+Seat 5: JTs98o collected ($2.50)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75111241:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:20:27 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($251.74 in chips)
+Seat 3: GizmoGradac ($88.92 in chips)
+Seat 4: KellySlater ($98.25 in chips)
+Seat 5: JTs98o ($161.37 in chips)
+Seat 6: Elgringo ($100 in chips)
+KellySlater: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 4s]
+Elgringo: folds
+kole1992: folds
+ryzenn: raises $2.50 to $2.50
+GizmoGradac: folds
+KellySlater: raises $10.50 to $11
+JTs98o: folds
+ryzenn: folds
+Uncalled bet ($8.50) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn folded before Flop 
+Seat 3: GizmoGradac (button) folded before Flop (didn't bet)
+Seat 4: KellySlater (small blind) collected ($6)
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75111268:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:20:59 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($249.24 in chips)
+Seat 3: GizmoGradac ($88.92 in chips)
+Seat 4: KellySlater ($101.75 in chips)
+Seat 5: JTs98o ($160.37 in chips)
+Seat 6: Elgringo ($100 in chips)
+JTs98o: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 9d]
+kole1992: folds
+ryzenn: folds
+GizmoGradac: calls $1
+KellySlater: raises $3 to $3
+JTs98o: folds
+Elgringo: folds
+GizmoGradac: calls $2
+*** FLOP *** [Tc Ac 3c]
+GizmoGradac: checks
+KellySlater: bets $2.50
+GizmoGradac: folds
+Uncalled bet ($2.50) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [Tc Ac 3c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac folded on the Flop 
+Seat 4: KellySlater (button) collected ($7.50)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: Elgringo (big blind) folded before Flop 
+
+
+Weplay Hand #75111303:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:21:37 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($249.24 in chips)
+Seat 3: GizmoGradac ($85.92 in chips)
+Seat 4: KellySlater ($105.88 in chips)
+Seat 5: JTs98o ($159.87 in chips)
+Seat 6: Elgringo ($99 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 5s]
+ryzenn: folds
+GizmoGradac: calls $1
+KellySlater: folds
+JTs98o: folds
+Elgringo: calls $0.50
+kole1992: checks
+*** FLOP *** [Qs Th 6c]
+Elgringo: checks
+kole1992: checks
+GizmoGradac: checks
+*** TURN *** [Qs Th 6c] [Kh]
+Elgringo: checks
+kole1992: checks
+GizmoGradac: bets $2
+Elgringo: folds
+kole1992: folds
+Uncalled bet ($2) returned to GizmoGradac
+*** SHOW DOWN ***
+GizmoGradac has timed out
+GizmoGradac: doesn't show hand
+GizmoGradac collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Qs Th 6c Kh]
+Seat 1: kole1992 (big blind) folded on the Turn 
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac collected ($3)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: Elgringo (small blind) folded on the Turn 
+
+
+Weplay Hand #75115363:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:22:48 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($249.24 in chips)
+Seat 3: GizmoGradac ($87.77 in chips)
+Seat 4: KellySlater ($105.88 in chips)
+Seat 5: JTs98o ($159.87 in chips)
+Seat 6: Elgringo ($98 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 9c]
+GizmoGradac: raises $3 to $3
+KellySlater: folds
+JTs98o: folds
+Elgringo: calls $3
+kole1992: folds
+ryzenn: folds
+*** FLOP *** [6d 4c 9s]
+GizmoGradac: checks
+Elgringo: bets $3.75
+GizmoGradac: calls $3.75
+*** TURN *** [6d 4c 9s] [8h]
+GizmoGradac: checks
+Elgringo: checks
+*** RIVER *** [6d 4c 9s 8h] [3d]
+GizmoGradac: checks
+Elgringo: checks
+*** SHOW DOWN ***
+GizmoGradac: shows [Kh Jd] (high card King)
+Elgringo: shows [5h 5d] (a pair of Fives)
+Elgringo collected $15 from pot
+*** SUMMARY ***
+Total pot $15 | Rake $0.75 
+Board [6d 4c 9s 8h 3d]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: ryzenn (big blind) folded before Flop 
+Seat 3: GizmoGradac showed [Kh Jd] and lost with high card King
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo (button) showed [5h 5d] and won ($15) with a pair of Fives
+
+
+Weplay Hand #75115408:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:23:40 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($248.24 in chips)
+Seat 3: GizmoGradac ($81.02 in chips)
+Seat 4: KellySlater ($105.88 in chips)
+Seat 5: JTs98o ($159.87 in chips)
+Seat 6: Elgringo ($105.50 in chips)
+ryzenn: posts small blind $0.50
+GizmoGradac: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 2h]
+KellySlater: folds
+JTs98o: folds
+Elgringo: folds
+kole1992: folds
+ryzenn: raises $2 to $2.50
+GizmoGradac: folds
+Uncalled bet ($1.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: ryzenn (small blind) collected ($2)
+Seat 3: GizmoGradac (big blind) folded before Flop 
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75115435:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:24:17 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($249.24 in chips)
+Seat 3: GizmoGradac ($80.02 in chips)
+Seat 4: KellySlater ($105.88 in chips)
+Seat 5: JTs98o ($159.87 in chips)
+Seat 6: Elgringo ($105.50 in chips)
+GizmoGradac: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Ad]
+JTs98o: folds
+Elgringo: folds
+kole1992: raises $2 to $2
+ryzenn: folds
+GizmoGradac: folds
+KellySlater: calls $1
+*** FLOP *** [Ah Jd 2s]
+KellySlater: checks
+kole1992: checks
+*** TURN *** [Ah Jd 2s] [Qh]
+KellySlater: checks
+kole1992: bets $3.50
+KellySlater: folds
+Uncalled bet ($3.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Ah Jd 2s Qh]
+Seat 1: kole1992 collected ($4.50)
+Seat 2: ryzenn (button) folded before Flop (didn't bet)
+Seat 3: GizmoGradac (small blind) folded before Flop 
+Seat 4: KellySlater (big blind) folded on the Turn 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75115492:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:25:28 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($102.28 in chips)
+Seat 2: ryzenn ($249.24 in chips)
+Seat 3: GizmoGradac ($79.52 in chips)
+Seat 4: KellySlater ($103.88 in chips)
+Seat 5: JTs98o ($159.87 in chips)
+Seat 6: Elgringo ($105.50 in chips)
+KellySlater: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Kd]
+Elgringo: folds
+kole1992: folds
+ryzenn: raises $2.50 to $2.50
+GizmoGradac: folds
+KellySlater: folds
+JTs98o: folds
+Uncalled bet ($1.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn collected ($2.50)
+Seat 3: GizmoGradac (button) folded before Flop (didn't bet)
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75115527:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:26:11 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($102.28 in chips)
+Seat 2: ryzenn ($250.74 in chips)
+Seat 3: GizmoGradac ($79.52 in chips)
+Seat 4: KellySlater ($103.38 in chips)
+Seat 5: JTs98o ($158.87 in chips)
+Seat 6: Elgringo ($105.50 in chips)
+JTs98o: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Kc]
+kole1992: raises $2.50 to $2.50
+ryzenn: folds
+GizmoGradac: folds
+KellySlater: folds
+JTs98o: folds
+Elgringo: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 collected ($2.50)
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac folded before Flop (didn't bet)
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: Elgringo (big blind) folded before Flop 
+
+
+Weplay Hand #75115554:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:26:32 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($103.78 in chips)
+Seat 2: ryzenn ($250.74 in chips)
+Seat 3: GizmoGradac ($79.52 in chips)
+Seat 4: KellySlater ($103.38 in chips)
+Seat 5: JTs98o ($158.37 in chips)
+Seat 6: Elgringo ($104.50 in chips)
+Elgringo: posts small blind $0.50
+Elgringo is disconnected 
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Js]
+ryzenn: raises $2.50 to $2.50
+GizmoGradac: folds
+KellySlater: folds
+GizmoGradac is disconnected 
+Elgringo is connected 
+JTs98o: folds
+GizmoGradac is connected 
+Elgringo: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: ryzenn collected ($2.50)
+Seat 3: GizmoGradac folded before Flop (didn't bet)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: Elgringo (small blind) folded before Flop 
+
+
+Weplay Hand #75115578:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:27:00 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($102.78 in chips)
+Seat 2: ryzenn ($252.24 in chips)
+Seat 3: GizmoGradac ($79.52 in chips)
+Seat 4: KellySlater ($103.38 in chips)
+Seat 5: JTs98o ($158.37 in chips)
+Seat 6: Elgringo ($104 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Ts]
+GizmoGradac: calls $1
+KellySlater: raises $4.50 to $4.50
+JTs98o: folds
+Elgringo: folds
+kole1992: calls $4
+ryzenn: folds
+GizmoGradac: calls $3.50
+*** FLOP *** [5h Th 7c]
+kole1992: checks
+GizmoGradac: checks
+KellySlater: checks
+*** TURN *** [5h Th 7c] [7h]
+kole1992: checks
+GizmoGradac: checks
+KellySlater: checks
+*** RIVER *** [5h Th 7c 7h] [6d]
+kole1992: bets $4.78
+GizmoGradac: folds
+KellySlater: folds
+Uncalled bet ($4.78) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $14.50 from pot
+*** SUMMARY ***
+Total pot $14.50 | Rake $0.72 
+Board [5h Th 7c 7h 6d]
+Seat 1: kole1992 (small blind) collected ($14.50)
+Seat 2: ryzenn (big blind) folded before Flop 
+Seat 3: GizmoGradac folded on the River 
+Seat 4: KellySlater folded on the River 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75115640:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:28:11 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($112.06 in chips)
+Seat 2: ryzenn ($251.24 in chips)
+Seat 3: GizmoGradac ($75.02 in chips)
+Seat 4: KellySlater ($98.88 in chips)
+Seat 5: JTs98o ($158.37 in chips)
+Seat 6: Elgringo ($104 in chips)
+ryzenn: posts small blind $0.50
+GizmoGradac: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Qh]
+KellySlater: raises $2.50 to $2.50
+JTs98o: raises $7.50 to $7.50
+Elgringo: calls $7.50
+kole1992: folds
+ryzenn: folds
+GizmoGradac: raises $74.02 to $75.02 and is all-in
+KellySlater: folds
+JTs98o: folds
+Elgringo: calls $67.52
+*** FLOP *** [2d 4d 6s]
+*** TURN *** [2d 4d 6s] [9c]
+*** RIVER *** [2d 4d 6s 9c] [5h]
+*** SHOW DOWN ***
+GizmoGradac: shows [8s 8d] (a pair of Eights)
+Elgringo: shows [Qc Qd] (a pair of Queens)
+Elgringo collected $160.54 from pot
+*** SUMMARY ***
+Total pot $160.54 | Rake $6.50 
+Board [2d 4d 6s 9c 5h]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: ryzenn (small blind) folded before Flop 
+Seat 3: GizmoGradac (big blind) showed [8s 8d] and lost with a pair of Eights
+Seat 4: KellySlater folded before Flop 
+Seat 5: JTs98o folded before Flop 
+Seat 6: Elgringo showed [Qc Qd] and won ($160.54) with a pair of Queens
+
+
+Weplay Hand #75115677:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:28:56 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($112.06 in chips)
+Seat 2: ryzenn ($250.74 in chips)
+Seat 4: KellySlater ($100 in chips)
+Seat 5: JTs98o ($150.87 in chips)
+Seat 6: Elgringo ($183.02 in chips)
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 8s]
+JTs98o: folds
+Elgringo: folds
+kole1992: folds
+ryzenn: folds
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn (button) folded before Flop (didn't bet)
+Seat 4: KellySlater (big blind) collected ($1)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75115691:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:29:10 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($112.06 in chips)
+Seat 2: ryzenn ($250.74 in chips)
+Seat 3: GizmoGradac ($100 in chips)
+Seat 4: KellySlater ($100 in chips)
+Seat 5: JTs98o ($150.87 in chips)
+Seat 6: Elgringo ($183.02 in chips)
+KellySlater: posts small blind $0.50
+JTs98o: posts big blind $1
+GizmoGradac: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Js]
+Elgringo: folds
+kole1992: raises $3.50 to $3.50
+ryzenn: folds
+GizmoGradac: calls $2.50
+KellySlater: folds
+JTs98o: folds
+*** FLOP *** [Ks 4s 5d]
+kole1992: checks
+GizmoGradac: checks
+*** TURN *** [Ks 4s 5d] [8h]
+kole1992: bets $8.66
+GizmoGradac: calls $8.66
+*** RIVER *** [Ks 4s 5d 8h] [9d]
+kole1992: checks
+GizmoGradac: checks
+*** SHOW DOWN ***
+kole1992: shows [Qs Js] (high card King)
+GizmoGradac: shows [8d 7c] (a pair of Eights)
+GizmoGradac collected $25.82 from pot
+*** SUMMARY ***
+Total pot $25.82 | Rake $1.29 
+Board [Ks 4s 5d 8h 9d]
+Seat 1: kole1992 showed [Qs Js] and lost with high card King
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac (button) (big blind) showed [8d 7c] and won ($25.82) with a pair of Eights
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75115740:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:30:10 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($250.74 in chips)
+Seat 3: GizmoGradac ($112.37 in chips)
+Seat 4: KellySlater ($99.50 in chips)
+Seat 5: JTs98o ($149.87 in chips)
+Seat 6: Elgringo ($183.02 in chips)
+JTs98o: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 3s]
+kole1992: folds
+ryzenn: folds
+GizmoGradac: folds
+KellySlater: folds
+JTs98o: raises $2.50 to $3
+Elgringo: calls $2
+*** FLOP *** [6c 9h Qh]
+JTs98o: bets $4
+Elgringo: raises $15 to $15
+JTs98o: folds
+Uncalled bet ($11) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [6c 9h Qh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac folded before Flop (didn't bet)
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded on the Flop 
+Seat 6: Elgringo (big blind) collected ($14)
+
+
+Weplay Hand #75115779:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:30:55 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($250.74 in chips)
+Seat 3: GizmoGradac ($112.37 in chips)
+Seat 4: KellySlater ($99.50 in chips)
+Seat 5: JTs98o ($142.87 in chips)
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 7c]
+ryzenn: raises $3 to $3
+Elgringo is connected 
+GizmoGradac: raises $9 to $9
+KellySlater: folds
+JTs98o: folds
+kole1992: folds
+ryzenn: calls $6
+*** FLOP *** [7d 4c As]
+ryzenn: checks
+GizmoGradac: checks
+*** TURN *** [7d 4c As] [2h]
+ryzenn: checks
+GizmoGradac: checks
+*** RIVER *** [7d 4c As 2h] [Kc]
+ryzenn: checks
+GizmoGradac: bets $9
+ryzenn: folds
+Uncalled bet ($9) returned to GizmoGradac
+*** SHOW DOWN ***
+GizmoGradac: doesn't show hand
+GizmoGradac collected $19 from pot
+*** SUMMARY ***
+Total pot $19 | Rake $0.95 
+Board [7d 4c As 2h Kc]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: ryzenn folded on the River 
+Seat 3: GizmoGradac collected ($19)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75115826:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:31:49 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($241.74 in chips)
+Seat 3: GizmoGradac ($121.42 in chips)
+Seat 4: KellySlater ($99.50 in chips)
+Seat 5: JTs98o ($142.87 in chips)
+Seat 6: Elgringo ($189.32 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 5c]
+GizmoGradac: calls $1
+KellySlater: folds
+JTs98o: folds
+Elgringo: checks
+kole1992: calls $0.50
+ryzenn: checks
+*** FLOP *** [3h 9c 8c]
+kole1992: checks
+ryzenn: bets $1.20
+GizmoGradac: folds
+Elgringo: raises $6 to $6
+kole1992: folds
+ryzenn: calls $4.80
+*** TURN *** [3h 9c 8c] [Qh]
+ryzenn: checks
+Elgringo: checks
+*** RIVER *** [3h 9c 8c Qh] [Jc]
+ryzenn: checks
+Elgringo: bets $12
+ryzenn: folds
+Uncalled bet ($12) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $16 from pot
+*** SUMMARY ***
+Total pot $16 | Rake $0.80 
+Board [3h 9c 8c Qh Jc]
+Seat 1: kole1992 (small blind) folded on the Flop 
+Seat 2: ryzenn (big blind) folded on the River 
+Seat 3: GizmoGradac folded on the Flop 
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo (button) (big blind) collected ($16)
+
+
+Weplay Hand #75115895:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:33:21 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($234.74 in chips)
+Seat 3: GizmoGradac ($120.42 in chips)
+Seat 4: KellySlater ($99.50 in chips)
+Seat 5: JTs98o ($142.87 in chips)
+Seat 6: Elgringo ($197.52 in chips)
+ryzenn: posts small blind $0.50
+GizmoGradac: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Jh]
+KellySlater: raises $2.50 to $2.50
+JTs98o: folds
+Elgringo: folds
+kole1992: calls $2.50
+ryzenn: folds
+GizmoGradac: folds
+*** FLOP *** [Js 4s Jd]
+KellySlater: checks
+kole1992: bets $3.14
+KellySlater: folds
+Uncalled bet ($3.14) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [Js 4s Jd]
+Seat 1: kole1992 (button) collected ($6.50)
+Seat 2: ryzenn (small blind) folded before Flop 
+Seat 3: GizmoGradac (big blind) folded before Flop 
+Seat 4: KellySlater folded on the Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75115926:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:34:00 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($103.68 in chips)
+Seat 2: ryzenn ($234.24 in chips)
+Seat 3: GizmoGradac ($119.42 in chips)
+Seat 4: KellySlater ($97 in chips)
+Seat 5: JTs98o ($142.87 in chips)
+Seat 6: Elgringo ($197.52 in chips)
+GizmoGradac: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 6h]
+JTs98o: folds
+Elgringo: folds
+kole1992: folds
+ryzenn: raises $2.50 to $2.50
+GizmoGradac: folds
+KellySlater: raises $10 to $11
+ryzenn: folds
+Uncalled bet ($8.50) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn (button) folded before Flop 
+Seat 3: GizmoGradac (small blind) folded before Flop 
+Seat 4: KellySlater (big blind) collected ($5.50)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75115948:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:34:33 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($103.68 in chips)
+Seat 2: ryzenn ($231.74 in chips)
+Seat 3: GizmoGradac ($118.92 in chips)
+Seat 4: KellySlater ($100 in chips)
+Seat 5: JTs98o ($142.87 in chips)
+Seat 6: Elgringo ($197.52 in chips)
+KellySlater: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 3d]
+Elgringo: raises $3 to $3
+kole1992: folds
+ryzenn: folds
+GizmoGradac: calls $3
+KellySlater: folds
+JTs98o: folds
+*** FLOP *** [Kc 9d 2d]
+Elgringo: bets $3.75
+GizmoGradac: folds
+Uncalled bet ($3.75) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [Kc 9d 2d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac (button) folded on the Flop 
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: Elgringo collected ($7.50)
+
+
+Weplay Hand #75115992:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:35:25 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($103.68 in chips)
+Seat 2: ryzenn ($231.74 in chips)
+Seat 3: GizmoGradac ($115.92 in chips)
+Seat 4: KellySlater ($99.50 in chips)
+Seat 5: JTs98o ($141.87 in chips)
+Seat 6: Elgringo ($201.65 in chips)
+JTs98o: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 3d]
+kole1992: folds
+ryzenn: folds
+GizmoGradac has timed out
+GizmoGradac: folds
+KellySlater: raises $2.50 to $2.50
+JTs98o: calls $2
+Elgringo: calls $1.50
+*** FLOP *** [2c Ah 7s]
+JTs98o: checks
+Elgringo: checks
+KellySlater: bets $2.50
+JTs98o: raises $8 to $8
+Elgringo: folds
+KellySlater: folds
+Uncalled bet ($5.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $12.50 from pot
+*** SUMMARY ***
+Total pot $12.50 | Rake $0.62 
+Board [2c Ah 7s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac folded before Flop (didn't bet)
+Seat 4: KellySlater (button) folded on the Flop 
+Seat 5: JTs98o (small blind) collected ($12.50)
+Seat 6: Elgringo (big blind) folded on the Flop 
+
+
+Weplay Hand #75116038:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:36:22 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($103.68 in chips)
+Seat 2: ryzenn ($231.74 in chips)
+Seat 3: GizmoGradac ($115.92 in chips)
+Seat 4: KellySlater ($94.50 in chips)
+Seat 5: JTs98o ($148.75 in chips)
+Seat 6: Elgringo ($199.15 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Js]
+ryzenn: folds
+GizmoGradac: calls $1
+KellySlater: raises $3 to $3
+JTs98o: folds
+Elgringo: folds
+kole1992: folds
+GizmoGradac: calls $2
+*** FLOP *** [7c 8s 2h]
+GizmoGradac: checks
+KellySlater: bets $2.50
+GizmoGradac: raises $9 to $9
+KellySlater: calls $6.50
+*** TURN *** [7c 8s 2h] [Kd]
+GizmoGradac: checks
+KellySlater: checks
+*** RIVER *** [7c 8s 2h Kd] [8d]
+GizmoGradac: bets $22
+KellySlater: calls $22
+*** SHOW DOWN ***
+GizmoGradac: shows [9s Qh] (a pair of Eights)
+KellySlater: shows [Ac Jc] (a pair of Eights)
+KellySlater collected $69.50 from pot
+*** SUMMARY ***
+Total pot $69.50 | Rake $3.47 
+Board [7c 8s 2h Kd 8d]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac showed [9s Qh] and lost with a pair of Eights
+Seat 4: KellySlater showed [Ac Jc] and won ($69.50) with a pair of Eights
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: Elgringo (small blind) folded before Flop 
+
+
+Weplay Hand #75116086:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:37:20 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($102.68 in chips)
+Seat 2: ryzenn ($231.74 in chips)
+Seat 3: GizmoGradac ($81.92 in chips)
+Seat 4: KellySlater ($126.53 in chips)
+Seat 5: JTs98o ($148.75 in chips)
+Seat 6: Elgringo ($198.65 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 9d]
+GizmoGradac: folds
+KellySlater: raises $2.50 to $2.50
+JTs98o: folds
+Elgringo: calls $2.50
+kole1992: folds
+ryzenn: folds
+*** FLOP *** [2c 6h 4c]
+KellySlater: checks
+Elgringo: bets $4.88
+KellySlater: calls $4.88
+*** TURN *** [2c 6h 4c] [3c]
+KellySlater: bets $5.40
+Elgringo: calls $5.40
+*** RIVER *** [2c 6h 4c 3c] [9h]
+KellySlater: bets $20.30
+Elgringo: folds
+Uncalled bet ($20.30) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $27.06 from pot
+*** SUMMARY ***
+Total pot $27.06 | Rake $1.35 
+Board [2c 6h 4c 3c 9h]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: ryzenn (big blind) folded before Flop 
+Seat 3: GizmoGradac folded before Flop (didn't bet)
+Seat 4: KellySlater collected ($27.06)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo (button) folded on the River 
+
+
+Weplay Hand #75116139:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:38:22 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($102.18 in chips)
+Seat 2: ryzenn ($230.74 in chips)
+Seat 3: GizmoGradac ($81.92 in chips)
+Seat 4: KellySlater ($139.46 in chips)
+Seat 5: JTs98o ($148.75 in chips)
+Seat 6: Elgringo ($185.87 in chips)
+ryzenn: posts small blind $0.50
+GizmoGradac: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 7h]
+KellySlater: folds
+JTs98o: folds
+Elgringo: folds
+kole1992: folds
+ryzenn: raises $2 to $2.50
+GizmoGradac: calls $1.50
+*** FLOP *** [8d 5d Qs]
+ryzenn: bets $9.52
+GizmoGradac: folds
+Uncalled bet ($9.52) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn: doesn't show hand
+ryzenn collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [8d 5d Qs]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: ryzenn (small blind) collected ($5)
+Seat 3: GizmoGradac (big blind) folded on the Flop 
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75116168:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:38:57 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($102.18 in chips)
+Seat 2: ryzenn ($232.99 in chips)
+Seat 3: GizmoGradac ($79.42 in chips)
+Seat 4: KellySlater ($139.46 in chips)
+Seat 5: JTs98o ($148.75 in chips)
+Seat 6: Elgringo ($185.87 in chips)
+GizmoGradac: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Jd]
+JTs98o: folds
+Elgringo: folds
+kole1992: folds
+ryzenn: raises $2.50 to $2.50
+GizmoGradac: folds
+KellySlater: folds
+Uncalled bet ($1.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn (button) collected ($2.50)
+Seat 3: GizmoGradac (small blind) folded before Flop 
+Seat 4: KellySlater (big blind) folded before Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75116207:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:39:50 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($102.18 in chips)
+Seat 2: ryzenn ($234.49 in chips)
+Seat 3: GizmoGradac ($78.92 in chips)
+Seat 4: KellySlater ($138.46 in chips)
+Seat 5: JTs98o ($148.75 in chips)
+Seat 6: Elgringo ($185.87 in chips)
+KellySlater: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Qh]
+Elgringo: folds
+kole1992: folds
+ryzenn: folds
+GizmoGradac has timed out
+GizmoGradac: folds
+KellySlater: raises $2.50 to $3
+JTs98o: calls $2
+*** FLOP *** [2c 6s 2s]
+KellySlater: checks
+JTs98o: checks
+*** TURN *** [2c 6s 2s] [3h]
+KellySlater: checks
+JTs98o: checks
+*** RIVER *** [2c 6s 2s 3h] [4h]
+KellySlater: checks
+JTs98o: checks
+*** SHOW DOWN ***
+KellySlater: shows [9c Ad] (a pair of Deuces)
+JTs98o: mucks hand
+KellySlater collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [2c 6s 2s 3h 4h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac (button) folded before Flop (didn't bet)
+Seat 4: KellySlater (small blind) showed [9c Ad] and won ($6) with a pair of Deuces
+Seat 5: JTs98o (big blind) mucked
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75116267:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:41:23 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($102.18 in chips)
+Seat 2: ryzenn ($234.49 in chips)
+Seat 3: GizmoGradac ($78.92 in chips)
+Seat 4: KellySlater ($141.16 in chips)
+Seat 5: JTs98o ($145.75 in chips)
+Seat 6: Elgringo ($185.87 in chips)
+JTs98o: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 5s]
+kole1992: folds
+ryzenn: folds
+GizmoGradac: raises $3 to $3
+KellySlater: folds
+JTs98o: raises $11.50 to $12
+Elgringo: folds
+GizmoGradac: calls $9
+*** FLOP *** [7h 8d 2h]
+JTs98o: checks
+GizmoGradac: checks
+*** TURN *** [7h 8d 2h] [8s]
+JTs98o: bets $10
+GizmoGradac: calls $10
+*** RIVER *** [7h 8d 2h 8s] [6h]
+JTs98o: checks
+GizmoGradac: bets $22
+JTs98o: calls $22
+*** SHOW DOWN ***
+GizmoGradac: shows [4d 7d] (two pair, Eights and Sevens)
+JTs98o: mucks hand
+GizmoGradac collected $89 from pot
+*** SUMMARY ***
+Total pot $89 | Rake $4.45 
+Board [7h 8d 2h 8s 6h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn folded before Flop (didn't bet)
+Seat 3: GizmoGradac showed [4d 7d] and won ($89) with two pair, Eights and Sevens
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) mucked
+Seat 6: Elgringo (big blind) folded before Flop 
+
+
+Weplay Hand #75116309:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:42:29 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($102.18 in chips)
+Seat 2: ryzenn ($234.49 in chips)
+Seat 3: GizmoGradac ($119.47 in chips)
+Seat 4: KellySlater ($141.16 in chips)
+Seat 5: JTs98o ($101.75 in chips)
+Seat 6: Elgringo ($184.87 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Ts]
+ryzenn: raises $2.50 to $2.50
+GizmoGradac: folds
+KellySlater: folds
+JTs98o: folds
+Elgringo: calls $2
+kole1992: folds
+*** FLOP *** [8d 9h Td]
+Elgringo: checks
+ryzenn: checks
+*** TURN *** [8d 9h Td] [9s]
+Elgringo: checks
+ryzenn: checks
+*** RIVER *** [8d 9h Td 9s] [Tc]
+Elgringo: checks
+ryzenn: bets $1.50
+Elgringo: calls $1.50
+*** SHOW DOWN ***
+ryzenn: shows [As Qc] (two pair, Tens and Nines)
+Elgringo: shows [6c Ac] (two pair, Tens and Nines)
+ryzenn collected $4.49 from pot
+Elgringo collected $4.51 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [8d 9h Td 9s Tc]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: ryzenn showed [As Qc] and won ($4.49) with two pair, Tens and Nines
+Seat 3: GizmoGradac folded before Flop (didn't bet)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: Elgringo (small blind) showed [6c Ac] and won ($4.51) with two pair, Tens and Nines
+
+
+Weplay Hand #75120355:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:43:40 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($101.18 in chips)
+Seat 2: ryzenn ($234.76 in chips)
+Seat 3: GizmoGradac ($119.47 in chips)
+Seat 4: KellySlater ($141.16 in chips)
+Seat 5: JTs98o ($101.75 in chips)
+Seat 6: Elgringo ($185.15 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 7h]
+GizmoGradac: calls $1
+KellySlater: folds
+JTs98o: folds
+Elgringo: raises $6 to $6
+kole1992: folds
+ryzenn: folds
+GizmoGradac: calls $5
+*** FLOP *** [3s 3h 2c]
+GizmoGradac: checks
+Elgringo: bets $4.46
+GizmoGradac: calls $4.46
+*** TURN *** [3s 3h 2c] [9h]
+GizmoGradac: checks
+Elgringo: checks
+*** RIVER *** [3s 3h 2c 9h] [Ac]
+GizmoGradac: checks
+Elgringo: bets $5
+GizmoGradac: calls $5
+*** SHOW DOWN ***
+Elgringo: shows [Ts Jd] (a pair of Threes)
+GizmoGradac: shows [6c Ah] (two pair, Aces and Threes)
+GizmoGradac collected $32.42 from pot
+*** SUMMARY ***
+Total pot $32.42 | Rake $1.62 
+Board [3s 3h 2c 9h Ac]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: ryzenn (big blind) folded before Flop 
+Seat 3: GizmoGradac showed [6c Ah] and won ($32.42) with two pair, Aces and Threes
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo (button) showed [Ts Jd] and lost with a pair of Threes
+
+
+Weplay Hand #75120390:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:44:32 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100.68 in chips)
+Seat 2: ryzenn ($233.76 in chips)
+Seat 3: GizmoGradac ($134.81 in chips)
+Seat 4: KellySlater ($141.16 in chips)
+Seat 5: JTs98o ($101.75 in chips)
+Seat 6: Elgringo ($169.69 in chips)
+ryzenn: posts small blind $0.50
+GizmoGradac: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 5s]
+KellySlater: folds
+JTs98o: folds
+Elgringo: folds
+kole1992: raises $2.50 to $2.50
+ryzenn: calls $2
+GizmoGradac: calls $1.50
+*** FLOP *** [2s Jd 2d]
+ryzenn: checks
+GizmoGradac: checks
+kole1992: checks
+*** TURN *** [2s Jd 2d] [Ad]
+Elgringo is disconnected 
+Elgringo is connected 
+ryzenn: checks
+GizmoGradac: bets $2
+kole1992: folds
+ryzenn: folds
+Uncalled bet ($2) returned to GizmoGradac
+*** SHOW DOWN ***
+GizmoGradac has timed out
+GizmoGradac: doesn't show hand
+GizmoGradac collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [2s Jd 2d Ad]
+Seat 1: kole1992 (button) folded on the Turn 
+Seat 2: ryzenn (small blind) folded on the Turn 
+Seat 3: GizmoGradac (big blind) collected ($7.50)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75120427:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:45:28 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($231.26 in chips)
+Seat 3: GizmoGradac ($139.44 in chips)
+Seat 4: KellySlater ($141.16 in chips)
+Seat 5: JTs98o ($101.75 in chips)
+Seat 6: Elgringo ($169.69 in chips)
+GizmoGradac: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 7s]
+JTs98o: raises $2.50 to $2.50
+Elgringo: folds
+kole1992: folds
+ryzenn: folds
+GizmoGradac: folds
+KellySlater: calls $1.50
+*** FLOP *** [3h Ts Kc]
+KellySlater: checks
+JTs98o: bets $2.20
+KellySlater: folds
+Uncalled bet ($2.20) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [3h Ts Kc]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn (button) folded before Flop (didn't bet)
+Seat 3: GizmoGradac (small blind) folded before Flop 
+Seat 4: KellySlater (big blind) folded on the Flop 
+Seat 5: JTs98o collected ($5.50)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75120463:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:46:19 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($231.26 in chips)
+Seat 3: GizmoGradac ($138.94 in chips)
+Seat 4: KellySlater ($138.66 in chips)
+Seat 5: JTs98o ($104.48 in chips)
+Seat 6: Elgringo ($169.69 in chips)
+KellySlater: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Tc]
+Elgringo: raises $3 to $3
+kole1992: folds
+ryzenn: raises $7.50 to $7.50
+GizmoGradac: folds
+KellySlater: folds
+JTs98o: folds
+Elgringo: calls $4.50
+*** FLOP *** [5d Kc 8c]
+Elgringo: checks
+ryzenn: bets $8.10
+Elgringo: calls $8.10
+*** TURN *** [5d Kc 8c] [Td]
+Elgringo: checks
+ryzenn: bets $32.70
+Elgringo: calls $32.70
+*** RIVER *** [5d Kc 8c Td] [6d]
+Elgringo: checks
+ryzenn: bets $182.96 and is all-in
+Elgringo: folds
+Uncalled bet ($182.96) returned to ryzenn
+*** SHOW DOWN ***
+Elgringo: shows [Ks ##] (a pair of Kings)
+ryzenn: shows [Jd Ac] (high card Ace)
+ryzenn collected $98.10 from pot
+*** SUMMARY ***
+Total pot $98.10 | Rake $4.90 
+Board [5d Kc 8c Td 6d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn collected ($98.10)
+Seat 3: GizmoGradac (button) folded before Flop (didn't bet)
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: Elgringo folded on the River 
+
+
+Weplay Hand #75120535:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:48:22 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($276.16 in chips)
+Seat 3: GizmoGradac ($138.94 in chips)
+Seat 4: KellySlater ($138.16 in chips)
+Seat 5: JTs98o ($103.48 in chips)
+Seat 6: Elgringo ($121.39 in chips)
+JTs98o: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Th]
+kole1992: folds
+ryzenn: raises $2.50 to $2.50
+GizmoGradac: calls $2.50
+KellySlater: folds
+JTs98o: folds
+Elgringo: raises $11 to $12
+ryzenn: folds
+GizmoGradac: calls $9.50
+*** FLOP *** [8h 4h 6s]
+Elgringo: checks
+GizmoGradac: checks
+*** TURN *** [8h 4h 6s] [Ac]
+Elgringo: bets $20.25
+GizmoGradac: calls $20.25
+*** RIVER *** [8h 4h 6s Ac] [5h]
+Elgringo: bets $89.14 and is all-in
+GizmoGradac: calls $89.14
+*** SHOW DOWN ***
+Elgringo: shows [9h Kh] (a flush, King high)
+GizmoGradac: shows [6c 6d] (three of a kind, Sixes)
+Elgringo collected $245.78 from pot
+*** SUMMARY ***
+Total pot $245.78 | Rake $6.50 
+Board [8h 4h 6s Ac 5h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: ryzenn folded before Flop 
+Seat 3: GizmoGradac showed [6c 6d] and lost with three of a kind, Sixes
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: Elgringo (big blind) showed [9h Kh] and won ($245.78) with a flush, King high
+
+
+Weplay Hand #75120578:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:49:33 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($273.66 in chips)
+Seat 3: GizmoGradac ($17.55 in chips)
+Seat 4: KellySlater ($138.16 in chips)
+Seat 5: JTs98o ($102.98 in chips)
+Seat 6: Elgringo ($239.28 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 6d]
+ryzenn: raises $2.50 to $2.50
+GizmoGradac: folds
+KellySlater: raises $9 to $9
+JTs98o: folds
+Elgringo: folds
+kole1992: folds
+ryzenn: calls $6.50
+*** FLOP *** [5h Kh 4d]
+ryzenn: checks
+KellySlater: bets $6.40
+GizmoGradac leaves the table
+ryzenn: calls $6.40
+*** TURN *** [5h Kh 4d] [Ks]
+ryzenn: bets $8.07
+KellySlater: calls $8.07
+*** RIVER *** [5h Kh 4d Ks] [6h]
+ryzenn: bets $12.11
+KellySlater: calls $12.11
+*** SHOW DOWN ***
+ryzenn: shows [Qd Qh] (two pair, Kings and Queens)
+KellySlater: mucks hand
+ryzenn collected $72.66 from pot
+*** SUMMARY ***
+Total pot $72.66 | Rake $3.63 
+Board [5h Kh 4d Ks 6h]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: ryzenn showed [Qd Qh] and won ($72.66) with two pair, Kings and Queens
+Seat 3: GizmoGradac folded before Flop (didn't bet)
+Seat 4: KellySlater mucked
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: Elgringo (small blind) folded before Flop 
+
+
+Weplay Hand #75120632:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:50:59 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($307.11 in chips)
+Seat 5: JTs98o ($102.98 in chips)
+Seat 6: Elgringo ($238.78 in chips)
+kole1992: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d As]
+JTs98o: folds
+Elgringo: raises $3 to $3
+kole1992: folds
+ryzenn: folds
+Uncalled bet ($2) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: ryzenn (big blind) folded before Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Elgringo (button) collected ($2.50)
+
+
+Weplay Hand #75120654:  Hold'em No Limit ($0.50/$1) - 2026/02/08 16:51:33 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: ryzenn ($306.11 in chips)
+Seat 5: JTs98o ($102.98 in chips)
+Seat 6: Elgringo ($240.28 in chips)
+ryzenn: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9c]
+Elgringo: folds
+kole1992: folds
+ryzenn: folds
+Uncalled bet ($0.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: ryzenn (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) collected ($1)
+Seat 6: Elgringo folded before Flop (didn't bet)
+
+
+Weplay Hand #75128702:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:38:56 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 2: dd3 ($95.75 in chips)
+Seat 3: Dzaka ($103.43 in chips)
+Seat 4: Makundubhai ($79.40 in chips)
+Seat 5: mekkmester ($109.27 in chips)
+Seat 6: kole1992 ($100 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 6h]
+dd3: folds
+Dzaka: calls $1
+Makundubhai: calls $1
+mekkmester: folds
+kole1992: checks
+*** FLOP *** [Th 9c 9d]
+kole1992: checks
+Dzaka: checks
+Makundubhai: checks
+*** TURN *** [Th 9c 9d] [2s]
+kole1992: checks
+Dzaka: folds
+Makundubhai: checks
+*** RIVER *** [Th 9c 9d 2s] [7d]
+kole1992: checks
+Makundubhai: checks
+*** SHOW DOWN ***
+kole1992: shows [Qs 6h] (a pair of Nines)
+Makundubhai: shows [8d Qd] (a pair of Nines)
+Makundubhai collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [Th 9c 9d 2s 7d]
+Seat 2: dd3 folded before Flop (didn't bet)
+Seat 3: Dzaka folded on the Turn 
+Seat 4: Makundubhai (button) showed [8d Qd] and won ($3.50) with a pair of Nines
+Seat 5: mekkmester (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) showed [Qs 6h] and lost with a pair of Nines
+
+
+Weplay Hand #75128774:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:40:02 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 2: dd3 ($95.75 in chips)
+Seat 3: Dzaka ($102.43 in chips)
+Seat 5: mekkmester ($108.77 in chips)
+Seat 6: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+dd3: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 9c]
+Dzaka: calls $1
+mekkmester: calls $1
+kole1992: folds
+dd3: checks
+*** FLOP *** [7d 8d 9h]
+dd3: checks
+Dzaka: checks
+Makundubhai is disconnected 
+mekkmester: bets $3.50
+dd3: folds
+Dzaka: calls $3.50
+*** TURN *** [7d 8d 9h] [Ad]
+Dzaka: checks
+mekkmester: checks
+*** RIVER *** [7d 8d 9h Ad] [7s]
+Dzaka: checks
+mekkmester: checks
+*** SHOW DOWN ***
+Dzaka: shows [8c Kh] (two pair, Eights and Sevens)
+mekkmester: shows [9s 5s] (two pair, Nines and Sevens)
+mekkmester collected $10.50 from pot
+*** SUMMARY ***
+Total pot $10.50 | Rake $0.52 
+Board [7d 8d 9h Ad 7s]
+Seat 2: dd3 (big blind) folded on the Flop 
+Seat 3: Dzaka showed [8c Kh] and lost with two pair, Eights and Sevens
+Seat 5: mekkmester (button) showed [9s 5s] and won ($10.50) with two pair, Nines and Sevens
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75128832:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:40:51 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 2: dd3 ($94.75 in chips)
+Seat 3: Dzaka ($97.93 in chips)
+Seat 5: mekkmester ($114.25 in chips)
+Seat 6: kole1992 ($100 in chips)
+dd3: posts small blind $0.50
+Dzaka: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Ac]
+mekkmester: folds
+kole1992: folds
+Monster1 joins the table at seat #1
+dd3: raises $2.50 to $3
+Dzaka: folds
+Uncalled bet ($2) returned to dd3
+*** SHOW DOWN ***
+dd3 has timed out
+dd3: doesn't show hand
+dd3 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: dd3 (small blind) collected ($2)
+Seat 3: Dzaka (big blind) folded before Flop 
+Seat 5: mekkmester folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75128847:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:41:08 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Monster1 ($37 in chips)
+Seat 2: dd3 ($95.75 in chips)
+Seat 3: Dzaka ($96.93 in chips)
+Seat 5: mekkmester ($114.25 in chips)
+Seat 6: kole1992 ($100 in chips)
+Dzaka: posts small blind $0.50
+mekkmester: posts big blind $1
+Monster1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 4d]
+kole1992: folds
+Monster1: checks
+dd3: folds
+Dzaka: calls $0.50
+mekkmester: checks
+*** FLOP *** [3c 2d Qs]
+Dzaka: checks
+mekkmester: checks
+Monster1: bets $2.25
+Dzaka: calls $2.25
+mekkmester: calls $2.25
+*** TURN *** [3c 2d Qs] [8d]
+Dzaka: checks
+mekkmester: checks
+Makundubhai leaves the table
+Monster1: bets $9.75
+Dzaka: folds
+mekkmester: calls $9.75
+*** RIVER *** [3c 2d Qs 8d] [Js]
+mekkmester: checks
+Monster1: checks
+*** SHOW DOWN ***
+mekkmester: shows [3d Jd] (two pair, Jacks and Threes)
+Monster1 has timed out
+Monster1: mucks hand
+mekkmester collected $29.25 from pot
+*** SUMMARY ***
+Total pot $29.25 | Rake $1.46 
+Board [3c 2d Qs 8d Js]
+Seat 1: Monster1 (big blind) mucked
+Seat 2: dd3 (button) folded before Flop (didn't bet)
+Seat 3: Dzaka (small blind) folded on the Turn 
+Seat 5: mekkmester (big blind) showed [3d Jd] and won ($29.25) with two pair, Jacks and Threes
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75128906:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:42:03 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Monster1 ($24 in chips)
+Seat 2: dd3 ($95.75 in chips)
+Seat 3: Dzaka ($93.68 in chips)
+Seat 5: mekkmester ($129.04 in chips)
+Seat 6: kole1992 ($100 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Kh]
+Monster1: folds
+dd3: folds
+Dzaka: raises $3 to $3
+mekkmester: raises $4.50 to $5
+kole1992: folds
+Dzaka: calls $2
+*** FLOP *** [7h 4c 8c]
+mekkmester: bets $8.25
+Dzaka: calls $8.25
+*** TURN *** [7h 4c 8c] [3h]
+mekkmester: bets $20.63
+Dzaka: folds
+Uncalled bet ($20.63) returned to mekkmester
+*** SHOW DOWN ***
+mekkmester has timed out
+mekkmester: doesn't show hand
+mekkmester collected $27.50 from pot
+*** SUMMARY ***
+Total pot $27.50 | Rake $1.37 
+Board [7h 4c 8c 3h]
+Seat 1: Monster1 folded before Flop (didn't bet)
+Seat 2: dd3 folded before Flop (didn't bet)
+Seat 3: Dzaka (button) folded on the Turn 
+Seat 5: mekkmester (small blind) collected ($27.50)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75128946:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:42:44 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Monster1 ($24 in chips)
+Seat 2: dd3 ($95.75 in chips)
+Seat 3: Dzaka ($80.43 in chips)
+Seat 5: mekkmester ($141.92 in chips)
+Seat 6: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+Monster1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Qh]
+dd3: folds
+Dzaka: calls $1
+mekkmester: folds
+kole1992: raises $4 to $4.50
+Monster1: calls $3.50
+Dzaka: calls $3.50
+*** FLOP *** [9d Ad Ah]
+kole1992: bets $3.24
+Makundubhai joins the table at seat #4
+Monster1: calls $3.24
+Dzaka: folds
+*** TURN *** [9d Ad Ah] [2s]
+kole1992: bets $6.59
+Monster1: raises $13.18 to $13.18
+kole1992: folds
+Uncalled bet ($6.59) returned to Monster1
+*** SHOW DOWN ***
+Monster1: doesn't show hand
+Monster1 collected $33.16 from pot
+*** SUMMARY ***
+Total pot $33.16 | Rake $1.65 
+Board [9d Ad Ah 2s]
+Seat 1: Monster1 (big blind) collected ($33.16)
+Seat 2: dd3 folded before Flop (didn't bet)
+Seat 3: Dzaka folded on the Flop 
+Seat 5: mekkmester (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded on the Turn 
+
+
+Weplay Hand #75129010:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:43:44 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Monster1 ($41.18 in chips)
+Seat 2: dd3 ($100 in chips)
+Seat 3: Dzaka ($75.93 in chips)
+Seat 4: Makundubhai ($81.73 in chips)
+Seat 5: mekkmester ($141.92 in chips)
+Seat 6: kole1992 ($100 in chips)
+Monster1: posts small blind $0.50
+dd3: posts big blind $1
+Makundubhai: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 9c]
+Dzaka: calls $1
+Makundubhai: checks
+mekkmester: folds
+kole1992: folds
+Monster1: calls $0.50
+dd3: checks
+*** FLOP *** [9s 2d 3s]
+Monster1: checks
+dd3: bets $3
+Dzaka: folds
+Makundubhai: folds
+Monster1: calls $3
+*** TURN *** [9s 2d 3s] [3h]
+Monster1: checks
+dd3: bets $7.50
+Monster1: calls $7.50
+*** RIVER *** [9s 2d 3s 3h] [Jd]
+Monster1: checks
+dd3: checks
+*** SHOW DOWN ***
+Monster1: shows [4h 5s] (a pair of Threes)
+dd3: shows [9d 6s] (two pair, Nines and Threes)
+dd3 collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $1.25 
+Board [9s 2d 3s 3h Jd]
+Seat 1: Monster1 (small blind) showed [4h 5s] and lost with a pair of Threes
+Seat 2: dd3 (big blind) showed [9d 6s] and won ($25) with two pair, Nines and Threes
+Seat 3: Dzaka folded on the Flop 
+Seat 4: Makundubhai (big blind) folded on the Flop 
+Seat 5: mekkmester folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75129070:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:44:43 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Monster1 ($29.68 in chips)
+Seat 2: dd3 ($112.25 in chips)
+Seat 3: Dzaka ($74.93 in chips)
+Seat 4: Makundubhai ($80.73 in chips)
+Seat 5: mekkmester ($141.92 in chips)
+Seat 6: kole1992 ($100 in chips)
+dd3: posts small blind $0.50
+Dzaka: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 6d]
+Makundubhai is disconnected 
+Makundubhai is connected 
+Makundubhai: folds
+mekkmester: folds
+kole1992: raises $3 to $3
+Monster1: calls $3
+dd3: folds
+Dzaka: calls $2
+*** FLOP *** [Qc 3c 4h]
+Dzaka: checks
+kole1992: bets $4.13
+Monster1: folds
+Dzaka: folds
+Uncalled bet ($4.13) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [Qc 3c 4h]
+Seat 1: Monster1 (button) folded on the Flop 
+Seat 2: dd3 (small blind) folded before Flop 
+Seat 3: Dzaka (big blind) folded on the Flop 
+Seat 4: Makundubhai folded before Flop (didn't bet)
+Seat 5: mekkmester folded before Flop (didn't bet)
+Seat 6: kole1992 collected ($9.50)
+
+
+Weplay Hand #75129133:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:45:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Monster1 ($26.68 in chips)
+Seat 2: dd3 ($111.75 in chips)
+Seat 3: Dzaka ($71.93 in chips)
+Seat 4: Makundubhai ($80.73 in chips)
+Seat 5: mekkmester ($141.92 in chips)
+Seat 6: kole1992 ($106.03 in chips)
+Dzaka: posts small blind $0.50
+Makundubhai: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 9d]
+mekkmester: calls $1
+kole1992: raises $4 to $4
+Monster1: folds
+dd3: raises $17 to $17
+Dzaka: folds
+Makundubhai: folds
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($13) returned to dd3
+*** SHOW DOWN ***
+dd3 has timed out
+dd3: doesn't show hand
+dd3 collected $10.50 from pot
+*** SUMMARY ***
+Total pot $10.50 | Rake $0 
+Seat 1: Monster1 folded before Flop (didn't bet)
+Seat 2: dd3 (button) collected ($10.50)
+Seat 3: Dzaka (small blind) folded before Flop 
+Seat 4: Makundubhai (big blind) folded before Flop 
+Seat 5: mekkmester folded before Flop 
+Seat 6: kole1992 folded before Flop 
+
+
+Weplay Hand #75129165:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:46:24 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Monster1 ($26.68 in chips)
+Seat 2: dd3 ($118.25 in chips)
+Seat 3: Dzaka ($71.43 in chips)
+Seat 4: Makundubhai ($79.73 in chips)
+Seat 5: mekkmester ($140.92 in chips)
+Seat 6: kole1992 ($102.03 in chips)
+Makundubhai: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 9s]
+kole1992: folds
+Monster1: folds
+dd3: raises $2.50 to $2.50
+Dzaka: calls $2.50
+Makundubhai: calls $2
+mekkmester: calls $1.50
+*** FLOP *** [Ac 2c 6d]
+Makundubhai: checks
+mekkmester: checks
+dd3: bets $5
+Dzaka: calls $5
+Makundubhai: calls $5
+mekkmester: folds
+*** TURN *** [Ac 2c 6d] [Kd]
+Makundubhai: checks
+dd3: checks
+Dzaka: checks
+*** RIVER *** [Ac 2c 6d Kd] [5d]
+Makundubhai: checks
+dd3: checks
+Dzaka: checks
+*** SHOW DOWN ***
+Makundubhai: shows [4c 5c] (a pair of Fives)
+dd3: shows [Ah 9d] (a pair of Aces)
+Dzaka has timed out
+Dzaka: mucks hand
+dd3 collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $1.25 
+Board [Ac 2c 6d Kd 5d]
+Seat 1: Monster1 folded before Flop (didn't bet)
+Seat 2: dd3 showed [Ah 9d] and won ($25) with a pair of Aces
+Seat 3: Dzaka (button) mucked
+Seat 4: Makundubhai (small blind) showed [4c 5c] and lost with a pair of Fives
+Seat 5: mekkmester (big blind) folded on the Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75129242:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:47:38 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Monster1 ($26.68 in chips)
+Seat 2: dd3 ($134.50 in chips)
+Seat 3: Dzaka ($63.93 in chips)
+Seat 4: Makundubhai ($72.23 in chips)
+Seat 5: mekkmester ($138.42 in chips)
+Seat 6: kole1992 ($102.03 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Td]
+Monster1: folds
+dd3: folds
+Dzaka: raises $3.99 to $3.99
+Makundubhai: folds
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($2.99) returned to Dzaka
+*** SHOW DOWN ***
+Dzaka has timed out
+Dzaka: doesn't show hand
+Dzaka collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Monster1 folded before Flop (didn't bet)
+Seat 2: dd3 folded before Flop (didn't bet)
+Seat 3: Dzaka collected ($2.50)
+Seat 4: Makundubhai (button) folded before Flop (didn't bet)
+Seat 5: mekkmester (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75129271:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:48:03 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Monster1 ($26.68 in chips)
+Seat 2: dd3 ($134.50 in chips)
+Seat 3: Dzaka ($65.43 in chips)
+Seat 4: Makundubhai ($72.23 in chips)
+Seat 5: mekkmester ($137.92 in chips)
+Seat 6: kole1992 ($101.03 in chips)
+kole1992: posts small blind $0.50
+Monster1: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 9s]
+dd3: folds
+Dzaka: raises $3 to $3
+Makundubhai: calls $3
+mekkmester: folds
+kole1992: folds
+Monster1: calls $2
+*** FLOP *** [Qh 8h Ac]
+Monster1: checks
+Dzaka: checks
+Makundubhai: checks
+*** TURN *** [Qh 8h Ac] [4h]
+Monster1: bets $9.50
+Dzaka: folds
+Makundubhai: folds
+Uncalled bet ($9.50) returned to Monster1
+*** SHOW DOWN ***
+Monster1: doesn't show hand
+Monster1 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [Qh 8h Ac 4h]
+Seat 1: Monster1 (big blind) collected ($9.50)
+Seat 2: dd3 folded before Flop (didn't bet)
+Seat 3: Dzaka folded on the Turn 
+Seat 4: Makundubhai folded on the Turn 
+Seat 5: mekkmester (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75129310:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:48:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Monster1 ($32.71 in chips)
+Seat 2: dd3 ($134.50 in chips)
+Seat 3: Dzaka ($62.43 in chips)
+Seat 4: Makundubhai ($69.23 in chips)
+Seat 5: mekkmester ($137.92 in chips)
+Seat 6: kole1992 ($100.53 in chips)
+Monster1: posts small blind $0.50
+dd3: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 8h]
+Dzaka: folds
+Makundubhai: calls $1
+mekkmester: calls $1
+kole1992: folds
+Monster1: calls $0.50
+dd3: checks
+*** FLOP *** [Qs 2c 6d]
+Monster1: checks
+dd3: checks
+Makundubhai: checks
+mekkmester: bets $3
+Monster1: raises $13 to $13
+dd3: folds
+Makundubhai: folds
+mekkmester: folds
+Uncalled bet ($10) returned to Monster1
+*** SHOW DOWN ***
+Monster1: doesn't show hand
+Monster1 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [Qs 2c 6d]
+Seat 1: Monster1 (small blind) collected ($10)
+Seat 2: dd3 (big blind) folded on the Flop 
+Seat 3: Dzaka folded before Flop (didn't bet)
+Seat 4: Makundubhai folded on the Flop 
+Seat 5: mekkmester folded on the Flop 
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75129368:  Hold'em No Limit ($0.50/$1) - 2026/02/08 17:49:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Monster1 ($38.21 in chips)
+Seat 2: dd3 ($133.50 in chips)
+Seat 3: Dzaka ($62.43 in chips)
+Seat 4: Makundubhai ($68.23 in chips)
+Seat 5: mekkmester ($133.92 in chips)
+Seat 6: kole1992 ($100.53 in chips)
+dd3: posts small blind $0.50
+Dzaka: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Ad]
+Makundubhai: raises $2 to $2
+mekkmester: calls $2
+kole1992: raises $10.03 to $10.03
+Monster1: folds
+dd3: folds
+Dzaka: folds
+Makundubhai: calls $8.03
+mekkmester: folds
+*** FLOP *** [9h 5s 4h]
+Makundubhai: checks
+kole1992: bets $10.27
+Makundubhai: folds
+Uncalled bet ($10.27) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $23.56 from pot
+*** SUMMARY ***
+Total pot $23.56 | Rake $1.17 
+Board [9h 5s 4h]
+Seat 1: Monster1 (button) folded before Flop (didn't bet)
+Seat 2: dd3 (small blind) folded before Flop 
+Seat 3: Dzaka (big blind) folded before Flop 
+Seat 4: Makundubhai folded on the Flop 
+Seat 5: mekkmester folded before Flop 
+Seat 6: kole1992 collected ($23.56)
+
+
+Weplay Hand #75146030:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:30:35 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: mekkmester ($328.03 in chips)
+Seat 2: Elgringo ($210.92 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Tone91 ($184.25 in chips)
+Seat 6: JTs98o ($100 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 7h]
+Tone91: raises $2.50 to $2.50
+JTs98o: folds
+mekkmester: folds
+Elgringo: folds
+kole1992: calls $1.50
+*** FLOP *** [Jh 6d Ah]
+kole1992: checks
+Tone91: bets $3.70
+kole1992: calls $3.70
+*** TURN *** [Jh 6d Ah] [5c]
+kole1992: checks
+Tone91: bets $12.90
+kole1992: folds
+Uncalled bet ($12.90) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $12.90 from pot
+*** SUMMARY ***
+Total pot $12.90 | Rake $0.64 
+Board [Jh 6d Ah 5c]
+Seat 1: mekkmester (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded on the Turn 
+Seat 5: Tone91 collected ($12.90)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146080:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:32:05 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: mekkmester ($328.03 in chips)
+Seat 2: Elgringo ($210.42 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Tone91 ($190.31 in chips)
+Seat 6: JTs98o ($100 in chips)
+kole1992: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 3c]
+JTs98o: folds
+mekkmester: raises $3 to $3
+Elgringo: folds
+kole1992: folds
+Tone91: folds
+Uncalled bet ($2) returned to mekkmester
+*** SHOW DOWN ***
+mekkmester has timed out
+mekkmester: doesn't show hand
+mekkmester collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: mekkmester collected ($2.50)
+Seat 2: Elgringo (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: Tone91 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146092:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:32:23 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: mekkmester ($329.53 in chips)
+Seat 2: Elgringo ($210.42 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Tone91 ($189.31 in chips)
+Seat 6: JTs98o ($100 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Ah]
+mekkmester: folds
+Elgringo: folds
+kole1992: raises $2.50 to $2.50
+Tone91: folds
+JTs98o: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 (button) collected ($2.50)
+Seat 5: Tone91 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75146104:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:32:43 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: mekkmester ($329.53 in chips)
+Seat 2: Elgringo ($210.42 in chips)
+Seat 3: kole1992 ($101.50 in chips)
+Seat 5: Tone91 ($188.81 in chips)
+Seat 6: JTs98o ($100 in chips)
+JTs98o: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Tc]
+Elgringo: raises $2.50 to $2.50
+kole1992: folds
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Uncalled bet ($1.50) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo: doesn't show hand
+Elgringo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: mekkmester (big blind) folded before Flop 
+Seat 2: Elgringo collected ($2.50)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75146123:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:33:10 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: mekkmester ($328.53 in chips)
+Seat 2: Elgringo ($211.92 in chips)
+Seat 3: kole1992 ($101.50 in chips)
+Seat 5: Tone91 ($188.81 in chips)
+Seat 6: JTs98o ($100 in chips)
+mekkmester: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 2c]
+kole1992: folds
+Tone91: folds
+JTs98o: raises $2.50 to $2.50
+mekkmester: folds
+Elgringo: raises $9 to $10
+JTs98o: raises $22.50 to $25
+Elgringo: folds
+Uncalled bet ($15) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $20.50 from pot
+*** SUMMARY ***
+Total pot $20.50 | Rake $0 
+Seat 1: mekkmester (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) collected ($20.50)
+
+
+Weplay Hand #75146143:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:33:44 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: mekkmester ($328.03 in chips)
+Seat 2: Elgringo ($201.92 in chips)
+Seat 3: kole1992 ($101.50 in chips)
+Seat 5: Tone91 ($188.81 in chips)
+Seat 6: JTs98o ($110.50 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Th]
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Elgringo: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: mekkmester (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) collected ($1)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146154:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:34:04 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: mekkmester ($328.03 in chips)
+Seat 2: Elgringo ($201.42 in chips)
+Seat 3: kole1992 ($102 in chips)
+Seat 5: Tone91 ($188.81 in chips)
+Seat 6: JTs98o ($110.50 in chips)
+kole1992: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Jh]
+JTs98o: raises $2.50 to $2.50
+mekkmester: folds
+Elgringo: folds
+kole1992: folds
+Tone91: calls $1.50
+*** FLOP *** [2h Jd 7h]
+Tone91: checks
+JTs98o: bets $2.20
+Tone91: calls $2.20
+*** TURN *** [2h Jd 7h] [Kc]
+Tone91: checks
+JTs98o: bets $11.50
+Tone91: folds
+Uncalled bet ($11.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $9.90 from pot
+*** SUMMARY ***
+Total pot $9.90 | Rake $0.49 
+Board [2h Jd 7h Kc]
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: Tone91 (big blind) folded on the Turn 
+Seat 6: JTs98o collected ($9.90)
+
+
+Weplay Hand #75146188:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:35:08 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: mekkmester ($328.03 in chips)
+Seat 2: Elgringo ($201.42 in chips)
+Seat 3: kole1992 ($101.50 in chips)
+Seat 5: Tone91 ($184.11 in chips)
+Seat 6: JTs98o ($115.21 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 6h]
+mekkmester: folds
+Elgringo: folds
+kole1992: folds
+Tone91: raises $2.50 to $3
+JTs98o: folds
+Uncalled bet ($2) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Tone91 (small blind) collected ($2)
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75146201:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:35:31 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: mekkmester ($328.03 in chips)
+Seat 2: Elgringo ($201.42 in chips)
+Seat 3: kole1992 ($101.50 in chips)
+Seat 5: Tone91 ($185.11 in chips)
+Seat 6: JTs98o ($114.21 in chips)
+JTs98o: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Ac]
+Elgringo: folds
+kole1992: raises $2 to $2
+Tone91: folds
+JTs98o: folds
+mekkmester: calls $1
+*** FLOP *** [8s Ks 6c]
+mekkmester: checks
+kole1992: bets $1.48
+mekkmester: calls $1.48
+*** TURN *** [8s Ks 6c] [Ad]
+mekkmester: checks
+kole1992: bets $4.47
+mekkmester: folds
+Uncalled bet ($4.47) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $7.46 from pot
+*** SUMMARY ***
+Total pot $7.46 | Rake $0.37 
+Board [8s Ks 6c Ad]
+Seat 1: mekkmester (big blind) folded on the Turn 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 collected ($7.46)
+Seat 5: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75146247:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:36:45 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: mekkmester ($324.55 in chips)
+Seat 2: Elgringo ($201.42 in chips)
+Seat 3: kole1992 ($105.11 in chips)
+Seat 5: Tone91 ($185.11 in chips)
+Seat 6: JTs98o ($113.71 in chips)
+mekkmester: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 8s]
+kole1992: folds
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Uncalled bet ($0.50) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: mekkmester (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) collected ($1)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75146257:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:37:01 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: mekkmester ($324.05 in chips)
+Seat 2: Elgringo ($201.92 in chips)
+Seat 3: kole1992 ($105.11 in chips)
+Seat 5: Tone91 ($185.11 in chips)
+Seat 6: JTs98o ($113.71 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Ts]
+Tone91: raises $2.50 to $2.50
+JTs98o has timed out
+JTs98o: folds
+mekkmester: folds
+Elgringo: folds
+kole1992: raises $11.52 to $12.52
+Tone91: folds
+Uncalled bet ($10.02) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: mekkmester (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) collected ($5.50)
+Seat 5: Tone91 folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146287:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:37:48 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: mekkmester ($324.05 in chips)
+Seat 2: Elgringo ($201.42 in chips)
+Seat 3: kole1992 ($108.11 in chips)
+Seat 5: Tone91 ($182.61 in chips)
+Seat 6: JTs98o ($113.71 in chips)
+kole1992: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 6d]
+JTs98o: raises $2.50 to $2.50
+mekkmester: calls $2.50
+Elgringo: calls $2.50
+kole1992: folds
+Tone91: calls $1.50
+*** FLOP *** [4c 6h Kd]
+Tone91: checks
+JTs98o: checks
+mekkmester: checks
+Elgringo: checks
+*** TURN *** [4c 6h Kd] [2h]
+Tone91: checks
+JTs98o: bets $7
+mekkmester: folds
+Elgringo: folds
+Tone91: calls $7
+*** RIVER *** [4c 6h Kd 2h] [4s]
+Tone91: checks
+JTs98o: bets $9.80
+Tone91: folds
+Uncalled bet ($9.80) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $24.50 from pot
+*** SUMMARY ***
+Total pot $24.50 | Rake $1.22 
+Board [4c 6h Kd 2h 4s]
+Seat 1: mekkmester folded on the Turn 
+Seat 2: Elgringo (button) folded on the Turn 
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: Tone91 (big blind) folded on the River 
+Seat 6: JTs98o collected ($24.50)
+
+
+Weplay Hand #75146349:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:39:42 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: mekkmester ($321.55 in chips)
+Seat 2: Elgringo ($198.92 in chips)
+Seat 3: kole1992 ($107.61 in chips)
+Seat 5: Tone91 ($173.11 in chips)
+Seat 6: JTs98o ($127.49 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 4s]
+mekkmester: folds
+Elgringo: raises $3 to $3
+kole1992: folds
+Tone91: folds
+JTs98o: calls $2
+*** FLOP *** [5c 3d 6d]
+JTs98o: checks
+Elgringo: checks
+*** TURN *** [5c 3d 6d] [6h]
+JTs98o: checks
+Elgringo: bets $4.88
+JTs98o: folds
+Uncalled bet ($4.88) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [5c 3d 6d 6h]
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo collected ($6.50)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Tone91 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded on the Turn 
+
+
+Weplay Hand #75146370:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:40:13 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: mekkmester ($321.55 in chips)
+Seat 2: Elgringo ($202.10 in chips)
+Seat 3: kole1992 ($107.61 in chips)
+Seat 5: Tone91 ($172.61 in chips)
+Seat 6: JTs98o ($124.49 in chips)
+JTs98o: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 6d]
+Elgringo: calls $1
+kole1992: folds
+Tone91: folds
+JTs98o: raises $4.50 to $5
+mekkmester: calls $4
+Elgringo: calls $4
+*** FLOP *** [Ts Kh 2s]
+JTs98o: bets $7.50
+mekkmester: folds
+Elgringo: folds
+Uncalled bet ($7.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $15 from pot
+*** SUMMARY ***
+Total pot $15 | Rake $0.75 
+Board [Ts Kh 2s]
+Seat 1: mekkmester (big blind) folded on the Flop 
+Seat 2: Elgringo folded on the Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) collected ($15)
+
+
+Weplay Hand #75146395:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:40:55 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: mekkmester ($316.55 in chips)
+Seat 2: Elgringo ($197.10 in chips)
+Seat 3: kole1992 ($107.61 in chips)
+Seat 5: Tone91 ($172.61 in chips)
+Seat 6: JTs98o ($133.74 in chips)
+mekkmester: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Js]
+kole1992: folds
+Tone91: folds
+JTs98o: raises $2.50 to $2.50
+mekkmester: folds
+Elgringo: calls $1.50
+*** FLOP *** [8c 4h Jd]
+Elgringo: checks
+JTs98o: bets $3.70
+Elgringo: folds
+Uncalled bet ($3.70) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [8c 4h Jd]
+Seat 1: mekkmester (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) folded on the Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) collected ($5.50)
+
+
+Weplay Hand #75146417:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:41:34 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: mekkmester ($316.05 in chips)
+Seat 2: Elgringo ($194.60 in chips)
+Seat 3: kole1992 ($107.61 in chips)
+Seat 5: Tone91 ($172.61 in chips)
+Seat 6: JTs98o ($136.47 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 5s]
+Tone91: folds
+JTs98o: raises $2.50 to $2.50
+mekkmester: folds
+Elgringo: folds
+kole1992: calls $1.50
+*** FLOP *** [9c 8h 4d]
+kole1992: checks
+JTs98o: bets $2.20
+kole1992: folds
+Uncalled bet ($2.20) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [9c 8h 4d]
+Seat 1: mekkmester (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded on the Flop 
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o collected ($5.50)
+
+
+Weplay Hand #75146440:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:42:19 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: mekkmester ($316.05 in chips)
+Seat 2: Elgringo ($194.10 in chips)
+Seat 3: kole1992 ($105.11 in chips)
+Seat 5: Tone91 ($172.61 in chips)
+Seat 6: JTs98o ($139.20 in chips)
+kole1992: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Kd]
+JTs98o: folds
+mekkmester: folds
+Elgringo: folds
+kole1992: raises $2.50 to $3
+Tone91: calls $2
+*** FLOP *** [7c Td 8d]
+kole1992: checks
+Tone91: bets $2.40
+kole1992: calls $2.40
+*** TURN *** [7c Td 8d] [2h]
+kole1992: checks
+Tone91: checks
+*** RIVER *** [7c Td 8d 2h] [Ks]
+kole1992: bets $10.54
+Tone91: calls $10.54
+*** SHOW DOWN ***
+kole1992: shows [Jc Kd] (a pair of Kings)
+Tone91 has timed out
+Tone91: mucks hand
+kole1992 collected $31.88 from pot
+*** SUMMARY ***
+Total pot $31.88 | Rake $1.59 
+Board [7c Td 8d 2h Ks]
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) showed [Jc Kd] and won ($31.88) with a pair of Kings
+Seat 5: Tone91 (big blind) mucked
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146494:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:43:58 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: mekkmester ($316.05 in chips)
+Seat 2: Elgringo ($194.10 in chips)
+Seat 3: kole1992 ($119.46 in chips)
+Seat 5: Tone91 ($156.67 in chips)
+Seat 6: JTs98o ($139.20 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 3c]
+mekkmester: folds
+Elgringo: raises $3 to $3
+kole1992: folds
+Tone91: folds
+JTs98o: calls $2
+*** FLOP *** [Js Qh 5s]
+JTs98o: checks
+Elgringo: bets $3.25
+JTs98o: calls $3.25
+*** TURN *** [Js Qh 5s] [8s]
+JTs98o: checks
+Elgringo: checks
+*** RIVER *** [Js Qh 5s 8s] [4c]
+JTs98o: checks
+Elgringo: bets $7
+JTs98o: raises $45 to $45
+Elgringo: calls $38
+*** SHOW DOWN ***
+JTs98o: shows [7s As] (a flush, Ace high)
+Elgringo: mucks hand
+JTs98o collected $103 from pot
+*** SUMMARY ***
+Total pot $103 | Rake $5.15 
+Board [Js Qh 5s 8s 4c]
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo mucked
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Tone91 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) showed [7s As] and won ($103) with a flush, Ace high
+
+
+Weplay Hand #75146533:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:45:07 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: mekkmester ($316.05 in chips)
+Seat 2: Elgringo ($142.85 in chips)
+Seat 3: kole1992 ($119.46 in chips)
+Seat 5: Tone91 ($156.17 in chips)
+Seat 6: JTs98o ($185.80 in chips)
+JTs98o: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 8d]
+Mousemode joins the table at seat #4
+Elgringo: raises $3 to $3
+kole1992: folds
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Uncalled bet ($2) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: mekkmester (big blind) folded before Flop 
+Seat 2: Elgringo collected ($2.50)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75146542:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:45:24 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: mekkmester ($315.05 in chips)
+Seat 2: Elgringo ($144.35 in chips)
+Seat 3: kole1992 ($119.46 in chips)
+Seat 4: Mousemode ($30 in chips)
+Seat 5: Tone91 ($156.17 in chips)
+Seat 6: JTs98o ($185.30 in chips)
+mekkmester: posts small blind $0.50
+Elgringo: posts big blind $1
+Mousemode: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 7d]
+kole1992: folds
+Mousemode: checks
+Tone91: folds
+JTs98o: folds
+mekkmester: calls $0.50
+Elgringo: checks
+*** FLOP *** [2d 8s Ah]
+mekkmester: checks
+Elgringo: checks
+Mousemode: checks
+*** TURN *** [2d 8s Ah] [7c]
+mekkmester: checks
+Elgringo: bets $3
+Mousemode: folds
+mekkmester: folds
+Uncalled bet ($3) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [2d 8s Ah 7c]
+Seat 1: mekkmester (small blind) folded on the Turn 
+Seat 2: Elgringo (big blind) collected ($3)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Mousemode (big blind) folded on the Turn 
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75146564:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:46:09 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: mekkmester ($314.05 in chips)
+Seat 2: Elgringo ($146.20 in chips)
+Seat 3: kole1992 ($119.46 in chips)
+Seat 4: Mousemode ($29 in chips)
+Seat 5: Tone91 ($156.17 in chips)
+Seat 6: JTs98o ($185.30 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s As]
+Mousemode: calls $1
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Elgringo: folds
+kole1992: checks
+*** FLOP *** [Ac Qd 9c]
+kole1992: checks
+Mousemode: bets $2
+kole1992: calls $2
+*** TURN *** [Ac Qd 9c] [Kh]
+kole1992: checks
+Mousemode: checks
+*** RIVER *** [Ac Qd 9c Kh] [5c]
+kole1992: checks
+Mousemode: checks
+*** SHOW DOWN ***
+kole1992: shows [8s As] (a pair of Aces)
+Mousemode: mucks hand
+kole1992 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [Ac Qd 9c Kh 5c]
+Seat 1: mekkmester (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) showed [8s As] and won ($6.50) with a pair of Aces
+Seat 4: Mousemode mucked
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146604:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:47:12 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: mekkmester ($314.05 in chips)
+Seat 2: Elgringo ($145.70 in chips)
+Seat 3: kole1992 ($122.64 in chips)
+Seat 4: Mousemode ($26 in chips)
+Seat 5: Tone91 ($156.17 in chips)
+Seat 6: JTs98o ($185.30 in chips)
+kole1992: posts small blind $0.50
+Mousemode: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 3s]
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Elgringo: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to Mousemode
+*** SHOW DOWN ***
+Mousemode: doesn't show hand
+Mousemode collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Mousemode (big blind) collected ($1)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146616:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:47:38 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: mekkmester ($314.05 in chips)
+Seat 2: Elgringo ($145.70 in chips)
+Seat 3: kole1992 ($122.14 in chips)
+Seat 4: Mousemode ($26.50 in chips)
+Seat 5: Tone91 ($156.17 in chips)
+Seat 6: JTs98o ($185.30 in chips)
+Mousemode: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 6d]
+JTs98o: folds
+mekkmester: raises $3 to $3
+Elgringo: folds
+kole1992: folds
+Mousemode: calls $2.50
+Tone91: folds
+*** FLOP *** [Kh 8d 4c]
+Mousemode: bets $1
+mekkmester: raises $8 to $8
+Mousemode: folds
+Uncalled bet ($7) returned to mekkmester
+*** SHOW DOWN ***
+mekkmester has timed out
+mekkmester: doesn't show hand
+mekkmester collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [Kh 8d 4c]
+Seat 1: mekkmester collected ($9)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Mousemode (small blind) folded on the Flop 
+Seat 5: Tone91 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146639:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:48:09 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: mekkmester ($318.60 in chips)
+Seat 2: Elgringo ($145.70 in chips)
+Seat 3: kole1992 ($122.14 in chips)
+Seat 4: Mousemode ($22.50 in chips)
+Seat 5: Tone91 ($155.17 in chips)
+Seat 6: JTs98o ($185.30 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 7s]
+mekkmester: folds
+Elgringo: calls $1
+kole1992: folds
+Mousemode: calls $1
+Tone91: folds
+JTs98o: checks
+*** FLOP *** [Js Ks 6h]
+JTs98o: checks
+Elgringo: checks
+Mousemode: bets $1
+JTs98o: calls $1
+Elgringo: calls $1
+*** TURN *** [Js Ks 6h] [4c]
+JTs98o: checks
+Elgringo: checks
+Mousemode: bets $2
+JTs98o: calls $2
+Elgringo: calls $2
+*** RIVER *** [Js Ks 6h 4c] [Kd]
+JTs98o: checks
+Elgringo: checks
+Mousemode: bets $4
+JTs98o: calls $4
+Elgringo: calls $4
+*** SHOW DOWN ***
+Mousemode: shows [4s Kc] (a full house, Kings full of Fours)
+JTs98o: mucks hand
+Elgringo has timed out
+Elgringo: mucks hand
+Mousemode collected $24.50 from pot
+*** SUMMARY ***
+Total pot $24.50 | Rake $1.22 
+Board [Js Ks 6h 4c Kd]
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo mucked
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Mousemode (button) showed [4s Kc] and won ($24.50) with a full house, Kings full of Fours
+Seat 5: Tone91 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) mucked
+
+
+Weplay Hand #75146713:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:50:03 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: mekkmester ($318.60 in chips)
+Seat 2: Elgringo ($137.70 in chips)
+Seat 3: kole1992 ($122.14 in chips)
+Seat 4: Mousemode ($37.78 in chips)
+Seat 5: Tone91 ($154.67 in chips)
+Seat 6: JTs98o ($177.30 in chips)
+JTs98o: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 9c]
+Elgringo: folds
+kole1992: folds
+Mousemode: calls $1
+Tone91: folds
+JTs98o: folds
+mekkmester: checks
+*** FLOP *** [8d 7h 9h]
+mekkmester: checks
+Mousemode: bets $1
+mekkmester: folds
+Uncalled bet ($1) returned to Mousemode
+*** SHOW DOWN ***
+Mousemode: doesn't show hand
+Mousemode collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [8d 7h 9h]
+Seat 1: mekkmester (big blind) folded on the Flop 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Mousemode collected ($2.50)
+Seat 5: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75146732:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:50:38 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: mekkmester ($317.60 in chips)
+Seat 2: Elgringo ($137.70 in chips)
+Seat 3: kole1992 ($122.14 in chips)
+Seat 4: Mousemode ($39.16 in chips)
+Seat 5: Tone91 ($154.67 in chips)
+Seat 6: JTs98o ($176.80 in chips)
+mekkmester: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Qs]
+kole1992: folds
+Mousemode: folds
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Uncalled bet ($0.50) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: mekkmester (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) collected ($1)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Mousemode folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75146747:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:50:59 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: mekkmester ($317.10 in chips)
+Seat 2: Elgringo ($138.20 in chips)
+Seat 3: kole1992 ($122.14 in chips)
+Seat 4: Mousemode ($39.16 in chips)
+Seat 5: Tone91 ($154.67 in chips)
+Seat 6: JTs98o ($176.80 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Th]
+Mousemode: calls $1
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Elgringo: raises $4.50 to $5
+kole1992: folds
+Mousemode: calls $4
+*** FLOP *** [As 7h 5s]
+Elgringo: bets $3.63
+Mousemode: calls $3.63
+*** TURN *** [As 7h 5s] [Jc]
+Elgringo: bets $8
+Mousemode: folds
+Uncalled bet ($8) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $18.26 from pot
+*** SUMMARY ***
+Total pot $18.26 | Rake $0.91 
+Board [As 7h 5s Jc]
+Seat 1: mekkmester (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) collected ($18.26)
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: Mousemode folded on the Turn 
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146782:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:51:53 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: mekkmester ($317.10 in chips)
+Seat 2: Elgringo ($146.92 in chips)
+Seat 3: kole1992 ($121.14 in chips)
+Seat 4: Mousemode ($30.53 in chips)
+Seat 5: Tone91 ($154.67 in chips)
+Seat 6: JTs98o ($176.80 in chips)
+kole1992: posts small blind $0.50
+Mousemode: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Jd]
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Elgringo: raises $3 to $3
+kole1992: raises $11.52 to $12.02
+Mousemode: folds
+Elgringo: calls $9.02
+*** FLOP *** [2c 5h Td]
+Mousemode leaves the table
+kole1992: bets $18.27
+Elgringo: calls $18.27
+*** TURN *** [2c 5h Td] [4c]
+Krisztus joins the table at seat #4
+kole1992: checks
+Elgringo: bets $35
+kole1992: folds
+Uncalled bet ($35) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $61.58 from pot
+*** SUMMARY ***
+Total pot $61.58 | Rake $3.07 
+Board [2c 5h Td 4c]
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo (button) collected ($61.58)
+Seat 3: kole1992 (small blind) folded on the Turn 
+Seat 4: Mousemode (big blind) folded before Flop 
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146838:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:53:26 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: mekkmester ($317.10 in chips)
+Seat 2: Elgringo ($175.14 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Tone91 ($154.67 in chips)
+Seat 6: JTs98o ($176.80 in chips)
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Kh]
+JTs98o: raises $2.50 to $2.50
+mekkmester: folds
+Elgringo: calls $2.50
+kole1992: raises $7.50 to $7.50
+Tone91: folds
+JTs98o: raises $17.50 to $20
+Elgringo: folds
+kole1992: raises $92.50 to $100 and is all-in
+JTs98o: folds
+Uncalled bet ($80) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $43.50 from pot
+*** SUMMARY ***
+Total pot $43.50 | Rake $0 
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop 
+Seat 3: kole1992 (button) collected ($43.50)
+Seat 5: Tone91 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop 
+
+
+Weplay Hand #75146869:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:54:20 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: mekkmester ($317.10 in chips)
+Seat 2: Elgringo ($172.64 in chips)
+Seat 3: kole1992 ($123.50 in chips)
+Seat 4: Krisztus ($31.32 in chips)
+Seat 5: Tone91 ($153.67 in chips)
+Seat 6: JTs98o ($156.80 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+Krisztus: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 4d]
+mekkmester: folds
+Elgringo: raises $3 to $3
+kole1992: folds
+Krisztus: folds
+Tone91: folds
+JTs98o: calls $2
+*** FLOP *** [Th 3h 4s]
+JTs98o: checks
+Elgringo: checks
+*** TURN *** [Th 3h 4s] [6h]
+JTs98o: bets $7.50
+Elgringo: calls $7.50
+*** RIVER *** [Th 3h 4s 6h] [Js]
+JTs98o: bets $22.50
+Elgringo: folds
+Uncalled bet ($22.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $22.50 from pot
+*** SUMMARY ***
+Total pot $22.50 | Rake $1.12 
+Board [Th 3h 4s 6h Js]
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo folded on the River 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Krisztus (button) (big blind) folded before Flop 
+Seat 5: Tone91 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) collected ($22.50)
+
+
+Weplay Hand #75146901:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:55:12 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: mekkmester ($317.10 in chips)
+Seat 2: Elgringo ($162.14 in chips)
+Seat 3: kole1992 ($123.50 in chips)
+Seat 4: Krisztus ($30.32 in chips)
+Seat 5: Tone91 ($153.17 in chips)
+Seat 6: JTs98o ($167.68 in chips)
+JTs98o: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 7c]
+Elgringo: folds
+kole1992: folds
+Krisztus: folds
+Tone91: raises $2.50 to $2.50
+JTs98o: folds
+mekkmester: folds
+Uncalled bet ($1.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: mekkmester (big blind) folded before Flop 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Krisztus folded before Flop (didn't bet)
+Seat 5: Tone91 (button) collected ($2.50)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75146905:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:55:34 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: mekkmester ($316.10 in chips)
+Seat 2: Elgringo ($162.14 in chips)
+Seat 3: kole1992 ($123.50 in chips)
+Seat 4: Krisztus ($30.32 in chips)
+Seat 5: Tone91 ($154.67 in chips)
+Seat 6: JTs98o ($167.18 in chips)
+mekkmester: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Kc]
+kole1992: raises $2.20 to $2.20
+Krisztus: folds
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Elgringo: calls $1.20
+*** FLOP *** [3c Jc 6c]
+Elgringo: checks
+kole1992: bets $1.17
+Elgringo: calls $1.17
+*** TURN *** [3c Jc 6c] [As]
+Elgringo: checks
+kole1992: bets $3.38
+Elgringo: calls $3.38
+*** RIVER *** [3c Jc 6c As] [7s]
+Elgringo: checks
+kole1992: bets $7.13
+Elgringo: calls $7.13
+*** SHOW DOWN ***
+kole1992: shows [Tc Kc] (a flush, King high)
+Elgringo: shows [Ac 5d] (a pair of Aces)
+kole1992 collected $28.26 from pot
+*** SUMMARY ***
+Total pot $28.26 | Rake $1.41 
+Board [3c Jc 6c As 7s]
+Seat 1: mekkmester (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) showed [Ac 5d] and lost with a pair of Aces
+Seat 3: kole1992 showed [Tc Kc] and won ($28.26) with a flush, King high
+Seat 4: Krisztus folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75146925:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:57:00 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: mekkmester ($315.60 in chips)
+Seat 2: Elgringo ($148.26 in chips)
+Seat 3: kole1992 ($136.47 in chips)
+Seat 4: Krisztus ($30.32 in chips)
+Seat 5: Tone91 ($154.67 in chips)
+Seat 6: JTs98o ($167.18 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Ks]
+Krisztus: folds
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Elgringo: raises $2.50 to $3
+kole1992: calls $2
+*** FLOP *** [8h Ad Kh]
+Elgringo: bets $3
+kole1992: calls $3
+*** TURN *** [8h Ad Kh] [Js]
+Elgringo: checks
+kole1992: checks
+*** RIVER *** [8h Ad Kh Js] [9d]
+Elgringo: checks
+kole1992: bets $12
+Elgringo: folds
+Uncalled bet ($12) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [8h Ad Kh Js 9d]
+Seat 1: mekkmester (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded on the River 
+Seat 3: kole1992 (big blind) collected ($12)
+Seat 4: Krisztus folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146941:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:57:58 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: mekkmester ($315.60 in chips)
+Seat 2: Elgringo ($142.26 in chips)
+Seat 3: kole1992 ($141.87 in chips)
+Seat 4: Krisztus ($30.32 in chips)
+Seat 5: Tone91 ($154.67 in chips)
+Seat 6: JTs98o ($167.18 in chips)
+kole1992: posts small blind $0.50
+Krisztus: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 7h]
+Tone91: folds
+JTs98o: folds
+mekkmester: raises $3 to $3
+Elgringo: folds
+kole1992: folds
+Krisztus: folds
+Uncalled bet ($2) returned to mekkmester
+*** SHOW DOWN ***
+mekkmester has timed out
+mekkmester: doesn't show hand
+mekkmester collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: mekkmester collected ($2.50)
+Seat 2: Elgringo (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Krisztus (big blind) folded before Flop 
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75146949:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:58:22 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: mekkmester ($317.10 in chips)
+Seat 2: Elgringo ($142.26 in chips)
+Seat 3: kole1992 ($141.37 in chips)
+Seat 4: Krisztus ($29.32 in chips)
+Seat 5: Tone91 ($154.67 in chips)
+Seat 6: JTs98o ($167.18 in chips)
+Krisztus: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 8h]
+JTs98o: raises $2.50 to $2.50
+mekkmester: folds
+Elgringo: folds
+kole1992: folds
+Krisztus: folds
+Tone91: folds
+Uncalled bet ($1.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Krisztus (small blind) folded before Flop 
+Seat 5: Tone91 (big blind) folded before Flop 
+Seat 6: JTs98o collected ($2.50)
+
+
+Weplay Hand #75146952:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:58:39 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: mekkmester ($317.10 in chips)
+Seat 2: Elgringo ($142.26 in chips)
+Seat 3: kole1992 ($141.37 in chips)
+Seat 4: Krisztus ($28.82 in chips)
+Seat 5: Tone91 ($153.67 in chips)
+Seat 6: JTs98o ($168.68 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Jc]
+mekkmester: raises $3 to $3
+Elgringo: folds
+kole1992: folds
+Krisztus: folds
+Tone91: calls $2.50
+JTs98o: folds
+*** FLOP *** [8s 7h 7s]
+Tone91: checks
+mekkmester: checks
+*** TURN *** [8s 7h 7s] [3c]
+Tone91: checks
+mekkmester: checks
+*** RIVER *** [8s 7h 7s 3c] [4c]
+Tone91: bets $1.80
+mekkmester: folds
+Uncalled bet ($1.80) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [8s 7h 7s 3c 4c]
+Seat 1: mekkmester folded on the River 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Krisztus (button) folded before Flop (didn't bet)
+Seat 5: Tone91 (small blind) collected ($7)
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75146971:  Hold'em No Limit ($0.50/$1) - 2026/02/08 21:59:49 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: mekkmester ($314.10 in chips)
+Seat 2: Elgringo ($142.26 in chips)
+Seat 3: kole1992 ($141.37 in chips)
+Seat 4: Krisztus ($28.82 in chips)
+Seat 5: Tone91 ($157.32 in chips)
+Seat 6: JTs98o ($167.68 in chips)
+JTs98o: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 9d]
+Elgringo: raises $3 to $3
+kole1992: folds
+Krisztus: folds
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Uncalled bet ($2) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: mekkmester (big blind) folded before Flop 
+Seat 2: Elgringo collected ($2.50)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Krisztus folded before Flop (didn't bet)
+Seat 5: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75146980:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:00:19 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: mekkmester ($313.10 in chips)
+Seat 2: Elgringo ($143.76 in chips)
+Seat 3: kole1992 ($141.37 in chips)
+Seat 4: Krisztus ($28.82 in chips)
+Seat 5: Tone91 ($157.32 in chips)
+Seat 6: JTs98o ($167.18 in chips)
+mekkmester: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 3c]
+kole1992: folds
+Krisztus: calls $1
+Tone91: raises $3.50 to $3.50
+JTs98o: folds
+mekkmester: folds
+Elgringo: folds
+Krisztus: calls $2.50
+*** FLOP *** [4d 6d 9c]
+Krisztus: checks
+Tone91: bets $5.70
+Krisztus: folds
+Uncalled bet ($5.70) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $8.50 from pot
+*** SUMMARY ***
+Total pot $8.50 | Rake $0.42 
+Board [4d 6d 9c]
+Seat 1: mekkmester (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Krisztus folded on the Flop 
+Seat 5: Tone91 collected ($8.50)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75146996:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:01:00 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: mekkmester ($312.60 in chips)
+Seat 2: Elgringo ($142.76 in chips)
+Seat 3: kole1992 ($141.37 in chips)
+Seat 4: Krisztus ($25.32 in chips)
+Seat 5: Tone91 ($161.90 in chips)
+Seat 6: JTs98o ($167.18 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 5h]
+Krisztus: calls $1
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Elgringo: raises $4.50 to $5
+kole1992: raises $15.51 to $16.51
+Krisztus: folds
+Elgringo: calls $11.51
+*** FLOP *** [7h Tc Jd]
+Elgringo: checks
+kole1992: checks
+*** TURN *** [7h Tc Jd] [Qd]
+Elgringo: checks
+kole1992: bets $17.23
+Elgringo: calls $17.23
+*** RIVER *** [7h Tc Jd Qd] [3c]
+Elgringo: checks
+kole1992: bets $107.63 and is all-in
+Elgringo: calls $107.63
+*** SHOW DOWN ***
+kole1992: shows [Ah 5h] (high card Ace)
+Elgringo: shows [Qs Ad] (a pair of Queens)
+Elgringo collected $283.74 from pot
+*** SUMMARY ***
+Total pot $283.74 | Rake $6.50 
+Board [7h Tc Jd Qd 3c]
+Seat 1: mekkmester (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) showed [Qs Ad] and won ($283.74) with a pair of Queens
+Seat 3: kole1992 (big blind) showed [Ah 5h] and lost with high card Ace
+Seat 4: Krisztus folded before Flop 
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75147046:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:02:38 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: mekkmester ($312.60 in chips)
+Seat 2: Elgringo ($278.63 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Krisztus ($24.32 in chips)
+Seat 5: Tone91 ($161.90 in chips)
+Seat 6: JTs98o ($167.18 in chips)
+kole1992: posts small blind $0.50
+Krisztus: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 7h]
+Tone91: folds
+JTs98o: raises $2.50 to $2.50
+mekkmester: folds
+Elgringo: calls $2.50
+kole1992: folds
+Krisztus: calls $1.50
+*** FLOP *** [3h Ad 9c]
+Krisztus: checks
+JTs98o: checks
+Elgringo: checks
+*** TURN *** [3h Ad 9c] [Ah]
+Krisztus: bets $1
+JTs98o: folds
+Elgringo: calls $1
+*** RIVER *** [3h Ad 9c Ah] [2d]
+Krisztus: bets $3
+Elgringo: calls $3
+*** SHOW DOWN ***
+Krisztus: shows [5h Qh] (a pair of Aces)
+Elgringo: shows [8s 9h] (two pair, Aces and Nines)
+Elgringo collected $16 from pot
+*** SUMMARY ***
+Total pot $16 | Rake $0.80 
+Board [3h Ad 9c Ah 2d]
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo (button) showed [8s 9h] and won ($16) with two pair, Aces and Nines
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Krisztus (big blind) showed [5h Qh] and lost with a pair of Aces
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o folded on the Turn 
+
+
+Weplay Hand #75147074:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:03:39 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: mekkmester ($312.60 in chips)
+Seat 2: Elgringo ($287.33 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Krisztus ($17.82 in chips)
+Seat 5: Tone91 ($161.90 in chips)
+Seat 6: JTs98o ($164.68 in chips)
+Krisztus: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 6c]
+JTs98o: folds
+mekkmester: calls $1
+Elgringo: folds
+kole1992: folds
+Krisztus: raises $17.32 to $17.82 and is all-in
+Tone91: folds
+mekkmester: folds
+Uncalled bet ($16.82) returned to Krisztus
+*** SHOW DOWN ***
+Krisztus has timed out
+Krisztus: doesn't show hand
+Krisztus collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: mekkmester folded before Flop 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Krisztus (small blind) collected ($3)
+Seat 5: Tone91 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75147086:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:03:59 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: mekkmester ($311.60 in chips)
+Seat 2: Elgringo ($287.33 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Krisztus ($19.82 in chips)
+Seat 5: Tone91 ($160.90 in chips)
+Seat 6: JTs98o ($164.68 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9h]
+mekkmester: raises $2 to $2
+Elgringo: folds
+kole1992: folds
+Krisztus: raises $19.82 to $19.82 and is all-in
+Tone91: folds
+JTs98o: folds
+mekkmester: calls $17.82
+*** FLOP *** [4s 8d 6h]
+*** TURN *** [4s 8d 6h] [Ah]
+*** RIVER *** [4s 8d 6h Ah] [8h]
+*** SHOW DOWN ***
+mekkmester: shows [Qs Ac] (two pair, Aces and Eights)
+Krisztus: shows [Ad Th] (two pair, Aces and Eights)
+mekkmester collected $41.14 from pot
+*** SUMMARY ***
+Total pot $41.14 | Rake $2.05 
+Board [4s 8d 6h Ah 8h]
+Seat 1: mekkmester showed [Qs Ac] and won ($41.14) with two pair, Aces and Eights
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Krisztus (button) showed [Ad Th] and lost with two pair, Aces and Eights
+Seat 5: Tone91 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75147106:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:04:44 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: mekkmester ($330.87 in chips)
+Seat 2: Elgringo ($287.33 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 5: Tone91 ($160.40 in chips)
+Seat 6: JTs98o ($163.68 in chips)
+JTs98o: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Qc]
+Elgringo: folds
+kole1992: raises $2.20 to $2.20
+Tone91: folds
+JTs98o: folds
+mekkmester: calls $1.20
+*** FLOP *** [Ks As 6h]
+mekkmester: checks
+kole1992: bets $6.12
+mekkmester: folds
+Uncalled bet ($6.12) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4.90 from pot
+*** SUMMARY ***
+Total pot $4.90 | Rake $0.24 
+Board [Ks As 6h]
+Seat 1: mekkmester (big blind) folded on the Flop 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 collected ($4.90)
+Seat 5: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75147125:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:05:30 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: mekkmester ($328.67 in chips)
+Seat 2: Elgringo ($287.33 in chips)
+Seat 3: kole1992 ($102.46 in chips)
+Seat 5: Tone91 ($160.40 in chips)
+Seat 6: JTs98o ($163.18 in chips)
+mekkmester: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 3s]
+kole1992: folds
+Tone91: folds
+JTs98o has timed out
+JTs98o: folds
+mekkmester: folds
+Uncalled bet ($0.50) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: mekkmester (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) collected ($1)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75147140:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:06:01 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: mekkmester ($328.17 in chips)
+Seat 2: Elgringo ($287.83 in chips)
+Seat 3: kole1992 ($102.46 in chips)
+Seat 5: Tone91 ($160.40 in chips)
+Seat 6: JTs98o ($163.18 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Ad]
+Tone91: raises $2.50 to $2.50
+JTs98o: folds
+mekkmester: calls $2.50
+Elgringo: calls $2
+kole1992: raises $15.50 to $16.50
+Tone91: folds
+mekkmester: folds
+Elgringo: folds
+Uncalled bet ($14) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0 
+Seat 1: mekkmester (button) folded before Flop 
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) collected ($10)
+Seat 5: Tone91 folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75147168:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:06:56 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: mekkmester ($325.67 in chips)
+Seat 2: Elgringo ($285.33 in chips)
+Seat 3: kole1992 ($109.96 in chips)
+Seat 5: Tone91 ($157.90 in chips)
+Seat 6: JTs98o ($163.18 in chips)
+kole1992: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 4h]
+JTs98o: folds
+mekkmester: folds
+Elgringo: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 5: Tone91 (big blind) collected ($1)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75147182:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:07:22 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: mekkmester ($325.67 in chips)
+Seat 2: Elgringo ($285.33 in chips)
+Seat 3: kole1992 ($109.46 in chips)
+Seat 5: Tone91 ($158.40 in chips)
+Seat 6: JTs98o ($163.18 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 5c]
+mekkmester: folds
+Elgringo: folds
+kole1992: folds
+Tone91: raises $2.50 to $3
+JTs98o: calls $2
+*** FLOP *** [6s 7d 8c]
+Tone91: checks
+JTs98o: bets $4
+Tone91: raises $14 to $14
+JTs98o: calls $10
+*** TURN *** [6s 7d 8c] [As]
+Tone91: bets $13.60
+JTs98o: raises $40 to $40
+Tone91: folds
+Uncalled bet ($26.40) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $61.20 from pot
+*** SUMMARY ***
+Total pot $61.20 | Rake $3.06 
+Board [6s 7d 8c As]
+Seat 1: mekkmester folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Tone91 (small blind) folded on the Turn 
+Seat 6: JTs98o (big blind) collected ($61.20)
+
+
+Weplay Hand #75147222:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:09:04 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: mekkmester ($325.67 in chips)
+Seat 2: Elgringo ($285.33 in chips)
+Seat 3: kole1992 ($109.46 in chips)
+Seat 5: Tone91 ($127.80 in chips)
+Seat 6: JTs98o ($190.72 in chips)
+JTs98o: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 4s]
+Elgringo: folds
+kole1992: folds
+Tone91: raises $2.50 to $2.50
+JTs98o: folds
+mekkmester: folds
+Uncalled bet ($1.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91: doesn't show hand
+Tone91 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: mekkmester (big blind) folded before Flop 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 (button) collected ($2.50)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75147234:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:09:30 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: mekkmester ($324.67 in chips)
+Seat 2: Elgringo ($285.33 in chips)
+Seat 3: kole1992 ($109.46 in chips)
+Seat 5: Tone91 ($129.30 in chips)
+Seat 6: JTs98o ($190.22 in chips)
+mekkmester: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 7h]
+kole1992: raises $2.20 to $2.20
+Tone91: folds
+JTs98o: folds
+mekkmester: folds
+Elgringo: folds
+Uncalled bet ($1.20) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: mekkmester (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) folded before Flop 
+Seat 3: kole1992 collected ($2.50)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75147246:  Hold'em No Limit ($0.50/$1) - 2026/02/08 22:09:47 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: mekkmester ($324.17 in chips)
+Seat 2: Elgringo ($284.33 in chips)
+Seat 3: kole1992 ($110.96 in chips)
+Seat 5: Tone91 ($129.30 in chips)
+Seat 6: JTs98o ($190.22 in chips)
+Elgringo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 4s]
+Tone91: raises $2.50 to $2.50
+JTs98o: folds
+mekkmester: folds
+Elgringo: folds
+kole1992: calls $1.50
+*** FLOP *** [2h As Ts]
+kole1992: checks
+Tone91: checks
+*** TURN *** [2h As Ts] [8d]
+kole1992: checks
+Tone91: bets $2.20
+kole1992: folds
+Uncalled bet ($2.20) returned to Tone91
+*** SHOW DOWN ***
+kole1992: sits out 
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [2h As Ts 8d]
+Seat 1: mekkmester (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded on the Turn 
+Seat 5: Tone91 collected ($5.50)
+Seat 6: JTs98o folded before Flop (didn't bet)

@@ -1,0 +1,1468 @@
+﻿Weplay Hand #71448992:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:40:47 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Ben003 ($45.25 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($59.74 in chips)
+Seat 4: Pit1987 ($63.92 in chips)
+Seat 5: JTs98o ($71.67 in chips)
+Seat 6: ryzenn ($50.69 in chips)
+Pit1987: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Ac]
+ryzenn: raises $1.25 to $1.25
+Ben003: folds
+WinHof: calls $1.25
+kole1992: raises $4.50 to $4.50
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+WinHof: calls $3.25
+*** FLOP *** [4c 9h 3c]
+WinHof: checks
+kole1992: bets $4.88
+WinHof: folds
+Uncalled bet ($4.88) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [4c 9h 3c]
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof folded on the Flop 
+Seat 3: kole1992 (button) collected ($11)
+Seat 4: Pit1987 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: ryzenn folded before Flop 
+
+
+Weplay Hand #71449089:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:41:37 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Ben003 ($45.25 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($65.69 in chips)
+Seat 4: Pit1987 ($63.67 in chips)
+Seat 5: JTs98o ($71.17 in chips)
+Seat 6: ryzenn ($50 in chips)
+JTs98o: posts small blind $0.25
+ryzenn: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 5h]
+Ben003: calls $0.50
+WinHof: raises $2.50 to $2.50
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+Ben003: calls $2
+*** FLOP *** [Js Ac Qc]
+Ben003: checks
+WinHof: bets $3.80
+Ben003: calls $3.80
+*** TURN *** [Js Ac Qc] [6d]
+Ben003: checks
+WinHof: checks
+*** RIVER *** [Js Ac Qc 6d] [2s]
+Ben003: checks
+WinHof: checks
+*** SHOW DOWN ***
+Ben003: shows [Kd Qd] (a pair of Queens)
+WinHof: mucks hand
+Ben003 collected $13.35 from pot
+*** SUMMARY ***
+Total pot $13.35 | Rake $0.66 
+Board [Js Ac Qc 6d 2s]
+Seat 1: Ben003 showed [Kd Qd] and won ($13.35) with a pair of Queens
+Seat 2: WinHof mucked
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) folded before Flop 
+
+
+Weplay Hand #71449161:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:42:20 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Ben003 ($51.64 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($65.69 in chips)
+Seat 4: Pit1987 ($63.67 in chips)
+Seat 5: JTs98o ($70.92 in chips)
+Seat 6: ryzenn ($49.50 in chips)
+ryzenn: posts small blind $0.25
+Ben003: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Td]
+WinHof: folds
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+Uncalled bet ($0.25) returned to Ben003
+*** SHOW DOWN ***
+Ben003 has timed out
+Ben003: doesn't show hand
+Ben003 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Ben003 (big blind) collected ($0.50)
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #71449202:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:42:44 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Ben003 ($51.89 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($65.69 in chips)
+Seat 4: Pit1987 ($63.67 in chips)
+Seat 5: JTs98o ($70.92 in chips)
+Seat 6: ryzenn ($50 in chips)
+Ben003: posts small blind $0.25
+WinHof: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 7d]
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+Ben003: calls $0.25
+WinHof: checks
+*** FLOP *** [Qc Qs 7c]
+Ben003: checks
+WinHof: checks
+*** TURN *** [Qc Qs 7c] [Tc]
+Ben003: checks
+WinHof: checks
+*** RIVER *** [Qc Qs 7c Tc] [Jc]
+Ben003: checks
+WinHof: checks
+*** SHOW DOWN ***
+Ben003: shows [Ts Qh] (a full house, Queens full of Tens)
+WinHof: mucks hand
+Ben003 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [Qc Qs 7c Tc Jc]
+Seat 1: Ben003 (small blind) showed [Ts Qh] and won ($1) with a full house, Queens full of Tens
+Seat 2: WinHof (big blind) mucked
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71449292:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:43:40 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Ben003 ($52.34 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($65.69 in chips)
+Seat 4: Pit1987 ($63.67 in chips)
+Seat 5: JTs98o ($70.92 in chips)
+Seat 6: ryzenn ($50 in chips)
+WinHof: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Qh]
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+Ben003: calls $0.50
+WinHof: folds
+kole1992: checks
+*** FLOP *** [Ac Qd 7h]
+kole1992: checks
+Ben003: checks
+*** TURN *** [Ac Qd 7h] [5h]
+kole1992: checks
+Ben003: checks
+*** RIVER *** [Ac Qd 7h 5h] [4c]
+kole1992: checks
+Ben003: checks
+*** SHOW DOWN ***
+kole1992: shows [9c Qh] (a pair of Queens)
+Ben003 has timed out
+Ben003: mucks hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [Ac Qd 7h 5h 4c]
+Seat 1: Ben003 (button) mucked
+Seat 2: WinHof (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) showed [9c Qh] and won ($1.25) with a pair of Queens
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #71449353:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:44:26 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Ben003 ($51.84 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($66.38 in chips)
+Seat 4: Pit1987 ($63.67 in chips)
+Seat 5: JTs98o ($70.92 in chips)
+Seat 6: ryzenn ($50 in chips)
+kole1992: posts small blind $0.25
+Pit1987: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 8c]
+JTs98o: folds
+ryzenn: folds
+Ben003: folds
+WinHof: raises $1.50 to $1.50
+kole1992: folds
+Pit1987: calls $1
+*** FLOP *** [7h Qs Ts]
+Pit1987: checks
+WinHof: checks
+*** TURN *** [7h Qs Ts] [7s]
+Pit1987: bets $1.63
+WinHof: folds
+Uncalled bet ($1.63) returned to Pit1987
+*** SHOW DOWN ***
+Pit1987 has timed out
+Pit1987: doesn't show hand
+Pit1987 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [7h Qs Ts 7s]
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof (button) folded on the Turn 
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Pit1987 (big blind) collected ($3.25)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #71449400:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:45:03 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Ben003 ($51.84 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($66.13 in chips)
+Seat 4: Pit1987 ($65.26 in chips)
+Seat 5: JTs98o ($70.92 in chips)
+Seat 6: ryzenn ($50 in chips)
+Pit1987: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Jd]
+ryzenn: raises $1.25 to $1.25
+Ben003: folds
+WinHof: folds
+kole1992: folds
+Pit1987: calls $1
+JTs98o: calls $0.75
+*** FLOP *** [8h 8c 7h]
+Pit1987: checks
+JTs98o: checks
+ryzenn: checks
+*** TURN *** [8h 8c 7h] [6c]
+Pit1987: checks
+JTs98o: bets $2.75
+ryzenn: folds
+Pit1987: folds
+Uncalled bet ($2.75) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [8h 8c 7h 6c]
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Pit1987 (small blind) folded on the Turn 
+Seat 5: JTs98o (big blind) collected ($3.75)
+Seat 6: ryzenn folded on the Turn 
+
+
+Weplay Hand #71449474:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:45:55 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Ben003 ($51.84 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($66.13 in chips)
+Seat 4: Pit1987 ($64.01 in chips)
+Seat 5: JTs98o ($73.24 in chips)
+Seat 6: ryzenn ($50 in chips)
+JTs98o: posts small blind $0.25
+ryzenn: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Kh]
+Ben003: raises $1.50 to $1.50
+WinHof: folds
+kole1992: folds
+Pit1987: folds
+JTs98o: calls $1.25
+ryzenn: folds
+*** FLOP *** [9h Ah 7c]
+JTs98o: checks
+Ben003: bets $1.75
+JTs98o: raises $4.55 to $4.55
+Ben003: calls $2.80
+*** TURN *** [9h Ah 7c] [Kc]
+JTs98o: checks
+Ben003: checks
+*** RIVER *** [9h Ah 7c Kc] [4h]
+JTs98o: checks
+Ben003: checks
+*** SHOW DOWN ***
+JTs98o: shows [Js Ts] (high card Ace)
+Ben003: shows [Jd Ac] (a pair of Aces)
+Ben003 collected $12.60 from pot
+*** SUMMARY ***
+Total pot $12.60 | Rake $0.63 
+Board [9h Ah 7c Kc 4h]
+Seat 1: Ben003 showed [Jd Ac] and won ($12.60) with a pair of Aces
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) showed [Js Ts] and lost with high card Ace
+Seat 6: ryzenn (big blind) folded before Flop 
+
+
+Weplay Hand #71449538:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:46:48 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Ben003 ($57.76 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($66.13 in chips)
+Seat 4: Pit1987 ($64.01 in chips)
+Seat 5: JTs98o ($67.19 in chips)
+Seat 6: ryzenn ($49.50 in chips)
+ryzenn: posts small blind $0.25
+Ben003: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 4d]
+WinHof: folds
+kole1992: folds
+Pit1987: raises $1.50 to $1.50
+JTs98o: folds
+ryzenn: folds
+Ben003: folds
+Uncalled bet ($1) returned to Pit1987
+*** SHOW DOWN ***
+Pit1987 has timed out
+Pit1987: doesn't show hand
+Pit1987 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Ben003 (big blind) folded before Flop 
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 collected ($1.25)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #71449558:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:47:07 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Ben003 ($57.26 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($66.13 in chips)
+Seat 4: Pit1987 ($64.76 in chips)
+Seat 5: JTs98o ($67.19 in chips)
+Seat 6: ryzenn ($50 in chips)
+Ben003: posts small blind $0.25
+WinHof: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9d]
+kole1992: folds
+Pit1987: raises $1.50 to $1.50
+JTs98o: raises $4 to $4
+ryzenn: folds
+Ben003: folds
+WinHof: calls $3.50
+Pit1987: raises $10.50 to $12
+JTs98o: folds
+WinHof: folds
+Uncalled bet ($8) returned to Pit1987
+*** SHOW DOWN ***
+Pit1987 has timed out
+Pit1987: doesn't show hand
+Pit1987 collected $12.25 from pot
+*** SUMMARY ***
+Total pot $12.25 | Rake $0 
+Seat 1: Ben003 (small blind) folded before Flop 
+Seat 2: WinHof (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 collected ($12.25)
+Seat 5: JTs98o folded before Flop 
+Seat 6: ryzenn (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71449610:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:47:57 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Ben003 ($57.01 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($66.13 in chips)
+Seat 4: Pit1987 ($73.01 in chips)
+Seat 5: JTs98o ($63.19 in chips)
+Seat 6: ryzenn ($50 in chips)
+WinHof: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 5d]
+Pit1987: raises $1.50 to $1.50
+JTs98o: folds
+ryzenn: folds
+Ben003: folds
+WinHof: calls $1.25
+kole1992: folds
+*** FLOP *** [5c 8h 7h]
+WinHof: bets $3.50
+Pit1987: folds
+Uncalled bet ($3.50) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [5c 8h 7h]
+Seat 1: Ben003 (button) folded before Flop (didn't bet)
+Seat 2: WinHof (small blind) collected ($3.50)
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: Pit1987 folded on the Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #71449649:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:48:33 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Ben003 ($57.01 in chips)
+Seat 2: WinHof ($26.83 in chips)
+Seat 3: kole1992 ($65.63 in chips)
+Seat 4: Pit1987 ($71.51 in chips)
+Seat 5: JTs98o ($63.19 in chips)
+Seat 6: ryzenn ($50 in chips)
+kole1992: posts small blind $0.25
+Pit1987: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 4c]
+Andris joins the table at seat #8
+JTs98o: folds
+ryzenn: folds
+Ben003: folds
+WinHof: raises $1.25 to $1.25
+kole1992: folds
+Pit1987: raises $3.25 to $3.75
+WinHof: calls $2.50
+*** FLOP *** [Ac 4s Qs]
+Pit1987: bets $3.88
+WinHof: folds
+Uncalled bet ($3.88) returned to Pit1987
+*** SHOW DOWN ***
+Pit1987 has timed out
+Pit1987: doesn't show hand
+Pit1987 collected $7.75 from pot
+*** SUMMARY ***
+Total pot $7.75 | Rake $0.38 
+Board [Ac 4s Qs]
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof (button) folded on the Flop 
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Pit1987 (big blind) collected ($7.75)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #71449696:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:49:28 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Ben003 ($57.01 in chips)
+Seat 2: WinHof ($25 in chips)
+Seat 3: kole1992 ($65.38 in chips)
+Seat 4: Pit1987 ($75.13 in chips)
+Seat 5: JTs98o ($63.19 in chips)
+Seat 6: ryzenn ($50 in chips)
+Seat 8: Andris ($15 in chips)
+Pit1987: posts small blind $0.25
+JTs98o: posts big blind $0.50
+Andris: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 4c]
+ryzenn: folds
+Andris: raises $1.50 to $2
+Ben003: folds
+WinHof: raises $7 to $7
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+Andris: calls $5
+*** FLOP *** [9h 6c As]
+Andris: checks
+WinHof: bets $4.85
+Andris: raises $8 to $8 and is all-in
+WinHof: calls $3.15
+*** TURN *** [9h 6c As] [2d]
+*** RIVER *** [9h 6c As 2d] [3c]
+*** SHOW DOWN ***
+Andris: shows [Ad Tc] (a pair of Aces)
+WinHof: shows [Ac Ks] (a pair of Aces)
+WinHof collected $30.75 from pot
+*** SUMMARY ***
+Total pot $30.75 | Rake $1.53 
+Board [9h 6c As 2d 3c]
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof showed [Ac Ks] and won ($30.75) with a pair of Aces
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Pit1987 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: ryzenn folded before Flop (didn't bet)
+Seat 8: Andris (big blind) showed [Ad Tc] and lost with a pair of Aces
+
+
+Weplay Hand #71449761:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:50:29 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Ben003 ($57.01 in chips)
+Seat 2: WinHof ($39.22 in chips)
+Seat 3: kole1992 ($65.38 in chips)
+Seat 4: Pit1987 ($74.88 in chips)
+Seat 5: JTs98o ($62.69 in chips)
+Seat 6: ryzenn ($50 in chips)
+JTs98o: posts small blind $0.25
+ryzenn: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 4s]
+Ben003: calls $0.50
+WinHof: raises $2 to $2
+kole1992: folds
+Pit1987: calls $2
+JTs98o: folds
+ryzenn: folds
+Ben003: calls $1.50
+*** FLOP *** [Qs Ac 5d]
+Ben003: checks
+WinHof: checks
+Pit1987: bets $3.38
+Ben003: calls $3.38
+WinHof: folds
+*** TURN *** [Qs Ac 5d] [9c]
+Ben003: checks
+Pit1987: bets $6.76
+Ben003: folds
+Uncalled bet ($6.76) returned to Pit1987
+*** SHOW DOWN ***
+Pit1987 has timed out
+Pit1987: doesn't show hand
+Pit1987 collected $13.51 from pot
+*** SUMMARY ***
+Total pot $13.51 | Rake $0.67 
+Board [Qs Ac 5d 9c]
+Seat 1: Ben003 folded on the Turn 
+Seat 2: WinHof folded on the Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 (button) collected ($13.51)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) folded before Flop 
+
+
+Weplay Hand #71449831:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:51:44 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Ben003 ($51.63 in chips)
+Seat 2: WinHof ($37.22 in chips)
+Seat 3: kole1992 ($65.38 in chips)
+Seat 4: Pit1987 ($82.34 in chips)
+Seat 5: JTs98o ($62.44 in chips)
+Seat 6: ryzenn ($49.50 in chips)
+ryzenn: posts small blind $0.25
+Ben003: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 2c]
+WinHof: folds
+kole1992: folds
+Pit1987: folds
+JTs98o: raises $1.25 to $1.25
+ryzenn: folds
+Ben003: folds
+Uncalled bet ($0.75) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Ben003 (big blind) folded before Flop 
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o (button) collected ($1.25)
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #71449854:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:52:08 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Ben003 ($51.13 in chips)
+Seat 2: WinHof ($37.22 in chips)
+Seat 3: kole1992 ($65.38 in chips)
+Seat 4: Pit1987 ($82.34 in chips)
+Seat 5: JTs98o ($63.19 in chips)
+Seat 6: ryzenn ($50 in chips)
+Ben003: posts small blind $0.25
+WinHof: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 3d]
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+ryzenn: raises $1.25 to $1.25
+Ben003: folds
+WinHof: calls $0.75
+*** FLOP *** [Qh 8c 3s]
+WinHof: bets $2.05
+ryzenn: calls $2.05
+*** TURN *** [Qh 8c 3s] [6c]
+WinHof: bets $5.15
+ryzenn: calls $5.15
+*** RIVER *** [Qh 8c 3s 6c] [Js]
+WinHof: bets $0.50
+ryzenn: raises $16.50 to $16.50
+WinHof: calls $16
+*** SHOW DOWN ***
+ryzenn: shows [7d Ah] (high card Ace)
+WinHof: shows [6d 8d] (two pair, Eights and Sixes)
+WinHof collected $50.15 from pot
+*** SUMMARY ***
+Total pot $50.15 | Rake $2.50 
+Board [Qh 8c 3s 6c Js]
+Seat 1: Ben003 (small blind) folded before Flop 
+Seat 2: WinHof (big blind) showed [6d 8d] and won ($50.15) with two pair, Eights and Sixes
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn (button) showed [7d Ah] and lost with high card Ace
+
+
+Weplay Hand #71449939:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:53:42 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Ben003 ($50.88 in chips)
+Seat 2: WinHof ($59.92 in chips)
+Seat 3: kole1992 ($65.38 in chips)
+Seat 4: Pit1987 ($82.34 in chips)
+Seat 5: JTs98o ($63.19 in chips)
+Seat 6: ryzenn ($50 in chips)
+WinHof: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Td]
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+Ben003: calls $0.50
+WinHof: raises $2.25 to $2.50
+kole1992: raises $7 to $7.50
+Ben003: folds
+WinHof: folds
+Uncalled bet ($5) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: Ben003 (button) folded before Flop 
+Seat 2: WinHof (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) collected ($5.50)
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #71449990:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:54:37 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Ben003 ($50.38 in chips)
+Seat 2: WinHof ($57.42 in chips)
+Seat 3: kole1992 ($68.38 in chips)
+Seat 4: Pit1987 ($82.34 in chips)
+Seat 5: JTs98o ($63.19 in chips)
+Seat 6: ryzenn ($50 in chips)
+kole1992: posts small blind $0.25
+Pit1987: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Ac]
+JTs98o: raises $1 to $1
+ryzenn: folds
+Ben003: folds
+WinHof: folds
+kole1992: folds
+Pit1987: calls $0.50
+*** FLOP *** [Td 4c Ks]
+Pit1987: checks
+JTs98o: bets $1.50
+Pit1987: folds
+Uncalled bet ($1.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [Td 4c Ks]
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Pit1987 (big blind) folded on the Flop 
+Seat 5: JTs98o collected ($2.25)
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #71450017:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:55:21 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Ben003 ($50.38 in chips)
+Seat 2: WinHof ($57.42 in chips)
+Seat 3: kole1992 ($68.13 in chips)
+Seat 4: Pit1987 ($81.34 in chips)
+Seat 5: JTs98o ($64.33 in chips)
+Seat 6: ryzenn ($50 in chips)
+Pit1987: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 8h]
+ryzenn: raises $1.25 to $1.25
+Ben003: folds
+WinHof: folds
+kole1992: folds
+Pit1987: calls $1
+JTs98o: calls $0.75
+*** FLOP *** [Jc 3h Qs]
+Pit1987: checks
+JTs98o: checks
+ryzenn: checks
+*** TURN *** [Jc 3h Qs] [5c]
+Pit1987: checks
+JTs98o: checks
+ryzenn: checks
+*** RIVER *** [Jc 3h Qs 5c] [4c]
+Pit1987: bets $1.88
+JTs98o: folds
+ryzenn: calls $1.88
+*** SHOW DOWN ***
+Pit1987: shows [Ts Js] (a pair of Jacks)
+ryzenn: mucks hand
+Pit1987 collected $7.51 from pot
+*** SUMMARY ***
+Total pot $7.51 | Rake $0.37 
+Board [Jc 3h Qs 5c 4c]
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Pit1987 (small blind) showed [Ts Js] and won ($7.51) with a pair of Jacks
+Seat 5: JTs98o (big blind) folded on the River 
+Seat 6: ryzenn mucked
+
+
+Weplay Hand #71450028:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:56:13 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Ben003 ($50.38 in chips)
+Seat 2: WinHof ($57.42 in chips)
+Seat 3: kole1992 ($68.13 in chips)
+Seat 4: Pit1987 ($85.35 in chips)
+Seat 5: JTs98o ($63.08 in chips)
+Seat 6: ryzenn ($50 in chips)
+JTs98o: posts small blind $0.25
+ryzenn: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s As]
+Ben003: folds
+WinHof: raises $1.50 to $1.50
+kole1992: folds
+Pit1987: folds
+JTs98o: raises $5.75 to $6
+ryzenn: folds
+WinHof: folds
+Uncalled bet ($4.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) collected ($3.50)
+Seat 6: ryzenn (big blind) folded before Flop 
+
+
+Weplay Hand #71450040:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:56:46 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Ben003 ($50.38 in chips)
+Seat 2: WinHof ($55.92 in chips)
+Seat 3: kole1992 ($68.13 in chips)
+Seat 4: Pit1987 ($85.35 in chips)
+Seat 5: JTs98o ($65.08 in chips)
+Seat 6: ryzenn ($49.50 in chips)
+ryzenn: posts small blind $0.25
+Ben003: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 5c]
+WinHof: raises $1.50 to $1.50
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+Ben003: folds
+Uncalled bet ($1) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Ben003 (big blind) folded before Flop 
+Seat 2: WinHof collected ($1.25)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) folded before Flop 
+
+
+Weplay Hand #71450048:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:57:21 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Ben003 ($49.88 in chips)
+Seat 2: WinHof ($56.67 in chips)
+Seat 3: kole1992 ($68.13 in chips)
+Seat 4: Pit1987 ($85.35 in chips)
+Seat 5: JTs98o ($65.08 in chips)
+Seat 6: ryzenn ($50 in chips)
+Ben003: posts small blind $0.25
+WinHof: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 2h]
+kole1992: folds
+Pit1987: raises $1.50 to $1.50
+JTs98o: calls $1.50
+ryzenn: folds
+Ben003: folds
+WinHof: folds
+*** FLOP *** [Qh 2d 4d]
+Pit1987: checks
+JTs98o: checks
+*** TURN *** [Qh 2d 4d] [9h]
+Pit1987: bets $2.81
+JTs98o: calls $2.81
+*** RIVER *** [Qh 2d 4d 9h] [8h]
+Pit1987: checks
+JTs98o: checks
+*** SHOW DOWN ***
+Pit1987: shows [Jc Tc] (a straight, Eight to Queen)
+JTs98o: mucks hand
+Pit1987 collected $9.37 from pot
+*** SUMMARY ***
+Total pot $9.37 | Rake $0.46 
+Board [Qh 2d 4d 9h 8h]
+Seat 1: Ben003 (small blind) folded before Flop 
+Seat 2: WinHof (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 showed [Jc Tc] and won ($9.37) with a straight, Eight to Queen
+Seat 5: JTs98o mucked
+Seat 6: ryzenn (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71450066:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:58:10 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Ben003 ($49.63 in chips)
+Seat 2: WinHof ($56.17 in chips)
+Seat 3: kole1992 ($68.13 in chips)
+Seat 4: Pit1987 ($89.95 in chips)
+Seat 5: JTs98o ($60.77 in chips)
+Seat 6: ryzenn ($50 in chips)
+WinHof: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 8c]
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+Ben003: folds
+WinHof: raises $1.25 to $1.50
+kole1992: raises $4 to $4.50
+WinHof: raises $11.50 to $13
+kole1992: calls $8.50
+*** FLOP *** [6h 8s Qh]
+WinHof: bets $43.17 and is all-in
+rossi1616 joins the table at seat #7
+kole1992: folds
+Uncalled bet ($43.17) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $26 from pot
+*** SUMMARY ***
+Total pot $26 | Rake $1.30 
+Board [6h 8s Qh]
+Seat 1: Ben003 (button) folded before Flop (didn't bet)
+Seat 2: WinHof (small blind) collected ($26)
+Seat 3: kole1992 (big blind) folded on the Flop 
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #71450088:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:59:35 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Ben003 ($49.63 in chips)
+Seat 2: WinHof ($67.87 in chips)
+Seat 3: kole1992 ($55.13 in chips)
+Seat 4: Pit1987 ($89.95 in chips)
+Seat 5: JTs98o ($60.77 in chips)
+Seat 6: ryzenn ($50 in chips)
+kole1992: posts small blind $0.25
+Pit1987: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 8h]
+JTs98o: folds
+ryzenn: folds
+Ben003: folds
+WinHof: raises $1.25 to $1.25
+kole1992: folds
+Pit1987: calls $0.75
+*** FLOP *** [Kc Td 4c]
+Pit1987: checks
+WinHof: checks
+*** TURN *** [Kc Td 4c] [4s]
+Pit1987: bets $1.38
+WinHof: calls $1.38
+*** RIVER *** [Kc Td 4c 4s] [Kh]
+Pit1987: bets $2.76
+WinHof: folds
+Uncalled bet ($2.76) returned to Pit1987
+*** SHOW DOWN ***
+Pit1987 has timed out
+Pit1987: doesn't show hand
+Pit1987 collected $5.51 from pot
+*** SUMMARY ***
+Total pot $5.51 | Rake $0.27 
+Board [Kc Td 4c 4s Kh]
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof (button) folded on the River 
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Pit1987 (big blind) collected ($5.51)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #71450109:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:00:40 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Ben003 ($49.63 in chips)
+Seat 2: WinHof ($65.24 in chips)
+Seat 3: kole1992 ($54.88 in chips)
+Seat 4: Pit1987 ($92.56 in chips)
+Seat 5: JTs98o ($60.77 in chips)
+Seat 6: ryzenn ($50 in chips)
+Pit1987: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 4d]
+ryzenn: folds
+Ben003: folds
+WinHof: raises $1.50 to $1.50
+Acscobar joins the table at seat #8
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+Uncalled bet ($1) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof collected ($1.25)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Pit1987 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: ryzenn folded before Flop (didn't bet)
+
+
+Weplay Hand #71450123:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:01:05 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Ben003 ($49.63 in chips)
+Seat 2: WinHof ($65.99 in chips)
+Seat 3: kole1992 ($54.88 in chips)
+Seat 4: Pit1987 ($92.31 in chips)
+Seat 5: JTs98o ($60.27 in chips)
+Seat 6: ryzenn ($50 in chips)
+JTs98o: posts small blind $0.25
+ryzenn: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 3h]
+Ben003: folds
+WinHof: folds
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+Uncalled bet ($0.25) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) collected ($0.50)
+
+
+Weplay Hand #71450147:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:01:25 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Ben003 ($49.63 in chips)
+Seat 2: WinHof ($65.99 in chips)
+Seat 3: kole1992 ($54.88 in chips)
+Seat 4: Pit1987 ($92.31 in chips)
+Seat 5: JTs98o ($60.02 in chips)
+Seat 6: ryzenn ($50.25 in chips)
+Seat 7: rossi1616 ($50 in chips)
+ryzenn: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 7d]
+Ben003: folds
+WinHof: raises $1.50 to $1.50
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+rossi1616: folds
+Uncalled bet ($1) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof collected ($1.25)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) folded before Flop 
+Seat 7: rossi1616 (big blind) folded before Flop 
+
+
+Weplay Hand #71450164:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:01:48 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Ben003 ($49.63 in chips)
+Seat 2: WinHof ($66.74 in chips)
+Seat 3: kole1992 ($54.88 in chips)
+Seat 4: Pit1987 ($92.31 in chips)
+Seat 5: JTs98o ($60.02 in chips)
+Seat 6: ryzenn ($50 in chips)
+Seat 7: rossi1616 ($50 in chips)
+Seat 8: Acscobar ($50 in chips)
+rossi1616: posts small blind $0.25
+Acscobar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 2h]
+Ben003: raises $1.50 to $1.50
+WinHof: folds
+kole1992: folds
+Pit1987: calls $1.50
+JTs98o: folds
+ryzenn: folds
+rossi1616: folds
+Acscobar: calls $1
+*** FLOP *** [3c 8d Ts]
+Acscobar: checks
+Ben003: bets $3.56
+Pit1987: calls $3.56
+Acscobar: folds
+*** TURN *** [3c 8d Ts] [Ad]
+Ben003: bets $0.50
+Pit1987: calls $0.50
+*** RIVER *** [3c 8d Ts Ad] [2s]
+Ben003: bets $0.50
+Pit1987: calls $0.50
+*** SHOW DOWN ***
+Ben003: shows [As Kd] (a pair of Aces)
+Pit1987 has timed out
+Pit1987: mucks hand
+Ben003 collected $13.87 from pot
+*** SUMMARY ***
+Total pot $13.87 | Rake $0.69 
+Board [3c 8d Ts Ad 2s]
+Seat 1: Ben003 showed [As Kd] and won ($13.87) with a pair of Aces
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 mucked
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn (button) folded before Flop (didn't bet)
+Seat 7: rossi1616 (small blind) folded before Flop 
+Seat 8: Acscobar (big blind) folded on the Flop 
+
+
+Weplay Hand #71450225:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:03:04 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Ben003 ($56.75 in chips)
+Seat 2: WinHof ($66.74 in chips)
+Seat 3: kole1992 ($54.88 in chips)
+Seat 4: Pit1987 ($86.25 in chips)
+Seat 5: JTs98o ($60.02 in chips)
+Seat 6: ryzenn ($50 in chips)
+Seat 7: rossi1616 ($50 in chips)
+Seat 8: Acscobar ($50 in chips)
+Acscobar: posts small blind $0.25
+Ben003: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 9h]
+WinHof: folds
+kole1992: folds
+Pit1987: raises $1.50 to $1.50
+JTs98o: folds
+ryzenn: calls $1.50
+rossi1616: folds
+Acscobar: folds
+Ben003: calls $1
+*** FLOP *** [2s 9s Jh]
+Ben003: checks
+Pit1987: bets $2.38
+ryzenn: folds
+Ben003: folds
+Uncalled bet ($2.38) returned to Pit1987
+*** SHOW DOWN ***
+Pit1987 has timed out
+Pit1987: doesn't show hand
+Pit1987 collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [2s 9s Jh]
+Seat 1: Ben003 (big blind) folded on the Flop 
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 collected ($4.75)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded on the Flop 
+Seat 7: rossi1616 (button) folded before Flop (didn't bet)
+Seat 8: Acscobar (small blind) folded before Flop 
+
+
+Weplay Hand #71450256:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:03:53 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Ben003 ($55.25 in chips)
+Seat 2: WinHof ($66.74 in chips)
+Seat 3: kole1992 ($54.88 in chips)
+Seat 4: Pit1987 ($89.27 in chips)
+Seat 5: JTs98o ($60.02 in chips)
+Seat 6: ryzenn ($50 in chips)
+Seat 8: Acscobar ($50 in chips)
+Ben003: posts small blind $0.25
+WinHof: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Ad]
+kole1992: raises $1.10 to $1.10
+Pit1987: folds
+JTs98o: raises $3 to $3
+ryzenn: folds
+Acscobar: folds
+Ben003: folds
+WinHof: folds
+kole1992: calls $1.90
+*** FLOP *** [Tc Th Qs]
+kole1992: checks
+JTs98o: checks
+*** TURN *** [Tc Th Qs] [Js]
+kole1992: checks
+JTs98o: bets $1.70
+kole1992: calls $1.70
+*** RIVER *** [Tc Th Qs Js] [Jh]
+kole1992: checks
+JTs98o: bets $10.15
+kole1992: calls $10.15
+*** SHOW DOWN ***
+JTs98o: shows [Ts Td] (four of a kind, Tens)
+kole1992: mucks hand
+JTs98o collected $30.45 from pot
+*** SUMMARY ***
+Total pot $30.45 | Rake $1.52 
+Board [Tc Th Qs Js Jh]
+Seat 1: Ben003 (small blind) folded before Flop 
+Seat 2: WinHof (big blind) folded before Flop 
+Seat 3: kole1992 mucked
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o showed [Ts Td] and won ($30.45) with four of a kind, Tens
+Seat 6: ryzenn folded before Flop (didn't bet)
+Seat 8: Acscobar (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71451323:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:05:25 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Ben003 ($55 in chips)
+Seat 2: WinHof ($66.24 in chips)
+Seat 3: kole1992 ($50 in chips)
+Seat 4: Pit1987 ($89.27 in chips)
+Seat 5: JTs98o ($74.10 in chips)
+Seat 6: ryzenn ($50 in chips)
+Seat 8: Acscobar ($50 in chips)
+WinHof: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 2d]
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+Acscobar: folds
+Ben003: calls $0.50
+WinHof: raises $2.75 to $3
+kole1992: folds
+Ben003: folds
+Uncalled bet ($2.50) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0 
+Seat 1: Ben003 (button) folded before Flop 
+Seat 2: WinHof (small blind) collected ($1.50)
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded before Flop (didn't bet)
+Seat 8: Acscobar folded before Flop (didn't bet)
+
+
+Weplay Hand #71451347:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:05:51 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Ben003 ($54.50 in chips)
+Seat 2: WinHof ($67.24 in chips)
+Seat 3: kole1992 ($50 in chips)
+Seat 4: Pit1987 ($89.27 in chips)
+Seat 5: JTs98o ($74.10 in chips)
+Seat 6: ryzenn ($50 in chips)
+Seat 7: rossi1616 ($50 in chips)
+Seat 8: Acscobar ($50 in chips)
+kole1992: posts small blind $0.25
+Pit1987: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 9h]
+JTs98o: folds
+ryzenn: folds
+rossi1616: folds
+Acscobar: raises $1.10 to $1.10
+Ben003: calls $1.10
+WinHof: folds
+kole1992: folds
+Pit1987: folds
+*** FLOP *** [4h As 6c]
+Acscobar: checks
+Ben003: checks
+*** TURN *** [4h As 6c] [9s]
+Acscobar: checks
+Ben003: checks
+*** RIVER *** [4h As 6c 9s] [7s]
+Acscobar: bets $2.36
+Ben003: folds
+Uncalled bet ($2.36) returned to Acscobar
+*** SHOW DOWN ***
+Acscobar has timed out
+Acscobar: doesn't show hand
+Acscobar collected $2.95 from pot
+*** SUMMARY ***
+Total pot $2.95 | Rake $0.14 
+Board [4h As 6c 9s 7s]
+Seat 1: Ben003 folded on the River 
+Seat 2: WinHof (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Pit1987 (big blind) folded before Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded before Flop (didn't bet)
+Seat 7: rossi1616 folded before Flop (didn't bet)
+Seat 8: Acscobar collected ($2.95)
+
+
+Weplay Hand #71451378:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:06:36 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Ben003 ($53.40 in chips)
+Seat 2: WinHof ($67.24 in chips)
+Seat 3: kole1992 ($50 in chips)
+Seat 4: Pit1987 ($88.77 in chips)
+Seat 5: JTs98o ($74.10 in chips)
+Seat 6: ryzenn ($50 in chips)
+Seat 7: rossi1616 ($50 in chips)
+Seat 8: Acscobar ($51.71 in chips)
+Pit1987: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Qh]
+ryzenn: folds
+rossi1616: folds
+Acscobar: folds
+Ben003: calls $0.50
+WinHof: raises $2 to $2
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+Ben003: folds
+Uncalled bet ($1.50) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: Ben003 folded before Flop 
+Seat 2: WinHof collected ($1.75)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Pit1987 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: ryzenn folded before Flop (didn't bet)
+Seat 7: rossi1616 folded before Flop (didn't bet)
+Seat 8: Acscobar folded before Flop (didn't bet)
+
+
+Weplay Hand #71451408:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:07:09 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Ben003 ($52.90 in chips)
+Seat 2: WinHof ($68.49 in chips)
+Seat 3: kole1992 ($50 in chips)
+Seat 4: Pit1987 ($88.52 in chips)
+Seat 5: JTs98o ($73.60 in chips)
+Seat 6: ryzenn ($50 in chips)
+Seat 7: rossi1616 ($50 in chips)
+Seat 8: Acscobar ($51.71 in chips)
+JTs98o: posts small blind $0.25
+ryzenn: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 5h]
+rossi1616: folds
+Acscobar: folds
+Ben003: folds
+WinHof: folds
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+Uncalled bet ($0.25) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: ryzenn (big blind) collected ($0.50)
+Seat 7: rossi1616 folded before Flop (didn't bet)
+Seat 8: Acscobar folded before Flop (didn't bet)
+
+
+Weplay Hand #71451426:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:07:29 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Ben003 ($52.90 in chips)
+Seat 2: WinHof ($68.49 in chips)
+Seat 3: kole1992 ($50 in chips)
+Seat 4: Pit1987 ($88.52 in chips)
+Seat 5: JTs98o ($73.35 in chips)
+Seat 6: ryzenn ($50.25 in chips)
+Seat 7: rossi1616 ($50 in chips)
+Seat 8: Acscobar ($51.71 in chips)
+ryzenn: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 9d]
+Acscobar: folds
+Ben003: folds
+WinHof: raises $1.50 to $1.50
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+rossi1616: calls $1
+*** FLOP *** [8c Ac 4d]
+rossi1616: bets $2.43
+WinHof: raises $7 to $7
+rossi1616: calls $4.57
+*** TURN *** [8c Ac 4d] [7s]
+rossi1616: bets $12.93
+WinHof: folds
+Uncalled bet ($12.93) returned to rossi1616
+*** SHOW DOWN ***
+WinHof: shows [Ad ##] (a pair of Aces)
+rossi1616: doesn't show hand
+rossi1616 collected $17.25 from pot
+*** SUMMARY ***
+Total pot $17.25 | Rake $0.86 
+Board [8c Ac 4d 7s]
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof folded on the Turn 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: ryzenn (small blind) folded before Flop 
+Seat 7: rossi1616 (big blind) collected ($17.25)
+Seat 8: Acscobar folded before Flop (didn't bet)
+
+
+Weplay Hand #71451476:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:08:41 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Ben003 ($52.90 in chips)
+Seat 2: WinHof ($59.99 in chips)
+Seat 3: kole1992 ($50 in chips)
+Seat 4: Pit1987 ($88.52 in chips)
+Seat 5: JTs98o ($73.35 in chips)
+Seat 6: ryzenn ($50 in chips)
+Seat 7: rossi1616 ($57.89 in chips)
+Seat 8: Acscobar ($51.71 in chips)
+rossi1616: posts small blind $0.25
+Acscobar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d As]
+Ben003: folds
+WinHof: folds
+kole1992: folds
+Pit1987: raises $1.50 to $1.50
+JTs98o: folds
+ryzenn: folds
+rossi1616: folds
+Acscobar: folds
+Uncalled bet ($1) returned to Pit1987
+*** SHOW DOWN ***
+Pit1987 has timed out
+Pit1987: doesn't show hand
+Pit1987 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Ben003 folded before Flop (didn't bet)
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 collected ($1.25)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn (button) folded before Flop (didn't bet)
+Seat 7: rossi1616 (small blind) folded before Flop 
+Seat 8: Acscobar (big blind) folded before Flop 
+
+
+Weplay Hand #71451498:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 15:09:06 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Ben003 ($52.90 in chips)
+Seat 2: WinHof ($59.99 in chips)
+Seat 3: kole1992 ($50 in chips)
+Seat 4: Pit1987 ($89.27 in chips)
+Seat 5: JTs98o ($73.35 in chips)
+Seat 6: ryzenn ($50 in chips)
+Seat 7: rossi1616 ($57.64 in chips)
+Seat 8: Acscobar ($51.21 in chips)
+Acscobar: posts small blind $0.25
+Ben003: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Kh]
+WinHof: folds
+kole1992: folds
+Pit1987: folds
+JTs98o: folds
+ryzenn: folds
+rossi1616: folds
+Acscobar: folds
+Uncalled bet ($0.25) returned to Ben003
+*** SHOW DOWN ***
+Ben003 has timed out
+Ben003: doesn't show hand
+Ben003 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Ben003 (big blind) collected ($0.50)
+Seat 2: WinHof folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Pit1987 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: ryzenn folded before Flop (didn't bet)
+Seat 7: rossi1616 (button) folded before Flop (didn't bet)
+Seat 8: Acscobar (small blind) folded before Flop 

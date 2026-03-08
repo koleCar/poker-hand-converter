@@ -1,0 +1,613 @@
+﻿Weplay Hand #76254069:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:10:31 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #3 is the button
+Seat 3: Domagoj87 ($103.77 in chips)
+Seat 5: Liam ($25.91 in chips)
+Seat 6: kole1992 ($50 in chips)
+Seat 8: JTs98o ($58.30 in chips)
+Liam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Ks]
+JTs98o: raises $1.25 to $1.25
+Domagoj87: folds
+Liam: folds
+kole1992: calls $0.75
+*** FLOP *** [9h 3h 5h]
+kole1992: checks
+JTs98o: checks
+*** TURN *** [9h 3h 5h] [3d]
+kole1992: bets $0.90
+JTs98o: calls $0.90
+*** RIVER *** [9h 3h 5h 3d] [Jc]
+kole1992: checks
+JTs98o: checks
+*** SHOW DOWN ***
+kole1992: shows [Jd Ks] (two pair, Jacks and Threes)
+JTs98o: mucks hand
+kole1992 collected $4.55 from pot
+*** SUMMARY ***
+Total pot $4.55 | Rake $0.22 
+Board [9h 3h 5h 3d Jc]
+Seat 3: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 5: Liam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) showed [Jd Ks] and won ($4.55) with two pair, Jacks and Threes
+Seat 8: JTs98o mucked
+
+
+Weplay Hand #76254100:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:11:44 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #5 is the button
+Seat 3: Domagoj87 ($103.77 in chips)
+Seat 5: Liam ($25.66 in chips)
+Seat 6: kole1992 ($52.18 in chips)
+Seat 8: JTs98o ($56.15 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 8s]
+Domagoj87: raises $1.25 to $1.25
+Liam: folds
+kole1992: folds
+JTs98o: raises $3.50 to $4
+Domagoj87: folds
+Uncalled bet ($2.75) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0 
+Seat 3: Domagoj87 folded before Flop 
+Seat 5: Liam (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 8: JTs98o (big blind) collected ($2.75)
+
+
+Weplay Hand #76254115:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:12:31 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #6 is the button
+Seat 3: Domagoj87 ($102.52 in chips)
+Seat 5: Liam ($25.66 in chips)
+Seat 6: kole1992 ($51.93 in chips)
+Seat 8: JTs98o ($57.65 in chips)
+JTs98o: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Kh]
+Liam: folds
+kole1992: folds
+JTs98o: raises $1.25 to $1.50
+Domagoj87: folds
+Uncalled bet ($1) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 3: Domagoj87 (big blind) folded before Flop 
+Seat 5: Liam folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: JTs98o (small blind) collected ($1)
+
+
+Weplay Hand #76254121:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:12:58 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #8 is the button
+Seat 3: Domagoj87 ($102.02 in chips)
+Seat 5: Liam ($25.66 in chips)
+Seat 6: kole1992 ($51.93 in chips)
+Seat 8: JTs98o ($58.15 in chips)
+Domagoj87: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 4s]
+kole1992: folds
+JTs98o: folds
+Domagoj87: folds
+Uncalled bet ($0.25) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: Domagoj87 (small blind) folded before Flop 
+Seat 5: Liam (big blind) collected ($0.50)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 8: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76254131:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:13:25 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #3 is the button
+Seat 3: Domagoj87 ($101.77 in chips)
+Seat 5: Liam ($25.91 in chips)
+Seat 6: kole1992 ($51.93 in chips)
+Seat 8: JTs98o ($58.15 in chips)
+Liam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 3h]
+JTs98o: folds
+Domagoj87: folds
+Liam: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 5: Liam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($0.50)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76254137:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:13:40 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #5 is the button
+Seat 3: Domagoj87 ($101.77 in chips)
+Seat 5: Liam ($25.66 in chips)
+Seat 6: kole1992 ($52.18 in chips)
+Seat 8: JTs98o ($58.15 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 9d]
+Domagoj87: folds
+Liam: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: Domagoj87 folded before Flop (didn't bet)
+Seat 5: Liam (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 8: JTs98o (big blind) collected ($0.50)
+
+
+Weplay Hand #76254142:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:13:55 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #6 is the button
+Seat 3: Domagoj87 ($101.77 in chips)
+Seat 5: Liam ($25.66 in chips)
+Seat 6: kole1992 ($51.93 in chips)
+Seat 8: JTs98o ($58.40 in chips)
+JTs98o: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 8h]
+Liam: folds
+kole1992: folds
+JTs98o: raises $1.25 to $1.50
+Domagoj87: calls $1
+*** FLOP *** [Js 4d 6s]
+JTs98o: checks
+Domagoj87: checks
+*** TURN *** [Js 4d 6s] [3h]
+JTs98o: checks
+Domagoj87: checks
+*** RIVER *** [Js 4d 6s 3h] [7s]
+JTs98o: checks
+Domagoj87: checks
+*** SHOW DOWN ***
+JTs98o: shows [Th 6h] (a pair of Sixes)
+Domagoj87 has timed out
+Domagoj87: mucks hand
+JTs98o collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Js 4d 6s 3h 7s]
+Seat 3: Domagoj87 (big blind) mucked
+Seat 5: Liam folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: JTs98o (small blind) showed [Th 6h] and won ($3) with a pair of Sixes
+
+
+Weplay Hand #76254157:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:14:42 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #8 is the button
+Seat 3: Domagoj87 ($100.27 in chips)
+Seat 5: Liam ($25.66 in chips)
+Seat 6: kole1992 ($51.93 in chips)
+JTs98o leaves the table
+Domagoj87: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 3h]
+kole1992: folds
+Domagoj87: folds
+Uncalled bet ($0.25) returned to Liam
+*** SHOW DOWN ***
+Domagoj87: sits out 
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: Domagoj87 (small blind) folded before Flop 
+Seat 5: Liam (big blind) collected ($0.50)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76254163:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:15:05 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #5 is the button
+Seat 3: Domagoj87 ($100.02 in chips)
+Seat 5: Liam ($25.91 in chips)
+Seat 6: kole1992 ($51.93 in chips)
+Liam: posts small blind $0.25
+kole1992: posts big blind $0.50
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 5s]
+Domagoj87: checks
+Liam: folds
+kole1992: checks
+*** FLOP *** [Th 9c Qc]
+kole1992: checks
+Domagoj87: checks
+*** TURN *** [Th 9c Qc] [Qh]
+kole1992: checks
+Domagoj87: checks
+*** RIVER *** [Th 9c Qc Qh] [9h]
+kole1992: checks
+Domagoj87: checks
+*** SHOW DOWN ***
+kole1992: shows [Kd 5s] (two pair, Queens and Nines)
+Domagoj87: shows [3c Td] (two pair, Queens and Tens)
+Domagoj87 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.03 
+Board [Th 9c Qc Qh 9h]
+Seat 3: Domagoj87 (big blind) showed [3c Td] and won ($1.25) with two pair, Queens and Tens
+Seat 5: Liam (button) (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) showed [Kd 5s] and lost with two pair, Queens and Nines
+
+
+Weplay Hand #76254192:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:16:23 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #5 is the button
+Seat 3: Domagoj87 ($100.74 in chips)
+Seat 5: Liam ($25.66 in chips)
+Seat 6: kole1992 ($51.43 in chips)
+kole1992: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 9c]
+Liam: raises $1 to $1
+kole1992: folds
+Domagoj87: folds
+Uncalled bet ($0.50) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 3: Domagoj87 (big blind) folded before Flop 
+Seat 5: Liam (button) collected ($1.25)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #76254195:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:16:41 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #6 is the button
+Seat 3: Domagoj87 ($100.24 in chips)
+Seat 5: Liam ($26.41 in chips)
+Seat 6: kole1992 ($51.18 in chips)
+Domagoj87: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 2s]
+kole1992: folds
+Domagoj87: folds
+Uncalled bet ($0.25) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: Domagoj87 (small blind) folded before Flop 
+Seat 5: Liam (big blind) collected ($0.50)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76254210:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:17:08 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #3 is the button
+Seat 3: Domagoj87 ($99.99 in chips)
+Seat 5: Liam ($26.66 in chips)
+Seat 6: kole1992 ($51.18 in chips)
+Liam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Ah]
+Domagoj87: folds
+Liam: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 5: Liam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($0.50)
+
+
+Weplay Hand #76254218:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:17:20 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #5 is the button
+Seat 3: Domagoj87 ($99.99 in chips)
+Seat 5: Liam ($26.41 in chips)
+Seat 6: kole1992 ($51.43 in chips)
+kole1992: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc As]
+Liam: folds
+kole1992: raises $1.25 to $1.50
+Domagoj87: calls $1
+*** FLOP *** [Ks 3d Jh]
+kole1992: checks
+Domagoj87: checks
+*** TURN *** [Ks 3d Jh] [2s]
+kole1992: bets $1.74
+Domagoj87: folds
+Uncalled bet ($1.74) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.07 
+Board [Ks 3d Jh 2s]
+Seat 3: Domagoj87 (big blind) folded on the Turn 
+Seat 5: Liam (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) collected ($3)
+
+
+Weplay Hand #76254231:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:18:15 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #6 is the button
+Seat 3: Domagoj87 ($98.49 in chips)
+Seat 5: Liam ($26.41 in chips)
+Seat 6: kole1992 ($52.86 in chips)
+Domagoj87: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d As]
+kole1992: folds
+Domagoj87: folds
+Uncalled bet ($0.25) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: Domagoj87 (small blind) folded before Flop 
+Seat 5: Liam (big blind) collected ($0.50)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76254243:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:18:36 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #3 is the button
+Seat 3: Domagoj87 ($98.24 in chips)
+Seat 5: Liam ($26.66 in chips)
+Seat 6: kole1992 ($52.86 in chips)
+Liam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 8c]
+Domagoj87: raises $1.25 to $1.25
+Liam: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87 has timed out
+Domagoj87: doesn't show hand
+Domagoj87 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 3: Domagoj87 (button) collected ($1.25)
+Seat 5: Liam (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #76254255:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:19:06 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #5 is the button
+Seat 3: Domagoj87 ($98.99 in chips)
+Seat 5: Liam ($26.41 in chips)
+Seat 6: kole1992 ($52.36 in chips)
+kole1992: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 6d]
+Liam: raises $1 to $1
+kole1992: folds
+Domagoj87: calls $0.50
+*** FLOP *** [Kh 3s 2d]
+Domagoj87: checks
+Liam: bets $1.13
+Domagoj87: calls $1.13
+*** TURN *** [Kh 3s 2d] [Jh]
+Domagoj87: checks
+Liam: bets $4.51
+Domagoj87: folds
+Uncalled bet ($4.51) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $4.51 from pot
+*** SUMMARY ***
+Total pot $4.51 | Rake $0.11 
+Board [Kh 3s 2d Jh]
+Seat 3: Domagoj87 (big blind) folded on the Turn 
+Seat 5: Liam (button) collected ($4.51)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #76254270:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:19:50 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #6 is the button
+Seat 3: Domagoj87 ($96.86 in chips)
+Seat 5: Liam ($28.68 in chips)
+Seat 6: kole1992 ($52.11 in chips)
+Domagoj87: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 7h]
+kole1992 has timed out
+kole1992: folds
+Domagoj87: raises $1 to $1.25
+Liam: folds
+Uncalled bet ($0.75) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87 has timed out
+Domagoj87: doesn't show hand
+Domagoj87 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 3: Domagoj87 (small blind) collected ($1)
+Seat 5: Liam (big blind) folded before Flop 
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76254282:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:20:18 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #3 is the button
+Seat 3: Domagoj87 ($97.36 in chips)
+Seat 5: Liam ($28.18 in chips)
+Seat 6: kole1992 ($52.11 in chips)
+Liam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Jd]
+Domagoj87: folds
+Liam: raises $0.75 to $1
+tecidunave joins the table at seat #4
+kole1992: calls $0.50
+*** FLOP *** [Jh Ts 9d]
+Liam: checks
+kole1992: checks
+*** TURN *** [Jh Ts 9d] [7d]
+Liam: checks
+kole1992: bets $1
+Liam: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.05 
+Board [Jh Ts 9d 7d]
+Seat 3: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 5: Liam (small blind) folded on the Turn 
+Seat 6: kole1992 (big blind) collected ($2)
+
+
+Weplay Hand #76254298:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:21:04 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #5 is the button
+Seat 3: Domagoj87 ($97.36 in chips)
+Seat 4: tecidunave ($50.22 in chips)
+Seat 5: Liam ($27.18 in chips)
+Seat 6: kole1992 ($53.06 in chips)
+kole1992: posts small blind $0.25
+Domagoj87: posts big blind $0.50
+tecidunave: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 4d]
+tecidunave: checks
+Liam: folds
+kole1992: folds
+Domagoj87: checks
+*** FLOP *** [Qs Jc Tc]
+Domagoj87: bets $0.62
+tecidunave: folds
+Uncalled bet ($0.62) returned to Domagoj87
+*** SHOW DOWN ***
+Domagoj87 has timed out
+Domagoj87: doesn't show hand
+Domagoj87 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [Qs Jc Tc]
+Seat 3: Domagoj87 (big blind) collected ($1.25)
+Seat 4: tecidunave (big blind) folded on the Flop 
+Seat 5: Liam (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #76254306:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:21:33 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #6 is the button
+Seat 3: Domagoj87 ($98.05 in chips)
+Seat 4: tecidunave ($49.72 in chips)
+Seat 5: Liam ($27.18 in chips)
+Seat 6: kole1992 ($52.81 in chips)
+Domagoj87: posts small blind $0.25
+tecidunave: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 4s]
+Liam: raises $1 to $1
+kole1992: folds
+Domagoj87: folds
+tecidunave: folds
+Uncalled bet ($0.50) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 3: Domagoj87 (small blind) folded before Flop 
+Seat 4: tecidunave (big blind) folded before Flop 
+Seat 5: Liam collected ($1.25)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76257319:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:22:02 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #3 is the button
+Seat 3: Domagoj87 ($97.80 in chips)
+Seat 4: tecidunave ($49.22 in chips)
+Seat 5: Liam ($27.93 in chips)
+Seat 6: kole1992 ($52.81 in chips)
+tecidunave: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 4h]
+kole1992: folds
+Domagoj87: folds
+tecidunave: folds
+Uncalled bet ($0.25) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: Domagoj87 (button) folded before Flop (didn't bet)
+Seat 4: tecidunave (small blind) folded before Flop 
+Seat 5: Liam (big blind) collected ($0.50)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #76257327:  Hold'em No Limit ($0.25/$0.50) - 2026/02/20 12:22:27 UTC
+Table 'Manchester #4'(11549802) 8-max (Money 3) Seat #4 is the button
+Seat 3: Domagoj87 ($97.80 in chips)
+Seat 4: tecidunave ($48.97 in chips)
+Seat 5: Liam ($28.18 in chips)
+Seat 6: kole1992 ($52.81 in chips)
+Liam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Ks]
+Domagoj87: folds
+tecidunave: folds
+Liam: raises $1.25 to $1.50
+kole1992: calls $1
+*** FLOP *** [Jc 7s Tc]
+Liam: bets $3
+Pudding joins the table at seat #2
+kole1992: folds
+Uncalled bet ($3) returned to Liam
+*** SHOW DOWN ***
+kole1992: sits out 
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Jc 7s Tc]
+Seat 3: Domagoj87 folded before Flop (didn't bet)
+Seat 4: tecidunave (button) folded before Flop (didn't bet)
+Seat 5: Liam (small blind) collected ($3)
+Seat 6: kole1992 (big blind) folded on the Flop 

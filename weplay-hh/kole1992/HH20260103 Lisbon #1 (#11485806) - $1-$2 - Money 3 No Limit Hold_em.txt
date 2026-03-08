@@ -1,0 +1,959 @@
+﻿Weplay Hand #71494822:  Hold'em No Limit ($1/$2) - 2026/01/03 22:11:53 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($126.29 in chips)
+Seat 3: UribnP ($221.17 in chips)
+Seat 4: Hadadfojjo ($38.97 in chips)
+Seat 5: FireWalkWithMe ($352.80 in chips)
+FireWalkWithMe: posts small blind $1
+kole1992: posts big blind $2
+Kadiddy: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 5d]
+UribnP: folds
+Hadadfojjo: calls $4
+FireWalkWithMe: folds
+kole1992: folds
+Kadiddy: checks
+*** FLOP *** [3s 8d Qc]
+Kadiddy: bets $4
+Hadadfojjo: calls $4
+*** TURN *** [3s 8d Qc] [6s]
+Kadiddy: checks
+Hadadfojjo: checks
+*** RIVER *** [3s 8d Qc 6s] [7h]
+Kadiddy: bets $8
+Hadadfojjo: folds
+Uncalled bet ($8) returned to Kadiddy
+*** SHOW DOWN ***
+Kadiddy has timed out
+Kadiddy: doesn't show hand
+Kadiddy collected $19 from pot
+*** SUMMARY ***
+Total pot $19 | Rake $0.95 
+Board [3s 8d Qc 6s 7h]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Kadiddy collected ($19)
+Seat 3: UribnP folded before Flop (didn't bet)
+Seat 4: Hadadfojjo (button) folded on the River 
+Seat 5: FireWalkWithMe (small blind) folded before Flop 
+
+
+Weplay Hand #71494842:  Hold'em No Limit ($1/$2) - 2026/01/03 22:12:42 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($136.34 in chips)
+Seat 3: UribnP ($221.17 in chips)
+Seat 4: Hadadfojjo ($30.97 in chips)
+Seat 5: FireWalkWithMe ($351.80 in chips)
+kole1992: posts small blind $1
+Kadiddy: posts big blind $2
+UribnP: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Js]
+Hadadfojjo: folds
+FireWalkWithMe: folds
+kole1992: raises $13 to $14
+Kadiddy: folds
+UribnP: calls $10
+*** FLOP *** [2s Qs 8c]
+kole1992: checks
+UribnP: checks
+*** TURN *** [2s Qs 8c] [4s]
+kole1992: checks
+UribnP: bets $18.60
+kole1992: calls $18.60
+*** RIVER *** [2s Qs 8c 4s] [9h]
+kole1992: checks
+Kadiddy is disconnected 
+Kadiddy is connected 
+UribnP: bets $67.20
+Kadiddy is disconnected 
+Kadiddy is connected 
+kole1992: folds
+Uncalled bet ($67.20) returned to UribnP
+*** SHOW DOWN ***
+UribnP has timed out
+UribnP: doesn't show hand
+UribnP collected $67.20 from pot
+*** SUMMARY ***
+Total pot $67.20 | Rake $3.36 
+Board [2s Qs 8c 4s 9h]
+Seat 1: kole1992 (small blind) folded on the River 
+Seat 2: Kadiddy (big blind) folded before Flop 
+Seat 3: UribnP collected ($67.20)
+Seat 4: Hadadfojjo folded before Flop (didn't bet)
+Seat 5: FireWalkWithMe (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71494889:  Hold'em No Limit ($1/$2) - 2026/01/03 22:14:45 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($134.34 in chips)
+Seat 3: UribnP ($252.41 in chips)
+Seat 4: Hadadfojjo ($30.97 in chips)
+Seat 5: FireWalkWithMe ($351.80 in chips)
+Kadiddy: posts small blind $1
+UribnP: posts big blind $2
+Hadadfojjo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 2h]
+FireWalkWithMe: folds
+kole1992: folds
+Kadiddy: calls $3
+UribnP: folds
+Hadadfojjo: raises $26.97 to $30.97 and is all-in
+Kadiddy: calls $26.97
+*** FLOP *** [5d Kh 4h]
+*** TURN *** [5d Kh 4h] [Ks]
+*** RIVER *** [5d Kh 4h Ks] [Kd]
+*** SHOW DOWN ***
+Kadiddy: shows [Jh Ad] (three of a kind, Kings)
+Hadadfojjo: shows [8d As] (three of a kind, Kings)
+Kadiddy collected $63.94 from pot
+*** SUMMARY ***
+Total pot $63.94 | Rake $3.19 
+Board [5d Kh 4h Ks Kd]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Kadiddy (small blind) showed [Jh Ad] and won ($63.94) with three of a kind, Kings
+Seat 3: UribnP (big blind) folded before Flop 
+Seat 4: Hadadfojjo showed [8d As] and lost with three of a kind, Kings
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+
+
+Weplay Hand #71494909:  Hold'em No Limit ($1/$2) - 2026/01/03 22:15:22 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($164.12 in chips)
+Seat 3: UribnP ($250.41 in chips)
+Seat 5: FireWalkWithMe ($351.80 in chips)
+UribnP: posts small blind $1
+FireWalkWithMe: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 6d]
+kole1992: folds
+Kadiddy: calls $2
+UribnP: folds
+FireWalkWithMe: raises $6 to $8
+Kadiddy: calls $6
+*** FLOP *** [Ts 7h Ah]
+FireWalkWithMe: bets $12
+Kadiddy: folds
+Uncalled bet ($12) returned to FireWalkWithMe
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 6d]
+FireWalkWithMe: doesn't show hand
+FireWalkWithMe collected $17 from pot
+*** SUMMARY ***
+Total pot $17 | Rake $0.85 
+Board [Ts 7h Ah]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Kadiddy (button) folded on the Flop 
+Seat 3: UribnP (small blind) folded before Flop 
+Seat 5: FireWalkWithMe (big blind) collected ($17)
+
+
+Weplay Hand #71494927:  Hold'em No Limit ($1/$2) - 2026/01/03 22:16:05 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($156.12 in chips)
+Seat 3: UribnP ($249.41 in chips)
+Seat 5: FireWalkWithMe ($359.95 in chips)
+FireWalkWithMe: posts small blind $1
+kole1992: posts big blind $2
+Kadiddy: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 2c]
+Kadiddy: calls $2
+UribnP: folds
+FireWalkWithMe: raises $7 to $8
+kole1992: folds
+Kadiddy: calls $6
+*** FLOP *** [9s Td Ah]
+FireWalkWithMe: bets $12
+Kadiddy: folds
+Uncalled bet ($12) returned to FireWalkWithMe
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 2c]
+FireWalkWithMe: doesn't show hand
+FireWalkWithMe collected $18 from pot
+*** SUMMARY ***
+Total pot $18 | Rake $0.90 
+Board [9s Td Ah]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Kadiddy folded on the Flop 
+Seat 3: UribnP (button) folded before Flop (didn't bet)
+Seat 5: FireWalkWithMe (small blind) collected ($18)
+
+
+Weplay Hand #71494952:  Hold'em No Limit ($1/$2) - 2026/01/03 22:16:57 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($148.12 in chips)
+Seat 3: UribnP ($249.41 in chips)
+Seat 4: Hadadfojjo ($60 in chips)
+Seat 5: FireWalkWithMe ($369.05 in chips)
+kole1992: posts small blind $1
+Kadiddy: posts big blind $2
+Hadadfojjo: posts big blind $2
+UribnP has timed out
+UribnP: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 9c]
+UribnP: folds
+Hadadfojjo: checks
+FireWalkWithMe: folds
+kole1992: folds
+Kadiddy: checks
+*** FLOP *** [2c 2s Ah]
+Kadiddy: checks
+Hadadfojjo: checks
+*** TURN *** [2c 2s Ah] [Kd]
+Kadiddy: checks
+Hadadfojjo: bets $2.50
+Kadiddy: calls $2.50
+*** RIVER *** [2c 2s Ah Kd] [6h]
+Kadiddy: checks
+Hadadfojjo: bets $5
+Kadiddy: folds
+Uncalled bet ($5) returned to Hadadfojjo
+*** SHOW DOWN ***
+Hadadfojjo has timed out
+Hadadfojjo: doesn't show hand
+Hadadfojjo collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [2c 2s Ah Kd 6h]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Kadiddy (big blind) folded on the River 
+Seat 3: UribnP folded before Flop (didn't bet)
+Seat 4: Hadadfojjo (big blind) collected ($10)
+Seat 5: FireWalkWithMe (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71494975:  Hold'em No Limit ($1/$2) - 2026/01/03 22:17:44 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($143.62 in chips)
+Seat 3: UribnP ($249.41 in chips)
+Seat 4: Hadadfojjo ($65 in chips)
+Seat 5: FireWalkWithMe ($369.05 in chips)
+Kadiddy: posts small blind $1
+UribnP: posts big blind $2
+Hadadfojjo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 5c]
+FireWalkWithMe: folds
+kole1992: folds
+Kadiddy: calls $3
+UribnP: calls $2
+Hadadfojjo: checks
+*** FLOP *** [Qs 3c 2d]
+Kadiddy: checks
+UribnP: checks
+Hadadfojjo: bets $5
+Kadiddy: calls $5
+UribnP: folds
+*** TURN *** [Qs 3c 2d] [Kd]
+Kadiddy: checks
+Hadadfojjo: checks
+*** RIVER *** [Qs 3c 2d Kd] [7d]
+Kadiddy: checks
+Hadadfojjo: checks
+*** SHOW DOWN ***
+Kadiddy: shows [4c Ad] (high card Ace)
+Hadadfojjo: shows [9s 7h] (a pair of Sevens)
+Hadadfojjo collected $22 from pot
+*** SUMMARY ***
+Total pot $22 | Rake $1.10 
+Board [Qs 3c 2d Kd 7d]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Kadiddy (small blind) showed [4c Ad] and lost with high card Ace
+Seat 3: UribnP (big blind) folded on the Flop 
+Seat 4: Hadadfojjo showed [9s 7h] and won ($22) with a pair of Sevens
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+
+
+Weplay Hand #71495006:  Hold'em No Limit ($1/$2) - 2026/01/03 22:18:59 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($134.62 in chips)
+Seat 3: UribnP ($245.41 in chips)
+Seat 4: Hadadfojjo ($76.90 in chips)
+Seat 5: FireWalkWithMe ($369.05 in chips)
+UribnP: posts small blind $1
+Hadadfojjo: posts big blind $2
+FireWalkWithMe: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 3c]
+FireWalkWithMe: raises $6 to $6
+kole1992: folds
+Kadiddy: calls $6
+UribnP: calls $5
+Hadadfojjo: calls $4
+*** FLOP *** [Td As Ks]
+UribnP: checks
+Hadadfojjo: checks
+FireWalkWithMe: checks
+Kadiddy: bets $14
+UribnP: folds
+Hadadfojjo: folds
+FireWalkWithMe: folds
+Uncalled bet ($14) returned to Kadiddy
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 3c]
+Kadiddy has timed out
+Kadiddy: doesn't show hand
+Kadiddy collected $24 from pot
+*** SUMMARY ***
+Total pot $24 | Rake $1.20 
+Board [Td As Ks]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Kadiddy (button) collected ($24)
+Seat 3: UribnP (small blind) folded on the Flop 
+Seat 4: Hadadfojjo (big blind) folded on the Flop 
+Seat 5: FireWalkWithMe folded on the Flop 
+
+
+Weplay Hand #71495036:  Hold'em No Limit ($1/$2) - 2026/01/03 22:20:10 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($151.42 in chips)
+Seat 3: UribnP ($239.41 in chips)
+Seat 4: Hadadfojjo ($70.90 in chips)
+Seat 5: FireWalkWithMe ($363.05 in chips)
+Hadadfojjo: posts small blind $1
+FireWalkWithMe: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 4d]
+kole1992: folds
+Kadiddy: calls $2
+UribnP: folds
+Hadadfojjo: raises $5 to $6
+FireWalkWithMe: folds
+Kadiddy: calls $4
+*** FLOP *** [8c 2s 3s]
+Hadadfojjo: checks
+Kadiddy: checks
+*** TURN *** [8c 2s 3s] [Jh]
+Hadadfojjo: bets $7
+Kadiddy: calls $7
+*** RIVER *** [8c 2s 3s Jh] [9c]
+Hadadfojjo: bets $21
+Kadiddy: folds
+Uncalled bet ($21) returned to Hadadfojjo
+*** SHOW DOWN ***
+Hadadfojjo has timed out
+Hadadfojjo: doesn't show hand
+Hadadfojjo collected $28 from pot
+*** SUMMARY ***
+Total pot $28 | Rake $1.40 
+Board [8c 2s 3s Jh 9c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Kadiddy folded on the River 
+Seat 3: UribnP (button) folded before Flop (didn't bet)
+Seat 4: Hadadfojjo (small blind) collected ($28)
+Seat 5: FireWalkWithMe (big blind) folded before Flop 
+
+
+Weplay Hand #71495066:  Hold'em No Limit ($1/$2) - 2026/01/03 22:21:11 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($138.42 in chips)
+Seat 3: UribnP ($239.41 in chips)
+Seat 4: Hadadfojjo ($84.50 in chips)
+Seat 5: FireWalkWithMe ($361.05 in chips)
+FireWalkWithMe: posts small blind $1
+kole1992: posts big blind $2
+Kadiddy has timed out
+Kadiddy: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 4s]
+Kadiddy: calls $2
+UribnP: raises $9 to $9
+Hadadfojjo: folds
+FireWalkWithMe: calls $8
+kole1992: folds
+Kadiddy: folds
+*** FLOP *** [6d 2h Kd]
+FireWalkWithMe: checks
+UribnP: bets $14.54
+FireWalkWithMe: folds
+Uncalled bet ($14.54) returned to UribnP
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 4s]
+UribnP has timed out
+UribnP: doesn't show hand
+UribnP collected $22 from pot
+*** SUMMARY ***
+Total pot $22 | Rake $1.10 
+Board [6d 2h Kd]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Kadiddy folded before Flop 
+Seat 3: UribnP collected ($22)
+Seat 4: Hadadfojjo (button) folded before Flop (didn't bet)
+Seat 5: FireWalkWithMe (small blind) folded on the Flop 
+
+
+Weplay Hand #71495096:  Hold'em No Limit ($1/$2) - 2026/01/03 22:22:19 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($136.42 in chips)
+Seat 3: UribnP ($251.31 in chips)
+Seat 4: Hadadfojjo ($84.50 in chips)
+Seat 5: FireWalkWithMe ($352.05 in chips)
+kole1992: posts small blind $1
+Kadiddy: posts big blind $2
+UribnP has timed out
+UribnP: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Kh]
+UribnP: folds
+Hadadfojjo: calls $2
+FireWalkWithMe: folds
+kole1992: calls $1
+Kadiddy: checks
+*** FLOP *** [2h Qd 2d]
+kole1992: checks
+Kadiddy: checks
+Hadadfojjo: bets $3
+kole1992: folds
+Kadiddy: calls $3
+*** TURN *** [2h Qd 2d] [9c]
+Kadiddy: checks
+Hadadfojjo: bets $3.96
+Kadiddy: calls $3.96
+*** RIVER *** [2h Qd 2d 9c] [Th]
+Kadiddy: checks
+Hadadfojjo: bets $9.96
+Kadiddy: calls $9.96
+*** SHOW DOWN ***
+Hadadfojjo: shows [Kd 8d] (a pair of Deuces)
+Kadiddy: shows [4d 4h] (two pair, Fours and Deuces)
+Kadiddy collected $39.84 from pot
+*** SUMMARY ***
+Total pot $39.84 | Rake $1.99 
+Board [2h Qd 2d 9c Th]
+Seat 1: kole1992 (small blind) folded on the Flop 
+Seat 2: Kadiddy (big blind) showed [4d 4h] and won ($39.84) with two pair, Fours and Deuces
+Seat 3: UribnP folded before Flop (didn't bet)
+Seat 4: Hadadfojjo showed [Kd 8d] and lost with a pair of Deuces
+Seat 5: FireWalkWithMe (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71495142:  Hold'em No Limit ($1/$2) - 2026/01/03 22:23:37 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($155.35 in chips)
+Seat 3: UribnP ($251.31 in chips)
+Seat 4: Hadadfojjo ($65.58 in chips)
+Seat 5: FireWalkWithMe ($352.05 in chips)
+Kadiddy: posts small blind $1
+UribnP: posts big blind $2
+Hadadfojjo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 8d]
+FireWalkWithMe: folds
+kole1992: folds
+Kadiddy: calls $3
+UribnP: calls $2
+Hadadfojjo: checks
+*** FLOP *** [As Kd Ah]
+Kadiddy: checks
+UribnP: checks
+Hadadfojjo: bets $2
+Kadiddy: calls $2
+UribnP: calls $2
+*** TURN *** [As Kd Ah] [8c]
+Kadiddy: checks
+UribnP: checks
+Hadadfojjo: checks
+*** RIVER *** [As Kd Ah 8c] [Kh]
+Kadiddy: checks
+UribnP: bets $7.20
+Hadadfojjo: folds
+Kadiddy: folds
+Uncalled bet ($7.20) returned to UribnP
+*** SHOW DOWN ***
+UribnP has timed out
+UribnP: doesn't show hand
+UribnP collected $18 from pot
+*** SUMMARY ***
+Total pot $18 | Rake $0.90 
+Board [As Kd Ah 8c Kh]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Kadiddy (small blind) folded on the River 
+Seat 3: UribnP (big blind) collected ($18)
+Seat 4: Hadadfojjo folded on the River 
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+
+
+Weplay Hand #71495177:  Hold'em No Limit ($1/$2) - 2026/01/03 22:24:47 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($149.35 in chips)
+Seat 3: UribnP ($262.41 in chips)
+Seat 4: Hadadfojjo ($59.58 in chips)
+Seat 5: FireWalkWithMe ($352.05 in chips)
+UribnP: posts small blind $1
+Hadadfojjo: posts big blind $2
+FireWalkWithMe: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Jd]
+FireWalkWithMe: folds
+kole1992: raises $4 to $4
+Kadiddy: calls $4
+UribnP: folds
+Hadadfojjo: calls $2
+*** FLOP *** [4h 4c 2h]
+Hadadfojjo: checks
+kole1992: checks
+Kadiddy: checks
+*** TURN *** [4h 4c 2h] [8d]
+Hadadfojjo: bets $4
+kole1992: folds
+Kadiddy: calls $4
+*** RIVER *** [4h 4c 2h 8d] [7h]
+Hadadfojjo: checks
+Kadiddy: checks
+*** SHOW DOWN ***
+Hadadfojjo: shows [Tc Ks] (a pair of Fours)
+Kadiddy has timed out
+Kadiddy: mucks hand
+Hadadfojjo collected $21 from pot
+*** SUMMARY ***
+Total pot $21 | Rake $1.05 
+Board [4h 4c 2h 8d 7h]
+Seat 1: kole1992 folded on the Turn 
+Seat 2: Kadiddy (button) mucked
+Seat 3: UribnP (small blind) folded before Flop 
+Seat 4: Hadadfojjo (big blind) showed [Tc Ks] and won ($21) with a pair of Fours
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+
+
+Weplay Hand #71495203:  Hold'em No Limit ($1/$2) - 2026/01/03 22:25:36 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($141.35 in chips)
+Seat 3: UribnP ($261.41 in chips)
+Seat 4: Hadadfojjo ($71.53 in chips)
+Seat 5: FireWalkWithMe ($352.05 in chips)
+Hadadfojjo: posts small blind $1
+FireWalkWithMe: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 2h]
+kole1992: folds
+Kadiddy: calls $2
+UribnP: folds
+Hadadfojjo: raises $5 to $6
+FireWalkWithMe: folds
+Kadiddy is disconnected 
+Kadiddy is connected 
+Kadiddy: calls $4
+*** FLOP *** [7d 3c Ad]
+Hadadfojjo: checks
+Kadiddy: checks
+*** TURN *** [7d 3c Ad] [Kh]
+Hadadfojjo: checks
+Kadiddy: checks
+*** RIVER *** [7d 3c Ad Kh] [Kd]
+Hadadfojjo: bets $4
+Kadiddy: calls $4
+*** SHOW DOWN ***
+Hadadfojjo: shows [8d 8s] (two pair, Kings and Eights)
+Kadiddy has timed out
+Kadiddy: mucks hand
+Hadadfojjo collected $22 from pot
+*** SUMMARY ***
+Total pot $22 | Rake $1.10 
+Board [7d 3c Ad Kh Kd]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Kadiddy mucked
+Seat 3: UribnP (button) folded before Flop (didn't bet)
+Seat 4: Hadadfojjo (small blind) showed [8d 8s] and won ($22) with two pair, Kings and Eights
+Seat 5: FireWalkWithMe (big blind) folded before Flop 
+
+
+Weplay Hand #71495233:  Hold'em No Limit ($1/$2) - 2026/01/03 22:26:30 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($131.35 in chips)
+Seat 3: UribnP ($261.41 in chips)
+Seat 4: Hadadfojjo ($82.43 in chips)
+Seat 5: FireWalkWithMe ($350.05 in chips)
+Seat 6: NAV75 ($250.74 in chips)
+FireWalkWithMe: posts small blind $1
+NAV75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 6h]
+kole1992: folds
+Kadiddy: calls $2
+UribnP: folds
+Hadadfojjo: calls $2
+FireWalkWithMe: calls $1
+NAV75: checks
+*** FLOP *** [3s 9d Qh]
+FireWalkWithMe: checks
+NAV75: checks
+Kadiddy: checks
+Hadadfojjo: checks
+*** TURN *** [3s 9d Qh] [9s]
+Kadiddy is disconnected 
+Kadiddy is connected 
+FireWalkWithMe: checks
+NAV75: checks
+Kadiddy: checks
+Hadadfojjo: bets $4
+FireWalkWithMe: folds
+NAV75: folds
+Kadiddy: folds
+Uncalled bet ($4) returned to Hadadfojjo
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 6h]
+Hadadfojjo has timed out
+Hadadfojjo: doesn't show hand
+Hadadfojjo collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [3s 9d Qh 9s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Kadiddy folded on the Turn 
+Seat 3: UribnP folded before Flop (didn't bet)
+Seat 4: Hadadfojjo (button) collected ($8)
+Seat 5: FireWalkWithMe (small blind) folded on the Turn 
+Seat 6: NAV75 (big blind) folded on the Turn 
+
+
+Weplay Hand #71495270:  Hold'em No Limit ($1/$2) - 2026/01/03 22:27:42 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($129.35 in chips)
+Seat 3: UribnP ($261.41 in chips)
+Seat 4: Hadadfojjo ($88.03 in chips)
+Seat 5: FireWalkWithMe ($348.05 in chips)
+Seat 6: NAV75 ($248.74 in chips)
+NAV75: posts small blind $1
+kole1992: posts big blind $2
+Kadiddy: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Qd]
+UribnP: folds
+Hadadfojjo: raises $6 to $6
+FireWalkWithMe: folds
+NAV75: folds
+kole1992: calls $4
+NAV75: sits out 
+Kadiddy: calls $2
+*** FLOP *** [6c 7s 4h]
+kole1992: checks
+Kadiddy: bets $6
+Hadadfojjo: calls $6
+kole1992: folds
+*** TURN *** [6c 7s 4h] [2s]
+Kadiddy: bets $13
+Hadadfojjo: calls $13
+*** RIVER *** [6c 7s 4h 2s] [Ks]
+Kadiddy: checks
+Hadadfojjo: bets $63.03 and is all-in
+Kadiddy: calls $63.03
+*** SHOW DOWN ***
+Hadadfojjo: shows [Jd Ad] (high card Ace)
+Kadiddy: shows [3c 5h] (a straight, Three to Seven)
+Kadiddy collected $183.06 from pot
+*** SUMMARY ***
+Total pot $183.06 | Rake $9.15 
+Board [6c 7s 4h 2s Ks]
+Seat 1: kole1992 (big blind) folded on the Flop 
+Seat 2: Kadiddy showed [3c 5h] and won ($183.06) with a straight, Three to Seven
+Seat 3: UribnP folded before Flop (didn't bet)
+Seat 4: Hadadfojjo showed [Jd Ad] and lost with high card Ace
+Seat 5: FireWalkWithMe (button) folded before Flop (didn't bet)
+Seat 6: NAV75 (small blind) folded before Flop 
+
+
+Weplay Hand #71495308:  Hold'em No Limit ($1/$2) - 2026/01/03 22:29:08 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($215.23 in chips)
+Seat 3: UribnP ($261.41 in chips)
+Seat 4: Hadadfojjo ($106.56 in chips)
+Seat 5: FireWalkWithMe ($348.05 in chips)
+Seat 6: NAV75 ($247.74 in chips)
+kole1992: posts small blind $1
+Kadiddy: posts big blind $2
+UribnP: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 3h]
+UribnP: folds
+Hadadfojjo: folds
+FireWalkWithMe: folds
+NAV75: raises $4 to $4
+kole1992: folds
+Kadiddy: calls $2
+*** FLOP *** [8s 9h 4c]
+Kadiddy: checks
+NAV75: bets $9
+Kadiddy: calls $9
+*** TURN *** [8s 9h 4c] [Qs]
+Kadiddy: checks
+NAV75: checks
+*** RIVER *** [8s 9h 4c Qs] [Js]
+Kadiddy: bets $8
+NAV75: calls $8
+*** SHOW DOWN ***
+Kadiddy: shows [Kc Ks] (a pair of Kings)
+NAV75: shows [Th 9s] (a straight, Eight to Queen)
+NAV75 collected $43 from pot
+*** SUMMARY ***
+Total pot $43 | Rake $2.15 
+Board [8s 9h 4c Qs Js]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Kadiddy (big blind) showed [Kc Ks] and lost with a pair of Kings
+Seat 3: UribnP folded before Flop (didn't bet)
+Seat 4: Hadadfojjo folded before Flop (didn't bet)
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+Seat 6: NAV75 (button) showed [Th 9s] and won ($43) with a straight, Eight to Queen
+
+
+Weplay Hand #71496325:  Hold'em No Limit ($1/$2) - 2026/01/03 22:29:50 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($194.23 in chips)
+Seat 3: UribnP ($261.41 in chips)
+Seat 4: Hadadfojjo ($106.56 in chips)
+Seat 5: FireWalkWithMe ($348.05 in chips)
+Seat 6: NAV75 ($267.59 in chips)
+Kadiddy: posts small blind $1
+UribnP: posts big blind $2
+Hadadfojjo: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 6d]
+FireWalkWithMe: raises $12 to $12
+NAV75: folds
+kole1992: folds
+Kadiddy: calls $11
+UribnP: raises $48 to $50
+Hadadfojjo: folds
+FireWalkWithMe: raises $336.05 to $348.05 and is all-in
+Kadiddy: folds
+UribnP: calls $211.41 and is all-in
+Uncalled bet ($86.64) returned to FireWalkWithMe
+*** FIRST FLOP *** [9c 8h 6c]
+*** FIRST TURN *** [9c 8h 6c] [8s]
+*** FIRST RIVER *** [9c 8h 6c 8s] [Kc]
+*** SECOND FLOP *** [9d 5d 5c]
+*** SECOND TURN *** [9d 5d 5c] [7s]
+*** SECOND RIVER *** [9d 5d 5c 7s] [8c]
+*** SHOW DOWN ***
+UribnP: shows [Ts Tc] (two pair, Tens and Eights)
+FireWalkWithMe: shows [Ks Ad] (two pair, Kings and Eights)
+FireWalkWithMe collected $269.41 from pot
+UribnP collected $269.41 from pot
+*** SUMMARY ***
+Total pot $538.82 | Rake $10 
+Hand was run two times
+FIRST Board [9c 8h 6c 8s Kc]
+SECOND Board [9d 5d 5c 7s 8c]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Kadiddy (small blind) folded before Flop 
+Seat 3: UribnP (big blind) showed [Ts Tc] and won ($269.41) with two pair, Tens and Eights
+Seat 4: Hadadfojjo folded before Flop 
+Seat 5: FireWalkWithMe showed [Ks Ad] and won ($269.41) with two pair, Kings and Eights
+Seat 6: NAV75 folded before Flop (didn't bet)
+
+
+Weplay Hand #71496352:  Hold'em No Limit ($1/$2) - 2026/01/03 22:30:44 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($182.23 in chips)
+Seat 3: UribnP ($264.41 in chips)
+Seat 4: Hadadfojjo ($102.56 in chips)
+Seat 5: FireWalkWithMe ($351.05 in chips)
+Seat 6: NAV75 ($267.59 in chips)
+UribnP: posts small blind $1
+Hadadfojjo: posts big blind $2
+FireWalkWithMe: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Kd]
+FireWalkWithMe: folds
+NAV75: raises $7 to $7
+kole1992: folds
+Kadiddy: calls $7
+UribnP: folds
+Hadadfojjo: calls $5
+*** FLOP *** [9s As 5c]
+Hadadfojjo: checks
+NAV75: checks
+Kadiddy: checks
+*** TURN *** [9s As 5c] [6s]
+Hadadfojjo: bets $11
+NAV75: calls $11
+Kadiddy: folds
+*** RIVER *** [9s As 5c 6s] [7h]
+Hadadfojjo: checks
+NAV75: bets $44
+Hadadfojjo: folds
+Uncalled bet ($44) returned to NAV75
+*** SHOW DOWN ***
+NAV75 has timed out
+NAV75: doesn't show hand
+NAV75 collected $44 from pot
+*** SUMMARY ***
+Total pot $44 | Rake $2.20 
+Board [9s As 5c 6s 7h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Kadiddy (button) folded on the Turn 
+Seat 3: UribnP (small blind) folded before Flop 
+Seat 4: Hadadfojjo (big blind) folded on the River 
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+Seat 6: NAV75 collected ($44)
+
+
+Weplay Hand #71496394:  Hold'em No Limit ($1/$2) - 2026/01/03 22:32:06 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($175.23 in chips)
+Seat 3: UribnP ($263.41 in chips)
+Seat 4: Hadadfojjo ($84.56 in chips)
+Seat 5: FireWalkWithMe ($351.05 in chips)
+Seat 6: NAV75 ($291.39 in chips)
+Hadadfojjo: posts small blind $1
+FireWalkWithMe: posts big blind $2
+NAV75: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Jd]
+kole1992: folds
+Kadiddy: calls $4
+UribnP: folds
+Hadadfojjo: raises $5 to $6
+FireWalkWithMe: calls $4
+NAV75: folds
+NAV75: sits out 
+Kadiddy: calls $2
+*** FLOP *** [Qh Th Ad]
+Hadadfojjo: checks
+FireWalkWithMe: checks
+Kadiddy: bets $8
+Hadadfojjo: calls $8
+FireWalkWithMe: folds
+*** TURN *** [Qh Th Ad] [6h]
+Hadadfojjo: checks
+Kadiddy: checks
+*** RIVER *** [Qh Th Ad 6h] [Js]
+Hadadfojjo: bets $12
+Kadiddy: calls $12
+*** SHOW DOWN ***
+Hadadfojjo: shows [Kh As] (a straight, Ten to Ace)
+Kadiddy has timed out
+Kadiddy: mucks hand
+Hadadfojjo collected $62 from pot
+*** SUMMARY ***
+Total pot $62 | Rake $3.10 
+Board [Qh Th Ad 6h Js]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Kadiddy mucked
+Seat 3: UribnP (button) folded before Flop (didn't bet)
+Seat 4: Hadadfojjo (small blind) showed [Kh As] and won ($62) with a straight, Ten to Ace
+Seat 5: FireWalkWithMe (big blind) folded on the Flop 
+Seat 6: NAV75 folded before Flop 
+
+
+Weplay Hand #71496449:  Hold'em No Limit ($1/$2) - 2026/01/03 22:34:03 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($149.23 in chips)
+Seat 3: UribnP ($263.41 in chips)
+Seat 4: Hadadfojjo ($117.46 in chips)
+Seat 5: FireWalkWithMe ($345.05 in chips)
+Seat 6: NAV75 ($287.39 in chips)
+FireWalkWithMe: posts small blind $1
+NAV75: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 5s]
+kole1992: folds
+Kadiddy: calls $2
+UribnP: folds
+Hadadfojjo: raises $5 to $5
+FireWalkWithMe: raises $21 to $22
+NAV75: calls $20
+Kadiddy: folds
+Hadadfojjo: folds
+*** FLOP *** [Js 7s 2h]
+FireWalkWithMe: bets $33
+NAV75: calls $33
+*** TURN *** [Js 7s 2h] [4c]
+FireWalkWithMe: checks
+NAV75: checks
+*** RIVER *** [Js 7s 2h 4c] [Ks]
+FireWalkWithMe: checks
+NAV75: checks
+*** SHOW DOWN ***
+FireWalkWithMe: shows [Ac Kc] (a pair of Kings)
+NAV75: mucks hand
+FireWalkWithMe collected $117 from pot
+*** SUMMARY ***
+Total pot $117 | Rake $5.85 
+Board [Js 7s 2h 4c Ks]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Kadiddy folded before Flop 
+Seat 3: UribnP folded before Flop (didn't bet)
+Seat 4: Hadadfojjo (button) folded before Flop 
+Seat 5: FireWalkWithMe (small blind) showed [Ac Kc] and won ($117) with a pair of Kings
+Seat 6: NAV75 (big blind) mucked
+
+
+Weplay Hand #71496501:  Hold'em No Limit ($1/$2) - 2026/01/03 22:35:52 UTC
+Table 'Lisbon #1'(11485806) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 2: Kadiddy ($147.23 in chips)
+Seat 3: UribnP ($263.41 in chips)
+Seat 4: Hadadfojjo ($112.46 in chips)
+Seat 5: FireWalkWithMe ($401.20 in chips)
+Seat 6: NAV75 ($232.39 in chips)
+NAV75: posts small blind $1
+kole1992: posts big blind $2
+Kadiddy: posts straddle $4
+*** HOLE CARDS ***
+Dealt to kole1992 [Js As]
+UribnP: raises $13 to $13
+Hadadfojjo: folds
+FireWalkWithMe: folds
+NAV75: calls $12
+kole1992: raises $39 to $41
+Kadiddy: folds
+UribnP: folds
+NAV75: calls $28
+*** FLOP *** [Ac 8d Qh]
+NAV75: checks
+kole1992: checks
+*** TURN *** [Ac 8d Qh] [9s]
+NAV75: checks
+kole1992: bets $37.67
+NAV75: calls $37.67
+*** RIVER *** [Ac 8d Qh 9s] [6c]
+NAV75: checks
+kole1992: bets $121.33 and is all-in
+NAV75: calls $121.33
+*** SHOW DOWN ***
+kole1992: shows [Js As] (a pair of Aces)
+NAV75: shows [6h Ad] (two pair, Aces and Sixes)
+NAV75 collected $417 from pot
+*** SUMMARY ***
+Total pot $417 | Rake $10 
+Board [Ac 8d Qh 9s 6c]
+Seat 1: kole1992 (big blind) showed [Js As] and lost with a pair of Aces
+Seat 2: Kadiddy folded before Flop 
+Seat 3: UribnP folded before Flop 
+Seat 4: Hadadfojjo folded before Flop (didn't bet)
+Seat 5: FireWalkWithMe (button) folded before Flop (didn't bet)
+Seat 6: NAV75 (small blind) showed [6h Ad] and won ($417) with two pair, Aces and Sixes

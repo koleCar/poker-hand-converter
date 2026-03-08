@@ -1,0 +1,872 @@
+﻿Weplay Hand #75289596:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:36:50 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: rossi1616 ($50 in chips)
+Seat 3: Liam ($67.20 in chips)
+Seat 5: Balimi ($35.95 in chips)
+Seat 6: vladimirche1 ($49.28 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: Dlivak ($60.05 in chips)
+vladimirche1: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Qd]
+Dlivak: raises $1.25 to $1.25
+rossi1616 has timed out
+rossi1616: folds
+Liam: folds
+Balimi: raises $2.50 to $2.50
+vladimirche1: folds
+kole1992: folds
+Dlivak: calls $1.25
+*** FLOP *** [7d Ad 5d]
+Dlivak: checks
+Balimi: bets $3.50
+Dlivak: folds
+Uncalled bet ($3.50) returned to Balimi
+*** SHOW DOWN ***
+Balimi has timed out
+Balimi: doesn't show hand
+Balimi collected $5.75 from pot
+*** SUMMARY ***
+Total pot $5.75 | Rake $0.28 
+Board [7d Ad 5d]
+Seat 1: rossi1616 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 5: Balimi (button) collected ($5.75)
+Seat 6: vladimirche1 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: Dlivak folded on the Flop 
+
+
+Weplay Hand #75289703:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:38:07 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: rossi1616 ($50 in chips)
+Seat 3: Liam ($67.20 in chips)
+Seat 5: Balimi ($38.92 in chips)
+Seat 6: vladimirche1 ($49.03 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: Dlivak ($57.55 in chips)
+kole1992: posts small blind $0.25
+Dlivak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 5s]
+rossi1616: raises $1.25 to $1.25
+Liam: folds
+Balimi: folds
+vladimirche1: folds
+kole1992: folds
+Dlivak: folds
+Uncalled bet ($0.75) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: rossi1616 collected ($1.25)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 5: Balimi folded before Flop (didn't bet)
+Seat 6: vladimirche1 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Dlivak (big blind) folded before Flop 
+
+
+Weplay Hand #75289732:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:38:35 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: rossi1616 ($50.75 in chips)
+Seat 3: Liam ($67.20 in chips)
+Seat 5: Balimi ($38.92 in chips)
+Seat 6: vladimirche1 ($49.03 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: Dlivak ($57.05 in chips)
+Dlivak: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 5h]
+Liam: folds
+Balimi: folds
+vladimirche1: folds
+kole1992: folds
+Dlivak: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: rossi1616 (big blind) collected ($0.50)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 5: Balimi folded before Flop (didn't bet)
+Seat 6: vladimirche1 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Dlivak (small blind) folded before Flop 
+
+
+Weplay Hand #75289766:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:38:59 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: rossi1616 ($51 in chips)
+Seat 3: Liam ($67.20 in chips)
+Seat 5: Balimi ($38.92 in chips)
+Seat 6: vladimirche1 ($49.03 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: Dlivak ($56.80 in chips)
+rossi1616: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 2h]
+Balimi: raises $2 to $2
+vladimirche1: calls $2
+kole1992: folds
+Dlivak: calls $2
+rossi1616: calls $1.75
+Liam: folds
+*** FLOP *** [Qd 2s Js]
+rossi1616: bets $5.66
+Balimi: folds
+vladimirche1: folds
+Dlivak: calls $5.66
+*** TURN *** [Qd 2s Js] [Tc]
+rossi1616: checks
+Dlivak: bets $9.91
+rossi1616: calls $9.91
+*** RIVER *** [Qd 2s Js Tc] [Td]
+rossi1616: checks
+Dlivak: checks
+*** SHOW DOWN ***
+rossi1616: shows [Qc Ad] (two pair, Queens and Tens)
+Dlivak: shows [8c 9d] (a straight, Eight to Queen)
+Dlivak collected $39.64 from pot
+*** SUMMARY ***
+Total pot $39.64 | Rake $1.98 
+Board [Qd 2s Js Tc Td]
+Seat 1: rossi1616 (small blind) showed [Qc Ad] and lost with two pair, Queens and Tens
+Seat 3: Liam (big blind) folded before Flop 
+Seat 5: Balimi folded on the Flop 
+Seat 6: vladimirche1 folded on the Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Dlivak (button) showed [8c 9d] and won ($39.64) with a straight, Eight to Queen
+
+
+Weplay Hand #75289906:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:40:44 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: rossi1616 ($50 in chips)
+Seat 3: Liam ($66.70 in chips)
+Seat 5: Balimi ($36.92 in chips)
+Seat 6: vladimirche1 ($47.03 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: Dlivak ($76.89 in chips)
+Liam: posts small blind $0.25
+Balimi: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 2h]
+vladimirche1: folds
+kole1992: folds
+Dlivak: folds
+rossi1616: folds
+Liam: raises $0.75 to $1
+Balimi: folds
+Uncalled bet ($0.50) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: rossi1616 (button) folded before Flop (didn't bet)
+Seat 3: Liam (small blind) collected ($1)
+Seat 5: Balimi (big blind) folded before Flop 
+Seat 6: vladimirche1 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Dlivak folded before Flop (didn't bet)
+
+
+Weplay Hand #75289953:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:41:16 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: rossi1616 ($50 in chips)
+Seat 3: Liam ($67.20 in chips)
+Seat 5: Balimi ($36.42 in chips)
+Seat 6: vladimirche1 ($47.03 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: Dlivak ($76.89 in chips)
+Balimi: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 2d]
+kole1992: folds
+Dlivak: folds
+rossi1616: raises $1.25 to $1.25
+Liam: folds
+Balimi: calls $1
+vladimirche1: folds
+*** FLOP *** [2c 6c 7h]
+Balimi: checks
+rossi1616: checks
+*** TURN *** [2c 6c 7h] [Qd]
+Balimi: checks
+rossi1616: bets $1.50
+Balimi: folds
+Uncalled bet ($1.50) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [2c 6c 7h Qd]
+Seat 1: rossi1616 collected ($3)
+Seat 3: Liam (button) folded before Flop (didn't bet)
+Seat 5: Balimi (small blind) folded on the Turn 
+Seat 6: vladimirche1 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Dlivak folded before Flop (didn't bet)
+
+
+Weplay Hand #75290015:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:42:01 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: rossi1616 ($51.60 in chips)
+Seat 3: Liam ($67.20 in chips)
+Seat 5: Balimi ($35.17 in chips)
+Seat 6: vladimirche1 ($46.53 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: Dlivak ($76.89 in chips)
+vladimirche1: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Qc]
+Dlivak: folds
+rossi1616: folds
+Liam: folds
+Balimi: raises $1.50 to $1.50
+vladimirche1: folds
+kole1992: calls $1
+*** FLOP *** [6d Qd Jd]
+kole1992: checks
+Balimi: bets $1.80
+kole1992: calls $1.80
+*** TURN *** [6d Qd Jd] [As]
+kole1992: checks
+Balimi: checks
+*** RIVER *** [6d Qd Jd As] [7s]
+kole1992: checks
+Balimi: bets $2.50
+kole1992: folds
+Uncalled bet ($2.50) returned to Balimi
+*** SHOW DOWN ***
+Balimi has timed out
+Balimi: doesn't show hand
+Balimi collected $6.85 from pot
+*** SUMMARY ***
+Total pot $6.85 | Rake $0.34 
+Board [6d Qd Jd As 7s]
+Seat 1: rossi1616 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 5: Balimi (button) collected ($6.85)
+Seat 6: vladimirche1 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded on the River 
+Seat 8: Dlivak folded before Flop (didn't bet)
+
+
+Weplay Hand #75290152:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:43:43 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: rossi1616 ($51.60 in chips)
+Seat 3: Liam ($67.20 in chips)
+Seat 5: Balimi ($38.38 in chips)
+Seat 6: vladimirche1 ($46.28 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: Dlivak ($76.89 in chips)
+kole1992: posts small blind $0.25
+Dlivak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Tc]
+rossi1616: folds
+Liam: folds
+Balimi: raises $2 to $2
+vladimirche1: calls $2
+kole1992: folds
+Dlivak: folds
+*** FLOP *** [Js Jh 6d]
+Balimi: checks
+vladimirche1: bets $2.37
+Balimi: calls $2.37
+*** TURN *** [Js Jh 6d] [4c]
+Balimi: checks
+vladimirche1: checks
+*** RIVER *** [Js Jh 6d 4c] [Th]
+Balimi: bets $7
+vladimirche1: folds
+Uncalled bet ($7) returned to Balimi
+*** SHOW DOWN ***
+Balimi has timed out
+Balimi: doesn't show hand
+Balimi collected $9.49 from pot
+*** SUMMARY ***
+Total pot $9.49 | Rake $0.47 
+Board [Js Jh 6d 4c Th]
+Seat 1: rossi1616 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 5: Balimi collected ($9.49)
+Seat 6: vladimirche1 (button) folded on the River 
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Dlivak (big blind) folded before Flop 
+
+
+Weplay Hand #75290231:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:44:44 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: rossi1616 ($51.60 in chips)
+Seat 3: Liam ($67.20 in chips)
+Seat 5: Balimi ($43.03 in chips)
+Seat 6: vladimirche1 ($41.91 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: Dlivak ($76.39 in chips)
+Dlivak: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Kc]
+Liam: folds
+Balimi: raises $1.50 to $1.50
+vladimirche1: folds
+kole1992: raises $4.50 to $4.50
+Dlivak: folds
+rossi1616: folds
+Balimi: calls $3
+*** FLOP *** [Ts Qc Qh]
+Balimi: checks
+kole1992: checks
+*** TURN *** [Ts Qc Qh] [2s]
+Tone91 joins the table at seat #2
+Balimi: checks
+kole1992: bets $7.11
+Balimi: folds
+Uncalled bet ($7.11) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $9.75 from pot
+*** SUMMARY ***
+Total pot $9.75 | Rake $0.48 
+Board [Ts Qc Qh 2s]
+Seat 1: rossi1616 (big blind) folded before Flop 
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 5: Balimi folded on the Turn 
+Seat 6: vladimirche1 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) collected ($9.75)
+Seat 8: Dlivak (small blind) folded before Flop 
+
+
+Weplay Hand #75290359:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:46:26 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: rossi1616 ($51.10 in chips)
+Seat 2: Tone91 ($50 in chips)
+Seat 3: Liam ($67.20 in chips)
+Seat 5: Balimi ($38.53 in chips)
+Seat 6: vladimirche1 ($41.91 in chips)
+Seat 7: kole1992 ($54.77 in chips)
+Seat 8: Dlivak ($76.14 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 7d]
+Liam: folds
+Balimi: raises $1.50 to $1.50
+vladimirche1: folds
+kole1992: folds
+Dlivak: calls $1.50
+rossi1616: folds
+Tone91: calls $1
+*** FLOP *** [5h 4s 9d]
+Tone91: checks
+Balimi: bets $2.50
+Dlivak: calls $2.50
+Tone91: raises $11 to $11
+Balimi: folds
+Dlivak: folds
+Uncalled bet ($8.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $12.25 from pot
+*** SUMMARY ***
+Total pot $12.25 | Rake $0.61 
+Board [5h 4s 9d]
+Seat 1: rossi1616 (small blind) folded before Flop 
+Seat 2: Tone91 (big blind) collected ($12.25)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 5: Balimi folded on the Flop 
+Seat 6: vladimirche1 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Dlivak (button) folded on the Flop 
+
+
+Weplay Hand #75290443:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:47:30 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: rossi1616 ($50.85 in chips)
+Seat 2: Tone91 ($57.64 in chips)
+Seat 3: Liam ($67.20 in chips)
+Seat 5: Balimi ($34.53 in chips)
+Seat 6: vladimirche1 ($50 in chips)
+Seat 7: kole1992 ($54.77 in chips)
+Seat 8: Dlivak ($72.14 in chips)
+Tone91: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 3d]
+Balimi: folds
+vladimirche1: folds
+kole1992: folds
+Dlivak: raises $1.75 to $1.75
+rossi1616: calls $1.75
+Tone91: folds
+Liam: folds
+*** FLOP *** [Ah Qc 9c]
+Dlivak: checks
+rossi1616: bets $2.12
+Dlivak: folds
+Uncalled bet ($2.12) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $4.25 from pot
+*** SUMMARY ***
+Total pot $4.25 | Rake $0.21 
+Board [Ah Qc 9c]
+Seat 1: rossi1616 (button) collected ($4.25)
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: Liam (big blind) folded before Flop 
+Seat 5: Balimi folded before Flop (didn't bet)
+Seat 6: vladimirche1 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Dlivak folded on the Flop 
+
+
+Weplay Hand #75290512:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:48:29 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: rossi1616 ($53.14 in chips)
+Seat 2: Tone91 ($57.39 in chips)
+Seat 3: Liam ($66.70 in chips)
+Seat 5: Balimi ($34.53 in chips)
+Seat 6: vladimirche1 ($50 in chips)
+Seat 7: kole1992 ($54.77 in chips)
+Seat 8: Dlivak ($70.39 in chips)
+Liam: posts small blind $0.25
+Balimi: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 5d]
+vladimirche1: folds
+kole1992: folds
+Dlivak: folds
+rossi1616: folds
+Tone91: raises $1.25 to $1.25
+Liam: folds
+Balimi: raises $3 to $3.50
+Tone91: folds
+Uncalled bet ($2.25) returned to Balimi
+*** SHOW DOWN ***
+Balimi has timed out
+Balimi: doesn't show hand
+Balimi collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0 
+Seat 1: rossi1616 folded before Flop (didn't bet)
+Seat 2: Tone91 (button) folded before Flop 
+Seat 3: Liam (small blind) folded before Flop 
+Seat 5: Balimi (big blind) collected ($2.75)
+Seat 6: vladimirche1 folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Dlivak folded before Flop (didn't bet)
+
+
+Weplay Hand #75290569:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:49:19 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: rossi1616 ($53.14 in chips)
+Seat 2: Tone91 ($56.14 in chips)
+Seat 3: Liam ($66.45 in chips)
+Seat 5: Balimi ($36.03 in chips)
+Seat 6: vladimirche1 ($50 in chips)
+Seat 7: kole1992 ($54.77 in chips)
+Seat 8: Dlivak ($70.39 in chips)
+Balimi: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 3s]
+kole1992: folds
+Dlivak: calls $0.50
+rossi1616: raises $1.50 to $1.50
+Tone91: raises $4.50 to $4.50
+Liam: folds
+Balimi is disconnected 
+Balimi is connected 
+Balimi: calls $4.25
+vladimirche1: folds
+Dlivak: calls $4
+rossi1616: raises $51.64 to $53.14 and is all-in
+Tone91: folds
+Balimi: folds
+Dlivak: folds
+Uncalled bet ($48.64) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $18.50 from pot
+*** SUMMARY ***
+Total pot $18.50 | Rake $0 
+Seat 1: rossi1616 collected ($18.50)
+Seat 2: Tone91 folded before Flop 
+Seat 3: Liam (button) folded before Flop (didn't bet)
+Seat 5: Balimi (small blind) folded before Flop 
+Seat 6: vladimirche1 (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Dlivak folded before Flop 
+
+
+Weplay Hand #75290636:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:50:14 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: rossi1616 ($67.14 in chips)
+Seat 2: Tone91 ($51.64 in chips)
+Seat 3: Liam ($66.45 in chips)
+Seat 5: Balimi ($31.53 in chips)
+Seat 6: vladimirche1 ($49.50 in chips)
+Seat 7: kole1992 ($54.77 in chips)
+Seat 8: Dlivak ($65.89 in chips)
+vladimirche1: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 5d]
+Dlivak: folds
+rossi1616: raises $1.25 to $1.25
+Tone91: folds
+Liam: folds
+Balimi: calls $1.25
+vladimirche1: calls $1
+kole1992: folds
+*** FLOP *** [Qd 5s 3h]
+vladimirche1: checks
+rossi1616: bets $3.18
+Balimi: calls $3.18
+vladimirche1: folds
+*** TURN *** [Qd 5s 3h] [Ac]
+rossi1616: bets $7.95
+Balimi: calls $7.95
+*** RIVER *** [Qd 5s 3h Ac] [3c]
+rossi1616: bets $19.88
+Balimi: calls $19.15 and is all-in
+Uncalled bet ($0.73) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: shows [3d 3s] (four of a kind, Threes)
+Balimi: shows [Ad 4c] (two pair, Aces and Threes)
+rossi1616 collected $64.81 from pot
+*** SUMMARY ***
+Total pot $64.81 | Rake $3.24 
+Board [Qd 5s 3h Ac 3c]
+Seat 1: rossi1616 showed [3d 3s] and won ($64.81) with four of a kind, Threes
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 5: Balimi (button) showed [Ad 4c] and lost with two pair, Aces and Threes
+Seat 6: vladimirche1 (small blind) folded on the Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: Dlivak folded before Flop (didn't bet)
+
+
+Weplay Hand #75290714:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:51:19 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: rossi1616 ($97.18 in chips)
+Seat 2: Tone91 ($51.64 in chips)
+Seat 3: Liam ($66.45 in chips)
+Seat 6: vladimirche1 ($48.25 in chips)
+Seat 7: kole1992 ($54.27 in chips)
+Seat 8: Dlivak ($65.89 in chips)
+kole1992: posts small blind $0.25
+Dlivak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 2d]
+rossi1616: folds
+Tone91: folds
+Balimi leaves the table
+Liam: folds
+vladimirche1: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: rossi1616 folded before Flop (didn't bet)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 6: vladimirche1 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Dlivak (big blind) collected ($0.50)
+
+
+Weplay Hand #75290732:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:51:33 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: rossi1616 ($97.18 in chips)
+Seat 2: Tone91 ($51.64 in chips)
+Seat 3: Liam ($66.45 in chips)
+Seat 6: vladimirche1 ($48.25 in chips)
+Seat 7: kole1992 ($54.02 in chips)
+Seat 8: Dlivak ($66.14 in chips)
+Dlivak: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 2s]
+Tone91: raises $1.25 to $1.25
+Liam: folds
+vladimirche1: folds
+kole1992 has timed out
+kole1992: folds
+Dlivak: folds
+rossi1616: folds
+Uncalled bet ($0.75) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: rossi1616 (big blind) folded before Flop 
+Seat 2: Tone91 collected ($1.25)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 6: vladimirche1 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Dlivak (small blind) folded before Flop 
+
+
+Weplay Hand #75290780:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:52:14 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: rossi1616 ($96.68 in chips)
+Seat 2: Tone91 ($52.39 in chips)
+Seat 3: Liam ($66.45 in chips)
+Seat 6: vladimirche1 ($48.25 in chips)
+Seat 7: kole1992 ($54.02 in chips)
+Seat 8: Dlivak ($65.89 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Kc]
+Liam: folds
+vladimirche1 has timed out
+vladimirche1: folds
+kole1992: raises $1.25 to $1.25
+Dlivak: folds
+rossi1616: folds
+Tone91: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: rossi1616 (small blind) folded before Flop 
+Seat 2: Tone91 (big blind) folded before Flop 
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 6: vladimirche1 folded before Flop (didn't bet)
+Seat 7: kole1992 collected ($1.25)
+Seat 8: Dlivak (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75290850:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:53:13 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: rossi1616 ($96.43 in chips)
+Seat 2: Tone91 ($51.89 in chips)
+Seat 3: Liam ($66.45 in chips)
+Seat 6: vladimirche1 ($48.25 in chips)
+Seat 7: kole1992 ($54.77 in chips)
+Seat 8: Dlivak ($65.89 in chips)
+Tone91: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 2c]
+vladimirche1: raises $1.50 to $1.50
+kole1992: folds
+Dlivak: calls $1.50
+rossi1616 has timed out
+rossi1616: folds
+Tone91: folds
+Liam: calls $1
+*** FLOP *** [Jd 2s 5c]
+Liam: checks
+vladimirche1: bets $2.37
+Dlivak: calls $2.37
+Liam: calls $2.37
+*** TURN *** [Jd 2s 5c] [6d]
+Liam: checks
+vladimirche1: bets $14.14
+Dlivak: calls $14.14
+Liam: folds
+*** RIVER *** [Jd 2s 5c 6d] [Ad]
+vladimirche1: bets $30.24 and is all-in
+Dlivak: folds
+Uncalled bet ($30.24) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $40.14 from pot
+*** SUMMARY ***
+Total pot $40.14 | Rake $2 
+Board [Jd 2s 5c 6d Ad]
+Seat 1: rossi1616 (button) folded before Flop (didn't bet)
+Seat 2: Tone91 (small blind) folded before Flop 
+Seat 3: Liam (big blind) folded on the Turn 
+Seat 6: vladimirche1 collected ($40.14)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Dlivak folded on the River 
+
+
+Weplay Hand #75290959:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:54:56 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: rossi1616 ($96.43 in chips)
+Seat 2: Tone91 ($51.64 in chips)
+Seat 3: Liam ($62.58 in chips)
+Seat 6: vladimirche1 ($68.38 in chips)
+Seat 7: kole1992 ($54.77 in chips)
+Seat 8: Dlivak ($47.88 in chips)
+Liam: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 2c]
+kole1992: folds
+Dlivak: folds
+rossi1616 has timed out
+rossi1616: folds
+Tone91: folds
+Liam: folds
+Uncalled bet ($0.25) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: rossi1616 folded before Flop (didn't bet)
+Seat 2: Tone91 (button) folded before Flop (didn't bet)
+Seat 3: Liam (small blind) folded before Flop 
+Seat 6: vladimirche1 (big blind) collected ($0.50)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Dlivak folded before Flop (didn't bet)
+
+
+Weplay Hand #75290973:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:55:33 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 2: Tone91 ($51.64 in chips)
+Seat 3: Liam ($62.33 in chips)
+Seat 6: vladimirche1 ($68.63 in chips)
+Seat 7: kole1992 ($54.77 in chips)
+Seat 8: Dlivak ($47.88 in chips)
+vladimirche1: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 7d]
+Dlivak: folds
+Tone91: folds
+Liam: folds
+vladimirche1: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam (button) folded before Flop (didn't bet)
+Seat 6: vladimirche1 (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) collected ($0.50)
+Seat 8: Dlivak folded before Flop (didn't bet)
+
+
+Weplay Hand #75290980:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:56:02 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: rossi1616 ($96.43 in chips)
+Seat 2: Tone91 ($51.64 in chips)
+Seat 3: Liam ($62.33 in chips)
+Seat 6: vladimirche1 ($68.38 in chips)
+Seat 7: kole1992 ($55.02 in chips)
+Seat 8: Dlivak ($47.88 in chips)
+kole1992: posts small blind $0.25
+Dlivak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Js]
+rossi1616: folds
+Tone91: folds
+Liam: folds
+vladimirche1: raises $1.50 to $1.50
+kole1992: folds
+Dlivak: folds
+Uncalled bet ($1) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: rossi1616 folded before Flop (didn't bet)
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 6: vladimirche1 (button) collected ($1.25)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Dlivak (big blind) folded before Flop 
+
+
+Weplay Hand #75290991:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:56:31 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: rossi1616 ($96.43 in chips)
+Seat 2: Tone91 ($51.64 in chips)
+Seat 3: Liam ($62.33 in chips)
+Seat 6: vladimirche1 ($69.13 in chips)
+Seat 7: kole1992 ($54.77 in chips)
+Seat 8: Dlivak ($47.38 in chips)
+Dlivak: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 8c]
+Tone91: folds
+Liam: folds
+vladimirche1: folds
+kole1992: raises $1.25 to $1.25
+Dlivak: folds
+rossi1616: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: rossi1616 (big blind) folded before Flop 
+Seat 2: Tone91 folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 6: vladimirche1 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) collected ($1.25)
+Seat 8: Dlivak (small blind) folded before Flop 
+
+
+Weplay Hand #75290995:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 15:56:58 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: rossi1616 ($95.93 in chips)
+Seat 2: Tone91 ($51.64 in chips)
+Seat 3: Liam ($62.33 in chips)
+Seat 6: vladimirche1 ($69.13 in chips)
+Seat 7: kole1992 ($55.52 in chips)
+Seat 8: Dlivak ($47.13 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 9c]
+Liam: folds
+vladimirche1: raises $1.25 to $1.25
+kole1992: folds
+Dlivak: folds
+rossi1616: raises $4 to $4.25
+Tone91: folds
+vladimirche1: calls $3
+*** FLOP *** [4c 4d 5h]
+rossi1616: checks
+vladimirche1: checks
+*** TURN *** [4c 4d 5h] [4s]
+rossi1616: checks
+vladimirche1: bets $9
+rossi1616: folds
+Uncalled bet ($9) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [4c 4d 5h 4s]
+Seat 1: rossi1616 (small blind) folded on the Turn 
+Seat 2: Tone91 (big blind) folded before Flop 
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 6: vladimirche1 collected ($9)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Dlivak (button) folded before Flop (didn't bet)

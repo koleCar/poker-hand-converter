@@ -1,0 +1,490 @@
+﻿Weplay Hand #75264170:  Hold'em No Limit ($1/$2) - 2026/02/10 10:02:37 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: PotripperX ($215.50 in chips)
+Seat 4: Olaf193 ($177.76 in chips)
+Seat 5: Swarozyc ($342.34 in chips)
+Seat 6: Janka_Kupala ($75.84 in chips)
+tuPaTu: posts small blind $1
+kole1992: posts big blind $2
+PotripperX has timed out
+PotripperX: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Ts]
+PotripperX: folds
+Olaf193: folds
+Swarozyc: folds
+Janka_Kupala: folds
+tuPaTu: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: tuPaTu (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) collected ($2)
+Seat 3: PotripperX folded before Flop (didn't bet)
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Swarozyc folded before Flop (didn't bet)
+Seat 6: Janka_Kupala (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75264191:  Hold'em No Limit ($1/$2) - 2026/02/10 10:03:12 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($201 in chips)
+Seat 3: PotripperX ($215.50 in chips)
+Seat 4: Olaf193 ($177.76 in chips)
+Seat 5: Swarozyc ($342.34 in chips)
+Seat 6: Janka_Kupala ($75.84 in chips)
+kole1992: posts small blind $1
+PotripperX: posts big blind $2
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 5h]
+Olaf193: calls $2
+Swarozyc: raises $8 to $8
+Janka_Kupala: calls $8
+tuPaTu: folds
+kole1992: folds
+PotripperX: folds
+Olaf193: calls $6
+*** FLOP *** [8c 6h Kd]
+Olaf193: checks
+Swarozyc: checks
+Janka_Kupala: bets $9
+Olaf193: folds
+Swarozyc: folds
+Uncalled bet ($9) returned to Janka_Kupala
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 5h]
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $27 from pot
+*** SUMMARY ***
+Total pot $27 | Rake $1.35 
+Board [8c 6h Kd]
+Seat 1: tuPaTu (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: PotripperX (big blind) folded before Flop 
+Seat 4: Olaf193 folded on the Flop 
+Seat 5: Swarozyc folded on the Flop 
+Seat 6: Janka_Kupala collected ($27)
+
+
+Weplay Hand #75264215:  Hold'em No Limit ($1/$2) - 2026/02/10 10:03:57 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: PotripperX ($213.50 in chips)
+Seat 4: Olaf193 ($169.76 in chips)
+Seat 5: Swarozyc ($334.34 in chips)
+Seat 6: Janka_Kupala ($93.49 in chips)
+PotripperX: posts small blind $1
+Olaf193: posts big blind $2
+Swarozyc: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Th]
+Swarozyc: folds
+Janka_Kupala: folds
+tuPaTu: raises $5 to $5
+kole1992: folds
+PotripperX: raises $21 to $22
+Olaf193: folds
+tuPaTu: folds
+Uncalled bet ($17) returned to PotripperX
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Th]
+PotripperX has timed out
+PotripperX: doesn't show hand
+PotripperX collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 1: tuPaTu folded before Flop 
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: PotripperX (small blind) collected ($12)
+Seat 4: Olaf193 (big blind) folded before Flop 
+Seat 5: Swarozyc folded before Flop (didn't bet)
+Seat 6: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #75264226:  Hold'em No Limit ($1/$2) - 2026/02/10 10:04:26 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #3 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: PotripperX ($220.50 in chips)
+Seat 4: Olaf193 ($167.76 in chips)
+Seat 5: Swarozyc ($334.34 in chips)
+Seat 6: Janka_Kupala ($93.49 in chips)
+Olaf193: posts small blind $1
+Swarozyc: posts big blind $2
+Janka_Kupala: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Th]
+Janka_Kupala: folds
+tuPaTu: folds
+kole1992: raises $4 to $4
+PotripperX: raises $6 to $6
+Olaf193: calls $5
+Swarozyc: folds
+kole1992: calls $2
+*** FLOP *** [Td 6d 6c]
+Olaf193: checks
+kole1992: checks
+PotripperX: checks
+*** TURN *** [Td 6d 6c] [Ad]
+Olaf193: checks
+kole1992: checks
+PotripperX: bets $14.20
+Olaf193: folds
+kole1992: calls $14.20
+*** RIVER *** [Td 6d 6c Ad] [4s]
+kole1992: checks
+PotripperX: bets $34.36
+kole1992: folds
+Uncalled bet ($34.36) returned to PotripperX
+*** SHOW DOWN ***
+PotripperX has timed out
+PotripperX: doesn't show hand
+PotripperX collected $48.40 from pot
+*** SUMMARY ***
+Total pot $48.40 | Rake $2.42 
+Board [Td 6d 6c Ad 4s]
+Seat 1: tuPaTu folded before Flop (didn't bet)
+Seat 2: kole1992 folded on the River 
+Seat 3: PotripperX (button) collected ($48.40)
+Seat 4: Olaf193 (small blind) folded on the Turn 
+Seat 5: Swarozyc (big blind) folded before Flop 
+Seat 6: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #75264269:  Hold'em No Limit ($1/$2) - 2026/02/10 10:06:08 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #4 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: PotripperX ($246.28 in chips)
+Seat 4: Olaf193 ($161.76 in chips)
+Seat 5: Swarozyc ($332.34 in chips)
+Seat 6: Janka_Kupala ($93.49 in chips)
+Swarozyc: posts small blind $1
+Janka_Kupala: posts big blind $2
+tuPaTu: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 8c]
+tuPaTu: folds
+kole1992: folds
+PotripperX: raises $5 to $5
+Olaf193: calls $5
+Swarozyc: folds
+Janka_Kupala: folds
+*** FLOP *** [6c 5s As]
+PotripperX: checks
+Olaf193: bets $6.50
+PotripperX: folds
+Uncalled bet ($6.50) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 8c]
+Olaf193 has timed out
+Olaf193: doesn't show hand
+Olaf193 collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [6c 5s As]
+Seat 1: tuPaTu folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: PotripperX folded on the Flop 
+Seat 4: Olaf193 (button) collected ($13)
+Seat 5: Swarozyc (small blind) folded before Flop 
+Seat 6: Janka_Kupala (big blind) folded before Flop 
+
+
+Weplay Hand #75264288:  Hold'em No Limit ($1/$2) - 2026/02/10 10:06:50 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: PotripperX ($241.28 in chips)
+Seat 4: Olaf193 ($169.11 in chips)
+Seat 5: Swarozyc ($331.34 in chips)
+Seat 6: Janka_Kupala ($91.49 in chips)
+Janka_Kupala: posts small blind $1
+tuPaTu: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Ts]
+kole1992: folds
+PotripperX: folds
+Olaf193: raises $6 to $6
+Swarozyc: folds
+Janka_Kupala: raises $17 to $18
+tuPaTu: folds
+Olaf193: calls $12
+*** FLOP *** [5h 4c Td]
+Janka_Kupala: bets $19
+Olaf193: folds
+Uncalled bet ($19) returned to Janka_Kupala
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Ts]
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $38 from pot
+*** SUMMARY ***
+Total pot $38 | Rake $1.90 
+Board [5h 4c Td]
+Seat 1: tuPaTu (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: PotripperX folded before Flop (didn't bet)
+Seat 4: Olaf193 folded on the Flop 
+Seat 5: Swarozyc (button) folded before Flop (didn't bet)
+Seat 6: Janka_Kupala (small blind) collected ($38)
+
+
+Weplay Hand #75264309:  Hold'em No Limit ($1/$2) - 2026/02/10 10:07:36 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #6 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($200 in chips)
+Seat 3: PotripperX ($241.28 in chips)
+Seat 4: Olaf193 ($151.11 in chips)
+Seat 5: Swarozyc ($331.34 in chips)
+Seat 6: Janka_Kupala ($109.59 in chips)
+tuPaTu: posts small blind $1
+kole1992: posts big blind $2
+PotripperX: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Ks]
+PotripperX: raises $5 to $5
+Olaf193: folds
+Swarozyc: folds
+Janka_Kupala: folds
+tuPaTu: folds
+kole1992: raises $21 to $23
+PotripperX: calls $18
+*** FLOP *** [Ac Td Ah]
+kole1992: bets $11.28
+PotripperX: calls $11.28
+*** TURN *** [Ac Td Ah] [4s]
+kole1992: checks
+PotripperX: checks
+*** RIVER *** [Ac Td Ah 4s] [Tc]
+kole1992: bets $16.69
+PotripperX: folds
+Uncalled bet ($16.69) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $69.56 from pot
+*** SUMMARY ***
+Total pot $69.56 | Rake $3.47 
+Board [Ac Td Ah 4s Tc]
+Seat 1: tuPaTu (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) collected ($69.56)
+Seat 3: PotripperX folded on the River 
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: Swarozyc folded before Flop (didn't bet)
+Seat 6: Janka_Kupala (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75265354:  Hold'em No Limit ($1/$2) - 2026/02/10 10:09:21 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($231.81 in chips)
+Seat 4: Olaf193 ($151.11 in chips)
+Seat 5: Swarozyc ($331.34 in chips)
+Seat 6: Janka_Kupala ($109.59 in chips)
+kole1992: posts small blind $1
+Olaf193: posts big blind $2
+Swarozyc: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Ad]
+PotripperX leaves the table
+Swarozyc: folds
+Janka_Kupala: raises $4 to $4
+tuPaTu: folds
+kole1992: folds
+Olaf193: folds
+Uncalled bet ($2) returned to Janka_Kupala
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Ad]
+Janka_Kupala: doesn't show hand
+Janka_Kupala collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: tuPaTu (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) folded before Flop 
+Seat 5: Swarozyc folded before Flop (didn't bet)
+Seat 6: Janka_Kupala collected ($5)
+
+
+Weplay Hand #75265357:  Hold'em No Limit ($1/$2) - 2026/02/10 10:09:36 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($230.81 in chips)
+Seat 4: Olaf193 ($149.11 in chips)
+Seat 5: Swarozyc ($331.34 in chips)
+Seat 6: Janka_Kupala ($112.59 in chips)
+Olaf193: posts small blind $1
+Swarozyc: posts big blind $2
+Janka_Kupala: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 8c]
+Janka_Kupala: folds
+tuPaTu: raises $5 to $5
+Janka_Kupala leaves the table
+kole1992: folds
+Olaf193: calls $4
+Swarozyc: folds
+*** FLOP *** [9d 8d 7d]
+Olaf193: checks
+tuPaTu: checks
+*** TURN *** [9d 8d 7d] [9h]
+Olaf193: checks
+tuPaTu: checks
+*** RIVER *** [9d 8d 7d 9h] [Qc]
+Olaf193: bets $6
+tuPaTu: folds
+Uncalled bet ($6) returned to Olaf193
+*** SHOW DOWN ***
+Olaf193 has timed out
+Olaf193: doesn't show hand
+Olaf193 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [9d 8d 7d 9h Qc]
+Seat 1: tuPaTu folded on the River 
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) collected ($12)
+Seat 5: Swarozyc (big blind) folded before Flop 
+Seat 6: Janka_Kupala folded before Flop (didn't bet)
+
+
+Weplay Hand #75265373:  Hold'em No Limit ($1/$2) - 2026/02/10 10:10:16 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #4 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($230.81 in chips)
+Seat 4: Olaf193 ($155.51 in chips)
+Seat 5: Swarozyc ($329.34 in chips)
+Swarozyc: posts small blind $1
+tuPaTu: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Ac]
+kole1992: raises $4 to $4
+Olaf193: raises $9 to $9
+Swarozyc: folds
+tuPaTu: folds
+kole1992: calls $5
+*** FLOP *** [7h 6h 7c]
+kole1992: checks
+Olaf193: bets $14
+kole1992: calls $14
+*** TURN *** [7h 6h 7c] [2d]
+kole1992: checks
+Olaf193: checks
+*** RIVER *** [7h 6h 7c 2d] [Jh]
+kole1992: checks
+Olaf193: bets $22
+kole1992: folds
+Uncalled bet ($22) returned to Olaf193
+*** SHOW DOWN ***
+Olaf193 has timed out
+Olaf193: doesn't show hand
+Olaf193 collected $49 from pot
+*** SUMMARY ***
+Total pot $49 | Rake $2.45 
+Board [7h 6h 7c 2d Jh]
+Seat 1: tuPaTu (big blind) folded before Flop 
+Seat 2: kole1992 folded on the River 
+Seat 4: Olaf193 (button) collected ($49)
+Seat 5: Swarozyc (small blind) folded before Flop 
+
+
+Weplay Hand #75265412:  Hold'em No Limit ($1/$2) - 2026/02/10 10:12:06 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #5 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($207.81 in chips)
+Seat 4: Olaf193 ($179.06 in chips)
+Seat 5: Swarozyc ($328.34 in chips)
+tuPaTu: posts small blind $1
+kole1992: posts big blind $2
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 9c]
+Olaf193: calls $2
+Swarozyc: raises $8 to $8
+tuPaTu: calls $7
+kole1992: folds
+Olaf193: calls $6
+*** FLOP *** [Jd Kd Ac]
+tuPaTu: checks
+Olaf193: checks
+Swarozyc: bets $8.60
+tuPaTu: folds
+Olaf193: folds
+Uncalled bet ($8.60) returned to Swarozyc
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 9c]
+Swarozyc: doesn't show hand
+Swarozyc collected $26 from pot
+*** SUMMARY ***
+Total pot $26 | Rake $1.30 
+Board [Jd Kd Ac]
+Seat 1: tuPaTu (small blind) folded on the Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 4: Olaf193 folded on the Flop 
+Seat 5: Swarozyc (button) collected ($26)
+
+
+Weplay Hand #75265425:  Hold'em No Limit ($1/$2) - 2026/02/10 10:12:54 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #1 is the button
+Seat 1: tuPaTu ($200 in chips)
+Seat 2: kole1992 ($205.81 in chips)
+Seat 5: Swarozyc ($345.04 in chips)
+kole1992: posts small blind $1
+Swarozyc: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 3h]
+tuPaTu: raises $5 to $5
+kole1992: folds
+Swarozyc: folds
+Uncalled bet ($3) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 3h]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: tuPaTu (button) collected ($5)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 5: Swarozyc (big blind) folded before Flop 
+
+
+Weplay Hand #75265428:  Hold'em No Limit ($1/$2) - 2026/02/10 10:13:10 UTC
+Table 'Lisbon #1'(11621802) 6-max (Money 3) Seat #2 is the button
+Seat 1: tuPaTu ($203 in chips)
+Seat 2: kole1992 ($204.81 in chips)
+Seat 5: Swarozyc ($343.04 in chips)
+Swarozyc: posts small blind $1
+tuPaTu: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 3c]
+kole1992: folds
+Swarozyc: folds
+Uncalled bet ($1) returned to tuPaTu
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 3c]
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: tuPaTu (big blind) collected ($2)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Swarozyc (small blind) folded before Flop 

@@ -1,0 +1,315 @@
+﻿Weplay Hand #73832042:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:03:30 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Doumby ($50 in chips)
+Seat 2: sadam ($61.07 in chips)
+Seat 3: KratkiLucky ($64.56 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: Tone91 ($50 in chips)
+Seat 6: KoTBalu ($25.49 in chips)
+KratkiLucky: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 4d]
+Tone91: folds
+KoTBalu: folds
+Doumby: raises $1.25 to $1.25
+sadam: folds
+KratkiLucky: raises $6 to $6.25
+kole1992: folds
+Doumby: calls $5
+*** FLOP *** [2c Kh 2h]
+KratkiLucky: bets $3.25
+Doumby: calls $3.25
+*** TURN *** [2c Kh 2h] [Td]
+KratkiLucky: checks
+Doumby: checks
+*** RIVER *** [2c Kh 2h Td] [Ad]
+KratkiLucky: checks
+Doumby: checks
+*** SHOW DOWN ***
+KratkiLucky: shows [Jd Tc] (two pair, Tens and Deuces)
+Doumby: shows [Qh Qs] (two pair, Queens and Deuces)
+Doumby collected $19.50 from pot
+*** SUMMARY ***
+Total pot $19.50 | Rake $0.97 
+Board [2c Kh 2h Td Ad]
+Seat 1: Doumby showed [Qh Qs] and won ($19.50) with two pair, Queens and Deuces
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: KratkiLucky (small blind) showed [Jd Tc] and lost with two pair, Tens and Deuces
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832073:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:04:42 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Doumby ($59.03 in chips)
+Seat 2: sadam ($61.07 in chips)
+Seat 3: KratkiLucky ($55.06 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: Tone91 ($50 in chips)
+Seat 6: KoTBalu ($25.49 in chips)
+kole1992: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Jc]
+KoTBalu: folds
+Doumby: folds
+sadam: folds
+KratkiLucky: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Doumby folded before Flop (didn't bet)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: Tone91 (big blind) collected ($0.50)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #73832085:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:04:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Doumby ($59.03 in chips)
+Seat 2: sadam ($61.07 in chips)
+Seat 3: KratkiLucky ($55.06 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: Tone91 ($50.25 in chips)
+Seat 6: KoTBalu ($25.49 in chips)
+Tone91: posts small blind $0.25
+KoTBalu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 2c]
+Doumby: folds
+sadam: folds
+KratkiLucky: folds
+kole1992: folds
+Tone91: raises $1.25 to $1.50
+KoTBalu: calls $1
+*** FLOP *** [4s 9d Td]
+Tone91: bets $2.25
+KoTBalu: calls $2.25
+*** TURN *** [4s 9d Td] [7d]
+Tone91: checks
+KoTBalu: checks
+*** RIVER *** [4s 9d Td 7d] [7c]
+Tone91: checks
+KoTBalu: checks
+*** SHOW DOWN ***
+Tone91: shows [6d 7s] (three of a kind, Sevens)
+KoTBalu: mucks hand
+Tone91 collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [4s 9d Td 7d 7c]
+Seat 1: Doumby folded before Flop (didn't bet)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: Tone91 (small blind) showed [6d 7s] and won ($7.50) with three of a kind, Sevens
+Seat 6: KoTBalu (big blind) mucked
+
+
+Weplay Hand #73832133:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:06:40 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Doumby ($59.03 in chips)
+Seat 2: sadam ($61.07 in chips)
+Seat 3: KratkiLucky ($55.06 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: Tone91 ($53.63 in chips)
+Seat 6: KoTBalu ($21.74 in chips)
+KoTBalu: posts small blind $0.25
+Doumby: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Ts]
+sadam: folds
+KratkiLucky: raises $1.25 to $1.25
+kole1992: folds
+Tone91: folds
+KoTBalu: folds
+Doumby: calls $0.75
+*** FLOP *** [7c 5d Ad]
+Doumby: checks
+KratkiLucky: checks
+*** TURN *** [7c 5d Ad] [2c]
+Doumby: checks
+KratkiLucky: checks
+*** RIVER *** [7c 5d Ad 2c] [5s]
+Doumby: checks
+KratkiLucky: bets $1
+Doumby: folds
+Uncalled bet ($1) returned to KratkiLucky
+*** SHOW DOWN ***
+Doumby: shows [## 6d] (a pair of Fives)
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [7c 5d Ad 2c 5s]
+Seat 1: Doumby (big blind) folded on the River 
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: KratkiLucky collected ($2.75)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: KoTBalu (small blind) folded before Flop 
+
+
+Weplay Hand #73832170:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:08:00 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Doumby ($57.78 in chips)
+Seat 2: sadam ($61.07 in chips)
+Seat 3: KratkiLucky ($56.43 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: Tone91 ($53.63 in chips)
+Seat 6: KoTBalu ($21.49 in chips)
+Doumby: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 9s]
+KratkiLucky: folds
+kole1992: folds
+Tone91: folds
+KoTBalu: raises $1.25 to $1.25
+Doumby: folds
+sadam: calls $0.75
+*** FLOP *** [Jd Ts 9h]
+sadam: checks
+KoTBalu: bets $2.05
+sadam: calls $2.05
+*** TURN *** [Jd Ts 9h] [7h]
+sadam: checks
+KoTBalu: checks
+*** RIVER *** [Jd Ts 9h 7h] [Ks]
+sadam: checks
+KoTBalu: bets $2.25
+sadam: calls $2.25
+*** SHOW DOWN ***
+KoTBalu: shows [Kd Kh] (three of a kind, Kings)
+sadam: mucks hand
+KoTBalu collected $11.35 from pot
+*** SUMMARY ***
+Total pot $11.35 | Rake $0.56 
+Board [Jd Ts 9h 7h Ks]
+Seat 1: Doumby (small blind) folded before Flop 
+Seat 2: sadam (big blind) mucked
+Seat 3: KratkiLucky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: KoTBalu (button) showed [Kd Kh] and won ($11.35) with three of a kind, Kings
+
+
+Weplay Hand #73832194:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:08:54 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Doumby ($57.53 in chips)
+Seat 2: sadam ($55.52 in chips)
+Seat 3: KratkiLucky ($56.43 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: Tone91 ($53.63 in chips)
+Seat 6: KoTBalu ($26.73 in chips)
+sadam: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 3d]
+kole1992: folds
+Tone91: folds
+KoTBalu: raises $1.25 to $1.25
+Doumby: raises $4 to $4
+sadam: folds
+KratkiLucky: folds
+sadam leaves the table
+KoTBalu: folds
+Uncalled bet ($2.75) returned to Doumby
+*** SHOW DOWN ***
+KoTBalu is disconnected 
+Doumby: doesn't show hand
+Doumby collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: Doumby (button) collected ($3.25)
+Seat 2: sadam (small blind) folded before Flop 
+Seat 3: KratkiLucky (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: Tone91 folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop 
+
+
+Weplay Hand #73832221:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:09:42 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Doumby ($59.53 in chips)
+Seat 3: KratkiLucky ($55.93 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: Tone91 ($53.63 in chips)
+KratkiLucky: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 9d]
+KoTBalu is connected 
+Tone91: raises $1 to $1
+Doumby: folds
+KratkiLucky: folds
+KoTBalu leaves the table
+kole1992: folds
+Uncalled bet ($0.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Doumby folded before Flop (didn't bet)
+Seat 3: KratkiLucky (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: Tone91 collected ($1.25)
+
+
+Weplay Hand #73832229:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:10:01 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Doumby ($59.53 in chips)
+Seat 3: KratkiLucky ($55.68 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: Tone91 ($54.38 in chips)
+kole1992: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 2s]
+Doumby: raises $1 to $1
+KratkiLucky: folds
+kole1992: folds
+Tone91: folds
+Uncalled bet ($0.50) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Doumby collected ($1.25)
+Seat 3: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: Tone91 (big blind) folded before Flop 
+
+
+Weplay Hand #73832241:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:10:20 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 3: KratkiLucky ($55.68 in chips)
+Seat 4: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 3d]
+kole1992: folds
+Uncalled bet ($0.25) returned to KratkiLucky
+*** SHOW DOWN ***
+kole1992: sits out 
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 3: KratkiLucky (big blind) collected ($0.50)
+Seat 4: kole1992 (button) (small blind) folded before Flop 

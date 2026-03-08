@@ -1,0 +1,1373 @@
+﻿Weplay Hand #71768572:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:39:09 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($72.93 in chips)
+Seat 5: JTs98o ($51.50 in chips)
+Seat 6: Dlivak ($94.84 in chips)
+Seat 7: BeatrixKiddo ($99.98 in chips)
+Seat 8: SweetieFox ($50.74 in chips)
+Acscobar: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 8s]
+Liam: folds
+JTs98o: folds
+Dlivak: calls $0.50
+BeatrixKiddo: folds
+SweetieFox: raises $1.50 to $1.50
+Acscobar: folds
+kole1992: folds
+Dlivak: calls $1
+*** FLOP *** [Qc 7c 8c]
+Dlivak: checks
+SweetieFox: bets $1.90
+Dlivak: folds
+Uncalled bet ($1.90) returned to SweetieFox
+*** SHOW DOWN ***
+SweetieFox has timed out
+SweetieFox: doesn't show hand
+SweetieFox collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [Qc 7c 8c]
+Seat 1: Acscobar (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Dlivak folded on the Flop 
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) collected ($3.75)
+
+
+Weplay Hand #71768599:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:40:01 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($72.93 in chips)
+Seat 5: JTs98o ($51.50 in chips)
+Seat 6: Dlivak ($93.34 in chips)
+Seat 7: BeatrixKiddo ($99.98 in chips)
+Seat 8: SweetieFox ($52.81 in chips)
+kole1992: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 7h]
+JTs98o: folds
+Dlivak: calls $0.50
+BeatrixKiddo: folds
+SweetieFox: folds
+Acscobar: folds
+kole1992: folds
+Liam: checks
+*** FLOP *** [6d 4h Ks]
+Liam: checks
+Dlivak: checks
+*** TURN *** [6d 4h Ks] [2d]
+Liam: checks
+Dlivak: checks
+*** RIVER *** [6d 4h Ks 2d] [Kd]
+Liam: checks
+Dlivak: bets $1.25
+Liam: folds
+Uncalled bet ($1.25) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [6d 4h Ks 2d Kd]
+Seat 1: Acscobar (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 4: Liam (big blind) folded on the River 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: Dlivak collected ($1.25)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71768637:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:41:31 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($72.43 in chips)
+Seat 6: Dlivak ($94.03 in chips)
+Seat 7: BeatrixKiddo ($99.98 in chips)
+Seat 8: SweetieFox ($52.81 in chips)
+Liam: posts small blind $0.25
+Dlivak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 3c]
+BeatrixKiddo: folds
+SweetieFox: folds
+Acscobar: folds
+kole1992: folds
+Liam: folds
+Uncalled bet ($0.25) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Liam (small blind) folded before Flop 
+Seat 6: Dlivak (big blind) collected ($0.50)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71768653:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:41:55 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($72.18 in chips)
+Seat 6: Dlivak ($94.28 in chips)
+Seat 7: BeatrixKiddo ($99.98 in chips)
+Seat 8: SweetieFox ($52.81 in chips)
+Dlivak: posts small blind $0.25
+BeatrixKiddo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Kd]
+SweetieFox: folds
+Acscobar: folds
+kole1992: raises $1 to $1
+Liam: folds
+Dlivak: folds
+BeatrixKiddo: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 collected ($1.25)
+Seat 4: Liam (button) folded before Flop (didn't bet)
+Seat 6: Dlivak (small blind) folded before Flop 
+Seat 7: BeatrixKiddo (big blind) folded before Flop 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71768664:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:42:29 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50.75 in chips)
+Seat 4: Liam ($72.18 in chips)
+Seat 6: Dlivak ($94.03 in chips)
+Seat 7: BeatrixKiddo ($99.48 in chips)
+Seat 8: SweetieFox ($52.81 in chips)
+BeatrixKiddo: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 5h]
+Acscobar: folds
+kole1992: raises $1 to $1
+Liam: folds
+Dlivak: calls $1
+BeatrixKiddo: folds
+SweetieFox: calls $0.50
+*** FLOP *** [7h Qd 8c]
+SweetieFox: checks
+kole1992: checks
+Dlivak: checks
+*** TURN *** [7h Qd 8c] [4s]
+SweetieFox: bets $2.45
+kole1992: calls $2.45
+Dlivak: folds
+*** RIVER *** [7h Qd 8c 4s] [Td]
+SweetieFox: checks
+kole1992: bets $14.25
+SweetieFox: calls $14.25
+*** SHOW DOWN ***
+kole1992: shows [Ah 5h] (high card Ace)
+SweetieFox: shows [6c Qc] (a pair of Queens)
+SweetieFox collected $36.65 from pot
+*** SUMMARY ***
+Total pot $36.65 | Rake $1.83 
+Board [7h Qd 8c 4s Td]
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 showed [Ah 5h] and lost with high card Ace
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 6: Dlivak (button) folded on the Turn 
+Seat 7: BeatrixKiddo (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) showed [6c Qc] and won ($36.65) with a pair of Queens
+
+
+Weplay Hand #71768702:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:44:00 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($72.18 in chips)
+Seat 6: Dlivak ($93.03 in chips)
+Seat 7: BeatrixKiddo ($99.23 in chips)
+Seat 8: SweetieFox ($69.93 in chips)
+SweetieFox: posts small blind $0.25
+Acscobar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 2s]
+kole1992: folds
+Liam: folds
+Dlivak: raises $1.25 to $1.25
+BeatrixKiddo: folds
+SweetieFox: calls $1
+Acscobar: folds
+*** FLOP *** [6h Js 5d]
+SweetieFox: checks
+Dlivak: checks
+*** TURN *** [6h Js 5d] [5h]
+SweetieFox: bets $2.75
+Dlivak: folds
+Uncalled bet ($2.75) returned to SweetieFox
+*** SHOW DOWN ***
+SweetieFox has timed out
+SweetieFox: doesn't show hand
+SweetieFox collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [6h Js 5d 5h]
+Seat 1: Acscobar (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 6: Dlivak folded on the Turn 
+Seat 7: BeatrixKiddo (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) collected ($3)
+
+
+Weplay Hand #71768723:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:45:00 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($72.18 in chips)
+Seat 6: Dlivak ($91.78 in chips)
+Seat 7: BeatrixKiddo ($99.23 in chips)
+Seat 8: SweetieFox ($71.53 in chips)
+Acscobar: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Jh]
+Liam: folds
+Dlivak: raises $1.75 to $1.75
+BeatrixKiddo: folds
+SweetieFox: calls $1.75
+Acscobar: folds
+kole1992: calls $1.25
+*** FLOP *** [9d Jc Ad]
+kole1992: checks
+Dlivak: checks
+SweetieFox: checks
+*** TURN *** [9d Jc Ad] [2s]
+kole1992: checks
+Dlivak: checks
+SweetieFox: bets $4.15
+kole1992: folds
+Dlivak: folds
+Uncalled bet ($4.15) returned to SweetieFox
+*** SHOW DOWN ***
+SweetieFox has timed out
+SweetieFox: doesn't show hand
+SweetieFox collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [9d Jc Ad 2s]
+Seat 1: Acscobar (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded on the Turn 
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 6: Dlivak folded on the Turn 
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) collected ($5.50)
+
+
+Weplay Hand #71768756:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:46:32 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($72.18 in chips)
+Seat 6: Dlivak ($90.03 in chips)
+Seat 7: BeatrixKiddo ($99.23 in chips)
+Seat 8: SweetieFox ($75.01 in chips)
+kole1992: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 7s]
+Dlivak: calls $0.50
+BeatrixKiddo: folds
+SweetieFox: folds
+Acscobar: folds
+kole1992: folds
+Liam: checks
+*** FLOP *** [8s 7h 9h]
+Liam: checks
+Dlivak: bets $0.62
+Liam: folds
+Uncalled bet ($0.62) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [8s 7h 9h]
+Seat 1: Acscobar (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 4: Liam (big blind) folded on the Flop 
+Seat 6: Dlivak collected ($1.25)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71768771:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:47:33 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($71.68 in chips)
+Seat 6: Dlivak ($90.72 in chips)
+Seat 7: BeatrixKiddo ($99.23 in chips)
+Seat 8: SweetieFox ($75.01 in chips)
+Liam: posts small blind $0.25
+Dlivak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 6c]
+BeatrixKiddo: folds
+SweetieFox: raises $1.50 to $1.50
+Acscobar: folds
+kole1992: folds
+Liam: folds
+Dlivak: calls $1
+*** FLOP *** [4c 3c Kh]
+Dlivak: checks
+SweetieFox: bets $1.65
+Dlivak: calls $1.65
+*** TURN *** [4c 3c Kh] [7d]
+Dlivak: bets $3.27
+SweetieFox: folds
+Uncalled bet ($3.27) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $6.55 from pot
+*** SUMMARY ***
+Total pot $6.55 | Rake $0.32 
+Board [4c 3c Kh 7d]
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Liam (small blind) folded before Flop 
+Seat 6: Dlivak (big blind) collected ($6.55)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox folded on the Turn 
+
+
+Weplay Hand #71768780:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:48:08 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($71.43 in chips)
+Seat 6: Dlivak ($93.80 in chips)
+Seat 7: BeatrixKiddo ($99.23 in chips)
+Seat 8: SweetieFox ($71.86 in chips)
+Dlivak: posts small blind $0.25
+BeatrixKiddo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 5s]
+SweetieFox has timed out
+SweetieFox: folds
+Acscobar: folds
+kole1992: folds
+Liam: folds
+Dlivak: folds
+Uncalled bet ($0.25) returned to BeatrixKiddo
+*** SHOW DOWN ***
+BeatrixKiddo: doesn't show hand
+BeatrixKiddo collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Liam (button) folded before Flop (didn't bet)
+Seat 6: Dlivak (small blind) folded before Flop 
+Seat 7: BeatrixKiddo (big blind) collected ($0.50)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71768789:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:48:37 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($71.43 in chips)
+Seat 6: Dlivak ($93.55 in chips)
+Seat 7: BeatrixKiddo ($99.48 in chips)
+BeatrixKiddo: posts small blind $0.25
+Acscobar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 6c]
+kole1992: folds
+Liam: folds
+Dlivak: folds
+BeatrixKiddo: folds
+Uncalled bet ($0.25) returned to Acscobar
+*** SHOW DOWN ***
+Acscobar has timed out
+Acscobar: doesn't show hand
+Acscobar collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Acscobar (big blind) collected ($0.50)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 6: Dlivak (button) folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo (small blind) folded before Flop 
+
+
+Weplay Hand #71768795:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:48:58 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Acscobar ($50.25 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($71.43 in chips)
+Seat 6: Dlivak ($93.55 in chips)
+Seat 7: BeatrixKiddo ($99.23 in chips)
+Acscobar: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 9s]
+Liam: folds
+Dlivak: folds
+BeatrixKiddo: raises $1.15 to $1.15
+Acscobar: folds
+kole1992: calls $0.65
+*** FLOP *** [9c As 5c]
+kole1992: checks
+BeatrixKiddo: bets $0.85
+kole1992: calls $0.85
+*** TURN *** [9c As 5c] [7h]
+kole1992: checks
+BeatrixKiddo: checks
+*** RIVER *** [9c As 5c 7h] [Qd]
+kole1992: checks
+BeatrixKiddo: checks
+*** SHOW DOWN ***
+kole1992: shows [Th 9s] (a pair of Nines)
+BeatrixKiddo: shows [9h Kd] (a pair of Nines)
+BeatrixKiddo collected $4.25 from pot
+*** SUMMARY ***
+Total pot $4.25 | Rake $0.21 
+Board [9c As 5c 7h Qd]
+Seat 1: Acscobar (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) showed [Th 9s] and lost with a pair of Nines
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 6: Dlivak folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo (button) showed [9h Kd] and won ($4.25) with a pair of Nines
+
+
+Weplay Hand #71768815:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:50:24 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Acscobar ($50 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($71.43 in chips)
+Seat 6: Dlivak ($93.55 in chips)
+Seat 7: BeatrixKiddo ($101.27 in chips)
+kole1992: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 3s]
+erl90 joins the table at seat #3
+erl90 leaves the table
+Dlivak: folds
+BeatrixKiddo: folds
+Acscobar: raises $1.10 to $1.10
+kole1992: folds
+erl90 joins the table at seat #3
+erl90 leaves the table
+Liam: calls $0.60
+*** FLOP *** [3d Th 2h]
+Liam: checks
+Acscobar: bets $0.73
+erl90 joins the table at seat #3
+erl90 leaves the table
+Liam: folds
+Uncalled bet ($0.73) returned to Acscobar
+*** SHOW DOWN ***
+Acscobar has timed out
+Acscobar: doesn't show hand
+Acscobar collected $2.45 from pot
+*** SUMMARY ***
+Total pot $2.45 | Rake $0.12 
+Board [3d Th 2h]
+Seat 1: Acscobar (button) collected ($2.45)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 4: Liam (big blind) folded on the Flop 
+Seat 6: Dlivak folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+
+
+Weplay Hand #71768827:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:51:07 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Acscobar ($51.23 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($70.33 in chips)
+Seat 6: Dlivak ($93.55 in chips)
+Seat 7: BeatrixKiddo ($101.27 in chips)
+Seat 8: SweetieFox ($71.86 in chips)
+Liam: posts small blind $0.25
+Dlivak: posts big blind $0.50
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Jh]
+JTs98o leaves the table
+BeatrixKiddo: folds
+SweetieFox: folds
+Acscobar: folds
+kole1992: raises $1.50 to $1.50
+Liam: folds
+Dlivak: raises $4.75 to $5.25
+kole1992: folds
+Uncalled bet ($3.75) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop 
+Seat 4: Liam (small blind) folded before Flop 
+Seat 6: Dlivak (big blind) collected ($3.75)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox (big blind) folded before Flop 
+
+
+Weplay Hand #71768843:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:52:07 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Acscobar ($51.23 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($70.08 in chips)
+Seat 6: Dlivak ($95.80 in chips)
+Seat 7: BeatrixKiddo ($101.27 in chips)
+Seat 8: SweetieFox ($71.36 in chips)
+Dlivak: posts small blind $0.25
+BeatrixKiddo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Ah]
+SweetieFox: folds
+Acscobar: raises $1.10 to $1.10
+kole1992: folds
+Liam: folds
+Dlivak: folds
+Dlivak: sits out 
+BeatrixKiddo: folds
+Uncalled bet ($0.60) returned to Acscobar
+*** SHOW DOWN ***
+Acscobar has timed out
+Acscobar: doesn't show hand
+Acscobar collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Acscobar collected ($1.25)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Liam (button) folded before Flop (didn't bet)
+Seat 6: Dlivak (small blind) folded before Flop 
+Seat 7: BeatrixKiddo (big blind) folded before Flop 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71768853:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:52:52 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($70.08 in chips)
+Seat 7: BeatrixKiddo ($100.77 in chips)
+Seat 8: SweetieFox ($71.36 in chips)
+BeatrixKiddo: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 5h]
+Acscobar: folds
+kole1992: folds
+Liam: raises $1 to $1
+BeatrixKiddo: folds
+SweetieFox: calls $0.50
+*** FLOP *** [Ah 6s 3c]
+SweetieFox: checks
+Liam: checks
+*** TURN *** [Ah 6s 3c] [6d]
+SweetieFox: checks
+Liam: checks
+*** RIVER *** [Ah 6s 3c 6d] [Tc]
+SweetieFox: bets $6
+Liam: folds
+Uncalled bet ($6) returned to SweetieFox
+*** SHOW DOWN ***
+SweetieFox has timed out
+SweetieFox: doesn't show hand
+SweetieFox collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [Ah 6s 3c 6d Tc]
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Liam folded on the River 
+Seat 7: BeatrixKiddo (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) collected ($2.25)
+
+
+Weplay Hand #71768874:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:54:07 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($69.08 in chips)
+Seat 6: Dlivak ($95.55 in chips)
+Seat 7: BeatrixKiddo ($100.52 in chips)
+Seat 8: SweetieFox ($72.50 in chips)
+SweetieFox: posts small blind $0.25
+Acscobar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 3c]
+kole1992: folds
+rossi1616 joins the table at seat #5
+Liam: raises $1 to $1
+Dlivak: folds
+BeatrixKiddo: folds
+SweetieFox: folds
+Acscobar: folds
+Uncalled bet ($0.50) returned to Liam
+*** SHOW DOWN ***
+Liam has timed out
+Liam: doesn't show hand
+Liam collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Acscobar (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Liam collected ($1.25)
+Seat 6: Dlivak folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #71768886:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:54:44 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Acscobar ($51.48 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($69.83 in chips)
+Seat 6: Dlivak ($95.55 in chips)
+Seat 7: BeatrixKiddo ($100.52 in chips)
+Seat 8: SweetieFox ($72.25 in chips)
+Acscobar: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Qc]
+Liam: folds
+Dlivak: folds
+BeatrixKiddo: folds
+SweetieFox: raises $1.50 to $1.50
+Acscobar: folds
+kole1992: folds
+Uncalled bet ($1) returned to SweetieFox
+*** SHOW DOWN ***
+SweetieFox has timed out
+SweetieFox: doesn't show hand
+SweetieFox collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Acscobar (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 6: Dlivak folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) collected ($1.25)
+
+
+Weplay Hand #71768902:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:55:14 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Acscobar ($51.23 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 4: Liam ($69.83 in chips)
+Seat 6: Dlivak ($95.55 in chips)
+Seat 7: BeatrixKiddo ($100.52 in chips)
+Seat 8: SweetieFox ($73 in chips)
+kole1992: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 5h]
+Dlivak: folds
+BeatrixKiddo: folds
+SweetieFox: folds
+Acscobar: raises $1.10 to $1.10
+kole1992: folds
+Liam has timed out
+Liam: folds
+Uncalled bet ($0.60) returned to Acscobar
+Liam: sits out 
+*** SHOW DOWN ***
+Acscobar has timed out
+Acscobar: doesn't show hand
+Acscobar collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Acscobar (button) collected ($1.25)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 4: Liam (big blind) folded before Flop 
+Seat 6: Dlivak folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71768920:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:56:27 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 5: rossi1616 ($50 in chips)
+Seat 6: Dlivak ($95.55 in chips)
+Seat 7: BeatrixKiddo ($100.52 in chips)
+Seat 8: SweetieFox ($73 in chips)
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 4c]
+Dlivak has timed out
+Dlivak: folds
+BeatrixKiddo: folds
+SweetieFox has timed out
+SweetieFox: folds
+Acscobar: folds
+kole1992: folds
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: rossi1616 (big blind) collected ($0.50)
+Seat 6: Dlivak folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71768930:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:57:04 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 5: rossi1616 ($50 in chips)
+Seat 6: Dlivak ($95.55 in chips)
+Seat 7: BeatrixKiddo ($100.52 in chips)
+rossi1616: posts small blind $0.25
+Dlivak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 5c]
+BeatrixKiddo: folds
+Acscobar: folds
+kole1992: folds
+rossi1616: raises $1 to $1.25
+Dlivak: folds
+Uncalled bet ($0.75) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 5: rossi1616 (small blind) collected ($1)
+Seat 6: Dlivak (big blind) folded before Flop 
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+
+
+Weplay Hand #71768934:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:57:23 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 5: rossi1616 ($50.50 in chips)
+Seat 6: Dlivak ($95.05 in chips)
+Seat 7: BeatrixKiddo ($100.52 in chips)
+Dlivak: posts small blind $0.25
+BeatrixKiddo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 8d]
+Acscobar: folds
+kole1992: folds
+rossi1616 has timed out
+rossi1616: folds
+Dlivak: calls $0.25
+BeatrixKiddo: checks
+*** FLOP *** [Ks 2c Th]
+Dlivak: checks
+BeatrixKiddo: checks
+*** TURN *** [Ks 2c Th] [8h]
+Dlivak: checks
+BeatrixKiddo: checks
+*** RIVER *** [Ks 2c Th 8h] [6d]
+Dlivak: checks
+BeatrixKiddo: checks
+*** SHOW DOWN ***
+Dlivak: shows [9s Qs] (high card King)
+BeatrixKiddo: mucks hand
+Dlivak collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [Ks 2c Th 8h 6d]
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 5: rossi1616 (button) folded before Flop (didn't bet)
+Seat 6: Dlivak (small blind) showed [9s Qs] and won ($1) with high card King
+Seat 7: BeatrixKiddo (big blind) mucked
+
+
+Weplay Hand #71768947:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:58:26 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 5: rossi1616 ($50.50 in chips)
+Seat 6: Dlivak ($95.50 in chips)
+Seat 7: BeatrixKiddo ($100.02 in chips)
+Seat 8: SweetieFox ($73 in chips)
+BeatrixKiddo: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 3s]
+Acscobar: folds
+kole1992: folds
+rossi1616 has timed out
+rossi1616: folds
+Dlivak: folds
+BeatrixKiddo: folds
+Uncalled bet ($0.25) returned to SweetieFox
+*** SHOW DOWN ***
+SweetieFox has timed out
+SweetieFox: doesn't show hand
+SweetieFox collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 5: rossi1616 folded before Flop (didn't bet)
+Seat 6: Dlivak (button) folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) collected ($0.50)
+
+
+Weplay Hand #71768954:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:59:03 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 5: rossi1616 ($50.50 in chips)
+Seat 6: Dlivak ($95.50 in chips)
+Seat 7: BeatrixKiddo ($99.77 in chips)
+Seat 8: SweetieFox ($73.25 in chips)
+SweetieFox: posts small blind $0.25
+Acscobar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 5c]
+kole1992: folds
+rossi1616 has timed out
+rossi1616: folds
+Dlivak: folds
+BeatrixKiddo: folds
+SweetieFox: folds
+Uncalled bet ($0.25) returned to Acscobar
+*** SHOW DOWN ***
+Acscobar has timed out
+Acscobar: doesn't show hand
+Acscobar collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Acscobar (big blind) collected ($0.50)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 5: rossi1616 folded before Flop (didn't bet)
+Seat 6: Dlivak folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #71768966:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 15:59:40 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Acscobar ($52.23 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 5: rossi1616 ($50.50 in chips)
+Seat 6: Dlivak ($95.50 in chips)
+Seat 7: BeatrixKiddo ($99.77 in chips)
+Seat 8: SweetieFox ($73 in chips)
+Acscobar: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 3d]
+rossi1616: folds
+Dlivak: raises $1.75 to $1.75
+BeatrixKiddo: folds
+SweetieFox: folds
+Acscobar: folds
+kole1992: folds
+Uncalled bet ($1.25) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Acscobar (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 5: rossi1616 folded before Flop (didn't bet)
+Seat 6: Dlivak collected ($1.25)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71769078:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:00:14 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 5: rossi1616 ($50.50 in chips)
+Seat 6: Dlivak ($96.25 in chips)
+Seat 7: BeatrixKiddo ($99.77 in chips)
+Seat 8: SweetieFox ($73 in chips)
+kole1992: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Td]
+Dlivak: folds
+BeatrixKiddo: raises $1.50 to $1.50
+SweetieFox: folds
+Acscobar: folds
+kole1992: raises $6 to $6.25
+rossi1616: folds
+BeatrixKiddo: folds
+Uncalled bet ($4.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: Acscobar (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) collected ($3.50)
+Seat 5: rossi1616 (big blind) folded before Flop 
+Seat 6: Dlivak folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo folded before Flop 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71769204:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:01:11 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($52 in chips)
+Seat 5: rossi1616 ($50 in chips)
+Seat 6: Dlivak ($96.25 in chips)
+Seat 7: BeatrixKiddo ($98.27 in chips)
+Seat 8: SweetieFox ($73 in chips)
+rossi1616: posts small blind $0.25
+Dlivak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 6h]
+BeatrixKiddo: folds
+SweetieFox: raises $1 to $1
+Acscobar: folds
+kole1992: calls $1
+rossi1616: folds
+Dlivak: calls $0.50
+*** FLOP *** [Kh 7s As]
+Dlivak: checks
+SweetieFox: checks
+kole1992: checks
+*** TURN *** [Kh 7s As] [2c]
+Dlivak: bets $3.25
+SweetieFox: calls $3.25
+kole1992: folds
+*** RIVER *** [Kh 7s As 2c] [8s]
+Dlivak: bets $9.75
+SweetieFox: calls $9.75
+*** SHOW DOWN ***
+Dlivak: shows [Js Ts] (a flush, Ace high)
+SweetieFox has timed out
+SweetieFox: mucks hand
+Dlivak collected $29.25 from pot
+*** SUMMARY ***
+Total pot $29.25 | Rake $1.46 
+Board [Kh 7s As 2c 8s]
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded on the Turn 
+Seat 5: rossi1616 (small blind) folded before Flop 
+Seat 6: Dlivak (big blind) showed [Js Ts] and won ($29.25) with a flush, Ace high
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox mucked
+
+
+Weplay Hand #71769262:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:02:23 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($51 in chips)
+Seat 5: rossi1616 ($50 in chips)
+Seat 6: Dlivak ($110.04 in chips)
+Seat 7: BeatrixKiddo ($98.27 in chips)
+Seat 8: SweetieFox ($59 in chips)
+Dlivak: posts small blind $0.25
+BeatrixKiddo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Ac]
+SweetieFox: folds
+Acscobar: folds
+kole1992: raises $1 to $1
+rossi1616: calls $1
+Dlivak: calls $0.75
+BeatrixKiddo: folds
+*** FLOP *** [8s Tc 7d]
+Dlivak: checks
+kole1992: checks
+rossi1616: checks
+*** TURN *** [8s Tc 7d] [3h]
+Dlivak: checks
+kole1992: checks
+rossi1616: checks
+*** RIVER *** [8s Tc 7d 3h] [Ks]
+Dlivak: checks
+kole1992: checks
+rossi1616: checks
+*** SHOW DOWN ***
+Dlivak: shows [5d Ad] (high card Ace)
+kole1992: shows [Jd Ac] (high card Ace)
+rossi1616: shows [6h 8h] (a pair of Eights)
+rossi1616 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [8s Tc 7d 3h Ks]
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 showed [Jd Ac] and lost with high card Ace
+Seat 5: rossi1616 (button) showed [6h 8h] and won ($3.50) with a pair of Eights
+Seat 6: Dlivak (small blind) showed [5d Ad] and lost with high card Ace
+Seat 7: BeatrixKiddo (big blind) folded before Flop 
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71773600:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:04:07 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 5: rossi1616 ($52.33 in chips)
+Seat 6: Dlivak ($109.04 in chips)
+Seat 7: BeatrixKiddo ($97.77 in chips)
+Seat 8: SweetieFox ($59 in chips)
+BeatrixKiddo: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Qh]
+Acscobar: folds
+kole1992: folds
+rossi1616: folds
+Dlivak has timed out
+Dlivak: folds
+BeatrixKiddo: raises $1.25 to $1.50
+SweetieFox: folds
+Uncalled bet ($1) returned to BeatrixKiddo
+*** SHOW DOWN ***
+BeatrixKiddo: doesn't show hand
+BeatrixKiddo collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 5: rossi1616 folded before Flop (didn't bet)
+Seat 6: Dlivak (button) folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo (small blind) collected ($1)
+Seat 8: SweetieFox (big blind) folded before Flop 
+
+
+Weplay Hand #71773750:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:04:50 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Acscobar ($51.98 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 5: rossi1616 ($52.33 in chips)
+Seat 6: Dlivak ($109.04 in chips)
+Seat 7: BeatrixKiddo ($98.27 in chips)
+Seat 8: SweetieFox ($58.50 in chips)
+SweetieFox: posts small blind $0.25
+Acscobar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 2h]
+kole1992: folds
+rossi1616: folds
+Dlivak: raises $1.75 to $1.75
+BeatrixKiddo: folds
+SweetieFox: folds
+Acscobar: folds
+Uncalled bet ($1.25) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Acscobar (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 5: rossi1616 folded before Flop (didn't bet)
+Seat 6: Dlivak collected ($1.25)
+Seat 7: BeatrixKiddo (button) folded before Flop (didn't bet)
+Seat 8: SweetieFox (small blind) folded before Flop 
+
+
+Weplay Hand #71773837:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:05:13 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Acscobar ($51.48 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 5: rossi1616 ($52.33 in chips)
+Seat 6: Dlivak ($109.79 in chips)
+Seat 7: BeatrixKiddo ($98.27 in chips)
+Seat 8: SweetieFox ($58.25 in chips)
+Acscobar: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Qs]
+JTs98o joins the table at seat #3
+rossi1616 has timed out
+rossi1616: folds
+Dlivak: folds
+BeatrixKiddo: folds
+SweetieFox has timed out
+SweetieFox: folds
+Acscobar: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Acscobar (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) collected ($0.50)
+Seat 5: rossi1616 folded before Flop (didn't bet)
+Seat 6: Dlivak folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71773996:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:05:58 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Acscobar ($51.23 in chips)
+Seat 2: kole1992 ($50.25 in chips)
+Seat 3: JTs98o ($51.50 in chips)
+Seat 5: rossi1616 ($52.33 in chips)
+Seat 6: Dlivak ($109.79 in chips)
+Seat 7: BeatrixKiddo ($98.27 in chips)
+Seat 8: SweetieFox ($58.25 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 8s]
+rossi1616: folds
+Dlivak: raises $1.75 to $1.75
+BeatrixKiddo: folds
+SweetieFox: folds
+Acscobar: folds
+kole1992: folds
+Liam leaves the table
+JTs98o: calls $1.25
+*** FLOP *** [4s Jd 5s]
+JTs98o: checks
+Dlivak: bets $3.75
+JTs98o: folds
+Uncalled bet ($3.75) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [4s Jd 5s]
+Seat 1: Acscobar (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: JTs98o (big blind) folded on the Flop 
+Seat 5: rossi1616 folded before Flop (didn't bet)
+Seat 6: Dlivak collected ($3.75)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71774173:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:06:52 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Acscobar ($51.23 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: JTs98o ($50 in chips)
+Seat 4: Liam ($69.33 in chips)
+Seat 5: rossi1616 ($52.33 in chips)
+Seat 6: Dlivak ($111.61 in chips)
+Seat 7: BeatrixKiddo ($98.27 in chips)
+Seat 8: SweetieFox ($58.25 in chips)
+JTs98o: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Ad]
+rossi1616: folds
+Dlivak: calls $0.50
+BeatrixKiddo: folds
+SweetieFox has timed out
+SweetieFox: folds
+Acscobar: folds
+kole1992: folds
+JTs98o: folds
+Liam: checks
+*** FLOP *** [Ts 7s 8c]
+Liam: checks
+Dlivak: bets $1.25
+Liam: folds
+Uncalled bet ($1.25) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [Ts 7s 8c]
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: JTs98o (small blind) folded before Flop 
+Seat 4: Liam (big blind) folded on the Flop 
+Seat 5: rossi1616 folded before Flop (didn't bet)
+Seat 6: Dlivak collected ($1.25)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71774374:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:07:54 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Acscobar ($51.23 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: JTs98o ($50 in chips)
+Seat 4: Liam ($68.83 in chips)
+Seat 5: rossi1616 ($52.33 in chips)
+Seat 6: Dlivak ($112.30 in chips)
+Seat 7: BeatrixKiddo ($98.27 in chips)
+Seat 8: SweetieFox ($58.25 in chips)
+Liam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 7s]
+Dlivak: folds
+BeatrixKiddo: folds
+SweetieFox has timed out
+SweetieFox: folds
+Acscobar: folds
+kole1992: folds
+JTs98o: folds
+Liam: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: JTs98o (button) folded before Flop (didn't bet)
+Seat 4: Liam (small blind) folded before Flop 
+Seat 5: rossi1616 (big blind) collected ($0.50)
+Seat 6: Dlivak folded before Flop (didn't bet)
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71774476:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:08:26 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Acscobar ($51.23 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: JTs98o ($50 in chips)
+Seat 4: Liam ($68.58 in chips)
+Seat 5: rossi1616 ($52.58 in chips)
+Seat 6: Dlivak ($112.30 in chips)
+Seat 7: BeatrixKiddo ($98.27 in chips)
+rossi1616: posts small blind $0.25
+Dlivak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Qc]
+BeatrixKiddo: folds
+Acscobar: folds
+kole1992: folds
+JTs98o: raises $1.25 to $1.25
+Liam: folds
+rossi1616: folds
+Dlivak: calls $0.75
+*** FLOP *** [2d As 3h]
+Dlivak: checks
+JTs98o: checks
+*** TURN *** [2d As 3h] [Ac]
+Dlivak: checks
+JTs98o: bets $2.10
+Dlivak: folds
+Uncalled bet ($2.10) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [2d As 3h Ac]
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: JTs98o collected ($2.75)
+Seat 4: Liam (button) folded before Flop (didn't bet)
+Seat 5: rossi1616 (small blind) folded before Flop 
+Seat 6: Dlivak (big blind) folded on the Turn 
+Seat 7: BeatrixKiddo folded before Flop (didn't bet)
+
+
+Weplay Hand #71774685:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:09:29 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Acscobar ($51.23 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: JTs98o ($51.37 in chips)
+Seat 4: Liam ($68.58 in chips)
+Seat 5: rossi1616 ($52.33 in chips)
+Seat 6: Dlivak ($111.05 in chips)
+Seat 7: BeatrixKiddo ($98.27 in chips)
+Seat 8: SweetieFox ($58.25 in chips)
+Dlivak: posts small blind $0.25
+BeatrixKiddo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 4c]
+SweetieFox has timed out
+SweetieFox: folds
+Acscobar: folds
+kole1992: folds
+JTs98o: folds
+Liam: folds
+rossi1616: folds
+Dlivak: folds
+Uncalled bet ($0.25) returned to BeatrixKiddo
+*** SHOW DOWN ***
+BeatrixKiddo: doesn't show hand
+BeatrixKiddo collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: JTs98o folded before Flop (didn't bet)
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 5: rossi1616 (button) folded before Flop (didn't bet)
+Seat 6: Dlivak (small blind) folded before Flop 
+Seat 7: BeatrixKiddo (big blind) collected ($0.50)
+Seat 8: SweetieFox folded before Flop (didn't bet)
+
+
+Weplay Hand #71774802:  Hold'em No Limit ($0.25/$0.50) - 2026/01/06 16:10:08 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Acscobar ($51.23 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: JTs98o ($51.37 in chips)
+Seat 4: Liam ($68.58 in chips)
+Seat 5: rossi1616 ($52.33 in chips)
+Seat 6: Dlivak ($110.80 in chips)
+Seat 7: BeatrixKiddo ($98.52 in chips)
+Seat 8: SweetieFox ($58.25 in chips)
+BeatrixKiddo: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 4d]
+Acscobar: folds
+kole1992: folds
+JTs98o: raises $1.25 to $1.25
+Liam: folds
+rossi1616: calls $1.25
+Dlivak: raises $5.75 to $5.75
+BeatrixKiddo: folds
+SweetieFox: folds
+JTs98o: folds
+rossi1616: folds
+Uncalled bet ($4.50) returned to Dlivak
+*** SHOW DOWN ***
+Dlivak: doesn't show hand
+Dlivak collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 1: Acscobar folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: JTs98o folded before Flop 
+Seat 4: Liam folded before Flop (didn't bet)
+Seat 5: rossi1616 folded before Flop 
+Seat 6: Dlivak (button) collected ($4.50)
+Seat 7: BeatrixKiddo (small blind) folded before Flop 
+Seat 8: SweetieFox (big blind) folded before Flop 

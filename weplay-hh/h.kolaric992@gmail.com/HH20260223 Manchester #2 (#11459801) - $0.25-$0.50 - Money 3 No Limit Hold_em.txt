@@ -1,0 +1,1886 @@
+﻿Weplay Hand #76560416:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 20:55:33 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: mervetunc445 ($15.82 in chips)
+Seat 2: fuszioli ($40.63 in chips)
+Seat 3: Liam ($72.61 in chips)
+Seat 4: BBanzai74 ($30.02 in chips)
+Seat 5: Pokahontas ($67.26 in chips)
+Seat 6: WinHof ($46.75 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: V_dela ($97.25 in chips)
+WinHof: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 6c]
+V_dela: folds
+mervetunc445: calls $0.50
+fuszioli: folds
+Liam: folds
+BBanzai74: calls $0.50
+Pokahontas: folds
+WinHof: calls $0.25
+kole1992: checks
+*** FLOP *** [Kh Jd Qs]
+WinHof: checks
+kole1992: checks
+mervetunc445: checks
+BBanzai74: checks
+*** TURN *** [Kh Jd Qs] [Qh]
+WinHof: checks
+kole1992: checks
+mervetunc445: bets $1.50
+BBanzai74: folds
+WinHof: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to mervetunc445
+*** SHOW DOWN ***
+mervetunc445 has timed out
+mervetunc445: doesn't show hand
+mervetunc445 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [Kh Jd Qs Qh]
+Seat 1: mervetunc445 collected ($2)
+Seat 2: fuszioli folded before Flop (didn't bet)
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: BBanzai74 folded on the Turn 
+Seat 5: Pokahontas (button) folded before Flop (didn't bet)
+Seat 6: WinHof (small blind) folded on the Turn 
+Seat 7: kole1992 (big blind) folded on the Turn 
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76560440:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 20:56:40 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: mervetunc445 ($17.22 in chips)
+Seat 2: fuszioli ($40.63 in chips)
+Seat 3: Liam ($72.61 in chips)
+Seat 4: BBanzai74 ($29.52 in chips)
+Seat 5: Pokahontas ($67.26 in chips)
+Seat 6: WinHof ($50 in chips)
+Seat 7: kole1992 ($49.50 in chips)
+Seat 8: V_dela ($97.25 in chips)
+kole1992: posts small blind $0.25
+V_dela: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Js]
+mervetunc445: folds
+fuszioli: calls $0.50
+Liam: folds
+BBanzai74: folds
+Pokahontas: folds
+WinHof: calls $0.50
+kole1992: raises $3.25 to $3.50
+V_dela: folds
+fuszioli: folds
+WinHof: calls $3
+*** FLOP *** [9h 8d Qd]
+kole1992: checks
+WinHof: bets $5.50
+kole1992: folds
+Uncalled bet ($5.50) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [9h 8d Qd]
+Seat 1: mervetunc445 folded before Flop (didn't bet)
+Seat 2: fuszioli folded before Flop 
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof (button) collected ($8)
+Seat 7: kole1992 (small blind) folded on the Flop 
+Seat 8: V_dela (big blind) folded before Flop 
+
+
+Weplay Hand #76560457:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 20:57:39 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: mervetunc445 ($17.22 in chips)
+Seat 2: fuszioli ($40.13 in chips)
+Seat 3: Liam ($72.61 in chips)
+Seat 4: BBanzai74 ($29.52 in chips)
+Seat 5: Pokahontas ($67.26 in chips)
+Seat 6: WinHof ($54.10 in chips)
+Seat 7: kole1992 ($46 in chips)
+Seat 8: V_dela ($96.75 in chips)
+V_dela: posts small blind $0.25
+mervetunc445: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 5h]
+fuszioli: raises $2.50 to $2.50
+Liam: folds
+BBanzai74: folds
+Pokahontas: folds
+BBanzai74 is disconnected 
+BBanzai74 is connected 
+WinHof: folds
+kole1992: folds
+V_dela: folds
+mervetunc445: calls $2
+*** FLOP *** [4h Ad 7c]
+mervetunc445: checks
+fuszioli: bets $2.63
+mervetunc445: calls $2.63
+*** TURN *** [4h Ad 7c] [Jh]
+mervetunc445: checks
+fuszioli: checks
+*** RIVER *** [4h Ad 7c Jh] [5s]
+mervetunc445: checks
+fuszioli: checks
+*** SHOW DOWN ***
+mervetunc445: shows [As Jc] (two pair, Aces and Jacks)
+fuszioli has timed out
+fuszioli: mucks hand
+mervetunc445 collected $10.51 from pot
+*** SUMMARY ***
+Total pot $10.51 | Rake $0.52 
+Board [4h Ad 7c Jh 5s]
+Seat 1: mervetunc445 (big blind) showed [As Jc] and won ($10.51) with two pair, Aces and Jacks
+Seat 2: fuszioli mucked
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: V_dela (small blind) folded before Flop 
+
+
+Weplay Hand #76560472:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 20:58:29 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: mervetunc445 ($22.08 in chips)
+Seat 2: fuszioli ($35 in chips)
+Seat 3: Liam ($72.61 in chips)
+Seat 4: BBanzai74 ($29.52 in chips)
+Seat 5: Pokahontas ($67.26 in chips)
+Seat 6: WinHof ($54.10 in chips)
+Seat 7: kole1992 ($46 in chips)
+Seat 8: V_dela ($96.50 in chips)
+mervetunc445: posts small blind $0.25
+fuszioli: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 9s]
+Liam: folds
+BBanzai74: folds
+Pokahontas: folds
+WinHof: folds
+kole1992: folds
+V_dela: calls $0.50
+mervetunc445: calls $0.25
+fuszioli: checks
+*** FLOP *** [Ks 5d 4s]
+mervetunc445: checks
+fuszioli: checks
+V_dela: checks
+*** TURN *** [Ks 5d 4s] [7d]
+mervetunc445: bets $0.50
+fuszioli: calls $0.50
+V_dela: calls $0.50
+*** RIVER *** [Ks 5d 4s 7d] [Ad]
+mervetunc445: bets $0.50
+fuszioli: folds
+V_dela: folds
+Uncalled bet ($0.50) returned to mervetunc445
+*** SHOW DOWN ***
+mervetunc445: doesn't show hand
+mervetunc445 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Ks 5d 4s 7d Ad]
+Seat 1: mervetunc445 (small blind) collected ($3)
+Seat 2: fuszioli (big blind) folded on the River 
+Seat 3: Liam folded before Flop (didn't bet)
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela (button) folded on the River 
+
+
+Weplay Hand #76560482:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 20:59:12 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: mervetunc445 ($23.93 in chips)
+Seat 2: fuszioli ($34 in chips)
+Seat 3: Liam ($72.61 in chips)
+Seat 4: BBanzai74 ($29.52 in chips)
+Seat 5: Pokahontas ($67.26 in chips)
+Seat 6: WinHof ($54.10 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: V_dela ($95.50 in chips)
+fuszioli: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Ah]
+BBanzai74: folds
+Pokahontas: folds
+WinHof: folds
+kole1992: raises $1 to $1
+V_dela: folds
+mervetunc445: folds
+fuszioli: calls $0.75
+Liam: folds
+*** FLOP *** [8s 7c 5h]
+fuszioli: checks
+kole1992: checks
+*** TURN *** [8s 7c 5h] [4s]
+fuszioli: bets $1.25
+kole1992: folds
+Uncalled bet ($1.25) returned to fuszioli
+*** SHOW DOWN ***
+fuszioli: doesn't show hand
+fuszioli collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [8s 7c 5h 4s]
+Seat 1: mervetunc445 (button) folded before Flop (didn't bet)
+Seat 2: fuszioli (small blind) collected ($2.50)
+Seat 3: Liam (big blind) folded before Flop 
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof folded before Flop (didn't bet)
+Seat 7: kole1992 folded on the Turn 
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76560510:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:00:24 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: mervetunc445 ($23.93 in chips)
+Seat 2: fuszioli ($35.38 in chips)
+Seat 3: Liam ($72.11 in chips)
+Seat 4: BBanzai74 ($29.52 in chips)
+Seat 5: Pokahontas ($67.26 in chips)
+Seat 6: WinHof ($54.10 in chips)
+Seat 7: kole1992 ($49 in chips)
+Seat 8: V_dela ($95.50 in chips)
+Liam: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Js]
+Pokahontas: folds
+WinHof: folds
+kole1992: raises $1.75 to $1.75
+V_dela: calls $1.75
+mervetunc445: folds
+fuszioli: calls $1.75
+Liam has timed out
+Liam: folds
+Liam: sits out 
+BBanzai74: folds
+*** FLOP *** [Jd Kh Td]
+kole1992: checks
+V_dela: checks
+fuszioli: bets $3
+kole1992: folds
+V_dela: calls $3
+*** TURN *** [Jd Kh Td] [6s]
+V_dela: checks
+fuszioli: checks
+*** RIVER *** [Jd Kh Td 6s] [6h]
+V_dela: bets $6
+fuszioli: folds
+Uncalled bet ($6) returned to V_dela
+*** SHOW DOWN ***
+V_dela has timed out
+V_dela: doesn't show hand
+V_dela collected $12 from pot
+fuszioli has timed out
+fuszioli: shows [Ad 9d] (a pair of Sixes)
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [Jd Kh Td 6s 6h]
+Seat 1: mervetunc445 folded before Flop (didn't bet)
+Seat 2: fuszioli (button) folded on the River 
+Seat 3: Liam (small blind) folded before Flop 
+Seat 4: BBanzai74 (big blind) folded before Flop 
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof folded before Flop (didn't bet)
+Seat 7: kole1992 folded on the Flop 
+Seat 8: V_dela collected ($12)
+
+
+Weplay Hand #76560558:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:02:19 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: mervetunc445 ($23.93 in chips)
+Seat 2: fuszioli ($30.63 in chips)
+Seat 4: BBanzai74 ($29.02 in chips)
+Seat 5: Pokahontas ($67.26 in chips)
+Seat 6: WinHof ($54.10 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: V_dela ($102.15 in chips)
+BBanzai74: posts small blind $0.25
+Pokahontas: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 5d]
+WinHof: folds
+kole1992: folds
+V_dela: folds
+mervetunc445: folds
+fuszioli: folds
+BBanzai74: calls $0.25
+Pokahontas: checks
+*** FLOP *** [Kh 5c 7c]
+BBanzai74: bets $0.50
+Pokahontas: calls $0.50
+*** TURN *** [Kh 5c 7c] [5h]
+BBanzai74: bets $1.50
+Pokahontas: folds
+Uncalled bet ($1.50) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [Kh 5c 7c 5h]
+Seat 1: mervetunc445 folded before Flop (didn't bet)
+Seat 2: fuszioli folded before Flop (didn't bet)
+Seat 4: BBanzai74 (small blind) collected ($2)
+Seat 5: Pokahontas (big blind) folded on the Turn 
+Seat 6: WinHof folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76560577:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:02:57 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: mervetunc445 ($23.93 in chips)
+Seat 2: fuszioli ($30.63 in chips)
+Seat 4: BBanzai74 ($29.92 in chips)
+Seat 5: Pokahontas ($66.26 in chips)
+Seat 6: WinHof ($54.10 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: V_dela ($102.15 in chips)
+Pokahontas: posts small blind $0.25
+WinHof: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As Ah]
+kole1992 has timed out
+kole1992: folds
+V_dela: folds
+mervetunc445: folds
+fuszioli: calls $0.50
+BBanzai74: calls $0.50
+Pokahontas: calls $0.25
+WinHof: checks
+*** FLOP *** [5h Ks 4d]
+Pokahontas: checks
+WinHof: checks
+fuszioli: checks
+BBanzai74: bets $0.50
+Pokahontas: folds
+WinHof: calls $0.50
+fuszioli: calls $0.50
+*** TURN *** [5h Ks 4d] [9s]
+WinHof: checks
+fuszioli: bets $0.50
+BBanzai74: folds
+WinHof: raises $5 to $5
+fuszioli: folds
+Uncalled bet ($4.50) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [5h Ks 4d 9s]
+Seat 1: mervetunc445 folded before Flop (didn't bet)
+Seat 2: fuszioli folded on the Turn 
+Seat 4: BBanzai74 (button) folded on the Turn 
+Seat 5: Pokahontas (small blind) folded on the Flop 
+Seat 6: WinHof (big blind) collected ($4.50)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76560603:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:03:58 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: mervetunc445 ($23.93 in chips)
+Seat 2: fuszioli ($29.13 in chips)
+Seat 4: BBanzai74 ($28.92 in chips)
+Seat 5: Pokahontas ($65.76 in chips)
+Seat 6: WinHof ($56.88 in chips)
+Seat 7: kole1992 ($50 in chips)
+Seat 8: V_dela ($102.15 in chips)
+WinHof: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Jh]
+V_dela: calls $0.50
+mervetunc445: calls $0.50
+fuszioli: folds
+BBanzai74: folds
+Pokahontas: folds
+WinHof: calls $0.25
+kole1992: checks
+*** FLOP *** [5d 6c 7s]
+WinHof: checks
+kole1992: checks
+V_dela: checks
+mervetunc445: checks
+*** TURN *** [5d 6c 7s] [Jd]
+WinHof: checks
+kole1992: bets $0.50
+V_dela: calls $0.50
+mervetunc445: calls $0.50
+WinHof: folds
+*** RIVER *** [5d 6c 7s Jd] [7d]
+kole1992: checks
+V_dela: checks
+mervetunc445: checks
+*** SHOW DOWN ***
+kole1992: shows [3s Jh] (two pair, Jacks and Sevens)
+V_dela has timed out
+V_dela: mucks hand
+mervetunc445 has timed out
+mervetunc445: mucks hand
+kole1992 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [5d 6c 7s Jd 7d]
+Seat 1: mervetunc445 mucked
+Seat 2: fuszioli folded before Flop (didn't bet)
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas (button) folded before Flop (didn't bet)
+Seat 6: WinHof (small blind) folded on the Turn 
+Seat 7: kole1992 (big blind) showed [3s Jh] and won ($3.50) with two pair, Jacks and Sevens
+Seat 8: V_dela mucked
+
+
+Weplay Hand #76560630:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:05:05 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: mervetunc445 ($22.93 in chips)
+Seat 2: fuszioli ($29.13 in chips)
+Seat 4: BBanzai74 ($28.92 in chips)
+Seat 5: Pokahontas ($65.76 in chips)
+Seat 6: WinHof ($56.38 in chips)
+Seat 7: kole1992 ($52.33 in chips)
+Seat 8: V_dela ($101.15 in chips)
+kole1992: posts small blind $0.25
+V_dela: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 5h]
+mervetunc445: folds
+fuszioli: calls $0.50
+BBanzai74: folds
+Pokahontas: folds
+WinHof: calls $0.50
+kole1992: folds
+V_dela: checks
+*** FLOP *** [Ad 8s Tc]
+V_dela: checks
+fuszioli: checks
+WinHof: checks
+*** TURN *** [Ad 8s Tc] [Qc]
+V_dela: bets $1.75
+fuszioli: folds
+WinHof: folds
+Uncalled bet ($1.75) returned to V_dela
+*** SHOW DOWN ***
+V_dela has timed out
+V_dela: doesn't show hand
+V_dela collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0.08 
+Board [Ad 8s Tc Qc]
+Seat 1: mervetunc445 folded before Flop (didn't bet)
+Seat 2: fuszioli folded on the Turn 
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof (button) folded on the Turn 
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: V_dela (big blind) collected ($1.75)
+
+
+Weplay Hand #76560648:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:05:53 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: mervetunc445 ($22.93 in chips)
+Seat 2: fuszioli ($28.63 in chips)
+Seat 4: BBanzai74 ($28.92 in chips)
+Seat 5: Pokahontas ($65.76 in chips)
+Seat 6: WinHof ($55.88 in chips)
+Seat 7: kole1992 ($52.08 in chips)
+Seat 8: V_dela ($102.32 in chips)
+V_dela: posts small blind $0.25
+mervetunc445: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 6h]
+fuszioli: folds
+BBanzai74: folds
+Pokahontas: folds
+WinHof: folds
+kole1992: folds
+V_dela: calls $0.25
+mervetunc445: checks
+*** FLOP *** [Td 7h 8s]
+V_dela: bets $0.50
+mervetunc445: calls $0.50
+*** TURN *** [Td 7h 8s] [2c]
+V_dela: bets $0.50
+mervetunc445: calls $0.50
+*** RIVER *** [Td 7h 8s 2c] [3h]
+V_dela: bets $0.50
+mervetunc445: calls $0.50
+*** SHOW DOWN ***
+V_dela: shows [4d 8d] (a pair of Eights)
+mervetunc445: shows [8c 4s] (a pair of Eights)
+mervetunc445 collected $2 from pot
+V_dela collected $2 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [Td 7h 8s 2c 3h]
+Seat 1: mervetunc445 (big blind) showed [8c 4s] and won ($2) with a pair of Eights
+Seat 2: fuszioli folded before Flop (didn't bet)
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: V_dela (small blind) showed [4d 8d] and won ($2) with a pair of Eights
+
+
+Weplay Hand #76560665:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:06:32 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: mervetunc445 ($22.83 in chips)
+Seat 2: fuszioli ($28.63 in chips)
+Seat 4: BBanzai74 ($28.92 in chips)
+Seat 5: Pokahontas ($65.76 in chips)
+Seat 6: WinHof ($55.88 in chips)
+Seat 7: kole1992 ($52.08 in chips)
+Seat 8: V_dela ($102.22 in chips)
+mervetunc445: posts small blind $0.25
+fuszioli: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 3h]
+BBanzai74 has timed out
+BBanzai74: folds
+Pokahontas: folds
+WinHof: raises $1.50 to $1.50
+kole1992: folds
+V_dela: folds
+mervetunc445: folds
+fuszioli: calls $1
+*** FLOP *** [2h Qc 4c]
+fuszioli: bets $1.07
+WinHof: folds
+Uncalled bet ($1.07) returned to fuszioli
+*** SHOW DOWN ***
+fuszioli: doesn't show hand
+fuszioli collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [2h Qc 4c]
+Seat 1: mervetunc445 (small blind) folded before Flop 
+Seat 2: fuszioli (big blind) collected ($3.25)
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof folded on the Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76560682:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:07:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: mervetunc445 ($22.58 in chips)
+Seat 2: fuszioli ($30.22 in chips)
+Seat 4: BBanzai74 ($28.92 in chips)
+Seat 5: Pokahontas ($65.76 in chips)
+Seat 6: WinHof ($54.38 in chips)
+Seat 7: kole1992 ($52.08 in chips)
+Seat 8: V_dela ($102.22 in chips)
+fuszioli: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 9c]
+Pokahontas: raises $1.25 to $1.25
+WinHof: folds
+kole1992: folds
+V_dela: calls $1.25
+mervetunc445: calls $1.25
+fuszioli: calls $1
+BBanzai74: folds
+*** FLOP *** [4s 2c 6s]
+fuszioli: bets $2.75
+Pokahontas: calls $2.75
+V_dela: calls $2.75
+mervetunc445: folds
+*** TURN *** [4s 2c 6s] [Ad]
+fuszioli: bets $2
+Pokahontas: calls $2
+V_dela: calls $2
+*** RIVER *** [4s 2c 6s Ad] [3s]
+fuszioli: bets $4
+Pokahontas: raises $25 to $25
+V_dela: raises $96.22 to $96.22 and is all-in
+fuszioli: folds
+Pokahontas: folds
+Uncalled bet ($71.22) returned to V_dela
+*** SHOW DOWN ***
+V_dela has timed out
+V_dela: doesn't show hand
+V_dela collected $73.75 from pot
+*** SUMMARY ***
+Total pot $73.75 | Rake $3.68 
+Board [4s 2c 6s Ad 3s]
+Seat 1: mervetunc445 (button) folded on the Flop 
+Seat 2: fuszioli (small blind) folded on the River 
+Seat 4: BBanzai74 (big blind) folded before Flop 
+Seat 5: Pokahontas folded on the River 
+Seat 6: WinHof folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela collected ($73.75)
+
+
+Weplay Hand #76560739:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:09:12 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: mervetunc445 ($21.33 in chips)
+Seat 2: fuszioli ($20.22 in chips)
+Seat 4: BBanzai74 ($28.42 in chips)
+Seat 5: Pokahontas ($50 in chips)
+Seat 6: WinHof ($54.38 in chips)
+Seat 7: kole1992 ($52.08 in chips)
+Seat 8: V_dela ($141.29 in chips)
+BBanzai74: posts small blind $0.25
+Pokahontas: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 4s]
+WinHof: raises $1.50 to $1.50
+kole1992: folds
+V_dela: folds
+mervetunc445: calls $1.50
+fuszioli: calls $1.50
+BBanzai74: folds
+Pokahontas: folds
+*** FLOP *** [Jd 3c 5h]
+WinHof: bets $3.95
+mervetunc445: calls $3.95
+fuszioli: calls $3.95
+*** TURN *** [Jd 3c 5h] [Qh]
+WinHof: checks
+mervetunc445: checks
+fuszioli: bets $14.77 and is all-in
+WinHof: folds
+mervetunc445: calls $14.77
+*** RIVER *** [Jd 3c 5h Qh] [As]
+*** SHOW DOWN ***
+mervetunc445: shows [Ah Js] (two pair, Aces and Jacks)
+fuszioli: shows [2c Jc] (a pair of Jacks)
+mervetunc445 collected $46.64 from pot
+*** SUMMARY ***
+Total pot $46.64 | Rake $2.33 
+Board [Jd 3c 5h Qh As]
+Seat 1: mervetunc445 showed [Ah Js] and won ($46.64) with two pair, Aces and Jacks
+Seat 2: fuszioli (button) showed [2c Jc] and lost with a pair of Jacks
+Seat 4: BBanzai74 (small blind) folded before Flop 
+Seat 5: Pokahontas (big blind) folded before Flop 
+Seat 6: WinHof folded on the Turn 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76560768:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:10:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: mervetunc445 ($45.42 in chips)
+Seat 4: BBanzai74 ($28.17 in chips)
+Seat 5: Pokahontas ($50 in chips)
+Seat 6: WinHof ($48.93 in chips)
+Seat 7: kole1992 ($52.08 in chips)
+Seat 8: V_dela ($141.29 in chips)
+Pokahontas: posts small blind $0.25
+WinHof: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Qh]
+fuszioli leaves the table
+kole1992: folds
+V_dela: folds
+mervetunc445: calls $0.50
+BBanzai74: folds
+Pokahontas: folds
+WinHof: checks
+*** FLOP *** [6c 9c 3h]
+WinHof: bets $1.25
+mervetunc445: calls $1.25
+*** TURN *** [6c 9c 3h] [Ac]
+WinHof: checks
+mervetunc445: checks
+*** RIVER *** [6c 9c 3h Ac] [2c]
+WinHof: checks
+mervetunc445: checks
+*** SHOW DOWN ***
+WinHof: shows [8d 3s] (a pair of Threes)
+mervetunc445: shows [Ad Ah] (three of a kind, Aces)
+mervetunc445 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [6c 9c 3h Ac 2c]
+Seat 1: mervetunc445 showed [Ad Ah] and won ($3.75) with three of a kind, Aces
+Seat 4: BBanzai74 (button) folded before Flop (didn't bet)
+Seat 5: Pokahontas (small blind) folded before Flop 
+Seat 6: WinHof (big blind) showed [8d 3s] and lost with a pair of Threes
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76560793:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:11:06 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: mervetunc445 ($47.24 in chips)
+Seat 4: BBanzai74 ($28.17 in chips)
+Seat 5: Pokahontas ($50 in chips)
+Seat 6: WinHof ($47.18 in chips)
+Seat 7: kole1992 ($52.08 in chips)
+Seat 8: V_dela ($141.29 in chips)
+WinHof: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 9h]
+V_dela: folds
+mervetunc445: calls $0.50
+BBanzai74: folds
+Pokahontas: folds
+WinHof: folds
+kole1992: checks
+*** FLOP *** [Ac 6h 7s]
+Liam leaves the table
+kole1992: checks
+mervetunc445: checks
+*** TURN *** [Ac 6h 7s] [2d]
+kole1992: bets $0.75
+mervetunc445: calls $0.75
+*** RIVER *** [Ac 6h 7s 2d] [5d]
+simke1133 joins the table at seat #3
+JTs98o joins the table at seat #2
+kole1992: checks
+mervetunc445: checks
+*** SHOW DOWN ***
+kole1992: shows [Ah 9h] (a pair of Aces)
+mervetunc445 has timed out
+mervetunc445: mucks hand
+kole1992 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Ac 6h 7s 2d 5d]
+Seat 1: mervetunc445 mucked
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas (button) folded before Flop (didn't bet)
+Seat 6: WinHof (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) showed [Ah 9h] and won ($2.75) with a pair of Aces
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76560829:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:12:21 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: mervetunc445 ($45.99 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: simke1133 ($50 in chips)
+Seat 4: BBanzai74 ($28.17 in chips)
+Seat 5: Pokahontas ($50 in chips)
+Seat 6: WinHof ($46.93 in chips)
+Seat 7: kole1992 ($53.45 in chips)
+Seat 8: V_dela ($141.29 in chips)
+kole1992: posts small blind $0.25
+V_dela: posts big blind $0.50
+JTs98o: posts big blind $0.50
+simke1133: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 4d]
+mervetunc445: calls $0.50
+JTs98o: checks
+simke1133: checks
+BBanzai74: folds
+Pokahontas: folds
+WinHof: calls $0.50
+kole1992: folds
+V_dela: checks
+*** FLOP *** [5c 2d 3c]
+V_dela: checks
+mervetunc445: checks
+JTs98o: bets $1.84
+simke1133: folds
+WinHof: calls $1.84
+V_dela: folds
+mervetunc445: calls $1.84
+*** TURN *** [5c 2d 3c] [Qs]
+mervetunc445: checks
+JTs98o: bets $5.54
+WinHof: folds
+mervetunc445: folds
+Uncalled bet ($5.54) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $8.27 from pot
+*** SUMMARY ***
+Total pot $8.27 | Rake $0.41 
+Board [5c 2d 3c Qs]
+Seat 1: mervetunc445 folded on the Turn 
+Seat 2: JTs98o (big blind) collected ($8.27)
+Seat 3: simke1133 (big blind) folded on the Flop 
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof (button) folded on the Turn 
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: V_dela (big blind) folded on the Flop 
+
+
+Weplay Hand #76560863:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:13:23 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: mervetunc445 ($43.65 in chips)
+Seat 2: JTs98o ($55.52 in chips)
+Seat 3: simke1133 ($49.50 in chips)
+Seat 4: BBanzai74 ($28.17 in chips)
+Seat 5: Pokahontas ($50 in chips)
+Seat 6: WinHof ($44.59 in chips)
+Seat 7: kole1992 ($53.20 in chips)
+Seat 8: V_dela ($140.79 in chips)
+V_dela: posts small blind $0.25
+mervetunc445: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 7s]
+JTs98o: folds
+simke1133: raises $1.50 to $1.50
+BBanzai74: folds
+Pokahontas: folds
+WinHof: calls $1.50
+kole1992: folds
+V_dela: calls $1.25
+mervetunc445: folds
+*** FLOP *** [Qc Ts Kc]
+V_dela: checks
+simke1133: checks
+WinHof: checks
+*** TURN *** [Qc Ts Kc] [4d]
+V_dela: bets $2.50
+simke1133: calls $2.50
+WinHof: folds
+*** RIVER *** [Qc Ts Kc 4d] [Kd]
+V_dela: checks
+simke1133: bets $10
+V_dela: calls $10
+*** SHOW DOWN ***
+simke1133: shows [Ks 6s] (three of a kind, Kings)
+V_dela has timed out
+V_dela: mucks hand
+simke1133 collected $30 from pot
+*** SUMMARY ***
+Total pot $30 | Rake $1.50 
+Board [Qc Ts Kc 4d Kd]
+Seat 1: mervetunc445 (big blind) folded before Flop 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 showed [Ks 6s] and won ($30) with three of a kind, Kings
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof folded on the Turn 
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: V_dela (small blind) mucked
+
+
+Weplay Hand #76560888:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:14:25 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: mervetunc445 ($43.15 in chips)
+Seat 2: JTs98o ($55.52 in chips)
+Seat 3: simke1133 ($64 in chips)
+Seat 4: BBanzai74 ($28.17 in chips)
+Seat 5: Pokahontas ($50 in chips)
+Seat 6: WinHof ($50 in chips)
+Seat 7: kole1992 ($53.20 in chips)
+Seat 8: V_dela ($126.79 in chips)
+mervetunc445: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 6d]
+simke1133: folds
+BBanzai74: folds
+Pokahontas: raises $1.25 to $1.25
+WinHof: calls $1.25
+kole1992: folds
+V_dela: calls $1.25
+mervetunc445: folds
+JTs98o: folds
+*** FLOP *** [8d 7c 9s]
+Pokahontas: checks
+WinHof: bets $3.40
+V_dela: calls $3.40
+Pokahontas: folds
+*** TURN *** [8d 7c 9s] [6s]
+WinHof: bets $5.65
+V_dela: folds
+Uncalled bet ($5.65) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $11.30 from pot
+*** SUMMARY ***
+Total pot $11.30 | Rake $0.56 
+Board [8d 7c 9s 6s]
+Seat 1: mervetunc445 (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) folded before Flop 
+Seat 3: simke1133 folded before Flop (didn't bet)
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded on the Flop 
+Seat 6: WinHof collected ($11.30)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela (button) folded on the Turn 
+
+
+Weplay Hand #76560916:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:15:20 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: mervetunc445 ($42.90 in chips)
+Seat 2: JTs98o ($55.02 in chips)
+Seat 3: simke1133 ($64 in chips)
+Seat 4: BBanzai74 ($28.17 in chips)
+Seat 5: Pokahontas ($50 in chips)
+Seat 6: WinHof ($56.09 in chips)
+Seat 7: kole1992 ($53.20 in chips)
+Seat 8: V_dela ($122.14 in chips)
+JTs98o: posts small blind $0.25
+simke1133: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 2s]
+BBanzai74: raises $1 to $1
+Pokahontas: folds
+WinHof: calls $1
+kole1992: folds
+V_dela: calls $1
+mervetunc445: calls $1
+JTs98o: folds
+simke1133: folds
+*** FLOP *** [Jc Kd As]
+BBanzai74: bets $2.38
+WinHof: folds
+V_dela: folds
+mervetunc445: folds
+Uncalled bet ($2.38) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [Jc Kd As]
+Seat 1: mervetunc445 (button) folded on the Flop 
+Seat 2: JTs98o (small blind) folded before Flop 
+Seat 3: simke1133 (big blind) folded before Flop 
+Seat 4: BBanzai74 collected ($4.75)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: WinHof folded on the Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded on the Flop 
+
+
+Weplay Hand #76560932:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:16:10 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: mervetunc445 ($41.90 in chips)
+Seat 2: JTs98o ($54.77 in chips)
+Seat 3: simke1133 ($63.50 in chips)
+Seat 4: BBanzai74 ($31.69 in chips)
+Seat 5: Pokahontas ($50 in chips)
+Seat 6: WinHof ($55.09 in chips)
+Seat 7: kole1992 ($53.20 in chips)
+Seat 8: V_dela ($121.14 in chips)
+simke1133: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Kd]
+Pokahontas: raises $1.25 to $1.25
+WinHof: calls $1.25
+kole1992: folds
+V_dela: folds
+mervetunc445: folds
+JTs98o: folds
+simke1133: raises $5.25 to $5.50
+BBanzai74: folds
+Pokahontas: raises $11.75 to $13
+WinHof: folds
+simke1133: calls $7.50
+*** FLOP *** [8h 4s 7c]
+simke1133: checks
+Pokahontas: bets $9
+simke1133: calls $9
+*** TURN *** [8h 4s 7c] [Ts]
+simke1133: bets $32.37
+Pokahontas: calls $28 and is all-in
+Uncalled bet ($4.37) returned to simke1133
+*** FIRST RIVER *** [8h 4s 7c Ts] [Qd]
+*** SECOND RIVER *** [8h 4s 7c Ts] [6h]
+*** SHOW DOWN ***
+simke1133: shows [Ac Qc] (a pair of Queens)
+Pokahontas: shows [Kh Ks] (a pair of Kings)
+Pokahontas collected $101.75 from pot
+*** SUMMARY ***
+Total pot $101.75 | Rake $4 
+Hand was run two times
+FIRST Board [8h 4s 7c Ts Qd]
+SECOND Board [8h 4s 7c Ts 6h]
+Seat 1: mervetunc445 folded before Flop (didn't bet)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: simke1133 (small blind) showed [Ac Qc] and lost with a pair of Queens
+Seat 4: BBanzai74 (big blind) folded before Flop 
+Seat 5: Pokahontas showed [Kh Ks] and won ($101.75) with a pair of Kings
+Seat 6: WinHof folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76560963:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:17:26 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: mervetunc445 ($41.90 in chips)
+Seat 2: JTs98o ($54.77 in chips)
+Seat 3: simke1133 ($13.50 in chips)
+Seat 4: BBanzai74 ($31.19 in chips)
+Seat 5: Pokahontas ($97.75 in chips)
+Seat 6: WinHof ($53.84 in chips)
+Seat 7: kole1992 ($53.20 in chips)
+Seat 8: V_dela ($121.14 in chips)
+BBanzai74: posts small blind $0.25
+Pokahontas: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 2c]
+WinHof: raises $1.25 to $1.25
+kole1992: folds
+V_dela: folds
+mervetunc445: calls $1.25
+JTs98o: folds
+simke1133: folds
+BBanzai74: calls $1
+Pokahontas: folds
+*** FLOP *** [3c 8d Tc]
+BBanzai74: checks
+WinHof: bets $4.25
+mervetunc445: folds
+BBanzai74: folds
+Uncalled bet ($4.25) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $4.25 from pot
+*** SUMMARY ***
+Total pot $4.25 | Rake $0.21 
+Board [3c 8d Tc]
+Seat 1: mervetunc445 folded on the Flop 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 (button) folded before Flop (didn't bet)
+Seat 4: BBanzai74 (small blind) folded on the Flop 
+Seat 5: Pokahontas (big blind) folded before Flop 
+Seat 6: WinHof collected ($4.25)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76560974:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:17:58 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: mervetunc445 ($40.65 in chips)
+Seat 2: JTs98o ($54.77 in chips)
+Seat 3: simke1133 ($13.50 in chips)
+Seat 4: BBanzai74 ($29.94 in chips)
+Seat 5: Pokahontas ($97.25 in chips)
+Seat 7: kole1992 ($53.20 in chips)
+Seat 8: V_dela ($121.14 in chips)
+Pokahontas: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Ac]
+WinHof leaves the table
+V_dela: folds
+mervetunc445: calls $0.50
+JTs98o: folds
+simke1133: raises $3.50 to $3.50
+BBanzai74: folds
+Pokahontas: folds
+kole1992: folds
+mervetunc445: calls $3
+*** FLOP *** [2h Ts 8d]
+mervetunc445: checks
+simke1133: bets $10 and is all-in
+mervetunc445: folds
+Uncalled bet ($10) returned to simke1133
+*** SHOW DOWN ***
+simke1133 has timed out
+simke1133: doesn't show hand
+simke1133 collected $7.75 from pot
+*** SUMMARY ***
+Total pot $7.75 | Rake $0.38 
+Board [2h Ts 8d]
+Seat 1: mervetunc445 folded on the Flop 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 collected ($7.75)
+Seat 4: BBanzai74 (button) folded before Flop (didn't bet)
+Seat 5: Pokahontas (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76560991:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:18:42 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: mervetunc445 ($37.15 in chips)
+Seat 2: JTs98o ($54.77 in chips)
+Seat 3: simke1133 ($17.37 in chips)
+Seat 4: BBanzai74 ($29.94 in chips)
+Seat 5: Pokahontas ($97 in chips)
+Seat 7: kole1992 ($52.70 in chips)
+Seat 8: V_dela ($121.14 in chips)
+kole1992: posts small blind $0.25
+V_dela: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Kh]
+mervetunc445: folds
+JTs98o: folds
+simke1133: folds
+BBanzai74: folds
+Pokahontas: folds
+kole1992: raises $1.25 to $1.50
+V_dela: calls $1
+*** FLOP *** [6h Kd 8c]
+kole1992: bets $1
+V_dela: calls $1
+*** TURN *** [6h Kd 8c] [8h]
+kole1992: bets $1.65
+V_dela: calls $1.65
+*** RIVER *** [6h Kd 8c 8h] [Ac]
+kole1992: bets $4.82
+V_dela: folds
+Uncalled bet ($4.82) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $8.30 from pot
+*** SUMMARY ***
+Total pot $8.30 | Rake $0.41 
+Board [6h Kd 8c 8h Ac]
+Seat 1: mervetunc445 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 folded before Flop (didn't bet)
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) collected ($8.30)
+Seat 8: V_dela (big blind) folded on the River 
+
+
+Weplay Hand #76561020:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:19:53 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: mervetunc445 ($37.15 in chips)
+Seat 2: JTs98o ($54.77 in chips)
+Seat 3: simke1133 ($17.37 in chips)
+Seat 4: BBanzai74 ($29.94 in chips)
+Seat 5: Pokahontas ($97 in chips)
+Seat 7: kole1992 ($56.44 in chips)
+Seat 8: V_dela ($116.99 in chips)
+V_dela: posts small blind $0.25
+mervetunc445: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 7c]
+JTs98o: folds
+simke1133: folds
+BBanzai74: folds
+Pokahontas: raises $1.25 to $1.25
+kole1992: folds
+V_dela: folds
+mervetunc445: folds
+Uncalled bet ($0.75) returned to Pokahontas
+*** SHOW DOWN ***
+Pokahontas: doesn't show hand
+Pokahontas collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: mervetunc445 (big blind) folded before Flop 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 folded before Flop (didn't bet)
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas collected ($1.25)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: V_dela (small blind) folded before Flop 
+
+
+Weplay Hand #76561037:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:20:37 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: mervetunc445 ($36.65 in chips)
+Seat 2: JTs98o ($54.77 in chips)
+Seat 3: simke1133 ($17.37 in chips)
+Seat 4: BBanzai74 ($29.94 in chips)
+Seat 5: Pokahontas ($97.75 in chips)
+Seat 7: kole1992 ($56.44 in chips)
+Seat 8: V_dela ($116.74 in chips)
+mervetunc445: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Kd]
+simke1133: folds
+BBanzai74: folds
+Pokahontas: folds
+kole1992: raises $1.25 to $1.25
+V_dela: calls $1.25
+mervetunc445: folds
+JTs98o: calls $0.75
+*** FLOP *** [7c Th Jd]
+JTs98o: checks
+kole1992: checks
+V_dela: checks
+*** TURN *** [7c Th Jd] [7s]
+JTs98o: checks
+kole1992: checks
+V_dela: checks
+*** RIVER *** [7c Th Jd 7s] [Ad]
+JTs98o: checks
+kole1992: checks
+V_dela: checks
+*** SHOW DOWN ***
+JTs98o: shows [2h 2s] (two pair, Sevens and Deuces)
+kole1992: shows [Kh Kd] (two pair, Kings and Sevens)
+V_dela has timed out
+V_dela: mucks hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [7c Th Jd 7s Ad]
+Seat 1: mervetunc445 (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) showed [2h 2s] and lost with two pair, Sevens and Deuces
+Seat 3: simke1133 folded before Flop (didn't bet)
+Seat 4: BBanzai74 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 7: kole1992 showed [Kh Kd] and won ($4) with two pair, Kings and Sevens
+Seat 8: V_dela (button) mucked
+
+
+Weplay Hand #76561070:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:21:59 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: mervetunc445 ($36.40 in chips)
+Seat 2: JTs98o ($53.52 in chips)
+Seat 3: simke1133 ($17.37 in chips)
+Seat 4: BBanzai74 ($29.94 in chips)
+Seat 5: Pokahontas ($97.75 in chips)
+Seat 6: Guy2641 ($29.75 in chips)
+Seat 7: kole1992 ($58.99 in chips)
+Seat 8: V_dela ($115.49 in chips)
+JTs98o: posts small blind $0.25
+simke1133: posts big blind $0.50
+Guy2641: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Ah]
+BBanzai74: calls $0.50
+Pokahontas: folds
+Guy2641: checks
+kole1992: raises $2.75 to $2.75
+V_dela: folds
+mervetunc445: folds
+Guy2641 is disconnected 
+Guy2641 is connected 
+JTs98o: folds
+simke1133: folds
+BBanzai74: calls $2.25
+Guy2641 is disconnected 
+Guy2641 has timed out while being disconnected
+Guy2641: folds
+*** FLOP *** [3d 2c 7s]
+BBanzai74: checks
+kole1992: checks
+*** TURN *** [3d 2c 7s] [6s]
+BBanzai74: bets $3.38
+kole1992: calls $3.38
+*** RIVER *** [3d 2c 7s 6s] [Ks]
+BBanzai74: checks
+kole1992: checks
+*** SHOW DOWN ***
+BBanzai74: shows [5c Ac] (high card Ace)
+kole1992: shows [Qd Ah] (high card Ace)
+kole1992 collected $13.51 from pot
+*** SUMMARY ***
+Total pot $13.51 | Rake $0.67 
+Board [3d 2c 7s 6s Ks]
+Seat 1: mervetunc445 (button) folded before Flop (didn't bet)
+Seat 2: JTs98o (small blind) folded before Flop 
+Seat 3: simke1133 (big blind) folded before Flop 
+Seat 4: BBanzai74 showed [5c Ac] and lost with high card Ace
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: Guy2641 (big blind) folded before Flop 
+Seat 7: kole1992 showed [Qd Ah] and won ($13.51) with high card Ace
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76561110:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:23:38 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: mervetunc445 ($36.40 in chips)
+Seat 2: JTs98o ($53.27 in chips)
+Seat 3: simke1133 ($16.87 in chips)
+Seat 4: BBanzai74 ($23.81 in chips)
+Seat 5: Pokahontas ($97.75 in chips)
+Seat 6: Guy2641 ($29.25 in chips)
+Seat 7: kole1992 ($65.70 in chips)
+Seat 8: V_dela ($115.49 in chips)
+simke1133: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+BBanzai74: sits out 
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Kh]
+Pokahontas: folds
+Guy2641: raises $4.50 to $4.50
+BBanzai74 is disconnected 
+kole1992: folds
+V_dela: folds
+mervetunc445: folds
+JTs98o: folds
+simke1133: folds
+BBanzai74: folds
+Uncalled bet ($4) returned to Guy2641
+*** SHOW DOWN ***
+BBanzai74 leaves the table
+Guy2641 has timed out
+Guy2641: doesn't show hand
+Guy2641 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: mervetunc445 folded before Flop (didn't bet)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: simke1133 (small blind) folded before Flop 
+Seat 4: BBanzai74 (big blind) folded before Flop 
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: Guy2641 collected ($1.25)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76561124:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:24:16 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: mervetunc445 ($36.40 in chips)
+Seat 2: JTs98o ($53.27 in chips)
+Seat 3: simke1133 ($16.62 in chips)
+Seat 5: Pokahontas ($97.75 in chips)
+Seat 6: Guy2641 ($30 in chips)
+Seat 7: kole1992 ($65.70 in chips)
+Seat 8: V_dela ($115.49 in chips)
+Pokahontas: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Js]
+Guy2641: calls $0.50
+kole1992: folds
+V_dela: calls $0.50
+mervetunc445: calls $0.50
+JTs98o: folds
+simke1133: folds
+Pokahontas: checks
+*** FLOP *** [7d Ah Tc]
+Pokahontas: checks
+Guy2641: checks
+V_dela: checks
+mervetunc445: bets $0.50
+Pokahontas: calls $0.50
+Guy2641: folds
+V_dela: calls $0.50
+*** TURN *** [7d Ah Tc] [6d]
+Pokahontas: checks
+V_dela: checks
+mervetunc445: bets $0.50
+Pokahontas: raises $3 to $3
+V_dela: calls $3
+mervetunc445: folds
+*** RIVER *** [7d Ah Tc 6d] [2c]
+Pokahontas: bets $11
+V_dela: calls $11
+*** SHOW DOWN ***
+Pokahontas: shows [9d 8c] (a straight, Six to Ten)
+V_dela has timed out
+V_dela: mucks hand
+Pokahontas collected $32 from pot
+*** SUMMARY ***
+Total pot $32 | Rake $1.60 
+Board [7d Ah Tc 6d 2c]
+Seat 1: mervetunc445 folded on the Turn 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 (button) folded before Flop (didn't bet)
+Seat 5: Pokahontas (big blind) showed [9d 8c] and won ($32) with a straight, Six to Ten
+Seat 6: Guy2641 folded on the Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela mucked
+
+
+Weplay Hand #76561158:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:25:47 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: mervetunc445 ($34.90 in chips)
+Seat 2: JTs98o ($53.27 in chips)
+Seat 3: simke1133 ($16.62 in chips)
+Seat 5: Pokahontas ($113.15 in chips)
+Seat 6: Guy2641 ($29.50 in chips)
+Seat 7: kole1992 ($65.70 in chips)
+Seat 8: V_dela ($100.49 in chips)
+Pokahontas: posts small blind $0.25
+Guy2641: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 8s]
+kole1992: folds
+V_dela: raises $1 to $1
+mervetunc445: folds
+JTs98o: folds
+simke1133: calls $1
+Pokahontas: folds
+Guy2641: calls $0.50
+*** FLOP *** [3c 6s 3d]
+Guy2641: bets $1
+V_dela: calls $1
+simke1133: calls $1
+*** TURN *** [3c 6s 3d] [Ad]
+Guy2641: bets $2
+V_dela: folds
+simke1133: folds
+Uncalled bet ($2) returned to Guy2641
+*** SHOW DOWN ***
+Guy2641 has timed out
+Guy2641: doesn't show hand
+Guy2641 collected $6.25 from pot
+*** SUMMARY ***
+Total pot $6.25 | Rake $0.31 
+Board [3c 6s 3d Ad]
+Seat 1: mervetunc445 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 folded on the Turn 
+Seat 5: Pokahontas (small blind) folded before Flop 
+Seat 6: Guy2641 (big blind) collected ($6.25)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded on the Turn 
+
+
+Weplay Hand #76561173:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:26:25 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: mervetunc445 ($34.90 in chips)
+Seat 2: JTs98o ($53.27 in chips)
+Seat 3: simke1133 ($14.62 in chips)
+Seat 5: Pokahontas ($112.90 in chips)
+Seat 6: Guy2641 ($33.44 in chips)
+Seat 7: kole1992 ($65.70 in chips)
+Seat 8: V_dela ($98.49 in chips)
+Guy2641: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 3s]
+V_dela: folds
+mervetunc445: calls $0.50
+JTs98o: raises $1.75 to $1.75
+simke1133: folds
+Pokahontas: folds
+Guy2641: calls $1.50
+kole1992: folds
+mervetunc445: calls $1.25
+*** FLOP *** [5h 2s Ah]
+Guy2641: checks
+mervetunc445: checks
+JTs98o: checks
+*** TURN *** [5h 2s Ah] [3d]
+Guy2641: checks
+mervetunc445: bets $0.50
+JTs98o: folds
+Guy2641: calls $0.50
+*** RIVER *** [5h 2s Ah 3d] [5d]
+Guy2641: checks
+mervetunc445: bets $3.38
+Guy2641: folds
+Uncalled bet ($3.38) returned to mervetunc445
+*** SHOW DOWN ***
+mervetunc445 has timed out
+mervetunc445: doesn't show hand
+mervetunc445 collected $6.75 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0.33 
+Board [5h 2s Ah 3d 5d]
+Seat 1: mervetunc445 collected ($6.75)
+Seat 2: JTs98o folded on the Turn 
+Seat 3: simke1133 folded before Flop (didn't bet)
+Seat 5: Pokahontas (button) folded before Flop (didn't bet)
+Seat 6: Guy2641 (small blind) folded on the River 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76561195:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:27:22 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: mervetunc445 ($39.07 in chips)
+Seat 2: JTs98o ($51.52 in chips)
+Seat 3: simke1133 ($14.62 in chips)
+Seat 5: Pokahontas ($112.90 in chips)
+Seat 6: Guy2641 ($31.19 in chips)
+Seat 7: kole1992 ($65.20 in chips)
+Seat 8: V_dela ($98.49 in chips)
+kole1992: posts small blind $0.25
+V_dela: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 4c]
+mervetunc445: calls $0.50
+JTs98o: folds
+simke1133: folds
+Pokahontas: folds
+Guy2641: calls $0.50
+kole1992: folds
+V_dela: checks
+*** FLOP *** [5d 7d 9s]
+V_dela: checks
+mervetunc445: bets $0.50
+Guy2641: folds
+V_dela: calls $0.50
+*** TURN *** [5d 7d 9s] [Ad]
+V_dela: checks
+mervetunc445: bets $0.50
+V_dela: calls $0.50
+*** RIVER *** [5d 7d 9s Ad] [2s]
+V_dela: checks
+mervetunc445: checks
+*** SHOW DOWN ***
+V_dela: shows [Td 5h] (a pair of Fives)
+mervetunc445 has timed out
+mervetunc445: mucks hand
+V_dela collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [5d 7d 9s Ad 2s]
+Seat 1: mervetunc445 mucked
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: Guy2641 (button) folded on the Flop 
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: V_dela (big blind) showed [Td 5h] and won ($3.75) with a pair of Fives
+
+
+Weplay Hand #76561217:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:28:23 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: mervetunc445 ($37.57 in chips)
+Seat 2: JTs98o ($51.52 in chips)
+Seat 3: simke1133 ($14.62 in chips)
+Seat 5: Pokahontas ($112.90 in chips)
+Seat 6: Guy2641 ($30.69 in chips)
+Seat 7: kole1992 ($64.95 in chips)
+Seat 8: V_dela ($100.56 in chips)
+V_dela: posts small blind $0.25
+mervetunc445: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 8c]
+JTs98o: calls $0.50
+simke1133: folds
+Pokahontas: folds
+Guy2641: folds
+kole1992: folds
+V_dela: calls $0.25
+mervetunc445: checks
+*** FLOP *** [2h 6c 4c]
+V_dela: bets $1.50
+mervetunc445: calls $1.50
+JTs98o: raises $5.52 to $5.52
+V_dela: calls $4.02
+mervetunc445: folds
+*** TURN *** [2h 6c 4c] [Ts]
+V_dela: checks
+JTs98o: checks
+*** RIVER *** [2h 6c 4c Ts] [5c]
+V_dela: checks
+JTs98o: checks
+*** SHOW DOWN ***
+V_dela: shows [Th 6d] (two pair, Tens and Sixes)
+JTs98o: mucks hand
+V_dela collected $14.04 from pot
+*** SUMMARY ***
+Total pot $14.04 | Rake $0.70 
+Board [2h 6c 4c Ts 5c]
+Seat 1: mervetunc445 (big blind) folded on the Flop 
+Seat 2: JTs98o mucked
+Seat 3: simke1133 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: Guy2641 folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: V_dela (small blind) showed [Th 6d] and won ($14.04) with two pair, Tens and Sixes
+
+
+Weplay Hand #76561247:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:29:29 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: mervetunc445 ($35.57 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: simke1133 ($14.62 in chips)
+Seat 5: Pokahontas ($112.90 in chips)
+Seat 6: Guy2641 ($30.69 in chips)
+Seat 7: kole1992 ($64.95 in chips)
+Seat 8: V_dela ($107.88 in chips)
+mervetunc445: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 3d]
+simke1133: folds
+Pokahontas: raises $1.25 to $1.25
+Guy2641: calls $1.25
+kole1992: folds
+V_dela: calls $1.25
+mervetunc445: folds
+JTs98o: folds
+*** FLOP *** [2s 2h Qs]
+Pokahontas: checks
+Guy2641 is disconnected 
+Guy2641 has timed out while being disconnected
+Guy2641: checks
+Guy2641 is connected 
+V_dela: checks
+*** TURN *** [2s 2h Qs] [3h]
+Pokahontas: checks
+Guy2641: checks
+V_dela: checks
+*** RIVER *** [2s 2h Qs 3h] [5d]
+Pokahontas: checks
+Guy2641: bets $7
+V_dela: folds
+Pokahontas: folds
+Uncalled bet ($7) returned to Guy2641
+*** SHOW DOWN ***
+Guy2641 has timed out
+Guy2641: doesn't show hand
+Guy2641 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [2s 2h Qs 3h 5d]
+Seat 1: mervetunc445 (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) folded before Flop 
+Seat 3: simke1133 folded before Flop (didn't bet)
+Seat 5: Pokahontas folded on the River 
+Seat 6: Guy2641 collected ($4.50)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela (button) folded on the River 
+
+
+Weplay Hand #76561282:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:31:13 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: mervetunc445 ($35.32 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: simke1133 ($14.62 in chips)
+Seat 5: Pokahontas ($111.65 in chips)
+Seat 6: Guy2641 ($33.72 in chips)
+Seat 7: kole1992 ($64.95 in chips)
+Seat 8: V_dela ($106.63 in chips)
+JTs98o: posts small blind $0.25
+simke1133: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 3h]
+Pokahontas: folds
+Guy2641: raises $2 to $2
+kole1992: folds
+V_dela: folds
+mervetunc445: folds
+JTs98o: calls $1.75
+simke1133: calls $1.50
+*** FLOP *** [9d 7s Jc]
+JTs98o: checks
+simke1133: checks
+Guy2641: checks
+*** TURN *** [9d 7s Jc] [3d]
+JTs98o: bets $4.02
+simke1133: raises $12.62 to $12.62 and is all-in
+Guy2641: folds
+JTs98o: calls $8.60
+*** RIVER *** [9d 7s Jc 3d] [Jd]
+*** SECOND RIVER *** [9d 7s Jc 3d] [Js]
+*** SHOW DOWN ***
+JTs98o: shows [Qc As] (a pair of Jacks)
+simke1133: shows [Ks Kc] (two pair, Kings and Jacks)
+simke1133 collected $31.24 from pot
+*** SUMMARY ***
+Total pot $31.24 | Rake $1.56 
+Hand was run two times
+FIRST Board [9d 7s Jc 3d Jd]
+SECOND Board [9d 7s Jc 3d Js]
+Seat 1: mervetunc445 (button) folded before Flop (didn't bet)
+Seat 2: JTs98o (small blind) showed [Qc As] and lost with a pair of Jacks
+Seat 3: simke1133 (big blind) showed [Ks Kc] and won ($31.24) with two pair, Kings and Jacks
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: Guy2641 folded on the Turn 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76561310:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:32:14 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: mervetunc445 ($35.32 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: simke1133 ($29.68 in chips)
+Seat 5: Pokahontas ($111.65 in chips)
+Seat 6: Guy2641 ($31.72 in chips)
+Seat 7: kole1992 ($64.95 in chips)
+Seat 8: V_dela ($106.63 in chips)
+simke1133: posts small blind $0.25
+Pokahontas: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 3s]
+Guy2641: calls $0.50
+kole1992: folds
+V_dela: calls $0.50
+mervetunc445: calls $0.50
+JTs98o: folds
+simke1133: calls $0.25
+Pokahontas: checks
+*** FLOP *** [Tc Jd 5c]
+simke1133: checks
+Pokahontas: checks
+Guy2641: checks
+V_dela: checks
+mervetunc445: bets $1.88
+simke1133: calls $1.88
+Pokahontas: folds
+Guy2641: folds
+V_dela: folds
+*** TURN *** [Tc Jd 5c] [5s]
+simke1133: checks
+Elgringo joins the table at seat #4
+mervetunc445: bets $4.70
+simke1133: folds
+Uncalled bet ($4.70) returned to mervetunc445
+*** SHOW DOWN ***
+mervetunc445 has timed out
+mervetunc445: doesn't show hand
+mervetunc445 collected $6.26 from pot
+*** SUMMARY ***
+Total pot $6.26 | Rake $0.31 
+Board [Tc Jd 5c 5s]
+Seat 1: mervetunc445 collected ($6.26)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: simke1133 (small blind) folded on the Turn 
+Seat 5: Pokahontas (big blind) folded on the Flop 
+Seat 6: Guy2641 folded on the Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela folded on the Flop 
+
+
+Weplay Hand #76563338:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:33:27 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: mervetunc445 ($38.89 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: simke1133 ($27.30 in chips)
+Seat 5: Pokahontas ($111.15 in chips)
+Seat 6: Guy2641 ($31.22 in chips)
+Seat 7: kole1992 ($64.95 in chips)
+Seat 8: V_dela ($106.13 in chips)
+Pokahontas: posts small blind $0.25
+Guy2641: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 8d]
+kole1992: folds
+V_dela: calls $0.50
+mervetunc445: calls $0.50
+JTs98o: folds
+simke1133: folds
+Pokahontas: calls $0.25
+Guy2641: checks
+*** FLOP *** [Js 5h Kd]
+Pokahontas: checks
+Guy2641: checks
+V_dela: checks
+mervetunc445: checks
+*** TURN *** [Js 5h Kd] [7d]
+Pokahontas: checks
+Guy2641: checks
+V_dela: checks
+mervetunc445: checks
+*** RIVER *** [Js 5h Kd 7d] [2c]
+Pokahontas: checks
+Guy2641: checks
+V_dela: checks
+mervetunc445: checks
+*** SHOW DOWN ***
+Pokahontas: shows [3d 2d] (a pair of Deuces)
+Guy2641: shows [Qd 5s] (a pair of Fives)
+V_dela has timed out
+V_dela: mucks hand
+mervetunc445 has timed out
+mervetunc445: mucks hand
+Guy2641 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [Js 5h Kd 7d 2c]
+Seat 1: mervetunc445 mucked
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 (button) folded before Flop (didn't bet)
+Seat 5: Pokahontas (small blind) showed [3d 2d] and lost with a pair of Deuces
+Seat 6: Guy2641 (big blind) showed [Qd 5s] and won ($2) with a pair of Fives
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: V_dela mucked
+
+
+Weplay Hand #76563369:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:34:29 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: mervetunc445 ($38.39 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: simke1133 ($27.30 in chips)
+Seat 4: Elgringo ($50 in chips)
+Seat 5: Pokahontas ($110.65 in chips)
+Seat 6: Guy2641 ($32.62 in chips)
+Seat 7: kole1992 ($64.95 in chips)
+Seat 8: V_dela ($105.63 in chips)
+Guy2641: posts small blind $0.25
+kole1992: posts big blind $0.50
+Elgringo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh As]
+V_dela: folds
+mervetunc445: calls $0.50
+JTs98o: folds
+simke1133: folds
+Elgringo: checks
+Pokahontas: folds
+Guy2641: calls $0.25
+kole1992: raises $3 to $3.50
+mervetunc445: folds
+Elgringo: folds
+Guy2641 is disconnected 
+Guy2641 is connected 
+Guy2641: calls $3
+*** FLOP *** [9h Qs 9c]
+Guy2641: checks
+kole1992: checks
+*** TURN *** [9h Qs 9c] [8d]
+Guy2641: checks
+kole1992: bets $4.34
+Guy2641 is disconnected 
+Guy2641 is connected 
+Guy2641: calls $4.34
+*** RIVER *** [9h Qs 9c 8d] [6c]
+Guy2641 is disconnected 
+Guy2641 is connected 
+Guy2641: checks
+kole1992: bets $57.11 and is all-in
+Guy2641: calls $24.78 and is all-in
+Uncalled bet ($32.33) returned to kole1992
+*** SHOW DOWN ***
+kole1992: shows [Qh As] (two pair, Queens and Nines)
+Guy2641: shows [7d Td] (a straight, Six to Ten)
+Guy2641 collected $66.24 from pot
+*** SUMMARY ***
+Total pot $66.24 | Rake $3.31 
+Board [9h Qs 9c 8d 6c]
+Seat 1: mervetunc445 folded before Flop 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 folded before Flop (didn't bet)
+Seat 4: Elgringo (big blind) folded before Flop 
+Seat 5: Pokahontas (button) folded before Flop (didn't bet)
+Seat 6: Guy2641 (small blind) showed [7d Td] and won ($66.24) with a straight, Six to Ten
+Seat 7: kole1992 (big blind) showed [Qh As] and lost with two pair, Queens and Nines
+Seat 8: V_dela folded before Flop (didn't bet)
+
+
+Weplay Hand #76563411:  Hold'em No Limit ($0.25/$0.50) - 2026/02/23 21:35:56 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #6 is the button
+Seat 1: mervetunc445 ($37.89 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: simke1133 ($27.30 in chips)
+Seat 4: Elgringo ($49.50 in chips)
+Seat 5: Pokahontas ($110.65 in chips)
+Seat 6: Guy2641 ($62.93 in chips)
+Seat 7: kole1992 ($32.33 in chips)
+Seat 8: V_dela ($105.63 in chips)
+kole1992: posts small blind $0.25
+V_dela: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 6c]
+mervetunc445: folds
+JTs98o: folds
+simke1133: folds
+Elgringo: folds
+Pokahontas: folds
+Guy2641: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to V_dela
+*** SHOW DOWN ***
+kole1992: sits out 
+V_dela has timed out
+V_dela: doesn't show hand
+V_dela collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: mervetunc445 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: simke1133 folded before Flop (didn't bet)
+Seat 4: Elgringo folded before Flop (didn't bet)
+Seat 5: Pokahontas folded before Flop (didn't bet)
+Seat 6: Guy2641 (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: V_dela (big blind) collected ($0.50)

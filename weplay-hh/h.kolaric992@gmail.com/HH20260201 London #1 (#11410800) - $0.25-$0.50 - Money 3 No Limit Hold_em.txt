@@ -1,0 +1,1514 @@
+﻿Weplay Hand #74412219:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:30:21 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($106.96 in chips)
+Seat 3: rossi1616 ($54.75 in chips)
+Seat 5: M.C. ($30.27 in chips)
+Seat 6: JTs98o ($72.57 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 9s]
+Operationskills: folds
+rossi1616: folds
+M.C.: folds
+JTs98o: raises $1.25 to $1.50
+kole1992: raises $4 to $4.50
+JTs98o: raises $8.50 to $10
+kole1992: calls $5.50
+*** FLOP *** [Qs Qh 7c]
+JTs98o: bets $5
+kole1992: calls $5
+*** TURN *** [Qs Qh 7c] [6d]
+JTs98o: checks
+AndrejT1000 leaves the table
+kole1992: bets $8.40
+JTs98o: calls $8.40
+*** RIVER *** [Qs Qh 7c 6d] [7h]
+JTs98o: bets $5.75
+kole1992: raises $26.60 to $26.60 and is all-in
+JTs98o: calls $20.85
+*** SHOW DOWN ***
+kole1992: shows [8s 9s] (two pair, Queens and Sevens)
+JTs98o: shows [7s 4s] (a full house, Sevens full of Queens)
+JTs98o collected $100 from pot
+*** SUMMARY ***
+Total pot $100 | Rake $4 
+Board [Qs Qh 7c 6d 7h]
+Seat 1: kole1992 (big blind) showed [8s 9s] and lost with two pair, Queens and Sevens
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: M.C. (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) showed [7s 4s] and won ($100) with a full house, Sevens full of Queens
+
+
+Weplay Hand #74412297:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:32:04 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($106.96 in chips)
+Seat 3: rossi1616 ($54.75 in chips)
+Seat 5: M.C. ($30.27 in chips)
+Seat 6: JTs98o ($118.57 in chips)
+kole1992: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 6d]
+rossi1616: raises $1.75 to $1.75
+M.C.: folds
+JTs98o: folds
+kole1992: folds
+Operationskills: folds
+Uncalled bet ($1.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Operationskills (big blind) folded before Flop 
+Seat 3: rossi1616 collected ($1.25)
+Seat 5: M.C. folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74412318:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:32:34 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($106.46 in chips)
+Seat 3: rossi1616 ($55.50 in chips)
+Seat 5: M.C. ($30.27 in chips)
+Seat 6: JTs98o ($118.57 in chips)
+Operationskills: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 6h]
+M.C.: folds
+JTs98o: raises $1.25 to $1.25
+kole1992: folds
+Operationskills: folds
+rossi1616: folds
+Uncalled bet ($0.75) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Operationskills (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 5: M.C. folded before Flop (didn't bet)
+Seat 6: JTs98o collected ($1.25)
+
+
+Weplay Hand #74412339:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:32:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($106.21 in chips)
+Seat 3: rossi1616 ($55 in chips)
+Seat 5: M.C. ($30.27 in chips)
+Seat 6: JTs98o ($119.32 in chips)
+rossi1616: posts small blind $0.25
+M.C.: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 2h]
+JTs98o: folds
+kole1992: folds
+Operationskills: raises $1.75 to $1.75
+rossi1616: folds
+M.C.: folds
+Uncalled bet ($1.25) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills (button) collected ($1.25)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 5: M.C. (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74412360:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:33:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($106.96 in chips)
+Seat 3: rossi1616 ($54.75 in chips)
+Seat 5: M.C. ($29.77 in chips)
+Seat 6: JTs98o ($119.32 in chips)
+M.C.: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Ts]
+kole1992: raises $1 to $1
+Operationskills: calls $1
+rossi1616: folds
+M.C.: folds
+JTs98o: folds
+*** FLOP *** [9c 2c 9d]
+kole1992: checks
+Operationskills: bets $1.40
+kole1992: folds
+Uncalled bet ($1.40) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [9c 2c 9d]
+Seat 1: kole1992 folded on the Flop 
+Seat 2: Operationskills collected ($2.75)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: M.C. (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #74412404:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:34:18 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($108.58 in chips)
+Seat 3: rossi1616 ($54.75 in chips)
+Seat 5: M.C. ($29.52 in chips)
+Seat 6: JTs98o ($118.82 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 7d]
+Operationskills: calls $0.50
+rossi1616: folds
+M.C.: calls $0.50
+JTs98o: calls $0.25
+kole1992: raises $3.25 to $3.75
+Operationskills: folds
+M.C.: folds
+JTs98o: folds
+Uncalled bet ($3.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($2)
+Seat 2: Operationskills folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: M.C. (button) folded before Flop 
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #74412441:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:35:08 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($51.50 in chips)
+Seat 2: Operationskills ($108.08 in chips)
+Seat 3: rossi1616 ($54.75 in chips)
+Seat 5: M.C. ($29.02 in chips)
+Seat 6: JTs98o ($118.32 in chips)
+kole1992: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 9h]
+rossi1616: folds
+M.C.: calls $0.50
+JTs98o: folds
+kole1992: folds
+Operationskills: checks
+*** FLOP *** [7s 6h Ad]
+Operationskills: checks
+M.C.: checks
+*** TURN *** [7s 6h Ad] [Kd]
+Operationskills: checks
+M.C.: checks
+*** RIVER *** [7s 6h Ad Kd] [Qh]
+Operationskills: checks
+M.C.: checks
+*** SHOW DOWN ***
+Operationskills: shows [5s Jc] (high card Ace)
+M.C.: shows [7c 8h] (a pair of Sevens)
+M.C. collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [7s 6h Ad Kd Qh]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Operationskills (big blind) showed [5s Jc] and lost with high card Ace
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: M.C. showed [7c 8h] and won ($1.25) with a pair of Sevens
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74412460:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:35:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($51.25 in chips)
+Seat 2: Operationskills ($107.58 in chips)
+Seat 3: rossi1616 ($54.75 in chips)
+Seat 5: M.C. ($29.71 in chips)
+Seat 6: JTs98o ($118.32 in chips)
+Operationskills: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 4d]
+M.C.: calls $0.50
+JTs98o: raises $2 to $2
+kole1992: calls $2
+Operationskills: folds
+rossi1616: folds
+M.C.: calls $1.50
+*** FLOP *** [9c 8h 9d]
+M.C.: checks
+JTs98o: bets $1.70
+kole1992: folds
+M.C.: calls $1.70
+*** TURN *** [9c 8h 9d] [3s]
+M.C.: checks
+JTs98o: bets $6.50
+M.C.: calls $6.50
+*** RIVER *** [9c 8h 9d 3s] [2s]
+M.C.: checks
+JTs98o: bets $26.85
+M.C.: folds
+Uncalled bet ($26.85) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $23.15 from pot
+*** SUMMARY ***
+Total pot $23.15 | Rake $1.15 
+Board [9c 8h 9d 3s 2s]
+Seat 1: kole1992 (button) folded on the Flop 
+Seat 2: Operationskills (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 5: M.C. folded on the River 
+Seat 6: JTs98o collected ($23.15)
+
+
+Weplay Hand #74412518:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:36:53 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($107.33 in chips)
+Seat 3: rossi1616 ($54.25 in chips)
+Seat 5: M.C. ($19.51 in chips)
+Seat 6: JTs98o ($130.12 in chips)
+rossi1616: posts small blind $0.25
+M.C.: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Jd]
+JTs98o: folds
+kole1992: folds
+Operationskills: calls $0.50
+rossi1616: folds
+M.C.: checks
+*** FLOP *** [3s 9s 2d]
+M.C.: checks
+Operationskills: checks
+*** TURN *** [3s 9s 2d] [9d]
+M.C.: checks
+Operationskills: checks
+*** RIVER *** [3s 9s 2d 9d] [5c]
+M.C.: checks
+Operationskills: checks
+*** SHOW DOWN ***
+M.C.: shows [Qh Ks] (a pair of Nines)
+Operationskills has timed out
+Operationskills: mucks hand
+M.C. collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [3s 9s 2d 9d 5c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills (button) mucked
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 5: M.C. (big blind) showed [Qh Ks] and won ($1.25) with a pair of Nines
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74412548:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:37:35 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($106.83 in chips)
+Seat 3: rossi1616 ($54 in chips)
+Seat 5: M.C. ($20.20 in chips)
+Seat 6: JTs98o ($130.12 in chips)
+M.C.: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 8d]
+kole1992: folds
+Operationskills: folds
+rossi1616: folds
+M.C.: calls $0.25
+JTs98o: checks
+*** FLOP *** [9s 2h 2c]
+M.C.: checks
+JTs98o: checks
+*** TURN *** [9s 2h 2c] [3s]
+M.C.: checks
+JTs98o: checks
+*** RIVER *** [9s 2h 2c 3s] [6d]
+M.C.: bets $7
+JTs98o: folds
+Uncalled bet ($7) returned to M.C.
+*** SHOW DOWN ***
+M.C. has timed out
+M.C.: doesn't show hand
+M.C. collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [9s 2h 2c 3s 6d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: M.C. (small blind) collected ($1)
+Seat 6: JTs98o (big blind) folded on the River 
+
+
+Weplay Hand #74412577:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:38:20 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($106.83 in chips)
+Seat 3: rossi1616 ($54 in chips)
+Seat 5: M.C. ($20.65 in chips)
+Seat 6: JTs98o ($129.62 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 4h]
+Operationskills: folds
+rossi1616: folds
+M.C.: calls $0.50
+JTs98o: folds
+kole1992: checks
+*** FLOP *** [6c Ks 4s]
+kole1992: checks
+Misi23 joins the table at seat #4
+M.C.: bets $4.50
+kole1992: folds
+Uncalled bet ($4.50) returned to M.C.
+*** SHOW DOWN ***
+M.C. has timed out
+M.C.: doesn't show hand
+M.C. collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [6c Ks 4s]
+Seat 1: kole1992 (big blind) folded on the Flop 
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: M.C. (button) collected ($1.25)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #74412606:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:38:56 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($106.83 in chips)
+Seat 3: rossi1616 ($54 in chips)
+Seat 4: Misi23 ($15 in chips)
+Seat 5: M.C. ($21.34 in chips)
+Seat 6: JTs98o ($129.37 in chips)
+kole1992: posts small blind $0.25
+Operationskills: posts big blind $0.50
+Misi23: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Kc]
+rossi1616: folds
+Misi23: raises $0.50 to $1
+M.C.: calls $1
+JTs98o: folds
+kole1992: folds
+Operationskills: folds
+*** FLOP *** [8d 7d 5h]
+Misi23: bets $0.50
+M.C.: calls $0.50
+*** TURN *** [8d 7d 5h] [Jc]
+Misi23: checks
+M.C.: bets $1.50
+Misi23: folds
+Uncalled bet ($1.50) returned to M.C.
+*** SHOW DOWN ***
+M.C. has timed out
+M.C.: doesn't show hand
+M.C. collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [8d 7d 5h Jc]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Operationskills (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Misi23 (big blind) folded on the Turn 
+Seat 5: M.C. collected ($3.75)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74412635:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:39:40 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($106.33 in chips)
+Seat 3: rossi1616 ($54 in chips)
+Seat 4: Misi23 ($13.50 in chips)
+Seat 5: M.C. ($23.41 in chips)
+Seat 6: JTs98o ($129.37 in chips)
+Operationskills: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 9s]
+Misi23: calls $0.50
+M.C.: calls $0.50
+JTs98o: folds
+kole1992: folds
+Operationskills: folds
+rossi1616: raises $1.75 to $2.25
+Misi23: calls $1.75
+M.C.: calls $1.75
+*** FLOP *** [Kd 4h 5s]
+rossi1616: bets $3.50
+Misi23: raises $11 to $11
+M.C.: folds
+rossi1616: folds
+Uncalled bet ($7.50) returned to Misi23
+*** SHOW DOWN ***
+Misi23: doesn't show hand
+Misi23 collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [Kd 4h 5s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Operationskills (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded on the Flop 
+Seat 4: Misi23 collected ($14)
+Seat 5: M.C. folded on the Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74412672:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:40:26 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($106.08 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Misi23 ($21.05 in chips)
+Seat 5: M.C. ($21.16 in chips)
+Seat 6: JTs98o ($129.37 in chips)
+rossi1616: posts small blind $0.25
+Misi23: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 8c]
+M.C.: calls $0.50
+JTs98o: folds
+kole1992: raises $1.75 to $1.75
+Operationskills: raises $6.50 to $6.50
+rossi1616: folds
+Misi23: raises $20.55 to $21.05 and is all-in
+M.C.: raises $20.66 to $21.16 and is all-in
+kole1992: folds
+Operationskills: calls $14.66
+*** FLOP *** [6s 7c 6c]
+*** TURN *** [6s 7c 6c] [Kd]
+*** RIVER *** [6s 7c 6c Kd] [5h]
+*** SHOW DOWN ***
+Misi23: shows [9d Qd] (a pair of Sixes)
+M.C.: shows [Ac Jh] (a pair of Sixes)
+Operationskills: shows [Jc Qc] (a pair of Sixes)
+M.C. collected $0.22 from side pot
+M.C. collected $65.15 from main pot
+*** SUMMARY ***
+Total pot $65.37 Main pot $65.15. Side pot $0.22. | Rake $3.26 
+Board [6s 7c 6c Kd 5h]
+Seat 1: kole1992 folded before Flop 
+Seat 2: Operationskills (button) showed [Jc Qc] and lost with a pair of Sixes
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: Misi23 (big blind) showed [9d Qd] and lost with a pair of Sixes
+Seat 5: M.C. showed [Ac Jh] and won ($65.37) with a pair of Sixes
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74412709:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:41:20 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($84.92 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 5: M.C. ($62.11 in chips)
+Seat 6: JTs98o ($129.37 in chips)
+M.C.: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Ts]
+JTs98o: folds
+kole1992: folds
+Operationskills has timed out
+Operationskills: folds
+rossi1616: folds
+*** SHOW DOWN ***
+M.C. has timed out
+M.C.: doesn't show hand
+M.C. collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: M.C. (big blind) collected ($0.50)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74412727:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:41:46 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Misi23 ($15 in chips)
+Seat 5: M.C. ($62.11 in chips)
+Seat 6: JTs98o ($129.37 in chips)
+M.C.: posts small blind $0.25
+JTs98o: posts big blind $0.50
+Misi23: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 2s]
+kole1992: folds
+rossi1616: folds
+Misi23: checks
+M.C.: calls $0.25
+JTs98o: checks
+*** FLOP *** [8s 7h Kd]
+M.C.: checks
+JTs98o: checks
+Misi23: checks
+*** TURN *** [8s 7h Kd] [3c]
+M.C.: bets $0.50
+JTs98o: folds
+Misi23: calls $0.50
+*** RIVER *** [8s 7h Kd 3c] [4d]
+M.C.: bets $4
+Misi23: folds
+Uncalled bet ($4) returned to M.C.
+*** SHOW DOWN ***
+M.C. has timed out
+M.C.: doesn't show hand
+M.C. collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [8s 7h Kd 3c 4d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Misi23 (button) (big blind) folded on the River 
+Seat 5: M.C. (small blind) collected ($2.50)
+Seat 6: JTs98o (big blind) folded on the Turn 
+
+
+Weplay Hand #74412774:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:42:54 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($84.92 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Misi23 ($14 in chips)
+Seat 5: M.C. ($63.49 in chips)
+Seat 6: JTs98o ($128.87 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 3h]
+Operationskills: calls $0.50
+rossi1616: raises $2.25 to $2.25
+Misi23: folds
+M.C.: calls $2.25
+JTs98o: folds
+kole1992: folds
+Operationskills: calls $1.75
+*** FLOP *** [9s Td 4c]
+Operationskills: checks
+rossi1616: checks
+M.C.: checks
+*** TURN *** [9s Td 4c] [Ad]
+Operationskills: checks
+rossi1616: checks
+M.C.: checks
+*** RIVER *** [9s Td 4c Ad] [Qh]
+Operationskills: checks
+rossi1616: checks
+M.C.: bets $14
+Operationskills: folds
+rossi1616: folds
+Uncalled bet ($14) returned to M.C.
+*** SHOW DOWN ***
+M.C. has timed out
+M.C.: doesn't show hand
+M.C. collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [9s Td 4c Ad Qh]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Operationskills folded on the River 
+Seat 3: rossi1616 folded on the River 
+Seat 4: Misi23 folded before Flop (didn't bet)
+Seat 5: M.C. (button) collected ($7.50)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #74412820:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:44:04 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($82.67 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Misi23 ($14 in chips)
+Seat 5: M.C. ($68.37 in chips)
+Seat 6: JTs98o ($128.62 in chips)
+kole1992: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Qs]
+rossi1616: folds
+M.C. leaves the table
+Misi23: calls $0.50
+JTs98o: raises $2.50 to $2.50
+kole1992: folds
+Operationskills: folds
+Misi23: calls $2
+*** FLOP *** [Ts 2s 8s]
+Misi23: checks
+JTs98o: checks
+*** TURN *** [Ts 2s 8s] [6s]
+Misi23: bets $0.50
+JTs98o: calls $0.50
+*** RIVER *** [Ts 2s 8s 6s] [Ks]
+Misi23: checks
+JTs98o: checks
+*** SHOW DOWN ***
+Misi23: shows [4h Tc] (a flush, King high)
+JTs98o: shows [Jc Ah] (a flush, King high)
+Misi23 collected $3.38 from pot
+JTs98o collected $3.37 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0.33 
+Board [Ts 2s 8s 6s Ks]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Operationskills (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Misi23 showed [4h Tc] and won ($3.38) with a flush, King high
+Seat 6: JTs98o (button) showed [Jc Ah] and won ($3.37) with a flush, King high
+
+
+Weplay Hand #74412855:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:44:56 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($82.17 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Misi23 ($14.21 in chips)
+Seat 6: JTs98o ($128.83 in chips)
+Operationskills: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Qd]
+Misi23: calls $0.50
+JTs98o: folds
+kole1992: folds
+Operationskills: folds
+rossi1616: checks
+*** FLOP *** [8c 9c Td]
+rossi1616: checks
+Misi23: bets $0.50
+rossi1616: raises $2.18 to $2.18
+Misi23: raises $13.21 to $13.71 and is all-in
+rossi1616: calls $11.53
+*** TURN *** [8c 9c Td] [Qc]
+*** RIVER *** [8c 9c Td Qc] [Ts]
+*** SHOW DOWN ***
+rossi1616: shows [Jc 7c] (a flush, Queen high)
+Misi23: shows [Th 7s] (three of a kind, Tens)
+rossi1616 collected $28.67 from pot
+*** SUMMARY ***
+Total pot $28.67 | Rake $1.43 
+Board [8c 9c Td Qc Ts]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Operationskills (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) showed [Jc 7c] and won ($28.67) with a flush, Queen high
+Seat 4: Misi23 showed [Th 7s] and lost with three of a kind, Tens
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74412886:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:45:38 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($81.92 in chips)
+Seat 3: rossi1616 ($63.03 in chips)
+Seat 6: JTs98o ($128.83 in chips)
+rossi1616: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Tc]
+kole1992: folds
+Diogoboss joins the table at seat #5
+Diogoboss leaves the table
+Operationskills: folds
+rossi1616: folds
+Uncalled bet ($0.25) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) collected ($0.50)
+
+
+Weplay Hand #74412894:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:45:54 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($81.92 in chips)
+Seat 3: rossi1616 ($62.78 in chips)
+Seat 6: JTs98o ($129.08 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 3c]
+Diogoboss joins the table at seat #5
+Operationskills: raises $1.75 to $1.75
+rossi1616: folds
+JTs98o: folds
+kole1992: folds
+Uncalled bet ($1.25) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Operationskills collected ($1.25)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #74412909:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:46:15 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($82.67 in chips)
+Seat 3: rossi1616 ($62.78 in chips)
+Seat 4: Misi23 ($15 in chips)
+Seat 5: Diogoboss ($30 in chips)
+Seat 6: JTs98o ($128.83 in chips)
+kole1992: posts small blind $0.25
+Operationskills: posts big blind $0.50
+Misi23: posts big blind $0.50
+Diogoboss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 3d]
+rossi1616: folds
+Misi23: raises $14.50 to $15 and is all-in
+Diogoboss: calls $14.50
+JTs98o: folds
+kole1992: folds
+Operationskills: folds
+*** FLOP *** [7d 5d 8d]
+*** TURN *** [7d 5d 8d] [2d]
+*** RIVER *** [7d 5d 8d 2d] [5h]
+*** SHOW DOWN ***
+Misi23: shows [Qd 8s] (a flush, Queen high)
+Diogoboss: shows [Kd As] (a flush, King high)
+Diogoboss collected $30.75 from pot
+*** SUMMARY ***
+Total pot $30.75 | Rake $1.53 
+Board [7d 5d 8d 2d 5h]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Operationskills (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Misi23 (big blind) showed [Qd 8s] and lost with a flush, Queen high
+Seat 5: Diogoboss (big blind) showed [Kd As] and won ($30.75) with a flush, King high
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74412938:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:47:05 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: Operationskills ($82.17 in chips)
+Seat 3: rossi1616 ($62.78 in chips)
+Seat 5: Diogoboss ($44.22 in chips)
+Seat 6: JTs98o ($128.83 in chips)
+Operationskills: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Td]
+Diogoboss: calls $0.50
+JTs98o: folds
+kole1992: raises $1.50 to $1.50
+Operationskills: calls $1.25
+rossi1616: folds
+Diogoboss: calls $1
+*** FLOP *** [4c 8h 9h]
+Operationskills: checks
+Diogoboss: checks
+kole1992: checks
+*** TURN *** [4c 8h 9h] [9d]
+Operationskills: bets $2.50
+Diogoboss: folds
+kole1992: calls $2.50
+*** RIVER *** [4c 8h 9h 9d] [Ts]
+Operationskills: checks
+kole1992: checks
+*** SHOW DOWN ***
+Operationskills: shows [7h 8s] (two pair, Nines and Eights)
+kole1992: shows [Jc Td] (two pair, Tens and Nines)
+kole1992 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [4c 8h 9h 9d Ts]
+Seat 1: kole1992 (button) showed [Jc Td] and won ($10) with two pair, Tens and Nines
+Seat 2: Operationskills (small blind) showed [7h 8s] and lost with two pair, Nines and Eights
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 5: Diogoboss folded on the Turn 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74412992:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:48:36 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($55.50 in chips)
+Seat 2: Operationskills ($78.17 in chips)
+Seat 3: rossi1616 ($62.28 in chips)
+Seat 4: Misi23 ($15 in chips)
+Seat 5: Diogoboss ($42.72 in chips)
+Seat 6: JTs98o ($128.83 in chips)
+rossi1616: posts small blind $0.25
+Misi23: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Qh]
+Diogoboss: folds
+JTs98o: folds
+kole1992: folds
+Operationskills: folds
+rossi1616: raises $1.25 to $1.50
+Misi23: raises $14.50 to $15 and is all-in
+rossi1616: calls $13.50
+*** FLOP *** [4c Jd Qs]
+*** TURN *** [4c Jd Qs] [2d]
+*** RIVER *** [4c Jd Qs 2d] [Th]
+*** SHOW DOWN ***
+rossi1616: shows [Qc Ad] (a pair of Queens)
+Misi23: shows [7s Ac] (high card Ace)
+rossi1616 collected $30 from pot
+*** SUMMARY ***
+Total pot $30 | Rake $1.50 
+Board [4c Jd Qs 2d Th]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) showed [Qc Ad] and won ($30) with a pair of Queens
+Seat 4: Misi23 (big blind) showed [7s Ac] and lost with high card Ace
+Seat 5: Diogoboss folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74413019:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:49:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($55.50 in chips)
+Seat 2: Operationskills ($78.17 in chips)
+Seat 3: rossi1616 ($75.78 in chips)
+Seat 5: Diogoboss ($42.72 in chips)
+Seat 6: JTs98o ($128.83 in chips)
+Diogoboss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Ac]
+JTs98o: folds
+Misi23 leaves the table
+kole1992: raises $1.10 to $1.10
+Operationskills: calls $1.10
+rossi1616: calls $1.10
+Diogoboss: folds
+*** FLOP *** [2d 6d Kc]
+kole1992: checks
+Operationskills: checks
+rossi1616: bets $2.53
+kole1992: folds
+Operationskills: folds
+Uncalled bet ($2.53) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $3.80 from pot
+*** SUMMARY ***
+Total pot $3.80 | Rake $0.19 
+Board [2d 6d Kc]
+Seat 1: kole1992 folded on the Flop 
+Seat 2: Operationskills folded on the Flop 
+Seat 3: rossi1616 (button) collected ($3.80)
+Seat 5: Diogoboss (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74413054:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:50:21 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($54.40 in chips)
+Seat 2: Operationskills ($77.07 in chips)
+Seat 3: rossi1616 ($78.29 in chips)
+Seat 5: Diogoboss ($42.22 in chips)
+Seat 6: JTs98o ($128.83 in chips)
+Diogoboss: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Qd]
+kole1992: folds
+Operationskills: folds
+rossi1616: raises $1.25 to $1.25
+Diogoboss: folds
+JTs98o: folds
+Uncalled bet ($0.75) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: rossi1616 collected ($1.25)
+Seat 5: Diogoboss (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #74413069:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:50:44 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($54.40 in chips)
+Seat 2: Operationskills ($77.07 in chips)
+Seat 3: rossi1616 ($79.04 in chips)
+Seat 5: Diogoboss ($41.97 in chips)
+Seat 6: JTs98o ($128.33 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Ad]
+Operationskills: raises $1 to $1
+rossi1616: folds
+Diogoboss has timed out
+Diogoboss: folds
+JTs98o: folds
+kole1992: calls $0.50
+*** FLOP *** [3d Qd Js]
+kole1992: checks
+Operationskills: bets $2.25
+kole1992: calls $2.25
+*** TURN *** [3d Qd Js] [5d]
+kole1992: checks
+Operationskills: checks
+*** RIVER *** [3d Qd Js 5d] [5h]
+kole1992: bets $7
+Operationskills: folds
+Uncalled bet ($7) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6.75 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0.33 
+Board [3d Qd Js 5d 5h]
+Seat 1: kole1992 (big blind) collected ($6.75)
+Seat 2: Operationskills folded on the River 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: Diogoboss (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #74413115:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:52:09 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($57.57 in chips)
+Seat 2: Operationskills ($73.82 in chips)
+Seat 3: rossi1616 ($79.04 in chips)
+Seat 5: Diogoboss ($41.97 in chips)
+Seat 6: JTs98o ($128.08 in chips)
+kole1992: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Ad]
+rossi1616: folds
+Diogoboss: calls $0.50
+JTs98o: folds
+kole1992: calls $0.25
+Operationskills: checks
+*** FLOP *** [Ts 5h 3s]
+kole1992: checks
+Operationskills: bets $1.50
+Diogoboss: calls $1.50
+kole1992: folds
+*** TURN *** [Ts 5h 3s] [3h]
+Operationskills: bets $2.25
+Diogoboss: folds
+Uncalled bet ($2.25) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Ts 5h 3s 3h]
+Seat 1: kole1992 (small blind) folded on the Flop 
+Seat 2: Operationskills (big blind) collected ($4.50)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: Diogoboss folded on the Turn 
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74413157:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:53:28 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($57.07 in chips)
+Seat 2: Operationskills ($76.10 in chips)
+Seat 3: rossi1616 ($79.04 in chips)
+Seat 5: Diogoboss ($39.97 in chips)
+Seat 6: JTs98o ($128.08 in chips)
+Operationskills: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 6s]
+Diogoboss: calls $0.50
+JTs98o: folds
+kole1992: raises $1.75 to $1.75
+Operationskills: raises $6 to $6.25
+rossi1616: folds
+Diogoboss: folds
+kole1992: folds
+Uncalled bet ($4.50) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop 
+Seat 2: Operationskills (small blind) collected ($4.50)
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 5: Diogoboss folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74413170:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:54:02 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($55.32 in chips)
+Seat 2: Operationskills ($78.85 in chips)
+Seat 3: rossi1616 ($78.54 in chips)
+Seat 5: Diogoboss ($39.47 in chips)
+Seat 6: JTs98o ($128.08 in chips)
+rossi1616: posts small blind $0.25
+Diogoboss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 7s]
+JTs98o: folds
+kole1992: folds
+Operationskills: raises $1.75 to $1.75
+rossi1616: folds
+Diogoboss: folds
+Uncalled bet ($1.25) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills (button) collected ($1.25)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 5: Diogoboss (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74413187:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:54:35 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($55.32 in chips)
+Seat 2: Operationskills ($79.60 in chips)
+Seat 3: rossi1616 ($78.29 in chips)
+Seat 5: Diogoboss ($38.97 in chips)
+Seat 6: JTs98o ($128.08 in chips)
+Diogoboss: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Td]
+kole1992: raises $1 to $1
+Operationskills: folds
+rossi1616: calls $1
+Diogoboss: folds
+JTs98o: folds
+*** FLOP *** [Kd 9h 5h]
+kole1992: bets $0.90
+rossi1616: calls $0.90
+*** TURN *** [Kd 9h 5h] [4c]
+kole1992: bets $4.19
+rossi1616: calls $4.19
+*** RIVER *** [Kd 9h 5h 4c] [Th]
+kole1992: checks
+rossi1616: checks
+*** SHOW DOWN ***
+kole1992: shows [Jd Td] (a pair of Tens)
+rossi1616: mucks hand
+kole1992 collected $12.93 from pot
+*** SUMMARY ***
+Total pot $12.93 | Rake $0.64 
+Board [Kd 9h 5h 4c Th]
+Seat 1: kole1992 showed [Jd Td] and won ($12.93) with a pair of Tens
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) mucked
+Seat 5: Diogoboss (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #74413203:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:56:02 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($61.52 in chips)
+Seat 2: Operationskills ($79.60 in chips)
+Seat 3: rossi1616 ($72.20 in chips)
+Seat 5: Diogoboss ($38.72 in chips)
+Seat 6: JTs98o ($127.58 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Ac]
+Operationskills: folds
+rossi1616: folds
+Diogoboss: folds
+JTs98o: raises $1.25 to $1.50
+kole1992: calls $1
+*** FLOP *** [Kc 4h Qd]
+JTs98o: bets $3.50
+kole1992: folds
+Uncalled bet ($3.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Kc 4h Qd]
+Seat 1: kole1992 (big blind) folded on the Flop 
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: Diogoboss (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) collected ($3)
+
+
+Weplay Hand #74413207:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:56:45 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($60.02 in chips)
+Seat 2: Operationskills ($79.60 in chips)
+Seat 3: rossi1616 ($72.20 in chips)
+Seat 5: Diogoboss ($38.72 in chips)
+Seat 6: JTs98o ($128.93 in chips)
+kole1992: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Jc]
+rossi1616: folds
+Diogoboss: folds
+JTs98o: folds
+kole1992: raises $1.25 to $1.50
+Operationskills: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (small blind) collected ($1)
+Seat 2: Operationskills (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 5: Diogoboss folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74413208:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:57:09 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($60.52 in chips)
+Seat 2: Operationskills ($79.10 in chips)
+Seat 3: rossi1616 ($72.20 in chips)
+Seat 5: Diogoboss ($38.72 in chips)
+Seat 6: JTs98o ($128.93 in chips)
+Operationskills: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 6d]
+Diogoboss: calls $0.50
+JTs98o: folds
+kole1992: folds
+Operationskills: calls $0.25
+rossi1616: raises $1.50 to $2
+Diogoboss: calls $1.50
+Operationskills: calls $1.50
+*** FLOP *** [Ts 8d Ac]
+Operationskills: checks
+rossi1616: bets $4.50
+Diogoboss: folds
+Operationskills: folds
+Uncalled bet ($4.50) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Ts 8d Ac]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Operationskills (small blind) folded on the Flop 
+Seat 3: rossi1616 (big blind) collected ($6)
+Seat 5: Diogoboss folded on the Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74413211:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:58:01 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($60.52 in chips)
+Seat 2: Operationskills ($77.10 in chips)
+Seat 3: rossi1616 ($75.90 in chips)
+Seat 5: Diogoboss ($36.72 in chips)
+Seat 6: JTs98o ($128.93 in chips)
+rossi1616: posts small blind $0.25
+Diogoboss: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 5d]
+JTs98o: folds
+kole1992: folds
+Operationskills: raises $1.75 to $1.75
+rossi1616: folds
+Diogoboss: folds
+Uncalled bet ($1.25) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills (button) collected ($1.25)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 5: Diogoboss (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74413212:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:58:35 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($60.52 in chips)
+Seat 2: Operationskills ($77.85 in chips)
+Seat 3: rossi1616 ($75.65 in chips)
+Seat 5: Diogoboss ($36.22 in chips)
+Seat 6: JTs98o ($128.93 in chips)
+Diogoboss: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 7s]
+kole1992: folds
+Operationskills: calls $0.50
+rossi1616: folds
+Diogoboss: folds
+Diogoboss leaves the table
+JTs98o: checks
+*** FLOP *** [Tc 4d Ah]
+JTs98o: checks
+Operationskills: checks
+*** TURN *** [Tc 4d Ah] [6c]
+JTs98o: bets $0.85
+Operationskills: calls $0.85
+*** RIVER *** [Tc 4d Ah 6c] [Th]
+JTs98o: checks
+Operationskills: bets $2.95
+JTs98o: folds
+Uncalled bet ($2.95) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $2.95 from pot
+*** SUMMARY ***
+Total pot $2.95 | Rake $0.14 
+Board [Tc 4d Ah 6c Th]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills collected ($2.95)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: Diogoboss (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded on the River 
+
+
+Weplay Hand #74413214:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:59:29 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($60.52 in chips)
+Seat 2: Operationskills ($79.31 in chips)
+Seat 3: rossi1616 ($75.65 in chips)
+Seat 6: JTs98o ($127.58 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 7c]
+Operationskills: folds
+rossi1616: folds
+JTs98o: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($0.50)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #74413216:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:59:44 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($60.77 in chips)
+Seat 2: Operationskills ($79.31 in chips)
+Seat 3: rossi1616 ($75.65 in chips)
+Seat 6: JTs98o ($127.33 in chips)
+kole1992: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 5c]
+rossi1616: folds
+JTs98o: raises $1.25 to $1.25
+kole1992: raises $5.26 to $5.51
+Operationskills: folds
+JTs98o: raises $10.75 to $12
+kole1992: calls $6.49
+*** FLOP *** [Kd 5d Qc]
+kole1992: checks
+JTs98o: bets $9.25
+kole1992: calls $9.25
+*** TURN *** [Kd 5d Qc] [5s]
+kole1992: checks
+JTs98o: checks
+*** RIVER *** [Kd 5d Qc 5s] [7d]
+kole1992: bets $39.52 and is all-in
+JTs98o: calls $39.52
+*** SHOW DOWN ***
+kole1992: shows [6c 5c] (three of a kind, Fives)
+JTs98o: shows [Ah Ad] (two pair, Aces and Fives)
+kole1992 collected $122.04 from pot
+*** SUMMARY ***
+Total pot $122.04 | Rake $4 
+Board [Kd 5d Qc 5s 7d]
+Seat 1: kole1992 (small blind) showed [6c 5c] and won ($122.04) with three of a kind, Fives
+Seat 2: Operationskills (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) showed [Ah Ad] and lost with two pair, Aces and Fives
+
+
+Weplay Hand #74413223:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:01:04 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($118.04 in chips)
+Seat 2: Operationskills ($78.81 in chips)
+Seat 3: rossi1616 ($75.65 in chips)
+Seat 6: JTs98o ($66.56 in chips)
+Operationskills: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Qc]
+JTs98o: folds
+kole1992: folds
+Operationskills: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Operationskills (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($0.50)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #74413227:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:01:21 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($118.04 in chips)
+Seat 2: Operationskills ($78.56 in chips)
+Seat 3: rossi1616 ($75.90 in chips)
+Seat 6: JTs98o ($66.56 in chips)
+rossi1616: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 4s]
+kole1992: folds
+Operationskills: calls $0.50
+rossi1616: folds
+JTs98o: checks
+*** FLOP *** [9s Kd Qc]
+JTs98o: checks
+Operationskills: checks
+*** TURN *** [9s Kd Qc] [7h]
+JTs98o: checks
+Operationskills: checks
+*** RIVER *** [9s Kd Qc 7h] [6h]
+JTs98o: checks
+Operationskills: checks
+*** SHOW DOWN ***
+JTs98o: shows [Qd 4c] (a pair of Queens)
+Operationskills has timed out
+Operationskills: mucks hand
+JTs98o collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [9s Kd Qc 7h 6h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Operationskills (button) mucked
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) showed [Qd 4c] and won ($1.25) with a pair of Queens
+
+
+Weplay Hand #74413265:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:02:08 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($118.04 in chips)
+Seat 2: Operationskills ($78.06 in chips)
+Seat 3: rossi1616 ($75.65 in chips)
+Seat 6: JTs98o ($67.25 in chips)
+JTs98o: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Jc]
+Operationskills: folds
+rossi1616: folds
+JTs98o: raises $1.25 to $1.50
+kole1992: folds
+Uncalled bet ($1) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) collected ($1)
+
+
+Weplay Hand #74413268:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:02:22 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($117.54 in chips)
+Seat 2: Operationskills ($78.06 in chips)
+Seat 3: rossi1616 ($75.65 in chips)
+Seat 6: JTs98o ($67.75 in chips)
+kole1992: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Th]
+rossi1616: folds
+JTs98o: raises $1.25 to $1.25
+kole1992: folds
+Operationskills: calls $0.75
+*** FLOP *** [5c Td 5h]
+Operationskills: checks
+JTs98o: bets $1.10
+Operationskills: folds
+Uncalled bet ($1.10) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [5c Td 5h]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Operationskills (big blind) folded on the Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) collected ($2.75)
+
+
+Weplay Hand #74413278:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:02:51 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($117.29 in chips)
+Seat 3: rossi1616 ($75.65 in chips)
+Seat 6: JTs98o ($69.12 in chips)
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 7d]
+JTs98o: folds
+kole1992: raises $1.25 to $1.25
+rossi1616: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) collected ($1)
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)

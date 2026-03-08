@@ -1,0 +1,2421 @@
+﻿Weplay Hand #74410503:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:19:11 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: MrHem ($51.36 in chips)
+Seat 2: Operationskills ($43.90 in chips)
+Seat 3: AndrejT1000 ($92.32 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($50 in chips)
+Seat 6: NaeBlisj ($72.64 in chips)
+Seat 7: vrtlar ($94.92 in chips)
+Seat 8: X-factors ($101.86 in chips)
+AndrejT1000: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 2d]
+JTs98o: raises $1.25 to $1.25
+NaeBlisj: folds
+vrtlar: folds
+X-factors: calls $1.25
+MrHem: folds
+Operationskills: folds
+AndrejT1000: folds
+kole1992: folds
+*** FLOP *** [2s Td 9s]
+JTs98o: checks
+X-factors: checks
+*** TURN *** [2s Td 9s] [4s]
+JTs98o: bets $2.20
+X-factors: folds
+Uncalled bet ($2.20) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [2s Td 9s 4s]
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills (button) folded before Flop (didn't bet)
+Seat 3: AndrejT1000 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: JTs98o collected ($3.25)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: X-factors folded on the Turn 
+
+
+Weplay Hand #74410544:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:19:59 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: MrHem ($51.36 in chips)
+Seat 2: Operationskills ($43.90 in chips)
+Seat 3: AndrejT1000 ($92.07 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($51.84 in chips)
+Seat 6: NaeBlisj ($72.64 in chips)
+Seat 7: vrtlar ($94.92 in chips)
+Seat 8: X-factors ($100.61 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Kc]
+NaeBlisj: folds
+vrtlar: folds
+X-factors: calls $0.50
+MrHem: folds
+Operationskills: raises $2.25 to $2.25
+AndrejT1000: folds
+kole1992: folds
+JTs98o: folds
+X-factors: calls $1.75
+*** FLOP *** [Qs Th 2d]
+X-factors: checks
+Operationskills: bets $5.25
+X-factors: folds
+Uncalled bet ($5.25) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $5.25 from pot
+*** SUMMARY ***
+Total pot $5.25 | Rake $0.26 
+Board [Qs Th 2d]
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills collected ($5.25)
+Seat 3: AndrejT1000 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: X-factors folded on the Flop 
+
+
+Weplay Hand #74410593:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:20:51 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: MrHem ($51.36 in chips)
+Seat 2: Operationskills ($46.64 in chips)
+Seat 3: AndrejT1000 ($92.07 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($51.34 in chips)
+Seat 6: NaeBlisj ($72.64 in chips)
+Seat 7: vrtlar ($94.92 in chips)
+Seat 8: X-factors ($98.36 in chips)
+JTs98o: posts small blind $0.25
+NaeBlisj: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 3s]
+vrtlar: folds
+X-factors: calls $0.50
+MrHem: folds
+Operationskills: folds
+AndrejT1000: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: checks
+*** FLOP *** [4c 6c Kc]
+NaeBlisj: bets $0.94
+X-factors: calls $0.94
+*** TURN *** [4c 6c Kc] [As]
+NaeBlisj: checks
+X-factors: checks
+*** RIVER *** [4c 6c Kc As] [Js]
+NaeBlisj: checks
+X-factors: checks
+*** SHOW DOWN ***
+NaeBlisj: shows [6h 3c] (a pair of Sixes)
+X-factors: shows [Ks Jd] (two pair, Kings and Jacks)
+X-factors collected $3.13 from pot
+*** SUMMARY ***
+Total pot $3.13 | Rake $0.15 
+Board [4c 6c Kc As Js]
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: AndrejT1000 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: NaeBlisj (big blind) showed [6h 3c] and lost with a pair of Sixes
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: X-factors showed [Ks Jd] and won ($3.13) with two pair, Kings and Jacks
+
+
+Weplay Hand #74410636:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:21:44 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: MrHem ($51.36 in chips)
+Seat 2: Operationskills ($46.64 in chips)
+Seat 3: AndrejT1000 ($92.07 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($51.09 in chips)
+Seat 6: NaeBlisj ($71.20 in chips)
+Seat 7: vrtlar ($94.92 in chips)
+Seat 8: X-factors ($99.90 in chips)
+NaeBlisj: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 7h]
+X-factors: folds
+MrHem: calls $0.50
+Operationskills: folds
+AndrejT1000: folds
+kole1992: raises $2.25 to $2.25
+JTs98o: calls $2.25
+NaeBlisj: folds
+vrtlar: folds
+MrHem: calls $1.75
+*** FLOP *** [Ad Jc Js]
+MrHem: checks
+kole1992: checks
+JTs98o: checks
+*** TURN *** [Ad Jc Js] [As]
+MrHem: bets $0.50
+kole1992: raises $4.30 to $4.30
+JTs98o: folds
+MrHem: calls $3.80
+*** RIVER *** [Ad Jc Js As] [Qs]
+MrHem: checks
+kole1992: bets $8.25
+MrHem: raises $44.81 to $44.81 and is all-in
+kole1992: folds
+Uncalled bet ($36.56) returned to MrHem
+*** SHOW DOWN ***
+MrHem has timed out
+MrHem: doesn't show hand
+MrHem collected $32.60 from pot
+*** SUMMARY ***
+Total pot $32.60 | Rake $1.63 
+Board [Ad Jc Js As Qs]
+Seat 1: MrHem collected ($32.60)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: AndrejT1000 folded before Flop (didn't bet)
+Seat 4: kole1992 folded on the River 
+Seat 5: JTs98o (button) folded on the Turn 
+Seat 6: NaeBlisj (small blind) folded before Flop 
+Seat 7: vrtlar (big blind) folded before Flop 
+Seat 8: X-factors folded before Flop (didn't bet)
+
+
+Weplay Hand #74410710:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:23:26 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: MrHem ($67.53 in chips)
+Seat 2: Operationskills ($46.64 in chips)
+Seat 3: AndrejT1000 ($92.07 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($50 in chips)
+Seat 6: NaeBlisj ($70.95 in chips)
+Seat 7: vrtlar ($94.42 in chips)
+Seat 8: X-factors ($99.90 in chips)
+vrtlar: posts small blind $0.25
+X-factors: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 4d]
+MrHem: calls $0.50
+Operationskills: folds
+AndrejT1000: folds
+kole1992: folds
+JTs98o: raises $1.25 to $1.25
+NaeBlisj: folds
+vrtlar: folds
+X-factors: folds
+MrHem: calls $0.75
+*** FLOP *** [Jd 7s 9h]
+MrHem: checks
+JTs98o: checks
+*** TURN *** [Jd 7s 9h] [5s]
+MrHem: checks
+JTs98o: checks
+*** RIVER *** [Jd 7s 9h 5s] [Kc]
+MrHem: checks
+JTs98o: checks
+*** SHOW DOWN ***
+MrHem: shows [Ad 8d] (high card Ace)
+JTs98o: shows [3h 3c] (a pair of Threes)
+JTs98o collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [Jd 7s 9h 5s Kc]
+Seat 1: MrHem showed [Ad 8d] and lost with high card Ace
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: AndrejT1000 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o showed [3h 3c] and won ($3.25) with a pair of Threes
+Seat 6: NaeBlisj (button) folded before Flop (didn't bet)
+Seat 7: vrtlar (small blind) folded before Flop 
+Seat 8: X-factors (big blind) folded before Flop 
+
+
+Weplay Hand #74410745:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:24:26 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: MrHem ($66.28 in chips)
+Seat 2: Operationskills ($46.64 in chips)
+Seat 3: AndrejT1000 ($92.07 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($51.84 in chips)
+Seat 6: NaeBlisj ($70.95 in chips)
+Seat 7: vrtlar ($94.17 in chips)
+Seat 8: X-factors ($99.40 in chips)
+X-factors: posts small blind $0.25
+MrHem: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 8d]
+Operationskills: calls $0.50
+AndrejT1000: folds
+kole1992: folds
+JTs98o: raises $1.25 to $1.25
+NaeBlisj: folds
+vrtlar: folds
+X-factors: folds
+MrHem: calls $0.75
+Operationskills: calls $0.75
+*** FLOP *** [Ad Jc Qs]
+MrHem: checks
+Operationskills: checks
+JTs98o: bets $2.70
+MrHem: folds
+Operationskills: folds
+Uncalled bet ($2.70) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [Ad Jc Qs]
+Seat 1: MrHem (big blind) folded on the Flop 
+Seat 2: Operationskills folded on the Flop 
+Seat 3: AndrejT1000 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o collected ($4)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar (button) folded before Flop (didn't bet)
+Seat 8: X-factors (small blind) folded before Flop 
+
+
+Weplay Hand #74410791:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:25:38 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: MrHem ($65.03 in chips)
+Seat 2: Operationskills ($45.39 in chips)
+Seat 3: AndrejT1000 ($92.07 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($54.39 in chips)
+Seat 6: NaeBlisj ($70.95 in chips)
+Seat 7: vrtlar ($94.17 in chips)
+Seat 8: X-factors ($99.15 in chips)
+MrHem: posts the ante $2.24
+Operationskills: posts the ante $2.24
+AndrejT1000: posts the ante $2.24
+kole1992: posts the ante $2.24
+JTs98o: posts the ante $2.24
+NaeBlisj: posts the ante $2.24
+vrtlar: posts the ante $2.24
+X-factors: posts the ante $2.24
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 2c]
+*** FLOP *** [2d Jd Ks]
+MrHem: checks
+Operationskills: checks
+AndrejT1000: checks
+kole1992: checks
+JTs98o: checks
+NaeBlisj: bets $11.83
+vrtlar: raises $91.93 to $91.93 and is all-in
+X-factors: folds
+MrHem: folds
+Operationskills: folds
+AndrejT1000: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: folds
+Uncalled bet ($80.10) returned to vrtlar
+*** SHOW DOWN ***
+vrtlar: doesn't show hand
+vrtlar collected $41.58 from pot
+*** SUMMARY ***
+Total pot $41.58 | Rake $2.07 
+Board [2d Jd Ks]
+Seat 1: MrHem folded on the Flop 
+Seat 2: Operationskills folded on the Flop 
+Seat 3: AndrejT1000 folded on the Flop 
+Seat 4: kole1992 folded on the Flop 
+Seat 5: JTs98o folded on the Flop 
+Seat 6: NaeBlisj folded on the Flop 
+Seat 7: vrtlar collected ($41.58)
+Seat 8: X-factors (button) folded on the Flop 
+
+
+Weplay Hand #74410832:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:26:36 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: MrHem ($62.79 in chips)
+Seat 2: Operationskills ($43.15 in chips)
+Seat 3: AndrejT1000 ($89.83 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($52.15 in chips)
+Seat 6: NaeBlisj ($56.88 in chips)
+Seat 7: vrtlar ($119.61 in chips)
+Seat 8: X-factors ($96.91 in chips)
+MrHem: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Qh]
+AndrejT1000: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: raises $1.25 to $1.25
+vrtlar: folds
+X-factors: raises $4 to $4
+MrHem: folds
+Operationskills: folds
+NaeBlisj: calls $2.75
+*** FLOP *** [3d Kc 3s]
+NaeBlisj: checks
+X-factors: bets $3.75
+NaeBlisj: calls $3.75
+*** TURN *** [3d Kc 3s] [Jc]
+NaeBlisj: bets $12.19
+X-factors: folds
+Uncalled bet ($12.19) returned to NaeBlisj
+*** SHOW DOWN ***
+NaeBlisj: doesn't show hand
+NaeBlisj collected $16.25 from pot
+*** SUMMARY ***
+Total pot $16.25 | Rake $0.81 
+Board [3d Kc 3s Jc]
+Seat 1: MrHem (small blind) folded before Flop 
+Seat 2: Operationskills (big blind) folded before Flop 
+Seat 3: AndrejT1000 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj collected ($16.25)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: X-factors (button) folded on the Turn 
+
+
+Weplay Hand #74410897:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:28:12 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: MrHem ($62.54 in chips)
+Seat 2: Operationskills ($42.65 in chips)
+Seat 3: AndrejT1000 ($89.83 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($52.15 in chips)
+Seat 6: NaeBlisj ($64.57 in chips)
+Seat 7: vrtlar ($119.61 in chips)
+Seat 8: X-factors ($89.16 in chips)
+Operationskills: posts small blind $0.25
+AndrejT1000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Jd]
+kole1992: raises $1 to $1
+JTs98o: folds
+NaeBlisj: folds
+vrtlar: folds
+X-factors: folds
+MrHem: folds
+Operationskills: calls $0.75
+AndrejT1000: folds
+*** FLOP *** [Th 9d 8c]
+Operationskills: checks
+kole1992: checks
+*** TURN *** [Th 9d 8c] [Ks]
+Operationskills: checks
+kole1992: checks
+*** RIVER *** [Th 9d 8c Ks] [Jh]
+Operationskills: checks
+kole1992: bets $1.82
+Operationskills: folds
+Uncalled bet ($1.82) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Th 9d 8c Ks Jh]
+Seat 1: MrHem (button) folded before Flop (didn't bet)
+Seat 2: Operationskills (small blind) folded on the River 
+Seat 3: AndrejT1000 (big blind) folded before Flop 
+Seat 4: kole1992 collected ($2.50)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: X-factors folded before Flop (didn't bet)
+
+
+Weplay Hand #74410950:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:29:32 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: MrHem ($62.54 in chips)
+Seat 2: Operationskills ($41.65 in chips)
+Seat 3: AndrejT1000 ($89.33 in chips)
+Seat 4: kole1992 ($51.38 in chips)
+Seat 5: JTs98o ($52.15 in chips)
+Seat 6: NaeBlisj ($64.57 in chips)
+Seat 7: vrtlar ($119.61 in chips)
+Seat 8: X-factors ($89.16 in chips)
+AndrejT1000: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 7s]
+JTs98o: folds
+NaeBlisj: folds
+vrtlar: folds
+X-factors: calls $0.50
+MrHem: calls $0.50
+Operationskills: folds
+AndrejT1000: folds
+kole1992: raises $2.75 to $3.25
+X-factors: calls $2.75
+AndrejT1000: sits out 
+MrHem: calls $2.75
+*** FLOP *** [4s Th Qc]
+AndrejT1000 leaves the table
+kole1992: checks
+X-factors: checks
+MrHem: checks
+*** TURN *** [4s Th Qc] [9c]
+kole1992: checks
+X-factors: checks
+MrHem: checks
+*** RIVER *** [4s Th Qc 9c] [6c]
+kole1992: checks
+X-factors: checks
+MrHem: checks
+*** SHOW DOWN ***
+kole1992: shows [7d 7s] (a pair of Sevens)
+X-factors: mucks hand
+MrHem: shows [9s Ah] (a pair of Nines)
+MrHem collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [4s Th Qc 9c 6c]
+Seat 1: MrHem showed [9s Ah] and won ($10) with a pair of Nines
+Seat 2: Operationskills (button) folded before Flop (didn't bet)
+Seat 3: AndrejT1000 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) showed [7d 7s] and lost with a pair of Sevens
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: X-factors mucked
+
+
+Weplay Hand #74411002:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:30:57 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: MrHem ($68.79 in chips)
+Seat 2: Operationskills ($41.65 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($52.15 in chips)
+Seat 6: NaeBlisj ($64.57 in chips)
+Seat 7: vrtlar ($119.61 in chips)
+Seat 8: X-factors ($85.91 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 4d]
+NaeBlisj: raises $1.25 to $1.25
+vrtlar: folds
+X-factors: raises $4 to $4
+MrHem: folds
+Operationskills: calls $4
+kole1992: folds
+JTs98o: folds
+NaeBlisj: calls $2.75
+*** FLOP *** [Qh 5c 9h]
+NaeBlisj: checks
+X-factors: bets $8.50
+Operationskills: raises $17 to $17
+NaeBlisj: folds
+X-factors: calls $8.50
+*** TURN *** [Qh 5c 9h] [5s]
+X-factors: bets $64.91 and is all-in
+Operationskills: calls $20.65 and is all-in
+Uncalled bet ($44.26) returned to X-factors
+*** RIVER *** [Qh 5c 9h 5s] [5h]
+*** SHOW DOWN ***
+X-factors: shows [As Ad] (a full house, Fives full of Aces)
+Operationskills: shows [Js Qs] (a full house, Fives full of Queens)
+X-factors collected $88.05 from pot
+*** SUMMARY ***
+Total pot $88.05 | Rake $4 
+Board [Qh 5c 9h 5s 5h]
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills showed [Js Qs] and lost with a full house, Fives full of Queens
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: NaeBlisj folded on the Flop 
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: X-factors showed [As Ad] and won ($88.05) with a full house, Fives full of Aces
+
+
+Weplay Hand #74411054:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:32:16 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: MrHem ($68.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($51.65 in chips)
+Seat 6: NaeBlisj ($60.57 in chips)
+Seat 7: vrtlar ($119.61 in chips)
+Seat 8: X-factors ($128.31 in chips)
+JTs98o: posts small blind $0.25
+NaeBlisj: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 6c]
+vrtlar has timed out
+vrtlar: folds
+X-factors: calls $0.50
+MrHem: calls $0.50
+kole1992: folds
+JTs98o: folds
+NaeBlisj: raises $1.75 to $2.25
+X-factors: folds
+MrHem: calls $1.75
+*** FLOP *** [Ac Ks 2h]
+NaeBlisj: bets $3.94
+MrHem: folds
+Uncalled bet ($3.94) returned to NaeBlisj
+*** SHOW DOWN ***
+NaeBlisj: doesn't show hand
+NaeBlisj collected $5.25 from pot
+*** SUMMARY ***
+Total pot $5.25 | Rake $0.26 
+Board [Ac Ks 2h]
+Seat 1: MrHem folded on the Flop 
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: NaeBlisj (big blind) collected ($5.25)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: X-factors folded before Flop 
+
+
+Weplay Hand #74411089:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:33:05 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: MrHem ($66.54 in chips)
+Seat 2: Operationskills ($50 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($51.40 in chips)
+Seat 6: NaeBlisj ($63.31 in chips)
+Seat 7: vrtlar ($119.61 in chips)
+Seat 8: X-factors ($127.81 in chips)
+NaeBlisj: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 6s]
+X-factors: calls $0.50
+MrHem: folds
+Operationskills: raises $2.25 to $2.25
+kole1992: folds
+JTs98o: folds
+NaeBlisj: calls $2
+vrtlar: folds
+X-factors: calls $1.75
+*** FLOP *** [Ks 8h Js]
+NaeBlisj: checks
+X-factors: checks
+Operationskills: bets $11.50
+NaeBlisj: folds
+X-factors: folds
+Uncalled bet ($11.50) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $7.25 from pot
+*** SUMMARY ***
+Total pot $7.25 | Rake $0.36 
+Board [Ks 8h Js]
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills collected ($7.25)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: NaeBlisj (small blind) folded on the Flop 
+Seat 7: vrtlar (big blind) folded before Flop 
+Seat 8: X-factors folded on the Flop 
+
+
+Weplay Hand #74411128:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:34:09 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: MrHem ($66.54 in chips)
+Seat 2: Operationskills ($54.64 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($51.40 in chips)
+Seat 6: NaeBlisj ($61.06 in chips)
+Seat 7: vrtlar ($119.11 in chips)
+Seat 8: X-factors ($125.56 in chips)
+vrtlar: posts small blind $0.25
+X-factors: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 3d]
+MrHem: folds
+Operationskills has timed out
+Operationskills: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: raises $1.25 to $1.25
+vrtlar: raises $4.25 to $4.50
+X-factors: folds
+NaeBlisj: raises $9.75 to $11
+vrtlar: calls $6.50
+*** FLOP *** [3c 7h 9d]
+vrtlar: checks
+NaeBlisj: checks
+*** TURN *** [3c 7h 9d] [8d]
+vrtlar: bets $15.50
+NaeBlisj: folds
+Uncalled bet ($15.50) returned to vrtlar
+*** SHOW DOWN ***
+vrtlar: doesn't show hand
+vrtlar collected $22.50 from pot
+*** SUMMARY ***
+Total pot $22.50 | Rake $1.12 
+Board [3c 7h 9d 8d]
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj (button) folded on the Turn 
+Seat 7: vrtlar (small blind) collected ($22.50)
+Seat 8: X-factors (big blind) folded before Flop 
+
+
+Weplay Hand #74411189:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:35:39 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: MrHem ($66.54 in chips)
+Seat 2: Operationskills ($54.64 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($51.40 in chips)
+Seat 6: NaeBlisj ($50.06 in chips)
+Seat 7: vrtlar ($129.49 in chips)
+Seat 8: X-factors ($125.06 in chips)
+MrHem: posts the ante $2.17
+Operationskills: posts the ante $2.17
+kole1992: posts the ante $2.17
+JTs98o: posts the ante $2.17
+NaeBlisj: posts the ante $2.17
+vrtlar: posts the ante $2.17
+X-factors: posts the ante $2.17
+*** HOLE CARDS ***
+Dealt to kole1992 [As Ts]
+*** FLOP *** [4d 8c Qh]
+JTs98o: checks
+NaeBlisj: bets $10.03
+vrtlar: folds
+X-factors: raises $30 to $30
+MrHem: folds
+Operationskills: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: folds
+Uncalled bet ($19.97) returned to X-factors
+*** SHOW DOWN ***
+X-factors: doesn't show hand
+X-factors collected $35.25 from pot
+*** SUMMARY ***
+Total pot $35.25 | Rake $1.76 
+Board [4d 8c Qh]
+Seat 1: MrHem folded on the Flop 
+Seat 2: Operationskills folded on the Flop 
+Seat 4: kole1992 (button) folded on the Flop 
+Seat 5: JTs98o folded on the Flop 
+Seat 6: NaeBlisj folded on the Flop 
+Seat 7: vrtlar folded on the Flop 
+Seat 8: X-factors collected ($35.25)
+
+
+Weplay Hand #74411226:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:36:32 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: MrHem ($64.37 in chips)
+Seat 2: Operationskills ($52.47 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($50 in chips)
+Seat 6: NaeBlisj ($37.86 in chips)
+Seat 7: vrtlar ($127.32 in chips)
+Seat 8: X-factors ($146.35 in chips)
+X-factors: posts small blind $0.25
+MrHem: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Js]
+Operationskills: folds
+kole1992: raises $1 to $1
+JTs98o: raises $3 to $3
+NaeBlisj: folds
+vrtlar: folds
+X-factors: folds
+MrHem: folds
+kole1992: calls $2
+*** FLOP *** [Tc 2h Ts]
+kole1992: checks
+JTs98o: bets $4.50
+kole1992: raises $9.69 to $9.69
+JTs98o: calls $5.19
+*** TURN *** [Tc 2h Ts] [Kc]
+kole1992: checks
+JTs98o: bets $6.55
+kole1992: calls $6.55
+*** RIVER *** [Tc 2h Ts Kc] [5s]
+kole1992: checks
+JTs98o: bets $30.76 and is all-in
+Jaberwoky joins the table at seat #3
+kole1992: calls $30.76 and is all-in
+*** SHOW DOWN ***
+JTs98o: shows [Ac As] (two pair, Aces and Tens)
+kole1992: shows [Ks Js] (two pair, Kings and Tens)
+JTs98o collected $100.75 from pot
+*** SUMMARY ***
+Total pot $100.75 | Rake $4 
+Board [Tc 2h Ts Kc 5s]
+Seat 1: MrHem (big blind) folded before Flop 
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 4: kole1992 showed [Ks Js] and lost with two pair, Kings and Tens
+Seat 5: JTs98o showed [Ac As] and won ($100.75) with two pair, Aces and Tens
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar (button) folded before Flop (didn't bet)
+Seat 8: X-factors (small blind) folded before Flop 
+
+
+Weplay Hand #74411305:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:38:15 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: MrHem ($63.87 in chips)
+Seat 2: Operationskills ($52.47 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($96.75 in chips)
+Seat 6: NaeBlisj ($37.86 in chips)
+Seat 7: vrtlar ($127.32 in chips)
+Seat 8: X-factors ($146.10 in chips)
+MrHem: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 3s]
+kole1992: folds
+JTs98o: raises $1.25 to $1.25
+NaeBlisj: folds
+vrtlar: folds
+X-factors: folds
+X-factors leaves the table
+MrHem: folds
+Operationskills: folds
+Uncalled bet ($0.75) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: MrHem (small blind) folded before Flop 
+Seat 2: Operationskills (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o collected ($1.25)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: X-factors (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74413326:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:38:46 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: MrHem ($63.62 in chips)
+Seat 2: Operationskills ($51.97 in chips)
+Seat 3: Jaberwoky ($50 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($97.50 in chips)
+Seat 6: NaeBlisj ($37.86 in chips)
+Seat 7: vrtlar ($127.32 in chips)
+Operationskills: posts small blind $0.25
+Jaberwoky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 6d]
+kole1992: folds
+JTs98o: folds
+NaeBlisj: folds
+vrtlar: folds
+MrHem: folds
+Operationskills: calls $0.25
+Jaberwoky: raises $1 to $1.50
+Operationskills: calls $1
+*** FLOP *** [Kc Qd 6s]
+Operationskills: checks
+Jaberwoky: checks
+*** TURN *** [Kc Qd 6s] [Ah]
+Operationskills: checks
+Jaberwoky: checks
+*** RIVER *** [Kc Qd 6s Ah] [9h]
+Operationskills: bets $3
+Jaberwoky: folds
+Uncalled bet ($3) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Kc Qd 6s Ah 9h]
+Seat 1: MrHem (button) folded before Flop (didn't bet)
+Seat 2: Operationskills (small blind) collected ($3)
+Seat 3: Jaberwoky (big blind) folded on the River 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+
+
+Weplay Hand #74413368:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:39:36 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: MrHem ($63.62 in chips)
+Seat 2: Operationskills ($53.32 in chips)
+Seat 3: Jaberwoky ($50 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($97.50 in chips)
+Seat 6: NaeBlisj ($37.86 in chips)
+Seat 7: vrtlar ($127.32 in chips)
+MrHem: posts the ante $2.31
+Operationskills: posts the ante $2.31
+Jaberwoky: posts the ante $2.31
+kole1992: posts the ante $2.31
+JTs98o: posts the ante $2.31
+NaeBlisj: posts the ante $2.31
+vrtlar: posts the ante $2.31
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Ac]
+*** FLOP *** [Qs 9s 3d]
+JTs98o: bets $4.05
+NaeBlisj: folds
+vrtlar: folds
+MrHem: calls $4.05
+Operationskills: raises $18.20 to $18.20
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+MrHem: raises $57.26 to $61.31 and is all-in
+Operationskills: calls $32.81 and is all-in
+Uncalled bet ($10.30) returned to MrHem
+*** FIRST TURN *** [Qs 9s 3d] [5s]
+*** FIRST RIVER *** [Qs 9s 3d 5s] [Kh]
+*** SECOND TURN *** [Qs 9s 3d] [Qd]
+*** SECOND RIVER *** [Qs 9s 3d Qd] [8d]
+*** SHOW DOWN ***
+MrHem: shows [3h 3c] (three of a kind, Threes)
+Operationskills: shows [Ah As] (a pair of Aces)
+MrHem collected $122.24 from pot
+*** SUMMARY ***
+Total pot $122.24 | Rake $4 
+Hand was run two times
+FIRST Board [Qs 9s 3d 5s Kh]
+SECOND Board [Qs 9s 3d Qd 8d]
+Seat 1: MrHem showed [3h 3c] and won ($122.24) with three of a kind, Threes
+Seat 2: Operationskills showed [Ah As] and lost with a pair of Aces
+Seat 3: Jaberwoky folded on the Flop 
+Seat 4: kole1992 (button) folded on the Flop 
+Seat 5: JTs98o folded on the Flop 
+Seat 6: NaeBlisj folded on the Flop 
+Seat 7: vrtlar folded on the Flop 
+
+
+Weplay Hand #74413408:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:40:36 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: MrHem ($128.54 in chips)
+Seat 3: Jaberwoky ($50 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($91.14 in chips)
+Seat 6: NaeBlisj ($35.55 in chips)
+Seat 7: vrtlar ($125.01 in chips)
+Jaberwoky: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Kh]
+JTs98o: folds
+NaeBlisj: folds
+vrtlar: folds
+MrHem has timed out
+MrHem: folds
+Jaberwoky: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 3: Jaberwoky (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) collected ($0.50)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+
+
+Weplay Hand #74413444:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:41:16 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 2: Operationskills ($50 in chips)
+Seat 3: Jaberwoky ($50 in chips)
+Seat 4: kole1992 ($50.25 in chips)
+Seat 5: JTs98o ($91.14 in chips)
+Seat 6: NaeBlisj ($35.55 in chips)
+Seat 7: vrtlar ($125.01 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 6s]
+NaeBlisj: raises $1.25 to $1.25
+vrtlar: raises $4.50 to $4.50
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: folds
+Uncalled bet ($3.25) returned to vrtlar
+*** SHOW DOWN ***
+vrtlar: doesn't show hand
+vrtlar collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: Jaberwoky (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: NaeBlisj folded before Flop 
+Seat 7: vrtlar collected ($3.25)
+
+
+Weplay Hand #74413472:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:41:53 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: MrHem ($128.54 in chips)
+Seat 2: Operationskills ($50 in chips)
+Seat 3: Jaberwoky ($50 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($90.64 in chips)
+Seat 6: NaeBlisj ($34.30 in chips)
+Seat 7: vrtlar ($127.01 in chips)
+JTs98o: posts small blind $0.25
+NaeBlisj: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d As]
+vrtlar: raises $1.25 to $1.25
+MrHem: folds
+Operationskills: calls $1.25
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: folds
+*** FLOP *** [Js 2c Qd]
+vrtlar: checks
+Operationskills: checks
+*** TURN *** [Js 2c Qd] [Ah]
+vrtlar: checks
+Operationskills: checks
+*** RIVER *** [Js 2c Qd Ah] [5d]
+vladimirche1 joins the table at seat #8
+vrtlar: checks
+Operationskills: checks
+*** SHOW DOWN ***
+vrtlar: shows [Kh 7h] (high card Ace)
+Operationskills: shows [2s 3s] (a pair of Deuces)
+Operationskills collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [Js 2c Qd Ah 5d]
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills showed [2s 3s] and won ($3.25) with a pair of Deuces
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: NaeBlisj (big blind) folded before Flop 
+Seat 7: vrtlar showed [Kh 7h] and lost with high card Ace
+
+
+Weplay Hand #74413513:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:42:48 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: MrHem ($128.54 in chips)
+Seat 2: Operationskills ($51.84 in chips)
+Seat 3: Jaberwoky ($50 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($90.39 in chips)
+Seat 6: NaeBlisj ($33.80 in chips)
+Seat 7: vrtlar ($125.76 in chips)
+Seat 8: vladimirche1 ($50 in chips)
+NaeBlisj: posts small blind $0.25
+vrtlar: posts big blind $0.50
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 4c]
+vladimirche1: checks
+MrHem: folds
+Operationskills has timed out
+Operationskills: folds
+Jaberwoky: calls $0.50
+kole1992: folds
+JTs98o: folds
+NaeBlisj: folds
+vrtlar: checks
+*** FLOP *** [8d 6d Ks]
+vrtlar: checks
+vladimirche1: checks
+Jaberwoky: checks
+*** TURN *** [8d 6d Ks] [As]
+vrtlar: bets $3.25
+vladimirche1: folds
+Jaberwoky: raises $9 to $9
+vrtlar: calls $5.75
+*** RIVER *** [8d 6d Ks As] [5s]
+vrtlar: checks
+Jaberwoky: checks
+*** SHOW DOWN ***
+vrtlar: shows [Qd Jd] (high card Ace)
+Jaberwoky: shows [Ah Kh] (two pair, Aces and Kings)
+Jaberwoky collected $19.75 from pot
+*** SUMMARY ***
+Total pot $19.75 | Rake $0.98 
+Board [8d 6d Ks As 5s]
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: Jaberwoky showed [Ah Kh] and won ($19.75) with two pair, Aces and Kings
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: NaeBlisj (small blind) folded before Flop 
+Seat 7: vrtlar (big blind) showed [Qd Jd] and lost with high card Ace
+Seat 8: vladimirche1 (big blind) folded on the Turn 
+
+
+Weplay Hand #74413579:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:44:15 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: MrHem ($128.54 in chips)
+Seat 2: Operationskills ($51.84 in chips)
+Seat 3: Jaberwoky ($59.27 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($90.39 in chips)
+Seat 6: NaeBlisj ($33.55 in chips)
+Seat 7: vrtlar ($116.26 in chips)
+Seat 8: vladimirche1 ($49.50 in chips)
+vrtlar: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 6s]
+MrHem: folds
+Operationskills: raises $1.15 to $1.15
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: folds
+vrtlar: folds
+vladimirche1: calls $0.65
+*** FLOP *** [Qh 9d 2h]
+vladimirche1: checks
+Operationskills: checks
+*** TURN *** [Qh 9d 2h] [9s]
+vladimirche1: bets $2.55
+Operationskills: calls $2.55
+*** RIVER *** [Qh 9d 2h 9s] [Kd]
+vladimirche1: bets $7.65
+Operationskills: folds
+Uncalled bet ($7.65) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $7.65 from pot
+*** SUMMARY ***
+Total pot $7.65 | Rake $0.38 
+Board [Qh 9d 2h 9s Kd]
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills folded on the River 
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj (button) folded before Flop (didn't bet)
+Seat 7: vrtlar (small blind) folded before Flop 
+Seat 8: vladimirche1 (big blind) collected ($7.65)
+
+
+Weplay Hand #74413634:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:45:30 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: MrHem ($128.54 in chips)
+Seat 2: Operationskills ($48.14 in chips)
+Seat 3: Jaberwoky ($59.27 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($90.39 in chips)
+Seat 6: NaeBlisj ($33.55 in chips)
+Seat 7: vrtlar ($116.01 in chips)
+Seat 8: vladimirche1 ($53.07 in chips)
+MrHem: posts the ante $1.72
+Operationskills: posts the ante $1.72
+Jaberwoky: posts the ante $1.72
+kole1992: posts the ante $1.72
+JTs98o: posts the ante $1.72
+NaeBlisj: posts the ante $1.72
+vrtlar: posts the ante $1.72
+vladimirche1: posts the ante $1.72
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Ah]
+*** FLOP *** [5h Kd Js]
+Jaberwoky: checks
+kole1992: checks
+JTs98o: checks
+NaeBlisj: bets $9.08
+vrtlar: folds
+vladimirche1: folds
+MrHem: folds
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+Uncalled bet ($9.08) returned to NaeBlisj
+*** SHOW DOWN ***
+NaeBlisj: doesn't show hand
+NaeBlisj collected $13.76 from pot
+*** SUMMARY ***
+Total pot $13.76 | Rake $0.68 
+Board [5h Kd Js]
+Seat 1: MrHem folded on the Flop 
+Seat 2: Operationskills (button) folded on the Flop 
+Seat 3: Jaberwoky folded on the Flop 
+Seat 4: kole1992 folded on the Flop 
+Seat 5: JTs98o folded on the Flop 
+Seat 6: NaeBlisj collected ($13.76)
+Seat 7: vrtlar folded on the Flop 
+Seat 8: vladimirche1 folded on the Flop 
+
+
+Weplay Hand #74413677:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:46:27 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: MrHem ($126.82 in chips)
+Seat 2: Operationskills ($46.42 in chips)
+Seat 3: Jaberwoky ($57.55 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($88.67 in chips)
+Seat 6: NaeBlisj ($44.91 in chips)
+Seat 7: vrtlar ($114.29 in chips)
+Seat 8: vladimirche1 ($51.35 in chips)
+vladimirche1: posts small blind $0.25
+MrHem: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Kh]
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: folds
+vrtlar: folds
+vladimirche1: folds
+Uncalled bet ($0.25) returned to MrHem
+*** SHOW DOWN ***
+MrHem has timed out
+MrHem: doesn't show hand
+MrHem collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: MrHem (big blind) collected ($0.50)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar (button) folded before Flop (didn't bet)
+Seat 8: vladimirche1 (small blind) folded before Flop 
+
+
+Weplay Hand #74413697:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:46:56 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: MrHem ($127.07 in chips)
+Seat 2: Operationskills ($46.42 in chips)
+Seat 3: Jaberwoky ($57.55 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($88.67 in chips)
+Seat 6: NaeBlisj ($44.91 in chips)
+Seat 7: vrtlar ($114.29 in chips)
+Seat 8: vladimirche1 ($51.10 in chips)
+MrHem: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Td]
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: folds
+vrtlar: raises $1 to $1
+vladimirche1: calls $1
+MrHem: calls $0.75
+Operationskills: calls $0.50
+*** FLOP *** [Js Kc 8c]
+MrHem: checks
+Operationskills: checks
+vrtlar: checks
+vladimirche1: checks
+*** TURN *** [Js Kc 8c] [Tc]
+MrHem: checks
+Operationskills: checks
+vrtlar: checks
+vladimirche1: checks
+*** RIVER *** [Js Kc 8c Tc] [Ad]
+MrHem: bets $2
+Operationskills: folds
+vrtlar: calls $2
+vladimirche1: folds
+*** SHOW DOWN ***
+MrHem: shows [8s Ts] (two pair, Tens and Eights)
+vrtlar: shows [Qh Qd] (a straight, Ten to Ace)
+vrtlar collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [Js Kc 8c Tc Ad]
+Seat 1: MrHem (small blind) showed [8s Ts] and lost with two pair, Tens and Eights
+Seat 2: Operationskills (big blind) folded on the River 
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar showed [Qh Qd] and won ($8) with a straight, Ten to Ace
+Seat 8: vladimirche1 (button) folded on the River 
+
+
+Weplay Hand #74413769:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:48:36 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: MrHem ($124.07 in chips)
+Seat 2: Operationskills ($45.42 in chips)
+Seat 3: Jaberwoky ($57.55 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($88.67 in chips)
+Seat 6: NaeBlisj ($44.91 in chips)
+Seat 7: vrtlar ($118.89 in chips)
+Seat 8: vladimirche1 ($50.10 in chips)
+Operationskills: posts small blind $0.25
+Jaberwoky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Qh]
+kole1992: folds
+JTs98o: folds
+NaeBlisj: folds
+vrtlar: folds
+vladimirche1: raises $1.50 to $1.50
+MrHem: folds
+Operationskills: calls $1.25
+Jaberwoky: folds
+*** FLOP *** [Ah Jh 7h]
+Operationskills: checks
+vladimirche1: checks
+*** TURN *** [Ah Jh 7h] [7s]
+Operationskills: bets $1.75
+vladimirche1: calls $1.75
+*** RIVER *** [Ah Jh 7h 7s] [7d]
+Operationskills: bets $3.50
+vladimirche1: calls $3.50
+*** SHOW DOWN ***
+Operationskills: shows [3c Ac] (a full house, Sevens full of Aces)
+vladimirche1: shows [Tc As] (a full house, Sevens full of Aces)
+Operationskills collected $7 from pot
+vladimirche1 collected $7 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [Ah Jh 7h 7s 7d]
+Seat 1: MrHem (button) folded before Flop (didn't bet)
+Seat 2: Operationskills (small blind) showed [3c Ac] and won ($7) with a full house, Sevens full of Aces
+Seat 3: Jaberwoky (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 showed [Tc As] and won ($7) with a full house, Sevens full of Aces
+
+
+Weplay Hand #74413821:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:49:37 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: MrHem ($124.07 in chips)
+Seat 2: Operationskills ($45.32 in chips)
+Seat 3: Jaberwoky ($57.05 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($88.67 in chips)
+Seat 6: NaeBlisj ($44.91 in chips)
+Seat 7: vrtlar ($118.89 in chips)
+Seat 8: vladimirche1 ($50 in chips)
+Jaberwoky: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Ac]
+JTs98o: folds
+NaeBlisj: folds
+vrtlar: folds
+vladimirche1: folds
+MrHem: folds
+Operationskills: calls $0.50
+Jaberwoky: calls $0.25
+kole1992: raises $2.25 to $2.75
+Operationskills: folds
+Jaberwoky: folds
+Uncalled bet ($2.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0 
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills (button) folded before Flop 
+Seat 3: Jaberwoky (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) collected ($1.50)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 folded before Flop (didn't bet)
+
+
+Weplay Hand #74413858:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:50:26 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: MrHem ($124.07 in chips)
+Seat 2: Operationskills ($44.82 in chips)
+Seat 3: Jaberwoky ($56.55 in chips)
+Seat 4: kole1992 ($51 in chips)
+Seat 5: JTs98o ($88.67 in chips)
+Seat 6: NaeBlisj ($44.91 in chips)
+Seat 7: vrtlar ($118.89 in chips)
+Seat 8: vladimirche1 ($50 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Jd]
+NaeBlisj: folds
+vrtlar: folds
+vladimirche1: folds
+MrHem: folds
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: Jaberwoky (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) collected ($0.50)
+Seat 6: NaeBlisj folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 folded before Flop (didn't bet)
+
+
+Weplay Hand #74413878:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:50:55 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: MrHem ($124.07 in chips)
+Seat 2: Operationskills ($44.82 in chips)
+Seat 3: Jaberwoky ($56.55 in chips)
+Seat 4: kole1992 ($50.75 in chips)
+Seat 5: JTs98o ($88.92 in chips)
+Seat 6: NaeBlisj ($44.91 in chips)
+Seat 7: vrtlar ($118.89 in chips)
+Seat 8: vladimirche1 ($50 in chips)
+JTs98o: posts small blind $0.25
+NaeBlisj: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Ks]
+vrtlar: folds
+vladimirche1: raises $1.50 to $1.50
+MrHem: folds
+Operationskills: calls $1.50
+Jaberwoky: folds
+kole1992: raises $5.25 to $5.25
+JTs98o: folds
+NaeBlisj: folds
+vladimirche1: folds
+Operationskills: folds
+Uncalled bet ($3.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.25 from pot
+*** SUMMARY ***
+Total pot $5.25 | Rake $0 
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills folded before Flop 
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 (button) collected ($5.25)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: NaeBlisj (big blind) folded before Flop 
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 folded before Flop 
+
+
+Weplay Hand #74413906:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:51:39 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: MrHem ($124.07 in chips)
+Seat 2: Operationskills ($43.32 in chips)
+Seat 3: Jaberwoky ($56.55 in chips)
+Seat 4: kole1992 ($54.50 in chips)
+Seat 5: JTs98o ($88.67 in chips)
+Seat 6: NaeBlisj ($44.41 in chips)
+Seat 7: vrtlar ($118.89 in chips)
+Seat 8: vladimirche1 ($48.50 in chips)
+NaeBlisj: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Qs]
+vladimirche1: folds
+MrHem: calls $0.50
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+NaeBlisj: raises $1.25 to $1.50
+vrtlar: calls $1
+MrHem: calls $1
+*** FLOP *** [Ah As 8h]
+NaeBlisj: bets $2.97
+vrtlar: calls $2.97
+MrHem: calls $2.97
+*** TURN *** [Ah As 8h] [3c]
+NaeBlisj: checks
+vrtlar: checks
+MrHem: bets $1
+NaeBlisj: calls $1
+vrtlar: calls $1
+*** RIVER *** [Ah As 8h 3c] [2s]
+NaeBlisj: checks
+vrtlar: checks
+MrHem: bets $10
+NaeBlisj: raises $38.94 to $38.94 and is all-in
+vrtlar: folds
+MrHem: calls $28.94
+*** SHOW DOWN ***
+NaeBlisj: shows [3h Ad] (a full house, Aces full of Threes)
+NaeBlisj: sits out 
+MrHem: shows [8c 8s] (a full house, Eights full of Aces)
+NaeBlisj collected $94.29 from pot
+*** SUMMARY ***
+Total pot $94.29 | Rake $4 
+Board [Ah As 8h 3c 2s]
+Seat 1: MrHem showed [8c 8s] and lost with a full house, Eights full of Aces
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: NaeBlisj (small blind) showed [3h Ad] and won ($94.29) with a full house, Aces full of Threes
+Seat 7: vrtlar (big blind) folded on the River 
+Seat 8: vladimirche1 folded before Flop (didn't bet)
+
+
+Weplay Hand #74413962:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:53:02 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: MrHem ($79.66 in chips)
+Seat 2: Operationskills ($43.32 in chips)
+Seat 3: Jaberwoky ($56.55 in chips)
+Seat 4: kole1992 ($54.50 in chips)
+Seat 5: JTs98o ($88.67 in chips)
+Seat 7: vrtlar ($113.42 in chips)
+Seat 8: vladimirche1 ($48.50 in chips)
+vrtlar: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 2s]
+MrHem: folds
+Operationskills: calls $0.50
+Jaberwoky: calls $0.50
+kole1992: folds
+JTs98o: folds
+vrtlar: folds
+vladimirche1: checks
+*** FLOP *** [6d 7d 8d]
+MrHem leaves the table
+vladimirche1: checks
+Operationskills: bets $1.75
+Jaberwoky: calls $1.75
+vladimirche1: folds
+*** TURN *** [6d 7d 8d] [Qd]
+Operationskills: bets $2.65
+Jaberwoky: calls $2.65
+*** RIVER *** [6d 7d 8d Qd] [8c]
+Operationskills: checks
+Jaberwoky: checks
+*** SHOW DOWN ***
+Operationskills: shows [Td 9c] (a flush, Queen high)
+Jaberwoky: shows [Jc Jd] (a flush, Queen high)
+Jaberwoky collected $10.55 from pot
+*** SUMMARY ***
+Total pot $10.55 | Rake $0.52 
+Board [6d 7d 8d Qd 8c]
+Seat 1: MrHem folded before Flop (didn't bet)
+Seat 2: Operationskills showed [Td 9c] and lost with a flush, Queen high
+Seat 3: Jaberwoky showed [Jc Jd] and won ($10.55) with a flush, Queen high
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 7: vrtlar (small blind) folded before Flop 
+Seat 8: vladimirche1 (big blind) folded on the Flop 
+
+
+Weplay Hand #74414003:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:53:55 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 2: Operationskills ($38.42 in chips)
+Seat 3: Jaberwoky ($61.68 in chips)
+Seat 4: kole1992 ($54.50 in chips)
+Seat 5: JTs98o ($88.67 in chips)
+Seat 7: vrtlar ($113.17 in chips)
+Seat 8: vladimirche1 ($48 in chips)
+Operationskills: posts the ante $2.22
+Jaberwoky: posts the ante $2.22
+kole1992: posts the ante $2.22
+JTs98o: posts the ante $2.22
+vrtlar: posts the ante $2.22
+vladimirche1: posts the ante $2.22
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Jc]
+*** FLOP *** [8c 7h 6d]
+JTs98o: checks
+vrtlar: checks
+vladimirche1: checks
+Operationskills: checks
+Jaberwoky: checks
+kole1992: bets $0.50
+JTs98o: folds
+vrtlar: calls $0.50
+vladimirche1: calls $0.50
+Operationskills: calls $0.50
+Jaberwoky: raises $10.94 to $10.94
+kole1992: folds
+vrtlar: folds
+vladimirche1: folds
+Operationskills: folds
+Uncalled bet ($10.44) returned to Jaberwoky
+*** SHOW DOWN ***
+Jaberwoky: doesn't show hand
+Jaberwoky collected $15.82 from pot
+*** SUMMARY ***
+Total pot $15.82 | Rake $0.79 
+Board [8c 7h 6d]
+Seat 2: Operationskills folded on the Flop 
+Seat 3: Jaberwoky collected ($15.82)
+Seat 4: kole1992 (button) folded on the Flop 
+Seat 5: JTs98o folded on the Flop 
+Seat 7: vrtlar folded on the Flop 
+Seat 8: vladimirche1 folded on the Flop 
+
+
+Weplay Hand #74414052:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:54:53 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 2: Operationskills ($35.70 in chips)
+Seat 3: Jaberwoky ($73.99 in chips)
+Seat 4: kole1992 ($51.78 in chips)
+Seat 5: JTs98o ($86.45 in chips)
+Seat 7: vrtlar ($110.45 in chips)
+Seat 8: vladimirche1 ($45.28 in chips)
+vladimirche1: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 9d]
+Jaberwoky: folds
+kole1992: raises $1 to $1
+JTs98o: folds
+vrtlar: folds
+vladimirche1: folds
+Operationskills: calls $0.50
+*** FLOP *** [5h 6c Qh]
+Operationskills: checks
+kole1992: checks
+*** TURN *** [5h 6c Qh] [2c]
+Operationskills: checks
+howoprime joins the table at seat #1
+kole1992: checks
+*** RIVER *** [5h 6c Qh 2c] [Ah]
+Operationskills: bets $2.25
+kole1992: folds
+Uncalled bet ($2.25) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [5h 6c Qh 2c Ah]
+Seat 2: Operationskills (big blind) collected ($2.25)
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded on the River 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 7: vrtlar (button) folded before Flop (didn't bet)
+Seat 8: vladimirche1 (small blind) folded before Flop 
+
+
+Weplay Hand #74414071:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:55:48 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 2: Operationskills ($36.84 in chips)
+Seat 3: Jaberwoky ($73.99 in chips)
+Seat 4: kole1992 ($50.78 in chips)
+Seat 5: JTs98o ($86.45 in chips)
+Seat 7: vrtlar ($110.45 in chips)
+Seat 8: vladimirche1 ($45.03 in chips)
+Operationskills: posts small blind $0.25
+Jaberwoky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 7c]
+kole1992: folds
+JTs98o: raises $1.25 to $1.25
+vrtlar: folds
+vladimirche1: folds
+Operationskills: folds
+Jaberwoky: calls $0.75
+*** FLOP *** [4s 8h 6s]
+Jaberwoky: checks
+JTs98o: checks
+*** TURN *** [4s 8h 6s] [Jc]
+Jaberwoky: checks
+JTs98o: checks
+*** RIVER *** [4s 8h 6s Jc] [Ks]
+Jaberwoky: checks
+JTs98o: checks
+*** SHOW DOWN ***
+Jaberwoky: shows [Ac 5c] (high card Ace)
+JTs98o: shows [3h Ah] (high card Ace)
+Jaberwoky collected $1.38 from pot
+JTs98o collected $1.37 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [4s 8h 6s Jc Ks]
+Seat 2: Operationskills (small blind) folded before Flop 
+Seat 3: Jaberwoky (big blind) showed [Ac 5c] and won ($1.38) with high card Ace
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o showed [3h Ah] and won ($1.37) with high card Ace
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74414089:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:56:27 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 2: Operationskills ($36.59 in chips)
+Seat 3: Jaberwoky ($74.05 in chips)
+Seat 4: kole1992 ($50.78 in chips)
+Seat 5: JTs98o ($86.51 in chips)
+Seat 7: vrtlar ($110.45 in chips)
+Seat 8: vladimirche1 ($45.03 in chips)
+Jaberwoky: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 4h]
+JTs98o: folds
+vrtlar: folds
+vladimirche1: folds
+Operationskills: raises $1.75 to $1.75
+Jaberwoky: calls $1.50
+kole1992: folds
+*** FLOP *** [Ah Jc 7d]
+Jaberwoky: checks
+Operationskills: bets $4
+Jaberwoky: calls $4
+*** TURN *** [Ah Jc 7d] [Qc]
+Jaberwoky: checks
+Operationskills: checks
+*** RIVER *** [Ah Jc 7d Qc] [Ad]
+Jaberwoky: checks
+Operationskills: checks
+*** SHOW DOWN ***
+Jaberwoky: shows [Qs Ks] (two pair, Aces and Queens)
+Operationskills has timed out
+Operationskills: mucks hand
+Jaberwoky collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [Ah Jc 7d Qc Ad]
+Seat 2: Operationskills (button) mucked
+Seat 3: Jaberwoky (small blind) showed [Qs Ks] and won ($12) with two pair, Aces and Queens
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 folded before Flop (didn't bet)
+
+
+Weplay Hand #74414111:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:57:23 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 2: Operationskills ($30.84 in chips)
+Seat 3: Jaberwoky ($79.70 in chips)
+Seat 4: kole1992 ($50.28 in chips)
+Seat 5: JTs98o ($86.51 in chips)
+Seat 7: vrtlar ($110.45 in chips)
+Seat 8: vladimirche1 ($45.03 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 8c]
+vrtlar: folds
+vladimirche1: folds
+Operationskills: folds
+Jaberwoky: raises $1.25 to $1.25
+kole1992: folds
+JTs98o: folds
+Uncalled bet ($0.75) returned to Jaberwoky
+*** SHOW DOWN ***
+Jaberwoky: doesn't show hand
+Jaberwoky collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: Jaberwoky (button) collected ($1.25)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 folded before Flop (didn't bet)
+
+
+Weplay Hand #74414119:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:57:51 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 2: Operationskills ($30.84 in chips)
+Seat 3: Jaberwoky ($80.45 in chips)
+Seat 4: kole1992 ($50.03 in chips)
+Seat 5: JTs98o ($86.01 in chips)
+Seat 7: vrtlar ($110.45 in chips)
+Seat 8: vladimirche1 ($45.03 in chips)
+JTs98o: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Th]
+vladimirche1: folds
+Operationskills: raises $1.75 to $1.75
+Jaberwoky: folds
+kole1992: raises $5.01 to $5.01
+JTs98o: folds
+vrtlar: folds
+Operationskills: calls $3.26
+*** FLOP *** [2d 8c As]
+Operationskills: checks
+kole1992: bets $2.58
+Operationskills: raises $5.16 to $5.16
+kole1992: calls $2.58
+*** TURN *** [2d 8c As] [4h]
+Operationskills: bets $20.67 and is all-in
+kole1992: folds
+Uncalled bet ($20.67) returned to Operationskills
+*** SHOW DOWN ***
+Operationskills has timed out
+Operationskills: doesn't show hand
+Operationskills collected $21.09 from pot
+*** SUMMARY ***
+Total pot $21.09 | Rake $1.05 
+Board [2d 8c As 4h]
+Seat 2: Operationskills collected ($21.09)
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded on the Turn 
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 7: vrtlar (big blind) folded before Flop 
+Seat 8: vladimirche1 folded before Flop (didn't bet)
+
+
+Weplay Hand #74414147:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 18:59:16 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 2: Operationskills ($40.71 in chips)
+Seat 3: Jaberwoky ($80.45 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($85.76 in chips)
+Seat 7: vrtlar ($109.95 in chips)
+Seat 8: vladimirche1 ($45.03 in chips)
+Operationskills: posts the ante $2.38
+Jaberwoky: posts the ante $2.38
+kole1992: posts the ante $2.38
+JTs98o: posts the ante $2.38
+vrtlar: posts the ante $2.38
+vladimirche1: posts the ante $2.38
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 4d]
+*** FLOP *** [7c Td 8h]
+vrtlar has timed out
+vrtlar: checks
+vladimirche1: checks
+Operationskills: checks
+Jaberwoky: checks
+kole1992: checks
+JTs98o: checks
+*** TURN *** [7c Td 8h] [Qh]
+vrtlar: bets $9.50
+vladimirche1: folds
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+Uncalled bet ($9.50) returned to vrtlar
+*** SHOW DOWN ***
+vrtlar: doesn't show hand
+vrtlar collected $14.28 from pot
+*** SUMMARY ***
+Total pot $14.28 | Rake $0.71 
+Board [7c Td 8h Qh]
+Seat 2: Operationskills folded on the Turn 
+Seat 3: Jaberwoky folded on the Turn 
+Seat 4: kole1992 folded on the Turn 
+Seat 5: JTs98o (button) folded on the Turn 
+Seat 7: vrtlar collected ($14.28)
+Seat 8: vladimirche1 folded on the Turn 
+
+
+Weplay Hand #74414172:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:00:17 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 2: Operationskills ($38.33 in chips)
+Seat 3: Jaberwoky ($78.07 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($83.38 in chips)
+Seat 7: vrtlar ($121.14 in chips)
+Seat 8: vladimirche1 ($42.65 in chips)
+vrtlar: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Js]
+Operationskills: raises $1 to $1
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+vrtlar: folds
+vladimirche1: calls $0.50
+*** FLOP *** [6h Ah 5h]
+vladimirche1: checks
+Operationskills: checks
+*** TURN *** [6h Ah 5h] [2h]
+vladimirche1: bets $2
+Operationskills: folds
+Uncalled bet ($2) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [6h Ah 5h 2h]
+Seat 2: Operationskills folded on the Turn 
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 7: vrtlar (small blind) folded before Flop 
+Seat 8: vladimirche1 (big blind) collected ($2.25)
+
+
+Weplay Hand #74414209:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:01:02 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: howoprime ($15 in chips)
+Seat 2: Operationskills ($37.33 in chips)
+Seat 3: Jaberwoky ($78.07 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($83.38 in chips)
+Seat 7: vrtlar ($120.89 in chips)
+Seat 8: vladimirche1 ($43.79 in chips)
+vladimirche1: posts small blind $0.25
+howoprime: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 3c]
+Operationskills: calls $0.50
+Jaberwoky: folds
+kole1992: folds
+JTs98o: raises $1.25 to $1.25
+vrtlar: calls $1.25
+vladimirche1: raises $7 to $7.25
+howoprime: folds
+Operationskills: folds
+JTs98o: calls $6
+vrtlar: folds
+*** FLOP *** [2h Tc Kd]
+vladimirche1: bets $7.63
+JTs98o: folds
+Uncalled bet ($7.63) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $16.75 from pot
+*** SUMMARY ***
+Total pot $16.75 | Rake $0.83 
+Board [2h Tc Kd]
+Seat 1: howoprime (big blind) folded before Flop 
+Seat 2: Operationskills folded before Flop 
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded on the Flop 
+Seat 7: vrtlar (button) folded before Flop 
+Seat 8: vladimirche1 (small blind) collected ($16.75)
+
+
+Weplay Hand #74414262:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:02:08 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: howoprime ($14.50 in chips)
+Seat 2: Operationskills ($36.83 in chips)
+Seat 3: Jaberwoky ($78.07 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($76.13 in chips)
+Seat 7: vrtlar ($119.64 in chips)
+Seat 8: vladimirche1 ($52.46 in chips)
+howoprime: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As Jc]
+Jaberwoky: folds
+kole1992: raises $1 to $1
+JTs98o: raises $3 to $3
+vrtlar: folds
+vladimirche1: folds
+TheFrenchGrinder joins the table at seat #6
+howoprime: folds
+Operationskills: calls $2.50
+kole1992: folds
+*** FLOP *** [3h 3c 9d]
+Operationskills: checks
+JTs98o: bets $2.90
+Operationskills: folds
+Uncalled bet ($2.90) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $7.25 from pot
+*** SUMMARY ***
+Total pot $7.25 | Rake $0.36 
+Board [3h 3c 9d]
+Seat 1: howoprime (small blind) folded before Flop 
+Seat 2: Operationskills (big blind) folded on the Flop 
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop 
+Seat 5: JTs98o collected ($7.25)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #74414299:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:02:47 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: howoprime ($14.25 in chips)
+Seat 2: Operationskills ($33.83 in chips)
+Seat 3: Jaberwoky ($78.07 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($80.02 in chips)
+Seat 6: TheFrenchGrinder ($22 in chips)
+Seat 7: vrtlar ($119.64 in chips)
+Seat 8: vladimirche1 ($52.46 in chips)
+Operationskills: posts small blind $0.25
+Jaberwoky: posts big blind $0.50
+TheFrenchGrinder: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Ts]
+kole1992: raises $1.50 to $1.50
+JTs98o: folds
+TheFrenchGrinder: calls $1
+vrtlar: folds
+vladimirche1: folds
+howoprime: folds
+Operationskills: calls $1.25
+Jaberwoky: folds
+*** FLOP *** [Qs 8h 5s]
+Operationskills: checks
+kole1992: checks
+TheFrenchGrinder: bets $2
+Operationskills: folds
+kole1992: calls $2
+*** TURN *** [Qs 8h 5s] [9s]
+kole1992: checks
+TheFrenchGrinder: bets $3
+kole1992: calls $3
+*** RIVER *** [Qs 8h 5s 9s] [7c]
+kole1992: checks
+TheFrenchGrinder: bets $6
+kole1992: calls $6
+*** SHOW DOWN ***
+TheFrenchGrinder: shows [6s 6d] (a straight, Five to Nine)
+kole1992: mucks hand
+TheFrenchGrinder collected $27 from pot
+*** SUMMARY ***
+Total pot $27 | Rake $1.35 
+Board [Qs 8h 5s 9s 7c]
+Seat 1: howoprime (button) folded before Flop (didn't bet)
+Seat 2: Operationskills (small blind) folded on the Flop 
+Seat 3: Jaberwoky (big blind) folded before Flop 
+Seat 4: kole1992 mucked
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: TheFrenchGrinder (big blind) showed [6s 6d] and won ($27) with a straight, Five to Nine
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 folded before Flop (didn't bet)
+
+
+Weplay Hand #74415366:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:04:14 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: howoprime ($14.25 in chips)
+Seat 2: Operationskills ($32.33 in chips)
+Seat 3: Jaberwoky ($77.57 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($80.02 in chips)
+Seat 6: TheFrenchGrinder ($35.15 in chips)
+Seat 7: vrtlar ($119.64 in chips)
+Seat 8: vladimirche1 ($52.46 in chips)
+Jaberwoky: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 5c]
+JTs98o: folds
+TheFrenchGrinder: folds
+vrtlar: raises $1.25 to $1.25
+vladimirche1: folds
+howoprime: folds
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to vrtlar
+*** SHOW DOWN ***
+vrtlar: doesn't show hand
+vrtlar collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: howoprime folded before Flop (didn't bet)
+Seat 2: Operationskills (button) folded before Flop (didn't bet)
+Seat 3: Jaberwoky (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: TheFrenchGrinder folded before Flop (didn't bet)
+Seat 7: vrtlar collected ($1.25)
+Seat 8: vladimirche1 folded before Flop (didn't bet)
+
+
+Weplay Hand #74415390:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:04:32 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: howoprime ($14.25 in chips)
+Seat 2: Operationskills ($32.33 in chips)
+Seat 3: Jaberwoky ($77.32 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($80.02 in chips)
+Seat 6: TheFrenchGrinder ($35.15 in chips)
+Seat 7: vrtlar ($120.39 in chips)
+Seat 8: vladimirche1 ($52.46 in chips)
+howoprime: posts the ante $2.14
+Operationskills: posts the ante $2.14
+Jaberwoky: posts the ante $2.14
+kole1992: posts the ante $2.14
+JTs98o: posts the ante $2.14
+TheFrenchGrinder: posts the ante $2.14
+vrtlar: posts the ante $2.14
+vladimirche1: posts the ante $2.14
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Qc]
+*** FLOP *** [6h 4c 5h]
+kole1992: checks
+JTs98o: checks
+TheFrenchGrinder: bets $1
+vrtlar: calls $1
+vladimirche1: calls $1
+howoprime: folds
+Operationskills: calls $1
+Jaberwoky: calls $1
+kole1992: folds
+JTs98o: folds
+*** TURN *** [6h 4c 5h] [Td]
+TheFrenchGrinder: bets $1.50
+vrtlar: raises $18 to $18
+vladimirche1: folds
+Operationskills: raises $29.19 to $29.19 and is all-in
+Jaberwoky: folds
+TheFrenchGrinder: folds
+vrtlar: calls $11.19
+*** RIVER *** [6h 4c 5h Td] [Qh]
+*** SHOW DOWN ***
+vrtlar: shows [7d 8c] (a straight, Four to Eight)
+Operationskills: shows [Ts Th] (three of a kind, Tens)
+vrtlar collected $82 from pot
+*** SUMMARY ***
+Total pot $82 | Rake $4 
+Board [6h 4c 5h Td Qh]
+Seat 1: howoprime folded on the Flop 
+Seat 2: Operationskills showed [Ts Th] and lost with three of a kind, Tens
+Seat 3: Jaberwoky (button) folded on the Turn 
+Seat 4: kole1992 folded on the Flop 
+Seat 5: JTs98o folded on the Flop 
+Seat 6: TheFrenchGrinder folded on the Turn 
+Seat 7: vrtlar showed [7d 8c] and won ($82) with a straight, Four to Eight
+Seat 8: vladimirche1 folded on the Turn 
+
+
+Weplay Hand #74415485:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:06:20 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 1: howoprime ($12.11 in chips)
+Seat 3: Jaberwoky ($74.18 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($77.88 in chips)
+Seat 6: TheFrenchGrinder ($30.51 in chips)
+Seat 7: vrtlar ($166.06 in chips)
+Seat 8: vladimirche1 ($49.32 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 6c]
+TheFrenchGrinder: raises $1 to $1
+vrtlar: folds
+vladimirche1: folds
+howoprime: calls $1
+Jaberwoky: raises $4.75 to $4.75
+kole1992: folds
+JTs98o: folds
+TheFrenchGrinder: calls $3.75
+howoprime: folds
+*** FLOP *** [2h 4d Jh]
+TheFrenchGrinder: checks
+Jaberwoky: bets $3.71
+TheFrenchGrinder: folds
+Uncalled bet ($3.71) returned to Jaberwoky
+*** SHOW DOWN ***
+Jaberwoky: doesn't show hand
+Jaberwoky collected $11.25 from pot
+*** SUMMARY ***
+Total pot $11.25 | Rake $0.56 
+Board [2h 4d Jh]
+Seat 1: howoprime folded before Flop 
+Seat 3: Jaberwoky (button) collected ($11.25)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: TheFrenchGrinder folded on the Flop 
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 folded before Flop (didn't bet)
+
+
+Weplay Hand #74415538:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:07:17 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: howoprime ($11.11 in chips)
+Seat 2: Operationskills ($50 in chips)
+Seat 3: Jaberwoky ($80.12 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($77.38 in chips)
+Seat 6: TheFrenchGrinder ($25.76 in chips)
+Seat 7: vrtlar ($166.06 in chips)
+Seat 8: vladimirche1 ($49.32 in chips)
+JTs98o: posts small blind $0.25
+TheFrenchGrinder: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 4d]
+vrtlar: folds
+vladimirche1: folds
+howoprime: calls $0.50
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+TheFrenchGrinder: checks
+*** FLOP *** [Ah Ks 4s]
+TheFrenchGrinder: checks
+howoprime: checks
+*** TURN *** [Ah Ks 4s] [9s]
+TheFrenchGrinder: bets $0.50
+howoprime: raises $1.75 to $1.75
+TheFrenchGrinder: folds
+Uncalled bet ($1.25) returned to howoprime
+*** SHOW DOWN ***
+howoprime: doesn't show hand
+howoprime collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [Ah Ks 4s 9s]
+Seat 1: howoprime collected ($2.25)
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: TheFrenchGrinder (big blind) folded on the Turn 
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 folded before Flop (didn't bet)
+
+
+Weplay Hand #74415585:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:08:11 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 1: howoprime ($12.25 in chips)
+Seat 2: Operationskills ($50 in chips)
+Seat 3: Jaberwoky ($80.12 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($77.13 in chips)
+Seat 6: TheFrenchGrinder ($24.76 in chips)
+Seat 7: vrtlar ($166.06 in chips)
+Seat 8: vladimirche1 ($49.32 in chips)
+TheFrenchGrinder: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 3s]
+vladimirche1: raises $1.50 to $1.50
+howoprime: calls $1.50
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+TheFrenchGrinder: calls $1.25
+vrtlar: folds
+*** FLOP *** [Th 4h Qd]
+TheFrenchGrinder: bets $1.50
+vladimirche1: calls $1.50
+howoprime: raises $10.75 to $10.75 and is all-in
+TheFrenchGrinder: calls $9.25
+vladimirche1: folds
+*** TURN *** [Th 4h Qd] [Ac]
+*** FIRST RIVER *** [Th 4h Qd Ac] [9s]
+*** SECOND TURN *** [Th 4h Qd] [4c]
+*** SECOND RIVER *** [Th 4h Qd 4c] [6s]
+*** SHOW DOWN ***
+TheFrenchGrinder: shows [9c Jc] (a pair of Nines)
+howoprime: shows [Qs 9h] (two pair, Queens and Nines)
+howoprime collected $28 from pot
+*** SUMMARY ***
+Total pot $28 | Rake $1.40 
+Hand was run two times
+FIRST Board [Th 4h Qd Ac 9s]
+SECOND Board [Th 4h Qd 4c 6s]
+Seat 1: howoprime showed [Qs 9h] and won ($28) with two pair, Queens and Nines
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: TheFrenchGrinder (small blind) showed [9c Jc] and lost with a pair of Nines
+Seat 7: vrtlar (big blind) folded before Flop 
+Seat 8: vladimirche1 folded on the Flop 
+
+
+Weplay Hand #74415640:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:09:12 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 1: howoprime ($26.60 in chips)
+Seat 2: Operationskills ($50 in chips)
+Seat 3: Jaberwoky ($80.12 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($77.13 in chips)
+Seat 6: TheFrenchGrinder ($12.51 in chips)
+Seat 7: vrtlar ($165.56 in chips)
+Seat 8: vladimirche1 ($46.32 in chips)
+howoprime: posts the ante $2.43
+Operationskills: posts the ante $2.43
+Jaberwoky: posts the ante $2.43
+kole1992: posts the ante $2.43
+JTs98o: posts the ante $2.43
+TheFrenchGrinder: posts the ante $2.43
+vrtlar: posts the ante $2.43
+vladimirche1: posts the ante $2.43
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 3h]
+*** FLOP *** [4s 8d 4h]
+JTs98o: bets $4.50
+TheFrenchGrinder: raises $10.08 to $10.08 and is all-in
+vrtlar: folds
+vladimirche1: folds
+howoprime: folds
+Operationskills: calls $10.08
+Jaberwoky: folds
+kole1992: folds
+JTs98o: raises $11.16 to $15.66
+Operationskills: calls $5.58
+*** TURN *** [4s 8d 4h] [Th]
+JTs98o: bets $59.04 and is all-in
+Operationskills: folds
+Uncalled bet ($59.04) returned to JTs98o
+*** RIVER *** [4s 8d 4h Th] [9d]
+*** SHOW DOWN ***
+JTs98o: shows [8h 4c] (a full house, Fours full of Eights)
+TheFrenchGrinder: shows [8s Ts] (two pair, Tens and Eights)
+Operationskills: shows [] (a pair of Fours)
+JTs98o collected $11.16 from side pot
+JTs98o collected $49.68 from main pot
+*** SUMMARY ***
+Total pot $60.84 Main pot $49.68. Side pot $11.16. | Rake $3.04 
+Board [4s 8d 4h Th 9d]
+Seat 1: howoprime folded on the Flop 
+Seat 2: Operationskills folded on the Turn showed [Ac Ah] and lost with a pair of Fours
+Seat 3: Jaberwoky folded on the Flop 
+Seat 4: kole1992 (button) folded on the Flop 
+Seat 5: JTs98o showed [8h 4c] and won ($60.84) with a full house, Fours full of Eights
+Seat 6: TheFrenchGrinder showed [8s Ts] and lost with two pair, Tens and Eights
+Seat 7: vrtlar folded on the Flop 
+Seat 8: vladimirche1 folded on the Flop 
+
+
+Weplay Hand #74415701:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:10:18 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: howoprime ($24.17 in chips)
+Seat 2: Operationskills ($31.91 in chips)
+Seat 3: Jaberwoky ($77.69 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($116.84 in chips)
+Seat 7: vrtlar ($163.13 in chips)
+Seat 8: vladimirche1 ($43.89 in chips)
+vrtlar: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 9s]
+howoprime: calls $0.50
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+vrtlar: folds
+vladimirche1: checks
+*** FLOP *** [Kd 3c 2h]
+vladimirche1: bets $1
+howoprime: calls $1
+*** TURN *** [Kd 3c 2h] [8s]
+vladimirche1: bets $5
+howoprime: folds
+Uncalled bet ($5) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [Kd 3c 2h 8s]
+Seat 1: howoprime folded on the Turn 
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 7: vrtlar (small blind) folded before Flop 
+Seat 8: vladimirche1 (big blind) collected ($3.25)
+
+
+Weplay Hand #74415738:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:11:06 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: howoprime ($22.67 in chips)
+Seat 2: Operationskills ($31.91 in chips)
+Seat 3: Jaberwoky ($77.69 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($116.84 in chips)
+Seat 6: TheFrenchGrinder ($27 in chips)
+Seat 7: vrtlar ($162.88 in chips)
+Seat 8: vladimirche1 ($45.48 in chips)
+vladimirche1: posts small blind $0.25
+howoprime: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Th]
+Operationskills: folds
+Jaberwoky: folds
+kole1992: folds
+JTs98o: folds
+TheFrenchGrinder: raises $1 to $1
+vrtlar: folds
+vladimirche1: folds
+howoprime: calls $0.50
+*** FLOP *** [4h 8d Jd]
+howoprime: checks
+TheFrenchGrinder: bets $1
+howoprime: folds
+Uncalled bet ($1) returned to TheFrenchGrinder
+*** SHOW DOWN ***
+TheFrenchGrinder has timed out
+TheFrenchGrinder: doesn't show hand
+TheFrenchGrinder collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [4h 8d Jd]
+Seat 1: howoprime (big blind) folded on the Flop 
+Seat 2: Operationskills folded before Flop (didn't bet)
+Seat 3: Jaberwoky folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: TheFrenchGrinder collected ($2.25)
+Seat 7: vrtlar (button) folded before Flop (didn't bet)
+Seat 8: vladimirche1 (small blind) folded before Flop 
+
+
+Weplay Hand #74415791:  Hold'em No Limit ($0.25/$0.50) - 2026/02/01 19:12:06 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: howoprime ($21.67 in chips)
+Seat 2: Operationskills ($31.91 in chips)
+Seat 3: Jaberwoky ($77.69 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: JTs98o ($116.84 in chips)
+Seat 6: TheFrenchGrinder ($28.14 in chips)
+Seat 7: vrtlar ($162.88 in chips)
+Seat 8: vladimirche1 ($45.23 in chips)
+howoprime: posts small blind $0.25
+Operationskills: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Th]
+Jaberwoky: calls $0.50
+kole1992: folds
+JTs98o: folds
+TheFrenchGrinder: folds
+vrtlar: folds
+vladimirche1: calls $0.50
+howoprime: calls $0.25
+Operationskills: checks
+*** FLOP *** [9h Ks Js]
+howoprime: checks
+Operationskills: checks
+Jaberwoky: checks
+vladimirche1: checks
+*** TURN *** [9h Ks Js] [3s]
+howoprime: bets $1.50
+Operationskills: folds
+Jaberwoky: folds
+vladimirche1: folds
+Uncalled bet ($1.50) returned to howoprime
+*** SHOW DOWN ***
+howoprime: doesn't show hand
+howoprime collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [9h Ks Js 3s]
+Seat 1: howoprime (small blind) collected ($2)
+Seat 2: Operationskills (big blind) folded on the Turn 
+Seat 3: Jaberwoky folded on the Turn 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: TheFrenchGrinder folded before Flop (didn't bet)
+Seat 7: vrtlar folded before Flop (didn't bet)
+Seat 8: vladimirche1 (button) folded on the Turn 

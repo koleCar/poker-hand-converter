@@ -1,0 +1,1403 @@
+﻿Weplay Hand #75371009:  Hold'em No Limit ($2/$5) - 2026/02/11 12:30:12 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 1: Ophus79 ($304.73 in chips)
+Seat 3: Swarozyc ($556.04 in chips)
+Seat 4: Olaf193 ($729.13 in chips)
+Seat 5: kole1992 ($500 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+Ophus79: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Kd]
+Ophus79: folds
+Swarozyc: raises $12.50 to $12.50
+Olaf193: calls $10.50
+kole1992: calls $7.50
+*** FLOP *** [As 3c 3d]
+Olaf193: checks
+kole1992: checks
+Swarozyc: checks
+*** TURN *** [As 3c 3d] [Qh]
+Olaf193: checks
+kole1992: checks
+Swarozyc: checks
+*** RIVER *** [As 3c 3d Qh] [Ah]
+Olaf193: bets $16.63
+GHIlias leaves the table
+kole1992: folds
+Swarozyc: calls $16.63
+*** SHOW DOWN ***
+Olaf193: shows [6c Qc] (two pair, Aces and Queens)
+Swarozyc: shows [Qd Td] (two pair, Aces and Queens)
+Swarozyc collected $70.76 from pot
+*** SUMMARY ***
+Total pot $70.76 | Rake $3.53 
+Board [As 3c 3d Qh Ah]
+Seat 1: Ophus79 folded before Flop (didn't bet)
+Seat 3: Swarozyc (button) showed [Qd Td] and won ($70.76) with two pair, Aces and Queens
+Seat 4: Olaf193 (small blind) showed [6c Qc] and lost with two pair, Aces and Queens
+Seat 5: kole1992 (big blind) folded on the River 
+
+
+Weplay Hand #75371050:  Hold'em No Limit ($2/$5) - 2026/02/11 12:31:12 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 1: Ophus79 ($304.73 in chips)
+Seat 3: Swarozyc ($594.14 in chips)
+Seat 4: Olaf193 ($700 in chips)
+Seat 5: kole1992 ($487.50 in chips)
+kole1992: posts small blind $2
+Ophus79: posts big blind $5
+Swarozyc: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 9h]
+Swarozyc: folds
+Olaf193: raises $17.50 to $17.50
+kole1992: folds
+Ophus79: raises $30 to $35
+Olaf193: raises $682.50 to $700 and is all-in
+Ophus79: calls $269.73 and is all-in
+Uncalled bet ($395.27) returned to Olaf193
+*** FLOP *** [Ac Td Ah]
+*** TURN *** [Ac Td Ah] [3c]
+*** RIVER *** [Ac Td Ah 3c] [9c]
+*** SHOW DOWN ***
+Ophus79: shows [7s 7h] (two pair, Aces and Sevens)
+Olaf193: shows [Ks Kd] (two pair, Aces and Kings)
+Olaf193 collected $611.46 from pot
+*** SUMMARY ***
+Total pot $611.46 | Rake $14 
+Board [Ac Td Ah 3c 9c]
+Seat 1: Ophus79 (big blind) showed [7s 7h] and lost with two pair, Aces and Sevens
+Seat 3: Swarozyc folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) showed [Ks Kd] and won ($611.46) with two pair, Aces and Kings
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75371076:  Hold'em No Limit ($2/$5) - 2026/02/11 12:31:47 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 3: Swarozyc ($594.14 in chips)
+Seat 4: Olaf193 ($992.73 in chips)
+Seat 5: kole1992 ($485.50 in chips)
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 8c]
+Ophus79 is disconnected 
+Olaf193: raises $15 to $15
+kole1992: folds
+Swarozyc: calls $10
+*** FLOP *** [Ac 3s 2c]
+Swarozyc: checks
+Olaf193: bets $30
+Swarozyc: folds
+Uncalled bet ($30) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 8c]
+Olaf193: doesn't show hand
+Olaf193 collected $30 from pot
+*** SUMMARY ***
+Total pot $30 | Rake $0.75 
+Board [Ac 3s 2c]
+Seat 3: Swarozyc (big blind) folded on the Flop 
+Seat 4: Olaf193 collected ($30)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75371092:  Hold'em No Limit ($2/$5) - 2026/02/11 12:32:18 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #1 is the button
+Seat 3: Swarozyc ($579.14 in chips)
+Seat 4: Olaf193 ($1006.98 in chips)
+Seat 5: kole1992 ($485.50 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Td]
+kole1992: folds
+Swarozyc: folds
+Uncalled bet ($3) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Td]
+Olaf193: doesn't show hand
+Olaf193 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 3: Swarozyc (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) collected ($4)
+Seat 5: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75371107:  Hold'em No Limit ($2/$5) - 2026/02/11 12:32:40 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 3: Swarozyc ($577.14 in chips)
+Seat 4: Olaf193 ($1008.98 in chips)
+Seat 5: kole1992 ($485.50 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 4h]
+Swarozyc: folds
+Olaf193: calls $3
+kole1992: raises $16.01 to $21.01
+Olaf193: calls $16.01
+*** FLOP *** [Qd As Ad]
+Olaf193: checks
+Ophus79 leaves the table
+kole1992: bets $13.86
+Olaf193: folds
+Uncalled bet ($13.86) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $42.02 from pot
+*** SUMMARY ***
+Total pot $42.02 | Rake $1.05 
+Board [Qd As Ad]
+Seat 3: Swarozyc (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) folded on the Flop 
+Seat 5: kole1992 (big blind) collected ($42.02)
+
+
+Weplay Hand #75371127:  Hold'em No Limit ($2/$5) - 2026/02/11 12:33:12 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 3: Swarozyc ($577.14 in chips)
+Seat 4: Olaf193 ($987.97 in chips)
+Seat 5: kole1992 ($505.46 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Qs]
+Olaf193: raises $12.50 to $12.50
+kole1992: folds
+Swarozyc: calls $7.50
+*** FLOP *** [Tc 3s 6d]
+Swarozyc: checks
+Olaf193: bets $13.50
+Swarozyc: calls $13.50
+*** TURN *** [Tc 3s 6d] [Ks]
+Swarozyc: checks
+Olaf193: checks
+*** RIVER *** [Tc 3s 6d Ks] [Jd]
+Swarozyc: checks
+Olaf193: checks
+*** SHOW DOWN ***
+Swarozyc: shows [As 9c] (high card Ace)
+Olaf193: shows [Ac 6h] (a pair of Sixes)
+Olaf193 collected $54 from pot
+*** SUMMARY ***
+Total pot $54 | Rake $1.35 
+Board [Tc 3s 6d Ks Jd]
+Seat 3: Swarozyc (big blind) showed [As 9c] and lost with high card Ace
+Seat 4: Olaf193 (button) showed [Ac 6h] and won ($54) with a pair of Sixes
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75371153:  Hold'em No Limit ($2/$5) - 2026/02/11 12:33:49 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 3: Swarozyc ($551.14 in chips)
+Seat 4: Olaf193 ($1014.62 in chips)
+Seat 5: kole1992 ($503.46 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 9c]
+kole1992: folds
+Swarozyc: raises $13 to $15
+Olaf193: calls $10
+*** FLOP *** [Kd 8s 5h]
+Swarozyc: checks
+Olaf193: checks
+*** TURN *** [Kd 8s 5h] [4s]
+Swarozyc: checks
+Olaf193: checks
+*** RIVER *** [Kd 8s 5h 4s] [Td]
+Swarozyc: checks
+Olaf193: checks
+*** SHOW DOWN ***
+Swarozyc: shows [Qs Ad] (high card Ace)
+Olaf193: shows [6c 4c] (a pair of Fours)
+Olaf193 collected $30 from pot
+*** SUMMARY ***
+Total pot $30 | Rake $0.75 
+Board [Kd 8s 5h 4s Td]
+Seat 3: Swarozyc (small blind) showed [Qs Ad] and lost with high card Ace
+Seat 4: Olaf193 (big blind) showed [6c 4c] and won ($30) with a pair of Fours
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75371176:  Hold'em No Limit ($2/$5) - 2026/02/11 12:34:23 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 1: Ophus79 ($220.51 in chips)
+Seat 3: Swarozyc ($536.14 in chips)
+Seat 4: Olaf193 ($1028.87 in chips)
+Seat 5: kole1992 ($503.46 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+Ophus79: posts big blind $5
+Ophus79: posts straddle $5
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Qd]
+Swarozyc: folds
+Olaf193: folds
+kole1992: folds
+Uncalled bet ($5) returned to Ophus79
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Qd]
+Ophus79 has timed out
+Ophus79: doesn't show hand
+Ophus79 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 1: Ophus79 (big blind) collected ($12)
+Seat 3: Swarozyc (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75371185:  Hold'em No Limit ($2/$5) - 2026/02/11 12:34:40 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 1: Ophus79 ($227.51 in chips)
+Seat 3: Swarozyc ($536.14 in chips)
+Seat 4: Olaf193 ($1026.87 in chips)
+Seat 5: kole1992 ($498.46 in chips)
+kole1992: posts small blind $2
+Ophus79: posts big blind $5
+Swarozyc: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Kh]
+Swarozyc: folds
+Olaf193: folds
+kole1992: raises $13 to $15
+Ophus79: folds
+Uncalled bet ($10) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0 
+Seat 1: Ophus79 (big blind) folded before Flop 
+Seat 3: Swarozyc folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) collected ($10)
+
+
+Weplay Hand #75371191:  Hold'em No Limit ($2/$5) - 2026/02/11 12:34:54 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 1: Ophus79 ($222.51 in chips)
+Seat 3: Swarozyc ($536.14 in chips)
+Seat 4: Olaf193 ($1026.87 in chips)
+Seat 5: kole1992 ($503.46 in chips)
+Ophus79: posts small blind $2
+Swarozyc: posts big blind $5
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 4d]
+Olaf193: folds
+kole1992: folds
+Ophus79: calls $3
+Swarozyc: checks
+*** FLOP *** [Ah 2s Qd]
+Ophus79: bets $7.50
+Swarozyc: calls $7.50
+*** TURN *** [Ah 2s Qd] [5s]
+Ophus79: checks
+Swarozyc: checks
+*** RIVER *** [Ah 2s Qd 5s] [3d]
+Ophus79: checks
+Swarozyc: checks
+*** SHOW DOWN ***
+Ophus79: shows [Ts 6s] (high card Ace)
+Swarozyc: shows [6h 2h] (a pair of Deuces)
+Swarozyc collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $1.25 
+Board [Ah 2s Qd 5s 3d]
+Seat 1: Ophus79 (small blind) showed [Ts 6s] and lost with high card Ace
+Seat 3: Swarozyc (big blind) showed [6h 2h] and won ($25) with a pair of Deuces
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75371218:  Hold'em No Limit ($2/$5) - 2026/02/11 12:35:39 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #1 is the button
+Seat 1: Ophus79 ($210.01 in chips)
+Seat 3: Swarozyc ($547.39 in chips)
+Seat 4: Olaf193 ($1026.87 in chips)
+Seat 5: kole1992 ($503.46 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9c]
+kole1992: folds
+Ophus79: raises $15 to $15
+Swarozyc: folds
+Olaf193: calls $10
+*** FLOP *** [2h 5h Ah]
+Olaf193: checks
+Ophus79: bets $15
+Olaf193: folds
+Uncalled bet ($15) returned to Ophus79
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9c]
+Ophus79 has timed out
+Ophus79: doesn't show hand
+Ophus79 collected $32 from pot
+*** SUMMARY ***
+Total pot $32 | Rake $1.60 
+Board [2h 5h Ah]
+Seat 1: Ophus79 (button) collected ($32)
+Seat 3: Swarozyc (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) folded on the Flop 
+Seat 5: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75371236:  Hold'em No Limit ($2/$5) - 2026/02/11 12:36:03 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 1: Ophus79 ($225.41 in chips)
+Seat 3: Swarozyc ($545.39 in chips)
+Seat 4: Olaf193 ($1011.87 in chips)
+Seat 5: kole1992 ($503.46 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+Ophus79: posts straddle $10
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Ah]
+Swarozyc: folds
+Olaf193: folds
+kole1992: raises $23.05 to $28.05
+Ophus79: calls $18.05
+*** FLOP *** [Jh Js 4d]
+kole1992: bets $19.17
+Ophus79: raises $44 to $44
+kole1992: folds
+Uncalled bet ($24.83) returned to Ophus79
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Ah]
+Ophus79 has timed out
+Ophus79: doesn't show hand
+Ophus79 collected $96.44 from pot
+*** SUMMARY ***
+Total pot $96.44 | Rake $4.82 
+Board [Jh Js 4d]
+Seat 1: Ophus79 collected ($96.44)
+Seat 3: Swarozyc (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded on the Flop 
+
+
+Weplay Hand #75371262:  Hold'em No Limit ($2/$5) - 2026/02/11 12:36:41 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 1: Ophus79 ($269.81 in chips)
+Seat 3: Swarozyc ($545.39 in chips)
+Seat 4: Olaf193 ($1009.87 in chips)
+Seat 5: kole1992 ($456.24 in chips)
+kole1992: posts small blind $2
+Ophus79: posts big blind $5
+Swarozyc: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 3d]
+Swarozyc: folds
+Olaf193: folds
+kole1992: folds
+Uncalled bet ($3) returned to Ophus79
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 3d]
+Ophus79 has timed out
+Ophus79: doesn't show hand
+Ophus79 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: Ophus79 (big blind) collected ($4)
+Seat 3: Swarozyc folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75371270:  Hold'em No Limit ($2/$5) - 2026/02/11 12:36:54 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 1: Ophus79 ($271.81 in chips)
+Seat 3: Swarozyc ($545.39 in chips)
+Seat 4: Olaf193 ($1009.87 in chips)
+Seat 5: kole1992 ($454.24 in chips)
+Ophus79: posts small blind $2
+Swarozyc: posts big blind $5
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Kh]
+Olaf193: raises $15 to $15
+kole1992: raises $42.05 to $42.05
+Ophus79: folds
+Swarozyc: folds
+Olaf193: folds
+Uncalled bet ($27.05) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $37 from pot
+*** SUMMARY ***
+Total pot $37 | Rake $0 
+Seat 1: Ophus79 (small blind) folded before Flop 
+Seat 3: Swarozyc (big blind) folded before Flop 
+Seat 4: Olaf193 folded before Flop 
+Seat 5: kole1992 (button) collected ($37)
+
+
+Weplay Hand #75371285:  Hold'em No Limit ($2/$5) - 2026/02/11 12:37:19 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #1 is the button
+Seat 1: Ophus79 ($269.81 in chips)
+Seat 3: Swarozyc ($540.39 in chips)
+Seat 4: Olaf193 ($994.87 in chips)
+Seat 5: kole1992 ($476.24 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Th]
+kole1992: raises $12.50 to $12.50
+Ophus79: folds
+Swarozyc: raises $53 to $55
+Olaf193: folds
+kole1992: calls $42.50
+*** FLOP *** [Ks 2d Ts]
+Swarozyc: bets $57.50
+kole1992: calls $57.50
+*** TURN *** [Ks 2d Ts] [3c]
+Swarozyc: bets $115
+kole1992: calls $115
+*** RIVER *** [Ks 2d Ts 3c] [7c]
+Swarozyc: bets $312.89 and is all-in
+kole1992: calls $248.74 and is all-in
+Uncalled bet ($64.15) returned to Swarozyc
+*** SHOW DOWN ***
+Swarozyc: shows [Kd Ad] (a pair of Kings)
+kole1992: shows [Td Th] (three of a kind, Tens)
+kole1992 collected $957.48 from pot
+*** SUMMARY ***
+Total pot $957.48 | Rake $14 
+Board [Ks 2d Ts 3c 7c]
+Seat 1: Ophus79 (button) folded before Flop (didn't bet)
+Seat 3: Swarozyc (small blind) showed [Kd Ad] and lost with a pair of Kings
+Seat 4: Olaf193 (big blind) folded before Flop 
+Seat 5: kole1992 showed [Td Th] and won ($957.48) with three of a kind, Tens
+
+
+Weplay Hand #75371331:  Hold'em No Limit ($2/$5) - 2026/02/11 12:38:30 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 1: Ophus79 ($269.81 in chips)
+Seat 3: Swarozyc ($64.15 in chips)
+Seat 4: Olaf193 ($989.87 in chips)
+Seat 5: kole1992 ($943.48 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+Ophus79: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 6s]
+Ophus79: calls $5
+Swarozyc: folds
+Olaf193: folds
+kole1992: checks
+*** FLOP *** [6c Ac 9c]
+kole1992: checks
+Ophus79: bets $5
+kole1992: calls $5
+*** TURN *** [6c Ac 9c] [Th]
+kole1992: checks
+Ophus79: checks
+*** RIVER *** [6c Ac 9c Th] [Qc]
+kole1992: bets $5.28
+Ophus79: raises $60 to $60
+kole1992: folds
+Uncalled bet ($54.72) returned to Ophus79
+*** SHOW DOWN ***
+Ophus79 has timed out
+Ophus79: doesn't show hand
+Ophus79 collected $32.56 from pot
+*** SUMMARY ***
+Total pot $32.56 | Rake $1.62 
+Board [6c Ac 9c Th Qc]
+Seat 1: Ophus79 collected ($32.56)
+Seat 3: Swarozyc (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded on the River 
+
+
+Weplay Hand #75371375:  Hold'em No Limit ($2/$5) - 2026/02/11 12:39:34 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 1: Ophus79 ($285.47 in chips)
+Seat 3: Swarozyc ($500 in chips)
+Seat 4: Olaf193 ($987.87 in chips)
+Seat 5: kole1992 ($928.20 in chips)
+kole1992: posts small blind $2
+Ophus79: posts big blind $5
+Swarozyc: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Js]
+Swarozyc: folds
+Olaf193: folds
+kole1992: raises $13 to $15
+Ophus79: calls $10
+*** FLOP *** [2d Ac 4s]
+kole1992: checks
+Ophus79: checks
+*** TURN *** [2d Ac 4s] [6h]
+kole1992: checks
+Ophus79: checks
+*** RIVER *** [2d Ac 4s 6h] [Jc]
+kole1992: bets $23.91
+Ophus79: folds
+Uncalled bet ($23.91) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $30 from pot
+*** SUMMARY ***
+Total pot $30 | Rake $1.50 
+Board [2d Ac 4s 6h Jc]
+Seat 1: Ophus79 (big blind) folded on the River 
+Seat 3: Swarozyc folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) collected ($30)
+
+
+Weplay Hand #75371406:  Hold'em No Limit ($2/$5) - 2026/02/11 12:40:24 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 1: Ophus79 ($270.47 in chips)
+Seat 3: Swarozyc ($500 in chips)
+Seat 4: Olaf193 ($987.87 in chips)
+Seat 5: kole1992 ($941.70 in chips)
+Ophus79: posts small blind $2
+Swarozyc: posts big blind $5
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Ah]
+Olaf193: raises $12.50 to $12.50
+kole1992: folds
+Ophus79: raises $24 to $26
+Swarozyc: calls $21
+Olaf193: calls $13.50
+*** FLOP *** [Jc 4h Jd]
+Ophus79: checks
+Swarozyc: checks
+Olaf193: checks
+*** TURN *** [Jc 4h Jd] [Th]
+Ophus79: bets $44
+Swarozyc: calls $44
+Olaf193: folds
+*** RIVER *** [Jc 4h Jd Th] [Td]
+Ophus79: checks
+Swarozyc: bets $55
+Ophus79: folds
+Uncalled bet ($55) returned to Swarozyc
+*** SHOW DOWN ***
+Swarozyc: doesn't show hand
+Swarozyc collected $166 from pot
+*** SUMMARY ***
+Total pot $166 | Rake $8.30 
+Board [Jc 4h Jd Th Td]
+Seat 1: Ophus79 (small blind) folded on the River 
+Seat 3: Swarozyc (big blind) collected ($166)
+Seat 4: Olaf193 folded on the Turn 
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75371434:  Hold'em No Limit ($2/$5) - 2026/02/11 12:41:11 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #1 is the button
+Seat 1: Ophus79 ($200.47 in chips)
+Seat 3: Swarozyc ($587.70 in chips)
+Seat 4: Olaf193 ($961.87 in chips)
+Seat 5: kole1992 ($941.70 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Jd]
+kole1992: folds
+Ophus79: calls $5
+Swarozyc: folds
+Olaf193: checks
+*** FLOP *** [Kd Jh Ac]
+Olaf193: checks
+Ophus79: bets $5
+Olaf193: calls $5
+*** TURN *** [Kd Jh Ac] [3d]
+Olaf193: checks
+Ophus79: bets $22
+Olaf193: folds
+Uncalled bet ($22) returned to Ophus79
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Jd]
+Ophus79 has timed out
+Ophus79: doesn't show hand
+Ophus79 collected $22 from pot
+*** SUMMARY ***
+Total pot $22 | Rake $1.10 
+Board [Kd Jh Ac 3d]
+Seat 1: Ophus79 (button) collected ($22)
+Seat 3: Swarozyc (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) folded on the Turn 
+Seat 5: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75371464:  Hold'em No Limit ($2/$5) - 2026/02/11 12:41:48 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 1: Ophus79 ($211.37 in chips)
+Seat 3: Swarozyc ($585.70 in chips)
+Seat 4: Olaf193 ($951.87 in chips)
+Seat 5: kole1992 ($941.70 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+Ophus79: posts straddle $10
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Ad]
+Swarozyc: folds
+Olaf193: raises $13 to $15
+kole1992: calls $10
+Ophus79: calls $5
+*** FLOP *** [6h 4c 8c]
+Olaf193: bets $22.50
+kole1992: folds
+Ophus79: calls $22.50
+*** TURN *** [6h 4c 8c] [Ks]
+Olaf193: bets $34.37
+Ophus79: calls $34.37
+*** RIVER *** [6h 4c 8c Ks] [5c]
+Olaf193: checks
+Ophus79: bets $139.50 and is all-in
+Olaf193: folds
+Uncalled bet ($139.50) returned to Ophus79
+*** SHOW DOWN ***
+Ophus79 has timed out
+Ophus79: doesn't show hand
+Ophus79 collected $158.74 from pot
+*** SUMMARY ***
+Total pot $158.74 | Rake $7.93 
+Board [6h 4c 8c Ks 5c]
+Seat 1: Ophus79 collected ($158.74)
+Seat 3: Swarozyc (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) folded on the River 
+Seat 5: kole1992 (big blind) folded on the Flop 
+
+
+Weplay Hand #75371503:  Hold'em No Limit ($2/$5) - 2026/02/11 12:42:50 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 1: Ophus79 ($290.31 in chips)
+Seat 3: Swarozyc ($585.70 in chips)
+Seat 4: Olaf193 ($880 in chips)
+Seat 5: kole1992 ($926.70 in chips)
+kole1992: posts small blind $2
+Ophus79: posts big blind $5
+Swarozyc: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 9c]
+Swarozyc: folds
+Olaf193: raises $20 to $20
+kole1992: folds
+Ophus79: folds
+Uncalled bet ($15) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 9c]
+Olaf193: doesn't show hand
+Olaf193 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 1: Ophus79 (big blind) folded before Flop 
+Seat 3: Swarozyc folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) collected ($12)
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75371521:  Hold'em No Limit ($2/$5) - 2026/02/11 12:43:14 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 1: Ophus79 ($285.31 in chips)
+Seat 3: Swarozyc ($585.70 in chips)
+Seat 4: Olaf193 ($887 in chips)
+Seat 5: kole1992 ($924.70 in chips)
+Ophus79: posts small blind $2
+Swarozyc: posts big blind $5
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 4h]
+Olaf193: folds
+kole1992: folds
+Ophus79: folds
+Uncalled bet ($3) returned to Swarozyc
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 4h]
+Swarozyc: doesn't show hand
+Swarozyc collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: Ophus79 (small blind) folded before Flop 
+Seat 3: Swarozyc (big blind) collected ($4)
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75371532:  Hold'em No Limit ($2/$5) - 2026/02/11 12:43:27 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #1 is the button
+Seat 1: Ophus79 ($283.31 in chips)
+Seat 3: Swarozyc ($587.70 in chips)
+Seat 4: Olaf193 ($887 in chips)
+Seat 5: kole1992 ($924.70 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Tc]
+kole1992: folds
+Ophus79: folds
+Olaf193 is disconnected 
+Olaf193 is connected 
+Swarozyc: raises $13 to $15
+Olaf193: calls $10
+*** FLOP *** [9c 9d 6d]
+Swarozyc: checks
+Olaf193: bets $12
+Swarozyc: calls $12
+*** TURN *** [9c 9d 6d] [Qc]
+Swarozyc: checks
+Olaf193: checks
+*** RIVER *** [9c 9d 6d Qc] [4d]
+Swarozyc: bets $60
+Olaf193: folds
+Uncalled bet ($60) returned to Swarozyc
+*** SHOW DOWN ***
+Swarozyc: doesn't show hand
+Swarozyc collected $54 from pot
+*** SUMMARY ***
+Total pot $54 | Rake $2.70 
+Board [9c 9d 6d Qc 4d]
+Seat 1: Ophus79 (button) folded before Flop (didn't bet)
+Seat 3: Swarozyc (small blind) collected ($54)
+Seat 4: Olaf193 (big blind) folded on the River 
+Seat 5: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75371565:  Hold'em No Limit ($2/$5) - 2026/02/11 12:44:18 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 1: Ophus79 ($283.31 in chips)
+Seat 3: Swarozyc ($612 in chips)
+Seat 4: Olaf193 ($860 in chips)
+Seat 5: kole1992 ($924.70 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+Ophus79: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 7c]
+Ophus79: calls $5
+Swarozyc: folds
+Olaf193: raises $13 to $15
+kole1992: folds
+Ophus79: calls $10
+*** FLOP *** [8d 5h Qc]
+Olaf193: checks
+Ophus79: checks
+*** TURN *** [8d 5h Qc] [7d]
+Olaf193: bets $5
+Ophus79: calls $5
+*** RIVER *** [8d 5h Qc 7d] [Jd]
+Olaf193: checks
+Ophus79: bets $88
+Olaf193: folds
+Uncalled bet ($88) returned to Ophus79
+*** SHOW DOWN ***
+Ophus79 has timed out
+Ophus79: doesn't show hand
+Ophus79 collected $45 from pot
+*** SUMMARY ***
+Total pot $45 | Rake $2.25 
+Board [8d 5h Qc 7d Jd]
+Seat 1: Ophus79 collected ($45)
+Seat 3: Swarozyc (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) folded on the River 
+Seat 5: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75371591:  Hold'em No Limit ($2/$5) - 2026/02/11 12:45:03 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 1: Ophus79 ($306.06 in chips)
+Seat 3: Swarozyc ($612 in chips)
+Seat 4: Olaf193 ($840 in chips)
+Seat 5: kole1992 ($919.70 in chips)
+kole1992: posts small blind $2
+Ophus79: posts big blind $5
+Swarozyc: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Ad]
+Swarozyc: folds
+Olaf193: raises $12.50 to $12.50
+kole1992: calls $10.50
+Ophus79: raises $20 to $25
+Olaf193: calls $12.50
+kole1992: raises $99.63 to $112.13
+Ophus79: calls $87.13
+Olaf193: folds
+*** FLOP *** [Ks 9s 6h]
+kole1992: checks
+Ophus79: bets $193.93 and is all-in
+kole1992: calls $193.93
+*** TURN *** [Ks 9s 6h] [2s]
+*** FIRST RIVER *** [Ks 9s 6h 2s] [Kc]
+*** SECOND TURN *** [Ks 9s 6h] [Jh]
+*** SECOND RIVER *** [Ks 9s 6h Jh] [As]
+*** SHOW DOWN ***
+kole1992: shows [Kd Ad] (three of a kind, Kings)
+Ophus79: shows [2c 2d] (a full house, Deuces full of Kings)
+Ophus79 collected $318.56 from pot
+kole1992 collected $318.56 from pot
+*** SUMMARY ***
+Total pot $637.12 | Rake $14 
+Hand was run two times
+FIRST Board [Ks 9s 6h 2s Kc]
+SECOND Board [Ks 9s 6h Jh As]
+Seat 1: Ophus79 (big blind) showed [2c 2d] and won ($318.56) with a full house, Deuces full of Kings
+Seat 3: Swarozyc folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) folded before Flop 
+Seat 5: kole1992 (small blind) showed [Kd Ad] and won ($318.56) with three of a kind, Kings
+
+
+Weplay Hand #75371633:  Hold'em No Limit ($2/$5) - 2026/02/11 12:46:10 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 1: Ophus79 ($311.56 in chips)
+Seat 3: Swarozyc ($612 in chips)
+Seat 4: Olaf193 ($815 in chips)
+Seat 5: kole1992 ($925.20 in chips)
+Ophus79: posts small blind $2
+Swarozyc: posts big blind $5
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 7h]
+Olaf193: folds
+kole1992: folds
+Ophus79: calls $3
+Swarozyc: checks
+*** FLOP *** [Ac Ah Qs]
+Ophus79: checks
+Swarozyc: checks
+*** TURN *** [Ac Ah Qs] [As]
+Ophus79: bets $20
+Swarozyc: folds
+Uncalled bet ($20) returned to Ophus79
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 7h]
+Ophus79 has timed out
+Ophus79: doesn't show hand
+Ophus79 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [Ac Ah Qs As]
+Seat 1: Ophus79 (small blind) collected ($10)
+Seat 3: Swarozyc (big blind) folded on the Turn 
+Seat 4: Olaf193 folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75371649:  Hold'em No Limit ($2/$5) - 2026/02/11 12:46:39 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #1 is the button
+Seat 1: Ophus79 ($316.06 in chips)
+Seat 3: Swarozyc ($607 in chips)
+Seat 4: Olaf193 ($815 in chips)
+Seat 5: kole1992 ($925.20 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 3c]
+kole1992: raises $10 to $10
+Ophus79: calls $10
+Swarozyc: raises $48 to $50
+Olaf193: folds
+kole1992: folds
+Ophus79: folds
+Uncalled bet ($40) returned to Swarozyc
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 3c]
+Swarozyc: doesn't show hand
+Swarozyc collected $35 from pot
+*** SUMMARY ***
+Total pot $35 | Rake $0 
+Seat 1: Ophus79 (button) folded before Flop 
+Seat 3: Swarozyc (small blind) collected ($35)
+Seat 4: Olaf193 (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop 
+
+
+Weplay Hand #75371668:  Hold'em No Limit ($2/$5) - 2026/02/11 12:47:06 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 1: Ophus79 ($306.06 in chips)
+Seat 3: Swarozyc ($632 in chips)
+Seat 4: Olaf193 ($810 in chips)
+Seat 5: kole1992 ($915.20 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+Ophus79: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 2c]
+Ophus79: calls $5
+Swarozyc: raises $20 to $20
+Olaf193: calls $18
+kole1992: folds
+Ophus79: calls $15
+*** FLOP *** [Qh 8s Kh]
+Olaf193: checks
+Ophus79: checks
+Swarozyc: bets $21.50
+Olaf193: folds
+Ophus79: calls $21.50
+*** TURN *** [Qh 8s Kh] [Ts]
+Ophus79: checks
+Swarozyc: checks
+*** RIVER *** [Qh 8s Kh Ts] [3c]
+Ophus79: checks
+Swarozyc: checks
+*** SHOW DOWN ***
+Ophus79: shows [9h Ah] (high card Ace)
+Swarozyc: shows [Th As] (a pair of Tens)
+Swarozyc collected $108 from pot
+*** SUMMARY ***
+Total pot $108 | Rake $5.40 
+Board [Qh 8s Kh Ts 3c]
+Seat 1: Ophus79 showed [9h Ah] and lost with high card Ace
+Seat 3: Swarozyc (button) showed [Th As] and won ($108) with a pair of Tens
+Seat 4: Olaf193 (small blind) folded on the Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75371698:  Hold'em No Limit ($2/$5) - 2026/02/11 12:47:55 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 1: Ophus79 ($264.56 in chips)
+Seat 3: Swarozyc ($693.10 in chips)
+Seat 4: Olaf193 ($790 in chips)
+Seat 5: kole1992 ($910.20 in chips)
+kole1992: posts small blind $2
+Ophus79: posts big blind $5
+Swarozyc: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [As 5h]
+Swarozyc: folds
+Olaf193: raises $15 to $15
+kole1992: folds
+Ophus79: folds
+Uncalled bet ($10) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [As 5h]
+Olaf193: doesn't show hand
+Olaf193 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 1: Ophus79 (big blind) folded before Flop 
+Seat 3: Swarozyc folded before Flop (didn't bet)
+Seat 4: Olaf193 (button) collected ($12)
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75371707:  Hold'em No Limit ($2/$5) - 2026/02/11 12:48:08 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 1: Ophus79 ($259.56 in chips)
+Seat 3: Swarozyc ($693.10 in chips)
+Seat 4: Olaf193 ($797 in chips)
+Seat 5: kole1992 ($908.20 in chips)
+Ophus79: posts small blind $2
+Swarozyc: posts big blind $5
+Olaf193: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Jd]
+Olaf193: raises $15 to $15
+kole1992: calls $15
+Ophus79: raises $28 to $30
+Swarozyc: folds
+Olaf193: calls $15
+kole1992: raises $96.07 to $111.07
+Ophus79: calls $81.07
+Olaf193: calls $81.07
+*** FLOP *** [4c 6c 2d]
+Ophus79: bets $148.49 and is all-in
+Olaf193: folds
+kole1992: calls $148.49
+*** FIRST TURN *** [4c 6c 2d] [8c]
+*** FIRST RIVER *** [4c 6c 2d 8c] [3h]
+*** SECOND TURN *** [4c 6c 2d] [Th]
+*** SECOND RIVER *** [4c 6c 2d Th] [Td]
+*** SHOW DOWN ***
+Ophus79: shows [9s 9c] (a pair of Nines)
+kole1992: shows [Js Jd] (a pair of Jacks)
+kole1992 collected $635.19 from pot
+*** SUMMARY ***
+Total pot $635.19 | Rake $14 
+Hand was run two times
+FIRST Board [4c 6c 2d 8c 3h]
+SECOND Board [4c 6c 2d Th Td]
+Seat 1: Ophus79 (small blind) showed [9s 9c] and lost with a pair of Nines
+Seat 3: Swarozyc (big blind) folded before Flop 
+Seat 4: Olaf193 folded on the Flop 
+Seat 5: kole1992 (button) showed [Js Jd] and won ($635.19) with a pair of Jacks
+
+
+Weplay Hand #75371732:  Hold'em No Limit ($2/$5) - 2026/02/11 12:48:58 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #1 is the button
+Seat 3: Swarozyc ($688.10 in chips)
+Seat 4: Olaf193 ($685.93 in chips)
+Seat 5: kole1992 ($1269.83 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5c]
+Ophus79 is disconnected 
+kole1992: folds
+Swarozyc: folds
+Uncalled bet ($3) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5c]
+Olaf193 has timed out
+Olaf193: doesn't show hand
+Olaf193 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 3: Swarozyc (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) collected ($4)
+Seat 5: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75371745:  Hold'em No Limit ($2/$5) - 2026/02/11 12:49:15 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 3: Swarozyc ($686.10 in chips)
+Seat 4: Olaf193 ($687.93 in chips)
+Seat 5: kole1992 ($1269.83 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 9s]
+Swarozyc: raises $12.50 to $12.50
+Olaf193: calls $10.50
+kole1992: folds
+*** FLOP *** [Qh 7d 2s]
+Olaf193: checks
+Swarozyc: checks
+*** TURN *** [Qh 7d 2s] [4d]
+Olaf193: bets $15
+Swarozyc: calls $15
+*** RIVER *** [Qh 7d 2s 4d] [2h]
+Olaf193: bets $10.30
+Swarozyc: calls $10.30
+*** SHOW DOWN ***
+Olaf193: shows [4h As] (two pair, Fours and Deuces)
+Swarozyc: shows [7c 6c] (two pair, Sevens and Deuces)
+Swarozyc collected $80.60 from pot
+*** SUMMARY ***
+Total pot $80.60 | Rake $2.01 
+Board [Qh 7d 2s 4d 2h]
+Seat 3: Swarozyc (button) showed [7c 6c] and won ($80.60) with two pair, Sevens and Deuces
+Seat 4: Olaf193 (small blind) showed [4h As] and lost with two pair, Fours and Deuces
+Seat 5: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75371764:  Hold'em No Limit ($2/$5) - 2026/02/11 12:49:56 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 3: Swarozyc ($726.89 in chips)
+Seat 4: Olaf193 ($650.13 in chips)
+Seat 5: kole1992 ($1264.83 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Qc]
+Olaf193: raises $20 to $20
+kole1992: raises $73 to $75
+Swarozyc: folds
+Olaf193: folds
+Uncalled bet ($55) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $45 from pot
+*** SUMMARY ***
+Total pot $45 | Rake $0 
+Seat 3: Swarozyc (big blind) folded before Flop 
+Seat 4: Olaf193 (button) folded before Flop 
+Seat 5: kole1992 (small blind) collected ($45)
+
+
+Weplay Hand #75371781:  Hold'em No Limit ($2/$5) - 2026/02/11 12:50:16 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 3: Swarozyc ($721.89 in chips)
+Seat 4: Olaf193 ($630.13 in chips)
+Seat 5: kole1992 ($1289.83 in chips)
+Swarozyc: posts small blind $2
+Ophus79 leaves the table
+Olaf193: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Ks]
+kole1992: raises $11 to $11
+Swarozyc: raises $38 to $40
+Olaf193: folds
+kole1992: folds
+Uncalled bet ($29) returned to Swarozyc
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Ks]
+Swarozyc: doesn't show hand
+Swarozyc collected $27 from pot
+*** SUMMARY ***
+Total pot $27 | Rake $0 
+Seat 3: Swarozyc (small blind) collected ($27)
+Seat 4: Olaf193 (big blind) folded before Flop 
+Seat 5: kole1992 (button) folded before Flop 
+
+
+Weplay Hand #75371794:  Hold'em No Limit ($2/$5) - 2026/02/11 12:50:38 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 3: Swarozyc ($737.89 in chips)
+Seat 4: Olaf193 ($625.13 in chips)
+Seat 5: kole1992 ($1278.83 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 9d]
+Swarozyc: folds
+Olaf193: raises $13 to $15
+kole1992: calls $10
+*** FLOP *** [Jc As 8c]
+Olaf193: bets $22.50
+kole1992: calls $22.50
+*** TURN *** [Jc As 8c] [6s]
+Olaf193: checks
+kole1992: checks
+*** RIVER *** [Jc As 8c 6s] [Ks]
+Olaf193: checks
+kole1992: checks
+*** SHOW DOWN ***
+Olaf193: shows [Qc 8d] (a pair of Eights)
+kole1992: mucks hand
+Olaf193 collected $75 from pot
+*** SUMMARY ***
+Total pot $75 | Rake $1.87 
+Board [Jc As 8c 6s Ks]
+Seat 3: Swarozyc (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) showed [Qc 8d] and won ($75) with a pair of Eights
+Seat 5: kole1992 (big blind) mucked
+
+
+Weplay Hand #75371817:  Hold'em No Limit ($2/$5) - 2026/02/11 12:51:18 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 3: Swarozyc ($737.89 in chips)
+Seat 4: Olaf193 ($660.76 in chips)
+Seat 5: kole1992 ($1241.33 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5s]
+Olaf193: raises $15 to $15
+kole1992: folds
+Swarozyc: calls $10
+*** FLOP *** [4s 3c 4d]
+Swarozyc: checks
+Olaf193: bets $24
+Swarozyc: folds
+Uncalled bet ($24) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5s]
+Olaf193: doesn't show hand
+Olaf193 collected $32 from pot
+*** SUMMARY ***
+Total pot $32 | Rake $0.80 
+Board [4s 3c 4d]
+Seat 3: Swarozyc (big blind) folded on the Flop 
+Seat 4: Olaf193 (button) collected ($32)
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75371835:  Hold'em No Limit ($2/$5) - 2026/02/11 12:51:54 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 3: Swarozyc ($722.89 in chips)
+Seat 4: Olaf193 ($676.96 in chips)
+Seat 5: kole1992 ($1239.33 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 4c]
+kole1992: folds
+Swarozyc: raises $13 to $15
+Olaf193: raises $25 to $30
+Swarozyc: calls $15
+*** FLOP *** [Th 7c Qd]
+Swarozyc: checks
+Olaf193: bets $60
+Swarozyc: folds
+Uncalled bet ($60) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 4c]
+Olaf193: doesn't show hand
+Olaf193 collected $60 from pot
+*** SUMMARY ***
+Total pot $60 | Rake $1.50 
+Board [Th 7c Qd]
+Seat 3: Swarozyc (small blind) folded on the Flop 
+Seat 4: Olaf193 (big blind) collected ($60)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75371851:  Hold'em No Limit ($2/$5) - 2026/02/11 12:52:23 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 3: Swarozyc ($692.89 in chips)
+Seat 4: Olaf193 ($705.46 in chips)
+Seat 5: kole1992 ($1239.33 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 5h]
+Swarozyc: folds
+Olaf193: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 3: Swarozyc (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) collected ($4)
+
+
+Weplay Hand #75371856:  Hold'em No Limit ($2/$5) - 2026/02/11 12:52:34 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 3: Swarozyc ($692.89 in chips)
+Seat 4: Olaf193 ($703.46 in chips)
+Seat 5: kole1992 ($1241.33 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Jd]
+Olaf193: folds
+kole1992: folds
+Uncalled bet ($3) returned to Swarozyc
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Jd]
+Swarozyc: doesn't show hand
+Swarozyc collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 3: Swarozyc (big blind) collected ($4)
+Seat 4: Olaf193 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75371865:  Hold'em No Limit ($2/$5) - 2026/02/11 12:52:46 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 3: Swarozyc ($694.89 in chips)
+Seat 4: Olaf193 ($703.46 in chips)
+Seat 5: kole1992 ($1239.33 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [As 6h]
+kole1992: raises $11 to $11
+Swarozyc: folds
+Olaf193: calls $6
+*** FLOP *** [9d Js 8s]
+Olaf193: checks
+kole1992: checks
+*** TURN *** [9d Js 8s] [Ah]
+Olaf193: checks
+kole1992: bets $13
+Olaf193: folds
+Uncalled bet ($13) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $24 from pot
+*** SUMMARY ***
+Total pot $24 | Rake $0.60 
+Board [9d Js 8s Ah]
+Seat 3: Swarozyc (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) folded on the Turn 
+Seat 5: kole1992 (button) collected ($24)
+
+
+Weplay Hand #75371880:  Hold'em No Limit ($2/$5) - 2026/02/11 12:53:11 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #3 is the button
+Seat 3: Swarozyc ($692.89 in chips)
+Seat 4: Olaf193 ($692.46 in chips)
+Seat 5: kole1992 ($1251.73 in chips)
+Olaf193: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 2d]
+Swarozyc: folds
+Olaf193: raises $8 to $10
+kole1992: folds
+Uncalled bet ($5) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 2d]
+Olaf193: doesn't show hand
+Olaf193 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0 
+Seat 3: Swarozyc (button) folded before Flop (didn't bet)
+Seat 4: Olaf193 (small blind) collected ($10)
+Seat 5: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75371893:  Hold'em No Limit ($2/$5) - 2026/02/11 12:53:29 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #4 is the button
+Seat 3: Swarozyc ($692.89 in chips)
+Seat 4: Olaf193 ($697.46 in chips)
+Seat 5: kole1992 ($1246.73 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 9d]
+Olaf193: folds
+kole1992: folds
+Uncalled bet ($3) returned to Swarozyc
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 9d]
+Swarozyc: doesn't show hand
+Swarozyc collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 3: Swarozyc (big blind) collected ($4)
+Seat 4: Olaf193 (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75371901:  Hold'em No Limit ($2/$5) - 2026/02/11 12:53:42 UTC
+Table 'Glasgow #1'(11618802) 6-max (Money 3) Seat #5 is the button
+Seat 3: Swarozyc ($694.89 in chips)
+Seat 4: Olaf193 ($697.46 in chips)
+Seat 5: kole1992 ($1244.73 in chips)
+Swarozyc: posts small blind $2
+Olaf193: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Jc]
+kole1992: raises $11 to $11
+Swarozyc: folds
+Olaf193: calls $6
+*** FLOP *** [2d As 4h]
+Olaf193: checks
+kole1992: checks
+*** TURN *** [2d As 4h] [6s]
+Olaf193: bets $16
+kole1992: folds
+Uncalled bet ($16) returned to Olaf193
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Jc]
+Olaf193: doesn't show hand
+Olaf193 collected $24 from pot
+*** SUMMARY ***
+Total pot $24 | Rake $0.60 
+Board [2d As 4h 6s]
+Seat 3: Swarozyc (small blind) folded before Flop 
+Seat 4: Olaf193 (big blind) collected ($24)
+Seat 5: kole1992 (button) folded on the Turn 

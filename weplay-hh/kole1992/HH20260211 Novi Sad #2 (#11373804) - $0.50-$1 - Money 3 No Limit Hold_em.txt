@@ -1,0 +1,678 @@
+﻿Weplay Hand #75426032:  Hold'em No Limit ($0.50/$1) - 2026/02/11 21:55:33 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($110.48 in chips)
+Seat 2: Tjukk ($106.10 in chips)
+Seat 3: Dobri ($75.56 in chips)
+Seat 4: TrashPanda ($168.48 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 7: JTs98o ($117.05 in chips)
+TrashPanda: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 8s]
+JTs98o: folds
+drPokermarv: folds
+Tjukk: folds
+Dobri: calls $1
+TrashPanda: calls $0.50
+kole1992: checks
+*** FLOP *** [4h 3d Qh]
+TrashPanda: checks
+kole1992: checks
+Dobri: checks
+*** TURN *** [4h 3d Qh] [Td]
+TrashPanda: checks
+kole1992: checks
+Dobri: checks
+*** RIVER *** [4h 3d Qh Td] [6d]
+TrashPanda: bets $5
+kole1992: folds
+Dobri: folds
+Uncalled bet ($5) returned to TrashPanda
+*** SHOW DOWN ***
+TrashPanda: doesn't show hand
+TrashPanda collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [4h 3d Qh Td 6d]
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: Tjukk folded before Flop (didn't bet)
+Seat 3: Dobri (button) folded on the River 
+Seat 4: TrashPanda (small blind) collected ($3)
+Seat 5: kole1992 (big blind) folded on the River 
+Seat 7: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75426061:  Hold'em No Limit ($0.50/$1) - 2026/02/11 21:57:06 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: drPokermarv ($110.48 in chips)
+Seat 2: Tjukk ($106.10 in chips)
+Seat 3: Dobri ($74.56 in chips)
+Seat 4: TrashPanda ($170.33 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 7: JTs98o ($117.05 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As 8d]
+drPokermarv: folds
+Tjukk: folds
+Dobri: calls $1
+TrashPanda: folds
+kole1992: calls $0.50
+JTs98o: checks
+*** FLOP *** [Ts 4h 6h]
+kole1992: checks
+JTs98o: bets $1.20
+Dobri: calls $1.20
+kole1992: folds
+*** TURN *** [Ts 4h 6h] [8c]
+JTs98o: checks
+Dobri: checks
+*** RIVER *** [Ts 4h 6h 8c] [9c]
+JTs98o: checks
+Dobri: checks
+*** SHOW DOWN ***
+JTs98o: shows [Tc 2d] (a pair of Tens)
+Dobri has timed out
+Dobri: mucks hand
+JTs98o collected $5.40 from pot
+*** SUMMARY ***
+Total pot $5.40 | Rake $0.27 
+Board [Ts 4h 6h 8c 9c]
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 2: Tjukk folded before Flop (didn't bet)
+Seat 3: Dobri mucked
+Seat 4: TrashPanda (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded on the Flop 
+Seat 7: JTs98o (big blind) showed [Tc 2d] and won ($5.40) with a pair of Tens
+
+
+Weplay Hand #75426097:  Hold'em No Limit ($0.50/$1) - 2026/02/11 21:59:58 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #7 is the button
+Seat 1: drPokermarv ($109.48 in chips)
+Seat 2: Tjukk ($106.10 in chips)
+Seat 3: Dobri ($66.36 in chips)
+Seat 4: TrashPanda ($182.86 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 7: JTs98o ($119.48 in chips)
+drPokermarv: posts small blind $0.50
+Tjukk: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 7h]
+Dobri: calls $1
+TrashPanda: raises $5 to $5
+kole1992: folds
+JTs98o: calls $5
+drPokermarv: calls $4.50
+Tjukk: raises $24.07 to $25.07
+Dobri: folds
+TrashPanda: folds
+JTs98o: folds
+drPokermarv: raises $104.48 to $109.48 and is all-in
+Tjukk: folds
+Uncalled bet ($84.41) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $61.14 from pot
+*** SUMMARY ***
+Total pot $61.14 | Rake $0 
+Seat 1: drPokermarv (small blind) collected ($61.14)
+Seat 2: Tjukk (big blind) folded before Flop 
+Seat 3: Dobri folded before Flop 
+Seat 4: TrashPanda folded before Flop 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 7: JTs98o (button) folded before Flop 
+
+
+Weplay Hand #75426136:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:01:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($145.55 in chips)
+Seat 2: Tjukk ($100 in chips)
+Seat 3: Dobri ($65.36 in chips)
+Seat 4: TrashPanda ($177.86 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 7: JTs98o ($114.48 in chips)
+Tjukk: posts small blind $0.50
+Dobri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As Qs]
+TrashPanda: folds
+kole1992: raises $2.50 to $2.50
+JTs98o: folds
+drPokermarv: folds
+Tjukk: folds
+Dobri: calls $1.50
+*** FLOP *** [Ts 8h Kd]
+Dobri: checks
+kole1992: checks
+*** TURN *** [Ts 8h Kd] [Qh]
+Tjukk leaves the table
+Dobri: checks
+kole1992: bets $1.81
+Dobri: calls $1.81
+*** RIVER *** [Ts 8h Kd Qh] [Ks]
+Dobri: checks
+kole1992: bets $5.50
+Dobri: folds
+Uncalled bet ($5.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $9.12 from pot
+*** SUMMARY ***
+Total pot $9.12 | Rake $0.45 
+Board [Ts 8h Kd Qh Ks]
+Seat 1: drPokermarv (button) folded before Flop (didn't bet)
+Seat 2: Tjukk (small blind) folded before Flop 
+Seat 3: Dobri (big blind) folded on the River 
+Seat 4: TrashPanda folded before Flop (didn't bet)
+Seat 5: kole1992 collected ($9.12)
+Seat 7: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75426176:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:03:02 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #2 is the button
+Seat 1: drPokermarv ($145.55 in chips)
+Seat 3: Dobri ($61.05 in chips)
+Seat 4: TrashPanda ($177.86 in chips)
+Seat 5: kole1992 ($104.36 in chips)
+Dobri: posts small blind $0.50
+JTs98o leaves the table
+TrashPanda: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Qs]
+kole1992: folds
+drPokermarv: folds
+Dobri: raises $2.50 to $3
+TrashPanda: calls $2
+*** FLOP *** [As 7s 8h]
+Dobri: checks
+TrashPanda: checks
+*** TURN *** [As 7s 8h] [Th]
+Dobri: checks
+TrashPanda: bets $5
+Dobri: folds
+Uncalled bet ($5) returned to TrashPanda
+*** SHOW DOWN ***
+TrashPanda: doesn't show hand
+TrashPanda collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [As 7s 8h Th]
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 3: Dobri (small blind) folded on the Turn 
+Seat 4: TrashPanda (big blind) collected ($6)
+Seat 5: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75426205:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:04:01 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($145.55 in chips)
+Seat 3: Dobri ($58.05 in chips)
+Seat 4: TrashPanda ($180.56 in chips)
+Seat 5: kole1992 ($104.36 in chips)
+TrashPanda: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Th]
+drPokermarv: folds
+Dobri: folds
+TrashPanda: raises $2.50 to $3
+kole1992: calls $2
+*** FLOP *** [8s 2s As]
+TrashPanda: checks
+kole1992: checks
+*** TURN *** [8s 2s As] [2h]
+TrashPanda: checks
+kole1992: bets $3.50
+TrashPanda: calls $3.50
+*** RIVER *** [8s 2s As 2h] [5h]
+TrashPanda: checks
+kole1992: bets $7.50
+TrashPanda: raises $30 to $30
+kole1992: folds
+Uncalled bet ($22.50) returned to TrashPanda
+*** SHOW DOWN ***
+TrashPanda: doesn't show hand
+TrashPanda collected $28 from pot
+*** SUMMARY ***
+Total pot $28 | Rake $1.40 
+Board [8s 2s As 2h 5h]
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 3: Dobri (button) folded before Flop (didn't bet)
+Seat 4: TrashPanda (small blind) collected ($28)
+Seat 5: kole1992 (big blind) folded on the River 
+
+
+Weplay Hand #75426240:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:05:20 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: drPokermarv ($145.55 in chips)
+Seat 3: Dobri ($58.05 in chips)
+Seat 4: TrashPanda ($193.16 in chips)
+Seat 5: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Td]
+Dobri: calls $1
+TrashPanda: raises $5 to $5
+kole1992: folds
+drPokermarv: folds
+Dobri: folds
+Uncalled bet ($4) returned to TrashPanda
+*** SHOW DOWN ***
+TrashPanda: doesn't show hand
+TrashPanda collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: drPokermarv (big blind) folded before Flop 
+Seat 3: Dobri folded before Flop 
+Seat 4: TrashPanda (button) collected ($3.50)
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75426256:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:05:53 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($144.55 in chips)
+Seat 3: Dobri ($57.05 in chips)
+Seat 4: TrashPanda ($195.66 in chips)
+Seat 5: kole1992 ($100 in chips)
+drPokermarv: posts small blind $0.50
+Dobri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 2c]
+TrashPanda: folds
+kole1992: folds
+drPokermarv: folds
+Uncalled bet ($0.50) returned to Dobri
+*** SHOW DOWN ***
+Dobri has timed out
+Dobri: doesn't show hand
+Dobri collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: drPokermarv (small blind) folded before Flop 
+Seat 3: Dobri (big blind) collected ($1)
+Seat 4: TrashPanda folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75426263:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:06:12 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($144.05 in chips)
+Seat 3: Dobri ($57.55 in chips)
+Seat 4: TrashPanda ($195.66 in chips)
+Seat 5: kole1992 ($100 in chips)
+Dobri: posts small blind $0.50
+TrashPanda: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 8c]
+kole1992: raises $3 to $3
+drPokermarv: raises $9 to $9
+Dobri: folds
+TrashPanda: folds
+kole1992: folds
+Uncalled bet ($6) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0 
+Seat 1: drPokermarv (button) collected ($7.50)
+Seat 3: Dobri (small blind) folded before Flop 
+Seat 4: TrashPanda (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop 
+
+
+Weplay Hand #75426297:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:07:38 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($148.55 in chips)
+Seat 3: Dobri ($57.05 in chips)
+Seat 4: TrashPanda ($194.66 in chips)
+Seat 5: kole1992 ($100 in chips)
+TrashPanda: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 7d]
+drPokermarv: folds
+Dobri: folds
+TrashPanda: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 3: Dobri (button) folded before Flop (didn't bet)
+Seat 4: TrashPanda (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) collected ($1)
+
+
+Weplay Hand #75426304:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:07:54 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: drPokermarv ($148.55 in chips)
+Seat 3: Dobri ($57.05 in chips)
+Seat 4: TrashPanda ($194.16 in chips)
+Seat 5: kole1992 ($100.50 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Jd]
+Dobri has timed out
+Dobri: folds
+TrashPanda: raises $3 to $3
+kole1992: raises $11.50 to $12
+drPokermarv: folds
+TrashPanda: folds
+Uncalled bet ($9) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0 
+Seat 1: drPokermarv (big blind) folded before Flop 
+Seat 3: Dobri folded before Flop (didn't bet)
+Seat 4: TrashPanda (button) folded before Flop 
+Seat 5: kole1992 (small blind) collected ($7)
+
+
+Weplay Hand #75427328:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:08:53 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($147.55 in chips)
+Seat 3: Dobri ($57.05 in chips)
+Seat 4: TrashPanda ($191.16 in chips)
+Seat 5: kole1992 ($104.50 in chips)
+drPokermarv: posts small blind $0.50
+Dobri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Ac]
+TrashPanda: raises $3 to $3
+kole1992: folds
+drPokermarv: calls $2.50
+Dobri: calls $2
+*** FLOP *** [9s Ad 6h]
+drPokermarv: checks
+Dobri: checks
+TrashPanda: bets $5.50
+drPokermarv: folds
+Dobri: folds
+Uncalled bet ($5.50) returned to TrashPanda
+*** SHOW DOWN ***
+TrashPanda: doesn't show hand
+TrashPanda collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [9s Ad 6h]
+Seat 1: drPokermarv (small blind) folded on the Flop 
+Seat 3: Dobri (big blind) folded on the Flop 
+Seat 4: TrashPanda collected ($9)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75427346:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:09:41 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($144.55 in chips)
+Seat 3: Dobri ($54.05 in chips)
+Seat 4: TrashPanda ($196.71 in chips)
+Seat 5: kole1992 ($104.50 in chips)
+Dobri: posts small blind $0.50
+TrashPanda: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 5c]
+kole1992: raises $2.20 to $2.20
+drPokermarv: folds
+Dobri: calls $1.70
+TrashPanda: folds
+*** FLOP *** [Ad As Th]
+Dobri: checks
+kole1992: bets $1.78
+Dobri: folds
+Uncalled bet ($1.78) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.40 from pot
+*** SUMMARY ***
+Total pot $5.40 | Rake $0.27 
+Board [Ad As Th]
+Seat 1: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: Dobri (small blind) folded on the Flop 
+Seat 4: TrashPanda (big blind) folded before Flop 
+Seat 5: kole1992 collected ($5.40)
+
+
+Weplay Hand #75427356:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:10:10 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($144.55 in chips)
+Seat 3: Dobri ($51.85 in chips)
+Seat 4: TrashPanda ($195.71 in chips)
+Seat 5: kole1992 ($107.43 in chips)
+TrashPanda: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 5c]
+drPokermarv: folds
+Dobri: folds
+TrashPanda: raises $2.50 to $3
+kole1992: folds
+Uncalled bet ($2) returned to TrashPanda
+*** SHOW DOWN ***
+TrashPanda: doesn't show hand
+TrashPanda collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: drPokermarv folded before Flop (didn't bet)
+Seat 3: Dobri (button) folded before Flop (didn't bet)
+Seat 4: TrashPanda (small blind) collected ($2)
+Seat 5: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75427366:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:10:30 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #4 is the button
+Seat 1: drPokermarv ($144.55 in chips)
+Seat 3: Dobri ($51.85 in chips)
+Seat 4: TrashPanda ($196.71 in chips)
+Seat 5: kole1992 ($106.43 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Qc]
+Dobri: calls $1
+TrashPanda: folds
+kole1992: calls $0.50
+TrashPanda is disconnected 
+drPokermarv: raises $5 to $6
+Dobri: folds
+kole1992: folds
+Uncalled bet ($5) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: drPokermarv (big blind) collected ($3)
+Seat 3: Dobri folded before Flop 
+Seat 4: TrashPanda (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75427380:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:11:09 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($146.55 in chips)
+Seat 3: Dobri ($50.85 in chips)
+Seat 5: kole1992 ($105.43 in chips)
+drPokermarv: posts small blind $0.50
+Dobri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 4c]
+kole1992: raises $2.50 to $2.50
+drPokermarv: folds
+Dobri: calls $1.50
+*** FLOP *** [Ks 2c Qh]
+Dobri: checks
+kole1992: checks
+*** TURN *** [Ks 2c Qh] [Kh]
+Dobri: checks
+kole1992: checks
+*** RIVER *** [Ks 2c Qh Kh] [8s]
+Dobri: bets $2
+kole1992: calls $2
+*** SHOW DOWN ***
+Dobri: shows [5s 5d] (two pair, Kings and Fives)
+kole1992: shows [Qc 4c] (two pair, Kings and Queens)
+kole1992 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.23 
+Board [Ks 2c Qh Kh 8s]
+Seat 1: drPokermarv (small blind) folded before Flop 
+Seat 3: Dobri (big blind) showed [5s 5d] and lost with two pair, Kings and Fives
+Seat 5: kole1992 (button) showed [Qc 4c] and won ($9.50) with two pair, Kings and Queens
+
+
+Weplay Hand #75427401:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:11:59 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($146.05 in chips)
+Seat 3: Dobri ($46.35 in chips)
+Seat 5: kole1992 ($110.20 in chips)
+Dobri: posts small blind $0.50
+TrashPanda leaves the table
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Tc]
+drPokermarv: folds
+Dobri: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: Dobri (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) collected ($1)
+
+
+Weplay Hand #75427406:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:12:13 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #3 is the button
+Seat 1: drPokermarv ($146.05 in chips)
+Seat 3: Dobri ($45.85 in chips)
+Seat 5: kole1992 ($110.70 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Kc]
+Dobri: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: drPokermarv (big blind) collected ($1)
+Seat 3: Dobri (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75427415:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:12:28 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($146.55 in chips)
+Seat 3: Dobri ($45.85 in chips)
+Seat 5: kole1992 ($110.20 in chips)
+drPokermarv: posts small blind $0.50
+Dobri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 3s]
+kole1992: raises $2.50 to $2.50
+drPokermarv: folds
+Dobri: raises $6 to $7
+kole1992: folds
+Uncalled bet ($4.50) returned to Dobri
+*** SHOW DOWN ***
+Dobri has timed out
+Dobri: doesn't show hand
+Dobri collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: drPokermarv (small blind) folded before Flop 
+Seat 3: Dobri (big blind) collected ($5.50)
+Seat 5: kole1992 (button) folded before Flop 
+
+
+Weplay Hand #75427423:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:12:57 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($146.05 in chips)
+Seat 3: Dobri ($48.85 in chips)
+Seat 5: kole1992 ($107.70 in chips)
+Dobri: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Qc]
+drPokermarv: folds
+Dobri: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: Dobri (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) collected ($1)
+
+
+Weplay Hand #75427464:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:14:34 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #1 is the button
+Seat 1: drPokermarv ($192.47 in chips)
+Seat 5: kole1992 ($107.70 in chips)
+drPokermarv: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 5c]
+drPokermarv: raises $2 to $2.50
+Dobri leaves the table
+kole1992: raises $9.01 to $10.01
+drPokermarv: raises $21.50 to $24
+kole1992: folds
+Uncalled bet ($13.99) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $20.02 from pot
+*** SUMMARY ***
+Total pot $20.02 | Rake $0 
+Seat 1: drPokermarv (button) (small blind) collected ($20.02)
+Seat 5: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75427478:  Hold'em No Limit ($0.50/$1) - 2026/02/11 22:15:10 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 1: drPokermarv ($202.48 in chips)
+Seat 5: kole1992 ($100 in chips)
+kole1992: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Jc]
+kole1992: raises $2 to $2.50
+drPokermarv: calls $1.50
+*** FLOP *** [2d Ks Qc]
+drPokermarv: checks
+kole1992: bets $5.15
+drPokermarv: calls $5.15
+*** TURN *** [2d Ks Qc] [4c]
+drPokermarv: checks
+kole1992: bets $24.50
+drPokermarv: folds
+Uncalled bet ($24.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $15.30 from pot
+*** SUMMARY ***
+Total pot $15.30 | Rake $0.38 
+Board [2d Ks Qc 4c]
+Seat 1: drPokermarv (big blind) folded on the Turn 
+Seat 5: kole1992 (button) (small blind) collected ($15.30)

@@ -1,0 +1,1825 @@
+﻿Weplay Hand #71946944:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:05:28 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: WinHof ($69.72 in chips)
+Seat 2: guerillAA13 ($112.85 in chips)
+Seat 4: markanen0 ($107.14 in chips)
+Seat 5: ryzenn ($201.10 in chips)
+Seat 6: mekkmester ($37.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: JTs98o ($378.26 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 2c]
+JTs98o: folds
+WinHof: folds
+guerillAA13: folds
+markanen0: folds
+ryzenn: raises $2.50 to $2.50
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn (button) collected ($2.50)
+Seat 6: mekkmester (small blind) folded before Flop 
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71946951:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:05:48 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 1: WinHof ($69.72 in chips)
+Seat 2: guerillAA13 ($112.85 in chips)
+Seat 4: markanen0 ($107.14 in chips)
+Seat 5: ryzenn ($202.60 in chips)
+Seat 6: mekkmester ($37 in chips)
+Seat 7: kole1992 ($99 in chips)
+Seat 8: JTs98o ($378.26 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Jh]
+WinHof: folds
+guerillAA13: raises $2.50 to $2.50
+markanen0: raises $4 to $4
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+JTs98o: folds
+guerillAA13: calls $1.50
+*** FLOP *** [6c Ts 2d]
+guerillAA13: checks
+markanen0: bets $4.75
+kole1992 is disconnected 
+guerillAA13: folds
+Uncalled bet ($4.75) returned to markanen0
+*** SHOW DOWN ***
+kole1992 is connected 
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [6c Ts 2d]
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 2: guerillAA13 folded on the Flop 
+Seat 4: markanen0 collected ($9.50)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #71946968:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:06:28 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: WinHof ($69.72 in chips)
+Seat 2: guerillAA13 ($108.85 in chips)
+Seat 4: markanen0 ($112.17 in chips)
+Seat 5: ryzenn ($202.60 in chips)
+Seat 6: mekkmester ($37 in chips)
+Seat 7: kole1992 ($98.50 in chips)
+Seat 8: JTs98o ($377.26 in chips)
+JTs98o: posts small blind $0.50
+WinHof: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 4c]
+guerillAA13: folds
+markanen0: folds
+ryzenn: folds
+mekkmester: raises $3 to $3
+kole1992: folds
+JTs98o: folds
+WinHof: folds
+Uncalled bet ($2) returned to mekkmester
+*** SHOW DOWN ***
+mekkmester has timed out
+mekkmester: doesn't show hand
+mekkmester collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: WinHof (big blind) folded before Flop 
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester collected ($2.50)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #71946978:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:06:50 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: WinHof ($68.72 in chips)
+Seat 2: guerillAA13 ($108.85 in chips)
+Seat 4: markanen0 ($112.17 in chips)
+Seat 5: ryzenn ($202.60 in chips)
+Seat 6: mekkmester ($38.50 in chips)
+Seat 7: kole1992 ($98.50 in chips)
+Seat 8: JTs98o ($376.76 in chips)
+WinHof: posts small blind $0.50
+guerillAA13: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Ad]
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+JTs98o: raises $2.50 to $2.50
+WinHof: folds
+guerillAA13: folds
+Uncalled bet ($1.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: WinHof (small blind) folded before Flop 
+Seat 2: guerillAA13 (big blind) folded before Flop 
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: JTs98o (button) collected ($2.50)
+
+
+Weplay Hand #71946989:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:07:18 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #1 is the button
+Seat 1: WinHof ($68.22 in chips)
+Seat 2: guerillAA13 ($107.85 in chips)
+Seat 4: markanen0 ($112.17 in chips)
+Seat 5: ryzenn ($202.60 in chips)
+Seat 6: mekkmester ($38.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: JTs98o ($378.26 in chips)
+guerillAA13: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Qh]
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+JTs98o: raises $2.50 to $2.50
+WinHof: folds
+guerillAA13: folds
+markanen0: folds
+Uncalled bet ($1.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: WinHof (button) folded before Flop (didn't bet)
+Seat 2: guerillAA13 (small blind) folded before Flop 
+Seat 4: markanen0 (big blind) folded before Flop 
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: JTs98o collected ($2.50)
+
+
+Weplay Hand #71947003:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:07:52 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #2 is the button
+Seat 1: WinHof ($68.22 in chips)
+Seat 2: guerillAA13 ($107.35 in chips)
+Seat 4: markanen0 ($111.17 in chips)
+Seat 5: ryzenn ($202.60 in chips)
+Seat 6: mekkmester ($38.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: JTs98o ($379.76 in chips)
+markanen0: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 3h]
+mekkmester: folds
+kole1992: folds
+JTs98o: folds
+WinHof: raises $2.50 to $2.50
+guerillAA13: folds
+markanen0: folds
+ryzenn: calls $1.50
+*** FLOP *** [3s Jc 4s]
+Geezy1313 joins the table at seat #3
+ryzenn: checks
+WinHof: checks
+*** TURN *** [3s Jc 4s] [5d]
+ryzenn: checks
+WinHof: bets $4.10
+ryzenn: folds
+Uncalled bet ($4.10) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [3s Jc 4s 5d]
+Seat 1: WinHof collected ($5.50)
+Seat 2: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 4: markanen0 (small blind) folded before Flop 
+Seat 5: ryzenn (big blind) folded on the Turn 
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71947025:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:08:36 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #4 is the button
+Seat 1: WinHof ($70.95 in chips)
+Seat 2: guerillAA13 ($107.35 in chips)
+Seat 3: Geezy1313 ($34.25 in chips)
+Seat 4: markanen0 ($110.67 in chips)
+Seat 5: ryzenn ($200.10 in chips)
+Seat 6: mekkmester ($38.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: JTs98o ($379.76 in chips)
+ryzenn: posts small blind $0.50
+mekkmester: posts big blind $1
+Geezy1313: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Qd]
+kole1992: folds
+JTs98o: raises $2.50 to $2.50
+WinHof: folds
+guerillAA13: folds
+Geezy1313: folds
+markanen0: folds
+ryzenn: folds
+mekkmester: raises $37.50 to $38.50 and is all-in
+JTs98o: folds
+Uncalled bet ($36) returned to mekkmester
+*** SHOW DOWN ***
+mekkmester has timed out
+mekkmester: doesn't show hand
+mekkmester collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: Geezy1313 (big blind) folded before Flop 
+Seat 4: markanen0 (button) folded before Flop (didn't bet)
+Seat 5: ryzenn (small blind) folded before Flop 
+Seat 6: mekkmester (big blind) collected ($6.50)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop 
+
+
+Weplay Hand #71947037:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:09:11 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: WinHof ($70.95 in chips)
+Seat 2: guerillAA13 ($107.35 in chips)
+Seat 3: Geezy1313 ($33.25 in chips)
+Seat 4: markanen0 ($110.67 in chips)
+Seat 5: ryzenn ($199.60 in chips)
+Seat 6: mekkmester ($42.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: JTs98o ($377.26 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 4c]
+JTs98o has timed out
+JTs98o: folds
+WinHof: folds
+guerillAA13: folds
+Geezy1313: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: calls $0.50
+kole1992: checks
+*** FLOP *** [Kh 7s 4h]
+mekkmester: checks
+kole1992: checks
+Geezy1313: bets $3
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($3) returned to Geezy1313
+*** SHOW DOWN ***
+Geezy1313: doesn't show hand
+Geezy1313 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Kh 7s 4h]
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: Geezy1313 collected ($3)
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn (button) folded before Flop (didn't bet)
+Seat 6: mekkmester (small blind) folded on the Flop 
+Seat 7: kole1992 (big blind) folded on the Flop 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71947069:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:10:13 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 1: WinHof ($70.95 in chips)
+Seat 2: guerillAA13 ($107.35 in chips)
+Seat 3: Geezy1313 ($35.10 in chips)
+Seat 4: markanen0 ($110.67 in chips)
+Seat 5: ryzenn ($199.60 in chips)
+Seat 6: mekkmester ($41.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: JTs98o ($377.26 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Ts]
+WinHof: folds
+guerillAA13: folds
+Geezy1313: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+JTs98o: checks
+*** FLOP *** [Ad 7d 9d]
+JTs98o: checks
+Geezy1313: checks
+*** TURN *** [Ad 7d 9d] [Qs]
+JTs98o: checks
+Geezy1313: checks
+*** RIVER *** [Ad 7d 9d Qs] [9c]
+JTs98o: checks
+Geezy1313: checks
+*** SHOW DOWN ***
+JTs98o: shows [3s Th] (a pair of Nines)
+Geezy1313: shows [Jh Ks] (a pair of Nines)
+Geezy1313 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Ad 7d 9d Qs 9c]
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: Geezy1313 showed [Jh Ks] and won ($2.50) with a pair of Nines
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: JTs98o (big blind) showed [3s Th] and lost with a pair of Nines
+
+
+Weplay Hand #71947085:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:10:51 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: WinHof ($70.95 in chips)
+Seat 2: guerillAA13 ($107.35 in chips)
+Seat 3: Geezy1313 ($36.48 in chips)
+Seat 4: markanen0 ($110.67 in chips)
+Seat 5: ryzenn ($199.60 in chips)
+Seat 6: mekkmester ($41.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: JTs98o ($376.26 in chips)
+JTs98o: posts small blind $0.50
+WinHof: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 8s]
+guerillAA13: folds
+Geezy1313: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+JTs98o: calls $0.50
+WinHof: raises $6 to $7
+Geezy1313: folds
+JTs98o: folds
+Uncalled bet ($6) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: WinHof (big blind) collected ($3)
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: Geezy1313 folded before Flop 
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #71947105:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:11:35 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: WinHof ($72.95 in chips)
+Seat 2: guerillAA13 ($107.35 in chips)
+Seat 3: Geezy1313 ($35.48 in chips)
+Seat 4: markanen0 ($110.67 in chips)
+Seat 5: ryzenn ($199.60 in chips)
+Seat 6: mekkmester ($41.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: JTs98o ($375.26 in chips)
+WinHof: posts small blind $0.50
+guerillAA13: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 2s]
+Geezy1313: calls $1
+markanen0: folds
+ryzenn: raises $5 to $5
+mekkmester: folds
+kole1992 has timed out
+kole1992: folds
+JTs98o: folds
+WinHof: folds
+guerillAA13: folds
+Geezy1313: calls $4
+*** FLOP *** [Tc Qd Jc]
+Geezy1313: checks
+ryzenn: checks
+*** TURN *** [Tc Qd Jc] [6h]
+Geezy1313: checks
+ryzenn: checks
+*** RIVER *** [Tc Qd Jc 6h] [7c]
+Geezy1313: checks
+ryzenn: checks
+*** SHOW DOWN ***
+Geezy1313: shows [Ah 2c] (high card Ace)
+ryzenn: shows [Th Kh] (a pair of Tens)
+ryzenn collected $11.50 from pot
+*** SUMMARY ***
+Total pot $11.50 | Rake $0.57 
+Board [Tc Qd Jc 6h 7c]
+Seat 1: WinHof (small blind) folded before Flop 
+Seat 2: guerillAA13 (big blind) folded before Flop 
+Seat 3: Geezy1313 showed [Ah 2c] and lost with high card Ace
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn showed [Th Kh] and won ($11.50) with a pair of Tens
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71947141:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:12:44 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #1 is the button
+Seat 1: WinHof ($72.45 in chips)
+Seat 2: guerillAA13 ($106.35 in chips)
+Seat 3: Geezy1313 ($30.48 in chips)
+Seat 4: markanen0 ($110.67 in chips)
+Seat 5: ryzenn ($205.53 in chips)
+Seat 6: mekkmester ($41.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: JTs98o ($375.26 in chips)
+guerillAA13: posts small blind $0.50
+Geezy1313: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 3s]
+markanen0: raises $2 to $2
+ryzenn: folds
+mekkmester: folds
+kole1992 has timed out
+kole1992: folds
+JTs98o: folds
+WinHof: calls $2
+guerillAA13: folds
+Geezy1313: calls $1
+*** FLOP *** [8c 6c Tc]
+Geezy1313: checks
+markanen0: bets $3.25
+WinHof: calls $3.25
+Geezy1313: folds
+*** TURN *** [8c 6c Tc] [Qs]
+markanen0: bets $6.50
+WinHof: raises $17.10 to $17.10
+markanen0: calls $10.60
+*** RIVER *** [8c 6c Tc Qs] [Jc]
+markanen0: checks
+WinHof: checks
+*** SHOW DOWN ***
+markanen0: shows [Ad Ah] (a pair of Aces)
+WinHof: shows [9h 9d] (a straight, Eight to Queen)
+WinHof collected $47.20 from pot
+*** SUMMARY ***
+Total pot $47.20 | Rake $2.36 
+Board [8c 6c Tc Qs Jc]
+Seat 1: WinHof (button) showed [9h 9d] and won ($47.20) with a straight, Eight to Queen
+Seat 2: guerillAA13 (small blind) folded before Flop 
+Seat 3: Geezy1313 (big blind) folded on the Flop 
+Seat 4: markanen0 showed [Ad Ah] and lost with a pair of Aces
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71947183:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:14:20 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #2 is the button
+Seat 1: WinHof ($94.94 in chips)
+Seat 2: guerillAA13 ($105.85 in chips)
+Seat 3: Geezy1313 ($28.48 in chips)
+Seat 4: markanen0 ($88.32 in chips)
+Seat 5: ryzenn ($205.53 in chips)
+Seat 6: mekkmester ($41.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Geezy1313: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Td]
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+WinHof: folds
+guerillAA13: folds
+Geezy1313: calls $0.50
+markanen0: checks
+*** FLOP *** [6d Ks 9c]
+Geezy1313: checks
+markanen0: checks
+*** TURN *** [6d Ks 9c] [5d]
+Geezy1313: checks
+markanen0: bets $1
+Geezy1313: calls $1
+*** RIVER *** [6d Ks 9c 5d] [As]
+Geezy1313: checks
+markanen0: checks
+*** SHOW DOWN ***
+Geezy1313: shows [8c 4s] (high card Ace)
+markanen0: shows [Kd 7c] (a pair of Kings)
+markanen0 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [6d Ks 9c 5d As]
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 2: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 3: Geezy1313 (small blind) showed [8c 4s] and lost with high card Ace
+Seat 4: markanen0 (big blind) showed [Kd 7c] and won ($4) with a pair of Kings
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #71947208:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:15:17 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 1: WinHof ($94.94 in chips)
+Seat 2: guerillAA13 ($105.85 in chips)
+Seat 3: Geezy1313 ($26.48 in chips)
+Seat 4: markanen0 ($90.12 in chips)
+Seat 5: ryzenn ($205.53 in chips)
+Seat 6: mekkmester ($41.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+markanen0: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 3d]
+mekkmester: folds
+kole1992: folds
+WinHof: raises $2.50 to $2.50
+guerillAA13: folds
+Geezy1313: calls $2.50
+markanen0: folds
+ryzenn: raises $12 to $13
+WinHof: folds
+Geezy1313: raises $23.98 to $26.48 and is all-in
+ryzenn: calls $13.48
+*** FLOP *** [2h Js Jd]
+*** TURN *** [2h Js Jd] [Td]
+*** RIVER *** [2h Js Jd Td] [6h]
+*** SHOW DOWN ***
+ryzenn: shows [Qd Qc] (two pair, Queens and Jacks)
+Geezy1313: shows [Kh 4d] (a pair of Jacks)
+ryzenn collected $55.96 from pot
+*** SUMMARY ***
+Total pot $55.96 | Rake $2.79 
+Board [2h Js Jd Td 6h]
+Seat 1: WinHof folded before Flop 
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: Geezy1313 (button) showed [Kh 4d] and lost with a pair of Jacks
+Seat 4: markanen0 (small blind) folded before Flop 
+Seat 5: ryzenn (big blind) showed [Qd Qc] and won ($55.96) with two pair, Queens and Jacks
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #71947234:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:16:17 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #4 is the button
+Seat 1: WinHof ($92.44 in chips)
+Seat 2: guerillAA13 ($105.85 in chips)
+Seat 4: markanen0 ($89.62 in chips)
+Seat 5: ryzenn ($232.22 in chips)
+Seat 6: mekkmester ($41.50 in chips)
+Seat 7: kole1992 ($100 in chips)
+Seat 8: JTs98o ($375.26 in chips)
+ryzenn: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Qc]
+Geezy1313 leaves the table
+kole1992: raises $2 to $2
+JTs98o: folds
+WinHof: folds
+guerillAA13: folds
+markanen0: folds
+ryzenn: calls $1.50
+mekkmester: calls $1
+*** FLOP *** [4s Tc Kh]
+ryzenn: checks
+mekkmester: checks
+kole1992: checks
+*** TURN *** [4s Tc Kh] [Js]
+ryzenn: checks
+mekkmester: checks
+kole1992: bets $3
+ryzenn: folds
+mekkmester: calls $3
+*** RIVER *** [4s Tc Kh Js] [9c]
+mekkmester: checks
+kole1992: bets $38
+mekkmester: folds
+Uncalled bet ($38) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [4s Tc Kh Js 9c]
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 4: markanen0 (button) folded before Flop (didn't bet)
+Seat 5: ryzenn (small blind) folded on the Turn 
+Seat 6: mekkmester (big blind) folded on the River 
+Seat 7: kole1992 collected ($12)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71947282:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:18:04 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: WinHof ($92.44 in chips)
+Seat 2: guerillAA13 ($105.85 in chips)
+Seat 3: erl90 ($45.62 in chips)
+Seat 4: markanen0 ($89.62 in chips)
+Seat 5: ryzenn ($230.22 in chips)
+Seat 6: mekkmester ($36.50 in chips)
+Seat 7: kole1992 ($106.40 in chips)
+Seat 8: JTs98o ($375.26 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+erl90: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 4h]
+JTs98o: folds
+WinHof: folds
+guerillAA13: folds
+erl90: checks
+markanen0: folds
+ryzenn: folds
+mekkmester: calls $0.50
+kole1992: checks
+*** FLOP *** [6c 8h Js]
+mekkmester: checks
+kole1992: checks
+erl90: bets $4
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($4) returned to erl90
+*** SHOW DOWN ***
+erl90: doesn't show hand
+erl90 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [6c 8h Js]
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: erl90 (big blind) collected ($3)
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn (button) folded before Flop (didn't bet)
+Seat 6: mekkmester (small blind) folded on the Flop 
+Seat 7: kole1992 (big blind) folded on the Flop 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71947311:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:19:11 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 1: WinHof ($92.44 in chips)
+Seat 2: guerillAA13 ($105.85 in chips)
+Seat 3: erl90 ($47.47 in chips)
+Seat 4: markanen0 ($89.62 in chips)
+Seat 5: ryzenn ($230.22 in chips)
+Seat 6: mekkmester ($35.50 in chips)
+Seat 7: kole1992 ($105.40 in chips)
+Seat 8: JTs98o ($375.26 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 6d]
+WinHof: folds
+guerillAA13: folds
+WinHof leaves the table
+erl90: folds
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: WinHof folded before Flop (didn't bet)
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: erl90 folded before Flop (didn't bet)
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: JTs98o (big blind) collected ($1)
+
+
+Weplay Hand #71949322:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:19:30 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 2: guerillAA13 ($105.85 in chips)
+Seat 3: erl90 ($47.47 in chips)
+Seat 4: markanen0 ($89.62 in chips)
+Seat 5: ryzenn ($230.22 in chips)
+Seat 6: mekkmester ($35.50 in chips)
+Seat 7: kole1992 ($104.90 in chips)
+Seat 8: JTs98o ($375.76 in chips)
+JTs98o: posts small blind $0.50
+guerillAA13: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Ad]
+erl90: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+JTs98o: raises $4.50 to $5
+guerillAA13: folds
+erl90: calls $4
+*** FLOP *** [Ks Kh 9c]
+JTs98o: checks
+erl90: checks
+*** TURN *** [Ks Kh 9c] [Td]
+JTs98o: bets $4.40
+Makundubhai joins the table at seat #1
+erl90: folds
+Uncalled bet ($4.40) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [Ks Kh 9c Td]
+Seat 2: guerillAA13 (big blind) folded before Flop 
+Seat 3: erl90 folded on the Turn 
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: JTs98o (small blind) collected ($11)
+
+
+Weplay Hand #71949338:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:20:03 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 2: guerillAA13 ($104.85 in chips)
+Seat 3: erl90 ($42.47 in chips)
+Seat 4: markanen0 ($89.62 in chips)
+Seat 5: ryzenn ($230.22 in chips)
+Seat 6: mekkmester ($35.50 in chips)
+Seat 7: kole1992 ($104.90 in chips)
+Seat 8: JTs98o ($381.21 in chips)
+guerillAA13: posts small blind $0.50
+erl90: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Ac]
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: raises $2.20 to $2.20
+JTs98o: calls $2.20
+guerillAA13: folds
+erl90: calls $1.20
+*** FLOP *** [9c 6s 8c]
+erl90: bets $6
+kole1992: folds
+JTs98o: calls $6
+*** TURN *** [9c 6s 8c] [5s]
+erl90: checks
+Makundubhai leaves the table
+JTs98o: checks
+*** RIVER *** [9c 6s 8c 5s] [8s]
+erl90: checks
+Geezy1313 joins the table at seat #1
+JTs98o: checks
+*** SHOW DOWN ***
+erl90: shows [Qc Ts] (a pair of Eights)
+JTs98o: shows [8h Th] (three of a kind, Eights)
+JTs98o collected $19.10 from pot
+*** SUMMARY ***
+Total pot $19.10 | Rake $0.95 
+Board [9c 6s 8c 5s 8s]
+Seat 2: guerillAA13 (small blind) folded before Flop 
+Seat 3: erl90 (big blind) showed [Qc Ts] and lost with a pair of Eights
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded on the Flop 
+Seat 8: JTs98o (button) showed [8h Th] and won ($19.10) with three of a kind, Eights
+
+
+Weplay Hand #71949365:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:21:18 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #2 is the button
+Seat 1: Geezy1313 ($50 in chips)
+Seat 2: guerillAA13 ($104.35 in chips)
+Seat 3: erl90 ($34.27 in chips)
+Seat 4: markanen0 ($89.62 in chips)
+Seat 5: ryzenn ($230.22 in chips)
+Seat 6: mekkmester ($35.50 in chips)
+Seat 7: kole1992 ($102.70 in chips)
+Seat 8: JTs98o ($391.16 in chips)
+erl90: posts small blind $0.50
+markanen0: posts big blind $1
+Geezy1313: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 2s]
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+JTs98o: folds
+Geezy1313: checks
+guerillAA13: folds
+erl90: calls $0.50
+markanen0: checks
+*** FLOP *** [7d 2c 2h]
+erl90: bets $5
+markanen0: folds
+Geezy1313: folds
+Uncalled bet ($5) returned to erl90
+*** SHOW DOWN ***
+erl90 has timed out
+erl90: doesn't show hand
+erl90 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [7d 2c 2h]
+Seat 1: Geezy1313 (big blind) folded on the Flop 
+Seat 2: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 3: erl90 (small blind) collected ($3)
+Seat 4: markanen0 (big blind) folded on the Flop 
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71949390:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:22:09 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 1: Geezy1313 ($49 in chips)
+Seat 2: guerillAA13 ($104.35 in chips)
+Seat 3: erl90 ($36.12 in chips)
+Seat 4: markanen0 ($88.62 in chips)
+Seat 5: ryzenn ($230.22 in chips)
+Seat 6: mekkmester ($35.50 in chips)
+Seat 7: kole1992 ($102.70 in chips)
+Seat 8: JTs98o ($391.16 in chips)
+markanen0: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Ad]
+mekkmester has timed out
+mekkmester: folds
+kole1992: folds
+JTs98o: folds
+Geezy1313: calls $1
+guerillAA13: folds
+erl90: calls $1
+markanen0: folds
+ryzenn: checks
+*** FLOP *** [6d 4h 7c]
+ryzenn: checks
+Geezy1313: checks
+erl90: checks
+*** TURN *** [6d 4h 7c] [Jh]
+ryzenn: checks
+Geezy1313: checks
+erl90: checks
+*** RIVER *** [6d 4h 7c Jh] [Js]
+ryzenn: bets $6
+Geezy1313: folds
+erl90: folds
+Uncalled bet ($6) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [6d 4h 7c Jh Js]
+Seat 1: Geezy1313 folded on the River 
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: erl90 (button) folded on the River 
+Seat 4: markanen0 (small blind) folded before Flop 
+Seat 5: ryzenn (big blind) collected ($3.50)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #71949429:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:23:38 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #4 is the button
+Seat 1: Geezy1313 ($48 in chips)
+Seat 2: guerillAA13 ($104.35 in chips)
+Seat 3: erl90 ($35.12 in chips)
+Seat 4: markanen0 ($88.12 in chips)
+Seat 5: ryzenn ($232.55 in chips)
+Seat 6: mekkmester ($35.50 in chips)
+Seat 7: kole1992 ($102.70 in chips)
+ryzenn: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 3h]
+JTs98o leaves the table
+kole1992: folds
+Geezy1313: calls $1
+guerillAA13: folds
+erl90 has timed out
+erl90: folds
+markanen0: folds
+Perakralj joins the table at seat #8
+ryzenn: folds
+mekkmester: checks
+*** FLOP *** [6s 4h Jh]
+mekkmester: checks
+Geezy1313: checks
+*** TURN *** [6s 4h Jh] [2h]
+mekkmester: checks
+Geezy1313: checks
+*** RIVER *** [6s 4h Jh 2h] [8h]
+mekkmester: checks
+Geezy1313: checks
+*** SHOW DOWN ***
+mekkmester: shows [Qs Kc] (high card King)
+Geezy1313: shows [2c 7s] (a pair of Deuces)
+Geezy1313 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [6s 4h Jh 2h 8h]
+Seat 1: Geezy1313 showed [2c 7s] and won ($2.50) with a pair of Deuces
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: erl90 folded before Flop (didn't bet)
+Seat 4: markanen0 (button) folded before Flop (didn't bet)
+Seat 5: ryzenn (small blind) folded before Flop 
+Seat 6: mekkmester (big blind) showed [Qs Kc] and lost with high card King
+Seat 7: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #71949465:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:24:53 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: Geezy1313 ($49.38 in chips)
+Seat 2: guerillAA13 ($104.35 in chips)
+Seat 3: erl90 ($35.12 in chips)
+Seat 4: markanen0 ($88.12 in chips)
+Seat 5: ryzenn ($232.05 in chips)
+Seat 6: mekkmester ($34.50 in chips)
+Seat 7: kole1992 ($102.70 in chips)
+Seat 8: Perakralj ($100 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+Perakralj: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 7c]
+Perakralj: checks
+Geezy1313: calls $1
+guerillAA13: folds
+erl90: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: calls $0.50
+kole1992: checks
+*** FLOP *** [6c Qs 5c]
+mekkmester: checks
+kole1992: checks
+Perakralj: checks
+Geezy1313: checks
+erl90: bets $3
+mekkmester: folds
+kole1992: calls $3
+Perakralj: folds
+Geezy1313: folds
+*** TURN *** [6c Qs 5c] [2s]
+kole1992: checks
+erl90: checks
+*** RIVER *** [6c Qs 5c 2s] [3d]
+kole1992: bets $8
+erl90: calls $8
+*** SHOW DOWN ***
+kole1992: shows [4d 7c] (a straight, Three to Seven)
+erl90 has timed out
+erl90: mucks hand
+kole1992 collected $27 from pot
+*** SUMMARY ***
+Total pot $27 | Rake $1.35 
+Board [6c Qs 5c 2s 3d]
+Seat 1: Geezy1313 folded on the Flop 
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: erl90 mucked
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn (button) folded before Flop (didn't bet)
+Seat 6: mekkmester (small blind) folded on the Flop 
+Seat 7: kole1992 (big blind) showed [4d 7c] and won ($27) with a straight, Three to Seven
+Seat 8: Perakralj (big blind) folded on the Flop 
+
+
+Weplay Hand #71949502:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:26:18 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 1: Geezy1313 ($48.38 in chips)
+Seat 2: guerillAA13 ($104.35 in chips)
+Seat 3: erl90 ($23.12 in chips)
+Seat 4: markanen0 ($88.12 in chips)
+Seat 5: ryzenn ($232.05 in chips)
+Seat 6: mekkmester ($33.50 in chips)
+Seat 7: kole1992 ($116.35 in chips)
+Seat 8: Perakralj ($100 in chips)
+kole1992: posts small blind $0.50
+Perakralj: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 2s]
+Geezy1313: calls $1
+guerillAA13: folds
+erl90: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+Perakralj: checks
+*** FLOP *** [3d Ah 7h]
+Perakralj: checks
+Geezy1313: checks
+erl90: checks
+*** TURN *** [3d Ah 7h] [As]
+Perakralj: bets $1.25
+Geezy1313: folds
+erl90: calls $1.25
+*** RIVER *** [3d Ah 7h As] [Jh]
+Perakralj: checks
+erl90: checks
+*** SHOW DOWN ***
+Perakralj: shows [6h 7c] (two pair, Aces and Sevens)
+erl90 has timed out
+erl90: mucks hand
+Perakralj collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [3d Ah 7h As Jh]
+Seat 1: Geezy1313 folded on the Turn 
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: erl90 mucked
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Perakralj (big blind) showed [6h 7c] and won ($6) with two pair, Aces and Sevens
+
+
+Weplay Hand #71949530:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:27:33 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: Geezy1313 ($47.38 in chips)
+Seat 2: guerillAA13 ($104.35 in chips)
+Seat 3: erl90 ($20.87 in chips)
+Seat 4: markanen0 ($88.12 in chips)
+Seat 5: ryzenn ($232.05 in chips)
+Seat 6: mekkmester ($33.50 in chips)
+Seat 7: kole1992 ($115.85 in chips)
+Seat 8: Perakralj ($103.45 in chips)
+Perakralj: posts small blind $0.50
+Geezy1313: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 7c]
+guerillAA13: folds
+erl90: raises $2 to $2
+markanen0: folds
+ryzenn: folds
+mekkmester: calls $2
+kole1992: folds
+Perakralj: folds
+Geezy1313 has timed out
+Geezy1313: folds
+Geezy1313: sits out 
+*** FLOP *** [Qs 8c Ac]
+erl90: bets $3
+mekkmester: folds
+Uncalled bet ($3) returned to erl90
+*** SHOW DOWN ***
+erl90 has timed out
+erl90: doesn't show hand
+erl90 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Qs 8c Ac]
+Seat 1: Geezy1313 (big blind) folded before Flop 
+Seat 2: guerillAA13 folded before Flop (didn't bet)
+Seat 3: erl90 collected ($5.50)
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded on the Flop 
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Perakralj (small blind) folded before Flop 
+
+
+Weplay Hand #71949563:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:28:48 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: Geezy1313 ($46.38 in chips)
+Seat 3: erl90 ($24.10 in chips)
+Seat 4: markanen0 ($88.12 in chips)
+Seat 5: ryzenn ($232.05 in chips)
+Seat 6: mekkmester ($31.50 in chips)
+Seat 7: kole1992 ($115.85 in chips)
+Seat 8: Perakralj ($102.95 in chips)
+Geezy1313: posts small blind $0.50
+erl90: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 4s]
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+Perakralj: folds
+Geezy1313: calls $0.50
+erl90: checks
+*** FLOP *** [5s 6c 7h]
+guerillAA13 leaves the table
+Geezy1313: checks
+erl90: checks
+*** TURN *** [5s 6c 7h] [5h]
+Geezy1313: checks
+erl90: checks
+*** RIVER *** [5s 6c 7h 5h] [5d]
+Geezy1313: bets $1
+erl90: folds
+Uncalled bet ($1) returned to Geezy1313
+*** SHOW DOWN ***
+Geezy1313 has timed out
+Geezy1313: doesn't show hand
+Geezy1313 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [5s 6c 7h 5h 5d]
+Seat 1: Geezy1313 (small blind) collected ($2)
+Seat 3: erl90 (big blind) folded on the River 
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Perakralj (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71949586:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:29:46 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Geezy1313 ($47.28 in chips)
+Seat 3: erl90 ($23.10 in chips)
+Seat 4: markanen0 ($88.12 in chips)
+Seat 5: ryzenn ($232.05 in chips)
+Seat 6: mekkmester ($31.50 in chips)
+Seat 7: kole1992 ($115.85 in chips)
+Seat 8: Perakralj ($102.95 in chips)
+erl90: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 3h]
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+Perakralj: raises $2.50 to $2.50
+Geezy1313: folds
+erl90: calls $2
+markanen0: folds
+*** FLOP *** [8h 7s Qs]
+erl90: bets $3
+Oszipapa joins the table at seat #2
+Perakralj: calls $3
+*** TURN *** [8h 7s Qs] [4s]
+erl90: bets $17.60 and is all-in
+Perakralj: folds
+Uncalled bet ($17.60) returned to erl90
+*** SHOW DOWN ***
+erl90 has timed out
+erl90: doesn't show hand
+erl90 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [8h 7s Qs 4s]
+Seat 1: Geezy1313 (button) folded before Flop (didn't bet)
+Seat 3: erl90 (small blind) collected ($12)
+Seat 4: markanen0 (big blind) folded before Flop 
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Perakralj folded on the Turn 
+
+
+Weplay Hand #71949612:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:30:41 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 1: Geezy1313 ($47.28 in chips)
+Seat 2: Oszipapa ($50 in chips)
+Seat 3: erl90 ($29 in chips)
+Seat 4: markanen0 ($87.12 in chips)
+Seat 5: ryzenn ($232.05 in chips)
+Seat 6: mekkmester ($31.50 in chips)
+Seat 7: kole1992 ($115.85 in chips)
+Seat 8: Perakralj ($100 in chips)
+markanen0: posts small blind $0.50
+ryzenn: posts big blind $1
+Oszipapa: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Ac]
+mekkmester: folds
+kole1992: raises $3.50 to $3.50
+Perakralj: folds
+Geezy1313: folds
+Oszipapa: folds
+erl90: calls $3.50
+markanen0: folds
+ryzenn: folds
+*** FLOP *** [Js 8d 4s]
+kole1992: checks
+erl90: bets $3
+kole1992: folds
+Uncalled bet ($3) returned to erl90
+*** SHOW DOWN ***
+erl90: doesn't show hand
+erl90 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [Js 8d 4s]
+Seat 1: Geezy1313 folded before Flop (didn't bet)
+Seat 2: Oszipapa (big blind) folded before Flop 
+Seat 3: erl90 (button) collected ($9.50)
+Seat 4: markanen0 (small blind) folded before Flop 
+Seat 5: ryzenn (big blind) folded before Flop 
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded on the Flop 
+Seat 8: Perakralj folded before Flop (didn't bet)
+
+
+Weplay Hand #71949629:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:31:17 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #4 is the button
+Seat 1: Geezy1313 ($47.28 in chips)
+Seat 2: Oszipapa ($49 in chips)
+Seat 3: erl90 ($34.53 in chips)
+Seat 4: markanen0 ($86.62 in chips)
+Seat 5: ryzenn ($231.05 in chips)
+Seat 6: mekkmester ($31.50 in chips)
+Seat 7: kole1992 ($112.35 in chips)
+Seat 8: Perakralj ($100 in chips)
+ryzenn: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 8h]
+kole1992: folds
+Perakralj: folds
+Geezy1313: calls $1
+Oszipapa: calls $1
+erl90: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: checks
+*** FLOP *** [Kc 3s Td]
+mekkmester: checks
+Geezy1313: checks
+Oszipapa: checks
+erl90: checks
+*** TURN *** [Kc 3s Td] [7d]
+mekkmester: checks
+Geezy1313: checks
+Oszipapa: checks
+erl90: checks
+*** RIVER *** [Kc 3s Td 7d] [As]
+mekkmester: checks
+Geezy1313: checks
+Oszipapa: checks
+erl90: checks
+*** SHOW DOWN ***
+mekkmester: shows [2h 2d] (a pair of Deuces)
+Geezy1313: shows [8d 3d] (a pair of Threes)
+Oszipapa has timed out
+Oszipapa: mucks hand
+erl90: shows [7s 9s] (a pair of Sevens)
+erl90 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Kc 3s Td 7d As]
+Seat 1: Geezy1313 showed [8d 3d] and lost with a pair of Threes
+Seat 2: Oszipapa mucked
+Seat 3: erl90 showed [7s 9s] and won ($4.50) with a pair of Sevens
+Seat 4: markanen0 (button) folded before Flop (didn't bet)
+Seat 5: ryzenn (small blind) folded before Flop 
+Seat 6: mekkmester (big blind) showed [2h 2d] and lost with a pair of Deuces
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Perakralj folded before Flop (didn't bet)
+
+
+Weplay Hand #71949669:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:32:40 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: Geezy1313 ($46.28 in chips)
+Seat 2: Oszipapa ($48 in chips)
+Seat 3: erl90 ($37.81 in chips)
+Seat 4: markanen0 ($86.62 in chips)
+Seat 5: ryzenn ($230.55 in chips)
+Seat 6: mekkmester ($30.50 in chips)
+Seat 7: kole1992 ($112.35 in chips)
+Seat 8: Perakralj ($100 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 2d]
+Perakralj: folds
+Geezy1313: calls $1
+Oszipapa: folds
+erl90: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: raises $30 to $30.50 and is all-in
+kole1992: folds
+Geezy1313: folds
+erl90: folds
+Uncalled bet ($29.50) returned to mekkmester
+*** SHOW DOWN ***
+mekkmester has timed out
+mekkmester: doesn't show hand
+mekkmester collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: Geezy1313 folded before Flop 
+Seat 2: Oszipapa folded before Flop (didn't bet)
+Seat 3: erl90 folded before Flop 
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn (button) folded before Flop (didn't bet)
+Seat 6: mekkmester (small blind) collected ($4)
+Seat 7: kole1992 (big blind) folded before Flop 
+Seat 8: Perakralj folded before Flop (didn't bet)
+
+
+Weplay Hand #71949689:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:33:16 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 1: Geezy1313 ($45.28 in chips)
+Seat 2: Oszipapa ($48 in chips)
+Seat 3: erl90 ($36.81 in chips)
+Seat 4: markanen0 ($86.62 in chips)
+Seat 5: ryzenn ($230.55 in chips)
+Seat 6: mekkmester ($33.50 in chips)
+Seat 7: kole1992 ($111.35 in chips)
+Seat 8: Perakralj ($100 in chips)
+kole1992: posts small blind $0.50
+Perakralj: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 8d]
+Geezy1313: calls $1
+Oszipapa: folds
+erl90: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: calls $0.50
+Perakralj: checks
+*** FLOP *** [9d 3h 7d]
+kole1992: checks
+Perakralj: bets $2.84
+Geezy1313: folds
+erl90: calls $2.84
+kole1992: calls $2.84
+*** TURN *** [9d 3h 7d] [7c]
+kole1992: checks
+Perakralj: bets $8.89
+erl90: calls $8.89
+Geezy1313 leaves the table
+kole1992: folds
+*** RIVER *** [9d 3h 7d 7c] [6s]
+Perakralj: checks
+erl90: checks
+*** SHOW DOWN ***
+Perakralj: shows [Qd 9c] (two pair, Nines and Sevens)
+erl90 has timed out
+erl90: mucks hand
+Perakralj collected $30.30 from pot
+*** SUMMARY ***
+Total pot $30.30 | Rake $1.51 
+Board [9d 3h 7d 7c 6s]
+Seat 1: Geezy1313 folded on the Flop 
+Seat 2: Oszipapa folded before Flop (didn't bet)
+Seat 3: erl90 mucked
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded on the Turn 
+Seat 8: Perakralj (big blind) showed [Qd 9c] and won ($30.30) with two pair, Nines and Sevens
+
+
+Weplay Hand #71949733:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:35:19 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 2: Oszipapa ($48 in chips)
+Seat 3: erl90 ($24.08 in chips)
+Seat 4: markanen0 ($86.62 in chips)
+Seat 5: ryzenn ($230.55 in chips)
+Seat 6: mekkmester ($33.50 in chips)
+Seat 7: kole1992 ($107.51 in chips)
+Seat 8: Perakralj ($116.06 in chips)
+Perakralj: posts small blind $0.50
+Oszipapa: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 2s]
+erl90: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: calls $1
+kole1992: folds
+Perakralj: folds
+Oszipapa: checks
+*** FLOP *** [As 9s 8d]
+Oszipapa: checks
+erl90: checks
+mekkmester: bets $2.63
+Oszipapa: calls $2.63
+erl90: calls $2.63
+*** TURN *** [As 9s 8d] [Qs]
+Oszipapa: checks
+erl90: checks
+mekkmester: checks
+*** RIVER *** [As 9s 8d Qs] [4s]
+Oszipapa: checks
+erl90: checks
+mekkmester: checks
+*** SHOW DOWN ***
+Oszipapa: shows [2h 8s] (a flush, Ace high)
+erl90 has timed out
+erl90: mucks hand
+mekkmester has timed out
+mekkmester: mucks hand
+Oszipapa collected $11.39 from pot
+*** SUMMARY ***
+Total pot $11.39 | Rake $0.56 
+Board [As 9s 8d Qs 4s]
+Seat 2: Oszipapa (big blind) showed [2h 8s] and won ($11.39) with a flush, Ace high
+Seat 3: erl90 mucked
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester mucked
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Perakralj (small blind) folded before Flop 
+
+
+Weplay Hand #71949762:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:36:26 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 2: Oszipapa ($55.20 in chips)
+Seat 3: erl90 ($20.45 in chips)
+Seat 4: markanen0 ($86.62 in chips)
+Seat 5: ryzenn ($230.55 in chips)
+Seat 6: mekkmester ($29.87 in chips)
+Seat 7: kole1992 ($107.51 in chips)
+Seat 8: Perakralj ($115.56 in chips)
+Oszipapa: posts small blind $0.50
+erl90: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 2s]
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+Perakralj: raises $3 to $3
+Oszipapa: folds
+erl90: calls $2
+*** FLOP *** [3d 4h 8d]
+erl90: bets $17.45 and is all-in
+Perakralj: calls $17.45
+*** TURN *** [3d 4h 8d] [7c]
+*** RIVER *** [3d 4h 8d 7c] [5s]
+*** SHOW DOWN ***
+erl90: shows [3c As] (a pair of Threes)
+Perakralj: shows [Ad Td] (high card Ace)
+erl90 collected $41.40 from pot
+*** SUMMARY ***
+Total pot $41.40 | Rake $2.07 
+Board [3d 4h 8d 7c 5s]
+Seat 2: Oszipapa (small blind) folded before Flop 
+Seat 3: erl90 (big blind) showed [3c As] and won ($41.40) with a pair of Threes
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Perakralj (button) showed [Ad Td] and lost with high card Ace
+
+
+Weplay Hand #71949779:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:37:07 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #2 is the button
+Seat 2: Oszipapa ($54.70 in chips)
+Seat 3: erl90 ($39.33 in chips)
+Seat 4: markanen0 ($86.62 in chips)
+Seat 5: ryzenn ($230.55 in chips)
+Seat 6: mekkmester ($29.87 in chips)
+Seat 7: kole1992 ($107.51 in chips)
+Seat 8: Perakralj ($100 in chips)
+erl90: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Jd]
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+Perakralj: raises $2.50 to $2.50
+Oszipapa: calls $2.50
+erl90: raises $7.50 to $8
+markanen0: folds
+Perakralj: calls $5.50
+Oszipapa: calls $5.50
+*** FLOP *** [7h Ah 7d]
+erl90: bets $31.33 and is all-in
+Perakralj: folds
+Oszipapa: folds
+Uncalled bet ($31.33) returned to erl90
+*** SHOW DOWN ***
+erl90: doesn't show hand
+erl90 collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $1.25 
+Board [7h Ah 7d]
+Seat 2: Oszipapa (button) folded on the Flop 
+Seat 3: erl90 (small blind) collected ($25)
+Seat 4: markanen0 (big blind) folded before Flop 
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Perakralj folded on the Flop 
+
+
+Weplay Hand #71949798:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:37:51 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 2: Oszipapa ($46.70 in chips)
+Seat 3: erl90 ($55.08 in chips)
+Seat 4: markanen0 ($85.62 in chips)
+Seat 5: ryzenn ($230.55 in chips)
+Seat 6: mekkmester ($29.87 in chips)
+Seat 7: kole1992 ($107.51 in chips)
+Seat 8: Perakralj ($100 in chips)
+markanen0: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 8d]
+mekkmester: calls $1
+kole1992: folds
+Perakralj: raises $3 to $3
+Oszipapa: calls $3
+erl90: calls $3
+markanen0: folds
+ryzenn: folds
+mekkmester: calls $2
+*** FLOP *** [5d Jc 9c]
+Oszipapa is disconnected 
+mekkmester: checks
+Oszipapa is connected 
+Perakralj: bets $9
+Oszipapa: folds
+erl90: folds
+mekkmester: folds
+Uncalled bet ($9) returned to Perakralj
+*** SHOW DOWN ***
+Perakralj: doesn't show hand
+Perakralj collected $13.50 from pot
+*** SUMMARY ***
+Total pot $13.50 | Rake $0.67 
+Board [5d Jc 9c]
+Seat 2: Oszipapa folded on the Flop 
+Seat 3: erl90 (button) folded on the Flop 
+Seat 4: markanen0 (small blind) folded before Flop 
+Seat 5: ryzenn (big blind) folded before Flop 
+Seat 6: mekkmester folded on the Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Perakralj collected ($13.50)
+
+
+Weplay Hand #71949821:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:38:43 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #4 is the button
+Seat 2: Oszipapa ($43.70 in chips)
+Seat 3: erl90 ($52.08 in chips)
+Seat 4: markanen0 ($85.12 in chips)
+Seat 5: ryzenn ($229.55 in chips)
+Seat 6: mekkmester ($26.87 in chips)
+Seat 7: kole1992 ($107.51 in chips)
+Seat 8: Perakralj ($109.83 in chips)
+ryzenn: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 8c]
+kole1992: folds
+Perakralj: raises $2.50 to $2.50
+Oszipapa: folds
+erl90: raises $4 to $4
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+Perakralj: calls $1.50
+*** FLOP *** [6s 3c Ts]
+Perakralj: checks
+erl90: checks
+*** TURN *** [6s 3c Ts] [6c]
+Perakralj: checks
+erl90: checks
+*** RIVER *** [6s 3c Ts 6c] [Ks]
+Perakralj: bets $6.25
+BeatrixKiddo joins the table at seat #1
+erl90: folds
+Uncalled bet ($6.25) returned to Perakralj
+*** SHOW DOWN ***
+Perakralj: doesn't show hand
+Perakralj collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [6s 3c Ts 6c Ks]
+Seat 2: Oszipapa folded before Flop (didn't bet)
+Seat 3: erl90 folded on the River 
+Seat 4: markanen0 (button) folded before Flop (didn't bet)
+Seat 5: ryzenn (small blind) folded before Flop 
+Seat 6: mekkmester (big blind) folded before Flop 
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Perakralj collected ($9.50)
+
+
+Weplay Hand #71949850:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:39:47 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 2: Oszipapa ($43.70 in chips)
+Seat 3: erl90 ($48.08 in chips)
+Seat 4: markanen0 ($85.12 in chips)
+Seat 5: ryzenn ($229.05 in chips)
+Seat 6: mekkmester ($25.87 in chips)
+Seat 7: kole1992 ($107.51 in chips)
+Seat 8: Perakralj ($114.86 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 2s]
+Perakralj: folds
+Oszipapa: calls $1
+erl90: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: calls $0.50
+kole1992: checks
+*** FLOP *** [Kc Qc Qh]
+mekkmester: checks
+kole1992: checks
+Oszipapa: bets $7
+erl90: folds
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($7) returned to Oszipapa
+*** SHOW DOWN ***
+Oszipapa has timed out
+Oszipapa: doesn't show hand
+Oszipapa collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [Kc Qc Qh]
+Seat 2: Oszipapa collected ($4)
+Seat 3: erl90 folded on the Flop 
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn (button) folded before Flop (didn't bet)
+Seat 6: mekkmester (small blind) folded on the Flop 
+Seat 7: kole1992 (big blind) folded on the Flop 
+Seat 8: Perakralj folded before Flop (didn't bet)
+
+
+Weplay Hand #71949874:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:40:52 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 2: Oszipapa ($46.50 in chips)
+Seat 3: erl90 ($47.08 in chips)
+Seat 4: markanen0 ($85.12 in chips)
+Seat 5: ryzenn ($229.05 in chips)
+Seat 6: mekkmester ($24.87 in chips)
+Seat 7: kole1992 ($106.51 in chips)
+Seat 8: Perakralj ($114.86 in chips)
+kole1992: posts small blind $0.50
+Perakralj: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Jh]
+Oszipapa: calls $1
+erl90: calls $1
+markanen0: calls $1
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+Perakralj: checks
+*** FLOP *** [Qd Qh Jc]
+Perakralj: checks
+Oszipapa: checks
+erl90: checks
+markanen0: checks
+*** TURN *** [Qd Qh Jc] [2d]
+Perakralj: checks
+Oszipapa: checks
+erl90: checks
+markanen0: checks
+*** RIVER *** [Qd Qh Jc 2d] [5c]
+Perakralj: checks
+Oszipapa: checks
+erl90: checks
+markanen0: checks
+*** SHOW DOWN ***
+Perakralj: shows [3h Qc] (three of a kind, Queens)
+Oszipapa has timed out
+Oszipapa: mucks hand
+erl90 has timed out
+erl90: mucks hand
+markanen0 has timed out
+markanen0: mucks hand
+Perakralj collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Qd Qh Jc 2d 5c]
+Seat 2: Oszipapa mucked
+Seat 3: erl90 mucked
+Seat 4: markanen0 mucked
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester (button) folded before Flop (didn't bet)
+Seat 7: kole1992 (small blind) folded before Flop 
+Seat 8: Perakralj (big blind) showed [3h Qc] and won ($4.50) with three of a kind, Queens
+
+
+Weplay Hand #71949902:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:42:14 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: BeatrixKiddo ($100 in chips)
+Seat 2: Oszipapa ($45.50 in chips)
+Seat 3: erl90 ($46.08 in chips)
+Seat 4: markanen0 ($84.12 in chips)
+Seat 5: ryzenn ($229.05 in chips)
+Seat 6: mekkmester ($24.87 in chips)
+Seat 7: kole1992 ($106.01 in chips)
+Seat 8: Perakralj ($118.14 in chips)
+Perakralj: posts small blind $0.50
+BeatrixKiddo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Ts]
+Oszipapa: folds
+erl90: calls $1
+markanen0: folds
+ryzenn: folds
+mekkmester: calls $1
+kole1992: folds
+Oszipapa leaves the table
+Perakralj: raises $4 to $4.50
+BeatrixKiddo: folds
+erl90: calls $3.50
+mekkmester: calls $3.50
+*** FLOP *** [5h 6s 5c]
+Perakralj: bets $4.64
+erl90: folds
+mekkmester: raises $20.37 to $20.37 and is all-in
+Perakralj: folds
+Uncalled bet ($15.73) returned to mekkmester
+*** SHOW DOWN ***
+mekkmester has timed out
+mekkmester: doesn't show hand
+mekkmester collected $23.78 from pot
+*** SUMMARY ***
+Total pot $23.78 | Rake $1.18 
+Board [5h 6s 5c]
+Seat 1: BeatrixKiddo (big blind) folded before Flop 
+Seat 2: Oszipapa folded before Flop (didn't bet)
+Seat 3: erl90 folded on the Flop 
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester collected ($23.78)
+Seat 7: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: Perakralj (small blind) folded on the Flop 
+
+
+Weplay Hand #71949927:  Hold'em No Limit ($0.50/$1) - 2026/01/08 14:43:17 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: BeatrixKiddo ($100 in chips)
+Seat 3: erl90 ($41.58 in chips)
+Seat 4: markanen0 ($84.12 in chips)
+Seat 5: ryzenn ($229.05 in chips)
+Seat 6: mekkmester ($38.33 in chips)
+Seat 7: kole1992 ($106.01 in chips)
+Seat 8: Perakralj ($109 in chips)
+BeatrixKiddo: posts small blind $0.50
+erl90: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Ac]
+markanen0: folds
+ryzenn: folds
+mekkmester: folds
+kole1992: folds
+Perakralj: folds
+BeatrixKiddo: raises $2.50 to $3
+erl90: calls $2
+*** FLOP *** [Td 2c Jd]
+BeatrixKiddo: checks
+erl90: checks
+*** TURN *** [Td 2c Jd] [8d]
+BeatrixKiddo: bets $4.50
+erl90: folds
+Uncalled bet ($4.50) returned to BeatrixKiddo
+*** SHOW DOWN ***
+BeatrixKiddo: doesn't show hand
+BeatrixKiddo collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Td 2c Jd 8d]
+Seat 1: BeatrixKiddo (small blind) collected ($6)
+Seat 3: erl90 (big blind) folded on the Turn 
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: ryzenn folded before Flop (didn't bet)
+Seat 6: mekkmester folded before Flop (didn't bet)
+Seat 7: kole1992 folded before Flop (didn't bet)
+Seat 8: Perakralj (button) folded before Flop (didn't bet)

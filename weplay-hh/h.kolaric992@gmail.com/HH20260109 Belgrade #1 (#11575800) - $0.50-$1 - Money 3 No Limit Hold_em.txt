@@ -1,0 +1,1151 @@
+﻿Weplay Hand #72075023:  Hold'em No Limit ($0.50/$1) - 2026/01/09 16:59:10 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #1 is the button
+Seat 1: guerillAA13 ($108.60 in chips)
+Seat 2: mekkmester ($117.68 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($176.27 in chips)
+Seat 5: tinkieri ($131.03 in chips)
+Seat 6: KoTBalu ($57.68 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Ac]
+Bastille: folds
+tinkieri has timed out
+tinkieri: folds
+KoTBalu: folds
+guerillAA13: raises $2.50 to $2.50
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: guerillAA13 (button) collected ($2.50)
+Seat 2: mekkmester (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72075033:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:00:02 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #2 is the button
+Seat 1: guerillAA13 ($110.10 in chips)
+Seat 2: mekkmester ($117.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($176.27 in chips)
+Seat 5: tinkieri ($131.03 in chips)
+Seat 6: KoTBalu ($57.68 in chips)
+kole1992: posts small blind $0.50
+Bastille: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 8s]
+tinkieri: folds
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: raises $3 to $3
+kole1992: folds
+Bastille: calls $2
+*** FLOP *** [9d 8d 2s]
+Bastille: checks
+mekkmester: checks
+*** TURN *** [9d 8d 2s] [Js]
+Bastille: bets $4.25
+mekkmester: folds
+Uncalled bet ($4.25) returned to Bastille
+*** SHOW DOWN ***
+Bastille: doesn't show hand
+Bastille collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [9d 8d 2s Js]
+Seat 1: guerillAA13 folded before Flop (didn't bet)
+Seat 2: mekkmester (button) folded on the Turn 
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Bastille (big blind) collected ($6.50)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72075053:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:00:55 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #3 is the button
+Seat 1: guerillAA13 ($110.10 in chips)
+Seat 2: mekkmester ($114.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($179.45 in chips)
+Seat 5: tinkieri ($131.03 in chips)
+Seat 6: KoTBalu ($57.68 in chips)
+Bastille: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5h]
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Bastille: folds
+Uncalled bet ($0.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri has timed out
+tinkieri: doesn't show hand
+tinkieri collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: guerillAA13 folded before Flop (didn't bet)
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Bastille (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) collected ($1)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72075059:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:01:20 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #4 is the button
+Seat 1: guerillAA13 ($110.10 in chips)
+Seat 2: mekkmester ($114.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($178.95 in chips)
+Seat 5: tinkieri ($131.53 in chips)
+Seat 6: KoTBalu ($57.68 in chips)
+tinkieri: posts small blind $0.50
+KoTBalu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 8h]
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Bastille: folds
+tinkieri: raises $2.50 to $3
+KoTBalu: folds
+Uncalled bet ($2) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri has timed out
+tinkieri: doesn't show hand
+tinkieri collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: guerillAA13 folded before Flop (didn't bet)
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) collected ($2)
+Seat 6: KoTBalu (big blind) folded before Flop 
+
+
+Weplay Hand #72075109:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:01:50 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #5 is the button
+Seat 1: guerillAA13 ($110.10 in chips)
+Seat 2: mekkmester ($114.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($178.95 in chips)
+Seat 5: tinkieri ($132.53 in chips)
+Seat 6: KoTBalu ($56.68 in chips)
+KoTBalu: posts small blind $0.50
+guerillAA13: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Jh]
+mekkmester: raises $2 to $2
+kole1992: folds
+Bastille: folds
+tinkieri: folds
+KoTBalu: folds
+guerillAA13: folds
+Uncalled bet ($1) returned to mekkmester
+*** SHOW DOWN ***
+mekkmester has timed out
+mekkmester: doesn't show hand
+mekkmester collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: guerillAA13 (big blind) folded before Flop 
+Seat 2: mekkmester collected ($2.50)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+Seat 6: KoTBalu (small blind) folded before Flop 
+
+
+Weplay Hand #72075126:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:02:15 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #6 is the button
+Seat 1: guerillAA13 ($109.10 in chips)
+Seat 2: mekkmester ($115.68 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($178.95 in chips)
+Seat 5: tinkieri ($132.53 in chips)
+Seat 6: KoTBalu ($56.18 in chips)
+guerillAA13: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Td]
+kole1992: raises $2 to $2
+Bastille: folds
+tinkieri: folds
+KoTBalu: raises $8 to $8
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($6) returned to KoTBalu
+*** SHOW DOWN ***
+KoTBalu: doesn't show hand
+KoTBalu collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: guerillAA13 (small blind) folded before Flop 
+Seat 2: mekkmester (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop 
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu (button) collected ($5.50)
+
+
+Weplay Hand #72075170:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:03:02 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #1 is the button
+Seat 1: guerillAA13 ($108.60 in chips)
+Seat 2: mekkmester ($114.68 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($178.95 in chips)
+Seat 5: tinkieri ($132.53 in chips)
+Seat 6: KoTBalu ($59.68 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 8h]
+Bastille: folds
+tinkieri: raises $2.50 to $2.50
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri has timed out
+tinkieri: doesn't show hand
+tinkieri collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 2: mekkmester (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri collected ($2.50)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72075204:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:03:39 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #2 is the button
+Seat 1: guerillAA13 ($108.60 in chips)
+Seat 2: mekkmester ($114.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($178.95 in chips)
+Seat 5: tinkieri ($134.03 in chips)
+Seat 6: KoTBalu ($59.68 in chips)
+kole1992: posts small blind $0.50
+Bastille: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 8d]
+tinkieri: folds
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to Bastille
+*** SHOW DOWN ***
+Bastille: doesn't show hand
+Bastille collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: guerillAA13 folded before Flop (didn't bet)
+Seat 2: mekkmester (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Bastille (big blind) collected ($1)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72075223:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:03:57 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #3 is the button
+Seat 1: guerillAA13 ($108.60 in chips)
+Seat 2: mekkmester ($114.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($179.45 in chips)
+Seat 5: tinkieri ($134.03 in chips)
+Seat 6: KoTBalu ($59.68 in chips)
+Bastille: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 4s]
+KoTBalu: folds
+guerillAA13: raises $2.50 to $2.50
+mekkmester: calls $2.50
+kole1992: folds
+Bastille: folds
+tinkieri: folds
+*** FLOP *** [2d 3h 7s]
+guerillAA13: bets $3.25
+mekkmester: folds
+Uncalled bet ($3.25) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [2d 3h 7s]
+Seat 1: guerillAA13 collected ($6.50)
+Seat 2: mekkmester folded on the Flop 
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Bastille (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) folded before Flop 
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72075266:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:04:41 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #4 is the button
+Seat 1: guerillAA13 ($112.28 in chips)
+Seat 2: mekkmester ($111.68 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($178.95 in chips)
+Seat 5: tinkieri ($133.03 in chips)
+Seat 6: KoTBalu ($59.68 in chips)
+tinkieri: posts small blind $0.50
+KoTBalu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Td]
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Bastille: raises $2.50 to $2.50
+tinkieri: raises $11.50 to $12
+KoTBalu: folds
+Bastille: raises $37.50 to $40
+tinkieri: folds
+Uncalled bet ($28) returned to Bastille
+*** SHOW DOWN ***
+Bastille: doesn't show hand
+Bastille collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $0 
+Seat 1: guerillAA13 folded before Flop (didn't bet)
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille (button) collected ($25)
+Seat 5: tinkieri (small blind) folded before Flop 
+Seat 6: KoTBalu (big blind) folded before Flop 
+
+
+Weplay Hand #72076323:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:05:37 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #5 is the button
+Seat 1: guerillAA13 ($112.28 in chips)
+Seat 2: mekkmester ($111.68 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($191.95 in chips)
+Seat 5: tinkieri ($121.03 in chips)
+Seat 6: KoTBalu ($58.68 in chips)
+KoTBalu: posts small blind $0.50
+guerillAA13: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 9h]
+mekkmester: calls $1
+kole1992: folds
+Bastille: folds
+tinkieri: folds
+KoTBalu: raises $4.50 to $5
+guerillAA13: raises $15 to $16
+mekkmester: folds
+KoTBalu: raises $53.68 to $58.68 and is all-in
+guerillAA13: calls $42.68
+*** FIRST FLOP *** [8d 5h 2s]
+*** FIRST TURN *** [8d 5h 2s] [Td]
+*** FIRST RIVER *** [8d 5h 2s Td] [Ts]
+*** SECOND FLOP *** [7s 4d Qd]
+*** SECOND TURN *** [7s 4d Qd] [6d]
+*** SECOND RIVER *** [7s 4d Qd 6d] [2d]
+*** SHOW DOWN ***
+KoTBalu: shows [Kc Ad] (a pair of Tens)
+guerillAA13: shows [Jd Js] (two pair, Jacks and Tens)
+guerillAA13 collected $59.19 from pot
+KoTBalu collected $59.17 from pot
+*** SUMMARY ***
+Total pot $118.36 | Rake $5.91 
+Hand was run two times
+FIRST Board [8d 5h 2s Td Ts]
+SECOND Board [7s 4d Qd 6d 2d]
+Seat 1: guerillAA13 (big blind) showed [Jd Js] and won ($59.19) with two pair, Jacks and Tens
+Seat 2: mekkmester folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+Seat 6: KoTBalu (small blind) showed [Kc Ad] and won ($59.17) with a pair of Tens
+
+
+Weplay Hand #72076374:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:06:30 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #6 is the button
+Seat 1: guerillAA13 ($109.83 in chips)
+Seat 2: mekkmester ($110.68 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($191.95 in chips)
+Seat 5: tinkieri ($121.03 in chips)
+Seat 6: KoTBalu ($56.22 in chips)
+guerillAA13: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Qd]
+kole1992: raises $2.20 to $2.20
+Bastille: folds
+tinkieri: folds
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: folds
+Uncalled bet ($1.20) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: guerillAA13 (small blind) folded before Flop 
+Seat 2: mekkmester (big blind) folded before Flop 
+Seat 3: kole1992 collected ($2.50)
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72076407:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:06:55 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #1 is the button
+Seat 1: guerillAA13 ($109.33 in chips)
+Seat 2: mekkmester ($109.68 in chips)
+Seat 3: kole1992 ($101.50 in chips)
+Seat 4: Bastille ($191.95 in chips)
+Seat 5: tinkieri ($121.03 in chips)
+Seat 6: KoTBalu ($56.22 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 6s]
+Bastille: folds
+tinkieri: raises $2.50 to $2.50
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri has timed out
+tinkieri: doesn't show hand
+tinkieri collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 2: mekkmester (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri collected ($2.50)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72076433:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:07:26 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #2 is the button
+Seat 1: guerillAA13 ($109.33 in chips)
+Seat 2: mekkmester ($109.18 in chips)
+Seat 3: kole1992 ($100.50 in chips)
+Seat 4: Bastille ($191.95 in chips)
+Seat 5: tinkieri ($122.53 in chips)
+Seat 6: KoTBalu ($56.22 in chips)
+kole1992: posts small blind $0.50
+Bastille: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Kc]
+tinkieri: folds
+KoTBalu has timed out
+KoTBalu: folds
+guerillAA13: raises $2.50 to $2.50
+mekkmester: folds
+kole1992: folds
+Bastille: calls $1.50
+*** FLOP *** [Ks Qd 3d]
+Bastille: checks
+guerillAA13: bets $1.83
+Bastille: calls $1.83
+*** TURN *** [Ks Qd 3d] [Jd]
+Bastille: checks
+guerillAA13: checks
+*** RIVER *** [Ks Qd 3d Jd] [Qs]
+Bastille: bets $5.58
+guerillAA13: folds
+Uncalled bet ($5.58) returned to Bastille
+*** SHOW DOWN ***
+Bastille: doesn't show hand
+Bastille collected $9.16 from pot
+*** SUMMARY ***
+Total pot $9.16 | Rake $0.45 
+Board [Ks Qd 3d Jd Qs]
+Seat 1: guerillAA13 folded on the River 
+Seat 2: mekkmester (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Bastille (big blind) collected ($9.16)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72076502:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:08:28 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #3 is the button
+Seat 1: guerillAA13 ($105 in chips)
+Seat 2: mekkmester ($109.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($196.33 in chips)
+Seat 5: tinkieri ($122.53 in chips)
+Seat 6: KoTBalu ($56.22 in chips)
+Bastille: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 5h]
+KoTBalu has timed out
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Bastille: raises $2.50 to $3
+tinkieri: raises $9 to $10
+Bastille: calls $7
+*** FLOP *** [3h Qh Td]
+Bastille: checks
+tinkieri: bets $8
+Bastille: folds
+Uncalled bet ($8) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri has timed out
+tinkieri: doesn't show hand
+tinkieri collected $20 from pot
+*** SUMMARY ***
+Total pot $20 | Rake $1 
+Board [3h Qh Td]
+Seat 1: guerillAA13 folded before Flop (didn't bet)
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Bastille (small blind) folded on the Flop 
+Seat 5: tinkieri (big blind) collected ($20)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72076567:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:09:39 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #4 is the button
+Seat 1: guerillAA13 ($105 in chips)
+Seat 2: mekkmester ($109.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($186.33 in chips)
+Seat 5: tinkieri ($131.53 in chips)
+Seat 6: KoTBalu ($56.22 in chips)
+tinkieri: posts small blind $0.50
+KoTBalu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Kc]
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Bastille: folds
+tinkieri: raises $2.50 to $3
+KoTBalu: folds
+Uncalled bet ($2) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri has timed out
+tinkieri: doesn't show hand
+tinkieri collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: guerillAA13 folded before Flop (didn't bet)
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) collected ($2)
+Seat 6: KoTBalu (big blind) folded before Flop 
+
+
+Weplay Hand #72076590:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:10:02 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #5 is the button
+Seat 1: guerillAA13 ($105 in chips)
+Seat 2: mekkmester ($109.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($186.33 in chips)
+Seat 5: tinkieri ($132.53 in chips)
+Seat 6: KoTBalu ($55.22 in chips)
+KoTBalu: posts small blind $0.50
+guerillAA13: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 2c]
+mekkmester: folds
+kole1992: folds
+Bastille: folds
+tinkieri: folds
+KoTBalu: raises $1.50 to $2
+guerillAA13: raises $7 to $8
+KoTBalu: folds
+Uncalled bet ($6) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: guerillAA13 (big blind) collected ($4)
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+Seat 6: KoTBalu (small blind) folded before Flop 
+
+
+Weplay Hand #72076624:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:10:33 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #6 is the button
+Seat 1: guerillAA13 ($107 in chips)
+Seat 2: mekkmester ($109.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($186.33 in chips)
+Seat 5: tinkieri ($132.53 in chips)
+Seat 6: KoTBalu ($53.22 in chips)
+guerillAA13: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As 2c]
+kole1992: folds
+Bastille: raises $2.50 to $2.50
+tinkieri: raises $9 to $9
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: folds
+Bastille: folds
+Uncalled bet ($6.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri has timed out
+tinkieri: doesn't show hand
+tinkieri collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: guerillAA13 (small blind) folded before Flop 
+Seat 2: mekkmester (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille folded before Flop 
+Seat 5: tinkieri collected ($6.50)
+Seat 6: KoTBalu (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72076663:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:11:14 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #1 is the button
+Seat 1: guerillAA13 ($106.50 in chips)
+Seat 2: mekkmester ($108.18 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($183.83 in chips)
+Seat 5: tinkieri ($136.53 in chips)
+Seat 6: KoTBalu ($53.22 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 9c]
+Bastille: folds
+tinkieri: folds
+KoTBalu: raises $2.50 to $2.50
+guerillAA13: folds
+mekkmester: calls $2
+kole1992: folds
+*** FLOP *** [9s 4c Ts]
+mekkmester: checks
+KoTBalu: checks
+*** TURN *** [9s 4c Ts] [Jd]
+mekkmester: checks
+KoTBalu: checks
+*** RIVER *** [9s 4c Ts Jd] [7h]
+mekkmester: checks
+KoTBalu: checks
+*** SHOW DOWN ***
+mekkmester: shows [Jh As] (a pair of Jacks)
+KoTBalu: mucks hand
+mekkmester collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [9s 4c Ts Jd 7h]
+Seat 1: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 2: mekkmester (small blind) showed [Jh As] and won ($6) with a pair of Jacks
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu mucked
+
+
+Weplay Hand #72076741:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:12:39 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #2 is the button
+Seat 1: guerillAA13 ($106.50 in chips)
+Seat 2: mekkmester ($111.38 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($183.83 in chips)
+Seat 5: tinkieri ($136.53 in chips)
+Seat 6: KoTBalu ($50.72 in chips)
+kole1992: posts small blind $0.50
+Bastille: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 7s]
+tinkieri: folds
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: folds
+kole1992: raises $2.50 to $3
+Bastille: raises $9 to $10
+kole1992: calls $7
+*** FLOP *** [6d Kh 8d]
+kole1992: checks
+Bastille: bets $8
+kole1992: folds
+Uncalled bet ($8) returned to Bastille
+*** SHOW DOWN ***
+Bastille: doesn't show hand
+Bastille collected $20 from pot
+*** SUMMARY ***
+Total pot $20 | Rake $1 
+Board [6d Kh 8d]
+Seat 1: guerillAA13 folded before Flop (didn't bet)
+Seat 2: mekkmester (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded on the Flop 
+Seat 4: Bastille (big blind) collected ($20)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72076789:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:13:30 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #3 is the button
+Seat 1: guerillAA13 ($106.50 in chips)
+Seat 2: mekkmester ($111.38 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($192.83 in chips)
+Seat 5: tinkieri ($136.53 in chips)
+Seat 6: KoTBalu ($50.72 in chips)
+Bastille: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Qh]
+KoTBalu: folds
+guerillAA13: raises $2.50 to $2.50
+mekkmester: folds
+kole1992: raises $7.50 to $7.50
+Bastille: folds
+tinkieri: folds
+guerillAA13: folds
+Uncalled bet ($5) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: guerillAA13 folded before Flop 
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 (button) collected ($6.50)
+Seat 4: Bastille (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) folded before Flop 
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72076818:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:14:04 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #4 is the button
+Seat 1: guerillAA13 ($104 in chips)
+Seat 2: mekkmester ($111.38 in chips)
+Seat 3: kole1992 ($104 in chips)
+Seat 4: Bastille ($192.33 in chips)
+Seat 5: tinkieri ($135.53 in chips)
+Seat 6: KoTBalu ($50.72 in chips)
+tinkieri: posts small blind $0.50
+KoTBalu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 8h]
+guerillAA13: raises $2.50 to $2.50
+mekkmester: folds
+kole1992: folds
+Bastille: folds
+tinkieri: folds
+KoTBalu: calls $1.50
+*** FLOP *** [7h Th 4d]
+KoTBalu: checks
+guerillAA13: checks
+*** TURN *** [7h Th 4d] [Jh]
+KoTBalu: bets $4.10
+guerillAA13: folds
+Uncalled bet ($4.10) returned to KoTBalu
+*** SHOW DOWN ***
+KoTBalu: doesn't show hand
+KoTBalu collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [7h Th 4d Jh]
+Seat 1: guerillAA13 folded on the Turn 
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) folded before Flop 
+Seat 6: KoTBalu (big blind) collected ($5.50)
+
+
+Weplay Hand #72076843:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:14:34 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #5 is the button
+Seat 1: guerillAA13 ($101.50 in chips)
+Seat 2: mekkmester ($111.38 in chips)
+Seat 3: kole1992 ($104 in chips)
+Seat 4: Bastille ($192.33 in chips)
+Seat 5: tinkieri ($135.03 in chips)
+Seat 6: KoTBalu ($53.45 in chips)
+KoTBalu: posts small blind $0.50
+guerillAA13: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Js]
+mekkmester: folds
+kole1992: folds
+Bastille: folds
+tinkieri: folds
+KoTBalu: raises $2 to $2.50
+guerillAA13: calls $1.50
+*** FLOP *** [6d Th Qc]
+KoTBalu: checks
+guerillAA13: bets $3
+KoTBalu: folds
+Uncalled bet ($3) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [6d Th Qc]
+Seat 1: guerillAA13 (big blind) collected ($5)
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+Seat 6: KoTBalu (small blind) folded on the Flop 
+
+
+Weplay Hand #72076876:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:15:08 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #6 is the button
+Seat 1: guerillAA13 ($103.75 in chips)
+Seat 2: mekkmester ($111.38 in chips)
+Seat 3: kole1992 ($104 in chips)
+Seat 4: Bastille ($192.33 in chips)
+Seat 5: tinkieri ($135.03 in chips)
+Seat 6: KoTBalu ($50.95 in chips)
+guerillAA13: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Td]
+kole1992: folds
+Bastille: folds
+tinkieri: raises $2.50 to $2.50
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: folds
+Uncalled bet ($1.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri has timed out
+tinkieri: doesn't show hand
+tinkieri collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: guerillAA13 (small blind) folded before Flop 
+Seat 2: mekkmester (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri collected ($2.50)
+Seat 6: KoTBalu (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72076901:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:15:35 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #1 is the button
+Seat 1: guerillAA13 ($103.25 in chips)
+Seat 2: mekkmester ($110.38 in chips)
+Seat 3: kole1992 ($104 in chips)
+Seat 4: Bastille ($192.33 in chips)
+Seat 5: tinkieri ($136.53 in chips)
+Seat 6: KoTBalu ($50.95 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Qh]
+Bastille: folds
+tinkieri: folds
+KoTBalu: raises $2.50 to $2.50
+guerillAA13: folds
+mekkmester: folds
+kole1992: calls $1.50
+*** FLOP *** [3d 6h 4c]
+kole1992: bets $1.81
+KoTBalu: calls $1.81
+*** TURN *** [3d 6h 4c] [5s]
+kole1992: checks
+KoTBalu: checks
+*** RIVER *** [3d 6h 4c 5s] [Qs]
+kole1992: bets $2.50
+KoTBalu: raises $8 to $8
+kole1992: folds
+Uncalled bet ($5.50) returned to KoTBalu
+*** SHOW DOWN ***
+KoTBalu: doesn't show hand
+KoTBalu collected $14.12 from pot
+*** SUMMARY ***
+Total pot $14.12 | Rake $0.70 
+Board [3d 6h 4c 5s Qs]
+Seat 1: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 2: mekkmester (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded on the River 
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu collected ($14.12)
+
+
+Weplay Hand #72076975:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:17:01 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #2 is the button
+Seat 1: guerillAA13 ($103.25 in chips)
+Seat 2: mekkmester ($109.88 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($192.33 in chips)
+Seat 5: tinkieri ($136.53 in chips)
+Seat 6: KoTBalu ($57.56 in chips)
+kole1992: posts small blind $0.50
+Bastille: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 8d]
+tinkieri: folds
+KoTBalu: folds
+guerillAA13: raises $2.50 to $2.50
+mekkmester: folds
+kole1992: folds
+Bastille: raises $9 to $10
+guerillAA13: folds
+Uncalled bet ($7.50) returned to Bastille
+*** SHOW DOWN ***
+Bastille: doesn't show hand
+Bastille collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: guerillAA13 folded before Flop 
+Seat 2: mekkmester (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Bastille (big blind) collected ($5.50)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72077002:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:17:40 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #3 is the button
+Seat 1: guerillAA13 ($100.75 in chips)
+Seat 2: mekkmester ($109.88 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($195.33 in chips)
+Seat 5: tinkieri ($136.53 in chips)
+Seat 6: KoTBalu ($57.56 in chips)
+Bastille: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 4h]
+KoTBalu: folds
+guerillAA13: raises $2.50 to $2.50
+mekkmester: folds
+kole1992: folds
+Bastille: folds
+tinkieri: calls $1.50
+*** FLOP *** [4s Qs 2d]
+tinkieri: checks
+guerillAA13: bets $2
+tinkieri: folds
+Uncalled bet ($2) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [4s Qs 2d]
+Seat 1: guerillAA13 collected ($5.50)
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: Bastille (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) folded on the Flop 
+Seat 6: KoTBalu folded before Flop (didn't bet)
+
+
+Weplay Hand #72077058:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:18:39 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #4 is the button
+Seat 1: guerillAA13 ($103.48 in chips)
+Seat 2: mekkmester ($109.88 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($194.83 in chips)
+Seat 5: tinkieri ($134.03 in chips)
+Seat 6: KoTBalu ($57.56 in chips)
+tinkieri: posts small blind $0.50
+KoTBalu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Jd]
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Bastille: folds
+tinkieri: folds
+Uncalled bet ($0.50) returned to KoTBalu
+*** SHOW DOWN ***
+KoTBalu: doesn't show hand
+KoTBalu collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: guerillAA13 folded before Flop (didn't bet)
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) folded before Flop 
+Seat 6: KoTBalu (big blind) collected ($1)
+
+
+Weplay Hand #72077071:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:18:56 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #5 is the button
+Seat 1: guerillAA13 ($103.48 in chips)
+Seat 2: mekkmester ($109.88 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($194.83 in chips)
+Seat 5: tinkieri ($133.53 in chips)
+Seat 6: KoTBalu ($58.06 in chips)
+KoTBalu: posts small blind $0.50
+guerillAA13: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Qd]
+mekkmester: folds
+kole1992: folds
+Bastille: folds
+tinkieri: raises $2.50 to $2.50
+KoTBalu: folds
+guerillAA13: raises $10 to $11
+tinkieri: calls $8.50
+*** FLOP *** [7s 6s 4h]
+guerillAA13: checks
+tinkieri: bets $9
+guerillAA13: folds
+Uncalled bet ($9) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri has timed out
+tinkieri: doesn't show hand
+tinkieri collected $22.50 from pot
+*** SUMMARY ***
+Total pot $22.50 | Rake $1.12 
+Board [7s 6s 4h]
+Seat 1: guerillAA13 (big blind) folded on the Flop 
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri (button) collected ($22.50)
+Seat 6: KoTBalu (small blind) folded before Flop 
+
+
+Weplay Hand #72077117:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:19:43 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #6 is the button
+Seat 1: guerillAA13 ($100 in chips)
+Seat 2: mekkmester ($109.88 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($194.83 in chips)
+Seat 5: tinkieri ($143.91 in chips)
+Seat 6: KoTBalu ($57.56 in chips)
+guerillAA13: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Th]
+kole1992: folds
+Bastille: folds
+tinkieri: raises $2.50 to $2.50
+KoTBalu: folds
+guerillAA13: folds
+mekkmester: folds
+Uncalled bet ($1.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri has timed out
+tinkieri: doesn't show hand
+tinkieri collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: guerillAA13 (small blind) folded before Flop 
+Seat 2: mekkmester (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: Bastille folded before Flop (didn't bet)
+Seat 5: tinkieri collected ($2.50)
+Seat 6: KoTBalu (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #72077141:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:20:09 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #1 is the button
+Seat 1: guerillAA13 ($100 in chips)
+Seat 2: mekkmester ($108.88 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: Bastille ($194.83 in chips)
+Seat 5: tinkieri ($145.41 in chips)
+Seat 6: KoTBalu ($57.56 in chips)
+mekkmester: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 3c]
+Bastille: raises $2.25 to $2.25
+tinkieri: folds
+KoTBalu: calls $2.25
+guerillAA13: folds
+mekkmester: folds
+kole1992: calls $1.25
+*** FLOP *** [Qc 6d 3h]
+kole1992: checks
+Bastille: bets $3.63
+KoTBalu: calls $3.63
+kole1992: raises $13.37 to $13.37
+Bastille: folds
+KoTBalu: folds
+Uncalled bet ($9.74) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $18.14 from pot
+*** SUMMARY ***
+Total pot $18.14 | Rake $0.90 
+Board [Qc 6d 3h]
+Seat 1: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 2: mekkmester (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) collected ($18.14)
+Seat 4: Bastille folded on the Flop 
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu folded on the Flop 
+
+
+Weplay Hand #72077191:  Hold'em No Limit ($0.50/$1) - 2026/01/09 17:21:11 UTC
+Table 'Belgrade #1'(11575800) 6-max (Money 3) Seat #2 is the button
+Seat 1: guerillAA13 ($100 in chips)
+Seat 2: mekkmester ($108.38 in chips)
+Seat 3: kole1992 ($111.36 in chips)
+Seat 4: Bastille ($188.95 in chips)
+Seat 5: tinkieri ($145.41 in chips)
+Seat 6: KoTBalu ($51.68 in chips)
+kole1992: posts small blind $0.50
+Bastille: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 6c]
+tinkieri: folds
+KoTBalu: raises $2.50 to $2.50
+guerillAA13: folds
+mekkmester: folds
+kole1992: folds
+Bastille: calls $1.50
+*** FLOP *** [5h Qs 2c]
+Bastille: checks
+KoTBalu: bets $2.80
+Bastille: calls $2.80
+*** TURN *** [5h Qs 2c] [3d]
+Bastille: checks
+KoTBalu: bets $8.30
+Bastille: calls $8.30
+*** RIVER *** [5h Qs 2c 3d] [7c]
+Bastille: checks
+KoTBalu: checks
+*** SHOW DOWN ***
+Bastille: shows [9s Qc] (a pair of Queens)
+KoTBalu: shows [Tc Qd] (a pair of Queens)
+KoTBalu collected $27.70 from pot
+*** SUMMARY ***
+Total pot $27.70 | Rake $1.38 
+Board [5h Qs 2c 3d 7c]
+Seat 1: guerillAA13 folded before Flop (didn't bet)
+Seat 2: mekkmester (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Bastille (big blind) showed [9s Qc] and lost with a pair of Queens
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: KoTBalu showed [Tc Qd] and won ($27.70) with a pair of Queens

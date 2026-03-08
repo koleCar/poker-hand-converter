@@ -1,0 +1,1043 @@
+﻿Weplay Hand #75458449:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 10:57:37 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 1: markanen0 ($47.17 in chips)
+Seat 3: Allinfans72 ($48.65 in chips)
+Seat 4: luddebot ($58.19 in chips)
+Seat 5: sadam ($68.83 in chips)
+Seat 6: Gerrard68 ($50 in chips)
+Seat 7: Nightfox ($46.42 in chips)
+Seat 8: kole1992 ($50 in chips)
+Nightfox: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 7d]
+markanen0: folds
+Allinfans72: raises $2 to $2
+luddebot: folds
+sadam: folds
+Gerrard68: folds
+Nightfox: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72 has timed out
+Allinfans72: doesn't show hand
+Allinfans72 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: markanen0 folded before Flop (didn't bet)
+Seat 3: Allinfans72 collected ($1.25)
+Seat 4: luddebot folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 (button) folded before Flop (didn't bet)
+Seat 7: Nightfox (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75458456:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 10:58:02 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: markanen0 ($47.17 in chips)
+Seat 3: Allinfans72 ($49.40 in chips)
+Seat 4: luddebot ($58.19 in chips)
+Seat 5: sadam ($68.83 in chips)
+Seat 6: Gerrard68 ($50 in chips)
+Seat 7: Nightfox ($46.17 in chips)
+Seat 8: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 7c]
+Allinfans72: folds
+luddebot: calls $0.50
+sadam: folds
+Gerrard68: raises $1.25 to $1.25
+Nightfox: raises $5 to $5
+kole1992: folds
+markanen0: folds
+luddebot: raises $8.25 to $8.75
+Gerrard68: folds
+Noakis89 joins the table at seat #2
+Nightfox: raises $41.17 to $46.17 and is all-in
+luddebot: folds
+Uncalled bet ($37.42) returned to Nightfox
+*** SHOW DOWN ***
+Nightfox: doesn't show hand
+Nightfox collected $19.50 from pot
+*** SUMMARY ***
+Total pot $19.50 | Rake $0 
+Seat 1: markanen0 (big blind) folded before Flop 
+Seat 3: Allinfans72 folded before Flop (didn't bet)
+Seat 4: luddebot folded before Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 folded before Flop 
+Seat 7: Nightfox (button) collected ($19.50)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75458473:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 10:58:58 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 1: markanen0 ($46.67 in chips)
+Seat 2: Noakis89 ($50 in chips)
+Seat 3: Allinfans72 ($49.40 in chips)
+Seat 4: luddebot ($49.44 in chips)
+Seat 5: sadam ($68.83 in chips)
+Seat 6: Gerrard68 ($50 in chips)
+Seat 7: Nightfox ($56.92 in chips)
+Seat 8: kole1992 ($50 in chips)
+markanen0: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Jh]
+Allinfans72: folds
+luddebot: calls $0.50
+sadam: folds
+Gerrard68: folds
+Nightfox: folds
+kole1992: raises $1.75 to $1.75
+markanen0: folds
+Noakis89: calls $1.25
+luddebot: calls $1.25
+*** FLOP *** [Js Jc 8h]
+Noakis89: checks
+luddebot: checks
+kole1992: bets $1.57
+Noakis89: folds
+luddebot: calls $1.57
+*** TURN *** [Js Jc 8h] [5c]
+luddebot: checks
+kole1992: bets $8.57
+luddebot: folds
+Uncalled bet ($8.57) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $8.64 from pot
+*** SUMMARY ***
+Total pot $8.64 | Rake $0.43 
+Board [Js Jc 8h 5c]
+Seat 1: markanen0 (small blind) folded before Flop 
+Seat 2: Noakis89 (big blind) folded on the Flop 
+Seat 3: Allinfans72 folded before Flop (didn't bet)
+Seat 4: luddebot folded on the Turn 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 folded before Flop (didn't bet)
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: kole1992 (button) collected ($8.64)
+
+
+Weplay Hand #75458484:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 10:59:57 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #1 is the button
+Seat 1: markanen0 ($46.42 in chips)
+Seat 2: Noakis89 ($48.25 in chips)
+Seat 3: Allinfans72 ($49.40 in chips)
+Seat 4: luddebot ($46.12 in chips)
+Seat 5: sadam ($68.83 in chips)
+Seat 6: Gerrard68 ($50 in chips)
+Seat 7: Nightfox ($56.92 in chips)
+Seat 8: kole1992 ($54.89 in chips)
+Noakis89: posts small blind $0.25
+Allinfans72: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 2d]
+luddebot: calls $0.50
+sadam: folds
+Gerrard68: calls $0.50
+Nightfox: calls $0.50
+kole1992: folds
+markanen0: calls $0.50
+Noakis89: calls $0.25
+Allinfans72: checks
+*** FLOP *** [2c Js Kc]
+Noakis89: checks
+Allinfans72: checks
+luddebot: checks
+Gerrard68: checks
+Nightfox: checks
+markanen0: bets $1.50
+Noakis89: folds
+Allinfans72: folds
+luddebot: calls $1.50
+Gerrard68: folds
+Nightfox: folds
+*** TURN *** [2c Js Kc] [5d]
+luddebot: bets $3
+markanen0: calls $3
+*** RIVER *** [2c Js Kc 5d] [3h]
+luddebot: bets $1
+markanen0: calls $1
+*** SHOW DOWN ***
+luddebot: shows [Jh Td] (a pair of Jacks)
+markanen0: shows [As Kd] (a pair of Kings)
+markanen0 collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [2c Js Kc 5d 3h]
+Seat 1: markanen0 (button) showed [As Kd] and won ($14) with a pair of Kings
+Seat 2: Noakis89 (small blind) folded on the Flop 
+Seat 3: Allinfans72 (big blind) folded on the Flop 
+Seat 4: luddebot showed [Jh Td] and lost with a pair of Jacks
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 folded on the Flop 
+Seat 7: Nightfox folded on the Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75458599:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:01:20 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 1: markanen0 ($53.72 in chips)
+Seat 2: Noakis89 ($47.75 in chips)
+Seat 3: Allinfans72 ($48.90 in chips)
+Seat 4: luddebot ($40.12 in chips)
+Seat 5: sadam ($68.83 in chips)
+Seat 6: Gerrard68 ($50 in chips)
+Seat 7: Nightfox ($56.42 in chips)
+Seat 8: kole1992 ($54.89 in chips)
+markanen0: posts the ante $1.84
+Noakis89: posts the ante $1.84
+Allinfans72: posts the ante $1.84
+luddebot: posts the ante $1.84
+sadam: posts the ante $1.84
+Gerrard68: posts the ante $1.84
+Nightfox: posts the ante $1.84
+kole1992: posts the ante $1.84
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 5d]
+*** FLOP *** [2c 6d Kc]
+kole1992: checks
+markanen0: checks
+Noakis89: checks
+Allinfans72: bets $4
+luddebot: folds
+sadam: folds
+Gerrard68: calls $4
+Nightfox: folds
+kole1992: folds
+markanen0: folds
+Noakis89: folds
+*** TURN *** [2c 6d Kc] [Qh]
+Allinfans72: bets $11
+Gerrard68: folds
+Uncalled bet ($11) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72 has timed out
+Allinfans72: doesn't show hand
+Allinfans72 collected $22.72 from pot
+*** SUMMARY ***
+Total pot $22.72 | Rake $1.13 
+Board [2c 6d Kc Qh]
+Seat 1: markanen0 folded on the Flop 
+Seat 2: Noakis89 folded on the Flop 
+Seat 3: Allinfans72 collected ($22.72)
+Seat 4: luddebot folded on the Flop 
+Seat 5: sadam folded on the Flop 
+Seat 6: Gerrard68 folded on the Turn 
+Seat 7: Nightfox (button) folded on the Flop 
+Seat 8: kole1992 folded on the Flop 
+
+
+Weplay Hand #75458624:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:02:09 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 1: markanen0 ($51.88 in chips)
+Seat 2: Noakis89 ($45.91 in chips)
+Seat 3: Allinfans72 ($64.65 in chips)
+Seat 4: luddebot ($38.28 in chips)
+Seat 5: sadam ($66.99 in chips)
+Seat 6: Gerrard68 ($50 in chips)
+Seat 7: Nightfox ($54.58 in chips)
+Seat 8: kole1992 ($53.05 in chips)
+Allinfans72: posts small blind $0.25
+luddebot: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Ac]
+sadam: folds
+Gerrard68: folds
+Nightfox: raises $1 to $1
+kole1992: folds
+markanen0: folds
+Noakis89: calls $1
+Allinfans72: calls $0.75
+luddebot: calls $0.50
+*** FLOP *** [Jh 7c Qc]
+Allinfans72: checks
+luddebot: bets $1
+Nightfox: calls $1
+Noakis89: calls $1
+Allinfans72: folds
+*** TURN *** [Jh 7c Qc] [Kc]
+markanen0 leaves the table
+luddebot: bets $2
+Nightfox: calls $2
+Noakis89: folds
+*** RIVER *** [Jh 7c Qc Kc] [8d]
+luddebot: bets $4
+Nightfox: folds
+Uncalled bet ($4) returned to luddebot
+*** SHOW DOWN ***
+luddebot: doesn't show hand
+luddebot collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [Jh 7c Qc Kc 8d]
+Seat 1: markanen0 folded before Flop (didn't bet)
+Seat 2: Noakis89 (button) folded on the Turn 
+Seat 3: Allinfans72 (small blind) folded on the Flop 
+Seat 4: luddebot (big blind) collected ($11)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 folded before Flop (didn't bet)
+Seat 7: Nightfox folded on the River 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75458709:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:03:23 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 2: Noakis89 ($43.91 in chips)
+Seat 3: Allinfans72 ($63.65 in chips)
+Seat 4: luddebot ($44.73 in chips)
+Seat 5: sadam ($66.99 in chips)
+Seat 6: Gerrard68 ($50 in chips)
+Seat 7: Nightfox ($50.58 in chips)
+Seat 8: kole1992 ($53.05 in chips)
+luddebot: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Jc]
+Gerrard68: calls $0.50
+Nightfox: folds
+luddebot is disconnected 
+kole1992: raises $1.50 to $1.50
+Noakis89: calls $1.50
+Allinfans72 is disconnected 
+luddebot is connected 
+luddebot is disconnected 
+Allinfans72 has timed out while being disconnected
+Allinfans72: folds
+luddebot: folds
+luddebot leaves the table
+sadam: folds
+Gerrard68: folds
+*** FLOP *** [8s 8h Js]
+kole1992: checks
+Noakis89: checks
+*** TURN *** [8s 8h Js] [6h]
+kole1992: bets $1.75
+Noakis89: calls $1.75
+*** RIVER *** [8s 8h Js 6h] [2c]
+kole1992: bets $2
+Noakis89: calls $2
+*** SHOW DOWN ***
+kole1992: shows [Tc Jc] (two pair, Jacks and Eights)
+Noakis89: mucks hand
+kole1992 collected $11.75 from pot
+*** SUMMARY ***
+Total pot $11.75 | Rake $0.58 
+Board [8s 8h Js 6h 2c]
+Seat 2: Noakis89 mucked
+Seat 3: Allinfans72 (button) folded before Flop (didn't bet)
+Seat 4: luddebot (small blind) folded before Flop 
+Seat 5: sadam (big blind) folded before Flop 
+Seat 6: Gerrard68 folded before Flop 
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: kole1992 showed [Tc Jc] and won ($11.75) with two pair, Jacks and Eights
+
+
+Weplay Hand #75458830:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:04:49 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 2: Noakis89 ($38.66 in chips)
+Seat 5: sadam ($66.49 in chips)
+Seat 6: Gerrard68 ($50 in chips)
+Seat 7: Nightfox ($50.58 in chips)
+Seat 8: kole1992 ($58.97 in chips)
+sadam: posts small blind $0.25
+Gerrard68: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Ad]
+Allinfans72 leaves the table
+Nightfox: folds
+kole1992 has timed out
+kole1992: folds
+Noakis89: folds
+sadam: folds
+Uncalled bet ($0.25) returned to Gerrard68
+*** SHOW DOWN ***
+Gerrard68: doesn't show hand
+Gerrard68 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Noakis89 folded before Flop (didn't bet)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: Gerrard68 (big blind) collected ($0.50)
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75458870:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:05:16 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 2: Noakis89 ($38.66 in chips)
+Seat 5: sadam ($66.24 in chips)
+Seat 6: Gerrard68 ($50.25 in chips)
+Seat 7: Nightfox ($50.58 in chips)
+Seat 8: kole1992 ($58.97 in chips)
+Gerrard68: posts small blind $0.25
+Nightfox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 6s]
+kole1992: raises $1 to $1
+Noakis89: folds
+sadam: folds
+Gerrard68: folds
+Nightfox: calls $0.50
+*** FLOP *** [3d Th Qd]
+Nightfox: bets $0.75
+kole1992: folds
+Uncalled bet ($0.75) returned to Nightfox
+*** SHOW DOWN ***
+Nightfox: doesn't show hand
+Nightfox collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [3d Th Qd]
+Seat 2: Noakis89 folded before Flop (didn't bet)
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: Gerrard68 (small blind) folded before Flop 
+Seat 7: Nightfox (big blind) collected ($2.25)
+Seat 8: kole1992 folded on the Flop 
+
+
+Weplay Hand #75458922:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:05:50 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 2: Noakis89 ($38.66 in chips)
+Seat 5: sadam ($66.24 in chips)
+Seat 6: Gerrard68 ($50 in chips)
+Seat 7: Nightfox ($51.72 in chips)
+Seat 8: kole1992 ($57.97 in chips)
+Nightfox: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 7d]
+Noakis89: folds
+sadam: folds
+Gerrard68: raises $1.50 to $1.50
+Nightfox: folds
+kole1992: folds
+Uncalled bet ($1) returned to Gerrard68
+*** SHOW DOWN ***
+Gerrard68: doesn't show hand
+Gerrard68 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Noakis89 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 (button) collected ($1.25)
+Seat 7: Nightfox (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75458962:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:06:16 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 2: Noakis89 ($38.66 in chips)
+Seat 5: sadam ($66.24 in chips)
+Seat 6: Gerrard68 ($50.75 in chips)
+Seat 7: Nightfox ($51.47 in chips)
+Seat 8: kole1992 ($57.47 in chips)
+kole1992: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Td]
+sadam: folds
+Gerrard68: raises $1.50 to $1.50
+Nightfox: folds
+kole1992: folds
+Noakis89: calls $1
+*** FLOP *** [Ad 7c Qs]
+Noakis89: checks
+Gerrard68: bets $1
+Noakis89: calls $1
+*** TURN *** [Ad 7c Qs] [2s]
+Noakis89: checks
+Gerrard68: checks
+*** RIVER *** [Ad 7c Qs 2s] [4c]
+Noakis89: checks
+Gerrard68: checks
+*** SHOW DOWN ***
+Noakis89: shows [5c 5h] (a pair of Fives)
+Gerrard68: shows [Ac 9c] (a pair of Aces)
+Gerrard68 collected $5.25 from pot
+*** SUMMARY ***
+Total pot $5.25 | Rake $0.26 
+Board [Ad 7c Qs 2s 4c]
+Seat 2: Noakis89 (big blind) showed [5c 5h] and lost with a pair of Fives
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 showed [Ac 9c] and won ($5.25) with a pair of Aces
+Seat 7: Nightfox (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75459042:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:07:09 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 2: Noakis89 ($36.16 in chips)
+Seat 4: Olko88 ($50 in chips)
+Seat 5: sadam ($66.24 in chips)
+Seat 6: Gerrard68 ($53.24 in chips)
+Seat 7: Nightfox ($51.47 in chips)
+Seat 8: kole1992 ($57.22 in chips)
+Noakis89: posts small blind $0.25
+Olko88: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Jh]
+sadam: folds
+Gerrard68: folds
+Nightfox: raises $1 to $1
+kole1992: folds
+Noakis89: calls $0.75
+Allinfans72 joins the table at seat #3
+Olko88: folds
+*** FLOP *** [Ah 6c Ad]
+Noakis89: checks
+Nightfox: bets $0.85
+Noakis89: folds
+Uncalled bet ($0.85) returned to Nightfox
+*** SHOW DOWN ***
+Nightfox: doesn't show hand
+Nightfox collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Ah 6c Ad]
+Seat 2: Noakis89 (small blind) folded on the Flop 
+Seat 4: Olko88 (big blind) folded before Flop 
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 folded before Flop (didn't bet)
+Seat 7: Nightfox collected ($2.50)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75459147:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:08:27 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 2: Noakis89 ($49.25 in chips)
+Seat 4: Olko88 ($49.50 in chips)
+Seat 5: sadam ($66.24 in chips)
+Seat 6: Gerrard68 ($53.24 in chips)
+Seat 7: Nightfox ($52.85 in chips)
+Seat 8: kole1992 ($57.22 in chips)
+Olko88: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 6d]
+Gerrard68: folds
+Nightfox: raises $1.25 to $1.25
+kole1992: folds
+Noakis89: calls $1.25
+Olko88: folds
+sadam: folds
+*** FLOP *** [6c 8h Td]
+Nightfox: checks
+Noakis89: checks
+*** TURN *** [6c 8h Td] [8s]
+Nightfox: checks
+Noakis89: checks
+*** RIVER *** [6c 8h Td 8s] [2h]
+Nightfox: checks
+Noakis89: bets $0.50
+Nightfox: calls $0.50
+*** SHOW DOWN ***
+Noakis89: shows [Kd 2d] (two pair, Eights and Deuces)
+Nightfox: mucks hand
+Noakis89 collected $4.25 from pot
+*** SUMMARY ***
+Total pot $4.25 | Rake $0.21 
+Board [6c 8h Td 8s 2h]
+Seat 2: Noakis89 (button) showed [Kd 2d] and won ($4.25) with two pair, Eights and Deuces
+Seat 4: Olko88 (small blind) folded before Flop 
+Seat 5: sadam (big blind) folded before Flop 
+Seat 6: Gerrard68 folded before Flop (didn't bet)
+Seat 7: Nightfox mucked
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75459216:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:09:20 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #4 is the button
+Seat 2: Noakis89 ($51.54 in chips)
+Seat 3: Allinfans72 ($63.65 in chips)
+Seat 4: Olko88 ($49.25 in chips)
+Seat 5: sadam ($65.74 in chips)
+Seat 6: Gerrard68 ($53.24 in chips)
+Seat 7: Nightfox ($51.10 in chips)
+Seat 8: kole1992 ($57.22 in chips)
+sadam: posts small blind $0.25
+Gerrard68: posts big blind $0.50
+Allinfans72: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 7d]
+Nightfox: folds
+kole1992 has timed out
+kole1992: folds
+Noakis89: raises $1.50 to $1.50
+Allinfans72: calls $1
+Olko88: calls $1.50
+sadam: folds
+Gerrard68: folds
+*** FLOP *** [6s 5s Qc]
+Noakis89: bets $2.63
+Allinfans72: calls $2.63
+Olko88: folds
+*** TURN *** [6s 5s Qc] [9s]
+Noakis89: checks
+Allinfans72: bets $7
+Noakis89: folds
+Uncalled bet ($7) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72 has timed out
+Allinfans72: doesn't show hand
+Allinfans72 collected $10.51 from pot
+*** SUMMARY ***
+Total pot $10.51 | Rake $0.52 
+Board [6s 5s Qc 9s]
+Seat 2: Noakis89 folded on the Turn 
+Seat 3: Allinfans72 (big blind) collected ($10.51)
+Seat 4: Olko88 (button) folded on the Flop 
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: Gerrard68 (big blind) folded before Flop 
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75459310:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:10:31 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 2: Noakis89 ($47.41 in chips)
+Seat 3: Allinfans72 ($69.51 in chips)
+Seat 4: Olko88 ($47.75 in chips)
+Seat 5: sadam ($65.49 in chips)
+Seat 6: Gerrard68 ($52.74 in chips)
+Seat 7: Nightfox ($51.10 in chips)
+Seat 8: kole1992 ($57.22 in chips)
+Noakis89: posts the ante $2.45
+Allinfans72: posts the ante $2.45
+Olko88: posts the ante $2.45
+sadam: posts the ante $2.45
+Gerrard68: posts the ante $2.45
+Nightfox: posts the ante $2.45
+kole1992: posts the ante $2.45
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh As]
+*** FLOP *** [3c 8s 9h]
+Nightfox has timed out
+Nightfox: checks
+kole1992: checks
+Noakis89: checks
+Allinfans72: checks
+Olko88: bets $4
+sadam: folds
+Gerrard68: calls $4
+Nightfox: folds
+kole1992: folds
+Noakis89: folds
+Allinfans72: calls $4
+*** TURN *** [3c 8s 9h] [Kd]
+Allinfans72: checks
+Olko88: checks
+Gerrard68: bets $14.58
+Allinfans72: folds
+Olko88: folds
+Uncalled bet ($14.58) returned to Gerrard68
+*** SHOW DOWN ***
+Gerrard68: doesn't show hand
+Gerrard68 collected $29.15 from pot
+*** SUMMARY ***
+Total pot $29.15 | Rake $1.45 
+Board [3c 8s 9h Kd]
+Seat 2: Noakis89 folded on the Flop 
+Seat 3: Allinfans72 folded on the Turn 
+Seat 4: Olko88 folded on the Turn 
+Seat 5: sadam folded on the Flop 
+Seat 6: Gerrard68 (button) collected ($29.15)
+Seat 7: Nightfox folded on the Flop 
+Seat 8: kole1992 folded on the Flop 
+
+
+Weplay Hand #75463412:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:11:58 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 2: Noakis89 ($44.96 in chips)
+Seat 3: Allinfans72 ($63.06 in chips)
+Seat 4: Olko88 ($41.30 in chips)
+Seat 5: sadam ($63.04 in chips)
+Seat 6: Gerrard68 ($73.99 in chips)
+Seat 7: Nightfox ($48.65 in chips)
+Seat 8: kole1992 ($54.77 in chips)
+Gerrard68: posts small blind $0.25
+Nightfox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 8s]
+Olko88 leaves the table
+kole1992: raises $1 to $1
+Noakis89: folds
+Allinfans72: folds
+sadam: folds
+Gerrard68: folds
+Nightfox: calls $0.50
+*** FLOP *** [5c 4h 6c]
+Nightfox: checks
+kole1992: checks
+*** TURN *** [5c 4h 6c] [Qs]
+Nightfox: bets $0.75
+kole1992: calls $0.75
+*** RIVER *** [5c 4h 6c Qs] [9h]
+Nightfox: checks
+kole1992: checks
+*** SHOW DOWN ***
+Nightfox: shows [Qd Th] (a pair of Queens)
+kole1992: mucks hand
+Nightfox collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [5c 4h 6c Qs 9h]
+Seat 2: Noakis89 folded before Flop (didn't bet)
+Seat 3: Allinfans72 folded before Flop (didn't bet)
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: Gerrard68 (small blind) folded before Flop 
+Seat 7: Nightfox (big blind) showed [Qd Th] and won ($3.75) with a pair of Queens
+Seat 8: kole1992 mucked
+
+
+Weplay Hand #75463509:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:13:08 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 2: Noakis89 ($44.96 in chips)
+Seat 3: Allinfans72 ($63.06 in chips)
+Seat 5: sadam ($63.04 in chips)
+Seat 6: Gerrard68 ($73.74 in chips)
+Seat 7: Nightfox ($50.47 in chips)
+Seat 8: kole1992 ($53.02 in chips)
+Nightfox: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Ts]
+Noakis89: raises $1.50 to $1.50
+Allinfans72: folds
+sadam: raises $6.02 to $6.02
+Gerrard68: folds
+Nightfox: folds
+kole1992: folds
+Noakis89: calls $4.52
+*** FLOP *** [Tc 3h 2h]
+Noakis89: checks
+sadam: bets $5.25
+Noakis89: calls $5.25
+*** TURN *** [Tc 3h 2h] [9h]
+Noakis89: checks
+sadam: bets $12.11
+Noakis89: folds
+Uncalled bet ($12.11) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $23.29 from pot
+*** SUMMARY ***
+Total pot $23.29 | Rake $1.16 
+Board [Tc 3h 2h 9h]
+Seat 2: Noakis89 folded on the Turn 
+Seat 3: Allinfans72 folded before Flop (didn't bet)
+Seat 5: sadam collected ($23.29)
+Seat 6: Gerrard68 (button) folded before Flop (didn't bet)
+Seat 7: Nightfox (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75463604:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:14:17 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 2: Noakis89 ($33.69 in chips)
+Seat 3: Allinfans72 ($63.06 in chips)
+Seat 5: sadam ($73.90 in chips)
+Seat 6: Gerrard68 ($73.74 in chips)
+Seat 7: Nightfox ($50.22 in chips)
+Seat 8: kole1992 ($52.52 in chips)
+kole1992: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 5h]
+Allinfans72 has timed out
+Allinfans72: folds
+sadam: folds
+Gerrard68: folds
+Nightfox: folds
+kole1992: calls $0.25
+Noakis89: checks
+*** FLOP *** [5s Jc Qc]
+kole1992: checks
+Noakis89: checks
+*** TURN *** [5s Jc Qc] [Kh]
+kole1992: checks
+Noakis89: checks
+*** RIVER *** [5s Jc Qc Kh] [4d]
+kole1992: checks
+Noakis89: checks
+*** SHOW DOWN ***
+kole1992: shows [3h 5h] (a pair of Fives)
+Noakis89: shows [5c 6h] (a pair of Fives)
+Noakis89 collected $0.49 from pot
+kole1992 collected $0.51 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [5s Jc Qc Kh 4d]
+Seat 2: Noakis89 (big blind) showed [5c 6h] and won ($0.49) with a pair of Fives
+Seat 3: Allinfans72 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 folded before Flop (didn't bet)
+Seat 7: Nightfox (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) showed [3h 5h] and won ($0.51) with a pair of Fives
+
+
+Weplay Hand #75463693:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:15:21 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 2: Noakis89 ($50 in chips)
+Seat 3: Allinfans72 ($63.06 in chips)
+Seat 5: sadam ($73.90 in chips)
+Seat 6: Gerrard68 ($73.74 in chips)
+Seat 7: Nightfox ($50.22 in chips)
+Seat 8: kole1992 ($52.50 in chips)
+Noakis89: posts the ante $1.56
+Allinfans72: posts the ante $1.56
+sadam: posts the ante $1.56
+Gerrard68: posts the ante $1.56
+Nightfox: posts the ante $1.56
+kole1992: posts the ante $1.56
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 8h]
+*** FLOP *** [Qs Qd 2d]
+kole1992: checks
+Noakis89 has timed out
+Noakis89: checks
+Allinfans72: checks
+sadam: checks
+Gerrard68: checks
+Nightfox: checks
+*** TURN *** [Qs Qd 2d] [Tc]
+kole1992: checks
+Noakis89: checks
+Allinfans72: checks
+sadam: checks
+Gerrard68: bets $6.24
+Nightfox: calls $6.24
+kole1992: folds
+Noakis89: folds
+Allinfans72: folds
+sadam: folds
+*** RIVER *** [Qs Qd 2d Tc] [7d]
+Gerrard68: checks
+Nightfox: checks
+*** SHOW DOWN ***
+Gerrard68: shows [9s 9c] (two pair, Queens and Nines)
+Nightfox: shows [Qh 6s] (three of a kind, Queens)
+Nightfox collected $21.84 from pot
+*** SUMMARY ***
+Total pot $21.84 | Rake $1.09 
+Board [Qs Qd 2d Tc 7d]
+Seat 2: Noakis89 folded on the Turn 
+Seat 3: Allinfans72 folded on the Turn 
+Seat 5: sadam folded on the Turn 
+Seat 6: Gerrard68 showed [9s 9c] and lost with two pair, Queens and Nines
+Seat 7: Nightfox (button) showed [Qh 6s] and won ($21.84) with three of a kind, Queens
+Seat 8: kole1992 folded on the Turn 
+
+
+Weplay Hand #75463804:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:16:41 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 2: Noakis89 ($48.44 in chips)
+Seat 3: Allinfans72 ($61.50 in chips)
+Seat 5: sadam ($72.34 in chips)
+Seat 6: Gerrard68 ($65.94 in chips)
+Seat 7: Nightfox ($63.17 in chips)
+Seat 8: kole1992 ($50.94 in chips)
+Noakis89: posts small blind $0.25
+Allinfans72: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 8s]
+sadam: folds
+Gerrard68: folds
+Nightfox: folds
+kole1992: folds
+Noakis89: folds
+Uncalled bet ($0.25) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72 has timed out
+Allinfans72: doesn't show hand
+Allinfans72 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Noakis89 (small blind) folded before Flop 
+Seat 3: Allinfans72 (big blind) collected ($0.50)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 folded before Flop (didn't bet)
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75463857:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:17:20 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #2 is the button
+Seat 2: Noakis89 ($48.19 in chips)
+Seat 3: Allinfans72 ($61.75 in chips)
+Seat 5: sadam ($72.34 in chips)
+Seat 6: Gerrard68 ($65.94 in chips)
+Seat 7: Nightfox ($63.17 in chips)
+Seat 8: kole1992 ($50.94 in chips)
+Allinfans72: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Kh]
+Gerrard68: folds
+Nightfox: folds
+kole1992: folds
+Noakis89: folds
+Allinfans72: raises $1.75 to $2
+sadam: folds
+Uncalled bet ($1.50) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72 has timed out
+Allinfans72: doesn't show hand
+Allinfans72 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: Noakis89 (button) folded before Flop (didn't bet)
+Seat 3: Allinfans72 (small blind) collected ($1)
+Seat 5: sadam (big blind) folded before Flop 
+Seat 6: Gerrard68 folded before Flop (didn't bet)
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75463902:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:17:52 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #3 is the button
+Seat 2: Noakis89 ($48.19 in chips)
+Seat 3: Allinfans72 ($62.25 in chips)
+Seat 5: sadam ($71.84 in chips)
+Seat 6: Gerrard68 ($65.94 in chips)
+Seat 7: Nightfox ($63.17 in chips)
+Seat 8: kole1992 ($50.94 in chips)
+sadam: posts small blind $0.25
+Gerrard68: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Tc]
+Nightfox: raises $1.25 to $1.25
+kole1992: folds
+Noakis89: folds
+Allinfans72: folds
+sadam: folds
+Gerrard68: folds
+Uncalled bet ($0.75) returned to Nightfox
+*** SHOW DOWN ***
+Nightfox: doesn't show hand
+Nightfox collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Noakis89 folded before Flop (didn't bet)
+Seat 3: Allinfans72 (button) folded before Flop (didn't bet)
+Seat 5: sadam (small blind) folded before Flop 
+Seat 6: Gerrard68 (big blind) folded before Flop 
+Seat 7: Nightfox collected ($1.25)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75463950:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:18:25 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #5 is the button
+Seat 2: Noakis89 ($48.19 in chips)
+Seat 3: Allinfans72 ($62.25 in chips)
+Seat 5: sadam ($71.59 in chips)
+Seat 6: Gerrard68 ($65.44 in chips)
+Seat 7: Nightfox ($63.92 in chips)
+Seat 8: kole1992 ($50.94 in chips)
+Gerrard68: posts small blind $0.25
+Nightfox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Ks]
+kole1992: folds
+Noakis89: calls $0.50
+Allinfans72: calls $0.50
+sadam: folds
+Gerrard68: folds
+Nightfox: raises $4.75 to $5.25
+Noakis89: folds
+Allinfans72: calls $4.75
+*** FLOP *** [Qc 5d 7h]
+Nightfox: checks
+Allinfans72: bets $6
+Nightfox: calls $6
+*** TURN *** [Qc 5d 7h] [3h]
+Nightfox: checks
+Allinfans72: checks
+*** RIVER *** [Qc 5d 7h 3h] [Kh]
+Nightfox: checks
+Allinfans72: checks
+*** SHOW DOWN ***
+Nightfox: shows [Jd Jh] (a pair of Jacks)
+Allinfans72 has timed out
+Allinfans72: mucks hand
+Nightfox collected $23.25 from pot
+*** SUMMARY ***
+Total pot $23.25 | Rake $1.16 
+Board [Qc 5d 7h 3h Kh]
+Seat 2: Noakis89 folded before Flop 
+Seat 3: Allinfans72 mucked
+Seat 5: sadam (button) folded before Flop (didn't bet)
+Seat 6: Gerrard68 (small blind) folded before Flop 
+Seat 7: Nightfox (big blind) showed [Jd Jh] and won ($23.25) with a pair of Jacks
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75464054:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:19:40 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #6 is the button
+Seat 2: Noakis89 ($47.69 in chips)
+Seat 3: Allinfans72 ($51 in chips)
+Seat 5: sadam ($71.59 in chips)
+Seat 6: Gerrard68 ($65.19 in chips)
+Seat 7: Nightfox ($74.76 in chips)
+Seat 8: kole1992 ($50.94 in chips)
+Nightfox: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Th]
+Noakis89: folds
+Allinfans72: folds
+sadam: folds
+Gerrard68: raises $1.75 to $1.75
+Nightfox: folds
+kole1992: folds
+Uncalled bet ($1.25) returned to Gerrard68
+*** SHOW DOWN ***
+Gerrard68: doesn't show hand
+Gerrard68 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Noakis89 folded before Flop (didn't bet)
+Seat 3: Allinfans72 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 (button) collected ($1.25)
+Seat 7: Nightfox (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75464113:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:20:22 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #7 is the button
+Seat 2: Noakis89 ($47.69 in chips)
+Seat 3: Allinfans72 ($51 in chips)
+Seat 5: sadam ($71.59 in chips)
+Seat 6: Gerrard68 ($65.94 in chips)
+Seat 7: Nightfox ($74.51 in chips)
+Seat 8: kole1992 ($50.44 in chips)
+kole1992: posts small blind $0.25
+Noakis89: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 2h]
+Allinfans72: folds
+sadam: folds
+Gerrard68: folds
+Nightfox: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to Noakis89
+*** SHOW DOWN ***
+kole1992: sits out 
+Noakis89 has timed out
+Noakis89: doesn't show hand
+Noakis89 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Noakis89 (big blind) collected ($0.50)
+Seat 3: Allinfans72 folded before Flop (didn't bet)
+Seat 5: sadam folded before Flop (didn't bet)
+Seat 6: Gerrard68 folded before Flop (didn't bet)
+Seat 7: Nightfox (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 

@@ -1,0 +1,5042 @@
+﻿Weplay Hand #75140122:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:05:36 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Mousemode ($28.38 in chips)
+Seat 2: Nislija ($61.23 in chips)
+Seat 3: Hoho78 ($21.32 in chips)
+Seat 4: rossi1616 ($72.23 in chips)
+Seat 5: Dzsozuee ($25.96 in chips)
+Seat 7: Bernie169 ($44.72 in chips)
+Seat 8: kole1992 ($50 in chips)
+Bernie169: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 4s]
+Mousemode: calls $0.50
+Nislija: folds
+Hoho78: raises $1 to $1
+slagalica is disconnected 
+slagalica is connected 
+rossi1616: raises $1.50 to $1.50
+Dzsozuee: folds
+Bernie169: folds
+kole1992: folds
+Mousemode: calls $1
+Hoho78: calls $0.50
+*** FLOP *** [6c 3h 5s]
+Mousemode: checks
+Hoho78: checks
+rossi1616: checks
+*** TURN *** [6c 3h 5s] [6d]
+Mousemode: bets $0.50
+Hoho78: calls $0.50
+rossi1616: folds
+*** RIVER *** [6c 3h 5s 6d] [6h]
+Mousemode: bets $0.50
+Hoho78: folds
+Uncalled bet ($0.50) returned to Mousemode
+*** SHOW DOWN ***
+Mousemode: doesn't show hand
+Mousemode collected $6.25 from pot
+*** SUMMARY ***
+Total pot $6.25 | Rake $0.31 
+Board [6c 3h 5s 6d 6h]
+Seat 1: Mousemode collected ($6.25)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: Hoho78 folded on the River 
+Seat 4: rossi1616 folded on the Turn 
+Seat 5: Dzsozuee folded before Flop (didn't bet)
+Seat 7: Bernie169 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75140168:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:06:49 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Mousemode ($32.32 in chips)
+Seat 2: Nislija ($61.23 in chips)
+Seat 3: Hoho78 ($19.32 in chips)
+Seat 4: rossi1616 ($70.73 in chips)
+Seat 5: Dzsozuee ($25.96 in chips)
+Seat 6: slagalica ($49.40 in chips)
+Seat 7: Bernie169 ($44.47 in chips)
+Seat 8: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+Mousemode: posts big blind $0.50
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 6h]
+Nislija: raises $1 to $1
+Hoho78: folds
+rossi1616: raises $1.50 to $1.50
+Dzsozuee: folds
+slagalica: folds
+Bernie169: calls $1.50
+kole1992: folds
+Mousemode: calls $1
+Nislija: calls $0.50
+*** FLOP *** [9d Ac 4s]
+Mousemode: checks
+Nislija: bets $1.50
+rossi1616: folds
+Bernie169: folds
+Mousemode: calls $1.50
+*** TURN *** [9d Ac 4s] [Qd]
+Mousemode: checks
+Nislija: bets $2
+Mousemode: calls $2
+*** RIVER *** [9d Ac 4s Qd] [9h]
+Mousemode: checks
+Nislija: checks
+*** SHOW DOWN ***
+Mousemode: shows [Kh Td] (a pair of Nines)
+Nislija: shows [Ts Ah] (two pair, Aces and Nines)
+Nislija collected $13.75 from pot
+*** SUMMARY ***
+Total pot $13.75 | Rake $0.68 
+Board [9d Ac 4s Qd 9h]
+Seat 1: Mousemode (big blind) showed [Kh Td] and lost with a pair of Nines
+Seat 2: Nislija showed [Ts Ah] and won ($13.75) with two pair, Aces and Nines
+Seat 3: Hoho78 folded before Flop (didn't bet)
+Seat 4: rossi1616 folded on the Flop 
+Seat 5: Dzsozuee folded before Flop (didn't bet)
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: Bernie169 (button) folded on the Flop 
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75140215:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:08:05 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Mousemode ($27.32 in chips)
+Seat 2: Nislija ($69.30 in chips)
+Seat 3: Hoho78 ($19.32 in chips)
+Seat 4: rossi1616 ($69.23 in chips)
+Seat 5: Dzsozuee ($25.96 in chips)
+Seat 6: slagalica ($48.90 in chips)
+Seat 7: Bernie169 ($42.97 in chips)
+Seat 8: kole1992 ($50 in chips)
+Mousemode: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Td]
+Hoho78: folds
+rossi1616: folds
+Dzsozuee: calls $0.50
+slagalica: folds
+Bernie169 has timed out
+Bernie169: folds
+kole1992: folds
+Mousemode: calls $0.25
+Nislija: checks
+*** FLOP *** [3h Jh Qd]
+Mousemode: checks
+Nislija: bets $1
+Dzsozuee: calls $1
+Mousemode: raises $2 to $2
+Nislija: calls $1
+Dzsozuee: calls $1
+*** TURN *** [3h Jh Qd] [2h]
+Mousemode: bets $3.50
+Nislija: folds
+Dzsozuee: folds
+Uncalled bet ($3.50) returned to Mousemode
+*** SHOW DOWN ***
+Mousemode: doesn't show hand
+Mousemode collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [3h Jh Qd 2h]
+Seat 1: Mousemode (small blind) collected ($7.50)
+Seat 2: Nislija (big blind) folded on the Turn 
+Seat 3: Hoho78 folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Dzsozuee folded on the Turn 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75140259:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:09:09 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Mousemode ($31.95 in chips)
+Seat 2: Nislija ($66.80 in chips)
+Seat 3: Hoho78 ($19.32 in chips)
+Seat 4: rossi1616 ($69.23 in chips)
+Seat 5: Dzsozuee ($23.46 in chips)
+Seat 6: slagalica ($48.90 in chips)
+Seat 7: Bernie169 ($42.97 in chips)
+Seat 8: kole1992 ($50 in chips)
+Nislija: posts small blind $0.25
+Hoho78: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 5s]
+rossi1616: folds
+Dzsozuee: folds
+Nislija is disconnected 
+Nislija is connected 
+slagalica: raises $1.25 to $1.25
+Bernie169 has timed out
+Bernie169: folds
+kole1992: folds
+Mousemode: calls $1.25
+Nislija: folds
+Hoho78: folds
+*** FLOP *** [6c 9d 2s]
+slagalica: bets $2.43
+Mousemode: calls $2.43
+*** TURN *** [6c 9d 2s] [Jc]
+slagalica: bets $6.08
+Mousemode: folds
+Uncalled bet ($6.08) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $8.11 from pot
+*** SUMMARY ***
+Total pot $8.11 | Rake $0.40 
+Board [6c 9d 2s Jc]
+Seat 1: Mousemode (button) folded on the Turn 
+Seat 2: Nislija (small blind) folded before Flop 
+Seat 3: Hoho78 (big blind) folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Dzsozuee folded before Flop (didn't bet)
+Seat 6: slagalica collected ($8.11)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75140313:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:10:19 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 2: Nislija ($66.55 in chips)
+Seat 3: Hoho78 ($18.82 in chips)
+Seat 4: rossi1616 ($69.23 in chips)
+Seat 5: Dzsozuee ($23.46 in chips)
+Seat 6: slagalica ($52.93 in chips)
+Seat 8: kole1992 ($50 in chips)
+Hoho78: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Qd]
+Tolmi21 joins the table at seat #1
+Dzsozuee: folds
+slagalica: folds
+kole1992: folds
+Nislija: calls $0.50
+Hoho78: folds
+rossi1616: checks
+*** FLOP *** [Jd 3s 9c]
+rossi1616: checks
+Nislija: checks
+*** TURN *** [Jd 3s 9c] [Qc]
+rossi1616: checks
+Nislija: checks
+*** RIVER *** [Jd 3s 9c Qc] [As]
+rossi1616: checks
+Nislija: checks
+*** SHOW DOWN ***
+rossi1616: shows [Ac 9d] (two pair, Aces and Nines)
+Nislija has timed out
+Nislija: mucks hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [Jd 3s 9c Qc As]
+Seat 2: Nislija (button) mucked
+Seat 3: Hoho78 (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) showed [Ac 9d] and won ($1.25) with two pair, Aces and Nines
+Seat 5: Dzsozuee folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75141369:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:11:41 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($50 in chips)
+Seat 2: Nislija ($66.05 in chips)
+Seat 3: Hoho78 ($18.57 in chips)
+Seat 4: rossi1616 ($69.92 in chips)
+Seat 5: Dzsozuee ($23.46 in chips)
+Seat 6: slagalica ($52.93 in chips)
+Seat 8: kole1992 ($50 in chips)
+rossi1616: posts small blind $0.25
+Dzsozuee: posts big blind $0.50
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Js]
+slagalica: folds
+kole1992: folds
+Tolmi21: checks
+Nislija: folds
+Hoho78: folds
+rossi1616: folds
+Dzsozuee: raises $2 to $2.50
+Tolmi21: folds
+Uncalled bet ($2) returned to Dzsozuee
+*** SHOW DOWN ***
+Dzsozuee: doesn't show hand
+Dzsozuee collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Tolmi21 (big blind) folded before Flop 
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: Hoho78 (button) folded before Flop (didn't bet)
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: Dzsozuee (big blind) collected ($1.25)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75141401:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:12:26 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($49.50 in chips)
+Seat 2: Nislija ($66.05 in chips)
+Seat 3: Hoho78 ($18.57 in chips)
+Seat 4: rossi1616 ($69.67 in chips)
+Seat 5: Dzsozuee ($24.21 in chips)
+Seat 6: slagalica ($52.93 in chips)
+Seat 8: kole1992 ($50 in chips)
+Dzsozuee: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Kc]
+kole1992: raises $1 to $1
+Tolmi21: folds
+Nislija: calls $1
+Hoho78: folds
+rossi1616: folds
+Dzsozuee: folds
+slagalica: folds
+*** FLOP *** [Kh 7h As]
+kole1992: checks
+Nislija: checks
+*** TURN *** [Kh 7h As] [Ts]
+kole1992: checks
+Nislija: checks
+*** RIVER *** [Kh 7h As Ts] [8s]
+kole1992: checks
+Nislija: checks
+*** SHOW DOWN ***
+kole1992: shows [Jc Kc] (a pair of Kings)
+Nislija has timed out
+Nislija: mucks hand
+kole1992 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Kh 7h As Ts 8s]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija mucked
+Seat 3: Hoho78 folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: Dzsozuee (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 8: kole1992 showed [Jc Kc] and won ($2.75) with a pair of Kings
+
+
+Weplay Hand #75141463:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:13:52 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($49.50 in chips)
+Seat 2: Nislija ($65.05 in chips)
+Seat 3: Hoho78 ($18.57 in chips)
+Seat 4: rossi1616 ($69.67 in chips)
+Seat 5: Dzsozuee ($23.96 in chips)
+Seat 6: slagalica ($52.43 in chips)
+Seat 8: kole1992 ($51.62 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Kc]
+Tolmi21: folds
+Nislija: folds
+Nislija is disconnected 
+Hoho78: calls $0.50
+Nislija is connected 
+rossi1616: folds
+Dzsozuee: folds
+slagalica: folds
+kole1992: checks
+*** FLOP *** [3c 3d Js]
+kole1992: checks
+Hoho78: checks
+*** TURN *** [3c 3d Js] [Kh]
+kole1992: checks
+Hoho78: checks
+*** RIVER *** [3c 3d Js Kh] [Kd]
+kole1992: bets $0.50
+Hoho78: calls $0.50
+*** SHOW DOWN ***
+kole1992: shows [5s Kc] (a full house, Kings full of Threes)
+Hoho78 has timed out
+Hoho78: mucks hand
+kole1992 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [3c 3d Js Kh Kd]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: Hoho78 mucked
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Dzsozuee (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) showed [5s Kc] and won ($2.25) with a full house, Kings full of Threes
+
+
+Weplay Hand #75141530:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:15:25 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($49.50 in chips)
+Seat 2: Nislija ($65.05 in chips)
+Seat 3: Hoho78 ($17.57 in chips)
+Seat 4: rossi1616 ($69.67 in chips)
+Seat 5: Dzsozuee ($23.96 in chips)
+Seat 6: slagalica ($52.18 in chips)
+Seat 8: kole1992 ($52.76 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 8h]
+Nislija: calls $0.50
+Hoho78: raises $1.25 to $1.25
+rossi1616: folds
+Dzsozuee: raises $5 to $5
+slagalica: folds
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+Hoho78: folds
+Uncalled bet ($3.75) returned to Dzsozuee
+*** SHOW DOWN ***
+Dzsozuee has timed out
+Dzsozuee: doesn't show hand
+Dzsozuee collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0 
+Seat 1: Tolmi21 (big blind) folded before Flop 
+Seat 2: Nislija folded before Flop 
+Seat 3: Hoho78 folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Dzsozuee collected ($3.75)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75141558:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:16:05 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($49 in chips)
+Seat 2: Nislija ($64.55 in chips)
+Seat 3: Hoho78 ($16.32 in chips)
+Seat 4: rossi1616 ($69.67 in chips)
+Seat 5: Dzsozuee ($26.46 in chips)
+Seat 6: slagalica ($52.18 in chips)
+Seat 7: Bernie169 ($42.97 in chips)
+Seat 8: kole1992 ($52.51 in chips)
+Tolmi21: posts small blind $0.25
+Nislija: posts big blind $0.50
+Bernie169: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Ah]
+Hoho78: folds
+rossi1616: folds
+Dzsozuee: folds
+slagalica: folds
+Bernie169: raises $1.25 to $1.75
+kole1992: folds
+Tolmi21: folds
+Nislija: calls $1.25
+*** FLOP *** [Jc Qc Ts]
+Nislija: checks
+Bernie169: bets $3.75
+Nislija: folds
+Uncalled bet ($3.75) returned to Bernie169
+*** SHOW DOWN ***
+Bernie169 has timed out
+Bernie169: doesn't show hand
+Bernie169 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [Jc Qc Ts]
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: Nislija (big blind) folded on the Flop 
+Seat 3: Hoho78 folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Dzsozuee folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 (big blind) collected ($3.75)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75141590:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:16:56 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($48.75 in chips)
+Seat 2: Nislija ($62.80 in chips)
+Seat 3: Hoho78 ($16.32 in chips)
+Seat 4: rossi1616 ($69.67 in chips)
+Seat 5: Dzsozuee ($26.46 in chips)
+Seat 6: slagalica ($52.18 in chips)
+Seat 7: Bernie169 ($44.79 in chips)
+Seat 8: kole1992 ($52.51 in chips)
+Nislija: posts small blind $0.25
+Hoho78: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Kc]
+rossi1616 has timed out
+rossi1616: folds
+Dzsozuee: folds
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: raises $1.50 to $1.50
+Nislija: calls $1.25
+Hoho78: calls $1
+*** FLOP *** [3c 6s 4d]
+Nislija: checks
+Hoho78: checks
+Tolmi21: checks
+*** TURN *** [3c 6s 4d] [7c]
+Nislija: bets $2.50
+Hoho78: folds
+Tolmi21: folds
+Uncalled bet ($2.50) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [3c 6s 4d 7c]
+Seat 1: Tolmi21 (button) folded on the Turn 
+Seat 2: Nislija (small blind) collected ($4.50)
+Seat 3: Hoho78 (big blind) folded on the Turn 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Dzsozuee folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75141648:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:18:15 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($47.25 in chips)
+Seat 2: Nislija ($65.58 in chips)
+Seat 3: Hoho78 ($14.82 in chips)
+Seat 4: rossi1616 ($69.67 in chips)
+Seat 5: Dzsozuee ($26.46 in chips)
+Seat 6: slagalica ($52.18 in chips)
+Seat 7: Bernie169 ($44.79 in chips)
+Seat 8: kole1992 ($52.51 in chips)
+Hoho78: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 7s]
+Dzsozuee: folds
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: folds
+Nislija: raises $1.50 to $1.50
+Hoho78: calls $1.25
+rossi1616: folds
+*** FLOP *** [7c Ad 2c]
+Hoho78: checks
+Nislija: checks
+*** TURN *** [7c Ad 2c] [5h]
+Hoho78: checks
+Nislija: checks
+*** RIVER *** [7c Ad 2c 5h] [Qc]
+Hoho78: bets $2
+Nislija: calls $2
+*** SHOW DOWN ***
+Hoho78: shows [9c As] (a pair of Aces)
+Nislija has timed out
+Nislija: mucks hand
+Hoho78 collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [7c Ad 2c 5h Qc]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija (button) mucked
+Seat 3: Hoho78 (small blind) showed [9c As] and won ($7.50) with a pair of Aces
+Seat 4: rossi1616 (big blind) folded before Flop 
+Seat 5: Dzsozuee folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75141691:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:19:20 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($47.25 in chips)
+Seat 2: Nislija ($62.08 in chips)
+Seat 3: Hoho78 ($18.45 in chips)
+Seat 4: rossi1616 ($69.17 in chips)
+Seat 5: Dzsozuee ($26.46 in chips)
+Seat 6: slagalica ($52.18 in chips)
+Seat 7: Bernie169 ($44.79 in chips)
+Seat 8: kole1992 ($52.51 in chips)
+rossi1616: posts small blind $0.25
+Dzsozuee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 3h]
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+Hoho78: raises $1.50 to $1.50
+rossi1616: folds
+Dzsozuee: calls $1
+*** FLOP *** [Ad 5d 4c]
+Dzsozuee: checks
+Hoho78: checks
+*** TURN *** [Ad 5d 4c] [7s]
+Dzsozuee: bets $1.65
+Hoho78: calls $1.65
+*** RIVER *** [Ad 5d 4c 7s] [Ks]
+Dzsozuee: bets $4.90
+Hoho78: calls $4.90
+*** SHOW DOWN ***
+Dzsozuee: shows [8c 9d] (high card Ace)
+Hoho78: shows [As 4s] (two pair, Aces and Fours)
+Hoho78 collected $16.35 from pot
+*** SUMMARY ***
+Total pot $16.35 | Rake $0.81 
+Board [Ad 5d 4c 7s Ks]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: Hoho78 (button) showed [As 4s] and won ($16.35) with two pair, Aces and Fours
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: Dzsozuee (big blind) showed [8c 9d] and lost with high card Ace
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75141747:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:20:37 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($47.25 in chips)
+Seat 2: Nislija ($62.08 in chips)
+Seat 3: Hoho78 ($25.94 in chips)
+Seat 4: rossi1616 ($68.92 in chips)
+Seat 5: Dzsozuee ($18.41 in chips)
+Seat 6: slagalica ($52.18 in chips)
+Seat 7: Bernie169 ($44.79 in chips)
+Seat 8: kole1992 ($52.51 in chips)
+Dzsozuee: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 8s]
+Bernie169: folds
+kole1992: folds
+Tolmi21: raises $1.25 to $1.25
+Nislija: calls $1.25
+Hoho78: folds
+rossi1616: folds
+Dzsozuee: folds
+slagalica: folds
+*** FLOP *** [7d 4c 3h]
+Hoho78 leaves the table
+Tolmi21: checks
+RonMoll joins the table at seat #3
+Nislija: bets $1.50
+Tolmi21: folds
+Uncalled bet ($1.50) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [7d 4c 3h]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: Nislija collected ($3.25)
+Seat 3: Hoho78 folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: Dzsozuee (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75141772:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:21:12 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($46 in chips)
+Seat 2: Nislija ($63.92 in chips)
+Seat 3: RonMoll ($50 in chips)
+Seat 4: rossi1616 ($68.92 in chips)
+Seat 5: Dzsozuee ($18.16 in chips)
+Seat 6: slagalica ($51.68 in chips)
+Seat 7: Bernie169 ($44.79 in chips)
+Seat 8: kole1992 ($52.51 in chips)
+slagalica: posts small blind $0.25
+Bernie169: posts big blind $0.50
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 9d]
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+Nislija is disconnected 
+RonMoll: raises $1 to $1.50
+rossi1616: folds
+Dzsozuee: folds
+slagalica: folds
+Bernie169: folds
+Uncalled bet ($1) returned to RonMoll
+*** SHOW DOWN ***
+RonMoll: doesn't show hand
+RonMoll collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll (big blind) collected ($1.25)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Dzsozuee (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+Seat 7: Bernie169 (big blind) folded before Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75141799:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:21:50 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($46 in chips)
+Seat 3: RonMoll ($50.75 in chips)
+Seat 4: rossi1616 ($68.92 in chips)
+Seat 5: Dzsozuee ($18.16 in chips)
+Seat 6: slagalica ($51.43 in chips)
+Seat 7: Bernie169 ($44.29 in chips)
+Seat 8: kole1992 ($52.51 in chips)
+Nislija is connected 
+Bernie169: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Qd]
+Tolmi21: folds
+RonMoll: folds
+rossi1616: folds
+Dzsozuee: folds
+slagalica: folds
+Bernie169: raises $0.75 to $1
+kole1992: calls $0.50
+*** FLOP *** [3h 7s 6s]
+Bernie169: bets $2
+kole1992: folds
+Uncalled bet ($2) returned to Bernie169
+*** SHOW DOWN ***
+Bernie169 has timed out
+Bernie169: doesn't show hand
+Bernie169 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [3h 7s 6s]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Dzsozuee folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 7: Bernie169 (small blind) collected ($2)
+Seat 8: kole1992 (big blind) folded on the Flop 
+
+
+Weplay Hand #75141821:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:22:22 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($50 in chips)
+Seat 2: Nislija ($63.92 in chips)
+Seat 3: RonMoll ($50.75 in chips)
+Seat 4: rossi1616 ($68.92 in chips)
+Seat 5: Dzsozuee ($18.16 in chips)
+Seat 6: slagalica ($51.43 in chips)
+Seat 7: Bernie169 ($45.19 in chips)
+Seat 8: kole1992 ($51.51 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 9d]
+Nislija: calls $0.50
+RonMoll: raises $1.75 to $1.75
+rossi1616: folds
+Dzsozuee: raises $5 to $5
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+RonMoll: raises $49 to $50.75 and is all-in
+Dzsozuee: calls $13.16 and is all-in
+Uncalled bet ($32.59) returned to RonMoll
+*** FLOP *** [2d Kc Jc]
+*** TURN *** [2d Kc Jc] [8d]
+*** RIVER *** [2d Kc Jc 8d] [Js]
+*** SHOW DOWN ***
+RonMoll: shows [Td Tc] (two pair, Jacks and Tens)
+Dzsozuee: shows [9s 9c] (two pair, Jacks and Nines)
+RonMoll collected $37.57 from pot
+*** SUMMARY ***
+Total pot $37.57 | Rake $1.87 
+Board [2d Kc Jc 8d Js]
+Seat 1: Tolmi21 (big blind) folded before Flop 
+Seat 2: Nislija folded before Flop 
+Seat 3: RonMoll showed [Td Tc] and won ($37.57) with two pair, Jacks and Tens
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: Dzsozuee showed [9s 9c] and lost with two pair, Jacks and Nines
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75141870:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:23:18 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($49.50 in chips)
+Seat 2: Nislija ($63.42 in chips)
+Seat 3: RonMoll ($68.29 in chips)
+Seat 4: rossi1616 ($68.92 in chips)
+Seat 6: slagalica ($51.43 in chips)
+Seat 7: Bernie169 ($45.19 in chips)
+Seat 8: kole1992 ($51.26 in chips)
+Tolmi21: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Kd]
+RonMoll: raises $1.25 to $1.25
+rossi1616: folds
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: folds
+Nislija: calls $0.75
+*** FLOP *** [7s Th 7h]
+Nislija: checks
+RonMoll: bets $0.90
+Nislija: calls $0.90
+*** TURN *** [7s Th 7h] [5d]
+Nislija: checks
+Dzsozuee is disconnected 
+RonMoll: checks
+*** RIVER *** [7s Th 7h 5d] [7c]
+Dzsozuee is connected 
+Nislija: checks
+RonMoll: checks
+*** SHOW DOWN ***
+Nislija: shows [8h Js] (three of a kind, Sevens)
+RonMoll: shows [Kc Qc] (three of a kind, Sevens)
+RonMoll collected $4.55 from pot
+*** SUMMARY ***
+Total pot $4.55 | Rake $0.22 
+Board [7s Th 7h 5d 7c]
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: Nislija (big blind) showed [8h Js] and lost with three of a kind, Sevens
+Seat 3: RonMoll showed [Kc Qc] and won ($4.55) with three of a kind, Sevens
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75141906:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:24:04 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($49.25 in chips)
+Seat 2: Nislija ($61.27 in chips)
+Seat 3: RonMoll ($70.47 in chips)
+Seat 4: rossi1616 ($68.92 in chips)
+Seat 6: slagalica ($51.43 in chips)
+Seat 7: Bernie169 ($45.19 in chips)
+Seat 8: kole1992 ($51.26 in chips)
+Nislija: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 2h]
+rossi1616: folds
+slagalica: folds
+Dzsozuee leaves the table
+Bernie169: raises $1.25 to $1.25
+vladimirche1 joins the table at seat #5
+kole1992: folds
+Tolmi21: calls $1.25
+Nislija: folds
+RonMoll: folds
+*** FLOP *** [8c 5h Jd]
+Bernie169: bets $1.62
+Tolmi21: calls $1.62
+*** TURN *** [8c 5h Jd] [5s]
+Bernie169: checks
+Tolmi21: bets $3.25
+Bernie169: calls $3.25
+*** RIVER *** [8c 5h Jd 5s] [2c]
+Bernie169: checks
+Tolmi21: bets $9.74
+Bernie169: calls $9.74
+*** SHOW DOWN ***
+Tolmi21: shows [3c 3h] (two pair, Fives and Threes)
+Bernie169: shows [Jh Ac] (two pair, Jacks and Fives)
+Bernie169 collected $32.47 from pot
+*** SUMMARY ***
+Total pot $32.47 | Rake $1.62 
+Board [8c 5h Jd 5s 2c]
+Seat 1: Tolmi21 (button) showed [3c 3h] and lost with two pair, Fives and Threes
+Seat 2: Nislija (small blind) folded before Flop 
+Seat 3: RonMoll (big blind) folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 showed [Jh Ac] and won ($32.47) with two pair, Jacks and Fives
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75141954:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:25:07 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($33.39 in chips)
+Seat 2: Nislija ($61.02 in chips)
+Seat 3: RonMoll ($69.97 in chips)
+Seat 4: rossi1616 ($68.92 in chips)
+Seat 5: vladimirche1 ($50 in chips)
+Seat 6: slagalica ($51.43 in chips)
+Seat 7: Bernie169 ($60.18 in chips)
+Seat 8: kole1992 ($51.26 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 7s]
+vladimirche1: raises $1 to $1.50
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: calls $1.50
+Nislija: calls $1.50
+RonMoll: folds
+rossi1616: folds
+*** FLOP *** [6d 8h 6s]
+vladimirche1: bets $2.63
+Tolmi21: folds
+Nislija: calls $2.63
+*** TURN *** [6d 8h 6s] [Td]
+vladimirche1: checks
+Nislija: checks
+*** RIVER *** [6d 8h 6s Td] [Ad]
+vladimirche1: checks
+Nislija: checks
+*** SHOW DOWN ***
+vladimirche1: shows [8c Qc] (two pair, Eights and Sixes)
+Nislija: shows [9c Ts] (two pair, Tens and Sixes)
+Nislija collected $10.51 from pot
+*** SUMMARY ***
+Total pot $10.51 | Rake $0.52 
+Board [6d 8h 6s Td Ad]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: Nislija (button) showed [9c Ts] and won ($10.51) with two pair, Tens and Sixes
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) folded before Flop 
+Seat 5: vladimirche1 (big blind) showed [8c Qc] and lost with two pair, Eights and Sixes
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75141995:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:26:16 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($50 in chips)
+Seat 2: Nislija ($66.88 in chips)
+Seat 3: RonMoll ($69.72 in chips)
+Seat 4: rossi1616 ($68.42 in chips)
+Seat 5: vladimirche1 ($45.87 in chips)
+Seat 6: slagalica ($51.43 in chips)
+Seat 7: Bernie169 ($60.18 in chips)
+Seat 8: kole1992 ($51.26 in chips)
+rossi1616: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 6h]
+slagalica: folds
+Bernie169: raises $1.25 to $1.25
+kole1992: folds
+Tolmi21: folds
+Nislija: calls $1.25
+RonMoll: folds
+rossi1616: folds
+vladimirche1: folds
+*** FLOP *** [7s Td Ac]
+Bernie169: bets $1.62
+Nislija: folds
+Uncalled bet ($1.62) returned to Bernie169
+*** SHOW DOWN ***
+Bernie169 has timed out
+Bernie169: doesn't show hand
+Bernie169 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [7s Td Ac]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded on the Flop 
+Seat 3: RonMoll (button) folded before Flop (didn't bet)
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: vladimirche1 (big blind) folded before Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 collected ($3.25)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75142016:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:27:00 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($50 in chips)
+Seat 2: Nislija ($65.63 in chips)
+Seat 3: RonMoll ($69.72 in chips)
+Seat 4: rossi1616 ($68.17 in chips)
+Seat 5: vladimirche1 ($45.37 in chips)
+Seat 6: slagalica ($51.43 in chips)
+Seat 7: Bernie169 ($62.02 in chips)
+Seat 8: kole1992 ($51.26 in chips)
+vladimirche1: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 8h]
+Bernie169: raises $1.25 to $1.25
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+RonMoll: folds
+rossi1616: calls $1.25
+vladimirche1 is disconnected 
+vladimirche1 is connected 
+vladimirche1: calls $1
+slagalica: folds
+*** FLOP *** [3h 5s Tc]
+vladimirche1: checks
+Bernie169: bets $2.12
+rossi1616: folds
+vladimirche1: calls $2.12
+*** TURN *** [3h 5s Tc] [4s]
+vladimirche1: checks
+Bernie169: checks
+*** RIVER *** [3h 5s Tc 4s] [4h]
+vladimirche1: bets $7.25
+Bernie169: folds
+Uncalled bet ($7.25) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $8.49 from pot
+*** SUMMARY ***
+Total pot $8.49 | Rake $0.42 
+Board [3h 5s Tc 4s 4h]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) folded on the Flop 
+Seat 5: vladimirche1 (small blind) collected ($8.49)
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: Bernie169 folded on the River 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75142060:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:28:06 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($50 in chips)
+Seat 2: Nislija ($65.63 in chips)
+Seat 3: RonMoll ($69.72 in chips)
+Seat 4: rossi1616 ($66.92 in chips)
+Seat 5: vladimirche1 ($50.07 in chips)
+Seat 6: slagalica ($50.93 in chips)
+Seat 7: Bernie169 ($58.65 in chips)
+Seat 8: kole1992 ($51.26 in chips)
+slagalica: posts small blind $0.25
+Bernie169: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 5s]
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+RonMoll: folds
+rossi1616: folds
+vladimirche1: raises $1.50 to $1.50
+slagalica: folds
+Bernie169: folds
+Uncalled bet ($1) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 (button) collected ($1.25)
+Seat 6: slagalica (small blind) folded before Flop 
+Seat 7: Bernie169 (big blind) folded before Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75142092:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:28:44 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($50 in chips)
+Seat 2: Nislija ($65.63 in chips)
+Seat 3: RonMoll ($69.72 in chips)
+Seat 4: rossi1616 ($66.92 in chips)
+Seat 5: vladimirche1 ($50.82 in chips)
+Seat 6: slagalica ($50.68 in chips)
+Seat 7: Bernie169 ($58.15 in chips)
+Seat 8: kole1992 ($51.26 in chips)
+Bernie169: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Kh]
+Tolmi21: raises $1.25 to $1.25
+Nislija: folds
+RonMoll: folds
+rossi1616: folds
+vladimirche1: folds
+slagalica: calls $1.25
+Bernie169: folds
+kole1992: folds
+*** FLOP *** [Jd Js 8c]
+Tolmi21: checks
+slagalica: checks
+*** TURN *** [Jd Js 8c] [3h]
+Tolmi21: checks
+slagalica: checks
+*** RIVER *** [Jd Js 8c 3h] [Th]
+Tolmi21: checks
+slagalica: checks
+*** SHOW DOWN ***
+Tolmi21: shows [9h Ah] (a pair of Jacks)
+slagalica: shows [As 8s] (two pair, Jacks and Eights)
+slagalica collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [Jd Js 8c 3h Th]
+Seat 1: Tolmi21 showed [9h Ah] and lost with a pair of Jacks
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica (button) showed [As 8s] and won ($3.25) with two pair, Jacks and Eights
+Seat 7: Bernie169 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75142129:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:29:54 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($48.75 in chips)
+Seat 2: Nislija ($65.63 in chips)
+Seat 3: RonMoll ($69.72 in chips)
+Seat 4: rossi1616 ($66.92 in chips)
+Seat 5: vladimirche1 ($50.82 in chips)
+Seat 6: slagalica ($52.52 in chips)
+Seat 7: Bernie169 ($57.90 in chips)
+Seat 8: kole1992 ($50.76 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 6c]
+Nislija: calls $0.50
+RonMoll: folds
+rossi1616: folds
+vladimirche1: raises $2.25 to $2.25
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: calls $1.75
+Nislija: calls $1.75
+*** FLOP *** [4s Qh 4h]
+Tolmi21: checks
+Nislija: checks
+vladimirche1: bets $2.50
+Tolmi21: calls $2.50
+Nislija: folds
+*** TURN *** [4s Qh 4h] [8s]
+Tolmi21: checks
+vladimirche1: bets $5.50
+Tolmi21: folds
+Uncalled bet ($5.50) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [4s Qh 4h 8s]
+Seat 1: Tolmi21 (big blind) folded on the Turn 
+Seat 2: Nislija folded on the Flop 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 collected ($12)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75142191:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:31:16 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($44 in chips)
+Seat 2: Nislija ($63.38 in chips)
+Seat 3: RonMoll ($69.72 in chips)
+Seat 4: rossi1616 ($66.92 in chips)
+Seat 5: vladimirche1 ($57.47 in chips)
+Seat 6: slagalica ($52.52 in chips)
+Seat 7: Bernie169 ($57.90 in chips)
+Seat 8: kole1992 ($50.51 in chips)
+Tolmi21: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 4h]
+RonMoll: folds
+rossi1616: folds
+vladimirche1: raises $1.50 to $1.50
+slagalica: folds
+Bernie169: calls $1.50
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+*** FLOP *** [6d 2d 8d]
+vladimirche1: checks
+Bernie169: bets $1.87
+vladimirche1: calls $1.87
+*** TURN *** [6d 2d 8d] [Jc]
+vladimirche1: checks
+Bernie169: checks
+*** RIVER *** [6d 2d 8d Jc] [Jd]
+vladimirche1: checks
+Bernie169: bets $4.50
+vladimirche1: folds
+Uncalled bet ($4.50) returned to Bernie169
+*** SHOW DOWN ***
+Bernie169 has timed out
+Bernie169: doesn't show hand
+Bernie169 collected $7.49 from pot
+*** SUMMARY ***
+Total pot $7.49 | Rake $0.37 
+Board [6d 2d 8d Jc Jd]
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: Nislija (big blind) folded before Flop 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded on the River 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 collected ($7.49)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75142234:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:32:26 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($43.75 in chips)
+Seat 2: Nislija ($62.88 in chips)
+Seat 3: RonMoll ($69.72 in chips)
+Seat 4: rossi1616 ($66.92 in chips)
+Seat 5: vladimirche1 ($54.10 in chips)
+Seat 6: slagalica ($52.52 in chips)
+Seat 7: Bernie169 ($61.65 in chips)
+Seat 8: kole1992 ($50.51 in chips)
+Nislija: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 5d]
+rossi1616: folds
+vladimirche1: folds
+slagalica: folds
+Bernie169: raises $1 to $1
+kole1992: folds
+Tolmi21: folds
+Nislija: calls $0.75
+RonMoll: folds
+*** FLOP *** [Js Qd 3h]
+Nislija: checks
+Bernie169: bets $0.50
+Nislija: calls $0.50
+*** TURN *** [Js Qd 3h] [4s]
+Nislija: checks
+Bernie169: checks
+*** RIVER *** [Js Qd 3h 4s] [4c]
+Nislija: checks
+Bernie169: checks
+*** SHOW DOWN ***
+Nislija: shows [9h 9d] (two pair, Nines and Fours)
+Bernie169 has timed out
+Bernie169: mucks hand
+Nislija collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [Js Qd 3h 4s 4c]
+Seat 1: Tolmi21 (button) folded before Flop (didn't bet)
+Seat 2: Nislija (small blind) showed [9h 9d] and won ($3.50) with two pair, Nines and Fours
+Seat 3: RonMoll (big blind) folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 mucked
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75142297:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:33:45 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($43.75 in chips)
+Seat 2: Nislija ($64.71 in chips)
+Seat 3: RonMoll ($69.22 in chips)
+Seat 4: rossi1616 ($66.92 in chips)
+Seat 5: vladimirche1 ($54.10 in chips)
+Seat 6: slagalica ($52.52 in chips)
+Seat 7: Bernie169 ($60.15 in chips)
+Seat 8: kole1992 ($50.51 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Js]
+vladimirche1: folds
+slagalica: folds
+Bernie169: folds
+Nislija is disconnected 
+Nislija is connected 
+kole1992: raises $1.10 to $1.10
+Tolmi21: calls $1.10
+Nislija: folds
+RonMoll: folds
+rossi1616: folds
+*** FLOP *** [Ah 8d 5h]
+kole1992: checks
+Tolmi21: checks
+*** TURN *** [Ah 8d 5h] [3h]
+kole1992: checks
+Tolmi21: bets $1.48
+kole1992: folds
+Uncalled bet ($1.48) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $2.95 from pot
+*** SUMMARY ***
+Total pot $2.95 | Rake $0.14 
+Board [Ah 8d 5h 3h]
+Seat 1: Tolmi21 collected ($2.95)
+Seat 2: Nislija (button) folded before Flop (didn't bet)
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) folded before Flop 
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded on the Turn 
+
+
+Weplay Hand #75143348:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:35:01 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($45.46 in chips)
+Seat 2: Nislija ($64.71 in chips)
+Seat 3: RonMoll ($68.97 in chips)
+Seat 4: rossi1616 ($66.42 in chips)
+Seat 5: vladimirche1 ($54.10 in chips)
+Seat 6: slagalica ($52.52 in chips)
+Seat 7: Bernie169 ($60.15 in chips)
+Seat 8: kole1992 ($50 in chips)
+rossi1616: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 2s]
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: raises $1.25 to $1.25
+Nislija is disconnected 
+Nislija has timed out while being disconnected
+Nislija: folds
+RonMoll: folds
+rossi1616: folds
+vladimirche1: calls $0.75
+*** FLOP *** [Qs 6c Qc]
+Nislija is connected 
+vladimirche1: checks
+Tolmi21: checks
+*** TURN *** [Qs 6c Qc] [3h]
+vladimirche1: checks
+Tolmi21: checks
+*** RIVER *** [Qs 6c Qc 3h] [Jd]
+vladimirche1: checks
+Tolmi21: checks
+*** SHOW DOWN ***
+vladimirche1: shows [4d 5c] (a pair of Queens)
+Tolmi21: shows [Ah 7h] (a pair of Queens)
+Tolmi21 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Qs 6c Qc 3h Jd]
+Seat 1: Tolmi21 showed [Ah 7h] and won ($2.75) with a pair of Queens
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll (button) folded before Flop (didn't bet)
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: vladimirche1 (big blind) showed [4d 5c] and lost with a pair of Queens
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75143394:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:36:07 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($46.83 in chips)
+Seat 2: Nislija ($64.71 in chips)
+Seat 3: RonMoll ($68.97 in chips)
+Seat 4: rossi1616 ($66.17 in chips)
+Seat 5: vladimirche1 ($52.85 in chips)
+Seat 6: slagalica ($52.52 in chips)
+Seat 7: Bernie169 ($60.15 in chips)
+Seat 8: kole1992 ($50 in chips)
+vladimirche1: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Qc]
+Bernie169: folds
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+RonMoll: raises $1.25 to $1.25
+rossi1616: folds
+vladimirche1: calls $1
+slagalica: folds
+*** FLOP *** [9h Qs Ac]
+vladimirche1: checks
+RonMoll: bets $1
+vladimirche1: folds
+Uncalled bet ($1) returned to RonMoll
+*** SHOW DOWN ***
+RonMoll: doesn't show hand
+RonMoll collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [9h Qs Ac]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll collected ($3)
+Seat 4: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: vladimirche1 (small blind) folded on the Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75143429:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:36:53 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($46.83 in chips)
+Seat 2: Nislija ($64.71 in chips)
+Seat 3: RonMoll ($70.57 in chips)
+Seat 4: rossi1616 ($66.17 in chips)
+Seat 5: vladimirche1 ($51.60 in chips)
+Seat 6: slagalica ($52.02 in chips)
+Seat 7: Bernie169 ($60.15 in chips)
+Seat 8: kole1992 ($50 in chips)
+slagalica: posts small blind $0.25
+Bernie169: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 6h]
+kole1992: folds
+Tolmi21: calls $0.50
+Nislija: folds
+RonMoll: raises $2 to $2
+Nislija is disconnected 
+rossi1616: folds
+vladimirche1: folds
+slagalica: calls $1.75
+Bernie169: calls $1.50
+Nislija is connected 
+Tolmi21: calls $1.50
+*** FLOP *** [8h 2h 5c]
+slagalica: checks
+Bernie169: checks
+Tolmi21: checks
+RonMoll: bets $4
+slagalica: folds
+Bernie169: raises $8 to $8
+Tolmi21: calls $8
+RonMoll: calls $4
+*** TURN *** [8h 2h 5c] [5s]
+Bernie169: bets $9.50
+Tolmi21: calls $9.50
+RonMoll: calls $9.50
+*** RIVER *** [8h 2h 5c 5s] [6d]
+Bernie169: checks
+Tolmi21: checks
+RonMoll: checks
+*** SHOW DOWN ***
+Bernie169: shows [Ah Jh] (a pair of Fives)
+Tolmi21: shows [6c 4h] (two pair, Sixes and Fives)
+RonMoll: shows [Kc Ks] (two pair, Kings and Fives)
+RonMoll collected $60.50 from pot
+*** SUMMARY ***
+Total pot $60.50 | Rake $3.02 
+Board [8h 2h 5c 5s 6d]
+Seat 1: Tolmi21 showed [6c 4h] and lost with two pair, Sixes and Fives
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll showed [Kc Ks] and won ($60.50) with two pair, Kings and Fives
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded on the Flop 
+Seat 7: Bernie169 (big blind) showed [Ah Jh] and lost with a pair of Fives
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75143524:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:39:21 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($27.33 in chips)
+Seat 2: Nislija ($64.71 in chips)
+Seat 3: RonMoll ($108.55 in chips)
+Seat 4: rossi1616 ($66.17 in chips)
+Seat 5: vladimirche1 ($51.60 in chips)
+Seat 6: slagalica ($50.02 in chips)
+Seat 7: Bernie169 ($40.65 in chips)
+Seat 8: kole1992 ($50 in chips)
+Bernie169: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Ad]
+Tolmi21: calls $0.50
+Nislija: folds
+RonMoll: calls $0.50
+rossi1616: folds
+vladimirche1: folds
+slagalica: folds
+Bernie169: folds
+kole1992: raises $3 to $3.50
+Tolmi21: folds
+RonMoll: calls $3
+*** FLOP *** [Td Qh 8s]
+Nislija is disconnected 
+Nislija is connected 
+kole1992: checks
+RonMoll: checks
+*** TURN *** [Td Qh 8s] [2d]
+kole1992: bets $10.18
+RonMoll: folds
+Uncalled bet ($10.18) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $7.75 from pot
+*** SUMMARY ***
+Total pot $7.75 | Rake $0.38 
+Board [Td Qh 8s 2d]
+Seat 1: Tolmi21 folded before Flop 
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll folded on the Turn 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 7: Bernie169 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) collected ($7.75)
+
+
+Weplay Hand #75143592:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:41:07 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($26.83 in chips)
+Seat 2: Nislija ($64.71 in chips)
+Seat 3: RonMoll ($105.05 in chips)
+Seat 4: rossi1616 ($66.17 in chips)
+Seat 5: vladimirche1 ($51.60 in chips)
+Seat 6: slagalica ($50.02 in chips)
+Seat 7: Bernie169 ($40.40 in chips)
+Seat 8: kole1992 ($53.87 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 9h]
+Nislija: folds
+RonMoll: folds
+rossi1616 has timed out
+rossi1616: folds
+vladimirche1: raises $1.50 to $1.50
+slagalica: folds
+Bernie169: calls $1.50
+kole1992: folds
+Tolmi21: calls $1
+*** FLOP *** [Td 4h Jh]
+Nislija is disconnected 
+Tolmi21: checks
+Nislija is connected 
+vladimirche1: checks
+Bernie169: checks
+*** TURN *** [Td 4h Jh] [8h]
+Tolmi21: checks
+vladimirche1: bets $4.75
+Bernie169: folds
+Tolmi21: folds
+Uncalled bet ($4.75) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [Td 4h Jh 8h]
+Seat 1: Tolmi21 (big blind) folded on the Turn 
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 collected ($4.75)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 (button) folded on the Turn 
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75143649:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:42:33 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($25.33 in chips)
+Seat 2: Nislija ($64.71 in chips)
+Seat 3: RonMoll ($105.05 in chips)
+Seat 4: rossi1616 ($66.17 in chips)
+Seat 5: vladimirche1 ($54.62 in chips)
+Seat 6: slagalica ($50.02 in chips)
+Seat 7: Bernie169 ($38.90 in chips)
+Seat 8: kole1992 ($53.62 in chips)
+Tolmi21: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 9c]
+RonMoll: folds
+rossi1616: calls $0.50
+vladimirche1: folds
+slagalica: folds
+Bernie169: raises $1.25 to $1.25
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+rossi1616: folds
+Uncalled bet ($0.75) returned to Bernie169
+*** SHOW DOWN ***
+Bernie169 has timed out
+Bernie169: doesn't show hand
+Bernie169 collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: Nislija (big blind) folded before Flop 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop 
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 collected ($1.75)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75143678:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:43:21 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($25.08 in chips)
+Seat 2: Nislija ($64.21 in chips)
+Seat 3: RonMoll ($105.05 in chips)
+Seat 4: rossi1616 ($65.67 in chips)
+Seat 5: vladimirche1 ($54.62 in chips)
+Seat 6: slagalica ($50.02 in chips)
+Seat 7: Bernie169 ($40.15 in chips)
+Seat 8: kole1992 ($53.62 in chips)
+Nislija: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 5s]
+rossi1616: folds
+vladimirche1: folds
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: folds
+Nislija: calls $0.25
+RonMoll: checks
+*** FLOP *** [3c Tc 4c]
+Nislija: checks
+RonMoll: checks
+*** TURN *** [3c Tc 4c] [9c]
+Nislija: checks
+RonMoll: checks
+*** RIVER *** [3c Tc 4c 9c] [Kh]
+Nislija: checks
+RonMoll: checks
+*** SHOW DOWN ***
+Nislija: shows [Kd 5h] (a pair of Kings)
+RonMoll: mucks hand
+Nislija collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [3c Tc 4c 9c Kh]
+Seat 1: Tolmi21 (button) folded before Flop (didn't bet)
+Seat 2: Nislija (small blind) showed [Kd 5h] and won ($1) with a pair of Kings
+Seat 3: RonMoll (big blind) mucked
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75143707:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:44:05 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($25.08 in chips)
+Seat 2: Nislija ($64.66 in chips)
+Seat 3: RonMoll ($104.55 in chips)
+Seat 4: rossi1616 ($65.67 in chips)
+Seat 5: vladimirche1 ($54.62 in chips)
+Seat 6: slagalica ($50.02 in chips)
+Seat 7: Bernie169 ($40.15 in chips)
+Seat 8: kole1992 ($53.62 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Jh]
+vladimirche1: folds
+slagalica: folds
+Bernie169: folds
+kole1992: raises $1 to $1
+Tolmi21: folds
+Nislija: calls $1
+RonMoll: folds
+rossi1616: calls $0.50
+*** FLOP *** [3c 8c 6d]
+rossi1616: checks
+kole1992: checks
+Nislija: checks
+*** TURN *** [3c 8c 6d] [3d]
+rossi1616: checks
+kole1992: checks
+Nislija: bets $3
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($3) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [3c 8c 6d 3d]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija (button) collected ($3.25)
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) folded on the Turn 
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded on the Turn 
+
+
+Weplay Hand #75143751:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:45:24 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($50 in chips)
+Seat 2: Nislija ($66.75 in chips)
+Seat 3: RonMoll ($104.30 in chips)
+Seat 4: rossi1616 ($64.67 in chips)
+Seat 5: vladimirche1 ($54.62 in chips)
+Seat 6: slagalica ($50.02 in chips)
+Seat 7: Bernie169 ($40.15 in chips)
+Seat 8: kole1992 ($52.62 in chips)
+rossi1616: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 6s]
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+RonMoll: raises $1.25 to $1.25
+Nislija is disconnected 
+Nislija is connected 
+rossi1616: folds
+vladimirche1: calls $0.75
+*** FLOP *** [6c Kh 8s]
+vladimirche1: checks
+RonMoll: bets $0.90
+vladimirche1: raises $3.18 to $3.18
+RonMoll: folds
+Uncalled bet ($2.28) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $4.55 from pot
+*** SUMMARY ***
+Total pot $4.55 | Rake $0.22 
+Board [6c Kh 8s]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll (button) folded on the Flop 
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: vladimirche1 (big blind) collected ($4.55)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75143786:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:46:20 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($50 in chips)
+Seat 2: Nislija ($66.75 in chips)
+Seat 3: RonMoll ($102.15 in chips)
+Seat 4: rossi1616 ($64.42 in chips)
+Seat 5: vladimirche1 ($56.80 in chips)
+Seat 6: slagalica ($50.02 in chips)
+Seat 7: Bernie169 ($40.15 in chips)
+Seat 8: kole1992 ($52.62 in chips)
+vladimirche1: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Qs]
+Bernie169: folds
+kole1992: folds
+Tolmi21: calls $0.50
+Nislija: folds
+RonMoll: folds
+rossi1616: folds
+vladimirche1: calls $0.25
+slagalica: checks
+*** FLOP *** [3d Qd Td]
+vladimirche1: checks
+slagalica: checks
+Tolmi21: bets $0.75
+vladimirche1: calls $0.75
+slagalica: folds
+*** TURN *** [3d Qd Td] [7h]
+vladimirche1: bets $2
+Tolmi21: raises $5.50 to $5.50
+vladimirche1: calls $3.50
+*** RIVER *** [3d Qd Td 7h] [Kc]
+vladimirche1: checks
+Tolmi21: bets $8
+vladimirche1: folds
+Uncalled bet ($8) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [3d Qd Td 7h Kc]
+Seat 1: Tolmi21 collected ($14)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: vladimirche1 (small blind) folded on the River 
+Seat 6: slagalica (big blind) folded on the Flop 
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75143829:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:47:25 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($56.55 in chips)
+Seat 2: Nislija ($66.75 in chips)
+Seat 3: RonMoll ($102.15 in chips)
+Seat 4: rossi1616 ($64.42 in chips)
+Seat 5: vladimirche1 ($50.05 in chips)
+Seat 6: slagalica ($49.52 in chips)
+Seat 7: Bernie169 ($40.15 in chips)
+Seat 8: kole1992 ($52.62 in chips)
+slagalica: posts small blind $0.25
+Bernie169: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Ks]
+kole1992: folds
+Tolmi21: raises $1.50 to $1.50
+Nislija: calls $1.50
+RonMoll: folds
+rossi1616: folds
+vladimirche1: calls $1.50
+slagalica: folds
+Bernie169: calls $1
+*** FLOP *** [Qs Js 6c]
+Bernie169: checks
+Tolmi21: checks
+Nislija: checks
+vladimirche1: bets $4.13
+Bernie169: folds
+Tolmi21: folds
+Nislija: calls $4.13
+*** TURN *** [Qs Js 6c] [5h]
+Nislija: checks
+vladimirche1: bets $11.01
+Nislija: folds
+Uncalled bet ($11.01) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $14.51 from pot
+*** SUMMARY ***
+Total pot $14.51 | Rake $0.72 
+Board [Qs Js 6c 5h]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: Nislija folded on the Turn 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 (button) collected ($14.51)
+Seat 6: slagalica (small blind) folded before Flop 
+Seat 7: Bernie169 (big blind) folded on the Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75143868:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:48:35 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($55.05 in chips)
+Seat 2: Nislija ($61.12 in chips)
+Seat 3: RonMoll ($102.15 in chips)
+Seat 4: rossi1616 ($64.42 in chips)
+Seat 5: vladimirche1 ($58.21 in chips)
+Seat 6: slagalica ($49.27 in chips)
+Seat 7: Bernie169 ($38.65 in chips)
+Seat 8: kole1992 ($52.62 in chips)
+Bernie169: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 6d]
+Tolmi21: folds
+Nislija: folds
+RonMoll: folds
+rossi1616: folds
+vladimirche1: folds
+slagalica: folds
+Bernie169: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 7: Bernie169 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) collected ($0.50)
+
+
+Weplay Hand #75143880:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:48:53 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($55.05 in chips)
+Seat 2: Nislija ($61.12 in chips)
+Seat 3: RonMoll ($102.15 in chips)
+Seat 4: rossi1616 ($64.42 in chips)
+Seat 5: vladimirche1 ($58.21 in chips)
+Seat 6: slagalica ($49.27 in chips)
+Seat 7: Bernie169 ($38.40 in chips)
+Seat 8: kole1992 ($52.87 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Ah]
+Nislija is disconnected 
+Nislija is connected 
+Nislija: folds
+RonMoll: folds
+rossi1616: raises $1.50 to $1.50
+vladimirche1: folds
+slagalica: calls $1.50
+Bernie169: folds
+kole1992: folds
+Tolmi21: calls $1
+*** FLOP *** [5c 3d Kd]
+Tolmi21: checks
+rossi1616: checks
+slagalica: checks
+*** TURN *** [5c 3d Kd] [9d]
+Tolmi21: bets $2.38
+rossi1616: folds
+slagalica: calls $2.38
+*** RIVER *** [5c 3d Kd 9d] [7d]
+Tolmi21: checks
+slagalica: bets $6.34
+Tolmi21: calls $6.34
+*** SHOW DOWN ***
+slagalica: shows [Ad Jc] (a flush, Ace high)
+Tolmi21: mucks hand
+slagalica collected $22.19 from pot
+*** SUMMARY ***
+Total pot $22.19 | Rake $1.10 
+Board [5c 3d Kd 9d 7d]
+Seat 1: Tolmi21 (big blind) mucked
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded on the Turn 
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica showed [Ad Jc] and won ($22.19) with a flush, Ace high
+Seat 7: Bernie169 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75143929:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:50:13 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($44.83 in chips)
+Seat 2: Nislija ($61.12 in chips)
+Seat 3: RonMoll ($102.15 in chips)
+Seat 4: rossi1616 ($62.92 in chips)
+Seat 5: vladimirche1 ($58.21 in chips)
+Seat 6: slagalica ($60.14 in chips)
+Seat 7: Bernie169 ($38.40 in chips)
+Seat 8: kole1992 ($52.62 in chips)
+Tolmi21: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 4c]
+RonMoll: folds
+rossi1616: folds
+vladimirche1 has timed out
+vladimirche1: folds
+slagalica: folds
+Bernie169: folds
+kole1992: folds
+Tolmi21: folds
+Uncalled bet ($0.25) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: Nislija (big blind) collected ($0.50)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75143953:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:50:47 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($44.58 in chips)
+Seat 2: Nislija ($61.37 in chips)
+Seat 3: RonMoll ($102.15 in chips)
+Seat 4: rossi1616 ($62.92 in chips)
+Seat 6: slagalica ($60.14 in chips)
+Seat 7: Bernie169 ($38.40 in chips)
+Seat 8: kole1992 ($52.62 in chips)
+Nislija: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 8s]
+rossi1616 has timed out
+rossi1616: folds
+slagalica: folds
+Bernie169: raises $1.25 to $1.25
+kole1992: folds
+Tolmi21: folds
+Nislija: folds
+RonMoll: calls $0.75
+*** FLOP *** [9c 5h 2c]
+RonMoll: checks
+Bernie169: bets $1.37
+RonMoll: folds
+Uncalled bet ($1.37) returned to Bernie169
+*** SHOW DOWN ***
+Bernie169 has timed out
+Bernie169: doesn't show hand
+Bernie169 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [9c 5h 2c]
+Seat 1: Tolmi21 (button) folded before Flop (didn't bet)
+Seat 2: Nislija (small blind) folded before Flop 
+Seat 3: RonMoll (big blind) folded on the Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 collected ($2.75)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75143992:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:51:56 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($44.58 in chips)
+Seat 2: Nislija ($61.12 in chips)
+Seat 3: RonMoll ($100.90 in chips)
+Seat 4: rossi1616 ($62.92 in chips)
+Seat 6: slagalica ($60.14 in chips)
+Seat 7: Bernie169 ($39.77 in chips)
+Seat 8: kole1992 ($52.62 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Js]
+slagalica: folds
+Bernie169 has timed out
+Bernie169: folds
+kole1992: raises $1.10 to $1.10
+Tolmi21: calls $1.10
+Nislija: folds
+RonMoll: raises $4.75 to $5
+rossi1616: folds
+kole1992: folds
+Tolmi21: folds
+Uncalled bet ($3.90) returned to RonMoll
+*** SHOW DOWN ***
+RonMoll: doesn't show hand
+RonMoll collected $3.80 from pot
+*** SUMMARY ***
+Total pot $3.80 | Rake $0 
+Seat 1: Tolmi21 folded before Flop 
+Seat 2: Nislija (button) folded before Flop (didn't bet)
+Seat 3: RonMoll (small blind) collected ($3.80)
+Seat 4: rossi1616 (big blind) folded before Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop 
+
+
+Weplay Hand #75144031:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:53:03 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($43.48 in chips)
+Seat 2: Nislija ($61.12 in chips)
+Seat 3: RonMoll ($103.60 in chips)
+Seat 4: rossi1616 ($62.42 in chips)
+Seat 5: vladimirche1 ($58.21 in chips)
+Seat 6: slagalica ($60.14 in chips)
+Seat 7: Bernie169 ($39.77 in chips)
+Seat 8: kole1992 ($51.52 in chips)
+rossi1616: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 9h]
+slagalica: folds
+Bernie169: folds
+kole1992: raises $1.50 to $1.50
+Tolmi21: folds
+Nislija: folds
+RonMoll: calls $1.50
+rossi1616: folds
+vladimirche1: folds
+*** FLOP *** [4d 7h Kh]
+kole1992: checks
+RonMoll: checks
+*** TURN *** [4d 7h Kh] [Jd]
+kole1992: checks
+RonMoll: bets $1.50
+kole1992: raises $8.96 to $8.96
+RonMoll: calls $7.46
+*** RIVER *** [4d 7h Kh Jd] [3c]
+kole1992: bets $41.06 and is all-in
+RonMoll: folds
+Uncalled bet ($41.06) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $21.67 from pot
+*** SUMMARY ***
+Total pot $21.67 | Rake $1.08 
+Board [4d 7h Kh Jd 3c]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll (button) folded on the River 
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: vladimirche1 (big blind) folded before Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Bernie169 folded before Flop (didn't bet)
+Seat 8: kole1992 collected ($21.67)
+
+
+Weplay Hand #75144097:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:55:05 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($43.48 in chips)
+Seat 2: Nislija ($61.12 in chips)
+Seat 3: RonMoll ($93.14 in chips)
+Seat 4: rossi1616 ($62.17 in chips)
+Seat 5: vladimirche1 ($57.71 in chips)
+Seat 6: slagalica ($60.14 in chips)
+Seat 7: Bernie169 ($39.77 in chips)
+Seat 8: kole1992 ($61.65 in chips)
+vladimirche1: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 8c]
+Bernie169: raises $1.25 to $1.25
+kole1992: folds
+Tolmi21: calls $1.25
+Nislija: calls $1.25
+RonMoll: folds
+rossi1616: folds
+vladimirche1: calls $1
+slagalica: folds
+*** FLOP *** [6d Jc Qd]
+vladimirche1: checks
+Bernie169: bets $5.50
+Tolmi21: calls $5.50
+Nislija: folds
+vladimirche1: folds
+*** TURN *** [6d Jc Qd] [5s]
+Bernie169: bets $16.50
+Tolmi21: raises $36.73 to $36.73 and is all-in
+Bernie169: calls $16.52 and is all-in
+Uncalled bet ($3.71) returned to Tolmi21
+*** RIVER *** [6d Jc Qd 5s] [7s]
+*** SHOW DOWN ***
+Bernie169: shows [As Ac] (a pair of Aces)
+Tolmi21: shows [Qc Js] (two pair, Queens and Jacks)
+Tolmi21 collected $82.54 from pot
+*** SUMMARY ***
+Total pot $82.54 | Rake $4 
+Board [6d Jc Qd 5s 7s]
+Seat 1: Tolmi21 showed [Qc Js] and won ($82.54) with two pair, Queens and Jacks
+Seat 2: Nislija folded on the Flop 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: vladimirche1 (small blind) folded on the Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: Bernie169 showed [As Ac] and lost with a pair of Aces
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144117:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:56:17 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($82.25 in chips)
+Seat 2: Nislija ($59.87 in chips)
+Seat 3: RonMoll ($93.14 in chips)
+Seat 4: rossi1616 ($62.17 in chips)
+Seat 5: vladimirche1 ($56.46 in chips)
+Seat 6: slagalica ($59.64 in chips)
+Seat 8: kole1992 ($61.65 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 3s]
+Bernie169 leaves the table
+Tolmi21: folds
+Nislija: folds
+RonMoll: folds
+Nislija leaves the table
+rossi1616: raises $1.50 to $1.50
+vladimirche1: folds
+slagalica: folds
+kole1992: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: Nislija folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 collected ($1.25)
+Seat 5: vladimirche1 (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75144121:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:56:42 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($82.25 in chips)
+Seat 3: RonMoll ($93.14 in chips)
+Seat 4: rossi1616 ($62.92 in chips)
+Seat 5: vladimirche1 ($56.46 in chips)
+Seat 6: slagalica ($59.39 in chips)
+Seat 8: kole1992 ($61.15 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 6c]
+RonMoll: folds
+rossi1616: folds
+vladimirche1: raises $1.50 to $1.50
+slagalica: folds
+kole1992: folds
+Tolmi21: folds
+Uncalled bet ($1) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Tolmi21 (big blind) folded before Flop 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 collected ($1.25)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75144129:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:57:10 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($81.75 in chips)
+Seat 3: RonMoll ($93.14 in chips)
+Seat 4: rossi1616 ($62.92 in chips)
+Seat 5: vladimirche1 ($57.21 in chips)
+Seat 6: slagalica ($59.39 in chips)
+Seat 8: kole1992 ($60.90 in chips)
+Tolmi21: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 3c]
+rossi1616 has timed out
+rossi1616: folds
+vladimirche1: folds
+slagalica: folds
+kole1992: folds
+Tolmi21: calls $0.25
+RonMoll: checks
+*** FLOP *** [8s 3d 9s]
+Tolmi21: checks
+RonMoll: checks
+*** TURN *** [8s 3d 9s] [8c]
+Tolmi21: bets $0.50
+RonMoll: folds
+Uncalled bet ($0.50) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [8s 3d 9s 8c]
+Seat 1: Tolmi21 (small blind) collected ($1)
+Seat 3: RonMoll (big blind) folded on the Turn 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75144146:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:58:11 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($82.20 in chips)
+Seat 3: RonMoll ($92.64 in chips)
+Seat 4: rossi1616 ($62.92 in chips)
+Seat 5: vladimirche1 ($57.21 in chips)
+Seat 6: slagalica ($59.39 in chips)
+Seat 8: kole1992 ($60.90 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 4s]
+vladimirche1: folds
+slagalica: folds
+kole1992: folds
+Tolmi21: folds
+RonMoll: raises $1.25 to $1.50
+rossi1616: folds
+Uncalled bet ($1) returned to RonMoll
+*** SHOW DOWN ***
+RonMoll: doesn't show hand
+RonMoll collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Tolmi21 (button) folded before Flop (didn't bet)
+Seat 3: RonMoll (small blind) collected ($1)
+Seat 4: rossi1616 (big blind) folded before Flop 
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144155:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:58:43 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($82.20 in chips)
+Seat 3: RonMoll ($93.14 in chips)
+Seat 5: vladimirche1 ($57.21 in chips)
+Seat 6: slagalica ($59.39 in chips)
+Seat 8: kole1992 ($60.90 in chips)
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 7s]
+slagalica: raises $1.25 to $1.25
+kole1992: folds
+Tolmi21: calls $1.25
+RonMoll: folds
+vladimirche1: folds
+*** FLOP *** [Ts 9c 4d]
+slagalica: bets $2
+Tolmi21: calls $2
+*** TURN *** [Ts 9c 4d] [Ah]
+slagalica: bets $5.25
+Tolmi21: folds
+Uncalled bet ($5.25) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [Ts 9c 4d Ah]
+Seat 1: Tolmi21 folded on the Turn 
+Seat 3: RonMoll (button) folded before Flop (didn't bet)
+Seat 5: vladimirche1 (big blind) folded before Flop 
+Seat 6: slagalica collected ($7)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144171:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 20:59:40 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($78.95 in chips)
+Seat 3: RonMoll ($93.14 in chips)
+Seat 5: vladimirche1 ($56.71 in chips)
+Seat 6: slagalica ($62.79 in chips)
+Seat 8: kole1992 ($60.90 in chips)
+vladimirche1: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 6c]
+kole1992: folds
+Tolmi21: folds
+RonMoll: raises $1.25 to $1.25
+vladimirche1: calls $1
+slagalica: folds
+*** FLOP *** [Ts 3s 6h]
+vladimirche1: checks
+RonMoll: bets $1
+vladimirche1: calls $1
+*** TURN *** [Ts 3s 6h] [4c]
+vladimirche1: checks
+RonMoll: bets $4
+vladimirche1: folds
+Uncalled bet ($4) returned to RonMoll
+*** SHOW DOWN ***
+RonMoll: doesn't show hand
+RonMoll collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [Ts 3s 6h 4c]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 3: RonMoll collected ($5)
+Seat 5: vladimirche1 (small blind) folded on the Turn 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144190:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:00:33 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($78.95 in chips)
+Seat 3: RonMoll ($95.64 in chips)
+Seat 5: vladimirche1 ($54.46 in chips)
+Seat 6: slagalica ($62.29 in chips)
+Seat 8: kole1992 ($60.90 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 7d]
+Tolmi21: folds
+RonMoll: folds
+vladimirche1: raises $1.50 to $1.50
+slagalica: calls $1.25
+kole1992: folds
+*** FLOP *** [5c 8s 3d]
+slagalica: checks
+vladimirche1: bets $1.50
+slagalica: folds
+Uncalled bet ($1.50) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [5c 8s 3d]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 5: vladimirche1 (button) collected ($3.50)
+Seat 6: slagalica (small blind) folded on the Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75144233:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:01:46 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($78.95 in chips)
+Seat 3: RonMoll ($95.64 in chips)
+Seat 5: vladimirche1 ($56.29 in chips)
+Seat 6: slagalica ($60.79 in chips)
+Seat 8: kole1992 ($60.40 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 5h]
+RonMoll: folds
+vladimirche1: folds
+slagalica: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Tolmi21 (big blind) collected ($0.50)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75144240:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:02:10 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($79.20 in chips)
+Seat 3: RonMoll ($95.64 in chips)
+Seat 5: vladimirche1 ($56.29 in chips)
+Seat 6: slagalica ($60.79 in chips)
+Seat 8: kole1992 ($60.15 in chips)
+Tolmi21: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Qd]
+vladimirche1: raises $1.50 to $1.50
+slagalica: raises $4.75 to $4.75
+kole1992: folds
+Tolmi21: folds
+RonMoll: folds
+vladimirche1: raises $54.79 to $56.29 and is all-in
+slagalica: calls $51.54
+*** FLOP *** [Jc 6s 8s]
+*** TURN *** [Jc 6s 8s] [9d]
+*** RIVER *** [Jc 6s 8s 9d] [5d]
+*** SHOW DOWN ***
+vladimirche1: shows [Kd Ks] (a pair of Kings)
+slagalica: shows [Kh Ah] (high card Ace)
+vladimirche1 collected $113.33 from pot
+*** SUMMARY ***
+Total pot $113.33 | Rake $4 
+Board [Jc 6s 8s 9d 5d]
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 3: RonMoll (big blind) folded before Flop 
+Seat 5: vladimirche1 showed [Kd Ks] and won ($113.33) with a pair of Kings
+Seat 6: slagalica showed [Kh Ah] and lost with high card Ace
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75144272:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:03:04 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($78.95 in chips)
+Seat 3: RonMoll ($95.14 in chips)
+Seat 4: rossi1616 ($62.42 in chips)
+Seat 5: vladimirche1 ($109.33 in chips)
+Seat 6: slagalica ($50 in chips)
+Seat 8: kole1992 ($60.15 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 4s]
+vladimirche1: folds
+slagalica: folds
+kole1992: folds
+Tolmi21: calls $0.50
+RonMoll: folds
+rossi1616: checks
+*** FLOP *** [Kc 3h 3c]
+rossi1616: checks
+Tolmi21: checks
+*** TURN *** [Kc 3h 3c] [As]
+rossi1616: checks
+Tolmi21: bets $1.25
+rossi1616: calls $1.25
+*** RIVER *** [Kc 3h 3c As] [7s]
+rossi1616: checks
+Tolmi21: bets $1.88
+rossi1616: calls $1.88
+*** SHOW DOWN ***
+Tolmi21: shows [Ad 2h] (two pair, Aces and Threes)
+rossi1616: mucks hand
+Tolmi21 collected $7.51 from pot
+*** SUMMARY ***
+Total pot $7.51 | Rake $0.37 
+Board [Kc 3h 3c As 7s]
+Seat 1: Tolmi21 (button) showed [Ad 2h] and won ($7.51) with two pair, Aces and Threes
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) mucked
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144298:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:04:05 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($82.46 in chips)
+Seat 3: RonMoll ($94.89 in chips)
+Seat 4: rossi1616 ($58.79 in chips)
+Seat 5: vladimirche1 ($109.33 in chips)
+Seat 6: slagalica ($50 in chips)
+Seat 8: kole1992 ($60.15 in chips)
+rossi1616: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 3d]
+slagalica: folds
+kole1992: folds
+Tolmi21: raises $1.25 to $1.25
+RonMoll: raises $3.50 to $3.50
+rossi1616: folds
+vladimirche1: folds
+Tolmi21: calls $2.25
+*** FLOP *** [Qh 8c 6s]
+Tolmi21: checks
+RonMoll: bets $2.55
+Tolmi21: calls $2.55
+*** TURN *** [Qh 8c 6s] [Js]
+Tolmi21: checks
+RonMoll: checks
+*** RIVER *** [Qh 8c 6s Js] [Jh]
+Tolmi21: bets $9.64
+RonMoll: calls $9.64
+*** SHOW DOWN ***
+Tolmi21: shows [9s Td] (a straight, Eight to Queen)
+RonMoll: mucks hand
+Tolmi21 collected $32.13 from pot
+*** SUMMARY ***
+Total pot $32.13 | Rake $1.60 
+Board [Qh 8c 6s Js Jh]
+Seat 1: Tolmi21 showed [9s Td] and won ($32.13) with a straight, Eight to Queen
+Seat 3: RonMoll (button) mucked
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: vladimirche1 (big blind) folded before Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144341:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:05:41 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($97.30 in chips)
+Seat 3: RonMoll ($79.20 in chips)
+Seat 4: rossi1616 ($58.54 in chips)
+Seat 5: vladimirche1 ($108.83 in chips)
+Seat 6: slagalica ($50 in chips)
+Seat 8: kole1992 ($60.15 in chips)
+vladimirche1: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Tc]
+kole1992: folds
+Tolmi21: folds
+RonMoll: folds
+rossi1616: raises $1.50 to $1.50
+vladimirche1: folds
+slagalica: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) collected ($1.25)
+Seat 5: vladimirche1 (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144352:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:06:07 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($97.30 in chips)
+Seat 3: RonMoll ($79.20 in chips)
+Seat 4: rossi1616 ($59.29 in chips)
+Seat 5: vladimirche1 ($108.58 in chips)
+Seat 6: slagalica ($49.50 in chips)
+Seat 8: kole1992 ($60.15 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Js]
+Tolmi21: folds
+RonMoll: folds
+rossi1616: folds
+vladimirche1: folds
+slagalica: raises $1 to $1.25
+kole1992: calls $0.75
+*** FLOP *** [Tc 5h 7s]
+slagalica: checks
+kole1992: bets $1.25
+slagalica: folds
+Uncalled bet ($1.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Tc 5h 7s]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded on the Flop 
+Seat 8: kole1992 (big blind) collected ($2.50)
+
+
+Weplay Hand #75144372:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:06:52 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($97.30 in chips)
+Seat 3: RonMoll ($79.20 in chips)
+Seat 4: rossi1616 ($59.29 in chips)
+Seat 5: vladimirche1 ($108.58 in chips)
+Seat 6: slagalica ($48.25 in chips)
+Seat 8: kole1992 ($61.28 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 8s]
+RonMoll: folds
+rossi1616: folds
+vladimirche1: raises $1.50 to $1.50
+slagalica: folds
+kole1992: calls $1.25
+Tolmi21: calls $1
+*** FLOP *** [6c Qs Ac]
+kole1992: checks
+Tolmi21: bets $3.38
+vladimirche1: calls $3.38
+kole1992: folds
+*** TURN *** [6c Qs Ac] [7d]
+Tolmi21: bets $5
+vladimirche1: calls $5
+*** RIVER *** [6c Qs Ac 7d] [Js]
+Tolmi21: bets $10.63
+vladimirche1: folds
+Uncalled bet ($10.63) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $21.26 from pot
+*** SUMMARY ***
+Total pot $21.26 | Rake $1.06 
+Board [6c Qs Ac 7d Js]
+Seat 1: Tolmi21 (big blind) collected ($21.26)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded on the River 
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded on the Flop 
+
+
+Weplay Hand #75144408:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:08:04 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($107.62 in chips)
+Seat 3: RonMoll ($79.20 in chips)
+Seat 4: rossi1616 ($59.29 in chips)
+Seat 5: vladimirche1 ($98.70 in chips)
+Seat 6: slagalica ($48.25 in chips)
+Seat 8: kole1992 ($59.78 in chips)
+Tolmi21: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Th]
+rossi1616: folds
+vladimirche1: folds
+slagalica: folds
+kole1992: folds
+Tolmi21: raises $1.25 to $1.50
+RonMoll: folds
+Uncalled bet ($1) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Tolmi21 (small blind) collected ($1)
+Seat 3: RonMoll (big blind) folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75144416:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:08:29 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($108.12 in chips)
+Seat 3: RonMoll ($78.70 in chips)
+Seat 4: rossi1616 ($59.29 in chips)
+Seat 5: vladimirche1 ($98.70 in chips)
+Seat 6: slagalica ($48.25 in chips)
+Seat 8: kole1992 ($59.78 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Jc]
+vladimirche1: folds
+slagalica: folds
+kole1992: raises $1.25 to $1.25
+Tolmi21: folds
+RonMoll: folds
+rossi1616: calls $0.75
+*** FLOP *** [Tc 9s Qc]
+rossi1616: checks
+kole1992: checks
+*** TURN *** [Tc 9s Qc] [Td]
+rossi1616: checks
+kole1992: bets $1
+rossi1616: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Tc 9s Qc Td]
+Seat 1: Tolmi21 (button) folded before Flop (didn't bet)
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) folded on the Turn 
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 collected ($2.75)
+
+
+Weplay Hand #75144446:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:09:32 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($108.12 in chips)
+Seat 3: RonMoll ($78.45 in chips)
+Seat 4: rossi1616 ($58.04 in chips)
+Seat 5: vladimirche1 ($98.70 in chips)
+Seat 6: slagalica ($48.25 in chips)
+Seat 8: kole1992 ($61.15 in chips)
+rossi1616: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 9h]
+slagalica: folds
+kole1992: folds
+Tolmi21: calls $0.50
+RonMoll: folds
+rossi1616: calls $0.25
+vladimirche1: checks
+*** FLOP *** [Qh Js 9c]
+rossi1616: checks
+vladimirche1: checks
+Tolmi21: bets $1.13
+rossi1616: calls $1.13
+vladimirche1: calls $1.13
+*** TURN *** [Qh Js 9c] [3h]
+rossi1616: checks
+vladimirche1: checks
+Tolmi21: checks
+*** RIVER *** [Qh Js 9c 3h] [2c]
+rossi1616: checks
+vladimirche1: bets $4.89
+Tolmi21: folds
+vrtlar joins the table at seat #2
+rossi1616: folds
+Uncalled bet ($4.89) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $4.89 from pot
+*** SUMMARY ***
+Total pot $4.89 | Rake $0.24 
+Board [Qh Js 9c 3h 2c]
+Seat 1: Tolmi21 folded on the River 
+Seat 3: RonMoll (button) folded before Flop (didn't bet)
+Seat 4: rossi1616 (small blind) folded on the River 
+Seat 5: vladimirche1 (big blind) collected ($4.89)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144491:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:11:17 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($106.49 in chips)
+Seat 2: vrtlar ($50 in chips)
+Seat 3: RonMoll ($78.45 in chips)
+Seat 4: rossi1616 ($56.41 in chips)
+Seat 5: vladimirche1 ($101.72 in chips)
+Seat 6: slagalica ($48.25 in chips)
+Seat 8: kole1992 ($61.15 in chips)
+vladimirche1: posts small blind $0.25
+slagalica: posts big blind $0.50
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Jc]
+kole1992 has timed out
+kole1992: folds
+Tolmi21: raises $2 to $2
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+vladimirche1: folds
+slagalica: calls $1.50
+*** FLOP *** [Kc 3d 7c]
+slagalica: checks
+Tolmi21: bets $4.75
+slagalica: folds
+Uncalled bet ($4.75) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [Kc 3d 7c]
+Seat 1: Tolmi21 collected ($4.75)
+Seat 2: vrtlar (big blind) folded before Flop 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: vladimirche1 (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded on the Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144522:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:12:39 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($109.01 in chips)
+Seat 2: vrtlar ($50 in chips)
+Seat 3: RonMoll ($78.45 in chips)
+Seat 4: rossi1616 ($56.41 in chips)
+Seat 5: vladimirche1 ($101.47 in chips)
+Seat 6: slagalica ($46.25 in chips)
+Seat 8: kole1992 ($61.15 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Qs]
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+rossi1616: raises $1.50 to $1.50
+vladimirche1: folds
+slagalica: calls $1.25
+kole1992: calls $1
+*** FLOP *** [6h 4c Ac]
+slagalica: checks
+kole1992: checks
+rossi1616: checks
+*** TURN *** [6h 4c Ac] [6d]
+slagalica: checks
+kole1992: checks
+rossi1616: checks
+*** RIVER *** [6h 4c Ac 6d] [4d]
+slagalica: checks
+kole1992: checks
+rossi1616: checks
+*** SHOW DOWN ***
+slagalica: shows [Ts Js] (two pair, Sixes and Fours)
+kole1992: shows [2s Qs] (two pair, Sixes and Fours)
+rossi1616: shows [As Qc] (two pair, Aces and Sixes)
+rossi1616 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [6h 4c Ac 6d 4d]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 showed [As Qc] and won ($4.50) with two pair, Aces and Sixes
+Seat 5: vladimirche1 (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) showed [Ts Js] and lost with two pair, Sixes and Fours
+Seat 8: kole1992 (big blind) showed [2s Qs] and lost with two pair, Sixes and Fours
+
+
+Weplay Hand #75144557:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:13:53 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($109.01 in chips)
+Seat 2: vrtlar ($50 in chips)
+Seat 3: RonMoll ($78.45 in chips)
+Seat 4: rossi1616 ($59.19 in chips)
+Seat 5: vladimirche1 ($101.47 in chips)
+Seat 6: slagalica ($44.75 in chips)
+Seat 8: kole1992 ($59.65 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Ad]
+vrtlar: raises $1.25 to $1.25
+RonMoll: folds
+rossi1616: folds
+vladimirche1: folds
+slagalica: folds
+kole1992: folds
+Tolmi21: calls $0.75
+*** FLOP *** [Qs Kd Jd]
+Tolmi21: checks
+vrtlar: checks
+*** TURN *** [Qs Kd Jd] [9d]
+Tolmi21: bets $0.91
+vrtlar: folds
+Uncalled bet ($0.91) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Qs Kd Jd 9d]
+Seat 1: Tolmi21 (big blind) collected ($2.75)
+Seat 2: vrtlar folded on the Turn 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75144581:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:14:48 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($110.38 in chips)
+Seat 2: vrtlar ($50 in chips)
+Seat 3: RonMoll ($78.45 in chips)
+Seat 4: rossi1616 ($59.19 in chips)
+Seat 5: vladimirche1 ($101.47 in chips)
+Seat 6: slagalica ($44.75 in chips)
+Seat 8: kole1992 ($59.40 in chips)
+Tolmi21: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 3s]
+RonMoll: raises $1.25 to $1.25
+rossi1616: folds
+vladimirche1: raises $4.50 to $4.50
+slagalica: raises $13.25 to $13.25
+kole1992: folds
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+vladimirche1: folds
+Uncalled bet ($8.75) returned to slagalica
+*** SHOW DOWN ***
+slagalica has timed out
+slagalica: doesn't show hand
+slagalica collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0 
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: vrtlar (big blind) folded before Flop 
+Seat 3: RonMoll folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop 
+Seat 6: slagalica collected ($11)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75144601:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:15:43 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($110.13 in chips)
+Seat 2: vrtlar ($50 in chips)
+Seat 3: RonMoll ($77.20 in chips)
+Seat 4: rossi1616 ($59.19 in chips)
+Seat 5: vladimirche1 ($96.97 in chips)
+Seat 6: slagalica ($51.25 in chips)
+Seat 8: kole1992 ($59.40 in chips)
+vrtlar: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 4c]
+rossi1616: folds
+vladimirche1: raises $1.50 to $1.50
+slagalica: folds
+kole1992: folds
+Tolmi21: calls $1.50
+vrtlar: folds
+RonMoll: folds
+*** FLOP *** [Qc 7s 6h]
+vladimirche1: checks
+Tolmi21: bets $2.81
+vladimirche1: folds
+Uncalled bet ($2.81) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [Qc 7s 6h]
+Seat 1: Tolmi21 (button) collected ($3.75)
+Seat 2: vrtlar (small blind) folded before Flop 
+Seat 3: RonMoll (big blind) folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded on the Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144625:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:16:32 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($112.20 in chips)
+Seat 2: vrtlar ($50 in chips)
+Seat 3: RonMoll ($76.70 in chips)
+Seat 4: rossi1616 ($59.19 in chips)
+Seat 5: vladimirche1 ($95.47 in chips)
+Seat 6: slagalica ($51.25 in chips)
+Seat 8: kole1992 ($59.40 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Jc]
+vladimirche1: folds
+slagalica: folds
+kole1992: folds
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar (button) folded before Flop (didn't bet)
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) collected ($0.50)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144638:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:17:04 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($112.20 in chips)
+Seat 2: vrtlar ($50 in chips)
+Seat 3: RonMoll ($76.45 in chips)
+Seat 4: rossi1616 ($59.44 in chips)
+Seat 5: vladimirche1 ($95.47 in chips)
+Seat 6: slagalica ($51.25 in chips)
+Seat 8: kole1992 ($59.40 in chips)
+rossi1616: posts small blind $0.25
+vladimirche1: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 7s]
+slagalica: folds
+kole1992: folds
+Tolmi21: folds
+vrtlar: raises $1.25 to $1.25
+RonMoll: raises $3.75 to $3.75
+rossi1616: folds
+vladimirche1: folds
+vrtlar: calls $2.50
+*** FLOP *** [8d 3h 8c]
+vrtlar: checks
+RonMoll: bets $2.70
+vrtlar: calls $2.70
+*** TURN *** [8d 3h 8c] [9h]
+vrtlar: checks
+RonMoll: checks
+*** RIVER *** [8d 3h 8c 9h] [4c]
+vrtlar: bets $16.15
+RonMoll: folds
+Uncalled bet ($16.15) returned to vrtlar
+*** SHOW DOWN ***
+vrtlar: doesn't show hand
+vrtlar collected $13.65 from pot
+*** SUMMARY ***
+Total pot $13.65 | Rake $0.68 
+Board [8d 3h 8c 9h 4c]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar collected ($13.65)
+Seat 3: RonMoll (button) folded on the River 
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: vladimirche1 (big blind) folded before Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144684:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:18:52 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($112.20 in chips)
+Seat 2: vrtlar ($56.52 in chips)
+Seat 3: RonMoll ($70 in chips)
+Seat 4: rossi1616 ($59.19 in chips)
+Seat 5: vladimirche1 ($94.97 in chips)
+Seat 6: slagalica ($51.25 in chips)
+Seat 8: kole1992 ($59.40 in chips)
+vladimirche1: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Jc]
+kole1992: folds
+Tolmi21: folds
+vrtlar: raises $1.25 to $1.25
+RonMoll: folds
+rossi1616: folds
+vladimirche1: calls $1
+slagalica: calls $0.75
+*** FLOP *** [7d 8h 4h]
+vladimirche1: checks
+slagalica: checks
+vrtlar: checks
+*** TURN *** [7d 8h 4h] [4d]
+vladimirche1: bets $1.88
+slagalica: folds
+vrtlar: calls $1.88
+*** RIVER *** [7d 8h 4h 4d] [Ac]
+vladimirche1: checks
+vrtlar: checks
+*** SHOW DOWN ***
+vladimirche1: shows [5d 5h] (two pair, Fives and Fours)
+vrtlar: shows [7c 6c] (two pair, Sevens and Fours)
+vrtlar collected $7.51 from pot
+*** SUMMARY ***
+Total pot $7.51 | Rake $0.37 
+Board [7d 8h 4h 4d Ac]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar showed [7c 6c] and won ($7.51) with two pair, Sevens and Fours
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: vladimirche1 (small blind) showed [5d 5h] and lost with two pair, Fives and Fours
+Seat 6: slagalica (big blind) folded on the Turn 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144716:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:20:00 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($112.20 in chips)
+Seat 2: vrtlar ($60.53 in chips)
+Seat 3: RonMoll ($70 in chips)
+Seat 4: rossi1616 ($59.19 in chips)
+Seat 5: vladimirche1 ($91.84 in chips)
+Seat 6: slagalica ($50 in chips)
+Seat 8: kole1992 ($59.40 in chips)
+slagalica: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Tc]
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+rossi1616: raises $1.50 to $1.50
+vladimirche1: folds
+slagalica: folds
+kole1992: calls $1
+*** FLOP *** [7d 3c 7s]
+kole1992: checks
+rossi1616: bets $2.16
+kole1992: folds
+Uncalled bet ($2.16) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [7d 3c 7s]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 collected ($3.25)
+Seat 5: vladimirche1 (button) folded before Flop (didn't bet)
+Seat 6: slagalica (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) folded on the Flop 
+
+
+Weplay Hand #75144734:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:20:38 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($112.20 in chips)
+Seat 2: vrtlar ($60.53 in chips)
+Seat 3: RonMoll ($70 in chips)
+Seat 4: rossi1616 ($60.78 in chips)
+Seat 5: vladimirche1 ($91.84 in chips)
+Seat 6: slagalica ($49.75 in chips)
+Seat 8: kole1992 ($57.90 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Ad]
+vrtlar: raises $1.25 to $1.25
+RonMoll: folds
+rossi1616: folds
+vladimirche1: folds
+slagalica: folds
+kole1992: folds
+Tolmi21: calls $0.75
+*** FLOP *** [Js Ah 2d]
+Tolmi21: checks
+Hoho78 joins the table at seat #7
+vrtlar: checks
+*** TURN *** [Js Ah 2d] [7d]
+Tolmi21: checks
+vrtlar: checks
+*** RIVER *** [Js Ah 2d 7d] [As]
+Tolmi21: bets $1
+vrtlar: calls $1
+*** SHOW DOWN ***
+Tolmi21: shows [6d 2s] (two pair, Aces and Deuces)
+vrtlar: shows [4s 4c] (two pair, Aces and Fours)
+vrtlar collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [Js Ah 2d 7d As]
+Seat 1: Tolmi21 (big blind) showed [6d 2s] and lost with two pair, Aces and Deuces
+Seat 2: vrtlar showed [4s 4c] and won ($4.75) with two pair, Aces and Fours
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75144774:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:22:18 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($109.95 in chips)
+Seat 2: vrtlar ($62.80 in chips)
+Seat 3: RonMoll ($70 in chips)
+Seat 4: rossi1616 ($60.78 in chips)
+Seat 5: vladimirche1 ($91.84 in chips)
+Seat 6: slagalica ($49.75 in chips)
+Seat 7: Hoho78 ($25.94 in chips)
+Seat 8: kole1992 ($57.65 in chips)
+Tolmi21: posts small blind $0.25
+vrtlar: posts big blind $0.50
+Hoho78: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Jh]
+RonMoll: folds
+rossi1616: folds
+vladimirche1: raises $2.75 to $2.75
+slagalica: folds
+Hoho78: folds
+kole1992: raises $8.76 to $8.76
+Tolmi21: folds
+vrtlar: folds
+vladimirche1: folds
+Uncalled bet ($6.01) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6.75 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0 
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: vrtlar (big blind) folded before Flop 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: vladimirche1 folded before Flop 
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Hoho78 (big blind) folded before Flop 
+Seat 8: kole1992 (button) collected ($6.75)
+
+
+Weplay Hand #75144793:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:23:04 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($109.70 in chips)
+Seat 2: vrtlar ($62.30 in chips)
+Seat 3: RonMoll ($70 in chips)
+Seat 4: rossi1616 ($60.78 in chips)
+Seat 5: vladimirche1 ($89.09 in chips)
+Seat 6: slagalica ($49.75 in chips)
+Seat 7: Hoho78 ($25.44 in chips)
+Seat 8: kole1992 ($61.65 in chips)
+vrtlar: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Ad]
+rossi1616: raises $1.50 to $1.50
+vladimirche1: folds
+slagalica: folds
+Hoho78: calls $1.50
+kole1992: folds
+Tolmi21: folds
+vrtlar: folds
+RonMoll: calls $1
+*** FLOP *** [As 8h Ts]
+RonMoll: checks
+rossi1616: bets $3.16
+Hoho78: folds
+RonMoll: calls $3.16
+*** TURN *** [As 8h Ts] [9h]
+RonMoll: checks
+rossi1616: checks
+*** RIVER *** [As 8h Ts 9h] [Th]
+RonMoll: checks
+rossi1616: checks
+*** SHOW DOWN ***
+RonMoll: shows [Jc Qc] (a straight, Eight to Queen)
+rossi1616: mucks hand
+RonMoll collected $11.07 from pot
+*** SUMMARY ***
+Total pot $11.07 | Rake $0.55 
+Board [As 8h Ts 9h Th]
+Seat 1: Tolmi21 (button) folded before Flop (didn't bet)
+Seat 2: vrtlar (small blind) folded before Flop 
+Seat 3: RonMoll (big blind) showed [Jc Qc] and won ($11.07) with a straight, Eight to Queen
+Seat 4: rossi1616 mucked
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Hoho78 folded on the Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144813:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:24:12 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($109.70 in chips)
+Seat 2: vrtlar ($62.05 in chips)
+Seat 3: RonMoll ($75.86 in chips)
+Seat 4: rossi1616 ($56.12 in chips)
+Seat 5: vladimirche1 ($89.09 in chips)
+Seat 6: slagalica ($49.75 in chips)
+Seat 7: Hoho78 ($23.94 in chips)
+Seat 8: kole1992 ($61.65 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 6c]
+vladimirche1: folds
+slagalica: folds
+Hoho78: folds
+kole1992: folds
+Tolmi21: raises $2 to $2
+vrtlar: raises $6.25 to $6.25
+RonMoll: folds
+rossi1616: folds
+vladimirche1 leaves the table
+Tolmi21: folds
+Uncalled bet ($4.25) returned to vrtlar
+*** SHOW DOWN ***
+vrtlar: doesn't show hand
+vrtlar collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0 
+Seat 1: Tolmi21 folded before Flop 
+Seat 2: vrtlar (button) collected ($4.75)
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) folded before Flop 
+Seat 5: vladimirche1 folded before Flop (didn't bet)
+Seat 6: slagalica folded before Flop (didn't bet)
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144830:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:24:56 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($107.70 in chips)
+Seat 2: vrtlar ($64.80 in chips)
+Seat 3: RonMoll ($75.61 in chips)
+Seat 4: rossi1616 ($55.62 in chips)
+Seat 6: slagalica ($49.75 in chips)
+Seat 7: Hoho78 ($23.94 in chips)
+Seat 8: kole1992 ($61.65 in chips)
+rossi1616: posts small blind $0.25
+slagalica: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 3c]
+Hoho78: folds
+kole1992: folds
+Tolmi21: calls $0.50
+vrtlar: raises $2 to $2
+RonMoll: folds
+rossi1616: folds
+slagalica: folds
+Tolmi21: calls $1.50
+*** FLOP *** [Ac As 9c]
+Tolmi21: checks
+vrtlar: checks
+*** TURN *** [Ac As 9c] [5c]
+Tolmi21: bets $2.38
+vrtlar: calls $2.38
+*** RIVER *** [Ac As 9c 5c] [6c]
+Tolmi21: bets $3
+vrtlar: calls $3
+*** SHOW DOWN ***
+Tolmi21: shows [8c 6d] (a flush, Ace high)
+vrtlar: mucks hand
+Tolmi21 collected $15.51 from pot
+*** SUMMARY ***
+Total pot $15.51 | Rake $0.77 
+Board [Ac As 9c 5c 6c]
+Seat 1: Tolmi21 showed [8c 6d] and won ($15.51) with a flush, Ace high
+Seat 2: vrtlar mucked
+Seat 3: RonMoll (button) folded before Flop (didn't bet)
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 6: slagalica (big blind) folded before Flop 
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144852:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:26:00 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($115.06 in chips)
+Seat 2: vrtlar ($57.42 in chips)
+Seat 3: RonMoll ($75.61 in chips)
+Seat 4: rossi1616 ($55.37 in chips)
+Seat 6: slagalica ($49.25 in chips)
+Seat 7: Hoho78 ($23.94 in chips)
+Seat 8: kole1992 ($61.65 in chips)
+slagalica: posts small blind $0.25
+Hoho78: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 7s]
+kole1992: folds
+Tolmi21: raises $1.50 to $1.50
+vrtlar: folds
+RonMoll: calls $1.50
+rossi1616: calls $1.50
+slagalica: folds
+Hoho78: calls $1
+*** FLOP *** [4h Kd Ac]
+Hoho78: checks
+Tolmi21: bets $3.13
+RonMoll: folds
+rossi1616: calls $3.13
+Hoho78: folds
+*** TURN *** [4h Kd Ac] [6d]
+Tolmi21: bets $4
+rossi1616: raises $14.25 to $14.25
+Tolmi21: folds
+Uncalled bet ($10.25) returned to rossi1616
+*** SHOW DOWN ***
+Tolmi21: shows [## Ah] (a pair of Aces)
+rossi1616: doesn't show hand
+rossi1616 collected $20.51 from pot
+*** SUMMARY ***
+Total pot $20.51 | Rake $1.02 
+Board [4h Kd Ac 6d]
+Seat 1: Tolmi21 folded on the Turn 
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded on the Flop 
+Seat 4: rossi1616 (button) collected ($20.51)
+Seat 6: slagalica (small blind) folded before Flop 
+Seat 7: Hoho78 (big blind) folded on the Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144882:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:27:24 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($106.43 in chips)
+Seat 2: vrtlar ($57.42 in chips)
+Seat 3: RonMoll ($74.11 in chips)
+Seat 4: rossi1616 ($66.23 in chips)
+Seat 6: slagalica ($49 in chips)
+Seat 7: Hoho78 ($22.44 in chips)
+Seat 8: kole1992 ($61.65 in chips)
+Hoho78: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c As]
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+slagalica: raises $1.25 to $1.25
+Hoho78: calls $1
+kole1992: calls $0.75
+*** FLOP *** [2c Qc 6s]
+Hoho78: checks
+kole1992: checks
+slagalica: bets $2.81
+Hoho78: calls $2.81
+kole1992: folds
+*** TURN *** [2c Qc 6s] [Kh]
+Hoho78: checks
+slagalica: bets $7.02
+Hoho78: raises $18.38 to $18.38 and is all-in
+slagalica: calls $11.36
+*** RIVER *** [2c Qc 6s Kh] [4s]
+*** SHOW DOWN ***
+Hoho78: shows [6h 6d] (three of a kind, Sixes)
+slagalica: shows [Qh Kc] (two pair, Kings and Queens)
+Hoho78 collected $46.13 from pot
+*** SUMMARY ***
+Total pot $46.13 | Rake $2.30 
+Board [2c Qc 6s Kh 4s]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 6: slagalica (button) showed [Qh Kc] and lost with two pair, Kings and Queens
+Seat 7: Hoho78 (small blind) showed [6h 6d] and won ($46.13) with three of a kind, Sixes
+Seat 8: kole1992 (big blind) folded on the Flop 
+
+
+Weplay Hand #75144910:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:28:46 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($106.43 in chips)
+Seat 2: vrtlar ($57.42 in chips)
+Seat 3: RonMoll ($74.11 in chips)
+Seat 4: rossi1616 ($66.23 in chips)
+Seat 7: Hoho78 ($43.83 in chips)
+Seat 8: kole1992 ($60.40 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 7s]
+vrtlar: folds
+RonMoll: raises $1.25 to $1.25
+rossi1616: folds
+Hoho78: folds
+kole1992: folds
+slagalica leaves the table
+Tolmi21: calls $0.75
+*** FLOP *** [Ad 5h 6h]
+Tolmi21: checks
+RonMoll: bets $0.90
+Tolmi21: calls $0.90
+*** TURN *** [Ad 5h 6h] [3s]
+Tolmi21: checks
+RonMoll: checks
+*** RIVER *** [Ad 5h 6h 3s] [Kc]
+Tolmi21: checks
+RonMoll: checks
+*** SHOW DOWN ***
+Tolmi21: shows [6c 4c] (a pair of Sixes)
+RonMoll: shows [Td Ts] (a pair of Tens)
+RonMoll collected $4.55 from pot
+*** SUMMARY ***
+Total pot $4.55 | Rake $0.22 
+Board [Ad 5h 6h 3s Kc]
+Seat 1: Tolmi21 (big blind) showed [6c 4c] and lost with a pair of Sixes
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll showed [Td Ts] and won ($4.55) with a pair of Tens
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 7: Hoho78 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75144927:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:29:32 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($104.28 in chips)
+Seat 2: vrtlar ($57.42 in chips)
+Seat 3: RonMoll ($76.29 in chips)
+Seat 4: rossi1616 ($66.23 in chips)
+Seat 7: Hoho78 ($43.83 in chips)
+Seat 8: kole1992 ($60.15 in chips)
+Tolmi21: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Js]
+RonMoll: folds
+rossi1616: raises $1.50 to $1.50
+Hoho78: calls $1.50
+kole1992: folds
+Tolmi21: folds
+vrtlar: folds
+*** FLOP *** [4h 5h Qc]
+rossi1616: checks
+Hoho78: bets $3
+rossi1616: folds
+Uncalled bet ($3) returned to Hoho78
+*** SHOW DOWN ***
+Hoho78 has timed out
+Hoho78: doesn't show hand
+Hoho78 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [4h 5h Qc]
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: vrtlar (big blind) folded before Flop 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded on the Flop 
+Seat 7: Hoho78 collected ($3.75)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75144946:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:30:37 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($104.03 in chips)
+Seat 2: vrtlar ($56.92 in chips)
+Seat 3: RonMoll ($76.29 in chips)
+Seat 4: rossi1616 ($64.73 in chips)
+Seat 7: Hoho78 ($45.90 in chips)
+Seat 8: kole1992 ($60.15 in chips)
+vrtlar: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Td]
+rossi1616: folds
+Hoho78: folds
+kole1992: folds
+Tolmi21: calls $0.50
+vrtlar: calls $0.25
+RonMoll: raises $1.50 to $2
+Tolmi21: calls $1.50
+vrtlar: folds
+*** FLOP *** [7h Ah Jh]
+RonMoll: bets $1.50
+Tolmi21: folds
+Uncalled bet ($1.50) returned to RonMoll
+*** SHOW DOWN ***
+RonMoll: doesn't show hand
+RonMoll collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [7h Ah Jh]
+Seat 1: Tolmi21 (button) folded on the Flop 
+Seat 2: vrtlar (small blind) folded before Flop 
+Seat 3: RonMoll (big blind) collected ($4.50)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144964:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:31:35 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($102.03 in chips)
+Seat 2: vrtlar ($56.42 in chips)
+Seat 3: RonMoll ($78.57 in chips)
+Seat 4: rossi1616 ($64.73 in chips)
+Seat 7: Hoho78 ($45.90 in chips)
+Seat 8: kole1992 ($60.15 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Ts]
+Hoho78: raises $1 to $1
+kole1992: folds
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+Uncalled bet ($0.50) returned to Hoho78
+*** SHOW DOWN ***
+Hoho78 has timed out
+Hoho78: doesn't show hand
+Hoho78 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar (button) folded before Flop (didn't bet)
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) folded before Flop 
+Seat 7: Hoho78 collected ($1.25)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75144976:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:32:10 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($102.03 in chips)
+Seat 2: vrtlar ($56.42 in chips)
+Seat 3: RonMoll ($78.32 in chips)
+Seat 4: rossi1616 ($64.23 in chips)
+Seat 7: Hoho78 ($46.65 in chips)
+Seat 8: kole1992 ($60.15 in chips)
+rossi1616: posts small blind $0.25
+Hoho78: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Ah]
+kole1992: raises $1 to $1
+Tolmi21 has timed out
+Tolmi21: folds
+MeszaQ8 joins the table at seat #5
+vrtlar has timed out
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+Hoho78: calls $0.50
+*** FLOP *** [Th 6c 5h]
+Hoho78: checks
+kole1992: checks
+*** TURN *** [Th 6c 5h] [Kh]
+Hoho78: bets $2
+kole1992: calls $2
+*** RIVER *** [Th 6c 5h Kh] [Jc]
+Hoho78: bets $5
+kole1992: raises $57.15 to $57.15 and is all-in
+Hoho78: folds
+Uncalled bet ($52.15) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $16.25 from pot
+*** SUMMARY ***
+Total pot $16.25 | Rake $0.81 
+Board [Th 6c 5h Kh Jc]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll (button) folded before Flop (didn't bet)
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 7: Hoho78 (big blind) folded on the River 
+Seat 8: kole1992 collected ($16.25)
+
+
+Weplay Hand #75145005:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:33:50 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($102.03 in chips)
+Seat 2: vrtlar ($56.42 in chips)
+Seat 3: RonMoll ($78.32 in chips)
+Seat 4: rossi1616 ($63.98 in chips)
+Seat 7: Hoho78 ($38.65 in chips)
+Seat 8: kole1992 ($67.59 in chips)
+Hoho78: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Ts]
+Tolmi21: raises $2 to $2
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+Hoho78: calls $1.75
+kole1992: folds
+*** FLOP *** [6s 7d As]
+Hoho78: checks
+Tolmi21: bets $3
+Hoho78: folds
+Uncalled bet ($3) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [6s 7d As]
+Seat 1: Tolmi21 collected ($4.50)
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) folded before Flop (didn't bet)
+Seat 7: Hoho78 (small blind) folded on the Flop 
+Seat 8: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75145017:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:34:30 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($104.31 in chips)
+Seat 2: vrtlar ($56.42 in chips)
+Seat 3: RonMoll ($78.32 in chips)
+Seat 4: rossi1616 ($63.98 in chips)
+Seat 5: MeszaQ8 ($31.34 in chips)
+Seat 7: Hoho78 ($36.65 in chips)
+Seat 8: kole1992 ($67.09 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+MeszaQ8: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 7h]
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: raises $0.50 to $1
+Hoho78: calls $1
+kole1992: folds
+Tolmi21: calls $0.50
+*** FLOP *** [9h Qh Ac]
+Tolmi21: checks
+MeszaQ8: checks
+Hoho78: checks
+*** TURN *** [9h Qh Ac] [2d]
+Tolmi21: checks
+MeszaQ8: bets $1
+Hoho78: calls $1
+Tolmi21: calls $1
+*** RIVER *** [9h Qh Ac 2d] [3c]
+Tolmi21: bets $2
+MeszaQ8: raises $4 to $4
+Hoho78: folds
+Tolmi21: calls $2
+*** SHOW DOWN ***
+MeszaQ8: shows [Ah Ad] (three of a kind, Aces)
+Tolmi21: mucks hand
+MeszaQ8 collected $14.25 from pot
+*** SUMMARY ***
+Total pot $14.25 | Rake $0.71 
+Board [9h Qh Ac 2d 3c]
+Seat 1: Tolmi21 (big blind) mucked
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 (big blind) showed [Ah Ad] and won ($14.25) with three of a kind, Aces
+Seat 7: Hoho78 (button) folded on the River 
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75145041:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:35:53 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($98.31 in chips)
+Seat 2: vrtlar ($56.42 in chips)
+Seat 3: RonMoll ($78.32 in chips)
+Seat 4: rossi1616 ($63.98 in chips)
+Seat 5: MeszaQ8 ($38.88 in chips)
+Seat 7: Hoho78 ($34.65 in chips)
+Seat 8: kole1992 ($66.84 in chips)
+Tolmi21: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 6s]
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: calls $0.50
+Hoho78: raises $1.50 to $1.50
+kole1992: folds
+Tolmi21: calls $1.25
+vrtlar: folds
+MeszaQ8: calls $1
+*** FLOP *** [5s 2s 3s]
+Tolmi21: checks
+MeszaQ8: checks
+Hoho78: bets $3
+Tolmi21: folds
+MeszaQ8: folds
+Uncalled bet ($3) returned to Hoho78
+*** SHOW DOWN ***
+Hoho78 has timed out
+Hoho78: doesn't show hand
+Hoho78 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [5s 2s 3s]
+Seat 1: Tolmi21 (small blind) folded on the Flop 
+Seat 2: vrtlar (big blind) folded before Flop 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 folded on the Flop 
+Seat 7: Hoho78 collected ($5)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75145063:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:37:00 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($96.81 in chips)
+Seat 2: vrtlar ($55.92 in chips)
+Seat 3: RonMoll ($78.32 in chips)
+Seat 4: rossi1616 ($63.98 in chips)
+Seat 5: MeszaQ8 ($37.38 in chips)
+Seat 7: Hoho78 ($37.90 in chips)
+Seat 8: kole1992 ($66.84 in chips)
+vrtlar: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Kh]
+rossi1616: folds
+MeszaQ8: raises $1 to $1
+Hoho78: calls $1
+kole1992: folds
+Tolmi21: calls $1
+vrtlar: folds
+RonMoll: folds
+*** FLOP *** [8s 4c Ad]
+MeszaQ8: bets $1
+Hoho78: calls $1
+Tolmi21: calls $1
+*** TURN *** [8s 4c Ad] [9h]
+MeszaQ8: checks
+Hoho78: checks
+Tolmi21: bets $3.38
+MeszaQ8: folds
+Hoho78: folds
+Uncalled bet ($3.38) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $6.75 from pot
+*** SUMMARY ***
+Total pot $6.75 | Rake $0.33 
+Board [8s 4c Ad 9h]
+Seat 1: Tolmi21 (button) collected ($6.75)
+Seat 2: vrtlar (small blind) folded before Flop 
+Seat 3: RonMoll (big blind) folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 folded on the Turn 
+Seat 7: Hoho78 folded on the Turn 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75145086:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:38:19 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($101.23 in chips)
+Seat 2: vrtlar ($55.67 in chips)
+Seat 3: RonMoll ($77.82 in chips)
+Seat 4: rossi1616 ($63.98 in chips)
+Seat 5: MeszaQ8 ($35.38 in chips)
+Seat 7: Hoho78 ($35.90 in chips)
+Seat 8: kole1992 ($66.84 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 7c]
+MeszaQ8: calls $0.50
+Hoho78: calls $0.50
+kole1992: folds
+Tolmi21: raises $3 to $3
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: calls $2.50
+Hoho78: folds
+*** FLOP *** [3d 8d Ks]
+MeszaQ8: checks
+Tolmi21: checks
+*** TURN *** [3d 8d Ks] [8c]
+MeszaQ8: checks
+Tolmi21: bets $2
+MeszaQ8: folds
+Uncalled bet ($2) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $7.25 from pot
+*** SUMMARY ***
+Total pot $7.25 | Rake $0.36 
+Board [3d 8d Ks 8c]
+Seat 1: Tolmi21 collected ($7.25)
+Seat 2: vrtlar (button) folded before Flop (didn't bet)
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) folded before Flop 
+Seat 5: MeszaQ8 folded on the Turn 
+Seat 7: Hoho78 folded before Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75145111:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:39:34 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($105.12 in chips)
+Seat 2: vrtlar ($55.67 in chips)
+Seat 3: RonMoll ($77.57 in chips)
+Seat 4: rossi1616 ($63.48 in chips)
+Seat 5: MeszaQ8 ($32.38 in chips)
+Seat 7: Hoho78 ($35.40 in chips)
+Seat 8: kole1992 ($66.84 in chips)
+rossi1616: posts small blind $0.25
+MeszaQ8: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Jh]
+Hoho78: raises $1.50 to $1.50
+kole1992: folds
+Tolmi21: calls $1.50
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: folds
+*** FLOP *** [Js Qd 4c]
+Hoho78: checks
+Tolmi21: bets $2.81
+Hoho78: calls $2.81
+*** TURN *** [Js Qd 4c] [2s]
+Hoho78: checks
+Tolmi21: checks
+*** RIVER *** [Js Qd 4c 2s] [7d]
+Hoho78: bets $6
+Tolmi21: calls $6
+*** SHOW DOWN ***
+Hoho78: shows [9s As] (high card Ace)
+Tolmi21: shows [Qh 6h] (a pair of Queens)
+Tolmi21 collected $21.37 from pot
+*** SUMMARY ***
+Total pot $21.37 | Rake $1.06 
+Board [Js Qd 4c 2s 7d]
+Seat 1: Tolmi21 showed [Qh 6h] and won ($21.37) with a pair of Queens
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll (button) folded before Flop (didn't bet)
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: MeszaQ8 (big blind) folded before Flop 
+Seat 7: Hoho78 showed [9s As] and lost with high card Ace
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75145128:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:40:24 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($115.12 in chips)
+Seat 2: vrtlar ($55.67 in chips)
+Seat 3: RonMoll ($77.57 in chips)
+Seat 4: rossi1616 ($63.23 in chips)
+Seat 5: MeszaQ8 ($31.88 in chips)
+Seat 7: Hoho78 ($25.09 in chips)
+Seat 8: kole1992 ($66.84 in chips)
+MeszaQ8: posts small blind $0.25
+Hoho78: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 4c]
+kole1992: folds
+Tolmi21: calls $0.50
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: folds
+Hoho78: checks
+*** FLOP *** [7h 9c Ts]
+Hoho78: bets $1
+Tolmi21: folds
+Uncalled bet ($1) returned to Hoho78
+*** SHOW DOWN ***
+Hoho78 has timed out
+Hoho78: doesn't show hand
+Hoho78 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [7h 9c Ts]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) folded before Flop (didn't bet)
+Seat 5: MeszaQ8 (small blind) folded before Flop 
+Seat 7: Hoho78 (big blind) collected ($1.25)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75145138:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:41:02 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($114.62 in chips)
+Seat 2: vrtlar ($55.67 in chips)
+Seat 3: RonMoll ($77.57 in chips)
+Seat 4: rossi1616 ($63.23 in chips)
+Seat 5: MeszaQ8 ($31.63 in chips)
+Seat 7: Hoho78 ($25.78 in chips)
+Seat 8: kole1992 ($66.84 in chips)
+Hoho78: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac As]
+Tolmi21: raises $1.50 to $1.50
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: folds
+Hoho78: calls $1.25
+kole1992: raises $6.26 to $6.76
+Tolmi21: folds
+Hoho78: folds
+Uncalled bet ($5.26) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 1: Tolmi21 folded before Flop 
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 (button) folded before Flop (didn't bet)
+Seat 7: Hoho78 (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) collected ($4.50)
+
+
+Weplay Hand #75145150:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:41:37 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($113.12 in chips)
+Seat 2: vrtlar ($55.67 in chips)
+Seat 3: RonMoll ($77.57 in chips)
+Seat 4: rossi1616 ($63.23 in chips)
+Seat 5: MeszaQ8 ($31.63 in chips)
+Seat 7: Hoho78 ($24.28 in chips)
+Seat 8: kole1992 ($69.84 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Ks]
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: folds
+Hoho78: raises $1.50 to $1.50
+kole1992: raises $5.01 to $5.26
+Tolmi21: folds
+Hoho78: calls $3.76
+*** FLOP *** [Th Kh Ad]
+ChadUlf joins the table at seat #6
+kole1992: bets $2.90
+Hoho78: calls $2.90
+*** TURN *** [Th Kh Ad] [7s]
+kole1992: checks
+Hoho78: bets $6
+kole1992: raises $27.03 to $27.03
+Hoho78: folds
+Uncalled bet ($21.03) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $28.82 from pot
+*** SUMMARY ***
+Total pot $28.82 | Rake $1.44 
+Board [Th Kh Ad 7s]
+Seat 1: Tolmi21 (big blind) folded before Flop 
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 folded before Flop (didn't bet)
+Seat 7: Hoho78 (button) folded on the Turn 
+Seat 8: kole1992 (small blind) collected ($28.82)
+
+
+Weplay Hand #75145172:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:42:50 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($112.62 in chips)
+Seat 2: vrtlar ($55.67 in chips)
+Seat 3: RonMoll ($77.57 in chips)
+Seat 4: rossi1616 ($63.23 in chips)
+Seat 5: MeszaQ8 ($31.63 in chips)
+Seat 7: Hoho78 ($10.12 in chips)
+Seat 8: kole1992 ($83.06 in chips)
+Tolmi21: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 5c]
+RonMoll: raises $1.25 to $1.25
+rossi1616: calls $1.25
+MeszaQ8: calls $1.25
+Hoho78: folds
+kole1992: folds
+Tolmi21: folds
+vrtlar: folds
+*** FLOP *** [Ks 9h 6c]
+RonMoll: checks
+rossi1616: bets $2.25
+MeszaQ8: calls $2.25
+RonMoll: folds
+*** TURN *** [Ks 9h 6c] [Ah]
+rossi1616: checks
+ChadUlf is disconnected 
+MeszaQ8: bets $3
+rossi1616: folds
+Uncalled bet ($3) returned to MeszaQ8
+*** SHOW DOWN ***
+MeszaQ8 has timed out
+MeszaQ8: doesn't show hand
+MeszaQ8 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [Ks 9h 6c Ah]
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: vrtlar (big blind) folded before Flop 
+Seat 3: RonMoll folded on the Flop 
+Seat 4: rossi1616 folded on the Turn 
+Seat 5: MeszaQ8 collected ($9)
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75145196:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:44:12 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($112.37 in chips)
+Seat 2: vrtlar ($55.17 in chips)
+Seat 3: RonMoll ($76.32 in chips)
+Seat 4: rossi1616 ($59.73 in chips)
+Seat 5: MeszaQ8 ($36.68 in chips)
+Seat 7: Hoho78 ($31.01 in chips)
+Seat 8: kole1992 ($83.06 in chips)
+vrtlar: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Jd]
+rossi1616: folds
+MeszaQ8: calls $0.50
+ChadUlf is connected 
+Hoho78: raises $2 to $2
+kole1992: folds
+ChadUlf is disconnected 
+Tolmi21: calls $2
+vrtlar: folds
+RonMoll: folds
+MeszaQ8: folds
+*** FLOP *** [2h 5c Td]
+ChadUlf is connected 
+Hoho78: bets $2
+Tolmi21: folds
+Uncalled bet ($2) returned to Hoho78
+*** SHOW DOWN ***
+Hoho78 has timed out
+Hoho78: doesn't show hand
+Hoho78 collected $5.25 from pot
+*** SUMMARY ***
+Total pot $5.25 | Rake $0.26 
+Board [2h 5c Td]
+Seat 1: Tolmi21 (button) folded on the Flop 
+Seat 2: vrtlar (small blind) folded before Flop 
+Seat 3: RonMoll (big blind) folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 folded before Flop 
+Seat 7: Hoho78 collected ($5.25)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75145216:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:45:10 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($110.37 in chips)
+Seat 2: vrtlar ($54.92 in chips)
+Seat 3: RonMoll ($75.82 in chips)
+Seat 4: rossi1616 ($59.73 in chips)
+Seat 5: MeszaQ8 ($36.18 in chips)
+Seat 7: Hoho78 ($34 in chips)
+Seat 8: kole1992 ($83.06 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 2h]
+MeszaQ8: folds
+Hoho78: calls $0.50
+kole1992: folds
+Tolmi21: calls $0.50
+vrtlar: calls $0.50
+RonMoll: calls $0.25
+rossi1616: checks
+*** FLOP *** [Th Qs Jc]
+RonMoll: checks
+ChadUlf is disconnected 
+rossi1616: checks
+Hoho78: checks
+ChadUlf is connected 
+Tolmi21: checks
+vrtlar: checks
+*** TURN *** [Th Qs Jc] [8h]
+RonMoll: checks
+rossi1616: checks
+Hoho78: checks
+Tolmi21: checks
+vrtlar: checks
+*** RIVER *** [Th Qs Jc 8h] [5s]
+RonMoll: checks
+rossi1616: checks
+Hoho78: checks
+Tolmi21: checks
+vrtlar: checks
+*** SHOW DOWN ***
+RonMoll: shows [2d 5d] (a pair of Fives)
+rossi1616: mucks hand
+Hoho78 has timed out
+Hoho78: mucks hand
+Tolmi21: shows [8c 6s] (a pair of Eights)
+vrtlar: mucks hand
+Tolmi21 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [Th Qs Jc 8h 5s]
+Seat 1: Tolmi21 showed [8c 6s] and won ($2.50) with a pair of Eights
+Seat 2: vrtlar (button) mucked
+Seat 3: RonMoll (small blind) showed [2d 5d] and lost with a pair of Fives
+Seat 4: rossi1616 (big blind) mucked
+Seat 5: MeszaQ8 folded before Flop (didn't bet)
+Seat 7: Hoho78 mucked
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75145234:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:46:20 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($112.25 in chips)
+Seat 2: vrtlar ($54.42 in chips)
+Seat 3: RonMoll ($75.32 in chips)
+Seat 4: rossi1616 ($59.23 in chips)
+Seat 5: MeszaQ8 ($36.18 in chips)
+Seat 7: Hoho78 ($33.50 in chips)
+Seat 8: kole1992 ($83.06 in chips)
+rossi1616: posts small blind $0.25
+MeszaQ8: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 2s]
+Hoho78: raises $1 to $1
+kole1992: folds
+Tolmi21: raises $4 to $4
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: folds
+Hoho78: folds
+Uncalled bet ($3) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0 
+Seat 1: Tolmi21 collected ($2.75)
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll (button) folded before Flop (didn't bet)
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: MeszaQ8 (big blind) folded before Flop 
+Seat 7: Hoho78 folded before Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75145247:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:46:52 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($114 in chips)
+Seat 2: vrtlar ($54.42 in chips)
+Seat 3: RonMoll ($75.32 in chips)
+Seat 4: rossi1616 ($58.98 in chips)
+Seat 5: MeszaQ8 ($35.68 in chips)
+Seat 6: ChadUlf ($50 in chips)
+Seat 7: Hoho78 ($32.50 in chips)
+Seat 8: kole1992 ($83.06 in chips)
+MeszaQ8: posts small blind $0.25
+ChadUlf: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 6d]
+Hoho78: calls $0.50
+kole1992: folds
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+rossi1616: raises $2.25 to $2.25
+MeszaQ8: folds
+ChadUlf: folds
+Hoho78: calls $1.75
+*** FLOP *** [4h 8d 3h]
+Hoho78: checks
+rossi1616: bets $3.50
+Hoho78: folds
+Uncalled bet ($3.50) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $5.25 from pot
+*** SUMMARY ***
+Total pot $5.25 | Rake $0.26 
+Board [4h 8d 3h]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) collected ($5.25)
+Seat 5: MeszaQ8 (small blind) folded before Flop 
+Seat 6: ChadUlf (big blind) folded before Flop 
+Seat 7: Hoho78 folded on the Flop 
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75145261:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:47:33 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($114 in chips)
+Seat 2: vrtlar ($54.42 in chips)
+Seat 3: RonMoll ($75.32 in chips)
+Seat 4: rossi1616 ($61.72 in chips)
+Seat 5: MeszaQ8 ($35.43 in chips)
+Seat 6: ChadUlf ($50 in chips)
+Seat 7: Hoho78 ($30.25 in chips)
+Seat 8: kole1992 ($83.06 in chips)
+ChadUlf: posts small blind $0.25
+Hoho78: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 9s]
+kole1992: folds
+Tolmi21: calls $0.50
+vrtlar: folds
+RonMoll: raises $2 to $2
+rossi1616: folds
+MeszaQ8: folds
+ChadUlf: calls $1.75
+Hoho78: calls $1.50
+Tolmi21: calls $1.50
+*** FLOP *** [4s 3d 8s]
+ChadUlf: checks
+Hoho78: checks
+Tolmi21: checks
+RonMoll: checks
+*** TURN *** [4s 3d 8s] [6s]
+ChadUlf: checks
+Hoho78: checks
+Tolmi21: checks
+RonMoll: checks
+*** RIVER *** [4s 3d 8s 6s] [8d]
+ChadUlf: checks
+Hoho78: checks
+Tolmi21: checks
+RonMoll: checks
+*** SHOW DOWN ***
+ChadUlf: shows [2h Ah] (a pair of Eights)
+Hoho78 has timed out
+Hoho78: mucks hand
+Tolmi21: mucks hand
+RonMoll: mucks hand
+ChadUlf collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [4s 3d 8s 6s 8d]
+Seat 1: Tolmi21 mucked
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll mucked
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 (button) folded before Flop (didn't bet)
+Seat 6: ChadUlf (small blind) showed [2h Ah] and won ($8) with a pair of Eights
+Seat 7: Hoho78 (big blind) mucked
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75145289:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:48:49 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($112 in chips)
+Seat 2: vrtlar ($54.42 in chips)
+Seat 3: RonMoll ($73.32 in chips)
+Seat 4: rossi1616 ($61.72 in chips)
+Seat 5: MeszaQ8 ($35.43 in chips)
+Seat 6: ChadUlf ($55.60 in chips)
+Seat 7: Hoho78 ($28.25 in chips)
+Seat 8: kole1992 ($83.06 in chips)
+Hoho78: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Ac]
+Tolmi21: raises $1 to $1
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: calls $1
+ChadUlf: folds
+Hoho78: calls $0.75
+kole1992: calls $0.50
+*** FLOP *** [4h Qc Kc]
+Hoho78: bets $2
+kole1992: calls $2
+Tolmi21: folds
+MeszaQ8: folds
+*** TURN *** [4h Qc Kc] [5c]
+Hoho78: checks
+kole1992: bets $2.64
+Hoho78: raises $7 to $7
+kole1992: calls $4.36
+*** RIVER *** [4h Qc Kc 5c] [4d]
+Hoho78: bets $7
+kole1992: raises $19.65 to $19.65
+Hoho78: calls $11.25 and is all-in
+Uncalled bet ($1.40) returned to kole1992
+*** SHOW DOWN ***
+kole1992: shows [2c Ac] (a flush, Ace high)
+Hoho78: shows [3c 9c] (a flush, King high)
+kole1992 collected $58.50 from pot
+*** SUMMARY ***
+Total pot $58.50 | Rake $2.92 
+Board [4h Qc Kc 5c 4d]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 folded on the Flop 
+Seat 6: ChadUlf (button) folded before Flop (didn't bet)
+Seat 7: Hoho78 (small blind) showed [3c 9c] and lost with a flush, King high
+Seat 8: kole1992 (big blind) showed [2c Ac] and won ($58.50) with a flush, Ace high
+
+
+Weplay Hand #75147329:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:50:35 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($111 in chips)
+Seat 2: vrtlar ($54.42 in chips)
+Seat 3: RonMoll ($73.32 in chips)
+Seat 4: rossi1616 ($61.72 in chips)
+Seat 5: MeszaQ8 ($34.43 in chips)
+Seat 6: ChadUlf ($55.60 in chips)
+Seat 8: kole1992 ($110.39 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Kd]
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: folds
+ChadUlf: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Tolmi21 (big blind) collected ($0.50)
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 folded before Flop (didn't bet)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75147338:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:50:51 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($111.25 in chips)
+Seat 2: vrtlar ($54.42 in chips)
+Seat 3: RonMoll ($73.32 in chips)
+Seat 4: rossi1616 ($61.72 in chips)
+Seat 5: MeszaQ8 ($34.43 in chips)
+Seat 6: ChadUlf ($55.60 in chips)
+Seat 7: Hoho78 ($24 in chips)
+Seat 8: kole1992 ($110.14 in chips)
+Tolmi21: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 5c]
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: raises $1 to $1
+ChadUlf: folds
+Hoho78: folds
+kole1992: folds
+Tolmi21: calls $0.75
+vrtlar: raises $3.50 to $4
+MeszaQ8: calls $3
+Tolmi21: folds
+*** FLOP *** [Qs 3c 9d]
+vrtlar: checks
+MeszaQ8: checks
+*** TURN *** [Qs 3c 9d] [Ac]
+vrtlar: checks
+MeszaQ8: bets $4
+vrtlar: folds
+Uncalled bet ($4) returned to MeszaQ8
+*** SHOW DOWN ***
+MeszaQ8 has timed out
+MeszaQ8: doesn't show hand
+MeszaQ8 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [Qs 3c 9d Ac]
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: vrtlar (big blind) folded on the Turn 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 collected ($9)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75147365:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:51:57 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($110.25 in chips)
+Seat 2: vrtlar ($50.42 in chips)
+Seat 3: RonMoll ($73.32 in chips)
+Seat 4: rossi1616 ($61.72 in chips)
+Seat 5: MeszaQ8 ($38.98 in chips)
+Seat 6: ChadUlf ($55.60 in chips)
+Seat 7: Hoho78 ($24 in chips)
+Seat 8: kole1992 ($110.14 in chips)
+vrtlar: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 8h]
+rossi1616: raises $1.50 to $1.50
+MeszaQ8: folds
+ChadUlf: folds
+Hoho78: folds
+kole1992 has timed out
+kole1992: folds
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Tolmi21 (button) folded before Flop (didn't bet)
+Seat 2: vrtlar (small blind) folded before Flop 
+Seat 3: RonMoll (big blind) folded before Flop 
+Seat 4: rossi1616 collected ($1.25)
+Seat 5: MeszaQ8 folded before Flop (didn't bet)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75147382:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:52:39 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($110.25 in chips)
+Seat 2: vrtlar ($50.17 in chips)
+Seat 3: RonMoll ($72.82 in chips)
+Seat 4: rossi1616 ($62.47 in chips)
+Seat 5: MeszaQ8 ($38.98 in chips)
+Seat 6: ChadUlf ($55.60 in chips)
+Seat 7: Hoho78 ($24 in chips)
+Seat 8: kole1992 ($110.14 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 2c]
+MeszaQ8: folds
+ChadUlf: folds
+Hoho78: raises $1.50 to $1.50
+kole1992: folds
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+Uncalled bet ($1) returned to Hoho78
+*** SHOW DOWN ***
+Hoho78 has timed out
+Hoho78: doesn't show hand
+Hoho78 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar (button) folded before Flop (didn't bet)
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) folded before Flop 
+Seat 5: MeszaQ8 folded before Flop (didn't bet)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Hoho78 collected ($1.25)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75147390:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:53:07 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($110.25 in chips)
+Seat 2: vrtlar ($50.17 in chips)
+Seat 3: RonMoll ($72.57 in chips)
+Seat 4: rossi1616 ($61.97 in chips)
+Seat 5: MeszaQ8 ($38.98 in chips)
+Seat 6: ChadUlf ($55.60 in chips)
+Seat 7: Hoho78 ($24.75 in chips)
+Seat 8: kole1992 ($110.14 in chips)
+rossi1616: posts small blind $0.25
+MeszaQ8: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 9s]
+ChadUlf: folds
+Hoho78: folds
+kole1992: folds
+Tolmi21: raises $3 to $3
+vrtlar: folds
+RonMoll: calls $3
+rossi1616: folds
+MeszaQ8: calls $2.50
+*** FLOP *** [Tc 9d Kh]
+ChadUlf is disconnected 
+MeszaQ8: checks
+Tolmi21: checks
+RonMoll: bets $3.05
+MeszaQ8: calls $3.05
+Tolmi21: calls $3.05
+*** TURN *** [Tc 9d Kh] [Qs]
+ChadUlf is connected 
+ChadUlf is disconnected 
+MeszaQ8: checks
+Tolmi21: checks
+ChadUlf is connected 
+RonMoll: checks
+*** RIVER *** [Tc 9d Kh Qs] [2s]
+MeszaQ8: checks
+Tolmi21: bets $11
+RonMoll: calls $11
+MeszaQ8: folds
+*** SHOW DOWN ***
+Tolmi21: shows [Jc Js] (a straight, Nine to King)
+RonMoll: mucks hand
+Tolmi21 collected $40.40 from pot
+*** SUMMARY ***
+Total pot $40.40 | Rake $2.02 
+Board [Tc 9d Kh Qs 2s]
+Seat 1: Tolmi21 showed [Jc Js] and won ($40.40) with a straight, Nine to King
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll (button) mucked
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 5: MeszaQ8 (big blind) folded on the River 
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75147433:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:54:56 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($131.58 in chips)
+Seat 2: vrtlar ($50.17 in chips)
+Seat 3: RonMoll ($55.52 in chips)
+Seat 4: rossi1616 ($61.72 in chips)
+Seat 5: MeszaQ8 ($32.93 in chips)
+Seat 6: ChadUlf ($55.60 in chips)
+Seat 7: Hoho78 ($24.75 in chips)
+Seat 8: kole1992 ($110.14 in chips)
+MeszaQ8: posts small blind $0.25
+ChadUlf: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9s]
+Hoho78: folds
+kole1992: folds
+Tolmi21: raises $1.25 to $1.25
+vrtlar: folds
+RonMoll: folds
+rossi1616: raises $4.50 to $4.50
+MeszaQ8: folds
+ChadUlf: folds
+Tolmi21: calls $3.25
+*** FLOP *** [Qc 5s 5c]
+Tolmi21: checks
+rossi1616: checks
+*** TURN *** [Qc 5s 5c] [8s]
+Tolmi21: bets $7.31
+rossi1616: folds
+Uncalled bet ($7.31) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $9.75 from pot
+*** SUMMARY ***
+Total pot $9.75 | Rake $0.48 
+Board [Qc 5s 5c 8s]
+Seat 1: Tolmi21 collected ($9.75)
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 (button) folded on the Turn 
+Seat 5: MeszaQ8 (small blind) folded before Flop 
+Seat 6: ChadUlf (big blind) folded before Flop 
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75147460:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:56:26 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($136.35 in chips)
+Seat 2: vrtlar ($50.17 in chips)
+Seat 3: RonMoll ($55.52 in chips)
+Seat 4: rossi1616 ($57.22 in chips)
+Seat 5: MeszaQ8 ($32.68 in chips)
+Seat 6: ChadUlf ($55.10 in chips)
+Seat 7: Hoho78 ($24.75 in chips)
+Seat 8: kole1992 ($110.14 in chips)
+ChadUlf: posts small blind $0.25
+Hoho78: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Qh]
+kole1992: folds
+Tolmi21: calls $0.50
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: raises $1 to $1
+ChadUlf: folds
+Hoho78: calls $0.50
+Tolmi21: calls $0.50
+*** FLOP *** [3c Kh 4h]
+Hoho78: checks
+Tolmi21: checks
+MeszaQ8: checks
+*** TURN *** [3c Kh 4h] [2s]
+ChadUlf is disconnected 
+Hoho78: checks
+Tolmi21: checks
+MeszaQ8: checks
+*** RIVER *** [3c Kh 4h 2s] [Tc]
+Hoho78: checks
+Tolmi21: checks
+MeszaQ8: checks
+*** SHOW DOWN ***
+Hoho78: shows [Ah 7s] (high card Ace)
+Tolmi21: shows [3s 5c] (a pair of Threes)
+MeszaQ8 has timed out
+MeszaQ8: mucks hand
+Tolmi21 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [3c Kh 4h 2s Tc]
+Seat 1: Tolmi21 showed [3s 5c] and won ($3.25) with a pair of Threes
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 (button) mucked
+Seat 6: ChadUlf (small blind) folded before Flop 
+Seat 7: Hoho78 (big blind) showed [Ah 7s] and lost with high card Ace
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75147479:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:57:17 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($138.44 in chips)
+Seat 2: vrtlar ($50.17 in chips)
+Seat 3: RonMoll ($55.52 in chips)
+Seat 4: rossi1616 ($57.22 in chips)
+Seat 5: MeszaQ8 ($31.68 in chips)
+Seat 7: Hoho78 ($23.75 in chips)
+Seat 8: kole1992 ($110.14 in chips)
+Hoho78: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 3c]
+ChadUlf is connected 
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: folds
+Hoho78: raises $1.25 to $1.50
+kole1992: calls $1
+*** FLOP *** [2s 7s Kh]
+Hoho78: checks
+kole1992: checks
+*** TURN *** [2s 7s Kh] [Kc]
+Hoho78: checks
+kole1992: checks
+*** RIVER *** [2s 7s Kh Kc] [2c]
+Hoho78: bets $3
+kole1992: folds
+Uncalled bet ($3) returned to Hoho78
+*** SHOW DOWN ***
+Hoho78 has timed out
+Hoho78: doesn't show hand
+Hoho78 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [2s 7s Kh Kc 2c]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 folded before Flop (didn't bet)
+Seat 7: Hoho78 (small blind) collected ($3)
+Seat 8: kole1992 (big blind) folded on the River 
+
+
+Weplay Hand #75147496:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 21:58:18 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($138.44 in chips)
+Seat 2: vrtlar ($50.17 in chips)
+Seat 3: RonMoll ($55.52 in chips)
+Seat 4: rossi1616 ($57.22 in chips)
+Seat 5: MeszaQ8 ($31.68 in chips)
+Seat 6: ChadUlf ($54.85 in chips)
+Seat 7: Hoho78 ($25.10 in chips)
+Seat 8: kole1992 ($108.64 in chips)
+kole1992: posts small blind $0.25
+Tolmi21: posts big blind $0.50
+ChadUlf: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Ac]
+vrtlar: folds
+RonMoll: folds
+rossi1616 has timed out
+rossi1616: folds
+MeszaQ8: folds
+ChadUlf: raises $0.75 to $1.25
+Hoho78 has timed out
+Hoho78: folds
+kole1992: raises $4.75 to $5
+Tolmi21: calls $4.50
+ChadUlf: folds
+*** FLOP *** [9s Jd Jc]
+kole1992: checks
+Tolmi21: checks
+*** TURN *** [9s Jd Jc] [5c]
+kole1992: bets $9.22
+Tolmi21: folds
+Uncalled bet ($9.22) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $11.25 from pot
+*** SUMMARY ***
+Total pot $11.25 | Rake $0.56 
+Board [9s Jd Jc 5c]
+Seat 1: Tolmi21 (big blind) folded on the Turn 
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 folded before Flop (didn't bet)
+Seat 6: ChadUlf (big blind) folded before Flop 
+Seat 7: Hoho78 (button) folded before Flop (didn't bet)
+Seat 8: kole1992 (small blind) collected ($11.25)
+
+
+Weplay Hand #75147532:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 22:00:13 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($133.44 in chips)
+Seat 2: vrtlar ($50.17 in chips)
+Seat 3: RonMoll ($55.52 in chips)
+Seat 4: rossi1616 ($57.22 in chips)
+Seat 5: MeszaQ8 ($31.68 in chips)
+Seat 6: ChadUlf ($53.60 in chips)
+Seat 7: Hoho78 ($25.10 in chips)
+Seat 8: kole1992 ($114.33 in chips)
+Tolmi21: posts small blind $0.25
+vrtlar: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 2h]
+RonMoll: folds
+rossi1616: folds
+MeszaQ8: calls $0.50
+ChadUlf: folds
+Hoho78: folds
+kole1992: folds
+Tolmi21: calls $0.25
+vrtlar: checks
+*** FLOP *** [Kc 2c 5d]
+ChadUlf is disconnected 
+Tolmi21: checks
+ChadUlf is connected 
+vrtlar: checks
+MeszaQ8: bets $0.50
+Tolmi21: folds
+vrtlar: folds
+Uncalled bet ($0.50) returned to MeszaQ8
+*** SHOW DOWN ***
+MeszaQ8 has timed out
+MeszaQ8: doesn't show hand
+MeszaQ8 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [Kc 2c 5d]
+Seat 1: Tolmi21 (small blind) folded on the Flop 
+Seat 2: vrtlar (big blind) folded on the Flop 
+Seat 3: RonMoll folded before Flop (didn't bet)
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 collected ($1.50)
+Seat 6: ChadUlf folded before Flop (didn't bet)
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75147572:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 22:01:37 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($132.94 in chips)
+Seat 2: vrtlar ($50 in chips)
+Seat 3: RonMoll ($55.52 in chips)
+Seat 4: rossi1616 ($57.22 in chips)
+Seat 5: MeszaQ8 ($32.61 in chips)
+Seat 6: ChadUlf ($53.60 in chips)
+Seat 7: Hoho78 ($35.61 in chips)
+Seat 8: kole1992 ($114.33 in chips)
+vrtlar: posts small blind $0.25
+RonMoll: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 9c]
+rossi1616: folds
+MeszaQ8: raises $1 to $1
+ChadUlf: raises $3 to $3
+Hoho78: folds
+kole1992: folds
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+MeszaQ8: calls $2
+*** FLOP *** [Kc 9h Ts]
+MeszaQ8: checks
+ChadUlf: bets $2.25
+MeszaQ8: calls $2.25
+*** TURN *** [Kc 9h Ts] [7d]
+MeszaQ8: checks
+ChadUlf: bets $7.55
+MeszaQ8: calls $7.55
+*** RIVER *** [Kc 9h Ts 7d] [Ah]
+MeszaQ8: checks
+ChadUlf: bets $40.80 and is all-in
+MeszaQ8: calls $19.81 and is all-in
+Uncalled bet ($20.99) returned to ChadUlf
+*** SHOW DOWN ***
+ChadUlf: shows [Qc Ac] (a pair of Aces)
+MeszaQ8: shows [4s Ks] (a pair of Kings)
+ChadUlf collected $65.97 from pot
+*** SUMMARY ***
+Total pot $65.97 | Rake $3.29 
+Board [Kc 9h Ts 7d Ah]
+Seat 1: Tolmi21 (button) folded before Flop (didn't bet)
+Seat 2: vrtlar (small blind) folded before Flop 
+Seat 3: RonMoll (big blind) folded before Flop 
+Seat 4: rossi1616 folded before Flop (didn't bet)
+Seat 5: MeszaQ8 showed [4s Ks] and lost with a pair of Kings
+Seat 6: ChadUlf showed [Qc Ac] and won ($65.97) with a pair of Aces
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75147611:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 22:03:01 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($132.94 in chips)
+Seat 2: vrtlar ($50 in chips)
+Seat 3: RonMoll ($55.02 in chips)
+Seat 4: rossi1616 ($57.22 in chips)
+Seat 6: ChadUlf ($83.67 in chips)
+Seat 7: Hoho78 ($35.61 in chips)
+Seat 8: kole1992 ($114.33 in chips)
+RonMoll: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Jd]
+ChadUlf: raises $1.25 to $1.25
+Hoho78: calls $1.25
+MeszaQ8 is disconnected 
+kole1992: raises $4.76 to $4.76
+Tolmi21: folds
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+ChadUlf: calls $3.51
+Hoho78: folds
+*** FLOP *** [3s 3c 7c]
+ChadUlf: checks
+kole1992: bets $5.31
+ChadUlf: calls $5.31
+*** TURN *** [3s 3c 7c] [7h]
+ChadUlf: checks
+kole1992: checks
+*** RIVER *** [3s 3c 7c 7h] [Qs]
+ChadUlf: checks
+MeszaQ8 leaves the table
+kole1992: bets $17.20
+Krisztus is disconnected 
+ChadUlf: calls $17.20
+*** SHOW DOWN ***
+kole1992: shows [Jc Jd] (two pair, Jacks and Sevens)
+ChadUlf: mucks hand
+kole1992 collected $56.54 from pot
+*** SUMMARY ***
+Total pot $56.54 | Rake $2.82 
+Board [3s 3c 7c 7h Qs]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: vrtlar (button) folded before Flop (didn't bet)
+Seat 3: RonMoll (small blind) folded before Flop 
+Seat 4: rossi1616 (big blind) folded before Flop 
+Seat 6: ChadUlf mucked
+Seat 7: Hoho78 folded before Flop 
+Seat 8: kole1992 showed [Jc Jd] and won ($56.54) with two pair, Jacks and Sevens
+
+
+Weplay Hand #75147661:  Hold'em No Limit ($0.25/$0.50) - 2026/02/08 22:05:04 UTC
+Table 'Manchester #1'(11555801) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($132.94 in chips)
+Seat 2: vrtlar ($50 in chips)
+Seat 3: RonMoll ($54.77 in chips)
+Seat 4: rossi1616 ($56.72 in chips)
+Seat 6: ChadUlf ($56.40 in chips)
+Seat 7: Hoho78 ($34.36 in chips)
+Seat 8: kole1992 ($140.78 in chips)
+rossi1616: posts small blind $0.25
+ChadUlf: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Ks]
+Hoho78: folds
+kole1992: raises $1.25 to $1.25
+Tolmi21: calls $1.25
+vrtlar: folds
+RonMoll: folds
+rossi1616: folds
+ChadUlf: calls $0.75
+*** FLOP *** [Ad 3h 3c]
+ChadUlf: checks
+kole1992: checks
+Tolmi21: checks
+*** TURN *** [Ad 3h 3c] [Kh]
+ChadUlf: checks
+kole1992: bets $2.75
+Tolmi21: folds
+ChadUlf: calls $2.75
+*** RIVER *** [Ad 3h 3c Kh] [7c]
+ChadUlf: checks
+kole1992: bets $25.50
+DMT96 joins the table at seat #5
+ChadUlf: folds
+Uncalled bet ($25.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [Ad 3h 3c Kh 7c]
+Seat 1: Tolmi21 folded on the Turn 
+Seat 2: vrtlar folded before Flop (didn't bet)
+Seat 3: RonMoll (button) folded before Flop (didn't bet)
+Seat 4: rossi1616 (small blind) folded before Flop 
+Seat 6: ChadUlf (big blind) folded on the River 
+Seat 7: Hoho78 folded before Flop (didn't bet)
+Seat 8: kole1992 collected ($9.50)

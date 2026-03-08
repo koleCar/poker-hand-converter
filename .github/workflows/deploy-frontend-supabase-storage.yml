@@ -1,0 +1,42 @@
+name: Deploy frontend to Supabase Storage
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - "scripts/deploy-frontend-to-supabase.mjs"
+      - ".github/workflows/deploy-frontend-supabase-storage.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+
+      - name: Upload dist to Supabase Storage
+        run: node scripts/deploy-frontend-to-supabase.mjs
+        env:
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_STORAGE_BUCKET: frontend-site

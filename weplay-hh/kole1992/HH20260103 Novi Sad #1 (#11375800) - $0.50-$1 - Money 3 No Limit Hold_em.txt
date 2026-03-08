@@ -1,0 +1,1387 @@
+﻿Weplay Hand #71495551:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:15:07 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 1: FireWalkWithMe ($103.60 in chips)
+Seat 2: kole1992 ($100 in chips)
+Seat 3: Myrbekk ($30.22 in chips)
+Seat 4: Mamen97 ($42.45 in chips)
+Seat 5: Olaf193 ($66.18 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($111.52 in chips)
+Seat 8: mekkmester ($171.29 in chips)
+Mamen97: posts small blind $0.50
+Olaf193: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 6d]
+Doumby: folds
+Ben003: folds
+mekkmester: folds
+FireWalkWithMe: raises $3 to $3
+kole1992: folds
+Myrbekk: folds
+Mamen97: calls $2.50
+Olaf193: calls $2
+*** FLOP *** [8s 5c 2h]
+Mamen97: checks
+Olaf193: checks
+FireWalkWithMe: bets $5
+Mamen97: raises $12 to $12
+Olaf193: calls $12
+FireWalkWithMe: calls $7
+*** TURN *** [8s 5c 2h] [4s]
+Mamen97: bets $27
+Olaf193: raises $51.18 to $51.18 and is all-in
+FireWalkWithMe: folds
+Mamen97: calls $0.45 and is all-in
+Uncalled bet ($23.73) returned to Olaf193
+*** RIVER *** [8s 5c 2h 4s] [Qs]
+*** SHOW DOWN ***
+Mamen97: shows [5s Ks] (a flush, King high)
+Olaf193: shows [8c 7c] (a pair of Eights)
+Mamen97 collected $99.90 from pot
+*** SUMMARY ***
+Total pot $99.90 | Rake $4.99 
+Board [8s 5c 2h 4s Qs]
+Seat 1: FireWalkWithMe folded on the Turn 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Myrbekk (button) folded before Flop (didn't bet)
+Seat 4: Mamen97 (small blind) showed [5s Ks] and won ($99.90) with a flush, King high
+Seat 5: Olaf193 (big blind) showed [8c 7c] and lost with a pair of Eights
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 folded before Flop (didn't bet)
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71495617:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:16:39 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #4 is the button
+Seat 1: FireWalkWithMe ($100 in chips)
+Seat 2: kole1992 ($100 in chips)
+Seat 3: Myrbekk ($30.22 in chips)
+Seat 4: Mamen97 ($94.91 in chips)
+Seat 5: Olaf193 ($23.73 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($111.52 in chips)
+Seat 8: mekkmester ($171.29 in chips)
+Olaf193: posts small blind $0.50
+Doumby: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 6s]
+Ben003: calls $1
+mekkmester: calls $1
+FireWalkWithMe: folds
+kole1992: folds
+Myrbekk: raises $2 to $2
+Mamen97: calls $2
+Olaf193: raises $23.23 to $23.73 and is all-in
+Doumby: folds
+Ben003: calls $22.73
+mekkmester: folds
+Myrbekk: folds
+Mamen97: folds
+*** FLOP *** [Ah Kh 5d]
+*** TURN *** [Ah Kh 5d] [7h]
+*** RIVER *** [Ah Kh 5d 7h] [8s]
+*** SHOW DOWN ***
+Olaf193: shows [Kd 9h] (a pair of Kings)
+Ben003: shows [9s Ks] (a pair of Kings)
+Olaf193 collected $26.74 from pot
+Ben003 collected $26.72 from pot
+*** SUMMARY ***
+Total pot $53.46 | Rake $2.67 
+Board [Ah Kh 5d 7h 8s]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Myrbekk folded before Flop 
+Seat 4: Mamen97 (button) folded before Flop 
+Seat 5: Olaf193 (small blind) showed [Kd 9h] and won ($26.74) with a pair of Kings
+Seat 6: Doumby (big blind) folded before Flop 
+Seat 7: Ben003 showed [9s Ks] and won ($26.72) with a pair of Kings
+Seat 8: mekkmester folded before Flop 
+
+
+Weplay Hand #71495650:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:17:24 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: FireWalkWithMe ($100 in chips)
+Seat 2: kole1992 ($100 in chips)
+Seat 3: Myrbekk ($28.22 in chips)
+Seat 4: Mamen97 ($92.91 in chips)
+Seat 5: Olaf193 ($25.40 in chips)
+Seat 6: Doumby ($99 in chips)
+Seat 7: Ben003 ($113.18 in chips)
+Seat 8: mekkmester ($170.29 in chips)
+Doumby: posts small blind $0.50
+Ben003: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Jh]
+mekkmester: raises $2.50 to $2.50
+FireWalkWithMe: folds
+kole1992: folds
+Myrbekk: folds
+Mamen97: folds
+Olaf193: raises $10.40 to $10.40
+Doumby: folds
+Ben003: folds
+mekkmester: raises $167.79 to $170.29 and is all-in
+Olaf193: calls $15 and is all-in
+Uncalled bet ($144.89) returned to mekkmester
+*** FLOP *** [5d 8c 8s]
+*** TURN *** [5d 8c 8s] [7d]
+*** RIVER *** [5d 8c 8s 7d] [As]
+*** SHOW DOWN ***
+mekkmester: shows [Ts Td] (two pair, Tens and Eights)
+Olaf193: shows [9s Qc] (a pair of Eights)
+mekkmester collected $52.30 from pot
+*** SUMMARY ***
+Total pot $52.30 | Rake $2.61 
+Board [5d 8c 8s 7d As]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Myrbekk folded before Flop (didn't bet)
+Seat 4: Mamen97 folded before Flop (didn't bet)
+Seat 5: Olaf193 (button) showed [9s Qc] and lost with a pair of Eights
+Seat 6: Doumby (small blind) folded before Flop 
+Seat 7: Ben003 (big blind) folded before Flop 
+Seat 8: mekkmester showed [Ts Td] and won ($52.30) with two pair, Tens and Eights
+
+
+Weplay Hand #71495683:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:18:12 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 1: FireWalkWithMe ($100 in chips)
+Seat 2: kole1992 ($100 in chips)
+Seat 3: Myrbekk ($28.22 in chips)
+Seat 4: Mamen97 ($92.91 in chips)
+Seat 5: Olaf193 ($100 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($112.18 in chips)
+Seat 8: mekkmester ($194.58 in chips)
+Ben003: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Ks]
+FireWalkWithMe: folds
+kole1992: folds
+Myrbekk: calls $1
+Mamen97: calls $1
+Olaf193: raises $5 to $5
+Doumby: folds
+Ben003: calls $4.50
+mekkmester: folds
+Myrbekk: calls $4
+Mamen97: calls $4
+*** FLOP *** [Jd 3c 4d]
+Ben003: checks
+Myrbekk: checks
+Mamen97: checks
+Olaf193: bets $21
+Ben003: raises $107.18 to $107.18 and is all-in
+Myrbekk: folds
+Mamen97: folds
+Olaf193: calls $74 and is all-in
+Uncalled bet ($12.18) returned to Ben003
+*** FIRST TURN *** [Jd 3c 4d] [Kd]
+*** FIRST RIVER *** [Jd 3c 4d Kd] [3h]
+*** SECOND TURN *** [Jd 3c 4d] [Qd]
+*** SECOND RIVER *** [Jd 3c 4d Qd] [3d]
+*** SHOW DOWN ***
+Ben003: shows [Ac Jh] (two pair, Jacks and Threes)
+Olaf193: shows [5c 2d] (a pair of Threes)
+Ben003 collected $105.50 from pot
+Olaf193 collected $105.50 from pot
+*** SUMMARY ***
+Total pot $211 | Rake $6.50 
+Hand was run two times
+FIRST Board [Jd 3c 4d Kd 3h]
+SECOND Board [Jd 3c 4d Qd 3d]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Myrbekk folded on the Flop 
+Seat 4: Mamen97 folded on the Flop 
+Seat 5: Olaf193 showed [5c 2d] and won ($105.50) with a pair of Threes
+Seat 6: Doumby (button) folded before Flop (didn't bet)
+Seat 7: Ben003 (small blind) showed [Ac Jh] and won ($105.50) with two pair, Jacks and Threes
+Seat 8: mekkmester (big blind) folded before Flop 
+
+
+Weplay Hand #71495715:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:19:07 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: FireWalkWithMe ($100 in chips)
+Seat 2: kole1992 ($100 in chips)
+Seat 3: Myrbekk ($23.22 in chips)
+Seat 4: Mamen97 ($87.91 in chips)
+Seat 5: Olaf193 ($102.25 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($114.43 in chips)
+Seat 8: mekkmester ($193.58 in chips)
+mekkmester: posts small blind $0.50
+FireWalkWithMe: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 7s]
+kole1992: folds
+Myrbekk: folds
+Mamen97: folds
+Olaf193: folds
+Doumby: raises $3 to $3
+Ben003: calls $3
+mekkmester: folds
+FireWalkWithMe: folds
+*** FLOP *** [9d 7c Jh]
+Doumby: checks
+Ben003: bets $1
+Doumby: calls $1
+*** TURN *** [9d 7c Jh] [Jd]
+Doumby: checks
+Ben003: bets $9.50
+Doumby: folds
+Uncalled bet ($9.50) returned to Ben003
+*** SHOW DOWN ***
+Ben003 has timed out
+Ben003: doesn't show hand
+Ben003 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [9d 7c Jh Jd]
+Seat 1: FireWalkWithMe (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: Myrbekk folded before Flop (didn't bet)
+Seat 4: Mamen97 folded before Flop (didn't bet)
+Seat 5: Olaf193 folded before Flop (didn't bet)
+Seat 6: Doumby folded on the Turn 
+Seat 7: Ben003 (button) collected ($9.50)
+Seat 8: mekkmester (small blind) folded before Flop 
+
+
+Weplay Hand #71495753:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:20:09 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: FireWalkWithMe ($99 in chips)
+Seat 2: kole1992 ($100 in chips)
+Seat 3: Myrbekk ($23.22 in chips)
+Seat 4: Mamen97 ($87.91 in chips)
+Seat 5: Olaf193 ($102.25 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($119.46 in chips)
+Seat 8: mekkmester ($193.08 in chips)
+FireWalkWithMe: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 4d]
+Myrbekk: calls $1
+Mamen97: folds
+Olaf193: raises $3 to $3
+Doumby: folds
+Ben003: folds
+mekkmester: folds
+FireWalkWithMe: folds
+kole1992: calls $2
+Myrbekk: calls $2
+*** FLOP *** [Ks 4s Ad]
+kole1992: checks
+Myrbekk: bets $1
+Olaf193: folds
+kole1992: calls $1
+*** TURN *** [Ks 4s Ad] [Qc]
+kole1992: checks
+Myrbekk: checks
+*** RIVER *** [Ks 4s Ad Qc] [Ah]
+kole1992: bets $1.50
+Myrbekk: calls $1.50
+*** SHOW DOWN ***
+kole1992: shows [4h 4d] (a full house, Fours full of Aces)
+Myrbekk has timed out
+Myrbekk: mucks hand
+kole1992 collected $14.50 from pot
+*** SUMMARY ***
+Total pot $14.50 | Rake $0.72 
+Board [Ks 4s Ad Qc Ah]
+Seat 1: FireWalkWithMe (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) showed [4h 4d] and won ($14.50) with a full house, Fours full of Aces
+Seat 3: Myrbekk mucked
+Seat 4: Mamen97 folded before Flop (didn't bet)
+Seat 5: Olaf193 folded on the Flop 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 folded before Flop (didn't bet)
+Seat 8: mekkmester (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71495779:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:21:04 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #1 is the button
+Seat 1: FireWalkWithMe ($98.50 in chips)
+Seat 2: kole1992 ($108.28 in chips)
+Seat 3: Myrbekk ($17.72 in chips)
+Seat 4: Mamen97 ($87.91 in chips)
+Seat 5: Olaf193 ($99.25 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($119.46 in chips)
+Seat 8: mekkmester ($193.08 in chips)
+kole1992: posts small blind $0.50
+Myrbekk: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Jh]
+Mamen97: calls $1
+Olaf193: raises $7 to $7
+Doumby: folds
+Ben003: folds
+mekkmester: folds
+FireWalkWithMe: raises $22 to $22
+kole1992: folds
+Myrbekk: calls $16.72 and is all-in
+Mamen97: folds
+Olaf193: calls $15
+*** FLOP *** [9c Th Js]
+Olaf193: checks
+FireWalkWithMe: bets $76.50 and is all-in
+Olaf193: folds
+Uncalled bet ($76.50) returned to FireWalkWithMe
+*** TURN *** [9c Th Js] [8c]
+*** RIVER *** [9c Th Js 8c] [6d]
+*** SHOW DOWN ***
+Myrbekk: shows [5s Ad] (high card Ace)
+FireWalkWithMe: shows [As Ah] (a pair of Aces)
+FireWalkWithMe collected $8.56 from side pot
+FireWalkWithMe collected $54.66 from main pot
+*** SUMMARY ***
+Total pot $63.22 Main pot $54.66. Side pot $8.56. | Rake $3.16 
+Board [9c Th Js 8c 6d]
+Seat 1: FireWalkWithMe (button) showed [As Ah] and won ($63.22) with a pair of Aces
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: Myrbekk (big blind) showed [5s Ad] and lost with high card Ace
+Seat 4: Mamen97 folded before Flop 
+Seat 5: Olaf193 folded on the Flop 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 folded before Flop (didn't bet)
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71495821:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:22:16 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #2 is the button
+Seat 1: FireWalkWithMe ($136.56 in chips)
+Seat 2: kole1992 ($107.78 in chips)
+Seat 4: Mamen97 ($86.91 in chips)
+Seat 5: Olaf193 ($77.25 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($119.46 in chips)
+Seat 8: mekkmester ($193.08 in chips)
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Qd]
+Olaf193: raises $4 to $4
+Myrbekk leaves the table
+Doumby: folds
+Ben003: folds
+mekkmester: folds
+FireWalkWithMe: calls $4
+kole1992: calls $4
+Mamen97: folds
+*** FLOP *** [Kc Jd 2c]
+Olaf193: bets $13
+FireWalkWithMe: folds
+kole1992: folds
+Uncalled bet ($13) returned to Olaf193
+*** SHOW DOWN ***
+Olaf193 has timed out
+Olaf193: doesn't show hand
+Olaf193 collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [Kc Jd 2c]
+Seat 1: FireWalkWithMe folded on the Flop 
+Seat 2: kole1992 (button) folded on the Flop 
+Seat 4: Mamen97 (big blind) folded before Flop 
+Seat 5: Olaf193 collected ($13)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 folded before Flop (didn't bet)
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71495843:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:22:50 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 1: FireWalkWithMe ($132.56 in chips)
+Seat 2: kole1992 ($103.78 in chips)
+Seat 4: Mamen97 ($85.91 in chips)
+Seat 5: Olaf193 ($85.60 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($119.46 in chips)
+Seat 8: mekkmester ($193.08 in chips)
+Mamen97: posts small blind $0.50
+EHerzog joins the table at seat #3
+Olaf193: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 7h]
+Doumby: folds
+Ben003: calls $1
+mekkmester: calls $1
+FireWalkWithMe: folds
+kole1992: folds
+Mamen97: calls $0.50
+Olaf193: raises $4 to $5
+Ben003: calls $4
+mekkmester: calls $4
+Mamen97: folds
+*** FLOP *** [9h 3s 6h]
+Olaf193: bets $12
+Ben003: folds
+mekkmester: calls $12
+*** TURN *** [9h 3s 6h] [Jd]
+Olaf193: bets $18
+mekkmester: calls $18
+*** RIVER *** [9h 3s 6h Jd] [Kh]
+Olaf193: checks
+mekkmester: bets $25.08
+Olaf193: folds
+Uncalled bet ($25.08) returned to mekkmester
+*** SHOW DOWN ***
+mekkmester has timed out
+mekkmester: doesn't show hand
+mekkmester collected $76 from pot
+*** SUMMARY ***
+Total pot $76 | Rake $3.80 
+Board [9h 3s 6h Jd Kh]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 4: Mamen97 (small blind) folded before Flop 
+Seat 5: Olaf193 (big blind) folded on the River 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 folded on the Flop 
+Seat 8: mekkmester collected ($76)
+
+
+Weplay Hand #71495902:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:24:13 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #4 is the button
+Seat 1: FireWalkWithMe ($132.56 in chips)
+Seat 2: kole1992 ($103.78 in chips)
+Seat 3: EHerzog ($100 in chips)
+Seat 4: Mamen97 ($84.91 in chips)
+Seat 5: Olaf193 ($50.60 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($114.46 in chips)
+Seat 8: mekkmester ($230.28 in chips)
+Olaf193: posts small blind $0.50
+Doumby: posts big blind $1
+EHerzog: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Jc]
+Ben003: folds
+mekkmester: folds
+FireWalkWithMe: folds
+kole1992: folds
+EHerzog: raises $2 to $3
+Mamen97: folds
+Olaf193: calls $2.50
+Doumby: folds
+*** FLOP *** [5s 4h Ah]
+Olaf193: checks
+EHerzog: bets $3
+Olaf193: folds
+Uncalled bet ($3) returned to EHerzog
+*** SHOW DOWN ***
+EHerzog has timed out
+EHerzog: doesn't show hand
+EHerzog collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [5s 4h Ah]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog (big blind) collected ($7)
+Seat 4: Mamen97 (button) folded before Flop (didn't bet)
+Seat 5: Olaf193 (small blind) folded on the Flop 
+Seat 6: Doumby (big blind) folded before Flop 
+Seat 7: Ben003 folded before Flop (didn't bet)
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71495931:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:24:50 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: FireWalkWithMe ($132.56 in chips)
+Seat 2: kole1992 ($103.78 in chips)
+Seat 3: EHerzog ($103.65 in chips)
+Seat 4: Mamen97 ($84.91 in chips)
+Seat 5: Olaf193 ($47.60 in chips)
+Seat 6: Doumby ($99 in chips)
+Seat 7: Ben003 ($114.46 in chips)
+Seat 8: mekkmester ($230.28 in chips)
+Doumby: posts small blind $0.50
+Ben003: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Kd]
+mekkmester: folds
+FireWalkWithMe: folds
+kole1992: folds
+EHerzog: folds
+Mamen97: folds
+Olaf193: folds
+Doumby: folds
+Uncalled bet ($0.50) returned to Ben003
+*** SHOW DOWN ***
+Ben003 has timed out
+Ben003: doesn't show hand
+Ben003 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog folded before Flop (didn't bet)
+Seat 4: Mamen97 folded before Flop (didn't bet)
+Seat 5: Olaf193 (button) folded before Flop (didn't bet)
+Seat 6: Doumby (small blind) folded before Flop 
+Seat 7: Ben003 (big blind) collected ($1)
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71495965:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:25:30 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 1: FireWalkWithMe ($132.56 in chips)
+Seat 2: kole1992 ($103.78 in chips)
+Seat 3: EHerzog ($103.65 in chips)
+Seat 4: Mamen97 ($84.91 in chips)
+Seat 5: Olaf193 ($47.60 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($114.96 in chips)
+Seat 8: mekkmester ($230.28 in chips)
+Ben003: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 3s]
+FireWalkWithMe: folds
+kole1992: folds
+EHerzog: folds
+Mamen97: calls $1
+Olaf193: raises $3.60 to $3.60
+Doumby: raises $14 to $14
+Ben003: folds
+mekkmester: folds
+Mamen97: folds
+Olaf193: calls $10.40
+*** FLOP *** [Ks 5h 2c]
+Olaf193: checks
+Doumby: bets $34
+Olaf193: calls $33.60 and is all-in
+Uncalled bet ($0.40) returned to Doumby
+*** TURN *** [Ks 5h 2c] [Jd]
+*** RIVER *** [Ks 5h 2c Jd] [8c]
+*** SHOW DOWN ***
+Olaf193: shows [5d Kd] (two pair, Kings and Fives)
+Doumby: shows [7h 7s] (a pair of Sevens)
+Olaf193 collected $97.70 from pot
+*** SUMMARY ***
+Total pot $97.70 | Rake $4.88 
+Board [Ks 5h 2c Jd 8c]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog folded before Flop (didn't bet)
+Seat 4: Mamen97 folded before Flop 
+Seat 5: Olaf193 showed [5d Kd] and won ($97.70) with two pair, Kings and Fives
+Seat 6: Doumby (button) showed [7h 7s] and lost with a pair of Sevens
+Seat 7: Ben003 (small blind) folded before Flop 
+Seat 8: mekkmester (big blind) folded before Flop 
+
+
+Weplay Hand #71496015:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:26:43 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: FireWalkWithMe ($132.56 in chips)
+Seat 2: kole1992 ($103.78 in chips)
+Seat 3: EHerzog ($103.65 in chips)
+Seat 4: Mamen97 ($83.91 in chips)
+Seat 5: Olaf193 ($92.82 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($114.46 in chips)
+Seat 8: mekkmester ($229.28 in chips)
+mekkmester: posts small blind $0.50
+FireWalkWithMe: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 7c]
+kole1992: folds
+EHerzog: raises $3 to $3
+Mamen97: calls $3
+Olaf193: folds
+Doumby: folds
+Ben003: calls $3
+mekkmester: folds
+FireWalkWithMe: calls $2
+*** FLOP *** [Qc Td Tc]
+FireWalkWithMe: checks
+EHerzog: checks
+Mamen97: checks
+Ben003: bets $1
+FireWalkWithMe: folds
+EHerzog: folds
+Mamen97: raises $3 to $3
+Ben003: calls $2
+*** TURN *** [Qc Td Tc] [3c]
+Mamen97: checks
+Ben003: checks
+*** RIVER *** [Qc Td Tc 3c] [9d]
+Mamen97: bets $10
+Ben003: raises $20 to $20
+Mamen97: calls $10
+*** SHOW DOWN ***
+Ben003: shows [Th Qh] (a full house, Tens full of Queens)
+Mamen97 has timed out
+Mamen97: mucks hand
+Ben003 collected $58.50 from pot
+*** SUMMARY ***
+Total pot $58.50 | Rake $2.92 
+Board [Qc Td Tc 3c 9d]
+Seat 1: FireWalkWithMe (big blind) folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog folded on the Flop 
+Seat 4: Mamen97 mucked
+Seat 5: Olaf193 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 (button) showed [Th Qh] and won ($58.50) with a full house, Tens full of Queens
+Seat 8: mekkmester (small blind) folded before Flop 
+
+
+Weplay Hand #71496075:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:28:24 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: FireWalkWithMe ($129.56 in chips)
+Seat 2: kole1992 ($103.78 in chips)
+Seat 3: EHerzog ($100.65 in chips)
+Seat 4: Mamen97 ($57.91 in chips)
+Seat 5: Olaf193 ($92.82 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($144.04 in chips)
+Seat 8: mekkmester ($228.78 in chips)
+FireWalkWithMe: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 5h]
+EHerzog: folds
+Mamen97: raises $5 to $5
+Olaf193: folds
+Doumby: folds
+Ben003: calls $5
+mekkmester: folds
+FireWalkWithMe: folds
+kole1992: folds
+*** FLOP *** [8s 9s Ac]
+Mamen97: bets $7.50
+Ben003: calls $7.50
+*** TURN *** [8s 9s Ac] [Qh]
+Mamen97: bets $17
+Ben003: calls $17
+*** RIVER *** [8s 9s Ac Qh] [Kc]
+Mamen97: bets $15
+Ben003: calls $15
+*** SHOW DOWN ***
+Mamen97: shows [As Ts] (a pair of Aces)
+Ben003: shows [Td Ah] (a pair of Aces)
+Mamen97 collected $45.25 from pot
+Ben003 collected $45.25 from pot
+*** SUMMARY ***
+Total pot $90.50 | Rake $4.52 
+Board [8s 9s Ac Qh Kc]
+Seat 1: FireWalkWithMe (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: EHerzog folded before Flop (didn't bet)
+Seat 4: Mamen97 showed [As Ts] and won ($45.25) with a pair of Aces
+Seat 5: Olaf193 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 showed [Td Ah] and won ($45.25) with a pair of Aces
+Seat 8: mekkmester (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71496125:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:29:44 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #1 is the button
+Seat 1: FireWalkWithMe ($129.06 in chips)
+Seat 2: kole1992 ($102.78 in chips)
+Seat 3: EHerzog ($100.65 in chips)
+Seat 4: Mamen97 ($56.40 in chips)
+Seat 5: Olaf193 ($92.82 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($142.53 in chips)
+Seat 8: mekkmester ($228.78 in chips)
+kole1992: posts small blind $0.50
+EHerzog: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 5s]
+Mamen97: folds
+Olaf193: raises $3 to $3
+Doumby: folds
+Ben003: calls $3
+mekkmester: folds
+FireWalkWithMe: calls $3
+kole1992: folds
+EHerzog: calls $2
+*** FLOP *** [8h 7d 8d]
+EHerzog: checks
+Olaf193: checks
+Ben003: checks
+FireWalkWithMe: checks
+*** TURN *** [8h 7d 8d] [2d]
+EHerzog: bets $4.13
+Olaf193: folds
+Ben003: folds
+FireWalkWithMe: folds
+Uncalled bet ($4.13) returned to EHerzog
+*** SHOW DOWN ***
+EHerzog has timed out
+EHerzog: doesn't show hand
+EHerzog collected $12.50 from pot
+*** SUMMARY ***
+Total pot $12.50 | Rake $0.62 
+Board [8h 7d 8d 2d]
+Seat 1: FireWalkWithMe (button) folded on the Turn 
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: EHerzog (big blind) collected ($12.50)
+Seat 4: Mamen97 folded before Flop (didn't bet)
+Seat 5: Olaf193 folded on the Turn 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 folded on the Turn 
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71496163:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:30:50 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #2 is the button
+Seat 1: FireWalkWithMe ($126.06 in chips)
+Seat 2: kole1992 ($102.28 in chips)
+Seat 3: EHerzog ($109.53 in chips)
+Seat 4: Mamen97 ($56.40 in chips)
+Seat 5: Olaf193 ($89.82 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($139.53 in chips)
+Seat 8: mekkmester ($228.78 in chips)
+EHerzog: posts small blind $0.50
+Mamen97: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 5s]
+Olaf193: folds
+Doumby: folds
+Ben003: calls $1
+mekkmester: calls $1
+FireWalkWithMe: folds
+kole1992: folds
+EHerzog: calls $0.50
+Mamen97: checks
+*** FLOP *** [4h 3d 3h]
+EHerzog: checks
+Mamen97: checks
+Ben003: bets $4
+mekkmester: folds
+EHerzog: folds
+Mamen97: folds
+Uncalled bet ($4) returned to Ben003
+*** SHOW DOWN ***
+Ben003 has timed out
+Ben003: doesn't show hand
+Ben003 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [4h 3d 3h]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: EHerzog (small blind) folded on the Flop 
+Seat 4: Mamen97 (big blind) folded on the Flop 
+Seat 5: Olaf193 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 collected ($4)
+Seat 8: mekkmester folded on the Flop 
+
+
+Weplay Hand #71496194:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:31:47 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 1: FireWalkWithMe ($126.06 in chips)
+Seat 2: kole1992 ($102.28 in chips)
+Seat 3: EHerzog ($108.53 in chips)
+Seat 4: Mamen97 ($55.40 in chips)
+Seat 5: Olaf193 ($89.82 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($142.33 in chips)
+Seat 8: mekkmester ($227.78 in chips)
+Mamen97: posts small blind $0.50
+Olaf193: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Ac]
+Doumby: folds
+Ben003: folds
+mekkmester: folds
+FireWalkWithMe: folds
+kole1992: raises $2 to $2
+EHerzog: folds
+Mamen97: calls $1.50
+Olaf193: raises $5 to $6
+kole1992: calls $4
+Mamen97: calls $4
+*** FLOP *** [Ts 8s 7d]
+Mamen97: checks
+Olaf193: bets $13.50
+kole1992: calls $13.50
+Mamen97: calls $13.50
+*** TURN *** [Ts 8s 7d] [5h]
+Mamen97: checks
+Olaf193: checks
+kole1992: checks
+*** RIVER *** [Ts 8s 7d 5h] [3c]
+Mamen97: bets $35
+Olaf193: folds
+kole1992: calls $35
+*** SHOW DOWN ***
+Mamen97: shows [2s 4s] (high card Ten)
+kole1992: shows [Tc Ac] (a pair of Tens)
+kole1992 collected $128.50 from pot
+*** SUMMARY ***
+Total pot $128.50 | Rake $6.42 
+Board [Ts 8s 7d 5h 3c]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 showed [Tc Ac] and won ($128.50) with a pair of Tens
+Seat 3: EHerzog (button) folded before Flop (didn't bet)
+Seat 4: Mamen97 (small blind) showed [2s 4s] and lost with high card Ten
+Seat 5: Olaf193 (big blind) folded on the River 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 folded before Flop (didn't bet)
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71496255:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:33:41 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #4 is the button
+Seat 1: FireWalkWithMe ($126.06 in chips)
+Seat 2: kole1992 ($169.86 in chips)
+Seat 3: EHerzog ($108.53 in chips)
+Seat 4: Mamen97 ($0.90 in chips)
+Seat 5: Olaf193 ($70.32 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($142.33 in chips)
+Seat 8: mekkmester ($227.78 in chips)
+Olaf193: posts small blind $0.50
+Doumby: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Ah]
+Ben003: folds
+mekkmester: calls $1
+FireWalkWithMe: folds
+Mamen97 is disconnected 
+kole1992: raises $3 to $3
+EHerzog: folds
+Mamen97 has timed out while being disconnected
+Mamen97: folds
+Olaf193: raises $9.10 to $9.60
+Doumby: folds
+mekkmester: folds
+kole1992: calls $6.60
+*** FLOP *** [9d 6d 6c]
+Olaf193: bets $15.90
+kole1992: folds
+Uncalled bet ($15.90) returned to Olaf193
+*** SHOW DOWN ***
+Olaf193: doesn't show hand
+Olaf193 collected $21.20 from pot
+*** SUMMARY ***
+Total pot $21.20 | Rake $1.06 
+Board [9d 6d 6c]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded on the Flop 
+Seat 3: EHerzog folded before Flop (didn't bet)
+Seat 4: Mamen97 (button) folded before Flop (didn't bet)
+Seat 5: Olaf193 (small blind) collected ($21.20)
+Seat 6: Doumby (big blind) folded before Flop 
+Seat 7: Ben003 folded before Flop (didn't bet)
+Seat 8: mekkmester folded before Flop 
+
+
+Weplay Hand #71496283:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:34:34 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: FireWalkWithMe ($126.06 in chips)
+Seat 2: kole1992 ($160.26 in chips)
+Seat 3: EHerzog ($108.53 in chips)
+Seat 5: Olaf193 ($80.86 in chips)
+Seat 6: Doumby ($99 in chips)
+Seat 7: Ben003 ($142.33 in chips)
+Seat 8: mekkmester ($226.78 in chips)
+Doumby: posts small blind $0.50
+Ben003: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Qs]
+mekkmester: folds
+FireWalkWithMe: folds
+kole1992: folds
+EHerzog: raises $3 to $3
+Olaf193: folds
+Doumby: calls $2.50
+Mamen97 is connected 
+Ben003: calls $2
+*** FLOP *** [8h Jh 6d]
+Doumby: checks
+Ben003: checks
+EHerzog: checks
+*** TURN *** [8h Jh 6d] [Jd]
+Doumby: bets $7.20
+Ben003: folds
+EHerzog: folds
+Uncalled bet ($7.20) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [8h Jh 6d Jd]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog folded on the Turn 
+Seat 5: Olaf193 (button) folded before Flop (didn't bet)
+Seat 6: Doumby (small blind) collected ($9)
+Seat 7: Ben003 (big blind) folded on the Turn 
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71496308:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:35:17 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 1: FireWalkWithMe ($126.06 in chips)
+Seat 2: kole1992 ($160.26 in chips)
+Seat 3: EHerzog ($105.53 in chips)
+Seat 4: Mamen97 ($0.90 in chips)
+Seat 5: Olaf193 ($80.86 in chips)
+Seat 6: Doumby ($104.55 in chips)
+Seat 7: Ben003 ($139.33 in chips)
+Seat 8: mekkmester ($226.78 in chips)
+Ben003: posts small blind $0.50
+mekkmester: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As 7d]
+Mamen97 is disconnected 
+FireWalkWithMe: folds
+kole1992: folds
+EHerzog: raises $3 to $3
+Mamen97 has timed out while being disconnected
+Mamen97: folds
+Olaf193: calls $3
+Doumby: folds
+Ben003: folds
+mekkmester: folds
+*** FLOP *** [Th 5c Qc]
+EHerzog: checks
+Olaf193: bets $3.75
+EHerzog: calls $3.75
+*** TURN *** [Th 5c Qc] [9h]
+EHerzog: checks
+Olaf193: bets $11.25
+EHerzog: calls $11.25
+*** RIVER *** [Th 5c Qc 9h] [Tc]
+EHerzog: checks
+Olaf193: bets $28.13
+Mamen97 leaves the table
+EHerzog: folds
+Uncalled bet ($28.13) returned to Olaf193
+*** SHOW DOWN ***
+Olaf193: doesn't show hand
+Olaf193 collected $37.50 from pot
+*** SUMMARY ***
+Total pot $37.50 | Rake $1.87 
+Board [Th 5c Qc 9h Tc]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog folded on the River 
+Seat 4: Mamen97 folded before Flop (didn't bet)
+Seat 5: Olaf193 collected ($37.50)
+Seat 6: Doumby (button) folded before Flop (didn't bet)
+Seat 7: Ben003 (small blind) folded before Flop 
+Seat 8: mekkmester (big blind) folded before Flop 
+
+
+Weplay Hand #71497347:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:36:41 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: FireWalkWithMe ($126.06 in chips)
+Seat 2: kole1992 ($160.26 in chips)
+Seat 3: EHerzog ($87.53 in chips)
+Seat 5: Olaf193 ($98.49 in chips)
+Seat 6: Doumby ($104.55 in chips)
+Seat 7: Ben003 ($138.83 in chips)
+Seat 8: mekkmester ($225.78 in chips)
+mekkmester: posts small blind $0.50
+FireWalkWithMe: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 7d]
+kole1992: folds
+EHerzog: calls $1
+Olaf193: raises $2.50 to $2.50
+Doumby: folds
+Ben003: calls $2.50
+mekkmester: folds
+FireWalkWithMe: calls $1.50
+EHerzog: calls $1.50
+*** FLOP *** [Jd As Js]
+FireWalkWithMe: checks
+EHerzog: checks
+Olaf193: checks
+Ben003: bets $5.25
+FireWalkWithMe: folds
+EHerzog: folds
+Olaf193: calls $5.25
+*** TURN *** [Jd As Js] [5s]
+Olaf193: checks
+Ben003: bets $6.93
+Olaf193: folds
+Uncalled bet ($6.93) returned to Ben003
+*** SHOW DOWN ***
+Ben003 has timed out
+Ben003: doesn't show hand
+Ben003 collected $21 from pot
+*** SUMMARY ***
+Total pot $21 | Rake $1.05 
+Board [Jd As Js 5s]
+Seat 1: FireWalkWithMe (big blind) folded on the Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog folded on the Flop 
+Seat 5: Olaf193 folded on the Turn 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 (button) collected ($21)
+Seat 8: mekkmester (small blind) folded before Flop 
+
+
+Weplay Hand #71497381:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:37:45 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: FireWalkWithMe ($123.56 in chips)
+Seat 2: kole1992 ($160.26 in chips)
+Seat 3: EHerzog ($85.03 in chips)
+Seat 5: Olaf193 ($90.74 in chips)
+Seat 6: Doumby ($104.55 in chips)
+Seat 7: Ben003 ($151.03 in chips)
+Seat 8: mekkmester ($225.28 in chips)
+FireWalkWithMe: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 2h]
+EHerzog: folds
+Olaf193: raises $5.74 to $5.74
+Doumby: raises $21 to $21
+Ben003: folds
+mekkmester: folds
+FireWalkWithMe: folds
+kole1992: folds
+Olaf193: calls $15.26
+*** FLOP *** [4h 4d Kc]
+Olaf193: checks
+Doumby: bets $12.60
+Olaf193: raises $69.74 to $69.74 and is all-in
+Doumby: calls $57.14
+*** TURN *** [4h 4d Kc] [Tc]
+*** RIVER *** [4h 4d Kc Tc] [3h]
+*** SHOW DOWN ***
+Olaf193: shows [Ah Kd] (two pair, Kings and Fours)
+Doumby: shows [Qc Qd] (two pair, Queens and Fours)
+Olaf193 collected $182.98 from pot
+*** SUMMARY ***
+Total pot $182.98 | Rake $6.50 
+Board [4h 4d Kc Tc 3h]
+Seat 1: FireWalkWithMe (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: EHerzog folded before Flop (didn't bet)
+Seat 5: Olaf193 showed [Ah Kd] and won ($182.98) with two pair, Kings and Fours
+Seat 6: Doumby showed [Qc Qd] and lost with two pair, Queens and Fours
+Seat 7: Ben003 folded before Flop (didn't bet)
+Seat 8: mekkmester (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71497418:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:38:58 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #1 is the button
+Seat 1: FireWalkWithMe ($123.06 in chips)
+Seat 2: kole1992 ($159.26 in chips)
+Seat 3: EHerzog ($85.03 in chips)
+Seat 5: Olaf193 ($176.48 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($151.03 in chips)
+Seat 8: mekkmester ($225.28 in chips)
+kole1992: posts small blind $0.50
+EHerzog: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Qs]
+Olaf193: calls $1
+Doumby: folds
+Ben003: folds
+mekkmester: calls $1
+FireWalkWithMe: calls $1
+kole1992: raises $7.51 to $8.01
+EHerzog: folds
+Olaf193: folds
+mekkmester: folds
+FireWalkWithMe: folds
+Uncalled bet ($7.01) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: FireWalkWithMe (button) folded before Flop 
+Seat 2: kole1992 (small blind) collected ($5)
+Seat 3: EHerzog (big blind) folded before Flop 
+Seat 5: Olaf193 folded before Flop 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 folded before Flop (didn't bet)
+Seat 8: mekkmester folded before Flop 
+
+
+Weplay Hand #71497438:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:39:40 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #2 is the button
+Seat 1: FireWalkWithMe ($122.06 in chips)
+Seat 2: kole1992 ($163.26 in chips)
+Seat 3: EHerzog ($84.03 in chips)
+Seat 5: Olaf193 ($175.48 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($151.03 in chips)
+Seat 8: mekkmester ($224.28 in chips)
+EHerzog: posts small blind $0.50
+Olaf193: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 6d]
+Doumby: folds
+Ben003: calls $1
+mekkmester: folds
+FireWalkWithMe: raises $4 to $4
+kole1992: calls $4
+EHerzog: folds
+Olaf193: calls $3
+Ben003: calls $3
+*** FLOP *** [Qd Qh 4h]
+Olaf193: checks
+Ben003: checks
+FireWalkWithMe: checks
+kole1992: checks
+*** TURN *** [Qd Qh 4h] [9s]
+Olaf193: checks
+Ben003: checks
+FireWalkWithMe: checks
+kole1992: checks
+*** RIVER *** [Qd Qh 4h 9s] [4s]
+Olaf193: checks
+Ben003: checks
+FireWalkWithMe: bets $8
+kole1992: folds
+Olaf193: folds
+Ben003: calls $8
+*** SHOW DOWN ***
+FireWalkWithMe: shows [4d 3d] (a full house, Fours full of Queens)
+Ben003 has timed out
+Ben003: mucks hand
+FireWalkWithMe collected $32.50 from pot
+*** SUMMARY ***
+Total pot $32.50 | Rake $1.62 
+Board [Qd Qh 4h 9s 4s]
+Seat 1: FireWalkWithMe showed [4d 3d] and won ($32.50) with a full house, Fours full of Queens
+Seat 2: kole1992 (button) folded on the River 
+Seat 3: EHerzog (small blind) folded before Flop 
+Seat 5: Olaf193 (big blind) folded on the River 
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 mucked
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71497504:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:41:23 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #3 is the button
+Seat 1: FireWalkWithMe ($140.94 in chips)
+Seat 2: kole1992 ($159.26 in chips)
+Seat 3: EHerzog ($83.53 in chips)
+Seat 5: Olaf193 ($171.48 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($139.03 in chips)
+Seat 8: mekkmester ($224.28 in chips)
+Olaf193: posts small blind $0.50
+Doumby: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 7s]
+Ben003: calls $1
+mekkmester: folds
+FireWalkWithMe: folds
+kole1992: folds
+EHerzog: raises $4 to $4
+Olaf193: folds
+Doumby: calls $3
+Ben003: calls $3
+*** FLOP *** [8c 3d 4d]
+Doumby: checks
+Ben003: checks
+EHerzog: bets $4.13
+Doumby: folds
+Ben003: folds
+Uncalled bet ($4.13) returned to EHerzog
+*** SHOW DOWN ***
+EHerzog has timed out
+EHerzog: doesn't show hand
+EHerzog collected $12.50 from pot
+*** SUMMARY ***
+Total pot $12.50 | Rake $0.62 
+Board [8c 3d 4d]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog (button) collected ($12.50)
+Seat 5: Olaf193 (small blind) folded before Flop 
+Seat 6: Doumby (big blind) folded on the Flop 
+Seat 7: Ben003 folded on the Flop 
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71497523:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:42:13 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #5 is the button
+Seat 1: FireWalkWithMe ($140.94 in chips)
+Seat 2: kole1992 ($159.26 in chips)
+Seat 3: EHerzog ($91.41 in chips)
+Seat 5: Olaf193 ($170.98 in chips)
+Seat 6: Doumby ($100 in chips)
+Seat 7: Ben003 ($135.03 in chips)
+Seat 8: mekkmester ($224.28 in chips)
+Doumby: posts small blind $0.50
+Ben003: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 7d]
+mekkmester: folds
+FireWalkWithMe: raises $3 to $3
+kole1992: folds
+EHerzog: calls $3
+Olaf193: calls $3
+Doumby: folds
+Ben003: calls $2
+*** FLOP *** [Qs 8h 5s]
+Ben003: checks
+FireWalkWithMe: checks
+EHerzog: checks
+Olaf193: bets $6.25
+Ben003: folds
+FireWalkWithMe: calls $6.25
+EHerzog: folds
+*** TURN *** [Qs 8h 5s] [6h]
+FireWalkWithMe: checks
+Olaf193: checks
+*** RIVER *** [Qs 8h 5s 6h] [Ad]
+FireWalkWithMe: checks
+joaomsfpb joins the table at seat #4
+Olaf193: bets $11
+FireWalkWithMe: calls $11
+*** SHOW DOWN ***
+Olaf193: shows [Ts 4s] (high card Ace)
+FireWalkWithMe: shows [Jc Js] (a pair of Jacks)
+FireWalkWithMe collected $47 from pot
+*** SUMMARY ***
+Total pot $47 | Rake $2.35 
+Board [Qs 8h 5s 6h Ad]
+Seat 1: FireWalkWithMe showed [Jc Js] and won ($47) with a pair of Jacks
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog folded on the Flop 
+Seat 5: Olaf193 (button) showed [Ts 4s] and lost with high card Ace
+Seat 6: Doumby (small blind) folded before Flop 
+Seat 7: Ben003 (big blind) folded on the Flop 
+Seat 8: mekkmester folded before Flop (didn't bet)
+
+
+Weplay Hand #71497556:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:43:32 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #6 is the button
+Seat 1: FireWalkWithMe ($165.34 in chips)
+Seat 2: kole1992 ($159.26 in chips)
+Seat 3: EHerzog ($88.41 in chips)
+Seat 4: joaomsfpb ($100 in chips)
+Seat 5: Olaf193 ($150.73 in chips)
+Seat 6: Doumby ($99.50 in chips)
+Seat 7: Ben003 ($132.03 in chips)
+Seat 8: mekkmester ($224.28 in chips)
+Ben003: posts small blind $0.50
+mekkmester: posts big blind $1
+joaomsfpb: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 7d]
+FireWalkWithMe: folds
+kole1992: folds
+EHerzog: folds
+joaomsfpb: checks
+Olaf193: raises $5 to $5
+Doumby: folds
+Ben003: folds
+mekkmester: calls $4
+joaomsfpb: calls $4
+*** FLOP *** [Ts Kc Qs]
+mekkmester: checks
+joaomsfpb: bets $5.12
+Olaf193: calls $5.12
+mekkmester: folds
+*** TURN *** [Ts Kc Qs] [4h]
+joaomsfpb: bets $12.87
+Olaf193: folds
+Uncalled bet ($12.87) returned to joaomsfpb
+*** SHOW DOWN ***
+joaomsfpb has timed out
+joaomsfpb: doesn't show hand
+joaomsfpb collected $25.74 from pot
+*** SUMMARY ***
+Total pot $25.74 | Rake $1.28 
+Board [Ts Kc Qs 4h]
+Seat 1: FireWalkWithMe folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog folded before Flop (didn't bet)
+Seat 4: joaomsfpb (big blind) collected ($25.74)
+Seat 5: Olaf193 folded on the Turn 
+Seat 6: Doumby (button) folded before Flop (didn't bet)
+Seat 7: Ben003 (small blind) folded before Flop 
+Seat 8: mekkmester (big blind) folded on the Flop 
+
+
+Weplay Hand #71497595:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:44:59 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: FireWalkWithMe ($165.34 in chips)
+Seat 2: kole1992 ($159.26 in chips)
+Seat 3: EHerzog ($88.41 in chips)
+Seat 4: joaomsfpb ($114.34 in chips)
+Seat 5: Olaf193 ($140.61 in chips)
+Seat 6: Doumby ($99.50 in chips)
+Seat 7: Ben003 ($131.53 in chips)
+Seat 8: mekkmester ($219.28 in chips)
+mekkmester: posts small blind $0.50
+FireWalkWithMe: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 3s]
+kole1992: folds
+EHerzog: raises $2.50 to $2.50
+joaomsfpb: folds
+Olaf193: raises $8 to $8
+Doumby: folds
+Ben003: folds
+mekkmester: folds
+FireWalkWithMe: folds
+EHerzog: folds
+Uncalled bet ($5.50) returned to Olaf193
+*** SHOW DOWN ***
+Olaf193: doesn't show hand
+Olaf193 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: FireWalkWithMe (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: EHerzog folded before Flop 
+Seat 4: joaomsfpb folded before Flop (didn't bet)
+Seat 5: Olaf193 collected ($6.50)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 (button) folded before Flop (didn't bet)
+Seat 8: mekkmester (small blind) folded before Flop 
+
+
+Weplay Hand #71497608:  Hold'em No Limit ($0.50/$1) - 2026/01/03 22:45:27 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #8 is the button
+Seat 1: FireWalkWithMe ($164.34 in chips)
+Seat 2: kole1992 ($159.26 in chips)
+Seat 3: EHerzog ($85.91 in chips)
+Seat 4: joaomsfpb ($114.34 in chips)
+Seat 5: Olaf193 ($144.61 in chips)
+Seat 6: Doumby ($99.50 in chips)
+Seat 7: Ben003 ($131.53 in chips)
+Seat 8: mekkmester ($218.78 in chips)
+FireWalkWithMe: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d As]
+EHerzog: raises $5 to $5
+joaomsfpb: folds
+Olaf193: folds
+Doumby: folds
+Ben003: folds
+mekkmester: folds
+FireWalkWithMe: folds
+kole1992: folds
+Uncalled bet ($4) returned to EHerzog
+*** SHOW DOWN ***
+kole1992: sits out 
+EHerzog has timed out
+EHerzog: doesn't show hand
+EHerzog collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: FireWalkWithMe (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: EHerzog collected ($2.50)
+Seat 4: joaomsfpb folded before Flop (didn't bet)
+Seat 5: Olaf193 folded before Flop (didn't bet)
+Seat 6: Doumby folded before Flop (didn't bet)
+Seat 7: Ben003 folded before Flop (didn't bet)
+Seat 8: mekkmester (button) folded before Flop (didn't bet)

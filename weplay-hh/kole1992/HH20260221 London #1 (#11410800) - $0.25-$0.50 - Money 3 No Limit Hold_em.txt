@@ -1,0 +1,3618 @@
+﻿Weplay Hand #76387719:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 20:53:14 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: ISakisak ($11.36 in chips)
+Seat 2: Vooszem77 ($52.29 in chips)
+Seat 3: rossi1616 ($52.28 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($47.72 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Qc]
+antananarivo: folds
+ISakisak: folds
+Vooszem77: calls $0.50
+rossi1616: folds
+kole1992: checks
+*** FLOP *** [9h Ah 3h]
+kole1992: checks
+Vooszem77: checks
+*** TURN *** [9h Ah 3h] [2d]
+kole1992: checks
+Vooszem77: bets $1.25
+kole1992: folds
+Uncalled bet ($1.25) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [9h Ah 3h 2d]
+Seat 1: ISakisak folded before Flop (didn't bet)
+Seat 2: Vooszem77 (button) collected ($1.25)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded on the Turn 
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76387736:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 20:54:12 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: ISakisak ($11.36 in chips)
+Seat 2: Vooszem77 ($52.98 in chips)
+Seat 3: rossi1616 ($52.03 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($47.72 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 4s]
+ISakisak: calls $0.50
+Vooszem77: calls $0.50
+rossi1616: folds
+kole1992: calls $0.25
+antananarivo: checks
+*** FLOP *** [5h 6h Ah]
+kole1992: checks
+antananarivo: checks
+ISakisak is disconnected 
+ISakisak has timed out while being disconnected
+ISakisak: checks
+ISakisak is connected 
+Vooszem77: checks
+*** TURN *** [5h 6h Ah] [5d]
+kole1992: checks
+antananarivo: checks
+ISakisak: checks
+Vooszem77: checks
+*** RIVER *** [5h 6h Ah 5d] [Qc]
+kole1992: checks
+antananarivo: checks
+ISakisak: checks
+Vooszem77: checks
+*** SHOW DOWN ***
+kole1992: shows [Ac 4s] (two pair, Aces and Fives)
+antananarivo: mucks hand
+ISakisak has timed out
+ISakisak: mucks hand
+Vooszem77 has timed out
+Vooszem77: mucks hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [5h 6h Ah 5d Qc]
+Seat 1: ISakisak mucked
+Seat 2: Vooszem77 mucked
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) showed [Ac 4s] and won ($2) with two pair, Aces and Fives
+Seat 5: antananarivo (big blind) mucked
+
+
+Weplay Hand #76387774:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 20:56:19 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: ISakisak ($10.86 in chips)
+Seat 2: Vooszem77 ($52.48 in chips)
+Seat 3: rossi1616 ($52.03 in chips)
+Seat 4: kole1992 ($51.40 in chips)
+Seat 5: antananarivo ($47.22 in chips)
+Seat 6: TidlauS ($50 in chips)
+antananarivo: posts small blind $0.25
+TidlauS: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 7s]
+ISakisak: folds
+Vooszem77: folds
+rossi1616: raises $1.25 to $1.25
+kole1992: folds
+antananarivo: folds
+TidlauS: raises $5 to $5.50
+rossi1616: folds
+Uncalled bet ($4.25) returned to TidlauS
+*** SHOW DOWN ***
+TidlauS: doesn't show hand
+TidlauS collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0 
+Seat 1: ISakisak folded before Flop (didn't bet)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop 
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+Seat 6: TidlauS (big blind) collected ($2.75)
+
+
+Weplay Hand #76387793:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 20:57:27 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: ISakisak ($10.86 in chips)
+Seat 2: Vooszem77 ($52.48 in chips)
+Seat 3: rossi1616 ($50.78 in chips)
+Seat 4: kole1992 ($51.40 in chips)
+Seat 5: antananarivo ($46.97 in chips)
+Seat 6: TidlauS ($51.50 in chips)
+TidlauS: posts small blind $0.25
+ISakisak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 7c]
+Vooszem77: folds
+rossi1616: raises $1.50 to $1.50
+ISakisak is disconnected 
+ISakisak is connected 
+kole1992: folds
+antananarivo: folds
+TidlauS: folds
+ISakisak: calls $1
+*** FLOP *** [5s 6h 6c]
+ISakisak: checks
+rossi1616: checks
+*** TURN *** [5s 6h 6c] [9d]
+ISakisak: checks
+rossi1616: checks
+*** RIVER *** [5s 6h 6c 9d] [Qs]
+ISakisak: checks
+rossi1616: checks
+*** SHOW DOWN ***
+ISakisak: shows [8s Ac] (a pair of Sixes)
+rossi1616: shows [Jh Qh] (two pair, Queens and Sixes)
+rossi1616 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [5s 6h 6c 9d Qs]
+Seat 1: ISakisak (big blind) showed [8s Ac] and lost with a pair of Sixes
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 showed [Jh Qh] and won ($3.25) with two pair, Queens and Sixes
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: TidlauS (small blind) folded before Flop 
+
+
+Weplay Hand #76387805:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 20:58:11 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: ISakisak ($9.36 in chips)
+Seat 2: Vooszem77 ($52.48 in chips)
+Seat 3: rossi1616 ($52.37 in chips)
+Seat 4: kole1992 ($51.40 in chips)
+Seat 5: antananarivo ($46.97 in chips)
+Seat 6: TidlauS ($51.25 in chips)
+ISakisak: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 3d]
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: folds
+TidlauS: calls $1.50
+ISakisak: folds
+Vooszem77: calls $1
+*** FLOP *** [9c Kc 3c]
+Vooszem77: checks
+rossi1616: bets $3.56
+TidlauS: calls $3.56
+Vooszem77: folds
+*** TURN *** [9c Kc 3c] [2d]
+rossi1616: bets $8.90
+TidlauS: calls $8.90
+*** RIVER *** [9c Kc 3c 2d] [Jc]
+rossi1616: bets $22.25
+TidlauS: folds
+Uncalled bet ($22.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $29.67 from pot
+*** SUMMARY ***
+Total pot $29.67 | Rake $1.48 
+Board [9c Kc 3c 2d Jc]
+Seat 1: ISakisak (small blind) folded before Flop 
+Seat 2: Vooszem77 (big blind) folded on the Flop 
+Seat 3: rossi1616 collected ($29.67)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS (button) folded on the River 
+
+
+Weplay Hand #76387821:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 20:59:33 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: ISakisak ($9.11 in chips)
+Seat 2: Vooszem77 ($50.98 in chips)
+Seat 3: rossi1616 ($66.60 in chips)
+Seat 4: kole1992 ($51.40 in chips)
+Seat 5: antananarivo ($46.97 in chips)
+Seat 6: TidlauS ($37.29 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 5d]
+kole1992: folds
+antananarivo: folds
+TidlauS: folds
+ISakisak has timed out
+ISakisak: folds
+Vooszem77: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: ISakisak (button) folded before Flop (didn't bet)
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($0.50)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76387831:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 20:59:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: Vooszem77 ($50.73 in chips)
+Seat 3: rossi1616 ($66.85 in chips)
+Seat 4: kole1992 ($51.40 in chips)
+Seat 5: antananarivo ($46.97 in chips)
+Seat 6: TidlauS ($50 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Td]
+antananarivo: folds
+TidlauS: folds
+Vooszem77: folds
+ISakisak is disconnected 
+rossi1616: raises $1.25 to $1.50
+ISakisak is connected 
+kole1992: calls $1
+*** FLOP *** [6c 7c Ks]
+rossi1616: bets $2.25
+kole1992: folds
+Uncalled bet ($2.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [6c 7c Ks]
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) collected ($3)
+Seat 4: kole1992 (big blind) folded on the Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76387844:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:00:38 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: ISakisak ($9.11 in chips)
+Seat 2: Vooszem77 ($50.73 in chips)
+Seat 3: rossi1616 ($68.20 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($46.97 in chips)
+Seat 6: TidlauS ($50 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Jh]
+TidlauS: folds
+ISakisak: raises $9.11 to $9.11 and is all-in
+Vooszem77: folds
+rossi1616: folds
+kole1992: raises $17.47 to $17.72
+antananarivo: folds
+Uncalled bet ($8.61) returned to kole1992
+*** FLOP *** [Jc Tc 5c]
+*** TURN *** [Jc Tc 5c] [7d]
+*** RIVER *** [Jc Tc 5c 7d] [Kh]
+*** SHOW DOWN ***
+kole1992: shows [Ac Jh] (a pair of Jacks)
+ISakisak: shows [Th 5d] (two pair, Tens and Fives)
+ISakisak collected $18.72 from pot
+*** SUMMARY ***
+Total pot $18.72 | Rake $0.93 
+Board [Jc Tc 5c 7d Kh]
+Seat 1: ISakisak showed [Th 5d] and won ($18.72) with two pair, Tens and Fives
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) showed [Ac Jh] and lost with a pair of Jacks
+Seat 5: antananarivo (big blind) folded before Flop 
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76387872:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:01:31 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: ISakisak ($17.79 in chips)
+Seat 2: Vooszem77 ($50.73 in chips)
+Seat 3: rossi1616 ($68.20 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($46.47 in chips)
+Seat 6: TidlauS ($50 in chips)
+antananarivo: posts small blind $0.25
+TidlauS: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 9c]
+ISakisak has timed out
+ISakisak: folds
+Vooszem77: raises $2 to $2
+ISakisak is disconnected 
+ISakisak is connected 
+rossi1616: folds
+kole1992: calls $2
+antananarivo: folds
+TidlauS: folds
+*** FLOP *** [4h 8s 8h]
+Vooszem77: bets $4.75
+kole1992: calls $4.75
+*** TURN *** [4h 8s 8h] [Th]
+Vooszem77: bets $4.70
+kole1992: calls $4.70
+*** RIVER *** [4h 8s 8h Th] [8c]
+Vooszem77: bets $17.74
+kole1992: calls $17.74
+*** SHOW DOWN ***
+Vooszem77: shows [Jh Ts] (a full house, Eights full of Tens)
+kole1992: mucks hand
+Vooszem77 collected $59.13 from pot
+*** SUMMARY ***
+Total pot $59.13 | Rake $2.95 
+Board [4h 8s 8h Th 8c]
+Seat 1: ISakisak folded before Flop (didn't bet)
+Seat 2: Vooszem77 showed [Jh Ts] and won ($59.13) with a full house, Eights full of Tens
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) mucked
+Seat 5: antananarivo (small blind) folded before Flop 
+Seat 6: TidlauS (big blind) folded before Flop 
+
+
+Weplay Hand #76387916:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:03:08 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: ISakisak ($17.79 in chips)
+Seat 2: Vooszem77 ($77.72 in chips)
+Seat 3: rossi1616 ($68.20 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($46.22 in chips)
+Seat 6: TidlauS ($49.50 in chips)
+TidlauS: posts small blind $0.25
+ISakisak: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 4s]
+Vooszem77: folds
+rossi1616: folds
+kole1992: raises $1 to $1
+antananarivo: folds
+TidlauS: folds
+ISakisak: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: ISakisak (big blind) folded before Flop 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 collected ($1.25)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: TidlauS (small blind) folded before Flop 
+
+
+Weplay Hand #76387928:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:03:30 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: ISakisak ($17.29 in chips)
+Seat 2: Vooszem77 ($77.72 in chips)
+Seat 3: rossi1616 ($68.20 in chips)
+Seat 4: kole1992 ($50.75 in chips)
+Seat 5: antananarivo ($46.22 in chips)
+Seat 6: TidlauS ($49.25 in chips)
+ISakisak: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Jd]
+rossi1616: folds
+kole1992: raises $1 to $1
+antananarivo: folds
+TidlauS: calls $1
+ISakisak: calls $0.75
+Vooszem77: calls $0.50
+*** FLOP *** [4c 3d 9h]
+ISakisak: checks
+Vooszem77: checks
+kole1992: checks
+TidlauS: checks
+*** TURN *** [4c 3d 9h] [Kh]
+ISakisak: checks
+Vooszem77: bets $3
+kole1992: folds
+TidlauS: folds
+ISakisak: folds
+Uncalled bet ($3) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [4c 3d 9h Kh]
+Seat 1: ISakisak (small blind) folded on the Turn 
+Seat 2: Vooszem77 (big blind) collected ($4)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded on the Turn 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS (button) folded on the Turn 
+
+
+Weplay Hand #76387952:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:04:30 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: ISakisak ($16.29 in chips)
+Seat 2: Vooszem77 ($80.52 in chips)
+Seat 3: rossi1616 ($68.20 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($46.22 in chips)
+Seat 6: TidlauS ($48.25 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Qd]
+kole1992: folds
+antananarivo: folds
+TidlauS: folds
+ISakisak: calls $0.50
+Vooszem77: folds
+rossi1616: raises $1 to $1.50
+ISakisak: calls $1
+*** FLOP *** [8d 6d 2h]
+rossi1616: bets $2.43
+ISakisak: folds
+Uncalled bet ($2.43) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [8d 6d 2h]
+Seat 1: ISakisak (button) folded on the Flop 
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($3.25)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76387972:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:05:13 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: ISakisak ($14.79 in chips)
+Seat 2: Vooszem77 ($80.27 in chips)
+Seat 3: rossi1616 ($69.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($46.22 in chips)
+Seat 6: TidlauS ($48.25 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 3c]
+antananarivo: folds
+TidlauS: folds
+ISakisak: raises $14.79 to $14.79 and is all-in
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($14.29) returned to ISakisak
+*** SHOW DOWN ***
+ISakisak has timed out
+ISakisak: doesn't show hand
+ISakisak collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: ISakisak collected ($1.25)
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76387986:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:05:40 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: ISakisak ($15.54 in chips)
+Seat 2: Vooszem77 ($80.27 in chips)
+Seat 3: rossi1616 ($69.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($46.22 in chips)
+Seat 6: TidlauS ($48.25 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 7d]
+TidlauS: folds
+ISakisak: raises $15.54 to $15.54 and is all-in
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($15.04) returned to ISakisak
+*** SHOW DOWN ***
+ISakisak has timed out
+ISakisak: doesn't show hand
+ISakisak collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: ISakisak collected ($1.25)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded before Flop 
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76387998:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:06:08 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: ISakisak ($16.29 in chips)
+Seat 2: Vooszem77 ($80.27 in chips)
+Seat 3: rossi1616 ($69.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($45.72 in chips)
+Seat 6: TidlauS ($48.25 in chips)
+antananarivo: posts small blind $0.25
+TidlauS: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Qs]
+ISakisak: raises $16.29 to $16.29 and is all-in
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+TidlauS: calls $15.79
+*** FLOP *** [6c Qd 9s]
+*** TURN *** [6c Qd 9s] [Qc]
+*** RIVER *** [6c Qd 9s Qc] [5h]
+*** SHOW DOWN ***
+TidlauS: shows [9h 9c] (a full house, Nines full of Queens)
+ISakisak: shows [6h Th] (two pair, Queens and Sixes)
+TidlauS collected $32.83 from pot
+*** SUMMARY ***
+Total pot $32.83 | Rake $1.64 
+Board [6c Qd 9s Qc 5h]
+Seat 1: ISakisak showed [6h Th] and lost with two pair, Queens and Sixes
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+Seat 6: TidlauS (big blind) showed [9h 9c] and won ($32.83) with a full house, Nines full of Queens
+
+
+Weplay Hand #76388015:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:06:42 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 2: Vooszem77 ($80.27 in chips)
+Seat 3: rossi1616 ($69.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($45.47 in chips)
+Seat 6: TidlauS ($63.15 in chips)
+TidlauS: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 7d]
+rossi1616: raises $1.25 to $1.25
+kole1992: folds
+ISakisak is disconnected 
+antananarivo: folds
+TidlauS: folds
+Vooszem77: folds
+Uncalled bet ($0.75) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 (big blind) folded before Flop 
+Seat 3: rossi1616 collected ($1.25)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: TidlauS (small blind) folded before Flop 
+
+
+Weplay Hand #76388024:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:06:59 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 2: Vooszem77 ($79.77 in chips)
+Seat 3: rossi1616 ($70.29 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: TidlauS ($62.90 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 3d]
+kole1992: folds
+antananarivo: folds
+TidlauS: raises $1 to $1
+Vooszem77: folds
+rossi1616: folds
+Uncalled bet ($0.50) returned to TidlauS
+*** SHOW DOWN ***
+TidlauS: doesn't show hand
+TidlauS collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS (button) collected ($1.25)
+
+
+Weplay Hand #76388036:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:07:24 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: Vooszem77 ($79.52 in chips)
+Seat 3: rossi1616 ($69.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: TidlauS ($63.65 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Qd]
+antananarivo: folds
+TidlauS: raises $1.50 to $1.50
+Vooszem77: folds
+rossi1616: folds
+kole1992: calls $1
+*** FLOP *** [8d Ks 7h]
+kole1992: checks
+ISakisak leaves the table
+TidlauS: checks
+*** TURN *** [8d Ks 7h] [8s]
+kole1992: checks
+TidlauS: checks
+*** RIVER *** [8d Ks 7h 8s] [Kc]
+kole1992: checks
+TidlauS: checks
+*** SHOW DOWN ***
+kole1992: shows [5d Qd] (two pair, Kings and Eights)
+TidlauS: shows [Qc 7c] (two pair, Kings and Eights)
+kole1992 collected $1.63 from pot
+TidlauS collected $1.62 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [8d Ks 7h 8s Kc]
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) showed [5d Qd] and won ($1.63) with two pair, Kings and Eights
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS showed [Qc 7c] and won ($1.62) with two pair, Kings and Eights
+
+
+Weplay Hand #76388068:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:08:30 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: Vooszem77 ($79.52 in chips)
+Seat 3: rossi1616 ($69.54 in chips)
+Seat 4: kole1992 ($50.05 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: TidlauS ($63.69 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 2d]
+TidlauS: folds
+Vooszem77: calls $0.50
+rossi1616: folds
+kole1992: folds
+antananarivo: checks
+*** FLOP *** [Ad 2c 5c]
+antananarivo: bets $0.50
+Vooszem77: calls $0.50
+*** TURN *** [Ad 2c 5c] [7c]
+antananarivo: checks
+Vooszem77: bets $1.69
+antananarivo: folds
+Uncalled bet ($1.69) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [Ad 2c 5c 7c]
+Seat 2: Vooszem77 collected ($2.25)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded on the Turn 
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76388091:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:09:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: Vooszem77 ($80.66 in chips)
+Seat 3: rossi1616 ($69.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49 in chips)
+Seat 6: TidlauS ($63.69 in chips)
+antananarivo: posts small blind $0.25
+TidlauS: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 2d]
+Vooszem77: raises $3 to $3
+rossi1616 has timed out
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+TidlauS: folds
+Uncalled bet ($2.50) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 collected ($1.25)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+Seat 6: TidlauS (big blind) folded before Flop 
+
+
+Weplay Hand #76388112:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:10:00 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 2: Vooszem77 ($81.41 in chips)
+Seat 3: rossi1616 ($69.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($48.75 in chips)
+Seat 6: TidlauS ($63.19 in chips)
+TidlauS: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 3d]
+rossi1616: folds
+kole1992: folds
+antananarivo: raises $1.25 to $1.25
+TidlauS: folds
+Vooszem77: calls $0.75
+*** FLOP *** [4d Ts Qs]
+Vooszem77: checks
+antananarivo: bets $1.40
+Vooszem77: folds
+Uncalled bet ($1.40) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [4d Ts Qs]
+Seat 2: Vooszem77 (big blind) folded on the Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) collected ($2.75)
+Seat 6: TidlauS (small blind) folded before Flop 
+
+
+Weplay Hand #76388131:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:10:34 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 2: Vooszem77 ($80.16 in chips)
+Seat 3: rossi1616 ($69.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50.12 in chips)
+Seat 6: TidlauS ($62.94 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 7h]
+kole1992: folds
+antananarivo: folds
+TidlauS: raises $1 to $1
+Vooszem77: folds
+rossi1616: folds
+Uncalled bet ($0.50) returned to TidlauS
+*** SHOW DOWN ***
+TidlauS: doesn't show hand
+TidlauS collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS (button) collected ($1.25)
+
+
+Weplay Hand #76388143:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:10:52 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: Vooszem77 ($79.91 in chips)
+Seat 3: rossi1616 ($69.04 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50.12 in chips)
+Seat 6: TidlauS ($63.69 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 5d]
+antananarivo: raises $1.25 to $1.25
+TidlauS: folds
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: antananarivo collected ($1.25)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76388155:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:11:16 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: Vooszem77 ($79.91 in chips)
+Seat 3: rossi1616 ($68.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50.87 in chips)
+Seat 6: TidlauS ($63.69 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Ac]
+TidlauS: folds
+Vooszem77: folds
+rossi1616: raises $1.75 to $1.75
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($1.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) collected ($1.25)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded before Flop 
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76388174:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:11:47 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: Vooszem77 ($79.91 in chips)
+Seat 3: rossi1616 ($69.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50.37 in chips)
+Seat 6: TidlauS ($63.69 in chips)
+antananarivo: posts small blind $0.25
+TidlauS: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Js]
+Vooszem77: folds
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: folds
+TidlauS: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 collected ($1.25)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+Seat 6: TidlauS (big blind) folded before Flop 
+
+
+Weplay Hand #76388185:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:12:07 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: BBanzai74 ($15 in chips)
+Seat 2: Vooszem77 ($79.91 in chips)
+Seat 3: rossi1616 ($70.29 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50.12 in chips)
+Seat 6: TidlauS ($63.19 in chips)
+TidlauS: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Jh]
+Vooszem77: folds
+rossi1616: folds
+kole1992: raises $1 to $1
+antananarivo: calls $1
+TidlauS: calls $0.75
+BBanzai74: folds
+*** FLOP *** [3h 5c 7h]
+TidlauS: checks
+kole1992: checks
+antananarivo: bets $1.75
+TidlauS: folds
+kole1992: calls $1.75
+*** TURN *** [3h 5c 7h] [7c]
+kole1992: bets $2.31
+antananarivo: calls $2.31
+*** RIVER *** [3h 5c 7h 7c] [Kd]
+kole1992: checks
+antananarivo: bets $8.70
+kole1992: folds
+Uncalled bet ($8.70) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $11.62 from pot
+*** SUMMARY ***
+Total pot $11.62 | Rake $0.58 
+Board [3h 5c 7h 7c Kd]
+Seat 1: BBanzai74 (big blind) folded before Flop 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded on the River 
+Seat 5: antananarivo (button) collected ($11.62)
+Seat 6: TidlauS (small blind) folded on the Flop 
+
+
+Weplay Hand #76388226:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:13:33 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: BBanzai74 ($14.50 in chips)
+Seat 2: Vooszem77 ($79.91 in chips)
+Seat 3: rossi1616 ($70.29 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($56.10 in chips)
+Seat 6: TidlauS ($62.19 in chips)
+BBanzai74: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Jc]
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: folds
+TidlauS: folds
+BBanzai74: folds
+Vooszem77: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: BBanzai74 (small blind) folded before Flop 
+Seat 2: Vooszem77 (big blind) folded before Flop 
+Seat 3: rossi1616 collected ($1.25)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76388240:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:13:54 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: BBanzai74 ($14.25 in chips)
+Seat 2: Vooszem77 ($79.41 in chips)
+Seat 3: rossi1616 ($71.04 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($56.10 in chips)
+Seat 6: TidlauS ($62.19 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 7s]
+kole1992: folds
+antananarivo: folds
+TidlauS: folds
+BBanzai74: raises $1 to $1
+Vooszem77: calls $0.75
+rossi1616: folds
+*** FLOP *** [Jh 2d Ac]
+Vooszem77: checks
+BBanzai74: bets $1.25
+Vooszem77: calls $1.25
+*** TURN *** [Jh 2d Ac] [Qc]
+Vooszem77: checks
+BBanzai74: checks
+*** RIVER *** [Jh 2d Ac Qc] [Th]
+Vooszem77: bets $5
+BBanzai74: folds
+Uncalled bet ($5) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [Jh 2d Ac Qc Th]
+Seat 1: BBanzai74 (button) folded on the River 
+Seat 2: Vooszem77 (small blind) collected ($5)
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76388280:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:15:04 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: BBanzai74 ($12 in chips)
+Seat 2: Vooszem77 ($81.91 in chips)
+Seat 3: rossi1616 ($70.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($56.10 in chips)
+Seat 6: TidlauS ($62.19 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 7d]
+antananarivo: folds
+TidlauS: folds
+BBanzai74: folds
+Vooszem77: raises $1 to $1
+rossi1616: folds
+kole1992: raises $5 to $5.50
+Vooszem77: folds
+Uncalled bet ($4.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0 
+Seat 1: BBanzai74 folded before Flop (didn't bet)
+Seat 2: Vooszem77 (button) folded before Flop 
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) collected ($2.25)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76388298:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:15:41 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: BBanzai74 ($12 in chips)
+Seat 2: Vooszem77 ($80.91 in chips)
+Seat 3: rossi1616 ($70.29 in chips)
+Seat 4: kole1992 ($51.25 in chips)
+Seat 5: antananarivo ($56.10 in chips)
+Seat 6: TidlauS ($62.19 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 7s]
+TidlauS has timed out
+TidlauS: folds
+BBanzai74: raises $2 to $2
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+TidlauS leaves the table
+antananarivo: folds
+Uncalled bet ($1.50) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: BBanzai74 collected ($1.25)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded before Flop 
+Seat 6: TidlauS folded before Flop (didn't bet)
+
+
+Weplay Hand #76388313:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:16:14 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: BBanzai74 ($12.75 in chips)
+Seat 2: Vooszem77 ($80.91 in chips)
+Seat 3: rossi1616 ($70.29 in chips)
+Seat 4: kole1992 ($51 in chips)
+Seat 5: antananarivo ($55.60 in chips)
+antananarivo: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 9c]
+Vooszem77: folds
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: folds
+BBanzai74: calls $1
+*** FLOP *** [As 5c Ah]
+BBanzai74: checks
+rossi1616: checks
+*** TURN *** [As 5c Ah] [4s]
+BBanzai74: checks
+rossi1616: checks
+*** RIVER *** [As 5c Ah 4s] [8s]
+BBanzai74: bets $1.63
+rossi1616: folds
+Uncalled bet ($1.63) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [As 5c Ah 4s 8s]
+Seat 1: BBanzai74 (big blind) collected ($3.25)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded on the River 
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76389327:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:16:46 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: BBanzai74 ($14.34 in chips)
+Seat 2: Vooszem77 ($80.91 in chips)
+Seat 3: rossi1616 ($68.79 in chips)
+Seat 4: kole1992 ($51 in chips)
+Seat 5: antananarivo ($55.35 in chips)
+BBanzai74: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Th]
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: folds
+BBanzai74: folds
+Vooszem77: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: BBanzai74 (small blind) folded before Flop 
+Seat 2: Vooszem77 (big blind) folded before Flop 
+Seat 3: rossi1616 collected ($1.25)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76389348:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:17:21 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: BBanzai74 ($14.09 in chips)
+Seat 2: Vooszem77 ($80.41 in chips)
+Seat 3: rossi1616 ($69.54 in chips)
+Seat 4: kole1992 ($51 in chips)
+Seat 5: antananarivo ($55.35 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 8s]
+kole1992: folds
+antananarivo: folds
+BBanzai74: raises $1.25 to $1.25
+Vooszem77: folds
+rossi1616: calls $0.75
+*** FLOP *** [As 4d 5c]
+rossi1616: checks
+BBanzai74: bets $1.38
+rossi1616: folds
+Uncalled bet ($1.38) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [As 4d 5c]
+Seat 1: BBanzai74 (button) collected ($2.75)
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded on the Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389364:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:17:49 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: BBanzai74 ($15.46 in chips)
+Seat 2: Vooszem77 ($80.16 in chips)
+Seat 3: rossi1616 ($68.29 in chips)
+Seat 4: kole1992 ($51 in chips)
+Seat 5: antananarivo ($55.35 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 9h]
+antananarivo: folds
+BBanzai74: raises $1 to $1
+Vooszem77 has timed out
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: BBanzai74 collected ($1.25)
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389381:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:18:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: BBanzai74 ($16.21 in chips)
+Seat 2: Vooszem77 ($80.16 in chips)
+Seat 3: rossi1616 ($68.04 in chips)
+Seat 4: kole1992 ($50.50 in chips)
+Seat 5: antananarivo ($55.35 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 9s]
+BBanzai74: folds
+Vooszem77: raises $1.50 to $1.50
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($1) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: BBanzai74 folded before Flop (didn't bet)
+Seat 2: Vooszem77 collected ($1.25)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76389394:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:18:48 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: BBanzai74 ($16.21 in chips)
+Seat 2: Vooszem77 ($80.91 in chips)
+Seat 3: rossi1616 ($68.04 in chips)
+Seat 4: kole1992 ($50.25 in chips)
+Seat 5: antananarivo ($54.85 in chips)
+antananarivo: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 9d]
+Vooszem77: calls $0.50
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+BBanzai74: checks
+*** FLOP *** [9c 8c Kh]
+BBanzai74: bets $0.50
+Vooszem77: calls $0.50
+*** TURN *** [9c 8c Kh] [Jc]
+BBanzai74: checks
+Vooszem77: bets $1.50
+BBanzai74: folds
+Uncalled bet ($1.50) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [9c 8c Kh Jc]
+Seat 1: BBanzai74 (big blind) folded on the Turn 
+Seat 2: Vooszem77 collected ($2.25)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76389417:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:19:28 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: BBanzai74 ($15.21 in chips)
+Seat 2: Vooszem77 ($82.05 in chips)
+Seat 3: rossi1616 ($68.04 in chips)
+Seat 4: kole1992 ($50.25 in chips)
+Seat 5: antananarivo ($54.60 in chips)
+BBanzai74: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d As]
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+BBanzai74: raises $0.75 to $1
+Vooszem77: calls $0.50
+*** FLOP *** [2h 9s 8s]
+BBanzai74: checks
+Vooszem77: bets $1.50
+BBanzai74: folds
+Uncalled bet ($1.50) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [2h 9s 8s]
+Seat 1: BBanzai74 (small blind) folded on the Flop 
+Seat 2: Vooszem77 (big blind) collected ($2)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76389436:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:20:04 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: BBanzai74 ($14.21 in chips)
+Seat 2: Vooszem77 ($82.95 in chips)
+Seat 3: rossi1616 ($68.04 in chips)
+Seat 4: kole1992 ($50.25 in chips)
+Seat 5: antananarivo ($54.60 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 3s]
+kole1992: folds
+antananarivo: raises $1.25 to $1.25
+BBanzai74: raises $2 to $2
+Vooszem77: folds
+rossi1616: folds
+antananarivo: calls $0.75
+*** FLOP *** [5h 8c Tc]
+antananarivo: checks
+BBanzai74: bets $4.75
+antananarivo: folds
+Uncalled bet ($4.75) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $4.75 from pot
+*** SUMMARY ***
+Total pot $4.75 | Rake $0.23 
+Board [5h 8c Tc]
+Seat 1: BBanzai74 (button) collected ($4.75)
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded on the Flop 
+
+
+Weplay Hand #76389457:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:20:52 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: BBanzai74 ($16.73 in chips)
+Seat 2: Vooszem77 ($82.70 in chips)
+Seat 3: rossi1616 ($67.54 in chips)
+Seat 4: kole1992 ($50.25 in chips)
+Seat 5: antananarivo ($52.60 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 3c]
+antananarivo: folds
+BBanzai74: folds
+Vooszem77: folds
+rossi1616: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: BBanzai74 folded before Flop (didn't bet)
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) collected ($0.50)
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389466:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:21:10 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: BBanzai74 ($16.73 in chips)
+Seat 2: Vooszem77 ($82.70 in chips)
+Seat 3: rossi1616 ($67.29 in chips)
+Seat 4: kole1992 ($50.50 in chips)
+Seat 5: antananarivo ($52.60 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 6d]
+BBanzai74: folds
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: BBanzai74 folded before Flop (didn't bet)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) collected ($0.50)
+
+
+Weplay Hand #76389474:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:21:26 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: BBanzai74 ($16.73 in chips)
+Seat 2: Vooszem77 ($82.70 in chips)
+Seat 3: rossi1616 ($67.29 in chips)
+Seat 4: kole1992 ($50.25 in chips)
+Seat 5: antananarivo ($52.85 in chips)
+antananarivo: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 9c]
+Vooszem77: folds
+rossi1616: folds
+kole1992: raises $1.25 to $1.25
+antananarivo: folds
+BBanzai74: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: BBanzai74 (big blind) folded before Flop 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) collected ($1.25)
+Seat 5: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76389489:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:21:52 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: BBanzai74 ($16.23 in chips)
+Seat 2: Vooszem77 ($82.70 in chips)
+Seat 3: rossi1616 ($67.29 in chips)
+Seat 4: kole1992 ($51 in chips)
+Seat 5: antananarivo ($52.60 in chips)
+BBanzai74: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 5h]
+rossi1616: raises $1.25 to $1.25
+kole1992: folds
+antananarivo: folds
+BBanzai74: folds
+Vooszem77: calls $0.75
+*** FLOP *** [3s Ks Qs]
+Vooszem77: checks
+rossi1616: bets $2.06
+Vooszem77: folds
+Uncalled bet ($2.06) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [3s Ks Qs]
+Seat 1: BBanzai74 (small blind) folded before Flop 
+Seat 2: Vooszem77 (big blind) folded on the Flop 
+Seat 3: rossi1616 collected ($2.75)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76389506:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:22:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: BBanzai74 ($15.98 in chips)
+Seat 2: Vooszem77 ($81.45 in chips)
+Seat 3: rossi1616 ($68.66 in chips)
+Seat 4: kole1992 ($51 in chips)
+Seat 5: antananarivo ($52.60 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Kd]
+kole1992: folds
+antananarivo: folds
+BBanzai74: raises $1 to $1
+Vooszem77: calls $0.75
+rossi1616: calls $0.50
+*** FLOP *** [Ts 6d 9s]
+Vooszem77: bets $1.50
+rossi1616: folds
+BBanzai74: folds
+Uncalled bet ($1.50) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Ts 6d 9s]
+Seat 1: BBanzai74 (button) folded on the Flop 
+Seat 2: Vooszem77 (small blind) collected ($3)
+Seat 3: rossi1616 (big blind) folded on the Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389517:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:23:01 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: BBanzai74 ($14.98 in chips)
+Seat 2: Vooszem77 ($83.30 in chips)
+Seat 3: rossi1616 ($67.66 in chips)
+Seat 4: kole1992 ($51 in chips)
+Seat 5: antananarivo ($52.60 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Th]
+antananarivo: folds
+BBanzai74: folds
+Vooszem77: calls $0.50
+rossi1616: calls $0.25
+kole1992: checks
+*** FLOP *** [8d 9d 6d]
+rossi1616: bets $1.12
+kole1992: folds
+Vooszem77: folds
+Uncalled bet ($1.12) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [8d 9d 6d]
+Seat 1: BBanzai74 folded before Flop (didn't bet)
+Seat 2: Vooszem77 (button) folded on the Flop 
+Seat 3: rossi1616 (small blind) collected ($1.50)
+Seat 4: kole1992 (big blind) folded on the Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389533:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:23:31 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: BBanzai74 ($14.98 in chips)
+Seat 2: Vooszem77 ($82.80 in chips)
+Seat 3: rossi1616 ($68.59 in chips)
+Seat 4: kole1992 ($50.50 in chips)
+Seat 5: antananarivo ($52.60 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc As]
+BBanzai74: raises $1 to $1
+Vooszem77: folds
+rossi1616: folds
+kole1992: raises $4.25 to $4.50
+antananarivo: folds
+BBanzai74: folds
+Uncalled bet ($3.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: BBanzai74 folded before Flop 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) collected ($2.50)
+Seat 5: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76389543:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:23:53 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: BBanzai74 ($13.98 in chips)
+Seat 2: Vooszem77 ($82.80 in chips)
+Seat 3: rossi1616 ($68.59 in chips)
+Seat 4: kole1992 ($52 in chips)
+Seat 5: antananarivo ($52.10 in chips)
+antananarivo: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 3c]
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($0.25) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: BBanzai74 (big blind) collected ($0.50)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76389557:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:24:18 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: BBanzai74 ($14.23 in chips)
+Seat 2: Vooszem77 ($82.80 in chips)
+Seat 3: rossi1616 ($68.59 in chips)
+Seat 4: kole1992 ($52 in chips)
+Seat 5: antananarivo ($51.85 in chips)
+BBanzai74: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 9s]
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+BBanzai74: folds
+Uncalled bet ($0.25) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: BBanzai74 (small blind) folded before Flop 
+Seat 2: Vooszem77 (big blind) collected ($0.50)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76389564:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:24:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: BBanzai74 ($13.98 in chips)
+Seat 2: Vooszem77 ($83.05 in chips)
+Seat 3: rossi1616 ($68.59 in chips)
+Seat 4: kole1992 ($52 in chips)
+Seat 5: antananarivo ($51.85 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 4s]
+kole1992: folds
+antananarivo: folds
+BBanzai74: raises $2 to $2
+Vooszem77: folds
+rossi1616: folds
+Uncalled bet ($1.50) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: BBanzai74 (button) collected ($1.25)
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389576:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:24:55 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: BBanzai74 ($14.73 in chips)
+Seat 2: Vooszem77 ($82.80 in chips)
+Seat 3: rossi1616 ($68.09 in chips)
+Seat 4: kole1992 ($52 in chips)
+Seat 5: antananarivo ($51.85 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 7d]
+antananarivo: folds
+BBanzai74: folds
+Vooszem77: calls $0.50
+rossi1616: folds
+kole1992: checks
+*** FLOP *** [6h 2s 9h]
+kole1992: checks
+Vooszem77: bets $1.25
+kole1992: folds
+Uncalled bet ($1.25) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [6h 2s 9h]
+Seat 1: BBanzai74 folded before Flop (didn't bet)
+Seat 2: Vooszem77 (button) collected ($1.25)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded on the Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389598:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:25:36 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: BBanzai74 ($14.73 in chips)
+Seat 2: Vooszem77 ($83.49 in chips)
+Seat 3: rossi1616 ($67.84 in chips)
+Seat 4: kole1992 ($51.50 in chips)
+Seat 5: antananarivo ($51.85 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Ts]
+BBanzai74: raises $1 to $1
+Vooszem77: folds
+rossi1616: raises $5 to $5
+kole1992: folds
+antananarivo: folds
+BBanzai74: folds
+Uncalled bet ($4) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0 
+Seat 1: BBanzai74 folded before Flop 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) collected ($2.75)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76389605:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:25:56 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: BBanzai74 ($13.73 in chips)
+Seat 2: Vooszem77 ($83.49 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($51.25 in chips)
+Seat 5: antananarivo ($51.35 in chips)
+antananarivo: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Ad]
+Vooszem77: folds
+rossi1616: folds
+kole1992: raises $1.25 to $1.25
+antananarivo: folds
+BBanzai74: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: BBanzai74 (big blind) folded before Flop 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) collected ($1.25)
+Seat 5: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76389613:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:26:18 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: BBanzai74 ($13.23 in chips)
+Seat 2: Vooszem77 ($83.49 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($52 in chips)
+Seat 5: antananarivo ($51.10 in chips)
+BBanzai74: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 9d]
+rossi1616: folds
+kole1992: raises $1.10 to $1.10
+antananarivo: folds
+BBanzai74: folds
+Vooszem77: calls $0.60
+*** FLOP *** [3c Jc Qd]
+Vooszem77: checks
+kole1992: bets $3.06
+Vooszem77: calls $3.06
+*** TURN *** [3c Jc Qd] [Kc]
+Vooszem77: checks
+kole1992: checks
+*** RIVER *** [3c Jc Qd Kc] [9s]
+Vooszem77: bets $12.07
+kole1992: folds
+Uncalled bet ($12.07) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $8.57 from pot
+*** SUMMARY ***
+Total pot $8.57 | Rake $0.42 
+Board [3c Jc Qd Kc 9s]
+Seat 1: BBanzai74 (small blind) folded before Flop 
+Seat 2: Vooszem77 (big blind) collected ($8.57)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded on the River 
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76389669:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:28:14 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: BBanzai74 ($12.98 in chips)
+Seat 2: Vooszem77 ($87.48 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($51.10 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 2s]
+kole1992: folds
+antananarivo: folds
+BBanzai74: folds
+Vooszem77: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: BBanzai74 (button) folded before Flop (didn't bet)
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($0.50)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389682:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:28:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: BBanzai74 ($12.98 in chips)
+Seat 2: Vooszem77 ($87.23 in chips)
+Seat 3: rossi1616 ($69.84 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($51.10 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Ad]
+antananarivo: folds
+BBanzai74: raises $1 to $1
+Vooszem77: folds
+rossi1616: folds
+kole1992: calls $0.50
+*** FLOP *** [5c As Qh]
+kole1992: checks
+BBanzai74: bets $1.13
+kole1992: calls $1.13
+*** TURN *** [5c As Qh] [6h]
+kole1992: checks
+BBanzai74: checks
+*** RIVER *** [5c As Qh 6h] [2h]
+kole1992: bets $47.87 and is all-in
+BBanzai74: folds
+Uncalled bet ($47.87) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4.51 from pot
+*** SUMMARY ***
+Total pot $4.51 | Rake $0.22 
+Board [5c As Qh 6h 2h]
+Seat 1: BBanzai74 folded on the River 
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) collected ($4.51)
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389707:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:29:22 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: Vooszem77 ($87.23 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($52.16 in chips)
+Seat 5: antananarivo ($51.10 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 7d]
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) collected ($0.50)
+
+
+Weplay Hand #76389713:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:29:43 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: Vooszem77 ($87.23 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($51.91 in chips)
+Seat 5: antananarivo ($51.35 in chips)
+antananarivo: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Ac]
+rossi1616: folds
+kole1992: raises $1.10 to $1.10
+antananarivo: folds
+Vooszem77: calls $0.60
+*** FLOP *** [5s 2s 4s]
+Vooszem77: checks
+kole1992: checks
+*** TURN *** [5s 2s 4s] [Tc]
+Vooszem77: checks
+kole1992: checks
+*** RIVER *** [5s 2s 4s Tc] [3s]
+Vooszem77: checks
+kole1992: checks
+*** SHOW DOWN ***
+Vooszem77: shows [5h 5d] (three of a kind, Fives)
+kole1992: shows [4d Ac] (a straight, Ace to Five)
+kole1992 collected $2.45 from pot
+*** SUMMARY ***
+Total pot $2.45 | Rake $0.12 
+Board [5s 2s 4s Tc 3s]
+Seat 2: Vooszem77 (big blind) showed [5h 5d] and lost with three of a kind, Fives
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) showed [4d Ac] and won ($2.45) with a straight, Ace to Five
+Seat 5: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76389756:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:31:08 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 2: Vooszem77 ($86.13 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($53.14 in chips)
+Seat 5: antananarivo ($51.10 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 8h]
+kole1992: folds
+antananarivo: folds
+Vooszem77: calls $0.25
+rossi1616: checks
+*** FLOP *** [Jc 6s Qc]
+Vooszem77: checks
+rossi1616: checks
+*** TURN *** [Jc 6s Qc] [Ah]
+Vooszem77: checks
+rossi1616: checks
+*** RIVER *** [Jc 6s Qc Ah] [8d]
+Vooszem77: checks
+rossi1616: checks
+*** SHOW DOWN ***
+Vooszem77: shows [7c Ts] (high card Ace)
+rossi1616: mucks hand
+Vooszem77 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [Jc 6s Qc Ah 8d]
+Seat 2: Vooszem77 (small blind) showed [7c Ts] and won ($1) with high card Ace
+Seat 3: rossi1616 (big blind) mucked
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76389781:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:32:04 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: Vooszem77 ($86.58 in chips)
+Seat 3: rossi1616 ($69.09 in chips)
+Seat 4: kole1992 ($53.14 in chips)
+Seat 5: antananarivo ($51.10 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 2d]
+antananarivo: folds
+Vooszem77: folds
+rossi1616: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) collected ($0.50)
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389792:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:32:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: Vooszem77 ($86.58 in chips)
+Seat 3: rossi1616 ($68.84 in chips)
+Seat 4: kole1992 ($53.39 in chips)
+Seat 5: antananarivo ($51.10 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Ad]
+Vooszem77: folds
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) collected ($1.25)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76389800:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:32:45 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: Vooszem77 ($86.58 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($53.14 in chips)
+Seat 5: antananarivo ($50.60 in chips)
+antananarivo: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As Td]
+rossi1616: folds
+kole1992: raises $1.25 to $1.25
+antananarivo: folds
+Vooszem77: calls $0.75
+*** FLOP *** [2c Kd 5d]
+Vooszem77: checks
+kole1992: bets $0.90
+Vooszem77: calls $0.90
+*** TURN *** [2c Kd 5d] [8c]
+Vooszem77: bets $3.50
+kole1992: folds
+Uncalled bet ($3.50) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $4.55 from pot
+*** SUMMARY ***
+Total pot $4.55 | Rake $0.22 
+Board [2c Kd 5d 8c]
+Seat 2: Vooszem77 (big blind) collected ($4.55)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded on the Turn 
+Seat 5: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76389825:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:33:52 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 2: Vooszem77 ($88.76 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($50.99 in chips)
+Seat 5: antananarivo ($50.35 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 5s]
+kole1992: folds
+antananarivo: raises $1.25 to $1.25
+Vooszem77: folds
+rossi1616: folds
+Uncalled bet ($0.75) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) collected ($1.25)
+
+
+Weplay Hand #76389839:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:34:21 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: Vooszem77 ($88.51 in chips)
+Seat 3: rossi1616 ($69.09 in chips)
+Seat 4: kole1992 ($50.99 in chips)
+Seat 5: antananarivo ($51.10 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Tc]
+antananarivo: folds
+Vooszem77: folds
+rossi1616: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) collected ($0.50)
+Seat 5: antananarivo folded before Flop (didn't bet)
+
+
+Weplay Hand #76389852:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:34:39 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: Vooszem77 ($88.51 in chips)
+Seat 3: rossi1616 ($68.84 in chips)
+Seat 4: kole1992 ($51.24 in chips)
+Seat 5: antananarivo ($51.10 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 3d]
+Vooszem77: folds
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) collected ($1.25)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded before Flop 
+
+
+Weplay Hand #76389862:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:35:03 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: Vooszem77 ($88.51 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($50.99 in chips)
+Seat 5: antananarivo ($50.60 in chips)
+antananarivo: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 7d]
+rossi1616: folds
+kole1992: raises $1.25 to $1.25
+antananarivo: folds
+Vooszem77: raises $2.50 to $3
+kole1992: folds
+Uncalled bet ($1.75) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0 
+Seat 2: Vooszem77 (big blind) collected ($2.75)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop 
+Seat 5: antananarivo (small blind) folded before Flop 
+
+
+Weplay Hand #76389881:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:35:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 2: Vooszem77 ($90.01 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50.35 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 4s]
+kole1992: folds
+antananarivo: raises $1.25 to $1.25
+Vooszem77: raises $2.75 to $3
+rossi1616: folds
+antananarivo: calls $1.75
+*** FLOP *** [Js 8h Kd]
+JTs98o joins the table at seat #6
+Vooszem77: bets $3
+antananarivo: folds
+Uncalled bet ($3) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [Js 8h Kd]
+Seat 2: Vooszem77 (small blind) collected ($6.50)
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded on the Flop 
+
+
+Weplay Hand #76389897:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:36:20 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: Vooszem77 ($93.19 in chips)
+Seat 3: rossi1616 ($69.09 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($47.35 in chips)
+Seat 6: JTs98o ($50 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Kd]
+antananarivo: raises $2 to $2
+JTs98o: folds
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: antananarivo collected ($1.75)
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76389909:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:36:55 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: Vooszem77 ($93.19 in chips)
+Seat 3: rossi1616 ($68.84 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($48.60 in chips)
+Seat 6: JTs98o ($50 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Kd]
+JTs98o: folds
+Vooszem77: calls $0.50
+rossi1616: folds
+kole1992: folds
+antananarivo: checks
+*** FLOP *** [Td Ah 2d]
+antananarivo: bets $0.50
+Vooszem77: folds
+Uncalled bet ($0.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [Td Ah 2d]
+Seat 2: Vooszem77 folded on the Flop 
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) collected ($1.25)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76389921:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:37:22 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: Vooszem77 ($92.69 in chips)
+Seat 3: rossi1616 ($68.84 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.29 in chips)
+Seat 6: JTs98o ($50 in chips)
+antananarivo: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Jc]
+Vooszem77: folds
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 collected ($1.25)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76389930:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:37:43 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 2: Vooszem77 ($92.69 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.04 in chips)
+Seat 6: JTs98o ($50 in chips)
+JTs98o: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Ac]
+rossi1616: folds
+kole1992: folds
+antananarivo: raises $1.25 to $1.25
+JTs98o: folds
+Vooszem77: folds
+Uncalled bet ($0.75) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) collected ($1.25)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76389947:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:38:17 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 2: Vooszem77 ($92.19 in chips)
+Seat 3: rossi1616 ($69.59 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.79 in chips)
+Seat 6: JTs98o ($50 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 9d]
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Vooszem77: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($0.50)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76389954:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:38:29 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: Vooszem77 ($91.94 in chips)
+Seat 3: rossi1616 ($69.84 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.79 in chips)
+Seat 6: JTs98o ($50 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Js]
+antananarivo: folds
+JTs98o: folds
+Vooszem77: folds
+rossi1616: raises $1.25 to $1.50
+kole1992: calls $1
+*** FLOP *** [7d 3d Ts]
+rossi1616: bets $2.25
+kole1992: folds
+Uncalled bet ($2.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [7d 3d Ts]
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) collected ($3)
+Seat 4: kole1992 (big blind) folded on the Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76389970:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:39:11 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: Vooszem77 ($91.94 in chips)
+Seat 3: rossi1616 ($71.19 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.79 in chips)
+Seat 6: JTs98o ($50 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Jd]
+JTs98o: folds
+Vooszem77: folds
+rossi1616: folds
+kole1992: raises $1.25 to $1.50
+antananarivo: calls $1
+*** FLOP *** [8h Ad As]
+kole1992: bets $0.99
+antananarivo: folds
+Uncalled bet ($0.99) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [8h Ad As]
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) collected ($3)
+Seat 5: antananarivo (big blind) folded on the Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76389982:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:39:47 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: Vooszem77 ($91.94 in chips)
+Seat 3: rossi1616 ($71.19 in chips)
+Seat 4: kole1992 ($51.35 in chips)
+Seat 5: antananarivo ($48.29 in chips)
+Seat 6: JTs98o ($50 in chips)
+antananarivo: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Kh]
+Vooszem77: calls $0.50
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: raises $5.75 to $6
+JTs98o: folds
+Vooszem77: folds
+rossi1616: calls $4.50
+*** FLOP *** [7s 2d 3h]
+antananarivo: checks
+rossi1616: bets $8.66
+antananarivo: folds
+Uncalled bet ($8.66) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [7s 2d 3h]
+Seat 2: Vooszem77 folded before Flop 
+Seat 3: rossi1616 collected ($13)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded on the Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76390001:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:40:33 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 2: Vooszem77 ($91.44 in chips)
+Seat 4: kole1992 ($51.35 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: JTs98o ($50 in chips)
+JTs98o: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Kh]
+Kasssam joins the table at seat #1
+kole1992: folds
+antananarivo: folds
+JTs98o: raises $1.25 to $1.50
+Vooszem77: calls $1
+*** FLOP *** [8s 5d 4s]
+JTs98o: checks
+Vooszem77: bets $2.25
+JTs98o: calls $2.25
+*** TURN *** [8s 5d 4s] [Ks]
+JTs98o: checks
+Vooszem77: checks
+*** RIVER *** [8s 5d 4s Ks] [9d]
+JTs98o: checks
+Vooszem77: bets $7.50
+JTs98o: calls $7.50
+*** SHOW DOWN ***
+Vooszem77: shows [Jd Th] (high card King)
+JTs98o: shows [7c 8c] (a pair of Eights)
+JTs98o collected $22.50 from pot
+*** SUMMARY ***
+Total pot $22.50 | Rake $1.12 
+Board [8s 5d 4s Ks 9d]
+Seat 2: Vooszem77 (big blind) showed [Jd Th] and lost with high card King
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) showed [7c 8c] and won ($22.50) with a pair of Eights
+
+
+Weplay Hand #76390029:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:41:40 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 2: Vooszem77 ($80.19 in chips)
+Seat 4: kole1992 ($51.35 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: JTs98o ($60.13 in chips)
+Vooszem77: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Jd]
+antananarivo: folds
+JTs98o: folds
+Vooszem77: raises $0.75 to $1
+kole1992: calls $0.50
+*** FLOP *** [6d 2c 5h]
+Vooszem77: bets $1.50
+kole1992: folds
+Uncalled bet ($1.50) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [6d 2c 5h]
+Seat 2: Vooszem77 (small blind) collected ($2)
+Seat 4: kole1992 (big blind) folded on the Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76390043:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:42:07 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Kasssam ($15 in chips)
+Seat 2: Vooszem77 ($81.09 in chips)
+Seat 4: kole1992 ($50.35 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: JTs98o ($60.13 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+Kasssam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 7d]
+JTs98o: folds
+Kasssam: raises $0.50 to $1
+Vooszem77: folds
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($0.50) returned to Kasssam
+*** SHOW DOWN ***
+Kasssam: doesn't show hand
+Kasssam collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Kasssam (big blind) collected ($1.25)
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76390052:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:42:26 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Kasssam ($15.75 in chips)
+Seat 2: Vooszem77 ($81.09 in chips)
+Seat 4: kole1992 ($50.10 in chips)
+Seat 5: antananarivo ($49.50 in chips)
+Seat 6: JTs98o ($60.13 in chips)
+antananarivo: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 7d]
+Kasssam: raises $1 to $1
+Vooszem77: folds
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Uncalled bet ($0.50) returned to Kasssam
+*** SHOW DOWN ***
+Kasssam has timed out
+Kasssam: doesn't show hand
+Kasssam collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Kasssam collected ($1.25)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76390067:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:43:02 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Kasssam ($16.50 in chips)
+Seat 2: Vooszem77 ($81.09 in chips)
+Seat 4: kole1992 ($50.10 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($59.63 in chips)
+JTs98o: posts small blind $0.25
+Kasssam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Th]
+Vooszem77: raises $2 to $2
+kole1992: calls $2
+antananarivo: folds
+JTs98o: folds
+Kasssam: calls $1.50
+*** FLOP *** [Qh 4c 8s]
+Kasssam: checks
+Vooszem77: bets $6.25
+kole1992: folds
+Kasssam: calls $6.25
+*** TURN *** [Qh 4c 8s] [3d]
+Kasssam: bets $8.25 and is all-in
+Vooszem77: calls $8.25
+*** RIVER *** [Qh 4c 8s 3d] [Kd]
+*** SHOW DOWN ***
+Kasssam: shows [8h 7h] (a pair of Eights)
+Vooszem77: shows [Ad Qc] (a pair of Queens)
+Vooszem77 collected $35.25 from pot
+*** SUMMARY ***
+Total pot $35.25 | Rake $1.76 
+Board [Qh 4c 8s 3d Kd]
+Seat 1: Kasssam (big blind) showed [8h 7h] and lost with a pair of Eights
+Seat 2: Vooszem77 showed [Ad Qc] and won ($35.25) with a pair of Queens
+Seat 4: kole1992 folded on the Flop 
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76390086:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:44:00 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 2: Vooszem77 ($98.08 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($59.38 in chips)
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 6s]
+Kasssam leaves the table
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Vooszem77 (big blind) collected ($0.50)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76390102:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:44:28 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 2: Vooszem77 ($98.08 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($59.38 in chips)
+Vooszem77: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 9h]
+antananarivo: folds
+JTs98o: raises $1.25 to $1.25
+Vooszem77: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o collected ($1.25)
+
+
+Weplay Hand #76390106:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:44:46 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: Vooszem77 ($97.83 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($60.13 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 9h]
+JTs98o: folds
+Vooszem77: raises $1 to $1
+kole1992: folds
+antananarivo: raises $4 to $4.50
+Vooszem77: folds
+Uncalled bet ($3.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0 
+Seat 2: Vooszem77 (button) folded before Flop 
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) collected ($2.25)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76390117:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:45:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: Vooszem77 ($96.83 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50.50 in chips)
+Seat 6: JTs98o ($60.13 in chips)
+antananarivo: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Tc]
+Vooszem77: raises $1 to $1
+kole1992: folds
+antananarivo: raises $4.25 to $4.50
+JTs98o: folds
+Vooszem77: calls $3.50
+*** FLOP *** [6c Th 7c]
+antananarivo: checks
+Vooszem77: bets $9.50
+antananarivo: folds
+Uncalled bet ($9.50) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [6c Th 7c]
+Seat 2: Vooszem77 collected ($9.50)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded on the Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76390147:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:46:30 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 2: Vooszem77 ($101.36 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($46 in chips)
+Seat 6: JTs98o ($59.63 in chips)
+JTs98o: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As 5c]
+kole1992: folds
+antananarivo: raises $1.25 to $1.25
+JTs98o: folds
+Vooszem77: calls $0.75
+*** FLOP *** [Td 3h 6h]
+Vooszem77: checks
+antananarivo: bets $1.40
+Vooszem77: calls $1.40
+*** TURN *** [Td 3h 6h] [Qh]
+Vooszem77: checks
+antananarivo: checks
+*** RIVER *** [Td 3h 6h Qh] [3c]
+Vooszem77: checks
+antananarivo: checks
+*** SHOW DOWN ***
+Vooszem77: shows [2d 5d] (a pair of Threes)
+antananarivo: shows [Ah 6c] (two pair, Sixes and Threes)
+antananarivo collected $5.55 from pot
+*** SUMMARY ***
+Total pot $5.55 | Rake $0.27 
+Board [Td 3h 6h Qh 3c]
+Seat 2: Vooszem77 (big blind) showed [2d 5d] and lost with a pair of Threes
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) showed [Ah 6c] and won ($5.55) with two pair, Sixes and Threes
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76390181:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:47:57 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 2: Vooszem77 ($98.71 in chips)
+Seat 3: rossi1616 ($77.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: JTs98o ($59.38 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Kc]
+kole1992: folds
+antananarivo: folds
+JTs98o: raises $1.25 to $1.25
+Vooszem77: calls $1
+rossi1616: folds
+*** FLOP *** [4d 9c 6h]
+Vooszem77: checks
+JTs98o: checks
+*** TURN *** [4d 9c 6h] [Js]
+Vooszem77: bets $3
+JTs98o: folds
+Uncalled bet ($3) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [4d 9c 6h Js]
+Seat 2: Vooszem77 (small blind) collected ($3)
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded on the Turn 
+
+
+Weplay Hand #76390203:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:48:54 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: Vooszem77 ($100.31 in chips)
+Seat 3: rossi1616 ($77.04 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: JTs98o ($58.13 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Qd]
+antananarivo: folds
+Jaanu joins the table at seat #1
+JTs98o: raises $1.25 to $1.25
+Vooszem77: raises $4 to $4
+rossi1616: folds
+kole1992: folds
+JTs98o: calls $2.75
+*** FLOP *** [9d 8d 8h]
+JTs98o: checks
+Vooszem77: bets $6
+JTs98o: folds
+Uncalled bet ($6) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $8.75 from pot
+*** SUMMARY ***
+Total pot $8.75 | Rake $0.43 
+Board [9d 8d 8h]
+Seat 2: Vooszem77 (button) collected ($8.75)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o folded on the Flop 
+
+
+Weplay Hand #76390228:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:49:48 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Jaanu ($39.52 in chips)
+Seat 2: Vooszem77 ($104.63 in chips)
+Seat 3: rossi1616 ($76.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: JTs98o ($54.13 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+Jaanu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 9s]
+JTs98o: folds
+Jaanu: folds
+Jaanu leaves the table
+Vooszem77: calls $0.50
+rossi1616: folds
+kole1992: folds
+antananarivo: checks
+*** FLOP *** [3s 9c 7h]
+antananarivo: checks
+Vooszem77: bets $1
+antananarivo: folds
+Uncalled bet ($1) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0.08 
+Board [3s 9c 7h]
+Seat 1: Jaanu (big blind) folded before Flop 
+Seat 2: Vooszem77 collected ($1.75)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded on the Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76390248:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:50:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: Vooszem77 ($105.80 in chips)
+Seat 3: rossi1616 ($76.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.50 in chips)
+Seat 6: JTs98o ($54.13 in chips)
+antananarivo: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Ks]
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+Uncalled bet ($0.25) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) collected ($0.50)
+
+
+Weplay Hand #76390254:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:50:57 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Jaanu ($39.02 in chips)
+Seat 2: Vooszem77 ($105.80 in chips)
+Seat 3: rossi1616 ($76.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($54.38 in chips)
+JTs98o: posts small blind $0.25
+Jaanu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Ts]
+Vooszem77: folds
+rossi1616: folds
+kole1992: raises $1 to $1
+antananarivo: folds
+JTs98o: raises $5.75 to $6
+Jaanu: raises $38.52 to $39.02 and is all-in
+kole1992: folds
+JTs98o: folds
+Uncalled bet ($33.02) returned to Jaanu
+*** SHOW DOWN ***
+Jaanu has timed out
+Jaanu: doesn't show hand
+Jaanu collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0 
+Seat 1: Jaanu (big blind) collected ($13)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop 
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76390273:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:51:36 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Jaanu ($46.02 in chips)
+Seat 2: Vooszem77 ($105.80 in chips)
+Seat 3: rossi1616 ($76.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($50 in chips)
+Jaanu: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Ad]
+rossi1616: folds
+kole1992: raises $1 to $1
+antananarivo: folds
+JTs98o: folds
+Jaanu: calls $0.75
+Vooszem77: calls $0.50
+*** FLOP *** [9s 3d 6s]
+Jaanu: folds
+Vooszem77: checks
+kole1992: checks
+*** TURN *** [9s 3d 6s] [Qh]
+Vooszem77: bets $3
+kole1992: folds
+Uncalled bet ($3) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [9s 3d 6s Qh]
+Seat 1: Jaanu (small blind) folded on the Flop 
+Seat 2: Vooszem77 (big blind) collected ($3)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded on the Turn 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76390304:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:52:36 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Jaanu ($45.02 in chips)
+Seat 2: Vooszem77 ($107.65 in chips)
+Seat 3: rossi1616 ($76.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($50 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 5c]
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Jaanu: calls $0.50
+Vooszem77: calls $0.25
+rossi1616: raises $1.50 to $2
+Jaanu: folds
+Vooszem77: folds
+Uncalled bet ($1.50) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0 
+Seat 1: Jaanu (button) folded before Flop 
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($1.50)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76391317:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:53:04 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Jaanu ($44.52 in chips)
+Seat 2: Vooszem77 ($107.15 in chips)
+Seat 3: rossi1616 ($77.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($50 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 3h]
+antananarivo: folds
+JTs98o: folds
+Jaanu: folds
+Vooszem77: raises $1.50 to $1.50
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($1) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Jaanu folded before Flop (didn't bet)
+Seat 2: Vooszem77 (button) collected ($1.25)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76391330:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:53:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Jaanu ($44.52 in chips)
+Seat 2: Vooszem77 ($107.90 in chips)
+Seat 3: rossi1616 ($77.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($50 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 9s]
+JTs98o: folds
+Jaanu: folds
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Jaanu folded before Flop (didn't bet)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) collected ($0.50)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76391345:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:53:54 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Jaanu ($44.52 in chips)
+Seat 2: Vooszem77 ($107.90 in chips)
+Seat 3: rossi1616 ($77.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.50 in chips)
+Seat 6: JTs98o ($50 in chips)
+antananarivo: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 3d]
+Jaanu has timed out
+Jaanu: folds
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+antananarivo: raises $1.25 to $1.50
+JTs98o: calls $1
+*** FLOP *** [2s 8s Ts]
+antananarivo: checks
+JTs98o: checks
+*** TURN *** [2s 8s Ts] [6s]
+antananarivo: checks
+JTs98o: checks
+*** RIVER *** [2s 8s Ts 6s] [Tc]
+antananarivo: bets $2.25
+JTs98o: calls $2.25
+*** SHOW DOWN ***
+antananarivo: shows [9d 5d] (a pair of Tens)
+JTs98o: shows [Ad 4s] (a flush, Ten high)
+JTs98o collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [2s 8s Ts 6s Tc]
+Seat 1: Jaanu folded before Flop (didn't bet)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) showed [9d 5d] and lost with a pair of Tens
+Seat 6: JTs98o (big blind) showed [Ad 4s] and won ($7.50) with a flush, Ten high
+
+
+Weplay Hand #76391370:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:54:59 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Jaanu ($44.52 in chips)
+Seat 2: Vooszem77 ($107.90 in chips)
+Seat 3: rossi1616 ($77.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($45.75 in chips)
+Seat 6: JTs98o ($53.38 in chips)
+JTs98o: posts small blind $0.25
+Jaanu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Kh]
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Uncalled bet ($0.25) returned to Jaanu
+*** SHOW DOWN ***
+Jaanu has timed out
+Jaanu: doesn't show hand
+Jaanu collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Jaanu (big blind) collected ($0.50)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76391377:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:55:28 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Jaanu ($44.77 in chips)
+Seat 2: Vooszem77 ($107.90 in chips)
+Seat 3: rossi1616 ($77.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: JTs98o ($53.13 in chips)
+Jaanu: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Jc]
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Jaanu: raises $0.75 to $1
+Vooszem77: calls $0.50
+*** FLOP *** [5h 2h Kh]
+Jaanu: bets $2
+Vooszem77: folds
+Uncalled bet ($2) returned to Jaanu
+*** SHOW DOWN ***
+Jaanu has timed out
+Jaanu: doesn't show hand
+Jaanu collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [5h 2h Kh]
+Seat 1: Jaanu (small blind) collected ($2)
+Seat 2: Vooszem77 (big blind) folded on the Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76391385:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:56:03 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Jaanu ($45.67 in chips)
+Seat 2: Vooszem77 ($106.90 in chips)
+Seat 3: rossi1616 ($77.54 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: JTs98o ($53.13 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 8h]
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Jaanu: calls $0.50
+Vooszem77: raises $1.75 to $2
+rossi1616: folds
+Jaanu: raises $45.17 to $45.67 and is all-in
+Vooszem77: folds
+Uncalled bet ($43.67) returned to Jaanu
+*** SHOW DOWN ***
+Jaanu has timed out
+Jaanu: doesn't show hand
+Jaanu collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0 
+Seat 1: Jaanu (button) collected ($4.50)
+Seat 2: Vooszem77 (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76391398:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:56:45 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Jaanu ($48.17 in chips)
+Seat 2: Vooszem77 ($104.90 in chips)
+Seat 3: rossi1616 ($77.04 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: JTs98o ($53.13 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 5s]
+antananarivo: folds
+JTs98o: raises $1.25 to $1.25
+Jaanu: folds
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Jaanu folded before Flop (didn't bet)
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded before Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o collected ($1.25)
+
+
+Weplay Hand #76391404:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:57:09 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Jaanu ($48.17 in chips)
+Seat 2: Vooszem77 ($104.90 in chips)
+Seat 3: rossi1616 ($76.79 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50 in chips)
+Seat 6: JTs98o ($53.88 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Ts]
+JTs98o: raises $1.25 to $1.25
+Jaanu: raises $9 to $9
+Vooszem77: folds
+rossi1616: raises $29 to $29
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Jaanu: raises $39.17 to $48.17 and is all-in
+rossi1616: calls $19.17
+*** FLOP *** [Td Th Tc]
+*** TURN *** [Td Th Tc] [Ad]
+*** RIVER *** [Td Th Tc Ad] [4d]
+*** SHOW DOWN ***
+Jaanu: shows [Ac Qd] (a full house, Tens full of Aces)
+rossi1616: shows [9s 9d] (a full house, Tens full of Nines)
+Jaanu collected $98.34 from pot
+*** SUMMARY ***
+Total pot $98.34 | Rake $4 
+Board [Td Th Tc Ad 4d]
+Seat 1: Jaanu showed [Ac Qd] and won ($98.34) with a full house, Tens full of Aces
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) showed [9s 9d] and lost with a full house, Tens full of Nines
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop 
+
+
+Weplay Hand #76391422:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:58:13 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Jaanu ($94.34 in chips)
+Seat 2: Vooszem77 ($104.90 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.50 in chips)
+Seat 6: JTs98o ($52.63 in chips)
+antananarivo: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Qc]
+Jaanu: folds
+Vooszem77: calls $0.50
+rossi1616: raises $2.25 to $2.25
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Vooszem77: folds
+Uncalled bet ($1.75) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: Jaanu folded before Flop (didn't bet)
+Seat 2: Vooszem77 folded before Flop 
+Seat 3: rossi1616 collected ($1.75)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76391438:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:58:48 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Jaanu ($94.34 in chips)
+Seat 2: Vooszem77 ($104.40 in chips)
+Seat 3: rossi1616 ($51.25 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($52.13 in chips)
+JTs98o: posts small blind $0.25
+Jaanu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 8h]
+Vooszem77: folds
+rossi1616: folds
+kole1992: folds
+antananarivo: folds
+JTs98o: raises $1.25 to $1.50
+Jaanu: folds
+Uncalled bet ($1) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Jaanu (big blind) folded before Flop 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) collected ($1)
+
+
+Weplay Hand #76391445:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 21:59:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Jaanu ($93.84 in chips)
+Seat 2: Vooszem77 ($104.40 in chips)
+Seat 3: rossi1616 ($51.25 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($49.25 in chips)
+Seat 6: JTs98o ($52.63 in chips)
+Jaanu: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 9c]
+rossi1616: folds
+kole1992: folds
+antananarivo: raises $1.25 to $1.25
+JTs98o: folds
+Jaanu: folds
+Vooszem77: calls $0.75
+*** FLOP *** [7h Ah Kd]
+Vooszem77: checks
+antananarivo: checks
+*** TURN *** [7h Ah Kd] [5h]
+Vooszem77: checks
+antananarivo: bets $1.40
+Vooszem77: folds
+Uncalled bet ($1.40) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [7h Ah Kd 5h]
+Seat 1: Jaanu (small blind) folded before Flop 
+Seat 2: Vooszem77 (big blind) folded on the Turn 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo collected ($2.75)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76391463:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 22:00:20 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Jaanu ($93.59 in chips)
+Seat 2: Vooszem77 ($103.15 in chips)
+Seat 3: rossi1616 ($51.25 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($50.62 in chips)
+Seat 6: JTs98o ($52.63 in chips)
+Vooszem77: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 6c]
+kole1992: folds
+antananarivo: raises $1.25 to $1.25
+JTs98o: folds
+Jaanu: calls $1.25
+Vooszem77: calls $1
+rossi1616: folds
+*** FLOP *** [9d Ts 2c]
+Vooszem77: checks
+antananarivo: bets $1.40
+Jaanu: raises $9 to $9
+Vooszem77: folds
+antananarivo: folds
+Uncalled bet ($7.60) returned to Jaanu
+*** SHOW DOWN ***
+Jaanu has timed out
+Jaanu: doesn't show hand
+Jaanu collected $7.05 from pot
+*** SUMMARY ***
+Total pot $7.05 | Rake $0.35 
+Board [9d Ts 2c]
+Seat 1: Jaanu (button) collected ($7.05)
+Seat 2: Vooszem77 (small blind) folded on the Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo folded on the Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76391480:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 22:01:03 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Jaanu ($97.64 in chips)
+Seat 2: Vooszem77 ($101.90 in chips)
+Seat 3: rossi1616 ($50.75 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($47.97 in chips)
+Seat 6: JTs98o ($52.63 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Jh]
+antananarivo: folds
+JTs98o: folds
+Jaanu: calls $0.50
+Vooszem77: folds
+rossi1616: folds
+kole1992: checks
+*** FLOP *** [5c Qh 2d]
+kole1992: checks
+Jaanu: bets $0.50
+kole1992: folds
+Uncalled bet ($0.50) returned to Jaanu
+*** SHOW DOWN ***
+Jaanu has timed out
+Jaanu: doesn't show hand
+Jaanu collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [5c Qh 2d]
+Seat 1: Jaanu collected ($1.25)
+Seat 2: Vooszem77 (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: kole1992 (big blind) folded on the Flop 
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76391501:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 22:01:47 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Jaanu ($98.33 in chips)
+Seat 2: Vooszem77 ($101.90 in chips)
+Seat 3: rossi1616 ($50.50 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($47.97 in chips)
+Seat 6: JTs98o ($52.63 in chips)
+kole1992: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 5s]
+JTs98o: folds
+Jaanu: folds
+Vooszem77: calls $0.50
+rossi1616: folds
+kole1992: folds
+antananarivo: checks
+*** FLOP *** [6s 9h Td]
+antananarivo: checks
+Vooszem77: bets $0.50
+antananarivo: folds
+Uncalled bet ($0.50) returned to Vooszem77
+*** SHOW DOWN ***
+Vooszem77 has timed out
+Vooszem77: doesn't show hand
+Vooszem77 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [6s 9h Td]
+Seat 1: Jaanu folded before Flop (didn't bet)
+Seat 2: Vooszem77 collected ($1.25)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: kole1992 (small blind) folded before Flop 
+Seat 5: antananarivo (big blind) folded on the Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76391527:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 22:02:41 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Jaanu ($98.33 in chips)
+Seat 2: Vooszem77 ($102.59 in chips)
+Seat 3: rossi1616 ($50.50 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($47.47 in chips)
+Seat 6: JTs98o ($52.63 in chips)
+antananarivo: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Ah]
+Jaanu: folds
+Vooszem77: folds
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: folds
+JTs98o: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Jaanu folded before Flop (didn't bet)
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 collected ($1.25)
+Seat 4: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: antananarivo (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76391534:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 22:02:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Jaanu ($98.33 in chips)
+Seat 2: Vooszem77 ($102.59 in chips)
+Seat 3: rossi1616 ($51.25 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($47.22 in chips)
+Seat 6: JTs98o ($52.13 in chips)
+JTs98o: posts small blind $0.25
+Jaanu: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Kd]
+Vooszem77: folds
+rossi1616: raises $1.50 to $1.50
+kole1992: folds
+antananarivo: folds
+JTs98o: raises $5.75 to $6
+Jaanu: folds
+rossi1616: calls $4.50
+*** FLOP *** [4h 5d 6s]
+JTs98o: bets $5
+rossi1616: raises $21.87 to $21.87
+JTs98o: folds
+Uncalled bet ($16.87) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $22.50 from pot
+*** SUMMARY ***
+Total pot $22.50 | Rake $1.12 
+Board [4h 5d 6s]
+Seat 1: Jaanu (big blind) folded before Flop 
+Seat 2: Vooszem77 folded before Flop (didn't bet)
+Seat 3: rossi1616 collected ($22.50)
+Seat 4: kole1992 folded before Flop (didn't bet)
+Seat 5: antananarivo (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded on the Flop 
+
+
+Weplay Hand #76391564:  Hold'em No Limit ($0.25/$0.50) - 2026/02/21 22:04:07 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Jaanu ($97.83 in chips)
+Seat 2: Vooszem77 ($102.59 in chips)
+Seat 3: rossi1616 ($61.63 in chips)
+Seat 4: kole1992 ($50 in chips)
+Seat 5: antananarivo ($47.22 in chips)
+Seat 6: JTs98o ($50 in chips)
+Jaanu: posts small blind $0.25
+Vooszem77: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js As]
+rossi1616: folds
+kole1992: raises $1 to $1
+antananarivo: folds
+JTs98o: folds
+Jaanu: calls $0.75
+Vooszem77: calls $0.50
+*** FLOP *** [7h 3d Ks]
+Jaanu: checks
+Vooszem77: checks
+kole1992: checks
+*** TURN *** [7h 3d Ks] [8c]
+Jaanu: bets $0.50
+Vooszem77: folds
+kole1992: calls $0.50
+*** RIVER *** [7h 3d Ks 8c] [3h]
+Jaanu: bets $0.50
+kole1992: raises $6.75 to $6.75
+Jaanu: folds
+Uncalled bet ($6.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [7h 3d Ks 8c 3h]
+Seat 1: Jaanu (small blind) folded on the River 
+Seat 2: Vooszem77 (big blind) folded on the Turn 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: kole1992 collected ($5)
+Seat 5: antananarivo folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)

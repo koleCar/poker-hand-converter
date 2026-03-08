@@ -1,0 +1,935 @@
+﻿Weplay Hand #75461015:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:00:38 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: sadam ($51.25 in chips)
+Seat 2: kole1992 ($50 in chips)
+Seat 3: philinbebettin ($82.43 in chips)
+Seat 4: markanen0 ($83.02 in chips)
+Seat 5: miracleee ($72.48 in chips)
+Seat 6: acekingg ($16.66 in chips)
+Seat 7: Nightfox ($49.75 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh Jc]
+philinbebettin: folds
+markanen0: raises $1.75 to $1.75
+miracleee: folds
+acekingg: calls $1.75
+Nightfox: folds
+sadam: folds
+kole1992: calls $1.25
+*** FLOP *** [9h 9d Ks]
+kole1992: checks
+markanen0: checks
+NIKO80 joins the table at seat #8
+acekingg: checks
+*** TURN *** [9h 9d Ks] [4c]
+kole1992: bets $2.31
+markanen0: calls $2.31
+acekingg: calls $2.31
+*** RIVER *** [9h 9d Ks 4c] [8d]
+kole1992: bets $14.25
+markanen0: folds
+acekingg: folds
+Uncalled bet ($14.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12.43 from pot
+*** SUMMARY ***
+Total pot $12.43 | Rake $0.62 
+Board [9h 9d Ks 4c 8d]
+Seat 1: sadam (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) collected ($12.43)
+Seat 3: philinbebettin folded before Flop (didn't bet)
+Seat 4: markanen0 folded on the River 
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 6: acekingg folded on the River 
+Seat 7: Nightfox (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75461167:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:02:03 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: sadam ($51 in chips)
+Seat 2: kole1992 ($57.75 in chips)
+Seat 4: markanen0 ($78.96 in chips)
+Seat 5: miracleee ($72.48 in chips)
+Seat 6: acekingg ($12.60 in chips)
+Seat 7: Nightfox ($49.75 in chips)
+kole1992: posts small blind $0.25
+markanen0: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 2c]
+miracleee: folds
+acekingg: raises $1.25 to $1.25
+Nightfox: folds
+sadam: folds
+kole1992: folds
+markanen0: raises $3.50 to $4
+acekingg: calls $2.75
+*** FLOP *** [Jh Qd 4h]
+markanen0: checks
+acekingg: bets $8.60 and is all-in
+markanen0: calls $8.60
+*** TURN *** [Jh Qd 4h] [Qs]
+*** RIVER *** [Jh Qd 4h Qs] [Ac]
+*** SHOW DOWN ***
+markanen0: shows [As Ks] (two pair, Aces and Queens)
+acekingg: shows [Jd Kh] (two pair, Queens and Jacks)
+markanen0 collected $25.45 from pot
+*** SUMMARY ***
+Total pot $25.45 | Rake $1.27 
+Board [Jh Qd 4h Qs Ac]
+Seat 1: sadam (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 4: markanen0 (big blind) showed [As Ks] and won ($25.45) with two pair, Aces and Queens
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 6: acekingg showed [Jd Kh] and lost with two pair, Queens and Jacks
+Seat 7: Nightfox folded before Flop (didn't bet)
+
+
+Weplay Hand #75461373:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:03:02 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: sadam ($51 in chips)
+Seat 2: kole1992 ($57.50 in chips)
+Seat 5: miracleee ($72.48 in chips)
+Seat 7: Nightfox ($49.75 in chips)
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 9d]
+Nightfox: raises $1.25 to $1.25
+markanen0 leaves the table
+sadam: folds
+kole1992: folds
+miracleee: calls $0.75
+*** FLOP *** [9s 6d Kh]
+miracleee: checks
+Nightfox: bets $0.85
+miracleee: raises $5.50 to $5.50
+Nightfox: folds
+Uncalled bet ($4.65) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $4.20 from pot
+*** SUMMARY ***
+Total pot $4.20 | Rake $0.21 
+Board [9s 6d Kh]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: miracleee (big blind) collected ($4.20)
+Seat 7: Nightfox folded on the Flop 
+
+
+Weplay Hand #75461490:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:03:37 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: sadam ($51 in chips)
+Seat 2: kole1992 ($57.50 in chips)
+Seat 5: miracleee ($74.37 in chips)
+Seat 7: Nightfox ($47.65 in chips)
+miracleee: posts small blind $0.25
+Nightfox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 6c]
+acekingg leaves the table
+sadam: folds
+kole1992: raises $1.10 to $1.10
+miracleee: folds
+Nightfox: folds
+Uncalled bet ($0.60) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 collected ($1.25)
+Seat 5: miracleee (small blind) folded before Flop 
+Seat 7: Nightfox (big blind) folded before Flop 
+
+
+Weplay Hand #75461573:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:03:59 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: sadam ($51 in chips)
+Seat 2: kole1992 ($58.25 in chips)
+Seat 5: miracleee ($74.12 in chips)
+Seat 7: Nightfox ($47.15 in chips)
+Seat 8: NIKO80 ($15 in chips)
+Nightfox: posts small blind $0.25
+NIKO80: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Qd]
+sadam: folds
+kole1992: folds
+miracleee: folds
+Nightfox: folds
+Uncalled bet ($0.25) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 5: miracleee (button) folded before Flop (didn't bet)
+Seat 7: Nightfox (small blind) folded before Flop 
+Seat 8: NIKO80 (big blind) collected ($0.50)
+
+
+Weplay Hand #75461635:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:04:18 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: sadam ($51 in chips)
+Seat 2: kole1992 ($58.25 in chips)
+Seat 5: miracleee ($74.12 in chips)
+Seat 7: Nightfox ($46.90 in chips)
+Seat 8: NIKO80 ($15.25 in chips)
+NIKO80: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 6c]
+kole1992: folds
+miracleee: folds
+Nightfox: folds
+NIKO80: raises $1 to $1.25
+sadam: folds
+Uncalled bet ($0.75) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: sadam (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 7: Nightfox (button) folded before Flop (didn't bet)
+Seat 8: NIKO80 (small blind) collected ($1)
+
+
+Weplay Hand #75461729:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:04:45 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: sadam ($50.50 in chips)
+Seat 2: kole1992 ($58.25 in chips)
+Seat 5: miracleee ($74.12 in chips)
+Seat 7: Nightfox ($46.90 in chips)
+Seat 8: NIKO80 ($15.75 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 5h]
+miracleee: folds
+Nightfox: folds
+NIKO80: folds
+sadam: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: sadam (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) collected ($0.50)
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: NIKO80 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75461762:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:04:55 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: sadam ($50.25 in chips)
+Seat 2: kole1992 ($58.50 in chips)
+Seat 5: miracleee ($74.12 in chips)
+Seat 7: Nightfox ($46.90 in chips)
+Seat 8: NIKO80 ($15.75 in chips)
+antananarivo joins the table at seat #4
+kole1992: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 5s]
+Nightfox: raises $1.25 to $1.25
+NIKO80: folds
+sadam: folds
+kole1992: folds
+miracleee: calls $0.75
+*** FLOP *** [Tc Qh 3d]
+miracleee: checks
+Nightfox: checks
+*** TURN *** [Tc Qh 3d] [Th]
+miracleee: checks
+Nightfox: bets $0.90
+miracleee: calls $0.90
+*** RIVER *** [Tc Qh 3d Th] [Kh]
+miracleee: checks
+Nightfox: checks
+*** SHOW DOWN ***
+miracleee: shows [2h Ah] (a flush, Ace high)
+Nightfox: mucks hand
+miracleee collected $4.55 from pot
+*** SUMMARY ***
+Total pot $4.55 | Rake $0.22 
+Board [Tc Qh 3d Th Kh]
+Seat 1: sadam (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 5: miracleee (big blind) showed [2h Ah] and won ($4.55) with a flush, Ace high
+Seat 7: Nightfox mucked
+Seat 8: NIKO80 folded before Flop (didn't bet)
+
+
+Weplay Hand #75461917:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:05:42 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: sadam ($50.25 in chips)
+Seat 2: kole1992 ($58.25 in chips)
+Seat 5: miracleee ($76.30 in chips)
+Seat 7: Nightfox ($50 in chips)
+Seat 8: NIKO80 ($15.75 in chips)
+miracleee: posts small blind $0.25
+Nightfox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 5h]
+NIKO80: calls $0.50
+sadam: folds
+kole1992: folds
+miracleee: folds
+Nightfox: checks
+*** FLOP *** [Th 9c Ac]
+Nightfox: checks
+NIKO80: checks
+*** TURN *** [Th 9c Ac] [3d]
+Nightfox: checks
+NIKO80: bets $0.94
+Nightfox: folds
+Uncalled bet ($0.94) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [Th 9c Ac 3d]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 5: miracleee (small blind) folded before Flop 
+Seat 7: Nightfox (big blind) folded on the Turn 
+Seat 8: NIKO80 collected ($1.25)
+
+
+Weplay Hand #75462041:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:06:24 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: sadam ($50.25 in chips)
+Seat 2: kole1992 ($58.25 in chips)
+Seat 5: miracleee ($76.05 in chips)
+Seat 7: Nightfox ($49.50 in chips)
+Seat 8: NIKO80 ($16.44 in chips)
+Nightfox: posts small blind $0.25
+NIKO80: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks As]
+sadam: folds
+kole1992: raises $1 to $1
+miracleee: raises $4 to $4
+Nightfox: folds
+NIKO80: folds
+kole1992: calls $3
+*** FLOP *** [Kd Td 3s]
+kole1992: checks
+miracleee: checks
+*** TURN *** [Kd Td 3s] [Jd]
+kole1992: checks
+miracleee: checks
+*** RIVER *** [Kd Td 3s Jd] [4c]
+kole1992: bets $6.38
+miracleee: calls $6.38
+*** SHOW DOWN ***
+kole1992: shows [Ks As] (a pair of Kings)
+miracleee: mucks hand
+kole1992 collected $21.51 from pot
+*** SUMMARY ***
+Total pot $21.51 | Rake $1.07 
+Board [Kd Td 3s Jd 4c]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 showed [Ks As] and won ($21.51) with a pair of Kings
+Seat 5: miracleee (button) mucked
+Seat 7: Nightfox (small blind) folded before Flop 
+Seat 8: NIKO80 (big blind) folded before Flop 
+
+
+Weplay Hand #75462234:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:07:26 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: sadam ($50.25 in chips)
+Seat 2: kole1992 ($68.31 in chips)
+Seat 3: philinbebettin ($82.43 in chips)
+Seat 5: miracleee ($65.67 in chips)
+Seat 7: Nightfox ($49.25 in chips)
+Seat 8: NIKO80 ($15.94 in chips)
+NIKO80: posts small blind $0.25
+sadam: posts big blind $0.50
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 4d]
+kole1992: folds
+philinbebettin: raises $1 to $1.50
+miracleee: folds
+Nightfox: folds
+NIKO80: folds
+sadam: folds
+Uncalled bet ($1) returned to philinbebettin
+*** SHOW DOWN ***
+philinbebettin has timed out
+philinbebettin: doesn't show hand
+philinbebettin collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: sadam (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: philinbebettin (big blind) collected ($1.25)
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 7: Nightfox (button) folded before Flop (didn't bet)
+Seat 8: NIKO80 (small blind) folded before Flop 
+
+
+Weplay Hand #75462305:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:07:48 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: sadam ($49.75 in chips)
+Seat 2: kole1992 ($68.31 in chips)
+Seat 3: philinbebettin ($83.18 in chips)
+Seat 5: miracleee ($65.67 in chips)
+Seat 7: Nightfox ($49.25 in chips)
+Seat 8: NIKO80 ($15.69 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 8d]
+philinbebettin: raises $1.50 to $1.50
+miracleee: folds
+Nightfox: folds
+NIKO80: calls $1.50
+sadam: folds
+kole1992: folds
+*** FLOP *** [7h 4d Ad]
+philinbebettin: checks
+NIKO80: checks
+*** TURN *** [7h 4d Ad] [Jh]
+philinbebettin: checks
+NIKO80: checks
+*** RIVER *** [7h 4d Ad Jh] [Ks]
+philinbebettin: checks
+NIKO80: checks
+*** SHOW DOWN ***
+philinbebettin: shows [9h 9d] (a pair of Nines)
+NIKO80: shows [Js 6s] (a pair of Jacks)
+NIKO80 collected $3.75 from pot
+*** SUMMARY ***
+Total pot $3.75 | Rake $0.18 
+Board [7h 4d Ad Jh Ks]
+Seat 1: sadam (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: philinbebettin showed [9h 9d] and lost with a pair of Nines
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: NIKO80 (button) showed [Js 6s] and won ($3.75) with a pair of Jacks
+
+
+Weplay Hand #75462521:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:08:55 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: sadam ($49.50 in chips)
+Seat 2: kole1992 ($67.81 in chips)
+Seat 3: philinbebettin ($81.68 in chips)
+Seat 5: miracleee ($65.67 in chips)
+Seat 7: Nightfox ($49.25 in chips)
+Seat 8: NIKO80 ($17.76 in chips)
+kole1992: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Th]
+miracleee: folds
+Nightfox: folds
+NIKO80: raises $1 to $1
+sadam: folds
+kole1992: folds
+philinbebettin: calls $0.50
+*** FLOP *** [5c 8c Ts]
+philinbebettin: checks
+NIKO80: checks
+*** TURN *** [5c 8c Ts] [2c]
+philinbebettin: checks
+NIKO80: bets $1.50
+philinbebettin: folds
+Uncalled bet ($1.50) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [5c 8c Ts 2c]
+Seat 1: sadam (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: philinbebettin (big blind) folded on the Turn 
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: NIKO80 collected ($2.25)
+
+
+Weplay Hand #75462678:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:09:47 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: sadam ($49.50 in chips)
+Seat 2: kole1992 ($67.56 in chips)
+Seat 3: philinbebettin ($80.68 in chips)
+Seat 4: antananarivo ($50 in chips)
+Seat 5: miracleee ($65.67 in chips)
+Seat 7: Nightfox ($49.25 in chips)
+Seat 8: NIKO80 ($18.90 in chips)
+philinbebettin: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Ac]
+miracleee: folds
+Nightfox: folds
+NIKO80: folds
+sadam: folds
+kole1992: raises $1.25 to $1.25
+philinbebettin: folds
+antananarivo: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 (button) collected ($1.25)
+Seat 3: philinbebettin (small blind) folded before Flop 
+Seat 4: antananarivo (big blind) folded before Flop 
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: NIKO80 folded before Flop (didn't bet)
+
+
+Weplay Hand #75462772:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:10:19 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: sadam ($49.50 in chips)
+Seat 2: kole1992 ($68.31 in chips)
+Seat 3: philinbebettin ($80.43 in chips)
+Seat 4: antananarivo ($49.50 in chips)
+Seat 5: miracleee ($65.67 in chips)
+Seat 7: Nightfox ($49.25 in chips)
+Seat 8: NIKO80 ($18.90 in chips)
+antananarivo: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Ah]
+Nightfox: folds
+NIKO80: raises $1.50 to $1.50
+sadam: folds
+kole1992: raises $4 to $4
+philinbebettin: folds
+antananarivo: folds
+miracleee: folds
+NIKO80: calls $2.50
+*** FLOP *** [6d 8s Ad]
+NIKO80: checks
+kole1992: checks
+*** TURN *** [6d 8s Ad] [Kc]
+NIKO80: checks
+kole1992: checks
+*** RIVER *** [6d 8s Ad Kc] [Qc]
+NIKO80: checks
+kole1992: bets $18.50
+NIKO80: folds
+Uncalled bet ($18.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $8.75 from pot
+*** SUMMARY ***
+Total pot $8.75 | Rake $0.43 
+Board [6d 8s Ad Kc Qc]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 collected ($8.75)
+Seat 3: philinbebettin (button) folded before Flop (didn't bet)
+Seat 4: antananarivo (small blind) folded before Flop 
+Seat 5: miracleee (big blind) folded before Flop 
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: NIKO80 folded on the River 
+
+
+Weplay Hand #75463051:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:11:48 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: sadam ($49.50 in chips)
+Seat 2: kole1992 ($72.63 in chips)
+Seat 3: philinbebettin ($80.43 in chips)
+Seat 4: antananarivo ($49.25 in chips)
+Seat 5: miracleee ($65.17 in chips)
+Seat 7: Nightfox ($49.25 in chips)
+Seat 8: NIKO80 ($14.90 in chips)
+miracleee: posts small blind $0.25
+Nightfox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js Qc]
+NIKO80: raises $1.50 to $1.50
+sadam: calls $1.50
+kole1992 has timed out
+kole1992: folds
+philinbebettin: folds
+antananarivo: calls $1.50
+miracleee: folds
+Nightfox: calls $1
+*** FLOP *** [Ks 7s 7d]
+Nightfox: checks
+NIKO80: checks
+sadam: checks
+antananarivo: checks
+*** TURN *** [Ks 7s 7d] [5c]
+Nightfox: checks
+NIKO80: checks
+sadam: checks
+antananarivo: checks
+*** RIVER *** [Ks 7s 7d 5c] [Jc]
+Nightfox: checks
+NIKO80: bets $4.69
+sadam: calls $4.69
+antananarivo: folds
+Nightfox: folds
+*** SHOW DOWN ***
+NIKO80: shows [5d 5h] (a full house, Fives full of Sevens)
+sadam: mucks hand
+NIKO80 collected $15.63 from pot
+*** SUMMARY ***
+Total pot $15.63 | Rake $0.78 
+Board [Ks 7s 7d 5c Jc]
+Seat 1: sadam mucked
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: philinbebettin folded before Flop (didn't bet)
+Seat 4: antananarivo (button) folded on the River 
+Seat 5: miracleee (small blind) folded before Flop 
+Seat 7: Nightfox (big blind) folded on the River 
+Seat 8: NIKO80 showed [5d 5h] and won ($15.63) with a full house, Fives full of Sevens
+
+
+Weplay Hand #75464320:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:13:30 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: sadam ($50 in chips)
+Seat 2: kole1992 ($72.63 in chips)
+Seat 3: philinbebettin ($80.43 in chips)
+Seat 4: antananarivo ($47.75 in chips)
+Seat 5: miracleee ($64.92 in chips)
+Seat 7: Nightfox ($47.75 in chips)
+Seat 8: NIKO80 ($23.56 in chips)
+Nightfox: posts small blind $0.25
+NIKO80: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 7h]
+sadam: folds
+kole1992: raises $1 to $1
+philinbebettin: calls $1
+antananarivo: folds
+miracleee: folds
+Nightfox: folds
+NIKO80: folds
+*** FLOP *** [Ah 4s Td]
+kole1992: checks
+philinbebettin: checks
+*** TURN *** [Ah 4s Td] [9h]
+kole1992: bets $2.25
+philinbebettin: calls $2.25
+*** RIVER *** [Ah 4s Td 9h] [Th]
+kole1992: bets $5.39
+philinbebettin: calls $5.39
+*** SHOW DOWN ***
+kole1992: shows [8h 7h] (a flush, Ace high)
+philinbebettin has timed out
+philinbebettin: mucks hand
+kole1992 collected $18.03 from pot
+*** SUMMARY ***
+Total pot $18.03 | Rake $0.90 
+Board [Ah 4s Td 9h Th]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 showed [8h 7h] and won ($18.03) with a flush, Ace high
+Seat 3: philinbebettin mucked
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: miracleee (button) folded before Flop (didn't bet)
+Seat 7: Nightfox (small blind) folded before Flop 
+Seat 8: NIKO80 (big blind) folded before Flop 
+
+
+Weplay Hand #75464597:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:15:16 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: sadam ($50 in chips)
+Seat 2: kole1992 ($81.12 in chips)
+Seat 3: philinbebettin ($71.79 in chips)
+Seat 4: antananarivo ($47.75 in chips)
+Seat 5: miracleee ($64.92 in chips)
+Seat 7: Nightfox ($47.50 in chips)
+Seat 8: NIKO80 ($23.06 in chips)
+NIKO80: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 9d]
+kole1992: folds
+philinbebettin: folds
+antananarivo: folds
+miracleee: raises $1.75 to $1.75
+Nightfox: folds
+NIKO80: folds
+sadam: folds
+Uncalled bet ($1.25) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: sadam (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: philinbebettin folded before Flop (didn't bet)
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: miracleee collected ($1.25)
+Seat 7: Nightfox (button) folded before Flop (didn't bet)
+Seat 8: NIKO80 (small blind) folded before Flop 
+
+
+Weplay Hand #75464671:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:15:42 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #8 is the button
+Seat 1: sadam ($49.50 in chips)
+Seat 2: kole1992 ($81.12 in chips)
+Seat 3: philinbebettin ($71.79 in chips)
+Seat 4: antananarivo ($47.75 in chips)
+Seat 5: miracleee ($65.67 in chips)
+Seat 7: Nightfox ($47.50 in chips)
+Seat 8: NIKO80 ($22.81 in chips)
+sadam: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Th]
+philinbebettin: folds
+antananarivo: folds
+miracleee: folds
+Nightfox: raises $1.25 to $1.25
+NIKO80: raises $4 to $4
+sadam: folds
+kole1992: folds
+Nightfox: folds
+Uncalled bet ($2.75) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: sadam (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: philinbebettin folded before Flop (didn't bet)
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 7: Nightfox folded before Flop 
+Seat 8: NIKO80 (button) collected ($3.25)
+
+
+Weplay Hand #75464753:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:16:21 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #1 is the button
+Seat 1: sadam ($49.25 in chips)
+Seat 2: kole1992 ($80.62 in chips)
+Seat 3: philinbebettin ($71.79 in chips)
+Seat 4: antananarivo ($47.75 in chips)
+Seat 5: miracleee ($65.67 in chips)
+Seat 7: Nightfox ($46.25 in chips)
+Seat 8: NIKO80 ($24.81 in chips)
+kole1992: posts small blind $0.25
+philinbebettin: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d As]
+antananarivo has timed out
+antananarivo: folds
+miracleee: folds
+Nightfox: folds
+NIKO80: raises $1.50 to $1.50
+sadam: folds
+kole1992: folds
+philinbebettin: folds
+Uncalled bet ($1) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: sadam (button) folded before Flop (didn't bet)
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: philinbebettin (big blind) folded before Flop 
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: NIKO80 collected ($1.25)
+
+
+Weplay Hand #75464846:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:17:00 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: sadam ($49.25 in chips)
+Seat 2: kole1992 ($80.37 in chips)
+Seat 3: philinbebettin ($71.29 in chips)
+Seat 4: antananarivo ($47.75 in chips)
+Seat 5: miracleee ($65.67 in chips)
+Seat 7: Nightfox ($46.25 in chips)
+Seat 8: NIKO80 ($25.56 in chips)
+philinbebettin: posts small blind $0.25
+antananarivo: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Jc]
+miracleee: folds
+Nightfox: folds
+NIKO80: raises $1.50 to $1.50
+sadam: folds
+kole1992: folds
+philinbebettin: folds
+antananarivo: folds
+Uncalled bet ($1) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 (button) folded before Flop (didn't bet)
+Seat 3: philinbebettin (small blind) folded before Flop 
+Seat 4: antananarivo (big blind) folded before Flop 
+Seat 5: miracleee folded before Flop (didn't bet)
+Seat 7: Nightfox folded before Flop (didn't bet)
+Seat 8: NIKO80 collected ($1.25)
+
+
+Weplay Hand #75464901:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:17:25 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #3 is the button
+Seat 1: sadam ($49.25 in chips)
+Seat 2: kole1992 ($80.37 in chips)
+Seat 3: philinbebettin ($71.04 in chips)
+Seat 4: antananarivo ($47.25 in chips)
+Seat 5: miracleee ($65.67 in chips)
+Seat 7: Nightfox ($46.25 in chips)
+Seat 8: NIKO80 ($26.31 in chips)
+antananarivo: posts small blind $0.25
+miracleee: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [As Qs]
+Nightfox: raises $1 to $1
+NIKO80: folds
+sadam: folds
+kole1992: raises $2.50 to $2.50
+philinbebettin: folds
+antananarivo: folds
+miracleee: folds
+Nightfox: calls $1.50
+*** FLOP *** [Qd 9d 7s]
+Nightfox: checks
+kole1992: bets $5.44
+Nightfox: folds
+Uncalled bet ($5.44) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.75 from pot
+*** SUMMARY ***
+Total pot $5.75 | Rake $0.28 
+Board [Qd 9d 7s]
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 collected ($5.75)
+Seat 3: philinbebettin (button) folded before Flop (didn't bet)
+Seat 4: antananarivo (small blind) folded before Flop 
+Seat 5: miracleee (big blind) folded before Flop 
+Seat 7: Nightfox folded on the Flop 
+Seat 8: NIKO80 folded before Flop (didn't bet)
+
+
+Weplay Hand #75465014:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:18:19 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #4 is the button
+Seat 1: sadam ($49.25 in chips)
+Seat 2: kole1992 ($83.34 in chips)
+Seat 3: philinbebettin ($71.04 in chips)
+Seat 4: antananarivo ($47 in chips)
+Seat 5: miracleee ($65.17 in chips)
+Seat 7: Nightfox ($50 in chips)
+Seat 8: NIKO80 ($26.31 in chips)
+miracleee: posts small blind $0.25
+Nightfox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Qc]
+NIKO80: folds
+sadam: folds
+kole1992: folds
+philinbebettin: folds
+antananarivo: folds
+miracleee: folds
+Uncalled bet ($0.25) returned to Nightfox
+*** SHOW DOWN ***
+Nightfox: doesn't show hand
+Nightfox collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: philinbebettin folded before Flop (didn't bet)
+Seat 4: antananarivo (button) folded before Flop (didn't bet)
+Seat 5: miracleee (small blind) folded before Flop 
+Seat 7: Nightfox (big blind) collected ($0.50)
+Seat 8: NIKO80 folded before Flop (didn't bet)
+
+
+Weplay Hand #75465067:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:18:48 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #5 is the button
+Seat 1: sadam ($49.25 in chips)
+Seat 2: kole1992 ($83.34 in chips)
+Seat 3: philinbebettin ($71.04 in chips)
+Seat 4: antananarivo ($47 in chips)
+Seat 5: miracleee ($64.92 in chips)
+Seat 7: Nightfox ($50.25 in chips)
+Seat 8: NIKO80 ($26.31 in chips)
+Nightfox: posts small blind $0.25
+NIKO80: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 9c]
+sadam: folds
+kole1992 has timed out
+kole1992: folds
+philinbebettin: folds
+antananarivo: folds
+miracleee: folds
+Nightfox: folds
+Uncalled bet ($0.25) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: sadam folded before Flop (didn't bet)
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: philinbebettin folded before Flop (didn't bet)
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: miracleee (button) folded before Flop (didn't bet)
+Seat 7: Nightfox (small blind) folded before Flop 
+Seat 8: NIKO80 (big blind) collected ($0.50)
+
+
+Weplay Hand #75465153:  Hold'em No Limit ($0.25/$0.50) - 2026/02/12 11:19:33 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #7 is the button
+Seat 1: sadam ($49.25 in chips)
+Seat 2: kole1992 ($83.34 in chips)
+Seat 3: philinbebettin ($71.04 in chips)
+Seat 4: antananarivo ($47 in chips)
+Seat 5: miracleee ($64.92 in chips)
+Seat 7: Nightfox ($50 in chips)
+Seat 8: NIKO80 ($26.56 in chips)
+NIKO80: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 6s]
+kole1992 has timed out
+kole1992: folds
+philinbebettin: folds
+antananarivo has timed out
+antananarivo: folds
+miracleee: raises $1.75 to $1.75
+Nightfox: folds
+NIKO80: folds
+sadam: folds
+Uncalled bet ($1.25) returned to miracleee
+*** SHOW DOWN ***
+miracleee: doesn't show hand
+miracleee collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: sadam (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop (didn't bet)
+Seat 3: philinbebettin folded before Flop (didn't bet)
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: miracleee collected ($1.25)
+Seat 7: Nightfox (button) folded before Flop (didn't bet)
+Seat 8: NIKO80 (small blind) folded before Flop 

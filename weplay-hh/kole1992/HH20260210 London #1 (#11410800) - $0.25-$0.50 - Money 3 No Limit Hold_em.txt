@@ -1,0 +1,2321 @@
+﻿Weplay Hand #75301073:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:03:27 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: sadam ($49.79 in chips)
+Seat 3: rossi1616 ($53.88 in chips)
+Seat 4: Nitay44567 ($21.78 in chips)
+Seat 5: SweetieFox ($77.82 in chips)
+Seat 6: kole1992 ($50 in chips)
+SweetieFox: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Jc]
+sadam: folds
+rossi1616: folds
+Nitay44567: folds
+SweetieFox: raises $1.25 to $1.50
+kole1992: folds
+Uncalled bet ($1) returned to SweetieFox
+*** SHOW DOWN ***
+SweetieFox has timed out
+SweetieFox: doesn't show hand
+SweetieFox collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Nitay44567 (button) folded before Flop (didn't bet)
+Seat 5: SweetieFox (small blind) collected ($1)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75301148:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:03:53 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 2: sadam ($49.79 in chips)
+Seat 3: rossi1616 ($53.88 in chips)
+Seat 4: Nitay44567 ($21.78 in chips)
+Seat 5: SweetieFox ($78.32 in chips)
+Seat 6: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Ks]
+rossi1616: folds
+Nitay44567: folds
+SweetieFox: folds
+Nitay44567 leaves the table
+kole1992: folds
+Uncalled bet ($0.25) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: sadam (big blind) collected ($0.50)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Nitay44567 folded before Flop (didn't bet)
+Seat 5: SweetieFox (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75301239:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:04:25 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 2: sadam ($50.04 in chips)
+Seat 3: rossi1616 ($53.88 in chips)
+Seat 5: SweetieFox ($78.32 in chips)
+Seat 6: kole1992 ($50 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 6c]
+SweetieFox: folds
+kole1992: folds
+sadam: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: sadam (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($0.50)
+Seat 5: SweetieFox folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75301281:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:04:43 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: sadam ($49.79 in chips)
+Seat 3: rossi1616 ($54.13 in chips)
+Seat 5: SweetieFox ($78.32 in chips)
+Seat 6: kole1992 ($50 in chips)
+rossi1616: posts small blind $0.25
+SweetieFox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 5d]
+kole1992: folds
+sadam: raises $1.25 to $1.25
+rossi1616: folds
+SweetieFox: folds
+Uncalled bet ($0.75) returned to sadam
+*** SHOW DOWN ***
+SweetieFox leaves the table
+sadam: doesn't show hand
+sadam collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: sadam (button) collected ($1.25)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 5: SweetieFox (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75302356:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:05:08 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: sadam ($50.54 in chips)
+Seat 3: rossi1616 ($53.88 in chips)
+Seat 6: kole1992 ($50 in chips)
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Kd]
+sadam: folds
+rossi1616: folds
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (big blind) collected ($0.50)
+
+
+Weplay Hand #75302380:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:05:18 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 2: sadam ($50.54 in chips)
+Seat 3: rossi1616 ($53.88 in chips)
+Seat 6: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 5h]
+rossi1616: folds
+kole1992: raises $1.25 to $1.50
+sadam: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: sadam (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) collected ($1)
+
+
+Weplay Hand #75302431:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:05:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 2: sadam ($50.04 in chips)
+Seat 3: rossi1616 ($53.88 in chips)
+Seat 6: kole1992 ($50.50 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Js]
+kole1992: raises $1.25 to $1.25
+sadam: folds
+rossi1616: calls $0.75
+*** FLOP *** [Qh 7h Ad]
+rossi1616: checks
+kole1992: bets $3.43
+rossi1616: folds
+Uncalled bet ($3.43) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.06 
+Board [Qh 7h Ad]
+Seat 2: sadam (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded on the Flop 
+Seat 6: kole1992 (button) collected ($2.75)
+
+
+Weplay Hand #75302515:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:06:11 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: sadam ($49.79 in chips)
+Seat 3: rossi1616 ($52.63 in chips)
+Seat 6: kole1992 ($51.94 in chips)
+rossi1616: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Tc]
+sadam: folds
+rossi1616: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected ($0.50)
+
+
+Weplay Hand #75302543:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:06:22 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: sadam ($49.79 in chips)
+Seat 3: rossi1616 ($52.38 in chips)
+Seat 6: kole1992 ($52.19 in chips)
+kole1992: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 3s]
+rossi1616: raises $1.25 to $1.25
+kole1992: folds
+sadam: folds
+Uncalled bet ($0.75) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: sadam (big blind) folded before Flop 
+Seat 3: rossi1616 (button) collected ($1.25)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75302592:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:06:40 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 2: sadam ($49.29 in chips)
+Seat 3: rossi1616 ($53.13 in chips)
+Seat 4: Tone91 ($50 in chips)
+Seat 6: kole1992 ($51.94 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 7d]
+Tone91: checks
+kole1992: folds
+sadam: raises $1 to $1.25
+rossi1616: folds
+Tone91: folds
+Uncalled bet ($0.75) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0 
+Seat 2: sadam (small blind) collected ($1.50)
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded before Flop 
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75302669:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:07:08 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: sadam ($50.29 in chips)
+Seat 3: rossi1616 ($52.63 in chips)
+Seat 4: Tone91 ($50 in chips)
+Seat 6: kole1992 ($51.94 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Qd]
+kole1992: raises $1.10 to $1.10
+sadam: folds
+rossi1616: folds
+Tone91: calls $0.60
+*** FLOP *** [3c 8c Ah]
+Tone91: checks
+kole1992: checks
+*** TURN *** [3c 8c Ah] [9c]
+Tone91: bets $2.74
+kole1992: folds
+Uncalled bet ($2.74) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2.45 from pot
+*** SUMMARY ***
+Total pot $2.45 | Rake $0.12 
+Board [3c 8c Ah 9c]
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) collected ($2.45)
+Seat 6: kole1992 folded on the Turn 
+
+
+Weplay Hand #75302799:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:07:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: sadam ($50.29 in chips)
+Seat 3: rossi1616 ($52.38 in chips)
+Seat 4: Tone91 ($51.23 in chips)
+Seat 6: kole1992 ($50.84 in chips)
+Tone91: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 3d]
+sadam: folds
+rossi1616: folds
+Tone91: raises $1.25 to $1.50
+kole1992: folds
+Uncalled bet ($1) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) collected ($1)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75302849:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:08:17 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: sadam ($50.29 in chips)
+Seat 3: rossi1616 ($52.38 in chips)
+Seat 4: Tone91 ($51.73 in chips)
+Seat 6: kole1992 ($50.34 in chips)
+kole1992: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5d 2c]
+Nislija joins the table at seat #1
+rossi1616: folds
+Tone91: raises $1.25 to $1.25
+kole1992: folds
+sadam: folds
+Uncalled bet ($0.75) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: sadam (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 (button) collected ($1.25)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75302899:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:08:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 2: sadam ($49.79 in chips)
+Seat 3: rossi1616 ($52.38 in chips)
+Seat 4: Tone91 ($52.48 in chips)
+Seat 6: kole1992 ($50.09 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Ts]
+Tone91: folds
+BBanzai74 joins the table at seat #5
+Nislija is disconnected 
+kole1992 has timed out
+kole1992: folds
+sadam: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 2: sadam (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($0.50)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75302968:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:09:06 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 2: sadam ($49.54 in chips)
+Seat 3: rossi1616 ($52.63 in chips)
+Seat 4: Tone91 ($52.48 in chips)
+Seat 5: BBanzai74 ($15 in chips)
+Seat 6: kole1992 ($50.09 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d As]
+BBanzai74: checks
+kole1992: folds
+sadam: folds
+rossi1616: calls $0.25
+Nislija is connected 
+Tone91: raises $2.50 to $3
+BBanzai74: folds
+rossi1616: folds
+Uncalled bet ($2.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0 
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) collected ($1.50)
+Seat 5: BBanzai74 (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75303041:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:09:38 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Nislija ($50 in chips)
+Seat 2: sadam ($49.54 in chips)
+Seat 3: rossi1616 ($52.13 in chips)
+Seat 4: Tone91 ($53.48 in chips)
+Seat 5: BBanzai74 ($14.50 in chips)
+Seat 6: kole1992 ($50.09 in chips)
+Tone91: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Ac]
+kole1992: raises $2 to $2
+Nislija: folds
+sadam: folds
+rossi1616: folds
+Tone91: folds
+BBanzai74: raises $14 to $14.50 and is all-in
+kole1992: calls $12.50
+*** FLOP *** [9c 9d 8h]
+*** TURN *** [9c 9d 8h] [7h]
+*** RIVER *** [9c 9d 8h 7h] [9h]
+*** SHOW DOWN ***
+BBanzai74: shows [Kc Ah] (three of a kind, Nines)
+kole1992: shows [Kh Ac] (three of a kind, Nines)
+BBanzai74 collected $14.88 from pot
+kole1992 collected $14.87 from pot
+*** SUMMARY ***
+Total pot $29.75 | Rake $1.48 
+Board [9c 9d 8h 7h 9h]
+Seat 1: Nislija (big blind) folded before Flop 
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: BBanzai74 (big blind) showed [Kc Ah] and won ($14.88) with three of a kind, Nines
+Seat 6: kole1992 showed [Kh Ac] and won ($14.87) with three of a kind, Nines
+
+
+Weplay Hand #75303163:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:10:27 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Nislija ($49.50 in chips)
+Seat 2: sadam ($49.54 in chips)
+Seat 3: rossi1616 ($52.13 in chips)
+Seat 4: Tone91 ($53.23 in chips)
+Seat 5: BBanzai74 ($14.14 in chips)
+Seat 6: kole1992 ($50 in chips)
+BBanzai74: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 5h]
+Nislija: folds
+sadam: raises $1.25 to $1.25
+rossi1616: folds
+Tone91: folds
+BBanzai74: calls $1
+kole1992: folds
+*** FLOP *** [Jd 4s Ad]
+BBanzai74: checks
+sadam: bets $1.56
+BBanzai74: raises $12.89 to $12.89 and is all-in
+sadam: folds
+Uncalled bet ($11.33) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $6.12 from pot
+*** SUMMARY ***
+Total pot $6.12 | Rake $0.30 
+Board [Jd 4s Ad]
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam folded on the Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: BBanzai74 (small blind) collected ($6.12)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75303300:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:11:27 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Nislija ($49.50 in chips)
+Seat 2: sadam ($46.73 in chips)
+Seat 3: rossi1616 ($52.13 in chips)
+Seat 4: Tone91 ($53.23 in chips)
+Seat 5: BBanzai74 ($17.15 in chips)
+Seat 6: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc Qh]
+sadam: folds
+rossi1616: folds
+Tone91: raises $1.25 to $1.25
+BBanzai74: folds
+kole1992: folds
+Nislija: folds
+Uncalled bet ($0.75) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Nislija (big blind) folded before Flop 
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 collected ($1.25)
+Seat 5: BBanzai74 (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75303343:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:11:46 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Nislija ($49 in chips)
+Seat 2: sadam ($46.73 in chips)
+Seat 3: rossi1616 ($52.13 in chips)
+Seat 4: Tone91 ($53.98 in chips)
+Seat 5: BBanzai74 ($17.15 in chips)
+Seat 6: kole1992 ($50 in chips)
+Nislija: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Ac]
+rossi1616: calls $0.50
+Tone91: folds
+BBanzai74: folds
+kole1992: folds
+Nislija: folds
+sadam: checks
+*** FLOP *** [Js Jd 3c]
+sadam: checks
+rossi1616: checks
+*** TURN *** [Js Jd 3c] [5h]
+sadam: checks
+rossi1616: checks
+*** RIVER *** [Js Jd 3c 5h] [7c]
+sadam: checks
+rossi1616: checks
+*** SHOW DOWN ***
+sadam: shows [6c 8h] (a pair of Jacks)
+rossi1616: shows [5c 4c] (two pair, Jacks and Fives)
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [Js Jd 3c 5h 7c]
+Seat 1: Nislija (small blind) folded before Flop 
+Seat 2: sadam (big blind) showed [6c 8h] and lost with a pair of Jacks
+Seat 3: rossi1616 showed [5c 4c] and won ($1.25) with two pair, Jacks and Fives
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: BBanzai74 folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75303496:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:12:53 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Nislija ($48.75 in chips)
+Seat 2: sadam ($46.23 in chips)
+Seat 3: rossi1616 ($52.82 in chips)
+Seat 4: Tone91 ($53.98 in chips)
+Seat 5: BBanzai74 ($17.15 in chips)
+Seat 6: kole1992 ($50 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 7s]
+Tone91: folds
+BBanzai74: raises $1 to $1
+kole1992: folds
+Nislija: calls $1
+sadam: folds
+rossi1616: folds
+*** FLOP *** [7d 7c Td]
+BBanzai74: checks
+Nislija: checks
+*** TURN *** [7d 7c Td] [3h]
+BBanzai74: bets $1.38
+Nislija: folds
+Uncalled bet ($1.38) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [7d 7c Td 3h]
+Seat 1: Nislija (button) folded on the Turn 
+Seat 2: sadam (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: BBanzai74 collected ($2.75)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75303595:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:13:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Nislija ($47.75 in chips)
+Seat 2: sadam ($45.98 in chips)
+Seat 3: rossi1616 ($52.32 in chips)
+Seat 4: Tone91 ($53.98 in chips)
+Seat 5: BBanzai74 ($18.77 in chips)
+Seat 6: kole1992 ($50 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 6s]
+BBanzai74: folds
+kole1992: folds
+Nislija: folds
+sadam: folds
+rossi1616: calls $0.25
+Tone91: checks
+*** FLOP *** [Ks Kd As]
+rossi1616: checks
+Tone91: checks
+*** TURN *** [Ks Kd As] [4c]
+rossi1616: checks
+Tone91: checks
+*** RIVER *** [Ks Kd As 4c] [3c]
+rossi1616: checks
+Tone91: checks
+*** SHOW DOWN ***
+rossi1616: shows [8h 3h] (two pair, Kings and Threes)
+Tone91 has timed out
+Tone91: mucks hand
+rossi1616 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0.05 
+Board [Ks Kd As 4c 3c]
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) showed [8h 3h] and won ($1) with two pair, Kings and Threes
+Seat 4: Tone91 (big blind) mucked
+Seat 5: BBanzai74 folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75303707:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:14:28 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Nislija ($47.75 in chips)
+Seat 2: sadam ($45.98 in chips)
+Seat 3: rossi1616 ($52.77 in chips)
+Seat 4: Tone91 ($53.48 in chips)
+Seat 5: BBanzai74 ($18.77 in chips)
+Seat 6: kole1992 ($50 in chips)
+Tone91: posts small blind $0.25
+BBanzai74: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 5h]
+kole1992: folds
+Nislija: folds
+sadam: raises $1.25 to $1.25
+rossi1616: folds
+Tone91: folds
+BBanzai74: calls $0.75
+*** FLOP *** [6s Ad 3d]
+BBanzai74: checks
+sadam: bets $1.43
+BBanzai74: folds
+Uncalled bet ($1.43) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [6s Ad 3d]
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam collected ($2.75)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: BBanzai74 (big blind) folded on the Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75303779:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:15:01 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Nislija ($47.75 in chips)
+Seat 2: sadam ($47.35 in chips)
+Seat 3: rossi1616 ($52.77 in chips)
+Seat 4: Tone91 ($53.23 in chips)
+Seat 5: BBanzai74 ($17.52 in chips)
+Seat 6: kole1992 ($50 in chips)
+BBanzai74: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5h]
+Nislija: folds
+sadam: folds
+rossi1616: folds
+Tone91: raises $1.25 to $1.25
+BBanzai74: folds
+kole1992: folds
+Uncalled bet ($0.75) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 (button) collected ($1.25)
+Seat 5: BBanzai74 (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75303836:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:15:30 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Nislija ($47.75 in chips)
+Seat 2: sadam ($47.35 in chips)
+Seat 3: rossi1616 ($52.77 in chips)
+Seat 4: Tone91 ($53.98 in chips)
+Seat 5: BBanzai74 ($17.27 in chips)
+Seat 6: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 8s]
+sadam: folds
+rossi1616: folds
+Tone91: folds
+BBanzai74: raises $1 to $1
+kole1992: folds
+Nislija: calls $0.50
+*** FLOP *** [Ad 4s 8h]
+Nislija: checks
+BBanzai74: bets $1.13
+Nislija: folds
+Uncalled bet ($1.13) returned to BBanzai74
+*** SHOW DOWN ***
+BBanzai74: doesn't show hand
+BBanzai74 collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0.11 
+Board [Ad 4s 8h]
+Seat 1: Nislija (big blind) folded on the Flop 
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: BBanzai74 (button) collected ($2.25)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75303915:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:16:08 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Nislija ($46.75 in chips)
+Seat 2: sadam ($47.35 in chips)
+Seat 3: rossi1616 ($52.77 in chips)
+Seat 4: Tone91 ($53.98 in chips)
+Seat 5: BBanzai74 ($18.41 in chips)
+Seat 6: kole1992 ($50 in chips)
+Nislija: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Ac]
+rossi1616: folds
+Tone91: folds
+BBanzai74: folds
+kole1992: raises $1.25 to $1.25
+Nislija: folds
+sadam: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Nislija (small blind) folded before Flop 
+Seat 2: sadam (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: BBanzai74 folded before Flop (didn't bet)
+Seat 6: kole1992 (button) collected ($1.25)
+
+
+Weplay Hand #75303951:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:16:29 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Nislija ($46.50 in chips)
+Seat 2: sadam ($46.85 in chips)
+Seat 3: rossi1616 ($52.77 in chips)
+Seat 4: Tone91 ($53.98 in chips)
+Seat 5: BBanzai74 ($18.41 in chips)
+Seat 6: kole1992 ($50.75 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Kd]
+Tone91: folds
+BBanzai74: folds
+kole1992: folds
+Nislija: calls $0.50
+sadam: raises $2.50 to $2.75
+rossi1616: folds
+Nislija: folds
+Uncalled bet ($2.25) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0 
+Seat 1: Nislija (button) folded before Flop 
+Seat 2: sadam (small blind) collected ($1.50)
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: BBanzai74 folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75304023:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:17:12 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Nislija ($46 in chips)
+Seat 2: sadam ($47.85 in chips)
+Seat 3: rossi1616 ($52.27 in chips)
+Seat 4: Tone91 ($53.98 in chips)
+Seat 6: kole1992 ($50.75 in chips)
+rossi1616: posts small blind $0.25
+BBanzai74 leaves the table
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Ac]
+MaxRox joins the table at seat #5
+kole1992: raises $1.10 to $1.10
+Nislija: calls $1.10
+sadam: folds
+rossi1616 has timed out
+rossi1616: folds
+rossi1616: sits out 
+Tone91: folds
+*** FLOP *** [Th 3d 2d]
+kole1992: checks
+Nislija: checks
+*** TURN *** [Th 3d 2d] [5s]
+kole1992: checks
+Nislija: checks
+*** RIVER *** [Th 3d 2d 5s] [7d]
+kole1992: checks
+Nislija: checks
+*** SHOW DOWN ***
+kole1992: shows [Jd Ac] (high card Ace)
+Nislija: shows [Jc Ad] (high card Ace)
+Nislija collected $1.47 from pot
+kole1992 collected $1.48 from pot
+*** SUMMARY ***
+Total pot $2.95 | Rake $0.14 
+Board [Th 3d 2d 5s 7d]
+Seat 1: Nislija showed [Jc Ad] and won ($1.47) with high card Ace
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded before Flop 
+Seat 6: kole1992 showed [Jd Ac] and won ($1.48) with high card Ace
+
+
+Weplay Hand #75304200:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:18:50 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Nislija ($46.30 in chips)
+Seat 2: sadam ($47.85 in chips)
+Seat 3: rossi1616 ($52.02 in chips)
+Seat 4: Tone91 ($53.48 in chips)
+Seat 5: MaxRox ($50 in chips)
+Seat 6: kole1992 ($51.06 in chips)
+Tone91: posts small blind $0.25
+MaxRox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 9h]
+kole1992: folds
+Nislija: folds
+sadam: raises $1.25 to $1.25
+rossi1616: folds
+Tone91: folds
+MaxRox: folds
+Uncalled bet ($0.75) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam collected ($1.25)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: MaxRox (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75304242:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:19:21 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Nislija ($46.30 in chips)
+Seat 2: sadam ($48.60 in chips)
+Seat 3: rossi1616 ($52.02 in chips)
+Seat 4: Tone91 ($53.23 in chips)
+Seat 5: MaxRox ($50 in chips)
+Seat 6: kole1992 ($51.06 in chips)
+MaxRox: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Th]
+Nislija: raises $1.50 to $1.50
+sadam: folds
+rossi1616: folds
+Tone91: folds
+MaxRox: folds
+kole1992: folds
+Uncalled bet ($1) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Nislija collected ($1.25)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: MaxRox (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75304277:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:19:46 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Nislija ($47.05 in chips)
+Seat 2: sadam ($48.60 in chips)
+Seat 3: rossi1616 ($52.02 in chips)
+Seat 4: Tone91 ($53.23 in chips)
+Seat 5: MaxRox ($50 in chips)
+Seat 6: kole1992 ($50.56 in chips)
+kole1992: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 2c]
+sadam: folds
+rossi1616: folds
+Tone91: folds
+MaxRox: folds
+kole1992: folds
+Uncalled bet ($0.25) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Nislija (big blind) collected ($0.50)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: MaxRox (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75304299:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:19:59 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Nislija ($47.30 in chips)
+Seat 2: sadam ($48.60 in chips)
+Seat 3: rossi1616 ($52.02 in chips)
+Seat 4: Tone91 ($53.23 in chips)
+Seat 5: MaxRox ($50 in chips)
+Seat 6: kole1992 ($50.31 in chips)
+Nislija: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 3s]
+rossi1616: folds
+Tone91: folds
+MaxRox: raises $1.50 to $1.50
+kole1992: folds
+Nislija: calls $1.25
+sadam: folds
+*** FLOP *** [Jc 2s 4s]
+Nislija: checks
+MaxRox: bets $1.75
+Nislija: calls $1.75
+*** TURN *** [Jc 2s 4s] [Kc]
+Nislija: checks
+MaxRox: bets $3.50
+Nislija: folds
+Uncalled bet ($3.50) returned to MaxRox
+*** SHOW DOWN ***
+MaxRox: doesn't show hand
+MaxRox collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [Jc 2s 4s Kc]
+Seat 1: Nislija (small blind) folded on the Turn 
+Seat 2: sadam (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: MaxRox collected ($7)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75305375:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:20:50 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Nislija ($44.05 in chips)
+Seat 2: sadam ($48.10 in chips)
+Seat 3: rossi1616 ($52.02 in chips)
+Seat 4: Tone91 ($53.23 in chips)
+Seat 5: MaxRox ($53.40 in chips)
+Seat 6: kole1992 ($50.31 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 2d]
+Tone91: folds
+MaxRox: folds
+kole1992: folds
+Nislija: folds
+sadam: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Nislija (button) folded before Flop (didn't bet)
+Seat 2: sadam (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($0.50)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: MaxRox folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75305392:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:21:07 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Nislija ($44.05 in chips)
+Seat 2: sadam ($47.85 in chips)
+Seat 3: rossi1616 ($52.27 in chips)
+Seat 4: Tone91 ($53.23 in chips)
+Seat 5: MaxRox ($53.40 in chips)
+Seat 6: kole1992 ($50.31 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 8c]
+MaxRox: folds
+kole1992: folds
+Nislija: calls $0.50
+sadam: folds
+rossi1616: calls $0.25
+Tone91: raises $2.50 to $3
+Nislija: calls $2.50
+rossi1616: folds
+*** FLOP *** [4d Ks Ad]
+Tone91: bets $4.35
+Nislija: calls $4.35
+*** TURN *** [4d Ks Ad] [Kh]
+Tone91: bets $6.08
+Nislija: calls $6.08
+*** RIVER *** [4d Ks Ad Kh] [Js]
+Tone91: checks
+Nislija: bets $2
+Tone91: calls $2
+*** SHOW DOWN ***
+Nislija: shows [Kd 5d] (three of a kind, Kings)
+Tone91 has timed out
+Tone91: mucks hand
+Nislija collected $31.36 from pot
+*** SUMMARY ***
+Total pot $31.36 | Rake $1.56 
+Board [4d Ks Ad Kh Js]
+Seat 1: Nislija showed [Kd 5d] and won ($31.36) with three of a kind, Kings
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) mucked
+Seat 5: MaxRox folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75305542:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:23:06 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Nislija ($58.42 in chips)
+Seat 2: sadam ($47.85 in chips)
+Seat 3: rossi1616 ($51.77 in chips)
+Seat 4: Tone91 ($50 in chips)
+Seat 5: MaxRox ($53.40 in chips)
+Seat 6: kole1992 ($50.31 in chips)
+Tone91: posts small blind $0.25
+MaxRox: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Jc]
+kole1992: folds
+Nislija: folds
+sadam: folds
+rossi1616: raises $1 to $1
+Tone91: folds
+MaxRox: folds
+Uncalled bet ($0.50) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) collected ($1.25)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: MaxRox (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75305574:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:23:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Nislija ($58.42 in chips)
+Seat 2: sadam ($47.85 in chips)
+Seat 3: rossi1616 ($52.52 in chips)
+Seat 4: Tone91 ($50 in chips)
+Seat 5: MaxRox ($52.90 in chips)
+Seat 6: kole1992 ($50.31 in chips)
+MaxRox: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Ad]
+Nislija: raises $1.50 to $1.50
+sadam: folds
+rossi1616 has timed out
+rossi1616: folds
+Tone91: folds
+MaxRox: raises $5.75 to $6
+kole1992: folds
+Nislija: calls $4.50
+*** FLOP *** [4c 8c Ac]
+MaxRox: bets $4.15
+Nislija: calls $4.15
+*** TURN *** [4c 8c Ac] [9c]
+MaxRox: bets $7.10
+Nislija: calls $7.10
+*** RIVER *** [4c 8c Ac 9c] [Jh]
+MaxRox: bets $12.30
+Nislija: calls $12.30
+*** SHOW DOWN ***
+MaxRox: shows [As Qc] (a flush, Ace high)
+Nislija has timed out
+Nislija: mucks hand
+MaxRox collected $59.60 from pot
+*** SUMMARY ***
+Total pot $59.60 | Rake $2.98 
+Board [4c 8c Ac 9c Jh]
+Seat 1: Nislija mucked
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: MaxRox (small blind) showed [As Qc] and won ($59.60) with a flush, Ace high
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75305648:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:24:45 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Nislija ($28.87 in chips)
+Seat 2: sadam ($47.85 in chips)
+Seat 3: rossi1616 ($52.52 in chips)
+Seat 4: Tone91 ($50 in chips)
+Seat 5: MaxRox ($79.97 in chips)
+Seat 6: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 4d]
+sadam: folds
+rossi1616: folds
+Tone91: folds
+MaxRox: raises $1 to $1
+kole1992: folds
+Nislija: raises $2 to $2.50
+MaxRox: folds
+Uncalled bet ($1.50) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $2.25 from pot
+*** SUMMARY ***
+Total pot $2.25 | Rake $0 
+Seat 1: Nislija (big blind) collected ($2.25)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: MaxRox (button) folded before Flop 
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75305677:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:25:13 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Nislija ($30.12 in chips)
+Seat 2: sadam ($47.85 in chips)
+Seat 3: rossi1616 ($52.52 in chips)
+Seat 4: Tone91 ($50 in chips)
+Seat 5: MaxRox ($78.97 in chips)
+Seat 6: kole1992 ($50 in chips)
+Nislija: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Jh]
+rossi1616: raises $1.25 to $1.25
+Tone91: raises $3.75 to $3.75
+MaxRox: folds
+kole1992: folds
+Nislija: folds
+sadam: folds
+rossi1616: folds
+Uncalled bet ($2.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: Nislija (small blind) folded before Flop 
+Seat 2: sadam (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop 
+Seat 4: Tone91 collected ($3.25)
+Seat 5: MaxRox folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75305705:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:25:42 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Nislija ($29.87 in chips)
+Seat 2: sadam ($47.35 in chips)
+Seat 3: rossi1616 ($51.27 in chips)
+Seat 4: Tone91 ($52 in chips)
+Seat 5: MaxRox ($78.97 in chips)
+Seat 6: kole1992 ($50 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 8d]
+Tone91: folds
+MaxRox: folds
+kole1992: folds
+Nislija: folds
+sadam: raises $1 to $1.25
+rossi1616: raises $3.25 to $3.75
+sadam: calls $2.50
+*** FLOP *** [Ks As 4h]
+sadam: checks
+rossi1616: checks
+*** TURN *** [Ks As 4h] [3d]
+sadam: checks
+rossi1616: checks
+*** RIVER *** [Ks As 4h 3d] [Th]
+sadam: bets $5.70
+rossi1616: folds
+Uncalled bet ($5.70) returned to sadam
+*** SHOW DOWN ***
+sadam: doesn't show hand
+sadam collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [Ks As 4h 3d Th]
+Seat 1: Nislija (button) folded before Flop (didn't bet)
+Seat 2: sadam (small blind) collected ($7.50)
+Seat 3: rossi1616 (big blind) folded on the River 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: MaxRox folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75305749:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:26:38 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Nislija ($29.87 in chips)
+Seat 2: sadam ($50.73 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($52 in chips)
+Seat 5: MaxRox ($78.97 in chips)
+Seat 6: kole1992 ($50 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 4s]
+MaxRox: folds
+MaxRox leaves the table
+kole1992: folds
+Nislija: calls $0.50
+sadam: folds
+rossi1616: calls $0.25
+Tone91: checks
+*** FLOP *** [Ts 6s Js]
+rossi1616: checks
+Tone91: checks
+Nislija: checks
+*** TURN *** [Ts 6s Js] [Td]
+rossi1616: checks
+Tone91: checks
+Nislija: checks
+*** RIVER *** [Ts 6s Js Td] [2d]
+rossi1616: checks
+Tone91: checks
+Nislija: checks
+*** SHOW DOWN ***
+rossi1616: shows [5h 4h] (a pair of Tens)
+Tone91: shows [Kh 3s] (a pair of Tens)
+Nislija: shows [8d Kd] (a pair of Tens)
+Nislija collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [Ts 6s Js Td 2d]
+Seat 1: Nislija showed [8d Kd] and won ($1.50) with a pair of Tens
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) showed [5h 4h] and lost with a pair of Tens
+Seat 4: Tone91 (big blind) showed [Kh 3s] and lost with a pair of Tens
+Seat 5: MaxRox folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75305810:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:27:37 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Nislija ($30.80 in chips)
+Seat 2: sadam ($50.73 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($51.50 in chips)
+Seat 6: kole1992 ($50 in chips)
+Tone91: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs Kh]
+Nislija: calls $0.50
+sadam: folds
+rossi1616 has timed out
+rossi1616: folds
+Tone91: folds
+kole1992: checks
+*** FLOP *** [8s 9d Js]
+kole1992: checks
+Nislija: bets $1.50
+kole1992: calls $1.50
+*** TURN *** [8s 9d Js] [6d]
+kole1992: checks
+Nislija: bets $1.50
+kole1992: calls $1.50
+*** RIVER *** [8s 9d Js 6d] [3c]
+kole1992: checks
+Nislija: bets $3
+kole1992: folds
+Uncalled bet ($3) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $7.25 from pot
+*** SUMMARY ***
+Total pot $7.25 | Rake $0.36 
+Board [8s 9d Js 6d 3c]
+Seat 1: Nislija collected ($7.25)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop (didn't bet)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded on the River 
+
+
+Weplay Hand #75305910:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:29:45 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Nislija ($34.19 in chips)
+Seat 2: sadam ($50.73 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($51.25 in chips)
+Seat 6: kole1992 ($50 in chips)
+kole1992: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 3d]
+sadam: folds
+rossi1616: raises $1.25 to $1.25
+Tone91: folds
+kole1992: folds
+Nislija: calls $0.75
+*** FLOP *** [Kh 9h As]
+Nislija: checks
+rossi1616: checks
+*** TURN *** [Kh 9h As] [6c]
+Nislija: checks
+rossi1616: checks
+*** RIVER *** [Kh 9h As 6c] [Qd]
+Nislija: bets $1.50
+rossi1616: folds
+Uncalled bet ($1.50) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Kh 9h As 6c Qd]
+Seat 1: Nislija (big blind) collected ($2.75)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded on the River 
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75305957:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:30:46 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Nislija ($35.56 in chips)
+Seat 2: sadam ($50.73 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($51.25 in chips)
+Seat 6: kole1992 ($50 in chips)
+Nislija: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 3d]
+rossi1616 has timed out
+rossi1616: folds
+Tone91: raises $1.25 to $1.25
+kole1992: folds
+Nislija: folds
+sadam: calls $0.75
+*** FLOP *** [Tc 4c 7d]
+sadam: checks
+Tone91: bets $1.84
+sadam: folds
+Uncalled bet ($1.84) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [Tc 4c 7d]
+Seat 1: Nislija (small blind) folded before Flop 
+Seat 2: sadam (big blind) folded on the Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 collected ($2.75)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75306001:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:31:32 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Nislija ($35.31 in chips)
+Seat 2: sadam ($49.48 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($52.62 in chips)
+Seat 6: kole1992 ($50 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 9h]
+Tone91: folds
+kole1992: folds
+Nislija: raises $2 to $2
+sadam: folds
+rossi1616: folds
+Uncalled bet ($1.50) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Nislija (button) collected ($1.25)
+Seat 2: sadam (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75306018:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:31:56 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Nislija ($36.06 in chips)
+Seat 2: sadam ($49.23 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($52.62 in chips)
+Seat 6: kole1992 ($50 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 8h]
+kole1992: raises $1.10 to $1.10
+Nislija: folds
+sadam: folds
+rossi1616: folds
+Tone91: calls $0.60
+*** FLOP *** [9c Tc 9h]
+Tone91: checks
+kole1992: bets $1.50
+Tone91: raises $3.75 to $3.75
+kole1992: calls $2.25
+*** TURN *** [9c Tc 9h] [4c]
+Tone91: checks
+kole1992: checks
+*** RIVER *** [9c Tc 9h 4c] [3c]
+Tone91: checks
+kole1992: bets $4.75
+Tone91: folds
+Uncalled bet ($4.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $9.95 from pot
+*** SUMMARY ***
+Total pot $9.95 | Rake $0.49 
+Board [9c Tc 9h 4c 3c]
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded on the River 
+Seat 6: kole1992 collected ($9.95)
+
+
+Weplay Hand #75306094:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:33:38 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Nislija ($36.06 in chips)
+Seat 2: sadam ($49.23 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($50 in chips)
+Seat 6: kole1992 ($54.61 in chips)
+Tone91: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9h]
+Nislija: folds
+sadam: folds
+rossi1616: raises $1.25 to $1.25
+Tone91: raises $4.75 to $5
+kole1992: folds
+rossi1616: folds
+Uncalled bet ($3.75) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) folded before Flop 
+Seat 4: Tone91 (small blind) collected ($3)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75306113:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:34:07 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Nislija ($36.06 in chips)
+Seat 2: sadam ($49.23 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($51.75 in chips)
+Seat 6: kole1992 ($54.11 in chips)
+kole1992: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 2s]
+sadam has timed out
+sadam: folds
+rossi1616: raises $1.50 to $1.50
+Tone91: folds
+kole1992: folds
+Nislija: calls $1
+*** FLOP *** [Jd 9s Js]
+Nislija: checks
+rossi1616: bets $2.16
+Nislija: calls $2.16
+*** TURN *** [Jd 9s Js] [Th]
+Nislija: checks
+rossi1616: checks
+*** RIVER *** [Jd 9s Js Th] [6s]
+Nislija: bets $4.50
+rossi1616: folds
+Uncalled bet ($4.50) returned to Nislija
+*** SHOW DOWN ***
+Nislija: shows [Kd Qc] (a straight, Nine to King)
+Nislija collected $7.57 from pot
+*** SUMMARY ***
+Total pot $7.57 | Rake $0.37 
+Board [Jd 9s Js Th 6s]
+Seat 1: Nislija (big blind) collected ($7.57)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded on the River 
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75306159:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:35:09 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Nislija ($39.60 in chips)
+Seat 2: sadam ($49.23 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($51.75 in chips)
+Seat 6: kole1992 ($53.86 in chips)
+Nislija: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 9s]
+rossi1616 has timed out
+rossi1616: folds
+Tone91: folds
+kole1992: raises $1.25 to $1.25
+Nislija: folds
+sadam: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Nislija (small blind) folded before Flop 
+Seat 2: sadam (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 6: kole1992 (button) collected ($1.25)
+
+
+Weplay Hand #75306184:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:35:42 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Nislija ($39.35 in chips)
+Seat 2: sadam ($48.73 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($51.75 in chips)
+Seat 6: kole1992 ($54.61 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 5c]
+Tone91: folds
+kole1992: folds
+Nislija: folds
+sadam: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Nislija (button) folded before Flop (didn't bet)
+Seat 2: sadam (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($0.50)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75306196:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:35:53 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Nislija ($39.35 in chips)
+Seat 2: sadam ($48.48 in chips)
+Seat 3: rossi1616 ($50.25 in chips)
+Seat 4: Tone91 ($51.75 in chips)
+Seat 6: kole1992 ($54.61 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Qh]
+kole1992: folds
+Nislija: folds
+sadam: folds
+rossi1616: raises $1.25 to $1.50
+Tone91: calls $1
+*** FLOP *** [Qs 6d Qc]
+rossi1616: checks
+Tone91: bets $0.75
+rossi1616: folds
+Uncalled bet ($0.75) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Qs 6d Qc]
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded on the Flop 
+Seat 4: Tone91 (big blind) collected ($3)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75306224:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:36:29 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 2: sadam ($48.48 in chips)
+Seat 3: rossi1616 ($50 in chips)
+Seat 4: Tone91 ($53.10 in chips)
+Seat 6: kole1992 ($54.61 in chips)
+Tone91: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Ad]
+sadam: folds
+rossi1616: raises $1.50 to $1.50
+Tone91: folds
+Nislija is connected 
+kole1992: folds
+Uncalled bet ($1) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) collected ($1.25)
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75306251:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:37:03 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Nislija ($39.35 in chips)
+Seat 2: sadam ($48.48 in chips)
+Seat 3: rossi1616 ($50.75 in chips)
+Seat 4: Tone91 ($52.85 in chips)
+Seat 6: kole1992 ($54.11 in chips)
+kole1992: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 6h]
+sadam: folds
+rossi1616: folds
+Tone91: raises $1.25 to $1.25
+kole1992: folds
+Nislija: calls $0.75
+*** FLOP *** [Jh 5c 2d]
+Nislija: checks
+Tone91: bets $1.10
+Nislija: calls $1.10
+*** TURN *** [Jh 5c 2d] [Jd]
+Nislija: checks
+Tone91: checks
+*** RIVER *** [Jh 5c 2d Jd] [7s]
+Nislija: bets $1.50
+Tone91: calls $1.50
+*** SHOW DOWN ***
+Nislija: shows [Ah 2h] (two pair, Jacks and Deuces)
+Tone91: shows [Qs Qd] (two pair, Queens and Jacks)
+Tone91 collected $7.95 from pot
+*** SUMMARY ***
+Total pot $7.95 | Rake $0.39 
+Board [Jh 5c 2d Jd 7s]
+Seat 1: Nislija (big blind) showed [Ah 2h] and lost with two pair, Jacks and Deuces
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 (button) showed [Qs Qd] and won ($7.95) with two pair, Queens and Jacks
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75306290:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:38:02 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Nislija ($35.50 in chips)
+Seat 2: sadam ($48.48 in chips)
+Seat 3: rossi1616 ($50.75 in chips)
+Seat 4: Tone91 ($56.56 in chips)
+Seat 6: kole1992 ($53.86 in chips)
+Nislija: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Kd]
+rossi1616: folds
+Tone91: folds
+kole1992: raises $1.25 to $1.25
+Nislija: calls $1
+sadam: folds
+*** FLOP *** [9h 8c 4s]
+Nislija: bets $1
+kole1992: raises $3.90 to $3.90
+Nislija: calls $2.90
+*** TURN *** [9h 8c 4s] [Ks]
+Nislija: checks
+kole1992: bets $9.50
+Nislija: calls $9.50
+*** RIVER *** [9h 8c 4s Ks] [Ah]
+Nislija: checks
+kole1992: checks
+*** SHOW DOWN ***
+Nislija: shows [Th Jd] (high card Ace)
+kole1992: shows [Qc Kd] (a pair of Kings)
+kole1992 collected $29.80 from pot
+*** SUMMARY ***
+Total pot $29.80 | Rake $1.49 
+Board [9h 8c 4s Ks Ah]
+Seat 1: Nislija (small blind) showed [Th Jd] and lost with high card Ace
+Seat 2: sadam (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 6: kole1992 (button) showed [Qc Kd] and won ($29.80) with a pair of Kings
+
+
+Weplay Hand #75307342:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:39:06 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Nislija ($20.85 in chips)
+Seat 2: sadam ($47.98 in chips)
+Seat 3: rossi1616 ($50.75 in chips)
+Seat 4: Tone91 ($56.56 in chips)
+Seat 6: kole1992 ($67.52 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 8c]
+Tone91: folds
+kole1992: folds
+Nislija: folds
+sadam: folds
+Uncalled bet ($0.25) returned to rossi1616
+*** SHOW DOWN ***
+rossi1616: doesn't show hand
+rossi1616 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: Nislija (button) folded before Flop (didn't bet)
+Seat 2: sadam (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) collected ($0.50)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75307357:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:39:22 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Nislija ($20.85 in chips)
+Seat 2: sadam ($47.73 in chips)
+Seat 3: rossi1616 ($51 in chips)
+Seat 4: Tone91 ($56.56 in chips)
+Seat 6: kole1992 ($67.52 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Ad]
+kole1992: raises $1.10 to $1.10
+Nislija: folds
+sadam: folds
+rossi1616: folds
+Tone91: calls $0.60
+*** FLOP *** [Th 9d 5h]
+Dimling joins the table at seat #5
+Tone91: checks
+kole1992: bets $2.06
+Tone91: folds
+Uncalled bet ($2.06) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.45 from pot
+*** SUMMARY ***
+Total pot $2.45 | Rake $0.12 
+Board [Th 9d 5h]
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded on the Flop 
+Seat 6: kole1992 collected ($2.45)
+
+
+Weplay Hand #75307403:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:40:23 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Nislija ($20.85 in chips)
+Seat 2: sadam ($47.73 in chips)
+Seat 3: rossi1616 ($50.75 in chips)
+Seat 4: Tone91 ($55.46 in chips)
+Seat 5: Dimling ($26 in chips)
+Seat 6: kole1992 ($68.75 in chips)
+Tone91: posts small blind $0.25
+Dimling: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 8c]
+kole1992: folds
+Nislija: raises $1.50 to $1.50
+sadam: folds
+rossi1616: calls $1.50
+Tone91: folds
+Dimling: folds
+*** FLOP *** [9d Jd Ac]
+Nislija: checks
+rossi1616: bets $2.81
+Nislija: calls $2.81
+*** TURN *** [9d Jd Ac] [Kc]
+Nislija: checks
+rossi1616: bets $7.02
+Nislija: raises $16.54 to $16.54 and is all-in
+rossi1616: calls $9.52
+*** RIVER *** [9d Jd Ac Kc] [8h]
+*** SHOW DOWN ***
+Nislija: shows [7c Ad] (a pair of Aces)
+rossi1616: shows [Qd Td] (a straight, Ten to Ace)
+rossi1616 collected $42.45 from pot
+*** SUMMARY ***
+Total pot $42.45 | Rake $2.12 
+Board [9d Jd Ac Kc 8h]
+Seat 1: Nislija showed [7c Ad] and lost with a pair of Aces
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) showed [Qd Td] and won ($42.45) with a straight, Ten to Ace
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: Dimling (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75307438:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:41:12 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 2: sadam ($47.73 in chips)
+Seat 3: rossi1616 ($70.23 in chips)
+Seat 4: Tone91 ($55.21 in chips)
+Seat 5: Dimling ($25.50 in chips)
+Seat 6: kole1992 ($68.75 in chips)
+Dimling: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Qs]
+sadam: folds
+rossi1616: folds
+Tone91: folds
+Dimling: raises $0.75 to $1
+kole1992: folds
+Uncalled bet ($0.50) returned to Dimling
+*** SHOW DOWN ***
+Dimling has timed out
+Dimling: doesn't show hand
+Dimling collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: Dimling (small blind) collected ($1)
+Seat 6: kole1992 (big blind) folded before Flop 
+
+
+Weplay Hand #75307470:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:41:58 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Nislija ($50 in chips)
+Seat 2: sadam ($47.73 in chips)
+Seat 3: rossi1616 ($70.23 in chips)
+Seat 4: Tone91 ($55.21 in chips)
+Seat 5: Dimling ($26 in chips)
+Seat 6: kole1992 ($68.25 in chips)
+kole1992: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 7d]
+sadam: raises $1.25 to $1.25
+rossi1616: folds
+Tone91: raises $3.75 to $3.75
+Dimling: folds
+kole1992: folds
+Nislija: calls $3.25
+sadam: calls $2.50
+*** FLOP *** [9d Ks Jc]
+Nislija: checks
+sadam: checks
+Tone91: bets $4.60
+Nislija: folds
+sadam: calls $4.60
+*** TURN *** [9d Ks Jc] [Tc]
+sadam: checks
+Tone91: checks
+*** RIVER *** [9d Ks Jc Tc] [Qd]
+sadam: checks
+Tone91: bets $8.28
+sadam: folds
+Uncalled bet ($8.28) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $20.70 from pot
+*** SUMMARY ***
+Total pot $20.70 | Rake $1.03 
+Board [9d Ks Jc Tc Qd]
+Seat 1: Nislija (big blind) folded on the Flop 
+Seat 2: sadam folded on the River 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 collected ($20.70)
+Seat 5: Dimling (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75307524:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:43:15 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Nislija ($46.25 in chips)
+Seat 2: sadam ($50 in chips)
+Seat 3: rossi1616 ($70.23 in chips)
+Seat 4: Tone91 ($66.53 in chips)
+Seat 5: Dimling ($26 in chips)
+Seat 6: kole1992 ($68 in chips)
+Nislija: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Ah]
+rossi1616: folds
+Tone91: folds
+Dimling: folds
+kole1992: raises $1.25 to $1.25
+Nislija: folds
+sadam: folds
+Uncalled bet ($0.75) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: Nislija (small blind) folded before Flop 
+Seat 2: sadam (big blind) folded before Flop 
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Dimling folded before Flop (didn't bet)
+Seat 6: kole1992 (button) collected ($1.25)
+
+
+Weplay Hand #75307546:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:43:50 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Nislija ($46 in chips)
+Seat 2: sadam ($49.50 in chips)
+Seat 3: rossi1616 ($70.23 in chips)
+Seat 4: Tone91 ($66.53 in chips)
+Seat 5: Dimling ($26 in chips)
+Seat 6: kole1992 ($68.75 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 8c]
+Tone91: folds
+Dimling: calls $0.50
+kole1992: folds
+Nislija: folds
+sadam: raises $1 to $1.25
+rossi1616: folds
+Dimling: calls $0.75
+*** FLOP *** [Ts 9c Th]
+sadam: checks
+Dimling: checks
+*** TURN *** [Ts 9c Th] [5d]
+sadam: checks
+Dimling: bets $0.50
+sadam: calls $0.50
+*** RIVER *** [Ts 9c Th 5d] [9s]
+sadam: checks
+Dimling: bets $2
+sadam: folds
+Uncalled bet ($2) returned to Dimling
+*** SHOW DOWN ***
+Dimling has timed out
+Dimling: doesn't show hand
+Dimling collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [Ts 9c Th 5d 9s]
+Seat 1: Nislija (button) folded before Flop (didn't bet)
+Seat 2: sadam (small blind) folded on the River 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Dimling collected ($4)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75307583:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:44:45 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Nislija ($46 in chips)
+Seat 2: sadam ($47.75 in chips)
+Seat 3: rossi1616 ($69.73 in chips)
+Seat 4: Tone91 ($66.53 in chips)
+Seat 5: Dimling ($28.05 in chips)
+Seat 6: kole1992 ($68.75 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Js]
+Dimling: folds
+kole1992: folds
+Nislija: calls $0.50
+sadam: folds
+rossi1616: folds
+Tone91: checks
+*** FLOP *** [Ts 8h 4c]
+Tone91: bets $0.50
+Nislija: raises $2 to $2
+Tone91: calls $1.50
+*** TURN *** [Ts 8h 4c] [7d]
+Tone91: checks
+Nislija: bets $2.50
+Tone91: folds
+Uncalled bet ($2.50) returned to Nislija
+*** SHOW DOWN ***
+Nislija has timed out
+Nislija: doesn't show hand
+Nislija collected $5.25 from pot
+*** SUMMARY ***
+Total pot $5.25 | Rake $0.26 
+Board [Ts 8h 4c 7d]
+Seat 1: Nislija collected ($5.25)
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded on the Turn 
+Seat 5: Dimling folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75307610:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:45:29 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Nislija ($48.49 in chips)
+Seat 2: sadam ($47.75 in chips)
+Seat 3: rossi1616 ($69.48 in chips)
+Seat 4: Tone91 ($64.03 in chips)
+Seat 5: Dimling ($28.05 in chips)
+Seat 6: kole1992 ($68.75 in chips)
+Tone91: posts small blind $0.25
+Dimling: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 4s]
+kole1992: folds
+Nislija: folds
+sadam: folds
+rossi1616: raises $1.25 to $1.25
+Tone91: folds
+Dimling: calls $0.75
+*** FLOP *** [Tc 8c 6h]
+Dimling: checks
+rossi1616: bets $1.83
+Dimling: calls $1.83
+*** TURN *** [Tc 8c 6h] [2c]
+Dimling: checks
+rossi1616: checks
+*** RIVER *** [Tc 8c 6h 2c] [Jh]
+Dimling: checks
+rossi1616: checks
+*** SHOW DOWN ***
+Dimling: shows [Jc Qs] (a pair of Jacks)
+rossi1616: mucks hand
+Dimling collected $6.41 from pot
+*** SUMMARY ***
+Total pot $6.41 | Rake $0.32 
+Board [Tc 8c 6h 2c Jh]
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 (button) mucked
+Seat 4: Tone91 (small blind) folded before Flop 
+Seat 5: Dimling (big blind) showed [Jc Qs] and won ($6.41) with a pair of Jacks
+Seat 6: kole1992 folded before Flop (didn't bet)
+
+
+Weplay Hand #75307638:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:46:11 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Nislija ($48.49 in chips)
+Seat 2: sadam ($47.75 in chips)
+Seat 3: rossi1616 ($66.40 in chips)
+Seat 4: Tone91 ($63.78 in chips)
+Seat 5: Dimling ($31.06 in chips)
+Seat 6: kole1992 ($68.75 in chips)
+Dimling: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 8c]
+Nislija: folds
+sadam: folds
+rossi1616: folds
+Tone91: folds
+Dimling: raises $0.75 to $1
+kole1992: calls $0.50
+*** FLOP *** [Th 9c Kc]
+Dimling: checks
+kole1992: checks
+*** TURN *** [Th 9c Kc] [7h]
+Dimling: checks
+kole1992: checks
+*** RIVER *** [Th 9c Kc 7h] [2c]
+Dimling: checks
+kole1992: bets $1
+Dimling: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0.10 
+Board [Th 9c Kc 7h 2c]
+Seat 1: Nislija folded before Flop (didn't bet)
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 (button) folded before Flop (didn't bet)
+Seat 5: Dimling (small blind) folded on the River 
+Seat 6: kole1992 (big blind) collected ($2)
+
+
+Weplay Hand #75307681:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:47:18 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Nislija ($48.49 in chips)
+Seat 2: sadam ($47.75 in chips)
+Seat 3: rossi1616 ($66.40 in chips)
+Seat 4: Tone91 ($63.78 in chips)
+Seat 5: Dimling ($30.06 in chips)
+Seat 6: kole1992 ($69.65 in chips)
+kole1992: posts small blind $0.25
+Nislija: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 2c]
+sadam: folds
+rossi1616: raises $1.25 to $1.25
+Tone91: raises $3.75 to $3.75
+Dimling: folds
+kole1992: folds
+Nislija: folds
+rossi1616: folds
+Uncalled bet ($2.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0 
+Seat 1: Nislija (big blind) folded before Flop 
+Seat 2: sadam folded before Flop (didn't bet)
+Seat 3: rossi1616 folded before Flop 
+Seat 4: Tone91 collected ($3.25)
+Seat 5: Dimling (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+
+
+Weplay Hand #75307705:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:47:53 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Nislija ($47.99 in chips)
+Seat 2: sadam ($47.75 in chips)
+Seat 3: rossi1616 ($65.15 in chips)
+Seat 4: Tone91 ($65.78 in chips)
+Seat 5: Dimling ($30.06 in chips)
+Seat 6: kole1992 ($69.40 in chips)
+Nislija: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 9c]
+rossi1616: folds
+Tone91: folds
+Dimling: calls $0.50
+kole1992: folds
+Nislija: folds
+sadam: checks
+*** FLOP *** [7c Jd Kh]
+sadam: checks
+Dimling: checks
+*** TURN *** [7c Jd Kh] [3c]
+sadam: checks
+Dimling: checks
+*** RIVER *** [7c Jd Kh 3c] [4c]
+sadam: checks
+Dimling: checks
+*** SHOW DOWN ***
+sadam: shows [4h 9s] (a pair of Fours)
+Dimling: shows [7d Ac] (a pair of Sevens)
+Dimling collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [7c Jd Kh 3c 4c]
+Seat 1: Nislija (small blind) folded before Flop 
+Seat 2: sadam (big blind) showed [4h 9s] and lost with a pair of Fours
+Seat 3: rossi1616 folded before Flop (didn't bet)
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Dimling showed [7d Ac] and won ($1.25) with a pair of Sevens
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75307747:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:48:57 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Nislija ($47.74 in chips)
+Seat 2: sadam ($47.25 in chips)
+Seat 3: rossi1616 ($65.15 in chips)
+Seat 4: Tone91 ($65.78 in chips)
+Seat 5: Dimling ($30.75 in chips)
+Seat 6: kole1992 ($69.40 in chips)
+sadam: posts small blind $0.25
+rossi1616: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Ad]
+Tone91: folds
+Dimling: folds
+kole1992: raises $1 to $1
+Nislija: calls $1
+sadam: folds
+rossi1616: folds
+*** FLOP *** [9d 7s 7c]
+kole1992: checks
+Nislija: checks
+*** TURN *** [9d 7s 7c] [5d]
+kole1992: bets $5.68
+Nislija: folds
+Uncalled bet ($5.68) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0.13 
+Board [9d 7s 7c 5d]
+Seat 1: Nislija (button) folded on the Turn 
+Seat 2: sadam (small blind) folded before Flop 
+Seat 3: rossi1616 (big blind) folded before Flop 
+Seat 4: Tone91 folded before Flop (didn't bet)
+Seat 5: Dimling folded before Flop (didn't bet)
+Seat 6: kole1992 collected ($2.75)
+
+
+Weplay Hand #75307781:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 17:49:54 UTC
+Table 'London #1'(11410800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Nislija ($46.74 in chips)
+Seat 2: sadam ($47 in chips)
+Seat 3: rossi1616 ($64.65 in chips)
+Seat 4: Tone91 ($65.78 in chips)
+Seat 5: Dimling ($30.75 in chips)
+Seat 6: kole1992 ($71.02 in chips)
+rossi1616: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 3d]
+Dimling: calls $0.50
+kole1992: calls $0.50
+Nislija: raises $2 to $2
+sadam: folds
+rossi1616: folds
+Tone91: folds
+Dimling: calls $1.50
+kole1992: calls $1.50
+*** FLOP *** [Qd 6h 7c]
+Dimling: checks
+kole1992: checks
+Nislija: checks
+*** TURN *** [Qd 6h 7c] [5c]
+Dimling: bets $2.23
+kole1992: folds
+kole1992: sits out 
+Nislija: folds
+Uncalled bet ($2.23) returned to Dimling
+*** SHOW DOWN ***
+Dimling has timed out
+Dimling: doesn't show hand
+Dimling collected $6.75 from pot
+Nislija has timed out
+Nislija: shows [Ks As] (high card Ace)
+*** SUMMARY ***
+Total pot $6.75 | Rake $0.33 
+Board [Qd 6h 7c 5c]
+Seat 1: Nislija folded on the Turn 
+Seat 2: sadam (button) folded before Flop (didn't bet)
+Seat 3: rossi1616 (small blind) folded before Flop 
+Seat 4: Tone91 (big blind) folded before Flop 
+Seat 5: Dimling collected ($6.75)
+Seat 6: kole1992 folded on the Turn 

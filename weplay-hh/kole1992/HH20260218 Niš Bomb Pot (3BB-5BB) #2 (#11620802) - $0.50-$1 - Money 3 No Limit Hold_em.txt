@@ -1,0 +1,2356 @@
+﻿Weplay Hand #76082451:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:32:11 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #3 is the button
+Seat 1: ebawuvkawu ($101.78 in chips)
+Seat 2: Falcaoo9 ($98.50 in chips)
+Seat 3: josediogo ($98.50 in chips)
+Seat 4: FLIPER ($100.50 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($133.83 in chips)
+Seat 7: focus700 ($111.03 in chips)
+Seat 8: Jaguar ($82.69 in chips)
+FLIPER: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 5h]
+JTs98o: folds
+focus700: calls $1
+Jaguar: folds
+ebawuvkawu: raises $2.50 to $2.50
+Falcaoo9: folds
+josediogo: folds
+FLIPER: calls $2
+kole1992: folds
+focus700: calls $1.50
+*** FLOP *** [Qd 5c 7d]
+FLIPER: checks
+focus700: checks
+ebawuvkawu: checks
+*** TURN *** [Qd 5c 7d] [As]
+FLIPER: checks
+focus700: bets $5.67
+ebawuvkawu: raises $13 to $13
+FLIPER: folds
+focus700: raises $22.33 to $28
+ebawuvkawu: calls $15
+*** RIVER *** [Qd 5c 7d As] [4s]
+focus700: bets $80.53 and is all-in
+ebawuvkawu: folds
+Uncalled bet ($80.53) returned to focus700
+*** SHOW DOWN ***
+focus700: doesn't show hand
+focus700 collected $64.50 from pot
+*** SUMMARY ***
+Total pot $64.50 | Rake $3.22 
+Board [Qd 5c 7d As 4s]
+Seat 1: ebawuvkawu folded on the River 
+Seat 2: Falcaoo9 folded before Flop (didn't bet)
+Seat 3: josediogo (button) folded before Flop (didn't bet)
+Seat 4: FLIPER (small blind) folded on the Turn 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+Seat 7: focus700 collected ($64.50)
+Seat 8: Jaguar folded before Flop (didn't bet)
+
+
+Weplay Hand #76082481:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:33:43 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #1 is the button
+Seat 1: ebawuvkawu ($100 in chips)
+Seat 2: Falcaoo9 ($98.50 in chips)
+Seat 3: josediogo ($98.50 in chips)
+Seat 4: FLIPER ($98 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($133.83 in chips)
+Seat 7: focus700 ($141.81 in chips)
+Seat 8: Jaguar ($82.69 in chips)
+ebawuvkawu: posts the ante $3.81
+Falcaoo9: posts the ante $3.81
+josediogo: posts the ante $3.81
+FLIPER: posts the ante $3.81
+kole1992: posts the ante $3.81
+JTs98o: posts the ante $3.81
+focus700: posts the ante $3.81
+Jaguar: posts the ante $3.81
+*** HOLE CARDS ***
+Dealt to kole1992 [As 2d]
+*** FLOP *** [8s 7h 2h]
+Falcaoo9: checks
+josediogo: checks
+FLIPER: checks
+kole1992: checks
+JTs98o: bets $20.42
+focus700: folds
+Jaguar: folds
+ebawuvkawu: folds
+Falcaoo9: folds
+josediogo: folds
+FLIPER: folds
+kole1992: folds
+Uncalled bet ($20.42) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $30.48 from pot
+*** SUMMARY ***
+Total pot $30.48 | Rake $1.52 
+Board [8s 7h 2h]
+Seat 1: ebawuvkawu (button) folded on the Flop 
+Seat 2: Falcaoo9 folded on the Flop 
+Seat 3: josediogo folded on the Flop 
+Seat 4: FLIPER folded on the Flop 
+Seat 5: kole1992 folded on the Flop 
+Seat 6: JTs98o collected ($30.48)
+Seat 7: focus700 folded on the Flop 
+Seat 8: Jaguar folded on the Flop 
+
+
+Weplay Hand #76082495:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:34:34 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #4 is the button
+Seat 1: ebawuvkawu ($100 in chips)
+Seat 2: Falcaoo9 ($94.69 in chips)
+Seat 3: josediogo ($94.69 in chips)
+Seat 4: FLIPER ($94.19 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($158.98 in chips)
+Seat 7: focus700 ($138 in chips)
+Seat 8: Jaguar ($78.88 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Qh]
+focus700: calls $1
+Jaguar: raises $2.50 to $2.50
+ebawuvkawu: folds
+Falcaoo9: folds
+josediogo: folds
+FLIPER: folds
+kole1992: folds
+JTs98o: folds
+focus700: calls $1.50
+*** FLOP *** [5d 7h 2c]
+focus700: checks
+Jaguar: checks
+*** TURN *** [5d 7h 2c] [5c]
+focus700: bets $4.33
+Jaguar: calls $4.33
+*** RIVER *** [5d 7h 2c 5c] [7d]
+focus700: checks
+Jaguar: checks
+*** SHOW DOWN ***
+focus700: shows [Qc 4c] (two pair, Sevens and Fives)
+Jaguar: shows [Td Kd] (two pair, Sevens and Fives)
+Jaguar collected $15.16 from pot
+*** SUMMARY ***
+Total pot $15.16 | Rake $0.75 
+Board [5d 7h 2c 5c 7d]
+Seat 1: ebawuvkawu folded before Flop (didn't bet)
+Seat 2: Falcaoo9 folded before Flop (didn't bet)
+Seat 3: josediogo folded before Flop (didn't bet)
+Seat 4: FLIPER (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+Seat 7: focus700 showed [Qc 4c] and lost with two pair, Sevens and Fives
+Seat 8: Jaguar showed [Td Kd] and won ($15.16) with two pair, Sevens and Fives
+
+
+Weplay Hand #76082510:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:35:37 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #5 is the button
+Seat 1: ebawuvkawu ($100 in chips)
+Seat 2: Falcaoo9 ($94.69 in chips)
+Seat 3: josediogo ($94.69 in chips)
+Seat 4: FLIPER ($97.64 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($157.98 in chips)
+Seat 7: focus700 ($131.17 in chips)
+Seat 8: Jaguar ($86.46 in chips)
+JTs98o: posts small blind $0.50
+focus700: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9d]
+Jaguar: raises $2.50 to $2.50
+ebawuvkawu: raises $9 to $9
+Falcaoo9: folds
+josediogo is disconnected 
+josediogo is connected 
+josediogo: folds
+FLIPER: folds
+kole1992: folds
+JTs98o: calls $8.50
+focus700: folds
+Jaguar: calls $6.50
+*** FLOP *** [4c 7c 6d]
+JTs98o: checks
+Jaguar: checks
+ebawuvkawu: checks
+*** TURN *** [4c 7c 6d] [Qd]
+JTs98o: checks
+Jaguar: checks
+ebawuvkawu: checks
+*** RIVER *** [4c 7c 6d Qd] [8h]
+JTs98o: checks
+Jaguar: checks
+ebawuvkawu: bets $91 and is all-in
+JTs98o: folds
+Jaguar: folds
+Uncalled bet ($91) returned to ebawuvkawu
+*** SHOW DOWN ***
+ebawuvkawu: doesn't show hand
+ebawuvkawu collected $28 from pot
+*** SUMMARY ***
+Total pot $28 | Rake $1.40 
+Board [4c 7c 6d Qd 8h]
+Seat 1: ebawuvkawu collected ($28)
+Seat 2: Falcaoo9 folded before Flop (didn't bet)
+Seat 3: josediogo folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded on the River 
+Seat 7: focus700 (big blind) folded before Flop 
+Seat 8: Jaguar folded on the River 
+
+
+Weplay Hand #76082528:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:36:44 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #6 is the button
+Seat 1: ebawuvkawu ($117.60 in chips)
+Seat 2: Falcaoo9 ($94.69 in chips)
+Seat 3: josediogo ($94.69 in chips)
+Seat 4: FLIPER ($97.64 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($148.98 in chips)
+Seat 7: focus700 ($130.17 in chips)
+Seat 8: Jaguar ($77.46 in chips)
+focus700: posts small blind $0.50
+Jaguar: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Js]
+ebawuvkawu: calls $1
+Falcaoo9: folds
+josediogo: raises $3.50 to $3.50
+FLIPER: folds
+kole1992: folds
+JTs98o: folds
+focus700: calls $3
+Jaguar: folds
+ebawuvkawu: calls $2.50
+*** FLOP *** [6s 9c 2d]
+focus700: bets $5.75
+ebawuvkawu: folds
+josediogo: calls $5.75
+*** TURN *** [6s 9c 2d] [2s]
+focus700: checks
+josediogo: bets $8
+focus700: calls $8
+*** RIVER *** [6s 9c 2d 2s] [As]
+focus700: checks
+josediogo: bets $39
+focus700: folds
+Uncalled bet ($39) returned to josediogo
+*** SHOW DOWN ***
+josediogo has timed out
+josediogo: doesn't show hand
+josediogo collected $39 from pot
+*** SUMMARY ***
+Total pot $39 | Rake $1.95 
+Board [6s 9c 2d 2s As]
+Seat 1: ebawuvkawu folded on the Flop 
+Seat 2: Falcaoo9 folded before Flop (didn't bet)
+Seat 3: josediogo collected ($39)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+Seat 7: focus700 (small blind) folded on the River 
+Seat 8: Jaguar (big blind) folded before Flop 
+
+
+Weplay Hand #76082545:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:37:49 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #7 is the button
+Seat 1: ebawuvkawu ($114.10 in chips)
+Seat 2: Falcaoo9 ($100 in chips)
+Seat 3: josediogo ($114.49 in chips)
+Seat 4: FLIPER ($97.64 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($148.98 in chips)
+Seat 7: focus700 ($112.92 in chips)
+Seat 8: Jaguar ($76.46 in chips)
+Jaguar: posts small blind $0.50
+ebawuvkawu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th Ks]
+Falcaoo9: folds
+josediogo: folds
+FLIPER: folds
+kole1992 has timed out
+kole1992: folds
+JTs98o: raises $2.50 to $2.50
+focus700: folds
+Jaguar: folds
+ebawuvkawu: folds
+Uncalled bet ($1.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: ebawuvkawu (big blind) folded before Flop 
+Seat 2: Falcaoo9 folded before Flop (didn't bet)
+Seat 3: josediogo folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o collected ($2.50)
+Seat 7: focus700 (button) folded before Flop (didn't bet)
+Seat 8: Jaguar (small blind) folded before Flop 
+
+
+Weplay Hand #76082559:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:38:43 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #4 is the button
+Seat 1: ebawuvkawu ($113.10 in chips)
+Seat 2: Falcaoo9 ($100 in chips)
+Seat 3: josediogo ($114.49 in chips)
+Seat 4: FLIPER ($97.64 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($150.48 in chips)
+Seat 7: focus700 ($112.92 in chips)
+Seat 8: Jaguar ($75.96 in chips)
+ebawuvkawu: posts the ante $4.64
+Falcaoo9: posts the ante $4.64
+josediogo: posts the ante $4.64
+FLIPER: posts the ante $4.64
+kole1992: posts the ante $4.64
+JTs98o: posts the ante $4.64
+focus700: posts the ante $4.64
+Jaguar: posts the ante $4.64
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 8c]
+*** FLOP *** [Kh Th 3h]
+kole1992: checks
+JTs98o: checks
+focus700: checks
+Jaguar: checks
+ebawuvkawu: checks
+Falcaoo9 has timed out
+Falcaoo9: checks
+josediogo: checks
+FLIPER: checks
+*** TURN *** [Kh Th 3h] [6h]
+kole1992: checks
+JTs98o: checks
+focus700: checks
+Jaguar: checks
+ebawuvkawu: checks
+Falcaoo9: checks
+josediogo: checks
+FLIPER: checks
+*** RIVER *** [Kh Th 3h 6h] [Qs]
+kole1992: checks
+JTs98o: checks
+focus700: checks
+Jaguar: checks
+ebawuvkawu: checks
+Falcaoo9: checks
+josediogo: checks
+FLIPER: checks
+*** SHOW DOWN ***
+kole1992: shows [Td 8c] (a pair of Tens)
+JTs98o: shows [Ts Ac] (a pair of Tens)
+focus700: mucks hand
+Jaguar has timed out
+Jaguar: mucks hand
+ebawuvkawu: mucks hand
+Falcaoo9: shows [8h 2d] (a flush, King high)
+josediogo has timed out
+josediogo: mucks hand
+FLIPER: shows [Jh 9s] (a flush, King high)
+FLIPER collected $37.12 from pot
+*** SUMMARY ***
+Total pot $37.12 | Rake $1.85 
+Board [Kh Th 3h 6h Qs]
+Seat 1: ebawuvkawu mucked
+Seat 2: Falcaoo9 showed [8h 2d] and lost with a flush, King high
+Seat 3: josediogo mucked
+Seat 4: FLIPER (button) showed [Jh 9s] and won ($37.12) with a flush, King high
+Seat 5: kole1992 showed [Td 8c] and lost with a pair of Tens
+Seat 6: JTs98o showed [Ts Ac] and lost with a pair of Tens
+Seat 7: focus700 mucked
+Seat 8: Jaguar mucked
+
+
+Weplay Hand #76082582:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:40:34 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #8 is the button
+Seat 1: ebawuvkawu ($108.46 in chips)
+Seat 2: Falcaoo9 ($95.36 in chips)
+Seat 3: josediogo ($109.85 in chips)
+Seat 4: FLIPER ($128.27 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($145.84 in chips)
+Seat 7: focus700 ($108.28 in chips)
+Seat 8: Jaguar ($71.32 in chips)
+ebawuvkawu: posts small blind $0.50
+Falcaoo9: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d Kc]
+josediogo: folds
+FLIPER: folds
+kole1992: folds
+JTs98o: raises $2.50 to $2.50
+focus700: folds
+Jaguar: calls $2.50
+ebawuvkawu: folds
+Falcaoo9: calls $1.50
+*** FLOP *** [Qc 9c 7s]
+Falcaoo9: checks
+JTs98o: checks
+Jaguar: bets $8
+Falcaoo9: raises $33.50 to $33.50
+JTs98o: folds
+Jaguar: calls $25.50
+*** TURN *** [Qc 9c 7s] [8c]
+Falcaoo9: checks
+Jaguar: checks
+*** RIVER *** [Qc 9c 7s 8c] [Th]
+Falcaoo9: bets $25.50
+Jaguar: calls $25.50
+*** SHOW DOWN ***
+Falcaoo9: shows [Ac 5c] (a flush, Ace high)
+Jaguar has timed out
+Jaguar: mucks hand
+Falcaoo9 collected $126 from pot
+*** SUMMARY ***
+Total pot $126 | Rake $6.30 
+Board [Qc 9c 7s 8c Th]
+Seat 1: ebawuvkawu (small blind) folded before Flop 
+Seat 2: Falcaoo9 (big blind) showed [Ac 5c] and won ($126) with a flush, Ace high
+Seat 3: josediogo folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded on the Flop 
+Seat 7: focus700 folded before Flop (didn't bet)
+Seat 8: Jaguar (button) mucked
+
+
+Weplay Hand #76082604:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:42:03 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #1 is the button
+Seat 1: ebawuvkawu ($107.96 in chips)
+Seat 2: Falcaoo9 ($153.56 in chips)
+Seat 3: josediogo ($109.85 in chips)
+Seat 4: FLIPER ($128.27 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($143.34 in chips)
+Seat 7: focus700 ($108.28 in chips)
+Seat 8: Jaguar ($9.82 in chips)
+Falcaoo9: posts small blind $0.50
+josediogo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 6d]
+FLIPER: folds
+kole1992: folds
+JTs98o: folds
+focus700: calls $1
+Jaguar: raises $9.82 to $9.82 and is all-in
+ebawuvkawu: folds
+Falcaoo9: folds
+josediogo: folds
+focus700: calls $8.82
+*** FLOP *** [4h Jd Ks]
+*** TURN *** [4h Jd Ks] [Kh]
+*** RIVER *** [4h Jd Ks Kh] [3h]
+*** SHOW DOWN ***
+focus700: shows [Ac Qh] (a pair of Kings)
+Jaguar: shows [Qc Kd] (three of a kind, Kings)
+Jaguar collected $21.14 from pot
+*** SUMMARY ***
+Total pot $21.14 | Rake $1.05 
+Board [4h Jd Ks Kh 3h]
+Seat 1: ebawuvkawu (button) folded before Flop (didn't bet)
+Seat 2: Falcaoo9 (small blind) folded before Flop 
+Seat 3: josediogo (big blind) folded before Flop 
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+Seat 7: focus700 showed [Ac Qh] and lost with a pair of Kings
+Seat 8: Jaguar showed [Qc Kd] and won ($21.14) with three of a kind, Kings
+
+
+Weplay Hand #76082621:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:42:51 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #2 is the button
+Seat 1: ebawuvkawu ($107.96 in chips)
+Seat 2: Falcaoo9 ($153.06 in chips)
+Seat 3: josediogo ($108.85 in chips)
+Seat 4: FLIPER ($128.27 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($143.34 in chips)
+Seat 7: focus700 ($98.46 in chips)
+Seat 8: Jaguar ($20.09 in chips)
+josediogo: posts small blind $0.50
+FLIPER: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Jd]
+kole1992: folds
+JTs98o: folds
+focus700: calls $1
+Jaguar: folds
+ebawuvkawu: folds
+Falcaoo9: folds
+josediogo: calls $0.50
+FLIPER: checks
+*** FLOP *** [Kh 2s 5c]
+josediogo: checks
+FLIPER: checks
+focus700: checks
+*** TURN *** [Kh 2s 5c] [7s]
+josediogo: checks
+FLIPER: checks
+focus700: checks
+*** RIVER *** [Kh 2s 5c 7s] [9c]
+josediogo: checks
+FLIPER: checks
+focus700: bets $3
+josediogo: folds
+FLIPER: folds
+Uncalled bet ($3) returned to focus700
+*** SHOW DOWN ***
+focus700: doesn't show hand
+focus700 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Kh 2s 5c 7s 9c]
+Seat 1: ebawuvkawu folded before Flop (didn't bet)
+Seat 2: Falcaoo9 (button) folded before Flop (didn't bet)
+Seat 3: josediogo (small blind) folded on the River 
+Seat 4: FLIPER (big blind) folded on the River 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+Seat 7: focus700 collected ($3)
+Seat 8: Jaguar folded before Flop (didn't bet)
+
+
+Weplay Hand #76082638:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:44:03 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #3 is the button
+Seat 1: ebawuvkawu ($107.96 in chips)
+Seat 2: Falcaoo9 ($153.06 in chips)
+Seat 3: josediogo ($107.85 in chips)
+Seat 4: FLIPER ($127.27 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($143.34 in chips)
+Seat 7: focus700 ($100.31 in chips)
+Seat 8: Jaguar ($20.09 in chips)
+FLIPER: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c As]
+JTs98o: raises $2.50 to $2.50
+focus700: calls $2.50
+Jaguar: folds
+ebawuvkawu: folds
+Falcaoo9: folds
+josediogo: calls $2.50
+FLIPER: folds
+kole1992: folds
+*** FLOP *** [7h Ad 5h]
+JTs98o: checks
+focus700: checks
+josediogo: checks
+*** TURN *** [7h Ad 5h] [5d]
+JTs98o: checks
+focus700: checks
+josediogo: checks
+*** RIVER *** [7h Ad 5h 5d] [4s]
+JTs98o: checks
+focus700: checks
+josediogo: checks
+*** SHOW DOWN ***
+JTs98o: shows [Qd 9d] (a pair of Fives)
+focus700: shows [Jc Ks] (a pair of Fives)
+josediogo: shows [Js Jh] (two pair, Jacks and Fives)
+josediogo collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [7h Ad 5h 5d 4s]
+Seat 1: ebawuvkawu folded before Flop (didn't bet)
+Seat 2: Falcaoo9 folded before Flop (didn't bet)
+Seat 3: josediogo (button) showed [Js Jh] and won ($9) with two pair, Jacks and Fives
+Seat 4: FLIPER (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: JTs98o showed [Qd 9d] and lost with a pair of Fives
+Seat 7: focus700 showed [Jc Ks] and lost with a pair of Fives
+Seat 8: Jaguar folded before Flop (didn't bet)
+
+
+Weplay Hand #76082654:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:45:09 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #4 is the button
+Seat 1: ebawuvkawu ($107.96 in chips)
+Seat 2: Falcaoo9 ($153.06 in chips)
+Seat 3: josediogo ($113.90 in chips)
+Seat 4: FLIPER ($126.77 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($140.84 in chips)
+Seat 7: focus700 ($97.81 in chips)
+Seat 8: Jaguar ($20.09 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 6c]
+focus700: raises $3 to $3
+Jaguar: folds
+ebawuvkawu: folds
+Falcaoo9: raises $10.50 to $10.50
+josediogo: folds
+FLIPER: folds
+kole1992: folds
+JTs98o: folds
+focus700: calls $7.50
+*** FLOP *** [3c Jh 4h]
+focus700: checks
+Falcaoo9: bets $8.53
+focus700: calls $8.53
+*** TURN *** [3c Jh 4h] [2c]
+focus700: checks
+Falcaoo9: checks
+*** RIVER *** [3c Jh 4h 2c] [4s]
+focus700: checks
+Falcaoo9: bets $13.05
+focus700: calls $13.05
+*** SHOW DOWN ***
+Falcaoo9: shows [Jd Td] (two pair, Jacks and Fours)
+focus700: mucks hand
+Falcaoo9 collected $65.66 from pot
+*** SUMMARY ***
+Total pot $65.66 | Rake $3.28 
+Board [3c Jh 4h 2c 4s]
+Seat 1: ebawuvkawu folded before Flop (didn't bet)
+Seat 2: Falcaoo9 showed [Jd Td] and won ($65.66) with two pair, Jacks and Fours
+Seat 3: josediogo folded before Flop (didn't bet)
+Seat 4: FLIPER (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+Seat 7: focus700 mucked
+Seat 8: Jaguar folded before Flop (didn't bet)
+
+
+Weplay Hand #76082677:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:46:32 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #5 is the button
+Seat 1: ebawuvkawu ($107.96 in chips)
+Seat 2: Falcaoo9 ($183.36 in chips)
+Seat 3: josediogo ($113.90 in chips)
+Seat 4: FLIPER ($126.77 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($139.84 in chips)
+Seat 7: focus700 ($65.73 in chips)
+Seat 8: Jaguar ($20.09 in chips)
+JTs98o: posts small blind $0.50
+focus700: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 8c]
+Jaguar: folds
+ebawuvkawu: folds
+Falcaoo9: folds
+josediogo: folds
+FLIPER: folds
+kole1992: folds
+JTs98o: raises $2.50 to $3
+focus700: calls $2
+*** FLOP *** [Ac Ad Js]
+JTs98o: bets $2.40
+focus700: raises $6.50 to $6.50
+JTs98o: folds
+Uncalled bet ($4.10) returned to focus700
+*** SHOW DOWN ***
+focus700: doesn't show hand
+focus700 collected $10.80 from pot
+*** SUMMARY ***
+Total pot $10.80 | Rake $0.54 
+Board [Ac Ad Js]
+Seat 1: ebawuvkawu folded before Flop (didn't bet)
+Seat 2: Falcaoo9 folded before Flop (didn't bet)
+Seat 3: josediogo folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded on the Flop 
+Seat 7: focus700 (big blind) collected ($10.80)
+Seat 8: Jaguar folded before Flop (didn't bet)
+
+
+Weplay Hand #76082688:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:47:19 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #6 is the button
+Seat 1: ebawuvkawu ($107.96 in chips)
+Seat 2: Falcaoo9 ($183.36 in chips)
+Seat 3: josediogo ($113.90 in chips)
+Seat 4: FLIPER ($126.77 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($134.44 in chips)
+Seat 7: focus700 ($70.59 in chips)
+Seat 8: Jaguar ($20.09 in chips)
+focus700: posts small blind $0.50
+Jaguar: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 9c]
+ebawuvkawu: folds
+Falcaoo9: folds
+josediogo: calls $1
+FLIPER: folds
+kole1992: folds
+JTs98o: raises $4 to $4
+focus700: raises $14.50 to $15
+Jaguar: folds
+josediogo: folds
+JTs98o: folds
+Uncalled bet ($11) returned to focus700
+*** SHOW DOWN ***
+focus700: doesn't show hand
+focus700 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0 
+Seat 1: ebawuvkawu folded before Flop (didn't bet)
+Seat 2: Falcaoo9 folded before Flop (didn't bet)
+Seat 3: josediogo folded before Flop 
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop 
+Seat 7: focus700 (small blind) collected ($10)
+Seat 8: Jaguar (big blind) folded before Flop 
+
+
+Weplay Hand #76082698:  Hold'em No Limit ($0.50/$1) - 2026/02/18 10:48:00 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #7 is the button
+Seat 1: ebawuvkawu ($107.96 in chips)
+Seat 2: Falcaoo9 ($183.36 in chips)
+Seat 3: josediogo ($112.90 in chips)
+Seat 4: FLIPER ($126.77 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($130.44 in chips)
+Seat 7: focus700 ($76.59 in chips)
+Seat 8: Jaguar ($19.09 in chips)
+Jaguar: posts small blind $0.50
+ebawuvkawu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 2h]
+Falcaoo9: folds
+josediogo: calls $1
+FLIPER: calls $1
+kole1992: folds
+JTs98o: calls $1
+focus700: folds
+Jaguar: calls $0.50
+ebawuvkawu: checks
+*** FLOP *** [9s 4d Qh]
+Jaguar: checks
+ebawuvkawu: checks
+josediogo: checks
+FLIPER: checks
+JTs98o: checks
+*** TURN *** [9s 4d Qh] [5s]
+Jaguar: checks
+ebawuvkawu: bets $3.33
+josediogo: calls $3.33
+FLIPER: folds
+JTs98o: folds
+Jaguar: folds
+*** RIVER *** [9s 4d Qh 5s] [6h]
+ebawuvkawu: checks
+josediogo: checks
+*** SHOW DOWN ***
+ebawuvkawu: shows [5h Qd] (two pair, Queens and Fives)
+josediogo has timed out
+josediogo: mucks hand
+ebawuvkawu collected $11.66 from pot
+*** SUMMARY ***
+Total pot $11.66 | Rake $0.58 
+Board [9s 4d Qh 5s 6h]
+Seat 1: ebawuvkawu (big blind) showed [5h Qd] and won ($11.66) with two pair, Queens and Fives
+Seat 2: Falcaoo9 folded before Flop (didn't bet)
+Seat 3: josediogo mucked
+Seat 4: FLIPER folded on the Turn 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded on the Turn 
+Seat 7: focus700 (button) folded before Flop (didn't bet)
+Seat 8: Jaguar (small blind) folded on the Turn 
+
+
+Weplay Hand #76100620:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:28:15 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #4 is the button
+Seat 1: Allinfans72 ($176.61 in chips)
+Seat 2: NIKO80 ($45.68 in chips)
+Seat 3: Beleka ($118.48 in chips)
+Seat 4: FLIPER ($240.93 in chips)
+Seat 5: Perakralj ($107.96 in chips)
+Seat 6: kole1992 ($100 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($101.89 in chips)
+Perakralj: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 3s]
+MAdbARA: raises $3 to $3
+tinkieri: folds
+Allinfans72: calls $3
+NIKO80: calls $3
+Beleka: folds
+FLIPER: calls $3
+Perakralj: folds
+kole1992: folds
+*** FLOP *** [Jh 6h Ac]
+MAdbARA: checks
+Allinfans72: checks
+NIKO80: checks
+FLIPER: checks
+*** TURN *** [Jh 6h Ac] [Jc]
+MAdbARA: bets $9
+Allinfans72: folds
+NIKO80: folds
+FLIPER: folds
+Uncalled bet ($9) returned to MAdbARA
+*** SHOW DOWN ***
+MAdbARA: doesn't show hand
+MAdbARA collected $13.50 from pot
+*** SUMMARY ***
+Total pot $13.50 | Rake $0.67 
+Board [Jh 6h Ac Jc]
+Seat 1: Allinfans72 folded on the Turn 
+Seat 2: NIKO80 folded on the Turn 
+Seat 3: Beleka folded before Flop (didn't bet)
+Seat 4: FLIPER (button) folded on the Turn 
+Seat 5: Perakralj (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: MAdbARA collected ($13.50)
+Seat 8: tinkieri folded before Flop (didn't bet)
+
+
+Weplay Hand #76100750:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:29:14 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #5 is the button
+Seat 1: Allinfans72 ($173.61 in chips)
+Seat 2: NIKO80 ($42.68 in chips)
+Seat 3: Beleka ($118.48 in chips)
+Seat 4: FLIPER ($237.93 in chips)
+Seat 5: Perakralj ($107.46 in chips)
+Seat 6: kole1992 ($100 in chips)
+Seat 7: MAdbARA ($109.83 in chips)
+Seat 8: tinkieri ($101.89 in chips)
+kole1992: posts small blind $0.50
+MAdbARA: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 9c]
+tinkieri: folds
+Allinfans72: folds
+NIKO80: folds
+Beleka: folds
+FLIPER: folds
+Perakralj: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to MAdbARA
+*** SHOW DOWN ***
+MAdbARA: doesn't show hand
+MAdbARA collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 3: Beleka folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: MAdbARA (big blind) collected ($1)
+Seat 8: tinkieri folded before Flop (didn't bet)
+
+
+Weplay Hand #76100797:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:29:39 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #6 is the button
+Seat 1: Allinfans72 ($173.61 in chips)
+Seat 2: NIKO80 ($42.68 in chips)
+Seat 3: Beleka ($118.48 in chips)
+Seat 4: FLIPER ($237.93 in chips)
+Seat 5: Perakralj ($107.46 in chips)
+Seat 6: kole1992 ($100 in chips)
+Seat 7: MAdbARA ($110.33 in chips)
+Seat 8: tinkieri ($101.89 in chips)
+MAdbARA: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 2d]
+Allinfans72: folds
+NIKO80: folds
+Beleka: folds
+FLIPER: raises $3 to $3
+Perakralj: folds
+kole1992: folds
+MAdbARA: calls $2.50
+tinkieri: folds
+*** FLOP *** [7c 5h Tc]
+MAdbARA: checks
+FLIPER: bets $3.50
+MAdbARA: calls $3.50
+*** TURN *** [7c 5h Tc] [2c]
+MAdbARA: checks
+FLIPER: bets $10.50
+MAdbARA: folds
+Uncalled bet ($10.50) returned to FLIPER
+*** SHOW DOWN ***
+FLIPER has timed out
+FLIPER: doesn't show hand
+FLIPER collected $14 from pot
+*** SUMMARY ***
+Total pot $14 | Rake $0.70 
+Board [7c 5h Tc 2c]
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 3: Beleka folded before Flop (didn't bet)
+Seat 4: FLIPER collected ($14)
+Seat 5: Perakralj folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: MAdbARA (small blind) folded on the Turn 
+Seat 8: tinkieri (big blind) folded before Flop 
+
+
+Weplay Hand #76100951:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:30:50 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #7 is the button
+Seat 1: Allinfans72 ($173.61 in chips)
+Seat 2: NIKO80 ($42.68 in chips)
+Seat 3: Beleka ($118.48 in chips)
+Seat 4: FLIPER ($244.73 in chips)
+Seat 5: Perakralj ($107.46 in chips)
+Seat 6: kole1992 ($100 in chips)
+Seat 7: MAdbARA ($103.83 in chips)
+Seat 8: tinkieri ($100.89 in chips)
+tinkieri: posts small blind $0.50
+Allinfans72: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Kd]
+NIKO80: calls $1
+Beleka: folds
+FLIPER: folds
+Perakralj: folds
+kole1992: raises $4 to $4
+MAdbARA: folds
+tinkieri: folds
+Allinfans72: folds
+NIKO80: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: Allinfans72 (big blind) folded before Flop 
+Seat 2: NIKO80 folded before Flop 
+Seat 3: Beleka folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj folded before Flop (didn't bet)
+Seat 6: kole1992 collected ($3.50)
+Seat 7: MAdbARA (button) folded before Flop (didn't bet)
+Seat 8: tinkieri (small blind) folded before Flop 
+
+
+Weplay Hand #76101016:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:31:21 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #8 is the button
+Seat 1: Allinfans72 ($172.61 in chips)
+Seat 2: NIKO80 ($41.68 in chips)
+Seat 3: Beleka ($118.48 in chips)
+Seat 4: FLIPER ($244.73 in chips)
+Seat 5: Perakralj ($107.46 in chips)
+Seat 6: kole1992 ($102.50 in chips)
+Seat 7: MAdbARA ($103.83 in chips)
+Seat 8: tinkieri ($100.39 in chips)
+Allinfans72: posts small blind $0.50
+NIKO80: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 5s]
+Beleka: folds
+FLIPER: folds
+Perakralj: raises $2.50 to $2.50
+kole1992: folds
+MAdbARA: folds
+tinkieri: folds
+Allinfans72: folds
+NIKO80: calls $1.50
+*** FLOP *** [Kd 8s 8c]
+NIKO80: bets $2
+Perakralj: folds
+Uncalled bet ($2) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Kd 8s 8c]
+Seat 1: Allinfans72 (small blind) folded before Flop 
+Seat 2: NIKO80 (big blind) collected ($5.50)
+Seat 3: Beleka folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj folded on the Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded before Flop (didn't bet)
+Seat 8: tinkieri (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76101098:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:31:57 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #7 is the button
+Seat 1: Allinfans72 ($172.11 in chips)
+Seat 2: NIKO80 ($44.41 in chips)
+Seat 3: Beleka ($118.48 in chips)
+Seat 4: FLIPER ($244.73 in chips)
+Seat 5: Perakralj ($104.96 in chips)
+Seat 6: kole1992 ($102.50 in chips)
+Seat 7: MAdbARA ($103.83 in chips)
+Seat 8: tinkieri ($100.39 in chips)
+Allinfans72: posts the ante $3.75
+NIKO80: posts the ante $3.75
+Beleka: posts the ante $3.75
+FLIPER: posts the ante $3.75
+Perakralj: posts the ante $3.75
+kole1992: posts the ante $3.75
+MAdbARA: posts the ante $3.75
+tinkieri: posts the ante $3.75
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 4d]
+*** FLOP *** [2h Tc Jd]
+tinkieri: checks
+Allinfans72: checks
+NIKO80: checks
+Beleka: checks
+FLIPER: bets $9.90
+Perakralj: calls $9.90
+kole1992: folds
+MAdbARA: folds
+tinkieri: folds
+Allinfans72: folds
+NIKO80: folds
+Beleka: folds
+*** TURN *** [2h Tc Jd] [9s]
+FLIPER: bets $16.43
+Perakralj: folds
+Uncalled bet ($16.43) returned to FLIPER
+*** SHOW DOWN ***
+FLIPER has timed out
+FLIPER: doesn't show hand
+FLIPER collected $49.80 from pot
+*** SUMMARY ***
+Total pot $49.80 | Rake $2.49 
+Board [2h Tc Jd 9s]
+Seat 1: Allinfans72 folded on the Flop 
+Seat 2: NIKO80 folded on the Flop 
+Seat 3: Beleka folded on the Flop 
+Seat 4: FLIPER collected ($49.80)
+Seat 5: Perakralj folded on the Turn 
+Seat 6: kole1992 folded on the Flop 
+Seat 7: MAdbARA (button) folded on the Flop 
+Seat 8: tinkieri folded on the Flop 
+
+
+Weplay Hand #76101225:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:33:06 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #1 is the button
+Seat 1: Allinfans72 ($168.36 in chips)
+Seat 2: NIKO80 ($40.66 in chips)
+Seat 3: Beleka ($114.73 in chips)
+Seat 4: FLIPER ($278.39 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($100 in chips)
+Seat 7: MAdbARA ($100.08 in chips)
+Seat 8: tinkieri ($100 in chips)
+NIKO80: posts small blind $0.50
+Beleka: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5c]
+FLIPER: folds
+Perakralj: folds
+kole1992: folds
+MAdbARA: folds
+tinkieri: raises $2.50 to $2.50
+Allinfans72: calls $2.50
+NIKO80: calls $2
+Beleka: folds
+*** FLOP *** [As 2d Kc]
+NIKO80: checks
+tinkieri: bets $3.40
+Beleka: sits out 
+Allinfans72: calls $3.40
+NIKO80: folds
+*** TURN *** [As 2d Kc] [Ac]
+Beleka leaves the table
+tinkieri: bets $22.95
+Allinfans72: raises $162.46 to $162.46 and is all-in
+tinkieri: calls $71.15 and is all-in
+Uncalled bet ($68.36) returned to Allinfans72
+*** RIVER *** [As 2d Kc Ac] [Qd]
+*** SHOW DOWN ***
+tinkieri: shows [Ah Qh] (a full house, Aces full of Queens)
+Allinfans72: shows [2c 2s] (a full house, Deuces full of Aces)
+tinkieri collected $203.50 from pot
+*** SUMMARY ***
+Total pot $203.50 | Rake $6.50 
+Board [As 2d Kc Ac Qd]
+Seat 1: Allinfans72 (button) showed [2c 2s] and lost with a full house, Deuces full of Aces
+Seat 2: NIKO80 (small blind) folded on the Flop 
+Seat 3: Beleka (big blind) folded before Flop 
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded before Flop (didn't bet)
+Seat 8: tinkieri showed [Ah Qh] and won ($203.50) with a full house, Aces full of Queens
+
+
+Weplay Hand #76101356:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:34:11 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #2 is the button
+Seat 1: Allinfans72 ($68.36 in chips)
+Seat 2: NIKO80 ($38.16 in chips)
+Seat 4: FLIPER ($278.39 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($100 in chips)
+Seat 7: MAdbARA ($100.08 in chips)
+Seat 8: tinkieri ($197 in chips)
+FLIPER: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 9h]
+Perakralj: folds
+kole1992: folds
+MAdbARA: folds
+tinkieri: folds
+Allinfans72: calls $1
+NIKO80: raises $3.50 to $3.50
+FLIPER: folds
+Allinfans72: calls $2.50
+*** FLOP *** [Kh 4s As]
+Allinfans72: checks
+NIKO80: checks
+*** TURN *** [Kh 4s As] [Ts]
+Allinfans72: checks
+NIKO80: bets $6
+Allinfans72: folds
+Uncalled bet ($6) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [Kh 4s As Ts]
+Seat 1: Allinfans72 folded on the Turn 
+Seat 2: NIKO80 (button) collected ($8)
+Seat 4: FLIPER (big blind) folded before Flop 
+Seat 5: Perakralj folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded before Flop (didn't bet)
+Seat 8: tinkieri folded before Flop (didn't bet)
+
+
+Weplay Hand #76101426:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:34:45 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #3 is the button
+Seat 1: Allinfans72 ($64.86 in chips)
+Seat 2: NIKO80 ($42.26 in chips)
+Seat 4: FLIPER ($277.39 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($100 in chips)
+Seat 7: MAdbARA ($100.08 in chips)
+Seat 8: tinkieri ($197 in chips)
+FLIPER: posts small blind $0.50
+Perakralj: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 6c]
+kole1992: folds
+MAdbARA: folds
+tinkieri: folds
+Allinfans72: calls $1
+NIKO80: folds
+FLIPER: calls $0.50
+Perakralj: checks
+*** FLOP *** [2h 4s 4c]
+FLIPER: checks
+Perakralj: checks
+Allinfans72: bets $2
+FLIPER: folds
+Perakralj: calls $2
+*** TURN *** [2h 4s 4c] [Jc]
+Perakralj: checks
+Allinfans72: checks
+*** RIVER *** [2h 4s 4c Jc] [Kd]
+Perakralj: bets $7
+Allinfans72: folds
+Uncalled bet ($7) returned to Perakralj
+*** SHOW DOWN ***
+Perakralj: doesn't show hand
+Perakralj collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [2h 4s 4c Jc Kd]
+Seat 1: Allinfans72 folded on the River 
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 4: FLIPER (small blind) folded on the Flop 
+Seat 5: Perakralj (big blind) collected ($7)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded before Flop (didn't bet)
+Seat 8: tinkieri folded before Flop (didn't bet)
+
+
+Weplay Hand #76101560:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:35:59 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #4 is the button
+Seat 1: Allinfans72 ($61.86 in chips)
+Seat 2: NIKO80 ($42.26 in chips)
+Seat 4: FLIPER ($276.39 in chips)
+Seat 5: Perakralj ($103.65 in chips)
+Seat 6: kole1992 ($100 in chips)
+Seat 7: MAdbARA ($100.08 in chips)
+Seat 8: tinkieri ($197 in chips)
+Perakralj: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 3h]
+MAdbARA: calls $1
+tinkieri: folds
+Allinfans72: folds
+NIKO80: calls $1
+FLIPER: folds
+Perakralj: folds
+kole1992: checks
+*** FLOP *** [Js 7s Ad]
+kole1992: checks
+MAdbARA: checks
+NIKO80: checks
+*** TURN *** [Js 7s Ad] [Jh]
+kole1992: checks
+MAdbARA: checks
+NIKO80: checks
+*** RIVER *** [Js 7s Ad Jh] [Tc]
+kole1992: checks
+MAdbARA: checks
+NIKO80: checks
+*** SHOW DOWN ***
+kole1992: shows [7h 3h] (two pair, Jacks and Sevens)
+MAdbARA: shows [As 7d] (two pair, Aces and Jacks)
+NIKO80: mucks hand
+MAdbARA collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [Js 7s Ad Jh Tc]
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: NIKO80 mucked
+Seat 4: FLIPER (button) folded before Flop (didn't bet)
+Seat 5: Perakralj (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) showed [7h 3h] and lost with two pair, Jacks and Sevens
+Seat 7: MAdbARA showed [As 7d] and won ($3.50) with two pair, Aces and Jacks
+Seat 8: tinkieri folded before Flop (didn't bet)
+
+
+Weplay Hand #76101681:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:37:03 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #5 is the button
+Seat 1: Allinfans72 ($61.86 in chips)
+Seat 2: NIKO80 ($41.26 in chips)
+Seat 4: FLIPER ($276.39 in chips)
+Seat 5: Perakralj ($103.15 in chips)
+Seat 6: kole1992 ($100 in chips)
+Seat 7: MAdbARA ($102.41 in chips)
+Seat 8: tinkieri ($197 in chips)
+kole1992: posts small blind $0.50
+MAdbARA: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Ac]
+tinkieri: folds
+Allinfans72: folds
+NIKO80: raises $3 to $3
+FLIPER: folds
+Perakralj: calls $3
+kole1992: raises $14 to $14.50
+MAdbARA: folds
+NIKO80: folds
+Perakralj: folds
+Uncalled bet ($11.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0 
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: NIKO80 folded before Flop 
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj (button) folded before Flop 
+Seat 6: kole1992 (small blind) collected ($10)
+Seat 7: MAdbARA (big blind) folded before Flop 
+Seat 8: tinkieri folded before Flop (didn't bet)
+
+
+Weplay Hand #76101745:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:37:42 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #6 is the button
+Seat 1: Allinfans72 ($61.86 in chips)
+Seat 2: NIKO80 ($38.26 in chips)
+Seat 4: FLIPER ($276.39 in chips)
+Seat 5: Perakralj ($100.15 in chips)
+Seat 6: kole1992 ($107 in chips)
+Seat 7: MAdbARA ($101.41 in chips)
+Seat 8: tinkieri ($197 in chips)
+MAdbARA: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Qh]
+Allinfans72: calls $1
+NIKO80: folds
+FLIPER: folds
+Perakralj: folds
+kole1992: raises $3.50 to $3.50
+MAdbARA: folds
+tinkieri: folds
+Allinfans72: calls $2.50
+*** FLOP *** [Jd 8d 3h]
+Allinfans72: checks
+kole1992: checks
+*** TURN *** [Jd 8d 3h] [2h]
+Allinfans72: bets $6
+kole1992: folds
+Uncalled bet ($6) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72 has timed out
+Allinfans72: doesn't show hand
+Allinfans72 collected $8.50 from pot
+*** SUMMARY ***
+Total pot $8.50 | Rake $0.42 
+Board [Jd 8d 3h 2h]
+Seat 1: Allinfans72 collected ($8.50)
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded on the Turn 
+Seat 7: MAdbARA (small blind) folded before Flop 
+Seat 8: tinkieri (big blind) folded before Flop 
+
+
+Weplay Hand #76101843:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:38:41 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #7 is the button
+Seat 1: Allinfans72 ($66.44 in chips)
+Seat 2: NIKO80 ($38.26 in chips)
+Seat 4: FLIPER ($276.39 in chips)
+Seat 5: Perakralj ($100.15 in chips)
+Seat 6: kole1992 ($103.50 in chips)
+Seat 7: MAdbARA ($100.91 in chips)
+Seat 8: tinkieri ($196 in chips)
+tinkieri: posts small blind $0.50
+Allinfans72: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Qs]
+NIKO80: calls $1
+FLIPER: calls $1
+Perakralj: raises $6.01 to $6.01
+kole1992: calls $6.01
+MAdbARA: folds
+tinkieri: folds
+Allinfans72: folds
+NIKO80: folds
+FLIPER: calls $5.01
+*** FLOP *** [2h 4s 8d]
+FLIPER: checks
+Perakralj: bets $10.26
+kole1992: calls $10.26
+FLIPER: folds
+*** TURN *** [2h 4s 8d] [Th]
+Perakralj: bets $31.68
+kole1992: calls $31.68
+*** RIVER *** [2h 4s 8d Th] [7h]
+Perakralj: checks
+kole1992: checks
+*** SHOW DOWN ***
+Perakralj: shows [Jh Kd] (high card King)
+kole1992: shows [Qd Qs] (a pair of Queens)
+kole1992 collected $104.41 from pot
+*** SUMMARY ***
+Total pot $104.41 | Rake $5.22 
+Board [2h 4s 8d Th 7h]
+Seat 1: Allinfans72 (big blind) folded before Flop 
+Seat 2: NIKO80 folded before Flop 
+Seat 4: FLIPER folded on the Flop 
+Seat 5: Perakralj showed [Jh Kd] and lost with high card King
+Seat 6: kole1992 showed [Qd Qs] and won ($104.41) with a pair of Queens
+Seat 7: MAdbARA (button) folded before Flop (didn't bet)
+Seat 8: tinkieri (small blind) folded before Flop 
+
+
+Weplay Hand #76102001:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:40:27 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #5 is the button
+Seat 1: Allinfans72 ($65.44 in chips)
+Seat 2: NIKO80 ($37.26 in chips)
+Seat 4: FLIPER ($270.38 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($154.74 in chips)
+Seat 7: MAdbARA ($100.91 in chips)
+Seat 8: tinkieri ($195.50 in chips)
+Allinfans72: posts the ante $3.43
+NIKO80: posts the ante $3.43
+FLIPER: posts the ante $3.43
+Perakralj: posts the ante $3.43
+kole1992: posts the ante $3.43
+MAdbARA: posts the ante $3.43
+tinkieri: posts the ante $3.43
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 5c]
+*** FLOP *** [Jd Qh 3d]
+kole1992: checks
+MAdbARA: checks
+tinkieri: checks
+Allinfans72: checks
+NIKO80: checks
+FLIPER: checks
+Perakralj: checks
+*** TURN *** [Jd Qh 3d] [3c]
+kole1992: checks
+MAdbARA: checks
+tinkieri: bets $6
+Allinfans72: raises $18 to $18
+NIKO80: folds
+FLIPER: folds
+Perakralj: folds
+kole1992: folds
+MAdbARA: folds
+tinkieri: folds
+Uncalled bet ($12) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72 has timed out
+Allinfans72: doesn't show hand
+Allinfans72 collected $36.01 from pot
+*** SUMMARY ***
+Total pot $36.01 | Rake $1.80 
+Board [Jd Qh 3d 3c]
+Seat 1: Allinfans72 collected ($36.01)
+Seat 2: NIKO80 folded on the Turn 
+Seat 4: FLIPER folded on the Turn 
+Seat 5: Perakralj (button) folded on the Turn 
+Seat 6: kole1992 folded on the Turn 
+Seat 7: MAdbARA folded on the Turn 
+Seat 8: tinkieri folded on the Turn 
+
+
+Weplay Hand #76102107:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:41:38 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #8 is the button
+Seat 1: Allinfans72 ($90.22 in chips)
+Seat 2: NIKO80 ($33.83 in chips)
+Seat 4: FLIPER ($266.95 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($151.31 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($186.07 in chips)
+Allinfans72: posts small blind $0.50
+NIKO80: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Qc]
+FLIPER: folds
+Perakralj: folds
+kole1992: folds
+MAdbARA: calls $1
+tinkieri: folds
+Allinfans72: calls $0.50
+NIKO80: checks
+*** FLOP *** [Ad 5c Ac]
+Allinfans72: bets $2
+NIKO80: folds
+MAdbARA: calls $2
+*** TURN *** [Ad 5c Ac] [9c]
+Allinfans72: checks
+MAdbARA: checks
+*** RIVER *** [Ad 5c Ac 9c] [8h]
+Allinfans72: checks
+MAdbARA: checks
+*** SHOW DOWN ***
+Allinfans72: shows [6d 6c] (two pair, Aces and Sixes)
+MAdbARA: mucks hand
+Allinfans72 collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [Ad 5c Ac 9c 8h]
+Seat 1: Allinfans72 (small blind) showed [6d 6c] and won ($7) with two pair, Aces and Sixes
+Seat 2: NIKO80 (big blind) folded on the Flop 
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA mucked
+Seat 8: tinkieri (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76102189:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:42:34 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #1 is the button
+Seat 1: Allinfans72 ($93.87 in chips)
+Seat 2: NIKO80 ($32.83 in chips)
+Seat 4: FLIPER ($266.95 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($151.31 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($186.07 in chips)
+NIKO80: posts small blind $0.50
+FLIPER: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 5c]
+Perakralj: folds
+kole1992: folds
+MAdbARA: calls $1
+tinkieri: folds
+Allinfans72: folds
+Pokahontas joins the table at seat #3
+NIKO80: calls $0.50
+FLIPER: checks
+*** FLOP *** [5h Ac 7d]
+NIKO80: checks
+FLIPER: checks
+MAdbARA: checks
+*** TURN *** [5h Ac 7d] [Qd]
+NIKO80: checks
+FLIPER: bets $3
+MAdbARA: folds
+NIKO80: raises $8 to $8
+FLIPER: calls $5
+*** RIVER *** [5h Ac 7d Qd] [Td]
+NIKO80: bets $23.83 and is all-in
+FLIPER: calls $23.83
+*** SHOW DOWN ***
+NIKO80: shows [5s Qh] (two pair, Queens and Fives)
+FLIPER: shows [3h Ad] (a pair of Aces)
+NIKO80 collected $66.66 from pot
+*** SUMMARY ***
+Total pot $66.66 | Rake $3.33 
+Board [5h Ac 7d Qd Td]
+Seat 1: Allinfans72 (button) folded before Flop (didn't bet)
+Seat 2: NIKO80 (small blind) showed [5s Qh] and won ($66.66) with two pair, Queens and Fives
+Seat 4: FLIPER (big blind) showed [3h Ad] and lost with a pair of Aces
+Seat 5: Perakralj folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded on the Turn 
+Seat 8: tinkieri folded before Flop (didn't bet)
+
+
+Weplay Hand #76102255:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:43:35 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #2 is the button
+Seat 1: Allinfans72 ($93.87 in chips)
+Seat 2: NIKO80 ($63.33 in chips)
+Seat 4: FLIPER ($234.12 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($151.31 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($186.07 in chips)
+FLIPER: posts small blind $0.50
+Perakralj: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Jh]
+kole1992: folds
+MAdbARA: folds
+tinkieri: raises $2.50 to $2.50
+Allinfans72: calls $2.50
+NIKO80: folds
+FLIPER: folds
+Perakralj: folds
+*** FLOP *** [6d Kd 9d]
+tinkieri: checks
+Allinfans72: bets $4
+tinkieri: folds
+Uncalled bet ($4) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72 has timed out
+Allinfans72: doesn't show hand
+Allinfans72 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [6d Kd 9d]
+Seat 1: Allinfans72 collected ($6.50)
+Seat 2: NIKO80 (button) folded before Flop (didn't bet)
+Seat 4: FLIPER (small blind) folded before Flop 
+Seat 5: Perakralj (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded before Flop (didn't bet)
+Seat 8: tinkieri folded on the Flop 
+
+
+Weplay Hand #76102299:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:44:12 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #4 is the button
+Seat 1: Allinfans72 ($97.55 in chips)
+Seat 2: NIKO80 ($63.33 in chips)
+Seat 4: FLIPER ($233.62 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($151.31 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($183.57 in chips)
+Perakralj: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 9c]
+MAdbARA: calls $1
+tinkieri: raises $5 to $5
+Allinfans72: calls $5
+NIKO80: folds
+FLIPER: folds
+Perakralj: folds
+kole1992: folds
+MAdbARA: calls $4
+*** FLOP *** [2s 2h Jh]
+MAdbARA: checks
+tinkieri: checks
+Allinfans72: bets $12
+MAdbARA: folds
+tinkieri: folds
+Uncalled bet ($12) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72: shows [Ad Js] (two pair, Jacks and Deuces)
+Allinfans72 collected $16.50 from pot
+*** SUMMARY ***
+Total pot $16.50 | Rake $0.82 
+Board [2s 2h Jh]
+Seat 1: Allinfans72 collected ($16.50)
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 4: FLIPER (button) folded before Flop (didn't bet)
+Seat 5: Perakralj (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: MAdbARA folded on the Flop 
+Seat 8: tinkieri folded on the Flop 
+
+
+Weplay Hand #76102343:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:44:50 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #5 is the button
+Seat 1: Allinfans72 ($108.23 in chips)
+Seat 2: NIKO80 ($63.33 in chips)
+Seat 4: FLIPER ($233.62 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($150.31 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($178.57 in chips)
+kole1992: posts small blind $0.50
+MAdbARA: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 9c]
+tinkieri: raises $2.50 to $2.50
+Allinfans72: folds
+NIKO80: calls $2.50
+FLIPER: raises $14 to $14
+Perakralj: folds
+kole1992: folds
+MAdbARA: folds
+tinkieri: calls $11.50
+NIKO80: folds
+*** FLOP *** [2c 5h 4d]
+tinkieri: checks
+FLIPER: bets $10.56
+tinkieri: raises $23.84 to $23.84
+FLIPER: calls $13.28
+*** TURN *** [2c 5h 4d] [5c]
+tinkieri: bets $24.93
+FLIPER: calls $24.93
+*** RIVER *** [2c 5h 4d 5c] [7d]
+tinkieri: checks
+FLIPER: checks
+*** SHOW DOWN ***
+tinkieri: shows [Qd Ad] (a pair of Fives)
+FLIPER: shows [Ac Qc] (a pair of Fives)
+FLIPER collected $64.76 from pot
+tinkieri collected $64.78 from pot
+*** SUMMARY ***
+Total pot $129.54 | Rake $6.47 
+Board [2c 5h 4d 5c 7d]
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: NIKO80 folded before Flop 
+Seat 4: FLIPER showed [Ac Qc] and won ($64.76) with a pair of Fives
+Seat 5: Perakralj (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: MAdbARA (big blind) folded before Flop 
+Seat 8: tinkieri showed [Qd Ad] and won ($64.78) with a pair of Fives
+
+
+Weplay Hand #76102450:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:46:44 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #6 is the button
+Seat 1: Allinfans72 ($108.23 in chips)
+Seat 2: NIKO80 ($60.83 in chips)
+Seat 4: FLIPER ($232.38 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($149.81 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($177.34 in chips)
+MAdbARA: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2c Kh]
+Allinfans72: folds
+NIKO80: raises $3 to $3
+Allinfans72 leaves the table
+FLIPER: folds
+Perakralj: folds
+markanen0 joins the table at seat #1
+kole1992: folds
+MAdbARA: folds
+tinkieri: raises $12.03 to $13.03
+NIKO80: folds
+Uncalled bet ($10.03) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri: doesn't show hand
+tinkieri collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: Allinfans72 folded before Flop (didn't bet)
+Seat 2: NIKO80 folded before Flop 
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: MAdbARA (small blind) folded before Flop 
+Seat 8: tinkieri (big blind) collected ($6.50)
+
+
+Weplay Hand #76102473:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:47:11 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #1 is the button
+Seat 1: markanen0 ($100 in chips)
+Seat 2: NIKO80 ($57.83 in chips)
+Seat 4: FLIPER ($232.38 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($149.81 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($180.84 in chips)
+markanen0: posts the ante $4.72
+NIKO80: posts the ante $4.72
+FLIPER: posts the ante $4.72
+Perakralj: posts the ante $4.72
+kole1992: posts the ante $4.72
+MAdbARA: posts the ante $4.72
+tinkieri: posts the ante $4.72
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 2h]
+*** FLOP *** [8s 5s 2c]
+NIKO80: checks
+FLIPER: checks
+Perakralj: bets $10.57
+kole1992: folds
+MAdbARA: calls $10.57
+tinkieri: folds
+markanen0: folds
+NIKO80: folds
+FLIPER: folds
+*** TURN *** [8s 5s 2c] [5h]
+Perakralj: bets $16.89
+MAdbARA: folds
+Uncalled bet ($16.89) returned to Perakralj
+*** SHOW DOWN ***
+Perakralj: doesn't show hand
+Perakralj collected $54.18 from pot
+*** SUMMARY ***
+Total pot $54.18 | Rake $2.70 
+Board [8s 5s 2c 5h]
+Seat 1: markanen0 (button) folded on the Flop 
+Seat 2: NIKO80 folded on the Flop 
+Seat 4: FLIPER folded on the Flop 
+Seat 5: Perakralj collected ($54.18)
+Seat 6: kole1992 folded on the Flop 
+Seat 7: MAdbARA folded on the Turn 
+Seat 8: tinkieri folded on the Flop 
+
+
+Weplay Hand #76102506:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:47:47 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #7 is the button
+Seat 1: markanen0 ($95.28 in chips)
+Seat 2: NIKO80 ($53.11 in chips)
+Seat 4: FLIPER ($227.66 in chips)
+Seat 5: Perakralj ($136.19 in chips)
+Seat 6: kole1992 ($145.09 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($176.12 in chips)
+tinkieri: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 9s]
+NIKO80: folds
+FLIPER: folds
+Perakralj: folds
+kole1992: folds
+MAdbARA: raises $2 to $2
+tinkieri: folds
+markanen0: folds
+Uncalled bet ($1) returned to MAdbARA
+*** SHOW DOWN ***
+MAdbARA: doesn't show hand
+MAdbARA collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: markanen0 (big blind) folded before Flop 
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA (button) collected ($2.50)
+Seat 8: tinkieri (small blind) folded before Flop 
+
+
+Weplay Hand #76102516:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:48:06 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #8 is the button
+Seat 1: markanen0 ($94.28 in chips)
+Seat 2: NIKO80 ($53.11 in chips)
+Seat 4: FLIPER ($227.66 in chips)
+Seat 5: Perakralj ($136.19 in chips)
+Seat 6: kole1992 ($145.09 in chips)
+Seat 7: MAdbARA ($101.50 in chips)
+Seat 8: tinkieri ($175.62 in chips)
+markanen0: posts small blind $0.50
+NIKO80: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Ts]
+FLIPER: folds
+Perakralj: raises $2.50 to $2.50
+kole1992: folds
+MAdbARA: folds
+tinkieri: folds
+markanen0: folds
+NIKO80: calls $1.50
+*** FLOP *** [8c 6h 9d]
+NIKO80: checks
+Perakralj: bets $3.25
+NIKO80: folds
+Uncalled bet ($3.25) returned to Perakralj
+*** SHOW DOWN ***
+Perakralj: doesn't show hand
+Perakralj collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [8c 6h 9d]
+Seat 1: markanen0 (small blind) folded before Flop 
+Seat 2: NIKO80 (big blind) folded on the Flop 
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj collected ($5.50)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded before Flop (didn't bet)
+Seat 8: tinkieri (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76102556:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:48:53 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #1 is the button
+Seat 1: markanen0 ($93.78 in chips)
+Seat 2: NIKO80 ($50.61 in chips)
+Seat 3: Pokahontas ($100 in chips)
+Seat 4: FLIPER ($227.66 in chips)
+Seat 5: Perakralj ($138.92 in chips)
+Seat 6: kole1992 ($145.09 in chips)
+Seat 7: MAdbARA ($101.50 in chips)
+Seat 8: tinkieri ($175.62 in chips)
+NIKO80: posts small blind $0.50
+Pokahontas: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 5c]
+FLIPER: folds
+Perakralj: raises $2.50 to $2.50
+kole1992: folds
+MAdbARA: folds
+tinkieri: folds
+markanen0: folds
+NIKO80: calls $2
+Pokahontas: folds
+*** FLOP *** [Kd Qc 2s]
+NIKO80: checks
+Perakralj: checks
+*** TURN *** [Kd Qc 2s] [Qs]
+NIKO80: checks
+Perakralj: checks
+*** RIVER *** [Kd Qc 2s Qs] [2h]
+NIKO80: checks
+Perakralj: checks
+*** SHOW DOWN ***
+NIKO80: shows [Kh As] (two pair, Kings and Queens)
+Perakralj: mucks hand
+NIKO80 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Kd Qc 2s Qs 2h]
+Seat 1: markanen0 (button) folded before Flop (didn't bet)
+Seat 2: NIKO80 (small blind) showed [Kh As] and won ($6) with two pair, Kings and Queens
+Seat 3: Pokahontas (big blind) folded before Flop 
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj mucked
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded before Flop (didn't bet)
+Seat 8: tinkieri folded before Flop (didn't bet)
+
+
+Weplay Hand #76102602:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:49:43 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #6 is the button
+Seat 1: markanen0 ($93.78 in chips)
+Seat 2: NIKO80 ($53.81 in chips)
+Seat 3: Pokahontas ($100 in chips)
+Seat 4: FLIPER ($227.66 in chips)
+Seat 5: Perakralj ($136.42 in chips)
+Seat 6: kole1992 ($145.09 in chips)
+Seat 7: MAdbARA ($101.50 in chips)
+Seat 8: tinkieri ($175.62 in chips)
+markanen0: posts the ante $3.99
+NIKO80: posts the ante $3.99
+Pokahontas: posts the ante $3.99
+FLIPER: posts the ante $3.99
+Perakralj: posts the ante $3.99
+kole1992: posts the ante $3.99
+MAdbARA: posts the ante $3.99
+tinkieri: posts the ante $3.99
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Ad]
+*** FLOP *** [8h 6d 2d]
+MAdbARA: checks
+tinkieri: checks
+markanen0: checks
+NIKO80: checks
+Pokahontas: checks
+FLIPER: checks
+Perakralj: checks
+kole1992: bets $4.18
+MAdbARA: calls $4.18
+tinkieri: folds
+tinkieri: sits out 
+markanen0: folds
+NIKO80: folds
+Pokahontas: folds
+FLIPER: calls $4.18
+Perakralj: folds
+*** TURN *** [8h 6d 2d] [Kd]
+MAdbARA: checks
+FLIPER: checks
+kole1992: bets $10.67
+MAdbARA: calls $10.67
+FLIPER: folds
+*** RIVER *** [8h 6d 2d Kd] [3d]
+MAdbARA: checks
+kole1992: bets $28.50
+MAdbARA: calls $28.50
+*** SHOW DOWN ***
+kole1992: shows [8d Ad] (a flush, Ace high)
+MAdbARA: mucks hand
+kole1992 collected $122.80 from pot
+*** SUMMARY ***
+Total pot $122.80 | Rake $6.14 
+Board [8h 6d 2d Kd 3d]
+Seat 1: markanen0 folded on the Flop 
+Seat 2: NIKO80 folded on the Flop 
+Seat 3: Pokahontas folded on the Flop 
+Seat 4: FLIPER folded on the Turn 
+Seat 5: Perakralj folded on the Flop 
+Seat 6: kole1992 (button) showed [8d Ad] and won ($122.80) with a flush, Ace high
+Seat 7: MAdbARA mucked
+Seat 8: tinkieri folded on the Flop 
+
+
+Weplay Hand #76102694:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:51:35 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #2 is the button
+Seat 1: markanen0 ($89.79 in chips)
+Seat 2: NIKO80 ($49.82 in chips)
+Seat 3: Pokahontas ($100 in chips)
+Seat 4: FLIPER ($219.49 in chips)
+Seat 5: Perakralj ($132.43 in chips)
+Seat 6: kole1992 ($214.41 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Pokahontas: posts small blind $0.50
+FLIPER: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As Ah]
+Perakralj: raises $2.50 to $2.50
+kole1992: raises $6.50 to $6.50
+MAdbARA: folds
+markanen0: folds
+NIKO80: folds
+Pokahontas: folds
+FLIPER: calls $5.50
+Perakralj: raises $21.50 to $24
+kole1992: calls $17.50
+FLIPER: folds
+*** FLOP *** [7s 2s 8c]
+Perakralj: bets $17
+kole1992: calls $17
+*** TURN *** [7s 2s 8c] [Js]
+Perakralj: bets $91.43 and is all-in
+kole1992: calls $91.43
+*** RIVER *** [7s 2s 8c Js] [Kc]
+*** SHOW DOWN ***
+Perakralj: shows [Ac Qs] (high card Ace)
+kole1992: shows [As Ah] (a pair of Aces)
+kole1992 collected $271.86 from pot
+*** SUMMARY ***
+Total pot $271.86 | Rake $6.50 
+Board [7s 2s 8c Js Kc]
+Seat 1: markanen0 folded before Flop (didn't bet)
+Seat 2: NIKO80 (button) folded before Flop (didn't bet)
+Seat 3: Pokahontas (small blind) folded before Flop 
+Seat 4: FLIPER (big blind) folded before Flop 
+Seat 5: Perakralj showed [Ac Qs] and lost with high card Ace
+Seat 6: kole1992 showed [As Ah] and won ($271.86) with a pair of Aces
+Seat 7: MAdbARA folded before Flop (didn't bet)
+
+
+Weplay Hand #76102764:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:53:08 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #3 is the button
+Seat 1: markanen0 ($89.79 in chips)
+Seat 2: NIKO80 ($49.82 in chips)
+Seat 3: Pokahontas ($100 in chips)
+Seat 4: FLIPER ($212.99 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($347.34 in chips)
+Seat 7: MAdbARA ($100 in chips)
+FLIPER: posts small blind $0.50
+Perakralj: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 5s]
+kole1992: folds
+MAdbARA: folds
+markanen0: folds
+NIKO80: folds
+Pokahontas: folds
+FLIPER: raises $2.50 to $3
+Perakralj: folds
+Uncalled bet ($2) returned to FLIPER
+*** SHOW DOWN ***
+FLIPER has timed out
+FLIPER: doesn't show hand
+FLIPER collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: markanen0 folded before Flop (didn't bet)
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 3: Pokahontas (button) folded before Flop (didn't bet)
+Seat 4: FLIPER (small blind) collected ($2)
+Seat 5: Perakralj (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded before Flop (didn't bet)
+
+
+Weplay Hand #76102803:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:53:46 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #4 is the button
+Seat 1: markanen0 ($89.79 in chips)
+Seat 2: NIKO80 ($49.82 in chips)
+Seat 3: Pokahontas ($100 in chips)
+Seat 4: FLIPER ($213.99 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($347.34 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Perakralj: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 3s]
+MAdbARA: folds
+markanen0: folds
+NIKO80: folds
+Pokahontas: raises $2.50 to $2.50
+FLIPER: folds
+Perakralj: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to Pokahontas
+*** SHOW DOWN ***
+Pokahontas: doesn't show hand
+Pokahontas collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: markanen0 folded before Flop (didn't bet)
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 3: Pokahontas collected ($2.50)
+Seat 4: FLIPER (button) folded before Flop (didn't bet)
+Seat 5: Perakralj (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: MAdbARA folded before Flop (didn't bet)
+
+
+Weplay Hand #76102825:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:54:18 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #3 is the button
+Seat 1: markanen0 ($89.79 in chips)
+Seat 2: NIKO80 ($49.82 in chips)
+Seat 3: Pokahontas ($101.50 in chips)
+Seat 4: FLIPER ($213.99 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($346.34 in chips)
+Seat 7: MAdbARA ($100 in chips)
+markanen0: posts the ante $4.64
+NIKO80: posts the ante $4.64
+Pokahontas: posts the ante $4.64
+FLIPER: posts the ante $4.64
+Perakralj: posts the ante $4.64
+kole1992: posts the ante $4.64
+MAdbARA: posts the ante $4.64
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Js]
+*** FLOP *** [6h 8s Jh]
+FLIPER: checks
+Perakralj: bets $10.39
+kole1992: folds
+MAdbARA: folds
+markanen0 has timed out
+markanen0: folds
+markanen0: sits out 
+NIKO80: raises $45.18 to $45.18 and is all-in
+Pokahontas: folds
+FLIPER: folds
+Perakralj: calls $34.79
+*** TURN *** [6h 8s Jh] [Td]
+*** RIVER *** [6h 8s Jh Td] [Jd]
+*** SHOW DOWN ***
+Perakralj: shows [Jc Kd] (three of a kind, Jacks)
+NIKO80: shows [8d 8h] (a full house, Eights full of Jacks)
+NIKO80 collected $122.84 from pot
+*** SUMMARY ***
+Total pot $122.84 | Rake $6.14 
+Board [6h 8s Jh Td Jd]
+Seat 1: markanen0 folded on the Flop 
+Seat 2: NIKO80 showed [8d 8h] and won ($122.84) with a full house, Eights full of Jacks
+Seat 3: Pokahontas (button) folded on the Flop 
+Seat 4: FLIPER folded on the Flop 
+Seat 5: Perakralj showed [Jc Kd] and lost with three of a kind, Jacks
+Seat 6: kole1992 folded on the Flop 
+Seat 7: MAdbARA folded on the Flop 
+
+
+Weplay Hand #76102874:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:55:27 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #5 is the button
+Seat 1: markanen0 ($85.15 in chips)
+Seat 2: NIKO80 ($116.70 in chips)
+Seat 3: Pokahontas ($100 in chips)
+Seat 4: FLIPER ($209.35 in chips)
+Seat 5: Perakralj ($100 in chips)
+Seat 6: kole1992 ($341.70 in chips)
+Seat 7: MAdbARA ($100 in chips)
+kole1992: posts small blind $0.50
+MAdbARA: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Qc]
+markanen0: folds
+NIKO80: folds
+Pokahontas: folds
+FLIPER: folds
+Perakralj: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to MAdbARA
+*** SHOW DOWN ***
+MAdbARA: doesn't show hand
+MAdbARA collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: markanen0 folded before Flop (didn't bet)
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 3: Pokahontas folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 5: Perakralj (button) folded before Flop (didn't bet)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: MAdbARA (big blind) collected ($1)
+
+
+Weplay Hand #76102883:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:55:49 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #6 is the button
+Seat 1: markanen0 ($85.15 in chips)
+Seat 2: NIKO80 ($116.70 in chips)
+Seat 3: Pokahontas ($100 in chips)
+Seat 4: FLIPER ($209.35 in chips)
+Seat 6: kole1992 ($341.20 in chips)
+Seat 7: MAdbARA ($100.50 in chips)
+MAdbARA: posts small blind $0.50
+markanen0: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 4d]
+NIKO80: folds
+Pokahontas: folds
+FLIPER: folds
+kole1992: folds
+MAdbARA: raises $3.50 to $4
+markanen0: folds
+Uncalled bet ($3) returned to MAdbARA
+*** SHOW DOWN ***
+MAdbARA: doesn't show hand
+MAdbARA collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: markanen0 (big blind) folded before Flop 
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 3: Pokahontas folded before Flop (didn't bet)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 6: kole1992 (button) folded before Flop (didn't bet)
+Seat 7: MAdbARA (small blind) collected ($2)
+
+
+Weplay Hand #76102887:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:56:03 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #7 is the button
+Seat 1: markanen0 ($84.15 in chips)
+Seat 2: NIKO80 ($116.70 in chips)
+Seat 3: Pokahontas ($100 in chips)
+Seat 4: FLIPER ($209.35 in chips)
+Seat 6: kole1992 ($341.20 in chips)
+Seat 7: MAdbARA ($101.50 in chips)
+markanen0: posts small blind $0.50
+NIKO80: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Kc]
+Pokahontas: raises $2.50 to $2.50
+FLIPER: folds
+kole1992: folds
+MAdbARA: calls $2.50
+markanen0: folds
+NIKO80: folds
+*** FLOP *** [Ac 4c As]
+Pokahontas: bets $2.16
+MAdbARA: calls $2.16
+*** TURN *** [Ac 4c As] [7c]
+Pokahontas: checks
+MAdbARA: checks
+*** RIVER *** [Ac 4c As 7c] [7h]
+Pokahontas: bets $16
+MAdbARA: folds
+Uncalled bet ($16) returned to Pokahontas
+*** SHOW DOWN ***
+Pokahontas: doesn't show hand
+Pokahontas collected $10.82 from pot
+*** SUMMARY ***
+Total pot $10.82 | Rake $0.54 
+Board [Ac 4c As 7c 7h]
+Seat 1: markanen0 (small blind) folded before Flop 
+Seat 2: NIKO80 (big blind) folded before Flop 
+Seat 3: Pokahontas collected ($10.82)
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA (button) folded on the River 
+
+
+Weplay Hand #76102919:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:57:22 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #1 is the button
+Seat 1: markanen0 ($83.65 in chips)
+Seat 2: NIKO80 ($115.70 in chips)
+Seat 3: Pokahontas ($105.62 in chips)
+Seat 4: FLIPER ($209.35 in chips)
+Seat 6: kole1992 ($341.20 in chips)
+Seat 7: MAdbARA ($100 in chips)
+NIKO80: posts small blind $0.50
+Pokahontas: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Ts]
+FLIPER: folds
+kole1992: folds
+MAdbARA: folds
+markanen0 has timed out
+markanen0: folds
+NIKO80: raises $3.50 to $4
+Pokahontas: folds
+Uncalled bet ($3) returned to NIKO80
+*** SHOW DOWN ***
+NIKO80: doesn't show hand
+NIKO80 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: markanen0 (button) folded before Flop (didn't bet)
+Seat 2: NIKO80 (small blind) collected ($2)
+Seat 3: Pokahontas (big blind) folded before Flop 
+Seat 4: FLIPER folded before Flop (didn't bet)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded before Flop (didn't bet)
+
+
+Weplay Hand #76102929:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:57:56 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #2 is the button
+Seat 1: markanen0 ($83.65 in chips)
+Seat 2: NIKO80 ($116.70 in chips)
+Seat 3: Pokahontas ($104.62 in chips)
+Seat 4: FLIPER ($209.35 in chips)
+Seat 6: kole1992 ($341.20 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Pokahontas: posts small blind $0.50
+FLIPER: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Jc]
+kole1992: folds
+MAdbARA: calls $1
+markanen0: raises $4.50 to $4.50
+NIKO80: folds
+Pokahontas: folds
+FLIPER: calls $3.50
+MAdbARA: calls $3.50
+*** FLOP *** [Jd Ah 4h]
+FLIPER: checks
+MAdbARA: checks
+markanen0: bets $7
+FLIPER: calls $7
+MAdbARA: calls $7
+*** TURN *** [Jd Ah 4h] [5c]
+FLIPER: checks
+MAdbARA: checks
+markanen0: bets $20
+FLIPER: calls $20
+MAdbARA: folds
+*** RIVER *** [Jd Ah 4h 5c] [5h]
+FLIPER: checks
+markanen0: checks
+*** SHOW DOWN ***
+FLIPER: shows [Kh Th] (a flush, Ace high)
+markanen0 has timed out
+markanen0: mucks hand
+FLIPER collected $75 from pot
+*** SUMMARY ***
+Total pot $75 | Rake $3.75 
+Board [Jd Ah 4h 5c 5h]
+Seat 1: markanen0 mucked
+Seat 2: NIKO80 (button) folded before Flop (didn't bet)
+Seat 3: Pokahontas (small blind) folded before Flop 
+Seat 4: FLIPER (big blind) showed [Kh Th] and won ($75) with a flush, Ace high
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded on the Turn 
+
+
+Weplay Hand #76102958:  Hold'em No Limit ($0.50/$1) - 2026/02/18 14:59:29 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #3 is the button
+Seat 1: markanen0 ($52.15 in chips)
+Seat 2: NIKO80 ($116.70 in chips)
+Seat 3: Pokahontas ($104.12 in chips)
+Seat 4: FLIPER ($249.10 in chips)
+Seat 5: Falcaoo9 ($100 in chips)
+Seat 6: kole1992 ($341.20 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($171.63 in chips)
+FLIPER: posts small blind $0.50
+Falcaoo9: posts big blind $1
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 4d]
+kole1992: folds
+MAdbARA: calls $1
+tinkieri: checks
+markanen0: folds
+NIKO80: folds
+Pokahontas: folds
+FLIPER: folds
+Falcaoo9: checks
+*** FLOP *** [7s Kh Ad]
+Falcaoo9: bets $2.03
+MAdbARA: folds
+tinkieri: folds
+Uncalled bet ($2.03) returned to Falcaoo9
+*** SHOW DOWN ***
+Falcaoo9: doesn't show hand
+Falcaoo9 collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0.17 
+Board [7s Kh Ad]
+Seat 1: markanen0 folded before Flop (didn't bet)
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 3: Pokahontas (button) folded before Flop (didn't bet)
+Seat 4: FLIPER (small blind) folded before Flop 
+Seat 5: Falcaoo9 (big blind) collected ($3.50)
+Seat 6: kole1992 folded before Flop (didn't bet)
+Seat 7: MAdbARA folded on the Flop 
+Seat 8: tinkieri (big blind) folded on the Flop 
+
+
+Weplay Hand #76102972:  Hold'em No Limit ($0.50/$1) - 2026/02/18 15:00:08 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #2'(11620802) 8-max (Money 3) Seat #4 is the button
+Seat 1: markanen0 ($52.15 in chips)
+Seat 2: NIKO80 ($116.70 in chips)
+Seat 4: FLIPER ($248.60 in chips)
+Seat 5: Falcaoo9 ($102.33 in chips)
+Seat 6: kole1992 ($341.20 in chips)
+Seat 7: MAdbARA ($100 in chips)
+Seat 8: tinkieri ($170.63 in chips)
+Falcaoo9: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Js]
+MAdbARA: folds
+tinkieri: folds
+markanen0: raises $2.50 to $2.50
+NIKO80: folds
+FLIPER: folds
+Falcaoo9: folds
+kole1992: calls $1.50
+*** FLOP *** [Jh 4c Ah]
+kole1992: checks
+markanen0: bets $2.75
+kole1992: calls $2.75
+*** TURN *** [Jh 4c Ah] [2s]
+kole1992: checks
+markanen0: bets $5.50
+kole1992: folds
+Uncalled bet ($5.50) returned to markanen0
+*** SHOW DOWN ***
+kole1992: sits out 
+markanen0 has timed out
+markanen0: doesn't show hand
+markanen0 collected $11 from pot
+*** SUMMARY ***
+Total pot $11 | Rake $0.55 
+Board [Jh 4c Ah 2s]
+Seat 1: markanen0 collected ($11)
+Seat 2: NIKO80 folded before Flop (didn't bet)
+Seat 4: FLIPER (button) folded before Flop (didn't bet)
+Seat 5: Falcaoo9 (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded on the Turn 
+Seat 7: MAdbARA folded before Flop (didn't bet)
+Seat 8: tinkieri folded before Flop (didn't bet)

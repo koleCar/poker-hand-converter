@@ -1,0 +1,977 @@
+﻿Weplay Hand #73831895:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:57:19 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($50 in chips)
+Seat 2: JTs98o ($50.62 in chips)
+Seat 3: sadam ($107.04 in chips)
+Seat 5: KratkiLucky ($54.67 in chips)
+Seat 6: AndrejT1000 ($75.12 in chips)
+Seat 7: betting18 ($72.52 in chips)
+Seat 8: Doumby ($50.97 in chips)
+sadam: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Js]
+AndrejT1000: folds
+betting18: folds
+Doumby: raises $2 to $2
+kole1992: raises $5.25 to $5.75
+Jordanpokera is connected 
+JTs98o: folds
+sadam: folds
+KratkiLucky: folds
+Doumby: raises $13.50 to $15.50
+kole1992: raises $44.25 to $50 and is all-in
+Doumby: folds
+Uncalled bet ($34.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $31.75 from pot
+*** SUMMARY ***
+Total pot $31.75 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($31.75)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: sadam (small blind) folded before Flop 
+Seat 5: KratkiLucky (big blind) folded before Flop 
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby folded before Flop 
+
+
+Weplay Hand #73831911:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:58:25 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($66.25 in chips)
+Seat 2: JTs98o ($50.62 in chips)
+Seat 3: sadam ($106.79 in chips)
+Seat 5: KratkiLucky ($54.17 in chips)
+Seat 6: AndrejT1000 ($75.12 in chips)
+Seat 7: betting18 ($72.52 in chips)
+Seat 8: Doumby ($35.47 in chips)
+KratkiLucky: posts small blind $0.25
+AndrejT1000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 2h]
+betting18: folds
+Doumby: folds
+kole1992: folds
+JTs98o: folds
+sadam: folds
+KratkiLucky: folds
+Uncalled bet ($0.25) returned to AndrejT1000
+*** SHOW DOWN ***
+AndrejT1000: doesn't show hand
+AndrejT1000 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: sadam (button) folded before Flop (didn't bet)
+Seat 5: KratkiLucky (small blind) folded before Flop 
+Seat 6: AndrejT1000 (big blind) collected ($0.50)
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73831915:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:58:42 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($66.25 in chips)
+Seat 2: JTs98o ($50.62 in chips)
+Seat 3: sadam ($106.79 in chips)
+Seat 4: Jordanpokera ($61.91 in chips)
+Seat 5: KratkiLucky ($53.92 in chips)
+Seat 6: AndrejT1000 ($75.37 in chips)
+Seat 7: betting18 ($72.52 in chips)
+Seat 8: Doumby ($35.47 in chips)
+AndrejT1000: posts small blind $0.25
+betting18: posts big blind $0.50
+Jordanpokera: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Kc]
+Doumby: folds
+kole1992: folds
+JTs98o: raises $1.75 to $1.75
+sadam: folds
+Jordanpokera: calls $1.25
+KratkiLucky: folds
+AndrejT1000: folds
+betting18: calls $1.25
+*** FLOP *** [4h 7s 5h]
+betting18: checks
+JTs98o: checks
+Jordanpokera: checks
+*** TURN *** [4h 7s 5h] [3d]
+betting18: checks
+JTs98o: checks
+Jordanpokera: bets $3
+betting18: calls $3
+JTs98o: folds
+*** RIVER *** [4h 7s 5h 3d] [4s]
+betting18: checks
+Jordanpokera: checks
+*** SHOW DOWN ***
+betting18: shows [8h 8c] (two pair, Eights and Fours)
+Jordanpokera: mucks hand
+betting18 collected $11.50 from pot
+*** SUMMARY ***
+Total pot $11.50 | Rake $0.57 
+Board [4h 7s 5h 3d 4s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded on the Turn 
+Seat 3: sadam folded before Flop (didn't bet)
+Seat 4: Jordanpokera (big blind) mucked
+Seat 5: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 6: AndrejT1000 (small blind) folded before Flop 
+Seat 7: betting18 (big blind) showed [8h 8c] and won ($11.50) with two pair, Eights and Fours
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73831931:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 19:59:45 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($66.25 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: sadam ($106.79 in chips)
+Seat 4: Jordanpokera ($57.16 in chips)
+Seat 5: KratkiLucky ($53.92 in chips)
+Seat 6: AndrejT1000 ($75.12 in chips)
+Seat 7: betting18 ($78.70 in chips)
+Seat 8: Doumby ($50 in chips)
+betting18: posts small blind $0.25
+Doumby: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 6s]
+kole1992: folds
+JTs98o: folds
+sadam: folds
+Jordanpokera: calls $0.50
+KratkiLucky: folds
+AndrejT1000: folds
+kole1992 is disconnected 
+Doumby: checks
+*** FLOP *** [Jd 6h 4c]
+kole1992 is connected 
+betting18: checks
+Doumby: checks
+Jordanpokera: checks
+*** TURN *** [Jd 6h 4c] [9h]
+betting18: checks
+Doumby: checks
+Jordanpokera: bets $1
+betting18: folds
+Doumby: folds
+Uncalled bet ($1) returned to Jordanpokera
+*** SHOW DOWN ***
+Jordanpokera: doesn't show hand
+Jordanpokera collected $1.50 from pot
+*** SUMMARY ***
+Total pot $1.50 | Rake $0.07 
+Board [Jd 6h 4c 9h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: sadam folded before Flop (didn't bet)
+Seat 4: Jordanpokera collected ($1.50)
+Seat 5: KratkiLucky folded before Flop (didn't bet)
+Seat 6: AndrejT1000 (button) folded before Flop (didn't bet)
+Seat 7: betting18 (small blind) folded on the Turn 
+Seat 8: Doumby (big blind) folded on the Turn 
+
+
+Weplay Hand #73831953:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:00:44 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($66.25 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: sadam ($106.79 in chips)
+Seat 4: Jordanpokera ($58.09 in chips)
+Seat 5: KratkiLucky ($53.92 in chips)
+Seat 6: AndrejT1000 ($75.12 in chips)
+Seat 7: betting18 ($78.20 in chips)
+Seat 8: Doumby ($49.50 in chips)
+Doumby: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 5d]
+JTs98o: folds
+sadam: folds
+Jordanpokera: folds
+KratkiLucky: folds
+AndrejT1000: folds
+betting18: folds
+Doumby: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($0.50)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: sadam folded before Flop (didn't bet)
+Seat 4: Jordanpokera folded before Flop (didn't bet)
+Seat 5: KratkiLucky folded before Flop (didn't bet)
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 (button) folded before Flop (didn't bet)
+Seat 8: Doumby (small blind) folded before Flop 
+
+
+Weplay Hand #73831963:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:01:02 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #8 is the button
+Seat 1: kole1992 ($66.50 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: sadam ($106.79 in chips)
+Seat 4: Jordanpokera ($58.09 in chips)
+Seat 5: KratkiLucky ($53.92 in chips)
+Seat 6: AndrejT1000 ($75.12 in chips)
+Seat 7: betting18 ($78.20 in chips)
+Seat 8: Doumby ($49.25 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 7h]
+sadam: folds
+Jordanpokera is disconnected 
+Jordanpokera is connected 
+Jordanpokera: calls $0.50
+KratkiLucky: folds
+AndrejT1000: folds
+betting18: folds
+Doumby: folds
+kole1992: folds
+JTs98o: checks
+*** FLOP *** [7d As 8h]
+JTs98o: checks
+Jordanpokera: checks
+*** TURN *** [7d As 8h] [5c]
+JTs98o: bets $1.45
+Jordanpokera: folds
+Uncalled bet ($1.45) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0.06 
+Board [7d As 8h 5c]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) collected ($1.25)
+Seat 3: sadam folded before Flop (didn't bet)
+Seat 4: Jordanpokera folded on the Turn 
+Seat 5: KratkiLucky folded before Flop (didn't bet)
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73831982:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:01:40 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($66.25 in chips)
+Seat 2: JTs98o ($50.69 in chips)
+Seat 3: sadam ($106.79 in chips)
+Seat 4: Jordanpokera ($57.59 in chips)
+Seat 5: KratkiLucky ($53.92 in chips)
+Seat 6: AndrejT1000 ($75.12 in chips)
+Seat 7: betting18 ($78.20 in chips)
+Seat 8: Doumby ($49.25 in chips)
+JTs98o: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Kd]
+Jordanpokera: folds
+KratkiLucky: folds
+AndrejT1000: raises $1.50 to $1.50
+betting18: folds
+Doumby: folds
+kole1992: folds
+JTs98o: folds
+sadam: folds
+Uncalled bet ($1) returned to AndrejT1000
+*** SHOW DOWN ***
+AndrejT1000: doesn't show hand
+AndrejT1000 collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: JTs98o (small blind) folded before Flop 
+Seat 3: sadam (big blind) folded before Flop 
+Seat 4: Jordanpokera folded before Flop (didn't bet)
+Seat 5: KratkiLucky folded before Flop (didn't bet)
+Seat 6: AndrejT1000 collected ($1.25)
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73831996:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:02:06 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($66.25 in chips)
+Seat 2: JTs98o ($50.44 in chips)
+Seat 3: sadam ($106.29 in chips)
+Seat 4: Jordanpokera ($57.59 in chips)
+Seat 5: KratkiLucky ($53.92 in chips)
+Seat 6: AndrejT1000 ($75.87 in chips)
+Seat 7: betting18 ($78.20 in chips)
+Seat 8: Doumby ($49.25 in chips)
+sadam: posts small blind $0.25
+Jordanpokera: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 5h]
+KratkiLucky: raises $1.25 to $1.25
+AndrejT1000: folds
+betting18: folds
+Doumby: calls $1.25
+kole1992: folds
+JTs98o: folds
+sadam: folds
+Jordanpokera: folds
+*** FLOP *** [Qc 5d 6s]
+KratkiLucky: checks
+Doumby: checks
+*** TURN *** [Qc 5d 6s] [8d]
+KratkiLucky: checks
+Doumby: bets $1.25
+KratkiLucky: folds
+Uncalled bet ($1.25) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [Qc 5d 6s 8d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: sadam (small blind) folded before Flop 
+Seat 4: Jordanpokera (big blind) folded before Flop 
+Seat 5: KratkiLucky folded on the Turn 
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby collected ($3.25)
+
+
+Weplay Hand #73832031:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:03:05 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($66.25 in chips)
+Seat 2: JTs98o ($50.44 in chips)
+Seat 3: sadam ($106.04 in chips)
+Seat 4: Jordanpokera ($57.09 in chips)
+Seat 5: KratkiLucky ($52.67 in chips)
+Seat 6: AndrejT1000 ($75.87 in chips)
+Seat 7: betting18 ($78.20 in chips)
+Seat 8: Doumby ($51.09 in chips)
+Jordanpokera: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 6d]
+AndrejT1000: raises $1.50 to $1.50
+betting18: folds
+Doumby: calls $1.50
+kole1992: folds
+JTs98o: folds
+sadam: folds
+Jordanpokera: folds
+KratkiLucky: folds
+*** FLOP *** [8c 2s 7d]
+AndrejT1000: bets $2.33
+Doumby: calls $2.33
+*** TURN *** [8c 2s 7d] [Kc]
+AndrejT1000: bets $5.21
+Doumby: calls $5.21
+*** RIVER *** [8c 2s 7d Kc] [3h]
+AndrejT1000: checks
+Doumby: bets $7
+AndrejT1000: folds
+Uncalled bet ($7) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $18.83 from pot
+*** SUMMARY ***
+Total pot $18.83 | Rake $0.94 
+Board [8c 2s 7d Kc 3h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: sadam (button) folded before Flop (didn't bet)
+Seat 4: Jordanpokera (small blind) folded before Flop 
+Seat 5: KratkiLucky (big blind) folded before Flop 
+Seat 6: AndrejT1000 folded on the River 
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby collected ($18.83)
+
+
+Weplay Hand #73832055:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:04:06 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($66.25 in chips)
+Seat 2: JTs98o ($50.44 in chips)
+Seat 3: sadam ($106.04 in chips)
+Seat 4: Jordanpokera ($56.84 in chips)
+Seat 5: KratkiLucky ($52.17 in chips)
+Seat 6: AndrejT1000 ($66.83 in chips)
+Seat 7: betting18 ($78.20 in chips)
+Seat 8: Doumby ($59.94 in chips)
+KratkiLucky: posts small blind $0.25
+AndrejT1000: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh As]
+betting18: folds
+Doumby: folds
+kole1992: raises $1 to $1
+JTs98o: raises $3 to $3
+sadam: folds
+Jordanpokera: folds
+KratkiLucky: folds
+AndrejT1000: calls $2.50
+kole1992: raises $8.75 to $9.75
+JTs98o: calls $6.75
+AndrejT1000: calls $6.75
+*** FLOP *** [Qc Jd 5h]
+AndrejT1000: checks
+kole1992: checks
+JTs98o: bets $6.25
+AndrejT1000: folds
+kole1992: calls $6.25
+*** TURN *** [Qc Jd 5h] [7s]
+kole1992: checks
+JTs98o: bets $10
+kole1992: raises $50.25 to $50.25 and is all-in
+JTs98o: folds
+Uncalled bet ($40.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $62 from pot
+*** SUMMARY ***
+Total pot $62 | Rake $3.10 
+Board [Qc Jd 5h 7s]
+Seat 1: kole1992 collected ($62)
+Seat 2: JTs98o folded on the Turn 
+Seat 3: sadam folded before Flop (didn't bet)
+Seat 4: Jordanpokera (button) folded before Flop (didn't bet)
+Seat 5: KratkiLucky (small blind) folded before Flop 
+Seat 6: AndrejT1000 (big blind) folded on the Flop 
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73832112:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:05:56 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($99.15 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: sadam ($106.04 in chips)
+Seat 4: Jordanpokera ($56.84 in chips)
+Seat 5: KratkiLucky ($51.92 in chips)
+Seat 6: AndrejT1000 ($57.08 in chips)
+Seat 7: betting18 ($78.20 in chips)
+Seat 8: Doumby ($59.94 in chips)
+AndrejT1000: posts small blind $0.25
+betting18: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 5d]
+Doumby: raises $1 to $1
+kole1992: folds
+JTs98o: folds
+sadam: folds
+Jordanpokera: calls $1
+KratkiLucky: raises $6.25 to $6.25
+AndrejT1000: folds
+betting18: folds
+Doumby: calls $5.25
+Jordanpokera: calls $5.25
+*** FLOP *** [Qd 8s 5c]
+Doumby: checks
+Jordanpokera: checks
+KratkiLucky: bets $6.45
+Doumby: folds
+Jordanpokera: folds
+Uncalled bet ($6.45) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $19.50 from pot
+*** SUMMARY ***
+Total pot $19.50 | Rake $0.97 
+Board [Qd 8s 5c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: sadam folded before Flop (didn't bet)
+Seat 4: Jordanpokera folded on the Flop 
+Seat 5: KratkiLucky (button) collected ($19.50)
+Seat 6: AndrejT1000 (small blind) folded before Flop 
+Seat 7: betting18 (big blind) folded before Flop 
+Seat 8: Doumby folded on the Flop 
+
+
+Weplay Hand #73832137:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:06:45 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($99.15 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: sadam ($106.04 in chips)
+Seat 4: Jordanpokera ($50.59 in chips)
+Seat 5: KratkiLucky ($64.20 in chips)
+Seat 6: AndrejT1000 ($56.83 in chips)
+Seat 7: betting18 ($77.70 in chips)
+Seat 8: Doumby ($53.69 in chips)
+betting18: posts small blind $0.25
+Doumby: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 8s]
+kole1992: folds
+JTs98o: raises $1 to $1
+sadam: folds
+Jordanpokera: raises $4 to $4
+KratkiLucky: folds
+AndrejT1000: folds
+betting18: folds
+Doumby: folds
+JTs98o: folds
+Uncalled bet ($3) returned to Jordanpokera
+*** SHOW DOWN ***
+Jordanpokera: doesn't show hand
+Jordanpokera collected $2.75 from pot
+*** SUMMARY ***
+Total pot $2.75 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop 
+Seat 3: sadam folded before Flop (didn't bet)
+Seat 4: Jordanpokera collected ($2.75)
+Seat 5: KratkiLucky folded before Flop (didn't bet)
+Seat 6: AndrejT1000 (button) folded before Flop (didn't bet)
+Seat 7: betting18 (small blind) folded before Flop 
+Seat 8: Doumby (big blind) folded before Flop 
+
+
+Weplay Hand #73832153:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:07:18 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($99.15 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: sadam ($106.04 in chips)
+Seat 4: Jordanpokera ($52.34 in chips)
+Seat 5: KratkiLucky ($64.20 in chips)
+Seat 6: AndrejT1000 ($56.83 in chips)
+Seat 7: betting18 ($77.45 in chips)
+Seat 8: Doumby ($53.19 in chips)
+Doumby: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 4s]
+JTs98o: folds
+sadam: folds
+Jordanpokera: folds
+KratkiLucky: folds
+AndrejT1000: folds
+betting18: folds
+Doumby: folds
+Uncalled bet ($0.25) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($0.50)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: sadam folded before Flop (didn't bet)
+Seat 4: Jordanpokera folded before Flop (didn't bet)
+Seat 5: KratkiLucky folded before Flop (didn't bet)
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 (button) folded before Flop (didn't bet)
+Seat 8: Doumby (small blind) folded before Flop 
+
+
+Weplay Hand #73832163:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:07:39 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #8 is the button
+Seat 1: kole1992 ($99.40 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: sadam ($106.04 in chips)
+Seat 4: Jordanpokera ($52.34 in chips)
+Seat 5: KratkiLucky ($64.20 in chips)
+Seat 6: AndrejT1000 ($56.83 in chips)
+Seat 7: betting18 ($77.45 in chips)
+Seat 8: Doumby ($52.94 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 8d]
+sadam: folds
+Jordanpokera: calls $0.50
+KratkiLucky: folds
+AndrejT1000: folds
+betting18: raises $2 to $2
+Doumby: folds
+kole1992: folds
+JTs98o: folds
+Jordanpokera: calls $1.50
+*** FLOP *** [8c Qh 7h]
+Jordanpokera: checks
+betting18: bets $2.40
+Jordanpokera: calls $2.40
+*** TURN *** [8c Qh 7h] [9h]
+Jordanpokera: checks
+betting18: bets $7.15
+Jordanpokera: folds
+Uncalled bet ($7.15) returned to betting18
+*** SHOW DOWN ***
+betting18: doesn't show hand
+betting18 collected $9.55 from pot
+*** SUMMARY ***
+Total pot $9.55 | Rake $0.47 
+Board [8c Qh 7h 9h]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) folded before Flop 
+Seat 3: sadam folded before Flop (didn't bet)
+Seat 4: Jordanpokera folded on the Turn 
+Seat 5: KratkiLucky folded before Flop (didn't bet)
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 collected ($9.55)
+Seat 8: Doumby (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73832189:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:08:42 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($99.15 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: sadam ($106.04 in chips)
+Seat 4: Jordanpokera ($47.94 in chips)
+Seat 5: KratkiLucky ($64.20 in chips)
+Seat 6: AndrejT1000 ($56.83 in chips)
+Seat 7: betting18 ($82.13 in chips)
+Seat 8: Doumby ($52.94 in chips)
+JTs98o: posts small blind $0.25
+sadam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 4c]
+Jordanpokera: folds
+KratkiLucky has timed out
+KratkiLucky: folds
+AndrejT1000: folds
+betting18: folds
+Doumby: raises $1 to $1
+kole1992: folds
+JTs98o: folds
+sadam: folds
+Uncalled bet ($0.50) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: JTs98o (small blind) folded before Flop 
+Seat 3: sadam (big blind) folded before Flop 
+Seat 4: Jordanpokera folded before Flop (didn't bet)
+Seat 5: KratkiLucky folded before Flop (didn't bet)
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby collected ($1.25)
+
+
+Weplay Hand #73832203:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:09:18 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($99.15 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: sadam ($105.54 in chips)
+Seat 4: Jordanpokera ($47.94 in chips)
+Seat 5: KratkiLucky ($64.20 in chips)
+Seat 6: AndrejT1000 ($56.83 in chips)
+Seat 7: betting18 ($82.13 in chips)
+Seat 8: Doumby ($53.69 in chips)
+sadam: posts small blind $0.25
+Jordanpokera: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 4c]
+KratkiLucky: folds
+AndrejT1000: folds
+betting18: folds
+Doumby: folds
+kole1992: folds
+JTs98o: folds
+sadam: folds
+Uncalled bet ($0.25) returned to Jordanpokera
+*** SHOW DOWN ***
+Jordanpokera has timed out
+Jordanpokera: doesn't show hand
+Jordanpokera collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o (button) folded before Flop (didn't bet)
+Seat 3: sadam (small blind) folded before Flop 
+Seat 4: Jordanpokera (big blind) collected ($0.50)
+Seat 5: KratkiLucky folded before Flop (didn't bet)
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73832216:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:09:36 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($99.15 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: sadam ($105.29 in chips)
+Seat 4: Jordanpokera ($48.19 in chips)
+Seat 5: KratkiLucky ($64.20 in chips)
+Seat 6: AndrejT1000 ($56.83 in chips)
+Seat 7: betting18 ($82.13 in chips)
+Seat 8: Doumby ($53.69 in chips)
+Jordanpokera: posts small blind $0.25
+KratkiLucky: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 6c]
+AndrejT1000: folds
+betting18: folds
+Doumby: folds
+kole1992: folds
+JTs98o: folds
+sadam: folds
+Jordanpokera: raises $1.25 to $1.50
+KratkiLucky: raises $4 to $4.50
+sadam leaves the table
+Jordanpokera: calls $3
+*** FLOP *** [Th 3h 2h]
+Jordanpokera: checks
+KratkiLucky: checks
+*** TURN *** [Th 3h 2h] [Tc]
+Jordanpokera: bets $4
+KratkiLucky: folds
+Uncalled bet ($4) returned to Jordanpokera
+*** SHOW DOWN ***
+Jordanpokera: doesn't show hand
+Jordanpokera collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [Th 3h 2h Tc]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: sadam (button) folded before Flop (didn't bet)
+Seat 4: Jordanpokera (small blind) collected ($9)
+Seat 5: KratkiLucky (big blind) folded on the Turn 
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73832246:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:10:30 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($99.15 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: Tone91 ($50 in chips)
+Seat 4: Jordanpokera ($52.24 in chips)
+Seat 5: KratkiLucky ($59.70 in chips)
+Seat 6: AndrejT1000 ($56.83 in chips)
+Seat 7: betting18 ($82.13 in chips)
+Seat 8: Doumby ($53.69 in chips)
+KratkiLucky: posts small blind $0.25
+AndrejT1000: posts big blind $0.50
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Kd]
+betting18: folds
+Doumby: folds
+kole1992: folds
+JTs98o: folds
+Tone91: checks
+Jordanpokera: raises $2.50 to $2.50
+KratkiLucky: folds
+AndrejT1000: folds
+Tone91: folds
+Uncalled bet ($2) returned to Jordanpokera
+*** SHOW DOWN ***
+Jordanpokera: doesn't show hand
+Jordanpokera collected $1.75 from pot
+*** SUMMARY ***
+Total pot $1.75 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: Tone91 (big blind) folded before Flop 
+Seat 4: Jordanpokera (button) collected ($1.75)
+Seat 5: KratkiLucky (small blind) folded before Flop 
+Seat 6: AndrejT1000 (big blind) folded before Flop 
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73832264:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:11:12 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($99.15 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: Tone91 ($49.50 in chips)
+Seat 4: Jordanpokera ($53.49 in chips)
+Seat 5: KratkiLucky ($59.45 in chips)
+Seat 6: AndrejT1000 ($56.33 in chips)
+Seat 7: betting18 ($82.13 in chips)
+Seat 8: Doumby ($53.69 in chips)
+AndrejT1000: posts small blind $0.25
+betting18: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 3d]
+Doumby: folds
+kole1992: folds
+JTs98o: raises $1 to $1
+KratkiLucky leaves the table
+Tone91: folds
+Majstorsmora joins the table at seat #5
+Jordanpokera: calls $1
+AndrejT1000: calls $0.75
+betting18: calls $0.50
+*** FLOP *** [6d Ts 7d]
+AndrejT1000: checks
+betting18: checks
+JTs98o: checks
+Jordanpokera: checks
+*** TURN *** [6d Ts 7d] [Ks]
+AndrejT1000: checks
+betting18: bets $3
+JTs98o: folds
+Jordanpokera: folds
+AndrejT1000: folds
+Uncalled bet ($3) returned to betting18
+*** SHOW DOWN ***
+betting18: doesn't show hand
+betting18 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0.20 
+Board [6d Ts 7d Ks]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o folded on the Turn 
+Seat 3: Tone91 folded before Flop (didn't bet)
+Seat 4: Jordanpokera folded on the Turn 
+Seat 6: AndrejT1000 (small blind) folded on the Turn 
+Seat 7: betting18 (big blind) collected ($4)
+Seat 8: Doumby folded before Flop (didn't bet)
+
+
+Weplay Hand #73832295:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:12:03 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($99.15 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: Tone91 ($49.50 in chips)
+Seat 4: Jordanpokera ($52.49 in chips)
+Seat 6: AndrejT1000 ($55.33 in chips)
+Seat 7: betting18 ($84.93 in chips)
+Seat 8: Doumby ($53.69 in chips)
+betting18: posts small blind $0.25
+Doumby: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 5h]
+kole1992: folds
+JTs98o: raises $1.25 to $1.25
+Tone91: folds
+Jordanpokera: folds
+AndrejT1000: folds
+betting18: folds
+Doumby: folds
+Uncalled bet ($0.75) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: JTs98o collected ($1.25)
+Seat 3: Tone91 folded before Flop (didn't bet)
+Seat 4: Jordanpokera folded before Flop (didn't bet)
+Seat 6: AndrejT1000 (button) folded before Flop (didn't bet)
+Seat 7: betting18 (small blind) folded before Flop 
+Seat 8: Doumby (big blind) folded before Flop 
+
+
+Weplay Hand #73832310:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:12:30 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #7 is the button
+Seat 1: kole1992 ($99.15 in chips)
+Seat 2: JTs98o ($50.75 in chips)
+Seat 3: Tone91 ($49.50 in chips)
+Seat 4: Jordanpokera ($52.49 in chips)
+Seat 6: AndrejT1000 ($55.33 in chips)
+Seat 7: betting18 ($84.68 in chips)
+Seat 8: Doumby ($53.19 in chips)
+Doumby: posts small blind $0.25
+kole1992: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 7s]
+JTs98o: folds
+Tone91: folds
+Jordanpokera is disconnected 
+Jordanpokera has timed out while being disconnected
+Jordanpokera: folds
+AndrejT1000: folds
+betting18: folds
+Doumby: raises $1.25 to $1.50
+kole1992: folds
+Uncalled bet ($1) returned to Doumby
+*** SHOW DOWN ***
+Doumby: doesn't show hand
+Doumby collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: JTs98o folded before Flop (didn't bet)
+Seat 3: Tone91 folded before Flop (didn't bet)
+Seat 4: Jordanpokera folded before Flop (didn't bet)
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 (button) folded before Flop (didn't bet)
+Seat 8: Doumby (small blind) collected ($1)
+
+
+Weplay Hand #73833337:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:13:13 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #8 is the button
+Seat 1: kole1992 ($98.65 in chips)
+Seat 2: JTs98o ($50.75 in chips)
+Seat 3: Tone91 ($49.50 in chips)
+Seat 6: AndrejT1000 ($55.33 in chips)
+Seat 7: betting18 ($84.68 in chips)
+Seat 8: Doumby ($53.69 in chips)
+kole1992: posts small blind $0.25
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 9h]
+Tone91: folds
+Jordanpokera is connected 
+AndrejT1000: raises $1.50 to $1.50
+betting18: folds
+Doumby: folds
+kole1992: folds
+JTs98o: calls $1
+*** FLOP *** [9d Jh Tc]
+JTs98o: checks
+AndrejT1000: checks
+*** TURN *** [9d Jh Tc] [Ks]
+JTs98o: checks
+Jordanpokera is disconnected 
+AndrejT1000: bets $2.67
+JTs98o: folds
+Uncalled bet ($2.67) returned to AndrejT1000
+*** SHOW DOWN ***
+AndrejT1000: doesn't show hand
+AndrejT1000 collected $3.25 from pot
+*** SUMMARY ***
+Total pot $3.25 | Rake $0.16 
+Board [9d Jh Tc Ks]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: JTs98o (big blind) folded on the Turn 
+Seat 3: Tone91 folded before Flop (didn't bet)
+Seat 6: AndrejT1000 collected ($3.25)
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73833353:  Hold'em No Limit ($0.25/$0.50) - 2026/01/26 20:13:44 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($98.40 in chips)
+Seat 2: JTs98o ($50 in chips)
+Seat 3: Tone91 ($49.50 in chips)
+Seat 6: AndrejT1000 ($56.92 in chips)
+Seat 7: betting18 ($84.68 in chips)
+Seat 8: Doumby ($53.69 in chips)
+JTs98o: posts small blind $0.25
+Tone91: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Jh]
+AndrejT1000: folds
+betting18: folds
+Doumby: folds
+kole1992: folds
+JTs98o: folds
+Uncalled bet ($0.25) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: JTs98o (small blind) folded before Flop 
+Seat 3: Tone91 (big blind) collected ($0.50)
+Seat 6: AndrejT1000 folded before Flop (didn't bet)
+Seat 7: betting18 folded before Flop (didn't bet)
+Seat 8: Doumby folded before Flop (didn't bet)

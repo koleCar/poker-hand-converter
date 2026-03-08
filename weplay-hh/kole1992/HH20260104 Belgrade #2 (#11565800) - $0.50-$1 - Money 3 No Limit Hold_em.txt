@@ -1,0 +1,1910 @@
+﻿Weplay Hand #71543187:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:38:36 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: rjpur ($100 in chips)
+Seat 3: ryzenn ($100 in chips)
+Seat 6: WinHof ($218.79 in chips)
+WinHof: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 7c]
+rjpur: raises $2.50 to $2.50
+ryzenn: folds
+WinHof: folds
+kole1992: calls $1.50
+*** FLOP *** [Kh 8d 3d]
+kole1992: checks
+rjpur: checks
+*** TURN *** [Kh 8d 3d] [5h]
+kole1992: checks
+rjpur: checks
+*** RIVER *** [Kh 8d 3d 5h] [6h]
+kole1992: bets $4.50
+rjpur: calls $4.50
+*** SHOW DOWN ***
+kole1992: shows [9c 7c] (a straight, Five to Nine)
+rjpur has timed out
+rjpur: mucks hand
+kole1992 collected $14.50 from pot
+*** SUMMARY ***
+Total pot $14.50 | Rake $0.72 
+Board [Kh 8d 3d 5h 6h]
+Seat 1: kole1992 (big blind) showed [9c 7c] and won ($14.50) with a straight, Five to Nine
+Seat 2: rjpur mucked
+Seat 3: ryzenn (button) folded before Flop (didn't bet)
+Seat 6: WinHof (small blind) folded before Flop 
+
+
+Weplay Hand #71543219:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:39:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($106.78 in chips)
+Seat 2: rjpur ($93 in chips)
+Seat 3: ryzenn ($100 in chips)
+Seat 6: WinHof ($218.29 in chips)
+kole1992: posts small blind $0.50
+rjpur: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 5c]
+ryzenn: folds
+WinHof: raises $2 to $2
+kole1992: folds
+rjpur: calls $1
+*** FLOP *** [Kh 5d 2h]
+rjpur: checks
+WinHof: bets $3.40
+rjpur: calls $3.40
+*** TURN *** [Kh 5d 2h] [4s]
+rjpur: checks
+WinHof: bets $5.70
+rjpur: calls $5.70
+*** RIVER *** [Kh 5d 2h 4s] [Qh]
+rjpur: checks
+WinHof: checks
+*** SHOW DOWN ***
+rjpur: shows [9c 5h] (a pair of Fives)
+WinHof: shows [6c Kc] (a pair of Kings)
+WinHof collected $22.70 from pot
+*** SUMMARY ***
+Total pot $22.70 | Rake $1.13 
+Board [Kh 5d 2h 4s Qh]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: rjpur (big blind) showed [9c 5h] and lost with a pair of Fives
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 6: WinHof (button) showed [6c Kc] and won ($22.70) with a pair of Kings
+
+
+Weplay Hand #71543252:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:40:45 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($106.28 in chips)
+Seat 2: rjpur ($81.90 in chips)
+Seat 3: ryzenn ($100 in chips)
+Seat 6: WinHof ($228.76 in chips)
+rjpur: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 3h]
+WinHof: raises $2.50 to $2.50
+kole1992: folds
+rjpur: folds
+ryzenn: folds
+Uncalled bet ($1.50) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: rjpur (small blind) folded before Flop 
+Seat 3: ryzenn (big blind) folded before Flop 
+Seat 6: WinHof collected ($2.50)
+
+
+Weplay Hand #71543266:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:41:10 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($106.28 in chips)
+Seat 2: rjpur ($81.40 in chips)
+Seat 3: ryzenn ($99 in chips)
+Seat 6: WinHof ($230.26 in chips)
+ryzenn: posts small blind $0.50
+WinHof: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Qc]
+kole1992: folds
+rjpur: raises $2.50 to $2.50
+ryzenn: folds
+WinHof: calls $1.50
+*** FLOP *** [2h 8s 4h]
+WinHof: checks
+rjpur: bets $1.82
+WinHof: calls $1.82
+*** TURN *** [2h 8s 4h] [2s]
+WinHof: checks
+rjpur: checks
+*** RIVER *** [2h 8s 4h 2s] [7c]
+WinHof: bets $4.60
+rjpur: folds
+Uncalled bet ($4.60) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $9.14 from pot
+*** SUMMARY ***
+Total pot $9.14 | Rake $0.45 
+Board [2h 8s 4h 2s 7c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur (button) folded on the River 
+Seat 3: ryzenn (small blind) folded before Flop 
+Seat 6: WinHof (big blind) collected ($9.14)
+
+
+Weplay Hand #71543378:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:44:33 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($106.28 in chips)
+Seat 2: rjpur ($77.05 in chips)
+Seat 3: ryzenn ($103.91 in chips)
+Seat 6: WinHof ($229.63 in chips)
+WinHof: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 9d]
+rjpur: raises $2.50 to $2.50
+ryzenn: folds
+WinHof: calls $2
+kole1992: calls $1.50
+*** FLOP *** [7c Th 8c]
+WinHof: checks
+kole1992: checks
+rjpur: checks
+*** TURN *** [7c Th 8c] [Ks]
+WinHof: bets $5.60
+kole1992: calls $5.60
+rjpur: folds
+*** RIVER *** [7c Th 8c Ks] [Jh]
+WinHof: checks
+kole1992: bets $7.50
+WinHof: folds
+Uncalled bet ($7.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $18.70 from pot
+*** SUMMARY ***
+Total pot $18.70 | Rake $0.93 
+Board [7c Th 8c Ks Jh]
+Seat 1: kole1992 (big blind) collected ($18.70)
+Seat 2: rjpur folded on the Turn 
+Seat 3: ryzenn (button) folded before Flop (didn't bet)
+Seat 6: WinHof (small blind) folded on the River 
+
+
+Weplay Hand #71543425:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:45:45 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($115.95 in chips)
+Seat 2: rjpur ($74.55 in chips)
+Seat 6: WinHof ($221.53 in chips)
+kole1992: posts small blind $0.50
+rjpur: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Kd]
+WinHof: folds
+kole1992: raises $2.50 to $3
+rjpur: folds
+Uncalled bet ($2) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 (small blind) collected ($2)
+Seat 2: rjpur (big blind) folded before Flop 
+Seat 6: WinHof (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71543441:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:46:12 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($116.95 in chips)
+Seat 2: rjpur ($73.55 in chips)
+Seat 6: WinHof ($221.53 in chips)
+rjpur: posts small blind $0.50
+WinHof: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 5s]
+kole1992: folds
+Horvath joins the table at seat #4
+rjpur: raises $2 to $2.50
+WinHof: calls $1.50
+*** FLOP *** [7h 2h 5h]
+rjpur: checks
+WinHof: checks
+*** TURN *** [7h 2h 5h] [6c]
+rjpur: bets $2.50
+WinHof: folds
+Uncalled bet ($2.50) returned to rjpur
+*** SHOW DOWN ***
+rjpur has timed out
+rjpur: doesn't show hand
+rjpur collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.12 
+Board [7h 2h 5h 6c]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: rjpur (small blind) collected ($5)
+Seat 6: WinHof (big blind) folded on the Turn 
+
+
+Weplay Hand #71543466:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:46:56 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($116.95 in chips)
+Seat 2: rjpur ($75.93 in chips)
+Seat 6: WinHof ($219.03 in chips)
+WinHof: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Qc]
+rjpur: raises $2.50 to $2.50
+WinHof: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to rjpur
+*** SHOW DOWN ***
+rjpur has timed out
+rjpur: doesn't show hand
+rjpur collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: rjpur (button) collected ($2.50)
+Seat 6: WinHof (small blind) folded before Flop 
+
+
+Weplay Hand #71543489:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:47:34 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($115.95 in chips)
+Seat 2: rjpur ($77.43 in chips)
+Seat 4: Horvath ($90 in chips)
+Seat 6: WinHof ($218.53 in chips)
+kole1992: posts small blind $0.50
+rjpur: posts big blind $1
+Horvath: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Kc]
+Horvath: checks
+WinHof: calls $1
+kole1992: calls $0.50
+rjpur: checks
+*** FLOP *** [3c 9h 8c]
+kole1992: checks
+rjpur: checks
+Horvath: bets $1
+WinHof: raises $5.50 to $5.50
+kole1992: folds
+rjpur: calls $5.50
+Horvath: calls $4.50
+*** TURN *** [3c 9h 8c] [3s]
+rjpur: checks
+Horvath: checks
+WinHof: checks
+*** RIVER *** [3c 9h 8c 3s] [7c]
+rjpur: checks
+Horvath: checks
+WinHof: bets $6.80
+rjpur: folds
+Horvath: folds
+Uncalled bet ($6.80) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $20.50 from pot
+*** SUMMARY ***
+Total pot $20.50 | Rake $1.02 
+Board [3c 9h 8c 3s 7c]
+Seat 1: kole1992 (small blind) folded on the Flop 
+Seat 2: rjpur (big blind) folded on the River 
+Seat 4: Horvath (big blind) folded on the River 
+Seat 6: WinHof (button) collected ($20.50)
+
+
+Weplay Hand #71543534:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:48:54 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($114.95 in chips)
+Seat 2: rjpur ($70.93 in chips)
+Seat 3: ryzenn ($103.91 in chips)
+Seat 4: Horvath ($83.50 in chips)
+Seat 6: WinHof ($231.51 in chips)
+rjpur: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As Ah]
+Horvath: folds
+WinHof: raises $2.50 to $2.50
+kole1992 has timed out
+kole1992: folds
+rjpur: folds
+ryzenn: calls $1.50
+*** FLOP *** [8d 2c 2h]
+ryzenn: checks
+WinHof: checks
+*** TURN *** [8d 2c 2h] [Kc]
+ryzenn: checks
+WinHof: checks
+*** RIVER *** [8d 2c 2h Kc] [9d]
+ryzenn: bets $6.30
+WinHof: folds
+Uncalled bet ($6.30) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [8d 2c 2h Kc 9d]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: rjpur (small blind) folded before Flop 
+Seat 3: ryzenn (big blind) collected ($5.50)
+Seat 4: Horvath folded before Flop (didn't bet)
+Seat 6: WinHof folded on the River 
+
+
+Weplay Hand #71543572:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:50:04 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($114.95 in chips)
+Seat 2: rjpur ($70.43 in chips)
+Seat 3: ryzenn ($106.64 in chips)
+Seat 4: Horvath ($83.50 in chips)
+Seat 6: WinHof ($229.01 in chips)
+ryzenn: posts small blind $0.50
+Horvath: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 4s]
+WinHof: raises $2.50 to $2.50
+kole1992: folds
+rjpur: folds
+ryzenn: folds
+Horvath: calls $1.50
+*** FLOP *** [Qc 3d Ac]
+Horvath: checks
+WinHof: bets $2.80
+Horvath: folds
+Uncalled bet ($2.80) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Qc 3d Ac]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur (button) folded before Flop (didn't bet)
+Seat 3: ryzenn (small blind) folded before Flop 
+Seat 4: Horvath (big blind) folded on the Flop 
+Seat 6: WinHof collected ($5.50)
+
+
+Weplay Hand #71543585:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:50:28 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($114.95 in chips)
+Seat 2: rjpur ($70.43 in chips)
+Seat 3: ryzenn ($106.14 in chips)
+Seat 4: Horvath ($81 in chips)
+Seat 6: WinHof ($231.74 in chips)
+Horvath: posts small blind $0.50
+WinHof: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 5d]
+kole1992: folds
+rjpur: folds
+ryzenn: raises $2.50 to $2.50
+Horvath: raises $7.50 to $8
+WinHof: folds
+ryzenn: raises $19.50 to $22
+Horvath: calls $14
+*** FLOP *** [4d 8h 9d]
+Horvath: checks
+ryzenn: bets $84.14 and is all-in
+Horvath: folds
+Uncalled bet ($84.14) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn: doesn't show hand
+ryzenn collected $45 from pot
+*** SUMMARY ***
+Total pot $45 | Rake $2.25 
+Board [4d 8h 9d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur folded before Flop (didn't bet)
+Seat 3: ryzenn (button) collected ($45)
+Seat 4: Horvath (small blind) folded on the Flop 
+Seat 6: WinHof (big blind) folded before Flop 
+
+
+Weplay Hand #71543611:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:51:12 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($114.95 in chips)
+Seat 2: rjpur ($70.43 in chips)
+Seat 3: ryzenn ($126.89 in chips)
+Seat 4: Horvath ($59 in chips)
+Seat 6: WinHof ($230.74 in chips)
+WinHof: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc Jh]
+rjpur: raises $2.50 to $2.50
+ryzenn: folds
+Horvath: folds
+WinHof: calls $2
+kole1992: calls $1.50
+*** FLOP *** [Ks 3h 5s]
+WinHof: checks
+kole1992: checks
+rjpur: checks
+*** TURN *** [Ks 3h 5s] [7h]
+WinHof: checks
+kole1992: checks
+rjpur: checks
+*** RIVER *** [Ks 3h 5s 7h] [As]
+WinHof: checks
+kole1992: checks
+rjpur: checks
+*** SHOW DOWN ***
+WinHof: shows [8d 9s] (high card Ace)
+kole1992: shows [Qc Jh] (high card Ace)
+rjpur: shows [Ac 4d] (a pair of Aces)
+rjpur collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [Ks 3h 5s 7h As]
+Seat 1: kole1992 (big blind) showed [Qc Jh] and lost with high card Ace
+Seat 2: rjpur showed [Ac 4d] and won ($7.50) with a pair of Aces
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath (button) folded before Flop (didn't bet)
+Seat 6: WinHof (small blind) showed [8d 9s] and lost with high card Ace
+
+
+Weplay Hand #71543633:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:52:01 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($112.45 in chips)
+Seat 2: rjpur ($75.06 in chips)
+Seat 3: ryzenn ($126.89 in chips)
+Seat 4: Horvath ($59 in chips)
+Seat 6: WinHof ($228.24 in chips)
+kole1992: posts small blind $0.50
+rjpur: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 7s]
+ryzenn: raises $2.50 to $2.50
+Horvath: folds
+WinHof: folds
+kole1992: folds
+rjpur: folds
+Uncalled bet ($1.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn: doesn't show hand
+ryzenn collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: rjpur (big blind) folded before Flop 
+Seat 3: ryzenn collected ($2.50)
+Seat 4: Horvath folded before Flop (didn't bet)
+Seat 6: WinHof (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71543641:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:52:23 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($111.95 in chips)
+Seat 2: rjpur ($74.06 in chips)
+Seat 3: ryzenn ($128.39 in chips)
+Seat 4: Horvath ($59 in chips)
+Seat 6: WinHof ($228.24 in chips)
+rjpur: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Qc]
+Horvath: calls $1
+WinHof: raises $3 to $3
+kole1992: raises $10 to $10
+rjpur: folds
+ryzenn: folds
+Horvath: folds
+WinHof: calls $7
+*** FLOP *** [Kc 5d Qh]
+WinHof: checks
+kole1992: checks
+*** TURN *** [Kc 5d Qh] [Qd]
+WinHof: bets $7.40
+kole1992: raises $24.22 to $24.22
+WinHof: calls $16.82
+*** RIVER *** [Kc 5d Qh Qd] [8s]
+WinHof: checks
+kole1992: bets $77.73 and is all-in
+WinHof: folds
+Uncalled bet ($77.73) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $70.94 from pot
+*** SUMMARY ***
+Total pot $70.94 | Rake $3.54 
+Board [Kc 5d Qh Qd 8s]
+Seat 1: kole1992 (button) collected ($70.94)
+Seat 2: rjpur (small blind) folded before Flop 
+Seat 3: ryzenn (big blind) folded before Flop 
+Seat 4: Horvath folded before Flop 
+Seat 6: WinHof folded on the River 
+
+
+Weplay Hand #71543691:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:54:11 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($145.13 in chips)
+Seat 2: rjpur ($73.56 in chips)
+Seat 3: ryzenn ($127.39 in chips)
+Seat 4: Horvath ($58 in chips)
+Seat 6: WinHof ($194.02 in chips)
+ryzenn: posts small blind $0.50
+Horvath: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 6h]
+WinHof: raises $2.50 to $2.50
+kole1992: folds
+rjpur: folds
+ryzenn: folds
+Horvath: calls $1.50
+*** FLOP *** [2c Ac Ah]
+Horvath: checks
+WinHof: checks
+*** TURN *** [2c Ac Ah] [Ks]
+Horvath: checks
+WinHof: checks
+*** RIVER *** [2c Ac Ah Ks] [9d]
+Horvath: checks
+WinHof: bets $1.80
+Horvath: folds
+Uncalled bet ($1.80) returned to WinHof
+*** SHOW DOWN ***
+WinHof: doesn't show hand
+WinHof collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [2c Ac Ah Ks 9d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur (button) folded before Flop (didn't bet)
+Seat 3: ryzenn (small blind) folded before Flop 
+Seat 4: Horvath (big blind) folded on the River 
+Seat 6: WinHof collected ($5.50)
+
+
+Weplay Hand #71543712:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:54:54 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($145.13 in chips)
+Seat 2: rjpur ($73.56 in chips)
+Seat 3: ryzenn ($126.89 in chips)
+Seat 4: Horvath ($55.50 in chips)
+Seat 6: WinHof ($196.75 in chips)
+Horvath: posts small blind $0.50
+WinHof: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 9d]
+kole1992: raises $2 to $2
+rjpur: folds
+ryzenn: folds
+Horvath: calls $1.50
+WinHof: calls $1
+*** FLOP *** [Tc Ad 8s]
+Horvath: checks
+WinHof: checks
+kole1992: checks
+*** TURN *** [Tc Ad 8s] [4s]
+Horvath: checks
+WinHof: checks
+kole1992: checks
+*** RIVER *** [Tc Ad 8s 4s] [Th]
+Horvath: checks
+WinHof: bets $3
+kole1992: raises $10.50 to $10.50
+Horvath: folds
+WinHof: folds
+Uncalled bet ($7.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [Tc Ad 8s 4s Th]
+Seat 1: kole1992 collected ($12)
+Seat 2: rjpur folded before Flop (didn't bet)
+Seat 3: ryzenn (button) folded before Flop (didn't bet)
+Seat 4: Horvath (small blind) folded on the River 
+Seat 6: WinHof (big blind) folded on the River 
+
+
+Weplay Hand #71543738:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:56:00 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($151.53 in chips)
+Seat 2: rjpur ($73.56 in chips)
+Seat 3: ryzenn ($126.89 in chips)
+Seat 4: Horvath ($53.50 in chips)
+Seat 6: WinHof ($191.75 in chips)
+WinHof: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Jh]
+rjpur: raises $2.50 to $2.50
+ryzenn: folds
+Horvath: raises $5 to $5
+WinHof: calls $4.50
+kole1992: folds
+rjpur: calls $2.50
+*** FLOP *** [Kd Qh Js]
+WinHof: checks
+rjpur: checks
+Horvath: checks
+*** TURN *** [Kd Qh Js] [3h]
+WinHof: checks
+rjpur: checks
+Horvath: checks
+*** RIVER *** [Kd Qh Js 3h] [5c]
+WinHof: checks
+rjpur: checks
+Horvath: checks
+*** SHOW DOWN ***
+WinHof: shows [2s 2h] (a pair of Deuces)
+rjpur: shows [5d As] (a pair of Fives)
+Horvath has timed out
+Horvath: mucks hand
+rjpur collected $16 from pot
+*** SUMMARY ***
+Total pot $16 | Rake $0.80 
+Board [Kd Qh Js 3h 5c]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: rjpur showed [5d As] and won ($16) with a pair of Fives
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath (button) mucked
+Seat 6: WinHof (small blind) showed [2s 2h] and lost with a pair of Deuces
+
+
+Weplay Hand #71543758:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:57:10 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($150.53 in chips)
+Seat 2: rjpur ($83.76 in chips)
+Seat 3: ryzenn ($126.89 in chips)
+Seat 4: Horvath ($48.50 in chips)
+Seat 6: WinHof ($186.75 in chips)
+kole1992: posts small blind $0.50
+rjpur: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 4s]
+ryzenn: raises $2.50 to $2.50
+Horvath: calls $2.50
+WinHof: calls $2.50
+kole1992: folds
+rjpur: calls $1.50
+*** FLOP *** [Qc 4d 2c]
+rjpur: checks
+ryzenn: checks
+Horvath: checks
+WinHof: checks
+*** TURN *** [Qc 4d 2c] [2h]
+rjpur: checks
+ryzenn: checks
+Horvath: checks
+WinHof: checks
+*** RIVER *** [Qc 4d 2c 2h] [3s]
+rjpur: checks
+ryzenn: checks
+Horvath: checks
+WinHof: checks
+*** SHOW DOWN ***
+rjpur: shows [5h Jh] (a pair of Deuces)
+ryzenn: shows [8h Ah] (a pair of Deuces)
+Horvath: mucks hand
+WinHof: mucks hand
+ryzenn collected $10.50 from pot
+*** SUMMARY ***
+Total pot $10.50 | Rake $0.52 
+Board [Qc 4d 2c 2h 3s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: rjpur (big blind) showed [5h Jh] and lost with a pair of Deuces
+Seat 3: ryzenn showed [8h Ah] and won ($10.50) with a pair of Deuces
+Seat 4: Horvath mucked
+Seat 6: WinHof (button) mucked
+
+
+Weplay Hand #71543775:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:58:12 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($150.03 in chips)
+Seat 2: rjpur ($81.26 in chips)
+Seat 3: ryzenn ($134.37 in chips)
+Seat 4: Horvath ($46 in chips)
+Seat 6: WinHof ($184.25 in chips)
+rjpur: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 8s]
+Horvath: calls $1
+WinHof: folds
+kole1992: folds
+rjpur: calls $0.50
+ryzenn: checks
+*** FLOP *** [2c 2h 6s]
+rjpur: checks
+ryzenn: checks
+Horvath: bets $3
+rjpur: calls $3
+ryzenn: folds
+*** TURN *** [2c 2h 6s] [5s]
+rjpur: checks
+Horvath: bets $3
+rjpur: folds
+Uncalled bet ($3) returned to Horvath
+*** SHOW DOWN ***
+Horvath has timed out
+Horvath: doesn't show hand
+Horvath collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [2c 2h 6s 5s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: rjpur (small blind) folded on the Turn 
+Seat 3: ryzenn (big blind) folded on the Flop 
+Seat 4: Horvath collected ($9)
+Seat 6: WinHof folded before Flop (didn't bet)
+
+
+Weplay Hand #71543800:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:59:27 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($150.03 in chips)
+Seat 2: rjpur ($77.26 in chips)
+Seat 3: ryzenn ($133.37 in chips)
+Seat 4: Horvath ($50.55 in chips)
+Seat 6: WinHof ($184.25 in chips)
+ryzenn: posts small blind $0.50
+Horvath: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 6h]
+WinHof: folds
+kole1992: folds
+rjpur: folds
+ryzenn: folds
+Uncalled bet ($0.50) returned to Horvath
+*** SHOW DOWN ***
+Horvath has timed out
+Horvath: doesn't show hand
+Horvath collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur (button) folded before Flop (didn't bet)
+Seat 3: ryzenn (small blind) folded before Flop 
+Seat 4: Horvath (big blind) collected ($1)
+Seat 6: WinHof folded before Flop (didn't bet)
+
+
+Weplay Hand #71543810:  Hold'em No Limit ($0.50/$1) - 2026/01/04 13:59:45 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($150.03 in chips)
+Seat 2: rjpur ($77.26 in chips)
+Seat 3: ryzenn ($132.87 in chips)
+Seat 4: Horvath ($51.05 in chips)
+Seat 6: WinHof ($184.25 in chips)
+Horvath: posts small blind $0.50
+WinHof: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 4d]
+kole1992: folds
+rjpur: raises $2.50 to $2.50
+ryzenn: raises $9 to $9
+Horvath: folds
+WinHof: folds
+rjpur: calls $6.50
+*** FLOP *** [2h 3d Jh]
+rjpur: checks
+ryzenn: bets $13.80
+rjpur: folds
+Uncalled bet ($13.80) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $19.50 from pot
+*** SUMMARY ***
+Total pot $19.50 | Rake $0.97 
+Board [2h 3d Jh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur folded on the Flop 
+Seat 3: ryzenn (button) collected ($19.50)
+Seat 4: Horvath (small blind) folded before Flop 
+Seat 6: WinHof (big blind) folded before Flop 
+
+
+Weplay Hand #71543832:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:00:40 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($150.03 in chips)
+Seat 2: rjpur ($68.26 in chips)
+Seat 3: ryzenn ($142.40 in chips)
+Seat 4: Horvath ($50.55 in chips)
+Seat 6: WinHof ($183.25 in chips)
+WinHof: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 2c]
+rjpur: raises $2.50 to $2.50
+ryzenn: folds
+FireWalkWithMe joins the table at seat #5
+Horvath: calls $2.50
+WinHof: calls $2
+kole1992: calls $1.50
+*** FLOP *** [5h 2d Ks]
+WinHof: checks
+kole1992: checks
+rjpur: folds
+Horvath: bets $3
+WinHof: calls $3
+kole1992: calls $3
+*** TURN *** [5h 2d Ks] [3d]
+WinHof: checks
+kole1992: checks
+Horvath: bets $6
+WinHof: folds
+kole1992: raises $20.75 to $20.75
+Horvath: calls $14.75
+*** RIVER *** [5h 2d Ks 3d] [Qh]
+kole1992: bets $31
+Horvath: folds
+Uncalled bet ($31) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $60.50 from pot
+*** SUMMARY ***
+Total pot $60.50 | Rake $3.02 
+Board [5h 2d Ks 3d Qh]
+Seat 1: kole1992 (big blind) collected ($60.50)
+Seat 2: rjpur folded on the Flop 
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath (button) folded on the River 
+Seat 6: WinHof (small blind) folded on the Turn 
+
+
+Weplay Hand #71543873:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:02:19 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($181.26 in chips)
+Seat 2: rjpur ($65.76 in chips)
+Seat 3: ryzenn ($142.40 in chips)
+Seat 4: Horvath ($24.30 in chips)
+Seat 5: FireWalkWithMe ($100 in chips)
+Seat 6: WinHof ($177.75 in chips)
+kole1992: posts small blind $0.50
+rjpur: posts big blind $1
+FireWalkWithMe: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Ts]
+ryzenn: raises $3.50 to $3.50
+Horvath: calls $3.50
+FireWalkWithMe: folds
+WinHof has timed out
+WinHof: folds
+kole1992: folds
+WinHof leaves the table
+rjpur: raises $19 to $20
+ryzenn: folds
+Horvath: folds
+Uncalled bet ($16.50) returned to rjpur
+*** SHOW DOWN ***
+rjpur has timed out
+rjpur: doesn't show hand
+rjpur collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: rjpur (big blind) collected ($12)
+Seat 3: ryzenn folded before Flop 
+Seat 4: Horvath folded before Flop 
+Seat 5: FireWalkWithMe (big blind) folded before Flop 
+Seat 6: WinHof (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71543890:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:03:12 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($180.76 in chips)
+Seat 2: rjpur ($74.26 in chips)
+Seat 3: ryzenn ($138.90 in chips)
+Seat 4: Horvath ($20.80 in chips)
+Seat 5: FireWalkWithMe ($99 in chips)
+rjpur: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c Kc]
+Horvath: folds
+FireWalkWithMe: folds
+kole1992: raises $2.50 to $2.50
+rjpur: folds
+ryzenn: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (button) collected ($2.50)
+Seat 2: rjpur (small blind) folded before Flop 
+Seat 3: ryzenn (big blind) folded before Flop 
+Seat 4: Horvath folded before Flop (didn't bet)
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+
+
+Weplay Hand #71543901:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:03:36 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($182.26 in chips)
+Seat 2: rjpur ($73.76 in chips)
+Seat 3: ryzenn ($137.90 in chips)
+Seat 4: Horvath ($20.80 in chips)
+Seat 5: FireWalkWithMe ($99 in chips)
+ryzenn: posts small blind $0.50
+Horvath: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 2d]
+FireWalkWithMe: folds
+kole1992: folds
+rjpur: raises $2.50 to $2.50
+ryzenn: folds
+Horvath: calls $1.50
+*** FLOP *** [3h Kc Qc]
+Horvath: folds
+*** SHOW DOWN ***
+rjpur has timed out
+rjpur: doesn't show hand
+rjpur collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [3h Kc Qc]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur (button) collected ($5.50)
+Seat 3: ryzenn (small blind) folded before Flop 
+Seat 4: Horvath (big blind) folded on the Flop 
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+
+
+Weplay Hand #71543915:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:04:01 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($182.26 in chips)
+Seat 2: rjpur ($76.49 in chips)
+Seat 3: ryzenn ($137.40 in chips)
+Seat 4: Horvath ($18.30 in chips)
+Seat 5: FireWalkWithMe ($99 in chips)
+Horvath: posts small blind $0.50
+FireWalkWithMe: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 9h]
+kole1992: folds
+rjpur: folds
+ryzenn: folds
+Horvath: calls $0.50
+FireWalkWithMe: checks
+*** FLOP *** [3d 4c 5c]
+Horvath: checks
+FireWalkWithMe: checks
+*** TURN *** [3d 4c 5c] [5d]
+Horvath: checks
+FireWalkWithMe: checks
+*** RIVER *** [3d 4c 5c 5d] [4s]
+Horvath: bets $3
+FireWalkWithMe: calls $3
+*** SHOW DOWN ***
+Horvath: shows [4d Jd] (a full house, Fours full of Fives)
+FireWalkWithMe: mucks hand
+Horvath collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [3d 4c 5c 5d 4s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur folded before Flop (didn't bet)
+Seat 3: ryzenn (button) folded before Flop (didn't bet)
+Seat 4: Horvath (small blind) showed [4d Jd] and won ($8) with a full house, Fours full of Fives
+Seat 5: FireWalkWithMe (big blind) mucked
+
+
+Weplay Hand #71543934:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:04:39 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($182.26 in chips)
+Seat 2: rjpur ($76.49 in chips)
+Seat 3: ryzenn ($137.40 in chips)
+Seat 4: Horvath ($21.90 in chips)
+Seat 5: FireWalkWithMe ($95 in chips)
+FireWalkWithMe: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 2d]
+rjpur: folds
+ryzenn: folds
+Horvath: folds
+FireWalkWithMe: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($1)
+Seat 2: rjpur folded before Flop (didn't bet)
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath (button) folded before Flop (didn't bet)
+Seat 5: FireWalkWithMe (small blind) folded before Flop 
+
+
+Weplay Hand #71543940:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:04:51 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($182.76 in chips)
+Seat 2: rjpur ($76.49 in chips)
+Seat 3: ryzenn ($137.40 in chips)
+Seat 4: Horvath ($21.90 in chips)
+Seat 5: FireWalkWithMe ($100 in chips)
+kole1992: posts small blind $0.50
+rjpur: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Qd]
+ryzenn: folds
+Horvath: raises $3 to $3
+FireWalkWithMe: folds
+kole1992: folds
+rjpur: calls $2
+*** FLOP *** [Ts 9d 6s]
+simke1133 joins the table at seat #6
+rjpur: checks
+Horvath: checks
+*** TURN *** [Ts 9d 6s] [Jd]
+rjpur: checks
+Horvath: checks
+*** RIVER *** [Ts 9d 6s Jd] [Ks]
+rjpur: checks
+Horvath: checks
+*** SHOW DOWN ***
+rjpur: shows [6d 5c] (a pair of Sixes)
+Horvath has timed out
+Horvath: mucks hand
+rjpur collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [Ts 9d 6s Jd Ks]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: rjpur (big blind) showed [6d 5c] and won ($6.50) with a pair of Sixes
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath mucked
+Seat 5: FireWalkWithMe (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71543969:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:06:01 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($182.26 in chips)
+Seat 2: rjpur ($79.67 in chips)
+Seat 3: ryzenn ($137.40 in chips)
+Seat 4: Horvath ($18.90 in chips)
+Seat 5: FireWalkWithMe ($100 in chips)
+Seat 6: simke1133 ($70.59 in chips)
+rjpur: posts small blind $0.50
+ryzenn: posts big blind $1
+simke1133: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Jc]
+Horvath: folds
+FireWalkWithMe: folds
+simke1133: checks
+kole1992: folds
+rjpur: folds
+ryzenn: checks
+*** FLOP *** [6d 5d 2d]
+ryzenn: checks
+simke1133: checks
+*** TURN *** [6d 5d 2d] [5h]
+ryzenn: checks
+simke1133: checks
+*** RIVER *** [6d 5d 2d 5h] [Td]
+ryzenn: checks
+simke1133: checks
+*** SHOW DOWN ***
+ryzenn: shows [7d 9c] (a flush, Ten high)
+simke1133 has timed out
+simke1133: mucks hand
+ryzenn collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [6d 5d 2d 5h Td]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: rjpur (small blind) folded before Flop 
+Seat 3: ryzenn (big blind) showed [7d 9c] and won ($2.50) with a flush, Ten high
+Seat 4: Horvath folded before Flop (didn't bet)
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+Seat 6: simke1133 (big blind) mucked
+
+
+Weplay Hand #71544003:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:07:38 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($182.26 in chips)
+Seat 2: rjpur ($79.17 in chips)
+Seat 3: ryzenn ($138.78 in chips)
+Seat 4: Horvath ($18.90 in chips)
+Seat 5: FireWalkWithMe ($100 in chips)
+Seat 6: simke1133 ($69.59 in chips)
+ryzenn: posts small blind $0.50
+Horvath: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h Kc]
+FireWalkWithMe: raises $3 to $3
+simke1133: folds
+kole1992: folds
+rjpur: raises $12 to $12
+ryzenn: folds
+Horvath: folds
+FireWalkWithMe: folds
+Uncalled bet ($9) returned to rjpur
+*** SHOW DOWN ***
+rjpur has timed out
+rjpur: doesn't show hand
+rjpur collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur (button) collected ($7.50)
+Seat 3: ryzenn (small blind) folded before Flop 
+Seat 4: Horvath (big blind) folded before Flop 
+Seat 5: FireWalkWithMe folded before Flop 
+Seat 6: simke1133 folded before Flop (didn't bet)
+
+
+Weplay Hand #71544013:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:08:03 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($182.26 in chips)
+Seat 2: rjpur ($83.67 in chips)
+Seat 3: ryzenn ($138.28 in chips)
+Seat 4: Horvath ($17.90 in chips)
+Seat 5: FireWalkWithMe ($97 in chips)
+Seat 6: simke1133 ($69.59 in chips)
+Horvath: posts small blind $0.50
+FireWalkWithMe: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 4s]
+simke1133 has timed out
+simke1133: folds
+kole1992: folds
+rjpur: folds
+ryzenn: raises $2.50 to $2.50
+Horvath: calls $2
+FireWalkWithMe: folds
+*** FLOP *** [6h 6c 5d]
+Horvath: checks
+ryzenn: bets $3
+Horvath: folds
+Uncalled bet ($3) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [6h 6c 5d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur folded before Flop (didn't bet)
+Seat 3: ryzenn (button) collected ($6)
+Seat 4: Horvath (small blind) folded on the Flop 
+Seat 5: FireWalkWithMe (big blind) folded before Flop 
+Seat 6: simke1133 folded before Flop (didn't bet)
+
+
+Weplay Hand #71544034:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:08:49 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($182.26 in chips)
+Seat 2: rjpur ($83.67 in chips)
+Seat 3: ryzenn ($141.48 in chips)
+Seat 4: Horvath ($15.40 in chips)
+Seat 5: FireWalkWithMe ($96 in chips)
+Seat 6: simke1133 ($69.59 in chips)
+FireWalkWithMe: posts small blind $0.50
+simke1133: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 6c]
+kole1992: folds
+rjpur: raises $2.50 to $2.50
+ryzenn: folds
+Horvath: calls $2.50
+FireWalkWithMe: folds
+simke1133: folds
+*** FLOP *** [7d 7c Td]
+rjpur: checks
+Horvath: checks
+*** TURN *** [7d 7c Td] [Js]
+rjpur: checks
+Horvath: checks
+*** RIVER *** [7d 7c Td Js] [Ad]
+rjpur: bets $2.15
+Horvath: folds
+Uncalled bet ($2.15) returned to rjpur
+*** SHOW DOWN ***
+rjpur has timed out
+rjpur: doesn't show hand
+rjpur collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [7d 7c Td Js Ad]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur collected ($6.50)
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath (button) folded on the River 
+Seat 5: FireWalkWithMe (small blind) folded before Flop 
+Seat 6: simke1133 (big blind) folded before Flop 
+
+
+Weplay Hand #71544056:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:09:34 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($182.26 in chips)
+Seat 2: rjpur ($87.35 in chips)
+Seat 3: ryzenn ($141.48 in chips)
+Seat 4: Horvath ($12.90 in chips)
+Seat 5: FireWalkWithMe ($95.50 in chips)
+Seat 6: simke1133 ($68.59 in chips)
+simke1133: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 5h]
+rjpur: raises $2.50 to $2.50
+ryzenn: raises $9 to $9
+Horvath: folds
+FireWalkWithMe: folds
+simke1133: folds
+kole1992: folds
+rjpur: calls $6.50
+*** FLOP *** [Jh 3s As]
+rjpur: checks
+ryzenn: bets $6.43
+rjpur: calls $6.43
+*** TURN *** [Jh 3s As] [Ts]
+rjpur: checks
+ryzenn: checks
+*** RIVER *** [Jh 3s As Ts] [Td]
+rjpur: checks
+ryzenn: checks
+*** SHOW DOWN ***
+rjpur: shows [4d Ad] (two pair, Aces and Tens)
+ryzenn: mucks hand
+rjpur collected $32.36 from pot
+*** SUMMARY ***
+Total pot $32.36 | Rake $1.61 
+Board [Jh 3s As Ts Td]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: rjpur showed [4d Ad] and won ($32.36) with two pair, Aces and Tens
+Seat 3: ryzenn mucked
+Seat 4: Horvath folded before Flop (didn't bet)
+Seat 5: FireWalkWithMe (button) folded before Flop (didn't bet)
+Seat 6: simke1133 (small blind) folded before Flop 
+
+
+Weplay Hand #71544085:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:10:32 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($181.26 in chips)
+Seat 2: rjpur ($102.67 in chips)
+Seat 3: ryzenn ($126.05 in chips)
+Seat 4: Horvath ($12.90 in chips)
+Seat 5: FireWalkWithMe ($95.50 in chips)
+Seat 6: simke1133 ($68.09 in chips)
+kole1992: posts small blind $0.50
+rjpur: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 5s]
+ryzenn: folds
+rjpur is disconnected 
+Horvath: raises $3 to $3
+FireWalkWithMe: folds
+simke1133: folds
+rjpur is connected 
+kole1992: folds
+rjpur: calls $2
+*** FLOP *** [6d Jd 5h]
+rjpur: checks
+Horvath: checks
+*** TURN *** [6d Jd 5h] [Kc]
+rjpur: checks
+Horvath: checks
+*** RIVER *** [6d Jd 5h Kc] [5c]
+rjpur: checks
+Horvath: checks
+*** SHOW DOWN ***
+rjpur: shows [7c As] (a pair of Fives)
+Horvath has timed out
+Horvath: mucks hand
+rjpur collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [6d Jd 5h Kc 5c]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: rjpur (big blind) showed [7c As] and won ($6.50) with a pair of Fives
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath mucked
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+Seat 6: simke1133 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71544118:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:11:49 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($180.76 in chips)
+Seat 2: rjpur ($105.85 in chips)
+Seat 3: ryzenn ($126.05 in chips)
+Seat 4: Horvath ($9.90 in chips)
+Seat 5: FireWalkWithMe ($95.50 in chips)
+Seat 6: simke1133 ($68.09 in chips)
+rjpur: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 7h]
+Horvath: raises $9.90 to $9.90 and is all-in
+FireWalkWithMe: folds
+simke1133: calls $9.90
+kole1992: folds
+rjpur: folds
+ryzenn: raises $125.05 to $126.05 and is all-in
+simke1133: folds
+Uncalled bet ($116.15) returned to ryzenn
+*** FLOP *** [9h Ah 2s]
+*** TURN *** [9h Ah 2s] [6h]
+*** RIVER *** [9h Ah 2s 6h] [Ad]
+*** SHOW DOWN ***
+ryzenn: shows [8c 8h] (two pair, Aces and Eights)
+Horvath: shows [9c 9d] (a full house, Nines full of Aces)
+Horvath collected $30.20 from pot
+*** SUMMARY ***
+Total pot $30.20 | Rake $1.51 
+Board [9h Ah 2s 6h Ad]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: rjpur (small blind) folded before Flop 
+Seat 3: ryzenn (big blind) showed [8c 8h] and lost with two pair, Aces and Eights
+Seat 4: Horvath showed [9c 9d] and won ($30.20) with a full house, Nines full of Aces
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+Seat 6: simke1133 folded before Flop 
+
+
+Weplay Hand #71544143:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:12:47 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($180.76 in chips)
+Seat 2: rjpur ($105.35 in chips)
+Seat 3: ryzenn ($116.15 in chips)
+Seat 4: Horvath ($28.69 in chips)
+Seat 5: FireWalkWithMe ($95.50 in chips)
+Seat 6: simke1133 ($58.19 in chips)
+ryzenn: posts small blind $0.50
+Horvath: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 8s]
+FireWalkWithMe: folds
+FireWalkWithMe leaves the table
+simke1133: folds
+MastaKilla joins the table at seat #5
+kole1992: folds
+rjpur: folds
+ryzenn: folds
+Uncalled bet ($0.50) returned to Horvath
+*** SHOW DOWN ***
+Horvath has timed out
+Horvath: doesn't show hand
+Horvath collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur (button) folded before Flop (didn't bet)
+Seat 3: ryzenn (small blind) folded before Flop 
+Seat 4: Horvath (big blind) collected ($1)
+Seat 5: FireWalkWithMe folded before Flop (didn't bet)
+Seat 6: simke1133 folded before Flop (didn't bet)
+
+
+Weplay Hand #71544155:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:13:10 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($180.76 in chips)
+Seat 2: rjpur ($105.35 in chips)
+Seat 3: ryzenn ($115.65 in chips)
+Seat 4: Horvath ($29.19 in chips)
+Seat 5: MastaKilla ($100 in chips)
+Seat 6: simke1133 ($58.19 in chips)
+Horvath: posts small blind $0.50
+MastaKilla: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h Js]
+simke1133: folds
+kole1992: folds
+rjpur: folds
+ryzenn: folds
+Horvath: raises $2.50 to $3
+MastaKilla: folds
+Uncalled bet ($2) returned to Horvath
+*** SHOW DOWN ***
+Horvath has timed out
+Horvath: doesn't show hand
+Horvath collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur folded before Flop (didn't bet)
+Seat 3: ryzenn (button) folded before Flop (didn't bet)
+Seat 4: Horvath (small blind) collected ($2)
+Seat 5: MastaKilla (big blind) folded before Flop 
+Seat 6: simke1133 folded before Flop (didn't bet)
+
+
+Weplay Hand #71544170:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:13:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($180.76 in chips)
+Seat 2: rjpur ($105.35 in chips)
+Seat 3: ryzenn ($115.65 in chips)
+Seat 4: Horvath ($30.19 in chips)
+Seat 5: MastaKilla ($99 in chips)
+Seat 6: simke1133 ($58.19 in chips)
+MastaKilla: posts small blind $0.50
+simke1133: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Kc]
+kole1992: folds
+rjpur: raises $2.50 to $2.50
+ryzenn: calls $2.50
+Horvath: calls $2.50
+MastaKilla: calls $2
+simke1133: calls $1.50
+*** FLOP *** [2d Jd 9h]
+MastaKilla: checks
+simke1133: checks
+rjpur: checks
+ryzenn: checks
+Horvath: bets $7
+MastaKilla: calls $7
+simke1133: calls $7
+rjpur: folds
+ryzenn: folds
+*** TURN *** [2d Jd 9h] [9c]
+MastaKilla: checks
+simke1133: checks
+Horvath: checks
+*** RIVER *** [2d Jd 9h 9c] [3h]
+MastaKilla: bets $33.50
+simke1133: folds
+Horvath: folds
+Uncalled bet ($33.50) returned to MastaKilla
+*** SHOW DOWN ***
+MastaKilla: doesn't show hand
+MastaKilla collected $33.50 from pot
+*** SUMMARY ***
+Total pot $33.50 | Rake $1.67 
+Board [2d Jd 9h 9c 3h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur folded on the Flop 
+Seat 3: ryzenn folded on the Flop 
+Seat 4: Horvath (button) folded on the River 
+Seat 5: MastaKilla (small blind) collected ($33.50)
+Seat 6: simke1133 (big blind) folded on the River 
+
+
+Weplay Hand #71544202:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:15:03 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($180.76 in chips)
+Seat 2: rjpur ($102.85 in chips)
+Seat 3: ryzenn ($113.15 in chips)
+Seat 4: Horvath ($20.69 in chips)
+Seat 5: MastaKilla ($121.33 in chips)
+Seat 6: simke1133 ($48.69 in chips)
+simke1133: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 2s]
+rjpur: folds
+ryzenn: folds
+Horvath: raises $3 to $3
+MastaKilla: calls $3
+simke1133: folds
+kole1992: folds
+*** FLOP *** [Jc 2d 6d]
+Horvath: bets $2
+MastaKilla: calls $2
+*** TURN *** [Jc 2d 6d] [7h]
+Horvath: checks
+MastaKilla: bets $5.75
+Horvath: folds
+Uncalled bet ($5.75) returned to MastaKilla
+*** SHOW DOWN ***
+MastaKilla: doesn't show hand
+MastaKilla collected $11.50 from pot
+*** SUMMARY ***
+Total pot $11.50 | Rake $0.57 
+Board [Jc 2d 6d 7h]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: rjpur folded before Flop (didn't bet)
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath folded on the Turn 
+Seat 5: MastaKilla (button) collected ($11.50)
+Seat 6: simke1133 (small blind) folded before Flop 
+
+
+Weplay Hand #71544219:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:15:40 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($179.76 in chips)
+Seat 2: rjpur ($102.85 in chips)
+Seat 3: ryzenn ($113.15 in chips)
+Seat 4: Horvath ($15.69 in chips)
+Seat 5: MastaKilla ($127.26 in chips)
+Seat 6: simke1133 ($48.19 in chips)
+kole1992: posts small blind $0.50
+rjpur: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 3c]
+ryzenn: folds
+Horvath: folds
+MastaKilla: raises $4 to $4
+simke1133: calls $4
+kole1992: folds
+rjpur: folds
+*** FLOP *** [Qs 6s 8d]
+MastaKilla: bets $2.85
+simke1133: calls $2.85
+*** TURN *** [Qs 6s 8d] [Ah]
+MastaKilla: bets $11.40
+simke1133: calls $11.40
+*** RIVER *** [Qs 6s 8d Ah] [Th]
+MastaKilla: bets $19
+simke1133: calls $19
+*** SHOW DOWN ***
+MastaKilla: shows [Js Jh] (a pair of Jacks)
+simke1133: shows [9s Ad] (a pair of Aces)
+simke1133 collected $76 from pot
+*** SUMMARY ***
+Total pot $76 | Rake $3.80 
+Board [Qs 6s 8d Ah Th]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: rjpur (big blind) folded before Flop 
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath folded before Flop (didn't bet)
+Seat 5: MastaKilla showed [Js Jh] and lost with a pair of Jacks
+Seat 6: simke1133 (button) showed [9s Ad] and won ($76) with a pair of Aces
+
+
+Weplay Hand #71544254:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:16:47 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($179.26 in chips)
+Seat 2: rjpur ($101.85 in chips)
+Seat 3: ryzenn ($113.15 in chips)
+Seat 4: Horvath ($15.69 in chips)
+Seat 5: MastaKilla ($90.01 in chips)
+Seat 6: simke1133 ($83.14 in chips)
+rjpur: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 8c]
+Horvath: calls $1
+MastaKilla: raises $2 to $2
+simke1133: folds
+kole1992: folds
+rjpur: calls $1.50
+ryzenn: folds
+Horvath: calls $1
+*** FLOP *** [Ah Qc 2h]
+rjpur: checks
+Horvath: checks
+MastaKilla: bets $7
+rjpur: folds
+Horvath: folds
+Uncalled bet ($7) returned to MastaKilla
+*** SHOW DOWN ***
+MastaKilla: doesn't show hand
+MastaKilla collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [Ah Qc 2h]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: rjpur (small blind) folded on the Flop 
+Seat 3: ryzenn (big blind) folded before Flop 
+Seat 4: Horvath folded on the Flop 
+Seat 5: MastaKilla collected ($7)
+Seat 6: simke1133 folded before Flop (didn't bet)
+
+
+Weplay Hand #71544277:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:17:45 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($179.26 in chips)
+Seat 2: rjpur ($99.85 in chips)
+Seat 3: ryzenn ($112.15 in chips)
+Seat 4: Horvath ($13.69 in chips)
+Seat 5: MastaKilla ($94.66 in chips)
+Seat 6: simke1133 ($83.14 in chips)
+ryzenn: posts small blind $0.50
+Horvath: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 2h]
+MastaKilla: folds
+simke1133: raises $2.50 to $2.50
+kole1992: folds
+rjpur: raises $9 to $9
+ryzenn: folds
+Horvath: folds
+simke1133: calls $6.50
+*** FLOP *** [Jd 5d Ks]
+simke1133: checks
+rjpur: bets $6.44
+simke1133: folds
+Uncalled bet ($6.44) returned to rjpur
+*** SHOW DOWN ***
+rjpur has timed out
+rjpur: doesn't show hand
+rjpur collected $19.50 from pot
+*** SUMMARY ***
+Total pot $19.50 | Rake $0.97 
+Board [Jd 5d Ks]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur (button) collected ($19.50)
+Seat 3: ryzenn (small blind) folded before Flop 
+Seat 4: Horvath (big blind) folded before Flop 
+Seat 5: MastaKilla folded before Flop (didn't bet)
+Seat 6: simke1133 folded on the Flop 
+
+
+Weplay Hand #71544304:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:18:37 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($179.26 in chips)
+Seat 2: rjpur ($109.38 in chips)
+Seat 3: ryzenn ($111.65 in chips)
+Seat 4: Horvath ($12.69 in chips)
+Seat 5: MastaKilla ($94.66 in chips)
+Seat 6: simke1133 ($74.14 in chips)
+Horvath: posts small blind $0.50
+MastaKilla: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 3c]
+simke1133: folds
+kole1992: folds
+rjpur: folds
+ryzenn: folds
+Horvath: folds
+Uncalled bet ($0.50) returned to MastaKilla
+*** SHOW DOWN ***
+MastaKilla: doesn't show hand
+MastaKilla collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur folded before Flop (didn't bet)
+Seat 3: ryzenn (button) folded before Flop (didn't bet)
+Seat 4: Horvath (small blind) folded before Flop 
+Seat 5: MastaKilla (big blind) collected ($1)
+Seat 6: simke1133 folded before Flop (didn't bet)
+
+
+Weplay Hand #71544309:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:18:52 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($179.26 in chips)
+Seat 2: rjpur ($109.38 in chips)
+Seat 3: ryzenn ($111.65 in chips)
+Seat 4: Horvath ($12.19 in chips)
+Seat 5: MastaKilla ($95.16 in chips)
+Seat 6: simke1133 ($74.14 in chips)
+MastaKilla: posts small blind $0.50
+simke1133: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Th]
+kole1992: folds
+rjpur: folds
+ryzenn: folds
+Horvath: calls $1
+MastaKilla: calls $0.50
+simke1133: checks
+*** FLOP *** [5s Ac Qc]
+MastaKilla: checks
+simke1133: checks
+Horvath: checks
+*** TURN *** [5s Ac Qc] [8c]
+MastaKilla: checks
+simke1133: checks
+Horvath: checks
+*** RIVER *** [5s Ac Qc 8c] [5d]
+MastaKilla: checks
+simke1133: checks
+Horvath: checks
+*** SHOW DOWN ***
+MastaKilla: shows [Td 9s] (a pair of Fives)
+simke1133: shows [Kd 2c] (a pair of Fives)
+Horvath: mucks hand
+simke1133 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [5s Ac Qc 8c 5d]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur folded before Flop (didn't bet)
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath (button) mucked
+Seat 5: MastaKilla (small blind) showed [Td 9s] and lost with a pair of Fives
+Seat 6: simke1133 (big blind) showed [Kd 2c] and won ($3) with a pair of Fives
+
+
+Weplay Hand #71546333:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:19:32 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($179.26 in chips)
+Seat 2: rjpur ($109.38 in chips)
+Seat 3: ryzenn ($111.65 in chips)
+Seat 4: Horvath ($11.19 in chips)
+Seat 5: MastaKilla ($94.16 in chips)
+Seat 6: simke1133 ($75.99 in chips)
+simke1133: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 7d]
+rjpur: raises $2.50 to $2.50
+ryzenn: raises $8 to $8
+Horvath: raises $11.19 to $11.19 and is all-in
+MastaKilla: folds
+simke1133: calls $10.69
+kole1992: folds
+rjpur: folds
+ryzenn: calls $3.19
+*** FLOP *** [5h Kh As]
+simke1133: checks
+ryzenn: bets $12.23
+simke1133: folds
+Uncalled bet ($12.23) returned to ryzenn
+*** TURN *** [5h Kh As] [6c]
+*** RIVER *** [5h Kh As 6c] [2h]
+*** SHOW DOWN ***
+ryzenn: shows [Ad Js] (a pair of Aces)
+Horvath: shows [Qd Ah] (a pair of Aces)
+Horvath collected $37.07 from pot
+*** SUMMARY ***
+Total pot $37.07 | Rake $1.85 
+Board [5h Kh As 6c 2h]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: rjpur folded before Flop 
+Seat 3: ryzenn showed [Ad Js] and lost with a pair of Aces
+Seat 4: Horvath showed [Qd Ah] and won ($37.07) with a pair of Aces
+Seat 5: MastaKilla (button) folded before Flop (didn't bet)
+Seat 6: simke1133 (small blind) folded on the Flop 
+
+
+Weplay Hand #71546356:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:20:37 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($178.26 in chips)
+Seat 2: rjpur ($106.88 in chips)
+Seat 3: ryzenn ($100.46 in chips)
+Seat 4: Horvath ($35.22 in chips)
+Seat 5: MastaKilla ($94.16 in chips)
+Seat 6: simke1133 ($64.80 in chips)
+kole1992: posts small blind $0.50
+rjpur: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Jc]
+ryzenn: folds
+Horvath: calls $1
+MastaKilla: folds
+simke1133: folds
+kole1992: folds
+rjpur: raises $2 to $3
+Horvath: calls $2
+*** FLOP *** [As 8h 7c]
+rjpur: bets $3.25
+Horvath: folds
+Uncalled bet ($3.25) returned to rjpur
+*** SHOW DOWN ***
+rjpur has timed out
+rjpur: doesn't show hand
+rjpur collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [As 8h 7c]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: rjpur (big blind) collected ($6.50)
+Seat 3: ryzenn folded before Flop (didn't bet)
+Seat 4: Horvath folded on the Flop 
+Seat 5: MastaKilla folded before Flop (didn't bet)
+Seat 6: simke1133 (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71546372:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:21:10 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($177.76 in chips)
+Seat 2: rjpur ($110.06 in chips)
+Seat 3: ryzenn ($100.46 in chips)
+Seat 4: Horvath ($32.22 in chips)
+Seat 5: MastaKilla ($94.16 in chips)
+Seat 6: simke1133 ($64.80 in chips)
+rjpur: posts small blind $0.50
+ryzenn: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 8d]
+Horvath: raises $3.20 to $3.20
+MastaKilla: folds
+simke1133: folds
+kole1992: folds
+rjpur: calls $2.70
+ryzenn: folds
+*** FLOP *** [2d 8c 7d]
+rjpur: checks
+Horvath: bets $4
+rjpur: calls $4
+*** TURN *** [2d 8c 7d] [4s]
+rjpur: checks
+Horvath: bets $7
+rjpur: calls $7
+*** RIVER *** [2d 8c 7d 4s] [4c]
+rjpur: checks
+Horvath: bets $18.02 and is all-in
+rjpur: folds
+Uncalled bet ($18.02) returned to Horvath
+*** SHOW DOWN ***
+Horvath has timed out
+Horvath: doesn't show hand
+Horvath collected $29.40 from pot
+*** SUMMARY ***
+Total pot $29.40 | Rake $1.47 
+Board [2d 8c 7d 4s 4c]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: rjpur (small blind) folded on the River 
+Seat 3: ryzenn (big blind) folded before Flop 
+Seat 4: Horvath collected ($29.40)
+Seat 5: MastaKilla folded before Flop (didn't bet)
+Seat 6: simke1133 folded before Flop (didn't bet)
+
+
+Weplay Hand #71546403:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:22:16 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($177.76 in chips)
+Seat 2: rjpur ($95.86 in chips)
+Seat 3: ryzenn ($99.46 in chips)
+Seat 4: Horvath ($45.95 in chips)
+Seat 5: MastaKilla ($94.16 in chips)
+Seat 6: simke1133 ($64.80 in chips)
+ryzenn: posts small blind $0.50
+Horvath: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Ah]
+MastaKilla: folds
+simke1133: folds
+kole1992: folds
+rjpur: folds
+ryzenn: raises $2.50 to $3
+Horvath: calls $2
+*** FLOP *** [8d 7c Kd]
+ryzenn: checks
+Horvath: checks
+*** TURN *** [8d 7c Kd] [Tc]
+ryzenn: checks
+Horvath: checks
+*** RIVER *** [8d 7c Kd Tc] [Ts]
+ryzenn: bets $1.50
+Horvath: folds
+Uncalled bet ($1.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [8d 7c Kd Tc Ts]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: rjpur (button) folded before Flop (didn't bet)
+Seat 3: ryzenn (small blind) collected ($6)
+Seat 4: Horvath (big blind) folded on the River 
+Seat 5: MastaKilla folded before Flop (didn't bet)
+Seat 6: simke1133 folded before Flop (didn't bet)
+
+
+Weplay Hand #71546430:  Hold'em No Limit ($0.50/$1) - 2026/01/04 14:23:07 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($177.76 in chips)
+Seat 2: rjpur ($95.86 in chips)
+Seat 3: ryzenn ($102.16 in chips)
+Seat 4: Horvath ($42.95 in chips)
+Seat 5: MastaKilla ($94.16 in chips)
+Seat 6: simke1133 ($64.80 in chips)
+Horvath: posts small blind $0.50
+MastaKilla: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Ac]
+simke1133: folds
+kole1992: raises $2 to $2
+rjpur: calls $2
+ryzenn: raises $10.50 to $10.50
+Horvath: folds
+MastaKilla: folds
+kole1992: folds
+rjpur: folds
+Uncalled bet ($8.50) returned to ryzenn
+*** SHOW DOWN ***
+ryzenn has timed out
+ryzenn: doesn't show hand
+ryzenn collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0 
+Seat 1: kole1992 folded before Flop 
+Seat 2: rjpur folded before Flop 
+Seat 3: ryzenn (button) collected ($7.50)
+Seat 4: Horvath (small blind) folded before Flop 
+Seat 5: MastaKilla (big blind) folded before Flop 
+Seat 6: simke1133 folded before Flop (didn't bet)

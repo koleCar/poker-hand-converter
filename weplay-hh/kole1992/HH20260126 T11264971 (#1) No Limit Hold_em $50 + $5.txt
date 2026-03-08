@@ -1,0 +1,103 @@
+﻿Weplay Hand #73831348: Tournament (Monday Main)#11264971, $50+$5 Hold'em No Limit - Level XIX (50/100) - 2026/01/26 19:41:00 UTC
+Table '11264971 2'(11600540) 8-max Seat #5 is the button
+Seat 1: 123456789987654321 (85040 in chips)
+Seat 2: kole1992 (38722 in chips)
+Seat 4: nikkybenz (191088 in chips)
+Seat 5: Godotines (132878 in chips)
+Seat 6: DEMO,ne00 (98488 in chips)
+Seat 7: Guttungen (137433 in chips)
+Seat 8: UnluckyG5G (95203 in chips)
+123456789987654321: posts the ante 625
+kole1992: posts the ante 625
+nikkybenz: posts the ante 625
+Godotines: posts the ante 625
+DEMO,ne00: posts the ante 625
+Guttungen: posts the ante 625
+UnluckyG5G: posts the ante 625
+DEMO,ne00: posts small blind 2500
+Guttungen: posts big blind 5000
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Ah]
+UnluckyG5G: folds
+123456789987654321 has timed out
+123456789987654321: folds
+123456789987654321: sits out 
+kole1992: raises 27500 to 27500
+nikkybenz: raises 190463 to 190463 and is all-in
+Godotines: calls 132253 and is all-in
+DEMO,ne00: folds
+Guttungen: folds
+kole1992 has timed out
+kole1992: folds
+Uncalled bet (58210) returned to nikkybenz
+kole1992: sits out 
+*** FLOP *** [7s 3c 2d]
+*** TURN *** [7s 3c 2d] [9h]
+*** RIVER *** [7s 3c 2d 9h] [8d]
+*** SHOW DOWN ***
+nikkybenz: shows [6h 6s] (a pair of Sixes)
+Godotines: shows [Kd Ks] (a pair of Kings)
+Godotines collected 303881 from pot
+*** SUMMARY ***
+Total pot 303881 | Rake 0 
+Board [7s 3c 2d 9h 8d]
+Seat 1: 123456789987654321 folded before Flop 
+Seat 2: kole1992 folded before Flop 
+Seat 4: nikkybenz showed [6h 6s] and lost with a pair of Sixes
+Seat 5: Godotines (button) showed [Kd Ks] and won (303881) with a pair of Kings
+Seat 6: DEMO,ne00 (small blind) folded before Flop 
+Seat 7: Guttungen (big blind) folded before Flop 
+Seat 8: UnluckyG5G folded before Flop 
+
+
+Weplay Hand #73831422: Tournament (Monday Main)#11264971, $50+$5 Hold'em No Limit - Level XIX (50/100) - 2026/01/26 19:42:52 UTC
+Table '11264971 2'(11600540) 8-max Seat #6 is the button
+Seat 1: 123456789987654321 (84415 in chips)
+Seat 2: kole1992 (10597 in chips)
+Seat 4: nikkybenz (58210 in chips)
+Seat 5: Godotines (303881 in chips)
+Seat 6: DEMO,ne00 (95363 in chips)
+Seat 7: Guttungen (131808 in chips)
+Seat 8: UnluckyG5G (94578 in chips)
+123456789987654321: posts the ante 625
+kole1992: posts the ante 625
+nikkybenz: posts the ante 625
+Godotines: posts the ante 625
+DEMO,ne00: posts the ante 625
+Guttungen: posts the ante 625
+UnluckyG5G: posts the ante 625
+Guttungen: posts small blind 2500
+UnluckyG5G: posts big blind 5000
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Qd]
+123456789987654321 has timed out
+123456789987654321: folds
+123456789987654321: sits out 
+kole1992: calls 5000
+nikkybenz: raises 15000 to 15000
+Godotines: folds
+DEMO,ne00: folds
+Guttungen: folds
+UnluckyG5G: raises 88953 to 93953 and is all-in
+kole1992: calls 4972 and is all-in
+nikkybenz: calls 42585 and is all-in
+Uncalled bet (36368) returned to UnluckyG5G
+*** FLOP *** [Tc 4s 5h]
+*** TURN *** [Tc 4s 5h] [2h]
+*** RIVER *** [Tc 4s 5h 2h] [7c]
+*** SHOW DOWN ***
+UnluckyG5G: shows [8c As] (high card Ace)
+kole1992: shows [Td Qd] (a pair of Tens)
+nikkybenz: shows [5d 5s] (three of a kind, Fives)
+nikkybenz collected 95226 from side pot
+nikkybenz collected 36791 from main pot
+*** SUMMARY ***
+Total pot 132017 Main pot 36791. Side pot 95226. | Rake 0 
+Board [Tc 4s 5h 2h 7c]
+Seat 1: 123456789987654321 folded before Flop 
+Seat 2: kole1992 showed [Td Qd] and lost with a pair of Tens
+Seat 4: nikkybenz showed [5d 5s] and won (132017) with three of a kind, Fives
+Seat 5: Godotines folded before Flop 
+Seat 6: DEMO,ne00 (button) folded before Flop 
+Seat 7: Guttungen (small blind) folded before Flop 
+Seat 8: UnluckyG5G (big blind) showed [8c As] and lost with high card Ace

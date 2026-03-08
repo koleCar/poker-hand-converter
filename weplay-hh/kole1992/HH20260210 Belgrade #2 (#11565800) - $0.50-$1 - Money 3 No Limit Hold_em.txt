@@ -1,0 +1,1567 @@
+﻿Weplay Hand #75256430:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:13:01 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($104 in chips)
+Seat 3: Olaf193 ($66.24 in chips)
+Seat 4: KellySlater ($313.87 in chips)
+Seat 5: tinkieri ($103.87 in chips)
+tinkieri: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 8c]
+Elgringo: folds
+Olaf193: folds
+KellySlater: folds
+tinkieri: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($1)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: Olaf193 folded before Flop (didn't bet)
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) folded before Flop 
+
+
+Weplay Hand #75256435:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:13:12 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100.50 in chips)
+Seat 2: Elgringo ($104 in chips)
+Seat 3: Olaf193 ($66.24 in chips)
+Seat 4: KellySlater ($313.87 in chips)
+Seat 5: tinkieri ($103.37 in chips)
+kole1992: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac Jd]
+Olaf193: folds
+KellySlater: folds
+tinkieri: folds
+kole1992: raises $2.50 to $3
+Elgringo: calls $2
+*** FLOP *** [Ah 2s Th]
+kole1992: bets $2.48
+Elgringo: folds
+Uncalled bet ($2.48) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Ah 2s Th]
+Seat 1: kole1992 (small blind) collected ($6)
+Seat 2: Elgringo (big blind) folded on the Flop 
+Seat 3: Olaf193 folded before Flop (didn't bet)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75256446:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:13:52 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($103.20 in chips)
+Seat 2: Elgringo ($101 in chips)
+Seat 4: KellySlater ($313.87 in chips)
+Seat 5: tinkieri ($103.37 in chips)
+Elgringo: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 6c]
+tinkieri: folds
+kole1992: folds
+Elgringo: folds
+Uncalled bet ($0.50) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 4: KellySlater (big blind) collected ($1)
+Seat 5: tinkieri folded before Flop (didn't bet)
+
+
+Weplay Hand #75256450:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:14:02 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($103.20 in chips)
+Seat 2: Elgringo ($100.50 in chips)
+Seat 4: KellySlater ($314.37 in chips)
+Seat 5: tinkieri ($103.37 in chips)
+KellySlater: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 4h]
+kole1992: folds
+Elgringo: folds
+KellySlater: folds
+Uncalled bet ($0.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri: doesn't show hand
+tinkieri collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo (button) folded before Flop (didn't bet)
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) collected ($1)
+
+
+Weplay Hand #75256453:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:14:15 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($103.20 in chips)
+Seat 2: Elgringo ($100.50 in chips)
+Seat 4: KellySlater ($313.87 in chips)
+Seat 5: tinkieri ($103.87 in chips)
+tinkieri: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 7c]
+Elgringo: folds
+KellySlater: raises $2.50 to $2.50
+tinkieri: raises $11.50 to $12
+LukasFlopovski joins the table at seat #6
+kole1992: folds
+KellySlater: folds
+Uncalled bet ($9.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri: doesn't show hand
+tinkieri collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 4: KellySlater (button) folded before Flop 
+Seat 5: tinkieri (small blind) collected ($6)
+
+
+Weplay Hand #75256470:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:15:14 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($103.50 in chips)
+Seat 4: KellySlater ($311.37 in chips)
+Seat 5: tinkieri ($107.37 in chips)
+Elgringo: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h Tc]
+tinkieri: folds
+kole1992: folds
+Elgringo: raises $2.50 to $3
+KellySlater: calls $2
+*** FLOP *** [Jc 9d 4s]
+Elgringo: checks
+KellySlater: bets $2
+Elgringo: folds
+Uncalled bet ($2) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Jc 9d 4s]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded on the Flop 
+Seat 4: KellySlater (big blind) collected ($6)
+Seat 5: tinkieri folded before Flop (didn't bet)
+
+
+Weplay Hand #75256481:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:15:38 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($100.50 in chips)
+Seat 4: KellySlater ($314.07 in chips)
+Seat 5: tinkieri ($107.37 in chips)
+KellySlater: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 9s]
+kole1992: folds
+Elgringo: raises $3 to $3
+KellySlater: raises $11.50 to $12
+tinkieri: folds
+Elgringo: calls $9
+*** FLOP *** [Tc 9c Ts]
+KellySlater: checks
+Elgringo: checks
+*** TURN *** [Tc 9c Ts] [9d]
+KellySlater: checks
+Elgringo: checks
+*** RIVER *** [Tc 9c Ts 9d] [8h]
+KellySlater: checks
+Elgringo: checks
+*** SHOW DOWN ***
+KellySlater: shows [Qs Kh] (two pair, Tens and Nines)
+Elgringo: shows [6d 6h] (two pair, Tens and Nines)
+KellySlater collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $1.25 
+Board [Tc 9c Ts 9d 8h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo (button) showed [6d 6h] and lost with two pair, Tens and Nines
+Seat 4: KellySlater (small blind) showed [Qs Kh] and won ($25) with two pair, Tens and Nines
+Seat 5: tinkieri (big blind) folded before Flop 
+
+
+Weplay Hand #75256494:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:16:20 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($88.50 in chips)
+Seat 4: KellySlater ($325.82 in chips)
+Seat 5: tinkieri ($106.37 in chips)
+Seat 6: LukasFlopovski ($102.65 in chips)
+tinkieri: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Ks]
+kole1992: folds
+Elgringo: folds
+KellySlater: raises $2.50 to $2.50
+tinkieri: folds
+LukasFlopovski: folds
+Uncalled bet ($1.50) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 4: KellySlater (button) collected ($2.50)
+Seat 5: tinkieri (small blind) folded before Flop 
+Seat 6: LukasFlopovski (big blind) folded before Flop 
+
+
+Weplay Hand #75256507:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:16:48 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($88.50 in chips)
+Seat 4: KellySlater ($327.32 in chips)
+Seat 5: tinkieri ($105.87 in chips)
+Seat 6: LukasFlopovski ($101.65 in chips)
+LukasFlopovski: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 6h]
+Elgringo: raises $3 to $3
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: folds
+Uncalled bet ($2) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Elgringo collected ($2.50)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (small blind) folded before Flop 
+
+
+Weplay Hand #75256512:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:17:04 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($90 in chips)
+Seat 4: KellySlater ($327.32 in chips)
+Seat 5: tinkieri ($105.87 in chips)
+Seat 6: LukasFlopovski ($101.15 in chips)
+kole1992: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Ad]
+KellySlater: raises $2.50 to $2.50
+tinkieri: raises $9 to $9
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: folds
+KellySlater: folds
+Uncalled bet ($6.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri: doesn't show hand
+tinkieri collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) folded before Flop 
+Seat 4: KellySlater folded before Flop 
+Seat 5: tinkieri collected ($6.50)
+Seat 6: LukasFlopovski (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75256520:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:17:23 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($89 in chips)
+Seat 4: KellySlater ($324.82 in chips)
+Seat 5: tinkieri ($109.87 in chips)
+Seat 6: LukasFlopovski ($101.15 in chips)
+Elgringo: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 4d]
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: folds
+Uncalled bet ($0.50) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 4: KellySlater (big blind) collected ($1)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256531:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:17:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($88.50 in chips)
+Seat 4: KellySlater ($325.32 in chips)
+Seat 5: tinkieri ($109.87 in chips)
+Seat 6: LukasFlopovski ($101.15 in chips)
+KellySlater: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 5d]
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: folds
+KellySlater: folds
+Uncalled bet ($0.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri: doesn't show hand
+tinkieri collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo (button) folded before Flop (didn't bet)
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) collected ($1)
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256537:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:18:06 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($88.50 in chips)
+Seat 4: KellySlater ($324.82 in chips)
+Seat 5: tinkieri ($110.37 in chips)
+Seat 6: LukasFlopovski ($101.15 in chips)
+tinkieri: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 5c]
+kole1992: raises $2 to $2
+Elgringo: folds
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: folds
+Uncalled bet ($1) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 collected ($2.50)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) folded before Flop 
+Seat 6: LukasFlopovski (big blind) folded before Flop 
+
+
+Weplay Hand #75256543:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:18:26 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($101.50 in chips)
+Seat 2: Elgringo ($88.50 in chips)
+Seat 4: KellySlater ($324.82 in chips)
+Seat 5: tinkieri ($109.87 in chips)
+Seat 6: LukasFlopovski ($100.15 in chips)
+LukasFlopovski: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 4s]
+Elgringo: folds
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: folds
+Uncalled bet ($0.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($1)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (small blind) folded before Flop 
+
+
+Weplay Hand #75256550:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:18:40 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($102 in chips)
+Seat 2: Elgringo ($88.50 in chips)
+Seat 4: KellySlater ($324.82 in chips)
+Seat 5: tinkieri ($109.87 in chips)
+Seat 6: LukasFlopovski ($99.65 in chips)
+kole1992: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 8s]
+KellySlater: raises $2.50 to $2.50
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: raises $9 to $10
+KellySlater: folds
+Uncalled bet ($7.50) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) collected ($5.50)
+Seat 4: KellySlater folded before Flop 
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75256557:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:19:07 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($101.50 in chips)
+Seat 2: Elgringo ($91.50 in chips)
+Seat 4: KellySlater ($322.32 in chips)
+Seat 5: tinkieri ($109.87 in chips)
+Seat 6: LukasFlopovski ($99.65 in chips)
+Elgringo: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 6h]
+tinkieri: raises $2.50 to $2.50
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: folds
+KellySlater: folds
+Uncalled bet ($1.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri: doesn't show hand
+tinkieri collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 4: KellySlater (big blind) folded before Flop 
+Seat 5: tinkieri collected ($2.50)
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256564:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:19:26 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($101.50 in chips)
+Seat 2: Elgringo ($91 in chips)
+Seat 4: KellySlater ($321.32 in chips)
+Seat 5: tinkieri ($111.37 in chips)
+Seat 6: LukasFlopovski ($99.65 in chips)
+KellySlater: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Td]
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: raises $3 to $3
+KellySlater: folds
+KellySlater is disconnected 
+tinkieri: folds
+Uncalled bet ($2) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo (button) collected ($2.50)
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) folded before Flop 
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256572:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:19:52 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($101.50 in chips)
+Seat 2: Elgringo ($92.50 in chips)
+Seat 4: KellySlater ($320.82 in chips)
+Seat 5: tinkieri ($110.37 in chips)
+Seat 6: LukasFlopovski ($99.65 in chips)
+tinkieri: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Kc]
+kole1992: folds
+Elgringo: raises $3 to $3
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: calls $2
+*** FLOP *** [5h As 9c]
+LukasFlopovski: checks
+Elgringo: bets $3.25
+LukasFlopovski: folds
+Uncalled bet ($3.25) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [5h As 9c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo collected ($6.50)
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) folded before Flop 
+Seat 6: LukasFlopovski (big blind) folded on the Flop 
+
+
+Weplay Hand #75256582:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:20:19 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($101.50 in chips)
+Seat 2: Elgringo ($95.68 in chips)
+Seat 4: KellySlater ($320.82 in chips)
+Seat 5: tinkieri ($109.87 in chips)
+Seat 6: LukasFlopovski ($96.65 in chips)
+LukasFlopovski: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Jh]
+Elgringo: raises $3 to $3
+KellySlater: folds
+tinkieri: calls $3
+LukasFlopovski: folds
+kole1992: folds
+*** FLOP *** [3s 8s Jc]
+Elgringo: bets $4
+tinkieri: folds
+Uncalled bet ($4) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $7.50 from pot
+*** SUMMARY ***
+Total pot $7.50 | Rake $0.37 
+Board [3s 8s Jc]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Elgringo collected ($7.50)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri (button) folded on the Flop 
+Seat 6: LukasFlopovski (small blind) folded before Flop 
+
+
+Weplay Hand #75256596:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:20:58 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100.50 in chips)
+Seat 2: Elgringo ($99.81 in chips)
+Seat 4: KellySlater ($320.82 in chips)
+Seat 5: tinkieri ($106.87 in chips)
+Seat 6: LukasFlopovski ($96.15 in chips)
+kole1992: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 8d]
+KellySlater: raises $2.50 to $2.50
+tinkieri: folds
+LukasFlopovski: raises $7.50 to $7.50
+kole1992: folds
+Elgringo: folds
+KellySlater: folds
+Uncalled bet ($5) returned to LukasFlopovski
+*** SHOW DOWN ***
+LukasFlopovski: doesn't show hand
+LukasFlopovski collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) folded before Flop 
+Seat 4: KellySlater folded before Flop 
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (button) collected ($6.50)
+
+
+Weplay Hand #75256608:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:21:27 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($98.81 in chips)
+Seat 4: KellySlater ($318.32 in chips)
+Seat 5: tinkieri ($106.87 in chips)
+Seat 6: LukasFlopovski ($100.15 in chips)
+Elgringo: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 9c]
+tinkieri: raises $2.50 to $2.50
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: raises $9.50 to $10
+KellySlater: folds
+tinkieri: calls $7.50
+*** FLOP *** [7d Qd 5d]
+Elgringo: checks
+tinkieri: checks
+*** TURN *** [7d Qd 5d] [6d]
+Elgringo: bets $12
+tinkieri: folds
+Uncalled bet ($12) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $21 from pot
+*** SUMMARY ***
+Total pot $21 | Rake $1.05 
+Board [7d Qd 5d 6d]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) collected ($21)
+Seat 4: KellySlater (big blind) folded before Flop 
+Seat 5: tinkieri folded on the Turn 
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256628:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:22:19 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($108.76 in chips)
+Seat 4: KellySlater ($317.32 in chips)
+Seat 5: tinkieri ($100 in chips)
+Seat 6: LukasFlopovski ($100.15 in chips)
+KellySlater: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 4h]
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: raises $3 to $3
+KellySlater: folds
+tinkieri: calls $2
+*** FLOP *** [Kc Jd 3h]
+tinkieri: checks
+Elgringo: bets $3.25
+tinkieri: raises $11.46 to $11.46
+Elgringo: folds
+Uncalled bet ($8.21) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri: doesn't show hand
+tinkieri collected $13 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [Kc Jd 3h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo (button) folded on the Flop 
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) collected ($13)
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256642:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:22:57 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($102.51 in chips)
+Seat 3: Olaf193 ($66.24 in chips)
+Seat 4: KellySlater ($316.82 in chips)
+Seat 5: tinkieri ($106.10 in chips)
+Seat 6: LukasFlopovski ($100.15 in chips)
+tinkieri: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+Olaf193: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 6d]
+kole1992: folds
+Elgringo: raises $3 to $3
+Olaf193: calls $2
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: calls $2
+*** FLOP *** [2h Qc 9c]
+LukasFlopovski: checks
+Elgringo: bets $4.75
+Olaf193: raises $14.25 to $14.25
+LukasFlopovski: folds
+Elgringo: raises $94.76 to $99.51 and is all-in
+Olaf193: calls $48.99 and is all-in
+Uncalled bet ($36.27) returned to Elgringo
+*** TURN *** [2h Qc 9c] [As]
+*** RIVER *** [2h Qc 9c As] [3s]
+*** SHOW DOWN ***
+Elgringo: shows [Kd 9d] (a pair of Nines)
+Olaf193: shows [2d Qd] (two pair, Queens and Deuces)
+Olaf193 collected $135.98 from pot
+*** SUMMARY ***
+Total pot $135.98 | Rake $6.50 
+Board [2h Qc 9c As 3s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo showed [Kd 9d] and lost with a pair of Nines
+Seat 3: Olaf193 (big blind) showed [2d Qd] and won ($135.98) with two pair, Queens and Deuces
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) folded before Flop 
+Seat 6: LukasFlopovski (big blind) folded on the Flop 
+
+
+Weplay Hand #75256662:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:23:53 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($36.27 in chips)
+Seat 3: Olaf193 ($129.48 in chips)
+Seat 4: KellySlater ($316.82 in chips)
+Seat 5: tinkieri ($105.60 in chips)
+Seat 6: LukasFlopovski ($97.15 in chips)
+LukasFlopovski: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 6d]
+Elgringo: folds
+Olaf193: calls $1
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: calls $0.50
+kole1992: checks
+*** FLOP *** [Ah 9h 7d]
+LukasFlopovski: checks
+kole1992: checks
+Olaf193: checks
+*** TURN *** [Ah 9h 7d] [2s]
+LukasFlopovski: bets $2
+kole1992: folds
+Olaf193: folds
+Uncalled bet ($2) returned to LukasFlopovski
+*** SHOW DOWN ***
+LukasFlopovski: doesn't show hand
+LukasFlopovski collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Ah 9h 7d 2s]
+Seat 1: kole1992 (big blind) folded on the Turn 
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: Olaf193 folded on the Turn 
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (small blind) collected ($3)
+
+
+Weplay Hand #75256683:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:24:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($36.27 in chips)
+Seat 3: Olaf193 ($128.48 in chips)
+Seat 4: KellySlater ($316.82 in chips)
+Seat 5: tinkieri ($105.60 in chips)
+Seat 6: LukasFlopovski ($99 in chips)
+kole1992: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 8h]
+Olaf193: folds
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) collected ($1)
+Seat 3: Olaf193 folded before Flop (didn't bet)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75256692:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:25:04 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($36.77 in chips)
+Seat 3: Olaf193 ($128.48 in chips)
+Seat 4: KellySlater ($316.82 in chips)
+Seat 5: tinkieri ($105.60 in chips)
+Seat 6: LukasFlopovski ($99 in chips)
+Elgringo: posts small blind $0.50
+Olaf193: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 8h]
+KellySlater: raises $2.50 to $2.50
+tinkieri: folds
+LukasFlopovski: calls $2.50
+kole1992: folds
+Elgringo: raises $36.27 to $36.77 and is all-in
+Olaf193: folds
+KellySlater: raises $314.32 to $316.82 and is all-in
+LukasFlopovski: folds
+Uncalled bet ($280.05) returned to KellySlater
+*** FLOP *** [9d 7s 6h]
+*** TURN *** [9d 7s 6h] [6s]
+*** RIVER *** [9d 7s 6h 6s] [Kd]
+*** SHOW DOWN ***
+Elgringo: shows [9h Th] (two pair, Nines and Sixes)
+KellySlater: shows [Jd Jh] (two pair, Jacks and Sixes)
+KellySlater collected $77.04 from pot
+*** SUMMARY ***
+Total pot $77.04 | Rake $3.85 
+Board [9d 7s 6h 6s Kd]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) showed [9h Th] and lost with two pair, Nines and Sixes
+Seat 3: Olaf193 (big blind) folded before Flop 
+Seat 4: KellySlater showed [Jd Jh] and won ($77.04) with two pair, Jacks and Sixes
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski folded before Flop 
+
+
+Weplay Hand #75256707:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:25:47 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 3: Olaf193 ($127.48 in chips)
+Seat 4: KellySlater ($353.24 in chips)
+Seat 5: tinkieri ($105.60 in chips)
+Seat 6: LukasFlopovski ($96.50 in chips)
+Olaf193: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 7c]
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: raises $2.50 to $2.50
+Olaf193: calls $2
+KellySlater: folds
+*** FLOP *** [As Jc Qh]
+Elgringo is disconnected 
+Olaf193: checks
+Elgringo is connected 
+kole1992: checks
+*** TURN *** [As Jc Qh] [3c]
+Olaf193: checks
+kole1992: checks
+*** RIVER *** [As Jc Qh 3c] [8s]
+Olaf193: checks
+kole1992: checks
+*** SHOW DOWN ***
+Olaf193: shows [7d 8d] (a pair of Eights)
+kole1992: mucks hand
+Olaf193 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [As Jc Qh 3c 8s]
+Seat 1: kole1992 mucked
+Seat 3: Olaf193 (small blind) showed [7d 8d] and won ($6) with a pair of Eights
+Seat 4: KellySlater (big blind) folded before Flop 
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256730:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:26:37 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($100 in chips)
+Seat 3: Olaf193 ($130.68 in chips)
+Seat 4: KellySlater ($352.24 in chips)
+Seat 5: tinkieri ($105.60 in chips)
+Seat 6: LukasFlopovski ($96.50 in chips)
+KellySlater: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 5s]
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: folds
+Olaf193: folds
+KellySlater: folds
+Uncalled bet ($0.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri: doesn't show hand
+tinkieri collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: Olaf193 (button) folded before Flop (didn't bet)
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) collected ($1)
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256743:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:27:07 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($100 in chips)
+Seat 3: Olaf193 ($130.68 in chips)
+Seat 4: KellySlater ($351.74 in chips)
+Seat 5: tinkieri ($106.10 in chips)
+Seat 6: LukasFlopovski ($96.50 in chips)
+tinkieri: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks Ts]
+kole1992: raises $2 to $2
+Elgringo: folds
+Olaf193: folds
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: calls $1
+*** FLOP *** [6s 6d 4c]
+LukasFlopovski: checks
+kole1992: bets $1.48
+LukasFlopovski: folds
+Uncalled bet ($1.48) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [6s 6d 4c]
+Seat 1: kole1992 collected ($4.50)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: Olaf193 folded before Flop (didn't bet)
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) folded before Flop 
+Seat 6: LukasFlopovski (big blind) folded on the Flop 
+
+
+Weplay Hand #75256763:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:27:52 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($102.28 in chips)
+Seat 2: Elgringo ($100 in chips)
+Seat 3: Olaf193 ($130.68 in chips)
+Seat 4: KellySlater ($351.74 in chips)
+Seat 5: tinkieri ($105.60 in chips)
+Seat 6: LukasFlopovski ($94.50 in chips)
+LukasFlopovski: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 9d]
+Elgringo: raises $3 to $3
+Olaf193: folds
+KellySlater: raises $9 to $9
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: calls $6
+*** FLOP *** [Tc As 8s]
+Elgringo: checks
+KellySlater: bets $6.40
+Elgringo: calls $6.40
+*** TURN *** [Tc As 8s] [Ad]
+Elgringo: checks
+KellySlater: checks
+*** RIVER *** [Tc As 8s Ad] [Jd]
+Elgringo: checks
+KellySlater: bets $24.20
+Elgringo: folds
+Uncalled bet ($24.20) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $32.30 from pot
+*** SUMMARY ***
+Total pot $32.30 | Rake $1.61 
+Board [Tc As 8s Ad Jd]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Elgringo folded on the River 
+Seat 3: Olaf193 folded before Flop (didn't bet)
+Seat 4: KellySlater collected ($32.30)
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (small blind) folded before Flop 
+
+
+Weplay Hand #75256785:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:28:48 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($101.28 in chips)
+Seat 2: Elgringo ($100 in chips)
+Seat 3: Olaf193 ($130.68 in chips)
+Seat 4: KellySlater ($367.03 in chips)
+Seat 5: tinkieri ($105.60 in chips)
+Seat 6: LukasFlopovski ($100 in chips)
+kole1992: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 9h]
+Olaf193: calls $1
+KellySlater: folds
+tinkieri: raises $5 to $5
+LukasFlopovski: calls $5
+kole1992: folds
+Elgringo: folds
+Olaf193: calls $4
+*** FLOP *** [4h 9d Qs]
+Olaf193: checks
+tinkieri: checks
+LukasFlopovski: bets $10.30
+Olaf193: folds
+tinkieri: folds
+Uncalled bet ($10.30) returned to LukasFlopovski
+*** SHOW DOWN ***
+LukasFlopovski: doesn't show hand
+LukasFlopovski collected $16.50 from pot
+*** SUMMARY ***
+Total pot $16.50 | Rake $0.82 
+Board [4h 9d Qs]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) folded before Flop 
+Seat 3: Olaf193 folded on the Flop 
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri folded on the Flop 
+Seat 6: LukasFlopovski (button) collected ($16.50)
+
+
+Weplay Hand #75256800:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:29:24 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($100.78 in chips)
+Seat 2: Elgringo ($99 in chips)
+Seat 3: Olaf193 ($125.68 in chips)
+Seat 4: KellySlater ($367.03 in chips)
+Seat 5: tinkieri ($100.60 in chips)
+Seat 6: LukasFlopovski ($110.68 in chips)
+Elgringo: posts small blind $0.50
+Olaf193: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th As]
+KellySlater: raises $2.50 to $2.50
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: folds
+Olaf193: calls $1.50
+*** FLOP *** [Ad 4s Kc]
+Olaf193: checks
+KellySlater: checks
+*** TURN *** [Ad 4s Kc] [8d]
+Olaf193: checks
+KellySlater: bets $1.80
+Olaf193: folds
+Uncalled bet ($1.80) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0.27 
+Board [Ad 4s Kc 8d]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 3: Olaf193 (big blind) folded on the Turn 
+Seat 4: KellySlater collected ($5.50)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256813:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:29:56 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($100.78 in chips)
+Seat 2: Elgringo ($98.50 in chips)
+Seat 3: Olaf193 ($123.18 in chips)
+Seat 4: KellySlater ($369.76 in chips)
+Seat 5: tinkieri ($100.60 in chips)
+Seat 6: LukasFlopovski ($110.68 in chips)
+Olaf193: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 6h]
+tinkieri: raises $2.50 to $2.50
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: calls $2.50
+Olaf193: folds
+KellySlater: folds
+*** FLOP *** [5h Td 3s]
+tinkieri: checks
+Elgringo: checks
+*** TURN *** [5h Td 3s] [Jh]
+tinkieri: checks
+Elgringo: checks
+*** RIVER *** [5h Td 3s Jh] [Ah]
+tinkieri: checks
+Elgringo: checks
+*** SHOW DOWN ***
+tinkieri: shows [5d 4d] (a pair of Fives)
+Elgringo has timed out
+Elgringo: mucks hand
+tinkieri collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [5h Td 3s Jh Ah]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo (button) mucked
+Seat 3: Olaf193 (small blind) folded before Flop 
+Seat 4: KellySlater (big blind) folded before Flop 
+Seat 5: tinkieri showed [5d 4d] and won ($6.50) with a pair of Fives
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256837:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:30:58 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($100.78 in chips)
+Seat 2: Elgringo ($96 in chips)
+Seat 3: Olaf193 ($122.68 in chips)
+Seat 4: KellySlater ($368.76 in chips)
+Seat 5: tinkieri ($104.28 in chips)
+Seat 6: LukasFlopovski ($110.68 in chips)
+KellySlater: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 7c]
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: folds
+Olaf193: raises $2.50 to $2.50
+KellySlater: folds
+tinkieri: folds
+Uncalled bet ($1.50) returned to Olaf193
+*** SHOW DOWN ***
+Olaf193: doesn't show hand
+Olaf193 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: Olaf193 (button) collected ($2.50)
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) folded before Flop 
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256843:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:31:14 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($100.78 in chips)
+Seat 2: Elgringo ($96 in chips)
+Seat 3: Olaf193 ($124.18 in chips)
+Seat 4: KellySlater ($368.26 in chips)
+Seat 5: tinkieri ($103.28 in chips)
+Seat 6: LukasFlopovski ($110.68 in chips)
+tinkieri: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 4d]
+kole1992: raises $2 to $2
+Elgringo: raises $9 to $9
+Olaf193: folds
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: folds
+Uncalled bet ($7) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: kole1992 folded before Flop 
+Seat 2: Elgringo collected ($5.50)
+Seat 3: Olaf193 folded before Flop (didn't bet)
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) folded before Flop 
+Seat 6: LukasFlopovski (big blind) folded before Flop 
+
+
+Weplay Hand #75256863:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:31:48 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($100 in chips)
+Seat 2: Elgringo ($99.50 in chips)
+Seat 3: Olaf193 ($124.18 in chips)
+Seat 4: KellySlater ($368.26 in chips)
+Seat 5: tinkieri ($102.78 in chips)
+Seat 6: LukasFlopovski ($109.68 in chips)
+LukasFlopovski: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 9c]
+Elgringo has timed out
+Elgringo: folds
+Olaf193: folds
+KellySlater: raises $2.50 to $2.50
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: calls $1.50
+*** FLOP *** [9s Qs 2c]
+kole1992: checks
+KellySlater: bets $4.10
+kole1992: calls $4.10
+*** TURN *** [9s Qs 2c] [Kh]
+kole1992: checks
+KellySlater: bets $10.30
+kole1992: calls $10.30
+*** RIVER *** [9s Qs 2c Kh] [2d]
+kole1992: checks
+KellySlater: checks
+*** SHOW DOWN ***
+kole1992: shows [Kc 9c] (two pair, Kings and Nines)
+KellySlater: mucks hand
+kole1992 collected $34.30 from pot
+*** SUMMARY ***
+Total pot $34.30 | Rake $1.71 
+Board [9s Qs 2c Kh 2d]
+Seat 1: kole1992 (big blind) showed [Kc 9c] and won ($34.30) with two pair, Kings and Nines
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: Olaf193 folded before Flop (didn't bet)
+Seat 4: KellySlater mucked
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (small blind) folded before Flop 
+
+
+Weplay Hand #75256891:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:32:58 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($115.69 in chips)
+Seat 2: Elgringo ($99.50 in chips)
+Seat 3: Olaf193 ($124.18 in chips)
+Seat 4: KellySlater ($351.36 in chips)
+Seat 5: tinkieri ($102.78 in chips)
+Seat 6: LukasFlopovski ($109.18 in chips)
+kole1992: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 7c]
+Olaf193: calls $1
+KellySlater: calls $1
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: checks
+*** FLOP *** [4s 2d Jc]
+Elgringo: checks
+Olaf193: checks
+KellySlater: bets $2.60
+Elgringo: folds
+Olaf193: calls $2.60
+*** TURN *** [4s 2d Jc] [2s]
+Olaf193: checks
+KellySlater: bets $13.10
+Olaf193: folds
+Uncalled bet ($13.10) returned to KellySlater
+*** SHOW DOWN ***
+KellySlater: doesn't show hand
+KellySlater collected $8.70 from pot
+*** SUMMARY ***
+Total pot $8.70 | Rake $0.43 
+Board [4s 2d Jc 2s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Elgringo (big blind) folded on the Flop 
+Seat 3: Olaf193 folded on the Turn 
+Seat 4: KellySlater collected ($8.70)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75256911:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:33:46 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($115.19 in chips)
+Seat 2: Elgringo ($98.50 in chips)
+Seat 3: Olaf193 ($120.58 in chips)
+Seat 4: KellySlater ($356.03 in chips)
+Seat 5: tinkieri ($102.78 in chips)
+Seat 6: LukasFlopovski ($109.18 in chips)
+Elgringo: posts small blind $0.50
+Olaf193: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 5h]
+KellySlater: folds
+tinkieri: raises $2.50 to $2.50
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: folds
+Olaf193: folds
+Uncalled bet ($1.50) returned to tinkieri
+*** SHOW DOWN ***
+tinkieri: doesn't show hand
+tinkieri collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded before Flop 
+Seat 3: Olaf193 (big blind) folded before Flop 
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri collected ($2.50)
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256920:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:34:02 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($115.19 in chips)
+Seat 2: Elgringo ($98 in chips)
+Seat 3: Olaf193 ($119.58 in chips)
+Seat 4: KellySlater ($356.03 in chips)
+Seat 5: tinkieri ($104.28 in chips)
+Seat 6: LukasFlopovski ($109.18 in chips)
+Olaf193: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 4s]
+tinkieri: raises $2.50 to $2.50
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: folds
+Olaf193: calls $2
+KellySlater: calls $1.50
+*** FLOP *** [Qd 4h 5s]
+Olaf193: checks
+KellySlater: checks
+tinkieri: bets $1.87
+Olaf193: calls $1.87
+KellySlater: folds
+*** TURN *** [Qd 4h 5s] [9h]
+Olaf193: checks
+tinkieri: checks
+*** RIVER *** [Qd 4h 5s 9h] [2s]
+Olaf193: checks
+tinkieri: bets $2.81
+Olaf193: calls $2.81
+*** SHOW DOWN ***
+tinkieri: shows [8s 8c] (a pair of Eights)
+Olaf193: mucks hand
+tinkieri collected $16.86 from pot
+*** SUMMARY ***
+Total pot $16.86 | Rake $0.84 
+Board [Qd 4h 5s 9h 2s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo (button) folded before Flop (didn't bet)
+Seat 3: Olaf193 (small blind) mucked
+Seat 4: KellySlater (big blind) folded on the Flop 
+Seat 5: tinkieri showed [8s 8c] and won ($16.86) with a pair of Eights
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256939:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:34:55 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($115.19 in chips)
+Seat 2: Elgringo ($98 in chips)
+Seat 3: Olaf193 ($112.40 in chips)
+Seat 4: KellySlater ($353.53 in chips)
+Seat 5: tinkieri ($113.12 in chips)
+Seat 6: LukasFlopovski ($109.18 in chips)
+KellySlater: posts small blind $0.50
+tinkieri: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 5d]
+LukasFlopovski: folds
+kole1992: folds
+Elgringo: raises $3 to $3
+Olaf193: folds
+KellySlater: folds
+tinkieri: folds
+Uncalled bet ($2) returned to Elgringo
+*** SHOW DOWN ***
+Elgringo has timed out
+Elgringo: doesn't show hand
+Elgringo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo collected ($2.50)
+Seat 3: Olaf193 (button) folded before Flop (didn't bet)
+Seat 4: KellySlater (small blind) folded before Flop 
+Seat 5: tinkieri (big blind) folded before Flop 
+Seat 6: LukasFlopovski folded before Flop (didn't bet)
+
+
+Weplay Hand #75256948:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:35:14 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($115.19 in chips)
+Seat 2: Elgringo ($99.50 in chips)
+Seat 3: Olaf193 ($112.40 in chips)
+Seat 4: KellySlater ($353.03 in chips)
+Seat 5: tinkieri ($112.12 in chips)
+Seat 6: LukasFlopovski ($109.18 in chips)
+tinkieri: posts small blind $0.50
+LukasFlopovski: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 3c]
+kole1992: folds
+Elgringo: folds
+Olaf193: raises $2 to $2
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: calls $1
+*** FLOP *** [Td 3s 7s]
+LukasFlopovski: checks
+Olaf193: checks
+*** TURN *** [Td 3s 7s] [4d]
+LukasFlopovski: checks
+Olaf193: checks
+*** RIVER *** [Td 3s 7s 4d] [Qh]
+LukasFlopovski: checks
+Olaf193: checks
+*** SHOW DOWN ***
+LukasFlopovski: shows [8c 9c] (high card Queen)
+Olaf193: shows [Kc 6s] (high card King)
+Olaf193 collected $4.50 from pot
+*** SUMMARY ***
+Total pot $4.50 | Rake $0.22 
+Board [Td 3s 7s 4d Qh]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: Elgringo folded before Flop (didn't bet)
+Seat 3: Olaf193 showed [Kc 6s] and won ($4.50) with high card King
+Seat 4: KellySlater (button) folded before Flop (didn't bet)
+Seat 5: tinkieri (small blind) folded before Flop 
+Seat 6: LukasFlopovski (big blind) showed [8c 9c] and lost with high card Queen
+
+
+Weplay Hand #75256971:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:36:09 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($115.19 in chips)
+Seat 2: Elgringo ($99.50 in chips)
+Seat 3: Olaf193 ($114.68 in chips)
+Seat 4: KellySlater ($353.03 in chips)
+Seat 5: tinkieri ($111.62 in chips)
+Seat 6: LukasFlopovski ($107.18 in chips)
+LukasFlopovski: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Jd]
+Elgringo: raises $3 to $3
+Olaf193: calls $3
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: folds
+kole1992: folds
+*** FLOP *** [3s 8h Ah]
+Elgringo: checks
+Olaf193: checks
+*** TURN *** [3s 8h Ah] [Ac]
+Elgringo: checks
+Olaf193: bets $3.75
+Elgringo: calls $3.75
+*** RIVER *** [3s 8h Ah Ac] [Ad]
+Elgringo: checks
+Olaf193: checks
+*** SHOW DOWN ***
+Elgringo: shows [Kc Jc] (three of a kind, Aces)
+Olaf193: shows [Kh 3h] (a full house, Aces full of Threes)
+Olaf193 collected $15 from pot
+*** SUMMARY ***
+Total pot $15 | Rake $0.75 
+Board [3s 8h Ah Ac Ad]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Elgringo showed [Kc Jc] and lost with three of a kind, Aces
+Seat 3: Olaf193 showed [Kh 3h] and won ($15) with a full house, Aces full of Threes
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri (button) folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (small blind) folded before Flop 
+
+
+Weplay Hand #75256993:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:36:59 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($114.19 in chips)
+Seat 2: Elgringo ($92.75 in chips)
+Seat 3: Olaf193 ($122.18 in chips)
+Seat 4: KellySlater ($353.03 in chips)
+Seat 5: tinkieri ($111.62 in chips)
+Seat 6: LukasFlopovski ($106.68 in chips)
+kole1992: posts small blind $0.50
+Elgringo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Ac]
+Olaf193: folds
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: raises $2.50 to $2.50
+kole1992: raises $9.51 to $10.01
+Elgringo: folds
+LukasFlopovski: folds
+Uncalled bet ($7.51) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0 
+Seat 1: kole1992 (small blind) collected ($6)
+Seat 2: Elgringo (big blind) folded before Flop 
+Seat 3: Olaf193 folded before Flop (didn't bet)
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski (button) folded before Flop 
+
+
+Weplay Hand #75257003:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:37:29 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($117.69 in chips)
+Seat 2: Elgringo ($91.75 in chips)
+Seat 3: Olaf193 ($122.18 in chips)
+Seat 4: KellySlater ($353.03 in chips)
+Seat 5: tinkieri ($111.62 in chips)
+Seat 6: LukasFlopovski ($104.18 in chips)
+Elgringo: posts small blind $0.50
+Olaf193: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Jd]
+KellySlater: folds
+tinkieri: folds
+LukasFlopovski: raises $2.50 to $2.50
+kole1992: folds
+Elgringo: raises $9.50 to $10
+Olaf193: folds
+LukasFlopovski: calls $7.50
+*** FLOP *** [4d 9h As]
+Elgringo: checks
+LukasFlopovski: checks
+*** TURN *** [4d 9h As] [6c]
+Elgringo: checks
+LukasFlopovski: bets $10.50
+Elgringo is disconnected 
+Elgringo has timed out while being disconnected
+Elgringo: folds
+Uncalled bet ($10.50) returned to LukasFlopovski
+*** SHOW DOWN ***
+LukasFlopovski: doesn't show hand
+LukasFlopovski collected $21 from pot
+*** SUMMARY ***
+Total pot $21 | Rake $1.05 
+Board [4d 9h As 6c]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Elgringo (small blind) folded on the Turn 
+Seat 3: Olaf193 (big blind) folded before Flop 
+Seat 4: KellySlater folded before Flop (didn't bet)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski collected ($21)
+
+
+Weplay Hand #75257041:  Hold'em No Limit ($0.50/$1) - 2026/02/10 7:39:07 UTC
+Table 'Belgrade #2'(11565800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($117.69 in chips)
+Seat 3: Olaf193 ($121.18 in chips)
+Seat 4: KellySlater ($353.03 in chips)
+Seat 5: tinkieri ($111.62 in chips)
+Seat 6: LukasFlopovski ($114.13 in chips)
+Olaf193: posts small blind $0.50
+KellySlater: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 3h]
+tinkieri: folds
+LukasFlopovski: raises $2.30 to $2.30
+kole1992: folds
+Olaf193: calls $1.80
+KellySlater: folds
+*** FLOP *** [Kd Js Th]
+Olaf193: checks
+LukasFlopovski: bets $3.30
+Olaf193: calls $3.30
+*** TURN *** [Kd Js Th] [2h]
+Olaf193: checks
+LukasFlopovski: bets $10.20
+Olaf193: folds
+Uncalled bet ($10.20) returned to LukasFlopovski
+*** SHOW DOWN ***
+LukasFlopovski: doesn't show hand
+LukasFlopovski collected $12.20 from pot
+*** SUMMARY ***
+Total pot $12.20 | Rake $0.61 
+Board [Kd Js Th 2h]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 3: Olaf193 (small blind) folded on the Turn 
+Seat 4: KellySlater (big blind) folded before Flop 
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: LukasFlopovski collected ($12.20)

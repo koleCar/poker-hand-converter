@@ -1,0 +1,718 @@
+﻿Weplay Hand #73968494:  Hold'em No Limit ($2/$5) - 2026/01/28 15:22:37 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($350 in chips)
+Seat 3: Swarozyc ($394.48 in chips)
+Seat 6: TrashPanda ($224.66 in chips)
+TrashPanda: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 6h]
+Swarozyc: folds
+TrashPanda: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($4)
+Seat 3: Swarozyc (button) folded before Flop (didn't bet)
+Seat 6: TrashPanda (small blind) folded before Flop 
+
+
+Weplay Hand #73968500:  Hold'em No Limit ($2/$5) - 2026/01/28 15:22:52 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($352 in chips)
+Seat 3: Swarozyc ($394.48 in chips)
+Seat 6: TrashPanda ($222.66 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Ks]
+TrashPanda: raises $10 to $10
+kole1992: raises $41.06 to $43.06
+Swarozyc: folds
+TrashPanda: folds
+Uncalled bet ($33.06) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $0 
+Seat 1: kole1992 (small blind) collected ($25)
+Seat 3: Swarozyc (big blind) folded before Flop 
+Seat 6: TrashPanda (button) folded before Flop 
+
+
+Weplay Hand #73968509:  Hold'em No Limit ($2/$5) - 2026/01/28 15:23:10 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($367 in chips)
+Seat 3: Swarozyc ($389.48 in chips)
+Seat 6: TrashPanda ($212.66 in chips)
+Swarozyc: posts small blind $2
+TrashPanda: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [As 9c]
+kole1992: raises $10 to $10
+Swarozyc: folds
+TrashPanda: calls $5
+*** FLOP *** [4s Jc Kh]
+TrashPanda: checks
+Swarozyc is disconnected 
+kole1992: bets $5.28
+TrashPanda: calls $5.28
+*** TURN *** [4s Jc Kh] [9d]
+TrashPanda: checks
+kole1992: checks
+*** RIVER *** [4s Jc Kh 9d] [8s]
+TrashPanda: checks
+kole1992: checks
+*** SHOW DOWN ***
+TrashPanda: shows [Jh Td] (a pair of Jacks)
+kole1992: mucks hand
+TrashPanda collected $32.56 from pot
+*** SUMMARY ***
+Total pot $32.56 | Rake $0.81 
+Board [4s Jc Kh 9d 8s]
+Seat 1: kole1992 (button) mucked
+Seat 3: Swarozyc (small blind) folded before Flop 
+Seat 6: TrashPanda (big blind) showed [Jh Td] and won ($32.56) with a pair of Jacks
+
+
+Weplay Hand #73968527:  Hold'em No Limit ($2/$5) - 2026/01/28 15:23:50 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($351.72 in chips)
+Seat 6: TrashPanda ($229.13 in chips)
+TrashPanda: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [7c Tc]
+TrashPanda: raises $8 to $10
+kole1992: calls $5
+*** FLOP *** [2d Jh Ts]
+kole1992: checks
+TrashPanda: checks
+*** TURN *** [2d Jh Ts] [9h]
+kole1992: checks
+TrashPanda: checks
+*** RIVER *** [2d Jh Ts 9h] [Kh]
+kole1992: checks
+TrashPanda: checks
+*** SHOW DOWN ***
+kole1992: shows [7c Tc] (a pair of Tens)
+TrashPanda: mucks hand
+kole1992 collected $20 from pot
+*** SUMMARY ***
+Total pot $20 | Rake $0.50 
+Board [2d Jh Ts 9h Kh]
+Seat 1: kole1992 (big blind) showed [7c Tc] and won ($20) with a pair of Tens
+Seat 6: TrashPanda (button) (small blind) mucked
+
+
+Weplay Hand #73968537:  Hold'em No Limit ($2/$5) - 2026/01/28 15:24:13 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($361.22 in chips)
+Seat 6: TrashPanda ($219.13 in chips)
+kole1992: posts small blind $2
+TrashPanda: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Tc]
+kole1992: folds
+Uncalled bet ($3) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Tc]
+TrashPanda: doesn't show hand
+TrashPanda collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (button) (small blind) folded before Flop 
+Seat 6: TrashPanda (big blind) collected ($4)
+
+
+Weplay Hand #73968539:  Hold'em No Limit ($2/$5) - 2026/01/28 15:24:22 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($359.22 in chips)
+Seat 6: TrashPanda ($221.13 in chips)
+TrashPanda: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 2d]
+TrashPanda: raises $8 to $10
+kole1992: calls $5
+*** FLOP *** [Qh Ts Qc]
+kole1992: checks
+TrashPanda: checks
+*** TURN *** [Qh Ts Qc] [7c]
+kole1992: bets $7
+TrashPanda: calls $7
+*** RIVER *** [Qh Ts Qc 7c] [9h]
+Swarozyc leaves the table
+kole1992: checks
+TrashPanda: bets $21
+kole1992: folds
+Uncalled bet ($21) returned to TrashPanda
+*** SHOW DOWN ***
+TrashPanda: doesn't show hand
+TrashPanda collected $34 from pot
+*** SUMMARY ***
+Total pot $34 | Rake $0.85 
+Board [Qh Ts Qc 7c 9h]
+Seat 1: kole1992 (big blind) folded on the River 
+Seat 6: TrashPanda (button) (small blind) collected ($34)
+
+
+Weplay Hand #73968562:  Hold'em No Limit ($2/$5) - 2026/01/28 15:25:01 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($342.22 in chips)
+Seat 6: TrashPanda ($237.28 in chips)
+kole1992: posts small blind $2
+TrashPanda: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 5c]
+kole1992: folds
+Uncalled bet ($3) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 5c]
+TrashPanda: doesn't show hand
+TrashPanda collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (button) (small blind) folded before Flop 
+Seat 6: TrashPanda (big blind) collected ($4)
+
+
+Weplay Hand #73968563:  Hold'em No Limit ($2/$5) - 2026/01/28 15:25:09 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($340.22 in chips)
+Seat 6: TrashPanda ($239.28 in chips)
+TrashPanda: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Ks]
+TrashPanda: raises $8 to $10
+kole1992: calls $5
+*** FLOP *** [8s 5s 6h]
+kole1992: checks
+TrashPanda: checks
+*** TURN *** [8s 5s 6h] [7d]
+kole1992: bets $7
+TrashPanda: calls $7
+*** RIVER *** [8s 5s 6h 7d] [3d]
+kole1992: checks
+TrashPanda: bets $8
+kole1992: calls $8
+*** SHOW DOWN ***
+TrashPanda: shows [4c 3c] (a straight, Four to Eight)
+kole1992: mucks hand
+TrashPanda collected $50 from pot
+*** SUMMARY ***
+Total pot $50 | Rake $1.25 
+Board [8s 5s 6h 7d 3d]
+Seat 1: kole1992 (big blind) mucked
+Seat 6: TrashPanda (button) (small blind) showed [4c 3c] and won ($50) with a straight, Four to Eight
+
+
+Weplay Hand #73968577:  Hold'em No Limit ($2/$5) - 2026/01/28 15:25:44 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($315.22 in chips)
+Seat 6: TrashPanda ($263.03 in chips)
+kole1992: posts small blind $2
+TrashPanda: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 3s]
+Swarozyc joins the table at seat #2
+kole1992: raises $9 to $11
+TrashPanda: calls $6
+*** FLOP *** [Jd 9s 6s]
+TrashPanda: checks
+kole1992: checks
+*** TURN *** [Jd 9s 6s] [3h]
+TrashPanda: bets $8
+kole1992: calls $8
+*** RIVER *** [Jd 9s 6s 3h] [3c]
+TrashPanda: bets $12
+kole1992: raises $63.48 to $63.48
+TrashPanda: folds
+Uncalled bet ($51.48) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $62 from pot
+*** SUMMARY ***
+Total pot $62 | Rake $1.55 
+Board [Jd 9s 6s 3h 3c]
+Seat 1: kole1992 (button) (small blind) collected ($62)
+Seat 6: TrashPanda (big blind) folded on the River 
+
+
+Weplay Hand #73968595:  Hold'em No Limit ($2/$5) - 2026/01/28 15:26:28 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($344.67 in chips)
+Seat 6: TrashPanda ($232.03 in chips)
+TrashPanda: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Qc]
+TrashPanda: raises $8 to $10
+kole1992: calls $5
+*** FLOP *** [Kd 7h 8d]
+kole1992: checks
+TrashPanda: bets $13
+kole1992: folds
+Uncalled bet ($13) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Qc]
+TrashPanda: doesn't show hand
+TrashPanda collected $20 from pot
+*** SUMMARY ***
+Total pot $20 | Rake $0.50 
+Board [Kd 7h 8d]
+Seat 1: kole1992 (big blind) folded on the Flop 
+Seat 6: TrashPanda (button) (small blind) collected ($20)
+
+
+Weplay Hand #73968602:  Hold'em No Limit ($2/$5) - 2026/01/28 15:26:47 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($334.67 in chips)
+Seat 2: Swarozyc ($500 in chips)
+Seat 6: TrashPanda ($241.53 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 2c]
+TrashPanda: raises $10 to $10
+kole1992: folds
+Swarozyc: calls $5
+*** FLOP *** [9d 4d 3d]
+Swarozyc: checks
+TrashPanda: checks
+*** TURN *** [9d 4d 3d] [Ac]
+Swarozyc: checks
+TrashPanda: bets $13
+Swarozyc: folds
+Uncalled bet ($13) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 2c]
+TrashPanda: doesn't show hand
+TrashPanda collected $22 from pot
+*** SUMMARY ***
+Total pot $22 | Rake $0.55 
+Board [9d 4d 3d Ac]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Swarozyc (big blind) folded on the Turn 
+Seat 6: TrashPanda (button) collected ($22)
+
+
+Weplay Hand #73968613:  Hold'em No Limit ($2/$5) - 2026/01/28 15:27:17 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($332.67 in chips)
+Seat 2: Swarozyc ($490 in chips)
+Seat 6: TrashPanda ($252.98 in chips)
+Swarozyc: posts small blind $2
+TrashPanda: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [9s Kd]
+kole1992: raises $11 to $11
+Swarozyc: folds
+TrashPanda: folds
+Uncalled bet ($6) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 1: kole1992 (button) collected ($12)
+Seat 2: Swarozyc (small blind) folded before Flop 
+Seat 6: TrashPanda (big blind) folded before Flop 
+
+
+Weplay Hand #73968614:  Hold'em No Limit ($2/$5) - 2026/01/28 15:27:27 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($339.67 in chips)
+Seat 2: Swarozyc ($488 in chips)
+Seat 6: TrashPanda ($247.98 in chips)
+TrashPanda: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Ks]
+Swarozyc: raises $12.50 to $12.50
+TrashPanda: folds
+kole1992: calls $7.50
+*** FLOP *** [Kh Js Qh]
+kole1992: checks
+Swarozyc: bets $9
+kole1992: calls $9
+*** TURN *** [Kh Js Qh] [Th]
+kole1992: checks
+Swarozyc: checks
+*** RIVER *** [Kh Js Qh Th] [8s]
+kole1992: checks
+Swarozyc: bets $22.50
+kole1992: raises $318.17 to $318.17 and is all-in
+Swarozyc: folds
+Uncalled bet ($295.67) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $90 from pot
+*** SUMMARY ***
+Total pot $90 | Rake $2.25 
+Board [Kh Js Qh Th 8s]
+Seat 1: kole1992 (big blind) collected ($90)
+Seat 2: Swarozyc (button) folded on the River 
+Seat 6: TrashPanda (small blind) folded before Flop 
+
+
+Weplay Hand #73968637:  Hold'em No Limit ($2/$5) - 2026/01/28 15:28:26 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($383.42 in chips)
+Seat 2: Swarozyc ($444 in chips)
+Seat 6: TrashPanda ($245.98 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 5c]
+TrashPanda: raises $10 to $10
+kole1992: folds
+Swarozyc: calls $5
+*** FLOP *** [8s Jc 2s]
+Swarozyc: checks
+TrashPanda: bets $8
+Swarozyc: folds
+Uncalled bet ($8) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 5c]
+TrashPanda: doesn't show hand
+TrashPanda collected $22 from pot
+*** SUMMARY ***
+Total pot $22 | Rake $0.55 
+Board [8s Jc 2s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Swarozyc (big blind) folded on the Flop 
+Seat 6: TrashPanda (button) collected ($22)
+
+
+Weplay Hand #73968652:  Hold'em No Limit ($2/$5) - 2026/01/28 15:28:58 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($381.42 in chips)
+Seat 2: Swarozyc ($434 in chips)
+Seat 6: TrashPanda ($257.43 in chips)
+Swarozyc: posts small blind $2
+TrashPanda: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 3c]
+kole1992: folds
+Swarozyc: folds
+Uncalled bet ($3) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 3c]
+TrashPanda: doesn't show hand
+TrashPanda collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Swarozyc (small blind) folded before Flop 
+Seat 6: TrashPanda (big blind) collected ($4)
+
+
+Weplay Hand #73968658:  Hold'em No Limit ($2/$5) - 2026/01/28 15:29:10 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($381.42 in chips)
+Seat 2: Swarozyc ($432 in chips)
+Seat 6: TrashPanda ($259.43 in chips)
+TrashPanda: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [2d Kd]
+Swarozyc: raises $12.50 to $12.50
+TrashPanda: calls $10.50
+kole1992: folds
+*** FLOP *** [Ts 5s 7s]
+TrashPanda: checks
+Swarozyc: bets $10
+TrashPanda: calls $10
+*** TURN *** [Ts 5s 7s] [Tc]
+TrashPanda: checks
+Swarozyc: checks
+*** RIVER *** [Ts 5s 7s Tc] [8c]
+TrashPanda: bets $10
+Swarozyc: folds
+Uncalled bet ($10) returned to TrashPanda
+*** SHOW DOWN ***
+TrashPanda: doesn't show hand
+TrashPanda collected $50 from pot
+*** SUMMARY ***
+Total pot $50 | Rake $1.25 
+Board [Ts 5s 7s Tc 8c]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Swarozyc (button) folded on the River 
+Seat 6: TrashPanda (small blind) collected ($50)
+
+
+Weplay Hand #73968670:  Hold'em No Limit ($2/$5) - 2026/01/28 15:29:49 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($376.42 in chips)
+Seat 2: Swarozyc ($409.50 in chips)
+Seat 6: TrashPanda ($285.68 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Ah]
+TrashPanda: raises $10 to $10
+kole1992: raises $39 to $41
+Swarozyc: folds
+TrashPanda: folds
+Uncalled bet ($31) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $0 
+Seat 1: kole1992 (small blind) collected ($25)
+Seat 2: Swarozyc (big blind) folded before Flop 
+Seat 6: TrashPanda (button) folded before Flop 
+
+
+Weplay Hand #73968679:  Hold'em No Limit ($2/$5) - 2026/01/28 15:30:07 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($391.42 in chips)
+Seat 2: Swarozyc ($404.50 in chips)
+Seat 6: TrashPanda ($275.68 in chips)
+Swarozyc: posts small blind $2
+TrashPanda: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Jh]
+kole1992: raises $11 to $11
+Swarozyc: folds
+TrashPanda: raises $45 to $50
+kole1992: calls $39
+*** FLOP *** [6c 2s 5s]
+TrashPanda: bets $50
+kole1992: folds
+Uncalled bet ($50) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Jh]
+TrashPanda: doesn't show hand
+TrashPanda collected $102 from pot
+*** SUMMARY ***
+Total pot $102 | Rake $2.55 
+Board [6c 2s 5s]
+Seat 1: kole1992 (button) folded on the Flop 
+Seat 2: Swarozyc (small blind) folded before Flop 
+Seat 6: TrashPanda (big blind) collected ($102)
+
+
+Weplay Hand #73968693:  Hold'em No Limit ($2/$5) - 2026/01/28 15:30:41 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($341.42 in chips)
+Seat 2: Swarozyc ($402.50 in chips)
+Seat 6: TrashPanda ($325.13 in chips)
+TrashPanda: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 9d]
+Swarozyc: folds
+TrashPanda: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($4)
+Seat 2: Swarozyc (button) folded before Flop (didn't bet)
+Seat 6: TrashPanda (small blind) folded before Flop 
+
+
+Weplay Hand #73968696:  Hold'em No Limit ($2/$5) - 2026/01/28 15:30:52 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($343.42 in chips)
+Seat 2: Swarozyc ($402.50 in chips)
+Seat 6: TrashPanda ($323.13 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Kd]
+TrashPanda: raises $10 to $10
+kole1992: raises $41.10 to $43.10
+Swarozyc: folds
+TrashPanda: folds
+Uncalled bet ($33.10) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $25 from pot
+*** SUMMARY ***
+Total pot $25 | Rake $0 
+Seat 1: kole1992 (small blind) collected ($25)
+Seat 2: Swarozyc (big blind) folded before Flop 
+Seat 6: TrashPanda (button) folded before Flop 
+
+
+Weplay Hand #73968704:  Hold'em No Limit ($2/$5) - 2026/01/28 15:31:08 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($358.42 in chips)
+Seat 2: Swarozyc ($397.50 in chips)
+Seat 6: TrashPanda ($313.13 in chips)
+Swarozyc: posts small blind $2
+TrashPanda: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Qs]
+kole1992: raises $10 to $10
+Swarozyc: folds
+TrashPanda: folds
+Uncalled bet ($5) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 1: kole1992 (button) collected ($12)
+Seat 2: Swarozyc (small blind) folded before Flop 
+Seat 6: TrashPanda (big blind) folded before Flop 
+
+
+Weplay Hand #73968708:  Hold'em No Limit ($2/$5) - 2026/01/28 15:31:26 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($365.42 in chips)
+Seat 2: Swarozyc ($395.50 in chips)
+Seat 6: TrashPanda ($308.13 in chips)
+TrashPanda: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 2c]
+Swarozyc: raises $12.50 to $12.50
+TrashPanda: folds
+kole1992: folds
+Uncalled bet ($7.50) returned to Swarozyc
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 2c]
+Swarozyc: doesn't show hand
+Swarozyc collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: Swarozyc (button) collected ($12)
+Seat 6: TrashPanda (small blind) folded before Flop 
+
+
+Weplay Hand #73968715:  Hold'em No Limit ($2/$5) - 2026/01/28 15:31:44 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($360.42 in chips)
+Seat 2: Swarozyc ($402.50 in chips)
+Seat 6: TrashPanda ($306.13 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 4c]
+TrashPanda: folds
+kole1992: folds
+Uncalled bet ($3) returned to Swarozyc
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 4c]
+Swarozyc: doesn't show hand
+Swarozyc collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Swarozyc (big blind) collected ($4)
+Seat 6: TrashPanda (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73968722:  Hold'em No Limit ($2/$5) - 2026/01/28 15:31:58 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($358.42 in chips)
+Seat 2: Swarozyc ($404.50 in chips)
+Seat 6: TrashPanda ($306.13 in chips)
+Swarozyc: posts small blind $2
+TrashPanda: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Ks]
+kole1992: raises $10 to $10
+Swarozyc: folds
+TrashPanda: folds
+Uncalled bet ($5) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0 
+Seat 1: kole1992 (button) collected ($12)
+Seat 2: Swarozyc (small blind) folded before Flop 
+Seat 6: TrashPanda (big blind) folded before Flop 
+
+
+Weplay Hand #73968728:  Hold'em No Limit ($2/$5) - 2026/01/28 15:32:12 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($365.42 in chips)
+Seat 2: Swarozyc ($402.50 in chips)
+Seat 6: TrashPanda ($301.13 in chips)
+TrashPanda: posts small blind $2
+kole1992: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [2s Th]
+Swarozyc: folds
+TrashPanda: folds
+Uncalled bet ($3) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (big blind) collected ($4)
+Seat 2: Swarozyc (button) folded before Flop (didn't bet)
+Seat 6: TrashPanda (small blind) folded before Flop 
+
+
+Weplay Hand #73968732:  Hold'em No Limit ($2/$5) - 2026/01/28 15:32:28 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($367.42 in chips)
+Seat 2: Swarozyc ($402.50 in chips)
+Seat 6: TrashPanda ($299.13 in chips)
+kole1992: posts small blind $2
+Swarozyc: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Tc]
+TrashPanda: folds
+kole1992: folds
+Uncalled bet ($3) returned to Swarozyc
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Tc]
+Swarozyc: doesn't show hand
+Swarozyc collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: Swarozyc (big blind) collected ($4)
+Seat 6: TrashPanda (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #73968740:  Hold'em No Limit ($2/$5) - 2026/01/28 15:32:49 UTC
+Table 'Glasgow #1'(11510800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($365.42 in chips)
+Seat 2: Swarozyc ($404.50 in chips)
+Seat 6: TrashPanda ($299.13 in chips)
+Swarozyc: posts small blind $2
+TrashPanda: posts big blind $5
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Tc]
+kole1992: folds
+Swarozyc: folds
+Uncalled bet ($3) returned to TrashPanda
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Tc]
+TrashPanda: doesn't show hand
+TrashPanda collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: Swarozyc (small blind) folded before Flop 
+Seat 6: TrashPanda (big blind) collected ($4)

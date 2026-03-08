@@ -1,0 +1,1503 @@
+﻿Weplay Hand #76169834:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:47:11 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 2: Tibor0811 ($21.38 in chips)
+Seat 3: luddebot ($23.23 in chips)
+Seat 4: antananarivo ($56 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 6: JTs98o ($108.21 in chips)
+antananarivo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 8d]
+JTs98o: raises $2.50 to $2.50
+Tibor0811: calls $2.50
+luddebot: folds
+antananarivo: folds
+kole1992: folds
+*** FLOP *** [Qd 9s Jd]
+JTs98o: checks
+Tibor0811: checks
+*** TURN *** [Qd 9s Jd] [Kh]
+JTs98o: checks
+Tibor0811: bets $3.25
+JTs98o: calls $3.25
+*** RIVER *** [Qd 9s Jd Kh] [8h]
+JTs98o: checks
+Tibor0811: checks
+*** SHOW DOWN ***
+JTs98o: shows [7c Kc] (a pair of Kings)
+Tibor0811: shows [7d Kd] (a pair of Kings)
+Tibor0811 collected $6.49 from pot
+JTs98o collected $6.51 from pot
+*** SUMMARY ***
+Total pot $13 | Rake $0.65 
+Board [Qd 9s Jd Kh 8h]
+Seat 2: Tibor0811 showed [7d Kd] and won ($6.49) with a pair of Kings
+Seat 3: luddebot (button) folded before Flop (didn't bet)
+Seat 4: antananarivo (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: JTs98o showed [7c Kc] and won ($6.51) with a pair of Kings
+
+
+Weplay Hand #76169847:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:47:49 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #4 is the button
+Seat 2: Tibor0811 ($21.80 in chips)
+Seat 3: luddebot ($23.23 in chips)
+Seat 4: antananarivo ($55.50 in chips)
+Seat 5: kole1992 ($99 in chips)
+Seat 6: JTs98o ($108.64 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 6c]
+Tibor0811: folds
+luddebot: calls $1
+antananarivo: raises $2.50 to $2.50
+kole1992: folds
+JTs98o: folds
+luddebot: calls $1.50
+*** FLOP *** [Kd Kh 3s]
+luddebot: checks
+antananarivo: bets $2.20
+luddebot: folds
+Uncalled bet ($2.20) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [Kd Kh 3s]
+Seat 2: Tibor0811 folded before Flop (didn't bet)
+Seat 3: luddebot folded on the Flop 
+Seat 4: antananarivo (button) collected ($6.50)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76169862:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:48:33 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 2: Tibor0811 ($21.80 in chips)
+Seat 3: luddebot ($20.73 in chips)
+Seat 4: antananarivo ($59.18 in chips)
+Seat 5: kole1992 ($98.50 in chips)
+Seat 6: JTs98o ($107.64 in chips)
+JTs98o: posts small blind $0.50
+Tibor0811: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 7c]
+luddebot: raises $10 to $10
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+Tibor0811: folds
+Uncalled bet ($9) returned to luddebot
+*** SHOW DOWN ***
+luddebot: doesn't show hand
+luddebot collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 2: Tibor0811 (big blind) folded before Flop 
+Seat 3: luddebot collected ($2.50)
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76169870:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:48:56 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #6 is the button
+Seat 2: Tibor0811 ($20.80 in chips)
+Seat 3: luddebot ($22.23 in chips)
+Seat 4: antananarivo ($59.18 in chips)
+Seat 5: kole1992 ($98.50 in chips)
+Seat 6: JTs98o ($107.14 in chips)
+Tibor0811: posts small blind $0.50
+luddebot: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 8s]
+antananarivo: folds
+kole1992: folds
+JTs98o has timed out
+JTs98o: folds
+Tibor0811: calls $0.50
+luddebot: checks
+*** FLOP *** [Ks Jc 5s]
+Tibor0811: checks
+luddebot: checks
+*** TURN *** [Ks Jc 5s] [7s]
+Tibor0811: bets $1
+JTs98o is disconnected 
+JTs98o is connected 
+luddebot: calls $1
+*** RIVER *** [Ks Jc 5s 7s] [2d]
+Tibor0811: bets $3
+luddebot: calls $3
+*** SHOW DOWN ***
+Tibor0811: shows [8d 9h] (high card King)
+luddebot: shows [2s 5c] (two pair, Fives and Deuces)
+luddebot collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [Ks Jc 5s 7s 2d]
+Seat 2: Tibor0811 (small blind) showed [8d 9h] and lost with high card King
+Seat 3: luddebot (big blind) showed [2s 5c] and won ($10) with two pair, Fives and Deuces
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76169889:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:49:51 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 2: Tibor0811 ($15.80 in chips)
+Seat 3: luddebot ($26.73 in chips)
+Seat 4: antananarivo ($59.18 in chips)
+Seat 5: kole1992 ($98.50 in chips)
+Seat 6: JTs98o ($107.14 in chips)
+luddebot: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 2d]
+kole1992: folds
+JTs98o has timed out
+JTs98o: folds
+Tibor0811: calls $1
+luddebot: calls $0.50
+antananarivo: checks
+*** FLOP *** [7c 7d 5c]
+JTs98o is disconnected 
+luddebot: checks
+antananarivo: checks
+Tibor0811: checks
+*** TURN *** [7c 7d 5c] [As]
+luddebot: checks
+antananarivo: checks
+Tibor0811: checks
+*** RIVER *** [7c 7d 5c As] [4s]
+JTs98o is connected 
+luddebot: checks
+antananarivo: checks
+Tibor0811: checks
+*** SHOW DOWN ***
+luddebot: shows [Tc Ks] (a pair of Sevens)
+antananarivo: mucks hand
+Tibor0811 has timed out
+Tibor0811: mucks hand
+luddebot collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [7c 7d 5c As 4s]
+Seat 2: Tibor0811 (button) mucked
+Seat 3: luddebot (small blind) showed [Tc Ks] and won ($3) with a pair of Sevens
+Seat 4: antananarivo (big blind) mucked
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76169903:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:50:42 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 2: Tibor0811 ($14.80 in chips)
+Seat 3: luddebot ($28.58 in chips)
+Seat 4: antananarivo ($58.18 in chips)
+Seat 5: kole1992 ($98.50 in chips)
+Seat 6: JTs98o ($107.14 in chips)
+antananarivo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2h 9s]
+JTs98o: raises $2.50 to $2.50
+Tibor0811: folds
+luddebot: calls $2.50
+Tibor0811 leaves the table
+antananarivo: folds
+kole1992: folds
+*** FLOP *** [3s 5s 7h]
+JTs98o: checks
+luddebot: bets $5
+JTs98o: folds
+Uncalled bet ($5) returned to luddebot
+*** SHOW DOWN ***
+luddebot: doesn't show hand
+luddebot collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [3s 5s 7h]
+Seat 2: Tibor0811 folded before Flop (didn't bet)
+Seat 3: luddebot (button) collected ($6.50)
+Seat 4: antananarivo (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: JTs98o folded on the Flop 
+
+
+Weplay Hand #76169910:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:51:07 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #4 is the button
+Seat 3: luddebot ($32.26 in chips)
+Seat 4: antananarivo ($57.68 in chips)
+Seat 5: kole1992 ($97.50 in chips)
+Seat 6: JTs98o ($104.64 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 5c]
+luddebot: calls $1
+antananarivo: folds
+kole1992: folds
+JTs98o: checks
+*** FLOP *** [5h 8c Ad]
+JTs98o: checks
+luddebot: checks
+*** TURN *** [5h 8c Ad] [8h]
+JTs98o: checks
+luddebot: checks
+*** RIVER *** [5h 8c Ad 8h] [Qs]
+JTs98o: bets $1.67
+luddebot: calls $1.67
+*** SHOW DOWN ***
+JTs98o: shows [8d 7d] (three of a kind, Eights)
+luddebot has timed out
+luddebot: mucks hand
+JTs98o collected $5.84 from pot
+*** SUMMARY ***
+Total pot $5.84 | Rake $0.29 
+Board [5h 8c Ad 8h Qs]
+Seat 3: luddebot mucked
+Seat 4: antananarivo (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) showed [8d 7d] and won ($5.84) with three of a kind, Eights
+
+
+Weplay Hand #76169920:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:51:33 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 3: luddebot ($29.59 in chips)
+Seat 4: antananarivo ($57.68 in chips)
+Seat 5: kole1992 ($97 in chips)
+Seat 6: JTs98o ($107.52 in chips)
+JTs98o: posts small blind $0.50
+luddebot: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 3c]
+antananarivo: folds
+kole1992: raises $2.50 to $2.50
+JTs98o: folds
+luddebot: folds
+Uncalled bet ($1.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 3: luddebot (big blind) folded before Flop 
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 (button) collected ($2.50)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76169929:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:51:53 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #6 is the button
+Seat 3: luddebot ($28.59 in chips)
+Seat 4: antananarivo ($57.68 in chips)
+Seat 5: kole1992 ($98.50 in chips)
+Seat 6: JTs98o ($107.02 in chips)
+luddebot: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 5s]
+kole1992: folds
+JTs98o: folds
+luddebot: calls $0.50
+antananarivo: raises $2 to $3
+luddebot: calls $2
+*** FLOP *** [2c 3c 8d]
+luddebot: checks
+antananarivo: checks
+*** TURN *** [2c 3c 8d] [Ts]
+luddebot: checks
+Tone91 joins the table at seat #1
+antananarivo: checks
+*** RIVER *** [2c 3c 8d Ts] [Qh]
+luddebot: checks
+antananarivo: checks
+*** SHOW DOWN ***
+luddebot: shows [8c Ac] (a pair of Eights)
+antananarivo: mucks hand
+luddebot collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [2c 3c 8d Ts Qh]
+Seat 3: luddebot (small blind) showed [8c Ac] and won ($6) with a pair of Eights
+Seat 4: antananarivo (big blind) mucked
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76169938:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:52:29 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Tone91 ($100 in chips)
+Seat 3: luddebot ($31.29 in chips)
+Seat 4: antananarivo ($54.68 in chips)
+Seat 5: kole1992 ($98.50 in chips)
+Seat 6: JTs98o ($107.02 in chips)
+antananarivo: posts small blind $0.50
+kole1992: posts big blind $1
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Tc]
+JTs98o: folds
+Tone91: raises $1.50 to $2.50
+luddebot: folds
+antananarivo: folds
+kole1992: folds
+Uncalled bet ($1.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Tone91 (big blind) collected ($2.50)
+Seat 3: luddebot (button) folded before Flop (didn't bet)
+Seat 4: antananarivo (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76169945:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:52:59 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Tone91 ($101.50 in chips)
+Seat 3: luddebot ($31.29 in chips)
+Seat 4: antananarivo ($54.18 in chips)
+Seat 5: kole1992 ($97.50 in chips)
+Seat 6: JTs98o ($107.02 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 2d]
+JTs98o is disconnected 
+JTs98o is connected 
+Tone91: folds
+luddebot: calls $1
+antananarivo: folds
+kole1992: folds
+JTs98o: checks
+*** FLOP *** [5s Ah Td]
+JTs98o: checks
+luddebot: checks
+*** TURN *** [5s Ah Td] [Qc]
+JTs98o: checks
+luddebot: checks
+*** RIVER *** [5s Ah Td Qc] [4d]
+Mosoko joins the table at seat #2
+JTs98o: checks
+luddebot: checks
+*** SHOW DOWN ***
+JTs98o: shows [6h 4c] (a pair of Fours)
+luddebot: shows [6s Ts] (a pair of Tens)
+luddebot collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0.12 
+Board [5s Ah Td Qc 4d]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 3: luddebot showed [6s Ts] and won ($2.50) with a pair of Tens
+Seat 4: antananarivo (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) showed [6h 4c] and lost with a pair of Fours
+
+
+Weplay Hand #76169963:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:53:56 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Tone91 ($101.50 in chips)
+Seat 2: Mosoko ($100 in chips)
+Seat 3: luddebot ($32.67 in chips)
+Seat 4: antananarivo ($54.18 in chips)
+Seat 5: kole1992 ($97 in chips)
+Seat 6: JTs98o ($106.02 in chips)
+JTs98o: posts small blind $0.50
+Tone91: posts big blind $1
+Mosoko: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 5s]
+Mosoko: checks
+luddebot: calls $1
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+Tone91: checks
+*** FLOP *** [Kc Ks 7s]
+Tone91: checks
+Mosoko: checks
+luddebot: checks
+*** TURN *** [Kc Ks 7s] [Qc]
+Tone91: checks
+Mosoko: bets $2.63
+luddebot: raises $5.26 to $5.26
+Tone91: folds
+Mosoko: calls $2.63
+*** RIVER *** [Kc Ks 7s Qc] [2d]
+Mosoko: checks
+luddebot: bets $14
+Mosoko: calls $14
+*** SHOW DOWN ***
+luddebot: shows [Kd As] (three of a kind, Kings)
+Mosoko has timed out
+Mosoko: mucks hand
+luddebot collected $42.02 from pot
+*** SUMMARY ***
+Total pot $42.02 | Rake $2.10 
+Board [Kc Ks 7s Qc 2d]
+Seat 1: Tone91 (big blind) folded on the Turn 
+Seat 2: Mosoko (big blind) mucked
+Seat 3: luddebot showed [Kd As] and won ($42.02) with three of a kind, Kings
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76169984:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:55:18 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Tone91 ($100.50 in chips)
+Seat 2: Mosoko ($79.74 in chips)
+Seat 3: luddebot ($52.33 in chips)
+Seat 4: antananarivo ($54.18 in chips)
+Seat 5: kole1992 ($97 in chips)
+Seat 6: JTs98o ($105.52 in chips)
+Tone91: posts small blind $0.50
+Mosoko: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 6s]
+luddebot: calls $1
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+Tone91: calls $0.50
+Mosoko: checks
+*** FLOP *** [Qs 3h 4c]
+Tone91: checks
+Mosoko is disconnected 
+Mosoko has timed out while being disconnected
+Mosoko: checks
+luddebot: checks
+*** TURN *** [Qs 3h 4c] [Kd]
+Tone91: checks
+Mosoko has timed out while being disconnected
+Mosoko: checks
+Mosoko is connected 
+luddebot: checks
+*** RIVER *** [Qs 3h 4c Kd] [9d]
+Tone91: checks
+Mosoko: checks
+luddebot: checks
+*** SHOW DOWN ***
+Tone91: shows [Th Js] (a straight, Nine to King)
+Mosoko has timed out
+Mosoko: mucks hand
+luddebot has timed out
+luddebot: mucks hand
+Tone91 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0.15 
+Board [Qs 3h 4c Kd 9d]
+Seat 1: Tone91 (small blind) showed [Th Js] and won ($3) with a straight, Nine to King
+Seat 2: Mosoko (big blind) mucked
+Seat 3: luddebot mucked
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76169998:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:56:42 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Tone91 ($102.35 in chips)
+Seat 2: Mosoko ($78.74 in chips)
+Seat 3: luddebot ($51.33 in chips)
+Seat 4: antananarivo ($100 in chips)
+Seat 5: kole1992 ($97 in chips)
+Seat 6: JTs98o ($105.52 in chips)
+Mosoko: posts small blind $0.50
+luddebot: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 5d]
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+Tone91: raises $2.50 to $2.50
+Mosoko: calls $2
+luddebot: calls $1.50
+*** FLOP *** [6h Kc Js]
+Mosoko: checks
+luddebot: checks
+Tone91: bets $3
+Mosoko: calls $3
+luddebot: folds
+*** TURN *** [6h Kc Js] [Tc]
+Mosoko: checks
+Tone91: checks
+*** RIVER *** [6h Kc Js Tc] [3h]
+Mosoko: bets $6.75
+Tone91: calls $6.75
+*** SHOW DOWN ***
+Mosoko: shows [Jd Qh] (a pair of Jacks)
+Tone91: shows [Kd 6c] (two pair, Kings and Sixes)
+Tone91 collected $27 from pot
+*** SUMMARY ***
+Total pot $27 | Rake $1.35 
+Board [6h Kc Js Tc 3h]
+Seat 1: Tone91 (button) showed [Kd 6c] and won ($27) with two pair, Kings and Sixes
+Seat 2: Mosoko (small blind) showed [Jd Qh] and lost with a pair of Jacks
+Seat 3: luddebot (big blind) folded on the Flop 
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76170010:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:57:47 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Tone91 ($115.75 in chips)
+Seat 2: Mosoko ($66.49 in chips)
+Seat 3: luddebot ($48.83 in chips)
+Seat 4: antananarivo ($100 in chips)
+Seat 5: kole1992 ($97 in chips)
+Seat 6: JTs98o ($105.52 in chips)
+luddebot: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 7d]
+kole1992: folds
+JTs98o: raises $2.50 to $2.50
+Tone91: folds
+Mosoko: folds
+luddebot: folds
+antananarivo: calls $1.50
+*** FLOP *** [Td 9s 8c]
+antananarivo: checks
+JTs98o: bets $3.68
+antananarivo: calls $3.68
+*** TURN *** [Td 9s 8c] [Jh]
+antananarivo: checks
+JTs98o: checks
+*** RIVER *** [Td 9s 8c Jh] [4s]
+antananarivo: checks
+JTs98o: checks
+*** SHOW DOWN ***
+antananarivo: shows [Qd Th] (a straight, Eight to Queen)
+JTs98o: mucks hand
+antananarivo collected $12.86 from pot
+*** SUMMARY ***
+Total pot $12.86 | Rake $0.64 
+Board [Td 9s 8c Jh 4s]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: Mosoko (button) folded before Flop (didn't bet)
+Seat 3: luddebot (small blind) folded before Flop 
+Seat 4: antananarivo (big blind) showed [Qd Th] and won ($12.86) with a straight, Eight to Queen
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o mucked
+
+
+Weplay Hand #76170017:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:58:34 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Tone91 ($115.75 in chips)
+Seat 2: Mosoko ($66.49 in chips)
+Seat 3: luddebot ($48.33 in chips)
+Seat 4: antananarivo ($106.04 in chips)
+Seat 5: kole1992 ($97 in chips)
+Seat 6: JTs98o ($100 in chips)
+antananarivo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 5h]
+JTs98o: folds
+Tone91: folds
+Mosoko: folds
+luddebot: folds
+Mosoko is disconnected 
+antananarivo: raises $2.50 to $3
+kole1992: folds
+Uncalled bet ($2) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: Mosoko folded before Flop (didn't bet)
+Seat 3: luddebot (button) folded before Flop (didn't bet)
+Seat 4: antananarivo (small blind) collected ($2)
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76170021:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:58:53 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Tone91 ($115.75 in chips)
+Seat 3: luddebot ($48.33 in chips)
+Seat 4: antananarivo ($107.04 in chips)
+Seat 5: kole1992 ($96 in chips)
+Seat 6: JTs98o ($100 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 8d]
+Tone91: folds
+luddebot: folds
+antananarivo: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 3: luddebot folded before Flop (didn't bet)
+Seat 4: antananarivo (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) collected ($1)
+
+
+Weplay Hand #76170027:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:59:18 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Tone91 ($115.75 in chips)
+Seat 3: luddebot ($48.33 in chips)
+Seat 4: antananarivo ($107.04 in chips)
+Seat 5: kole1992 ($95.50 in chips)
+Seat 6: JTs98o ($100.50 in chips)
+JTs98o: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 3s]
+luddebot: calls $1
+Mosoko is connected 
+antananarivo: raises $4 to $4
+kole1992: folds
+JTs98o: folds
+Tone91: folds
+luddebot: folds
+Uncalled bet ($3) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: Tone91 (big blind) folded before Flop 
+Seat 3: luddebot folded before Flop 
+Seat 4: antananarivo collected ($3.50)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76170031:  Hold'em No Limit ($0.50/$1) - 2026/02/19 10:59:42 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Tone91 ($114.75 in chips)
+Seat 2: Mosoko ($66.49 in chips)
+Seat 3: luddebot ($47.33 in chips)
+Seat 4: antananarivo ($109.54 in chips)
+Seat 5: kole1992 ($95.50 in chips)
+Seat 6: JTs98o ($100 in chips)
+Tone91: posts small blind $0.50
+Mosoko: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Kh]
+luddebot: raises $2 to $2
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+Mosoko is disconnected 
+Tone91: folds
+Mosoko has timed out while being disconnected
+Mosoko: folds
+Uncalled bet ($1) returned to luddebot
+*** SHOW DOWN ***
+luddebot: doesn't show hand
+luddebot collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Tone91 (small blind) folded before Flop 
+Seat 2: Mosoko (big blind) folded before Flop 
+Seat 3: luddebot collected ($2.50)
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76170036:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:00:17 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Tone91 ($114.25 in chips)
+Seat 3: luddebot ($48.83 in chips)
+Seat 4: antananarivo ($109.54 in chips)
+Seat 5: kole1992 ($95.50 in chips)
+Seat 6: JTs98o ($100 in chips)
+luddebot: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 6s]
+antananarivo: folds
+Mosoko is connected 
+kole1992: folds
+JTs98o: folds
+Tone91: raises $2.50 to $2.50
+luddebot: folds
+Uncalled bet ($1.50) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: Tone91 (button) collected ($2)
+Seat 3: luddebot (big blind) folded before Flop 
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76170040:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:00:38 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Tone91 ($115.25 in chips)
+Seat 2: Mosoko ($65.49 in chips)
+Seat 3: luddebot ($47.83 in chips)
+Seat 4: antananarivo ($109.54 in chips)
+Seat 5: kole1992 ($95.50 in chips)
+Seat 6: JTs98o ($100 in chips)
+luddebot: posts small blind $0.50
+antananarivo: posts big blind $1
+Mosoko: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Ad]
+kole1992: raises $3 to $3
+JTs98o: folds
+Tone91: folds
+Mosoko: calls $2
+luddebot: calls $2.50
+antananarivo: folds
+*** FLOP *** [Ah 3h 7h]
+luddebot: bets $4
+kole1992: calls $4
+Mosoko: folds
+*** TURN *** [Ah 3h 7h] [8s]
+luddebot: bets $6
+kole1992: calls $6
+*** RIVER *** [Ah 3h 7h 8s] [2h]
+luddebot: checks
+kole1992: checks
+*** SHOW DOWN ***
+luddebot: shows [5h Jd] (a flush, Ace high)
+kole1992: mucks hand
+luddebot collected $30 from pot
+*** SUMMARY ***
+Total pot $30 | Rake $1.50 
+Board [Ah 3h 7h 8s 2h]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: Mosoko (button) (big blind) folded on the Flop 
+Seat 3: luddebot (small blind) showed [5h Jd] and won ($30) with a flush, Ace high
+Seat 4: antananarivo (big blind) folded before Flop 
+Seat 5: kole1992 mucked
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76170061:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:01:39 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Tone91 ($115.25 in chips)
+Seat 2: Mosoko ($62.49 in chips)
+Seat 3: luddebot ($63.33 in chips)
+Seat 4: antananarivo ($108.54 in chips)
+Seat 5: kole1992 ($82.50 in chips)
+Seat 6: JTs98o ($100 in chips)
+antananarivo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 6c]
+JTs98o: folds
+Tone91: raises $2.50 to $2.50
+Mosoko: calls $2.50
+luddebot: calls $2.50
+antananarivo: folds
+kole1992: folds
+*** FLOP *** [9c 7c 2s]
+Tone91: checks
+Mosoko: bets $6.75
+luddebot: folds
+Tone91: folds
+Uncalled bet ($6.75) returned to Mosoko
+*** SHOW DOWN ***
+Mosoko has timed out
+Mosoko: doesn't show hand
+Mosoko collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [9c 7c 2s]
+Seat 1: Tone91 folded on the Flop 
+Seat 2: Mosoko collected ($9)
+Seat 3: luddebot (button) folded on the Flop 
+Seat 4: antananarivo (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76170071:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:02:16 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Tone91 ($112.75 in chips)
+Seat 2: Mosoko ($68.54 in chips)
+Seat 3: luddebot ($60.83 in chips)
+Seat 4: antananarivo ($108.04 in chips)
+Seat 5: kole1992 ($81.50 in chips)
+Seat 6: JTs98o ($100 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 8c]
+Tone91: folds
+Mosoko: raises $3 to $3
+luddebot: folds
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+Uncalled bet ($2) returned to Mosoko
+*** SHOW DOWN ***
+Mosoko has timed out
+Mosoko: doesn't show hand
+Mosoko collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: Mosoko collected ($2.50)
+Seat 3: luddebot folded before Flop (didn't bet)
+Seat 4: antananarivo (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76170078:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:02:40 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Tone91 ($112.75 in chips)
+Seat 2: Mosoko ($70.04 in chips)
+Seat 3: luddebot ($60.83 in chips)
+Seat 4: antananarivo ($108.04 in chips)
+Seat 5: kole1992 ($81 in chips)
+Seat 6: JTs98o ($100 in chips)
+JTs98o: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 9s]
+Mosoko: raises $3 to $3
+luddebot: folds
+antananarivo: folds
+kole1992: folds
+JTs98o: raises $11.50 to $12
+Tone91: folds
+Mosoko: calls $9
+*** FLOP *** [8c Th Kh]
+JTs98o: bets $11
+Mosoko: calls $11
+*** TURN *** [8c Th Kh] [6h]
+JTs98o: bets $48
+Mosoko: calls $47.04 and is all-in
+Uncalled bet ($0.96) returned to JTs98o
+*** FIRST RIVER *** [8c Th Kh 6h] [Ks]
+*** SECOND RIVER *** [8c Th Kh 6h] [Jd]
+*** SHOW DOWN ***
+JTs98o: shows [As Qh] (a pair of Kings)
+Mosoko: shows [Qc Tc] (two pair, Kings and Tens)
+Mosoko collected $70.54 from pot
+JTs98o collected $70.54 from pot
+*** SUMMARY ***
+Total pot $141.08 | Rake $6.50 
+Hand was run two times
+FIRST Board [8c Th Kh 6h Ks]
+SECOND Board [8c Th Kh 6h Jd]
+Seat 1: Tone91 (big blind) folded before Flop 
+Seat 2: Mosoko showed [Qc Tc] and won ($70.54) with two pair, Kings and Tens
+Seat 3: luddebot folded before Flop (didn't bet)
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) showed [As Qh] and won ($70.54) with a pair of Kings
+
+
+Weplay Hand #76170099:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:03:53 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Tone91 ($111.75 in chips)
+Seat 2: Mosoko ($67.29 in chips)
+Seat 3: luddebot ($60.83 in chips)
+Seat 4: antananarivo ($108.04 in chips)
+Seat 5: kole1992 ($81 in chips)
+Seat 6: JTs98o ($100 in chips)
+Tone91: posts small blind $0.50
+Mosoko: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Qd]
+luddebot: calls $1
+antananarivo: folds
+kole1992: raises $4.50 to $4.50
+JTs98o: folds
+Tone91: folds
+Mosoko: folds
+luddebot: calls $3.50
+*** FLOP *** [5s Js Qs]
+luddebot: bets $6
+kole1992: calls $6
+*** TURN *** [5s Js Qs] [Th]
+luddebot: bets $10
+kole1992: raises $70.50 to $70.50 and is all-in
+luddebot: folds
+Uncalled bet ($60.50) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $42.50 from pot
+*** SUMMARY ***
+Total pot $42.50 | Rake $2.12 
+Board [5s Js Qs Th]
+Seat 1: Tone91 (small blind) folded before Flop 
+Seat 2: Mosoko (big blind) folded before Flop 
+Seat 3: luddebot folded on the Turn 
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 collected ($42.50)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76170113:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:04:46 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Tone91 ($111.25 in chips)
+Seat 2: Mosoko ($66.29 in chips)
+Seat 3: luddebot ($40.33 in chips)
+Seat 4: antananarivo ($108.04 in chips)
+Seat 5: kole1992 ($100.88 in chips)
+Seat 6: JTs98o ($100 in chips)
+Mosoko: posts small blind $0.50
+luddebot: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 2c]
+antananarivo: raises $2.50 to $2.50
+kole1992: folds
+JTs98o: folds
+Tone91: raises $7.50 to $7.50
+Mosoko is disconnected 
+Mosoko is connected 
+Mosoko: folds
+luddebot: folds
+antananarivo: folds
+Uncalled bet ($5) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: Tone91 (button) collected ($6.50)
+Seat 2: Mosoko (small blind) folded before Flop 
+Seat 3: luddebot (big blind) folded before Flop 
+Seat 4: antananarivo folded before Flop 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76170129:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:05:36 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Tone91 ($115.25 in chips)
+Seat 2: Mosoko ($65.79 in chips)
+Seat 3: luddebot ($39.33 in chips)
+Seat 4: antananarivo ($105.54 in chips)
+Seat 5: kole1992 ($100.88 in chips)
+Seat 6: JTs98o ($100 in chips)
+luddebot: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 4s]
+kole1992: folds
+JTs98o: raises $2.50 to $2.50
+Tone91: folds
+Mosoko: raises $7 to $7
+luddebot: folds
+antananarivo: folds
+JTs98o: folds
+Uncalled bet ($4.50) returned to Mosoko
+*** SHOW DOWN ***
+Mosoko has timed out
+Mosoko: doesn't show hand
+Mosoko collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0 
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: Mosoko (button) collected ($6.50)
+Seat 3: luddebot (small blind) folded before Flop 
+Seat 4: antananarivo (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop 
+
+
+Weplay Hand #76170138:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:06:11 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Tone91 ($115.25 in chips)
+Seat 2: Mosoko ($69.79 in chips)
+Seat 3: luddebot ($38.83 in chips)
+Seat 4: antananarivo ($104.54 in chips)
+Seat 5: kole1992 ($100.88 in chips)
+Seat 6: JTs98o ($100 in chips)
+antananarivo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 4h]
+JTs98o: folds
+luddebot leaves the table
+Tone91: folds
+Mosoko: raises $3 to $3
+antananarivo: folds
+kole1992: folds
+Uncalled bet ($2) returned to Mosoko
+*** SHOW DOWN ***
+Mosoko has timed out
+Mosoko: doesn't show hand
+Mosoko collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: Mosoko collected ($2.50)
+Seat 4: antananarivo (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76170149:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:06:36 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Tone91 ($115.25 in chips)
+Seat 2: Mosoko ($71.29 in chips)
+Seat 4: antananarivo ($104.04 in chips)
+Seat 5: kole1992 ($99.88 in chips)
+Seat 6: JTs98o ($100 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Td]
+Tone91: folds
+Mosoko: folds
+antananarivo: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: Mosoko folded before Flop (didn't bet)
+Seat 4: antananarivo (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) collected ($1)
+
+
+Weplay Hand #76170154:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:06:57 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Tone91 ($115.25 in chips)
+Seat 2: Mosoko ($71.29 in chips)
+Seat 4: antananarivo ($104.04 in chips)
+Seat 5: kole1992 ($99.38 in chips)
+Seat 6: JTs98o ($100.50 in chips)
+JTs98o: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Tc 3h]
+Mosoko: folds
+antananarivo: raises $2.50 to $2.50
+kole1992: folds
+JTs98o: folds
+Tone91: folds
+Uncalled bet ($1.50) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Tone91 (big blind) folded before Flop 
+Seat 2: Mosoko folded before Flop (didn't bet)
+Seat 4: antananarivo collected ($2.50)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76170166:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:07:36 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Tone91 ($114.25 in chips)
+Seat 2: Mosoko ($71.29 in chips)
+Seat 4: antananarivo ($105.54 in chips)
+Seat 5: kole1992 ($99.38 in chips)
+Seat 6: JTs98o ($100 in chips)
+Tone91: posts small blind $0.50
+Mosoko: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Ts]
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+Tone91: folds
+Uncalled bet ($0.50) returned to Mosoko
+*** SHOW DOWN ***
+Mosoko has timed out
+Mosoko: doesn't show hand
+Mosoko collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Tone91 (small blind) folded before Flop 
+Seat 2: Mosoko (big blind) collected ($1)
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76170179:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:08:11 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Tone91 ($113.75 in chips)
+Seat 2: Mosoko ($71.79 in chips)
+Seat 4: antananarivo ($105.54 in chips)
+Seat 5: kole1992 ($99.38 in chips)
+Seat 6: JTs98o ($100 in chips)
+Mosoko: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 5s]
+kole1992: folds
+JTs98o: folds
+Tone91: raises $2.50 to $2.50
+Mosoko: calls $2
+antananarivo: calls $1.50
+*** FLOP *** [3s 3c Qd]
+Mosoko: checks
+antananarivo: checks
+Tone91: checks
+*** TURN *** [3s 3c Qd] [4d]
+Mosoko: checks
+antananarivo: checks
+Tone91: checks
+*** RIVER *** [3s 3c Qd 4d] [3d]
+Mosoko: checks
+antananarivo: checks
+Tone91: bets $5.02
+Mosoko: calls $5.02
+antananarivo: folds
+*** SHOW DOWN ***
+Tone91: shows [9h Qc] (a full house, Threes full of Queens)
+Mosoko has timed out
+Mosoko: mucks hand
+Tone91 collected $17.54 from pot
+*** SUMMARY ***
+Total pot $17.54 | Rake $0.87 
+Board [3s 3c Qd 4d 3d]
+Seat 1: Tone91 (button) showed [9h Qc] and won ($17.54) with a full house, Threes full of Queens
+Seat 2: Mosoko (small blind) mucked
+Seat 4: antananarivo (big blind) folded on the River 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76170201:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:09:27 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Tone91 ($122.90 in chips)
+Seat 2: Mosoko ($64.27 in chips)
+Seat 4: antananarivo ($103.04 in chips)
+Seat 5: kole1992 ($99.38 in chips)
+Seat 6: JTs98o ($100 in chips)
+antananarivo: posts small blind $0.50
+Ibo98 joins the table at seat #3
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Qh]
+JTs98o: raises $2.50 to $2.50
+Tone91: raises $7.50 to $7.50
+Mosoko: calls $7.50
+antananarivo: raises $24 to $24.50
+kole1992: folds
+JTs98o: folds
+Tone91: folds
+Mosoko: folds
+Uncalled bet ($17) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $26 from pot
+*** SUMMARY ***
+Total pot $26 | Rake $0 
+Seat 1: Tone91 folded before Flop 
+Seat 2: Mosoko (button) folded before Flop 
+Seat 4: antananarivo (small blind) collected ($26)
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop 
+
+
+Weplay Hand #76170217:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:10:24 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Tone91 ($115.40 in chips)
+Seat 2: Mosoko ($56.77 in chips)
+Seat 3: Ibo98 ($100 in chips)
+Seat 4: antananarivo ($121.54 in chips)
+Seat 5: kole1992 ($98.38 in chips)
+Seat 6: JTs98o ($100 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+Ibo98: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Ts]
+Tone91: folds
+Mosoko: raises $3 to $3
+Ibo98: calls $2
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+*** FLOP *** [3c Td 2s]
+Mosoko: bets $5.63
+Ibo98: calls $5.63
+*** TURN *** [3c Td 2s] [6h]
+Mosoko: checks
+Ibo98: checks
+*** RIVER *** [3c Td 2s 6h] [2h]
+Mosoko: bets $18.76
+Ibo98: raises $91.37 to $91.37 and is all-in
+Mosoko: calls $29.38 and is all-in
+Uncalled bet ($43.23) returned to Ibo98
+*** SHOW DOWN ***
+Ibo98: shows [2d Ah] (three of a kind, Deuces)
+Mosoko: shows [Tc Kc] (two pair, Tens and Deuces)
+Ibo98 collected $115.04 from pot
+*** SUMMARY ***
+Total pot $115.04 | Rake $5.75 
+Board [3c Td 2s 6h 2h]
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 2: Mosoko showed [Tc Kc] and lost with two pair, Tens and Deuces
+Seat 3: Ibo98 (big blind) showed [2d Ah] and won ($115.04) with three of a kind, Deuces
+Seat 4: antananarivo (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76170230:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:11:02 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Tone91 ($115.40 in chips)
+Seat 3: Ibo98 ($152.52 in chips)
+Seat 4: antananarivo ($121.54 in chips)
+Seat 5: kole1992 ($97.88 in chips)
+Seat 6: JTs98o ($100 in chips)
+JTs98o: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5h Ks]
+Mosoko is disconnected 
+Ibo98: raises $3 to $3
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+Tone91: folds
+Uncalled bet ($2) returned to Ibo98
+*** SHOW DOWN ***
+Ibo98 has timed out
+Ibo98: doesn't show hand
+Ibo98 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Tone91 (big blind) folded before Flop 
+Seat 3: Ibo98 collected ($2.50)
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #76170234:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:11:19 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Tone91 ($114.40 in chips)
+Seat 3: Ibo98 ($154.02 in chips)
+Seat 4: antananarivo ($121.54 in chips)
+Seat 5: kole1992 ($97.88 in chips)
+Seat 6: JTs98o ($100 in chips)
+Tone91: posts small blind $0.50
+Ibo98: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h Kc]
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+Tone91: folds
+Uncalled bet ($0.50) returned to Ibo98
+*** SHOW DOWN ***
+Ibo98 has timed out
+Ibo98: doesn't show hand
+Ibo98 collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Tone91 (small blind) folded before Flop 
+Seat 3: Ibo98 (big blind) collected ($1)
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #76170241:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:11:34 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: Tone91 ($113.90 in chips)
+Seat 3: Ibo98 ($154.52 in chips)
+Seat 4: antananarivo ($121.54 in chips)
+Seat 5: kole1992 ($97.88 in chips)
+Seat 6: JTs98o ($100 in chips)
+Ibo98: posts small blind $0.50
+antananarivo: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 7d]
+kole1992: folds
+JTs98o: folds
+Tone91: folds
+Ibo98: raises $4.50 to $5
+antananarivo: calls $4
+*** FLOP *** [Qh 8h 4s]
+Ibo98: checks
+antananarivo: checks
+*** TURN *** [Qh 8h 4s] [5d]
+Ibo98: bets $5
+antananarivo: folds
+Uncalled bet ($5) returned to Ibo98
+*** SHOW DOWN ***
+Ibo98: doesn't show hand
+Ibo98 collected $10 from pot
+*** SUMMARY ***
+Total pot $10 | Rake $0.50 
+Board [Qh 8h 4s 5d]
+Seat 1: Tone91 (button) folded before Flop (didn't bet)
+Seat 3: Ibo98 (small blind) collected ($10)
+Seat 4: antananarivo (big blind) folded on the Turn 
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76170256:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:12:24 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #3 is the button
+Seat 1: Tone91 ($113.90 in chips)
+Seat 3: Ibo98 ($159.02 in chips)
+Seat 4: antananarivo ($116.54 in chips)
+Seat 5: kole1992 ($97.88 in chips)
+Seat 6: JTs98o ($100 in chips)
+antananarivo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 5d]
+JTs98o: folds
+Tone91: raises $2.50 to $2.50
+Ibo98: calls $2.50
+antananarivo: folds
+kole1992: folds
+*** FLOP *** [7h 4d Kd]
+Tone91: checks
+Ibo98: checks
+*** TURN *** [7h 4d Kd] [Kc]
+Tone91: bets $3.80
+Ibo98: folds
+Uncalled bet ($3.80) returned to Tone91
+*** SHOW DOWN ***
+Tone91 has timed out
+Tone91: doesn't show hand
+Tone91 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [7h 4d Kd Kc]
+Seat 1: Tone91 collected ($6.50)
+Seat 3: Ibo98 (button) folded on the Turn 
+Seat 4: antananarivo (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #76170264:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:12:59 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #4 is the button
+Seat 1: Tone91 ($117.58 in chips)
+Seat 3: Ibo98 ($156.52 in chips)
+Seat 4: antananarivo ($116.04 in chips)
+Seat 5: kole1992 ($96.88 in chips)
+Seat 6: JTs98o ($100 in chips)
+kole1992: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 2s]
+Tone91: folds
+Ibo98: raises $5 to $5
+antananarivo: folds
+kole1992: folds
+JTs98o: folds
+Uncalled bet ($4) returned to Ibo98
+*** SHOW DOWN ***
+Ibo98 has timed out
+Ibo98: doesn't show hand
+Ibo98 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Tone91 folded before Flop (didn't bet)
+Seat 3: Ibo98 collected ($2.50)
+Seat 4: antananarivo (button) folded before Flop (didn't bet)
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #76170271:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:13:25 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #5 is the button
+Seat 1: Tone91 ($117.58 in chips)
+Seat 3: Ibo98 ($158.02 in chips)
+Seat 4: antananarivo ($116.04 in chips)
+Seat 5: kole1992 ($96.38 in chips)
+Seat 6: JTs98o ($100 in chips)
+JTs98o: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 5h]
+Ibo98: calls $1
+antananarivo: folds
+kole1992: folds
+JTs98o: calls $0.50
+Tone91: checks
+*** FLOP *** [4h 5s 7h]
+JTs98o: bets $2.01
+Tone91: folds
+Ibo98: calls $2.01
+*** TURN *** [4h 5s 7h] [9c]
+JTs98o: bets $4.70
+Ibo98: folds
+Uncalled bet ($4.70) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $7.02 from pot
+*** SUMMARY ***
+Total pot $7.02 | Rake $0.35 
+Board [4h 5s 7h 9c]
+Seat 1: Tone91 (big blind) folded on the Flop 
+Seat 3: Ibo98 folded on the Turn 
+Seat 4: antananarivo folded before Flop (didn't bet)
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 6: JTs98o (small blind) collected ($7.02)
+
+
+Weplay Hand #76170280:  Hold'em No Limit ($0.50/$1) - 2026/02/19 11:13:56 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #6 is the button
+Seat 1: Tone91 ($116.58 in chips)
+Seat 3: Ibo98 ($155.01 in chips)
+Seat 4: antananarivo ($116.04 in chips)
+Seat 5: kole1992 ($96.38 in chips)
+Seat 6: JTs98o ($103.66 in chips)
+Tone91: posts small blind $0.50
+Ibo98: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s Jd]
+antananarivo: raises $2.50 to $2.50
+kole1992: folds
+JTs98o has timed out
+JTs98o: folds
+Tone91: folds
+Ibo98: calls $1.50
+*** FLOP *** [4c 9h 8d]
+Ibo98: bets $1
+antananarivo: raises $3 to $3
+Ibo98: calls $2
+*** TURN *** [4c 9h 8d] [5s]
+Ibo98: checks
+antananarivo: bets $5.80
+Ibo98: calls $5.80
+*** RIVER *** [4c 9h 8d 5s] [Jc]
+Ibo98: checks
+antananarivo: bets $104.74 and is all-in
+Ibo98: folds
+Uncalled bet ($104.74) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $23.10 from pot
+*** SUMMARY ***
+Total pot $23.10 | Rake $1.15 
+Board [4c 9h 8d 5s Jc]
+Seat 1: Tone91 (small blind) folded before Flop 
+Seat 3: Ibo98 (big blind) folded on the River 
+Seat 4: antananarivo collected ($23.10)
+Seat 5: kole1992 folded before Flop (didn't bet)
+Seat 6: JTs98o (button) folded before Flop (didn't bet)

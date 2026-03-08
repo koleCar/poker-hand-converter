@@ -1,0 +1,1903 @@
+﻿Weplay Hand #75299070: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XI (50/100) - 2026/02/10 17:01:27 UTC
+Table '11275291 2'(11621901) 7-max Seat #4 is the button
+Seat 1: Notarized (21932 in chips)
+Seat 2: GRSTre (29740 in chips)
+Seat 3: Gravedigger14 (6191 in chips)
+Seat 4: Poroshok (10000 in chips)
+Seat 5: kole1992 (21497 in chips)
+Seat 7: gejzir81 (11408 in chips)
+Notarized: posts the ante 85
+GRSTre: posts the ante 85
+Gravedigger14: posts the ante 85
+Poroshok: posts the ante 85
+kole1992: posts the ante 85
+gejzir81: posts the ante 85
+kole1992: posts small blind 350
+gejzir81: posts big blind 700
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Ks]
+Notarized: raises 1400 to 1400
+GRSTre: folds
+Gravedigger14: folds
+Poroshok: folds
+kole1992: folds
+gejzir81: folds
+Uncalled bet (700) returned to Notarized
+*** SHOW DOWN ***
+Notarized: doesn't show hand
+Notarized collected 2260 from pot
+*** SUMMARY ***
+Total pot 2260 | Rake 0 
+Seat 1: Notarized collected (2260)
+Seat 2: GRSTre folded before Flop 
+Seat 3: Gravedigger14 folded before Flop 
+Seat 4: Poroshok (button) folded before Flop 
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 7: gejzir81 (big blind) folded before Flop 
+
+
+Weplay Hand #75299108: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XI (50/100) - 2026/02/10 17:01:55 UTC
+Table '11275291 2'(11621901) 7-max Seat #5 is the button
+Seat 1: Notarized (23407 in chips)
+Seat 2: GRSTre (29655 in chips)
+Seat 3: Gravedigger14 (6106 in chips)
+Seat 4: Poroshok (9915 in chips)
+Seat 5: kole1992 (21062 in chips)
+Seat 7: gejzir81 (10623 in chips)
+Notarized: posts the ante 85
+GRSTre: posts the ante 85
+Gravedigger14: posts the ante 85
+Poroshok: posts the ante 85
+kole1992: posts the ante 85
+gejzir81: posts the ante 85
+gejzir81: posts small blind 350
+Notarized: posts big blind 700
+*** HOLE CARDS ***
+Dealt to kole1992 [6c Ac]
+GRSTre: folds
+Gravedigger14: folds
+Poroshok: folds
+AllIinbaby joins the table at seat #6
+AllIinbaby is connected 
+kole1992: raises 1540 to 1540
+gejzir81 has timed out
+gejzir81: folds
+gejzir81: sits out 
+Notarized: folds
+Uncalled bet (840) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 2260 from pot
+*** SUMMARY ***
+Total pot 2260 | Rake 0 
+Seat 1: Notarized (big blind) folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Gravedigger14 folded before Flop 
+Seat 4: Poroshok folded before Flop 
+Seat 5: kole1992 (button) collected (2260)
+Seat 7: gejzir81 (small blind) folded before Flop 
+
+
+Weplay Hand #75299186: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XII (50/100) - 2026/02/10 17:02:53 UTC
+Table '11275291 2'(11621901) 7-max Seat #7 is the button
+Seat 1: Notarized (22622 in chips)
+Seat 2: GRSTre (29570 in chips)
+Seat 3: Gravedigger14 (6021 in chips)
+Seat 4: Poroshok (9830 in chips)
+Seat 5: kole1992 (22537 in chips)
+Seat 6: AllIinbaby (10000 in chips)
+Seat 7: gejzir81 (10188 in chips)
+Notarized: posts the ante 100
+GRSTre: posts the ante 100
+Gravedigger14: posts the ante 100
+Poroshok: posts the ante 100
+kole1992: posts the ante 100
+AllIinbaby: posts the ante 100
+gejzir81: posts the ante 100
+Notarized: posts small blind 400
+GRSTre: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Js]
+Gravedigger14: folds
+Poroshok: folds
+kole1992: folds
+AllIinbaby: folds
+gejzir81: folds
+Notarized: raises 2000 to 2400
+GRSTre: folds
+Uncalled bet (1600) returned to Notarized
+*** SHOW DOWN ***
+Notarized: doesn't show hand
+Notarized collected 2300 from pot
+*** SUMMARY ***
+Total pot 2300 | Rake 0 
+Seat 1: Notarized (small blind) collected (2300)
+Seat 2: GRSTre (big blind) folded before Flop 
+Seat 3: Gravedigger14 folded before Flop 
+Seat 4: Poroshok folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 (button) folded before Flop 
+
+
+Weplay Hand #75299228: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XII (50/100) - 2026/02/10 17:03:21 UTC
+Table '11275291 2'(11621901) 7-max Seat #1 is the button
+Seat 1: Notarized (24022 in chips)
+Seat 2: GRSTre (28670 in chips)
+Seat 3: Gravedigger14 (5921 in chips)
+Seat 4: Poroshok (9730 in chips)
+Seat 5: kole1992 (22437 in chips)
+Seat 6: AllIinbaby (9900 in chips)
+Seat 7: gejzir81 (10088 in chips)
+Notarized: posts the ante 100
+GRSTre: posts the ante 100
+Gravedigger14: posts the ante 100
+Poroshok: posts the ante 100
+kole1992: posts the ante 100
+AllIinbaby: posts the ante 100
+gejzir81: posts the ante 100
+GRSTre: posts small blind 400
+Gravedigger14: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 5d]
+Poroshok: folds
+kole1992: folds
+AllIinbaby: folds
+gejzir81: raises 1950 to 1950
+Notarized: folds
+GRSTre: folds
+Gravedigger14: raises 5021 to 5821 and is all-in
+gejzir81: calls 3871
+*** FLOP *** [9h 4h 4s]
+*** TURN *** [9h 4h 4s] [3s]
+*** RIVER *** [9h 4h 4s 3s] [Ts]
+*** SHOW DOWN ***
+Gravedigger14: shows [Th 7h] (two pair, Tens and Fours)
+gejzir81: shows [8s Ac] (a pair of Fours)
+Gravedigger14 collected 12742 from pot
+*** SUMMARY ***
+Total pot 12742 | Rake 0 
+Board [9h 4h 4s 3s Ts]
+Seat 1: Notarized (button) folded before Flop 
+Seat 2: GRSTre (small blind) folded before Flop 
+Seat 3: Gravedigger14 (big blind) showed [Th 7h] and won (12742) with two pair, Tens and Fours
+Seat 4: Poroshok folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 showed [8s Ac] and lost with a pair of Fours
+
+
+Weplay Hand #75299281: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XII (50/100) - 2026/02/10 17:04:03 UTC
+Table '11275291 2'(11621901) 7-max Seat #2 is the button
+Seat 1: Notarized (23922 in chips)
+Seat 2: GRSTre (28170 in chips)
+Seat 3: Gravedigger14 (12742 in chips)
+Seat 4: Poroshok (9630 in chips)
+Seat 5: kole1992 (22337 in chips)
+Seat 6: AllIinbaby (9800 in chips)
+Seat 7: gejzir81 (4167 in chips)
+Notarized: posts the ante 100
+GRSTre: posts the ante 100
+Gravedigger14: posts the ante 100
+Poroshok: posts the ante 100
+kole1992: posts the ante 100
+AllIinbaby: posts the ante 100
+gejzir81: posts the ante 100
+Gravedigger14: posts small blind 400
+Poroshok: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 2d]
+kole1992: folds
+AllIinbaby: folds
+gejzir81: folds
+Notarized: folds
+GRSTre: folds
+Gravedigger14: raises 12242 to 12642 and is all-in
+Poroshok: folds
+Uncalled bet (11842) returned to Gravedigger14
+*** SHOW DOWN ***
+Gravedigger14: doesn't show hand
+Gravedigger14 collected 2300 from pot
+*** SUMMARY ***
+Total pot 2300 | Rake 0 
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre (button) folded before Flop 
+Seat 3: Gravedigger14 (small blind) collected (2300)
+Seat 4: Poroshok (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75301329: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XII (50/100) - 2026/02/10 17:04:38 UTC
+Table '11275291 2'(11621901) 7-max Seat #3 is the button
+Seat 1: Notarized (23822 in chips)
+Seat 2: GRSTre (28070 in chips)
+Seat 3: Gravedigger14 (14142 in chips)
+Seat 4: Poroshok (8730 in chips)
+Seat 5: kole1992 (22237 in chips)
+Seat 6: AllIinbaby (9700 in chips)
+Seat 7: gejzir81 (4067 in chips)
+Notarized: posts the ante 100
+GRSTre: posts the ante 100
+Gravedigger14: posts the ante 100
+Poroshok: posts the ante 100
+kole1992: posts the ante 100
+AllIinbaby: posts the ante 100
+gejzir81: posts the ante 100
+Poroshok: posts small blind 400
+kole1992: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 4c]
+AllIinbaby: folds
+gejzir81: raises 3750 to 3750
+Notarized: folds
+GRSTre: folds
+Gravedigger14: folds
+Poroshok: calls 3350
+kole1992: folds
+*** FLOP *** [Jd Ad 4s]
+Poroshok: checks
+gejzir81: bets 217 and is all-in
+Poroshok: calls 217
+*** TURN *** [Jd Ad 4s] [Th]
+*** RIVER *** [Jd Ad 4s Th] [Qd]
+*** SHOW DOWN ***
+Poroshok: shows [6d 6h] (a pair of Sixes)
+gejzir81: shows [Kc Qc] (a straight, Ten to Ace)
+gejzir81 collected 9434 from pot
+*** SUMMARY ***
+Total pot 9434 | Rake 0 
+Board [Jd Ad 4s Th Qd]
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Gravedigger14 (button) folded before Flop 
+Seat 4: Poroshok (small blind) showed [6d 6h] and lost with a pair of Sixes
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 showed [Kc Qc] and won (9434) with a straight, Ten to Ace
+
+
+Weplay Hand #75301394: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XII (50/100) - 2026/02/10 17:05:24 UTC
+Table '11275291 2'(11621901) 7-max Seat #4 is the button
+Seat 1: Notarized (23722 in chips)
+Seat 2: GRSTre (27970 in chips)
+Seat 3: Gravedigger14 (14042 in chips)
+Seat 4: Poroshok (4663 in chips)
+Seat 5: kole1992 (21337 in chips)
+Seat 6: AllIinbaby (9600 in chips)
+Seat 7: gejzir81 (9434 in chips)
+Notarized: posts the ante 100
+GRSTre: posts the ante 100
+Gravedigger14: posts the ante 100
+Poroshok: posts the ante 100
+kole1992: posts the ante 100
+AllIinbaby: posts the ante 100
+gejzir81: posts the ante 100
+kole1992: posts small blind 400
+AllIinbaby: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 3c]
+gejzir81: raises 2400 to 2400
+Notarized: folds
+GRSTre: folds
+Gravedigger14: folds
+Poroshok: calls 2400
+kole1992: folds
+AllIinbaby: folds
+*** FLOP *** [4d 8h 3d]
+gejzir81: bets 2162
+Poroshok: raises 2163 to 2163 and is all-in
+gejzir81: calls 1
+*** TURN *** [4d 8h 3d] [2h]
+*** RIVER *** [4d 8h 3d 2h] [7d]
+*** SHOW DOWN ***
+gejzir81: shows [Tc Th] (a pair of Tens)
+Poroshok: shows [Jc Ac] (high card Ace)
+gejzir81 collected 11026 from pot
+*** SUMMARY ***
+Total pot 11026 | Rake 0 
+Board [4d 8h 3d 2h 7d]
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Gravedigger14 folded before Flop 
+Seat 4: Poroshok (button) showed [Jc Ac] and lost with high card Ace
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: AllIinbaby (big blind) folded before Flop 
+Seat 7: gejzir81 showed [Tc Th] and won (11026) with a pair of Tens
+
+
+Weplay Hand #75301489: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XII (50/100) - 2026/02/10 17:06:40 UTC
+Table '11275291 2'(11621901) 7-max Seat #5 is the button
+Seat 1: Notarized (23622 in chips)
+Seat 2: GRSTre (27870 in chips)
+Seat 3: Gravedigger14 (13942 in chips)
+Seat 5: kole1992 (20837 in chips)
+Seat 6: AllIinbaby (8700 in chips)
+Seat 7: gejzir81 (15797 in chips)
+Notarized: posts the ante 100
+GRSTre: posts the ante 100
+Gravedigger14: posts the ante 100
+kole1992: posts the ante 100
+AllIinbaby: posts the ante 100
+gejzir81: posts the ante 100
+AllIinbaby: posts small blind 400
+gejzir81: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [4c 5d]
+Notarized: folds
+GRSTre: calls 800
+Gravedigger14: folds
+kole1992: folds
+AllIinbaby: calls 400
+gejzir81: checks
+*** FLOP *** [3s Kh Ac]
+AllIinbaby: checks
+gejzir81: checks
+GRSTre: bets 2400
+AllIinbaby: folds
+gejzir81: folds
+Uncalled bet (2400) returned to GRSTre
+*** SHOW DOWN ***
+GRSTre: doesn't show hand
+GRSTre collected 3000 from pot
+*** SUMMARY ***
+Total pot 3000 | Rake 0 
+Board [3s Kh Ac]
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre collected (3000)
+Seat 3: Gravedigger14 folded before Flop 
+Seat 5: kole1992 (button) folded before Flop 
+Seat 6: AllIinbaby (small blind) folded on the Flop 
+Seat 7: gejzir81 (big blind) folded on the Flop 
+
+
+Weplay Hand #75301557: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XII (50/100) - 2026/02/10 17:07:39 UTC
+Table '11275291 2'(11621901) 7-max Seat #6 is the button
+Seat 1: Notarized (23522 in chips)
+Seat 2: GRSTre (29970 in chips)
+Seat 3: Gravedigger14 (13842 in chips)
+Seat 5: kole1992 (20737 in chips)
+Seat 6: AllIinbaby (7800 in chips)
+Seat 7: gejzir81 (14897 in chips)
+Notarized: posts the ante 100
+GRSTre: posts the ante 100
+Gravedigger14: posts the ante 100
+kole1992: posts the ante 100
+AllIinbaby: posts the ante 100
+gejzir81: posts the ante 100
+gejzir81: posts small blind 400
+Notarized: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Qh]
+GRSTre: folds
+Gravedigger14: folds
+kole1992: raises 1600 to 1600
+spirditsfa joins the table at seat #4
+AllIinbaby: folds
+gejzir81: folds
+Notarized: calls 800
+*** FLOP *** [Qd As Kc]
+Notarized: bets 2100
+kole1992: calls 2100
+*** TURN *** [Qd As Kc] [Jh]
+Notarized: bets 6300
+kole1992: calls 6300
+*** RIVER *** [Qd As Kc Jh] [Jd]
+Notarized: checks
+kole1992: bets 10637 and is all-in
+Notarized: folds
+Uncalled bet (10637) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 21000 from pot
+*** SUMMARY ***
+Total pot 21000 | Rake 0 
+Board [Qd As Kc Jh Jd]
+Seat 1: Notarized (big blind) folded on the River 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Gravedigger14 folded before Flop 
+Seat 5: kole1992 collected (21000)
+Seat 6: AllIinbaby (button) folded before Flop 
+Seat 7: gejzir81 (small blind) folded before Flop 
+
+
+Weplay Hand #75301679: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIII (50/100) - 2026/02/10 17:09:18 UTC
+Table '11275291 2'(11621901) 7-max Seat #7 is the button
+Seat 1: Notarized (13422 in chips)
+Seat 2: GRSTre (29870 in chips)
+Seat 3: Gravedigger14 (13742 in chips)
+Seat 4: spirditsfa (16628 in chips)
+Seat 5: kole1992 (31637 in chips)
+Seat 6: AllIinbaby (7700 in chips)
+Seat 7: gejzir81 (14397 in chips)
+Notarized: posts the ante 125
+GRSTre: posts the ante 125
+Gravedigger14: posts the ante 125
+spirditsfa: posts the ante 125
+kole1992: posts the ante 125
+AllIinbaby: posts the ante 125
+gejzir81: posts the ante 125
+Notarized: posts small blind 500
+GRSTre: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Ts]
+Gravedigger14: folds
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: folds
+gejzir81: raises 2000 to 2000
+Notarized: folds
+GRSTre: calls 1000
+*** FLOP *** [Kh 2s 6s]
+GRSTre: checks
+gejzir81: bets 2750
+GRSTre: folds
+Uncalled bet (2750) returned to gejzir81
+*** SHOW DOWN ***
+gejzir81 has timed out
+gejzir81: doesn't show hand
+gejzir81 collected 5375 from pot
+*** SUMMARY ***
+Total pot 5375 | Rake 0 
+Board [Kh 2s 6s]
+Seat 1: Notarized (small blind) folded before Flop 
+Seat 2: GRSTre (big blind) folded on the Flop 
+Seat 3: Gravedigger14 folded before Flop 
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 (button) collected (5375)
+
+
+Weplay Hand #75301756: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIII (50/100) - 2026/02/10 17:10:21 UTC
+Table '11275291 2'(11621901) 7-max Seat #1 is the button
+Seat 1: Notarized (12797 in chips)
+Seat 2: GRSTre (27745 in chips)
+Seat 3: Gravedigger14 (13617 in chips)
+Seat 4: spirditsfa (16503 in chips)
+Seat 5: kole1992 (31512 in chips)
+Seat 6: AllIinbaby (7575 in chips)
+Seat 7: gejzir81 (17647 in chips)
+Notarized: posts the ante 125
+GRSTre: posts the ante 125
+Gravedigger14: posts the ante 125
+spirditsfa: posts the ante 125
+kole1992: posts the ante 125
+AllIinbaby: posts the ante 125
+gejzir81: posts the ante 125
+GRSTre: posts small blind 500
+Gravedigger14: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [6s Qh]
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: raises 7450 to 7450 and is all-in
+gejzir81: folds
+Notarized: raises 12672 to 12672 and is all-in
+GRSTre: folds
+Gravedigger14: folds
+Uncalled bet (5222) returned to Notarized
+*** FLOP *** [7s Qs 3s]
+*** TURN *** [7s Qs 3s] [8h]
+*** RIVER *** [7s Qs 3s 8h] [7d]
+*** SHOW DOWN ***
+AllIinbaby: shows [Js Ah] (a pair of Sevens)
+Notarized: shows [As Ad] (two pair, Aces and Sevens)
+Notarized collected 17275 from pot
+*** SUMMARY ***
+Total pot 17275 | Rake 0 
+Board [7s Qs 3s 8h 7d]
+Seat 1: Notarized (button) showed [As Ad] and won (17275) with two pair, Aces and Sevens
+Seat 2: GRSTre (small blind) folded before Flop 
+Seat 3: Gravedigger14 (big blind) folded before Flop 
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby showed [Js Ah] and lost with a pair of Sevens
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75301828: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIII (50/100) - 2026/02/10 17:11:21 UTC
+Table '11275291 2'(11621901) 7-max Seat #2 is the button
+Seat 1: Notarized (22497 in chips)
+Seat 2: GRSTre (27120 in chips)
+Seat 3: Gravedigger14 (12492 in chips)
+Seat 4: spirditsfa (16378 in chips)
+Seat 5: kole1992 (31387 in chips)
+Seat 6: AllIinbaby (10000 in chips)
+Seat 7: gejzir81 (17522 in chips)
+Notarized: posts the ante 125
+GRSTre: posts the ante 125
+Gravedigger14: posts the ante 125
+spirditsfa: posts the ante 125
+kole1992: posts the ante 125
+AllIinbaby: posts the ante 125
+gejzir81: posts the ante 125
+Gravedigger14: posts small blind 500
+spirditsfa: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 5h]
+kole1992: folds
+AllIinbaby: folds
+gejzir81 has timed out
+gejzir81: folds
+gejzir81: sits out 
+Notarized: folds
+GRSTre: folds
+Gravedigger14: raises 11867 to 12367 and is all-in
+spirditsfa: calls 11367
+*** FLOP *** [2h 3d 6c]
+*** TURN *** [2h 3d 6c] [7d]
+*** RIVER *** [2h 3d 6c 7d] [2c]
+*** SHOW DOWN ***
+Gravedigger14: shows [Tc Th] (two pair, Tens and Deuces)
+spirditsfa: shows [9c Ac] (a pair of Deuces)
+Gravedigger14 collected 25609 from pot
+*** SUMMARY ***
+Total pot 25609 | Rake 0 
+Board [2h 3d 6c 7d 2c]
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre (button) folded before Flop 
+Seat 3: Gravedigger14 (small blind) showed [Tc Th] and won (25609) with two pair, Tens and Deuces
+Seat 4: spirditsfa (big blind) showed [9c Ac] and lost with a pair of Deuces
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75301928: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIII (50/100) - 2026/02/10 17:12:41 UTC
+Table '11275291 2'(11621901) 7-max Seat #3 is the button
+Seat 1: Notarized (22372 in chips)
+Seat 2: GRSTre (26995 in chips)
+Seat 3: Gravedigger14 (25609 in chips)
+Seat 4: spirditsfa (3886 in chips)
+Seat 5: kole1992 (31262 in chips)
+Seat 6: AllIinbaby (9875 in chips)
+Seat 7: gejzir81 (17397 in chips)
+Notarized: posts the ante 125
+GRSTre: posts the ante 125
+Gravedigger14: posts the ante 125
+spirditsfa: posts the ante 125
+kole1992: posts the ante 125
+AllIinbaby: posts the ante 125
+gejzir81: posts the ante 125
+spirditsfa: posts small blind 500
+kole1992: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 4d]
+AllIinbaby: raises 9750 to 9750 and is all-in
+gejzir81 has timed out
+gejzir81: folds
+gejzir81: sits out 
+Notarized: folds
+GRSTre: folds
+Gravedigger14: folds
+spirditsfa: calls 3261 and is all-in
+kole1992: folds
+Uncalled bet (5989) returned to AllIinbaby
+*** FLOP *** [3d 7h Qc]
+*** TURN *** [3d 7h Qc] [5h]
+*** RIVER *** [3d 7h Qc 5h] [6h]
+*** SHOW DOWN ***
+spirditsfa: shows [Ks 6c] (a pair of Sixes)
+AllIinbaby: shows [Th As] (high card Ace)
+spirditsfa collected 9397 from pot
+*** SUMMARY ***
+Total pot 9397 | Rake 0 
+Board [3d 7h Qc 5h 6h]
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Gravedigger14 (button) folded before Flop 
+Seat 4: spirditsfa (small blind) showed [Ks 6c] and won (9397) with a pair of Sixes
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: AllIinbaby showed [Th As] and lost with high card Ace
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75301993: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIV (50/100) - 2026/02/10 17:13:40 UTC
+Table '11275291 2'(11621901) 7-max Seat #4 is the button
+Seat 1: Notarized (22247 in chips)
+Seat 2: GRSTre (26870 in chips)
+Seat 3: Gravedigger14 (25484 in chips)
+Seat 4: spirditsfa (9397 in chips)
+Seat 5: kole1992 (30137 in chips)
+Seat 6: AllIinbaby (5989 in chips)
+Seat 7: gejzir81 (17272 in chips)
+Notarized: posts the ante 150
+GRSTre: posts the ante 150
+Gravedigger14: posts the ante 150
+spirditsfa: posts the ante 150
+kole1992: posts the ante 150
+AllIinbaby: posts the ante 150
+gejzir81: posts the ante 150
+kole1992: posts small blind 600
+AllIinbaby: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 8c]
+gejzir81: calls 1200
+Notarized: folds
+GRSTre: folds
+Gravedigger14: raises 3300 to 3300
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: raises 4639 to 5839 and is all-in
+gejzir81: folds
+Gravedigger14: calls 2539
+*** FLOP *** [4d Td 2c]
+*** TURN *** [4d Td 2c] [9d]
+*** RIVER *** [4d Td 2c 9d] [Jc]
+*** SHOW DOWN ***
+AllIinbaby: shows [Ts 4s] (two pair, Tens and Fours)
+Gravedigger14: shows [Kh Jd] (a pair of Jacks)
+AllIinbaby collected 14528 from pot
+*** SUMMARY ***
+Total pot 14528 | Rake 0 
+Board [4d Td 2c 9d Jc]
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Gravedigger14 showed [Kh Jd] and lost with a pair of Jacks
+Seat 4: spirditsfa (button) folded before Flop 
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: AllIinbaby (big blind) showed [Ts 4s] and won (14528) with two pair, Tens and Fours
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75302091: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIV (50/100) - 2026/02/10 17:14:59 UTC
+Table '11275291 2'(11621901) 7-max Seat #5 is the button
+Seat 1: Notarized (22097 in chips)
+Seat 2: GRSTre (26720 in chips)
+Seat 3: Gravedigger14 (19495 in chips)
+Seat 4: spirditsfa (9247 in chips)
+Seat 5: kole1992 (29387 in chips)
+Seat 6: AllIinbaby (14528 in chips)
+Seat 7: gejzir81 (15922 in chips)
+Notarized: posts the ante 150
+GRSTre: posts the ante 150
+Gravedigger14: posts the ante 150
+spirditsfa: posts the ante 150
+kole1992: posts the ante 150
+AllIinbaby: posts the ante 150
+gejzir81: posts the ante 150
+AllIinbaby: posts small blind 600
+gejzir81: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 6c]
+Notarized: folds
+GRSTre: folds
+Gravedigger14: raises 2400 to 2400
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: folds
+gejzir81: folds
+Uncalled bet (1200) returned to Gravedigger14
+*** SHOW DOWN ***
+Gravedigger14: doesn't show hand
+Gravedigger14 collected 4050 from pot
+*** SUMMARY ***
+Total pot 4050 | Rake 0 
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Gravedigger14 collected (4050)
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 (button) folded before Flop 
+Seat 6: AllIinbaby (small blind) folded before Flop 
+Seat 7: gejzir81 (big blind) folded before Flop 
+
+
+Weplay Hand #75302149: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIV (50/100) - 2026/02/10 17:15:53 UTC
+Table '11275291 2'(11621901) 7-max Seat #6 is the button
+Seat 1: Notarized (21947 in chips)
+Seat 2: GRSTre (26570 in chips)
+Seat 3: Gravedigger14 (22195 in chips)
+Seat 4: spirditsfa (9097 in chips)
+Seat 5: kole1992 (29237 in chips)
+Seat 6: AllIinbaby (13778 in chips)
+Seat 7: gejzir81 (14572 in chips)
+Notarized: posts the ante 150
+GRSTre: posts the ante 150
+Gravedigger14: posts the ante 150
+spirditsfa: posts the ante 150
+kole1992: posts the ante 150
+AllIinbaby: posts the ante 150
+gejzir81: posts the ante 150
+gejzir81: posts small blind 600
+Notarized: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 2d]
+GRSTre: folds
+Gravedigger14: folds
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: folds
+gejzir81 has timed out
+gejzir81: folds
+Uncalled bet (600) returned to Notarized
+gejzir81: sits out 
+*** SHOW DOWN ***
+Notarized: doesn't show hand
+Notarized collected 2250 from pot
+*** SUMMARY ***
+Total pot 2250 | Rake 0 
+Seat 1: Notarized (big blind) collected (2250)
+Seat 2: GRSTre folded before Flop 
+Seat 3: Gravedigger14 folded before Flop 
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby (button) folded before Flop 
+Seat 7: gejzir81 (small blind) folded before Flop 
+
+
+Weplay Hand #75302207: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIV (50/100) - 2026/02/10 17:16:50 UTC
+Table '11275291 2'(11621901) 7-max Seat #7 is the button
+Seat 1: Notarized (23447 in chips)
+Seat 2: GRSTre (26420 in chips)
+Seat 3: Gravedigger14 (22045 in chips)
+Seat 4: spirditsfa (8947 in chips)
+Seat 5: kole1992 (29087 in chips)
+Seat 6: AllIinbaby (13628 in chips)
+Seat 7: gejzir81 (13822 in chips)
+Notarized: posts the ante 150
+GRSTre: posts the ante 150
+Gravedigger14: posts the ante 150
+spirditsfa: posts the ante 150
+kole1992: posts the ante 150
+AllIinbaby: posts the ante 150
+gejzir81: posts the ante 150
+Notarized: posts small blind 600
+GRSTre: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [6h Jh]
+Gravedigger14: raises 2400 to 2400
+spirditsfa: raises 8797 to 8797 and is all-in
+kole1992: folds
+AllIinbaby: folds
+gejzir81 has timed out
+gejzir81: folds
+gejzir81: sits out 
+Notarized: folds
+GRSTre: folds
+Gravedigger14: calls 6397
+*** FLOP *** [6c As Qs]
+*** TURN *** [6c As Qs] [7h]
+*** RIVER *** [6c As Qs 7h] [3c]
+*** SHOW DOWN ***
+Gravedigger14: shows [Ah Jc] (a pair of Aces)
+spirditsfa: shows [Kc Ad] (a pair of Aces)
+spirditsfa collected 20444 from pot
+*** SUMMARY ***
+Total pot 20444 | Rake 0 
+Board [6c As Qs 7h 3c]
+Seat 1: Notarized (small blind) folded before Flop 
+Seat 2: GRSTre (big blind) folded before Flop 
+Seat 3: Gravedigger14 showed [Ah Jc] and lost with a pair of Aces
+Seat 4: spirditsfa showed [Kc Ad] and won (20444) with a pair of Aces
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 (button) folded before Flop 
+
+
+Weplay Hand #75302286: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XV (50/100) - 2026/02/10 17:17:54 UTC
+Table '11275291 1'(11621901) 7-max Seat #1 is the button
+Seat 1: Notarized (22697 in chips)
+Seat 2: GRSTre (25070 in chips)
+Seat 3: Gravedigger14 (13098 in chips)
+Seat 4: spirditsfa (20444 in chips)
+Seat 5: kole1992 (28937 in chips)
+Seat 6: AllIinbaby (13478 in chips)
+Seat 7: gejzir81 (13672 in chips)
+Notarized: posts the ante 175
+GRSTre: posts the ante 175
+Gravedigger14: posts the ante 175
+spirditsfa: posts the ante 175
+kole1992: posts the ante 175
+AllIinbaby: posts the ante 175
+gejzir81: posts the ante 175
+GRSTre: posts small blind 700
+Gravedigger14: posts big blind 1400
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 6d]
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: folds
+gejzir81: raises 4100 to 4100
+Notarized: folds
+GRSTre: folds
+Gravedigger14: raises 11523 to 12923 and is all-in
+gejzir81: calls 8823
+*** FLOP *** [7c Ks Ts]
+*** TURN *** [7c Ks Ts] [Ad]
+*** RIVER *** [7c Ks Ts Ad] [Qh]
+*** SHOW DOWN ***
+Gravedigger14: shows [Qd 8d] (a pair of Queens)
+gejzir81: shows [5d As] (a pair of Aces)
+gejzir81 collected 27771 from pot
+*** SUMMARY ***
+Total pot 27771 | Rake 0 
+Board [7c Ks Ts Ad Qh]
+Seat 1: Notarized (button) folded before Flop 
+Seat 2: GRSTre (small blind) folded before Flop 
+Seat 3: Gravedigger14 (big blind) showed [Qd 8d] and lost with a pair of Queens
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 showed [5d As] and won (27771) with a pair of Aces
+
+
+Weplay Hand #75304352: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XV (50/100) - 2026/02/10 17:18:55 UTC
+Table '11275291 1'(11621901) 7-max Seat #2 is the button
+Seat 1: Notarized (22522 in chips)
+Seat 2: GRSTre (24195 in chips)
+Seat 4: spirditsfa (20269 in chips)
+Seat 5: kole1992 (28762 in chips)
+Seat 6: AllIinbaby (13303 in chips)
+Seat 7: gejzir81 (28345 in chips)
+Notarized: posts the ante 175
+GRSTre: posts the ante 175
+spirditsfa: posts the ante 175
+kole1992: posts the ante 175
+AllIinbaby: posts the ante 175
+gejzir81: posts the ante 175
+spirditsfa: posts big blind 1400
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts Jd]
+kole1992: folds
+AllIinbaby: raises 13128 to 13128 and is all-in
+gejzir81: folds
+Notarized: folds
+GRSTre: folds
+spirditsfa: calls 11728
+*** FLOP *** [Qs Tc 2c]
+*** TURN *** [Qs Tc 2c] [9h]
+*** RIVER *** [Qs Tc 2c 9h] [3c]
+*** SHOW DOWN ***
+spirditsfa: shows [Ah Td] (a pair of Tens)
+AllIinbaby: shows [Qd As] (a pair of Queens)
+AllIinbaby collected 27306 from pot
+*** SUMMARY ***
+Total pot 27306 | Rake 0 
+Board [Qs Tc 2c 9h 3c]
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre (button) folded before Flop 
+Seat 4: spirditsfa (big blind) showed [Ah Td] and lost with a pair of Tens
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby showed [Qd As] and won (27306) with a pair of Queens
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75304423: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XV (50/100) - 2026/02/10 17:19:53 UTC
+Table '11275291 1'(11621901) 7-max Seat #3 is the button
+Seat 1: Notarized (22347 in chips)
+Seat 2: GRSTre (24020 in chips)
+Seat 4: spirditsfa (6966 in chips)
+Seat 5: kole1992 (28587 in chips)
+Seat 6: AllIinbaby (27306 in chips)
+Seat 7: gejzir81 (28170 in chips)
+Notarized: posts the ante 175
+GRSTre: posts the ante 175
+spirditsfa: posts the ante 175
+kole1992: posts the ante 175
+AllIinbaby: posts the ante 175
+gejzir81: posts the ante 175
+spirditsfa: posts small blind 700
+kole1992: posts big blind 1400
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 4h]
+AllIinbaby: folds
+gejzir81: raises 3300 to 3300
+Notarized: folds
+GRSTre: folds
+spirditsfa: folds
+kole1992: folds
+Uncalled bet (1900) returned to gejzir81
+*** SHOW DOWN ***
+gejzir81 has timed out
+gejzir81: doesn't show hand
+gejzir81 collected 4550 from pot
+*** SUMMARY ***
+Total pot 4550 | Rake 0 
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 4: spirditsfa (small blind) folded before Flop 
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 collected (4550)
+
+
+Weplay Hand #75304452: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XV (50/100) - 2026/02/10 17:20:21 UTC
+Table '11275291 1'(11621901) 7-max Seat #4 is the button
+Seat 1: Notarized (22172 in chips)
+Seat 2: GRSTre (23845 in chips)
+Seat 4: spirditsfa (6091 in chips)
+Seat 5: kole1992 (27012 in chips)
+Seat 6: AllIinbaby (27131 in chips)
+Seat 7: gejzir81 (31145 in chips)
+Notarized: posts the ante 175
+GRSTre: posts the ante 175
+spirditsfa: posts the ante 175
+kole1992: posts the ante 175
+AllIinbaby: posts the ante 175
+gejzir81: posts the ante 175
+kole1992: posts small blind 700
+AllIinbaby: posts big blind 1400
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 7h]
+Nohuneko joins the table at seat #3
+gejzir81: folds
+Notarized: folds
+GRSTre: folds
+spirditsfa: raises 5916 to 5916 and is all-in
+kole1992: folds
+AllIinbaby: calls 4516
+*** FLOP *** [7s 2h Kd]
+*** TURN *** [7s 2h Kd] [6h]
+*** RIVER *** [7s 2h Kd 6h] [3c]
+*** SHOW DOWN ***
+AllIinbaby: shows [Qd Jd] (high card King)
+spirditsfa: shows [2s Ad] (a pair of Deuces)
+spirditsfa collected 13582 from pot
+*** SUMMARY ***
+Total pot 13582 | Rake 0 
+Board [7s 2h Kd 6h 3c]
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 4: spirditsfa (button) showed [2s Ad] and won (13582) with a pair of Deuces
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: AllIinbaby (big blind) showed [Qd Jd] and lost with high card King
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75304512: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XV (50/100) - 2026/02/10 17:21:12 UTC
+Table '11275291 1'(11621901) 7-max Seat #5 is the button
+Seat 1: Notarized (21997 in chips)
+Seat 2: GRSTre (23670 in chips)
+Seat 3: Nohuneko (39705 in chips)
+Seat 4: spirditsfa (13582 in chips)
+Seat 5: kole1992 (26137 in chips)
+Seat 6: AllIinbaby (21040 in chips)
+Seat 7: gejzir81 (30970 in chips)
+Notarized: posts the ante 175
+GRSTre: posts the ante 175
+Nohuneko: posts the ante 175
+spirditsfa: posts the ante 175
+kole1992: posts the ante 175
+AllIinbaby: posts the ante 175
+gejzir81: posts the ante 175
+AllIinbaby: posts small blind 700
+gejzir81: posts big blind 1400
+*** HOLE CARDS ***
+Dealt to kole1992 [7s Jh]
+Notarized: folds
+GRSTre: folds
+Nohuneko: folds
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: raises 20165 to 20865 and is all-in
+gejzir81: folds
+Uncalled bet (19465) returned to AllIinbaby
+*** SHOW DOWN ***
+AllIinbaby: doesn't show hand
+AllIinbaby collected 4025 from pot
+*** SUMMARY ***
+Total pot 4025 | Rake 0 
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Nohuneko folded before Flop 
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 (button) folded before Flop 
+Seat 6: AllIinbaby (small blind) collected (4025)
+Seat 7: gejzir81 (big blind) folded before Flop 
+
+
+Weplay Hand #75304583: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XV (50/100) - 2026/02/10 17:22:08 UTC
+Table '11275291 1'(11621901) 7-max Seat #6 is the button
+Seat 1: Notarized (21822 in chips)
+Seat 2: GRSTre (23495 in chips)
+Seat 3: Nohuneko (39530 in chips)
+Seat 4: spirditsfa (13407 in chips)
+Seat 5: kole1992 (25962 in chips)
+Seat 6: AllIinbaby (23490 in chips)
+Seat 7: gejzir81 (29395 in chips)
+Notarized: posts the ante 175
+GRSTre: posts the ante 175
+Nohuneko: posts the ante 175
+spirditsfa: posts the ante 175
+kole1992: posts the ante 175
+AllIinbaby: posts the ante 175
+gejzir81: posts the ante 175
+gejzir81: posts small blind 700
+Notarized: posts big blind 1400
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 5c]
+GRSTre: folds
+Nohuneko: folds
+spirditsfa: raises 13232 to 13232 and is all-in
+kole1992: folds
+AllIinbaby: folds
+gejzir81 has timed out
+gejzir81: folds
+gejzir81: sits out 
+Notarized: folds
+Uncalled bet (11832) returned to spirditsfa
+*** SHOW DOWN ***
+spirditsfa: doesn't show hand
+spirditsfa collected 4725 from pot
+*** SUMMARY ***
+Total pot 4725 | Rake 0 
+Seat 1: Notarized (big blind) folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Nohuneko folded before Flop 
+Seat 4: spirditsfa collected (4725)
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby (button) folded before Flop 
+Seat 7: gejzir81 (small blind) folded before Flop 
+
+
+Weplay Hand #75304652: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVI (50/100) - 2026/02/10 17:23:10 UTC
+Table '11275291 1'(11621901) 7-max Seat #7 is the button
+Seat 1: Notarized (20247 in chips)
+Seat 2: GRSTre (23320 in chips)
+Seat 3: Nohuneko (39355 in chips)
+Seat 4: spirditsfa (16557 in chips)
+Seat 5: kole1992 (25787 in chips)
+Seat 6: AllIinbaby (23315 in chips)
+Seat 7: gejzir81 (28520 in chips)
+Notarized: posts the ante 200
+GRSTre: posts the ante 200
+Nohuneko: posts the ante 200
+spirditsfa: posts the ante 200
+kole1992: posts the ante 200
+AllIinbaby: posts the ante 200
+gejzir81: posts the ante 200
+Notarized: posts small blind 800
+GRSTre: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 5h]
+Nohuneko: raises 3200 to 3200
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: folds
+gejzir81: folds
+Notarized: folds
+GRSTre: calls 1600
+*** FLOP *** [Kd 5c 9c]
+GRSTre: bets 1600
+Nohuneko: calls 1600
+*** TURN *** [Kd 5c 9c] [Ts]
+GRSTre: bets 3200
+Nohuneko: calls 3200
+*** RIVER *** [Kd 5c 9c Ts] [Jh]
+GRSTre: bets 1600
+Nohuneko: raises 31155 to 31155 and is all-in
+GRSTre: folds
+Uncalled bet (29555) returned to Nohuneko
+*** SHOW DOWN ***
+Nohuneko: doesn't show hand
+Nohuneko collected 21400 from pot
+*** SUMMARY ***
+Total pot 21400 | Rake 0 
+Board [Kd 5c 9c Ts Jh]
+Seat 1: Notarized (small blind) folded before Flop 
+Seat 2: GRSTre (big blind) folded on the River 
+Seat 3: Nohuneko collected (21400)
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 (button) folded before Flop 
+
+
+Weplay Hand #75304780: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVI (50/100) - 2026/02/10 17:25:07 UTC
+Table '11275291 1'(11621901) 7-max Seat #1 is the button
+Seat 1: Notarized (19247 in chips)
+Seat 2: GRSTre (13520 in chips)
+Seat 3: Nohuneko (50955 in chips)
+Seat 4: spirditsfa (16357 in chips)
+Seat 5: kole1992 (25587 in chips)
+Seat 6: AllIinbaby (23115 in chips)
+Seat 7: gejzir81 (28320 in chips)
+Notarized: posts the ante 200
+GRSTre: posts the ante 200
+Nohuneko: posts the ante 200
+spirditsfa: posts the ante 200
+kole1992: posts the ante 200
+AllIinbaby: posts the ante 200
+gejzir81: posts the ante 200
+GRSTre: posts small blind 800
+Nohuneko: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 7h]
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: folds
+gejzir81: folds
+Notarized: raises 19047 to 19047 and is all-in
+GRSTre: folds
+Nohuneko: calls 17447
+*** FLOP *** [6s 2d 4s]
+*** TURN *** [6s 2d 4s] [Ad]
+*** RIVER *** [6s 2d 4s Ad] [Qd]
+*** SHOW DOWN ***
+Nohuneko: shows [Kc 9c] (high card Ace)
+Notarized: shows [Ah 5c] (a pair of Aces)
+Notarized collected 40294 from pot
+*** SUMMARY ***
+Total pot 40294 | Rake 0 
+Board [6s 2d 4s Ad Qd]
+Seat 1: Notarized (button) showed [Ah 5c] and won (40294) with a pair of Aces
+Seat 2: GRSTre (small blind) folded before Flop 
+Seat 3: Nohuneko (big blind) showed [Kc 9c] and lost with high card Ace
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75304857: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVI (50/100) - 2026/02/10 17:26:23 UTC
+Table '11275291 1'(11621901) 7-max Seat #2 is the button
+Seat 1: Notarized (40294 in chips)
+Seat 2: GRSTre (12520 in chips)
+Seat 3: Nohuneko (31708 in chips)
+Seat 4: spirditsfa (16157 in chips)
+Seat 5: kole1992 (25387 in chips)
+Seat 6: AllIinbaby (22915 in chips)
+Seat 7: gejzir81 (28120 in chips)
+Notarized: posts the ante 200
+GRSTre: posts the ante 200
+Nohuneko: posts the ante 200
+spirditsfa: posts the ante 200
+kole1992: posts the ante 200
+AllIinbaby: posts the ante 200
+gejzir81: posts the ante 200
+Nohuneko: posts small blind 800
+spirditsfa: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 7s]
+kole1992: folds
+AllIinbaby: folds
+gejzir81 has timed out
+gejzir81: folds
+gejzir81: sits out 
+Notarized: raises 3200 to 3200
+GRSTre: folds
+Nohuneko: folds
+spirditsfa: folds
+Uncalled bet (1600) returned to Notarized
+*** SHOW DOWN ***
+Notarized: doesn't show hand
+Notarized collected 5400 from pot
+*** SUMMARY ***
+Total pot 5400 | Rake 0 
+Seat 1: Notarized collected (5400)
+Seat 2: GRSTre (button) folded before Flop 
+Seat 3: Nohuneko (small blind) folded before Flop 
+Seat 4: spirditsfa (big blind) folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75304929: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVI (50/100) - 2026/02/10 17:27:25 UTC
+Table '11275291 1'(11621901) 7-max Seat #3 is the button
+Seat 1: Notarized (43894 in chips)
+Seat 2: GRSTre (12320 in chips)
+Seat 3: Nohuneko (30708 in chips)
+Seat 4: spirditsfa (14357 in chips)
+Seat 5: kole1992 (25187 in chips)
+Seat 6: AllIinbaby (22715 in chips)
+Seat 7: gejzir81 (27920 in chips)
+Notarized: posts the ante 200
+GRSTre: posts the ante 200
+Nohuneko: posts the ante 200
+spirditsfa: posts the ante 200
+kole1992: posts the ante 200
+AllIinbaby: posts the ante 200
+gejzir81: posts the ante 200
+spirditsfa: posts small blind 800
+kole1992: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [2s 4c]
+AllIinbaby: folds
+gejzir81: folds
+Notarized: folds
+GRSTre: folds
+Nohuneko: raises 30508 to 30508 and is all-in
+spirditsfa: calls 13357 and is all-in
+kole1992: folds
+Uncalled bet (16351) returned to Nohuneko
+*** FLOP *** [6c Ac 4h]
+*** TURN *** [6c Ac 4h] [3s]
+*** RIVER *** [6c Ac 4h 3s] [Ad]
+*** SHOW DOWN ***
+spirditsfa: shows [8d As] (three of a kind, Aces)
+Nohuneko: shows [Qd Ts] (a pair of Aces)
+spirditsfa collected 31314 from pot
+*** SUMMARY ***
+Total pot 31314 | Rake 0 
+Board [6c Ac 4h 3s Ad]
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Nohuneko (button) showed [Qd Ts] and lost with a pair of Aces
+Seat 4: spirditsfa (small blind) showed [8d As] and won (31314) with three of a kind, Aces
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75304990: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVII (50/100) - 2026/02/10 17:28:28 UTC
+Table '11275291 1'(11621901) 7-max Seat #4 is the button
+Seat 1: Notarized (43694 in chips)
+Seat 2: GRSTre (12120 in chips)
+Seat 3: Nohuneko (16351 in chips)
+Seat 4: spirditsfa (31314 in chips)
+Seat 5: kole1992 (23387 in chips)
+Seat 6: AllIinbaby (22515 in chips)
+Seat 7: gejzir81 (27720 in chips)
+Notarized: posts the ante 250
+GRSTre: posts the ante 250
+Nohuneko: posts the ante 250
+spirditsfa: posts the ante 250
+kole1992: posts the ante 250
+AllIinbaby: posts the ante 250
+gejzir81: posts the ante 250
+kole1992: posts small blind 1000
+AllIinbaby: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 4s]
+gejzir81 has timed out
+gejzir81: folds
+gejzir81: sits out 
+Notarized: folds
+GRSTre: folds
+Nohuneko: raises 16101 to 16101 and is all-in
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: folds
+Uncalled bet (14101) returned to Nohuneko
+*** SHOW DOWN ***
+Nohuneko: doesn't show hand
+Nohuneko collected 6750 from pot
+*** SUMMARY ***
+Total pot 6750 | Rake 0 
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Nohuneko collected (6750)
+Seat 4: spirditsfa (button) folded before Flop 
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: AllIinbaby (big blind) folded before Flop 
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75305043: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVII (50/100) - 2026/02/10 17:29:17 UTC
+Table '11275291 1'(11621901) 7-max Seat #5 is the button
+Seat 1: Notarized (43444 in chips)
+Seat 2: GRSTre (11870 in chips)
+Seat 3: Nohuneko (20851 in chips)
+Seat 4: spirditsfa (31064 in chips)
+Seat 5: kole1992 (22137 in chips)
+Seat 6: AllIinbaby (20265 in chips)
+Seat 7: gejzir81 (27470 in chips)
+Notarized: posts the ante 250
+GRSTre: posts the ante 250
+Nohuneko: posts the ante 250
+spirditsfa: posts the ante 250
+kole1992: posts the ante 250
+AllIinbaby: posts the ante 250
+gejzir81: posts the ante 250
+AllIinbaby: posts small blind 1000
+gejzir81: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 8d]
+Notarized: raises 43194 to 43194 and is all-in
+GRSTre: folds
+Nohuneko: folds
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: folds
+gejzir81: folds
+Uncalled bet (41194) returned to Notarized
+*** SHOW DOWN ***
+Notarized: doesn't show hand
+Notarized collected 6750 from pot
+*** SUMMARY ***
+Total pot 6750 | Rake 0 
+Seat 1: Notarized collected (6750)
+Seat 2: GRSTre folded before Flop 
+Seat 3: Nohuneko folded before Flop 
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 (button) folded before Flop 
+Seat 6: AllIinbaby (small blind) folded before Flop 
+Seat 7: gejzir81 (big blind) folded before Flop 
+
+
+Weplay Hand #75305112: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVII (50/100) - 2026/02/10 17:30:16 UTC
+Table '11275291 1'(11621901) 7-max Seat #6 is the button
+Seat 1: Notarized (47944 in chips)
+Seat 2: GRSTre (11620 in chips)
+Seat 3: Nohuneko (20601 in chips)
+Seat 4: spirditsfa (30814 in chips)
+Seat 5: kole1992 (21887 in chips)
+Seat 6: AllIinbaby (19015 in chips)
+Seat 7: gejzir81 (25220 in chips)
+Notarized: posts the ante 250
+GRSTre: posts the ante 250
+Nohuneko: posts the ante 250
+spirditsfa: posts the ante 250
+kole1992: posts the ante 250
+AllIinbaby: posts the ante 250
+gejzir81: posts the ante 250
+gejzir81: posts small blind 1000
+Notarized: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 8d]
+GRSTre: raises 11370 to 11370 and is all-in
+Nohuneko: raises 20351 to 20351 and is all-in
+spirditsfa: folds
+kole1992: folds
+AllIinbaby: folds
+gejzir81: folds
+Notarized: folds
+Uncalled bet (8981) returned to Nohuneko
+*** FLOP *** [5d Kd 6d]
+*** TURN *** [5d Kd 6d] [Ts]
+*** RIVER *** [5d Kd 6d Ts] [Ks]
+*** SHOW DOWN ***
+GRSTre: shows [Ad 9d] (a flush, Ace high)
+Nohuneko: shows [Jh 2s] (a pair of Kings)
+GRSTre collected 27490 from pot
+*** SUMMARY ***
+Total pot 27490 | Rake 0 
+Board [5d Kd 6d Ts Ks]
+Seat 1: Notarized (big blind) folded before Flop 
+Seat 2: GRSTre showed [Ad 9d] and won (27490) with a flush, Ace high
+Seat 3: Nohuneko showed [Jh 2s] and lost with a pair of Kings
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 folded before Flop 
+Seat 6: AllIinbaby (button) folded before Flop 
+Seat 7: gejzir81 (small blind) folded before Flop 
+
+
+Weplay Hand #75305184: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVII (50/100) - 2026/02/10 17:31:19 UTC
+Table '11275291 1'(11621901) 7-max Seat #7 is the button
+Seat 1: Notarized (45694 in chips)
+Seat 2: GRSTre (27490 in chips)
+Seat 3: Nohuneko (8981 in chips)
+Seat 4: spirditsfa (30564 in chips)
+Seat 5: kole1992 (21637 in chips)
+Seat 6: AllIinbaby (18765 in chips)
+Seat 7: gejzir81 (23970 in chips)
+Notarized: posts the ante 250
+GRSTre: posts the ante 250
+Nohuneko: posts the ante 250
+spirditsfa: posts the ante 250
+kole1992: posts the ante 250
+AllIinbaby: posts the ante 250
+gejzir81: posts the ante 250
+Notarized: posts small blind 1000
+GRSTre: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Jd]
+Nohuneko: folds
+spirditsfa: folds
+kole1992: raises 21387 to 21387 and is all-in
+AllIinbaby: folds
+gejzir81 has timed out
+gejzir81: folds
+gejzir81: sits out 
+Notarized: folds
+GRSTre: folds
+Uncalled bet (19387) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 6750 from pot
+*** SUMMARY ***
+Total pot 6750 | Rake 0 
+Seat 1: Notarized (small blind) folded before Flop 
+Seat 2: GRSTre (big blind) folded before Flop 
+Seat 3: Nohuneko folded before Flop 
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 collected (6750)
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 (button) folded before Flop 
+
+
+Weplay Hand #75305247: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVII (50/100) - 2026/02/10 17:32:20 UTC
+Table '11275291 1'(11621901) 7-max Seat #1 is the button
+Seat 1: Notarized (44444 in chips)
+Seat 2: GRSTre (25240 in chips)
+Seat 3: Nohuneko (8731 in chips)
+Seat 4: spirditsfa (30314 in chips)
+Seat 5: kole1992 (26137 in chips)
+Seat 6: AllIinbaby (18515 in chips)
+Seat 7: gejzir81 (23720 in chips)
+Notarized: posts the ante 250
+GRSTre: posts the ante 250
+Nohuneko: posts the ante 250
+spirditsfa: posts the ante 250
+kole1992: posts the ante 250
+AllIinbaby: posts the ante 250
+gejzir81: posts the ante 250
+GRSTre: posts small blind 1000
+Nohuneko: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [As Jd]
+spirditsfa: folds
+kole1992: raises 25887 to 25887 and is all-in
+AllIinbaby: folds
+gejzir81: folds
+Notarized: folds
+GRSTre: folds
+Nohuneko: folds
+Uncalled bet (23887) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 6750 from pot
+*** SUMMARY ***
+Total pot 6750 | Rake 0 
+Seat 1: Notarized (button) folded before Flop 
+Seat 2: GRSTre (small blind) folded before Flop 
+Seat 3: Nohuneko (big blind) folded before Flop 
+Seat 4: spirditsfa folded before Flop 
+Seat 5: kole1992 collected (6750)
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75305302: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVIII (50/100) - 2026/02/10 17:33:17 UTC
+Table '11275291 1'(11621901) 7-max Seat #2 is the button
+Seat 1: Notarized (44194 in chips)
+Seat 2: GRSTre (23990 in chips)
+Seat 3: Nohuneko (6481 in chips)
+Seat 4: spirditsfa (30064 in chips)
+Seat 5: kole1992 (30637 in chips)
+Seat 6: AllIinbaby (18265 in chips)
+Seat 7: gejzir81 (23470 in chips)
+Notarized: posts the ante 375
+GRSTre: posts the ante 375
+Nohuneko: posts the ante 375
+spirditsfa: posts the ante 375
+kole1992: posts the ante 375
+AllIinbaby: posts the ante 375
+gejzir81: posts the ante 375
+Nohuneko: posts small blind 1500
+spirditsfa: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Tc]
+kole1992: raises 6000 to 6000
+AllIinbaby: folds
+gejzir81 has timed out
+gejzir81: folds
+gejzir81: sits out 
+Notarized: folds
+GRSTre: folds
+Nohuneko: folds
+spirditsfa: folds
+Uncalled bet (3000) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 10125 from pot
+*** SUMMARY ***
+Total pot 10125 | Rake 0 
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre (button) folded before Flop 
+Seat 3: Nohuneko (small blind) folded before Flop 
+Seat 4: spirditsfa (big blind) folded before Flop 
+Seat 5: kole1992 collected (10125)
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75306373: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVIII (50/100) - 2026/02/10 17:34:27 UTC
+Table '11275291 1'(11621901) 7-max Seat #3 is the button
+Seat 1: Notarized (43819 in chips)
+Seat 2: GRSTre (23615 in chips)
+Seat 3: Nohuneko (4606 in chips)
+Seat 4: spirditsfa (26689 in chips)
+Seat 5: kole1992 (37387 in chips)
+Seat 6: AllIinbaby (17890 in chips)
+Seat 7: gejzir81 (23095 in chips)
+Notarized: posts the ante 375
+GRSTre: posts the ante 375
+Nohuneko: posts the ante 375
+spirditsfa: posts the ante 375
+kole1992: posts the ante 375
+AllIinbaby: posts the ante 375
+gejzir81: posts the ante 375
+spirditsfa: posts small blind 1500
+kole1992: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [8h Kd]
+AllIinbaby: folds
+gejzir81: raises 22720 to 22720 and is all-in
+Notarized: folds
+GRSTre: folds
+Nohuneko: calls 4231 and is all-in
+spirditsfa: raises 24814 to 26314 and is all-in
+kole1992: folds
+Uncalled bet (3594) returned to spirditsfa
+*** FLOP *** [Td Ks 2d]
+*** TURN *** [Td Ks 2d] [Qh]
+*** RIVER *** [Td Ks 2d Qh] [As]
+*** SHOW DOWN ***
+spirditsfa: shows [7c 7h] (a pair of Sevens)
+gejzir81: shows [Kh Ac] (two pair, Aces and Kings)
+Nohuneko: shows [Ad 5d] (a pair of Aces)
+gejzir81 collected 36978 from side pot
+gejzir81 collected 18318 from main pot
+*** SUMMARY ***
+Total pot 55296 Main pot 18318. Side pot 36978. | Rake 0 
+Board [Td Ks 2d Qh As]
+Seat 1: Notarized folded before Flop 
+Seat 2: GRSTre folded before Flop 
+Seat 3: Nohuneko (button) showed [Ad 5d] and lost with a pair of Aces
+Seat 4: spirditsfa (small blind) showed [7c 7h] and lost with a pair of Sevens
+Seat 5: kole1992 (big blind) folded before Flop 
+Seat 6: AllIinbaby folded before Flop 
+Seat 7: gejzir81 showed [Kh Ac] and won (55296) with two pair, Aces and Kings
+
+
+Weplay Hand #75306432: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVIII (50/100) - 2026/02/10 17:35:25 UTC
+Table '11275291 1'(11621901) 7-max Seat #4 is the button
+Seat 1: Notarized (43444 in chips)
+Seat 2: GRSTre (23240 in chips)
+Seat 4: spirditsfa (3594 in chips)
+Seat 5: kole1992 (34012 in chips)
+Seat 6: AllIinbaby (17515 in chips)
+Seat 7: gejzir81 (55296 in chips)
+Notarized: posts the ante 375
+GRSTre: posts the ante 375
+spirditsfa: posts the ante 375
+kole1992: posts the ante 375
+AllIinbaby: posts the ante 375
+gejzir81: posts the ante 375
+kole1992: posts small blind 1500
+AllIinbaby: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [As Jh]
+gejzir81 has timed out
+gejzir81: folds
+gejzir81: sits out 
+Notarized: raises 6900 to 6900
+GRSTre: folds
+spirditsfa: calls 3219 and is all-in
+kole1992: calls 5400
+AllIinbaby: raises 14140 to 17140 and is all-in
+Notarized: calls 10240
+kole1992: folds
+*** FLOP *** [Ac Th 6h]
+*** TURN *** [Ac Th 6h] [Ks]
+*** RIVER *** [Ac Th 6h Ks] [8s]
+*** SHOW DOWN ***
+AllIinbaby: shows [Ad Kd] (two pair, Aces and Kings)
+Notarized: shows [9s 9c] (a pair of Nines)
+spirditsfa: shows [Ah 7h] (a pair of Aces)
+AllIinbaby collected 31523 from side pot
+AllIinbaby collected 15126 from main pot
+*** SUMMARY ***
+Total pot 46649 Main pot 15126. Side pot 31523. | Rake 0 
+Board [Ac Th 6h Ks 8s]
+Seat 1: Notarized showed [9s 9c] and lost with a pair of Nines
+Seat 2: GRSTre folded before Flop 
+Seat 4: spirditsfa (button) showed [Ah 7h] and lost with a pair of Aces
+Seat 5: kole1992 (small blind) folded before Flop 
+Seat 6: AllIinbaby (big blind) showed [Ad Kd] and won (46649) with two pair, Aces and Kings
+Seat 7: gejzir81 folded before Flop 
+
+
+Weplay Hand #75306608: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVIII (120/240) - 2026/02/10 17:39:06 UTC
+Table '11275291 12'(11621935) 7-max Seat #4 is the button
+Seat 1: Dogboved (137115 in chips)
+Seat 2: kole1992 (56737 in chips)
+Seat 3: Daniglaz (104076 in chips)
+Seat 4: ShuffleUpN (102190 in chips)
+Seat 5: FfFuscoCesaa (79325 in chips)
+Seat 6: RajGotNutz (53876 in chips)
+Seat 7: Rajmaguster (74535 in chips)
+Dogboved: posts the ante 375
+kole1992: posts the ante 375
+Daniglaz: posts the ante 375
+ShuffleUpN: posts the ante 375
+FfFuscoCesaa: posts the ante 375
+RajGotNutz: posts the ante 375
+Rajmaguster: posts the ante 375
+FfFuscoCesaa: posts small blind 1500
+RajGotNutz: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 2c]
+Rajmaguster: folds
+Dogboved: folds
+kole1992: folds
+Daniglaz: folds
+ShuffleUpN: folds
+FfFuscoCesaa: raises 77450 to 78950 and is all-in
+RajGotNutz: calls 50501 and is all-in
+Uncalled bet (25449) returned to FfFuscoCesaa
+*** FLOP *** [4c 6h 7h]
+*** TURN *** [4c 6h 7h] [5c]
+*** RIVER *** [4c 6h 7h 5c] [Ac]
+*** SHOW DOWN ***
+FfFuscoCesaa: shows [7d Qd] (a pair of Sevens)
+RajGotNutz: shows [9h Qc] (high card Ace)
+FfFuscoCesaa collected 109627 from pot
+*** SUMMARY ***
+Total pot 109627 | Rake 0 
+Board [4c 6h 7h 5c Ac]
+Seat 1: Dogboved folded before Flop 
+Seat 2: kole1992 folded before Flop 
+Seat 3: Daniglaz folded before Flop 
+Seat 4: ShuffleUpN (button) folded before Flop 
+Seat 5: FfFuscoCesaa (small blind) showed [7d Qd] and won (109627) with a pair of Sevens
+Seat 6: RajGotNutz (big blind) showed [9h Qc] and lost with high card Ace
+Seat 7: Rajmaguster folded before Flop 
+
+
+Weplay Hand #75306661: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XVIII (120/240) - 2026/02/10 17:39:58 UTC
+Table '11275291 12'(11621935) 7-max Seat #5 is the button
+Seat 1: Dogboved (136740 in chips)
+Seat 2: kole1992 (56362 in chips)
+Seat 3: Daniglaz (103701 in chips)
+Seat 4: ShuffleUpN (101815 in chips)
+Seat 5: FfFuscoCesaa (135076 in chips)
+Seat 7: Rajmaguster (74160 in chips)
+Dogboved: posts the ante 375
+kole1992: posts the ante 375
+Daniglaz: posts the ante 375
+ShuffleUpN: posts the ante 375
+FfFuscoCesaa: posts the ante 375
+Rajmaguster: posts the ante 375
+Rajmaguster: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 2c]
+Dogboved: folds
+kole1992: folds
+Daniglaz: raises 6900 to 6900
+ShuffleUpN: folds
+FfFuscoCesaa: folds
+Rajmaguster: folds
+Uncalled bet (3900) returned to Daniglaz
+*** SHOW DOWN ***
+Daniglaz: doesn't show hand
+Daniglaz collected 8250 from pot
+*** SUMMARY ***
+Total pot 8250 | Rake 0 
+Seat 1: Dogboved folded before Flop 
+Seat 2: kole1992 folded before Flop 
+Seat 3: Daniglaz collected (8250)
+Seat 4: ShuffleUpN folded before Flop 
+Seat 5: FfFuscoCesaa (button) folded before Flop 
+Seat 7: Rajmaguster (big blind) folded before Flop 
+
+
+Weplay Hand #75306694: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIX (120/240) - 2026/02/10 17:40:28 UTC
+Table '11275291 12'(11621935) 7-max Seat #6 is the button
+Seat 1: Dogboved (136365 in chips)
+Seat 2: kole1992 (55987 in chips)
+Seat 3: Daniglaz (108576 in chips)
+Seat 4: ShuffleUpN (101440 in chips)
+Seat 5: FfFuscoCesaa (134701 in chips)
+Seat 7: Rajmaguster (70785 in chips)
+Dogboved: posts the ante 500
+kole1992: posts the ante 500
+Daniglaz: posts the ante 500
+ShuffleUpN: posts the ante 500
+FfFuscoCesaa: posts the ante 500
+Rajmaguster: posts the ante 500
+Rajmaguster: posts small blind 2000
+Dogboved: posts big blind 4000
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 8c]
+kole1992: folds
+Daniglaz: folds
+ShuffleUpN: raises 8000 to 8000
+FfFuscoCesaa: folds
+5050Clown joins the table at seat #6
+Rajmaguster: folds
+Dogboved: folds
+Uncalled bet (4000) returned to ShuffleUpN
+*** SHOW DOWN ***
+ShuffleUpN: doesn't show hand
+ShuffleUpN collected 13000 from pot
+*** SUMMARY ***
+Total pot 13000 | Rake 0 
+Seat 1: Dogboved (big blind) folded before Flop 
+Seat 2: kole1992 folded before Flop 
+Seat 3: Daniglaz folded before Flop 
+Seat 4: ShuffleUpN collected (13000)
+Seat 5: FfFuscoCesaa folded before Flop 
+Seat 7: Rajmaguster (small blind) folded before Flop 
+
+
+Weplay Hand #75306723: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIX (120/240) - 2026/02/10 17:41:06 UTC
+Table '11275291 11'(11621935) 7-max Seat #7 is the button
+Seat 1: Dogboved (131865 in chips)
+Seat 2: kole1992 (55487 in chips)
+Seat 3: Daniglaz (108076 in chips)
+Seat 4: ShuffleUpN (109940 in chips)
+Seat 5: FfFuscoCesaa (134201 in chips)
+Seat 6: 5050Clown (108624 in chips)
+Seat 7: Rajmaguster (68285 in chips)
+Dogboved: posts the ante 500
+kole1992: posts the ante 500
+Daniglaz: posts the ante 500
+ShuffleUpN: posts the ante 500
+FfFuscoCesaa: posts the ante 500
+5050Clown: posts the ante 500
+Rajmaguster: posts the ante 500
+Dogboved: posts small blind 2000
+kole1992: posts big blind 4000
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd 7s]
+Daniglaz: folds
+ShuffleUpN: folds
+FfFuscoCesaa: raises 9000 to 9000
+5050Clown: folds
+Rajmaguster: folds
+Dogboved: folds
+kole1992: folds
+Uncalled bet (5000) returned to FfFuscoCesaa
+*** SHOW DOWN ***
+FfFuscoCesaa: doesn't show hand
+FfFuscoCesaa collected 13500 from pot
+*** SUMMARY ***
+Total pot 13500 | Rake 0 
+Seat 1: Dogboved (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: Daniglaz folded before Flop 
+Seat 4: ShuffleUpN folded before Flop 
+Seat 5: FfFuscoCesaa collected (13500)
+Seat 6: 5050Clown folded before Flop 
+Seat 7: Rajmaguster (button) folded before Flop 
+
+
+Weplay Hand #75306743: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIX (120/240) - 2026/02/10 17:41:23 UTC
+Table '11275291 11'(11621935) 7-max Seat #1 is the button
+Seat 1: Dogboved (129365 in chips)
+Seat 2: kole1992 (50987 in chips)
+Seat 3: Daniglaz (107576 in chips)
+Seat 4: ShuffleUpN (109440 in chips)
+Seat 5: FfFuscoCesaa (143201 in chips)
+Seat 6: 5050Clown (108124 in chips)
+Seat 7: Rajmaguster (67785 in chips)
+Dogboved: posts the ante 500
+kole1992: posts the ante 500
+Daniglaz: posts the ante 500
+ShuffleUpN: posts the ante 500
+FfFuscoCesaa: posts the ante 500
+5050Clown: posts the ante 500
+Rajmaguster: posts the ante 500
+kole1992: posts small blind 2000
+Daniglaz: posts big blind 4000
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 3d]
+ShuffleUpN: folds
+FfFuscoCesaa: calls 4000
+5050Clown: folds
+Rajmaguster: folds
+Dogboved: calls 4000
+kole1992: folds
+Daniglaz: checks
+*** FLOP *** [5s 2s Ac]
+Daniglaz: checks
+FfFuscoCesaa: checks
+Dogboved: checks
+*** TURN *** [5s 2s Ac] [Jd]
+Daniglaz: checks
+FfFuscoCesaa: checks
+Dogboved: checks
+*** RIVER *** [5s 2s Ac Jd] [Tc]
+Daniglaz: checks
+FfFuscoCesaa: checks
+Dogboved: bets 7000
+Daniglaz: folds
+FfFuscoCesaa: calls 7000
+*** SHOW DOWN ***
+Dogboved: shows [Th 9h] (a pair of Tens)
+FfFuscoCesaa: shows [9s Td] (a pair of Tens)
+Dogboved collected 15750 from pot
+FfFuscoCesaa collected 15750 from pot
+*** SUMMARY ***
+Total pot 31500 | Rake 0 
+Board [5s 2s Ac Jd Tc]
+Seat 1: Dogboved (button) showed [Th 9h] and won (15750) with a pair of Tens
+Seat 2: kole1992 (small blind) folded before Flop 
+Seat 3: Daniglaz (big blind) folded on the River 
+Seat 4: ShuffleUpN folded before Flop 
+Seat 5: FfFuscoCesaa showed [9s Td] and won (15750) with a pair of Tens
+Seat 6: 5050Clown folded before Flop 
+Seat 7: Rajmaguster folded before Flop 
+
+
+Weplay Hand #75306841: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIX (120/240) - 2026/02/10 17:43:09 UTC
+Table '11275291 10'(11621935) 7-max Seat #2 is the button
+Seat 1: Dogboved (133615 in chips)
+Seat 2: kole1992 (48487 in chips)
+Seat 3: Daniglaz (103076 in chips)
+Seat 4: ShuffleUpN (108940 in chips)
+Seat 5: FfFuscoCesaa (147451 in chips)
+Seat 6: 5050Clown (107624 in chips)
+Seat 7: Rajmaguster (67285 in chips)
+Dogboved: posts the ante 500
+kole1992: posts the ante 500
+Daniglaz: posts the ante 500
+ShuffleUpN: posts the ante 500
+FfFuscoCesaa: posts the ante 500
+5050Clown: posts the ante 500
+Rajmaguster: posts the ante 500
+Daniglaz: posts small blind 2000
+ShuffleUpN: posts big blind 4000
+*** HOLE CARDS ***
+Dealt to kole1992 [4c Qs]
+FfFuscoCesaa: folds
+5050Clown: folds
+Rajmaguster: folds
+Dogboved: folds
+kole1992: folds
+Daniglaz: raises 9000 to 11000
+ShuffleUpN: calls 7000
+*** FLOP *** [9s Qc 9h]
+Daniglaz: checks
+ShuffleUpN: checks
+*** TURN *** [9s Qc 9h] [Kc]
+Daniglaz: bets 10000
+ShuffleUpN: calls 10000
+*** RIVER *** [9s Qc 9h Kc] [5h]
+Daniglaz: checks
+ShuffleUpN: checks
+*** SHOW DOWN ***
+Daniglaz: shows [7s 7h] (two pair, Nines and Sevens)
+ShuffleUpN: shows [8h 8s] (two pair, Nines and Eights)
+ShuffleUpN collected 45500 from pot
+*** SUMMARY ***
+Total pot 45500 | Rake 0 
+Board [9s Qc 9h Kc 5h]
+Seat 1: Dogboved folded before Flop 
+Seat 2: kole1992 (button) folded before Flop 
+Seat 3: Daniglaz (small blind) showed [7s 7h] and lost with two pair, Nines and Sevens
+Seat 4: ShuffleUpN (big blind) showed [8h 8s] and won (45500) with two pair, Nines and Eights
+Seat 5: FfFuscoCesaa folded before Flop 
+Seat 6: 5050Clown folded before Flop 
+Seat 7: Rajmaguster folded before Flop 
+
+
+Weplay Hand #75306893: Tournament (ILWP series - Chocolate Box Deepstack)#11275291, $15+$1.50 Hold'em No Limit - Level XIX (120/240) - 2026/02/10 17:44:16 UTC
+Table '11275291 10'(11621935) 7-max Seat #3 is the button
+Seat 1: Dogboved (133115 in chips)
+Seat 2: kole1992 (47987 in chips)
+Seat 3: Daniglaz (81576 in chips)
+Seat 4: ShuffleUpN (132940 in chips)
+Seat 5: FfFuscoCesaa (146951 in chips)
+Seat 6: 5050Clown (107124 in chips)
+Seat 7: Rajmaguster (66785 in chips)
+Dogboved: posts the ante 500
+kole1992: posts the ante 500
+Daniglaz: posts the ante 500
+ShuffleUpN: posts the ante 500
+FfFuscoCesaa: posts the ante 500
+5050Clown: posts the ante 500
+Rajmaguster: posts the ante 500
+ShuffleUpN: posts small blind 2000
+FfFuscoCesaa: posts big blind 4000
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Th]
+5050Clown: folds
+Rajmaguster: folds
+Dogboved: folds
+kole1992: raises 47487 to 47487 and is all-in
+Daniglaz: folds
+ShuffleUpN: calls 45487
+FfFuscoCesaa: folds
+*** FLOP *** [Ac Jd 6d]
+*** TURN *** [Ac Jd 6d] [Ks]
+*** RIVER *** [Ac Jd 6d Ks] [2s]
+*** SHOW DOWN ***
+ShuffleUpN: shows [6s 6h] (three of a kind, Sixes)
+kole1992: shows [Ah Th] (a pair of Aces)
+ShuffleUpN collected 102474 from pot
+*** SUMMARY ***
+Total pot 102474 | Rake 0 
+Board [Ac Jd 6d Ks 2s]
+Seat 1: Dogboved folded before Flop 
+Seat 2: kole1992 showed [Ah Th] and lost with a pair of Aces
+Seat 3: Daniglaz (button) folded before Flop 
+Seat 4: ShuffleUpN (small blind) showed [6s 6h] and won (102474) with three of a kind, Sixes
+Seat 5: FfFuscoCesaa (big blind) folded before Flop 
+Seat 6: 5050Clown folded before Flop 
+Seat 7: Rajmaguster folded before Flop 
