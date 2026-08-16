@@ -1,0 +1,27 @@
+Weplay Hand #79415709:  Hold'em No Limit ($1/$2) - 2026/03/29 19:22:00 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 1: petike21 ($200 in chips)
+Seat 2: Dingiii ($140.92 in chips)
+Seat 3: Szekimo ($128.46 in chips)
+Seat 5: Pokahontas ($280.08 in chips)
+Seat 6: kole1992 ($210.52 in chips)
+kole1992: posts small blind $1
+petike21: posts big blind $2
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 3h]
+Dingiii: folds
+Szekimo: folds
+Pokahontas: folds
+kole1992: folds
+Uncalled bet ($1) returned to petike21
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 3h]
+*** RIVER *** [Jd 2c 8s 9h] [Jc]
+petike21: doesn't show hand
+petike21 collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Board [Jd 2c 8s 9h Jc]
+Seat 1: petike21 (big blind) collected ($2)
+Seat 6: kole1992 (small blind) folded before Flop 

@@ -1,0 +1,24 @@
+Weplay Hand #90000004:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 14:41:05 UTC
+Table 'Liverpool Bomb Pot (3BB-5BB) #1'(11403800) 8-max (Money 3) Seat #8 is the button
+Seat 4: Allinfans72 ($103.32 in chips)
+Seat 6: ryzenn ($50.81 in chips)
+Seat 8: kole1992 ($51.84 in chips)
+Allinfans72: posts the ante $1.81
+ryzenn: posts the ante $1.81
+kole1992: posts the ante $1.81
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9d]
+*** FLOP *** [Kc Kd 7h]
+Allinfans72: bets $3
+ryzenn: folds
+kole1992: folds
+Uncalled bet ($3) returned to Allinfans72
+*** SHOW DOWN ***
+Allinfans72: doesn't show hand
+Allinfans72 collected $5.43 from pot
+*** SUMMARY ***
+Total pot $5.43 | Rake $0.13 
+Board [Kc Kd 7h]
+Seat 4: Allinfans72 collected ($5.43)
+Seat 6: ryzenn folded on the Flop 
+Seat 8: kole1992 (button) folded on the Flop 

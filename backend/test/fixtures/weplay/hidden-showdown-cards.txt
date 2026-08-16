@@ -1,0 +1,35 @@
+Weplay Hand #90000005:  Hold'em No Limit ($0.25/$0.50) - 2026/02/10 18:00:00 UTC
+Table 'Manchester #2'(11459801) 8-max (Money 3) Seat #2 is the button
+Seat 1: slagalica ($50 in chips)
+Seat 2: Tone91 ($100 in chips)
+Seat 3: kole1992 ($50 in chips)
+Seat 4: Liam ($50 in chips)
+Seat 5: KratkiLucky ($50 in chips)
+kole1992: posts small blind $0.25
+Liam: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 4s]
+KratkiLucky: raises $1.25 to $1.25
+slagalica: calls $1.25
+Tone91: raises $5.75 to $5.75
+kole1992: folds
+Liam: folds
+KratkiLucky: folds
+slagalica: calls $4.50
+*** FLOP *** [4c 9d Ad]
+slagalica: checks
+Tone91: bets $6
+slagalica: folds
+Uncalled bet ($6) returned to Tone91
+*** SHOW DOWN ***
+KratkiLucky: shows [## Qs] (high card Ace)
+Tone91: doesn't show hand
+Tone91 collected $13.50 from pot
+*** SUMMARY ***
+Total pot $13.50 | Rake $0.67 
+Board [4c 9d Ad]
+Seat 1: slagalica folded on the Flop 
+Seat 2: Tone91 (button) collected ($13.50)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: Liam (big blind) folded before Flop 
+Seat 5: KratkiLucky folded before Flop 

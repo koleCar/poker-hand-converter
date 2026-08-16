@@ -1,0 +1,38 @@
+Weplay Hand #83820277:  Hold'em No Limit ($0.50/$1) - 2026/06/03 22:18:50 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 2: LukasFlopovski ($158.34 in chips)
+Seat 3: petit_blaireau ($142.59 in chips)
+Seat 4: kole1992 ($165.65 in chips)
+Seat 6: Phyllis ($105.73 in chips)
+LukasFlopovski: posts the ante $0.16
+petit_blaireau: posts the ante $0.16
+kole1992: posts the ante $0.16
+Phyllis: posts the ante $0.16
+petit_blaireau: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c Js]
+Phyllis: folds
+LukasFlopovski: folds
+petit_blaireau: raises $3 to $3.50
+kole1992: calls $2.50
+*** FLOP *** [Jc Td 4h]
+petit_blaireau: checks
+kole1992: checks
+*** TURN *** [Jc Td 4h] [Ad]
+petit_blaireau: checks
+kole1992: checks
+*** RIVER *** [Jc Td 4h Ad] [Ks]
+petit_blaireau: checks
+kole1992: checks
+*** SHOW DOWN ***
+petit_blaireau: shows [Jd Tc] (two pair, Jacks and Tens)
+kole1992: mucks hand
+petit_blaireau collected $7.64 from pot
+*** SUMMARY ***
+Total pot $7.64 | Rake $0.38 
+Board [Jc Td 4h Ad Ks]
+Seat 2: LukasFlopovski (button) folded before Flop showed [## 6d] and lost with high card Ace
+Seat 3: petit_blaireau (small blind) showed [Jd Tc] and won ($7.64) with two pair, Jacks and Tens
+Seat 4: kole1992 (big blind) mucked
+Seat 6: Phyllis folded before Flop 

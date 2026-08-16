@@ -1,0 +1,27 @@
+Weplay Hand #90000101:  Hold'em No Limit ($0.50/$1) - 2026/07/24 13:36:43 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #2 is the button
+Seat 1: Buboka73 ($13.70 in chips)
+Seat 2: LiLStay ($22.43 in chips)
+Seat 3: kole1992 ($7.90 in chips)
+Seat 4: gospodjetina ($9.82 in chips)
+kole1992: posts small blind $0.50
+gospodjetina: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [As Qd]
+Buboka73: folds
+LiLStay: raises $21.43 to $22.43 and is all-in
+kole1992: raises $7.40 to $7.90 and is all-in
+gospodjetina: folds
+Uncalled bet ($14.53) returned to LiLStay
+*** FLOP *** [5d Jc Ad]
+*** TURN *** [5d Jc Ad] [Ks]
+*** RIVER *** [5d Jc Ad Ks] [3d]
+*** SHOW DOWN ***
+kole1992: shows [As Qd] (a pair of Aces)
+LiLStay: shows [8d Kh] (a pair of Kings)
+kole1992 collected $16.80 from pot
+*** SUMMARY ***
+Total pot $16.80 | Rake $0.84 
+Board [5d Jc Ad Ks 3d]
+Seat 2: LiLStay showed [8d Kh] and lost
+Seat 3: kole1992 (small blind) showed [As Qd] and won ($16.80)

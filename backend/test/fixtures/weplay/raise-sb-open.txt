@@ -1,0 +1,21 @@
+Weplay Hand #90000001:  Hold'em No Limit ($0.50/$1) - 2026/02/21 14:21:45 UTC
+Table 'Novi Sad #2'(11373804) 8-max (Money 3) Seat #5 is the button
+Seat 2: Orphelins17 ($178.73 in chips)
+Seat 5: kole1992 ($100 in chips)
+Seat 8: antananarivo ($98.31 in chips)
+antananarivo: posts small blind $0.50
+Orphelins17: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 9s]
+kole1992: folds
+antananarivo: raises $2.50 to $3
+Orphelins17: folds
+Uncalled bet ($2) returned to antananarivo
+*** SHOW DOWN ***
+antananarivo: doesn't show hand
+antananarivo collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 2: Orphelins17 (big blind) folded before Flop 
+Seat 5: kole1992 (button) folded before Flop (didn't bet)
+Seat 8: antananarivo (small blind) collected ($2)

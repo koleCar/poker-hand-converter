@@ -1,0 +1,23 @@
+Weplay Hand #84093626:  Hold'em No Limit ($0.25/$0.50) - 2026/06/08 10:49:57 UTC
+Table 'London #4'(11111819) 6-max (Money 3) Seat #5 is the button
+Seat 1: Robert99 ($30.19 in chips)
+Seat 2: kole1992 ($53.94 in chips)
+Seat 3: hezonjaa ($109.97 in chips)
+Seat 6: Nino11 ($0.21 in chips)
+Robert99: posts the ante $0.08
+kole1992: posts the ante $0.08
+hezonjaa: posts the ante $0.08
+Nino11: posts the ante $0.08
+Nino11: posts small blind $0.13 and is all-in
+Robert99: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Ts 3s]
+kole1992: folds
+hezonjaa: folds
+Robert99: folds
+*** SHOW DOWN ***
+Nino11: doesn't show hand
+Nino11 collected $0.29 from pot
+*** SUMMARY ***
+Total pot $0.29 | Rake $0 
+Seat 6: Nino11 (small blind) collected ($0.29)

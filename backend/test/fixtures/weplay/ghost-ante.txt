@@ -1,0 +1,32 @@
+Weplay Hand #86361758:  Hold'em No Limit ($0.50/$1) - 2026/07/12 20:39:54 UTC
+Table 'Belgrade #1'(11618800) 6-max (Money 3) Seat #1 is the button
+Seat 1: vladimirche1 ($98.68 in chips)
+Seat 2: luigi86 ($88.67 in chips)
+Seat 5: Olaf193 ($64.89 in chips)
+Seat 6: kole1992 ($118.93 in chips)
+vladimirche1: posts the ante $0.16
+luigi86: posts the ante $0.16
+Georg14: posts the ante $0.16
+Olaf193: posts the ante $0.16
+kole1992: posts the ante $0.16
+luigi86: posts small blind $0.50
+Olaf193: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 8c]
+kole1992: folds
+vladimirche1: raises $2 to $3
+luigi86: calls $2.50
+Olaf193: calls $2
+*** FLOP *** [5s 2c 6d]
+luigi86: checks
+Olaf193: checks
+vladimirche1: bets $7.35
+luigi86: folds
+Olaf193: folds
+Uncalled bet ($7.35) returned to vladimirche1
+*** SHOW DOWN ***
+vladimirche1: doesn't show hand
+vladimirche1 collected $9.80 from pot
+*** SUMMARY ***
+Total pot $9.80 | Rake $0.49 
+Seat 1: vladimirche1 (button) collected ($9.80)

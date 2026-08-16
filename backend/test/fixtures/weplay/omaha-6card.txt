@@ -1,0 +1,21 @@
+Weplay Hand #77357129:  Omaha 6 Cards Pot Limit ($0.50/$1) - 2026/03/05 10:23:26 UTC
+Table 'Westfalenstadion I #1'(11333800) 6-max (Money 3) Seat #3 is the button
+Seat 1: HumpetyD ($82.90 in chips)
+Seat 2: kole1992 ($80 in chips)
+Seat 3: guerillAA13 ($260.41 in chips)
+HumpetyD: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8s Ah 8d 7c 2c Qd]
+guerillAA13: raises $3.50 to $3.50
+HumpetyD: folds
+kole1992: folds
+Uncalled bet ($2.50) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: HumpetyD (small blind) folded before Flop 
+Seat 2: kole1992 (big blind) folded before Flop 
+Seat 3: guerillAA13 (button) collected ($2.50)

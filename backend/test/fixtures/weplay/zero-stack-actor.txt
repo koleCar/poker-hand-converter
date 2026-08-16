@@ -1,0 +1,27 @@
+Weplay Hand #81478707:  Hold'em No Limit ($0.25/$0.50) - 2026/04/29 13:42:01 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #8 is the button
+Seat 2: Belide ($61.74 in chips)
+Seat 4: avgreg ($92.63 in chips)
+Seat 5: Raicevic ($0 in chips)
+Seat 6: travissssss ($102.84 in chips)
+Seat 8: kole1992 ($121.02 in chips)
+Belide: posts small blind $0.25
+avgreg: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 2d]
+Raicevic: calls $0.50
+travissssss: folds
+kole1992: folds
+Belide: folds
+avgreg: checks
+*** FLOP *** [Td 2h Ah]
+avgreg: checks
+Raicevic: bets $2
+avgreg: folds
+Uncalled bet ($2) returned to Raicevic
+*** SHOW DOWN ***
+Raicevic: doesn't show hand
+Raicevic collected $1.25 from pot
+*** SUMMARY ***
+Total pot $1.25 | Rake $0 
+Seat 5: Raicevic collected ($1.25)

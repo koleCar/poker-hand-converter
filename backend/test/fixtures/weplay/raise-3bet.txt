@@ -1,0 +1,34 @@
+Weplay Hand #90000003:  Hold'em No Limit ($0.50/$1) - 2026/02/02 20:18:40 UTC
+Table 'Novi Sad #1'(11375800) 8-max (Money 3) Seat #7 is the button
+Seat 1: 490700_7267 ($25.80 in chips)
+Seat 2: mekkmester ($118.84 in chips)
+Seat 4: markanen0 ($68.10 in chips)
+Seat 5: tinkieri ($212.90 in chips)
+Seat 6: Tone91 ($100 in chips)
+Seat 7: antananarivo ($230.30 in chips)
+Seat 8: kole1992 ($95.70 in chips)
+antananarivo: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd Jh]
+490700_7267: folds
+mekkmester: folds
+markanen0: folds
+tinkieri: folds
+Tone91: raises $2.50 to $2.50
+antananarivo: folds
+kole1992: raises $11.01 to $12.01
+Tone91: folds
+Uncalled bet ($9.51) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $5.50 from pot
+*** SUMMARY ***
+Total pot $5.50 | Rake $0 
+Seat 1: 490700_7267 folded before Flop (didn't bet)
+Seat 2: mekkmester folded before Flop (didn't bet)
+Seat 4: markanen0 folded before Flop (didn't bet)
+Seat 5: tinkieri folded before Flop (didn't bet)
+Seat 6: Tone91 folded before Flop 
+Seat 7: antananarivo (small blind) folded before Flop 
+Seat 8: kole1992 (big blind) collected ($5.50)

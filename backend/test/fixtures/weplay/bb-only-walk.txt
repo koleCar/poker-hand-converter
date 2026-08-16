@@ -1,0 +1,20 @@
+Weplay Hand #71496614:  Hold'em No Limit ($0.25/$0.50) - 2026/01/03 22:39:55 UTC
+Table 'Manchester #3'(11461801) 8-max (Money 3) Seat #4 is the button
+Seat 1: simke1133 ($17.18 in chips)
+Seat 2: kole1992 ($64.67 in chips)
+Seat 3: cosmicmind ($62.95 in chips)
+Seat 4: blazzze ($69.60 in chips)
+Seat 8: JTs98o ($59.04 in chips)
+JTs98o: posts big blind $0.50
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 7h]
+simke1133: folds
+kole1992: folds
+cosmicmind: folds
+blazzze: folds
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $0.50 from pot
+*** SUMMARY ***
+Total pot $0.50 | Rake $0 
+Seat 8: JTs98o (big blind) collected ($0.50)
