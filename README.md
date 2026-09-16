@@ -38,7 +38,35 @@ npm test
 
 Fixture-based testovi su u `backend/test/fixtures` i koriste iste parser transformacije koje primjenjuje ingest logika.
 
-## Supabase frontend hosting (Storage)
+## Produkcija (Vercel)
+
+Live: **https://poker-hand-converter.vercel.app**
+
+Frontend je Vite staticki build hostan na Vercelu.
+
+### Postavke projekta
+
+Vercel projekt `poker-hand-converter` je povezan s GitHub repom `koleCar/poker-hand-converter`:
+
+- **Root Directory**: `frontend`
+- **Framework preset**: Vite (build `npm run build`, output `dist`)
+- **Env varijable**: nisu potrebne - app je 100% client-side, konverzija se radi u browseru
+
+Konfiguracija rewritea je u `frontend/vercel.json` (SPA fallback na `index.html`).
+
+### Deploy
+
+Svaki push u `main` automatski deploya produkciju. Rucni deploy:
+
+```bash
+cd frontend
+npx vercel deploy --prod
+```
+
+## Supabase frontend hosting (Storage) - legacy fallback
+
+> Produkcijski hosting je na Vercelu (gore). Ovaj put je zadrzan samo kao rucni
+> fallback - workflow se vise ne okida na push, samo preko `workflow_dispatch`.
 
 Frontend je Vite staticki build i deploya se iz `frontend/dist`.
 
@@ -60,17 +88,15 @@ Bucket: `frontend-site` (public read).
 
 ### 3) Auth URL konfiguracija
 
-U `supabase/config.toml` su postavljeni placeholderi:
-- `site_url = "https://your-frontend-domain.example"`
-- `additional_redirect_urls = ["https://your-frontend-domain.example/*", "http://localhost:5173/*"]`
+U `supabase/config.toml` su postavljene produkcijske vrijednosti:
+- `site_url = "https://poker-hand-converter.vercel.app"`
+- `additional_redirect_urls = ["https://poker-hand-converter.vercel.app/*", "http://localhost:5173/*"]`
 
-Prije produkcije zamijeni `your-frontend-domain.example` stvarnom domenom.
-
-### 4) CI/CD deploy na main
+### 4) Rucni deploy (workflow_dispatch)
 
 Workflow: `.github/workflows/deploy-frontend-supabase-storage.yml`
 
-Na svaki push u `main` workflow:
+Pokrenut rucno iz Actions taba, workflow:
 1. builda `frontend`
 2. pokrece `node scripts/deploy-frontend-to-supabase.mjs`
 3. uploada sve fajlove iz `frontend/dist` u Supabase Storage bucket `frontend-site`

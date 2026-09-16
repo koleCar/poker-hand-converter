@@ -1,13 +1,8 @@
 name: Deploy frontend to Supabase Storage
 
+# Production hosting moved to Vercel (auto-deploys on push to main).
+# This workflow is kept as a manual fallback only - run it from the Actions tab.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "frontend/**"
-      - "scripts/deploy-frontend-to-supabase.mjs"
-      - ".github/workflows/deploy-frontend-supabase-storage.yml"
   workflow_dispatch:
 
 jobs:
