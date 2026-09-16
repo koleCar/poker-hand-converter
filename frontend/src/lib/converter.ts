@@ -81,8 +81,12 @@ function shouldDropLine(line: string): boolean {
   return (
     trimmed.includes("has timed out") ||
     trimmed.includes("leaves the table") ||
+    trimmed.includes("joins the table") ||
     trimmed.includes("sits out") ||
     trimmed.includes("while being disconnected") ||
+    // GG has no equivalent lines; the runout is already in the FIRST/SECOND markers.
+    /\bdeclines straddle\b/i.test(trimmed) ||
+    /\bwas run two times\b/i.test(trimmed) ||
     /\bis disconnected\b/i.test(trimmed) ||
     /\bis connected\b/i.test(trimmed)
   );
@@ -492,7 +496,7 @@ function normalizeHandLines(
       continue;
     }
 
-    let line = normalizeLine(rawLine);
+    const line = normalizeLine(rawLine);
     if (line === "") {
       continue;
     }
