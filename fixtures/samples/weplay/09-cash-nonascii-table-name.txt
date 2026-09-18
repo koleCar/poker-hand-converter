@@ -1,0 +1,1558 @@
+﻿Weplay Hand #75319174:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:27:22 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($227.05 in chips)
+Seat 2: drPokermarv ($179.85 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($100 in chips)
+Seat 5: TrashPanda ($64.10 in chips)
+Seat 6: tuPaTu ($131.61 in chips)
+Seat 7: Meze188 ($106.87 in chips)
+Seat 8: JTs98o ($131.88 in chips)
+Tolmi21: posts the ante $3.96
+drPokermarv: posts the ante $3.96
+kole1992: posts the ante $3.96
+KratkiLucky: posts the ante $3.96
+TrashPanda: posts the ante $3.96
+tuPaTu: posts the ante $3.96
+Meze188: posts the ante $3.96
+JTs98o: posts the ante $3.96
+*** HOLE CARDS ***
+Dealt to kole1992 [3c Jh]
+*** FLOP *** [As 8d 7s]
+Tolmi21: checks
+drPokermarv: checks
+kole1992: checks
+KratkiLucky: checks
+TrashPanda: checks
+tuPaTu: checks
+Meze188: checks
+JTs98o: checks
+*** TURN *** [As 8d 7s] [Ks]
+Tolmi21: checks
+drPokermarv: checks
+kole1992: checks
+KratkiLucky: checks
+TrashPanda: checks
+tuPaTu: bets $21.22
+Meze188: folds
+JTs98o: folds
+Tolmi21: folds
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: folds
+TrashPanda: folds
+Uncalled bet ($21.22) returned to tuPaTu
+*** SHOW DOWN ***
+tuPaTu has timed out
+tuPaTu: doesn't show hand
+tuPaTu collected $31.68 from pot
+*** SUMMARY ***
+Total pot $31.68 | Rake $1.58 
+Board [As 8d 7s Ks]
+Seat 1: Tolmi21 folded on the Turn 
+Seat 2: drPokermarv folded on the Turn 
+Seat 3: kole1992 folded on the Turn 
+Seat 4: KratkiLucky folded on the Turn 
+Seat 5: TrashPanda folded on the Turn 
+Seat 6: tuPaTu collected ($31.68)
+Seat 7: Meze188 folded on the Turn 
+Seat 8: JTs98o (button) folded on the Turn 
+
+
+Weplay Hand #75319246:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:28:40 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($223.09 in chips)
+Seat 2: drPokermarv ($175.89 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($100 in chips)
+Seat 5: TrashPanda ($60.14 in chips)
+Seat 6: tuPaTu ($157.75 in chips)
+Seat 7: Meze188 ($102.91 in chips)
+Seat 8: JTs98o ($127.92 in chips)
+drPokermarv: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 4h]
+KratkiLucky: folds
+TrashPanda: folds
+tuPaTu: folds
+Meze188: folds
+JTs98o: raises $2.50 to $2.50
+Tolmi21: calls $2.50
+drPokermarv: folds
+kole1992: folds
+*** FLOP *** [Tc Jc Qs]
+JTs98o: checks
+Tolmi21: bets $4.88
+JTs98o: folds
+Uncalled bet ($4.88) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [Tc Jc Qs]
+Seat 1: Tolmi21 (button) collected ($6.50)
+Seat 2: drPokermarv (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 5: TrashPanda folded before Flop (didn't bet)
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Meze188 folded before Flop (didn't bet)
+Seat 8: JTs98o folded on the Flop 
+
+
+Weplay Hand #75319285:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:29:19 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($226.77 in chips)
+Seat 2: drPokermarv ($175.39 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($100 in chips)
+Seat 5: TrashPanda ($60.14 in chips)
+Seat 6: tuPaTu ($157.75 in chips)
+Seat 7: Meze188 ($102.91 in chips)
+Seat 8: JTs98o ($125.42 in chips)
+kole1992: posts small blind $0.50
+KratkiLucky: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Qd]
+TrashPanda: calls $1
+tuPaTu: folds
+Meze188: folds
+JTs98o: folds
+Tolmi21: folds
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: checks
+*** FLOP *** [2c 3c 8d]
+KratkiLucky: checks
+TrashPanda: checks
+*** TURN *** [2c 3c 8d] [4h]
+KratkiLucky: bets $1.75
+TrashPanda: raises $6 to $6
+KratkiLucky: calls $4.25
+*** RIVER *** [2c 3c 8d 4h] [2h]
+KratkiLucky: checks
+TrashPanda: bets $10
+KratkiLucky: raises $81.50 to $81.50
+TrashPanda: folds
+Uncalled bet ($71.50) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $34.50 from pot
+*** SUMMARY ***
+Total pot $34.50 | Rake $1.72 
+Board [2c 3c 8d 4h 2h]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: KratkiLucky (big blind) collected ($34.50)
+Seat 5: TrashPanda folded on the River 
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Meze188 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320354:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:30:35 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($226.77 in chips)
+Seat 2: drPokermarv ($175.39 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($115.78 in chips)
+Seat 5: TrashPanda ($43.14 in chips)
+Seat 6: tuPaTu ($157.75 in chips)
+Seat 7: Meze188 ($102.91 in chips)
+Seat 8: JTs98o ($125.42 in chips)
+KratkiLucky: posts small blind $0.50
+TrashPanda: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ks 9d]
+tuPaTu: folds
+Meze188: folds
+JTs98o: folds
+Tolmi21: calls $1
+drPokermarv: raises $4 to $4
+kole1992: folds
+KratkiLucky: folds
+TrashPanda: folds
+Tolmi21: calls $3
+*** FLOP *** [2c 8c Td]
+Tolmi21: checks
+drPokermarv: checks
+*** TURN *** [2c 8c Td] [Ah]
+Tolmi21: checks
+drPokermarv: checks
+*** RIVER *** [2c 8c Td Ah] [6d]
+Tolmi21: checks
+drPokermarv: checks
+*** SHOW DOWN ***
+Tolmi21: shows [Qs 9c] (high card Ace)
+drPokermarv: shows [Kh Jh] (high card Ace)
+drPokermarv collected $9.50 from pot
+*** SUMMARY ***
+Total pot $9.50 | Rake $0.47 
+Board [2c 8c Td Ah 6d]
+Seat 1: Tolmi21 showed [Qs 9c] and lost with high card Ace
+Seat 2: drPokermarv showed [Kh Jh] and won ($9.50) with high card Ace
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: KratkiLucky (small blind) folded before Flop 
+Seat 5: TrashPanda (big blind) folded before Flop 
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Meze188 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320423:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:31:53 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($222.77 in chips)
+Seat 2: drPokermarv ($180.42 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($115.28 in chips)
+Seat 5: TrashPanda ($42.14 in chips)
+Seat 6: tuPaTu ($157.75 in chips)
+Seat 8: JTs98o ($125.42 in chips)
+TrashPanda: posts small blind $0.50
+Meze188 leaves the table
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h As]
+JTs98o: folds
+Almog11 joins the table at seat #7
+Tolmi21: calls $1
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: raises $2.50 to $2.50
+TrashPanda: calls $2
+tuPaTu: folds
+Tolmi21: calls $1.50
+*** FLOP *** [3d 8s 9h]
+TrashPanda: bets $5
+Tolmi21: folds
+KratkiLucky: folds
+Uncalled bet ($5) returned to TrashPanda
+*** SHOW DOWN ***
+TrashPanda: doesn't show hand
+TrashPanda collected $8.50 from pot
+*** SUMMARY ***
+Total pot $8.50 | Rake $0.42 
+Board [3d 8s 9h]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky (button) folded on the Flop 
+Seat 5: TrashPanda (small blind) collected ($8.50)
+Seat 6: tuPaTu (big blind) folded before Flop 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320471:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:32:43 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($220.27 in chips)
+Seat 2: drPokermarv ($180.42 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($112.78 in chips)
+Seat 5: TrashPanda ($47.72 in chips)
+Seat 6: tuPaTu ($156.75 in chips)
+Seat 7: Almog11 ($68 in chips)
+Seat 8: JTs98o ($125.42 in chips)
+tuPaTu: posts small blind $0.50
+Almog11: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 6d]
+JTs98o: folds
+Tolmi21: calls $1
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: raises $4.50 to $4.50
+TrashPanda: folds
+tuPaTu: calls $4
+Almog11: calls $3.50
+Tolmi21: folds
+*** FLOP *** [5s 7h Tc]
+tuPaTu: checks
+Almog11: checks
+KratkiLucky: bets $4.13
+tuPaTu: folds
+Almog11: folds
+Uncalled bet ($4.13) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $14.50 from pot
+*** SUMMARY ***
+Total pot $14.50 | Rake $0.72 
+Board [5s 7h Tc]
+Seat 1: Tolmi21 folded before Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky collected ($14.50)
+Seat 5: TrashPanda (button) folded before Flop (didn't bet)
+Seat 6: tuPaTu (small blind) folded on the Flop 
+Seat 7: Almog11 (big blind) folded on the Flop 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320514:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:33:33 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($219.27 in chips)
+Seat 2: drPokermarv ($180.42 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($122.06 in chips)
+Seat 5: TrashPanda ($47.72 in chips)
+Seat 6: tuPaTu ($152.25 in chips)
+Seat 7: Almog11 ($63.50 in chips)
+Seat 8: JTs98o ($125.42 in chips)
+Almog11: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Qs]
+Tolmi21: calls $1
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: folds
+TrashPanda: folds
+tuPaTu: folds
+Almog11: calls $0.50
+JTs98o: checks
+*** FLOP *** [Jd Tc 8c]
+Almog11: checks
+JTs98o: bets $3.48
+Tolmi21: folds
+Almog11: calls $3.48
+*** TURN *** [Jd Tc 8c] [4d]
+Almog11: checks
+JTs98o: bets $11.55
+Almog11: calls $11.55
+*** RIVER *** [Jd Tc 8c 4d] [Qc]
+Almog11: checks
+JTs98o: bets $38.34
+Almog11: calls $38.34
+*** SHOW DOWN ***
+JTs98o: shows [Jc 9c] (a straight flush, Eight to Queen)
+Almog11 has timed out
+Almog11: mucks hand
+JTs98o collected $109.74 from pot
+*** SUMMARY ***
+Total pot $109.74 | Rake $5.48 
+Board [Jd Tc 8c 4d Qc]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 5: TrashPanda folded before Flop (didn't bet)
+Seat 6: tuPaTu (button) folded before Flop (didn't bet)
+Seat 7: Almog11 (small blind) mucked
+Seat 8: JTs98o (big blind) showed [Jc 9c] and won ($109.74) with a straight flush, Eight to Queen
+
+
+Weplay Hand #75320560:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:34:28 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($218.27 in chips)
+Seat 2: drPokermarv ($180.42 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($122.06 in chips)
+Seat 5: TrashPanda ($47.72 in chips)
+Seat 6: tuPaTu ($152.25 in chips)
+Seat 7: Almog11 ($46.13 in chips)
+Seat 8: JTs98o ($175.31 in chips)
+JTs98o: posts small blind $0.50
+Tolmi21: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 2c]
+drPokermarv: folds
+kole1992: folds
+KratkiLucky has timed out
+KratkiLucky: folds
+TrashPanda: raises $3.10 to $3.10
+tuPaTu: folds
+Almog11: calls $3.10
+JTs98o: folds
+Tolmi21: raises $11 to $12
+TrashPanda: folds
+Almog11: folds
+Uncalled bet ($8.90) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $9.80 from pot
+*** SUMMARY ***
+Total pot $9.80 | Rake $0 
+Seat 1: Tolmi21 (big blind) collected ($9.80)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 5: TrashPanda folded before Flop 
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Almog11 (button) folded before Flop 
+Seat 8: JTs98o (small blind) folded before Flop 
+
+
+Weplay Hand #75320601:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:35:19 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($224.97 in chips)
+Seat 2: drPokermarv ($180.42 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($122.06 in chips)
+Seat 5: TrashPanda ($44.62 in chips)
+Seat 6: tuPaTu ($152.25 in chips)
+Seat 7: Almog11 ($43.03 in chips)
+Seat 8: JTs98o ($174.81 in chips)
+Tolmi21: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4h 3c]
+kole1992: folds
+KratkiLucky: folds
+TrashPanda: folds
+tuPaTu: folds
+Almog11: calls $1
+JTs98o: raises $3.50 to $3.50
+Tolmi21: folds
+drPokermarv: folds
+Almog11: folds
+Uncalled bet ($2.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $3.50 from pot
+*** SUMMARY ***
+Total pot $3.50 | Rake $0 
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: drPokermarv (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 5: TrashPanda folded before Flop (didn't bet)
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Almog11 folded before Flop 
+Seat 8: JTs98o (button) collected ($3.50)
+
+
+Weplay Hand #75320623:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:35:43 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($224.47 in chips)
+Seat 2: drPokermarv ($179.42 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($122.06 in chips)
+Seat 5: TrashPanda ($44.62 in chips)
+Seat 6: tuPaTu ($152.25 in chips)
+Seat 7: Almog11 ($42.03 in chips)
+Seat 8: JTs98o ($177.31 in chips)
+Tolmi21: posts the ante $4.34
+drPokermarv: posts the ante $4.34
+kole1992: posts the ante $4.34
+KratkiLucky: posts the ante $4.34
+TrashPanda: posts the ante $4.34
+tuPaTu: posts the ante $4.34
+Almog11: posts the ante $4.34
+JTs98o: posts the ante $4.34
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 9c]
+*** FLOP *** [Qc Th 4h]
+TrashPanda: checks
+tuPaTu: checks
+Almog11: checks
+JTs98o: checks
+Tolmi21: checks
+drPokermarv: checks
+kole1992: checks
+KratkiLucky: bets $8.68
+TrashPanda: raises $40.28 to $40.28 and is all-in
+tuPaTu: folds
+Almog11: folds
+JTs98o: folds
+Tolmi21: folds
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: calls $31.60
+*** TURN *** [Qc Th 4h] [7c]
+*** RIVER *** [Qc Th 4h 7c] [4c]
+*** SHOW DOWN ***
+TrashPanda: shows [5h Kh] (a pair of Fours)
+KratkiLucky: shows [Kc Jh] (a pair of Fours)
+KratkiLucky collected $115.28 from pot
+*** SUMMARY ***
+Total pot $115.28 | Rake $5.76 
+Board [Qc Th 4h 7c 4c]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: drPokermarv folded on the Flop 
+Seat 3: kole1992 folded on the Flop 
+Seat 4: KratkiLucky (button) showed [Kc Jh] and won ($115.28) with a pair of Fours
+Seat 5: TrashPanda showed [5h Kh] and lost with a pair of Fours
+Seat 6: tuPaTu folded on the Flop 
+Seat 7: Almog11 folded on the Flop 
+Seat 8: JTs98o folded on the Flop 
+
+
+Weplay Hand #75320709:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:37:13 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($220.13 in chips)
+Seat 2: drPokermarv ($175.08 in chips)
+Seat 3: kole1992 ($100 in chips)
+Seat 4: KratkiLucky ($186.96 in chips)
+Seat 6: tuPaTu ($147.91 in chips)
+Seat 7: Almog11 ($37.69 in chips)
+Seat 8: JTs98o ($172.97 in chips)
+drPokermarv: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Qh]
+KratkiLucky: folds
+tuPaTu: raises $2.50 to $2.50
+Almog11: calls $2.50
+TrashPanda leaves the table
+JTs98o: folds
+Tolmi21: calls $2.50
+drPokermarv: folds
+kole1992: raises $15.50 to $16.50
+tuPaTu: folds
+Almog11: folds
+Almog11 is disconnected 
+Tolmi21: folds
+Uncalled bet ($14) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $10.50 from pot
+*** SUMMARY ***
+Total pot $10.50 | Rake $0 
+Seat 1: Tolmi21 (button) folded before Flop 
+Seat 2: drPokermarv (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) collected ($10.50)
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 6: tuPaTu folded before Flop 
+Seat 7: Almog11 folded before Flop 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320756:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:37:57 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($217.63 in chips)
+Seat 2: drPokermarv ($174.58 in chips)
+Seat 3: kole1992 ($108 in chips)
+Seat 4: KratkiLucky ($186.96 in chips)
+Seat 6: tuPaTu ($145.41 in chips)
+Seat 8: JTs98o ($172.97 in chips)
+kole1992: posts small blind $0.50
+KratkiLucky: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 3s]
+tuPaTu: folds
+JTs98o: raises $2.50 to $2.50
+Tolmi21: calls $2.50
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: calls $1.50
+*** FLOP *** [9h 8d 5d]
+KratkiLucky: checks
+JTs98o: checks
+Tolmi21: checks
+*** TURN *** [9h 8d 5d] [9s]
+KratkiLucky: checks
+JTs98o: checks
+Tolmi21: checks
+*** RIVER *** [9h 8d 5d 9s] [2s]
+Almog11 is connected 
+KratkiLucky: checks
+JTs98o: checks
+Tolmi21: checks
+*** SHOW DOWN ***
+KratkiLucky: shows [Qs Jh] (a pair of Nines)
+JTs98o: shows [Qh Ac] (a pair of Nines)
+Almog11 leaves the table
+Tolmi21: mucks hand
+JTs98o collected $8 from pot
+*** SUMMARY ***
+Total pot $8 | Rake $0.40 
+Board [9h 8d 5d 9s 2s]
+Seat 1: Tolmi21 mucked
+Seat 2: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: KratkiLucky (big blind) showed [Qs Jh] and lost with a pair of Nines
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 8: JTs98o showed [Qh Ac] and won ($8) with a pair of Nines
+
+
+Weplay Hand #75320796:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:38:40 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($215.13 in chips)
+Seat 2: drPokermarv ($174.58 in chips)
+Seat 3: kole1992 ($107.50 in chips)
+Seat 4: KratkiLucky ($184.46 in chips)
+Seat 6: tuPaTu ($145.41 in chips)
+Seat 8: JTs98o ($178.07 in chips)
+KratkiLucky: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 7h]
+JTs98o: folds
+Tolmi21: raises $3 to $3
+drPokermarv: folds
+kole1992: raises $8 to $8
+KratkiLucky: folds
+tuPaTu: folds
+Tolmi21: calls $5
+*** FLOP *** [Qs 6h Qd]
+Tolmi21: checks
+kole1992: bets $5.77
+Tolmi21: folds
+Uncalled bet ($5.77) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $17.50 from pot
+*** SUMMARY ***
+Total pot $17.50 | Rake $0.87 
+Board [Qs 6h Qd]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 (button) collected ($17.50)
+Seat 4: KratkiLucky (small blind) folded before Flop 
+Seat 6: tuPaTu (big blind) folded before Flop 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75320833:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:39:19 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($207.13 in chips)
+Seat 2: drPokermarv ($174.58 in chips)
+Seat 3: kole1992 ($116.13 in chips)
+Seat 4: KratkiLucky ($183.96 in chips)
+Seat 6: tuPaTu ($144.41 in chips)
+Seat 8: JTs98o ($178.07 in chips)
+tuPaTu: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9c 2h]
+Tolmi21: raises $3 to $3
+drPokermarv: raises $7.50 to $7.50
+kole1992: folds
+KratkiLucky: folds
+tuPaTu: folds
+JTs98o: folds
+Tolmi21: calls $4.50
+*** FLOP *** [Ts 4c 9s]
+Tolmi21: checks
+drPokermarv: checks
+*** TURN *** [Ts 4c 9s] [8s]
+Tolmi21: bets $8
+drPokermarv: folds
+Uncalled bet ($8) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $16.50 from pot
+*** SUMMARY ***
+Total pot $16.50 | Rake $0.82 
+Board [Ts 4c 9s 8s]
+Seat 1: Tolmi21 collected ($16.50)
+Seat 2: drPokermarv folded on the Turn 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 6: tuPaTu (small blind) folded before Flop 
+Seat 8: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75320874:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:40:08 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($215.31 in chips)
+Seat 2: drPokermarv ($167.08 in chips)
+Seat 3: kole1992 ($116.13 in chips)
+Seat 4: KratkiLucky ($183.96 in chips)
+Seat 6: tuPaTu ($143.91 in chips)
+Seat 8: JTs98o ($177.07 in chips)
+Tolmi21: posts the ante $4.20
+drPokermarv: posts the ante $4.20
+kole1992: posts the ante $4.20
+KratkiLucky: posts the ante $4.20
+tuPaTu: posts the ante $4.20
+JTs98o: posts the ante $4.20
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Jd]
+*** FLOP *** [Ad Js Kc]
+drPokermarv: checks
+kole1992: checks
+KratkiLucky: checks
+Tone91 joins the table at seat #7
+tuPaTu: checks
+JTs98o: checks
+Tolmi21: checks
+*** TURN *** [Ad Js Kc] [4h]
+drPokermarv: checks
+kole1992: bets $11.81
+KratkiLucky: folds
+tuPaTu: folds
+JTs98o: folds
+Tolmi21: folds
+drPokermarv: folds
+Uncalled bet ($11.81) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $25.20 from pot
+*** SUMMARY ***
+Total pot $25.20 | Rake $1.26 
+Board [Ad Js Kc 4h]
+Seat 1: Tolmi21 (button) folded on the Turn 
+Seat 2: drPokermarv folded on the Turn 
+Seat 3: kole1992 collected ($25.20)
+Seat 4: KratkiLucky folded on the Turn 
+Seat 6: tuPaTu folded on the Turn 
+Seat 8: JTs98o folded on the Turn 
+
+
+Weplay Hand #75320944:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:41:21 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($211.11 in chips)
+Seat 2: drPokermarv ($162.88 in chips)
+Seat 3: kole1992 ($135.87 in chips)
+Seat 4: KratkiLucky ($179.76 in chips)
+Seat 6: tuPaTu ($139.71 in chips)
+Seat 8: JTs98o ($172.87 in chips)
+JTs98o: posts small blind $0.50
+Tolmi21: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 6c]
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: folds
+tuPaTu: raises $2.50 to $2.50
+JTs98o: calls $2
+Tolmi21: calls $1.50
+*** FLOP *** [9s 3c 5s]
+JTs98o: checks
+Tolmi21: checks
+tuPaTu: checks
+*** TURN *** [9s 3c 5s] [2c]
+JTs98o: bets $8.69
+Tolmi21: folds
+tuPaTu: calls $8.69
+*** RIVER *** [9s 3c 5s 2c] [6h]
+JTs98o: bets $4
+tuPaTu: calls $4
+*** SHOW DOWN ***
+JTs98o: shows [4c 4h] (a straight, Deuce to Six)
+tuPaTu has timed out
+tuPaTu: mucks hand
+JTs98o collected $32.88 from pot
+*** SUMMARY ***
+Total pot $32.88 | Rake $1.64 
+Board [9s 3c 5s 2c 6h]
+Seat 1: Tolmi21 (big blind) folded on the Turn 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 6: tuPaTu (button) mucked
+Seat 8: JTs98o (small blind) showed [4c 4h] and won ($32.88) with a straight, Deuce to Six
+
+
+Weplay Hand #75320998:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:42:25 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($208.61 in chips)
+Seat 2: drPokermarv ($162.88 in chips)
+Seat 3: kole1992 ($135.87 in chips)
+Seat 4: KratkiLucky ($179.76 in chips)
+Seat 6: tuPaTu ($124.52 in chips)
+Seat 7: Tone91 ($100 in chips)
+Seat 8: JTs98o ($188.92 in chips)
+Tolmi21: posts small blind $0.50
+drPokermarv: posts big blind $1
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 5d]
+kole1992: folds
+KratkiLucky: folds
+tuPaTu: folds
+Tone91: checks
+JTs98o: folds
+Tolmi21: raises $3.50 to $4
+drPokermarv: folds
+Tone91: folds
+Uncalled bet ($3) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: Tolmi21 (small blind) collected ($3)
+Seat 2: drPokermarv (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Tone91 (big blind) folded before Flop 
+Seat 8: JTs98o (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #75321030:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:42:54 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($210.61 in chips)
+Seat 2: drPokermarv ($161.88 in chips)
+Seat 3: kole1992 ($135.87 in chips)
+Seat 4: KratkiLucky ($179.76 in chips)
+Seat 6: tuPaTu ($124.52 in chips)
+Seat 7: Tone91 ($100 in chips)
+Seat 8: JTs98o ($188.92 in chips)
+drPokermarv: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [4d 8d]
+KratkiLucky: folds
+tuPaTu: folds
+Tone91: folds
+JTs98o: folds
+Tolmi21: calls $1
+drPokermarv: raises $4.50 to $5
+kole1992: folds
+Tolmi21: folds
+Uncalled bet ($4) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $3 from pot
+*** SUMMARY ***
+Total pot $3 | Rake $0 
+Seat 1: Tolmi21 (button) folded before Flop 
+Seat 2: drPokermarv (small blind) collected ($3)
+Seat 3: kole1992 (big blind) folded before Flop 
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Tone91 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75321053:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:43:23 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($209.61 in chips)
+Seat 2: drPokermarv ($163.88 in chips)
+Seat 3: kole1992 ($134.87 in chips)
+Seat 4: KratkiLucky ($179.76 in chips)
+Seat 6: tuPaTu ($124.52 in chips)
+Seat 7: Tone91 ($100 in chips)
+Seat 8: JTs98o ($188.92 in chips)
+Tolmi21: posts the ante $3.21
+drPokermarv: posts the ante $3.21
+kole1992: posts the ante $3.21
+KratkiLucky: posts the ante $3.21
+tuPaTu: posts the ante $3.21
+Tone91: posts the ante $3.21
+JTs98o: posts the ante $3.21
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 9s]
+*** FLOP *** [As Ad 7s]
+JTs98o: checks
+Tolmi21: bets $3
+drPokermarv: calls $3
+kole1992: folds
+KratkiLucky: folds
+tuPaTu: folds
+Tone91: folds
+JTs98o: folds
+*** TURN *** [As Ad 7s] [Kh]
+Tolmi21: bets $3
+drPokermarv: raises $15 to $15
+Tolmi21: folds
+Uncalled bet ($12) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $34.47 from pot
+*** SUMMARY ***
+Total pot $34.47 | Rake $1.72 
+Board [As Ad 7s Kh]
+Seat 1: Tolmi21 folded on the Turn 
+Seat 2: drPokermarv collected ($34.47)
+Seat 3: kole1992 folded on the Flop 
+Seat 4: KratkiLucky folded on the Flop 
+Seat 6: tuPaTu folded on the Flop 
+Seat 7: Tone91 (button) folded on the Flop 
+Seat 8: JTs98o folded on the Flop 
+
+
+Weplay Hand #75321121:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:44:30 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($200.40 in chips)
+Seat 2: drPokermarv ($187.42 in chips)
+Seat 3: kole1992 ($131.66 in chips)
+Seat 4: KratkiLucky ($176.55 in chips)
+Seat 6: tuPaTu ($121.31 in chips)
+Seat 7: Tone91 ($100 in chips)
+Seat 8: JTs98o ($185.71 in chips)
+kole1992: posts small blind $0.50
+KratkiLucky: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [3h 9h]
+tuPaTu: folds
+Jaguar joins the table at seat #5
+Tone91: folds
+JTs98o has timed out
+JTs98o: folds
+Tolmi21: folds
+drPokermarv: folds
+kole1992: folds
+Uncalled bet ($0.50) returned to KratkiLucky
+*** SHOW DOWN ***
+KratkiLucky has timed out
+KratkiLucky: doesn't show hand
+KratkiLucky collected $1 from pot
+*** SUMMARY ***
+Total pot $1 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) folded before Flop (didn't bet)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: KratkiLucky (big blind) collected ($1)
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Tone91 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75321162:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:45:16 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($200.40 in chips)
+Seat 2: drPokermarv ($187.42 in chips)
+Seat 3: kole1992 ($131.16 in chips)
+Seat 4: KratkiLucky ($177.05 in chips)
+Seat 5: Jaguar ($100 in chips)
+Seat 6: tuPaTu ($121.31 in chips)
+Seat 7: Tone91 ($100 in chips)
+Seat 8: JTs98o ($185.71 in chips)
+KratkiLucky: posts small blind $0.50
+Jaguar: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 6d]
+tuPaTu: folds
+Tone91: folds
+JTs98o: raises $2.50 to $2.50
+Tolmi21 has timed out
+Tolmi21: folds
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: folds
+Jaguar: folds
+Uncalled bet ($1.50) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: KratkiLucky (small blind) folded before Flop 
+Seat 5: Jaguar (big blind) folded before Flop 
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Tone91 folded before Flop (didn't bet)
+Seat 8: JTs98o collected ($2.50)
+
+
+Weplay Hand #75321192:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:45:49 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($200.40 in chips)
+Seat 2: drPokermarv ($187.42 in chips)
+Seat 3: kole1992 ($131.16 in chips)
+Seat 4: KratkiLucky ($176.55 in chips)
+Seat 5: Jaguar ($99 in chips)
+Seat 6: tuPaTu ($121.31 in chips)
+Seat 7: Tone91 ($100 in chips)
+Seat 8: JTs98o ($187.21 in chips)
+Jaguar: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [5d Ts]
+Tone91: folds
+JTs98o: folds
+Tolmi21: folds
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: folds
+Jaguar: raises $2.50 to $3
+tuPaTu: calls $2
+*** FLOP *** [Ks 5s 4c]
+Jaguar: bets $6
+tuPaTu: folds
+Uncalled bet ($6) returned to Jaguar
+*** SHOW DOWN ***
+Jaguar has timed out
+Jaguar: doesn't show hand
+Jaguar collected $6 from pot
+*** SUMMARY ***
+Total pot $6 | Rake $0.30 
+Board [Ks 5s 4c]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 5: Jaguar (small blind) collected ($6)
+Seat 6: tuPaTu (big blind) folded on the Flop 
+Seat 7: Tone91 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75321233:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:46:37 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($200.40 in chips)
+Seat 2: drPokermarv ($187.42 in chips)
+Seat 3: kole1992 ($131.16 in chips)
+Seat 4: KratkiLucky ($176.55 in chips)
+Seat 5: Jaguar ($101.70 in chips)
+Seat 6: tuPaTu ($118.31 in chips)
+Seat 7: Tone91 ($100 in chips)
+Seat 8: JTs98o ($187.21 in chips)
+tuPaTu: posts small blind $0.50
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9c]
+JTs98o: folds
+Tolmi21: calls $1
+drPokermarv: folds
+kole1992: raises $3 to $3
+KratkiLucky: folds
+Jaguar: calls $3
+tuPaTu: raises $15.55 to $16.05
+Tone91: folds
+Tolmi21: folds
+kole1992: calls $13.05
+Jaguar: calls $13.05
+*** FLOP *** [Jh Qs 5h]
+tuPaTu: bets $12.53
+kole1992: folds
+Jaguar: raises $50.13 to $50.13
+tuPaTu: raises $89.73 to $102.26 and is all-in
+Jaguar: calls $35.52 and is all-in
+Uncalled bet ($16.61) returned to tuPaTu
+*** FIRST TURN *** [Jh Qs 5h] [Jc]
+*** FIRST RIVER *** [Jh Qs 5h Jc] [Ah]
+*** SECOND TURN *** [Jh Qs 5h] [4d]
+*** SECOND RIVER *** [Jh Qs 5h 4d] [Qh]
+*** SHOW DOWN ***
+tuPaTu: shows [As Qc] (two pair, Aces and Queens)
+Jaguar: shows [4h Kh] (a flush, Ace high)
+Jaguar collected $221.45 from pot
+*** SUMMARY ***
+Total pot $221.45 | Rake $6.50 
+Hand was run two times
+FIRST Board [Jh Qs 5h Jc Ah]
+SECOND Board [Jh Qs 5h 4d Qh]
+Seat 1: Tolmi21 folded before Flop 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 folded on the Flop 
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 5: Jaguar (button) showed [4h Kh] and won ($221.45) with a flush, Ace high
+Seat 6: tuPaTu (small blind) showed [As Qc] and lost with two pair, Aces and Queens
+Seat 7: Tone91 (big blind) folded before Flop 
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322330:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:48:29 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($199.40 in chips)
+Seat 2: drPokermarv ($187.42 in chips)
+Seat 3: kole1992 ($115.11 in chips)
+Seat 4: KratkiLucky ($176.55 in chips)
+Seat 5: Jaguar ($214.95 in chips)
+Seat 6: tuPaTu ($100 in chips)
+Seat 7: Tone91 ($100 in chips)
+Seat 8: JTs98o ($187.21 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 5s]
+Tolmi21: folds
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: raises $2.50 to $2.50
+Jaguar: calls $2.50
+tuPaTu: folds
+Tone91: raises $13.50 to $14
+JTs98o: folds
+KratkiLucky: folds
+Jaguar: calls $11.50
+*** FLOP *** [Jh 7d 2d]
+Tone91: bets $21.10
+Jaguar: calls $21.10
+*** TURN *** [Jh 7d 2d] [9c]
+Tone91: bets $64.90 and is all-in
+Jaguar: calls $64.90
+*** RIVER *** [Jh 7d 2d 9c] [3h]
+*** SHOW DOWN ***
+Tone91: shows [Ac Ah] (a pair of Aces)
+Jaguar: shows [9d 8d] (a pair of Nines)
+Tone91 collected $203.50 from pot
+*** SUMMARY ***
+Total pot $203.50 | Rake $6.50 
+Board [Jh 7d 2d 9c 3h]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky folded before Flop 
+Seat 5: Jaguar showed [9d 8d] and lost with a pair of Nines
+Seat 6: tuPaTu (button) folded before Flop (didn't bet)
+Seat 7: Tone91 (small blind) showed [Ac Ah] and won ($203.50) with a pair of Aces
+Seat 8: JTs98o (big blind) folded before Flop 
+
+
+Weplay Hand #75322384:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:49:30 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #7 is the button
+Seat 1: Tolmi21 ($199.40 in chips)
+Seat 2: drPokermarv ($187.42 in chips)
+Seat 3: kole1992 ($115.11 in chips)
+Seat 4: KratkiLucky ($174.05 in chips)
+Seat 5: Jaguar ($114.95 in chips)
+Seat 6: tuPaTu ($100 in chips)
+Seat 7: Tone91 ($197 in chips)
+Seat 8: JTs98o ($186.21 in chips)
+JTs98o: posts small blind $0.50
+Tolmi21: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 8h]
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: folds
+Jaguar: folds
+tuPaTu: folds
+Tone91: folds
+JTs98o: raises $3 to $3.50
+Tolmi21: calls $2.50
+*** FLOP *** [8s Qs 7s]
+JTs98o: checks
+Tolmi21: checks
+*** TURN *** [8s Qs 7s] [6h]
+JTs98o: bets $8.12
+Tolmi21: folds
+Uncalled bet ($8.12) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [8s Qs 7s 6h]
+Seat 1: Tolmi21 (big blind) folded on the Turn 
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 5: Jaguar folded before Flop (didn't bet)
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Tone91 (button) folded before Flop (didn't bet)
+Seat 8: JTs98o (small blind) collected ($7)
+
+
+Weplay Hand #75322421:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:50:13 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($195.90 in chips)
+Seat 2: drPokermarv ($187.42 in chips)
+Seat 3: kole1992 ($115.11 in chips)
+Seat 4: KratkiLucky ($174.05 in chips)
+Seat 5: Jaguar ($114.95 in chips)
+Seat 6: tuPaTu ($100 in chips)
+Seat 7: Tone91 ($197 in chips)
+Seat 8: JTs98o ($189.36 in chips)
+Tolmi21: posts small blind $0.50
+drPokermarv: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 7s]
+kole1992 has timed out
+kole1992: folds
+KratkiLucky: folds
+Jaguar: folds
+tuPaTu: folds
+Tone91: raises $2.50 to $2.50
+JTs98o: raises $7.50 to $7.50
+Tolmi21: calls $7
+drPokermarv: folds
+Tone91: raises $27.50 to $30
+JTs98o: raises $181.86 to $189.36 and is all-in
+Tolmi21: folds
+Tone91: folds
+Uncalled bet ($159.36) returned to JTs98o
+*** SHOW DOWN ***
+JTs98o: doesn't show hand
+JTs98o collected $68.50 from pot
+*** SUMMARY ***
+Total pot $68.50 | Rake $0 
+Seat 1: Tolmi21 (small blind) folded before Flop 
+Seat 2: drPokermarv (big blind) folded before Flop 
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 5: Jaguar folded before Flop (didn't bet)
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Tone91 folded before Flop 
+Seat 8: JTs98o (button) collected ($68.50)
+
+
+Weplay Hand #75322485:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:51:33 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #1 is the button
+Seat 1: Tolmi21 ($188.40 in chips)
+Seat 2: drPokermarv ($186.42 in chips)
+Seat 3: kole1992 ($115.11 in chips)
+Seat 4: KratkiLucky ($174.05 in chips)
+Seat 5: Jaguar ($114.95 in chips)
+Seat 6: tuPaTu ($100 in chips)
+Seat 7: Tone91 ($167 in chips)
+Seat 8: JTs98o ($227.86 in chips)
+drPokermarv: posts small blind $0.50
+kole1992: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Jc]
+KratkiLucky: folds
+Jaguar: folds
+tuPaTu: folds
+Tone91: folds
+JTs98o: folds
+Tolmi21: raises $3 to $3
+drPokermarv: folds
+kole1992: calls $2
+*** FLOP *** [7d Ac Kd]
+kole1992: checks
+Tolmi21: bets $6.50
+kole1992: folds
+Uncalled bet ($6.50) returned to Tolmi21
+*** SHOW DOWN ***
+Tolmi21: doesn't show hand
+Tolmi21 collected $6.50 from pot
+*** SUMMARY ***
+Total pot $6.50 | Rake $0.32 
+Board [7d Ac Kd]
+Seat 1: Tolmi21 (button) collected ($6.50)
+Seat 2: drPokermarv (small blind) folded before Flop 
+Seat 3: kole1992 (big blind) folded on the Flop 
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 5: Jaguar folded before Flop (didn't bet)
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Tone91 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322518:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:52:14 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($191.58 in chips)
+Seat 2: drPokermarv ($185.92 in chips)
+Seat 3: kole1992 ($112.11 in chips)
+Seat 4: KratkiLucky ($174.05 in chips)
+Seat 5: Jaguar ($114.95 in chips)
+Seat 6: tuPaTu ($100 in chips)
+Seat 7: Tone91 ($167 in chips)
+Seat 8: JTs98o ($227.86 in chips)
+Tolmi21: posts the ante $3.92
+drPokermarv: posts the ante $3.92
+kole1992: posts the ante $3.92
+KratkiLucky: posts the ante $3.92
+Jaguar: posts the ante $3.92
+tuPaTu: posts the ante $3.92
+Tone91: posts the ante $3.92
+JTs98o: posts the ante $3.92
+*** HOLE CARDS ***
+Dealt to kole1992 [Qh 3s]
+*** FLOP *** [4s Ad Ks]
+Tone91: checks
+JTs98o: checks
+Tolmi21: checks
+drPokermarv: checks
+kole1992: checks
+KratkiLucky: checks
+Jaguar: bets $15.68
+tuPaTu: folds
+Tone91: calls $15.68
+JTs98o: folds
+Tolmi21: folds
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: folds
+*** TURN *** [4s Ad Ks] [2s]
+Tone91: checks
+Jaguar: checks
+*** RIVER *** [4s Ad Ks 2s] [8c]
+Tone91: checks
+Jaguar: checks
+*** SHOW DOWN ***
+Tone91: shows [As Ah] (three of a kind, Aces)
+Jaguar has timed out
+Jaguar: mucks hand
+Tone91 collected $62.72 from pot
+*** SUMMARY ***
+Total pot $62.72 | Rake $3.13 
+Board [4s Ad Ks 2s 8c]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: drPokermarv folded on the Flop 
+Seat 3: kole1992 folded on the Flop 
+Seat 4: KratkiLucky folded on the Flop 
+Seat 5: Jaguar mucked
+Seat 6: tuPaTu (button) folded on the Flop 
+Seat 7: Tone91 showed [As Ah] and won ($62.72) with three of a kind, Aces
+Seat 8: JTs98o folded on the Flop 
+
+
+Weplay Hand #75322579:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:53:34 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #2 is the button
+Seat 1: Tolmi21 ($187.66 in chips)
+Seat 2: drPokermarv ($182 in chips)
+Seat 3: kole1992 ($108.19 in chips)
+Seat 4: KratkiLucky ($170.13 in chips)
+Seat 5: Jaguar ($95.35 in chips)
+Seat 6: tuPaTu ($100 in chips)
+Seat 7: Tone91 ($206.99 in chips)
+Seat 8: JTs98o ($223.94 in chips)
+kole1992: posts small blind $0.50
+KratkiLucky: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 8s]
+Jaguar: folds
+tuPaTu: folds
+Tone91: folds
+JTs98o: folds
+Tolmi21: folds
+drPokermarv: raises $2.50 to $2.50
+kole1992: folds
+KratkiLucky: folds
+Uncalled bet ($1.50) returned to drPokermarv
+*** SHOW DOWN ***
+drPokermarv has timed out
+drPokermarv: doesn't show hand
+drPokermarv collected $2.50 from pot
+*** SUMMARY ***
+Total pot $2.50 | Rake $0 
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: drPokermarv (button) collected ($2.50)
+Seat 3: kole1992 (small blind) folded before Flop 
+Seat 4: KratkiLucky (big blind) folded before Flop 
+Seat 5: Jaguar folded before Flop (didn't bet)
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Tone91 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322615:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:54:17 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #3 is the button
+Seat 1: Tolmi21 ($187.66 in chips)
+Seat 2: drPokermarv ($183.50 in chips)
+Seat 3: kole1992 ($107.69 in chips)
+Seat 4: KratkiLucky ($169.13 in chips)
+Seat 5: Jaguar ($95.35 in chips)
+Seat 6: tuPaTu ($100 in chips)
+Seat 7: Tone91 ($206.99 in chips)
+Seat 8: JTs98o ($223.94 in chips)
+KratkiLucky: posts small blind $0.50
+Jaguar: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 3s]
+tuPaTu: folds
+Tone91: folds
+JTs98o: folds
+Tolmi21: raises $2.50 to $2.50
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: folds
+Jaguar: calls $1.50
+*** FLOP *** [Tc Ks Th]
+Jaguar: checks
+Tolmi21: checks
+*** TURN *** [Tc Ks Th] [4h]
+Jaguar: bets $2.75
+Tolmi21: calls $2.75
+*** RIVER *** [Tc Ks Th 4h] [Jd]
+Jaguar: bets $5.50
+Tolmi21: raises $12 to $12
+Jaguar: calls $6.50
+*** SHOW DOWN ***
+Tolmi21: shows [Qh 9c] (a straight, Nine to King)
+Jaguar has timed out
+Jaguar: mucks hand
+Tolmi21 collected $35 from pot
+*** SUMMARY ***
+Total pot $35 | Rake $1.75 
+Board [Tc Ks Th 4h Jd]
+Seat 1: Tolmi21 showed [Qh 9c] and won ($35) with a straight, Nine to King
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 (button) folded before Flop (didn't bet)
+Seat 4: KratkiLucky (small blind) folded before Flop 
+Seat 5: Jaguar (big blind) mucked
+Seat 6: tuPaTu folded before Flop (didn't bet)
+Seat 7: Tone91 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322653:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:55:12 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #4 is the button
+Seat 1: Tolmi21 ($203.66 in chips)
+Seat 2: drPokermarv ($183.50 in chips)
+Seat 3: kole1992 ($107.69 in chips)
+Seat 4: KratkiLucky ($168.63 in chips)
+Seat 5: Jaguar ($78.10 in chips)
+Seat 6: tuPaTu ($100 in chips)
+Seat 7: Tone91 ($206.99 in chips)
+Seat 8: JTs98o ($223.94 in chips)
+Jaguar: posts small blind $0.50
+tuPaTu: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd Kh]
+Tone91: folds
+JTs98o: folds
+Tolmi21: folds
+drPokermarv: folds
+kole1992: raises $2.50 to $2.50
+KratkiLucky: folds
+Jaguar: calls $2
+tuPaTu: raises $13 to $14
+kole1992: raises $26 to $28.50
+Jaguar: folds
+tuPaTu: calls $14.50
+*** FLOP *** [2d 2c 8c]
+tuPaTu: checks
+kole1992: bets $11.83
+tuPaTu: raises $23.66 to $23.66
+kole1992: calls $11.83
+*** TURN *** [2d 2c 8c] [Ks]
+tuPaTu: checks
+kole1992: bets $55.53 and is all-in
+tuPaTu: folds
+Uncalled bet ($55.53) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $106.82 from pot
+*** SUMMARY ***
+Total pot $106.82 | Rake $5.34 
+Board [2d 2c 8c Ks]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 collected ($106.82)
+Seat 4: KratkiLucky (button) folded before Flop (didn't bet)
+Seat 5: Jaguar (small blind) folded before Flop 
+Seat 6: tuPaTu (big blind) folded on the Turn 
+Seat 7: Tone91 folded before Flop (didn't bet)
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322699:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:57:24 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #8 is the button
+Seat 1: Tolmi21 ($203.66 in chips)
+Seat 2: drPokermarv ($183.50 in chips)
+Seat 3: kole1992 ($157.01 in chips)
+Seat 4: KratkiLucky ($168.63 in chips)
+Seat 5: Jaguar ($75.60 in chips)
+Seat 6: tuPaTu ($47.84 in chips)
+Seat 7: Tone91 ($206.99 in chips)
+Seat 8: JTs98o ($223.94 in chips)
+Tolmi21: posts the ante $4.43
+drPokermarv: posts the ante $4.43
+kole1992: posts the ante $4.43
+KratkiLucky: posts the ante $4.43
+Jaguar: posts the ante $4.43
+tuPaTu: posts the ante $4.43
+Tone91: posts the ante $4.43
+JTs98o: posts the ante $4.43
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 5c]
+*** FLOP *** [4h 8s Th]
+Tolmi21: bets $17.72
+drPokermarv: folds
+kole1992: folds
+KratkiLucky: folds
+Jaguar: raises $53.16 to $53.16
+tuPaTu: folds
+tuPaTu leaves the table
+Tone91: folds
+JTs98o: folds
+Tolmi21: folds
+Uncalled bet ($35.44) returned to Jaguar
+*** SHOW DOWN ***
+Jaguar has timed out
+Jaguar: doesn't show hand
+Jaguar collected $70.88 from pot
+*** SUMMARY ***
+Total pot $70.88 | Rake $3.54 
+Board [4h 8s Th]
+Seat 1: Tolmi21 folded on the Flop 
+Seat 2: drPokermarv folded on the Flop 
+Seat 3: kole1992 folded on the Flop 
+Seat 4: KratkiLucky folded on the Flop 
+Seat 5: Jaguar collected ($70.88)
+Seat 6: tuPaTu folded on the Flop 
+Seat 7: Tone91 folded on the Flop 
+Seat 8: JTs98o (button) folded on the Flop 
+
+
+Weplay Hand #75322726:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:58:38 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #5 is the button
+Seat 1: Tolmi21 ($181.51 in chips)
+Seat 2: drPokermarv ($179.07 in chips)
+Seat 3: kole1992 ($152.58 in chips)
+Seat 4: KratkiLucky ($164.20 in chips)
+Seat 5: Jaguar ($120.79 in chips)
+Seat 7: Tone91 ($202.56 in chips)
+Seat 8: JTs98o ($219.51 in chips)
+Tone91: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 9h]
+JTs98o: folds
+Tolmi21: folds
+drPokermarv: folds
+kole1992: raises $2 to $2
+KratkiLucky: folds
+Jaguar: calls $2
+Tone91: calls $1
+*** FLOP *** [Kh 4c Jh]
+Tone91: checks
+kole1992: checks
+Jaguar: checks
+*** TURN *** [Kh 4c Jh] [Kd]
+Tone91: bets $4.02
+kole1992: folds
+Jaguar: calls $4.02
+*** RIVER *** [Kh 4c Jh Kd] [Js]
+Tone91: checks
+Jaguar: checks
+*** SHOW DOWN ***
+Tone91: shows [9c Qh] (two pair, Kings and Jacks)
+Jaguar: shows [Ad 4d] (two pair, Kings and Jacks)
+Jaguar collected $14.04 from pot
+*** SUMMARY ***
+Total pot $14.04 | Rake $0.70 
+Board [Kh 4c Jh Kd Js]
+Seat 1: Tolmi21 folded before Flop (didn't bet)
+Seat 2: drPokermarv folded before Flop (didn't bet)
+Seat 3: kole1992 folded on the Turn 
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 5: Jaguar (button) showed [Ad 4d] and won ($14.04) with two pair, Kings and Jacks
+Seat 7: Tone91 (big blind) showed [9c Qh] and lost with two pair, Kings and Jacks
+Seat 8: JTs98o folded before Flop (didn't bet)
+
+
+Weplay Hand #75322746:  Hold'em No Limit ($0.50/$1) - 2026/02/10 20:59:50 UTC
+Table 'Niš Bomb Pot (3BB-5BB) #1'(11506800) 8-max (Money 3) Seat #6 is the button
+Seat 1: Tolmi21 ($181.51 in chips)
+Seat 2: drPokermarv ($179.07 in chips)
+Seat 3: kole1992 ($150.58 in chips)
+Seat 4: KratkiLucky ($164.20 in chips)
+Seat 5: Jaguar ($128.11 in chips)
+Seat 7: Tone91 ($196.54 in chips)
+Seat 8: JTs98o ($219.51 in chips)
+Tone91: posts small blind $0.50
+JTs98o: posts big blind $1
+*** HOLE CARDS ***
+Dealt to kole1992 [7s 4s]
+Tolmi21: raises $2.50 to $2.50
+drPokermarv: raises $6 to $6
+kole1992: folds
+KratkiLucky: folds
+Jaguar: folds
+Tone91: folds
+JTs98o: folds
+Tolmi21: calls $3.50
+*** FLOP *** [4d Ts As]
+Tolmi21: checks
+drPokermarv: bets $9.50
+Tolmi21: calls $9.50
+*** TURN *** [4d Ts As] [Ah]
+Tolmi21: checks
+drPokermarv: bets $32
+Tolmi21: calls $32
+*** RIVER *** [4d Ts As Ah] [3h]
+Tolmi21: checks
+drPokermarv: bets $131.57 and is all-in
+Tolmi21: calls $131.57
+*** SHOW DOWN ***
+drPokermarv: shows [5d 5s] (two pair, Aces and Fives)
+Tolmi21: shows [8c Ac] (three of a kind, Aces)
+Tolmi21 collected $359.64 from pot
+*** SUMMARY ***
+Total pot $359.64 | Rake $6.50 
+Board [4d Ts As Ah 3h]
+Seat 1: Tolmi21 showed [8c Ac] and won ($359.64) with three of a kind, Aces
+Seat 2: drPokermarv showed [5d 5s] and lost with two pair, Aces and Fives
+Seat 3: kole1992 folded before Flop (didn't bet)
+Seat 4: KratkiLucky folded before Flop (didn't bet)
+Seat 5: Jaguar folded before Flop (didn't bet)
+Seat 7: Tone91 (small blind) folded before Flop 
+Seat 8: JTs98o (big blind) folded before Flop 

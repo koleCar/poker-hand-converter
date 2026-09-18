@@ -1,13 +1,17 @@
 import { memo } from "react";
-import { formatMoney } from "../../lib/format";
+import type { AmountFormatter } from "./tableMath";
 
 interface ChipStackProps {
   amount: number;
-  currency: string;
+  /** The same amount in big blinds, straight off the replay frame. */
+  amountBb?: number;
   /** Big blind, used to scale how many chips are drawn. */
   bigBlind: number;
-  label?: string;
-  variant?: "bet" | "pot";
+  /** Renders the caption in the unit the viewer picked (currency or bb). */
+  format: AmountFormatter;
+  /** Overrides the caption entirely; pass null to draw discs with no caption. */
+  label?: string | null;
+  variant?: "bet" | "pot" | "sweep";
 }
 
 const CHIP_COLORS = [
@@ -30,7 +34,14 @@ function chipCount(amount: number, bigBlind: number): number {
   return Math.max(1, Math.min(6, Math.round(Math.log2(bb + 1)) + 1));
 }
 
-function ChipStackImpl({ amount, currency, bigBlind, label, variant = "bet" }: ChipStackProps) {
+function ChipStackImpl({
+  amount,
+  amountBb,
+  bigBlind,
+  format,
+  label,
+  variant = "bet",
+}: ChipStackProps) {
   if (amount <= 0) {
     return null;
   }
@@ -38,16 +49,17 @@ function ChipStackImpl({ amount, currency, bigBlind, label, variant = "bet" }: C
   const count = chipCount(amount, bigBlind);
   const bb = bigBlind > 0 ? amount / bigBlind : amount;
   const colorSeed = Math.min(CHIP_COLORS.length - 1, Math.floor(Math.log2(bb + 1)));
+  const caption = label === undefined ? format(amount, amountBb) : label;
 
   return (
     <span className={`chip-stack chip-stack--${variant}`}>
-      <span className="chip-stack__discs">
+      <span className="chip-stack__discs" aria-hidden="true">
         {Array.from({ length: count }, (_, index) => (
           <span
             key={index}
             className="chip"
             style={{
-              bottom: `${index * 4}px`,
+              bottom: `calc(var(--chip-lift) * ${index})`,
               background: CHIP_COLORS[(colorSeed + index) % CHIP_COLORS.length],
               zIndex: index,
             }}
@@ -56,7 +68,7 @@ function ChipStackImpl({ amount, currency, bigBlind, label, variant = "bet" }: C
           </span>
         ))}
       </span>
-      <span className="chip-stack__amount">{label ?? formatMoney(currency, amount)}</span>
+      {caption ? <span className="chip-stack__amount">{caption}</span> : null}
     </span>
   );
 }

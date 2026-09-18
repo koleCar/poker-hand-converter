@@ -1,0 +1,255 @@
+﻿Bovada Hand #2633115879: 7CARD Tournament #1378659 TBL#1, Fixed Limit- Level 1 (0/0) - 2012-06-17 22:21:03
+Seat+1: 1,500 in chips
+Seat+4 [ME]: 1,500 in chips
+Seat+5: 1,500 in chips
+Seat+6: 1,500 in chips
+Seat+7: 1,500 in chips
+Seat+8: 1,500 in chips
+Seat+4 [ME] : Table enter user
+Seat+8 : Table enter user
+Seat+6 : Table enter user
+Seat+5 : Table enter user
+Seat+1 : Table enter user
+Seat+7 : Table enter user
+Seat+1 : Ante chip 2
+Seat+4 [ME] : Ante chip 2
+Seat+5 : Ante chip 2
+Seat+6 : Ante chip 2
+Seat+7 : Ante chip 2
+Seat+8 : Ante chip 2
+*** HOLE CARDS ***
+Seat+1 : Card dealt to a spot [9d Td 5c]
+Seat+4 [ME] : Card dealt to a spot [2h 2c 3c]
+Seat+5 : Card dealt to a spot [Kc 4s Kd]
+Seat+6 : Card dealt to a spot [Kh 9c 5h]
+Seat+7 : Card dealt to a spot [Jc 7h Qc]
+Seat+8 : Card dealt to a spot [6s Jd Ks]
+Seat+4 [ME] : Big blind/Bring in 5
+Seat+5 : Call 5
+Seat+6 : Folds
+Seat+7 : Call 5
+Seat+8 : Call 5
+Seat+1 : Call 5
+Seat+1 : Card dealt to a spot [8s]
+Seat+4 [ME] : Card dealt to a spot [7d]
+Seat+5 : Card dealt to a spot [Ts]
+Seat+7 : Card dealt to a spot [2d]
+Seat+8 : Card dealt to a spot [8h]
+Seat+5 : Bets 10
+Seat+7 : Folds
+Seat+8 : Call 10
+Seat+1 : Folds
+Seat+4 [ME] : Folds
+Seat+5 : Card dealt to a spot [4c]
+Seat+8 : Card dealt to a spot [Tc]
+Seat+8 : Checks
+Seat+5 : Bets 20
+Seat+8 : Call 20
+Seat+5 : Card dealt to a spot [6h]
+Seat+8 : Card dealt to a spot [3d]
+Seat+8 : Checks
+Seat+5 : Bets 20
+Seat+8 : Folds
+Seat+5 : Return uncalled portion of bet 20
+Seat+5 : Does not show [Kc 4s Kd Ts 4c 6h] (Two pair)
+Seat+5 : Hand Result 97
+*** SUMMARY ***
+Total Pot(97)
+Seat 1:  Folded on the 4TH STREET
+Seat 4:  Folded on the 4TH STREET
+Seat 5:  97 [Does not show]
+Seat 6:  Folded on the 3rd STREET
+Seat 7:  Folded on the 4TH STREET
+Seat 8:  Folded on the 6TH STREET
+
+
+Bovada Hand #2633116884: 7CARD Tournament #1378659 TBL#1, Fixed Limit- Level 1 (0/0) - 2012-06-17 22:22:54
+Seat+1: 1,493 in chips
+Seat+2: 1,500 in chips
+Seat+4 [ME]: 1,493 in chips
+Seat+5: 1,560 in chips
+Seat+6: 1,498 in chips
+Seat+7: 1,493 in chips
+Seat+8: 1,463 in chips
+Seat+1 : Ante chip 2
+Seat+2 : Ante chip 2
+Seat+4 [ME] : Ante chip 2
+Seat+5 : Ante chip 2
+Seat+6 : Ante chip 2
+Seat+7 : Ante chip 2
+Seat+8 : Ante chip 2
+*** HOLE CARDS ***
+Seat+1 : Card dealt to a spot [Tc 2s 4d]
+Seat+2 : Card dealt to a spot [8s 4h 6c]
+Seat+4 [ME] : Card dealt to a spot [6d Kd 5c]
+Seat+5 : Card dealt to a spot [Ah Qh 5s]
+Seat+6 : Card dealt to a spot [4s 2c Jd]
+Seat+7 : Card dealt to a spot [3s 2d Kh]
+Seat+8 : Card dealt to a spot [9c Ad Jc]
+Seat+1 : Big blind/Bring in(timeout) 5
+Seat+2 : Call 5
+Seat+4 [ME] : Folds
+Seat+5 : Folds
+Seat+6 : Folds
+Seat+7 : Call 5
+Seat+8 : Call 5
+Seat+1 : Card dealt to a spot [6s]
+Seat+2 : Card dealt to a spot [2h]
+Seat+7 : Card dealt to a spot [Ac]
+Seat+8 : Card dealt to a spot [Js]
+Seat+8 : Double bets 20
+Seat+1 : Folds
+Seat+2 : Folds
+Seat+7 : Call 20
+Seat+7 : Card dealt to a spot [9s]
+Seat+8 : Card dealt to a spot [3c]
+Seat+8 : Bets 20
+Seat+7 : Call 20
+Seat+7 : Card dealt to a spot [Qc]
+Seat+8 : Card dealt to a spot [8h]
+Seat+8 : Bets 20
+Seat+7 : Call 20
+Seat+7 : Card dealt to a spot [4c]
+Seat+8 : Card dealt to a spot [9d]
+Seat+8 : Bets 20
+Seat+7 : Folds
+Seat+8 : Return uncalled portion of bet 20
+Seat+8 : Does not show [9c Ad Jc Js 3c 8h 9d] (Two pair)
+Seat+8 : Hand Result 154
+*** SUMMARY ***
+Total Pot(154)
+Seat 1:  Folded on the 4TH STREET
+Seat 2:  Folded on the 4TH STREET
+Seat 4:  Folded on the 3rd STREET
+Seat 5:  Folded on the 3rd STREET
+Seat 6:  Folded on the 3rd STREET
+Seat 7:  Folded on the RIVER
+Seat 8:  154 [Does not show]
+
+
+Bovada Hand #2633117518: 7CARD Tournament #1378659 TBL#1, Fixed Limit- Level 1 (0/0) - 2012-06-17 22:24:39
+Seat+1: 1,486 in chips
+Seat+2: 1,493 in chips
+Seat+4 [ME]: 1,491 in chips
+Seat+5: 1,558 in chips
+Seat+6: 1,496 in chips
+Seat+7: 1,426 in chips
+Seat+8: 1,550 in chips
+Seat+1 : Ante chip 2
+Seat+2 : Ante chip 2
+Seat+4 [ME] : Ante chip 2
+Seat+5 : Ante chip 2
+Seat+6 : Ante chip 2
+Seat+7 : Ante chip 2
+Seat+8 : Ante chip 2
+*** HOLE CARDS ***
+Seat+1 : Card dealt to a spot [9d 8d 5c]
+Seat+2 : Card dealt to a spot [Qc 2h 3d]
+Seat+4 [ME] : Card dealt to a spot [3s 6c Jh]
+Seat+5 : Card dealt to a spot [Qd Ac 2s]
+Seat+6 : Card dealt to a spot [4d 8c Qh]
+Seat+7 : Card dealt to a spot [Tc 5s 3h]
+Seat+8 : Card dealt to a spot [9h 8h Td]
+Seat+5 : Big blind/Bring in 5
+Seat+6 : Folds
+Seat+7 : Folds
+Seat+8 : Raises 10
+Seat+1 : Call 10
+Seat+2 : Folds
+Seat+4 [ME] : Folds
+Seat+5 : Call 5
+Seat+1 : Card dealt to a spot [Ks]
+Seat+5 : Card dealt to a spot [Kd]
+Seat+8 : Card dealt to a spot [Kh]
+Seat+8 : Bets 10
+Seat+1 : Raises 20
+Seat+5 : Folds
+Seat+8 : Raises 30
+Seat+1 : Call 10
+Seat+1 : Card dealt to a spot [Qs]
+Seat+8 : Card dealt to a spot [9c]
+Seat+1 : Bets 20
+Seat+8 : Raises 40
+Seat+1 : Call 20
+Seat+1 : Card dealt to a spot [3c]
+Seat+8 : Card dealt to a spot [Jd]
+Seat+1 : Checks
+Seat+8 : Bets 20
+Seat+1 : Folds
+Seat+8 : Return uncalled portion of bet 20
+Seat+8 : Does not show [9h 8h Td Kh 9c Jd] (One pair)
+Seat+8 : Hand Result 184
+*** SUMMARY ***
+Total Pot(184)
+Seat 1:  Folded on the 6TH STREET
+Seat 2:  Folded on the 3rd STREET
+Seat 4:  Folded on the 3rd STREET
+Seat 5:  Folded on the 4TH STREET
+Seat 6:  Folded on the 3rd STREET
+Seat 7:  Folded on the 3rd STREET
+Seat 8:  184 [Does not show]
+
+
+Bovada Hand #2633118046: 7CARD Tournament #1378659 TBL#1, Fixed Limit- Level 2 (0/0) - 2012-06-17 22:26:09
+Seat+1: 1,404 in chips
+Seat+2: 1,491 in chips
+Seat+3: 1,500 in chips
+Seat+4 [ME]: 1,489 in chips
+Seat+5: 1,546 in chips
+Seat+6: 1,494 in chips
+Seat+7: 1,424 in chips
+Seat+8: 1,652 in chips
+Seat+1 : Ante chip 4
+Seat+2 : Ante chip 4
+Seat+3 : Ante chip 4
+Seat+4 [ME] : Ante chip 4
+Seat+5 : Ante chip 4
+Seat+6 : Ante chip 4
+Seat+7 : Ante chip 4
+Seat+8 : Ante chip 4
+*** HOLE CARDS ***
+Seat+1 : Card dealt to a spot [Ks Ad Tc]
+Seat+2 : Card dealt to a spot [Ac 3c 7d]
+Seat+3 : Card dealt to a spot [4h Qh 6d]
+Seat+4 [ME] : Card dealt to a spot [5s 6h 3d]
+Seat+5 : Card dealt to a spot [6s 6c 8s]
+Seat+6 : Card dealt to a spot [2d 7h 4s]
+Seat+7 : Card dealt to a spot [Ts 9d 5d]
+Seat+8 : Card dealt to a spot [Jd 9c 3h]
+Seat+3 : Table enter user
+Seat+4 [ME] : Big blind/Bring in 10
+Seat+5 : Folds
+Seat+6 : Folds
+Seat+7 : Folds
+Seat+8 : Folds
+Seat+1 : Raises 20
+Seat+2 : Call 20
+Seat+3 : Call 20
+Seat+4 [ME] : Call 10
+Seat+1 : Card dealt to a spot [Jh]
+Seat+2 : Card dealt to a spot [Js]
+Seat+3 : Card dealt to a spot [8d]
+Seat+4 [ME] : Card dealt to a spot [Qd]
+Seat+4 [ME] : Checks
+Seat+1 : Bets 20
+Seat+2 : Folds
+Seat+3 : Call 20
+Seat+4 [ME] : Folds
+Seat+1 : Card dealt to a spot [2s]
+Seat+3 : Card dealt to a spot [9s]
+Seat+1 : Bets 40
+Seat+3 : Folds
+Seat+1 : Return uncalled portion of bet 40
+Seat+1 : Does not show [Ks Ad Tc Jh 2s] (High Card)
+Seat+1 : Hand Result 152
+*** SUMMARY ***
+Total Pot(152)
+Seat 1:  152 [Does not show]
+Seat 2:  Folded on the 4TH STREET
+Seat 3:  Folded on the 5TH STREET
+Seat 4:  Folded on the 4TH STREET
+Seat 5:  Folded on the 3rd STREET
+Seat 6:  Folded on the 3rd STREET
+Seat 7:  Folded on the 3rd STREET
+Seat 8:  Folded on the 3rd STREET
+

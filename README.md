@@ -15,7 +15,7 @@ Sve se izvršava u browseru; jedini backend je Supabase (Postgres + PostgREST).
   - `src/lib/converter.ts` - WePlay -> GG konverzija
   - `src/lib/handParser.ts` - GG tekst -> strukturirani hand
   - `src/lib/replay.ts` - strukturirani hand -> vremenska traka frameova za replayer
-  - `src/lib/handStore.ts` - spremanje i pretraga handova u Supabaseu
+  - `src/lib/db/` - spremanje, pretraga, failure corpus i share linkovi (Supabase)
   - `src/components/replayer/` - stol, karte, žetoni, kontrole
 - `backend/` - test harness (nije runtime backend); testira i frontend libove
 - `supabase/migrations/` - shema baze
@@ -47,47 +47,51 @@ Pokriva konverziju, parser i replay engine nad **stvarnim** sample fajlovima iz
 zbroj uloga mora odgovarati `Total pot` liniji, nijedan stack ne smije otići u
 minus tijekom replaya, i cijeli pot mora biti isplaćen u zadnjem frameu.
 
-## Baza (Supabase)
+## Database (Supabase)
 
-Projekt: `riybwcfnclphacnfawiq` (`poker converter`).
+Project: `riybwcfnclphacnfawiq` (`poker converter`), Postgres 17.
 
-### Tablica `stored_hands`
+Full documentation — every column, the RLS reasoning, which query each index
+serves, how to apply a migration, and how to triage the failure corpus — is in
+**[`docs/DATABASE.md`](docs/DATABASE.md)**. The short version:
 
-Migracija: `supabase/migrations/20260916120000_stored_hands_replayer.sql`
+Baseline migration: `supabase/migrations/20260916190000_phf_baseline.sql`.
+Client layer: `frontend/src/lib/db/`.
 
-Jedan red = jedan hand. Uz kanonski GG tekst (`hand_text`, iz kojeg replayer
-re-parsira ruku) sprema se i denormalizirani sloj za pretragu:
+### Tables
 
-| kolona | čemu služi |
+| Table | What it holds |
 | --- | --- |
-| `hand_key` | unique, dedupe - ponovni upload istog fajla ne radi duplikate |
-| `board_cards text[]` | GIN index, filter "board sadrži ove karte" |
-| `hero_cards text[]` | GIN index, filter po točnim hero kartama |
-| `hero_hand_class` | `AKs` / `AKo` / `TT` - filter po klasi ruke |
-| `player_names text[]` | GIN index, filter po igraču |
-| `total_pot`, `hero_profit`, `went_to_showdown`, `played_at` | sortiranje i brzi filteri |
+| `hands` | One successfully converted hand: the canonical `phf jsonb` document, the rendered GG-style `standard_text`, the original `source_text`, plus a denormalized column per searchable field (site, hero, cards, board, stakes, pot, profit, …). Unique on `hand_key`, so re-uploading a file never duplicates. |
+| `unparsed_hands` | The **failure corpus** — hand histories we could not convert, kept deliberately as reference material for writing the next parser. Deduped by `fingerprint` with an occurrence counter and a triage `status`. |
+| `unparsed_gaps` | View: the corpus rolled up by site / stage / reason, ordered by impact. "Which converter do we build next." |
+| `shares` | Short-slug public links to one hand. Sealed from the client; reachable only through `create_share()` / `resolve_share()`. |
+
+Money is stored as **integer minor units** everywhere, matching PHF.
 
 ### RLS
 
-Aplikacija nema login, a deployani bundle je javan - znači anon ključ je javan.
-Zato su politike namjerno postavljene ovako:
+The app has no login and the deployed bundle is public, so the anon key is
+public by construction. Policies are written for an untrusted caller:
 
-- `select` - **dozvoljeno** za `anon`
-- `insert` - **dozvoljeno** za `anon`
-- `update` / `delete` - **nisu dozvoljeni**
+- `select` — **allowed** for `anon` on `hands` and `unparsed_hands`
+- `insert` — **allowed** for `anon` on `hands`
+- `update` / `delete` — **never**, on any table
+- `shares` — no grants and no policies at all; a slug is a capability URL, and
+  being able to list the table would defeat the point
 
-Najgore što netko izvana može napraviti je dodati smeće handove; postojeći
-handovi se ne mogu obrisati ni izmijeniti. Brisanje se radi iz Supabase
-dashboarda (service role).
+The worst a stranger can do is add junk rows; nothing can be destroyed or
+altered. Counters that must move (failure occurrences, share views) do so inside
+`security definer` functions that can touch nothing else. Cleanup is a service
+role operation. Insert volume is bounded by size caps, shape checks and a global
+rate limiter.
 
-### Primjena migracija
+### Applying migrations
 
-```bash
-supabase db push            # ako imaš DB password
-```
-
-Alternativno, SQL se može izvršiti direktno iz Supabase dashboarda
-(SQL Editor).
+`supabase db push` **does not work here** — the CLI cannot get a login role. Use
+the Management API with the personal access token from the macOS keychain; the
+exact commands and the verification queries are in
+[`docs/DATABASE.md`](docs/DATABASE.md#applying-a-migration).
 
 ## Funkcionalnost
 

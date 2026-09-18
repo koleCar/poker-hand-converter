@@ -1,0 +1,47 @@
+CoinPoker Hand #191721400: Hold'em No Limit (0.01/0.02 ) 2025/01/12 04:28:44 GMT
+Table 'NL ₮2 I' 7-max Seat #7 is the button
+Seat 1: Arumis (2.18 in chips)
+Seat 2: nlin (0.61 in chips)
+Seat 3: donkme123 (2.89 in chips)
+Seat 4: Bartholomew (3.22 in chips)
+Seat 5: Laith20002 (2.00 in chips)
+Seat 6: tonaz (2.05 in chips)
+Seat 7: NorthKing (1.97 in chips)
+Arumis: posts small blind 0.01
+nlin: posts big blind 0.02
+donkme123: posts straddle 0.04
+*** HOLE CARDS ***
+Dealt to nlin [3d Ks]
+Bartholomew: folds
+Laith20002: folds
+tonaz: folds
+NorthKing: calls 0.04
+Arumis: folds
+nlin: folds
+donkme123: checks
+*** FLOP *** [5c 9s 3s]
+donkme123: checks
+NorthKing: bets 0.05
+donkme123: calls 0.05
+*** TURN *** [5c 9s 3s] [2d]
+donkme123: checks
+NorthKing: checks
+*** RIVER *** [5c 9s 3s 2d] [6s]
+donkme123: checks
+NorthKing: checks
+*** SHOW DOWN ***
+donkme123: shows [3h Ts] (a pair of Threes)
+NorthKing: shows [Ad 9h] (a pair of Nines)
+NorthKing collected 0.20 from pot
+*** SUMMARY ***
+Total pot 0.21 | Rake 0.01
+Board [ 5c 9s 3s 2d 6s ]
+Game ended: 2025/01/12 04:29:54 GMT
+Seat 1: Arumis (small blind) folded before Flop
+Seat 2: nlin (big blind) folded before Flop
+Seat 3: donkme123 (straddle) showed [3h Ts]
+Seat 4: Bartholomew folded before Flop (didn't bet)
+Seat 5: Laith20002 folded before Flop (didn't bet)
+Seat 6: tonaz folded before Flop (didn't bet)
+Seat 7: NorthKing (button) showed [Ad 9h] and won (0.20) with a pair of Nines
+

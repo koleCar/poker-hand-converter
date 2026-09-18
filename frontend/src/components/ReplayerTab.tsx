@@ -17,6 +17,7 @@ import { EMPTY_FILTERS } from "../lib/handStore";
 import { isSupabaseConfigured } from "../lib/supabase";
 import { HandFiltersBar } from "./HandFiltersBar";
 import { HandList } from "./HandList";
+import { ShareHandButton } from "./share/ShareHandButton";
 import { ReplayViewer } from "./replayer/ReplayViewer";
 
 const PAGE_SIZE = 25;
@@ -67,7 +68,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
         setRows(result.rows);
         setTotal(result.total);
       } catch (err) {
-        setListError(err instanceof Error ? err.message : "Greska pri dohvatu.");
+        setListError(err instanceof Error ? err.message : "Could not load hands.");
         setRows([]);
         setTotal(0);
       } finally {
@@ -94,7 +95,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       const text = await fetchHandText(row.id);
       const hand = parseHand(text);
       if (!hand) {
-        setListError("Hand se ne može parsirati.");
+        setListError("This hand could not be parsed.");
         return;
       }
       setLoaded({
@@ -107,7 +108,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      setListError(err instanceof Error ? err.message : "Greska pri dohvatu ruke.");
+      setListError(err instanceof Error ? err.message : "Could not load this hand.");
     }
   }
 
@@ -134,8 +135,8 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       });
       setUploadNotice(
         direct.length > 1
-          ? `File sadrži ${direct.length} handova — učitan je prvi. Za batch koristi Converter tab.`
-          : "Hand je validan i spreman za replay.",
+          ? `File contains ${direct.length} hands — the first one was loaded. Use the Converter tab for batches.`
+          : "Hand parsed and ready to replay.",
       );
       return;
     }
@@ -144,8 +145,8 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
     if (converted.status !== "converted") {
       setUploadError(
         firstDirect
-          ? "Hand je prepoznat kao WePlay format, ali konverzija nije uspjela."
-          : converted.message ?? "Tekst nije prepoznatljiv hand history.",
+          ? "Recognised as WePlay format, but the conversion failed."
+          : converted.message ?? "That text is not a recognisable hand history.",
       );
       setLoaded(null);
       return;
@@ -154,7 +155,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
     const convertedChunks = splitHands(converted.outputText);
     const hand = convertedChunks.length ? parseHand(convertedChunks[0]) : null;
     if (!hand) {
-      setUploadError("Konverzija je prošla, ali hand se ne može parsirati.");
+      setUploadError("Conversion succeeded, but the hand could not be parsed.");
       setLoaded(null);
       return;
     }
@@ -168,8 +169,8 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       converted: true,
     });
     setUploadNotice(
-      `Ulaz je bio WePlay format — konvertiran u GG${
-        convertedChunks.length > 1 ? ` (${convertedChunks.length} handova, učitan prvi)` : ""
+      `Input was WePlay format — converted to GG${
+        convertedChunks.length > 1 ? ` (${convertedChunks.length} hands, first one loaded)` : ""
       }.`,
     );
   }
@@ -187,10 +188,10 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
         sourceFilename: loaded.sourceFilename,
       });
       setLoaded({ ...loaded, storedId: result.id });
-      setUploadNotice(result.duplicate ? "Hand je već bio u bazi." : "Hand spremljen u bazu.");
+      setUploadNotice(result.duplicate ? "This hand was already in the database." : "Hand saved to the database.");
       void runSearch(filters, page);
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Spremanje nije uspjelo.");
+      setUploadError(err instanceof Error ? err.message : "Saving failed.");
     } finally {
       setSavingUpload(false);
     }
@@ -203,18 +204,18 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       <section className="card">
         <header className="card__head">
           <div>
-            <h2>Učitaj hand za replay</h2>
+            <h2>Load a hand to replay</h2>
             <p className="muted">
-              Uploadaj jedan hand (GG ili WePlay format) ili zalijepi tekst. Ako je WePlay,
-              automatski ga konvertiramo prije replaya.
+              Upload a single hand (GG or WePlay format) or paste the text. WePlay hands are
+              converted automatically before replay.
             </p>
           </div>
           <div className="card__head-actions">
             <button type="button" className="btn btn--ghost btn--sm" onClick={() => setPasteOpen((v) => !v)}>
-              {pasteOpen ? "Zatvori paste" : "Zalijepi tekst"}
+              {pasteOpen ? "Close paste" : "Paste text"}
             </button>
             <button type="button" className="btn btn--sm" onClick={() => fileRef.current?.click()}>
-              Odaberi file
+              Choose file
             </button>
             <input
               ref={fileRef}
@@ -236,7 +237,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
             <textarea
               value={pasteText}
               onChange={(event) => setPasteText(event.target.value)}
-              placeholder="Poker Hand #HD…  ili  Weplay Hand #…"
+              placeholder="Poker Hand #HD…  or  Weplay Hand #…"
               rows={8}
               spellCheck={false}
             />
@@ -247,10 +248,10 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
                 onClick={() => loadFromText(pasteText, null)}
                 disabled={!pasteText.trim()}
               >
-                Učitaj
+                Load
               </button>
               <button type="button" className="btn btn--ghost btn--sm" onClick={() => setPasteText("")}>
-                Očisti
+                Clear
               </button>
             </div>
           </div>
@@ -267,18 +268,21 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
             hand={loaded.hand}
             onClose={() => setLoaded(null)}
             headerExtra={
-              loaded.origin === "upload" && !loaded.storedId && isSupabaseConfigured ? (
-                <button
-                  type="button"
-                  className="btn btn--primary btn--sm"
-                  onClick={saveLoadedHand}
-                  disabled={savingUpload}
-                >
-                  {savingUpload ? "Spremam…" : "Spremi u bazu"}
-                </button>
-              ) : loaded.storedId ? (
-                <span className="tag tag--good">u bazi</span>
-              ) : null
+              <>
+                {loaded.origin === "upload" && !loaded.storedId && isSupabaseConfigured ? (
+                  <button
+                    type="button"
+                    className="btn btn--sm"
+                    onClick={saveLoadedHand}
+                    disabled={savingUpload}
+                  >
+                    {savingUpload ? "Saving…" : "Save to database"}
+                  </button>
+                ) : loaded.storedId ? (
+                  <span className="tag tag--good">saved</span>
+                ) : null}
+                <ShareHandButton hand={loaded.hand} storedHandId={loaded.storedId} />
+              </>
             }
           />
         </section>
@@ -287,11 +291,11 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       <section className="card">
         <header className="card__head">
           <div>
-            <h2>Handovi iz baze</h2>
+            <h2>Hands in your database</h2>
             <p className="muted">
               {isSupabaseConfigured
-                ? `${total} handova odgovara filterima`
-                : "Supabase nije konfiguriran."}
+                ? `${total} hands match the filters`
+                : "No database configured."}
             </p>
           </div>
         </header>
@@ -320,10 +324,10 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
               disabled={page === 0}
               onClick={() => setPage((current) => Math.max(0, current - 1))}
             >
-              ← Prethodna
+              ← Previous
             </button>
             <span className="muted">
-              Stranica {page + 1} / {pageCount}
+              Page {page + 1} of {pageCount}
             </span>
             <button
               type="button"
@@ -331,7 +335,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
               disabled={page + 1 >= pageCount}
               onClick={() => setPage((current) => current + 1)}
             >
-              Sljedeća →
+              Next →
             </button>
           </div>
         ) : null}

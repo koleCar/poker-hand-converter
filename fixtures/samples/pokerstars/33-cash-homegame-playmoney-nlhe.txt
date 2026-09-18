@@ -1,0 +1,63 @@
+﻿PokerStars Home Game Hand #215486308040: {Club #3225207}  Hold'em No Limit (50/100) - 2020/06/18 14:56:21 ET
+Table 'lets gooooo' 9-max (Play Money) Seat #1 is the button
+Seat 1: color_singleton (10000 in chips) 
+Seat 3: Duke Croix (10000 in chips) 
+color_singleton: posts small blind 50
+Duke Croix: posts big blind 100
+*** HOLE CARDS ***
+Dealt to Duke Croix [2s 3s]
+HighCardJasper joins the table at seat #8 
+color_singleton has timed out
+color_singleton: folds 
+Uncalled bet (50) returned to Duke Croix
+Duke Croix collected 100 from pot
+*** SUMMARY ***
+Total pot 100 | Rake 0 
+Seat 1: color_singleton (button) (small blind) folded before Flop
+Seat 3: Duke Croix (big blind) collected (100)
+
+
+
+PokerStars Home Game Hand #215486319095: {Club #3225207}  Hold'em No Limit (50/100) - 2020/06/18 14:56:43 ET
+Table 'lets gooooo' 9-max (Play Money) Seat #1 is the button
+Seat 1: color_singleton (9950 in chips) 
+Seat 3: Duke Croix (10050 in chips) 
+Seat 8: HighCardJasper (10000 in chips) 
+Seat 9: dddocky (10000 in chips) 
+Duke Croix: posts small blind 50
+HighCardJasper: posts big blind 100
+dddocky: posts big blind 100
+*** HOLE CARDS ***
+Dealt to Duke Croix [2c 6c]
+dddocky: checks 
+color_singleton: calls 100
+Duke Croix: calls 50
+HighCardJasper: raises 100 to 200
+dddocky: folds 
+color_singleton: calls 100
+Duke Croix: calls 100
+*** FLOP *** [Ks 9s Qc]
+Duke Croix: checks 
+HighCardJasper: checks 
+color_singleton: checks 
+*** TURN *** [Ks 9s Qc] [5h]
+Duke Croix: checks 
+HighCardJasper: checks 
+color_singleton: checks 
+*** RIVER *** [Ks 9s Qc 5h] [8c]
+Duke Croix: checks 
+HighCardJasper: checks 
+color_singleton: checks 
+*** SHOW DOWN ***
+Duke Croix: shows [2c 6c] (high card King)
+HighCardJasper: shows [2h 2d] (a pair of Deuces)
+color_singleton: mucks hand 
+HighCardJasper collected 661 from pot
+*** SUMMARY ***
+Total pot 700 | Rake 39 
+Board [Ks 9s Qc 5h 8c]
+Seat 1: color_singleton (button) mucked [Td 7d]
+Seat 3: Duke Croix (small blind) showed [2c 6c] and lost with high card King
+Seat 8: HighCardJasper (big blind) showed [2h 2d] and won (661) with a pair of Deuces
+Seat 9: dddocky folded before Flop (didn't bet)
+

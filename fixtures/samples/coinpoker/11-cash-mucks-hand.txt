@@ -1,0 +1,62 @@
+CoinPoker Hand #352021207: Hold'em No Limit (0.01/0.02 ) 2025/12/28 00:00:51 GMT
+Table 'NL ₮2 II' 7-max Seat #4 is the button
+Seat 1: HornyMelon (2.08 in chips)
+Seat 2: KinTaro82 (2.00 in chips)
+Seat 3: 2waHang (7.86 in chips)
+Seat 4: BehiAce (4.30 in chips)
+Seat 5: waqqas (1.23 in chips)
+Seat 6: Frankfreedom (2.03 in chips)
+Seat 7: nlin (2.00 in chips)
+waqqas: posts small blind 0.01
+Frankfreedom: posts big blind 0.02
+KinTaro82: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [7d 4h]
+nlin: folds
+HornyMelon: calls 0.02
+KinTaro82: checks
+2waHang: folds
+BehiAce: calls 0.02
+waqqas: calls 0.01
+Frankfreedom: checks
+*** FLOP *** [7h 4c 9c]
+waqqas: checks
+Frankfreedom has timed out
+Frankfreedom activated time-bank (4 seconds)
+Frankfreedom: checks
+HornyMelon: checks
+KinTaro82: checks
+BehiAce: checks
+*** TURN *** [7h 4c 9c] [3s]
+waqqas: checks
+Frankfreedom has timed out
+Frankfreedom activated time-bank (3 seconds)
+Frankfreedom: checks
+HornyMelon: checks
+KinTaro82: bets 0.04
+BehiAce: calls 0.04
+waqqas: calls 0.04
+Frankfreedom: calls 0.04
+HornyMelon: folds
+*** RIVER *** [7h 4c 9c 3s] [5c]
+waqqas: checks
+Frankfreedom: checks
+KinTaro82: checks
+BehiAce: checks
+*** SHOW DOWN ***
+waqqas: shows [Ah 6s] (a straight, Seven high)
+Frankfreedom: mucks hand
+KinTaro82: mucks hand
+BehiAce: mucks hand
+waqqas collected 0.25 from pot
+*** SUMMARY ***
+Total pot 0.26 | Rake 0.01
+Board [ 7h 4c 9c 3s 5c ]
+Game ended: 2025/12/28 00:02:45 GMT
+Seat 1: HornyMelon folded on the Turn
+Seat 2: KinTaro82 mucked
+Seat 3: 2waHang folded before Flop (didn't bet)
+Seat 4: BehiAce (button) mucked
+Seat 5: waqqas (small blind) showed [Ah 6s] and won (0.25) with a straight, Seven high
+Seat 6: Frankfreedom (big blind) mucked
+Seat 7: nlin folded before Flop (didn't bet)

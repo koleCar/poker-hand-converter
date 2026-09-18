@@ -1,0 +1,486 @@
+/*
+ * Share affordance (`.share`) and the public shared-hand landing page
+ * (`.sharepage`). Mobile-first — most shared poker links open on a phone.
+ */
+
+/* --------------------------------------------------------- share popover */
+
+.share {
+  position: relative;
+  display: inline-block;
+}
+
+.share__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.share__panel {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(360px, calc(100vw - 28px));
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  text-align: left;
+}
+
+.share__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.share__close {
+  border: 0;
+  background: transparent;
+  color: var(--fg-dim);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.share__close:hover {
+  color: var(--fg);
+  background: var(--bg-elev);
+}
+
+.share__hint {
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.share__row {
+  display: flex;
+  gap: 6px;
+}
+
+.share__url {
+  flex: 1;
+  min-width: 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  padding: 7px 9px;
+}
+
+.share__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.share__actions .btn {
+  text-decoration: none;
+}
+
+.share__msg {
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 7px 9px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+}
+
+.share__msg--ok {
+  color: var(--good);
+  background: rgb(53 196 138 / 10%);
+  border-color: rgb(53 196 138 / 26%);
+}
+
+.share__msg--warn {
+  color: #f0cd7c;
+  background: rgb(232 178 58 / 9%);
+  border-color: rgb(232 178 58 / 26%);
+}
+
+.share__msg--error {
+  color: var(--bad);
+  background: rgb(239 90 90 / 9%);
+  border-color: rgb(239 90 90 / 26%);
+}
+
+/* On narrow screens the popover becomes a bottom sheet so it never clips. */
+@media (max-width: 560px) {
+  .share__panel {
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ------------------------------------------------------------ share page */
+
+.sharepage {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sharepage__bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgb(11 15 20 / 90%);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.sharepage__bar-inner {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 9px max(14px, env(safe-area-inset-left)) 9px max(14px, env(safe-area-inset-right));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sharepage__bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sharepage__bar-actions .btn {
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sharepage__bar-link {
+  display: none;
+  color: var(--fg-muted);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.sharepage__bar-link:hover {
+  color: var(--fg);
+}
+
+.sharepage__main {
+  flex: 1;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 16px max(14px, env(safe-area-inset-left)) 40px max(14px, env(safe-area-inset-right));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ------------------------------------------------------------------ hero */
+
+.sharepage__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(700px 200px at 0% 0%, rgb(30 122 85 / 16%) 0%, transparent 70%),
+    var(--bg-elev);
+  box-shadow: var(--shadow-1);
+}
+
+.sharepage__eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--felt-1);
+  font-weight: 700;
+}
+
+.sharepage__title {
+  margin: 4px 0 12px;
+  font-size: clamp(22px, 6vw, 30px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.sharepage__facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.sharepage__facts li {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.sharepage__facts span {
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.sharepage__facts strong {
+  font-size: 14px;
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sharepage__hero-board {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.sharepage__board-label {
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.sharepage__board {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.sharepage__hero-actions {
+  margin-top: 2px;
+}
+
+/* ---------------------------------------------------------------- replay */
+
+.sharepage__replay {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------------- cta */
+
+.sharepage__cta {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 16px;
+  border: 1px solid rgb(62 166 255 / 22%);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgb(62 166 255 / 10%), transparent 60%),
+    var(--bg-elev);
+}
+
+.sharepage__cta h2 {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.sharepage__cta p {
+  color: var(--fg-muted);
+  max-width: 56ch;
+}
+
+.sharepage__cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sharepage__cta-actions .btn {
+  text-decoration: none;
+}
+
+.sharepage__shared-at {
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  text-align: center;
+}
+
+.sharepage__footer {
+  border-top: 1px solid var(--line-soft);
+  padding: 20px max(14px, env(safe-area-inset-left)) max(24px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.sharepage__footer p {
+  color: var(--fg-muted);
+  font-size: 12.5px;
+}
+
+.sharepage__footer .btn {
+  text-decoration: none;
+}
+
+/* -------------------------------------------------- loading / error state */
+
+.sharepage__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sharepage__skeleton-line,
+.sharepage__skeleton-table {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--bg-elev) 25%, var(--bg-elev-2) 37%, var(--bg-elev) 63%);
+  background-size: 400% 100%;
+  animation: sharepage-shimmer 1.4s ease infinite;
+}
+
+.sharepage__skeleton-line {
+  height: 16px;
+  width: 60%;
+}
+
+.sharepage__skeleton-line--title {
+  height: 32px;
+  width: 42%;
+}
+
+.sharepage__skeleton-table {
+  height: min(52vh, 420px);
+  border-radius: var(--radius);
+}
+
+@keyframes sharepage-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sharepage__skeleton-line,
+  .sharepage__skeleton-table {
+    animation: none;
+  }
+}
+
+.sharepage__problem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 56px 16px;
+}
+
+.sharepage__problem-mark {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  font-size: 26px;
+  background: linear-gradient(145deg, var(--felt-1), var(--felt-3));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%), var(--shadow-1);
+}
+
+.sharepage__problem h1 {
+  font-size: clamp(19px, 5vw, 24px);
+}
+
+.sharepage__problem p {
+  color: var(--fg-muted);
+  max-width: 46ch;
+}
+
+.sharepage__problem-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.sharepage__problem-actions .btn {
+  text-decoration: none;
+}
+
+/* --------------------------------------------------------------- > 560px */
+
+@media (min-width: 560px) {
+  .sharepage__facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sharepage__bar-link {
+    display: inline;
+  }
+}
+
+/* --------------------------------------------------------------- > 900px */
+
+@media (min-width: 900px) {
+  .sharepage__bar-inner,
+  .sharepage__main {
+    padding-inline: max(24px, env(safe-area-inset-left)) max(24px, env(safe-area-inset-right));
+  }
+
+  .sharepage__main {
+    padding-top: 24px;
+    gap: 20px;
+  }
+
+  .sharepage__hero {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 32px;
+    padding: 22px 24px;
+  }
+
+  .sharepage__hero-main {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .sharepage__hero-board {
+    flex: none;
+    align-items: flex-end;
+    padding-top: 0;
+    border-top: 0;
+    border-left: 1px solid var(--line-soft);
+    padding-left: 28px;
+    min-height: 100%;
+  }
+
+  .sharepage__cta {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px;
+  }
+
+  .sharepage__footer {
+    flex-direction: row;
+    justify-content: space-between;
+    padding-inline: 24px;
+  }
+}

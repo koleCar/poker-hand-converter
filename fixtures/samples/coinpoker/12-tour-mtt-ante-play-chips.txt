@@ -1,0 +1,51 @@
+CoinPoker Hand #177956038: Tournament #1268678, Bankroll Starter Freeroll Hold'em No Limit (50/100 ante 13 play) 2024/11/30 14:00:06 GMT
+Table '21' 7-max Seat #6 is the button
+Seat 1: RRoni (5000 in chips) is sitting out
+Seat 2: soeharto (5000 in chips) is sitting out
+Seat 3: nlin (5000 in chips)
+Seat 4: 3eHuT (5000 in chips)
+Seat 5: gobblegan (5000 in chips) is sitting out
+Seat 6: BDK1337 (5000 in chips)
+Seat 7: kaqoliv (5000 in chips)
+RRoni: posts the ante 13
+soeharto: posts the ante 13
+nlin: posts the ante 13
+3eHuT: posts the ante 13
+gobblegan: posts the ante 13
+BDK1337: posts the ante 13
+kaqoliv: posts the ante 13
+kaqoliv: posts small blind 50
+RRoni: posts big blind 100
+*** HOLE CARDS ***
+Dealt to nlin [Tc 6c]
+soeharto: folds
+soeharto has reconnected
+nlin: folds
+3eHuT has timed out
+3eHuT activated time-bank (30 seconds)
+3eHuT: raises 4987 and is all-in
+gobblegan: folds
+BDK1337: calls 4987 and is all-in
+kaqoliv has timed out
+kaqoliv activated time-bank (30 seconds)
+kaqoliv has timed out
+kaqoliv: folds
+RRoni: folds
+*** FLOP *** [8h Qh 9s]
+*** TURN *** [8h Qh 9s] [Jd]
+*** RIVER *** [8h Qh 9s Jd] [2d]
+*** SHOW DOWN ***
+3eHuT: shows [Qs Ad] (a pair of Queens)
+BDK1337: shows [4c Ac] (Ace high)
+3eHuT collected 10215 from pot
+*** SUMMARY ***
+Total pot 10215 | Rake 0
+Board [ 8h Qh 9s Jd 2d ]
+Game ended: 2024/11/30 14:01:23 GMT
+Seat 1: RRoni (big blind) folded before Flop
+Seat 2: soeharto folded before Flop
+Seat 3: nlin folded before Flop
+Seat 4: 3eHuT showed [Qs Ad] and won (10215) with a pair of Queens
+Seat 5: gobblegan folded before Flop
+Seat 6: BDK1337 (button) showed [4c Ac]
+Seat 7: kaqoliv (small blind) folded before Flop

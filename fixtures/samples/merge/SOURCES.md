@@ -1,0 +1,20 @@
+# Merge — sample sources
+
+All files are byte-exact copies (`cp`, UTF-8 with BOM, LF line endings preserved) from the
+[HHSmithy/PokerHandHistoryParser](https://github.com/HHSmithy/PokerHandHistoryParser) unit-test
+corpus, retrieved 2026-09-16. No file has been retyped, reformatted, or had its bytes altered.
+
+| file | provenance URL | date retrieved | REAL / TRANSCRIBED / SYNTHETIC | what it demonstrates |
+|---|---|---|---|---|
+| 01-basic-hand-nlhe.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/HandActionTests/BasicHand.txt | 2026-09-16 | REAL | Baseline PLO hand, `<description>`/`<game>`/`<players>`/`<round id="...">` XML skeleton through `SHOWDOWN` and `END_OF_GAME` |
+| 02-fixed-limit-holdem.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/GameTypeTests/FixedLimitHoldem.txt | 2026-09-16 | REAL | `stakes="Limit $3/$6"`, `END_OF_FOLDED_GAME` round (hand won without showdown) with a `MUCK` event |
+| 03-pot-limit-omaha.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/GameTypeTests/PotLimitOmaha.txt | 2026-09-16 | REAL | `description type="Omaha"`, `numholecards="4"` |
+| 04-allin-showdown.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/HandActionTests/AllInHandWithShowdown.txt | 2026-09-16 | REAL | All-in action and `SHOWDOWN` round with `SHOW` events / `cards type="SHOWN"` |
+| 05-3bet-hand.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/HandActionTests/3BetHand.txt | 2026-09-16 | REAL | Preflop raise/re-raise sequencing — each `RAISE` event's `amount` is the increment, not the total-to |
+| 06-cancelled-hand.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/HandActionTests/CancelledHand.txt | 2026-09-16 | REAL | `<round id="GAME_CANCELLED">` — hand dealt but voided before any blinds/action are posted (no `PREFLOP` round at all); a naive parser expecting blinds will choke |
+| 07-folded-preflop.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/HandActionTests/FoldedPreflop.txt | 2026-09-16 | REAL | Everyone folds preflop, short `END_OF_FOLDED_GAME` |
+| 08-heads-up.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/Seats/HeadsUp.txt | 2026-09-16 | REAL | `seats="2"`, heads-up |
+| 09-full-ring-9handed.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/Seats/Full%20Ring%20(9%20Handed).txt | 2026-09-16 | REAL | `seats="9"` full-ring table (Merge's corpus caps out at 9-max, unlike the other four networks which also have 10-max samples) |
+| 10-sitting-out.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/PlayerTests/WithSittingOut.txt | 2026-09-16 | REAL | `<player dealtin="false"/>` for a seated-but-sitting-out player |
+| 11-omaha-showdown.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/PlayerTests/OmahaShowdown.txt | 2026-09-16 | REAL | Multi-way Omaha showdown with several `SHOW` events |
+| 12-multiple-hands-concatenated.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/Merge/CashGame/MultipleHandsTests/10MultipleHands.txt | 2026-09-16 | REAL | 10 consecutive `<description>...<game>...</game>` blocks in one file — validates the hand-splitting regex `(<description.*?</game>)|(<game.*?</game>)` |

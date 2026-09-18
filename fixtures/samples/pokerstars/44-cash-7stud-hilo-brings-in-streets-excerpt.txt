@@ -1,0 +1,64 @@
+PokerStars Game #35874487284:  7 Card Stud Hi/Lo Limit ($0.04/$0.08 USD) - 2009/11/26 10:22:32 ET
+Table 'Dawn II' 8-max
+Seat 3: gashpor ($1.46 in chips) 
+Seat 4: denny501 ($0.93 in chips) 
+Seat 5: Hero ($1.60 in chips) 
+Seat 8: rdiezchang ($1.16 in chips) 
+gashpor: posts the ante $0.01
+denny501: posts the ante $0.01
+Hero: posts the ante $0.01
+rdiezchang: posts the ante $0.01
+*** 3rd STREET ***
+Dealt to gashpor [Kc]
+Dealt to denny501 [7c]
+Dealt to Hero [5d Ks 2h]
+Dealt to rdiezchang [3d]
+Hero: brings in for $0.02
+rdiezchang: calls $0.02
+gashpor: calls $0.02
+denny501: calls $0.02
+*** 4th STREET ***
+Dealt to gashpor [Kc] [4d]
+Dealt to denny501 [7c] [Qh]
+Dealt to Hero [5d Ks 2h] [9h]
+Dealt to rdiezchang [3d] [7s]
+Soroka69 joins the table at seat #7 
+gashpor: checks 
+poconoman is connected 
+denny501: checks 
+Hero: checks 
+rdiezchang: checks 
+*** 5th STREET ***
+Dealt to gashpor [Kc 4d] [Qd]
+Dealt to denny501 [7c Qh] [9s]
+Dealt to Hero [5d Ks 2h 9h] [Js]
+Dealt to rdiezchang [3d 7s] [Jh]
+gashpor: checks 
+denny501: checks 
+Hero: checks 
+rdiezchang: checks 
+*** 6th STREET ***
+Dealt to gashpor [Kc 4d Qd] [5s]
+Dealt to denny501 [7c Qh 9s] [6s]
+Dealt to Hero [5d Ks 2h 9h Js] [4c]
+Dealt to rdiezchang [3d 7s Jh] [5c]
+123smoothie joins the table at seat #2 
+gashpor: checks 
+denny501: checks 
+Hero: checks 
+rdiezchang: bets $0.08
+gashpor: folds 
+denny501: folds 
+Hero: folds 
+Uncalled bet ($0.08) returned to rdiezchang
+rdiezchang collected $0.12 from pot
+rdiezchang: doesn't show hand 
+*** SUMMARY ***
+Total pot $0.12 | Rake $0 
+Seat 3: gashpor folded on the 6th Street
+Seat 4: denny501 folded on the 6th Street
+Seat 5: Hero folded on the 6th Street
+Seat 8: rdiezchang collected ($0.12)
+
+
+

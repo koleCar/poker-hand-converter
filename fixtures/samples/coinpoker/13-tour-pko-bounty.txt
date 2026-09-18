@@ -1,0 +1,40 @@
+CoinPoker Hand #185484049: Tournament #1287469, ₮0.10 Mega Sat to ₮1 Mini Dojo PKO, 15 Seats GTD Hold'em No Limit (50/100 ante 13 play) 2024/12/23 15:10:04 GMT
+Table '2' 7-max Seat #2 is the button
+Seat 1: jesskey (5000 in chips)
+Seat 3: confidenttofly (5000 in chips)
+Seat 4: rmanamiri (5000 in chips)
+Seat 5: nlin (5000 in chips)
+Seat 6: SAS1234 (5000 in chips)
+Seat 7: Orthodox5 (5000 in chips)
+jesskey: posts the ante 13
+confidenttofly: posts the ante 13
+rmanamiri: posts the ante 13
+nlin: posts the ante 13
+SAS1234: posts the ante 13
+Orthodox5: posts the ante 13
+confidenttofly: posts small blind 50
+rmanamiri: posts big blind 100
+*** HOLE CARDS ***
+Dealt to nlin [6s 3c]
+nlin: folds
+SAS1234: raises 200 to 300
+Orthodox5: folds
+jesskey: calls 300
+confidenttofly: folds
+rmanamiri: raises 4887 and is all-in
+SAS1234 has timed out
+SAS1234 activated time-bank (30 seconds)
+SAS1234: folds
+jesskey: folds
+rmanamiri collected 5715 from pot
+rmanamiri: doesn't show hand
+*** SUMMARY ***
+Total pot 5715 | Rake 0
+Board [ ]
+Game ended: 2024/12/23 15:10:50 GMT
+Seat 1: jesskey folded before Flop
+Seat 3: confidenttofly (small blind) folded before Flop
+Seat 4: rmanamiri (big blind) collected (5715)
+Seat 5: nlin folded before Flop
+Seat 6: SAS1234 folded before Flop
+Seat 7: Orthodox5 folded before Flop

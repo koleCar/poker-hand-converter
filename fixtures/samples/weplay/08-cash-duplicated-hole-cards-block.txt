@@ -1,0 +1,735 @@
+﻿Weplay Hand #71764050:  Hold'em No Limit ($1/$2) - 2026/01/06 15:21:32 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($200 in chips)
+Seat 3: guerillAA13 ($258.11 in chips)
+Seat 4: erl90 ($138.96 in chips)
+Seat 5: JTs98o ($201.30 in chips)
+Seat 6: GizmoGradac ($132.75 in chips)
+GizmoGradac: posts small blind $1
+kole1992: posts big blind $2
+guerillAA13: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 9c]
+guerillAA13: folds
+erl90: calls $2
+JTs98o: folds
+GizmoGradac: folds
+kole1992: checks
+*** FLOP *** [9s 6h 4s]
+kole1992: bets $2
+erl90: calls $2
+*** TURN *** [9s 6h 4s] [Js]
+kole1992: checks
+erl90: checks
+*** RIVER *** [9s 6h 4s Js] [Kc]
+kole1992: checks
+erl90: checks
+*** SHOW DOWN ***
+kole1992: shows [8d 9c] (a pair of Nines)
+erl90 has timed out
+erl90: mucks hand
+kole1992 collected $9 from pot
+*** SUMMARY ***
+Total pot $9 | Rake $0.45 
+Board [9s 6h 4s Js Kc]
+Seat 1: kole1992 (big blind) showed [8d 9c] and won ($9) with a pair of Nines
+Seat 3: guerillAA13 folded before Flop (didn't bet)
+Seat 4: erl90 mucked
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: GizmoGradac (small blind) folded before Flop 
+
+
+Weplay Hand #71764071:  Hold'em No Limit ($1/$2) - 2026/01/06 15:22:04 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($204.55 in chips)
+Seat 3: guerillAA13 ($258.11 in chips)
+Seat 4: erl90 ($134.96 in chips)
+Seat 5: JTs98o ($201.30 in chips)
+Seat 6: GizmoGradac ($131.75 in chips)
+kole1992: posts small blind $1
+guerillAA13: posts big blind $2
+erl90: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Js 8s]
+erl90: calls $2
+JTs98o: raises $9 to $9
+GizmoGradac: folds
+kole1992: folds
+guerillAA13: calls $7
+erl90: folds
+*** FLOP *** [6h 7c 9h]
+guerillAA13: checks
+JTs98o: bets $8.40
+guerillAA13: calls $8.40
+*** TURN *** [6h 7c 9h] [5h]
+guerillAA13: bets $16.61
+JTs98o: calls $16.61
+*** RIVER *** [6h 7c 9h 5h] [2s]
+guerillAA13: bets $47.47
+JTs98o: folds
+Uncalled bet ($47.47) returned to guerillAA13
+*** SHOW DOWN ***
+guerillAA13: doesn't show hand
+guerillAA13 collected $71.02 from pot
+*** SUMMARY ***
+Total pot $71.02 | Rake $3.55 
+Board [6h 7c 9h 5h 2s]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 3: guerillAA13 (big blind) collected ($71.02)
+Seat 4: erl90 folded before Flop 
+Seat 5: JTs98o folded on the River 
+Seat 6: GizmoGradac (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71764108:  Hold'em No Limit ($1/$2) - 2026/01/06 15:23:03 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($203.55 in chips)
+Seat 3: guerillAA13 ($291.57 in chips)
+Seat 4: erl90 ($132.96 in chips)
+Seat 5: JTs98o ($200 in chips)
+Seat 6: GizmoGradac ($131.75 in chips)
+guerillAA13: posts small blind $1
+erl90: posts big blind $2
+JTs98o: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Jd]
+JTs98o: folds
+GizmoGradac: raises $5 to $5
+kole1992: raises $15 to $15
+guerillAA13: folds
+erl90: calls $13
+GizmoGradac: folds
+*** FLOP *** [Ad 5h Ts]
+erl90: checks
+kole1992: checks
+*** TURN *** [Ad 5h Ts] [Kd]
+erl90: bets $12
+kole1992: calls $12
+*** RIVER *** [Ad 5h Ts Kd] [Js]
+erl90: checks
+kole1992: bets $32
+erl90: folds
+Uncalled bet ($32) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected $60 from pot
+*** SUMMARY ***
+Total pot $60 | Rake $3 
+Board [Ad 5h Ts Kd Js]
+Seat 1: kole1992 (button) collected ($60)
+Seat 3: guerillAA13 (small blind) folded before Flop 
+Seat 4: erl90 (big blind) folded on the River 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: GizmoGradac folded before Flop 
+
+
+Weplay Hand #71764146:  Hold'em No Limit ($1/$2) - 2026/01/06 15:24:04 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($233.55 in chips)
+Seat 3: guerillAA13 ($290.57 in chips)
+Seat 4: erl90 ($105.96 in chips)
+Seat 5: JTs98o ($200 in chips)
+Seat 6: GizmoGradac ($126.75 in chips)
+erl90: posts small blind $1
+JTs98o: posts big blind $2
+GizmoGradac: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Ts]
+GizmoGradac: folds
+kole1992: folds
+guerillAA13: raises $5 to $5
+erl90: calls $4
+JTs98o: folds
+*** FLOP *** [7c 3d 5h]
+erl90: checks
+guerillAA13: checks
+*** TURN *** [7c 3d 5h] [Th]
+erl90: bets $10
+guerillAA13: folds
+Uncalled bet ($10) returned to erl90
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [3s Ts]
+erl90 has timed out
+erl90: doesn't show hand
+erl90 collected $12 from pot
+*** SUMMARY ***
+Total pot $12 | Rake $0.60 
+Board [7c 3d 5h Th]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 3: guerillAA13 (button) folded on the Turn 
+Seat 4: erl90 (small blind) collected ($12)
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: GizmoGradac folded before Flop (didn't bet)
+
+
+Weplay Hand #71764170:  Hold'em No Limit ($1/$2) - 2026/01/06 15:24:39 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($233.55 in chips)
+Seat 3: guerillAA13 ($285.57 in chips)
+Seat 4: erl90 ($112.36 in chips)
+Seat 5: JTs98o ($198 in chips)
+Seat 6: GizmoGradac ($126.75 in chips)
+JTs98o: posts small blind $1
+GizmoGradac: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [5c Td]
+kole1992: folds
+guerillAA13: folds
+erl90: calls $2
+JTs98o: raises $9 to $10
+GizmoGradac: raises $124.75 to $126.75 and is all-in
+erl90: calls $110.36 and is all-in
+JTs98o: folds
+Uncalled bet ($14.39) returned to GizmoGradac
+*** FLOP *** [9s Qd 3s]
+*** TURN *** [9s Qd 3s] [3h]
+*** RIVER *** [9s Qd 3s 3h] [3c]
+*** SHOW DOWN ***
+GizmoGradac: shows [Jd Ah] (three of a kind, Threes)
+erl90: shows [Qs Qc] (a full house, Queens full of Threes)
+erl90 collected $234.72 from pot
+*** SUMMARY ***
+Total pot $234.72 | Rake $10 
+Board [9s Qd 3s 3h 3c]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 3: guerillAA13 folded before Flop (didn't bet)
+Seat 4: erl90 (button) showed [Qs Qc] and won ($234.72) with a full house, Queens full of Threes
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: GizmoGradac (big blind) showed [Jd Ah] and lost with three of a kind, Threes
+
+
+Weplay Hand #71764190:  Hold'em No Limit ($1/$2) - 2026/01/06 15:25:16 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($233.55 in chips)
+Seat 3: guerillAA13 ($285.57 in chips)
+Seat 4: erl90 ($224.72 in chips)
+Seat 5: JTs98o ($188 in chips)
+Seat 6: GizmoGradac ($14.39 in chips)
+GizmoGradac: posts small blind $1
+kole1992: posts big blind $2
+guerillAA13: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 8h]
+guerillAA13: folds
+erl90: calls $2
+JTs98o: raises $10 to $10
+GizmoGradac: folds
+kole1992: folds
+erl90: folds
+Uncalled bet ($8) returned to JTs98o
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 8h]
+JTs98o: doesn't show hand
+JTs98o collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0 
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 3: guerillAA13 folded before Flop (didn't bet)
+Seat 4: erl90 folded before Flop 
+Seat 5: JTs98o (button) collected ($7)
+Seat 6: GizmoGradac (small blind) folded before Flop 
+
+
+Weplay Hand #71764200:  Hold'em No Limit ($1/$2) - 2026/01/06 15:25:34 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($231.55 in chips)
+Seat 3: guerillAA13 ($285.57 in chips)
+Seat 4: erl90 ($222.72 in chips)
+Seat 5: JTs98o ($193 in chips)
+Seat 6: GizmoGradac ($13.39 in chips)
+kole1992: posts small blind $1
+guerillAA13: posts big blind $2
+erl90: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 3d]
+erl90: calls $2
+JTs98o: folds
+GizmoGradac: folds
+kole1992: folds
+guerillAA13: checks
+*** FLOP *** [9c Jh Th]
+guerillAA13: checks
+erl90: bets $10
+guerillAA13: folds
+Uncalled bet ($10) returned to erl90
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 3d]
+erl90 has timed out
+erl90: doesn't show hand
+erl90 collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0.25 
+Board [9c Jh Th]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 3: guerillAA13 (big blind) folded on the Flop 
+Seat 4: erl90 collected ($5)
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: GizmoGradac (button) folded before Flop (didn't bet)
+
+
+Weplay Hand #71764216:  Hold'em No Limit ($1/$2) - 2026/01/06 15:26:07 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($230.55 in chips)
+Seat 3: guerillAA13 ($283.57 in chips)
+Seat 4: erl90 ($225.47 in chips)
+Seat 5: JTs98o ($193 in chips)
+Seat 6: GizmoGradac ($70.52 in chips)
+guerillAA13: posts small blind $1
+erl90: posts big blind $2
+JTs98o has timed out
+JTs98o: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Th]
+JTs98o: folds
+GizmoGradac: calls $2
+kole1992: raises $7 to $7
+guerillAA13: folds
+erl90: folds
+GizmoGradac: calls $5
+*** FLOP *** [Kd 5c Ad]
+GizmoGradac: checks
+kole1992: bets $4.08
+GizmoGradac: calls $4.08
+*** TURN *** [Kd 5c Ad] [8h]
+GizmoGradac: checks
+kole1992: checks
+*** RIVER *** [Kd 5c Ad 8h] [5h]
+GizmoGradac: bets $22
+PotripperX joins the table at seat #2
+kole1992: folds
+Uncalled bet ($22) returned to GizmoGradac
+*** SHOW DOWN ***
+GizmoGradac: doesn't show hand
+GizmoGradac collected $25.16 from pot
+*** SUMMARY ***
+Total pot $25.16 | Rake $1.25 
+Board [Kd 5c Ad 8h 5h]
+Seat 1: kole1992 (button) folded on the River 
+Seat 3: guerillAA13 (small blind) folded before Flop 
+Seat 4: erl90 (big blind) folded before Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: GizmoGradac collected ($25.16)
+
+
+Weplay Hand #71764239:  Hold'em No Limit ($1/$2) - 2026/01/06 15:26:50 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($219.47 in chips)
+Seat 2: PotripperX ($969.45 in chips)
+Seat 3: guerillAA13 ($282.57 in chips)
+Seat 4: erl90 ($223.47 in chips)
+Seat 5: JTs98o ($200 in chips)
+Seat 6: GizmoGradac ($83.35 in chips)
+erl90: posts small blind $1
+JTs98o: posts big blind $2
+PotripperX: posts big blind $2
+GizmoGradac: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Qd]
+GizmoGradac: calls $2
+kole1992: raises $9.02 to $9.02
+PotripperX: folds
+guerillAA13: folds
+erl90: calls $8.02
+JTs98o: folds
+GizmoGradac: calls $7.02
+*** FLOP *** [6c Qc Tc]
+erl90: checks
+GizmoGradac: checks
+kole1992: checks
+*** TURN *** [6c Qc Tc] [7d]
+erl90: bets $12
+GizmoGradac: raises $24 to $24
+kole1992: folds
+erl90: folds
+Uncalled bet ($12) returned to GizmoGradac
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Qd]
+GizmoGradac: doesn't show hand
+GizmoGradac collected $55.06 from pot
+*** SUMMARY ***
+Total pot $55.06 | Rake $2.75 
+Board [6c Qc Tc 7d]
+Seat 1: kole1992 folded on the Turn 
+Seat 2: PotripperX (big blind) folded before Flop 
+Seat 3: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 4: erl90 (small blind) folded on the Turn 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: GizmoGradac collected ($55.06)
+
+
+Weplay Hand #71764271:  Hold'em No Limit ($1/$2) - 2026/01/06 15:27:57 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #4 is the button
+Seat 1: kole1992 ($210.45 in chips)
+Seat 2: PotripperX ($967.45 in chips)
+Seat 3: guerillAA13 ($282.57 in chips)
+Seat 4: erl90 ($202.45 in chips)
+Seat 5: JTs98o ($200 in chips)
+Seat 6: GizmoGradac ($114.64 in chips)
+JTs98o: posts small blind $1
+GizmoGradac: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 5s]
+kole1992: folds
+PotripperX: raises $5 to $5
+guerillAA13: folds
+erl90: calls $5
+JTs98o: folds
+GizmoGradac: calls $3
+*** FLOP *** [5c 9c Th]
+GizmoGradac: checks
+PotripperX: bets $6.24
+erl90: folds
+GizmoGradac: folds
+Uncalled bet ($6.24) returned to PotripperX
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 5s]
+PotripperX has timed out
+PotripperX: doesn't show hand
+PotripperX collected $16 from pot
+*** SUMMARY ***
+Total pot $16 | Rake $0.80 
+Board [5c 9c Th]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: PotripperX collected ($16)
+Seat 3: guerillAA13 folded before Flop (didn't bet)
+Seat 4: erl90 (button) folded on the Flop 
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: GizmoGradac (big blind) folded on the Flop 
+
+
+Weplay Hand #71764282:  Hold'em No Limit ($1/$2) - 2026/01/06 15:28:28 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($210.45 in chips)
+Seat 2: PotripperX ($977.65 in chips)
+Seat 3: guerillAA13 ($282.57 in chips)
+Seat 4: erl90 ($197.45 in chips)
+Seat 5: JTs98o ($200 in chips)
+Seat 6: GizmoGradac ($109.64 in chips)
+GizmoGradac: posts small blind $1
+kole1992: posts big blind $2
+PotripperX: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Js]
+PotripperX: folds
+guerillAA13: folds
+erl90: calls $2
+JTs98o: raises $7 to $7
+GizmoGradac: folds
+kole1992: folds
+erl90: raises $10 to $12
+JTs98o: calls $5
+*** FLOP *** [4s Qd 4h]
+erl90: bets $22
+JTs98o: folds
+Uncalled bet ($22) returned to erl90
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [9d Js]
+GizmoGradac is disconnected 
+erl90 has timed out
+erl90: doesn't show hand
+erl90 collected $27 from pot
+*** SUMMARY ***
+Total pot $27 | Rake $1.35 
+Board [4s Qd 4h]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: PotripperX folded before Flop (didn't bet)
+Seat 3: guerillAA13 folded before Flop (didn't bet)
+Seat 4: erl90 collected ($27)
+Seat 5: JTs98o (button) folded on the Flop 
+Seat 6: GizmoGradac (small blind) folded before Flop 
+
+
+Weplay Hand #71764298:  Hold'em No Limit ($1/$2) - 2026/01/06 15:29:08 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($208.45 in chips)
+Seat 2: PotripperX ($977.65 in chips)
+Seat 3: guerillAA13 ($282.57 in chips)
+Seat 4: erl90 ($211.10 in chips)
+Seat 5: JTs98o ($200 in chips)
+Seat 6: GizmoGradac ($108.64 in chips)
+kole1992: posts small blind $1
+PotripperX: posts big blind $2
+GizmoGradac: posts big blind $2
+guerillAA13: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 6s]
+guerillAA13: folds
+erl90: calls $2
+JTs98o: folds
+GizmoGradac: checks
+kole1992: folds
+PotripperX: checks
+*** FLOP *** [5h 9c 7c]
+PotripperX: checks
+erl90: checks
+GizmoGradac: bets $4
+PotripperX: folds
+erl90: folds
+Uncalled bet ($4) returned to GizmoGradac
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 6s]
+erl90: sits out 
+GizmoGradac has timed out
+GizmoGradac: doesn't show hand
+GizmoGradac collected $7 from pot
+*** SUMMARY ***
+Total pot $7 | Rake $0.35 
+Board [5h 9c 7c]
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: PotripperX (big blind) folded on the Flop 
+Seat 3: guerillAA13 folded before Flop (didn't bet)
+Seat 4: erl90 folded on the Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: GizmoGradac (button) (big blind) collected ($7)
+
+
+Weplay Hand #71768316:  Hold'em No Limit ($1/$2) - 2026/01/06 15:29:53 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($207.45 in chips)
+Seat 2: PotripperX ($975.65 in chips)
+Seat 3: guerillAA13 ($282.57 in chips)
+Seat 5: JTs98o ($200 in chips)
+Seat 6: GizmoGradac ($113.29 in chips)
+PotripperX: posts small blind $1
+guerillAA13: posts big blind $2
+JTs98o: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 8c]
+JTs98o: raises $5 to $5
+GizmoGradac: folds
+kole1992: folds
+PotripperX: folds
+guerillAA13: folds
+Uncalled bet ($3) returned to JTs98o
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 8c]
+JTs98o: doesn't show hand
+JTs98o collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: PotripperX (small blind) folded before Flop 
+Seat 3: guerillAA13 (big blind) folded before Flop 
+Seat 5: JTs98o collected ($5)
+Seat 6: GizmoGradac folded before Flop (didn't bet)
+
+
+Weplay Hand #71768327:  Hold'em No Limit ($1/$2) - 2026/01/06 15:30:08 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($207.45 in chips)
+Seat 2: PotripperX ($974.65 in chips)
+Seat 3: guerillAA13 ($280.57 in chips)
+Seat 5: JTs98o ($203 in chips)
+Seat 6: GizmoGradac ($113.29 in chips)
+guerillAA13: posts small blind $1
+JTs98o: posts big blind $2
+GizmoGradac has timed out
+GizmoGradac: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [2c 4d]
+GizmoGradac is disconnected 
+GizmoGradac is connected 
+GizmoGradac: calls $2
+kole1992: folds
+PotripperX: raises $9 to $9
+guerillAA13: folds
+JTs98o: folds
+GizmoGradac: calls $7
+*** FLOP *** [Tc 9d 2s]
+GizmoGradac: checks
+PotripperX: checks
+*** TURN *** [Tc 9d 2s] [Jh]
+GizmoGradac: checks
+PotripperX: checks
+*** RIVER *** [Tc 9d 2s Jh] [3s]
+GizmoGradac: checks
+PotripperX: checks
+*** SHOW DOWN ***
+GizmoGradac: shows [Ac 4c] (high card Ace)
+PotripperX: shows [Ks As] (high card Ace)
+PotripperX collected $21 from pot
+*** SUMMARY ***
+Total pot $21 | Rake $1.05 
+Board [Tc 9d 2s Jh 3s]
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: PotripperX (button) showed [Ks As] and won ($21) with high card Ace
+Seat 3: guerillAA13 (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) folded before Flop 
+Seat 6: GizmoGradac showed [Ac 4c] and lost with high card Ace
+
+
+Weplay Hand #71768350:  Hold'em No Limit ($1/$2) - 2026/01/06 15:30:55 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #3 is the button
+Seat 1: kole1992 ($207.45 in chips)
+Seat 2: PotripperX ($985.60 in chips)
+Seat 3: guerillAA13 ($279.57 in chips)
+Seat 5: JTs98o ($201 in chips)
+Seat 6: GizmoGradac ($104.29 in chips)
+JTs98o: posts small blind $1
+GizmoGradac: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [4c As]
+kole1992: folds
+PotripperX: folds
+guerillAA13: folds
+JTs98o: folds
+Uncalled bet ($1) returned to GizmoGradac
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [4c As]
+GizmoGradac: doesn't show hand
+GizmoGradac collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: PotripperX folded before Flop (didn't bet)
+Seat 3: guerillAA13 (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) folded before Flop 
+Seat 6: GizmoGradac (big blind) collected ($2)
+
+
+Weplay Hand #71768360:  Hold'em No Limit ($1/$2) - 2026/01/06 15:31:14 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #5 is the button
+Seat 1: kole1992 ($207.45 in chips)
+Seat 2: PotripperX ($985.60 in chips)
+Seat 5: JTs98o ($200 in chips)
+Seat 6: GizmoGradac ($105.29 in chips)
+GizmoGradac: posts small blind $1
+kole1992: posts big blind $2
+PotripperX: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 2d]
+PotripperX: raises $5 to $5
+JTs98o: folds
+guerillAA13 leaves the table
+GizmoGradac: calls $4
+kole1992: folds
+*** FLOP *** [Qh Qc 4c]
+GizmoGradac: checks
+PotripperX: bets $2.88
+GizmoGradac: calls $2.88
+*** TURN *** [Qh Qc 4c] [Ts]
+GizmoGradac: checks
+PotripperX: bets $23.62
+GizmoGradac: folds
+Uncalled bet ($23.62) returned to PotripperX
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 2d]
+PotripperX has timed out
+PotripperX: doesn't show hand
+PotripperX collected $17.76 from pot
+*** SUMMARY ***
+Total pot $17.76 | Rake $0.88 
+Board [Qh Qc 4c Ts]
+Seat 1: kole1992 (big blind) folded before Flop 
+Seat 2: PotripperX collected ($17.76)
+Seat 5: JTs98o (button) folded before Flop (didn't bet)
+Seat 6: GizmoGradac (small blind) folded on the Turn 
+
+
+Weplay Hand #71768377:  Hold'em No Limit ($1/$2) - 2026/01/06 15:31:46 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #6 is the button
+Seat 1: kole1992 ($205.45 in chips)
+Seat 2: PotripperX ($994.60 in chips)
+Seat 5: JTs98o ($200 in chips)
+Seat 6: GizmoGradac ($97.41 in chips)
+kole1992: posts small blind $1
+PotripperX: posts big blind $2
+JTs98o: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 3h]
+JTs98o: folds
+GizmoGradac: raises $6 to $6
+kole1992: folds
+PotripperX: folds
+Uncalled bet ($4) returned to GizmoGradac
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 3h]
+GizmoGradac: doesn't show hand
+GizmoGradac collected $5 from pot
+*** SUMMARY ***
+Total pot $5 | Rake $0 
+Seat 1: kole1992 (small blind) folded before Flop 
+Seat 2: PotripperX (big blind) folded before Flop 
+Seat 5: JTs98o folded before Flop (didn't bet)
+Seat 6: GizmoGradac (button) collected ($5)
+
+
+Weplay Hand #71768385:  Hold'em No Limit ($1/$2) - 2026/01/06 15:32:04 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #1 is the button
+Seat 1: kole1992 ($204.45 in chips)
+Seat 2: PotripperX ($992.60 in chips)
+Seat 5: JTs98o ($200 in chips)
+Seat 6: GizmoGradac ($100.41 in chips)
+PotripperX: posts small blind $1
+JTs98o: posts big blind $2
+GizmoGradac: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 9s]
+GizmoGradac: raises $6 to $6
+kole1992: folds
+PotripperX: folds
+JTs98o: calls $4
+*** FLOP *** [9h 2d 6h]
+JTs98o: checks
+GizmoGradac: checks
+*** TURN *** [9h 2d 6h] [3d]
+JTs98o: bets $9.80
+GizmoGradac: calls $9.80
+*** RIVER *** [9h 2d 6h 3d] [Jc]
+JTs98o: checks
+GizmoGradac: checks
+*** SHOW DOWN ***
+JTs98o: shows [9c Qh] (a pair of Nines)
+GizmoGradac has timed out
+GizmoGradac: mucks hand
+JTs98o collected $32.60 from pot
+*** SUMMARY ***
+Total pot $32.60 | Rake $1.63 
+Board [9h 2d 6h 3d Jc]
+Seat 1: kole1992 (button) folded before Flop (didn't bet)
+Seat 2: PotripperX (small blind) folded before Flop 
+Seat 5: JTs98o (big blind) showed [9c Qh] and won ($32.60) with a pair of Nines
+Seat 6: GizmoGradac mucked
+
+
+Weplay Hand #71768399:  Hold'em No Limit ($1/$2) - 2026/01/06 15:32:34 UTC
+Table 'Lisbon #2'(11475800) 6-max (Money 3) Seat #2 is the button
+Seat 1: kole1992 ($204.45 in chips)
+Seat 2: PotripperX ($991.60 in chips)
+Seat 5: JTs98o ($215.17 in chips)
+Seat 6: GizmoGradac ($84.61 in chips)
+JTs98o: posts small blind $1
+GizmoGradac: posts big blind $2
+kole1992: declines straddle
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 8s]
+kole1992: folds
+PotripperX: folds
+JTs98o: raises $6 to $7
+GizmoGradac: folds
+Uncalled bet ($5) returned to JTs98o
+*** SHOW DOWN ***
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 8s]
+JTs98o: doesn't show hand
+JTs98o collected $4 from pot
+*** SUMMARY ***
+Total pot $4 | Rake $0 
+Seat 1: kole1992 folded before Flop (didn't bet)
+Seat 2: PotripperX (button) folded before Flop (didn't bet)
+Seat 5: JTs98o (small blind) collected ($4)
+Seat 6: GizmoGradac (big blind) folded before Flop 

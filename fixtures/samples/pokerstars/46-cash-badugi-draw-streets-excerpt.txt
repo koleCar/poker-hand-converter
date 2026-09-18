@@ -1,0 +1,74 @@
+﻿PokerStars Game #49164202872:  Badugi Limit ($0.25/$0.50 USD) - 2010/09/05 10:32:15 ET
+Table 'Benkoela V' 8-max Seat #8 is the button
+Seat 1: Lino19 ($6.80 in chips) 
+Seat 2: Hero ($5 in chips) 
+Seat 3: jodarin ($0.70 in chips) 
+Seat 4: Scorpio2000 ($3.40 in chips) 
+Seat 5: buddyboy3399 ($8.25 in chips) 
+Seat 6: JDANIELDC ($8.75 in chips) 
+Seat 8: Kula91 ($3.80 in chips) 
+Lino19: posts small blind $0.10
+Hero: posts big blind $0.25
+cuchiku: sits out 
+*** DEALING HANDS ***
+Dealt to Hero [As 3h 8h 6s]
+jodarin: calls $0.25
+Scorpio2000: calls $0.25
+buddyboy3399: calls $0.25
+JDANIELDC: folds 
+Kula91: folds 
+Kula91 leaves the table
+Lino19: calls $0.15
+Hero: checks 
+*** FIRST DRAW ***
+Lino19: discards 1 card
+Hero: discards 2 cards [8h 6s]
+Dealt to Hero [As 3h] [5h Ks]
+jodarin: discards 2 cards
+Scorpio2000: discards 1 card
+buddyboy3399: discards 2 cards
+Lino19: bets $0.25
+Hero: folds 
+jodarin: calls $0.25
+Scorpio2000: calls $0.25
+buddyboy3399: raises $0.25 to $0.50
+Lino19: calls $0.25
+jodarin: calls $0.20 and is all-in
+Scorpio2000: calls $0.25
+*** SECOND DRAW ***
+Lino19: discards 1 card
+jodarin: discards 2 cards
+Scorpio2000: discards 1 card
+buddyboy3399: stands pat 
+Lino19: checks 
+Scorpio2000: bets $0.50
+buddyboy3399: calls $0.50
+Lino19: calls $0.50
+*** THIRD DRAW ***
+Lino19: discards 1 card
+jodarin: discards 2 cards
+Scorpio2000: stands pat 
+buddyboy3399: stands pat 
+Lino19: checks 
+Scorpio2000: bets $0.50
+buddyboy3399: calls $0.50
+Lino19: folds 
+*** SHOW DOWN ***
+Scorpio2000: shows [8c 5d 7s Th] (Badugi: T,8,7,5)
+buddyboy3399: shows [8s 3d Ac 4h] (Badugi: 8,4,3,A)
+buddyboy3399 collected $2.55 from side pot
+jodarin: mucks hand 
+buddyboy3399 collected $2.90 from main pot
+jodarin leaves the table
+*** SUMMARY ***
+Total pot $5.70 Main pot $2.90. Side pot $2.55. | Rake $0.25 
+Seat 1: Lino19 (small blind) folded after the 3rd Draw
+Seat 2: Hero (big blind) folded after the 1st Draw
+Seat 3: jodarin mucked [Ad Td Qc 2s]
+Seat 4: Scorpio2000 showed [8c 5d 7s Th] and lost with a Badugi: T,8,7,5
+Seat 5: buddyboy3399 showed [8s 3d Ac 4h] and won ($5.45) with a Badugi: 8,4,3,A
+Seat 6: JDANIELDC folded before the Draw (didn't bet)
+Seat 8: Kula91 (button) folded before the Draw (didn't bet)
+
+
+

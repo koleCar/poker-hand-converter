@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { ParsedHand, Street } from "../../lib/handParser";
+import type { ParsedHand } from "../../lib/handParser";
 import { buildReplay, streetAnchors } from "../../lib/replay";
 import { formatMoney } from "../../lib/format";
+import { ReplayControls, STREET_LABEL } from "./ReplayControls";
 import { ReplayTable } from "./ReplayTable";
+import { ShowdownStrip } from "./ShowdownStrip";
+import { createAmountFormatter, effectiveStack, type AmountUnit } from "./tableMath";
 
 interface ReplayViewerProps {
   hand: ParsedHand;
@@ -10,15 +13,30 @@ interface ReplayViewerProps {
   headerExtra?: React.ReactNode;
 }
 
-const SPEEDS = [0.5, 1, 1.5, 2, 4];
+const UNIT_KEY = "phc.replayer.unit";
+const SPEED_KEY = "phc.replayer.speed";
+/** The log costs vertical space that phones do not have; start it closed. */
+const WIDE_QUERY = "(min-width: 1100px)";
 
-const STREET_LABEL: Record<Street, string> = {
-  preflop: "Preflop",
-  flop: "Flop",
-  turn: "Turn",
-  river: "River",
-  showdown: "Showdown",
-};
+function readStored<T>(key: string, parse: (raw: string) => T | null, fallback: T): T {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw === null ? fallback : (parse(raw) ?? fallback);
+  } catch {
+    return fallback;
+  }
+}
+
+function writeStored(key: string, value: string): void {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Private mode / disabled storage: the preference simply does not persist.
+  }
+}
 
 export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) {
   const frames = useMemo(() => buildReplay(hand), [hand]);
@@ -26,24 +44,65 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
 
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState(() =>
+    readStored(SPEED_KEY, (raw) => (Number.isFinite(Number(raw)) ? Number(raw) : null), 1),
+  );
   const [revealAll, setRevealAll] = useState(false);
+  const [unit, setUnit] = useState<AmountUnit>(() =>
+    readStored<AmountUnit>(UNIT_KEY, (raw) => (raw === "bb" || raw === "chips" ? raw : null), "chips"),
+  );
+  const [logOpen, setLogOpen] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(WIDE_QUERY).matches,
+  );
   const currentLogRef = useRef<HTMLLIElement | null>(null);
+
+  const format = useMemo(
+    () => createAmountFormatter(unit, hand.currency, hand.bigBlind),
+    [unit, hand.currency, hand.bigBlind],
+  );
 
   // Keep the highlighted log line in view as playback advances.
   useEffect(() => {
     currentLogRef.current?.scrollIntoView({ block: "nearest" });
-  }, [index]);
+  }, [index, logOpen]);
 
   const last = frames.length - 1;
   const frame = frames[Math.min(index, last)];
 
   const step = useCallback(
     (delta: number) => {
+      setPlaying(false);
       setIndex((current) => Math.max(0, Math.min(last, current + delta)));
     },
     [last],
   );
+
+  const seek = useCallback(
+    (next: number) => {
+      setPlaying(false);
+      setIndex(Math.max(0, Math.min(last, next)));
+    },
+    [last],
+  );
+
+  const togglePlay = useCallback(() => {
+    if (index >= last) {
+      setIndex(0);
+      setPlaying(true);
+      return;
+    }
+    setPlaying((current) => !current);
+  }, [index, last]);
+
+  const changeUnit = useCallback((next: AmountUnit) => {
+    setUnit(next);
+    writeStored(UNIT_KEY, next);
+  }, []);
+
+  const changeSpeed = useCallback((next: number) => {
+    setSpeed(next);
+    writeStored(SPEED_KEY, String(next));
+  }, []);
 
   useEffect(() => {
     if (!playing || index >= last) {
@@ -67,37 +126,50 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) {
         return;
       }
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        setPlaying(false);
-        step(1);
-      } else if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        setPlaying(false);
-        step(-1);
-      } else if (event.key === " ") {
-        event.preventDefault();
-        setPlaying((current) => !current);
-      } else if (event.key === "Home") {
-        setIndex(0);
-      } else if (event.key === "End") {
-        setIndex(last);
+      if (event.metaKey || event.ctrlKey || event.altKey) {
+        return;
+      }
+      switch (event.key) {
+        case "ArrowRight":
+          event.preventDefault();
+          step(1);
+          break;
+        case "ArrowLeft":
+          event.preventDefault();
+          step(-1);
+          break;
+        case " ":
+          event.preventDefault();
+          togglePlay();
+          break;
+        case "Home":
+          event.preventDefault();
+          seek(0);
+          break;
+        case "End":
+          event.preventDefault();
+          seek(last);
+          break;
+        case "b":
+        case "B":
+          changeUnit(unit === "bb" ? "chips" : "bb");
+          break;
+        case "c":
+        case "C":
+          setRevealAll((current) => !current);
+          break;
+        default:
+          break;
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [step, last]);
-
-  function togglePlay() {
-    if (index >= last) {
-      setIndex(0);
-      setPlaying(true);
-      return;
-    }
-    setPlaying((current) => !current);
-  }
+  }, [step, seek, togglePlay, changeUnit, unit, last]);
 
   const heroProfit = hand.heroProfit;
+  // Positions are resolved once by `buildReplay`; every frame carries the same
+  // answer, so the first one is as good as any.
+  const heroPosition = frames[0]?.seats.find((seat) => seat.isHero)?.position ?? null;
 
   return (
     <div className="replay">
@@ -114,13 +186,15 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
               {formatMoney(hand.currency, hand.bigBlind)}
             </span>
             <span>{hand.seats.length} players</span>
-            {hand.playedAt ? (
-              <span>{new Date(hand.playedAt).toLocaleString("hr-HR")}</span>
-            ) : null}
+            <span title="Effective stack: hero against the deepest opponent">
+              Eff. {format(effectiveStack(hand))}
+            </span>
+            {heroPosition ? <span>Hero {heroPosition}</span> : null}
+            {hand.playedAt ? <span>{new Date(hand.playedAt).toLocaleString()}</span> : null}
             {heroProfit !== null ? (
               <span className={heroProfit >= 0 ? "pill pill--win" : "pill pill--loss"}>
                 Hero {heroProfit >= 0 ? "+" : "-"}
-                {formatMoney(hand.currency, Math.abs(heroProfit))}
+                {format(Math.abs(heroProfit))}
               </span>
             ) : null}
           </div>
@@ -129,139 +203,76 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
           {headerExtra}
           {onClose ? (
             <button type="button" className="btn btn--ghost" onClick={onClose}>
-              Zatvori
+              Close
             </button>
           ) : null}
         </div>
       </div>
 
-      <div className="replay__body">
-        <ReplayTable hand={hand} frame={frame} revealAll={revealAll} />
+      <div className={`replay__body ${logOpen ? "" : "replay__body--solo"}`.trim()}>
+        <div className="replay__stage">
+          <ReplayTable hand={hand} frame={frame} revealAll={revealAll} format={format} />
+          <ShowdownStrip hand={hand} frame={frame} format={format} />
+        </div>
 
-        <aside className="replay__log">
-          <div className="replay__log-head">Tijek ruke</div>
-          <ol className="replay__log-list">
-            {frames.map((entry) => (
-              <li
-                key={entry.index}
-                ref={entry.index === frame.index ? currentLogRef : undefined}
-                className={[
-                  "replay__log-item",
-                  `replay__log-item--${entry.kind}`,
-                  entry.index === frame.index ? "is-current" : "",
-                  entry.index < frame.index ? "is-past" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlaying(false);
-                    setIndex(entry.index);
-                  }}
+        {logOpen ? (
+          <aside className="replay__log" id="replay-log" aria-label="Action log">
+            <div className="replay__log-head">Action log</div>
+            <ol className="replay__log-list">
+              {frames.map((entry) => (
+                <li
+                  key={entry.index}
+                  ref={entry.index === frame.index ? currentLogRef : undefined}
+                  className={[
+                    "replay__log-item",
+                    `replay__log-item--${entry.kind}`,
+                    entry.index === frame.index ? "is-current" : "",
+                    entry.index < frame.index ? "is-past" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                 >
-                  <span className="replay__log-street">{STREET_LABEL[entry.street]}</span>
-                  <span className="replay__log-text">{entry.description}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
-        </aside>
+                  <button
+                    type="button"
+                    aria-current={entry.index === frame.index ? "step" : undefined}
+                    onClick={() => seek(entry.index)}
+                  >
+                    <span className="replay__log-street">{STREET_LABEL[entry.street]}</span>
+                    <span className="replay__log-text">{entry.description}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </aside>
+        ) : null}
       </div>
 
-      <div className="replay__status">{frame.description}</div>
-
-      <div className="replay__controls">
-        <div className="replay__streets">
-          {anchors.map((anchor) => (
-            <button
-              key={anchor.street}
-              type="button"
-              className={`chip-btn ${frame.street === anchor.street ? "is-active" : ""}`}
-              onClick={() => {
-                setPlaying(false);
-                setIndex(anchor.index);
-              }}
-            >
-              {STREET_LABEL[anchor.street]}
-            </button>
-          ))}
-        </div>
-
-        <input
-          className="replay__scrub"
-          type="range"
-          min={0}
-          max={last}
-          value={frame.index}
-          onChange={(event) => {
-            setPlaying(false);
-            setIndex(Number(event.target.value));
-          }}
-          aria-label="Pozicija u ruci"
-        />
-
-        <div className="replay__buttons">
-          <button type="button" className="btn btn--icon" onClick={() => setIndex(0)} title="Početak (Home)">
-            ⏮
-          </button>
-          <button
-            type="button"
-            className="btn btn--icon"
-            onClick={() => {
-              setPlaying(false);
-              step(-1);
-            }}
-            title="Nazad (←)"
-          >
-            ◀
-          </button>
-          <button type="button" className="btn btn--play" onClick={togglePlay} title="Play/pause (space)">
-            {playing ? "❚❚" : "▶"}
-          </button>
-          <button
-            type="button"
-            className="btn btn--icon"
-            onClick={() => {
-              setPlaying(false);
-              step(1);
-            }}
-            title="Naprijed (→)"
-          >
-            ▶
-          </button>
-          <button type="button" className="btn btn--icon" onClick={() => setIndex(last)} title="Kraj (End)">
-            ⏭
-          </button>
-
-          <div className="replay__speed">
-            {SPEEDS.map((value) => (
-              <button
-                key={value}
-                type="button"
-                className={`chip-btn ${speed === value ? "is-active" : ""}`}
-                onClick={() => setSpeed(value)}
-              >
-                {value}x
-              </button>
-            ))}
-          </div>
-
-          <label className="replay__toggle">
-            <input
-              type="checkbox"
-              checked={revealAll}
-              onChange={(event) => setRevealAll(event.target.checked)}
-            />
-            Prikaži sve poznate karte
-          </label>
-
-          <span className="replay__counter">
-            {frame.index + 1} / {frames.length}
-          </span>
-        </div>
+      <div className="replay__status" role="status" aria-live="polite">
+        <span className="replay__status-street">{STREET_LABEL[frame.street]}</span>
+        <span className="replay__status-text">{frame.description}</span>
+        <span className="replay__counter" aria-hidden="true">
+          {frame.index + 1} / {frames.length}
+        </span>
       </div>
+
+      <ReplayControls
+        frames={frames}
+        frame={frame}
+        anchors={anchors}
+        playing={playing}
+        speed={speed}
+        unit={unit}
+        currency={hand.currency}
+        revealAll={revealAll}
+        logOpen={logOpen}
+        onSeek={seek}
+        onStep={step}
+        onTogglePlay={togglePlay}
+        onSpeed={changeSpeed}
+        onUnit={changeUnit}
+        onRevealAll={setRevealAll}
+        onToggleLog={() => setLogOpen((current) => !current)}
+      />
     </div>
   );
 }

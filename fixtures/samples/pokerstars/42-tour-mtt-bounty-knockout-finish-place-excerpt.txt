@@ -1,0 +1,58 @@
+PokerStars Game #47658722448: Tournament #297808375, $1.00+$0.25+$0.15 USD Hold'em No Limit - Level XV (300/600) - 2010/08/03 13:31:42 ET
+Table '297808375 7' 9-max Seat #5 is the button
+Seat 1: Hero (43941 in chips) 
+Seat 2: darsOK (37252 in chips) 
+Seat 3: sptsfan56 (30286 in chips) 
+Seat 4: MoIsonEx (18026 in chips) 
+Seat 5: Georgy80 (13312 in chips) 
+Seat 6: seric1975 (5170 in chips) 
+Seat 7: Djkujuhfl (11354 in chips) 
+Seat 8: AALuckyBucks (13476 in chips) 
+Seat 9: stefan_bg_46 (7183 in chips) 
+Hero: posts the ante 70
+darsOK: posts the ante 70
+sptsfan56: posts the ante 70
+MoIsonEx: posts the ante 70
+Georgy80: posts the ante 70
+seric1975: posts the ante 70
+Djkujuhfl: posts the ante 70
+AALuckyBucks: posts the ante 70
+stefan_bg_46: posts the ante 70
+seric1975: posts small blind 300
+Djkujuhfl: posts big blind 600
+*** HOLE CARDS ***
+Dealt to Hero [Ah Qc]
+AALuckyBucks: folds 
+stefan_bg_46: folds 
+Hero: raises 1200 to 1800
+darsOK: folds 
+sptsfan56: calls 1800
+MoIsonEx: folds 
+Georgy80: folds 
+seric1975: folds 
+Djkujuhfl: folds 
+*** FLOP *** [Js Kh Ts]
+Hero: checks 
+sptsfan56: bets 3000
+Hero: raises 5400 to 8400
+sptsfan56: raises 20016 to 28416 and is all-in
+Hero: calls 20016
+*** TURN *** [Js Kh Ts] [2d]
+*** RIVER *** [Js Kh Ts 2d] [3h]
+*** SHOW DOWN ***
+Hero: shows [Ah Qc] (a straight, Ten to Ace)
+sptsfan56: shows [Tc Jc] (two pair, Jacks and Tens)
+Hero collected 61962 from pot
+Hero wins the $0.25 bounty for eliminating sptsfan56
+sptsfan56 finished the tournament in 9th place and received $2.70.
+*** SUMMARY ***
+Total pot 61962 | Rake 0 
+Board [Js Kh Ts 2d 3h]
+Seat 1: Hero showed [Ah Qc] and won (61962) with a straight, Ten to Ace
+Seat 2: darsOK folded before Flop (didn't bet)
+Seat 3: sptsfan56 showed [Tc Jc] and lost with two pair, Jacks and Tens
+Seat 4: MoIsonEx folded before Flop (didn't bet)
+Seat 5: Georgy80 (button) folded before Flop (didn't bet)
+Seat 6: seric1975 (small blind) folded before Flop
+Seat 7: Djkujuhfl (big blind) folded before Flop
+Seat 8: AALuckyBucks folded before Flop (didn't bet)

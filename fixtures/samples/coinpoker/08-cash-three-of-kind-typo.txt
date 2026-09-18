@@ -1,0 +1,50 @@
+CoinPoker Hand #352023091: Hold'em No Limit (0.01/0.02 ) 2025/12/28 00:06:10 GMT
+Table 'NL ₮2 III' 7-max Seat #7 is the button
+Seat 1: SimSim1624 (2.03 in chips)
+Seat 2: nlin (2.17 in chips)
+Seat 3: croatiansensation (3.62 in chips)
+Seat 4: iCanDoIt007 (2.82 in chips)
+Seat 5: 2waHang (2.12 in chips)
+Seat 6: crabcruncher (2.38 in chips)
+SimSim1624: posts small blind 0.01
+nlin: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [4c Ts]
+croatiansensation has timed out
+croatiansensation activated time-bank (60 seconds)
+croatiansensation: folds
+iCanDoIt007: calls 0.02
+2waHang: calls 0.02
+crabcruncher: raises 0.09 to 0.11
+SimSim1624: calls 0.10
+nlin: folds
+iCanDoIt007: calls 0.09
+2waHang: calls 0.09
+*** FLOP *** [Qc 3d 9s]
+SimSim1624: checks
+iCanDoIt007: checks
+2waHang: checks
+crabcruncher: bets 0.44
+SimSim1624: folds
+iCanDoIt007: calls 0.44
+2waHang: folds
+*** TURN *** [Qc 3d 9s] [Qd]
+iCanDoIt007: bets 0.02
+crabcruncher: calls 0.02
+*** RIVER *** [Qc 3d 9s Qd] [2d]
+iCanDoIt007: bets 0.39
+crabcruncher: calls 0.39
+*** SHOW DOWN ***
+iCanDoIt007: shows [Kd Kc] (two pairs, Kings and Queens)
+crabcruncher: shows [Qh Ad] (three of kind, Queens)
+crabcruncher collected 2.05 from pot
+*** SUMMARY ***
+Total pot 2.16 | Rake 0.11
+Board [ Qc 3d 9s Qd 2d ]
+Game ended: 2025/12/28 00:09:11 GMT
+Seat 1: SimSim1624 (small blind) folded on the Flop
+Seat 2: nlin (big blind) folded before Flop
+Seat 3: croatiansensation folded before Flop (didn't bet)
+Seat 4: iCanDoIt007 showed [Kd Kc]
+Seat 5: 2waHang folded on the Flop
+Seat 6: crabcruncher showed [Qh Ad] and won (2.05) with three of kind, Queens

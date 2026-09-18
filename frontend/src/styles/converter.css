@@ -1,0 +1,867 @@
+/* Converter page.
+ *
+ * Mobile first, for a reason that is not fashion: drag and drop does not exist
+ * on a phone, and a results table does not survive a 390 px viewport. So the
+ * base rules describe the phone layout — buttons first, every list a stack of
+ * blocks — and the media queries add the things a wide pointer-driven screen
+ * can afford: the drag hint, the multi-column stat row, the single-line file
+ * rows.
+ *
+ * Everything is prefixed `conv-` and lives here rather than in `App.css`, which
+ * belongs to the replayer. Shared primitives (`.card`, `.btn`, `.notice`,
+ * `.muted`) come from `App.css` and are only extended, never redefined.
+ */
+
+.conv {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ------------------------------------------------------------------ input */
+
+.conv-input {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.conv-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 16px;
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius);
+  background: rgb(62 166 255 / 3%);
+  text-align: center;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.conv-drop.is-dragging {
+  border-color: var(--accent);
+  background: rgb(62 166 255 / 12%);
+  border-style: solid;
+}
+
+.conv-drop.is-busy {
+  opacity: 0.6;
+}
+
+.conv-drop__icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  color: var(--accent);
+  background: rgb(62 166 255 / 12%);
+}
+
+.conv-drop__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+/* Only meaningful with a real pointer; a phone user reading "drag files here"
+   is being told to do something their device cannot do. */
+.conv-drop__drag-hint {
+  display: none;
+  margin: 0;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.conv-drop__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.conv-drop__actions .btn {
+  flex: 1 1 auto;
+  min-width: 140px;
+  min-height: 42px;
+}
+
+.conv-drop__hint {
+  margin: 0;
+  max-width: 52ch;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--fg-dim);
+}
+
+/* Folder picking is a desktop idea; on a phone the OS file provider has no
+   folders to hand back. */
+.conv-drop__folder {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .conv-drop {
+    padding: 30px 24px;
+  }
+
+  .conv-drop__folder {
+    display: inline-flex;
+  }
+
+  .conv-drop__drag-hint {
+    display: block;
+  }
+
+  .conv-drop__actions .btn {
+    flex: 0 0 auto;
+  }
+}
+
+/* ------------------------------------------------------------------ paste */
+
+.conv-paste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev-2);
+}
+
+.conv-paste__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-muted);
+}
+
+.conv-paste__area {
+  width: 100%;
+  min-height: 140px;
+  resize: vertical;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: #0c1117;
+  color: var(--fg);
+  /* 16px stops iOS Safari zooming the page when the field takes focus. */
+  font-size: 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  line-height: 1.45;
+}
+
+.conv-paste__area:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.conv-paste__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.conv-paste__hint {
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+@media (min-width: 640px) {
+  .conv-paste__area {
+    font-size: 12.5px;
+  }
+}
+
+/* --------------------------------------------------------------- controls */
+
+.conv-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.conv-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  cursor: pointer;
+  padding: 11px 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev-2);
+}
+
+.conv-switch.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.conv-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.conv-switch__track {
+  flex: 0 0 auto;
+  position: relative;
+  width: 38px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: 999px;
+  background: #223040;
+  border: 1px solid var(--line);
+  transition: background 140ms ease;
+}
+
+.conv-switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--fg-muted);
+  transition: transform 140ms ease, background 140ms ease;
+}
+
+.conv-switch input:checked + .conv-switch__track {
+  background: rgb(53 196 138 / 35%);
+  border-color: rgb(53 196 138 / 55%);
+}
+
+.conv-switch input:checked + .conv-switch__track .conv-switch__thumb {
+  transform: translateX(16px);
+  background: var(--good);
+}
+
+.conv-switch input:focus-visible + .conv-switch__track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.conv-switch__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.conv-switch__text strong {
+  font-size: 13px;
+}
+
+.conv-switch__text small {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--fg-dim);
+}
+
+@media (min-width: 720px) {
+  .conv-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .conv-switch {
+    flex: 1 1 auto;
+  }
+}
+
+/* --------------------------------------------------------------- progress */
+
+.conv-progress {
+  gap: 10px;
+}
+
+.conv-progress__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.conv-progress__head strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conv-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: #16202b;
+  overflow: hidden;
+}
+
+.conv-bar__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--good));
+  transition: width 160ms ease;
+}
+
+.conv-progress__detail {
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------- results */
+
+.conv-results__head {
+  flex-wrap: wrap;
+}
+
+.conv-results__head h3,
+.conv-failures h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.conv-results__head-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.conv-results__head-actions .btn {
+  min-height: 40px;
+}
+
+.conv-results__save-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.conv-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.conv-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-soft);
+  background: #0f151d;
+}
+
+.conv-stat__value {
+  font-size: 20px;
+  font-weight: 680;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.conv-stat__label {
+  font-size: 11.5px;
+  color: var(--fg-muted);
+}
+
+.conv-stat--good .conv-stat__value {
+  color: var(--good);
+}
+
+.conv-stat--warn .conv-stat__value {
+  color: var(--warn);
+}
+
+@media (min-width: 640px) {
+  /* Flex rather than a stretching grid: four numbers spread across 1 400 px
+     read as four unrelated panels, where a compact left-aligned row reads as
+     one summary. */
+  .conv-stats {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .conv-stat {
+    flex: 0 1 170px;
+  }
+}
+
+/* ------------------------------------------------------------------ chips */
+
+.conv-sites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.conv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev-2);
+  font-size: 11.5px;
+  font-weight: 550;
+  color: var(--fg-muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conv-chip em {
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+
+.conv-chip--site {
+  border-color: rgb(62 166 255 / 40%);
+  color: var(--fg);
+}
+
+.conv-chip--good {
+  border-color: rgb(53 196 138 / 38%);
+  color: #8ee7c2;
+}
+
+.conv-chip--warn {
+  border-color: rgb(232 178 58 / 38%);
+  color: #ffe6ab;
+}
+
+.conv-chip--bad {
+  border-color: rgb(239 90 90 / 38%);
+  color: #ffc9c9;
+  white-space: normal;
+}
+
+.conv-chip--quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--fg-dim);
+  padding-inline: 0;
+}
+
+.conv-dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--fg-dim);
+}
+
+.conv-dot--ok {
+  background: var(--good);
+}
+
+.conv-dot--mixed {
+  background: var(--warn);
+}
+
+.conv-dot--warn {
+  background: var(--warn);
+}
+
+.conv-dot--bad {
+  background: var(--bad);
+}
+
+/* ------------------------------------------------------------ source list */
+
+.conv-source-list,
+.conv-hand-list,
+.conv-failure-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.conv-source {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-soft);
+  background: #0f151d;
+}
+
+.conv-source__name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.conv-source__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conv-source__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.conv-source__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.conv-source__actions .btn {
+  flex: 1 1 auto;
+  min-height: 36px;
+}
+
+.conv-source__detail {
+  list-style: none;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: #0b1016;
+  font-size: 11.5px;
+  color: var(--fg-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.conv-source__detail code {
+  color: var(--warn);
+}
+
+@media (min-width: 720px) {
+  .conv-source {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .conv-source__main {
+    flex: 1 1 320px;
+    min-width: 0;
+  }
+
+  .conv-source__actions .btn {
+    flex: 0 0 auto;
+  }
+
+  .conv-source__detail {
+    flex: 1 1 100%;
+  }
+}
+
+/* -------------------------------------------------------------- hand list */
+
+.conv-hands {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.conv-hands__title {
+  margin: 8px 0 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+}
+
+.conv-hand {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-soft);
+  background: #0f151d;
+}
+
+.conv-hand__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.conv-hand__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.conv-hand__stakes {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.conv-hand__cards,
+.conv-hand__board {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: #16202b;
+}
+
+.conv-hand__cards {
+  color: var(--accent);
+}
+
+.conv-hand__board {
+  color: var(--fg-muted);
+}
+
+.conv-hand__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.conv-hand__net.is-up {
+  color: var(--good);
+}
+
+.conv-hand__net.is-down {
+  color: var(--bad);
+}
+
+.conv-hand__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.conv-hand__actions .btn {
+  flex: 1 1 auto;
+  min-height: 36px;
+}
+
+.conv-hands__more {
+  align-self: center;
+  min-height: 40px;
+}
+
+@media (min-width: 720px) {
+  .conv-hand {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .conv-hand__actions .btn {
+    flex: 0 0 auto;
+  }
+}
+
+/* --------------------------------------------------------------- failures */
+
+.conv-failures .card__head p {
+  margin-top: 4px;
+}
+
+.conv-failure {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgb(232 178 58 / 22%);
+  background: rgb(232 178 58 / 5%);
+}
+
+.conv-failure__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.conv-failure__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.conv-failure__title strong {
+  display: block;
+  font-size: 13.5px;
+}
+
+.conv-failure__count {
+  display: grid;
+  place-items: center;
+  min-width: 38px;
+  padding: 4px 7px;
+  border-radius: var(--radius-sm);
+  background: rgb(232 178 58 / 16%);
+  color: #ffe6ab;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.conv-failure__stage {
+  font-size: 11.5px;
+  color: var(--fg-muted);
+}
+
+.conv-failure__why {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--fg);
+}
+
+.conv-failure__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.conv-failure__code {
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+.conv-failure__samples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.conv-failure__more {
+  margin: 0;
+}
+
+/* -------------------------------------------------------------- raw text */
+
+.conv-pre {
+  margin: 0;
+  padding: 10px;
+  max-height: 320px;
+  overflow: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-soft);
+  background: #0a0e13;
+  color: var(--fg-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ----------------------------------------------------------------- modal */
+
+.conv-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: rgb(4 8 12 / 72%);
+  backdrop-filter: blur(3px);
+}
+
+.conv-modal__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-height: 92vh;
+  padding: 16px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  border: 1px solid var(--line);
+  border-bottom: none;
+  background: var(--bg-elev);
+  box-shadow: var(--shadow-2);
+}
+
+.conv-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.conv-modal__head h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.conv-modal__head p {
+  margin: 3px 0 0;
+}
+
+.conv-modal__text {
+  flex: 1 1 auto;
+  max-height: none;
+  min-height: 0;
+}
+
+.conv-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.conv-modal__actions .btn {
+  flex: 1 1 auto;
+  min-height: 42px;
+}
+
+@media (min-width: 640px) {
+  .conv-modal {
+    align-items: center;
+    padding: 24px;
+  }
+
+  .conv-modal__panel {
+    width: min(760px, 100%);
+    max-height: 86vh;
+    border-radius: var(--radius);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .conv-modal__actions .btn {
+    flex: 0 0 auto;
+  }
+}
+
+/* --------------------------------------------------------------- footnote */
+
+.conv-footnote {
+  margin: 0;
+  padding: 0 4px;
+}

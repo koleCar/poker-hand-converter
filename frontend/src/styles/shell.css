@@ -1,0 +1,314 @@
+/*
+ * Application shell: top bar, tab navigation, database status, 404.
+ * Mobile-first. Uses its own `shell__` namespace so it never fights App.css.
+ */
+
+.shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell__main {
+  width: min(1420px, 100%);
+  margin: 0 auto;
+  padding: 16px max(14px, env(safe-area-inset-left)) 72px max(14px, env(safe-area-inset-right));
+  flex: 1;
+}
+
+.route-fallback {
+  min-height: 60vh;
+}
+
+/* ------------------------------------------------------------------- bar */
+
+.shell__bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgb(11 15 20 / 88%);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.shell__bar-inner {
+  width: min(1420px, 100%);
+  margin: 0 auto;
+  padding: 9px max(14px, env(safe-area-inset-left)) 9px max(14px, env(safe-area-inset-right));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "brand status"
+    "tabs  tabs";
+  align-items: center;
+  gap: 9px 12px;
+}
+
+/* ----------------------------------------------------------------- brand */
+
+.shell__brand {
+  grid-area: brand;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 10px;
+}
+
+.shell__brand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.shell__brand-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  font-size: 17px;
+  background: linear-gradient(145deg, var(--felt-1), var(--felt-3));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%), var(--shadow-1);
+}
+
+.shell__brand-text {
+  min-width: 0;
+}
+
+.shell__brand-name {
+  display: block;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.shell__brand-sub {
+  display: none;
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ------------------------------------------------------------------ tabs */
+
+.shell__tabs {
+  grid-area: tabs;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+}
+
+.shell__tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 38px;
+  padding: 6px 12px;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--fg-muted);
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.shell__tab:hover {
+  background: var(--bg-elev-2);
+  color: var(--fg);
+}
+
+.shell__tab.is-active {
+  background: linear-gradient(180deg, #24354a, #1c2938);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%), var(--shadow-1);
+}
+
+.shell__tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.shell__tab-label {
+  font-weight: 600;
+  font-size: 13.5px;
+  line-height: 1.25;
+}
+
+.shell__tab-hint {
+  display: none;
+  font-size: 10.5px;
+  color: var(--fg-dim);
+  letter-spacing: 0.02em;
+}
+
+/* ---------------------------------------------------------------- status */
+
+.shell__bar-end {
+  grid-area: status;
+  justify-self: end;
+  min-width: 0;
+}
+
+.shell__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--fg-muted);
+  padding: 5px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: var(--bg-elev);
+  white-space: nowrap;
+}
+
+.shell__status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.shell__status--ok .shell__status-dot {
+  background: var(--good);
+  box-shadow: 0 0 0 3px rgb(53 196 138 / 16%);
+}
+
+.shell__status--off .shell__status-dot {
+  background: var(--warn);
+  box-shadow: 0 0 0 3px rgb(232 178 58 / 16%);
+}
+
+.shell__status--off {
+  color: var(--warn);
+  border-color: rgb(232 178 58 / 28%);
+}
+
+.shell__status-full {
+  display: none;
+}
+
+.shell__status-short {
+  display: inline;
+}
+
+.shell__offline-banner {
+  width: min(1420px, 100%);
+  margin: 12px auto 0;
+  padding: 9px 12px;
+  border: 1px solid rgb(232 178 58 / 30%);
+  background: rgb(232 178 58 / 8%);
+  color: #f0cd7c;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+}
+
+/* ------------------------------------------------------------------- 404 */
+
+.shell__notfound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 64px 16px;
+}
+
+.shell__notfound-mark {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  font-size: 26px;
+  background: linear-gradient(145deg, var(--felt-1), var(--felt-3));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%), var(--shadow-1);
+}
+
+.shell__notfound h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.shell__notfound p {
+  color: var(--fg-muted);
+  max-width: 44ch;
+}
+
+.shell__notfound-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+/* --------------------------------------------------------------- > 560px */
+
+@media (min-width: 560px) {
+  .shell__brand-sub {
+    display: block;
+  }
+
+  .shell__tabs {
+    justify-self: start;
+    grid-auto-columns: auto;
+  }
+
+  .shell__tab {
+    padding: 6px 20px;
+  }
+}
+
+/* --------------------------------------------------------------- > 900px */
+
+@media (min-width: 900px) {
+  .shell__bar-inner {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "brand tabs status";
+    padding-inline: max(24px, env(safe-area-inset-left)) max(24px, env(safe-area-inset-right));
+    gap: 24px;
+  }
+
+  .shell__main {
+    padding: 24px max(24px, env(safe-area-inset-left)) 72px max(24px, env(safe-area-inset-right));
+  }
+
+  .shell__offline-banner {
+    padding-inline: 12px;
+    margin-inline: auto;
+    width: min(1420px, calc(100% - 48px));
+  }
+
+  .shell__tab {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .shell__tab-hint {
+    display: block;
+  }
+
+  .shell__status-full {
+    display: inline;
+  }
+
+  .shell__status-short {
+    display: none;
+  }
+}

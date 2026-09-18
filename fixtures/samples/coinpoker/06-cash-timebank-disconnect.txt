@@ -1,0 +1,49 @@
+CoinPoker Hand #352025868: Hold'em No Limit (0.01/0.02 ) 2025/12/28 00:13:10 GMT
+Table 'NL ₮2 II' 7-max Seat #3 is the button
+Seat 1: HornyMelon (1.85 in chips)
+Seat 2: ilyes22 (2.22 in chips)
+Seat 3: 2waHang (8.72 in chips)
+Seat 4: BehiAce (2.37 in chips)
+Seat 5: waqqas (2.52 in chips)
+Seat 7: nlin (2.00 in chips)
+BehiAce: posts small blind 0.01
+waqqas: posts big blind 0.02
+HornyMelon: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [Ts 8c]
+nlin: folds
+HornyMelon: checks
+ilyes22: folds
+2waHang: raises 0.08 to 0.10
+BehiAce: calls 0.09
+waqqas is disconnected
+waqqas has reconnected
+waqqas has timed out
+waqqas activated time-bank (58 seconds)
+waqqas: folds
+HornyMelon: folds
+*** FLOP *** [2d 3c 7c]
+BehiAce: checks
+2waHang: bets 0.12
+BehiAce: calls 0.12
+*** TURN *** [2d 3c 7c] [8s]
+BehiAce: checks
+2waHang: checks
+*** RIVER *** [2d 3c 7c 8s] [4h]
+waqqas is disconnected
+BehiAce: checks
+2waHang: checks
+*** SHOW DOWN ***
+BehiAce: shows [Ks Ad] (Ace high)
+2waHang: shows [6d 6c] (a pair of Sixes)
+2waHang collected 0.46 from pot
+*** SUMMARY ***
+Total pot 0.48 | Rake 0.02
+Board [ 2d 3c 7c 8s 4h ]
+Game ended: 2025/12/28 00:14:39 GMT
+Seat 1: HornyMelon folded before Flop
+Seat 2: ilyes22 folded before Flop (didn't bet)
+Seat 3: 2waHang (button) showed [6d 6c] and won (0.46) with a pair of Sixes
+Seat 4: BehiAce (small blind) showed [Ks Ad]
+Seat 5: waqqas (big blind) folded before Flop
+Seat 7: nlin folded before Flop (didn't bet)

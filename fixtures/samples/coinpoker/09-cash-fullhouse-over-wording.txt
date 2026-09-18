@@ -1,0 +1,48 @@
+CoinPoker Hand #352028090: Hold'em No Limit (0.01/0.02 ) 2025/12/28 00:19:21 GMT
+Table 'NL ₮2 VII' 7-max Seat #6 is the button
+Seat 1: LBIGuy (2.33 in chips)
+Seat 2: SimSim1624 (5.50 in chips)
+Seat 3: nlin (3.44 in chips)
+Seat 4: gorbashyeti (1.85 in chips)
+Seat 5: 2waHang (2.26 in chips)
+Seat 6: ilyes22 (1.99 in chips)
+Seat 7: pddro11 (2.00 in chips)
+pddro11: posts small blind 0.01
+LBIGuy: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [8s 8c]
+SimSim1624: folds
+nlin: raises 0.03 to 0.05
+gorbashyeti: folds
+2waHang: calls 0.05
+ilyes22: folds
+pddro11: folds
+LBIGuy: calls 0.03
+*** FLOP *** [7s 7h 7d]
+LBIGuy: checks
+nlin: bets 0.06
+2waHang: raises 0.24 to 0.30
+LBIGuy: folds
+nlin: calls 0.24
+*** TURN *** [7s 7h 7d] [5h]
+nlin: checks
+2waHang: bets 0.86
+nlin: calls 0.86
+*** RIVER *** [7s 7h 7d 5h] [Jh]
+nlin: checks
+2waHang: checks
+*** SHOW DOWN ***
+nlin: shows [8s 8c] (a full house, Sevens over Eights)
+2waHang: shows [9s 9h] (a full house, Sevens over Nines)
+2waHang collected 2.36 from pot
+*** SUMMARY ***
+Total pot 2.48 | Rake 0.12
+Board [ 7s 7h 7d 5h Jh ]
+Game ended: 2025/12/28 00:20:41 GMT
+Seat 1: LBIGuy (big blind) folded on the Flop
+Seat 2: SimSim1624 folded before Flop (didn't bet)
+Seat 3: nlin showed [8s 8c]
+Seat 4: gorbashyeti folded before Flop (didn't bet)
+Seat 5: 2waHang showed [9s 9h] and won (2.36) with a full house, Sevens over Nines
+Seat 6: ilyes22 (button) folded before Flop (didn't bet)
+Seat 7: pddro11 (small blind) folded before Flop

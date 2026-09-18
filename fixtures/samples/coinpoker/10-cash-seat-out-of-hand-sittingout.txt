@@ -1,0 +1,42 @@
+CoinPoker Hand #352026582: Hold'em No Limit (0.01/0.02 ) 2025/12/28 00:14:55 GMT
+Table 'NL ₮2 II' 7-max Seat #5 is the button
+Seat 1: HornyMelon (1.83 in chips)
+Seat 2: ilyes22 (2.22 in chips)
+Seat 3: 2waHang (8.96 in chips)
+Seat 4: BehiAce (2.15 in chips) is sitting out
+Seat 5: waqqas (2.50 in chips)
+Seat 6: KERK3K (2.00 in chips) out of hand
+Seat 7: nlin (2.00 in chips)
+nlin: posts small blind 0.01
+HornyMelon: posts big blind 0.02
+waqqas: posts small blind (dead) 0.01
+*** HOLE CARDS ***
+Dealt to nlin [5c 8h]
+ilyes22: folds
+2waHang: raises 0.04 to 0.06
+waqqas: calls 0.06
+nlin: folds
+HornyMelon: folds
+*** FLOP *** [7h 7d 3s]
+2waHang: checks
+waqqas: checks
+*** TURN *** [7h 7d 3s] [2h]
+2waHang: checks
+waqqas: checks
+*** RIVER *** [7h 7d 3s 2h] [Kh]
+2waHang: bets 0.18
+waqqas: folds
+Uncalled bet (0.18) returned to 2waHang
+2waHang collected 0.15 from pot
+2waHang: doesn't show hand
+*** SUMMARY ***
+Total pot 0.16 | Rake 0.01
+Board [ 7h 7d 3s 2h Kh ]
+Game ended: 2025/12/28 00:15:37 GMT
+Seat 1: HornyMelon (big blind) folded before Flop
+Seat 2: ilyes22 folded before Flop (didn't bet)
+Seat 3: 2waHang collected (0.15)
+Seat 4: BehiAce folded before Flop (didn't bet)
+Seat 5: waqqas (button) folded on the River
+Seat 6: KERK3K folded before Flop (didn't bet)
+Seat 7: nlin (small blind) folded before Flop

@@ -2,6 +2,13 @@ name: Deploy frontend to Supabase Storage
 
 # Production hosting moved to Vercel (auto-deploys on push to main).
 # This workflow is kept as a manual fallback only - run it from the Actions tab.
+#
+# WARNING: the app is a client-routed SPA (/, /replay, /h/<slug>). Supabase
+# Storage is a plain object store with no rewrite rules, so every route except
+# the bucket root 404s on a refresh or a direct link, and shared hand links do
+# not work at all. There is also no serverless function here, so crawler Open
+# Graph meta (frontend/api/share-meta.ts) is unavailable. Use Vercel for
+# anything user-facing; this path is only good for a quick smoke deploy.
 on:
   workflow_dispatch:
 

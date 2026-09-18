@@ -1,0 +1,37 @@
+=== HAND HISTORIES ===
+
+Unibet Hand #1558006464, Tournament #85614762, €0.93 + €0.07 - 25.00/50.00 - No Limit Hold'Em - Total prize €4 - UTC 21:59:56 2026/06/05
+Table "86116111" 3-max
+*** Seated players ***
+Seat 1: evymm (415)
+Seat 3: DrikC79 (315)
+Seat 5: hero[Unibet_28204e083c0fb55a] (770)
+*** Blinds and button ***
+DrikC79 has the button
+hero[Unibet_28204e083c0fb55a] posts small blind 25
+evymm posts big blind 50
+*** Hole cards ***
+Dealt to hero[Unibet_28204e083c0fb55a] [8c Jc]
+Dealt to evymm [Qc Kh]
+Dealt in DrikC79
+*** Preflop ***
+DrikC79 folds
+hero[Unibet_28204e083c0fb55a] calls 25
+evymm checks
+*** Flop *** [4s Tc 8d]
+hero[Unibet_28204e083c0fb55a] bets 50
+evymm calls 50
+*** Turn *** [4s Tc 8d] [Ac]
+hero[Unibet_28204e083c0fb55a] bets 50
+evymm calls 50
+*** River *** [4s Tc 8d] [Ac] [9d]
+hero[Unibet_28204e083c0fb55a] checks
+evymm checks
+*** Showdown ***
+evymm shows [Qc Kh], High card
+hero[Unibet_28204e083c0fb55a] shows [8c Jc], A Pair of Eights
+hero[Unibet_28204e083c0fb55a] wins 300
+*** Summary ***
+Total pot 300
+Seat 1: evymm: bet 150 and won 0, net result: -150
+Seat 5: hero[Unibet_28204e083c0fb55a]: bet 150 and won 300, net result: 150

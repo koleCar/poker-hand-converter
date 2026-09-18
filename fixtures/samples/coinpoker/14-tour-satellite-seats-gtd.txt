@@ -1,0 +1,45 @@
+CoinPoker Hand #184522293: Tournament #1286832, ₮0.01 Centroll to ₮1 Prime Mega Sat, 75 Seats GTD Hold'em No Limit (50/100 ante 13 play) 2024/12/20 16:36:02 GMT
+Table '17' 7-max Seat #2 is the button
+Seat 1: AvyMae (10026 in chips)
+Seat 2: Vir9Howei (2500 in chips) out of hand
+Seat 3: dosaa8 (2526 in chips)
+Seat 4: haze777 (2474 in chips)
+Seat 5: Alena160520 (2500 in chips)
+Seat 6: nlin (2500 in chips)
+Seat 7: LegendaryHacker (2474 in chips)
+AvyMae: posts the ante 13
+dosaa8: posts the ante 13
+haze777: posts the ante 13
+Alena160520: posts the ante 13
+nlin: posts the ante 13
+LegendaryHacker: posts the ante 13
+dosaa8: posts small blind 50
+haze777: posts big blind 100
+*** HOLE CARDS ***
+Dealt to nlin [7s 5c]
+Alena160520: raises 2487 and is all-in
+nlin: folds
+LegendaryHacker: calls 2461 and is all-in
+AvyMae: calls 2487
+dosaa8: folds
+haze777: folds
+*** FLOP *** [Ad Qs Jd]
+*** TURN *** [Ad Qs Jd] [6d]
+*** RIVER *** [Ad Qs Jd 6d] [2d]
+*** SHOW DOWN ***
+Alena160520: shows [5s 2c] (a pair of Twos)
+AvyMae: shows [5h 9h] (Ace high)
+Alena160520 collected 52 from side-pot 1
+LegendaryHacker: shows [6h 6c] (three of kind, Sixes)
+LegendaryHacker collected 7611 from pot
+*** SUMMARY ***
+Total pot 7663 | Rake 0
+Board [ Ad Qs Jd 6d 2d ]
+Game ended: 2024/12/20 16:36:33 GMT
+Seat 1: AvyMae showed [5h 9h]
+Seat 2: Vir9Howei (button) folded before Flop (didn't bet)
+Seat 3: dosaa8 (small blind) folded before Flop
+Seat 4: haze777 (big blind) folded before Flop
+Seat 5: Alena160520 showed [5s 2c] and won (52) with a pair of Twos
+Seat 6: nlin folded before Flop
+Seat 7: LegendaryHacker showed [6h 6c] and won (7611) with three of kind, Sixes

@@ -1,7 +1,7 @@
 import { memo } from "react";
-import { SUIT_SYMBOL, isRedSuit, parseCard, type Suit } from "../../lib/cards";
+import { SUIT_NAME, SUIT_SYMBOL, isRedSuit, parseCard, type Suit } from "../../lib/cards";
 
-export type CardSize = "xs" | "sm" | "md" | "lg";
+export type CardSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 interface PlayingCardProps {
   /** Card code such as "Ah". Null renders a face-down card. */
@@ -21,6 +21,14 @@ const SUIT_CLASS: Record<Suit, string> = {
   h: "suit-h",
   d: "suit-d",
   c: "suit-c",
+};
+
+const RANK_NAME: Record<string, string> = {
+  A: "Ace",
+  K: "King",
+  Q: "Queen",
+  J: "Jack",
+  T: "Ten",
 };
 
 function PlayingCardImpl({
@@ -45,26 +53,35 @@ function PlayingCardImpl({
     .filter(Boolean)
     .join(" ");
 
+  // Spelled out rather than "Ah": screen readers render the suit glyph
+  // inconsistently, and the glyph is also the only non-colour suit cue.
+  const label = card
+    ? `${RANK_NAME[card.rank] ?? card.rank} of ${SUIT_NAME[card.suit]}`
+    : "face-down card";
+
   return (
     <span
       className={classes}
       style={{ animationDelay: `${dealIndex * 70}ms` }}
-      aria-label={card ? `${card.rank}${SUIT_SYMBOL[card.suit]}` : "face down card"}
+      role="img"
+      aria-label={label}
     >
       {card ? (
         <>
-          <span className="pcard__corner pcard__corner--tl">
+          <span className="pcard__corner pcard__corner--tl" aria-hidden="true">
             <span className="pcard__rank">{card.rank}</span>
             <span className="pcard__suit">{SUIT_SYMBOL[card.suit]}</span>
           </span>
-          <span className="pcard__center">{SUIT_SYMBOL[card.suit]}</span>
-          <span className="pcard__corner pcard__corner--br">
+          <span className="pcard__center" aria-hidden="true">
+            {SUIT_SYMBOL[card.suit]}
+          </span>
+          <span className="pcard__corner pcard__corner--br" aria-hidden="true">
             <span className="pcard__rank">{card.rank}</span>
             <span className="pcard__suit">{SUIT_SYMBOL[card.suit]}</span>
           </span>
         </>
       ) : (
-        <span className="pcard__back" />
+        <span className="pcard__back" aria-hidden="true" />
       )}
     </span>
   );

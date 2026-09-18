@@ -1,0 +1,4182 @@
+﻿Weplay Hand #75876391: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level VI (100/200) - 2026/02/15 19:02:03 UTC
+Table '11275334 24'(11628216) 9-max Seat #5 is the button
+Seat 1: kylienCarbad (19785 in chips)
+Seat 2: Antondomld (17408 in chips)
+Seat 3: Pirateschips (30592 in chips)
+Seat 4: MaeMan6 (38880 in chips)
+Seat 5: postjoy75 (28340 in chips)
+Seat 6: kole1992 (29836 in chips)
+Seat 7: agafac (22305 in chips)
+Seat 8: Wandeinreich59 (18313 in chips)
+Seat 9: lokicola123 (19835 in chips)
+kylienCarbad: posts the ante 35
+Antondomld: posts the ante 35
+Pirateschips: posts the ante 35
+MaeMan6: posts the ante 35
+postjoy75: posts the ante 35
+kole1992: posts the ante 35
+agafac: posts the ante 35
+Wandeinreich59: posts the ante 35
+lokicola123: posts the ante 35
+kole1992: posts small blind 150
+agafac: posts big blind 300
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc Jh]
+Wandeinreich59: raises 650 to 650
+lokicola123: folds
+kylienCarbad: calls 650
+Antondomld: folds
+Pirateschips: folds
+MaeMan6: calls 650
+postjoy75: folds
+kole1992: raises 3880 to 4030
+agafac: folds
+Wandeinreich59: folds
+kylienCarbad: folds
+MaeMan6: folds
+Uncalled bet (3380) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 3215 from pot
+*** SUMMARY ***
+Total pot 3215 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: MaeMan6 folded before Flop 
+Seat 5: postjoy75 (button) folded before Flop 
+Seat 6: kole1992 (small blind) collected (3215)
+Seat 7: agafac (big blind) folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75876427: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level VI (100/200) - 2026/02/15 19:02:51 UTC
+Table '11275334 24'(11628216) 9-max Seat #6 is the button
+Seat 1: kylienCarbad (19100 in chips)
+Seat 2: Antondomld (17373 in chips)
+Seat 3: Pirateschips (30557 in chips)
+Seat 4: MaeMan6 (38195 in chips)
+Seat 5: postjoy75 (28305 in chips)
+Seat 6: kole1992 (32366 in chips)
+Seat 7: agafac (21970 in chips)
+Seat 8: Wandeinreich59 (17628 in chips)
+Seat 9: lokicola123 (19800 in chips)
+kylienCarbad: posts the ante 35
+Antondomld: posts the ante 35
+Pirateschips: posts the ante 35
+MaeMan6: posts the ante 35
+postjoy75: posts the ante 35
+kole1992: posts the ante 35
+agafac: posts the ante 35
+Wandeinreich59: posts the ante 35
+lokicola123: posts the ante 35
+agafac: posts small blind 150
+Wandeinreich59: posts big blind 300
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 5c]
+lokicola123: calls 300
+kylienCarbad: folds
+Antondomld: raises 1300 to 1300
+Pirateschips: folds
+MaeMan6: folds
+postjoy75: folds
+kole1992: folds
+agafac: folds
+Wandeinreich59: folds
+lokicola123: folds
+Uncalled bet (1000) returned to Antondomld
+*** SHOW DOWN ***
+Antondomld: doesn't show hand
+Antondomld collected 1365 from pot
+*** SUMMARY ***
+Total pot 1365 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld collected (1365)
+Seat 3: Pirateschips folded before Flop 
+Seat 4: MaeMan6 folded before Flop 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 (button) folded before Flop 
+Seat 7: agafac (small blind) folded before Flop 
+Seat 8: Wandeinreich59 (big blind) folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75876466: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level VI (100/200) - 2026/02/15 19:03:37 UTC
+Table '11275334 24'(11628216) 9-max Seat #7 is the button
+Seat 1: kylienCarbad (19065 in chips)
+Seat 2: Antondomld (18403 in chips)
+Seat 3: Pirateschips (30522 in chips)
+Seat 4: MaeMan6 (38160 in chips)
+Seat 5: postjoy75 (28270 in chips)
+Seat 6: kole1992 (32331 in chips)
+Seat 7: agafac (21785 in chips)
+Seat 8: Wandeinreich59 (17293 in chips)
+Seat 9: lokicola123 (19465 in chips)
+kylienCarbad: posts the ante 35
+Antondomld: posts the ante 35
+Pirateschips: posts the ante 35
+MaeMan6: posts the ante 35
+postjoy75: posts the ante 35
+kole1992: posts the ante 35
+agafac: posts the ante 35
+Wandeinreich59: posts the ante 35
+lokicola123: posts the ante 35
+Wandeinreich59: posts small blind 150
+lokicola123: posts big blind 300
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh 9s]
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+MaeMan6: folds
+postjoy75: folds
+kole1992: raises 900 to 900
+agafac: folds
+Wandeinreich59: folds
+lokicola123: folds
+Uncalled bet (600) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 1065 from pot
+*** SUMMARY ***
+Total pot 1065 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: MaeMan6 folded before Flop 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 collected (1065)
+Seat 7: agafac (button) folded before Flop 
+Seat 8: Wandeinreich59 (small blind) folded before Flop 
+Seat 9: lokicola123 (big blind) folded before Flop 
+
+
+Weplay Hand #75876496: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level VI (100/200) - 2026/02/15 19:04:18 UTC
+Table '11275334 24'(11628216) 9-max Seat #8 is the button
+Seat 1: kylienCarbad (19030 in chips)
+Seat 2: Antondomld (18368 in chips)
+Seat 3: Pirateschips (30487 in chips)
+Seat 4: MaeMan6 (38125 in chips)
+Seat 5: postjoy75 (28235 in chips)
+Seat 6: kole1992 (33061 in chips)
+Seat 7: agafac (21750 in chips)
+Seat 8: Wandeinreich59 (17108 in chips)
+Seat 9: lokicola123 (19130 in chips)
+kylienCarbad: posts the ante 35
+Antondomld: posts the ante 35
+Pirateschips: posts the ante 35
+MaeMan6: posts the ante 35
+postjoy75: posts the ante 35
+kole1992: posts the ante 35
+agafac: posts the ante 35
+Wandeinreich59: posts the ante 35
+lokicola123: posts the ante 35
+lokicola123: posts small blind 150
+kylienCarbad: posts big blind 300
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 6d]
+Antondomld: folds
+Pirateschips: folds
+MaeMan6: calls 300
+postjoy75: folds
+kole1992: folds
+agafac: folds
+Wandeinreich59: raises 1300 to 1300
+lokicola123: folds
+kylienCarbad: folds
+MaeMan6: calls 1000
+*** FLOP *** [7s Jc 8s]
+MaeMan6: checks
+Wandeinreich59: bets 1346
+MaeMan6: calls 1346
+*** TURN *** [7s Jc 8s] [6s]
+MaeMan6: checks
+Wandeinreich59: checks
+*** RIVER *** [7s Jc 8s 6s] [6h]
+MaeMan6: checks
+Wandeinreich59: bets 4543
+MaeMan6: folds
+Uncalled bet (4543) returned to Wandeinreich59
+*** SHOW DOWN ***
+Wandeinreich59: doesn't show hand
+Wandeinreich59 collected 6057 from pot
+*** SUMMARY ***
+Total pot 6057 | Rake 0 
+Board [7s Jc 8s 6s 6h]
+Seat 1: kylienCarbad (big blind) folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: MaeMan6 folded on the River 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: agafac folded before Flop 
+Seat 8: Wandeinreich59 (button) collected (6057)
+Seat 9: lokicola123 (small blind) folded before Flop 
+
+
+Weplay Hand #75876577: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level VI (100/200) - 2026/02/15 19:05:52 UTC
+Table '11275334 24'(11628216) 9-max Seat #9 is the button
+Seat 1: kylienCarbad (18695 in chips)
+Seat 2: Antondomld (18333 in chips)
+Seat 3: Pirateschips (30452 in chips)
+Seat 4: MaeMan6 (35444 in chips)
+Seat 5: postjoy75 (28200 in chips)
+Seat 6: kole1992 (33026 in chips)
+Seat 7: agafac (21715 in chips)
+Seat 8: Wandeinreich59 (20484 in chips)
+Seat 9: lokicola123 (18945 in chips)
+kylienCarbad: posts the ante 35
+Antondomld: posts the ante 35
+Pirateschips: posts the ante 35
+MaeMan6: posts the ante 35
+postjoy75: posts the ante 35
+kole1992: posts the ante 35
+agafac: posts the ante 35
+Wandeinreich59: posts the ante 35
+lokicola123: posts the ante 35
+kylienCarbad: posts small blind 150
+Antondomld: posts big blind 300
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh Jd]
+Pirateschips: folds
+MaeMan6: folds
+postjoy75: folds
+kole1992: raises 750 to 750
+agafac: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: calls 450
+*** FLOP *** [2c Kh Kc]
+Antondomld: checks
+kole1992: bets 321
+Antondomld: raises 1310 to 1310
+kole1992: calls 989
+*** TURN *** [2c Kh Kc] [Qh]
+Antondomld: bets 4126
+kole1992: calls 4126
+*** RIVER *** [2c Kh Kc Qh] [3d]
+Antondomld: checks
+kole1992: checks
+*** SHOW DOWN ***
+Antondomld: shows [Qs Ks] (a full house, Kings full of Queens)
+kole1992: mucks hand
+Antondomld collected 12837 from pot
+*** SUMMARY ***
+Total pot 12837 | Rake 0 
+Board [2c Kh Kc Qh 3d]
+Seat 1: kylienCarbad (small blind) folded before Flop 
+Seat 2: Antondomld (big blind) showed [Qs Ks] and won (12837) with a full house, Kings full of Queens
+Seat 3: Pirateschips folded before Flop 
+Seat 4: MaeMan6 folded before Flop 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 mucked
+Seat 7: agafac folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 (button) folded before Flop 
+
+
+Weplay Hand #75876640: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level VI (100/200) - 2026/02/15 19:07:14 UTC
+Table '11275334 24'(11628216) 9-max Seat #1 is the button
+Seat 1: kylienCarbad (18510 in chips)
+Seat 2: Antondomld (24949 in chips)
+Seat 3: Pirateschips (30417 in chips)
+Seat 4: MaeMan6 (35409 in chips)
+Seat 5: postjoy75 (28165 in chips)
+Seat 6: kole1992 (26805 in chips)
+Seat 7: agafac (21680 in chips)
+Seat 8: Wandeinreich59 (20449 in chips)
+Seat 9: lokicola123 (18910 in chips)
+kylienCarbad: posts the ante 35
+Antondomld: posts the ante 35
+Pirateschips: posts the ante 35
+MaeMan6: posts the ante 35
+postjoy75: posts the ante 35
+kole1992: posts the ante 35
+agafac: posts the ante 35
+Wandeinreich59: posts the ante 35
+lokicola123: posts the ante 35
+Antondomld: posts small blind 150
+Pirateschips: posts big blind 300
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 7d]
+MaeMan6: folds
+postjoy75: folds
+kole1992: folds
+agafac: folds
+Wandeinreich59: raises 650 to 650
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: calls 350
+*** FLOP *** [7c 6c Th]
+Pirateschips: bets 706
+Wandeinreich59: folds
+Uncalled bet (706) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 1765 from pot
+*** SUMMARY ***
+Total pot 1765 | Rake 0 
+Board [7c 6c Th]
+Seat 1: kylienCarbad (button) folded before Flop 
+Seat 2: Antondomld (small blind) folded before Flop 
+Seat 3: Pirateschips (big blind) collected (1765)
+Seat 4: MaeMan6 folded before Flop 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: agafac folded before Flop 
+Seat 8: Wandeinreich59 folded on the Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75876696: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level VII (100/200) - 2026/02/15 19:08:20 UTC
+Table '11275334 24'(11628216) 9-max Seat #2 is the button
+Seat 1: kylienCarbad (18475 in chips)
+Seat 2: Antondomld (24764 in chips)
+Seat 3: Pirateschips (31497 in chips)
+Seat 4: MaeMan6 (35374 in chips)
+Seat 5: postjoy75 (28130 in chips)
+Seat 6: kole1992 (26770 in chips)
+Seat 7: agafac (21645 in chips)
+Seat 8: Wandeinreich59 (19764 in chips)
+Seat 9: lokicola123 (18875 in chips)
+kylienCarbad: posts the ante 40
+Antondomld: posts the ante 40
+Pirateschips: posts the ante 40
+MaeMan6: posts the ante 40
+postjoy75: posts the ante 40
+kole1992: posts the ante 40
+agafac: posts the ante 40
+Wandeinreich59: posts the ante 40
+lokicola123: posts the ante 40
+Pirateschips: posts small blind 175
+MaeMan6: posts big blind 350
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah Ks]
+postjoy75: folds
+kole1992: raises 1050 to 1050
+agafac: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: calls 1050
+Antondomld: folds
+Pirateschips: folds
+MaeMan6: folds
+*** FLOP *** [5c Tc 2d]
+kole1992: checks
+kylienCarbad: checks
+*** TURN *** [5c Tc 2d] [9c]
+kole1992: checks
+kylienCarbad: bets 1194
+kole1992: folds
+Uncalled bet (1194) returned to kylienCarbad
+*** SHOW DOWN ***
+kylienCarbad: doesn't show hand
+kylienCarbad collected 2985 from pot
+*** SUMMARY ***
+Total pot 2985 | Rake 0 
+Board [5c Tc 2d 9c]
+Seat 1: kylienCarbad collected (2985)
+Seat 2: Antondomld (button) folded before Flop 
+Seat 3: Pirateschips (small blind) folded before Flop 
+Seat 4: MaeMan6 (big blind) folded before Flop 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 folded on the Turn 
+Seat 7: agafac folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75876774: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level VII (100/200) - 2026/02/15 19:09:49 UTC
+Table '11275334 24'(11628216) 9-max Seat #3 is the button
+Seat 1: kylienCarbad (20370 in chips)
+Seat 2: Antondomld (24724 in chips)
+Seat 3: Pirateschips (31282 in chips)
+Seat 4: MaeMan6 (34984 in chips)
+Seat 5: postjoy75 (28090 in chips)
+Seat 6: kole1992 (25680 in chips)
+Seat 7: agafac (21605 in chips)
+Seat 8: Wandeinreich59 (19724 in chips)
+Seat 9: lokicola123 (18835 in chips)
+kylienCarbad: posts the ante 40
+Antondomld: posts the ante 40
+Pirateschips: posts the ante 40
+MaeMan6: posts the ante 40
+postjoy75: posts the ante 40
+kole1992: posts the ante 40
+agafac: posts the ante 40
+Wandeinreich59: posts the ante 40
+lokicola123: posts the ante 40
+MaeMan6: posts small blind 175
+postjoy75: posts big blind 350
+*** HOLE CARDS ***
+Dealt to kole1992 [Jc 6s]
+kole1992: folds
+agafac: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: raises 850 to 850
+MaeMan6: calls 675
+postjoy75: calls 500
+*** FLOP *** [4d 8d 2c]
+MaeMan6: bets 1100
+postjoy75: raises 3600 to 3600
+Pirateschips: calls 3600
+MaeMan6: calls 2500
+*** TURN *** [4d 8d 2c] [Ah]
+MaeMan6: bets 6855
+postjoy75: calls 6855
+Pirateschips: calls 6855
+*** RIVER *** [4d 8d 2c Ah] [Kc]
+MaeMan6: checks
+postjoy75: checks
+Pirateschips: bets 19937 and is all-in
+MaeMan6: calls 19937
+postjoy75: folds
+*** SHOW DOWN ***
+Pirateschips: shows [Kd Ac] (two pair, Aces and Kings)
+MaeMan6: shows [As 8h] (two pair, Aces and Eights)
+Pirateschips collected 74149 from pot
+*** SUMMARY ***
+Total pot 74149 | Rake 0 
+Board [4d 8d 2c Ah Kc]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips (button) showed [Kd Ac] and won (74149) with two pair, Aces and Kings
+Seat 4: MaeMan6 (small blind) showed [As 8h] and lost with two pair, Aces and Eights
+Seat 5: postjoy75 (big blind) folded on the River 
+Seat 6: kole1992 folded before Flop 
+Seat 7: agafac folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75882345: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XI (100/200) - 2026/02/15 20:03:00 UTC
+Table '11275334 22'(11628216) 9-max Seat #6 is the button
+Seat 1: kylienCarbad (32452 in chips)
+Seat 2: Antondomld (38160 in chips)
+Seat 3: Pirateschips (74456 in chips)
+Seat 4: emcheng (41545 in chips)
+Seat 5: postjoy75 (50017 in chips)
+Seat 6: kole1992 (11456 in chips)
+Seat 7: 4ikShevenwin (17576 in chips)
+Seat 8: Wandeinreich59 (12667 in chips)
+Seat 9: lokicola123 (6965 in chips)
+kylienCarbad: posts the ante 85
+Antondomld: posts the ante 85
+Pirateschips: posts the ante 85
+emcheng: posts the ante 85
+postjoy75: posts the ante 85
+kole1992: posts the ante 85
+4ikShevenwin: posts the ante 85
+Wandeinreich59: posts the ante 85
+lokicola123: posts the ante 85
+4ikShevenwin: posts small blind 350
+Wandeinreich59: posts big blind 700
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 9d]
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: raises 1600 to 1600
+Pirateschips: folds
+emcheng: folds
+postjoy75: folds
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+Uncalled bet (900) returned to Antondomld
+*** SHOW DOWN ***
+Antondomld: doesn't show hand
+Antondomld collected 2515 from pot
+*** SUMMARY ***
+Total pot 2515 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld collected (2515)
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 (button) folded before Flop 
+Seat 7: 4ikShevenwin (small blind) folded before Flop 
+Seat 8: Wandeinreich59 (big blind) folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75882368: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XI (100/200) - 2026/02/15 20:03:33 UTC
+Table '11275334 22'(11628216) 9-max Seat #7 is the button
+Seat 1: kylienCarbad (32367 in chips)
+Seat 2: Antondomld (39890 in chips)
+Seat 3: Pirateschips (74371 in chips)
+Seat 4: emcheng (41460 in chips)
+Seat 5: postjoy75 (49932 in chips)
+Seat 6: kole1992 (11371 in chips)
+Seat 7: 4ikShevenwin (17141 in chips)
+Seat 8: Wandeinreich59 (11882 in chips)
+Seat 9: lokicola123 (6880 in chips)
+kylienCarbad: posts the ante 85
+Antondomld: posts the ante 85
+Pirateschips: posts the ante 85
+emcheng: posts the ante 85
+postjoy75: posts the ante 85
+kole1992: posts the ante 85
+4ikShevenwin: posts the ante 85
+Wandeinreich59: posts the ante 85
+lokicola123: posts the ante 85
+Wandeinreich59: posts small blind 350
+lokicola123: posts big blind 700
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc 3d]
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+postjoy75: raises 1400 to 1400
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: calls 700
+*** FLOP *** [2c Jh 5s]
+lokicola123: checks
+postjoy75: bets 1500
+lokicola123: raises 5395 to 5395 and is all-in
+postjoy75: folds
+Uncalled bet (3895) returned to lokicola123
+*** SHOW DOWN ***
+lokicola123: doesn't show hand
+lokicola123 collected 6915 from pot
+*** SUMMARY ***
+Total pot 6915 | Rake 0 
+Board [2c Jh 5s]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: postjoy75 folded on the Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin (button) folded before Flop 
+Seat 8: Wandeinreich59 (small blind) folded before Flop 
+Seat 9: lokicola123 (big blind) collected (6915)
+
+
+Weplay Hand #75882418: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XI (100/200) - 2026/02/15 20:04:32 UTC
+Table '11275334 22'(11628216) 9-max Seat #8 is the button
+Seat 1: kylienCarbad (32282 in chips)
+Seat 2: Antondomld (39805 in chips)
+Seat 3: Pirateschips (74286 in chips)
+Seat 4: emcheng (41375 in chips)
+Seat 5: postjoy75 (46947 in chips)
+Seat 6: kole1992 (11286 in chips)
+Seat 7: 4ikShevenwin (17056 in chips)
+Seat 8: Wandeinreich59 (11447 in chips)
+Seat 9: lokicola123 (10810 in chips)
+kylienCarbad: posts the ante 85
+Antondomld: posts the ante 85
+Pirateschips: posts the ante 85
+emcheng: posts the ante 85
+postjoy75: posts the ante 85
+kole1992: posts the ante 85
+4ikShevenwin: posts the ante 85
+Wandeinreich59: posts the ante 85
+lokicola123: posts the ante 85
+lokicola123: posts small blind 350
+kylienCarbad: posts big blind 700
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 3c]
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+postjoy75: folds
+kole1992: folds
+4ikShevenwin: raises 1400 to 1400
+Wandeinreich59: raises 11362 to 11362 and is all-in
+lokicola123: folds
+kylienCarbad: folds
+4ikShevenwin: folds
+Uncalled bet (9962) returned to Wandeinreich59
+*** SHOW DOWN ***
+Wandeinreich59: doesn't show hand
+Wandeinreich59 collected 4615 from pot
+*** SUMMARY ***
+Total pot 4615 | Rake 0 
+Seat 1: kylienCarbad (big blind) folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 (button) collected (4615)
+Seat 9: lokicola123 (small blind) folded before Flop 
+
+
+Weplay Hand #75882449: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XII (100/200) - 2026/02/15 20:05:10 UTC
+Table '11275334 21'(11628216) 9-max Seat #9 is the button
+Seat 1: kylienCarbad (31497 in chips)
+Seat 2: Antondomld (39720 in chips)
+Seat 3: Pirateschips (74201 in chips)
+Seat 4: emcheng (41290 in chips)
+Seat 5: postjoy75 (46862 in chips)
+Seat 6: kole1992 (11201 in chips)
+Seat 7: 4ikShevenwin (15571 in chips)
+Seat 8: Wandeinreich59 (14577 in chips)
+Seat 9: lokicola123 (10375 in chips)
+kylienCarbad: posts the ante 100
+Antondomld: posts the ante 100
+Pirateschips: posts the ante 100
+emcheng: posts the ante 100
+postjoy75: posts the ante 100
+kole1992: posts the ante 100
+4ikShevenwin: posts the ante 100
+Wandeinreich59: posts the ante 100
+lokicola123: posts the ante 100
+kylienCarbad: posts small blind 400
+Antondomld: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 6h]
+Pirateschips: folds
+emcheng: raises 1800 to 1800
+postjoy75: folds
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: calls 1000
+*** FLOP *** [2d Ks 3h]
+Antondomld: checks
+emcheng: bets 3675
+Antondomld: calls 3675
+*** TURN *** [2d Ks 3h] [Qs]
+Antondomld: checks
+emcheng: bets 9188
+Antondomld: calls 9188
+*** RIVER *** [2d Ks 3h Qs] [Ts]
+Antondomld: bets 15313
+emcheng: folds
+Uncalled bet (15313) returned to Antondomld
+*** SHOW DOWN ***
+Antondomld: doesn't show hand
+Antondomld collected 30626 from pot
+*** SUMMARY ***
+Total pot 30626 | Rake 0 
+Board [2d Ks 3h Qs Ts]
+Seat 1: kylienCarbad (small blind) folded before Flop 
+Seat 2: Antondomld (big blind) collected (30626)
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded on the River 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 (button) folded before Flop 
+
+
+Weplay Hand #75882538: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XII (100/200) - 2026/02/15 20:07:01 UTC
+Table '11275334 21'(11628216) 9-max Seat #1 is the button
+Seat 1: kylienCarbad (30997 in chips)
+Seat 2: Antondomld (55583 in chips)
+Seat 3: Pirateschips (74101 in chips)
+Seat 4: emcheng (26527 in chips)
+Seat 5: postjoy75 (46762 in chips)
+Seat 6: kole1992 (11101 in chips)
+Seat 7: 4ikShevenwin (15471 in chips)
+Seat 8: Wandeinreich59 (14477 in chips)
+Seat 9: lokicola123 (10275 in chips)
+kylienCarbad: posts the ante 100
+Antondomld: posts the ante 100
+Pirateschips: posts the ante 100
+emcheng: posts the ante 100
+postjoy75: posts the ante 100
+kole1992: posts the ante 100
+4ikShevenwin: posts the ante 100
+Wandeinreich59: posts the ante 100
+lokicola123: posts the ante 100
+Antondomld: posts small blind 400
+Pirateschips: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 2d]
+emcheng: folds
+postjoy75: raises 1800 to 1800
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: calls 1000
+*** FLOP *** [Kd 7c Td]
+Pirateschips: checks
+postjoy75: bets 1960
+Pirateschips: folds
+Uncalled bet (1960) returned to postjoy75
+*** SHOW DOWN ***
+postjoy75: doesn't show hand
+postjoy75 collected 4900 from pot
+*** SUMMARY ***
+Total pot 4900 | Rake 0 
+Board [Kd 7c Td]
+Seat 1: kylienCarbad (button) folded before Flop 
+Seat 2: Antondomld (small blind) folded before Flop 
+Seat 3: Pirateschips (big blind) folded on the Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: postjoy75 collected (4900)
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75882570: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XII (100/200) - 2026/02/15 20:07:43 UTC
+Table '11275334 21'(11628216) 9-max Seat #2 is the button
+Seat 1: kylienCarbad (30897 in chips)
+Seat 2: Antondomld (55083 in chips)
+Seat 3: Pirateschips (72201 in chips)
+Seat 4: emcheng (26427 in chips)
+Seat 5: postjoy75 (49762 in chips)
+Seat 6: kole1992 (11001 in chips)
+Seat 7: 4ikShevenwin (15371 in chips)
+Seat 8: Wandeinreich59 (14377 in chips)
+Seat 9: lokicola123 (10175 in chips)
+kylienCarbad: posts the ante 100
+Antondomld: posts the ante 100
+Pirateschips: posts the ante 100
+emcheng: posts the ante 100
+postjoy75: posts the ante 100
+kole1992: posts the ante 100
+4ikShevenwin: posts the ante 100
+Wandeinreich59: posts the ante 100
+lokicola123: posts the ante 100
+Pirateschips: posts small blind 400
+emcheng: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 5c]
+postjoy75: folds
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: raises 1800 to 1800
+Pirateschips: folds
+emcheng: calls 1000
+*** FLOP *** [9s 6c 2d]
+emcheng: bets 1900
+Antondomld: calls 1900
+*** TURN *** [9s 6c 2d] [5h]
+emcheng: bets 4350
+Antondomld: calls 4350
+*** RIVER *** [9s 6c 2d 5h] [8d]
+emcheng: bets 18277 and is all-in
+Antondomld: folds
+Uncalled bet (18277) returned to emcheng
+*** SHOW DOWN ***
+emcheng: doesn't show hand
+emcheng collected 17400 from pot
+*** SUMMARY ***
+Total pot 17400 | Rake 0 
+Board [9s 6c 2d 5h 8d]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld (button) folded on the River 
+Seat 3: Pirateschips (small blind) folded before Flop 
+Seat 4: emcheng (big blind) collected (17400)
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75882631: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XII (100/200) - 2026/02/15 20:09:13 UTC
+Table '11275334 20'(11628216) 9-max Seat #3 is the button
+Seat 1: kylienCarbad (30797 in chips)
+Seat 2: Antondomld (46933 in chips)
+Seat 3: Pirateschips (71701 in chips)
+Seat 4: emcheng (35677 in chips)
+Seat 5: postjoy75 (49662 in chips)
+Seat 6: kole1992 (10901 in chips)
+Seat 7: 4ikShevenwin (15271 in chips)
+Seat 8: Wandeinreich59 (14277 in chips)
+Seat 9: lokicola123 (10075 in chips)
+kylienCarbad: posts the ante 100
+Antondomld: posts the ante 100
+Pirateschips: posts the ante 100
+emcheng: posts the ante 100
+postjoy75: posts the ante 100
+kole1992: posts the ante 100
+4ikShevenwin: posts the ante 100
+Wandeinreich59: posts the ante 100
+lokicola123: posts the ante 100
+emcheng: posts small blind 400
+postjoy75: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [Ah 4c]
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: raises 1800 to 1800
+Antondomld: folds
+Pirateschips: folds
+emcheng: calls 1400
+postjoy75: calls 1000
+*** FLOP *** [Kc 4d Jc]
+emcheng: checks
+postjoy75: checks
+kylienCarbad: bets 2520
+emcheng: folds
+postjoy75: folds
+Uncalled bet (2520) returned to kylienCarbad
+*** SHOW DOWN ***
+kylienCarbad: doesn't show hand
+kylienCarbad collected 6300 from pot
+*** SUMMARY ***
+Total pot 6300 | Rake 0 
+Board [Kc 4d Jc]
+Seat 1: kylienCarbad collected (6300)
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips (button) folded before Flop 
+Seat 4: emcheng (small blind) folded on the Flop 
+Seat 5: postjoy75 (big blind) folded on the Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75882671: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XII (100/200) - 2026/02/15 20:10:04 UTC
+Table '11275334 20'(11628216) 9-max Seat #4 is the button
+Seat 1: kylienCarbad (35197 in chips)
+Seat 2: Antondomld (46833 in chips)
+Seat 3: Pirateschips (71601 in chips)
+Seat 4: emcheng (33777 in chips)
+Seat 5: postjoy75 (47762 in chips)
+Seat 6: kole1992 (10801 in chips)
+Seat 7: 4ikShevenwin (15171 in chips)
+Seat 8: Wandeinreich59 (14177 in chips)
+Seat 9: lokicola123 (9975 in chips)
+kylienCarbad: posts the ante 100
+Antondomld: posts the ante 100
+Pirateschips: posts the ante 100
+emcheng: posts the ante 100
+postjoy75: posts the ante 100
+kole1992: posts the ante 100
+4ikShevenwin: posts the ante 100
+Wandeinreich59: posts the ante 100
+lokicola123: posts the ante 100
+postjoy75: posts small blind 400
+kole1992: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 6d]
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: raises 1800 to 1800
+Pirateschips: raises 6075 to 6075
+emcheng: folds
+postjoy75: folds
+kole1992: folds
+Antondomld: folds
+Uncalled bet (4275) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 5700 from pot
+*** SUMMARY ***
+Total pot 5700 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips collected (5700)
+Seat 4: emcheng (button) folded before Flop 
+Seat 5: postjoy75 (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75882706: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XII (100/200) - 2026/02/15 20:10:53 UTC
+Table '11275334 20'(11628216) 9-max Seat #5 is the button
+Seat 1: kylienCarbad (35097 in chips)
+Seat 2: Antondomld (44933 in chips)
+Seat 3: Pirateschips (75401 in chips)
+Seat 4: emcheng (33677 in chips)
+Seat 5: postjoy75 (47262 in chips)
+Seat 6: kole1992 (9901 in chips)
+Seat 7: 4ikShevenwin (15071 in chips)
+Seat 8: Wandeinreich59 (14077 in chips)
+Seat 9: lokicola123 (9875 in chips)
+kylienCarbad: posts the ante 100
+Antondomld: posts the ante 100
+Pirateschips: posts the ante 100
+emcheng: posts the ante 100
+postjoy75: posts the ante 100
+kole1992: posts the ante 100
+4ikShevenwin: posts the ante 100
+Wandeinreich59: posts the ante 100
+lokicola123: posts the ante 100
+kole1992: posts small blind 400
+4ikShevenwin: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [7d Jd]
+Wandeinreich59: raises 1600 to 1600
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+postjoy75: folds
+kole1992: folds
+4ikShevenwin: folds
+Uncalled bet (800) returned to Wandeinreich59
+*** SHOW DOWN ***
+Wandeinreich59: doesn't show hand
+Wandeinreich59 collected 2900 from pot
+*** SUMMARY ***
+Total pot 2900 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: postjoy75 (button) folded before Flop 
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: 4ikShevenwin (big blind) folded before Flop 
+Seat 8: Wandeinreich59 collected (2900)
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75882723: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XII (100/200) - 2026/02/15 20:11:18 UTC
+Table '11275334 20'(11628216) 9-max Seat #6 is the button
+Seat 1: kylienCarbad (34997 in chips)
+Seat 2: Antondomld (44833 in chips)
+Seat 3: Pirateschips (75301 in chips)
+Seat 4: emcheng (33577 in chips)
+Seat 5: postjoy75 (47162 in chips)
+Seat 6: kole1992 (9401 in chips)
+Seat 7: 4ikShevenwin (14171 in chips)
+Seat 8: Wandeinreich59 (16077 in chips)
+Seat 9: lokicola123 (9775 in chips)
+kylienCarbad: posts the ante 100
+Antondomld: posts the ante 100
+Pirateschips: posts the ante 100
+emcheng: posts the ante 100
+postjoy75: posts the ante 100
+kole1992: posts the ante 100
+4ikShevenwin: posts the ante 100
+Wandeinreich59: posts the ante 100
+lokicola123: posts the ante 100
+4ikShevenwin: posts small blind 400
+Wandeinreich59: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [4s As]
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+postjoy75: raises 1600 to 1600
+kole1992: raises 9301 to 9301 and is all-in
+4ikShevenwin: folds
+Wandeinreich59: folds
+postjoy75: calls 7701
+*** FLOP *** [9s 5s 7d]
+*** TURN *** [9s 5s 7d] [3s]
+*** RIVER *** [9s 5s 7d 3s] [8d]
+*** SHOW DOWN ***
+postjoy75: shows [Ks Qh] (high card King)
+kole1992: shows [4s As] (a flush, Ace high)
+kole1992 collected 20702 from pot
+*** SUMMARY ***
+Total pot 20702 | Rake 0 
+Board [9s 5s 7d 3s 8d]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: postjoy75 showed [Ks Qh] and lost with high card King
+Seat 6: kole1992 (button) showed [4s As] and won (20702) with a flush, Ace high
+Seat 7: 4ikShevenwin (small blind) folded before Flop 
+Seat 8: Wandeinreich59 (big blind) folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75882769: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XII (100/200) - 2026/02/15 20:12:17 UTC
+Table '11275334 20'(11628216) 9-max Seat #7 is the button
+Seat 1: kylienCarbad (34897 in chips)
+Seat 2: Antondomld (44733 in chips)
+Seat 3: Pirateschips (75201 in chips)
+Seat 4: emcheng (33477 in chips)
+Seat 5: postjoy75 (37761 in chips)
+Seat 6: kole1992 (20702 in chips)
+Seat 7: 4ikShevenwin (13671 in chips)
+Seat 8: Wandeinreich59 (15177 in chips)
+Seat 9: lokicola123 (9675 in chips)
+kylienCarbad: posts the ante 100
+Antondomld: posts the ante 100
+Pirateschips: posts the ante 100
+emcheng: posts the ante 100
+postjoy75: posts the ante 100
+kole1992: posts the ante 100
+4ikShevenwin: posts the ante 100
+Wandeinreich59: posts the ante 100
+lokicola123: posts the ante 100
+Wandeinreich59: posts small blind 400
+lokicola123: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [5s 2c]
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+postjoy75: folds
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: raises 14677 to 15077 and is all-in
+lokicola123: folds
+Uncalled bet (14277) returned to Wandeinreich59
+*** SHOW DOWN ***
+Wandeinreich59: doesn't show hand
+Wandeinreich59 collected 2500 from pot
+*** SUMMARY ***
+Total pot 2500 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin (button) folded before Flop 
+Seat 8: Wandeinreich59 (small blind) collected (2500)
+Seat 9: lokicola123 (big blind) folded before Flop 
+
+
+Weplay Hand #75882796: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XII (100/200) - 2026/02/15 20:12:50 UTC
+Table '11275334 20'(11628216) 9-max Seat #8 is the button
+Seat 1: kylienCarbad (34797 in chips)
+Seat 2: Antondomld (44633 in chips)
+Seat 3: Pirateschips (75101 in chips)
+Seat 4: emcheng (33377 in chips)
+Seat 5: postjoy75 (37661 in chips)
+Seat 6: kole1992 (20602 in chips)
+Seat 7: 4ikShevenwin (13571 in chips)
+Seat 8: Wandeinreich59 (16777 in chips)
+Seat 9: lokicola123 (8775 in chips)
+kylienCarbad: posts the ante 100
+Antondomld: posts the ante 100
+Pirateschips: posts the ante 100
+emcheng: posts the ante 100
+postjoy75: posts the ante 100
+kole1992: posts the ante 100
+4ikShevenwin: posts the ante 100
+Wandeinreich59: posts the ante 100
+lokicola123: posts the ante 100
+lokicola123: posts small blind 400
+kylienCarbad: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 9s]
+Antondomld: folds
+Pirateschips: folds
+emcheng: raises 1800 to 1800
+postjoy75: folds
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Uncalled bet (1000) returned to emcheng
+*** SHOW DOWN ***
+emcheng: doesn't show hand
+emcheng collected 2900 from pot
+*** SUMMARY ***
+Total pot 2900 | Rake 0 
+Seat 1: kylienCarbad (big blind) folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng collected (2900)
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 (button) folded before Flop 
+Seat 9: lokicola123 (small blind) folded before Flop 
+
+
+Weplay Hand #75882823: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XII (100/200) - 2026/02/15 20:13:31 UTC
+Table '11275334 20'(11628216) 9-max Seat #9 is the button
+Seat 1: kylienCarbad (33897 in chips)
+Seat 2: Antondomld (44533 in chips)
+Seat 3: Pirateschips (75001 in chips)
+Seat 4: emcheng (35377 in chips)
+Seat 5: postjoy75 (37561 in chips)
+Seat 6: kole1992 (20502 in chips)
+Seat 7: 4ikShevenwin (13471 in chips)
+Seat 8: Wandeinreich59 (16677 in chips)
+Seat 9: lokicola123 (8275 in chips)
+kylienCarbad: posts the ante 100
+Antondomld: posts the ante 100
+Pirateschips: posts the ante 100
+emcheng: posts the ante 100
+postjoy75: posts the ante 100
+kole1992: posts the ante 100
+4ikShevenwin: posts the ante 100
+Wandeinreich59: posts the ante 100
+lokicola123: posts the ante 100
+kylienCarbad: posts small blind 400
+Antondomld: posts big blind 800
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 2d]
+Pirateschips: folds
+emcheng: folds
+postjoy75: raises 1800 to 1800
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: calls 1000
+*** FLOP *** [5d 9s 7h]
+Antondomld: checks
+postjoy75: bets 1900
+Antondomld: calls 1900
+*** TURN *** [5d 9s 7h] [4h]
+Antondomld: checks
+postjoy75: bets 6525
+Antondomld: raises 17000 to 17000
+postjoy75: folds
+Uncalled bet (10475) returned to Antondomld
+*** SHOW DOWN ***
+Antondomld: doesn't show hand
+Antondomld collected 21750 from pot
+*** SUMMARY ***
+Total pot 21750 | Rake 0 
+Board [5d 9s 7h 4h]
+Seat 1: kylienCarbad (small blind) folded before Flop 
+Seat 2: Antondomld (big blind) collected (21750)
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: postjoy75 folded on the Turn 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 (button) folded before Flop 
+
+
+Weplay Hand #75882880: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:14:49 UTC
+Table '11275334 20'(11628216) 9-max Seat #1 is the button
+Seat 1: kylienCarbad (33397 in chips)
+Seat 2: Antondomld (55958 in chips)
+Seat 3: Pirateschips (74901 in chips)
+Seat 4: emcheng (35277 in chips)
+Seat 5: postjoy75 (27236 in chips)
+Seat 6: kole1992 (20402 in chips)
+Seat 7: 4ikShevenwin (13371 in chips)
+Seat 8: Wandeinreich59 (16577 in chips)
+Seat 9: lokicola123 (8175 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+postjoy75: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+Antondomld: posts small blind 500
+Pirateschips: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 9h]
+emcheng: folds
+postjoy75: raises 2000 to 2000
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: raises 8050 to 8050 and is all-in
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+postjoy75: calls 6050
+*** FLOP *** [Tc Kh As]
+*** TURN *** [Tc Kh As] [5s]
+*** RIVER *** [Tc Kh As 5s] [Kc]
+*** SHOW DOWN ***
+postjoy75: shows [6d 6c] (two pair, Kings and Sixes)
+lokicola123: shows [Js Ad] (two pair, Aces and Kings)
+lokicola123 collected 18725 from pot
+*** SUMMARY ***
+Total pot 18725 | Rake 0 
+Board [Tc Kh As 5s Kc]
+Seat 1: kylienCarbad (button) folded before Flop 
+Seat 2: Antondomld (small blind) folded before Flop 
+Seat 3: Pirateschips (big blind) folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: postjoy75 showed [6d 6c] and lost with two pair, Kings and Sixes
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 showed [Js Ad] and won (18725) with two pair, Aces and Kings
+
+
+Weplay Hand #75882906: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:15:33 UTC
+Table '11275334 20'(11628216) 9-max Seat #2 is the button
+Seat 1: kylienCarbad (33272 in chips)
+Seat 2: Antondomld (55333 in chips)
+Seat 3: Pirateschips (73776 in chips)
+Seat 4: emcheng (35152 in chips)
+Seat 5: postjoy75 (19061 in chips)
+Seat 6: kole1992 (20277 in chips)
+Seat 7: 4ikShevenwin (13246 in chips)
+Seat 8: Wandeinreich59 (16452 in chips)
+Seat 9: lokicola123 (18725 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+postjoy75: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+Pirateschips: posts small blind 500
+emcheng: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 9c]
+postjoy75: folds
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: raises 2000 to 2000
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: calls 1000
+*** FLOP *** [3c 4c Js]
+emcheng: checks
+Wandeinreich59: checks
+*** TURN *** [3c 4c Js] [Td]
+emcheng: checks
+Wandeinreich59: bets 2250
+emcheng: folds
+Uncalled bet (2250) returned to Wandeinreich59
+*** SHOW DOWN ***
+Wandeinreich59: doesn't show hand
+Wandeinreich59 collected 5625 from pot
+*** SUMMARY ***
+Total pot 5625 | Rake 0 
+Board [3c 4c Js Td]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld (button) folded before Flop 
+Seat 3: Pirateschips (small blind) folded before Flop 
+Seat 4: emcheng (big blind) folded on the Turn 
+Seat 5: postjoy75 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 collected (5625)
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75882938: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:16:14 UTC
+Table '11275334 19'(11628216) 9-max Seat #3 is the button
+Seat 1: kylienCarbad (33147 in chips)
+Seat 2: Antondomld (55208 in chips)
+Seat 3: Pirateschips (73151 in chips)
+Seat 4: emcheng (33027 in chips)
+Seat 5: postjoy75 (18936 in chips)
+Seat 6: kole1992 (20152 in chips)
+Seat 7: 4ikShevenwin (13121 in chips)
+Seat 8: Wandeinreich59 (19952 in chips)
+Seat 9: lokicola123 (18600 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+postjoy75: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+emcheng: posts small blind 500
+postjoy75: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Qs]
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: raises 2300 to 2300
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+postjoy75: folds
+Uncalled bet (1300) returned to kylienCarbad
+*** SHOW DOWN ***
+kylienCarbad: doesn't show hand
+kylienCarbad collected 3625 from pot
+*** SUMMARY ***
+Total pot 3625 | Rake 0 
+Seat 1: kylienCarbad collected (3625)
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips (button) folded before Flop 
+Seat 4: emcheng (small blind) folded before Flop 
+Seat 5: postjoy75 (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75882971: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:16:57 UTC
+Table '11275334 19'(11628216) 9-max Seat #4 is the button
+Seat 1: kylienCarbad (35647 in chips)
+Seat 2: Antondomld (55083 in chips)
+Seat 3: Pirateschips (73026 in chips)
+Seat 4: emcheng (32402 in chips)
+Seat 5: postjoy75 (17811 in chips)
+Seat 6: kole1992 (20027 in chips)
+Seat 7: 4ikShevenwin (12996 in chips)
+Seat 8: Wandeinreich59 (19827 in chips)
+Seat 9: lokicola123 (18475 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+postjoy75: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+postjoy75: posts small blind 500
+kole1992: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [3c 8d]
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: raises 2300 to 2300
+emcheng: folds
+postjoy75: raises 17186 to 17686 and is all-in
+kole1992: folds
+Pirateschips: calls 15386
+*** FLOP *** [6h 4s 6d]
+*** TURN *** [6h 4s 6d] [5s]
+*** RIVER *** [6h 4s 6d 5s] [Ks]
+*** SHOW DOWN ***
+postjoy75: shows [Kc 9d] (two pair, Kings and Sixes)
+Pirateschips: shows [4c 4h] (a full house, Fours full of Sixes)
+Pirateschips collected 37497 from pot
+*** SUMMARY ***
+Total pot 37497 | Rake 0 
+Board [6h 4s 6d 5s Ks]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips showed [4c 4h] and won (37497) with a full house, Fours full of Sixes
+Seat 4: emcheng (button) folded before Flop 
+Seat 5: postjoy75 (small blind) showed [Kc 9d] and lost with two pair, Kings and Sixes
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75883010: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:17:51 UTC
+Table '11275334 18'(11628216) 9-max Seat #5 is the button
+Seat 1: kylienCarbad (35522 in chips)
+Seat 2: Antondomld (54958 in chips)
+Seat 3: Pirateschips (92712 in chips)
+Seat 4: emcheng (32277 in chips)
+Seat 6: kole1992 (18902 in chips)
+Seat 7: 4ikShevenwin (12871 in chips)
+Seat 8: Wandeinreich59 (19702 in chips)
+Seat 9: lokicola123 (18350 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+kole1992: posts small blind 500
+4ikShevenwin: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [6h 2d]
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: raises 2300 to 2300
+emcheng: folds
+kole1992: folds
+4ikShevenwin: calls 1300
+*** FLOP *** [Ts 5s 7c]
+4ikShevenwin: bets 1830
+Pirateschips: calls 1830
+*** TURN *** [Ts 5s 7c] [Ah]
+4ikShevenwin: bets 3000
+Pirateschips: raises 88457 to 88457 and is all-in
+4ikShevenwin: folds
+Uncalled bet (85457) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 15760 from pot
+*** SUMMARY ***
+Total pot 15760 | Rake 0 
+Board [Ts 5s 7c Ah]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips collected (15760)
+Seat 4: emcheng folded before Flop 
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: 4ikShevenwin (big blind) folded on the Turn 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75883065: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:19:09 UTC
+Table '11275334 18'(11628216) 9-max Seat #6 is the button
+Seat 1: kylienCarbad (35397 in chips)
+Seat 2: Antondomld (54833 in chips)
+Seat 3: Pirateschips (101217 in chips)
+Seat 4: emcheng (32152 in chips)
+Seat 6: kole1992 (18277 in chips)
+Seat 7: 4ikShevenwin (5616 in chips)
+Seat 8: Wandeinreich59 (19577 in chips)
+Seat 9: lokicola123 (18225 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+4ikShevenwin: posts small blind 500
+Wandeinreich59: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [5c 3s]
+lokicola123: folds
+kylienCarbad: raises 2300 to 2300
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+Uncalled bet (1300) returned to kylienCarbad
+*** SHOW DOWN ***
+kylienCarbad: doesn't show hand
+kylienCarbad collected 3500 from pot
+*** SUMMARY ***
+Total pot 3500 | Rake 0 
+Seat 1: kylienCarbad collected (3500)
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 6: kole1992 (button) folded before Flop 
+Seat 7: 4ikShevenwin (small blind) folded before Flop 
+Seat 8: Wandeinreich59 (big blind) folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75883089: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:19:52 UTC
+Table '11275334 18'(11628216) 9-max Seat #7 is the button
+Seat 1: kylienCarbad (37772 in chips)
+Seat 2: Antondomld (54708 in chips)
+Seat 3: Pirateschips (101092 in chips)
+Seat 4: emcheng (32027 in chips)
+Seat 6: kole1992 (18152 in chips)
+Seat 7: 4ikShevenwin (4991 in chips)
+Seat 8: Wandeinreich59 (18452 in chips)
+Seat 9: lokicola123 (18100 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+Wandeinreich59: posts small blind 500
+lokicola123: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [Jd As]
+kylienCarbad: folds
+Antondomld: raises 2300 to 2300
+Pirateschips: folds
+emcheng: folds
+kole1992: raises 18027 to 18027 and is all-in
+4ikShevenwin: folds
+Palmaram99 joins the table at seat #5
+Wandeinreich59: folds
+lokicola123: folds
+Antondomld: calls 15727
+*** FLOP *** [4d 3c 2d]
+*** TURN *** [4d 3c 2d] [8h]
+*** RIVER *** [4d 3c 2d 8h] [Jc]
+*** SHOW DOWN ***
+Antondomld: shows [Qs Ah] (high card Ace)
+kole1992: shows [Jd As] (a pair of Jacks)
+kole1992 collected 38554 from pot
+*** SUMMARY ***
+Total pot 38554 | Rake 0 
+Board [4d 3c 2d 8h Jc]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld showed [Qs Ah] and lost with high card Ace
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 6: kole1992 showed [Jd As] and won (38554) with a pair of Jacks
+Seat 7: 4ikShevenwin (button) folded before Flop 
+Seat 8: Wandeinreich59 (small blind) folded before Flop 
+Seat 9: lokicola123 (big blind) folded before Flop 
+
+
+Weplay Hand #75883134: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:21:03 UTC
+Table '11275334 18'(11628216) 9-max Seat #8 is the button
+Seat 1: kylienCarbad (37647 in chips)
+Seat 2: Antondomld (36556 in chips)
+Seat 3: Pirateschips (100967 in chips)
+Seat 4: emcheng (31902 in chips)
+Seat 5: Palmaram99 (115610 in chips)
+Seat 6: kole1992 (38554 in chips)
+Seat 7: 4ikShevenwin (4866 in chips)
+Seat 8: Wandeinreich59 (17827 in chips)
+Seat 9: lokicola123 (16975 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+Palmaram99: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+lokicola123: posts small blind 500
+kylienCarbad: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [4s 3d]
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: raises 17702 to 17702 and is all-in
+lokicola123: folds
+kylienCarbad: folds
+Uncalled bet (16702) returned to Wandeinreich59
+*** SHOW DOWN ***
+Wandeinreich59: doesn't show hand
+Wandeinreich59 collected 3625 from pot
+*** SUMMARY ***
+Total pot 3625 | Rake 0 
+Seat 1: kylienCarbad (big blind) folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 (button) collected (3625)
+Seat 9: lokicola123 (small blind) folded before Flop 
+
+
+Weplay Hand #75883157: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:21:30 UTC
+Table '11275334 18'(11628216) 9-max Seat #9 is the button
+Seat 1: kylienCarbad (36522 in chips)
+Seat 2: Antondomld (36431 in chips)
+Seat 3: Pirateschips (100842 in chips)
+Seat 4: emcheng (31777 in chips)
+Seat 5: Palmaram99 (115485 in chips)
+Seat 6: kole1992 (38429 in chips)
+Seat 7: 4ikShevenwin (4741 in chips)
+Seat 8: Wandeinreich59 (20327 in chips)
+Seat 9: lokicola123 (16350 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+Palmaram99: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+kylienCarbad: posts small blind 500
+Antondomld: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 2d]
+Pirateschips: folds
+emcheng: folds
+Palmaram99: raises 2300 to 2300
+kole1992: folds
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: calls 2300
+kylienCarbad: calls 1800
+Antondomld: folds
+*** FLOP *** [6h Qc 7d]
+kylienCarbad: checks
+Palmaram99: checks
+lokicola123: bets 13925 and is all-in
+kylienCarbad: folds
+Palmaram99: folds
+Uncalled bet (13925) returned to lokicola123
+*** SHOW DOWN ***
+lokicola123: doesn't show hand
+lokicola123 collected 9025 from pot
+*** SUMMARY ***
+Total pot 9025 | Rake 0 
+Board [6h Qc 7d]
+Seat 1: kylienCarbad (small blind) folded on the Flop 
+Seat 2: Antondomld (big blind) folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded on the Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 (button) collected (9025)
+
+
+Weplay Hand #75883193: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:22:25 UTC
+Table '11275334 18'(11628216) 9-max Seat #1 is the button
+Seat 1: kylienCarbad (34097 in chips)
+Seat 2: Antondomld (35306 in chips)
+Seat 3: Pirateschips (100717 in chips)
+Seat 4: emcheng (31652 in chips)
+Seat 5: Palmaram99 (113060 in chips)
+Seat 6: kole1992 (38304 in chips)
+Seat 7: 4ikShevenwin (4616 in chips)
+Seat 8: Wandeinreich59 (20202 in chips)
+Seat 9: lokicola123 (22950 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+Palmaram99: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+Antondomld: posts small blind 500
+Pirateschips: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Qh]
+emcheng: folds
+Palmaram99: folds
+kole1992: raises 2000 to 2000
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: calls 2000
+Antondomld: folds
+Pirateschips: folds
+*** FLOP *** [2h Tc 7c]
+kole1992: bets 2197
+kylienCarbad: folds
+Uncalled bet (2197) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 6625 from pot
+*** SUMMARY ***
+Total pot 6625 | Rake 0 
+Board [2h Tc 7c]
+Seat 1: kylienCarbad (button) folded on the Flop 
+Seat 2: Antondomld (small blind) folded before Flop 
+Seat 3: Pirateschips (big blind) folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 collected (6625)
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75883226: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIII (100/200) - 2026/02/15 20:23:17 UTC
+Table '11275334 18'(11628216) 9-max Seat #2 is the button
+Seat 1: kylienCarbad (31972 in chips)
+Seat 2: Antondomld (34681 in chips)
+Seat 3: Pirateschips (99592 in chips)
+Seat 4: emcheng (31527 in chips)
+Seat 5: Palmaram99 (112935 in chips)
+Seat 6: kole1992 (42804 in chips)
+Seat 7: 4ikShevenwin (4491 in chips)
+Seat 8: Wandeinreich59 (20077 in chips)
+Seat 9: lokicola123 (22825 in chips)
+kylienCarbad: posts the ante 125
+Antondomld: posts the ante 125
+Pirateschips: posts the ante 125
+emcheng: posts the ante 125
+Palmaram99: posts the ante 125
+kole1992: posts the ante 125
+4ikShevenwin: posts the ante 125
+Wandeinreich59: posts the ante 125
+lokicola123: posts the ante 125
+Pirateschips: posts small blind 500
+emcheng: posts big blind 1000
+*** HOLE CARDS ***
+Dealt to kole1992 [Ac 8c]
+Palmaram99: folds
+kole1992: raises 2000 to 2000
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: calls 1000
+*** FLOP *** [Jc Qd 2s]
+emcheng: bets 2200
+kole1992: raises 5107 to 5107
+emcheng: calls 2907
+*** TURN *** [Jc Qd 2s] [2d]
+emcheng: checks
+kole1992: checks
+*** RIVER *** [Jc Qd 2s 2d] [Qs]
+emcheng: checks
+kole1992: checks
+*** SHOW DOWN ***
+emcheng: shows [Jh 7c] (two pair, Queens and Jacks)
+kole1992: mucks hand
+emcheng collected 15839 from pot
+*** SUMMARY ***
+Total pot 15839 | Rake 0 
+Board [Jc Qd 2s 2d Qs]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld (button) folded before Flop 
+Seat 3: Pirateschips (small blind) folded before Flop 
+Seat 4: emcheng (big blind) showed [Jh 7c] and won (15839) with two pair, Queens and Jacks
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 mucked
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75883291: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:24:50 UTC
+Table '11275334 18'(11628216) 9-max Seat #3 is the button
+Seat 1: kylienCarbad (31847 in chips)
+Seat 2: Antondomld (34556 in chips)
+Seat 3: Pirateschips (98967 in chips)
+Seat 4: emcheng (40134 in chips)
+Seat 5: Palmaram99 (112810 in chips)
+Seat 6: kole1992 (35572 in chips)
+Seat 7: 4ikShevenwin (4366 in chips)
+Seat 8: Wandeinreich59 (19952 in chips)
+Seat 9: lokicola123 (22700 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+4ikShevenwin: posts the ante 150
+Wandeinreich59: posts the ante 150
+lokicola123: posts the ante 150
+emcheng: posts small blind 600
+Palmaram99: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad Jd]
+kole1992: raises 2400 to 2400
+4ikShevenwin: folds
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: calls 1200
+*** FLOP *** [Ac 4d 7d]
+Palmaram99: checks
+kole1992: bets 1620
+Palmaram99: folds
+Uncalled bet (1620) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 6750 from pot
+*** SUMMARY ***
+Total pot 6750 | Rake 0 
+Board [Ac 4d 7d]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips (button) folded before Flop 
+Seat 4: emcheng (small blind) folded before Flop 
+Seat 5: Palmaram99 (big blind) folded on the Flop 
+Seat 6: kole1992 collected (6750)
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75885339: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:25:47 UTC
+Table '11275334 18'(11628216) 9-max Seat #4 is the button
+Seat 1: kylienCarbad (31697 in chips)
+Seat 2: Antondomld (34406 in chips)
+Seat 3: Pirateschips (98817 in chips)
+Seat 4: emcheng (39384 in chips)
+Seat 5: Palmaram99 (110260 in chips)
+Seat 6: kole1992 (39772 in chips)
+Seat 7: 4ikShevenwin (4216 in chips)
+Seat 8: Wandeinreich59 (19802 in chips)
+Seat 9: lokicola123 (22550 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+4ikShevenwin: posts the ante 150
+Wandeinreich59: posts the ante 150
+lokicola123: posts the ante 150
+Palmaram99: posts small blind 600
+kole1992: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [8d 5s]
+4ikShevenwin: raises 4066 to 4066 and is all-in
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: calls 3466
+kole1992: folds
+*** FLOP *** [8s Ts 9s]
+*** TURN *** [8s Ts 9s] [2h]
+*** RIVER *** [8s Ts 9s 2h] [8h]
+*** SHOW DOWN ***
+Palmaram99: shows [As Kc] (a pair of Eights)
+4ikShevenwin: shows [Jd Qh] (a straight, Eight to Queen)
+4ikShevenwin collected 10682 from pot
+*** SUMMARY ***
+Total pot 10682 | Rake 0 
+Board [8s Ts 9s 2h 8h]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng (button) folded before Flop 
+Seat 5: Palmaram99 (small blind) showed [As Kc] and lost with a pair of Eights
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: 4ikShevenwin showed [Jd Qh] and won (10682) with a straight, Eight to Queen
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75885373: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:26:36 UTC
+Table '11275334 18'(11628216) 9-max Seat #5 is the button
+Seat 1: kylienCarbad (31547 in chips)
+Seat 2: Antondomld (34256 in chips)
+Seat 3: Pirateschips (98667 in chips)
+Seat 4: emcheng (39234 in chips)
+Seat 5: Palmaram99 (106044 in chips)
+Seat 6: kole1992 (38422 in chips)
+Seat 7: 4ikShevenwin (10682 in chips)
+Seat 8: Wandeinreich59 (19652 in chips)
+Seat 9: lokicola123 (22400 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+4ikShevenwin: posts the ante 150
+Wandeinreich59: posts the ante 150
+lokicola123: posts the ante 150
+kole1992: posts small blind 600
+4ikShevenwin: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [Jh 9d]
+Wandeinreich59: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: raises 2700 to 2700
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+4ikShevenwin: folds
+Uncalled bet (1500) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 4350 from pot
+*** SUMMARY ***
+Total pot 4350 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips collected (4350)
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 (button) folded before Flop 
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: 4ikShevenwin (big blind) folded before Flop 
+Seat 8: Wandeinreich59 folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75885395: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:27:07 UTC
+Table '11275334 18'(11628216) 9-max Seat #6 is the button
+Seat 1: kylienCarbad (31397 in chips)
+Seat 2: Antondomld (34106 in chips)
+Seat 3: Pirateschips (101667 in chips)
+Seat 4: emcheng (39084 in chips)
+Seat 5: Palmaram99 (105894 in chips)
+Seat 6: kole1992 (37672 in chips)
+Seat 7: 4ikShevenwin (9332 in chips)
+Seat 8: Wandeinreich59 (19502 in chips)
+Seat 9: lokicola123 (22250 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+4ikShevenwin: posts the ante 150
+Wandeinreich59: posts the ante 150
+lokicola123: posts the ante 150
+4ikShevenwin: posts small blind 600
+Wandeinreich59: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [Kc Ac]
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: raises 2400 to 2400
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: raises 37522 to 37522 and is all-in
+4ikShevenwin: folds
+Wandeinreich59: calls 18152 and is all-in
+Antondomld: calls 31556 and is all-in
+Uncalled bet (3566) returned to kole1992
+*** FLOP *** [3d 6s Jh]
+*** TURN *** [3d 6s Jh] [Kd]
+*** RIVER *** [3d 6s Jh Kd] [8h]
+*** SHOW DOWN ***
+Wandeinreich59: shows [Ad Ks] (a pair of Kings)
+Antondomld: shows [Jd Js] (three of a kind, Jacks)
+kole1992: shows [Kc Ac] (a pair of Kings)
+Antondomld collected 29208 from side pot
+Antondomld collected 60006 from main pot
+*** SUMMARY ***
+Total pot 89214 Main pot 60006. Side pot 29208. | Rake 0 
+Board [3d 6s Jh Kd 8h]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld showed [Jd Js] and won (89214) with three of a kind, Jacks
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 (button) showed [Kc Ac] and lost with a pair of Kings
+Seat 7: 4ikShevenwin (small blind) folded before Flop 
+Seat 8: Wandeinreich59 (big blind) showed [Ad Ks] and lost with a pair of Kings
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75885443: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:28:05 UTC
+Table '11275334 18'(11628216) 9-max Seat #7 is the button
+Seat 1: kylienCarbad (31247 in chips)
+Seat 2: Antondomld (89214 in chips)
+Seat 3: Pirateschips (101517 in chips)
+Seat 4: emcheng (38934 in chips)
+Seat 5: Palmaram99 (105744 in chips)
+Seat 6: kole1992 (3566 in chips)
+Seat 7: 4ikShevenwin (8582 in chips)
+Seat 9: lokicola123 (22100 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+4ikShevenwin: posts the ante 150
+lokicola123: posts the ante 150
+lokicola123: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 9h]
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: raises 3416 to 3416 and is all-in
+4ikShevenwin: folds
+lokicola123: calls 2216
+*** FLOP *** [3c 7s 2h]
+*** TURN *** [3c 7s 2h] [4h]
+*** RIVER *** [3c 7s 2h 4h] [Qs]
+*** SHOW DOWN ***
+lokicola123: shows [9d Jh] (high card Queen)
+kole1992: shows [9s 9h] (a pair of Nines)
+kole1992 collected 8032 from pot
+*** SUMMARY ***
+Total pot 8032 | Rake 0 
+Board [3c 7s 2h 4h Qs]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 showed [9s 9h] and won (8032) with a pair of Nines
+Seat 7: 4ikShevenwin (button) folded before Flop 
+Seat 9: lokicola123 (big blind) showed [9d Jh] and lost with high card Queen
+
+
+Weplay Hand #75885471: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:28:40 UTC
+Table '11275334 18'(11628216) 9-max Seat #8 is the button
+Seat 1: kylienCarbad (31097 in chips)
+Seat 2: Antondomld (89064 in chips)
+Seat 3: Pirateschips (101367 in chips)
+Seat 4: emcheng (38784 in chips)
+Seat 5: Palmaram99 (105594 in chips)
+Seat 6: kole1992 (8032 in chips)
+Seat 7: 4ikShevenwin (8432 in chips)
+Seat 9: lokicola123 (18534 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+4ikShevenwin: posts the ante 150
+lokicola123: posts the ante 150
+lokicola123: posts small blind 600
+kylienCarbad: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [Qc 2h]
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: raises 2400 to 2400
+kole1992: folds
+4ikShevenwin: folds
+lokicola123: calls 1800
+kylienCarbad: folds
+*** FLOP *** [Js 4c Ks]
+lokicola123: checks
+Palmaram99: bets 2800
+lokicola123: calls 2800
+*** TURN *** [Js 4c Ks] [8d]
+lokicola123: bets 13184 and is all-in
+Palmaram99: calls 13184
+*** RIVER *** [Js 4c Ks 8d] [7s]
+*** SHOW DOWN ***
+lokicola123: shows [As 9s] (a flush, Ace high)
+Palmaram99: shows [Kc Ad] (a pair of Kings)
+lokicola123 collected 39168 from pot
+*** SUMMARY ***
+Total pot 39168 | Rake 0 
+Board [Js 4c Ks 8d 7s]
+Seat 1: kylienCarbad (big blind) folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 showed [Kc Ad] and lost with a pair of Kings
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin folded before Flop 
+Seat 9: lokicola123 (small blind) showed [As 9s] and won (39168) with a flush, Ace high
+
+
+Weplay Hand #75885520: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:29:41 UTC
+Table '11275334 18'(11628216) 9-max Seat #9 is the button
+Seat 1: kylienCarbad (29747 in chips)
+Seat 2: Antondomld (88914 in chips)
+Seat 3: Pirateschips (101217 in chips)
+Seat 4: emcheng (38634 in chips)
+Seat 5: Palmaram99 (87060 in chips)
+Seat 6: kole1992 (7882 in chips)
+Seat 7: 4ikShevenwin (8282 in chips)
+Seat 9: lokicola123 (39168 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+4ikShevenwin: posts the ante 150
+lokicola123: posts the ante 150
+kylienCarbad: posts small blind 600
+Antondomld: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd 6d]
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: raises 5400 to 5400
+4ikShevenwin: raises 8132 to 8132 and is all-in
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+kole1992: calls 2332 and is all-in
+Uncalled bet (400) returned to 4ikShevenwin
+*** FLOP *** [4d 8h 8d]
+*** TURN *** [4d 8h 8d] [7d]
+*** RIVER *** [4d 8h 8d 7d] [Ts]
+*** SHOW DOWN ***
+kole1992: shows [Kd 6d] (a flush, King high)
+4ikShevenwin: shows [Ac Jh] (a pair of Eights)
+kole1992 collected 18464 from pot
+*** SUMMARY ***
+Total pot 18464 | Rake 0 
+Board [4d 8h 8d 7d Ts]
+Seat 1: kylienCarbad (small blind) folded before Flop 
+Seat 2: Antondomld (big blind) folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 showed [Kd 6d] and won (18464) with a flush, King high
+Seat 7: 4ikShevenwin showed [Ac Jh] and lost with a pair of Eights
+Seat 9: lokicola123 (button) folded before Flop 
+
+
+Weplay Hand #75885552: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:30:19 UTC
+Table '11275334 18'(11628216) 9-max Seat #1 is the button
+Seat 1: kylienCarbad (28997 in chips)
+Seat 2: Antondomld (87564 in chips)
+Seat 3: Pirateschips (101067 in chips)
+Seat 4: emcheng (38484 in chips)
+Seat 5: Palmaram99 (86910 in chips)
+Seat 6: kole1992 (18464 in chips)
+Seat 7: 4ikShevenwin (400 in chips)
+Seat 9: lokicola123 (39018 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+4ikShevenwin: posts the ante 150
+lokicola123: posts the ante 150
+Antondomld: posts small blind 600
+Pirateschips: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 6s]
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+4ikShevenwin: calls 250 and is all-in
+lokicola123: folds
+kylienCarbad: raises 2400 to 2400
+Antondomld: folds
+Pirateschips: folds
+Uncalled bet (1200) returned to kylienCarbad
+*** FLOP *** [7h Td Jc]
+*** TURN *** [7h Td Jc] [9h]
+*** RIVER *** [7h Td Jc 9h] [Ad]
+*** SHOW DOWN ***
+MoneyAll joins the table at seat #8
+4ikShevenwin: shows [2h Ts] (a pair of Tens)
+kylienCarbad: shows [Ac 5c] (a pair of Aces)
+kylienCarbad collected 2250 from side pot
+kylienCarbad collected 2200 from main pot
+*** SUMMARY ***
+Total pot 4450 Main pot 2200. Side pot 2250. | Rake 0 
+Board [7h Td Jc 9h Ad]
+Seat 1: kylienCarbad (button) showed [Ac 5c] and won (4450) with a pair of Aces
+Seat 2: Antondomld (small blind) folded before Flop 
+Seat 3: Pirateschips (big blind) folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: 4ikShevenwin showed [2h Ts] and lost with a pair of Tens
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75885581: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:30:59 UTC
+Table '11275334 17'(11628216) 9-max Seat #2 is the button
+Seat 1: kylienCarbad (32097 in chips)
+Seat 2: Antondomld (86814 in chips)
+Seat 3: Pirateschips (99717 in chips)
+Seat 4: emcheng (38334 in chips)
+Seat 5: Palmaram99 (86760 in chips)
+Seat 6: kole1992 (18314 in chips)
+Seat 8: MoneyAll (191824 in chips)
+Seat 9: lokicola123 (38868 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+MoneyAll: posts the ante 150
+lokicola123: posts the ante 150
+Pirateschips: posts small blind 600
+emcheng: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [5h 2s]
+Palmaram99: folds
+kole1992: folds
+MoneyAll: folds
+lokicola123: calls 1200
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: calls 600
+emcheng: checks
+*** FLOP *** [7c 9d 8s]
+Pirateschips: checks
+emcheng: checks
+lokicola123: bets 2400
+Pirateschips: raises 16800 to 16800
+emcheng: folds
+lokicola123: folds
+Uncalled bet (14400) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 9600 from pot
+*** SUMMARY ***
+Total pot 9600 | Rake 0 
+Board [7c 9d 8s]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld (button) folded before Flop 
+Seat 3: Pirateschips (small blind) collected (9600)
+Seat 4: emcheng (big blind) folded on the Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: lokicola123 folded on the Flop 
+
+
+Weplay Hand #75885633: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:32:15 UTC
+Table '11275334 17'(11628216) 9-max Seat #3 is the button
+Seat 1: kylienCarbad (31947 in chips)
+Seat 2: Antondomld (86664 in chips)
+Seat 3: Pirateschips (105567 in chips)
+Seat 4: emcheng (36984 in chips)
+Seat 5: Palmaram99 (86610 in chips)
+Seat 6: kole1992 (18164 in chips)
+Seat 8: MoneyAll (191674 in chips)
+Seat 9: lokicola123 (35118 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+MoneyAll: posts the ante 150
+lokicola123: posts the ante 150
+emcheng: posts small blind 600
+Palmaram99: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [2d 6c]
+kole1992: folds
+MoneyAll: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: calls 600
+Palmaram99: checks
+*** FLOP *** [Tc 8s 3s]
+emcheng: bets 2400
+Palmaram99: calls 2400
+*** TURN *** [Tc 8s 3s] [As]
+emcheng: checks
+Palmaram99: checks
+*** RIVER *** [Tc 8s 3s As] [4c]
+emcheng: checks
+Palmaram99: checks
+*** SHOW DOWN ***
+emcheng: shows [9c Qs] (high card Ace)
+Palmaram99: shows [7d 8d] (a pair of Eights)
+Palmaram99 collected 8400 from pot
+*** SUMMARY ***
+Total pot 8400 | Rake 0 
+Board [Tc 8s 3s As 4c]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips (button) folded before Flop 
+Seat 4: emcheng (small blind) showed [9c Qs] and lost with high card Ace
+Seat 5: Palmaram99 (big blind) showed [7d 8d] and won (8400) with a pair of Eights
+Seat 6: kole1992 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75885683: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:33:30 UTC
+Table '11275334 17'(11628216) 9-max Seat #4 is the button
+Seat 1: kylienCarbad (31797 in chips)
+Seat 2: Antondomld (86514 in chips)
+Seat 3: Pirateschips (105417 in chips)
+Seat 4: emcheng (33234 in chips)
+Seat 5: Palmaram99 (91260 in chips)
+Seat 6: kole1992 (18014 in chips)
+Seat 8: MoneyAll (191524 in chips)
+Seat 9: lokicola123 (34968 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+MoneyAll: posts the ante 150
+lokicola123: posts the ante 150
+Palmaram99: posts small blind 600
+kole1992: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [Kd Qs]
+MoneyAll: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: raises 2700 to 2700
+Pirateschips: raises 10260 to 10260
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27 joins the table at seat #7
+Antondomld: calls 7560
+*** FLOP *** [7h 4s 5c]
+Antondomld: checks
+Pirateschips: bets 9000
+Antondomld: folds
+Uncalled bet (9000) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 23520 from pot
+*** SUMMARY ***
+Total pot 23520 | Rake 0 
+Board [7h 4s 5c]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded on the Flop 
+Seat 3: Pirateschips collected (23520)
+Seat 4: emcheng (button) folded before Flop 
+Seat 5: Palmaram99 (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75885726: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XIV (100/200) - 2026/02/15 20:34:31 UTC
+Table '11275334 16'(11628216) 9-max Seat #5 is the button
+Seat 1: kylienCarbad (31647 in chips)
+Seat 2: Antondomld (76104 in chips)
+Seat 3: Pirateschips (118527 in chips)
+Seat 4: emcheng (33084 in chips)
+Seat 5: Palmaram99 (90510 in chips)
+Seat 6: kole1992 (16664 in chips)
+Seat 7: Panerai27 (151600 in chips)
+Seat 8: MoneyAll (191374 in chips)
+Seat 9: lokicola123 (34818 in chips)
+kylienCarbad: posts the ante 150
+Antondomld: posts the ante 150
+Pirateschips: posts the ante 150
+emcheng: posts the ante 150
+Palmaram99: posts the ante 150
+kole1992: posts the ante 150
+Panerai27: posts the ante 150
+MoneyAll: posts the ante 150
+lokicola123: posts the ante 150
+kole1992: posts small blind 600
+Panerai27: posts big blind 1200
+*** HOLE CARDS ***
+Dealt to kole1992 [7s As]
+MoneyAll: folds
+lokicola123: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: raises 2400 to 2400
+Palmaram99: folds
+kole1992: raises 15914 to 16514 and is all-in
+Panerai27: folds
+emcheng: folds
+Uncalled bet (14114) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 7350 from pot
+*** SUMMARY ***
+Total pot 7350 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 (button) folded before Flop 
+Seat 6: kole1992 (small blind) collected (7350)
+Seat 7: Panerai27 (big blind) folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75885743: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:35:01 UTC
+Table '11275334 16'(11628216) 9-max Seat #6 is the button
+Seat 1: kylienCarbad (31497 in chips)
+Seat 2: Antondomld (75954 in chips)
+Seat 3: Pirateschips (118377 in chips)
+Seat 4: emcheng (30534 in chips)
+Seat 5: Palmaram99 (90360 in chips)
+Seat 6: kole1992 (21464 in chips)
+Seat 7: Panerai27 (150250 in chips)
+Seat 8: MoneyAll (191224 in chips)
+Seat 9: lokicola123 (34668 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+lokicola123: posts the ante 200
+Panerai27: posts small blind 800
+MoneyAll: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [7d 6d]
+lokicola123: calls 1600
+kylienCarbad: folds
+Antondomld: raises 6400 to 6400
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+lokicola123: folds
+Uncalled bet (4800) returned to Antondomld
+*** SHOW DOWN ***
+Antondomld: doesn't show hand
+Antondomld collected 7400 from pot
+*** SUMMARY ***
+Total pot 7400 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld collected (7400)
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 (button) folded before Flop 
+Seat 7: Panerai27 (small blind) folded before Flop 
+Seat 8: MoneyAll (big blind) folded before Flop 
+Seat 9: lokicola123 folded before Flop 
+
+
+Weplay Hand #75885765: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:35:31 UTC
+Table '11275334 16'(11628216) 9-max Seat #7 is the button
+Seat 1: kylienCarbad (31297 in chips)
+Seat 2: Antondomld (81554 in chips)
+Seat 3: Pirateschips (118177 in chips)
+Seat 4: emcheng (30334 in chips)
+Seat 5: Palmaram99 (90160 in chips)
+Seat 6: kole1992 (21264 in chips)
+Seat 7: Panerai27 (149250 in chips)
+Seat 8: MoneyAll (189424 in chips)
+Seat 9: lokicola123 (32868 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+lokicola123: posts the ante 200
+MoneyAll: posts small blind 800
+lokicola123: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [3d Kc]
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: raises 3600 to 3600
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+lokicola123: folds
+Uncalled bet (2000) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 5800 from pot
+*** SUMMARY ***
+Total pot 5800 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips collected (5800)
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 (button) folded before Flop 
+Seat 8: MoneyAll (small blind) folded before Flop 
+Seat 9: lokicola123 (big blind) folded before Flop 
+
+
+Weplay Hand #75885791: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:36:09 UTC
+Table '11275334 16'(11628216) 9-max Seat #8 is the button
+Seat 1: kylienCarbad (31097 in chips)
+Seat 2: Antondomld (81354 in chips)
+Seat 3: Pirateschips (122177 in chips)
+Seat 4: emcheng (30134 in chips)
+Seat 5: Palmaram99 (89960 in chips)
+Seat 6: kole1992 (21064 in chips)
+Seat 7: Panerai27 (149050 in chips)
+Seat 8: MoneyAll (188424 in chips)
+Seat 9: lokicola123 (31068 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+lokicola123: posts the ante 200
+lokicola123: posts small blind 800
+kylienCarbad: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 4c]
+Antondomld: folds
+Pirateschips: raises 3600 to 3600
+emcheng: raises 29934 to 29934 and is all-in
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+lokicola123: folds
+kylienCarbad: folds
+Pirateschips: folds
+Uncalled bet (26334) returned to emcheng
+*** SHOW DOWN ***
+emcheng: doesn't show hand
+emcheng collected 11400 from pot
+*** SUMMARY ***
+Total pot 11400 | Rake 0 
+Seat 1: kylienCarbad (big blind) folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng collected (11400)
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll (button) folded before Flop 
+Seat 9: lokicola123 (small blind) folded before Flop 
+
+
+Weplay Hand #75885819: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:36:43 UTC
+Table '11275334 16'(11628216) 9-max Seat #9 is the button
+Seat 1: kylienCarbad (29297 in chips)
+Seat 2: Antondomld (81154 in chips)
+Seat 3: Pirateschips (118377 in chips)
+Seat 4: emcheng (37734 in chips)
+Seat 5: Palmaram99 (89760 in chips)
+Seat 6: kole1992 (20864 in chips)
+Seat 7: Panerai27 (148850 in chips)
+Seat 8: MoneyAll (188224 in chips)
+Seat 9: lokicola123 (30068 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+lokicola123: posts the ante 200
+kylienCarbad: posts small blind 800
+Antondomld: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [Qd 4d]
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+lokicola123: raises 3200 to 3200
+kylienCarbad: folds
+Antondomld: calls 1600
+*** FLOP *** [7h 6d Td]
+Antondomld: checks
+lokicola123: checks
+*** TURN *** [7h 6d Td] [2d]
+Antondomld: bets 8100
+lokicola123: calls 8100
+*** RIVER *** [7h 6d Td 2d] [8h]
+Antondomld: bets 69654 and is all-in
+lokicola123: calls 18568 and is all-in
+Uncalled bet (51086) returned to Antondomld
+*** SHOW DOWN ***
+Antondomld: shows [9s 5d] (a straight, Six to Ten)
+lokicola123: shows [Ah 6s] (a pair of Sixes)
+Antondomld collected 62336 from pot
+*** SUMMARY ***
+Total pot 62336 | Rake 0 
+Board [7h 6d Td 2d 8h]
+Seat 1: kylienCarbad (small blind) folded before Flop 
+Seat 2: Antondomld (big blind) showed [9s 5d] and won (62336) with a straight, Six to Ten
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: lokicola123 (button) showed [Ah 6s] and lost with a pair of Sixes
+
+
+Weplay Hand #75885866: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:37:58 UTC
+Table '11275334 15'(11628216) 9-max Seat #1 is the button
+Seat 1: kylienCarbad (28297 in chips)
+Seat 2: Antondomld (113422 in chips)
+Seat 3: Pirateschips (118177 in chips)
+Seat 4: emcheng (37534 in chips)
+Seat 5: Palmaram99 (89560 in chips)
+Seat 6: kole1992 (20664 in chips)
+Seat 7: Panerai27 (148650 in chips)
+Seat 8: MoneyAll (188024 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+Antondomld: posts small blind 800
+Pirateschips: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 5s]
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: raises 4000 to 4000
+MoneyAll: folds
+kylienCarbad: raises 28097 to 28097 and is all-in
+Antondomld: folds
+Pirateschips: folds
+Panerai27: folds
+Uncalled bet (24097) returned to kylienCarbad
+*** SHOW DOWN ***
+kylienCarbad: doesn't show hand
+kylienCarbad collected 12000 from pot
+*** SUMMARY ***
+Total pot 12000 | Rake 0 
+Seat 1: kylienCarbad (button) collected (12000)
+Seat 2: Antondomld (small blind) folded before Flop 
+Seat 3: Pirateschips (big blind) folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+
+
+Weplay Hand #75885895: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:38:33 UTC
+Table '11275334 15'(11628216) 9-max Seat #2 is the button
+Seat 1: kylienCarbad (36097 in chips)
+Seat 2: Antondomld (112422 in chips)
+Seat 3: Pirateschips (116377 in chips)
+Seat 4: emcheng (37334 in chips)
+Seat 5: Palmaram99 (89360 in chips)
+Seat 6: kole1992 (20464 in chips)
+Seat 7: Panerai27 (144450 in chips)
+Seat 8: MoneyAll (187824 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+Pirateschips: posts small blind 800
+emcheng: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [8d Kd]
+Palmaram99: folds
+kole1992: folds
+Panerai27: raises 4000 to 4000
+MoneyAll: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Uncalled bet (2400) returned to Panerai27
+*** SHOW DOWN ***
+Panerai27: doesn't show hand
+Panerai27 collected 5600 from pot
+*** SUMMARY ***
+Total pot 5600 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld (button) folded before Flop 
+Seat 3: Pirateschips (small blind) folded before Flop 
+Seat 4: emcheng (big blind) folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 collected (5600)
+Seat 8: MoneyAll folded before Flop 
+
+
+Weplay Hand #75885912: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:39:03 UTC
+Table '11275334 15'(11628216) 9-max Seat #3 is the button
+Seat 1: kylienCarbad (35897 in chips)
+Seat 2: Antondomld (112222 in chips)
+Seat 3: Pirateschips (115377 in chips)
+Seat 4: emcheng (35534 in chips)
+Seat 5: Palmaram99 (89160 in chips)
+Seat 6: kole1992 (20264 in chips)
+Seat 7: Panerai27 (148250 in chips)
+Seat 8: MoneyAll (187624 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+emcheng: posts small blind 800
+Palmaram99: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 8h]
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: calls 800
+Palmaram99: raises 4800 to 6400
+emcheng: folds
+Uncalled bet (4800) returned to Palmaram99
+*** SHOW DOWN ***
+Palmaram99: doesn't show hand
+Palmaram99 collected 4800 from pot
+*** SUMMARY ***
+Total pot 4800 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips (button) folded before Flop 
+Seat 4: emcheng (small blind) folded before Flop 
+Seat 5: Palmaram99 (big blind) collected (4800)
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+
+
+Weplay Hand #75885937: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:39:47 UTC
+Table '11275334 15'(11628216) 9-max Seat #4 is the button
+Seat 1: kylienCarbad (35697 in chips)
+Seat 2: Antondomld (112022 in chips)
+Seat 3: Pirateschips (115177 in chips)
+Seat 4: emcheng (33734 in chips)
+Seat 5: Palmaram99 (92160 in chips)
+Seat 6: kole1992 (20064 in chips)
+Seat 7: Panerai27 (148050 in chips)
+Seat 8: MoneyAll (187424 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+Palmaram99: posts small blind 800
+kole1992: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 2h]
+Panerai27: folds
+MoneyAll: folds
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+Uncalled bet (800) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 3200 from pot
+*** SUMMARY ***
+Total pot 3200 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng (button) folded before Flop 
+Seat 5: Palmaram99 (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) collected (3200)
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+
+
+Weplay Hand #75885949: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:40:10 UTC
+Table '11275334 15'(11628216) 9-max Seat #5 is the button
+Seat 1: kylienCarbad (35497 in chips)
+Seat 2: Antondomld (111822 in chips)
+Seat 3: Pirateschips (114977 in chips)
+Seat 4: emcheng (33534 in chips)
+Seat 5: Palmaram99 (91160 in chips)
+Seat 6: kole1992 (22264 in chips)
+Seat 7: Panerai27 (147850 in chips)
+Seat 8: MoneyAll (187224 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+kole1992: posts small blind 800
+Panerai27: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [6c 8c]
+MoneyAll: folds
+kylienCarbad: raises 3200 to 3200
+Antondomld: calls 3200
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: calls 1600
+*** FLOP *** [Ah Td 6d]
+SONALI joins the table at seat #9
+Panerai27: checks
+kylienCarbad: bets 8000
+Antondomld: calls 8000
+Panerai27: calls 8000
+*** TURN *** [Ah Td 6d] [8s]
+Panerai27: checks
+kylienCarbad: checks
+Antondomld: bets 14000
+Panerai27: folds
+kylienCarbad: folds
+Uncalled bet (14000) returned to Antondomld
+*** SHOW DOWN ***
+Antondomld: doesn't show hand
+Antondomld collected 36000 from pot
+*** SUMMARY ***
+Total pot 36000 | Rake 0 
+Board [Ah Td 6d 8s]
+Seat 1: kylienCarbad folded on the Turn 
+Seat 2: Antondomld collected (36000)
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 (button) folded before Flop 
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: Panerai27 (big blind) folded on the Turn 
+Seat 8: MoneyAll folded before Flop 
+
+
+Weplay Hand #75886001: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:41:34 UTC
+Table '11275334 14'(11628216) 9-max Seat #6 is the button
+Seat 1: kylienCarbad (24097 in chips)
+Seat 2: Antondomld (136422 in chips)
+Seat 3: Pirateschips (114777 in chips)
+Seat 4: emcheng (33334 in chips)
+Seat 5: Palmaram99 (90960 in chips)
+Seat 6: kole1992 (21264 in chips)
+Seat 7: Panerai27 (136450 in chips)
+Seat 8: MoneyAll (187024 in chips)
+Seat 9: SONALI (66783 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+SONALI: posts the ante 200
+Panerai27: posts small blind 800
+MoneyAll: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [Kh Jh]
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: raises 3200 to 3200
+Panerai27: calls 2400
+MoneyAll: calls 1600
+*** FLOP *** [3s 9d As]
+Panerai27: checks
+MoneyAll: bets 4500
+kole1992: folds
+Panerai27: folds
+Uncalled bet (4500) returned to MoneyAll
+*** SHOW DOWN ***
+MoneyAll: doesn't show hand
+MoneyAll collected 11400 from pot
+*** SUMMARY ***
+Total pot 11400 | Rake 0 
+Board [3s 9d As]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 (button) folded on the Flop 
+Seat 7: Panerai27 (small blind) folded on the Flop 
+Seat 8: MoneyAll (big blind) collected (11400)
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75886035: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:42:46 UTC
+Table '11275334 14'(11628216) 9-max Seat #7 is the button
+Seat 1: kylienCarbad (23897 in chips)
+Seat 2: Antondomld (136222 in chips)
+Seat 3: Pirateschips (114577 in chips)
+Seat 4: emcheng (33134 in chips)
+Seat 5: Palmaram99 (90760 in chips)
+Seat 6: kole1992 (17864 in chips)
+Seat 7: Panerai27 (133050 in chips)
+Seat 8: MoneyAll (195024 in chips)
+Seat 9: SONALI (66583 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+SONALI: posts the ante 200
+MoneyAll: posts small blind 800
+SONALI: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [3c As]
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: raises 3600 to 3600
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+SONALI: folds
+Uncalled bet (2000) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 5800 from pot
+*** SUMMARY ***
+Total pot 5800 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips collected (5800)
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 (button) folded before Flop 
+Seat 8: MoneyAll (small blind) folded before Flop 
+Seat 9: SONALI (big blind) folded before Flop 
+
+
+Weplay Hand #75886059: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:43:28 UTC
+Table '11275334 13'(11628216) 9-max Seat #8 is the button
+Seat 1: kylienCarbad (23697 in chips)
+Seat 2: Antondomld (136022 in chips)
+Seat 3: Pirateschips (118577 in chips)
+Seat 4: emcheng (32934 in chips)
+Seat 5: Palmaram99 (90560 in chips)
+Seat 6: kole1992 (17664 in chips)
+Seat 7: Panerai27 (132850 in chips)
+Seat 8: MoneyAll (194024 in chips)
+Seat 9: SONALI (64783 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+SONALI: posts the ante 200
+SONALI: posts small blind 800
+kylienCarbad: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [Ad 7c]
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: raises 17464 to 17464 and is all-in
+Panerai27: folds
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+kylienCarbad: folds
+Uncalled bet (15864) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 5800 from pot
+*** SUMMARY ***
+Total pot 5800 | Rake 0 
+Seat 1: kylienCarbad (big blind) folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 collected (5800)
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll (button) folded before Flop 
+Seat 9: SONALI (small blind) folded before Flop 
+
+
+Weplay Hand #75886088: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XV (100/200) - 2026/02/15 20:44:29 UTC
+Table '11275334 13'(11628216) 9-max Seat #9 is the button
+Seat 1: kylienCarbad (21897 in chips)
+Seat 2: Antondomld (135822 in chips)
+Seat 3: Pirateschips (118377 in chips)
+Seat 4: emcheng (32734 in chips)
+Seat 5: Palmaram99 (90360 in chips)
+Seat 6: kole1992 (21664 in chips)
+Seat 7: Panerai27 (132650 in chips)
+Seat 8: MoneyAll (193824 in chips)
+Seat 9: SONALI (63783 in chips)
+kylienCarbad: posts the ante 200
+Antondomld: posts the ante 200
+Pirateschips: posts the ante 200
+emcheng: posts the ante 200
+Palmaram99: posts the ante 200
+kole1992: posts the ante 200
+Panerai27: posts the ante 200
+MoneyAll: posts the ante 200
+SONALI: posts the ante 200
+kylienCarbad: posts small blind 800
+Antondomld: posts big blind 1600
+*** HOLE CARDS ***
+Dealt to kole1992 [Qs 5d]
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: raises 4000 to 4000
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+kylienCarbad: folds
+Antondomld: calls 2400
+*** FLOP *** [Qh 4c Qd]
+Antondomld: checks
+Panerai27: bets 3498
+Antondomld: folds
+Uncalled bet (3498) returned to Panerai27
+*** SHOW DOWN ***
+Panerai27: doesn't show hand
+Panerai27 collected 10600 from pot
+*** SUMMARY ***
+Total pot 10600 | Rake 0 
+Board [Qh 4c Qd]
+Seat 1: kylienCarbad (small blind) folded before Flop 
+Seat 2: Antondomld (big blind) folded on the Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 collected (10600)
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI (button) folded before Flop 
+
+
+Weplay Hand #75886131: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVI (100/200) - 2026/02/15 20:45:44 UTC
+Table '11275334 12'(11628216) 9-max Seat #1 is the button
+Seat 1: kylienCarbad (20897 in chips)
+Seat 2: Antondomld (131622 in chips)
+Seat 3: Pirateschips (118177 in chips)
+Seat 4: emcheng (32534 in chips)
+Seat 5: Palmaram99 (90160 in chips)
+Seat 6: kole1992 (21464 in chips)
+Seat 7: Panerai27 (139050 in chips)
+Seat 8: MoneyAll (193624 in chips)
+Seat 9: SONALI (63583 in chips)
+kylienCarbad: posts the ante 250
+Antondomld: posts the ante 250
+Pirateschips: posts the ante 250
+emcheng: posts the ante 250
+Palmaram99: posts the ante 250
+kole1992: posts the ante 250
+Panerai27: posts the ante 250
+MoneyAll: posts the ante 250
+SONALI: posts the ante 250
+Antondomld: posts small blind 1000
+Pirateschips: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [8h 7s]
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+kylienCarbad: folds
+Antondomld: calls 1000
+Pirateschips: checks
+*** FLOP *** [3c 5c Kd]
+Antondomld: checks
+Pirateschips: checks
+*** TURN *** [3c 5c Kd] [3d]
+Antondomld: checks
+Pirateschips: checks
+*** RIVER *** [3c 5c Kd 3d] [9s]
+Antondomld: checks
+Pirateschips: bets 6000
+Antondomld: calls 6000
+*** SHOW DOWN ***
+Pirateschips: shows [6h 2d] (a pair of Threes)
+Antondomld: shows [Qc As] (a pair of Threes)
+Antondomld collected 18250 from pot
+*** SUMMARY ***
+Total pot 18250 | Rake 0 
+Board [3c 5c Kd 3d 9s]
+Seat 1: kylienCarbad (button) folded before Flop 
+Seat 2: Antondomld (small blind) showed [Qc As] and won (18250) with a pair of Threes
+Seat 3: Pirateschips (big blind) showed [6h 2d] and lost with a pair of Threes
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75886191: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVI (100/200) - 2026/02/15 20:47:29 UTC
+Table '11275334 12'(11628216) 9-max Seat #2 is the button
+Seat 1: kylienCarbad (20647 in chips)
+Seat 2: Antondomld (141622 in chips)
+Seat 3: Pirateschips (109927 in chips)
+Seat 4: emcheng (32284 in chips)
+Seat 5: Palmaram99 (89910 in chips)
+Seat 6: kole1992 (21214 in chips)
+Seat 7: Panerai27 (138800 in chips)
+Seat 8: MoneyAll (193374 in chips)
+Seat 9: SONALI (63333 in chips)
+kylienCarbad: posts the ante 250
+Antondomld: posts the ante 250
+Pirateschips: posts the ante 250
+emcheng: posts the ante 250
+Palmaram99: posts the ante 250
+kole1992: posts the ante 250
+Panerai27: posts the ante 250
+MoneyAll: posts the ante 250
+SONALI: posts the ante 250
+Pirateschips: posts small blind 1000
+emcheng: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 9h]
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+kylienCarbad: folds
+Antondomld: raises 4600 to 4600
+Pirateschips: folds
+emcheng: raises 30034 to 32034 and is all-in
+Antondomld: folds
+Uncalled bet (27434) returned to emcheng
+*** SHOW DOWN ***
+emcheng: doesn't show hand
+emcheng collected 12450 from pot
+*** SUMMARY ***
+Total pot 12450 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld (button) folded before Flop 
+Seat 3: Pirateschips (small blind) folded before Flop 
+Seat 4: emcheng (big blind) collected (12450)
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75886231: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVI (100/200) - 2026/02/15 20:48:42 UTC
+Table '11275334 12'(11628216) 9-max Seat #3 is the button
+Seat 1: kylienCarbad (20397 in chips)
+Seat 2: Antondomld (136772 in chips)
+Seat 3: Pirateschips (108677 in chips)
+Seat 4: emcheng (39884 in chips)
+Seat 5: Palmaram99 (89660 in chips)
+Seat 6: kole1992 (20964 in chips)
+Seat 7: Panerai27 (138550 in chips)
+Seat 8: MoneyAll (193124 in chips)
+Seat 9: SONALI (63083 in chips)
+kylienCarbad: posts the ante 250
+Antondomld: posts the ante 250
+Pirateschips: posts the ante 250
+emcheng: posts the ante 250
+Palmaram99: posts the ante 250
+kole1992: posts the ante 250
+Panerai27: posts the ante 250
+MoneyAll: posts the ante 250
+SONALI: posts the ante 250
+emcheng: posts small blind 1000
+Palmaram99: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [7h 8s]
+kole1992: folds
+Panerai27: raises 5000 to 5000
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: raises 15000 to 15000
+emcheng: folds
+Palmaram99: folds
+Panerai27: calls 10000
+*** FLOP *** [Jd 8c 5h]
+Panerai27: checks
+Pirateschips: bets 14000
+Panerai27: folds
+Uncalled bet (14000) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 35250 from pot
+*** SUMMARY ***
+Total pot 35250 | Rake 0 
+Board [Jd 8c 5h]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips (button) collected (35250)
+Seat 4: emcheng (small blind) folded before Flop 
+Seat 5: Palmaram99 (big blind) folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded on the Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75886279: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVI (100/200) - 2026/02/15 20:50:00 UTC
+Table '11275334 12'(11628216) 9-max Seat #4 is the button
+Seat 1: kylienCarbad (20147 in chips)
+Seat 2: Antondomld (136522 in chips)
+Seat 3: Pirateschips (128677 in chips)
+Seat 4: emcheng (38634 in chips)
+Seat 5: Palmaram99 (87410 in chips)
+Seat 6: kole1992 (20714 in chips)
+Seat 7: Panerai27 (123300 in chips)
+Seat 8: MoneyAll (192874 in chips)
+Seat 9: SONALI (62833 in chips)
+kylienCarbad: posts the ante 250
+Antondomld: posts the ante 250
+Pirateschips: posts the ante 250
+emcheng: posts the ante 250
+Palmaram99: posts the ante 250
+kole1992: posts the ante 250
+Panerai27: posts the ante 250
+MoneyAll: posts the ante 250
+SONALI: posts the ante 250
+Palmaram99: posts small blind 1000
+kole1992: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [7c 4h]
+Panerai27: folds
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: raises 86160 to 87160 and is all-in
+kole1992: folds
+Uncalled bet (85160) returned to Palmaram99
+*** SHOW DOWN ***
+Palmaram99: doesn't show hand
+Palmaram99 collected 6250 from pot
+*** SUMMARY ***
+Total pot 6250 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng (button) folded before Flop 
+Seat 5: Palmaram99 (small blind) collected (6250)
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75887315: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVI (100/200) - 2026/02/15 20:51:00 UTC
+Table '11275334 12'(11628216) 9-max Seat #5 is the button
+Seat 1: kylienCarbad (19897 in chips)
+Seat 2: Antondomld (136272 in chips)
+Seat 3: Pirateschips (128427 in chips)
+Seat 4: emcheng (38384 in chips)
+Seat 5: Palmaram99 (91410 in chips)
+Seat 6: kole1992 (18464 in chips)
+Seat 7: Panerai27 (123050 in chips)
+Seat 8: MoneyAll (192624 in chips)
+Seat 9: SONALI (62583 in chips)
+kylienCarbad: posts the ante 250
+Antondomld: posts the ante 250
+Pirateschips: posts the ante 250
+emcheng: posts the ante 250
+Palmaram99: posts the ante 250
+kole1992: posts the ante 250
+Panerai27: posts the ante 250
+MoneyAll: posts the ante 250
+SONALI: posts the ante 250
+kole1992: posts small blind 1000
+Panerai27: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [5s Kd]
+MoneyAll: raises 4600 to 4600
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: raises 11000 to 11000
+kole1992: folds
+Panerai27: folds
+MoneyAll: calls 6400
+*** FLOP *** [Kh 9c Ts]
+MoneyAll: checks
+Palmaram99: bets 10900
+MoneyAll: folds
+Uncalled bet (10900) returned to Palmaram99
+*** SHOW DOWN ***
+Palmaram99: doesn't show hand
+Palmaram99 collected 27250 from pot
+*** SUMMARY ***
+Total pot 27250 | Rake 0 
+Board [Kh 9c Ts]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 (button) collected (27250)
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: Panerai27 (big blind) folded before Flop 
+Seat 8: MoneyAll folded on the Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75887348: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVI (100/200) - 2026/02/15 20:52:05 UTC
+Table '11275334 11'(11628216) 9-max Seat #6 is the button
+Seat 1: kylienCarbad (19647 in chips)
+Seat 2: Antondomld (136022 in chips)
+Seat 3: Pirateschips (128177 in chips)
+Seat 4: emcheng (38134 in chips)
+Seat 5: Palmaram99 (107410 in chips)
+Seat 6: kole1992 (17214 in chips)
+Seat 7: Panerai27 (120800 in chips)
+Seat 8: MoneyAll (181374 in chips)
+Seat 9: SONALI (62333 in chips)
+kylienCarbad: posts the ante 250
+Antondomld: posts the ante 250
+Pirateschips: posts the ante 250
+emcheng: posts the ante 250
+Palmaram99: posts the ante 250
+kole1992: posts the ante 250
+Panerai27: posts the ante 250
+MoneyAll: posts the ante 250
+SONALI: posts the ante 250
+Panerai27: posts small blind 1000
+MoneyAll: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 6d]
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: raises 4600 to 4600
+kole1992: folds
+Panerai27: folds
+MoneyAll: calls 2600
+*** FLOP *** [Kc 4d 2d]
+MoneyAll: checks
+Palmaram99: bets 8300
+MoneyAll: raises 19000 to 19000
+Palmaram99: folds
+Uncalled bet (10700) returned to MoneyAll
+*** SHOW DOWN ***
+MoneyAll: doesn't show hand
+MoneyAll collected 29050 from pot
+*** SUMMARY ***
+Total pot 29050 | Rake 0 
+Board [Kc 4d 2d]
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded on the Flop 
+Seat 6: kole1992 (button) folded before Flop 
+Seat 7: Panerai27 (small blind) folded before Flop 
+Seat 8: MoneyAll (big blind) collected (29050)
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75887398: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVI (100/200) - 2026/02/15 20:53:38 UTC
+Table '11275334 11'(11628216) 9-max Seat #7 is the button
+Seat 1: kylienCarbad (19397 in chips)
+Seat 2: Antondomld (135772 in chips)
+Seat 3: Pirateschips (127927 in chips)
+Seat 4: emcheng (37884 in chips)
+Seat 5: Palmaram99 (94260 in chips)
+Seat 6: kole1992 (16964 in chips)
+Seat 7: Panerai27 (119550 in chips)
+Seat 8: MoneyAll (197274 in chips)
+Seat 9: SONALI (62083 in chips)
+kylienCarbad: posts the ante 250
+Antondomld: posts the ante 250
+Pirateschips: posts the ante 250
+emcheng: posts the ante 250
+Palmaram99: posts the ante 250
+kole1992: posts the ante 250
+Panerai27: posts the ante 250
+MoneyAll: posts the ante 250
+SONALI: posts the ante 250
+MoneyAll: posts small blind 1000
+SONALI: posts big blind 2000
+*** HOLE CARDS ***
+Dealt to kole1992 [As 9c]
+kylienCarbad: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: raises 16714 to 16714 and is all-in
+Panerai27: folds
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+Uncalled bet (14714) returned to kole1992
+SONALI: sits out 
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 7250 from pot
+*** SUMMARY ***
+Total pot 7250 | Rake 0 
+Seat 1: kylienCarbad folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 collected (7250)
+Seat 7: Panerai27 (button) folded before Flop 
+Seat 8: MoneyAll (small blind) folded before Flop 
+Seat 9: SONALI (big blind) folded before Flop 
+
+
+Weplay Hand #75887433: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVII (100/200) - 2026/02/15 20:54:44 UTC
+Table '11275334 11'(11628216) 9-max Seat #8 is the button
+Seat 1: kylienCarbad (19147 in chips)
+Seat 2: Antondomld (135522 in chips)
+Seat 3: Pirateschips (127677 in chips)
+Seat 4: emcheng (37634 in chips)
+Seat 5: Palmaram99 (94010 in chips)
+Seat 6: kole1992 (21964 in chips)
+Seat 7: Panerai27 (119300 in chips)
+Seat 8: MoneyAll (196024 in chips)
+Seat 9: SONALI (59833 in chips)
+kylienCarbad: posts the ante 300
+Antondomld: posts the ante 300
+Pirateschips: posts the ante 300
+emcheng: posts the ante 300
+Palmaram99: posts the ante 300
+kole1992: posts the ante 300
+Panerai27: posts the ante 300
+MoneyAll: posts the ante 300
+SONALI: posts the ante 300
+SONALI: posts small blind 1250
+kylienCarbad: posts big blind 2500
+*** HOLE CARDS ***
+Dealt to kole1992 [9d 2s]
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: raises 5700 to 5700
+kole1992: folds
+Panerai27: calls 5700
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+kylienCarbad: raises 16347 to 18847 and is all-in
+Palmaram99: raises 88010 to 93710 and is all-in
+Panerai27: calls 88010
+*** FLOP *** [7h As 9c]
+*** TURN *** [7h As 9c] [Td]
+*** RIVER *** [7h As 9c Td] [2c]
+*** SHOW DOWN ***
+kylienCarbad: shows [Th 8d] (a pair of Tens)
+Palmaram99: shows [Ad Kh] (a pair of Aces)
+Panerai27: shows [Qc Ac] (a pair of Aces)
+Palmaram99 collected 149726 from side pot
+Palmaram99 collected 60491 from main pot
+*** SUMMARY ***
+Total pot 210217 Main pot 60491. Side pot 149726. | Rake 0 
+Board [7h As 9c Td 2c]
+Seat 1: kylienCarbad (big blind) showed [Th 8d] and lost with a pair of Tens
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 showed [Ad Kh] and won (210217) with a pair of Aces
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 showed [Qc Ac] and lost with a pair of Aces
+Seat 8: MoneyAll (button) folded before Flop 
+Seat 9: SONALI (small blind) folded before Flop 
+
+
+Weplay Hand #75887589: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVII (100/200) - 2026/02/15 21:01:29 UTC
+Table '11275334 11'(11628216) 9-max Seat #9 is the button
+Seat 2: Antondomld (135222 in chips)
+Seat 3: Pirateschips (127377 in chips)
+Seat 4: emcheng (37334 in chips)
+Seat 5: Palmaram99 (210217 in chips)
+Seat 6: kole1992 (21664 in chips)
+Seat 7: Panerai27 (25290 in chips)
+Seat 8: MoneyAll (195724 in chips)
+Seat 9: SONALI (58283 in chips)
+Antondomld: posts the ante 300
+Pirateschips: posts the ante 300
+emcheng: posts the ante 300
+Palmaram99: posts the ante 300
+kole1992: posts the ante 300
+Panerai27: posts the ante 300
+MoneyAll: posts the ante 300
+SONALI: posts the ante 300
+Antondomld: posts big blind 2500
+*** HOLE CARDS ***
+Dealt to kole1992 [Td 5d]
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+Uncalled bet (2500) returned to Antondomld
+SONALI: sits out 
+*** SHOW DOWN ***
+Antondomld: doesn't show hand
+Antondomld collected 2400 from pot
+*** SUMMARY ***
+Total pot 2400 | Rake 0 
+Seat 2: Antondomld (big blind) collected (2400)
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI (button) folded before Flop 
+
+
+Weplay Hand #75887627: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVII (100/200) - 2026/02/15 21:02:30 UTC
+Table '11275334 11'(11628216) 9-max Seat #1 is the button
+Seat 2: Antondomld (137322 in chips)
+Seat 3: Pirateschips (127077 in chips)
+Seat 4: emcheng (37034 in chips)
+Seat 5: Palmaram99 (209917 in chips)
+Seat 6: kole1992 (21364 in chips)
+Seat 7: Panerai27 (24990 in chips)
+Seat 8: MoneyAll (195424 in chips)
+Seat 9: SONALI (57983 in chips)
+Antondomld: posts the ante 300
+Pirateschips: posts the ante 300
+emcheng: posts the ante 300
+Palmaram99: posts the ante 300
+kole1992: posts the ante 300
+Panerai27: posts the ante 300
+MoneyAll: posts the ante 300
+SONALI: posts the ante 300
+Antondomld: posts small blind 1250
+Pirateschips: posts big blind 2500
+*** HOLE CARDS ***
+Dealt to kole1992 [8c 6s]
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+Antondomld: folds
+Uncalled bet (1250) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 4900 from pot
+*** SUMMARY ***
+Total pot 4900 | Rake 0 
+Seat 2: Antondomld (small blind) folded before Flop 
+Seat 3: Pirateschips (big blind) collected (4900)
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75887674: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVII (100/200) - 2026/02/15 21:03:29 UTC
+Table '11275334 11'(11628216) 9-max Seat #2 is the button
+Seat 2: Antondomld (135772 in chips)
+Seat 3: Pirateschips (130427 in chips)
+Seat 4: emcheng (36734 in chips)
+Seat 5: Palmaram99 (209617 in chips)
+Seat 6: kole1992 (21064 in chips)
+Seat 7: Panerai27 (24690 in chips)
+Seat 8: MoneyAll (195124 in chips)
+Seat 9: SONALI (57683 in chips)
+Antondomld: posts the ante 300
+Pirateschips: posts the ante 300
+emcheng: posts the ante 300
+Palmaram99: posts the ante 300
+kole1992: posts the ante 300
+Panerai27: posts the ante 300
+MoneyAll: posts the ante 300
+SONALI: posts the ante 300
+Pirateschips: posts small blind 1250
+emcheng: posts big blind 2500
+*** HOLE CARDS ***
+Dealt to kole1992 [8s 8d]
+Palmaram99: folds
+kole1992: raises 13750 to 13750
+Panerai27: folds
+MoneyAll: folds
+SONALI: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Uncalled bet (11250) returned to kole1992
+*** SHOW DOWN ***
+kole1992: doesn't show hand
+kole1992 collected 8650 from pot
+*** SUMMARY ***
+Total pot 8650 | Rake 0 
+Seat 2: Antondomld (button) folded before Flop 
+Seat 3: Pirateschips (small blind) folded before Flop 
+Seat 4: emcheng (big blind) folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 collected (8650)
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75887724: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVII (100/200) - 2026/02/15 21:04:37 UTC
+Table '11275334 10'(11628216) 9-max Seat #3 is the button
+Seat 2: Antondomld (135472 in chips)
+Seat 3: Pirateschips (128877 in chips)
+Seat 4: emcheng (33934 in chips)
+Seat 5: Palmaram99 (209317 in chips)
+Seat 6: kole1992 (26914 in chips)
+Seat 7: Panerai27 (24390 in chips)
+Seat 8: MoneyAll (194824 in chips)
+Seat 9: SONALI (57383 in chips)
+Antondomld: posts the ante 300
+Pirateschips: posts the ante 300
+emcheng: posts the ante 300
+Palmaram99: posts the ante 300
+kole1992: posts the ante 300
+Panerai27: posts the ante 300
+MoneyAll: posts the ante 300
+SONALI: posts the ante 300
+emcheng: posts small blind 1250
+Palmaram99: posts big blind 2500
+*** HOLE CARDS ***
+Dealt to kole1992 [2h Jc]
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+Zorge joins the table at seat #1
+SONALI: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Uncalled bet (1250) returned to Palmaram99
+*** SHOW DOWN ***
+Palmaram99: doesn't show hand
+Palmaram99 collected 4900 from pot
+*** SUMMARY ***
+Total pot 4900 | Rake 0 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips (button) folded before Flop 
+Seat 4: emcheng (small blind) folded before Flop 
+Seat 5: Palmaram99 (big blind) collected (4900)
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75887775: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVII (100/200) - 2026/02/15 21:05:50 UTC
+Table '11275334 10'(11628216) 9-max Seat #4 is the button
+Seat 1: Zorge (130783 in chips)
+Seat 2: Antondomld (135172 in chips)
+Seat 3: Pirateschips (128577 in chips)
+Seat 4: emcheng (32384 in chips)
+Seat 5: Palmaram99 (212667 in chips)
+Seat 6: kole1992 (26614 in chips)
+Seat 7: Panerai27 (24090 in chips)
+Seat 8: MoneyAll (194524 in chips)
+Seat 9: SONALI (57083 in chips)
+Zorge: posts the ante 300
+Antondomld: posts the ante 300
+Pirateschips: posts the ante 300
+emcheng: posts the ante 300
+Palmaram99: posts the ante 300
+kole1992: posts the ante 300
+Panerai27: posts the ante 300
+MoneyAll: posts the ante 300
+SONALI: posts the ante 300
+Palmaram99: posts small blind 1250
+kole1992: posts big blind 2500
+*** HOLE CARDS ***
+Dealt to kole1992 [4d Kh]
+Panerai27: folds
+MoneyAll: raises 5700 to 5700
+SONALI: folds
+Zorge: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Uncalled bet (3200) returned to MoneyAll
+*** SHOW DOWN ***
+MoneyAll: doesn't show hand
+MoneyAll collected 8950 from pot
+*** SUMMARY ***
+Total pot 8950 | Rake 0 
+Seat 1: Zorge folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng (button) folded before Flop 
+Seat 5: Palmaram99 (small blind) folded before Flop 
+Seat 6: kole1992 (big blind) folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll collected (8950)
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75887828: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVII (100/200) - 2026/02/15 21:07:09 UTC
+Table '11275334 10'(11628216) 9-max Seat #5 is the button
+Seat 1: Zorge (130483 in chips)
+Seat 2: Antondomld (134872 in chips)
+Seat 3: Pirateschips (128277 in chips)
+Seat 4: emcheng (32084 in chips)
+Seat 5: Palmaram99 (211117 in chips)
+Seat 6: kole1992 (23814 in chips)
+Seat 7: Panerai27 (23790 in chips)
+Seat 8: MoneyAll (200674 in chips)
+Seat 9: SONALI (56783 in chips)
+Zorge: posts the ante 300
+Antondomld: posts the ante 300
+Pirateschips: posts the ante 300
+emcheng: posts the ante 300
+Palmaram99: posts the ante 300
+kole1992: posts the ante 300
+Panerai27: posts the ante 300
+MoneyAll: posts the ante 300
+SONALI: posts the ante 300
+kole1992: posts small blind 1250
+Panerai27: posts big blind 2500
+*** HOLE CARDS ***
+Dealt to kole1992 [3d 2h]
+MoneyAll: raises 11450 to 11450
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+Zorge: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+Uncalled bet (8950) returned to MoneyAll
+*** SHOW DOWN ***
+MoneyAll: doesn't show hand
+MoneyAll collected 8950 from pot
+*** SUMMARY ***
+Total pot 8950 | Rake 0 
+Seat 1: Zorge folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 (button) folded before Flop 
+Seat 6: kole1992 (small blind) folded before Flop 
+Seat 7: Panerai27 (big blind) folded before Flop 
+Seat 8: MoneyAll collected (8950)
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75887888: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVII (100/200) - 2026/02/15 21:08:33 UTC
+Table '11275334 10'(11628216) 9-max Seat #6 is the button
+Seat 1: Zorge (130183 in chips)
+Seat 2: Antondomld (134572 in chips)
+Seat 3: Pirateschips (127977 in chips)
+Seat 4: emcheng (31784 in chips)
+Seat 5: Palmaram99 (210817 in chips)
+Seat 6: kole1992 (22264 in chips)
+Seat 7: Panerai27 (20990 in chips)
+Seat 8: MoneyAll (206824 in chips)
+Seat 9: SONALI (56483 in chips)
+Zorge: posts the ante 300
+Antondomld: posts the ante 300
+Pirateschips: posts the ante 300
+emcheng: posts the ante 300
+Palmaram99: posts the ante 300
+kole1992: posts the ante 300
+Panerai27: posts the ante 300
+MoneyAll: posts the ante 300
+SONALI: posts the ante 300
+Panerai27: posts small blind 1250
+MoneyAll: posts big blind 2500
+*** HOLE CARDS ***
+Dealt to kole1992 [9h 2c]
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+Zorge: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: calls 1250
+MoneyAll: checks
+*** FLOP *** [2d 9d 3s]
+Panerai27: bets 2500
+MoneyAll: folds
+Uncalled bet (2500) returned to Panerai27
+*** SHOW DOWN ***
+Panerai27 has timed out
+Panerai27: doesn't show hand
+Panerai27 collected 7700 from pot
+*** SUMMARY ***
+Total pot 7700 | Rake 0 
+Board [2d 9d 3s]
+Seat 1: Zorge folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 (button) folded before Flop 
+Seat 7: Panerai27 (small blind) collected (7700)
+Seat 8: MoneyAll (big blind) folded on the Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75887957: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVII (100/200) - 2026/02/15 21:10:07 UTC
+Table '11275334 10'(11628216) 9-max Seat #7 is the button
+Seat 1: Zorge (129883 in chips)
+Seat 2: Antondomld (134272 in chips)
+Seat 3: Pirateschips (127677 in chips)
+Seat 4: emcheng (31484 in chips)
+Seat 5: Palmaram99 (210517 in chips)
+Seat 6: kole1992 (21964 in chips)
+Seat 7: Panerai27 (25890 in chips)
+Seat 8: MoneyAll (204024 in chips)
+Seat 9: SONALI (56183 in chips)
+Zorge: posts the ante 300
+Antondomld: posts the ante 300
+Pirateschips: posts the ante 300
+emcheng: posts the ante 300
+Palmaram99: posts the ante 300
+kole1992: posts the ante 300
+Panerai27: posts the ante 300
+MoneyAll: posts the ante 300
+SONALI: posts the ante 300
+MoneyAll: posts small blind 1250
+SONALI: posts big blind 2500
+*** HOLE CARDS ***
+Dealt to kole1992 [9s 8c]
+Zorge: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: raises 6250 to 6250
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+Uncalled bet (3750) returned to Panerai27
+SONALI: sits out 
+*** SHOW DOWN ***
+Panerai27: doesn't show hand
+Panerai27 collected 8950 from pot
+*** SUMMARY ***
+Total pot 8950 | Rake 0 
+Seat 1: Zorge folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 (button) collected (8950)
+Seat 8: MoneyAll (small blind) folded before Flop 
+Seat 9: SONALI (big blind) folded before Flop 
+
+
+Weplay Hand #75888022: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVIII (100/200) - 2026/02/15 21:11:45 UTC
+Table '11275334 10'(11628216) 9-max Seat #8 is the button
+Seat 1: Zorge (129583 in chips)
+Seat 2: Antondomld (133972 in chips)
+Seat 3: Pirateschips (127377 in chips)
+Seat 4: emcheng (31184 in chips)
+Seat 5: Palmaram99 (210217 in chips)
+Seat 6: kole1992 (21664 in chips)
+Seat 7: Panerai27 (32040 in chips)
+Seat 8: MoneyAll (202474 in chips)
+Seat 9: SONALI (53383 in chips)
+Zorge: posts the ante 350
+Antondomld: posts the ante 350
+Pirateschips: posts the ante 350
+emcheng: posts the ante 350
+Palmaram99: posts the ante 350
+kole1992: posts the ante 350
+Panerai27: posts the ante 350
+MoneyAll: posts the ante 350
+SONALI: posts the ante 350
+SONALI: posts small blind 1500
+Zorge: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [6d 4h]
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: raises 31690 to 31690 and is all-in
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+Zorge: folds
+Uncalled bet (28690) returned to Panerai27
+*** SHOW DOWN ***
+Panerai27: doesn't show hand
+Panerai27 collected 10650 from pot
+*** SUMMARY ***
+Total pot 10650 | Rake 0 
+Seat 1: Zorge (big blind) folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips folded before Flop 
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 collected (10650)
+Seat 8: MoneyAll (button) folded before Flop 
+Seat 9: SONALI (small blind) folded before Flop 
+
+
+Weplay Hand #75888085: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVIII (100/200) - 2026/02/15 21:12:59 UTC
+Table '11275334 10'(11628216) 9-max Seat #9 is the button
+Seat 1: Zorge (126233 in chips)
+Seat 2: Antondomld (133622 in chips)
+Seat 3: Pirateschips (127027 in chips)
+Seat 4: emcheng (30834 in chips)
+Seat 5: Palmaram99 (209867 in chips)
+Seat 6: kole1992 (21314 in chips)
+Seat 7: Panerai27 (39340 in chips)
+Seat 8: MoneyAll (202124 in chips)
+Seat 9: SONALI (51533 in chips)
+Zorge: posts the ante 350
+Antondomld: posts the ante 350
+Pirateschips: posts the ante 350
+emcheng: posts the ante 350
+Palmaram99: posts the ante 350
+kole1992: posts the ante 350
+Panerai27: posts the ante 350
+MoneyAll: posts the ante 350
+SONALI: posts the ante 350
+Zorge: posts small blind 1500
+Antondomld: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [3s 3d]
+Pirateschips: raises 6900 to 6900
+emcheng: folds
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+Zorge: folds
+Antondomld: folds
+Uncalled bet (3900) returned to Pirateschips
+*** SHOW DOWN ***
+Pirateschips: doesn't show hand
+Pirateschips collected 10650 from pot
+*** SUMMARY ***
+Total pot 10650 | Rake 0 
+Seat 1: Zorge (small blind) folded before Flop 
+Seat 2: Antondomld (big blind) folded before Flop 
+Seat 3: Pirateschips collected (10650)
+Seat 4: emcheng folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI (button) folded before Flop 
+
+
+Weplay Hand #75888142: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVIII (100/200) - 2026/02/15 21:14:03 UTC
+Table '11275334 10'(11628216) 9-max Seat #1 is the button
+Seat 1: Zorge (124383 in chips)
+Seat 2: Antondomld (130272 in chips)
+Seat 3: Pirateschips (134327 in chips)
+Seat 4: emcheng (30484 in chips)
+Seat 5: Palmaram99 (209517 in chips)
+Seat 6: kole1992 (20964 in chips)
+Seat 7: Panerai27 (38990 in chips)
+Seat 8: MoneyAll (201774 in chips)
+Seat 9: SONALI (51183 in chips)
+Zorge: posts the ante 350
+Antondomld: posts the ante 350
+Pirateschips: posts the ante 350
+emcheng: posts the ante 350
+Palmaram99: posts the ante 350
+kole1992: posts the ante 350
+Panerai27: posts the ante 350
+MoneyAll: posts the ante 350
+SONALI: posts the ante 350
+Antondomld: posts small blind 1500
+Pirateschips: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [Th 5s]
+emcheng: raises 30134 to 30134 and is all-in
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+Zorge: folds
+Antondomld: folds
+Pirateschips: folds
+Uncalled bet (27134) returned to emcheng
+*** SHOW DOWN ***
+emcheng: doesn't show hand
+emcheng collected 10650 from pot
+*** SUMMARY ***
+Total pot 10650 | Rake 0 
+Seat 1: Zorge (button) folded before Flop 
+Seat 2: Antondomld (small blind) folded before Flop 
+Seat 3: Pirateschips (big blind) folded before Flop 
+Seat 4: emcheng collected (10650)
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75888211: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVIII (100/200) - 2026/02/15 21:15:25 UTC
+Table '11275334 9'(11628216) 9-max Seat #2 is the button
+Seat 1: Zorge (124033 in chips)
+Seat 2: Antondomld (128422 in chips)
+Seat 3: Pirateschips (130977 in chips)
+Seat 4: emcheng (37784 in chips)
+Seat 5: Palmaram99 (209167 in chips)
+Seat 6: kole1992 (20614 in chips)
+Seat 7: Panerai27 (38640 in chips)
+Seat 8: MoneyAll (201424 in chips)
+Seat 9: SONALI (50833 in chips)
+Zorge: posts the ante 350
+Antondomld: posts the ante 350
+Pirateschips: posts the ante 350
+emcheng: posts the ante 350
+Palmaram99: posts the ante 350
+kole1992: posts the ante 350
+Panerai27: posts the ante 350
+MoneyAll: posts the ante 350
+SONALI: posts the ante 350
+Pirateschips: posts small blind 1500
+emcheng: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [6s 9d]
+Palmaram99: folds
+kole1992: folds
+Panerai27: folds
+MoneyAll: folds
+SONALI has timed out
+SONALI: folds
+SONALI: sits out 
+Zorge: raises 6000 to 6000
+Antondomld: raises 19000 to 19000
+Pirateschips: folds
+emcheng: folds
+Zorge: folds
+Uncalled bet (13000) returned to Antondomld
+*** SHOW DOWN ***
+Antondomld: doesn't show hand
+Antondomld collected 19650 from pot
+*** SUMMARY ***
+Total pot 19650 | Rake 0 
+Seat 1: Zorge folded before Flop 
+Seat 2: Antondomld (button) collected (19650)
+Seat 3: Pirateschips (small blind) folded before Flop 
+Seat 4: emcheng (big blind) folded before Flop 
+Seat 5: Palmaram99 folded before Flop 
+Seat 6: kole1992 folded before Flop 
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI folded before Flop 
+
+
+Weplay Hand #75888253: Tournament (ILWP series - MAIN EVENT – In Love With Poker)#11275334, $100+$9 Hold'em No Limit - Level XVIII (100/200) - 2026/02/15 21:16:25 UTC
+Table '11275334 9'(11628216) 9-max Seat #3 is the button
+Seat 1: Zorge (117683 in chips)
+Seat 2: Antondomld (141722 in chips)
+Seat 3: Pirateschips (129127 in chips)
+Seat 4: emcheng (34434 in chips)
+Seat 5: Palmaram99 (208817 in chips)
+Seat 6: kole1992 (20264 in chips)
+Seat 7: Panerai27 (38290 in chips)
+Seat 8: MoneyAll (201074 in chips)
+Seat 9: SONALI (50483 in chips)
+Zorge: posts the ante 350
+Antondomld: posts the ante 350
+Pirateschips: posts the ante 350
+emcheng: posts the ante 350
+Palmaram99: posts the ante 350
+kole1992: posts the ante 350
+Panerai27: posts the ante 350
+MoneyAll: posts the ante 350
+SONALI: posts the ante 350
+emcheng: posts small blind 1500
+Palmaram99: posts big blind 3000
+*** HOLE CARDS ***
+Dealt to kole1992 [Td Tc]
+kole1992: raises 19914 to 19914 and is all-in
+Panerai27: folds
+MoneyAll: folds
+SONALI: raises 50133 to 50133 and is all-in
+Zorge: folds
+Antondomld: folds
+Pirateschips: folds
+emcheng: folds
+Palmaram99: folds
+Uncalled bet (30219) returned to SONALI
+*** FLOP *** [9h 5h 2s]
+*** TURN *** [9h 5h 2s] [Ac]
+*** RIVER *** [9h 5h 2s Ac] [7c]
+*** SHOW DOWN ***
+kole1992: shows [Td Tc] (a pair of Tens)
+SONALI: shows [Qh Ah] (a pair of Aces)
+SONALI collected 47478 from pot
+*** SUMMARY ***
+Total pot 47478 | Rake 0 
+Board [9h 5h 2s Ac 7c]
+Seat 1: Zorge folded before Flop 
+Seat 2: Antondomld folded before Flop 
+Seat 3: Pirateschips (button) folded before Flop 
+Seat 4: emcheng (small blind) folded before Flop 
+Seat 5: Palmaram99 (big blind) folded before Flop 
+Seat 6: kole1992 showed [Td Tc] and lost with a pair of Tens
+Seat 7: Panerai27 folded before Flop 
+Seat 8: MoneyAll folded before Flop 
+Seat 9: SONALI showed [Qh Ah] and won (47478) with a pair of Aces

@@ -1,0 +1,42 @@
+CoinPoker Hand #352024761: Hold'em No Limit (0.01/0.02 ) 2025/12/28 00:10:17 GMT
+Table 'NL ₮2 II' 7-max Seat #5 is the button
+Seat 1: HornyMelon (1.85 in chips)
+Seat 2: KinTaro82 (2.34 in chips)
+Seat 3: 2waHang (8.75 in chips)
+Seat 4: BehiAce (3.62 in chips)
+Seat 5: waqqas (0.64 in chips)
+Seat 6: StoicMind (2.00 in chips)
+Seat 7: nlin (1.89 in chips)
+StoicMind: posts small blind 0.01
+nlin: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [8d 7h]
+HornyMelon: folds
+KinTaro82: folds
+2waHang: folds
+BehiAce: folds
+waqqas: calls 0.02
+StoicMind: raises 0.16 to 0.18
+nlin: folds
+waqqas: calls 0.16
+*** FLOP *** [Kc 7s Td]
+StoicMind: bets 0.24
+waqqas: raises 0.46 and is all-in
+StoicMind: calls 0.22
+*** TURN *** [Kc 7s Td] [8h]
+*** RIVER *** [Kc 7s Td 8h] [9s]
+*** SHOW DOWN ***
+waqqas: shows [Kd 7d] (two pairs, Kings and Sevens)
+StoicMind: shows [Tc As] (a pair of Tens)
+waqqas collected 1.23 from pot
+*** SUMMARY ***
+Total pot 1.30 | Rake 0.07
+Board [ Kc 7s Td 8h 9s ]
+Game ended: 2025/12/28 00:11:07 GMT
+Seat 1: HornyMelon folded before Flop (didn't bet)
+Seat 2: KinTaro82 folded before Flop (didn't bet)
+Seat 3: 2waHang folded before Flop (didn't bet)
+Seat 4: BehiAce folded before Flop (didn't bet)
+Seat 5: waqqas (button) showed [Kd 7d] and won (1.23) with two pairs, Kings and Sevens
+Seat 6: StoicMind (small blind) showed [Tc As]
+Seat 7: nlin (big blind) folded before Flop

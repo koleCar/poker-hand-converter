@@ -1,0 +1,53 @@
+﻿PokerStars Game #52475779512: Tournament #329147852, $2.00+$0.20 USD Badugi Limit - Level I (20/40) - 2010/11/10 17:20:01 CET [2010/11/10 11:20:01 ET]
+Table '329147852 1' 8-max Seat #2 is the button
+Seat 2: Player19 (1500 in chips) 
+Seat 3: Player10 (1500 in chips) 
+Seat 5: Player3 (1500 in chips) 
+Seat 6: Player12 (1500 in chips) 
+Seat 7: Player20 (1500 in chips) 
+Seat 8: Player9 (1500 in chips) 
+Player10: posts small blind 10
+Player3: posts big blind 20
+*** DEALING HANDS ***
+Dealt to Player19 [2s Qh Ts 9s]
+Player12: folds 
+Player20: folds 
+Player9: folds 
+Player1 is connected 
+Player19: folds 
+Player10: calls 10
+Player3: checks 
+*** FIRST DRAW ***
+Player10: discards 2 cards
+Player3: discards 2 cards
+Player10: checks 
+Player3: checks 
+*** SECOND DRAW ***
+Player10: discards 1 card
+Player3: discards 1 card
+Player21 is connected 
+Player10: bets 40
+Player3: raises 40 to 80
+Player10: raises 40 to 120
+Player3: calls 40
+*** THIRD DRAW ***
+Player10: stands pat 
+Player3: stands pat 
+Player10: checks 
+Player3: bets 40
+Player10: calls 40
+*** SHOW DOWN ***
+Player3: shows [6d 5s Ah 9c] (Badugi: 9,6,5,A)
+Player10: mucks hand 
+Player3 collected 360 from pot
+*** SUMMARY ***
+Total pot 360 | Rake 0 
+Seat 2: Player19 (button) folded before the Draw (didn't bet)
+Seat 3: Player10 (small blind) mucked [Th 4s 2d 6c]
+Seat 5: Player3 (big blind) showed [6d 5s Ah 9c] and won (360) with a Badugi: 9,6,5,A
+Seat 6: Player12 folded before the Draw (didn't bet)
+Seat 7: Player20 folded before the Draw (didn't bet)
+Seat 8: Player9 folded before the Draw (didn't bet)
+
+
+

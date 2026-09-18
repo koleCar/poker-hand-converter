@@ -1,0 +1,40 @@
+CoinPoker Hand #185509980: Tournament #1287772, Bankroll Starter Freeroll Hold'em No Limit (400/800 ante 100 play) 2024/12/23 16:35:17 GMT
+Table '12' 7-max Seat #1 is the button
+Seat 1: karimaharran (43966 in chips)
+Seat 2: HimemoriLuna (1035 in chips)
+Seat 3: Gurujeee6445 (310 in chips) is sitting out
+Seat 4: Bareis (14486 in chips)
+Seat 5: Card5mast3r (274 in chips) is sitting out
+Seat 6: Bieropener420 (476 in chips) is sitting out
+Seat 7: nlin (10824 in chips)
+karimaharran: posts the ante 100
+HimemoriLuna: posts the ante 100
+Gurujeee6445: posts the ante 100
+Bareis: posts the ante 100
+Card5mast3r: posts the ante 100
+Bieropener420: posts the ante 100
+nlin: posts the ante 100
+HimemoriLuna: posts small blind 400
+Gurujeee6445: posts big blind 210 and is all-in
+*** HOLE CARDS ***
+Dealt to nlin [5h Jc]
+Bareis: folds
+Card5mast3r: folds
+Bieropener420: folds
+nlin: folds
+karimaharran: folds
+HimemoriLuna: folds
+*** HAND CANCELLED ***
+All bets returned (1310)
+*** SUMMARY ***
+Total pot 1310 | Rake 0
+Board [ ]
+Game ended: 2024/12/23 16:35:38 GMT
+Seat 1: karimaharran (button) collected (100)
+Seat 2: HimemoriLuna (small blind) collected (500)
+Seat 3: Gurujeee6445 (big blind) collected (310)
+Seat 4: Bareis collected (100)
+Seat 5: Card5mast3r collected (100)
+Seat 6: Bieropener420 collected (100)
+Seat 7: nlin collected (100)
+

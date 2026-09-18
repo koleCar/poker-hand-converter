@@ -1,0 +1,47 @@
+CoinPoker Hand #352021042: Hold'em No Limit (0.01/0.02 ) 2025/12/28 00:00:23 GMT
+Table 'NL ₮2 I' 7-max Seat #1 is the button
+Seat 1: Hydrajackal (3.24 in chips)
+Seat 2: nlin (1.98 in chips)
+Seat 3: MandMWSU (2.00 in chips)
+Seat 4: Ginjerman (3.83 in chips)
+Seat 5: XBSNP (2.07 in chips)
+Seat 6: 2waHang (3.15 in chips)
+Seat 7: Juliums69 (1.64 in chips)
+nlin: posts small blind 0.01
+MandMWSU: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [Kc 4c]
+Ginjerman: folds
+XBSNP: folds
+2waHang: raises 0.04 to 0.06
+Juliums69: calls 0.06
+Hydrajackal: calls 0.06
+nlin: folds
+MandMWSU: folds
+*** FLOP *** [Qd 4s 7s]
+2waHang: checks
+Juliums69: checks
+Hydrajackal: checks
+*** TURN *** [Qd 4s 7s] [9s]
+2waHang: bets 0.11
+Juliums69: calls 0.11
+Hydrajackal: calls 0.11
+*** RIVER *** [Qd 4s 7s 9s] [2c]
+2waHang: bets 0.28
+Juliums69: calls 0.28
+Hydrajackal: folds
+*** SHOW DOWN ***
+2waHang: shows [Ac As] (a pair of Aces)
+Juliums69: shows [Js Ks] (a flush, King high)
+Juliums69 collected 1.04 from pot
+*** SUMMARY ***
+Total pot 1.10 | Rake 0.06
+Board [ Qd 4s 7s 9s 2c ]
+Game ended: 2025/12/28 00:01:59 GMT
+Seat 1: Hydrajackal (button) folded on the River
+Seat 2: nlin (small blind) folded before Flop
+Seat 3: MandMWSU (big blind) folded before Flop
+Seat 4: Ginjerman folded before Flop (didn't bet)
+Seat 5: XBSNP folded before Flop (didn't bet)
+Seat 6: 2waHang showed [Ac As]
+Seat 7: Juliums69 showed [Js Ks] and won (1.04) with a flush, King high

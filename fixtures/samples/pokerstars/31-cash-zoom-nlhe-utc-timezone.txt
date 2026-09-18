@@ -1,0 +1,31 @@
+PokerStars Zoom Hand #171598493667:  Hold'em No Limit ($0.01/$0.02) - 2017/06/10 17:17:14 UTC [2017/06/10 13:17:14 ET]
+Table 'Halley' 6-max Seat #1 is the button
+Seat 1: slepock ($2 in chips) 
+Seat 2: yakka34 ($1.58 in chips) 
+Seat 3: MiNaIIII ($2 in chips) 
+Seat 4: Bizeps1337 ($2.17 in chips) 
+Seat 5: d'okairon ($2.09 in chips) 
+Seat 6: Melanie283 ($4.51 in chips) 
+yakka34: posts small blind $0.01
+MiNaIIII: posts big blind $0.02
+*** HOLE CARDS ***
+Dealt to yakka34 [6h 8d]
+Bizeps1337: folds 
+d'okairon: folds 
+Melanie283: folds 
+slepock: raises $0.04 to $0.06
+yakka34: folds 
+MiNaIIII: folds 
+Uncalled bet ($0.04) returned to slepock
+slepock collected $0.05 from pot
+slepock: doesn't show hand 
+*** SUMMARY ***
+Total pot $0.05 | Rake $0 
+Seat 1: slepock (button) collected ($0.05)
+Seat 2: yakka34 (small blind) folded before Flop
+Seat 3: MiNaIIII (big blind) folded before Flop
+Seat 4: Bizeps1337 folded before Flop (didn't bet)
+Seat 5: d'okairon folded before Flop (didn't bet)
+Seat 6: Melanie283 folded before Flop (didn't bet)
+
+

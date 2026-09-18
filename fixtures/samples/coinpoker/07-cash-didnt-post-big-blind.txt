@@ -1,0 +1,32 @@
+CoinPoker Hand #352034259: Hold'em No Limit (0.01/0.02 ) 2025/12/28 00:37:02 GMT
+Table 'NL ₮2 I' 7-max Seat #5 is the button
+Seat 1: croatiansensation (2.03 in chips)
+Seat 2: nlin (3.93 in chips)
+Seat 3: MandMWSU (2.00 in chips)
+Seat 4: JakobEagle (1.55 in chips)
+Seat 5: ilyes22 (4.58 in chips)
+Seat 6: 2waHang (2.13 in chips)
+Seat 7: pddro11 (2.03 in chips)
+2waHang: posts small blind 0.01
+pddro11: didn't post big blind
+croatiansensation: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [7d Ks]
+nlin: folds
+MandMWSU: folds
+JakobEagle: folds
+ilyes22: folds
+2waHang: folds
+croatiansensation collected 0.03 from pot
+croatiansensation: doesn't show hand
+*** SUMMARY ***
+Total pot 0.03 | Rake 0.00
+Board [ ]
+Game ended: 2025/12/28 00:37:14 GMT
+Seat 1: croatiansensation (big blind) collected (0.03)
+Seat 2: nlin folded before Flop (didn't bet)
+Seat 3: MandMWSU folded before Flop (didn't bet)
+Seat 4: JakobEagle folded before Flop (didn't bet)
+Seat 5: ilyes22 (button) folded before Flop (didn't bet)
+Seat 6: 2waHang (small blind) folded before Flop
+Seat 7: pddro11 folded before Flop (didn't bet)

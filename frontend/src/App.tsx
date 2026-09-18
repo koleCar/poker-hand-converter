@@ -1,87 +1,39 @@
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import "./App.css";
-import { ConverterTab } from "./components/ConverterTab";
-import { ReplayerTab } from "./components/ReplayerTab";
-import { countHands } from "./lib/handStore";
-import { isSupabaseConfigured } from "./lib/supabase";
+import { navigate, useRoute } from "./routes/navigation";
+import { toAppPath } from "./routes/routes";
 
-type TabId = "converter" | "replayer";
+/**
+ * Both branches are code-split: a stranger opening `/h/:slug` should never
+ * download the converter, and the app should not download the share landing
+ * page. `/h/:slug` is the growth surface, so its payload is kept small.
+ */
+const AppPage = lazy(() => import("./routes/AppPage"));
+const SharedHandPage = lazy(() => import("./routes/SharedHandPageRoute"));
 
-const TABS: Array<{ id: TabId; label: string; hint: string }> = [
-  { id: "converter", label: "Converter", hint: "WePlay → GG" },
-  { id: "replayer", label: "Hand Replayer", hint: "baza + upload" },
-];
+function RouteFallback() {
+  return <div className="route-fallback" aria-busy="true" />;
+}
 
 function App() {
-  const [tab, setTab] = useState<TabId>("converter");
-  const [refreshToken, setRefreshToken] = useState(0);
-  const [storedCount, setStoredCount] = useState<number | null>(null);
+  const route = useRoute();
 
-  const refreshCount = useCallback(() => {
-    if (!isSupabaseConfigured) {
-      return;
+  // Canonicalise aliases and trailing slashes without adding a history entry.
+  useEffect(() => {
+    const current = toAppPath(window.location.pathname);
+    if (route.name !== "not-found" && current !== route.pathname) {
+      navigate(`${route.pathname}${window.location.search}`, { replace: true });
     }
-    void countHands().then(setStoredCount);
-  }, []);
-
-  useEffect(refreshCount, [refreshCount, refreshToken]);
-
-  const handleHandsSaved = useCallback(() => {
-    setRefreshToken((current) => current + 1);
-  }, []);
+  }, [route]);
 
   return (
-    <div className="app">
-      <header className="topbar">
-        <div className="topbar__inner">
-          <div className="brand">
-            <span className="brand__mark">♠</span>
-            <div>
-              <span className="brand__name">PokerConverter</span>
-              <span className="brand__sub">WePlay → GG converter &amp; hand replayer</span>
-            </div>
-          </div>
-
-          <nav className="tabs" role="tablist">
-            {TABS.map((entry) => (
-              <button
-                key={entry.id}
-                type="button"
-                role="tab"
-                aria-selected={tab === entry.id}
-                className={`tab ${tab === entry.id ? "is-active" : ""}`}
-                onClick={() => setTab(entry.id)}
-              >
-                <span className="tab__label">{entry.label}</span>
-                <span className="tab__hint">{entry.hint}</span>
-              </button>
-            ))}
-          </nav>
-
-          <div className="topbar__status">
-            {isSupabaseConfigured ? (
-              <span className="status status--ok">
-                <span className="status__dot" />
-                {storedCount === null ? "baza spojena" : `${storedCount} handova u bazi`}
-              </span>
-            ) : (
-              <span className="status status--off">
-                <span className="status__dot" />
-                baza nije spojena
-              </span>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="content">
-        {tab === "converter" ? (
-          <ConverterTab onHandsSaved={handleHandsSaved} />
-        ) : (
-          <ReplayerTab refreshToken={refreshToken} />
-        )}
-      </main>
-    </div>
+    <Suspense fallback={<RouteFallback />}>
+      {route.name === "shared-hand" ? (
+        <SharedHandPage slug={route.params.slug ?? ""} />
+      ) : (
+        <AppPage route={route} />
+      )}
+    </Suspense>
   );
 }
 

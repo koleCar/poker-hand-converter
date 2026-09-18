@@ -1,0 +1,169 @@
+CoinPoker Hand #256459677: Hold'em No Limit (0.01/0.02 ) 2025/06/19 18:53:04 GMT
+Table 'NL ₮2 IV' 7-max Seat #1 is the button
+Seat 1: Vandalar (2.67 in chips)
+Seat 2: SpaceBird (2.63 in chips)
+Seat 3: ANeed4AName (3.52 in chips)
+Seat 4: wornsothin (2.00 in chips)
+Seat 5: Miyamoto (2.00 in chips) out of hand
+Seat 6: Marvin1 (2.00 in chips)
+Seat 7: nlin (1.85 in chips)
+SpaceBird: posts small blind 0.01
+ANeed4AName: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [5d 9c]
+wornsothin: raises 0.03 to 0.05
+Marvin1: folds
+nlin: folds
+Vandalar: folds
+SpaceBird: folds
+ANeed4AName: raises 0.11 to 0.16
+wornsothin: calls 0.11
+*** FLOP *** [Jd 6c 5h]
+ANeed4AName: checks
+wornsothin: checks
+*** TURN *** [Jd 6c 5h] [5c]
+ANeed4AName: bets 0.21
+wornsothin: folds
+Uncalled bet (0.21) returned to ANeed4AName
+ANeed4AName collected 0.31 from pot
+ANeed4AName: doesn't show hand
+*** SUMMARY ***
+Total pot 0.33 | Rake 0.02
+Board [ Jd 6c 5h 5c ]
+Game ended: 2025/06/19 18:53:39 GMT
+Seat 1: Vandalar (button) folded before Flop (didn't bet)
+Seat 2: SpaceBird (small blind) folded before Flop
+Seat 3: ANeed4AName (big blind) collected (0.31)
+Seat 4: wornsothin folded on the Turn
+Seat 5: Miyamoto folded before Flop (didn't bet)
+Seat 6: Marvin1 folded before Flop (didn't bet)
+Seat 7: nlin folded before Flop (didn't bet)
+
+CoinPoker Hand #256460002: Hold'em No Limit (0.01/0.02 ) 2025/06/19 18:53:41 GMT
+Table 'NL ₮2 IV' 7-max Seat #2 is the button
+Seat 1: Vandalar (2.67 in chips)
+Seat 2: SpaceBird (2.62 in chips)
+Seat 3: ANeed4AName (3.67 in chips)
+Seat 4: wornsothin (2.00 in chips)
+Seat 5: Miyamoto (2.00 in chips) out of hand
+Seat 6: Marvin1 (2.00 in chips)
+Seat 7: nlin (1.85 in chips)
+ANeed4AName: posts small blind 0.01
+wornsothin: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [Qh 5c]
+Marvin1: raises 0.03 to 0.05
+nlin: folds
+Vandalar: calls 0.05
+SpaceBird: folds
+ANeed4AName: folds
+wornsothin: folds
+*** FLOP *** [Ts 4d 6c]
+Marvin1: checks
+Vandalar: checks
+*** TURN *** [Ts 4d 6c] [3s]
+Marvin1: checks
+Vandalar: bets 0.15
+Marvin1: folds
+Uncalled bet (0.15) returned to Vandalar
+Vandalar collected 0.12 from pot
+Vandalar: doesn't show hand
+*** SUMMARY ***
+Total pot 0.13 | Rake 0.01
+Board [ Ts 4d 6c 3s ]
+Game ended: 2025/06/19 18:54:32 GMT
+Seat 1: Vandalar collected (0.12)
+Seat 2: SpaceBird (button) folded before Flop (didn't bet)
+Seat 3: ANeed4AName (small blind) folded before Flop
+Seat 4: wornsothin (big blind) folded before Flop
+Seat 5: Miyamoto folded before Flop (didn't bet)
+Seat 6: Marvin1 folded on the Turn
+Seat 7: nlin folded before Flop (didn't bet)
+
+CoinPoker Hand #352695201: Hold'em No Limit (0.01/0.02 ) 2025/12/28 22:15:48 GMT
+Table 'NL ₮2 II' 7-max Seat #2 is the button
+Seat 1: Pinchunlong (2.00 in chips)
+Seat 2: WypierdekMamuta (2.00 in chips)
+Seat 3: nlin (1.97 in chips)
+Seat 4: araivaivai (2.20 in chips)
+Seat 5: edy143 (2.02 in chips)
+Seat 6: NeedCash (2.00 in chips)
+Seat 7: IFriendsY (2.05 in chips)
+nlin: posts small blind 0.01
+araivaivai: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [Jc 4h]
+edy143: folds
+NeedCash: folds
+IFriendsY: raises 0.03 to 0.05
+Pinchunlong: folds
+WypierdekMamuta: calls 0.05
+nlin: folds
+araivaivai: raises 0.13 to 0.18
+IFriendsY: raises 2.00 and is all-in
+WypierdekMamuta: folds
+araivaivai: calls 1.87
+*** FLOP *** [8c Tc 4d]
+*** TURN *** [8c Tc 4d] [4s]
+*** RIVER *** [8c Tc 4d 4s] [8s]
+*** SHOW DOWN ***
+IFriendsY: shows [Ah As] (two pairs, Aces and Eights)
+araivaivai: shows [Ad Ac] (two pairs, Aces and Eights)
+IFriendsY collected 1.98 from pot
+araivaivai collected 1.98 from pot
+*** SUMMARY ***
+Total pot 4.16 | Rake 0.20
+Board [ 8c Tc 4d 4s 8s ]
+Game ended: 2025/12/28 22:16:29 GMT
+Seat 1: Pinchunlong folded before Flop (didn't bet)
+Seat 2: WypierdekMamuta (button) folded before Flop
+Seat 3: nlin (small blind) folded before Flop
+Seat 4: araivaivai (big blind) showed [Ad Ac] and won (1.98) with two pairs, Aces and Eights
+Seat 5: edy143 folded before Flop (didn't bet)
+Seat 6: NeedCash folded before Flop (didn't bet)
+Seat 7: IFriendsY showed [Ah As] and won (1.98) with two pairs, Aces and Eights
+
+CoinPoker Hand #352675127: Hold'em No Limit (0.01/0.02 ) 2025/12/28 21:40:52 GMT
+Table 'NL ₮2 IX' 7-max Seat #1 is the button
+Seat 1: TvMan (2.42 in chips)
+Seat 2: nlin (1.90 in chips)
+Seat 4: Pshemox (1.99 in chips)
+Seat 5: SmooothOperator (5.34 in chips)
+Seat 6: Cross23 (6.91 in chips)
+Seat 7: arco7 (2.00 in chips)
+nlin: posts small blind 0.01
+Pshemox: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [8d Ad]
+SmooothOperator: folds
+Cross23: raises 0.03 to 0.05
+arco7: folds
+TvMan: folds
+nlin: raises 0.15 to 0.20
+Pshemox: folds
+Cross23: calls 0.15
+*** FLOP *** [Th 7h 7s]
+nlin: bets 0.13
+Cross23: calls 0.13
+*** TURN *** [Th 7h 7s] [9s]
+nlin: bets 0.26
+Cross23: calls 0.26
+*** RIVER *** [Th 7h 7s 9s] [Jh]
+nlin: checks
+Cross23: bets 6.32 and is all-in
+nlin has timed out
+nlin activated time-bank (56 seconds)
+nlin: folds
+Uncalled bet (6.32) returned to Cross23
+Cross23 collected 1.14 from pot
+Cross23: doesn't show hand
+*** SUMMARY ***
+Total pot 1.20 | Rake 0.06
+Board [ Th 7h 7s 9s Jh ]
+Game ended: 2025/12/28 21:43:24 GMT
+Seat 1: TvMan (button) folded before Flop (didn't bet)
+Seat 2: nlin (small blind) folded on the River
+Seat 4: Pshemox (big blind) folded before Flop
+Seat 5: SmooothOperator folded before Flop (didn't bet)
+Seat 6: Cross23 collected (1.14)
+Seat 7: arco7 folded before Flop (didn't bet)

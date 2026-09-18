@@ -1,0 +1,36 @@
+CoinPoker Hand #191700538: Hold'em No Limit (0.01/0.02 ) 2025/01/12 02:32:52 GMT
+Table 'NL ₮2 I' 7-max Seat #6 is the button
+Seat 1: Gr8rid3 (1.69 in chips)
+Seat 2: nlin (1.83 in chips)
+Seat 4: HTrain86 (2.08 in chips)
+Seat 5: cp17par (2.24 in chips)
+Seat 6: yhardell (1.99 in chips)
+Gr8rid3: posts small blind 0.01
+nlin: posts big blind 0.02
+*** HOLE CARDS ***
+Dealt to nlin [Kh Td]
+HTrain86: folds
+cp17par: raises 0.03 to 0.05
+yhardell has timed out
+yhardell: folds
+Gr8rid3: folds
+nlin: calls 0.03
+*** FLOP *** [Ad Kc Kd]
+nlin: checks
+cp17par: checks
+*** TURN *** [Ad Kc Kd] [6d]
+nlin: bets 0.06
+cp17par: folds
+Uncalled bet (0.06) returned to nlin
+nlin collected 0.10 from pot
+nlin: doesn't show hand
+*** SUMMARY ***
+Total pot 0.11 | Rake 0.01
+Board [ Ad Kc Kd 6d ]
+Game ended: 2025/01/12 02:33:45 GMT
+Seat 1: Gr8rid3 (small blind) folded before Flop
+Seat 2: nlin (big blind) collected (0.10)
+Seat 4: HTrain86 folded before Flop (didn't bet)
+Seat 5: cp17par folded on the Turn
+Seat 6: yhardell (button) folded before Flop (didn't bet)
+
