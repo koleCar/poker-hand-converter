@@ -1,0 +1,12 @@
+# Hand history fixtures are byte-exact evidence, not source code.
+#
+# Real exports ship with CRLF, bare CR, UTF-16LE and cp1252 bytes, and the
+# parsers exist precisely to survive that. Git's autocrlf normalisation
+# (core.autocrlf=input is set on at least one machine here) rewrites CRLF to
+# LF on commit, which silently turns a CRLF test case into an LF one while the
+# working tree still looks correct. Mark them binary so the stored blob is the
+# original bytes.
+fixtures/** -text -diff
+gg-hh/** -text -diff
+weplay-hh/** -text -diff
+backend/test/fixtures/** -text -diff
