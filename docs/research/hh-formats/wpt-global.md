@@ -25,7 +25,7 @@ That matters more than the missing grammar. Public traffic trackers put WPT
 Global at roughly 15% of observable cash-game seats in 2026, which on its face
 makes it the third-largest room and a top-priority parser target. But traffic
 share overstates the *addressable* user base here, because most of those players
-have nothing to give us. See `COVERAGE-PLAN.md` §3 item 2.
+have nothing to give us. See `COVERAGE-PLAN.md` §2, "Blocked, with the block precisely characterised".
 
 ### Search record
 

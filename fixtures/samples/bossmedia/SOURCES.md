@@ -4,6 +4,34 @@ All files are byte-exact copies (`cp`, UTF-8 with BOM, LF line endings preserved
 [HHSmithy/PokerHandHistoryParser](https://github.com/HHSmithy/PokerHandHistoryParser) unit-test
 corpus, retrieved 2026-09-16. No file has been retyped, reformatted, or had its bytes altered.
 
+## Why there is no BossMedia parser, and exactly what would unblock one
+
+This corpus is **structurally sufficient but semantically incomplete**, in one specific way.
+
+Cards are numeric IDs (`<CARD LINK="38">`), and the encoding is
+`rank = id % 13` with `0 = Ace`, `suit = id // 13`. The rank half is **solved and verified** —
+three `<RESULT>` elements state a hand strength in words alongside the winning card IDs, giving
+six independent rank constraints that all hold (see `docs/research/hh-formats/legacy-networks.md`,
+BossMedia §4).
+
+**Which of the four suit indices is clubs/diamonds/hearts/spades is not recoverable from these
+10 files, and never will be.** Suit only becomes observable when a hand's strength depends on
+it, and the entire corpus contains only pairs, two-pairs and straights — **no flush, no flush
+draw, nothing suit-dependent**. All 24 suit permutations fit the data equally well.
+
+That is why a parser agent examined this corpus and declined to ship: converting would mean
+emitting card strings like `9c` for a card that may be `9h`. The payoff is two Hold'em hands;
+the cost is publishing card data the corpus cannot support, plus silently wrong flush analysis
+downstream.
+
+**To unblock:** one real BossMedia hand containing a flush (or any suit-dependent showdown), or
+external documentation of Boss Media's card ordering. Nothing else is missing — the structure,
+actions, blinds, rake and showdown grammar are all already covered here.
+
+Also note `WINCARDS` is a **buggy field** in this export: three of its eight non-empty values
+list the same card ID twice, which is impossible in a five-card hand. Take cards from
+`HAND_BOARD` / `HAND_DEAL`, not `WINCARDS`.
+
 | file | provenance URL | date retrieved | REAL / TRANSCRIBED / SYNTHETIC | what it demonstrates |
 |---|---|---|---|---|
 | 01-basic-hand-omaha.txt | https://github.com/HHSmithy/PokerHandHistoryParser/blob/master/HandHistories.Parser.UnitTests/SampleHandHistories/BossMedia/CashGame/HandActionTests/BasicHand.txt | 2026-09-16 | REAL | Baseline `GAME_OMA` (PL Omaha) hand, SEK currency, `<HISTORY>`/`<PLAYER>`/`<ACTION>` skeleton |

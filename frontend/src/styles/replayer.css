@@ -16,7 +16,9 @@
      without dragging the seats down with them. */
   --card-base: clamp(46px, 7.2cqw, 84px);
   --card-unit: var(--card-base);
-  --seat-w: clamp(118px, 13cqw, 168px);
+  /* Wide enough for a 14-character screen name at 12px, because the desktop
+     felt has the room and "Wandeinre…" on a 1440px display looks broken. */
+  --seat-w: clamp(118px, 15.4cqw, 190px);
   padding: 30px 28px;
   background:
     radial-gradient(900px 400px at 50% -10%, #1a2836 0%, transparent 70%),
@@ -910,7 +912,7 @@
 
   .ptable {
     --card-base: clamp(36px, 7.6cqw, 62px);
-    --seat-w: clamp(104px, 16cqw, 150px);
+    --seat-w: clamp(104px, 19cqw, 168px);
     padding: 22px 18px;
   }
 
@@ -951,7 +953,7 @@
     /* Portrait felt: a phone has height to spare and no width, so the table
        is turned on its side rather than shrunk. */
     --card-base: clamp(28px, 11.4cqw, 46px);
-    --seat-w: clamp(78px, 25cqw, 116px);
+    --seat-w: clamp(78px, 27cqw, 124px);
     padding: 12px 10px;
   }
 
@@ -979,8 +981,11 @@
   .ptable[data-seats="8"] .ptable__felt,
   .ptable[data-seats="9"] .ptable__felt,
   .ptable[data-seats="10"] .ptable__felt {
-    --ring-x: 40%;
-    --ring-y: 44%;
+    /* Pushed out from 40%: at nine seats on a 390px screen the adjacent
+       plates were overlapping by a few pixels, which reads as a rendering
+       fault rather than a tight table. */
+    --ring-x: 43%;
+    --ring-y: 45%;
     aspect-ratio: 1 / 1.62;
   }
 
@@ -1167,4 +1172,16 @@
   .ptable__award {
     display: none;
   }
+}
+
+/* Anonymized-room note. Sits between the header and the felt so it is read
+   before the seat names are, which is the only place it does any good. */
+.replay__anon {
+  margin: 0;
+  padding: 8px 16px;
+  border-top: 1px solid var(--line-soft);
+  background: rgb(155 124 255 / 7%);
+  color: var(--fg-muted);
+  font-size: 12px;
+  line-height: 1.45;
 }

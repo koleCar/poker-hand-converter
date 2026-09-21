@@ -69,6 +69,20 @@ const HandRowItem = memo(function HandRowItem({
   );
 });
 
+/**
+ * Chip-sized site name.
+ *
+ * A few parsers cover several skins and carry the whole list in their name —
+ * "Chico Network (BetOnline / PayNoRake / ActionPoker / Gear Poker)" is 62
+ * characters and blows out a 390px row. The parenthesis is where the brand
+ * ends and the skin list begins, so the chip shows the brand and the full
+ * name stays on the element's `title`.
+ */
+function shortSiteName(name: string): string {
+  const cut = name.indexOf(" (");
+  return cut > 0 ? name.slice(0, cut) : name;
+}
+
 interface ResultsPanelProps {
   sources: SourceResult[];
   saveState: SaveState;
@@ -161,7 +175,7 @@ export function ResultsPanel({
       now.getDate(),
     ).padStart(2, "0")}`;
     downloadText(
-      `pokerconverter ${stamp} - ${allHands.length} hands.txt`,
+      `pokerconverter ${stamp} - ${allHands.length} ${allHands.length === 1 ? "hand" : "hands"}.txt`,
       toStandardTextFile(allHands),
     );
   }
@@ -193,11 +207,19 @@ export function ResultsPanel({
     }
   })();
 
+  // A run the user stopped still shows its partial output, so the heading has
+  // to say that the number is partial — otherwise a cancelled 6 000-hand job
+  // reads exactly like a finished 1 158-hand one.
+  const stopped = sources.some((source) => source.status === "cancelled");
+
   return (
     <section className="card conv-results">
       <header className="card__head conv-results__head">
         <div>
-          <h3>{formatCount(totals.hands)} hands converted</h3>
+          <h3>
+            {formatCount(totals.hands)} {totals.hands === 1 ? "hand" : "hands"} converted
+            {stopped ? " so far" : ""}
+          </h3>
           {savedLine ? <p className="muted">{savedLine}</p> : null}
         </div>
         <div className="conv-results__head-actions">
@@ -227,7 +249,7 @@ export function ResultsPanel({
       <div className="conv-stats">
         <div className="conv-stat">
           <span className="conv-stat__value">{formatCount(totals.hands)}</span>
-          <span className="conv-stat__label">hands</span>
+          <span className="conv-stat__label">{totals.hands === 1 ? "hand" : "hands"}</span>
         </div>
         <div className="conv-stat">
           <span className="conv-stat__value">{formatCount(totals.filesWithHands)}</span>
@@ -257,12 +279,15 @@ export function ResultsPanel({
 
       {totals.sites.length > 0 ? (
         <div className="conv-sites" aria-label="Sites detected">
-          {totals.sites.map(([siteId, count]) => (
-            <span key={siteId} className="conv-chip conv-chip--site">
-              {siteLabel(siteId)}
-              <em>{formatCount(count)}</em>
-            </span>
-          ))}
+          {totals.sites.map(([siteId, count]) => {
+            const full = siteLabel(siteId);
+            return (
+              <span key={siteId} className="conv-chip conv-chip--site" title={full}>
+                <span className="conv-chip__text">{shortSiteName(full)}</span>
+                <em>{formatCount(count)}</em>
+              </span>
+            );
+          })}
         </div>
       ) : null}
 
@@ -290,7 +315,11 @@ export function ResultsPanel({
                     <span className="conv-chip conv-chip--bad">{source.problem}</span>
                   ) : (
                     <>
-                      <span className="conv-chip">{siteLabel(source.siteId)}</span>
+                      <span className="conv-chip" title={siteLabel(source.siteId)}>
+                        <span className="conv-chip__text">
+                          {shortSiteName(siteLabel(source.siteId))}
+                        </span>
+                      </span>
                       <span
                         className={`conv-chip ${source.hands.length ? "conv-chip--good" : ""}`}
                       >

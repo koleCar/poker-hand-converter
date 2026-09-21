@@ -249,7 +249,12 @@ export function ReplayTable({ hand, frame, revealAll, format }: ReplayTableProps
               <div className="pseat__plate">
                 <span className="pseat__name">
                   {seat.position ? <span className="pseat__pos">{seat.position}</span> : null}
-                  <span className="pseat__nick">{seat.name}</span>
+                  {/* Long screen names still have to ellipsis at nine seats on
+                      a phone, so the full one stays reachable on hover and to
+                      a screen reader. */}
+                  <span className="pseat__nick" title={seat.name}>
+                    {seat.name}
+                  </span>
                 </span>
                 <span className="pseat__stack">
                   {seat.allIn && seat.stack <= 0 ? (

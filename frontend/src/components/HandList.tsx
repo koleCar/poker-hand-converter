@@ -1,24 +1,36 @@
-import type { StoredHandRow } from "../lib/handStore";
+/**
+ * The stored-hand library, one row per hand.
+ *
+ * Reads `HandSummary` from the data layer directly rather than the legacy
+ * shim, which mattered for money: the database stores integer minor units, and
+ * the shim divided them back into floats that then printed as "$0.1" instead
+ * of "$0.10". `formatAmount` with the row's own `CurrencyUnit` gets both cash
+ * and chip tables right without the round trip.
+ */
+
+import { formatAmount, type CurrencyUnit } from "../lib/phf/types";
+import { handUnit, type HandSummary } from "../lib/db";
+import { getParser } from "../lib/phf";
 import { CardRow } from "./replayer/PlayingCard";
 
-interface HandListProps {
-  rows: StoredHandRow[];
-  loading: boolean;
-  activeId: string | null;
-  onOpen: (row: StoredHandRow) => void;
-}
-
-function money(currency: string, amount: number | null): string {
+/**
+ * Money for a list column.
+ *
+ * Cash gets two decimals because a column of "$2.1 / $0.5 / $12.5" reads as
+ * sloppy next to the trackers this app feeds; chips get no decimals and
+ * thousands separators, because "21,929" is the only sane way to show a
+ * tournament stack.
+ */
+function money(unit: CurrencyUnit, amount: number | null): string {
   if (amount === null) {
     return "—";
   }
-  const text = amount % 1 === 0 ? String(amount) : amount.toFixed(2);
-  return `${currency}${text}`;
+  return formatAmount(amount, unit, unit.minorUnits > 1 ? "fixed2" : "minimal", true);
 }
 
 function formatDate(iso: string | null): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("hr-HR", {
+  return new Date(iso).toLocaleString("en-GB", {
     day: "2-digit",
     month: "2-digit",
     year: "2-digit",
@@ -27,16 +39,37 @@ function formatDate(iso: string | null): string {
   });
 }
 
+/**
+ * "PokerStars", not "pokerstars".
+ *
+ * `standard` is our own re-import format rather than a poker room, and its
+ * registry name ("PokerConverter standard") is far too long for a list cell,
+ * so it gets a short one here.
+ */
+function siteLabel(id: string): string {
+  if (id === "standard") {
+    return "Standard format";
+  }
+  return getParser(id)?.name ?? id;
+}
+
+interface HandListProps {
+  rows: HandSummary[];
+  loading: boolean;
+  activeId: string | null;
+  onOpen: (row: HandSummary) => void;
+}
+
 export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
   if (loading && rows.length === 0) {
-    return <div className="empty">Učitavam handove…</div>;
+    return <div className="empty">Loading hands…</div>;
   }
 
   if (rows.length === 0) {
     return (
       <div className="empty">
-        Nema handova za zadane filtere. Konvertiraj fileove u Converter tabu ili uploadaj
-        pojedinačni hand gore.
+        No hands match these filters. Convert your hand histories on the Converter tab, or
+        upload a single hand above.
       </div>
     );
   }
@@ -44,16 +77,21 @@ export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
   return (
     <div className="hand-table" role="table">
       <div className="hand-table__head" role="row">
-        <span>Vrijeme</span>
+        <span>Time</span>
         <span>Hero</span>
         <span>Board</span>
-        <span>Stol</span>
+        <span>Table</span>
         <span>Pot</span>
         <span>Hero P/L</span>
         <span />
       </div>
       {rows.map((row) => {
-        const profit = row.hero_profit;
+        const unit = handUnit(row);
+        const profit = row.heroProfit;
+        // Only `positional` earns the badge. `opaque-id` rooms still hand out
+        // per-seat tokens you can read and follow within a session, and that
+        // covers most of the library — badging all of it would be noise.
+        const positional = row.anonymization === "positional";
         return (
           <div
             key={row.id}
@@ -66,44 +104,60 @@ export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
             tabIndex={0}
           >
             <span className="hand-table__time">
-              {formatDate(row.played_at)}
-              <small>#{row.hand_key}</small>
+              {formatDate(row.playedAt)}
+              {/* The room, not the internal key: "#standard:HD75320833" told the
+                  user nothing and leaked a parser id into the interface. */}
+              <small>
+                {siteLabel(row.site)}
+                {row.siteHandId ? ` · #${row.siteHandId}` : ""}
+              </small>
             </span>
             <span>
-              {row.hero_cards.length ? (
-                <CardRow cards={row.hero_cards} size="xs" />
+              {row.heroCards.length ? (
+                <CardRow cards={row.heroCards} size="xs" />
               ) : (
                 <span className="muted">—</span>
               )}
-              {row.hero_hand_class ? (
-                <small className="hand-table__class">{row.hero_hand_class}</small>
+              {row.heroHandClass ? (
+                <small className="hand-table__class">{row.heroHandClass}</small>
+              ) : null}
+              {row.heroPosition ? (
+                <small className="hand-table__pos">{row.heroPosition}</small>
               ) : null}
             </span>
             <span>
-              {row.board_cards.length ? (
-                <CardRow cards={row.board_cards} size="xs" />
+              {row.boardCards.length ? (
+                <CardRow cards={row.boardCards} size="xs" />
               ) : (
                 <span className="muted">preflop</span>
               )}
             </span>
             <span className="hand-table__table">
-              {row.table_name ?? "—"}
+              {row.tableName ?? "—"}
               <small>
-                {money(row.currency, row.small_blind)}/{money(row.currency, row.big_blind)}
+                {row.smallBlind !== null || row.bigBlind !== null
+                  ? `${money(unit, row.smallBlind)}/${money(unit, row.bigBlind)}`
+                  : row.stakesLabel ?? "—"}
               </small>
             </span>
-            <span>{money(row.currency, row.total_pot)}</span>
+            <span>{money(unit, row.totalPot)}</span>
             <span
               className={
                 profit === null ? "muted" : profit >= 0 ? "profit profit--win" : "profit profit--loss"
               }
             >
-              {profit === null
-                ? "—"
-                : `${profit >= 0 ? "+" : "-"}${money(row.currency, Math.abs(profit))}`}
+              {profit === null ? "—" : `${profit >= 0 ? "+" : "-"}${money(unit, Math.abs(profit))}`}
             </span>
             <span className="hand-table__actions">
-              {row.went_to_showdown ? <span className="tag tag--sd">SD</span> : null}
+              {positional ? (
+                <span
+                  className="tag tag--anon"
+                  title="This room labels every seat by its position rather than naming the player, so the name filter cannot find this hand. Filter by position instead."
+                >
+                  ANON
+                </span>
+              ) : null}
+              {row.wentToShowdown ? <span className="tag tag--sd">SD</span> : null}
               <button
                 type="button"
                 className="btn btn--sm"

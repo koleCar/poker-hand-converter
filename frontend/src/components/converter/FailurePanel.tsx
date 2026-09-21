@@ -18,6 +18,47 @@ import { FAILURE_REASON_COPY, FAILURE_STAGE_COPY } from "./handSummary";
 import { copyToClipboard, downloadText } from "./handoff";
 import { formatCount } from "./inputs";
 
+/**
+ * Rooms we will not be adding, and why.
+ *
+ * "We do not recognise this format yet" promises a converter is coming. For
+ * these two that promise is false and the user deserves the real reason
+ * instead of waiting for a release that cannot happen: WPT Global withdrew
+ * hand-history export entirely in June 2026, and PPPoker has never shipped
+ * one. Matched on the raw text because no parser claims these files, so there
+ * is no site id to key off.
+ */
+interface KnownRefusal {
+  id: string;
+  label: string;
+  signature: RegExp;
+  why: string;
+}
+
+const KNOWN_REFUSALS: KnownRefusal[] = [
+  {
+    id: "wpt-global",
+    label: "WPT Global",
+    signature: /^\s*WPT\s+Global\s+Hand\s+#/im,
+    why:
+      "This is a WPT Global hand. WPT Global removed hand-history export from its client in June 2026, so files like this one can no longer be produced and we are not adding a converter for them. Your file still downloads below.",
+  },
+  {
+    id: "pppoker",
+    label: "PPPoker",
+    signature: /^\s*PPPoker\s+Hand\s+#/im,
+    why:
+      "This is a PPPoker hand. PPPoker has no hand-history export — whatever produced this file is not the client, so we cannot convert it reliably and are not adding a converter for it.",
+  },
+];
+
+function knownRefusal(failure: ConversionFailure): KnownRefusal | null {
+  if (failure.detectedSite !== null) {
+    return null;
+  }
+  return KNOWN_REFUSALS.find((entry) => entry.signature.test(failure.rawText)) ?? null;
+}
+
 export interface FailureGroup {
   key: string;
   site: string | null;
@@ -25,13 +66,18 @@ export interface FailureGroup {
   reason: string;
   message: string;
   failures: ConversionFailure[];
+  /** Set when the site is one we have decided not to support. */
+  refusal: KnownRefusal | null;
 }
 
 /** Buckets failures by site and reason, biggest bucket first. */
 export function groupFailures(failures: ConversionFailure[]): FailureGroup[] {
   const groups = new Map<string, FailureGroup>();
   for (const failure of failures) {
-    const key = `${failure.detectedSite ?? "-"}::${failure.stage}::${failure.reason}`;
+    const refusal = knownRefusal(failure);
+    // Refusals bucket on their own, so each gets its own explanation instead
+    // of disappearing into one "unknown format" pile.
+    const key = `${failure.detectedSite ?? refusal?.id ?? "-"}::${failure.stage}::${failure.reason}`;
     const existing = groups.get(key);
     if (existing) {
       existing.failures.push(failure);
@@ -44,6 +90,7 @@ export function groupFailures(failures: ConversionFailure[]): FailureGroup[] {
       reason: failure.reason,
       message: failure.message,
       failures: [failure],
+      refusal,
     });
   }
   return [...groups.values()].sort((a, b) => b.failures.length - a.failures.length);
@@ -97,6 +144,10 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
     return null;
   }
 
+  // "yet" is a promise. Do not make it when every failure is a room we have
+  // already decided against.
+  const allRefused = groups.every((group) => group.refusal !== null);
+
   async function copyGroup(group: FailureGroup) {
     const ok = await copyToClipboard(group.failures.slice(0, SAMPLE_LIMIT).map((f) => f.rawText).join("\n\n"));
     setCopied(ok ? group.key : null);
@@ -112,9 +163,14 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
     <section className="card conv-failures">
       <header className="card__head">
         <div>
-          <h3>{formatCount(failures.length)} hands we could not convert yet</h3>
+          <h3>
+            {formatCount(failures.length)} {failures.length === 1 ? "hand" : "hands"} we could not
+            convert{allRefused ? "" : " yet"}
+          </h3>
           <p className="muted">
-            {notKept === "no-database"
+            {allRefused
+              ? "Nothing to wait for on these — download them below if you want your own copy."
+              : notKept === "no-database"
               ? "Nothing left your browser — this build has no database. Download them below if you want us to see them."
               : notKept === "saving-off"
                 ? "Nothing left your browser, because saving is switched off. Turn it on, or download them below, if you want us to add your site."
@@ -135,9 +191,11 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
                 <div className="conv-failure__title">
                   <span className="conv-failure__count">{formatCount(group.failures.length)}</span>
                   <div>
-                    <strong>{siteLabel(group.site)}</strong>
+                    <strong>{group.refusal?.label ?? siteLabel(group.site)}</strong>
                     <span className="conv-failure__stage">
-                      {FAILURE_STAGE_COPY[group.stage] ?? group.stage}
+                      {group.refusal
+                        ? "Not supported"
+                        : FAILURE_STAGE_COPY[group.stage] ?? group.stage}
                     </span>
                   </div>
                 </div>
@@ -152,7 +210,7 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
               </div>
 
               <p className="conv-failure__why">
-                {FAILURE_REASON_COPY[group.reason] ?? group.message}
+                {group.refusal?.why ?? FAILURE_REASON_COPY[group.reason] ?? group.message}
               </p>
 
               <div className="conv-failure__actions">

@@ -88,6 +88,67 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
     return () => document.removeEventListener("paste", handlePaste);
   }, [busy]);
 
+  /**
+   * The whole page accepts a dropped file, not just the box.
+   *
+   * Without this the default browser behaviour applies outside the box:
+   * Chrome *navigates to the dropped file*, which throws away the page, the
+   * results and anything still converting. Since a near-miss on the drop
+   * target is the single easiest mistake to make here, the page catches it
+   * instead of punishing it — and the overlay says so while the file is in
+   * flight, so the box never looks like the only landing spot.
+   *
+   * `types.includes("Files")` keeps dragged text and links on their normal
+   * behaviour; only a real file drag is intercepted.
+   */
+  const [pageDragging, setPageDragging] = useState(false);
+  useEffect(() => {
+    const isFileDrag = (event: DragEvent) =>
+      Array.from(event.dataTransfer?.types ?? []).includes("Files");
+    let depth = 0;
+
+    function onEnter(event: DragEvent) {
+      if (!isFileDrag(event)) return;
+      event.preventDefault();
+      depth += 1;
+      setPageDragging(true);
+    }
+    function onOver(event: DragEvent) {
+      if (!isFileDrag(event)) return;
+      // Required every frame: without it the drop event never fires and the
+      // browser falls back to navigating.
+      event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
+    }
+    function onLeave(event: DragEvent) {
+      if (!isFileDrag(event)) return;
+      depth = Math.max(0, depth - 1);
+      if (depth === 0) setPageDragging(false);
+    }
+    async function onDrop(event: DragEvent) {
+      if (!isFileDrag(event) || !event.dataTransfer) return;
+      event.preventDefault();
+      depth = 0;
+      setPageDragging(false);
+      if (busy) return;
+      const files = await filesFromDrop(event.dataTransfer);
+      if (files.length > 0) {
+        onFiles(files);
+      }
+    }
+
+    window.addEventListener("dragenter", onEnter);
+    window.addEventListener("dragover", onOver);
+    window.addEventListener("dragleave", onLeave);
+    window.addEventListener("drop", onDrop);
+    return () => {
+      window.removeEventListener("dragenter", onEnter);
+      window.removeEventListener("dragover", onOver);
+      window.removeEventListener("dragleave", onLeave);
+      window.removeEventListener("drop", onDrop);
+    };
+  }, [busy, onFiles]);
+
   // Dragging over a child element fires dragleave on the parent, so the
   // highlight has to be reference-counted or it flickers on every nested node.
   function handleDragEnter(event: React.DragEvent) {
@@ -106,7 +167,11 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
 
   async function handleDrop(event: React.DragEvent) {
     event.preventDefault();
+    // Stops the window-level handler above from taking the same drop a second
+    // time and queueing every file twice.
+    event.stopPropagation();
     dragDepth.current = 0;
+    setPageDragging(false);
     setDragging(false);
     if (busy) {
       return;
@@ -132,6 +197,13 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
 
   return (
     <div className="conv-input">
+      {/* Only when the file is not already over the box, so the page and the
+          box never light up at the same time. */}
+      {pageDragging && !dragging ? (
+        <div className="conv-dropveil" aria-hidden="true">
+          <span>Drop anywhere to convert</span>
+        </div>
+      ) : null}
       <div
         className={`conv-drop ${dragging ? "is-dragging" : ""} ${busy ? "is-busy" : ""}`}
         onDragEnter={handleDragEnter}
@@ -191,7 +263,9 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
         </div>
 
         <p className="conv-drop__title">Add your hand histories</p>
-        <p className="conv-drop__drag-hint">Drag files or a whole export folder anywhere in this box</p>
+        <p className="conv-drop__drag-hint">
+          Drag files or a whole export folder anywhere on this page
+        </p>
 
         <div className="conv-drop__actions">
           <button

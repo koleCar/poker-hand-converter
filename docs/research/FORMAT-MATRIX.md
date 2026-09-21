@@ -40,7 +40,7 @@ recommendations live in `COVERAGE-PLAN.md`.
 | **BossMedia** | verified | **XML** | `<HISTORY ID=... TABLE=... GAME="GAME_OMA">` | `<ACTION TYPE="HAND_BLINDS">` | n/a — structural |
 | **Ignition / Bodog / Bovada** | verified | plain text | `Ignition Hand #<id> Zone Poker ID#<n> HOLDEMZonePoker No Limit - <ts>` | `*** HOLE CARDS ***`, `*** FLOP *** [x y z]` | *see site doc* |
 | **Chico (TigerGaming/BetOnline)** | verified | plain text | `<SkinBrand> Game #<id>: Hold'em - <ts>` | *see site doc* | *see site doc* |
-| **Unibet** | thin corpus | *see site doc* | *see site doc* | *see site doc* | *see site doc* |
+| **Unibet** | verified (5 files) | plain text | modern `Unibet Hand #<id> - …`; legacy `Game #<id>: Table <cur><n> <limit> - …` | *see site doc* | *see site doc* |
 | **PPPoker** | verified negative | **no native text export** | N/A | — | — |
 | **Pokerbros** | verified | plain text, **two dialects** | A: `***** Hand History for Game <id> ***** (PokerBros)`; B: *see site doc* | Dialect A is partypoker-shaped | *see site doc* |
 | **Run It Once** | *see site doc* | plain text | `Run It Once Poker (Hand\|Tournament) #<id>` | *see site doc* | *see site doc* |
@@ -225,8 +225,11 @@ entirely, because positional pseudo-names instead of player names is a property
 no other dialect has — the difficulty there is in the data model, not the
 tokeniser.
 
-The sites still with no verified samples — WPT Global, Unibet, PPPoker,
-Pokerbros, Run It Once, and the GG skins — cannot be placed in this analysis.
+Unibet, Pokerbros and Run It Once, listed here in an earlier revision as
+unsampled, all have corpora and shipping parsers now; they are placed in the
+families above. The only sites that still cannot be placed in this analysis are
+**WPT Global** (no obtainable sample — the room removed export in June 2026) and
+**PPPoker** (no native text format exists to classify).
 
 ---
 
@@ -270,17 +273,27 @@ Per-file detail lives in each site's `SOURCES.md`
 
 Recorded explicitly so they are not mistaken for coverage:
 
-- **Tournament formats are largely unsourced.** Only WePlay has a verified
-  tournament sample. The local corpus is cash-only for PokerStars, partypoker,
-  888, Winamax, ACR, OnGame, Entraction and all four XML formats. Tournament
-  headers, bounty awards, level changes, finishing positions and rebuys are
-  therefore unverified almost everywhere.
+- **Tournament coverage, once the biggest hole here, is now broad.** Nine sites
+  have real tournament fixtures: Ignition 28, ACR/WPN 11, PokerStars 10,
+  GGPoker 7, CoinPoker 5, Chico 4, Run It Once 2, Unibet 2, WePlay 2 — including
+  bounty/KO, satellites, rebuys, freerolls and ante structures.
+  Still cash-only: **partypoker, 888poker, Winamax, OnGame, Entraction, Merge,
+  MicroGaming and BossMedia.** For those eight, tournament headers, bounty
+  awards, level changes and finishing positions remain unverified.
+  (Note for anyone grepping: MicroGaming and BossMedia carry `istournament="0"`
+  and `TABLETOURNEYID=""` on every hand — those attributes are present but empty,
+  so a naive search for "tournament" false-positives on the entire corpus.)
 - **Era skew.** The HHSmithy-derived corpus is roughly 2012–2015. partypoker and
   888 have both been through platform changes since. Anything marked verified
   for those two is verified *for that era*.
-- **No verified samples at all** for WPT Global, Unibet, PPPoker, Pokerbros,
-  Run It Once, and the GG skins Natural8 / BestPoker / ClubGG. See the individual
-  site docs and `COVERAGE-PLAN.md` §4.
+- **No verified samples at all** for WPT Global, PPPoker, and the GG skins
+  Natural8 / BestPoker / ClubGG. See the individual site docs and
+  `COVERAGE-PLAN.md` §2.
+- **Two corpora exist with no parser:** `merge` (12 files, tractable — the
+  cheapest remaining pickup) and `bossmedia` (10 files, blocked on suit
+  labelling: the rank half of the numeric card ID is solved, but the corpus
+  contains no flush, so which suit index means which suit is unconstrainable
+  from it). `phh` (4 files) is an interchange spec, not a site.
 - **WPT Global cannot be sampled going forward.** The room removed hand-history
   export in June 2026, so only pre-June-2026 exports can exist at all.
 - **The GG skin question is answered without a skin sample.** A dedicated

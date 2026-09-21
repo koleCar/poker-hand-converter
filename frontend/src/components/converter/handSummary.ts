@@ -33,12 +33,16 @@ export function toHandRow(hand: PhfHand): HandRow {
   const hero = heroOf(hand);
   const net = hand.results.heroNet;
   const played = hand.playedAt ? new Date(hand.playedAt) : null;
+  const blindStyle = unit.minorUnits > 1 ? "fixed2" : "minimal";
 
   return {
     key: `${hand.meta.siteId}:${hand.meta.handKey}`,
     handId: hand.meta.handId,
     siteName: hand.meta.siteName,
-    stakes: `${formatAmount(hand.game.smallBlind, unit)}/${formatAmount(hand.game.bigBlind, unit)}`,
+    // `fixed2` on cash, so blinds read "$0.05/$0.10" the way every tracker
+    // and every poker room writes them, not "$0.05/$0.1". Chip tables keep
+    // whole numbers, where a forced ".00" would be wrong.
+    stakes: `${formatAmount(hand.game.smallBlind, unit, blindStyle)}/${formatAmount(hand.game.bigBlind, unit, blindStyle)}`,
     table: hand.table.name ?? hand.tournament?.name ?? "",
     heroName: hero?.name ?? null,
     heroCards: hero?.holeCards ?? [],

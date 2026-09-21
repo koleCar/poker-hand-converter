@@ -417,7 +417,17 @@
   white-space: nowrap;
 }
 
+/* The chip is a flex row, so `text-overflow` has to live on the text child;
+   on the chip itself it clips without an ellipsis and shoves the count out. */
+.conv-chip__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
 .conv-chip em {
+  flex: none;
   font-style: normal;
   font-variant-numeric: tabular-nums;
   color: var(--fg);
@@ -864,4 +874,27 @@
 .conv-footnote {
   margin: 0;
   padding: 0 4px;
+}
+
+/* Page-wide drop affordance. Fixed and pointer-events-none so it never eats
+   the drop it is advertising. */
+.conv-dropveil {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background: rgb(6 12 20 / 72%);
+  backdrop-filter: blur(2px);
+}
+
+.conv-dropveil span {
+  padding: 18px 30px;
+  border: 2px dashed var(--accent);
+  border-radius: 16px;
+  background: rgb(10 18 28 / 92%);
+  color: var(--fg);
+  font-size: 17px;
+  font-weight: 650;
 }

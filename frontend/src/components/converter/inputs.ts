@@ -129,6 +129,50 @@ function binaryRatio(text: string): number {
   return bad / sample.length;
 }
 
+/** How much of the text is outside ASCII. Real hand histories are ~all ASCII. */
+function nonAsciiRatio(text: string): number {
+  const sample = text.slice(0, 4096);
+  if (!sample.length) {
+    return 0;
+  }
+  let high = 0;
+  for (let i = 0; i < sample.length; i += 1) {
+    if (sample.charCodeAt(i) > 0x7f) {
+      high += 1;
+    }
+  }
+  return high / sample.length;
+}
+
+/**
+ * Decodes bytes that are not valid UTF-8, or returns null to keep the UTF-8 read.
+ *
+ * Several rooms still ship 8-bit exports — Winamax and Unibet write the euro
+ * sign as a single 0x80 byte, MicroGaming writes accented player names — and
+ * decoding those as UTF-8 turns every such byte into U+FFFD. That is not
+ * recoverable later: the parsers see a replacement character where the currency
+ * was and refuse the hand (`lossy-encoding`). Windows-1252 is the only legacy
+ * codec worth trying, because it is what Windows poker clients actually emit.
+ *
+ * The guard matters: Windows-1252 maps nearly every byte to *something*, so it
+ * would happily "decode" a JPEG. A real hand history is overwhelmingly ASCII
+ * with a sprinkling of accents, so a high non-ASCII share means we are looking
+ * at binary and should stay on the UTF-8 read, whose replacement characters let
+ * {@link binaryRatio} reject the file with the right message.
+ */
+function decodeLegacySingleByte(body: Uint8Array): string | null {
+  let legacy: string;
+  try {
+    legacy = new TextDecoder("windows-1252").decode(body);
+  } catch {
+    return null;
+  }
+  if (binaryRatio(legacy) > 0.02 || nonAsciiRatio(legacy) > 0.05) {
+    return null;
+  }
+  return legacy;
+}
+
 /** Decodes bytes to text, or explains why we will not try. */
 export function decodeSource(buffer: ArrayBuffer): { text: string; encoding: string; problem?: string } {
   const bytes = new Uint8Array(buffer);
@@ -137,18 +181,36 @@ export function decodeSource(buffer: ArrayBuffer): { text: string; encoding: str
   }
 
   const { label, offset, pretty } = pickEncoding(bytes);
+  const body = bytes.subarray(offset);
   let text: string;
+  let encoding = pretty;
   try {
-    text = new TextDecoder(label).decode(bytes.subarray(offset));
+    if (label === "utf-8") {
+      // Strict first, so invalid bytes raise instead of silently becoming
+      // U+FFFD, which is the whole signal the Windows-1252 fallback needs.
+      try {
+        text = new TextDecoder("utf-8", { fatal: true }).decode(body);
+      } catch {
+        const legacy = decodeLegacySingleByte(body);
+        if (legacy === null) {
+          text = new TextDecoder("utf-8").decode(body);
+        } else {
+          text = legacy;
+          encoding = "Windows-1252";
+        }
+      }
+    } else {
+      text = new TextDecoder(label).decode(body);
+    }
   } catch {
-    text = new TextDecoder("utf-8").decode(bytes.subarray(offset));
+    text = new TextDecoder("utf-8").decode(body);
   }
 
   const ratio = binaryRatio(text);
   if (ratio > 0.05) {
     return {
       text: "",
-      encoding: pretty,
+      encoding,
       problem: "This looks like a binary file, not a hand history. Check you picked the right file.",
     };
   }
@@ -157,9 +219,9 @@ export function decodeSource(buffer: ArrayBuffer): { text: string; encoding: str
   // normalize CRLF and lone CR so every parser downstream sees one line ending.
   const normalized = text.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
   if (!normalized.trim()) {
-    return { text: "", encoding: pretty, problem: "The file has no text in it." };
+    return { text: "", encoding, problem: "The file has no text in it." };
   }
-  return { text: normalized, encoding: pretty };
+  return { text: normalized, encoding };
 }
 
 /* ------------------------------------------------------------------- zip - */

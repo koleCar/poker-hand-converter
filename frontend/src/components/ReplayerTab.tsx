@@ -1,36 +1,71 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { convertCashWeplayFile } from "../lib/converter";
-import {
-  isWeplayFormat,
-  parseHand,
-  splitHands,
-  type ParsedHand,
-} from "../lib/handParser";
-import {
-  fetchHandText,
-  saveSingleHand,
-  searchHands,
-  type HandFilters,
-  type StoredHandRow,
-} from "../lib/handStore";
-import { EMPTY_FILTERS } from "../lib/handStore";
-import { isSupabaseConfigured } from "../lib/supabase";
+import { parseHand, toParsedHand, type ParsedHand } from "../lib/handParser";
+import { convertAny } from "../lib/phf";
+import type { PhfHand } from "../lib/phf/types";
+import { getHand, isDatabaseConfigured, searchHands, type HandSummary } from "../lib/db";
+import { saveSingleHand } from "../lib/handStore";
+import { FILE_ACCEPT, loadFile } from "./converter/inputs";
+import { PENDING_HAND_KEY, type PendingHand } from "./converter/handoff";
 import { HandFiltersBar } from "./HandFiltersBar";
+import {
+  EMPTY_REPLAYER_FILTERS,
+  toHandFilters,
+  type ReplayerFilterForm,
+} from "./handFilters";
 import { HandList } from "./HandList";
 import { ShareHandButton } from "./share/ShareHandButton";
 import { ReplayViewer } from "./replayer/ReplayViewer";
 
 const PAGE_SIZE = 25;
 
+/**
+ * A hand parked by the converter is only honoured for this long.
+ *
+ * `sessionStorage` survives a reload but not a tab close, so the realistic
+ * stale case is "clicked Replay, wandered off, came back an hour later and
+ * navigated to the replayer by hand". Loading a hand they have forgotten about
+ * would be confusing; ten minutes covers the real hand-off.
+ */
+const PENDING_HAND_MAX_AGE_MS = 10 * 60 * 1000;
+
+/** Picks up a hand the converter parked on its way to this route, once. */
+function takePendingHand(): PendingHand | null {
+  let raw: string | null = null;
+  try {
+    raw = sessionStorage.getItem(PENDING_HAND_KEY);
+    sessionStorage.removeItem(PENDING_HAND_KEY);
+  } catch {
+    return null;
+  }
+  if (!raw) {
+    return null;
+  }
+  try {
+    const payload = JSON.parse(raw) as PendingHand;
+    if (!payload?.phf) {
+      return null;
+    }
+    const age = Date.now() - Date.parse(payload.at);
+    if (Number.isFinite(age) && age > PENDING_HAND_MAX_AGE_MS) {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 type LoadedHand = {
   hand: ParsedHand;
   /** Row id when the hand came from the database. */
   storedId: string | null;
-  origin: "db" | "upload";
+  origin: "db" | "upload" | "converter";
   /** Original text when the upload had to be converted first. */
   sourceText: string | null;
   sourceFilename: string | null;
   converted: boolean;
+  /** Parser the hand came from, so saving records the real room. */
+  siteId: string;
 };
 
 interface ReplayerTabProps {
@@ -38,8 +73,8 @@ interface ReplayerTabProps {
 }
 
 export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
-  const [filters, setFilters] = useState<HandFilters>(EMPTY_FILTERS);
-  const [rows, setRows] = useState<StoredHandRow[]>([]);
+  const [filters, setFilters] = useState<ReplayerFilterForm>(EMPTY_REPLAYER_FILTERS);
+  const [rows, setRows] = useState<HandSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -49,19 +84,20 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadNotice, setUploadNotice] = useState<string | null>(null);
   const [savingUpload, setSavingUpload] = useState(false);
+  const [loadingUpload, setLoadingUpload] = useState(false);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const runSearch = useCallback(
-    async (nextFilters: HandFilters, nextPage: number) => {
-      if (!isSupabaseConfigured) {
+    async (nextFilters: ReplayerFilterForm, nextPage: number) => {
+      if (!isDatabaseConfigured) {
         return;
       }
       setLoading(true);
       setListError(null);
       try {
-        const result = await searchHands(nextFilters, {
+        const result = await searchHands(toHandFilters(nextFilters), {
           offset: nextPage * PAGE_SIZE,
           limit: PAGE_SIZE,
         });
@@ -83,17 +119,17 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, refreshToken]);
 
-  function applyFilters(next: HandFilters) {
+  function applyFilters(next: ReplayerFilterForm) {
     setFilters(next);
     setPage(0);
     void runSearch(next, 0);
   }
 
-  async function openStoredHand(row: StoredHandRow) {
+  async function openStoredHand(row: HandSummary) {
     setUploadError(null);
     try {
-      const text = await fetchHandText(row.id);
-      const hand = parseHand(text);
+      const record = await getHand(row.id);
+      const hand = record ? parseHand(record.standardText) : null;
       if (!hand) {
         setListError("This hand could not be parsed.");
         return;
@@ -103,8 +139,9 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
         storedId: row.id,
         origin: "db",
         sourceText: null,
-        sourceFilename: row.source_filename,
+        sourceFilename: row.sourceFilename,
         converted: false,
+        siteId: row.site,
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -112,68 +149,88 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
     }
   }
 
-
   /**
-   * Accepts either GG or WePlay text. Invalid WePlay input is run through the
-   * converter first; only if that also fails do we give up.
+   * Loads one hand out of text from any supported room.
+   *
+   * This runs the same detection and conversion the converter tab uses, so
+   * every registered parser works here too — before this the replayer only
+   * understood our own standard text and WePlay, which meant pasting a
+   * PokerStars or Winamax hand into the box that says "paste the text" simply
+   * failed. Only the first hand is loaded: this is a replayer, and a batch
+   * belongs on the converter tab.
    */
-  function loadFromText(text: string, fileName: string | null) {
+  const loadFromText = useCallback(async (text: string, fileName: string | null) => {
     setUploadError(null);
     setUploadNotice(null);
+    setLoadingUpload(true);
+    try {
+      const result = await convertAny(text, { sourceFilename: fileName, validate: true });
+      const [first] = result.hands;
+      if (!first) {
+        // Every parser writes a human-readable reason; the first one is the
+        // best guess at what the user actually needs to hear.
+        setUploadError(
+          result.failures[0]?.message ?? "That text is not a recognisable hand history.",
+        );
+        setLoaded(null);
+        return;
+      }
 
-    const direct = splitHands(text);
-    const firstDirect = direct.length ? parseHand(direct[0]) : null;
-
-    if (firstDirect && !isWeplayFormat(direct[0])) {
       setLoaded({
-        hand: firstDirect,
+        hand: toParsedHand(first),
         storedId: null,
         origin: "upload",
-        sourceText: null,
+        sourceText: text,
         sourceFilename: fileName,
-        converted: false,
+        converted: first.meta.siteId !== "standard",
+        siteId: first.meta.siteId,
       });
+
+      // The box has done its job; leaving eight rows of raw hand history open
+      // above the table pushes the replayer off a phone screen entirely.
+      setPasteOpen(false);
+
+      const total = result.hands.length;
       setUploadNotice(
-        direct.length > 1
-          ? `File contains ${direct.length} hands — the first one was loaded. Use the Converter tab for batches.`
-          : "Hand parsed and ready to replay.",
+        total > 1
+          ? `${first.meta.siteName} — ${total} hands found, the first one is loaded. Use the converter for batches.`
+          : `${first.meta.siteName} hand loaded.`,
       );
-      return;
-    }
-
-    const converted = convertCashWeplayFile(fileName ?? "hand.txt", text);
-    if (converted.status !== "converted") {
-      setUploadError(
-        firstDirect
-          ? "Recognised as WePlay format, but the conversion failed."
-          : converted.message ?? "That text is not a recognisable hand history.",
-      );
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "That text could not be read.");
       setLoaded(null);
-      return;
+    } finally {
+      setLoadingUpload(false);
     }
+  }, []);
 
-    const convertedChunks = splitHands(converted.outputText);
-    const hand = convertedChunks.length ? parseHand(convertedChunks[0]) : null;
-    if (!hand) {
-      setUploadError("Conversion succeeded, but the hand could not be parsed.");
-      setLoaded(null);
-      return;
-    }
-
+  /** Loads a hand the converter parked for us on its way to this route. */
+  const loadPhf = useCallback((hand: PhfHand, note: string) => {
+    setUploadError(null);
     setLoaded({
-      hand,
+      hand: toParsedHand(hand),
       storedId: null,
-      origin: "upload",
-      sourceText: text,
-      sourceFilename: fileName,
-      converted: true,
+      origin: "converter",
+      sourceText: null,
+      sourceFilename: hand.meta.originalFilename ?? null,
+      converted: hand.meta.siteId !== "standard",
+      siteId: hand.meta.siteId,
     });
-    setUploadNotice(
-      `Input was WePlay format — converted to GG${
-        convertedChunks.length > 1 ? ` (${convertedChunks.length} hands, first one loaded)` : ""
-      }.`,
-    );
-  }
+    setUploadNotice(note);
+  }, []);
+
+  // The converter hands a hand over through `sessionStorage` (see
+  // `converter/handoff.ts`) because the two tabs are separate routes. Runs once
+  // per mount, and clears the key so a later reload does not resurrect it.
+  useEffect(() => {
+    const pending = takePendingHand();
+    if (pending) {
+      loadPhf(
+        pending.phf,
+        `${pending.phf.meta.siteName} hand from the converter. It is not saved to your library.`,
+      );
+    }
+  }, [loadPhf]);
 
   async function saveLoadedHand() {
     if (!loaded || loaded.storedId) {
@@ -183,7 +240,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
     setUploadError(null);
     try {
       const result = await saveSingleHand(loaded.hand, {
-        source: loaded.converted ? "weplay" : "gg",
+        source: loaded.siteId,
         sourceText: loaded.sourceText,
         sourceFilename: loaded.sourceFilename,
       });
@@ -206,27 +263,43 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
           <div>
             <h2>Load a hand to replay</h2>
             <p className="muted">
-              Upload a single hand (GG or WePlay format) or paste the text. WePlay hands are
-              converted automatically before replay.
+              Paste a hand or pick a file from any supported poker room — we work out which one
+              wrote it. For whole folders and batches, use the converter.
             </p>
           </div>
           <div className="card__head-actions">
             <button type="button" className="btn btn--ghost btn--sm" onClick={() => setPasteOpen((v) => !v)}>
               {pasteOpen ? "Close paste" : "Paste text"}
             </button>
-            <button type="button" className="btn btn--sm" onClick={() => fileRef.current?.click()}>
-              Choose file
+            <button
+              type="button"
+              className="btn btn--sm"
+              onClick={() => fileRef.current?.click()}
+              disabled={loadingUpload}
+            >
+              {loadingUpload ? "Reading…" : "Choose file"}
             </button>
             <input
               ref={fileRef}
               type="file"
-              accept=".txt"
+              accept={FILE_ACCEPT}
               hidden
               onChange={async (event) => {
                 const file = event.target.files?.[0];
-                if (!file) return;
-                loadFromText(await file.text(), file.name);
                 event.target.value = "";
+                if (!file) return;
+                setLoadingUpload(true);
+                // Shared with the converter so the replayer gets the same
+                // UTF-16 / Windows-1252 handling instead of `file.text()`,
+                // which would turn an 8-bit export into mojibake.
+                const [source] = await loadFile(file);
+                if (!source || source.problem) {
+                  setLoadingUpload(false);
+                  setUploadNotice(null);
+                  setUploadError(source?.problem ?? "That file could not be read.");
+                  return;
+                }
+                await loadFromText(source.text, file.name);
               }}
             />
           </div>
@@ -237,7 +310,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
             <textarea
               value={pasteText}
               onChange={(event) => setPasteText(event.target.value)}
-              placeholder="Poker Hand #HD…  or  Weplay Hand #…"
+              placeholder="Paste one hand history here — PokerStars, GGPoker, WePlay, Winamax, 888poker…"
               rows={8}
               spellCheck={false}
             />
@@ -245,10 +318,10 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
               <button
                 type="button"
                 className="btn btn--primary btn--sm"
-                onClick={() => loadFromText(pasteText, null)}
-                disabled={!pasteText.trim()}
+                onClick={() => void loadFromText(pasteText, null)}
+                disabled={!pasteText.trim() || loadingUpload}
               >
-                Load
+                {loadingUpload ? "Loading…" : "Load"}
               </button>
               <button type="button" className="btn btn--ghost btn--sm" onClick={() => setPasteText("")}>
                 Clear
@@ -269,7 +342,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
             onClose={() => setLoaded(null)}
             headerExtra={
               <>
-                {loaded.origin === "upload" && !loaded.storedId && isSupabaseConfigured ? (
+                {loaded.origin !== "db" && !loaded.storedId && isDatabaseConfigured ? (
                   <button
                     type="button"
                     className="btn btn--sm"
@@ -293,8 +366,8 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
           <div>
             <h2>Hands in your database</h2>
             <p className="muted">
-              {isSupabaseConfigured
-                ? `${total} hands match the filters`
+              {isDatabaseConfigured
+                ? `${total.toLocaleString("en-US")} ${total === 1 ? "hand matches" : "hands match"} the filters`
                 : "No database configured."}
             </p>
           </div>
@@ -303,7 +376,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
         <HandFiltersBar
           value={filters}
           onApply={applyFilters}
-          onReset={() => applyFilters(EMPTY_FILTERS)}
+          onReset={() => applyFilters(EMPTY_REPLAYER_FILTERS)}
           loading={loading}
         />
 

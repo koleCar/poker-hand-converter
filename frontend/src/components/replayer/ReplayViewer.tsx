@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ParsedHand } from "../../lib/handParser";
 import { buildReplay, streetAnchors } from "../../lib/replay";
 import { formatMoney } from "../../lib/format";
+import { anonymizationNote, detectAnonymization } from "../../lib/db";
 import { ReplayControls, STREET_LABEL } from "./ReplayControls";
 import { ReplayTable } from "./ReplayTable";
 import { ShowdownStrip } from "./ShowdownStrip";
@@ -171,6 +172,21 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
   // answer, so the first one is as good as any.
   const heroPosition = frames[0]?.seats.find((seat) => seat.isHero)?.position ?? null;
 
+  /**
+   * Rooms that do not publish real player names.
+   *
+   * Without this line an Ignition hand looks like a table where somebody is
+   * actually called "Small Blind", which is the first thing a stranger opening
+   * a shared link would get wrong about it.
+   */
+  const anonNote = useMemo(() => {
+    const note = anonymizationNote(detectAnonymization(hand.phf));
+    // The data layer's note ends with "Filter by position instead", which is
+    // advice for the library's filter bar. A shared link has no filter bar,
+    // so only the part that explains the seat names is kept here.
+    return note ? note.replace(/\s*Filter by position instead\.?\s*$/, "") : null;
+  }, [hand.phf]);
+
   return (
     <div className="replay">
       <div className="replay__header">
@@ -208,6 +224,8 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
           ) : null}
         </div>
       </div>
+
+      {anonNote ? <p className="replay__anon">{anonNote}</p> : null}
 
       <div className={`replay__body ${logOpen ? "" : "replay__body--solo"}`.trim()}>
         <div className="replay__stage">

@@ -1,241 +1,147 @@
-# Parser coverage plan
+# Coverage plan — what is built, and what is left
 
-Which parsers to build next, in what order, and what each one costs.
+**Status: the build-order question this document was created to answer is
+largely settled.** Eighteen site parsers ship. What remains is a short, mostly
+*blocked* list, so this document now leads with the gaps rather than a ranking.
 
 Companion documents: `FORMAT-MATRIX.md` (what the formats look like and which
-ones can share a parser) and `hh-formats/<site>.md` (per-site detail).
+ones share a parser) and `hh-formats/<site>.md` (per-site detail).
 
 ---
 
 ## 1. Where we are
 
-Registered parsers today (`frontend/src/lib/parsers/index.ts`): **weplay,
-pokerstars, ggpoker, 888poker, partypoker, ipoker**, plus `standard` for our own
-canonical output. Six real sites.
+**19 registered parsers** in `frontend/src/lib/parsers/index.ts` — 18 real sites
+plus `standard` for our own canonical output. **2595 tests pass** (23 files, 1
+skipped) against the research corpus.
 
-**Correction worth flagging:** WPT Global is sometimes described as shipped. It
-is not. There is no WPT Global parser, and the GGPoker parser explicitly
-*rejects* it — `ggpoker.ts` carries a `FOREIGN_BRANDING` guard listing
-`WPT Global` among the brands it refuses, so such a file falls through to no
-parser and fails as "unknown site". That rejection turns out to be the right
-behaviour, not a bug: see item 2 in §3.
+Shipping parsers, all with a real corpus behind them:
 
-Corpus status by site:
+> 888poker · ACR/WPN · Chico · CoinPoker · Entraction · Full Tilt · GGPoker ·
+> Ignition/Bodog/Bovada · iPoker · MicroGaming · OnGame · partypoker ·
+> Pokerbros · PokerStars · Run It Once · Unibet · WePlay · Winamax
 
-| Status | Sites (fixture counts) |
-|---|---|
-| Parser + real corpus | PokerStars (45), GGPoker (43), iPoker (15), partypoker (15), 888poker (14), WePlay (9) |
-| Real corpus, **no parser** | ACR/WPN (77), Ignition/Bodog/Bovada (56), Winamax (28), CoinPoker (16), Chico (16), Full Tilt (14), and the legacy XML/text set — Entraction (13), OnGame (13), Merge (12), MicroGaming (12), BossMedia (10) |
-| Thin corpus, no parser | Unibet (5), PHH interchange spec (4), Run It Once (4), Pokerbros (2) |
-| **No corpus at all** | WPT Global — and this is now known to be permanent, see §3 |
+**The corpus: 413 fixture files across 22 site directories** — 21 with content,
+plus `wpt-global/` deliberately empty and carrying a `SOURCES.md` that records
+why. That total reconciles with `FORMAT-MATRIX.md` §5: 391 UTF-8 + 8
+Windows-1252 + 14 UTF-16LE = 413. The in-repo source corpora `gg-hh/` (10 files)
+and `weplay-hh/` (104) sit outside that count.
 
-The GG skin directories (`natural8/`, `bestpoker/`, `clubgg/`) have been removed
-rather than left empty: the skin question is answered and needs no fixtures. See
-item 7 below. `wpt-global/` is kept deliberately empty, carrying a `SOURCES.md`
-that records why no sample can exist.
+**Zero synthetic fixtures.** Every sample in the corpus is a real export or a
+byte-exact excerpt of one. Where a hand could not be sourced, the gap is recorded
+as a negative finding rather than filled with an invention — including one case
+where a research pass found fabricated Spin & Go fixtures on GitHub and rejected
+them rather than banking them.
+
+Corpus directories with **no** parser: `bossmedia` (10 files), `merge` (12), and
+`phh` (4 — an interchange spec, not a site). Everything else is covered.
 
 ---
 
-## 2. How I am prioritising
+## 2. What is actually left
 
-Three inputs, in this order:
+Five items. Only one of them is ordinary work; the rest are blocked, and the
+blocks are the interesting part.
 
-**Real-world user base.** Public traffic trackers for 2026 put GGPoker at
-roughly 36% of observable cash-game seats, PokerStars ~25% and WPT Global ~15%
-— about three quarters of tracked seats between them. CoinPoker measures
-around 2,016 concurrent cash players against PokerStars' 2,198, which puts it
-in the same tier as PokerStars by that particular metric. iPoker holds a steady
-1.5–2k. Winamax is among the fastest-growing. For US-facing traffic the
-relevant names are WPN, Chico and Ignition.
+### The one tractable pickup
 
-*Confidence: moderate, and the direction matters more than the digits.* These
-come from affiliate-adjacent traffic sites ([PrimeDope](https://www.primedope.com/largest-poker-sites/),
+**Merge — 12 real fixtures, no parser, nothing blocking it.** XML, so it skips
+the entire class of whitespace and name-tokenising bugs that dominates the text
+formats (`<round id="PREFLOP">` with `type="SMALL_BLIND"` event names; see
+`FORMAT-MATRIX.md` §4, Family C). This is the cheapest remaining addition by a
+wide margin. The honest caveat is that Merge is a dead network, so the work is
+cheap but the user-facing payoff is near zero — worth doing for completeness or
+when someone actually uploads one, not ahead of anything user-facing.
+
+### Blocked, with the block precisely characterised
+
+**BossMedia — blocked on suit labelling, and permanently so from this corpus.**
+This one moved during the final research pass and the previous "the card
+encoding is opaque" framing was too pessimistic. Cards are numeric IDs, and the
+rank half is now **solved and verified**: `rank = id % 13` with `0 = Ace`,
+`suit = id // 13`. Three `<RESULT>` elements state a hand strength in words
+alongside the winning card IDs, giving six independent rank constraints that all
+hold.
+
+What cannot be solved is *which* suit index is clubs/diamonds/hearts/spades.
+Suit only becomes observable when a hand's strength depends on it, and the whole
+10-file corpus contains only pairs, two-pairs and straights — **no flush, no
+flush draw, nothing suit-dependent**. All 24 permutations fit equally well. This
+is a permanent property of the corpus, not an analysis gap.
+
+Declining to convert is still correct: emitting `9c` for a card that may be `9h`
+publishes data we cannot support. **To unblock, one real BossMedia hand
+containing a flush is sufficient** — nothing else is missing. Payoff is two
+Hold'em hands, so this is low priority, but the blocker is now cheap to state and
+cheap to clear if a sample appears. Detail in
+`hh-formats/legacy-networks.md` (BossMedia §4) and `fixtures/samples/bossmedia/SOURCES.md`.
+
+**WPT Global — blocked permanently, by the site.** WPT Global removed
+hand-history export in June 2026. There was never a local hand-history folder;
+the only route was an in-client "email to self" that no longer exists. Current
+users **cannot produce a file to upload**, so the ~15% cash-seat traffic share
+badly overstates the addressable population. The only published "example" is a
+hand-written mock-up with placeholder names, not an export, and no parser should
+be written from it.
+
+The current behaviour is already correct and is now **enforced in code**: the
+GGPoker parser's `FOREIGN_BRANDING` guard lists `WPT Global` and refuses it, so
+such a file fails honestly as "unknown site" rather than being silently
+mis-parsed as GGPoker. **Leave that guard in place.** This is a research negative
+finding that survived contact with implementation.
+
+**PPPoker — blocked because the format does not exist.** No native text
+hand-history export. The deliverable here is a clear UI message, not a parser.
+One specific trap worth keeping: some third-party PPPoker converters emit files
+with a `PokerStars Hand #` header, so such a file may be genuine PokerStars *or*
+laundered PPPoker data, with no reliable string to tell them apart. **Do not add
+a PPPoker detection rule.** See `hh-formats/pppoker.md`.
+
+**GG skins Natural8 and BestPoker — no samples, but no work needed either.**
+A dedicated Natural8-to-Hand2Note converter's entire transformation is
+`"Poker Hand #RC"` → `"PokerStars Hand #20"`, which means Natural8 emits
+GGPoker's header shape with no skin branding. The two-letter hand-id prefix
+encodes *game type* (`HD`, `RC`, `OM`, `SD`, `TM`, `AF`), not skin. The shipping
+GGPoker parser should therefore already cover them.
+
+*Labelled unverified:* this rests on converter source plus secondary reporting,
+not on a Natural8 or BestPoker export in hand. It is consistent evidence from two
+independent directions, but a single real skin sample would convert it from
+inference to fact. Low cost, low urgency.
+
+---
+
+## 3. What the traffic numbers say now
+
+Kept because it is the sanity check on whether coverage matches demand, not
+because anything here is still a build decision.
+
+Public 2026 traffic trackers put GGPoker at roughly 36% of observable cash-game
+seats, PokerStars ~25% and WPT Global ~15%. CoinPoker measures around 2,016
+concurrent cash players against PokerStars' 2,198. iPoker holds a steady 1.5–2k.
+Winamax is among the fastest-growing. US-facing traffic concentrates in WPN,
+Chico and Ignition.
+
+*Confidence: moderate; direction matters more than the digits.* These come from
+affiliate-adjacent sites ([PrimeDope](https://www.primedope.com/largest-poker-sites/),
 [VIP-Grinders](https://www.vip-grinders.com/research/online-poker-traffic-report/),
 [HighStakesDB](https://highstakesdb.com/poker-room-ranking),
-[WorldPokerDeals](https://worldpokerdeals.com/blog/ggnetwork-becomes-the-1-poker-site-in-the-world)),
-which have an incentive to flatter rooms they are affiliated with. They also
-count *concurrent cash seats*, which under-counts tournament-heavy rooms like
-PokerStars and over-counts grinder-heavy ones. Treat them as a ranking, not a
-measurement.
+[WorldPokerDeals](https://worldpokerdeals.com/blog/ggnetwork-becomes-the-1-poker-site-in-the-world))
+which have an incentive to flatter rooms they are affiliated with, and they count
+*concurrent cash seats*, which under-counts tournament-heavy rooms and
+over-counts grinder-heavy ones.
 
-**Evidence available.** A site with a real corpus can be built correctly and
-tested. A site without one cannot — a parser written against no sample is a
-guess that will silently mangle hands, which is worse than no parser, because
-no parser at least produces an honest failure record. This is why some
-high-traffic sites appear *below* lower-traffic ones in the order: sourcing has
-to happen first.
-
-**Marginal cost.** Whether the site joins an existing family (cheap) or needs
-its own tokeniser (expensive). See `FORMAT-MATRIX.md` §4.
+**Against that list, coverage is essentially complete.** Every named room ships a
+parser except WPT Global, which is unobtainable by construction. The one
+remaining lever on real-world coverage is therefore not another parser — it is
+the failure-recording path (`ConversionFailure` in
+`frontend/src/lib/phf/detect.ts`), which turns real user uploads into evidence.
+Once it has traffic it should outrank every estimate above: those measure the
+market, failure records measure *our* users.
 
 ---
 
-## 3. Recommended build order
-
-### Tier 1 — do these first
-
-**1. CoinPoker** — *difficulty: low-medium. Unlocks a pool comparable to PokerStars by concurrent cash seats.*
-**Sourcing resolved.** 16 real fixtures now in `fixtures/samples/coinpoker/`,
-machine-verified byte-exact, covering cash and tournaments, extracted from ~4.2M
-lines of raw client logs. Full documentation in `hh-formats/coinpoker.md`.
-It is a PokerStars-family dialect, so the tokeniser is largely reusable, but it
-needs its own header regex and several overrides that change *numbers*, not just
-strings: the all-in raise form `raises N and is all-in` carries only one amount;
-hand descriptions use `three of kind` and `Aces over Fours`; seat lines have
-suffixes after the closing paren; and the hand separator is one blank line, not
-two. This is now the highest value-per-hour item in the plan.
-
-**2. WPT Global** — *difficulty: low if attempted. Unlocks ~15% of tracked cash seats — but see the caveat.*
-Still zero samples, and the situation is worse than "not yet sourced":
-**WPT Global removed hand-history export in June 2026**
-([source](https://deepfold.co/en/blog/wpt-global-hand-converter), which carries
-an explicit removal banner and has struck through its own export instructions).
-There was never a local hand-history folder — the only route was
-Settings → Game History → Hand History → Email to Self. So current users cannot
-produce a file to upload at all, and only pre-June-2026 exports can exist.
-
-That materially changes the calculus. The ~15% traffic share overstates the
-addressable users, because most of them have nothing to give us. Secondary
-sources put the header at `WPT Global Hand #<id>: Hold'em No Limit ($1/$2 USD) - <ts>`
-followed by a PokerStars-style table line, which would make it a cheap Family A
-dialect — but the only example found is a hand-written mock-up with placeholder
-names, not an export, so it is not ground truth and no parser should be written
-off it. Recommendation: leave the GG parser's `FOREIGN_BRANDING` rejection in
-place so these fail honestly, and revisit only if a real pre-removal export turns
-up.
-
-**3. ACR / WPN** — *difficulty: medium-high. Unlocks the largest US-facing pool.*
-77 real fixtures already on disk, including the awkward cases (straddle, posting
-dead, waiting for BB, strange player names, names with parentheses, a sit-out
-line with no name, a cancelled hand). Highest evidence quality of anything
-unbuilt. The cost is that it shares nothing with existing parsers: `Game started
-at:` / `Game ID:` header pair, every action prefixed `Player `, hole cards dealt
-one line per card, `*** FLOP ***: [..]` with a colon after the stars, bare
-parenthesised amounts with no currency symbol, and an `------ Summary ------`
-block with per-player `Bets: / Collects: / Loses:` accounting. Budget a full
-parser, not a dialect. Watch for run-together text with no separating space
-(`does not show cards.Bets: 0.25.`).
-
-**4. Ignition / Bodog / Bovada** — *difficulty: high. Unlocks a large US pool that no tracker handles natively.*
-56 real fixtures on disk from the fpdb3 regression corpus and a converter
-project — cash, MTT, STT, Zone Poker, PLO8, 7-Stud, and a Bodog.eu variant.
-Genuinely good coverage. The difficulty is not the syntax, it is the semantics:
-**there are no player names.** Seats are labelled `Small Blind`, `Big Blind`,
-`UTG`, `UTG+1`, `UTG+2`, `Dealer`, and the hero is marked with a `[ME]` suffix
-(`Seat 3: UTG [ME] ($4.37 in chips)`). Cards are dealt with
-`UTG [ME] : Card dealt to a spot [Ks Jh]`, the button is set with
-`Dealer : Set dealer [6]`, and players drop out with `Leave(Auto)`.
-
-Two consequences worth deciding up front, because they leak into the data model
-rather than the parser: identity is positional, so the same label refers to a
-different human in every hand and player names cannot be used as a join key
-across hands; and the labels are *positions*, so a naive parser that derives
-position from the label will be circular and will silently agree with itself
-even when the button parsing is wrong. Also note `Raises $0.15 to $0.15` — the
-same "chips added, not increment" semantic as WePlay. Drive off the second
-number. This is the parser most likely to produce plausible-looking wrong output,
-so it deserves the most test scrutiny.
-
-### Tier 2 — good value, clear path
-
-**5. Winamax** — *difficulty: low-medium. Unlocks the dominant French-market room, and it is growing.*
-28 real fixtures on disk. Skeleton is close enough to the PokerStars family to
-feel familiar but diverges at every point that matters: `*** ANTE/BLINDS ***`
-and `*** PRE-FLOP ***` markers the family lacks, currency **suffixed** to every
-amount (`0.50€`), `Board: [...]` with a colon, and French-derived hand
-descriptions (`(One pair : 3)`) that match no English hand-description table.
-Build standalone rather than bolting conditionals onto PokerStars.
-
-**6. Chico (TigerGaming / BetOnline)** — *difficulty: unknown-medium. Unlocks the third US-facing network.*
-16 real fixtures on disk — enough to start, thin enough that edge cases will be
-missing. Worth building after ACR since both serve the same US audience and
-users often have accounts on both.
-
-### Tier 3 — cheap completions
-
-**7. GG skins: Natural8 / BestPoker / ClubGG** — *difficulty: zero. Already covered.*
-**Question answered, no work needed.** A dedicated Natural8-to-Hand2Note
-converter ([`jokerlin/gg_converter_gui`](https://github.com/jokerlin/gg_converter_gui))
-performs exactly one header transformation — `"Poker Hand #RC"` →
-`"PokerStars Hand #20"` — which means Natural8 emits the same
-`Poker Hand #<PREFIX><id>:` header as GGPoker with **no skin branding anywhere**.
-The two-letter prefix encodes *game type*, not skin: `HD`, `RC` (Rush & Cash),
-`OM` (Omaha), `SD` (Short Deck), `TM` (tournament) and `AF` (All-in or Fold) are
-all observed in real corpora.
-
-So the GG parser needs no skin dimension; it needs its prefix matcher to accept
-`#[A-Z]{2}\d+` generally rather than enumerating known prefixes. This rests on
-converter source plus secondary reporting rather than on a Natural8 export in
-hand, but it is consistent evidence from two independent directions. The empty
-`natural8/`, `bestpoker/` and `clubgg/` fixture directories should be removed
-rather than left as silent gaps.
-
-**8. Unibet** — *difficulty: unknown. Small but real European pool.*
-Now has a thin corpus (5 files) and a site doc. Platform moved to Relax Gaming
-in 2019, so pre-2019 documentation describes a format that no longer ships —
-check `hh-formats/unibet.md` for which era the samples belong to before
-building.
-
-### Tier 4 — only if a user actually asks
-
-**9. Pokerbros — promote this if Family B gets built.** *Difficulty: near-zero once partypoker exists.*
-The research answered the open question and the answer is better than expected.
-Pokerbros Dialect A is
-`***** Hand History for Game <id> ***** (PokerBros)` — the partypoker banner with
-a brand token appended. Since partypoker already has a shipped parser, this is
-close to free: capture the brand token to disambiguate from genuine partypoker,
-and reuse the family tokeniser. A live club app for the cost of a dialect switch
-is the best marginal return in this plan after CoinPoker. A second unrelated
-dialect also exists; see `hh-formats/pokerbros.md`.
-
-**10. PPPoker — do not build. Verified negative.**
-The research confirms **no native text hand-history export**. The doc also
-records a specific trap worth heeding: some third-party PPPoker converters emit
-files with a `PokerStars Hand #` header, so such a file may be genuine
-PokerStars *or* laundered PPPoker data, and there is no reliable string to tell
-them apart. Do not add a PPPoker detection rule. The correct deliverable here is
-a clear UI message, not a parser.
-
-**11. Legacy networks: Full Tilt, OnGame, Entraction, Merge, MicroGaming,
-BossMedia.** All have real corpora on disk, all are dead or near-dead sites. The
-XML ones (Merge, MicroGaming, BossMedia) are individually the *easiest* parsers
-in the entire set — XML removes the whole class of whitespace and
-name-tokenising bugs that dominates the text formats — so they are tempting.
-Resist: easy is not the same as valuable, and nobody is uploading 2013 Merge
-hands. Build only if someone does.
-
-**12. Run It Once.** Closed in 2022. Effectively zero users. Build only on
-request.
-
-**13. PokerTracker 4 / Holdem Manager 3 — no parser needed.**
-The research verdict is that they have no distinct hand-history text format and
-re-emit the original site text, so the shipped parsers already handle most
-PT4/HM3 exports for free. See `hh-formats/pokertracker4.md` and
-`holdem-manager3.md`. The one artefact that might still justify attention is
-their *import-error log* format, since that is often what a confused user will
-paste at us. There is also a real interchange standard worth knowing about —
-see `hh-formats/interchange-formats.md` and `fixtures/samples/phh/`.
-
----
-
-## 4. Sites where I could not find real samples
-
-Recorded explicitly, because a missing sample is the condition under which a
-future agent invents a format and ships something that silently mangles hands.
-
-| Site | Status | Consequence |
-|---|---|---|
-| **WPT Global** | No samples, and **none can be obtained** — export removed June 2026 | Permanently unsourceable except from pre-removal archives. The only published "example" is a placeholder mock-up, not an export. `fixtures/samples/wpt-global/SOURCES.md` records the detail. |
-| **Natural8 / BestPoker / ClubGG** | No samples — **but the question is answered without one** | Converter source shows Natural8 emits GGPoker's header verbatim. No skin dimension needed. Resolved, not a gap. |
-| **PokerStars: Spin & Go** | No real sample found anywhere | A popular format with no verified grammar. Worth a targeted hunt. |
-| **PokerStars: tournament run-it-twice, "wins the tournament and receives $X", full HORSE rotation, localized non-English client output, straddle** | Not found | Recorded by the PokerStars research pass rather than invented. |
-| **CoinPoker: side pots, run-it-twice, non-Hold'em** | Absent from a ~4.2M-line corpus | Genuinely unknown, not proven absent. Split-pot summary grammar is the notable hole. |
-| **Tournament formats generally** | Only WePlay, PokerStars and Ignition have verified tournament samples | Bounty awards, level changes, finishing positions, rebuys and add-ons are unverified for most sites. Tournament hands are where a cash-tested parser most often breaks. |
-| **Modern partypoker / 888** | Corpus is ~2012–2015 vintage | Both platforms changed since. The shipped parsers are validated against an era, not against today. |
-
----
-
-## 5. Traps that will bite regardless of order
+## 4. Traps that bit, and will bite again
 
 Ranked by how much damage they do and how easily they pass tests anyway.
 
@@ -311,23 +217,25 @@ Ranked by how much damage they do and how easily they pass tests anyway.
 
 ---
 
-## 6. Suggested next three actions
+## 5. What the research actually bought
 
-1. **Build CoinPoker.** Sourcing is done — 16 verified fixtures and a full site
-   doc. It is a PokerStars-family dialect serving a pool comparable to
-   PokerStars, which makes it the best value-per-hour item available.
-2. **Build ACR/WPN.** Best evidence-to-value ratio of anything else: 77 real
-   fixtures including the hard cases, and the largest US-facing pool.
-3. **Harden the GGPoker parser against the newly-sourced corpus.** 33 real
-   fixtures were added covering tournaments (`#TM`), bounty/KO, PLO, PLO5, Short
-   Deck, All-in-or-Fold, straddles, missed blinds, run-it-twice *and thrice*,
-   and all-in insurance. The parser was previously validated against one skin,
-   one game type and one stake level, so this is where the most latent breakage
-   is. In particular the rake line has four possible shapes and the current
-   six-field assumption fails on most of the corpus.
+Recorded because it is the payoff, and because several of these were judgement
+calls that could have gone the other way.
 
-Ongoing, and worth more than any single parser: the failure-recording path
-(`ConversionFailure` in `frontend/src/lib/phf/detect.ts`) turns real user
-uploads into evidence about which format to build next. Once it has traffic, it
-should outrank the traffic-tracker estimates in §2 — those measure the market,
-whereas failure records measure *our* users.
+- **19 parsers built against this corpus, 2595 tests passing.** The corpus was
+  assembled before most of those parsers existed, and it held.
+- **Zero synthetic fixtures.** The discipline cost real coverage — Spin & Go has
+  no fixture because the only ones findable were other people's fabrications —
+  and it was worth it. A parser agent can trust any file in `fixtures/` as
+  ground truth without checking.
+- **Negative findings survived implementation.** WPT Global's "do not build,
+  cannot be sourced" is now enforced in code by the GGPoker foreign-branding
+  guard. PPPoker's "no text format exists" prevented a detection rule that would
+  have mis-claimed genuine PokerStars files.
+- **Three documented errors were caught and corrected by implementation**, each
+  after being re-derived from the bytes rather than taken on report: ACR's
+  `raises (N)` semantic, Chico's multiple-`Total pot`-line rule, and the Winamax
+  Windows-1252 file count. Each correction carries its evidence and an explicit
+  retraction of the earlier claim, so the retraction travels with the document.
+  The ACR one is the cautionary tale: the wrong reading still matched 53 of 95
+  hands, which is exactly how a bug like that ships unnoticed.

@@ -169,8 +169,56 @@ From `fixtures/samples/bossmedia/04-pot-limit-omaha.txt`:
   names distinguish this from MicroGaming's mixed-case `<Game>`.
 - Currency: ISO code in `TABLECURRENCY`; amounts are plain decimals.
 - Streets: `<ACTION TYPE="HAND_BOARD" VALUE="BOARD_FLOP|BOARD_TURN|BOARD_RIVER" POT="..."
-  RAKE="...">` followed by `<CARD LINK="N">` children using an **opaque numeric card ID**
-  (not rank+suit text).
+  RAKE="...">` followed by `<CARD LINK="N">` children using a **numeric card ID**
+  (not rank+suit text). **The rank half of that ID is now solved; see below.**
+
+#### The `CARD LINK` numeric card ID — rank solved, suit labelling provably not
+
+Card IDs are integers `0`–`51` (50 distinct values observed across the corpus), plus the
+literal `b` for a face-down card. The encoding is:
+
+```
+rank = id % 13      # 0 = Ace, 1 = Two, 2 = Three, … 11 = Queen, 12 = King
+suit = id // 13     # 0..3, but WHICH suit each index means is unknown
+```
+
+**How the rank half was derived.** Three `<RESULT>` elements state a hand strength in words
+*and* list the winning card IDs, which together over-determine the rank mapping:
+
+| `HAND=` (localisation tokens) | `WINCARDS=` | `id % 13` | ranks under `0=Ace` |
+|---|---|---|---|
+| `WIN_TWOPAIR … CARDS_KINGS … CARDS_SEVENS` | `38 12 45 19 24` | `12 12 6 6 11` | K K 7 7 Q ✓ |
+| `WIN_TWOPAIR … CARDS_NINES … CARDS_SIXES` | `47 34 44 18 10` | `8 8 5 5 10` | 9 9 6 6 J ✓ |
+| `WIN_TWOPAIR … CARDS_SEVENS … CARDS_THREES` | `19 6 41 28 10` | `6 6 2 2 10` | 7 7 3 3 J ✓ |
+
+Six independent rank constraints, all satisfied, with the kicker ranks falling out consistently
+as a free check. The competing `rank = id // 4, suit = id % 4` hypothesis produces nonsense on
+all three (e.g. ranks `9 3 11 4 6` for the Kings-and-Sevens hand). `suit = id // 13` also
+partitions the corpus into four well-populated buckets (42/54/59/55 cards), as it must.
+
+**Why the suit half cannot be solved from this corpus, and that is a permanent property of it,
+not a gap to fill.** Suit only becomes observable when a hand's *strength* depends on it. The
+entire corpus contains exactly three hand types — `STR_G_WIN_PAIR`, `STR_G_WIN_TWOPAIR`,
+`STR_G_WIN_STRAIGHT` (2, 3 and 2 occurrences). **There is no flush, no flush draw, and no
+suit-dependent outcome anywhere in it.** So no amount of further analysis of these 10 files can
+distinguish "suit 0 = clubs" from any of the other 23 permutations. Resolving it needs a new
+sample containing a flush, or external documentation of the platform's card ordering.
+
+**One caveat on `WINCARDS` itself: it is an unreliable field.** Three of the eight non-empty
+values list the *same card ID twice* (`50 37 13 51 50`, `50 36 27 34 27`, `50 34 43 18 34`),
+which is impossible in a real five-card hand. Relatedly, the one straight in the corpus
+(`WIN_STRAIGHT … CARD_EIGHT`, `WINCARDS="46 32 18 33 6"`) decodes to `8 7 6 8 7` — two pair, not
+a straight. That is consistent with `WINCARDS` being buggy rather than with the rank mapping
+being wrong: the three two-pair hands agree with each other and with their stated kickers, while
+the straight hand's own card list is internally impossible. **Derive cards from the `HAND_BOARD`
+and `HAND_DEAL` elements, not from `WINCARDS`.**
+
+**What this means for a converter.** Rank-only decoding is enough to evaluate these hands'
+strength, but not to *emit* them: a converter that writes `9c` when the card may be `9h` is
+publishing data it cannot support, and a downstream flush analysis would be silently wrong. So
+refusing to convert remains the correct call — but the reason is now narrow and precise
+("suit labelling unconstrainable, no flush in corpus") rather than "the card encoding is
+opaque", and only the suit half is blocked.
 - Action verbs: `HAND_BLINDS` (`KIND="HAND_SB"/"HAND_BB"`), `HAND_DEAL`, `ACTION_FOLD`,
   `ACTION_CALL`, `ACTION_CHECK`, `ACTION_BET`, `ACTION_RAISE`.
 - "SUMMARY": `<SHOWDOWN NAME="HAND_SHOWDOWN" POT="..." RAKE="...">` with one `<RESULT

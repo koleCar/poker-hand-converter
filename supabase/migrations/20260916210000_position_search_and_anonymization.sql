@@ -13,8 +13,8 @@
 --
 -- ## Why
 --
--- Twenty site parsers exist now, and two of them produce hands where the player
--- names are **not identities**:
+-- Nineteen site parsers exist now, and two of them produce hands where the
+-- player names are **not identities**:
 --
 --   * **Ignition / Bodog / Bovada** prints every seat as its position relative
 --     to the button -- `Dealer`, `Small Blind`, `UTG+2` -- with the hero tagged

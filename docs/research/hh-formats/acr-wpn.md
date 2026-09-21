@@ -415,7 +415,7 @@ across 122 hands.
 
 **Cross-site note:** this "chips added" semantic is the same one used by WePlay and by
 Ignition/Bodog/Bovada, and differs from PokerStars, GGPoker and Winamax. See
-`COVERAGE-PLAN.md` §5 trap 1 — it is the most common cross-site parser bug in this project.
+`COVERAGE-PLAN.md` §4 trap 1 — it is the most common cross-site parser bug in this project.
 
 **Era C (confirmed verbatim):** `<name> folds`, `checks`, `calls $<amt>`,
 `raises $<amt> to $<amt>` (delta-then-total, unlike era A/B), `bets $<amt>`, `caps $<amt>`

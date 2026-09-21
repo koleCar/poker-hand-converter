@@ -66,10 +66,12 @@ Implementation:
 4. **Provenance is mandatory.** Every hand carries the raw text it came from,
    which parser produced it, that parser's version, and everything the parser
    was unsure about. A hand we cannot trace is worse than no hand.
-5. **The type system leads the parsers.** Round one ships a No-Limit Hold'em
-   parser, but the types already express PLO/5-card/6-card Omaha, short deck,
-   stud, razz, draw, pot-limit and fixed-limit, so adding a room later is a new
-   file rather than a schema migration.
+5. **The type system leads the parsers.** The types were written to express
+   PLO/5-card/6-card Omaha, short deck, stud, razz, draw, pot-limit and
+   fixed-limit before any parser read them, so that adding a room is a new file
+   rather than a schema migration. Nineteen parsers later that has held: the
+   `SiteParser` contract has not had to widen, and the schema additions since
+   have all been optional fields inside `phf/1`.
 
 ---
 
@@ -182,13 +184,18 @@ interface PhfHand {
 | --- | --- |
 | `siteId` / `siteName` | which room, e.g. `"weplay"` / `"WePlay"` |
 | `handId` | the hand id exactly as the site wrote it |
-| `handKey` | stable dedupe key. Kept equal to `handId` for the sites we already store, so a re-upload still dedupes against existing `stored_hands.hand_key` rows |
+| `handKey` | the site's own stable key for the hand, normally equal to `handId`. Re-uploading the same file must produce the same value, because that is what makes the import idempotent |
 | `originalFilename` | the uploaded file name, or null for pasted text |
 | `parserId` / `parserVersion` | which code produced this hand; lets us re-run old rows through a fixed parser |
 | `warnings` | `{ code, message, line? }[]` — things the parser was unsure about |
 | `rawText` | the hand's own slice of the upload, verbatim. Never lose the source |
 | `parsedAt` | ISO timestamp of the parse, **not** of the hand |
 | `textStyle` | presentation choices, below |
+
+`handKey` is scoped by site, not global. The database composes its own key as
+`"<meta.siteId>:<meta.handKey>"` (`handKeyOf` in `lib/db/mapping.ts`, stored on
+`hands.hand_key`), so two rooms that happen to number a hand the same way do not
+collide. A parser therefore only has to be unique *within* its own site.
 
 ### 3.2 `meta.textStyle` — presentation only
 
@@ -830,6 +837,10 @@ Three things to notice:
 
 ### 8.1 The contract
 
+Nineteen parsers are registered in `frontend/src/lib/parsers/index.ts`, covering
+more rooms than that — Ignition also reads Bodog and Bovada, Chico four skins.
+Read one close to your room's dialect before starting.
+
 ```ts
 export interface SiteParser {
   readonly id: string;       // stable machine id; goes into the database
@@ -1024,26 +1035,87 @@ import { exampleParser } from "./examplesite";
 registerParser(exampleParser);
 ```
 
-### 8.4 Tests a new parser must come with
+### 8.4 Fixtures
 
-Add the room's real sample file to `backend/test/fixtures/<site>/` and, ideally,
-a folder of real exports next to `gg-hh/` and `weplay-hh/`. Then:
+Real exports go in **`fixtures/samples/<site>/`**, one directory per room, each
+with a **`SOURCES.md`** recording where every file came from. That is the
+convention all nineteen parsers follow — 413 files across 22 directories — and
+`SOURCES.md` is not optional paperwork: it is what lets the next person tell a
+real export from something someone typed by hand.
 
-1. **Detection** — every sample file ranks your parser first
-   (`phfDetect.test.ts` is table driven; add your corpus to
-   `test/support/corpus.ts`).
-2. **No unknown lines** — every hand parses with `meta.warnings === []`.
+Each row records the file, the provenance URL, the date retrieved, whether it is
+**REAL / TRANSCRIBED / SYNTHETIC**, and what it demonstrates. Prefer REAL; a
+synthetic fixture proves only that the parser agrees with whoever wrote it. Note
+encoding and line endings when they matter — several of these corpora are
+byte-exact excerpts where an editor "helpfully" normalizing a glyph or a CRLF
+would destroy the thing under test. `fixtures/**` is marked `-text` in
+`.gitattributes` for exactly that reason.
+
+`backend/test/fixtures/` is *not* the place: it holds only the `gg/` and
+`weplay/` regression cases that predate this layout.
+
+Load a corpus through a helper in `backend/test/support/` — there are several
+(`corpus.ts`, `p2Corpus.ts`, `p4Corpus.ts`, `p6Corpus.ts`, `psggCorpus.ts`),
+each reading `fixtures/samples/<site>` and returning files for a table-driven
+`it.each`. Reuse the closest one rather than adding a sixth.
+
+### 8.5 Tests a new parser must come with
+
+1. **Detection** — every sample file ranks your parser first, and your parser
+   claims *no* file from any other room's corpus. The second half matters as
+   much as the first: detection is a competition, and a parser that over-claims
+   silently steals hands from a room that would have read them correctly.
+2. **No unknown lines** — every hand parses with `meta.warnings === []`. This is
+   the convention that turns an unhandled line shape into a build failure
+   instead of a silent drop.
 3. **Validation** — every hand you emit passes `validateHand`, and every hand
    you refuse carries a machine-readable `reason`.
 4. **Round trip** — `parseStandardText(toStandardText(h))` is semantically equal
    to `h` for every sample hand (`phfRoundTrip.test.ts` shows the projection
-   that is compared).
+   that is compared; `support/psggInvariants.ts` has a reusable version).
 5. **Replay** — no stack goes negative and the whole pot is awarded in the final
    frame (`phfReplay.test.ts`).
 6. **One test per bug** — when a real hand breaks the parser, add the hand as a
    fixture with a comment saying what it broke. That is why
    `backend/test/fixtures/weplay/` exists and why the WePlay normalizer still
    works.
+
+### 8.6 Lessons from nineteen parsers
+
+Each of these cost at least one author a debugging cycle, and most cost two.
+
+**Leave `position` as `null`.** Positions are resolved centrally by
+`assignPositions`, which runs at the end of `parseStandardHand` and again inside
+`convertAny` — the choke point every parser's output passes through. It reads
+the ring off the posted blinds and handles dead buttons, sit-outs and heads-up,
+none of which geometry gets right on its own. At least one author wrote a local
+position helper and then deleted it. Just fill in the blinds and let the core do
+it.
+
+**`toStandardText` re-groups the posting actions.** Antes, blinds, missed blinds
+and preflop straddles are emitted *above* `*** HOLE CARDS ***`; a bare `post` is
+left in the body with the rest of the preflop action. So a parser that emits a
+pre-deal `posts` in source order will fail the round-trip invariant until it
+splits the two the same way. Two authors hit this. The fix is in the parser: use
+the specific action type (`ante` / `small-blind` / `big-blind` / `missed-blind`
+/ `straddle`) for anything posted before the deal, and reserve `post` for dead
+money inside the hand.
+
+**Refusing beats guessing.** This is the single most important habit, and it is
+counter-intuitive: a mis-scaled or mis-attributed hand *still balances against
+itself*. It passes chip conservation, passes the payout check, passes the
+replay, and corrupts a tracker silently months later. A refused hand is stored
+with its raw text and can be converted the day someone writes the code. The
+mechanisms are `parseAmountStrict` at the point a token first arrives,
+`ParseSkip(reason, message)` for a hand you recognise but will not vouch for,
+and the warnings-must-be-empty convention above. Guess nothing you can refuse.
+
+**Cross-check against figures the room computed itself.** Chip conservation only
+proves the hand is consistent with your own reading of it. The room also states
+a rake, a total pot and often a per-seat net; comparing against those catches a
+parse that is wrong in a self-consistent way, which is the only kind that gets
+past everything else. One author's cross-check found a real bug where an entire
+€1.60 had been swept into the rake on a hand that balanced perfectly.
 
 ---
 

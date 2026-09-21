@@ -1,10 +1,16 @@
 # Unibet Poker hand history format
 
-Status: **no parser has shipped for this network yet, and there is no local corpus at all** — unlike
-partypoker/888/iPoker, this entire document is built from secondary sources (two independent open-source
-`fpdb` parser forks and their test fixtures; see `fixtures/samples/unibet/SOURCES.md`). Every claim below
-is marked REAL (fixture-backed), INFERRED (parser-source-only, no full sample), or UNKNOWN. Read
-`SOURCES.md` first — it also documents what was searched for and not found.
+Status: **a Unibet parser now ships** (`frontend/src/lib/parsers/unibet.ts`), built against the
+5-file corpus in `fixtures/samples/unibet/`.
+
+An earlier revision of this document opened "no parser has shipped for this network yet, and there
+is no local corpus at all". Both halves are now out of date and are corrected here — but the
+*epistemic* warning behind them still applies and should not be discarded with them: this document
+was written from secondary sources (two independent open-source `fpdb` parser forks and their test
+fixtures; see `fixtures/samples/unibet/SOURCES.md`), and the corpus that exists is thin at 5 files.
+Every claim below is still marked REAL (fixture-backed), INFERRED (parser-source-only, no full
+sample), or UNKNOWN, and those labels remain accurate. Read `SOURCES.md` first — it also documents
+what was searched for and not found.
 
 ## 1. Overview & status
 
@@ -43,8 +49,22 @@ is marked REAL (fixture-backed), INFERRED (parser-source-only, no full sample), 
 
 ## 2. Detection signature
 
-No graded-confidence infrastructure exists for this network yet (no parser has shipped). Proposed,
-fixture-backed signature, covering both known real eras:
+**A Unibet parser now ships** (`frontend/src/lib/parsers/unibet.ts`), so the "proposed" framing
+below is historical — it is kept because the reasoning still explains *why* the shipped signature
+is shaped the way it is. Two things the implementation added that this doc originally did not have:
+
+- A modern-era branded header exists — `^Unibet\s+Hand\s+#\d+(?:,\s+Tournament\s+#|\s+-\s)`,
+  scored 0.95.
+- **An XML document is never Unibet**, no matter how often it says "Unibet": Unibet also runs (or
+  ran) an iPoker skin whose export is XML and belongs to `parsers/ipoker.ts`. The shipped parser
+  returns 0 outright for anything matching `<\s*(?:session|game|description)\b`. The two share
+  nothing but the brand name.
+
+The legacy-era signature below still stands, and the reason it must match the *whole* shape rather
+than a bare `Game #` is real: Entraction opens every hand with `Game # <id> - Texas Hold'em …`, so
+the colon and the `Table <currency><digits> <limit>` portion are both load-bearing.
+
+Fixture-backed legacy signature, covering both known real eras:
 ```
 ^Game\s#\d+:\sTable\s[€$£]\d+\s(PL|NL|FL)\s-\s[\d.]+/[\d.]+\s-\s.+\s-\s.+$
 ```

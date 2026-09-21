@@ -47,4 +47,4 @@ Leave the GGPoker parser's `FOREIGN_BRANDING` rejection in place so WPT Global
 input fails honestly as "unknown site" rather than being silently mis-parsed as
 GGPoker. Revisit only if a genuine pre-June-2026 export turns up.
 
-See `docs/research/COVERAGE-PLAN.md` §3 and §4.
+See `docs/research/COVERAGE-PLAN.md` §2 and `docs/research/hh-formats/wpt-global.md`.
