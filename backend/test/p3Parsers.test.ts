@@ -26,8 +26,13 @@ import {
   runitonceParser,
 } from "../../frontend/src/lib/parsers/index.js";
 import { ParseSkip } from "../../frontend/src/lib/phf/detect.js";
-import { toStandardText } from "../../frontend/src/lib/phf/serialize.js";
-import { totalFees, type PhfHand } from "../../frontend/src/lib/phf/types.js";
+import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
+import {
+  contributionsFromActions,
+  houseIntoPot,
+  totalFees,
+  type PhfHand,
+} from "../../frontend/src/lib/phf/types.js";
 import { validateHand } from "../../frontend/src/lib/phf/validate.js";
 import { buildReplay } from "../../frontend/src/lib/replay.js";
 import { otherSampleSites, sampleFiles, type SampleFile } from "./support/p2Corpus.js";
@@ -81,8 +86,6 @@ const SITES: Site[] = [
     signature: /^Run It Once Poker (?:Hand|Tournament) #\d+/m,
     reasons: [
       "unsupported-variant",
-      // The room adds its own money to the pot; PHF has no house contributor.
-      "splash-the-pot",
       // A tournament *summary* file is RIO's, but it holds no hands.
       "no-hands",
       "no-seat-block",
@@ -127,6 +130,10 @@ const ALLOWED_WARNINGS = new Set([
   "hero-attribution",
   "ambiguous-timestamp",
   "unknown-timezone",
+  // Run It Once folds its Splash-the-Pot chips into the figure it prints on the
+  // uncalled-bet line, and states them again in the SUMMARY.
+  "uncalled-includes-promo",
+  "house-chips-mismatch",
   // Raised by the shared builders when a source states no SUMMARY block.
   "rake-inferred",
   "no-summary",
@@ -145,6 +152,11 @@ function siteFiles(site: Site): SampleFile[] {
 
 function eachFile(site: Site): Array<readonly [string, SampleFile]> {
   return siteFiles(site).map((file) => [file.relativePath, file] as const);
+}
+
+/** Everything the seated players put in, net of uncalled returns. */
+function contributionsOf(hand: PhfHand): number {
+  return [...contributionsFromActions(hand).values()].reduce((sum, value) => sum + value, 0);
 }
 
 /** Parses one fixture by name prefix, so a renamed file fails loudly. */
@@ -247,6 +259,10 @@ for (const site of SITES) {
         const paid = hand.results.winners.reduce((sum, winner) => sum + winner.amount, 0);
         // All three rooms report a pot the rake has already come out of.
         expect(paid + totalFees(hand.results.fees), `${where} out`).toBe(hand.results.totalPot);
+        // What the players put in plus what the house dropped in is the pot.
+        expect(contributionsOf(hand) + houseIntoPot(hand), `${where} in`).toBe(
+          hand.results.totalPot,
+        );
         expect(hand.results.fees.rake, `${where} rake`).toBeGreaterThanOrEqual(0);
 
         const frames = buildReplay(hand);
@@ -526,15 +542,61 @@ describe("Run It Once Poker", () => {
     expect(hand.results.heroNet).toBe(-40);
   });
 
-  it("refuses a Splash-the-Pot hand instead of attributing house money to a seat", () => {
+  it("books Splash-the-Pot chips as house money rather than a player's bet", () => {
     // `STP added: €0.50` is money the room itself puts in: no seat contributed
-    // it, and the winner collects it. PHF has no contributor that is not a
-    // player, so the choices are to break chip conservation, to charge a player
-    // for chips they never put in, or to refuse. Refusing keeps the raw text for
-    // the day PHF grows a house contributor.
-    const skip = skipFor("run-it-once", "01-", runitonceParser);
-    expect(skip.reason).toBe("splash-the-pot");
-    expect(skip.message).toContain("seated player");
+    // it and the winner collects it. It is a `PhfChipMovement`, not an action -
+    // charging it to a seat would corrupt that player's net and everything
+    // computed from it - and the validator counts it into the pot, so
+    // conservation holds as contributions + house === totalPot.
+    const [hand] = handsOf("run-it-once", "01-", runitonceParser);
+    expect(hand.chipMovements).toEqual([
+      {
+        kind: "splash-the-pot",
+        fromSeat: null,
+        fromPlayer: null,
+        toPot: true,
+        amount: 50,
+        raw: "STP added: €0.50",
+        anchor: "after-hole-cards",
+      },
+    ]);
+    expect(hand.results.totalPot).toBe(75);
+    expect(contributionsOf(hand)).toBe(25);
+    expect(validateHand(hand).errors).toEqual([]);
+
+    // The winner put in one big blind and took the splash with it.
+    const winner = hand.results.players.find((player) => player.player === "Galen U")!;
+    expect([winner.contributed, winner.won, winner.net]).toEqual([10, 71, 61]);
+  });
+
+  it("caps an uncalled return that the room inflated with the splash", () => {
+    // RIO prints `Uncalled bet (€0.71) returned to Galen U` for a player who bet
+    // €0.21 into a pot the house had added €0.50 to, and then hands him €0.71
+    // again as the collect. Returning the printed figure would pay the splash
+    // out twice and give back chips he never put in. The cap only applies when
+    // the excess is *exactly* the promotional money, so any other overage still
+    // fails loudly instead of being quietly trimmed.
+    const [hand] = handsOf("run-it-once", "01-", runitonceParser);
+    const uncalled = hand.actions.find((action) => action.type === "uncalled")!;
+    expect(uncalled.amount).toBe(-21);
+    expect(uncalled.street).toBe("flop");
+    expect(hand.meta.warnings.map((warning) => warning.code)).toContain("uncalled-includes-promo");
+  });
+
+  it("round-trips the splash line through standard text", () => {
+    // The drop has to survive serialization or the pot stops adding up on the
+    // way back in; the serializer re-emits `movement.raw` at its anchor.
+    const [hand] = handsOf("run-it-once", "01-", runitonceParser);
+    const text = toStandardText(hand);
+    expect(text).toContain("STP added: €0.50");
+    const back = parseStandardHand(text, {
+      siteId: "standard",
+      siteName: "standard",
+      originalFilename: null,
+    })!;
+    expect(back.chipMovements).toEqual(hand.chipMovements);
+    expect(back.results.totalPot).toBe(hand.results.totalPot);
+    expect(toStandardText(back)).toBe(text);
   });
 
   it("refuses the Omaha hand for its variant", () => {
@@ -630,16 +692,25 @@ describe("PokerBros", () => {
     expect(party.meta.warnings.map((warning) => warning.code)).toContain("hero-attribution");
   });
 
-  it("keeps an empty button seat as printed and still lands the right positions", async () => {
+  it("reads a button the converter put on an empty seat", async () => {
     // The PokerStars-dialect converter puts the button on seat 2 of a table
-    // whose occupied seats are 1, 3, 4, 5 and 6. The number is kept as printed -
-    // rewriting it would hide the converter bug - and the core resolves the ring
-    // from the posted blinds instead, which puts the button on seat 1. That is
-    // exactly what the dialect-A twin of this hand states, from a completely
-    // different grammar.
+    // whose occupied seats are 1, 3, 4, 5 and 6, while the dialect-A twin of the
+    // same hand says seat 1.
+    //
+    // Leaving the printed number is not the harmless option it looks like: the
+    // core reads a button on an unoccupied seat as a *dead* button - which is
+    // right, CoinPoker really does keep `(button)` on a departed seat - names no
+    // live seat BTN, and shifts everyone behind it, so seat 1 comes out as the
+    // cutoff. A dead button and a made-up seat number are indistinguishable in
+    // one export, so the parser corrects it only from the small blind, and only
+    // to the seat that must hold the button if one was posted. The twin is what
+    // proves this hand is the made-up case, and it agrees: seat 1.
     const [stars] = handsOf("pokerbros", "02-", pokerbrosParser);
-    expect(stars.table.buttonSeat).toBe(2);
-    expect(stars.meta.warnings.map((warning) => warning.code)).toContain("button-seat-empty");
+    expect(stars.table.buttonSeat).toBe(1);
+    const warning = stars.meta.warnings.find((entry) => entry.code === "button-seat-empty")!;
+    // The source's own claim is never lost, even though it is not believed.
+    expect(warning.message).toContain("seat 2");
+    expect(warning.message).toContain("seat 1");
 
     const file = sampleFiles("pokerbros").find((entry) => entry.name.startsWith("02-"))!;
     const { hands } = await convertAny(file.text, { sourceFilename: file.name });
@@ -647,6 +718,11 @@ describe("PokerBros", () => {
     expect(positions.get(3)).toBe("SB");
     expect(positions.get(4)).toBe("BB");
     expect(positions.get(1)).toBe("BTN");
+
+    // And now both dialects of the one hand agree on the button and the ring,
+    // which is the whole reason to believe either of them.
+    const [party] = handsOf("pokerbros", "01-", pokerbrosParser);
+    expect(party.table.buttonSeat).toBe(stars.table.buttonSeat);
   });
 
   it("does not let the PartyGaming rooms claim its party dialect", () => {

@@ -19,6 +19,20 @@ export type GameFormat = "cash" | "tournament" | "sng" | "spin";
 /** Mirrors `Street` in PHF and the `hands.street_reached` check constraint. */
 export type StreetReached = "preflop" | "flop" | "turn" | "river" | "showdown";
 
+/**
+ * What the player names on a hand are worth. See `anonymization.ts`.
+ *
+ * `positional` rows have **no** `playerNames` and **no** `winners` — the site
+ * only printed per-hand position labels, and storing them would make the
+ * player filter return a different human from every row. Use the position
+ * fields instead; for those sites position *is* the identity.
+ */
+export type SiteAnonymization = "none" | "positional" | "opaque-id";
+
+/** The PHF position vocabulary, mirrored by the `is_position_array` constraint. */
+export type PositionLabel =
+  | "BTN" | "SB" | "BB" | "UTG" | "UTG+1" | "UTG+2" | "MP" | "LJ" | "HJ" | "CO";
+
 /** Mirrors `ConversionFailure["stage"]` and `public.conversion_stage`. */
 export type ConversionStage = "split" | "detect" | "parse" | "validate" | "serialize";
 
@@ -58,6 +72,12 @@ export interface HandSummary {
   gameFormat: GameFormat;
   /** `PhfTournament.id`; null for cash hands. */
   tournamentId: string | null;
+  /**
+   * Whether `playerNames` / `winners` can be treated as identities.
+   * Anything other than `"none"` means the name filter must be disabled —
+   * see `hasUsablePlayerNames()`.
+   */
+  anonymization: SiteAnonymization;
 
   /** `CurrencyUnit.code`, e.g. "USD" or "CHIPS". */
   currency: string;
@@ -82,8 +102,8 @@ export interface HandSummary {
 
   heroName: string | null;
   heroSeat: number | null;
-  /** "BTN", "CO", "UTG+1", ... */
-  heroPosition: string | null;
+  /** Resolved from the button and the posted blinds, never from the site's seat labels. */
+  heroPosition: PositionLabel | null;
   /** Canonical card codes, e.g. `["Ah", "Kh"]`. */
   heroCards: string[];
   /** Starting-hand class: "AKs" / "AKo" / "TT". Null for non-two-card variants. */
@@ -91,18 +111,29 @@ export interface HandSummary {
 
   /** Primary runout only. A run-it-twice second board lives in the PHF payload. */
   boardCards: string[];
+  /** Empty when `anonymization === "positional"`. Check before offering a name filter. */
   playerNames: string[];
+  /**
+   * Positions dealt into the hand. Empty when the button was unknown.
+   * For an anonymized site this is the only per-seat roster there is.
+   */
+  playerPositions: PositionLabel[];
   playerCount: number | null;
 
   streetReached: StreetReached | null;
   wentToShowdown: boolean;
+  /** Positions that reached showdown. The cross-site "which villain" field. */
+  showdownPositions: PositionLabel[];
   /** Minor units, before fees. */
   totalPot: number | null;
   /** Minor units. Total fees deducted from the pot: rake plus jackpot/promo drops. */
   rake: number | null;
   /** Minor units, signed. Hero's net result. */
   heroProfit: number | null;
+  /** Empty when `anonymization === "positional"`; use `winnerPositions` instead. */
   winners: string[];
+  /** Positions that collected a pot. The only winner record on a positional hand. */
+  winnerPositions: PositionLabel[];
 
   schemaVersion: string;
   parserVersion: string | null;
@@ -140,8 +171,19 @@ export interface HandFilters {
   heroHandClasses?: string[];
   /** Exact hero name. */
   heroName?: string;
-  /** Any player at the table, exact name. */
+  /**
+   * Any player at the table, exact name. Never matches `positional` hands,
+   * which is correct — those rows genuinely have no known players.
+   */
   player?: string;
+  /** Hero sat in **any** of these positions. */
+  heroPositions?: PositionLabel[];
+  /** **Any** of these positions reached showdown. The "which villain" filter. */
+  showdownPositions?: PositionLabel[];
+  /** **Any** of these positions won a pot. */
+  winnerPositions?: PositionLabel[];
+  /** Restrict to rows whose names are (or are not) real identities. */
+  anonymization?: SiteAnonymization;
   /** Case-insensitive substring match on the table name. */
   tableName?: string;
   variant?: string;
@@ -260,6 +302,16 @@ export interface HandFacets {
   gameFormats: GameFormat[];
   heroHandClasses: string[];
   streets: StreetReached[];
+  /** Hero positions with counts; a lopsided distribution is itself informative. */
+  heroPositions: FacetCount[];
+  /** Villain positions that actually reach showdown in the stored corpus. */
+  showdownPositions: PositionLabel[];
+  /**
+   * How many hands fall into each anonymization class. When every row is
+   * `none` the UI can offer the name filter unconditionally; otherwise it has
+   * to branch per row.
+   */
+  anonymizations: FacetCount[];
   playedAtRange: { min: string | null; max: string | null };
   /** Rows in the failure corpus, so the UI can badge the "unsupported" tab. */
   unparsedTotal: number;

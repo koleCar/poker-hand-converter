@@ -92,6 +92,31 @@ export const USDT: CurrencyUnit = cashUnit("USDT", "\u20ae");
 
 /** Tournament chips. Indivisible, and never convertible to money inside a hand. */
 export const CHIPS: CurrencyUnit = { code: "CHIPS", symbol: "", minorUnits: 1, kind: "chips" };
+/**
+ * Chips that come in hundredths.
+ *
+ * Most rooms deal whole chips, but some tournament structures genuinely do not
+ * - Chico prints stacks and bets like `2642.50` - and rounding those to whole
+ * chips loses real money from the hand. Use this whenever a chip amount in the
+ * source carries a decimal point; `chipsUnitFor` picks it automatically.
+ */
+export const FRACTIONAL_CHIPS: CurrencyUnit = {
+  code: "CHIPS",
+  symbol: "",
+  minorUnits: 100,
+  kind: "chips",
+};
+
+/**
+ * The chips unit a hand needs, judged from its own text.
+ *
+ * Returns `FRACTIONAL_CHIPS` when any bare amount in the source carries a
+ * decimal point, `CHIPS` otherwise. Getting this wrong is silent: a half chip
+ * rounds away and the hand still balances against itself.
+ */
+export function chipsUnitFor(sourceText: string): CurrencyUnit {
+  return /(?:^|[\s(])\d[\d,]*\.\d/.test(sourceText) ? FRACTIONAL_CHIPS : CHIPS;
+}
 /** Play-money chips. Same arithmetic as `CHIPS`, kept distinct so filters can exclude them. */
 export const PLAY_CHIPS: CurrencyUnit = {
   code: "TCHIP",
@@ -208,6 +233,101 @@ export function parseAmount(raw: string | undefined | null, unit: CurrencyUnit):
     return 0;
   }
   return Math.round(value * unit.minorUnits);
+}
+
+/**
+ * Why a printed amount could not be held exactly.
+ *
+ * `not-a-number` - nothing numeric in the token at all.
+ * `too-precise`  - more decimal places than the unit has minor units for,
+ *                  e.g. `0.025` against a two-decimal currency.
+ * `ambiguous-separators` - the token mixes `.` and `,`, or spaces digits, so
+ *                  which one is the decimal mark is a guess.
+ */
+export type AmountProblem = "not-a-number" | "too-precise" | "ambiguous-separators";
+
+export type StrictAmount =
+  | { ok: true; amount: Amount }
+  | { ok: false; problem: AmountProblem; text: string };
+
+/**
+ * Reads a printed amount, refusing anything it cannot hold exactly.
+ *
+ * `parseAmount` strips every non-digit and rounds, which is the right
+ * behaviour once a parser knows the token's shape but a 100x landmine before
+ * it does: `1 234,50 €` becomes 123450 minor units, and the resulting hand
+ * balances perfectly against itself, so no invariant downstream can catch it.
+ * A mis-scaled amount is worse than a rejected hand.
+ *
+ * Three site parsers independently grew a local version of this guard before
+ * it existed here - CoinPoker's `assertRepresentable`, Winamax's per-token
+ * shape check and Chico's - which is the signal that it belongs in the core.
+ *
+ * Use this at the boundary, where a token first arrives from the source; use
+ * `parseAmount` afterwards, when the shape is already known to be good.
+ */
+export function parseAmountStrict(raw: string, unit: CurrencyUnit): StrictAmount {
+  const text = raw.trim();
+  // Strip currency symbols and whitespace, nothing else: the separators are
+  // the evidence and have to survive to be judged.
+  const bare = text.replace(/[$\u20ac\u00a3\u20ae]/g, "").replace(/\s+/g, "");
+  if (!/^-?[\d.,]+$/.test(bare) || !/\d/.test(bare)) {
+    return { ok: false, problem: "not-a-number", text };
+  }
+
+  const negative = bare.startsWith("-");
+  const digits = negative ? bare.slice(1) : bare;
+  const dots = (digits.match(/\./g) ?? []).length;
+  const commas = (digits.match(/,/g) ?? []).length;
+
+  let whole = digits;
+  let fraction = "";
+
+  if (dots > 0 && commas > 0) {
+    if (dots > 1 && commas > 1) {
+      return { ok: false, problem: "ambiguous-separators", text };
+    }
+    // `1,234.50` or `1.234,50`: the *last* separator is the decimal mark and
+    // the other one is grouping.
+    const decimalMark = digits.lastIndexOf(".") > digits.lastIndexOf(",") ? "." : ",";
+    const groupMark = decimalMark === "." ? "," : ".";
+    const ungrouped = digits.split(groupMark).join("");
+    const cut = ungrouped.lastIndexOf(decimalMark);
+    whole = ungrouped.slice(0, cut);
+    fraction = ungrouped.slice(cut + 1);
+  } else if (dots > 1 || commas > 1) {
+    // Repeated separators can only be grouping: `1.234.567`.
+    whole = digits.split(dots > 1 ? "." : ",").join("");
+  } else if (dots === 1 || commas === 1) {
+    const mark = dots === 1 ? "." : ",";
+    const [left, right] = digits.split(mark);
+    // Three trailing digits behind a valid leading group is grouping, not a
+    // decimal: every room here writes `1,050` and `1.050` for a thousand and
+    // fifty. One or two trailing digits is a decimal mark, which is what makes
+    // the European `1 234,50` read as 1234.50 rather than as 123450. The
+    // leading group has to be 1-3 digits and cannot be `0`, so `0.025` stays a
+    // decimal and is then refused for being too precise.
+    if (right.length === 3 && /^[1-9]\d{0,2}$/.test(left)) {
+      whole = left + right;
+    } else {
+      whole = left;
+      fraction = right;
+    }
+  }
+
+  if (fraction.length > 0) {
+    const places = String(unit.minorUnits).length - 1;
+    if (fraction.length > places) {
+      return { ok: false, problem: "too-precise", text };
+    }
+    fraction = fraction.padEnd(places, "0");
+  }
+
+  const value = Number(whole || "0") * unit.minorUnits + Number(fraction || "0");
+  if (!Number.isFinite(value)) {
+    return { ok: false, problem: "not-a-number", text };
+  }
+  return { ok: true, amount: negative ? -value : value };
 }
 
 /** Minor units back to a plain number, for display and for the DB columns. */
@@ -441,8 +561,35 @@ export function resolvePositions(
  * walked over the seats that actually took part. Seats that were not dealt in
  * get a `null` position rather than a plausible-looking wrong one.
  */
-export function assignPositions(hand: PhfHand): void {
+/**
+ * Whether the button is on a seat that was not dealt in.
+ *
+ * Exported so consumers agree on the test rather than each deriving it: a hand
+ * with a dead button has no seat labelled `BTN`, and code that treats a missing
+ * BTN as a bug will otherwise go looking for one.
+ */
+export function hasDeadButton(hand: PhfHand, dealtInSeats?: number[]): boolean {
+  if (hand.table.buttonSeat === null) {
+    return false;
+  }
+  const seats = dealtInSeats ?? dealtInSeatsOf(hand);
+  return seats.length > 0 && !seats.includes(hand.table.buttonSeat);
+}
+
+/** Seats that took part: anyone who put a chip in or made a move. */
+function dealtInSeatsOf(hand: PhfHand): number[] {
   const acted = new Set<number>();
+  for (const action of hand.actions) {
+    if (action.seat !== null) {
+      acted.add(action.seat);
+    }
+  }
+  const seated = hand.players.map((player) => player.seat).sort((a, b) => a - b);
+  const dealtIn = seated.filter((seat) => acted.has(seat));
+  return dealtIn.length >= 2 ? dealtIn : seated;
+}
+
+export function assignPositions(hand: PhfHand): void {
   let smallBlindSeat: number | null = null;
   let bigBlindSeat: number | null = null;
 
@@ -450,7 +597,6 @@ export function assignPositions(hand: PhfHand): void {
     if (action.seat === null) {
       continue;
     }
-    acted.add(action.seat);
     // First posting wins: a late joiner posting a dead blind is typed
     // `missed-blind`, but a site that mislabels one must not move the ring.
     if (action.type === "small-blind" && smallBlindSeat === null) {
@@ -461,16 +607,18 @@ export function assignPositions(hand: PhfHand): void {
     }
   }
 
-  const seated = hand.players.map((player) => player.seat).sort((a, b) => a - b);
-  // Anyone who put a chip in or made a move was dealt in. Fall back to the full
-  // seat list when the stream is too thin to tell (a hand with no actions).
-  const dealtIn = seated.filter((seat) => acted.has(seat));
-  const ringSeats = dealtIn.length >= 2 ? dealtIn : seated;
+  const ringSeats = dealtInSeatsOf(hand);
   const size = ringSeats.length;
 
   const positions = new Map<number, Position>();
   if (size > 0) {
-    const ring = positionRing(size);
+    // A dead button - the button sits on a seat nobody is dealt in on, because
+    // its occupant left between hands - means there is no button *player*. The
+    // rotation still has that slot, so the live seats are named against a ring
+    // one longer with the button slot dropped: three live players behind a dead
+    // button are SB, BB and CO, not SB, BB and BTN.
+    const dead = hasDeadButton(hand, ringSeats);
+    const ring = dead ? positionRing(size + 1).slice(0, size) : positionRing(size);
     // ring[0] is the small blind; find which seat that is.
     let start = -1;
     if (smallBlindSeat !== null && ringSeats.includes(smallBlindSeat)) {
@@ -542,6 +690,17 @@ export interface PhfTable {
   name: string | null;
   maxSeats: number;
   buttonSeat: number | null;
+  /**
+   * Fast-fold pool brand, or null/absent for an ordinary table.
+   *
+   * PokerStars calls it `Zoom`, GG `Rush & Cash`, Unibet `Banzai`, party
+   * `FastForward`. Every room buries it in the game label, where
+   * canonicalisation drops it - but it changes how the pool plays and is an
+   * obvious filter dimension, so it is worth a field of its own. The brand is
+   * kept rather than a boolean because the presence answers "is this fast
+   * fold?" and the value answers "which one?".
+   */
+  fastFold?: string | null;
 }
 
 /** Tournament-only metadata. `null` on cash hands. */
@@ -576,6 +735,13 @@ export interface PhfTournament {
   levelAnte: Amount;
   /** Progressive-knockout bounties, by player. */
   bounties: Array<{ player: string; amount: Amount }>;
+  /**
+   * Total prize pool, when the room states it (Unibet prints `Total prize €4`).
+   *
+   * In `buyInUnit`, not chips. Absent when the room does not say; never derived,
+   * because a guess here would look identical to a stated figure.
+   */
+  prizePool?: Amount;
 }
 
 /** What actually left the player's account: prize pool + bounty + fee. */
@@ -819,6 +985,76 @@ export function runoutThroughStreet(board: PhfBoard, index: number, street: Stre
   }
 }
 
+/* ---------------------------------------------------------- chip movements - */
+
+/**
+ * Chips that move outside the ordinary bet path.
+ *
+ * PHF's chip model has exactly two flows: a seat puts chips into the pot, and
+ * the pot pays chips back out to seats less fees. Rooms run promotions that fit
+ * neither, and every one of them breaks an invariant if it is forced into the
+ * model that exists:
+ *
+ * - **House into the pot.** GG's `Cash Drop to Pot : total $0.2`, Run It Once's
+ *   `STP added: €0.50`. Attributing it to a seat corrupts that seat's `net`;
+ *   dropping it breaks chip conservation, because the pot is genuinely larger
+ *   than the sum of what the players put in; calling it a negative fee makes
+ *   the replayer pay out more than the pot holds.
+ * - **Seat to the house, bypassing the pot.** MicroGaming's
+ *   `BadBeatContribution`: a jackpot drop that leaves a stack and never becomes
+ *   part of the pot. It cannot be a `PhfFees` entry, because those are taken
+ *   *from* the pot and counting it there breaks the payout check. Left
+ *   unmodelled it silently leaves the contributor's replayed stack too high.
+ *
+ * Both are the same idea seen from opposite ends, so they get one type. The
+ * money is real and has to be accounted for; what makes it awkward is only that
+ * one end of the movement is not a seat.
+ *
+ * Deliberately *not* modelled as a `PhfAction`: `ActionType` is a closed union
+ * that consumers switch on, so extending it is a `phf/2` change, whereas an
+ * optional field here is additive. See `docs/PHF-SPEC.md` §5.
+ */
+export interface PhfChipMovement {
+  /**
+   * What the room called it, as a machine code: `splash-the-pot`,
+   * `cash-drop`, `bad-beat-drop`, `jackpot-drop`.
+   */
+  kind: string;
+  /** Seat the chips left, or null when the house supplied them. */
+  fromSeat: number | null;
+  /** Player name for `fromSeat`, or null. */
+  fromPlayer: string | null;
+  /**
+   * Whether the chips land in the pot.
+   *
+   * `true` means they count toward chip conservation and the pot the winners
+   * split; `false` means they leave the table entirely and only reduce a stack.
+   */
+  toPot: boolean;
+  amount: Amount;
+  /** Verbatim source line, so the text round-trips. */
+  raw: string | null;
+  /**
+   * Where the room printed it, which differs: GG puts the drop after the seat
+   * block and before the blinds, Run It Once after `*** HOLE CARDS ***`.
+   */
+  anchor: "before-postings" | "after-hole-cards";
+}
+
+/** Chips the house added to the pot, which nobody contributed. */
+export function houseIntoPot(hand: PhfHand): Amount {
+  return (hand.chipMovements ?? [])
+    .filter((movement) => movement.toPot && movement.fromSeat === null)
+    .reduce((sum, movement) => sum + movement.amount, 0);
+}
+
+/** Chips a seat paid out of its stack without them entering the pot. */
+export function seatOutOfPot(hand: PhfHand, seat: number): Amount {
+  return (hand.chipMovements ?? [])
+    .filter((movement) => !movement.toPot && movement.fromSeat === seat)
+    .reduce((sum, movement) => sum + movement.amount, 0);
+}
+
 /* ----------------------------------------------------------------- results - */
 
 /**
@@ -1054,6 +1290,11 @@ export interface PhfHand {
   tournament: PhfTournament | null;
   players: PhfPlayer[];
   actions: PhfAction[];
+  /**
+   * Promotional and jackpot chip movements that are not bets. Absent on the
+   * overwhelming majority of hands; see `PhfChipMovement`.
+   */
+  chipMovements?: PhfChipMovement[];
   board: PhfBoard;
   results: PhfResults;
   /** ISO timestamp the hand was dealt, or null when the source omits it. */

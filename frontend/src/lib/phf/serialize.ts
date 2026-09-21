@@ -26,6 +26,7 @@ import {
   resolveRunout,
   totalFees,
   unitForSymbol,
+  chipsUnitFor,
   ZERO_FEES,
   type ActionType,
   type Amount,
@@ -33,6 +34,7 @@ import {
   type DecimalStyle,
   type PhfAction,
   type PhfBoard,
+  type PhfChipMovement,
   type PhfFees,
   type PhfHand,
   type PhfPlayer,
@@ -240,6 +242,20 @@ function detectPadHour(payload: string): boolean {
 const GAME_LABEL_TAIL =
   /((?:Hold\s*'?\s*em|Omaha|Short\s*Deck|6\+|Stud|Razz|Draw|Badugi|Mixed|HORSE|8-Game)\b.*)$/i;
 
+/**
+ * A complete game label anchored to the end of the text: variant then limit.
+ *
+ * Tried before `GAME_LABEL_TAIL`, because the first variant keyword is often
+ * inside the tournament *name* rather than the label. GG writes
+ * `WSOP #77: $5,000 No Limit Hold'em Main Event [Flight W], $25M GTD Hold'em No Limit`
+ * - two money amounts and "Hold'em" twice - and splitting on the first match
+ * puts most of the name into the game label and loses the buy-in. The label is
+ * a closed vocabulary and always sits last, so matching it from the end is both
+ * correct and cheap.
+ */
+const GAME_LABEL_EXACT =
+  /((?:Mixed\s+)?(?:Hold\s*'?\s*em|Omaha(?:\s*Hi(?:\s*\/\s*Lo)?)?|Short\s*Deck|6\+\s*Hold\s*'?\s*em|Stud(?:\s*Hi(?:\s*\/\s*Lo)?)?|Razz|Badugi|HORSE|8-Game|PLO\d?|NLO\d?)\s+(?:No\s+Limit|Pot\s+Limit|Fixed\s+Limit|Limit))$/i;
+
 /** A printed buy-in: `$55`, `$4.50+$4.50+$1`, `£5.00+£0.50`, `Freeroll`. */
 const BUY_IN_TOKEN =
   /((?:[$€£₮]\s?[\d,]+(?:\.\d+)?(?:\s*\+\s*[$€£₮]?[\d,]+(?:\.\d+)?)*)|Freeroll)/i;
@@ -262,7 +278,10 @@ function splitTournamentBody(
   body: string,
   parenName: string | null,
 ): { name: string | null; buyInToken: string; gameLabel: string } {
-  const tail = body.match(GAME_LABEL_TAIL);
+  // End-anchored first; only fall back to the first keyword for labels that do
+  // not end in a limit phrase (`Omaha (NL postflop)`, PokerStars' split-limit
+  // `Hold'em Pot Limit Pre-Flop, No Limit Post-Flop`).
+  const tail = body.match(GAME_LABEL_EXACT) ?? body.match(GAME_LABEL_TAIL);
   const gameLabel = (tail ? tail[1] : body).trim();
   const namePart = (tail ? body.slice(0, body.length - tail[1].length) : "").trim();
   const buyInToken = namePart.match(BUY_IN_TOKEN)?.[1] ?? "";
@@ -270,7 +289,7 @@ function splitTournamentBody(
   return { name: parenName ?? inlineName, buyInToken, gameLabel };
 }
 
-function parseHeader(handId: string, payload: string): HeaderInfo {
+function parseHeader(handId: string, payload: string, sourceText = payload): HeaderInfo {
   const playedAt = parsePlayedAt(payload);
 
   // One regex for every dialect seen so far. The body between the id and the
@@ -279,19 +298,27 @@ function parseHeader(handId: string, payload: string): HeaderInfo {
   // split afterwards. `Level\s*` and `\s*\(` are loose because GG glues the
   // number to the word and sometimes to the parenthesis: `Level14(300/600)`.
   const tournamentMatch = payload.match(
-    /^Tournament\s*(?:\(([^]*?)\))?\s*#(\S+?),\s*(.+?)\s+-\s+Level\s*([IVXLCDM]+|\d+)\s*\(([^)]*)\)\s+-\s+(.*)$/,
+    /^Tournament\s*(?:\(([^]*?)\))?\s*#(\S+?),\s*(.+?)\s+-\s+(?:Level\s*([IVXLCDM]+|\d+)\s*)?\(([^)]*)\)\s+-\s+(.*)$/,
   );
   if (tournamentMatch) {
-    const [, parenName, tid, body, levelLabel, levelStakes] = tournamentMatch;
+    // The level clause is optional: Unibet states blinds but never a level, and
+    // writing `Level I` for a hand that has none fabricates data that reads
+    // back as level 1.
+    const [, parenName, tid, body, printedLevel, levelStakes] = tournamentMatch;
+    const levelLabel = printedLevel ?? null;
     const { name, buyInToken, gameLabel } = splitTournamentBody(body, parenName ?? null);
     const buyInSymbol = detectSymbol(buyInToken) || "$";
     const buyInUnit = unitForSymbol(buyInSymbol);
     // `$4.50+$4.50+$1` is prize pool + bounty + fee; `$15+$1.50` has no bounty.
     const buyInParts = parseBuyInToken(buyInToken, buyInUnit);
-    // Tournament stacks are chips even though the buy-in is real money.
-    const unit = unitForSymbol(detectSymbol(levelStakes));
+    // Tournament stacks are chips even though the buy-in is real money. Some
+    // structures deal fractional chips, which have to be detected from the
+    // hand rather than assumed away.
+    const stakesSymbol = detectSymbol(levelStakes);
+    const unit = stakesSymbol ? unitForSymbol(stakesSymbol) : chipsUnitFor(sourceText);
     const stakes = levelStakes.split("/");
-    const levelNumber = romanToNumber(levelLabel) ?? (Number(levelLabel) || null);
+    const levelNumber =
+      levelLabel === null ? null : (romanToNumber(levelLabel) ?? (Number(levelLabel) || null));
     return {
       handId,
       payload,
@@ -448,13 +475,14 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
   }
 
   const warnings: PhfWarning[] = [];
-  const header = parseHeader(headerMatch[1], headerMatch[2]);
+  const header = parseHeader(headerMatch[1], headerMatch[2], rawText);
   const unit = header.unit;
   const players: PhfPlayer[] = [];
   const playerByName = new Map<string, PhfPlayer>();
   const actions: PhfAction[] = [];
   const runouts: RunoutDraft[] = [{ flop: null, turn: null, river: null }];
   const summaryBoards = new Map<number, string[]>();
+  const chipMovements: PhfChipMovement[] = [];
   const markerLabels: Array<{ flop?: string; turn?: string; river?: string }> = [{}];
   const showdownLabels: string[] = [];
   const pots: Array<{ name: string; amount: Amount }> = [];
@@ -582,6 +610,25 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
       if (player.isHero) {
         heroName = name;
       }
+      continue;
+    }
+
+    // House money into the pot: GG writes `Cash Drop to Pot : total $0.2`,
+    // Run It Once `STP added: €0.50`. Nobody contributed it, so it is a chip
+    // movement rather than an action - see `PhfChipMovement`.
+    const dropMatch = trimmed.match(
+      new RegExp(String.raw`^(?:Cash Drop to Pot\s*:\s*total|STP added:)\s*${MONEY}$`),
+    );
+    if (dropMatch) {
+      chipMovements.push({
+        kind: /^STP/.test(trimmed) ? "splash-the-pot" : "cash-drop",
+        fromSeat: null,
+        fromPlayer: null,
+        toPot: true,
+        amount: parseAmount(dropMatch[1], unit),
+        raw: trimmed,
+        anchor: sawHoleCardsMarker ? "after-hole-cards" : "before-postings",
+      });
       continue;
     }
 
@@ -1018,7 +1065,11 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
   }
 
   if (totalPot === 0) {
-    totalPot = [...contributions.values()].reduce((sum, value) => sum + value, 0);
+    totalPot =
+      [...contributions.values()].reduce((sum, value) => sum + value, 0) +
+      chipMovements
+        .filter((movement) => movement.toPot)
+        .reduce((sum, movement) => sum + movement.amount, 0);
   }
 
   const results = buildResults({
@@ -1119,6 +1170,7 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
     tournament: header.tournament,
     players,
     actions,
+    ...(chipMovements.length > 0 ? { chipMovements } : {}),
     board,
     results,
     playedAt: header.playedAt,
@@ -1283,8 +1335,12 @@ const DEFAULT_FEE_COLUMNS = ["Rake", "Jackpot", "Bingo", "Fortune", "Tax"];
 const BLANK_DEALT_LINE = /^Dealt to (?!.*\[).*$/m;
 
 function inferGroupThousands(source: string): boolean {
-  // A grouped amount, not a comma in a screen name or in chat.
-  return /\d,\d{3}(?!\d)/.test(source);
+  // A grouped amount, not a comma in a screen name or in chat - and not one in
+  // the header, where a tournament *name* can carry its own money: GG's
+  // `WSOP #77: $5,000 ... $25M GTD` says nothing about how that hand prints
+  // stacks, and reading it as evidence groups every chip count in the hand.
+  const body = source.slice(source.indexOf("\n") + 1);
+  return /\d,\d{3}(?!\d)/.test(body);
 }
 
 function inferDealtLineTrailingSpace(source: string): boolean {
@@ -1464,6 +1520,18 @@ export function toStandardText(hand: PhfHand, options: SerializeOptions = {}): s
     );
   }
 
+  const drops = hand.chipMovements ?? [];
+  const emitDrops = (anchor: PhfChipMovement["anchor"]) => {
+    for (const movement of drops) {
+      if (movement.anchor !== anchor || !movement.raw) {
+        continue;
+      }
+      lines.push(movement.raw);
+    }
+  };
+
+  emitDrops("before-postings");
+
   const preDeal = hand.actions.filter(
     (action) =>
       action.type === "ante" ||
@@ -1478,6 +1546,7 @@ export function toStandardText(hand: PhfHand, options: SerializeOptions = {}): s
 
   if (hand.meta.textStyle.holeCardsSection) {
     lines.push("*** HOLE CARDS ***");
+    emitDrops("after-hole-cards");
     for (const player of [...hand.players].sort((a, b) => a.seat - b.seat)) {
       if (!player.dealtAnnounced) {
         continue;
@@ -1610,10 +1679,16 @@ function headerPayload(hand: PhfHand, style: ResolvedStyle): string {
     const buyInToken = parts.join("+");
 
     // `Level XI (…)` when the room numbers levels in roman, `Level14(…)` when
-    // it glues an arabic numeral to the word, which is what GG does.
-    const levelLabel = tour.levelLabel ?? numberToRoman(tour.levelNumber ?? 1);
-    const arabic = /^\d+$/.test(levelLabel);
-    const level = `Level${arabic ? "" : " "}${levelLabel}${style.levelParenSpace ? " " : ""}`;
+    // it glues an arabic numeral to the word, which is what GG does. A room
+    // that states no level at all gets no clause rather than an invented one.
+    const printedLevel =
+      tour.levelLabel ?? (tour.levelNumber === null ? null : numberToRoman(tour.levelNumber));
+    const level =
+      printedLevel === null
+        ? ""
+        : `Level${/^\d+$/.test(printedLevel) ? "" : " "}${printedLevel}${
+            style.levelParenSpace ? " " : ""
+          }`;
     const stakes = `(${digits(tour.levelSmallBlind)}/${digits(tour.levelBigBlind)})`;
 
     if (style.tournamentNameStyle === "parens") {

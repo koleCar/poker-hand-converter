@@ -96,6 +96,25 @@ function blindsFrom(stakesText: string, unit: CurrencyUnit): { sb: Amount; bb: A
   return { sb: parseAmount(match[1], unit), bb: parseAmount(match[2], unit) };
 }
 
+/**
+ * The seat that must hold the button, given who posted the small blind.
+ *
+ * Heads-up the button *is* the small blind; otherwise it is the occupied seat
+ * immediately before it, wrapping round the table. Returns null when there is
+ * nothing to go on.
+ */
+function buttonBeforeSmallBlind(seats: number[], smallBlindSeat: number | null): number | null {
+  if (smallBlindSeat === null || seats.length < 2) {
+    return null;
+  }
+  const sorted = [...seats].sort((a, b) => a - b);
+  const index = sorted.indexOf(smallBlindSeat);
+  if (index < 0) {
+    return null;
+  }
+  return sorted.length === 2 ? smallBlindSeat : sorted[(index - 1 + sorted.length) % sorted.length];
+}
+
 /** `Hold'em No Limit ($0.5/$1 USD) - 2021/03/19 19:51:54 UTC` */
 function parseStarsHeader(line: string): { handId: string; payload: string; game: DraftGame } | null {
   const match = line.match(STARS_HEADER_REGEX);
@@ -178,25 +197,45 @@ function parseStarsDialect(raw: string, ctx: SiteParserContext): PhfHand {
   });
 
   const body = parseStarsFamilyBody(lines, draft, header.game.unit);
+  const { tableName, maxSeats } = body;
 
   if (draft.playerCount() === 0) {
     throw new ParseSkip("no-seat-block", "The hand lists no seats, so nobody can be attributed.");
   }
   // The one confirmed hand puts the button on seat 2 of a table whose occupied
-  // seats are 1, 3, 4, 5 and 6, while its dialect-A twin says seat 1 - so this
-  // converter's button number is not reliable. It is kept exactly as printed
-  // rather than re-derived: `assignPositions` in the core anchors the ring on
-  // the posted blinds, so the positions come out right regardless, and quietly
-  // rewriting the source would hide a converter bug worth seeing.
+  // seats are 1, 3, 4, 5 and 6, while its dialect-A twin - the same hand through
+  // a different converter - says seat 1. So this converter's button number is
+  // not reliable, and leaving it is not the harmless option it looks like: the
+  // core reads a button on an unoccupied seat as a *dead* button, names no live
+  // seat BTN, and shifts everyone behind it, so seat 1 comes out as the cutoff.
+  //
+  // A dead button and a made-up seat number look identical in one export, so the
+  // correction is deliberately narrow: only when a small blind was posted, and
+  // only to the seat that must hold the button if it was - the occupied seat
+  // immediately before the small blind, or the small blind itself heads-up. The
+  // printed number is kept in the warning so the source's claim is never lost.
+  // A genuine dead button on this converter would be rewritten by this rule; no
+  // such sample exists, and the dialect-A twin is what says this one is not one.
   if (body.buttonSeat !== null && !body.seats.includes(body.buttonSeat)) {
+    const derived = buttonBeforeSmallBlind(body.seats, body.smallBlindSeat);
     draft.warn(
       "button-seat-empty",
-      `The table line puts the button on seat ${body.buttonSeat}, which nobody occupies; ` +
-        "the seat number is kept as printed and the ring is resolved from the blinds.",
+      `The table line puts the button on seat ${body.buttonSeat}, which nobody occupies` +
+        (derived === null
+          ? "; no small blind was posted, so the button is left as printed."
+          : `; it was read as seat ${derived}, the seat before the small blind.`),
     );
+    if (derived !== null) {
+      draft.setTable(tableName, maxSeats, derived);
+    }
   }
 
   const hand = draft.build();
+  // Promotional chips the room put in itself. They are not actions - nobody
+  // contributed them - and the validator counts them into the pot separately.
+  if (body.chipMovements.length > 0) {
+    hand.chipMovements = body.chipMovements;
+  }
   const seated = draft.seatedNames();
   const stranger = hand.actions.find((action) => !seated.has(action.player));
   if (stranger) {

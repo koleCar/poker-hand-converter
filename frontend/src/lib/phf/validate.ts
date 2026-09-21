@@ -245,14 +245,46 @@ export function validateHand(hand: PhfHand): ValidationReport {
     }
   }
 
-  const totalIn = [...contributed.values()].reduce((sum, value) => sum + value, 0);
+  // Promotional chips the house dropped in are part of the pot but nobody's
+  // contribution; jackpot drops leave a stack without ever reaching the pot.
+  for (const movement of hand.chipMovements ?? []) {
+    if (movement.amount <= 0) {
+      warn("empty-chip-movement", `A ${movement.kind} movement carries no chips.`);
+    }
+    if (movement.fromSeat === null) {
+      continue;
+    }
+    if (!seatNumbers.has(movement.fromSeat)) {
+      error(
+        "unseated-chip-movement",
+        `A ${movement.kind} movement charges seat ${movement.fromSeat}, which is empty.`,
+        { seat: movement.fromSeat },
+      );
+      continue;
+    }
+    if (!movement.toPot && movement.fromPlayer) {
+      const stack = stacks.get(movement.fromPlayer);
+      if (stack !== undefined) {
+        stacks.set(movement.fromPlayer, stack - movement.amount);
+      }
+    }
+  }
+
+  const houseIntoPot = (hand.chipMovements ?? [])
+    .filter((movement) => movement.toPot)
+    .reduce((sum, movement) => sum + movement.amount, 0);
+
+  const totalIn =
+    houseIntoPot + [...contributed.values()].reduce((sum, value) => sum + value, 0);
   const totalOut = [...collected.values()].reduce((sum, value) => sum + value, 0);
   const fees = totalFees(hand.results.fees);
 
   if (Math.abs(totalIn - hand.results.totalPot) > TOLERANCE) {
+    const promo = houseIntoPot ? ` (including ${houseIntoPot} the house added)` : "";
     error(
       "chip-mismatch",
-      `Players put in ${totalIn} but the hand reports a pot of ${hand.results.totalPot}.`,
+      `Players put in ${totalIn}${promo} but the hand reports a pot of ` +
+        `${hand.results.totalPot}.`,
       { in: totalIn, pot: hand.results.totalPot },
     );
   }

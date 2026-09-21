@@ -4,6 +4,7 @@ import { convertAny } from "../../frontend/src/lib/parsers/index.js";
 import { parseStandardHand, splitStandardHands } from "../../frontend/src/lib/phf/serialize.js";
 import {
   assignPositions,
+  hasDeadButton,
   positionRing,
   resolvePositions,
   type PhfHand,
@@ -189,12 +190,28 @@ describe("assignPositions (from the hand itself)", () => {
     expect(hand.table.buttonSeat).toBe(4);
   });
 
-  it("resolves a dead button from the posted blinds", () => {
+  it("resolves a dead button from the posted blinds, and names no button", () => {
     // Seat 3 holds the button but nobody is sitting there. Geometry alone
     // returns nothing at all here; the blinds still pin the ring.
+    //
+    // No live seat is labelled BTN, because none of them is on the button. The
+    // rotation still has that slot, so three live players behind a dead button
+    // are SB, BB and CO - seat 1 sits immediately before the dead button, which
+    // is the cutoff. CoinPoker states this outright in its own summary: on a
+    // hand whose button seat is `out of hand`, it prints `(button)` on that
+    // dead seat and not on any live one.
     const hand = parse(DEAD_BUTTON);
-    expect(hand.players.some((player) => player.seat === hand.table.buttonSeat)).toBe(false);
-    expect(positionsOf(hand)).toEqual({ 4: "SB", 5: "BB", 1: "BTN" });
+    expect(hasDeadButton(hand)).toBe(true);
+    expect(positionsOf(hand)).toEqual({ 4: "SB", 5: "BB", 1: "CO" });
+    expect(Object.values(positionsOf(hand))).not.toContain("BTN");
+    // The button itself is not lost - it was never a position.
+    expect(hand.table.buttonSeat).toBe(3);
+  });
+
+  it("does not call a live button dead", () => {
+    const hand = parse(SEATED_NOT_DEALT_IN);
+    expect(hasDeadButton(hand)).toBe(false);
+    expect(positionsOf(hand)).toEqual({ 1: "SB", 2: "BB", 4: "BTN", 3: null });
   });
 
   it("ignores a seated player who was never dealt in", () => {

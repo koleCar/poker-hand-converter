@@ -29,10 +29,15 @@
  *   statement of who won is the SUMMARY block.
  * - **`Total pot | Rake` is printed once per pot component, in and out of the
  *   summary block**, and the rake figure repeated on each one is the *hand*
- *   total, not that pot's share. A hand with a side pot prints two, and the
- *   research note that "only the last one is the grand total" is wrong: in
- *   `winner.no.show` the last one is the main pot and the earlier one is the
- *   side pot. They are summed and checked against the payouts instead.
+ *   total, not that pot's share. The pot figures are unusable as a payout total:
+ *   the research note that "only the last one is the grand total" is wrong (in
+ *   `winner.no.show` the last one is the main pot and the earlier one the side
+ *   pot), and summing them double-counts the 2011 corpus, which prints the
+ *   identical line twice in one summary. Only the rake is read from them, and
+ *   it is what every other number in the hand is reconciled against.
+ * - **`post dead` under-reports by a small blind**, silently. See the comment
+ *   at the call site; it is the one inference in this parser, and the printed
+ *   rake confirms it hand by hand.
  * - **The first raise of a street repeats itself**: `raises 120.00 to 120.00`
  *   where the blind was 60. The "by" field is a genuine site bug; only the "to"
  *   field is read and the "by" is recomputed from the betting state.
@@ -186,6 +191,13 @@ export const chicoParser: SiteParser = {
       unit = CHIPS;
     } else if (playMoney) {
       unit = PLAY_CHIPS;
+      // The standard text has no way to say "play money" - the amounts come back
+      // out as plain chips - so the flag is carried as a warning instead. A
+      // play-money hand mixed into a real-money win rate is a silent lie.
+      warnings.push({
+        code: "play-money-table",
+        message: "The table is flagged as play money, so the amounts are not real currency.",
+      });
     } else {
       unit = USD;
       if (!/[$€£]/.test(spec)) {
@@ -244,6 +256,13 @@ export const chicoParser: SiteParser = {
     const actions: P6Action[] = [];
     const acted = new Set<string>();
     const printedUncalled: Array<{ player: string; amount: Amount }> = [];
+    const deadPosts: P6Action[] = [];
+    /**
+     * The `Total pot` figures, kept only as evidence that the hand finished.
+     *
+     * Their *values* are not used: see the file header. One real file simply
+     * stops mid-hand, and the absence of any pot line is what says so.
+     */
     const potComponents: Amount[] = [];
     const summaryShown = new Map<number, string[]>();
     const summaryWon = new Map<number, Amount>();
@@ -255,7 +274,6 @@ export const chicoParser: SiteParser = {
     let river: string | null = null;
     let summaryBoard: string[] | null = null;
     let inSummary = false;
-    let heroName: string | null = null;
 
     const names: string[] = [];
     const nameOf = (line: string, separator: string): string | null =>
@@ -377,6 +395,17 @@ export const chicoParser: SiteParser = {
       }
 
       if (inSummary) {
+        // Some hands print an inline reveal *after* the summary marker.
+        const lateShow = nameOf(line, " shows ");
+        if (lateShow) {
+          const cards = cardsIn(line.slice(lateShow.length + " shows ".length));
+          if (!inlineShown.has(lateShow)) {
+            inlineShown.add(lateShow);
+            acted.add(lateShow);
+            actions.push({ street, player: lateShow, kind: "show", cards, line: lineNo });
+          }
+          continue;
+        }
         const summarySeat = line.match(/^Seat (\d+): (.*)$/);
         if (summarySeat) {
           const number = Number(summarySeat[1]);
@@ -402,7 +431,6 @@ export const chicoParser: SiteParser = {
         const owner = requireSeat(dealt[1].trim(), lineNo);
         owner.isHero = true;
         owner.dealtCards = cardsIn(dealt[2]);
-        heroName = owner.name;
         continue;
       }
 
@@ -429,6 +457,17 @@ export const chicoParser: SiteParser = {
 
       const actor = nameOf(line, ": ");
       if (!actor) {
+        // `Unknown player: raises 15.75 to 18.75 and is all in` is a real,
+        // confirmed sentinel this network emits when it could not attribute an
+        // action to a seat. Letting it fall through to `unknown-line` would drop
+        // the chips silently, so a line that is unmistakably an action from
+        // somebody who is not seated refuses the hand.
+        if (/^.+?: (?:folds|checks|calls|bets|raises|posts?|ante)\b/i.test(line)) {
+          throw new ParseSkip(
+            "unseated-actor",
+            `Line ${lineNo} is an action by somebody who is not in the seat list: "${line}".`,
+          );
+        }
         warnings.push({ code: "unknown-line", message: line, line: lineNo });
         continue;
       }
@@ -469,16 +508,20 @@ export const chicoParser: SiteParser = {
       // `post now` is a player catching up to the current bet mid-orbit;
       // `post dead` is the network's dead-blind form. Both are live money that
       // does not move the blind ring.
-      const post = verb.match(/^posts? (?:now|dead) ([\d.,]+)$/i);
+      const post = verb.match(/^posts? (now|dead) ([\d.,]+)$/i);
       if (post) {
-        actions.push({
+        const entry: P6Action = {
           street: "preflop",
           player: actor,
           kind: "post",
-          amount: readStake(post[1], lineNo),
+          amount: readStake(post[2], lineNo),
           allIn,
           line: lineNo,
-        });
+        };
+        actions.push(entry);
+        if (/^dead$/i.test(post[1])) {
+          deadPosts.push(entry);
+        }
         continue;
       }
 
@@ -558,6 +601,24 @@ export const chicoParser: SiteParser = {
     }
     if (potComponents.length === 0) {
       throw new ParseSkip("truncated-hand", "The hand has no readable `Total pot` line.");
+    }
+
+    // `post dead X` under-reports what the player was charged. In both real
+    // hands in the corpus that contain one, the pot comes out short by exactly
+    // the small blind:
+    //
+    //   `post dead 0.50` at 0.25/0.50 -> derived rake 0.53 against a printed 0.78
+    //   `post dead 0.00` at 0.25/0.50 -> derived rake 2.01 against a printed 2.26
+    //
+    // which is the ordinary "big blind live, small blind dead" entry fee with
+    // only the live half written down. The dead half is added back here and the
+    // inference is then checked per hand against the rake the site printed, so a
+    // `post dead` that does not reconcile is refused rather than stored.
+    if (deadPosts.length > 0) {
+      const postedSmallBlind = actions.find((entry) => entry.kind === "small-blind")?.amount ?? 0;
+      for (const entry of deadPosts) {
+        entry.dead = postedSmallBlind;
+      }
     }
 
     // The header is not evidence of the variant on this network: a whole file of
@@ -666,7 +727,6 @@ export const chicoParser: SiteParser = {
     for (const seat of seats) {
       seat.dealtIn = acted.has(seat.name);
     }
-    void heroName;
 
     const stakes = tournamentMatch
       ? { small: readAmount(tournamentMatch[3], 1), big: readAmount(tournamentMatch[4], 1) }
@@ -708,12 +768,16 @@ export const chicoParser: SiteParser = {
       collectedIncludesUncalled: false,
       printedUncalled,
       reportedGross: null,
-      // Every `Total pot` component the hand printed. Side-pot hands print one
-      // per pot and the sum is what the seats between them should add up to.
-      reportedPayout: potComponents.reduce((sum, value) => sum + value, 0),
-      // A hand that prints pot lines with no rake token took no rake, which is
-      // normal for a tournament; asserting zero is stricter than assuming
-      // nothing and has held over every fixture.
+      reportedPayout: null,
+      // The `Total pot` figures are deliberately *not* used as a payout total.
+      // They are unusable as one: a side-pot hand prints one line per pot
+      // (0.42 and 0.29 for a 0.71 payout), while the 2011 cash corpus prints the
+      // identical line twice inside one summary block. Summing them
+      // double-counts the second case and taking the last one under-reports the
+      // first. The rake, which every one of those lines repeats identically and
+      // which is the hand total rather than that pot's share, carries the same
+      // information without the ambiguity: if a payout line is missing, the
+      // derived rake comes out too big by exactly the missing amount.
       reportedRake: reportedRake ?? 0,
       rawText: text,
       warnings,

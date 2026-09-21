@@ -95,6 +95,13 @@ export interface P6Action {
    * street. Every other verb on both sites states an increment.
    */
   toTotal?: boolean;
+  /**
+   * Chips added alongside `amount` that do *not* count toward the street bet.
+   *
+   * Chico's `post dead` is a live post plus a dead small blind that the line
+   * never states; see `parsers/chico.ts` for the arithmetic that establishes it.
+   */
+  dead?: Amount;
   /** The source flagged the action as all-in. */
   allIn?: boolean;
   /** Cards a `show` / `muck` revealed. */
@@ -230,12 +237,12 @@ function replayActions(draft: P6Draft): Replay {
 
   let state: StreetState = { street: "preflop", commit: new Map(), bet: 0 };
 
-  const put = (player: string, live: Amount): Amount => {
+  const put = (player: string, live: Amount, dead = 0): Amount => {
     const next = (state.commit.get(player) ?? 0) + live;
     state.commit.set(player, next);
     state.bet = Math.max(state.bet, next);
-    contributed.set(player, (contributed.get(player) ?? 0) + live);
-    gross += live;
+    contributed.set(player, (contributed.get(player) ?? 0) + live + dead);
+    gross += live + dead;
     return next;
   };
 
@@ -266,6 +273,15 @@ function replayActions(draft: P6Draft): Replay {
     const amount = action.toTotal
       ? Math.max(0, (action.amount ?? 0) - already)
       : (action.amount ?? 0);
+    const dead = action.dead ?? 0;
+    if (dead > 0) {
+      // Dead money rides on the same source line, and the standard text has no
+      // "+ dead" form, so it is re-emitted as a missed blind: `parseStandardHand`
+      // reads that as chips in the pot that do not count toward the street bet,
+      // which is exactly what dead money is. It goes first because the blind
+      // block is grouped ahead of the deal on the way back out.
+      out.push(`${action.player}: posts missed blind ${money(dead, unit, decimals)}`);
+    }
 
     switch (action.kind) {
       case "ante":
@@ -277,18 +293,23 @@ function replayActions(draft: P6Draft): Replay {
       case "small-blind":
         smallBlind = Math.max(smallBlind, amount);
         blindPosters.small ??= action.player;
-        put(action.player, amount);
+        put(action.player, amount, dead);
         out.push(`${action.player}: posts small blind ${money(amount, unit, decimals)}${allIn}`);
         break;
       case "big-blind":
         bigBlind = Math.max(bigBlind, amount);
         blindPosters.big ??= action.player;
-        put(action.player, amount);
+        put(action.player, amount, dead);
         out.push(`${action.player}: posts big blind ${money(amount, unit, decimals)}${allIn}`);
         break;
       case "post":
-        put(action.player, amount);
-        out.push(`${action.player}: posts ${money(amount, unit, decimals)}${allIn}`);
+        put(action.player, amount, dead);
+        // A post that is nothing but dead money - one real Chico hand posts a
+        // dead small blind and no live chips at all - has already been written
+        // out as the missed blind above.
+        if (amount > 0) {
+          out.push(`${action.player}: posts ${money(amount, unit, decimals)}${allIn}`);
+        }
         break;
       case "fold":
         folded.set(action.player, action.street);
@@ -555,6 +576,13 @@ export function p6ToStandardText(draft: P6Draft): string {
   for (const seat of seats) {
     if (seat.dealtCards.length > 0) {
       lines.push(`Dealt to ${seat.name} [${seat.dealtCards.join(" ")}]`);
+    } else if (seat.isHero) {
+      // Both rooms identify the hero only by printing a deal line for it, and
+      // both sometimes print that line with no cards on it (an export taken from
+      // an observed table). The bare line is re-emitted so that
+      // `dealtAnnounced` survives, which is the only part of it the standard
+      // text can carry.
+      lines.push(`Dealt to ${seat.name}`);
     }
   }
   lines.push(...preflopBody);
@@ -716,19 +744,13 @@ export function buildP6Hand(draft: P6Draft, ctx: SiteParserContext): PhfHand {
     );
   }
 
-  // Both rooms identify the hero only through the deal line, and a deal line
-  // with no cards on it (Chico prints `Dealt to Hero []` when the export was
-  // made from an observed table) leaves nothing for the standard parser to key
-  // off, so the flag is restated here.
-  const heroName = dealtIn.find((seat) => seat.isHero)?.name ?? null;
-  if (heroName) {
-    for (const player of hand.players) {
-      player.isHero = player.name === heroName;
-    }
-    const result = hand.results.players.find((entry) => entry.player === heroName);
-    hand.results.heroNet = result ? result.net : hand.results.heroNet;
-  }
-
+  // `isHero` is deliberately *not* restated here. Standard text can only say
+  // "this seat is the hero" by printing its hole cards or by naming it `Hero`,
+  // so a hero whose cards were never shown - a real case on both rooms, where
+  // the export was taken from an observed table - cannot survive
+  // `toStandardText` -> `parseStandardHand`. Setting the flag anyway would make
+  // this parser's output fail its own round-trip test, which is a worse trade
+  // than a hand with no hero marked. See the report for the format gap.
   hand.meta.rawText = draft.rawText;
   hand.meta.warnings = [...draft.warnings, ...hand.meta.warnings];
   hand.meta.handKey = hand.meta.handId;

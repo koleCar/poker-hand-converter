@@ -538,12 +538,21 @@ describe("coinpoker positions", () => {
     },
   );
 
-  it("moves the button to the last live seat when it is dead (fixture 14)", () => {
+  it("names no button when the button seat is dead (fixture 14)", () => {
+    // Was `expect(seat 1).toBe("BTN")`, from when `positionRing` insisted on
+    // naming a button whether or not a live seat was on one. CoinPoker settles
+    // it in its own summary:
+    //
+    //   Seat 2: Vir9Howei (button) folded before Flop (didn't bet)
+    //
+    // Seat 2 is `out of hand` and never acts, yet the room still calls *it* the
+    // button - it does not move to the last live seat. So no live seat is BTN,
+    // and seat 1, which sits immediately before the dead button, is the cutoff.
     const hand = fixture("14");
     expect(hand.table.buttonSeat).toBe(2);
-    // Seat 2 is `out of hand` and never acts, so it gets no position at all.
     expect(hand.players.find((p) => p.seat === 2)?.position).toBeNull();
-    expect(hand.players.find((p) => p.seat === 1)?.position).toBe("BTN");
+    expect(hand.players.find((p) => p.seat === 1)?.position).toBe("CO");
+    expect(hand.players.map((p) => p.position)).not.toContain("BTN");
   });
 });
 

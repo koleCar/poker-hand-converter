@@ -152,8 +152,25 @@ export interface P5Draft {
    * tell which, so storing either would be storing a guess.
    */
   statedPot: Amount | null;
-  /** The rake as the source stated it, or null to take pot minus payouts. */
+  /**
+   * The rake as the source stated it, or null to call the whole shortfall rake.
+   *
+   * What the pot loses between the contributions and the payouts is not always
+   * all rake. WPN's older jackpot tables take a flat $0.25 jackpot drop and
+   * print only `Pot: 7.73. Rake 0.41` - the drop is real money leaving the pot
+   * and is simply not itemized. Anything above the stated rake is therefore
+   * booked as a jackpot fee rather than folded into the rake, which keeps
+   * win-rate maths able to add the promotional part back.
+   */
   statedRake: Amount | null;
+  /**
+   * Per-player totals the source reports independently of its action lines,
+   * i.e. WPN's `Bets: 12.` summary column. When present every one of them has
+   * to agree with the replay or the hand is refused: a disagreement means an
+   * action line was misread, which is exactly the failure that produces a
+   * plausible-looking wrong hand.
+   */
+  statedContributions: Map<string, Amount> | null;
   /** Cards each seat held, when the source revealed them outside the deal. */
   holeCards: Map<string, string[]>;
   rawText: string;
@@ -184,6 +201,8 @@ interface Replay {
   preDeal: string[];
   /** Everything every player put in, dead money and uncalled returns included. */
   gross: Amount;
+  /** The same total, per player, for cross-checking against the source. */
+  contributed: Map<string, Amount>;
   folded: Map<string, P5Street>;
   voluntary: Set<string>;
   blindPosters: { small: string | null; big: string | null };
@@ -214,6 +233,7 @@ function replayActions(draft: P5Draft): Replay {
   const shows: Replay["shows"] = [];
   const mucks: Replay["mucks"] = [];
   const blindPosters: Replay["blindPosters"] = { small: null, big: null };
+  const contributed = new Map<string, Amount>();
   let gross = 0;
   let lastStreet: P5Street = "preflop";
 
@@ -221,12 +241,17 @@ function replayActions(draft: P5Draft): Replay {
   let commit = new Map<string, Amount>();
   let bet: Amount = 0;
 
+  const bank = (player: string, amount: Amount): void => {
+    contributed.set(player, (contributed.get(player) ?? 0) + amount);
+    gross += amount;
+  };
+
   /** Puts `live` toward the street bet and `dead` straight into the pot. */
   const put = (player: string, live: Amount, dead: Amount): Amount => {
     const next = (commit.get(player) ?? 0) + live;
     commit.set(player, next);
     bet = Math.max(bet, next);
-    gross += live + dead;
+    bank(player, live + dead);
     return next;
   };
 
@@ -274,7 +299,7 @@ function replayActions(draft: P5Draft): Replay {
     switch (action.kind) {
       case "ante":
         // Antes never count toward the street bet, so they are pure dead money.
-        gross += amount;
+        bank(action.player, amount);
         out.push(`${action.player}: posts the ante ${money(amount, unit, decimals)}${allIn}`);
         break;
       case "small-blind":
@@ -299,7 +324,11 @@ function replayActions(draft: P5Draft): Replay {
           preDeal.push(`${action.player}: posts missed blind ${money(dead, unit, decimals)}`);
         }
         put(action.player, amount, dead);
-        out.push(`${action.player}: posts ${money(amount, unit, decimals)}${allIn}`);
+        // WPN splits a dead+live post across two lines and prints the dead half
+        // on its own, so a post can be pure dead money with nothing live in it.
+        if (amount > 0 || dead === 0) {
+          out.push(`${action.player}: posts ${money(amount, unit, decimals)}${allIn}`);
+        }
         break;
       case "fold":
         folded.set(action.player, street);
@@ -342,7 +371,7 @@ function replayActions(draft: P5Draft): Replay {
         // The source states the return, so it is replayed rather than derived.
         const returned = action.amount ?? 0;
         commit.set(action.player, already - returned);
-        gross -= returned;
+        bank(action.player, -returned);
         out.push(
           `Uncalled bet (${money(returned, unit, decimals)}) returned to ${action.player}`,
         );
@@ -351,7 +380,18 @@ function replayActions(draft: P5Draft): Replay {
     }
   }
 
-  return { lines, preDeal, gross, folded, voluntary, blindPosters, shows, mucks, lastStreet };
+  return {
+    lines,
+    preDeal,
+    gross,
+    contributed,
+    folded,
+    voluntary,
+    blindPosters,
+    shows,
+    mucks,
+    lastStreet,
+  };
 }
 
 /* ------------------------------------------------------------------ summary - */
@@ -414,13 +454,30 @@ export function p5DraftToStandardText(draft: P5Draft): string {
       `The hand puts ${totalPot} in the pot but never says who collected it.`,
     );
   }
-  const rake = draft.statedRake ?? totalPot - paidOut;
-  if (rake < -TOLERANCE) {
+  const shortfall = totalPot - paidOut;
+  if (shortfall < -TOLERANCE) {
     throw new ParseSkip(
       "inconsistent-pot",
       `Winners collected ${paidOut} out of a pot of ${totalPot}, which leaves a ` +
-        `negative rake of ${rake}.`,
+        `negative rake of ${shortfall}.`,
     );
+  }
+  // Anything the pot lost beyond the stated rake is an unitemized jackpot drop;
+  // see `statedRake`. With no stated rake the whole shortfall is rake.
+  const rake = draft.statedRake === null ? shortfall : Math.min(draft.statedRake, shortfall);
+  const jackpot = Math.max(0, shortfall - rake);
+
+  if (draft.statedContributions) {
+    for (const [player, stated] of draft.statedContributions) {
+      const actual = replay.contributed.get(player) ?? 0;
+      if (Math.abs(actual - stated) > TOLERANCE) {
+        throw new ParseSkip(
+          "contribution-mismatch",
+          `${player} is reported to have put in ${stated} but the action stream ` +
+            `replays to ${actual}.`,
+        );
+      }
+    }
   }
 
   const stakes = `${money(draft.smallBlind, unit, decimals)}/${money(draft.bigBlind, unit, decimals)}`;
@@ -496,7 +553,7 @@ export function p5DraftToStandardText(draft: P5Draft): string {
   const zero = money(0, unit, decimals);
   lines.push(
     `Total pot ${money(totalPot, unit, decimals)} | Rake ${money(Math.max(0, rake), unit, decimals)} | ` +
-      `Jackpot ${zero} | Bingo ${zero} | Fortune ${zero} | Tax ${zero}`,
+      `Jackpot ${money(jackpot, unit, decimals)} | Bingo ${zero} | Fortune ${zero} | Tax ${zero}`,
   );
   if (board.length > 0) {
     lines.push(`Board [${board.join(" ")}]`);

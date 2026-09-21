@@ -266,19 +266,18 @@ describe("GGPoker corpus", () => {
     expect(compared).toBeGreaterThan(400);
   });
 
-  it("reads every GG tournament header, including the one the generic reader still splits wrongly", () => {
-    // `parseStandardHand` has since learned GG's tournament header and now
-    // agrees on most of them. It still splits the name from the game label at
-    // the first money token, which is only safe while the name contains one
-    // amount and no game words. Fixture 30's name contains both:
+  it("reads every GG tournament header, including the hardest one in the corpus", () => {
+    // The hardest is fixture 30, whose *name* contains the phrase
+    // "No Limit Hold'em" and a second money amount:
     //
     //   `Tournament #9364957, WSOP #77: $5,000 No Limit Hold'em Main Event [Flight W], $25M GTD Hold'em No Limit - Level10 (1,000/2,000)`
     //
-    // so it reads the name as `WSOP #77: $5,000 No Limit` and the game label as
-    // `Hold'em Main Event [Flight W], $25M GTD Hold'em No Limit`. This parser
-    // matches the game label from the *end* - it is a closed vocabulary and
-    // always sits last - and gets both right. That is the remaining reason GG
-    // tournaments have to route here rather than to the generic reader.
+    // Splitting it on the first money token puts most of the name into the game
+    // label. Matching the game label from the *end* - it is a closed vocabulary
+    // and always sits last - gets both right. The generic reader used to fail
+    // this and has since adopted the same approach (`GAME_LABEL_EXACT` in
+    // `phf/serialize.ts`), so the two now agree; the assertion below is kept
+    // pointing at the header that proved the rule.
     const tournaments = PARSED.filter((entry) => entry.hand?.tournament);
     expect(tournaments.length).toBeGreaterThan(50);
     for (const entry of tournaments) {
@@ -295,10 +294,38 @@ describe("GGPoker corpus", () => {
       PARSED.find((entry) => entry.hand?.meta.handId === "TM316262814")!.raw,
       { siteId: "standard", siteName: "standard", originalFilename: null },
     );
-    expect(standard!.game.label).not.toBe(wsop.game.label);
-    expect(detectSite(PARSED.find((e) => e.hand?.meta.handId === "TM316262814")!.raw)[0]?.parser.id).toBe(
-      "ggpoker",
-    );
+    expect(standard!.game.label).toBe(wsop.game.label);
+  });
+
+  it("still has to win detection on GG hands, for the variant policy", () => {
+    // The two readers now agree on every hand they both accept, so parsing
+    // alone is no longer the reason GG uploads route here. The reason is what
+    // happens to the hands this parser *refuses*: the generic reader has no
+    // variant policy, so on the exact same bytes it emits ShortDeck and Omaha
+    // hands that validate cleanly and would be stored as if they were
+    // supported. Round one is Hold'em only, and a wrong hand is worse than a
+    // refused one, so detection has to keep sending GG text to the parser that
+    // says no.
+    let bothAccept = 0;
+    let weRefuseTheyDont = 0;
+    for (const entry of PARSED) {
+      const standard = parseStandardHand(entry.raw, {
+        siteId: "standard",
+        siteName: "standard",
+        originalFilename: null,
+      });
+      if (entry.hand) {
+        bothAccept += 1;
+        continue;
+      }
+      if (entry.skip && standard && validateHand(standard).ok) {
+        weRefuseTheyDont += 1;
+        expect(entry.skip.reason).toBe("unsupported-variant");
+        expect(standard.game.variant).not.toBe("holdem");
+      }
+    }
+    expect(bothAccept).toBeGreaterThan(400);
+    expect(weRefuseTheyDont).toBeGreaterThan(100);
   });
 
   it("replays every hand without a negative stack and pays the pot out", () => {
@@ -584,6 +611,26 @@ describe("GGPoker products not covered by the reference corpus", () => {
  * 11-32), every one of which a parser built against `gg-hh/` alone gets wrong.
  */
 describe("GGPoker shapes the reference corpus does not contain", () => {
+  const CASH_DROP_HAND = [
+      "Poker Hand #RC58843004: Hold'em No Limit ($0.01/$0.02) - 2021/04/12 07:43:21",
+      "Table 'RushAndCash328990' 6-max Seat #1 is the button",
+      "Seat 1: 9d7f4cb8 ($3.26 in chips)",
+      "Seat 2: 8d962552 ($2 in chips)",
+      "Cash Drop to Pot : total $0.2",
+      "8d962552: posts small blind $0.01",
+      "9d7f4cb8: posts big blind $0.02",
+      "*** HOLE CARDS ***",
+      "Dealt to 9d7f4cb8 ",
+      "Dealt to 8d962552 ",
+      "8d962552: folds",
+      "Uncalled bet ($0.01) returned to 9d7f4cb8",
+      "9d7f4cb8 collected $0.22 from pot",
+      "*** SUMMARY ***",
+      "Total pot $0.22 | Rake $0",
+      "Seat 1: 9d7f4cb8 (big blind) collected ($0.22)",
+      "Seat 2: 8d962552 (small blind) folded before Flop",
+    ].join("\n");
+
   function firstHandOf(prefix: string): string {
     const file = sampleFiles("ggpoker").find((entry) => entry.name.startsWith(prefix));
     if (!file) {
@@ -661,35 +708,56 @@ describe("GGPoker shapes the reference corpus does not contain", () => {
     }
   });
 
-  it("refuses a hand the house dropped chips into", () => {
+  it("accounts for a house-funded cash drop instead of refusing the hand", () => {
     // `Cash Drop to Pot : total $0.2` puts money in the pot that came from no
-    // player, so no seat can honestly be credited with it and the contributions
-    // can never sum to the reported pot. Refusing is the only honest option.
-    const hand = [
-      "Poker Hand #RC58843004: Hold'em No Limit ($0.01/$0.02) - 2021/04/12 07:43:21",
-      "Table 'RushAndCash328990' 6-max Seat #1 is the button",
-      "Seat 1: 9d7f4cb8 ($3.26 in chips)",
-      "Seat 2: 8d962552 ($2 in chips)",
-      "Cash Drop to Pot : total $0.2",
-      "8d962552: posts small blind $0.01",
-      "9d7f4cb8: posts big blind $0.02",
-      "*** HOLE CARDS ***",
-      "Dealt to 9d7f4cb8 ",
-      "Dealt to 8d962552 ",
-      "8d962552: folds",
-      "Uncalled bet ($0.01) returned to 9d7f4cb8",
-      "9d7f4cb8 collected $0.22 from pot",
-      "*** SUMMARY ***",
-      "Total pot $0.22 | Rake $0",
-      "Seat 1: 9d7f4cb8 (big blind) collected ($0.22)",
-      "Seat 2: 8d962552 (small blind) folded before Flop",
-    ].join("\n");
-    try {
-      ggpokerParser.parseHand(hand, CTX);
-      throw new Error("the cash drop hand was converted");
-    } catch (error) {
-      expect((error as ParseSkip).reason).toBe("cash-drop");
-    }
+    // player. It can be neither a contribution - that corrupts a seat's `net` -
+    // nor a negative fee, which would have the replayer pay out more than the
+    // pot holds, so this hand used to be refused outright. `PhfChipMovement`
+    // gave it an honest home: chip conservation counts house-into-pot money and
+    // the replayer seeds the pot with it, so the hand converts.
+    const text = CASH_DROP_HAND;
+    const hand = ggpokerParser.parseHand(text, CTX);
+    expect(validateHand(hand).ok).toBe(true);
+    expect(hand.chipMovements).toEqual([
+      {
+        kind: "cash-drop",
+        fromSeat: null,
+        fromPlayer: null,
+        toPot: true,
+        amount: 20,
+        raw: "Cash Drop to Pot : total $0.2",
+        anchor: "before-postings",
+      },
+    ]);
+    // $0.01 small blind + $0.01 called big blind + $0.20 from the house. The
+    // seats put in 2 between them; the pot is 22 and the winner collects it.
+    expect(hand.results.totalPot).toBe(22);
+    expect(hand.results.winners[0].amount).toBe(22);
+    // It stays off the action stream, so no seat is credited with house money.
+    expect(hand.actions.some((action) => /Cash Drop/.test(action.rawLine))).toBe(false);
+    expect(hand.meta.warnings).toEqual([]);
+    expect(toStandardText(hand).trim()).toBe(text.trim());
+    expect(allInvariants(hand)).toEqual([]);
+  });
+
+  it("records Rush & Cash as a fast-fold pool", () => {
+    // The pool is announced by the `RC` product code in the hand id, never by
+    // the pretty table name (`NLHPurple70` says nothing about it), and
+    // `game.label` drops the distinction on the way through canonicalisation -
+    // hence `PhfTable.fastFold`.
+    //
+    // Asserted on the reconstruction above rather than the corpus because the
+    // only real `RC` fixture is Omaha and is refused before a table line is
+    // read. The `RC` prefix itself is quoted from that fixture.
+    const rushAndCash = ggpokerParser.parseHand(CASH_DROP_HAND, CTX);
+    expect(rushAndCash.meta.handId.startsWith("RC")).toBe(true);
+    expect(rushAndCash.table.fastFold).toBe("Rush & Cash");
+
+    // An ordinary GG cash table is not a fast-fold pool and must not claim to
+    // be - the whole corpus of `HD` hands has to stay clean of the label.
+    const ordinary = PARSED.filter((entry) => entry.hand?.meta.handId.startsWith("HD"));
+    expect(ordinary.length).toBeGreaterThan(400);
+    expect(ordinary.every((entry) => (entry.hand!.table.fastFold ?? null) === null)).toBe(true);
   });
 
   it("reads GG's bare straddle verb, which has no 'posts'", () => {

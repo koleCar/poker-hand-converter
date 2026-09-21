@@ -152,13 +152,23 @@ export function buildReplay(source: ReplaySource): ReplayFrame[] {
   >();
 
   const seatOrder = [...hand.players].sort((a, b) => a.seat - b.seat);
+  const outOfPot = new Map<number, Amount>();
+  for (const movement of hand.chipMovements ?? []) {
+    if (!movement.toPot && movement.fromSeat !== null) {
+      outOfPot.set(
+        movement.fromSeat,
+        (outOfPot.get(movement.fromSeat) ?? 0) + movement.amount,
+      );
+    }
+  }
+
   for (const player of seatOrder) {
     state.set(player.name, {
       seatNo: player.seat,
       isHero: player.isHero,
       isButton: hand.table.buttonSeat === player.seat,
       position: player.position,
-      stack: player.startingStack,
+      stack: player.startingStack - (outOfPot.get(player.seat) ?? 0),
       bet: 0,
       folded: false,
       allIn: false,
@@ -169,7 +179,11 @@ export function buildReplay(source: ReplaySource): ReplayFrame[] {
     });
   }
 
-  let pot: Amount = 0;
+  // Promotional chips the house dropped in are already in the middle before a
+  // single bet is made; jackpot drops are taken off a stack and never arrive.
+  let pot: Amount = (hand.chipMovements ?? [])
+    .filter((movement) => movement.toPot)
+    .reduce((sum, movement) => sum + movement.amount, 0);
   let cardsDealt = false;
   let currentStreet: Street = "preflop";
   let board: string[] = [];

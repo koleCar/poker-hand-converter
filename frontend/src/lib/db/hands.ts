@@ -212,6 +212,9 @@ export async function fetchHandFacets(): Promise<HandFacets> {
     gameFormats: (payload.gameFormats ?? []) as HandFacets["gameFormats"],
     heroHandClasses: (payload.heroHandClasses ?? []) as string[],
     streets: (payload.streets ?? []) as StreetReached[],
+    heroPositions: (payload.heroPositions ?? []) as HandFacets["heroPositions"],
+    showdownPositions: (payload.showdownPositions ?? []) as HandFacets["showdownPositions"],
+    anonymizations: (payload.anonymizations ?? []) as HandFacets["anonymizations"],
     playedAtRange: (payload.playedAtRange ?? { min: null, max: null }) as HandFacets["playedAtRange"],
     unparsedTotal: Number(payload.unparsedTotal ?? 0),
   };

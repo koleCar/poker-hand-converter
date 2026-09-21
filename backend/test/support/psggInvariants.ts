@@ -9,6 +9,7 @@
  */
 
 import {
+  houseIntoPot,
   resolveRunout,
   totalFees,
   type PhfHand,
@@ -27,9 +28,15 @@ export function blindSpots(hand: PhfHand): string[] {
     .map((warning) => `${hand.meta.handId} ${warning.code}: ${warning.message}`);
 }
 
-/** Everything that went in equals the pot the source reports. */
+/**
+ * Everything that went in equals the pot the source reports.
+ *
+ * "Everything" includes promotional money the house put in - GG's
+ * `Cash Drop to Pot` - which no seat contributed but which the winner collects.
+ * Counting only the seats makes those hands look short by exactly the drop.
+ */
 export function chipConservation(hand: PhfHand): string[] {
-  let total = 0;
+  let total = houseIntoPot(hand);
   for (const action of hand.actions) {
     if (action.type === "collect") {
       continue;
@@ -37,13 +44,23 @@ export function chipConservation(hand: PhfHand): string[] {
     total += action.amount;
   }
   return Math.abs(total - hand.results.totalPot) > TOLERANCE
-    ? [`${hand.meta.handId}: players put in ${total}, pot is ${hand.results.totalPot}`]
+    ? [`${hand.meta.handId}: players and house put in ${total}, pot is ${hand.results.totalPot}`]
     : [];
 }
 
 /** No stack goes below zero at any point in the stream. */
 export function noNegativeStacks(hand: PhfHand): string[] {
   const stacks = new Map(hand.players.map((player) => [player.name, player.startingStack]));
+  // A jackpot drop leaves a stack without ever reaching the pot, so it has to
+  // come off before the action stream is walked.
+  for (const movement of hand.chipMovements ?? []) {
+    if (!movement.toPot && movement.fromPlayer !== null) {
+      const stack = stacks.get(movement.fromPlayer);
+      if (stack !== undefined) {
+        stacks.set(movement.fromPlayer, stack - movement.amount);
+      }
+    }
+  }
   const problems: string[] = [];
   for (const action of hand.actions) {
     if (action.type === "collect" || action.amount === 0) {
@@ -189,6 +206,17 @@ export function roundTripsThroughStandardText(hand: PhfHand): string[] {
   }
   if (JSON.stringify(hand.results.fees) !== JSON.stringify(back.results.fees)) {
     problems.push(`${hand.meta.handId}: fees changed on round trip`);
+  }
+  // Promotional chips are money; losing one on the way out would leave the pot
+  // right and the accounting wrong, so compare them explicitly.
+  const movements = (input: PhfHand) =>
+    JSON.stringify(
+      (input.chipMovements ?? [])
+        .map((m) => `${m.kind}/${m.fromSeat}/${m.toPot}/${m.amount}`)
+        .sort(),
+    );
+  if (movements(hand) !== movements(back)) {
+    problems.push(`${hand.meta.handId}: chip movements changed on round trip`);
   }
   return problems;
 }

@@ -49,6 +49,12 @@ export {
 
 export { createShare, resolveShare } from "./shares";
 
+export {
+  anonymizationNote,
+  detectAnonymization,
+  hasUsablePlayerNames,
+} from "./anonymization";
+
 export { handInsertFromPhf, type HandInsert } from "./mapping";
 
 export {
@@ -65,7 +71,9 @@ export {
   type HandSearchResult,
   type HandSortKey,
   type HandSummary,
+  type PositionLabel,
   type RecordFailuresResult,
+  type SiteAnonymization,
   type ResolvedShare,
   type SaveHandsResult,
   type ShareRef,

@@ -465,16 +465,33 @@ export const winamaxParser: SiteParser = {
     }
 
     // The street markers are authoritative and the summary board is a copy of
-    // them, but when the two name completely different cards there is no way to
-    // tell which one is the hand that was played. Storing either would hand a
-    // tracker a board that may never have existed.
-    const streetBoard = [...(flop ?? []), ...(turn ? [turn] : []), ...(river ? [river] : [])];
-    if (summaryBoard && summaryBoard.join(" ") !== streetBoard.join(" ")) {
+    // them, so the markers have to be a prefix of the summary. When the two name
+    // different cards there is no way to tell which one is the hand that was
+    // played, and storing either would hand a tracker a board that may never
+    // have existed. One corpus file (`CashGame_StreetTests_Flop.txt`) deals
+    // [3d 3s 2s] and then reports [7h Qs 3c]; it is refused here.
+    const markerBoard = [...(flop ?? []), ...(turn ? [turn] : []), ...(river ? [river] : [])];
+    if (
+      summaryBoard &&
+      (markerBoard.length > summaryBoard.length ||
+        markerBoard.some((card, index) => summaryBoard[index] !== card))
+    ) {
       throw new ParseSkip(
         "board-mismatch",
-        `The street markers deal [${streetBoard.join(" ")}] but the summary reports ` +
+        `The street markers deal [${markerBoard.join(" ")}] but the summary reports ` +
           `[${summaryBoard.join(" ")}]; the two cannot both be the board.`,
       );
+    }
+    if (summaryBoard && summaryBoard.length > markerBoard.length) {
+      flop = summaryBoard.slice(0, 3);
+      turn = summaryBoard[3] ?? null;
+      river = summaryBoard[4] ?? null;
+      warnings.push({
+        code: "board-from-summary",
+        message:
+          `The street markers stop after ${markerBoard.length} cards; the rest of the ` +
+          "board is taken from the summary.",
+      });
     }
 
     if (tableMatch[3] === "play") {

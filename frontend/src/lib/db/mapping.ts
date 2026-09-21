@@ -15,11 +15,15 @@ import {
   primaryBoard,
   totalFees,
   type PhfHand,
+  type Position,
 } from "../phf/types";
+import { detectAnonymization } from "./anonymization";
 import type {
   GameFormat,
   HandRecord,
   HandSummary,
+  PositionLabel,
+  SiteAnonymization,
   StreetReached,
   UnparsedGap,
   UnparsedHand,
@@ -40,6 +44,7 @@ export interface HandInsert {
   limit_type: string | null;
   game_format: GameFormat;
   tournament_id: string | null;
+  site_anonymization: SiteAnonymization;
   currency: string;
   currency_minor_units: number;
   currency_symbol: string | null;
@@ -57,6 +62,7 @@ export interface HandInsert {
   hero_hand_class: string | null;
   board_cards: string[];
   player_names: string[];
+  player_positions: string[];
   player_count: number;
   street_reached: StreetReached | null;
   went_to_showdown: boolean;
@@ -64,6 +70,8 @@ export interface HandInsert {
   rake: number | null;
   hero_profit: number | null;
   winners: string[];
+  winner_positions: string[];
+  showdown_positions: string[];
   source_filename: string | null;
 }
 
@@ -97,10 +105,54 @@ function stakesLabelOf(hand: PhfHand): string | null {
  * `standardText` is passed in rather than computed here so a caller that
  * already serialized the hand for download does not pay for it twice.
  */
+/** Seat number -> position, for the seats whose position is known. */
+function positionBySeat(hand: PhfHand): Map<number, Position> {
+  const out = new Map<number, Position>();
+  for (const player of hand.players) {
+    if (player.position) {
+      out.set(player.seat, player.position);
+    }
+  }
+  return out;
+}
+
+function uniqueSorted(values: Iterable<string>): string[] {
+  return Array.from(new Set(values)).sort();
+}
+
 export function handInsertFromPhf(hand: PhfHand, standardText: string): HandInsert {
   const hero = heroOf(hand);
   const unit = hand.game.unit;
-  const winners = Array.from(new Set(hand.results.winners.map((winner) => winner.player)));
+  const anonymization = detectAnonymization(hand);
+  const seatPosition = positionBySeat(hand);
+
+  // Position is the identity substitute. It is resolved by `assignPositions`
+  // from the button and the posted blinds, independently of whatever the site
+  // called the seats, so it is trustworthy even where the names are not.
+  const playerPositions = uniqueSorted(seatPosition.values());
+  const showdownPositions = uniqueSorted(
+    hand.results.players
+      .filter((result) => result.wentToShowdown)
+      .map((result) => seatPosition.get(result.seat))
+      .filter((position): position is Position => Boolean(position)),
+  );
+  const winnerPositions = uniqueSorted(
+    hand.results.winners
+      .map((winner) => (winner.seat === null ? undefined : seatPosition.get(winner.seat)))
+      .filter((position): position is Position => Boolean(position)),
+  );
+
+  // A `positional` hand's names are position labels that point at a different
+  // human every hand. Writing them into the identity columns would produce a
+  // filter that looks like it works and silently does not, so they are dropped
+  // here and the database refuses to store them anyway (`hands_positional_anonymity`).
+  // `hero_name` survives: it is the one stable identity on such a hand.
+  // `opaque-id` names are kept — see anonymization.ts for why.
+  const namesAreIdentities = anonymization !== "positional";
+  const playerNames = namesAreIdentities ? hand.players.map((player) => player.name) : [];
+  const winners = namesAreIdentities
+    ? Array.from(new Set(hand.results.winners.map((winner) => winner.player)))
+    : [];
 
   return {
     hand_key: handKeyOf(hand),
@@ -116,6 +168,7 @@ export function handInsertFromPhf(hand: PhfHand, standardText: string): HandInse
     limit_type: hand.game.limit,
     game_format: hand.game.format,
     tournament_id: hand.tournament?.id ?? null,
+    site_anonymization: anonymization,
 
     currency: unit.code,
     currency_minor_units: unit.minorUnits,
@@ -140,17 +193,20 @@ export function handInsertFromPhf(hand: PhfHand, standardText: string): HandInse
     // search column would otherwise make "board contains Ah" match a card that
     // only ever appeared on the second run.
     board_cards: primaryBoard(hand),
-    player_names: hand.players.map((player) => player.name),
+    player_names: playerNames,
+    player_positions: playerPositions,
     player_count: hand.players.length,
 
     street_reached: hand.results.streetReached,
     went_to_showdown: hand.results.wentToShowdown,
+    showdown_positions: showdownPositions,
     total_pot: hand.results.totalPot,
     // Every fee the site took out of the pot, not just the line item called
     // "rake"; the breakdown stays available in `phf.results.fees`.
     rake: totalFees(hand.results.fees),
     hero_profit: hand.results.heroNet,
     winners,
+    winner_positions: winnerPositions,
 
     source_filename: hand.meta.originalFilename,
   };
@@ -165,6 +221,9 @@ const str = (value: unknown): string | null =>
 const num = (value: unknown): number | null =>
   typeof value === "number" && Number.isFinite(value) ? value : null;
 const list = (value: unknown): string[] => (Array.isArray(value) ? (value as string[]) : []);
+// Safe narrowing: `is_position_array` / `hands_hero_position_ok` reject anything
+// outside the PHF vocabulary, so the database cannot hand back another value.
+const posList = (value: unknown): PositionLabel[] => list(value) as PositionLabel[];
 
 export function toHandSummary(row: Row): HandSummary {
   return {
@@ -176,6 +235,7 @@ export function toHandSummary(row: Row): HandSummary {
     limitType: str(row.limit_type),
     gameFormat: (str(row.game_format) ?? "cash") as GameFormat,
     tournamentId: str(row.tournament_id),
+    anonymization: (str(row.site_anonymization) ?? "none") as SiteAnonymization,
 
     currency: String(row.currency ?? "USD"),
     currencyMinorUnits: num(row.currency_minor_units) ?? 100,
@@ -192,20 +252,23 @@ export function toHandSummary(row: Row): HandSummary {
 
     heroName: str(row.hero_name),
     heroSeat: num(row.hero_seat),
-    heroPosition: str(row.hero_position),
+    heroPosition: str(row.hero_position) as PositionLabel | null,
     heroCards: list(row.hero_cards),
     heroHandClass: str(row.hero_hand_class),
 
     boardCards: list(row.board_cards),
     playerNames: list(row.player_names),
+    playerPositions: posList(row.player_positions),
     playerCount: num(row.player_count),
 
     streetReached: str(row.street_reached) as StreetReached | null,
     wentToShowdown: row.went_to_showdown === true,
+    showdownPositions: posList(row.showdown_positions),
     totalPot: num(row.total_pot),
     rake: num(row.rake),
     heroProfit: num(row.hero_profit),
     winners: list(row.winners),
+    winnerPositions: posList(row.winner_positions),
 
     schemaVersion: String(row.schema_version ?? "phf/1"),
     parserVersion: str(row.parser_version),

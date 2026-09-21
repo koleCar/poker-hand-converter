@@ -24,19 +24,24 @@
  *   `Poker Hand #RC` to `PokerStars Hand #20`, which only works if the rest of
  *   the grammar already matches. Circumstantial, so it is not claimed.
  * - **ClubGG genuinely diverges.** The one real header recovered (from a
- *   PokerTracker bug report) uses a `ring_`-prefixed hand id and the wording
- *   `NLH No Limit`. That is not this grammar, `detect` scores it 0, and a
- *   ClubGG upload is honestly reported as an unrecognised site rather than run
- *   through a parser built on a single forum post.
+ *   PokerTracker bug report) uses a `ring_`-prefixed hand id, the wording
+ *   `NLH No Limit` rather than `Hold'em No Limit`, and a 9-max table. That is
+ *   not this grammar, `detect` scores it 0, and a ClubGG upload is honestly
+ *   reported as an unrecognised site rather than run through a parser built on
+ *   a single forum post.
  * - **BestPoker**: nothing found at all. Not claimed.
  *
  * ## What GG does that PokerStars does not
  *
  * - Players are anonymised to eight hex characters; only the observer is named,
  *   and is named literally `Hero`.
- * - Every seat gets a `Dealt to <name> ` line, with a trailing space and no
- *   cards for the villains. That is a different thing from "we know their hole
- *   cards", which is why `PhfPlayer.dealtCards` exists next to `holeCards`.
+ * - Every seat gets a `Dealt to <name>` line with no cards for the villains.
+ *   That is a different thing from "we know their hole cards", which is why
+ *   `PhfPlayer.dealtCards` exists next to `holeCards` - the summary can still
+ *   reveal the cards later, and the replayer needs to know which hands were
+ *   face up from the start. Cash hands write a trailing space after the name
+ *   and tournament hands do not; that is a serialization detail and is handled
+ *   on the way out, not here.
  * - `EV Cashout`: a player buys out of the remaining equity.
  * - **All-in Insurance**, which is a *different* mechanic from EV Cashout with
  *   its own verbs - see the handler for both; conflating them would report one
@@ -462,7 +467,21 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
 
     const table = line.match(TABLE_REGEX);
     if (table) {
-      draft.setTable(table[1] || null, Number(table[2]) || 0, table[4] ? Number(table[4]) : null);
+      // Rush & Cash is GG's fast-fold pool. It is identified from the product
+      // code in the hand id or from the table name, never from the pretty
+      // table names (`NLHPurple70`), which say nothing about the pool - and
+      // `game.label` drops the distinction entirely on the way through
+      // canonicalisation, which is why `PhfTable.fastFold` exists.
+      const fastFold =
+        header.product === "Rush & Cash" || /^RushAndCash/i.test(table[1] ?? "")
+          ? "Rush & Cash"
+          : null;
+      draft.setTable(
+        table[1] || null,
+        Number(table[2]) || 0,
+        table[4] ? Number(table[4]) : null,
+        fastFold,
+      );
       continue;
     }
 
@@ -675,16 +694,24 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
       continue;
     }
 
-    // A house-funded chip drop: `Cash Drop to Pot : total $0.2`. The money
-    // enters the pot from outside the player set, so `Sum(contributions)` can
-    // never equal the reported pot and no seat can honestly be credited with
-    // it. PHF has no way to express that, and guessing an attribution would
-    // corrupt the winner's net, so the hand is refused with its own reason.
-    if (/^Cash Drop to Pot\b/i.test(line)) {
-      throw new ParseSkip(
-        "cash-drop",
-        `"${line}" adds house money to the pot, which chip conservation cannot express.`,
-      );
+    // A house-funded chip drop: `Cash Drop to Pot : total $0.2`, printed
+    // between the seat block and the blinds. The money enters the pot from
+    // outside the player set, so it can be neither a contribution (that would
+    // corrupt a seat's `net`) nor a negative fee (the replayer would pay out
+    // more than the pot holds). `PhfChipMovement` is the home for exactly this:
+    // chip conservation counts house-into-pot money, and the replayer seeds the
+    // pot with it.
+    const cashDrop = line.match(new RegExp(String.raw`^Cash Drop to Pot\s*:\s*total ${MONEY}$`, "i"));
+    if (cashDrop) {
+      draft.chipMovement({
+        kind: "cash-drop",
+        fromSeat: null,
+        toPot: true,
+        amount: money(cashDrop[1]),
+        raw: line,
+        anchor: "before-postings",
+      });
+      continue;
     }
 
     if (CHATTER_REGEX.test(line)) {
@@ -735,7 +762,12 @@ export const ggpokerParser: SiteParser = {
       return 0;
     }
 
-    // Things the generic `standard` reader gets wrong, so we have to outrank it.
+    // Why we outrank the generic reader at all, now that it parses GG's
+    // tournament header correctly too: it has no *variant policy*. On the GG
+    // corpus it emits 133 ShortDeck and Omaha hands that validate cleanly and
+    // would be stored as if they were supported, where this parser refuses
+    // them. Round one is Hold'em only and a wrong hand is worse than a refused
+    // one, so GG text still has to reach the parser that says no.
     const ggTournament = /-\s*Level\s*(?:[IVXLCDM]+|\d+)\s*\(/.test(head);
     const ggProduct = /(?:^|[\r\n])(?:GG\s*)?Poker Hand #(?:RC|TM|SD|OM|PL|SG|BR)/i.test(head);
     if (

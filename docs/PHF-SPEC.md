@@ -133,6 +133,23 @@ Helpers in `types.ts`:
 | `formatAmount(50, USD, "fixed2")` → `"$0.50"` | display string |
 | `formatAmountDigits(50, USD, "minimal")` → `"0.5"` | digits without the symbol |
 | `toBigBlinds(5000, 50)` → `100` | BB-normalized, one decimal |
+| `parseAmountStrict("1 234,50 €", EUR)` → `{ok:true, amount:123450}` | boundary reader that refuses what it cannot hold |
+| `chipsUnitFor(text)` → `CHIPS` or `FRACTIONAL_CHIPS` | picks chip precision from the hand's own text |
+
+**Use `parseAmountStrict` at the boundary.** `parseAmount` strips every
+non-digit and rounds, which is right once a parser knows a token's shape and a
+100x landmine before it does: `1 234,50 €` becomes 123450 *minor units times a
+hundred*, and the resulting hand balances perfectly against itself, so nothing
+downstream can catch it. The strict reader judges the separators instead of
+deleting them, and returns `{ok:false, problem}` for `too-precise`,
+`ambiguous-separators` or `not-a-number` rather than guessing. Three site
+parsers each grew a local version of this guard before it existed here, which
+is why it is now in the core.
+
+Chip precision is its own trap: `CHIPS.minorUnits === 1`, but some tournament
+structures genuinely deal half chips (`2642.50`). `FRACTIONAL_CHIPS` holds
+those, and `chipsUnitFor` picks between the two from the source text — rounding
+a half chip away is silent, because the hand still balances afterwards.
 
 `DecimalStyle` is `"minimal"` (GG writes `$0.5`) or `"fixed2"` (WePlay writes
 `$0.50`). Both drop the decimals on round amounts: `$3`, never `$3.00`. The
@@ -152,6 +169,7 @@ interface PhfHand {
   tournament: PhfTournament | null;
   players: PhfPlayer[];
   actions: PhfAction[];
+  chipMovements?: PhfChipMovement[];   // promo / jackpot chips; see 3.8
   board: PhfBoard;
   results: PhfResults;
   playedAt: string | null;   // ISO 8601, UTC
@@ -235,9 +253,22 @@ normalizes rather than preserves — WePlay rewrites `Weplay Hand #71764146` int
 
 `table` is `{ name, maxSeats, buttonSeat }`.
 
+`table` also carries `fastFold?: string | null` — the pool brand, `"Zoom"`,
+`"Rush & Cash"`, `"Banzai"`, `"FastForward"`. Every room buries it in the game
+label where canonicalisation drops it, but it changes how the pool plays and is
+an obvious filter dimension. The brand is kept rather than a boolean: the
+presence answers "is this fast fold?" and the value answers "which one?".
+
 `tournament` is null on cash hands. Otherwise:
 `{ id, name, buyIn, bounty?, fee, buyInUnit, levelLabel, levelNumber,
-levelSmallBlind, levelBigBlind, levelAnte, bounties }`. `levelLabel` keeps the
+levelSmallBlind, levelBigBlind, levelAnte, bounties, prizePool? }`.
+`prizePool` is the stated total prize (Unibet prints `Total prize €4`), in
+`buyInUnit`; absent when the room does not say, and never derived, because a
+guess would look identical to a stated figure.
+
+**`levelLabel` may be null.** Unibet and Chico state blinds but never a level,
+and the standard-text grammar makes the whole `- Level X ` clause optional so
+that round-trips as `- (25/50) -` rather than fabricating `Level I`. `levelLabel` keeps the
 printed form (`"XI"`), `levelNumber` the parsed one (`11`). `bounties` is
 `{ player, amount }[]` for progressive-knockout formats.
 
@@ -380,7 +411,51 @@ as `meta.textStyle`: they record the prefix the source used (`""`, `"FIRST"`,
 (GG lists only the cards that differ, WePlay repeats the whole board). Never
 read them as data; use `resolveRunout(board, i)` and `runoutThroughStreet(...)`.
 
-### 3.8 `results`
+### 3.8 `chipMovements` — chips that are not bets
+
+PHF's chip model has two flows: a seat puts chips in the pot, and the pot pays
+out to seats less fees. Rooms run promotions that fit neither, and forcing them
+into the model that exists breaks an invariant every time:
+
+| Room | Line | Movement |
+| --- | --- | --- |
+| GG | `Cash Drop to Pot : total $0.2` | house → pot |
+| Run It Once | `STP added: €0.50` | house → pot |
+| MicroGaming | `BadBeatContribution` | seat → house, bypassing the pot |
+
+The first two make the pot genuinely larger than the sum of what the players
+put in. Attributing the drop to a seat corrupts that seat's `net`; dropping it
+breaks chip conservation; calling it a negative fee makes the replayer pay out
+more than the pot holds. The third is the same idea from the other end: money
+leaves a stack and never becomes part of the pot, so it cannot be a `PhfFees`
+entry — those are taken *from* the pot, and counting it there breaks the payout
+check. Left unmodelled it silently leaves the contributor's replayed stack high.
+
+One concept covers both:
+
+```ts
+interface PhfChipMovement {
+  kind: string;                 // "splash-the-pot" | "cash-drop" | "bad-beat-drop"
+  fromSeat: number | null;      // null when the house supplied the chips
+  fromPlayer: string | null;
+  toPot: boolean;               // false = leaves the table entirely
+  amount: Amount;
+  raw: string | null;           // verbatim line, so the text round-trips
+  anchor: "before-postings" | "after-hole-cards";
+}
+```
+
+Chip conservation becomes `Σ contributions + Σ (movements where toPot) ===
+totalPot`; the replayer seeds the pot with house money and deducts
+seat-to-house movements from the starting stack. `houseIntoPot(hand)` and
+`seatOutOfPot(hand, seat)` are the helpers.
+
+It is deliberately **not** a `PhfAction`: `ActionType` is a closed union that
+consumers switch on, so extending it is a `phf/2` change, whereas an optional
+field is additive. `anchor` exists because rooms print the line in different
+places — GG after the seat block, Run It Once after `*** HOLE CARDS ***`.
+
+### 3.9 `results`
 
 | Field | Meaning |
 | --- | --- |
@@ -430,7 +505,8 @@ chip) is tolerated on every sum, because sources round their own arithmetic.
 | `board-size` | each runout has 0, 3, 4 or 5 cards |
 | `turn-without-flop` / `river-without-turn` | streets are dealt in order |
 | `negative-stack` | no stack goes below zero at any point in the stream |
-| `chip-mismatch` | `Σ contributions === results.totalPot` |
+| `chip-mismatch` | `Σ contributions + Σ house chips into the pot === results.totalPot` (§3.8) |
+| `unseated-chip-movement` | a promo or jackpot movement charges a seat that is empty |
 | `payout-mismatch` | `Σ collected` equals either `totalPot - fees` or `totalPot`. Rooms disagree on whether the reported pot is before or after the rake — GG deducts (pot 3, rake 0.15, collected 2.85), WePlay reports the rake alongside a pot the winner collects in full — and both are internally consistent. A third answer is an error |
 | `uncalled-exceeds-commitment` | an uncalled return never exceeds what the player put in on that street |
 
@@ -1000,9 +1076,53 @@ the original. Where Web Crypto is unavailable, `fingerprintSync` returns a
 stored rows.
 
 Reason codes currently emitted: `unknown-site`, `no-hands`, `split-failed`,
-`parser-error`, `unsupported-variant`, `tournament-in-cash-mode`, `bomb-pot`,
-`all-in-or-fold-table`, `bb-only-walk`, `short-allin-small-blind`,
-`short-allin-big-blind`, `short-allin-call`, `zero-stack-actor`, `ghost-ante`,
-`unseated-actor`, `uncalled-exceeds-commitment`, `turn-without-flop`,
-`river-without-turn`, `normalized-unparseable`, plus every validator error code
-from section 4.
+`parser-error`, `unsupported-variant`, `tournament-unsupported`,
+`tournament-in-cash-mode`, `bomb-pot`, `all-in-or-fold-table`, `bb-only-walk`,
+`short-allin-small-blind`, `short-allin-big-blind`, `short-allin-call`,
+`zero-stack-actor`, `ghost-ante`, `unseated-actor`, `no-seat-block`,
+`uncalled-exceeds-commitment`, `turn-without-flop`, `river-without-turn`,
+`splash-the-pot`, `unsupported-precision`, `cancelled-hand`,
+`normalized-unparseable`, plus every validator error code from section 4.
+
+> `splash-the-pot` should no longer be needed: promotional chips have a home
+> now (§3.9), so a hand carrying them can be converted rather than refused.
+
+Warning codes parsers emit alongside a converted hand: `unknown-line`,
+`unknown-summary-line`, `board-from-summary`, `run-it-twice-summary`,
+`button-seat-empty`, `hero-attribution`, `ambiguous-timestamp`,
+`all-in-insurance`, `play-money-table`, `unrepresentable-amount`, plus every
+validator warning code from section 4. A warning means the hand is usable and
+something about it was odd; the UI surfaces them and the corpus tests assert
+they are empty for hands a parser claims to fully understand.
+
+### 9.1 Deliberate non-decisions
+
+Recorded so they are not relitigated:
+
+- **All-in insurance has no `ActionType` member.** GG writes
+  `pay premium of all-in insurance ($4)`. Mapping it onto
+  `cashout-choose`/`cashout-pay` would put one product's money under another's
+  name downstream, so parsers record an `all-in-insurance` warning instead.
+  A real member is a `phf/2` change (§5) and earns its place when a consumer
+  needs to *compute* with hedged money — a true net including insurance — not
+  merely to display that it happened. Until then the premium settles outside
+  the pot and no invariant depends on it.
+- **`PhfPlayerResult` has no per-runout outcome.** Full Tilt prints one SUMMARY
+  block per runout and the per-seat prose contradicts itself for a player who
+  won one board and lost the other. The *money* is already per-runout, on
+  `results.winners[].runoutIndex`; what collapses is prose that nothing
+  computes on. Doubling the most-read structure to carry it is not worth it
+  yet. What would change this: a UI that shows "won the first board, lost the
+  second", or a filter over per-runout results.
+- **Standard text cannot express "hero with no known cards".** `isHero` only
+  survives `toStandardText` → `parseStandardHand` when the seat is literally
+  named `Hero`, so observed-table exports lose the flag on a text round trip.
+  PHF's JSON carries it correctly and the database stores PHF, so the loss is
+  confined to the text serialization. Inventing a marker in the seat line was
+  rejected because Holdem Manager and PokerTracker parse those lines and the
+  byte-compatibility guarantee is worth more than this.
+- **Play money cannot round-trip.** `unitForSymbol("")` returns `CHIPS`, so
+  `PLAY_CHIPS` is unreachable through standard text. Parsers carry a
+  `play-money-table` warning, which is the important part: play money mixed
+  into a real-money win rate is a silent lie. Distinguishing the two in the
+  text needs a grammar affordance and is deferred with the hero flag above.

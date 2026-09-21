@@ -70,7 +70,8 @@ assuming one grammar.
 | CashGame_PlayerTests_OmahaShowdown.txt / WithShowdown.txt | Showdown grammar `*Player X shows: <hand desc> [<cards>]. Bets: .. Collects: .. Wins: ..` (leading `*` marks the shown/winning hand) |
 | CashGame_StreetTests_Preflop/Flop/Turn/River.txt | Confirms street marker `*** FLOP ***: [..]` **with a colon after the stars** — era-A-specific, see doc §7 |
 | CashGame_MultipleHandsTests_10MultipleHands.txt | Multi-hand file, hands separated by a single blank line |
-| CashGame_ValidHandTests_ValidHand.txt / InValidHand.txt | Reference parser's own well-formedness fixtures (`IsValidHand` requires the last line to start with `Game ended at:`) |
+| CashGame_ValidHandTests_ValidHand.txt | Reference parser's own well-formedness fixture (`IsValidHand` requires the last line to start with `Game ended at:`) |
+| CashGame_ValidHandTests_InValidHand.txt | **REAL BYTES, SELF-DAMAGED — DO NOT MAKE A PARSER ACCEPT THIS.** Negative fixture, and damaged in a second way beyond the missing `Game ended at:` trailer: **the summary is truncated to 2 of the 6 declared seats.** The hand declares `Seat 1`–`Seat 6` and `bjv1105` bets through every street and takes back an uncalled 35, yet the `------ Summary ------` block lists only `Ra1syDa1sy` and `rexjellis` — `bjv1105`, the player who actually won the pot, has no summary line at all. Pot accounting cannot close. A parser should **refuse** the hand; do not reconstruct the missing seats. Keep as a robustness fixture for the refusal path. |
 | CashGame_GeneralHands_GeneralHand.txt / HeroName.txt | Baseline + hero-name variant (no dedicated hero marker in era A — hero is just whichever real screen name is present) |
 | CashGame_PlayerTests_NoHoleCards.txt | Hand where a player's cards are never shown (`received a card.` twice, no `received card: [..]` ever) |
 
@@ -97,6 +98,23 @@ assuming one grammar.
 | `tour__NLHE-9max-NA-0-0-201907.SCHEDULEDID-TN-The Venom...GAMETYPE.txt` | C | Full modern-grammar MTT hand: ante + `posts the small/big blind`, `*** HOLE CARDS ***`, `Main pot` line placed immediately after `*** HOLE CARDS ***` (not just after flop/turn/river), `Uncalled bet (..) returned to`, `does not show`, summary `folded on the Pre-Flop and did not bet` phrasing |
 | `summaries__PlayerTransactionHistory.html` | n/a | Not a hand history — an HTML bankroll/transaction export fpdb also knows how to parse. Kept for completeness of what "WPN account exports" can look like, but out of scope for hand-history parsing |
 | (remaining PLO/PLO8/LO8/7Stud/NLHE files) | mixed A/B and C | Additional stakes/game-type/seat-count coverage; see filenames, which encode game-game-max-currency-stakes-date-note |
+
+
+### Blank player names on money-moving lines (real, and hostile)
+
+`fpdb3-regression-corpus/cash__NLHE-9max-USD-1.00-2.00-201612.Unknown.Player.Acts.HH20160621 G30997753.txt` contains a player whose **name is the empty string**, on lines that move real money. Verbatim:
+
+```
+Player  bets (5.22)
+Player Hero calls (5.22)
+*** RIVER ***: [5s Jc Kc 2s] [7s]
+Player  bets (10.18)
+Player Hero folds
+Uncalled bet (10.18) returned to
+Player  mucks cards
+```
+
+Note `Player  bets` carries a **double space** where the name would be, and `Uncalled bet (10.18) returned to` ends with **nothing at all** — no name, no trailing space guarantee. This is real site output, not corpus damage: upstream names the file `Unknown.Player.Acts`, and the hand is otherwise internally consistent (`Pot: 20.37. Rake 0.83. JP fee 0.24` reconciles). Consequences for a parser: a `returned to (\S+)` regex fails to match at all rather than matching empty, and any player-keyed map needs a non-empty-name guard or it silently merges this actor with another. Do **not** discard the hand — the money is real and the rest of it balances — but do not key identity on the name either. See also `acr-wpn.md` gotcha on `Unknown player` as a valid sentinel actor name.
 
 ## What we did NOT find
 

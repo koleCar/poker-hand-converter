@@ -227,6 +227,39 @@ joining or returning mid-orbit — confirmed real, distinct verb from a normal b
 straddle sample was found anywhere in this corpus; unconfirmed whether/how this network
 supports it.
 
+### `post dead` under-reports by exactly one small blind
+
+**This is the one place in the Chico format where the text does not state a real chip movement,
+and it has to be inferred.** A returning player's entry fee is the ordinary "big blind live,
+small blind dead" pair, but **only the live half is written down**. The dead small blind is
+silently added to the pot.
+
+Confirmed on both `post dead` hands in the corpus, independently, both at $0.25/$0.50:
+
+| hand | printed | contributions sum to | printed pot + rake | shortfall |
+|---|---|---|---|---|
+| `cash__NLHE-10max-0.25-0.50-201204.post.dead.txt` #1002134798 | `Player0: post dead 0.50` | 15.36 | 14.83 + 0.78 = **15.61** | **0.25** |
+| `cash__NLHE-10max-USD-0.25-0.05-201108.txt` #900203618 | `Player5: post dead 0.00` | 44.99 | 42.98 + 2.26 = **45.24** | **0.25** |
+
+In both, the shortfall is exactly one small blind (0.25 at these stakes), and adding a dead
+small blind back makes the derived gross pot match the printed `Total pot + Rake` exactly.
+
+Note the second case in particular: the printed amount is `post dead 0.00`, yet 0.25 still
+entered the pot. So the printed number is **not** the total posted and cannot be used as one —
+even a zero there does not mean nothing was posted.
+
+**How to handle it, and why the inference is safe.** Add one small blind to the pot for every
+`post dead` line, on top of the printed amount. This is the single inference the shipped Chico
+parser makes, and it is self-policing: the printed `Rake` gives an independent check, so if the
+assumption were wrong the derived rake would stop matching the printed rake — hand by hand, on
+every `post dead` hand, not just in aggregate. It currently matches exactly in both (0.78 and
+2.26).
+
+**Confidence: high but not absolute.** The mechanic is the standard dead-blind rule and the
+arithmetic closes in both available hands, but *two* hands at *one* stake level is a thin base.
+If a `post dead` hand at different stakes ever fails the rake check, this is the first assumption
+to revisit. Documented nowhere in vendor material — derived from the bytes.
+
 Confirmed verbatim (tournament):
 ```
 <name>: ante processed <amt>
@@ -302,11 +335,50 @@ Board [<cards>]
 Seat <n>: <name>[ showed [<cards>] and (won|lost)( <amt>)?| collected (<amt>)|folded (before|on the) <Street>( and did not bet)?]
 ```
 - `Board` has **no colon** (contrast Winamax and WPN era A/B; matches WPN era C and PokerStars).
-- **Multiple `Total pot | Rake` lines can appear in a single SUMMARY block** when the hand had
-  side pots — confirmed directly (one real hand in the PLO fixture has four such lines for one
-  showdown). Only the **last** one before the `Board` line is the hand's grand total; the
-  earlier ones are the individual pot components. A naive parser taking "the first match" for
-  total pot will silently under-report.
+- **Multiple `Total pot | Rake` lines can appear per hand, and one of them can appear BEFORE the
+  `*** SUMMARY ***` marker**, not inside the block. Do not assume they are all in the summary.
+- **There is no rule — first, last, or sum — that recovers the hand's grand total from these
+  lines. Do not try.** An earlier revision of this document claimed the last line is the grand
+  total. **That claim was wrong, and wrong in both directions.** It is corrected here rather than
+  softened, because a stated rule that fails both ways is worse than no rule. Measured across the
+  whole corpus (40 multi-line hands), three distinct patterns occur:
+
+  | pattern | hands | what the lines mean |
+  |---|---|---|
+  | **identical line printed twice** | 30 | Pure duplication, 2011-era files. `Total pot 0.95 \| Rake 0.05` appears verbatim twice, two lines apart. **Summing double-counts the pot.** |
+  | **two distinct lines** | 8 | Genuine pot components — but ordered **side pot first, main pot last**. **Taking the last under-reports.** |
+  | **four distinct lines, differing rakes** | 1 | Arithmetic does not close at all; see below. |
+
+  Worked example of the two-line case, `cash__NLHE-10max-USD-0.01-0.02-201605.winner.no.show.txt`,
+  verified by hand:
+
+  ```
+  Total pot 0.42 | Rake 0.04      <- BEFORE *** SUMMARY ***; this is the SIDE pot
+  *** SUMMARY ***
+  Total pot 0.29 | Rake 0.04      <- this is the MAIN pot
+  ...
+  Seat 0: Player2 collected (0.42)
+  Seat 4: Player4 showed [Kh Kc] and won (0.29)
+  ```
+
+  Contributions sum to 0.75 gross; 0.75 − 0.04 rake = 0.71 distributed = 0.42 + 0.29. Player4 was
+  all-in for 0.07, so the main pot he is eligible for is the smaller 0.29 and it is printed
+  **last**. Taking the last line as the grand total reports 0.29 for a 0.71 pot.
+
+- **The `Rake` value is the hand's total rake, repeated identically on every line** — it is not
+  per-pot. True in 39 of 40 multi-line hands. This is what makes the practical rule below work.
+
+- **Practical rule, and what the shipped parser does:** read **only the rake** from these lines,
+  and reconcile the pot itself from the action lines plus the per-seat `collected (x)` /
+  `won (x)` amounts. Those are internally consistent where the `Total pot` lines are not.
+
+- **The one hand where nothing closes.** In `cash__PLO-10max-USD-0.05-0.10-201209.txt`, hand
+  `#1073059444` prints four lines with *differing* rakes
+  (`6.91|1.35`, `3.95|1.10`, `10.30|0.60`, `11.55|0.60`), yet the summary lists exactly one
+  winner (`Player2 ... won (11.55)`) and marks every other shown hand "but did not win".
+  Contributions sum to 34.41, the four printed pots sum to 32.71, and the rakes sum to 3.65 —
+  none of which reconcile. **This hand is self-inconsistent source data, not a format variant to
+  model.** Treat it as corrupt and skip it; do not derive a four-pot grammar from it.
 - Folded-preflop wording is `folded before Flop` (no "the"); folded-postflop wording is
   `folded on the Flop`/`Turn`/`River` (with "the") — the asymmetry (before X vs. on the X) is
   real, confirmed, and easy to miss if writing one regex for both cases.
@@ -360,21 +432,37 @@ representative of what a real hand history's player-name field looks like; treat
    different regexes needed for the same semantic event.
 5. The first raise of a betting round can show an identical number for delta and total
    (`raises 120.00 to 120.00`) — a real site quirk, not noise; do not discard or "fix" it.
-6. Side-pot hands print multiple `Total pot | Rake` lines in one summary block — only the last
-   is authoritative.
-7. Seat numbers are not guaranteed unique within a single hand (confirmed real defect) — do not
+6. **Multiple `Total pot | Rake` lines per hand, with no rule that recovers the grand total.**
+   One can appear *before* `*** SUMMARY ***`. In 2011-era files the identical line is printed
+   twice (summing double-counts); in side-pot hands the two distinct lines are ordered **side pot
+   first, main pot last** (taking the last under-reports). Read only the **rake** from these
+   lines — it is the hand total, repeated — and reconcile the pot from the action lines and the
+   per-seat `collected`/`won` amounts. Full evidence in §9. *An earlier revision of this document
+   said "only the last is authoritative"; that was wrong in both directions.*
+7. **A Chico header can lie about the game variant.** All 17 hands in
+   `cash__PLO-10max-USD-0.05-0.10-201209.txt` are headed `Hold'em Pot Limit` and every one deals
+   **four** hole cards (`Dealt to Hero [3s Jd 8s 4d]`). Verified: 17/17 headers say Hold'em,
+   17/17 deal four cards. A parser that trusts the header label silently converts 17 Omaha hands
+   as Hold'em, which corrupts every derived hand strength downstream. **Derive the variant from
+   the dealt-card count, not from the header token**, and treat a disagreement between the two as
+   a reason to trust the cards. (Upstream fpdb-3 evidently knows this too — it files the fixture
+   under `PLO-` despite the header.)
+8. Seat numbers are not guaranteed unique within a single hand (confirmed real defect) — do not
    build a seat-indexed map without a collision check.
-8. `Unknown player` is a real, valid sentinel actor name, not an error to reject.
-9. In-hand chat lines (`<name> said "..."`) and table join/leave events
+9. `Unknown player` is a real, valid sentinel actor name, not an error to reject.
+10. In-hand chat lines (`<name> said "..."`) and table join/leave events
    (`<name> joins the table at seat #<n>`, `<name> has left the table`) are interleaved directly
    into the action stream with no delimiter — a naive "every line matches one of these five verb
    patterns" parser will throw on these unless it explicitly recognizes and skips them.
-10. At least one file begins with non-hand lobby text (`Tournament will start in a moment.`) —
+11. At least one file begins with non-hand lobby text (`Tournament will start in a moment.`) —
     a splitter must tolerate leading noise before the first real header.
-11. Date/timezone format is not stable even within the BetOnline brand itself across 2011-2016
+12. Date/timezone format is not stable even within the BetOnline brand itself across 2011-2016
     (four distinct shapes confirmed) — do not hardcode one date-parsing pattern.
-12. Play-money and real-money table lines differ in whether the table name is quoted — only one
+13. Play-money and real-money table lines differ in whether the table name is quoted — only one
     play-money sample exists, so don't over-generalize, but do handle unquoted table names.
+14. **`post dead` silently omits a dead small blind.** The printed amount is not the total
+    posted — even `post dead 0.00` still moves 0.25 into the pot at 0.25/0.50. Add one small
+    blind per `post dead` line; the printed `Rake` validates the inference hand by hand. See §6.
 
 ## 14. Sample index
 

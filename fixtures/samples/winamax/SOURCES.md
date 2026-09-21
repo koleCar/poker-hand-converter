@@ -30,11 +30,43 @@ tournament sample; treat it as inferred/lower-confidence).
 ## Encoding note (important, discovered directly from these bytes)
 
 Two distinct real encodings are present in this one small corpus, both from the same era:
-- Most files: **UTF-8 with a BOM** (`EF BB BF`), LF line endings only (no `\r`).
-- `CashGame_ValidHandTests_ValidHand.txt` and `CashGame_ValidHandTests_InValidHand.txt`: **no
-  BOM**, and the € sign is encoded as **Windows-1252** (`iconv -f WINDOWS-1252` recovers it
-  correctly; read as UTF-8 it renders as U+FFFD `�`). `InValidHand.txt` is additionally a
-  deliberately-corrupted negative fixture (see table).
+- 23 files: **UTF-8 with a BOM** (`EF BB BF`), LF line endings only (no `\r`).
+- **4 files: no BOM, € encoded as Windows-1252** — the raw byte `0x80`
+  (`iconv -f WINDOWS-1252` recovers it correctly; read as UTF-8 it renders as
+  U+FFFD `�`). The complete list, verified by byte count, is:
+
+  | file | count of `0x80` |
+  |---|---|
+  | `CashGame_GameTypeTests_NoLimitHoldem.txt` | 18 |
+  | `CashGame_GameTypeTests_PotLimitOmaha.txt` | 19 |
+  | `CashGame_ValidHandTests_ValidHand.txt` | 18 |
+  | `CashGame_ValidHandTests_InValidHand.txt` | 18 |
+
+  `InValidHand.txt` is additionally a deliberately-corrupted negative fixture
+  (see table).
+
+  Reproduce with:
+
+  ```python
+  for f in glob.glob('**/*.txt', recursive=True):
+      b = open(f, 'rb').read()
+      if b.count(b'\x80'):
+          print(f, b.count(b'\x80'), b[:3] == b'\xef\xbb\xbf')
+  ```
+
+  **An earlier revision of this file named only the two `ValidHandTests` files.
+  That was an undercount — it missed both `GameTypeTests` files.** Flagged when a
+  parser agent hit the discrepancy while implementing Winamax. It matters beyond
+  bookkeeping: encoding has turned out to be a product-level problem rather than
+  a Winamax quirk (a second agent hit the identical raw-`0x80` issue on Unibet,
+  and the converter's file-read path is being changed because of it), so these
+  four files are the validation set for that fix. Testing against two of them
+  validates against half the evidence.
+
+  **Corpus-wide context:** 22 of 413 fixtures are not valid UTF-8 — these 4 plus
+  MicroGaming 3 and Unibet 1 in Windows-1252, and 14 ACR/WPN files in UTF-16LE.
+  See `docs/research/FORMAT-MATRIX.md` §5, which also explains why sniffing for
+  `0x80` is the wrong detection test in both directions.
 
 ## Fixture index
 
@@ -53,7 +85,8 @@ Two distinct real encodings are present in this one small corpus, both from the 
 | CashGame_PlayerTests_WithShowdown.txt | `.../CashGame/PlayerTests/WithShowdown.txt` | 2026-09-16 | REAL | NLHE showdown where the button `mucked` after another player already showed and won |
 | CashGame_Seats_6-Max.txt | `.../CashGame/Seats/6 Max.txt` | 2026-09-16 | REAL | 5-max table populated with only 2 seats (table capacity in the header text is independent of how many seats are actually occupied) |
 | CashGame_Seats_HeadsUp.txt | `.../CashGame/Seats/HeadsUp.txt` | 2026-09-16 | REAL | True 2-max heads-up table, dealer also posts small blind (heads-up blind convention) |
-| CashGame_StreetTests_Preflop.txt / Flop.txt / Turn.txt / River.txt | `.../CashGame/StreetTests/*.txt` | 2026-09-16 | REAL | Hands ending at each successive street, confirming exact street-marker text `*** PRE-FLOP ***` / `*** FLOP *** [..]` / `*** TURN *** [..] [..]` / `*** RIVER *** [..] [..] [..]` (turn/river repeat the earlier board cards before the new one) |
+| CashGame_StreetTests_Preflop.txt / Turn.txt / River.txt | `.../CashGame/StreetTests/*.txt` | 2026-09-16 | REAL | Hands ending at each successive street, confirming exact street-marker text `*** PRE-FLOP ***` / `*** FLOP *** [..]` / `*** TURN *** [..] [..]` / `*** RIVER *** [..] [..] [..]` (turn/river repeat the earlier board cards before the new one) |
+| CashGame_StreetTests_Flop.txt | `.../CashGame/StreetTests/Flop.txt` | 2026-09-16 | REAL BYTES, **SELF-CONTRADICTORY CONTENT — DO NOT MAKE A PARSER ACCEPT THIS** | The file is a faithful copy of the upstream fixture, but the hand disagrees with itself: the street marker reads `*** FLOP *** [3d 3s 2s]` while the summary reads `Board: [7h Qs 3c]`. **These are three entirely different cards, not a truncation or a reordering**, so there is no rule that reconciles them. A parser agent correctly refused the hand rather than picking a side: either choice can hand a tracker a flush or a pair that never existed. Keep the file as a corpus fact about upstream data quality; do not "fix" a parser to swallow it, and do not use it to derive street-marker or board grammar (the other three StreetTests files cover that cleanly). |
 | CashGame_Tables_Table1.txt … Table4.txt | `.../CashGame/Tables/Table{1..4}.txt` | 2026-09-16 | REAL | Different table names/sizes (9-max "Istanbul", 5-max "Dublin"/"Vienna 36"/"San Antonio") confirming the `Table: 'Name' N-max (real money) Seat #N is the button` grammar is stable across tables |
 | CashGame_GameTypeTests_NoLimitHoldem.txt | `.../CashGame/GameTypeTests/NoLimitHoldem.txt` | 2026-09-16 | REAL | `Holdem no limit` header token; **non-BOM, Windows-1252-encoded €** (byte `0x80`, renders as `�` if misread as UTF-8) |
 | CashGame_GameTypeTests_PotLimitOmaha.txt | `.../CashGame/GameTypeTests/PotLimitOmaha.txt` | 2026-09-16 | REAL | `Omaha pot limit` header token; same Windows-1252 encoding as above |

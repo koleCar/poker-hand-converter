@@ -82,15 +82,17 @@ function semantics(hand: PhfHand) {
     handId: hand.meta.handId,
     playedAt: hand.playedAt,
     game: hand.game,
-    table: hand.table,
-    // `levelLabel` / `levelNumber` are excluded on purpose. Unibet never prints
-    // a tournament level, so the parser leaves both null, but the standard-text
-    // grammar has no way to write "no level" - `toStandardText` emits `Level I`
-    // and reading it back produces "I" / 1. The scaffolding is the serializer's,
-    // not the room's, so the round trip is compared without it.
-    tournament: hand.tournament
-      ? { ...hand.tournament, levelLabel: null, levelNumber: null }
-      : null,
+    // `table.fastFold` and `tournament.prizePool` are dropped from the text
+    // comparison because the GG-style text has no clause for either: Unibet's
+    // `Banzai` brand and its `Total prize €4` survive in PHF, which is what the
+    // database and the filters read, but they cannot be written into a format
+    // trackers import. That is a different thing from the level clause below,
+    // where the text used to assert something actively false.
+    table: { ...hand.table, fastFold: null },
+    // Compared whole, level included. The standard grammar's `Level` clause is
+    // optional, so a hand whose room never stated a level round-trips with both
+    // fields still null instead of coming back as level 1.
+    tournament: hand.tournament ? { ...hand.tournament, prizePool: undefined } : null,
     players: hand.players,
     board: hand.board,
     results: hand.results,
@@ -253,6 +255,10 @@ describe("Unibet header generations", () => {
     expect(returned.player).toBe("Hero");
     expect(returned.amount).toBe(-85);
 
+    // `No Limit Hold'Em Banzai` is a fast-fold pool; canonicalising the label to
+    // `Hold'em No Limit` drops the brand, so it is lifted out first.
+    expect(hand.table.fastFold).toBe("Banzai");
+
     // The only seat with known cards is the owner of the export.
     expect(hand.players.find((player) => player.isHero)?.name).toBe("Hero");
     expect(hand.results.players.find((result) => result.player === "Hero")?.net).toBe(15);
@@ -277,9 +283,15 @@ describe("Unibet header generations", () => {
     expect(hand.tournament?.buyInUnit.code).toBe("EUR");
     expect(hand.tournament?.levelSmallBlind).toBe(25);
     expect(hand.tournament?.levelBigBlind).toBe(50);
-    // Unibet states no level, so nothing is invented for one.
+    // Unibet states no level, so nothing is invented for one - and because the
+    // standard grammar's `Level` clause is optional, that survives the trip out
+    // to text and back rather than reading as level 1.
     expect(hand.tournament?.levelLabel).toBeNull();
     expect(hand.tournament?.levelNumber).toBeNull();
+    expect(toStandardText(hand)).not.toMatch(/Level/);
+    // `Total prize €4` is real money like the buy-in, not chips.
+    expect(hand.tournament?.prizePool).toBe(400);
+    expect(hand.game.unit.code).toBe("CHIPS");
 
     // The hero's session token is stripped so the same account is the same
     // player across files; the seat is still flagged as the hero.

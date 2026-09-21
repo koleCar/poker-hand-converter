@@ -36,10 +36,12 @@
  *   betting state, and emitting the line as well would hand the money back twice.
  * - **`BadBeatContribution` is not pot money.** It is a jackpot drop taken from
  *   the player's stack straight to the jackpot fund, and it never appears in the
- *   `Win` amount - the badbeat fixture balances exactly without it. PHF's `fees`
- *   are deductions *from the pot*, so there is nowhere honest to put it and it
- *   stays in `meta.rawText` only. The cost is that the contributor's replayed
- *   stack is high by the drop, usually a cent or two.
+ *   `Win` amount - the badbeat fixture balances exactly without it. It is
+ *   therefore *not* a `PhfFees` entry, which is a deduction from the pot; it is a
+ *   `PhfChipMovement` with `toPot: false`, the same shape Run It Once's Splash
+ *   the Pot uses from the other end. Chip conservation ignores it and the
+ *   replayer takes it off the contributor's starting stack, which is what keeps
+ *   that stack from reading a cent or two high all hand.
  * - **`Disconnect` carries a `value` that is milliseconds, not money** (`30000`).
  *   Reading it as chips would add £300 to a hand.
  */
@@ -50,6 +52,7 @@ import {
   unitForSymbol,
   type Amount,
   type CurrencyUnit,
+  type PhfChipMovement,
   type PhfHand,
   type PhfWarning,
 } from "../phf/types";
@@ -61,7 +64,7 @@ import {
   type HandDraft,
 } from "./shared/p2-handbuilder";
 import { child, children, parseXml, type XmlElement } from "./shared/p2-xml";
-import { decodeBase64Utf16 } from "./shared/p4-textroom";
+import { decodeBase64Utf16, strictAmount } from "./shared/p4-textroom";
 
 const VERSION = "1.0.0";
 
@@ -163,7 +166,7 @@ export const microgamingParser: SiteParser = {
       const seat: DraftSeat = {
         seat: num,
         name,
-        startingStack: parseAmount(node.attrs.balance, unit),
+        startingStack: strictAmount(node.attrs.balance ?? "", unit, "a <Seat> balance"),
         // A seat that was sitting out was not dealt in; anybody else is
         // confirmed below by having acted.
         dealtIn: false,
@@ -186,6 +189,7 @@ export const microgamingParser: SiteParser = {
     let turn: string | null = null;
     let river: string | null = null;
     let statedReturn: { player: string; amount: Amount } | null = null;
+    const chipMovements: PhfChipMovement[] = [];
 
     const gameplay = child(game, "Gameplay");
     for (const node of children(gameplay, "Action")) {
@@ -201,7 +205,10 @@ export const microgamingParser: SiteParser = {
             );
           }
           seat.dealtIn = true;
-          collected.push({ player: seat.name, amount: parseAmount(winner.attrs.amount, unit) });
+          collected.push({
+            player: seat.name,
+            amount: strictAmount(winner.attrs.amount ?? "", unit, "a <Win> amount"),
+          });
         }
         continue;
       }
@@ -263,11 +270,31 @@ export const microgamingParser: SiteParser = {
       }
       if (type === "MoneyReturned") {
         // Read for the cross-check only; the builder derives the return itself.
-        statedReturn = { player: seat.name, amount: parseAmount(node.attrs.value, unit) };
+        statedReturn = {
+          player: seat.name,
+          amount: strictAmount(node.attrs.value ?? "", unit, "a MoneyReturned value"),
+        };
         continue;
       }
       if (type === "BadBeatContribution") {
-        // A jackpot drop, not pot money: see the file header.
+        // A jackpot drop: it leaves the stack without ever entering the pot, so
+        // it is a chip movement rather than a contribution or a fee.
+        chipMovements.push({
+          kind: "bad-beat-drop",
+          fromSeat: seat.seat,
+          fromPlayer: seat.name,
+          toPot: false,
+          amount: parseAmount(node.attrs.value, unit),
+          // `raw` is emitted verbatim by `toStandardText`, so it has to be a
+          // line the standard grammar can read back. This room's source "line"
+          // is an XML fragment, and the grammar has no form for a seat-to-house
+          // movement anyway, so it is left null: the drop lives in the PHF
+          // object, which is what the replayer and the database read, and the
+          // XML is still in `meta.rawText`.
+          raw: null,
+          // MicroGaming drops it before the blinds are posted.
+          anchor: "before-postings",
+        });
         continue;
       }
       if (type === "Disconnect") {
@@ -301,8 +328,8 @@ export const microgamingParser: SiteParser = {
       gameLabel: canonicalLabel(game.attrs.betlimit ?? "NL"),
       unit,
       decimals: "fixed2",
-      headerSmallBlind: parseAmount(stakes[0], unit),
-      headerBigBlind: parseAmount(stakes[1] ?? stakes[0], unit),
+      headerSmallBlind: strictAmount(stakes[0] ?? "", unit, "the header stakes"),
+      headerBigBlind: strictAmount(stakes[1] ?? stakes[0] ?? "", unit, "the header stakes"),
       tableName:
         decodeBase64Utf16(game.attrs.unicodetablename ?? "") || (game.attrs.tablename ?? null),
       maxSeats: Number(game.attrs.tablesize ?? 0) || fallbackMaxSeats(seats),
@@ -326,6 +353,11 @@ export const microgamingParser: SiteParser = {
     };
 
     const hand = buildHand(draft, ctx);
+    if (chipMovements.length > 0) {
+      // Attached after the build because the drop never touches the pot, so it
+      // has no place in the normalized standard text the builder works through.
+      hand.chipMovements = [...(hand.chipMovements ?? []), ...chipMovements];
+    }
     crossCheck(hand, statedReturn);
     return hand;
   },

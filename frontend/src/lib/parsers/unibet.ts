@@ -49,7 +49,7 @@ import { extractCards } from "../cards";
 import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
 import { parseStandardHand } from "../phf/serialize";
 import {
-  CHIPS,
+  chipsUnitFor,
   formatAmount,
   formatAmountDigits,
   parseAmount,
@@ -74,6 +74,7 @@ import {
   leadingName,
   namesByLength,
   refuseLossyText,
+  strictAmount,
 } from "./shared/p4-textroom";
 
 const VERSION = "1.0.0";
@@ -120,7 +121,9 @@ interface Header {
   playedAt: string;
   /** Table name, when the header carries one (2021 only). */
   tableName: string | null;
-  tournament: { id: string; buyInToken: string } | null;
+  /** Fast-fold brand from the game label (`Banzai`), or null. */
+  fastFold: string | null;
+  tournament: { id: string; buyInToken: string; prizeToken: string | null } | null;
 }
 
 function isoAt(h: string, mi: string, s: string, y: string, mo: string, d: string): string {
@@ -158,7 +161,12 @@ function readHeader(line: string): Header | null {
       bigBlind: tour[6],
       playedAt: isoAt(tour[9], tour[10], tour[11], tour[12], tour[13], tour[14]),
       tableName: null,
-      tournament: { id: tour[2], buyInToken: `${tour[3]}+${tour[4]}` },
+      fastFold: fastFoldOf(tour[7]),
+      tournament: {
+        id: tour[2],
+        buyInToken: `${tour[3]}+${tour[4]}`,
+        prizeToken: tour[8] ?? null,
+      },
     };
   }
   const cash = line.match(MODERN_CASH_HEADER);
@@ -172,6 +180,7 @@ function readHeader(line: string): Header | null {
       bigBlind: cash[3],
       playedAt: isoAt(cash[5], cash[6], cash[7], cash[8], cash[9], cash[10]),
       tableName: null,
+      fastFold: fastFoldOf(cash[4]),
       tournament: null,
     };
   }
@@ -188,6 +197,7 @@ function readHeader(line: string): Header | null {
       // The 2021 header has no table line at all; the `€1 NL` token is the only
       // thing identifying the table, so it is kept as the name.
       tableName: `${legacy[2]} ${legacy[3]}`,
+      fastFold: fastFoldOf(legacy[6]),
       tournament: null,
     };
   }
@@ -309,13 +319,17 @@ export const unibetParser: SiteParser = {
       throw new ParseSkip("no-players", "The chunk has no `*** Seated players ***` block.");
     }
 
-    const unit = unitFor(header, seatLines, warnings);
+    // `chipsUnitFor` is asked about the hand *body* only. The 2026 tournament
+    // header writes its blinds as `25.00/50.00` purely as formatting while every
+    // in-hand amount is a bare integer, so handing it the header would read a
+    // whole-chip structure as a fractional one and scale the hand by 100.
+    const unit = unitFor(header, seatLines, lines.slice(1).join("\n"), warnings);
     const names = namesByLength(seatLines.map((entry) => entry.name));
     for (const entry of seatLines) {
       seats.push({
         seat: entry.seat,
         name: entry.name,
-        startingStack: parseAmount(entry.stack, unit),
+        startingStack: strictAmount(entry.stack, unit, "a seat stack"),
         dealtIn: false,
         isHero: entry.name === heroName,
         dealtCards: [],
@@ -362,15 +376,15 @@ export const unibetParser: SiteParser = {
       if (inSummary) {
         const pot = line.match(TOTAL_POT_LINE);
         if (pot) {
-          statedPot = parseAmount(pot[1], unit);
-          statedRake = pot[2] === undefined ? null : parseAmount(pot[2], unit);
+          statedPot = strictAmount(pot[1], unit, "the summary total pot");
+          statedRake = pot[2] === undefined ? null : strictAmount(pot[2], unit, "the summary rake");
           continue;
         }
         const seat = line.match(SUMMARY_SEAT_LINE);
         if (seat) {
           reported.set(seat[2].trim(), {
-            won: parseAmount(seat[4], unit),
-            net: parseAmount(seat[5], unit),
+            won: strictAmount(seat[4], unit, "a summary seat line"),
+            net: strictAmount(seat[5], unit, "a summary seat line"),
           });
           continue;
         }
@@ -403,7 +417,10 @@ export const unibetParser: SiteParser = {
 
       const uncalled = line.match(UNCALLED_LINE);
       if (uncalled && names.includes(uncalled[1].trim())) {
-        statedUncalled = { player: uncalled[1].trim(), amount: parseAmount(uncalled[2], unit) };
+        statedUncalled = {
+          player: uncalled[1].trim(),
+          amount: strictAmount(uncalled[2], unit, "an uncalled-bet line"),
+        };
         continue;
       }
 
@@ -513,8 +530,8 @@ export const unibetParser: SiteParser = {
       gameLabel: canonicalLabel(header.limit),
       unit,
       decimals: "fixed2",
-      headerSmallBlind: parseAmount(header.smallBlind, unit),
-      headerBigBlind: parseAmount(header.bigBlind, unit),
+      headerSmallBlind: headerBlind(header.smallBlind, unit, "the header small blind"),
+      headerBigBlind: headerBlind(header.bigBlind, unit, "the header big blind"),
       tableName,
       maxSeats: maxSeats || fallbackMaxSeats(seats),
       buttonSeat,
@@ -546,10 +563,10 @@ export const unibetParser: SiteParser = {
  * Draft in, PHF out, with a tournament header the shared builder cannot write.
  *
  * `draftToStandardText` always emits the cash header shape, so a tournament's
- * first line is rewritten before the text is re-read. The level is the one piece
- * of invention: Unibet states blinds but never a level number, so the header
- * carries `Level I` purely so the standard grammar parses, and the parsed level
- * is cleared afterwards rather than left claiming this was level one.
+ * first line is rewritten before the text is re-read. Nothing is invented on the
+ * way: Unibet states blinds but never a level, and the standard grammar's `Level`
+ * clause is optional, so the rewritten header simply omits it and `levelLabel`
+ * stays null through the round trip.
  */
 function buildUnibetHand(draft: HandDraft, header: Header, ctx: SiteParserContext): PhfHand {
   if (draft.seats.filter((seat) => seat.dealtIn).length < 2) {
@@ -569,9 +586,12 @@ function buildUnibetHand(draft: HandDraft, header: Header, ctx: SiteParserContex
       `${formatAmountDigits(draft.headerSmallBlind, draft.unit, "fixed2")}/` +
       `${formatAmountDigits(draft.headerBigBlind, draft.unit, "fixed2")}`;
     const date = draft.playedAt ? formatHeaderDate(draft.playedAt) : "";
+    // No `Level` clause: Unibet states blinds but never a level, and the
+    // standard grammar now lets the clause be absent rather than forcing a
+    // fabricated `Level I` that reads back as level 1.
     const payload =
       `Tournament #${header.tournament.id}, ${buyIn}+${fee} ${draft.gameLabel} - ` +
-      `Level I (${stakes}) - ${date}`;
+      `(${stakes}) - ${date}`;
     text = text.replace(/^(Poker Hand #\S+:).*$/m, `$1 ${payload}`);
   }
 
@@ -592,10 +612,15 @@ function buildUnibetHand(draft: HandDraft, header: Header, ctx: SiteParserContex
   hand.meta.rawText = draft.rawText;
   hand.meta.warnings = [...draft.warnings, ...hand.meta.warnings];
   hand.meta.handKey = hand.meta.handId;
-  if (hand.tournament) {
-    // Unibet never prints a level. `Level I` above was scaffolding.
-    hand.tournament.levelLabel = null;
-    hand.tournament.levelNumber = null;
+  if (header.fastFold) {
+    hand.table.fastFold = header.fastFold;
+  }
+  if (hand.tournament && header.tournament?.prizeToken) {
+    // `Total prize €4` is real money like the buy-in, not chips.
+    hand.tournament.prizePool = parseAmount(
+      header.tournament.prizeToken,
+      hand.tournament.buyInUnit,
+    );
   }
   return hand;
 }
@@ -647,7 +672,7 @@ function readAction(
   );
   if (posted) {
     const kind = posted[1].toLowerCase();
-    const amount = parseAmount(posted[2], unit);
+    const amount = strictAmount(posted[2], unit, "a posting line");
     if (kind === "small blind") {
       act(player, { kind: "small-blind", amount, allIn });
       return true;
@@ -691,12 +716,12 @@ function readAction(
 
   const called = body.match(/^calls\s+(\S+)$/i);
   if (called) {
-    act(player, { kind: "call", amount: parseAmount(called[1], unit), allIn });
+    act(player, { kind: "call", amount: strictAmount(called[1], unit, "a call"), allIn });
     return true;
   }
   const bet = body.match(/^bets\s+(\S+)$/i);
   if (bet) {
-    act(player, { kind: "bet", amount: parseAmount(bet[1], unit), allIn });
+    act(player, { kind: "bet", amount: strictAmount(bet[1], unit, "a bet"), allIn });
     return true;
   }
   const raised = body.match(/^raises\s+\S+\s+to\s+(\S+)$/i);
@@ -704,7 +729,12 @@ function readAction(
     // Both numbers are printed; only the "to" total is reliable. Fixture 01's
     // `raises €0.95 to €0.95` states a raise-by that is the whole stack rather
     // than the amount over the big blind, so the "by" figure is not read at all.
-    act(player, { kind: "raise", amount: parseAmount(raised[1], unit), toTotal: true, allIn });
+    act(player, {
+      kind: "raise",
+      amount: strictAmount(raised[1], unit, "a raise"),
+      toTotal: true,
+      allIn,
+    });
     return true;
   }
 
@@ -730,7 +760,7 @@ function readAction(
   if (sidePot) {
     ctx.collected.push({
       player,
-      amount: parseAmount(sidePot[2], unit),
+      amount: strictAmount(sidePot[2], unit, "a side-pot win line"),
       potName: `${sidePot[1].toLowerCase()} pot`,
     });
     return true;
@@ -739,7 +769,7 @@ function readAction(
   if (wins) {
     ctx.collected.push({
       player,
-      amount: parseAmount(wins[1], unit),
+      amount: strictAmount(wins[1], unit, "a win line"),
       potName: wins[2] ? `${wins[2].toLowerCase()} pot` : "pot",
     });
     return true;
@@ -858,9 +888,26 @@ function crossCheck(
  * stacks" means chips, which is only allowed to be true when the header agrees
  * that this is a tournament.
  */
+/**
+ * Read a header blind, tolerating a purely decorative fractional part.
+ *
+ * The 2026 tournament header writes `25.00/50.00` while every in-hand amount is
+ * a bare integer, so `unitFor` deliberately reads the structure as whole chips
+ * (see its comment - reading the header instead would scale the hand by 100).
+ * That leaves `strictAmount` refusing `25.00` as `too-precise`, which is the
+ * wrong answer here: the guard exists to stop a separator being *guessed* at,
+ * and a zero fractional part is exactly representable however it is read.
+ * Anything with real precision behind the point still goes to `strictAmount`.
+ */
+function headerBlind(token: string, unit: CurrencyUnit, where: string): Amount {
+  const whole = unit.minorUnits === 1 ? token.trim().match(/^(\d+)\.0+$/) : null;
+  return whole ? strictAmount(whole[1], unit, where) : strictAmount(token, unit, where);
+}
+
 function unitFor(
   header: Header,
   seatLines: Array<{ stack: string }>,
+  body: string,
   warnings: PhfWarning[],
 ): CurrencyUnit {
   const symbol = seatLines.map((entry) => currencySymbolOf(entry.stack)).find(Boolean) ?? "";
@@ -872,7 +919,7 @@ function unitFor(
           "tournament header, so the amounts cannot be read as either cash or chips.",
       );
     }
-    return CHIPS;
+    return chipsUnitFor(body);
   }
   if (header.tournament) {
     // Research says tournament chip counts never carry a symbol. If one turns
@@ -881,9 +928,19 @@ function unitFor(
       code: "unexpected-currency",
       message: `Tournament stacks carry the symbol "${symbol}"; read as chips anyway.`,
     });
-    return CHIPS;
+    return chipsUnitFor(body);
   }
   return unitForSymbol(symbol);
+}
+
+/**
+ * Unibet's fast-fold brand, which lives inside the game label.
+ *
+ * `No Limit Hold'Em Banzai` is a Banzai pool; canonicalising the label to
+ * `Hold'em No Limit` drops the word, so it is lifted out first.
+ */
+function fastFoldOf(gameLabel: string): string | null {
+  return /\bbanzai\b/i.test(gameLabel) ? "Banzai" : null;
 }
 
 /** Unibet writes `No Limit Hold'Em`; trackers expect the GG wording. */

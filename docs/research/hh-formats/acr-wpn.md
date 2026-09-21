@@ -339,9 +339,9 @@ single strongest fingerprint of this era (see §2).
 ## 8. Action verbs — exact phrasing
 
 **Era A/B (confirmed verbatim):** `Player <name> folds`, `checks`, `calls (<amt>)`,
-`raises (<amt>)` (note: **absolute raise-to amount in parens, not a delta**, confirmed by
-reading the fixtures directly — e.g. a raise from a 4 bet to 12 total prints `raises (12)`, not
-`raises (8)`), `bets (<amt>)`, `allin (<amt>)`, `mucks cards`, `is timed out.`. Uncalled bet:
+`raises (<amt>)` — **see the correction immediately below, this is the single most damaging thing
+to get wrong in this format** — `bets (<amt>)`, `allin (<amt>)`, `mucks cards`, `is timed out.`.
+Uncalled bet:
 `Uncalled bet (<amt>) returned to <name>`. Showdown-with-cards:
 `*Player <name> shows: <hand description> [<cards>]. Bets: X. Collects: Y. Wins: Z.` — leading
 `*` marks the shown/winning hand specifically (mirrors WPN's own summary convention, not
@@ -349,6 +349,73 @@ optional decoration). Not-shown: two variants confirmed for the identical situat
 `Player <name> does not show cards.Bets: ...` (uncontracted, **no space before "Bets:"** — real,
 confirmed in multiple 2014 files) and `Player <name> doesn't show cards.Bets: ...` (contracted,
 confirmed in a different 2016/2019 file) — **a parser must accept both spellings**.
+
+### CORRECTION: era A/B `raises (N)` is the chips the player ADDS, not a street total
+
+**An earlier revision of this document said `(N)` was the "absolute raise-to amount, not a
+delta". That was wrong, and it is corrected here rather than softened, because a parser written
+from it overstates every raise by a player who already had chips in on that street — and still
+balances on the many hands where the raiser was first in, so the bug hides.** ACR/WPN is the
+largest US-facing pool in this project, which makes this the most consequential error in the
+research set.
+
+**The correct reading:** `(N)` is the number of chips the player puts in *with this action*. The
+player's new street total is `their prior street investment + N`.
+
+Note carefully that this is **not** the PokerStars sense of "delta" either. PokerStars' `raises X
+to Y` puts the increment *over the current bet* in `X`. ACR puts the *chips added by this
+player* in `(N)`. The two differ whenever the raiser already has money in front of them, which is
+exactly the blind-vs-button case that occurs constantly.
+
+**Decisive single hand** — `hhsmithy-corpus/CashGame_PlayerTests_WaitingBB.txt`, blinds 0.10/0.25:
+
+```
+Player ButtonSmasher has small blind (0.10)
+Player Garzvorgh has big blind (0.25)
+Player ButtonSmasher raises (0.40)
+Player Garzvorgh folds
+Uncalled bet (0.25) returned to ButtonSmasher
+------ Summary ------
+Pot: 0.50. Rake 0
+Player Garzvorgh does not show cards.Bets: 0.25. Collects: 0. Loses: 0.25.
+*Player ButtonSmasher mucks (does not show cards). Bets: 0.25. Collects: 0.50. Wins: 0.25.
+```
+
+Three readings, checked against the four independent numbers the file already states
+(the returned amount, both `Bets:` figures, and `Pot:`):
+
+| reading | street total | uncalled returned | matches printed 0.25? |
+|---|---|---|---|
+| absolute street total (**old claim**) | 0.40 | 0.40 − 0.25 = **0.15** | ✗ |
+| PokerStars-style increment over current bet | 0.25 + 0.40 = 0.65 | 0.65 − 0.25 = **0.40** | ✗ |
+| **chips added by this player** | 0.10 + 0.40 = 0.50 | 0.50 − 0.25 = **0.25** | ✓ |
+
+Only the third reading also reproduces `Bets: 0.25` (0.50 staked − 0.25 returned) and
+`Pot: 0.50` (0.25 + 0.25).
+
+**Corpus-wide verification.** Each reading was simulated over every era-A/B hand containing a
+raise, replaying the action lines and reconciling the result against the per-player `Bets:`
+column that the format prints independently — so the file validates the hypothesis rather than
+the other way round:
+
+| reading | hands matching `Bets:` | hands mismatching |
+|---|---|---|
+| **chips added** | **87** | 8 |
+| absolute street total (old claim) | 53 | 42 |
+| increment over current bet | 2 | 93 |
+
+The 8 residual mismatches under the correct reading are *not* raise-semantics failures: they are
+one ante tournament (every player off by exactly the 10-chip ante, which the simulation did not
+model) and one capped PLO file (cap mechanics). Note also that the wrong reading still matched 53
+hands — that is the trap, and it is why this needed a whole-corpus check rather than a spot check.
+
+Independently corroborated by parser agent 5, which cross-checks every legacy hand per player
+against the `Bets:` column and refuses a hand rather than storing it when the reading disagrees,
+across 122 hands.
+
+**Cross-site note:** this "chips added" semantic is the same one used by WePlay and by
+Ignition/Bodog/Bovada, and differs from PokerStars, GGPoker and Winamax. See
+`COVERAGE-PLAN.md` §5 trap 1 — it is the most common cross-site parser bug in this project.
 
 **Era C (confirmed verbatim):** `<name> folds`, `checks`, `calls $<amt>`,
 `raises $<amt> to $<amt>` (delta-then-total, unlike era A/B), `bets $<amt>`, `caps $<amt>`
@@ -425,9 +492,15 @@ on the seat line at all (unlike Ignition's `[ME]`); hero is identifiable only vi
    shape before choosing a parsing strategy; don't assume any single example generalizes.
 2. **Encoding is unpredictable and uncorrelated with era** — always sniff (try UTF-8 BOM, then
    UTF-16LE BOM, then a fallback codepage) rather than hardcode one.
-3. Era A/B raise amounts in parens are the **absolute total**, not the delta — `raises (12)`
-   means "raises to 12 total", not "raises by 12". Era C uses explicit `X to Y` instead, which
-   is easier but a different convention — do not port one era's raise-size logic to the other.
+3. **Era A/B `raises (N)` is the chips the player ADDS with that action** — new street total =
+   their prior street investment + N. It is **not** the absolute street total (an earlier
+   revision of this doc claimed that; it was wrong — see the correction in §8), and it is **not**
+   PokerStars' increment-over-the-current-bet either. The three readings diverge only when the
+   raiser already has chips in front of them, which is why a wrong reading still balances on
+   about half the corpus and hides. Verified by replaying every era-A/B raise hand against the
+   independently-printed per-player `Bets:` column: chips-added 87 match / 8 explainable,
+   absolute-total 53/42, increment 2/93. Era C uses explicit `X to Y` instead — a genuinely
+   different convention, so do not port one era's raise-size logic to the other.
 4. Two spellings of "does not show" exist for the identical situation in era A/B
    (`does not show cards.` vs `doesn't show cards.`) with **no space before `Bets:`** in both —
    handle both, and don't assume a space that isn't there.

@@ -239,11 +239,26 @@ future agent invents a format and ships something that silently mangles hands.
 
 Ranked by how much damage they do and how easily they pass tests anyway.
 
-1. **`raises X to Y` is not one semantic.** PokerStars and GGPoker put the raise
-   *increment* in `X`. WePlay and Ignition put the *chips the player adds*
-   there. Both parse cleanly; only one is right per site, and the wrong one
-   produces plausible bet sizes that are silently incorrect. Rule: drive off
-   `Y`, the post-action street total, which is unambiguous everywhere.
+1. **Raise amounts are three different semantics across sites, and the wrong one
+   still balances about half the time.** This is the most damaging and most
+   easily-missed bug class in the whole project.
+
+   | semantic | sites | shape |
+   |---|---|---|
+   | increment *over the current bet* | PokerStars, GGPoker, Winamax | `raises X to Y` |
+   | **chips the player adds now** | WePlay, Ignition/Bodog/Bovada, **ACR/WPN era A/B** | `raises X to Y` / `raises (N)` |
+   | one amount, no total at all | CoinPoker all-in form | `raises N and is all-in` |
+
+   Where a total `Y` is printed, **drive off `Y`** — the post-action street total
+   is unambiguous everywhere. Where it is not (ACR era A/B `raises (N)`,
+   CoinPoker's all-in form), you must know which semantic the site uses, because
+   the three readings only diverge when the raiser already has chips in front of
+   them. On ACR, replaying the whole corpus against the independently-printed
+   `Bets:` column scored chips-added 87 match / 8 explainable, absolute-total
+   53/42, increment 2/93 — note that the *wrong* reading still matched 53 hands.
+   That is exactly how this ships unnoticed. If a format prints an independent
+   per-player total anywhere (ACR's `Bets:`, a rake line, a summary collected
+   amount), reconcile against it per hand rather than trusting the verb.
 2. **Run-it-twice double-counts pots.** PokerStars and GGPoker emit a *separate
    showdown block per run* (`*** FIRST SHOW DOWN ***` / `*** FIRST SHOWDOWN ***`)
    each containing its own `collected` lines, so a winner collects twice and a

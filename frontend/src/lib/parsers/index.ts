@@ -19,6 +19,7 @@
  */
 
 import { registerParser } from "../phf/detect";
+import { acrwpnParser } from "./acrwpn";
 import { chicoParser } from "./chico";
 import { coinpokerParser } from "./coinpoker";
 import { entractionParser } from "./entraction";
@@ -57,8 +58,10 @@ registerParser(pokerbrosParser);
 registerParser(ignitionParser);
 registerParser(winamaxParser);
 registerParser(chicoParser);
+registerParser(acrwpnParser);
 
 export {
+  acrwpnParser,
   chicoParser,
   coinpokerParser,
   entractionParser,

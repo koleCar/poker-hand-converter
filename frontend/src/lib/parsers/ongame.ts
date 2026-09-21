@@ -49,7 +49,6 @@
 import { extractCards } from "../cards";
 import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
 import {
-  parseAmount,
   unitForSymbol,
   type Amount,
   type CurrencyUnit,
@@ -69,6 +68,7 @@ import {
   expandMonth,
   leadingName,
   namesByLength,
+  strictAmount,
 } from "./shared/p4-textroom";
 
 const VERSION = "1.0.0";
@@ -146,7 +146,7 @@ export const ongameParser: SiteParser = {
         seats.push({
           seat: Number(seat[1]),
           name: seat[2].trim(),
-          startingStack: parseAmount(seat[3], unit),
+          startingStack: strictAmount(seat[3], unit, "a seat line"),
           dealtIn: true,
           isHero: false,
           dealtCards: [],
@@ -249,24 +249,24 @@ export const ongameParser: SiteParser = {
 
       const pot = line.match(POT_LINE);
       if (pot) {
-        statedPot += parseAmount(pot[2], unit);
+        statedPot += strictAmount(pot[2], unit, "a summary pot line");
         collected.push({
           player: pot[3].trim(),
-          amount: parseAmount(pot[4], unit),
+          amount: strictAmount(pot[4], unit, "a summary pot line"),
           potName: `${pot[1].toLowerCase()} pot`,
         });
         continue;
       }
       const rake = line.match(RAKE_LINE);
       if (rake) {
-        statedRake = parseAmount(rake[1], unit);
+        statedRake = strictAmount(rake[1], unit, "the rake line");
         continue;
       }
       const seat = line.match(SUMMARY_SEAT_LINE);
       if (seat && names.includes(seat[2].trim())) {
         const name = seat[2].trim();
         if (seat[4] !== undefined) {
-          reportedNet.set(name, parseAmount(seat[4], unit));
+          reportedNet.set(name, strictAmount(seat[4], unit, "a summary seat line"));
         }
         if (seat[5]) {
           // The only place hole cards ever appear. A player who is shown here
@@ -308,8 +308,8 @@ export const ongameParser: SiteParser = {
       gameLabel: canonicalLabel(limitToken),
       unit,
       decimals: "fixed2",
-      headerSmallBlind: parseAmount(smallBlind, unit),
-      headerBigBlind: parseAmount(bigBlind, unit),
+      headerSmallBlind: strictAmount(smallBlind, unit, "the table stakes"),
+      headerBigBlind: strictAmount(bigBlind, unit, "the table stakes"),
       tableName: tableName || null,
       maxSeats: Math.max(maxSeats, fallbackMaxSeats(seats)),
       buttonSeat,
@@ -356,14 +356,20 @@ function readAction(
       street,
       player,
       kind: posted[1].toLowerCase() === "small" ? "small-blind" : "big-blind",
-      amount: parseAmount(posted[2], unit),
+      amount: strictAmount(posted[2], unit, "a blind post"),
       allIn,
     });
     return true;
   }
   const ante = body.match(/^posts\s+ante\s+\((\S+)\)$/i);
   if (ante) {
-    actions.push({ street, player, kind: "ante", amount: parseAmount(ante[1], unit), allIn });
+    actions.push({
+      street,
+      player,
+      kind: "ante",
+      amount: strictAmount(ante[1], unit, "an ante"),
+      allIn,
+    });
     return true;
   }
   if (/^folds$/i.test(body)) {
@@ -376,12 +382,24 @@ function readAction(
   }
   const called = body.match(/^calls\s+(\S+)$/i);
   if (called) {
-    actions.push({ street, player, kind: "call", amount: parseAmount(called[1], unit), allIn });
+    actions.push({
+      street,
+      player,
+      kind: "call",
+      amount: strictAmount(called[1], unit, "a call"),
+      allIn,
+    });
     return true;
   }
   const bet = body.match(/^bets\s+(\S+)$/i);
   if (bet) {
-    actions.push({ street, player, kind: "bet", amount: parseAmount(bet[1], unit), allIn });
+    actions.push({
+      street,
+      player,
+      kind: "bet",
+      amount: strictAmount(bet[1], unit, "a bet"),
+      allIn,
+    });
     return true;
   }
   const raised = body.match(/^raises\s+\S+\s+to\s+(\S+)$/i);
@@ -392,7 +410,7 @@ function readAction(
       street,
       player,
       kind: "raise",
-      amount: parseAmount(raised[1], unit),
+      amount: strictAmount(raised[1], unit, "a raise"),
       toTotal: true,
       allIn,
     });

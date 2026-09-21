@@ -240,6 +240,11 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
   }
 
   const hand = draft.build();
+  // Promotional chips the room put in itself. They are not actions - nobody
+  // contributed them - and the validator counts them into the pot separately.
+  if (body.chipMovements.length > 0) {
+    hand.chipMovements = body.chipMovements;
+  }
 
   const seated = draft.seatedNames();
   const stranger = hand.actions.find((action) => !seated.has(action.player));

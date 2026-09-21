@@ -49,7 +49,6 @@
 import { extractCards } from "../cards";
 import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
 import {
-  parseAmount,
   unitForCode,
   type Amount,
   type CurrencyUnit,
@@ -63,7 +62,12 @@ import {
   type DraftStreet,
   type HandDraft,
 } from "./shared/p2-handbuilder";
-import { leadingName, namesByLength, refuseLossyText } from "./shared/p4-textroom";
+import {
+  leadingName,
+  namesByLength,
+  refuseLossyText,
+  strictAmount,
+} from "./shared/p4-textroom";
 
 const VERSION = "1.0.0";
 
@@ -139,7 +143,7 @@ export const entractionParser: SiteParser = {
         seats.push({
           seat: Number(seat[4]),
           name: seat[1].trim(),
-          startingStack: parseAmount(seat[3], unit),
+          startingStack: strictAmount(seat[3], unit, "a seat line"),
           dealtIn: true,
           isHero: false,
           dealtCards: [],
@@ -191,7 +195,7 @@ export const entractionParser: SiteParser = {
           street: "preflop",
           player: blind[2].trim(),
           kind: /^small$/i.test(blind[1]) ? "small-blind" : "big-blind",
-          amount: parseAmount(blind[3], unit),
+          amount: strictAmount(blind[3], unit, "a blind line"),
         });
         continue;
       }
@@ -215,7 +219,7 @@ export const entractionParser: SiteParser = {
 
       const rake = line.match(RAKE_LINE);
       if (rake) {
-        statedRake = parseAmount(rake[1], unit);
+        statedRake = strictAmount(rake[1], unit, "the rake line");
         continue;
       }
       const ended = line.match(ENDED_LINE);
@@ -230,7 +234,10 @@ export const entractionParser: SiteParser = {
         if (payback) {
           // Read for the cross-check only: `p2-handbuilder` derives the return
           // from the betting state and emitting it here would pay it twice.
-          statedPayback = { player: hit.name, amount: parseAmount(payback[1], unit) };
+          statedPayback = {
+            player: hit.name,
+            amount: strictAmount(payback[1], unit, "a Payback line"),
+          };
           continue;
         }
         if (readAction(hit.rest, hit.name, unit, street, actions, collected)) {
@@ -264,8 +271,8 @@ export const entractionParser: SiteParser = {
       gameLabel: canonicalLabel(limitWord),
       unit,
       decimals: "fixed2",
-      headerSmallBlind: parseAmount(smallBlind, unit),
-      headerBigBlind: parseAmount(bigBlind, unit),
+      headerSmallBlind: strictAmount(smallBlind, unit, "the header stakes"),
+      headerBigBlind: strictAmount(bigBlind, unit, "the header stakes"),
       tableName: tableName || null,
       maxSeats: Math.max(maxSeats, fallbackMaxSeats(seats)),
       buttonSeat,
@@ -306,7 +313,7 @@ function readAction(
       // `All-In` covers a call, a bet and a raise alike; which one it was only
       // follows from the betting state, which the builder has.
       kind: verb === "all-in" ? "allin" : (verb as "call" | "bet" | "raise"),
-      amount: parseAmount(wagered[2], unit),
+      amount: strictAmount(wagered[2], unit, "an action line"),
       allIn: verb === "all-in",
     });
     return true;
@@ -343,7 +350,11 @@ function readAction(
   }
   const wins = rest.match(/^wins:\s+[A-Z]{3}\s+([\d.,]+)$/i);
   if (wins) {
-    collected.push({ player, amount: parseAmount(wins[1], unit), potName: "pot" });
+    collected.push({
+      player,
+      amount: strictAmount(wins[1], unit, "a wins line"),
+      potName: "pot",
+    });
     return true;
   }
   return false;

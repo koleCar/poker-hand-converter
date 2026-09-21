@@ -13,8 +13,8 @@
  * - RIO's showdown reveal has **no colon** (`Ricky N shows [..] for ..`) while
  *   every other action line in the same file has one;
  * - RIO tags the observer's seat line with a trailing `[hero]`;
- * - RIO adds promotional money to the pot (`STP added: €0.50`), which is
- *   refused here - see `houseMoney` below.
+ * - RIO adds promotional money to the pot (`STP added: €0.50`), which nobody
+ *   contributed and the winner collects - a `PhfChipMovement`, not an action.
  *
  * It is deliberately a dispatcher only. Headers, refusal policy and provenance
  * live in the two site files, because that is where the rooms really differ,
@@ -24,12 +24,12 @@
  */
 
 import { extractCards } from "../../cards";
-import { ParseSkip } from "../../phf/detect";
 import {
   ZERO_FEES,
   parseAmount,
   type Amount,
   type CurrencyUnit,
+  type PhfChipMovement,
   type PhfFees,
 } from "../../phf/types";
 import { MONEY, type StarsHandDraft } from "./p3-draft";
@@ -65,8 +65,23 @@ export interface DialectResult {
   /** Seats the hand listed, for the "is the button even occupied?" check. */
   seats: number[];
   buttonSeat: number | null;
+  /** Table name and size, so a caller can re-state the table with a fixed button. */
+  tableName: string | null;
+  maxSeats: number;
   /** The source printed a `*** SUMMARY ***` block. */
   sawSummary: boolean;
+  /**
+   * Seat that posted the small blind, for rooms whose stated button cannot be
+   * trusted. Null when no small blind was posted.
+   */
+  smallBlindSeat: number | null;
+  /**
+   * Chips that entered the pot from outside the players.
+   *
+   * Kept out of `StarsHandDraft`, which only knows about actions, and attached
+   * to the built hand by the site parser.
+   */
+  chipMovements: PhfChipMovement[];
 }
 
 function runoutIndexForLabel(label: string): number {
@@ -87,7 +102,13 @@ function runoutIndexForLabel(label: string): number {
 function parsePotLine(
   line: string,
   unit: CurrencyUnit,
-): { total: Amount; pots: Array<{ name: string; amount: Amount }>; fees: PhfFees } | null {
+): {
+  total: Amount;
+  pots: Array<{ name: string; amount: Amount }>;
+  fees: PhfFees;
+  /** What the `STP` column claims, for cross-checking the `STP added:` line. */
+  houseChips: Amount;
+} | null {
   const columns = line.split("|").map((column) => column.trim());
   const total = columns[0].match(new RegExp(String.raw`^Total pot ${MONEY}\s*$`));
   if (!total) {
@@ -95,6 +116,7 @@ function parsePotLine(
   }
   const pots: Array<{ name: string; amount: Amount }> = [];
   const fees: PhfFees = { ...ZERO_FEES };
+  let houseChips = 0;
   for (const column of columns.slice(1)) {
     const pot = column.match(new RegExp(String.raw`^(Main|Side) pot(?:-(\d+))? ${MONEY}$`));
     if (pot) {
@@ -108,33 +130,46 @@ function parsePotLine(
     }
     const stp = column.match(new RegExp(String.raw`^STP ${MONEY}$`));
     if (stp) {
-      houseMoney(parseAmount(stp[1], unit), line);
+      houseChips += parseAmount(stp[1], unit);
+      continue;
     }
     // Any other column is left alone: it would show up as a pot that does not
     // add up rather than as silently lost money, which is the outcome we want.
   }
-  return { total: parseAmount(total[1], unit), pots, fees };
+  return {
+    total: parseAmount(total[1], unit),
+    // RIO prints a `Main pot` column whenever it prints an `STP` one, side pot
+    // or not. A single-pot hand has no breakdown to report - `results.pots` is
+    // documented as empty then - so a lone `Main` is dropped rather than
+    // re-emitted as a side-pot structure the table never had.
+    pots: pots.some((pot) => pot.name.startsWith("Side")) ? pots : [],
+    fees,
+    houseChips,
+  };
 }
 
 /**
  * Promotional money the room itself puts into the pot.
  *
- * RIO's "Splash The Pot" adds house money (`STP added: €0.50`) that no seat
- * contributed and that the winner then collects. PHF has no way to express a
- * contribution that belongs to nobody: every `PhfAction` needs a seated player,
- * and attributing the splash to one of them would corrupt that player's net
- * result and every statistic derived from it. Dropping it instead breaks chip
- * conservation, because the reported pot includes it.
- *
- * So the hand is refused, with its raw text kept for the day PHF grows a house
- * contributor. See the report in `docs/PHF-SPEC.md` §9 for the failure record.
+ * RIO's "Splash The Pot" adds house chips (`STP added: €0.50`) that no seat
+ * contributed and that the winner then collects. It is a `PhfChipMovement` and
+ * deliberately not a `PhfAction`: an action needs a seated player, and charging
+ * the splash to one of them would corrupt that player's net and everything
+ * computed from it. The validator counts house chips into the pot, so chip
+ * conservation holds as `contributions + house === totalPot`.
  */
-function houseMoney(amount: Amount, line: string): never {
-  throw new ParseSkip(
-    "splash-the-pot",
-    `The room added ${amount} minor units to the pot itself ("${line.trim()}"); ` +
-      "PHF cannot attribute a contribution to anyone but a seated player.",
-  );
+function houseChipMovement(amount: Amount, line: string): PhfChipMovement {
+  return {
+    kind: "splash-the-pot",
+    fromSeat: null,
+    fromPlayer: null,
+    toPot: true,
+    amount,
+    raw: line.trim(),
+    // RIO prints it under `*** HOLE CARDS ***`, where GG prints its cash drop
+    // above the blinds. The anchor is what lets the text round-trip.
+    anchor: "after-hole-cards",
+  };
 }
 
 const UNCALLED_LINE = /^Uncalled bet \(.*\) returned to /;
@@ -190,7 +225,16 @@ export function parseStarsFamilyBody(
   unit: CurrencyUnit,
 ): DialectResult {
   const money = (value: string | undefined) => parseAmount(value, unit);
-  const result: DialectResult = { seats: [], buttonSeat: null, sawSummary: false };
+  const result: DialectResult = {
+    seats: [],
+    buttonSeat: null,
+    tableName: null,
+    maxSeats: 0,
+    sawSummary: false,
+    smallBlindSeat: null,
+    chipMovements: [],
+  };
+  const seatOf = new Map<string, number>();
   const ordered = hoistUncalledBeforeShowdown(lines);
   let inSummary = false;
 
@@ -212,6 +256,18 @@ export function parseStarsFamilyBody(
       const pot = parsePotLine(line, unit);
       if (pot) {
         draft.summaryPot(pot.total, pot.pots, pot.fees);
+        // The room states its promotional chips twice, once where it adds them
+        // and once in this column. They are the only thing in the pot nobody
+        // contributed, so a disagreement between the two is worth surfacing
+        // rather than silently trusting whichever came first.
+        const added = result.chipMovements.reduce((sum, movement) => sum + movement.amount, 0);
+        if (pot.houseChips !== added) {
+          draft.warn(
+            "house-chips-mismatch",
+            `The SUMMARY reports ${pot.houseChips} of promotional chips but ${added} were added.`,
+            lineNo,
+          );
+        }
         continue;
       }
       const board = line.match(/^(FIRST |SECOND |THIRD )?Board\s*\[([^\]]*)\]/i);
@@ -236,7 +292,9 @@ export function parseStarsFamilyBody(
     const table = line.match(TABLE_REGEX);
     if (table) {
       result.buttonSeat = table[4] ? Number(table[4]) : null;
-      draft.setTable(table[1] || null, Number(table[2]) || 0, result.buttonSeat);
+      result.tableName = table[1] || null;
+      result.maxSeats = Number(table[2]) || 0;
+      draft.setTable(result.tableName, result.maxSeats, result.buttonSeat);
       continue;
     }
 
@@ -245,6 +303,7 @@ export function parseStarsFamilyBody(
       const tail = seat[4] ?? "";
       const seatNumber = Number(seat[1]);
       result.seats.push(seatNumber);
+      seatOf.set(seat[2], seatNumber);
       draft.seat(seatNumber, seat[2], money(seat[3]), /\bis sitting out\b/i.test(tail));
       // RIO tags the observer's own seat, which is the only reliable hero
       // marker in a file where every seat gets a face-up `Dealt to` line.
@@ -278,7 +337,8 @@ export function parseStarsFamilyBody(
     // `STP added: €0.50`, right under the hole-cards marker.
     const stp = line.match(new RegExp(String.raw`^STP added:\s*${MONEY}\s*$`));
     if (stp) {
-      houseMoney(money(stp[1]), line);
+      result.chipMovements.push(houseChipMovement(money(stp[1]), line));
+      continue;
     }
 
     const dealt = rawLine.match(/^Dealt to (.+?)(?: \[([^\]]*)\])?\s*$/);
@@ -291,7 +351,29 @@ export function parseStarsFamilyBody(
       new RegExp(String.raw`^Uncalled bet \(${MONEY}\) returned to (.+)$`),
     );
     if (uncalled) {
-      draft.uncalled(uncalled[2].trim(), money(uncalled[1]), { line: lineNo, rawLine: line });
+      const player = uncalled[2].trim();
+      const stated = money(uncalled[1]);
+      const committed = draft.committed(player);
+      const house = result.chipMovements
+        .filter((movement) => movement.toPot)
+        .reduce((sum, movement) => sum + movement.amount, 0);
+      // RIO folds the splash into the figure it prints here: fixture 01 returns
+      // `€0.71` to a player who bet `€0.21` into a pot the house had added
+      // `€0.50` to, and then hands him `€0.71` again as the collect. Returning
+      // the printed number would pay the splash out twice and hand back chips
+      // the player never put in. The return is therefore capped at what he
+      // actually committed on the street - but only when the excess is exactly
+      // the promotional money, so any other overage still fails loudly.
+      const amount = stated - committed === house && house > 0 ? committed : stated;
+      if (amount !== stated) {
+        draft.warn(
+          "uncalled-includes-promo",
+          `The return of ${stated} to ${player} includes ${house} of promotional chips; ` +
+            `${amount} was actually committed and the rest stays in the pot.`,
+          lineNo,
+        );
+      }
+      draft.uncalled(player, amount, { line: lineNo, rawLine: line });
       continue;
     }
 
@@ -321,6 +403,9 @@ export function parseStarsFamilyBody(
       new RegExp(String.raw`^(.+?): posts (small|big) blind ${MONEY}${SUFFIX}$`),
     );
     if (blind) {
+      if (blind[2].toLowerCase() === "small" && result.smallBlindSeat === null) {
+        result.smallBlindSeat = seatOf.get(blind[1]) ?? null;
+      }
       draft.post(
         blind[1],
         blind[2].toLowerCase() === "small" ? "small-blind" : "big-blind",

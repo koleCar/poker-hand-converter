@@ -11,6 +11,47 @@
  */
 
 import { ParseSkip } from "../../phf/detect";
+import { parseAmountStrict, type Amount, type CurrencyUnit } from "../../phf/types";
+
+/**
+ * Reads a printed amount at the point it arrives from the source, refusing
+ * anything that cannot be held exactly.
+ *
+ * `parseAmount` deletes every non-digit, which is right once a token's shape is
+ * known and a 100x landmine before it: `2 950,00` becomes 295 000. The hand then
+ * balances perfectly against itself, so nothing downstream can catch it.
+ *
+ * Every room in this batch is European - Unibet is Nordic, Entraction Swedish,
+ * Ongame and MicroGaming ran skins across the continent - so a comma-decimal or
+ * space-grouped export is entirely plausible even though no fixture in the
+ * corpora happens to contain one. That is exactly the case worth refusing
+ * rather than guessing at.
+ *
+ * The currency glyph is stripped here rather than left to `parseAmountStrict`,
+ * which only knows the single-character symbols: these rooms can print `kr` and
+ * `zł`, and a multi-character symbol would otherwise read as "not a number".
+ */
+export function strictAmount(token: string, unit: CurrencyUnit, where: string): Amount {
+  // A signed summary column puts the sign outside the glyph: Ongame writes
+  // `net: +$113.91` and `net: -$0.00`, Unibet `net result: €-0.05`. Both the
+  // leading sign and the glyph have to come off before the separators are
+  // judged, and an explicit `+` is not something `parseAmountStrict` accepts.
+  const signed = token.trim();
+  const sign = signed.startsWith("-") ? "-" : "";
+  const unsigned = /^[+-]/.test(signed) ? signed.slice(1) : signed;
+  const symbol = currencySymbolOf(unsigned);
+  const bare = sign + (symbol ? unsigned.slice(symbol.length) : unsigned);
+  const parsed = parseAmountStrict(bare, unit);
+  if (parsed.ok) {
+    return parsed.amount;
+  }
+  throw new ParseSkip(
+    "ambiguous-amount",
+    `Could not read "${token}" as an exact amount (${parsed.problem}) in ${where}. ` +
+      "Guessing which separator is the decimal mark can be wrong by a factor of " +
+      "a hundred, and the resulting hand would still balance.",
+  );
+}
 
 /**
  * Splits `<player name><rest of line>` using the known seat names.

@@ -424,10 +424,18 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
 
     const table = line.match(TABLE_REGEX);
     if (table) {
+      // Zoom is PokerStars' fast-fold pool, and it is announced in two
+      // different places depending on the era: the header product word on
+      // newer exports (`PokerStars Zoom Hand #`, fixture 31) and nothing but a
+      // substring of the table name on older ones (`Triangulum Zoom 40-100 bb`,
+      // fixture 02, whose header is a plain `PokerStars Game #`). Both have to
+      // be read or half the Zoom hands lose the distinction.
+      const zoom = /Zoom/.test(header.product) || /\bZoom\b/.test(table[1] ?? "");
       draft.setTable(
         table[1] || null,
         Number(table[2]) || 0,
         table[4] ? Number(table[4]) : null,
+        zoom ? "Zoom" : null,
       );
       continue;
     }

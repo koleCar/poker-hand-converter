@@ -1,5 +1,13 @@
 # CoinPoker fixture sources
 
+**Byte-exactness note (2026-09-17):** all 16 files here are UTF-8 (the `₮` glyph in tournament/table
+names forces this) with LF-only line endings — verified with `file` and `grep -c $'\r'`, zero CR
+bytes in any file. None are CRLF or UTF-16LE, so they were not the source of the
+`core.autocrlf`-driven corruption found and fixed elsewhere in this repo (a `.gitattributes` rule
+now marks `fixtures/**` as `-text` repo-wide as a result). That said, these are still byte-exact
+excerpts of a real export and must be treated that way regardless of which specific encoding they
+happen to use — do not let an editor "fix" the `₮` character or re-normalize line endings.
+
 **All 16 files are REAL. Zero synthetic, zero transcribed.**
 
 Every file is a byte-for-byte excerpt of a real CoinPoker client export. Nothing

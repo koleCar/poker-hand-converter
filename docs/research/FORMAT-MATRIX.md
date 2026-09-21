@@ -230,7 +230,43 @@ Pokerbros, Run It Once, and the GG skins — cannot be placed in this analysis.
 
 ---
 
-## 5. Known gaps in this matrix
+## 5. Encoding is a corpus-wide property, not a per-site quirk
+
+Three separate site research passes each independently hit an encoding problem
+and each wrote it up as their own site's oddity. It is not. Scanning every
+fixture in the corpus shows a consistent cross-cutting picture that a site doc
+cannot see:
+
+| encoding | files | sites |
+|---|---|---|
+| valid UTF-8 (with or without BOM) | 391 | everything else |
+| **Windows-1252** (raw `0x80` = `€`) | 8 | Winamax 4, MicroGaming 3, Unibet 1 |
+| **UTF-16LE with BOM** (`FF FE`) | 14 | ACR/WPN |
+
+Four consequences worth designing the file-read path around, rather than
+patching per site:
+
+1. **A converter that assumes UTF-8 is wrong on 22 of 413 real files (5%).**
+   These are genuine exports, not corpus damage.
+2. **Encoding does not correlate with era, site, or game type.** In the ACR
+   corpus a 2016 UTF-16LE file sits beside a 2016 ASCII file of identical
+   grammar. You cannot infer the encoding from anything except the bytes.
+3. **Sniffing for `0x80` is the wrong test — it both over- and under-detects.**
+   It misses the 14 UTF-16LE files entirely (they contain no `0x80`), and it
+   false-positives on valid UTF-8: `fixtures/samples/weplay/04-tournament-mtt-ante-9max.txt`
+   contains 78 `0x80` bytes and is perfectly valid UTF-8, because `0x80` is a
+   legal continuation byte — there, part of the en dash `–` (`E2 80 93`) in a
+   tournament name. The correct test is "attempt a strict UTF-8 decode; on
+   failure, check for a `FF FE`/`FE FF` BOM, else try Windows-1252".
+4. **Every one of the 14 UTF-16LE files has an odd byte length** — a truncated
+   final code unit. A lenient reader ignores the stray byte; a strict
+   `utf-16-le` decoder throws on all 14. Decode with error tolerance on the
+   final unit.
+
+Per-file detail lives in each site's `SOURCES.md`
+(`winamax`, `microgaming`, `unibet`, `acr-wpn`).
+
+## 6. Known gaps in this matrix
 
 Recorded explicitly so they are not mistaken for coverage:
 

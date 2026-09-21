@@ -15,7 +15,11 @@
  * out of GG output and a GG quirk (`Chooses to EV Cashout`, the six-column fee
  * line) out of PokerStars output.
  *
- * Owned by parser agent 1; only `pokerstars.ts` and `ggpoker.ts` import it.
+ * Owned by parser agent 1, which maintains it for `pokerstars.ts` and
+ * `ggpoker.ts`. Other rooms in the Stars family read it too - `coinpoker.ts`,
+ * `fulltilt.ts` and `shared/p3-draft.ts` - so treat anything exported here as a
+ * shared contract: it may be extended, but a change in the meaning of an
+ * existing helper needs those callers checked first.
  */
 
 import { extractCards, parseCard } from "../../cards";
@@ -34,6 +38,7 @@ import {
   type LimitType,
   type PhfAction,
   type PhfBoard,
+  type PhfChipMovement,
   type PhfFees,
   type PhfHand,
   type PhfPlayer,
@@ -377,6 +382,7 @@ export class StarsHandDraft {
   private readonly collectedBy = new Map<string, Amount>();
   private readonly folded = new Set<string>();
   private readonly straddles: Array<{ player: string; amount: Amount }> = [];
+  private readonly movements: PhfChipMovement[] = [];
   private readonly showdownLabels: string[] = [];
   private readonly pots: Array<{ name: string; amount: Amount }> = [];
 
@@ -386,6 +392,7 @@ export class StarsHandDraft {
   private tableName: string | null = null;
   private maxSeats = 0;
   private buttonSeat: number | null = null;
+  private fastFold: string | null = null;
   private heroName: string | null = null;
   private totalPot: Amount = 0;
   private sawSummaryPot = false;
@@ -426,10 +433,16 @@ export class StarsHandDraft {
 
   /* ------------------------------------------------------------- structure */
 
-  setTable(name: string | null, maxSeats: number, buttonSeat: number | null): void {
+  setTable(
+    name: string | null,
+    maxSeats: number,
+    buttonSeat: number | null,
+    fastFold: string | null = null,
+  ): void {
     this.tableName = name;
     this.maxSeats = maxSeats;
     this.buttonSeat = buttonSeat;
+    this.fastFold = fastFold;
   }
 
   seat(seat: number, name: string, stack: Amount, sittingOut = false): void {
@@ -807,6 +820,23 @@ export class StarsHandDraft {
 
   /* ------------------------------------------------------------- summary -- */
 
+  /**
+   * A promotional chip movement that is not a bet.
+   *
+   * Kept off the action stream on purpose: `ActionType` is a closed union that
+   * consumers switch on, so these live on `hand.chipMovements` instead and the
+   * validator folds house-into-pot money into chip conservation.
+   */
+  chipMovement(movement: Omit<PhfChipMovement, "fromPlayer">): void {
+    this.movements.push({
+      ...movement,
+      fromPlayer:
+        movement.fromSeat === null
+          ? null
+          : (this.players.find((player) => player.seat === movement.fromSeat)?.name ?? null),
+    });
+  }
+
   summaryPot(
     totalPot: Amount,
     pots: Array<{ name: string; amount: Amount }>,
@@ -1024,14 +1054,20 @@ export class StarsHandDraft {
     }
     const takenOut = [...this.collectedBy.values()].reduce((sum, value) => sum + value, 0);
 
+    // Promotional money the house put in is part of the pot but came from no
+    // seat, so it has to be added wherever the pot is derived from the stream.
+    const fromHouse = this.movements
+      .filter((movement) => movement.toPot && movement.fromSeat === null)
+      .reduce((sum, movement) => sum + movement.amount, 0);
+
     if (!this.sawSummaryPot) {
       // No SUMMARY block at all - PokerStars truncates the file when the client
       // disconnects mid-hand. The stream is still complete, so the pot is what
       // went in and whatever the winners did not get back is the rake. Both are
       // derived, not invented, but the hand is flagged so it can be re-checked.
-      this.totalPot = putIn;
-      if (takenOut > 0 && putIn - takenOut > 0) {
-        this.fees = { ...this.fees, rake: putIn - takenOut };
+      this.totalPot = putIn + fromHouse;
+      if (takenOut > 0 && this.totalPot - takenOut > 0) {
+        this.fees = { ...this.fees, rake: this.totalPot - takenOut };
         this.warn(
           "rake-inferred",
           "The hand has no SUMMARY block; the rake was derived from pot minus collected.",
@@ -1040,7 +1076,7 @@ export class StarsHandDraft {
         this.warn("no-summary", "The hand has no SUMMARY block.");
       }
     } else if (this.totalPot === 0) {
-      this.totalPot = putIn;
+      this.totalPot = putIn + fromHouse;
     }
 
     const shownAtShowdown = new Set(
@@ -1166,10 +1202,18 @@ export class StarsHandDraft {
         bombPot,
         label: init.game.label,
       },
-      table: { name: this.tableName, maxSeats: this.maxSeats, buttonSeat: this.buttonSeat },
+      table: {
+        name: this.tableName,
+        maxSeats: this.maxSeats,
+        buttonSeat: this.buttonSeat,
+        ...(this.fastFold ? { fastFold: this.fastFold } : {}),
+      },
       tournament: init.tournament,
       players: this.players,
       actions: this.actions,
+      // Absent rather than empty on the overwhelming majority of hands, so the
+      // stored JSON does not grow a null field for every hand ever converted.
+      ...(this.movements.length > 0 ? { chipMovements: this.movements } : {}),
       board,
       results: {
         totalPot: this.totalPot,

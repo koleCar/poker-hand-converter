@@ -1,8 +1,27 @@
 # MicroGaming — sample sources
 
-All files are byte-exact copies (`cp`, UTF-8 with BOM, LF line endings preserved) from the
+All files are byte-exact copies (`cp`, LF line endings preserved) from the
 [HHSmithy/PokerHandHistoryParser](https://github.com/HHSmithy/PokerHandHistoryParser) unit-test
 corpus, retrieved 2026-09-16. No file has been retyped, reformatted, or had its bytes altered.
+
+## Encoding — not all files are UTF-8
+
+Most files are UTF-8 with a BOM, but **three are not valid UTF-8 at all**. They carry the raw
+byte `0x80` (Windows-1252 `€`) inside the XML `tablename` attribute:
+
+| file | `0x80` count | context |
+|---|---|---|
+| `02-fixed-limit-holdem.txt` | 1 | `tablename="… €2 Max"` |
+| `03-pot-limit-omaha.txt` | 1 | `tablename="… €2 Max"` |
+| `04-pot-limit-omaha-hilo.txt` | 1 | `tablename="Micro HILO 7 - €2 Max"` |
+
+Decoding these as UTF-8 raises `UnicodeDecodeError`; `iconv -f WINDOWS-1252` recovers them.
+Note the byte sits inside an **XML attribute value**, so an XML parser handed a UTF-8-decoded
+string will fail or mangle the table name before any hand-level logic runs.
+
+This is not a MicroGaming quirk — the same Windows-1252 `0x80` appears in Winamax (4 files) and
+Unibet (1 file), and ACR/WPN has 14 files in UTF-16LE. See `docs/research/FORMAT-MATRIX.md` §5
+for the corpus-wide picture and why grepping for `0x80` is the wrong detection test.
 
 Note: the upstream corpus's `MicroGaming/CashGame/Seats/` folder is partly unusable —
 `HeadsUp.txt` actually contains an unrelated "Cassava Hand History" plain-text hand (not

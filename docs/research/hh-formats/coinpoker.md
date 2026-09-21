@@ -488,9 +488,25 @@ optional-but-present.
 
 ### 13.11 `*** HAND CANCELLED ***` breaks pot accounting
 
-There is no winner; every player is refunded via `collected (n)` summary lines
-whose sum equals `Total pot`, and `Rake` is 0. A pot-distribution assertion
-written for normal hands needs an explicit branch.
+There is no winner. Every player is refunded through `collected (n)` lines
+**in the SUMMARY only** — there is no corresponding `<name> collected <amt>
+from pot` action line in the body, only the single aggregate `All bets
+returned (<total>)` right after the `*** HAND CANCELLED ***` marker. A parser
+that expects every SUMMARY `collected` line to have a matching action-section
+`collected ... from pot` line (true for every non-cancelled hand) will not
+find one here and must not treat that as corrupt input. The per-seat refund
+amounts sum exactly to `Total pot`, and `Rake` is 0. A pot-distribution
+assertion written for normal hands needs an explicit branch for this case.
+
+### 13.12 Every amount has exactly two decimal places, corpus-wide
+
+Verified across all 307 decimal amounts in the 16 fixture files (not a
+sample): every single one has exactly two digits after the decimal point. No
+`0.1` written short for `0.10`, no three-or-more-decimal-place amount observed
+anywhere. This is a corpus-wide confirmed fact, not an inference from one
+file — safe to rely on for display formatting, but note it says nothing about
+tournament chip amounts, which are always bare integers (see §4/§10) and
+never carry a decimal point at all.
 
 ---
 

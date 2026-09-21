@@ -20,6 +20,8 @@ import { convertAny, detectSite } from "../../frontend/src/lib/parsers/index.js"
 import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
 import {
   contributionsFromActions,
+  houseIntoPot,
+  seatOutOfPot,
   totalFees,
   type PhfHand,
 } from "../../frontend/src/lib/phf/types.js";
@@ -350,13 +352,33 @@ describe("MicroGaming specifics", () => {
     expect(hand.actions.find((action) => action.type === "uncalled")?.amount).toBe(-12);
   });
 
-  it("keeps the badbeat jackpot drop out of the pot and the timeout out of the chips", async () => {
-    // `BadBeatContribution value="0.02"` goes to the jackpot fund, not the pot,
-    // and `Disconnect value="30000"` is milliseconds - read as chips it would
-    // add €300 to the hand.
+  it("records the badbeat jackpot drop as chips leaving the table, not as a fee", async () => {
+    // `BadBeatContribution value="0.02"` leaves the player's stack and goes to
+    // the jackpot fund without ever entering the pot. `PhfFees` are deductions
+    // *from* the pot, so it is a `PhfChipMovement` with `toPot: false` - the
+    // same shape Run It Once's Splash the Pot uses from the other end.
     const [hand] = await handsOf("microgaming", "07-disconnected-badbeat-jackpot");
     expect(hand.results.totalPot).toBe(4700);
     expect(hand.results.fees.rake).toBe(0);
+
+    const drop = (hand.chipMovements ?? []).find(
+      (movement) => movement.kind === "bad-beat-drop",
+    )!;
+    expect(drop).toBeDefined();
+    expect(drop.toPot).toBe(false);
+    expect(drop.fromSeat).toBe(8);
+    expect(drop.fromPlayer).toBe("tuffgong");
+    expect(drop.amount).toBe(2);
+    // It must not be counted into the pot, and the replayer takes it off the
+    // contributor's stack so that stack stops reading two cents high.
+    expect(seatOutOfPot(hand, 8)).toBe(2);
+    expect(houseIntoPot(hand)).toBe(0);
+  });
+
+  it("reads a Disconnect value as a timeout, not as chips", async () => {
+    // `Disconnect value="30000"` is milliseconds; read as money it would add
+    // €300 to the hand.
+    const [hand] = await handsOf("microgaming", "07-disconnected-badbeat-jackpot");
     expect(hand.actions.some((action) => action.amount >= 30000)).toBe(false);
   });
 

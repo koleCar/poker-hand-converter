@@ -333,13 +333,16 @@ export const ignitionParser: SiteParser = {
   version: VERSION,
 
   detect(text: string): number {
+    // A byte-order mark sits in front of the header in part of the corpus, so
+    // the anchored match has to see past it.
+    const body = text.replace(/^\ufeff/, "");
     // Six brand-plus-"Hand #" literals, none of which any other room prints.
-    if (new RegExp(String.raw`^(?:${BRANDS})\s+Hand\s+#`, "m").test(text)) {
+    if (new RegExp(String.raw`^(?:${BRANDS})\s+Hand\s+#`, "m").test(body)) {
       return 0.95;
     }
     // A header-less excerpt. `Card dealt to a spot` and the mid-hand button
     // marker are still unique to this network among every room we support.
-    if (/^.* : Card dealt to a spot \[/m.test(text) && /: Set dealer(?:\/Bring in spot)? \[/.test(text)) {
+    if (/^.* : Card dealt to a spot \[/m.test(body) && /: Set dealer(?:\/Bring in spot)? \[/.test(body)) {
       return 0.4;
     }
     return 0;
@@ -852,7 +855,15 @@ export const ignitionParser: SiteParser = {
       });
     }
 
-    const dealtIn = seats.length;
+    // A seat that was sitting out is listed with its stack but is not in the
+    // hand. Carrying it through would put a `mucked` line in the summary for a
+    // player who was never dealt to, which a tracker reads as a fold and counts
+    // against the table size.
+    const actors = new Set(actions.map((action) => action.player));
+    for (const seat of seats) {
+      seat.dealtIn = seat.dealtCards.length > 0 || actors.has(seat.name);
+    }
+    const dealtIn = seats.filter((seat) => seat.dealtIn).length;
     const draft: P5Draft = {
       siteId: "ignition",
       siteName: "Ignition / Bodog / Bovada",
@@ -888,6 +899,7 @@ export const ignitionParser: SiteParser = {
       collected,
       statedPot,
       statedRake,
+      statedContributions: null,
       holeCards,
       rawText: text,
       warnings,

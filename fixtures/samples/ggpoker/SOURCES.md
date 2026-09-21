@@ -1,5 +1,14 @@
 # GGPoker fixture sources
 
+**Byte-exactness note (2026-09-17):** all 34 files in this directory were checked and are plain
+ASCII with LF-only line endings (verified with `file` and `grep -c $'\r'` — zero CR bytes anywhere
+in this directory). None of them are CRLF or UTF-16LE, so they were never at risk from the
+`core.autocrlf` normalization issue that affected other sites' CRLF/UTF-16LE fixtures elsewhere in
+this repo (now fixed repo-wide via `.gitattributes` marking `fixtures/**` as `-text`). Still, do
+not "clean up" or re-save any file in this directory through an editor that might normalize line
+endings — these are byte-exact copies of real exports and must stay that way even though, in this
+particular directory's case, that byte-exactness happens to already coincide with plain LF ASCII.
+
 ## Files 01-10: in-repo verified export (primary ground truth)
 
 Byte-identical copies (`cp`, verified with `cmp`) of files already present in this repository at
