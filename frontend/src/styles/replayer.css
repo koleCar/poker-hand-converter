@@ -562,45 +562,45 @@
   flex-direction: column;
 }
 
+/* One line: where the hand was played on the left, three same-sized icon
+   buttons on the right. Everything else about the hand is on the felt. */
 .replay__header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 18px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--line-soft);
   background: var(--bg-elev);
 }
 
-.replay__title h3 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.replay__table {
-  font-size: 11.5px;
-  font-weight: 550;
-  color: var(--fg-dim);
-  padding: 2px 8px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-}
-
 .replay__meta {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px 12px;
-  margin-top: 5px;
-  font-size: 12px;
-  color: var(--fg-muted);
   align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--fg-muted);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.replay__meta > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.replay__meta > span + span::before {
+  content: "·";
+  margin-right: 8px;
+  color: var(--fg-dim);
 }
 
 .replay__header-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   flex: none;
 }
@@ -704,26 +704,9 @@
   line-height: 1.3;
 }
 
-.pill {
-  padding: 2px 9px;
-  border-radius: 999px;
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-}
-
-.pill--win {
-  color: #9beecd;
-  background: rgb(53 196 138 / 14%);
-}
-
-.pill--loss {
-  color: #ffc3c3;
-  background: rgb(239 90 90 / 14%);
-}
-
 .replay__body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-columns: minmax(0, 1fr) 216px;
 }
 
 .replay__body--solo {
@@ -734,13 +717,25 @@
   min-width: 0;
 }
 
+/* The log sits beside the felt and must never be the thing that sets the
+   row's height — a forty-action hand would otherwise stretch the grid row
+   past the table and leave the felt floating in the middle of it. So the
+   aside itself holds nothing in flow (its contents are taken out by
+   `--inner` below): the row is sized by the stage alone, the aside stretches
+   to it, and the log ends up exactly as tall as the replayer. */
 .replay__log {
+  position: relative;
   border-left: 1px solid var(--line-soft);
   background: #0d1218;
+  overflow: hidden;
+}
+
+.replay__log-inner {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  max-height: 100%;
 }
 
 .replay__log-head {
@@ -759,6 +754,7 @@
   padding: 6px;
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -795,20 +791,9 @@
   font-weight: 600;
 }
 
-.replay__log-item--street button,
 .replay__log-item--award button {
   font-weight: 650;
   color: #d8e4f2;
-}
-
-.replay__log-street {
-  flex: none;
-  width: 62px;
-  padding-right: 6px;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--fg-dim);
 }
 
 .replay__log-text {
@@ -905,47 +890,14 @@
   justify-self: end;
 }
 
-/* ---------------------------------------------------------- status + bar */
-
-.replay__status {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 18px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #dbe7f5;
-  background: var(--bg-elev-2);
-  border-top: 1px solid var(--line-soft);
-  border-bottom: 1px solid var(--line-soft);
-  min-height: 40px;
-}
-
-.replay__status-street {
-  flex: none;
-  font-size: 9.5px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 5px;
-  color: #9ed4ff;
-  background: rgb(62 166 255 / 14%);
-  border: 1px solid rgb(62 166 255 / 28%);
-}
-
-.replay__status-text {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+/* ------------------------------------------------------------ control bar */
 
 .replay__controls {
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 12px 18px 16px;
+  border-top: 1px solid var(--line-soft);
   background: var(--bg-elev);
 }
 
@@ -953,16 +905,6 @@
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
-}
-
-.replay__counter {
-  margin-left: auto;
-  padding-left: 10px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--fg-dim);
-  font-variant-numeric: tabular-nums;
-  flex: none;
 }
 
 .replay__scrub-wrap {
@@ -1070,10 +1012,13 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* Stacked under the felt there is no stage to match, so the log gets a
+     height of its own — explicit rather than a max, because its contents are
+     absolutely positioned and would otherwise collapse the box. */
   .replay__log {
     border-left: 0;
     border-top: 1px solid var(--line-soft);
-    max-height: 240px;
+    height: 240px;
   }
 
   .ptable {
@@ -1094,14 +1039,15 @@
 /* ------------------------------------------------- responsive: phone */
 
 @media (max-width: 720px) {
+  /* Still one row on a phone: the meta truncates rather than wrapping, so the
+     three icons stay where they are on every screen. */
   .replay__header {
-    flex-direction: column;
     gap: 10px;
-    padding: 12px 14px;
+    padding: 9px 12px;
   }
 
-  .replay__header-actions {
-    width: 100%;
+  .replay__meta {
+    font-size: 12px;
   }
 
   /* Phones get the warped ring: seats are pushed away from the horizontal
@@ -1320,10 +1266,6 @@
     justify-content: center;
     margin-left: 0;
   }
-
-  .replay__status {
-    padding: 8px 12px;
-  }
 }
 
 /* Landscape phones: almost no height, so the felt goes back to wide and the
@@ -1357,7 +1299,7 @@
   }
 
   .replay__log {
-    max-height: 150px;
+    height: 150px;
   }
 }
 
@@ -1381,16 +1323,4 @@
   .ptable__award {
     display: none;
   }
-}
-
-/* Anonymized-room note. Sits between the header and the felt so it is read
-   before the seat names are, which is the only place it does any good. */
-.replay__anon {
-  margin: 0;
-  padding: 8px 16px;
-  border-top: 1px solid var(--line-soft);
-  background: rgb(155 124 255 / 7%);
-  color: var(--fg-muted);
-  font-size: 12px;
-  line-height: 1.45;
 }

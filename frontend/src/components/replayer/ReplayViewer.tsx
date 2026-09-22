@@ -2,8 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ParsedHand } from "../../lib/handParser";
 import { buildReplay, streetAnchors } from "../../lib/replay";
 import { formatMoney } from "../../lib/format";
-import { anonymizationNote, detectAnonymization } from "../../lib/db";
-import { ReplayControls, STREET_LABEL } from "./ReplayControls";
+import { ReplayControls } from "./ReplayControls";
 import { ReplaySettingsMenu } from "./ReplaySettingsMenu";
 import { ReplayTable } from "./ReplayTable";
 import { ShowdownStrip } from "./ShowdownStrip";
@@ -14,11 +13,14 @@ import {
   unitOf,
   type ReplaySettings,
 } from "./replaySettings";
-import { createAmountFormatter, effectiveStack } from "./tableMath";
+import { createAmountFormatter } from "./tableMath";
 
 interface ReplayViewerProps {
   hand: ParsedHand;
+  /** Room the hand was played in; the header's first crumb when known. */
+  site?: string | null;
   onClose?: () => void;
+  /** Rendered first in the header's icon row — the share button in practice. */
   headerExtra?: React.ReactNode;
 }
 
@@ -46,9 +48,12 @@ function writeStored(key: string, value: string): void {
   }
 }
 
-export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) {
+export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerProps) {
   const frames = useMemo(() => buildReplay(hand), [hand]);
   const anchors = useMemo(() => streetAnchors(frames), [frames]);
+  // Street markers are already the chips above the scrubber and the board on
+  // the felt; in the log they were three-quarters noise.
+  const logFrames = useMemo(() => frames.filter((entry) => entry.kind !== "street"), [frames]);
 
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -71,6 +76,23 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
     [hand, settings.anonymousNames],
   );
 
+  const last = frames.length - 1;
+  const frame = frames[Math.min(index, last)];
+
+  // Street frames are not listed, so while one is on screen the highlight
+  // stays on the last action that is — otherwise it blinks out between every
+  // street during playback.
+  const activeLogIndex = useMemo(() => {
+    let active = -1;
+    for (const entry of logFrames) {
+      if (entry.index > frame.index) {
+        break;
+      }
+      active = entry.index;
+    }
+    return active;
+  }, [logFrames, frame.index]);
+
   // Keep the highlighted log line in view — by scrolling the log box itself,
   // never `scrollIntoView`, which also drags the page around every time the
   // viewer steps to the next action.
@@ -87,10 +109,7 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
     } else if (bottom > list.scrollTop + list.clientHeight) {
       list.scrollTop = bottom - list.clientHeight;
     }
-  }, [index, logOpen]);
-
-  const last = frames.length - 1;
-  const frame = frames[Math.min(index, last)];
+  }, [activeLogIndex, logOpen]);
 
   const step = useCallback(
     (delta: number) => {
@@ -192,66 +211,36 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
     return () => window.removeEventListener("keydown", onKey);
   }, [step, seek, togglePlay, changeSettings, settings, last]);
 
-  const heroProfit = hand.heroProfit;
-  // Positions are resolved once by `buildReplay`; every frame carries the same
-  // answer, so the first one is as good as any.
-  const heroPosition = frames[0]?.seats.find((seat) => seat.isHero)?.position ?? null;
-
-  /**
-   * Rooms that do not publish real player names.
-   *
-   * Without this line an Ignition hand looks like a table where somebody is
-   * actually called "Small Blind", which is the first thing a stranger opening
-   * a shared link would get wrong about it.
-   */
-  const anonNote = useMemo(() => {
-    const note = anonymizationNote(detectAnonymization(hand.phf));
-    // The data layer's note ends with "Filter by position instead", which is
-    // advice for the library's filter bar. A shared link has no filter bar,
-    // so only the part that explains the seat names is kept here.
-    return note ? note.replace(/\s*Filter by position instead\.?\s*$/, "") : null;
-  }, [hand.phf]);
-
   return (
     <div className="replay">
+      {/* Everything the header used to carry besides these three — hand id,
+          game, seat count, effective stack, hero position, date and result —
+          is either already on the felt or is a spoiler. */}
       <div className="replay__header">
-        <div className="replay__title">
-          <h3>
-            Hand #{hand.handId}
-            {mask.tableName ? <span className="replay__table">{mask.tableName}</span> : null}
-          </h3>
-          <div className="replay__meta">
-            <span>{hand.gameLabel}</span>
-            <span>
-              {formatMoney(hand.currency, hand.smallBlind)}/
-              {formatMoney(hand.currency, hand.bigBlind)}
-            </span>
-            <span>{hand.seats.length} players</span>
-            <span title="Effective stack: hero against the deepest opponent">
-              Eff. {format(effectiveStack(hand))}
-            </span>
-            {heroPosition ? <span>Hero {heroPosition}</span> : null}
-            {hand.playedAt ? <span>{new Date(hand.playedAt).toLocaleString()}</span> : null}
-            {heroProfit !== null ? (
-              <span className={heroProfit >= 0 ? "pill pill--win" : "pill pill--loss"}>
-                Hero {heroProfit >= 0 ? "+" : "-"}
-                {format(Math.abs(heroProfit))}
-              </span>
-            ) : null}
-          </div>
+        <div className="replay__meta">
+          {site ? <span>{site}</span> : null}
+          {mask.tableName ? <span>{mask.tableName}</span> : null}
+          <span>
+            {formatMoney(hand.currency, hand.smallBlind)}/
+            {formatMoney(hand.currency, hand.bigBlind)}
+          </span>
         </div>
         <div className="replay__header-actions">
           {headerExtra}
+          <ReplaySettingsMenu settings={settings} onChange={changeSettings} />
           {onClose ? (
-            <button type="button" className="btn btn--ghost" onClick={onClose}>
-              Close
+            <button
+              type="button"
+              className="btn btn--icon"
+              onClick={onClose}
+              aria-label="Close replayer"
+              title="Close"
+            >
+              ✕
             </button>
           ) : null}
-          <ReplaySettingsMenu settings={settings} onChange={changeSettings} />
         </div>
       </div>
-
-      {anonNote ? <p className="replay__anon">{anonNote}</p> : null}
 
       <div className={`replay__body ${logOpen ? "" : "replay__body--solo"}`.trim()}>
         <div className="replay__stage">
@@ -261,42 +250,37 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
 
         {logOpen ? (
           <aside className="replay__log" id="replay-log" aria-label="Action log">
-            <div className="replay__log-head">Action log</div>
-            <ol className="replay__log-list" ref={logListRef}>
-              {frames.map((entry) => (
-                <li
-                  key={entry.index}
-                  ref={entry.index === frame.index ? currentLogRef : undefined}
-                  className={[
-                    "replay__log-item",
-                    `replay__log-item--${entry.kind}`,
-                    entry.index === frame.index ? "is-current" : "",
-                    entry.index < frame.index ? "is-past" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                >
-                  <button
-                    type="button"
-                    aria-current={entry.index === frame.index ? "step" : undefined}
-                    onClick={() => seek(entry.index)}
+            {/* Taken out of flow by the stylesheet so a long hand cannot make
+                this column taller than the table it sits next to. */}
+            <div className="replay__log-inner">
+              <div className="replay__log-head">Action log</div>
+              <ol className="replay__log-list" ref={logListRef}>
+                {logFrames.map((entry) => (
+                  <li
+                    key={entry.index}
+                    ref={entry.index === activeLogIndex ? currentLogRef : undefined}
+                    className={[
+                      "replay__log-item",
+                      `replay__log-item--${entry.kind}`,
+                      entry.index === activeLogIndex ? "is-current" : "",
+                      entry.index < activeLogIndex ? "is-past" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
                   >
-                    <span className="replay__log-street">{STREET_LABEL[entry.street]}</span>
-                    <span className="replay__log-text">{mask.text(entry.description)}</span>
-                  </button>
-                </li>
-              ))}
-            </ol>
+                    <button
+                      type="button"
+                      aria-current={entry.index === activeLogIndex ? "step" : undefined}
+                      onClick={() => seek(entry.index)}
+                    >
+                      <span className="replay__log-text">{mask.text(entry.description)}</span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </aside>
         ) : null}
-      </div>
-
-      <div className="replay__status" role="status" aria-live="polite">
-        <span className="replay__status-street">{STREET_LABEL[frame.street]}</span>
-        <span className="replay__status-text">{mask.text(frame.description)}</span>
-        <span className="replay__counter" aria-hidden="true">
-          {frame.index + 1} / {frames.length}
-        </span>
       </div>
 
       <ReplayControls
