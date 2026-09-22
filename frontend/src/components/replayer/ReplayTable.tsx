@@ -27,6 +27,13 @@ interface Placement {
 }
 
 /**
+ * |sin| above which a seat counts as sitting at the top or the bottom of the
+ * oval rather than on one of its flanks. It decides the seat's own nudge back
+ * inside the felt and, with it, which way that seat's chips step away.
+ */
+const ROW_SIN = 0.55;
+
+/**
  * Seats sit on an ellipse with the hero at the bottom. Only the angle is
  * decided here — the radii live in CSS so the ring can be reshaped per
  * breakpoint without re-rendering.
@@ -51,7 +58,7 @@ function placeSeats(seats: SeatFrameState[]): Placement[] {
       cos,
       sin,
       side: cos < -0.3 ? "left" : cos > 0.3 ? "right" : "center",
-      row: sin > 0.55 ? "bottom" : sin < -0.55 ? "top" : "middle",
+      row: sin > ROW_SIN ? "bottom" : sin < -ROW_SIN ? "top" : "middle",
     };
   });
 }
@@ -65,21 +72,76 @@ function placeSeats(seats: SeatFrameState[]): Placement[] {
  */
 const NARROW_SIN_EXP = 0.55;
 
+/**
+ * A seat at the very top, bottom or side of the ring lands on a sine or cosine
+ * of 1e-16 rather than a clean zero, and which side of zero that lands on
+ * decides which way its chips step. Anything this small is a straight angle.
+ */
+const RING_EPSILON = 1e-6;
+
 function ringStyle(cos: number, sin: number): React.CSSProperties {
   const sinN = Math.sign(sin) * Math.abs(sin) ** NARROW_SIN_EXP;
   const cosN = Math.sign(cos) * Math.sqrt(Math.max(0, 1 - sinN * sinN));
+  // Which way this seat's chips step out of its own hand: in towards the
+  // middle of the felt, which is where the room is, unless the seat is across
+  // the top — an inward step there runs into the pot — or sitting dead centre
+  // at the bottom, where "inwards" means nothing. Those slide along the ring
+  // instead, and all of them the same way round, so that two seats sharing an
+  // end of the felt never aim their chips at the same gap.
+  const alongRing = sin < -ROW_SIN || Math.abs(cos) < RING_EPSILON;
   return {
     "--cos-w": cos.toFixed(4),
     "--sin-w": sin.toFixed(4),
     "--cos-n": cosN.toFixed(4),
     "--sin-n": sinN.toFixed(4),
+    "--bet-sx": String(-Math.sign(alongRing ? sin : cos)),
+    // Which end of the felt the seat belongs to. Only the phone layout, which
+    // stacks the chips above and below the board, has any use for it; a seat
+    // dead on the midline has no end of its own and is sent below, where the
+    // felt is emptier.
+    "--bet-sy": String(Math.abs(sin) < RING_EPSILON ? -1 : -Math.sign(sin)),
   } as React.CSSProperties;
+}
+
+/**
+ * `ROW_SIN` seen through the warp above: a seat is at an end of the phone's
+ * ring once `|sin| ** NARROW_SIN_EXP` passes `ROW_SIN`. The phone layout cares
+ * about the warped ring, because that is the one it draws.
+ */
+const NARROW_ROW_SIN = ROW_SIN ** (1 / NARROW_SIN_EXP);
+
+/**
+ * The chip spot depends on which way the seat is nudged back inside the felt,
+ * on how big its cards are and — on a phone — on whether its hand is level
+ * with the board, none of which the vectors above carry.
+ */
+function chipClass(sin: number, row: Placement["row"], isHero: boolean): string {
+  // "flat" is a seat dead on the midline, which four- and eight-handed tables
+  // have: its hand is level with the board rather than above or below it, so
+  // it wants the height of an end seat's stack and the sideways step of a
+  // middle one.
+  const narrowRow =
+    Math.abs(sin) < RING_EPSILON
+      ? "flat"
+      : Math.abs(sin) > NARROW_ROW_SIN
+        ? "end"
+        : "middle";
+  return [
+    "ptable__chips",
+    `ptable__chips--row-${row}`,
+    `ptable__chips--nrow-${narrowRow}`,
+    isHero ? "ptable__chips--hero" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 interface SweepChip {
   key: string;
   cos: number;
   sin: number;
+  row: Placement["row"];
+  isHero: boolean;
   amount: number;
   amountBb: number;
 }
@@ -116,6 +178,8 @@ export function ReplayTable({ hand, frame, settings, mask, format }: ReplayTable
           key: `${frame.index}-${placement.seat.seatNo}`,
           cos: placement.cos,
           sin: placement.sin,
+          row: placement.row,
+          isHero: placement.seat.isHero,
           amount: placement.seat.bet,
           amountBb: placement.seat.betBb,
         }));
@@ -169,7 +233,11 @@ export function ReplayTable({ hand, frame, settings, mask, format }: ReplayTable
         </div>
 
         {sweep?.chips.map((chip) => (
-          <div key={chip.key} className="ptable__sweep" style={ringStyle(chip.cos, chip.sin)}>
+          <div
+            key={chip.key}
+            className={`ptable__sweep ${chipClass(chip.sin, chip.row, chip.isHero)}`}
+            style={ringStyle(chip.cos, chip.sin)}
+          >
             <ChipStack
               amount={chip.amount}
               amountBb={chip.amountBb}
@@ -181,9 +249,13 @@ export function ReplayTable({ hand, frame, settings, mask, format }: ReplayTable
           </div>
         ))}
 
-        {placements.map(({ seat, cos, sin }) =>
+        {placements.map(({ seat, cos, sin, row }) =>
           seat.bet > 0 ? (
-            <div key={`bet-${seat.seatNo}`} className="ptable__bet" style={ringStyle(cos, sin)}>
+            <div
+              key={`bet-${seat.seatNo}`}
+              className={`ptable__bet ${chipClass(sin, row, seat.isHero)}`}
+              style={ringStyle(cos, sin)}
+            >
               <ChipStack
                 amount={seat.bet}
                 amountBb={seat.betBb}
@@ -198,8 +270,12 @@ export function ReplayTable({ hand, frame, settings, mask, format }: ReplayTable
         {isAward
           ? placements
               .filter(({ seat }) => seat.winAmount > 0)
-              .map(({ seat, cos, sin }) => (
-                <div key={`award-${seat.seatNo}`} className="ptable__award" style={ringStyle(cos, sin)}>
+              .map(({ seat, cos, sin, row }) => (
+                <div
+                  key={`award-${seat.seatNo}`}
+                  className={`ptable__award ${chipClass(sin, row, seat.isHero)}`}
+                  style={ringStyle(cos, sin)}
+                >
                   <ChipStack
                     amount={seat.winAmount}
                     bigBlind={hand.bigBlind}
