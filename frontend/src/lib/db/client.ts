@@ -33,6 +33,49 @@ export class DatabaseNotConfiguredError extends Error {
   }
 }
 
+/** Copy for the "this needs an account" state. */
+export const SIGN_IN_REQUIRED_MESSAGE =
+  "Sign in to save hands to your library. Converting, previewing and downloading work without an account.";
+
+/**
+ * Thrown before the request leaves the browser when a write needs a session.
+ *
+ * The server refuses these anyway — `anon` has no grant on `hands` and the
+ * write RPCs raise `42501` — but a caught, typed error the UI can turn into a
+ * sign-in prompt is worth far more than a Postgres permission string.
+ */
+export class SignInRequiredError extends Error {
+  constructor(message: string = SIGN_IN_REQUIRED_MESSAGE) {
+    super(message);
+    this.name = "SignInRequiredError";
+  }
+}
+
+/**
+ * Resolves the caller's user id, or throws.
+ *
+ * `getSession()` reads the in-memory session after the client has initialised,
+ * so this is a local check in practice, not a round trip.
+ */
+export async function requireUserId(message?: string): Promise<string> {
+  const client = requireDb();
+  const { data } = await client.auth.getSession();
+  const id = data.session?.user?.id;
+  if (!id) {
+    throw new SignInRequiredError(message);
+  }
+  return id;
+}
+
+/** Non-throwing variant, for read paths that should render empty rather than fail. */
+export async function currentUserId(): Promise<string | null> {
+  if (!supabase) {
+    return null;
+  }
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user?.id ?? null;
+}
+
 /** The raw client, or null when the app is running as an offline converter. */
 export const db: SupabaseClient | null = supabase;
 

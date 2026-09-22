@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { navigate } from "../../routes/navigation";
 import { paths, toHref } from "../../routes/routes";
+import { AuthDialog } from "../auth/AuthDialog";
+import { UserMenu } from "../auth/UserMenu";
 import { BrandMark } from "./BrandMark";
 import { DbStatusChip } from "./DbStatusChip";
 
@@ -50,9 +52,16 @@ export function AppShell({ tab, dbConfigured, storedCount, children }: AppShellP
 
           <div className="shell__bar-end">
             <DbStatusChip configured={dbConfigured} storedCount={storedCount} />
+            <UserMenu />
           </div>
         </div>
       </header>
+
+      {/* Rendered by the shell, not by each screen, so `requestSignIn()` works
+          from anywhere in the tree. The shared-hand page has no shell and
+          therefore never shows it — a stranger following a link is not
+          someone to put a sign-up form in front of. */}
+      <AuthDialog />
 
       {!dbConfigured ? (
         <p className="shell__offline-banner">

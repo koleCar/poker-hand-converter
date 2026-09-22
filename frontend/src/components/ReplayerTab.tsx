@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { parseHand, toParsedHand, type ParsedHand } from "../lib/handParser";
-import { convertAny } from "../lib/phf";
+import { convertAny, getParser } from "../lib/phf";
 import type { PhfHand } from "../lib/phf/types";
+import { useAuth } from "../lib/auth";
 import { getHand, isDatabaseConfigured, searchHands, type HandSummary } from "../lib/db";
 import { saveSingleHand } from "../lib/handStore";
 import { FILE_ACCEPT, loadFile } from "./converter/inputs";
@@ -17,6 +18,17 @@ import { ShareHandButton } from "./share/ShareHandButton";
 import { ReplayViewer } from "./replayer/ReplayViewer";
 
 const PAGE_SIZE = 25;
+
+/**
+ * Room name for the replayer's header. `standard` is our own re-import format
+ * rather than a poker room, so it is left off the line entirely.
+ */
+function siteLabel(id: string): string | null {
+  if (!id || id === "standard") {
+    return null;
+  }
+  return getParser(id)?.name ?? id;
+}
 
 /**
  * A hand parked by the converter is only honoured for this long.
@@ -73,6 +85,7 @@ interface ReplayerTabProps {
 }
 
 export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
+  const auth = useAuth();
   const [filters, setFilters] = useState<ReplayerFilterForm>(EMPTY_REPLAYER_FILTERS);
   const [rows, setRows] = useState<HandSummary[]>([]);
   const [total, setTotal] = useState(0);
@@ -114,10 +127,13 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
     [],
   );
 
+  // `isSignedIn` is a dependency because the library *is* the session: signing
+  // in has to populate the list, and signing out has to empty it rather than
+  // leave the previous account's hands on screen.
   useEffect(() => {
     void runSearch(filters, page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, refreshToken]);
+  }, [page, refreshToken, auth.isSignedIn]);
 
   function applyFilters(next: ReplayerFilterForm) {
     setFilters(next);
@@ -232,8 +248,29 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
     }
   }, [loadPhf]);
 
+  /**
+   * Set when "save" was pressed with no session, so the click survives the
+   * sign-in round trip instead of being swallowed by the dialog.
+   */
+  const wantsSaveRef = useRef(false);
+
+  useEffect(() => {
+    if (auth.isSignedIn && wantsSaveRef.current) {
+      wantsSaveRef.current = false;
+      void saveLoadedHand();
+    }
+    // saveLoadedHand closes over `loaded`, which has not changed across the
+    // sign-in; re-running on its identity would re-save on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth.isSignedIn]);
+
   async function saveLoadedHand() {
     if (!loaded || loaded.storedId) {
+      return;
+    }
+    if (!auth.isSignedIn) {
+      wantsSaveRef.current = true;
+      auth.requestSignIn("Sign in to keep this hand in your library. Only you will see it.");
       return;
     }
     setSavingUpload(true);
@@ -339,22 +376,25 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
           <ReplayViewer
             key={loaded.hand.handKey}
             hand={loaded.hand}
+            site={siteLabel(loaded.siteId)}
             onClose={() => setLoaded(null)}
             headerExtra={
               <>
+                <ShareHandButton hand={loaded.hand} storedHandId={loaded.storedId} iconOnly />
+                {/* Only while there is something to save — once the hand is in
+                    the library the button has nothing left to say. */}
                 {loaded.origin !== "db" && !loaded.storedId && isDatabaseConfigured ? (
                   <button
                     type="button"
-                    className="btn btn--sm"
+                    className="btn btn--icon"
                     onClick={saveLoadedHand}
                     disabled={savingUpload}
+                    aria-label="Save to database"
+                    title={savingUpload ? "Saving…" : "Save to database"}
                   >
-                    {savingUpload ? "Saving…" : "Save to database"}
+                    💾
                   </button>
-                ) : loaded.storedId ? (
-                  <span className="tag tag--good">saved</span>
                 ) : null}
-                <ShareHandButton hand={loaded.hand} storedHandId={loaded.storedId} />
               </>
             }
           />
@@ -364,54 +404,78 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       <section className="card">
         <header className="card__head">
           <div>
-            <h2>Hands in your database</h2>
+            <h2>Your hand library</h2>
             <p className="muted">
-              {isDatabaseConfigured
-                ? `${total.toLocaleString("en-US")} ${total === 1 ? "hand matches" : "hands match"} the filters`
-                : "No database configured."}
+              {!isDatabaseConfigured
+                ? "No database configured."
+                : !auth.isSignedIn
+                  ? "Private to your account."
+                  : `${total.toLocaleString("en-US")} ${total === 1 ? "hand matches" : "hands match"} the filters`}
             </p>
           </div>
         </header>
 
-        <HandFiltersBar
-          value={filters}
-          onApply={applyFilters}
-          onReset={() => applyFilters(EMPTY_REPLAYER_FILTERS)}
-          loading={loading}
-        />
-
-        {listError ? <p className="notice notice--error">{listError}</p> : null}
-
-        <HandList
-          rows={rows}
-          loading={loading}
-          activeId={loaded?.storedId ?? null}
-          onOpen={openStoredHand}
-        />
-
-        {pageCount > 1 ? (
-          <div className="pager">
+        {/* Signed out, the filters and the list would both be furniture around
+            nothing — there is no library to filter. The gate replaces them
+            rather than sitting above an empty table. `loading` is excluded so a
+            returning user does not see it flash before their session restores. */}
+        {isDatabaseConfigured && !auth.isSignedIn && auth.status !== "loading" ? (
+          <div className="signin-gate">
+            <p>
+              Your library lives with your account. Sign in to browse, filter and replay every hand
+              you have converted — nobody else can see them.
+            </p>
             <button
               type="button"
-              className="btn btn--ghost btn--sm"
-              disabled={page === 0}
-              onClick={() => setPage((current) => Math.max(0, current - 1))}
+              className="btn btn--primary btn--sm"
+              onClick={() => auth.requestSignIn("Sign in to open your hand library.")}
             >
-              ← Previous
-            </button>
-            <span className="muted">
-              Page {page + 1} of {pageCount}
-            </span>
-            <button
-              type="button"
-              className="btn btn--ghost btn--sm"
-              disabled={page + 1 >= pageCount}
-              onClick={() => setPage((current) => current + 1)}
-            >
-              Next →
+              Sign in
             </button>
           </div>
-        ) : null}
+        ) : (
+          <>
+            <HandFiltersBar
+              value={filters}
+              onApply={applyFilters}
+              onReset={() => applyFilters(EMPTY_REPLAYER_FILTERS)}
+              loading={loading}
+            />
+
+            {listError ? <p className="notice notice--error">{listError}</p> : null}
+
+            <HandList
+              rows={rows}
+              loading={loading}
+              activeId={loaded?.storedId ?? null}
+              onOpen={openStoredHand}
+            />
+
+            {pageCount > 1 ? (
+              <div className="pager">
+                <button
+                  type="button"
+                  className="btn btn--ghost btn--sm"
+                  disabled={page === 0}
+                  onClick={() => setPage((current) => Math.max(0, current - 1))}
+                >
+                  ← Previous
+                </button>
+                <span className="muted">
+                  Page {page + 1} of {pageCount}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn--ghost btn--sm"
+                  disabled={page + 1 >= pageCount}
+                  onClick={() => setPage((current) => current + 1)}
+                >
+                  Next →
+                </button>
+              </div>
+            ) : null}
+          </>
+        )}
       </section>
     </div>
   );

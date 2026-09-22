@@ -160,8 +160,17 @@
 
 .shell__bar-end {
   grid-area: status;
+  display: flex;
+  gap: 10px;
+  align-items: center;
   justify-self: end;
+  justify-content: flex-end;
   min-width: 0;
+  /* The database chip and the account control share this cell. Wrapping keeps
+     a long email from pushing the tabs around on a narrow window; the chip
+     drops below rather than the menu being squeezed, because the menu is the
+     one you click. */
+  flex-wrap: wrap;
 }
 
 .shell__status {

@@ -8,7 +8,12 @@ tracker-importable text, step through in a visual replayer, keep in a
 searchable library, or hand to someone else as a link.
 
 Everything runs in the browser. The only backend is Supabase (Postgres +
-PostgREST); there is no server of ours in the request path, and no login.
+PostgREST); there is no server of ours in the request path.
+
+Converting, previewing, downloading and replaying need no account at all. An
+account is what gives you a *library*: hands you save belong to you and nobody
+else can read them. The one deliberate exception is a share link — anyone you
+send one to can replay that hand without signing in.
 
 Live: **https://poker-hand-converter.vercel.app**
 
@@ -319,16 +324,35 @@ Detection is per-hand and partly structural, not a hard-coded site list, so a
 future anonymizing room gets labelled correctly the first time someone uploads
 one. See `frontend/src/lib/db/anonymization.ts`.
 
-### RLS, briefly
+### Accounts and RLS, briefly
 
-The app has no login and the deployed bundle is public, so the anon key is
-public by construction. Policies assume an untrusted caller: `select` allowed
-on `hands` and `unparsed_hands`, `insert` allowed on `hands`, `update` and
-`delete` **never**, on any table, and `shares` has no grants and no policies at
-all — a slug is a capability URL, and being able to list the table would defeat
-the point. Counters that must move do so inside `security definer` functions
-that can touch nothing else. The worst a stranger can do is add junk rows,
-bounded by size caps, shape checks and a global rate limiter.
+The deployed bundle is public, so the anon key is public by construction —
+anyone can read it out of the JavaScript and talk to PostgREST directly. Every
+policy is therefore written for an untrusted caller, and the *only* thing that
+separates two users' hands is the database, never the UI.
+
+- Every row in `hands` has an `owner_id`. `select` and `insert` are policed by
+  `owner_id = auth.uid()`, so there is no query a client can construct that
+  returns somebody else's hand. `anon` has no grant on the table at all.
+- `update` and `delete` are refused **everywhere**, for everyone, on every
+  table. Counters that must move (share views, failure occurrences) do so
+  inside `security definer` functions that can touch nothing else.
+- `shares` has no grants and no policies. A slug is a capability URL, so
+  `resolve_share()` is the only door and it is `security definer` — which is
+  exactly why a share link works for a stranger with no account, and why
+  `create_share()` has to check ownership explicitly rather than lean on RLS.
+- Dedupe is `(owner_id, hand_key)`, not `hand_key`. A global key would tell the
+  second person to upload a hand "already stored" and then show them nothing,
+  because the row they collided with is not theirs to read.
+- `unparsed_hands` holds raw uploads, so a row is readable only by whoever
+  submitted it. The corpus stays globally deduped — the occurrence counter is
+  the whole point of the table — but reading across it is a service-role job.
+
+Signing in uses Supabase Auth: email + password, or Google once the provider is
+configured in the dashboard. A **guest** is simply signed out: everything
+client-side works, and nothing is stored, because there is no id to store it
+under. The converter holds a finished run in memory and offers to save it after
+sign-in, so the login never arrives before the value does.
 
 ### Applying migrations
 

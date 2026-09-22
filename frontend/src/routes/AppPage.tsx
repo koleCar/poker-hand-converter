@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ConverterTab } from "../components/ConverterTab";
 import { ReplayerTab } from "../components/ReplayerTab";
 import { AppShell, type ShellTab } from "../components/shell/AppShell";
+import { useAuth } from "../lib/auth";
 import { countHands } from "../lib/handStore";
 import { isSupabaseConfigured } from "../lib/supabase";
 import { NotFoundPage } from "./NotFoundPage";
@@ -27,18 +28,37 @@ const META: Record<ShellTab, { title: string; description: string; path: string 
 export default function AppPage({ route }: { route: RouteMatch }) {
   const [refreshToken, setRefreshToken] = useState(0);
   const [storedCount, setStoredCount] = useState<number | null>(null);
+  const auth = useAuth();
 
   const tab: ShellTab | null =
     route.name === "converter" ? "converter" : route.name === "replayer" ? "replayer" : null;
 
   const refreshCount = useCallback(() => {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured || !auth.isSignedIn) {
       return;
     }
     void countHands().then(setStoredCount);
-  }, []);
+  }, [auth.isSignedIn]);
 
   useEffect(refreshCount, [refreshCount, refreshToken]);
+
+  /**
+   * Offer the dialog once, to someone who has never answered the question.
+   *
+   * Not a gate: dismissing it, or choosing "continue without an account",
+   * leaves a fully working converter. It exists because the alternative is a
+   * person converting a 5000-hand file and only then discovering that saving it
+   * needed an account. `askedRef` keeps a re-render from reopening a dialog the
+   * user just closed.
+   */
+  const askedRef = useRef(false);
+  useEffect(() => {
+    if (askedRef.current || !auth.configured || auth.status !== "signed-out" || auth.isGuest) {
+      return;
+    }
+    askedRef.current = true;
+    auth.requestSignIn();
+  }, [auth]);
 
   const handleHandsSaved = useCallback(() => {
     setRefreshToken((current) => current + 1);
@@ -59,7 +79,14 @@ export default function AppPage({ route }: { route: RouteMatch }) {
   });
 
   return (
-    <AppShell tab={tab} dbConfigured={isSupabaseConfigured} storedCount={storedCount}>
+    <AppShell
+      tab={tab}
+      dbConfigured={isSupabaseConfigured}
+      // The chip counts "hands in your library", so it is meaningless without
+      // one. Derived rather than cleared on sign-out, so the last account's
+      // number can never be left sitting in the bar for the next visitor.
+      storedCount={auth.isSignedIn ? storedCount : null}
+    >
       {tab === "converter" ? <ConverterTab onHandsSaved={handleHandsSaved} /> : null}
       {tab === "replayer" ? <ReplayerTab refreshToken={refreshToken} /> : null}
       {tab === null ? <NotFoundPage /> : null}

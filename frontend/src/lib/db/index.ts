@@ -9,16 +9,24 @@
  *    readable message if you forget, rather than hanging or returning empty.
  * 2. **Money is integer minor units**, exactly as in PHF. Render with
  *    `handUnit(row)` plus `formatAmount()` from `lib/phf/types`.
- * 3. **Nothing can be updated or deleted from the client.** There is no login,
- *    the anon key is public, and the schema grants insert-and-read only. Rows
- *    that must change (failure counters, share views) change inside
- *    `security definer` functions that can touch nothing else. The reasoning is
- *    written out in `docs/DATABASE.md` and in the migration's SQL comments.
+ * 3. **Nothing can be updated or deleted from the client.** The schema grants
+ *    insert-and-read only. Rows that must change (failure counters, share
+ *    views) change inside `security definer` functions that can touch nothing
+ *    else. The reasoning is written out in `docs/DATABASE.md` and in the
+ *    migration's SQL comments.
+ * 4. **A hand belongs to exactly one account.** Every read and every write is
+ *    scoped to `auth.uid()` by RLS, not by anything in this directory — there
+ *    is no client-side filter to forget and no query that could ask for
+ *    somebody else's hands. Writes throw `SignInRequiredError` without sending
+ *    anything when there is no session; reads return empty. The one deliberate
+ *    exception is `resolveShare()`, which works for anyone holding the slug.
  */
 
 export {
   DATABASE_NOT_CONFIGURED_MESSAGE,
   DatabaseNotConfiguredError,
+  SIGN_IN_REQUIRED_MESSAGE,
+  SignInRequiredError,
   isDatabaseConfigured,
 } from "./client";
 

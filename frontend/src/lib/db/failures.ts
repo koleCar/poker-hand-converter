@@ -9,7 +9,7 @@
  */
 
 import type { ConversionFailure } from "../phf/detect";
-import { requireDb, rpc } from "./client";
+import { requireDb, requireUserId, rpc } from "./client";
 import { toUnparsedHand, toUnparsedSummary } from "./mapping";
 import type { RecordFailuresResult, UnparsedHand, UnparsedStatus, UnparsedSummary } from "./types";
 
@@ -38,6 +38,9 @@ export async function recordConversionFailures(
   if (failures.length === 0) {
     return result;
   }
+  // A sample is raw text somebody uploaded, so it is stored against the account
+  // that submitted it and a guest contributes nothing.
+  await requireUserId("Sign in to contribute samples of hands we cannot convert yet.");
 
   for (let i = 0; i < failures.length; i += MAX_FAILURES_PER_REQUEST) {
     const batch = failures.slice(i, i + MAX_FAILURES_PER_REQUEST);
@@ -75,11 +78,17 @@ export interface UnparsedQuery {
 }
 
 /**
- * Lists rows of the failure corpus.
+ * Lists rows of the failure corpus **that the caller submitted**.
  *
  * A plain PostgREST select rather than an RPC: the corpus browser is a simple
  * table view and the filters map one to one onto columns, so there is nothing
  * for a function to add.
+ *
+ * `raw_text` here is verbatim hand history somebody uploaded, so the
+ * `unparsed_own_select` policy limits every row to its submitter. Reading the
+ * whole corpus — which is what triage actually needs — is a service-role job
+ * from the SQL editor, not something the anon key can do. See
+ * `docs/DATABASE.md`.
  */
 export async function listUnparsedHands(query: UnparsedQuery = {}): Promise<UnparsedHand[]> {
   const client = requireDb();
@@ -114,7 +123,10 @@ export async function listUnparsedHands(query: UnparsedQuery = {}): Promise<Unpa
   }));
 }
 
-/** The full raw text of one corpus entry, fetched only when someone opens it. */
+/**
+ * The full raw text of one corpus entry, fetched only when someone opens it.
+ * Empty for an entry the caller did not submit.
+ */
 export async function fetchUnparsedRawText(id: string): Promise<string> {
   const client = requireDb();
   const { data, error } = await client

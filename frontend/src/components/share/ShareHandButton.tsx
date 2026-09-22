@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "../../lib/auth";
+import { SignInRequiredError } from "../../lib/db";
 import type { ParsedHand } from "../../lib/handParser";
 import { buildSharePreview } from "./preview";
 import { SHARE_UNAVAILABLE_MESSAGE, createShare, isShareBackendReady } from "./shareClient";
@@ -13,6 +15,8 @@ interface ShareHandButtonProps {
    */
   presetUrl?: string;
   label?: string;
+  /** Renders as a single icon button, sized like the replayer's other icons. */
+  iconOnly?: boolean;
   className?: string;
 }
 
@@ -53,6 +57,7 @@ export function ShareHandButton({
   storedHandId = null,
   presetUrl,
   label = "Share hand",
+  iconOnly = false,
   className,
 }: ShareHandButtonProps) {
   const [open, setOpen] = useState(false);
@@ -62,6 +67,7 @@ export function ShareHandButton({
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const auth = useAuth();
 
   // A new hand invalidates the previous link.
   useEffect(() => {
@@ -126,6 +132,12 @@ export function ShareHandButton({
       setCopyState((await copyToClipboard(result.url, inputRef.current)) ? "copied" : "failed");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create a share link.");
+      // Creating a link stores the hand, so it needs an account — but opening
+      // one never does, which is what the dialog's copy says. The message is
+      // set either way: on the shared-hand page there is no dialog to open.
+      if (err instanceof SignInRequiredError) {
+        auth.requestSignIn("Sign in to create a share link. Anyone you send it to can open it without an account.");
+      }
     } finally {
       setBusy(false);
     }
@@ -137,14 +149,23 @@ export function ShareHandButton({
     <div className={`share ${className ?? ""}`} ref={panelRef}>
       <button
         type="button"
-        className="btn btn--primary btn--sm share__trigger"
+        className={
+          iconOnly ? "btn btn--icon share__trigger" : "btn btn--primary btn--sm share__trigger"
+        }
         onClick={() => void handleShare()}
         disabled={busy}
         aria-expanded={open}
-        title={isShareBackendReady || presetUrl ? undefined : SHARE_UNAVAILABLE_MESSAGE}
+        aria-label={iconOnly ? label : undefined}
+        title={
+          isShareBackendReady || presetUrl
+            ? iconOnly
+              ? label
+              : undefined
+            : SHARE_UNAVAILABLE_MESSAGE
+        }
       >
         <span aria-hidden="true">🔗</span>
-        {busy ? "Creating link…" : label}
+        {iconOnly ? null : busy ? "Creating link…" : label}
       </button>
 
       {open ? (

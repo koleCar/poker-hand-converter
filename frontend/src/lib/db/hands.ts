@@ -5,7 +5,7 @@
 import { extractCards, resolveHeroQuery } from "../cards";
 import { toStandardText } from "../phf/serialize";
 import type { PhfHand } from "../phf/types";
-import { isDatabaseConfigured, requireDb, rpc } from "./client";
+import { currentUserId, isDatabaseConfigured, requireDb, requireUserId, rpc } from "./client";
 import { handInsertFromPhf, handKeyOf, toHandRecord, toHandSummary, type HandInsert } from "./mapping";
 import type {
   HandFacets,
@@ -73,15 +73,22 @@ function batchRows(rows: HandInsert[]): HandInsert[][] {
 }
 
 /**
- * Saves converted hands, deduping on `handKey`.
+ * Saves converted hands into the signed-in user's library, deduping on `handKey`.
  *
  * Safe to call with the same hands twice: the unique index resolves duplicates
  * server-side, so a re-uploaded file reports `duplicates` instead of creating
  * copies. A 5000-hand upload becomes a few dozen requests, not 5000 — and no
  * "which of these already exist" probe, because the RPC returns exact counts.
  *
- * Batches that fail do not abort the rest of the upload; their errors are
- * collected in `result.errors` so a single bad hand cannot cost you the file.
+ * Dedupe is per library — `(owner_id, hand_key)` — so uploading a hand another
+ * account already has is a new row, not a duplicate. Sharing a dedupe key
+ * across accounts would tell the second uploader "already stored" and then show
+ * them nothing, because the row they collided with is not theirs to read.
+ *
+ * Throws `SignInRequiredError` with nothing sent when there is no session: this
+ * is the write that the whole login exists for. Batches that fail for other
+ * reasons do not abort the rest of the upload; their errors are collected in
+ * `result.errors` so a single bad hand cannot cost you the file.
  */
 export async function saveHands(
   hands: Array<PhfHand | SaveHandInput>,
@@ -91,6 +98,7 @@ export async function saveHands(
   if (hands.length === 0) {
     return result;
   }
+  await requireUserId();
 
   // Dedupe inside the upload first: a file that contains the same hand twice
   // should not spend a round trip discovering that.
@@ -152,7 +160,17 @@ export interface HandPage {
 }
 
 /**
- * Filtered, sorted, paginated hand list plus the total count, in one request.
+ * Filtered, sorted, paginated list of **the caller's own** hands, plus the
+ * total count, in one request.
+ *
+ * The scoping is not applied here and cannot be bypassed here: `search_hands`
+ * is `security invoker`, so the `hands_owner_select` policy rewrites the query
+ * server-side. There is no filter key for "somebody else's hands" because there
+ * is no query that could carry one.
+ *
+ * Returns an empty page rather than throwing when signed out — the library is a
+ * passive part of a page a guest is allowed to be on, and an empty list under a
+ * "sign in to see your hands" prompt reads better than an error.
  *
  * The heavy columns are not in the response; call `getHand(id)` when the user
  * actually opens a hand.
@@ -161,6 +179,9 @@ export async function searchHands(
   filters: HandFilters = {},
   page: HandPage = { offset: 0, limit: 25 },
 ): Promise<HandSearchResult> {
+  if (!(await currentUserId())) {
+    return { rows: [], total: 0, limit: page.limit, offset: page.offset };
+  }
   const payload = await rpc<{ rows: Record<string, unknown>[]; total: number; limit: number; offset: number }>(
     "search_hands",
     { p_filters: filters, p_limit: page.limit, p_offset: page.offset },
@@ -173,8 +194,16 @@ export async function searchHands(
   };
 }
 
-/** Full stored hand including its PHF document. Null when the id is unknown. */
+/**
+ * Full stored hand including its PHF document.
+ *
+ * Null when the id is unknown **or belongs to somebody else** — RLS makes the
+ * two indistinguishable, which is the right answer to a guessed uuid.
+ */
 export async function getHand(id: string): Promise<HandRecord | null> {
+  if (!(await currentUserId())) {
+    return null;
+  }
   const row = await rpc<Record<string, unknown> | null>("get_hand", { p_id: id });
   return row ? toHandRecord(row) : null;
 }
@@ -186,6 +215,9 @@ export async function getHand(id: string): Promise<HandRecord | null> {
  * because a batch insert that skips duplicates cannot return a row per input.
  */
 export async function findHandId(handKey: string): Promise<string | null> {
+  if (!(await currentUserId())) {
+    return null;
+  }
   const client = requireDb();
   const { data, error } = await client
     .from("hands")
@@ -198,8 +230,37 @@ export async function findHandId(handKey: string): Promise<string | null> {
   return (data?.id as string | undefined) ?? null;
 }
 
-/** Every distinct filter value the browse UI offers, in one request. */
+/** An empty facet set, so a signed-out filter bar renders instead of erroring. */
+const NO_FACETS: HandFacets = {
+  total: 0,
+  sites: [],
+  heroes: [],
+  tables: [],
+  stakes: [],
+  variants: [],
+  limitTypes: [],
+  gameFormats: [],
+  heroHandClasses: [],
+  streets: [],
+  heroPositions: [],
+  showdownPositions: [],
+  anonymizations: [],
+  playedAtRange: { min: null, max: null },
+  unparsedTotal: 0,
+};
+
+/**
+ * Every distinct filter value the browse UI offers, in one request.
+ *
+ * Scoped to the caller's own hands, because `hands_facets()` is
+ * `security invoker` and every subquery in it reads `public.hands`. That is the
+ * behaviour the UI wants anyway: a site or a hero you have never played is not
+ * a useful thing to offer as a filter.
+ */
 export async function fetchHandFacets(): Promise<HandFacets> {
+  if (!(await currentUserId())) {
+    return NO_FACETS;
+  }
   const payload = await rpc<Record<string, unknown>>("hands_facets");
   return {
     total: Number(payload.total ?? 0),

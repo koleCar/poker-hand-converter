@@ -2,17 +2,19 @@
 
 Supabase project `riybwcfnclphacnfawiq` (`poker converter`). Postgres 17.
 
-The schema is defined by two migrations:
+The schema is defined by three migrations:
 
 | Migration | What it does |
 | --- | --- |
 | `20260916190000_phf_baseline.sql` | The baseline: `hands`, `unparsed_hands`, `shares`, RLS, RPCs. |
 | `20260916210000_position_search_and_anonymization.sql` | Adds `site_anonymization` and the position search columns. |
+| `20260922130000_user_accounts_and_ownership.sql` | Adds accounts: `hands.owner_id`, owner-scoped RLS, per-library dedupe, `shares.owner_id`, `unparsed_hands.submitted_by`. |
 
 The client layer that talks to them is `frontend/src/lib/db/`. Nothing else in
 the app touches Supabase.
 
 - [Threat model](#threat-model-read-this-first)
+- [Verifying the isolation](#verifying-the-isolation)
 - [Tables](#tables)
 - [Player identity and anonymized rooms](#player-identity-and-anonymized-rooms)
 - [Functions (RPCs)](#functions-rpcs)
@@ -26,39 +28,55 @@ the app touches Supabase.
 
 ## Threat model (read this first)
 
-**The app has no login and none is planned.** The deployed bundle is a public
-static asset, so `VITE_SUPABASE_ANON_KEY` is public by construction: anyone can
-read it out of the JavaScript and talk to PostgREST directly with `curl`. Every
-policy in the schema assumes an untrusted, unauthenticated, unidentifiable
-caller.
+**The app has accounts, and the database is the only thing enforcing them.**
+The deployed bundle is a public static asset, so `VITE_SUPABASE_ANON_KEY` is
+public by construction: anyone can read it out of the JavaScript and talk to
+PostgREST directly with `curl`, with any JWT they legitimately hold. So the
+question every policy answers is not "will the UI ask for this" but "what
+happens when a signed-in stranger asks for it directly".
+
+There are exactly three kinds of caller:
+
+| Caller | What they are | What they can reach |
+| --- | --- | --- |
+| **`anon`** | Logged out, or a guest who chose to carry on without an account | `resolve_share(slug)` and nothing else. No grant on `hands`, no write anywhere. |
+| **`authenticated`** | Signed in, identified by `auth.uid()` | Their own hands, their own shares, their own corpus samples. Nobody else's, by any query. |
+| **`service_role`** | Us, from the dashboard or the Management API | Everything. Triage, cleanup, backfills. |
 
 The rules the schema holds to:
 
-| # | Rule | Why it is acceptable |
+| # | Rule | Why |
 | --- | --- | --- |
-| 1 | Anon may **read** hands | Converted hands are the public product surface. Anyone who loads the site can already see them. There is no user, so there is nothing user-private. |
-| 2 | Anon may **insert** hands | That is the product. The worst case is junk rows, which the service role can delete. |
-| 3 | Anon may **never** update or delete anything | Data loss is the one outcome we refuse to expose. No table has an `UPDATE` or `DELETE` policy, and the grants do not include those verbs either. |
-| 4 | Counters move only inside `security definer` functions | Failure occurrence counts and share view counts *have* to increment, but giving anon a general `UPDATE` grant to allow it would also let it rewrite hands. The functions can touch exactly those columns and nothing else. |
-| 5 | Anon may not enumerate `shares` | A share slug is a capability URL. Being able to `select *` would hand out every private link ever created. The table has no grants and no policies at all; `resolve_share(slug)` is the only door and it takes an exact slug. |
-| 6 | Junk volume is bounded | `CHECK` constraints cap text sizes and validate shapes; a statement-level trigger enforces a global insert-rate budget. |
+| 1 | A hand belongs to exactly one account | `hands.owner_id` is `not null` and references `auth.users`. Both policies on the table are `owner_id = (select auth.uid())`, so there is no client-constructible query that returns another person's hand. |
+| 2 | A client can never choose the owner | `save_hands` writes `auth.uid()` explicitly and ignores the payload's `owner_id`; the normalizing trigger overwrites it again; the RLS `with check` rejects the row regardless. Three independent guards, because the payload goes through `jsonb_populate_recordset` and is fully attacker-controlled. |
+| 3 | Dedupe is per library | `(owner_id, hand_key)`, not `hand_key`. A global key would tell the second uploader of a hand "duplicate" and then show them nothing — the row they collided with is not theirs to read. |
+| 4 | Anon may **never** write anything | `save_hands`, `create_share` and `record_conversion_failures` are revoked from `anon` *and* raise an explicit "you must be signed in" error, so the client gets a sentence instead of `42501`. |
+| 5 | Nobody may update or delete anything | Data loss is the one outcome we refuse to expose. No table has an `UPDATE` or `DELETE` policy — not even for the owner — and the grants do not include those verbs. "Delete my hand" is a real feature, but it needs its own UI and its own confirmation, and the verb should not exist before something guards it. |
+| 6 | Counters move only inside `security definer` functions | Share views and failure occurrences *have* to increment, but a general `UPDATE` grant would also let a caller rewrite hands. |
+| 7 | A share slug is a capability URL, and works for anyone | `shares` has no grants and no policies at all. `resolve_share(slug)` is the only door, takes an exact slug, and is `security definer` — so it deliberately reads past the owner policy on `hands`. That *is* the feature: send someone a link and they replay the hand with no account. |
+| 8 | Raw uploads are not public | `unparsed_hands.raw_text` is verbatim hand history somebody uploaded. It is readable only by its submitter. The row itself stays globally deduped, because `occurrences` is the entire point of the table. |
+| 9 | Junk volume is bounded | `CHECK` constraints cap text sizes and validate shapes; a statement-level trigger enforces a global insert-rate budget. |
 
 Anything destructive (deleting junk, retiring corpus rows, editing triage
 status) is a **service role** operation, done from the Supabase dashboard SQL
 editor or through the Management API.
 
-### What an attacker can actually do
+### What a signed-in attacker can actually do
 
-* Insert bogus hands and bogus failure records, until the rate limiter closes
-  the window. Cost: some rows to clean up.
-* Read every stored hand. Already true by loading the site.
-* Create share links. Bounded to 300/hour globally.
+* Fill **their own** library with junk, until the rate limiter closes the
+  window. Cost: some rows to clean up, attributable to one account.
+* Create share links to their own hands. Bounded to 300/hour globally.
 * Resolve a share slug they already know. That is the feature.
 
 ### What they cannot do
 
-* Delete or modify a stored hand, a corpus entry, or a share.
-* List share slugs.
+* Read, write, modify or delete another account's hand — including by putting
+  someone else's `owner_id` in the payload, or by guessing a hand `id`.
+* Mint a share link to a hand they do not own. `create_share` is `security
+  definer`, so RLS does **not** protect it; the ownership check is written out
+  explicitly, and it returns the same error for "no such hand" and "not yours"
+  so it cannot be used as an existence oracle.
+* List share slugs, or read another account's raw corpus sample.
 * Read or write `ingest_rate_limit`, or call `enforce_rate_limit` /
   `generate_share_slug` (both revoked from `anon` and `authenticated` — note
   that Supabase's default privileges grant `EXECUTE` on new functions to those
@@ -68,13 +86,22 @@ editor or through the Management API.
   capped at 200 000 characters, `hands.phf` at 1 MiB, and
   `unparsed_hands.raw_text` at 128 KiB.
 
+All of the above is verified live against the deployed project rather than
+argued from the SQL; the script is in
+[Verifying the isolation](#verifying-the-isolation).
+
 ### Rate limiting
 
-Without a login there is no per-user identity to key a limiter on, and the
-client IP is not visible to Postgres through PostgREST. So `ingest_rate_limit`
-is a **global** fixed-window circuit breaker per logical bucket, not fair-share
+`ingest_rate_limit` predates accounts and is still keyed by *bucket*, not by
+user: it is a **global** fixed-window circuit breaker, not fair-share
 throttling. It turns "someone scripts inserts overnight" into "someone gets
 errors after a while".
+
+Accounts now make a per-user limiter possible — `auth.uid()` is a key the old
+model did not have — and that would be the right change if one account ever
+manages to exhaust a shared budget and lock everyone else out. It has not been
+made yet because the budgets are an order of magnitude above real use, and a
+per-user counter is a strictly larger table with a cleanup job attached.
 
 | Bucket | Budget | Enforced by |
 | --- | --- | --- |
@@ -110,10 +137,73 @@ why:
 | `save_hands` | invoker | Inserts must stay subject to the `hands` RLS policy and the rate-limit trigger. |
 | `search_hands`, `get_hand`, `hands_facets`, `unparsed_summary` | invoker | Read-only; RLS already allows public select. |
 | `record_conversion_failures` | **definer** | Anon has `SELECT` but no `INSERT`/`UPDATE` on `unparsed_hands`, precisely so a caller cannot forge an occurrence count or flip `status`. This is the only write path and it whitelists the columns it touches. |
-| `create_share` | **definer** | `shares` is sealed from anon. The function generates the slug itself, so a caller cannot choose one. |
+| `create_share` | **definer** | `shares` is sealed from clients. The function generates the slug itself, so a caller cannot choose one — and because being definer means RLS on `hands` does not apply inside it, it checks `owner_id` by hand. |
 | `resolve_share` | **definer** | Reads a sealed table *and* increments `views`, which is an `UPDATE`. Keyed strictly by slug equality, returns exactly one row. |
 | `enforce_rate_limit` | **definer** | The counter table is unreachable from anon. Not granted to clients. |
 | `hands_rate_limit` (trigger) | **definer** | Has to call `enforce_rate_limit`, which anon cannot execute. |
+
+---
+
+## Verifying the isolation
+
+A migration returning `201` proves the SQL ran, not that two accounts are
+actually separated. Prove it the way an attacker would: with two real JWTs and
+`curl`. The Management-API PAT is a superuser and proves nothing about RLS, so
+it must not appear anywhere in this test.
+
+Run it after **any** change to the policies, to `save_hands`, or to
+`create_share`. It is the cheapest regression test in the project.
+
+```bash
+cd frontend  # .env.local has the URL and anon key
+URL=$(grep VITE_SUPABASE_URL .env.local | cut -d'"' -f2)
+KEY=$(grep VITE_SUPABASE_ANON_KEY .env.local | cut -d'"' -f2)
+TAG=$(openssl rand -hex 4)
+
+signup() {  # -> access token
+  curl -s -X POST "$URL/auth/v1/signup" -H "apikey: $KEY" \
+    -H "Content-Type: application/json" \
+    -d "{\"email\":\"$1-$TAG@example.com\",\"password\":\"test-pw-123456\"}" \
+  | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])'
+}
+rpc() {     # rpc <fn> <json> [token]
+  curl -s -X POST "$URL/rest/v1/rpc/$1" -H "apikey: $KEY" \
+    -H "Authorization: Bearer ${3:-$KEY}" -H "Content-Type: application/json" -d "$2"
+}
+
+A=$(signup a); B=$(signup b)
+HAND='{"hand_key":"pokerstars:'"$TAG"'","phf":{"schema":"phf/1"},"standard_text":"x","site":"pokerstars"}'
+
+rpc save_hands   "{\"p_hands\":[$HAND]}" "$A"   # -> inserted 1
+rpc search_hands '{"p_filters":{}}'      "$B"   # -> total 0        <- the whole point
+rpc save_hands   "{\"p_hands\":[$HAND]}" "$B"   # -> inserted 1, NOT a duplicate
+rpc search_hands '{"p_filters":{}}'      ""     # -> permission denied for anon
+```
+
+The full version of this — nineteen assertions covering forged `owner_id`,
+cross-account `get_hand`, sharing somebody else's hand, and corpus reads — was
+run against the live project when accounts landed and all nineteen passed. The
+cases that matter most, because each one is a silent leak rather than a loud
+failure:
+
+| Attempt | Expected |
+| --- | --- |
+| B calls `search_hands` after A saved | `total: 0` |
+| B calls `get_hand(A's id)` | `null` |
+| A sends `owner_id: <B's id>` in `save_hands` | Row lands on **A**; B's library stays empty |
+| B saves a `hand_key` A already has | `inserted: 1` — a new row, not a duplicate |
+| B calls `create_share(A's hand id)` | Error, identical to "no such hand" |
+| anon calls `search_hands` / `save_hands` / `create_share` | Permission denied |
+| anon calls `resolve_share(slug of A's hand)` | **Succeeds** — this one must not be locked down |
+| anon `GET /rest/v1/hands` or `/rest/v1/shares` | `42501` |
+| B reads `unparsed_hands` after A submitted a sample | `[]` |
+
+Remember to delete the test accounts afterwards; `on delete cascade` takes
+their hands and shares with them.
+
+```sql
+delete from auth.users where email like '%@example.com';
+```
 
 ---
 
@@ -135,7 +225,8 @@ Everything after those three is a **denormalized search layer**: derivable from
 | Column | Type | Source in PHF | Why |
 | --- | --- | --- | --- |
 | `id` | uuid pk | — | Row identity; used by share links. |
-| `hand_key` | text **unique** | `"<meta.siteId>:<meta.handKey>"` | Dedupe. Re-uploading the same file is a no-op. PHF's own `handKey` is only unique *within* a site, so the site prefix is what makes it globally safe. |
+| `owner_id` | uuid → `auth.users` | server `auth.uid()` | **The access-control column.** Both RLS policies compare against it. `on delete cascade`, so deleting an account takes its library with it. A client cannot set it — see rule 2 of the threat model. |
+| `hand_key` | text, unique **with `owner_id`** | `"<meta.siteId>:<meta.handKey>"` | Dedupe within one library. Re-uploading the same file is a no-op; uploading a hand another account already has is a new row. PHF's own `handKey` is only unique *within* a site, so the site prefix is what makes it safe to compare at all. |
 | `schema_version` | text | `hand.schema` | Which PHF version wrote the row; lets a future `phf/2` coexist. |
 | `parser_version` | text | `meta.parserVersion` | Tells you which hands to re-convert after a parser fix. |
 | `site` | text | `meta.siteId` (lowercased) | Primary facet. |
@@ -216,6 +307,7 @@ table is the backlog for "which site do we support next".
 | `notes` | Triage scratchpad. |
 | `occurrences` | How often this exact text has been submitted. The impact signal. |
 | `first_seen_at` / `last_seen_at` | How long it has been a problem, and whether it still is. |
+| `submitted_by` | The account that **first** submitted this sample, and the only one that can read `raw_text` back. Later submitters bump `occurrences` without taking over the row: re-attributing it would silently move read access between accounts. Rows collected before accounts existed have `null` here and are readable only by the service role. |
 
 Mirrors the `ConversionFailure` interface in `frontend/src/lib/phf/detect.ts`
 exactly, plus `status` / `notes` / counters.
@@ -238,6 +330,7 @@ write next.
 | `hand_id` | FK to `hands`, `ON DELETE CASCADE`. Preferred: the share follows the stored row instead of pinning a stale copy. |
 | `phf` + `standard_text` | The embedded alternative, for a hand that was never saved (offline, or saving turned off). A `CHECK` requires one of `hand_id` / `phf`. |
 | `title` | Optional label for the share page. |
+| `owner_id` | Who created the link. **Not** a read gate — `resolve_share` ignores it, because a link has to work for a stranger. It exists so a link is attributable and so a deleted account takes its links with it. |
 | `views`, `last_viewed_at` | Bumped by `resolve_share`. |
 | `created_at` | — |
 
@@ -343,20 +436,18 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 
 ## Functions (RPCs)
 
-All are callable by `anon` and `authenticated` unless noted.
-
-| Function | Returns | What it does |
-| --- | --- | --- |
-| `save_hands(p_hands jsonb)` | `{received, inserted, duplicates}` | Batch-inserts hands, deduping on `hand_key` with `ON CONFLICT DO NOTHING`. Returns exact counts, which is what removes the old "probe which of these already exist" round trips. Max 500 per call. |
-| `search_hands(p_filters jsonb, p_limit int, p_offset int)` | `{total, limit, offset, rows}` | The whole browse filter set, sorted, paginated, **with the total count**, in one call. Sort keys are whitelisted, so the query stays on an index. Heavy columns (`phf`, `standard_text`, `source_text`) are excluded: a page of 50 hands should be kilobytes. |
-| `get_hand(p_id uuid)` | full row as jsonb | The payload, fetched only when a hand is actually opened. |
-| `hands_facets()` | jsonb | Every distinct filter value the browse UI offers — sites, heroes, tables, stakes, variants, limit types, formats, hand classes, streets, the `played_at` range, and the corpus total — in one round trip. |
-| `record_conversion_failures(p_failures jsonb)` | `{received, created, updated, skipped}` | Upserts `ConversionFailure` records by fingerprint, incrementing `occurrences` atomically. Truncates over-long fields and skips malformed records rather than failing the batch: losing a sample we cannot reproduce is worse than storing a lossy one. Never writes `status` or `notes`. Max 200 per call. |
-| `unparsed_summary(p_limit int)` | jsonb | `unparsed_gaps` ordered by impact, plus totals and a `byStatus` breakdown. The answer to "which converter next". |
-| `create_share(p_hand_id, p_phf, p_standard_text, p_title)` | `{id, slug}` | Allocates a slug (retrying on collision) and inserts one row. |
-| `resolve_share(p_slug text)` | jsonb or `null` | Resolves a slug **and** increments its view counter, in one round trip. Returns the share plus the joined hand. `null` for unknown *or* malformed slugs — deliberately indistinguishable, so probing tells an attacker nothing. |
-| `enforce_rate_limit(...)` | void | Internal. `service_role` only. |
-| `generate_share_slug(int)` | text | Internal. `service_role` only. |
+| Function | Callable by | Returns | What it does |
+| --- | --- | --- | --- |
+| `save_hands(p_hands jsonb)` | `authenticated` | `{received, inserted, duplicates}` | Batch-inserts hands **into the caller's library**, deduping on `(owner_id, hand_key)` with `ON CONFLICT DO NOTHING`. Returns exact counts, which is what removes the old "probe which of these already exist" round trips. Ignores any `owner_id` in the payload. Max 500 per call. |
+| `search_hands(p_filters jsonb, p_limit int, p_offset int)` | `authenticated` | `{total, limit, offset, rows}` | The whole browse filter set, sorted, paginated, **with the total count**, in one call. Scoped to the caller by RLS, not by a filter — there is no filter key that could ask for anyone else's hands. Sort keys are whitelisted, so the query stays on an index. Heavy columns (`phf`, `standard_text`, `source_text`) are excluded: a page of 50 hands should be kilobytes. |
+| `get_hand(p_id uuid)` | `authenticated` | full row as jsonb | The payload, fetched only when a hand is actually opened. `null` for an unknown id *and* for another account's id — indistinguishable by design. |
+| `hands_facets()` | `authenticated` | jsonb | Every distinct filter value the browse UI offers — sites, heroes, tables, stakes, variants, limit types, formats, hand classes, streets, the `played_at` range — for the caller's own hands. A site you have never played is not a useful filter to offer. |
+| `record_conversion_failures(p_failures jsonb)` | `authenticated` | `{received, created, updated, skipped}` | Upserts `ConversionFailure` records by fingerprint, incrementing `occurrences` atomically and recording the first submitter. Truncates over-long fields and skips malformed records rather than failing the batch: losing a sample we cannot reproduce is worse than storing a lossy one. Never writes `status` or `notes`. Max 200 per call. |
+| `unparsed_summary(p_limit int)` | `anon`, `authenticated` | jsonb | `unparsed_gaps` ordered by impact, plus totals and a `byStatus` breakdown. `security invoker`, so a client sees only its own submissions; the cross-corpus answer to "which converter next" is a service-role query. |
+| `create_share(p_hand_id, p_phf, p_standard_text, p_title)` | `authenticated` | `{id, slug}` | Allocates a slug (retrying on collision) and inserts one row owned by the caller. **Refuses a `p_hand_id` the caller does not own** — it is `security definer`, so this check is not optional. |
+| `resolve_share(p_slug text)` | `anon`, `authenticated` | jsonb or `null` | Resolves a slug **and** increments its view counter, in one round trip. Returns the share plus the joined hand, ignoring ownership entirely — a link works for anyone, which is the point. `null` for unknown *or* malformed slugs, deliberately indistinguishable, so probing tells an attacker nothing. |
+| `enforce_rate_limit(...)` | `service_role` | void | Internal. |
+| `generate_share_slug(int)` | `service_role` | text | Internal. |
 
 `search_hands` filter keys (all optional): `site`, `board[]`, `heroCards[]`,
 `heroHandClasses[]`, `heroName`, `player`, `tableName`, `variant`, `limitType`,
@@ -387,30 +478,53 @@ ships `alter default privileges in schema public grant all on tables/functions
 to anon, authenticated, service_role`, so **every new object starts
 over-permissioned** and the migration revokes first, then grants.
 
-| Table | Grants (`anon`, `authenticated`) | Policies |
-| --- | --- | --- |
-| `hands` | `SELECT`, `INSERT` | `hands_public_select` (`USING true`), `hands_public_insert` (`WITH CHECK true`). No `UPDATE`/`DELETE` policy — with RLS on and no permissive policy, both are refused regardless of grants. |
-| `unparsed_hands` | `SELECT` only | `unparsed_public_select` (`USING true`). Writes go through the definer RPC; a direct `INSERT` would let a caller invent an occurrence count or set `status = 'wontfix'` on someone else's row. |
-| `unparsed_gaps` (view) | `SELECT` | `security_invoker`, so the base table's policy applies. |
-| `shares` | **none** | **none**. Sealed. `create_share` / `resolve_share` only. |
-| `ingest_rate_limit` | **none** | **none**. Internal. |
+| Table | `anon` | `authenticated` | Policies |
+| --- | --- | --- | --- |
+| `hands` | **none** | `SELECT`, `INSERT` | `hands_owner_select` / `hands_owner_insert`, both `owner_id = (select auth.uid())`. No `UPDATE`/`DELETE` policy — with RLS on and no permissive policy, both are refused regardless of grants, for owners too. |
+| `unparsed_hands` | `SELECT` | `SELECT` | `unparsed_own_select` (`submitted_by = (select auth.uid())`). Writes go through the definer RPC; a direct `INSERT` would let a caller invent an occurrence count or set `status = 'wontfix'` on someone else's row. |
+| `unparsed_gaps` (view) | `SELECT` | `SELECT` | `security_invoker`, so the base table's policy applies. |
+| `shares` | **none** | **none** | **none**. Sealed. `create_share` / `resolve_share` only. |
+| `ingest_rate_limit` | **none** | **none** | **none**. Internal. |
 
-Verified live — `anon` gets `42501 permission denied` on `DELETE`/`UPDATE` of
-`hands`, on `SELECT` of `shares` and `ingest_rate_limit`, on `INSERT` into
-`unparsed_hands`, and on `EXECUTE` of `enforce_rate_limit` and
-`generate_share_slug`.
+Why `anon` keeps a `SELECT` *grant* on `unparsed_hands` while having none on
+`hands`: a missing grant raises `42501` before RLS is consulted, and
+`unparsed_summary()` is `security invoker` and granted to `anon`. Leaving the
+grant lets it answer zeros for a logged-out caller instead of erroring, and the
+policy — false for a null `auth.uid()` — is what actually keeps the rows away.
+`hands` needs no such accommodation because every function that reads it is
+revoked from `anon` outright.
+
+`(select auth.uid())` rather than a bare `auth.uid()` in every policy: Postgres
+hoists the scalar subquery into an InitPlan and evaluates it once per statement
+instead of once per row.
+
+### `owner_id` is checked twice, on purpose
+
+RLS covers the `security invoker` functions — `save_hands`, `search_hands`,
+`get_hand`, `hands_facets` all inherit the owner policy for free, and that is
+why none of them contains an owner filter.
+
+It does **not** cover `create_share`, which is `security definer` and therefore
+runs with the function owner's privileges, seeing every row in `hands`. Without
+an explicit `h.owner_id = auth.uid()` in its body, any signed-in caller could
+mint a public link to a stranger's hand by guessing a uuid. That check is the
+single most load-bearing line in the migration, and it returns the same error
+for "no such hand" as for "not your hand" so it cannot be used to probe which
+uuids exist.
 
 ### Data-shape invariants are enforced, not conventional
 
-RLS answers "may this caller write at all". It says nothing about *what* they
-write, and with a public anon key the client is not trustworthy — a bug and an
-attacker are indistinguishable from the server's side. So the rules that keep
-the data honest are `CHECK` constraints, not client discipline.
+RLS answers "whose rows may this caller touch". It says nothing about *what*
+they write into their own — and having an account does not make a client
+trustworthy: a bug and an attacker are still indistinguishable from the
+server's side. So the rules that keep the data honest are `CHECK` constraints,
+not client discipline.
 
 The one that matters most is `hands_positional_anonymity`, because violating it
 produces a filter that looks like it works (see
-[Player identity](#player-identity-and-anonymized-rooms)). Probed live with the
-anon key, sending rows a correct client would never send:
+[Player identity](#player-identity-and-anonymized-rooms)). Probed live with a
+real signed-in JWT (the anon key can no longer insert at all), sending rows a
+correct client would never send:
 
 | Attempt | Result |
 | --- | --- |
@@ -423,9 +537,9 @@ All four rejected. A client cannot smuggle per-hand pseudonyms into the identity
 columns, by bug or on purpose, and cannot invent a position outside the PHF
 vocabulary — which is what lets the position filters be treated as total.
 
-Re-run these after any change to `save_hands` or the `hands` constraints: they
-are the cheapest regression test in the project, and a `201` on the migration
-tells you nothing about whether they still hold.
+Re-run these after any change to `save_hands` or the `hands` constraints,
+alongside [the isolation checks](#verifying-the-isolation). A `201` on the
+migration tells you nothing about whether either still holds.
 
 ---
 
@@ -436,7 +550,8 @@ two filters plus a sort", not by reflexively indexing every column.
 
 | Index | Query it serves |
 | --- | --- |
-| `hands_hand_key_uidx` (unique) | Dedupe on insert; `findHandId()`. |
+| `hands_owner_hand_key_uidx` (unique, `(owner_id, hand_key)`) | Dedupe on insert, per library; `findHandId()`. Replaced the globally-unique `hands_hand_key_uidx` when accounts landed — see rule 3 of the threat model for why a global key is a correctness bug, not just a policy choice. |
+| `hands_owner_played_idx` (`(owner_id, played_at desc)`) | The default list order, which is now always "my hands, newest first". The owner predicate is on every single query, so it belongs at the front of the sort index. |
 | `hands_board_gin`, `hands_hero_cards_gin`, `hands_players_gin` | Containment (`@>`) predicates: "board contains these cards", "hero holds these cards", "player X was at the table". These are the filters that need GIN — btree cannot answer them. |
 | `hands_played_at_idx` | The default list order. |
 | `hands_created_at_idx` | "Recently imported". |
@@ -556,7 +671,18 @@ and confirm the negative cases still fail: `DELETE /rest/v1/hands`,
 `PATCH /rest/v1/hands`, `GET /rest/v1/shares` must all return `42501`.
 
 Migrations apply in filename order. `20260916210000` depends on the baseline
-having run first.
+having run first, and `20260922130000` depends on both.
+
+### `20260922130000` is destructive and must not be re-run
+
+It opens with `delete from public.shares; delete from public.hands;`. That was
+correct exactly once: the 914 hands stored before accounts existed had no owner
+and no way to acquire one, so they could not be made reachable under the new
+policies, and clearing them is what let `owner_id` be `not null` rather than a
+nullable column every query has to remember. Re-running the file today would
+delete real user libraries. Everything after those two statements is idempotent
+(`add column if not exists`, `create or replace`), so if you need to re-apply
+it, delete the two `delete` statements first.
 
 ### The baseline is re-runnable
 

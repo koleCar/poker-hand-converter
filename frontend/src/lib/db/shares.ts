@@ -5,10 +5,21 @@
  * `shares` table has no grants and no RLS policies for the anon role at all, so
  * these two functions are the only way in — you cannot list shares, only
  * resolve one you already have. Both are a single round trip.
+ *
+ * The two halves have deliberately opposite auth rules, and that asymmetry is
+ * the feature:
+ *
+ *  * **Creating** a share stores a hand, so it needs an account like any other
+ *    write. `create_share` also refuses a `handId` the caller does not own —
+ *    it is `security definer` and therefore sees past the owner policy on
+ *    `hands`, so without that check a signed-in caller could mint a public link
+ *    to a stranger's hand by guessing a uuid.
+ *  * **Resolving** one needs nothing at all. Anyone holding the link can replay
+ *    the hand, signed in or not, which is the whole point of a share.
  */
 
 import type { PhfHand } from "../phf/types";
-import { rpc } from "./client";
+import { requireUserId, rpc } from "./client";
 import { toHandRecord } from "./mapping";
 import type { CreateShareInput, ResolvedShare, ShareRef } from "./types";
 
@@ -33,6 +44,10 @@ export async function createShare(input: CreateShareInput): Promise<ShareRef> {
   if (!handId && !input.phf) {
     throw new Error("createShare needs either a stored hand id or a PHF payload.");
   }
+
+  await requireUserId(
+    "Sign in to create a share link. Anyone you send the link to can open it without an account.",
+  );
 
   const payload = await rpc<{ id: string; slug: string }>("create_share", {
     p_hand_id: handId,

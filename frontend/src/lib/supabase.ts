@@ -24,13 +24,30 @@ export const SUPABASE_NOT_CONFIGURED_MESSAGE =
  * the offline converter keeps working.
  *
  * The key here is the *anon* key and it ships inside a public bundle, so it is
- * public by construction. Every privilege it has is granted deliberately in
- * `supabase/migrations/20260916190000_phf_baseline.sql`; see `docs/DATABASE.md`
- * for the threat model.
+ * public by construction. What it can reach is granted deliberately in the
+ * migrations; since `20260922130000_user_accounts_and_ownership.sql` that is
+ * almost nothing — the anon role cannot read or write `hands` at all, and
+ * `resolve_share` is its one remaining door. See `docs/DATABASE.md`.
+ *
+ * Auth options, and why each one is not the default:
+ *
+ *  * `persistSession` — a session that vanished on reload would make the whole
+ *    login pointless. It lands in `localStorage` under `sb-<ref>-auth-token`.
+ *  * `detectSessionInUrl` — the OAuth provider redirects back to the app with
+ *    `?code=…`; this is what exchanges it for a session and then scrubs the
+ *    parameter out of the URL with `history.replaceState`.
+ *  * `flowType: "pkce"` — the authorization code never becomes a session
+ *    without the verifier held in this browser, so a redirect URL captured
+ *    from history or a referrer header is not a login.
  */
 export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(url!, anonKey!, {
-      auth: { persistSession: false },
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        flowType: "pkce",
+      },
     })
   : null;
 

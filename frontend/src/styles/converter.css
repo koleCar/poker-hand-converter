@@ -898,3 +898,20 @@
   font-size: 17px;
   font-weight: 650;
 }
+
+/* The "converted, but nowhere to put it yet" offer shown to a signed-out user
+   after a run finishes. Wraps to two rows on a phone rather than squeezing the
+   buttons, because the sentence is the part that has to be read. */
+.conv-signin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.conv-signin__actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}

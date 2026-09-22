@@ -17,12 +17,17 @@
  *    no cancel. See `workers/convert.worker.ts`.
  *  * **Failures are a feature.** A hand we cannot read is stored on purpose as
  *    reference material for the next parser, and the user is told exactly that.
+ *  * **A guest converts first and signs in afterwards.** Conversion never waits
+ *    for an account. When a run finishes with nobody signed in, the results are
+ *    held in memory and offered — "sign in to save these 412 hands" — so the
+ *    work is never lost and the login never arrives before the value does.
  *
- * The page stays fully usable with no database: conversion, preview, download
- * and the replayer hand-off never touch Supabase.
+ * The page stays fully usable with no database and with no account: conversion,
+ * preview, download and the replayer hand-off never touch Supabase.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "../lib/auth";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
   isDatabaseConfigured,
@@ -43,6 +48,7 @@ import { IDLE_SAVE, type SaveState, type SourceResult } from "./converter/types"
 import "../styles/converter.css";
 
 const AUTO_SAVE_KEY = "pokerconverter.autoSave";
+
 
 /**
  * How often streamed batches are folded into React state, in ms.
@@ -98,6 +104,12 @@ function toResult(source: LoadedSource): SourceResult {
   };
 }
 
+/** A finished run that had nowhere to go because nobody was signed in. */
+interface HeldSave {
+  hands: PhfHand[];
+  failures: Parameters<typeof recordConversionFailures>[0];
+}
+
 export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
   const [sources, setSources] = useState<SourceResult[]>([]);
   const [reading, setReading] = useState(false);
@@ -108,12 +120,16 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
   const [autoSave, setAutoSave] = useState(readAutoSavePreference);
   const [preview, setPreview] = useState<PhfHand | null>(null);
   const [usedWorker, setUsedWorker] = useState<boolean | null>(null);
+  const [held, setHeld] = useState<HeldSave | null>(null);
 
+  const auth = useAuth();
   const jobRef = useRef<ConversionJob | null>(null);
   // Read inside the pipeline callbacks, which are created once per job and
   // would otherwise close over a stale toggle.
   const autoSaveRef = useRef(autoSave);
   autoSaveRef.current = autoSave;
+  const signedInRef = useRef(auth.isSignedIn);
+  signedInRef.current = auth.isSignedIn;
 
   // Straight from the registry, so a parser added tomorrow shows up here with
   // no change to this file. Our own re-import format sorts last because it is
@@ -151,6 +167,17 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
       if (!isDatabaseConfigured || !autoSaveRef.current) {
         return;
       }
+
+      // Nobody to store them under yet. Hold on to the results rather than
+      // dropping them: the conversion has already happened, and asking the user
+      // to re-drop a 7 MB folder after signing in would be the whole cost of
+      // the run charged twice.
+      if (!signedInRef.current) {
+        setHeld({ hands, failures });
+        setSaveState(IDLE_SAVE);
+        return;
+      }
+      setHeld(null);
 
       if (failures.length > 0) {
         setRecorded(null);
@@ -192,6 +219,23 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
     },
     [onHandsSaved],
   );
+
+  /**
+   * Flush a held run the moment a session appears.
+   *
+   * Covers signing in from the button below *and* from anywhere else — the
+   * header menu, another tab, an OAuth redirect that landed back on this page.
+   * All of them surface here as `isSignedIn` flipping to true, so there is one
+   * path to get right instead of four.
+   */
+  useEffect(() => {
+    if (!auth.isSignedIn || !held) {
+      return;
+    }
+    const pending = held;
+    setHeld(null);
+    void persist(pending.hands, pending.failures);
+  }, [auth.isSignedIn, held, persist]);
 
   /* --------------------------------------------------------- conversion - */
 
@@ -420,6 +464,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
     setError(null);
     setConverting(false);
     setPreview(null);
+    setHeld(null);
   }
 
   /* ----------------------------------------------------------- progress - */
@@ -487,9 +532,11 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
             <span className="conv-switch__text">
               <strong>Save to my hand library</strong>
               <small>
-                {isDatabaseConfigured
-                  ? "Converted hands go to the replayer library, and hands we cannot convert are kept as samples so we can add your site."
-                  : "Unavailable in this build — converting, previewing and downloading all still work."}
+                {!isDatabaseConfigured
+                  ? "Unavailable in this build — converting, previewing and downloading all still work."
+                  : auth.isSignedIn
+                    ? "Converted hands go to your private library, and hands we cannot convert are kept as samples so we can add your site."
+                    : "Convert now, sign in after. We will offer to save the results once the run finishes."}
               </small>
             </span>
           </label>
@@ -503,6 +550,38 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
 
         {!isDatabaseConfigured ? (
           <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+        ) : null}
+
+        {/* The held-results offer. Deliberately phrased around what is already
+            done, not what is being asked for: the work exists, it just has
+            nowhere to live yet. */}
+        {held ? (
+          <div className="notice notice--info conv-signin">
+            <span>
+              {formatCount(held.hands.length)}{" "}
+              {held.hands.length === 1 ? "hand is" : "hands are"} converted and waiting. Sign in to
+              keep {held.hands.length === 1 ? "it" : "them"} in your library — they stay private to
+              your account.
+            </span>
+            <span className="conv-signin__actions">
+              <button
+                type="button"
+                className="btn btn--primary btn--sm"
+                onClick={() =>
+                  auth.requestSignIn(
+                    `Sign in to save ${formatCount(held.hands.length)} converted ${
+                      held.hands.length === 1 ? "hand" : "hands"
+                    } to your library.`,
+                  )
+                }
+              >
+                Sign in and save
+              </button>
+              <button type="button" className="btn btn--ghost btn--sm" onClick={() => setHeld(null)}>
+                Not now
+              </button>
+            </span>
+          </div>
         ) : null}
 
         {error ? <p className="notice notice--error">{error}</p> : null}
