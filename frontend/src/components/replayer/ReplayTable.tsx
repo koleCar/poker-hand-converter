@@ -3,13 +3,16 @@ import type { ParsedHand } from "../../lib/handParser";
 import type { ReplayFrame, SeatFrameState } from "../../lib/replay";
 import { ChipStack } from "./ChipStack";
 import { PlayingCard } from "./PlayingCard";
+import type { NameMask, ReplaySettings } from "./replaySettings";
 import { actionTone, type AmountFormatter } from "./tableMath";
 
 interface ReplayTableProps {
   hand: ParsedHand;
   frame: ReplayFrame;
-  /** Reveal every player's known cards regardless of the replay position. */
-  revealAll: boolean;
+  /** Card visibility and naming preferences from the header gear. */
+  settings: ReplaySettings;
+  /** Neutral labels when anonymous mode is on; pass-through otherwise. */
+  mask: NameMask;
   /** Renders every chip amount in the unit the viewer picked. */
   format: AmountFormatter;
 }
@@ -81,7 +84,7 @@ interface SweepChip {
   amountBb: number;
 }
 
-export function ReplayTable({ hand, frame, revealAll, format }: ReplayTableProps) {
+export function ReplayTable({ hand, frame, settings, mask, format }: ReplayTableProps) {
   const placements = useMemo(() => placeSeats(frame.seats), [frame.seats]);
   const knownCards = useMemo(() => {
     const map = new Map<string, string[]>();
@@ -129,7 +132,7 @@ export function ReplayTable({ hand, frame, revealAll, format }: ReplayTableProps
       <div className="ptable__felt">
         <div className="ptable__rail" />
         <div className="ptable__logo" aria-hidden="true">
-          {hand.tableName ?? "Hand Replayer"}
+          {mask.tableName ?? "Hand Replayer"}
         </div>
 
         <div className="ptable__center">
@@ -209,7 +212,11 @@ export function ReplayTable({ hand, frame, revealAll, format }: ReplayTableProps
           : null}
 
         {placements.map(({ seat, cos, sin, side, row }) => {
-          const revealed = seat.cards ?? (revealAll ? (knownCards.get(seat.name) ?? null) : null);
+          const known =
+            seat.cards ?? (settings.showKnownCards ? (knownCards.get(seat.name) ?? null) : null);
+          // Hero's own cards can be put back face down to review the spot
+          // blind; everyone else's visibility is the replay position's call.
+          const revealed = seat.isHero && !settings.showHeroCards ? null : known;
           // Folded players keep two greyed-out backs. An empty gap where the
           // cards were reads as "not in this hand at all", which is wrong, and
           // it leaves the FOLDED marker floating with nothing to sit on.
@@ -252,8 +259,8 @@ export function ReplayTable({ hand, frame, revealAll, format }: ReplayTableProps
                   {/* Long screen names still have to ellipsis at nine seats on
                       a phone, so the full one stays reachable on hover and to
                       a screen reader. */}
-                  <span className="pseat__nick" title={seat.name}>
-                    {seat.name}
+                  <span className="pseat__nick" title={mask.seat(seat.name)}>
+                    {mask.seat(seat.name)}
                   </span>
                 </span>
                 <span className="pseat__stack">

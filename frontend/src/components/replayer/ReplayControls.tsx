@@ -1,6 +1,5 @@
 import type { Street } from "../../lib/handParser";
 import type { ReplayFrame } from "../../lib/replay";
-import type { AmountUnit } from "./tableMath";
 
 const SPEEDS = [0.5, 1, 1.5, 2, 4];
 
@@ -18,16 +17,11 @@ interface ReplayControlsProps {
   anchors: Array<{ street: Street; index: number }>;
   playing: boolean;
   speed: number;
-  unit: AmountUnit;
-  currency: string;
-  revealAll: boolean;
   logOpen: boolean;
   onSeek: (index: number) => void;
   onStep: (delta: number) => void;
   onTogglePlay: () => void;
   onSpeed: (speed: number) => void;
-  onUnit: (unit: AmountUnit) => void;
-  onRevealAll: (revealAll: boolean) => void;
   onToggleLog: () => void;
 }
 
@@ -37,16 +31,11 @@ export function ReplayControls({
   anchors,
   playing,
   speed,
-  unit,
-  currency,
-  revealAll,
   logOpen,
   onSeek,
   onStep,
   onTogglePlay,
   onSpeed,
-  onUnit,
-  onRevealAll,
   onToggleLog,
 }: ReplayControlsProps) {
   const last = frames.length - 1;
@@ -158,37 +147,7 @@ export function ReplayControls({
         </div>
 
         <div className="replay__opts">
-          <div className="seg" role="group" aria-label="Show amounts in">
-            <button
-              type="button"
-              className={`seg__btn ${unit === "chips" ? "is-active" : ""}`}
-              aria-pressed={unit === "chips"}
-              onClick={() => onUnit("chips")}
-              title="Show stacks, bets and pot in currency"
-            >
-              {currency}
-            </button>
-            <button
-              type="button"
-              className={`seg__btn ${unit === "bb" ? "is-active" : ""}`}
-              aria-pressed={unit === "bb"}
-              onClick={() => onUnit("bb")}
-              title="Show stacks, bets and pot in big blinds (B)"
-            >
-              BB
-            </button>
-          </div>
-
-          <button
-            type="button"
-            className={`chip-btn ${revealAll ? "is-active" : ""}`}
-            aria-pressed={revealAll}
-            onClick={() => onRevealAll(!revealAll)}
-            title="Reveal every card known from the history (C)"
-          >
-            Show all cards
-          </button>
-
+          {/* Unit and card visibility now live behind the gear in the header. */}
           <button
             type="button"
             className={`chip-btn replay__log-toggle ${logOpen ? "is-active" : ""}`}

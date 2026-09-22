@@ -4,9 +4,17 @@ import { buildReplay, streetAnchors } from "../../lib/replay";
 import { formatMoney } from "../../lib/format";
 import { anonymizationNote, detectAnonymization } from "../../lib/db";
 import { ReplayControls, STREET_LABEL } from "./ReplayControls";
+import { ReplaySettingsMenu } from "./ReplaySettingsMenu";
 import { ReplayTable } from "./ReplayTable";
 import { ShowdownStrip } from "./ShowdownStrip";
-import { createAmountFormatter, effectiveStack, type AmountUnit } from "./tableMath";
+import {
+  createNameMask,
+  loadReplaySettings,
+  saveReplaySettings,
+  unitOf,
+  type ReplaySettings,
+} from "./replaySettings";
+import { createAmountFormatter, effectiveStack } from "./tableMath";
 
 interface ReplayViewerProps {
   hand: ParsedHand;
@@ -14,7 +22,6 @@ interface ReplayViewerProps {
   headerExtra?: React.ReactNode;
 }
 
-const UNIT_KEY = "phc.replayer.unit";
 const SPEED_KEY = "phc.replayer.speed";
 /** The log costs vertical space that phones do not have; start it closed. */
 const WIDE_QUERY = "(min-width: 1100px)";
@@ -48,23 +55,38 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
   const [speed, setSpeed] = useState(() =>
     readStored(SPEED_KEY, (raw) => (Number.isFinite(Number(raw)) ? Number(raw) : null), 1),
   );
-  const [revealAll, setRevealAll] = useState(false);
-  const [unit, setUnit] = useState<AmountUnit>(() =>
-    readStored<AmountUnit>(UNIT_KEY, (raw) => (raw === "bb" || raw === "chips" ? raw : null), "chips"),
-  );
+  const [settings, setSettings] = useState<ReplaySettings>(loadReplaySettings);
   const [logOpen, setLogOpen] = useState(
     () => typeof window !== "undefined" && window.matchMedia(WIDE_QUERY).matches,
   );
+  const logListRef = useRef<HTMLOListElement | null>(null);
   const currentLogRef = useRef<HTMLLIElement | null>(null);
 
   const format = useMemo(
-    () => createAmountFormatter(unit, hand.currency, hand.bigBlind),
-    [unit, hand.currency, hand.bigBlind],
+    () => createAmountFormatter(unitOf(settings), hand.currency, hand.bigBlind),
+    [settings, hand.currency, hand.bigBlind],
+  );
+  const mask = useMemo(
+    () => createNameMask(hand, settings.anonymousNames),
+    [hand, settings.anonymousNames],
   );
 
-  // Keep the highlighted log line in view as playback advances.
+  // Keep the highlighted log line in view — by scrolling the log box itself,
+  // never `scrollIntoView`, which also drags the page around every time the
+  // viewer steps to the next action.
   useEffect(() => {
-    currentLogRef.current?.scrollIntoView({ block: "nearest" });
+    const list = logListRef.current;
+    const item = currentLogRef.current;
+    if (!list || !item) {
+      return;
+    }
+    const top = item.offsetTop - list.offsetTop;
+    const bottom = top + item.offsetHeight;
+    if (top < list.scrollTop) {
+      list.scrollTop = top;
+    } else if (bottom > list.scrollTop + list.clientHeight) {
+      list.scrollTop = bottom - list.clientHeight;
+    }
   }, [index, logOpen]);
 
   const last = frames.length - 1;
@@ -95,9 +117,12 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
     setPlaying((current) => !current);
   }, [index, last]);
 
-  const changeUnit = useCallback((next: AmountUnit) => {
-    setUnit(next);
-    writeStored(UNIT_KEY, next);
+  const changeSettings = useCallback((patch: Partial<ReplaySettings>) => {
+    setSettings((current) => {
+      const next = { ...current, ...patch };
+      saveReplaySettings(next);
+      return next;
+    });
   }, []);
 
   const changeSpeed = useCallback((next: number) => {
@@ -153,11 +178,11 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
           break;
         case "b":
         case "B":
-          changeUnit(unit === "bb" ? "chips" : "bb");
+          changeSettings({ bigBlinds: !settings.bigBlinds });
           break;
         case "c":
         case "C":
-          setRevealAll((current) => !current);
+          changeSettings({ showKnownCards: !settings.showKnownCards });
           break;
         default:
           break;
@@ -165,7 +190,7 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [step, seek, togglePlay, changeUnit, unit, last]);
+  }, [step, seek, togglePlay, changeSettings, settings, last]);
 
   const heroProfit = hand.heroProfit;
   // Positions are resolved once by `buildReplay`; every frame carries the same
@@ -193,7 +218,7 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
         <div className="replay__title">
           <h3>
             Hand #{hand.handId}
-            {hand.tableName ? <span className="replay__table">{hand.tableName}</span> : null}
+            {mask.tableName ? <span className="replay__table">{mask.tableName}</span> : null}
           </h3>
           <div className="replay__meta">
             <span>{hand.gameLabel}</span>
@@ -222,6 +247,7 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
               Close
             </button>
           ) : null}
+          <ReplaySettingsMenu settings={settings} onChange={changeSettings} />
         </div>
       </div>
 
@@ -229,14 +255,14 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
 
       <div className={`replay__body ${logOpen ? "" : "replay__body--solo"}`.trim()}>
         <div className="replay__stage">
-          <ReplayTable hand={hand} frame={frame} revealAll={revealAll} format={format} />
-          <ShowdownStrip hand={hand} frame={frame} format={format} />
+          <ReplayTable hand={hand} frame={frame} settings={settings} mask={mask} format={format} />
+          <ShowdownStrip hand={hand} frame={frame} settings={settings} mask={mask} format={format} />
         </div>
 
         {logOpen ? (
           <aside className="replay__log" id="replay-log" aria-label="Action log">
             <div className="replay__log-head">Action log</div>
-            <ol className="replay__log-list">
+            <ol className="replay__log-list" ref={logListRef}>
               {frames.map((entry) => (
                 <li
                   key={entry.index}
@@ -256,7 +282,7 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
                     onClick={() => seek(entry.index)}
                   >
                     <span className="replay__log-street">{STREET_LABEL[entry.street]}</span>
-                    <span className="replay__log-text">{entry.description}</span>
+                    <span className="replay__log-text">{mask.text(entry.description)}</span>
                   </button>
                 </li>
               ))}
@@ -267,7 +293,7 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
 
       <div className="replay__status" role="status" aria-live="polite">
         <span className="replay__status-street">{STREET_LABEL[frame.street]}</span>
-        <span className="replay__status-text">{frame.description}</span>
+        <span className="replay__status-text">{mask.text(frame.description)}</span>
         <span className="replay__counter" aria-hidden="true">
           {frame.index + 1} / {frames.length}
         </span>
@@ -279,16 +305,11 @@ export function ReplayViewer({ hand, onClose, headerExtra }: ReplayViewerProps) 
         anchors={anchors}
         playing={playing}
         speed={speed}
-        unit={unit}
-        currency={hand.currency}
-        revealAll={revealAll}
         logOpen={logOpen}
         onSeek={seek}
         onStep={step}
         onTogglePlay={togglePlay}
         onSpeed={changeSpeed}
-        onUnit={changeUnit}
-        onRevealAll={setRevealAll}
         onToggleLog={() => setLogOpen((current) => !current)}
       />
     </div>

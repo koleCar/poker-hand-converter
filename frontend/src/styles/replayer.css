@@ -19,6 +19,15 @@
   /* Wide enough for a 14-character screen name at 12px, because the desktop
      felt has the room and "Wandeinre…" on a 1440px display looks broken. */
   --seat-w: clamp(118px, 15.4cqw, 190px);
+  /* Name plate and, from it, the height of a whole seat: a card row, the gap
+     and the plate. The chip spots below are measured off it, so the two stay
+     in step when the breakpoints change the plate's type sizes. */
+  --plate-h: 42px;
+  --seat-h: calc(var(--card-unit) * 1.18 + 4px + var(--plate-h));
+  /* Half the widest bet stack plus breathing room, and half its height. Both
+     are the chip stack's own size, not the seat's, so they are flat pixels. */
+  --bet-chip-half: 52px;
+  --bet-chip-lift: 14px;
   padding: 30px 28px;
   background:
     radial-gradient(900px 400px at 50% -10%, #1a2836 0%, transparent 70%),
@@ -536,6 +545,105 @@
   gap: 8px;
   align-items: center;
   flex: none;
+}
+
+/* ------------------------------------------------- replayer settings gear */
+
+.replay__settings {
+  position: relative;
+  flex: none;
+}
+
+.replay__settings-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  min-width: 250px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-elev-2, #141a22);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 45%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.replay__settings-head {
+  padding: 4px 8px 8px;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-dim);
+  font-weight: 650;
+}
+
+.replay__setting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--fg-muted);
+}
+
+.replay__setting:hover {
+  background: rgb(255 255 255 / 4%);
+  color: var(--fg);
+}
+
+/* The native box is kept for keyboard and screen readers, and the pill in
+   front of it is what actually gets painted. */
+.replay__setting input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.replay__setting-switch {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 17px;
+  border-radius: 999px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.replay__setting-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--fg-dim);
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.replay__setting input:checked + .replay__setting-switch {
+  background: rgb(62 166 255 / 45%);
+  border-color: rgb(62 166 255 / 60%);
+}
+
+.replay__setting input:checked + .replay__setting-switch::after {
+  transform: translateX(13px);
+  background: #eaf4ff;
+}
+
+.replay__setting input:focus-visible + .replay__setting-switch {
+  outline: 2px solid rgb(62 166 255 / 70%);
+  outline-offset: 2px;
+}
+
+.replay__setting-text {
+  line-height: 1.3;
 }
 
 .pill {
