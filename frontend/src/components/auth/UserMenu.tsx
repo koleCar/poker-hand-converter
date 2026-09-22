@@ -89,7 +89,6 @@ export function UserMenu() {
             {user?.email && user.email !== user.displayName ? (
               <small className="muted">{user.email}</small>
             ) : null}
-            <small className="muted">Your hands are private to this account.</small>
           </div>
           <button
             type="button"

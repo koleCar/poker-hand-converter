@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ConverterTab } from "../components/ConverterTab";
 import { ReplayerTab } from "../components/ReplayerTab";
 import { AppShell, type ShellTab } from "../components/shell/AppShell";
+import { UploadTab } from "../components/upload/UploadTab";
 import { useAuth } from "../lib/auth";
 import { countHands } from "../lib/handStore";
 import { isSupabaseConfigured } from "../lib/supabase";
@@ -18,9 +18,9 @@ const META: Record<ShellTab, { title: string; description: string; path: string 
     path: paths.converter(),
   },
   replayer: {
-    title: "Poker hand replayer | PokerConverter",
+    title: "My poker hands | PokerConverter",
     description:
-      "Replay any poker hand action by action, filter your saved hands, and share a hand with a single link.",
+      "Browse, filter and replay every poker hand you have saved, and share one with a single link.",
     path: paths.replayer(),
   },
 };
@@ -87,7 +87,7 @@ export default function AppPage({ route }: { route: RouteMatch }) {
       // number can never be left sitting in the bar for the next visitor.
       storedCount={auth.isSignedIn ? storedCount : null}
     >
-      {tab === "converter" ? <ConverterTab onHandsSaved={handleHandsSaved} /> : null}
+      {tab === "converter" ? <UploadTab onHandsSaved={handleHandsSaved} /> : null}
       {tab === "replayer" ? <ReplayerTab refreshToken={refreshToken} /> : null}
       {tab === null ? <NotFoundPage /> : null}
     </AppShell>

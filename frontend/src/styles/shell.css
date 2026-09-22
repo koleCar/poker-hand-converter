@@ -149,13 +149,6 @@
   line-height: 1.25;
 }
 
-.shell__tab-hint {
-  display: none;
-  font-size: 10.5px;
-  color: var(--fg-dim);
-  letter-spacing: 0.02em;
-}
-
 /* ---------------------------------------------------------------- status */
 
 .shell__bar-end {
@@ -302,15 +295,6 @@
     padding-inline: 12px;
     margin-inline: auto;
     width: min(1420px, calc(100% - 48px));
-  }
-
-  .shell__tab {
-    align-items: flex-start;
-    text-align: left;
-  }
-
-  .shell__tab-hint {
-    display: block;
   }
 
   .shell__status-full {

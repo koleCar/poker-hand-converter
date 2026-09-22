@@ -169,14 +169,14 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
           </h3>
           <p className="muted">
             {allRefused
-              ? "Nothing to wait for on these — download them below if you want your own copy."
+              ? "Download them below for your own copy."
               : notKept === "no-database"
-              ? "Nothing left your browser — this build has no database. Download them below if you want us to see them."
-              : notKept === "saving-off"
-                ? "Nothing left your browser, because saving is switched off. Turn it on, or download them below, if you want us to add your site."
-                : recorded === null
-                  ? "Keeping a copy so we can build a converter for them…"
-                  : keptCopy(recorded.created, recorded.updated)}
+                ? "Nothing left your browser — this build has no database."
+                : notKept === "saving-off"
+                  ? "Nothing left your browser; saving is switched off."
+                  : recorded === null
+                    ? "Keeping a copy so we can write a converter…"
+                    : keptCopy(recorded.created, recorded.updated)}
           </p>
         </div>
       </header>

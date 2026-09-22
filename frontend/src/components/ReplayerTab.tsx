@@ -1,11 +1,24 @@
+/**
+ * Your saved hands: browse, filter, replay.
+ *
+ * Uploading used to live here too, which put the single most common first
+ * action on the app's *second* tab. That moved to `upload/SingleHandPanel`, so
+ * this tab is now one thing — the library — plus the viewer for whichever hand
+ * you opened out of it.
+ *
+ * The one piece of upload plumbing that stays is the hand-off: the batch
+ * converter's "Replay" button parks a hand in `sessionStorage` and navigates
+ * here, because a converted hand is not in the library yet and has nowhere else
+ * to be shown.
+ */
+
 import { useCallback, useEffect, useRef, useState } from "react";
-import { parseHand, toParsedHand, type ParsedHand } from "../lib/handParser";
-import { convertAny, getParser } from "../lib/phf";
-import type { PhfHand } from "../lib/phf/types";
 import { useAuth } from "../lib/auth";
 import { getHand, isDatabaseConfigured, searchHands, type HandSummary } from "../lib/db";
+import { parseHand, toParsedHand, type ParsedHand } from "../lib/handParser";
 import { saveSingleHand } from "../lib/handStore";
-import { FILE_ACCEPT, loadFile } from "./converter/inputs";
+import { getParser } from "../lib/phf";
+import type { PhfHand } from "../lib/phf/types";
 import { PENDING_HAND_KEY, type PendingHand } from "./converter/handoff";
 import { HandFiltersBar } from "./HandFiltersBar";
 import {
@@ -14,15 +27,12 @@ import {
   type ReplayerFilterForm,
 } from "./handFilters";
 import { HandList } from "./HandList";
-import { ShareHandButton } from "./share/ShareHandButton";
 import { ReplayViewer } from "./replayer/ReplayViewer";
+import { ShareHandButton } from "./share/ShareHandButton";
 
 const PAGE_SIZE = 25;
 
-/**
- * Room name for the replayer's header. `standard` is our own re-import format
- * rather than a poker room, so it is left off the line entirely.
- */
+/** `standard` is our own re-import format, not a room, so it is not a label. */
 function siteLabel(id: string): string | null {
   if (!id || id === "standard") {
     return null;
@@ -35,8 +45,8 @@ function siteLabel(id: string): string | null {
  *
  * `sessionStorage` survives a reload but not a tab close, so the realistic
  * stale case is "clicked Replay, wandered off, came back an hour later and
- * navigated to the replayer by hand". Loading a hand they have forgotten about
- * would be confusing; ten minutes covers the real hand-off.
+ * navigated here by hand". Loading a hand they have forgotten about would be
+ * confusing; ten minutes covers the real hand-off.
  */
 const PENDING_HAND_MAX_AGE_MS = 10 * 60 * 1000;
 
@@ -69,13 +79,10 @@ function takePendingHand(): PendingHand | null {
 
 type LoadedHand = {
   hand: ParsedHand;
-  /** Row id when the hand came from the database. */
+  /** Row id when the hand came from the library. */
   storedId: string | null;
-  origin: "db" | "upload" | "converter";
-  /** Original text when the upload had to be converted first. */
-  sourceText: string | null;
+  origin: "db" | "converter";
   sourceFilename: string | null;
-  converted: boolean;
   /** Parser the hand came from, so saving records the real room. */
   siteId: string;
 };
@@ -94,13 +101,8 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
   const [listError, setListError] = useState<string | null>(null);
 
   const [loaded, setLoaded] = useState<LoadedHand | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [uploadNotice, setUploadNotice] = useState<string | null>(null);
-  const [savingUpload, setSavingUpload] = useState(false);
-  const [loadingUpload, setLoadingUpload] = useState(false);
-  const [pasteOpen, setPasteOpen] = useState(false);
-  const [pasteText, setPasteText] = useState("");
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const runSearch = useCallback(
     async (nextFilters: ReplayerFilterForm, nextPage: number) => {
@@ -142,7 +144,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
   }
 
   async function openStoredHand(row: HandSummary) {
-    setUploadError(null);
+    setNotice(null);
     try {
       const record = await getHand(row.id);
       const hand = record ? parseHand(record.standardText) : null;
@@ -154,9 +156,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
         hand,
         storedId: row.id,
         origin: "db",
-        sourceText: null,
         sourceFilename: row.sourceFilename,
-        converted: false,
         siteId: row.site,
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -165,93 +165,28 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
     }
   }
 
-  /**
-   * Loads one hand out of text from any supported room.
-   *
-   * This runs the same detection and conversion the converter tab uses, so
-   * every registered parser works here too — before this the replayer only
-   * understood our own standard text and WePlay, which meant pasting a
-   * PokerStars or Winamax hand into the box that says "paste the text" simply
-   * failed. Only the first hand is loaded: this is a replayer, and a batch
-   * belongs on the converter tab.
-   */
-  const loadFromText = useCallback(async (text: string, fileName: string | null) => {
-    setUploadError(null);
-    setUploadNotice(null);
-    setLoadingUpload(true);
-    try {
-      const result = await convertAny(text, { sourceFilename: fileName, validate: true });
-      const [first] = result.hands;
-      if (!first) {
-        // Every parser writes a human-readable reason; the first one is the
-        // best guess at what the user actually needs to hear.
-        setUploadError(
-          result.failures[0]?.message ?? "That text is not a recognisable hand history.",
-        );
-        setLoaded(null);
-        return;
-      }
-
-      setLoaded({
-        hand: toParsedHand(first),
-        storedId: null,
-        origin: "upload",
-        sourceText: text,
-        sourceFilename: fileName,
-        converted: first.meta.siteId !== "standard",
-        siteId: first.meta.siteId,
-      });
-
-      // The box has done its job; leaving eight rows of raw hand history open
-      // above the table pushes the replayer off a phone screen entirely.
-      setPasteOpen(false);
-
-      const total = result.hands.length;
-      setUploadNotice(
-        total > 1
-          ? `${first.meta.siteName} — ${total} hands found, the first one is loaded. Use the converter for batches.`
-          : `${first.meta.siteName} hand loaded.`,
-      );
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "That text could not be read.");
-      setLoaded(null);
-    } finally {
-      setLoadingUpload(false);
-    }
-  }, []);
-
   /** Loads a hand the converter parked for us on its way to this route. */
-  const loadPhf = useCallback((hand: PhfHand, note: string) => {
-    setUploadError(null);
+  const loadPhf = useCallback((hand: PhfHand) => {
     setLoaded({
       hand: toParsedHand(hand),
       storedId: null,
       origin: "converter",
-      sourceText: null,
       sourceFilename: hand.meta.originalFilename ?? null,
-      converted: hand.meta.siteId !== "standard",
       siteId: hand.meta.siteId,
     });
-    setUploadNotice(note);
+    setNotice("From the converter — not saved to your library.");
   }, []);
 
-  // The converter hands a hand over through `sessionStorage` (see
-  // `converter/handoff.ts`) because the two tabs are separate routes. Runs once
-  // per mount, and clears the key so a later reload does not resurrect it.
+  // Runs once per mount, and clears the key so a later reload does not
+  // resurrect it.
   useEffect(() => {
     const pending = takePendingHand();
     if (pending) {
-      loadPhf(
-        pending.phf,
-        `${pending.phf.meta.siteName} hand from the converter. It is not saved to your library.`,
-      );
+      loadPhf(pending.phf);
     }
   }, [loadPhf]);
 
-  /**
-   * Set when "save" was pressed with no session, so the click survives the
-   * sign-in round trip instead of being swallowed by the dialog.
-   */
+  /** Set when save was pressed with no session, so the click survives the dialog. */
   const wantsSaveRef = useRef(false);
 
   useEffect(() => {
@@ -259,8 +194,8 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       wantsSaveRef.current = false;
       void saveLoadedHand();
     }
-    // saveLoadedHand closes over `loaded`, which has not changed across the
-    // sign-in; re-running on its identity would re-save on every render.
+    // `saveLoadedHand` closes over `loaded`, which has not changed across the
+    // sign-in; depending on its identity would re-save on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth.isSignedIn]);
 
@@ -270,24 +205,22 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
     }
     if (!auth.isSignedIn) {
       wantsSaveRef.current = true;
-      auth.requestSignIn("Sign in to keep this hand in your library. Only you will see it.");
+      auth.requestSignIn("Sign in to keep this hand. Only you will see it.");
       return;
     }
-    setSavingUpload(true);
-    setUploadError(null);
+    setSaving(true);
     try {
       const result = await saveSingleHand(loaded.hand, {
         source: loaded.siteId,
-        sourceText: loaded.sourceText,
         sourceFilename: loaded.sourceFilename,
       });
       setLoaded({ ...loaded, storedId: result.id });
-      setUploadNotice(result.duplicate ? "This hand was already in the database." : "Hand saved to the database.");
+      setNotice(result.duplicate ? "Already in your library." : "Saved to your library.");
       void runSearch(filters, page);
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Saving failed.");
+      setListError(err instanceof Error ? err.message : "Saving failed.");
     } finally {
-      setSavingUpload(false);
+      setSaving(false);
     }
   }
 
@@ -295,102 +228,30 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
 
   return (
     <div className="stack">
-      <section className="card">
-        <header className="card__head">
-          <div>
-            <h2>Load a hand to replay</h2>
-            <p className="muted">
-              Paste a hand or pick a file from any supported poker room — we work out which one
-              wrote it. For whole folders and batches, use the converter.
-            </p>
-          </div>
-          <div className="card__head-actions">
-            <button type="button" className="btn btn--ghost btn--sm" onClick={() => setPasteOpen((v) => !v)}>
-              {pasteOpen ? "Close paste" : "Paste text"}
-            </button>
-            <button
-              type="button"
-              className="btn btn--sm"
-              onClick={() => fileRef.current?.click()}
-              disabled={loadingUpload}
-            >
-              {loadingUpload ? "Reading…" : "Choose file"}
-            </button>
-            <input
-              ref={fileRef}
-              type="file"
-              accept={FILE_ACCEPT}
-              hidden
-              onChange={async (event) => {
-                const file = event.target.files?.[0];
-                event.target.value = "";
-                if (!file) return;
-                setLoadingUpload(true);
-                // Shared with the converter so the replayer gets the same
-                // UTF-16 / Windows-1252 handling instead of `file.text()`,
-                // which would turn an 8-bit export into mojibake.
-                const [source] = await loadFile(file);
-                if (!source || source.problem) {
-                  setLoadingUpload(false);
-                  setUploadNotice(null);
-                  setUploadError(source?.problem ?? "That file could not be read.");
-                  return;
-                }
-                await loadFromText(source.text, file.name);
-              }}
-            />
-          </div>
-        </header>
-
-        {pasteOpen ? (
-          <div className="paste">
-            <textarea
-              value={pasteText}
-              onChange={(event) => setPasteText(event.target.value)}
-              placeholder="Paste one hand history here — PokerStars, GGPoker, WePlay, Winamax, 888poker…"
-              rows={8}
-              spellCheck={false}
-            />
-            <div className="card__actions">
-              <button
-                type="button"
-                className="btn btn--primary btn--sm"
-                onClick={() => void loadFromText(pasteText, null)}
-                disabled={!pasteText.trim() || loadingUpload}
-              >
-                {loadingUpload ? "Loading…" : "Load"}
-              </button>
-              <button type="button" className="btn btn--ghost btn--sm" onClick={() => setPasteText("")}>
-                Clear
-              </button>
-            </div>
-          </div>
-        ) : null}
-
-        {uploadError ? <p className="notice notice--error">{uploadError}</p> : null}
-        {uploadNotice ? <p className="notice notice--info">{uploadNotice}</p> : null}
-      </section>
-
       {loaded ? (
         <section className="card card--flush">
+          {notice ? <p className="notice notice--info">{notice}</p> : null}
           <ReplayViewer
             key={loaded.hand.handKey}
             hand={loaded.hand}
             site={siteLabel(loaded.siteId)}
-            onClose={() => setLoaded(null)}
+            onClose={() => {
+              setLoaded(null);
+              setNotice(null);
+            }}
             headerExtra={
               <>
                 <ShareHandButton hand={loaded.hand} storedHandId={loaded.storedId} iconOnly />
-                {/* Only while there is something to save — once the hand is in
-                    the library the button has nothing left to say. */}
+                {/* Only for a hand that is not in the library yet — which here
+                    means one the converter handed over. */}
                 {loaded.origin !== "db" && !loaded.storedId && isDatabaseConfigured ? (
                   <button
                     type="button"
                     className="btn btn--icon"
-                    onClick={saveLoadedHand}
-                    disabled={savingUpload}
-                    aria-label="Save to database"
-                    title={savingUpload ? "Saving…" : "Save to database"}
+                    onClick={() => void saveLoadedHand()}
+                    disabled={saving}
+                    aria-label="Save to my library"
+                    title={saving ? "Saving…" : "Save to my library"}
                   >
                     💾
                   </button>
@@ -404,13 +265,13 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       <section className="card">
         <header className="card__head">
           <div>
-            <h2>Your hand library</h2>
+            <h2>My hands</h2>
             <p className="muted">
               {!isDatabaseConfigured
                 ? "No database configured."
                 : !auth.isSignedIn
                   ? "Private to your account."
-                  : `${total.toLocaleString("en-US")} ${total === 1 ? "hand matches" : "hands match"} the filters`}
+                  : `${total.toLocaleString("en-US")} ${total === 1 ? "hand" : "hands"}`}
             </p>
           </div>
         </header>
@@ -421,10 +282,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
             returning user does not see it flash before their session restores. */}
         {isDatabaseConfigured && !auth.isSignedIn && auth.status !== "loading" ? (
           <div className="signin-gate">
-            <p>
-              Your library lives with your account. Sign in to browse, filter and replay every hand
-              you have converted — nobody else can see them.
-            </p>
+            <p>Sign in to see the hands you have saved.</p>
             <button
               type="button"
               className="btn btn--primary btn--sm"

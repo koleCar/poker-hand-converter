@@ -120,62 +120,6 @@
   }
 }
 
-/* ------------------------------------------------------------------ paste */
-
-.conv-paste {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius-sm);
-  background: var(--bg-elev-2);
-}
-
-.conv-paste__label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--fg-muted);
-}
-
-.conv-paste__area {
-  width: 100%;
-  min-height: 140px;
-  resize: vertical;
-  padding: 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
-  background: #0c1117;
-  color: var(--fg);
-  /* 16px stops iOS Safari zooming the page when the field takes focus. */
-  font-size: 16px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  line-height: 1.45;
-}
-
-.conv-paste__area:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
-.conv-paste__actions {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.conv-paste__hint {
-  font-size: 11px;
-  color: var(--fg-dim);
-}
-
-@media (min-width: 640px) {
-  .conv-paste__area {
-    font-size: 12.5px;
-  }
-}
-
 /* --------------------------------------------------------------- controls */
 
 .conv-controls {

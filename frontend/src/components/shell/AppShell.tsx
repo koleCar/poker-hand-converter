@@ -8,9 +8,9 @@ import { DbStatusChip } from "./DbStatusChip";
 
 export type ShellTab = "converter" | "replayer";
 
-const TABS: Array<{ id: ShellTab; label: string; hint: string; path: string }> = [
-  { id: "converter", label: "Converter", hint: "Any poker room", path: paths.converter() },
-  { id: "replayer", label: "Replayer", hint: "Library & upload", path: paths.replayer() },
+const TABS: Array<{ id: ShellTab; label: string; path: string }> = [
+  { id: "converter", label: "Upload hand", path: paths.converter() },
+  { id: "replayer", label: "My hands", path: paths.replayer() },
 ];
 
 interface AppShellProps {
@@ -45,7 +45,6 @@ export function AppShell({ tab, dbConfigured, storedCount, children }: AppShellP
                 }}
               >
                 <span className="shell__tab-label">{entry.label}</span>
-                <span className="shell__tab-hint">{entry.hint}</span>
               </a>
             ))}
           </nav>
@@ -65,8 +64,7 @@ export function AppShell({ tab, dbConfigured, storedCount, children }: AppShellP
 
       {!dbConfigured ? (
         <p className="shell__offline-banner">
-          No database is configured, so the hand library and sharing are unavailable. Converting
-          and replaying an uploaded hand still work.
+          No database configured — the library and sharing are off. Converting still works.
         </p>
       ) : null}
 

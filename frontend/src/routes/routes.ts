@@ -50,7 +50,11 @@ export function sharedHandUrl(slug: string): string {
 const ALIASES: Record<string, string> = {
   "/convert": "/",
   "/converter": "/",
+  // The tab is called "Upload hand" now, so this is the address a person would
+  // guess. The older two stay linkable — they have been shared.
+  "/upload": "/",
   "/replayer": "/replay",
+  "/hands": "/replay",
 };
 
 const PATTERNS: Array<{ name: RouteName; segments: string[] }> = [

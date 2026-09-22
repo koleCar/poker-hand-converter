@@ -138,8 +138,7 @@ export function AuthDialog() {
           {TITLES[mode]}
         </h2>
         <p className="authdlg__lead">
-          {auth.signInPrompt ??
-            "Your hands are private to your account. Nobody else can see them — unless you share a link."}
+          {auth.signInPrompt ?? "Your hands stay private to your account."}
         </p>
 
         {auth.googleOffered ? (
@@ -226,10 +225,9 @@ export function AuthDialog() {
           <button type="button" className="btn btn--ghost btn--sm" onClick={auth.continueAsGuest}>
             Continue without an account
           </button>
-          <small className="muted">
-            Converting, previewing and downloading all work as a guest. Saving hands to a library
-            and creating share links need an account, because they need somewhere to put them.
-          </small>
+          {/* The one thing a guest cannot work out by trying: converting works,
+              keeping does not. Without it the button reads as "lose features". */}
+          <small className="muted">Converting works. Saving and sharing need an account.</small>
         </div>
       </div>
     </div>

@@ -1,5 +1,9 @@
 /**
- * The converter — the app's front door.
+ * Batch conversion — the "Many hands" mode of the upload tab.
+ *
+ * The single-hand path is `upload/SingleHandPanel`; `upload/UploadTab` picks
+ * between them. This file is everything that only matters in bulk: a worker, a
+ * progress bar, coalesced state flushes and a failure corpus.
  *
  * What it does, in order: take files (dropped, picked, pasted, zipped or in a
  * dropped folder), decode them properly, detect which poker room wrote them,
@@ -498,17 +502,6 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
   return (
     <div className="conv">
       <section className="card conv-intro">
-        <header className="card__head">
-          <div>
-            <h2>Poker hand history converter</h2>
-            <p className="muted">
-              Drop a hand history from any poker room. We work out which site wrote it, convert it
-              to the standard format Holdem Manager and PokerTracker import, and keep anything we
-              cannot read yet so we can add support for it. Everything runs in your browser.
-            </p>
-          </div>
-        </header>
-
         <DropZone onFiles={handleFiles} onText={handleText} busy={busy} siteNames={siteNames} />
 
         <div className="conv-controls">
@@ -530,14 +523,15 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
               <span className="conv-switch__thumb" />
             </span>
             <span className="conv-switch__text">
-              <strong>Save to my hand library</strong>
-              <small>
-                {!isDatabaseConfigured
-                  ? "Unavailable in this build — converting, previewing and downloading all still work."
-                  : auth.isSignedIn
-                    ? "Converted hands go to your private library, and hands we cannot convert are kept as samples so we can add your site."
-                    : "Convert now, sign in after. We will offer to save the results once the run finishes."}
-              </small>
+              <strong>Save to my library</strong>
+              {/* Only the two cases a person cannot work out for themselves:
+                  the feature is missing, or it needs an account they have not
+                  got yet. When it simply works, the toggle says everything. */}
+              {!isDatabaseConfigured ? (
+                <small>Unavailable in this build.</small>
+              ) : !auth.isSignedIn ? (
+                <small>Convert now, sign in after.</small>
+              ) : null}
             </span>
           </label>
 
@@ -559,9 +553,8 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           <div className="notice notice--info conv-signin">
             <span>
               {formatCount(held.hands.length)}{" "}
-              {held.hands.length === 1 ? "hand is" : "hands are"} converted and waiting. Sign in to
-              keep {held.hands.length === 1 ? "it" : "them"} in your library — they stay private to
-              your account.
+              {held.hands.length === 1 ? "hand" : "hands"} converted. Sign in to keep{" "}
+              {held.hands.length === 1 ? "it" : "them"}.
             </span>
             <span className="conv-signin__actions">
               <button

@@ -1,20 +1,20 @@
 /**
- * The input surface: drop target, file picker, and paste box.
+ * The bulk input surface: drop target and file picker.
  *
- * Three ways in, because there are three kinds of user. Someone exporting from
- * their tracker drags a folder. Someone on a laptop picks files. Someone who
- * just copied a hand out of a forum thread pastes it — that last one is the
- * majority on a phone, where drag and drop does not exist at all, which is why
- * the buttons are real buttons rather than hints inside a drop box.
+ * Two ways in — drag a folder, or pick files. Pasting is deliberately *not*
+ * here: the upload tab has a paste box open above this one, and a second target
+ * for the same gesture is how you get a person typing into the wrong box. The
+ * buttons are real buttons rather than hints inside the drop box because drag
+ * and drop does not exist on a phone at all.
  */
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FILE_ACCEPT, filesFromDrop } from "./inputs";
 
 interface DropZoneProps {
   /** Files picked, dropped, or found inside a dropped folder. */
   onFiles(files: File[]): void;
-  /** Text from the paste box or from a page-level paste. */
+  /** Text from a dragged selection — some clients drag text rather than a file. */
   onText(text: string): void;
   /** Disables the inputs while a conversion is running. */
   busy: boolean;
@@ -22,7 +22,7 @@ interface DropZoneProps {
   siteNames: string[];
 }
 
-/** Below this, a paste is a stray copy rather than a hand history. */
+/** Below this, a dragged selection is a stray copy rather than a hand history. */
 const MIN_PASTE_LENGTH = 40;
 
 /**
@@ -42,13 +42,9 @@ function listSites(names: string[]): string {
 
 export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
   const [dragging, setDragging] = useState(false);
-  const [pasteOpen, setPasteOpen] = useState(false);
-  const [pasteText, setPasteText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const folderRef = useRef<HTMLInputElement>(null);
-  const pasteRef = useRef<HTMLTextAreaElement>(null);
   const dragDepth = useRef(0);
-  const pasteId = useId();
 
   // `webkitdirectory` is set imperatively: it is a non-standard attribute that
   // React's DOM typings do not carry, and the feature test is "did the browser
@@ -62,31 +58,6 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
     input.setAttribute("webkitdirectory", "");
     setCanPickFolder(input.hasAttribute("webkitdirectory") && "webkitdirectory" in input);
   }, []);
-
-  // Ctrl/Cmd+V anywhere on the page opens the paste box with the text already
-  // in it. A user who has a hand on the clipboard should not have to find a
-  // button first.
-  useEffect(() => {
-    function handlePaste(event: ClipboardEvent) {
-      if (busy) {
-        return;
-      }
-      const target = event.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA)$/.test(target.tagName)) {
-        return;
-      }
-      const text = event.clipboardData?.getData("text/plain") ?? "";
-      if (text.trim().length < MIN_PASTE_LENGTH) {
-        return;
-      }
-      event.preventDefault();
-      setPasteOpen(true);
-      setPasteText(text);
-      requestAnimationFrame(() => pasteRef.current?.focus());
-    }
-    document.addEventListener("paste", handlePaste);
-    return () => document.removeEventListener("paste", handlePaste);
-  }, [busy]);
 
   /**
    * The whole page accepts a dropped file, not just the box.
@@ -186,15 +157,6 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
     }
   }
 
-  function submitPaste() {
-    if (!pasteText.trim()) {
-      return;
-    }
-    onText(pasteText);
-    setPasteText("");
-    setPasteOpen(false);
-  }
-
   return (
     <div className="conv-input">
       {/* Only when the file is not already over the box, so the page and the
@@ -262,10 +224,7 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
           </svg>
         </div>
 
-        <p className="conv-drop__title">Add your hand histories</p>
-        <p className="conv-drop__drag-hint">
-          Drag files or a whole export folder anywhere on this page
-        </p>
+        <p className="conv-drop__title">Drop files or a whole export folder</p>
 
         <div className="conv-drop__actions">
           <button
@@ -288,60 +247,15 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
               Choose a folder
             </button>
           ) : null}
-          <button
-            type="button"
-            className="btn btn--ghost"
-            disabled={busy}
-            aria-expanded={pasteOpen}
-            aria-controls={pasteId}
-            onClick={() => {
-              setPasteOpen((open) => !open);
-              if (!pasteOpen) {
-                requestAnimationFrame(() => pasteRef.current?.focus());
-              }
-            }}
-          >
-            {pasteOpen ? "Hide paste box" : "Paste a hand"}
-          </button>
         </div>
 
-        <p className="conv-drop__hint">
-          Any poker room. We work out the site for you — {listSites(siteNames)} convert today, and
-          anything we cannot convert yet is kept so we can add it.
-        </p>
+        {/* The one line of copy worth keeping here: a visitor's first question
+            is "does it handle my room?", and nothing on the page answers it.
+            The list comes from the parser registry, so it stays true on its
+            own as parsers are added. */}
+        <p className="conv-drop__hint">{listSites(siteNames)}</p>
       </div>
 
-      {pasteOpen ? (
-        <div className="conv-paste" id={pasteId}>
-          <label className="conv-paste__label" htmlFor={`${pasteId}-area`}>
-            Paste hand history text
-          </label>
-          <textarea
-            id={`${pasteId}-area`}
-            ref={pasteRef}
-            className="conv-paste__area"
-            value={pasteText}
-            spellCheck={false}
-            placeholder={"Paste one hand or a whole session here…"}
-            onChange={(event) => setPasteText(event.target.value)}
-            onKeyDown={(event) => {
-              if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-                event.preventDefault();
-                submitPaste();
-              }
-            }}
-          />
-          <div className="conv-paste__actions">
-            <button type="button" className="btn btn--primary" disabled={busy || !pasteText.trim()} onClick={submitPaste}>
-              Add pasted text
-            </button>
-            <button type="button" className="btn btn--ghost" onClick={() => { setPasteText(""); setPasteOpen(false); }}>
-              Cancel
-            </button>
-            <span className="conv-paste__hint">⌘/Ctrl + Enter</span>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
