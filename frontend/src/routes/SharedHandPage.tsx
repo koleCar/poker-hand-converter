@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { ShareHandButton } from "../components/share/ShareHandButton";
 import { formatPlayedAt, formatStakes, shortGameName, topWinnerOf } from "../components/share/preview";
 import { resolveShare } from "../components/share/shareClient";
 import type { ResolveShareResult } from "../components/share/shareContract";
 import { BrandMark } from "../components/shell/BrandMark";
-import { PlayingCard } from "../components/replayer/PlayingCard";
 import { ReplayViewer } from "../components/replayer/ReplayViewer";
 import { formatMoney } from "../lib/format";
 import { parseHand, type ParsedHand } from "../lib/handParser";
 import { Link } from "./router";
-import { paths, sharedHandUrl } from "./routes";
+import { paths } from "./routes";
 import { useDocumentMeta } from "./useDocumentMeta";
 
 interface SharedHandPageProps {
@@ -161,71 +159,15 @@ function SharedHandContent({
   views: number;
   slug: string;
 }) {
-  const playedAt = formatPlayedAt(hand.playedAt);
   const sharedAt = formatPlayedAt(createdAt);
-  const top = topWinnerOf(hand.winners);
 
   return (
     <>
-      <section className="sharepage__hero">
-        <div className="sharepage__hero-main">
-          <p className="sharepage__eyebrow">Shared hand</p>
-          <h1 className="sharepage__title">
-            {formatStakes(hand)} {shortGameName(hand.gameLabel)}
-          </h1>
-          <ul className="sharepage__facts">
-            <li>
-              <span>Pot</span>
-              <strong>{formatMoney(hand.currency, hand.totalPot)}</strong>
-            </li>
-            <li>
-              <span>Players</span>
-              <strong>{hand.seats.length}-handed</strong>
-            </li>
-            <li>
-              <span>Game</span>
-              <strong>{hand.gameType === "cash" ? "Cash game" : "Tournament"}</strong>
-            </li>
-            {playedAt ? (
-              <li>
-                <span>Played</span>
-                <strong>{playedAt}</strong>
-              </li>
-            ) : null}
-            {hand.tableName ? (
-              <li>
-                <span>Table</span>
-                <strong>{hand.tableName}</strong>
-              </li>
-            ) : null}
-            {top ? (
-              <li>
-                <span>Winner</span>
-                <strong>
-                  {top.player} · {formatMoney(hand.currency, top.amount)}
-                </strong>
-              </li>
-            ) : null}
-          </ul>
-        </div>
-
-        <div className="sharepage__hero-board">
-          <span className="sharepage__board-label">
-            {hand.board.length ? "Board" : "No flop — decided preflop"}
-          </span>
-          {hand.board.length ? (
-            <div className="sharepage__board">
-              {hand.board.map((card, index) => (
-                <PlayingCard key={`${card}-${index}`} code={card} size="sm" />
-              ))}
-            </div>
-          ) : null}
-          <div className="sharepage__hero-actions">
-            {/* The link already exists — copy it, do not mint a second share. */}
-            <ShareHandButton hand={hand} label="Copy link" presetUrl={sharedHandUrl(slug)} />
-          </div>
-        </div>
-      </section>
+      {/* The hand itself is the page — the heading stays for SEO and screen
+          readers only, so the replay opens without spoilers above it. */}
+      <h1 className="sharepage__sr-title">
+        {formatStakes(hand)} {shortGameName(hand.gameLabel)}
+      </h1>
 
       <section className="sharepage__replay">
         <ReplayViewer hand={hand} />

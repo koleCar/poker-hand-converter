@@ -33,6 +33,21 @@ export interface PendingHand {
 }
 
 /**
+ * Is a hand currently parked for the replayer?
+ *
+ * A peek, not a take: the replayer is still the one that consumes the key. The
+ * shell needs this because the replay route is otherwise only open to someone
+ * with a library, and a hand straight out of the converter is not in one yet.
+ */
+export function hasPendingHand(): boolean {
+  try {
+    return sessionStorage.getItem(PENDING_HAND_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Default hand-off: park the hand and go to the replayer.
  *
  * Falls back to doing nothing but navigating if storage is unavailable

@@ -44,6 +44,12 @@
   gap: 9px 12px;
 }
 
+/* No tab bar: drop the row it lived in, so its gap does not linger. */
+.shell__bar-inner--no-tabs {
+  grid-template-areas: "brand status";
+  gap: 0 12px;
+}
+
 /* ----------------------------------------------------------------- brand */
 
 .shell__brand {

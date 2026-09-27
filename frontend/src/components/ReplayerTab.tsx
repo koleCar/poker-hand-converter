@@ -89,9 +89,15 @@ type LoadedHand = {
 
 interface ReplayerTabProps {
   refreshToken: number;
+  /**
+   * Saving here changes the library the *shell* is reasoning about — its hand
+   * count, and whether this tab is offered at all — so the shell is told, and
+   * answers by bumping `refreshToken`, which reruns the search below.
+   */
+  onHandsSaved: () => void;
 }
 
-export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
+export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
   const auth = useAuth();
   const [filters, setFilters] = useState<ReplayerFilterForm>(EMPTY_REPLAYER_FILTERS);
   const [rows, setRows] = useState<HandSummary[]>([]);
@@ -216,7 +222,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       });
       setLoaded({ ...loaded, storedId: result.id });
       setNotice(result.duplicate ? "Already in your library." : "Saved to your library.");
-      void runSearch(filters, page);
+      onHandsSaved();
     } catch (err) {
       setListError(err instanceof Error ? err.message : "Saving failed.");
     } finally {
@@ -265,7 +271,7 @@ export function ReplayerTab({ refreshToken }: ReplayerTabProps) {
       <section className="card">
         <header className="card__head">
           <div>
-            <h2>My hands</h2>
+            <h2>Hand history</h2>
             <p className="muted">
               {!isDatabaseConfigured
                 ? "No database configured."

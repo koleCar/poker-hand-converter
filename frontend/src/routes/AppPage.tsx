@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { hasPendingHand } from "../components/converter/handoff";
 import { ReplayerTab } from "../components/ReplayerTab";
 import { AppShell, type ShellTab } from "../components/shell/AppShell";
 import { UploadTab } from "../components/upload/UploadTab";
 import { useAuth } from "../lib/auth";
 import { countHands } from "../lib/handStore";
 import { isSupabaseConfigured } from "../lib/supabase";
+import { navigate } from "./navigation";
 import { NotFoundPage } from "./NotFoundPage";
 import type { RouteMatch } from "./routes";
 import { paths } from "./routes";
@@ -18,7 +20,7 @@ const META: Record<ShellTab, { title: string; description: string; path: string 
     path: paths.converter(),
   },
   replayer: {
-    title: "My poker hands | PokerConverter",
+    title: "Hand history | PokerConverter",
     description:
       "Browse, filter and replay every poker hand you have saved, and share one with a single link.",
     path: paths.replayer(),
@@ -41,6 +43,44 @@ export default function AppPage({ route }: { route: RouteMatch }) {
   }, [auth.isSignedIn]);
 
   useEffect(refreshCount, [refreshCount, refreshToken]);
+
+  /**
+   * Who gets a hand history, and when the answer is known.
+   *
+   * `settled` matters as much as `hasHistory`: on a cold load both the session
+   * and the count arrive a beat late, and acting on "no hands" before they do
+   * would bounce a signed-in user off their own library.
+   */
+  const settled = auth.status !== "loading" && (!auth.isSignedIn || storedCount !== null);
+  const hasHistory = auth.isSignedIn && (storedCount ?? 0) > 0;
+
+  /**
+   * A hand the converter parked keeps the route open on its own.
+   *
+   * Latched during render rather than in an effect, because `ReplayerTab`
+   * consumes the `sessionStorage` key when it mounts — which is before any
+   * effect here could look. Without the latch the hand would open and the
+   * redirect below would close it again on the next render.
+   */
+  const [handedOver, setHandedOver] = useState(false);
+  if (tab === "replayer") {
+    if (!handedOver && hasPendingHand()) {
+      setHandedOver(true);
+    }
+  } else if (handedOver) {
+    setHandedOver(false);
+  }
+
+  const historyOpen = hasHistory || handedOver;
+
+  // The tab is hidden in this state, so the address has to agree with the bar:
+  // an old bookmark or a stale link lands on the converter instead of a screen
+  // that is one sign-in gate all the way down.
+  useEffect(() => {
+    if (tab === "replayer" && settled && !historyOpen) {
+      navigate(paths.converter(), { replace: true });
+    }
+  }, [tab, settled, historyOpen]);
 
   /**
    * Offer the dialog once, to someone who has never answered the question.
@@ -81,6 +121,7 @@ export default function AppPage({ route }: { route: RouteMatch }) {
   return (
     <AppShell
       tab={tab}
+      showHistoryTab={historyOpen}
       dbConfigured={isSupabaseConfigured}
       // The chip counts "hands in your library", so it is meaningless without
       // one. Derived rather than cleared on sign-out, so the last account's
@@ -88,7 +129,12 @@ export default function AppPage({ route }: { route: RouteMatch }) {
       storedCount={auth.isSignedIn ? storedCount : null}
     >
       {tab === "converter" ? <UploadTab onHandsSaved={handleHandsSaved} /> : null}
-      {tab === "replayer" ? <ReplayerTab refreshToken={refreshToken} /> : null}
+      {/* Rendered while the answer is still unknown — the tab has its own
+          loading states, and unmounting it once `settled` says no keeps the
+          redirect from flashing a library on the way out. */}
+      {tab === "replayer" && (historyOpen || !settled) ? (
+        <ReplayerTab refreshToken={refreshToken} onHandsSaved={handleHandsSaved} />
+      ) : null}
       {tab === null ? <NotFoundPage /> : null}
     </AppShell>
   );
