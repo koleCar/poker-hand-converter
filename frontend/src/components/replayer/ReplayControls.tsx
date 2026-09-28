@@ -1,16 +1,23 @@
 /**
- * The transport.
+ * The transport — Tier 1.
  *
- * One fixed-height band at the bottom of the replayer: a scrubber with street
- * ticks, then a single row of controls. It is a container of its own, and the
- * two things it can afford to lose — the speed picker, then the street jumps —
- * drop out on `@container` width rather than on a viewport media query, so an
- * embedded replayer in a 560px box behaves like a phone without being told it
- * is one.
+ * One band at the bottom of the replayer holding the four things you look at
+ * on every single step: the live caption, the scrub rail with its street
+ * ticks, the playback buttons and the street jumps. None of it is ever behind
+ * a tap, and none of it is ever hidden in a panel that can be closed — the
+ * caption in particular, because it is both the most-read text in the product
+ * and the `aria-live` region, and a live region inside a closable panel
+ * announces nothing.
+ *
+ * What it *can* afford to lose it loses by `data-tier`, the drop ladder from
+ * #19: labels on the option buttons first, then the five speed chips (which
+ * become one button that cycles), then the street names (which become
+ * initials, and keys `1`-`5`). See `dropLadder.ts`.
  */
 
 import type { Street } from "../../lib/phf/types";
 import type { ReplayFrame } from "../../lib/replay";
+import { speedIsCycled, streetsAreInitials, type ReplayTier } from "./dropLadder";
 
 const SPEEDS = [0.5, 1, 1.5, 2, 4];
 
@@ -22,10 +29,22 @@ const STREET_LABEL: Record<Street, string> = {
   showdown: "Showdown",
 };
 
+/** Rung 3 of the ladder. One letter each, and all five are distinct. */
+const STREET_INITIAL: Record<Street, string> = {
+  preflop: "P",
+  flop: "F",
+  turn: "T",
+  river: "R",
+  showdown: "S",
+};
+
 interface ReplayControlsProps {
   frames: ReplayFrame[];
   frame: ReplayFrame;
   anchors: Array<{ street: Street; index: number }>;
+  /** `frame.description`, name-masked. The `aria-live` text. */
+  caption: string;
+  tier: ReplayTier;
   playing: boolean;
   speed: number;
   logOpen: boolean;
@@ -44,6 +63,8 @@ export function ReplayControls({
   frames,
   frame,
   anchors,
+  caption,
+  tier,
   playing,
   speed,
   logOpen,
@@ -57,9 +78,25 @@ export function ReplayControls({
   onToggleResult,
 }: ReplayControlsProps) {
   const last = frames.length - 1;
+  const initials = streetsAreInitials(tier);
+
+  const cycleSpeed = () => {
+    const at = SPEEDS.indexOf(speed);
+    onSpeed(SPEEDS[(at + 1) % SPEEDS.length] ?? 1);
+  };
 
   return (
     <div className="rp__transport">
+      {/*
+        The single live region in the replayer. `aria-atomic` because the whole
+        sentence is the news, not the word that changed; `polite` because a
+        scrub can fire ten of these a second and `assertive` would make the
+        replayer unusable with a screen reader on.
+      */}
+      <p className="rp__caption" aria-live="polite" aria-atomic="true">
+        {caption}
+      </p>
+
       <div className="rp__scrub-wrap">
         {/* Street boundaries drawn on the rail so scrubbing is aimed, not blind. */}
         <div className="rp__ticks" aria-hidden="true">
@@ -78,7 +115,7 @@ export function ReplayControls({
           max={last}
           value={frame.index}
           aria-label="Position in hand"
-          aria-valuetext={`Step ${frame.index + 1} of ${frames.length}. ${frame.description}`}
+          aria-valuetext={`Step ${frame.index + 1} of ${frames.length}. ${caption}`}
           onChange={(event) => onSeek(Number(event.target.value))}
         />
       </div>
@@ -136,54 +173,81 @@ export function ReplayControls({
         </div>
 
         <div className="rp__streets" role="group" aria-label="Jump to street">
-          {anchors.map((anchor) => (
+          {anchors.map((anchor, index) => (
             <button
               key={anchor.street}
               type="button"
-              className={`chip-btn ${frame.street === anchor.street ? "is-active" : ""}`}
+              className={`chip-btn ${frame.street === anchor.street ? "is-active" : ""}`.trim()}
               aria-pressed={frame.street === anchor.street}
+              // The visible text shrinks to an initial at narrow tiers, so the
+              // accessible name is stated rather than read off the glyph.
+              aria-label={STREET_LABEL[anchor.street]}
+              title={`${STREET_LABEL[anchor.street]} (${index + 1})`}
               onClick={() => onSeek(anchor.index)}
             >
-              {STREET_LABEL[anchor.street]}
+              {initials ? STREET_INITIAL[anchor.street] : STREET_LABEL[anchor.street]}
             </button>
           ))}
         </div>
 
-        <div className="rp__speed" role="group" aria-label="Playback speed">
-          {SPEEDS.map((value) => (
+        {/* Rung 2: five chips, or one button that cycles through the same five. */}
+        {speedIsCycled(tier) ? (
+          <div className="rp__speed">
             <button
-              key={value}
               type="button"
-              className={`chip-btn ${speed === value ? "is-active" : ""}`}
-              aria-pressed={speed === value}
-              aria-label={`${value} times speed`}
-              onClick={() => onSpeed(value)}
+              className="chip-btn"
+              aria-label={`Playback speed, ${speed} times. Activate for the next speed.`}
+              title="Playback speed"
+              onClick={cycleSpeed}
             >
-              {value}x
+              {speed}x
             </button>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="rp__speed" role="group" aria-label="Playback speed">
+            {SPEEDS.map((value) => (
+              <button
+                key={value}
+                type="button"
+                className={`chip-btn ${speed === value ? "is-active" : ""}`.trim()}
+                aria-pressed={speed === value}
+                aria-label={`${value} times speed`}
+                onClick={() => onSpeed(value)}
+              >
+                {value}x
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="rp__opts">
           {/* Unit and card visibility live behind the gear in the header. */}
           {resultReady ? (
             <button
               type="button"
-              className={`chip-btn ${resultOpen ? "is-active" : ""}`}
+              className={`chip-btn ${resultOpen ? "is-active" : ""}`.trim()}
               aria-pressed={resultOpen}
+              aria-haspopup="dialog"
+              aria-label="Result"
+              title="Result"
               onClick={onToggleResult}
             >
-              Result
+              <span aria-hidden="true">🏆</span>
+              {/* Rung 1: the label goes, the icon and the name stay. */}
+              <span className="rp__opt-label">Result</span>
             </button>
           ) : null}
           <button
             type="button"
-            className={`chip-btn ${logOpen ? "is-active" : ""}`}
+            className={`chip-btn ${logOpen ? "is-active" : ""}`.trim()}
             aria-pressed={logOpen}
-            aria-controls="replay-log"
+            aria-haspopup="dialog"
+            aria-label="Action log"
+            title="Action log (L)"
             onClick={onToggleLog}
           >
-            Log
+            <span aria-hidden="true">☰</span>
+            <span className="rp__opt-label">Log</span>
           </button>
         </div>
       </div>

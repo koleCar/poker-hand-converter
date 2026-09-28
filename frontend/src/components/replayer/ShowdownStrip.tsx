@@ -1,22 +1,38 @@
+/**
+ * Who showed what, who won and how the pot split — Tier 2.
+ *
+ * A sheet over the felt rather than a block under it: in a layout that may not
+ * scroll, a list whose length is decided by the hand cannot be allowed into
+ * the main flow. Only reachable once the replay has arrived at the showdown,
+ * and the totals in its head are gated on the award frame on top of that, so
+ * opening it early cannot leak the result.
+ */
+
 import { useMemo } from "react";
-import type { ReplayFrame } from "../../lib/replay";
 import {
+  toBigBlinds,
   toDisplayNumber,
   type Amount,
   type PhfHand,
   type PhfPlayerResult,
 } from "../../lib/phf/types";
+import type { ReplayFrame } from "../../lib/replay";
+import { Overlay } from "../ui/Overlay";
 import { CardRow } from "./PlayingCard";
 import type { NameMask, ReplaySettings } from "./replaySettings";
-import type { AmountFormatter } from "./tableMath";
+import { spoilersRevealed, spokenPosition, type AmountFormatter } from "./tableMath";
 
 interface ShowdownStripProps {
   hand: PhfHand;
   frame: ReplayFrame;
+  /** Frame the pot is first paid on; the spoiler gate's threshold. */
+  awardAt: number;
   settings: ReplaySettings;
   mask: NameMask;
   format: AmountFormatter;
+  open: boolean;
   onClose: () => void;
+  anchor: React.RefObject<HTMLElement | null>;
 }
 
 /**
@@ -35,24 +51,20 @@ const FEE_LABELS: Array<{ key: keyof PhfHand["results"]["fees"]; label: string }
   { key: "other", label: "other" },
 ];
 
-/**
- * Who showed what, who won and how the pot split.
- *
- * A sheet over the felt rather than a block under it: in a layout that may not
- * scroll, a list whose length is decided by the hand cannot be allowed into the
- * main flow. Only rendered once the replay has reached the showdown, so it
- * never spoils the hand.
- */
 export function ShowdownStrip({
   hand,
   frame,
+  awardAt,
   settings,
   mask,
   format,
+  open,
   onClose,
+  anchor,
 }: ShowdownStripProps) {
   const unit = hand.game.unit;
-  const money = (amount: Amount) => format(toDisplayNumber(amount, unit));
+  const money = (amount: Amount) =>
+    format(toDisplayNumber(amount, unit), toBigBlinds(amount, hand.game.bigBlind));
 
   const resultBySeat = useMemo(() => {
     const map = new Map<number, PhfPlayerResult>();
@@ -79,61 +91,65 @@ export function ShowdownStrip({
     return map;
   }, [hand.results.players, hand.actions]);
 
-  if (frame.street !== "showdown") {
-    return null;
-  }
-
   // When the hand ended before anyone turned their cards over there is nothing
   // to compare, so the sheet collapses to the result: who took it, for how
   // much. Hero's own cards are already face up on the felt and would otherwise
   // pad the list with a row that says nothing.
   const showdown = hand.results.wentToShowdown;
-  const rows = frame.seats
-    .filter((seat) => (showdown ? seat.cards !== null || seat.winAmount > 0 : seat.winAmount > 0))
-    .sort((a, b) => b.winAmount - a.winAmount);
+  const rows =
+    frame.street === "showdown"
+      ? frame.seats
+          .filter((seat) =>
+            showdown ? seat.cards !== null || seat.winAmount > 0 : seat.winAmount > 0,
+          )
+          .sort((a, b) => b.winAmount - a.winAmount)
+      : [];
 
-  if (rows.length === 0) {
-    return null;
-  }
-
+  const revealed = spoilersRevealed(frame, awardAt);
   const fees = FEE_LABELS.filter(({ key }) => hand.results.fees[key] > 0);
   const splitPot = rows.filter((seat) => seat.winAmount > 0).length > 1;
 
-  return (
-    <aside className="rp__sheet rp__sheet--result" aria-label={showdown ? "Showdown" : "Result"}>
-      <div className="rp__sheet-head">
-        <span className="rp__sheet-title">{showdown ? "Showdown" : "Result"}</span>
-        <span className="rp__sheet-note">
-          Pot {money(hand.results.totalPot)}
-          {/* The breakdown the summary reported, which is what the middle of
-              the felt was drawing as separate piles. */}
-          {hand.results.pots.length > 1
-            ? hand.results.pots.map((pot) => (
-                <span key={pot.name} className="rp__sheet-fee">
-                  {" "}
-                  · {pot.name.toLowerCase()} {money(pot.amount)}
-                </span>
-              ))
-            : null}
-          {fees.map(({ key, label }) => (
-            <span key={key} className="rp__sheet-fee">
+  const note = revealed ? (
+    <>
+      Pot {money(hand.results.totalPot)}
+      {/* The breakdown the summary reported, which is what the middle of the
+          felt was drawing as separate piles. */}
+      {hand.results.pots.length > 1
+        ? hand.results.pots.map((pot) => (
+            <span key={pot.name} className="rp__sheet-fee">
               {" "}
-              · {label} {money(hand.results.fees[key])}
+              · {pot.name.toLowerCase()} {money(pot.amount)}
             </span>
-          ))}
-          {splitPot ? <span className="rp__sheet-fee"> · split</span> : null}
+          ))
+        : null}
+      {fees.map(({ key, label }) => (
+        <span key={key} className="rp__sheet-fee">
+          {" "}
+          · {label} {money(hand.results.fees[key])}
         </span>
-        <button type="button" className="btn btn--icon" onClick={onClose} aria-label="Close result">
-          ✕
-        </button>
-      </div>
+      ))}
+      {splitPot ? <span className="rp__sheet-fee"> · split</span> : null}
+    </>
+  ) : null;
+
+  return (
+    <Overlay
+      // Rows empty means the replay has scrubbed back out of the showdown; the
+      // sheet closes itself rather than hanging around empty.
+      open={open && rows.length > 0}
+      onClose={onClose}
+      title={showdown ? "Showdown" : "Result"}
+      note={note}
+      anchor={anchor}
+      className="rp-ov rp-ov--result"
+    >
       <ul className="rp__sheet-list rp__result-list">
         {rows.map((seat) => {
           // Hiding hero's holding has to hold here too, or the sheet would
           // spoil the very cards the felt is keeping face down.
           const hideHero = seat.isHero && !settings.showHeroCards;
           const result = resultBySeat.get(seat.seatNo);
-          const note =
+          const made =
             result?.cashoutRisk !== null && result?.cashoutRisk !== undefined
               ? `cashed out · risk ${money(result.cashoutRisk)}`
               : (descriptions.get(seat.name) ?? "");
@@ -143,7 +159,11 @@ export function ShowdownStrip({
               className={`rp__result-row ${seat.winAmount > 0 ? "is-winner" : ""}`.trim()}
             >
               <span className="rp__result-who">
-                {seat.position ? <span className="pseat__pos">{seat.position}</span> : null}
+                {seat.position ? (
+                  <span className="pseat__pos" title={spokenPosition(seat.position) ?? undefined}>
+                    {seat.position}
+                  </span>
+                ) : null}
                 <span className="rp__result-name">{mask.seat(seat.name)}</span>
               </span>
               <span className="rp__result-cards">
@@ -155,14 +175,16 @@ export function ShowdownStrip({
                   <span className="muted">{result?.mucked ? "mucked" : "folded"}</span>
                 ) : null}
               </span>
-              <span className="rp__result-desc">{hideHero ? "" : note}</span>
+              <span className="rp__result-desc">{hideHero ? "" : made}</span>
               <span className="rp__result-amount">
+                {/* The win badge repeats the "winner" row tint in words, so the
+                    outcome never rides on colour alone. */}
                 {seat.winAmount > 0 ? `+${format(seat.winAmount)}` : ""}
               </span>
             </li>
           );
         })}
       </ul>
-    </aside>
+    </Overlay>
   );
 }

@@ -1,9 +1,27 @@
-import { useEffect, useId, useRef, useState } from "react";
+/**
+ * Gear in the replayer's top-right corner — Tier 2.
+ *
+ * A sheet rather than a row of chips: these are set-and-forget preferences,
+ * unlike the transport controls under the felt which get used on every step.
+ *
+ * It used to be a bare `<div>` popover held open by a `mousedown` listener on
+ * `document`, with no focus trap, no focus return and a background that was
+ * still tabbable. It is the shared `<Overlay>` now, which is a modal
+ * `<dialog>`, so all three come from the platform.
+ */
+
+import { useId } from "react";
+import { Overlay } from "../ui/Overlay";
 import type { ReplaySettings } from "./replaySettings";
 
 interface ReplaySettingsMenuProps {
   settings: ReplaySettings;
   onChange: (patch: Partial<ReplaySettings>) => void;
+  /** Box the sheet should cover — the replayer's stage. */
+  anchor: React.RefObject<HTMLElement | null>;
+  /** Lifted so the viewer's key handler knows an overlay owns the keyboard. */
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 interface ToggleSpec {
@@ -26,7 +44,7 @@ const TOGGLES: ToggleSpec[] = [
   {
     key: "showHeroCards",
     label: "Show hero hole cards",
-    hint: "Turn off to review the hand without seeing hero's holding",
+    hint: "Turn off to review the hand without seeing hero's holding (H)",
   },
   {
     key: "anonymousNames",
@@ -35,69 +53,58 @@ const TOGGLES: ToggleSpec[] = [
   },
 ];
 
-/**
- * Gear in the replayer's top-right corner. A popover rather than a row of
- * chips: these are set-and-forget preferences, unlike the transport controls
- * under the felt which get used on every step.
- */
-export function ReplaySettingsMenu({ settings, onChange }: ReplaySettingsMenuProps) {
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef<HTMLDivElement | null>(null);
-  const panelId = useId();
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    function onPointerDown(event: MouseEvent) {
-      if (!wrapRef.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+export function ReplaySettingsMenu({
+  settings,
+  onChange,
+  anchor,
+  open,
+  onOpenChange,
+}: ReplaySettingsMenuProps) {
+  const hintId = useId();
 
   return (
-    <div className="rp__settings" ref={wrapRef}>
+    <>
       <button
         type="button"
         className={`btn btn--icon ${open ? "is-active" : ""}`.trim()}
         aria-label="Replayer settings"
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-controls={panelId}
         title="Replayer settings"
-        onClick={() => setOpen((current) => !current)}
+        onClick={() => onOpenChange(!open)}
       >
         ⚙
       </button>
 
-      {open ? (
-        <div className="rp__settings-panel" id={panelId} role="dialog" aria-label="Replayer settings">
-          <div className="rp__settings-head">Settings</div>
+      <Overlay
+        open={open}
+        onClose={() => onOpenChange(false)}
+        title="Settings"
+        anchor={anchor}
+        className="rp-ov rp-ov--settings"
+      >
+        <div className="rp__settings-list">
           {TOGGLES.map((toggle) => (
-            <label key={toggle.key} className="rp__setting" title={toggle.hint}>
+            <label key={toggle.key} className="rp__setting">
               <input
                 type="checkbox"
                 checked={settings[toggle.key]}
+                aria-describedby={`${hintId}-${toggle.key}`}
                 onChange={(event) => onChange({ [toggle.key]: event.target.checked })}
               />
               <span className="rp__setting-switch" aria-hidden="true" />
-              <span className="rp__setting-text">{toggle.label}</span>
+              <span className="rp__setting-text">
+                {toggle.label}
+                {/* Spelled out rather than hidden in a `title`: a tooltip is
+                    unreachable by keyboard and by touch. */}
+                <span className="rp__setting-hint" id={`${hintId}-${toggle.key}`}>
+                  {toggle.hint}
+                </span>
+              </span>
             </label>
           ))}
         </div>
-      ) : null}
-    </div>
+      </Overlay>
+    </>
   );
 }

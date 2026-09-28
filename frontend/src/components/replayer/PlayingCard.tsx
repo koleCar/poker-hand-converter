@@ -13,6 +13,17 @@ interface PlayingCardProps {
   highlighted?: boolean;
   /** Stagger index for the deal-in animation. */
   dealIndex?: number;
+  /**
+   * Unit vector from where this card lies to the deck, as `[x, y]` in screen
+   * directions (y negative is up the felt).
+   *
+   * The card deals *in* along it — a short slide out of the dealer's hands
+   * plus the flip it already had. Passed as two numbers rather than a point or
+   * a style object because this component is memoised and an object prop would
+   * be a new identity on every render of the table.
+   */
+  dealX?: number;
+  dealY?: number;
   className?: string;
 }
 
@@ -57,6 +68,8 @@ function PlayingCardImpl({
   dimmed = false,
   highlighted = false,
   dealIndex = 0,
+  dealX = 0,
+  dealY = -1,
   className = "",
 }: PlayingCardProps) {
   const card = code ? parseCard(code) : null;
@@ -82,7 +95,13 @@ function PlayingCardImpl({
   return (
     <span
       className={classes}
-      style={{ animationDelay: `${dealIndex * 70}ms` }}
+      style={
+        {
+          animationDelay: `${dealIndex * 70}ms`,
+          "--deal-x": dealX,
+          "--deal-y": dealY,
+        } as React.CSSProperties
+      }
       role="img"
       aria-label={label}
     >

@@ -1,0 +1,133 @@
+/* ===========================================================================
+   OVERLAY
+   ===========================================================================
+
+   The skin for `components/ui/Overlay.tsx`, the app's single modal primitive.
+
+   Imported by the component rather than by `App.css`, so a surface that pulls
+   in the overlay gets its stylesheet with it and no other sheet has to know
+   the primitive exists. Every selector here is under `.ov`, which nothing else
+   uses, so its cascade position does not matter.
+
+   A modal `<dialog>` paints in the top layer, above every stacking context and
+   outside every `overflow: clip` — which is what makes it safe over a
+   size-contained stage — so there is no `z-index` anywhere in this file and
+   there must not be one.
+   =========================================================================== */
+
+.ov {
+  padding: 0;
+  border: 0;
+  margin: auto;
+  max-inline-size: min(34rem, calc(100vw - 2rem));
+  max-block-size: min(40rem, calc(100vh - 2rem));
+  inline-size: 100%;
+  background: transparent;
+  color: var(--text-primary);
+  overflow: visible;
+}
+
+/* A flex column while it is open, so a panel that is smaller than the dialog
+   box can be placed inside it with auto margins — bottom-anchored, centred,
+   pinned to one flank. A closed `<dialog>` keeps the UA's `display: none`,
+   which is what takes it out of the layout entirely. */
+.ov[open] {
+  display: flex;
+}
+
+.ov::backdrop {
+  background: rgb(0 0 0 / 46%);
+  backdrop-filter: blur(2px);
+}
+
+/* Anchored to a box on the page — see `OverlayProps.anchor`. The custom
+   properties are written by the component from a live measurement, because
+   nothing in the cascade can see where a top-layer element's anchor is. */
+.ov[data-anchored="true"] {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  inset-block-start: var(--ov-y, 0);
+  inset-inline-start: var(--ov-x, 0);
+  inline-size: var(--ov-w, 100%);
+  block-size: var(--ov-h, 100%);
+  max-inline-size: none;
+  max-block-size: none;
+}
+
+.ov__panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-4);
+  background: color-mix(in srgb, var(--surface-overlay) 94%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--elevation-2);
+  overflow: hidden;
+}
+
+.ov__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-inline-size: 0;
+  padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.ov__title {
+  flex: none;
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--text-tertiary);
+}
+
+.ov__note {
+  flex: 1;
+  min-inline-size: 0;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ov__close {
+  flex: none;
+  margin-inline-start: auto;
+  /* WCAG 2.5.5: the one control every overlay has must be hittable. */
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+}
+
+.ov__body {
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Entry is a fade only. The panel is already a hard cut in front of whatever
+   it covers, and a slide from an anchored box has nowhere honest to slide
+   from. */
+@media (prefers-reduced-motion: no-preference) {
+  .ov[open] {
+    animation: ov-in var(--dur-4, 180ms) var(--ease-out, ease-out);
+  }
+
+  .ov[open]::backdrop {
+    animation: ov-in var(--dur-4, 180ms) var(--ease-out, ease-out);
+  }
+}
+
+@keyframes ov-in {
+  from {
+    opacity: 0;
+  }
+}

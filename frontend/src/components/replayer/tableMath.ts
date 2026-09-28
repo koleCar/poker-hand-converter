@@ -1,4 +1,4 @@
-import type { ReplayFrame } from "../../lib/replay";
+import type { ReplayFrame, SeatFrameState } from "../../lib/replay";
 import {
   formatAmount,
   toDisplayNumber,
@@ -6,6 +6,7 @@ import {
   type CurrencyUnit,
   type DecimalStyle,
   type PhfHand,
+  type Position,
 } from "../../lib/phf/types";
 
 /** How stack, bet and pot numbers are rendered across the whole replayer. */
@@ -110,6 +111,36 @@ export function actionTone(label: string | null): ActionTone {
   return "neutral";
 }
 
+/* ---------------------------------------------------------- spoiler gate - */
+
+/**
+ * Frame index the pot is first paid out on, or -1 for a hand with no award
+ * frame at all (a truncated history).
+ */
+export function firstAwardIndex(frames: ReplayFrame[]): number {
+  const award = frames.find((frame) => frame.kind === "award");
+  return award ? award.index : -1;
+}
+
+/**
+ * **The spoiler rule.**
+ *
+ * Anything derived from `hand.results` — the total pot, the fee breakdown, who
+ * won, how much, what they held, hero's net — is knowledge the replay has not
+ * reached yet. Commit `fef6ff7` stripped that data out of the header one field
+ * at a time; this is the same property stated once, as a function, so the next
+ * panel that wants to show a rake figure has somewhere to ask.
+ *
+ * The gate is **frame position**, not which panel is open. The info sheet
+ * opens happily from frame 0; its result rows render `—` until the replay
+ * reaches the award. Anything on the frame itself (`seat.winAmount`,
+ * `frame.potAward`, `frame.pots`) is already position-correct by construction
+ * and needs no gate — `buildReplay` only puts it on the frames it belongs on.
+ */
+export function spoilersRevealed(frame: ReplayFrame, awardAt: number): boolean {
+  return awardAt >= 0 && frame.index >= awardAt;
+}
+
 /**
  * Whether the showdown sheet has anything in it yet.
  *
@@ -125,4 +156,75 @@ export function hasShowdownResult(hand: PhfHand, frame: ReplayFrame): boolean {
   return frame.seats.some((seat) =>
     showdown ? seat.cards !== null || seat.winAmount > 0 : seat.winAmount > 0,
   );
+}
+
+/* --------------------------------------------------------- spoken labels - */
+
+/**
+ * Position abbreviations read aloud. `CO` is spelled by a screen reader as
+ * "see oh", which is not a poker seat.
+ */
+const POSITION_SPOKEN: Record<Position, string> = {
+  BTN: "button",
+  SB: "small blind",
+  BB: "big blind",
+  UTG: "under the gun",
+  "UTG+1": "under the gun plus one",
+  "UTG+2": "under the gun plus two",
+  MP: "middle position",
+  LJ: "lojack",
+  HJ: "hijack",
+  CO: "cutoff",
+};
+
+export function spokenPosition(position: Position | null): string | null {
+  return position ? POSITION_SPOKEN[position] : null;
+}
+
+/** "84 big blinds", "1.5 big blinds", "1 big blind". */
+export function spokenStack(bb: number): string {
+  const rounded = Math.abs(bb) >= 100 ? Math.round(bb) : Math.round(bb * 10) / 10;
+  return `${rounded} big blind${rounded === 1 ? "" : "s"}`;
+}
+
+/**
+ * The composed label for one seat, e.g.
+ * "Seat 3, cutoff, Villain, 84 big blinds, folded".
+ *
+ * Stacks are spoken in big blinds whatever the display unit is set to: it is
+ * the unit the information actually lives in, it does not change when somebody
+ * toggles the gear, and "eighty four b b" is what a screen reader would
+ * otherwise make of the visible `84bb`.
+ */
+export function describeSeat(seat: SeatFrameState, displayName: string): string {
+  const parts: string[] = [`Seat ${seat.seatNo}`];
+  const position = spokenPosition(seat.position);
+  if (position) {
+    parts.push(position);
+  }
+  parts.push(displayName);
+  if (seat.isHero) {
+    parts.push("hero");
+  }
+  parts.push(spokenStack(seat.stackBb));
+  if (seat.isButton) {
+    parts.push("dealer button");
+  }
+  if (seat.bet > 0) {
+    parts.push(`${spokenStack(seat.betBb)} in front`);
+  }
+  if (seat.folded) {
+    parts.push("folded");
+  } else if (seat.allIn) {
+    parts.push("all in");
+  }
+  if (seat.isActing) {
+    parts.push("to act");
+  }
+  if (seat.winAmount > 0) {
+    parts.push("winner");
+  } else if (seat.lastAction) {
+    parts.push(seat.lastAction);
+  }
+  return parts.join(", ");
 }

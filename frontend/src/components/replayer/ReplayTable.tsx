@@ -15,7 +15,7 @@
  * silently measure the stage instead.
  */
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { holeCardCount, toDisplayNumber, type PhfHand } from "../../lib/phf/types";
 import type { ReplayFrame, SeatFrameState } from "../../lib/replay";
 import { ChipStack } from "./ChipStack";
@@ -30,13 +30,21 @@ import {
   type SeatSlot,
   type TableShape,
 } from "./seatLayout";
-import { actionTone, type AmountFormatter } from "./tableMath";
+import { actionTone, describeSeat, spokenPosition, type AmountFormatter } from "./tableMath";
+import { TravellingChips } from "./TravellingChips";
+import type { FrameMotion } from "./useFrameTransition";
 
 interface ReplayTableProps {
   hand: PhfHand;
   frame: ReplayFrame;
   /** Chosen by the viewer's ResizeObserver so the slots and CSS agree. */
   shape: TableShape;
+  /**
+   * `"step"` while the frame on screen was reached by a single forward step,
+   * `"none"` for a scrub, a jump, or a reduced-motion reader. Chips only
+   * travel on a step; see `useFrameTransition`.
+   */
+  motion: FrameMotion;
   /** Card visibility and naming preferences from the header gear. */
   settings: ReplaySettings;
   /** Neutral labels when anonymous mode is on; pass-through otherwise. */
@@ -71,6 +79,62 @@ function fanSteps(holeCount: number): { down: number; up: number } {
 /** Where a chip stack hangs relative to its designed spot. */
 function chipTranslate(anchor: SeatSlot["chipAnchor"]): string {
   return `${(anchor - 1) * 50}% -50%`;
+}
+
+/**
+ * Where the deck sits: top-centre of the felt, just inside the rail.
+ *
+ * Cards used to fade in from nowhere, which is the one thing a real table
+ * never does. Giving the deal an origin — even a short slide out of it — is
+ * the cheapest "this is a table" win available, and it costs a unit vector.
+ */
+const DECK = { x: 0.5, y: 0.055 };
+
+/** The middle, where chips are swept to and pots are pushed out of. */
+const MIDDLE = { x: 0.5, y: 0.5 };
+
+interface Direction {
+  x: number;
+  y: number;
+}
+
+/**
+ * Unit vector from one point on the felt to another.
+ *
+ * Both points are fractions of the felt *box*, so they measure different
+ * lengths on the two axes; `ratio` (the shape's aspect ratio) is what turns
+ * them back into a direction. The result is then in the same units on both
+ * axes, which is what lets the stylesheet multiply it by a single `--u`
+ * distance and get a slide that points where it is aimed at every shape.
+ */
+function towards(from: Direction, to: Direction, ratio: number): Direction {
+  const dx = (to.x - from.x) * ratio;
+  const dy = to.y - from.y;
+  const length = Math.hypot(dx, dy);
+  if (length === 0) {
+    return { x: 0, y: -1 };
+  }
+  return { x: dx / length, y: dy / length };
+}
+
+/** The two directions a seat's motion is aimed along. */
+interface SeatAim {
+  /** Seat -> deck: which way its cards slide in from. */
+  deal: Direction;
+  /** Chip spot -> seat: which way its bet is pushed out from. */
+  bet: Direction;
+}
+
+function aimFor(slot: SeatSlot, ratio: number): SeatAim {
+  return {
+    deal: towards({ x: slot.x, y: slot.y }, DECK, ratio),
+    bet: towards({ x: slot.cx, y: slot.cy }, { x: slot.x, y: slot.y }, ratio),
+  };
+}
+
+/** Direction custom properties, for the deal-in and bet-out keyframes. */
+function aimStyle(prefix: string, direction: Direction): React.CSSProperties {
+  return { [`--${prefix}-x`]: direction.x, [`--${prefix}-y`]: direction.y } as React.CSSProperties;
 }
 
 function slotStyle(slot: SeatSlot): React.CSSProperties {
@@ -115,7 +179,15 @@ function place(seats: SeatFrameState[], shape: TableShape): Placed[] {
   }));
 }
 
-export function ReplayTable({ hand, frame, shape, settings, mask, format }: ReplayTableProps) {
+export function ReplayTable({
+  hand,
+  frame,
+  shape,
+  motion,
+  settings,
+  mask,
+  format,
+}: ReplayTableProps) {
   const seatCount = clampSeatCount(frame.seats.length);
   const placed = useMemo(() => place(frame.seats, shape), [frame.seats, shape]);
   const metrics = SHAPE_METRICS[shape];
@@ -125,6 +197,14 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
   // drawing two cards or six.
   const holeCount = holeCardCount(hand.game.variant) ?? 2;
   const fan = fanSteps(holeCount);
+  const ratio = metrics.arW / metrics.arH;
+  // The board is dealt from the same deck as everything else, which from dead
+  // centre means straight down the felt.
+  const boardAim = towards(MIDDLE, DECK, ratio);
+  // The other end of every chip flight, measured rather than assumed: the pile
+  // is laid out by flexbox inside a container query, so where it actually is
+  // depends on how many pots there are and how big the box got.
+  const potsRef = useRef<HTMLDivElement | null>(null);
 
   // `holeCards`, not `dealtCards`: the deal block only lists the cards the room
   // printed up front (the hero's, in every format we read), while `holeCards`
@@ -154,31 +234,42 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
     return map;
   }, [award]);
 
-  // Chips sweeping from the bet ring into the middle. The frame the bets
-  // vanish on no longer carries them, so the previous frame is kept around
-  // purely to animate the hand-off. Worked out while rendering the frame that
-  // needs it rather than in an effect, which would paint the swept table once
-  // before the chips appeared to leave it.
+  // How this frame was arrived at, and what the frame before it was carrying.
+  //
+  // The frame the bets vanish on no longer holds them, so the previous frame
+  // is kept purely to animate the hand-off — and `stepped` is what stops that
+  // hand-off from being synthesised for a street the viewer scrubbed straight
+  // past. Worked out while rendering the frame that needs it rather than in an
+  // effect, which would paint the swept table once before the chips appeared
+  // to leave it.
+  //
+  // `stepped` is the *edge*; `motion` is whether that edge may move anything.
+  // They differ for exactly one reader: reduced motion steps forward normally
+  // and gets the flights with their travel removed rather than deleted.
   const [seen, setSeen] = useState<ReplayFrame | null>(null);
-  const [sweep, setSweep] = useState<{ atIndex: number; chips: SweepChip[] } | null>(null);
+  const [arrived, setArrived] = useState<{ stepped: boolean; sweep: SweepChip[] }>({
+    stepped: false,
+    sweep: [],
+  });
 
+  let arrival = arrived;
   if (seen !== frame) {
     const prior = seen;
+    const stepped = prior !== null && frame.index === prior.index + 1;
+    const chips =
+      stepped && frame.kind === "collect" && frame.pot > prior.pot
+        ? place(prior.seats, shape)
+            .filter((entry) => entry.seat.bet > 0)
+            .map((entry) => ({
+              key: `${frame.index}-${entry.seat.seatNo}`,
+              slot: entry.slot,
+              amount: entry.seat.bet,
+              amountBb: entry.seat.betBb,
+            }))
+        : [];
+    arrival = { stepped, sweep: chips };
     setSeen(frame);
-    const steppedForward = prior !== null && frame.index === prior.index + 1;
-    if (steppedForward && frame.kind === "collect" && frame.pot > prior.pot) {
-      const chips = place(prior.seats, shape)
-        .filter((entry) => entry.seat.bet > 0)
-        .map((entry) => ({
-          key: `${frame.index}-${entry.seat.seatNo}`,
-          slot: entry.slot,
-          amount: entry.seat.bet,
-          amountBb: entry.seat.betBb,
-        }));
-      setSweep(chips.length > 0 ? { atIndex: frame.index, chips } : null);
-    } else if (sweep !== null && sweep.atIndex !== frame.index) {
-      setSweep(null);
-    }
+    setArrived(arrival);
   }
 
   const boardCards = Array.from({ length: 5 }, (_, index) => frame.board[index] ?? null);
@@ -217,8 +308,11 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
 
         <div className="rp__center">
           {/* One pill per pile in the middle: a single "Pot" most of the time,
-              "Main" above "Side" once an all-in has capped somebody. */}
-          <div className="rp__pots">
+              "Main" above "Side" once an all-in has capped somebody. Every pile
+              is its own labelled pill — Tier 0, because the split is the single
+              most consequential thing on the felt once somebody is capped. */}
+          <div className="rp__pots" ref={potsRef} role="group" aria-label="Pot">
+
             {frame.pots.map((pot, index) => (
               <div
                 key={pot.name}
@@ -239,7 +333,7 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
           </div>
 
           <div className={`rp__boards ${hasSecondBoard ? "rp__boards--twin" : ""}`.trim()}>
-            <div className="rp__board">
+            <div className="rp__board" role="group" aria-label="Board">
               {boardRows.map((row, rowIndex) => (
                 <div className="rp__board-row" key={`b1-row-${rowIndex}`}>
                   {row.map((code, index) =>
@@ -249,6 +343,8 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
                         code={code}
                         size="xl"
                         dealIndex={index}
+                        dealX={boardAim.x}
+                        dealY={boardAim.y}
                       />
                     ) : (
                       <span
@@ -262,11 +358,18 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
               ))}
             </div>
             {hasSecondBoard ? (
-              <div className="rp__board rp__board--second">
+              <div className="rp__board rp__board--second" role="group" aria-label="Second runout">
                 <div className="rp__board-row">
                   <span className="rp__board-tag">Run 2</span>
                   {frame.boardSecond.map((code, index) => (
-                    <PlayingCard key={`b2-${index}-${code}`} code={code} size="xl" dealIndex={index} />
+                    <PlayingCard
+                      key={`b2-${index}-${code}`}
+                      code={code}
+                      size="xl"
+                      dealIndex={index}
+                      dealX={boardAim.x}
+                      dealY={boardAim.y}
+                    />
                   ))}
                 </div>
               </div>
@@ -274,8 +377,15 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
           </div>
         </div>
 
-        {sweep?.chips.map((chip) => (
-          <div key={chip.key} className="rp__chips rp__chips--sweep" style={chipStyle(chip.slot)}>
+        {arrival.sweep.map((chip) => (
+          <TravellingChips
+            key={chip.key}
+            flight="to-pot"
+            anchorRef={potsRef}
+            positional={motion === "step"}
+            className="rp__chips rp__chips--sweep"
+            style={chipStyle(chip.slot)}
+          >
             <ChipStack
               amount={chip.amount}
               amountBb={chip.amountBb}
@@ -284,7 +394,7 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
               label={null}
               variant="sweep"
             />
-          </div>
+          </TravellingChips>
         ))}
 
         {placed.map(({ seat, slot }) =>
@@ -292,7 +402,7 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
             <div
               key={`bet-${seat.seatNo}`}
               className="rp__chips rp__chips--bet"
-              style={chipStyle(slot)}
+              style={{ ...chipStyle(slot), ...aimStyle("bet", aimFor(slot, ratio).bet) }}
             >
               <ChipStack
                 amount={seat.bet}
@@ -305,22 +415,25 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
           ) : null,
         )}
 
-        {award
+        {/* One pot at a time. `potAward` carries this pile's winners only, so
+            a side pot is its own beat rather than every winner's stack jumping
+            from dead centre at once — and the flight is only synthesised when
+            the viewer actually crossed into the award frame. */}
+        {award && arrival.stepped
           ? placed
               .filter(({ seat }) => (awardBySeat.get(seat.seatNo) ?? 0) > 0)
               .map(({ seat, slot }) => (
-                // Keyed on the frame too, so a second award frame restarts the
-                // slide instead of React reusing the finished one.
-                <div
+                // Keyed on the frame too, so a second award frame is a new
+                // element rather than React reusing the finished one.
+                <TravellingChips
                   key={`award-${frame.index}-${seat.seatNo}`}
+                  flight="from-pot"
+                  anchorRef={potsRef}
+                  positional={motion === "step"}
                   className="rp__chips rp__chips--award"
-                  style={
-                    {
-                      "--award-x": `${slot.cx * 100}%`,
-                      "--award-y": `${slot.cy * 100}%`,
-                      translate: chipTranslate(slot.chipAnchor),
-                    } as React.CSSProperties
-                  }
+                  // Laid out on the winner's own chip spot — where that seat's
+                  // bets went out from — and flown in from the middle.
+                  style={chipStyle(slot)}
                 >
                   <ChipStack
                     amount={awardBySeat.get(seat.seatNo) ?? 0}
@@ -329,7 +442,7 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
                     label={null}
                     variant="pot"
                   />
-                </div>
+                </TravellingChips>
               ))
           : null}
 
@@ -346,9 +459,17 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
             seat.hasCards || seat.folded ? Array.from({ length: holeCount }, () => null) : [];
           const cards = revealed ?? backs;
           const tone = actionTone(seat.lastAction);
+          const aim = aimFor(slot, ratio);
           return (
             <div
               key={`seat-${seat.seatNo}`}
+              // One group per seat, labelled with everything the plate, the
+              // badge, the button and the action pill say between them — which
+              // is why all four are `aria-hidden` below. Read as one sentence
+              // ("Seat 3, cutoff, Villain, 84 big blinds, folded") rather than
+              // as six loose fragments in slot order.
+              role="group"
+              aria-label={describeSeat(seat, mask.seat(seat.name))}
               className={[
                 "pseat",
                 seat.folded ? "pseat--folded" : "",
@@ -371,16 +492,24 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
                     dimmed={seat.folded}
                     highlighted={seat.winAmount > 0}
                     dealIndex={index}
+                    dealX={aim.deal.x}
+                    dealY={aim.deal.y}
                   />
                 ))}
               </div>
 
-              <div className="pseat__plate">
+              {/* Everything from here down is already in the group's label, so
+                  it is hidden from assistive tech rather than repeated four
+                  times in whatever order the slot table happened to paint. */}
+              <div className="pseat__plate" aria-hidden="true">
                 <span className="pseat__name">
-                  {seat.position ? <span className="pseat__pos">{seat.position}</span> : null}
+                  {seat.position ? (
+                    <span className="pseat__pos" title={spokenPosition(seat.position) ?? undefined}>
+                      {seat.position}
+                    </span>
+                  ) : null}
                   {/* Long screen names still have to ellipsis at nine seats on
-                      a phone, so the full one stays reachable on hover and to
-                      a screen reader. */}
+                      a phone, so the full one stays reachable on hover. */}
                   <span className="pseat__nick" title={mask.seat(seat.name)}>
                     {mask.seat(seat.name)}
                   </span>
@@ -395,20 +524,28 @@ export function ReplayTable({ hand, frame, shape, settings, mask, format }: Repl
               </div>
 
               {seat.isButton ? (
-                <span className="pseat__button" title="Dealer button">
+                <span className="pseat__button" title="Dealer button" aria-hidden="true">
                   D
                 </span>
               ) : null}
 
-              {seat.folded ? <span className="pseat__state">Folded</span> : null}
+              {seat.folded ? (
+                <span className="pseat__state" aria-hidden="true">
+                  Folded
+                </span>
+              ) : null}
 
               {/* The win label arrives pre-formatted in currency, so it is the
                   one action pill that has to be re-rendered to honour the
                   big-blind toggle. */}
               {seat.winAmount > 0 ? (
-                <span className="pseat__action pseat__action--win">+{format(seat.winAmount)}</span>
+                <span className="pseat__action pseat__action--win" aria-hidden="true">
+                  +{format(seat.winAmount)}
+                </span>
               ) : seat.lastAction ? (
-                <span className={`pseat__action pseat__action--${tone}`}>{seat.lastAction}</span>
+                <span className={`pseat__action pseat__action--${tone}`} aria-hidden="true">
+                  {seat.lastAction}
+                </span>
               ) : null}
             </div>
           );

@@ -42,6 +42,14 @@
 /* ------------------------------------------------------------------- root */
 
 .rp {
+  /* Minimum hit area for anything you press while scrubbing. 44 CSS px is the
+     WCAG 2.5.5 / platform HIG floor, and the transport is used with a thumb on
+     a phone more than with a mouse. It is unconditional rather than behind
+     `(pointer: coarse)`: a 608px replayer embedded in a page is a phone-shaped
+     target whatever is pointing at it, and a control that is big enough is
+     never the thing that made a layout fail. */
+  --rp-hit: 2.75rem;
+
   /* The box the replayer is given.
      A surface that knows its own height — a modal, a feed card, the harness —
      sets `--rp-block: 100%` and this whole file follows it. The default is for
@@ -77,11 +85,23 @@
   justify-content: space-between;
   gap: 0.75rem;
   min-inline-size: 0;
-  padding: 0.375rem 0.625rem;
+  /* The buttons set the row's height, so the block padding is what is left to
+     give back to the felt — which is the *other* half of #58's complaint. */
+  padding: 0.125rem 0.625rem;
   border-block-end: 1px solid var(--border-subtle);
   background: var(--surface-raised);
 }
 
+/* Three crumbs: where it was played, for how much, which game. Everything else
+   that is constant for the hand is in the info sheet, which is what the `ⓘ`
+   next to the gear opens.
+
+   `flex: none` on the items, and no `text-overflow` on them, is the fix for
+   #58 and is load-bearing. A shrinkable item with an ellipsis produces
+   `P... · '... · '... · '...` at 320px — four separators around four
+   unreadable stubs, which reads as a rendering bug rather than as a deliberate
+   omission. The strip is either legible or it is gone; below the `sm` tier it
+   is gone (see the drop ladder at the bottom of this file). */
 .rp__meta {
   display: flex;
   align-items: center;
@@ -95,9 +115,7 @@
 }
 
 .rp__meta > span {
-  min-inline-size: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex: none;
 }
 
 .rp__meta > span + span::before {
@@ -106,59 +124,68 @@
   color: var(--text-tertiary);
 }
 
+/* `margin-inline-start: auto` rather than `justify-content: space-between` on
+   the header: once the meta strip drops out at the narrow tier there is no
+   second item for `space-between` to push against, and the icons would slide
+   to the left edge. */
 .rp__header-actions {
   display: flex;
   gap: 0.25rem;
   align-items: center;
   flex: none;
+  margin-inline-start: auto;
 }
 
 .rp__header .btn--icon {
-  inline-size: 2rem;
-  padding-block: 0.3125rem;
+  min-inline-size: var(--rp-hit);
+  min-block-size: var(--rp-hit);
+  inline-size: var(--rp-hit);
+  padding-block: 0;
 }
 
-
-/* ------------------------------------------------- replayer settings gear */
-
-.rp__settings {
-  position: relative;
-  flex: none;
+/* The root is focusable so the key map has something to be scoped to; a
+   focusable thing that shows no focus is worse than one that is not focusable
+   at all. Inset, because the root clips. */
+.rp:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
 }
 
-/* Drops out of the header row into the stage row. `.rp` clips at its own box,
-   which the panel never reaches, and the stage is a stacking context with
-   `z-index: auto`, so a positioned menu still paints over it. */
-.rp__settings-panel {
+/* Available to every sheet in the replayer: text that exists only for a
+   screen reader, e.g. the reason a spoiler row is an em dash. */
+.rp-sr {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  inset-inline-end: 0;
-  z-index: var(--z-menu);
-  min-inline-size: 15rem;
-  padding: 0.5rem;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-4);
-  background: var(--surface-overlay);
-  box-shadow: var(--elevation-2);
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* --------------------------------------------------- replayer settings sheet */
+
+/* The gear used to open a bare `<div>` held open by a `mousedown` listener on
+   `document`: no focus trap, no focus return, and a background that was still
+   tabbable behind it. It is the shared `<Overlay>` now — a modal `<dialog>` —
+   so all three come from the platform and nothing is positioned here. */
+.rp__settings-list {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
-}
-
-.rp__settings-head {
-  padding: 0.25rem 0.5rem 0.5rem;
-  font-size: 0.6875rem;
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-  color: var(--text-tertiary);
-  font-weight: var(--font-weight-semibold);
+  padding: 0.5rem;
 }
 
 .rp__setting {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.625rem;
-  padding: 0.4375rem 0.5rem;
+  /* A whole-row hit target, and never less than a thumb tall. */
+  min-block-size: var(--rp-hit);
+  padding: 0.5rem;
   border-radius: var(--radius-2);
   cursor: pointer;
   font-size: 0.78125rem;
@@ -182,6 +209,7 @@
 .rp__setting-switch {
   position: relative;
   flex: none;
+  margin-block-start: 0.125rem;
   inline-size: 1.875rem;
   block-size: 1.0625rem;
   border-radius: var(--radius-pill);
@@ -222,7 +250,100 @@
 }
 
 .rp__setting-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
   line-height: var(--line-height-snug);
+}
+
+/* The hint used to be a `title`, which is unreachable by keyboard and by
+   touch, and which no screen reader reads reliably. It is text now, and it is
+   the `aria-describedby` target for the checkbox beside it. */
+.rp__setting-hint {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+}
+
+/* ---------------------------------------------- the Tier-2 sheets' contents */
+
+/* A definition list, used by the hand-info and keyboard sheets. */
+.rp__facts {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(6rem, auto) minmax(0, 1fr);
+  gap: 0.0625rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.rp__fact {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: baseline;
+  padding-block: 0.3125rem;
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.rp__fact:first-child {
+  border-block-start: 0;
+}
+
+.rp__fact dt {
+  color: var(--text-tertiary);
+}
+
+.rp__fact dd {
+  margin: 0;
+  min-inline-size: 0;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A value the replay has not reached yet. The em dash carries it on its own —
+   there is no tint, because "you cannot see this yet" must not be a colour. */
+.rp__fact-hidden,
+.rp__fact-none {
+  color: var(--text-tertiary);
+}
+
+.rp__fact-id {
+  font-family: var(--font-family-mono);
+  font-size: 0.6875rem;
+  overflow-wrap: anywhere;
+}
+
+.rp__fact-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.rp__fact-chip {
+  padding: 0.0625rem 0.4375rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-raised);
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+}
+
+.rp__keys dt {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.rp__key {
+  min-inline-size: 1.5rem;
+  padding: 0.0625rem 0.375rem;
+  border: 1px solid var(--border-default);
+  border-block-end-width: 2px;
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  font-family: var(--font-family-mono);
+  font-size: 0.6875rem;
+  color: var(--text-primary);
+  text-align: center;
 }
 
 /* ------------------------------------------------------------------ stage */
@@ -283,6 +404,15 @@
   --cloth-x: 6;
   --cloth-y: 10;
   --cloth-r: 46% / 50%;
+
+  /* How far a card slides out of the deck, and a bet slides off its seat.
+     Short: the point is to give the motion an origin, not to drive a chip
+     across the felt. Both are in `u`, so they scale with the box like
+     everything else, and the *direction* arrives from React as a unit vector
+     (`--deal-x` / `--deal-y`, `--bet-x` / `--bet-y`) because only the slot
+     table knows where a seat is. */
+  --deal-reach: calc(6 * var(--u));
+  --bet-reach: calc(4 * var(--u));
 
   position: absolute;
   inset: 0;
@@ -555,7 +685,8 @@
   line-height: var(--line-height-snug);
   transition:
     border-color var(--dur-3) var(--ease-standard),
-    box-shadow var(--dur-3) var(--ease-standard);
+    box-shadow var(--dur-3) var(--ease-standard),
+    opacity var(--dur-5) var(--ease-standard);
 }
 
 .pseat__name {
@@ -659,10 +790,19 @@
   color: var(--text-primary);
   white-space: nowrap;
   animation: chip-in var(--dur-4) var(--ease-out) backwards;
+  transition: opacity var(--dur-5) var(--ease-standard);
   max-inline-size: 170%;
   overflow: hidden;
   text-overflow: ellipsis;
   z-index: 2;
+}
+
+/* The all-in runout: `allInAt` plus the streets that follow it. Nobody is
+   acting any more and nothing in front of a seat can change, so the plates
+   step back and leave the board the only thing on the felt still moving. */
+.rp[data-allin="true"] .pseat__plate,
+.rp[data-allin="true"] .pseat__action {
+  opacity: 0.55;
 }
 
 /* Action colours back up the label text, they never replace it. */
@@ -755,46 +895,17 @@
     top var(--dur-6) var(--ease-standard);
 }
 
-/* Ghost stacks that travel from the bet ring into the middle when a street ends. */
-.rp__chips--sweep {
-  z-index: var(--z-motion);
-  pointer-events: none;
-  animation: chip-sweep var(--dur-6) var(--ease-in) forwards;
-}
+/* The two travelling stacks: the sweep from the bet ring into the middle at
+   the end of a street, and the pot going out to a winner.
 
-@keyframes chip-sweep {
-  to {
-    left: 50%;
-    top: 50%;
-    opacity: 0;
-  }
-}
-
-/* The pot travelling to the winner on the award frame. */
+   Both are laid out here on their *seat's* chip spot and flown by WAAPI from
+   `TravellingChips` — see that file for why the flight is not keyframes. The
+   only thing this end needs to say is that they are ghosts: above the felt,
+   and not in the way of anything. */
+.rp__chips--sweep,
 .rp__chips--award {
-  left: 50%;
-  top: 50%;
   z-index: var(--z-motion);
   pointer-events: none;
-  animation: pot-slide var(--dur-7) var(--ease-standard) forwards;
-}
-
-@keyframes pot-slide {
-  0% {
-    opacity: 0;
-  }
-
-  15% {
-    opacity: 1;
-  }
-
-  100% {
-    /* Lands on the winner's own chip spot, so the pot arrives where that
-       seat's bets went out from. */
-    left: var(--award-x);
-    top: var(--award-y);
-    opacity: 0;
-  }
 }
 
 .rp__felt .chip-stack {
@@ -816,66 +927,88 @@
   display: none;
 }
 
-/* ------------------------------------------------------------- the sheets */
+/* ------------------------------------------------- dealing and betting out */
 
-/* The action log and the showdown summary. Both are lists whose length the
-   hand decides, so neither may be in the layout flow: the log is a transcript,
-   not a control, and its list is the one scrollable region in the replayer. */
-.rp__sheet {
-  position: absolute;
-  inset: 0;
-  z-index: var(--z-overlay);
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  min-block-size: 0;
-  background: color-mix(in srgb, var(--surface-overlay) 93%, transparent);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-subtle);
-  animation: sheet-in var(--dur-5) var(--ease-out);
+/* Deal-in. Cards arrive from the deck — top-centre of the felt, just inside
+   the rail — instead of fading in from nowhere, which is the one thing a real
+   table never does. React hands each card a unit vector pointing at the deck
+   and the slide is a fixed distance along it, so a seat on the left flank
+   deals in from up and to the right and the board deals straight down.
+   Deliberately short: the flip is what reads as a card, the travel is only
+   what says where it came from. */
+.rp__felt .pcard {
+  animation: felt-deal-in var(--dur-4) var(--ease-spring) backwards;
 }
 
-@keyframes sheet-in {
+@keyframes felt-deal-in {
   from {
     opacity: 0;
+    transform:
+      translate(
+        calc(var(--deal-x, 0) * var(--deal-reach)),
+        calc(var(--deal-y, -1) * var(--deal-reach))
+      )
+      rotateY(70deg)
+      scale(0.92);
   }
 }
 
-.rp__sheet-head {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.375rem 0.375rem 0.75rem;
-  border-block-end: 1px solid var(--border-subtle);
+/* Bet-out: chips are pushed off the seat that owns them, which is the same
+   vector as the deal read the other way round. */
+.rp__felt .rp__chips--bet .chip-stack {
+  animation: felt-bet-out var(--dur-4) var(--ease-spring) backwards;
 }
 
-.rp__sheet-title {
-  font-size: 0.6875rem;
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-  color: var(--text-tertiary);
-  flex: none;
+@keyframes felt-bet-out {
+  from {
+    opacity: 0;
+    transform:
+      translate(
+        calc(var(--bet-x, 0) * var(--bet-reach)),
+        calc(var(--bet-y, 1) * var(--bet-reach))
+      )
+      scale(0.8);
+  }
 }
 
-.rp__sheet-note {
-  flex: 1;
-  min-inline-size: 0;
-  font-size: 0.6875rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* ------------------------------------------------------------- the sheets */
+
+/* Tier 2: hand info, settings, the action log, the result, the keyboard map.
+   All five are the shared `<Overlay>` — a modal `<dialog>` in the top layer,
+   which is what makes "never reflows the felt" structural rather than
+   careful: a top-layer element is outside the stage's size containment and
+   outside the root's `overflow: clip`, so it has no way to push on either.
+   The panel chrome is `styles/overlay.css`; what is below is placement inside
+   the anchor box, and the list contents. */
+
+/* Placement inside the anchor box. Below the `lg` tier every sheet simply
+   fills the stage, because there is no room to put one beside the felt and a
+   sheet that covers three-quarters of it is worse than one that covers it. */
+.rp[data-tier="lg"] .rp-ov--log .ov__panel {
+  /* Beside the felt, on the flank the transport's Log button is on. */
+  margin-inline-start: auto;
+  inline-size: min(22rem, 48%);
+}
+
+.rp[data-tier="lg"] .rp-ov--result .ov__panel {
+  /* Along the bottom, against the transport: the board and the winning seat
+     are what the reader is looking at, and they are above it. */
+  margin-block-start: auto;
+  block-size: fit-content;
+  max-block-size: min(70%, 17rem);
+}
+
+.rp[data-tier="lg"] .rp-ov--info .ov__panel,
+.rp[data-tier="lg"] .rp-ov--settings .ov__panel,
+.rp[data-tier="lg"] .rp-ov--keys .ov__panel {
+  margin: auto;
+  inline-size: min(26rem, 80%);
+  block-size: fit-content;
+  max-block-size: 100%;
 }
 
 .rp__sheet-fee {
   color: var(--text-tertiary);
-}
-
-.rp__sheet-head .btn--icon {
-  inline-size: 1.75rem;
-  padding-block: 0.25rem;
-  flex: none;
 }
 
 .rp__sheet-list {
@@ -996,43 +1129,27 @@
   border-color: var(--border-default);
 }
 
-/* A stage with room puts the sheets beside the felt instead of over it. */
-@container rpstage (min-width: 40rem) {
-  .rp__sheet--log {
-    inset-inline-start: auto;
-    inline-size: min(20rem, 45%);
-    border-start-start-radius: var(--radius-4);
-    border-end-start-radius: var(--radius-4);
-  }
+/* A result row with room lays its four cells out in one line. Keyed off
+   `data-tier` on the root and not off a container query, because the sheet is
+   a top-layer `<dialog>` parented on the root: it is not inside the stage's
+   container any more, and it is not inside its box either. */
+.rp[data-tier="lg"] .rp__result-row {
+  grid-template-columns: minmax(7rem, 14rem) auto minmax(0, 1fr) auto;
+}
 
-  .rp__sheet--result {
-    inset-block-start: auto;
-    block-size: fit-content;
-    max-block-size: min(58%, 15rem);
-    border-start-start-radius: var(--radius-4);
-    border-start-end-radius: var(--radius-4);
-  }
+.rp[data-tier="lg"] .rp__result-cards {
+  grid-area: auto;
+  justify-self: start;
+}
 
-  .rp__result-row {
-    grid-template-columns: minmax(7rem, 14rem) auto minmax(0, 1fr) auto;
-  }
-
-  .rp__result-cards {
-    grid-area: auto;
-    justify-self: start;
-  }
-
-  .rp__result-desc,
-  .rp__result-amount {
-    grid-area: auto;
-  }
+.rp[data-tier="lg"] .rp__result-desc,
+.rp[data-tier="lg"] .rp__result-amount {
+  grid-area: auto;
 }
 
 /* --------------------------------------------------------------- transport */
 
 .rp__transport {
-  container-type: inline-size;
-  container-name: rptransport;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -1041,33 +1158,58 @@
   background: var(--surface-raised);
 }
 
-.rp__scrub-wrap {
-  position: relative;
-  padding-block-start: 0.375rem;
+/* The live caption — Tier 1, and the replayer's only `aria-live` region.
+   It is here rather than in a panel for one reason: a live region inside
+   something that can be closed announces nothing when it is closed, and this
+   is the most-read text in the product.
+
+   One line with a tail ellipsis, which is a different thing from #58: a
+   sentence that runs out of room still reads as a sentence. `min-block-size`
+   keeps the row from collapsing between frames, so the felt below it never
+   jumps by a line. */
+.rp__caption {
+  margin: 0;
+  min-block-size: 1.25rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+.rp__scrub-wrap {
+  position: relative;
+  display: grid;
+}
+
+/* Street boundaries, drawn across the rail rather than in a marker strip above
+   it. The rail is a full-height target now, so a strip pinned to the top of
+   the wrapper would sit half a target away from the thumb it is marking. */
 .rp__ticks {
   position: absolute;
   inset-inline: 0.5rem;
-  top: 0;
-  block-size: 0.375rem;
+  inset-block: 0;
   pointer-events: none;
 }
 
 .rp__tick {
   position: absolute;
-  top: 0;
+  top: 50%;
   inline-size: 2px;
-  block-size: 0.375rem;
-  margin-inline-start: -1px;
+  block-size: 0.875rem;
+  translate: -1px -50%;
   border-radius: 1px;
   background: var(--border-strong);
 }
 
+/* The rail is a control you drag with a thumb, so its hit area is a full
+   target tall even though the track it paints is a few pixels. The thumb keeps
+   its natural size and centres in the box. */
 .rp__scrub {
   display: block;
   inline-size: 100%;
-  block-size: 1rem;
+  block-size: var(--rp-hit);
   padding: 0;
   margin: 0;
   border: 0;
@@ -1110,37 +1252,81 @@
   overflow: hidden;
 }
 
+/* Every control in the transport is at least `--rp-hit` square. The three
+   rules below only ever *raise* a size, so the visual weight of a chip is
+   unchanged and only its hit area grows. */
+.rp__transport .btn--icon,
+.rp__transport .btn--play,
+.rp__transport .chip-btn {
+  min-inline-size: var(--rp-hit);
+  min-block-size: var(--rp-hit);
+}
+
 .rp__transport .btn--icon {
-  inline-size: 2rem;
-  padding-block: 0.375rem;
+  inline-size: var(--rp-hit);
+  padding-block: 0;
   font-size: 0.75rem;
 }
 
 .rp__transport .btn--play {
-  inline-size: 2.5rem;
-  block-size: 2rem;
+  inline-size: var(--rp-hit);
+  block-size: var(--rp-hit);
   padding: 0;
   font-size: 0.8125rem;
 }
 
 .rp__transport .chip-btn {
-  padding: 0.1875rem 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3125rem;
+  padding: 0.1875rem 0.625rem;
   font-size: 0.6875rem;
 }
 
-/* The two things the transport can afford to lose, in the order it loses
-   them. A container query, not a media query, so an embedded replayer in a
-   560px box behaves like a phone without knowing it is not one. */
-@container rptransport (width < 40rem) {
-  .rp__speed {
-    display: none;
-  }
+/* ------------------------------------------------------------ drop ladder */
+
+/* Rungs 1, 2, 3 and 6 of #19's ladder. Keyed off `data-tier`, which
+   `ReplayViewer` derives from the replayer's own width — see `dropLadder.ts`
+   for why this is not a container query. Rung 7 is, because it measures the
+   felt rather than the chrome; it lives at the bottom of this file.
+
+   Rungs 2 and 3 fire below `lg`: the five speed chips become one button that
+   cycles, and the street names become their initials. Both are done in the
+   component, because swapping *which control exists* is not something a
+   stylesheet can do and rendering both and hiding one would put two controls
+   for the same job in the accessibility tree. */
+
+/* Rung 1: the option buttons keep their icon and their accessible name and
+   lose the visible word. */
+.rp:not([data-tier="lg"]) .rp__opt-label {
+  display: none;
 }
 
-@container rptransport (width < 21rem) {
-  .rp__streets {
-    display: none;
-  }
+/* Rung 6: the meta strip goes to the info sheet whole. Not ellipsised, not
+   clipped — gone, with `ⓘ` in the header as the way back to it. This is #58. */
+.rp[data-tier="sm"] .rp__meta {
+  display: none;
+}
+
+/* Below that the street chips go too: `1`-`5`, the ticks on the rail and the
+   board itself all still say which street it is, and five more targets is a
+   whole extra row of transport at 320px. */
+.rp[data-tier="sm"] .rp__streets {
+  display: none;
+}
+
+/* Seven controls at a 44px target do not fit across 320px, so rather than
+   letting flex-wrap break them wherever it runs out, the playback group takes
+   a row of its own and spreads across it. Two deliberate rows instead of one
+   row and an orphan. */
+.rp[data-tier="sm"] .rp__header {
+  padding-block: 0;
+}
+
+.rp[data-tier="sm"] .rp__playback {
+  flex: 1 0 100%;
+  justify-content: space-between;
 }
 
 /* ------------------------------------------------------------- seat tiers */
@@ -1176,25 +1362,44 @@
   }
 }
 
+/* ------------------------------------------------------------- motion gate */
+
+/* The one rule the whole "only a +1 step animates" contract is enforced by.
+   `data-motion` is `"step"` when the viewer advanced by exactly one frame and
+   `"none"` for everything else — a scrub, a jump, a reverse, a fresh mount, or
+   a reader who asked for reduced motion — and `"none"` renders the destination
+   with the felt inert.
+   One blanket rule rather than an opt-out per animated thing, because the
+   per-thing version is a list that something eventually falls off. It stops at
+   the felt: the transport's hover states and the sheets' entrance are not
+   frame motion and have no business being switched off by where the scrubber
+   happens to be.
+   Chips travel under WAAPI, which a stylesheet cannot reach and does not need
+   to — a flight is only ever created on a step, and `ReplayViewer` finishes
+   any still in the air when the viewer jumps. */
+.rp[data-motion="none"] .rp__fit *,
+.rp[data-motion="none"] .rp__fit *::before,
+.rp[data-motion="none"] .rp__fit *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
 /* --------------------------------------------------------- reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
-  .pcard,
-  .chip-stack,
-  .pseat__action,
-  .rp__sheet,
-  .pseat--acting .pseat__plate,
-  .pseat--winner .pseat__plate {
-    animation: none;
-  }
-
-  .rp__chips--bet {
-    transition: none;
-  }
-
-  /* Chip travel is decoration once the numbers are already on screen. */
-  .rp__chips--sweep,
-  .rp__chips--award {
-    display: none;
+  /* Reduced motion is `data-motion="none"` permanently, so it is the rule
+     above that does the work and this is the copy that holds before React has
+     mounted. What goes is *positional* motion only: the travelling chips still
+     render and still fade at the spot they belong to, because the sweep is how
+     a reader learns whose chips went in and a pot that is simply gone from the
+     middle never says who it went to. The felt also gets a ~100ms opacity
+     crossfade per frame and 1.2x longer holds, both from `ReplayViewer` —
+     something has to acknowledge the change once the motion that used to is
+     gone, and the numbers that replace it need time to be read. */
+  .rp .rp__fit *,
+  .rp .rp__fit *::before,
+  .rp .rp__fit *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
