@@ -49,25 +49,69 @@
 -- belong to is not possible. The owner authorised deleting them rather than
 -- leaving unreachable rows behind, which is also what lets `owner_id` be
 -- `not null` instead of a nullable column every query has to remember.
+--
+-- That deletion is gated on the pre-migration state (see section 1), so this
+-- file as a whole is idempotent: applying it to an already-migrated database
+-- changes nothing.
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
--- 1. Clear the ownerless rows
+-- 1. Clear the ownerless rows -- first run only
 -- ---------------------------------------------------------------------------
 --
--- !! DO NOT RE-RUN THIS FILE AS IT STANDS. !!
+-- These two deletes were correct exactly once, against the 914 hands and 15
+-- shares that predate accounts. Naked, they are a loaded gun: re-applying the
+-- file -- `supabase db reset`, a baseline re-run followed by replaying every
+-- later migration, or a hand-applied fix -- would wipe every real user library,
+-- silently and irreversibly. The old "DO NOT RE-RUN THIS FILE" comment was the
+-- only thing standing between that and production, and a comment is not a
+-- guard: psql does not read it.
 --
--- These two statements were correct exactly once, against 914 hands and 15
--- shares that predate accounts. Today they would delete real user libraries.
--- Everything below them is idempotent (`add column if not exists`,
--- `create or replace`), so if you ever need to re-apply the rest, delete these
--- two lines first.
+-- So the deletes are gated on the condition that made them correct, which is
+-- "ownership has not been introduced yet". The witness for that is section 2
+-- below: `public.hands.owner_id` does not exist until this file creates it.
+-- Hence the ordering -- the check has to run *before* the `add column`, and it
+-- asks whether the column is absent:
+--
+--   * First run:      no `owner_id` -> the pre-account rows are ownerless ->
+--                     delete them, then add the column. (The delete is also
+--                     what makes `add column ... not null` possible at all: a
+--                     `not null` column with no default cannot be added to a
+--                     table that still has rows.)
+--   * Every re-run:   `owner_id` exists -> every row already has an owner ->
+--                     the block is a no-op and the rest of the file, which is
+--                     idempotent throughout (`add column if not exists`,
+--                     `create or replace`, `create index if not exists`),
+--                     re-applies harmlessly.
+--
+-- The block sets no `search_path` of its own and the file sets none either, so
+-- both the catalog lookup and the deletes are schema-qualified rather than
+-- trusting whatever the session inherited.
+--
+-- `information_schema.columns` only reports columns on relations the current
+-- role has some privilege for. That is fine here and nowhere near the edge:
+-- migrations run as the schema owner. If this ever has to run as a role that
+-- merely has DELETE on the tables, switch the lookup to `pg_catalog.pg_attribute`
+-- (`attrelid = 'public.hands'::regclass and attname = 'owner_id' and not
+-- attisdropped`), which is not privilege-filtered.
 --
 -- Shares go first: those referencing a hand would cascade anyway, but the ones
 -- carrying an embedded PHF payload have no `hand_id` and would survive.
 
-delete from public.shares;
-delete from public.hands;
+do $gate$
+begin
+  if not exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name   = 'hands'
+      and column_name  = 'owner_id'
+  ) then
+    delete from public.shares;
+    delete from public.hands;
+  end if;
+end
+$gate$;
 
 -- ---------------------------------------------------------------------------
 -- 2. hands.owner_id

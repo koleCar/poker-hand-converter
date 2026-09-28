@@ -7,9 +7,19 @@
  * latency to the normal path.
  *
  * The `shares` table is sealed — RLS on, no anon policies, no grants — so the
- * only read path is the `resolve_share` RPC, same as the browser uses. That RPC
- * also increments the view counter, which means an unfurl counts as one view.
- * That is the price of the table having no readable surface; it is deliberate.
+ * only read path is the `read_share` RPC, same as the browser uses.
+ *
+ * `read_share` is the read half of the pair introduced by
+ * `20261003090000_share_projection.sql`; the counter lives in
+ * `record_share_view`, which this function deliberately never calls. That split
+ * is partly why it exists: the old combined `resolve_share` incremented `views`
+ * on every read, so a single Slack paste could register dozens of "views" from
+ * unfurl prefetches nobody ever looked at. A crawler is not a reader.
+ *
+ * `read_share` also returns an explicit projection rather than the `hands` row,
+ * so nothing that reaches this edge function can contain `source_text`,
+ * `owner_id` or `phf.meta.rawText` — worth knowing, because this function
+ * renders its input into HTML that is served to the public.
  *
  * Everything here degrades: if the database is unreachable or the slug does not
  * exist, it still returns a valid 200 HTML document with the generic product
@@ -26,11 +36,11 @@
 
 export const config = { runtime: "edge" };
 
-const FALLBACK_TITLE = "Shared poker hand | PokerConverter";
+const FALLBACK_TITLE = "Shared poker hand | Rail";
 const FALLBACK_DESCRIPTION =
-  "Replay a shared poker hand action by action, free and without an account, on PokerConverter.";
+  "Replay a shared poker hand action by action, free and without an account, on Rail.";
 
-/** The slice of `resolve_share`'s JSON this function reads. */
+/** The slice of `read_share`'s JSON this function reads. */
 interface ResolvedShareJson {
   title?: string | null;
   standardText?: string | null;
@@ -103,7 +113,7 @@ function describe(share: ResolvedShareJson | null): { title: string; description
   const title =
     share.title?.trim() ||
     ([stakes, label, pot ? `— ${pot} pot` : ""].filter(Boolean).join(" ").trim()
-      ? `${[stakes, label, pot ? `— ${pot} pot` : ""].filter(Boolean).join(" ").trim()} | PokerConverter`
+      ? `${[stakes, label, pot ? `— ${pot} pot` : ""].filter(Boolean).join(" ").trim()} | Rail`
       : FALLBACK_TITLE);
 
   const bits: string[] = [];
@@ -131,7 +141,7 @@ function describe(share: ResolvedShareJson | null): { title: string; description
   if (results?.wentToShowdown) {
     bits.push("shown down");
   }
-  bits.push("Replay it action by action on PokerConverter.");
+  bits.push("Replay it action by action on Rail.");
 
   return { title, description: bits.join(" · ") };
 }
@@ -144,7 +154,7 @@ async function fetchShare(slug: string): Promise<ResolvedShareJson | null> {
   }
 
   try {
-    const response = await fetch(`${baseUrl.replace(/\/$/, "")}/rest/v1/rpc/resolve_share`, {
+    const response = await fetch(`${baseUrl.replace(/\/$/, "")}/rest/v1/rpc/read_share`, {
       method: "POST",
       headers: {
         apikey: anonKey,
@@ -177,7 +187,7 @@ function page(opts: { title: string; description: string; url: string; image: st
 <meta name="description" content="${description}" />
 <link rel="canonical" href="${url}" />
 <meta property="og:type" content="article" />
-<meta property="og:site_name" content="PokerConverter" />
+<meta property="og:site_name" content="Rail" />
 <meta property="og:title" content="${title}" />
 <meta property="og:description" content="${description}" />
 <meta property="og:url" content="${url}" />

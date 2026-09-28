@@ -1,0 +1,104 @@
+# The gate. Before this existed the ~2600-test suite — which is the only thing
+# standing between a parser edit and silently corrupted hand histories in
+# somebody's tracker database — ran solely when a human remembered to run it.
+#
+# Everything here must be able to run with no secrets. The suite drives the real
+# fixture corpus off disk and the frontend builds into an offline converter when
+# Supabase is unconfigured, so nothing in CI needs to reach the network.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Corpus tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The fixture trees are marked binary in .gitattributes precisely so
+          # their CRLF / UTF-16LE / cp1252 bytes survive. Nothing here may
+          # normalise them, or the byte-exactness tests would assert against
+          # evidence CI itself rewrote.
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci
+        working-directory: backend
+
+      - name: Vitest over the real corpus
+        run: npm test
+        working-directory: backend
+
+  frontend:
+    name: Lint, typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+        working-directory: frontend
+
+      # Errors fail the build; the four known react-hooks / react-refresh
+      # warnings are deliberate and explained in eslint.config.js.
+      - run: npm run lint
+        working-directory: frontend
+
+      # The token layering from #11 is only worth anything if it is enforced:
+      # no primitive ramp (`--n-800`) and no raw hex outside `src/styles/tokens/`.
+      # `replayer.css` and `cards.css` are exempt from the hex rule on purpose —
+      # the felt, the cards and the chips are deliberately unthemed.
+      - name: Lint stylesheets
+        run: npm run lint:css
+        working-directory: frontend
+
+      - name: Typecheck
+        run: npx tsc -b
+        working-directory: frontend
+
+      # Catches anything tsc's project references miss — a bad asset import, a
+      # worker URL the bundler cannot resolve.
+      - name: Build
+        run: npm run build
+        working-directory: frontend
+
+  fixtures:
+    name: Fixture bytes unchanged
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # `git diff --check`-style guard for the one failure mode .gitattributes
+      # exists to prevent: a machine with core.autocrlf=input rewriting a CRLF
+      # fixture to LF on commit, which leaves the working tree looking correct
+      # while the stored blob is no longer the bytes the room actually wrote.
+      - name: Assert fixtures are byte-identical to HEAD
+        run: |
+          git config core.autocrlf false
+          git checkout -- .
+          if ! git diff --quiet -- fixtures gg-hh weplay-hh backend/test/fixtures; then
+            echo "::error::Fixture bytes changed on checkout — .gitattributes binary marking is not holding."
+            git diff --stat -- fixtures gg-hh weplay-hh backend/test/fixtures
+            exit 1
+          fi
+          echo "Fixture trees are intact."

@@ -136,19 +136,29 @@ export async function saveHands(
   return result;
 }
 
-/** Convenience wrapper for the single-hand case (the replayer's "save this hand"). */
+/**
+ * Convenience wrapper for the single-hand case (the replayer's "save this hand").
+ *
+ * Resolves the row `id` as well, because every caller of this needs it the
+ * moment the save lands — to link the hand for sharing, and to stop offering a
+ * save for something that is now in the library. `saveHands()` cannot report it
+ * (a batch insert that skips duplicates has no row per input), so this costs one
+ * extra read; `id` is null only when the row cannot be read back.
+ */
 export async function saveHand(
   hand: PhfHand,
   standardText?: string,
-): Promise<{ saved: boolean; duplicate: boolean; handKey: string }> {
+): Promise<{ saved: boolean; duplicate: boolean; handKey: string; id: string | null }> {
   const result = await saveHands([{ hand, standardText }]);
   if (result.errors.length > 0) {
     throw new Error(result.errors[0]);
   }
+  const handKey = handKeyOf(hand);
   return {
     saved: result.inserted > 0,
     duplicate: result.inserted === 0,
-    handKey: handKeyOf(hand),
+    handKey,
+    id: await findHandId(handKey),
   };
 }
 

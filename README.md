@@ -220,7 +220,7 @@ cd backend
 npm test
 ```
 
-**2595 tests across 23 files.** `backend/` is a test harness, not a runtime
+**2580 tests across 22 files.** `backend/` is a test harness, not a runtime
 backend — it exercises the frontend libraries directly against the real corpus.
 Nothing is asserted against a hand somebody made up.
 
@@ -384,20 +384,12 @@ cd frontend
 npx vercel deploy --prod
 ```
 
-### Legacy: Supabase Storage hosting
-
-Kept only as a manual fallback. The workflow
-(`.github/workflows/deploy-frontend-supabase-storage.yml`, bucket
-`frontend-site`) no longer runs on push — `workflow_dispatch` only. Needs the
-`SUPABASE_PROJECT_REF` and `SUPABASE_SERVICE_ROLE_KEY` secrets. The two storage
-migrations (`20260226123000`, `20260308091000`) exist to keep this path alive
-and are otherwise untouched.
-
-```bash
-SUPABASE_PROJECT_REF="<project-ref>" \
-SUPABASE_SERVICE_ROLE_KEY="<service-role-key>" \
-node scripts/deploy-frontend-to-supabase.mjs
-```
+Vercel is the only way the frontend ships. An older path served the built
+`dist/` out of a Supabase Storage bucket; it was deleted because SPA routes
+404'd there and it was the one place in the repo that handled a service-role
+key. The two migrations that created that bucket (`20260226123000`,
+`20260308091000`) are still applied and are now inert — leave them alone rather
+than writing a migration to undo history.
 
 ---
 

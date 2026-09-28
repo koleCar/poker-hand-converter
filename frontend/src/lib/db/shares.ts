@@ -16,11 +16,18 @@
  *    to a stranger's hand by guessing a uuid.
  *  * **Resolving** one needs nothing at all. Anyone holding the link can replay
  *    the hand, signed in or not, which is the whole point of a share.
+ *
+ * Resolving is two RPCs, not one, since
+ * `20261003090000_share_projection.sql`. `read_share` is `stable` and returns a
+ * hand-shaped projection — never the `hands` row, which carried `source_text`,
+ * `owner_id`, `hand_key` and `source_filename` to every stranger holding a
+ * slug. `record_share_view` is the counter and nothing else, so a read-only
+ * consumer (the Open Graph crawler function in `frontend/api/`) can exist
+ * without every Slack unfurl registering as a human view.
  */
 
 import type { PhfHand } from "../phf/types";
 import { requireUserId, rpc } from "./client";
-import { toHandRecord } from "./mapping";
 import type { CreateShareInput, ResolvedShare, ShareRef } from "./types";
 
 const SLUG_PATTERN = /^[23456789abcdefghjkmnpqrstuvwxyz]{8,16}$/;
@@ -62,24 +69,52 @@ export async function createShare(input: CreateShareInput): Promise<ShareRef> {
 }
 
 /**
+ * Counts one view of a share.
+ *
+ * Deliberately not exported from `lib/db`: it is a side effect of resolving,
+ * and a caller that can fire it on its own will eventually fire it twice for
+ * one page. `resolveShare()` below is the only caller.
+ *
+ * Never throws. The counter is decoration on a page whose job is to show a
+ * hand — the server already swallows its own rate-limit refusals for the same
+ * reason — so a failure here must not turn a readable share into an error
+ * state. The server's `p_slug` shape check makes an unknown slug a no-op.
+ */
+async function recordShareView(slug: string): Promise<void> {
+  try {
+    await rpc<boolean>("record_share_view", { p_slug: slug });
+  } catch {
+    // Intentionally silent; see above.
+  }
+}
+
+/**
  * Resolves a share slug and counts the view.
  *
  * Returns null for an unknown or malformed slug — the two are deliberately
- * indistinguishable, so probing tells an attacker nothing. One request returns
- * the share, the PHF document and the standard text.
+ * indistinguishable, so probing tells an attacker nothing.
+ *
+ * Two calls, and the order matters: the view is only recorded once the read has
+ * succeeded, so a slug that does not resolve never appears in the counters. The
+ * second call is fire-and-forget — the caller gets its hand as soon as
+ * `read_share` answers and never waits on a counter.
+ *
+ * The eventual goal is once per session (a `sessionStorage` guard keyed by
+ * slug), so a reload of a share page does not inflate the number. Until then
+ * this matches the old behaviour, which counted every resolve.
  */
 export async function resolveShare(slug: string): Promise<ResolvedShare | null> {
   if (!slug || !SLUG_PATTERN.test(slug)) {
     return null;
   }
 
-  const payload = await rpc<Record<string, unknown> | null>("resolve_share", { p_slug: slug });
+  const payload = await rpc<Record<string, unknown> | null>("read_share", { p_slug: slug });
   if (!payload) {
     return null;
   }
 
-  const handRow = payload.hand as Record<string, unknown> | null;
-  const hand = handRow ? toHandRecord(handRow) : null;
+  void recordShareView(slug);
+
   const standardText = (payload.standardText as string | null) ?? "";
 
   return {
@@ -88,11 +123,13 @@ export async function resolveShare(slug: string): Promise<ResolvedShare | null> 
     views: Number(payload.views ?? 0),
     createdAt: (payload.createdAt as string | null) ?? null,
     storedHandId: (payload.handId as string | null) ?? null,
+    // Already redacted server-side: `meta.rawText`, `meta.originalFilename`,
+    // `meta.warnings` and `meta.parsedAt` are gone. Nothing here should try to
+    // read them, and nothing should try to put them back.
     phf: (payload.phf as PhfHand | null) ?? null,
     standardText,
     // The share UI's `ResolvedShare` shape calls this `handText`.
     handText: standardText,
-    hand,
     preview: null,
   };
 }

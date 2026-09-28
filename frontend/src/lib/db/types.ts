@@ -142,13 +142,25 @@ export interface HandSummary {
   createdAt: string;
 }
 
-/** A stored hand with its payload. Returned by `getHand()`. */
+/**
+ * A stored hand with its payload. Returned by `getHand()`.
+ *
+ * The **owner's** view of their own hand, and only ever that: `getHand` is
+ * scoped to `auth.uid()` by RLS. Share resolution returns `ResolvedShare`
+ * instead, which is a much narrower projection — see the note there.
+ */
 export interface HandRecord extends HandSummary {
-  /** The canonical PHF v1 document. */
+  /** The canonical PHF v1 document, unredacted. */
   phf: PhfHand;
   /** GG-style standard text rendered at save time. Ready for the text exporters. */
   standardText: string;
-  /** The original site text this hand was converted from, when we kept it. */
+  /**
+   * The original site text this hand was converted from, when we kept it.
+   *
+   * Never populated from a share: a share recipient is a stranger, and the raw
+   * text carries every opponent's screen name plus whatever else the room
+   * printed. Only the owner's own `getHand()` fills this in.
+   */
   sourceText: string | null;
 }
 
@@ -394,23 +406,39 @@ export interface ShareRef {
   reused: false;
 }
 
-/** What `resolveShare()` returns. Null means "no such slug". */
+/**
+ * What `resolveShare()` returns. Null means "no such slug".
+ *
+ * This is the projection `read_share` hands to anyone holding the slug, so it
+ * is a published-to-strangers boundary, not an internal row shape. It has no
+ * `hand: HandRecord` — that field used to be the whole `hands` row, which is
+ * how `source_text`, `owner_id`, `hand_key` and `source_filename` reached every
+ * share recipient. **Do not add a field here without asking whether a stranger
+ * with a link should have it**, and do not reach for `HandRecord` to type it:
+ * `HandRecord` is the owner's view of their own hand.
+ */
 export interface ResolvedShare {
   slug: string;
   title: string | null;
-  /** View counter *after* this resolve; every resolve counts as a view. */
+  /** View counter *before* this view; `recordShareView` runs separately. */
   views: number;
   createdAt: string | null;
-  /** Row id when the share points at a stored hand, null for an embedded payload. */
+  /**
+   * Row id when the share points at a stored hand, null for an embedded
+   * payload. Not a capability: `getHand()` is owner-scoped by RLS, so anyone
+   * but the owner gets null from it.
+   */
   storedHandId: string | null;
-  /** The canonical PHF document, from the stored hand or the embedded copy. */
+  /**
+   * The canonical PHF document, from the stored hand or the embedded copy,
+   * **redacted**: `meta.rawText`, `meta.originalFilename`, `meta.warnings` and
+   * `meta.parsedAt` are stripped server-side and are never present here.
+   */
   phf: PhfHand | null;
   /** GG-style standard text, ready for the replayer's text parser. */
   standardText: string;
   /** Alias of `standardText`, for the share UI's `ResolvedShare` shape. */
   handText: string;
-  /** Full stored row when the share points at one. */
-  hand: HandRecord | null;
   /** Always null here; the share UI builds its own preview from `phf`. */
   preview: null;
 }
