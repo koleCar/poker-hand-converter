@@ -1,4 +1,4 @@
-import type { ParsedHand } from "../../lib/handParser";
+import type { PhfHand } from "../../lib/phf/types";
 import type { AmountUnit } from "./tableMath";
 
 /**
@@ -82,18 +82,19 @@ function escapeRegExp(value: string): string {
 
 export const ANONYMOUS_TABLE_NAME = "Table";
 
-export function createNameMask(hand: ParsedHand, anonymous: boolean): NameMask {
+export function createNameMask(hand: PhfHand, anonymous: boolean): NameMask {
+  const tableName = hand.table.name;
   if (!anonymous) {
-    return { seat: (name) => name, text: IDENTITY_TEXT, tableName: hand.tableName };
+    return { seat: (name) => name, text: IDENTITY_TEXT, tableName };
   }
 
   const alias = new Map<string, string>();
   let counter = 0;
-  for (const seat of [...hand.seats].sort((a, b) => a.seatNo - b.seatNo)) {
-    alias.set(seat.name, seat.isHero ? "Hero" : `Player ${++counter}`);
+  for (const player of [...hand.players].sort((a, b) => a.seat - b.seat)) {
+    alias.set(player.name, player.isHero ? "Hero" : `Player ${++counter}`);
   }
-  if (hand.tableName) {
-    alias.set(hand.tableName, ANONYMOUS_TABLE_NAME);
+  if (tableName) {
+    alias.set(tableName, ANONYMOUS_TABLE_NAME);
   }
 
   const seatName = (name: string) => alias.get(name) ?? name;
@@ -107,6 +108,6 @@ export function createNameMask(hand: ParsedHand, anonymous: boolean): NameMask {
   return {
     seat: seatName,
     text: pattern ? (value) => value.replace(pattern, (match) => alias.get(match) ?? match) : IDENTITY_TEXT,
-    tableName: hand.tableName ? ANONYMOUS_TABLE_NAME : null,
+    tableName: tableName ? ANONYMOUS_TABLE_NAME : null,
   };
 }

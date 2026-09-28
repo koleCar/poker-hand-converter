@@ -68,7 +68,7 @@ export function ReplaySettingsMenu({ settings, onChange }: ReplaySettingsMenuPro
   }, [open]);
 
   return (
-    <div className="replay__settings" ref={wrapRef}>
+    <div className="rp__settings" ref={wrapRef}>
       <button
         type="button"
         className={`btn btn--icon ${open ? "is-active" : ""}`.trim()}
@@ -83,17 +83,17 @@ export function ReplaySettingsMenu({ settings, onChange }: ReplaySettingsMenuPro
       </button>
 
       {open ? (
-        <div className="replay__settings-panel" id={panelId} role="dialog" aria-label="Replayer settings">
-          <div className="replay__settings-head">Settings</div>
+        <div className="rp__settings-panel" id={panelId} role="dialog" aria-label="Replayer settings">
+          <div className="rp__settings-head">Settings</div>
           {TOGGLES.map((toggle) => (
-            <label key={toggle.key} className="replay__setting" title={toggle.hint}>
+            <label key={toggle.key} className="rp__setting" title={toggle.hint}>
               <input
                 type="checkbox"
                 checked={settings[toggle.key]}
                 onChange={(event) => onChange({ [toggle.key]: event.target.checked })}
               />
-              <span className="replay__setting-switch" aria-hidden="true" />
-              <span className="replay__setting-text">{toggle.label}</span>
+              <span className="rp__setting-switch" aria-hidden="true" />
+              <span className="rp__setting-text">{toggle.label}</span>
             </label>
           ))}
         </div>

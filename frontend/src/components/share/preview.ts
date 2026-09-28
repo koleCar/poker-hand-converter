@@ -1,5 +1,11 @@
-import { formatMoney } from "../../lib/format";
-import type { ParsedHand } from "../../lib/handParser";
+import {
+  formatAmount,
+  primaryBoard,
+  toDisplayNumber,
+  type Amount,
+  type PhfGame,
+  type PhfHand,
+} from "../../lib/phf/types";
 import type { SharePreview } from "./shareContract";
 
 const RANK_WORD: Record<string, string> = {
@@ -15,8 +21,9 @@ export function shortGameName(gameLabel: string): string {
   return gameLabel.replace(/\s*\([^)]*\)\s*$/, "").trim() || "Poker";
 }
 
-export function formatStakes(hand: Pick<ParsedHand, "currency" | "smallBlind" | "bigBlind">): string {
-  return `${formatMoney(hand.currency, hand.smallBlind)}/${formatMoney(hand.currency, hand.bigBlind)}`;
+export function formatStakes(hand: { game: Pick<PhfGame, "unit" | "smallBlind" | "bigBlind"> }): string {
+  const { unit, smallBlind, bigBlind } = hand.game;
+  return `${formatAmount(smallBlind, unit)}/${formatAmount(bigBlind, unit)}`;
 }
 
 export function formatPlayedAt(iso: string | null): string | null {
@@ -57,48 +64,64 @@ export function topWinnerOf(
  * Denormalised hand summary. Kept free of React so the same shape can be sent
  * to the backend and reused for OG meta without re-parsing the hand text.
  */
-export function buildSharePreview(hand: ParsedHand): SharePreview {
+export function buildSharePreview(hand: PhfHand): SharePreview {
+  const unit = hand.game.unit;
+  const display = (amount: Amount) => toDisplayNumber(amount, unit);
   const stakes = formatStakes(hand);
-  const game = shortGameName(hand.gameLabel);
-  const winners = hand.winners.map((winner) => ({ player: winner.player, amount: winner.amount }));
+  const game = shortGameName(hand.game.label);
+  const board = primaryBoard(hand);
+  const hero = hand.players.find((player) => player.isHero) ?? null;
+  // The contract is a wire shape read by the OG renderer, so it stays in
+  // display units; the arithmetic that produced them was integer.
+  const winners = hand.results.winners.map((winner) => ({
+    player: winner.player,
+    amount: display(winner.amount),
+  }));
   const topWinner = topWinnerOf(winners);
-  const pot = formatMoney(hand.currency, hand.totalPot);
+  const pot = formatAmount(hand.results.totalPot, unit, "minimal", true);
 
-  const title = `${stakes} ${game} — ${pot} pot | PokerConverter`;
+  const title = `${stakes} ${game} — ${pot} pot | Rail`;
 
-  const parts: string[] = [`${hand.seats.length}-handed`];
-  if (hand.board.length) {
-    parts.push(`board ${hand.board.join(" ")}`);
+  const parts: string[] = [`${hand.players.length}-handed`];
+  if (board.length) {
+    parts.push(`board ${board.join(" ")}`);
   } else {
     parts.push("no flop");
   }
   if (topWinner) {
-    parts.push(`${topWinner.player} wins ${formatMoney(hand.currency, topWinner.amount)}`);
+    parts.push(
+      `${topWinner.player} wins ${formatAmount(
+        Math.round(topWinner.amount * unit.minorUnits),
+        unit,
+        "minimal",
+        true,
+      )}`,
+    );
   }
   parts.push(
-    hand.wentToShowdown
+    hand.results.wentToShowdown
       ? "shown down"
-      : `decided on ${RANK_WORD[hand.streetReached] ?? hand.streetReached}`,
+      : `decided on ${RANK_WORD[hand.results.streetReached] ?? hand.results.streetReached}`,
   );
 
   return {
-    handId: hand.handId || null,
-    gameType: hand.gameType,
-    gameLabel: hand.gameLabel,
+    handId: hand.meta.handId || null,
+    gameType: hand.game.format === "cash" ? "cash" : "tournament",
+    gameLabel: hand.game.label,
     stakes,
-    currency: hand.currency,
-    bigBlind: hand.bigBlind,
-    tableName: hand.tableName,
+    currency: unit.symbol,
+    bigBlind: display(hand.game.bigBlind),
+    tableName: hand.table.name,
     playedAt: hand.playedAt,
-    playerCount: hand.seats.length,
-    board: hand.board,
+    playerCount: hand.players.length,
+    board,
     winners,
-    totalPot: hand.totalPot,
-    heroName: hand.heroName,
-    heroCards: hand.seats.find((seat) => seat.name === hand.heroName)?.cards ?? [],
-    streetReached: hand.streetReached,
-    wentToShowdown: hand.wentToShowdown,
+    totalPot: display(hand.results.totalPot),
+    heroName: hero?.name ?? null,
+    heroCards: hero?.holeCards ?? [],
+    streetReached: hand.results.streetReached,
+    wentToShowdown: hand.results.wentToShowdown,
     title,
-    description: `${parts.join(" · ")}. Replay it action by action, free, on PokerConverter.`,
+    description: `${parts.join(" · ")}. Replay it action by action, free, on Rail.`,
   };
 }

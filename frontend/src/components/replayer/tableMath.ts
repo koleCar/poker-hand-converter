@@ -1,5 +1,12 @@
-import type { ParsedHand } from "../../lib/handParser";
-import { formatMoney } from "../../lib/format";
+import type { ReplayFrame } from "../../lib/replay";
+import {
+  formatAmount,
+  toDisplayNumber,
+  type Amount,
+  type CurrencyUnit,
+  type DecimalStyle,
+  type PhfHand,
+} from "../../lib/phf/types";
 
 /** How stack, bet and pot numbers are rendered across the whole replayer. */
 export type AmountUnit = "chips" | "bb";
@@ -20,36 +27,55 @@ function formatBigBlinds(bb: number): string {
 /**
  * One formatter for stacks, bets and pots so switching the unit never leaves
  * half the table in currency.
+ *
+ * The money argument is in *display* units, which is what the replay frames
+ * carry, but it is rendered through PHF's `formatAmount` rather than the old
+ * `formatMoney`: that one printed `$1.2k` above a thousand, which silently
+ * hides the last two digits of a tournament stack, and it prefixed chip games
+ * with whatever string it was handed. Going back through the hand's own
+ * `CurrencyUnit` keeps chip games symbol-free and prints every digit.
  */
 export function createAmountFormatter(
-  unit: AmountUnit,
-  currency: string,
-  bigBlind: number,
+  display: AmountUnit,
+  unit: CurrencyUnit,
+  bigBlind: Amount,
+  /** The source's own decimal habit, so `$0.10` does not come back as `$0.1`. */
+  decimals: DecimalStyle = "minimal",
 ): AmountFormatter {
-  if (unit === "bb" && bigBlind > 0) {
-    return (money, bb) => formatBigBlinds(bb ?? money / bigBlind);
+  const bigBlindDisplay = toDisplayNumber(bigBlind, unit);
+  if (display === "bb" && bigBlindDisplay > 0) {
+    return (money, bb) => formatBigBlinds(bb ?? money / bigBlindDisplay);
   }
-  return (money) => formatMoney(currency, money);
+  // Frames are in display units; the rounding back to minor units is exact,
+  // because that is where the number came from.
+  return (money) => formatAmount(Math.round(money * unit.minorUnits), unit, decimals, true);
 }
 
 /**
  * The stack that actually matters preflop: hero against the deepest opponent,
- * or the second deepest stack at the table when there is no hero. Not part of
- * the frame contract, so it is computed here from the starting stacks.
+ * or the second deepest stack at the table when there is no hero.
+ *
+ * Returned in **minor units**, like every other `Amount`, so callers format it
+ * with `formatAmount` / `toBigBlinds` rather than re-deriving a float. Not part
+ * of the frame contract — it is a property of the hand, not of a moment in it —
+ * so it is computed here from the starting stacks. `ReplayViewer` renders it in
+ * the header strip; it is not a spoiler, because it is knowable before a card
+ * is dealt.
  */
-export function effectiveStack(hand: ParsedHand): number {
-  const stacks = hand.seats.map((seat) => seat.stack);
-  if (stacks.length < 2) {
-    return stacks[0] ?? 0;
+export function effectiveStack(hand: PhfHand): Amount {
+  const players = hand.players.filter((player) => !player.sittingOut);
+  const seated = players.length >= 2 ? players : hand.players;
+  if (seated.length < 2) {
+    return seated[0]?.startingStack ?? 0;
   }
-  const hero = hand.seats.find((seat) => seat.isHero);
+  const hero = seated.find((player) => player.isHero);
   if (hero) {
     const deepestOther = Math.max(
-      ...hand.seats.filter((seat) => seat !== hero).map((seat) => seat.stack),
+      ...seated.filter((player) => player !== hero).map((player) => player.startingStack),
     );
-    return Math.min(hero.stack, deepestOther);
+    return Math.min(hero.startingStack, deepestOther);
   }
-  const sorted = [...stacks].sort((a, b) => b - a);
+  const sorted = seated.map((player) => player.startingStack).sort((a, b) => b - a);
   return sorted[1];
 }
 
@@ -82,4 +108,21 @@ export function actionTone(label: string | null): ActionTone {
   if (text.includes("blind") || text.includes("ante") || text.includes("posts")) return "post";
   if (text.includes("show") || text.includes("muck")) return "show";
   return "neutral";
+}
+
+/**
+ * Whether the showdown sheet has anything in it yet.
+ *
+ * Lives here rather than beside the sheet so the viewer can ask before it
+ * decides to mount it — and so the sheet's module keeps exporting nothing but
+ * a component.
+ */
+export function hasShowdownResult(hand: PhfHand, frame: ReplayFrame): boolean {
+  if (frame.street !== "showdown") {
+    return false;
+  }
+  const showdown = hand.results.wentToShowdown;
+  return frame.seats.some((seat) =>
+    showdown ? seat.cards !== null || seat.winAmount > 0 : seat.winAmount > 0,
+  );
 }

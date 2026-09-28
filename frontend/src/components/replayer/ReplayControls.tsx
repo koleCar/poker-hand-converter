@@ -1,9 +1,20 @@
-import type { Street } from "../../lib/handParser";
+/**
+ * The transport.
+ *
+ * One fixed-height band at the bottom of the replayer: a scrubber with street
+ * ticks, then a single row of controls. It is a container of its own, and the
+ * two things it can afford to lose — the speed picker, then the street jumps —
+ * drop out on `@container` width rather than on a viewport media query, so an
+ * embedded replayer in a 560px box behaves like a phone without being told it
+ * is one.
+ */
+
+import type { Street } from "../../lib/phf/types";
 import type { ReplayFrame } from "../../lib/replay";
 
 const SPEEDS = [0.5, 1, 1.5, 2, 4];
 
-export const STREET_LABEL: Record<Street, string> = {
+const STREET_LABEL: Record<Street, string> = {
   preflop: "Preflop",
   flop: "Flop",
   turn: "Turn",
@@ -18,11 +29,15 @@ interface ReplayControlsProps {
   playing: boolean;
   speed: number;
   logOpen: boolean;
+  resultOpen: boolean;
+  /** The hand has reached a showdown, so the result sheet has something in it. */
+  resultReady: boolean;
   onSeek: (index: number) => void;
   onStep: (delta: number) => void;
   onTogglePlay: () => void;
   onSpeed: (speed: number) => void;
   onToggleLog: () => void;
+  onToggleResult: () => void;
 }
 
 export function ReplayControls({
@@ -32,43 +47,32 @@ export function ReplayControls({
   playing,
   speed,
   logOpen,
+  resultOpen,
+  resultReady,
   onSeek,
   onStep,
   onTogglePlay,
   onSpeed,
   onToggleLog,
+  onToggleResult,
 }: ReplayControlsProps) {
   const last = frames.length - 1;
 
   return (
-    <div className="replay__controls">
-      <div className="replay__streets" role="group" aria-label="Jump to street">
-        {anchors.map((anchor) => (
-          <button
-            key={anchor.street}
-            type="button"
-            className={`chip-btn ${frame.street === anchor.street ? "is-active" : ""}`}
-            aria-pressed={frame.street === anchor.street}
-            onClick={() => onSeek(anchor.index)}
-          >
-            {STREET_LABEL[anchor.street]}
-          </button>
-        ))}
-      </div>
-
-      <div className="replay__scrub-wrap">
+    <div className="rp__transport">
+      <div className="rp__scrub-wrap">
         {/* Street boundaries drawn on the rail so scrubbing is aimed, not blind. */}
-        <div className="replay__ticks" aria-hidden="true">
+        <div className="rp__ticks" aria-hidden="true">
           {anchors.map((anchor) => (
             <span
               key={anchor.street}
-              className="replay__tick"
+              className="rp__tick"
               style={{ left: `${last > 0 ? (anchor.index / last) * 100 : 0}%` }}
             />
           ))}
         </div>
         <input
-          className="replay__scrub"
+          className="rp__scrub"
           type="range"
           min={0}
           max={last}
@@ -79,8 +83,8 @@ export function ReplayControls({
         />
       </div>
 
-      <div className="replay__buttons">
-        <div className="replay__transport" role="group" aria-label="Playback">
+      <div className="rp__buttons">
+        <div className="rp__playback" role="group" aria-label="Playback">
           <button
             type="button"
             className="btn btn--icon"
@@ -131,7 +135,21 @@ export function ReplayControls({
           </button>
         </div>
 
-        <div className="replay__speed" role="group" aria-label="Playback speed">
+        <div className="rp__streets" role="group" aria-label="Jump to street">
+          {anchors.map((anchor) => (
+            <button
+              key={anchor.street}
+              type="button"
+              className={`chip-btn ${frame.street === anchor.street ? "is-active" : ""}`}
+              aria-pressed={frame.street === anchor.street}
+              onClick={() => onSeek(anchor.index)}
+            >
+              {STREET_LABEL[anchor.street]}
+            </button>
+          ))}
+        </div>
+
+        <div className="rp__speed" role="group" aria-label="Playback speed">
           {SPEEDS.map((value) => (
             <button
               key={value}
@@ -146,16 +164,26 @@ export function ReplayControls({
           ))}
         </div>
 
-        <div className="replay__opts">
-          {/* Unit and card visibility now live behind the gear in the header. */}
+        <div className="rp__opts">
+          {/* Unit and card visibility live behind the gear in the header. */}
+          {resultReady ? (
+            <button
+              type="button"
+              className={`chip-btn ${resultOpen ? "is-active" : ""}`}
+              aria-pressed={resultOpen}
+              onClick={onToggleResult}
+            >
+              Result
+            </button>
+          ) : null}
           <button
             type="button"
-            className={`chip-btn replay__log-toggle ${logOpen ? "is-active" : ""}`}
+            className={`chip-btn ${logOpen ? "is-active" : ""}`}
             aria-pressed={logOpen}
             aria-controls="replay-log"
             onClick={onToggleLog}
           >
-            Action log
+            Log
           </button>
         </div>
       </div>

@@ -4,8 +4,8 @@ import { resolveShare } from "../components/share/shareClient";
 import type { ResolveShareResult } from "../components/share/shareContract";
 import { BrandMark } from "../components/shell/BrandMark";
 import { ReplayViewer } from "../components/replayer/ReplayViewer";
-import { formatMoney } from "../lib/format";
-import { parseHand, type ParsedHand } from "../lib/handParser";
+import { parseHand } from "../lib/phf";
+import { formatAmount, primaryBoard, type PhfHand } from "../lib/phf/types";
 import { Link } from "./router";
 import { paths } from "./routes";
 import { useDocumentMeta } from "./useDocumentMeta";
@@ -16,7 +16,7 @@ interface SharedHandPageProps {
 
 type PageState =
   | { kind: "loading" }
-  | { kind: "ready"; hand: ParsedHand; createdAt: string | null; views: number }
+  | { kind: "ready"; hand: PhfHand; createdAt: string | null; views: number }
   | { kind: "unparseable" }
   | { kind: "not-found" }
   | { kind: "gone" }
@@ -72,21 +72,25 @@ export function SharedHandPage({ slug }: SharedHandPageProps) {
   const meta = useMemo(() => {
     if (!hand) {
       return {
-        title: "Shared poker hand | PokerConverter",
+        title: "Shared poker hand | Rail",
         description:
-          "Replay a shared poker hand action by action, free and without an account, on PokerConverter.",
+          "Replay a shared poker hand action by action, free and without an account, on Rail.",
       };
     }
+    const unit = hand.game.unit;
     const stakes = formatStakes(hand);
-    const game = shortGameName(hand.gameLabel);
-    const top = topWinnerOf(hand.winners);
+    const game = shortGameName(hand.game.label);
+    const board = primaryBoard(hand);
+    const top = topWinnerOf(
+      hand.results.winners.map((winner) => ({ player: winner.player, amount: winner.amount })),
+    );
     return {
-      title: `${stakes} ${game} — ${formatMoney(hand.currency, hand.totalPot)} pot | PokerConverter`,
+      title: `${stakes} ${game} — ${formatAmount(hand.results.totalPot, unit, "minimal", true)} pot | Rail`,
       description: [
-        `${hand.seats.length}-handed ${stakes} ${game}`,
-        hand.board.length ? `board ${hand.board.join(" ")}` : "no flop",
-        top ? `${top.player} wins ${formatMoney(hand.currency, top.amount)}` : null,
-        "Replay it action by action on PokerConverter.",
+        `${hand.players.length}-handed ${stakes} ${game}`,
+        board.length ? `board ${board.join(" ")}` : "no flop",
+        top ? `${top.player} wins ${formatAmount(top.amount, unit, "minimal", true)}` : null,
+        "Replay it action by action on Rail.",
       ]
         .filter(Boolean)
         .join(" · "),
@@ -135,7 +139,7 @@ export function SharedHandPage({ slug }: SharedHandPageProps) {
 
       <footer className="sharepage__footer">
         <p>
-          <strong>PokerConverter</strong> — convert hand histories from any poker room and replay
+          <strong>Rail</strong> — convert hand histories from any poker room and replay
           any hand in your browser.
         </p>
         <Link to={paths.converter()} className="btn btn--sm">
@@ -154,7 +158,7 @@ function SharedHandContent({
   views,
   slug,
 }: {
-  hand: ParsedHand;
+  hand: PhfHand;
   createdAt: string | null;
   views: number;
   slug: string;
@@ -166,7 +170,7 @@ function SharedHandContent({
       {/* The hand itself is the page — the heading stays for SEO and screen
           readers only, so the replay opens without spoilers above it. */}
       <h1 className="sharepage__sr-title">
-        {formatStakes(hand)} {shortGameName(hand.gameLabel)}
+        {formatStakes(hand)} {shortGameName(hand.game.label)}
       </h1>
 
       <section className="sharepage__replay">
@@ -251,7 +255,7 @@ function SharedHandProblem({ state }: { state: PageState }) {
           Replay your own hand
         </Link>
         <Link to={paths.converter()} className="btn btn--ghost">
-          Go to PokerConverter
+          Go to Rail
         </Link>
       </div>
     </section>

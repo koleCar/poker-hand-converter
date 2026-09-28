@@ -1,14 +1,42 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { ParsedHand } from "../../lib/handParser";
+/**
+ * The felt.
+ *
+ * Everything in here is placed off `seatLayout`'s slot table: a seat's anchor,
+ * which corner of the seat block lands on it, and where that seat's chips go
+ * are all designed numbers, not an angle plus a radius guessed per breakpoint.
+ * Positioning uses the independent `translate` property rather than
+ * `transform`, so the deal-in and pop animations — which own `transform` —
+ * can never knock a seat off its slot.
+ *
+ * Sizes are all `calc(N * var(--u))`, where `--u` is one percent of the felt
+ * box's shorter side. `--u` is declared on `.rp__felt` and *not* on
+ * `.rp__fit`: a container's own declarations resolve `cq*` units against its
+ * ancestor, so a `1cqmin` written on the box it is meant to measure would
+ * silently measure the stage instead.
+ */
+
+import { useMemo, useState } from "react";
+import { holeCardCount, toDisplayNumber, type PhfHand } from "../../lib/phf/types";
 import type { ReplayFrame, SeatFrameState } from "../../lib/replay";
 import { ChipStack } from "./ChipStack";
 import { PlayingCard } from "./PlayingCard";
 import type { NameMask, ReplaySettings } from "./replaySettings";
+import {
+  SHAPE_METRICS,
+  clampSeatCount,
+  seatSizeFor,
+  slotIndex,
+  slotsFor,
+  type SeatSlot,
+  type TableShape,
+} from "./seatLayout";
 import { actionTone, type AmountFormatter } from "./tableMath";
 
 interface ReplayTableProps {
-  hand: ParsedHand;
+  hand: PhfHand;
   frame: ReplayFrame;
+  /** Chosen by the viewer's ResizeObserver so the slots and CSS agree. */
+  shape: TableShape;
   /** Card visibility and naming preferences from the header gear. */
   settings: ReplaySettings;
   /** Neutral labels when anonymous mode is on; pass-through otherwise. */
@@ -17,231 +45,241 @@ interface ReplayTableProps {
   format: AmountFormatter;
 }
 
-interface Placement {
+interface Placed {
   seat: SeatFrameState;
-  /** Unit vector around the seat ring; CSS turns it into a left/top pair. */
-  cos: number;
-  sin: number;
-  side: "left" | "right" | "center";
-  row: "top" | "bottom" | "middle";
+  slot: SeatSlot;
 }
 
 /**
- * |sin| above which a seat counts as sitting at the top or the bottom of the
- * oval rather than on one of its flanks. It decides the seat's own nudge back
- * inside the felt and, with it, which way that seat's chips step away.
+ * How far each hole card slides over the one before it, as a share of a card.
+ *
+ * Face-down cards carry no information, so they need no legibility: a covered
+ * PLO6 hand is drawn as the same fixed-width block as a Hold'em one, which is
+ * the single thing that makes nine-handed Omaha fit at all. Only a hand that
+ * has actually been turned over opens out — and a seat that opens out pops, so
+ * the extra width lands over the felt rather than over its neighbour.
  */
-const ROW_SIN = 0.55;
-
-/**
- * Seats sit on an ellipse with the hero at the bottom. Only the angle is
- * decided here — the radii live in CSS so the ring can be reshaped per
- * breakpoint without re-rendering.
- */
-function placeSeats(seats: SeatFrameState[]): Placement[] {
-  const count = seats.length;
-  if (count === 0) {
-    return [];
-  }
-  const heroIndex = Math.max(
-    0,
-    seats.findIndex((seat) => seat.isHero),
-  );
-
-  return seats.map((seat, index) => {
-    const relative = (index - heroIndex + count) % count;
-    const angle = ((90 + relative * (360 / count)) * Math.PI) / 180;
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
-    return {
-      seat,
-      cos,
-      sin,
-      side: cos < -0.3 ? "left" : cos > 0.3 ? "right" : "center",
-      row: sin > ROW_SIN ? "bottom" : sin < -ROW_SIN ? "top" : "middle",
-    };
-  });
-}
-
-/**
- * On a phone the felt is portrait and the board fills most of its width, so
- * seats sitting near the horizontal midline collide with it. Pushing |sin|
- * towards 1 slides those seats up and down out of the board's band; the cosine
- * is recomputed from the circle so every seat stays exactly on the ellipse.
- * The stylesheet picks between the two rings at the phone breakpoint.
- */
-const NARROW_SIN_EXP = 0.55;
-
-/**
- * A seat at the very top, bottom or side of the ring lands on a sine or cosine
- * of 1e-16 rather than a clean zero, and which side of zero that lands on
- * decides which way its chips step. Anything this small is a straight angle.
- */
-const RING_EPSILON = 1e-6;
-
-function ringStyle(cos: number, sin: number): React.CSSProperties {
-  const sinN = Math.sign(sin) * Math.abs(sin) ** NARROW_SIN_EXP;
-  const cosN = Math.sign(cos) * Math.sqrt(Math.max(0, 1 - sinN * sinN));
-  // Which way this seat's chips step out of its own hand: in towards the
-  // middle of the felt, which is where the room is, unless the seat is across
-  // the top — an inward step there runs into the pot — or sitting dead centre
-  // at the bottom, where "inwards" means nothing. Those slide along the ring
-  // instead, and all of them the same way round, so that two seats sharing an
-  // end of the felt never aim their chips at the same gap.
-  const alongRing = sin < -ROW_SIN || Math.abs(cos) < RING_EPSILON;
+function fanSteps(holeCount: number): { down: number; up: number } {
+  const count = Math.max(2, holeCount);
   return {
-    "--cos-w": cos.toFixed(4),
-    "--sin-w": sin.toFixed(4),
-    "--cos-n": cosN.toFixed(4),
-    "--sin-n": sinN.toFixed(4),
-    "--bet-sx": String(-Math.sign(alongRing ? sin : cos)),
-    // Which end of the felt the seat belongs to. Only the phone layout, which
-    // stacks the chips above and below the board, has any use for it; a seat
-    // dead on the midline has no end of its own and is sent below, where the
-    // felt is emptier.
-    "--bet-sy": String(Math.abs(sin) < RING_EPSILON ? -1 : -Math.sign(sin)),
-  } as React.CSSProperties;
+    // Total width is card * 1.75 whatever the count.
+    down: 1 - 0.75 / (count - 1),
+    up: count <= 2 ? 0.12 : count <= 4 ? 0.3 : 0.46,
+  };
 }
 
-/**
- * `ROW_SIN` seen through the warp above: a seat is at an end of the phone's
- * ring once `|sin| ** NARROW_SIN_EXP` passes `ROW_SIN`. The phone layout cares
- * about the warped ring, because that is the one it draws.
- */
-const NARROW_ROW_SIN = ROW_SIN ** (1 / NARROW_SIN_EXP);
+/** Where a chip stack hangs relative to its designed spot. */
+function chipTranslate(anchor: SeatSlot["chipAnchor"]): string {
+  return `${(anchor - 1) * 50}% -50%`;
+}
 
-/**
- * The chip spot depends on which way the seat is nudged back inside the felt,
- * on how big its cards are and — on a phone — on whether its hand is level
- * with the board, none of which the vectors above carry.
- */
-function chipClass(sin: number, row: Placement["row"], isHero: boolean): string {
-  // "flat" is a seat dead on the midline, which four- and eight-handed tables
-  // have: its hand is level with the board rather than above or below it, so
-  // it wants the height of an end seat's stack and the sideways step of a
-  // middle one.
-  const narrowRow =
-    Math.abs(sin) < RING_EPSILON
-      ? "flat"
-      : Math.abs(sin) > NARROW_ROW_SIN
-        ? "end"
-        : "middle";
-  return [
-    "ptable__chips",
-    `ptable__chips--row-${row}`,
-    `ptable__chips--nrow-${narrowRow}`,
-    isHero ? "ptable__chips--hero" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+function slotStyle(slot: SeatSlot): React.CSSProperties {
+  return {
+    left: `${slot.x * 100}%`,
+    top: `${slot.y * 100}%`,
+    translate: `${-slot.ax * 100}% ${-slot.ay * 100}%`,
+  };
+}
+
+function chipStyle(slot: SeatSlot): React.CSSProperties {
+  return {
+    left: `${slot.cx * 100}%`,
+    top: `${slot.cy * 100}%`,
+    translate: chipTranslate(slot.chipAnchor),
+  };
 }
 
 interface SweepChip {
   key: string;
-  cos: number;
-  sin: number;
-  row: Placement["row"];
-  isHero: boolean;
+  slot: SeatSlot;
   amount: number;
   amountBb: number;
 }
 
-export function ReplayTable({ hand, frame, settings, mask, format }: ReplayTableProps) {
-  const placements = useMemo(() => placeSeats(frame.seats), [frame.seats]);
+/** Pairs every seat with the slot it belongs in, hero first. */
+function place(seats: SeatFrameState[], shape: TableShape): Placed[] {
+  const count = seats.length;
+  if (count === 0) {
+    return [];
+  }
+  const slots = slotsFor(shape, count);
+  const heroIndex = Math.max(
+    0,
+    seats.findIndex((seat) => seat.isHero),
+  );
+  // A table with more players than the tables cover cannot happen in any
+  // format we read; wrapping keeps it drawable rather than crashing.
+  return seats.map((seat, index) => ({
+    seat,
+    slot: slots[slotIndex(index, heroIndex, count) % slots.length],
+  }));
+}
+
+export function ReplayTable({ hand, frame, shape, settings, mask, format }: ReplayTableProps) {
+  const seatCount = clampSeatCount(frame.seats.length);
+  const placed = useMemo(() => place(frame.seats, shape), [frame.seats, shape]);
+  const metrics = SHAPE_METRICS[shape];
+  const [seatW, seatH] = seatSizeFor(shape, frame.seats.length);
+  // `holeCardCount` has existed in the PHF layer since the rewrite and has
+  // never been reachable from the UI; it is what tells the felt whether it is
+  // drawing two cards or six.
+  const holeCount = holeCardCount(hand.game.variant) ?? 2;
+  const fan = fanSteps(holeCount);
+
+  // `holeCards`, not `dealtCards`: the deal block only lists the cards the room
+  // printed up front (the hero's, in every format we read), while `holeCards`
+  // is everything the history ever revealed, including the summary. This map
+  // backs the "show known cards" toggle, whose whole job is to surface exactly
+  // that later knowledge early.
   const knownCards = useMemo(() => {
     const map = new Map<string, string[]>();
-    for (const seat of hand.seats) {
-      if (seat.cards.length > 0) {
-        map.set(seat.name, seat.cards);
+    for (const player of hand.players) {
+      if (player.holeCards.length > 0) {
+        map.set(player.name, player.holeCards);
       }
     }
     return map;
-  }, [hand.seats]);
+  }, [hand.players]);
 
+  const bigBlind = toDisplayNumber(hand.game.bigBlind, hand.game.unit);
   const hasSecondBoard = frame.boardSecond.length > 0;
-  const isAward = frame.kind === "award";
+  // Awards are paid one pot at a time, so the chips that fly out of the middle
+  // are this pot's share rather than the winner's running total.
+  const award = frame.kind === "award" ? frame.potAward : null;
+  const awardBySeat = useMemo(() => {
+    const map = new Map<number, number>();
+    for (const winner of award?.winners ?? []) {
+      map.set(winner.seatNo, (map.get(winner.seatNo) ?? 0) + winner.amount);
+    }
+    return map;
+  }, [award]);
 
   // Chips sweeping from the bet ring into the middle. The frame the bets
   // vanish on no longer carries them, so the previous frame is kept around
-  // purely to animate the hand-off.
-  const previous = useRef<ReplayFrame | null>(null);
+  // purely to animate the hand-off. Worked out while rendering the frame that
+  // needs it rather than in an effect, which would paint the swept table once
+  // before the chips appeared to leave it.
+  const [seen, setSeen] = useState<ReplayFrame | null>(null);
   const [sweep, setSweep] = useState<{ atIndex: number; chips: SweepChip[] } | null>(null);
 
-  useEffect(() => {
-    const prior = previous.current;
-    previous.current = frame;
+  if (seen !== frame) {
+    const prior = seen;
+    setSeen(frame);
     const steppedForward = prior !== null && frame.index === prior.index + 1;
     if (steppedForward && frame.kind === "collect" && frame.pot > prior.pot) {
-      const chips = placeSeats(prior.seats)
-        .filter((placement) => placement.seat.bet > 0)
-        .map((placement) => ({
-          key: `${frame.index}-${placement.seat.seatNo}`,
-          cos: placement.cos,
-          sin: placement.sin,
-          row: placement.row,
-          isHero: placement.seat.isHero,
-          amount: placement.seat.bet,
-          amountBb: placement.seat.betBb,
+      const chips = place(prior.seats, shape)
+        .filter((entry) => entry.seat.bet > 0)
+        .map((entry) => ({
+          key: `${frame.index}-${entry.seat.seatNo}`,
+          slot: entry.slot,
+          amount: entry.seat.bet,
+          amountBb: entry.seat.betBb,
         }));
       setSweep(chips.length > 0 ? { atIndex: frame.index, chips } : null);
-      return;
+    } else if (sweep !== null && sweep.atIndex !== frame.index) {
+      setSweep(null);
     }
-    setSweep((current) => (current && current.atIndex === frame.index ? current : null));
-  }, [frame]);
+  }
+
+  const boardCards = Array.from({ length: 5 }, (_, index) => frame.board[index] ?? null);
+  const boardRows =
+    metrics.boardRows === 2 ? [boardCards.slice(0, 3), boardCards.slice(3)] : [boardCards];
 
   return (
-    // The seat count drives sizing on phones: nine plates and a five-card
-    // board do not fit the same portrait oval that six do.
-    <div className="ptable" data-seats={frame.seats.length}>
-      <div className="ptable__felt">
-        <div className="ptable__rail" />
-        <div className="ptable__logo" aria-hidden="true">
+    // The letterbox. Its ratio is the shape's, its size comes from the stage
+    // above it, and it is itself a size container so the felt inside can
+    // measure it with `1cqmin`.
+    <div
+      className="rp__fit"
+      style={{ "--arw": metrics.arW, "--arh": metrics.arH } as React.CSSProperties}
+    >
+      <div
+        className="rp__felt"
+        data-seats={seatCount}
+        style={
+          {
+            "--seat-wu": seatW,
+            "--seat-hu": seatH,
+            "--card-u": metrics.boardCard,
+            "--pot-u": metrics.potH,
+            "--chip-wu": metrics.chipW,
+            "--chip-hu": metrics.chipH,
+            "--hole-count": holeCount,
+            "--fan-down": fan.down,
+            "--fan-up": fan.up,
+          } as React.CSSProperties
+        }
+      >
+        <div className="rp__cloth" aria-hidden="true" />
+        <div className="rp__logo" aria-hidden="true">
           {mask.tableName ?? "Hand Replayer"}
         </div>
 
-        <div className="ptable__center">
-          <div className="ptable__pot">
-            <span className="ptable__pot-label">Pot</span>
-            <span className="ptable__pot-value">{format(frame.pot, frame.potBb)}</span>
-            {frame.potWithBets > frame.pot ? (
-              <span className="ptable__pot-total">
-                {format(frame.potWithBets, frame.potWithBetsBb)} total
-              </span>
-            ) : null}
+        <div className="rp__center">
+          {/* One pill per pile in the middle: a single "Pot" most of the time,
+              "Main" above "Side" once an all-in has capped somebody. */}
+          <div className="rp__pots">
+            {frame.pots.map((pot, index) => (
+              <div
+                key={pot.name}
+                className={`rp__pot ${index > 0 ? "rp__pot--side" : ""}`.trim()}
+              >
+                <span className="rp__pot-label">{pot.name}</span>
+                <span className="rp__pot-value">{format(pot.amount, pot.amountBb)}</span>
+                {/* Outstanding bets belong to whichever pot they end up in,
+                    which is not decided until they are swept, so the running
+                    total sits on the last pile rather than split across them. */}
+                {index === frame.pots.length - 1 && frame.potWithBets > frame.pot ? (
+                  <span className="rp__pot-total">
+                    {format(frame.potWithBets, frame.potWithBetsBb)} total
+                  </span>
+                ) : null}
+              </div>
+            ))}
           </div>
 
-          <div className={`ptable__boards ${hasSecondBoard ? "ptable__boards--twin" : ""}`.trim()}>
-            <div className="ptable__board">
-              {Array.from({ length: 5 }, (_, index) => {
-                const code = frame.board[index] ?? null;
-                return code ? (
-                  <PlayingCard key={`b1-${index}-${code}`} code={code} size="xl" dealIndex={index} />
-                ) : (
-                  <span key={`b1-slot-${index}`} className="board-slot" aria-hidden="true" />
-                );
-              })}
+          <div className={`rp__boards ${hasSecondBoard ? "rp__boards--twin" : ""}`.trim()}>
+            <div className="rp__board">
+              {boardRows.map((row, rowIndex) => (
+                <div className="rp__board-row" key={`b1-row-${rowIndex}`}>
+                  {row.map((code, index) =>
+                    code ? (
+                      <PlayingCard
+                        key={`b1-${rowIndex}-${index}-${code}`}
+                        code={code}
+                        size="xl"
+                        dealIndex={index}
+                      />
+                    ) : (
+                      <span
+                        key={`b1-slot-${rowIndex}-${index}`}
+                        className="rp__board-slot"
+                        aria-hidden="true"
+                      />
+                    ),
+                  )}
+                </div>
+              ))}
             </div>
             {hasSecondBoard ? (
-              <div className="ptable__board ptable__board--second">
-                <span className="ptable__board-tag">Run 2</span>
-                {frame.boardSecond.map((code, index) => (
-                  <PlayingCard key={`b2-${index}-${code}`} code={code} size="lg" dealIndex={index} />
-                ))}
+              <div className="rp__board rp__board--second">
+                <div className="rp__board-row">
+                  <span className="rp__board-tag">Run 2</span>
+                  {frame.boardSecond.map((code, index) => (
+                    <PlayingCard key={`b2-${index}-${code}`} code={code} size="xl" dealIndex={index} />
+                  ))}
+                </div>
               </div>
             ) : null}
           </div>
         </div>
 
         {sweep?.chips.map((chip) => (
-          <div
-            key={chip.key}
-            className={`ptable__sweep ${chipClass(chip.sin, chip.row, chip.isHero)}`}
-            style={ringStyle(chip.cos, chip.sin)}
-          >
+          <div key={chip.key} className="rp__chips rp__chips--sweep" style={chipStyle(chip.slot)}>
             <ChipStack
               amount={chip.amount}
               amountBb={chip.amountBb}
-              bigBlind={hand.bigBlind}
+              bigBlind={bigBlind}
               format={format}
               label={null}
               variant="sweep"
@@ -249,17 +287,17 @@ export function ReplayTable({ hand, frame, settings, mask, format }: ReplayTable
           </div>
         ))}
 
-        {placements.map(({ seat, cos, sin, row }) =>
+        {placed.map(({ seat, slot }) =>
           seat.bet > 0 ? (
             <div
               key={`bet-${seat.seatNo}`}
-              className={`ptable__bet ${chipClass(sin, row, seat.isHero)}`}
-              style={ringStyle(cos, sin)}
+              className="rp__chips rp__chips--bet"
+              style={chipStyle(slot)}
             >
               <ChipStack
                 amount={seat.bet}
                 amountBb={seat.betBb}
-                bigBlind={hand.bigBlind}
+                bigBlind={bigBlind}
                 format={format}
                 variant="bet"
               />
@@ -267,18 +305,26 @@ export function ReplayTable({ hand, frame, settings, mask, format }: ReplayTable
           ) : null,
         )}
 
-        {isAward
-          ? placements
-              .filter(({ seat }) => seat.winAmount > 0)
-              .map(({ seat, cos, sin, row }) => (
+        {award
+          ? placed
+              .filter(({ seat }) => (awardBySeat.get(seat.seatNo) ?? 0) > 0)
+              .map(({ seat, slot }) => (
+                // Keyed on the frame too, so a second award frame restarts the
+                // slide instead of React reusing the finished one.
                 <div
-                  key={`award-${seat.seatNo}`}
-                  className={`ptable__award ${chipClass(sin, row, seat.isHero)}`}
-                  style={ringStyle(cos, sin)}
+                  key={`award-${frame.index}-${seat.seatNo}`}
+                  className="rp__chips rp__chips--award"
+                  style={
+                    {
+                      "--award-x": `${slot.cx * 100}%`,
+                      "--award-y": `${slot.cy * 100}%`,
+                      translate: chipTranslate(slot.chipAnchor),
+                    } as React.CSSProperties
+                  }
                 >
                   <ChipStack
-                    amount={seat.winAmount}
-                    bigBlind={hand.bigBlind}
+                    amount={awardBySeat.get(seat.seatNo) ?? 0}
+                    bigBlind={bigBlind}
                     format={format}
                     label={null}
                     variant="pot"
@@ -287,41 +333,41 @@ export function ReplayTable({ hand, frame, settings, mask, format }: ReplayTable
               ))
           : null}
 
-        {placements.map(({ seat, cos, sin, side, row }) => {
+        {placed.map(({ seat, slot }) => {
           const known =
             seat.cards ?? (settings.showKnownCards ? (knownCards.get(seat.name) ?? null) : null);
           // Hero's own cards can be put back face down to review the spot
           // blind; everyone else's visibility is the replay position's call.
           const revealed = seat.isHero && !settings.showHeroCards ? null : known;
-          // Folded players keep two greyed-out backs. An empty gap where the
-          // cards were reads as "not in this hand at all", which is wrong, and
-          // it leaves the FOLDED marker floating with nothing to sit on.
-          const cards = revealed ?? (seat.hasCards || seat.folded ? [null, null] : []);
+          // Folded players keep greyed-out backs. An empty gap where the cards
+          // were reads as "not in this hand at all", which is wrong, and it
+          // leaves the FOLDED marker floating with nothing to sit on.
+          const backs: Array<string | null> =
+            seat.hasCards || seat.folded ? Array.from({ length: holeCount }, () => null) : [];
+          const cards = revealed ?? backs;
           const tone = actionTone(seat.lastAction);
           return (
             <div
               key={`seat-${seat.seatNo}`}
               className={[
                 "pseat",
-                `pseat--${side}`,
-                `pseat--row-${row}`,
                 seat.folded ? "pseat--folded" : "",
                 seat.isActing ? "pseat--acting" : "",
                 seat.isHero ? "pseat--hero" : "",
                 seat.allIn ? "pseat--allin" : "",
                 seat.winAmount > 0 ? "pseat--winner" : "",
-                cards.length === 0 ? "pseat--nocards" : "",
+                revealed ? "pseat--shown" : "",
               ]
                 .filter(Boolean)
                 .join(" ")}
-              style={ringStyle(cos, sin)}
+              style={slotStyle(slot)}
             >
               <div className="pseat__cards">
                 {cards.map((code, index) => (
                   <PlayingCard
                     key={`${seat.seatNo}-${index}-${code ?? "back"}`}
                     code={code}
-                    size={seat.isHero ? "lg" : "md"}
+                    size="md"
                     dimmed={seat.folded}
                     highlighted={seat.winAmount > 0}
                     dealIndex={index}
@@ -354,15 +400,13 @@ export function ReplayTable({ hand, frame, settings, mask, format }: ReplayTable
                 </span>
               ) : null}
 
-              {seat.folded ? <span className="pseat__state pseat__state--fold">Folded</span> : null}
+              {seat.folded ? <span className="pseat__state">Folded</span> : null}
 
               {/* The win label arrives pre-formatted in currency, so it is the
                   one action pill that has to be re-rendered to honour the
                   big-blind toggle. */}
               {seat.winAmount > 0 ? (
-                <span className="pseat__action pseat__action--win">
-                  +{format(seat.winAmount)}
-                </span>
+                <span className="pseat__action pseat__action--win">+{format(seat.winAmount)}</span>
               ) : seat.lastAction ? (
                 <span className={`pseat__action pseat__action--${tone}`}>{seat.lastAction}</span>
               ) : null}

@@ -14,10 +14,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../lib/auth";
-import { getHand, isDatabaseConfigured, searchHands, type HandSummary } from "../lib/db";
-import { parseHand, toParsedHand, type ParsedHand } from "../lib/handParser";
-import { saveSingleHand } from "../lib/handStore";
-import { getParser } from "../lib/phf";
+import { getHand, isDatabaseConfigured, saveHand, searchHands, type HandSummary } from "../lib/db";
+import { getParser, parseHand, toStandardText } from "../lib/phf";
 import type { PhfHand } from "../lib/phf/types";
 import { PENDING_HAND_KEY, type PendingHand } from "./converter/handoff";
 import { HandFiltersBar } from "./HandFiltersBar";
@@ -78,12 +76,14 @@ function takePendingHand(): PendingHand | null {
 }
 
 type LoadedHand = {
-  hand: ParsedHand;
+  hand: PhfHand;
   /** Row id when the hand came from the library. */
   storedId: string | null;
   origin: "db" | "converter";
-  sourceFilename: string | null;
-  /** Parser the hand came from, so saving records the real room. */
+  /**
+   * Parser the hand came from, for the header label. Saving does not need it:
+   * the hand already records its own room, and it is what gets stored.
+   */
   siteId: string;
 };
 
@@ -162,7 +162,6 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
         hand,
         storedId: row.id,
         origin: "db",
-        sourceFilename: row.sourceFilename,
         siteId: row.site,
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -174,10 +173,9 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
   /** Loads a hand the converter parked for us on its way to this route. */
   const loadPhf = useCallback((hand: PhfHand) => {
     setLoaded({
-      hand: toParsedHand(hand),
+      hand,
       storedId: null,
       origin: "converter",
-      sourceFilename: hand.meta.originalFilename ?? null,
       siteId: hand.meta.siteId,
     });
     setNotice("From the converter — not saved to your library.");
@@ -216,10 +214,10 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
     }
     setSaving(true);
     try {
-      const result = await saveSingleHand(loaded.hand, {
-        source: loaded.siteId,
-        sourceFilename: loaded.sourceFilename,
-      });
+      // The canonical document goes to the database, not a re-parse of the text
+      // rendered from it: that round trip drops the original source text the
+      // hand carries and re-derives amounts through display floats.
+      const result = await saveHand(loaded.hand, toStandardText(loaded.hand));
       setLoaded({ ...loaded, storedId: result.id });
       setNotice(result.duplicate ? "Already in your library." : "Saved to your library.");
       onHandsSaved();
@@ -238,7 +236,7 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
         <section className="card card--flush">
           {notice ? <p className="notice notice--info">{notice}</p> : null}
           <ReplayViewer
-            key={loaded.hand.handKey}
+            key={loaded.hand.meta.handKey}
             hand={loaded.hand}
             site={siteLabel(loaded.siteId)}
             onClose={() => {
