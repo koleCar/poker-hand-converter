@@ -26,6 +26,16 @@ export interface SharePreview {
   heroCards: string[];
   streetReached: string;
   wentToShowdown: boolean;
+  /**
+   * Whether `title` and `description` are allowed to say how the hand ended.
+   *
+   * **False by default.** A link unfurl that reads "Villain wins $312" answers
+   * the question the post exists to ask before anyone has opened it — see #23.
+   * The winner-derived fields above (`winners`, `totalPot`) stay populated
+   * because they are what the share *page* renders once the replay reaches the
+   * award; this flag only governs the copy that travels outside the page.
+   */
+  spoilers: boolean;
   /** Ready-made copy for <title> / og:title. */
   title: string;
   /** Ready-made copy for og:description. */
@@ -52,6 +62,12 @@ export interface CreateShareRequest {
   phf?: unknown;
   /** Denormalised summary; supplies the human title stored with the share. */
   preview: SharePreview;
+  /**
+   * Stored on the share row and read back by the Open Graph renderer. Defaults
+   * to `preview.spoilers`, which defaults to false; a sharer who explicitly
+   * wants the result in the unfurl is the only way it gets set.
+   */
+  spoilers?: boolean;
 }
 
 export interface CreateShareResponse {
@@ -67,6 +83,8 @@ export interface ResolvedShare {
   slug: string;
   /** Human label stored with the share, when there is one. */
   title: string | null;
+  /** Whether this link's own copy may reveal the result. False unless stored true. */
+  spoilers: boolean;
   /** GG-style standard text, ready for `parseHand()`. */
   handText: string;
   /** The canonical `PhfHand` document, from the stored hand or the embedded copy. */

@@ -245,8 +245,9 @@ normalizes rather than preserves — WePlay rewrites `Weplay Hand #71764146` int
 
 | Field | Meaning |
 | --- | --- |
-| `variant` | `holdem` \| `omaha` \| `omaha5` \| `omaha6` \| `shortdeck` \| `stud` \| `razz` \| `draw` \| `other` |
+| `variant` | `holdem` \| `omaha` \| `omaha5` \| `omaha6` \| `shortdeck` \| `stud` \| `razz` \| `draw` \| `other`. Describes the **deal**, not the pot-award rule; `Omaha Hi/Lo` is `omaha` |
 | `limit` | `nl` \| `pl` \| `fl` |
+| `hiLo` | high-low split: half the pot goes to the lowest qualifying hand. A flag rather than a `Variant` member because it is orthogonal to the deal — `omaha` and Omaha Hi/Lo deal the same four cards onto the same board — and putting it in `Variant` would double the union, force every hi/lo twin into `holeCardCount`'s `switch` (a forgotten one returns `null`, which *disables* the cardinality check), and silently change what `variant = 'omaha'` matches in the database. **Not supported yet**: every hand with this set is refused with `unsupported-hi-lo` |
 | `format` | `cash` \| `tournament` \| `sng` \| `spin` |
 | `unit` | the `CurrencyUnit` for every `Amount` in the hand |
 | `smallBlind` / `bigBlind` | the blinds **actually in force**. For tournaments these come from what was posted, because level headers go stale; the header's own numbers stay on `tournament.levelSmallBlind` / `levelBigBlind` |
@@ -510,6 +511,7 @@ chip) is tolerated on every sum, because sources round their own arithmetic.
 | `invalid-card` | every card code parses |
 | `duplicate-card` | no card appears twice anywhere in the hand. Run-it-twice runouts share the streets they did not re-deal, so only re-dealt streets are counted |
 | `board-size` | each runout has 0, 3, 4 or 5 cards |
+| `hole-card-overflow` | no seat holds more cards than the variant deals (`holeCardCount`). Impossible in a correctly classified hand, so it means the variant is wrong or two hands were merged. Holding *fewer* is a partial reveal, which rooms really do, and is only a warning |
 | `turn-without-flop` / `river-without-turn` | streets are dealt in order |
 | `negative-stack` | no stack goes below zero at any point in the stream |
 | `chip-mismatch` | `Σ contributions + Σ house chips into the pot === results.totalPot` (§3.8) |
@@ -519,8 +521,8 @@ chip) is tolerated on every sum, because sources round their own arithmetic.
 
 ### Warnings
 
-`missing-button` · `button-not-seated` · `no-hero` · `hole-card-count` (count
-does not match the variant) · `board-street-mismatch` · `no-winner` ·
+`missing-button` · `button-not-seated` · `no-hero` · `hole-card-count` (a seat
+showed fewer cards than the variant deals — a partial reveal) · `board-street-mismatch` · `no-winner` ·
 `contribution-mismatch` / `winnings-mismatch` (the stream and the SUMMARY
 disagree) · `missing-blinds` · plus every `meta.warnings` entry the parser
 recorded, including `unknown-line`.
@@ -1148,7 +1150,8 @@ the original. Where Web Crypto is unavailable, `fingerprintSync` returns a
 stored rows.
 
 Reason codes currently emitted: `unknown-site`, `no-hands`, `split-failed`,
-`parser-error`, `unsupported-variant`, `tournament-unsupported`,
+`parser-error`, `unsupported-variant`, `unsupported-hi-lo`,
+`tournament-unsupported`,
 `tournament-in-cash-mode`, `bomb-pot`, `all-in-or-fold-table`, `bb-only-walk`,
 `short-allin-small-blind`, `short-allin-big-blind`, `short-allin-call`,
 `zero-stack-actor`, `ghost-ante`, `unseated-actor`, `no-seat-block`,

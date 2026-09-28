@@ -39,10 +39,28 @@ export const paths = {
   sharedHand: (slug: string) => `/h/${encodeURIComponent(slug)}`,
 };
 
+/**
+ * Canonical origin, for the paths that have to be absolute — a clipboard link,
+ * an `og:url`, a sitemap entry.
+ *
+ * In the browser the live origin is always right and is used directly, so a
+ * preview deploy copies preview links rather than production ones. The env var
+ * only covers the case where there is no browser: the Vercel edge function
+ * today, and every server render after the Next.js move.
+ *
+ * It is a variable rather than a literal because the product is on a free
+ * `*.vercel.app` host until `rail.poker` is registered, and moving should be a
+ * config change rather than a code change. The default keeps the current host
+ * working with nothing set.
+ */
+const SITE_URL = (
+  (import.meta.env.VITE_SITE_URL as string | undefined) ??
+  "https://poker-hand-converter.vercel.app"
+).replace(/\/+$/, "");
+
 /** Absolute URL for a share slug — what actually gets copied to the clipboard. */
 export function sharedHandUrl(slug: string): string {
-  const origin =
-    typeof window === "undefined" ? "https://poker-hand-converter.vercel.app" : window.location.origin;
+  const origin = typeof window === "undefined" ? SITE_URL : window.location.origin;
   return `${origin}${toHref(paths.sharedHand(slug))}`;
 }
 

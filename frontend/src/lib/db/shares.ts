@@ -63,6 +63,9 @@ export async function createShare(input: CreateShareInput): Promise<ShareRef> {
     p_phf: handId ? null : (input.phf ?? null),
     p_standard_text: handId ? null : standardText,
     p_title: input.title ?? null,
+    // Absent is the same as false server-side; sent explicitly so the wire call
+    // states the choice rather than relying on the column default.
+    p_spoilers: input.spoilers === true,
   });
 
   return { id: payload.id, slug: payload.slug, reused: false };
@@ -120,6 +123,10 @@ export async function resolveShare(slug: string): Promise<ResolvedShare | null> 
   return {
     slug: String(payload.slug),
     title: (payload.title as string | null) ?? null,
+    // Defaults closed. A payload from a database that predates the column, or a
+    // deployment where the migration has not landed, must not start leaking the
+    // result into unfurls because a key was missing.
+    spoilers: payload.spoilers === true,
     views: Number(payload.views ?? 0),
     createdAt: (payload.createdAt as string | null) ?? null,
     storedHandId: (payload.handId as string | null) ?? null,

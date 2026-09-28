@@ -20,6 +20,8 @@ import {
   formatAmount,
   formatAmountDigits,
   assignPositions,
+  isHiLoLabel,
+  variantFromLabel,
   parseAmount,
   parseBuyInToken,
   resolvePositions,
@@ -45,7 +47,6 @@ import {
   type PhfWarning,
   type SeatOutcome,
   type Street,
-  type Variant,
 } from "./types";
 
 /** Bumped whenever the text grammar this file understands changes. */
@@ -173,20 +174,20 @@ function numberToRoman(value: number): string {
   return out;
 }
 
-function variantFromLabel(label: string): Variant {
-  if (/6\s*card\s*omaha|omaha\s*6/i.test(label)) return "omaha6";
-  if (/5\s*card\s*omaha|omaha\s*5/i.test(label)) return "omaha5";
-  if (/omaha|\bPLO\b/i.test(label)) return "omaha";
-  if (/short\s*deck|6\+/i.test(label)) return "shortdeck";
-  if (/\brazz\b/i.test(label)) return "razz";
-  if (/\bstud\b/i.test(label)) return "stud";
-  if (/\bdraw\b/i.test(label)) return "draw";
-  if (/hold\s*'?em/i.test(label)) return "holdem";
-  return "other";
-}
-
+/**
+ * There used to be a second, thinner `variantFromLabel` here. It read `PLO-5`
+ * as plain `omaha`, so a five-card hand the site parser called `omaha5` came
+ * back as `omaha` after a text round trip - a silent downgrade that nothing
+ * compared, because every PLO hand was refused upstream. The canonical reading
+ * now lives in `phf/types.ts` and both sides import it.
+ */
 function limitFromLabel(label: string): "nl" | "pl" | "fl" {
-  if (/pot\s*limit|\bPL\b/i.test(label)) return "pl";
+  // `PLO` / `PLO-5` / `PLO-6` carry the limit inside the game name and no
+  // separate limit token, so the plain `\bPL\b` test misses them; without this
+  // every GG PLO hand round-trips as no-limit. Kept in step with
+  // `limitFromLabel` in `parsers/shared/ps-gg-hand.ts`, which reads the same
+  // labels on the way in.
+  if (/pot\s*limit|\bPL\b|\bPLO-?\d?\b/i.test(label)) return "pl";
   if (/fixed\s*limit|\bLimit\b(?!\s*Hold)/i.test(label) && !/no\s*limit/i.test(label)) return "fl";
   return "nl";
 }
@@ -1151,6 +1152,7 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
     game: {
       variant: variantFromLabel(header.gameLabel),
       limit: limitFromLabel(header.gameLabel),
+      hiLo: isHiLoLabel(header.gameLabel),
       format: header.tournament ? "tournament" : "cash",
       unit,
       smallBlind,

@@ -24,7 +24,12 @@
  */
 
 import { extractCards } from "../cards";
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import { parseAmount, type PhfHand, type PhfWarning } from "../phf/types";
 import {
   BANNER_REGEX,
@@ -97,6 +102,14 @@ export const partypokerParser: SiteParser = {
         "no-header",
         "The partypoker stakes line is missing or unreadable, so the game is unknown.",
       );
+    }
+    // Hi/Lo is refused on its own terms, before the generic variant lock, so
+    // the reason stays true once that lock lifts. `PL Omaha Hi-Lo` is in the
+    // sample corpus and a split pot read as a whole one balances against
+    // itself; nothing downstream would ever notice.
+    const refusal = unsupportedGameSkip(game[7]);
+    if (refusal) {
+      throw refusal;
     }
     if (!/(?:texas\s+)?hold\s*'?em/i.test(game[7])) {
       throw new ParseSkip(

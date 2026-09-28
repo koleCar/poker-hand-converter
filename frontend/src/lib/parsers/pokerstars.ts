@@ -12,7 +12,12 @@
  */
 
 import { extractCards } from "../cards";
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   CHIPS,
   DEFAULT_TEXT_STYLE,
@@ -298,6 +303,14 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
     throw new ParseSkip("normalized-unparseable", "The hand has no PokerStars header line.");
   }
 
+  // Hi/Lo first, so the refusal keeps naming the real reason once the Hold'em
+  // lock lifts. `Omaha Hi/Lo Pot Limit` is plain `omaha` to `variantFromLabel`
+  // by design - the deal is identical - and a split pot read as a whole one
+  // balances against itself, so this is the only place it can be caught.
+  const hiLoRefusal = unsupportedGameSkip(header.game.label);
+  if (hiLoRefusal) {
+    throw hiLoRefusal;
+  }
   if (header.game.variant !== "holdem") {
     throw new ParseSkip(
       "unsupported-variant",

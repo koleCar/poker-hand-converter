@@ -11,13 +11,42 @@
  * A sixty-action log, a twenty-two character screen name or a nine-seat ring
  * therefore cannot make it taller. Everything inside is sized in container
  * query units off that box.
+ *
+ * ## Three modes
+ *
+ * `full` is the standalone page and is what everything below describes.
+ *
+ * `embed` is the same replayer in somebody else's layout — a forum post, a feed
+ * item. It gives up the header (its three crumbs are in the post above it) and
+ * every Tier-2 overlay (a modal `<dialog>` opened from inside a feed covers the
+ * whole page, which is not what a reader scrolling past asked for), keeps the
+ * felt and the transport, and takes its height from its slot instead of the
+ * viewport. Because the whole layout is already driven by container queries off
+ * the stage and by `data-tier` off the replayer's own width, that costs one CSS
+ * declaration: `--rp-block: 100%`.
+ *
+ * `card` is **not this component** — see `ReplayCard`. `ReplayViewer` dispatches
+ * to it rather than branching internally, because the very first thing this
+ * component does is `buildReplay(hand)`, and a hook cannot be skipped. A feed
+ * with twenty-five posts in it must not run twenty-five replays; making the
+ * card a separate module is what makes that structurally true rather than
+ * carefully maintained.
  */
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { type PhfHand } from "../../lib/phf/types";
 import { buildReplay, streetAnchors, type ReplayFrame } from "../../lib/replay";
 import { ActionLogSheet } from "./ActionLogSheet";
 import { HandInfoSheet } from "./HandInfoSheet";
+import { ReplayCard } from "./ReplayCard";
 import { ReplayControls } from "./ReplayControls";
 import { ReplaySettingsMenu } from "./ReplaySettingsMenu";
 import { ReplayTable } from "./ReplayTable";
@@ -27,6 +56,14 @@ import { ShowdownStrip } from "./ShowdownStrip";
 import { durationToken, easingToken } from "./motionTokens";
 import { tierFor, type ReplayTier } from "./dropLadder";
 import { gameLabel, stakesLabel } from "./handFacts";
+import {
+  encodePosition,
+  frameIndexForPosition,
+  positionOfFrame,
+  readPositionFromUrl,
+  writePositionToUrl,
+  type ReplayPosition,
+} from "./position";
 import { useFrameTransition, useReducedMotion } from "./useFrameTransition";
 import {
   createNameMask,
@@ -37,16 +74,71 @@ import {
 } from "./replaySettings";
 import { createAmountFormatter, firstAwardIndex, hasShowdownResult } from "./tableMath";
 
+export type ReplayMode = "full" | "embed" | "card";
+
+/**
+ * What an owner can do to a replayer it does not render the controls for.
+ *
+ * Everything is stated in `ReplayPosition`, never in frame indices: a forum
+ * comment that says "seek to a17" has to keep meaning the same moment after the
+ * next parser fix, and an index would not. See `position.ts`.
+ */
+export interface ReplayViewerHandle {
+  seek: (position: ReplayPosition) => void;
+  play: () => void;
+  pause: () => void;
+  position: () => ReplayPosition;
+}
+
 interface ReplayViewerProps {
   hand: PhfHand;
   /** Room the hand was played in; the header's first crumb when known. */
   site?: string | null;
   onClose?: () => void;
+  /** `card` mode only: what pressing the card does. Omit for a static preview. */
+  onOpen?: () => void;
   /** Rendered first in the header's icon row — the share button in practice. */
   headerExtra?: React.ReactNode;
+  /** See the module comment. Defaults to the standalone replayer. */
+  mode?: ReplayMode;
+  /** Where to open. Resolved lossy-tolerantly; see `frameIndexForPosition`. */
+  initialPosition?: ReplayPosition | null;
+  /** Seat the surrounding post is about. Ringed on the felt; picked on a card. */
+  focusSeat?: number | null;
+  /**
+   * Fires when the reader settles somewhere new — debounced, and never while
+   * autoplay is running. See `POSITION_DEBOUNCE`.
+   */
+  onPositionChange?: (position: ReplayPosition) => void;
+  /**
+   * Whether the replayer owns `?t=` in the address bar.
+   *
+   * Defaults to true in `full` mode, which is the standalone page: the URL is
+   * the page's own, so keeping it pointed at the moment on screen is what makes
+   * "copy the address" mean "copy this moment". False everywhere else, and
+   * unconditionally false for `embed` — a feed with three replayers in it would
+   * otherwise have three writers fighting over one query string.
+   */
+  urlSync?: boolean;
+  /** `card` mode only: reveal the pot. Off by default, per #23. */
+  spoilers?: boolean;
+  ref?: React.Ref<ReplayViewerHandle>;
 }
 
 const SPEED_KEY = "phc.replayer.speed";
+
+/**
+ * How long the reader has to stop moving before the position is published.
+ *
+ * Dragging the scrub rail fires a change per pixel and autoplay fires one per
+ * frame; either would turn `history.replaceState` into a hot loop and, for a
+ * forum embed, would fire `onPositionChange` at sixty hertz at whatever the
+ * host decided to do with it. Autoplay is excluded outright rather than merely
+ * debounced — an address bar that rewrites itself while you watch is not a
+ * feature, and where playback *stopped* is the only moment anyone wants to
+ * link to.
+ */
+const POSITION_DEBOUNCE = 250;
 
 /**
  * How much longer autoplay holds on the frame before an all-in runout.
@@ -211,7 +303,46 @@ function writeStored(key: string, value: string): void {
   }
 }
 
-export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerProps) {
+/**
+ * The mode switch, and the only thing in this file that is allowed to be a
+ * branch rather than a prop.
+ *
+ * It holds no hooks on purpose: `ReplayStage` builds the frames in its first
+ * one, so "card mode must not build frames" can only be true if card mode never
+ * reaches it. A feed should import `ReplayCard` directly and skip this shim —
+ * it is here so a caller that is switching between the three modes has one
+ * component to switch on.
+ */
+export function ReplayViewer(props: ReplayViewerProps) {
+  if (props.mode === "card") {
+    return (
+      <ReplayCard
+        hand={props.hand}
+        focusSeat={props.focusSeat}
+        spoilers={props.spoilers}
+        onOpen={props.onOpen}
+      />
+    );
+  }
+  return <ReplayStage {...props} />;
+}
+
+function ReplayStage({
+  hand,
+  site,
+  onClose,
+  headerExtra,
+  mode = "full",
+  initialPosition,
+  focusSeat = null,
+  onPositionChange,
+  urlSync,
+  ref,
+}: ReplayViewerProps) {
+  const embed = mode === "embed";
+  // `embed` never writes: see `ReplayViewerProps.urlSync`.
+  const addressable = !embed && (urlSync ?? mode === "full");
+
   const frames = useMemo(() => buildReplay(hand), [hand]);
   const anchors = useMemo(() => streetAnchors(frames), [frames]);
   // Street markers are already the chips above the scrubber and the board on
@@ -225,7 +356,13 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
   /** False until the first frame has been painted: a mount is not a change. */
   const settled = useRef(false);
 
-  const [index, setIndex] = useState(0);
+  // Opening position, resolved once. `initialPosition` wins over the URL so a
+  // server render (App Router, `searchParams`) and a client render cannot
+  // disagree about where the hand opens; the URL is only consulted when nobody
+  // told us, which is the standalone page reading its own address.
+  const [index, setIndex] = useState(() =>
+    frameIndexForPosition(frames, initialPosition ?? (addressable ? readPositionFromUrl() : null)),
+  );
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(() =>
     readStored(SPEED_KEY, (raw) => (Number.isFinite(Number(raw)) ? Number(raw) : null), 1),
@@ -292,12 +429,15 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
   const [wasReady, setWasReady] = useState(false);
   if (wasReady !== resultReady) {
     setWasReady(resultReady);
-    if (resultReady && !resultSheetSeen(hand.meta.handKey)) {
+    // Never in an embed: a sheet that presents itself unasked is a modal
+    // `<dialog>` over somebody else's page, opened by a replayer the reader may
+    // only have scrolled past.
+    if (!embed && resultReady && !resultSheetSeen(hand.meta.handKey)) {
       markResultSheetSeen(hand.meta.handKey);
       setResultOpen(true);
     }
   }
-  const showResult = resultReady && resultOpen;
+  const showResult = !embed && resultReady && resultOpen;
   // Only the *modal* sheets take the keyboard. The log is deliberately not one
   // of them: it is a transcript you read while stepping, so swallowing the
   // arrow keys would make the panel you opened to follow the hand the reason
@@ -341,6 +481,62 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
     setSpeed(next);
     writeStored(SPEED_KEY, String(next));
   }, []);
+
+  /* ------------------------------------------------------- position out - */
+
+  const position = useMemo(() => positionOfFrame(frame), [frame]);
+  const encoded = encodePosition(position);
+  /** The position the replayer opened at. A mount is not a change. */
+  const [openedAt] = useState(encoded);
+  const published = useRef<string | null>(null);
+
+  // Held in a ref so a host that passes a fresh arrow function every render —
+  // which is most of them — does not restart the debounce on every render.
+  const notify = useRef(onPositionChange);
+  useEffect(() => {
+    notify.current = onPositionChange;
+  });
+
+  useEffect(() => {
+    // Autoplay is excluded, not throttled: sixty `replaceState` calls on the
+    // way to the river is a hot loop, and the only moment worth linking to is
+    // the one playback stopped on. See `POSITION_DEBOUNCE`.
+    if (playing) {
+      return;
+    }
+    // Nothing has moved yet. Publishing here would put `?t=start` on the
+    // address of every page that happens to contain a replayer.
+    if (published.current === null && encoded === openedAt) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      published.current = encoded;
+      notify.current?.(position);
+      if (addressable) {
+        writePositionToUrl(position);
+      }
+    }, POSITION_DEBOUNCE);
+    return () => window.clearTimeout(timer);
+  }, [encoded, position, playing, addressable, openedAt]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      seek: (target: ReplayPosition) => seek(frameIndexForPosition(frames, target)),
+      // Same rule the play button follows: at the end, `play()` means "again".
+      // A host that calls it and sees nothing move has no way to tell that from
+      // a broken handle.
+      play: () => {
+        if (index >= last) {
+          setIndex(0);
+        }
+        setPlaying(true);
+      },
+      pause: () => setPlaying(false),
+      position: () => position,
+    }),
+    [frames, seek, position, index, last],
+  );
 
   /**
    * The scrub escape hatch.
@@ -492,17 +688,23 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
         case "H":
           changeSettings({ showHeroCards: !settings.showHeroCards });
           break;
+        // The three overlay keys are the Tier-2 sheets, which an embed does not
+        // have. Silently doing nothing is the right answer rather than opening
+        // a modal over the host page.
         case "l":
         case "L":
+          if (embed) break;
           event.preventDefault();
           setLogOpen(true);
           break;
         case "i":
         case "I":
+          if (embed) break;
           event.preventDefault();
           setInfoOpen(true);
           break;
         case "?":
+          if (embed) break;
           event.preventDefault();
           setKeysOpen(true);
           break;
@@ -510,7 +712,18 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
           break;
       }
     },
-    [anchors, modalOverlayOpen, logOpen, step, seek, togglePlay, changeSettings, settings, last],
+    [
+      anchors,
+      modalOverlayOpen,
+      logOpen,
+      step,
+      seek,
+      togglePlay,
+      changeSettings,
+      settings,
+      last,
+      embed,
+    ],
   );
 
   return (
@@ -521,6 +734,10 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
       // Which rungs of the drop ladder have fired. The stylesheet reads this
       // rather than deriving a second answer from a container query.
       data-tier={tier}
+      // `full` or `embed`. The stylesheet reads it for exactly one declaration
+      // — `--rp-block: 100%` — because everything else that would need to
+      // change is already a container query off the stage or off `data-tier`.
+      data-mode={mode}
       // One attribute the whole subtree's motion hangs off, so "does this
       // animate" is answered once, in one place, by one CSS rule.
       data-motion={motion}
@@ -530,7 +747,11 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
       tabIndex={0}
       role="group"
       aria-roledescription="poker hand replayer"
-      aria-label={`${gameLabel(hand)} ${stakesLabel(hand)} hand replayer. Press question mark for keyboard shortcuts.`}
+      aria-label={
+        embed
+          ? `${gameLabel(hand)} ${stakesLabel(hand)} hand replayer.`
+          : `${gameLabel(hand)} ${stakesLabel(hand)} hand replayer. Press question mark for keyboard shortcuts.`
+      }
       onKeyDown={onKeyDown}
     >
       {/*
@@ -542,46 +763,52 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
         The strip is dropped whole at the narrow tier rather than ellipsised
         per item — #58. Four separators around four two-character stubs reads
         as a rendering bug, not as a deliberate omission.
+
+        An embed drops the row entirely — not with `display: none`, which would
+        leave three buttons in the accessibility tree that open sheets the embed
+        does not render. The crumbs are in the post the embed is sitting in.
       */}
-      <div className="rp__header">
-        <div className="rp__meta">
-          {site ? <span>{site}</span> : null}
-          <span>{stakesLabel(hand)}</span>
-          <span>{gameLabel(hand)}</span>
-        </div>
-        <div className="rp__header-actions">
-          {headerExtra}
-          <button
-            type="button"
-            className={`btn btn--icon ${infoOpen ? "is-active" : ""}`.trim()}
-            onClick={() => setInfoOpen(true)}
-            aria-haspopup="dialog"
-            aria-expanded={infoOpen}
-            aria-label="Hand info"
-            title="Hand info (I)"
-          >
-            ⓘ
-          </button>
-          <ReplaySettingsMenu
-            settings={settings}
-            onChange={changeSettings}
-            anchor={stageRef}
-            open={settingsOpen}
-            onOpenChange={setSettingsOpen}
-          />
-          {onClose ? (
+      {embed ? null : (
+        <div className="rp__header">
+          <div className="rp__meta">
+            {site ? <span>{site}</span> : null}
+            <span>{stakesLabel(hand)}</span>
+            <span>{gameLabel(hand)}</span>
+          </div>
+          <div className="rp__header-actions">
+            {headerExtra}
             <button
               type="button"
-              className="btn btn--icon"
-              onClick={onClose}
-              aria-label="Close replayer"
-              title="Close"
+              className={`btn btn--icon ${infoOpen ? "is-active" : ""}`.trim()}
+              onClick={() => setInfoOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={infoOpen}
+              aria-label="Hand info"
+              title="Hand info (I)"
             >
-              ✕
+              ⓘ
             </button>
-          ) : null}
+            <ReplaySettingsMenu
+              settings={settings}
+              onChange={changeSettings}
+              anchor={stageRef}
+              open={settingsOpen}
+              onOpenChange={setSettingsOpen}
+            />
+            {onClose ? (
+              <button
+                type="button"
+                className="btn btn--icon"
+                onClick={onClose}
+                aria-label="Close replayer"
+                title="Close"
+              >
+                ✕
+              </button>
+            ) : null}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* The size container. Nothing below it can change its height. */}
       <div className="rp__stage" ref={stageRef}>
@@ -593,6 +820,7 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
           settings={settings}
           mask={mask}
           format={format}
+          focusSeat={focusSeat}
         />
       </div>
 
@@ -606,7 +834,9 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
         speed={speed}
         logOpen={logOpen}
         resultOpen={showResult}
-        resultReady={resultReady}
+        // An embed has no sheets, so it has nothing to offer a result button.
+        resultReady={!embed && resultReady}
+        compact={embed}
         onSeek={seek}
         onStep={step}
         onTogglePlay={togglePlay}
@@ -622,42 +852,51 @@ export function ReplayViewer({ hand, site, onClose, headerExtra }: ReplayViewerP
         children of the root rather than of the stage so that closing one
         cannot leave a stray box in the middle grid row, and they are anchored
         to the stage so they cover the felt and nothing else on the page.
+
+        None of them exist in an embed, and "not rendered" rather than "hidden"
+        is the point: a dialog anchored to a stage halfway down a feed is still
+        a top-layer element covering the reader's whole viewport. A replayer
+        inside somebody else's page does not get to take the page over.
       */}
-      <ShowdownStrip
-        hand={hand}
-        frame={frame}
-        awardAt={awardAt}
-        settings={settings}
-        mask={mask}
-        format={format}
-        open={showResult}
-        onClose={() => setResultOpen(false)}
-        anchor={stageRef}
-      />
+      {embed ? null : (
+        <>
+          <ShowdownStrip
+            hand={hand}
+            frame={frame}
+            awardAt={awardAt}
+            settings={settings}
+            mask={mask}
+            format={format}
+            open={showResult}
+            onClose={() => setResultOpen(false)}
+            anchor={stageRef}
+          />
 
-      <ActionLogSheet
-        frames={logFrames}
-        activeIndex={activeLogIndex}
-        mask={mask}
-        onSeek={seek}
-        open={logOpen}
-        onClose={() => setLogOpen(false)}
-        anchor={stageRef}
-      />
+          <ActionLogSheet
+            frames={logFrames}
+            activeIndex={activeLogIndex}
+            mask={mask}
+            onSeek={seek}
+            open={logOpen}
+            onClose={() => setLogOpen(false)}
+            anchor={stageRef}
+          />
 
-      <HandInfoSheet
-        hand={hand}
-        frame={frame}
-        awardAt={awardAt}
-        mask={mask}
-        format={format}
-        site={site}
-        open={infoOpen}
-        onClose={() => setInfoOpen(false)}
-        anchor={stageRef}
-      />
+          <HandInfoSheet
+            hand={hand}
+            frame={frame}
+            awardAt={awardAt}
+            mask={mask}
+            format={format}
+            site={site}
+            open={infoOpen}
+            onClose={() => setInfoOpen(false)}
+            anchor={stageRef}
+          />
 
-      <ShortcutSheet open={keysOpen} onClose={() => setKeysOpen(false)} anchor={stageRef} />
+          <ShortcutSheet open={keysOpen} onClose={() => setKeysOpen(false)} anchor={stageRef} />
+        </>
+      )}
     </div>
   );
 }

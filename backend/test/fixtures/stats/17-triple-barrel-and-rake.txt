@@ -1,0 +1,41 @@
+Poker Hand #ST17: Hold'em No Limit ($0.5/$1) - 2026/01/01 12:00:00
+Table 'Stats' 6-max Seat #1 is the button
+Seat 1: Btn ($100 in chips)
+Seat 2: Sb ($100 in chips)
+Seat 3: Bb ($100 in chips)
+Seat 4: Utg ($100 in chips)
+Seat 5: Hj ($100 in chips)
+Seat 6: Co ($100 in chips)
+Sb: posts small blind $0.5
+Bb: posts big blind $1
+*** HOLE CARDS ***
+Dealt to Co [Ah Qd]
+Utg: folds
+Hj: folds
+Co: raises $2 to $3
+Btn: folds
+Sb: folds
+Bb: calls $2
+*** FLOP *** [2c 7d 9h]
+Bb: checks
+Co: bets $4
+Bb: calls $4
+*** TURN *** [2c 7d 9h] [3s]
+Bb: checks
+Co: bets $10
+Bb: calls $10
+*** RIVER *** [2c 7d 9h 3s] [4c]
+Bb: checks
+Co: bets $20
+Bb: folds
+Uncalled bet ($20) returned to Co
+Co collected $32.14 from pot
+*** SUMMARY ***
+Total pot $34.5 | Rake $2 | Jackpot $0.36 | Bingo $0 | Fortune $0 | Tax $0
+Board [2c 7d 9h 3s 4c]
+Seat 1: Btn (button) folded before Flop (didn't bet)
+Seat 2: Sb (small blind) folded before Flop
+Seat 3: Bb (big blind) folded on the River
+Seat 4: Utg folded before Flop (didn't bet)
+Seat 5: Hj folded before Flop (didn't bet)
+Seat 6: Co collected ($32.14)

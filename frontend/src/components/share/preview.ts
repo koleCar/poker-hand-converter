@@ -60,11 +60,43 @@ export function topWinnerOf(
   return best;
 }
 
+export interface SharePreviewOptions {
+  /**
+   * Let the copy say how the hand ended. **Off by default, and that default is
+   * the feature** — see the note on `buildSharePreview`.
+   */
+  spoilers?: boolean;
+}
+
 /**
  * Denormalised hand summary. Kept free of React so the same shape can be sent
  * to the backend and reused for OG meta without re-parsing the hand text.
+ *
+ * ## The description does not give the hand away
+ *
+ * It used to end `… · Villain wins $312 · shown down`, which Slack, Discord,
+ * Twitter and iMessage then printed under the link. For a product whose core
+ * interaction is "what would you do here?", that is the answer key in the
+ * preview: the post is finished before anybody opens it. #23.
+ *
+ * The rule is the one `spoilersRevealed()` states for the replayer — *anything
+ * derived from `hand.results` is gated* — applied to the one surface that has
+ * no frame position to gate on. A link unfurl is permanently at frame zero, so
+ * the gate is this flag and it is closed unless the sharer opened it. What is
+ * left is everything knowable before a card is dealt, plus the board, which is
+ * the hand's subject rather than its outcome:
+ *
+ *     6-handed $0.25/$0.5 NL Hold'em · board Ah Kd 7c
+ *
+ * `winners` / `totalPot` stay on the returned shape either way. They are read
+ * by the share *page*, which has a replay to gate them against; the flag only
+ * governs `title` and `description`, which are the two fields that leave it.
  */
-export function buildSharePreview(hand: PhfHand): SharePreview {
+export function buildSharePreview(
+  hand: PhfHand,
+  options: SharePreviewOptions = {},
+): SharePreview {
+  const spoilers = options.spoilers === true;
   const unit = hand.game.unit;
   const display = (amount: Amount) => toDisplayNumber(amount, unit);
   const stakes = formatStakes(hand);
@@ -80,29 +112,32 @@ export function buildSharePreview(hand: PhfHand): SharePreview {
   const topWinner = topWinnerOf(winners);
   const pot = formatAmount(hand.results.totalPot, unit, "minimal", true);
 
-  const title = `${stakes} ${game} — ${pot} pot | Rail`;
+  // The pot is `hand.results.totalPot`, so the title is gated too: "$312 pot"
+  // in a headline tells a reader the hand got big, which is most of what the
+  // winner line told them. Seat count replaces it — knowable at the deal.
+  const title = spoilers
+    ? `${stakes} ${game} — ${pot} pot | Rail`
+    : `${stakes} ${game} — ${hand.players.length}-handed | Rail`;
 
-  const parts: string[] = [`${hand.players.length}-handed`];
-  if (board.length) {
-    parts.push(`board ${board.join(" ")}`);
-  } else {
-    parts.push("no flop");
-  }
-  if (topWinner) {
+  const parts: string[] = [`${hand.players.length}-handed ${stakes} ${game}`];
+  parts.push(board.length ? `board ${board.join(" ")}` : "no flop");
+  if (spoilers) {
+    if (topWinner) {
+      parts.push(
+        `${topWinner.player} wins ${formatAmount(
+          Math.round(topWinner.amount * unit.minorUnits),
+          unit,
+          "minimal",
+          true,
+        )}`,
+      );
+    }
     parts.push(
-      `${topWinner.player} wins ${formatAmount(
-        Math.round(topWinner.amount * unit.minorUnits),
-        unit,
-        "minimal",
-        true,
-      )}`,
+      hand.results.wentToShowdown
+        ? "shown down"
+        : `decided on ${RANK_WORD[hand.results.streetReached] ?? hand.results.streetReached}`,
     );
   }
-  parts.push(
-    hand.results.wentToShowdown
-      ? "shown down"
-      : `decided on ${RANK_WORD[hand.results.streetReached] ?? hand.results.streetReached}`,
-  );
 
   return {
     handId: hand.meta.handId || null,
@@ -121,6 +156,7 @@ export function buildSharePreview(hand: PhfHand): SharePreview {
     heroCards: hero?.holeCards ?? [],
     streetReached: hand.results.streetReached,
     wentToShowdown: hand.results.wentToShowdown,
+    spoilers,
     title,
     description: `${parts.join(" · ")}. Replay it action by action, free, on Rail.`,
   };

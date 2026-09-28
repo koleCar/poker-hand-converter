@@ -51,6 +51,15 @@ interface ReplayTableProps {
   mask: NameMask;
   /** Renders every chip amount in the unit the viewer picked. */
   format: AmountFormatter;
+  /**
+   * Seat the surrounding page is talking about — the one a forum post asks
+   * "what would you do?" about, which is very often not the hero.
+   *
+   * It only marks a seat; it changes nothing about what is shown, because the
+   * seat's cards are the replay position's call and a post must not be able to
+   * turn them face up early.
+   */
+  focusSeat?: number | null;
 }
 
 interface Placed {
@@ -187,6 +196,7 @@ export function ReplayTable({
   settings,
   mask,
   format,
+  focusSeat = null,
 }: ReplayTableProps) {
   const seatCount = clampSeatCount(frame.seats.length);
   const placed = useMemo(() => place(frame.seats, shape), [frame.seats, shape]);
@@ -475,6 +485,7 @@ export function ReplayTable({
                 seat.folded ? "pseat--folded" : "",
                 seat.isActing ? "pseat--acting" : "",
                 seat.isHero ? "pseat--hero" : "",
+                seat.seatNo === focusSeat ? "pseat--focus" : "",
                 seat.allIn ? "pseat--allin" : "",
                 seat.winAmount > 0 ? "pseat--winner" : "",
                 revealed ? "pseat--shown" : "",

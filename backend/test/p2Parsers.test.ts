@@ -41,6 +41,10 @@ const SITES = [
 const ALLOWED_REASONS = new Set([
   // Round one is Hold'em; the corpora are heavily Omaha.
   "unsupported-variant",
+  // Hi/Lo is refused on its own terms rather than as "not Hold'em", because it
+  // stays refused after the Hold'em lock lifts: nothing here splits a low half.
+  // `08-omaha-hilo-split-pot.txt`.
+  "unsupported-hi-lo",
   // The European 888 client writes `25 $/50 $` and `3 023,50 $`.
   "unsupported-locale",
   // Source text that stops before the hand is settled.

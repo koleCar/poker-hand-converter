@@ -103,6 +103,11 @@ export function isRedSuit(suit: Suit): boolean {
 /**
  * Canonical starting-hand class for two hole cards: "AA", "AKs", "AKo".
  * Returns null when the input is not exactly two valid cards.
+ *
+ * Hold'em and short deck only, deliberately: see `omahaHandClass` for the
+ * four-, five- and six-card form. Keeping them apart means the Hold'em class
+ * this has always produced - and that every stored row already holds - cannot
+ * change shape underneath a caller that only ever deals two cards.
  */
 export function handClass(cards: string[]): string | null {
   if (cards.length !== 2) {
@@ -118,6 +123,77 @@ export function handClass(cards: string[]): string | null {
     return `${high.rank}${low.rank}`;
   }
   return `${high.rank}${low.rank}${high.suit === low.suit ? "s" : "o"}`;
+}
+
+/**
+ * Canonical starting-hand class for a four-, five- or six-card Omaha hand.
+ *
+ * **What it is for.** `handClass` gives Hold'em a stats dimension: 1,326 dealt
+ * hands collapse into 169 classes, which is few enough to group by, filter on
+ * and show in a grid. Omaha needs the same dimension for the same reasons -
+ * "how do I do with aces double-suited", "is my rundown winrate real" - and
+ * without it every PLO statistic is either per-exact-hand (useless, nothing
+ * repeats) or nothing at all.
+ *
+ * **The shape.** Ranks, high to low, then `-`, then the suit structure:
+ *
+ *     AhKhQdJd -> "AKQJ-22"    two suits of two: double suited
+ *     AhKhQdJc -> "AKQJ-2"     one suit of two: single suited
+ *     AhKsQdJc -> "AKQJ-r"     rainbow
+ *     AhKhQhJc -> "AKQJ-3"     three of a suit, one dangler
+ *     AhKhQhJh -> "AKQJ-4"     monotone
+ *     AhAsKhKs -> "AAKK-22"    aces double suited
+ *     AhKhQdJdTc -> "AKQJT-22" five-card Omaha, same rules
+ *
+ * The suffix lists the size of every suit group holding two or more cards, in
+ * descending order; groups of one carry no information (the rest of the hand is
+ * whatever is left over) and are dropped, so a hand with no suited pair reads
+ * `-r` rather than `-1111`. Digits are used rather than the `ds`/`ss`/`r` the
+ * trackers print because those three names cannot say "three of a suit", and a
+ * three-flush in Omaha is a materially worse hand than a two-flush - one of the
+ * four cards is dead. A vocabulary that cannot express a real distinction would
+ * silently merge two populations, which is the same failure this project
+ * refuses hands to avoid. `-22` still *means* double-suited, and the doc block
+ * above is the translation table.
+ *
+ * **What it deliberately does not do.** It does not bucket hands into
+ * "rundown", "pair + wrap", "dangler" and so on. Those are judgements about
+ * rank *connectedness*, they are matters of degree (is `AKQ8` a rundown?), and
+ * every one of them is recoverable from the ranks this string preserves
+ * exactly. They belong to the stats layer, which can change its mind about
+ * where a boundary sits without invalidating a column already written to every
+ * stored hand. This function's job is the canonical identity; naming families
+ * of identities is a different job.
+ *
+ * Returns null unless given exactly 4, 5 or 6 valid, distinct cards. Two-card
+ * hands go to `handClass`, whose `AKs` / `AKo` form is unchanged and is what
+ * the `hands.hero_hand_class` column already holds for Hold'em.
+ */
+export function omahaHandClass(cards: string[]): string | null {
+  if (cards.length < 4 || cards.length > 6) {
+    return null;
+  }
+  const parsed = cards.map(parseCard);
+  if (parsed.some((card) => card === null)) {
+    return null;
+  }
+  const hand = parsed as Card[];
+  if (new Set(hand.map((card) => card.code)).size !== hand.length) {
+    return null;
+  }
+
+  const ranks = [...hand]
+    .sort((a, b) => rankValue(b.rank) - rankValue(a.rank))
+    .map((card) => card.rank)
+    .join("");
+
+  const bySuit = new Map<Suit, number>();
+  for (const card of hand) {
+    bySuit.set(card.suit, (bySuit.get(card.suit) ?? 0) + 1);
+  }
+  const groups = [...bySuit.values()].filter((size) => size > 1).sort((a, b) => b - a);
+
+  return `${ranks}-${groups.length === 0 ? "r" : groups.join("")}`;
 }
 
 /**

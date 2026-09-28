@@ -51,6 +51,15 @@ interface ReplayControlsProps {
   resultOpen: boolean;
   /** The hand has reached a showdown, so the result sheet has something in it. */
   resultReady: boolean;
+  /**
+   * One bar instead of two rows of chips: caption, rail, playback, and nothing
+   * else. This is `embed` mode, where the replayer is a block inside somebody
+   * else's page — the street chips duplicate the ticks on the rail, the speed
+   * chips are a preference nobody sets while scrolling a feed, and the option
+   * buttons open sheets an embed does not have. Everything dropped here is
+   * still reachable by keyboard, which is the drop ladder's own rule.
+   */
+  compact?: boolean;
   onSeek: (index: number) => void;
   onStep: (delta: number) => void;
   onTogglePlay: () => void;
@@ -70,6 +79,7 @@ export function ReplayControls({
   logOpen,
   resultOpen,
   resultReady,
+  compact = false,
   onSeek,
   onStep,
   onTogglePlay,
@@ -172,6 +182,7 @@ export function ReplayControls({
           </button>
         </div>
 
+        {compact ? null : (
         <div className="rp__streets" role="group" aria-label="Jump to street">
           {anchors.map((anchor, index) => (
             <button
@@ -189,9 +200,10 @@ export function ReplayControls({
             </button>
           ))}
         </div>
+        )}
 
         {/* Rung 2: five chips, or one button that cycles through the same five. */}
-        {speedIsCycled(tier) ? (
+        {compact ? null : speedIsCycled(tier) ? (
           <div className="rp__speed">
             <button
               type="button"
@@ -220,6 +232,7 @@ export function ReplayControls({
           </div>
         )}
 
+        {compact ? null : (
         <div className="rp__opts">
           {/* Unit and card visibility live behind the gear in the header. */}
           {resultReady ? (
@@ -250,6 +263,7 @@ export function ReplayControls({
             <span className="rp__opt-label">Log</span>
           </button>
         </div>
+        )}
       </div>
     </div>
   );

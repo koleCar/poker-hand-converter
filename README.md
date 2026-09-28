@@ -95,6 +95,13 @@ The GGPoker parser carries a `FOREIGN_BRANDING` guard that rejects WPT Global
 files even though they look close enough to try, because "close enough" is how
 you get wrong bet sizing. That rejection is the correct behaviour, not a gap.
 
+High-low split is the clearest case of all. An `Omaha Hi/Lo` hand read as plain
+Omaha *balances perfectly* - the summary states who collected what, so chip
+conservation, payout conservation and every other invariant in `validateHand`
+pass. There is no downstream check that would ever catch it, and half of every
+pot would be attributed to the wrong rule. So it is refused by name,
+`unsupported-hi-lo`, rather than left to look like a hand we understood.
+
 The corpus is the other half of the deal. A refusal is not a dead end — it is
 a work item with a reproduction attached. `unparsed_gaps` rolls the corpus up
 by site, stage and reason, ordered by how often each one is hit, and the top

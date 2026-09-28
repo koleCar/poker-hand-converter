@@ -163,16 +163,34 @@ export function validateHand(hand: PhfHand): ValidationReport {
     seen.set(use.card, use.where);
   }
 
+  // Hole-card cardinality, per variant. The two directions are not symmetric,
+  // so they do not get the same severity:
+  //
+  //  - **Too few** is normal. Rooms genuinely reveal part of a hand - the GG
+  //    corpus has a Hold'em seat showing a single `Ac` and a short-deck seat
+  //    showing a single `7s` - and a partial reveal is still true as far as it
+  //    goes. Warning.
+  //  - **Too many** is impossible. No seat can hold more cards than the deal
+  //    gives it, so the hand is either mis-classified (a PLO-5 hand read as
+  //    four-card Omaha, which is exactly what the two `variantFromLabel`
+  //    copies used to produce) or two hands have been merged. Either way the
+  //    cards on file are not the cards that were dealt, and everything derived
+  //    from them - hand class, equity, made-hand strength - would be wrong
+  //    without ever looking wrong. Error, so `convertAny` refuses it.
   const expectedHoleCards = holeCardCount(hand.game.variant);
   if (expectedHoleCards !== null) {
     for (const player of hand.players) {
-      if (player.holeCards.length > 0 && player.holeCards.length !== expectedHoleCards) {
-        warn(
-          "hole-card-count",
-          `${player.name} has ${player.holeCards.length} hole cards; ` +
-            `${hand.game.variant} deals ${expectedHoleCards}.`,
-          { player: player.name },
-        );
+      const count = player.holeCards.length;
+      if (count === 0 || count === expectedHoleCards) {
+        continue;
+      }
+      const detail =
+        `${player.name} has ${count} hole cards; ` +
+        `${hand.game.variant} deals ${expectedHoleCards}.`;
+      if (count > expectedHoleCards) {
+        error("hole-card-overflow", detail, { player: player.name });
+      } else {
+        warn("hole-card-count", detail, { player: player.name });
       }
     }
   }

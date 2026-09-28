@@ -397,6 +397,11 @@ export interface CreateShareInput {
   handText?: string | null;
   /** Optional human label shown on the share page. */
   title?: string | null;
+  /**
+   * Whether this link's Open Graph copy may reveal who won. Defaults to false
+   * server-side; see `20261004120000_share_spoilers.sql` and #23.
+   */
+  spoilers?: boolean;
 }
 
 export interface ShareRef {
@@ -420,6 +425,11 @@ export interface ShareRef {
 export interface ResolvedShare {
   slug: string;
   title: string | null;
+  /**
+   * Whether the link's unfurl copy may name the winner. Stored on the row and
+   * false unless the sharer asked otherwise.
+   */
+  spoilers: boolean;
   /** View counter *before* this view; `recordShareView` runs separately. */
   views: number;
   createdAt: string | null;

@@ -75,6 +75,34 @@
   --rp-block: min(100svh - 7rem, 54rem);
 }
 
+/* Embed mode, in full. Two declarations and a floor.
+
+   That is the claim #22 makes about this layout being right: an embedded
+   replayer is the same grid at a different size, so it needs a different *box*
+   and a row count, and nothing else. Everything that would otherwise have to be
+   re-tuned — which seats fit, how big the type is, which controls survive — is
+   already answered by `--u` off the felt's container query and by `data-tier`
+   off the replayer's own width, neither of which cares whether the box came
+   from the viewport or from a forum column.
+
+   `--rp-block: 100%`, not a viewport unit: the slot is the frame.
+
+   `grid-template-rows` is the one that is not optional. An embed drops the
+   header row from the DOM rather than hiding it, so without this the stage
+   lands in the `auto` track the header used to own and the transport takes the
+   `1fr` — a size-contained stage in an `auto` track resolves to nothing, and
+   the felt spills out of the top of the box. Two children, two rows.
+
+   `min-block-size` is a floor for the case a host gives the replayer no height
+   at all, so an embed in an `auto` row is still a replayer rather than a
+   zero-pixel line. */
+.rp[data-mode="embed"] {
+  --rp-block: 100%;
+
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-block-size: 18rem;
+}
+
 /* ----------------------------------------------------------------- header */
 
 /* One line: where the hand was played on the left, icon buttons on the right.
@@ -741,6 +769,15 @@
     0 4px 16px rgb(0 0 0 / 50%);
 }
 
+/* The seat the surrounding page is about — a forum post's "what would you do
+   here?". Drawn as a dashed ring rather than as another glow, so it cannot be
+   mistaken for the acting seat: one of them is the hand telling you whose turn
+   it is, the other is a person telling you where to look. */
+.pseat--focus .pseat__plate {
+  border-style: dashed;
+  border-color: var(--accent-border);
+}
+
 .pseat--acting .pseat__plate {
   border-color: var(--accent-border);
   box-shadow:
@@ -1402,4 +1439,107 @@
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* -------------------------------------------------------------- feed card */
+
+/* `ReplayCard` — the third mode, and the one that is not a replayer.
+
+   It lives in this file rather than in one of its own because its whole job is
+   to be visually continuous with the felt: the cards are `PlayingCard` and the
+   position chip is `.pseat__pos`, the same elements the table draws, so the
+   thing you tap and the thing that opens are the same object at two sizes. A
+   separate stylesheet would be a second place for that agreement to rot.
+
+   Fixed card sizes, not `--u`: a feed card is not a size container and must not
+   become one. Twenty-five of them on a page is twenty-five `container-type`
+   boxes and twenty-five ResizeObservers for a thumbnail nobody has clicked. */
+.rcard {
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  gap: 0.5rem;
+  inline-size: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  text-align: start;
+  font: inherit;
+}
+
+button.rcard {
+  cursor: pointer;
+  transition: border-color var(--dur-2) var(--ease-standard),
+    background var(--dur-2) var(--ease-standard);
+}
+
+button.rcard:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
+.rcard__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-inline-size: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.rcard__stakes {
+  font-weight: var(--font-weight-bold);
+  color: var(--money-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.rcard__seats {
+  margin-inline-start: auto;
+  flex: none;
+}
+
+.rcard__hand,
+.rcard__cards,
+.rcard__board {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* The board keeps five slots at every street, so a column of cards does not
+   shuffle vertically as you scroll past a preflop fold and a river showdown. */
+.rcard__board-slot {
+  inline-size: 22px;
+  block-size: calc(22px * 1.42);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 3px;
+}
+
+.rcard__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Present but empty when spoilers are off, so the play glyph does not move
+   between a card that shows a pot and one that does not. */
+.rcard__pot {
+  font-variant-numeric: tabular-nums;
+  min-block-size: 1rem;
+}
+
+.rcard__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
+  font-size: 0.6875rem;
 }

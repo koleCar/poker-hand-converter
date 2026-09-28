@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { formatPlayedAt, formatStakes, shortGameName, topWinnerOf } from "../components/share/preview";
+import { buildSharePreview, formatPlayedAt, formatStakes, shortGameName } from "../components/share/preview";
 import { resolveShare } from "../components/share/shareClient";
 import type { ResolveShareResult } from "../components/share/shareContract";
 import { BrandMark } from "../components/shell/BrandMark";
 import { ReplayViewer } from "../components/replayer/ReplayViewer";
 import { parseHand } from "../lib/phf";
-import { formatAmount, primaryBoard, type PhfHand } from "../lib/phf/types";
+import { type PhfHand } from "../lib/phf/types";
 import { Link } from "./router";
 import { paths } from "./routes";
 import { useDocumentMeta } from "./useDocumentMeta";
@@ -16,7 +16,14 @@ interface SharedHandPageProps {
 
 type PageState =
   | { kind: "loading" }
-  | { kind: "ready"; hand: PhfHand; createdAt: string | null; views: number }
+  | {
+      kind: "ready";
+      hand: PhfHand;
+      createdAt: string | null;
+      views: number;
+      /** Stored on the share row; false unless the sharer opted in. See #23. */
+      spoilers: boolean;
+    }
   | { kind: "unparseable" }
   | { kind: "not-found" }
   | { kind: "gone" }
@@ -33,6 +40,7 @@ function toPageState(result: ResolveShareResult): PageState {
             hand,
             createdAt: result.share.createdAt,
             views: result.share.views,
+            spoilers: result.share.spoilers,
           }
         : { kind: "unparseable" };
     }
@@ -68,7 +76,17 @@ export function SharedHandPage({ slug }: SharedHandPageProps) {
   }, [slug]);
 
   const hand = state.kind === "ready" ? state.hand : null;
+  const spoilers = state.kind === "ready" && state.spoilers;
 
+  /**
+   * The page's own `<title>` / `<meta name=description>`.
+   *
+   * Built by `buildSharePreview` rather than assembled here. The two used to be
+   * separate implementations of the same sentence and both ended it with
+   * "<player> wins <amount>" — which is how #23 survived being fixed anywhere:
+   * there was no single place to fix it. Crawlers get the same copy from
+   * `frontend/api/share-meta.ts`, which reads the same `spoilers` column.
+   */
   const meta = useMemo(() => {
     if (!hand) {
       return {
@@ -77,25 +95,9 @@ export function SharedHandPage({ slug }: SharedHandPageProps) {
           "Replay a shared poker hand action by action, free and without an account, on Rail.",
       };
     }
-    const unit = hand.game.unit;
-    const stakes = formatStakes(hand);
-    const game = shortGameName(hand.game.label);
-    const board = primaryBoard(hand);
-    const top = topWinnerOf(
-      hand.results.winners.map((winner) => ({ player: winner.player, amount: winner.amount })),
-    );
-    return {
-      title: `${stakes} ${game} — ${formatAmount(hand.results.totalPot, unit, "minimal", true)} pot | Rail`,
-      description: [
-        `${hand.players.length}-handed ${stakes} ${game}`,
-        board.length ? `board ${board.join(" ")}` : "no flop",
-        top ? `${top.player} wins ${formatAmount(top.amount, unit, "minimal", true)}` : null,
-        "Replay it action by action on Rail.",
-      ]
-        .filter(Boolean)
-        .join(" · "),
-    };
-  }, [hand]);
+    const preview = buildSharePreview(hand, { spoilers });
+    return { title: preview.title, description: preview.description };
+  }, [hand, spoilers]);
 
   useDocumentMeta({
     title: meta.title,
@@ -173,6 +175,10 @@ function SharedHandContent({
         {formatStakes(hand)} {shortGameName(hand.game.label)}
       </h1>
 
+      {/* `mode="full"`, so the replayer owns `?t=` on this page: the address
+          follows the moment on screen, and copying it copies that moment. The
+          opening position is read back off the same parameter, resolved
+          lossy-tolerantly — see `replayer/position.ts`. */}
       <section className="sharepage__replay">
         <ReplayViewer hand={hand} />
       </section>
