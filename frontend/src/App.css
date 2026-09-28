@@ -27,7 +27,7 @@
 /* ------------------------------------------------------------------ card */
 
 .card {
-  background: linear-gradient(180deg, var(--bg-elev), #10161e);
+  background: linear-gradient(180deg, var(--surface-raised), var(--surface-raised-fade));
   border: 1px solid var(--line-soft);
   border-radius: var(--radius);
   padding: 18px;
@@ -86,8 +86,8 @@
 }
 
 .btn:hover:not(:disabled) {
-  background: #202b39;
-  border-color: #33455a;
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
 }
 
 .btn:active:not(:disabled) {
@@ -100,14 +100,16 @@
 }
 
 .btn--primary {
-  background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+  background: linear-gradient(180deg, var(--accent-bg), var(--accent-bg-active));
   border-color: transparent;
-  color: #04121f;
+  color: var(--text-on-accent);
   font-weight: 650;
 }
 
+/* Hover lightens the fill in the dark theme and darkens it in the light one —
+   both are `--accent-bg-hover`, which is what the token is for. */
 .btn--primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #56b2ff, #2b9af5);
+  background: linear-gradient(180deg, var(--accent-bg-hover), var(--accent-bg));
   border-color: transparent;
 }
 
@@ -137,9 +139,9 @@
   width: 48px;
   height: 38px;
   font-size: 14px;
-  background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+  background: linear-gradient(180deg, var(--accent-bg), var(--accent-bg-active));
   border-color: transparent;
-  color: #04121f;
+  color: var(--text-on-accent);
 }
 
 .chip-btn {
@@ -157,13 +159,13 @@
 
 .chip-btn:hover {
   color: var(--fg);
-  border-color: #33455a;
+  border-color: var(--border-hover);
 }
 
 .chip-btn.is-active {
-  background: rgb(62 166 255 / 15%);
-  border-color: var(--accent);
-  color: #9ed4ff;
+  background: color-mix(in srgb, var(--accent-fg) 15%, transparent);
+  border-color: var(--accent-border);
+  color: var(--accent-on-subtle);
 }
 
 .switch {
@@ -191,13 +193,13 @@
 /* -------------------------------------------------------------- dropzone */
 
 .dropzone {
-  border: 1.5px dashed #2c3a4b;
+  border: 1.5px dashed var(--border-strong);
   border-radius: var(--radius);
   padding: 34px 20px;
   text-align: center;
   cursor: pointer;
   background:
-    radial-gradient(420px 160px at 50% 0%, rgb(62 166 255 / 6%), transparent 70%),
+    radial-gradient(420px 160px at 50% 0%, color-mix(in srgb, var(--accent-fg) 6%, transparent), transparent 70%),
     var(--bg);
   transition: border-color 140ms ease, background 140ms ease;
 }
@@ -206,7 +208,7 @@
 .dropzone.is-dragging {
   border-color: var(--accent);
   background:
-    radial-gradient(420px 180px at 50% 0%, rgb(62 166 255 / 12%), transparent 70%),
+    radial-gradient(420px 180px at 50% 0%, color-mix(in srgb, var(--accent-fg) 12%, transparent), transparent 70%),
     var(--bg);
 }
 
@@ -263,21 +265,21 @@
 }
 
 .notice--error {
-  color: #ffc9c9;
-  background: rgb(239 90 90 / 10%);
-  border-color: rgb(239 90 90 / 35%);
+  color: var(--danger-on-tint);
+  background: color-mix(in srgb, var(--danger-fg) 10%, transparent);
+  border-color: color-mix(in srgb, var(--danger-fg) 35%, transparent);
 }
 
 .notice--warn {
-  color: #ffe6ab;
-  background: rgb(232 178 58 / 10%);
-  border-color: rgb(232 178 58 / 32%);
+  color: var(--warning-on-tint);
+  background: color-mix(in srgb, var(--warning-fg) 10%, transparent);
+  border-color: color-mix(in srgb, var(--warning-fg) 32%, transparent);
 }
 
 .notice--info {
-  color: #c7e6ff;
-  background: rgb(62 166 255 / 10%);
-  border-color: rgb(62 166 255 / 32%);
+  color: var(--info-on-tint);
+  background: color-mix(in srgb, var(--info-fg) 10%, transparent);
+  border-color: color-mix(in srgb, var(--info-fg) 32%, transparent);
 }
 
 /* ----------------------------------------------------------------- stats */
@@ -390,7 +392,7 @@
   padding: 10px 12px;
   max-height: 220px;
   overflow: auto;
-  background: #0d1218;
+  background: var(--surface-sunken);
   border: 1px solid var(--line-soft);
   border-radius: var(--radius-sm);
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
@@ -430,35 +432,35 @@
 }
 
 .tag--good {
-  color: #9beecd;
-  background: rgb(53 196 138 / 12%);
-  border-color: rgb(53 196 138 / 30%);
+  color: var(--success-on-tint);
+  background: color-mix(in srgb, var(--success-fg) 12%, transparent);
+  border-color: color-mix(in srgb, var(--success-fg) 30%, transparent);
 }
 
 .tag--warn {
-  color: #ffe0a3;
-  background: rgb(232 178 58 / 12%);
-  border-color: rgb(232 178 58 / 30%);
+  color: var(--warning-on-tint);
+  background: color-mix(in srgb, var(--warning-fg) 12%, transparent);
+  border-color: color-mix(in srgb, var(--warning-fg) 30%, transparent);
 }
 
 .tag--bad {
-  color: #ffc3c3;
-  background: rgb(239 90 90 / 12%);
-  border-color: rgb(239 90 90 / 30%);
+  color: var(--danger-on-tint);
+  background: color-mix(in srgb, var(--danger-fg) 12%, transparent);
+  border-color: color-mix(in srgb, var(--danger-fg) 30%, transparent);
 }
 
 .tag--sd {
-  color: #c7e6ff;
-  background: rgb(62 166 255 / 12%);
-  border-color: rgb(62 166 255 / 30%);
+  color: var(--info-on-tint);
+  background: color-mix(in srgb, var(--info-fg) 12%, transparent);
+  border-color: color-mix(in srgb, var(--info-fg) 30%, transparent);
 }
 
 /* Rooms that do not publish player names. Quiet on purpose: it is a property
    of the room, not a problem with the hand. */
 .tag--anon {
-  color: #cdb8ff;
-  background: rgb(155 124 255 / 12%);
-  border-color: rgb(155 124 255 / 30%);
+  color: var(--anon-fg);
+  background: var(--anon-bg);
+  border-color: var(--anon-border);
 }
 
 /* --------------------------------------------------------------- filters */
@@ -613,14 +615,20 @@
   cursor: pointer;
   font-size: 12.5px;
   transition: background 110ms ease;
+  /* Whole row rather than per cell: the date, the blinds and the total pot all
+     want columnar digits, and the pot cell has no class of its own to hang it
+     on. Safe to widen this far because tnum only touches digit advance widths —
+     the table name and position tag are unaffected. Deliberately not global:
+     tnum is worse in running prose, where proportional digits set better. */
+  font-variant-numeric: tabular-nums;
 }
 
 .hand-table__row:hover {
-  background: #121a23;
+  background: var(--surface-raised);
 }
 
 .hand-table__row.is-active {
-  background: rgb(62 166 255 / 10%);
+  background: color-mix(in srgb, var(--accent-fg) 10%, transparent);
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
@@ -679,6 +687,8 @@
   align-items: center;
   justify-content: center;
   gap: 14px;
+  /* "Page 9 of 12" -> "Page 10 of 12" must not shove the two buttons sideways. */
+  font-variant-numeric: tabular-nums;
 }
 
 .paste {

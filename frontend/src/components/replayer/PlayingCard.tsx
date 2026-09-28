@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { SUIT_NAME, SUIT_SYMBOL, isRedSuit, parseCard, type Suit } from "../../lib/cards";
+import { SUIT_NAME, SUIT_PATH, isRedSuit, parseCard, type Suit } from "../../lib/cards";
 
 export type CardSize = "xs" | "sm" | "md" | "lg" | "xl";
 
@@ -30,6 +30,26 @@ const RANK_NAME: Record<string, string> = {
   J: "Jack",
   T: "Ten",
 };
+
+/**
+ * The suit pip, drawn rather than typed.
+ *
+ * U+2660/2662/2663 are missing from most UI fonts — Inter ships none of them —
+ * so the glyph always came from an OS fallback, and on Windows and Android that
+ * fallback is the colour emoji font: a blue diamond and a green club at a size
+ * and baseline the card layout never agreed to. The shape is also the only cue
+ * a colour-blind player has, so it is the last thing that should be left to
+ * whatever happens to be installed.
+ *
+ * Sized entirely from CSS off `--card-w`, so the card's size system is unchanged.
+ */
+function SuitPip({ suit, className }: { suit: Suit; className: string }) {
+  return (
+    <svg className={className} viewBox="0 0 32 32" focusable="false" aria-hidden="true">
+      <path d={SUIT_PATH[suit]} fill="currentColor" />
+    </svg>
+  );
+}
 
 function PlayingCardImpl({
   code,
@@ -70,14 +90,14 @@ function PlayingCardImpl({
         <>
           <span className="pcard__corner pcard__corner--tl" aria-hidden="true">
             <span className="pcard__rank">{card.rank}</span>
-            <span className="pcard__suit">{SUIT_SYMBOL[card.suit]}</span>
+            <SuitPip suit={card.suit} className="pcard__suit" />
           </span>
           <span className="pcard__center" aria-hidden="true">
-            {SUIT_SYMBOL[card.suit]}
+            <SuitPip suit={card.suit} className="pcard__pip" />
           </span>
           <span className="pcard__corner pcard__corner--br" aria-hidden="true">
             <span className="pcard__rank">{card.rank}</span>
-            <span className="pcard__suit">{SUIT_SYMBOL[card.suit]}</span>
+            <SuitPip suit={card.suit} className="pcard__suit" />
           </span>
         </>
       ) : (

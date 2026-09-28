@@ -1,37 +1,29 @@
+/* The design tokens live in `styles/tokens/` and are pulled in here, in this
+   order, as a single cascade layer:
+
+     primitives   raw ramps — never referenced outside tokens/
+     semantic     what components use, plus the legacy aliases
+     theme-light  re-points the semantic layer for [data-theme="light"]
+     motion       durations, easings, z-index
+
+   `theme-light.css` uses `[data-theme="light"]`, the same specificity as the
+   `:root` it overrides, so it only wins by arriving later. The import order
+   below is load-bearing.
+
+   They sit in a layer, and the base rules further down this file do not,
+   because an unlayered rule beats every layered one: the tokens are custom
+   properties that nothing else declares, so demoting them costs nothing, while
+   demoting `body` or `input` would quietly reshuffle them under every
+   component sheet. */
+@layer tokens;
+
+@import "./styles/tokens/primitives.css" layer(tokens);
+@import "./styles/tokens/semantic.css" layer(tokens);
+@import "./styles/tokens/theme-light.css" layer(tokens);
+@import "./styles/tokens/motion.css" layer(tokens);
+
 :root {
-  /* Surfaces */
-  --bg: #0b0f14;
-  --bg-elev: #121820;
-  --bg-elev-2: #18202b;
-  --line: #24303e;
-  --line-soft: #1b2430;
-
-  /* Text */
-  --fg: #e8eef6;
-  --fg-muted: #8da0b6;
-  --fg-dim: #64748b;
-
-  /* Accents */
-  --accent: #3ea6ff;
-  --accent-strong: #1f8fef;
-  --good: #35c48a;
-  --warn: #e8b23a;
-  --bad: #ef5a5a;
-
-  /* Felt */
-  --felt-1: #1e7a55;
-  --felt-2: #10553a;
-  --felt-3: #0a3a27;
-  --rail: #3a2418;
-  --rail-hi: #5a3a24;
-
-  --radius: 14px;
-  --radius-sm: 9px;
-  --shadow-1: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 25%);
-  --shadow-2: 0 10px 40px rgb(0 0 0 / 45%);
-
-  color-scheme: dark;
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-family-sans);
   font-synthesis-weight: none;
   text-rendering: optimizeLegibility;
 }
@@ -49,12 +41,12 @@ body,
 body {
   margin: 0;
   background:
-    radial-gradient(1200px 600px at 20% -10%, #14202c 0%, transparent 60%),
-    radial-gradient(900px 500px at 95% 0%, #17242f 0%, transparent 55%),
-    var(--bg);
-  color: var(--fg);
-  font-size: 14px;
-  line-height: 1.5;
+    radial-gradient(1200px 600px at 20% -10%, var(--surface-glow-1) 0%, transparent 60%),
+    radial-gradient(900px 500px at 95% 0%, var(--surface-glow-2) 0%, transparent 55%),
+    var(--surface-base);
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -62,16 +54,16 @@ h1,
 h2,
 h3 {
   margin: 0;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 h2 {
-  font-size: 17px;
+  font-size: var(--font-size-xl);
 }
 
 h3 {
-  font-size: 15px;
+  font-size: var(--font-size-lg);
 }
 
 p {
@@ -79,10 +71,10 @@ p {
 }
 
 code {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--font-family-mono);
   font-size: 0.92em;
-  background: var(--bg-elev-2);
-  border: 1px solid var(--line-soft);
+  background: var(--surface-raised-2);
+  border: 1px solid var(--border-subtle);
   border-radius: 5px;
   padding: 1px 5px;
 }
@@ -95,29 +87,31 @@ button {
 /* One visible focus ring for every interactive element. Keyboard-only, so it
    never fires on mouse clicks. */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--border-focus);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-1);
 }
 
 input,
 select,
 textarea {
   font: inherit;
-  color: var(--fg);
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
+  color: var(--text-primary);
+  background: var(--surface-base);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  padding: var(--space-2) 10px;
   outline: none;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition:
+    border-color var(--dur-2) var(--ease-standard),
+    box-shadow var(--dur-2) var(--ease-standard);
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgb(62 166 255 / 18%);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-fg) 18%, transparent);
 }
 
 ::-webkit-scrollbar {
@@ -125,15 +119,18 @@ textarea:focus {
   height: 10px;
 }
 
+/* Tokenised rather than the two hard-coded slates that used to live here: a
+   #263243 thumb on a white page is the kind of thing a light theme is supposed
+   to make impossible. */
 ::-webkit-scrollbar-thumb {
-  background: #263243;
-  border-radius: 6px;
+  background: var(--border-default);
+  border-radius: var(--radius-2);
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #33445a;
+  background: var(--border-strong);
   background-clip: content-box;
 }
 

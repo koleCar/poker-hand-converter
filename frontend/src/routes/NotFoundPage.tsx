@@ -9,7 +9,7 @@ export function NotFoundPage() {
         ♠
       </span>
       <h1>Page not found</h1>
-      <p>That address does not match anything in PokerConverter.</p>
+      <p>That address does not match anything on Rail.</p>
       <div className="shell__notfound-actions">
         <Link to={paths.converter()} className="btn btn--primary">
           Go to the converter

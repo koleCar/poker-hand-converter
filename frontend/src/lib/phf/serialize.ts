@@ -1290,7 +1290,7 @@ export function parseStandardText(
 ): PhfHand[] {
   const full: ParseContext = {
     siteId: ctx.siteId ?? "standard",
-    siteName: ctx.siteName ?? "PokerConverter standard",
+    siteName: ctx.siteName ?? "Rail standard",
     originalFilename: ctx.originalFilename ?? null,
     parserId: ctx.parserId,
     parserVersion: ctx.parserVersion,

@@ -4,7 +4,7 @@ import { ReplayerTab } from "../components/ReplayerTab";
 import { AppShell, type ShellTab } from "../components/shell/AppShell";
 import { UploadTab } from "../components/upload/UploadTab";
 import { useAuth } from "../lib/auth";
-import { countHands } from "../lib/handStore";
+import { countHands } from "../lib/db";
 import { isSupabaseConfigured } from "../lib/supabase";
 import { navigate } from "./navigation";
 import { NotFoundPage } from "./NotFoundPage";
@@ -14,13 +14,13 @@ import { useDocumentMeta } from "./useDocumentMeta";
 
 const META: Record<ShellTab, { title: string; description: string; path: string }> = {
   converter: {
-    title: "Poker hand history converter — WePlay, PokerStars, GGPoker | PokerConverter",
+    title: "Poker hand history converter — WePlay, PokerStars, GGPoker | Rail",
     description:
       "Convert hand histories from any poker room into the standard format Holdem Manager and PokerTracker import. Free, in your browser, nothing uploaded.",
     path: paths.converter(),
   },
   replayer: {
-    title: "Hand history | PokerConverter",
+    title: "Hand history | Rail",
     description:
       "Browse, filter and replay every poker hand you have saved, and share one with a single link.",
     path: paths.replayer(),
@@ -107,8 +107,8 @@ export default function AppPage({ route }: { route: RouteMatch }) {
   const meta = tab
     ? META[tab]
     : {
-        title: "Page not found | PokerConverter",
-        description: "That address does not match anything in PokerConverter.",
+        title: "Page not found | Rail",
+        description: "That address does not match anything on Rail.",
         path: route.pathname,
       };
   useDocumentMeta({

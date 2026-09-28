@@ -1,0 +1,391 @@
+/* ===========================================================================
+   SEMANTIC — what components are allowed to use.
+   ===========================================================================
+
+   Every token here names a ROLE ("the default border", "secondary text") and
+   points at a primitive. Components reference these and only these. A theme is
+   then a list of re-pointings — see `theme-light.css`, which overrides this
+   layer and never touches `primitives.css`.
+
+   The values below are the DARK theme. Dark is the default because the
+   replayer is the product's centre of gravity and a lit table on a dark page
+   is the shape of the thing being modelled.
+
+   The table — felt, cards, chips — is NOT themed. See the block near the
+   bottom for why.
+   =========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* ===================================================== surfaces =========
+     Ordered by elevation: sunken sits below the page, base IS the page, and
+     each raised step is a plane closer to the reader. */
+  --surface-sunken: var(--n-1000);
+  --surface-base: var(--n-950);
+
+  /* A tile set INTO a raised panel — a stat box, a file row, a hand row. Half
+     a step below the page, because it is read against the card it sits on
+     rather than against the document. */
+  --surface-inset: #0f151d;
+
+  --surface-raised: var(--n-925);
+  --surface-raised-2: var(--n-900);
+
+  /* The bottom stop of the gentle top-lit gradient a panel is painted with.
+     One step deeper than --surface-raised in the dark theme, one step deeper
+     than white in the light one, so a card always reads as lit from above. */
+  --surface-raised-fade: #10161e;
+
+  /* A control under the pointer, and a control that is currently chosen.
+     hover     — the fill a button / row / chip takes on :hover
+     selected  — the two stops of an active tab's plate, top then bottom */
+  --surface-hover: #202b39;
+  --surface-selected: #24354a;
+  --surface-selected-edge: #1c2938;
+
+  /* The unlit half of a switch. Not a border and not a surface step: it has to
+     stay legible against the panel it sits on in both themes, which is why it
+     is its own token rather than a reused grey. */
+  --control-track: #223040;
+
+  /* Dialogs, menus, popovers — a plane that floats free of the document. */
+  --surface-overlay: var(--n-900);
+
+  /* What goes behind an overlay to kill the page underneath. Tinted with the
+     neutral rather than flat black: the three scrims this replaced (the auth
+     dialog, the converter modal, the drag veil) were each ~72% of a near-black
+     slate, and a flat black one reads colder than the page it is dimming. */
+  --surface-scrim: rgb(4 7 11 / 72%);
+
+  /* The two soft lights on the page background. Tokenised so the light theme
+     can turn the page from "lit room" to "daylight" instead of keeping two
+     near-black blooms on a white page. */
+  --surface-glow-1: #14202c;
+  --surface-glow-2: #17242f;
+
+  /* ====================================================== borders =========
+     subtle   — separates two things that are already obviously separate
+     default  — the everyday border: cards, inputs, chips
+     strong   — a border doing real work: an active tab, a selected row
+     focus    — the keyboard ring, and nothing else */
+  --border-subtle: var(--n-850);
+  --border-default: var(--n-800);
+  --border-strong: var(--n-700);
+  --border-focus: var(--a-400);
+
+  /* The everyday border, one step louder, under a pointer. Pairs with
+     --surface-hover; a hovered control moves both at once. */
+  --border-hover: #33455a;
+
+  /* ========================================================= text =========
+     primary   — body copy and headings
+     secondary — labels, metadata, anything supporting
+     tertiary  — timestamps, hints, text you are meant to skip
+     inverse   — text on a surface that inverts with the theme
+     on-accent — text on an accent fill
+     link      — an anchor, which is not the same thing as the accent colour
+                 even when the two currently agree */
+  --text-primary: var(--n-100);
+  --text-secondary: var(--n-400);
+  --text-tertiary: var(--n-500);
+  --text-inverse: var(--n-950);
+  --text-on-accent: var(--a-950);
+  --text-link: var(--a-400);
+
+  /* Text on --surface-selected. White in both themes, because the selected
+     plate is dark slate in one and brand blue in the other — the one case
+     where the ink genuinely does not move. */
+  --text-on-selected: #ffffff;
+
+  /* ======================================================= accent =========
+     fg      — accent as ink: links, active icons, focus rings
+     bg      — accent as a fill: the primary button at rest
+     hover / active — the same fill under a pointer and under a press
+     border  — accent as an outline
+     subtle  — an accent-tinted surface, e.g. a selected row */
+  --accent-fg: var(--a-400);
+  --accent-bg: var(--a-400);
+  --accent-bg-hover: var(--a-300);
+  --accent-bg-active: var(--a-500);
+  --accent-border: var(--a-400);
+  --accent-subtle: color-mix(in srgb, var(--a-400) 14%, var(--surface-base));
+
+  /* Accent as ink ON an accent-tinted fill — a selected filter chip. The plain
+     --accent-fg is tuned for the page, and on a chip that is already 15% blue
+     it loses too much separation, so this lifts a few steps. */
+  --accent-on-subtle: #9ed4ff;
+
+  /* ======================================================== money =========
+     Brass, not amber. See the note on the --m-* ramp in primitives.css.
+
+     fg     — a pot, a stack, a bet: the default money number
+     strong — the number the eye should land on first (the pot at showdown)
+     subtle — money that is context rather than content (a blind level) */
+  --money-fg: var(--m-200);
+  --money-strong: var(--m-100);
+  --money-subtle: var(--m-400);
+
+  /* Result of a hand or a session. Green/red here is a signed number, not a
+     status, which is why these are their own tokens: a graph should be free to
+     restyle profit and loss without dragging every success toast with it. */
+  --profit-fg: var(--st-success-500);
+  --loss-fg: var(--st-danger-500);
+
+  /* ======================================================= status =========
+     fg / bg / border triples. In the dark theme the background is the status
+     hue mixed down into the page rather than a flat dark tint, so the same
+     token works on `--surface-base` and on a raised card. */
+  --success-fg: var(--st-success-500);
+  --success-bg: color-mix(in srgb, var(--st-success-500) 14%, var(--surface-base));
+  --success-border: color-mix(in srgb, var(--st-success-500) 34%, transparent);
+
+  --warning-fg: var(--st-warning-500);
+  --warning-bg: color-mix(in srgb, var(--st-warning-500) 14%, var(--surface-base));
+  --warning-border: color-mix(in srgb, var(--st-warning-500) 34%, transparent);
+
+  --danger-fg: var(--st-danger-500);
+  --danger-bg: color-mix(in srgb, var(--st-danger-500) 14%, var(--surface-base));
+  --danger-border: color-mix(in srgb, var(--st-danger-500) 34%, transparent);
+
+  --info-fg: var(--st-info-500);
+  --info-bg: color-mix(in srgb, var(--st-info-500) 14%, var(--surface-base));
+  --info-border: color-mix(in srgb, var(--st-info-500) 34%, transparent);
+
+  /* ------------------------------------------------ status ink on a tint
+     --*-fg is the status hue as ink on the PAGE. A notice, a tag and a chip
+     paint a tinted slab of the same hue behind the text, and the -500 on top
+     of its own 10% tint is the one place the hue fights itself. These are the
+     same four meanings, pitched for that slab: lifted well clear of the tint
+     in the dark theme, dropped to the -700 shades in the light one.
+
+     Dark contrast, measured on each hue's tint over --surface-raised:
+       --success-on-tint #9beecd  = 11.0:1
+       --warning-on-tint #ffe6ab  = 13.3:1
+       --danger-on-tint  #ffc9c9  = 10.6:1
+       --info-on-tint    #c7e6ff  = 11.9:1 */
+  --success-on-tint: #9beecd;
+  --warning-on-tint: #ffe6ab;
+  --danger-on-tint: #ffc9c9;
+  --info-on-tint: #c7e6ff;
+
+  /* ------------------------------------------------------------ anonymity
+     Rooms that do not publish player names. Violet on purpose: it is neither
+     a status nor a link, and marking an anonymised table in red or blue would
+     say "something went wrong" or "click me" about a property of the room. */
+  --anon-fg: #cdb8ff;
+  --anon-bg: rgb(155 124 255 / 12%);
+  --anon-border: rgb(155 124 255 / 30%);
+
+  /* ================================================== THE TABLE ==========
+     Deliberately absent from `theme-light.css`. These tokens are identical in
+     every theme, and that is a decision rather than an oversight.
+
+     A poker table is a physical object. Recolouring the felt for light mode is
+     recolouring a photograph — it is not a surface the UI owns, it is a thing
+     the UI is showing you. It also means an OG image, a screenshot pasted into
+     a Discord thread and an embedded hand in a forum post all look the same as
+     the replayer they came from, whatever theme the reader happens to be in.
+     For a product that grows by having its hands shared, that identity is
+     worth more than theme purity.
+
+     Everything painted on the felt is therefore also fixed: white table text,
+     card inks, chip colours, position badges. */
+
+  /* Felt, centre to edge, as the radial gradient walks outward. */
+  --felt-center: var(--f-500);
+  --felt-mid: var(--f-700);
+  --felt-edge: var(--f-900);
+
+  /* The wooden rail around it, lit from the top left. */
+  --felt-rail: var(--w-800);
+  --felt-rail-hi: var(--w-600);
+  --felt-rail-shadow: var(--w-950);
+
+  /* Text on the felt. --felt-center is the lightest pixel the felt shows, and
+     white clears 6.55:1 against it (see primitives.css). */
+  --felt-text: #ffffff;
+  --felt-text-muted: rgb(255 255 255 / 72%);
+
+  /* Playing cards. Prefixed --pcard-* rather than --card-* because
+     `.pcard`/`.card` already define local --card-w/--card-r geometry vars and
+     a root-level --card-* would be shadowed unpredictably inside them. */
+  --pcard-face: var(--ink-card-face);
+  --pcard-face-mid: var(--ink-card-face-mid);
+  --pcard-face-edge: var(--ink-card-face-edge);
+  --pcard-ink: var(--ink-card-text);
+  --pcard-ink-c: var(--ink-club);
+  --pcard-ink-d: var(--ink-diamond);
+  --pcard-ink-h: var(--ink-heart);
+  --pcard-ink-s: var(--ink-spade);
+  --pcard-back-hi: var(--ink-back-hi);
+  --pcard-back-lo: var(--ink-back-lo);
+
+  /* Chip denominations, lowest to highest. */
+  --chip-denom-1: var(--chip-white);
+  --chip-denom-2: var(--chip-red);
+  --chip-denom-3: var(--chip-blue);
+  --chip-denom-4: var(--chip-green);
+  --chip-denom-5: var(--chip-black);
+  --chip-denom-6: var(--chip-purple);
+  --chip-denom-7: var(--chip-gold);
+
+  /* Position badges on the seat plates. Translucent so they sit on the plate
+     without fighting it, and grouped by how a player actually reads position:
+     the button, the blinds, and early/middle/late. */
+  --pos-fg: var(--n-100);
+  --pos-bg-btn: color-mix(in srgb, var(--m-300) 26%, transparent);
+  --pos-bg-blind: color-mix(in srgb, var(--st-danger-500) 22%, transparent);
+  --pos-bg-early: color-mix(in srgb, var(--n-300) 14%, transparent);
+  --pos-bg-middle: color-mix(in srgb, var(--a-300) 20%, transparent);
+  --pos-bg-late: color-mix(in srgb, var(--st-success-500) 22%, transparent);
+
+  /* ================================================ third-party marks =====
+     Another company's logo, reproduced under their brand guidelines. Absent
+     from `theme-light.css` for the same reason the felt is: Google's G is a
+     blue glyph on a white disc in every theme, and re-tinting it would be
+     reproducing it wrongly. */
+  --brand-google-plate: #ffffff;
+  --brand-google-fg: #1a73e8;
+
+  /* ==================================================== typography =======
+     Colour lives on --text-*; size, weight and leading live here, so the two
+     never collide in one namespace.
+
+     14px base. The steps below are the sizes the app already uses, named. */
+  --font-family-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  --font-size-2xs: 10px;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 15px;
+  --font-size-xl: 17px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 30px;
+  --font-size-5xl: 38px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 650;
+  --font-weight-bold: 750;
+
+  --line-height-tight: 1.15;
+  --line-height-snug: 1.3;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.65;
+
+  --letter-spacing-tight: -0.01em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.04em;
+
+  /* ======================================================= spacing =======
+     4px base. Numbered in base units, so --space-6 is 6 x 4px = 24px and the
+     name survives a change of base. --space-px exists because hairlines are
+     not a multiple of anything. */
+  --space-px: 1px;
+  --space-0: 0;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* ========================================================= radii =======
+     Numbered rather than xs/sm/md, because `--radius-sm` is already taken by
+     the legacy alias block below at a different value (9px), and two live
+     meanings for one name is how a token system starts lying.
+
+       1  4px  — chips, tags, tiny inline things
+       2  6px  — code spans, small controls
+       3  9px  — buttons and inputs        (legacy --radius-sm)
+       4 14px  — cards and panels          (legacy --radius)
+       5 20px  — dialogs, the table shell */
+  --radius-1: 4px;
+  --radius-2: 6px;
+  --radius-3: 9px;
+  --radius-4: 14px;
+  --radius-5: 20px;
+  --radius-pill: 999px;
+
+  /* ===================================================== elevation =======
+     Dark-theme shadows are near-black and carry most of the separation work,
+     because two dark surfaces one step apart are hard to tell apart on a bad
+     monitor. The light theme replaces these with much softer ones. */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 25%);
+  --elevation-2: 0 10px 40px rgb(0 0 0 / 45%);
+  --elevation-3: 0 24px 70px rgb(0 0 0 / 55%);
+}
+
+/* ===========================================================================
+   LEGACY ALIASES — remove once no stylesheet references them.
+   ===========================================================================
+
+   ~4400 lines of CSS across `styles/*.css` and `App.css` were written against
+   the original flat `:root`. Every one of those names is mapped below onto its
+   semantic equivalent, so:
+
+     - existing stylesheets keep working, untouched, and keep theming for free
+       (they read --bg, --bg resolves through --surface-base, and the light
+       theme moves --surface-base);
+     - new code uses the semantic names above and never these;
+     - deleting this block is a mechanical, reviewable, one-commit change once
+       the last reference is gone.
+
+   These are `var()` references rather than copied literals on purpose: a
+   literal would freeze the old value and silently opt every legacy rule out of
+   the light theme.
+
+   To find what is left:
+     grep -rE 'var\(--(bg|fg|line|accent|good|warn|bad|felt|rail|radius|shadow)' src
+
+   Do not add to this list.
+   =========================================================================== */
+
+:root {
+  /* surfaces */
+  --bg: var(--surface-base);
+  --bg-elev: var(--surface-raised);
+  --bg-elev-2: var(--surface-raised-2);
+
+  /* borders */
+  --line: var(--border-default);
+  --line-soft: var(--border-subtle);
+
+  /* text */
+  --fg: var(--text-primary);
+  --fg-muted: var(--text-secondary);
+  --fg-dim: var(--text-tertiary);
+
+  /* accent + status */
+  --accent: var(--accent-fg);
+  --accent-strong: var(--accent-bg-active);
+  --good: var(--success-fg);
+  --warn: var(--warning-fg);
+  --bad: var(--danger-fg);
+
+  /* table */
+  --felt-1: var(--felt-center);
+  --felt-2: var(--felt-mid);
+  --felt-3: var(--felt-edge);
+  --rail: var(--felt-rail);
+  --rail-hi: var(--felt-rail-hi);
+
+  /* geometry + depth */
+  --radius: var(--radius-4);
+  --radius-sm: var(--radius-3);
+  --shadow-1: var(--elevation-1);
+  --shadow-2: var(--elevation-2);
+}

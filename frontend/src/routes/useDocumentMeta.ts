@@ -60,7 +60,7 @@ export function useDocumentMeta({
     meta("name", "robots", noIndex ? "noindex, follow" : "index, follow");
 
     meta("property", "og:type", "website");
-    meta("property", "og:site_name", "PokerConverter");
+    meta("property", "og:site_name", "Rail");
     meta("property", "og:title", title);
     meta("property", "og:description", description);
     meta("property", "og:url", url);
