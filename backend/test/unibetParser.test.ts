@@ -48,7 +48,8 @@ const CASES = FILES.map((file) => [file.relativePath, file] as const);
  * that has not been written down yet.
  */
 const ALLOWED_REASONS = new Set([
-  // Round one is Hold'em; the corpus carries two PLO hands.
+  // Still reachable: the lock lists Hold'em and four-card Omaha, so `omaha5`
+  // and short deck would land here. No fixture currently does.
   "unsupported-variant",
   // A Windows-1252 export read as UTF-8; the currency byte is gone for good.
   "lossy-encoding",
@@ -155,7 +156,9 @@ describe("Unibet corpus", () => {
       expect(validateHand(hand).errors, where).toEqual([]);
       expect(hand.meta.siteId).toBe("unibet");
       expect(hand.meta.rawText.length).toBeGreaterThan(0);
-      expect(hand.game.variant).toBe("holdem");
+      // Unibet's lock lists Hold'em and four-card Omaha; `omaha5` and short
+      // deck stay refused, so this asserts the lock, not a single variant.
+      expect(["holdem", "omaha"], where).toContain(hand.game.variant);
       // `meta.rawText` must be the room's text, not the normalized intermediate.
       expect(hand.meta.rawText).not.toContain("Poker Hand #");
       expect(hand.meta.handKey).toBe(hand.meta.handId);
@@ -308,14 +311,27 @@ describe("Unibet header generations", () => {
     expect(hand.results.wentToShowdown).toBe(true);
   });
 
-  it("refuses the Omaha hands and the tournament-summary export by name", async () => {
+  it("reads its Omaha and still refuses the tournament-summary export by name", async () => {
+    // Was "refuses the Omaha hands". Unibet's variant lock lists `omaha` now,
+    // on the evidence of this file: the first hand reads clean -- four hole
+    // cards, pot limit, no warnings.
+    //
+    // The second hand is still refused, and for a reason that has nothing to do
+    // with the variant: Unibet omits the `wins` line on some hands, so the
+    // source never states who was given the pot. That refusal predates Omaha
+    // and is asserted here by name so a future change cannot quietly turn it
+    // into a guess.
     const plo = fileNamed("03-cash-plo-2026");
     const ploResult = await convertAny(plo.text, { sourceFilename: plo.name });
-    expect(ploResult.hands).toHaveLength(0);
-    expect(ploResult.failures.map((failure) => failure.reason)).toEqual([
-      "unsupported-variant",
-      "unsupported-variant",
-    ]);
+    expect(ploResult.hands).toHaveLength(1);
+    expect(ploResult.hands[0].game.variant).toBe("omaha");
+    expect(ploResult.hands[0].game.limit).toBe("pl");
+    expect(ploResult.hands[0].game.hiLo).toBe(false);
+    expect(ploResult.hands[0].meta.warnings).toEqual([]);
+    expect(
+      ploResult.hands[0].players.find((player) => player.isHero)?.holeCards,
+    ).toHaveLength(4);
+    expect(ploResult.failures.map((failure) => failure.reason)).toEqual(["no-winner"]);
 
     const summary = fileNamed("05-tournament-summary");
     const summaryResult = await convertAny(summary.text, { sourceFilename: summary.name });

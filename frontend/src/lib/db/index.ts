@@ -25,10 +25,29 @@
 export {
   DATABASE_NOT_CONFIGURED_MESSAGE,
   DatabaseNotConfiguredError,
+  DatabaseRpcError,
   SIGN_IN_REQUIRED_MESSAGE,
   SignInRequiredError,
   isDatabaseConfigured,
+  isMissingSchemaError,
 } from "./client";
+
+export {
+  emptyStatsGraph,
+  emptyStatsSummary,
+  fetchStatsGraph,
+  fetchStatsSummary,
+  handStatsRows,
+  saveHandStats,
+  villainRowsEnabled,
+  type HandStatsInsert,
+  type MoneyUnitState,
+  type SaveHandStatsResult,
+  type StatsFilters,
+  type StatsGraph,
+  type StatsGraphBucket,
+  type StatsSummary,
+} from "./stats";
 
 export {
   countHands,

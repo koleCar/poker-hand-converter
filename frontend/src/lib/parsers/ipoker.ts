@@ -33,15 +33,26 @@
  *   have the return taken out of it before a rake can be derived.
  */
 
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   parseAmount,
   unitForSymbol,
   type Amount,
   type CurrencyUnit,
+  type LimitType,
   type PhfHand,
   type PhfWarning,
 } from "../phf/types";
+import {
+  canonicalGameLabel,
+  unsupportedVariantSkip,
+  variantOf,
+} from "./shared/variant-lock";
 import { EUR, GBP, USD } from "../phf/types";
 import {
   buildHand,
@@ -53,6 +64,17 @@ import {
 import { child, childText, children, parseXml, type XmlElement } from "./shared/p2-xml";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * Five `Omaha PL` files - a basic hand, a heads-up table, a pot-limit table, a
+ * ten-hand session and the concatenated miner export, seventeen hands in all -
+ * and every one of them clean. iPoker's `<gametype>` names the deal in one
+ * word, so there is no five- or six-card spelling in the corpus to admit and no
+ * hi/lo file either.
+ */
+const IPOKER_VARIANTS = ["holdem", "omaha"] as const;
 
 /**
  * iPoker action codes.
@@ -140,11 +162,11 @@ export const ipokerParser: SiteParser = {
     if (!parsedType) {
       throw new ParseSkip("no-header", `Unreadable <gametype> "${gameType}".`);
     }
-    if (!/^hold\s*'?em$/i.test(parsedType[1])) {
-      throw new ParseSkip(
-        "unsupported-variant",
-        `Round one is Hold'em only; this hand is "${gameType}".`,
-      );
+    const refusal =
+      unsupportedGameSkip(parsedType[1]) ??
+      unsupportedVariantSkip(parsedType[1], IPOKER_VARIANTS);
+    if (refusal) {
+      throw refusal;
     }
 
     const gameGeneral = child(game, "general");
@@ -325,7 +347,7 @@ export const ipokerParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "IPN-",
       handId,
-      gameLabel: canonicalLabel(parsedType[2]),
+      gameLabel: canonicalGameLabel(variantOf(parsedType[1]), limitOf(parsedType[2])),
       unit,
       decimals: "fixed2",
       // On a fixed-limit table `<gametype>Holdem L $5/$10</gametype>` states the
@@ -431,14 +453,12 @@ function isoFromIpokerDate(value: string): string | null {
   return Number.isNaN(stamp) ? null : new Date(stamp).toISOString();
 }
 
-function canonicalLabel(limit: string): string {
+/** iPoker's limit token, the middle word of `<gametype>Omaha PL €0.05/€0.10</gametype>`. */
+function limitOf(limit: string): LimitType {
   if (/^PL$/i.test(limit)) {
-    return "Hold'em Pot Limit";
+    return "pl";
   }
-  if (/^(?:FL|L)$/i.test(limit)) {
-    return "Hold'em Limit";
-  }
-  return "Hold'em No Limit";
+  return /^(?:FL|L)$/i.test(limit) ? "fl" : "nl";
 }
 
 /**

@@ -46,16 +46,27 @@
  *   Reading it as chips would add £300 to a hand.
  */
 
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   parseAmount,
   unitForSymbol,
   type Amount,
   type CurrencyUnit,
+  type LimitType,
   type PhfChipMovement,
   type PhfHand,
   type PhfWarning,
 } from "../phf/types";
+import {
+  canonicalGameLabel,
+  unsupportedVariantSkip,
+  variantOf,
+} from "./shared/variant-lock";
 import {
   buildHand,
   type DraftAction,
@@ -67,6 +78,14 @@ import { child, children, parseXml, type XmlElement } from "./shared/p2-xml";
 import { decodeBase64Utf16, strictAmount } from "./shared/p4-textroom";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * One `gametype="Omaha"` file, clean. The two `Omaha H/L` files stay refused by
+ * the split-pot rule, and no five- or six-card sample exists here.
+ */
+const MICROGAMING_VARIANTS = ["holdem", "omaha"] as const;
 
 /** `<Action type>` values that move chips into the pot, and what they mean. */
 const WAGERS: Record<string, DraftAction["kind"]> = {
@@ -118,11 +137,12 @@ export const microgamingParser: SiteParser = {
       throw new ParseSkip("no-header", "The <Game> element has no id.");
     }
     const gameType = game.attrs.gametype ?? "";
-    if (!/^hold\s*'?\s*em$/i.test(gameType.trim())) {
-      throw new ParseSkip(
-        "unsupported-variant",
-        `Round one is Hold'em only; this hand is "${gameType}".`,
-      );
+    // `Omaha H/L` is two of the three Omaha files here and is refused on its own
+    // terms, before the allowlist.
+    const refusal =
+      unsupportedGameSkip(gameType) ?? unsupportedVariantSkip(gameType, MICROGAMING_VARIANTS);
+    if (refusal) {
+      throw refusal;
     }
     if (game.attrs.istournament === "1") {
       throw new ParseSkip(
@@ -325,7 +345,7 @@ export const microgamingParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "MG-",
       handId,
-      gameLabel: canonicalLabel(game.attrs.betlimit ?? "NL"),
+      gameLabel: canonicalGameLabel(variantOf(gameType), limitOf(game.attrs.betlimit ?? "NL")),
       unit,
       decimals: "fixed2",
       headerSmallBlind: strictAmount(stakes[0] ?? "", unit, "the header stakes"),
@@ -417,12 +437,12 @@ function isoFromMicrogamingDate(value: string): string | null {
   return Number.isNaN(stamp) ? null : new Date(stamp).toISOString();
 }
 
-/** MicroGaming writes `NL`; trackers expect the GG wording. */
-function canonicalLabel(limit: string): string {
+/** MicroGaming's `betlimit` attribute: `NL`, `PL`, `FL` or `L`. */
+function limitOf(limit: string): LimitType {
   if (/^PL$/i.test(limit)) {
-    return "Hold'em Pot Limit";
+    return "pl";
   }
-  return /^(?:FL|L)$/i.test(limit) ? "Hold'em Limit" : "Hold'em No Limit";
+  return /^(?:FL|L)$/i.test(limit) ? "fl" : "nl";
 }
 
 /** `tablesize` is authoritative when present; this is the fallback. */

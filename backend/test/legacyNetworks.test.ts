@@ -44,6 +44,7 @@ const SITES = [
     name: "Ongame Network",
     prefix: "OG-",
     dialect: /^\*{5}\s*History for hand\s/m,
+    variants: ["holdem", "omaha"],
   },
   {
     id: "entraction",
@@ -51,6 +52,7 @@ const SITES = [
     name: "Entraction",
     prefix: "ENT-",
     dialect: /^Game\s#\s*\d+\s+-\s.*-\s+Table\s+"/m,
+    variants: ["holdem", "omaha", "omaha5"],
   },
   {
     id: "microgaming",
@@ -58,6 +60,7 @@ const SITES = [
     name: "MicroGaming Network",
     prefix: "MG-",
     dialect: /<Game\s+hhversion="\d+"\s+id="\d+"/i,
+    variants: ["holdem", "omaha"],
   },
 ] as const;
 
@@ -70,8 +73,13 @@ const OWN_DIRS = SITES.map((site) => site.dir);
  * just as much as a wrong hand is.
  */
 const ALLOWED_REASONS = new Set([
-  // Round one is Hold'em; all three corpora are heavily Omaha.
+  // A variant the parser has not been proven against - stud, draw, and the
+  // Omaha deals no fixture here covers.
   "unsupported-variant",
+  // High-low split, which is a different game from the Omaha above it rather
+  // than an unreadable one, and carries its own reason so it cannot be mistaken
+  // for one. All three of these networks spread it.
+  "unsupported-hi-lo",
   // A tournament whose buy-in the hand never states.
   "tournament-unsupported",
   "play-money",
@@ -168,7 +176,12 @@ for (const site of SITES) {
         expect(hand.meta.warnings, where).toEqual([]);
         expect(validateHand(hand).errors, where).toEqual([]);
         expect(hand.meta.siteId).toBe(site.id);
-        expect(hand.game.variant).toBe("holdem");
+        // Spelled out per site rather than read from the parser, so that a
+        // widened allowlist has to be widened here too - deliberately, by
+        // somebody who looked at the fixtures.
+        expect(site.variants as readonly string[], where).toContain(hand.game.variant);
+        // Whatever is on the list, a split-pot hand never is.
+        expect(hand.game.hiLo, where).toBe(false);
         // `meta.rawText` must be the room's own text, not our normalized form.
         expect(hand.meta.rawText).not.toContain("Poker Hand #");
         expect(hand.meta.handKey).toBe(hand.meta.handId);

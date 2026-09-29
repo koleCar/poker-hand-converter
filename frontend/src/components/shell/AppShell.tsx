@@ -6,24 +6,27 @@ import { UserMenu } from "../auth/UserMenu";
 import { BrandMark } from "./BrandMark";
 import { DbStatusChip } from "./DbStatusChip";
 
-export type ShellTab = "converter" | "replayer";
+export type ShellTab = "converter" | "replayer" | "stats";
 
 const TABS: Array<{ id: ShellTab; label: string; path: string }> = [
   { id: "converter", label: "Upload hand", path: paths.converter() },
   { id: "replayer", label: "Hand history", path: paths.replayer() },
+  { id: "stats", label: "Statistics", path: paths.stats() },
 ];
 
 interface AppShellProps {
   /** Null on routes with no tab (e.g. 404). */
   tab: ShellTab | null;
   /**
-   * Whether the hand-history tab is offered at all.
+   * Whether the hand-history and statistics tabs are offered at all.
    *
-   * False for a visitor with nothing in it — signed out, or signed in with an
+   * False for a visitor with nothing in them — signed out, or signed in with an
    * empty library. A tab that can only lead to "you have no hands" is an
    * invitation to a dead end, so it stays out of the bar until there is
    * something behind it, and the bar collapses to the one thing the app does
-   * for a first-time visitor.
+   * for a first-time visitor. Statistics sit behind the same gate for the same
+   * reason, and a stronger one: a HUD over zero hands is not an empty screen,
+   * it is a screen of dashes that looks broken.
    */
   showHistoryTab: boolean;
   dbConfigured: boolean;
@@ -38,7 +41,7 @@ export function AppShell({
   storedCount,
   children,
 }: AppShellProps) {
-  const tabs = TABS.filter((entry) => entry.id !== "replayer" || showHistoryTab);
+  const tabs = TABS.filter((entry) => entry.id === "converter" || showHistoryTab);
 
   return (
     <div className="shell">

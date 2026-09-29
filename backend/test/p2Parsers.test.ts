@@ -114,7 +114,16 @@ function eachFile(site: (typeof SITES)[number]): Array<readonly [string, SampleF
 for (const site of SITES) {
   const files = eachFile(site);
 
-  describe(`${site.name} corpus`, () => {
+  /**
+ * Every variant any parser in this suite is allowed to emit. Kept as a flat set
+ * rather than per-site because the per-site truth already lives in
+ * `parsers/shared/variant-lock.ts`; restating it here would be a second copy to
+ * drift. What this guards is the boundary: a variant nobody unlocked must never
+ * reach a hand.
+ */
+const UNLOCKED_VARIANTS = ["holdem", "omaha", "omaha5", "omaha6"];
+
+describe(`${site.name} corpus`, () => {
     it("finds the corpus", () => {
       // The corpora are curated upstream and can shrink; the bar only has to
       // catch a directory that has gone missing entirely.
@@ -146,7 +155,14 @@ for (const site of SITES) {
         expect(validateHand(hand).errors, where).toEqual([]);
         expect(hand.meta.siteId).toBe(site.id);
         expect(hand.meta.rawText.length).toBeGreaterThan(0);
-        expect(hand.game.variant).toBe("holdem");
+        // Not `toBe("holdem")` any more. A parser emits whatever its own
+        // variant lock lists, and the lock is per room -- so the assertion that
+        // still bites is that nothing arrives from *outside* the lock. Short
+        // deck is deliberately absent everywhere: nothing downstream models a
+        // 36-card deck, and a short-deck hand read as Hold'em balances against
+        // itself exactly the way a hi/lo hand read as Omaha does.
+        expect(UNLOCKED_VARIANTS, where).toContain(hand.game.variant);
+        expect(hand.game.variant, where).not.toBe("shortdeck");
       }
     });
 

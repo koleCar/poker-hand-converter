@@ -30,7 +30,14 @@ import {
   type SiteParser,
   type SiteParserContext,
 } from "../phf/detect";
-import { parseAmount, type PhfHand, type PhfWarning } from "../phf/types";
+import {
+  parseAmount,
+  variantFromLabel,
+  type LimitType,
+  type PhfHand,
+  type PhfWarning,
+} from "../phf/types";
+import { canonicalGameLabel, HOLDEM_OMAHA, unsupportedVariantSkip } from "./shared/variant-lock";
 import {
   BANNER_REGEX,
   PARTY_DATE_REGEX,
@@ -54,6 +61,18 @@ import {
 } from "./shared/p2-handbuilder";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * Six `PL Omaha` files are in the corpus - a sit-out, a timebank warning, a
+ * player leaving and rejoining, a thousands-separated buy-in, a heads-up table
+ * and a five-hand concatenation - eleven hands in all, and every one of them
+ * parses with no warnings. partypoker also spread five-card Omaha, but no
+ * sample of it exists here, so `omaha5` stays off the list. `PL Omaha Hi-Lo`
+ * (fixture 08) is refused one step earlier and keeps its own reason.
+ */
+const PARTY_VARIANTS = HOLDEM_OMAHA;
 
 const STREET_REGEX = /^\*{2}\s*Dealing\s+(down cards|flop|turn|river)\s*\*{2}\s*(?:\[([^\]]*)\])?/i;
 const SEAT_REGEX = /^Seat\s+(\d+):\s+(.+?)\s*\(\s*([^)]*?)\s*\)\s*$/;
@@ -107,15 +126,10 @@ export const partypokerParser: SiteParser = {
     // the reason stays true once that lock lifts. `PL Omaha Hi-Lo` is in the
     // sample corpus and a split pot read as a whole one balances against
     // itself; nothing downstream would ever notice.
-    const refusal = unsupportedGameSkip(game[7]);
+    const refusal =
+      unsupportedGameSkip(game[7]) ?? unsupportedVariantSkip(game[7], PARTY_VARIANTS);
     if (refusal) {
       throw refusal;
-    }
-    if (!/(?:texas\s+)?hold\s*'?em/i.test(game[7])) {
-      throw new ParseSkip(
-        "unsupported-variant",
-        `Round one is Hold'em only; this hand is "${game[7].trim()}".`,
-      );
     }
     if (!knownZone(date[7])) {
       warnings.push({
@@ -316,7 +330,7 @@ export const partypokerParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "PTY-",
       handId,
-      gameLabel: canonicalLabel(game[6]),
+      gameLabel: canonicalGameLabel(variantFromLabel(game[7]), limitOf(game[6])),
       unit,
       decimals: "fixed2",
       headerSmallBlind: game[4] ? parseAmount(game[2], unit) : 0,
@@ -360,15 +374,18 @@ function boardOf(raw: string, street: string): string[] | null {
   return cards.length === 0 ? null : cards;
 }
 
-/** partypoker writes `NL`; trackers expect the GG wording. */
-function canonicalLabel(limit: string): string {
+/**
+ * partypoker's limit token to a `LimitType`.
+ *
+ * The shared `limitFromLabel` cannot be used here: it reads whole GG-style
+ * labels, and partypoker's bare `FL` matches none of its patterns, so a
+ * fixed-limit table would come back as no-limit.
+ */
+function limitOf(limit: string): LimitType {
   if (/^(?:PL|Pot Limit)$/i.test(limit)) {
-    return "Hold'em Pot Limit";
+    return "pl";
   }
-  if (/^(?:FL|Fixed Limit|Limit)$/i.test(limit)) {
-    return "Hold'em Limit";
-  }
-  return "Hold'em No Limit";
+  return /^(?:FL|Fixed Limit|Limit)$/i.test(limit) ? "fl" : "nl";
 }
 
 function fallbackMaxSeats(seats: DraftSeat[]): number {

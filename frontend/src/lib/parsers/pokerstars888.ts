@@ -18,8 +18,25 @@
  */
 
 import { extractCards } from "../cards";
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
-import { parseAmount, type CurrencyUnit, type PhfHand, type PhfWarning } from "../phf/types";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
+import {
+  parseAmount,
+  type CurrencyUnit,
+  type LimitType,
+  type PhfHand,
+  type PhfWarning,
+} from "../phf/types";
+import {
+  canonicalGameLabel,
+  normalizeGameName,
+  unsupportedVariantSkip,
+  variantOf,
+} from "./shared/variant-lock";
 import {
   BANNER_REGEX,
   P888_AMOUNT_REGEX,
@@ -41,6 +58,15 @@ import {
 } from "./shared/p2-handbuilder";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * One file: `08-cassava-skin-thousands-separator.txt`, a `No Limit Omaha` table
+ * on the Cassava skin. The other two Omaha files are `OmahaHL` and stay
+ * refused by the split-pot rule.
+ */
+const P888_VARIANTS = ["holdem", "omaha"] as const;
 
 /** Banners that mean 888 and nothing else. `Cassava` is 888's licence holder. */
 const BRAND_REGEX = /\b(?:888poker|888\.com|Pacific Poker|LuckyAcePoker|Cassava)\b/i;
@@ -92,11 +118,15 @@ export const poker888Parser: SiteParser = {
       );
     }
     const label = stakes[3].trim();
-    if (!/hold\s*'?em/i.test(label)) {
-      throw new ParseSkip(
-        "unsupported-variant",
-        `Round one is Hold'em only; this hand is "${label}".`,
-      );
+    // 888 welds the split-pot marker onto the game word - `Pot Limit OmahaHL` -
+    // and no pattern in `isHiLoLabel` matches a bare `HL`, so the name has to
+    // be spelled out before either reader sees it. Getting this wrong would
+    // book half a split pot as a whole one.
+    const gameName = normalizeGameName(label);
+    const refusal =
+      unsupportedGameSkip(gameName) ?? unsupportedVariantSkip(gameName, P888_VARIANTS);
+    if (refusal) {
+      throw refusal;
     }
     const small = stakes[1].trim().match(P888_AMOUNT_REGEX);
     const big = stakes[2].trim().match(P888_AMOUNT_REGEX);
@@ -290,7 +320,7 @@ export const poker888Parser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "888-",
       handId,
-      gameLabel: canonicalLabel(label),
+      gameLabel: canonicalGameLabel(variantOf(label), limitOf(label)),
       unit,
       decimals: "fixed2",
       headerSmallBlind: parseAmount(small[2], unit),
@@ -357,15 +387,12 @@ function boardOf(raw: string, street: string): string[] | null {
   return cards.length === 0 ? null : cards;
 }
 
-/** 888 writes `No Limit Holdem`; trackers expect the GG order. */
-function canonicalLabel(label: string): string {
+/** 888 writes the limit in front of the game: `No Limit Holdem`. */
+function limitOf(label: string): LimitType {
   if (/pot\s*limit/i.test(label)) {
-    return "Hold'em Pot Limit";
+    return "pl";
   }
-  if (/fix(?:ed)?\s*limit/i.test(label)) {
-    return "Hold'em Limit";
-  }
-  return "Hold'em No Limit";
+  return /fix(?:ed)?\s*limit/i.test(label) ? "fl" : "nl";
 }
 
 /** 888 omits the seat count on some tables; round up to the next real size. */

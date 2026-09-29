@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { hasPendingHand } from "../components/converter/handoff";
 import { ReplayerTab } from "../components/ReplayerTab";
 import { AppShell, type ShellTab } from "../components/shell/AppShell";
+import { StatsTab } from "../components/stats/StatsTab";
 import { UploadTab } from "../components/upload/UploadTab";
 import { useAuth } from "../lib/auth";
 import { countHands } from "../lib/db";
@@ -25,6 +26,12 @@ const META: Record<ShellTab, { title: string; description: string; path: string 
       "Browse, filter and replay every poker hand you have saved, and share one with a single link.",
     path: paths.replayer(),
   },
+  stats: {
+    title: "Statistics | Rail",
+    description:
+      "VPIP, PFR, 3-bet, continuation bets and a showdown / non-showdown win-rate graph, over every hand you have saved.",
+    path: paths.stats(),
+  },
 };
 
 export default function AppPage({ route }: { route: RouteMatch }) {
@@ -33,7 +40,13 @@ export default function AppPage({ route }: { route: RouteMatch }) {
   const auth = useAuth();
 
   const tab: ShellTab | null =
-    route.name === "converter" ? "converter" : route.name === "replayer" ? "replayer" : null;
+    route.name === "converter"
+      ? "converter"
+      : route.name === "replayer"
+        ? "replayer"
+        : route.name === "stats"
+          ? "stats"
+          : null;
 
   const refreshCount = useCallback(() => {
     if (!isSupabaseConfigured || !auth.isSignedIn) {
@@ -135,6 +148,13 @@ export default function AppPage({ route }: { route: RouteMatch }) {
       {tab === "replayer" && (historyOpen || !settled) ? (
         <ReplayerTab refreshToken={refreshToken} onHandsSaved={handleHandsSaved} />
       ) : null}
+      {/* Deliberately not behind the `historyOpen` redirect the replayer uses.
+          The tab is still hidden from the bar until there is a library behind
+          it, but a typed or bookmarked /stats renders the screen and lets it
+          explain itself — "sign in", "nothing saved yet", "statistics are not
+          set up on this database". Bouncing someone to the converter instead
+          would answer a question they asked by pretending they did not. */}
+      {tab === "stats" ? <StatsTab refreshToken={refreshToken} /> : null}
       {tab === null ? <NotFoundPage /> : null}
     </AppShell>
   );

@@ -47,14 +47,25 @@
  */
 
 import { extractCards } from "../cards";
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   unitForCode,
   type Amount,
   type CurrencyUnit,
+  type LimitType,
   type PhfHand,
   type PhfWarning,
 } from "../phf/types";
+import {
+  canonicalGameLabel,
+  unsupportedVariantSkip,
+  variantOf,
+} from "./shared/variant-lock";
 import {
   buildHand,
   type DraftAction,
@@ -70,6 +81,18 @@ import {
 } from "./shared/p4-textroom";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * Two files, one each: `Omaha High Pot Limit` and `5-Card Omaha High Pot
+ * Limit`. Both parse with no warnings, and the five-card one is the only
+ * evidence anywhere in the repository that a five-card deal block reads
+ * correctly outside GG - which is why it earns `omaha5` here even though the
+ * sample is a single hand. The other four Omaha files are `Omaha Hi/Lo` and
+ * stay refused.
+ */
+const ENTRACTION_VARIANTS = ["holdem", "omaha", "omaha5"] as const;
 
 /**
  * `Game # <id> - <game> <limit> <CUR> <sb>/<bb> - Table "<name>"`.
@@ -120,12 +143,15 @@ export const entractionParser: SiteParser = {
       throw new ParseSkip("no-header", "The chunk does not open with an Entraction header line.");
     }
     const [, handId, gameWord, limitWord, currency, smallBlind, bigBlind, tableName] = header;
-    if (!/^Texas\s+Hold'?em$/i.test(gameWord)) {
-      throw new ParseSkip(
-        "unsupported-variant",
-        `Round one is Hold'em only; this hand is "${gameWord}".`,
-      );
+    // `Omaha Hi/Lo` is four of this corpus's six Omaha files and is refused on
+    // its own terms, before the allowlist, so the reason names the split pot
+    // rather than the deal.
+    const refusal =
+      unsupportedGameSkip(gameWord) ?? unsupportedVariantSkip(gameWord, ENTRACTION_VARIANTS);
+    if (refusal) {
+      throw refusal;
     }
+    const variant = variantOf(gameWord);
     const unit = unitForCode(currency);
 
     // Seats are listed before any action, and names can contain spaces, so the
@@ -268,7 +294,7 @@ export const entractionParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "ENT-",
       handId,
-      gameLabel: canonicalLabel(limitWord),
+      gameLabel: canonicalGameLabel(variant, limitOf(limitWord)),
       unit,
       decimals: "fixed2",
       headerSmallBlind: strictAmount(smallBlind, unit, "the header stakes"),
@@ -422,12 +448,12 @@ function isoFromEntractionDate(match: RegExpMatchArray): string | null {
   return new Date(local - offset * 60_000).toISOString();
 }
 
-/** Entraction writes `No Limit`; trackers expect the GG wording. */
-function canonicalLabel(limit: string): string {
+/** Entraction's limit clause, which the header always states in full. */
+function limitOf(limit: string): LimitType {
   if (/^Pot Limit$/i.test(limit)) {
-    return "Hold'em Pot Limit";
+    return "pl";
   }
-  return /^Fixed Limit$/i.test(limit) ? "Hold'em Limit" : "Hold'em No Limit";
+  return /^Fixed Limit$/i.test(limit) ? "fl" : "nl";
 }
 
 /** `Players(max N)` is authoritative when present; this is the fallback. */

@@ -7,7 +7,7 @@
  * The shared-hand page is a public landing surface, so bytes matter there.
  */
 
-export type RouteName = "converter" | "replayer" | "shared-hand" | "not-found";
+export type RouteName = "converter" | "replayer" | "stats" | "shared-hand" | "not-found";
 
 export interface RouteMatch {
   name: RouteName;
@@ -36,6 +36,7 @@ export function toHref(path: string): string {
 export const paths = {
   converter: () => "/",
   replayer: () => "/replay",
+  stats: () => "/stats",
   sharedHand: (slug: string) => `/h/${encodeURIComponent(slug)}`,
 };
 
@@ -73,11 +74,15 @@ const ALIASES: Record<string, string> = {
   "/upload": "/",
   "/replayer": "/replay",
   "/hands": "/replay",
+  // "statistics" is what the tab is called; "/stats" is what a person types.
+  "/statistics": "/stats",
+  "/graph": "/stats",
 };
 
 const PATTERNS: Array<{ name: RouteName; segments: string[] }> = [
   { name: "converter", segments: [] },
   { name: "replayer", segments: ["replay"] },
+  { name: "stats", segments: ["stats"] },
   { name: "shared-hand", segments: ["h", ":slug"] },
 ];
 

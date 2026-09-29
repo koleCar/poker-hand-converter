@@ -239,6 +239,29 @@ function isHoldem(chunk: string): boolean {
   return /^(?:Game )?Hand #\d+ - (?:.*Tournament #\S+ - )?Hold'?em\(/m.test(chunk);
 }
 
+/**
+ * Four-card Omaha, high only, read the same way.
+ *
+ * `(Omaha)` and `(Omaha HiLow)` are two different games and the second one is
+ * still refused, so the test cannot ask "does the header mention Omaha".
+ */
+function isOmahaHigh(chunk: string): boolean {
+  if (/^Game started at:/.test(chunk)) {
+    return /^Game ID:.*\(Omaha\)\s*$/m.test(chunk);
+  }
+  return /^(?:Game )?Hand #\d+ - (?:.*Tournament #\S+ - )?Omaha\(/m.test(chunk);
+}
+
+/** The header line a refusal reason has to be judged against. */
+function headerLineOf(chunk: string): string {
+  return (
+    chunk
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .find((line) => /^Game ID:/.test(line) || /^(?:Game )?Hand #\d+ - /.test(line)) ?? ""
+  );
+}
+
 /** Refusals the corpus genuinely earns, with how many hands each accounts for. */
 const WPN_EXPECTED_REFUSALS: Record<string, number> = {
   // Two 2016 exports lost the player name on money-moving lines.
@@ -298,10 +321,25 @@ describe("ACR / Winning Poker Network", () => {
         converted: dialect === "legacy" ? 122 : dialect === "modern" ? 6 : 1,
       });
 
-      // Everything that is not hold'em is a deliberate refusal, never a crash.
+      // Everything that is not hold'em is either four-card Omaha, which the
+      // parser's allowlist now admits, or a deliberate refusal - never a crash.
+      // Hi/Lo keeps its own reason code: it is a different game from the Omaha
+      // above it, not an unreadable one, and the distinction is what stops a
+      // split pot being booked as a whole one.
       for (const outcome of list.filter((entry) => !isHoldem(entry.chunk))) {
+        const header = headerLineOf(outcome.chunk);
+        if (isOmahaHigh(outcome.chunk)) {
+          expect(outcome.hand, `${outcome.file}: ${outcome.message}`).not.toBeNull();
+          expect(outcome.hand!.game.variant).toBe("omaha");
+          expect(outcome.hand!.game.limit).toBe("pl");
+          expect(outcome.hand!.game.hiLo).toBe(false);
+          expect(outcome.hand!.meta.warnings, outcome.file).toEqual([]);
+          continue;
+        }
         expect(outcome.hand).toBeNull();
-        expect(outcome.reason).toBe("unsupported-variant");
+        expect(outcome.reason, header).toBe(
+          /hilow|h\/l|hi\\lo/i.test(header) ? "unsupported-hi-lo" : "unsupported-variant",
+        );
       }
     },
   );
