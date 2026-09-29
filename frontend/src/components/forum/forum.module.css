@@ -302,3 +302,8 @@
   color: var(--fg);
   font-weight: var(--font-weight-semibold);
 }
+
+.banner {
+  justify-self: start;
+  border-color: var(--accent);
+}

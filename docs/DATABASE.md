@@ -13,6 +13,7 @@ The schema is defined by four migrations:
 | `20261007090000_forum_identity.sql` | Profiles, usernames, reservations, roles and posting gates (F6, #28 / #29). See [Identity](#identity-profiles-usernames-and-gates). |
 | `20261012090000_forum_publishing.sql` | Published hands: a scrubbed copy, `scrub_phf`, `publish_hand` (F7, #30 / #31). See [Publishing](#publishing-a-hand). |
 | `20261019090000_forum_core.sql` | Boards, posts, threaded and anchored comments, votes, ranking, audit, search (F8, #32–#34, #37). See [The forum](#the-forum). |
+| `20261026090000_forum_social.sql` | Saves, thread subscriptions, notifications, mentions, realtime, nightly reconciliation (F9, #38 / #39). See [Notifications](#notifications-and-realtime). |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -28,6 +29,7 @@ the app touches Supabase.
 - [Identity: profiles, usernames and gates](#identity-profiles-usernames-and-gates)
 - [Publishing a hand](#publishing-a-hand)
 - [The forum](#the-forum)
+- [Notifications and realtime](#notifications-and-realtime)
 - [RLS policies and grants](#rls-policies-and-grants)
 - [Indexes and the queries they serve](#indexes-and-the-queries-they-serve)
 - [Applying a migration](#applying-a-migration)
@@ -329,6 +331,47 @@ Server rendering is unaffected: crawlers get the full thread and its
 `DiscussionForumPosting` JSON-LD either way.
 
 Tests: `supabase/tests/database/forum.test.sql` — 63 assertions.
+
+---
+
+## Notifications and realtime
+
+`20261026090000_forum_social.sql`.
+
+| Table | Read by | Written by |
+| --- | --- | --- |
+| `saved_posts` | select-own | `save_post(public_id, saved)` |
+| `thread_subscriptions` (`watching` / `muted`) | select-own | `set_thread_subscription`, plus auto-watch when you post (trigger) or comment (fan-out) |
+| `notifications` | select-own; `my_notifications`, `unread_notification_count` | `fan_out_comment_notifications` only; `mark_notifications_read` sets `read_at` |
+
+**`fan_out_comment_notifications`** is called from `create_comment` (not a
+trigger — self-suppression, mutes and caps are product rules). One row per
+person, in priority order: the replied-to comment's author, the post's author
+for a top-level comment, up to **5** `@mentions`, up to **50** watchers. Never:
+the commenter, anyone who muted the thread (a mute silences replies and
+mentions too), a banned account, and — for everyone — nobody at all when the
+commenter is shadowbanned.
+
+**Realtime**, for exactly two things:
+
+* the unread badge — Postgres Changes on `notifications`, filtered
+  `user_id=eq.<uid>`. `notifications` is in the `supabase_realtime`
+  publication, and the select-own policy is what keeps the feed private. **The
+  client must `realtime.setAuth(token)` before joining**: a channel joined as
+  `anon` subscribes successfully and then receives nothing.
+* "N new comments" on an open thread — **Broadcast** from the
+  `comments_broadcast` trigger via `realtime.send(…, 'post:<public_id>', false)`.
+  Not Postgres Changes: RLS per subscriber per row on a hot table is the
+  scaling cliff. Public, because the payload is a count and a seq; skipped for
+  a shadowbanned author.
+
+**Nightly** (`pg_cron`, created by the migration where it can be):
+`recount_forum_counters()` + `recount_forum_karma()` at 03:17, and
+`sweep_rate_limits()` hourly — per-actor buckets (`'comment:<uid>'`) would
+otherwise grow `ingest_rate_limit` forever. All three are service-role only
+and idempotent.
+
+Tests: `supabase/tests/database/social.test.sql` — 35 assertions.
 
 ---
 

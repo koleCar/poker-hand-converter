@@ -44,6 +44,8 @@ export const paths = {
   comment: (board: string, publicId: string, slug: string, seq: number) =>
     `/f/${encodeURIComponent(board)}/${encodeURIComponent(publicId)}/${encodeURIComponent(slug)}#c-${seq}`,
   submit: () => "/submit",
+  notifications: () => "/notifications",
+  saved: () => "/saved",
   search: (query?: string) => (query ? `/search?q=${encodeURIComponent(query)}` : "/search"),
   /** A published hand. Public, indexable — unlike `/h/:slug`. */
   publishedHand: (publicId: string) => `/p/${encodeURIComponent(publicId)}`,

@@ -8,11 +8,38 @@
  * is left outside it.
  */
 
-export type TextSegment = { kind: "text"; text: string } | { kind: "link"; href: string; text: string };
+export type TextSegment =
+  | { kind: "text"; text: string }
+  | { kind: "link"; href: string; text: string }
+  | { kind: "mention"; username: string; text: string };
 
 const URL_PATTERN = /https?:\/\/[^\s<>"']+/g;
 
+/**
+ * `@username` — the same shape `fan_out_comment_notifications` matches, so what
+ * renders as a mention is exactly what notified somebody: a username character
+ * class, 3–24 long, not glued to a preceding word or `@`.
+ */
+const MENTION_PATTERN = /(^|[^A-Za-z0-9_@])@([A-Za-z0-9][A-Za-z0-9_]{2,23})/g;
+
+function mentionify(text: string): TextSegment[] {
+  const segments: TextSegment[] = [];
+  let last = 0;
+  for (const match of text.matchAll(MENTION_PATTERN)) {
+    const start = (match.index ?? 0) + match[1].length;
+    if (start > last) segments.push({ kind: "text", text: text.slice(last, start) });
+    segments.push({ kind: "mention", username: match[2], text: `@${match[2]}` });
+    last = start + match[2].length + 1;
+  }
+  if (last < text.length) segments.push({ kind: "text", text: text.slice(last) });
+  return segments;
+}
+
 export function linkify(line: string): TextSegment[] {
+  return linkUrls(line).flatMap((segment) => (segment.kind === "text" ? mentionify(segment.text) : [segment]));
+}
+
+function linkUrls(line: string): TextSegment[] {
   const segments: TextSegment[] = [];
   let last = 0;
   for (const match of line.matchAll(URL_PATTERN)) {

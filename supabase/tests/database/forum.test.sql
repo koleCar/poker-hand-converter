@@ -185,22 +185,26 @@ select is((select count(*)::int from public.posts where title = 'Buy cheap chips
 
 -- ------------------------------------------------------------------- feed --
 
+-- Its own board, so the counts do not depend on whatever else a database holds.
+select pg_temp.act_as_owner();
+insert into public.boards (slug, name) values ('feedtest', 'Feed test');
 select pg_temp.act_as('00000000-0000-0000-0000-0000000000f2');
-select public.create_post('nlhe', 'Second nlhe post', 'b');
-select public.create_post('nlhe', 'Third nlhe post', 'c');
+select public.create_post('feedtest', 'First feedtest post', 'a');
+select public.create_post('feedtest', 'Second nlhe post', 'b');
+select public.create_post('feedtest', 'Third nlhe post', 'c');
 select pg_temp.act_as_anon();
-select is(jsonb_array_length(public.forum_feed('nlhe', 'new', null, 2) -> 'posts'), 2, 'the first page has two');
-select isnt(public.forum_feed('nlhe', 'new', null, 2) ->> 'next', null, '... and a cursor');
+select is(jsonb_array_length(public.forum_feed('feedtest', 'new', null, 2) -> 'posts'), 2, 'the first page has two');
+select isnt(public.forum_feed('feedtest', 'new', null, 2) ->> 'next', null, '... and a cursor');
 select is(
-  jsonb_array_length(public.forum_feed('nlhe', 'new', public.forum_feed('nlhe', 'new', null, 2) ->> 'next', 2) -> 'posts'), 1,
+  jsonb_array_length(public.forum_feed('feedtest', 'new', public.forum_feed('feedtest', 'new', null, 2) ->> 'next', 2) -> 'posts'), 1,
   'the second page has the rest');
 select is(
   (select count(distinct p ->> 'publicId')::int from (
-     select jsonb_array_elements(public.forum_feed('nlhe', 'new', null, 2) -> 'posts') p
+     select jsonb_array_elements(public.forum_feed('feedtest', 'new', null, 2) -> 'posts') p
      union all
-     select jsonb_array_elements(public.forum_feed('nlhe', 'new', public.forum_feed('nlhe', 'new', null, 2) ->> 'next', 2) -> 'posts')) x),
+     select jsonb_array_elements(public.forum_feed('feedtest', 'new', public.forum_feed('feedtest', 'new', null, 2) ->> 'next', 2) -> 'posts')) x),
   3, 'no post appears on both pages');
-select is(jsonb_array_length(public.forum_feed('nlhe', 'hot', 'garbage~cursor', 2) -> 'posts'), 2,
+select is(jsonb_array_length(public.forum_feed('feedtest', 'hot', 'garbage~cursor', 2) -> 'posts'), 2,
   'a mangled cursor is the first page, not an error');
 select is(public.forum_feed('no-such-board'), null, 'an unknown board is null');
 
