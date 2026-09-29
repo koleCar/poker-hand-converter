@@ -20,9 +20,10 @@ import { DbStatusChip } from "./DbStatusChip";
  * that used to live in `routes/router.tsx` is gone, and with it the click
  * handler that re-implemented modifier-key and middle-click semantics.
  */
-export type ShellTab = "convert" | "library" | "stats";
+export type ShellTab = "forum" | "convert" | "library" | "stats";
 
 const TABS: Array<{ id: ShellTab; label: string; path: string }> = [
+  { id: "forum", label: en.nav.forum, path: paths.home() },
   { id: "convert", label: en.nav.convert, path: paths.convert() },
   { id: "library", label: en.nav.library, path: paths.library() },
   { id: "stats", label: en.nav.stats, path: paths.stats() },
@@ -55,7 +56,9 @@ export function AppShell({
   storedCount,
   children,
 }: AppShellProps) {
-  const tabs = TABS.filter((entry) => entry.id === "convert" || showHistoryTab);
+  // The forum and the converter are for everyone; the library and statistics
+  // wait until there is something in them.
+  const tabs = TABS.filter((entry) => entry.id === "forum" || entry.id === "convert" || showHistoryTab);
 
   return (
     <div className="shell">

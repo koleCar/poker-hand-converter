@@ -132,7 +132,10 @@ export function PublishHandButton({ storedHandId }: { storedHandId: string | nul
                   {notice}
                 </p>
                 <div className={styles.actions}>
-                  <Link href={paths.publishedHand(publishedId)} className="btn btn--primary">
+                  <Link href={`${paths.submit()}?hand=${encodeURIComponent(publishedId)}`} className="btn btn--primary">
+                    {en.publish.discuss}
+                  </Link>
+                  <Link href={paths.publishedHand(publishedId)} className="btn">
                     {en.publish.view}
                   </Link>
                   <button type="button" className="btn btn--ghost" onClick={() => setOpen(false)}>
@@ -144,7 +147,10 @@ export function PublishHandButton({ storedHandId }: { storedHandId: string | nul
               <>
                 <p className="muted">{en.publish.already}</p>
                 <div className={styles.actions}>
-                  <Link href={paths.publishedHand(publishedId)} className="btn btn--primary">
+                  <Link href={`${paths.submit()}?hand=${encodeURIComponent(publishedId)}`} className="btn btn--primary">
+                    {en.publish.discuss}
+                  </Link>
+                  <Link href={paths.publishedHand(publishedId)} className="btn">
                     {en.publish.view}
                   </Link>
                   <button type="button" className="btn btn--ghost" onClick={() => setOpen(false)}>

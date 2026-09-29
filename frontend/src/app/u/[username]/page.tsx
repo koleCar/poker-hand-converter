@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { OwnProfileActions } from "./OwnProfileActions";
-import { ProfileFrame } from "./ProfileFrame";
+import { ServerFrame } from "../../../components/shell/ServerFrame";
 import { en } from "../../../lib/i18n/en";
 import { paths } from "../../../lib/routes";
 import { publishedHandsByAuthor, type PublishedHandSummary } from "../../../lib/server/published";
@@ -64,7 +64,7 @@ export default async function ProfilePage({ params }: PageProps) {
   }
 
   return (
-    <ProfileFrame>
+    <ServerFrame>
       {result.status === "ok" ? (
         <ProfileContent profile={result.profile} hands={await publishedHandsByAuthor(result.profile.username)} />
       ) : (
@@ -78,7 +78,7 @@ export default async function ProfilePage({ params }: PageProps) {
           </div>
         </section>
       )}
-    </ProfileFrame>
+    </ServerFrame>
   );
 }
 

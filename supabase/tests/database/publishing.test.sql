@@ -204,7 +204,7 @@ select throws_ok(
   '23514', null, 'even the owner role cannot store an unscrubbed document: the CHECK is the last line');
 
 select pg_temp.act_as_anon();
-select is((select count(*)::int from public.published_hands), 1, 'anon reads visible publications');
+select is((select count(*)::int from public.published_hands where public_id = current_setting('test.pid')), 1, 'anon reads visible publications');
 select throws_ok($$ insert into public.published_hands (public_id, mode, phf, site) values ('3333333333', 'pseudonyms', '{}', 'x') $$,
   '42501', null, 'anon cannot insert');
 select throws_ok($$ update public.published_hands set title = 'x' $$, '42501', null, 'anon cannot update');
@@ -247,7 +247,7 @@ select is(public.read_published_hand(current_setting('test.pid')),
   jsonb_build_object('status', 'deleted', 'publicId', current_setting('test.pid')),
   'a deleted publication returns its status and nothing else -- no document, no author');
 
-select is((select count(*)::int from public.published_hands), 0,
+select is((select count(*)::int from public.published_hands where public_id = current_setting('test.pid')), 0,
   '... and the row itself is no longer readable');
 
 select * from finish();

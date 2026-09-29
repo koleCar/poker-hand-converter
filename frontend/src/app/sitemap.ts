@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
 import { canonicalUrl, paths } from "../lib/routes";
+import { recentPosts } from "../lib/server/forum";
 import { recentPublishedHands } from "../lib/server/published";
 
 /**
  * `/sitemap.xml`.
  *
- * The home page, the converter, and every published hand (`/p/:id`) — the
+ * The home page, the converter, every forum thread and every published hand (`/p/:id`) — the
  * whole set of pages that are public, stable and the same for everybody.
  * Published hands are the content F7 exists to create; they are listed from
  * the table the visibility policy guards, so a removed hand drops out of this
@@ -27,7 +28,7 @@ import { recentPublishedHands } from "../lib/server/published";
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const hands = await recentPublishedHands();
+  const [hands, posts] = await Promise.all([recentPublishedHands(), recentPosts()]);
   return [
     {
       url: canonicalUrl(paths.home()),
@@ -39,6 +40,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    ...posts.map((post) => ({
+      url: canonicalUrl(paths.post(...post.path)),
+      lastModified: post.createdAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
     ...hands.map((hand) => ({
       url: canonicalUrl(paths.publishedHand(hand.publicId)),
       lastModified: hand.createdAt,
