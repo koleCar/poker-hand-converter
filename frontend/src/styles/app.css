@@ -1,7 +1,14 @@
-/* Cards, chips and the replayer live in their own files so this shared sheet
-   stays small. @import keeps their cascade position deterministic. */
-@import "./styles/cards.css";
-@import "./styles/replayer.css";
+/* The shared component base: layout, cards, buttons, notices, tables.
+ *
+ * Was `src/App.css`, next to the `App.tsx` the Next.js move deleted. Same 735
+ * lines, same cascade position — the root layout imports it last of the global
+ * sheets, so these `.btn` / `.card` families stay the base that `converter.css`,
+ * `stats.css` and the rest override.
+ *
+ * Cards, chips and the replayer live in their own files so this sheet stays
+ * small. @import keeps their cascade position deterministic. */
+@import "./cards.css";
+@import "./replayer.css";
 
 /* ---------------------------------------------------------------- layout */
 
@@ -74,6 +81,13 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
+  /* `.btn` is worn by `<a>` as often as by `<button>` — every call to action in
+     the app is a link with this class on it. The share page and the shell bar
+     each used to kill the underline in their own sheet, which left any new
+     surface (the feed placeholder, the 404) with underlined buttons until
+     somebody noticed. It belongs on the class that claims to look like a
+     button. */
+  text-decoration: none;
   padding: 8px 15px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--line);

@@ -9,6 +9,8 @@
  * brief blank.
  */
 
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
 

@@ -77,6 +77,24 @@ export default {
 
   overrides: [
     {
+      /* `styles/fonts.css` was lifted verbatim out of the old `index.html`
+         <style> block at the Next.js move — same declarations, same order, same
+         measured numbers — and it was never linted there, because it was HTML.
+
+         The one rule it trips is `font-family-name-quotes`, which wants
+         `Inter` unquoted because the identifier needs no quotes. The house
+         convention is the opposite: `semantic.css` writes
+         `--font-family-sans: "Inter", …`, and stylelint does not check custom
+         property values, so it has never been asked. Unquoting here to satisfy
+         a rule would make the one file that declares the face disagree with the
+         token that names it. */
+      files: ["src/styles/fonts.css"],
+      rules: {
+        "font-family-name-quotes": null,
+      },
+    },
+
+    {
       files: ["src/**/*.css"],
       rules: {
         "color-no-hex": true,

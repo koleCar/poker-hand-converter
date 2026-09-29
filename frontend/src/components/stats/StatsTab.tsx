@@ -16,6 +16,8 @@
  * turn a clear explanation back into a stack trace.
  */
 
+"use client";
+
 import { useCallback, useEffect, useState } from "react";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,

@@ -1,5 +1,5 @@
 /* The design tokens live in `styles/tokens/` and are pulled in here, in this
-   order, as a single cascade layer:
+   order:
 
      primitives   raw ramps — never referenced outside tokens/
      semantic     what components use, plus the legacy aliases
@@ -10,17 +10,25 @@
    `:root` it overrides, so it only wins by arriving later. The import order
    below is load-bearing.
 
-   They sit in a layer, and the base rules further down this file do not,
-   because an unlayered rule beats every layered one: the tokens are custom
-   properties that nothing else declares, so demoting them costs nothing, while
-   demoting `body` or `input` would quietly reshuffle them under every
-   component sheet. */
-@layer tokens;
+   Each of those four files declares `@layer tokens` around its own contents.
+   That used to be done here, as `@import "..." layer(tokens)` — but Next's
+   css-loader emits the layer condition in the media slot, producing
+   `@media layer(tokens){…}`, which is not a valid media query and which every
+   browser therefore drops. The symptom is an app that builds and lints cleanly
+   and renders as unstyled HTML, because every `var(--token)` resolves to
+   nothing. The plain `@import` below inlines each file with its own `@layer`
+   block intact.
 
-@import "./styles/tokens/primitives.css" layer(tokens);
-@import "./styles/tokens/semantic.css" layer(tokens);
-@import "./styles/tokens/theme-light.css" layer(tokens);
-@import "./styles/tokens/motion.css" layer(tokens);
+   The base rules further down this file are deliberately NOT in a layer: an
+   unlayered rule beats every layered one, so the tokens are demoted on purpose
+   — they are custom properties nothing else declares, so it costs nothing —
+   while demoting `body` or `input` would quietly reshuffle them under every
+   component sheet. */
+
+@import "./styles/tokens/primitives.css";
+@import "./styles/tokens/semantic.css";
+@import "./styles/tokens/theme-light.css";
+@import "./styles/tokens/motion.css";
 
 :root {
   font-family: var(--font-family-sans);

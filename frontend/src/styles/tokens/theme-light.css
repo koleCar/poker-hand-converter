@@ -42,127 +42,151 @@
    body-size text.
    =========================================================================== */
 
-[data-theme="light"] {
-  color-scheme: light;
+/* ---------------------------------------------------------------------------
+ * Everything below is inside `@layer tokens`.
+ *
+ * It used to be put there by the importer — `index.css` said
+ * `@import "./styles/tokens/primitives.css" layer(tokens);`. That form does not
+ * survive the Next.js build: css-loader inlines the file but emits the layer
+ * condition in the *media* slot, producing `@media layer(tokens){…}`. That is
+ * not a valid media query, so every browser drops the whole block — which meant
+ * every design token silently evaluated to nothing and the app rendered as
+ * unstyled HTML. It builds, it lints, and it looks completely broken.
+ *
+ * Declaring the layer here instead is equivalent and has no such dependency on
+ * how the file is pulled in. `index.css` now uses a plain `@import`.
+ *
+ * Why a layer at all: an unlayered rule beats every layered one regardless of
+ * order, so putting the tokens in a layer means a component sheet can always
+ * override one at the same specificity without depending on import order. It
+ * costs nothing here — these are custom properties nothing else declares —
+ * whereas demoting `body` or `input` would quietly reshuffle them under every
+ * component sheet, which is why the base rules in `index.css` stay unlayered.
+ * ------------------------------------------------------------------------- */
 
-  /* --------------------------------------------------------- surfaces */
-  --surface-sunken: var(--n-100);
-  --surface-base: var(--n-50);
-  /* Same trick, the other way up: a tile on a white card is the page grey. */
-  --surface-inset: var(--n-50);
-  --surface-raised: var(--n-0);
-  --surface-raised-2: var(--n-100);
-  --surface-overlay: var(--n-0);
-  --surface-scrim: rgb(15 20 28 / 42%);
+@layer tokens {
+  [data-theme="light"] {
+    color-scheme: light;
 
-  /* A panel is still lit from above; it just fades toward the page instead of
-     away from it. */
-  --surface-raised-fade: var(--n-50);
+    /* --------------------------------------------------------- surfaces */
+    --surface-sunken: var(--n-100);
+    --surface-base: var(--n-50);
+    /* Same trick, the other way up: a tile on a white card is the page grey. */
+    --surface-inset: var(--n-50);
+    --surface-raised: var(--n-0);
+    --surface-raised-2: var(--n-100);
+    --surface-overlay: var(--n-0);
+    --surface-scrim: rgb(15 20 28 / 42%);
 
-  /* --surface-hover is --n-200 rather than --n-100 because --surface-raised-2
-     is already --n-100 here: a control whose rest fill is the hover fill has
-     no hover. */
-  --surface-hover: var(--n-200);
+    /* A panel is still lit from above; it just fades toward the page instead of
+       away from it. */
+    --surface-raised-fade: var(--n-50);
 
-  /* The active tab becomes a brand-blue pill. In the dark theme a lighter
-     slate plate is enough to read as chosen; on a white page it is not, and a
-     slightly-greyer-white tab next to three white ones says nothing. */
-  --surface-selected: var(--a-600);
-  --surface-selected-edge: var(--a-700);
+    /* --surface-hover is --n-200 rather than --n-100 because --surface-raised-2
+       is already --n-100 here: a control whose rest fill is the hover fill has
+       no hover. */
+    --surface-hover: var(--n-200);
 
-  /* Mid-grey, so the off state is visibly off against a white card and the
-     --text-secondary thumb still reads on top of it. */
-  --control-track: var(--n-200);
+    /* The active tab becomes a brand-blue pill. In the dark theme a lighter
+       slate plate is enough to read as chosen; on a white page it is not, and a
+       slightly-greyer-white tab next to three white ones says nothing. */
+    --surface-selected: var(--a-600);
+    --surface-selected-edge: var(--a-700);
 
-  /* The page blooms become daylight rather than lamplight. */
-  --surface-glow-1: #e9f0fa;
-  --surface-glow-2: #eef3f9;
+    /* Mid-grey, so the off state is visibly off against a white card and the
+       --text-secondary thumb still reads on top of it. */
+    --control-track: var(--n-200);
 
-  /* ---------------------------------------------------------- borders
-     Inverted through the ramp: what was one step above the page in the dark
-     theme is one step below it here. */
-  --border-subtle: var(--n-100);
-  --border-default: var(--n-200);
-  --border-strong: var(--n-300);
-  --border-focus: var(--a-600);
-  --border-hover: var(--n-300);
+    /* The page blooms become daylight rather than lamplight. */
+    --surface-glow-1: #e9f0fa;
+    --surface-glow-2: #eef3f9;
 
-  /* ------------------------------------------------------------- text
-     --text-primary is --n-900 rather than --n-1000: pure-black-on-white is
-     harsher than it needs to be for long-form reading, which is most of what
-     the light theme exists for. */
-  --text-primary: var(--n-900);
-  --text-secondary: var(--n-600);
-  --text-tertiary: var(--n-550);
-  --text-inverse: var(--n-0);
-  --text-on-accent: var(--n-0);
-  --text-link: var(--a-600);
-  /* --text-on-selected stays #ffffff: the selected plate is --a-600 here, and
-     white on it is the same 5.37:1 as --text-on-accent on the primary button. */
+    /* ---------------------------------------------------------- borders
+       Inverted through the ramp: what was one step above the page in the dark
+       theme is one step below it here. */
+    --border-subtle: var(--n-100);
+    --border-default: var(--n-200);
+    --border-strong: var(--n-300);
+    --border-focus: var(--a-600);
+    --border-hover: var(--n-300);
 
-  /* ----------------------------------------------------------- accent
-     --a-400 is the brand blue but only reaches 2.59:1 on white, so the light
-     theme drops two steps to --a-600 for anything carrying meaning, and
-     darkens rather than lightens on hover. */
-  --accent-fg: var(--a-600);
-  --accent-bg: var(--a-600);
-  --accent-bg-hover: var(--a-700);
-  --accent-bg-active: var(--a-800);
-  --accent-border: var(--a-500);
-  --accent-subtle: var(--a-50);
-  /* On a chip that is already 15% --a-600 over --n-100, --a-700 gives 5.46:1. */
-  --accent-on-subtle: var(--a-700);
+    /* ------------------------------------------------------------- text
+       --text-primary is --n-900 rather than --n-1000: pure-black-on-white is
+       harsher than it needs to be for long-form reading, which is most of what
+       the light theme exists for. */
+    --text-primary: var(--n-900);
+    --text-secondary: var(--n-600);
+    --text-tertiary: var(--n-550);
+    --text-inverse: var(--n-0);
+    --text-on-accent: var(--n-0);
+    --text-link: var(--a-600);
+    /* --text-on-selected stays #ffffff: the selected plate is --a-600 here, and
+       white on it is the same 5.37:1 as --text-on-accent on the primary button. */
 
-  /* ------------------------------------------------------------ money */
-  --money-fg: var(--m-600);
-  --money-strong: var(--m-700);
-  --money-subtle: var(--m-500);
+    /* ----------------------------------------------------------- accent
+       --a-400 is the brand blue but only reaches 2.59:1 on white, so the light
+       theme drops two steps to --a-600 for anything carrying meaning, and
+       darkens rather than lightens on hover. */
+    --accent-fg: var(--a-600);
+    --accent-bg: var(--a-600);
+    --accent-bg-hover: var(--a-700);
+    --accent-bg-active: var(--a-800);
+    --accent-border: var(--a-500);
+    --accent-subtle: var(--a-50);
+    /* On a chip that is already 15% --a-600 over --n-100, --a-700 gives 5.46:1. */
+    --accent-on-subtle: var(--a-700);
 
-  --profit-fg: var(--st-success-700);
-  --loss-fg: var(--st-danger-700);
+    /* ------------------------------------------------------------ money */
+    --money-fg: var(--m-600);
+    --money-strong: var(--m-700);
+    --money-subtle: var(--m-500);
 
-  /* ----------------------------------------------------------- status
-     Same hues, read from the other end of each ramp: the tint becomes the
-     background and the shade becomes the text. */
-  --success-fg: var(--st-success-700);
-  --success-bg: var(--st-success-100);
-  --success-border: color-mix(in srgb, var(--st-success-500) 45%, var(--n-0));
+    --profit-fg: var(--st-success-700);
+    --loss-fg: var(--st-danger-700);
 
-  --warning-fg: var(--st-warning-700);
-  --warning-bg: var(--st-warning-100);
-  --warning-border: color-mix(in srgb, var(--st-warning-500) 45%, var(--n-0));
+    /* ----------------------------------------------------------- status
+       Same hues, read from the other end of each ramp: the tint becomes the
+       background and the shade becomes the text. */
+    --success-fg: var(--st-success-700);
+    --success-bg: var(--st-success-100);
+    --success-border: color-mix(in srgb, var(--st-success-500) 45%, var(--n-0));
 
-  --danger-fg: var(--st-danger-700);
-  --danger-bg: var(--st-danger-100);
-  --danger-border: color-mix(in srgb, var(--st-danger-500) 45%, var(--n-0));
+    --warning-fg: var(--st-warning-700);
+    --warning-bg: var(--st-warning-100);
+    --warning-border: color-mix(in srgb, var(--st-warning-500) 45%, var(--n-0));
 
-  --info-fg: var(--st-info-700);
-  --info-bg: var(--st-info-100);
-  --info-border: color-mix(in srgb, var(--st-info-500) 45%, var(--n-0));
+    --danger-fg: var(--st-danger-700);
+    --danger-bg: var(--st-danger-100);
+    --danger-border: color-mix(in srgb, var(--st-danger-500) 45%, var(--n-0));
 
-  /* Status ink on a tint. The dark theme lifts away from the tint; the light
-     theme drops into it, so these collapse onto the same -700 shades the page
-     already uses. Measured on each hue's own 10% tint over --n-0:
+    --info-fg: var(--st-info-700);
+    --info-bg: var(--st-info-100);
+    --info-border: color-mix(in srgb, var(--st-info-500) 45%, var(--n-0));
 
-       --success-on-tint #12684a on #e6f7f0 =  6.1:1
-       --warning-on-tint #7a5306 on #fdf6e7 =  6.2:1
-       --danger-on-tint  #a32020 on #fdeded =  6.8:1
-       --info-on-tint    #0b5aa0 on #ebf5ff =  6.3:1 */
-  --success-on-tint: var(--st-success-700);
-  --warning-on-tint: var(--st-warning-700);
-  --danger-on-tint: var(--st-danger-700);
-  --info-on-tint: var(--st-info-700);
+    /* Status ink on a tint. The dark theme lifts away from the tint; the light
+       theme drops into it, so these collapse onto the same -700 shades the page
+       already uses. Measured on each hue's own 10% tint over --n-0:
 
-  /* Anonymity. Same violet, read from the dark end: #4a2f96 on the 12% tint
-     over white (#f1ecff) is 8.5:1. */
-  --anon-fg: #4a2f96;
-  --anon-bg: rgb(155 124 255 / 12%);
-  --anon-border: rgb(155 124 255 / 45%);
+         --success-on-tint #12684a on #e6f7f0 =  6.1:1
+         --warning-on-tint #7a5306 on #fdf6e7 =  6.2:1
+         --danger-on-tint  #a32020 on #fdeded =  6.8:1
+         --info-on-tint    #0b5aa0 on #ebf5ff =  6.3:1 */
+    --success-on-tint: var(--st-success-700);
+    --warning-on-tint: var(--st-warning-700);
+    --danger-on-tint: var(--st-danger-700);
+    --info-on-tint: var(--st-info-700);
 
-  /* -------------------------------------------------------- elevation
-     A shadow on a white page is an occlusion, not a glow: much lower alpha,
-     and tinted with the neutral's blue so it does not read as soot. */
-  --elevation-1: 0 1px 2px rgb(16 24 40 / 6%), 0 4px 16px rgb(16 24 40 / 8%);
-  --elevation-2: 0 10px 40px rgb(16 24 40 / 14%);
-  --elevation-3: 0 24px 70px rgb(16 24 40 / 18%);
+    /* Anonymity. Same violet, read from the dark end: #4a2f96 on the 12% tint
+       over white (#f1ecff) is 8.5:1. */
+    --anon-fg: #4a2f96;
+    --anon-bg: rgb(155 124 255 / 12%);
+    --anon-border: rgb(155 124 255 / 45%);
+
+    /* -------------------------------------------------------- elevation
+       A shadow on a white page is an occlusion, not a glow: much lower alpha,
+       and tinted with the neutral's blue so it does not read as soot. */
+    --elevation-1: 0 1px 2px rgb(16 24 40 / 6%), 0 4px 16px rgb(16 24 40 / 8%);
+    --elevation-2: 0 10px 40px rgb(16 24 40 / 14%);
+    --elevation-3: 0 24px 70px rgb(16 24 40 / 18%);
+  }
 }

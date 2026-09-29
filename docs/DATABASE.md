@@ -30,8 +30,8 @@ the app touches Supabase.
 ## Threat model (read this first)
 
 **The app has accounts, and the database is the only thing enforcing them.**
-The deployed bundle is a public static asset, so `VITE_SUPABASE_ANON_KEY` is
-public by construction: anyone can read it out of the JavaScript and talk to
+The deployed bundle is public, so `NEXT_PUBLIC_SUPABASE_ANON_KEY` is public by
+construction: anyone can read it out of the JavaScript and talk to
 PostgREST directly with `curl`, with any JWT they legitimately hold. So the
 question every policy answers is not "will the UI ask for this" but "what
 happens when a signed-in stranger asks for it directly".
@@ -171,8 +171,8 @@ Run it after **any** change to the policies, to `save_hands`, or to
 
 ```bash
 cd frontend  # .env.local has the URL and anon key
-URL=$(grep VITE_SUPABASE_URL .env.local | cut -d'"' -f2)
-KEY=$(grep VITE_SUPABASE_ANON_KEY .env.local | cut -d'"' -f2)
+URL=$(grep NEXT_PUBLIC_SUPABASE_URL .env.local | cut -d'"' -f2)
+KEY=$(grep NEXT_PUBLIC_SUPABASE_ANON_KEY .env.local | cut -d'"' -f2)
 TAG=$(openssl rand -hex 4)
 
 signup() {  # -> access token
@@ -534,11 +534,18 @@ do with replaying.
 **2. The counter forced the read to be a write.** Because `resolve_share` did an
 `UPDATE`, it had to be `volatile`, so PostgREST would not serve it over GET,
 nothing above it could cache it, and a read-only consumer could not exist.
-`frontend/api/share-meta.ts` renders Open Graph tags for link-unfurl crawlers,
-and every crawler prefetch counted as a human view — Slack alone unfurls a link
-once per member who sees it, so `views` measured "times pasted", not "times
-read". `read_share` is now `stable` and writes nothing; `record_share_view` is
-`volatile` and does nothing else. The crawler function calls only the first.
+Open Graph tags for link-unfurl crawlers had to come from somewhere, and every
+crawler prefetch counted as a human view — Slack alone unfurls a link once per
+member who sees it, so `views` measured "times pasted", not "times read".
+`read_share` is now `stable` and writes nothing; `record_share_view` is
+`volatile` and does nothing else.
+
+Since the Next.js cutover (#26) the consumer is `frontend/src/app/h/[slug]/`,
+an RSC whose `generateMetadata` and page body both call `read_share` through one
+React `cache()` — so the tags and the page are one round trip and neither
+counts. The counter is a client beacon (`RecordShareView.tsx`) with a
+`sessionStorage` guard, which a crawler does not run. The edge function that
+used to serve UA-sniffed tags, `frontend/api/share-meta.ts`, is deleted.
 
 Consequence for callers: `read_share` returns the count **before** your view.
 `resolveShare()` in `frontend/src/lib/db/shares.ts` fires `record_share_view`
@@ -763,8 +770,8 @@ superuser and proves nothing about RLS:
 
 ```bash
 # frontend/.env.local has the values; `supabase projects api-keys --project-ref riybwcfnclphacnfawiq` prints them
-curl -X POST "$VITE_SUPABASE_URL/rest/v1/rpc/hands_facets" \
-  -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Authorization: Bearer $VITE_SUPABASE_ANON_KEY"
+curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/rpc/hands_facets" \
+  -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" -H "Authorization: Bearer $NEXT_PUBLIC_SUPABASE_ANON_KEY"
 ```
 
 and confirm the negative cases still fail: `DELETE /rest/v1/hands`,

@@ -3,7 +3,7 @@ import {
   isDatabaseConfigured,
   resolveShare as dbResolveShare,
 } from "../../lib/db";
-import { sharedHandUrl } from "../../routes/routes";
+import { sharedHandUrl } from "../../lib/routes";
 import type {
   CreateShareRequest,
   CreateShareResponse,

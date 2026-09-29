@@ -3,17 +3,24 @@
  *
  * The replayer lives on its own route and is owned by another component, so
  * the converter cannot hand it a hand directly. It parks the hand in
- * `sessionStorage` under `PENDING_HAND_KEY` and navigates; the replayer picks
- * it up on mount and clears the key. `sessionStorage` rather than a query
- * string because a hand is kilobytes, and rather than a module singleton
- * because both routes are code-split and a reload has to survive.
+ * `sessionStorage` under `PENDING_HAND_KEY`; the caller then navigates, and the
+ * replayer picks the hand up on mount and clears the key. `sessionStorage`
+ * rather than a query string because a hand is kilobytes, and rather than a
+ * module singleton because the two routes are separate documents' worth of
+ * JavaScript and a reload has to survive.
  *
- * A prop (`onOpenHand`) overrides all of this when the shell is ready to pass
- * one — see `openHandInReplayer` for the default.
+ * ## Why parking and navigating are two calls now
+ *
+ * This module used to do both — `openHandInReplayer()` parked the hand and then
+ * called `navigate()` from the old hand-rolled router, which was a plain
+ * function over `history.pushState`. The App Router's equivalent is
+ * `useRouter()`, a hook, and a hook cannot be called from a non-component
+ * module. Rather than smuggle a router instance in here, the split is explicit:
+ * this module parks, the component navigates. It is also the honest shape —
+ * "put this somewhere the next screen can find it" and "go to that screen" are
+ * two decisions, and only the first one belongs to the converter.
  */
 
-import { navigate } from "../../routes/navigation";
-import { paths } from "../../routes/routes";
 import { toStandardText } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
 
@@ -48,13 +55,13 @@ export function hasPendingHand(): boolean {
 }
 
 /**
- * Default hand-off: park the hand and go to the replayer.
+ * Parks a hand for the library route to pick up. Navigate afterwards.
  *
- * Falls back to doing nothing but navigating if storage is unavailable
- * (private mode with quota 0), which is still better than throwing inside a
- * click handler.
+ * Never throws: if storage is unavailable (private mode with quota 0) the
+ * replayer simply opens empty, which is better than a click handler that blows
+ * up on the one browser where this matters least.
  */
-export function openHandInReplayer(hand: PhfHand, standardText?: string): void {
+export function parkHandForReplayer(hand: PhfHand, standardText?: string): void {
   const payload: PendingHand = {
     phf: hand,
     standardText: standardText ?? toStandardText(hand),
@@ -66,7 +73,6 @@ export function openHandInReplayer(hand: PhfHand, standardText?: string): void {
   } catch {
     // Storage full or blocked; the replayer will just open empty.
   }
-  navigate(paths.replayer());
 }
 
 /* ------------------------------------------------------------- downloads - */

@@ -12,6 +12,18 @@ dist
 dist-ssr
 *.local
 
+# Next.js
+.next
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# `next-env.d.ts` is generated, but it is deliberately NOT ignored: it is what
+# gives `npx tsc` the ambient types for `*.module.css`, `next/*` and the image
+# imports. Ignoring it means a fresh clone cannot typecheck until somebody has
+# run `next dev` or `next build` once, which is a confusing first failure.
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

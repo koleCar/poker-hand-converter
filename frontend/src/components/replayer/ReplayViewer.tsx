@@ -33,6 +33,8 @@
  * carefully maintained.
  */
 
+"use client";
+
 import {
   useCallback,
   useEffect,

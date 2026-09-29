@@ -7,8 +7,12 @@ canonical representation of every hand — which you can then download as
 tracker-importable text, step through in a visual replayer, keep in a
 searchable library, or hand to someone else as a link.
 
-Everything runs in the browser. The only backend is Supabase (Postgres +
-PostgREST); there is no server of ours in the request path.
+The conversion runs entirely in the browser — hand histories never leave the
+tab. The data store is Supabase (Postgres + PostgREST), and every query the app
+makes runs **as the signed-in user**, policed by RLS; there is no service-role
+key in the app and no privileged middle tier. Next.js renders on the server for
+the two things that need it: the session cookie, and the Open Graph tags on a
+shared hand.
 
 Converting, previewing, downloading and replaying need no account at all. An
 account is what gives you a *library*: hands you save belong to you and nobody
@@ -187,14 +191,38 @@ Windows-1252".
 
 ## The app
 
-Three routes, hand-rolled matching in `frontend/src/routes/` (a router runtime
-was not worth the bytes on a public landing page):
+**Next.js 15, App Router**, in `frontend/src/app/`. The hand-rolled matcher that
+used to live in `frontend/src/routes/` is gone — Next's file-system router
+matches and `next.config.ts` redirects, and keeping a second answer to "what
+does this path mean" alongside the framework's is how the two drift apart.
 
 | Route | What it is |
 | --- | --- |
-| `/` | **Converter.** Drop files, a folder, a zip, or paste text. Detection and conversion run in a Web Worker and start immediately — the intent of dropping a hand history on a hand-history converter is not ambiguous, and there is a cancel button. Converted hands are saved to the library (toggleable), refused hands go to the corpus, and the output is downloadable per file or combined. |
-| `/replay` | **Replayer.** Pick a hand from the library with filters, or upload/paste a single one. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. |
-| `/h/:slug` | **A shared hand.** A capability URL to one hand, resolved server-side. Code-split from the rest of the app so a stranger opening a link does not download the converter. |
+| `/` | **The feed.** Placeholder for now: it says so, and points at the two things that work. This is where the product is going, which is why the converter had to move off it. |
+| `/convert` | **Converter.** Drop files, a folder, a zip, or paste text. Detection and conversion run in a Web Worker and start immediately — the intent of dropping a hand history on a hand-history converter is not ambiguous, and there is a cancel button. Converted hands are saved to the library (toggleable), refused hands go to the corpus, and the output is downloadable per file or combined. **This route makes zero server requests**; see below. |
+| `/library` | **Library and replayer.** Pick a hand from your library with filters, or upload/paste a single one. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. |
+| `/stats` | **Statistics.** VPIP, PFR, 3-bet, c-bets and a showdown / non-showdown win-rate graph over your library. Renders and explains itself when signed out rather than bouncing you somewhere else. |
+| `/h/:slug` | **A shared hand.** A capability URL to one hand, server-rendered, with real per-request Open Graph tags from `generateMetadata`. `noindex, follow` — a capability URL in a search index is a contradiction. |
+| `/auth/callback` | The one address every sign-in returns to. Exchanges `?code=` for a cookie session; `?next=` is validated against a fixed allow-list of relative paths. |
+
+Permanent (308) redirects, in `next.config.ts`, for every address these screens
+used to have: `/upload` and `/converter` → `/convert`; `/replay`, `/replayer`
+and `/hands` → `/library`; `/statistics` and `/graph` → `/stats`. `/` is
+deliberately not redirected — it is the feed now.
+
+### The converter makes no server requests
+
+A file dropped on `/convert` is read, decoded, detected, parsed and serialized
+entirely in the tab, and handed back as a `Blob` download. **Hand histories
+never leave the browser.** The only traffic the page can generate is the app's
+own JavaScript and an explicit, opt-in save to your own library when you are
+signed in.
+
+That is a promise the code has to keep, so it is written down three times: as a
+standing comment in `frontend/src/app/convert/page.tsx`, as a line of UI copy on
+the page itself (so a change that breaks it also makes the app tell a visible
+lie), and here. It is verified by driving the real page with a browser and
+asserting that no request leaves the origin.
 
 The table, cards and chips are generated as CSS and SVG inside the app. No
 image assets, so nothing to license, nothing to load at runtime, and it stays
@@ -215,7 +243,13 @@ cp .env.example .env.local   # then fill in the Supabase URL and anon key
 npm run dev
 ```
 
-Default: `http://localhost:5173`.
+Default: `http://localhost:3000`.
+
+`npm run dev` uses Turbopack. It is verified — including that it handles the
+`new Worker(new URL(…, import.meta.url))` in `conversionClient.ts`, which was
+the one genuine unknown of the migration — and the full 7.9 MB corpus converts
+to byte-identical output under it. `npm run dev:webpack` is the escape hatch if
+that ever stops being true.
 
 `.env.local` is optional — see the paragraph above for what you lose without
 it.
@@ -227,7 +261,7 @@ cd backend
 npm test
 ```
 
-**2580 tests across 22 files.** `backend/` is a test harness, not a runtime
+**3114 tests across 25 files.** `backend/` is a test harness, not a runtime
 backend — it exercises the frontend libraries directly against the real corpus.
 Nothing is asserted against a hand somebody made up.
 
@@ -276,14 +310,91 @@ rules are where a new parser is most likely to go quietly wrong.
 | `frontend/src/lib/parsers/` | One file per poker room, plus `shared/` helpers and the registry |
 | `frontend/src/lib/db/` | Supabase client layer — save, search, corpus, shares, anonymization |
 | `frontend/src/lib/replay.ts` | PHF → replay frames |
-| `frontend/src/components/` | `converter/`, `replayer/`, `share/`, `shell/` |
-| `frontend/src/routes/` | The three routes and the hand-rolled matcher |
+| `frontend/src/lib/supabase/` | `config`, `browser`, `server`, `middleware` — the only modules that construct a Supabase client |
+| `frontend/src/lib/server/` | Server-only readers. `server-only` imported, never reachable from the browser bundle |
+| `frontend/src/lib/i18n/` | `en.ts`. Every user-facing string on the App Router surfaces |
+| `frontend/src/lib/routes.ts` | `paths` and `sharedHandUrl`. What survived the old route table |
+| `frontend/src/app/` | The App Router: pages, layout, `sitemap.ts`, `robots.ts`, `auth/callback` |
+| `frontend/src/components/` | `converter/`, `replayer/`, `share/`, `shell/`, `stats/`, `auth/` |
+| `frontend/src/styles/` | ~4400 lines of global CSS, plus the token layer. New components use CSS Modules |
 | `frontend/src/workers/` | Conversion off the main thread |
 | `backend/` | Test harness only — no runtime backend |
 | `supabase/migrations/` | Schema |
 | `fixtures/samples/` | The real hand-history corpus, one directory per site |
 | `gg-hh/`, `weplay-hh/` | The original reference and source corpora the project started from |
 | `docs/` | `PHF-SPEC.md`, `DATABASE.md`, and `research/` |
+
+---
+
+## Rules that are load-bearing
+
+Three conventions here are not style preferences. Each one has a lint rule
+behind it, and each one was written down because breaking it is cheap, silent,
+and expensive to undo.
+
+### 1. The pure-TypeScript layer may not import the framework
+
+**Nothing under `frontend/src/lib/{phf,parsers,replay,cards,format,stats}` may
+import `next/*`, `server-only`, or read `process.env`.**
+
+`backend/test/*.ts` imports those modules directly, by relative path —
+`../../frontend/src/lib/phf/serialize.js` and a dozen more — under plain Node
+with no bundler and no framework. **3114 tests across 435 fixtures hang off
+that.** A single framework import anywhere in that subtree breaks all of them at
+once, and the failure reads as an unrelated module-resolution error rather than
+as "somebody put a Next import in the parser layer".
+
+It is also why **the Vercel root directory stays `frontend`** and why
+`frontend/src/lib/**` did not move when the App Router arrived. The App Router
+lives at `frontend/src/app/`, which Next resolves natively, precisely so that
+`lib/` could stay exactly where the test harness expects it.
+
+Anything Next-shaped goes in `lib/supabase/`, `lib/server/` or `app/`.
+`lib/routes.ts` and `lib/i18n/` are deliberately outside the rule: they are app
+configuration, not corpus code, and nothing in `backend/test` imports them.
+
+Enforced by `no-restricted-imports` and `no-restricted-properties` in
+`frontend/eslint.config.js`, scoped to exactly those paths.
+
+### 2. The CSS is an asset, not debt
+
+~4400 lines of global CSS, imported in a **pinned order** from
+`frontend/src/app/layout.tsx`. That order is load-bearing and is documented in
+the file: `theme-light.css` overrides `:root` at the same specificity and only
+wins by arriving later, and `styles/app.css` has to come last because its
+`.btn` / `.card` families are the base the component sheets override. Sheets
+that belong to one screen (`converter.css`, `stats.css`, `upload.css`,
+`overlay.css`) stay imported from their components so Next code-splits them.
+
+**New components use CSS Modules. Not Tailwind.** Rewriting every component
+mid-migration is how the replayer's container-query layout — genuinely hard CSS,
+tuned against real screenshots — gets quietly lost, and the rebrand arrives as
+token changes, for which custom properties are the cheapest interface.
+
+The design tokens each declare their own `@layer tokens` block. They used to be
+put in that layer by the importer (`@import "..." layer(tokens)`), which does
+**not** survive the Next build: css-loader emits the layer condition in the
+media slot, producing `@media layer(tokens){…}`, which is not a valid media
+query and which every browser therefore drops. The symptom is an app that
+builds and lints cleanly and renders as unstyled HTML. Do not reintroduce that
+form.
+
+`stylelint.config.js` still enforces the two rules that matter: no primitive
+tokens and no raw hex outside `src/styles/tokens/`.
+
+### 3. User-facing strings go through `lib/i18n/en.ts`
+
+The product is English-only and Croatian is coming. The difference between "add
+a locale" and "refactor every component" is decided now, not then.
+
+Enforced by a `no-restricted-syntax` rule on **`src/app/**`** — bare JSX text
+and bare `alt` / `title` / `placeholder` / `aria-label` attributes are errors
+there. The scope is a stated limit, not an oversight: the pre-existing
+components under `src/components/**` still carry several hundred inline strings,
+and hauling them through `en.ts` during a framework migration is how a sentence
+that explains a refusal reason loses a comma. What the scoping buys is that the
+pile **cannot grow** — new UI lands in `src/app/**`, and a new file there cannot
+ship a bare literal.
 
 ---
 
@@ -302,7 +413,7 @@ migration and how to triage the corpus are in
 | `hands` | One successfully converted hand: the canonical `phf jsonb` document, the rendered `standard_text`, the original `source_text`, plus a denormalized column per searchable field (site, hero, position, cards, board, stakes, pot, profit, …). Unique on `hand_key`, so re-uploading a file is a no-op. |
 | `unparsed_hands` | The **failure corpus**. Deduped by `fingerprint` with an occurrence counter and a triage `status`. |
 | `unparsed_gaps` | View: the corpus rolled up by site / stage / reason, ordered by impact. |
-| `shares` | Short-slug public links to one hand. Sealed from the client; reachable only through `create_share()` / `resolve_share()`. |
+| `shares` | Short-slug public links to one hand. Sealed from the client; reachable only through `create_share()` and the `read_share()` / `record_share_view()` pair. |
 
 Money is stored as **integer minor units** everywhere, matching PHF.
 
@@ -345,9 +456,13 @@ separates two users' hands is the database, never the UI.
   table. Counters that must move (share views, failure occurrences) do so
   inside `security definer` functions that can touch nothing else.
 - `shares` has no grants and no policies. A slug is a capability URL, so
-  `resolve_share()` is the only door and it is `security definer` — which is
+  `read_share()` is the only door and it is `security definer` — which is
   exactly why a share link works for a stranger with no account, and why
   `create_share()` has to check ownership explicitly rather than lean on RLS.
+  `read_share` is `stable` and returns an explicit projection; the view counter
+  lives in `record_share_view`, a separate `volatile` function, so a page can be
+  rendered (and its unfurl tags generated) without counting a reader. The
+  combined `resolve_share` is deprecated and removable on or after 2026-11-27.
 - Dedupe is `(owner_id, hand_key)`, not `hand_key`. A global key would tell the
   second person to upload a hand "already stored" and then show them nothing,
   because the row they collided with is not theirs to read.
@@ -355,8 +470,17 @@ separates two users' hands is the database, never the UI.
   submitted it. The corpus stays globally deduped — the occurrence counter is
   the whole point of the table — but reading across it is a service-role job.
 
-Signing in uses Supabase Auth: email + password, or Google once the provider is
-configured in the dashboard. A **guest** is simply signed out: everything
+Signing in uses Supabase Auth with **cookie sessions** (`@supabase/ssr`): email
++ password, or Google once the provider is configured in the dashboard. Every
+sign-in returns to one address, `/auth/callback`, which exchanges the code
+server-side; `?next=` there is validated against a fixed allow-list of relative
+paths, because an open redirect on a page that has just minted a session is an
+account-takeover vector rather than a phishing nuisance.
+
+Server-side code resolves identity with **`getUser()`, never `getSession()`** —
+`getSession()` decodes the cookie without verifying the JWT signature, which is
+fine for a value this origin wrote into its own storage and wrong for input that
+arrived over the wire. A **guest** is simply signed out: everything
 client-side works, and nothing is stored, because there is no id to store it
 under. The converter holds a finished run in memory and offers to save it after
 sign-in, so the login never arrives before the value does.
@@ -376,13 +500,39 @@ through the *anon* key rather than the PAT, which proves nothing) are in
 Production is **https://poker-hand-converter.vercel.app**. Every push to `main`
 deploys.
 
-- **Root directory**: `frontend`
-- **Framework preset**: Vite (build `npm run build`, output `dist`)
+- **Root directory**: `frontend`. This is not cosmetic — see "The rule that
+  keeps the test harness alive" below.
+- **Framework preset**: Next.js (build `npm run build`, output `.next`).
+  `frontend/vercel.json` pins `"framework": "nextjs"` so the project setting
+  cannot silently disagree with the repository; it also keeps the
+  `deploymentEnabled.staging: false` guard. Everything else that file used to
+  carry — the SPA rewrite and the User-Agent fork for `/h/:slug` — is gone,
+  because the framework renders on the server now.
 - **Environment variables**, in all three environments:
-  - `VITE_SUPABASE_URL`
-  - `VITE_SUPABASE_ANON_KEY`
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - `NEXT_PUBLIC_SITE_URL` (optional; defaults to the current `*.vercel.app` host)
 
 Without those the deploy still works, as an offline converter.
+
+> **These were renamed at the Next.js cutover** (`VITE_*` → `NEXT_PUBLIC_*`),
+> because Vite inlined `import.meta.env.VITE_*` and Next inlines
+> `process.env.NEXT_PUBLIC_*`. **Update the Vercel project settings before the
+> first deploy**, or production ships as an offline converter — which it will
+> say plainly in the UI, but which is still not what anyone wants.
+>
+> Two other one-time steps, both outside this repository:
+>
+> 1. Add `<NEXT_PUBLIC_SITE_URL>/auth/callback` to Supabase → Authentication →
+>    URL Configuration → Redirect URLs, for every environment. The old list
+>    covered `localhost:5173` / `:4173`, which were the Vite ports; `next dev`
+>    serves on 3000, and the callback is now a single fixed address rather than
+>    "whatever page you happened to be on".
+> 2. Expect **every existing session to be signed out** on cutover: the token
+>    moves from `localStorage["sb-<ref>-auth-token"]` to cookies.
+>    `components/auth/SessionImport.tsx` carries one over on the user's next
+>    visit and then deletes itself. That file has a deletion date in its header
+>    — **2026-11-28** — and nothing else references it.
 
 Manual deploy:
 

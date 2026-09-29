@@ -1,17 +1,31 @@
+"use client";
+
+import Link from "next/link";
 import type { ReactNode } from "react";
-import { navigate } from "../../routes/navigation";
-import { paths, toHref } from "../../routes/routes";
+import { paths } from "../../lib/routes";
+import { en } from "../../lib/i18n/en";
 import { AuthDialog } from "../auth/AuthDialog";
 import { UserMenu } from "../auth/UserMenu";
 import { BrandMark } from "./BrandMark";
 import { DbStatusChip } from "./DbStatusChip";
 
-export type ShellTab = "converter" | "replayer" | "stats";
+/**
+ * The bar, the tabs and the dialog — everything a signed-in screen has above
+ * the content.
+ *
+ * The tab ids are the route names now (`convert`, `library`, `stats`) rather
+ * than the old `converter` / `replayer`, so there is one vocabulary for "which
+ * screen is this" instead of two that have to be mapped onto each other. The
+ * navigation itself is `next/link`: the hand-rolled `<Link>`/`navigate()` pair
+ * that used to live in `routes/router.tsx` is gone, and with it the click
+ * handler that re-implemented modifier-key and middle-click semantics.
+ */
+export type ShellTab = "convert" | "library" | "stats";
 
 const TABS: Array<{ id: ShellTab; label: string; path: string }> = [
-  { id: "converter", label: "Upload hand", path: paths.converter() },
-  { id: "replayer", label: "Hand history", path: paths.replayer() },
-  { id: "stats", label: "Statistics", path: paths.stats() },
+  { id: "convert", label: en.nav.convert, path: paths.convert() },
+  { id: "library", label: en.nav.library, path: paths.library() },
+  { id: "stats", label: en.nav.stats, path: paths.stats() },
 ];
 
 interface AppShellProps {
@@ -41,7 +55,7 @@ export function AppShell({
   storedCount,
   children,
 }: AppShellProps) {
-  const tabs = TABS.filter((entry) => entry.id === "converter" || showHistoryTab);
+  const tabs = TABS.filter((entry) => entry.id === "convert" || showHistoryTab);
 
   return (
     <div className="shell">
@@ -52,24 +66,17 @@ export function AppShell({
           {/* One tab is not a choice — rendering it would be a permanently
               selected label next to the logo. */}
           {tabs.length > 1 ? (
-            <nav className="shell__tabs" role="tablist" aria-label="Sections">
+            <nav className="shell__tabs" role="tablist" aria-label={en.nav.sections}>
               {tabs.map((entry) => (
-                <a
+                <Link
                   key={entry.id}
                   role="tab"
-                  href={toHref(entry.path)}
+                  href={entry.path}
                   aria-selected={tab === entry.id}
                   className={`shell__tab ${tab === entry.id ? "is-active" : ""}`}
-                  onClick={(event) => {
-                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) {
-                      return;
-                    }
-                    event.preventDefault();
-                    navigate(entry.path);
-                  }}
                 >
                   <span className="shell__tab-label">{entry.label}</span>
-                </a>
+                </Link>
               ))}
             </nav>
           ) : null}
@@ -87,11 +94,7 @@ export function AppShell({
           someone to put a sign-up form in front of. */}
       <AuthDialog />
 
-      {!dbConfigured ? (
-        <p className="shell__offline-banner">
-          No database configured — the library and sharing are off. Converting still works.
-        </p>
-      ) : null}
+      {!dbConfigured ? <p className="shell__offline-banner">{en.shell.offlineBanner}</p> : null}
 
       <main className="shell__main">{children}</main>
     </div>

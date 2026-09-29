@@ -8,17 +8,13 @@
  * different paths, and `invalid_credentials` sends them down neither.
  */
 
-import type { Session, User } from "@supabase/supabase-js";
-import { isSupabaseConfigured, supabase } from "../supabase";
+import type { Session } from "@supabase/supabase-js";
+import { isGoogleAuthOffered as googleOffered } from "../supabase/config";
+import { getBrowserSupabase } from "../supabase/browser";
+import { paths, SITE_URL } from "../routes";
+import { safeNextPath } from "./nextPath";
 
-/** The slice of a Supabase user the app actually renders. */
-export interface AuthUser {
-  id: string;
-  email: string | null;
-  /** `full_name` / `name` from an OAuth provider, else the local part of the email. */
-  displayName: string;
-  avatarUrl: string | null;
-}
+export { toAuthUser, type AuthUser } from "./user";
 
 export type SignUpOutcome =
   /** Auto-confirm is on (it is, on this project): the account is usable now. */
@@ -27,39 +23,20 @@ export type SignUpOutcome =
   | { kind: "confirm-email"; email: string };
 
 /**
- * Whether to offer the Google button.
- *
- * Defaults to on. The provider still has to be enabled in the Supabase
- * dashboard with a real client id and secret — until it is, pressing the button
- * produces the explanatory message in `describe()` below rather than a dead
- * end. Set `VITE_AUTH_GOOGLE="off"` to hide it entirely.
+ * Whether to offer the Google button. Reads `NEXT_PUBLIC_AUTH_GOOGLE`; the
+ * reasoning lives on the definition in `lib/supabase/config.ts`.
  */
-export const isGoogleAuthOffered =
-  isSupabaseConfigured && (import.meta.env.VITE_AUTH_GOOGLE as string | undefined) !== "off";
+export const isGoogleAuthOffered = googleOffered;
 
 export const AUTH_UNAVAILABLE_MESSAGE =
   "Accounts need a database, and this build has none configured.";
 
 function client() {
-  if (!supabase) {
+  const instance = getBrowserSupabase();
+  if (!instance) {
     throw new Error(AUTH_UNAVAILABLE_MESSAGE);
   }
-  return supabase;
-}
-
-export function toAuthUser(user: User | null | undefined): AuthUser | null {
-  if (!user) {
-    return null;
-  }
-  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
-  const name = typeof meta.full_name === "string" ? meta.full_name : typeof meta.name === "string" ? meta.name : "";
-  const email = user.email ?? null;
-  return {
-    id: user.id,
-    email,
-    displayName: name.trim() || email?.split("@")[0] || "Signed in",
-    avatarUrl: typeof meta.avatar_url === "string" ? meta.avatar_url : null,
-  };
+  return instance;
 }
 
 const GOOGLE_DISABLED_MESSAGE =
@@ -115,10 +92,11 @@ function fail(error: AuthFailure | null): void {
 }
 
 export async function getSession(): Promise<Session | null> {
-  if (!supabase) {
+  const instance = getBrowserSupabase();
+  if (!instance) {
     return null;
   }
-  const { data } = await supabase.auth.getSession();
+  const { data } = await instance.auth.getSession();
   return data.session;
 }
 
@@ -168,14 +146,30 @@ export async function signOut(): Promise<void> {
 /**
  * Where a provider or an email link sends the browser back to.
  *
- * The current page, minus any query and hash: coming back to `/replay` after
- * signing in from `/replay` is the least surprising thing that can happen, and
- * dropping the query avoids re-triggering whatever state the user was in. Every
- * value this can produce has to be in the project's redirect allow list.
+ * ## One address instead of any address
+ *
+ * This used to be `${origin}${pathname}` — the page you were on. That meant the
+ * function could produce *any* path on the origin, so the project's Supabase
+ * redirect allow-list had to be a wildcard, and the code exchange happened
+ * wherever the browser happened to land.
+ *
+ * Now there is exactly one landing address, `/auth/callback`, and the page you
+ * were on travels as `?next=`, validated against a fixed list on arrival (see
+ * `nextPath.ts`). Two things follow: the Supabase allow-list can name one exact
+ * URL per environment, and the `?code=` exchange happens server-side in a Route
+ * Handler, which is the only place that can write the session cookie.
+ *
+ * `SITE_URL` rather than `window.location.origin`, because this value has to
+ * match an entry in the Supabase dashboard's allow-list exactly, and a preview
+ * deployment's origin never will.
+ *
+ * **Before merging: add `<SITE_URL>/auth/callback` to Supabase →
+ * Authentication → URL Configuration → Redirect URLs**, for every environment
+ * that has to work. Today's list only covers `localhost:5173` / `:4173`, which
+ * were the Vite ports; `next dev` serves on 3000.
  */
 function redirectUrl(): string {
-  if (typeof window === "undefined") {
-    return "https://poker-hand-converter.vercel.app";
-  }
-  return `${window.location.origin}${window.location.pathname}`;
+  const next =
+    typeof window === "undefined" ? paths.home() : safeNextPath(window.location.pathname);
+  return `${SITE_URL}/auth/callback?next=${encodeURIComponent(next)}`;
 }

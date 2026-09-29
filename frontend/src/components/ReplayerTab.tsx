@@ -12,6 +12,8 @@
  * to be shown.
  */
 
+"use client";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../lib/auth";
 import { getHand, isDatabaseConfigured, saveHand, searchHands, type HandSummary } from "../lib/db";

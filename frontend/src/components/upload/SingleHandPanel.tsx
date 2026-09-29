@@ -13,6 +13,8 @@
  * than silently dropping the rest.
  */
 
+"use client";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { isDatabaseConfigured, saveHand } from "../../lib/db";

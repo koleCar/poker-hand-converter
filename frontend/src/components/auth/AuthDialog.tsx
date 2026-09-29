@@ -19,6 +19,8 @@
  *    only real difference is what a wrong password means.
  */
 
+"use client";
+
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAuth } from "../../lib/auth";
 

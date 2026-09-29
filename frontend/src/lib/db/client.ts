@@ -3,15 +3,28 @@
  *
  * Nothing else in `lib/db` imports `@supabase/supabase-js` directly, so the
  * "database is not configured" branch lives in exactly one place.
+ *
+ * ## This directory is browser-side. Deliberately.
+ *
+ * Every function here runs in the tab, holding the anon key and the caller's
+ * own cookie session, and is policed by RLS on the way out. That is the same
+ * posture as before the Next.js move — what changed is only *where the session
+ * lives* (cookies now, `localStorage` before), which is invisible from here.
+ *
+ * Server code must not import this module. It uses `getSession()` below, and
+ * `getSession()` does not verify the JWT signature — fine for a value this
+ * origin put in its own cookie jar, wrong for input that arrived over the wire.
+ * The server equivalents are `getServerUser()` in `lib/supabase/server.ts` and
+ * the readers in `lib/server/`.
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  getBrowserSupabase,
+  requireBrowserSupabase,
   isSupabaseConfigured,
-  requireSupabase,
   SUPABASE_NOT_CONFIGURED_MESSAGE,
-  supabase,
-} from "../supabase";
+} from "../supabase/browser";
 
 /**
  * True when the build has Supabase credentials.
@@ -56,6 +69,13 @@ export class SignInRequiredError extends Error {
  *
  * `getSession()` reads the in-memory session after the client has initialised,
  * so this is a local check in practice, not a round trip.
+ *
+ * **Browser only.** `getSession()` decodes the cookie without verifying its
+ * signature, which is the right trade here — the value came from this origin's
+ * own storage, and the id is used to *address* a write that RLS will police
+ * anyway, not to authorise one. On the server the same cookie is attacker
+ * input; use `getServerUser()` from `lib/supabase/server.ts` there, which
+ * verifies.
  */
 export async function requireUserId(message?: string): Promise<string> {
   const client = requireDb();
@@ -69,21 +89,19 @@ export async function requireUserId(message?: string): Promise<string> {
 
 /** Non-throwing variant, for read paths that should render empty rather than fail. */
 export async function currentUserId(): Promise<string | null> {
-  if (!supabase) {
+  const client = getBrowserSupabase();
+  if (!client) {
     return null;
   }
-  const { data } = await supabase.auth.getSession();
+  const { data } = await client.auth.getSession();
   return data.session?.user?.id ?? null;
 }
 
-/** The raw client, or null when the app is running as an offline converter. */
-export const db: SupabaseClient | null = supabase;
-
 export function requireDb(): SupabaseClient {
-  if (!supabase) {
+  if (!isSupabaseConfigured) {
     throw new DatabaseNotConfiguredError();
   }
-  return requireSupabase();
+  return requireBrowserSupabase();
 }
 
 /**

@@ -15,161 +15,185 @@
    Every value here is fixed. Themes override the SEMANTIC layer only.
    =========================================================================== */
 
-:root {
-  /* ------------------------------------------------------------ neutral
-     Cool slate, hue ~252-257 in OKLCH. Chroma rises gently toward the middle
-     so mid-greys read as "blue-grey" rather than dead grey, then falls away
-     at both ends.
+/* ---------------------------------------------------------------------------
+ * Everything below is inside `@layer tokens`.
+ *
+ * It used to be put there by the importer — `index.css` said
+ * `@import "./styles/tokens/primitives.css" layer(tokens);`. That form does not
+ * survive the Next.js build: css-loader inlines the file but emits the layer
+ * condition in the *media* slot, producing `@media layer(tokens){…}`. That is
+ * not a valid media query, so every browser drops the whole block — which meant
+ * every design token silently evaluated to nothing and the app rendered as
+ * unstyled HTML. It builds, it lints, and it looks completely broken.
+ *
+ * Declaring the layer here instead is equivalent and has no such dependency on
+ * how the file is pulled in. `index.css` now uses a plain `@import`.
+ *
+ * Why a layer at all: an unlayered rule beats every layered one regardless of
+ * order, so putting the tokens in a layer means a component sheet can always
+ * override one at the same specificity without depending on import order. It
+ * costs nothing here — these are custom properties nothing else declares —
+ * whereas demoting `body` or `input` would quietly reshuffle them under every
+ * component sheet, which is why the base rules in `index.css` stay unlayered.
+ * ------------------------------------------------------------------------- */
 
-     Eleven evenly spaced steps (0..1000) plus four half-steps clustered below
-     800. A dark-first product spends most of its surface budget in the last
-     15% of the ramp — --n-850/-900/-925/-950 are four visibly distinct
-     surfaces to the eye, and collapsing them onto a "tidy" 11-step scale
-     would cost real hierarchy to buy nothing. */
-  --n-0: #ffffff;
-  --n-50: #f6f8fb;
-  --n-100: #e8eef6;
-  --n-200: #cfdae7;
-  --n-300: #adbccd;
-  --n-400: #8da0b6;
-  --n-500: #64748b;
-  --n-550: #5b6b80;
-  --n-600: #46566c;
-  --n-700: #2f3d4e;
-  --n-800: #24303e;
-  --n-850: #1b2430;
-  --n-900: #18202b;
-  --n-925: #121820;
-  --n-950: #0b0f14;
-  --n-1000: #05080c;
+@layer tokens {
+  :root {
+    /* ------------------------------------------------------------ neutral
+       Cool slate, hue ~252-257 in OKLCH. Chroma rises gently toward the middle
+       so mid-greys read as "blue-grey" rather than dead grey, then falls away
+       at both ends.
 
-  /* -------------------------------------------------------------- brand
-     The accent blue. --a-400 is the mark's blue and the dark theme's accent;
-     --a-600 is the first step that clears 4.5:1 against a white page, so it
-     is what the light theme uses for links and primary fills. */
-  --a-50: #eaf4ff;
-  --a-100: #d0e7ff;
-  --a-200: #a8d2ff;
-  --a-300: #7abaff;
-  --a-400: #3ea6ff;
-  --a-500: #1f8fef;
-  --a-600: #0e6cbe;
-  --a-700: #0b5490;
-  --a-800: #093d69;
-  --a-900: #072944;
-  --a-950: #051a2c;
+       Eleven evenly spaced steps (0..1000) plus four half-steps clustered below
+       800. A dark-first product spends most of its surface budget in the last
+       15% of the ramp — --n-850/-900/-925/-950 are four visibly distinct
+       surfaces to the eye, and collapsing them onto a "tidy" 11-step scale
+       would cost real hierarchy to buy nothing. */
+    --n-0: #ffffff;
+    --n-50: #f6f8fb;
+    --n-100: #e8eef6;
+    --n-200: #cfdae7;
+    --n-300: #adbccd;
+    --n-400: #8da0b6;
+    --n-500: #64748b;
+    --n-550: #5b6b80;
+    --n-600: #46566c;
+    --n-700: #2f3d4e;
+    --n-800: #24303e;
+    --n-850: #1b2430;
+    --n-900: #18202b;
+    --n-925: #121820;
+    --n-950: #0b0f14;
+    --n-1000: #05080c;
 
-  /* -------------------------------------------------------------- money
-     Brass. Hue ~75-83 in OKLCH, and deliberately lower chroma than the
-     warning amber that sits a few degrees away (--m-500 C 0.113 against
-     --st-warning-500 C 0.144), so a pot never reads as an alert.
+    /* -------------------------------------------------------------- brand
+       The accent blue. --a-400 is the mark's blue and the dark theme's accent;
+       --a-600 is the first step that clears 4.5:1 against a white page, so it
+       is what the light theme uses for links and primary fills. */
+    --a-50: #eaf4ff;
+    --a-100: #d0e7ff;
+    --a-200: #a8d2ff;
+    --a-300: #7abaff;
+    --a-400: #3ea6ff;
+    --a-500: #1f8fef;
+    --a-600: #0e6cbe;
+    --a-700: #0b5490;
+    --a-800: #093d69;
+    --a-900: #072944;
+    --a-950: #051a2c;
 
-     Money is NOT the warning colour. A pot, a stack and a win are the most
-     frequent numbers on the screen; if they are painted amber then the one
-     genuine warning in a session has no colour left to be loud in. */
-  --m-50: #fff7e6;
-  --m-100: #ffeac2;
-  --m-200: #f7d79a;
-  --m-300: #e6bb6e;
-  --m-400: #cf9c45;
-  --m-500: #b07f2e;
-  --m-600: #8e6524;
-  --m-700: #6e4e1c;
-  --m-800: #513914;
-  --m-900: #36250d;
-  --m-950: #201607;
+    /* -------------------------------------------------------------- money
+       Brass. Hue ~75-83 in OKLCH, and deliberately lower chroma than the
+       warning amber that sits a few degrees away (--m-500 C 0.113 against
+       --st-warning-500 C 0.144), so a pot never reads as an alert.
 
-  /* --------------------------------------------------------------- felt
-     Table baize. Darker and less saturated than the felt this replaced
-     (#1e7a55, which gave white text only 5.29:1 — technically a pass, no
-     headroom at all once a chip shadow or a translucent plate lands on top).
+       Money is NOT the warning colour. A pot, a stack and a win are the most
+       frequent numbers on the screen; if they are painted amber then the one
+       genuine warning in a session has no colour left to be loud in. */
+    --m-50: #fff7e6;
+    --m-100: #ffeac2;
+    --m-200: #f7d79a;
+    --m-300: #e6bb6e;
+    --m-400: #cf9c45;
+    --m-500: #b07f2e;
+    --m-600: #8e6524;
+    --m-700: #6e4e1c;
+    --m-800: #513914;
+    --m-900: #36250d;
+    --m-950: #201607;
 
-     --f-500 is the centre of the table, the lightest pixel the felt ever
-     shows, and therefore the worst case for the white text painted on it:
+    /* --------------------------------------------------------------- felt
+       Table baize. Darker and less saturated than the felt this replaced
+       (#1e7a55, which gave white text only 5.29:1 — technically a pass, no
+       headroom at all once a chip shadow or a translucent plate lands on top).
 
-       #1a6a4a  vs  #ffffff  =  6.55:1   (WCAG AA 4.5:1, +46% headroom)
-       #0d4531  vs  #ffffff  = 10.98:1
-       #072b1e  vs  #ffffff  = 15.29:1
+       --f-500 is the centre of the table, the lightest pixel the felt ever
+       shows, and therefore the worst case for the white text painted on it:
 
-     Measured, not eyeballed — sRGB relative luminance per WCAG 2.1. */
-  --f-50: #e4f3ec;
-  --f-100: #c3e5d6;
-  --f-200: #94d0b6;
-  --f-300: #5db392;
-  --f-400: #2f9270;
-  --f-500: #1a6a4a;
-  --f-600: #14573d;
-  --f-700: #0d4531;
-  --f-800: #0a3626;
-  --f-900: #072b1e;
-  --f-950: #051d14;
+         #1a6a4a  vs  #ffffff  =  6.55:1   (WCAG AA 4.5:1, +46% headroom)
+         #0d4531  vs  #ffffff  = 10.98:1
+         #072b1e  vs  #ffffff  = 15.29:1
 
-  /* ----------------------------------------------------------- rail wood
-     The wooden rim around the felt. Warm brown, hue ~50-55. */
-  --w-50: #f4e6da;
-  --w-100: #e6cdb4;
-  --w-200: #d0ad8b;
-  --w-300: #b08a66;
-  --w-400: #8a6746;
-  --w-500: #6d4c31;
-  --w-600: #5a3a24;
-  --w-700: #48301e;
-  --w-800: #3a2418;
-  --w-900: #2a1810;
-  --w-950: #190d07;
+       Measured, not eyeballed — sRGB relative luminance per WCAG 2.1. */
+    --f-50: #e4f3ec;
+    --f-100: #c3e5d6;
+    --f-200: #94d0b6;
+    --f-300: #5db392;
+    --f-400: #2f9270;
+    --f-500: #1a6a4a;
+    --f-600: #14573d;
+    --f-700: #0d4531;
+    --f-800: #0a3626;
+    --f-900: #072b1e;
+    --f-950: #051d14;
 
-  /* ------------------------------------------------------------- status
-     Fixed hues, three steps each: a tint for light-theme backgrounds, a base
-     that is the colour's identity, and a shade dark enough to be body text on
-     a white page. Status colours do not move between themes — a red that
-     means "this failed" in the dark theme has to still be red in the light
-     one, and a user switching themes mid-session should not have to relearn
-     what the colours mean.
+    /* ----------------------------------------------------------- rail wood
+       The wooden rim around the felt. Warm brown, hue ~50-55. */
+    --w-50: #f4e6da;
+    --w-100: #e6cdb4;
+    --w-200: #d0ad8b;
+    --w-300: #b08a66;
+    --w-400: #8a6746;
+    --w-500: #6d4c31;
+    --w-600: #5a3a24;
+    --w-700: #48301e;
+    --w-800: #3a2418;
+    --w-900: #2a1810;
+    --w-950: #190d07;
 
-       --st-success-700  vs #ffffff =  6.76:1
-       --st-warning-700  vs #ffffff =  6.85:1
-       --st-danger-700   vs #ffffff =  7.54:1
-       --st-info-700     vs #ffffff =  7.04:1
-       --st-*-500        vs #0b0f14 >= 5.75:1 */
-  --st-success-100: #d6f5e7;
-  --st-success-500: #35c48a;
-  --st-success-700: #12684a;
+    /* ------------------------------------------------------------- status
+       Fixed hues, three steps each: a tint for light-theme backgrounds, a base
+       that is the colour's identity, and a shade dark enough to be body text on
+       a white page. Status colours do not move between themes — a red that
+       means "this failed" in the dark theme has to still be red in the light
+       one, and a user switching themes mid-session should not have to relearn
+       what the colours mean.
 
-  --st-warning-100: #fbeccb;
-  --st-warning-500: #e8b23a;
-  --st-warning-700: #7a5306;
+         --st-success-700  vs #ffffff =  6.76:1
+         --st-warning-700  vs #ffffff =  6.85:1
+         --st-danger-700   vs #ffffff =  7.54:1
+         --st-info-700     vs #ffffff =  7.04:1
+         --st-*-500        vs #0b0f14 >= 5.75:1 */
+    --st-success-100: #d6f5e7;
+    --st-success-500: #35c48a;
+    --st-success-700: #12684a;
 
-  --st-danger-100: #fdd9d9;
-  --st-danger-500: #ef5a5a;
-  --st-danger-700: #a32020;
+    --st-warning-100: #fbeccb;
+    --st-warning-500: #e8b23a;
+    --st-warning-700: #7a5306;
 
-  --st-info-100: #dcecfd;
-  --st-info-500: #3ea6ff;
-  --st-info-700: #0b5aa0;
+    --st-danger-100: #fdd9d9;
+    --st-danger-500: #ef5a5a;
+    --st-danger-700: #a32020;
 
-  /* --------------------------------------------------------- card inks
-     The four-colour deck, the card stock and the card back. A playing card is
-     a physical object with a printed face; these are its inks, and they are
-     the same inks under every lighting condition. */
-  --ink-card-face: #ffffff;
-  --ink-card-face-mid: #e7ecf2;
-  --ink-card-face-edge: #d8dfe7;
-  --ink-card-text: #10161e;
-  --ink-club: #14803f;
-  --ink-diamond: #1c5fd0;
-  --ink-heart: #d21f1f;
-  --ink-spade: #101822;
-  --ink-back-hi: #2f5594;
-  --ink-back-lo: #152848;
+    --st-info-100: #dcecfd;
+    --st-info-500: #3ea6ff;
+    --st-info-700: #0b5aa0;
 
-  /* ----------------------------------------------------- chip denominations
-     Casino convention, lowest to highest. The replayer picks a starting index
-     from the bet size, so the sequence matters more than any single value. */
-  --chip-white: #f4f4f5;
-  --chip-red: #e03b3b;
-  --chip-blue: #2f7be5;
-  --chip-green: #2fa36b;
-  --chip-black: #1b1b22;
-  --chip-purple: #7b4ae2;
-  --chip-gold: #e5a12f;
+    /* --------------------------------------------------------- card inks
+       The four-colour deck, the card stock and the card back. A playing card is
+       a physical object with a printed face; these are its inks, and they are
+       the same inks under every lighting condition. */
+    --ink-card-face: #ffffff;
+    --ink-card-face-mid: #e7ecf2;
+    --ink-card-face-edge: #d8dfe7;
+    --ink-card-text: #10161e;
+    --ink-club: #14803f;
+    --ink-diamond: #1c5fd0;
+    --ink-heart: #d21f1f;
+    --ink-spade: #101822;
+    --ink-back-hi: #2f5594;
+    --ink-back-lo: #152848;
+
+    /* ----------------------------------------------------- chip denominations
+       Casino convention, lowest to highest. The replayer picks a starting index
+       from the bet size, so the sequence matters more than any single value. */
+    --chip-white: #f4f4f5;
+    --chip-red: #e03b3b;
+    --chip-blue: #2f7be5;
+    --chip-green: #2fa36b;
+    --chip-black: #1b1b22;
+    --chip-purple: #7b4ae2;
+    --chip-gold: #e5a12f;
+  }
 }

@@ -1,19 +1,55 @@
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
+/**
+ * The "no bare user-facing literal" rule, spelled out with `no-restricted-syntax`.
+ *
+ * Two selectors, and between them they catch the shapes that actually reach a
+ * reader:
+ *
+ *   1. `JSXText` — the words between tags.
+ *   2. a string literal on one of the attributes that renders as text or is read
+ *      aloud: `alt`, `title`, `placeholder`, `aria-label`, `aria-description`.
+ *
+ * Both allow the escape hatches that are not copy: whitespace-only JSX text (the
+ * newlines JSX leaves behind between elements), and single punctuation marks
+ * like the `♠` and `·` this app uses as decoration, which are the same glyph in
+ * every language and would be noise in a translation file.
+ *
+ * Deliberately implemented with a stock rule rather than by adding
+ * `eslint-plugin-react`: it is four lines of selector against a plugin, a peer
+ * dependency and a settings block, and the plugin's `jsx-no-literals` does not
+ * cover attributes at all.
+ */
+const NO_BARE_LITERAL = 'User-facing string literal. Put it in `src/lib/i18n/en.ts` and reference it — see the header of that file for why.'
+
+const i18nRules = {
+  'no-restricted-syntax': [
+    'error',
+    {
+      // JSX text with at least two non-whitespace, non-punctuation characters.
+      selector: 'JSXText[value=/[\\p{L}\\p{N}][\\p{L}\\p{N} ]/u]',
+      message: NO_BARE_LITERAL,
+    },
+    {
+      selector:
+        'JSXAttribute[name.name=/^(alt|title|placeholder|aria-label|aria-description|aria-placeholder)$/] > Literal[value=/[\\p{L}\\p{N}]/u]',
+      message: NO_BARE_LITERAL,
+    },
+  ],
+}
+
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['.next', 'next-env.d.ts']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
       reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
     ],
     languageOptions: {
       ecmaVersion: 2020,
@@ -30,17 +66,37 @@ export default defineConfig([
         { skipStrings: true, skipTemplates: true, skipRegExps: true, skipComments: true },
       ],
 
-      // These two are real and are tracked rather than fixed here: both are
-      // components that F2/F3 rewrite wholesale (the replayer moves to PhfHand
-      // and the chip sweep moves to the Web Animations API, which removes the
-      // effect entirely). Downgraded so CI can gate on errors today instead of
-      // waiting on a refactor. See issues #14 and #18.
+      // Real, and tracked rather than fixed here: these are components that F2/F3
+      // rewrite wholesale (the replayer moves to PhfHand and the chip sweep moves
+      // to the Web Animations API, which removes the effect entirely).
+      // Downgraded so CI can gate on errors today instead of waiting on a
+      // refactor. See issues #14 and #18.
       'react-hooks/set-state-in-effect': 'warn',
-      // Exporting a helper beside a component only costs a full HMR reload in
-      // dev. `reactRefresh.configs.vite` itself goes away with the Next.js move.
-      'react-refresh/only-export-components': 'warn',
     },
   },
+
+  /**
+   * i18n, scoped to `src/app/**` — every App Router surface, which is every
+   * screen written or rewritten by the Next.js cutover.
+   *
+   * It is not global, and that is a deliberate, stated limit rather than an
+   * oversight. The pre-existing components under `src/components/**` carry
+   * several hundred inline strings across the converter, the replayer and the
+   * stats HUD. Hauling all of them through `en.ts` *during* a framework
+   * migration is how you lose a comma in a sentence that explains a refusal
+   * reason — and the migration's whole claim is that behaviour did not change.
+   *
+   * What this scoping does buy is the thing that matters: **the pile cannot
+   * grow.** New UI lands in `src/app/**`, and a new file there cannot ship a
+   * bare literal. Extending the `files` list one directory at a time, as each
+   * legacy component is next touched for another reason, is the cheap path to
+   * full coverage.
+   */
+  {
+    files: ['src/app/**/*.tsx'],
+    rules: i18nRules,
+  },
+
   {
     // Byte recovery is this layer's entire job: it strips NUL bytes and
     // mojibake BOMs out of files that real poker rooms really wrote. A control
@@ -48,6 +104,56 @@ export default defineConfig([
     files: ['src/lib/parsers/**/*.ts', 'src/lib/phf/**/*.ts'],
     rules: {
       'no-control-regex': 'off',
+    },
+  },
+
+  /**
+   * The rule that keeps the test harness alive.
+   *
+   * `backend/test/*.ts` imports these modules directly, by relative path, under
+   * plain Node with no bundler and no framework. 3114 tests across 435 fixtures
+   * hang off that. A single `import ... from "next/headers"` or a
+   * `process.env.X` anywhere in this subtree breaks all of them at once, and the
+   * failure reads as an unrelated module-resolution error rather than as
+   * "somebody put a framework import in the parser layer".
+   *
+   * Anything Next-shaped belongs in `lib/supabase/`, `lib/server/` or `app/`.
+   * `lib/routes.ts` and `lib/i18n/` are deliberately outside this list: they are
+   * app configuration, not corpus code, and nothing in `backend/test` imports
+   * them.
+   */
+  {
+    files: [
+      'src/lib/phf/**/*.ts',
+      'src/lib/parsers/**/*.ts',
+      'src/lib/stats/**/*.ts',
+      'src/lib/replay.ts',
+      'src/lib/cards.ts',
+      'src/lib/format.ts',
+      'src/lib/converter.ts',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['next', 'next/*', 'server-only', 'client-only'],
+              message:
+                'The pure-TypeScript library layer is imported directly by backend/test under plain Node. Framework imports belong in lib/supabase/, lib/server/ or app/.',
+            },
+          ],
+        },
+      ],
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'process',
+          property: 'env',
+          message:
+            'The pure-TypeScript library layer must not read configuration. Pass it in, or put the module in lib/server/.',
+        },
+      ],
     },
   },
 ])

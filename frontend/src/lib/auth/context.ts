@@ -7,6 +7,8 @@
  * whole tree underneath.
  */
 
+"use client";
+
 import { createContext, useContext } from "react";
 import type { AuthUser, SignUpOutcome } from "./session";
 
