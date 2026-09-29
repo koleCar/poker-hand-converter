@@ -6,6 +6,7 @@ import { paths } from "../../lib/routes";
 import { en } from "../../lib/i18n/en";
 import { AuthDialog } from "../auth/AuthDialog";
 import { UserMenu } from "../auth/UserMenu";
+import { NotificationsBell } from "../forum/NotificationsBell";
 import { BrandMark } from "./BrandMark";
 import { DbStatusChip } from "./DbStatusChip";
 
@@ -86,6 +87,7 @@ export function AppShell({
 
           <div className="shell__bar-end">
             <DbStatusChip configured={dbConfigured} storedCount={storedCount} />
+            <NotificationsBell />
             <UserMenu />
           </div>
         </div>

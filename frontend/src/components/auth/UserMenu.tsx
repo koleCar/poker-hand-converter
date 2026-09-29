@@ -111,6 +111,9 @@ export function UserMenu() {
               {en.account.menuProfile}
             </Link>
           ) : null}
+          <Link href={paths.saved()} className="usermenu__item" role="menuitem" onClick={() => setOpen(false)}>
+            {en.social.menuSaved}
+          </Link>
           <Link
             href={paths.settings()}
             className="usermenu__item"

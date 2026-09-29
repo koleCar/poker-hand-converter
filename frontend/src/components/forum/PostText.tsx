@@ -5,8 +5,10 @@
  * this site's ranking to whatever it links.
  */
 
+import Link from "next/link";
 import { Fragment } from "react";
 import { toParagraphs } from "../../lib/forum/text";
+import { paths } from "../../lib/routes";
 import styles from "./forum.module.css";
 
 export function PostText({ body }: { body: string | null }) {
@@ -22,7 +24,11 @@ export function PostText({ body }: { body: string | null }) {
             <Fragment key={l}>
               {l > 0 ? <br /> : null}
               {segments.map((segment, s) =>
-                segment.kind === "link" ? (
+                segment.kind === "mention" ? (
+                  <Link key={s} href={paths.profile(segment.username)}>
+                    {segment.text}
+                  </Link>
+                ) : segment.kind === "link" ? (
                   <a key={s} href={segment.href} rel="nofollow ugc noopener" target="_blank">
                     {segment.text}
                   </a>

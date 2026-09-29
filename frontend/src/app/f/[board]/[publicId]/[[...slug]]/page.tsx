@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { CommentComposer } from "../../../../../components/forum/CommentComposer";
 import { CommentThread } from "../../../../../components/forum/CommentThread";
+import { LiveCommentBanner } from "../../../../../components/forum/LiveCommentBanner";
+import { PostStateControls } from "../../../../../components/forum/PostStateControls";
 import { formatPostDate } from "../../../../../components/forum/format";
 import { MyVotesProvider } from "../../../../../components/forum/MyVotes";
 import { PostActions } from "../../../../../components/forum/PostActions";
@@ -175,6 +177,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
                   </>
                 ) : null}
               </p>
+              <PostStateControls post={post.publicId} />
               <PostActions
                 publicId={post.publicId}
                 board={post.board.slug}
@@ -211,6 +214,10 @@ export default async function PostPage({ params, searchParams }: { params: Param
                   ))}
                 </nav>
               </div>
+              <LiveCommentBanner
+                post={post.publicId}
+                knownSeq={comments.reduce((max, comment) => Math.max(max, comment.seq), 0)}
+              />
               <CommentComposer post={post.publicId} locked={post.isLocked} />
               <CommentThread post={post.publicId} comments={comments} hand={hand} locked={post.isLocked} permalink={permalink} />
             </section>

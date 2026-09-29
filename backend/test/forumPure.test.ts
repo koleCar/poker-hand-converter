@@ -52,3 +52,19 @@ describe("jsonLdScript", () => {
     expect(JSON.parse(out)).toEqual({ text: "</script><script>alert(1)</script>" });
   });
 });
+
+describe("mentions", () => {
+  it("turns @username into a mention segment", () => {
+    expect(linkify("thanks @bob_s!")).toEqual([
+      { kind: "text", text: "thanks " },
+      { kind: "mention", username: "bob_s", text: "@bob_s" },
+      { kind: "text", text: "!" },
+    ]);
+  });
+  it("ignores emails, @@ and too-short names", () => {
+    expect(linkify("mail me@example.com or @@bob or @ab").every((s) => s.kind === "text")).toBe(true);
+  });
+  it("keeps URLs whole", () => {
+    expect(linkify("https://x.com/@bob").map((s) => s.kind)).toEqual(["link"]);
+  });
+});

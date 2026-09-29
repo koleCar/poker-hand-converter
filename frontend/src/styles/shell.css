@@ -343,3 +343,34 @@
     display: none;
   }
 }
+
+/* The notifications bell (F9). */
+.bell {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  inline-size: 34px;
+  block-size: 34px;
+  border-radius: 50%;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.bell:hover {
+  background: var(--bg-elev-2);
+}
+
+.bell__count {
+  position: absolute;
+  inset-block-start: -2px;
+  inset-inline-end: -4px;
+  min-inline-size: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 18px;
+  text-align: center;
+}

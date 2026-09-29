@@ -36,6 +36,8 @@ const ALLOWED: ReadonlySet<string> = new Set([
   // be able to come back here.
   paths.settings(),
   paths.submit(),
+  paths.notifications(),
+  paths.saved(),
 ]);
 
 /**
