@@ -3,9 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteComment, forumErrorMessage } from "../../lib/db/forum";
+import { setCommentStatus } from "../../lib/db/moderation";
 import { en } from "../../lib/i18n/en";
 import { useMyProfile } from "../../lib/profile/context";
 import { CommentComposer } from "./CommentComposer";
+import { useCanModerate } from "./ModContext";
+import { ReportButton } from "./ReportButton";
 import styles from "./forum.module.css";
 
 /** Reply and, on your own comment, delete. Decided client-side, after hydration. */
@@ -23,6 +26,7 @@ export function CommentActions({
   locked: boolean;
 }) {
   const { profile } = useMyProfile();
+  const canModerate = useCanModerate();
   const router = useRouter();
   const [replying, setReplying] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +52,21 @@ export function CommentActions({
         {mine ? (
           <button type="button" className="linkish" onClick={() => void remove()}>
             {en.forum.comments.delete}
+          </button>
+        ) : null}
+        {!mine ? <ReportButton subject={{ type: "comment", publicId: post, seq }} /> : null}
+        {canModerate ? (
+          <button
+            type="button"
+            className="linkish"
+            onClick={() =>
+              void setCommentStatus(post, seq, "removed", window.prompt(en.moderation.reasonPrompt) ?? undefined).then(
+                () => router.refresh(),
+                (err) => setError(forumErrorMessage(err)),
+              )
+            }
+          >
+            {en.moderation.remove}
           </button>
         ) : null}
         {error ? <small className="notice notice--error">{error}</small> : null}

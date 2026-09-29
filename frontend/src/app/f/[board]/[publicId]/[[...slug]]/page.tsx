@@ -4,6 +4,10 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { CommentComposer } from "../../../../../components/forum/CommentComposer";
 import { CommentThread } from "../../../../../components/forum/CommentThread";
 import { LiveCommentBanner } from "../../../../../components/forum/LiveCommentBanner";
+import { ModProvider } from "../../../../../components/forum/ModContext";
+import { PostModTools } from "../../../../../components/forum/PostModTools";
+import { ReportButton } from "../../../../../components/forum/ReportButton";
+import { Revisions } from "../../../../../components/forum/Revisions";
 import { PostStateControls } from "../../../../../components/forum/PostStateControls";
 import { formatPostDate } from "../../../../../components/forum/format";
 import { MyVotesProvider } from "../../../../../components/forum/MyVotes";
@@ -145,6 +149,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
     <ServerFrame tab="forum">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(ld) }} />
       <MyVotesProvider postIds={[post.publicId]} commentsOf={post.publicId}>
+        <ModProvider post={post.publicId}>
         <article className={styles.post}>
           <p className={styles.meta}>
             <Link href={paths.board(post.board.slug)}>{en.forum.post.backToBoard(post.board.name)}</Link>
@@ -167,9 +172,11 @@ export default async function PostPage({ params, searchParams }: { params: Param
                 {post.editedAt ? (
                   <>
                     <span aria-hidden="true">·</span>
-                    <span>{en.forum.edited}</span>
+                    <Revisions post={post.publicId} />
                   </>
                 ) : null}
+                <span aria-hidden="true">·</span>
+                <ReportButton subject={{ type: "post", publicId: post.publicId }} />
                 {siteName ? (
                   <>
                     <span aria-hidden="true">·</span>
@@ -178,6 +185,13 @@ export default async function PostPage({ params, searchParams }: { params: Param
                 ) : null}
               </p>
               <PostStateControls post={post.publicId} />
+              <PostModTools
+                post={post.publicId}
+                board={post.board.slug}
+                title={post.title}
+                isLocked={post.isLocked}
+                isPinned={post.isPinned}
+              />
               <PostActions
                 publicId={post.publicId}
                 board={post.board.slug}
@@ -223,6 +237,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
             </section>
           </PostDiscussion>
         </article>
+        </ModProvider>
       </MyVotesProvider>
     </ServerFrame>
   );

@@ -114,6 +114,11 @@ export function UserMenu() {
           <Link href={paths.saved()} className="usermenu__item" role="menuitem" onClick={() => setOpen(false)}>
             {en.social.menuSaved}
           </Link>
+          {profile && profile.role !== "member" ? (
+            <Link href={paths.mod()} className="usermenu__item" role="menuitem" onClick={() => setOpen(false)}>
+              {en.moderation.menuMod}
+            </Link>
+          ) : null}
           <Link
             href={paths.settings()}
             className="usermenu__item"

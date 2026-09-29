@@ -14,6 +14,7 @@ The schema is defined by four migrations:
 | `20261012090000_forum_publishing.sql` | Published hands: a scrubbed copy, `scrub_phf`, `publish_hand` (F7, #30 / #31). See [Publishing](#publishing-a-hand). |
 | `20261019090000_forum_core.sql` | Boards, posts, threaded and anchored comments, votes, ranking, audit, search (F8, #32–#34, #37). See [The forum](#the-forum). |
 | `20261026090000_forum_social.sql` | Saves, thread subscriptions, notifications, mentions, realtime, nightly reconciliation (F9, #38 / #39). See [Notifications](#notifications-and-realtime). |
+| `20261102090000_forum_moderation.sql` | Reports, mod queue, moderator and admin powers, bans, shadowbans, revisions, append-only audit, per-actor limits, spam gate (F10, #40 / #41). See [Moderation](#moderation-and-anti-abuse). |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -30,6 +31,7 @@ the app touches Supabase.
 - [Publishing a hand](#publishing-a-hand)
 - [The forum](#the-forum)
 - [Notifications and realtime](#notifications-and-realtime)
+- [Moderation and anti-abuse](#moderation-and-anti-abuse)
 - [RLS policies and grants](#rls-policies-and-grants)
 - [Indexes and the queries they serve](#indexes-and-the-queries-they-serve)
 - [Applying a migration](#applying-a-migration)
@@ -372,6 +374,65 @@ otherwise grow `ingest_rate_limit` forever. All three are service-role only
 and idempotent.
 
 Tests: `supabase/tests/database/social.test.sql` — 35 assertions.
+
+---
+
+## Moderation and anti-abuse
+
+`20261102090000_forum_moderation.sql`.
+
+**The visibility rule, once.** `posts_read`: visible + not deleted + author not
+shadow-hidden, **or** you are the author, **or** you moderate the board.
+`comments_read`: the post is readable, and the comment is not spam or
+shadow-hidden unless you wrote it or moderate the board. A removed comment
+stays as a tombstone: its body moves into `moderation_actions` and comes back
+on restore. There is no query the app could write that returns removed content
+to a stranger.
+
+| Who | Can |
+| --- | --- |
+| Board moderator (`board_moderators`) | On their board: remove / restore posts and comments, lock, pin, retitle, see and resolve its reports |
+| Moderator (`role`) | All of that everywhere; ban ≤ 30 days; shadowban; spam queue; account standing (`mod_user`) and vote overlap |
+| Admin | Roles, boards, board moderators, bans over 30 days and permanent, hard purge |
+
+Bans keep read access (a ban is `posting_block_reason` and nothing else).
+Nobody bans themselves, and only an admin acts on staff.
+
+**Audit.** `moderation_actions` is append-only: a trigger refuses UPDATE and
+DELETE even for the service role, except the foreign-key action that nulls
+`actor_id` when an account is deleted. `content_revisions` is written by a
+trigger on every title/body change (author or moderator) and is **public**
+while the content is — `get_revisions(post, seq)`.
+
+**Reports.** `report_content(type, …, reason)` — one per reporter per subject,
+20/day per account. Reasons include `hh-takedown`, the takedown path promised in
+#31 (see `/takedown`, 48-hour response).
+
+**Rate limits (#41)**, each action with a per-account **and** a global bucket:
+
+| Action | Per account | Global |
+| --- | --- | --- |
+| Post | 5 / hour | 500 / hour |
+| Comment | 30 / 10 min | 5000 / 10 min |
+| Vote | 200 / hour | 50000 / hour, **+ 400 / hour per subject** |
+| Publish | 20 / day | 500 / day |
+| Report | 20 / day | 2000 / day |
+
+The per-subject vote bucket is the one that catches a brigade (many accounts,
+one vote each). Buckets are swept hourly by `sweep_rate_limits`.
+
+**Spam gate.** `forum_spam_verdict`: more than two links under 50 karma, the
+same body (`body_fingerprint`, sha-256 of the normalised text) within 7 days,
+or a near-copy (`extensions.similarity` > 0.9) of one of the author's last ten.
+Spam is **created, not rejected** — `status = 'spam'`, visible to the author and
+the moderators, queued in `mod_spam_queue`. `forum_fingerprint` is declared
+IMMUTABLE around `convert_to`, which is only STABLE; that holds because the
+database encoding (UTF8) is fixed at creation.
+
+**Vote overlap.** `mod_vote_overlap` (no client grants) and
+`mod_vote_overlap_for(username)` for moderators. A signal, never an action.
+
+Tests: `supabase/tests/database/moderation.test.sql` — 58 assertions.
 
 ---
 

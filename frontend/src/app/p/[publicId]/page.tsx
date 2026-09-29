@@ -6,6 +6,7 @@ import { ReplayViewer } from "../../../components/replayer/ReplayViewer";
 import { decodePosition, POSITION_PARAM, type ReplayPosition } from "../../../components/replayer/position";
 import { buildSharePreview, formatStakes, shortGameName } from "../../../components/share/preview";
 import { BrandMark } from "../../../components/shell/BrandMark";
+import { ReportButton } from "../../../components/forum/ReportButton";
 import { en } from "../../../lib/i18n/en";
 import { getParser } from "../../../lib/parsers";
 import type { PhfHand } from "../../../lib/phf/types";
@@ -156,7 +157,10 @@ function PublishedContent({
             )}
           </span>
         </p>
-        <p className={styles.mode}>{en.published.modeNote[published.mode]}</p>
+        <p className={styles.mode}>
+          {en.published.modeNote[published.mode]}{" "}
+          <ReportButton subject={{ type: "published_hand", publicId: published.publicId }} defaultReason="hh-takedown" />
+        </p>
       </header>
 
       <section className={`card ${styles.card}`}>

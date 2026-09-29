@@ -16,6 +16,7 @@ import { CommentActions } from "./CommentActions";
 import { formatPostDate } from "./format";
 import { AnchorChip } from "./PostDiscussion";
 import { PostText } from "./PostText";
+import { Revisions } from "./Revisions";
 import { VoteButtons } from "./VoteButtons";
 import styles from "./forum.module.css";
 
@@ -61,7 +62,7 @@ export function CommentThread({
                   {comment.editedAt ? (
                     <>
                       <span aria-hidden="true">·</span>
-                      <span>{en.forum.edited}</span>
+                      <Revisions post={post} seq={comment.seq} />
                     </>
                   ) : null}
                   {label && comment.anchor ? (

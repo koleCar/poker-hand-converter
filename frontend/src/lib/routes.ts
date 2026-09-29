@@ -46,6 +46,8 @@ export const paths = {
   submit: () => "/submit",
   notifications: () => "/notifications",
   saved: () => "/saved",
+  mod: () => "/mod",
+  takedown: () => "/takedown",
   search: (query?: string) => (query ? `/search?q=${encodeURIComponent(query)}` : "/search"),
   /** A published hand. Public, indexable — unlike `/h/:slug`. */
   publishedHand: (publicId: string) => `/p/${encodeURIComponent(publicId)}`,
