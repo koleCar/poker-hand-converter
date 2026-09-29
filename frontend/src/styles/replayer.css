@@ -419,7 +419,12 @@
 
   --seat-w: calc(var(--seat-wu) * var(--u));
   --seat-h: calc(var(--seat-hu) * var(--u));
-  --seat-card: calc(var(--seat-w) * 0.3);
+  /* Card sizes. Raised from 0.3 / 1.0 after "the cards are too small" on real
+     screens: a face card has to read at a glance from a phone held at arm's
+     length. A seat's block is bottom-aligned (`justify-content: flex-end`), so
+     taller hole cards grow toward the rail, away from the bets and the board
+     in the middle — which is what keeps the slot table valid. */
+  --seat-card: calc(var(--seat-w) * 0.4);
   --board-card: calc(var(--card-u) * var(--u));
   --fan: var(--fan-down);
 
@@ -465,7 +470,7 @@
 
 /* Hero's hand is the one you are here to read. */
 .rp__felt .pseat--hero {
-  --seat-card: calc(var(--seat-w) * 0.33);
+  --seat-card: calc(var(--seat-w) * 0.46);
 }
 
 .rp__cloth {
@@ -1542,4 +1547,36 @@ button.rcard:hover {
   background: var(--accent-bg);
   color: var(--text-on-accent);
   font-size: 0.6875rem;
+}
+
+/* ------------------------------------------------------------- fullscreen */
+
+/* Fullscreen is just a bigger box. The replayer is sized off `--rp-block` and
+   its own container queries, so handing it the whole viewport is the entire
+   feature — the felt, the cards and the type all follow. Doubled class for
+   specificity over the embedding surfaces' `--rp-block` above. */
+.rp.rp:fullscreen,
+.rp.rp[data-fullscreen] {
+  --rp-block: 100dvh;
+  inline-size: 100vw;
+  max-inline-size: none;
+  border-radius: 0;
+}
+
+/* iPhone Safari has no element fullscreen, so the replayer covers the viewport
+   itself (see useFullscreen). The insets keep the transport clear of the home
+   indicator and the notch. */
+.rp.rp[data-fullscreen="overlay"] {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  block-size: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  box-sizing: border-box;
+}
+
+html.rp-fullscreen-lock,
+html.rp-fullscreen-lock body {
+  overflow: hidden;
+  overscroll-behavior: none;
 }

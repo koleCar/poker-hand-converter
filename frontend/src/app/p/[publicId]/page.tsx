@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HandSummary } from "../../../components/hand/HandSummary";
 import { ReplayViewer } from "../../../components/replayer/ReplayViewer";
+import { decodePosition, POSITION_PARAM, type ReplayPosition } from "../../../components/replayer/position";
 import { buildSharePreview, formatStakes, shortGameName } from "../../../components/share/preview";
 import { BrandMark } from "../../../components/shell/BrandMark";
 import { en } from "../../../lib/i18n/en";
@@ -29,6 +30,7 @@ import styles from "./published.module.css";
 
 interface PageProps {
   params: Promise<{ publicId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 function headline(published: PublishedHand): string {
@@ -82,8 +84,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function PublishedHandPage({ params }: PageProps) {
+export default async function PublishedHandPage({ params, searchParams }: PageProps) {
   const { publicId } = await params;
+  // `?t=` read here, on the server, and handed to the replayer: if the client
+  // read it from the URL instead, the server would render the deal and the
+  // client the linked moment, and hydration would throw the tree away.
+  const rawT = (await searchParams)[POSITION_PARAM];
+  const initialPosition = decodePosition(Array.isArray(rawT) ? rawT[0] : rawT);
   const result = await readPublishedHand(publicId);
 
   if (result.status === "not-found") {
@@ -105,7 +112,7 @@ export default async function PublishedHandPage({ params }: PageProps) {
 
       <main className={`sharepage__main ${styles.main}`}>
         {result.status === "ok" ? (
-          <PublishedContent published={result.hand} />
+          <PublishedContent published={result.hand} initialPosition={initialPosition} />
         ) : (
           <Gone kind={result.status} />
         )}
@@ -114,7 +121,13 @@ export default async function PublishedHandPage({ params }: PageProps) {
   );
 }
 
-function PublishedContent({ published }: { published: PublishedHand }) {
+function PublishedContent({
+  published,
+  initialPosition,
+}: {
+  published: PublishedHand;
+  initialPosition: ReplayPosition | null;
+}) {
   const hand: PhfHand = published.phf;
   const siteName = getParser(published.site)?.name ?? published.site;
   const playedOn = formatDay(published.playedOn);
@@ -151,7 +164,7 @@ function PublishedContent({ published }: { published: PublishedHand }) {
       </section>
 
       <section className={styles.replay} aria-label={en.published.replayHeading}>
-        <ReplayViewer hand={hand} site={siteName} />
+        <ReplayViewer hand={hand} site={siteName} initialPosition={initialPosition} />
       </section>
     </article>
   );
