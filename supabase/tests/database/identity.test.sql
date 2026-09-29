@@ -15,7 +15,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(67);
+select plan(68);
 
 -- ------------------------------------------------------------------ setup --
 
@@ -28,6 +28,10 @@ values
   ('00000000-0000-0000-0000-00000000000c', 'player.ccc@example.com', now(), now()),
   ('00000000-0000-0000-0000-00000000000d', 'player.ddd@example.com', null, now() - interval '40 days'),
   ('00000000-0000-0000-0000-00000000000e', 'player.eee@example.com', now() - interval '40 days', now() - interval '40 days');
+
+-- F: an anonymous sign-in, which the live project still allows.
+insert into auth.users (id, is_anonymous, created_at)
+values ('00000000-0000-0000-0000-00000000000f', true, now() - interval '40 days');
 
 create function pg_temp.act_as(p_uid uuid) returns void language plpgsql as $$
 begin
@@ -64,6 +68,10 @@ select is(
                  '00000000-0000-0000-0000-00000000000c', '00000000-0000-0000-0000-00000000000d',
                  '00000000-0000-0000-0000-00000000000e')),
   5, 'handle_new_user gives every new account a profile');
+
+select is(
+  (select count(*)::int from public.profiles where id = '00000000-0000-0000-0000-00000000000f'),
+  0, 'an anonymous sign-in gets no profile, so a loop cannot fill profiles_public');
 
 select ok(
   (select bool_and(username ~ '^user_[0-9a-z]{8}$') from public.profiles

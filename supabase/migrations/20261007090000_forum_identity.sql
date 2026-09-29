@@ -339,6 +339,14 @@ revoke execute on function public.provisional_username() from anon, authenticate
 -- with, which holds no privilege on `public.profiles`. It takes no input but
 -- the new row's id and creation time, so there is nothing to aim.
 --
+-- **Anonymous users get no profile.** The live project still has anonymous
+-- sign-ins switched on (the app does not use them -- a guest is plainly signed
+-- out), and each `signInAnonymously()` call with the public anon key is a new
+-- `auth.users` row. A profile per row would let anyone fill `profiles_public`
+-- with `user_xxxxxxxx` names from a loop. An anonymous session has no identity
+-- to name, so it gets none; every gate and `my_profile()` already treat "no
+-- profile" as "cannot post".
+--
 -- **A failure here fails the signup**, because the trigger runs inside the
 -- insert. So it never raises on a name collision (it retries with a fresh
 -- name), and it is `on conflict do nothing` on the id, so a replayed insert or
@@ -353,6 +361,10 @@ as $$
 declare
   v_attempt integer := 0;
 begin
+  if coalesce(new.is_anonymous, false) then
+    return new;
+  end if;
+
   loop
     v_attempt := v_attempt + 1;
     begin
@@ -390,6 +402,7 @@ begin
     select u.id, u.created_at
     from auth.users u
     where not exists (select 1 from public.profiles p where p.id = u.id)
+      and not coalesce(u.is_anonymous, false)
   loop
     v_attempt := 0;
     loop

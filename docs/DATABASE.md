@@ -191,6 +191,7 @@ your own row, because a self-select policy would hand an account its own
 | `^[A-Za-z0-9][A-Za-z0-9_]{2,23}$` — every wider character class is a homoglyph surface, and the name is a URL | `profiles_username_shape` CHECK, mirrored by `username_shape_problem()` for the sentence |
 | Case-insensitive uniqueness | unique index on the generated `username_lower` — never a pre-flight `exists`, which races |
 | Provisional `user_<8 base-36>` at signup, from a CSPRNG, **never from the email** | `handle_new_user()` trigger on `auth.users` |
+| **No profile for anonymous sign-ins** — still enabled on the live project, and one profile per `signInAnonymously()` would let a loop fill `profiles_public` | `handle_new_user()` and the backfill skip `is_anonymous` |
 | `user_…` cannot be chosen | `username_shape_problem()` |
 | Once per 30 days; a capitalisation-only change is free; the provisional name does not count | `set_username()` |
 | Old name reserved **for the same account** for a year; `/u/<old>` redirects for that year; the owner can take it back | `username_reservations` + `set_username()` + `resolve_username()` |
@@ -238,7 +239,7 @@ statement.
 
 ### Tests
 
-`supabase/tests/database/identity.test.sql` — 67 pgTAP assertions run as `anon`
+`supabase/tests/database/identity.test.sql` — 68 pgTAP assertions run as `anon`
 and `authenticated` for real (not as a superuser): the grant wall, every
 username rule, reservations and reclaiming, redirects, the gates, the vote
 weight, roles, and deleted accounts. `supabase test db` runs it; CI runs it on
