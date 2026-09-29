@@ -307,3 +307,56 @@
   justify-self: start;
   border-color: var(--accent);
 }
+
+.reportBox {
+  display: grid;
+  gap: 6px;
+  max-inline-size: 420px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  font-size: 13px;
+}
+
+.reportBox textarea {
+  inline-size: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+
+.modBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.modBar input {
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+
+.revisions {
+  display: grid;
+  gap: 10px;
+  padding: 8px 12px;
+  border-left: 2px solid var(--line);
+}
+
+.revision {
+  display: grid;
+  gap: 4px;
+}

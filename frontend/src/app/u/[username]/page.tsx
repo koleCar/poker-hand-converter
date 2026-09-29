@@ -106,7 +106,7 @@ function ProfileContent({ profile, hands }: { profile: PublicProfile; hands: Pub
             <span>{en.profile.karma(profile.karma)}</span>
           </p>
         </div>
-        <OwnProfileActions profileId={profile.id} />
+        <OwnProfileActions profileId={profile.id} username={profile.username} />
       </section>
 
       {hands.length ? (
