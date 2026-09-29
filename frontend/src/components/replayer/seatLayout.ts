@@ -79,11 +79,15 @@ export interface ShapeMetrics {
   chipH: number;
 }
 
+// Board cards were raised ~25% (8.4 / 7.6 / 9 / 8) after "the cards are too
+// small". The board is the one row every decision is about, and the centre of
+// the felt has the room: five cards at 10.5u on a 16:9 table are ~60u of a
+// ~178u-wide box.
 export const SHAPE_METRICS: Record<TableShape, ShapeMetrics> = {
-  wide: { arW: 16, arH: 9, boardRows: 1, boardCard: 8.4, potH: 8, chipW: 22, chipH: 9 },
-  classic: { arW: 4, arH: 3, boardRows: 1, boardCard: 7.6, potH: 8, chipW: 14, chipH: 9 },
-  tall: { arW: 2, arH: 3, boardRows: 2, boardCard: 9, potH: 9, chipW: 9, chipH: 8 },
-  compact: { arW: 1, arH: 1, boardRows: 2, boardCard: 8, potH: 8, chipW: 8, chipH: 7 },
+  wide: { arW: 16, arH: 9, boardRows: 1, boardCard: 10.5, potH: 8, chipW: 22, chipH: 9 },
+  classic: { arW: 4, arH: 3, boardRows: 1, boardCard: 9.5, potH: 8, chipW: 14, chipH: 9 },
+  tall: { arW: 2, arH: 3, boardRows: 2, boardCard: 11.2, potH: 9, chipW: 9, chipH: 8 },
+  compact: { arW: 1, arH: 1, boardRows: 2, boardCard: 10, potH: 8, chipW: 8, chipH: 7 },
 };
 
 /**

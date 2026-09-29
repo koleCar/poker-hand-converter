@@ -60,3 +60,20 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
 }
+
+.hands {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hands li {
+  display: grid;
+  gap: 2px;
+}
+
+.handLink {
+  font-weight: var(--font-weight-semibold);
+}

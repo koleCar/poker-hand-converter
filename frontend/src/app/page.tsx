@@ -1,36 +1,42 @@
 import type { Metadata } from "next";
-import { HomeScreen } from "./HomeScreen";
+import { Feed, parseFeedParams } from "../components/forum/Feed";
+import { ServerFrame } from "../components/shell/ServerFrame";
 import { en } from "../lib/i18n/en";
 import { paths } from "../lib/routes";
+import { readBoards, readFeed } from "../lib/server/forum";
 
 /**
- * The feed. Placeholder, for now.
+ * `/` — the forum, every board.
  *
- * `/` used to be the converter. Moving it to `/convert` is a product decision
- * as much as a technical one (#27): the thing this product is becoming is a
- * place where hands get posted and argued about, and the landing page is where
- * that claim gets made. Until the feed exists, this screen says so plainly and
- * points at the two things that do work, rather than pretending.
+ * This was a placeholder saying the feed was on its way (#27 moved the
+ * converter to `/convert` so that this page could become exactly this).
  *
- * `/upload` and `/converter` 308 to `/convert`, and `/convert` itself was
- * already an alias in the old matcher — so every address anyone has ever been
- * given for the converter still resolves to it. `/` is deliberately absent from
- * the redirect table: redirecting it would make the feed unreachable.
+ * Server-rendered as `anon`: the HTML is the same for every visitor, and the
+ * one per-user thing on it — which arrows are yours — is an island.
  */
-export const metadata: Metadata = {
-  title: en.meta.home.title,
-  description: en.meta.home.description,
-  alternates: { canonical: paths.home() },
-};
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  // `/auth/callback` sends a failed exchange here with `?auth=failed` rather
-  // than rendering an error page — see that route for why the auth server's own
-  // message is deliberately not carried across.
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  const { page } = parseFeedParams(await searchParams);
+  return {
+    title: en.forum.metaHomeTitle,
+    description: en.forum.metaHomeDescription,
+    alternates: { canonical: paths.home() },
+    // Crawlable paging stops at ten pages; past that, follow but do not index.
+    robots: { index: page <= 10, follow: true },
+  };
+}
+
+export default async function HomePage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
-  return <HomeScreen authFailed={params.auth === "failed"} />;
+  const { sort, after, page } = parseFeedParams(params);
+  const [boards, data] = await Promise.all([readBoards(), readFeed(null, sort, after)]);
+
+  return (
+    <ServerFrame tab="forum">
+      {params.auth === "failed" ? <p className="notice notice--warn">{en.auth.callbackFailed}</p> : null}
+      <Feed board={null} boards={boards} sort={sort} page={page} data={data} heading={en.forum.allBoards} />
+    </ServerFrame>
+  );
 }

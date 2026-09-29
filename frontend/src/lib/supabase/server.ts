@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createServerClient } from "@supabase/ssr";
-import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { isSupabaseConfigured, SUPABASE_ANON_KEY, SUPABASE_URL } from "./config";
@@ -141,3 +141,25 @@ export async function requireServerUser(): Promise<User> {
   }
   return data.user;
 }
+
+/**
+ * Supabase as **nobody**, on the server — no cookies, no session.
+ *
+ * For reads whose answer must be the same for every visitor: the forum feed, a
+ * post, its comments, search. Rendering them as the signed-in user would bake
+ * that user's view into the HTML — their own shadowbanned post visible, say —
+ * and a page that differs per visitor can never be cached or shared. So these
+ * reads go out as `anon`, exactly as a crawler sees them, and per-user state
+ * (my votes, "is this mine") is fetched by client islands after hydration.
+ *
+ * Not `cache()`d across requests — there is nothing per-request in it, but a
+ * fresh client per request keeps the fetch dedupe semantics simple.
+ */
+export const getAnonServerSupabase = cache((): SupabaseClient | null => {
+  if (!isSupabaseConfigured) {
+    return null;
+  }
+  return createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+});

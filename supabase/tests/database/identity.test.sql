@@ -264,6 +264,9 @@ select pg_temp.act_as('00000000-0000-0000-0000-00000000000a');
 select is(public.is_moderator(), true, 'a moderator is');
 
 select pg_temp.act_as_owner();
+-- A real board: board_moderators.board_id has had its foreign key since the
+-- forum core migration.
+insert into public.boards (id, slug, name) values ('11111111-1111-1111-1111-111111111111', 'test-board', 'Test board');
 insert into public.board_moderators (board_id, user_id)
 values ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-00000000000e');
 update public.profiles set karma = 0 where id = '00000000-0000-0000-0000-00000000000e';

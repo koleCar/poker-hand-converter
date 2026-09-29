@@ -1,0 +1,106 @@
+/* The publish dialog. Tokens only. */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: var(--surface-scrim);
+  backdrop-filter: blur(3px);
+}
+
+.panel {
+  display: grid;
+  gap: 12px;
+  width: min(480px, 100%);
+  padding: 22px 22px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  box-shadow: var(--shadow-2);
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.lead {
+  margin: 0;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.field input {
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-weight: normal;
+}
+
+.field input:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.modes {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.modes legend {
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.mode {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.mode span {
+  display: grid;
+  gap: 2px;
+}
+
+.confirm {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+.small {
+  margin: 0;
+  font-size: 12px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

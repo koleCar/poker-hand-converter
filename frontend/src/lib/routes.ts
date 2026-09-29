@@ -32,6 +32,21 @@ export const paths = {
    */
   profile: (username: string) => `/u/${encodeURIComponent(username)}`,
   settings: () => "/settings",
+  /** The forum. `/` is the all-boards feed; a board has its own. */
+  board: (slug: string) => `/f/${encodeURIComponent(slug)}`,
+  /**
+   * A post. The slug is decoration: the id is the key, and a stale or wrong
+   * slug 308s to the current one, so an edited title never breaks a link.
+   */
+  post: (board: string, publicId: string, slug: string) =>
+    `/f/${encodeURIComponent(board)}/${encodeURIComponent(publicId)}/${encodeURIComponent(slug)}`,
+  /** A comment permalink: the post, plus `#c-<seq>`. Never the comment's uuid. */
+  comment: (board: string, publicId: string, slug: string, seq: number) =>
+    `/f/${encodeURIComponent(board)}/${encodeURIComponent(publicId)}/${encodeURIComponent(slug)}#c-${seq}`,
+  submit: () => "/submit",
+  search: (query?: string) => (query ? `/search?q=${encodeURIComponent(query)}` : "/search"),
+  /** A published hand. Public, indexable — unlike `/h/:slug`. */
+  publishedHand: (publicId: string) => `/p/${encodeURIComponent(publicId)}`,
 } as const;
 
 /**

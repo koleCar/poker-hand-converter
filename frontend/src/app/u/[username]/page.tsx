@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { OwnProfileActions } from "./OwnProfileActions";
-import { ProfileFrame } from "./ProfileFrame";
+import { ServerFrame } from "../../../components/shell/ServerFrame";
 import { en } from "../../../lib/i18n/en";
 import { paths } from "../../../lib/routes";
+import { publishedHandsByAuthor, type PublishedHandSummary } from "../../../lib/server/published";
 import { readProfile, type PublicProfile } from "../../../lib/server/profiles";
 import styles from "./profile.module.css";
 
@@ -25,12 +26,12 @@ import styles from "./profile.module.css";
  * `permanentRedirect`; for a GET it is the same instruction as a 301). The same
  * redirect settles capitalisation, so every profile has one URL.
  *
- * ## `noindex`, for now
+ * ## Indexed only with something on it
  *
  * A profile with nothing on it is a thin page, and a few thousand of them is
- * how a new site teaches a search engine it is mostly empty. F7 gives profiles
- * something to show (published hands); that is when indexing should be decided,
- * per profile, on whether there is anything to index.
+ * how a new site teaches a search engine it is mostly empty. So a profile is
+ * `index` exactly when it lists at least one published hand, and `noindex`
+ * until then.
  */
 
 interface PageProps {
@@ -41,12 +42,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { username } = await params;
   const result = await readProfile(decodeURIComponent(username));
   const name = result.status === "ok" ? result.profile.username : null;
+  const hands = name ? await publishedHandsByAuthor(name) : [];
 
   return {
     title: name ? en.profile.metaTitle(name) : en.meta.notFound.title,
     description: name ? en.profile.metaDescription(name) : en.meta.notFound.description,
     alternates: name ? { canonical: paths.profile(name) } : undefined,
-    robots: { index: false, follow: true },
+    robots: { index: hands.length > 0, follow: true },
   };
 }
 
@@ -62,9 +64,9 @@ export default async function ProfilePage({ params }: PageProps) {
   }
 
   return (
-    <ProfileFrame>
+    <ServerFrame>
       {result.status === "ok" ? (
-        <ProfileContent profile={result.profile} />
+        <ProfileContent profile={result.profile} hands={await publishedHandsByAuthor(result.profile.username)} />
       ) : (
         <section className="card stack">
           <h1 className={styles.name}>{en.profile.unavailable.heading}</h1>
@@ -76,7 +78,7 @@ export default async function ProfilePage({ params }: PageProps) {
           </div>
         </section>
       )}
-    </ProfileFrame>
+    </ServerFrame>
   );
 }
 
@@ -89,7 +91,7 @@ function formatJoined(joinedOn: string): string {
   return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(date);
 }
 
-function ProfileContent({ profile }: { profile: PublicProfile }) {
+function ProfileContent({ profile, hands }: { profile: PublicProfile; hands: PublishedHandSummary[] }) {
   return (
     <div className="stack">
       <section className={`card ${styles.header}`}>
@@ -107,10 +109,28 @@ function ProfileContent({ profile }: { profile: PublicProfile }) {
         <OwnProfileActions profileId={profile.id} />
       </section>
 
-      <section className={`card ${styles.empty}`}>
-        <h2 className={styles.emptyHeading}>{en.profile.emptyHeading}</h2>
-        <p className="muted">{en.profile.emptyBody}</p>
-      </section>
+      {hands.length ? (
+        <section className={`card ${styles.empty}`}>
+          <h2 className={styles.emptyHeading}>{en.profile.publishedHeading}</h2>
+          <ul className={styles.hands}>
+            {hands.map((hand) => (
+              <li key={hand.publicId}>
+                <Link href={paths.publishedHand(hand.publicId)} className={styles.handLink}>
+                  {hand.title ?? en.profile.untitledHand(hand.stakesLabel ?? "")}
+                </Link>
+                <small className="muted">
+                  {[hand.heroPosition, hand.heroCards.join(" "), hand.playedOn].filter(Boolean).join(" · ")}
+                </small>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <section className={`card ${styles.empty}`}>
+          <h2 className={styles.emptyHeading}>{en.profile.emptyHeading}</h2>
+          <p className="muted">{en.profile.emptyBody}</p>
+        </section>
+      )}
     </div>
   );
 }

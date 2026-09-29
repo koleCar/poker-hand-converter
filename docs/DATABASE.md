@@ -11,6 +11,8 @@ The schema is defined by four migrations:
 | `20260922130000_user_accounts_and_ownership.sql` | Adds accounts: `hands.owner_id`, owner-scoped RLS, per-library dedupe, `shares.owner_id`, `unparsed_hands.submitted_by`. |
 | `20261003090000_share_projection.sql` | Splits `resolve_share` into `read_share` + `record_share_view` and stops the share payload from being a whole `hands` row. See [Share resolution](#share-resolution-read_share--record_share_view). |
 | `20261007090000_forum_identity.sql` | Profiles, usernames, reservations, roles and posting gates (F6, #28 / #29). See [Identity](#identity-profiles-usernames-and-gates). |
+| `20261012090000_forum_publishing.sql` | Published hands: a scrubbed copy, `scrub_phf`, `publish_hand` (F7, #30 / #31). See [Publishing](#publishing-a-hand). |
+| `20261019090000_forum_core.sql` | Boards, posts, threaded and anchored comments, votes, ranking, audit, search (F8, #32–#34, #37). See [The forum](#the-forum). |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -24,6 +26,8 @@ the app touches Supabase.
 - [Player identity and anonymized rooms](#player-identity-and-anonymized-rooms)
 - [Functions (RPCs)](#functions-rpcs)
 - [Identity: profiles, usernames and gates](#identity-profiles-usernames-and-gates)
+- [Publishing a hand](#publishing-a-hand)
+- [The forum](#the-forum)
 - [RLS policies and grants](#rls-policies-and-grants)
 - [Indexes and the queries they serve](#indexes-and-the-queries-they-serve)
 - [Applying a migration](#applying-a-migration)
@@ -45,7 +49,7 @@ There are exactly three kinds of caller:
 
 | Caller | What they are | What they can reach |
 | --- | --- | --- |
-| **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view and `resolve_username(name)`. No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
+| **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view, `resolve_username(name)`, and visible rows of `published_hands` (plus `read_published_hand` / `published_hands_by_author`). No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
 | **`authenticated`** | Signed in, identified by `auth.uid()` | Their own hands, their own shares, their own corpus samples. Nobody else's, by any query. |
 | **`service_role`** | Us, from the dashboard or the Management API | Everything. Triage, cleanup, backfills. |
 
@@ -57,7 +61,7 @@ The rules the schema holds to:
 | 2 | A client can never choose the owner | `save_hands` writes `auth.uid()` explicitly and ignores the payload's `owner_id`; the normalizing trigger overwrites it again; the RLS `with check` rejects the row regardless. Three independent guards, because the payload goes through `jsonb_populate_recordset` and is fully attacker-controlled. |
 | 3 | Dedupe is per library | `(owner_id, hand_key)`, not `hand_key`. A global key would tell the second uploader of a hand "duplicate" and then show them nothing — the row they collided with is not theirs to read. |
 | 4 | Anon may **never** write anything | `save_hands`, `create_share` and `record_conversion_failures` are revoked from `anon` *and* raise an explicit "you must be signed in" error, so the client gets a sentence instead of `42501`. |
-| 5 | Nobody may update or delete anything | Data loss is the one outcome we refuse to expose. No table has an `UPDATE` or `DELETE` policy — not even for the owner — and the grants do not include those verbs. "Delete my hand" is a real feature, but it needs its own UI and its own confirmation, and the verb should not exist before something guards it. |
+| 5 | No client role holds an `UPDATE` or `DELETE` grant, on any table, ever | Rewritten for the forum (F8), not dropped. Edits, deletes and changed votes exist now, and every one is a narrow `security definer` function: actor from `auth.uid()`, ownership checked explicitly, a whitelisted column set, a `moderation_actions` row in the same transaction, and `enforce_rate_limit`. **A definer function fails closed when a column is added; an UPDATE policy fails open** — it lets the caller set every granted column (`score`, `hot_rank`, `author_id`) until its `with check` is amended. Deletes are soft everywhere. |
 | 6 | Counters move only inside `security definer` functions | Share views and failure occurrences *have* to increment, but a general `UPDATE` grant would also let a caller rewrite hands. |
 | 7 | A share slug is a capability URL, and works for anyone | `shares` has no grants and no policies at all. `read_share(slug)` is the only door, takes an exact slug, and is `security definer` — so it deliberately reads past the owner policy on `hands`. That *is* the feature: send someone a link and they replay the hand with no account. |
 | 7a | A capability URL means the **payload** is the boundary | There is no authentication step left to tighten once the slug is out, so the only control is what the function returns. `read_share` names every output key; it never does `select to_jsonb(row)`. See [Share resolution](#share-resolution-read_share--record_share_view). |
@@ -244,6 +248,87 @@ and `authenticated` for real (not as a superuser): the grant wall, every
 username rule, reservations and reclaiming, redirects, the gates, the vote
 weight, roles, and deleted accounts. `supabase test db` runs it; CI runs it on
 every PR against a fresh Postgres with every migration applied.
+
+---
+
+## Publishing a hand
+
+`20261012090000_forum_publishing.sql`. A published hand is a **copy**, made by
+`publish_hand(hand_id, mode, title)` from the caller's own stored row and run
+through `scrub_phf()` in SQL. The client never sends the document.
+
+| Property | How it holds |
+| --- | --- |
+| No raw room text, table, hand number, tournament number, exact time, filename | No such columns on `published_hands`; `scrub_phf` removes each one from `phf` too; the `published_hands_phf_scrubbed` CHECK (`phf_is_scrubbed()`) rejects a document that still has one — even from the service role |
+| Opponent names replaced by default | `mode` defaults to `pseudonyms` (Hero / Villain1..n); `positions` uses each seat's resolved position; `as-imported` is behind a warning in the UI |
+| A name in a field nobody listed does not leak | `publish_hand` searches every string in the scrubbed document for every original name (whole-token) and **refuses** if one survives. Skipped for `positional` rooms, whose "names" are position labels |
+| Not an existence oracle | "not yours" and "no such hand" raise the same sentence |
+| No bulk | one hand per call, 20/day per account (counts only successes — a refusal rolls the counter back), and idempotent per hand |
+| No opponent-name search | there is no `player_names` column to query |
+| Per-room kill switch | a row in `publish_blocked_sites` |
+| Posting gates apply | `posting_block_reason()` is asked first |
+| Which private row it came from stays private | `published_hand_sources`, sealed |
+
+Reads: `published_hands` is `SELECT`-able by everyone, with one policy —
+`status = 'visible' and deleted_at is null`. `read_published_hand(public_id)`
+(invoker, named keys) and `published_hands_by_author(username)` sit on top. A
+deleted or removed publication returns `{status}` only, via the definer
+`published_hand_status()`, so its page can say "removed" instead of 404.
+`unpublish_hand(public_id)` is the owner's soft delete.
+
+**The whole-corpus check** — every real hand in the repo, scrubbed in every
+mode, then serialized and replayed, with nothing identifying allowed to
+survive — is `backend/scripts/scrub-corpus/`. Run it when a parser or a PHF
+field changes; it is how `game.straddles[].player` was found.
+
+The `hh-takedown` report reason (#31) lands with the reports table (#40).
+
+---
+
+## The forum
+
+`20261019090000_forum_core.sql`. Everything below is enforced in the schema;
+the app only asks.
+
+| Piece | Shape | Why |
+| --- | --- | --- |
+| `boards` | slug, name, seeded (`nlhe`, `mtt`, `plo`, `general`) | `board_moderators.board_id` gets its foreign key here |
+| `posts` | `public_id` (8 chars, share alphabet), `kind` text/hand, `published_hand_id` → `published_hands` (never `hands`), title, plain-text body, generated `slug` | A stale or wrong slug 308s to the current one, so edits never break links |
+| ranking | `hot_rank`, `controversy` (posts) and `best_rank` (comments, Wilson) are **STORED generated columns** over immutable functions | Cannot be forged, cannot drift, needs no UPDATE grant. `forum_hot_rank` converts `at time zone 'UTC'` before `extract(epoch)` — without that it is only STABLE and the generated column is illegal |
+| votes | `post_votes` / `comment_votes`, `weight` from `vote_weight()` at vote time; counters **recounted from the rows** on every vote | Cannot drift. `score` is weighted and deliberately not `up - down`; that gap is the anti-brigading mechanism |
+| karma | recounted for the author on every vote, minus the implicit self-upvotes | Your vote on your own post is not the community's opinion of you |
+| `comments` | adjacency list + fixed-width path (6 base-36 chars per level from a per-post `seq`), depth ≤ 10 | `order by path` is depth-first; `like prefix%` is a subtree on a plain btree. Not `ltree` (`search_path = ''` would force `OPERATOR(extensions.<@)` everywhere) |
+| anchors (#34) | `anchor_action_index` (`PhfAction.index`), `anchor_street`, `anchor_seat` | The same stable key as `?t=a<n>` — never a frame index |
+| tombstones | a deleted comment keeps its row with `body` and `author_id` null; the words go into `moderation_actions` | Replies stay attached to what they answered |
+| `moderation_actions` | one row per edit and delete, previous values in `details` | Sealed; the mod queue (#40) reads it |
+| search (#37) | generated `search_tsv` over a `lang regconfig` column; `websearch_to_tsquery`; posts and comments scanned separately and merged | `to_tsvector(regconfig, text)` is IMMUTABLE, `text::regconfig` is not — Croatian becomes a data change |
+
+**Visibility is RLS, once.** `posts_visible_select`: visible, not deleted,
+author not shadowbanned (except to the author). `comments_visible_select`:
+author not shadowbanned, and the post visible. The feed, `get_post`,
+`get_post_comments` and `search_forum` are `security invoker`, so none of them
+restates a rule and search cannot become a side channel around moderation.
+
+**Writes** (`create_post`, `edit_post`, `delete_post`, `vote_post`,
+`create_comment`, `edit_comment`, `delete_comment`, `vote_comment`) are
+definer, rate-limited per account, and ask `posting_block_reason()` before
+anything that puts words in front of people. `create_comment` takes one row lock
+on the post, which serialises the `seq` allocation and keeps `comment_count`
+exact in the same stroke.
+
+**Feed** (`forum_feed`): keyset pagination with an opaque `<key>~<uuid>` cursor
+(the key is an ISO timestamp for "new", never a float epoch), one statement per
+sort so each is served from its partial index — verified with `EXPLAIN`.
+
+**What the app does with it:** forum pages render as `anon` (see
+`getAnonServerSupabase`), so the HTML is the same for everybody; "my votes" and
+"is this mine" are client islands. **Not yet ISR**: the root layout reads the
+session cookie, which makes every route dynamic. True ISR needs the forum
+routes under their own root layout (route groups) — tracked as a follow-up.
+Server rendering is unaffected: crawlers get the full thread and its
+`DiscussionForumPosting` JSON-LD either way.
+
+Tests: `supabase/tests/database/forum.test.sql` — 63 assertions.
 
 ---
 

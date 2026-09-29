@@ -1,0 +1,304 @@
+/* The forum: feed cards, post pages, threads. Tokens only. */
+
+.feed {
+  display: grid;
+  gap: 10px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chipLink {
+  padding: 5px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  color: var(--fg-muted);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.chipLink[aria-current="page"] {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+.searchForm {
+  display: flex;
+  gap: 6px;
+}
+
+.searchForm input,
+.composer input,
+.composer textarea,
+.composer select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+
+.searchForm input:focus-visible,
+.composer input:focus-visible,
+.composer textarea:focus-visible,
+.composer select:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+}
+
+.cardBody {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.cardTitle a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.cardTitle a:hover {
+  text-decoration: underline;
+}
+
+.badge {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--fg-muted);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  vertical-align: 2px;
+}
+
+.handLine {
+  margin: 0;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+
+.meta a {
+  color: inherit;
+}
+
+.votes {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-width: 34px;
+}
+
+.votesCompact {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.arrow {
+  padding: 2px 6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.arrow:hover:not(:disabled) {
+  background: var(--bg-elev-2);
+}
+
+.arrowUp {
+  color: var(--accent);
+}
+
+.arrowDown {
+  color: var(--danger-fg);
+}
+
+.count {
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.pager {
+  display: flex;
+  gap: 10px;
+}
+
+.post {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.postHead {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.postTitle {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-tight);
+  overflow-wrap: anywhere;
+}
+
+.text {
+  display: grid;
+  gap: 10px;
+  overflow-wrap: anywhere;
+}
+
+.text p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.replay {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  scroll-margin-top: 70px;
+}
+
+.spotBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.composer {
+  display: grid;
+  gap: 8px;
+  scroll-margin-top: 90px;
+}
+
+.attached {
+  margin: 0;
+  font-size: 13px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.thread {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comment {
+  display: grid;
+  gap: 4px;
+  padding-left: 10px;
+  border-left: 2px solid var(--line-soft);
+  scroll-margin-top: 90px;
+}
+
+.comment:target {
+  border-left-color: var(--accent);
+}
+
+.commentFoot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.commentActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.tombstone {
+  margin: 0;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
+.chip {
+  padding: 1px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg-muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+.hits {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hits mark {
+  background: transparent;
+  color: var(--fg);
+  font-weight: var(--font-weight-semibold);
+}

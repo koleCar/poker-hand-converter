@@ -26,6 +26,7 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: ["H"], description: "Show hero’s hole cards" },
   { keys: ["L"], description: "Action log" },
   { keys: ["I"], description: "Hand info" },
+  { keys: ["F"], description: "Full screen" },
   { keys: ["?"], description: "This sheet" },
   { keys: ["Esc"], description: "Close the open sheet" },
 ];

@@ -43,6 +43,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { type PhfHand } from "../../lib/phf/types";
 import { buildReplay, streetAnchors, type ReplayFrame } from "../../lib/replay";
@@ -66,6 +67,7 @@ import {
   writePositionToUrl,
   type ReplayPosition,
 } from "./position";
+import { useFullscreen } from "./useFullscreen";
 import { useFrameTransition, useReducedMotion } from "./useFrameTransition";
 import {
   createNameMask,
@@ -315,6 +317,11 @@ function writeStored(key: string, value: string): void {
  * it is here so a caller that is switching between the three modes has one
  * component to switch on.
  */
+/** A store that never changes: `useSyncExternalStore` then reports server vs client. */
+function subscribeNever(): () => void {
+  return () => {};
+}
+
 export function ReplayViewer(props: ReplayViewerProps) {
   if (props.mode === "card") {
     return (
@@ -353,6 +360,7 @@ function ReplayStage({
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const fullscreen = useFullscreen(rootRef);
   const shape = useStageShape(stageRef);
   const tier = useReplayTier(rootRef);
   /** False until the first frame has been painted: a mount is not a change. */
@@ -428,8 +436,16 @@ function ReplayStage({
   // it has something to say about, and then never again for this hand in this
   // session. Decided during the render that notices the change rather than in
   // an effect, which would paint one frame of the answer before covering it.
+  //
+  // Not before hydration, though. "Seen" lives in sessionStorage, which the
+  // server cannot read, so a link straight to the showdown (`?t=end`) would
+  // open the sheet in one render and not the other and hydration would throw
+  // the tree away. Holding the decision until the client has taken over costs
+  // nothing on the normal path — nobody reaches a showdown in the first frame
+  // unless the URL sent them there — and on that path it opens a beat later.
+  const hydrated = useSyncExternalStore(subscribeNever, () => true, () => false);
   const [wasReady, setWasReady] = useState(false);
-  if (wasReady !== resultReady) {
+  if (hydrated && wasReady !== resultReady) {
     setWasReady(resultReady);
     // Never in an embed: a sheet that presents itself unasked is a modal
     // `<dialog>` over somebody else's page, opened by a replayer the reader may
@@ -705,6 +721,11 @@ function ReplayStage({
           event.preventDefault();
           setInfoOpen(true);
           break;
+        case "f":
+        case "F":
+          event.preventDefault();
+          void fullscreen.toggle();
+          break;
         case "?":
           if (embed) break;
           event.preventDefault();
@@ -725,7 +746,21 @@ function ReplayStage({
       settings,
       last,
       embed,
+      fullscreen,
     ],
+  );
+
+  const fullscreenButton = (
+    <button
+      type="button"
+      className={`btn btn--icon ${fullscreen.mode !== "off" ? "is-active" : ""}`.trim()}
+      onClick={() => void fullscreen.toggle()}
+      aria-pressed={fullscreen.mode !== "off"}
+      aria-label={fullscreen.mode === "off" ? "Full screen" : "Exit full screen"}
+      title={fullscreen.mode === "off" ? "Full screen (F)" : "Exit full screen (F)"}
+    >
+      {fullscreen.mode === "off" ? "⛶" : "✕"}
+    </button>
   );
 
   return (
@@ -744,6 +779,9 @@ function ReplayStage({
       // animate" is answered once, in one place, by one CSS rule.
       data-motion={motion}
       data-allin={inRunout ? "true" : undefined}
+      // `native` or `overlay`; see useFullscreen. The stylesheet gives either
+      // one the whole viewport as its box, and nothing else changes.
+      data-fullscreen={fullscreen.mode === "off" ? undefined : fullscreen.mode}
       // Focusable so the key map has somewhere to be scoped to, and announced
       // as what it is rather than as an unnamed group of divs.
       tabIndex={0}
@@ -797,6 +835,7 @@ function ReplayStage({
               open={settingsOpen}
               onOpenChange={setSettingsOpen}
             />
+            {fullscreenButton}
             {onClose ? (
               <button
                 type="button"

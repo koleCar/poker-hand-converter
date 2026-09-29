@@ -35,6 +35,7 @@ const ALLOWED: ReadonlySet<string> = new Set([
   // offers "resend the confirmation email" — so the link in that email has to
   // be able to come back here.
   paths.settings(),
+  paths.submit(),
 ]);
 
 /**

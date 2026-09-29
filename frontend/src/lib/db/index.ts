@@ -77,6 +77,15 @@ export {
 export { createShare, resolveShare } from "./shares";
 
 export {
+  myPublishedHandIds,
+  publishErrorMessage,
+  publishHand,
+  unpublishHand,
+  type PublishMode,
+  type PublishResult,
+} from "./publishing";
+
+export {
   fetchMyProfile,
   setUsername,
   usernameErrorMessage,

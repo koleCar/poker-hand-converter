@@ -3,6 +3,7 @@ import Link from "next/link";
 import { buildSharePreview, formatPlayedAt, formatStakes, shortGameName } from "../../../components/share/preview";
 import { BrandMark } from "../../../components/shell/BrandMark";
 import { ReplayViewer } from "../../../components/replayer/ReplayViewer";
+import { decodePosition, POSITION_PARAM, type ReplayPosition } from "../../../components/replayer/position";
 import { RecordShareView } from "./RecordShareView";
 import { parseHand } from "../../../lib/phf";
 import type { PhfHand } from "../../../lib/phf/types";
@@ -51,6 +52,7 @@ import { readShare, type ShareReadResult } from "../../../lib/server/shares";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 /** Both halves of the page read the hand the same way, from the same cache. */
@@ -95,8 +97,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function SharedHandPage({ params }: PageProps) {
+export default async function SharedHandPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  // Read on the server and passed down, so the server render and the first
+  // client render open at the same moment; otherwise `?t=` links hydrate with a
+  // mismatch and React discards the server tree.
+  const rawT = (await searchParams)[POSITION_PARAM];
+  const initialPosition = decodePosition(Array.isArray(rawT) ? rawT[0] : rawT);
   // Same call, same request, one round trip: `readShare` is `cache()`d, and
   // supabase-js RPCs are POSTs that Next's fetch memoisation would not dedupe.
   const result = await readShare(slug);
@@ -130,6 +137,7 @@ export default async function SharedHandPage({ params }: PageProps) {
               createdAt={result.share.createdAt}
               views={result.share.views}
               slug={slug}
+              initialPosition={initialPosition}
             />
           </>
         ) : (
@@ -158,11 +166,13 @@ function SharedHandContent({
   createdAt,
   views,
   slug,
+  initialPosition,
 }: {
   hand: PhfHand;
   createdAt: string | null;
   views: number;
   slug: string;
+  initialPosition: ReplayPosition | null;
 }) {
   const sharedAt = formatPlayedAt(createdAt);
 
@@ -179,7 +189,7 @@ function SharedHandContent({
           back off the same parameter, resolved lossy-tolerantly — see
           `replayer/position.ts`. */}
       <section className="sharepage__replay">
-        <ReplayViewer hand={hand} />
+        <ReplayViewer hand={hand} initialPosition={initialPosition} />
       </section>
 
       <section className="sharepage__cta">
