@@ -2,13 +2,18 @@
 
 Supabase project `riybwcfnclphacnfawiq` (`poker converter`). Postgres 17.
 
-The schema is defined by three migrations:
+The schema is defined by four migrations:
 
 | Migration | What it does |
 | --- | --- |
 | `20260916190000_phf_baseline.sql` | The baseline: `hands`, `unparsed_hands`, `shares`, RLS, RPCs. |
 | `20260916210000_position_search_and_anonymization.sql` | Adds `site_anonymization` and the position search columns. |
 | `20260922130000_user_accounts_and_ownership.sql` | Adds accounts: `hands.owner_id`, owner-scoped RLS, per-library dedupe, `shares.owner_id`, `unparsed_hands.submitted_by`. |
+| `20261003090000_share_projection.sql` | Splits `resolve_share` into `read_share` + `record_share_view` and stops the share payload from being a whole `hands` row. See [Share resolution](#share-resolution-read_share--record_share_view). |
+| `20261007090000_forum_identity.sql` | Profiles, usernames, reservations, roles and posting gates (F6, #28 / #29). See [Identity](#identity-profiles-usernames-and-gates). |
+
+Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
+`hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
 
 The client layer that talks to them is `frontend/src/lib/db/`. Nothing else in
 the app touches Supabase.
@@ -18,6 +23,7 @@ the app touches Supabase.
 - [Tables](#tables)
 - [Player identity and anonymized rooms](#player-identity-and-anonymized-rooms)
 - [Functions (RPCs)](#functions-rpcs)
+- [Identity: profiles, usernames and gates](#identity-profiles-usernames-and-gates)
 - [RLS policies and grants](#rls-policies-and-grants)
 - [Indexes and the queries they serve](#indexes-and-the-queries-they-serve)
 - [Applying a migration](#applying-a-migration)
@@ -29,8 +35,8 @@ the app touches Supabase.
 ## Threat model (read this first)
 
 **The app has accounts, and the database is the only thing enforcing them.**
-The deployed bundle is a public static asset, so `VITE_SUPABASE_ANON_KEY` is
-public by construction: anyone can read it out of the JavaScript and talk to
+The deployed bundle is public, so `NEXT_PUBLIC_SUPABASE_ANON_KEY` is public by
+construction: anyone can read it out of the JavaScript and talk to
 PostgREST directly with `curl`, with any JWT they legitimately hold. So the
 question every policy answers is not "will the UI ask for this" but "what
 happens when a signed-in stranger asks for it directly".
@@ -39,7 +45,7 @@ There are exactly three kinds of caller:
 
 | Caller | What they are | What they can reach |
 | --- | --- | --- |
-| **`anon`** | Logged out, or a guest who chose to carry on without an account | `resolve_share(slug)` and nothing else. No grant on `hands`, no write anywhere. |
+| **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view and `resolve_username(name)`. No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
 | **`authenticated`** | Signed in, identified by `auth.uid()` | Their own hands, their own shares, their own corpus samples. Nobody else's, by any query. |
 | **`service_role`** | Us, from the dashboard or the Management API | Everything. Triage, cleanup, backfills. |
 
@@ -53,7 +59,8 @@ The rules the schema holds to:
 | 4 | Anon may **never** write anything | `save_hands`, `create_share` and `record_conversion_failures` are revoked from `anon` *and* raise an explicit "you must be signed in" error, so the client gets a sentence instead of `42501`. |
 | 5 | Nobody may update or delete anything | Data loss is the one outcome we refuse to expose. No table has an `UPDATE` or `DELETE` policy — not even for the owner — and the grants do not include those verbs. "Delete my hand" is a real feature, but it needs its own UI and its own confirmation, and the verb should not exist before something guards it. |
 | 6 | Counters move only inside `security definer` functions | Share views and failure occurrences *have* to increment, but a general `UPDATE` grant would also let a caller rewrite hands. |
-| 7 | A share slug is a capability URL, and works for anyone | `shares` has no grants and no policies at all. `resolve_share(slug)` is the only door, takes an exact slug, and is `security definer` — so it deliberately reads past the owner policy on `hands`. That *is* the feature: send someone a link and they replay the hand with no account. |
+| 7 | A share slug is a capability URL, and works for anyone | `shares` has no grants and no policies at all. `read_share(slug)` is the only door, takes an exact slug, and is `security definer` — so it deliberately reads past the owner policy on `hands`. That *is* the feature: send someone a link and they replay the hand with no account. |
+| 7a | A capability URL means the **payload** is the boundary | There is no authentication step left to tighten once the slug is out, so the only control is what the function returns. `read_share` names every output key; it never does `select to_jsonb(row)`. See [Share resolution](#share-resolution-read_share--record_share_view). |
 | 8 | Raw uploads are not public | `unparsed_hands.raw_text` is verbatim hand history somebody uploaded. It is readable only by its submitter. The row itself stays globally deduped, because `occurrences` is the entire point of the table. |
 | 9 | Junk volume is bounded | `CHECK` constraints cap text sizes and validate shapes; a statement-level trigger enforces a global insert-rate budget. |
 
@@ -108,6 +115,16 @@ per-user counter is a strictly larger table with a cleanup job attached.
 | `hands_insert` | 25 000 rows / 10 min | `hands_rate_limit()` statement trigger |
 | `unparsed_insert` | 5 000 records / 10 min | `record_conversion_failures()` |
 | `share_create` | 300 shares / hour | `create_share()` |
+| `share_view:<slug>` | 600 views / hour **per slug** | `record_share_view()` |
+
+`share_view` is the one per-key bucket, because the thing it protects is
+per-key: a view counter anyone can increment by holding a URL is a vanity metric
+a `for` loop can ruin, and a global budget would let one hammered link stop
+every other link from counting. It accrues one `ingest_rate_limit` row per
+viewed slug; the table is tiny and service-role-readable, so pruning stale
+windows is a cron job rather than a schema change. Over-budget is **swallowed**
+there, not raised — a missed increment is invisible, a raised `53400` is a red
+error on a page whose job is to show a hand.
 
 Budgets are an order of magnitude above real use: a 5000-hand upload spends
 5 000 of the 25 000 hand budget. Single requests are capped separately — 1 000
@@ -138,9 +155,95 @@ why:
 | `search_hands`, `get_hand`, `hands_facets`, `unparsed_summary` | invoker | Read-only; RLS already allows public select. |
 | `record_conversion_failures` | **definer** | Anon has `SELECT` but no `INSERT`/`UPDATE` on `unparsed_hands`, precisely so a caller cannot forge an occurrence count or flip `status`. This is the only write path and it whitelists the columns it touches. |
 | `create_share` | **definer** | `shares` is sealed from clients. The function generates the slug itself, so a caller cannot choose one — and because being definer means RLS on `hands` does not apply inside it, it checks `owner_id` by hand. |
-| `resolve_share` | **definer** | Reads a sealed table *and* increments `views`, which is an `UPDATE`. Keyed strictly by slug equality, returns exactly one row. |
+| `read_share` | **definer** | Reads a sealed table, and reads past the owner policy on `hands` — that is the feature. Keyed strictly by slug equality, returns exactly one row, and projects its output columns by name because RLS cannot help inside a definer body. |
+| `record_share_view` | **definer** | `views` is an `UPDATE`, and no client role has `UPDATE` on any table. Touches two columns on one row selected by slug equality. |
+| `resolve_share` | **definer** | Deprecated wrapper over the two above; removal on or after 2026-11-27. |
+| `phf_redact_private` | invoker | Pure jsonb→jsonb, no table access. Not granted to clients; it is an internal of `read_share`. |
 | `enforce_rate_limit` | **definer** | The counter table is unreachable from anon. Not granted to clients. |
 | `hands_rate_limit` (trigger) | **definer** | Has to call `enforce_rate_limit`, which anon cannot execute. |
+
+---
+
+## Identity: profiles, usernames and gates
+
+`20261007090000_forum_identity.sql`. Everything the forum does later — author
+lines, `/u/[name]`, vote weighting, moderation — hangs off this, so it shipped
+before anything depends on it. The SQL headers carry the full reasoning; this is
+the map.
+
+### Doors
+
+`profiles` is **sealed**: RLS on, no policies, no grants — not even SELECT on
+your own row, because a self-select policy would hand an account its own
+`is_shadowbanned` flag. So there are exactly these ways in:
+
+| Door | Who | What it gives |
+| --- | --- | --- |
+| `profiles_public` (view) | `anon`, `authenticated` | `id`, `username`, `username_lower`, `karma`, `joined_on` (a **date**, not the signup timestamp). Owner-run, not `security_invoker`, so **the column list is the security boundary** — adding a column is a privacy decision. The Supabase advisor flags it as `security_definer_view`; that is the intent. |
+| `my_profile()` | `authenticated` | The caller's own row as a named projection, plus `postingBlockReason`. Omits `is_shadowbanned` and `unsubscribe_token`. |
+| `set_username(name)` | `authenticated` | The only client-caused write to `profiles`. |
+| `resolve_username(name)` | `anon`, `authenticated` | "What is this name called now": `{username, redirect}` or `null`. Never returns an id, a reason or an expiry. |
+
+### Username rules
+
+| Rule | Where |
+| --- | --- |
+| `^[A-Za-z0-9][A-Za-z0-9_]{2,23}$` — every wider character class is a homoglyph surface, and the name is a URL | `profiles_username_shape` CHECK, mirrored by `username_shape_problem()` for the sentence |
+| Case-insensitive uniqueness | unique index on the generated `username_lower` — never a pre-flight `exists`, which races |
+| Provisional `user_<8 base-36>` at signup, from a CSPRNG, **never from the email** | `handle_new_user()` trigger on `auth.users` |
+| **No profile for anonymous sign-ins** — still enabled on the live project, and one profile per `signInAnonymously()` would let a loop fill `profiles_public` | `handle_new_user()` and the backfill skip `is_anonymous` |
+| `user_…` cannot be chosen | `username_shape_problem()` |
+| Once per 30 days; a capitalisation-only change is free; the provisional name does not count | `set_username()` |
+| Old name reserved **for the same account** for a year; `/u/<old>` redirects for that year; the owner can take it back | `username_reservations` + `set_username()` + `resolve_username()` |
+| Route segments and staff-sounding names reserved for nobody | seeded into `username_reservations` — **a new top-level route belongs in that seed** |
+| Slurs, matched after folding `_` and `0 1 3 4 5 7` → `o i e a s t`; short terms that are innocent fragments match `exact` only | `username_blocked_terms` — data, extended by the service role |
+| A deleted account's name is reserved for nobody for a year | `profiles_reserve_on_delete` trigger |
+
+`set_username()` has no rate limit, deliberately: every refusal is a raise, a
+raise rolls back the counter increment with it, and whether a name is taken is
+public through the view anyway.
+
+### Gates and roles
+
+| Function | Security | Granted to | Answers |
+| --- | --- | --- | --- |
+| `posting_block_reason(uid)` | definer (reads `auth.users.email_confirmed_at`) | **nobody** — it takes a uid, which would make it an oracle | `NULL`, or the sentence: banned (with until-date), email unconfirmed, account under 10 minutes old. A shadowban is **not** a reason. |
+| `vote_weight(uid)` | definer | **nobody** — its answer reveals a shadowban | `0` under 24 h, banned, shadowbanned or **negative** karma; else `1`. |
+| `is_moderator()` | definer — **must** be: an invoker function read from a policy on `profiles` recurses forever | `anon`, `authenticated` | Caller only; no argument. |
+| `is_board_moderator(board)` | definer, same reason | `anon`, `authenticated` | Caller only. |
+
+`vote_weight` says **negative** karma where #29 said "zero": every account starts
+at zero and karma comes from weighted votes, so a zero rule would mean no vote
+ever weighs anything. The function comment has the full argument, and the note
+for #32 to add "has contributed" once posts exist.
+
+Roles are a column read per call, **not a JWT claim**: a claim is frozen until
+the token refreshes, so an emergency de-modding would take up to an hour.
+Policies call them as `(select public.is_moderator())` for one InitPlan per
+statement.
+
+`board_moderators.board_id` has no foreign key yet; `public.boards` arrives with
+#32, and that migration adds it.
+
+### What still has to happen outside the repo
+
+* **Email confirmation.** The gate reads `email_confirmed_at`, which is always
+  set while the live project has `mailer_autoconfirm = true`. Turning it off
+  needs real SMTP first (the built-in mailer only delivers to the project's team
+  members), then `mailer_autoconfirm = false` **and**
+  `mailer_allow_unverified_email_sign_ins = true` together, so confirmation gates
+  the first post rather than sign-in.
+* **Turnstile.** A Cloudflare site key in `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and
+  the matching secret under Authentication → Attack Protection, switched on
+  together — either one alone locks people out or protects nothing.
+
+### Tests
+
+`supabase/tests/database/identity.test.sql` — 68 pgTAP assertions run as `anon`
+and `authenticated` for real (not as a superuser): the grant wall, every
+username rule, reservations and reclaiming, redirects, the gates, the vote
+weight, roles, and deleted accounts. `supabase test db` runs it; CI runs it on
+every PR against a fresh Postgres with every migration applied.
 
 ---
 
@@ -156,8 +259,8 @@ Run it after **any** change to the policies, to `save_hands`, or to
 
 ```bash
 cd frontend  # .env.local has the URL and anon key
-URL=$(grep VITE_SUPABASE_URL .env.local | cut -d'"' -f2)
-KEY=$(grep VITE_SUPABASE_ANON_KEY .env.local | cut -d'"' -f2)
+URL=$(grep NEXT_PUBLIC_SUPABASE_URL .env.local | cut -d'"' -f2)
+KEY=$(grep NEXT_PUBLIC_SUPABASE_ANON_KEY .env.local | cut -d'"' -f2)
 TAG=$(openssl rand -hex 4)
 
 signup() {  # -> access token
@@ -194,7 +297,8 @@ failure:
 | B saves a `hand_key` A already has | `inserted: 1` — a new row, not a duplicate |
 | B calls `create_share(A's hand id)` | Error, identical to "no such hand" |
 | anon calls `search_hands` / `save_hands` / `create_share` | Permission denied |
-| anon calls `resolve_share(slug of A's hand)` | **Succeeds** — this one must not be locked down |
+| anon calls `read_share(slug of A's hand)` | **Succeeds** — this one must not be locked down |
+| that response contains `source_text`, `owner_id` or `phf.meta.rawText` | **Must not** — see [Share resolution](#share-resolution-read_share--record_share_view) |
 | anon `GET /rest/v1/hands` or `/rest/v1/shares` | `42501` |
 | B reads `unparsed_hands` after A submitted a sample | `[]` |
 
@@ -330,8 +434,8 @@ write next.
 | `hand_id` | FK to `hands`, `ON DELETE CASCADE`. Preferred: the share follows the stored row instead of pinning a stale copy. |
 | `phf` + `standard_text` | The embedded alternative, for a hand that was never saved (offline, or saving turned off). A `CHECK` requires one of `hand_id` / `phf`. |
 | `title` | Optional label for the share page. |
-| `owner_id` | Who created the link. **Not** a read gate — `resolve_share` ignores it, because a link has to work for a stranger. It exists so a link is attributable and so a deleted account takes its links with it. |
-| `views`, `last_viewed_at` | Bumped by `resolve_share`. |
+| `owner_id` | Who created the link. **Not** a read gate — `read_share` ignores it, because a link has to work for a stranger. It is also never returned to the reader. It exists so a link is attributable and so a deleted account takes its links with it. |
+| `views`, `last_viewed_at` | Bumped by `record_share_view`, never by `read_share`. |
 | `created_at` | — |
 
 ### `ingest_rate_limit`
@@ -445,9 +549,12 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 | `record_conversion_failures(p_failures jsonb)` | `authenticated` | `{received, created, updated, skipped}` | Upserts `ConversionFailure` records by fingerprint, incrementing `occurrences` atomically and recording the first submitter. Truncates over-long fields and skips malformed records rather than failing the batch: losing a sample we cannot reproduce is worse than storing a lossy one. Never writes `status` or `notes`. Max 200 per call. |
 | `unparsed_summary(p_limit int)` | `anon`, `authenticated` | jsonb | `unparsed_gaps` ordered by impact, plus totals and a `byStatus` breakdown. `security invoker`, so a client sees only its own submissions; the cross-corpus answer to "which converter next" is a service-role query. |
 | `create_share(p_hand_id, p_phf, p_standard_text, p_title)` | `authenticated` | `{id, slug}` | Allocates a slug (retrying on collision) and inserts one row owned by the caller. **Refuses a `p_hand_id` the caller does not own** — it is `security definer`, so this check is not optional. |
-| `resolve_share(p_slug text)` | `anon`, `authenticated` | jsonb or `null` | Resolves a slug **and** increments its view counter, in one round trip. Returns the share plus the joined hand, ignoring ownership entirely — a link works for anyone, which is the point. `null` for unknown *or* malformed slugs, deliberately indistinguishable, so probing tells an attacker nothing. |
+| `read_share(p_slug text)` | `anon`, `authenticated` | jsonb or `null` | Resolves a slug to `{slug, title, views, createdAt, handId, phf, standardText}` and nothing else, ignoring ownership entirely — a link works for anyone, which is the point. `stable`, no side effects. `null` for unknown *or* malformed slugs, deliberately indistinguishable, so probing tells an attacker nothing. |
+| `record_share_view(p_slug text)` | `anon`, `authenticated` | boolean | Increments `views` / `last_viewed_at` for one slug. Returns `false` instead of raising when throttled, unknown or malformed. |
+| `resolve_share(p_slug text)` | `anon`, `authenticated` | jsonb or `null` | **Deprecated — remove on or after 2026-11-27.** Thin wrapper over the two above, kept only for clients built before the projection fix. No longer returns the `hand` key. |
 | `enforce_rate_limit(...)` | `service_role` | void | Internal. |
 | `generate_share_slug(int)` | `service_role` | text | Internal. |
+| `phf_redact_private(jsonb)` | `service_role` | jsonb | Internal. Strips the private keys from a PHF document's `meta`. |
 
 `search_hands` filter keys (all optional): `site`, `board[]`, `heroCards[]`,
 `heroHandClasses[]`, `heroName`, `player`, `tableName`, `variant`, `limitType`,
@@ -469,6 +576,94 @@ distribution is itself informative), `showdownPositions`, and `anonymizations`
 (with counts, so the UI can tell whether the name filter is safe to offer at
 all).
 
+### Share resolution: `read_share` + `record_share_view`
+
+`20261003090000_share_projection.sql` replaced the single `resolve_share` with a
+read and a counter. Two independent reasons.
+
+**1. The payload was the whole row.** The baseline did
+`select to_jsonb(h) into v_hand`, then returned `v_hand` under a `hand` key. A
+share slug is a capability URL handed to strangers on purpose, so once it is out
+there is no authentication step left to tighten — the only control left is what
+the function chooses to return. `to_jsonb(row)` makes that a function of the
+*table definition*, which means everyone with a link was getting `source_text`
+(the verbatim site text, every opponent's screen name), `owner_id` (the sharer's
+`auth.users` uuid, a stable correlator across every link they ever post),
+`hand_key` / `site_hand_id` and `source_filename` — and a column added to
+`hands` years later for an unrelated reason would have joined them silently.
+
+`read_share` names its seven output keys one at a time: `slug`, `title`,
+`views`, `createdAt`, `handId`, `phf`, `standardText`. Adding a column to `hands`
+now changes nothing; widening the share payload requires editing that file,
+which is the review gate we want. **Any path that publishes a hand to someone
+who does not own it should copy this shape rather than invent a second one.**
+
+`phf` goes through `public.phf_redact_private()`, which drops four `meta` keys:
+
+| Key | Why it goes |
+| --- | --- |
+| `meta.rawText` | The hand's slice of the uploaded file, verbatim. This is `source_text` by another name — stripping the column and leaving this would fix nothing. |
+| `meta.originalFilename` | The uploader's local filename. Frequently a real name. |
+| `meta.warnings` | Parser diagnostics quote source lines, so they are a partial `rawText` with extra steps. |
+| `meta.parsedAt` | Says nothing about the hand and everything about the owner's session times. |
+
+It is a **deny-list**, deliberately: `meta` is versioned by the PHF schema and a
+new *rendering* key upstream must keep working without a migration. The trade is
+that a new *sensitive* key needs a line in that function — so the rule for
+`frontend/src/lib/phf/types.ts` is that anything user-identifying goes into
+`meta` only if it is added to the deny-list in the same change.
+
+What stays exposed: `standardText` and the redacted `phf` still carry the
+opponents' screen names and everybody's shown hole cards. That is not an
+oversight — it *is* the hand, and a replayer with the names blanked out is not
+the feature anyone asked to share. What goes is the material that has nothing to
+do with replaying.
+
+**2. The counter forced the read to be a write.** Because `resolve_share` did an
+`UPDATE`, it had to be `volatile`, so PostgREST would not serve it over GET,
+nothing above it could cache it, and a read-only consumer could not exist.
+Open Graph tags for link-unfurl crawlers had to come from somewhere, and every
+crawler prefetch counted as a human view — Slack alone unfurls a link once per
+member who sees it, so `views` measured "times pasted", not "times read".
+`read_share` is now `stable` and writes nothing; `record_share_view` is
+`volatile` and does nothing else.
+
+Since the Next.js cutover (#26) the consumer is `frontend/src/app/h/[slug]/`,
+an RSC whose `generateMetadata` and page body both call `read_share` through one
+React `cache()` — so the tags and the page are one round trip and neither
+counts. The counter is a client beacon (`RecordShareView.tsx`) with a
+`sessionStorage` guard, which a crawler does not run. The edge function that
+used to serve UA-sniffed tags, `frontend/api/share-meta.ts`, is deleted.
+
+Consequence for callers: `read_share` returns the count **before** your view.
+`resolveShare()` in `frontend/src/lib/db/shares.ts` fires `record_share_view`
+fire-and-forget after a successful read, so the view is never counted for a slug
+that did not resolve and the page never waits on a counter.
+
+`resolve_share` survives as a thin wrapper for un-migrated clients, **scheduled
+for removal on or after 2026-11-27**. It no longer returns `hand` — that key
+existed only as a whole-row dump and is not a compatibility surface worth
+keeping; old clients read it into an optional field and render `null` without
+complaint. Before dropping it, check the Supabase logs for `rpc/resolve_share`
+in the preceding week.
+
+Verify with the **anon key**, never a PAT — a PAT bypasses RLS and holds every
+grant, so a leak test that passes under one proves nothing:
+
+```bash
+curl -s "$SUPABASE_URL/rest/v1/rpc/read_share" \
+  -H "apikey: $SUPABASE_ANON_KEY" \
+  -H "authorization: Bearer $SUPABASE_ANON_KEY" \
+  -H 'content-type: application/json' \
+  -d '{"p_slug":"<a real slug>"}' \
+| jq '[ (has("hand")|not), (has("source_text")|not), (has("owner_id")|not)
+      , (.phf.meta|has("rawText")|not), (.phf.meta|has("originalFilename")|not)
+      , (.phf.meta|has("warnings")|not), (.phf.meta|has("parsedAt")|not) ] | all'
+```
+
+Must print `true`, and so must the same call against `rpc/resolve_share` — the
+deprecated wrapper is not a bypass.
+
 ---
 
 ## RLS policies and grants
@@ -483,7 +678,7 @@ over-permissioned** and the migration revokes first, then grants.
 | `hands` | **none** | `SELECT`, `INSERT` | `hands_owner_select` / `hands_owner_insert`, both `owner_id = (select auth.uid())`. No `UPDATE`/`DELETE` policy — with RLS on and no permissive policy, both are refused regardless of grants, for owners too. |
 | `unparsed_hands` | `SELECT` | `SELECT` | `unparsed_own_select` (`submitted_by = (select auth.uid())`). Writes go through the definer RPC; a direct `INSERT` would let a caller invent an occurrence count or set `status = 'wontfix'` on someone else's row. |
 | `unparsed_gaps` (view) | `SELECT` | `SELECT` | `security_invoker`, so the base table's policy applies. |
-| `shares` | **none** | **none** | **none**. Sealed. `create_share` / `resolve_share` only. |
+| `shares` | **none** | **none** | **none**. Sealed. `create_share` / `read_share` / `record_share_view` only. |
 | `ingest_rate_limit` | **none** | **none** | **none**. Internal. |
 
 Why `anon` keeps a `SELECT` *grant* on `unparsed_hands` while having none on
@@ -574,7 +769,7 @@ Deliberately **not** indexed:
 | `unparsed_status_seen_idx` | The triage queue: "everything still `new`, newest first". |
 | `unparsed_site_reason_idx` | The `unparsed_gaps` grouping; also serves site-only lookups. |
 | `unparsed_occurrences_idx` | "What hurts most" ordering. |
-| `shares_slug_uidx` | `resolve_share`. The only way into the table. |
+| `shares_slug_uidx` | `read_share` / `record_share_view`. The only way into the table. |
 | `shares_hand_idx` | "Does this hand already have a share?" |
 
 ---
@@ -663,8 +858,8 @@ superuser and proves nothing about RLS:
 
 ```bash
 # frontend/.env.local has the values; `supabase projects api-keys --project-ref riybwcfnclphacnfawiq` prints them
-curl -X POST "$VITE_SUPABASE_URL/rest/v1/rpc/hands_facets" \
-  -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Authorization: Bearer $VITE_SUPABASE_ANON_KEY"
+curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/rpc/hands_facets" \
+  -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" -H "Authorization: Bearer $NEXT_PUBLIC_SUPABASE_ANON_KEY"
 ```
 
 and confirm the negative cases still fail: `DELETE /rest/v1/hands`,
@@ -673,16 +868,24 @@ and confirm the negative cases still fail: `DELETE /rest/v1/hands`,
 Migrations apply in filename order. `20260916210000` depends on the baseline
 having run first, and `20260922130000` depends on both.
 
-### `20260922130000` is destructive and must not be re-run
+### `20260922130000` opens with a delete, gated on the first run
 
-It opens with `delete from public.shares; delete from public.hands;`. That was
+It starts with `delete from public.shares; delete from public.hands;`. That was
 correct exactly once: the 914 hands stored before accounts existed had no owner
 and no way to acquire one, so they could not be made reachable under the new
 policies, and clearing them is what let `owner_id` be `not null` rather than a
-nullable column every query has to remember. Re-running the file today would
-delete real user libraries. Everything after those two statements is idempotent
-(`add column if not exists`, `create or replace`), so if you need to re-apply
-it, delete the two `delete` statements first.
+nullable column every query has to remember.
+
+The two statements now sit inside a `do $gate$` block that runs them only when
+`public.hands` has no `owner_id` column — i.e. only when ownership has not been
+introduced yet, which is the exact condition that made them correct. On an
+already-migrated database the block is a no-op, and everything after it is
+idempotent anyway (`add column if not exists`, `create or replace`,
+`create index if not exists`), so the whole file is safe to re-apply.
+
+The check has to come *before* the `alter table public.hands add column
+owner_id`, because that `add column` is what makes the condition false. Do not
+reorder them, and do not "simplify" the gate into an unconditional delete.
 
 ### The baseline is re-runnable
 
@@ -694,9 +897,31 @@ later migration** — a normal migration must be additive, and
 `20260916210000_position_search_and_anonymization.sql` is the worked example of
 one: it adds columns, backfills them from `phf`, and drops nothing.
 
-One consequence to remember: because the baseline recreates `hands` and
-`hands_normalize()` from scratch, re-running it reverts the later migration.
-Re-apply every migration after it, in order.
+### A baseline re-run silently reverts `20260916210000`
+
+This is the one that bites, because nothing errors. `20260916190000_phf_baseline.sql`
+opens with `drop table if exists public.hands cascade` and then recreates the
+table and `hands_normalize()` from scratch. The `cascade` takes the dependent
+objects with it, and the fresh definitions do not know about anything a later
+migration added. So after any baseline re-run, the database is missing
+everything `20260916210000_position_search_and_anonymization.sql` contributed:
+
+- the `site_anonymization` column and its enum default,
+- `player_positions`, `showdown_positions`, `winner_positions` and their
+  backfill from `phf`,
+- the CHECK constraint that keeps positional-anonymity hands from storing
+  pseudonyms in `player_names` / `winners`,
+- the position indexes, and the `hands_normalize()` body that normalizes
+  positions at all.
+
+Nothing raises. Inserts keep succeeding, position filters just quietly return
+nothing, and `search_hands` answers wrongly rather than failing — which is the
+failure mode `20260916210000` was written to prevent in the first place.
+
+**So: after re-running the baseline, re-apply every later migration in filename
+order** — `20260916210000`, then `20260922130000`. Both are safe to re-apply
+(`20260922130000` is gated, see above), so the correct move is always to replay
+the whole chain rather than to guess which parts survived.
 
 The storage-bucket migrations (`20260226123000`, `20260308091000`) are left
 untouched. They keep the legacy `frontend-site` Supabase hosting path working,

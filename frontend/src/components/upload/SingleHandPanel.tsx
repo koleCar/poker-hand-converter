@@ -13,12 +13,13 @@
  * than silently dropping the rest.
  */
 
+"use client";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
-import { isDatabaseConfigured } from "../../lib/db";
-import { toParsedHand, type ParsedHand } from "../../lib/handParser";
-import { saveSingleHand } from "../../lib/handStore";
-import { convertAny, getParser } from "../../lib/phf";
+import { isDatabaseConfigured, saveHand } from "../../lib/db";
+import { convertAny, getParser, toStandardText } from "../../lib/phf";
+import type { PhfHand } from "../../lib/phf/types";
 import { FILE_ACCEPT, loadFile } from "../converter/inputs";
 import { ReplayViewer } from "../replayer/ReplayViewer";
 import { ShareHandButton } from "../share/ShareHandButton";
@@ -32,10 +33,12 @@ function siteLabel(id: string): string | null {
 }
 
 interface LoadedHand {
-  hand: ParsedHand;
+  hand: PhfHand;
   storedId: string | null;
-  sourceText: string | null;
-  sourceFilename: string | null;
+  /**
+   * Parser the hand came from, for the header label. Saving does not need it:
+   * the hand carries its own site, source text and filename.
+   */
   siteId: string;
 }
 
@@ -70,10 +73,8 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
       }
 
       setLoaded({
-        hand: toParsedHand(first),
+        hand: first,
         storedId: null,
-        sourceText: raw,
-        sourceFilename: fileName,
         siteId: first.meta.siteId,
       });
       // The box has done its job; leaving eight rows of raw text above the
@@ -118,11 +119,10 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
     setSaving(true);
     setError(null);
     try {
-      const result = await saveSingleHand(loaded.hand, {
-        source: loaded.siteId,
-        sourceText: loaded.sourceText,
-        sourceFilename: loaded.sourceFilename,
-      });
+      // The canonical document goes to the database, not a re-parse of the text
+      // rendered from it: that round trip drops the original source text the
+      // hand carries and re-derives amounts through display floats.
+      const result = await saveHand(loaded.hand, toStandardText(loaded.hand));
       setLoaded({ ...loaded, storedId: result.id });
       setNotice(result.duplicate ? "Already in your library." : "Saved to your library.");
       onSaved?.();
@@ -201,7 +201,7 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
       {loaded ? (
         <section className="card card--flush">
           <ReplayViewer
-            key={loaded.hand.handKey}
+            key={loaded.hand.meta.handKey}
             hand={loaded.hand}
             site={siteLabel(loaded.siteId)}
             onClose={() => setLoaded(null)}

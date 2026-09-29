@@ -18,7 +18,7 @@ interface DropZoneProps {
   onText(text: string): void;
   /** Disables the inputs while a conversion is running. */
   busy: boolean;
-  /** Registered parser names, e.g. ["WePlay", "PokerConverter standard"]. */
+  /** Registered parser names, e.g. ["WePlay", "Rail standard"]. */
   siteNames: string[];
 }
 

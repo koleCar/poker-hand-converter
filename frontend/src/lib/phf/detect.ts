@@ -8,7 +8,7 @@
  * else in the codebase changes.
  */
 
-import { assignPositions, type PhfHand } from "./types";
+import { assignPositions, isHiLoLabel, type PhfGame, type PhfHand } from "./types";
 import { validateHand, type ValidationReport } from "./validate";
 
 /** Options threaded from the caller down to the individual site parsers. */
@@ -101,6 +101,58 @@ export class ParseSkip extends Error {
     this.reason = reason;
     this.stage = stage;
   }
+}
+
+/** Reason code for a high-low split hand. Exported so tests cannot drift from it. */
+export const HI_LO_SKIP_REASON = "unsupported-hi-lo";
+
+/**
+ * The refusal a hand earns for being a game we cannot convert faithfully.
+ *
+ * Today that is exactly one thing: **high-low split**. Half the pot goes to the
+ * lowest qualifying hand, nothing in this codebase models that, and - this is
+ * the dangerous part - a hi/lo hand read as plain Omaha is *internally
+ * consistent*. The summary states who collected what, the chips balance, and
+ * `validateHand` passes it. There is no downstream check that would catch it,
+ * so the refusal has to be explicit and it has to carry its own reason rather
+ * than hiding inside `unsupported-variant`.
+ *
+ * Two places call this:
+ *
+ *  1. A site parser, from its own variant guard, with the label it just read -
+ *     that is the earliest, most specific refusal and the one users see.
+ *  2. `convertAny`, against every hand any parser returns. That is the backstop
+ *     that makes the guarantee total: a parser author who forgets (1) still
+ *     cannot get a hi/lo hand into storage. Both `PhfGame.hiLo` writers -
+ *     `StarsHandDraft.build` and `parseStandardText` - derive the flag from the
+ *     label with `isHiLoLabel`, so every parser in the tree is covered.
+ *
+ * Returns `null` when the label describes a game we are willing to convert; the
+ * caller decides what to do with the rest.
+ */
+export function unsupportedGameSkip(label: string): ParseSkip | null {
+  return isHiLoLabel(label) ? hiLoSkip(label) : null;
+}
+
+/**
+ * The `PhfGame` half of the same question, for callers that already have a hand.
+ *
+ * Trusts the flag rather than re-reading the label: a hand assembled in code
+ * can set `hiLo` without a label that says so, and the flag is the field the
+ * rest of the system reads.
+ */
+export function unsupportedGameSkipForGame(game: PhfGame): ParseSkip | null {
+  return game.hiLo ? hiLoSkip(game.label) : null;
+}
+
+function hiLoSkip(label: string): ParseSkip {
+  const named = label.trim() ? `"${label.trim()}"` : "This hand";
+  return new ParseSkip(
+    HI_LO_SKIP_REASON,
+    `${named} is a high-low split game. Half the pot goes to the low hand, which ` +
+      "this converter does not model yet, and a hi/lo hand read as a high-only hand " +
+      "balances against itself - so it is refused rather than approximated.",
+  );
 }
 
 /* ---------------------------------------------------------------- registry - */
@@ -324,6 +376,21 @@ export async function convertAny(
           chosen.confidence,
         );
       }
+      continue;
+    }
+
+    // Games we refuse are checked centrally too, for the same reason: a parser
+    // that forgets the guard must not be able to leak one into storage.
+    const refusal = unsupportedGameSkipForGame(hand.game);
+    if (refusal) {
+      await fail(
+        chunk,
+        refusal.stage,
+        refusal.reason,
+        refusal.message,
+        chosen.parser,
+        chosen.confidence,
+      );
       continue;
     }
 

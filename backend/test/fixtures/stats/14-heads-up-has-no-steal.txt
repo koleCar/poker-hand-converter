@@ -1,0 +1,16 @@
+Poker Hand #ST14: Hold'em No Limit ($0.5/$1) - 2026/01/01 12:00:00
+Table 'Stats' 2-max Seat #1 is the button
+Seat 1: Sb ($100 in chips)
+Seat 2: Bb ($100 in chips)
+Sb: posts small blind $0.5
+Bb: posts big blind $1
+*** HOLE CARDS ***
+Dealt to Sb [Ah Qd]
+Sb: raises $2 to $3
+Bb: folds
+Uncalled bet ($2) returned to Sb
+Sb collected $2 from pot
+*** SUMMARY ***
+Total pot $2 | Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0
+Seat 1: Sb (button) (small blind) collected ($2)
+Seat 2: Bb (big blind) folded before Flop

@@ -1,3 +1,5 @@
+"use client";
+
 interface DbStatusChipProps {
   configured: boolean;
   /** Null while the count is still loading. */

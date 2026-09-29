@@ -147,11 +147,24 @@ enabled = true
 # in emails. Replace this with your production custom domain before deploy.
 site_url = "https://poker-hand-converter.vercel.app"
 # URLs permitted for auth redirects (production + local development).
-additional_redirect_urls = ["https://poker-hand-converter.vercel.app/*", "http://localhost:5173/*"]
+# `next dev` serves on 3000; the Vite ports are gone since the Next.js cutover.
+# The app only ever redirects to `/auth/callback` (see `redirectUrl()` in
+# `frontend/src/lib/auth/session.ts`).
+#
+# Each entry ends in `**` because the address always carries `?next=...`, and
+# GoTrue glob-matches the *whole* URL: a bare `/auth/callback` entry matches no
+# real redirect, and GoTrue silently falls back to `site_url` instead.
+additional_redirect_urls = ["https://poker-hand-converter.vercel.app/auth/callback**", "http://localhost:3000/auth/callback**", "http://127.0.0.1:3000/auth/callback**"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to the local API URL (http://127.0.0.1:<port>/auth/v1).
-jwt_issuer = "https://riybwcfnclphacnfawiq.supabase.co/auth/v1"
+#
+# Deliberately unset. It used to name the production project, which made the
+# *local* GoTrue build its email links on the production host: a confirmation
+# mail from `supabase start` pointed at riybwcfnclphacnfawiq.supabase.co, where
+# the token means nothing. This file configures the local stack only; the live
+# project's issuer is its own and is not set from here.
+# jwt_issuer = ""
 # Path to JWT signing key. DO NOT commit your signing keys file to git.
 # signing_keys_path = "./signing_keys.json"
 # If disabled, the refresh token will never expire.
@@ -162,7 +175,12 @@ refresh_token_reuse_interval = 10
 # Allow/disallow new user signups to your project.
 enable_signup = true
 # Allow/disallow anonymous sign-ins to your project.
-enable_anonymous_sign_ins = true
+# Off deliberately. An anonymous JWT is not a lesser credential: it carries the
+# `authenticated` role and a real `auth.uid()`, so under our RLS it can already
+# write a hand library. Once the forum lands it is strictly worse — an open
+# posting endpoint that no rate limit keyed on `auth.uid()` can constrain,
+# because a fresh anonymous sign-in mints a new uid for every request.
+enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
@@ -188,10 +206,21 @@ token_verifications = 30
 web3 = 30
 
 # Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
-# [auth.captcha]
-# enabled = true
-# provider = "hcaptcha"
-# secret = ""
+#
+# Turnstile (#29): the single biggest reduction in bot signups. GoTrue then
+# refuses sign-up, password sign-in, reset and resend requests that carry no
+# token, so the frontend must have the matching NEXT_PUBLIC_TURNSTILE_SITE_KEY
+# -- the two are switched on together (see `isCaptchaEnabled`).
+#
+# The secret below is Cloudflare's published *always passes* test secret, and
+# pairs with the test site key `1x00000000000000000000AA` in
+# `frontend/.env.example`. It is safe to commit because it protects nothing,
+# which is exactly what a local stack wants. Production uses a real key pair,
+# set in the dashboard (Authentication -> Attack Protection), not here.
+[auth.captcha]
+enabled = true
+provider = "turnstile"
+secret = "1x0000000000000000000000000000000AA"
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
@@ -200,7 +229,18 @@ enable_signup = true
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
+#
+# On (#29), but what it gates is the first *post*, not signup: see
+# `posting_block_reason()` in `20261007090000_forum_identity.sql`. In production
+# that is done by pairing this with `mailer_allow_unverified_email_sign_ins =
+# true` (Management API; this CLI has no config.toml key for it), so an
+# unconfirmed account can still sign in and use the converter. Locally, without
+# that flag, a new account has to click the link first -- it lands in Mailpit
+# ([inbucket] below).
+#
+# Production also needs real SMTP before this can be on: the built-in mailer
+# only delivers to the project's team members.
+enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.

@@ -21,7 +21,7 @@ import type { PhfHand } from "../phf/types";
 
 export const standardParser: SiteParser = {
   id: "standard",
-  name: "PokerConverter standard",
+  name: "Rail standard",
   version: STANDARD_TEXT_PARSER_VERSION,
 
   detect(text: string): number {
@@ -44,7 +44,7 @@ export const standardParser: SiteParser = {
   parseHand(raw: string, ctx: SiteParserContext): PhfHand {
     const hand = parseStandardHand(raw, {
       siteId: "standard",
-      siteName: "PokerConverter standard",
+      siteName: "Rail standard",
       originalFilename: ctx.sourceFilename,
       parserId: "standard",
       parserVersion: STANDARD_TEXT_PARSER_VERSION,

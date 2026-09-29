@@ -7,6 +7,8 @@
  * whole tree underneath.
  */
 
+"use client";
+
 import { createContext, useContext } from "react";
 import type { AuthUser, SignUpOutcome } from "./session";
 
@@ -33,10 +35,14 @@ export interface AuthContextValue {
   configured: boolean;
   googleOffered: boolean;
 
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<SignUpOutcome>;
+  /** False until the Turnstile keys exist; see `isCaptchaEnabled`. */
+  captchaEnabled: boolean;
+
+  signIn: (email: string, password: string, captchaToken?: string) => Promise<void>;
+  signUp: (email: string, password: string, captchaToken?: string) => Promise<SignUpOutcome>;
   signInWithGoogle: () => Promise<void>;
-  sendPasswordReset: (email: string) => Promise<void>;
+  sendPasswordReset: (email: string, captchaToken?: string) => Promise<void>;
+  resendConfirmation: (email: string, captchaToken?: string) => Promise<void>;
   signOut: () => Promise<void>;
   continueAsGuest: () => void;
 

@@ -65,8 +65,12 @@ const SITES: Site[] = [
     parser: fulltiltParser,
     signature: /^Full Tilt Poker Game #\d+:/m,
     reasons: [
-      // Round one is Hold'em; four of the fourteen fixtures are Omaha.
+      // Reachable for anything outside the lock -- `omaha5`, short deck. The
+      // corpus has none, but the refusal is the boundary, not the fixture.
       "unsupported-variant",
+      // Hi/lo is refused on its own terms: the low half of the pot is the thing
+      // not modelled, and saying so is more useful than "some variant".
+      "unsupported-hi-lo",
       // A header and a SUMMARY block with no seat listing (fixture 13).
       "no-seat-block",
       // Never confirmed, never invented. See the parser's header comment.
@@ -419,17 +423,29 @@ describe("Full Tilt", () => {
     expect(skip.reason).toBe("no-seat-block");
   });
 
-  it("refuses every Omaha hand by reading the header, not by accident", () => {
+  it("splits its Omaha by the header: high reads, hi/lo is refused", () => {
+    // This test used to assert all four were refused. Full Tilt's lock lists
+    // `omaha` now, and the line it is drawn on is the header itself -- which is
+    // the property worth keeping. Three of the four fixtures say `H/L`, and a
+    // hi/lo hand read as high-only balances against itself, so nothing
+    // downstream would catch it. It is refused on its own terms.
     for (const [fixture, label] of [
       ["03-", "PL Omaha H/L"],
       ["08-", "FL Omaha H/L"],
-      ["11-", "PL Omaha Hi"],
       ["14-", "PL Omaha H/L"],
     ] as const) {
       const skip = skipFor("full-tilt", fixture, fulltiltParser);
-      expect(skip.reason).toBe("unsupported-variant");
+      expect(skip.reason, fixture).toBe("unsupported-hi-lo");
       expect(skip.message).toContain(label);
     }
+
+    // `PL Omaha Hi` is high-only and reads clean: four-card deal, pot limit,
+    // no warnings.
+    const [high] = handsOf("full-tilt", "11-", fulltiltParser);
+    expect(high.game.variant).toBe("omaha");
+    expect(high.game.limit).toBe("pl");
+    expect(high.game.hiLo).toBe(false);
+    expect(high.meta.warnings).toEqual([]);
   });
 
   it("refuses a tournament rather than inventing a grammar for one", () => {

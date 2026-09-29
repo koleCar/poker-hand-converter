@@ -50,16 +50,25 @@
  * Hold'em all appear in the corpus and are deliberately refused.
  */
 
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   CHIPS,
   parseAmount,
   USD,
+  variantFromLabel,
   type Amount,
   type CurrencyUnit,
   type PhfHand,
   type PhfWarning,
+  type Variant,
 } from "../phf/types";
+import { limitFromLabel } from "./shared/ps-gg-hand";
+import { canonicalGameLabel, HOLDEM_OMAHA, unsupportedVariantSkip } from "./shared/variant-lock";
 import { p5RecoverEncoding } from "./shared/p5-encoding";
 import {
   p5BuildHand,
@@ -71,6 +80,19 @@ import {
 } from "./shared/p5-handdraft";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * Four-card Omaha is on the list because thirteen files in the corpus are
+ * `(Omaha)` tables - ten in the hhsmithy set, three in the fpdb one - and they
+ * parse with no warnings, the same bar every Hold'em file here has to clear.
+ * Five- and six-card Omaha are not: the network spreads them, but no sample of
+ * either exists, so there is nothing to prove the deal block reads correctly.
+ * Seven-card stud, Omaha Hi/Lo and Six Plus Hold'em are all in the corpus and
+ * all stay refused.
+ */
+const ACR_VARIANTS: readonly Variant[] = HOLDEM_OMAHA;
 
 /** `Game started at: 2014/3/9 19:37:22` - no leading zeros, no timezone. */
 const LEGACY_HEADER_RE = /^Game started at:\s*(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})\s*$/;
@@ -297,12 +319,15 @@ function parseLegacy(raw: string, ctx: SiteParserContext, dialect: WpnDialect): 
   if (!probe) {
     throw new ParseSkip("no-header", "The chunk has no readable `Game started at:` / `Game ID:` pair.");
   }
-  if (!/^hold'?em$/i.test(probe.gameName)) {
-    throw new ParseSkip(
-      "unsupported-variant",
-      `Round one is Hold'em only; this hand is "${probe.gameName}".`,
-    );
+  // `(Omaha HiLow)` is refused on its own terms first, so the reason stays
+  // true - and stays `unsupported-hi-lo` - now that the variant lock has
+  // lifted for four-card Omaha.
+  const refusal =
+    unsupportedGameSkip(probe.gameName) ?? unsupportedVariantSkip(probe.gameName, ACR_VARIANTS);
+  if (refusal) {
+    throw refusal;
   }
+  const variant = variantFromLabel(probe.gameName);
 
   const summaryIndex = lines.findIndex((line) => /^-+\s*Summary\s*-+$/i.test(line.trim()));
   if (summaryIndex < 0) {
@@ -623,7 +648,14 @@ function parseLegacy(raw: string, ctx: SiteParserContext, dialect: WpnDialect): 
     parserId: "acrwpn",
     parserVersion: VERSION,
     handId: header.handId,
-    gameLabel: "Hold'em No Limit",
+    // The legacy header names the game and nothing else - there is no limit
+    // clause anywhere in the dialect - so the limit is the room's default for
+    // that game. Hold'em has been read as no-limit here since the parser was
+    // written (which is why the one fixed-limit Hold'em fixture in the corpus
+    // comes out as `nl`), and Omaha gets the same treatment with the other
+    // default: every Omaha table this network spread in the legacy era was
+    // pot-limit, which is what the reference corpus names its files.
+    gameLabel: canonicalGameLabel(variant, variant === "holdem" ? "nl" : "pl"),
     unit,
     decimals: "fixed2",
     smallBlind: scratch.smallBlind,
@@ -694,11 +726,10 @@ function parseModern(raw: string, ctx: SiteParserContext): Parsed {
     throw new ParseSkip("no-header", `Unreadable modern header payload "${payload}".`);
   }
   const gameName = (tour ? tour[3] : cash![1]).trim();
-  if (!/^hold'?em$/i.test(gameName)) {
-    throw new ParseSkip(
-      "unsupported-variant",
-      `Round one is Hold'em only; this hand is "${gameName}".`,
-    );
+  const refusal =
+    unsupportedGameSkip(gameName) ?? unsupportedVariantSkip(gameName, ACR_VARIANTS);
+  if (refusal) {
+    throw refusal;
   }
   if (ctx.options.cashOnly && tour) {
     throw new ParseSkip("tournament-in-cash-mode", "Tournament hand skipped.");
@@ -959,7 +990,10 @@ function parseModern(raw: string, ctx: SiteParserContext): Parsed {
     parserId: "acrwpn",
     parserVersion: VERSION,
     handId,
-    gameLabel: `Hold'em ${/pot\s*limit/i.test(limit) ? "Pot Limit" : /fixed\s*limit/i.test(limit) ? "Fixed Limit" : "No Limit"}`,
+    // The modern header states the limit in its own bracket - `Holdem(No
+    // Limit)`, `Omaha H/L(Fixed Limit)` - so unlike the legacy dialect nothing
+    // has to be assumed here.
+    gameLabel: canonicalGameLabel(variantFromLabel(gameName), limitFromLabel(limit)),
     unit,
     decimals: "fixed2",
     smallBlind: scratch.smallBlind,

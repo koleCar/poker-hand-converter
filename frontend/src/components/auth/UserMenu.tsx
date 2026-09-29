@@ -9,11 +9,18 @@
  * brief blank.
  */
 
+"use client";
+
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
+import { en } from "../../lib/i18n/en";
+import { useMyProfile } from "../../lib/profile/context";
+import { paths } from "../../lib/routes";
 
 export function UserMenu() {
   const auth = useAuth();
+  const { profile } = useMyProfile();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -61,7 +68,11 @@ export function UserMenu() {
   }
 
   const user = auth.user;
-  const initial = (user?.displayName ?? "?").charAt(0).toUpperCase();
+  // The public name once the profile has loaded; the provider's name (or the
+  // email's local part) until then, and on a database without profiles. Only
+  // the account itself ever sees the fallback, so it leaks nothing.
+  const name = profile?.username ?? user?.displayName ?? "";
+  const initial = (name || "?").charAt(0).toUpperCase();
 
   return (
     <div className="usermenu" ref={rootRef}>
@@ -79,17 +90,35 @@ export function UserMenu() {
             {initial}
           </span>
         )}
-        <span className="usermenu__name">{user?.displayName}</span>
+        <span className="usermenu__name">{name}</span>
       </button>
 
       {open ? (
         <div className="usermenu__panel" role="menu">
           <div className="usermenu__who">
-            <strong>{user?.displayName}</strong>
-            {user?.email && user.email !== user.displayName ? (
+            <strong>{name}</strong>
+            {user?.email && user.email !== name ? (
               <small className="muted">{user.email}</small>
             ) : null}
           </div>
+          {profile ? (
+            <Link
+              href={paths.profile(profile.username)}
+              className="usermenu__item"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+            >
+              {en.account.menuProfile}
+            </Link>
+          ) : null}
+          <Link
+            href={paths.settings()}
+            className="usermenu__item"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+          >
+            {en.account.menuSettings}
+          </Link>
           <button
             type="button"
             className="usermenu__item"

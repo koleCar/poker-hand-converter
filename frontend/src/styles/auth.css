@@ -8,7 +8,7 @@
   place-items: center;
   padding: 20px;
   overflow-y: auto;
-  background: rgb(4 7 11 / 72%);
+  background: var(--surface-scrim);
   backdrop-filter: blur(3px);
 }
 
@@ -67,8 +67,8 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #fff;
-  color: #1a73e8;
+  background: var(--brand-google-plate);
+  color: var(--brand-google-fg);
   font-weight: 700;
   font-size: 12px;
   line-height: 1;
@@ -208,8 +208,8 @@
 .usermenu__avatar--initial {
   display: grid;
   place-items: center;
-  background: var(--accent-strong);
-  color: #fff;
+  background: var(--accent-bg-active);
+  color: var(--text-on-accent);
   font-weight: 700;
   font-size: 12px;
 }
@@ -248,6 +248,7 @@
 
 .usermenu__item {
   display: block;
+  box-sizing: border-box;
   width: 100%;
   padding: 11px 14px;
   border: 0;
@@ -256,6 +257,7 @@
   font: inherit;
   font-size: 13px;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
 }
 
@@ -293,4 +295,10 @@
   .usermenu__trigger {
     padding: 4px;
   }
+}
+
+/* Turnstile renders a fixed 300x65 iframe. Reserving the height up front keeps
+   the submit button from jumping down a beat after the dialog opens. */
+.captcha {
+  min-height: 65px;
 }

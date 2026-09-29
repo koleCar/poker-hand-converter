@@ -14,6 +14,8 @@
  * gesture, so they are gone.
  */
 
+"use client";
+
 import { SingleHandPanel } from "./SingleHandPanel";
 import { ConverterTab } from "../ConverterTab";
 import "../../styles/upload.css";

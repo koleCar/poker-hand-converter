@@ -28,9 +28,11 @@ import {
   PHF_SCHEMA,
   ZERO_FEES,
   formatAmount,
+  isHiLoLabel,
   parseAmount,
   resolveRunout,
   unitForSymbol,
+  variantFromLabel,
   type ActionType,
   type Amount,
   type CurrencyUnit,
@@ -192,23 +194,20 @@ export function parsePlayedAt(payload: string): string | null {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
-export function variantFromLabel(label: string): Variant {
-  // GG names the big-O variants `PLO`, `PLO-5`, `PLO-6`; the suffix is the
-  // number of hole cards, so it has to be read before the generic Omaha test.
-  if (/6\s*card\s*omaha|omaha\s*6|\bPLO-?6\b/i.test(label)) return "omaha6";
-  if (/5\s*card\s*omaha|omaha\s*5|\bPLO-?5\b/i.test(label)) return "omaha5";
-  if (/omaha|\bPLO\b|\bNLO\b/i.test(label)) return "omaha";
-  if (/short\s*deck|6\+/i.test(label)) return "shortdeck";
-  if (/\brazz\b/i.test(label)) return "razz";
-  if (/\bstud\b/i.test(label)) return "stud";
-  if (/\bdraw\b|badugi/i.test(label)) return "draw";
-  if (/hold\s*'?em/i.test(label)) return "holdem";
-  return "other";
-}
+/**
+ * Re-exported from `phf/types` so the six parsers that import it from here keep
+ * working. The implementation moved because `phf/serialize.ts` needs the same
+ * reading and had grown a weaker copy of it; see the note on the function.
+ */
+export { variantFromLabel, isHiLoLabel };
 
 export function limitFromLabel(label: string): LimitType {
-  if (/pot\s*limit|\bPL\b/i.test(label)) return "pl";
-  if (/no\s*limit|\bNL\b/i.test(label)) return "nl";
+  // `PLO`, `PLO-5`, `PLO-6` are GG's names for pot-limit Omaha and carry no
+  // separate limit token, so the generic `\bPL\b` test misses them and the hand
+  // used to be booked as no-limit. `NLO` is the real no-limit Omaha GG also
+  // spreads, so the two have to be told apart rather than both read as Omaha.
+  if (/pot\s*limit|\bPL\b|\bPLO-?\d?\b/i.test(label)) return "pl";
+  if (/no\s*limit|\bNL\b|\bNLO-?\d?\b/i.test(label)) return "nl";
   if (/\blimit\b/i.test(label)) return "fl";
   return "nl";
 }
@@ -1193,6 +1192,10 @@ export class StarsHandDraft {
         variant: init.game.variant,
         limit: init.game.limit,
         format: init.game.format,
+        // Derived here rather than asked of every caller: `DraftGame` is filled
+        // by six parsers and a seventh would forget. The label is the only
+        // place any room states it.
+        hiLo: isHiLoLabel(init.game.label),
         unit,
         smallBlind,
         bigBlind,

@@ -3,7 +3,7 @@ import {
   isDatabaseConfigured,
   resolveShare as dbResolveShare,
 } from "../../lib/db";
-import { sharedHandUrl } from "../../routes/routes";
+import { sharedHandUrl } from "../../lib/routes";
 import type {
   CreateShareRequest,
   CreateShareResponse,
@@ -55,6 +55,10 @@ export async function createShare(request: CreateShareRequest): Promise<CreateSh
     phf,
     handText: request.handText,
     title: request.preview.title,
+    // The preview's own answer unless the caller overrode it, so the stored
+    // title and the stored flag can never disagree about whether this link is
+    // allowed to give the hand away.
+    spoilers: request.spoilers ?? request.preview.spoilers,
   });
 
   return { slug: ref.slug, url: sharedHandUrl(ref.slug), reused: Boolean(ref.reused) };
@@ -83,6 +87,7 @@ export async function resolveShare(slug: string): Promise<ResolveShareResult> {
     const share: ResolvedShare = {
       slug: resolved.slug,
       title: resolved.title,
+      spoilers: resolved.spoilers,
       handText,
       phf: resolved.phf,
       preview: null,

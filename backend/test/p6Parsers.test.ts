@@ -125,7 +125,10 @@ function assertSoundHand(hand: PhfHand, where: string): void {
   }
   expect(validateHand(hand).errors, where).toEqual([]);
   expect(hand.meta.rawText.length, where).toBeGreaterThan(0);
-  expect(hand.game.variant, where).toBe("holdem");
+  // Not a single variant any more: a parser emits whatever its own lock lists.
+  // Short deck is on nobody's list, so that is the one still worth asserting.
+  expect(["holdem", "omaha", "omaha5", "omaha6"], where).toContain(hand.game.variant);
+  expect(hand.game.variant, where).not.toBe("shortdeck");
   expect(hand.meta.handKey, where).toBe(hand.meta.handId);
 
   const contributed = [...contributionsFromActions(hand).values()].reduce(
@@ -241,15 +244,15 @@ describe("Winamax corpus", () => {
         reasons[failure.reason] = (reasons[failure.reason] ?? 0) + 1;
       }
     }
-    // 30 hands across 21 files (one holds ten), plus six refusals that are each
-    // a documented property of the source rather than a gap in the parser.
-    expect(converted).toBe(30);
+    // 31 hands across 21 files (one holds ten), plus five refusals that are
+    // each a documented property of the source rather than a gap in the parser.
+    // It was 30 and six: `CashGame_PlayerTests_OmahaShowdown.txt` used to be a
+    // refusal and now converts, since Winamax's lock lists `omaha`.
+    expect(converted).toBe(31);
     expect(reasons).toEqual({
       // Three files carry a Windows-1252 euro sign; read as UTF-8 the currency
       // is unidentifiable, and one of the three is Omaha anyway.
       "unsupported-encoding": 3,
-      // `CashGame_PlayerTests_OmahaShowdown.txt`.
-      "unsupported-variant": 1,
       // `CashGame_StreetTests_Flop.txt` deals [3d 3s 2s] and summarises
       // [7h Qs 3c]; neither board can be trusted.
       "board-mismatch": 1,

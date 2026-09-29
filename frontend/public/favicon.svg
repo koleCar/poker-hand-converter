@@ -1,13 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <defs>
-    <linearGradient id="felt" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1e7a55" />
-      <stop offset="1" stop-color="#0a3a27" />
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="16" fill="url(#felt)" />
-  <path
-    fill="#f2f7fb"
-    d="M32 13c-1 0-1.7.6-2.4 1.4-2.6 3.3-5.9 6-8.6 8.8-2.4 2.5-4 5.1-4 8.3 0 4.6 3.4 8 7.6 8 2.4 0 4.4-1.1 5.7-2.8l-3 10.9h9.4l-3-10.9c1.3 1.7 3.3 2.8 5.7 2.8 4.2 0 7.6-3.4 7.6-8 0-3.2-1.6-5.8-4-8.3-2.7-2.8-6-5.5-8.6-8.8-.7-.8-1.4-1.4-2.4-1.4z"
-  />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!--
+    The Rail mark: the rail, and the board on the felt. Same geometry as
+    src/components/brand/RailMark.tsx at its small size — heavier stroke, board
+    bar thickened — so neither part greys out at 16px.
+
+    A favicon has no ancestor to inherit currentColor from, so the colours are
+    declared here, and the rail is drawn in ink rather than the accent: against
+    browser chrome a mid-blue ellipse at 16px has far less contrast than a
+    near-black or near-white one. The board bar carries the accent.
+
+    The media query inverts against the browser's own chrome. It is honoured for
+    favicons in Firefox and Safari and ignored harmlessly elsewhere.
+  -->
+  <style>
+    :root { --ink: #e8eef6; --board: #3ea6ff; }
+    @media (prefers-color-scheme: light) {
+      :root { --ink: #16202b; --board: #1f8fef; }
+    }
+  </style>
+  <ellipse cx="16" cy="16" rx="13" ry="7.5" fill="none" stroke="var(--ink)" stroke-width="3.5" />
+  <rect x="11.5" y="14.25" width="9" height="3.5" rx="1.75" fill="var(--board)" />
 </svg>

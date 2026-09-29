@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { SignInRequiredError } from "../../lib/db";
-import type { ParsedHand } from "../../lib/handParser";
+import { toStandardText } from "../../lib/phf";
+import type { PhfHand } from "../../lib/phf/types";
 import { buildSharePreview } from "./preview";
 import { SHARE_UNAVAILABLE_MESSAGE, createShare, isShareBackendReady } from "./shareClient";
 
 interface ShareHandButtonProps {
-  hand: ParsedHand;
+  hand: PhfHand;
   /** `hands.id` when the hand is already in the database. */
   storedHandId?: string | null;
   /**
@@ -75,7 +76,7 @@ export function ShareHandButton({
     setOpen(false);
     setError(null);
     setCopyState("idle");
-  }, [hand.handKey, presetUrl]);
+  }, [hand.meta.handKey, presetUrl]);
 
   useEffect(() => {
     if (copyState === "idle") {
@@ -124,8 +125,8 @@ export function ShareHandButton({
     try {
       const result = await createShare({
         storedHandId,
-        handKey: hand.handKey,
-        handText: hand.rawText,
+        handKey: hand.meta.handKey,
+        handText: toStandardText(hand),
         preview: buildSharePreview(hand),
       });
       setUrl(result.url);

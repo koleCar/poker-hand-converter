@@ -30,7 +30,12 @@
  */
 
 import { extractCards } from "../cards";
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   CHIPS,
   DEFAULT_TEXT_STYLE,
@@ -54,8 +59,19 @@ import {
   variantFromLabel,
   type DraftGame,
 } from "./shared/p3-draft";
+import { unsupportedVariantSkip } from "./shared/variant-lock";
 
 export const FULLTILT_PARSER_VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * One file: `11-cash-plo-hi-showdown.txt`, a heads-up `PL Omaha Hi` table that
+ * parses clean. The other three Omaha files are `Omaha H/L` and stay refused by
+ * the split-pot rule. That is thin evidence for a variant, which is exactly why
+ * it is `omaha` alone and not the family.
+ */
+const FULLTILT_VARIANTS = ["holdem", "omaha"] as const;
 
 const HEADER_REGEX = /^Full Tilt Poker Game #(\d+):\s*(.*)$/;
 const HEADER_PREFIX = /^Full Tilt Poker Game #\d+:/;
@@ -278,11 +294,14 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
       "The chunk has no readable Full Tilt Poker header line.",
     );
   }
-  if (header.game.variant !== "holdem") {
-    throw new ParseSkip(
-      "unsupported-variant",
-      `${header.game.label} is not supported yet; the hand is kept for a future parser.`,
-    );
+  // Hi/Lo first, and explicitly rather than leaving it to the `convertAny`
+  // backstop: three of the four Omaha files here are `Omaha H/L`, and a refusal
+  // that names the split pot is the one a user can act on.
+  const refusal =
+    unsupportedGameSkip(header.game.label) ??
+    unsupportedVariantSkip(header.game.label, FULLTILT_VARIANTS);
+  if (refusal) {
+    throw refusal;
   }
   if (header.game.unit.kind === "chips") {
     // Play money and tournament chips print bare numbers. Neither is confirmed

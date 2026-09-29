@@ -43,7 +43,7 @@ function formatDate(iso: string | null): string {
  * "PokerStars", not "pokerstars".
  *
  * `standard` is our own re-import format rather than a poker room, and its
- * registry name ("PokerConverter standard") is far too long for a list cell,
+ * registry name ("Rail standard") is far too long for a list cell,
  * so it gets a short one here.
  */
 function siteLabel(id: string): string {

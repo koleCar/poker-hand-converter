@@ -47,14 +47,26 @@
  */
 
 import { extractCards } from "../cards";
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   unitForSymbol,
   type Amount,
   type CurrencyUnit,
+  type LimitType,
   type PhfHand,
   type PhfWarning,
 } from "../phf/types";
+import {
+  canonicalGameLabel,
+  normalizeGameName,
+  unsupportedVariantSkip,
+  variantOf,
+} from "./shared/variant-lock";
 import { isoFromPartyDate, knownZone } from "./shared/p2-partygaming";
 import {
   buildHand,
@@ -72,6 +84,15 @@ import {
 } from "./shared/p4-textroom";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * Two `OMAHA_HI` files - a showdown and a pot-limit table - both clean. The
+ * three `OMAHA_HI_LO` files stay refused, and are caught by the split-pot rule
+ * rather than by this list.
+ */
+const ONGAME_VARIANTS = ["holdem", "omaha"] as const;
 
 const OPEN_BANNER = /^\*{5}\s*History for hand\s+(\S+)\s*\*{5}\s*$/;
 const CLOSE_BANNER = /^\*{5}\s*End of hand\s+\S+\s*\*{5}\s*$/;
@@ -122,11 +143,14 @@ export const ongameParser: SiteParser = {
       throw new ParseSkip("no-header", "The chunk has no readable `Table:` line.");
     }
     const [, tableName, , limitToken, gameToken, smallBlind, bigBlind, money] = table;
-    if (!/^TEXAS_HOLDEM$/i.test(gameToken)) {
-      throw new ParseSkip(
-        "unsupported-variant",
-        `Round one is Hold'em only; this hand is "${gameToken}".`,
-      );
+    // `OMAHA_HI_LO` has to be spelled out before either reader sees it: an
+    // underscore is a word character, so `isHiLoLabel` finds no boundary in
+    // front of `HI` and would read a split-pot table as plain Omaha.
+    const gameName = normalizeGameName(gameToken);
+    const refusal =
+      unsupportedGameSkip(gameName) ?? unsupportedVariantSkip(gameName, ONGAME_VARIANTS);
+    if (refusal) {
+      throw refusal;
     }
     if (!/real\s*money/i.test(money)) {
       throw new ParseSkip("play-money", `The table is "${money}", not a real-money table.`);
@@ -305,7 +329,7 @@ export const ongameParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "OG-",
       handId,
-      gameLabel: canonicalLabel(limitToken),
+      gameLabel: canonicalGameLabel(variantOf(gameToken), limitOf(limitToken)),
       unit,
       decimals: "fixed2",
       headerSmallBlind: strictAmount(smallBlind, unit, "the table stakes"),
@@ -468,12 +492,12 @@ function crossCheck(
   }
 }
 
-/** Ongame writes `NO_LIMIT`; trackers expect the GG wording. */
-function canonicalLabel(limit: string): string {
+/** Ongame's limit token, which the `Table:` line always states. */
+function limitOf(limit: string): LimitType {
   if (/^POT_LIMIT$/i.test(limit)) {
-    return "Hold'em Pot Limit";
+    return "pl";
   }
-  return /^LIMIT$/i.test(limit) ? "Hold'em Limit" : "Hold'em No Limit";
+  return /^LIMIT$/i.test(limit) ? "fl" : "nl";
 }
 
 /**

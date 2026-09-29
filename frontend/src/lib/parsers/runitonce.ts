@@ -17,7 +17,12 @@
  * Fixtures: `fixtures/samples/run-it-once/`.
  */
 
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   CHIPS,
   DEFAULT_TEXT_STYLE,
@@ -42,8 +47,30 @@ import {
   type DraftGame,
 } from "./shared/p3-draft";
 import { parseStarsFamilyBody } from "./shared/p3-stars-dialect";
+import { unsupportedVariantSkip } from "./shared/variant-lock";
 
 export const RUNITONCE_PARSER_VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * **Hold'em only, and that is a finding rather than an oversight.** The corpus
+ * has exactly one Omaha file - `02-cash-plo-splash-the-pot-sidepot-showdown.txt`
+ * - and it does not come out clean. It is a splash-the-pot hand with a side
+ * pot: the two `collected` lines add up to €148.84 while the summary awards
+ * €143.84, a gap of exactly the €5.00 the house splashed in, and the hand is
+ * refused as `payout-mismatch`. That is a promotion-accounting bug in the
+ * side-pot path, not an Omaha bug - the sister file `01-` is Hold'em with the
+ * same promotion and only one pot, and it converts with an
+ * `uncalled-includes-promo` warning - but it means nothing here has ever shown
+ * this parser reading an Omaha hand end to end.
+ *
+ * The bar for this list is a fixture that parses with no warnings. Until the
+ * splash-the-pot arithmetic is fixed there is no such fixture, and the refusal
+ * the file earns today (`unsupported-variant`) is at least an honest "not
+ * proven" rather than a wrong conversion.
+ */
+const RUNITONCE_VARIANTS = ["holdem"] as const;
 
 /** `Run It Once Poker Hand #30266126:  Hold'em No Limit (€0.05/€0.10) - ...` */
 const HEADER_REGEX = /^Run It Once Poker Hand #(\d+):\s*(.*)$/;
@@ -191,11 +218,11 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
       "The chunk has no readable Run It Once Poker header line.",
     );
   }
-  if (header.game.variant !== "holdem") {
-    throw new ParseSkip(
-      "unsupported-variant",
-      `${header.game.label} is not supported yet; the hand is kept for a future parser.`,
-    );
+  const refusal =
+    unsupportedGameSkip(header.game.label) ??
+    unsupportedVariantSkip(header.game.label, RUNITONCE_VARIANTS);
+  if (refusal) {
+    throw refusal;
   }
   if (ctx.options.cashOnly && header.tournament) {
     throw new ParseSkip(

@@ -56,14 +56,26 @@
  * against a guess.
  */
 
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
 import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
+import {
+  holeCardCount,
   parseAmount,
   unitForSymbol,
   type Amount,
+  type LimitType,
   type PhfHand,
   type PhfWarning,
 } from "../phf/types";
+import {
+  canonicalGameLabel,
+  unsupportedVariantSkip,
+  variantOf,
+} from "./shared/variant-lock";
 import {
   buildP6Hand,
   type P6Action,
@@ -74,6 +86,17 @@ import {
 } from "./shared/p6-handbuilder";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * One file: `hhsmithy-corpus/CashGame_PlayerTests_OmahaShowdown.txt`, an
+ * `Omaha pot limit` table that parses clean. Winamax also spreads five-card
+ * Omaha and its `7-Card Stud` tables; neither has a sample here, and the
+ * card-count check below is what stops a five-card table slipping through on a
+ * four-card label.
+ */
+const WINAMAX_VARIANTS = ["holdem", "omaha"] as const;
 
 const HEADER =
   /^Winamax Poker - (CashGame|Tournament)\b.*?HandId: #(\S+) - (.+?) \((.+?)\) - (\d{4})\/(\d{2})\/(\d{2}) (\d{1,2}):(\d{2}):(\d{2})(?:\s+\S+)?\s*$/;
@@ -149,12 +172,14 @@ export const winamaxParser: SiteParser = {
     }
 
     const gameLabel = headerMatch[3].trim();
-    if (!/^hold\s*'?em\b/i.test(gameLabel)) {
-      throw new ParseSkip(
-        "unsupported-variant",
-        `Round one is Hold'em only; this hand is "${gameLabel}".`,
-      );
+    const refusal =
+      unsupportedGameSkip(gameLabel) ?? unsupportedVariantSkip(gameLabel, WINAMAX_VARIANTS);
+    if (refusal) {
+      throw refusal;
     }
+    const variant = variantOf(gameLabel);
+    /** How many cards this deal gives a seat; never null for an allowed variant. */
+    const dealtCardCount = holeCardCount(variant)!;
 
     /* ------------------------------------------------------------- money --- */
 
@@ -445,21 +470,26 @@ export const winamaxParser: SiteParser = {
       throw new ParseSkip("truncated-hand", "The hand has no readable `Total pot` line.");
     }
 
-    // Hold'em deals two cards. A different count means the header lied about the
-    // game, which is the one way an Omaha hand could reach this far.
+    // The deal has to match the header. A seat holding a different number of
+    // cards from the one the game label promises means the two disagree, and
+    // the cards are the half that cannot be argued with - this is what would
+    // catch a five-card Omaha table labelled `Omaha pot limit`, which is a game
+    // Winamax spreads and this parser has no fixture for.
     for (const action of actions) {
-      if (action.kind === "show" && (action.cards?.length ?? 0) !== 2) {
+      if (action.kind === "show" && (action.cards?.length ?? 0) !== dealtCardCount) {
         throw new ParseSkip(
           "unsupported-variant",
-          `A showdown reveals ${action.cards?.length ?? 0} cards, so this is not Hold'em.`,
+          `A showdown reveals ${action.cards?.length ?? 0} cards; "${gameLabel}" deals ` +
+            `${dealtCardCount}.`,
         );
       }
     }
     for (const seat of seats) {
-      if (seat.dealtCards.length > 0 && seat.dealtCards.length !== 2) {
+      if (seat.dealtCards.length > 0 && seat.dealtCards.length !== dealtCardCount) {
         throw new ParseSkip(
           "unsupported-variant",
-          `${seat.name} was dealt ${seat.dealtCards.length} cards, so this is not Hold'em.`,
+          `${seat.name} was dealt ${seat.dealtCards.length} cards; "${gameLabel}" deals ` +
+            `${dealtCardCount}.`,
         );
       }
     }
@@ -508,7 +538,7 @@ export const winamaxParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "WMX-",
       handId: headerMatch[2],
-      gameLabel: canonicalLabel(gameLabel),
+      gameLabel: canonicalGameLabel(variant, limitOf(gameLabel)),
       unit,
       // `0.50€` and `1€`: trailing zeros kept on fractional amounts, round
       // amounts unpadded, which is exactly what `fixed2` means here.
@@ -569,15 +599,12 @@ function assertRepresentableAmounts(text: string, symbol: string): void {
   }
 }
 
-/** `Holdem no limit` -> `Hold'em No Limit`, the label the standard text uses. */
-function canonicalLabel(label: string): string {
+/** Winamax writes the limit after the game: `Holdem no limit`, `Omaha pot limit`. */
+function limitOf(label: string): LimitType {
   if (/pot\s*limit/i.test(label)) {
-    return "Hold'em Pot Limit";
+    return "pl";
   }
-  if (/no\s*limit/i.test(label)) {
-    return "Hold'em No Limit";
-  }
-  return "Hold'em Limit";
+  return /no\s*limit/i.test(label) ? "nl" : "fl";
 }
 
 /**

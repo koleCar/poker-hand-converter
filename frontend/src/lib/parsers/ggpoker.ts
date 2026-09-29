@@ -55,7 +55,12 @@
  */
 
 import { extractCards } from "../cards";
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   CHIPS,
   DEFAULT_TEXT_STYLE,
@@ -67,6 +72,7 @@ import {
   type PhfFees,
   type PhfHand,
   type PhfTournament,
+  type Variant,
 } from "../phf/types";
 import {
   MONEY,
@@ -85,8 +91,27 @@ import {
   variantFromLabel,
   type DraftGame,
 } from "./shared/ps-gg-hand";
+import { unsupportedVariantSkip } from "./shared/variant-lock";
 
 export const GGPOKER_PARSER_VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * GG is the room with the deepest big-O corpus here, and it is the only one
+ * whose fixtures cover more than four hole cards: eight `Omaha Pot Limit` /
+ * `PLO` files (including a tournament and the `Omaha (NL postflop)` mixed
+ * structure) and seven `PLO-5` files, 140-odd hands between them, all clean.
+ * `PLO-6` is **not** on the list. GG spreads it and `variantFromLabel` reads the
+ * label, but there is no six-card file anywhere in this repository, and a label
+ * the deal block has never been tested against is exactly the assumption this
+ * lock exists to refuse. It goes on the list when a fixture does.
+ *
+ * `ShortDeck No Limit` is in the corpus (fixtures 11 and 12) and stays refused:
+ * 36 cards, a flush over a full house, and an ante-only structure with a button
+ * blind. That is a different game, not a longer deal.
+ */
+const GGPOKER_VARIANTS: readonly Variant[] = ["holdem", "omaha", "omaha5"];
 
 /**
  * GG hand ids carry a two-letter product prefix.
@@ -378,10 +403,36 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
     throw new ParseSkip("normalized-unparseable", "The hand has no GG header line.");
   }
 
-  if (header.game.variant !== "holdem") {
+  // Hi/Lo first, so the refusal keeps naming the real reason once the Hold'em
+  // lock lifts. `Omaha Hi/Lo Pot Limit` is plain `omaha` to `variantFromLabel`
+  // by design - the deal is identical - and a split pot read as a whole one
+  // balances against itself, so this is the only place it can be caught.
+  const hiLoRefusal = unsupportedGameSkip(header.game.label);
+  if (hiLoRefusal) {
+    throw hiLoRefusal;
+  }
+  const variantRefusal = unsupportedVariantSkip(header.game.label, GGPOKER_VARIANTS);
+  if (variantRefusal) {
+    throw variantRefusal;
+  }
+  // All-in-or-Fold, which writes `*** PREFLOP ***` where every confirmed GG
+  // export writes `*** FLOP ***` and prints no flop marker at all, so the board
+  // can only be recovered from the SUMMARY.
+  //
+  // The one file that carries it - `33-fpdb3-cash-aof-omaha.txt` - is recorded
+  // in `fixtures/samples/ggpoker/SOURCES.md` as hand-authored rather than
+  // captured, and both the marker and its `#AF` id prefix appear nowhere else
+  // in the 35-file corpus. Reading the street layout of a format from a single
+  // unverified sample is how a parser learns a grammar that does not exist, so
+  // it is refused until a real capture turns up. Until the variant lock lifted
+  // this hand was refused for being Omaha, and the refusal has to survive that.
+  if (/^\*{3}\s*PREFLOP\s*\*{3}/im.test(text)) {
     throw new ParseSkip(
-      "unsupported-variant",
-      `${header.game.label} is not supported yet; the hand is kept for a future parser.`,
+      "unsupported-format",
+      "This hand uses the All-in-or-Fold street layout - a `*** PREFLOP ***` marker " +
+        "and no flop marker - which no verified GGPoker export in the corpus writes. " +
+        "The board would have to come from the SUMMARY block rather than from the " +
+        "deal, so the hand is refused rather than reconstructed.",
     );
   }
   if (ctx.options.cashOnly && header.tournament) {
@@ -416,6 +467,13 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
 
   const money = (value: string | undefined) => parseAmount(value, unit);
   let inSummary = false;
+  /**
+   * Who has already put *live* money in before the deal.
+   *
+   * Only used by the straddle guard below. Antes are deliberately not counted:
+   * they are dead money and never part of a street commitment.
+   */
+  const livePosters = new Set<string>();
 
   for (let i = 1; i < lines.length; i += 1) {
     const rawLine = lines[i];
@@ -563,6 +621,7 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
         money(blind[3]),
         { allIn: allInFrom(blind[4]), line: lineNo, rawLine: line },
       );
+      livePosters.add(blind[1]);
       continue;
     }
 
@@ -578,12 +637,39 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
     // neither, and the money silently leaves the pot.
     const straddleLine = line.match(new RegExp(String.raw`^(.+?): straddle ${MONEY}${SUFFIX}$`));
     if (straddleLine) {
+      // A straddle from somebody who has already posted live money is refused,
+      // and the reason is arithmetic rather than squeamishness. GG's straddle
+      // amount is the player's **street total**, not the chips they are adding:
+      //
+      //   fixture 24 - `ce67ea41: posts big blind $50` then `ce67ea41: straddle
+      //   $100`, and the stated `Total pot $255` only balances if that seat put
+      //   in 100 altogether, not 150;
+      //   fixture 19 - `straddle $0.5` then `straddle $15.35 and is all-in`
+      //   from one seat whose whole stack is $15.35, which cannot be 15.85.
+      //
+      // Every post in this pipeline is chips added - `StarsHandDraft.post` and
+      // `parseStandardHand` both commit the amount they are handed - so the
+      // two readings agree only while the straddler has nothing committed yet,
+      // which is the ordinary case and the one every other fixture is. Where
+      // they disagree the hand is refused rather than booked at the wrong size;
+      // teaching the shared reader that a straddle is a "to" amount is a change
+      // to the standard-text grammar and belongs to its own issue.
+      if (livePosters.has(straddleLine[1])) {
+        throw new ParseSkip(
+          "unsupported-straddle",
+          `${straddleLine[1]} straddles after already posting live money. GG states a ` +
+            "straddle as the player's street total, and this converter reads a post as " +
+            "chips added; the two disagree here, so the hand is refused rather than " +
+            "booked with the wrong amount in the pot.",
+        );
+      }
       draft.post(straddleLine[1], "straddle", money(straddleLine[2]), {
         allIn: allInFrom(straddleLine[3]),
         verb: "straddle",
         line: lineNo,
         rawLine: line,
       });
+      livePosters.add(straddleLine[1]);
       continue;
     }
 

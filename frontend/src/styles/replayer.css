@@ -1,358 +1,659 @@
-/* Hand replayer: felt, seats, transport controls, showdown strip.
-   Card and chip primitives live in cards.css. */
+/* ===========================================================================
+   HAND REPLAYER
+   ===========================================================================
 
-/* ------------------------------------------------------------ poker table */
+   The contract this file exists to keep: **the replayer never scrolls**, on
+   any viewport, phone portrait through 4K, at two to ten seats and up to six
+   hole cards. Everything about a hand is visible at once.
 
-.ptable {
-  position: relative;
-  /* Own stacking context so the rail can sit at z-index -1 behind the felt
-     without falling behind this panel's own background. */
-  z-index: 0;
-  /* Card and seat sizes are driven off the table's own width rather than the
-     viewport, so the felt stays readable when the action log is open. */
-  container-type: inline-size;
-  /* `--card-base` is the table's nominal card size; `--card-unit` is what an
-     individual block actually uses, so the run-it-twice boards can shrink
-     without dragging the seats down with them. */
-  --card-base: clamp(46px, 7.2cqw, 84px);
-  --card-unit: var(--card-base);
-  /* Wide enough for a 14-character screen name at 12px, because the desktop
-     felt has the room and "Wandeinre…" on a 1440px display looks broken. */
-  --seat-w: clamp(118px, 15.4cqw, 190px);
-  /* Name plate and, from it, the height of a whole seat: a card row, the gap
-     and the plate. The chip spots below are measured off it, so the two stay
-     in step when the breakpoints change the plate's type sizes. */
-  --plate-h: 42px;
-  --seat-h: calc(var(--card-unit) * 1.18 + 4px + var(--plate-h));
-  /* The gap a chip stack keeps from the hand it belongs to, and half the
-     stack's own height. Both are the stack's own measurements rather than the
-     seat's, so they are flat pixels. */
-  --bet-chip-gap: 8px;
-  --bet-chip-lift: 14px;
-  padding: 30px 28px;
-  background:
-    radial-gradient(900px 400px at 50% -10%, #1a2836 0%, transparent 70%),
-    #0c1117;
+   That is a property of the box model here, not a set of tuned constants.
+
+     .rp          a three-row grid — header / stage / transport — with
+                  `overflow: clip`, so nothing inside can leak out of it.
+     .rp__stage   `container-type: size`. Size containment means the stage's
+                  dimensions are computed *without consulting its children*: a
+                  sixty-action log, a twenty-two character screen name or a
+                  nine-seat ring cannot grow it. That is the whole trick.
+     .rp__fit     the felt, letterboxed inside the stage at the shape's ratio.
+     .rp__felt    declares `--u: 1cqmin`.
+
+   `--u` is one percent of the felt box's shorter side, and every geometric
+   value below is `calc(N * var(--u))`. It is declared on `.rp__felt` and NOT
+   on `.rp__fit`, because a container's own declarations resolve `cq*` units
+   against its ANCESTOR: `1cqmin` written on `.rp__fit` would silently measure
+   the stage instead of the felt.
+
+   Type is `clamp(rem-floor, N * var(--u), rem-cap)` — floors in `rem`, never
+   `px`, because `rem` tracks the reader's font size and the browser's zoom.
+   When the box shrinks past a floor the floor wins and the GEOMETRY gives
+   instead: seats and chrome drop out (see the tier queries at the bottom) and
+   text never falls below its floor. That hand-off is the design, and it is the
+   test `transform: scale()` fails by construction — zoom shrinks the CSS-pixel
+   viewport, a fit factor shrinks by the same ratio, and the reader who zoomed
+   to 200% to read a stack size gets nothing.
+
+   Which shape to draw is decided in JS (`seatLayout.shapeFor`, via a
+   ResizeObserver) and arrives as `data-shape`, because the seat slot table
+   needs the same answer and two derivations would drift.
+
+   Card and chip primitives live in cards.css; the felt overrides their sizes.
+   =========================================================================== */
+
+/* ------------------------------------------------------------------- root */
+
+.rp {
+  /* Minimum hit area for anything you press while scrubbing. 44 CSS px is the
+     WCAG 2.5.5 / platform HIG floor, and the transport is used with a thumb on
+     a phone more than with a mouse. It is unconditional rather than behind
+     `(pointer: coarse)`: a 608px replayer embedded in a page is a phone-shaped
+     target whatever is pointing at it, and a control that is big enough is
+     never the thing that made a layout fail. */
+  --rp-hit: 2.75rem;
+
+  /* The box the replayer is given.
+     A surface that knows its own height — a modal, a feed card, the harness —
+     sets `--rp-block: 100%` and this whole file follows it. The default is for
+     the standalone page, and is the one place a viewport unit is correct: it
+     is the frame, not the contents. */
+  --rp-block: min(100svh, 54rem);
+
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  block-size: var(--rp-block);
+  min-block-size: 0;
+  overflow: clip;
+  background: var(--surface-base);
 }
 
-.ptable__felt {
+/* The surfaces that embed the replayer in a scrolling page. They own a sticky
+   app bar and their own padding, so a full `100svh` here would put the
+   transport below the fold on first paint. These selectors reach out of this
+   file on purpose: `--rp-block` is the contract, and the page is the only
+   thing that knows how much chrome sits above the replayer. */
+.card--flush > .rp,
+.sharepage__replay > .rp {
+  --rp-block: min(100svh - 7rem, 54rem);
+}
+
+/* Embed mode, in full. Two declarations and a floor.
+
+   That is the claim #22 makes about this layout being right: an embedded
+   replayer is the same grid at a different size, so it needs a different *box*
+   and a row count, and nothing else. Everything that would otherwise have to be
+   re-tuned — which seats fit, how big the type is, which controls survive — is
+   already answered by `--u` off the felt's container query and by `data-tier`
+   off the replayer's own width, neither of which cares whether the box came
+   from the viewport or from a forum column.
+
+   `--rp-block: 100%`, not a viewport unit: the slot is the frame.
+
+   `grid-template-rows` is the one that is not optional. An embed drops the
+   header row from the DOM rather than hiding it, so without this the stage
+   lands in the `auto` track the header used to own and the transport takes the
+   `1fr` — a size-contained stage in an `auto` track resolves to nothing, and
+   the felt spills out of the top of the box. Two children, two rows.
+
+   `min-block-size` is a floor for the case a host gives the replayer no height
+   at all, so an embed in an `auto` row is still a replayer rather than a
+   zero-pixel line. */
+.rp[data-mode="embed"] {
+  --rp-block: 100%;
+
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-block-size: 18rem;
+}
+
+/* ----------------------------------------------------------------- header */
+
+/* One line: where the hand was played on the left, icon buttons on the right.
+   Everything else about the hand is on the felt. */
+.rp__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-inline-size: 0;
+  /* The buttons set the row's height, so the block padding is what is left to
+     give back to the felt — which is the *other* half of #58's complaint. */
+  padding: 0.125rem 0.625rem;
+  border-block-end: 1px solid var(--border-subtle);
+  background: var(--surface-raised);
+}
+
+/* Three crumbs: where it was played, for how much, which game. Everything else
+   that is constant for the hand is in the info sheet, which is what the `ⓘ`
+   next to the gear opens.
+
+   `flex: none` on the items, and no `text-overflow` on them, is the fix for
+   #58 and is load-bearing. A shrinkable item with an ellipsis produces
+   `P... · '... · '... · '...` at 320px — four separators around four
+   unreadable stubs, which reads as a rendering bug rather than as a deliberate
+   omission. The strip is either legible or it is gone; below the `sm` tier it
+   is gone (see the drop ladder at the bottom of this file). */
+.rp__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-inline-size: 0;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.rp__meta > span {
+  flex: none;
+}
+
+.rp__meta > span + span::before {
+  content: "·";
+  margin-inline-end: 0.5rem;
+  color: var(--text-tertiary);
+}
+
+/* `margin-inline-start: auto` rather than `justify-content: space-between` on
+   the header: once the meta strip drops out at the narrow tier there is no
+   second item for `space-between` to push against, and the icons would slide
+   to the left edge. */
+.rp__header-actions {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  flex: none;
+  margin-inline-start: auto;
+}
+
+.rp__header .btn--icon {
+  min-inline-size: var(--rp-hit);
+  min-block-size: var(--rp-hit);
+  inline-size: var(--rp-hit);
+  padding-block: 0;
+}
+
+/* The root is focusable so the key map has something to be scoped to; a
+   focusable thing that shows no focus is worse than one that is not focusable
+   at all. Inset, because the root clips. */
+.rp:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+/* Available to every sheet in the replayer: text that exists only for a
+   screen reader, e.g. the reason a spoiler row is an em dash. */
+.rp-sr {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* --------------------------------------------------- replayer settings sheet */
+
+/* The gear used to open a bare `<div>` held open by a `mousedown` listener on
+   `document`: no focus trap, no focus return, and a background that was still
+   tabbable behind it. It is the shared `<Overlay>` now — a modal `<dialog>` —
+   so all three come from the platform and nothing is positioned here. */
+.rp__settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.5rem;
+}
+
+.rp__setting {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  /* A whole-row hit target, and never less than a thumb tall. */
+  min-block-size: var(--rp-hit);
+  padding: 0.5rem;
+  border-radius: var(--radius-2);
+  cursor: pointer;
+  font-size: 0.78125rem;
+  color: var(--text-secondary);
+}
+
+.rp__setting:hover {
+  background: var(--surface-raised-2);
+  color: var(--text-primary);
+}
+
+/* The native box is kept for keyboard and screen readers, and the pill in
+   front of it is what actually gets painted. */
+.rp__setting input {
+  position: absolute;
+  opacity: 0;
+  inline-size: 0;
+  block-size: 0;
+}
+
+.rp__setting-switch {
   position: relative;
-  /* Seat ring radii, as a share of the felt box. Reshaped per breakpoint. */
-  --ring-x: 40%;
-  --ring-y: 37%;
-  width: 100%;
-  aspect-ratio: 16 / 8.6;
-  min-height: 380px;
-  max-height: min(62vh, 560px);
-  margin: 0 auto;
-  border-radius: 47% / 58%;
+  flex: none;
+  margin-block-start: 0.125rem;
+  inline-size: 1.875rem;
+  block-size: 1.0625rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    border-color var(--dur-2) var(--ease-standard);
+}
+
+.rp__setting-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  inline-size: 0.6875rem;
+  block-size: 0.6875rem;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  transition:
+    translate var(--dur-2) var(--ease-standard),
+    background var(--dur-2) var(--ease-standard);
+}
+
+.rp__setting input:checked + .rp__setting-switch {
+  background: color-mix(in srgb, var(--accent-fg) 45%, transparent);
+  border-color: var(--accent-border);
+}
+
+.rp__setting input:checked + .rp__setting-switch::after {
+  translate: 0.8125rem 0;
+  background: var(--text-primary);
+}
+
+.rp__setting input:focus-visible + .rp__setting-switch {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.rp__setting-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  line-height: var(--line-height-snug);
+}
+
+/* The hint used to be a `title`, which is unreachable by keyboard and by
+   touch, and which no screen reader reads reliably. It is text now, and it is
+   the `aria-describedby` target for the checkbox beside it. */
+.rp__setting-hint {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+}
+
+/* ---------------------------------------------- the Tier-2 sheets' contents */
+
+/* A definition list, used by the hand-info and keyboard sheets. */
+.rp__facts {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(6rem, auto) minmax(0, 1fr);
+  gap: 0.0625rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.rp__fact {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: baseline;
+  padding-block: 0.3125rem;
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.rp__fact:first-child {
+  border-block-start: 0;
+}
+
+.rp__fact dt {
+  color: var(--text-tertiary);
+}
+
+.rp__fact dd {
+  margin: 0;
+  min-inline-size: 0;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A value the replay has not reached yet. The em dash carries it on its own —
+   there is no tint, because "you cannot see this yet" must not be a colour. */
+.rp__fact-hidden,
+.rp__fact-none {
+  color: var(--text-tertiary);
+}
+
+.rp__fact-id {
+  font-family: var(--font-family-mono);
+  font-size: 0.6875rem;
+  overflow-wrap: anywhere;
+}
+
+.rp__fact-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.rp__fact-chip {
+  padding: 0.0625rem 0.4375rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-raised);
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+}
+
+.rp__keys dt {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.rp__key {
+  min-inline-size: 1.5rem;
+  padding: 0.0625rem 0.375rem;
+  border: 1px solid var(--border-default);
+  border-block-end-width: 2px;
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  font-family: var(--font-family-mono);
+  font-size: 0.6875rem;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ stage */
+
+
+.rp__stage {
+  position: relative;
+  min-block-size: 0;
+  /* The load-bearing line in this file. */
+  container-type: size;
+  container-name: rpstage;
+  display: grid;
+  place-items: center;
+  padding: 0.25rem;
+  overflow: clip;
   background:
-    radial-gradient(58% 68% at 50% 40%, var(--felt-1) 0%, var(--felt-2) 55%, var(--felt-3) 100%);
+    radial-gradient(60% 45% at 50% -8%, var(--surface-glow-1) 0%, transparent 70%),
+    var(--surface-sunken);
+}
+
+/* The letterbox: the shape's aspect ratio, as large as the stage allows.
+   `cqi` / `cqb` here measure the STAGE, which is exactly right — this element
+   is the thing being sized by it. It is then a container in its own right so
+   the felt inside can measure IT. */
+.rp__fit {
+  position: relative;
+  aspect-ratio: var(--arw) / var(--arh);
+  inline-size: min(100cqi, 100cqb * var(--arw) / var(--arh));
+  container-type: size;
+  container-name: rpfelt;
+}
+
+.rp__felt {
+  --u: 1cqmin;
+
+  /* Type scale. Multipliers are tuned against a seat block of 21–26u, so a
+     name fills its plate at every size until the floor takes over. */
+  --fs-name: clamp(0.625rem, 2.9 * var(--u), 0.875rem);
+  --fs-stack: clamp(0.6875rem, 3.2 * var(--u), 0.9375rem);
+  --fs-pos: clamp(0.5rem, 2.2 * var(--u), 0.6875rem);
+  --fs-pill: clamp(0.5625rem, 2.5 * var(--u), 0.8125rem);
+  --fs-chip: clamp(0.5625rem, 2.4 * var(--u), 0.75rem);
+  --fs-pot: clamp(0.8125rem, 5.2 * var(--u), 1.375rem);
+  --fs-pot-label: clamp(0.5rem, 2.2 * var(--u), 0.6875rem);
+
+  --seat-w: calc(var(--seat-wu) * var(--u));
+  --seat-h: calc(var(--seat-hu) * var(--u));
+  --seat-card: calc(var(--seat-w) * 0.3);
+  --board-card: calc(var(--card-u) * var(--u));
+  --fan: var(--fan-down);
+
+  /* How far the cloth is inset inside the felt box, so the seats straddle its
+     edge the way they do at a real table rather than floating beside it. Both
+     are in `u`, i.e. both are read off the SHORTER side, so the numbers differ
+     per shape. `--cloth-r` is the ellipse: a landscape table is an oval, a
+     portrait one is a stadium, because an oval that tall would leave the seats
+     at its ends hanging off it. */
+  --cloth-x: 6;
+  --cloth-y: 10;
+  --cloth-r: 46% / 50%;
+
+  /* How far a card slides out of the deck, and a bet slides off its seat.
+     Short: the point is to give the motion an origin, not to drive a chip
+     across the felt. Both are in `u`, so they scale with the box like
+     everything else, and the *direction* arrives from React as a unit vector
+     (`--deal-x` / `--deal-y`, `--bet-x` / `--bet-y`) because only the slot
+     table knows where a seat is. */
+  --deal-reach: calc(6 * var(--u));
+  --bet-reach: calc(4 * var(--u));
+
+  position: absolute;
+  inset: 0;
+  /* Its own stacking context, so the rail can sit behind the cloth without
+     falling behind the stage. */
+  z-index: 0;
+  isolation: isolate;
+  color: var(--felt-text);
+}
+
+.rp[data-shape="tall"] .rp__felt {
+  --cloth-x: 3;
+  --cloth-y: 5;
+  --cloth-r: 34% / 18%;
+}
+
+.rp[data-shape="compact"] .rp__felt {
+  --cloth-x: 3;
+  --cloth-y: 4;
+  --cloth-r: 32% / 26%;
+}
+
+/* Hero's hand is the one you are here to read. */
+.rp__felt .pseat--hero {
+  --seat-card: calc(var(--seat-w) * 0.33);
+}
+
+.rp__cloth {
+  position: absolute;
+  inset-inline: calc(var(--cloth-x) * var(--u));
+  inset-block: calc(var(--cloth-y) * var(--u));
+  border-radius: var(--cloth-r);
+  background:
+    radial-gradient(
+      58% 68% at 50% 40%,
+      var(--felt-center) 0%,
+      var(--felt-mid) 55%,
+      var(--felt-edge) 100%
+    );
   box-shadow:
-    inset 0 0 90px rgb(0 0 0 / 45%),
-    inset 0 0 0 3px rgb(255 255 255 / 7%),
+    inset 0 0 calc(10 * var(--u)) rgb(0 0 0 / 45%),
+    inset 0 0 0 2px rgb(255 255 255 / 7%),
     inset 0 2px 0 rgb(255 255 255 / 10%);
 }
 
-/* Elliptical wooden rail. Painted behind the felt rather than as a border,
-   because border-image ignores border-radius. */
-.ptable__rail {
+/* Wooden rail. Painted behind the cloth rather than as a border, because
+   border-image ignores border-radius. */
+.rp__cloth::before {
+  content: "";
   position: absolute;
-  inset: -17px;
+  inset: calc(-3 * var(--u));
   z-index: -1;
-  border-radius: 47% / 58%;
-  background: linear-gradient(160deg, var(--rail-hi), var(--rail) 48%, #200e05);
+  border-radius: var(--cloth-r);
+  background:
+    linear-gradient(160deg, var(--felt-rail-hi), var(--felt-rail) 48%, var(--felt-rail-shadow));
   box-shadow:
     inset 0 2px 0 rgb(255 255 255 / 14%),
     inset 0 -3px 6px rgb(0 0 0 / 45%),
-    0 18px 55px rgb(0 0 0 / 55%);
+    0 calc(2 * var(--u)) calc(7 * var(--u)) rgb(0 0 0 / 55%);
   pointer-events: none;
 }
 
-.ptable__logo {
+.rp__logo {
   position: absolute;
   left: 50%;
-  top: 17%;
-  transform: translate(-50%, -50%);
-  font-size: clamp(16px, 2.6cqw, 30px);
-  font-weight: 750;
+  top: 26%;
+  translate: -50% -50%;
+  font-size: clamp(0.6875rem, 3 * var(--u), 1.5rem);
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgb(255 255 255 / 3.5%);
+  color: rgb(255 255 255 / 4%);
   pointer-events: none;
   white-space: nowrap;
-  max-width: 60%;
+  max-inline-size: 62%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.ptable__center {
+/* ----------------------------------------------------------- the middle */
+
+.rp__center {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  translate: -50% -50%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  width: max-content;
-  z-index: 3;
+  gap: calc(2 * var(--u));
+  inline-size: max-content;
+  max-inline-size: 100%;
+  z-index: var(--z-board);
 }
 
-.ptable__pot {
+.rp__pots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(0.8 * var(--u));
+  block-size: calc(var(--pot-u) * var(--u));
+  justify-content: center;
+}
+
+.rp__pot {
   display: inline-flex;
   align-items: baseline;
-  gap: 8px;
-  padding: 4px 14px;
-  border-radius: 999px;
+  gap: calc(1.4 * var(--u));
+  padding: calc(0.4 * var(--u)) calc(2.2 * var(--u));
+  border-radius: var(--radius-pill);
   background: rgb(0 0 0 / 48%);
   border: 1px solid rgb(255 255 255 / 14%);
   box-shadow: 0 2px 10px rgb(0 0 0 / 35%);
+  white-space: nowrap;
 }
 
-.ptable__pot-label {
-  font-size: 10.5px;
+.rp__pot-label {
+  font-size: var(--fs-pot-label);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgb(255 255 255 / 58%);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--felt-text-muted);
 }
 
-.ptable__pot-value {
-  font-size: clamp(15px, 1.9cqw, 21px);
-  font-weight: 750;
+.rp__pot-value {
+  font-size: var(--fs-pot);
+  font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
-  color: #ffe9a8;
+  color: var(--money-fg);
+  line-height: var(--line-height-tight);
 }
 
-.ptable__pot-total {
-  font-size: 11px;
-  color: rgb(255 255 255 / 48%);
+.rp__pot-total {
+  font-size: var(--fs-pot-label);
+  color: var(--felt-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
-.ptable__boards {
+.rp__boards {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: calc(1 * var(--u));
 }
 
-/* Run it twice: two stacked boards would otherwise make the middle of the
-   table taller than the gap between the top and bottom seats. */
-.ptable__boards--twin {
-  --card-unit: calc(var(--card-base) * 0.74);
+/* Run it twice. Two boards must not make the middle taller than the gap the
+   slot table left for it, so both shrink rather than stacking at full size. */
+.rp__boards--twin {
+  --board-card: calc(var(--card-u) * var(--u) * 0.72);
 }
 
-.ptable__board {
+.rp__board {
   display: flex;
-  gap: calc(var(--card-unit) * 0.1);
+  flex-direction: column;
   align-items: center;
-  padding: calc(var(--card-unit) * 0.11);
-  border-radius: 12px;
+  gap: calc(var(--card-u) * var(--u) * 0.1);
+  padding: calc(var(--card-u) * var(--u) * 0.1);
+  border-radius: calc(1.6 * var(--u));
   background: rgb(0 0 0 / 20%);
   border: 1px solid rgb(255 255 255 / 8%);
 }
 
-.ptable__board--second {
+.rp__board-row {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--card-u) * var(--u) * 0.1);
+}
+
+.rp__board--second {
   opacity: 0.9;
 }
 
-.ptable__board-tag {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+.rp__board-tag {
+  font-size: var(--fs-pot-label);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-wide);
   text-transform: uppercase;
-  color: rgb(255 255 255 / 50%);
-  margin-right: 2px;
+  color: var(--felt-text-muted);
 }
 
-.board-slot {
-  width: var(--card-unit);
-  height: calc(var(--card-unit) * 1.42);
-  border-radius: calc(var(--card-unit) * 0.1);
+.rp__board-slot {
+  inline-size: var(--board-card);
+  block-size: calc(var(--board-card) * 1.42);
+  border-radius: calc(var(--board-card) * 0.1);
   border: 1px dashed rgb(255 255 255 / 12%);
   background: rgb(0 0 0 / 12%);
   flex: none;
 }
 
-/* Fluid card sizes inside the felt. The ratios keep the board dominant, the
-   hero's hand second and the villains' hands readable but subordinate. */
-.ptable .pcard--xl {
-  --card-w: var(--card-unit);
+.rp__board .pcard {
+  --card-w: var(--board-card);
 }
 
-.ptable .pcard--lg {
-  --card-w: calc(var(--card-unit) * 0.82);
-}
-
-.ptable .pcard--md {
-  --card-w: calc(var(--card-unit) * 0.68);
-}
-
-.ptable .pcard--sm {
-  --card-w: calc(var(--card-unit) * 0.52);
-}
-
-/* Seats, bets and travelling chips all sit on the same ring. React hands over
-   two vectors per point — `-w` for wide layouts and `-n` for the phone
-   breakpoint, which pushes seats out of the board's horizontal band — and the
-   alias below is what the media query flips. */
-.pseat,
-.ptable__chips {
-  --cos: var(--cos-w);
-  --sin: var(--sin-w);
-}
-
-/* ------------------------------------------------------------- chip spots */
-
-/* Where a stack of chips sits for a given seat.
-
-   Scaling the seat's own radius down by a constant — which is what this used
-   to do — drops the stack wherever that happens to land: on the hole cards of
-   the seats at the top and bottom of the oval, whose hands point straight at
-   the middle, and on the board for the seats on the flanks, because the board
-   is wider than the ring is roomy. So the spot is measured off the seat that
-   owns it instead. Every stack takes one sideways step out of its own hand,
-   and React's `--bet-sx` says which way that is: in towards the middle for
-   most seats, but along the ring — past the side of the hand — for the seats
-   across the top, which would otherwise step onto the pot, and for a seat
-   sitting dead centre at the bottom, for which "inwards" means nothing.
-
-   Vertically a stack stays level with the cards it belongs to, because that is
-   the one band of felt beside a seat that is always free: a plate is wider
-   than the hand above it, but it sits below it.
-
-   The spot is the stack's near edge rather than its middle, and `--bet-tx`
-   below hangs the stack off it in the direction it stepped. A four-figure bet
-   makes for a wide caption, and this way the extra width grows away from the
-   hand instead of back over it. */
-.ptable__chips {
-  /* Half a hole-card pair, plus room to breathe. */
-  --bet-clear-x: calc(var(--card-unit) * 0.7 + var(--bet-chip-gap));
-  /* Hangs the stack off the spot: fully to the left of it when the step was to
-     the left, fully to the right when it was to the right, centred when there
-     was no sideways step at all. */
-  --bet-tx: calc((var(--bet-sx) - 1) * 50%);
-  /* Where the seat's ring point falls inside its own box, mirroring the nudges
-     on `.pseat--row-*` below. */
-  --bet-anchor: 0.5;
-  /* Lift the stack until it is level with the bottom of the card row. A big
-     card and a short plate put the ring point inside that band already, which
-     is what the max() is for; a small card and a tall plate — a phone, or a
-     seat pinned 62% down its box — leave it inside the plate, and then the
-     stack has to climb out. The smallest lift that does it is also the one
-     that keeps the stack furthest from the board behind it. */
-  --bet-clear-y: max(
-    0px,
-    var(--seat-h) * var(--bet-anchor) - var(--card-unit) * 1.18 + var(--bet-chip-lift)
-  );
-  --bet-left: calc(50% + var(--ring-x) * var(--cos) + var(--bet-sx) * var(--bet-clear-x));
-  --bet-top: calc(50% + var(--ring-y) * var(--sin) - var(--bet-clear-y));
-}
-
-/* The hero's hand is dealt a size up, so its stack starts further out. */
-.ptable__chips--hero {
-  --bet-clear-x: calc(var(--card-unit) * 0.85 + var(--bet-chip-gap));
-}
-
-.ptable__chips--row-bottom {
-  --bet-anchor: 0.62;
-}
-
-.ptable__chips--row-top {
-  --bet-anchor: 0.4;
-}
-
-/* ------------------------------------------------------- chips in motion */
-
-.ptable__bet {
-  position: absolute;
-  left: var(--bet-left);
-  top: var(--bet-top);
-  transform: translate(var(--bet-tx), -50%);
-  transition: left 420ms cubic-bezier(0.4, 0, 0.2, 1), top 420ms cubic-bezier(0.4, 0, 0.2, 1);
-  /* Above the seats: on a narrow felt a bet can land under a name plate, and
-     the number is the part that must stay readable. */
-  z-index: 13;
-}
-
-/* Ghost stacks that travel from the bet ring into the pot when a street ends. */
-.ptable__sweep {
-  position: absolute;
-  left: var(--bet-left);
-  top: var(--bet-top);
-  transform: translate(var(--bet-tx), -50%);
-  z-index: 4;
-  pointer-events: none;
-  animation: chip-sweep 460ms cubic-bezier(0.5, 0, 0.75, 0) forwards;
-}
-
-@keyframes chip-sweep {
-  to {
-    left: 50%;
-    top: 50%;
-    opacity: 0;
-  }
-}
-
-/* The pot travelling to the winner on the award frame. */
-.ptable__award {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(var(--bet-tx), -50%);
-  z-index: 6;
-  pointer-events: none;
-  animation: pot-slide 760ms cubic-bezier(0.3, 0, 0.2, 1) forwards;
-}
-
-@keyframes pot-slide {
-  0% {
-    opacity: 0;
-  }
-
-  15% {
-    opacity: 1;
-  }
-
-  100% {
-    /* Lands on the winner's own chip spot, so the pot arrives where that seat's
-       bets went out from. */
-    left: var(--bet-left);
-    top: var(--bet-top);
-    opacity: 0;
-  }
-}
-
-/* ------------------------------------------------------------------ seat */
+/* -------------------------------------------------------------- the seat */
 
 .pseat {
   position: absolute;
-  left: calc(50% + var(--ring-x) * var(--cos));
-  top: calc(50% + var(--ring-y) * var(--sin));
-  transform: translate(-50%, -50%);
+  /* `left` / `top` place the slot anchor, `translate` puts the requested point
+     of the seat block on it. The independent property, not `transform`: the
+     deal-in and pop animations own `transform`, and a seat must never be able
+     to lose its position to one of them. */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  width: var(--seat-w);
-  z-index: 10;
-  transition: opacity 240ms ease;
-}
-
-/* A seat is centred on its ring point, but its cards sit above the plate and
-   its action pill below, so the top and bottom seats need nudging back inside
-   the felt or they climb onto the rail. */
-.pseat--row-bottom {
-  transform: translate(-50%, -62%);
-}
-
-.pseat--row-top {
-  transform: translate(-50%, -40%);
+  justify-content: flex-end;
+  gap: calc(0.7 * var(--u));
+  inline-size: var(--seat-w);
+  block-size: var(--seat-h);
+  z-index: var(--z-seat);
+  transition: opacity var(--dur-4) var(--ease-standard);
 }
 
 .pseat--acting {
-  z-index: 12;
+  z-index: var(--z-seat-active);
 }
 
 .pseat--folded {
@@ -361,38 +662,69 @@
 
 .pseat__cards {
   display: flex;
-  gap: 3px;
   align-items: flex-end;
-  /* Reserved so the plate does not jump when cards are dealt or mucked. */
-  height: calc(var(--card-unit) * 1.18);
+  flex: none;
+  block-size: calc(var(--seat-card) * 1.42);
 }
 
-.pseat--hero .pseat__cards {
-  height: calc(var(--card-unit) * 1.18);
+.pseat .pcard {
+  --card-w: var(--seat-card);
+}
+
+/* Face-down cards carry zero information, so they need zero legibility: the
+   fan closes up until six backs take the same room as two. `--fan-down` is
+   computed for the variant's hole-card count and arrives on the felt. */
+.pseat__cards .pcard + .pcard {
+  margin-inline-start: calc(var(--seat-card) * var(--fan) * -1);
+}
+
+/* A hand that has actually been turned over opens out — and pops, so the extra
+   width lands over the felt rather than over the neighbouring seat. */
+.pseat--shown {
+  --fan: var(--fan-up);
+  z-index: var(--z-motion);
+}
+
+.pseat--shown .pcard {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 45%),
+    0 calc(1.4 * var(--u)) calc(3 * var(--u)) rgb(0 0 0 / 45%),
+    inset 0 0 0 1px rgb(0 0 0 / 14%);
+}
+
+/* A compact box cannot show a readable hand at all, so it does not pretend to:
+   the fan stays shut and the result sheet carries the cards. */
+.rp[data-shape="compact"] .pseat--shown {
+  --fan: var(--fan-down);
 }
 
 .pseat__plate {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  padding: 4px 9px 5px;
-  border-radius: 10px;
+  inline-size: 100%;
+  min-inline-size: 0;
+  flex: none;
+  padding: calc(0.5 * var(--u)) calc(1.4 * var(--u)) calc(0.7 * var(--u));
+  border-radius: calc(1.4 * var(--u));
   background: linear-gradient(180deg, rgb(13 19 27 / 94%), rgb(7 11 16 / 96%));
   border: 1px solid rgb(255 255 255 / 13%);
   box-shadow: 0 4px 14px rgb(0 0 0 / 50%);
-  line-height: 1.25;
-  transition: border-color 180ms ease, box-shadow 180ms ease;
+  line-height: var(--line-height-snug);
+  transition:
+    border-color var(--dur-3) var(--ease-standard),
+    box-shadow var(--dur-3) var(--ease-standard),
+    opacity var(--dur-5) var(--ease-standard);
 }
 
 .pseat__name {
   display: flex;
   align-items: center;
-  gap: 5px;
-  max-width: 100%;
-  min-width: 0;
-  font-size: 12px;
-  font-weight: 620;
+  gap: calc(0.8 * var(--u));
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  font-size: var(--fs-name);
+  font-weight: var(--font-weight-semibold);
 }
 
 .pseat__nick {
@@ -405,110 +737,139 @@
    seat plate when you are reading someone else's hand. */
 .pseat__pos {
   flex: none;
-  padding: 0 5px;
-  border-radius: 5px;
-  font-size: 9.5px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  line-height: 15px;
-  color: #cfe0f2;
-  background: rgb(255 255 255 / 10%);
+  padding: 0 0.35em;
+  border-radius: var(--radius-1);
+  font-size: var(--fs-pos);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-wide);
+  line-height: 1.5;
+  color: var(--pos-fg);
+  background: var(--pos-bg-early);
   border: 1px solid rgb(255 255 255 / 12%);
 }
 
 .pseat__stack {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #ffe0a0;
+  font-size: var(--fs-stack);
+  font-weight: var(--font-weight-bold);
+  color: var(--money-fg);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .pseat__allin-text {
-  color: #ff9d9d;
-  font-size: 11px;
-  letter-spacing: 0.06em;
+  color: var(--loss-fg);
+  font-size: var(--fs-pill);
+  letter-spacing: var(--letter-spacing-wide);
 }
 
 .pseat--hero .pseat__plate {
-  border-color: rgb(62 166 255 / 55%);
-  box-shadow: 0 0 0 1px rgb(62 166 255 / 25%), 0 4px 16px rgb(0 0 0 / 50%);
+  border-color: color-mix(in srgb, var(--accent-fg) 55%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent-fg) 25%, transparent),
+    0 4px 16px rgb(0 0 0 / 50%);
+}
+
+/* The seat the surrounding page is about — a forum post's "what would you do
+   here?". Drawn as a dashed ring rather than as another glow, so it cannot be
+   mistaken for the acting seat: one of them is the hand telling you whose turn
+   it is, the other is a person telling you where to look. */
+.pseat--focus .pseat__plate {
+  border-style: dashed;
+  border-color: var(--accent-border);
 }
 
 .pseat--acting .pseat__plate {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgb(62 166 255 / 40%), 0 0 24px rgb(62 166 255 / 40%);
+  border-color: var(--accent-border);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent-fg) 40%, transparent),
+    0 0 calc(4 * var(--u)) color-mix(in srgb, var(--accent-fg) 40%, transparent);
   animation: acting-pulse 1400ms ease-in-out infinite;
 }
 
 @keyframes acting-pulse {
   50% {
-    box-shadow: 0 0 0 3px rgb(62 166 255 / 22%), 0 0 30px rgb(62 166 255 / 22%);
+    box-shadow:
+      0 0 0 3px rgb(62 166 255 / 22%),
+      0 0 30px rgb(62 166 255 / 22%);
   }
 }
 
 .pseat--winner .pseat__plate {
-  border-color: var(--good);
-  box-shadow: 0 0 0 2px rgb(53 196 138 / 45%), 0 0 26px rgb(53 196 138 / 50%);
+  border-color: var(--success-fg);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--success-fg) 45%, transparent),
+    0 0 calc(5 * var(--u)) color-mix(in srgb, var(--success-fg) 50%, transparent);
   animation: winner-pulse 900ms ease-in-out 2;
 }
 
 @keyframes winner-pulse {
   50% {
-    box-shadow: 0 0 0 4px rgb(53 196 138 / 45%), 0 0 34px rgb(53 196 138 / 60%);
+    box-shadow:
+      0 0 0 4px rgb(53 196 138 / 45%),
+      0 0 34px rgb(53 196 138 / 60%);
   }
 }
 
 .pseat--allin:not(.pseat--folded) .pseat__plate {
-  border-color: rgb(239 90 90 / 60%);
+  border-color: color-mix(in srgb, var(--danger-fg) 60%, transparent);
 }
 
 .pseat__action {
   position: absolute;
-  bottom: -19px;
-  font-size: 10.5px;
-  font-weight: 650;
-  padding: 2px 9px;
-  border-radius: 999px;
+  top: 100%;
+  margin-block-start: calc(0.6 * var(--u));
+  font-size: var(--fs-pill);
+  font-weight: var(--font-weight-semibold);
+  padding: calc(0.2 * var(--u)) calc(1.4 * var(--u));
+  border-radius: var(--radius-pill);
   background: rgb(6 10 15 / 88%);
   border: 1px solid rgb(255 255 255 / 16%);
-  color: #dbe7f5;
+  color: var(--text-primary);
   white-space: nowrap;
-  animation: chip-in 200ms ease backwards;
-  max-width: 200%;
+  animation: chip-in var(--dur-4) var(--ease-out) backwards;
+  transition: opacity var(--dur-5) var(--ease-standard);
+  max-inline-size: 170%;
   overflow: hidden;
   text-overflow: ellipsis;
   z-index: 2;
 }
 
+/* The all-in runout: `allInAt` plus the streets that follow it. Nobody is
+   acting any more and nothing in front of a seat can change, so the plates
+   step back and leave the board the only thing on the felt still moving. */
+.rp[data-allin="true"] .pseat__plate,
+.rp[data-allin="true"] .pseat__action {
+  opacity: 0.55;
+}
+
 /* Action colours back up the label text, they never replace it. */
 .pseat__action--fold {
-  color: #94a3b4;
+  color: var(--text-tertiary);
 }
 
 .pseat__action--check {
-  color: #b9cbe0;
-  border-color: rgb(185 203 224 / 35%);
+  color: var(--text-secondary);
 }
 
 .pseat__action--call {
-  color: #9ed4ff;
-  border-color: rgb(62 166 255 / 50%);
+  color: var(--accent-fg);
+  border-color: color-mix(in srgb, var(--accent-fg) 50%, transparent);
 }
 
 .pseat__action--aggressive {
-  color: #ffd489;
-  border-color: rgb(232 178 58 / 55%);
+  color: var(--warning-fg);
+  border-color: color-mix(in srgb, var(--warning-fg) 55%, transparent);
 }
 
 .pseat__action--allin {
-  color: #fff;
+  color: var(--felt-text);
   background: linear-gradient(180deg, #ef5a5a, #c62f2f);
   border-color: rgb(255 255 255 / 25%);
 }
 
 .pseat__action--win {
-  color: #9beecd;
-  border-color: rgb(53 196 138 / 55%);
+  color: var(--success-fg);
+  border-color: color-mix(in srgb, var(--success-fg) 55%, transparent);
 }
 
 .pseat__action--show {
@@ -519,808 +880,666 @@
 /* Persistent "out of the hand" marker: the dimming alone is easy to miss. */
 .pseat__state {
   position: absolute;
-  top: calc(var(--card-unit) * 0.42);
-  font-size: 9.5px;
-  font-weight: 800;
+  top: calc(var(--seat-card) * 0.4);
+  font-size: var(--fs-pos);
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: calc(0.2 * var(--u)) calc(1.2 * var(--u));
+  border-radius: var(--radius-1);
   background: rgb(6 10 15 / 82%);
   border: 1px solid rgb(255 255 255 / 18%);
-  color: #9fb0c3;
-  transform: rotate(-6deg);
+  color: var(--text-secondary);
+  rotate: -6deg;
   pointer-events: none;
 }
 
 .pseat__button {
   position: absolute;
-  right: -2px;
-  bottom: 22px;
+  inset-inline-end: calc(-2.4 * var(--u));
+  inset-block-end: calc(var(--seat-h) * 0.1);
   display: grid;
   place-items: center;
-  width: 23px;
-  height: 23px;
+  inline-size: clamp(0.875rem, 4.2 * var(--u), 1.5rem);
+  aspect-ratio: 1;
   border-radius: 50%;
   background: linear-gradient(180deg, #fff, #ccd4dd);
   color: #10161e;
-  font-size: 11.5px;
+  font-size: clamp(0.5rem, 2.4 * var(--u), 0.8125rem);
   font-weight: 850;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 60%), inset 0 -2px 3px rgb(0 0 0 / 18%);
+  box-shadow:
+    0 2px 6px rgb(0 0 0 / 60%),
+    inset 0 -2px 3px rgb(0 0 0 / 18%);
   z-index: 3;
 }
 
-.pseat--left .pseat__button {
-  right: auto;
-  left: -2px;
-}
+/* ------------------------------------------------------- chips on the felt */
 
-/* --------------------------------------------------------------- replayer */
-
-.replay {
-  display: flex;
-  flex-direction: column;
-}
-
-/* One line: where the hand was played on the left, three same-sized icon
-   buttons on the right. Everything else about the hand is on the felt. */
-.replay__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--line-soft);
-  background: var(--bg-elev);
-}
-
-.replay__meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  font-size: 12.5px;
-  font-weight: 550;
-  color: var(--fg-muted);
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.replay__meta > span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.replay__meta > span + span::before {
-  content: "·";
-  margin-right: 8px;
-  color: var(--fg-dim);
-}
-
-.replay__header-actions {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex: none;
-}
-
-/* ------------------------------------------------- replayer settings gear */
-
-.replay__settings {
-  position: relative;
-  flex: none;
-}
-
-.replay__settings-panel {
+/* Where a stack sits is a designed number in the slot table, not a scaled-down
+   copy of the seat's own radius: it is the middle of whatever felt is left
+   once the seat block and the board have taken their room. React sets `left`,
+   `top` and the `translate` that hangs the stack off the spot. */
+.rp__chips {
   position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 40;
-  min-width: 250px;
-  padding: 8px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--bg-elev-2, #141a22);
-  box-shadow: 0 16px 40px rgb(0 0 0 / 45%);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  inline-size: max-content;
+  z-index: var(--z-chips);
 }
 
-.replay__settings-head {
-  padding: 4px 8px 8px;
-  font-size: 10.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--fg-dim);
-  font-weight: 650;
+.rp__chips--bet {
+  z-index: var(--z-pot);
+  transition:
+    left var(--dur-6) var(--ease-standard),
+    top var(--dur-6) var(--ease-standard);
 }
 
-.replay__setting {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 8px;
-  border-radius: 7px;
-  cursor: pointer;
-  font-size: 12.5px;
-  color: var(--fg-muted);
+/* The two travelling stacks: the sweep from the bet ring into the middle at
+   the end of a street, and the pot going out to a winner.
+
+   Both are laid out here on their *seat's* chip spot and flown by WAAPI from
+   `TravellingChips` — see that file for why the flight is not keyframes. The
+   only thing this end needs to say is that they are ghosts: above the felt,
+   and not in the way of anything. */
+.rp__chips--sweep,
+.rp__chips--award {
+  z-index: var(--z-motion);
+  pointer-events: none;
 }
 
-.replay__setting:hover {
-  background: rgb(255 255 255 / 4%);
-  color: var(--fg);
+.rp__felt .chip-stack {
+  --chip-w: calc(4.6 * var(--u));
+  --chip-lift: calc(1.1 * var(--u));
+  gap: calc(1.2 * var(--u));
 }
 
-/* The native box is kept for keyboard and screen readers, and the pill in
-   front of it is what actually gets painted. */
-.replay__setting input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
+.rp__felt .chip-stack__amount {
+  font-size: var(--fs-chip);
+  padding: 0 calc(1.4 * var(--u));
+  border-radius: var(--radius-pill);
 }
 
-.replay__setting-switch {
-  position: relative;
-  flex: none;
-  width: 30px;
-  height: 17px;
-  border-radius: 999px;
-  background: var(--bg-elev);
-  border: 1px solid var(--line);
-  transition: background 120ms ease, border-color 120ms ease;
+/* A portrait felt has no width to spare between a seat and the board, and the
+   discs are decoration — the number is the bet. */
+.rp[data-shape="tall"] .chip-stack__discs,
+.rp[data-shape="compact"] .chip-stack__discs {
+  display: none;
 }
 
-.replay__setting-switch::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: var(--fg-dim);
-  transition: transform 120ms ease, background 120ms ease;
+/* ------------------------------------------------- dealing and betting out */
+
+/* Deal-in. Cards arrive from the deck — top-centre of the felt, just inside
+   the rail — instead of fading in from nowhere, which is the one thing a real
+   table never does. React hands each card a unit vector pointing at the deck
+   and the slide is a fixed distance along it, so a seat on the left flank
+   deals in from up and to the right and the board deals straight down.
+   Deliberately short: the flip is what reads as a card, the travel is only
+   what says where it came from. */
+.rp__felt .pcard {
+  animation: felt-deal-in var(--dur-4) var(--ease-spring) backwards;
 }
 
-.replay__setting input:checked + .replay__setting-switch {
-  background: rgb(62 166 255 / 45%);
-  border-color: rgb(62 166 255 / 60%);
+@keyframes felt-deal-in {
+  from {
+    opacity: 0;
+    transform:
+      translate(
+        calc(var(--deal-x, 0) * var(--deal-reach)),
+        calc(var(--deal-y, -1) * var(--deal-reach))
+      )
+      rotateY(70deg)
+      scale(0.92);
+  }
 }
 
-.replay__setting input:checked + .replay__setting-switch::after {
-  transform: translateX(13px);
-  background: #eaf4ff;
+/* Bet-out: chips are pushed off the seat that owns them, which is the same
+   vector as the deal read the other way round. */
+.rp__felt .rp__chips--bet .chip-stack {
+  animation: felt-bet-out var(--dur-4) var(--ease-spring) backwards;
 }
 
-.replay__setting input:focus-visible + .replay__setting-switch {
-  outline: 2px solid rgb(62 166 255 / 70%);
-  outline-offset: 2px;
+@keyframes felt-bet-out {
+  from {
+    opacity: 0;
+    transform:
+      translate(
+        calc(var(--bet-x, 0) * var(--bet-reach)),
+        calc(var(--bet-y, 1) * var(--bet-reach))
+      )
+      scale(0.8);
+  }
 }
 
-.replay__setting-text {
-  line-height: 1.3;
+/* ------------------------------------------------------------- the sheets */
+
+/* Tier 2: hand info, settings, the action log, the result, the keyboard map.
+   All five are the shared `<Overlay>` — a modal `<dialog>` in the top layer,
+   which is what makes "never reflows the felt" structural rather than
+   careful: a top-layer element is outside the stage's size containment and
+   outside the root's `overflow: clip`, so it has no way to push on either.
+   The panel chrome is `styles/overlay.css`; what is below is placement inside
+   the anchor box, and the list contents. */
+
+/* Placement inside the anchor box. Below the `lg` tier every sheet simply
+   fills the stage, because there is no room to put one beside the felt and a
+   sheet that covers three-quarters of it is worse than one that covers it. */
+.rp[data-tier="lg"] .rp-ov--log .ov__panel {
+  /* Beside the felt, on the flank the transport's Log button is on. */
+  margin-inline-start: auto;
+  inline-size: min(22rem, 48%);
 }
 
-.replay__body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 216px;
+.rp[data-tier="lg"] .rp-ov--result .ov__panel {
+  /* Along the bottom, against the transport: the board and the winning seat
+     are what the reader is looking at, and they are above it. */
+  margin-block-start: auto;
+  block-size: fit-content;
+  max-block-size: min(70%, 17rem);
 }
 
-.replay__body--solo {
-  grid-template-columns: minmax(0, 1fr);
+.rp[data-tier="lg"] .rp-ov--info .ov__panel,
+.rp[data-tier="lg"] .rp-ov--settings .ov__panel,
+.rp[data-tier="lg"] .rp-ov--keys .ov__panel {
+  margin: auto;
+  inline-size: min(26rem, 80%);
+  block-size: fit-content;
+  max-block-size: 100%;
 }
 
-.replay__stage {
-  min-width: 0;
+.rp__sheet-fee {
+  color: var(--text-tertiary);
 }
 
-/* The log sits beside the felt and must never be the thing that sets the
-   row's height — a forty-action hand would otherwise stretch the grid row
-   past the table and leave the felt floating in the middle of it. So the
-   aside itself holds nothing in flow (its contents are taken out by
-   `--inner` below): the row is sized by the stage alone, the aside stretches
-   to it, and the log ends up exactly as tall as the replayer. */
-.replay__log {
-  position: relative;
-  border-left: 1px solid var(--line-soft);
-  background: #0d1218;
-  overflow: hidden;
-}
-
-.replay__log-inner {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.replay__log-head {
-  padding: 10px 14px;
-  font-size: 10.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--fg-dim);
-  font-weight: 650;
-  border-bottom: 1px solid var(--line-soft);
-}
-
-.replay__log-list {
+.rp__sheet-list {
   list-style: none;
   margin: 0;
-  padding: 6px;
+  padding: 0.25rem;
+  min-block-size: 0;
   overflow-y: auto;
-  flex: 1;
-  min-height: 0;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
 
-.replay__log-item button {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  width: 100%;
-  text-align: left;
-  padding: 5px 9px;
+/* ---- action log */
+
+.rp__log-item button {
+  display: block;
+  inline-size: 100%;
+  text-align: start;
+  padding: 0.3125rem 0.5rem;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-2);
   background: transparent;
   cursor: pointer;
-  font-size: 12px;
-  color: var(--fg-muted);
-  transition: background 100ms ease, color 100ms ease;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
 }
 
-.replay__log-item button:hover {
-  background: var(--bg-elev-2);
-  color: var(--fg);
+.rp__log-item button:hover {
+  background: var(--surface-raised-2);
+  color: var(--text-primary);
 }
 
-.replay__log-item.is-past button {
-  color: var(--fg-dim);
+.rp__log-item.is-past button {
+  color: var(--text-tertiary);
 }
 
-.replay__log-item.is-current button {
-  background: rgb(62 166 255 / 14%);
-  color: #cfe8ff;
-  font-weight: 600;
+.rp__log-item.is-current button {
+  background: var(--accent-subtle);
+  color: var(--accent-fg);
+  font-weight: var(--font-weight-semibold);
 }
 
-.replay__log-item--award button {
-  font-weight: 650;
-  color: #d8e4f2;
+.rp__log-item--award button {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
 }
 
-.replay__log-text {
-  flex: 1;
-  min-width: 0;
+/* ---- showdown / result */
+
+.rp__result-list {
+  gap: 0.25rem;
+  padding: 0.5rem;
 }
 
-/* ------------------------------------------------------- showdown summary */
-
-.replay__showdown {
-  border-top: 1px solid var(--line-soft);
-  background: #0d1218;
-  padding: 10px 16px 12px;
-}
-
-.replay__showdown-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--fg-dim);
-  margin-bottom: 7px;
-}
-
-.replay__showdown-pot {
-  /* Not upper-cased with the rest of the header: "131BB" reads wrong. */
-  text-transform: none;
-  font-size: 11.5px;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
-}
-
-.replay__showdown-rake {
-  color: var(--fg-dim);
-  opacity: 0.75;
-}
-
-.replay__showdown-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.replay__showdown-row {
+.rp__result-row {
   display: grid;
-  grid-template-columns: minmax(110px, 200px) auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
-  padding: 5px 10px;
-  border-radius: 8px;
-  background: var(--bg);
-  border: 1px solid var(--line-soft);
-  border-left: 3px solid var(--line);
-  font-size: 12.5px;
+  gap: 0.1875rem 0.625rem;
+  padding: 0.3125rem 0.625rem;
+  border-radius: var(--radius-3);
+  background: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  border-inline-start: 3px solid var(--border-default);
+  font-size: 0.75rem;
 }
 
-.replay__showdown-row.is-winner {
-  border-left-color: var(--good);
-  background: rgb(53 196 138 / 8%);
+.rp__result-row.is-winner {
+  border-inline-start-color: var(--success-fg);
+  background: var(--success-bg);
 }
 
-.replay__showdown-who {
+.rp__result-who {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-width: 0;
+  gap: 0.375rem;
+  min-inline-size: 0;
+  grid-area: 1 / 1;
 }
 
-.replay__showdown-name {
+.rp__result-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 620;
+  font-weight: var(--font-weight-semibold);
 }
 
-.replay__showdown-desc {
-  color: var(--fg-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.replay__showdown-amount {
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  color: var(--good);
+.rp__result-cards {
+  grid-area: 1 / 2;
   justify-self: end;
 }
 
-/* ------------------------------------------------------------ control bar */
+.rp__result-desc {
+  grid-area: 2 / 1;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-.replay__controls {
+.rp__result-amount {
+  grid-area: 2 / 2;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-bold);
+  color: var(--profit-fg);
+  justify-self: end;
+}
+
+.rp__result-list .pseat__pos {
+  font-size: 0.625rem;
+  color: var(--text-primary);
+  background: var(--pos-bg-early);
+  border-color: var(--border-default);
+}
+
+/* A result row with room lays its four cells out in one line. Keyed off
+   `data-tier` on the root and not off a container query, because the sheet is
+   a top-layer `<dialog>` parented on the root: it is not inside the stage's
+   container any more, and it is not inside its box either. */
+.rp[data-tier="lg"] .rp__result-row {
+  grid-template-columns: minmax(7rem, 14rem) auto minmax(0, 1fr) auto;
+}
+
+.rp[data-tier="lg"] .rp__result-cards {
+  grid-area: auto;
+  justify-self: start;
+}
+
+.rp[data-tier="lg"] .rp__result-desc,
+.rp[data-tier="lg"] .rp__result-amount {
+  grid-area: auto;
+}
+
+/* --------------------------------------------------------------- transport */
+
+.rp__transport {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px 18px 16px;
-  border-top: 1px solid var(--line-soft);
-  background: var(--bg-elev);
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem 0.5rem;
+  border-block-start: 1px solid var(--border-subtle);
+  background: var(--surface-raised);
 }
 
-.replay__streets {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+/* The live caption — Tier 1, and the replayer's only `aria-live` region.
+   It is here rather than in a panel for one reason: a live region inside
+   something that can be closed announces nothing when it is closed, and this
+   is the most-read text in the product.
+
+   One line with a tail ellipsis, which is a different thing from #58: a
+   sentence that runs out of room still reads as a sentence. `min-block-size`
+   keeps the row from collapsing between frames, so the felt below it never
+   jumps by a line. */
+.rp__caption {
+  margin: 0;
+  min-block-size: 1.25rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.replay__scrub-wrap {
+.rp__scrub-wrap {
   position: relative;
-  padding-top: 6px;
+  display: grid;
 }
 
-.replay__ticks {
+/* Street boundaries, drawn across the rail rather than in a marker strip above
+   it. The rail is a full-height target now, so a strip pinned to the top of
+   the wrapper would sit half a target away from the thumb it is marking. */
+.rp__ticks {
   position: absolute;
-  left: 8px;
-  right: 8px;
-  top: 0;
-  height: 6px;
+  inset-inline: 0.5rem;
+  inset-block: 0;
   pointer-events: none;
 }
 
-.replay__tick {
+.rp__tick {
   position: absolute;
-  top: 0;
-  width: 2px;
-  height: 6px;
-  margin-left: -1px;
+  top: 50%;
+  inline-size: 2px;
+  block-size: 0.875rem;
+  translate: -1px -50%;
   border-radius: 1px;
-  background: var(--line);
+  background: var(--border-strong);
 }
 
-.replay__scrub {
-  width: 100%;
+/* The rail is a control you drag with a thumb, so its hit area is a full
+   target tall even though the track it paints is a few pixels. The thumb keeps
+   its natural size and centres in the box. */
+.rp__scrub {
+  display: block;
+  inline-size: 100%;
+  block-size: var(--rp-hit);
   padding: 0;
+  margin: 0;
   border: 0;
   background: transparent;
-  accent-color: var(--accent);
+  accent-color: var(--accent-bg);
   cursor: pointer;
 }
 
-.replay__scrub:focus {
+.rp__scrub:focus {
   box-shadow: none;
 }
 
-.replay__buttons {
+/* Wraps rather than clips: the transport is the one row in the replayer that
+   is allowed to get taller, because every pixel it takes comes out of the
+   stage, which is size-contained and simply redraws smaller. */
+.rp__buttons {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.375rem 0.5rem;
   flex-wrap: wrap;
+  min-inline-size: 0;
 }
 
-.replay__transport {
+.rp__playback,
+.rp__streets,
+.rp__speed,
+.rp__opts {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.25rem;
+  min-inline-size: 0;
 }
 
-.replay__speed {
-  display: flex;
-  gap: 4px;
+.rp__opts {
+  margin-inline-start: auto;
+  flex: none;
 }
 
-.replay__opts {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-left: auto;
+.rp__streets {
+  overflow: hidden;
 }
 
-/* Segmented control, currently the currency / big-blind switch. */
-.seg {
+/* Every control in the transport is at least `--rp-hit` square. The three
+   rules below only ever *raise* a size, so the visual weight of a chip is
+   unchanged and only its hit area grows. */
+.rp__transport .btn--icon,
+.rp__transport .btn--play,
+.rp__transport .chip-btn {
+  min-inline-size: var(--rp-hit);
+  min-block-size: var(--rp-hit);
+}
+
+.rp__transport .btn--icon {
+  inline-size: var(--rp-hit);
+  padding-block: 0;
+  font-size: 0.75rem;
+}
+
+.rp__transport .btn--play {
+  inline-size: var(--rp-hit);
+  block-size: var(--rp-hit);
+  padding: 0;
+  font-size: 0.8125rem;
+}
+
+.rp__transport .chip-btn {
   display: inline-flex;
-  padding: 2px;
-  gap: 2px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--bg);
+  align-items: center;
+  justify-content: center;
+  gap: 0.3125rem;
+  padding: 0.1875rem 0.625rem;
+  font-size: 0.6875rem;
 }
 
-.seg__btn {
-  min-width: 34px;
-  padding: 3px 10px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--fg-muted);
-  font-size: 11.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 120ms ease, color 120ms ease;
+/* ------------------------------------------------------------ drop ladder */
+
+/* Rungs 1, 2, 3 and 6 of #19's ladder. Keyed off `data-tier`, which
+   `ReplayViewer` derives from the replayer's own width — see `dropLadder.ts`
+   for why this is not a container query. Rung 7 is, because it measures the
+   felt rather than the chrome; it lives at the bottom of this file.
+
+   Rungs 2 and 3 fire below `lg`: the five speed chips become one button that
+   cycles, and the street names become their initials. Both are done in the
+   component, because swapping *which control exists* is not something a
+   stylesheet can do and rendering both and hiding one would put two controls
+   for the same job in the accessibility tree. */
+
+/* Rung 1: the option buttons keep their icon and their accessible name and
+   lose the visible word. */
+.rp:not([data-tier="lg"]) .rp__opt-label {
+  display: none;
 }
 
-.seg__btn:hover {
-  color: var(--fg);
+/* Rung 6: the meta strip goes to the info sheet whole. Not ellipsised, not
+   clipped — gone, with `ⓘ` in the header as the way back to it. This is #58. */
+.rp[data-tier="sm"] .rp__meta {
+  display: none;
 }
 
-.seg__btn.is-active {
-  background: rgb(62 166 255 / 18%);
-  color: #9ed4ff;
-  box-shadow: inset 0 0 0 1px rgb(62 166 255 / 45%);
+/* Below that the street chips go too: `1`-`5`, the ticks on the rail and the
+   board itself all still say which street it is, and five more targets is a
+   whole extra row of transport at 320px. */
+.rp[data-tier="sm"] .rp__streets {
+  display: none;
 }
 
-/* ------------------------------------------------- responsive: tablet */
-
-@media (max-width: 1100px) {
-  /* minmax(0, …) rather than 1fr: the table's intrinsic min-content width
-     would otherwise push the grid wider than the viewport. */
-  .replay__body {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  /* Stacked under the felt there is no stage to match, so the log gets a
-     height of its own — explicit rather than a max, because its contents are
-     absolutely positioned and would otherwise collapse the box. */
-  .replay__log {
-    border-left: 0;
-    border-top: 1px solid var(--line-soft);
-    height: 240px;
-  }
-
-  .ptable {
-    --card-base: clamp(36px, 7.6cqw, 62px);
-    --seat-w: clamp(104px, 19cqw, 168px);
-    padding: 22px 18px;
-  }
-
-  .ptable__felt {
-    --ring-x: 41%;
-    --ring-y: 36%;
-    aspect-ratio: 16 / 10.2;
-    min-height: 340px;
-    max-height: none;
-  }
+/* Seven controls at a 44px target do not fit across 320px, so rather than
+   letting flex-wrap break them wherever it runs out, the playback group takes
+   a row of its own and spreads across it. Two deliberate rows instead of one
+   row and an orphan. */
+.rp[data-tier="sm"] .rp__header {
+  padding-block: 0;
 }
 
-/* ------------------------------------------------- responsive: phone */
+.rp[data-tier="sm"] .rp__playback {
+  flex: 1 0 100%;
+  justify-content: space-between;
+}
 
-@media (max-width: 720px) {
-  /* Still one row on a phone: the meta truncates rather than wrapping, so the
-     three icons stay where they are on every screen. */
-  .replay__header {
-    gap: 10px;
-    padding: 9px 12px;
-  }
+/* ------------------------------------------------------------- seat tiers */
 
-  .replay__meta {
-    font-size: 12px;
-  }
-
-  /* Phones get the warped ring: seats are pushed away from the horizontal
-     midline so the board owns the middle band on its own. */
-  .pseat,
-  .ptable__chips {
-    --cos: var(--cos-n);
-    --sin: var(--sin-n);
-  }
-
-  .ptable {
-    /* Portrait felt: a phone has height to spare and no width, so the table
-       is turned on its side rather than shrunk. */
-    --card-base: clamp(28px, 11.4cqw, 46px);
-    --seat-w: clamp(78px, 27cqw, 124px);
-    /* Smaller type on the plates and smaller chips, so both halves of the
-       chip-spot arithmetic shrink with them. */
-    --plate-h: 36px;
-    --bet-chip-gap: 6px;
-    --bet-chip-lift: 11px;
-    padding: 12px 10px;
-  }
-
-  /* The portrait felt inverts the problem the sideways step solves. There is
-     no felt to spare beside a hand — the board is two thirds of the width and
-     neighbouring plates very nearly touch — but there is plenty above and
-     below the board. So on a phone every stack steps straight in instead and
-     stops at the edge of the middle: one row of stacks under the board and one
-     over it, each centred on the hand it belongs to.
-
-     The offset is the centre block's own half-height — the pot, its gap and a
-     card — plus half a stack. React's `--bet-sy` picks the side; a seat sitting
-     exactly on the midline has no side of its own and is sent below, where the
-     felt is emptier. It is the clearances that are zeroed rather than
-     `--bet-sx`, which is an inline style and so out of this stylesheet's
-     reach. */
-  /* Villains' hands are fanned on a phone (see below), so the sideways step
-     that is left is a shorter one than a full side-by-side pair needs. */
-  .ptable__chips {
-    --bet-clear-x: calc(var(--card-unit) * 0.55 + var(--bet-chip-gap));
-  }
-
-  .ptable__chips--nrow-end,
-  .ptable__chips--nrow-flat {
-    --bet-top: calc(50% - var(--bet-sy) * (var(--card-unit) * 0.82 + 36px));
-  }
-
-  /* An end seat's hand is directly above or below its stack, so the stack has
-     nothing to step around and is centred on it. A seat on the midline is
-     beside its stack instead and keeps the step, which also keeps it off the
-     rail: the ring is at its widest there. */
-  .ptable__chips--nrow-end {
-    --bet-clear-x: 0px;
-    --bet-tx: -50%;
-  }
-
-  .ptable__felt {
-    --ring-x: 38%;
-    --ring-y: 43%;
-    aspect-ratio: 1 / 1.34;
-    min-height: 0;
-    border-radius: 44% / 32%;
-  }
-
-  /* Seven or more players: a taller oval and smaller plates, otherwise the
-     seats either sit on each other or on the board. Full-ring on a 390px
-     screen is still the tightest layout the replayer has. */
-  .ptable[data-seats="7"],
-  .ptable[data-seats="8"],
-  .ptable[data-seats="9"],
-  .ptable[data-seats="10"] {
-    --card-base: clamp(26px, 8.8cqw, 40px);
-    --seat-w: clamp(72px, 20.5cqw, 98px);
-  }
-
-  .ptable[data-seats="7"] .ptable__felt,
-  .ptable[data-seats="8"] .ptable__felt,
-  .ptable[data-seats="9"] .ptable__felt,
-  .ptable[data-seats="10"] .ptable__felt {
-    /* Pushed out from 40%: at nine seats on a 390px screen the adjacent
-       plates were overlapping by a few pixels, which reads as a rendering
-       fault rather than a tight table. */
-    --ring-x: 43%;
-    --ring-y: 45%;
-    aspect-ratio: 1 / 1.62;
-  }
-
-  .ptable[data-seats="7"] .pseat__name,
-  .ptable[data-seats="8"] .pseat__name,
-  .ptable[data-seats="9"] .pseat__name,
-  .ptable[data-seats="10"] .pseat__name {
-    font-size: 9.5px;
-  }
-
-  /* Two smaller lines on the plate, so the seat is shorter than the default
-     phone one and the chip spots have to follow it down. */
-  .ptable[data-seats="7"],
-  .ptable[data-seats="8"],
-  .ptable[data-seats="9"],
-  .ptable[data-seats="10"] {
-    --plate-h: 33px;
-  }
-
-  .ptable[data-seats="7"] .pseat__stack,
-  .ptable[data-seats="8"] .pseat__stack,
-  .ptable[data-seats="9"] .pseat__stack,
-  .ptable[data-seats="10"] .pseat__stack {
-    font-size: 10px;
-  }
-
-  .ptable__rail {
-    inset: -9px;
-    border-radius: 44% / 32%;
-  }
-
-  .ptable__logo {
+/* Density is a property of the box, not of the device. `dense` drops the
+   decoration; `badge` drops the screen name, because at that size a seat is a
+   position and a stack and the hand is unreadable anyway. */
+@container rpfelt ((width < 32rem) or (height < 32rem)) {
+  .rp__logo {
     display: none;
   }
 
-  .ptable__center {
-    gap: 7px;
-  }
-
-  /* Villains' hole cards fan instead of sitting side by side: on a 390px felt
-     the width saved is the difference between fitting and overlapping. */
-  .pseat:not(.pseat--hero) .pseat__cards .pcard + .pcard {
-    margin-left: calc(var(--card-w) * -0.4);
-  }
-
-  .pseat__plate {
-    padding: 3px 6px 4px;
-    border-radius: 8px;
-  }
-
-  .pseat__name {
-    font-size: 10.5px;
-    gap: 3px;
-  }
-
-  .pseat__pos {
-    font-size: 8.5px;
-    line-height: 13px;
-    padding: 0 3px;
-  }
-
-  .pseat__stack {
-    font-size: 11px;
-  }
-
-  .pseat__action {
-    bottom: -16px;
-    font-size: 9.5px;
-    padding: 1px 6px;
-  }
-
-  .pseat__button {
-    width: 18px;
-    height: 18px;
-    font-size: 10px;
-    bottom: 18px;
-  }
-
   .pseat__state {
-    font-size: 8.5px;
-    padding: 1px 5px;
-  }
-
-  .chip-stack {
-    --chip-w: 15px;
-    --chip-lift: 3px;
-    gap: 4px;
-  }
-
-  .chip-stack__amount {
-    font-size: 10px;
-    padding: 0 6px;
-  }
-
-  /* Two rows: who + cards, then what they had + what it won. */
-  .replay__showdown-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    row-gap: 3px;
-    column-gap: 10px;
-  }
-
-  .replay__showdown-who {
-    grid-area: 1 / 1;
-  }
-
-  .replay__showdown-cards {
-    grid-area: 1 / 2;
-  }
-
-  .replay__showdown-desc {
-    grid-area: 2 / 1;
-    font-size: 11.5px;
-  }
-
-  .replay__showdown-amount {
-    grid-area: 2 / 2;
-  }
-
-  .replay__controls {
-    padding: 10px 12px 14px;
-  }
-
-  .replay__buttons {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .replay__transport,
-  .replay__speed,
-  .replay__opts {
-    justify-content: center;
-    margin-left: 0;
+    display: none;
   }
 }
 
-/* Landscape phones: almost no height, so the felt goes back to wide and the
-   chrome gets out of the way. */
-@media (orientation: landscape) and (max-height: 520px) {
-  .ptable__felt {
-    --ring-x: 42%;
-    --ring-y: 41%;
-    aspect-ratio: 16 / 8.4;
-    max-height: 78vh;
-    border-radius: 47% / 58%;
+@container rpfelt ((width < 22rem) or (height < 22rem)) {
+  .pseat__nick {
+    display: none;
   }
 
-  .ptable {
-    --card-base: clamp(26px, 5.4cqw, 46px);
-    --seat-w: clamp(84px, 14cqw, 130px);
-    padding: 10px 14px;
+  .pseat__name {
+    gap: 0;
   }
 
-  /* Stacked runouts are too tall for a 390px-high screen; landscape has the
-     width to put them next to each other instead. */
-  .ptable__boards--twin {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 10px;
-    --card-unit: calc(var(--card-base) * 0.88);
+  .pseat__plate {
+    padding: calc(0.3 * var(--u)) calc(0.8 * var(--u));
   }
 
-  .pseat:not(.pseat--hero) .pseat__cards .pcard + .pcard {
-    margin-left: calc(var(--card-w) * -0.35);
+  .pseat__button {
+    display: none;
   }
+}
 
-  .replay__log {
-    height: 150px;
-  }
+/* ------------------------------------------------------------- motion gate */
+
+/* The one rule the whole "only a +1 step animates" contract is enforced by.
+   `data-motion` is `"step"` when the viewer advanced by exactly one frame and
+   `"none"` for everything else — a scrub, a jump, a reverse, a fresh mount, or
+   a reader who asked for reduced motion — and `"none"` renders the destination
+   with the felt inert.
+   One blanket rule rather than an opt-out per animated thing, because the
+   per-thing version is a list that something eventually falls off. It stops at
+   the felt: the transport's hover states and the sheets' entrance are not
+   frame motion and have no business being switched off by where the scrubber
+   happens to be.
+   Chips travel under WAAPI, which a stylesheet cannot reach and does not need
+   to — a flight is only ever created on a step, and `ReplayViewer` finishes
+   any still in the air when the viewer jumps. */
+.rp[data-motion="none"] .rp__fit *,
+.rp[data-motion="none"] .rp__fit *::before,
+.rp[data-motion="none"] .rp__fit *::after {
+  animation: none !important;
+  transition: none !important;
 }
 
 /* --------------------------------------------------------- reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
-  .pcard,
-  .chip-stack,
-  .pseat__action,
-  .pseat--acting .pseat__plate,
-  .pseat--winner .pseat__plate {
-    animation: none;
+  /* Reduced motion is `data-motion="none"` permanently, so it is the rule
+     above that does the work and this is the copy that holds before React has
+     mounted. What goes is *positional* motion only: the travelling chips still
+     render and still fade at the spot they belong to, because the sweep is how
+     a reader learns whose chips went in and a pot that is simply gone from the
+     middle never says who it went to. The felt also gets a ~100ms opacity
+     crossfade per frame and 1.2x longer holds, both from `ReplayViewer` —
+     something has to acknowledge the change once the motion that used to is
+     gone, and the numbers that replace it need time to be read. */
+  .rp .rp__fit *,
+  .rp .rp__fit *::before,
+  .rp .rp__fit *::after {
+    animation: none !important;
+    transition: none !important;
   }
+}
 
-  .ptable__bet {
-    transition: none;
-  }
+/* -------------------------------------------------------------- feed card */
 
-  /* Chip travel is decoration once the numbers are already on screen. */
-  .ptable__sweep,
-  .ptable__award {
-    display: none;
-  }
+/* `ReplayCard` — the third mode, and the one that is not a replayer.
+
+   It lives in this file rather than in one of its own because its whole job is
+   to be visually continuous with the felt: the cards are `PlayingCard` and the
+   position chip is `.pseat__pos`, the same elements the table draws, so the
+   thing you tap and the thing that opens are the same object at two sizes. A
+   separate stylesheet would be a second place for that agreement to rot.
+
+   Fixed card sizes, not `--u`: a feed card is not a size container and must not
+   become one. Twenty-five of them on a page is twenty-five `container-type`
+   boxes and twenty-five ResizeObservers for a thumbnail nobody has clicked. */
+.rcard {
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  gap: 0.5rem;
+  inline-size: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  text-align: start;
+  font: inherit;
+}
+
+button.rcard {
+  cursor: pointer;
+  transition: border-color var(--dur-2) var(--ease-standard),
+    background var(--dur-2) var(--ease-standard);
+}
+
+button.rcard:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
+.rcard__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-inline-size: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.rcard__stakes {
+  font-weight: var(--font-weight-bold);
+  color: var(--money-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.rcard__seats {
+  margin-inline-start: auto;
+  flex: none;
+}
+
+.rcard__hand,
+.rcard__cards,
+.rcard__board {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* The board keeps five slots at every street, so a column of cards does not
+   shuffle vertically as you scroll past a preflop fold and a river showdown. */
+.rcard__board-slot {
+  inline-size: 22px;
+  block-size: calc(22px * 1.42);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 3px;
+}
+
+.rcard__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Present but empty when spoilers are off, so the play glyph does not move
+   between a card that shows a pot and one that does not. */
+.rcard__pot {
+  font-variant-numeric: tabular-nums;
+  min-block-size: 1rem;
+}
+
+.rcard__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
+  font-size: 0.6875rem;
 }

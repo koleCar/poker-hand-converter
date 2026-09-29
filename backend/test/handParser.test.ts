@@ -4,7 +4,14 @@ import { describe, expect, it } from "vitest";
 
 import { handClass, parseHandClassQuery, resolveHeroQuery } from "../../frontend/src/lib/cards";
 import { convertCashWeplayFile } from "../../frontend/src/lib/converter";
-import { parseHand, splitHands } from "../../frontend/src/lib/handParser";
+import { parseHand, splitHands } from "../../frontend/src/lib/phf/index.js";
+import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
+import {
+  heroOf,
+  houseIntoPot,
+  primaryBoard,
+  toDisplayNumber,
+} from "../../frontend/src/lib/phf/types.js";
 import { buildReplay } from "../../frontend/src/lib/replay";
 
 const GG_DIR = join(import.meta.dirname, "../../gg-hh");
@@ -46,41 +53,50 @@ Total pot $3 | Rake $0.15 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0
 Board [Tc 4h Ad]
 Seat 6: fb779d10 won ($2.85)`;
 
+/** Total a player put in, net of uncalled returns, in minor units. */
+function contributed(hand: PhfHand, player: string): number {
+  return hand.results.players.find((entry) => entry.player === player)?.contributed ?? 0;
+}
+
 describe("parseHand", () => {
   it("reads the header, seats and board", () => {
     const hand = parseHand(SIMPLE_HAND)!;
     expect(hand).not.toBeNull();
-    expect(hand.handId).toBe("HD2735958902");
-    expect(hand.smallBlind).toBe(0.25);
-    expect(hand.bigBlind).toBe(0.5);
-    expect(hand.tableName).toBe("NLHPurple70");
-    expect(hand.maxSeats).toBe(6);
-    expect(hand.buttonSeat).toBe(1);
-    expect(hand.seats).toHaveLength(6);
-    expect(hand.board).toEqual(["Tc", "4h", "Ad"]);
-    expect(hand.heroName).toBe("Hero");
-    expect(hand.seats.find((seat) => seat.isHero)?.cards).toEqual(["5s", "8c"]);
+    expect(hand.meta.handId).toBe("HD2735958902");
+    // Minor units throughout: 25 cents and 50 cents, never 0.25 and 0.5.
+    expect(hand.game.smallBlind).toBe(25);
+    expect(hand.game.bigBlind).toBe(50);
+    expect(hand.game.unit.code).toBe("USD");
+    expect(hand.table.name).toBe("NLHPurple70");
+    expect(hand.table.maxSeats).toBe(6);
+    expect(hand.table.buttonSeat).toBe(1);
+    expect(hand.players).toHaveLength(6);
+    expect(primaryBoard(hand)).toEqual(["Tc", "4h", "Ad"]);
+    expect(heroOf(hand)?.name).toBe("Hero");
+    expect(heroOf(hand)?.holeCards).toEqual(["5s", "8c"]);
     expect(hand.playedAt).toBe("2026-02-17T05:56:01.000Z");
   });
 
   it("nets the uncalled bet out of the raiser's investment", () => {
     const hand = parseHand(SIMPLE_HAND)!;
-    // 1 preflop + 1.5 bet - 1.5 returned = 1
-    expect(hand.invested["fb779d10"]).toBe(1);
-    expect(hand.invested["da2a0a00"]).toBe(1);
-    expect(hand.invested["41ff0a42"]).toBe(1);
-    expect(hand.winners).toEqual([{ player: "fb779d10", amount: 2.85 }]);
+    // $1 preflop + $1.50 bet - $1.50 returned = $1, exactly, in cents.
+    expect(contributed(hand, "fb779d10")).toBe(100);
+    expect(contributed(hand, "da2a0a00")).toBe(100);
+    expect(contributed(hand, "41ff0a42")).toBe(100);
+    expect(hand.results.winners).toEqual([
+      { player: "fb779d10", seat: 6, amount: 285, runoutIndex: 0 },
+    ]);
   });
 
   it("computes hero profit as collected minus invested", () => {
     const hand = parseHand(SIMPLE_HAND)!;
-    expect(hand.heroProfit).toBe(0);
+    expect(hand.results.heroNet).toBe(0);
   });
 
   it("does not count a fold-out as a showdown", () => {
     const hand = parseHand(SIMPLE_HAND)!;
-    expect(hand.wentToShowdown).toBe(false);
-    expect(hand.streetReached).toBe("flop");
+    expect(hand.results.wentToShowdown).toBe(false);
+    expect(hand.results.streetReached).toBe("flop");
   });
 
   it("returns null for text that is not a hand history", () => {
@@ -104,7 +120,7 @@ describe("real GG fixtures", () => {
         failures.push(chunk.split("\n")[0]);
         continue;
       }
-      unknown.push(...hand.warnings);
+      unknown.push(...hand.meta.warnings.map((warning) => warning.code));
     }
     expect(failures).toEqual([]);
     expect(unknown).toEqual([]);
@@ -114,9 +130,12 @@ describe("real GG fixtures", () => {
     const mismatches: string[] = [];
     for (const chunk of hands) {
       const hand = parseHand(chunk)!;
-      const invested = Object.values(hand.invested).reduce((sum, value) => sum + value, 0);
-      if (Math.abs(invested - hand.totalPot) > 0.011) {
-        mismatches.push(`${hand.handId}: invested ${invested} vs pot ${hand.totalPot}`);
+      // Integers, so this is an exact equality rather than a float tolerance.
+      const invested = hand.results.players.reduce((sum, entry) => sum + entry.contributed, 0);
+      if (invested + houseIntoPot(hand) !== hand.results.totalPot) {
+        mismatches.push(
+          `${hand.meta.handId}: invested ${invested} vs pot ${hand.results.totalPot}`,
+        );
       }
     }
     expect(mismatches).toEqual([]);
@@ -129,7 +148,7 @@ describe("real GG fixtures", () => {
       for (const frame of buildReplay(hand)) {
         for (const seat of frame.seats) {
           if (seat.stack < -0.005) {
-            problems.push(`${hand.handId} ${seat.name} ${seat.stack}`);
+            problems.push(`${hand.meta.handId} ${seat.name} ${seat.stack}`);
           }
         }
       }
@@ -137,23 +156,28 @@ describe("real GG fixtures", () => {
     expect(problems.slice(0, 5)).toEqual([]);
   });
 
-  it("awards the whole pot in the final replay frame", () => {
+  it("awards the whole pot across the replay's award frames", () => {
     const problems: string[] = [];
     for (const chunk of hands) {
       const hand = parseHand(chunk)!;
-      if (hand.winners.length === 0) {
+      if (hand.results.winners.length === 0) {
         continue;
       }
       const frames = buildReplay(hand);
       const final = frames[frames.length - 1];
       expect(final.kind).toBe("award");
       if (final.pot !== 0) {
-        problems.push(`${hand.handId} leftover pot ${final.pot}`);
+        problems.push(`${hand.meta.handId} leftover pot ${final.pot}`);
       }
+      // Side pots are paid one frame each, so the seats' running totals only
+      // add up once the last award frame has landed.
       const totalWon = final.seats.reduce((sum, seat) => sum + seat.winAmount, 0);
-      const expected = hand.winners.reduce((sum, winner) => sum + winner.amount, 0);
+      const expected = hand.results.winners.reduce(
+        (sum, winner) => sum + toDisplayNumber(winner.amount, hand.game.unit),
+        0,
+      );
       if (Math.abs(totalWon - expected) > 0.011) {
-        problems.push(`${hand.handId} awarded ${totalWon} vs ${expected}`);
+        problems.push(`${hand.meta.handId} awarded ${totalWon} vs ${expected}`);
       }
     }
     expect(problems.slice(0, 5)).toEqual([]);
@@ -163,7 +187,7 @@ describe("real GG fixtures", () => {
     for (const chunk of hands) {
       const hand = parseHand(chunk)!;
       const frames = buildReplay(hand);
-      expect(frames[frames.length - 1].board).toEqual(hand.board);
+      expect(frames[frames.length - 1].board).toEqual(primaryBoard(hand));
     }
   });
 });
@@ -191,7 +215,7 @@ describe("weplay -> gg -> replay pipeline", () => {
           continue;
         }
         totalHands += 1;
-        unknown.push(...hand.warnings);
+        unknown.push(...hand.meta.warnings.map((warning) => warning.code));
         // The replay must not throw and must end on an award frame.
         const frames = buildReplay(hand);
         expect(frames[frames.length - 1].kind).toBe("award");

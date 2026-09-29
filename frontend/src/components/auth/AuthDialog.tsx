@@ -19,8 +19,11 @@
  *    only real difference is what a wrong password means.
  */
 
+"use client";
+
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAuth } from "../../lib/auth";
+import { Turnstile } from "./Turnstile";
 
 type Mode = "sign-in" | "sign-up" | "reset";
 
@@ -44,17 +47,33 @@ export function AuthDialog() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
   const emailRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const open = auth.signInOpen && auth.configured;
 
+  // Every opening starts clean. Adjusted during render (React's documented
+  // pattern for "reset state when a prop changes") rather than in the effect
+  // below, which re-runs on every mode change.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) {
+      setError(null);
+      setNotice(null);
+    }
+  }
+
   useEffect(() => {
     if (!open) {
       return;
     }
-    setError(null);
-    setNotice(null);
+    // Messages are cleared by `switchMode`, not here. Clearing on every mode
+    // change also wiped the one message that is *meant* to survive one: after
+    // a sign-up that needs confirming, the dialog flips to sign-in and says
+    // "check your inbox" — which this effect used to erase in the same tick.
     emailRef.current?.focus();
 
     function onKey(event: KeyboardEvent) {
@@ -70,30 +89,46 @@ export function AuthDialog() {
     return null;
   }
 
+  function switchMode(next: Mode) {
+    setError(null);
+    setNotice(null);
+    setMode(next);
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    if (auth.captchaEnabled && !captchaToken) {
+      setError("Complete the robot check first.");
+      return;
+    }
+    const token = captchaToken ?? undefined;
     setBusy(true);
     setError(null);
     setNotice(null);
     try {
       if (mode === "sign-in") {
-        await auth.signIn(email, password);
+        await auth.signIn(email, password, token);
         // No success state to set: the provider's auth subscription closes the
         // dialog as soon as the session lands.
       } else if (mode === "sign-up") {
-        const outcome = await auth.signUp(email, password);
+        const outcome = await auth.signUp(email, password, token);
         if (outcome.kind === "confirm-email") {
           setNotice(`Check ${outcome.email} for a confirmation link, then sign in.`);
           setMode("sign-in");
         }
       } else {
-        await auth.sendPasswordReset(email);
+        await auth.sendPasswordReset(email, token);
         setNotice(`If ${email.trim()} has an account, a reset link is on its way.`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "That did not work. Try again.");
     } finally {
       setBusy(false);
+      // Spent either way: GoTrue consumes a token on the first request that
+      // carries it, successful or not.
+      if (auth.captchaEnabled) {
+        setCaptchaReset((value) => value + 1);
+      }
     }
   }
 
@@ -188,6 +223,10 @@ export function AuthDialog() {
             </label>
           ) : null}
 
+          {auth.captchaEnabled ? (
+            <Turnstile onToken={setCaptchaToken} resetSignal={captchaReset} />
+          ) : null}
+
           {error ? (
             <p className="notice notice--error" role="alert">
               {error}
@@ -207,15 +246,15 @@ export function AuthDialog() {
         <div className="authdlg__switch">
           {mode === "sign-in" ? (
             <>
-              <button type="button" className="linkish" onClick={() => setMode("sign-up")}>
+              <button type="button" className="linkish" onClick={() => switchMode("sign-up")}>
                 Create an account
               </button>
-              <button type="button" className="linkish" onClick={() => setMode("reset")}>
+              <button type="button" className="linkish" onClick={() => switchMode("reset")}>
                 Forgot your password?
               </button>
             </>
           ) : (
-            <button type="button" className="linkish" onClick={() => setMode("sign-in")}>
+            <button type="button" className="linkish" onClick={() => switchMode("sign-in")}>
               ← Back to sign in
             </button>
           )}

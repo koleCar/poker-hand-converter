@@ -156,6 +156,11 @@ export function handInsertFromPhf(hand: PhfHand, standardText: string): HandInse
 
   return {
     hand_key: handKeyOf(hand),
+    // The **entire** document, `meta.rawText` and all. That is correct for the
+    // owner's own library — re-converting a hand after a parser fix needs the
+    // source — but it means `phf` is not publishable as-is. Every path that
+    // hands a hand to someone who does not own it must redact it first; in SQL
+    // that is `public.phf_redact_private()`.
     phf: hand,
     standard_text: standardText,
     source_text: hand.meta.rawText || null,
@@ -277,6 +282,21 @@ export function toHandSummary(row: Row): HandSummary {
   };
 }
 
+/**
+ * A full `hands` row, for the account that owns it.
+ *
+ * **Owner-only.** This mapper is deliberately not used on the share path. It
+ * reads `source_text` — the verbatim site text, with every opponent's screen
+ * name — and it takes `phf` unredacted, whose `meta.rawText` is the same text
+ * again. Its only caller is `getHand()`, which RLS scopes to `auth.uid()`.
+ *
+ * Share resolution builds a `ResolvedShare` from the `read_share` projection
+ * instead (`shares.ts`). It used to call this function on a whole-row `hand`
+ * key, which is exactly how the raw text and the owner's user id reached anyone
+ * holding a slug. If you find yourself wanting `toHandRecord` for a payload
+ * that leaves the owner's account, the projection is missing a field — widen
+ * the projection, do not widen this.
+ */
 export function toHandRecord(row: Row): HandRecord {
   return {
     ...toHandSummary(row),

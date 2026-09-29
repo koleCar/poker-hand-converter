@@ -1,0 +1,565 @@
+/* Statistics screen: the HUD grid and the win-rate graph.
+ *
+ * Mobile first, like `converter.css`. The base rules describe a single column
+ * of cards on a phone; the media queries add the multi-column tile grid and the
+ * side-by-side headline a wide screen can afford.
+ *
+ * Everything is prefixed `stats-` and only extends the shared primitives from
+ * `App.css` (`.card`, `.btn`, `.notice`, `.muted`) — never redefines them.
+ *
+ * ## The chart palette
+ *
+ * Three series, and the assignment is deliberate rather than decorative:
+ *
+ *   total          --text-primary   ink
+ *   showdown       --loss-fg        red
+ *   non-showdown   --accent-fg      blue
+ *
+ * The **total line is ink, not a fourth hue**, because it is not a fourth
+ * category — it is the sum of the other two, so painting it as a peer would
+ * claim a relationship that is not there. It is also what makes the palette
+ * colour-blind safe: the only two hues left are red and blue, which separate at
+ * ΔE 24.6 under protanopia and 35.7 under tritanopia (measured, not judged).
+ * The obvious alternative, PokerTracker's green total, would have put red
+ * against green — ΔE 7.4 under deuteranopia, inside the band that is only legal
+ * with a second encoding channel.
+ *
+ * **Red for showdown and blue for non-showdown is PokerTracker's convention**,
+ * and it is worth inheriting: it is the pairing every player who has read a
+ * graph before already knows. The red is `--loss-fg` because that token exists
+ * precisely so a chart can use a signed-number red without dragging every error
+ * toast along with it (see the note on `--profit-fg` / `--loss-fg` in
+ * `tokens/semantic.css`); here it means "showdown", not "bad", and the legend
+ * is always on screen saying so.
+ *
+ * All four resolve through semantic tokens, so the light theme re-points them
+ * with everything else and the chart never needs a second palette.
+ */
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.stats__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stats__head h2 {
+  font-size: var(--font-size-3xl);
+}
+
+.stats__sample {
+  font-size: var(--font-size-sm);
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-empty {
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.stats-empty h3 {
+  font-size: var(--font-size-xl);
+}
+
+.stats-empty p {
+  margin: 0;
+  max-width: 70ch;
+}
+
+.stats-empty code {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  background: var(--surface-inset);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-2);
+  padding: 1px 5px;
+}
+
+.stats-hud {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ------------------------------------------------------------- headline */
+
+.stats-headline {
+  gap: 16px;
+}
+
+.stats-headline__main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stats-headline__label {
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+/* The one hero figure on the screen. Proportional figures on purpose: at this
+   size `tabular-nums` gives every digit the width of a zero and the number
+   reads loose. Tabular is for the columns further down. */
+.stats-headline__value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.stats-headline__value.is-up {
+  color: var(--profit-fg);
+}
+
+.stats-headline__value.is-down {
+  color: var(--loss-fg);
+}
+
+/* A win rate under the sample floor is still the best estimate there is, so it
+   is shown — but it is not a fact yet, and the eye should know that before it
+   reads the digits. */
+.stats-headline__value.is-provisional {
+  opacity: 0.72;
+}
+
+.stats-headline__unit {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--fg-muted);
+  letter-spacing: var(--letter-spacing-normal);
+}
+
+.stats-headline__note {
+  margin: 2px 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--fg-muted);
+  max-width: 62ch;
+}
+
+.stats-headline__refusal {
+  margin: 0;
+}
+
+.stats-headline__side {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.stats-headline__side dt {
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.stats-headline__side dd {
+  margin: 2px 0 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 720px) {
+  .stats-headline {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+    align-items: start;
+  }
+
+  .stats-headline__refusal {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ------------------------------------------------------------ the tiles */
+
+.stats-group {
+  gap: 12px;
+}
+
+.stats-group h3 {
+  font-size: var(--font-size-xl);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(146px, 1fr));
+  gap: 10px;
+}
+
+.stats-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px 11px;
+  background: var(--surface-inset);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+}
+
+.stats-tile__label {
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.stats-tile__value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-tile__sample {
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-tile__margin {
+  color: var(--fg-muted);
+}
+
+.stats-tile__hint {
+  margin-top: 3px;
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  line-height: var(--line-height-snug);
+}
+
+/* The width of the doubt, not a progress bar: a short fill is the good case.
+   The track is a lighter step of the same idea so the bar reads as a range
+   rather than as an amount. */
+.stats-tile__band {
+  display: block;
+  margin-top: 5px;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--control-track);
+  overflow: hidden;
+}
+
+.stats-tile__band-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--fg-dim);
+}
+
+/* Three bands, loudest where the number is least trustworthy. A "noise" tile
+   keeps its digits — you asked for them — but stops competing for attention
+   with the ones that mean something. */
+.stats-tile--firm .stats-tile__band-fill {
+  background: var(--accent-fg);
+}
+
+.stats-tile--loose .stats-tile__value {
+  opacity: 0.88;
+}
+
+.stats-tile--loose .stats-tile__band-fill {
+  background: var(--warning-fg);
+}
+
+.stats-tile--noise .stats-tile__value {
+  opacity: 0.6;
+  font-weight: var(--font-weight-semibold);
+}
+
+.stats-tile--noise .stats-tile__band-fill {
+  background: var(--danger-fg);
+}
+
+.stats-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 0;
+  padding-top: 2px;
+}
+
+.stats-inline dt {
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.stats-inline dd {
+  margin: 2px 0 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- the chart */
+
+.stats-chart {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats-chart__svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+/* Recessive by construction: hairline, solid, one step off the surface. A
+   dashed gridline competes with a dashed series and neither wins. */
+.stats-chart__grid {
+  stroke: var(--line-soft);
+  stroke-width: 1;
+}
+
+/* Zero is not a gridline — it is the only value on this chart that means
+   something on its own, so it gets the everyday border weight. */
+.stats-chart__zero {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.stats-chart__tick {
+  fill: var(--fg-dim);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-chart__tick--y {
+  text-anchor: end;
+}
+
+.stats-chart__tick--x {
+  text-anchor: middle;
+}
+
+.stats-chart__line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.stats-chart__line--total {
+  stroke: var(--text-primary);
+}
+
+.stats-chart__line--showdown {
+  stroke: var(--loss-fg);
+}
+
+.stats-chart__line--nonShowdown {
+  stroke: var(--accent-fg);
+}
+
+/* A 2px ring in the surface colour, so two endpoints landing on top of each
+   other stay two endpoints. Never a border — that would add ink that is not
+   data. */
+.stats-chart__dot {
+  stroke: var(--surface-raised);
+  stroke-width: 2;
+}
+
+.stats-chart__dot--total {
+  fill: var(--text-primary);
+}
+
+.stats-chart__dot--showdown {
+  fill: var(--loss-fg);
+}
+
+.stats-chart__dot--nonShowdown {
+  fill: var(--accent-fg);
+}
+
+.stats-chart__crosshair {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.stats-chart__hit {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.stats-chart__axis-label {
+  margin: -6px 0 0;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.stats-chart__tooltip {
+  position: absolute;
+  top: 8px;
+  z-index: 2;
+  min-width: 190px;
+  padding: 9px 11px;
+  background: var(--surface-overlay);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-1);
+  font-size: var(--font-size-sm);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stats-chart__tooltip dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stats-chart__tooltip dl > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stats-chart__tooltip dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fg-muted);
+}
+
+.stats-chart__tooltip dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* The line-key. Identity lives on a coloured mark beside the text, never on
+   the text itself — a light hue is illegible as type on either surface. */
+.stats-key {
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  flex: none;
+}
+
+.stats-key--total {
+  background: var(--text-primary);
+}
+
+.stats-key--showdown {
+  background: var(--loss-fg);
+}
+
+.stats-key--nonShowdown {
+  background: var(--accent-fg);
+}
+
+.stats-key--allInEv {
+  background: repeating-linear-gradient(
+    to right,
+    var(--fg-dim) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+/* The legend is always present for two or more series, and it carries each
+   series' end value — which is what direct end-labels would have said, and
+   which, on three lines that converge at the right edge, they would have said
+   on top of each other. */
+.stats-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 6px 16px;
+}
+
+.stats-legend li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+}
+
+.stats-legend li.is-pending {
+  opacity: 0.6;
+}
+
+.stats-legend__label {
+  font-weight: var(--font-weight-medium);
+}
+
+.stats-legend__value {
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-muted);
+}
+
+.stats-legend__hint {
+  grid-column: 2 / -1;
+  font-size: var(--font-size-xs);
+  color: var(--fg-dim);
+}
+
+.stats-chart__table summary {
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--text-link);
+}
+
+.stats-chart__table table {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-chart__table th,
+.stats-chart__table td {
+  padding: 4px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.stats-chart__table th {
+  color: var(--fg-dim);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  font-size: var(--font-size-2xs);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+/* Forced colours strip every hue, which is exactly the case the legend and the
+   table view exist for. Give the marks back a system colour so the chart is a
+   chart rather than three identical lines. */
+@media (forced-colors: active) {
+  .stats-chart__line,
+  .stats-key {
+    forced-color-adjust: none;
+  }
+}

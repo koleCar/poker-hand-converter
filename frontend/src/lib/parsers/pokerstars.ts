@@ -12,7 +12,12 @@
  */
 
 import { extractCards } from "../cards";
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   CHIPS,
   DEFAULT_TEXT_STYLE,
@@ -42,8 +47,24 @@ import {
   variantFromLabel,
   type DraftGame,
 } from "./shared/ps-gg-hand";
+import { HOLDEM_OMAHA, unsupportedVariantSkip } from "./shared/variant-lock";
 
 export const POKERSTARS_PARSER_VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * Four hold-only `Omaha Pot Limit` files are in the corpus - a run-it-twice
+ * side pot, a heads-up table, a $0.05/$0.10 cash game and a Zoom table with a
+ * dual-timestamp header - plus one cancelled hand, and all of them come out
+ * clean. PokerStars also spreads `5 Card Omaha` and `6 Card Omaha`, but there
+ * is no sample of either here, so neither is on the list.
+ *
+ * Razz, badugi and seven-card stud are in the corpus and stay refused, as does
+ * every `Omaha Hi/Lo` file - those are caught one step earlier, by
+ * `unsupportedGameSkip`, so they keep their own reason code.
+ */
+const POKERSTARS_VARIANTS = HOLDEM_OMAHA;
 
 /**
  * Every header shape PokerStars ships.
@@ -298,11 +319,17 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
     throw new ParseSkip("normalized-unparseable", "The hand has no PokerStars header line.");
   }
 
-  if (header.game.variant !== "holdem") {
-    throw new ParseSkip(
-      "unsupported-variant",
-      `${header.game.label} is not supported yet; the hand is kept for a future parser.`,
-    );
+  // Hi/Lo first, so the refusal keeps naming the real reason once the Hold'em
+  // lock lifts. `Omaha Hi/Lo Pot Limit` is plain `omaha` to `variantFromLabel`
+  // by design - the deal is identical - and a split pot read as a whole one
+  // balances against itself, so this is the only place it can be caught.
+  const hiLoRefusal = unsupportedGameSkip(header.game.label);
+  if (hiLoRefusal) {
+    throw hiLoRefusal;
+  }
+  const variantRefusal = unsupportedVariantSkip(header.game.label, POKERSTARS_VARIANTS);
+  if (variantRefusal) {
+    throw variantRefusal;
   }
   // PokerStars' experimental Hold'em spin-offs read as ordinary Hold'em in the
   // header but change the deal: Fusion hands out extra hole cards on the flop

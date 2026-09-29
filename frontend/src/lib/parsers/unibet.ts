@@ -46,7 +46,12 @@
  */
 
 import { extractCards } from "../cards";
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import { parseStandardHand } from "../phf/serialize";
 import {
   chipsUnitFor,
@@ -76,8 +81,22 @@ import {
   refuseLossyText,
   strictAmount,
 } from "./shared/p4-textroom";
+import {
+  canonicalGameLabel,
+  unsupportedVariantSkip,
+  variantOf,
+} from "./shared/variant-lock";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * One file, `03-cash-plo-2026-two-hands-anonymised.txt`: two `Pot Limit Omaha`
+ * hands on the 2026 grammar, both clean. The 2021 grammar has no Omaha sample,
+ * and Unibet's Banzai pools and five-card tables have none either.
+ */
+const UNIBET_VARIANTS = ["holdem", "omaha"] as const;
 
 /* ----------------------------------------------------------------- headers - */
 
@@ -267,11 +286,11 @@ export const unibetParser: SiteParser = {
     if (!header) {
       throw new ParseSkip("no-header", "The chunk does not open with a Unibet header line.");
     }
-    if (!/hold\s*'?\s*em/i.test(header.variantWord)) {
-      throw new ParseSkip(
-        "unsupported-variant",
-        `Round one is Hold'em only; this hand is "${header.variantWord.trim()}".`,
-      );
+    const refusal =
+      unsupportedGameSkip(header.variantWord) ??
+      unsupportedVariantSkip(header.variantWord, UNIBET_VARIANTS);
+    if (refusal) {
+      throw refusal;
     }
     if (ctx.options.cashOnly && header.tournament) {
       throw new ParseSkip("tournament-in-cash-mode", "Tournament hand skipped.");
@@ -527,7 +546,7 @@ export const unibetParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "UB-",
       handId: header.handId,
-      gameLabel: canonicalLabel(header.limit),
+      gameLabel: canonicalGameLabel(variantOf(header.variantWord), header.limit),
       unit,
       decimals: "fixed2",
       headerSmallBlind: headerBlind(header.smallBlind, unit, "the header small blind"),
@@ -944,13 +963,6 @@ function fastFoldOf(gameLabel: string): string | null {
 }
 
 /** Unibet writes `No Limit Hold'Em`; trackers expect the GG wording. */
-function canonicalLabel(limit: "nl" | "pl" | "fl"): string {
-  if (limit === "pl") {
-    return "Hold'em Pot Limit";
-  }
-  return limit === "fl" ? "Hold'em Limit" : "Hold'em No Limit";
-}
-
 /** The 2021 header states no table size; the 2026 one does. */
 function fallbackMaxSeats(seats: DraftSeat[]): number {
   const highest = Math.max(seats.length, ...seats.map((seat) => seat.seat));

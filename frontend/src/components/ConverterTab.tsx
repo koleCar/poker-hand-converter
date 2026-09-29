@@ -30,7 +30,10 @@
  * preview, download and the replayer hand-off never touch Supabase.
  */
 
+"use client";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../lib/auth";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
@@ -39,13 +42,14 @@ import {
   saveHands,
 } from "../lib/db";
 import { getParser, getParsers } from "../lib/phf";
+import { paths } from "../lib/routes";
 import type { PhfHand } from "../lib/phf/types";
 import { DropZone } from "./converter/DropZone";
 import { FailurePanel } from "./converter/FailurePanel";
 import { HandPreview } from "./converter/HandPreview";
 import { ResultsPanel } from "./converter/ResultsPanel";
 import { startConversion, type ConversionJob } from "./converter/conversionClient";
-import { openHandInReplayer } from "./converter/handoff";
+import { parkHandForReplayer } from "./converter/handoff";
 import { formatCount, loadFile, sourceFromText, type LoadedSource } from "./converter/inputs";
 import type { PipelineBatch, PipelineSource } from "./converter/pipeline";
 import { IDLE_SAVE, type SaveState, type SourceResult } from "./converter/types";
@@ -71,9 +75,9 @@ interface ConverterTabProps {
   /**
    * Overrides how a hand is opened in the replayer.
    *
-   * The default parks the hand in `sessionStorage` and navigates to `/replay`
-   * (see `converter/handoff.ts`). Pass this once the shell can hand a loaded
-   * hand to the replayer directly.
+   * The default parks the hand in `sessionStorage` and navigates to
+   * `/library` (see `converter/handoff.ts`). Pass this once the shell can hand
+   * a loaded hand to the replayer directly.
    */
   onOpenHand?: (hand: PhfHand, standardText: string) => void;
 }
@@ -115,6 +119,7 @@ interface HeldSave {
 }
 
 export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
+  const router = useRouter();
   const [sources, setSources] = useState<SourceResult[]>([]);
   const [reading, setReading] = useState(false);
   const [converting, setConverting] = useState(false);
@@ -159,9 +164,12 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
         onOpenHand(hand, standardText ?? "");
         return;
       }
-      openHandInReplayer(hand, standardText);
+      // Park first, then navigate: `ReplayerTab` consumes the key on mount, so
+      // the hand has to be there before the route changes.
+      parkHandForReplayer(hand, standardText);
+      router.push(paths.library());
     },
-    [onOpenHand],
+    [onOpenHand, router],
   );
 
   /* ------------------------------------------------------------- saving - */

@@ -193,13 +193,42 @@ describe("GGPoker corpus", () => {
     // than the semantic comparison the other rooms get. Holdem Manager import
     // is byte sensitive and this is what protects it.
     //
+    // ONE ACCEPTED DIFFERENCE: `all-in insurance`.
+    //
+    // The two insurance lines are a side bet settled with GG outside the pot.
+    // The parser deliberately does not turn them into actions - doing so would
+    // put one product's money into another product's arithmetic - and records
+    // each as an `all-in-insurance` warning instead, so the standard text comes
+    // back without them. The pot, the stacks and the results are unaffected,
+    // and no tracker reads the lines anyway.
+    //
+    // It surfaced here only when the Omaha lock lifted: the corpus's single
+    // real insurance hand is a PLO hand, and the Hold'em test for the same
+    // behaviour further down is built from a synthetic hand that never round
+    // trips. The exception is written as "the diff is exactly the insurance
+    // lines" rather than "skip this hand", so it cannot quietly grow.
     const problems: string[] = [];
     for (const entry of PARSED) {
       if (!entry.hand) {
         continue;
       }
-      if (toStandardText(entry.hand).trim() !== entry.raw.trim()) {
+      const expected = entry.raw
+        .trim()
+        .split("\n")
+        .filter((line) => !/: (?:get an all-in insurance|pay premium of all-in insurance)\b/.test(line))
+        .join("\n");
+      if (toStandardText(entry.hand).trim() !== expected) {
         problems.push(entry.hand.meta.handId);
+      }
+      const insuranceLines = entry.raw
+        .trim()
+        .split("\n")
+        .filter((line) => /all-in insurance/.test(line)).length;
+      const insuranceWarnings = entry.hand.meta.warnings.filter(
+        (warning) => warning.code === "all-in-insurance",
+      ).length;
+      if (insuranceLines !== insuranceWarnings) {
+        problems.push(`${entry.hand.meta.handId}: insurance line dropped without a warning`);
       }
     }
     expect(problems.slice(0, 5)).toEqual([]);
@@ -281,7 +310,12 @@ describe("GGPoker corpus", () => {
     const tournaments = PARSED.filter((entry) => entry.hand?.tournament);
     expect(tournaments.length).toBeGreaterThan(50);
     for (const entry of tournaments) {
-      expect(entry.hand!.game.label).toMatch(/Hold'em/);
+      // The label is the tail of the header and is a closed vocabulary; the
+      // point of the assertion is that none of the tournament *name* leaked
+      // into it. Omaha is in the vocabulary now that the variant lock lists it.
+      expect(entry.hand!.game.label, entry.hand!.meta.handId).toMatch(
+        /^(?:Hold'em|Omaha|PLO)/,
+      );
       expect(entry.hand!.tournament!.id).toMatch(/^\d+$/);
     }
 
@@ -301,13 +335,17 @@ describe("GGPoker corpus", () => {
     // The two readers now agree on every hand they both accept, so parsing
     // alone is no longer the reason GG uploads route here. The reason is what
     // happens to the hands this parser *refuses*: the generic reader has no
-    // variant policy, so on the exact same bytes it emits ShortDeck and Omaha
-    // hands that validate cleanly and would be stored as if they were
-    // supported. Round one is Hold'em only, and a wrong hand is worse than a
-    // refused one, so detection has to keep sending GG text to the parser that
-    // says no.
+    // variant policy, so on the exact same bytes it emits ShortDeck hands that
+    // validate cleanly and would be stored as if they were supported. A wrong
+    // hand is worse than a refused one, so detection has to keep sending GG
+    // text to the parser that says no.
+    //
+    // Omaha used to make up the bulk of this set and no longer does: it is on
+    // the parser's allowlist, proven by fifteen files of its own. What is left
+    // is short deck, which is a different game rather than a longer deal, plus
+    // the two straddles whose amount the shared reader would mis-commit.
     let bothAccept = 0;
-    let weRefuseTheyDont = 0;
+    const weRefuseTheyDont: string[] = [];
     for (const entry of PARSED) {
       const standard = parseStandardHand(entry.raw, {
         siteId: "standard",
@@ -319,13 +357,16 @@ describe("GGPoker corpus", () => {
         continue;
       }
       if (entry.skip && standard && validateHand(standard).ok) {
-        weRefuseTheyDont += 1;
-        expect(entry.skip.reason).toBe("unsupported-variant");
-        expect(standard.game.variant).not.toBe("holdem");
+        weRefuseTheyDont.push(entry.skip.reason);
+        expect(standard.game.variant, entry.raw.split("\n")[0]).not.toBe("holdem");
       }
     }
     expect(bothAccept).toBeGreaterThan(400);
-    expect(weRefuseTheyDont).toBeGreaterThan(100);
+    // Every one of these is a hand the generic reader would have stored.
+    expect(weRefuseTheyDont.length).toBeGreaterThanOrEqual(2);
+    for (const reason of weRefuseTheyDont) {
+      expect(["unsupported-variant", "unsupported-format"]).toContain(reason);
+    }
   });
 
   it("replays every hand without a negative stack and pays the pot out", () => {
@@ -871,18 +912,39 @@ describe("GGPoker shapes the reference corpus does not contain", () => {
 });
 
 describe("GGPoker refusals", () => {
-  it("refuses Omaha, Short Deck and anything else that is not Hold'em", () => {
-    const omaha = [
-      "Poker Hand #OM2600000009: Omaha Pot Limit ($0.25/$0.5) - 2026/03/01 10:00:00",
-      "Table 'PLOBlue1' 6-max Seat #1 is the button",
+  it("refuses six-card Omaha, which is on no list until a fixture exists", () => {
+    // The allowlist is per variant, not per family. GG genuinely spreads PLO-6
+    // and the shared label reader recognises the word, but nothing in this
+    // repository has ever shown this parser a six-card deal block, so the label
+    // alone is an assumption rather than evidence. Four- and five-card Omaha
+    // are on the list because fifteen files of their own put them there.
+    const plo6 = [
+      "Poker Hand #OM2600000009: PLO-6 ($0.25/$0.5) - 2026/03/01 10:00:00",
+      "Table 'PLO6Blue1' 6-max Seat #1 is the button",
       "Seat 1: aaaaaaaa ($50 in chips)",
       "Seat 2: bbbbbbbb ($50 in chips)",
     ].join("\n");
-    expect(() => ggpokerParser.parseHand(omaha, CTX)).toThrow(/not supported/);
     try {
-      ggpokerParser.parseHand(omaha, CTX);
+      ggpokerParser.parseHand(plo6, CTX);
+      throw new Error("six-card Omaha was converted");
     } catch (error) {
       expect((error as ParseSkip).reason).toBe("unsupported-variant");
+      expect((error as ParseSkip).message).toContain("six-card Omaha");
+    }
+  });
+
+  it("refuses a hi/lo hand on its own terms, not as an unreadable variant", () => {
+    const hiLo = [
+      "Poker Hand #OM2600000010: Omaha Hi/Lo Pot Limit ($0.25/$0.5) - 2026/03/01 10:00:00",
+      "Table 'PLO8Blue1' 6-max Seat #1 is the button",
+      "Seat 1: aaaaaaaa ($50 in chips)",
+      "Seat 2: bbbbbbbb ($50 in chips)",
+    ].join("\n");
+    try {
+      ggpokerParser.parseHand(hiLo, CTX);
+      throw new Error("a split-pot hand was converted");
+    } catch (error) {
+      expect((error as ParseSkip).reason).toBe("unsupported-hi-lo");
     }
   });
 

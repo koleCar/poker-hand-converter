@@ -1,0 +1,749 @@
+/* The shared component base: layout, cards, buttons, notices, tables.
+ *
+ * Was `src/App.css`, next to the `App.tsx` the Next.js move deleted. Same 735
+ * lines, same cascade position — the root layout imports it last of the global
+ * sheets, so these `.btn` / `.card` families stay the base that `converter.css`,
+ * `stats.css` and the rest override.
+ *
+ * Cards, chips and the replayer live in their own files so this sheet stays
+ * small. @import keeps their cascade position deterministic. */
+@import "./cards.css";
+@import "./replayer.css";
+
+/* ---------------------------------------------------------------- layout */
+
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  width: min(1420px, 100%);
+  margin: 0 auto;
+  padding: 24px 24px 72px;
+  flex: 1;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ------------------------------------------------------------------ card */
+
+.card {
+  background: linear-gradient(180deg, var(--surface-raised), var(--surface-raised-fade));
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card--flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.card__head p {
+  margin-top: 3px;
+  max-width: 70ch;
+}
+
+.card__head-actions,
+.card__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.muted {
+  color: var(--fg-muted);
+  font-size: 12.5px;
+}
+
+/* --------------------------------------------------------------- buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  /* `.btn` is worn by `<a>` as often as by `<button>` — every call to action in
+     the app is a link with this class on it. The share page and the shell bar
+     each used to kill the underline in their own sheet, which left any new
+     surface (the feed placeholder, the 404) with underlined buttons until
+     somebody noticed. It belongs on the class that claims to look like a
+     button. */
+  text-decoration: none;
+  padding: 8px 15px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--bg-elev-2);
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: linear-gradient(180deg, var(--accent-bg), var(--accent-bg-active));
+  border-color: transparent;
+  color: var(--text-on-accent);
+  font-weight: 650;
+}
+
+/* Hover lightens the fill in the dark theme and darkens it in the light one —
+   both are `--accent-bg-hover`, which is what the token is for. */
+.btn--primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, var(--accent-bg-hover), var(--accent-bg));
+  border-color: transparent;
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--fg-muted);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  color: var(--fg);
+  background: var(--bg-elev-2);
+}
+
+.btn--sm {
+  padding: 5px 11px;
+  font-size: 12px;
+}
+
+.btn--icon {
+  width: 38px;
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+.btn--play {
+  width: 48px;
+  height: 38px;
+  font-size: 14px;
+  background: linear-gradient(180deg, var(--accent-bg), var(--accent-bg-active));
+  border-color: transparent;
+  color: var(--text-on-accent);
+}
+
+.chip-btn {
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev-2);
+  font-size: 11.5px;
+  font-weight: 550;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: all 120ms ease;
+  white-space: nowrap;
+}
+
+.chip-btn:hover {
+  color: var(--fg);
+  border-color: var(--border-hover);
+}
+
+.chip-btn.is-active {
+  background: color-mix(in srgb, var(--accent-fg) 15%, transparent);
+  border-color: var(--accent-border);
+  color: var(--accent-on-subtle);
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--fg-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  padding: 0;
+}
+
+.switch.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* -------------------------------------------------------------- dropzone */
+
+.dropzone {
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius);
+  padding: 34px 20px;
+  text-align: center;
+  cursor: pointer;
+  background:
+    radial-gradient(420px 160px at 50% 0%, color-mix(in srgb, var(--accent-fg) 6%, transparent), transparent 70%),
+    var(--bg);
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.dropzone:hover,
+.dropzone.is-dragging {
+  border-color: var(--accent);
+  background:
+    radial-gradient(420px 180px at 50% 0%, color-mix(in srgb, var(--accent-fg) 12%, transparent), transparent 70%),
+    var(--bg);
+}
+
+.dropzone__icon {
+  font-size: 26px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.dropzone__title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.dropzone__hint {
+  font-size: 12.5px;
+  color: var(--fg-dim);
+}
+
+.file-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.file-chips li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 11px;
+  font-size: 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: var(--bg-elev-2);
+  max-width: 340px;
+}
+
+.file-chips li > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- notices */
+
+.notice {
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 12.5px;
+  border: 1px solid;
+}
+
+.notice--error {
+  color: var(--danger-on-tint);
+  background: color-mix(in srgb, var(--danger-fg) 10%, transparent);
+  border-color: color-mix(in srgb, var(--danger-fg) 35%, transparent);
+}
+
+.notice--warn {
+  color: var(--warning-on-tint);
+  background: color-mix(in srgb, var(--warning-fg) 10%, transparent);
+  border-color: color-mix(in srgb, var(--warning-fg) 32%, transparent);
+}
+
+.notice--info {
+  color: var(--info-on-tint);
+  background: color-mix(in srgb, var(--info-fg) 10%, transparent);
+  border-color: color-mix(in srgb, var(--info-fg) 32%, transparent);
+}
+
+/* ----------------------------------------------------------------- stats */
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.stat {
+  background: var(--bg);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat__value {
+  font-size: 22px;
+  font-weight: 680;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat__label {
+  font-size: 11px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat--good .stat__value {
+  color: var(--good);
+}
+
+.stat--warn .stat__value {
+  color: var(--warn);
+}
+
+.stat--bad .stat__value {
+  color: var(--bad);
+}
+
+/* --------------------------------------------------------------- results */
+
+.result-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 11px 13px;
+  border: 1px solid var(--line-soft);
+  border-left: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.result.is-ok {
+  border-left-color: var(--good);
+}
+
+.result.is-bad {
+  border-left-color: var(--bad);
+}
+
+.result__main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.result__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.result__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.warning-log {
+  grid-column: 1 / -1;
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  max-height: 220px;
+  overflow: auto;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11.5px;
+  color: var(--fg-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.dot--ok {
+  background: var(--good);
+}
+
+.dot--bad {
+  background: var(--bad);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 550;
+  background: var(--bg-elev-2);
+  border: 1px solid var(--line-soft);
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+.tag--good {
+  color: var(--success-on-tint);
+  background: color-mix(in srgb, var(--success-fg) 12%, transparent);
+  border-color: color-mix(in srgb, var(--success-fg) 30%, transparent);
+}
+
+.tag--warn {
+  color: var(--warning-on-tint);
+  background: color-mix(in srgb, var(--warning-fg) 12%, transparent);
+  border-color: color-mix(in srgb, var(--warning-fg) 30%, transparent);
+}
+
+.tag--bad {
+  color: var(--danger-on-tint);
+  background: color-mix(in srgb, var(--danger-fg) 12%, transparent);
+  border-color: color-mix(in srgb, var(--danger-fg) 30%, transparent);
+}
+
+.tag--sd {
+  color: var(--info-on-tint);
+  background: color-mix(in srgb, var(--info-fg) 12%, transparent);
+  border-color: color-mix(in srgb, var(--info-fg) 30%, transparent);
+}
+
+/* Rooms that do not publish player names. Quiet on purpose: it is a property
+   of the room, not a problem with the hand. */
+.tag--anon {
+  color: var(--anon-fg);
+  background: var(--anon-bg);
+  border-color: var(--anon-border);
+}
+
+/* --------------------------------------------------------------- filters */
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+}
+
+.filters__row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.filters__row--advanced {
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.filters__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-top: 19px;
+}
+
+.filters__quick {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+/* Position filters. Ten chips wrap onto two rows at 390px and stay on one
+   from about 640px up, which is why they are a wrapping row rather than a
+   select: on an anonymized room this is the primary way to find a hand. */
+.filters__positions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+.filters__positions legend {
+  padding: 0;
+  margin-bottom: 2px;
+}
+
+.filters__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip-btn--pos {
+  min-width: 46px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.chip-btn--clear {
+  margin-left: 4px;
+  color: var(--fg-dim);
+}
+
+.filters__note {
+  margin: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 150px;
+}
+
+.field--grow {
+  flex: 1 1 260px;
+}
+
+.field--narrow {
+  min-width: 118px;
+}
+
+.field__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-dim);
+  font-weight: 600;
+}
+
+.field__hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  min-height: 18px;
+}
+
+/* ------------------------------------------------------------- hand list */
+
+.empty {
+  padding: 34px 20px;
+  text-align: center;
+  color: var(--fg-dim);
+  font-size: 13px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.hand-table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.hand-table__head,
+.hand-table__row {
+  display: grid;
+  grid-template-columns: 150px 120px minmax(190px, 1fr) 140px 90px 100px auto;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 13px;
+}
+
+.hand-table__head {
+  background: var(--bg-elev-2);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-dim);
+  font-weight: 650;
+}
+
+.hand-table__row {
+  border-top: 1px solid var(--line-soft);
+  background: var(--bg);
+  cursor: pointer;
+  font-size: 12.5px;
+  transition: background 110ms ease;
+  /* Whole row rather than per cell: the date, the blinds and the total pot all
+     want columnar digits, and the pot cell has no class of its own to hang it
+     on. Safe to widen this far because tnum only touches digit advance widths —
+     the table name and position tag are unaffected. Deliberately not global:
+     tnum is worse in running prose, where proportional digits set better. */
+  font-variant-numeric: tabular-nums;
+}
+
+.hand-table__row:hover {
+  background: var(--surface-raised);
+}
+
+.hand-table__row.is-active {
+  background: color-mix(in srgb, var(--accent-fg) 10%, transparent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.hand-table__time,
+.hand-table__table {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+
+.hand-table__time small,
+.hand-table__table small {
+  color: var(--fg-dim);
+  font-size: 10.5px;
+}
+
+.hand-table__class {
+  margin-left: 7px;
+  color: var(--fg-dim);
+  font-size: 10.5px;
+}
+
+.hand-table__pos {
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--bg-elev-2);
+  color: var(--fg-muted);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.hand-table__actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.profit {
+  font-variant-numeric: tabular-nums;
+  font-weight: 620;
+}
+
+.profit--win {
+  color: var(--good);
+}
+
+.profit--loss {
+  color: var(--bad);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  /* "Page 9 of 12" -> "Page 10 of 12" must not shove the two buttons sideways. */
+  font-variant-numeric: tabular-nums;
+}
+
+.paste {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.paste textarea {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+/* ----------------------------------------------------------- responsive */
+
+@media (max-width: 1100px) {
+  .hand-table__head,
+  .hand-table__row {
+    grid-template-columns: 120px 100px minmax(150px, 1fr) 90px 80px auto;
+  }
+
+  .hand-table__head > span:nth-child(4),
+  .hand-table__row > span:nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .content {
+    padding: 16px 12px 56px;
+  }
+
+  .hand-table__head,
+  .hand-table__row {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 6px;
+  }
+
+  .hand-table__head {
+    display: none;
+  }
+}

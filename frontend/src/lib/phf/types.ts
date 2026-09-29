@@ -407,6 +407,10 @@ export const STREET_ORDER: Street[] = ["preflop", "flop", "turn", "river", "show
  * Game variants. Round one only ships a Hold'em parser, but the type system has
  * to be able to *express* the others so adding a PLO parser later is a new file
  * rather than a schema migration.
+ *
+ * **`Variant` describes the deal, not the pot-award rule.** There is deliberately
+ * no `omaha-hilo` member here; see `PhfGame.hiLo` for why the split-pot rule is
+ * a flag instead.
  */
 export type Variant =
   | "holdem"
@@ -447,6 +451,64 @@ export function holeCardCount(variant: Variant): number | null {
     default:
       return null;
   }
+}
+
+/**
+ * Reads a `Variant` out of the game label a room prints in its header.
+ *
+ * One implementation, used by both the site parsers and `parseStandardText`.
+ * It used to be two - a fuller copy in `parsers/shared/ps-gg-hand.ts` and a
+ * thinner one in `phf/serialize.ts` - and they disagreed: the thin copy read
+ * `PLO-5` as plain `omaha`, so a five-card hand parsed as `omaha5` by the site
+ * parser came back as `omaha` after a text round trip. Nothing compared the two
+ * because every PLO hand was refused before it got that far. Two readers of one
+ * grammar is the bug; there is now one.
+ *
+ * Note what this does *not* do: `Omaha Hi/Lo` returns `omaha`, because hi/lo is
+ * the same deal with a different pot-award rule. `isHiLoLabel` answers that
+ * half, and `PhfGame.hiLo` carries it.
+ */
+export function variantFromLabel(label: string): Variant {
+  // GG names the big-O variants `PLO`, `PLO-5`, `PLO-6`; the suffix is the
+  // number of hole cards, so it has to be read before the generic Omaha test.
+  if (/6\s*card\s*omaha|omaha\s*6|\bPLO-?6\b/i.test(label)) return "omaha6";
+  if (/5\s*card\s*omaha|omaha\s*5|\bPLO-?5\b/i.test(label)) return "omaha5";
+  if (/omaha|omahl|\bPLO\b|\bNLO\b/i.test(label)) return "omaha";
+  if (/short\s*deck|6\+/i.test(label)) return "shortdeck";
+  if (/\brazz\b/i.test(label)) return "razz";
+  if (/\bstud\b/i.test(label)) return "stud";
+  if (/\bdraw\b|badugi/i.test(label)) return "draw";
+  if (/hold\s*'?em/i.test(label)) return "holdem";
+  return "other";
+}
+
+/**
+ * Every spelling of "high-low split" seen in the sample corpus.
+ *
+ * Deliberately generous. A false positive costs one refused hand, which the
+ * user sees and can report; a false negative silently books half a split pot as
+ * a whole one and poisons every statistic computed over it afterwards. The
+ * refusal principle says the bias runs one way.
+ *
+ * Spellings the corpus actually contains: PokerStars `Omaha Hi/Lo Pot Limit`
+ * and `7 Card Stud Hi/Lo Limit`, partypoker `PL Omaha Hi-Lo`, Entraction
+ * `Omaha Hi/Lo Fixed Limit`, Microgaming `Omaha H/L`, Bovada `OMAHA HiLo`,
+ * ACR `Omaha HiLow`, Boss Media `GAME_OMAHL`, plus the `O8` / `PLO8` /
+ * `Omaha/8` / `8 or better` family the American rooms use.
+ *
+ * Only ever fed a game *label*, never a whole hand: a table called "HILO 7" is
+ * not a statement about the game, and this must not read it as one.
+ */
+export function isHiLoLabel(label: string): boolean {
+  return (
+    /\bhi[\s/._-]?lo(?:w)?\b/i.test(label) ||
+    /\bh\s?\/\s?l\b/i.test(label) ||
+    /omahl/i.test(label) ||
+    /\b(?:PL|NL|FL)?O-?8\b/i.test(label) ||
+    /\bomaha[\s/-]*8\b/i.test(label) ||
+    /\bstud[\s/-]*8\b/i.test(label) ||
+    /\b(?:8|eight)[\s-]*or[\s-]*better\b/i.test(label)
+  );
 }
 
 /**
@@ -672,6 +734,41 @@ export interface PhfBombPot {
 export interface PhfGame {
   variant: Variant;
   limit: LimitType;
+  /**
+   * High-low split: half the pot goes to the lowest qualifying hand.
+   *
+   * **Why a flag and not `omaha-hilo` in `Variant`.** Hi/Lo changes who is paid,
+   * not what is dealt. `omaha` and `omaha-hilo` deal the same four cards onto
+   * the same five-card board; the only difference is the award rule. Modelling
+   * it as a variant would put two independent facts in one field, and the field
+   * is the one everything dispatches on:
+   *
+   *  - `holeCardCount()` is a `switch` over `Variant`. Every hi/lo twin would
+   *    have to be added to it, and a forgotten twin returns `null`, which
+   *    *disables* the cardinality check rather than failing it. A silent
+   *    weakening of a guard is the worst shape a bug can take here.
+   *  - The union would have to double: `omaha-hilo`, `omaha5-hilo`,
+   *    `stud-hilo`, and whatever comes next. The flag is one bit no matter how
+   *    many deals learn it.
+   *  - `public.hands.variant` is free text with an equality filter
+   *    (`h.variant = $8` in `filter_hands`). A new member does not fail loudly
+   *    there; it just means the existing "Omaha" filter quietly stops matching
+   *    hi/lo hands, and nothing enumerates the variants to remind anyone. With
+   *    a flag, `variant = 'omaha'` keeps meaning "dealt like Omaha" and the
+   *    split is an extra predicate when a query wants one.
+   *  - Statistics want it both ways - "my PLO winrate" usually includes hi/lo,
+   *    "my low-half frequency" is meaningless without it. Orthogonal facts in
+   *    orthogonal fields is the only shape that answers both.
+   *  - The text serializer stores `label` verbatim and re-derives both facts
+   *    from it, so the flag costs nothing to round trip.
+   *
+   * Hi/Lo is **not supported yet**. Nothing in this codebase splits a low half,
+   * and a hi/lo hand read as plain Omaha still balances against itself - the
+   * summary states who got what - so `validateHand` cannot catch it. Until real
+   * support lands, every hand with this flag set is refused; see
+   * `unsupportedGameSkip` in `phf/detect.ts`.
+   */
+  hiLo: boolean;
   format: GameFormat;
   /** Unit for every `Amount` in this hand outside the tournament buy-in. */
   unit: CurrencyUnit;
