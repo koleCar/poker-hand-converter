@@ -78,6 +78,8 @@ function describe(error: AuthFailure): string {
       return "That does not look like a valid email address.";
     case "provider_disabled":
       return GOOGLE_DISABLED_MESSAGE;
+    case "captcha_failed":
+      return "The robot check did not go through. Complete it again and retry.";
   }
   if (/unsupported provider|provider is not enabled/i.test(error.message)) {
     return GOOGLE_DISABLED_MESSAGE;
@@ -100,17 +102,33 @@ export async function getSession(): Promise<Session | null> {
   return data.session;
 }
 
-export async function signInWithPassword(email: string, password: string): Promise<void> {
-  const { error } = await client().auth.signInWithPassword({ email: email.trim(), password });
+/**
+ * `captchaToken` is required by GoTrue once Attack Protection is on, and
+ * ignored while it is off. See `components/auth/Turnstile.tsx`.
+ */
+export async function signInWithPassword(
+  email: string,
+  password: string,
+  captchaToken?: string,
+): Promise<void> {
+  const { error } = await client().auth.signInWithPassword({
+    email: email.trim(),
+    password,
+    options: captchaToken ? { captchaToken } : undefined,
+  });
   fail(error);
 }
 
-export async function signUpWithPassword(email: string, password: string): Promise<SignUpOutcome> {
+export async function signUpWithPassword(
+  email: string,
+  password: string,
+  captchaToken?: string,
+): Promise<SignUpOutcome> {
   const trimmed = email.trim();
   const { data, error } = await client().auth.signUp({
     email: trimmed,
     password,
-    options: { emailRedirectTo: redirectUrl() },
+    options: { emailRedirectTo: redirectUrl(), ...(captchaToken ? { captchaToken } : {}) },
   });
   fail(error);
   // `session` is present when the project auto-confirms signups, absent when it
@@ -131,9 +149,27 @@ export async function signInWithGoogle(): Promise<void> {
   fail(error);
 }
 
-export async function sendPasswordReset(email: string): Promise<void> {
+export async function sendPasswordReset(email: string, captchaToken?: string): Promise<void> {
   const { error } = await client().auth.resetPasswordForEmail(email.trim(), {
     redirectTo: redirectUrl(),
+    ...(captchaToken ? { captchaToken } : {}),
+  });
+  fail(error);
+}
+
+/**
+ * Sends the signup confirmation link again.
+ *
+ * Confirmation gates the first *post*, not sign-in (see `posting_block_reason`
+ * in `20261007090000_forum_identity.sql`), so an account can be signed in and
+ * still unconfirmed — and the original email is the thing most likely to have
+ * been lost by then.
+ */
+export async function resendConfirmation(email: string, captchaToken?: string): Promise<void> {
+  const { error } = await client().auth.resend({
+    type: "signup",
+    email: email.trim(),
+    options: { emailRedirectTo: redirectUrl(), ...(captchaToken ? { captchaToken } : {}) },
   });
   fail(error);
 }

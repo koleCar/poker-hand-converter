@@ -25,6 +25,13 @@ export const paths = {
   library: () => "/library",
   stats: () => "/stats",
   sharedHand: (slug: string) => `/h/${encodeURIComponent(slug)}`,
+  /**
+   * A public profile. Every top-level segment here is also a row in
+   * `username_reservations` (seeded by `20261007090000_forum_identity.sql`), so
+   * a new top-level route belongs in that seed in the same change.
+   */
+  profile: (username: string) => `/u/${encodeURIComponent(username)}`,
+  settings: () => "/settings",
 } as const;
 
 /**

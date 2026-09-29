@@ -47,6 +47,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { SessionImport } from "../components/auth/SessionImport";
 import { AuthProvider } from "../lib/auth/AuthProvider";
+import { ProfileProvider } from "../lib/profile/ProfileProvider";
 import { toAuthUser } from "../lib/auth/user";
 import { en } from "../lib/i18n/en";
 import { SITE_URL } from "../lib/routes";
@@ -142,7 +143,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               session is the same on every screen, and re-subscribing to
               `onAuthStateChange` per navigation would drop and recreate the
               listener for no reason. */}
-          <AuthProvider initialUser={initialUser}>{children}</AuthProvider>
+          <AuthProvider initialUser={initialUser}>
+            {/* Inside the session, because a profile is a function of it. A
+                database without the identity migration leaves this empty and
+                sign-in untouched — see ProfileProvider. */}
+            <ProfileProvider>{children}</ProfileProvider>
+          </AuthProvider>
         </div>
       </body>
     </html>

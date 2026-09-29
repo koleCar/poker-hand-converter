@@ -146,6 +146,68 @@ export const en = {
   auth: {
     callbackFailed: "That sign-in link did not work. Ask for a new one and try again.",
   },
+
+  account: {
+    menuProfile: "Your profile",
+    menuSettings: "Settings",
+  },
+
+  profile: {
+    metaTitle: (username: string) => `${username} | Rail`,
+    metaDescription: (username: string) => `${username} on Rail — poker hands, replayed and discussed.`,
+    joined: (date: string) => `Joined ${date}`,
+    karma: (count: number) => `${count.toLocaleString("en-GB")} karma`,
+    yours: "This is your profile.",
+    editCta: "Change username",
+    emptyHeading: "Nothing posted yet",
+    emptyBody: "Hands this player publishes will be listed here.",
+    unavailable: {
+      heading: "Profiles are unavailable right now",
+      body: "This deployment has no database configured, so profiles cannot be shown.",
+    },
+    homeCta: "Go to Rail",
+  },
+
+  settings: {
+    metaTitle: "Settings | Rail",
+    metaDescription: "Your Rail username and account.",
+    heading: "Settings",
+    signedOut: "Sign in to change your username and account settings.",
+    signInCta: "Sign in",
+    loading: "Loading your account…",
+    unavailable:
+      "Account settings are not set up on this database yet. Everything else keeps working.",
+    loadFailed: "Your account could not be loaded. Reload the page to try again.",
+
+    username: {
+      heading: "Username",
+      label: "Username",
+      hint: "3–24 characters: letters, numbers and underscores. It is your public name and your profile address.",
+      provisional:
+        "You are on the name you were given at signup. Choose your own — the first change is free.",
+      rules:
+        "You can change it once every 30 days. Your old name stays reserved for you for a year, and links to it keep working.",
+      nextChange: (date: string) => `Your next change is possible on ${date}.`,
+      save: "Save username",
+      saving: "Saving…",
+      saved: (username: string) => `Saved. You are now ${username}.`,
+      unchanged: "That is already your username.",
+      tooShort: "Usernames are at least 3 characters.",
+      tooLong: "Usernames are at most 24 characters.",
+      badCharacters: "Usernames can use only letters, numbers and underscores.",
+      badStart: "Usernames start with a letter or a number.",
+      viewProfile: "View your profile",
+    },
+
+    posting: {
+      heading: "Posting",
+      ok: "Your account can post.",
+      blocked: "Your account cannot post yet.",
+      resend: "Resend the confirmation email",
+      resending: "Sending…",
+      resent: (email: string) => `A new confirmation link is on its way to ${email}.`,
+    },
+  },
 } as const;
 
 export type Strings = typeof en;

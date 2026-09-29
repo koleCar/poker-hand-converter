@@ -77,6 +77,16 @@ export {
 export { createShare, resolveShare } from "./shares";
 
 export {
+  fetchMyProfile,
+  setUsername,
+  usernameErrorMessage,
+  USERNAME_PATTERN,
+  type MyProfile,
+  type ProfileRole,
+  type UsernameChange,
+} from "./profiles";
+
+export {
   anonymizationNote,
   detectAnonymization,
   hasUsablePlayerNames,

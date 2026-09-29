@@ -31,6 +31,10 @@ const ALLOWED: ReadonlySet<string> = new Set([
   paths.convert(),
   paths.library(),
   paths.stats(),
+  // The one place a new account is sent to pick a name, and the page that
+  // offers "resend the confirmation email" — so the link in that email has to
+  // be able to come back here.
+  paths.settings(),
 ]);
 
 /**
@@ -40,7 +44,7 @@ const ALLOWED: ReadonlySet<string> = new Set([
  * input: an unrecognised value lands on `/` rather than producing an error the
  * caller has to handle on the one code path where a mistake is expensive.
  *
- * `/h/:slug` is deliberately absent. A share link is a capability URL for a
+ * `/h/:slug` and `/u/:username` are deliberately absent. A share link is a capability URL for a
  * stranger; nobody signs in *in order to* arrive at one, and admitting a
  * parameterised path here would mean parsing, which is the thing this avoids.
  */

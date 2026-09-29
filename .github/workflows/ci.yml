@@ -82,6 +82,29 @@ jobs:
         run: npm run build
         working-directory: frontend
 
+  database:
+    name: Migrations and pgTAP
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # A migration that returns 201 proves the SQL ran, not that the grants,
+      # the definer functions and the reservation rules do what they claim
+      # (docs/DATABASE.md, "Do not trust a 201"). This applies every migration
+      # in order to a throwaway Postgres -- the same image Supabase runs -- and
+      # then runs `supabase/tests/**`, which act as `anon` and `authenticated`
+      # for real rather than as a superuser. No secrets: nothing here talks to
+      # the live project.
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.75.0
+
+      - name: Start Postgres and apply every migration
+        run: supabase db start
+
+      - name: pgTAP
+        run: supabase test db
+
   fixtures:
     name: Fixture bytes unchanged
     runs-on: ubuntu-latest

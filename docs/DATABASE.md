@@ -10,6 +10,10 @@ The schema is defined by four migrations:
 | `20260916210000_position_search_and_anonymization.sql` | Adds `site_anonymization` and the position search columns. |
 | `20260922130000_user_accounts_and_ownership.sql` | Adds accounts: `hands.owner_id`, owner-scoped RLS, per-library dedupe, `shares.owner_id`, `unparsed_hands.submitted_by`. |
 | `20261003090000_share_projection.sql` | Splits `resolve_share` into `read_share` + `record_share_view` and stops the share payload from being a whole `hands` row. See [Share resolution](#share-resolution-read_share--record_share_view). |
+| `20261007090000_forum_identity.sql` | Profiles, usernames, reservations, roles and posting gates (F6, #28 / #29). See [Identity](#identity-profiles-usernames-and-gates). |
+
+Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
+`hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
 
 The client layer that talks to them is `frontend/src/lib/db/`. Nothing else in
 the app touches Supabase.
@@ -19,6 +23,7 @@ the app touches Supabase.
 - [Tables](#tables)
 - [Player identity and anonymized rooms](#player-identity-and-anonymized-rooms)
 - [Functions (RPCs)](#functions-rpcs)
+- [Identity: profiles, usernames and gates](#identity-profiles-usernames-and-gates)
 - [RLS policies and grants](#rls-policies-and-grants)
 - [Indexes and the queries they serve](#indexes-and-the-queries-they-serve)
 - [Applying a migration](#applying-a-migration)
@@ -40,7 +45,7 @@ There are exactly three kinds of caller:
 
 | Caller | What they are | What they can reach |
 | --- | --- | --- |
-| **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)` and nothing else. No grant on `hands`, no write anywhere except that one view counter. |
+| **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view and `resolve_username(name)`. No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
 | **`authenticated`** | Signed in, identified by `auth.uid()` | Their own hands, their own shares, their own corpus samples. Nobody else's, by any query. |
 | **`service_role`** | Us, from the dashboard or the Management API | Everything. Triage, cleanup, backfills. |
 
@@ -156,6 +161,88 @@ why:
 | `phf_redact_private` | invoker | Pure jsonb→jsonb, no table access. Not granted to clients; it is an internal of `read_share`. |
 | `enforce_rate_limit` | **definer** | The counter table is unreachable from anon. Not granted to clients. |
 | `hands_rate_limit` (trigger) | **definer** | Has to call `enforce_rate_limit`, which anon cannot execute. |
+
+---
+
+## Identity: profiles, usernames and gates
+
+`20261007090000_forum_identity.sql`. Everything the forum does later — author
+lines, `/u/[name]`, vote weighting, moderation — hangs off this, so it shipped
+before anything depends on it. The SQL headers carry the full reasoning; this is
+the map.
+
+### Doors
+
+`profiles` is **sealed**: RLS on, no policies, no grants — not even SELECT on
+your own row, because a self-select policy would hand an account its own
+`is_shadowbanned` flag. So there are exactly these ways in:
+
+| Door | Who | What it gives |
+| --- | --- | --- |
+| `profiles_public` (view) | `anon`, `authenticated` | `id`, `username`, `username_lower`, `karma`, `joined_on` (a **date**, not the signup timestamp). Owner-run, not `security_invoker`, so **the column list is the security boundary** — adding a column is a privacy decision. The Supabase advisor flags it as `security_definer_view`; that is the intent. |
+| `my_profile()` | `authenticated` | The caller's own row as a named projection, plus `postingBlockReason`. Omits `is_shadowbanned` and `unsubscribe_token`. |
+| `set_username(name)` | `authenticated` | The only client-caused write to `profiles`. |
+| `resolve_username(name)` | `anon`, `authenticated` | "What is this name called now": `{username, redirect}` or `null`. Never returns an id, a reason or an expiry. |
+
+### Username rules
+
+| Rule | Where |
+| --- | --- |
+| `^[A-Za-z0-9][A-Za-z0-9_]{2,23}$` — every wider character class is a homoglyph surface, and the name is a URL | `profiles_username_shape` CHECK, mirrored by `username_shape_problem()` for the sentence |
+| Case-insensitive uniqueness | unique index on the generated `username_lower` — never a pre-flight `exists`, which races |
+| Provisional `user_<8 base-36>` at signup, from a CSPRNG, **never from the email** | `handle_new_user()` trigger on `auth.users` |
+| `user_…` cannot be chosen | `username_shape_problem()` |
+| Once per 30 days; a capitalisation-only change is free; the provisional name does not count | `set_username()` |
+| Old name reserved **for the same account** for a year; `/u/<old>` redirects for that year; the owner can take it back | `username_reservations` + `set_username()` + `resolve_username()` |
+| Route segments and staff-sounding names reserved for nobody | seeded into `username_reservations` — **a new top-level route belongs in that seed** |
+| Slurs, matched after folding `_` and `0 1 3 4 5 7` → `o i e a s t`; short terms that are innocent fragments match `exact` only | `username_blocked_terms` — data, extended by the service role |
+| A deleted account's name is reserved for nobody for a year | `profiles_reserve_on_delete` trigger |
+
+`set_username()` has no rate limit, deliberately: every refusal is a raise, a
+raise rolls back the counter increment with it, and whether a name is taken is
+public through the view anyway.
+
+### Gates and roles
+
+| Function | Security | Granted to | Answers |
+| --- | --- | --- | --- |
+| `posting_block_reason(uid)` | definer (reads `auth.users.email_confirmed_at`) | **nobody** — it takes a uid, which would make it an oracle | `NULL`, or the sentence: banned (with until-date), email unconfirmed, account under 10 minutes old. A shadowban is **not** a reason. |
+| `vote_weight(uid)` | definer | **nobody** — its answer reveals a shadowban | `0` under 24 h, banned, shadowbanned or **negative** karma; else `1`. |
+| `is_moderator()` | definer — **must** be: an invoker function read from a policy on `profiles` recurses forever | `anon`, `authenticated` | Caller only; no argument. |
+| `is_board_moderator(board)` | definer, same reason | `anon`, `authenticated` | Caller only. |
+
+`vote_weight` says **negative** karma where #29 said "zero": every account starts
+at zero and karma comes from weighted votes, so a zero rule would mean no vote
+ever weighs anything. The function comment has the full argument, and the note
+for #32 to add "has contributed" once posts exist.
+
+Roles are a column read per call, **not a JWT claim**: a claim is frozen until
+the token refreshes, so an emergency de-modding would take up to an hour.
+Policies call them as `(select public.is_moderator())` for one InitPlan per
+statement.
+
+`board_moderators.board_id` has no foreign key yet; `public.boards` arrives with
+#32, and that migration adds it.
+
+### What still has to happen outside the repo
+
+* **Email confirmation.** The gate reads `email_confirmed_at`, which is always
+  set while the live project has `mailer_autoconfirm = true`. Turning it off
+  needs real SMTP first (the built-in mailer only delivers to the project's team
+  members), then `mailer_autoconfirm = false` **and**
+  `mailer_allow_unverified_email_sign_ins = true` together, so confirmation gates
+  the first post rather than sign-in.
+* **Turnstile.** A Cloudflare site key in `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and
+  the matching secret under Authentication → Attack Protection, switched on
+  together — either one alone locks people out or protects nothing.
+
+### Tests
+
+`supabase/tests/database/identity.test.sql` — 67 pgTAP assertions run as `anon`
+and `authenticated` for real (not as a superuser): the grant wall, every
+username rule, reservations and reclaiming, redirects, the gates, the vote
+weight, roles, and deleted accounts. `supabase test db` runs it; CI runs it on
+every PR against a fresh Postgres with every migration applied.
 
 ---
 

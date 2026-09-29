@@ -22,11 +22,12 @@
  */
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { isSupabaseConfigured } from "../supabase/config";
+import { isCaptchaEnabled, isSupabaseConfigured } from "../supabase/config";
 import { getBrowserSupabase } from "../supabase/browser";
 import { AuthContext, type AuthContextValue, type AuthStatus } from "./context";
 import {
   isGoogleAuthOffered,
+  resendConfirmation,
   sendPasswordReset as sendPasswordResetRequest,
   signInWithGoogle as startGoogleSignIn,
   signInWithPassword,
@@ -174,10 +175,12 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
       isGuest,
       configured: isSupabaseConfigured,
       googleOffered: isGoogleAuthOffered,
+      captchaEnabled: isCaptchaEnabled,
       signIn: signInWithPassword,
       signUp: signUpWithPassword,
       signInWithGoogle: startGoogleSignIn,
       sendPasswordReset: sendPasswordResetRequest,
+      resendConfirmation,
       signOut,
       continueAsGuest,
       requestSignIn,

@@ -53,3 +53,20 @@ export const SUPABASE_NOT_CONFIGURED_MESSAGE =
  */
 export const isGoogleAuthOffered =
   isSupabaseConfigured && process.env.NEXT_PUBLIC_AUTH_GOOGLE !== "off";
+
+/**
+ * Cloudflare Turnstile site key, or undefined when captcha is off.
+ *
+ * This has to agree with the project: Supabase → Authentication → Attack
+ * Protection holds the matching **secret**, and once that is switched on GoTrue
+ * refuses a sign-up, a password sign-in or a reset email that does not carry a
+ * token. So the two are turned on together — a key here with protection off is
+ * a widget that proves nothing, and protection on with no key here is a sign-in
+ * form that can never succeed.
+ *
+ * Public by design, like the anon key: a Turnstile site key identifies the
+ * widget, the secret stays in Supabase.
+ */
+export const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || undefined;
+
+export const isCaptchaEnabled = isSupabaseConfigured && Boolean(TURNSTILE_SITE_KEY);

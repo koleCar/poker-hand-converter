@@ -22,6 +22,12 @@ export interface AuthUser {
   /** `full_name` / `name` from an OAuth provider, else the local part of the email. */
   displayName: string;
   avatarUrl: string | null;
+  /**
+   * Whether GoTrue has a confirmed email for this account. The posting gate
+   * reads the same fact server-side (`posting_block_reason`); the UI only uses
+   * this to decide whether to offer "resend the confirmation email".
+   */
+  emailConfirmed: boolean;
 }
 
 export function toAuthUser(user: User | null | undefined): AuthUser | null {
@@ -41,5 +47,6 @@ export function toAuthUser(user: User | null | undefined): AuthUser | null {
     email,
     displayName: name.trim() || email?.split("@")[0] || "Signed in",
     avatarUrl: typeof meta.avatar_url === "string" ? meta.avatar_url : null,
+    emailConfirmed: Boolean(user.email_confirmed_at),
   };
 }
