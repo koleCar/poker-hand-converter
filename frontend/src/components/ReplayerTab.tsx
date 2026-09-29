@@ -28,6 +28,7 @@ import {
 } from "./handFilters";
 import { HandList } from "./HandList";
 import { ReplayViewer } from "./replayer/ReplayViewer";
+import { PublishHandButton } from "./share/PublishHandButton";
 import { ShareHandButton } from "./share/ShareHandButton";
 
 const PAGE_SIZE = 25;
@@ -248,6 +249,9 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
             headerExtra={
               <>
                 <ShareHandButton hand={loaded.hand} storedHandId={loaded.storedId} iconOnly />
+                {/* Publishing reads the stored row, never this document, so it is
+                    offered only for a hand that is in the library. */}
+                <PublishHandButton storedHandId={loaded.storedId} />
                 {/* Only for a hand that is not in the library yet — which here
                     means one the converter handed over. */}
                 {loaded.origin !== "db" && !loaded.storedId && isDatabaseConfigured ? (

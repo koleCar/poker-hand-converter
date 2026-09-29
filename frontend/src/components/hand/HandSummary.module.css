@@ -1,0 +1,85 @@
+/* The static hand summary. Tokens only; cards are text, not the replayer's art. */
+
+.summary {
+  display: grid;
+  gap: 16px;
+}
+
+.block {
+  display: grid;
+  gap: 8px;
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.seats {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.seats th,
+.seats td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line-soft);
+  text-align: left;
+}
+
+.seats th {
+  color: var(--fg-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.hero td {
+  font-weight: var(--font-weight-semibold);
+}
+
+.cards {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.street {
+  display: grid;
+  gap: 4px;
+}
+
+.streetName {
+  margin: 0;
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.actions {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 2px;
+  font-size: 14px;
+}
+
+.muted {
+  margin: 0;
+  color: var(--fg-muted);
+}
+
+.reveal {
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+}
+
+.text pre {
+  overflow-x: auto;
+  max-width: 100%;
+  padding: 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-size: 12px;
+  line-height: 1.5;
+}

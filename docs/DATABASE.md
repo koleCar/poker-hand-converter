@@ -11,6 +11,7 @@ The schema is defined by four migrations:
 | `20260922130000_user_accounts_and_ownership.sql` | Adds accounts: `hands.owner_id`, owner-scoped RLS, per-library dedupe, `shares.owner_id`, `unparsed_hands.submitted_by`. |
 | `20261003090000_share_projection.sql` | Splits `resolve_share` into `read_share` + `record_share_view` and stops the share payload from being a whole `hands` row. See [Share resolution](#share-resolution-read_share--record_share_view). |
 | `20261007090000_forum_identity.sql` | Profiles, usernames, reservations, roles and posting gates (F6, #28 / #29). See [Identity](#identity-profiles-usernames-and-gates). |
+| `20261012090000_forum_publishing.sql` | Published hands: a scrubbed copy, `scrub_phf`, `publish_hand` (F7, #30 / #31). See [Publishing](#publishing-a-hand). |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -24,6 +25,7 @@ the app touches Supabase.
 - [Player identity and anonymized rooms](#player-identity-and-anonymized-rooms)
 - [Functions (RPCs)](#functions-rpcs)
 - [Identity: profiles, usernames and gates](#identity-profiles-usernames-and-gates)
+- [Publishing a hand](#publishing-a-hand)
 - [RLS policies and grants](#rls-policies-and-grants)
 - [Indexes and the queries they serve](#indexes-and-the-queries-they-serve)
 - [Applying a migration](#applying-a-migration)
@@ -45,7 +47,7 @@ There are exactly three kinds of caller:
 
 | Caller | What they are | What they can reach |
 | --- | --- | --- |
-| **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view and `resolve_username(name)`. No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
+| **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view, `resolve_username(name)`, and visible rows of `published_hands` (plus `read_published_hand` / `published_hands_by_author`). No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
 | **`authenticated`** | Signed in, identified by `auth.uid()` | Their own hands, their own shares, their own corpus samples. Nobody else's, by any query. |
 | **`service_role`** | Us, from the dashboard or the Management API | Everything. Triage, cleanup, backfills. |
 
@@ -244,6 +246,40 @@ and `authenticated` for real (not as a superuser): the grant wall, every
 username rule, reservations and reclaiming, redirects, the gates, the vote
 weight, roles, and deleted accounts. `supabase test db` runs it; CI runs it on
 every PR against a fresh Postgres with every migration applied.
+
+---
+
+## Publishing a hand
+
+`20261012090000_forum_publishing.sql`. A published hand is a **copy**, made by
+`publish_hand(hand_id, mode, title)` from the caller's own stored row and run
+through `scrub_phf()` in SQL. The client never sends the document.
+
+| Property | How it holds |
+| --- | --- |
+| No raw room text, table, hand number, tournament number, exact time, filename | No such columns on `published_hands`; `scrub_phf` removes each one from `phf` too; the `published_hands_phf_scrubbed` CHECK (`phf_is_scrubbed()`) rejects a document that still has one — even from the service role |
+| Opponent names replaced by default | `mode` defaults to `pseudonyms` (Hero / Villain1..n); `positions` uses each seat's resolved position; `as-imported` is behind a warning in the UI |
+| A name in a field nobody listed does not leak | `publish_hand` searches every string in the scrubbed document for every original name (whole-token) and **refuses** if one survives. Skipped for `positional` rooms, whose "names" are position labels |
+| Not an existence oracle | "not yours" and "no such hand" raise the same sentence |
+| No bulk | one hand per call, 20/day per account (counts only successes — a refusal rolls the counter back), and idempotent per hand |
+| No opponent-name search | there is no `player_names` column to query |
+| Per-room kill switch | a row in `publish_blocked_sites` |
+| Posting gates apply | `posting_block_reason()` is asked first |
+| Which private row it came from stays private | `published_hand_sources`, sealed |
+
+Reads: `published_hands` is `SELECT`-able by everyone, with one policy —
+`status = 'visible' and deleted_at is null`. `read_published_hand(public_id)`
+(invoker, named keys) and `published_hands_by_author(username)` sit on top. A
+deleted or removed publication returns `{status}` only, via the definer
+`published_hand_status()`, so its page can say "removed" instead of 404.
+`unpublish_hand(public_id)` is the owner's soft delete.
+
+**The whole-corpus check** — every real hand in the repo, scrubbed in every
+mode, then serialized and replayed, with nothing identifying allowed to
+survive — is `backend/scripts/scrub-corpus/`. Run it when a parser or a PHF
+field changes; it is how `game.straddles[].player` was found.
+
+The `hh-takedown` report reason (#31) lands with the reports table (#40).
 
 ---
 

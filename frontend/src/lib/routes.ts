@@ -32,6 +32,8 @@ export const paths = {
    */
   profile: (username: string) => `/u/${encodeURIComponent(username)}`,
   settings: () => "/settings",
+  /** A published hand. Public, indexable — unlike `/h/:slug`. */
+  publishedHand: (publicId: string) => `/p/${encodeURIComponent(publicId)}`,
 } as const;
 
 /**

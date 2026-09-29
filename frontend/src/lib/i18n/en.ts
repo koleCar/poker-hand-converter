@@ -161,11 +161,109 @@ export const en = {
     editCta: "Change username",
     emptyHeading: "Nothing posted yet",
     emptyBody: "Hands this player publishes will be listed here.",
+    publishedHeading: "Published hands",
+    untitledHand: (stakes: string) => `${stakes} hand`,
     unavailable: {
       heading: "Profiles are unavailable right now",
       body: "This deployment has no database configured, so profiles cannot be shown.",
     },
     homeCta: "Go to Rail",
+  },
+
+  handSummary: {
+    seats: "Seats",
+    seat: "Seat",
+    player: "Player",
+    position: "Position",
+    stack: "Stack",
+    board: "Board",
+    noFlop: "No flop was dealt.",
+    action: "Action",
+    streets: {
+      preflop: "Preflop",
+      flop: "Flop",
+      turn: "Turn",
+      river: "River",
+      showdown: "Showdown",
+    } as Record<string, string>,
+    result: "Result",
+    revealResult: "Show how the hand ended",
+    pot: (amount: string) => `Pot ${amount}`,
+    net: (player: string, amount: string) => `${player} ${amount}`,
+    handText: "Hand history (text)",
+    hero: "Hero",
+  },
+
+  published: {
+    metaTitleFallback: "Poker hand | Rail",
+    headline: (stakes: string, game: string, hero: string | null) =>
+      hero ? `${stakes} ${game} — hero ${hero}` : `${stakes} ${game}`,
+    facts: {
+      site: (name: string) => name,
+      handed: (count: number) => `${count}-handed`,
+      playedOn: (date: string) => `played ${date}`,
+      by: "published by",
+      anonymous: "a deleted account",
+    },
+    modeNote: {
+      pseudonyms: "Opponent names are replaced with Villain1, Villain2… by the player who published this hand.",
+      positions: "Opponent names are replaced with their table positions by the player who published this hand.",
+      "as-imported": "Screen names are shown as the poker room printed them, at the publisher's choice.",
+    },
+    replayHeading: "Replay",
+    gone: {
+      deleted: {
+        heading: "This hand was removed by the person who published it",
+        body: "It is no longer available.",
+      },
+      removed: {
+        heading: "This hand was removed by a moderator",
+        body: "It is no longer available.",
+      },
+      unavailable: {
+        heading: "Published hands are unavailable right now",
+        body: "This deployment has no database configured.",
+      },
+    },
+    homeCta: "Go to Rail",
+    convertCta: "Replay your own hands",
+  },
+
+  publish: {
+    button: "Publish hand",
+    publishedButton: "Published — view",
+    heading: "Publish this hand",
+    lead: "You are publishing a hand you played. Opponent names are replaced by default.",
+    titleLabel: "Title (optional)",
+    titlePlaceholder: "What is the question?",
+    modeLabel: "Names",
+    modes: {
+      pseudonyms: {
+        label: "Villain1, Villain2… (recommended)",
+        hint: "You are Hero; opponents get numbered names.",
+      },
+      positions: {
+        label: "Table positions",
+        hint: "You are Hero; opponents are shown by position — BTN, SB, BB…",
+      },
+      "as-imported": {
+        label: "Screen names as the room printed them",
+        hint: "Everyone at the table, you included, is shown by their real screen name.",
+      },
+    },
+    asImportedWarning:
+      "Most poker rooms forbid publishing other players' screen names. Only choose this if everyone at the table agreed.",
+    asImportedConfirm: "I understand, show the real screen names",
+    alwaysRemoved:
+      "In every mode the room's raw text, the table name, the hand number and the exact time are removed.",
+    submit: "Publish",
+    submitting: "Publishing…",
+    cancel: "Cancel",
+    done: "Published. Anyone with the link — and search engines — can see it.",
+    already: "You published this hand already. Here it is.",
+    view: "Open the published hand",
+    notStored: "Save the hand to your library first — only stored hands can be published.",
+    signIn: "Sign in to publish a hand.",
   },
 
   settings: {
