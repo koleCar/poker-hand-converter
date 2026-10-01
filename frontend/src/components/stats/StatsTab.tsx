@@ -18,13 +18,19 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
+  fetchStatsCoverage,
   fetchStatsGraph,
   fetchStatsSummary,
   isDatabaseConfigured,
   isMissingSchemaError,
+  rebuildStats,
+  type RebuildProgress,
+  type StakeVolume,
+  type StatsCoverage,
+  type StatsFilters,
   type StatsGraph,
   type StatsSummary,
 } from "../../lib/db";
@@ -54,37 +60,93 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [summary, setSummary] = useState<StatsSummary | null>(null);
   const [graph, setGraph] = useState<StatsGraph | null>(null);
+  const [coverage, setCoverage] = useState<StatsCoverage | null>(null);
+  const [rebuild, setRebuild] = useState<RebuildState>({ status: "idle" });
+  /** One automatic rebuild per visit; after that it is the button's job. */
+  const autoRebuilt = useRef(false);
+  /** What the reader picked; null until they pick, which means "the default". */
+  const chosen = useRef<Scope | null>(null);
+  const [scope, setScope] = useState<Scope>(ALL);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (): Promise<StatsCoverage | null> => {
     setStatus("loading");
     setMessage(null);
     try {
-      // In parallel: they read the same rows under the same filters, and a
-      // sequential pair would make the page's slowest path the sum of two
-      // aggregate scans for no reason.
+      // Coverage first: it is one small grouped count, and it is what decides
+      // the default scope. Then the two reports in parallel — they read the
+      // same rows under the same filters, and a sequential pair would make the
+      // slowest path the sum of two aggregate scans for no reason.
+      //
+      // Coverage arrived in a later migration than the numbers; a database
+      // without it still shows the numbers, just without the badge or filter.
+      const nextCoverage = await fetchStatsCoverage().catch(() => null);
+      const nextScope = chosen.current ?? defaultScope(nextCoverage?.stakes ?? []);
+      const filters = scopeFilters(nextScope, nextCoverage?.stakes ?? []);
       const [nextSummary, nextGraph] = await Promise.all([
-        fetchStatsSummary(),
-        fetchStatsGraph({}, GRAPH_BUCKETS),
+        fetchStatsSummary(filters),
+        fetchStatsGraph(filters, GRAPH_BUCKETS),
       ]);
       setSummary(nextSummary);
       setGraph(nextGraph);
+      setCoverage(nextCoverage);
+      setScope(nextScope);
       setStatus("ready");
+      return nextCoverage;
     } catch (error) {
       if (isMissingSchemaError(error)) {
         setStatus("not-installed");
-        return;
+        return null;
       }
       setStatus("error");
       setMessage(error instanceof Error ? error.message : String(error));
+      return null;
     }
   }, []);
 
+  const runRebuild = useCallback(async () => {
+    setRebuild({
+      status: "running",
+      progress: { processed: 0, inserted: 0, failed: 0, pruned: 0 },
+    });
+    try {
+      const progress = await rebuildStats((next) =>
+        setRebuild({ status: "running", progress: next }),
+      );
+      setRebuild({ status: "done", progress });
+      await load();
+    } catch (error) {
+      setRebuild({
+        status: "error",
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }, [load]);
+
+  // A library with hands the numbers do not cover yet — uploaded before
+  // statistics existed, or left behind by a version bump — catches up on its
+  // own the first time this screen sees it. It is idempotent and runs next to
+  // the database, so there is nothing to ask permission for.
   useEffect(() => {
     if (!isDatabaseConfigured || !auth.isSignedIn) {
       return;
     }
-    void load();
-  }, [auth.isSignedIn, load, refreshToken]);
+    void load().then((loaded) => {
+      if (loaded && loaded.missing + loaded.stale > 0 && !autoRebuilt.current) {
+        autoRebuilt.current = true;
+        void runRebuild();
+      }
+    });
+  }, [auth.isSignedIn, load, refreshToken, runRebuild]);
+
+  const behind = coverage ? coverage.missing + coverage.stale : 0;
+
+  const pickScope = useCallback(
+    (next: Scope) => {
+      chosen.current = next;
+      void load();
+    },
+    [load],
+  );
 
   if (!isDatabaseConfigured) {
     return (
@@ -155,16 +217,27 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
     );
   }
 
+  const coverageBar = (
+    <CoverageBar coverage={coverage} rebuild={rebuild} onRebuild={() => void runRebuild()} />
+  );
+
   if (summary.hands === 0) {
+    if (rebuild.status === "running" || behind > 0) {
+      return (
+        <div className="stats">
+          <Header />
+          {coverageBar}
+        </div>
+      );
+    }
     return (
       <div className="stats">
         <Header />
         <div className="card stats-empty">
           <h3>No hands with statistics yet</h3>
           <p className="muted">
-            Statistics are derived when hands are saved. Upload a hand history and this
-            screen fills in — or, if your library predates this feature, the numbers
-            appear as you upload more.
+            Statistics are derived from the hands in your library, on the server, as they are saved.
+            Upload a hand history and this screen fills in.
           </p>
         </div>
       </div>
@@ -176,6 +249,10 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
       <Header
         sample={`${summary.hands.toLocaleString("en-GB")} hands · ${summary.statsVersion}`}
       />
+
+      {coverageBar}
+
+      <ScopeBar stakes={coverage?.stakes ?? []} scope={scope} onChange={pickScope} />
 
       <HudGrid
         counters={summary.counters}
@@ -207,5 +284,255 @@ function Header({ sample }: { sample?: string }) {
       <h2>Statistics</h2>
       {sample ? <span className="stats__sample">{sample}</span> : null}
     </header>
+  );
+}
+
+type RebuildState =
+  | { status: "idle" }
+  | { status: "running"; progress: RebuildProgress }
+  | { status: "done"; progress: RebuildProgress }
+  | { status: "error"; message: string };
+
+const count = (value: number) => value.toLocaleString("en-GB");
+
+/**
+ * The line that says how much of the library the numbers cover.
+ *
+ * Silent when there is nothing to say — every hand covered, nothing running,
+ * nothing failed — because a permanent "100% of your hands" badge is noise.
+ */
+function CoverageBar({
+  coverage,
+  rebuild,
+  onRebuild,
+}: {
+  coverage: StatsCoverage | null;
+  rebuild: RebuildState;
+  onRebuild: () => void;
+}) {
+  if (rebuild.status === "running") {
+    const target = coverage ? coverage.missing + coverage.stale : 0;
+    const done = rebuild.progress.processed;
+    return (
+      <p className="notice notice--info stats-coverage" role="status" aria-live="polite">
+        Updating statistics…{" "}
+        {target > 0
+          ? `${count(Math.min(done, target))} of ${count(target)} hands`
+          : `${count(done)} hands`}
+      </p>
+    );
+  }
+  if (rebuild.status === "error") {
+    return (
+      <p className="notice notice--error stats-coverage">
+        Statistics could not be brought up to date: {rebuild.message}{" "}
+        <button type="button" className="btn btn--sm" onClick={onRebuild}>
+          Try again
+        </button>
+      </p>
+    );
+  }
+  if (!coverage) {
+    return null;
+  }
+  const behind = coverage.missing + coverage.stale;
+  const failed = rebuild.status === "done" ? rebuild.progress.failed : 0;
+  if (behind === 0 && failed === 0) {
+    return null;
+  }
+  return (
+    <p className="notice notice--warn stats-coverage">
+      {behind > 0
+        ? `${count(behind)} of ${count(coverage.hands)} hands are not in these numbers yet.`
+        : null}
+      {failed > 0
+        ? ` ${count(failed)} could not be read — that is a converter bug, not your file.`
+        : null}{" "}
+      {behind > 0 ? (
+        <button type="button" className="btn btn--sm" onClick={onRebuild}>
+          Rebuild statistics
+        </button>
+      ) : null}
+    </p>
+  );
+}
+
+/* ----------------------------------------------------------------- scope - */
+
+/**
+ * Which slice of the library the screen is about.
+ *
+ * Only two dimensions, on purpose: format and, for cash, the stake. Those are
+ * the two that change what a number *means* — chips are not money, so a cash
+ * and tournament sample together has no win rate at all, and a bb/100 across
+ * stakes is an average of different games. Every other filter `stats_summary`
+ * accepts is a refinement; these two decide whether the headline exists.
+ */
+interface Scope {
+  /** null = every format. */
+  gameFormat: string | null;
+  /** `stakeKey()` of one cash stake; null = every stake in the format. */
+  stake: string | null;
+}
+
+const ALL: Scope = { gameFormat: null, stake: null };
+
+function stakeKey(stake: StakeVolume): string {
+  return `${stake.currency}:${stake.smallBlind ?? ""}:${stake.bigBlind ?? ""}`;
+}
+
+/**
+ * The scope a first visit opens on: everything, unless everything mixes
+ * formats — then the format with the most hands, so the win rate the reader
+ * came for is on screen instead of a note explaining why it is not.
+ */
+function defaultScope(stakes: StakeVolume[]): Scope {
+  const formats = new Set(stakes.map((stake) => stake.gameFormat));
+  if (formats.size <= 1) {
+    return ALL;
+  }
+  return { gameFormat: stakes[0].gameFormat, stake: null };
+}
+
+function scopeFilters(scope: Scope, stakes: StakeVolume[]): StatsFilters {
+  const filters: StatsFilters = {};
+  if (scope.gameFormat) {
+    filters.gameFormat = scope.gameFormat;
+  }
+  const stake = scope.stake ? stakes.find((entry) => stakeKey(entry) === scope.stake) : null;
+  if (stake) {
+    filters.currency = stake.currency;
+    if (stake.bigBlind !== null) {
+      filters.bigBlind = stake.bigBlind;
+    }
+  }
+  return filters;
+}
+
+const FORMAT_LABEL: Record<string, string> = {
+  cash: "Cash games",
+  tournament: "Tournaments",
+  "sit-and-go": "Sit & Go",
+  spin: "Spins",
+};
+
+function money(amount: number, currency: string, minorUnits: number): string {
+  const value = amount / minorUnits;
+  try {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency,
+      // "$0.25/$0.50", not "US$0.25/US$0.50": the room already said which dollar.
+      currencyDisplay: "narrowSymbol",
+      minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  } catch {
+    // Not an ISO code (play money, a room's own token): say the number.
+    return `${value} ${currency}`;
+  }
+}
+
+function stakeLabel(stake: StakeVolume): string {
+  const { smallBlind, bigBlind, currency, currencyMinorUnits } = stake;
+  if (bigBlind === null) {
+    return "Unknown stakes";
+  }
+  const bb = money(bigBlind, currency, currencyMinorUnits);
+  return smallBlind === null ? bb : `${money(smallBlind, currency, currencyMinorUnits)}/${bb}`;
+}
+
+/**
+ * The format and stake picker. Renders nothing for a library with a single
+ * stake — there is no choice to offer, and an inert control is clutter.
+ */
+function ScopeBar({
+  stakes,
+  scope,
+  onChange,
+}: {
+  stakes: StakeVolume[];
+  scope: Scope;
+  onChange: (scope: Scope) => void;
+}) {
+  if (stakes.length <= 1) {
+    return null;
+  }
+
+  const formats = new Map<string, number>();
+  for (const stake of stakes) {
+    formats.set(stake.gameFormat, (formats.get(stake.gameFormat) ?? 0) + stake.hands);
+  }
+  // Only cash has stakes worth splitting by: a tournament's blinds rise every
+  // level, so "hands at 400/800" is a slice of one tournament, not a game.
+  const cashStakes =
+    scope.gameFormat === "cash" ? stakes.filter((stake) => stake.gameFormat === "cash") : [];
+
+  return (
+    <div className="stats-scope" role="group" aria-label="Which hands">
+      {formats.size > 1 ? (
+        <div className="stats-scope__formats">
+          <ScopeButton
+            active={scope.gameFormat === null}
+            onClick={() => onChange(ALL)}
+            label="All formats"
+            count={stakes.reduce((sum, stake) => sum + stake.hands, 0)}
+          />
+          {[...formats.entries()].map(([format, hands]) => (
+            <ScopeButton
+              key={format}
+              active={scope.gameFormat === format}
+              onClick={() => onChange({ gameFormat: format, stake: null })}
+              label={FORMAT_LABEL[format] ?? format}
+              count={hands}
+            />
+          ))}
+        </div>
+      ) : null}
+      {cashStakes.length > 1 ? (
+        <label className="field">
+          <span className="field__label">Stakes</span>
+          <select
+            value={scope.stake ?? ""}
+            onChange={(event) =>
+              onChange({
+                gameFormat: "cash",
+                stake: event.target.value || null,
+              })
+            }
+          >
+            <option value="">All stakes</option>
+            {cashStakes.map((stake) => (
+              <option key={stakeKey(stake)} value={stakeKey(stake)}>
+                {stakeLabel(stake)} · {count(stake.hands)} hands
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+    </div>
+  );
+}
+
+function ScopeButton({
+  active,
+  onClick,
+  label,
+  count: hands,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  count: number;
+}) {
+  return (
+    <button
+      type="button"
+      className={`btn btn--sm${active ? " btn--primary" : ""}`}
+      aria-pressed={active}
+      onClick={onClick}
+    >
+      {label} <span className="stats-scope__count">{count(hands)}</span>
+    </button>
   );
 }

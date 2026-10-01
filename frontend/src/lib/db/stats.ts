@@ -20,8 +20,6 @@
  */
 
 import {
-  handFacts,
-  statsRows,
   STATS_VERSION,
   emptyCounters,
   emptyMoney,
@@ -29,81 +27,22 @@ import {
   MONEY_KEYS,
   type SeatCounters,
   type SeatMoney,
-  type StatsRow,
 } from "../stats";
 import type { PhfHand } from "../phf/types";
 import { currentUserId, requireUserId, rpc } from "./client";
-import { detectAnonymization } from "./anonymization";
-import type { SiteAnonymization } from "./types";
+import {
+  handStatsRows,
+  villainRowsEnabled,
+  type DeriveOptions,
+  type HandStatsInsert,
+} from "./statsRows";
 
-/* ------------------------------------------------------------- the wire - */
-
-/**
- * One row as `save_hand_stats` takes it.
- *
- * Almost exactly a `StatsRow`: the two differences are `hand_id`, which in a
- * derived row is the *site's* hand id and in the table is the `hands.id` uuid
- * the server resolves, and `site_anonymization`, which is a property of how the
- * room publishes names rather than of the hand's play and therefore is not
- * something `lib/stats` has any business knowing about.
- */
-export type HandStatsInsert = Omit<StatsRow, "hand_id"> & {
-  site_hand_id: string;
-  site_anonymization: SiteAnonymization;
-};
-
-/**
- * Whether villain rows are written.
- *
- * The schema has carried a row per dealt-in seat since the first migration, on
- * purpose: hero-only would be a one-way door on opponent statistics, and a
- * table that cannot grow into a HUD would have to be rewritten to get one. But
- * per-player multiplies the row count by about six, and at 500k hands that is
- * ~3M rows, which does not fit the free tier. So the schema is ready and the
- * writer is not — turning villains on is this flag, not a migration.
- *
- * Read through a `try` because Safari in private browsing throws on
- * `localStorage`, and a storage quirk must not be able to stop a save.
- */
-const VILLAIN_ROWS_KEY = "pokerconverter.statsVillains";
-
-export function villainRowsEnabled(): boolean {
-  try {
-    return localStorage.getItem(VILLAIN_ROWS_KEY) === "on";
-  } catch {
-    return false;
-  }
-}
-
-export interface DeriveOptions {
-  /** Defaults to {@link villainRowsEnabled}. */
-  includeVillains?: boolean;
-}
-
-/**
- * Derives the rows for one hand, in the shape the writer sends.
- *
- * **Villain rows are never emitted for a positionally anonymised room.** An
- * Ignition "UTG+1" is a different human every hand, so a per-player row keyed on
- * that name would quietly average strangers together and look exactly like a
- * real opponent report while doing it. That rule is enforced here *and* by
- * `hand_stats_positional_anonymity` in the migration: this is the copy that
- * keeps a batch from being rejected, the constraint is the copy that makes the
- * mistake impossible.
- */
-export function handStatsRows(hand: PhfHand, options: DeriveOptions = {}): HandStatsInsert[] {
-  const anonymization = detectAnonymization(hand);
-  const villains =
-    (options.includeVillains ?? villainRowsEnabled()) && anonymization !== "positional";
-
-  return statsRows(handFacts(hand))
-    .filter((row) => row.is_hero || villains)
-    .map(({ hand_id: siteHandId, ...row }) => ({
-      ...row,
-      site_hand_id: siteHandId,
-      site_anonymization: anonymization,
-    }));
-}
+export {
+  handStatsRows,
+  villainRowsEnabled,
+  type DeriveOptions,
+  type HandStatsInsert,
+} from "./statsRows";
 
 export interface SaveHandStatsResult {
   received: number;
@@ -453,4 +392,111 @@ export async function fetchStatsGraph(
     allInEv: null,
     ...toUnitState(payload),
   };
+}
+
+/* -------------------------------------------------------------- rebuild - */
+
+/** How many of the caller's hands the numbers are actually about. */
+export interface StatsCoverage {
+  statsVersion: string;
+  /** Hands that can have hero statistics. */
+  hands: number;
+  /** ... and have them under the current version. */
+  atVersion: number;
+  /** ... have them only under an older version. */
+  stale: number;
+  /** ... have none at all (uploaded before statistics, or a failed write). */
+  missing: number;
+  /** Hands with no hero seat — an observed table. Never counted as missing. */
+  withoutHero: number;
+  /** Rows under older versions, which the next rebuild prunes. */
+  obsoleteRows: number;
+  /** The formats and stakes in the library, biggest first. */
+  stakes: StakeVolume[];
+}
+
+/** One (format, currency, blinds) combination and how many hero hands it has. */
+export interface StakeVolume {
+  gameFormat: string;
+  currency: string;
+  currencyMinorUnits: number;
+  smallBlind: number | null;
+  bigBlind: number | null;
+  hands: number;
+}
+
+export async function fetchStatsCoverage(): Promise<StatsCoverage | null> {
+  if (!(await currentUserId())) {
+    return null;
+  }
+  const payload = await rpc<Row | null>("stats_coverage", { p_version: STATS_VERSION });
+  if (!payload) {
+    return null;
+  }
+  return {
+    statsVersion: String(payload.statsVersion ?? STATS_VERSION),
+    hands: num(payload.hands),
+    atVersion: num(payload.atVersion),
+    stale: num(payload.stale),
+    missing: num(payload.missing),
+    withoutHero: num(payload.withoutHero),
+    obsoleteRows: num(payload.obsoleteRows),
+    stakes: (Array.isArray(payload.stakes) ? (payload.stakes as Row[]) : []).map((row) => ({
+      gameFormat: str(row.gameFormat) ?? "cash",
+      currency: str(row.currency) ?? "",
+      currencyMinorUnits: num(row.currencyMinorUnits) || 100,
+      smallBlind: maybeNum(row.smallBlind),
+      bigBlind: maybeNum(row.bigBlind),
+      hands: num(row.hands),
+    })),
+  };
+}
+
+export interface RebuildProgress {
+  processed: number;
+  inserted: number;
+  failed: number;
+  pruned: number;
+}
+
+/**
+ * Derives statistics for every stored hand that lacks them, server-side.
+ *
+ * Calls `POST /api/stats/rebuild` slice by slice until it reports `done`. The
+ * documents never come to the browser: the route reads them next to the
+ * database, as this user, and answers with counts. Safe to run twice at once
+ * (after an upload *and* from the statistics screen, say) — every write is
+ * `on conflict do nothing`, and "what is missing" is recomputed per slice.
+ */
+export async function rebuildStats(
+  onProgress?: (progress: RebuildProgress) => void,
+): Promise<RebuildProgress> {
+  const total: RebuildProgress = { processed: 0, inserted: 0, failed: 0, pruned: 0 };
+  if (!(await currentUserId())) {
+    return total;
+  }
+  let after: string | null = null;
+  // Bounded so a server that never says `done` cannot spin a tab forever:
+  // 2000 slices of 8 s is far beyond any library this app could hold.
+  for (let slice = 0; slice < 2000; slice += 1) {
+    const response = await fetch("/api/stats/rebuild", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ after, includeVillains: villainRowsEnabled() }),
+    });
+    const payload = (await response.json().catch(() => ({}))) as Row;
+    if (!response.ok) {
+      throw new Error(str(payload.error) ?? `Rebuilding statistics failed (${response.status}).`);
+    }
+    total.processed += num(payload.processed);
+    total.inserted += num(payload.inserted);
+    total.failed += num(payload.failed);
+    total.pruned += num(payload.pruned);
+    onProgress?.({ ...total });
+    if (payload.done === true) {
+      break;
+    }
+    after = str(payload.after);
+  }
+  return total;
 }

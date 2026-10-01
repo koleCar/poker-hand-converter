@@ -35,17 +35,22 @@ export {
 export {
   emptyStatsGraph,
   emptyStatsSummary,
+  fetchStatsCoverage,
   fetchStatsGraph,
   fetchStatsSummary,
+  rebuildStats,
   handStatsRows,
   saveHandStats,
   villainRowsEnabled,
   type HandStatsInsert,
   type MoneyUnitState,
+  type RebuildProgress,
   type SaveHandStatsResult,
   type StatsFilters,
   type StatsGraph,
   type StatsGraphBucket,
+  type StakeVolume,
+  type StatsCoverage,
   type StatsSummary,
 } from "./stats";
 

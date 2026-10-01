@@ -436,6 +436,52 @@ Tests: `supabase/tests/database/moderation.test.sql` — 58 assertions.
 
 ---
 
+## Statistics: `hand_stats`, coverage and rebuild
+
+`hand_stats` (`20261005090000`) holds one row per (hand, dealt-in seat,
+`stats_version`), derived from `hands.phf` by `lib/stats`. It is derived data:
+everything in it can be rebuilt from the documents, which is why it is the one
+table with a delete path (`prune_hand_stats`, definer, can only remove the
+caller's rows at *other* versions).
+
+**Who writes it.** Nobody in the browser any more. After a save, the client
+calls `POST /api/stats/rebuild`, a route handler that runs **as the user** (anon
+key + their cookie, no service role) and loops:
+
+1. `hands_needing_stats(version, after, limit)`: invoker, a keyset page of the
+   caller's hands that have a hero and no row at `version`, with their `phf`;
+2. derive with `lib/stats` next to the database;
+3. `save_hand_stats(rows)`: invoker, resolves `hand_key` under RLS;
+4. on the last slice, `prune_hand_stats(version)` drops older generations.
+
+Each request works for ~8 s and returns a cursor; the client calls again until
+`done`. "Missing" is computed, not tracked, so an interrupted run resumes by
+being run again, and two concurrent runs are harmless (`on conflict do nothing`).
+The `/stats` screen reads `stats_coverage(version)` and starts a rebuild on its
+own when anything is missing or stale, so a `STATS_VERSION` bump needs no
+migration and no button press.
+
+**Coverage** returns `{hands, atVersion, stale, missing, withoutHero,
+obsoleteRows, stakes}`. Hands with no hero seat (observed tables) are counted
+apart, because they can never have hero rows and would otherwise be "missing"
+forever. `stakes` (format × currency × blinds, by volume) drives the screen's
+format/stake picker: a sample mixing cash and chips has no win rate, so the
+screen opens on the biggest format instead of an empty headline.
+
+**Reports.** `stats_summary` and `stats_graph` are invoker functions that sum
+under RLS. Their helpers (`hand_stats_filter_sql`, `hand_stats_counter_keys`,
+`hand_stats_money_keys`, `stats_empty_*`) must be executable by
+`authenticated`: an invoker function runs with the caller's privileges, and
+revoking them (as `20261005090000` did) broke the screen for every real user.
+They read no table, so there is nothing to protect. `20261109090000` restores
+the grants and fixes `prune_hand_stats`, which joined on a non-existent `id`.
+
+### Tests
+
+`supabase/tests/database/stats_rebuild.test.sql`: coverage arithmetic,
+keyset paging, clamping, cross-user isolation, anon refusal, prune, and the
+two reports running as a signed-in user.
+
 ## Verifying the isolation
 
 A migration returning `201` proves the SQL ran, not that two accounts are
