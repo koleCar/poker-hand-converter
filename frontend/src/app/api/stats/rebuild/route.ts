@@ -109,7 +109,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     while (Date.now() - started < TIME_BUDGET_MS) {
       const { data, error } = await supabase.rpc("hands_needing_stats", {
         p_version: STATS_VERSION,
-        p_after: after,
+        // Omitted rather than null: the generated types model a defaulted
+        // argument as optional, and the server default is the same null.
+        p_after: after ?? undefined,
         p_limit: PAGE_SIZE,
         // With opponent statistics on, a hand that has hero rows but no
         // villain rows still needs work: that is what switching it on means.
@@ -118,7 +120,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (error) {
         throw error;
       }
-      const page = (data ?? []) as Array<{ id: string; phf: PhfHand }>;
+      const page = (data ?? []) as unknown as Array<{ id: string; phf: PhfHand }>;
 
       const rows: HandStatsInsert[] = [];
       for (const { phf } of page) {

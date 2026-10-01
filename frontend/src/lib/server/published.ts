@@ -85,7 +85,7 @@ export const publishedHandsByAuthor = cache(
     if (error || !Array.isArray(data)) {
       return [];
     }
-    return data as PublishedHandSummary[];
+    return data as unknown as PublishedHandSummary[];
   },
 );
 

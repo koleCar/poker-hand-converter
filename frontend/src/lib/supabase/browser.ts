@@ -2,6 +2,7 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "../db/database.types";
 import {
   isSupabaseConfigured,
   SUPABASE_ANON_KEY,
@@ -46,14 +47,14 @@ import {
  * refresh timer. Two clients in one tab means two refreshes racing for the same
  * refresh token, and a refresh token is single-use.
  */
-let cached: SupabaseClient | null = null;
+let cached: SupabaseClient<Database> | null = null;
 
-export function getBrowserSupabase(): SupabaseClient | null {
+export function getBrowserSupabase(): SupabaseClient<Database> | null {
   if (!isSupabaseConfigured) {
     return null;
   }
   if (!cached) {
-    cached = createBrowserClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+    cached = createBrowserClient<Database>(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
       auth: {
         detectSessionInUrl: false,
         flowType: "pkce",
@@ -66,7 +67,7 @@ export function getBrowserSupabase(): SupabaseClient | null {
 }
 
 /** Throws a readable error instead of dereferencing null. */
-export function requireBrowserSupabase(): SupabaseClient {
+export function requireBrowserSupabase(): SupabaseClient<Database> {
   const client = getBrowserSupabase();
   if (!client) {
     throw new Error(SUPABASE_NOT_CONFIGURED_MESSAGE);

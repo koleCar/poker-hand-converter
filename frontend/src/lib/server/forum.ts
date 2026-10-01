@@ -27,13 +27,13 @@ export const readFeed = cache(
     const supabase = getAnonServerSupabase();
     if (!supabase) return null;
     const { data, error } = await supabase.rpc("forum_feed", {
-      p_board: board,
+      p_board: board ?? undefined,
       p_sort: sort,
-      p_after: after,
+      p_after: after ?? undefined,
       p_limit: 25,
     });
     if (error || !data) return null;
-    return data as FeedPage;
+    return data as unknown as FeedPage;
   },
 );
 
@@ -47,7 +47,7 @@ export const readPost = cache(async (publicId: string): Promise<PostReadResult> 
   if (!supabase) return { status: "unconfigured" };
   const { data, error } = await supabase.rpc("get_post", { p_public_id: publicId });
   if (error) return { status: "error" };
-  if (data) return { status: "ok", post: data as ForumPost };
+  if (data) return { status: "ok", post: data as unknown as ForumPost };
   const status = await supabase.rpc("post_status", { p_public_id: publicId });
   if (status.data === "deleted" || status.data === "removed") return { status: status.data };
   return { status: "not-found" };
@@ -57,14 +57,14 @@ export const readComments = cache(async (publicId: string, sort: string): Promis
   const supabase = getAnonServerSupabase();
   if (!supabase) return [];
   const { data } = await supabase.rpc("get_post_comments", { p_public_id: publicId, p_sort: sort });
-  return (Array.isArray(data) ? data : []) as ForumComment[];
+  return (Array.isArray(data) ? data : []) as unknown as ForumComment[];
 });
 
 export const searchForum = cache(async (query: string): Promise<SearchHit[]> => {
   const supabase = getAnonServerSupabase();
   if (!supabase || !query.trim()) return [];
   const { data } = await supabase.rpc("search_forum", { p_query: query, p_limit: 30 });
-  return (Array.isArray(data) ? data : []) as SearchHit[];
+  return (Array.isArray(data) ? data : []) as unknown as SearchHit[];
 });
 
 /** For the sitemap. */

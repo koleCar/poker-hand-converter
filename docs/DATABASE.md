@@ -1087,6 +1087,19 @@ print(json.dumps({'query':
 The endpoint runs the whole file in one transaction and returns `[]` with HTTP
 201 on success, or `{"message": "Failed to run sql query: ERROR: ..."}` with 400.
 
+### Regenerate the client types
+
+`frontend/src/lib/db/database.types.ts` is generated from the migrations and
+every Supabase client is `SupabaseClient<Database>`, so a renamed table, column
+or function is a type error. After adding a migration, apply it locally and run:
+
+```bash
+supabase gen types typescript --local --schema public > frontend/src/lib/db/database.types.ts
+```
+
+CI ("Migrations and pgTAP") regenerates it from a fresh database with the same
+CLI version and fails on any difference.
+
 ### Do not trust a 201
 
 A successful HTTP status means the SQL ran, not that the schema is what you
