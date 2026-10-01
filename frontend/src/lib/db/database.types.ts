@@ -238,18 +238,6 @@ export type Database = {
           },
         ]
       }
-      f7_corpus: {
-        Row: {
-          doc: Json | null
-        }
-        Insert: {
-          doc?: Json | null
-        }
-        Update: {
-          doc?: Json | null
-        }
-        Relationships: []
-      }
       hand_stats: {
         Row: {
           bet_flop: number
