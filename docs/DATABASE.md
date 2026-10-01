@@ -476,7 +476,20 @@ revoking them (as `20261005090000` did) broke the screen for every real user.
 They read no table, so there is nothing to protect. `20261109090000` restores
 the grants and fixes `prune_hand_stats`, which joined on a non-existent `id`.
 
+**Breakdown.** `stats_breakdown(filters, group)` (`20261116090000`) is the
+summary split by one dimension: `position`, `table_size`, `site`, `stakes`,
+`hand_class` (the 13x13 matrix) or `stack_bb` (the hero's own stack in bands —
+not effective stack, which needs villain stacks). The group key picks a literal
+out of a fixed `case`; anything else is 22023. The filters are the same bound
+`$1..$20` as the summary's, and the money refusals are the same: chips with cash
+carry no money at all, mixed currencies carry bb only. A row carries the dozen
+counters a table shows, not all ninety.
+
 ### Tests
+
+`supabase/tests/database/stats_breakdown.test.sql`: grouping, ordering,
+filters before grouping, the whitelist (including a SQL-shaped key), money
+refusal on mixed units, isolation, anon.
 
 `supabase/tests/database/stats_rebuild.test.sql`: coverage arithmetic,
 keyset paging, clamping, cross-user isolation, anon refusal, prune, and the

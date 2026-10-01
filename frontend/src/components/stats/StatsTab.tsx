@@ -18,7 +18,7 @@
 
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
   fetchStatsCoverage,
@@ -35,7 +35,10 @@ import {
   type StatsSummary,
 } from "../../lib/db";
 import { useAuth } from "../../lib/auth";
+import { BreakdownPanel } from "./BreakdownPanel";
+import { HandMatrix } from "./HandMatrix";
 import { HudGrid } from "./HudGrid";
+import { stakeLabel } from "./format";
 import { WinrateGraph } from "./WinrateGraph";
 import "../../styles/stats.css";
 
@@ -67,6 +70,8 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
   /** What the reader picked; null until they pick, which means "the default". */
   const chosen = useRef<Scope | null>(null);
   const [scope, setScope] = useState<Scope>(ALL);
+  /** Bumped on every successful load, so the panels below reload with the numbers. */
+  const [generation, setGeneration] = useState(0);
 
   const load = useCallback(async (): Promise<StatsCoverage | null> => {
     setStatus("loading");
@@ -90,6 +95,7 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
       setGraph(nextGraph);
       setCoverage(nextCoverage);
       setScope(nextScope);
+      setGeneration((value) => value + 1);
       setStatus("ready");
       return nextCoverage;
     } catch (error) {
@@ -139,6 +145,7 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
   }, [auth.isSignedIn, load, refreshToken, runRebuild]);
 
   const behind = coverage ? coverage.missing + coverage.stale : 0;
+  const filters = useMemo(() => scopeFilters(scope, coverage?.stakes ?? []), [scope, coverage]);
 
   const pickScope = useCallback(
     (next: Scope) => {
@@ -274,6 +281,10 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
         </div>
         <WinrateGraph graph={graph} />
       </section>
+
+      <BreakdownPanel filters={filters} stakes={coverage?.stakes ?? []} refreshToken={generation} />
+
+      <HandMatrix filters={filters} refreshToken={generation} />
     </div>
   );
 }
@@ -415,32 +426,6 @@ const FORMAT_LABEL: Record<string, string> = {
   "sit-and-go": "Sit & Go",
   spin: "Spins",
 };
-
-function money(amount: number, currency: string, minorUnits: number): string {
-  const value = amount / minorUnits;
-  try {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency,
-      // "$0.25/$0.50", not "US$0.25/US$0.50": the room already said which dollar.
-      currencyDisplay: "narrowSymbol",
-      minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    // Not an ISO code (play money, a room's own token): say the number.
-    return `${value} ${currency}`;
-  }
-}
-
-function stakeLabel(stake: StakeVolume): string {
-  const { smallBlind, bigBlind, currency, currencyMinorUnits } = stake;
-  if (bigBlind === null) {
-    return "Unknown stakes";
-  }
-  const bb = money(bigBlind, currency, currencyMinorUnits);
-  return smallBlind === null ? bb : `${money(smallBlind, currency, currencyMinorUnits)}/${bb}`;
-}
 
 /**
  * The format and stake picker. Renders nothing for a library with a single
