@@ -240,8 +240,8 @@ export function BreakdownPanel({ filters, stakes, refreshToken }: BreakdownPanel
         </table>
       </div>
       <p className="muted stats-breakdown__note">
-        Greyed numbers rest on fewer than {THIN_SAMPLE} opportunities (100 hands for bb/100) —
-        a direction, not a reading.
+        Grey numbers rest on fewer than {THIN_SAMPLE} opportunities, and a dotted win rate on
+        fewer than 100 hands — a direction, not a reading.
       </p>
     </section>
   );

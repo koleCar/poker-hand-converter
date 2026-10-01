@@ -23,9 +23,14 @@
   padding: 5px 10px;
   border: 1px solid var(--line-soft);
   border-radius: 999px;
+  /* Also used on <button>s (the /mod tabs), which would otherwise get the
+     browser's own button fill under the muted text (#57). */
+  background: transparent;
   color: var(--fg-muted);
+  font: inherit;
   font-size: 13px;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .chipLink[aria-current="page"] {
