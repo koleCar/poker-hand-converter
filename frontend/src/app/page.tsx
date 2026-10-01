@@ -22,7 +22,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   return {
     title: en.forum.metaHomeTitle,
     description: en.forum.metaHomeDescription,
-    alternates: { canonical: paths.home() },
+    alternates: { canonical: paths.home(), types: { "application/rss+xml": "/feed.xml" } },
     // Crawlable paging stops at ten pages; past that, follow but do not index.
     robots: { index: page <= 10, follow: true },
   };

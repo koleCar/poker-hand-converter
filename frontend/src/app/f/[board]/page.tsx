@@ -17,7 +17,10 @@ export async function generateMetadata({ params, searchParams }: { params: Param
   return {
     title: en.forum.metaBoardTitle(found.name),
     description: en.forum.metaBoardDescription(found.name, found.description),
-    alternates: { canonical: paths.board(found.slug) },
+    alternates: {
+      canonical: paths.board(found.slug),
+      types: { "application/rss+xml": `${paths.board(found.slug)}/feed.xml` },
+    },
     robots: { index: page <= 10, follow: true },
   };
 }

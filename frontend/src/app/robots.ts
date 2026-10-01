@@ -22,7 +22,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/h/", paths.library(), paths.stats(), "/auth/"],
+      // `/embed/` duplicates `/p/` without its context; `/api/` is machinery.
+      disallow: ["/h/", "/embed/", "/api/", paths.library(), paths.stats(), "/auth/"],
     },
     sitemap: canonicalUrl("/sitemap.xml"),
   };

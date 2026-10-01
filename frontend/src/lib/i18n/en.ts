@@ -235,6 +235,20 @@ export const en = {
     convertCta: "Replay your own hands",
   },
 
+  og: {
+    poll: "Poll",
+    pollTitle: "What would you do?",
+    pollFacts: "Answer to see the rest of the hand",
+    handEyebrow: "Hand",
+    handFallback: "A poker hand on Rail",
+    forumEyebrow: "Forum",
+    threadFallback: "A thread on Rail",
+    handed: (count: number) => `${count}-handed`,
+    hero: (position: string) => `hero ${position}`,
+    by: (username: string) => `by ${username}`,
+    comments: (count: number) => `${count} ${count === 1 ? "comment" : "comments"}`,
+  },
+
   embed: {
     title: "Hand replayer | Rail",
     credit: "Replay on Rail",
