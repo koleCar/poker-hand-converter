@@ -102,6 +102,18 @@ jobs:
       - name: Start Postgres and apply every migration
         run: supabase db start
 
+      # The client is typed from the schema (#8). A migration that changes a
+      # table or a function signature without regenerating the types would
+      # leave the app compiling against a schema that no longer exists, so the
+      # checked-in file has to be exactly what these migrations produce.
+      - name: Generated types match the migrations
+        run: |
+          supabase gen types typescript --local --schema public > "$RUNNER_TEMP/database.types.ts"
+          if ! diff -u frontend/src/lib/db/database.types.ts "$RUNNER_TEMP/database.types.ts"; then
+            echo "::error file=frontend/src/lib/db/database.types.ts::Stale. Regenerate with: supabase gen types typescript --local --schema public > frontend/src/lib/db/database.types.ts"
+            exit 1
+          fi
+
       - name: pgTAP
         run: supabase test db
 

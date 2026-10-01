@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { cache } from "react";
+import type { Database } from "../db/database.types";
 import { isSupabaseConfigured, SUPABASE_ANON_KEY, SUPABASE_URL } from "./config";
 
 /**
@@ -58,12 +59,12 @@ import { isSupabaseConfigured, SUPABASE_ANON_KEY, SUPABASE_URL } from "./config"
  * `cache()` so that a page calling this in `generateMetadata` and again in the
  * body gets one client, one cookie read, and one `getUser()` round trip.
  */
-export const getServerSupabase = cache(async (): Promise<SupabaseClient | null> => {
+export const getServerSupabase = cache(async (): Promise<SupabaseClient<Database> | null> => {
   if (!isSupabaseConfigured) {
     return null;
   }
   const store = await cookies();
-  return createServerClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+  return createServerClient<Database>(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
     cookies: {
       getAll() {
         return store.getAll();
@@ -85,12 +86,12 @@ export const getServerSupabase = cache(async (): Promise<SupabaseClient | null> 
  * have to land on it, so sharing an instance across requests would be wrong in
  * the one direction that matters.
  */
-export async function getWritableServerSupabase(): Promise<SupabaseClient | null> {
+export async function getWritableServerSupabase(): Promise<SupabaseClient<Database> | null> {
   if (!isSupabaseConfigured) {
     return null;
   }
   const store = await cookies();
-  return createServerClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+  return createServerClient<Database>(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
     cookies: {
       getAll() {
         return store.getAll();
@@ -155,11 +156,11 @@ export async function requireServerUser(): Promise<User> {
  * Not `cache()`d across requests — there is nothing per-request in it, but a
  * fresh client per request keeps the fetch dedupe semantics simple.
  */
-export const getAnonServerSupabase = cache((): SupabaseClient | null => {
+export const getAnonServerSupabase = cache((): SupabaseClient<Database> | null => {
   if (!isSupabaseConfigured) {
     return null;
   }
-  return createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+  return createClient<Database>(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
 });

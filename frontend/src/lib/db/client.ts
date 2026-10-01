@@ -19,6 +19,7 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "./database.types";
 import {
   getBrowserSupabase,
   requireBrowserSupabase,
@@ -97,7 +98,7 @@ export async function currentUserId(): Promise<string | null> {
   return data.session?.user?.id ?? null;
 }
 
-export function requireDb(): SupabaseClient {
+export function requireDb(): SupabaseClient<Database> {
   if (!isSupabaseConfigured) {
     throw new DatabaseNotConfiguredError();
   }
@@ -143,6 +144,9 @@ export function isMissingSchemaError(error: unknown): boolean {
   return error.code === "PGRST202" || error.code === "42883" || error.code === "42P01";
 }
 
+/** Every function in the `public` schema, from the generated types. */
+export type RpcName = keyof Database["public"]["Functions"] & string;
+
 /**
  * Calls a Postgres function and unwraps the result.
  *
@@ -150,10 +154,18 @@ export function isMissingSchemaError(error: unknown): boolean {
  * the anon role has no UPDATE or DELETE anywhere, and the counters that do have
  * to move (failure occurrences, share views) live inside `security definer`
  * functions. See `docs/DATABASE.md`.
+ *
+ * `fn` is checked against the generated schema (`database.types.ts`), so a
+ * renamed or dropped function is a type error rather than a runtime 404. The
+ * result type stays the caller's: these functions return `jsonb`, which the
+ * generator can only call `Json`, and the shape lives in `types.ts`.
  */
-export async function rpc<T>(fn: string, args?: Record<string, unknown>): Promise<T> {
+export async function rpc<T>(fn: RpcName, args?: Record<string, unknown>): Promise<T> {
   const client = requireDb();
-  const { data, error } = await client.rpc(fn, args ?? {});
+  // The arguments are checked by the server, not here: every caller builds them
+  // from typed inputs, and the generated per-function argument types cannot be
+  // narrowed through a name that is a union.
+  const { data, error } = await client.rpc(fn, (args ?? {}) as never);
   if (error) {
     throw new DatabaseRpcError(fn, error.message, error.code ?? null);
   }
