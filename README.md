@@ -181,7 +181,7 @@ Alongside that sit the two original corpora the project started from —
 `weplay-hh/` (104 real WePlay exports, across two account folders) and
 `gg-hh/` (10 reference files in the GG format, used as the byte-exactness
 target for what the serializer must produce) — plus
-`backend/test/fixtures/`, which holds regression cases that each exist because
+`tests/test/fixtures/`, which holds regression cases that each exist because
 a specific real hand broke something.
 
 A caveat worth knowing before trusting a row in the matrix: the corpus is
@@ -195,7 +195,7 @@ verified *for that era*.
 fixtures/** -text -diff
 gg-hh/** -text -diff
 weplay-hh/** -text -diff
-backend/test/fixtures/** -text -diff
+tests/test/fixtures/** -text -diff
 ```
 
 Real exports ship with CRLF, bare CR, UTF-16LE and Windows-1252 bytes, and the
@@ -282,12 +282,12 @@ it.
 ## Tests
 
 ```bash
-cd backend
+cd tests
 npm test
 ```
 
-**3114 tests across 25 files.** `backend/` is a test harness, not a runtime
-backend — it exercises the frontend libraries directly against the real corpus.
+**3188 tests across 29 files.** `tests/` is a test harness with no runtime of
+its own — it exercises the frontend libraries directly against the real corpus.
 Nothing is asserted against a hand somebody made up.
 
 What they actually check, per hand, over every sample file:
@@ -313,7 +313,7 @@ What they actually check, per hand, over every sample file:
 1. Write `frontend/src/lib/parsers/<site>.ts` exporting a `SiteParser`.
 2. Add one `registerParser` call in `frontend/src/lib/parsers/index.ts`.
 3. Put real sample files in `fixtures/samples/<site>/` with a `SOURCES.md`, and
-   add the site to `backend/test/support/corpus.ts` so the table-driven tests
+   add the site to `tests/test/support/corpus.ts` so the table-driven tests
    pick it up.
 
 Nothing else changes: detection, validation, failure recording, the text
@@ -343,7 +343,7 @@ rules are where a new parser is most likely to go quietly wrong.
 | `frontend/src/components/` | `converter/`, `replayer/`, `share/`, `shell/`, `stats/`, `auth/` |
 | `frontend/src/styles/` | ~4400 lines of global CSS, plus the token layer. New components use CSS Modules |
 | `frontend/src/workers/` | Conversion off the main thread |
-| `backend/` | Test harness only — no runtime backend |
+| `tests/` | Test harness only — no runtime backend |
 | `supabase/migrations/` | Schema |
 | `fixtures/samples/` | The real hand-history corpus, one directory per site |
 | `gg-hh/`, `weplay-hh/` | The original reference and source corpora the project started from |
@@ -362,7 +362,7 @@ and expensive to undo.
 **Nothing under `frontend/src/lib/{phf,parsers,replay,cards,format,stats}` may
 import `next/*`, `server-only`, or read `process.env`.**
 
-`backend/test/*.ts` imports those modules directly, by relative path —
+`tests/test/*.ts` imports those modules directly, by relative path —
 `../../frontend/src/lib/phf/serialize.js` and a dozen more — under plain Node
 with no bundler and no framework. **3114 tests across 435 fixtures hang off
 that.** A single framework import anywhere in that subtree breaks all of them at
@@ -376,7 +376,7 @@ lives at `frontend/src/app/`, which Next resolves natively, precisely so that
 
 Anything Next-shaped goes in `lib/supabase/`, `lib/server/` or `app/`.
 `lib/routes.ts` and `lib/i18n/` are deliberately outside the rule: they are app
-configuration, not corpus code, and nothing in `backend/test` imports them.
+configuration, not corpus code, and nothing in `tests/test` imports them.
 
 Enforced by `no-restricted-imports` and `no-restricted-properties` in
 `frontend/eslint.config.js`, scoped to exactly those paths.

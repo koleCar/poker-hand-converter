@@ -5,7 +5,7 @@ import type { NextConfig } from "next";
  *
  * ## Why the root directory is still `frontend`
  *
- * `backend/test/*.ts` imports `../../frontend/src/lib/phf/serialize.js` and a
+ * `tests/test/*.ts` imports `../../frontend/src/lib/phf/serialize.js` and a
  * dozen more relative paths, and 3114 tests across 435 fixtures hang off them.
  * Moving the app to a sibling directory, or hoisting `src/` a level, would
  * break every one of them. So the App Router lives at `frontend/src/app/`,

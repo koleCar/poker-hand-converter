@@ -7,7 +7,7 @@
  *
  * Nothing in `lib/stats/**` may import anything but `lib/phf/types`,
  * `lib/phf/validate` and `lib/cards`. No Supabase, no React, no `window`, no
- * `process`. That is what lets `backend/test/` import this module directly and
+ * `process`. That is what lets `tests/test/` import this module directly and
  * run it over the whole corpus, and what will let a server-side backfill run the
  * identical function over stored hands later. `lib/replay.ts` obeys the same
  * rule and is the precedent.
@@ -65,7 +65,7 @@ function bbTenths(amount: number, bigBlind: number): number {
  * Derives every counter for every dealt-in seat of one hand.
  *
  * Deterministic by construction: it reads only the hand, and two calls on the
- * same document produce byte-identical output. `backend/test/statsDerive.test.ts`
+ * same document produce byte-identical output. `tests/test/statsDerive.test.ts`
  * asserts that over the corpus, because the cheapest way to break it is an
  * accidental mutation of the input.
  */

@@ -6,7 +6,7 @@
  * bets from a zero stack, a river with no turn. Storing those silently is worse
  * than rejecting them, because every statistic computed later inherits the lie.
  *
- * The checks below are the ones `backend/test/` has always asserted against the
+ * The checks below are the ones `tests/test/` has always asserted against the
  * real sample files, moved here so there is a single implementation:
  *
  *  - chip conservation: what went in equals the reported pot

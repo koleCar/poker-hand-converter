@@ -9,4 +9,4 @@
 fixtures/** -text -diff
 gg-hh/** -text -diff
 weplay-hh/** -text -diff
-backend/test/fixtures/** -text -diff
+tests/test/fixtures/** -text -diff

@@ -8,7 +8,7 @@
  * for: each case is a hand small enough to read in full, with the counters
  * spelled out.
  *
- * The seventeen synthetic hands live in `backend/test/fixtures/stats/` as
+ * The seventeen synthetic hands live in `tests/test/fixtures/stats/` as
  * standard text — the GG dialect, which `parseStandardHand` reads — so the
  * fixture *is* the documentation: open the file and the spot is right there.
  * They are deliberately minimal and deliberately arithmetic-clean, so a failure

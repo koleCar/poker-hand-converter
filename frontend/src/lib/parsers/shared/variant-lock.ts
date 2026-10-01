@@ -178,7 +178,7 @@ function describe(variant: Variant): string {
  * text reader turns it back into `variant` / `limit` / `hiLo`. So the label is
  * the wire format between the two halves, and it has to be a string those
  * readers agree on: every value this returns is round-tripped by
- * `variantFromLabel` and `limitFromLabel`, which `backend/test/phfOmahaParsers.test.ts`
+ * `variantFromLabel` and `limitFromLabel`, which `tests/test/phfOmahaParsers.test.ts`
  * asserts over every combination.
  *
  * The wording is PokerStars', because that is what the standard text already

@@ -8,7 +8,7 @@
  * difference between a clean import and a silent drop.
  *
  * The two functions here are exact inverses over every sample file in `gg-hh/`
- * and over everything the WePlay parser produces. `backend/test/roundTrip.test.ts`
+ * and over everything the WePlay parser produces. `tests/test/roundTrip.test.ts`
  * enforces that.
  */
 

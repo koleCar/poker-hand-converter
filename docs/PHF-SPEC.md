@@ -346,7 +346,7 @@ is `["SB", "BB"]` and nothing is labelled `BTN`. Code that needs to know where
 the button is must read `PhfTable.buttonSeat`; `position === "BTN"` is not a
 button test. The rooms' own SUMMARY blocks agree - they print
 `Seat 4: Hero (button) (small blind)` - and
-`backend/test/phfPositions.test.ts` cross-checks `PhfPlayer.position` against
+`tests/test/phfPositions.test.ts` cross-checks `PhfPlayer.position` against
 those words over every hand in `gg-hh/` and `weplay-hh/`, at every table size
 from two- to nine-handed.
 
@@ -983,7 +983,7 @@ export const exampleParser: SiteParser = {
       // ... one branch per line shape ...
 
       // 3. Anything you do not understand becomes a warning, never a silent
-      //    drop. `backend/test/` asserts the corpus parses with zero warnings,
+      //    drop. `tests/test/` asserts the corpus parses with zero warnings,
       //    so an unhandled line shape fails the build instead of the user.
       warnings.push({ code: "unknown-line", message: line, line: i + 1 });
     }
@@ -1053,10 +1053,10 @@ byte-exact excerpts where an editor "helpfully" normalizing a glyph or a CRLF
 would destroy the thing under test. `fixtures/**` is marked `-text` in
 `.gitattributes` for exactly that reason.
 
-`backend/test/fixtures/` is *not* the place: it holds only the `gg/` and
+`tests/test/fixtures/` is *not* the place: it holds only the `gg/` and
 `weplay/` regression cases that predate this layout.
 
-Load a corpus through a helper in `backend/test/support/` — there are several
+Load a corpus through a helper in `tests/test/support/` — there are several
 (`corpus.ts`, `p2Corpus.ts`, `p4Corpus.ts`, `p6Corpus.ts`, `psggCorpus.ts`),
 each reading `fixtures/samples/<site>` and returning files for a table-driven
 `it.each`. Reuse the closest one rather than adding a sixth.
@@ -1079,7 +1079,7 @@ each reading `fixtures/samples/<site>` and returning files for a table-driven
    frame (`phfReplay.test.ts`).
 6. **One test per bug** — when a real hand breaks the parser, add the hand as a
    fixture with a comment saying what it broke. That is why
-   `backend/test/fixtures/weplay/` exists and why the WePlay normalizer still
+   `tests/test/fixtures/weplay/` exists and why the WePlay normalizer still
    works.
 
 ### 8.6 Lessons from nineteen parsers

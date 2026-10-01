@@ -11,7 +11,7 @@ it is what found `game.straddles[].player`, a name-bearing field that nobody
 had listed.
 
 ```bash
-cd backend
+cd tests
 npx tsx scripts/scrub-corpus/dump.ts /tmp/corpus.ndjson
 
 # a local stack: `supabase start` (or `supabase db start`) from the repo root

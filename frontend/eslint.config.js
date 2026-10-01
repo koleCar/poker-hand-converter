@@ -110,7 +110,7 @@ export default defineConfig([
   /**
    * The rule that keeps the test harness alive.
    *
-   * `backend/test/*.ts` imports these modules directly, by relative path, under
+   * `tests/test/*.ts` imports these modules directly, by relative path, under
    * plain Node with no bundler and no framework. 3114 tests across 435 fixtures
    * hang off that. A single `import ... from "next/headers"` or a
    * `process.env.X` anywhere in this subtree breaks all of them at once, and the
@@ -119,7 +119,7 @@ export default defineConfig([
    *
    * Anything Next-shaped belongs in `lib/supabase/`, `lib/server/` or `app/`.
    * `lib/routes.ts` and `lib/i18n/` are deliberately outside this list: they are
-   * app configuration, not corpus code, and nothing in `backend/test` imports
+   * app configuration, not corpus code, and nothing in `tests/test` imports
    * them.
    */
   {
@@ -140,7 +140,7 @@ export default defineConfig([
             {
               group: ['next', 'next/*', 'server-only', 'client-only'],
               message:
-                'The pure-TypeScript library layer is imported directly by backend/test under plain Node. Framework imports belong in lib/supabase/, lib/server/ or app/.',
+                'The pure-TypeScript library layer is imported directly by tests/test under plain Node. Framework imports belong in lib/supabase/, lib/server/ or app/.',
             },
           ],
         },

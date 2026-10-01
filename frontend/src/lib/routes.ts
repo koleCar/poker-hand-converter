@@ -13,7 +13,7 @@
  * place in the app that needs an *absolute* URL.
  *
  * NOTE (see README, "The rule that keeps the test harness alive"): this file is
- * `lib/`, but it is not one of the pure-TypeScript modules the backend harness
+ * `lib/`, but it is not one of the pure-TypeScript modules the test harness
  * imports — `lib/{phf,parsers,replay,cards,format,stats}`. Those may never touch
  * `process.env`. This one may, and does, for `NEXT_PUBLIC_SITE_URL`.
  */

@@ -7,7 +7,7 @@
  * PokerTracker import the text this function used to produce, so any change to
  * that text has to be a deliberate, reviewed one rather than a regression.
  *
- * `backend/test/byteCompat.test.ts` lists the differences that are accepted and
+ * `tests/test/byteCompat.test.ts` lists the differences that are accepted and
  * why.
  */
 

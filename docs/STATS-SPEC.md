@@ -28,10 +28,10 @@ Implementation:
 | `frontend/src/lib/stats/money.ts` | `won` / `contributed` / `net` / `rake_paid` |
 | `frontend/src/lib/stats/mapping.ts` | the flat row and the checked-in column list |
 | `frontend/src/lib/stats/rates.ts` | summing rows, and rates at read time |
-| `backend/test/statsDerive.test.ts` | the corpus-wide property suite |
-| `backend/test/statsSpots.test.ts` | one pinned hand per hard case |
-| `backend/test/support/statsInvariants.ts` | the invariants, as pure functions |
-| `backend/test/fixtures/stats/` | seventeen hand-written spot hands, in standard text |
+| `tests/test/statsDerive.test.ts` | the corpus-wide property suite |
+| `tests/test/statsSpots.test.ts` | one pinned hand per hard case |
+| `tests/test/support/statsInvariants.ts` | the invariants, as pure functions |
+| `tests/test/fixtures/stats/` | seventeen hand-written spot hands, in standard text |
 
 > ### Read this before you add a counter
 >
@@ -52,7 +52,7 @@ A pure TS function turns one `PhfHand` into N flat rows of integer counters; SQL
 never does more than `sum()` and `group by`. Three independent reasons, any one
 decisive:
 
-1. **The corpus harness.** `backend/` runs 3000+ assertions over 524 real hand
+1. **The corpus harness.** `tests/` runs 3000+ assertions over 524 real hand
    history files from nineteen rooms. A `plpgsql` 3-bet definition cannot be
    tested that way, and the stat definitions are precisely the code that most
    needs it — every one of them is a place two trackers disagree.
@@ -76,10 +76,10 @@ Rows carry `made` and `opp`; `rates.ts` divides at read time.
 `lib/phf/validate` and `lib/cards`.** No Supabase, no React, no `window`, no
 `process`.
 
-That is what lets `backend/test/` import the module directly and run it over the
+That is what lets `tests/test/` import the module directly and run it over the
 whole corpus, and what will let a server-side backfill run the identical
 function over stored hands. `lib/replay.ts` obeys the same rule and is the
-precedent. `backend/test/statsDerive.test.ts` asserts it by reading the source
+precedent. `tests/test/statsDerive.test.ts` asserts it by reading the source
 files, because the first `import { supabase }` would work perfectly in the
 browser and only fail months later in a route handler.
 
@@ -127,7 +127,7 @@ make one 4-bet war look like a whole session. Asserted over the corpus:
 ## 4. Where PT4 and HM3 disagree — and what we chose
 
 These are the calls. Each one is implemented, pinned by a fixture in
-`backend/test/fixtures/stats/`, and asserted in `statsSpots.test.ts`.
+`tests/test/fixtures/stats/`, and asserted in `statsSpots.test.ts`.
 
 ### 4.1 A straddle is a blind, not a raise
 
