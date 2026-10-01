@@ -1,15 +1,24 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { AppFrame } from "../../components/shell/AppFrame";
 import { useAuth } from "../../lib/auth";
-import { createPost, forumErrorMessage } from "../../lib/db/forum";
-import type { Board } from "../../lib/forum/types";
+import { createPollPost, createPost, forumErrorMessage } from "../../lib/db/forum";
+import { CHOICE_LABEL, pollSpots } from "../../lib/forum/poll";
+import type { Board, PollChoice } from "../../lib/forum/types";
+import type { PhfHand } from "../../lib/phf/types";
 import { en } from "../../lib/i18n/en";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import styles from "../../components/forum/forum.module.css";
+
+interface Attached {
+  publicId: string;
+  label: string;
+  title: string | null;
+  phf: PhfHand;
+}
 
 export function SubmitScreen({
   boards,
@@ -17,7 +26,7 @@ export function SubmitScreen({
   initialBoard,
 }: {
   boards: Board[];
-  attached: { publicId: string; label: string; title: string | null } | null;
+  attached: Attached | null;
   initialBoard: string | null;
 }) {
   return (
@@ -33,7 +42,7 @@ function SubmitForm({
   initialBoard,
 }: {
   boards: Board[];
-  attached: { publicId: string; label: string; title: string | null } | null;
+  attached: Attached | null;
   initialBoard: string | null;
 }) {
   const auth = useAuth();
@@ -46,6 +55,30 @@ function SubmitForm({
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // #51: a hand post can instead ask "what would you do?" at one of the
+  // author's own decisions. The server re-checks all of this.
+  const spots = useMemo(() => (attached ? pollSpots(attached.phf) : []), [attached]);
+  const [asPoll, setAsPoll] = useState(false);
+  const [spotIndex, setSpotIndex] = useState(0);
+  const spot = spots[spotIndex] ?? null;
+  const [options, setOptions] = useState<PollChoice[]>([]);
+  const [hideCards, setHideCards] = useState(false);
+  const offered = spot ? (options.length ? options : spot.options) : [];
+
+  function pickSpot(index: number) {
+    setSpotIndex(index);
+    setOptions(spots[index]?.options ?? []);
+  }
+
+  function toggleOption(choice: PollChoice) {
+    if (!spot || choice === spot.did) return;
+    if (offered.includes(choice)) {
+      // Two to four answers: fewer is not a question, more is a menu.
+      if (offered.length > 2) setOptions(offered.filter((value) => value !== choice));
+    } else if (offered.length < 4) {
+      setOptions([...offered, choice]);
+    }
+  }
 
   if (!auth.isSignedIn) {
     return (
@@ -67,7 +100,18 @@ function SubmitForm({
     setBusy(true);
     setError(null);
     try {
-      const result = await createPost({ board, title, body, hand: attached?.publicId ?? null });
+      const result =
+        asPoll && attached && spot
+          ? await createPollPost({
+              board,
+              title,
+              body,
+              hand: attached.publicId,
+              stopIndex: spot.action.index,
+              options: offered,
+              hideHeroCards: hideCards,
+            })
+          : await createPost({ board, title, body, hand: attached?.publicId ?? null });
       router.push(paths.post(result.board, result.publicId, result.slug));
     } catch (err) {
       setError(forumErrorMessage(err));
@@ -103,6 +147,60 @@ function SubmitForm({
           <span>{en.forum.submit.hand}</span>
           <p className="muted">{attached ? en.forum.submit.handAttached(attached.label) : en.forum.submit.handHint}</p>
         </div>
+        {attached ? (
+          <fieldset className={`stack ${styles.pollSetup}`}>
+            <label className={styles.checkRow}>
+              <input
+                type="checkbox"
+                checked={asPoll}
+                disabled={spots.length === 0}
+                onChange={(event) => {
+                  setAsPoll(event.target.checked);
+                  if (event.target.checked && options.length === 0) pickSpot(spotIndex);
+                }}
+              />
+              <span>{en.forum.submit.poll.toggle}</span>
+            </label>
+            <p className="muted">{spots.length ? en.forum.submit.poll.toggleHint : en.forum.submit.poll.noSpots}</p>
+            {asPoll && spot ? (
+              <>
+                <label className="stack">
+                  <span>{en.forum.submit.poll.spot}</span>
+                  <select value={spotIndex} onChange={(event) => pickSpot(Number(event.target.value))}>
+                    {spots.map((entry, index) => (
+                      <option key={entry.action.index} value={index}>
+                        {en.forum.submit.poll.spotLabel(entry.action.street, entry.facingBet, CHOICE_LABEL[entry.did])}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="stack">
+                  <span>{en.forum.submit.poll.options}</span>
+                  <div className={styles.pollOptions}>
+                    {(["fold", "check", "call", "bet", "raise", "allin"] as const).map((choice) => (
+                      <label key={choice} className={styles.checkRow}>
+                        <input
+                          type="checkbox"
+                          checked={offered.includes(choice)}
+                          disabled={choice === spot.did}
+                          onChange={() => toggleOption(choice)}
+                        />
+                        <span>
+                          {CHOICE_LABEL[choice]}
+                          {choice === spot.did ? ` (${en.forum.submit.poll.optionLocked})` : ""}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <label className={styles.checkRow}>
+                  <input type="checkbox" checked={hideCards} onChange={(event) => setHideCards(event.target.checked)} />
+                  <span>{en.forum.submit.poll.hideCards}</span>
+                </label>
+              </>
+            ) : null}
+          </fieldset>
+        ) : null}
         <label className="stack">
           <span>{en.forum.submit.body}</span>
           <textarea

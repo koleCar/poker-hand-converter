@@ -6,6 +6,7 @@
  * is `auth.uid()` on the server; nothing here says who is acting.
  */
 
+import type { ForumComment, PollChoice, PollState } from "../forum/types";
 import { rpc } from "./client";
 
 export interface VoteCounts {
@@ -22,6 +23,43 @@ export function createPost(input: { board: string; title: string; body: string; 
     p_body: input.body,
     p_published_hand: input.hand || null,
   });
+}
+
+/**
+ * A post that asks "what would you do?" about one of the author's own
+ * decisions. The server seals the hand until each reader has answered.
+ */
+export function createPollPost(input: {
+  board: string;
+  title: string;
+  body: string;
+  hand: string;
+  stopIndex: number;
+  options: PollChoice[];
+  hideHeroCards: boolean;
+}) {
+  return rpc<{ publicId: string; board: string; slug: string }>("create_poll_post", {
+    p_board: input.board,
+    p_title: input.title,
+    p_body: input.body,
+    p_published_hand: input.hand,
+    p_stop_index: input.stopIndex,
+    p_options: input.options,
+    p_hide_hero: input.hideHeroCards,
+  });
+}
+
+export function readPoll(post: string) {
+  return rpc<PollState | null>("read_poll", { p_post: post });
+}
+
+/** A thread's comments as the signed-in caller may see them (a poll's, once answered). */
+export function readCommentsAsMe(post: string, sort: string) {
+  return rpc<ForumComment[]>("get_post_comments", { p_public_id: post, p_sort: sort });
+}
+
+export function votePoll(post: string, choice: PollChoice, sizePct: number | null) {
+  return rpc<PollState>("vote_poll", { p_post: post, p_choice: choice, p_size_pct: sizePct });
 }
 
 export function editPost(publicId: string, title: string, body: string) {

@@ -212,6 +212,11 @@ export const en = {
       "as-imported": "Screen names are shown as the poker room printed them, at the publisher's choice.",
     },
     replayHeading: "Replay",
+    poll: {
+      heading: "This hand is a poll",
+      body: "Its author asks what you would do at one of their decisions. Answer it, and the whole hand opens.",
+      cta: "Answer the poll",
+    },
     gone: {
       deleted: {
         heading: "This hand was removed by the person who published it",
@@ -258,6 +263,28 @@ export const en = {
     handBadge: "Hand",
     postDate: (date: string) => date,
 
+    poll: {
+      badge: (votes: number) => `Poll · ${votes} ${votes === 1 ? "answer" : "answers"}`,
+      heading: "What would you do?",
+      intro: (votes: number) =>
+        votes === 0
+          ? "Nobody has answered yet. Answer to see the rest of the hand and the discussion."
+          : `${votes} ${votes === 1 ? "person has" : "people have"} answered. Answer to see the rest of the hand, how they voted, and the discussion.`,
+      cardsHidden: "The author hid their cards: this one is about the range.",
+      size: "Size (of the pot)",
+      sizeNone: "No size",
+      vote: "Answer",
+      voting: "Answering…",
+      signIn: "Sign in to answer",
+      results: "How people answered",
+      hero: "what happened",
+      votes: (count: number) => `${count} ${count === 1 ? "vote" : "votes"}`,
+      median: (pct: number) => `median ${pct}% pot`,
+      yours: "your answer",
+      authorNote: "Your poll. Readers see the hand stopped at your decision until they answer; you see all of it.",
+      handGone: "The hand behind this poll has been unpublished.",
+      discussionLocked: "The discussion opens once you have answered.",
+    },
     post: {
       replayHeading: "Replay",
       commentOnSpot: "Comment on this spot",
@@ -314,6 +341,18 @@ export const en = {
       submit: "Post",
       submitting: "Posting…",
       signIn: "Sign in to post.",
+      poll: {
+        toggle: "Ask readers what they would do",
+        toggleHint:
+          "Readers see the hand up to your decision, vote, and only then see the rest — and the comments. The hand stays hidden everywhere else until they answer.",
+        spot: "Stop at",
+        spotLabel: (street: string, facing: boolean, did: string) =>
+          `${street[0].toUpperCase()}${street.slice(1)}, ${facing ? "facing a bet" : "no bet to you"} — you ${did.toLowerCase()}`,
+        options: "Answers to offer",
+        optionLocked: "what you did",
+        hideCards: "Hide my cards (ask about the range, not the hand)",
+        noSpots: "This hand has no decision of yours to ask about.",
+      },
     },
 
     searchPage: {

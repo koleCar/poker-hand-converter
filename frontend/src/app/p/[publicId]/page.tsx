@@ -114,6 +114,8 @@ export default async function PublishedHandPage({ params, searchParams }: PagePr
       <main className={`sharepage__main ${styles.main}`}>
         {result.status === "ok" ? (
           <PublishedContent published={result.hand} initialPosition={initialPosition} />
+        ) : result.status === "poll" ? (
+          <SealedByPoll post={result.post} />
         ) : (
           <Gone kind={result.status} />
         )}
@@ -171,6 +173,21 @@ function PublishedContent({
         <ReplayViewer hand={hand} site={siteName} initialPosition={initialPosition} />
       </section>
     </article>
+  );
+}
+
+/** A hand sealed behind a poll: say so, and point at the question, never the answer. */
+function SealedByPoll({ post }: { post: { board: string; publicId: string; slug: string } | null }) {
+  return (
+    <section className="sharepage__problem">
+      <h1>{en.published.poll.heading}</h1>
+      <p>{en.published.poll.body}</p>
+      <div className="sharepage__problem-actions">
+        <Link href={post ? paths.post(post.board, post.publicId, post.slug) : paths.home()} className="btn btn--primary">
+          {post ? en.published.poll.cta : en.published.homeCta}
+        </Link>
+      </div>
+    </section>
   );
 }
 

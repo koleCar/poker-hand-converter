@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import type { Board, FeedPage, FeedSort, ForumComment, ForumPost, SearchHit } from "../forum/types";
+import type { Board, FeedPage, FeedSort, ForumComment, ForumPost, PollState, SearchHit } from "../forum/types";
 import { getAnonServerSupabase } from "../supabase/server";
 
 /**
@@ -85,3 +85,13 @@ export async function recentPosts(limit = 5000): Promise<Array<{ path: [string, 
     createdAt: String(row.edited_at ?? row.created_at),
   }));
 }
+
+/** A poll as an anonymous reader sees it: the spot, never the answer. */
+export const readPollAnon = cache(async (publicId: string): Promise<PollState | null> => {
+  if (!POST_ID.test(publicId)) return null;
+  const supabase = getAnonServerSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("read_poll", { p_post: publicId });
+  if (error || !data) return null;
+  return data as unknown as PollState;
+});

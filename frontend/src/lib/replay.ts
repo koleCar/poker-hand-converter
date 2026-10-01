@@ -646,13 +646,38 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
     }
   }
 
+  // A street the hand reached without anybody acting on it and without a
+  // showdown: the betting stream simply stops. That is exactly the shape of a
+  // poll's spot (#51) — the document ends right before the author's decision
+  // on, say, the flop — and the reader has to see the flop to answer.
+  const reached = hand.results.streetReached;
+  if (
+    currentStreet !== "showdown" &&
+    (reached === "flop" || reached === "turn" || reached === "river") &&
+    boardSliceFor(reached, fullBoard).length > board.length
+  ) {
+    if (sweepBets()) {
+      clearLastActions();
+      snapshot("collect", "Chips to the pot", null);
+    }
+    currentStreet = reached;
+    board = boardSliceFor(reached, fullBoard);
+    boardSecond = boardSliceFor(reached, fullBoardSecond);
+    clearLastActions();
+    snapshot("street", `${reached.toUpperCase()} ${board.join(" ")}`, null);
+  }
+
   // Awards: one frame per pot, main first, so a side pot is paid as its own
   // beat instead of every winner's stack jumping from dead centre at once.
   sweepBets();
   clearLastActions();
-  currentStreet = "showdown";
-
   const groups = awardGroups(hand);
+  // Only a hand that pays somebody ends at the showdown. One that pays nobody
+  // — a poll's spot — ends on the street it stopped on.
+  if (groups.length > 0) {
+    currentStreet = "showdown";
+  }
+
   if (groups.length > 0) {
     const owed = groups.map((group) =>
       group.winners.reduce((sum, winner) => sum + winner.amount, 0),
