@@ -7,6 +7,7 @@ import { decodePosition, POSITION_PARAM, type ReplayPosition } from "../../../co
 import { buildSharePreview, formatStakes, shortGameName } from "../../../components/share/preview";
 import { BrandMark } from "../../../components/shell/BrandMark";
 import { ReportButton } from "../../../components/forum/ReportButton";
+import { EmbedButton } from "../../../components/embed/EmbedButton";
 import { en } from "../../../lib/i18n/en";
 import { getParser } from "../../../lib/parsers";
 import type { PhfHand } from "../../../lib/phf/types";
@@ -71,7 +72,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description: preview.description,
-    alternates: { canonical: url },
+    alternates: {
+      canonical: url,
+      // oEmbed discovery: WordPress, Ghost and friends turn the pasted link
+      // into the embedded replayer (#52).
+      types: { "application/json+oembed": canonicalUrl(`/api/oembed?url=${encodeURIComponent(url)}`) },
+    },
     robots: { index: true, follow: true },
     openGraph: {
       type: "article",
@@ -163,6 +169,7 @@ function PublishedContent({
           {en.published.modeNote[published.mode]}{" "}
           <ReportButton subject={{ type: "published_hand", publicId: published.publicId }} defaultReason="hh-takedown" />
         </p>
+        <EmbedButton src={canonicalUrl(`/embed/p/${published.publicId}`)} />
       </header>
 
       <section className={`card ${styles.card}`}>

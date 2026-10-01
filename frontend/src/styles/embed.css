@@ -1,0 +1,69 @@
+/* -------------------------------------------------------------------- embed
+   An embedded replayer (#52): it fills whatever box the host page gives it,
+   and the only chrome is the credit line under it. */
+
+/* `height`, not `min-height`: the replayer's embed box is `100%` of its
+   parent, and a percentage only resolves against a definite height. The iframe
+   is the frame; `html, body, #root` are already 100% of it. */
+.embed {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--surface-base);
+}
+
+.embed__body {
+  flex: 1;
+  min-height: 0;
+}
+
+.embed__credit {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: var(--font-size-sm);
+  color: var(--fg-muted);
+  text-decoration: none;
+}
+
+.embed__credit:hover,
+.embed__credit:focus-visible {
+  color: var(--fg);
+}
+
+.embed__gone {
+  margin: 0;
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--fg-muted);
+}
+
+/* The "Embed" disclosure on a published hand's page. */
+.embed-snippet > summary {
+  list-style: none;
+  display: inline-flex;
+}
+
+.embed-snippet > summary::-webkit-details-marker {
+  display: none;
+}
+
+.embed-snippet__body {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.embed-snippet__body textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  color: var(--fg);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  resize: vertical;
+}
