@@ -35,6 +35,7 @@ export {
 export {
   emptyStatsGraph,
   emptyStatsSummary,
+  fetchStatsBreakdown,
   fetchStatsCoverage,
   fetchStatsGraph,
   fetchStatsSummary,
@@ -43,6 +44,8 @@ export {
   saveHandStats,
   villainRowsEnabled,
   type HandStatsInsert,
+  type BreakdownGroup,
+  type BreakdownRow,
   type MoneyUnitState,
   type RebuildProgress,
   type SaveHandStatsResult,
@@ -50,6 +53,7 @@ export {
   type StatsGraph,
   type StatsGraphBucket,
   type StakeVolume,
+  type StatsBreakdown,
   type StatsCoverage,
   type StatsSummary,
 } from "./stats";

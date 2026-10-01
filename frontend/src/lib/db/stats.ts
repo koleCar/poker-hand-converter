@@ -500,3 +500,80 @@ export async function rebuildStats(
   }
   return total;
 }
+
+/* ------------------------------------------------------------ breakdown - */
+
+/** The dimensions `stats_breakdown` will split by. Anything else is a 22023. */
+export type BreakdownGroup =
+  | "position"
+  | "table_size"
+  | "site"
+  | "stakes"
+  | "hand_class"
+  | "stack_bb";
+
+export interface BreakdownRow {
+  /** The group value: "BTN", "AKs", "6", "USD:50:100", "100-150"; null when unknown. */
+  key: string | null;
+  /**
+   * The row as the HUD's own types, so `rates()` divides it. Only the counters
+   * a breakdown carries are filled; the rest are zero, and the table shows
+   * only the ones that are filled.
+   */
+  counters: SeatCounters;
+  /** Null when the sample's units refuse to be summed (chips with cash). */
+  money: SeatMoney | null;
+  moneyHands: number;
+}
+
+export interface StatsBreakdown {
+  group: BreakdownGroup;
+  rows: BreakdownRow[];
+  mixedCurrency: boolean;
+  mixedUnitKind: boolean;
+  currency: string | null;
+  currencyMinorUnits: number | null;
+}
+
+/**
+ * Same filters as the summary, split by one dimension. The split is a `group
+ * by` over columns already on the row; the dimension is whitelisted server-side.
+ */
+export async function fetchStatsBreakdown(
+  filters: StatsFilters,
+  group: BreakdownGroup,
+): Promise<StatsBreakdown> {
+  const empty: StatsBreakdown = {
+    group,
+    rows: [],
+    mixedCurrency: false,
+    mixedUnitKind: false,
+    currency: null,
+    currencyMinorUnits: null,
+  };
+  if (!(await currentUserId())) {
+    return empty;
+  }
+  const payload = await rpc<Row | null>("stats_breakdown", { p_filters: filters, p_group: group });
+  if (!payload) {
+    return empty;
+  }
+  const rows = Array.isArray(payload.rows) ? (payload.rows as Row[]) : [];
+  return {
+    group,
+    rows: rows.map((row) => {
+      const counters = toCounters(row);
+      const hasMoney = "net_bb_milli" in row;
+      const money = hasMoney ? emptyMoney() : null;
+      if (money) {
+        money.net_bb_milli = num(row.net_bb_milli);
+        money.net = num(row.net);
+      }
+      return { key: str(row.key), counters, money, moneyHands: num(row.money_hands) };
+    }),
+    mixedCurrency: payload.mixedCurrency === true,
+    mixedUnitKind: payload.mixedUnitKind === true,
+    currency: str(payload.currency),
+    currencyMinorUnits: maybeNum(payload.currencyMinorUnits),
+  };
+}

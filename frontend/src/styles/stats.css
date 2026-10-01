@@ -592,3 +592,143 @@
     forced-color-adjust: none;
   }
 }
+
+/* ------------------------------------------------------------ breakdown */
+
+.stats-breakdown__head {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.stats-breakdown__note {
+  font-size: var(--font-size-sm);
+}
+
+/* The table scrolls inside its card on a phone; the page never does. */
+.stats-table-wrap {
+  overflow-x: auto;
+  margin: 0 -4px;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 7px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.stats-table thead th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-dim);
+  font-weight: 600;
+}
+
+.stats-table tbody th {
+  font-weight: 600;
+  position: sticky;
+  left: 0;
+  background: var(--surface-raised);
+}
+
+.stats-table .num {
+  text-align: right;
+}
+
+.stats-table .is-up {
+  color: var(--profit-fg);
+}
+
+.stats-table .is-down {
+  color: var(--loss-fg);
+}
+
+.stats-table .is-thin {
+  opacity: 0.5;
+}
+
+/* --------------------------------------------------------------- matrix */
+
+.stats-matrix__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 16px;
+}
+
+.stats-matrix {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.stats-matrix__row {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.stats-matrix__cell {
+  --tint: var(--accent-bg);
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--tint) var(--cell-strength, 0%), var(--surface-inset));
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.stats-matrix__cell.is-up {
+  --tint: var(--profit-fg);
+}
+
+.stats-matrix__cell.is-down {
+  --tint: var(--loss-fg);
+}
+
+.stats-matrix__cell.is-empty {
+  color: var(--fg-dim);
+}
+
+.stats-matrix__cell.is-selected,
+.stats-matrix__cell:focus-visible {
+  border-color: var(--fg);
+  outline: none;
+}
+
+.stats-matrix__class {
+  font-size: clamp(8px, 1.9vw, 12px);
+  font-weight: 600;
+}
+
+.stats-matrix__value {
+  font-size: clamp(7px, 1.6vw, 10px);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.stats-matrix__detail {
+  min-height: 1.5em;
+  text-align: center;
+  font-size: var(--font-size-sm);
+}
