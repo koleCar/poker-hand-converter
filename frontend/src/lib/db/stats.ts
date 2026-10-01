@@ -39,6 +39,7 @@ import {
 
 export {
   handStatsRows,
+  setVillainRowsEnabled,
   villainRowsEnabled,
   type DeriveOptions,
   type HandStatsInsert,
@@ -576,4 +577,90 @@ export async function fetchStatsBreakdown(
     currency: str(payload.currency),
     currencyMinorUnits: maybeNum(payload.currencyMinorUnits),
   };
+}
+
+/* ------------------------------------------------------------ opponents - */
+
+export interface OpponentRow {
+  site: string;
+  player: string;
+  /** Their counters, in the HUD's own shape so `rates()` divides them. */
+  counters: SeatCounters;
+  lastSeen: string | null;
+  /** The caller's own result in the hands this opponent was dealt into; null when the scope mixes chips and cash. */
+  heroNetBb: number | null;
+  heroMoneyHands: number;
+}
+
+export interface StatsOpponents {
+  rows: OpponentRow[];
+  mixedUnitKind: boolean;
+  /** Villain rows left out because the room's names do not survive a session. */
+  opaqueRows: number;
+  villainRows: number;
+}
+
+export interface OpponentFilters extends StatsFilters {
+  /** Hide opponents seen in fewer hands than this. */
+  minHands?: number;
+}
+
+/**
+ * Opponents from rooms with persistent names, biggest sample first, with the
+ * caller's own result against each. Prefix search on the name.
+ */
+export async function fetchStatsOpponents(
+  filters: OpponentFilters,
+  search = "",
+  limit = 50,
+): Promise<StatsOpponents> {
+  const empty: StatsOpponents = { rows: [], mixedUnitKind: false, opaqueRows: 0, villainRows: 0 };
+  if (!(await currentUserId())) {
+    return empty;
+  }
+  const payload = await rpc<Row | null>("stats_opponents", {
+    p_filters: filters,
+    p_search: search || null,
+    p_limit: limit,
+  });
+  if (!payload) {
+    return empty;
+  }
+  const rows = Array.isArray(payload.rows) ? (payload.rows as Row[]) : [];
+  return {
+    rows: rows.map((row) => {
+      const counters = toCounters(row);
+      // The report sums postflop actions across streets; `rates()` adds the
+      // three streets back up, so the flop slot carries the total.
+      counters.bet_flop = num(row.bets);
+      counters.raise_flop = num(row.raises);
+      counters.call_flop = num(row.calls);
+      counters.fold_flop = num(row.folds);
+      const hasMoney = "hero_net_bb_milli" in row;
+      return {
+        site: str(row.site) ?? "",
+        player: str(row.player) ?? "",
+        counters,
+        lastSeen: str(row.last_seen),
+        heroNetBb: hasMoney ? num(row.hero_net_bb_milli) / 1000 : null,
+        heroMoneyHands: num(row.hero_money_hands),
+      };
+    }),
+    mixedUnitKind: payload.mixedUnitKind === true,
+    opaqueRows: num(payload.opaqueRows),
+    villainRows: num(payload.villainRows),
+  };
+}
+
+/** Turning opponent statistics off: removes the caller's villain rows, in slices. */
+export async function pruneVillainStats(): Promise<number> {
+  let total = 0;
+  for (let i = 0; i < 500; i += 1) {
+    const payload = await rpc<{ deleted?: number; more?: boolean }>("prune_villain_stats", {});
+    total += payload?.deleted ?? 0;
+    if (!payload?.more) {
+      break;
+    }
+  }
+  return total;
 }

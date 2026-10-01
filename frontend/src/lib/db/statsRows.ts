@@ -51,6 +51,20 @@ export function villainRowsEnabled(): boolean {
   }
 }
 
+/** Flips the setting. Returns whether it stuck (private mode can refuse). */
+export function setVillainRowsEnabled(on: boolean): boolean {
+  try {
+    if (on) {
+      localStorage.setItem(VILLAIN_ROWS_KEY, "on");
+    } else {
+      localStorage.removeItem(VILLAIN_ROWS_KEY);
+    }
+    return villainRowsEnabled() === on;
+  } catch {
+    return false;
+  }
+}
+
 export interface DeriveOptions {
   /** Defaults to {@link villainRowsEnabled}. */
   includeVillains?: boolean;
