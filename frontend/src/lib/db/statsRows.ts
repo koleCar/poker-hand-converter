@@ -7,7 +7,8 @@
  * one property of a room that `lib/stats` has no business knowing.
  */
 
-import { handFacts, statsRows, type StatsRow } from "../stats";
+import { EV_VERSION, evNetBySeat } from "../equity";
+import { handFacts, statsRows, toBbMilli, type StatsRow } from "../stats";
 import type { PhfHand } from "../phf/types";
 import { detectAnonymization } from "./anonymization";
 import type { SiteAnonymization } from "./types";
@@ -93,4 +94,48 @@ export function handStatsRows(hand: PhfHand, options: DeriveOptions = {}): HandS
       site_hand_id: siteHandId,
       site_anonymization: anonymization,
     }));
+}
+
+/* ------------------------------------------------------------- all-in EV - */
+
+/** One row as `save_hand_ev` takes it. */
+export type HandEvInsert = {
+  hand_key: string;
+  seat: number;
+  ev_version: string;
+  /** True when there was an all-in with cards to come. */
+  applicable: boolean;
+  ev_net: number;
+  ev_net_bb_milli: number;
+};
+
+/**
+ * The hero's all-in-EV row for one hand, given the hero's statistics row.
+ *
+ * A hand with no all-in (or one the engine cannot evaluate: hi/lo, unknown
+ * cards, a double board) still gets a row, with `ev_net = net` — that is what
+ * lets the backfill compute "not evaluated yet" instead of re-deriving the
+ * whole library to find the hands that matter.
+ */
+export function handEvRow(hand: PhfHand, hero: HandStatsInsert): HandEvInsert {
+  const bySeat = evNetBySeat(hand);
+  const evNet = bySeat?.get(hero.seat);
+  if (bySeat === null || evNet === undefined) {
+    return {
+      hand_key: hero.hand_key,
+      seat: hero.seat,
+      ev_version: EV_VERSION,
+      applicable: false,
+      ev_net: hero.net,
+      ev_net_bb_milli: hero.net_bb_milli,
+    };
+  }
+  return {
+    hand_key: hero.hand_key,
+    seat: hero.seat,
+    ev_version: EV_VERSION,
+    applicable: true,
+    ev_net: evNet,
+    ev_net_bb_milli: hero.big_blind ? toBbMilli(evNet, hero.big_blind) : hero.net_bb_milli,
+  };
 }

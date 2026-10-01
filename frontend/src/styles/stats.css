@@ -403,6 +403,12 @@
   stroke: var(--accent-fg);
 }
 
+/* Dashed: a counterfactual, not money that moved. */
+.stats-chart__line--allInEv {
+  stroke: var(--text-secondary);
+  stroke-dasharray: 5 4;
+}
+
 /* A 2px ring in the surface colour, so two endpoints landing on top of each
    other stay two endpoints. Never a border — that would add ink that is not
    data. */
@@ -421,6 +427,10 @@
 
 .stats-chart__dot--nonShowdown {
   fill: var(--accent-fg);
+}
+
+.stats-chart__dot--allInEv {
+  fill: var(--text-secondary);
 }
 
 .stats-chart__crosshair {

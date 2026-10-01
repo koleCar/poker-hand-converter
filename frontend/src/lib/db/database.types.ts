@@ -663,6 +663,50 @@ export type Database = {
           },
         ]
       }
+      hand_stats_ev: {
+        Row: {
+          applicable: boolean
+          created_at: string
+          ev_net: number
+          ev_net_bb_milli: number
+          ev_version: string
+          hand_id: string
+          hand_key: string
+          owner_id: string
+          seat: number
+        }
+        Insert: {
+          applicable: boolean
+          created_at?: string
+          ev_net: number
+          ev_net_bb_milli: number
+          ev_version: string
+          hand_id: string
+          hand_key: string
+          owner_id: string
+          seat: number
+        }
+        Update: {
+          applicable?: boolean
+          created_at?: string
+          ev_net?: number
+          ev_net_bb_milli?: number
+          ev_version?: string
+          hand_id?: string
+          hand_key?: string
+          owner_id?: string
+          seat?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hand_stats_ev_hand_id_fkey"
+            columns: ["hand_id"]
+            isOneToOne: false
+            referencedRelation: "hands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hands: {
         Row: {
           ante: number | null
@@ -1763,6 +1807,7 @@ export type Database = {
       hands_needing_stats: {
         Args: {
           p_after?: string
+          p_ev_version?: string
           p_limit?: number
           p_version: string
           p_villains?: boolean
@@ -1939,6 +1984,7 @@ export type Database = {
       }
       resolve_share: { Args: { p_slug: string }; Returns: Json }
       resolve_username: { Args: { p_username: string }; Returns: Json }
+      save_hand_ev: { Args: { p_rows: Json }; Returns: Json }
       save_hand_stats: { Args: { p_rows: Json }; Returns: Json }
       save_hands: { Args: { p_hands: Json }; Returns: Json }
       save_post: {
@@ -1972,6 +2018,10 @@ export type Database = {
       stats_coverage: { Args: { p_version: string }; Returns: Json }
       stats_empty_graph: { Args: { p_version: string }; Returns: Json }
       stats_empty_summary: { Args: { p_version: string }; Returns: Json }
+      stats_ev_missing: {
+        Args: { p_ev_version: string; p_version: string }
+        Returns: number
+      }
       stats_graph: {
         Args: { p_buckets?: number; p_filters?: Json }
         Returns: Json
