@@ -235,6 +235,17 @@ export const en = {
     convertCta: "Replay your own hands",
   },
 
+  embed: {
+    title: "Hand replayer | Rail",
+    credit: "Replay on Rail",
+    gone: "This hand is no longer available.",
+    button: "Embed",
+    heading: "Embed this hand",
+    hint: "Paste this where the hand should appear — a forum post, a blog, a docs page. It sizes to the width it is given.",
+    copy: "Copy code",
+    copied: "Copied",
+  },
+
   forum: {
     metaHomeTitle: "Rail — poker hands, replayed and discussed",
     metaHomeDescription:

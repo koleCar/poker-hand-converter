@@ -46,6 +46,24 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // Clickjacking: nothing on this site may be framed by another origin —
+        // a framed /settings or /mod under a transparent overlay is a click
+        // nobody meant to make. `frame-ancestors` is the standard; the legacy
+        // header is for browsers that predate it.
+        //
+        // Except `/embed/*` (#52), which exists to be framed and holds nothing
+        // but a replayer of a hand that is already public or link-shared.
+        source: "/((?!embed/).*)",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        ],
+      },
+      {
+        source: "/embed/:path*",
+        headers: [{ key: "Content-Security-Policy", value: "frame-ancestors *" }],
+      },
+      {
         // Fonts are versioned in the filename (see `public/fonts/`), because
         // `public/` is copied verbatim and cannot be content-hashed.
         source: "/fonts/:path*",
