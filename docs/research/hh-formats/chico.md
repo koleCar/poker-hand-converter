@@ -376,9 +376,21 @@ Seat <n>: <name>[ showed [<cards>] and (won|lost)( <amt>)?| collected (<amt>)|fo
   `#1073059444` prints four lines with *differing* rakes
   (`6.91|1.35`, `3.95|1.10`, `10.30|0.60`, `11.55|0.60`), yet the summary lists exactly one
   winner (`Player2 ... won (11.55)`) and marks every other shown hand "but did not win".
-  Contributions sum to 34.41, the four printed pots sum to 32.71, and the rakes sum to 3.65 —
-  none of which reconcile. **This hand is self-inconsistent source data, not a format variant to
-  model.** Treat it as corrupt and skip it; do not derive a four-pot grammar from it.
+  Contributions sum to 34.41 and the four printed pots to 32.71. *Re-checked for #47:* the pots
+  are the main pot and three side pots, each net of a 5% rake rounded down to 0.05
+  (12.15 → 11.55, 10.80 → 10.30, 4.20 → 3.95, 7.26 → 6.91, 1.70 raked in all), so the pot
+  lines do close — and Player2's straight does win all four. What does not close is the
+  summary, which credits him only the 11.55 main pot; the printed per-line rakes match no split
+  of the 1.70. **The defect is the dropped side-pot credit, not a four-pot grammar.** Four more
+  multi-pot hands in the file drop a side pot the same way, as does Hold'em's `3.way.allin`; a
+  sixth (`#1073068762`) credits both pots but prints `Rake 0.60` on each line against 1.20 raked,
+  i.e. a per-pot rake where the Hold'em corpus prints the hand total. The parser refuses all of
+  them as `rake-mismatch`.
+- **The same file prints `Rake 0.00` on hands that were raked.** Seven single-pot hands pay out
+  exactly 5% (rounded down to 0.05) less than went in while the pot line says `Rake 0.00` —
+  `#1073058326` takes 1.95 and pays 1.90. The rake the parser reconciles against is the printed
+  one, so those hands are refused (`rake-mismatch`) rather than booked with a rake the source
+  denies.
 - Folded-preflop wording is `folded before Flop` (no "the"); folded-postflop wording is
   `folded on the Flop`/`Turn`/`River` (with "the") — the asymmetry (before X vs. on the X) is
   real, confirmed, and easy to miss if writing one regex for both cases.
@@ -446,7 +458,9 @@ representative of what a real hand history's player-name field looks like; treat
    as Hold'em, which corrupts every derived hand strength downstream. **Derive the variant from
    the dealt-card count, not from the header token**, and treat a disagreement between the two as
    a reason to trust the cards. (Upstream fpdb-3 evidently knows this too — it files the fixture
-   under `PLO-` despite the header.)
+   under `PLO-` despite the header.) The shipped parser does exactly this since #47: two cards is
+   Hold'em, four is Omaha, anything else is refused. Four of the 17 hands convert; the other 13
+   are refused for the accounting defects in §9, not for their variant.
 8. Seat numbers are not guaranteed unique within a single hand (confirmed real defect) — do not
    build a seat-indexed map without a collision check.
 9. `Unknown player` is a real, valid sentinel actor name, not an error to reject.

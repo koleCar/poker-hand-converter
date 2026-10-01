@@ -24,7 +24,7 @@
  * - **The header lies about the variant.** Every hand in
  *   `cash__PLO-10max-USD-0.05-0.10-201209.txt` is headed `Hold'em Pot Limit` and
  *   every one of them deals four cards. The variant is therefore taken from the
- *   cards, not from the label.
+ *   cards, not from the label (see `CHICO_VARIANTS`).
  * - **There is no `collected ... from pot` line in the stream.** The only
  *   statement of who won is the SUMMARY block.
  * - **`Total pot | Rake` is printed once per pot component, in and out of the
@@ -56,16 +56,25 @@
  * number, so those stay empty rather than being invented.
  */
 
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   CHIPS,
   PLAY_CHIPS,
   USD,
+  holeCardCount,
+  isHiLoLabel,
   parseAmount,
   type Amount,
   type CurrencyUnit,
+  type LimitType,
   type PhfHand,
   type PhfWarning,
+  type Variant,
 } from "../phf/types";
 import {
   buildP6Hand,
@@ -75,8 +84,23 @@ import {
   type P6Seat,
   type P6Street,
 } from "./shared/p6-handbuilder";
+import { canonicalGameLabel, HOLDEM_OMAHA } from "./shared/variant-lock";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read - decided by the *deal*, not the label.
+ *
+ * Four-card Omaha is backed by one file, `cash__PLO-10max-USD-0.05-0.10-201209.txt`:
+ * 17 hands, every one headed `Hold'em Pot Limit` and dealing four cards. Every
+ * line of all 17 is read; four convert clean, and the other thirteen are refused
+ * as `rake-mismatch` for the network's own pot accounting (a printed `Rake 0.00`
+ * on raked hands, side pots missing from the summary) - defects the Hold'em
+ * corpus shares, not Omaha ones. No five- or six-card hand from this network
+ * exists in the corpus, so those deals are still refused: the card count would
+ * name the variant correctly, but nothing has shown that the rest holds.
+ */
+const CHICO_VARIANTS: readonly Variant[] = HOLDEM_OMAHA;
 
 /** Brand strings backed by real fixture bytes. */
 const CONFIRMED_SKINS = ["BetOnline Poker", "PayNoRake", "ActionPoker.com", "Gear Poker"];
@@ -175,10 +199,19 @@ export const chicoParser: SiteParser = {
     const cashMatch = spec.match(/^(.+?)\s*\((\S+?)\/(\S+?)\)$/);
 
     const gameLabelRaw = tournamentMatch ? tournamentMatch[2] : (cashMatch?.[1] ?? spec);
+    const hiLo = unsupportedGameSkip(gameLabelRaw);
+    if (hiLo) {
+      throw hiLo;
+    }
+    // Every label in the corpus says Hold'em, four-card deals included, so the
+    // label cannot say which flop game this is. It can still say the game is
+    // something else entirely, and a label that is not Hold'em is a dialect
+    // nobody has seen a byte of - so that is refused.
     if (!/hold\s*'?em/i.test(gameLabelRaw)) {
       throw new ParseSkip(
         "unsupported-variant",
-        `Round one is Hold'em only; this hand is labelled "${gameLabelRaw}".`,
+        `"${gameLabelRaw}" is a game label this network has not been seen to print; ` +
+          "every verified hand is labelled Hold'em, whatever it deals.",
       );
     }
 
@@ -623,18 +656,51 @@ export const chicoParser: SiteParser = {
 
     // The header is not evidence of the variant on this network: a whole file of
     // four-card hands is headed `Hold'em Pot Limit`. The deal and the inline
-    // reveals are.
-    const dealtCounts = [
-      ...seats.map((entry) => entry.dealtCards.length),
-      ...actions
-        .filter((action) => action.kind === "show")
-        .map((action) => action.cards?.length ?? 0),
-    ].filter((count) => count > 0);
-    if (dealtCounts.some((count) => count !== 2)) {
+    // reveals are, and they have to agree with each other - a hand in which one
+    // seat holds two cards and another four is a misread, not a game.
+    const dealtCounts = new Set(
+      [
+        ...seats.map((entry) => entry.dealtCards.length),
+        ...actions
+          .filter((action) => action.kind === "show")
+          .map((action) => action.cards?.length ?? 0),
+      ].filter((count) => count > 0),
+    );
+    if (dealtCounts.size > 1) {
       throw new ParseSkip(
         "unsupported-variant",
-        `The hand deals ${Math.max(...dealtCounts)} hole cards despite being labelled ` +
-          `"${gameLabelRaw}"; round one is Hold'em only.`,
+        `The hand shows hole cards in groups of ${[...dealtCounts].sort().join(" and ")}; ` +
+          "one deal cannot be both.",
+      );
+    }
+    // A hand in which nobody's cards are ever seen is read as Hold'em, which is
+    // the label's own claim and the only evidence left. Nothing in such a hand
+    // depends on the hole-card count, because there are no cards to count.
+    const holeCount = [...dealtCounts][0] ?? 2;
+    const variant = variantForHoleCount(holeCount);
+    if (!variant || !CHICO_VARIANTS.includes(variant)) {
+      throw new ParseSkip(
+        "unsupported-variant",
+        `The hand deals ${holeCount} hole cards under the label "${gameLabelRaw}"; this ` +
+          "parser reads two-card Hold'em and four-card Omaha from this network and has " +
+          "no verified sample of anything else.",
+      );
+    }
+    // The hi/lo half of the same problem. A Hold'em label over a four-card deal
+    // says nothing about whether a low half of the pot is in play, and a split
+    // pot read as high-only balances against itself. The one thing this network
+    // prints that does speak to it is the table name - every verified Omaha
+    // table is `Weeds (Hi)` - so a four-card table that names itself hi/lo is
+    // taken at its word and refused. Elsewhere a table name is never read as a
+    // statement about the game; here it is, only because the game label has
+    // been shown not to be one.
+    const tableName = (tableMatch[1] ?? tableMatch[2] ?? "").trim();
+    if (variant !== "holdem" && isHiLoLabel(tableName)) {
+      throw new ParseSkip(
+        "unsupported-hi-lo",
+        `The four-card table "${tableName}" names itself a high-low split game, which ` +
+          "this converter does not model yet, so the hand is refused rather than read " +
+          "as high-only.",
       );
     }
 
@@ -694,9 +760,9 @@ export const chicoParser: SiteParser = {
         continue;
       }
       // Two skins print the winner's best five-card hand here instead of the
-      // hole cards. Board overlap is the giveaway, and a hand that is not two
-      // cards cannot be a Hold'em holding either way.
-      if (cards.length !== 2 || cards.some((card) => onBoard.has(card))) {
+      // hole cards. Board overlap is the giveaway, and a group that is not the
+      // deal's size cannot be a holding either way.
+      if (cards.length !== holeCount || cards.some((card) => onBoard.has(card))) {
         warnings.push({
           code: "unreadable-shown-cards",
           message:
@@ -741,12 +807,12 @@ export const chicoParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "CHC-",
       handId: headerMatch[2],
-      gameLabel: canonicalLabel(gameLabelRaw),
+      gameLabel: canonicalGameLabel(variant, limitOf(gameLabelRaw)),
       unit,
       decimals: "fixed2",
       headerSmallBlind: stakes.small,
       headerBigBlind: stakes.big,
-      tableName: (tableMatch[1] ?? tableMatch[2] ?? "").trim() || null,
+      tableName: tableName || null,
       // Every real-money table in the corpus is 10-Max and the Title-Case skins
       // omit the capacity entirely while seating ten players from seat 0.
       maxSeats: tableMatch[3] ? Number(tableMatch[3]) : 10,
@@ -787,17 +853,23 @@ export const chicoParser: SiteParser = {
   },
 };
 
-/** `Hold'em`, `Hold'em No Limit`, `Hold'em Pot Limit` -> the standard label. */
-function canonicalLabel(label: string): string {
+/** `Hold'em`, `Hold'em No Limit`, `Hold'em Pot Limit` -> the betting structure. */
+function limitOf(label: string): LimitType {
   if (/pot\s*limit/i.test(label)) {
-    return "Hold'em Pot Limit";
+    return "pl";
   }
   if (/fixed\s*limit/i.test(label)) {
-    return "Hold'em Limit";
+    return "fl";
   }
   // A bare `Hold'em` with no limit clause is what the Title-Case skins write;
   // both of those samples are no-limit tables.
-  return "Hold'em No Limit";
+  return "nl";
+}
+
+/** The flop game a deal of `count` hole cards belongs to, or null for none. */
+function variantForHoleCount(count: number): Variant | null {
+  const flopGames: Variant[] = ["holdem", "omaha", "omaha5", "omaha6"];
+  return flopGames.find((variant) => holeCardCount(variant) === count) ?? null;
 }
 
 /**

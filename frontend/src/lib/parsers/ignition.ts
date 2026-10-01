@@ -48,19 +48,28 @@
  *   closure and cross-checked against the board size; a hand where the two
  *   disagree is refused rather than guessed at.
  *
- * Round one is Hold'em only: Omaha, Omaha Hi/Lo and seven-card stud all appear
- * in the corpus and are deliberately refused.
+ * Hold'em and four-card Omaha high are read (see `IGNITION_VARIANTS`); Omaha
+ * Hi/Lo and seven-card stud both appear in the corpus and are deliberately
+ * refused.
  */
 
-import { ParseSkip, type SiteParser, type SiteParserContext } from "../phf/detect";
+import {
+  ParseSkip,
+  unsupportedGameSkip,
+  type SiteParser,
+  type SiteParserContext,
+} from "../phf/detect";
 import {
   CHIPS,
+  holeCardCount,
   parseAmount,
   unitForSymbol,
   type Amount,
   type CurrencyUnit,
+  type LimitType,
   type PhfHand,
   type PhfWarning,
+  type Variant,
 } from "../phf/types";
 import {
   p5BuildHand,
@@ -69,8 +78,28 @@ import {
   type P5Seat,
   type P5Street,
 } from "./shared/p5-handdraft";
+import {
+  canonicalGameLabel,
+  HOLDEM_OMAHA,
+  unsupportedVariantSkip,
+  variantOf,
+} from "./shared/variant-lock";
 
 const VERSION = "1.0.0";
+
+/**
+ * What this parser is allowed to read.
+ *
+ * Four-card Omaha is backed by two 2012 Bovada cash files,
+ * `cash__PLO-USD-5-10-201204.new.format.txt` (four hands) and
+ * `cash__PLO-USD-2.00-4.00-201205.multiway.allin.txt` (a three-way all-in with a
+ * side pot), which parse clean. The grammar is the Hold'em grammar with four
+ * cards in every bracket; the two places that had to learn the difference are
+ * the reveal lines and the summary's `[hole-best]` pair, which used to accept a
+ * group only when it was two cards long. Every `OMAHA HiLo` file stays refused
+ * on its own reason code, and there is no five-card Omaha anywhere in the corpus.
+ */
+const IGNITION_VARIANTS: readonly Variant[] = HOLDEM_OMAHA;
 
 /** Every brand string this network has ever printed, longest alternative first. */
 const BRANDS = String.raw`Ignition|Bovada|Bodog\.com|Bodog\.eu|Bodog UK|Bodog Canada|Bodog88|Bodog`;
@@ -91,8 +120,10 @@ const NOISE_LINE_RE =
 
 interface IgnitionHeader {
   handId: string;
-  variant: "holdem" | "other";
+  /** The room's own game token, `HOLDEM`, `OMAHA HiLo`, `7CARD` ... */
   variantLabel: string;
+  /** The same game in the prose the shared label readers understand. */
+  gameName: string;
   limit: "No Limit" | "Pot Limit" | "Fixed Limit";
   limitStated: boolean;
   zonePoker: boolean;
@@ -110,15 +141,26 @@ interface IgnitionHeader {
 /** `HOLDEM`, `HOLDEMZonePoker`, `OMAHA HiLo`, `7CARD` ... */
 const GAME_RE = /^(HOLDEM|OMAHA|7CARD|NCARD)(ZonePoker)?(\s+HiLo)?(ZonePoker)?\b/;
 
-function parseGameToken(token: string): { variant: "holdem" | "other"; label: string; zone: boolean } {
+/**
+ * The room's upper-case game token, spelled the way `variantOf` and
+ * `isHiLoLabel` read. `7CARD` in particular names no game either reader knows,
+ * so it would come back as "unrecognised" rather than as the stud it is.
+ */
+const GAME_NAMES: Record<string, string> = {
+  HOLDEM: "Hold'em",
+  OMAHA: "Omaha",
+  "7CARD": "7 Card Stud",
+};
+
+function parseGameToken(token: string): { gameName: string; label: string; zone: boolean } {
   const match = token.match(GAME_RE);
   if (!match) {
-    return { variant: "other", label: token, zone: false };
+    return { gameName: token, label: token, zone: false };
   }
   const zone = Boolean(match[2] || match[4]);
   const hiLo = Boolean(match[3]);
   return {
-    variant: match[1] === "HOLDEM" && !hiLo ? "holdem" : "other",
+    gameName: `${GAME_NAMES[match[1]] ?? match[1]}${hiLo ? " Hi/Lo" : ""}`,
     label: match[0],
     zone,
   };
@@ -171,8 +213,8 @@ function parseHeaderLine(line: string): IgnitionHeader | null {
     const speed = tournament[4].replace(/\b(?:No|Pot|Fixed)\s+Limit\b/i, "").trim();
     return {
       handId,
-      variant: game.variant,
       variantLabel: game.label,
+      gameName: game.gameName,
       limit: limit.limit,
       limitStated: limit.stated,
       zonePoker: game.zone,
@@ -196,8 +238,8 @@ function parseHeaderLine(line: string): IgnitionHeader | null {
   const limit = parseLimit(cash[3]);
   return {
     handId,
-    variant: game.variant,
     variantLabel: game.label,
+    gameName: game.gameName,
     limit: limit.limit,
     limitStated: limit.stated,
     zonePoker: game.zone || Boolean(cash[1]),
@@ -309,8 +351,12 @@ function splitIntoRounds(actions: P5Action[], seats: P5Seat[]): P5Action[][] {
         if (entry) entry.remaining -= live + (action.dead ?? 0);
         if (next > bet) {
           bet = next;
-          // A raise re-opens the round for everybody else.
-          acted = new Set([action.player]);
+          // A raise re-opens the round for everybody else. A blind raises the
+          // bet too, but it re-opens nothing and is not the poster's turn: the
+          // big blind still has its option. Counting the post as a turn closed
+          // a limped pot the moment the small blind folded, and moved a big
+          // blind's preflop raise onto the flop (`multiway.allin`, PLO).
+          acted = new Set();
         }
         // Blind and dead posts are money, not a turn to act.
         if (isBetting(action.kind)) {
@@ -362,12 +408,15 @@ export const ignitionParser: SiteParser = {
     if (!header) {
       throw new ParseSkip("no-header", `Unreadable Ignition header: "${lines[0]}".`);
     }
-    if (header.variant !== "holdem") {
-      throw new ParseSkip(
-        "unsupported-variant",
-        `Round one is Hold'em only; this hand is "${header.variantLabel}".`,
-      );
+    const refusal =
+      unsupportedGameSkip(header.gameName) ??
+      unsupportedVariantSkip(header.gameName, IGNITION_VARIANTS);
+    if (refusal) {
+      throw refusal;
     }
+    const variant = variantOf(header.gameName);
+    /** How many cards this deal gives a seat; never null for an allowed variant. */
+    const holeCount = holeCardCount(variant)!;
     if (ctx.options.cashOnly && header.tournamentId) {
       throw new ParseSkip("tournament-in-cash-mode", "Tournament hand skipped.");
     }
@@ -708,8 +757,10 @@ export const ignitionParser: SiteParser = {
       const reveal = verb.match(/^(Does not show|Mucks|Shows)\s*\[([^\]]*)\]\s*(?:\(([^)]*)\))?$/i);
       if (reveal) {
         const cards = cardsIn(reveal[2]);
-        // Two cards is a hold'em hand; anything longer is a best-five list.
-        if (cards.length === 2 && !holeCards.has(player)) {
+        // A deal-sized group is the hole cards; anything else is a best-five
+        // list. Four-card Omaha cannot be confused with one: the best five is
+        // always five cards.
+        if (cards.length === holeCount && !holeCards.has(player)) {
           holeCards.set(player, cards);
         }
         const known = holeCards.get(player) ?? [];
@@ -740,6 +791,18 @@ export const ignitionParser: SiteParser = {
 
     if (seats.length === 0) {
       throw new ParseSkip("no-players", "The hand lists no seats.");
+    }
+    // The deal has to match the header. A seat dealt a different number of cards
+    // from the one the game token promises means the two disagree, and nothing
+    // after this point could tell which one to believe.
+    for (const seat of seats) {
+      if (seat.dealtCards.length > 0 && seat.dealtCards.length !== holeCount) {
+        throw new ParseSkip(
+          "unsupported-variant",
+          `${seat.name} was dealt ${seat.dealtCards.length} cards; "${header.variantLabel}" ` +
+            `deals ${holeCount}.`,
+        );
+      }
     }
 
     /* ------------------------------------------------------- button ------- */
@@ -780,7 +843,7 @@ export const ignitionParser: SiteParser = {
       for (const group of rest.matchAll(/\[([^\]]*)\]/g)) {
         // `[Kd Qs-Kh Kd Qs Qd 9h]` is the hole cards, a dash, then the best five.
         const cards = cardsIn(group[1].split("-")[0]);
-        if (cards.length === 2) {
+        if (cards.length === holeCount) {
           holeCards.set(player, cards);
           break;
         }
@@ -870,7 +933,12 @@ export const ignitionParser: SiteParser = {
       parserId: "ignition",
       parserVersion: VERSION,
       handId: header.handId,
-      gameLabel: `Hold'em ${header.limit}`,
+      // Hold'em keeps the room's own limit wording, which is what this parser has
+      // always written; Omaha goes through the shared canonical label.
+      gameLabel:
+        variant === "holdem"
+          ? `Hold'em ${header.limit}`
+          : canonicalGameLabel(variant, limitTypeOf(header.limit)),
       unit,
       decimals: "fixed2",
       smallBlind: smallBlind || header.levelSmallBlind,
@@ -925,6 +993,11 @@ export const ignitionParser: SiteParser = {
     return hand;
   },
 };
+
+/** The header's limit wording as a `LimitType`. */
+function limitTypeOf(limit: IgnitionHeader["limit"]): LimitType {
+  return limit === "Pot Limit" ? "pl" : limit === "Fixed Limit" ? "fl" : "nl";
+}
 
 /** `Table Info: ..., Buyin: $25+$2.50, TableType: MTT` -> `$25+$2.50`. */
 function mvsBuyIn(lines: string[]): string | null {

@@ -132,6 +132,15 @@ const ignitionOutcomes = run(ignitionParser, "ignition");
 const ignitionHoldem = ignitionOutcomes.filter((outcome) =>
   /Hand #\S+:?\s+(?:Zone Poker ID#\S+\s+|TBL#\S+\s+)?HOLDEM(?:ZonePoker)?\b/.test(outcome.chunk),
 );
+/**
+ * Four-card Omaha, high only, read the same way. `OMAHA HiLo` shares the token
+ * and is a different game, so the test is for the token *not* followed by it.
+ */
+const ignitionOmaha = ignitionOutcomes.filter((outcome) =>
+  /Hand #\S+:?\s+(?:Zone Poker ID#\S+\s+|TBL#\S+\s+)?OMAHA(?:ZonePoker)?\b(?!\s+HiLo)/.test(
+    outcome.chunk,
+  ),
+);
 
 describe("Ignition / Bodog / Bovada", () => {
   it("splits the corpus into the hands the brand header announces", () => {
@@ -166,17 +175,73 @@ describe("Ignition / Bodog / Bovada", () => {
     expect(ignitionHoldem.length - refused.length).toBe(85);
   });
 
-  it("refuses every non-hold'em hand with a machine readable reason", () => {
-    const others = ignitionOutcomes.filter((outcome) => !ignitionHoldem.includes(outcome));
-    expect(others.length).toBeGreaterThan(0);
-    for (const outcome of others) {
-      expect(outcome.hand).toBeNull();
-      expect(outcome.reason).toBe("unsupported-variant");
+  it("converts every four-card Omaha high hand in the corpus (#47)", () => {
+    // Two 2012 Bovada cash files: four hands from `new.format` and the three-way
+    // all-in with a side pot from `multiway.allin`.
+    expect(ignitionOmaha.map((outcome) => outcome.reason)).toEqual(Array(5).fill(null));
+    for (const outcome of ignitionOmaha) {
+      const hand = outcome.hand!;
+      expect(hand.game.variant, hand.meta.handId).toBe("omaha");
+      expect(hand.game.limit, hand.meta.handId).toBe("pl");
+      expect(hand.game.hiLo, hand.meta.handId).toBe(false);
+      // The 2012 export prints no street markers; the only note either file
+      // earns is that the streets were recovered from betting closure.
+      for (const warning of hand.meta.warnings) {
+        expect(warning.code, hand.meta.handId).toBe("streets-inferred");
+      }
     }
   });
 
+  it("reads a multiway Omaha all-in: four-card holdings, side pot and main pot", () => {
+    const hand = ignitionOmaha.find((outcome) => outcome.hand?.meta.handId === "2605762685")!
+      .hand!;
+    expect(hand.meta.warnings).toEqual([]);
+    const cards = (name: string) => hand.players.find((player) => player.name === name)?.holeCards;
+    expect(cards("Hero")).toEqual(["Js", "Ad", "Jd", "9h"]);
+    expect(cards("Big Blind")).toEqual(["7s", "7d", "9d", "8c"]);
+    expect(cards("UTG")).toEqual(["3d", "Jc", "3c", "6c"]);
+    // `Hand result-Side pot $550.22` to the Big Blind's ten-high flush, and
+    // `Hand result $376.78` to the hero's ace-high one, out of $930 less $3 rake.
+    expect(
+      hand.results.winners.map((winner) => [winner.player, winner.amount]).sort(),
+    ).toEqual([
+      ["Big Blind", 55022],
+      ["Hero", 37678],
+    ]);
+    expect(hand.results.totalPot).toBe(93000);
+    expect(hand.results.fees.rake).toBe(300);
+    // The big blind's raise is a preflop action. Before #47 the closure rule
+    // counted the blind post as the big blind's turn, closed the limped pot
+    // when the small blind folded and moved the raise onto the flop.
+    expect(
+      hand.actions.filter(
+        (action) => ["flop", "turn", "river"].includes(action.street) && action.amount > 0,
+      ),
+    ).toEqual([]);
+  });
+
+  it("refuses every other non-hold'em hand on the reason its header earns", () => {
+    const others = ignitionOutcomes.filter(
+      (outcome) => !ignitionHoldem.includes(outcome) && !ignitionOmaha.includes(outcome),
+    );
+    expect(others.length).toBeGreaterThan(0);
+    const reasons = new Map<string, number>();
+    for (const outcome of others) {
+      expect(outcome.hand).toBeNull();
+      // Omaha HiLo and 7-card stud HiLo are split-pot games, refused as such;
+      // plain stud is a game this parser has never been proven against.
+      const header = outcome.chunk.split(/\r?\n/)[0];
+      expect(outcome.reason, header).toBe(
+        /\bHiLo\b/.test(header) ? "unsupported-hi-lo" : "unsupported-variant",
+      );
+      reasons.set(outcome.reason!, (reasons.get(outcome.reason!) ?? 0) + 1);
+    }
+    // Both refusals are exercised by real files.
+    expect([...reasons.keys()].sort()).toEqual(["unsupported-hi-lo", "unsupported-variant"]);
+  });
+
   it.each(
-    ignitionHoldem
+    [...ignitionHoldem, ...ignitionOmaha]
       .filter((outcome): outcome is Outcome & { hand: PhfHand } => outcome.hand !== null)
       .map((outcome) => [`${outcome.file} #${outcome.hand.meta.handId}`, outcome.hand] as const),
   )("%s holds every invariant", (_name, hand) => {
@@ -200,12 +265,17 @@ describe("Ignition / Bodog / Bovada", () => {
   });
 
   it("never reads a `Showdown [...]` best-five list as hole cards", () => {
-    for (const outcome of ignitionHoldem) {
-      if (!outcome.hand) {
-        continue;
-      }
-      for (const player of outcome.hand.players) {
-        expect(player.holeCards.length === 0 || player.holeCards.length === 2).toBe(true);
+    for (const [outcomes, dealt] of [
+      [ignitionHoldem, 2],
+      [ignitionOmaha, 4],
+    ] as const) {
+      for (const outcome of outcomes) {
+        if (!outcome.hand) {
+          continue;
+        }
+        for (const player of outcome.hand.players) {
+          expect([0, dealt]).toContain(player.holeCards.length);
+        }
       }
     }
   });
