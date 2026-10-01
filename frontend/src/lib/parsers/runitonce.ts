@@ -59,16 +59,26 @@ export const RUNITONCE_PARSER_VERSION = "1.0.0";
  * - and it does not come out clean. It is a splash-the-pot hand with a side
  * pot: the two `collected` lines add up to €148.84 while the summary awards
  * €143.84, a gap of exactly the €5.00 the house splashed in, and the hand is
- * refused as `payout-mismatch`. That is a promotion-accounting bug in the
- * side-pot path, not an Omaha bug - the sister file `01-` is Hold'em with the
- * same promotion and only one pot, and it converts with an
- * `uncalled-includes-promo` warning - but it means nothing here has ever shown
- * this parser reading an Omaha hand end to end.
+ * refused as `payout-mismatch`. That is not an Omaha bug - the sister file
+ * `01-` is Hold'em with the same promotion and only one pot, and it converts
+ * with an `uncalled-includes-promo` warning - and on re-examination (#47) it is
+ * not this parser's arithmetic either. The room's own lines count the splash
+ * twice: `from side pot 1` is the €21.82 side pot *plus* €5.00, and `from pot`
+ * is the €119.52 main pot plus the same €5.00 less the €2.50 rake. The summary's
+ * €143.84 is the true payout, but nothing in the text says which of the two
+ * pots the splash really went to, so the per-pot collects cannot be repaired
+ * without picking one.
  *
- * The bar for this list is a fixture that parses with no warnings. Until the
- * splash-the-pot arithmetic is fixed there is no such fixture, and the refusal
- * the file earns today (`unsupported-variant`) is at least an honest "not
- * proven" rather than a wrong conversion.
+ * The same file also shows a real gap in the shared dialect: RIO prints the
+ * uncalled return after the whole run-out, and `hoistUncalledBeforeShowdown`
+ * moves it only as far as the river, where the player committed nothing (the
+ * bet was on the flop). No Hold'em fixture has that shape, so it is noted here
+ * rather than fixed blind.
+ *
+ * The bar for this list is a fixture that parses with no warnings. There is no
+ * such Omaha fixture, and the refusal the file earns today
+ * (`unsupported-variant`) is at least an honest "not proven" rather than a
+ * wrong conversion.
  */
 const RUNITONCE_VARIANTS = ["holdem"] as const;
 

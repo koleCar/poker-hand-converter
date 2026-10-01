@@ -46,7 +46,10 @@ const MINE = [winamaxParser.id, chicoParser.id];
  * too. Every entry here is exercised by at least one real fixture.
  */
 const ALLOWED_REASONS = new Set([
-  // Round one is Hold'em. One whole Chico file is Omaha behind a Hold'em label.
+  // A deal neither parser has a verified sample of: five- or six-card Omaha,
+  // or (Winamax) a hand whose cards disagree with its label. No fixture earns
+  // it any more - the Chico Omaha file that used to now converts - but the
+  // refusal is the boundary, not the fixture.
   "unsupported-variant",
   // No verified Winamax tournament sample exists anywhere.
   "unsupported-tournament",
@@ -395,8 +398,11 @@ describe("Chico corpus", () => {
  */
 describe("Chico coverage per skin", () => {
   const expected: Record<string, { files: number; converted: number; refused: number }> = {
-    // The bulk of the corpus: 13 files, 3 of them multi-hand.
-    "BetOnline Poker": { files: 13, converted: 40, refused: 24 },
+    // The bulk of the corpus: 13 files, 3 of them multi-hand. Four of the
+    // converted hands are four-card Omaha; thirteen more from the same file are
+    // refused for the network's own pot accounting, not for their variant (see
+    // "Chico Omaha" below).
+    "BetOnline Poker": { files: 13, converted: 44, refused: 20 },
     "PayNoRake": { files: 1, converted: 1, refused: 0 },
     "ActionPoker.com": { files: 1, converted: 1, refused: 0 },
     "Gear Poker": { files: 1, converted: 2, refused: 0 },
@@ -490,10 +496,19 @@ describe("Chico dialect differences", () => {
     const plo = CHICO_FILES.find((file) => file.name.includes("PLO"))!;
     expect(plo.text).toContain("Hold'em Pot Limit");
     const result = await convertAny(plo.text, { sourceFilename: plo.name });
-    expect(result.hands).toEqual([]);
-    expect(new Set(result.failures.map((failure) => failure.reason))).toEqual(
-      new Set(["unsupported-variant"]),
-    );
+    expect(result.hands.length).toBeGreaterThan(0);
+    for (const hand of result.hands) {
+      expect(hand.game.variant, hand.meta.handId).toBe("omaha");
+      expect(hand.game.limit, hand.meta.handId).toBe("pl");
+      expect(hand.game.hiLo, hand.meta.handId).toBe(false);
+    }
+    // And no Hold'em hand anywhere in the corpus is read as Omaha.
+    for (const file of CHICO_FILES.filter((entry) => entry !== plo)) {
+      const other = await convertAny(file.text, { sourceFilename: file.name });
+      for (const hand of other.hands) {
+        expect(hand.game.variant, `${file.name} ${hand.meta.handId}`).toBe("holdem");
+      }
+    }
   });
 
   it("refuses the two confirmed site-side data defects", async () => {
@@ -507,6 +522,101 @@ describe("Chico dialect differences", () => {
       expect(result.hands, fragment).toEqual([]);
       expect(result.failures[0].reason, fragment).toBe(reason);
     }
+  });
+});
+
+/* -------------------------------------------------------------- Chico PLO - */
+
+/**
+ * The one Omaha file, `cash__PLO-10max-USD-0.05-0.10-201209.txt` (#47).
+ *
+ * Seventeen hands. Four convert; the other thirteen are refused, every one of
+ * them as `rake-mismatch`, and none of them for being Omaha. The file's own
+ * numbers do not add up in two ways the Hold'em corpus shares:
+ *
+ * - **The printed rake is 0.00 on hands that were raked** (seven hands). Hand
+ *   #1073058326 takes 1.95 in and pays 1.90 out under `Rake 0.00`; the missing
+ *   0.05 is the house's 5% rounded down to a nickel, which is what every raked
+ *   hand in the file works out to. The parser reconciles against the printed
+ *   rake, so the hand is refused rather than booked with a rake the source
+ *   denies.
+ * - **Multi-pot hands do not reconcile** (six hands). Five drop a side pot from
+ *   the summary - #1073059444 prints four `Total pot` lines but credits the
+ *   winner only the main pot's 11.55 of the 32.71 he took, as Hold'em's
+ *   `3.way.allin` does - and the sixth prints a per-pot rake where the rest of
+ *   the corpus prints the hand total.
+ */
+describe("Chico Omaha", () => {
+  const plo = CHICO_FILES.find((file) => file.name.includes("PLO"))!;
+
+  it("converts every hand whose accounting the source states, and nothing else", async () => {
+    const result = await convertAny(plo.text, { sourceFilename: plo.name });
+    expect(result.stats.total).toBe(17);
+    expect(result.hands.map((hand) => hand.meta.handId)).toEqual([
+      "CHC-1073060614",
+      "CHC-1073061094",
+      "CHC-1073062051",
+      "CHC-1073064926",
+    ]);
+    expect(result.failures.map((failure) => failure.reason)).toEqual(
+      Array(13).fill("rake-mismatch"),
+    );
+    for (const hand of result.hands) {
+      assertSoundHand(hand, hand.meta.handId);
+      assertRoundTrips(hand);
+      assertReplays(hand);
+      for (const player of hand.players) {
+        expect([0, 4], `${hand.meta.handId} ${player.name}`).toContain(player.holeCards.length);
+      }
+    }
+  });
+
+  it("states the board-from-summary note and nothing else", async () => {
+    // Three of the four hands go all-in before the river, and this network
+    // stops printing street markers at the all-in; the rest of the board is
+    // read from the summary. That note is the only warning the file earns.
+    const result = await convertAny(plo.text, { sourceFilename: plo.name });
+    const codes = result.hands.flatMap((hand) => hand.meta.warnings.map((warning) => warning.code));
+    expect(new Set(codes)).toEqual(new Set(["board-from-summary"]));
+    expect(
+      result.hands.find((hand) => hand.meta.handId === "CHC-1073061094")!.meta.warnings,
+    ).toEqual([]);
+  });
+
+  it("reads four-card holdings and the winner from the summary", async () => {
+    const result = await convertAny(plo.text, { sourceFilename: plo.name });
+    const hand = result.hands.find((entry) => entry.meta.handId === "CHC-1073062051")!;
+    const cards = (name: string) => hand.players.find((player) => player.name === name)?.holeCards;
+    // `Dealt to Hero [3d 7h 6h 6c]`, `Player6 shows As 4d 6d Ad`.
+    expect(cards("Hero")).toEqual(["3d", "7h", "6h", "6c"]);
+    expect(cards("Player6")).toEqual(["As", "4d", "6d", "Ad"]);
+    expect(cards("Player7")).toEqual(["Jc", "Qh", "9d", "Jh"]);
+    // `Seat 9: Player6 showed [As 4d 6d Ad] and won (4.00)` out of a 4.20 pot.
+    expect(hand.results.winners).toEqual([
+      expect.objectContaining({ player: "Player6", amount: 400 }),
+    ]);
+    expect(hand.results.totalPot).toBe(420);
+    expect(hand.results.fees.rake).toBe(20);
+  });
+
+  it("refuses a four-card table that names itself hi/lo", async () => {
+    // The game label on this network says Hold'em over every deal, so it cannot
+    // say whether a low half is in play. The table name can, and is believed.
+    const hand = plo.text.split(/\n{2,}(?=BetOnline Poker Game #)/)[0];
+    const hiLo = hand.replace("Table 'Weeds (Hi)'", "Table 'Weeds (Hi/Lo)'");
+    const result = await convertAny(hiLo, { sourceFilename: "hilo.txt" });
+    expect(result.stats.total).toBe(1);
+    expect(result.hands).toEqual([]);
+    expect(result.failures[0]?.reason).toBe("unsupported-hi-lo");
+  });
+
+  it("refuses a deal it has no sample of rather than guessing the game", async () => {
+    const hand = CHICO_FILES.find((file) => file.name.includes("post.dead"))!.text;
+    const dealt = hand.match(/^Dealt to (\S+) \[([^\]]*)\]/m)!;
+    const five = hand.replace(dealt[0], `Dealt to ${dealt[1]} [2c 3c 4c 5c 6c]`);
+    const result = await convertAny(five, { sourceFilename: "five.txt" });
+    expect(result.hands).toEqual([]);
+    expect(result.failures[0]?.reason).toBe("unsupported-variant");
   });
 });
 

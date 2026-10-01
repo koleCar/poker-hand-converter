@@ -134,6 +134,31 @@ button declared after the blinds, and two incompatible header word orders.
 Each of those is a way to produce a hand that balances against itself and is
 still wrong.
 
+### Variants
+
+Each parser carries its own variant allowlist
+(`frontend/src/lib/parsers/shared/variant-lock.ts`), and a variant goes on a
+room's list only once that room's own fixtures convert it cleanly. Reading a
+room's Hold'em says nothing about whether it reads that room's Omaha.
+
+| Reads | Parsers |
+| --- | --- |
+| Hold'em, four- and five-card Omaha | GGPoker, Entraction |
+| Hold'em and four-card Omaha | PokerStars, partypoker, 888poker, iPoker, MicroGaming, Winamax, ACR/WPN, Ignition, Chico, Full Tilt, Ongame, Unibet |
+| Hold'em only | WePlay, CoinPoker, PokerBros, Run It Once |
+
+Every room refuses Hi/Lo (`unsupported-hi-lo`), short deck, stud, razz and
+draw games. Two of the Omaha rows come with caveats:
+
+- **Chico** labels its four-card hands `Hold'em Pot Limit`, so the variant is
+  taken from the number of cards dealt. Only 4 of the 17 hands in its one Omaha
+  file convert. The other 13 are refused because the network's own pot
+  accounting doesn't add up: a printed `Rake 0.00` on hands that were raked, or
+  side pots missing from the summary. Their variant has nothing to do with it.
+- **Run It Once** has one Omaha file, and it is refused. It is a
+  splash-the-pot side-pot hand whose `collected` lines count the promotional
+  money twice. Nothing in the file says which pot the money really went to.
+
 Which formats can share a parser, and why the "everything is a PokerStars
 clone" intuition is wrong, is worked through in
 [`docs/research/FORMAT-MATRIX.md`](docs/research/FORMAT-MATRIX.md). What to
