@@ -732,3 +732,12 @@
   text-align: center;
   font-size: var(--font-size-sm);
 }
+
+/* ------------------------------------------------------------ opponents */
+
+.stats-opponents__room {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--fg-dim);
+}

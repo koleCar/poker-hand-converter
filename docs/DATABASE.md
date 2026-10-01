@@ -485,7 +485,25 @@ out of a fixed `case`; anything else is 22023. The filters are the same bound
 carry no money at all, mixed currencies carry bb only. A row carries the dozen
 counters a table shows, not all ninety.
 
+**Opponents** (`20261123090000`) are opt-in per browser (`villainRowsEnabled`),
+because a row per opponent per hand is ~5x the hero rows (measured: 27 272
+villain rows for 5 448 hands, `hand_stats` 21 MB next to `hands` 40 MB).
+Turning it on passes `p_villains` to `hands_needing_stats`, so hands that have
+hero rows but no villain rows get rebuilt; turning it off calls
+`prune_villain_stats`, the schema's second delete — definer, caller's own
+non-hero rows only, cannot reach hero rows. `stats_opponents` lists opponents
+from `none` rooms only: `positional` rooms have no villain rows, and
+`opaque-id` rows are counted (`opaqueRows`) but not listed, because summing a
+per-session hash across sessions invents a person. Each row carries the
+caller's own bb result in the hands they shared (a join to the hero row of the
+same hand). The search is a prefix match with `like` metacharacters escaped.
+
 ### Tests
+
+`supabase/tests/database/villain_stats.test.sql`: listing, ordering, the
+hero-result join, opaque-id exclusion, minHands, escaped search, the villain
+backfill predicate (and positional hands never needing it), prune touching only
+the caller's villain rows, anon.
 
 `supabase/tests/database/stats_breakdown.test.sql`: grouping, ordering,
 filters before grouping, the whitelist (including a SQL-shaped key), money

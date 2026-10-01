@@ -111,6 +111,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         p_version: STATS_VERSION,
         p_after: after,
         p_limit: PAGE_SIZE,
+        // With opponent statistics on, a hand that has hero rows but no
+        // villain rows still needs work: that is what switching it on means.
+        p_villains: includeVillains,
       });
       if (error) {
         throw error;
