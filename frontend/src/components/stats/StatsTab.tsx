@@ -138,14 +138,14 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
       return;
     }
     void load().then((loaded) => {
-      if (loaded && loaded.missing + loaded.stale > 0 && !autoRebuilt.current) {
+      if (loaded && loaded.missing + loaded.stale + loaded.evMissing > 0 && !autoRebuilt.current) {
         autoRebuilt.current = true;
         void runRebuild();
       }
     });
   }, [auth.isSignedIn, load, refreshToken, runRebuild]);
 
-  const behind = coverage ? coverage.missing + coverage.stale : 0;
+  const behind = coverage ? coverage.missing + coverage.stale + coverage.evMissing : 0;
   const filters = useMemo(() => scopeFilters(scope, coverage?.stakes ?? []), [scope, coverage]);
 
   const pickScope = useCallback(
@@ -325,7 +325,7 @@ function CoverageBar({
   onRebuild: () => void;
 }) {
   if (rebuild.status === "running") {
-    const target = coverage ? coverage.missing + coverage.stale : 0;
+    const target = coverage ? coverage.missing + coverage.stale + coverage.evMissing : 0;
     const done = rebuild.progress.processed;
     return (
       <p className="notice notice--info stats-coverage" role="status" aria-live="polite">

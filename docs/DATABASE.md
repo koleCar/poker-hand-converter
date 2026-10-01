@@ -521,7 +521,25 @@ per-session hash across sessions invents a person. Each row carries the
 caller's own bb result in the hands they shared (a join to the hero row of the
 same hand). The search is a prefix match with `like` metacharacters escaped.
 
+**All-in EV** (`20261207090000`) is computed by `lib/equity` (exhaustive
+enumeration for hold'em, seeded Monte Carlo for preflop Omaha; the evNet of a
+hand sums to its net exactly) and stored in `hand_stats_ev`, a sibling table so
+an equity fix never re-inserts statistics and `ev_version` moves on its own.
+Every evaluated hero hand gets a row — `applicable = false, ev_net = net` for
+the ~95% with no all-in — so "not evaluated yet" is computed
+(`stats_ev_missing`, `hands_needing_stats(..., p_ev_version)`) and the existing
+rebuild route catches a library up without re-deriving it to find the hands
+that matter. `stats_graph` joins it in and returns `cum_ev_bb_milli` per bucket
+plus `allInEv: {evVersion, evaluatedHands, allInHands}`; the EV line is the
+total line with each all-in paid at the equity the hands had when the money
+went in.
+
 ### Tests
+
+`supabase/tests/database/stats_ev.test.sql`: the catch-up predicate, the
+graph before and after evaluation (total unchanged, EV line paid at equity),
+the summary, RLS resolution on write, no-op rewrites, no UPDATE, isolation,
+anon.
 
 `supabase/tests/database/villain_stats.test.sql`: listing, ordering, the
 hero-result join, opaque-id exclusion, minHands, escaped search, the villain

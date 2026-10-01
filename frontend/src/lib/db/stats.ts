@@ -28,6 +28,7 @@ import {
   type SeatCounters,
   type SeatMoney,
 } from "../stats";
+import { EV_VERSION } from "../equity";
 import type { PhfHand } from "../phf/types";
 import { currentUserId, requireUserId, rpc } from "./client";
 import {
@@ -218,6 +219,21 @@ export interface StatsGraphBucket {
   cumNsdBbMilli: number;
   /** Cumulative result in minor units, or null across mixed currencies. */
   cumNet: number | null;
+  /**
+   * Cumulative all-in-EV result in thousandths of a big blind: the total line
+   * with the luck of all-in runouts taken out. Equals `cumNetBbMilli` until a
+   * hand with an all-in is evaluated.
+   */
+  cumEvBbMilli: number;
+}
+
+/** How much of the sample the EV line is actually about. */
+export interface AllInEvSummary {
+  evVersion: string;
+  /** Hands with an EV row: the line is exact for these. */
+  evaluatedHands: number;
+  /** Of those, hands with an all-in and cards to come. */
+  allInHands: number;
 }
 
 export interface StatsGraph extends MoneyUnitState {
@@ -225,8 +241,8 @@ export interface StatsGraph extends MoneyUnitState {
   hands: number;
   moneyHands: number;
   buckets: StatsGraphBucket[];
-  /** Reserved for the all-in EV series (#44). Always null today. */
-  allInEv: null;
+  /** Null when the server predates EV, or the sample has no money. */
+  allInEv: AllInEvSummary | null;
 }
 
 type Row = Record<string, unknown>;
@@ -389,8 +405,16 @@ export async function fetchStatsGraph(
       // Absent, not zero, when the sample spans currencies: the server removes
       // the key rather than returning a sum with no unit.
       cumNet: "cum_net" in row ? maybeNum(row.cum_net) : null,
+      cumEvBbMilli: "cum_ev_bb_milli" in row ? num(row.cum_ev_bb_milli) : num(row.cum_net_bb_milli),
     })),
-    allInEv: null,
+    allInEv:
+      payload.allInEv && typeof payload.allInEv === "object"
+        ? {
+            evVersion: str((payload.allInEv as Row).evVersion) ?? "ev/1",
+            evaluatedHands: num((payload.allInEv as Row).evaluatedHands),
+            allInHands: num((payload.allInEv as Row).allInHands),
+          }
+        : null,
     ...toUnitState(payload),
   };
 }
@@ -412,6 +436,8 @@ export interface StatsCoverage {
   withoutHero: number;
   /** Rows under older versions, which the next rebuild prunes. */
   obsoleteRows: number;
+  /** Hands with statistics but no all-in EV evaluation yet. */
+  evMissing: number;
   /** The formats and stakes in the library, biggest first. */
   stakes: StakeVolume[];
 }
@@ -430,7 +456,11 @@ export async function fetchStatsCoverage(): Promise<StatsCoverage | null> {
   if (!(await currentUserId())) {
     return null;
   }
-  const payload = await rpc<Row | null>("stats_coverage", { p_version: STATS_VERSION });
+  const [payload, evMissing] = await Promise.all([
+    rpc<Row | null>("stats_coverage", { p_version: STATS_VERSION }),
+    // A database without the EV migration simply has nothing to catch up on.
+    rpc<number>("stats_ev_missing", { p_version: STATS_VERSION, p_ev_version: EV_VERSION }).catch(() => 0),
+  ]);
   if (!payload) {
     return null;
   }
@@ -442,6 +472,7 @@ export async function fetchStatsCoverage(): Promise<StatsCoverage | null> {
     missing: num(payload.missing),
     withoutHero: num(payload.withoutHero),
     obsoleteRows: num(payload.obsoleteRows),
+    evMissing: num(evMissing),
     stakes: (Array.isArray(payload.stakes) ? (payload.stakes as Row[]) : []).map((row) => ({
       gameFormat: str(row.gameFormat) ?? "cash",
       currency: str(row.currency) ?? "",

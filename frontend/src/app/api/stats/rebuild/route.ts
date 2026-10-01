@@ -1,5 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { handStatsRows, type HandStatsInsert } from "../../../../lib/db/statsRows";
+import {
+  handEvRow,
+  handStatsRows,
+  type HandEvInsert,
+  type HandStatsInsert,
+} from "../../../../lib/db/statsRows";
+import { EV_VERSION } from "../../../../lib/equity";
 import type { PhfHand } from "../../../../lib/phf/types";
 import { STATS_VERSION } from "../../../../lib/stats";
 import { getWritableServerSupabase } from "../../../../lib/supabase/server";
@@ -116,6 +122,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // With opponent statistics on, a hand that has hero rows but no
         // villain rows still needs work: that is what switching it on means.
         p_villains: includeVillains,
+        // A hand with statistics but no all-in-EV row is also work: that is
+        // how a library that predates EV catches up (#50).
+        p_ev_version: EV_VERSION,
       });
       if (error) {
         throw error;
@@ -123,11 +132,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const page = (data ?? []) as unknown as Array<{ id: string; phf: PhfHand }>;
 
       const rows: HandStatsInsert[] = [];
+      const evRows: HandEvInsert[] = [];
       for (const { phf } of page) {
+        let derived: HandStatsInsert[];
         try {
-          rows.push(...handStatsRows(phf, { includeVillains }));
+          derived = handStatsRows(phf, { includeVillains });
         } catch {
           slice.failed += 1;
+          continue;
+        }
+        rows.push(...derived);
+        const hero = derived.find((row) => row.is_hero);
+        if (hero) {
+          try {
+            evRows.push(handEvRow(phf, hero));
+          } catch {
+            // The equity engine refusing a hand must not cost its statistics;
+            // the hand stays "not evaluated" and the next run tries again.
+          }
         }
       }
       for (let i = 0; i < rows.length; i += MAX_ROWS_PER_WRITE) {
@@ -138,6 +160,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           throw saveError;
         }
         slice.inserted += (saved as { inserted?: number } | null)?.inserted ?? 0;
+      }
+      for (let i = 0; i < evRows.length; i += MAX_ROWS_PER_WRITE) {
+        const { error: evError } = await supabase.rpc("save_hand_ev", {
+          p_rows: evRows.slice(i, i + MAX_ROWS_PER_WRITE),
+        });
+        if (evError) {
+          throw evError;
+        }
       }
 
       slice.processed += page.length;

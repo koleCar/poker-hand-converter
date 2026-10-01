@@ -21,10 +21,13 @@
  * image is a player bluffing into calling stations. The total line cannot tell
  * those apart, and they need opposite fixes.
  *
- * The fourth series, all-in EV, has a legend slot and no data: it needs an
- * equity calculation over the runout, which is its own piece of work (#44). It
- * is shown as pending rather than omitted so the chart does not silently change
- * shape when it lands.
+ * The fourth series, **all-in EV**, is the total line with the luck of all-in
+ * runouts taken out: each all-in is paid at the equity the hands had when the
+ * money went in (`lib/equity`, stored in `hand_stats_ev`). The gap between it
+ * and the total is how far the deck has run above or below expectation — the
+ * one number that tells a downswing from a leak. It is dashed, because it is a
+ * counterfactual rather than money that moved, and it is drawn only once some
+ * hand in the sample has actually been evaluated.
  *
  * ## The x-axis is hands, not time
  *
@@ -49,7 +52,7 @@ const COUNT = new Intl.NumberFormat("en-GB");
 const BB = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1, signDisplay: "exceptZero" });
 const DATE = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" });
 
-type SeriesKey = "total" | "showdown" | "nonShowdown";
+type SeriesKey = "total" | "showdown" | "nonShowdown" | "allInEv";
 
 interface Series {
   key: SeriesKey;
@@ -141,6 +144,16 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
         values: [0, ...graph.buckets.map((b) => b.cumNsdBbMilli / 1000)],
       },
     ];
+    if (graph.allInEv && graph.allInEv.allInHands > 0) {
+      series.push({
+        key: "allInEv",
+        label: "All-in EV",
+        hint: `Total, with ${COUNT.format(graph.allInEv.allInHands)} all-in ${
+          graph.allInEv.allInHands === 1 ? "runout" : "runouts"
+        } paid at equity`,
+        values: [0, ...graph.buckets.map((b) => b.cumEvBbMilli / 1000)],
+      });
+    }
 
     const all = series.flatMap((s) => s.values);
     const rawMin = Math.min(0, ...all);
@@ -152,7 +165,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
     const max = Math.ceil(rawMax / step) * step;
 
     return { points, series, min, max: max === min ? min + step : max, step };
-  }, [graph.buckets]);
+  }, [graph.buckets, graph.allInEv]);
 
   const innerW = Math.max(1, width - PAD.left - PAD.right);
   const innerH = HEIGHT - PAD.top - PAD.bottom;
@@ -349,12 +362,20 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
             <span className="stats-legend__hint">{s.hint}</span>
           </li>
         ))}
-        <li className="is-pending">
-          <span className="stats-key stats-key--allInEv" />
-          <span className="stats-legend__label">All-in EV</span>
-          <span className="stats-legend__value">not yet computed</span>
-          <span className="stats-legend__hint">Needs equity over the runout</span>
-        </li>
+        {model.series.some((s) => s.key === "allInEv") ? null : (
+          <li className="is-pending">
+            <span className="stats-key stats-key--allInEv" />
+            <span className="stats-legend__label">All-in EV</span>
+            <span className="stats-legend__value">
+              {graph.allInEv ? "no all-ins yet" : "not yet computed"}
+            </span>
+            <span className="stats-legend__hint">
+              {graph.allInEv
+                ? "Appears once a hand in this sample has an all-in with cards to come"
+                : "Needs equity over the runout"}
+            </span>
+          </li>
+        )}
       </ul>
 
       {graph.mixedCurrency ? (
