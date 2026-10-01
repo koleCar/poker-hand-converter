@@ -695,3 +695,79 @@ export async function pruneVillainStats(): Promise<number> {
   }
   return total;
 }
+
+/* ------------------------------------------------------------- sessions - */
+
+export interface StatsSession {
+  startedAt: string;
+  endedAt: string;
+  hands: number;
+  tables: number;
+  /** Null when the scope mixes chips and cash. */
+  netBbMilli: number | null;
+  /** Minor units; null across currencies or chips-with-cash. */
+  net: number | null;
+}
+
+export interface StatsSessions {
+  gapMinutes: number;
+  /** Newest first. */
+  sessions: StatsSession[];
+  mixedUnitKind: boolean;
+  mixedCurrency: boolean;
+  currency: string | null;
+  currencyMinorUnits: number | null;
+}
+
+/** The caller's hands grouped into sessions by time gap, across tables. */
+export async function fetchStatsSessions(filters: StatsFilters, gapMinutes = 30): Promise<StatsSessions> {
+  const empty: StatsSessions = {
+    gapMinutes,
+    sessions: [],
+    mixedUnitKind: false,
+    mixedCurrency: false,
+    currency: null,
+    currencyMinorUnits: null,
+  };
+  if (!(await currentUserId())) {
+    return empty;
+  }
+  const payload = await rpc<Row | null>("stats_sessions", { p_filters: filters, p_gap_minutes: gapMinutes });
+  if (!payload) {
+    return empty;
+  }
+  return {
+    gapMinutes: num(payload.gapMinutes) || gapMinutes,
+    sessions: (Array.isArray(payload.sessions) ? (payload.sessions as Row[]) : []).map((row) => ({
+      startedAt: str(row.startedAt) ?? "",
+      endedAt: str(row.endedAt) ?? "",
+      hands: num(row.hands),
+      tables: num(row.tables),
+      netBbMilli: maybeNum(row.netBbMilli),
+      net: maybeNum(row.net),
+    })),
+    mixedUnitKind: payload.mixedUnitKind === true,
+    mixedCurrency: payload.mixedCurrency === true,
+    currency: str(payload.currency),
+    currencyMinorUnits: maybeNum(payload.currencyMinorUnits),
+  };
+}
+
+/* ---------------------------------------------------------------- notes - */
+
+export interface PlayerNote {
+  site: string;
+  player: string;
+  note: string;
+  tags: string[];
+  updatedAt?: string;
+}
+
+export function myPlayerNotes(site?: string) {
+  return rpc<PlayerNote[]>("my_player_notes", site ? { p_site: site } : {});
+}
+
+/** Writes, or with an empty note and no tags clears, the caller's note on a player. */
+export function setPlayerNote(site: string, player: string, note: string, tags: string[]) {
+  return rpc<PlayerNote | null>("set_player_note", { p_site: site, p_player: player, p_note: note, p_tags: tags });
+}

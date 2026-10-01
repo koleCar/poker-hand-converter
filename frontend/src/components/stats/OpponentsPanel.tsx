@@ -17,13 +17,16 @@
 
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { Fragment, useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import {
   fetchStatsOpponents,
+  myPlayerNotes,
   pruneVillainStats,
   rebuildStats,
+  setPlayerNote,
   setVillainRowsEnabled,
   villainRowsEnabled,
+  type PlayerNote,
   type OpponentFilters,
   type StatsFilters,
   type StatsOpponents,
@@ -67,6 +70,9 @@ export function OpponentsPanel({
   const [minHands, setMinHands] = useState(10);
   const [data, setData] = useState<StatsOpponents | null>(null);
   const [version, setVersion] = useState(0);
+  // #54: the caller's private notes, keyed `site:player`.
+  const [notes, setNotes] = useState<Map<string, PlayerNote>>(new Map());
+  const [editing, setEditing] = useState<string | null>(null);
 
   useEffect(() => {
     if (stored) {
@@ -78,6 +84,31 @@ export function OpponentsPanel({
       );
     }
   }, [stored]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let live = true;
+    myPlayerNotes().then(
+      (list) => {
+        if (live) setNotes(new Map(list.map((note) => [`${note.site}:${note.player}`, note])));
+      },
+      () => undefined,
+    );
+    return () => {
+      live = false;
+    };
+  }, [enabled]);
+
+  const saveNote = useCallback(async (site: string, player: string, note: string, tags: string[]) => {
+    const saved = await setPlayerNote(site, player, note, tags);
+    setNotes((current) => {
+      const next = new Map(current);
+      if (saved) next.set(`${site}:${player}`, saved);
+      else next.delete(`${site}:${player}`);
+      return next;
+    });
+    setEditing(null);
+  }, []);
 
   const requestKey = JSON.stringify({ ...filters, minHands } satisfies OpponentFilters);
 
@@ -233,11 +264,23 @@ export function OpponentsPanel({
             {rows.map((row) => {
               const r = rates({ counters: row.counters, money: emptyMoney(), moneyHands: 0 });
               const room = getParser(row.site)?.name ?? row.site;
+              const noteKey = `${row.site}:${row.player}`;
+              const note = notes.get(noteKey);
               return (
-                <tr key={`${row.site}:${row.player}`}>
+                <Fragment key={noteKey}>
+                <tr>
                   <th scope="row">
                     {row.player}
                     <span className="stats-opponents__room">{room}</span>
+                    <button
+                      type="button"
+                      className="stats-opponents__note"
+                      aria-expanded={editing === noteKey}
+                      onClick={() => setEditing(editing === noteKey ? null : noteKey)}
+                      title={note?.note || "Add a private note"}
+                    >
+                      {note ? [note.tags.join(" · "), note.note].filter(Boolean).join(" — ") : "+ note"}
+                    </button>
                   </th>
                   <td className="num">{count(row.counters.hands)}</td>
                   <td className="num">{pct(r.vpip)}</td>
@@ -263,6 +306,18 @@ export function OpponentsPanel({
                     </td>
                   ) : null}
                 </tr>
+                {editing === noteKey ? (
+                  <tr>
+                    <td colSpan={11}>
+                      <NoteEditor
+                        note={note ?? null}
+                        onSave={(text, tags) => saveNote(row.site, row.player, text, tags)}
+                        onCancel={() => setEditing(null)}
+                      />
+                    </td>
+                  </tr>
+                ) : null}
+                </Fragment>
               );
             })}
             {data && rows.length === 0 ? (
@@ -286,5 +341,66 @@ export function OpponentsPanel({
         </button>
       </p>
     </section>
+  );
+}
+
+/**
+ * A private note on one opponent: free text and a few tags. Saved through
+ * `set_player_note`, which refuses players the caller has not sat with in a
+ * room that shows real names — so a note can never attach to a seat label.
+ */
+function NoteEditor({
+  note,
+  onSave,
+  onCancel,
+}: {
+  note: PlayerNote | null;
+  onSave: (note: string, tags: string[]) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [text, setText] = useState(note?.note ?? "");
+  const [tags, setTags] = useState((note?.tags ?? []).join(", "));
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function save(clear = false) {
+    setBusy(true);
+    setError(null);
+    try {
+      await onSave(
+        clear ? "" : text,
+        clear ? [] : tags.split(",").map((tag) => tag.trim()).filter(Boolean),
+      );
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message.replace(/^[a-z_]+:\s*/, "") : String(failure));
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="stats-note">
+      <label className="field">
+        <span className="field__label">Note (only you see it)</span>
+        <textarea value={text} rows={2} maxLength={2000} onChange={(event) => setText(event.target.value)} />
+      </label>
+      <label className="field">
+        <span className="field__label">Tags, comma-separated</span>
+        <input value={tags} placeholder="nit, station, reg" onChange={(event) => setTags(event.target.value)} />
+      </label>
+      {error ? <p className="notice notice--error">{error}</p> : null}
+      <div className="stats-note__actions">
+        <button type="button" className="btn btn--sm btn--primary" disabled={busy} onClick={() => void save()}>
+          Save
+        </button>
+        {note ? (
+          <button type="button" className="btn btn--sm" disabled={busy} onClick={() => void save(true)}>
+            Delete note
+          </button>
+        ) : null}
+        <button type="button" className="btn btn--sm btn--ghost" onClick={onCancel}>
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 }

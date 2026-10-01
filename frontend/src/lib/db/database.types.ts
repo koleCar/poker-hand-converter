@@ -953,6 +953,33 @@ export type Database = {
           },
         ]
       }
+      player_notes: {
+        Row: {
+          note: string
+          owner_id: string
+          player: string
+          site: string
+          tags: string[]
+          updated_at: string
+        }
+        Insert: {
+          note?: string
+          owner_id: string
+          player: string
+          site: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Update: {
+          note?: string
+          owner_id?: string
+          player?: string
+          site?: string
+          tags?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       poll_votes: {
         Row: {
           choice: string
@@ -1917,6 +1944,7 @@ export type Database = {
         Args: { p_before?: number; p_limit?: number }
         Returns: Json
       }
+      my_player_notes: { Args: { p_site?: string }; Returns: Json }
       my_post_state: { Args: { p_public_id: string }; Returns: Json }
       my_post_votes: { Args: { p_public_ids: string[] }; Returns: Json }
       my_profile: { Args: never; Returns: Json }
@@ -2006,6 +2034,15 @@ export type Database = {
         Args: { p_filters?: Json; p_limit?: number; p_offset?: number }
         Returns: Json
       }
+      set_player_note: {
+        Args: {
+          p_note: string
+          p_player: string
+          p_site: string
+          p_tags?: string[]
+        }
+        Returns: Json
+      }
       set_thread_subscription: {
         Args: { p_level: string; p_public_id: string }
         Returns: string
@@ -2028,6 +2065,10 @@ export type Database = {
       }
       stats_opponents: {
         Args: { p_filters?: Json; p_limit?: number; p_search?: string }
+        Returns: Json
+      }
+      stats_sessions: {
+        Args: { p_filters?: Json; p_gap_minutes?: number }
         Returns: Json
       }
       stats_summary: { Args: { p_filters?: Json }; Returns: Json }
