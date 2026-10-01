@@ -55,6 +55,12 @@
     --n-200: #cfdae7;
     --n-300: #adbccd;
     --n-400: #8da0b6;
+    /* Dark-theme tertiary text. #64748b (n-500) lands at 3.45-4.04:1 on the
+       dark surfaces, under AA for the small text tertiary is used for (#57);
+       this clears 4.5:1 on every surface tertiary text sits on, hover included
+       (base 6.26, inset 5.98, raised 5.81, overlay 5.35, hover 4.67), while
+       staying visibly below n-400 so the hierarchy survives. */
+    --n-450: #8395aa;
     --n-500: #64748b;
     --n-550: #5b6b80;
     --n-600: #46566c;

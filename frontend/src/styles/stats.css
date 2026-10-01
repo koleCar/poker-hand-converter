@@ -78,7 +78,7 @@
 }
 
 .stats-scope__count {
-  opacity: 0.7;
+  font-weight: var(--font-weight-regular);
   font-variant-numeric: tabular-nums;
 }
 
@@ -162,7 +162,9 @@
    is shown — but it is not a fact yet, and the eye should know that before it
    reads the digits. */
 .stats-headline__value.is-provisional {
-  opacity: 0.72;
+  /* 0.8, not lower: the unit beside the number is small text and has to
+     keep 4.5:1 through the fade (#57). */
+  opacity: 0.8;
 }
 
 .stats-headline__unit {
@@ -535,8 +537,14 @@
   font-size: var(--font-size-sm);
 }
 
-.stats-legend li.is-pending {
+.stats-legend li.is-pending .stats-key {
+  /* Fade the swatch, never the text: the hint under it is small and tertiary
+     already, and any opacity on it drops below 4.5:1 in the light theme (#57). */
   opacity: 0.6;
+}
+
+.stats-legend li.is-pending .stats-legend__label {
+  color: var(--fg-muted);
 }
 
 .stats-legend__label {
@@ -653,7 +661,25 @@
 }
 
 .stats-table .is-thin {
-  opacity: 0.5;
+  /* A token colour, not opacity: tertiary text is the quietest colour that
+     still clears 4.5:1 in both themes (#57). */
+  color: var(--fg-dim);
+}
+
+/* A thin win rate keeps its sign colour, which carries meaning, and is
+   marked by a dotted underline instead. */
+.stats-table .is-thin.is-up,
+.stats-table .is-thin.is-down {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.stats-table .is-thin.is-up {
+  color: var(--profit-fg);
+}
+
+.stats-table .is-thin.is-down {
+  color: var(--loss-fg);
 }
 
 /* --------------------------------------------------------------- matrix */

@@ -111,7 +111,7 @@
                    even when the two currently agree */
     --text-primary: var(--n-100);
     --text-secondary: var(--n-400);
-    --text-tertiary: var(--n-500);
+    --text-tertiary: var(--n-450);
     --text-inverse: var(--n-950);
     --text-on-accent: var(--a-950);
     --text-link: var(--a-400);
