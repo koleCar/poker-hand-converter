@@ -326,7 +326,7 @@ function buildDecisions(hand: PhfHand): Decision[] {
  * parser that does not resolve positions itself. Calling it unconditionally
  * would overwrite a caller's deliberate labelling, and calling it twice would
  * make this function non-deterministic in its side effects — the determinism
- * invariant in `backend/test/statsDerive.test.ts` exists to catch exactly that.
+ * invariant in `tests/test/statsDerive.test.ts` exists to catch exactly that.
  */
 export function buildContext(hand: PhfHand): StatsContext {
   if (hand.players.length > 0 && hand.players.every((player) => player.position === null)) {

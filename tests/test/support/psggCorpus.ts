@@ -47,7 +47,7 @@ export function sampleFiles(site: string): CorpusFile[] {
 
 /** Fixtures added by these suites, each one recording a specific real bug. */
 export function ownFixtures(site: string): CorpusFile[] {
-  return readTree(join(import.meta.dirname, "../fixtures", site), `backend/test/fixtures/${site}`);
+  return readTree(join(import.meta.dirname, "../fixtures", site), `tests/test/fixtures/${site}`);
 }
 
 /** Every reference GG-format export in `gg-hh/`. */

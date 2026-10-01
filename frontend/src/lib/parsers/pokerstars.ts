@@ -105,7 +105,7 @@ function allInFrom(suffix: string | undefined): boolean {
  *
  * Dropping them is not information loss, but it has to be deliberate: an
  * unlisted shape has to raise `unknown-line` rather than be swallowed, which is
- * what `backend/test/pokerstarsParser.test.ts` asserts over the whole corpus.
+ * what `tests/test/pokerstarsParser.test.ts` asserts over the whole corpus.
  */
 const CHATTER_REGEX = new RegExp(
   [

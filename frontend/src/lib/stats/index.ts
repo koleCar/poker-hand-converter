@@ -8,14 +8,14 @@
  * ```
  *
  * All **semantics** live here, in TypeScript, where they can be run against the
- * 413-file corpus in `backend/test/`. All **arithmetic** belongs in SQL, where
+ * 413-file corpus in `tests/test/`. All **arithmetic** belongs in SQL, where
  * it is never more than `sum()` and `group by`. See `docs/STATS-SPEC.md` for
  * the definition of every counter and for every place PokerTracker 4 and Holdem
  * Manager 3 disagree.
  *
  * **Import rule: this module may import only `lib/phf/types`,
  * `lib/phf/validate` and `lib/cards`.** No Supabase, no React, no `window`, no
- * `process`. That is what lets `backend/test/` import it directly and what will
+ * `process`. That is what lets `tests/test/` import it directly and what will
  * let a server-side backfill run the identical function later.
  */
 

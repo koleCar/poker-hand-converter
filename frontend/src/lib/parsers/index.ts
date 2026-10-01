@@ -7,7 +7,7 @@
  *    (see `docs/PHF-SPEC.md`, "How to write a new site parser", for an
  *    annotated skeleton).
  * 2. Import it here and add one `registerParser` call.
- * 3. Add the site's sample file to `backend/test/fixtures/<site>/` and let the
+ * 3. Add the site's sample file to `tests/test/fixtures/<site>/` and let the
  *    table-driven tests pick it up.
  *
  * Nothing else changes: detection, validation, failure recording, the standard

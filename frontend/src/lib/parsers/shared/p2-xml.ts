@@ -7,7 +7,7 @@
  * `DOMParser`, so that is used when it exists; Node - which is where the test
  * suite runs - does not have it, so a scanner for the subset iPoker actually
  * emits stands in. Both paths produce the same `XmlElement` tree, and
- * `backend/test/p2Xml.test.ts` asserts that they agree wherever both are
+ * `tests/test/p2Xml.test.ts` asserts that they agree wherever both are
  * available.
  *
  * The subset is deliberately narrow: elements, attributes, text, comments and

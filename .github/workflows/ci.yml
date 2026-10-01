@@ -35,14 +35,14 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: tests/package-lock.json
 
       - run: npm ci
-        working-directory: backend
+        working-directory: tests
 
       - name: Vitest over the real corpus
         run: npm test
-        working-directory: backend
+        working-directory: tests
 
   frontend:
     name: Lint, typecheck, build
@@ -131,9 +131,9 @@ jobs:
         run: |
           git config core.autocrlf false
           git checkout -- .
-          if ! git diff --quiet -- fixtures gg-hh weplay-hh backend/test/fixtures; then
+          if ! git diff --quiet -- fixtures gg-hh weplay-hh tests/test/fixtures; then
             echo "::error::Fixture bytes changed on checkout — .gitattributes binary marking is not holding."
-            git diff --stat -- fixtures gg-hh weplay-hh backend/test/fixtures
+            git diff --stat -- fixtures gg-hh weplay-hh tests/test/fixtures
             exit 1
           fi
           echo "Fixture trees are intact."

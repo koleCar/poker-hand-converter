@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "tests",
   "version": "1.0.0",
   "description": "Vitest harness for the poker hand history converter",
   "type": "module",

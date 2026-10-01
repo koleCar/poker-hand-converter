@@ -282,7 +282,7 @@ deleted or removed publication returns `{status}` only, via the definer
 
 **The whole-corpus check** — every real hand in the repo, scrubbed in every
 mode, then serialized and replayed, with nothing identifying allowed to
-survive — is `backend/scripts/scrub-corpus/`. Run it when a parser or a PHF
+survive — is `tests/scripts/scrub-corpus/`. Run it when a parser or a PHF
 field changes; it is how `game.straddles[].player` was found.
 
 The `hh-takedown` report reason (#31) lands with the reports table (#40).

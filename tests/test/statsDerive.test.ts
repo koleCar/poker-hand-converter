@@ -2,7 +2,7 @@
  * The statistics derivation engine, run over the whole corpus.
  *
  * Every `.txt` under `gg-hh/`, `weplay-hh/`, `fixtures/samples/` and
- * `backend/test/fixtures/` is converted with `convertAny` — the same entry
+ * `tests/test/fixtures/` is converted with `convertAny` — the same entry
  * point the app uses — and every resulting hand is put through
  * `support/statsInvariants.ts`. Nineteen rooms, nineteen dialects, one
  * derivation.
@@ -36,7 +36,7 @@ const FILES: CorpusFile[] = [
   ...ggCorpusFiles(),
   ...weplayFiles(),
   ...readTree(join(ROOT, "fixtures/samples"), "fixtures/samples"),
-  ...readTree(join(import.meta.dirname, "fixtures"), "backend/test/fixtures"),
+  ...readTree(join(import.meta.dirname, "fixtures"), "tests/test/fixtures"),
 ];
 
 interface ParsedFile {

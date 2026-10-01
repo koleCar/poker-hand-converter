@@ -10,7 +10,7 @@
  *
  * **Import rule: this module may import only `lib/phf/types` and `lib/cards`.**
  * Same reason as `lib/stats`: no Supabase, no React, no `window`, no `process`,
- * so `backend/test/` can run it directly and a server route or backfill can run
+ * so `tests/test/` can run it directly and a server route or backfill can run
  * the identical function.
  */
 

@@ -58,7 +58,7 @@ export const DIMENSION_COLUMNS = [
 /**
  * Every column of a stats row, in order.
  *
- * `backend/test/statsDerive.test.ts` asserts that the keys of a real derived row
+ * `tests/test/statsDerive.test.ts` asserts that the keys of a real derived row
  * are exactly this list. That is the schema-drift guard: adding a counter to
  * `types.ts` and forgetting the column, or renaming one, fails loudly here
  * rather than quietly producing rows the table cannot take.

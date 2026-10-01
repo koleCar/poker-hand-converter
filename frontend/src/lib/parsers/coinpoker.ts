@@ -141,7 +141,7 @@ const MARKER_REGEX = /^\*\*\*\s*(FLOP|TURN|RIVER|SHOW\s?DOWN)\s*\*\*\*(.*)$/i;
  *
  * Kept to exactly what the corpus contains. An unlisted shape has to raise
  * `unknown-line` rather than be swallowed, which is what
- * `backend/test/coinpokerParser.test.ts` asserts over the whole corpus - so a
+ * `tests/test/coinpokerParser.test.ts` asserts over the whole corpus - so a
  * new CoinPoker line shape fails the build rather than the user.
  */
 const CHATTER_REGEX =

@@ -2,7 +2,7 @@
  * The database side of the statistics engine.
  *
  * `lib/stats/**` derives the numbers and may import nothing but `lib/phf` and
- * `lib/cards` — that import rule is what lets `backend/test/` run it over the
+ * `lib/cards` — that import rule is what lets `tests/test/` run it over the
  * whole corpus and what will let a server-side backfill run the identical
  * function later. So everything that knows about Supabase lives here instead:
  * the wire shape, the writer, and the two reports.

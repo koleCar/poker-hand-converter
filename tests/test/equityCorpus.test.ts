@@ -48,7 +48,7 @@ const SAMPLES = await handsOf(readTree(join(ROOT, "fixtures/samples"), "fixtures
 const REST = await handsOf([
   ...ggCorpusFiles(),
   ...weplayFiles(),
-  ...readTree(join(import.meta.dirname, "fixtures"), "backend/test/fixtures"),
+  ...readTree(join(import.meta.dirname, "fixtures"), "tests/test/fixtures"),
 ]);
 
 interface Checked {
