@@ -20,8 +20,9 @@ export const config = {
      * Everything except:
      *   _next/static, _next/image   build output
      *   favicon.svg, og-default.png, fonts/   public assets
+     *   icons/, og/, apple-icon, manifest     generated images and the PWA manifest
      *   anything with a file extension        also public assets
      */
-    "/((?!_next/static|_next/image|favicon\\.svg|og-default\\.png|fonts/|.*\\.[^/]+$).*)",
+    "/((?!_next/static|_next/image|favicon\\.svg|og-default\\.png|fonts/|icons/|og/|apple-icon|manifest\\.webmanifest|.*\\.[^/]+$).*)",
   ],
 };

@@ -85,9 +85,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description: preview.description,
       url,
-      images: [{ url: "/og-default.png", width: 1200, height: 630 }],
+      images: [{ url: `/og/p/${published.publicId}`, width: 1200, height: 630 }],
     },
-    twitter: { card: "summary_large_image", title, description: preview.description, images: ["/og-default.png"] },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: preview.description,
+      images: [`/og/p/${published.publicId}`],
+    },
   };
 }
 
