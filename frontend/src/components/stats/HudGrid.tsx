@@ -42,6 +42,7 @@ function currencyText(minor: number, code: string, minorUnits: number): string {
     return new Intl.NumberFormat("en-GB", {
       style: "currency",
       currency: code,
+      currencyDisplay: "narrowSymbol",
       signDisplay: "exceptZero",
     }).format(value);
   } catch {
@@ -110,11 +111,15 @@ export function HudGrid({
           <div>
             <dt>{mixedCurrency ? "Currency" : "In money"}</dt>
             <dd>
-              {money !== null && currency && currencyMinorUnits
-                ? currencyText(totals.net, currency, currencyMinorUnits)
-                : mixedCurrency
-                  ? "mixed"
-                  : "—"}
+              {money !== null && currency && currencyMinorUnits ? (
+                <span className="stats-nowrap">
+                  {currencyText(totals.net, currency, currencyMinorUnits)}
+                </span>
+              ) : mixedCurrency ? (
+                "mixed"
+              ) : (
+                "—"
+              )}
             </dd>
           </div>
         </dl>

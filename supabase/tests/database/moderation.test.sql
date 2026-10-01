@@ -60,7 +60,8 @@ select set_config('test.spam', public.create_post('modtest', 'Cheap chips everyw
 select pg_temp.act_as_owner();
 select is((select status from public.posts where public_id = current_setting('test.spam')), 'spam',
   'three links from a zero-karma account: created as spam, not rejected');
-select is((select count(*)::int from public.moderation_actions where action = 'post.auto_spam'), 1, '... and queued');
+select is((select count(*)::int from public.moderation_actions where action = 'post.auto_spam'
+             and target_id = (select id from public.posts where public_id = current_setting('test.spam'))), 1, '... and queued');
 select pg_temp.act_as_anon();
 select is((select count(*)::int from public.posts where public_id = current_setting('test.spam')), 0, 'anon cannot see it');
 select is(public.post_status(current_setting('test.spam')), null, '... and cannot tell it exists');

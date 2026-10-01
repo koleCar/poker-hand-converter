@@ -38,6 +38,7 @@ import { useAuth } from "../lib/auth";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
   isDatabaseConfigured,
+  rebuildStats,
   recordConversionFailures,
   saveHands,
 } from "../lib/db";
@@ -218,6 +219,12 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           errors: result.errors,
         });
         onHandsSaved?.();
+        // Statistics are derived server-side from what was just stored, and in
+        // the background: a statistics failure must never read as "your upload
+        // failed". The statistics screen picks up anything this misses.
+        if (result.inserted > 0) {
+          void rebuildStats().catch(() => undefined);
+        }
       } catch (err) {
         // The converted output is already on screen and downloadable; a failed
         // write is a warning, never a reason to throw the results away.

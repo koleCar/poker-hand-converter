@@ -16,7 +16,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../lib/auth";
-import { getHand, isDatabaseConfigured, saveHand, searchHands, type HandSummary } from "../lib/db";
+import {
+  getHand,
+  isDatabaseConfigured,
+  rebuildStats,
+  saveHand,
+  searchHands,
+  type HandSummary,
+} from "../lib/db";
 import { getParser, parseHand, toStandardText } from "../lib/phf";
 import type { PhfHand } from "../lib/phf/types";
 import { PENDING_HAND_KEY, type PendingHand } from "./converter/handoff";
@@ -224,6 +231,10 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
       setLoaded({ ...loaded, storedId: result.id });
       setNotice(result.duplicate ? "Already in your library." : "Saved to your library.");
       onHandsSaved();
+      if (!result.duplicate) {
+        // Background, server-side; see ConverterTab.
+        void rebuildStats().catch(() => undefined);
+      }
     } catch (err) {
       setListError(err instanceof Error ? err.message : "Saving failed.");
     } finally {

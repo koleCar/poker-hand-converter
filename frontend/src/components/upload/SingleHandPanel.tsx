@@ -17,7 +17,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
-import { isDatabaseConfigured, saveHand } from "../../lib/db";
+import { isDatabaseConfigured, rebuildStats, saveHand } from "../../lib/db";
 import { convertAny, getParser, toStandardText } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
 import { FILE_ACCEPT, loadFile } from "../converter/inputs";
@@ -126,6 +126,10 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
       setLoaded({ ...loaded, storedId: result.id });
       setNotice(result.duplicate ? "Already in your library." : "Saved to your library.");
       onSaved?.();
+      if (!result.duplicate) {
+        // Background, server-side; see ConverterTab.
+        void rebuildStats().catch(() => undefined);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Saving failed.");
     } finally {
