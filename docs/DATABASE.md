@@ -436,6 +436,26 @@ Tests: `supabase/tests/database/moderation.test.sql` — 58 assertions.
 
 ---
 
+## Sessions, bankroll and opponent notes
+
+`20261214090000`. **Sessions are computed, not stored:** `stats_sessions`
+groups the caller's hero rows into runs with no gap longer than
+`p_gap_minutes` (default 30, across every table at once) with a window
+function over `played_at`; the bankroll is their running sum. Bomb pots and
+straddles count here (a bankroll is what happened to the money); the usual
+money refusals apply (chips with cash: no money; two currencies: bb only).
+
+**Notes** (`player_notes`) are private: select-own, and no write grants —
+`set_player_note` (definer) is the only writer, edits the caller's own row in
+place, and deletes it when cleared. A note can only be written on a player
+the caller has sat with **in a room with real screen names**
+(`hands.site_anonymization = 'none'` and the name in `hands.player_names`).
+Positional rooms have no `player_names` by constraint, so they can never
+pass; `opaque-id` rooms are refused too, because a per-session token would
+carry the note to whoever gets it next.
+
+Tests: `supabase/tests/database/sessions_notes.test.sql`.
+
 ## Polls: "what would you do?"
 
 `20261130090000` lets a hand post stop at one of the author's own decisions

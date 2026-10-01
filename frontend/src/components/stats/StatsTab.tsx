@@ -39,6 +39,7 @@ import { BreakdownPanel } from "./BreakdownPanel";
 import { HandMatrix } from "./HandMatrix";
 import { HudGrid } from "./HudGrid";
 import { OpponentsPanel } from "./OpponentsPanel";
+import { SessionsPanel } from "./SessionsPanel";
 import { stakeLabel } from "./format";
 import { WinrateGraph } from "./WinrateGraph";
 import "../../styles/stats.css";
@@ -286,6 +287,8 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
       <BreakdownPanel filters={filters} stakes={coverage?.stakes ?? []} refreshToken={generation} />
 
       <HandMatrix filters={filters} refreshToken={generation} />
+
+      <SessionsPanel filters={filters} refreshToken={generation} />
 
       <OpponentsPanel filters={filters} refreshToken={generation} />
     </div>
