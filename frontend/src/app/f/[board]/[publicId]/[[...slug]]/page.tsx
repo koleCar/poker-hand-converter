@@ -16,6 +16,7 @@ import { PostDiscussion } from "../../../../../components/forum/PostDiscussion";
 import { PostText } from "../../../../../components/forum/PostText";
 import { VoteButtons } from "../../../../../components/forum/VoteButtons";
 import { HandSummary } from "../../../../../components/hand/HandSummary";
+import { PollThread } from "../../../../../components/forum/PollThread";
 import { decodePosition, POSITION_PARAM } from "../../../../../components/replayer/position";
 import { ServerFrame } from "../../../../../components/shell/ServerFrame";
 import { discussionJsonLd, jsonLdScript } from "../../../../../lib/forum/jsonLd";
@@ -24,7 +25,7 @@ import type { ForumPost } from "../../../../../lib/forum/types";
 import { en } from "../../../../../lib/i18n/en";
 import { getParser } from "../../../../../lib/parsers";
 import { canonicalUrl, paths } from "../../../../../lib/routes";
-import { readComments, readPost } from "../../../../../lib/server/forum";
+import { readComments, readPollAnon, readPost } from "../../../../../lib/server/forum";
 import styles from "../../../../../components/forum/forum.module.css";
 
 /**
@@ -130,7 +131,12 @@ export default async function PostPage({ params, searchParams }: { params: Param
 
   const sortParam = first(query.sort);
   const commentSort = sortParam === "new" || sortParam === "top" ? sortParam : "best";
-  const comments = await readComments(post.publicId, commentSort);
+  // A poll's comments and hand are sealed until the reader answers; the server
+  // render is anonymous, so it gets the spot and no discussion (#51).
+  const [comments, poll] = await Promise.all([
+    post.poll ? Promise.resolve([]) : readComments(post.publicId, commentSort),
+    post.poll ? readPollAnon(post.publicId) : Promise.resolve(null),
+  ]);
   const hand = post.handPhf ?? null;
   const siteName = post.hand ? getParser(post.hand.site)?.name ?? post.hand.site : null;
   const permalink = (seq: number) => paths.comment(post.board.slug, post.publicId, post.slug, seq);
@@ -204,12 +210,24 @@ export default async function PostPage({ params, searchParams }: { params: Param
 
           <PostText body={post.body} />
 
+          {post.poll ? (
+            <PollThread
+              post={post.publicId}
+              board={post.board.slug}
+              slug={post.slug}
+              initial={poll}
+              site={siteName ?? (poll?.phf ? getParser(poll.phf.meta.siteId)?.name ?? null : null)}
+              locked={post.isLocked}
+            />
+          ) : null}
+
           {hand ? (
             <section className="card">
               <HandSummary hand={hand} />
             </section>
           ) : null}
 
+          {post.poll ? null : (
           <PostDiscussion hand={hand} site={siteName} initialPosition={decodePosition(t)}>
             <section id="comments" className="stack">
               <div className={styles.toolbar}>
@@ -236,6 +254,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
               <CommentThread post={post.publicId} comments={comments} hand={hand} locked={post.isLocked} permalink={permalink} />
             </section>
           </PostDiscussion>
+          )}
         </article>
         </ModProvider>
       </MyVotesProvider>

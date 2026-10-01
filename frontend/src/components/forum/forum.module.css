@@ -365,3 +365,86 @@
   display: grid;
   gap: 4px;
 }
+
+/* ------------------------------------------------------------------ polls */
+
+.pollSetup {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+}
+
+.checkRow {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* `.composer input` sizes text fields to the row; a checkbox is not one. */
+.composer .checkRow input {
+  width: auto;
+  flex: none;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+.pollOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.poll {
+  gap: 14px;
+}
+
+.pollChoices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pollResults {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.pollResult {
+  display: grid;
+  gap: 5px;
+}
+
+.pollResultHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.pollTag {
+  padding: 1px 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+
+.pollBar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-inset);
+  overflow: hidden;
+}
+
+.pollBar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}

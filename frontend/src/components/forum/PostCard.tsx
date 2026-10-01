@@ -18,7 +18,11 @@ export function PostCard({ post }: { post: ForumPost }) {
       <div className={styles.cardBody}>
         <h2 className={styles.cardTitle}>
           {post.isPinned ? <span className={styles.badge}>{en.forum.pinned}</span> : null}
-          {post.kind === "hand" ? <span className={styles.badge}>{en.forum.handBadge}</span> : null}
+          {post.poll ? (
+            <span className={styles.badge}>{en.forum.poll.badge(post.poll.votes)}</span>
+          ) : post.kind === "hand" ? (
+            <span className={styles.badge}>{en.forum.handBadge}</span>
+          ) : null}
           <Link href={href}>{post.title}</Link>
         </h2>
         {post.hand ? (

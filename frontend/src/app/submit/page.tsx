@@ -30,6 +30,7 @@ export default async function SubmitPage({
           publicId: hand.hand.publicId,
           label: hand.hand.title ?? [hand.hand.stakesLabel, hand.hand.heroPosition].filter(Boolean).join(" · "),
           title: hand.hand.title,
+          phf: hand.hand.phf,
         }
       : null;
   return <SubmitScreen boards={boards} attached={attached} initialBoard={boardParam} />;

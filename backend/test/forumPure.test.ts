@@ -68,3 +68,31 @@ describe("mentions", () => {
     expect(linkify("https://x.com/@bob").map((s) => s.kind)).toEqual(["link"]);
   });
 });
+
+describe("pollSpots (#51)", () => {
+  it("offers only the hero's own decisions, with sane options, across the samples", async () => {
+    const { readFileSync, readdirSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const { convertAny } = await import("../../frontend/src/lib/parsers/index.js");
+    const { pollSpots } = await import("../../frontend/src/lib/forum/poll.js");
+    const dir = join(import.meta.dirname, "../../fixtures/samples/pokerstars");
+    let spots = 0;
+    for (const file of readdirSync(dir).filter((name) => name.endsWith(".txt"))) {
+      const { hands } = await convertAny(readFileSync(join(dir, file), "utf8"), { sourceFilename: file });
+      for (const parsed of hands) {
+        const hero = parsed.players.find((player) => player.isHero);
+        for (const spot of pollSpots(parsed)) {
+          spots += 1;
+          expect(spot.action.seat).toBe(hero?.seat);
+          expect(spot.options).toContain(spot.did);
+          expect(spot.options.length).toBeGreaterThanOrEqual(2);
+          expect(spot.options.length).toBeLessThanOrEqual(4);
+          // Facing a bet you cannot check; with nothing to call you cannot fold-or-call.
+          if (spot.facingBet) expect(spot.did).not.toBe("check");
+          else expect(["call", "fold"]).not.toContain(spot.did);
+        }
+      }
+    }
+    expect(spots).toBeGreaterThan(20);
+  });
+});

@@ -436,6 +436,29 @@ Tests: `supabase/tests/database/moderation.test.sql` — 58 assertions.
 
 ---
 
+## Polls: "what would you do?"
+
+`20261130090000` lets a hand post stop at one of the author's own decisions
+and ask readers to answer before they see the rest. The gate is the
+database's, in three places, because a client-side "hide until voted" is a CSS
+rule between a reader and the answer:
+
+| What | How it stays hidden |
+| --- | --- |
+| The hand | Its published copy moves to `status = 'poll'`, which `published_hands_public_select` does not match — so `/p/:id`, the author's list, the sitemap, `get_post.handPhf` and the feed card all lose it at once. `read_poll` (definer) returns `poll_phf(...)` — actions before the decision, runout 0 through that street, the hero's cards unless hidden, no villain cards, no results, no source text — until the caller has voted or is the author or a moderator; then the whole document. |
+| The discussion | `comments_read` gains `and not poll_hides_answer(post_id)`, which covers `get_post_comments`, a direct table read and anything later that reads through the policy. |
+| The votes | `post_polls` / `poll_votes` are sealed; reads are counts through `read_poll` / `poll_public`, never voters. |
+
+`create_poll_post` runs `create_post` (every gate and limit a post gets), then
+seals the hand. The hand must be the caller's, visible, and not the subject of
+another post; the decision must be a hero action, and the options must include
+what the hero did. `vote_poll`: one final vote, not the author, banned accounts
+refused, rate-limited on the vote buckets. `/p/:id` of a sealed hand says it is
+a poll and links to it (`poll_post_of_hand`), nothing more.
+
+Tests: `supabase/tests/database/polls.test.sql`, including a check that no
+villain card, turn or river appears anywhere in the spot document.
+
 ## Statistics: `hand_stats`, coverage and rebuild
 
 `hand_stats` (`20261005090000`) holds one row per (hand, dealt-in seat,

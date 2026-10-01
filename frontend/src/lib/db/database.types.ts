@@ -909,6 +909,80 @@ export type Database = {
           },
         ]
       }
+      poll_votes: {
+        Row: {
+          choice: string
+          created_at: string
+          post_id: string
+          size_pct: number | null
+          user_id: string
+        }
+        Insert: {
+          choice: string
+          created_at?: string
+          post_id: string
+          size_pct?: number | null
+          user_id: string
+        }
+        Update: {
+          choice?: string
+          created_at?: string
+          post_id?: string
+          size_pct?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_polls"
+            referencedColumns: ["post_id"]
+          },
+        ]
+      }
+      post_polls: {
+        Row: {
+          created_at: string
+          hide_hero_cards: boolean
+          options: string[]
+          post_id: string
+          published_hand_id: string
+          stop_index: number
+        }
+        Insert: {
+          created_at?: string
+          hide_hero_cards?: boolean
+          options: string[]
+          post_id: string
+          published_hand_id: string
+          stop_index: number
+        }
+        Update: {
+          created_at?: string
+          hide_hero_cards?: boolean
+          options?: string[]
+          post_id?: string
+          published_hand_id?: string
+          stop_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_polls_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_polls_published_hand_id_fkey"
+            columns: ["published_hand_id"]
+            isOneToOne: false
+            referencedRelation: "published_hands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_votes: {
         Row: {
           created_at: string
@@ -1575,6 +1649,18 @@ export type Database = {
         }
         Returns: Json
       }
+      create_poll_post: {
+        Args: {
+          p_board: string
+          p_body: string
+          p_hide_hero?: boolean
+          p_options: string[]
+          p_published_hand: string
+          p_stop_index: number
+          p_title: string
+        }
+        Returns: Json
+      }
       create_post: {
         Args: {
           p_board: string
@@ -1805,6 +1891,13 @@ export type Database = {
         Args: { p_map: Json; p_text: string }
         Returns: string
       }
+      poll_hides_answer: { Args: { p_post: string }; Returns: boolean }
+      poll_phf: {
+        Args: { p_hide_hero: boolean; p_phf: Json; p_stop: number }
+        Returns: Json
+      }
+      poll_post_of_hand: { Args: { p_public_id: string }; Returns: Json }
+      poll_public: { Args: { p_post: string }; Returns: Json }
       post_status: { Args: { p_public_id: string }; Returns: string }
       posting_block_reason: { Args: { p_uid: string }; Returns: string }
       provisional_username: { Args: never; Returns: string }
@@ -1826,6 +1919,7 @@ export type Database = {
         Args: { p_before?: string; p_limit?: number; p_username: string }
         Returns: Json
       }
+      read_poll: { Args: { p_post: string }; Returns: Json }
       read_published_hand: { Args: { p_public_id: string }; Returns: Json }
       read_share: { Args: { p_slug: string }; Returns: Json }
       record_conversion_failures: { Args: { p_failures: Json }; Returns: Json }
@@ -1895,6 +1989,10 @@ export type Database = {
       username_shape_problem: { Args: { p_name: string }; Returns: string }
       vote_comment: {
         Args: { p_post_public_id: string; p_seq: number; p_value: number }
+        Returns: Json
+      }
+      vote_poll: {
+        Args: { p_choice: string; p_post: string; p_size_pct?: number }
         Returns: Json
       }
       vote_post: {

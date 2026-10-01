@@ -33,6 +33,8 @@ export interface PublishedHand {
 
 export type PublishedReadResult =
   | { status: "ok"; hand: PublishedHand }
+  /** Sealed behind a "what would you do?" poll (#51); `post` is where to answer it. */
+  | { status: "poll"; post: { board: string; publicId: string; slug: string } | null }
   | { status: "deleted" | "removed" | "not-found" | "unconfigured" | "error" };
 
 export const readPublishedHand = cache(async (publicId: string): Promise<PublishedReadResult> => {
@@ -53,6 +55,10 @@ export const readPublishedHand = cache(async (publicId: string): Promise<Publish
   }
   if (row.status === "deleted" || row.status === "removed") {
     return { status: row.status };
+  }
+  if (row.status === "poll") {
+    const where = await supabase.rpc("poll_post_of_hand", { p_public_id: publicId });
+    return { status: "poll", post: (where.data as { board: string; publicId: string; slug: string } | null) ?? null };
   }
   if (!row.phf) {
     return { status: "error" };

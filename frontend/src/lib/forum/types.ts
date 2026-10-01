@@ -47,6 +47,30 @@ export interface ForumPost {
   hand: PostHandPreview | null;
   /** Only on `get_post`: the published hand's scrubbed document. */
   handPhf?: PhfHand | null;
+  /** Set when the post is a "what would you do?" poll; the hand is then sealed. */
+  poll?: PollSummary | null;
+}
+
+export type PollChoice = "fold" | "check" | "call" | "bet" | "raise" | "allin";
+
+/** What a feed card may know about a poll: never the answer. */
+export interface PollSummary {
+  options: PollChoice[];
+  hideHeroCards: boolean;
+  votes: number;
+}
+
+/** `read_poll()`: the poll as the caller may see it. */
+export interface PollState extends PollSummary {
+  stopIndex: number;
+  myVote: { choice: PollChoice; sizePct: number | null } | null;
+  isAuthor: boolean;
+  /** True once the caller has voted, or is the author or a moderator. */
+  revealed: boolean;
+  /** Per choice, only when revealed. */
+  results: Partial<Record<PollChoice, { votes: number; medianSizePct: number | null }>> | null;
+  /** The spot before the reveal, the whole hand after; null if the hand was unpublished. */
+  phf: PhfHand | null;
 }
 
 export interface CommentAnchor {
