@@ -1883,6 +1883,10 @@ export type Database = {
         Args: { p_filters?: Json; p_group?: string }
         Returns: Json
       }
+      analysis_chosen_action: {
+        Args: { p_chosen: number; p_options: Json }
+        Returns: string
+      }
       analysis_coverage: { Args: { p_version: string }; Returns: Json }
       analysis_grade_rank: { Args: { p_grade: string }; Returns: number }
       analysis_hand: {
@@ -1893,6 +1897,19 @@ export type Database = {
         Args: {
           p_filters?: Json
           p_limit?: number
+          p_offset?: number
+          p_sort?: string
+        }
+        Returns: Json
+      }
+      analysis_node_actions: { Args: { p_filters?: Json }; Returns: Json }
+      analysis_node_hands: {
+        Args: {
+          p_action?: string
+          p_deviations?: boolean
+          p_filters?: Json
+          p_limit?: number
+          p_nodes?: string[]
           p_offset?: number
           p_sort?: string
         }

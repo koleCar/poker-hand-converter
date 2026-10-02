@@ -78,6 +78,10 @@ export const en = {
       description:
         "Every decision in your saved hands, with the board, your hand, the price and the checks that hold whatever the strategy.",
     },
+    analysisReports: {
+      title: "Reports — your frequencies against the reference | Rail",
+      description: "Your preflop frequencies at every spot the charts cover, next to the reference's, with the hands where you left it.",
+    },
     analysisHand: {
       title: "Hand analysis — one hand | Rail",
       description: "One of your hands, decision by decision, in the replayer.",

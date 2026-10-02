@@ -634,6 +634,22 @@ exactly — and `minGrade` — at least that bad; an unknown grade is 22023),
 to `authenticated` — the `20261109090000` lesson. Defence against MDF counts
 postflop decisions only.
 
+**Reports against the reference** (A3, `20270111090000_analysis_reports.sql`;
+no table or grant change): `analysis_node_actions(filters)` counts the graded
+chart decisions (`source = 'chart'`, a grade, a choice) per chart node
+(`facts.chart.set` / `facts.chart.line`) × chosen action (decisions, those
+worse than Perfect, EV lost) and per node × hand class × action, the analysed
+postflop decisions per street × role scenario × action, and the filter facets
+(rooms, stakes, first and last hand — over the version only, ignoring the other
+filters). `analysis_node_hands(filters, nodes, action, deviations, sort, limit,
+offset)` is the list behind a row: graded decisions at up to 200 `<set>:<line>`
+keys, by default only those worse than Perfect, sorted by EV loss (keys,
+actions and sorts validated, 22023 otherwise). Both are invoker over
+`analysis_scope`; their helper `analysis_chosen_action(options, chosen)` (the
+option taken as a chart action, `allin` for a stored shove) is granted to
+`authenticated` and not to `anon`. The reference frequencies themselves are
+chart arithmetic in the browser (`lib/analysis/reports.ts`).
+
 ### Tests
 
 `supabase/tests/database/analysis.test.sql`: no client INSERT/UPDATE/DELETE
@@ -647,7 +663,11 @@ breakdown and sort whitelists, isolation between two users, anon, prune.
 `search_path` on the replaced reports and the grade helper; the grade
 filters and their whitelist; graded moves and hands, EV loss and score; the
 distribution overall, by street, by preflop scenario, position and pot type;
-the EV-loss sorts; isolation and anon.
+the EV-loss sorts; isolation and anon. `analysis_reports.test.sql` (A3):
+unchanged table grants; invoker, `search_path` and grants on both reports and
+the helper; the per-node, per-class and postflop counts; `allin` for a shove;
+every filter, facets that ignore them, one version per report; the deviation
+list's order, paging, action filter and validation; isolation and anon.
 
 ## Verifying the isolation
 

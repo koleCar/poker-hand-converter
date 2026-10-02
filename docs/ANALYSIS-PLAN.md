@@ -651,3 +651,50 @@ Each phase appends what it learned that changed the plan.
   - **Open:** `lookupPreflop` answers `bad-input` instead of `multiway` when a
     fifth entrant closes the tree (both blinds silent folds); one decision in
     the library.
+- 2026-10-02 — A3 shipped: Reports at `/analysis/reports`, your frequencies
+  against the reference.
+  - **Counts in SQL, the reference in the browser.** `analysis_node_actions`
+    counts graded chart decisions per node (`facts.chart.line`) × action and
+    per node × hand class × action; `lib/analysis/reports.ts` turns them into
+    references with the chart set that graded them. Nothing chart-derived is
+    stored, so a regenerated set needs no migration — only the
+    `analysis_version` bump that already goes with it. Decisions at lines the
+    loaded set lacks are counted and left out, with a note.
+  - **Two references per node.** *Range*: the chart's frequencies averaged
+    over the range reaching the node, combo-weighted, with a card-removal
+    correction (each class weighted by how likely it makes the earlier
+    players' chart lines; opponents independent of each other, as in the
+    charts' own model). The correction moves RFI and vs-open references by
+    under 3 points and deep 4-bet / all-in nodes by up to ~10. *Your hands*:
+    the chart's frequency for the classes the player actually held, averaged
+    over their decisions — the fair comparison for small samples and for
+    nodes reached with the player's own (not the reference's) range.
+  - **Verdict**: the range reference against a 95% Wilson interval of the
+    player's frequency (the stats screen's interval); "deviates" also needs a
+    gap of 2 points or more, and under 10 decisions is "too few".
+  - **Familiar stats are sums of nodes**, each node's reference weighted by
+    the player's decisions there (with none, by the reference's own reach):
+    RFI, steal, 3-bet against an open (no callers — squeezes are their own
+    row, unlike `three_bet_opp`), blind defence and fold to a steal (against
+    a single open), fold to a 3-bet in and out of position against the
+    3-bettor (the opener only), 4-bet (cold included), squeeze; plus a
+    fold / call / 3-bet table for each blind against each opener. Each row
+    opens its seats, a definition and tip with its Learn page, and
+    `analysis_node_hands`: the decisions graded worse than Perfect, most EV
+    lost first.
+  - **Postflop by role** shows the player's own bet / fold / call / raise
+    frequencies (PFR or caller, in or out of position, per street) from the
+    stored role scenarios rather than `hand_stats`, which has no IP/OOP split
+    and other filters. Heads-up only, limped pots left out, and a "reference
+    arrives with the flop library (A5)" note.
+  - **Owner's local library** (1,274 graded decisions in 1,232 hands): RFI 29.5%
+    vs 25.4% (your hands 24.2%, n=705, deviates) — almost all of it the small
+    blind, which raises 49% and never limps where `charts/1` limps 29%; 3-bet
+    against an open 6.1% vs 11.5% (your hands 8.9%, n=424, deviates; BTN vs HJ
+    0 of 36 against 11.4%, though the hands held there would 3-bet only 2.7%);
+    fold to a steal 76% vs 69% (n=145) and fold to a 3-bet out of position 60%
+    vs 43% (n=20) lean tight but are inside their intervals; flats the charts
+    never make (BTN calls a CO open 5.1%, a UTG open 7.7%) show as deviations.
+  - **Open.** The position filter reads the hand's seat while a short-handed
+    hand is graded at the 6-max node with UTG folded, so the two can name
+    different seats. A6's leak finder can reuse `analysis_node_hands`.
