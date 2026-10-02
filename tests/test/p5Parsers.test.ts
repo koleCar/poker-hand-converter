@@ -142,6 +142,13 @@ const ignitionOmaha = ignitionOutcomes.filter((outcome) =>
   ),
 );
 
+/** Four-card Omaha Hi/Lo, the same token followed by `HiLo` (#47). */
+const ignitionOmahaHiLo = ignitionOutcomes.filter((outcome) =>
+  /Hand #\S+:?\s+(?:Zone Poker ID#\S+\s+|TBL#\S+\s+)?OMAHA(?:ZonePoker)?\s+HiLo\b/.test(
+    outcome.chunk,
+  ),
+);
+
 describe("Ignition / Bodog / Bovada", () => {
   it("splits the corpus into the hands the brand header announces", () => {
     let headers = 0;
@@ -220,16 +227,57 @@ describe("Ignition / Bodog / Bovada", () => {
     ).toEqual([]);
   });
 
+  it("converts every four-card Omaha Hi/Lo hand, with the halves the summary states (#47)", () => {
+    expect(ignitionOmahaHiLo.map((outcome) => outcome.reason)).toEqual(Array(6).fill(null));
+    const halves = new Map(
+      ignitionOmahaHiLo.map((outcome) => [
+        outcome.hand!.meta.handId,
+        outcome.hand!.results.winners.map((winner) => [winner.player, winner.amount, winner.half]),
+      ]),
+    );
+    for (const outcome of ignitionOmahaHiLo) {
+      const hand = outcome.hand!;
+      expect([hand.game.variant, hand.game.hiLo], hand.meta.handId).toEqual(["omaha", true]);
+      // The 2012 tournament export prints no street markers, like the 2012
+      // Omaha high files; that is the only note any of them earns.
+      for (const warning of hand.meta.warnings) {
+        expect(warning.code, hand.meta.handId).toBe("streets-inferred");
+      }
+    }
+    // Heads-up split: `Seat+1: Big Blind HI 30` and `Seat+2: Dealer ... LOW 30`.
+    expect(halves.get("3050116136")).toEqual([
+      ["Hero", 30, "hi"],
+      ["Dealer", 30, "lo"],
+    ]);
+    // A tied high quartered against one low: two high shares, one low half.
+    expect(halves.get("2902234353")).toEqual([
+      ["UTG+1", 321, "hi"],
+      ["UTG+2", 640, "lo"],
+      ["UTG+3", 320, "hi"],
+    ]);
+    // A chopped side pot and main pot with no low on a paired 5-5 board:
+    // every share is high.
+    expect(halves.get("2641146259")).toEqual([
+      ["Big Blind", 2190, "hi"],
+      ["UTG+1", 2190, "hi"],
+      ["Big Blind", 180, "hi"],
+      ["UTG+1", 180, "hi"],
+    ]);
+  });
+
   it("refuses every other non-hold'em hand on the reason its header earns", () => {
     const others = ignitionOutcomes.filter(
-      (outcome) => !ignitionHoldem.includes(outcome) && !ignitionOmaha.includes(outcome),
+      (outcome) =>
+        !ignitionHoldem.includes(outcome) &&
+        !ignitionOmaha.includes(outcome) &&
+        !ignitionOmahaHiLo.includes(outcome),
     );
     expect(others.length).toBeGreaterThan(0);
     const reasons = new Map<string, number>();
     for (const outcome of others) {
       expect(outcome.hand).toBeNull();
-      // Omaha HiLo and 7-card stud HiLo are split-pot games, refused as such;
-      // plain stud is a game this parser has never been proven against.
+      // 7-card stud HiLo is a split-pot game in a deal this parser does not
+      // read, refused as hi/lo; plain stud is refused as a variant.
       const header = outcome.chunk.split(/\r?\n/)[0];
       expect(outcome.reason, header).toBe(
         /\bHiLo\b/.test(header) ? "unsupported-hi-lo" : "unsupported-variant",
@@ -241,7 +289,7 @@ describe("Ignition / Bodog / Bovada", () => {
   });
 
   it.each(
-    [...ignitionHoldem, ...ignitionOmaha]
+    [...ignitionHoldem, ...ignitionOmaha, ...ignitionOmahaHiLo]
       .filter((outcome): outcome is Outcome & { hand: PhfHand } => outcome.hand !== null)
       .map((outcome) => [`${outcome.file} #${outcome.hand.meta.handId}`, outcome.hand] as const),
   )("%s holds every invariant", (_name, hand) => {

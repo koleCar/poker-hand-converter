@@ -108,3 +108,54 @@ export function evaluateOmaha(
     boardTripleMasks(board.map(toIndex)),
   );
 }
+
+/**
+ * Value of the best eight-or-better low, or `null` when the hand has none.
+ *
+ * Same two-from-the-hand, three-from-the-board rule as the high hand, but
+ * ace-to-five lowball: aces are low, straights and flushes do not count, and
+ * the five ranks must be distinct and all eight or under. **Lower is better**,
+ * the opposite of `evaluateOmaha`, because that is how a low is read aloud
+ * ("eight-five" loses to "seven-six"): the value is the five ranks, highest
+ * first, as base-9 digits, so comparing two values compares the hands.
+ *
+ * `phf/hilo.ts` uses this to tell which collect paid which half; the equity
+ * engine itself still refuses hi/lo outright.
+ */
+export function evaluateOmahaLow(
+  hole: readonly (number | string)[],
+  board: readonly (number | string)[],
+): number | null {
+  // Ace 1, deuce 2 ... eight 8; anything higher cannot play in the low.
+  const lowRank = (card: number | string): number | null => {
+    const index = typeof card === "number" ? card : cardIndex(card);
+    if (index < 0 || index > 51) {
+      throw new Error(`not a card: ${String(card)}`);
+    }
+    const rank = index >> 2; // 0 = deuce ... 12 = ace
+    if (rank === 12) return 1;
+    return rank <= 6 ? rank + 2 : null;
+  };
+  const holeLow = hole.map(lowRank);
+  const boardLow = board.map(lowRank);
+  let best: number | null = null;
+  for (let a = 0; a < holeLow.length; a += 1) {
+    for (let b = a + 1; b < holeLow.length; b += 1) {
+      for (let c = 0; c < boardLow.length; c += 1) {
+        for (let d = c + 1; d < boardLow.length; d += 1) {
+          for (let e = d + 1; e < boardLow.length; e += 1) {
+            const ranks = [holeLow[a], holeLow[b], boardLow[c], boardLow[d], boardLow[e]];
+            if (ranks.some((rank) => rank === null)) continue;
+            const sorted = (ranks as number[]).sort((x, y) => y - x);
+            if (new Set(sorted).size !== 5) continue;
+            const value = sorted.reduce((sum, rank) => sum * 9 + rank, 0);
+            if (best === null || value < best) {
+              best = value;
+            }
+          }
+        }
+      }
+    }
+  }
+  return best;
+}

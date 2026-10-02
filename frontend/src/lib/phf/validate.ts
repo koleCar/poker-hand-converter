@@ -15,12 +15,14 @@
  *  - every actor is a seated player
  *  - the board size is a legal one and matches the street reached
  *  - no card appears twice anywhere in the hand
+ *  - in a hi/lo pot, the high and the low half are the same size
  *
  * `error` means the hand is not trustworthy and must not be stored as a normal
  * hand. `warning` means it is usable but odd and worth surfacing in the UI.
  */
 
 import { parseCard } from "../cards";
+import { hiLoPayoutContradictions, hiLoPotGroups } from "./hilo";
 import {
   holeCardCount,
   resolveRunout,
@@ -349,6 +351,59 @@ export function validateHand(hand: PhfHand): ValidationReport {
       }
     }
     streetCommit.set(action.player, (streetCommit.get(action.player) ?? 0) + action.amount);
+  }
+
+  /* ------------------------------------------------------- hi/lo halves - */
+
+  // A half only means something on a collect in a split-pot game. Anywhere
+  // else it is a builder bug, and one that would make a high-only pot read as
+  // split - so it is an error, not a warning.
+  for (const action of hand.actions) {
+    if (action.half && (!hand.game.hiLo || action.type !== "collect")) {
+      error(
+        "stray-pot-half",
+        `A ${action.type} by ${action.player} is marked as the ${action.half} half, ` +
+          (hand.game.hiLo ? "but only a collect can be." : "but the game is not hi/lo."),
+        { player: action.player, action: action.index },
+      );
+    }
+  }
+  if (!hand.game.hiLo && hand.results.winners.some((winner) => winner.half)) {
+    error("stray-pot-half", "A winner is marked with a pot half, but the game is not hi/lo.");
+  }
+
+  // Within one pot the two halves are the same size, give or take the odd chip
+  // the high half keeps. The total is already checked against the pot above;
+  // this is what catches a collect booked to the wrong half, which leaves the
+  // total untouched. "Odd chip" means the table's smallest chip, not one cent:
+  // Full Tilt splits a $7.75 pot at $0.50/$1 as $3.90 / $3.85. A tenth of the
+  // big blind covers every room in the corpus and is still far smaller than
+  // the quarter pot a misfiled collect moves.
+  const oddChip = Math.max(TOLERANCE, Math.floor(hand.game.bigBlind / 10));
+  if (hand.game.hiLo) {
+    // A payout the cards on the table contradict is not a hand to store: the
+    // money balances, but who won it is wrong, and every half derived from it
+    // would be too.
+    for (const message of hiLoPayoutContradictions(hand)) {
+      error("hi-lo-payout-contradiction", message);
+    }
+    for (const group of hiLoPotGroups(hand)) {
+      const hi = group.collects.filter((action) => action.half === "hi");
+      const lo = group.collects.filter((action) => action.half === "lo");
+      if (hi.length === 0 || lo.length === 0) {
+        continue;
+      }
+      const hiSum = hi.reduce((sum, action) => sum + action.amount, 0);
+      const loSum = lo.reduce((sum, action) => sum + action.amount, 0);
+      if (Math.abs(hiSum - loSum) > Math.max(oddChip, group.collects.length)) {
+        warn(
+          "hi-lo-halves-unbalanced",
+          `The ${group.key || "pot"} paid ${hiSum} high and ${loSum} low; the two halves ` +
+            "of a split pot differ by the odd chip at most.",
+          { runout: group.runoutIndex },
+        );
+      }
+    }
   }
 
   /* ------------------------------------------------------- reported sums - */

@@ -103,8 +103,11 @@ High-low split is the clearest case of all. An `Omaha Hi/Lo` hand read as plain
 Omaha *balances perfectly* - the summary states who collected what, so chip
 conservation, payout conservation and every other invariant in `validateHand`
 pass. There is no downstream check that would ever catch it, and half of every
-pot would be attributed to the wrong rule. So it is refused by name,
-`unsupported-hi-lo`, rather than left to look like a hand we understood.
+pot would be attributed to the wrong rule. So Hi/Lo is read only where a room's
+own fixtures prove it, with every award labelled as the high or the low half
+(worked out from the cards; see `docs/PHF-SPEC.md` §3.10), and refused by name,
+`unsupported-hi-lo`, everywhere else rather than left to look like a hand we
+understood.
 
 The corpus is the other half of the deal. A refusal is not a dead end — it is
 a work item with a reproduction attached. `unparsed_gaps` rolls the corpus up
@@ -143,12 +146,35 @@ room's Hold'em says nothing about whether it reads that room's Omaha.
 
 | Reads | Parsers |
 | --- | --- |
-| Hold'em, four- and five-card Omaha | GGPoker, Entraction |
-| Hold'em and four-card Omaha | PokerStars, partypoker, 888poker, iPoker, MicroGaming, Winamax, ACR/WPN, Ignition, Chico, Full Tilt, Ongame, Unibet |
+| Hold'em, four- and five-card Omaha, four-card Omaha Hi/Lo | Entraction |
+| Hold'em, four- and five-card Omaha | GGPoker |
+| Hold'em, four-card Omaha, four-card Omaha Hi/Lo | PokerStars, partypoker, 888poker, MicroGaming, Ignition, Full Tilt |
+| Hold'em and four-card Omaha | iPoker, Winamax, ACR/WPN, Chico, Ongame, Unibet |
 | Hold'em only | WePlay, CoinPoker, PokerBros, Run It Once |
 
-Every room refuses Hi/Lo (`unsupported-hi-lo`), short deck, stud, razz and
-draw games. Two of the Omaha rows come with caveats:
+Hi/Lo has a list of its own (`SiteParser.hiLoVariants`), because reading a
+room's Omaha says nothing about reading where its split pot went. Every other
+room, and five-card or stud Hi/Lo everywhere, is refused as `unsupported-hi-lo`;
+short deck, stud, razz and draw games are refused in every room. Several rows
+come with caveats:
+
+- **ACR/WPN** stays off the Hi/Lo list. Of its eight `O8` files the four that
+  convert never pay a pot to more than one player, so not one split has been
+  read from this room, and the other four fail for reasons of
+  their own (a run-it-twice, a duplicated card, two legacy hands whose `Bets:`
+  column disagrees with the actions). Its legacy summary also sums each
+  player's winnings across pots and halves into one `Collects:` figure.
+- **Ongame** stays off it too: its one Hi/Lo file never splits a pot, and no
+  Ongame file in any game shows how the room prints a pot paid to two players.
+- **Entraction** converts three of its four Hi/Lo files. The fourth pays the
+  whole pot high while the other shown hand holds a qualifying low, and is
+  refused as `hi-lo-payout-contradiction`; it shares its hand number with
+  another fixture but not its cards.
+- **Ignition**'s two 2012 tournament Hi/Lo hands carry the same
+  `streets-inferred` note as its 2012 Omaha high files: that export prints no
+  street markers.
+
+And two of the Omaha rows:
 
 - **Chico** labels its four-card hands `Hold'em Pot Limit`, so the variant is
   taken from the number of cards dealt. Only 4 of the 17 hands in its one Omaha

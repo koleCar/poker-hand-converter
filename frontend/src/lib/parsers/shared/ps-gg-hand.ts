@@ -23,6 +23,7 @@
  */
 
 import { extractCards, parseCard } from "../../cards";
+import { assignHiLoHalves } from "../../phf/hilo";
 import {
   CHIPS,
   PHF_SCHEMA,
@@ -1166,7 +1167,7 @@ export class StarsHandDraft {
         ? Math.max(init.game.bigBlind, this.bigBlindPosted)
         : init.game.bigBlind || this.bigBlindPosted;
 
-    return {
+    const hand: PhfHand = {
       schema: PHF_SCHEMA,
       meta: {
         siteId: init.siteId,
@@ -1241,5 +1242,11 @@ export class StarsHandDraft {
       },
       playedAt: init.playedAt,
     };
+    // Same derivation `parseStandardHand` runs, so a hand read from the room
+    // and the same hand read back from its standard text agree on the halves.
+    if (hand.game.hiLo) {
+      this.warnings.push(...assignHiLoHalves(hand));
+    }
+    return hand;
   }
 }

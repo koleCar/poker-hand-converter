@@ -27,6 +27,8 @@ import type { SeatCounters, SeatMoney } from "./types";
  * pot*, not "finished the hand ahead". A player who calls a river bet, wins the
  * main pot and loses the side pot still won at showdown; a player whose net is
  * positive only because an uncalled bet came back did not win anything at all.
+ * Hi/lo reads the same way: a quarter of the low half is chips collected from
+ * a pot, so it counts, even when it leaves the player behind for the hand.
  */
 export function showdownCounters(
   context: StatsContext,

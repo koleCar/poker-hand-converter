@@ -48,6 +48,20 @@ export const HOLDEM_OMAHA: readonly Variant[] = ["holdem", "omaha"];
 export const HOLDEM_OMAHA_FAMILY: readonly Variant[] = ["holdem", "omaha", "omaha5", "omaha6"];
 
 /**
+ * The hi/lo list (`SiteParser.hiLoVariants`) for a parser whose four-card
+ * Omaha Hi/Lo fixtures come out with every half resolved and no warnings.
+ *
+ * A separate list from the variant lock above, and checked before it, because
+ * reading a room's Omaha says nothing about reading where its split pot went.
+ * No room in the corpus has a five-card hi/lo sample, so `omaha5` is on no
+ * hi/lo list; stud is not read at all, so stud hi/lo never will be here.
+ */
+export const OMAHA_HI_LO: readonly Variant[] = ["omaha"];
+
+/** No hi/lo at all: every split-pot hand this parser sees is refused. */
+export const NO_HI_LO: readonly Variant[] = [];
+
+/**
  * Every spelling of short deck in the sample corpus, plus the obvious near
  * misses.
  *
@@ -182,9 +196,12 @@ function describe(variant: Variant): string {
  * asserts over every combination.
  *
  * The wording is PokerStars', because that is what the standard text already
- * emits for Hold'em and what Holdem Manager and PokerTracker import.
+ * emits for Hold'em and what Holdem Manager and PokerTracker import. `hiLo`
+ * adds Stars' own `Hi/Lo` (`Omaha Hi/Lo Pot Limit`): the label is the only
+ * place the split survives the trip, so a builder that drops it books a split
+ * pot as a whole one.
  */
-export function canonicalGameLabel(variant: Variant, limit: LimitType): string {
+export function canonicalGameLabel(variant: Variant, limit: LimitType, hiLo = false): string {
   const game =
     variant === "omaha"
       ? "Omaha"
@@ -194,5 +211,5 @@ export function canonicalGameLabel(variant: Variant, limit: LimitType): string {
           ? "6 Card Omaha"
           : "Hold'em";
   const suffix = limit === "pl" ? "Pot Limit" : limit === "fl" ? "Limit" : "No Limit";
-  return `${game} ${suffix}`;
+  return `${game}${hiLo ? " Hi/Lo" : ""} ${suffix}`;
 }

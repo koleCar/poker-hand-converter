@@ -53,6 +53,7 @@ import {
   type SiteParserContext,
 } from "../phf/detect";
 import {
+  isHiLoLabel,
   parseAmount,
   unitForSymbol,
   type Amount,
@@ -63,7 +64,9 @@ import {
   type PhfWarning,
 } from "../phf/types";
 import {
+  OMAHA_HI_LO,
   canonicalGameLabel,
+  normalizeGameName,
   unsupportedVariantSkip,
   variantOf,
 } from "./shared/variant-lock";
@@ -82,10 +85,20 @@ const VERSION = "1.0.0";
 /**
  * What this parser is allowed to read.
  *
- * One `gametype="Omaha"` file, clean. The two `Omaha H/L` files stay refused by
- * the split-pot rule, and no five- or six-card sample exists here.
+ * One `gametype="Omaha"` file, clean. No five- or six-card sample exists here.
  */
 const MICROGAMING_VARIANTS = ["holdem", "omaha"] as const;
+
+/**
+ * Hi/lo this parser reads: `Omaha H/L`, two files, both split showdowns.
+ *
+ * The `<Win>` element carries a `lowhandwin` flag, and it is **not** used: in
+ * `04-pot-limit-omaha-hilo.txt` it is `1` on both winners although only one
+ * of them can make a low on that board (`6s 8s 3c Jh Jc`; the other's low
+ * cards pair it). Whatever it means, it is not "this award is the low half",
+ * so the halves come from the cards (`phf/hilo.ts`) like every other room's.
+ */
+const MICROGAMING_HI_LO = OMAHA_HI_LO;
 
 /** `<Action type>` values that move chips into the pot, and what they mean. */
 const WAGERS: Record<string, DraftAction["kind"]> = {
@@ -108,6 +121,7 @@ export const microgamingParser: SiteParser = {
   id: "microgaming",
   name: "MicroGaming Network",
   version: VERSION,
+  hiLoVariants: MICROGAMING_HI_LO,
 
   detect(text: string): number {
     // `<Game hhversion="N" id="N"` is written by nothing else in scope; the
@@ -137,10 +151,11 @@ export const microgamingParser: SiteParser = {
       throw new ParseSkip("no-header", "The <Game> element has no id.");
     }
     const gameType = game.attrs.gametype ?? "";
-    // `Omaha H/L` is two of the three Omaha files here and is refused on its own
-    // terms, before the allowlist.
+    // `Omaha H/L` is checked on its own terms, before the allowlist, so a
+    // refused one keeps the split pot as its reason.
     const refusal =
-      unsupportedGameSkip(gameType) ?? unsupportedVariantSkip(gameType, MICROGAMING_VARIANTS);
+      unsupportedGameSkip(gameType, MICROGAMING_HI_LO) ??
+      unsupportedVariantSkip(gameType, MICROGAMING_VARIANTS);
     if (refusal) {
       throw refusal;
     }
@@ -345,7 +360,11 @@ export const microgamingParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "MG-",
       handId,
-      gameLabel: canonicalGameLabel(variantOf(gameType), limitOf(game.attrs.betlimit ?? "NL")),
+      gameLabel: canonicalGameLabel(
+        variantOf(gameType),
+        limitOf(game.attrs.betlimit ?? "NL"),
+        isHiLoLabel(normalizeGameName(gameType)),
+      ),
       unit,
       decimals: "fixed2",
       headerSmallBlind: strictAmount(stakes[0] ?? "", unit, "the header stakes"),

@@ -47,7 +47,8 @@ import {
   variantFromLabel,
   type DraftGame,
 } from "./shared/ps-gg-hand";
-import { HOLDEM_OMAHA, unsupportedVariantSkip } from "./shared/variant-lock";
+import { HOLDEM_OMAHA, OMAHA_HI_LO, unsupportedVariantSkip } from "./shared/variant-lock";
+import { NO_LOW_LINE, checkNoLowStated } from "../phf/hilo";
 
 export const POKERSTARS_PARSER_VERSION = "1.0.0";
 
@@ -60,11 +61,21 @@ export const POKERSTARS_PARSER_VERSION = "1.0.0";
  * clean. PokerStars also spreads `5 Card Omaha` and `6 Card Omaha`, but there
  * is no sample of either here, so neither is on the list.
  *
- * Razz, badugi and seven-card stud are in the corpus and stay refused, as does
- * every `Omaha Hi/Lo` file - those are caught one step earlier, by
- * `unsupportedGameSkip`, so they keep their own reason code.
+ * Razz, badugi and seven-card stud are in the corpus and stay refused, and so
+ * does `7 Card Stud Hi/Lo` - caught one step earlier, by `unsupportedGameSkip`,
+ * so it keeps its own reason code.
  */
 const POKERSTARS_VARIANTS = HOLDEM_OMAHA;
+
+/**
+ * Hi/lo this parser reads: four-card `Omaha Hi/Lo`, in pot, no and fixed limit.
+ *
+ * Five files - a quartered low, side pots split high and low, a pot where no
+ * low qualified, a muck at showdown and an uncontested pot - all come out with
+ * every half resolved. Stars never labels a half (`collected $2637.50 from
+ * main pot`, twice); the cards say which is which, see `phf/hilo.ts`.
+ */
+const POKERSTARS_HI_LO = OMAHA_HI_LO;
 
 /**
  * Every header shape PokerStars ships.
@@ -319,11 +330,11 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
     throw new ParseSkip("normalized-unparseable", "The hand has no PokerStars header line.");
   }
 
-  // Hi/Lo first, so the refusal keeps naming the real reason once the Hold'em
-  // lock lifts. `Omaha Hi/Lo Pot Limit` is plain `omaha` to `variantFromLabel`
-  // by design - the deal is identical - and a split pot read as a whole one
-  // balances against itself, so this is the only place it can be caught.
-  const hiLoRefusal = unsupportedGameSkip(header.game.label);
+  // Hi/Lo first, so a refused one keeps naming the real reason. `Omaha Hi/Lo
+  // Pot Limit` is plain `omaha` to `variantFromLabel` by design - the deal is
+  // identical - and a split pot read as a whole one balances against itself,
+  // so this is where an unproven one is caught.
+  const hiLoRefusal = unsupportedGameSkip(header.game.label, POKERSTARS_HI_LO);
   if (hiLoRefusal) {
     throw hiLoRefusal;
   }
@@ -396,6 +407,7 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
 
   const money = (value: string | undefined) => parseAmount(value, unit);
   let inSummary = false;
+  let noLowStated = false;
 
   for (let i = 1; i < lines.length; i += 1) {
     const rawLine = lines[i];
@@ -655,6 +667,13 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
       continue;
     }
 
+    // Hi/lo: the whole pot went high. The collects already say who was paid;
+    // the line is checked against the halves once the hand is built.
+    if (NO_LOW_LINE.test(line)) {
+      noLowStated = true;
+      continue;
+    }
+
     if (CHATTER_REGEX.test(line)) {
       // The sit-out flag is worth keeping even though the line itself carries no
       // money. The name is taken by stripping the phrase off the end rather than
@@ -675,6 +694,9 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
   }
 
   const hand = draft.build();
+  if (noLowStated) {
+    hand.meta.warnings.push(...checkNoLowStated(hand));
+  }
 
   // A hand whose actors are not in its own seat block is internally
   // inconsistent - fixture 18 lists `neverJa(1)ger` in the seats and
@@ -698,6 +720,7 @@ export const pokerstarsParser: SiteParser = {
   id: "pokerstars",
   name: "PokerStars",
   version: POKERSTARS_PARSER_VERSION,
+  hiLoVariants: POKERSTARS_HI_LO,
 
   detect(text: string): number {
     // The header is unique to the room: no other site writes "PokerStars".

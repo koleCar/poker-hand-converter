@@ -88,9 +88,15 @@ const VERSION = "1.0.0";
 /**
  * What this parser is allowed to read.
  *
- * Two `OMAHA_HI` files - a showdown and a pot-limit table - both clean. The
- * three `OMAHA_HI_LO` files stay refused, and are caught by the split-pot rule
- * rather than by this list.
+ * Two `OMAHA_HI` files - a showdown and a pot-limit table - both clean.
+ *
+ * `OMAHA_HI_LO` stays refused (no `hiLoVariants`), and not for lack of a clean
+ * parse: the one hi/lo fixture, `05-pot-limit-omaha-hilo.txt`, is a raise and a
+ * fold before the flop, so it never splits a pot - and no Ongame fixture, in
+ * any game, splits one. `POT_LINE` reads exactly one `won by X ($y)` per pot,
+ * and how this room prints a pot paid to two players is not in evidence. A
+ * hi/lo unlock that has never seen a split would be the assumption the
+ * allowlist exists to rule out.
  */
 const ONGAME_VARIANTS = ["holdem", "omaha"] as const;
 

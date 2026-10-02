@@ -70,8 +70,9 @@ Implementation:
    PLO/5-card/6-card Omaha, short deck, stud, razz, draw, pot-limit and
    fixed-limit before any parser read them, so that adding a room is a new file
    rather than a schema migration. Nineteen parsers later that has held: the
-   `SiteParser` contract has not had to widen, and the schema additions since
-   have all been optional fields inside `phf/1`.
+   `SiteParser` contract has widened only by one optional field
+   (`hiLoVariants`), and the schema additions since have all been optional
+   fields inside `phf/1`.
 
 ---
 
@@ -247,7 +248,7 @@ normalizes rather than preserves — WePlay rewrites `Weplay Hand #71764146` int
 | --- | --- |
 | `variant` | `holdem` \| `omaha` \| `omaha5` \| `omaha6` \| `shortdeck` \| `stud` \| `razz` \| `draw` \| `other`. Describes the **deal**, not the pot-award rule; `Omaha Hi/Lo` is `omaha` |
 | `limit` | `nl` \| `pl` \| `fl` |
-| `hiLo` | high-low split: half the pot goes to the lowest qualifying hand. A flag rather than a `Variant` member because it is orthogonal to the deal — `omaha` and Omaha Hi/Lo deal the same four cards onto the same board — and putting it in `Variant` would double the union, force every hi/lo twin into `holeCardCount`'s `switch` (a forgotten one returns `null`, which *disables* the cardinality check), and silently change what `variant = 'omaha'` matches in the database. **Not supported yet**: every hand with this set is refused with `unsupported-hi-lo` |
+| `hiLo` | high-low split: half the pot goes to the lowest qualifying hand. A flag rather than a `Variant` member because it is orthogonal to the deal — `omaha` and Omaha Hi/Lo deal the same four cards onto the same board — and putting it in `Variant` would double the union, force every hi/lo twin into `holeCardCount`'s `switch` (a forgotten one returns `null`, which *disables* the cardinality check), and silently change what `variant = 'omaha'` matches in the database. Who won which half is not here but on the awards (§3.10). Supported for four-card Omaha on the parsers that list it in `hiLoVariants`; every other hi/lo hand is refused with `unsupported-hi-lo` |
 | `format` | `cash` \| `tournament` \| `sng` \| `spin` |
 | `unit` | the `CurrencyUnit` for every `Amount` in the hand |
 | `smallBlind` / `bigBlind` | the blinds **actually in force**. For tournaments these come from what was posted, because level headers go stale; the header's own numbers stay on `tournament.levelSmallBlind` / `levelBigBlind` |
@@ -367,6 +368,7 @@ interface PhfAction {
   description?: string;   // "a pair of Aces"
   verb?: string;          // the literal verb when it is not the canonical one
   potName?: string;       // "pot" | "main pot" | "side pot"
+  half?: "hi" | "lo";     // collects in a hi/lo hand only; see §3.10
   label: string;          // human readable; the replay log renders this verbatim
   sourceLine: number | null;
   rawLine: string;
@@ -471,7 +473,7 @@ places — GG after the seat block, Run It Once after `*** HOLE CARDS ***`.
 | `pots` | side-pot breakdown, `[{ name: "Main", amount }, { name: "Side", amount }]`, empty for a single pot |
 | `fees` | `{ rake, jackpot, bingo, fortune, tax, other }`, broken out rather than lumped, because the GG summary reports them separately and win-rate math needs to add the promotional ones back |
 | `players` | one `PhfPlayerResult` per seat |
-| `winners` | one entry per collect, per runout: `{ player, seat, amount, runoutIndex }` |
+| `winners` | one entry per collect, per runout: `{ player, seat, amount, runoutIndex, half? }`; `half` mirrors the collect's (§3.10) |
 | `heroNet` | hero's `won - contributed`, or null |
 | `wentToShowdown` | a showdown section was printed and at least two players were still in |
 | `streetReached` | furthest street the hand actually reached |
@@ -490,6 +492,56 @@ no information the structured fields lack. Keeping the original string lets
 `toStandardText` reproduce imported text byte for byte without forcing every
 future parser to replicate one room's phrasing. Parsers that build a hand from
 scratch leave it `null` and the serializer generates a canonical line.
+
+### 3.10 Hi/lo halves
+
+In a `game.hiLo` hand every `collect` - and the `results.winners` entry made
+from it - can say which half of its pot it paid:
+
+| `half` | Meaning |
+| --- | --- |
+| `"hi"` | the high half, **or the whole pot when no low qualified**: with no low hand the high hand is paid everything, and that is still a high award |
+| `"lo"` | the low half |
+| absent | not split: a hand that is not hi/lo, a pot nobody contested, or one player taking both halves on a single line |
+
+A scoop printed on two lines (888 writes `collected [ $0.95 ]` twice) is one
+`hi` and one `lo`; quartering is several `lo` (or `hi`) shares in the same
+pot. `half` anywhere else - on a non-collect, or in a hand that is not hi/lo -
+is a `stray-pot-half` error.
+
+**The halves are derived, not read.** Rooms disagree about saying it - Full
+Tilt writes `wins the high pot`, partypoker `wins Lo (...)`, Bovada `HI 30` /
+`LOW 30` - and PokerStars, whose text is the one this project writes, never
+does. So `assignHiLoHalves` (`phf/hilo.ts`) works the halves out from the
+cards, for both builders (`parseStandardHand`, `StarsHandDraft.build`): per pot
+and per runout, it compares the paid players' best Omaha high and best
+eight-or-better low (`evaluateOmahaLow`, `lib/equity/omaha.ts`). Only paid
+players are compared, never the whole table: a side pot's high is not the
+best hand at the table but it is always the best among that pot's own
+winners. A player who won both halves on two lines is read high first - the
+order every room prints and the serializer writes. A room's own labels are
+not discarded: `checkStatedHalves` / `checkStatedTotals` compare them to the
+cards and warn on any difference (`hi-lo-half-mismatch`). A split that cannot
+be settled - a paid player whose cards are unknown, one the cards say won
+neither half, a single line that mixes a high share with a low one - leaves
+`half` absent and warns `hi-lo-split-unresolved`.
+
+**Standard text** stays PokerStars': unlabelled `collected ... from pot`
+lines, high shares first within each pot, and `No low hand qualified` after
+the collects of a showdown block whose every award is `hi`. Reading it back
+derives the same halves, so the round trip is exact. (Stars' rule for that
+line in a multi-pot hand where only some pots had a low is not in the corpus;
+it is written only when *nothing* in the block was paid low.)
+
+The validator also checks the money behind the labels: within a pot the two
+halves differ by at most the odd chip (`hi-lo-halves-unbalanced`, tolerance a
+tenth of the big blind - Full Tilt splits $7.75 as $3.90 / $3.85), and a main
+pot that skipped a better shown high or low is refused
+(`hi-lo-payout-contradiction`).
+
+Hi/lo is **opt-in per parser and per deal** (`SiteParser.hiLoVariants`, §8.1).
+Seven-card stud hi/lo stays refused everywhere, because stud is not read at
+all.
 
 ---
 
@@ -518,14 +570,17 @@ chip) is tolerated on every sum, because sources round their own arithmetic.
 | `unseated-chip-movement` | a promo or jackpot movement charges a seat that is empty |
 | `payout-mismatch` | `Σ collected` equals either `totalPot - fees` or `totalPot`. Rooms disagree on whether the reported pot is before or after the rake — GG deducts (pot 3, rake 0.15, collected 2.85), WePlay reports the rake alongside a pot the winner collects in full — and both are internally consistent. A third answer is an error |
 | `uncalled-exceeds-commitment` | an uncalled return never exceeds what the player put in on that street |
+| `stray-pot-half` | `half` appears only on a collect (and its winner entry) in a `game.hiLo` hand (§3.10) |
+| `hi-lo-payout-contradiction` | in a hi/lo hand's main pot, nobody who showed holds a better high, or a better qualifying low, than every player the pot paid |
 
 ### Warnings
 
 `missing-button` · `button-not-seated` · `no-hero` · `hole-card-count` (a seat
 showed fewer cards than the variant deals — a partial reveal) · `board-street-mismatch` · `no-winner` ·
 `contribution-mismatch` / `winnings-mismatch` (the stream and the SUMMARY
-disagree) · `missing-blinds` · plus every `meta.warnings` entry the parser
-recorded, including `unknown-line`.
+disagree) · `missing-blinds` · `hi-lo-halves-unbalanced` (a hi/lo pot's high
+and low halves differ by more than the odd chip) · plus every `meta.warnings`
+entry the parser recorded, including `unknown-line`.
 
 ---
 
@@ -857,6 +912,9 @@ export interface SiteParser {
 
   /** Parses one chunk. Throw `ParseSkip` for a recognised hand we won't convert. */
   parseHand(raw: string, ctx: SiteParserContext): PhfHand;
+
+  /** Deals this parser reads high-low split for, e.g. ["omaha"]. Absent = none (§3.10). */
+  readonly hiLoVariants?: readonly Variant[];
 }
 
 export interface SiteParserContext {
@@ -880,6 +938,11 @@ Rules:
   exception is treated as a bug in our code and reported as `parser-error`.
 - Set `meta.rawText` to the **site's** original text, not your intermediate
   form, so a later bug fix can re-convert from the source.
+- Hi/lo is opt-in. Pass your `hiLoVariants` to `unsupportedGameSkip(label, list)`
+  in your variant guard, and put the same list on the `SiteParser`:
+  `convertAny` refuses any hi/lo hand whose deal is not on it, whatever the
+  parser returned. A deal goes on the list only once your own hi/lo fixtures
+  convert with no warnings - which includes every half resolved (§3.10).
 
 ### 8.2 Two ways to build the `PhfHand`
 
@@ -1165,8 +1228,9 @@ Reason codes currently emitted: `unknown-site`, `no-hands`, `split-failed`,
 Warning codes parsers emit alongside a converted hand: `unknown-line`,
 `unknown-summary-line`, `board-from-summary`, `run-it-twice-summary`,
 `button-seat-empty`, `hero-attribution`, `ambiguous-timestamp`,
-`all-in-insurance`, `play-money-table`, `unrepresentable-amount`, plus every
-validator warning code from section 4. A warning means the hand is usable and
+`all-in-insurance`, `play-money-table`, `unrepresentable-amount`,
+`hi-lo-split-unresolved`, `hi-lo-half-mismatch`, plus every validator warning
+code from section 4. A warning means the hand is usable and
 something about it was odd; the UI surfaces them and the corpus tests assert
 they are empty for hands a parser claims to fully understand.
 
