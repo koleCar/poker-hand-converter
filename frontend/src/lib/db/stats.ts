@@ -128,6 +128,16 @@ export async function saveHandStats(
 /* --------------------------------------------------------------- reading - */
 
 /**
+ * Every report reads one `stats_version`, and the server's default for a
+ * caller that does not say is the first one (`stats/1`). So the client always
+ * says: without this, bumping `STATS_VERSION` would rebuild every library and
+ * then keep reading the rows it had just made obsolete.
+ */
+function withVersion<T extends { statsVersion?: string }>(filters: T): T {
+  return { statsVersion: STATS_VERSION, ...filters };
+}
+
+/**
  * The filters both reports accept.
  *
  * Every key is optional and every one is bound as a placeholder server-side —
@@ -348,7 +358,7 @@ export async function fetchStatsSummary(filters: StatsFilters = {}): Promise<Sta
   if (!(await currentUserId())) {
     return emptyStatsSummary();
   }
-  const payload = await rpc<Row | null>("stats_summary", { p_filters: filters });
+  const payload = await rpc<Row | null>("stats_summary", { p_filters: withVersion(filters) });
   if (!payload) {
     return emptyStatsSummary();
   }
@@ -380,7 +390,7 @@ export async function fetchStatsGraph(
     return emptyStatsGraph();
   }
   const payload = await rpc<Row | null>("stats_graph", {
-    p_filters: filters,
+    p_filters: withVersion(filters),
     p_buckets: buckets,
   });
   if (!payload) {
@@ -542,7 +552,8 @@ export type BreakdownGroup =
   | "site"
   | "stakes"
   | "hand_class"
-  | "stack_bb";
+  | "stack_bb"
+  | "pot_type";
 
 export interface BreakdownRow {
   /** The group value: "BTN", "AKs", "6", "USD:50:100", "100-150"; null when unknown. */
@@ -586,7 +597,7 @@ export async function fetchStatsBreakdown(
   if (!(await currentUserId())) {
     return empty;
   }
-  const payload = await rpc<Row | null>("stats_breakdown", { p_filters: filters, p_group: group });
+  const payload = await rpc<Row | null>("stats_breakdown", { p_filters: withVersion(filters), p_group: group });
   if (!payload) {
     return empty;
   }
@@ -650,7 +661,7 @@ export async function fetchStatsOpponents(
     return empty;
   }
   const payload = await rpc<Row | null>("stats_opponents", {
-    p_filters: filters,
+    p_filters: withVersion(filters),
     p_search: search || null,
     p_limit: limit,
   });
@@ -732,7 +743,7 @@ export async function fetchStatsSessions(filters: StatsFilters, gapMinutes = 30)
   if (!(await currentUserId())) {
     return empty;
   }
-  const payload = await rpc<Row | null>("stats_sessions", { p_filters: filters, p_gap_minutes: gapMinutes });
+  const payload = await rpc<Row | null>("stats_sessions", { p_filters: withVersion(filters), p_gap_minutes: gapMinutes });
   if (!payload) {
     return empty;
   }

@@ -554,6 +554,14 @@ plus `allInEv: {evVersion, evaluatedHands, allInHands}`; the EV line is the
 total line with each all-in paid at the equity the hands had when the money
 went in.
 
+**stats/2** (`20261221090000`) adds `pot_type` (walk, limped, single-raised,
+3bet, 4bet+, bomb) and a `pot_type` breakdown group. It is the first version
+bump, and it runs the path M2 built for it: every library reads as stale,
+`/stats` re-derives it next to the database and prunes the stats/1 rows on
+the last slice — measured locally on 5,448 hands, no button pressed. Every
+report defaults to `stats/1` when not told otherwise, so the client always
+sends `statsVersion` (`withVersion` in `lib/db/stats.ts`).
+
 ### Tests
 
 `supabase/tests/database/stats_ev.test.sql`: the catch-up predicate, the

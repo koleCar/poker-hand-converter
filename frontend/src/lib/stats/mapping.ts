@@ -42,6 +42,7 @@ export const DIMENSION_COLUMNS = [
   "has_cashout",
   "is_walk",
   "street_reached",
+  "pot_type",
   "total_pot",
   "house_into_pot",
   "fees",
@@ -101,6 +102,7 @@ export type StatsRow = {
   has_cashout: boolean;
   is_walk: boolean;
   street_reached: string;
+  pot_type: string;
   total_pot: number;
   house_into_pot: number;
   fees: number;
@@ -142,6 +144,7 @@ function rowFor(facts: HandFacts, seat: SeatFacts): StatsRow {
     has_cashout: hand.hasCashout,
     is_walk: hand.isWalk,
     street_reached: hand.streetReached,
+    pot_type: hand.potType,
     total_pot: hand.totalPot,
     house_into_pot: hand.houseIntoPot,
     fees: hand.fees,
