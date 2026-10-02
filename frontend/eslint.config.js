@@ -182,4 +182,37 @@ export default defineConfig([
       ],
     },
   },
+
+  /**
+   * The charts' import rule (header of `src/lib/charts/index.ts`): the
+   * solver's, plus the solver itself. The chart lookup runs where the solver
+   * runs - under plain Node in tests/test and in the analysis Web Worker.
+   */
+  {
+    files: ['src/lib/charts/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['next', 'next/*', 'server-only', 'client-only', 'react', 'react/*', 'react-dom', '@supabase/*'],
+              message:
+                'lib/charts runs under plain Node in tests/test and in a Web Worker. No framework imports.',
+            },
+            {
+              group: ['../*', '!../equity', '!../cards', '!../phf', '../phf/*', '!../phf/types', '!../solver', '@/*'],
+              message: 'lib/charts may import only lib/solver, lib/phf/types, lib/cards and lib/equity.',
+            },
+          ],
+        },
+      ],
+      'no-restricted-globals': [
+        'error',
+        { name: 'window', message: 'lib/charts runs in a Web Worker; there is no window.' },
+        { name: 'document', message: 'lib/charts runs in a Web Worker; there is no document.' },
+        { name: 'process', message: 'lib/charts runs in the browser too. Pass configuration in.' },
+      ],
+    },
+  },
 ])
