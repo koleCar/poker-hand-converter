@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deletePost, editPost, forumErrorMessage } from "../../lib/db/forum";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import styles from "./forum.module.css";
@@ -22,6 +22,7 @@ export function PostActions({
   title: string;
   body: string;
 }) {
+  const en = useDict();
   const { profile } = useMyProfile();
   const router = useRouter();
   const [editing, setEditing] = useState(false);

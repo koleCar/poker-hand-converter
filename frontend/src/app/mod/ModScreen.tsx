@@ -25,7 +25,7 @@ import {
   type QueueItem,
   type SpamItem,
 } from "../../lib/db/moderation";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import styles from "../../components/forum/forum.module.css";
@@ -37,6 +37,7 @@ export function ModScreen() {
 }
 
 function ModBody() {
+  const en = useDict();
   const auth = useAuth();
   const { profile } = useMyProfile();
   const [tab, setTab] = useState<Tab>("reports");
@@ -89,6 +90,7 @@ function subjectHref(item: QueueItem): string | null {
 }
 
 function Reports({ onDenied }: { onDenied: () => void }) {
+  const en = useDict();
   const [items, setItems] = useState<QueueItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(
@@ -173,6 +175,7 @@ function Reports({ onDenied }: { onDenied: () => void }) {
 }
 
 function Spam({ onDenied }: { onDenied: () => void }) {
+  const en = useDict();
   const [items, setItems] = useState<SpamItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(
@@ -234,6 +237,7 @@ function Spam({ onDenied }: { onDenied: () => void }) {
 }
 
 function Users() {
+  const en = useDict();
   const [name, setName] = useState("");
   const [user, setUser] = useState<ModUser | null>(null);
   const [overlap, setOverlap] = useState<Array<{ with: string; sharedVotes: number; sameDirection: number }>>([]);
@@ -340,6 +344,7 @@ function Users() {
 }
 
 function Admin() {
+  const en = useDict();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [roleUser, setRoleUser] = useState("");

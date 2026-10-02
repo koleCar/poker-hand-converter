@@ -8,10 +8,11 @@
 
 import { useState } from "react";
 import { embedCode } from "../../lib/embed";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import "../../styles/embed.css";
 
 export function EmbedButton({ src }: { src: string }) {
+  const en = useDict();
   const [copied, setCopied] = useState(false);
   const code = embedCode(src);
 

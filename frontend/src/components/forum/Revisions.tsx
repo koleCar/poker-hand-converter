@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { getRevisions } from "../../lib/db/moderation";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { formatPostDate } from "./format";
 import { PostText } from "./PostText";
 import styles from "./forum.module.css";
@@ -13,6 +13,7 @@ import styles from "./forum.module.css";
  * verifiable history beats a badge.
  */
 export function Revisions({ post, seq }: { post: string; seq?: number }) {
+  const en = useDict();
   const [items, setItems] = useState<Array<{ title: string | null; body: string | null; createdAt: string }> | null>(null);
   const [open, setOpen] = useState(false);
 

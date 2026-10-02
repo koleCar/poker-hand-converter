@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { RailMark } from "../brand/RailMark";
-import { en } from "../../lib/i18n/en";
+import type { Dict } from "../../lib/i18n/types";
 import "../../styles/embed.css";
 
 /**
@@ -13,7 +13,7 @@ import "../../styles/embed.css";
  * forum or a blog is a backlink, and it opens in a new tab so the host page is
  * not navigated away from under its reader.
  */
-export function EmbedFrame({ href, children }: { href: string; children: ReactNode }) {
+export function EmbedFrame({ href, children, t: en }: { href: string; children: ReactNode; t: Dict }) {
   return (
     <div className="embed">
       <div className="embed__body">{children}</div>
@@ -26,9 +26,9 @@ export function EmbedFrame({ href, children }: { href: string; children: ReactNo
 }
 
 /** What an embed says when the hand behind it is gone. Short: it sits in a box. */
-export function EmbedGone({ href }: { href: string }) {
+export function EmbedGone({ href, t: en }: { href: string; t: Dict }) {
   return (
-    <EmbedFrame href={href}>
+    <EmbedFrame href={href} t={en}>
       <p className="embed__gone">{en.embed.gone}</p>
     </EmbedFrame>
   );

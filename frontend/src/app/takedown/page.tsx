@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ServerFrame } from "../../components/shell/ServerFrame";
-import { en } from "../../lib/i18n/en";
+import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
 import styles from "../../components/forum/forum.module.css";
 
-export const metadata: Metadata = {
-  title: en.moderation.takedownTitle,
-  alternates: { canonical: paths.takedown() },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const en = await getDict();
+  return {
+    title: en.moderation.takedownTitle,
+    alternates: { canonical: paths.takedown() },
+  };
+}
 
 /**
  * #31's promise, written down: a poker room or a player who wants a hand down
  * has a path that is not a lawyer, and a response time. The mechanism is the
  * `hh-takedown` report reason (`report_content`) and the mod queue.
  */
-export default function TakedownPage() {
+export default async function TakedownPage() {
+  const en = await getDict();
   return (
     <ServerFrame tab={null}>
       <section className="card stack">

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { en } from "../lib/i18n/en";
+import { getDict } from "../lib/i18n/server";
 import { paths } from "../lib/routes";
 
 /**
@@ -10,7 +10,8 @@ import { paths } from "../lib/routes";
  * a Web Worker with no server, so it is the screen that is most useful when the
  * network is not.
  */
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const en = await getDict();
   return {
     name: en.brand.name,
     short_name: en.brand.name,

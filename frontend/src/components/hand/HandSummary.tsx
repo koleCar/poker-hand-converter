@@ -16,7 +16,7 @@
  * crawler reads a `<details>` body like any other text.
  */
 
-import { en } from "../../lib/i18n/en";
+import type { Dict } from "../../lib/i18n/types";
 import { toStandardText } from "../../lib/phf/serialize";
 import { formatAmount, primaryBoard, type PhfAction, type PhfHand } from "../../lib/phf/types";
 import styles from "./HandSummary.module.css";
@@ -39,7 +39,8 @@ function actionText(action: PhfAction): string {
   return `${action.player} ${action.label}`.trim();
 }
 
-export function HandSummary({ hand }: { hand: PhfHand }) {
+/** `t`: the strings, from the caller — this renders on the server and in the client. */
+export function HandSummary({ hand, t: en }: { hand: PhfHand; t: Dict }) {
   const board = primaryBoard(hand);
   const seats = [...hand.players].sort((a, b) => a.seat - b.seat);
   const byStreet = STREETS.map((street) => ({

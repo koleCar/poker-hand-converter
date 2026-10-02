@@ -1,35 +1,48 @@
 /**
- * Every user-facing string on the App Router surfaces, in one place.
+ * Every user-facing string on the App Router surfaces, in English — the source
+ * locale. `hr.ts` is the same shape, checked against `Dict` (`types.ts`), so a
+ * key cannot exist in one language and not the other.
  *
- * ## Why, when the product is English-only
+ * ## How a component gets its strings
  *
- * Because Croatian is coming, and the difference between "add a locale" and
- * "refactor every component" is decided now, not then. A string that starts its
- * life inline gets copy-edited inline, reused inline, and concatenated inline,
- * and by the time a second language arrives the extraction is a week of work
- * with a regression in it. A string that starts here is a data change.
+ *   * client components: `const en = useDict()` (`client.tsx`), from the
+ *     provider the root layout mounts with the request's locale;
+ *   * server pages, metadata and route handlers: `const en = await getDict()`
+ *     (`server.ts`);
+ *   * components that render on both sides (`HandSummary`, `CommentThread`,
+ *     `PostCard`, `Feed`, `EmbedFrame`, `OgCard`): a `t` prop from the caller.
+ *
+ * The variable keeps the name `en` at call sites only so the switch to
+ * dictionaries did not have to rewrite every line; it holds whichever language
+ * the reader chose.
+ *
+ * The locale is a cookie (`rail.locale`), else the browser's
+ * `Accept-Language`, else English — see `types.ts`. URLs do not change.
  *
  * The lint rule in `eslint.config.js` (`no-restricted-syntax`, "user-facing
- * literal") is what keeps this honest for `src/app/**`: bare JSX text and bare
- * `title` / `alt` / `placeholder` / `aria-label` attributes are errors there.
- *
- * ## What is deliberately NOT here
- *
- * The pre-existing components under `src/components/**` still carry their copy
- * inline — several hundred strings across the converter, the replayer and the
- * stats HUD. Hauling them through this file *during* a framework migration is
- * how you lose a comma in a sentence that explains a refusal reason, and the
- * migration's whole claim is that behaviour did not change. They are tracked as
- * follow-up; the lint rule is scoped so that no *new* file can add to the pile.
+ * literal") keeps `src/app/**` honest: bare JSX text and bare `title` / `alt` /
+ * `placeholder` / `aria-label` attributes are errors there.
  *
  * ## Shape
  *
- * Nested plain objects, `as const`. No interpolation framework: the two places
- * that need a value take a function, so the argument order is type-checked and
- * a translator sees the whole sentence rather than three fragments.
+ * Nested plain objects, `as const`. No interpolation framework: a value that
+ * needs an argument is a function, so the argument order is type-checked and a
+ * translator sees the whole sentence rather than three fragments — and can
+ * apply the plural rules of their own language (`plural()` in `hr.ts`).
  */
 
+import { chromeEn } from "./ns/chrome.en";
+import { converterEn } from "./ns/converter.en";
+import { replayerEn } from "./ns/replayer.en";
+import { statsEn } from "./ns/stats.en";
+
 export const en = {
+  // The component namespaces, one file each (`ns/`).
+  stats: statsEn,
+  replayer: replayerEn,
+  converter: converterEn,
+  chrome: chromeEn,
+
   brand: {
     name: "Rail",
     tagline: "Poker hands, replayed and discussed",
@@ -65,6 +78,11 @@ export const en = {
       fallbackDescription:
         "Replay a shared poker hand action by action, free and without an account, on Rail.",
     },
+  },
+
+  language: {
+    label: "Language",
+    hint: "Rail remembers your choice in this browser.",
   },
 
   nav: {

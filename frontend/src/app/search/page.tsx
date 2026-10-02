@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Fragment } from "react";
 import { ServerFrame } from "../../components/shell/ServerFrame";
-import { en } from "../../lib/i18n/en";
+import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
 import { searchForum } from "../../lib/server/forum";
 import styles from "../../components/forum/forum.module.css";
@@ -15,6 +15,7 @@ function queryOf(params: Record<string, string | string[] | undefined>): string 
 }
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  const en = await getDict();
   const q = queryOf(await searchParams);
   return {
     title: en.forum.searchPage.metaTitle(q),
@@ -50,6 +51,7 @@ function Snippet({ text }: { text: string }) {
 }
 
 export default async function SearchPage({ searchParams }: { searchParams: SearchParams }) {
+  const en = await getDict();
   const q = queryOf(await searchParams);
   const hits = q ? await searchForum(q) : [];
 

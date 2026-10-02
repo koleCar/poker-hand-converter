@@ -12,7 +12,7 @@
 import { useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { forumErrorMessage, voteComment, votePost, type VoteCounts } from "../../lib/db/forum";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { useMyVotes } from "./MyVotes";
 import styles from "./forum.module.css";
 
@@ -27,6 +27,7 @@ interface VoteButtonsProps {
 }
 
 export function VoteButtons({ post, seq, upvotes, downvotes, disabled = false, compact = false }: VoteButtonsProps) {
+  const en = useDict();
   const auth = useAuth();
   const mine = useMyVotes();
   const serverMine = (seq === undefined ? mine.posts[post] : mine.comments[String(seq)]) ?? 0;

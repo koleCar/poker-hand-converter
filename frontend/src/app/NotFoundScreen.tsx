@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { AppFrame } from "../components/shell/AppFrame";
-import { en } from "../lib/i18n/en";
+import { useDict } from "../lib/i18n/client";
 import { paths } from "../lib/routes";
 
 /** Client half of the 404, so it gets the same bar and dialog as every screen. */
 export function NotFoundScreen() {
+  const en = useDict();
   return (
     <AppFrame tab={null}>
       {() => (

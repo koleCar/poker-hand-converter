@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { RailMark } from "../brand/RailMark";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 
 interface BrandMarkProps {
@@ -23,6 +23,7 @@ interface BrandMarkProps {
  * the intended change: a logo goes home, and home is now a different screen.
  */
 export function BrandMark({ showTagline = true, className }: BrandMarkProps) {
+  const en = useDict();
   return (
     <Link href={paths.home()} className={`shell__brand ${className ?? ""}`}>
       <RailMark size={32} className="shell__brand-mark" />

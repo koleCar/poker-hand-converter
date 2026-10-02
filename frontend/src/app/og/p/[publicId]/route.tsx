@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { OgCard, OG_SIZE } from "../../../../components/og/OgCard";
 import { formatStakes, shortGameName } from "../../../../components/share/preview";
-import { en } from "../../../../lib/i18n/en";
+import { getDict } from "../../../../lib/i18n/server";
 import { getParser } from "../../../../lib/parsers";
 import { readPublishedHand } from "../../../../lib/server/published";
 
@@ -11,22 +11,23 @@ import { readPublishedHand } from "../../../../lib/server/published";
  * goes on to reveal. A sealed poll's hand gets the question instead.
  */
 export async function GET(_request: Request, { params }: { params: Promise<{ publicId: string }> }) {
+  const en = await getDict();
   const { publicId } = await params;
   const result = await readPublishedHand(publicId);
   if (result.status === "poll") {
     return new ImageResponse(
-      <OgCard eyebrow={en.og.poll} title={en.og.pollTitle} facts={[en.og.pollFacts]} badge={en.og.poll} />,
+      <OgCard t={en} eyebrow={en.og.poll} title={en.og.pollTitle} facts={[en.og.pollFacts]} badge={en.og.poll} />,
       { ...OG_SIZE, headers: CACHE },
     );
   }
   if (result.status !== "ok") {
-    return new ImageResponse(<OgCard eyebrow={en.og.handEyebrow} title={en.og.handFallback} facts={[]} />, OG_SIZE);
+    return new ImageResponse(<OgCard t={en} eyebrow={en.og.handEyebrow} title={en.og.handFallback} facts={[]} />, OG_SIZE);
   }
   const published = result.hand;
   const hand = published.phf;
   const hero = hand.players.find((player) => player.isHero);
   return new ImageResponse(
-    <OgCard
+    <OgCard t={en}
       eyebrow={getParser(published.site)?.name ?? published.site}
       title={published.title ?? `${formatStakes(hand)} ${shortGameName(hand.game.label)}`}
       facts={[

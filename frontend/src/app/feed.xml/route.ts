@@ -1,5 +1,5 @@
 import { rssDocument, RSS_HEADERS } from "../../lib/feed/rss";
-import { en } from "../../lib/i18n/en";
+import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
 import { readFeed } from "../../lib/server/forum";
 
@@ -7,6 +7,7 @@ import { readFeed } from "../../lib/server/forum";
 export const revalidate = 600;
 
 export async function GET(): Promise<Response> {
+  const en = await getDict();
   const page = await readFeed(null, "new", null);
   return new Response(
     rssDocument({

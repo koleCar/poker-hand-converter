@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { en } from "../../../lib/i18n/en";
+import { useDict } from "../../../lib/i18n/client";
 import { useMyProfile } from "../../../lib/profile/context";
 import { ReportButton } from "../../../components/forum/ReportButton";
 import { paths } from "../../../lib/routes";
@@ -14,6 +14,7 @@ import styles from "./profile.module.css";
  * so nothing about who is looking can end up in a cached render.
  */
 export function OwnProfileActions({ profileId, username }: { profileId: string; username: string }) {
+  const en = useDict();
   const { profile } = useMyProfile();
   if (!profile || profile.id !== profileId) {
     // Somebody else's profile: the one thing to offer is a report.

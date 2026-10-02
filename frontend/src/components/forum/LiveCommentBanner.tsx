@@ -15,11 +15,12 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { getBrowserSupabase } from "../../lib/supabase/browser";
 import styles from "./forum.module.css";
 
 export function LiveCommentBanner({ post, knownSeq }: { post: string; knownSeq: number }) {
+  const en = useDict();
   const router = useRouter();
   const [latest, setLatest] = useState(knownSeq);
   const [base, setBase] = useState(knownSeq);

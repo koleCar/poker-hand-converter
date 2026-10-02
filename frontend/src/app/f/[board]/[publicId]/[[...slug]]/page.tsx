@@ -22,7 +22,7 @@ import { ServerFrame } from "../../../../../components/shell/ServerFrame";
 import { discussionJsonLd, jsonLdScript } from "../../../../../lib/forum/jsonLd";
 import { excerpt } from "../../../../../lib/forum/text";
 import type { ForumPost } from "../../../../../lib/forum/types";
-import { en } from "../../../../../lib/i18n/en";
+import { getDict } from "../../../../../lib/i18n/server";
 import { getParser } from "../../../../../lib/parsers";
 import { canonicalUrl, paths } from "../../../../../lib/routes";
 import { readComments, readPollAnon, readPost } from "../../../../../lib/server/forum";
@@ -64,6 +64,7 @@ function postUrl(post: ForumPost): string {
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const en = await getDict();
   const { publicId } = await params;
   const result = await readPost(publicId);
   if (result.status !== "ok") {
@@ -93,6 +94,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 export default async function PostPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
+  const en = await getDict();
   const { board, publicId, slug } = await params;
   const query = await searchParams;
   const result = await readPost(publicId);
@@ -223,7 +225,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
 
           {hand ? (
             <section className="card">
-              <HandSummary hand={hand} />
+              <HandSummary t={en} hand={hand} />
             </section>
           ) : null}
 
@@ -251,7 +253,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
                 knownSeq={comments.reduce((max, comment) => Math.max(max, comment.seq), 0)}
               />
               <CommentComposer post={post.publicId} locked={post.isLocked} />
-              <CommentThread post={post.publicId} comments={comments} hand={hand} locked={post.isLocked} permalink={permalink} />
+              <CommentThread t={en} post={post.publicId} comments={comments} hand={hand} locked={post.isLocked} permalink={permalink} />
             </section>
           </PostDiscussion>
           )}

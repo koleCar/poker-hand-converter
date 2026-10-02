@@ -9,7 +9,7 @@
 
 import Link from "next/link";
 import type { Board, FeedPage, FeedSort } from "../../lib/forum/types";
-import { en } from "../../lib/i18n/en";
+import type { Dict } from "../../lib/i18n/types";
 import { paths } from "../../lib/routes";
 import { MyVotesProvider } from "./MyVotes";
 import { PostCard } from "./PostCard";
@@ -34,6 +34,7 @@ export function Feed({
   page,
   data,
   heading,
+  t: en,
 }: {
   board: Board | null;
   boards: Board[];
@@ -41,6 +42,7 @@ export function Feed({
   page: number;
   data: FeedPage | null;
   heading: string;
+  t: Dict;
 }) {
   const slug = board?.slug ?? null;
   const posts = data?.posts ?? [];
@@ -95,7 +97,7 @@ export function Feed({
 
       <MyVotesProvider postIds={posts.map((post) => post.publicId)}>
         <div className={styles.feed}>
-          {posts.length ? posts.map((post) => <PostCard key={post.publicId} post={post} />) : <p className="muted">{en.forum.empty}</p>}
+          {posts.length ? posts.map((post) => <PostCard key={post.publicId} post={post} t={en} />) : <p className="muted">{en.forum.empty}</p>}
         </div>
       </MyVotesProvider>
 

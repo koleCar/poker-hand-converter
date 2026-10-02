@@ -21,7 +21,7 @@ import {
   publishHand,
   type PublishMode,
 } from "../../lib/db/publishing";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import styles from "./PublishHandButton.module.css";
@@ -29,6 +29,7 @@ import styles from "./PublishHandButton.module.css";
 const MODES: PublishMode[] = ["pseudonyms", "positions", "as-imported"];
 
 export function PublishHandButton({ storedHandId }: { storedHandId: string | null | undefined }) {
+  const en = useDict();
   const auth = useAuth();
   const { profile } = useMyProfile();
   const [open, setOpen] = useState(false);

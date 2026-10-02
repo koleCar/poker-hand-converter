@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "../../lib/auth";
 import { createComment, forumErrorMessage } from "../../lib/db/forum";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { useSpot } from "./PostDiscussion";
 import styles from "./forum.module.css";
@@ -40,6 +40,7 @@ export function CommentComposer({
   autoFocus?: boolean;
   onDone?: () => void;
 }) {
+  const en = useDict();
   const auth = useAuth();
   const { profile } = useMyProfile();
   const router = useRouter();

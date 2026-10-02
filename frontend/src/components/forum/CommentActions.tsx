@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteComment, forumErrorMessage } from "../../lib/db/forum";
 import { setCommentStatus } from "../../lib/db/moderation";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { CommentComposer } from "./CommentComposer";
 import { useCanModerate } from "./ModContext";
@@ -25,6 +25,7 @@ export function CommentActions({
   canReply: boolean;
   locked: boolean;
 }) {
+  const en = useDict();
   const { profile } = useMyProfile();
   const canModerate = useCanModerate();
   const router = useRouter();

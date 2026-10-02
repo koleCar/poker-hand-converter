@@ -17,11 +17,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { unreadNotificationCount } from "../../lib/db/social";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { getBrowserSupabase } from "../../lib/supabase/browser";
 
 export function NotificationsBell() {
+  const en = useDict();
   const auth = useAuth();
   const userId = auth.isSignedIn ? (auth.user?.id ?? null) : null;
   const [unread, setUnread] = useState(0);

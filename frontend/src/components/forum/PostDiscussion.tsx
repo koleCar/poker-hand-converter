@@ -17,7 +17,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import type { PhfHand, Street } from "../../lib/phf/types";
 import { anchorLabel } from "../../lib/forum/anchor";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { ReplayViewer } from "../replayer/ReplayViewer";
 import type { ReplayPosition } from "../replayer/position";
 import styles from "./forum.module.css";
@@ -71,6 +71,7 @@ export function PostDiscussion({
   initialPosition?: ReplayPosition | null;
   children: ReactNode;
 }) {
+  const en = useDict();
   const [current, setCurrent] = useState<Spot | null>(null);
   const [attached, setAttached] = useState<Spot | null>(null);
   const [mount, setMount] = useState<{ key: number; position: ReplayPosition | null }>({
@@ -138,6 +139,7 @@ export function PostDiscussion({
 
 /** The chip on an anchored comment. Seeks the replayer; does not navigate. */
 export function AnchorChip({ actionIndex, street, label }: { actionIndex: number | null; street: string | null; label: string }) {
+  const en = useDict();
   const { seek, hand } = useSpot();
   if (!hand) {
     return <span className={styles.chip}>{en.forum.comments.anchorChip(label)}</span>;

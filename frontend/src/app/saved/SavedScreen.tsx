@@ -7,7 +7,7 @@ import { AppFrame } from "../../components/shell/AppFrame";
 import { useAuth } from "../../lib/auth";
 import { mySavedPosts } from "../../lib/db/social";
 import type { ForumPost } from "../../lib/forum/types";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import styles from "../../components/forum/forum.module.css";
 
 /** Client half of `/saved`: private bookmarks, read through a select-own policy. */
@@ -16,6 +16,7 @@ export function SavedScreen() {
 }
 
 function SavedList() {
+  const en = useDict();
   const auth = useAuth();
   const [posts, setPosts] = useState<ForumPost[] | null>(null);
 
@@ -57,7 +58,7 @@ function SavedList() {
         <MyVotesProvider postIds={posts.map((post) => post.publicId)}>
           <div className={styles.feed}>
             {posts.map((post) => (
-              <PostCard key={post.publicId} post={post} />
+              <PostCard t={en} key={post.publicId} post={post} />
             ))}
           </div>
         </MyVotesProvider>

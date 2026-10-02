@@ -6,7 +6,7 @@ import { formatPostDate } from "../../components/forum/format";
 import { AppFrame } from "../../components/shell/AppFrame";
 import { useAuth } from "../../lib/auth";
 import { markNotificationsRead, myNotifications, type NotificationItem } from "../../lib/db/social";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import styles from "../../components/forum/forum.module.css";
 
@@ -16,6 +16,7 @@ export function NotificationsScreen() {
 }
 
 function NotificationsList() {
+  const en = useDict();
   const auth = useAuth();
   const [items, setItems] = useState<NotificationItem[] | null>(null);
 

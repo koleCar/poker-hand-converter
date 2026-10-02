@@ -1,5 +1,5 @@
 import { rssDocument, RSS_HEADERS } from "../../../../lib/feed/rss";
-import { en } from "../../../../lib/i18n/en";
+import { getDict } from "../../../../lib/i18n/server";
 import { paths } from "../../../../lib/routes";
 import { readBoards, readFeed } from "../../../../lib/server/forum";
 
@@ -7,6 +7,7 @@ import { readBoards, readFeed } from "../../../../lib/server/forum";
 export const revalidate = 600;
 
 export async function GET(_request: Request, { params }: { params: Promise<{ board: string }> }): Promise<Response> {
+  const en = await getDict();
   const { board } = await params;
   const found = (await readBoards()).find((entry) => entry.slug === board);
   if (!found) {

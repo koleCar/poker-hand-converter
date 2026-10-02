@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { EmbedFrame, EmbedGone } from "../../../../components/embed/EmbedFrame";
 import { ReplayViewer } from "../../../../components/replayer/ReplayViewer";
 import { decodePosition, POSITION_PARAM } from "../../../../components/replayer/position";
-import { en } from "../../../../lib/i18n/en";
+import { getDict } from "../../../../lib/i18n/server";
 import { getParser } from "../../../../lib/parsers";
 import { canonicalUrl, paths } from "../../../../lib/routes";
 import { readPublishedHand } from "../../../../lib/server/published";
@@ -21,6 +21,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const en = await getDict();
   const { publicId } = await params;
   return {
     title: en.embed.title,
@@ -30,6 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function EmbedPublishedHand({ params, searchParams }: PageProps) {
+  const en = await getDict();
   const { publicId } = await params;
   const rawT = (await searchParams)[POSITION_PARAM];
   const initialPosition = decodePosition(Array.isArray(rawT) ? rawT[0] : rawT);
@@ -38,11 +40,11 @@ export default async function EmbedPublishedHand({ params, searchParams }: PageP
 
   // A poll's hand is sealed (#51): an embed would be a way round the vote.
   if (result.status !== "ok") {
-    return <EmbedGone href={href} />;
+    return <EmbedGone t={en} href={href} />;
   }
   const hand = result.hand.phf;
   return (
-    <EmbedFrame href={href}>
+    <EmbedFrame t={en} href={href}>
       <ReplayViewer
         hand={hand}
         site={getParser(hand.meta.siteId)?.name ?? null}

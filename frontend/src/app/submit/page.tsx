@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 import { SubmitScreen } from "./SubmitScreen";
-import { en } from "../../lib/i18n/en";
+import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
 import { readBoards } from "../../lib/server/forum";
 import { readPublishedHand } from "../../lib/server/published";
 
-export const metadata: Metadata = {
-  title: en.forum.submit.metaTitle,
-  alternates: { canonical: paths.submit() },
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const en = await getDict();
+  return {
+    title: en.forum.submit.metaTitle,
+    alternates: { canonical: paths.submit() },
+    robots: { index: false, follow: false },
+  };
+}
 
 /**
  * New post. `?hand=<published id>` arrives from the publish dialog and attaches

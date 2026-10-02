@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { forumErrorMessage } from "../../lib/db/forum";
 import { reportContent, type ReportReason, type ReportSubject } from "../../lib/db/moderation";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import styles from "./forum.module.css";
 
 const REASONS: ReportReason[] = ["spam", "harassment", "cheating", "off-topic", "hh-takedown", "other"];
 
 /** "Report" and its small form. The report itself is a definer RPC; see #40. */
 export function ReportButton({ subject, defaultReason = "spam" }: { subject: ReportSubject; defaultReason?: ReportReason }) {
+  const en = useDict();
   const auth = useAuth();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<ReportReason>(defaultReason);

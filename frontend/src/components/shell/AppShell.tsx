@@ -3,12 +3,14 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { paths } from "../../lib/routes";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
+import type { Dict } from "../../lib/i18n/types";
 import { AuthDialog } from "../auth/AuthDialog";
 import { UserMenu } from "../auth/UserMenu";
 import { NotificationsBell } from "../forum/NotificationsBell";
 import { BrandMark } from "./BrandMark";
 import { DbStatusChip } from "./DbStatusChip";
+import { LanguageSwitch } from "./LanguageSwitch";
 
 /**
  * The bar, the tabs and the dialog — everything a signed-in screen has above
@@ -23,11 +25,11 @@ import { DbStatusChip } from "./DbStatusChip";
  */
 export type ShellTab = "forum" | "convert" | "library" | "stats";
 
-const TABS: Array<{ id: ShellTab; label: string; path: string }> = [
-  { id: "forum", label: en.nav.forum, path: paths.home() },
-  { id: "convert", label: en.nav.convert, path: paths.convert() },
-  { id: "library", label: en.nav.library, path: paths.library() },
-  { id: "stats", label: en.nav.stats, path: paths.stats() },
+const TABS: Array<{ id: ShellTab; label: (en: Dict) => string; path: string }> = [
+  { id: "forum", label: (en) => en.nav.forum, path: paths.home() },
+  { id: "convert", label: (en) => en.nav.convert, path: paths.convert() },
+  { id: "library", label: (en) => en.nav.library, path: paths.library() },
+  { id: "stats", label: (en) => en.nav.stats, path: paths.stats() },
 ];
 
 interface AppShellProps {
@@ -57,6 +59,7 @@ export function AppShell({
   storedCount,
   children,
 }: AppShellProps) {
+  const en = useDict();
   // The forum and the converter are for everyone; the library and statistics
   // wait until there is something in them.
   const tabs = TABS.filter((entry) => entry.id === "forum" || entry.id === "convert" || showHistoryTab);
@@ -79,7 +82,7 @@ export function AppShell({
                   aria-selected={tab === entry.id}
                   className={`shell__tab ${tab === entry.id ? "is-active" : ""}`}
                 >
-                  <span className="shell__tab-label">{entry.label}</span>
+                  <span className="shell__tab-label">{entry.label(en)}</span>
                 </Link>
               ))}
             </nav>
@@ -88,6 +91,7 @@ export function AppShell({
           <div className="shell__bar-end">
             <DbStatusChip configured={dbConfigured} storedCount={storedCount} />
             <NotificationsBell />
+            <LanguageSwitch />
             <UserMenu />
           </div>
         </div>
