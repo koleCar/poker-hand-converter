@@ -20,6 +20,8 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
+import { activeLocale } from "../i18n/active";
+import { localizeServerMessage } from "../i18n/serverErrors";
 import {
   getBrowserSupabase,
   requireBrowserSupabase,
@@ -167,7 +169,8 @@ export async function rpc<T>(fn: RpcName, args?: Record<string, unknown>): Promi
   // narrowed through a name that is a union.
   const { data, error } = await client.rpc(fn, (args ?? {}) as never);
   if (error) {
-    throw new DatabaseRpcError(fn, error.message, error.code ?? null);
+    // The server writes its refusals in English; the reader may not read it.
+    throw new DatabaseRpcError(fn, localizeServerMessage(error.message, activeLocale()), error.code ?? null);
   }
   return data as T;
 }

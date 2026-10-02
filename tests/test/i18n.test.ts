@@ -43,3 +43,25 @@ describe("dictionaries", () => {
     expect(empties).toEqual([]);
   });
 });
+
+describe("localizeServerMessage", () => {
+  it("translates a known refusal for a Croatian reader and leaves English alone", async () => {
+    const { localizeServerMessage } = await import("../../frontend/src/lib/i18n/serverErrors.js");
+    expect(localizeServerMessage("This thread is locked.", "hr")).toBe("Ovaj thread je zaključan.");
+    expect(localizeServerMessage("This thread is locked.", "en")).toBe("This thread is locked.");
+    expect(localizeServerMessage('Write rate limit exceeded for bucket "post:x" (5 per 01:00:00). Try again later.', "hr")).toMatch(/^Previše/);
+    expect(localizeServerMessage("Some brand new refusal.", "hr")).toBe("Some brand new refusal.");
+  });
+
+  it("only knows sentences the migrations actually raise", async () => {
+    const { readFileSync, readdirSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const dir = join(import.meta.dirname, "../../supabase/migrations");
+    const sql = readdirSync(dir).map((f) => readFileSync(join(dir, f), "utf8")).join("\n");
+    const source = readFileSync(join(import.meta.dirname, "../../frontend/src/lib/i18n/serverErrors.ts"), "utf8");
+    const keys = [...source.matchAll(/^\s+"([A-Z][^"]+)":/gm)].map((m) => m[1]).concat([...source.matchAll(/^\s+'([^']+)':/gm)].map((m) => m[1]));
+    const authOnly = new Set(["Invalid login credentials", "Email not confirmed", "User already registered", "Password should be at least 6 characters."]);
+    const stale = keys.filter((key) => !authOnly.has(key) && !sql.includes(key.replace(/'/g, "''")));
+    expect(stale).toEqual([]);
+  });
+});
