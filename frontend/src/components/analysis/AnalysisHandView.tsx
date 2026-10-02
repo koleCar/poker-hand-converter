@@ -159,7 +159,13 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
             open: sheetOpen,
             onOpenChange: setSheetOpen,
             render: ({ frame, seek }) => (
-              <AnalysisSheet analysis={loaded.analysis} frame={frame} seek={seek} fresh={loaded.fresh} />
+              <AnalysisSheet
+                analysis={loaded.analysis}
+                frame={frame}
+                seek={seek}
+                fresh={loaded.fresh}
+                hand={loaded.hand}
+              />
             ),
           }}
         />

@@ -20,7 +20,7 @@
  * next run picks up whatever is still missing.
  */
 
-import { ANALYSIS_VERSION, analyzeHand, type HandAnalysis } from "../analysis";
+import { ANALYSIS_VERSION, analyzeHand, riverStudy, type HandAnalysis, type RiverFailure, type RiverStudy } from "../analysis";
 import { preflopCharts } from "../chartSet";
 
 export { preflopCharts };
@@ -32,7 +32,7 @@ import {
   type AnalysedBatch,
   type HandAnalysisInsert,
 } from "./analysisRows";
-import type { AnalyseRequest, AnalysisWorkerResponse } from "../../workers/analysis.worker";
+import type { AnalyseRequest, AnalysisWorkerRequest, AnalysisWorkerResponse } from "../../workers/analysis.worker";
 
 export { handAnalysisFromStored } from "./analysisRows";
 
@@ -138,56 +138,137 @@ const MAX_PRUNE_CALLS = 10;
 
 let jobSequence = 0;
 
-/**
- * A hand analysed here and now, the way the rebuild would store it: the hand
- * view's answer for a hand with no row at the current version.
- */
-export async function analyseHandNow(phf: PhfHand): Promise<HandAnalysis> {
-  return analyzeHand(phf, { charts: await preflopCharts() });
+
+/** Thrown out of a page when the run is stopped mid-page: the worker is gone. */
+class Stopped extends Error {}
+
+function newWorker(): Worker | null {
+  try {
+    return new Worker(new URL("../../workers/analysis.worker.ts", import.meta.url), {
+      type: "module",
+      name: "rail-analysis",
+    });
+  } catch {
+    return null;
+  }
 }
 
 /**
  * Analyses one page off the main thread, or on it when a worker cannot be
  * created (a strict CSP, an embedded webview) — slower and janky, but a screen
  * that silently never finishes would be worse.
+ *
+ * `onHand` hears how many hands of the page are done as the worker goes (a
+ * page with river solves takes seconds). Stopping terminates the worker at
+ * once, mid-page, rather than waiting for the page to finish: what was not
+ * written is simply missing next time.
  */
-function analyser(): { run: (page: AnalyseRequest["page"]) => Promise<AnalysedBatch>; close: () => void } {
-  let worker: Worker | null = null;
-  try {
-    worker = new Worker(new URL("../../workers/analysis.worker.ts", import.meta.url), {
-      type: "module",
-      name: "rail-analysis",
-    });
-  } catch {
-    worker = null;
-  }
+function analyser(signal?: AbortSignal): {
+  run: (page: AnalyseRequest["page"], onHand?: (done: number) => void) => Promise<AnalysedBatch>;
+  close: () => void;
+} {
+  const worker = newWorker();
   if (!worker) {
     return {
-      run: async (page) => {
+      run: async (page, onHand) => {
         // Yield first so the progress line repaints between pages.
         await new Promise((resolve) => setTimeout(resolve, 0));
-        return analyseStoredHands(page, await preflopCharts());
+        return analyseStoredHands(page, await preflopCharts(), onHand);
       },
       close: () => {},
     };
   }
   const live = worker;
+  let stop: (() => void) | null = null;
+  const onAbort = () => {
+    live.terminate();
+    stop?.();
+  };
+  signal?.addEventListener("abort", onAbort, { once: true });
   return {
-    run: (page) =>
+    run: (page, onHand) =>
       new Promise<AnalysedBatch>((resolve, reject) => {
+        if (signal?.aborted) {
+          reject(new Stopped("stopped"));
+          return;
+        }
         jobSequence += 1;
         const jobId = jobSequence;
+        stop = () => reject(new Stopped("stopped"));
         live.onmessage = (event: MessageEvent<AnalysisWorkerResponse>) => {
           const message = event.data;
           if (message.jobId !== jobId) return;
-          if (message.type === "analysed") resolve({ rows: message.rows, failed: message.failed });
-          else reject(new Error(message.message));
+          if (message.type === "progress") onHand?.(message.done);
+          else if (message.type === "analysed") resolve({ rows: message.rows, failed: message.failed });
+          else if (message.type === "error") reject(new Error(message.message));
         };
         live.onerror = (event) => reject(new Error(event.message || "analysis worker failed"));
         live.postMessage({ type: "analyse", jobId, page } satisfies AnalyseRequest);
       }),
-    close: () => live.terminate(),
+    close: () => {
+      signal?.removeEventListener("abort", onAbort);
+      live.terminate();
+    },
   };
+}
+
+/* ------------------------------------------------------------- hand view - */
+
+/** The hand view's own worker: a fresh analysis and river studies, off the main thread. */
+let viewWorker: Worker | null | undefined;
+
+function askViewWorker<T>(
+  request: AnalysisWorkerRequest,
+  pick: (message: AnalysisWorkerResponse) => T | undefined,
+): Promise<T> {
+  const live = viewWorker as Worker;
+  return new Promise<T>((resolve, reject) => {
+    const onMessage = (event: MessageEvent<AnalysisWorkerResponse>) => {
+      const message = event.data;
+      if (message.jobId !== request.jobId) return;
+      live.removeEventListener("message", onMessage);
+      if (message.type === "error") {
+        reject(new Error(message.message));
+        return;
+      }
+      const value = pick(message);
+      if (value === undefined) reject(new Error(`unexpected ${message.type} from the analysis worker`));
+      else resolve(value);
+    };
+    live.addEventListener("message", onMessage);
+    live.postMessage(request);
+  });
+}
+
+/**
+ * A hand analysed here and now, the way the rebuild would store it: the hand
+ * view's answer for a hand with no row at the current version. In a worker
+ * when one can be made: a river solve can take a second.
+ */
+export async function analyseHandNow(phf: PhfHand): Promise<HandAnalysis> {
+  if (viewWorker === undefined) viewWorker = newWorker();
+  if (!viewWorker) return analyzeHand(phf, { charts: await preflopCharts() });
+  jobSequence += 1;
+  return askViewWorker({ type: "hand", jobId: jobSequence, phf }, (message) =>
+    message.type === "hand" ? message.analysis : undefined,
+  );
+}
+
+/**
+ * The river study for one hero river decision of a hand on screen: the same
+ * walk and solve the stored grade came from, re-run (§3.4 stores no strategy).
+ * Null when the decision is not a river decision the analysis covers.
+ */
+export async function studyRiver(phf: PhfHand, actionIndex: number): Promise<RiverStudy | RiverFailure | null> {
+  if (viewWorker === undefined) viewWorker = newWorker();
+  if (!viewWorker) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    return riverStudy(structuredClone(phf), actionIndex, { charts: await preflopCharts() });
+  }
+  jobSequence += 1;
+  return askViewWorker({ type: "study", jobId: jobSequence, phf, actionIndex }, (message) =>
+    message.type === "studied" ? message.study : undefined,
+  );
 }
 
 /**
@@ -206,7 +287,7 @@ export async function runAnalysis(
   if (!(await currentUserId())) {
     return total;
   }
-  const engine = analyser();
+  const engine = analyser(signal);
   let after: string | null = null;
   let done = false;
   try {
@@ -223,7 +304,14 @@ export async function runAnalysis(
         done = true;
         break;
       }
-      const batch = await engine.run(hands);
+      let batch: AnalysedBatch;
+      try {
+        const before = total.processed;
+        batch = await engine.run(hands, (inPage) => onProgress?.({ ...total, processed: before + inPage }));
+      } catch (error) {
+        if (error instanceof Stopped) break;
+        throw error;
+      }
       for (let i = 0; i < batch.rows.length; i += WRITE_SIZE) {
         const slice: HandAnalysisInsert[] = batch.rows.slice(i, i + WRITE_SIZE);
         const saved = await rpc<{ inserted?: number } | null>("save_hand_analysis", { p_rows: slice });

@@ -4,15 +4,21 @@
  * ```
  * buildContext (lib/stats) ─▶ heroSpots (walk.ts) ─▶ facts (texture.ts, ranges.ts, lib/equity)
  *                                                  ├▶ preflop: gradePreflop (preflop.ts, lib/charts)
+ *                          walkRanges (rangeWalk.ts) ├▶ river: solveRiverSpot → gradeRiver (river.ts, lib/solver)
  *                                                  └▶ heuristicFlags (heuristics.ts)
  * ```
  *
  * **Preflop is graded from the charts (A2b).** Each hero preflop decision is
  * looked up; a node gives options, a grade and an EV loss (`source: "chart"`),
  * a refusal makes the decision `not-analysed` with the lookup's reason.
- * Postflop decisions stay heuristic: flags, never grades. Opponents' ranges
- * for the equity facts come from the charts where their line has a node, and
- * from `ranges.ts`'s labelled placeholders where it does not.
+ *
+ * **The river is graded by our solver (A4)** in a heads-up pot: both ranges
+ * are walked from preflop through the flop and turn (`rangeWalk.ts`, a
+ * heuristic narrowing model until A5), the river is solved once per hand, and
+ * each hero river decision reads its combo's strategy and EVs at its node
+ * (`source: "solver"`). A river the solver cannot take is `not-analysed` with
+ * a `river-*` reason. The flop and turn stay heuristic: flags, never grades,
+ * but their equity facts are now against the narrowed range.
  *
  * Deterministic: the same document gives the same analysis, bit for bit,
  * including every sampled equity (the seed is fixed per decision). That is what
@@ -28,14 +34,27 @@
 
 import { handClass } from "../cards";
 import type { ChartSet } from "../charts";
-import { equityVsRange, parseRange, strongestOfRange, type ClassWeights } from "../equity/range";
+import { equityVsRange, parseRange, strongestOfRange, type ClassWeights, type WeightedCombo } from "../equity/range";
 import type { PhfHand, Position } from "../phf/types";
 import { buildContext, type StatsContext } from "../stats/context";
 import { potTypeOf } from "../stats/derive";
 import { worstGrade, worstSeverity, meanScore } from "./grading";
 import { heuristicFlags } from "./heuristics";
+import { weightedCombos } from "./narrowing";
 import { chartRange, gradePreflop } from "./preflop";
+import { flopSeats, walkRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
 import { defaultRange, preflopLine } from "./ranges";
+import {
+  followLine,
+  gradeRiver,
+  riverActs,
+  riverStudyAt,
+  solveRiverSpot,
+  type RiverFailure,
+  type RiverGrade,
+  type RiverSolve,
+  type RiverStudy,
+} from "./river";
 import { blockers, boardTexture, draws, madeHand, toIndices } from "./texture";
 import {
   ANALYSIS_VERSION,
@@ -47,6 +66,7 @@ import {
   type PostflopFacing,
   type PostflopRole,
   type PreflopScenario,
+  type RiverSkipReason,
   type SpotFacts,
 } from "./types";
 import { heroSpots, type Spot } from "./walk";
@@ -209,6 +229,7 @@ function buildFacts(
   hero: number,
   multiway: boolean,
   options: ResolvedOptions,
+  walk: RangeWalk | null,
 ): BuiltFacts {
   const hand = context.hand;
   const bb = Math.max(1, hand.game.bigBlind);
@@ -287,10 +308,16 @@ function buildFacts(
     if (wantEquity && villain !== null) {
       const line = preflopLine(context, villain);
       const villainPosition = context.position.get(villain) ?? null;
-      // The charts' range for the villain's line where a node exists; the
-      // labelled placeholder where it does not.
-      const fromCharts = chartRange(hand, villain, spot.action.index, options.charts);
-      const range = fromCharts ? fromCharts.range : defaultRange(line, villainPosition).range;
+      // Postflop in a heads-up pot: the villain's range narrowed by the
+      // betting so far (A4). Otherwise the charts' range for the villain's
+      // line where a node exists, the labelled placeholder where it does not.
+      const narrowed = postflop && walk && walk.villain === villain ? walk.before(spot.action.index)?.villain : null;
+      const fromCharts = narrowed ? null : chartRange(hand, villain, spot.action.index, options.charts);
+      const range: ClassWeights | WeightedCombo[] = narrowed
+        ? weightedCombos(narrowed)
+        : fromCharts
+          ? fromCharts.range
+          : defaultRange(line, villainPosition).range;
       const result = equityVsRange({ hero: holeCodes, range, board: spot.board, seed });
       if (result.combos > 0) {
         let strong: number | null = null;
@@ -301,7 +328,7 @@ function buildFacts(
         equity = {
           value: round3(result.equity),
           range: `${line}:${villainPosition ?? "?"}`,
-          source: fromCharts ? "chart" : "placeholder",
+          source: narrowed ? "narrowed" : fromCharts ? "chart" : "placeholder",
           combos: result.combos,
           method: result.method,
           strong,
@@ -343,7 +370,167 @@ function buildFacts(
   return { facts, cannotLose, beatsNoHolding, noMoreCards };
 }
 
+/* ---------------------------------------------------------------- river - */
+
+/** The walk for a hand with postflop decisions, or why there is none. Never throws. */
+function rangeWalkOf(
+  hand: PhfHand,
+  context: StatsContext,
+  hero: number,
+  charts: ChartSet | null,
+): RangeWalk | { ok: false; reason: WalkFailure } {
+  const seats = flopSeats(context);
+  if (seats.length !== 2 || !seats.includes(hero)) return { ok: false, reason: seats.length === 0 ? "no-flop" : "multiway-flop" };
+  try {
+    return walkRanges(hand, context, hero, seats[0] === hero ? seats[1] : seats[0], charts);
+  } catch {
+    return { ok: false, reason: "range-empty" };
+  }
+}
+
+const WALK_REASONS: Record<WalkFailure, RiverSkipReason> = {
+  "multiway-flop": "river-multiway-flop",
+  "range-unknown": "river-range-unknown",
+  "range-empty": "river-range-empty",
+  "no-flop": "river-range-empty",
+};
+
+export interface HandRiver {
+  /** The river solve, run at most once per hand (the first call runs it). */
+  solved(spot: Spot): RiverSolve | RiverFailure;
+  /** Grades one hero river decision, or says why not. */
+  grade(spot: Spot): RiverGrade | RiverFailure;
+  /** The hero's decision node for a river spot, for the study view. */
+  line(spot: Spot): { solve: RiverSolve; node: number } | RiverFailure;
+}
+
+/**
+ * The hand's river, solved at most once and read at each hero river decision:
+ * a hand with a check and then a call is one solve read twice.
+ */
+function handRiver(
+  hand: PhfHand,
+  context: StatsContext,
+  hero: number,
+  walked: RangeWalk | { ok: false; reason: WalkFailure } | null,
+  charts: ChartSet | null,
+  effectiveBb: number,
+  potType: string,
+): HandRiver {
+  let cached: RiverSolve | RiverFailure | null = null;
+  const acts = riverActs(hand);
+
+  const run = (spot: Spot): RiverSolve | RiverFailure => {
+    if (!walked) return { ok: false, reason: "river-range-empty", detail: "no postflop walk" };
+    if (!walked.ok) return { ok: false, reason: WALK_REASONS[walked.reason], detail: walked.reason };
+    if (!walked.riverStart) return { ok: false, reason: "river-range-empty", detail: "no river in the walk" };
+    const bb = Math.max(1, hand.game.bigBlind);
+    const cards = toIndices(context.players.get(hero)?.holeCards ?? []);
+    const board = toIndices(spot.board);
+    if (cards.length !== 2 || board.length !== 5) return { ok: false, reason: "river-solve-failed", detail: "cards" };
+    const heroFirst = spot.inPosition === false;
+    const heroPos = String(context.position.get(hero) ?? "?");
+    const villainPos = String(context.position.get(walked.villain) ?? "?");
+    return solveRiverSpot({
+      hand,
+      heroSeat: hero,
+      villainSeat: walked.villain,
+      heroFirst,
+      heroCards: [cards[0], cards[1]],
+      board,
+      potBb: spot.streetPot / bb,
+      stackBb: spot.streetEffBehind / bb,
+      ranges: walked.riverStart,
+      charts,
+      model: walked.model,
+      key: {
+        players: hand.table.maxSeats,
+        stackBucket: `${stackBucket(effectiveBb)}bb`,
+        preflopLine: potType,
+        positions: heroFirst ? [heroPos, villainPos] : [villainPos, heroPos],
+      },
+    });
+  };
+
+  const solved = (spot: Spot) => (cached ??= run(spot));
+
+  const line = (spot: Spot): { solve: RiverSolve; node: number } | RiverFailure => {
+    const solve = solved(spot);
+    if (!solve.ok) return solve;
+    const at = acts.findIndex((act) => act.index === spot.action.index);
+    if (at < 0) return { ok: false, reason: "river-off-tree", detail: "the decision is not on the river" };
+    const found = followLine(solve, acts.slice(0, at));
+    return found.ok ? { solve, node: found.node } : found;
+  };
+
+  const grade = (spot: Spot): RiverGrade | RiverFailure => {
+    const solve = solved(spot);
+    if (!solve.ok) return solve;
+    const at = acts.findIndex((act) => act.index === spot.action.index);
+    if (at < 0) return { ok: false, reason: "river-off-tree", detail: "the decision is not on the river" };
+    const found = followLine(solve, acts.slice(0, at));
+    if (!found.ok) return found;
+    return gradeRiver(solve, found, acts[at]);
+  };
+
+  return { solved, grade, line };
+}
+
+/** The equity fact of a solved river decision: against the opponent's range at the node. */
+function riverEquity(solved: RiverGrade, facts: SpotFacts, walk: RangeWalk | null): SpotFacts["equity"] {
+  const previous = facts.equity;
+  if (!previous) return null;
+  const combos = weightedCombos(solved.villainRange);
+  if (combos.length === 0) return previous;
+  const top = strongestOfRange(combos, facts.board, STRONG_SHARE, facts.holeCards);
+  const strong = equityVsRange({ hero: facts.holeCards, range: top, board: facts.board }).equity;
+  return {
+    value: solved.river.heroBeats,
+    range: walk?.labels.villain ?? previous.range,
+    source: "solver",
+    combos: solved.river.villainCombos,
+    method: "exhaustive",
+    strong: round3(Math.min(strong, solved.river.heroBeats)),
+  };
+}
+
 /* -------------------------------------------------------------- analyse - */
+
+/** min(hero's starting stack, the deepest other dealt-in stack), in big blinds. */
+function effectiveStackBb(context: StatsContext, hero: number): number {
+  const bb = Math.max(1, context.hand.game.bigBlind);
+  const heroStack = context.players.get(hero)?.startingStack ?? 0;
+  const deepestOther = Math.max(
+    0,
+    ...context.dealtInSeats.filter((seat) => seat !== hero).map((seat) => context.players.get(seat)?.startingStack ?? 0),
+  );
+  return Math.min(heroStack, deepestOther) / bb;
+}
+
+/**
+ * The study view of one hero river decision (§6.1 *Study*): the hero's whole
+ * range at the node as the solve plays it. Runs the same walk and the same
+ * solve `analyzeHand` runs, so the hero's own row equals the stored options
+ * bit for bit. Null when the action is not a hero river decision of a hand
+ * the analysis covers; a `RiverFailure` when the solver cannot take it.
+ */
+export function riverStudy(
+  hand: PhfHand,
+  actionIndex: number,
+  options: AnalyzeOptions = {},
+): RiverStudy | RiverFailure | null {
+  const context = buildContext(hand);
+  const hero = heroSeatOf(context);
+  if (hero === null || handSkip(hand, context, hero) !== null) return null;
+  const spot = heroSpots(context, hero).find((s) => s.action.index === actionIndex);
+  if (!spot || spot.street !== "river" || spot.opponents.length !== 1) return null;
+  const charts = options.charts ?? null;
+  const walked = rangeWalkOf(hand, context, hero, charts);
+  const river = handRiver(hand, context, hero, walked, charts, effectiveStackBb(context, hero), potTypeOf(context));
+  const found = river.line(spot);
+  if (!("solve" in found)) return found;
+  return riverStudyAt(found.solve, found.node);
+}
 
 /**
  * Analyses the hero's decisions in one hand.
@@ -379,12 +566,13 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   if (context.hasStraddle) handApprox.add("straddle");
   if (hand.table.maxSeats !== SIX_MAX) handApprox.add("table-size");
   const heroStack = context.players.get(hero)?.startingStack ?? 0;
-  const deepestOther = Math.max(
-    0,
-    ...context.dealtInSeats.filter((seat) => seat !== hero).map((seat) => context.players.get(seat)?.startingStack ?? 0),
-  );
-  const effectiveBb = Math.min(heroStack, deepestOther) / bb;
+  const effectiveBb = effectiveStackBb(context, hero);
   if (effectiveBb < STACK_LOW_BB || effectiveBb > STACK_HIGH_BB) handApprox.add("stack-depth");
+
+  // The range walk (A4): both ranges through a heads-up hand, once.
+  const walked = spots.some((spot) => spot.street !== "preflop") ? rangeWalkOf(hand, context, hero, resolved.charts) : null;
+  const walk = walked && walked.ok ? walked : null;
+  const river = handRiver(hand, context, hero, walked, resolved.charts, effectiveBb, potType);
 
   let preflopSeen = 0;
   const decisions: DecisionAnalysis[] = spots.map((spot) => {
@@ -393,15 +581,33 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     const preflopNth = street === "preflop" ? preflopSeen++ : -1;
     let built: BuiltFacts;
     try {
-      built = buildFacts(spot, context, hero, multiway, resolved);
+      built = buildFacts(spot, context, hero, multiway, resolved, walk);
     } catch {
       // An equity request the engine refuses (a card dealt twice by a broken
       // export) must not cost the decision its other facts.
-      built = buildFacts(spot, context, hero, multiway, { ...resolved, equity: false });
+      built = buildFacts(spot, context, hero, multiway, { ...resolved, equity: false }, walk);
     }
     const { facts } = built;
     const approximations = new Set<Approximation>(handApprox);
-    if (facts.equity) approximations.add(facts.equity.source === "chart" ? "preflop-range" : "placeholder-range");
+
+    // River: the solver, or the reason it cannot answer.
+    const solved = street === "river" && !multiway ? river.grade(spot) : null;
+    if (solved?.ok) {
+      facts.river = solved.river;
+      if (facts.equity) {
+        facts.equity = riverEquity(solved, facts, walk);
+      }
+    }
+    if (facts.equity) {
+      const source = facts.equity.source;
+      if (source === "chart") approximations.add("preflop-range");
+      else if (source === "placeholder") approximations.add("placeholder-range");
+      else approximations.add("narrowing-heuristic");
+    }
+    if (walk && walk.sources.villain === "placeholder" && (solved?.ok || facts.equity?.source === "narrowed")) {
+      approximations.add("placeholder-range");
+    }
+    if (solved?.ok && walk && walk.sources.hero === "placeholder") approximations.add("placeholder-range");
 
     // Preflop: the charts, or the reason they cannot answer.
     const chart =
@@ -411,8 +617,16 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
             resolved.charts,
           )
         : null;
-    const skipped = multiway ? "multiway" : chart && !chart.ok ? chart.reason : null;
-    if (chart?.ok) {
+    const skipped = multiway
+      ? "multiway"
+      : chart && !chart.ok
+        ? chart.reason
+        : solved && !solved.ok
+          ? solved.reason
+          : null;
+    if (solved?.ok) {
+      for (const value of solved.approximations) approximations.add(value);
+    } else if (chart?.ok) {
       // The chart lookup judged stack depth and table size itself (it refuses
       // outside its cover and notes what it approximates), so the hand-level
       // versions of those two give way to its own.
@@ -457,14 +671,14 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
         facts.scenario,
         facts.position ?? "?",
       ].join("/"),
-      options: chart?.ok ? chart.options : [],
-      chosen: chart?.ok ? chart.chosen : null,
-      evLoss: chart?.ok ? chart.evLoss : null,
-      evLossPot: chart?.ok ? chart.evLossPot : null,
-      freqDiff: chart?.ok ? chart.freqDiff : null,
-      grade: chart?.ok ? chart.grade : null,
-      score: chart?.ok ? chart.score : null,
-      source: chart?.ok ? "chart" : "heuristic",
+      options: chart?.ok ? chart.options : solved?.ok ? solved.options : [],
+      chosen: chart?.ok ? chart.chosen : solved?.ok ? solved.chosen : null,
+      evLoss: chart?.ok ? chart.evLoss : solved?.ok ? solved.evLoss : null,
+      evLossPot: chart?.ok ? chart.evLossPot : solved?.ok ? solved.evLossPot : null,
+      freqDiff: chart?.ok ? chart.freqDiff : solved?.ok ? solved.freqDiff : null,
+      grade: chart?.ok ? chart.grade : solved?.ok ? solved.grade : null,
+      score: chart?.ok ? chart.score : solved?.ok ? solved.score : null,
+      source: chart?.ok ? "chart" : solved?.ok ? "solver" : "heuristic",
       approximations: [...approximations].sort(),
       facts,
       flags,

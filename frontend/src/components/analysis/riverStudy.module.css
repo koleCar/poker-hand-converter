@@ -1,0 +1,92 @@
+/* The river study (A4): the hero's range at a solved river node.
+   Grid, legend and detail reuse analysis.module.css; this file holds only
+   what is new — the bet-size fills, the mix tables and the opponent's range. */
+
+.actBetSmall { background: var(--chart-bet-small); }
+.actBetMedium { background: var(--chart-bet-medium); }
+
+.body {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.table th[scope="row"] {
+  font-weight: var(--font-weight-regular);
+  text-align: start;
+}
+
+.groupRow th {
+  padding-block-start: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-align: start;
+}
+
+.mix {
+  display: block;
+  min-inline-size: 6rem;
+}
+
+.mixBar {
+  display: flex;
+  block-size: 0.6rem;
+  border-radius: var(--radius-1);
+  background: var(--surface-inset);
+  overflow: hidden;
+}
+
+.mixBar > span {
+  display: block;
+  block-size: 100%;
+}
+
+/* The mix in words, for assistive technology; the bar is its picture. */
+.mixText {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.villain {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(4rem, 8rem) auto;
+  gap: var(--space-1) var(--space-3);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+}
+
+.villain li {
+  display: contents;
+}
+
+.villainBar {
+  display: block;
+  block-size: 0.5rem;
+  border-radius: var(--radius-1);
+  background: var(--surface-inset);
+  overflow: hidden;
+}
+
+.villainBar > span {
+  display: block;
+  block-size: 100%;
+  background: var(--accent);
+}
+
+@media (forced-colors: active) {
+  .mixBar > span,
+  .villainBar > span {
+    forced-color-adjust: none;
+  }
+}

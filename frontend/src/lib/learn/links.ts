@@ -6,8 +6,9 @@
  * file names which. The rules mirror `explain()` sentence by sentence, so a
  * link appears exactly when the sentence it explains does: the pot-odds
  * sentence when there was a price, the SPR sentence when SPR was 3 or less
- * before the river, the grading page under a chart grade, MDF never
- * preflop, and so on. Flags come first — they are the reason the
+ * before the river, the grading page under a chart or solver grade, MDF never
+ * preflop, a river grade's role and range shape (bluff-catching, sizing and
+ * polarisation, thin value, blockers), and so on. Flags come first — they are the reason the
  * reader opened the decision.
  */
 
@@ -90,6 +91,21 @@ export function conceptsForDecision(decision: DecisionAnalysis, limit = 4): Conc
     add("ev-and-grading");
     if (decision.approximations.includes("out-of-range")) add("ranges");
     if (modelCaveat(decision)) add("equity-realisation");
+  }
+  // The river solver's sentences (A4): the grade, the hand's role against the
+  // range it faces and that range's shape, blockers, and the narrowed ranges.
+  if (decision.source === "solver" && decision.grade) {
+    add("ev-and-grading");
+    const river = facts.river;
+    if (river) {
+      if (river.role === "bluff-catcher") add("bluff-catching");
+      if (river.role === "bluff-catcher" && river.villain.shape === "polar") add("bet-sizing");
+      if (river.role === "thin-value" || (river.role === "value" && facts.toCallBb === 0 && river.villain.shape === "merged")) {
+        add("thin-value");
+      }
+      if (Math.abs(river.blocks.strong - river.blocks.weak) >= 0.05) add("blockers");
+    }
+    add("ranges");
   }
   if (facts.potOdds !== null) add("pot-odds");
   // MDF is postflop only (ANALYSIS-PLAN §4), exactly as `explain()` quotes it.

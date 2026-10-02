@@ -220,6 +220,10 @@
     --chart-call: #2fae78;
     --chart-raise: #e0623f;
     --chart-allin: #b8364a;
+    /* River bets (A4) by size, small to large: amber, orange, then the raise
+       red. A bet node never shows a raise, so the largest bet borrows it. */
+    --chart-bet-small: #f2b04f;
+    --chart-bet-medium: #eb8a45;
 
     /* ------------------------------------------------------------ anonymity
        Rooms that do not publish player names. Violet on purpose: it is neither

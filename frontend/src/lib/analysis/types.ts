@@ -35,8 +35,13 @@ import type { Position, Street } from "../phf/types";
  *               a preflop line the charts refuse is "not analysed" with the
  *               lookup's reason; opponents' ranges derived from the charts
  *               where a node exists; the placeholder ranges parse (span fix).
+ *   analysis/3  A4: heads-up river decisions graded by our solver
+ *               (`source: "solver"`) from ranges narrowed through the hand
+ *               (`narrowing.ts`, a heuristic model before A5); postflop
+ *               equity facts against the narrowed range; a river decision the
+ *               solver cannot take is "not analysed" with a `river-*` reason.
  */
-export const ANALYSIS_VERSION = "analysis/2" as const;
+export const ANALYSIS_VERSION = "analysis/3" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -151,6 +156,21 @@ export interface Flag {
  * - `out-of-range`      the hero's hand never reaches this node in the
  *                       reference; its options are the best response, not a
  *                       mix the reference ever plays.
+ *
+ * River grades (A4, §3.2, §3.3, §3.5):
+ *
+ * - `narrowing-heuristic` both ranges were narrowed on the flop and turn by
+ *                       `narrowing.ts`'s heuristic model, not by a solved
+ *                       strategy (A5 replaces it). Every solver grade and
+ *                       every postflop equity against a narrowed range.
+ * - `rake-profile`      solved with the charts' rake profile (5%, capped at
+ *                       3 bb), not the room's own.
+ * - `size-translated`   a bet or raise in the river line was mapped onto the
+ *                       solver's sizes (33 / 75 / 150% and all-in; raises
+ *                       75% and all-in) by pseudo-harmonic translation,
+ *                       within 25% of the pot. Not capped.
+ * - `solver-unconverged` the solve stopped at its iteration cap above 0.5% of
+ *                       the pot exploitable.
  */
 export const APPROXIMATIONS = [
   "heuristic",
@@ -165,6 +185,10 @@ export const APPROXIMATIONS = [
   "stack-depth-near",
   "off-tree-size",
   "out-of-range",
+  "narrowing-heuristic",
+  "rake-profile",
+  "size-translated",
+  "solver-unconverged",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -217,10 +241,35 @@ export const CHART_SKIP_REASONS = [
 export type ChartSkipReason = (typeof CHART_SKIP_REASONS)[number];
 
 /**
- * Why one decision of an otherwise analysed hand is not (§3.5): a multiway
- * pot after the flop, or a preflop line the charts do not cover.
+ * Why a heads-up river decision has no solver grade (A4):
+ *
+ * - `river-multiway-flop` three or more players saw the flop; there is no
+ *                         two-range story to narrow, whoever is left.
+ * - `river-range-unknown` a player has no preflop line to start a range from.
+ * - `river-range-empty`   card removal or narrowing left a range empty.
+ * - `river-off-tree`      the line left the solver's tree: more raises than
+ *                         its cap, or an action it has no edge for.
+ * - `river-unreached`     the solved strategies (almost) never take this line
+ *                         with the narrowed ranges: under 0.5% of a range
+ *                         reaches the decision, so its strategy is noise.
+ * - `river-solve-failed`  the solver refused the spot (a bug, never a guess).
  */
-export const DECISION_SKIP_REASONS = ["multiway", ...CHART_SKIP_REASONS] as const;
+export const RIVER_SKIP_REASONS = [
+  "river-multiway-flop",
+  "river-range-unknown",
+  "river-range-empty",
+  "river-off-tree",
+  "river-unreached",
+  "river-solve-failed",
+] as const;
+export type RiverSkipReason = (typeof RIVER_SKIP_REASONS)[number];
+
+/**
+ * Why one decision of an otherwise analysed hand is not (§3.5): a multiway
+ * pot after the flop, a preflop line the charts do not cover, or a river the
+ * solver cannot take.
+ */
+export const DECISION_SKIP_REASONS = ["multiway", ...CHART_SKIP_REASONS, ...RIVER_SKIP_REASONS] as const;
 export type DecisionSkipReason = (typeof DECISION_SKIP_REASONS)[number];
 
 export type HandStatus = "full" | "partial" | "not-analysed";
@@ -377,8 +426,13 @@ export interface SpotFacts {
     value: number;
     /** The opponent's line and position: e.g. `open:BTN`. */
     range: string;
-    /** Where the range came from. Absent on `analysis/1` rows: the placeholder. */
-    source?: "chart" | "placeholder";
+    /**
+     * Where the range came from. Absent on `analysis/1` rows: the placeholder.
+     * `narrowed`: the preflop range (charts or placeholder) narrowed by the
+     * postflop betting so far (A4, heuristic). `solver`: the opponent's range
+     * at the river node, as the solve plays the line.
+     */
+    source?: "chart" | "placeholder" | "narrowed" | "solver";
     combos: number;
     method: "exhaustive" | "monte-carlo";
     /**
@@ -395,6 +449,50 @@ export interface SpotFacts {
    * at, so the study view can draw the whole 13×13 chart for it.
    */
   chart?: ChartRef | null;
+
+  /** River, when the solver graded the decision: the solve and the ranges at the node (A4). */
+  river?: RiverFacts | null;
+}
+
+/** The hero's hand against the opponent's range at a river node, for the *why*. */
+export type RiverRole = "value" | "bluff-catcher" | "weak" | "thin-value" | "showdown" | "air";
+/** The shape of a range against the other one: `polar` (strong and weak, little between), `merged`, or `mixed`. */
+export type RangeShape = "polar" | "merged" | "mixed";
+
+/**
+ * What a river solve says about the spot, stored with the grade. Plain
+ * numbers only: the strategy itself is never stored (§3.4); the study view
+ * re-solves, deterministically, to draw it.
+ */
+export interface RiverFacts {
+  /** Narrowing model, e.g. `heuristic/1`. */
+  model: string;
+  /** Bet-menu profile, e.g. `river-m1`. */
+  tree: string;
+  /** Rake profile name, e.g. `5%-cap3bb-nfnd`. */
+  rake: string;
+  /** The node in the solved tree, e.g. `X-B6.5`. */
+  path: string;
+  iterations: number;
+  /** Exploitability reached, % of the pot at the start of the river. */
+  exploitabilityPct: number;
+  converged: boolean;
+  /** `spotHash` of the spot key (§3.4), for a shared cache later. */
+  spot: string;
+  /** Weighted combos in each range at the node (the opponent's without the hero's cards). */
+  heroCombos: number;
+  villainCombos: number;
+  /** Share of the opponent's range at the node the hero's hand beats, ties half. */
+  heroBeats: number;
+  role: RiverRole;
+  /** The opponent's range at the node, by strength against the hero's range there. */
+  villain: { strong: number; medium: number; weak: number; shape: RangeShape };
+  /** Share of the opponent's strong and weak combos the hero's own cards remove. */
+  blocks: { strong: number; weak: number };
+  /** The furthest a size in the line was mapped, as a fraction of the pot; null if none was. */
+  translated: number | null;
+  /** Share of each range, by weight as the river came, that the solve takes down this line to the node. */
+  reach: { hero: number; villain: number };
 }
 
 /** A chart node, by name: the set it is in and its line key (`docs/CHARTS.md` §6). */

@@ -137,9 +137,12 @@ const gradeWords = {
   blunder: "Gruba greška",
 } as Record<string, string>;
 
-/** "raise na 2,5 bb", "call", "all-in". */
+/** "raise na 2,5 bb", "bet 3,1 bb (33 %)", "call", "all-in". */
 function optionLabel(option: OptionAnalysis): string {
   if (option.allIn) return "all-in";
+  if (option.action === "bet" && option.sizeBb !== undefined && option.sizePot !== undefined) {
+    return `bet ${bb(option.sizeBb)} (${pct(option.sizePot)})`;
+  }
   if (option.action === "raise" || option.action === "bet") {
     return option.sizeBb !== undefined ? `${option.action} na ${bb(option.sizeBb)}` : option.action;
   }
@@ -173,31 +176,106 @@ const chartReasons = {
 
 const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
+/** Kraj rečenice "Bez ocjene: …" za river, po `RIVER_SKIP_REASONS`. */
+const riverReasons = {
+  "river-multiway-flop": "flop su vidjela tri ili više igrača, pa nema dva raspona koja bi se suzila do rivera",
+  "river-range-unknown": "jedan igrač nema preflop liniju od koje bi raspon krenuo",
+  "river-range-empty": "karte na boardu ispraznile su jedan raspon",
+  "river-off-tree": "river linija izašla je iz solverova stabla betova (više raiseova nego što modelira)",
+  "river-unreached": "riješene strategije s ovim rasponima gotovo nikad ne igraju ovu liniju, pa je strategija ovdje šum",
+  "river-solve-failed": "solver nije mogao riješiti ovu situaciju",
+} as Record<string, string>;
+
+/**
+ * River *zašto* (A4): što je tvoja ruka protiv raspona s kojim se suočava,
+ * oblik tog raspona, blokeri i na čemu rješenje počiva. Samo brojevi iz
+ * `facts.river`.
+ */
+function riverSentences(decision: DecisionAnalysis): string[] {
+  const river = decision.facts.river;
+  if (decision.source !== "solver" || !river) return [];
+  const out: string[] = [];
+  const beats = pct(river.heroBeats);
+  const v = river.villain;
+  switch (river.role) {
+    case "bluff-catcher":
+      out.push(
+        v.shape === "polar"
+          ? `Protiv polariziranog raspona — ${pct(v.strong)} jakih, ${pct(v.weak)} slabih, malo između — tvoja ruka je bluff-catcher: pobjeđuje ${beats} onoga što dođe ovamo.`
+          : `Tvoja ruka je ovdje bluff-catcher: pobjeđuje ${beats} protivnikova raspona u ovoj točki, a ${pct(v.strong)} tog raspona je jako.`,
+      );
+      break;
+    case "weak":
+      out.push(`Tvoja ruka pobjeđuje samo ${beats} protivnikova raspona u ovoj točki — ni većinu njegovih blefova.`);
+      break;
+    case "value":
+      out.push(
+        decision.facts.toCallBb > 0
+          ? `Tvoja ruka pobjeđuje ${beats} protivnikova raspona u ovoj točki: ispred je većine onoga što beta.`
+          : v.shape === "merged"
+            ? `Tvoja ruka pobjeđuje ${beats} protivnikova raspona ovdje, a taj raspon je spojen (${pct(v.medium)} srednjih ruku): value bet plaćaju slabije ruke.`
+            : `Tvoja ruka pobjeđuje ${beats} protivnikova raspona ovdje: ruka za value bet.`,
+      );
+      break;
+    case "thin-value":
+      out.push(`Tvoja ruka pobjeđuje ${beats} protivnikova raspona ovdje: u najboljem slučaju tanki value — da bi se bet isplatio, moraju platiti slabije ruke.`);
+      break;
+    case "showdown":
+      out.push(`Tvoja ruka pobjeđuje ${beats} protivnikova raspona ovdje: dovoljno za showdown, rijetko dovoljno za bet.`);
+      break;
+    case "air":
+      out.push(`Tvoja ruka pobjeđuje ${beats} protivnikova raspona ovdje: dobiva samo ako bolje ruke foldaju.`);
+      break;
+  }
+  if (Math.abs(river.blocks.strong - river.blocks.weak) >= 0.05) {
+    out.push(`Tvoje karte uklanjaju ${pct(river.blocks.strong)} protivnikovih jakih kombinacija i ${pct(river.blocks.weak)} njegovih slabih.`);
+  }
+  if (decision.approximations.includes("size-translated")) {
+    out.push("Veličine betova u ovoj river liniji pročitane su kao najbliže solverove veličine (33 %, 75 %, 150 % pota, all-in).");
+  }
+  out.push(
+    river.converged
+      ? `Oba raspona sužena su na flopu i turnu heurističkim modelom — solvera za flop i turn još nema — a river je riješen do ${num(river.exploitabilityPct, 1)} % pota od ravnoteže.`
+      : `Oba raspona sužena su na flopu i turnu heurističkim modelom, a rješavanje je stalo nakon ${num(river.iterations)} iteracija, ${num(river.exploitabilityPct, 1)} % pota od ravnoteže: tijesne odluke čitaj s rezervom.`,
+  );
+  return out;
+}
+
 function chartSentences(decision: DecisionAnalysis): string[] {
-  if (decision.source !== "chart" || decision.chosen === null || !decision.grade) return [];
+  if ((decision.source !== "chart" && decision.source !== "solver") || decision.chosen === null || !decision.grade) return [];
   const out: string[] = [];
   const chosen = decision.options[decision.chosen];
   if (!chosen) return out;
   const word = gradeWords[decision.grade] ?? decision.grade;
   const mix = referenceMix(decision);
+  const solver = decision.source === "solver";
+  const who = solver ? "solver" : "referenca";
   if (outOfRange(decision)) {
-    out.push(`Tvoja ruka je izvan referentnog raspona u ovoj situaciji; referenca s njom igra ${mixLabel(decision)}.`);
+    out.push(
+      solver
+        ? `Tvoja ruka nije u tvojem rasponu suženom do ove točke; solver s njom igra ${mixLabel(decision)}.`
+        : `Tvoja ruka je izvan referentnog raspona u ovoj situaciji; referenca s njom igra ${mixLabel(decision)}.`,
+    );
   }
   const plays = mix.length > 1 ? `miješa ${mixLabel(decision)}` : `igra ${mixLabel(decision)}`;
   const better = betterAlternative(decision);
   if (decision.grade === "perfect") {
-    out.push(`${word}: odigrao/la si ${optionLabel(chosen)}; referenca ovdje ${plays}.`);
+    out.push(`${word}: odigrao/la si ${optionLabel(chosen)}; ${who} ovdje ${plays}.`);
   } else if (decision.grade === "good") {
-    out.push(`${word}: referenca ovdje igra ${optionLabel(chosen)} u ${pct(chosen.freq)} slučajeva, a ukupno ${plays}.`);
+    out.push(`${word}: ${who} ovdje igra ${optionLabel(chosen)} u ${pct(chosen.freq)} slučajeva, a ukupno ${plays}.`);
   } else {
     out.push(
-      `${word}: referenca ${plays}. ${capitalise(optionLabel(chosen))} košta ${bb(decision.evLoss ?? 0)} (${pct(decision.evLossPot ?? 0)} pota)${
+      `${word}: ${who} ${plays}. ${capitalise(optionLabel(chosen))} košta ${bb(decision.evLoss ?? 0)} (${pct(decision.evLossPot ?? 0)} pota)${
         better ? ` u odnosu na ${optionLabel(better)}` : ""
       }.`,
     );
   }
   if (decision.approximations.includes("off-tree-size")) {
-    out.push("Raise u ovoj liniji bio je daleko od veličine u chartovima, pa je ocjena ograničena na Netočno.");
+    out.push(
+      solver
+        ? "Bet u ovoj river liniji bio je daleko od veličina u solveru, pa je ocjena ograničena na Netočno."
+        : "Raise u ovoj liniji bio je daleko od veličine u chartovima, pa je ocjena ograničena na Netočno.",
+    );
   }
   if (modelCaveat(decision)) {
     out.push(
@@ -277,7 +355,7 @@ function explain(decision: DecisionAnalysis): string[] {
   const facts = decision.facts;
   const out: string[] = [];
   if (decision.status === "not-analysed") {
-    const chartReason = decision.reason ? chartReasons[decision.reason] : undefined;
+    const chartReason = decision.reason ? (chartReasons[decision.reason] ?? riverReasons[decision.reason]) : undefined;
     out.push(
       decision.reason === "multiway"
         ? "Nije analizirano: nakon flopa u ruci su bila tri ili više igrača, a ništa ovdje ne modelira tri raspona odjednom. Bolje ne reći ništa nego reći nešto krivo."
@@ -297,6 +375,7 @@ function explain(decision: DecisionAnalysis): string[] {
   }
 
   out.push(...chartSentences(decision));
+  out.push(...riverSentences(decision));
 
   if (facts.potOdds !== null) {
     // MDF je postflop pojam (§4): preflop se nikad ne navodi, ni iz starijeg retka.
@@ -309,10 +388,15 @@ function explain(decision: DecisionAnalysis): string[] {
       facts.equity.strong !== null && facts.equity.strong !== undefined
         ? ` (${pct(facts.equity.strong)} protiv njegove najjače četvrtine)`
         : "";
+    const source = facts.equity.source;
     out.push(
-      facts.equity.source === "chart"
-        ? `Protiv raspona ${rangeLabel(facts.equity.range)} kako ga igraju chartovi — nesuženog kasnijim betovima — tvoja ruka ima oko ${pct(facts.equity.value)}${strong}.`
-        : `Protiv raspona ${rangeLabel(facts.equity.range)} — privremenog, nesuženog kasnijim betovima — tvoja ruka ima oko ${pct(facts.equity.value)}${strong}.`,
+      source === "solver"
+        ? `Protiv raspona ${rangeLabel(facts.equity.range)} kako ga solver igra ovom linijom do ovdje, tvoja ruka dobiva ${pct(facts.equity.value)} na showdownu${strong}.`
+        : source === "narrowed"
+          ? `Protiv raspona ${rangeLabel(facts.equity.range)}, suženog dosadašnjim betovima (heuristički model), tvoja ruka ima oko ${pct(facts.equity.value)}${strong}.`
+          : source === "chart"
+            ? `Protiv raspona ${rangeLabel(facts.equity.range)} kako ga igraju chartovi — nesuženog kasnijim betovima — tvoja ruka ima oko ${pct(facts.equity.value)}${strong}.`
+            : `Protiv raspona ${rangeLabel(facts.equity.range)} — privremenog, nesuženog kasnijim betovima — tvoja ruka ima oko ${pct(facts.equity.value)}${strong}.`,
     );
   }
   if (facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) {
@@ -347,15 +431,15 @@ export const analysisHr: Dict["analysis"] = {
       "Analiza prolazi kroz svaku odluku u tvojim spremljenim rukama: board, tvoju ruku, cijenu i provjere koje vrijede bez obzira na strategiju. Radi u ovoj kartici preglednika.",
     updatedHeading: "Analiza ima novu verziju",
     updatedBody:
-      "Tvoje ruke analizirala je starija verzija. Ova ocjenjuje tvoje preflop odluke prema našim chartovima — frekvencija, EV i ocjena za svaki potez koji chartovi pokrivaju. Ažuriraj svoje ruke da ih vidiš; radi u ovoj kartici.",
+      "Tvoje ruke analizirala je starija verzija. Ova uz preflop ocjene prema našim chartovima ocjenjuje i tvoje river odluke u heads-up potovima našim vlastitim solverom, na rasponima suženima kroz ruku. Ažuriraj svoje ruke da ih vidiš; radi u ovoj kartici i traje malo dulje nego prije.",
     noHandsHeading: "U tvojoj biblioteci još nema ruku",
     noHandsBody: "Prvo učitaj hand history; analiza čita ruke koje si spremio/la.",
   },
 
   reference: {
-    title: "Preflop se ocjenjuje prema našim chartovima; postflop su još bilješke",
+    title: "Preflop se ocjenjuje prema našim chartovima, river prema našem solveru",
     body:
-      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim 6-max 100 bb chartovima, gdje god chart pokriva situaciju. Nakon flopa svaka odluka pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena.",
+      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim 6-max 100 bb chartovima, gdje god chart pokriva situaciju. River odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje kroz ruku sužava heuristički model. Flop i turn pokazuju svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena.",
     model:
       "Chartovi (charts/1) podcjenjuju ruke koje dobivaju kroz implied odds — male parove i suited konektore — pa su ocjene protiv igranja takvih ruku stroge.",
     browse: "Pregledaj chartove",
@@ -407,7 +491,7 @@ export const analysisHr: Dict["analysis"] = {
     badHands: (count: number) => `${hands(count)} s greškom ili grubom greškom`,
     showBad: "Prikaži ih",
     noGrades:
-      "U ovom uzorku još ništa nije ocijenjeno. Preflop odluke ocjenjuju se gdje chartovi pokrivaju situaciju: šest igrača, 100 bb ±20 %, bez open limpera.",
+      "U ovom uzorku još ništa nije ocijenjeno. Preflop odluke ocjenjuju se gdje chartovi pokrivaju situaciju (šest igrača, 100 bb ±20 %, bez open limpera), river odluke u heads-up potovima solverom.",
     byStreet: "Po streetovima",
     bb2: (value: number) => `${num(value, 2)} bb`,
     distribution: (parts: string[]) => parts.join(", "),
@@ -441,6 +525,12 @@ export const analysisHr: Dict["analysis"] = {
     "chart-no-hero": "Preflop chartovi: heroj bez pozicije",
     "chart-no-decision": "Preflop chartovi: odluka nije pronađena",
     "chart-unavailable": "Preflop chartovi: nisu učitani",
+    "river-multiway-flop": "River: flop su vidjela tri ili više igrača",
+    "river-range-unknown": "River: raspon bez preflop linije",
+    "river-range-empty": "River: prazan raspon",
+    "river-off-tree": "River: izvan solverova stabla",
+    "river-unreached": "River: linija koju rješenje ne igra",
+    "river-solve-failed": "River: solver je odbio situaciju",
   } as Record<string, string>,
 
   approximations: {
@@ -456,6 +546,10 @@ export const analysisHr: Dict["analysis"] = {
     "stack-depth-near": "Stackovi unutar 100 bb ±20 %, ali ne točno 100 bb",
     "off-tree-size": "Raise daleko od veličine u chartovima: ocjena ograničena na Netočno",
     "out-of-range": "Tvoja ruka je izvan referentnog raspona u ovoj situaciji",
+    "narrowing-heuristic": "Rasponi suženi na flopu i turnu heurističkim modelom, ne solverom",
+    "rake-profile": "River riješen s rakeom iz chartova (5 %, najviše 3 bb), ne s rakeom ove sobe",
+    "size-translated": "Veličine river betova pročitane kao najbliže solverove veličine",
+    "solver-unconverged": "Rješavanje rivera stalo je iznad 0,5 % pota od ravnoteže",
   } as Record<string, string>,
 
   severity: { note: "Bilješka", inaccurate: "Netočno" } as Record<string, string>,
@@ -583,7 +677,7 @@ export const analysisHr: Dict["analysis"] = {
     toggleTitle: "Prikaži analizu ove ruke",
     notGraded: "Bez ocjene",
     notGradedHint:
-      "Ništa u ovoj ruci nije ocijenjeno: postflop odluke su samo bilješke, a preflop chartovi ne pokrivaju ovu liniju.",
+      "Ništa u ovoj ruci nije ocijenjeno: preflop chartovi ne pokrivaju ovu liniju, flop i turn su samo bilješke, a na riveru nije bilo heads-up odluke koju solver može riješiti.",
     evLoss: "Gubitak EV-a",
     evLossPot: (value: number) => `${pct(value)} pota`,
     score: "Bodovi",
@@ -594,12 +688,12 @@ export const analysisHr: Dict["analysis"] = {
     yourMove: "Tvoj potez",
     best: "Najbolje",
     better: (label: string) => `Bolje: ${label}`,
-    option: (action: string, sizeBb: number | undefined, allIn: boolean | undefined) =>
+    option: (action: string, sizeBb: number | undefined, allIn: boolean | undefined, sizePot?: number) =>
       allIn
         ? "All-in"
         : action === "raise" || action === "bet"
           ? sizeBb !== undefined
-            ? `${action === "bet" ? "Bet" : "Raise na"} ${bb(sizeBb)}`
+            ? `${action === "bet" ? "Bet" : "Raise na"} ${bb(sizeBb)}${action === "bet" && sizePot !== undefined ? ` (${pct(sizePot)})` : ""}`
             : action === "bet"
               ? "Bet"
               : "Raise"
@@ -660,6 +754,64 @@ export const analysisHr: Dict["analysis"] = {
     notFound: "Ova ruka nije u tvojoj biblioteci.",
     fresh:
       "Ova ruka još nije analizirana u trenutnoj verziji, pa je ovo svježa analiza izračunata u tvojem pregledniku. Pokreni analizu da je spremiš.",
+  },
+
+  river: {
+    study: "Prouči river",
+    hideStudy: "Sakrij proučavanje",
+    loading: "Rješavam river…",
+    failed: (message: string) => `Proučavanje rivera nije se učitalo: ${message}`,
+    unavailable: "Solver nije mogao ponovno složiti ovu situaciju.",
+    heading: "Tvoj raspon ovdje, kako ga solver igra",
+    note: "Rješenje iza ocjene, ponovno pokrenuto u tvojem pregledniku: svaka ruka tvojeg raspona u ovoj odluci i što solver s njom radi.",
+    gridLabel: (spot: string) => `${spot}: solverov miks za tvoj raspon, po rukama`,
+    spot: (path: string) => (path ? `River nakon ${path.split("-").join(", ")}` : "River, prva odluka"),
+    cellLabel: (hand: string, combos: number, parts: string[]) =>
+      combos > 0 ? `${hand}, ${num(combos, combos < 10 ? 1 : 0)} kombinacija: ${parts.join(", ")}` : `${hand}: nije u tvojem rasponu ovdje`,
+    part: (label: string, freq: number) => `${label} ${pct1(freq)}`,
+    totals: (label: string, share: number, value: number) =>
+      `${label} ${pct1(share)} · ${num(Math.round(value * 10) / 10, value < 10 ? 1 : 0)} kombinacija`,
+    detailEmpty: "Prijeđi mišem preko ruke ili je fokusiraj da vidiš njezin miks i koliko svaka akcija vrijedi.",
+    detailCombos: (value: number) => `${num(value, value < 10 ? 1 : 0)} ponderiranih kombinacija u tvojem rasponu ovdje.`,
+    notInRange: "Nije u tvojem rasponu u ovoj točki.",
+    yourHand: "Tvoja ruka",
+    yourCombo: (combo: string) => `Tvoja ruka (${combo})`,
+    categoriesTitle: "Po rukama",
+    strengthTitle: "Po snazi protiv protivnikova raspona ovdje",
+    colHand: "Ruke",
+    colCombos: "Kombinacije",
+    colMix: "Solverov miks",
+    groups: { made: "Složene ruke", missed: "Promašeni drawovi", nothing: "Bez složene ruke" } as Record<string, string>,
+    categories: {
+      "full-house-plus": "Full house ili jače",
+      flush: "Boja",
+      straight: "Skala",
+      "set-trips": "Set ili tris",
+      "two-pair": "Dva para",
+      "top-pair": "Top par ili overpar",
+      "middle-pair": "Drugi par ili džepni par ispod najviše karte",
+      "weak-pair": "Slab par ili underpar",
+      "missed-flush-draw": "Promašen flush draw",
+      "missed-straight-draw": "Promašen straight draw",
+      "ace-high": "As kao najviša karta",
+      "no-pair": "Bez para",
+    } as Record<string, string>,
+    strength: {
+      strong: "Value: pobjeđuje 75 % ili više",
+      medium: "Bluff-catcheri: pobjeđuju 25–75 %",
+      weak: "Zrak: pobjeđuje manje od 25 %",
+    } as Record<string, string>,
+    villainTitle: "Protivnikov raspon ovdje",
+    villainSummary: (value: number, strong: number, medium: number, weak: number) =>
+      `${num(Math.round(value * 10) / 10, value < 10 ? 1 : 0)} ponderiranih kombinacija, bez tvojih karata: ${pct(strong)} pobjeđuje većinu tvojeg raspona, ${pct(medium)} je u sredini, ${pct(weak)} pobjeđuje malo toga.`,
+    share: pct1,
+    combos: (value: number) => num(Math.round(value * 10) / 10, value < 10 ? 1 : 0),
+    mixLabel: (parts: string[]) => parts.join(", "),
+    solved: (iterations: number, exploitability: number) =>
+      `Riješeno u ${num(iterations)} iteracija do ${num(exploitability, 2)} % pota od ravnoteže. Rasponi suženi heurističkim modelom prije rivera; veličine 33 / 75 / 150 % pota i all-in.`,
+    evNote: "EV u big blindovima, neto od početka rivera, s potom koji se može osvojiti.",
+    signedBb,
+    freq: pct1,
   },
 
   charts: {

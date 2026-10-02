@@ -193,6 +193,9 @@
     --chart-call: #2b9a68;
     --chart-raise: #d9552f;
     --chart-allin: #a12a3d;
+    /* River bets by size: 3.1:1 and 3.7:1 on --surface-inset. */
+    --chart-bet-small: #b8860b;
+    --chart-bet-medium: #c26a1a;
 
     /* Anonymity. Same violet, read from the dark end: #4a2f96 on the 12% tint
        over white (#f1ecff) is 8.5:1. */

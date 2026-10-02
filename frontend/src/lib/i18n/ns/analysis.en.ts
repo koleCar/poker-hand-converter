@@ -136,9 +136,12 @@ const gradeWords = {
   blunder: "Blunder",
 } as Record<string, string>;
 
-/** "raise to 2.5 bb", "call", "all-in": one option as a player says it. */
+/** "raise to 2.5 bb", "bet 3.1 bb (33%)", "call", "all-in": one option as a player says it. */
 function optionLabel(option: OptionAnalysis): string {
   if (option.allIn) return "all-in";
+  if (option.action === "bet" && option.sizeBb !== undefined && option.sizePot !== undefined) {
+    return `bet ${bb(option.sizeBb)} (${pct(option.sizePot)})`;
+  }
   if (option.action === "raise" || option.action === "bet") {
     return option.sizeBb !== undefined ? `${option.action} to ${bb(option.sizeBb)}` : option.action;
   }
@@ -174,36 +177,44 @@ const chartReasons = {
   "chart-unavailable": "the charts were not loaded",
 } as Record<string, string>;
 
-/** The grade, said against the reference's options (§4, keyed by grade). */
+/** The grade, said against the reference's options (§4, keyed by grade and source). */
 function chartSentences(decision: DecisionAnalysis): string[] {
-  if (decision.source !== "chart" || decision.chosen === null || !decision.grade) return [];
+  if ((decision.source !== "chart" && decision.source !== "solver") || decision.chosen === null || !decision.grade) return [];
   const out: string[] = [];
   const chosen = decision.options[decision.chosen];
   if (!chosen) return out;
   const word = gradeWords[decision.grade] ?? decision.grade;
   const mix = referenceMix(decision);
+  const solver = decision.source === "solver";
+  const who = solver ? "the solver" : "the reference";
   if (outOfRange(decision)) {
     out.push(
-      `Your hand is outside the reference range at this node; the reference plays it as ${mixLabel(decision)}.`,
+      solver
+        ? `Your hand is not in your own range as narrowed to this point; the solver plays it as ${mixLabel(decision)}.`
+        : `Your hand is outside the reference range at this node; the reference plays it as ${mixLabel(decision)}.`,
     );
   }
   const plays = mix.length > 1 ? `mixes ${mixLabel(decision)}` : `plays ${mixLabel(decision)}`;
   const better = betterAlternative(decision);
   if (decision.grade === "perfect") {
-    out.push(`${word}: you played ${optionLabel(chosen)}; the reference ${plays} here.`);
+    out.push(`${word}: you played ${optionLabel(chosen)}; ${who} ${plays} here.`);
   } else if (decision.grade === "good") {
-    out.push(`${word}: the reference plays ${optionLabel(chosen)} ${pct(chosen.freq)} of the time here, and ${plays} overall.`);
+    out.push(`${word}: ${who} plays ${optionLabel(chosen)} ${pct(chosen.freq)} of the time here, and ${plays} overall.`);
   } else {
     const loss = decision.evLoss ?? 0;
     const lossPot = decision.evLossPot ?? 0;
     out.push(
-      `${word}: the reference ${plays}. ${capitalise(optionLabel(chosen))} costs ${bb(loss)} (${pct(lossPot)} of the pot)${
+      `${word}: ${who} ${plays}. ${capitalise(optionLabel(chosen))} costs ${bb(loss)} (${pct(lossPot)} of the pot)${
         better ? ` against ${optionLabel(better)}` : ""
       }.`,
     );
   }
   if (decision.approximations.includes("off-tree-size")) {
-    out.push("A raise in this line was far from the charts' size, so the grade is capped at Inaccurate.");
+    out.push(
+      solver
+        ? "A bet in this river line was far from the solver's sizes, so the grade is capped at Inaccurate."
+        : "A raise in this line was far from the charts' size, so the grade is capped at Inaccurate.",
+    );
   }
   if (modelCaveat(decision)) {
     out.push(
@@ -214,6 +225,71 @@ function chartSentences(decision: DecisionAnalysis): string[] {
 }
 
 const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
+/** Why a river decision has no solver grade: the end of "Not graded: …". Keyed by `RIVER_SKIP_REASONS`. */
+const riverReasons = {
+  "river-multiway-flop": "three or more players saw the flop, so there are no two ranges to narrow to the river",
+  "river-range-unknown": "a player has no preflop line to start a range from",
+  "river-range-empty": "a range was left empty by the cards on the board",
+  "river-off-tree": "the river line left the solver's betting tree (more raises than it models)",
+  "river-unreached": "the solved strategies almost never take this line with these ranges, so the strategy here is noise",
+  "river-solve-failed": "the solver could not take this spot",
+} as Record<string, string>;
+
+/**
+ * The river solve's *why* (A4): what the hero's hand is against the range it
+ * faces, the shape of that range, blockers, and what the solve rests on. Only
+ * numbers from `facts.river`.
+ */
+function riverSentences(decision: DecisionAnalysis): string[] {
+  const river = decision.facts.river;
+  if (decision.source !== "solver" || !river) return [];
+  const out: string[] = [];
+  const beats = pct(river.heroBeats);
+  const v = river.villain;
+  switch (river.role) {
+    case "bluff-catcher":
+      out.push(
+        v.shape === "polar"
+          ? `Facing a polar range — ${pct(v.strong)} strong, ${pct(v.weak)} weak, little between — your hand is a bluff-catcher: it beats ${beats} of what gets here.`
+          : `Your hand is a bluff-catcher here: it beats ${beats} of the opponent's range at this point, of which ${pct(v.strong)} is strong.`,
+      );
+      break;
+    case "weak":
+      out.push(`Your hand beats only ${beats} of the opponent's range at this point — not even most of its bluffs.`);
+      break;
+    case "value":
+      out.push(
+        decision.facts.toCallBb > 0
+          ? `Your hand beats ${beats} of the opponent's range at this point: ahead of most of what bets.`
+          : v.shape === "merged"
+            ? `Your hand beats ${beats} of the opponent's range here, and that range is merged (${pct(v.medium)} medium hands): a value bet gets called by worse.`
+            : `Your hand beats ${beats} of the opponent's range here: a hand to bet for value.`,
+      );
+      break;
+    case "thin-value":
+      out.push(`Your hand beats ${beats} of the opponent's range here: thin value at best — worse hands have to call for a bet to pay.`);
+      break;
+    case "showdown":
+      out.push(`Your hand beats ${beats} of the opponent's range here: enough to want a showdown, rarely enough to bet.`);
+      break;
+    case "air":
+      out.push(`Your hand beats ${beats} of the opponent's range here: it wins only by making better hands fold.`);
+      break;
+  }
+  if (Math.abs(river.blocks.strong - river.blocks.weak) >= 0.05) {
+    out.push(`Your cards remove ${pct(river.blocks.strong)} of the opponent's strong combos and ${pct(river.blocks.weak)} of its weak ones.`);
+  }
+  if (decision.approximations.includes("size-translated")) {
+    out.push("Bet sizes in this river line were read as the nearest of the solver's sizes (33%, 75%, 150% of the pot, all-in).");
+  }
+  out.push(
+    river.converged
+      ? `Both ranges were narrowed on the flop and turn by a heuristic model — there is no flop or turn solve yet — and the river was solved to within ${num(river.exploitabilityPct, 1)}% of the pot.`
+      : `Both ranges were narrowed on the flop and turn by a heuristic model, and the solve stopped at ${num(river.iterations)} iterations, ${num(river.exploitabilityPct, 1)}% of the pot from equilibrium: read close calls loosely.`,
+  );
+  return out;
+}
 
 function handPhrase(facts: SpotFacts): string {
   if (!facts.made) return facts.handClass ?? facts.holeCards.join("");
@@ -290,7 +366,7 @@ function explain(decision: DecisionAnalysis): string[] {
   const facts = decision.facts;
   const out: string[] = [];
   if (decision.status === "not-analysed") {
-    const chartReason = decision.reason ? chartReasons[decision.reason] : undefined;
+    const chartReason = decision.reason ? (chartReasons[decision.reason] ?? riverReasons[decision.reason]) : undefined;
     out.push(
       decision.reason === "multiway"
         ? "Not analysed: three or more players were still in after the flop, and nothing here models three ranges at once. Saying nothing beats saying something wrong."
@@ -310,6 +386,7 @@ function explain(decision: DecisionAnalysis): string[] {
   }
 
   out.push(...chartSentences(decision));
+  out.push(...riverSentences(decision));
 
   if (facts.potOdds !== null) {
     // MDF is a postflop idea (§4): preflop, folding most hands to an open is
@@ -322,10 +399,15 @@ function explain(decision: DecisionAnalysis): string[] {
       facts.equity.strong !== null && facts.equity.strong !== undefined
         ? ` (${pct(facts.equity.strong)} against its stronger quarter)`
         : "";
+    const source = facts.equity.source;
     out.push(
-      facts.equity.source === "chart"
-        ? `Against ${rangeLabel(facts.equity.range)} range as the charts play it — not narrowed by later betting — your hand has about ${pct(facts.equity.value)}${strong}.`
-        : `Against ${rangeLabel(facts.equity.range)} range — a placeholder, not narrowed by later betting — your hand has about ${pct(facts.equity.value)}${strong}.`,
+      source === "solver"
+        ? `Against ${rangeLabel(facts.equity.range)} range as the solver plays this line to here, your hand wins ${pct(facts.equity.value)} at showdown${strong}.`
+        : source === "narrowed"
+          ? `Against ${rangeLabel(facts.equity.range)} range, narrowed by the betting so far (a heuristic model), your hand has about ${pct(facts.equity.value)}${strong}.`
+          : source === "chart"
+            ? `Against ${rangeLabel(facts.equity.range)} range as the charts play it — not narrowed by later betting — your hand has about ${pct(facts.equity.value)}${strong}.`
+            : `Against ${rangeLabel(facts.equity.range)} range — a placeholder, not narrowed by later betting — your hand has about ${pct(facts.equity.value)}${strong}.`,
     );
   }
   if (facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) {
@@ -363,16 +445,16 @@ export const analysisEn = {
       "The analysis walks every decision you made in your saved hands: the board, your hand, the price, and the checks that hold whatever the strategy. It runs in this browser tab.",
     updatedHeading: "The analysis has a new version",
     updatedBody:
-      "Your hands were analysed by an earlier version. This one grades your preflop decisions against our charts — frequency, EV and a grade for every move the charts cover. Bring your hands up to date to see them; it runs in this tab.",
+      "Your hands were analysed by an earlier version. This one also grades your river decisions in heads-up pots with our own solver, on ranges narrowed through the hand — on top of preflop grades from our charts. Bring your hands up to date to see them; it runs in this tab and takes a little longer than before.",
     noHandsHeading: "No hands in your library yet",
     noHandsBody: "Upload a hand history first; the analysis reads the hands you have saved.",
   },
 
   /** The line above everything about what the analysis can and cannot say. */
   reference: {
-    title: "Preflop is graded against our charts; postflop is still notes",
+    title: "Preflop is graded against our charts, the river against our solver",
     body:
-      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own 6-max 100 bb charts wherever a chart covers the spot. After the flop every decision shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade.",
+      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own 6-max 100 bb charts wherever a chart covers the spot. River decisions in heads-up pots are graded by our own solver, on ranges narrowed through the hand by a heuristic model. The flop and turn show their facts and the checks that hold whatever the strategy — a flag is a note, never a grade.",
     model:
       "The charts (charts/1) under-rate hands that win through implied odds — small pairs and suited connectors — so grades against playing them lean harsh.",
     browse: "Browse the charts",
@@ -423,7 +505,7 @@ export const analysisEn = {
     badHands: (count: number) => `${hands(count)} with a Mistake or a Blunder`,
     showBad: "Show them",
     noGrades:
-      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot: six-handed, 100 bb ±20%, no open limpers.",
+      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot (six-handed, 100 bb ±20%, no open limpers), river decisions in heads-up pots by the solver.",
     byStreet: "By street",
     /** Big blinds to two decimals: "1.25 bb". */
     bb2: (value: number) => `${num(value, 2)} bb`,
@@ -459,6 +541,12 @@ export const analysisEn = {
     "chart-no-hero": "Preflop charts: no hero position",
     "chart-no-decision": "Preflop charts: decision not found",
     "chart-unavailable": "Preflop charts: not loaded",
+    "river-multiway-flop": "River: three or more saw the flop",
+    "river-range-unknown": "River: a range has no preflop line",
+    "river-range-empty": "River: a range is empty",
+    "river-off-tree": "River: off the solver's tree",
+    "river-unreached": "River: a line the solve never takes",
+    "river-solve-failed": "River: the solver refused the spot",
   } as Record<string, string>,
 
   approximations: {
@@ -474,6 +562,10 @@ export const analysisEn = {
     "stack-depth-near": "Stacks within 100 bb ±20%, but not 100 bb",
     "off-tree-size": "A raise far from the charts' size: grade capped at Inaccurate",
     "out-of-range": "Your hand is outside the reference range at this node",
+    "narrowing-heuristic": "Ranges narrowed on the flop and turn by a heuristic model, not a solver",
+    "rake-profile": "River solved with the charts' rake (5%, capped at 3 bb), not this room's",
+    "size-translated": "River bet sizes read as the nearest of the solver's sizes",
+    "solver-unconverged": "River solve stopped above 0.5% of the pot from equilibrium",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,
@@ -603,7 +695,7 @@ export const analysisEn = {
     toggleTitle: "Show the analysis of this hand",
     notGraded: "Not graded",
     notGradedHint:
-      "Nothing in this hand was graded: postflop decisions are notes only, and the preflop charts did not cover this line.",
+      "Nothing in this hand was graded: the preflop charts did not cover this line, the flop and turn are notes only, and the river had no heads-up decision the solver could take.",
     evLoss: "EV loss",
     evLossPot: (value: number) => `${pct(value)} of pot`,
     score: "Score",
@@ -615,12 +707,12 @@ export const analysisEn = {
     best: "Best",
     /** Under a bad move's chip: the better option. The arrow is decoration. */
     better: (label: string) => `Better: ${label}`,
-    option: (action: string, sizeBb: number | undefined, allIn: boolean | undefined) =>
+    option: (action: string, sizeBb: number | undefined, allIn: boolean | undefined, sizePot?: number) =>
       allIn
         ? "All-in"
         : action === "raise" || action === "bet"
           ? sizeBb !== undefined
-            ? `${action === "bet" ? "Bet" : "Raise to"} ${bb(sizeBb)}`
+            ? `${action === "bet" ? "Bet" : "Raise to"} ${bb(sizeBb)}${action === "bet" && sizePot !== undefined ? ` (${pct(sizePot)})` : ""}`
             : action === "bet"
               ? "Bet"
               : "Raise"
@@ -683,6 +775,65 @@ export const analysisEn = {
     notFound: "This hand is not in your library.",
     fresh:
       "This hand has not been analysed at the current version yet, so this is a fresh analysis computed in your browser. Run the analysis to save it.",
+  },
+
+  /** The river study (A4): the hero's range at a solved river node. */
+  river: {
+    study: "Study the river",
+    hideStudy: "Hide the study",
+    loading: "Solving the river…",
+    failed: (message: string) => `The river study did not load: ${message}`,
+    unavailable: "The solver could not rebuild this spot.",
+    heading: "Your range here, as solved",
+    note: "The solve behind the grade, re-run in your browser: every hand of your range at this decision, and what the solver does with it.",
+    gridLabel: (spot: string) => `${spot}: the solver's mix for your range, by hand`,
+    spot: (path: string) => (path ? `River after ${path.split("-").join(", ")}` : "River, first decision"),
+    cellLabel: (hand: string, combos: number, parts: string[]) =>
+      combos > 0 ? `${hand}, ${num(combos, combos < 10 ? 1 : 0)} combos: ${parts.join(", ")}` : `${hand}: not in your range here`,
+    part: (label: string, freq: number) => `${label} ${pct1(freq)}`,
+    totals: (label: string, share: number, combos: number) =>
+      `${label} ${pct1(share)} · ${num(Math.round(combos * 10) / 10, combos < 10 ? 1 : 0)} combos`,
+    detailEmpty: "Hover or focus a hand to see its mix and what each action is worth.",
+    detailCombos: (combos: number) => `${num(combos, combos < 10 ? 1 : 0)} weighted combos in your range here.`,
+    notInRange: "Not in your range at this point.",
+    yourHand: "Your hand",
+    yourCombo: (combo: string) => `Your hand (${combo})`,
+    categoriesTitle: "By hand",
+    strengthTitle: "By strength against the opponent's range here",
+    colHand: "Hands",
+    colCombos: "Combos",
+    colMix: "Solver's mix",
+    groups: { made: "Made hands", missed: "Missed draws", nothing: "No made hand" } as Record<string, string>,
+    categories: {
+      "full-house-plus": "Full house or better",
+      flush: "Flush",
+      straight: "Straight",
+      "set-trips": "Set or trips",
+      "two-pair": "Two pair",
+      "top-pair": "Top pair or overpair",
+      "middle-pair": "Second pair, or a pocket pair below the top card",
+      "weak-pair": "Weak pair or underpair",
+      "missed-flush-draw": "Missed flush draw",
+      "missed-straight-draw": "Missed straight draw",
+      "ace-high": "Ace high",
+      "no-pair": "No pair",
+    } as Record<string, string>,
+    strength: {
+      strong: "Value: beats 75% or more",
+      medium: "Bluff-catchers: beat 25–75%",
+      weak: "Air: beats under 25%",
+    } as Record<string, string>,
+    villainTitle: "The opponent's range here",
+    villainSummary: (combos: number, strong: number, medium: number, weak: number) =>
+      `${num(Math.round(combos * 10) / 10, combos < 10 ? 1 : 0)} weighted combos, your cards removed: ${pct(strong)} beat most of your range, ${pct(medium)} sit in the middle, ${pct(weak)} beat little of it.`,
+    share: pct1,
+    combos: (value: number) => num(Math.round(value * 10) / 10, value < 10 ? 1 : 0),
+    mixLabel: (parts: string[]) => parts.join(", "),
+    solved: (iterations: number, exploitability: number) =>
+      `Solved in ${num(iterations)} iterations to within ${num(exploitability, 2)}% of the pot. Ranges narrowed by a heuristic model before the river; sizes 33 / 75 / 150% of the pot and all-in.`,
+    evNote: "EV in big blinds, net from the start of the river, with the pot counted as winnable.",
+    signedBb,
+    freq: pct1,
   },
 
   /** The 13×13 chart viewer and the chart browser at `/analysis/charts`. */

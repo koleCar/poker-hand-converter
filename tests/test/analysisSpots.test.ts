@@ -349,10 +349,18 @@ describe("pot geometry", () => {
     expect(river.approximations).toContain("placeholder-range");
   });
 
-  it("has no grade without a reference: postflop is heuristic, and the charts refuse a three-handed preflop", () => {
-    expect(analysis.grade).toBeNull();
-    expect(analysis.score).toBeNull();
-    expect(analysis.decisions.every((d) => d.grade === null && d.source === "heuristic" && d.options.length === 0)).toBe(true);
+  it("grades only the river, from the solver: the flop and turn are heuristic, and the charts refuse a three-handed preflop", () => {
+    for (const d of analysis.decisions) {
+      if (d.street === "river") {
+        expect(d.source).toBe("solver");
+        expect(d.grade).not.toBeNull();
+        expect(d.approximations).toEqual(expect.arrayContaining(["narrowing-heuristic", "placeholder-range", "rake-profile"]));
+      } else {
+        expect(d.grade).toBeNull();
+        expect(d.source).toBe("heuristic");
+        expect(d.options).toHaveLength(0);
+      }
+    }
     expect(analysis.approximations).toContain("heuristic");
   });
 
