@@ -5,6 +5,7 @@
  * format.ts     CHARTS_VERSION, the stored JSON, encode / decode, loadCharts
  * build.ts      a solved preflop game -> a chart set (reach, ranges, scenarios)
  * generate.ts   the generator as a pure function: equity, tree, DCFR, convergence
+ * realisation.ts charts/2: measure realisation with the postflop solver, fit, rounds
  * lookup.ts     a real preflop line -> node, options, approximations (or a reason)
  * fromHand.ts   PhfHand -> the PreflopSpot of one hero decision
  * base64.ts     the blob encoding, without Buffer or atob
@@ -16,7 +17,8 @@
  * `lib/solver`: it runs under plain Node in `tests/test` and in a Web Worker.
  *
  * The charts are ours: computed by `lib/solver`'s preflop DCFR with an
- * equity-realisation model, never copied from any published chart.
+ * equity-realisation model fitted to `lib/solver`'s own postflop solves,
+ * never copied from any published chart.
  */
 
 export {
@@ -51,6 +53,30 @@ export {
   type GenerateProgress,
   type GenerateResult,
 } from "./generate";
+export {
+  aggregateSamples,
+  fitRealisation,
+  generateRealisedChartSet,
+  MAX_FIT_SHARE,
+  measurementJobs,
+  prepareSpots,
+  PRODUCTION_MEASURE,
+  PRODUCTION_ROUND_ITERATIONS,
+  PRODUCTION_ROUNDS,
+  RANGE_SHRINK,
+  REALISATION_SPOTS,
+  REPORT_GROUPS,
+  RIDGE,
+  sampleDeals,
+  spotTerminal,
+  type PreparedSpot,
+  type RealisationFit,
+  type RealisationFitReport,
+  type RealisationMeasureOptions,
+  type RealisationRound,
+  type RealisationSpotSpec,
+  type RealisedGenerateOptions,
+} from "./realisation";
 export {
   chartTree,
   handClassOf,

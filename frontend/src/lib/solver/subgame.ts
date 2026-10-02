@@ -77,7 +77,7 @@ export interface BuiltSubgame {
   firstToAct: 0 | 1;
 }
 
-function rulesOf(spot: SpotInput, menus: readonly [BetMenu, BetMenu]): BettingRules {
+export function rulesOf(spot: SpotInput, menus: readonly [BetMenu, BetMenu]): BettingRules {
   for (const menu of menus) {
     for (const x of [...menu.bet, ...menu.raise]) {
       if (!(x > 0) || !Number.isFinite(x)) {
@@ -108,7 +108,7 @@ function validate(spot: SpotInput, cards: number): number[] {
 }
 
 /** The combos of a range that do not touch the board, in combo-index order. */
-function handsOf(range: Float64Array, board: readonly number[]) {
+export function handsOf(range: Float64Array, board: readonly number[]) {
   const combos: number[] = [];
   const cards: [number, number][] = [];
   const weights: number[] = [];
@@ -128,7 +128,7 @@ function handsOf(range: Float64Array, board: readonly number[]) {
 }
 
 /** Evaluator values of every hand on a five-card board; NaN where a hand holds a board card. */
-function strengths(cards: readonly [number, number][], board: readonly number[]): Float64Array {
+export function strengths(cards: readonly [number, number][], board: readonly number[]): Float64Array {
   const masks = [0, 0, 0, 0];
   for (const card of board) {
     masks[card & 3] |= 1 << (card >> 2);

@@ -45,7 +45,17 @@
 import { DEFAULT_DCFR, type DcfrParams } from "./cfr";
 import { CLASS_COMBOS, independentMass, massVector, NUM_CLASSES } from "./handClasses";
 import { NUM_COMBOS } from "./combos";
-import { flopRake, shareMatrix, weightRatio, type PotType, type RakeProfile } from "./preflopModel";
+import {
+  CHARTS1_REALISATION,
+  flopRake,
+  realisationRole,
+  roleWeights,
+  shareMatrix,
+  type PotType,
+  type RakeProfile,
+  type RealisationModel,
+  type RealisationRole,
+} from "./preflopModel";
 import { PF_ACTION, PF_FOLD, POSTFLOP_ORDER, POT_TYPE_INDEX, type PreflopTree } from "./preflopTree";
 
 const H = NUM_CLASSES;
@@ -57,6 +67,8 @@ export interface PreflopGame {
   rake: Readonly<RakeProfile>;
   /** Card removal between the hero and each opponent (default true). */
   cardRemoval?: boolean;
+  /** How a pot that sees a flop is shared (default: `CHARTS1_REALISATION`). */
+  realisation?: RealisationModel;
 }
 
 export interface PreflopExploitability {
@@ -156,13 +168,24 @@ export class PreflopSolver {
       this.stratBuf.push(new Float64Array(tree.maxChildren * H));
     }
 
-    // Terminals and their share matrices, cached by (pot type, ratio).
+    // Terminals and their share matrices, cached by (pot type, both roles).
+    const model = game.realisation ?? CHARTS1_REALISATION;
+    const weights = new Map<string, Float64Array>();
+    const weightsOf = (potType: PotType, role: RealisationRole): Float64Array => {
+      const key = `${potType}:${role}`;
+      let w = weights.get(key);
+      if (!w) {
+        w = roleWeights(model, potType, role);
+        weights.set(key, w);
+      }
+      return w;
+    };
     const cache = new Map<string, Float64Array>();
-    const matrix = (potType: PotType, ratio: number): Float64Array => {
-      const key = `${potType}:${ratio.toFixed(12)}`;
+    const matrix = (potType: PotType, hero: RealisationRole, opp: RealisationRole): Float64Array => {
+      const key = `${potType}:${hero}:${opp}`;
       let m = cache.get(key);
       if (!m) {
-        const s = shareMatrix(game.equity, potType, ratio, this.cardRemoval);
+        const s = shareMatrix(game.equity, weightsOf(potType, hero), weightsOf(potType, opp), this.cardRemoval);
         m = new Float64Array(H * H);
         for (let i = 0; i < H; i += 1) {
           for (let j = 0; j < H; j += 1) {
@@ -196,7 +219,7 @@ export class PreflopSolver {
               continue;
             }
             const ip = POSTFLOP_ORDER[tree.players[a]] > POSTFLOP_ORDER[tree.players[b]];
-            share[a].push(matrix(potType, weightRatio(potType, ip, agg === a, agg === b)));
+            share[a].push(matrix(potType, realisationRole(ip, agg === a), realisationRole(!ip, agg === b)));
           }
         }
       }

@@ -20,6 +20,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import {
   buildPreflopTree,
+  CHARTS1_REALISATION,
   CLASS_COMBOS,
   classByName,
   classOfCards,
@@ -38,15 +39,27 @@ import {
   potAt,
   preflopEquityTable,
   PreflopSolver,
+  roleWeights,
   shareMatrix,
   STANDARD_RAKE,
-  weightRatio,
+  type PotType,
   type PreflopEquityTable,
+  type RealisationRole,
+
 } from "../../../frontend/src/lib/solver/index.js";
 
 const H = NUM_CLASSES;
 
 let table: PreflopEquityTable;
+
+/** The charts/1 share matrix of a hero in `hero` role against `opp`. */
+function share1(potType: PotType, hero: RealisationRole, opp: RealisationRole): Float64Array {
+  return shareMatrix(
+    table.equity,
+    roleWeights(CHARTS1_REALISATION, potType, hero),
+    roleWeights(CHARTS1_REALISATION, potType, opp),
+  );
+}
 beforeAll(() => {
   table = preflopEquityTable({ boards: 3000, seed: 7 });
 });
@@ -131,8 +144,8 @@ describe("preflop equity table", () => {
 
 describe("realisation model", () => {
   it("conserves the pot between two players", () => {
-    const oop = shareMatrix(table.equity, "srp", weightRatio("srp", false, false, true));
-    const ip = shareMatrix(table.equity, "srp", weightRatio("srp", true, true, false));
+    const oop = share1("srp", "oopCaller", "ipAgg");
+    const ip = share1("srp", "ipAgg", "oopCaller");
     for (let i = 0; i < H; i += 3) {
       for (let j = 0; j < H; j += 4) {
         const w = COMPAT[i * H + j] / 1225;
@@ -147,13 +160,32 @@ describe("realisation model", () => {
 
   it("gives the in-position raiser the edge, and nothing all-in", () => {
     const k = (n: string) => classByName(n);
-    const ip = shareMatrix(table.equity, "srp", weightRatio("srp", true, true, false));
-    const allin = shareMatrix(table.equity, "allin", weightRatio("allin", true, true, false));
+    const ip = share1("srp", "ipAgg", "oopCaller");
+    const allin = share1("allin", "ipAgg", "oopCaller");
     const i = k("KQo");
     const j = k("JTs");
     const w = COMPAT[i * H + j] / 1225;
     expect(ip[i * H + j] / w).toBeGreaterThan(table.equity[i * H + j]);
     expect(allin[i * H + j] / w).toBeCloseTo(table.equity[i * H + j], 12);
+  });
+
+  it("expresses charts/1's hand-set constants exactly", () => {
+    const k = (n: string) => classByName(n);
+    const ipAgg = roleWeights(CHARTS1_REALISATION, "srp", "ipAgg");
+    const oopCaller = roleWeights(CHARTS1_REALISATION, "srp", "oopCaller");
+    const ipCaller = roleWeights(CHARTS1_REALISATION, "srp", "ipCaller");
+    // Position x initiative for the raiser in position, position alone between two callers.
+    expect(ipAgg[k("K4o")] / oopCaller[k("K4o")]).toBeCloseTo(1.3 * 1.1, 12);
+    expect(ipCaller[k("K4o")] / oopCaller[k("K4o")]).toBeCloseTo(1.3, 12);
+    // Playability: suited connector, pair, offsuit gapper.
+    expect(ipAgg[k("T9s")] / ipAgg[k("A2s")]).toBeCloseTo(1.06, 12);
+    expect(ipAgg[k("55")] / ipAgg[k("A2s")]).toBeCloseTo(1.12 / 1.15, 12);
+    expect(ipAgg[k("K4o")] / ipAgg[k("KQo")]).toBeCloseTo(0.9 / 1.06, 12);
+    // Faded in 3-bet pots, gone all-in.
+    const three = roleWeights(CHARTS1_REALISATION, "3bet", "ipAgg");
+    expect(three[k("T9s")] / three[k("K4o")]).toBeCloseTo(Math.pow((1.15 * 1.06) / 0.9, 0.6), 12);
+    const allin = roleWeights(CHARTS1_REALISATION, "allin", "oopCaller");
+    expect(Array.from(allin).every((w) => w === 1)).toBe(true);
   });
 
   it("caps the rake and takes none all-in beyond the cap", () => {
@@ -283,7 +315,7 @@ describe("multi-player DCFR", () => {
     // BB's EV of calling, per class, against the BTN's opening range.
     const btnOpen = solver.averageStrategy(0).subarray(H, 2 * H);
     const sbFold = solver.averageStrategy(tree.lineIndex.get("r") as number).subarray(0, H);
-    const share = shareMatrix(table.equity, "srp", weightRatio("srp", false, false, true));
+    const share = share1("srp", "oopCaller", "ipAgg");
     const pot = potAt(tree, call);
     const net = pot - flopRake(pot, "srp", STANDARD_RAKE);
     const off = solver.offset[node];

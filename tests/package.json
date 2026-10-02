@@ -6,13 +6,15 @@
   "scripts": {
     "test": "vitest run",
     "bench:solver": "vitest run --config scripts/solver-bench/vitest.config.ts",
-    "charts:generate": "vitest run --config scripts/preflop-charts/vitest.config.ts"
+    "charts:generate": "vitest run --config scripts/preflop-charts/vitest.config.ts generate",
+    "charts:report": "vitest run --config scripts/preflop-charts/vitest.config.ts report"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^25.3.1",
+    "esbuild": "^0.27.3",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   }

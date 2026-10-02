@@ -23,15 +23,17 @@
  * - `range`: uint8, `/ 255`, one per class: the probability that the actor
  *   holds that class here given how it got here (1 = every combo of it).
  *
- * `CHARTS_VERSION` changes with the format; a regenerated set with new
- * numbers keeps the version but changes `id`'s `model.hash`, and the
- * analysis version (`ANALYSIS_VERSION`) is what tells stored grades apart.
+ * `CHARTS_VERSION` changes with the format or the model: `charts/1` was the
+ * hand-set realisation model, `charts/2` (same format) the one fitted to the
+ * postflop solver (docs/CHARTS.md §4). A regenerated set with new numbers
+ * changes `model.hash`, and the analysis version (`ANALYSIS_VERSION`) is what
+ * tells stored grades apart.
  */
 
 import { NUM_CLASSES } from "../solver/handClasses";
 import { decodeBase64, encodeBase64 } from "./base64";
 
-export const CHARTS_VERSION = "charts/1";
+export const CHARTS_VERSION = "charts/2";
 
 export type ChartPosition = "UTG" | "HJ" | "CO" | "BTN" | "SB" | "BB";
 export type ChartAction = "fold" | "check" | "call" | "raise" | "allin";
