@@ -390,6 +390,7 @@ rules are where a new parser is most likely to go quietly wrong.
 | `frontend/src/lib/parsers/` | One file per poker room, plus `shared/` helpers and the registry |
 | `frontend/src/lib/db/` | Supabase client layer — save, search, corpus, shares, anonymization |
 | `frontend/src/lib/replay.ts` | PHF → replay frames |
+| `frontend/src/lib/solver/` | Postflop solver (DCFR, heads-up river and turn). Pure TS, also runs in a Web Worker; benchmark: `cd tests && npm run bench:solver` |
 | `frontend/src/lib/supabase/` | `config`, `browser`, `server`, `middleware` — the only modules that construct a Supabase client |
 | `frontend/src/lib/server/` | Server-only readers. `server-only` imported, never reachable from the browser bundle |
 | `frontend/src/lib/i18n/` | `en.ts`. Every user-facing string on the App Router surfaces |

@@ -146,4 +146,40 @@ export default defineConfig([
       ],
     },
   },
+
+  /**
+   * The solver's import rule (header of `src/lib/solver/index.ts`).
+   *
+   * The same reason as the block above, and one more: `lib/solver` also runs in
+   * a Web Worker, where there is no `window`, no `document` and no framework.
+   * So it gets an allow-list rather than a deny-list - `lib/phf/types`,
+   * `lib/cards` and `lib/equity`, nothing else from the app.
+   */
+  {
+    files: ['src/lib/solver/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['next', 'next/*', 'server-only', 'client-only', 'react', 'react/*', 'react-dom', '@supabase/*'],
+              message:
+                'lib/solver runs under plain Node in tests/test and in a Web Worker. No framework imports.',
+            },
+            {
+              group: ['../*', '!../equity', '!../cards', '!../phf/types', '@/*'],
+              message: 'lib/solver may import only lib/phf/types, lib/cards and lib/equity.',
+            },
+          ],
+        },
+      ],
+      'no-restricted-globals': [
+        'error',
+        { name: 'window', message: 'lib/solver runs in a Web Worker; there is no window.' },
+        { name: 'document', message: 'lib/solver runs in a Web Worker; there is no document.' },
+        { name: 'process', message: 'lib/solver runs in the browser too. Pass configuration in.' },
+      ],
+    },
+  },
 ])
