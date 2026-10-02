@@ -23,6 +23,8 @@ import type { ReplayFrame } from "../../lib/replay";
 import { CardRow } from "../replayer/PlayingCard";
 import type { ReplayPosition } from "../replayer/position";
 import styles from "./analysis.module.css";
+import { conceptsForDecision } from "../../lib/learn/links";
+import { LearnLinks } from "./LearnLinks";
 import { loudness, toneOf } from "./tone";
 
 const STREETS = ["preflop", "flop", "turn", "river"] as const;
@@ -216,6 +218,7 @@ function DecisionDetail({ decision }: { decision: DecisionAnalysis }) {
             <p key={sentence}>{sentence}</p>
           ))}
         </div>
+        <LearnLinks concepts={conceptsForDecision(decision)} />
       </section>
     </>
   );

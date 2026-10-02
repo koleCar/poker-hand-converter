@@ -34,6 +34,7 @@
 import { analysisEn } from "./ns/analysis.en";
 import { chromeEn } from "./ns/chrome.en";
 import { converterEn } from "./ns/converter.en";
+import { learnEn } from "./ns/learn.en";
 import { replayerEn } from "./ns/replayer.en";
 import { statsEn } from "./ns/stats.en";
 
@@ -41,6 +42,7 @@ export const en = {
   // The component namespaces, one file each (`ns/`).
   stats: statsEn,
   analysis: analysisEn,
+  learn: learnEn,
   replayer: replayerEn,
   converter: converterEn,
   chrome: chromeEn,
@@ -80,6 +82,12 @@ export const en = {
       title: "Hand analysis — one hand | Rail",
       description: "One of your hands, decision by decision, in the replayer.",
     },
+    learn: {
+      title: "Learn poker strategy: pot odds, ranges, MDF, SPR and more | Rail",
+      description:
+        "Free poker concepts explained with worked examples and interactive calculators: pot odds, equity realisation, ranges, board texture, MDF, SPR, bet sizing, 3-bets and more.",
+    },
+    learnConcept: (title: string) => `${title} — poker concepts | Rail`,
     notFound: {
       title: "Page not found | Rail",
       description: "That address does not match anything on Rail.",

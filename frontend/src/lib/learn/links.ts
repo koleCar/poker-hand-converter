@@ -1,0 +1,93 @@
+/**
+ * From an analysed decision to the concepts that explain it.
+ *
+ * The Analysis sheet's *why* is built from facts and flags (`explain()` in
+ * `ns/analysis.*.ts`); every sentence it can say leans on a concept, and this
+ * file names which. The rules mirror `explain()` sentence by sentence, so a
+ * link appears exactly when the sentence it explains does: the pot-odds
+ * sentence when there was a price, the SPR sentence when SPR was 3 or less
+ * before the river, and so on. Flags come first — they are the reason the
+ * reader opened the decision.
+ */
+
+import type { DecisionAnalysis, FlagCode, SpotFacts } from "../analysis/types";
+import type { ConceptId } from "./concepts";
+
+/** The concepts behind each heuristic flag, the one that explains it best first. */
+export const FLAG_CONCEPTS: Readonly<Record<FlagCode, readonly ConceptId[]>> = {
+  "fold-nuts": ["ev-and-grading"],
+  "free-fold": ["ev-and-grading"],
+  "call-beats-nothing": ["bluff-catching", "ranges"],
+  "call-without-odds": ["pot-odds"],
+  "fold-with-odds": ["pot-odds", "bluff-catching"],
+  "check-back-nuts": ["thin-value", "bet-sizing"],
+  "thin-stack-behind": ["spr"],
+  "committed-fold": ["spr", "pot-odds"],
+};
+
+/** The SPR at or under which `explain()` says the next bet commits the stacks. */
+const SHORT_SPR = 3;
+
+/** The preflop spot as a concept: who opened, who 3-bet, who squeezed. */
+function preflopConcept(facts: SpotFacts, action: DecisionAnalysis["action"]): ConceptId | null {
+  switch (facts.preflopScenario) {
+    case "unopened":
+      if (action === "raise" || action === "bet") {
+        return facts.position === "CO" || facts.position === "BTN" || facts.position === "SB" ? "steal" : "rfi";
+      }
+      return "rfi";
+    case "vs-open":
+      if (action === "raise") return "three-bet";
+      return facts.position === "BB" || facts.position === "SB" ? "blind-defence" : "three-bet";
+    case "squeeze":
+      return "squeeze";
+    case "vs-3bet":
+    case "vs-3bet-cold":
+    case "vs-4bet":
+      return "three-bet";
+    case "bb-option":
+    case "vs-limp":
+      return null;
+    default:
+      return null;
+  }
+}
+
+/** The postflop line as a concept: a c-bet, a donk bet, a check-raise. */
+function lineConcept(facts: SpotFacts, action: DecisionAnalysis["action"]): ConceptId | null {
+  if (facts.street === "preflop" || facts.players !== 2) return null;
+  if (action === "bet" && facts.facing === "first") {
+    if (facts.role === "pfr" && facts.street === "flop") return "continuation-bet";
+    if (facts.role === "caller" && facts.inPosition === false) return "donk-bet";
+  }
+  if (action === "raise" && facts.facing === "vs-bet" && facts.inPosition === false) return "check-raise";
+  if (action === "call" && facts.street === "river") return "bluff-catching";
+  return null;
+}
+
+/**
+ * The concepts one decision's explanation uses, most relevant first, without
+ * repeats, at most `limit` of them — a sheet with nine links is a sheet with
+ * none.
+ */
+export function conceptsForDecision(decision: DecisionAnalysis, limit = 4): ConceptId[] {
+  const facts = decision.facts;
+  const out: ConceptId[] = [];
+  const add = (id: ConceptId | null) => {
+    if (id && !out.includes(id)) out.push(id);
+  };
+  if (decision.status === "not-analysed") return out;
+
+  for (const flag of decision.flags) {
+    for (const id of FLAG_CONCEPTS[flag.code] ?? []) add(id);
+  }
+  add(facts.street === "preflop" ? preflopConcept(facts, decision.action) : lineConcept(facts, decision.action));
+  if (facts.potOdds !== null) add("pot-odds");
+  if (facts.mdf !== null) add("mdf-alpha");
+  if (facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) add("bet-sizing");
+  if (facts.spr !== null && facts.spr <= SHORT_SPR && facts.street !== "river") add("spr");
+  if (facts.blockers.length > 0) add("blockers");
+  if (facts.texture) add(facts.texture.dynamism === "dynamic" || facts.texture.dynamism === "static" ? "dynamic-boards" : "board-texture");
+  if (facts.equity) add("ranges");
+  return out.slice(0, limit);
+}

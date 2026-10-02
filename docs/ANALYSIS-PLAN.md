@@ -486,7 +486,7 @@ Each phase ships something usable on its own, has its own PR, migration and
 | **A5 — turn and flop** (A5a turn: isomorphism, sampling, cache; A5b flop: offline precomputed library) | Sizing abstraction, action translation (§3.3), turn and flop solves with caching, full heads-up postflop grading, flop reports by role. | A4 |
 | **A6 — leaks and progress** | <ul><li>Leak finder: EV lost grouped by spot, ranked</li><li>score trend</li><li>per-street, position and pot-type breakdowns</li><li>a weekly "what improved / what to work on" summary</li></ul> | A3, A5 |
 | **A7 — training** | <ul><li>**Spot trainer**: play the hero's side of a stored strategy and be graded per move</li><li>**mistake drills**: your own worst spots, replayed until right (spaced repetition)</li><li>"what would you do?" (#51) graded against the reference</li></ul> | A5 |
-| **A8 — learning layer** | <ul><li>A concept library, which can start any time (§6.0 *Learn*) (texture, range/nut advantage, MDF, SPR, blockers, polarisation…), each concept with a definition, an interactive example and links from every explanation that uses it</li><li>a study plan built from the leak finder</li><li>the optional AI-written review, grounded on facts</li></ul> | A6, A7 |
+| **A8 — learning layer** (A8a: the concept library) | <ul><li>**A8a** — a concept library, which can start any time (§6.0 *Learn*) (texture, range/nut advantage, MDF, SPR, blockers, polarisation…), each concept with a definition, an interactive example and links from every explanation that uses it</li><li>**A8b** — a study plan built from the leak finder</li><li>**A8c** — the optional AI-written review, grounded on facts</li></ul> | A8a: A1. A8b: A6, A7 |
 | **A9 — multiway** | Approximate grading for 3-way postflop pots, about 9% of decisions in a real library: heuristics + MDF split, and solver-based later if feasible. | A4 |
 | **Later** | MTT/ICM preflop, PLO, exploitative notes from villain stats. | — |
 
@@ -536,3 +536,37 @@ Each phase appends what it learned that changed the plan.
     - 9% of decisions are multiway postflop, so **A9** is added.
   - MDF is postflop only, and pot-odds flags wait for range narrowing (A4).
   - Learning content lives under `/analysis/learn`, not a new tab.
+- 2026-10-02 — A8a shipped: the concept library.
+  - **24 concepts** under `/analysis/learn/<id>`, in English and Croatian:
+    foundations (pot odds, equity realisation, EV and grading, GTO vs
+    exploitative, position), ranges and boards (ranges, range and nut
+    advantage, texture, dynamic boards, blockers), betting (SPR, MDF/alpha,
+    sizing and polarisation, c-bet, check-raise, donk bet, bluff-catching,
+    thin value) and preflop (RFI, 3/4-bets, squeeze, blind defence, steal).
+  - **Public and indexable.** The pages read no account data, so they are in
+    the sitemap and `robots.txt` allows `/analysis/learn` inside the
+    disallowed `/analysis`. The "your hands" link is a plain link to the
+    flag filter of §6.0's list.
+  - **Words and numbers are split.** `lib/learn/concepts.ts` is the
+    language-free catalogue; the page bodies (`lib/learn/content/`) are
+    server-only; the dictionary carries only titles and widget labels.
+    Every number an example quotes is recomputed in `tests/test/learn.test.ts`.
+  - **Linking.** `lib/learn/links.ts` maps flags and facts to concepts,
+    mirroring `explain()` sentence by sentence; the sheet's *why* and the
+    overview's flag rows link through it. New flags or explanation sentences
+    must add their concept there (a test fails on an unmapped flag).
+  - **Teaching ranges are not the grader's.** The widgets use hand-written
+    illustrative ranges (`lib/learn/presets.ts`), not `ranges.ts`'s
+    placeholders, so a version bump never changes what a page teaches.
+  - **Found on the way (A1 bug, not fixed here):** `parseRange` reads only
+    same-gap spans written high-to-low, so `ranges.ts`'s `A5s-A4s`,
+    `A5s-A2s`, `22-JJ`, `22-99` and `99-QQ` throw. `defaultRange` therefore fails for
+    early and middle opens, isolation raises, limps, non-big-blind calls,
+    3-bets and calls of 3-bets (late opens, the big-blind call and 4-bets parse), and
+    `analyze.ts` swallows the error: the equity fact (and the pot-odds
+    flags that need it) silently drops for most decisions — 171 hands of
+    5,448 carry a placeholder-range equity. The fix (kicker spans and
+    either order in `parseRange`, or rewriting the strings) changes stored
+    facts, so it is an `analysis/2` bump, best done with A4's narrowing.
+  - A8 is split: **A8a** (this), **A8b** the study plan (needs A6), **A8c**
+    the AI-written review.
