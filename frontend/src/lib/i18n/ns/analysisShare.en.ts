@@ -27,6 +27,9 @@ export const shareEn = {
     decisionsHeading: "The hero's decisions",
     noDecisions: "The hero made no decision in this hand.",
     heroHand: "Hero's hand",
+    /** The shared row is from an earlier analysis version: the owner has not re-run it since (A5a). */
+    stale: (version: string) =>
+      `Analysed with an earlier version (${version}); the player has not brought it up to date yet, so newer grades (such as the turn's) are missing.`,
   },
 
   /** A poll's reference answer, after the reveal. */

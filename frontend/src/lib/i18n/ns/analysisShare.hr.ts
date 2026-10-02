@@ -24,6 +24,8 @@ export const shareHr = {
     decisionsHeading: "Odluke heroja",
     noDecisions: "Hero u ovoj ruci nije donio nijednu odluku.",
     heroHand: "Ruka heroja",
+    stale: (version: string) =>
+      `Analizirano starijom verzijom (${version}); igrač je još nije ažurirao, pa novijih ocjena (poput onih na turnu) nema.`,
   },
 
   poll: {

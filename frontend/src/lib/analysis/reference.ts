@@ -53,31 +53,38 @@ export function betterAlternative(decision: DecisionAnalysis): OptionAnalysis | 
 const RANK_ORDER = "23456789TJQKA";
 
 /**
- * Hands whose value is mostly implied odds — small and middle pairs, suited
- * connectors and gappers below the broadways. `charts/1`'s realisation model
- * under-rates exactly these (§3.1), so a bad grade for *playing* one carries
- * an extra sentence and link saying so.
+ * Hands whose value is mostly implied odds and which `charts/2` still
+ * under-rates (`docs/CHARTS.md` §9): the small pairs 22–55, the suited
+ * connectors 54s–87s, and A5s. With the flop checked in the realisation
+ * measurement, a set or a straight is paid less than it is at the table, so
+ * a bad grade for *playing* one carries an extra sentence and link saying so.
  */
 export function impliedOddsClass(handClass: string | null): boolean {
   if (!handClass || handClass.length < 2) return false;
   const high = RANK_ORDER.indexOf(handClass[0]);
   const low = RANK_ORDER.indexOf(handClass[1]);
   if (high < 0 || low < 0) return false;
-  if (handClass.length === 2) return high === low && high <= RANK_ORDER.indexOf("9");
-  return handClass[2] === "s" && high - low <= 3 && high <= RANK_ORDER.indexOf("J");
+  if (handClass.length === 2) return high === low && high <= RANK_ORDER.indexOf("5");
+  if (handClass[2] !== "s") return false;
+  if (handClass === "A5s") return true;
+  return high - low === 1 && high >= RANK_ORDER.indexOf("5") && high <= RANK_ORDER.indexOf("8");
 }
 
 /**
  * The model caveat applies to this graded decision: the chart set carries the
  * `model` note, the move was to play the hand (call or raise) and was graded
- * worse than Good, and the hand is one the model under-rates.
+ * worse than Good, and it is one `charts/2` gets wrong — an implied-odds hand
+ * (`impliedOddsClass`), or the button flatting a cutoff open, which the
+ * charts almost never do (line `ffr`: UTG and HJ folded, CO raised).
  */
 export function modelCaveat(decision: DecisionAnalysis): boolean {
+  const flatVsCutoff =
+    decision.action === "call" && decision.facts.position === "BTN" && decision.facts.chart?.line === "ffr";
   return (
     decision.approximations.includes("model") &&
     (decision.action === "call" || decision.action === "raise") &&
     (decision.grade === "inaccurate" || decision.grade === "mistake" || decision.grade === "blunder") &&
-    impliedOddsClass(decision.facts.handClass)
+    (impliedOddsClass(decision.facts.handClass) || flatVsCutoff)
   );
 }
 

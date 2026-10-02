@@ -248,17 +248,19 @@ fixed betting abstraction, heads-up only.
 - **Order and strategy per street:**
   - **River:** solved on demand for the hand on screen. A full strategy blob is
     100–500 KB, so re-solving is cheaper than storing and downloading the blob.
-  - **Turn:** too slow per hand. It needs river-card isomorphism, chance
-    sampling, and a coarse river menu below the turn (one size + all-in). It is
-    then precomputed or cached, storing turn-level nodes only (a full blob is
-    10–44 MB).
+  - **Turn:** solved per hand in the browser worker since A5a (§10): river
+    cards by suit isomorphism, a coarse river below the turn (75% + all-in,
+    no raise), the turn's all-in only up to three pots, and the hand's own
+    turn sizes added to the tree. About a second or two for a real spot;
+    nothing is cached (no two spots in a library share a key).
   - **Flop:** an offline-precomputed library: canonical flop × preflop line,
     coarse abstraction, flop-level strategies only. Until that exists, flop
     decisions stay heuristic.
 - **Bet-size menus:**
   - **River:** 33 / 75 / 150% + all-in; raises 75% + all-in; cap 2–3. Without
     the overbet, real overbets land off-tree (§3.3).
-  - **Turn:** 75% (or 33 / 75%) + all-in; cap 1–2.
+  - **Turn:** 75% + all-in (up to three pots), raises 75% + all-in, cap 1,
+    plus the sizes the hand itself used (A5a, §10).
 - **EV units:** net chips from the start of the street, counting the pot as
   winnable. Grading reads `ev[action][combo]` and `strategy[action][combo]` at
   the hero's combo straight from the result.
@@ -393,7 +395,8 @@ Templates, not free text, because:
 |---|---|---|
 | Decision walk, facts, chart lookup, heuristic | Browser Web Worker, resumable (shipped in A1: 5,448 hands in ~10 s) | Cheap; same code as stats |
 | River solve for one hand being viewed | Web Worker, client | Under 0.3 s; free; no server timeouts |
-| Turn / flop strategies | Precomputed library (offline script) + cache | Too slow per hand in the browser (§3.2) |
+| Turn solve for one hand | Web Worker, client, per hand (A5a) | One to a few seconds with A5a's speed-ups; the backfill runs a pool of workers |
+| Flop strategies | Precomputed library (offline script) | Too slow per hand in the browser (§3.2, §10 A5a) |
 | Backfill of a user's whole database | The user's browser (Web Worker), resumable, like the stats rebuild; progress persisted per hand | No host to run; Vercel's function limit is far below a flop solve. A server worker is optional later |
 | Solved-spot cache | Postgres index + Storage blobs | Shared across users, deduped by `SpotKey` |
 
@@ -1203,3 +1206,153 @@ Each phase appends what it learned that changed the plan.
       session until there is a flop or turn trainer (A5).
     - Plans are per week and kept; there is no history screen beyond last
       week yet.
+- 2026-10-02 — A5a shipped: turn grading with our solver, `analysis/4`.
+  - **The turn is solved per hand, in the browser worker.** Precomputing or
+    caching it, as §3.2 expected, buys nothing: among the library's 407
+    solved turn spots no two share a spot key, nor even a canonical turn
+    board. So there is no `spot_solutions` table; the per-decision rows are
+    the cache, as on the river.
+  - **Speed-ups** (`lib/solver`, additive; the river's API is unchanged):
+    - **River-card isomorphism** (`TurnSpot.isomorphism`): where the board
+      and both ranges are symmetric under swapping suits the board does not
+      use, one card per class is dealt and the others are read back through
+      the relabelling of the hands. Exact: the isomorphic solve's strategy,
+      spread over all 44 cards, has the full tree's exploitability and
+      values to 1e-6 bb (test). It saves a quarter of the rivers on a
+      two-suit turn and half on a monotone one, nothing on the 61% of turns
+      with three suits: 41.0 river classes on average in the library.
+    - **Chance sampling** (`SolveOptions.sampling`): stratified public
+      chance sampling, seeded, exact exploitability (best response walks
+      every card). **It does not pay here and is off.** Each river subgame
+      needs its own few dozen updates whatever order they come in, so four
+      strata took 3.4× the iterations at a quarter of the cost each.
+    - **A coarse tree, chosen by measurement**: turn 75% + all-in, raises
+      75% + all-in, one raise, the turn's all-in only up to three pots; a
+      river below it of 75% + all-in and no raise. Two findings shaped it:
+      the deep turn shove (9 pots at 100bb) cost twice the time for no use,
+      but capping the river's all-in the same way made a turn flat of the
+      nuts a Blunder that the full river calls Good (the nuts lose their
+      river shove) — so the river keeps it; and a river raise doubled the
+      time again for no change in the grades.
+    - **The hand's own sizes** (`lineMenu`): 44% of the library's turn bets
+      are more than 25% of the pot from 75%, which a fixed menu would cap as
+      off-tree. A real bet or raise more than 0.1 pot from every menu size is
+      added to the tree (`turn-m1+b0.4`), and a shove past the cap puts the
+      all-in back. 243 of 465 graded turns used it; off-tree turn grades fell
+      from 111 of 468 (fixed menu, first run) to 1.
+    - **Engine**: the showdown sweeps read cards in strength order and skip
+      zero reach (−7%); a player's own node reuses the strategy its
+      opponent's traversal just regret-matched there (−8–10%, an A/B in one
+      run); `evaluate` and the result keep turn-level nodes only (`nodes:
+      "turn"`); DCFR `γ = 3` (5–15% fewer iterations); exploitability is
+      measured from iteration 30, every 10.
+  - **Measured** (`npm run bench:turn`, M2 Pro, Node 24, 313 v 239 combos on
+    twelve boards of every suit structure, 10 bb pot, 90 behind, to 1% of the
+    pot measured exactly over the whole tree). The machine was shared with
+    other agents' solves (load average 25–70); the same configurations ran
+    about twice as fast on a quieter machine earlier (1.0–1.6 s).
+
+    | Tree | median | p90 | iterations | solver MB |
+    |---|---|---|---|---|
+    | Phase S (75% + all-in, raises, 44 rivers) | 4.2 s | 4.7 s | 80 | 19.7 |
+    | A5a menu | 2.2 s | 2.4 s | 70 | 11.7 |
+    | + isomorphism | 2.0 s | 2.9 s | 70 | 8.7 |
+    | + sampling, 4 strata | 2.2 s | 2.9 s | 240 | 8.7 |
+
+    The A5a target (median ≤ 1.5 s, p90 ≤ 4 s for ~300 v 240) is met on a
+    quiet machine and missed by a third under that load. Real library spots
+    are wider (median 611 combos in total; up to 1,128 a side in limped and
+    9-max pots): the solve alone took median 2.0 s, p90 4.2 s.
+  - **Gaps**, all exploitabilities exact in their own tree:
+    - against a fuller tree (turn 75% + all-in always, river 33/75/150% +
+      all-in, raises 75% + all-in, two raises; bench, four boards): the
+      game's value within 1.3–2.0% of the pot; checking at the root graded
+      alike for 94–100% of hands, calling a 75% bet for 78–89%;
+    - against a fuller tree on 19 library spots (turn 33/75%, that river):
+      the hero's actual turn decision got the same grade 68–79% of the time
+      depending on the coarse variant, within one class 95%, EV loss 0.35–
+      0.43% of the pot apart on average. Grades near a threshold (2% of the
+      pot is Inaccurate against Mistake) move with any change of tree.
+  - **Grading** (`lib/analysis/turn.ts`) mirrors the river's: ranges as the
+    turn came (the flop narrowed by the heuristic), the real line onto the
+    tree, the hero's size graded as the better of its neighbours, `range-cap`
+    (Mistake unless dominated: folding a hand no river can beat, calling with
+    no equity at all against the preflop range) and `range-sensitive` (a
+    second turn solve on the half-strength narrowing for grades of
+    Inaccurate or worse). New approximation `coarse-river`; reasons
+    `turn-*`. Facts (`TurnFacts`): equity over every river, the share of
+    rivers that make the hand strong or a loser, a role (value, a hand that
+    wants protection, a draw, a bluff-catcher, a middling hand, air), the
+    range shape. The *why* says which, plus equity realisation out of
+    position and the river cards that change the board (barrel cards), with
+    Learn links. The turn study is the river's view with draw categories.
+  - **The river narrows through the solved turn**: where the turn was solved
+    and the line reaches the river within the off-tree distance, the river
+    starts from the solved turn strategy (`RiverFacts.narrowing:
+    "turn-solver"`), else from the heuristic. 282 of 310 graded rivers did.
+    The river's sensitivity check stays the half-strength heuristic all the
+    way: a second, different narrowing.
+  - **Owner's local library** (5,448 hands, `charts/2`):
+    - **Turn: 745 decisions, 465 graded (62%)**; multiway 198, multiway on
+      the flop 73, unreached 9. Perfect 75.1%, Good 11.0%, Inaccurate 2.2%,
+      Mistake 11.8%, Blunder 0 (28 capped from Blunder); score 84.8; 105.5 bb
+      lost, most by checking (38.1 bb) and betting (22.5). All 465 solves
+      under 1% of the pot, 70 iterations on average.
+    - **River: 310 graded**: Perfect 71.6%, Good 20.0%, Inaccurate 2.3%,
+      Mistake 6.1%, Blunder 0; 94.3 bb lost (118.7 in A4). Out of the hero's
+      own range 20% (22% in A4) and from a placeholder range 84% (86%): most
+      of the library is 9-max, which `charts/2` does not cover either.
+    - **Preflop** (`charts/2`): 1,281 graded; Perfect 90.8%, Good 0.1%,
+      Inaccurate 3.2%, Mistake 3.9%, Blunder 2.0%.
+  - **Backfill: 9 min 12 s in the browser** for the whole library (41 s in
+    A4), on four workers side by side (`runAnalysis` now runs a pool of
+    one per spare core, at most four, on chunks of 20 hands) under that same
+    load; a single-threaded Node run of an earlier tree took 22 minutes. The
+    tab stays responsive (the work is all in workers), shows the time left,
+    stays resumable, and can start with the most recent 200 / 500 / 1,000
+    hands (`hands_needing_analysis_recent`, `20270125090000_analysis_turn.sql`,
+    invoker; such a run never prunes).
+  - **Corpus suite**: thousands of hands with turn solving off
+    (`AnalyzeOptions.turn: false`, A4's handling) plus ten heads-up turn
+    hands analysed in full. A trainer river (A7) is built and graded on the
+    heuristic narrowing (`turn: false`) so that the solve the trainer shows
+    is the one that grades it; drills of real hands read the stored rows.
+  - **Shared analyses survive the bump** (A7.1's open point): a version bump
+    used to blank every shared hand until its owner re-ran the analysis, and
+    `analysis/4` is one. `read_shared_analysis` now falls back to the hand's
+    newest *older* stored version, flagged `staleVersion`
+    (`20270224090000_analysis_share_fallback.sql`, pgTAP), and the
+    read-only sheet says "analysed with an earlier version". Checked locally:
+    a shared turn decision, its turn study, and a poll's reference on a turn
+    decision render from `analysis/4` rows. The poll reference itself does not
+    yet say when it is from an earlier version.
+  - **`charts/2`'s known weakness** replaces `charts/1`'s in the `model`
+    note: the small pairs, small suited connectors and A5s UTG folds, and
+    the button's flat of a cutoff open (`docs/CHARTS.md` §9).
+  - **Open.**
+    - The flop is still heuristic, and every turn grade rests on it (A5b).
+    - A turn solve on a wide limped or 9-max range takes 4–8 s.
+    - Mistake is the most common bad turn grade (11.8%), 28 of them capped
+      Blunders; the turn's coarse river likely leans towards betting now.
+  - **A5b, the flop library: feasible offline, not in the browser.**
+    - A flop + turn + river game built from the same pieces (flop 33% +
+      all-in up to three pots, raise 75%; turn and river as above; no
+      isomorphism; 335 v 255 combos on Qs7h2d) has 839,000 nodes, holds
+      2.7 GB of solver arrays, and takes 8.7 s per iteration under that load
+      (about 5 s quiet). At the turn's ~70–100 iterations that is 10–15
+      minutes per flop and preflop line on one core.
+    - Needed: the flops × the heads-up preflop lines. All 1,755 canonical
+      flops × ~12 lines (SRP of each opener against each blind, the common
+      3-bet pots) is ~21,000 solves, ~4,000 core-hours. A representative
+      subset of ~100 flops (weighted by texture) × 12 lines is 1,200 solves,
+      ~250 core-hours: a few days on a 10-core machine.
+    - Recommended: an offline Node script (`worker_threads`, one solve per
+      core) on a 100-flop subset first; isomorphism on the turn and river
+      deals; the A5a turn/river tree with one or two flop sizes; 16-bit
+      regrets and strategy sums to halve the memory (or drop the strategy
+      reuse cache: −1/3); store flop-level nodes only (~0.3 MB a solve,
+      ~0.4 GB in all) in Storage, keyed by (canonical flop, line, tree).
+      Then the flop's ranges at the turn come from the library, which
+      replaces the last heuristic narrowing and feeds the realisation back
+      into the charts (`docs/CHARTS.md` §9). Chance sampling will not save
+      the flop either (same reason as the river); a WASM core would.

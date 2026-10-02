@@ -629,7 +629,7 @@ describe("determinism and the study view", () => {
 
   it("solves the same hand to the same bits", () => {
     expect(analyse(h)).toEqual(analysis);
-    for (const d of analysis.decisions.filter((x) => x.source === "solver")) {
+    for (const d of analysis.decisions.filter((x) => x.source === "solver" && x.street === "river")) {
       expect(d.facts.river!.converged).toBe(true);
       expect(d.facts.river!.exploitabilityPct).toBeLessThanOrEqual(0.5);
       expect(d.facts.river!.iterations).toBeGreaterThan(0);
@@ -637,7 +637,7 @@ describe("determinism and the study view", () => {
   });
 
   it("re-solves for the study and finds the stored row's numbers for the hero", () => {
-    for (const d of analysis.decisions.filter((x) => x.source === "solver")) {
+    for (const d of analysis.decisions.filter((x) => x.source === "solver" && x.street === "river")) {
       const study = riverStudy(structuredClone(h), d.actionIndex, { charts: CHARTS });
       if (!study || !("options" in study)) throw new Error("no study");
       expect(study.hero.freq).toEqual(d.options.map((o) => o.freq));

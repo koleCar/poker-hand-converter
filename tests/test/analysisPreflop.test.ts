@@ -226,9 +226,9 @@ describe("the hand's grade, EV loss and score", () => {
     expect(analysis.approximations).toEqual(fold.approximations);
   });
 
-  it("carries the model note on every chart grade while charts/1 has its known weakness", () => {
+  it("carries the model note on every chart grade while the charts have a known weakness", () => {
     const fold = pre(analyse(rfi("Utg", "Ah Ad", "fold")));
-    if (CHARTS.version === "charts/1") expect(fold.approximations).toContain("model");
+    if (CHARTS.version === "charts/1" || CHARTS.version === "charts/2") expect(fold.approximations).toContain("model");
     expect(fold.approximations).not.toContain("heuristic");
   });
 
@@ -445,10 +445,12 @@ describe("explanation templates (§4)", () => {
 
 /* ------------------------------------------------- the model caveat - */
 
-describe("the charts/1 model caveat", () => {
-  it("knows which hands win through implied odds", () => {
-    for (const name of ["22", "77", "99", "54s", "76s", "T9s", "J8s", "97s"]) expect(impliedOddsClass(name)).toBe(true);
-    for (const name of ["TT", "AA", "AKs", "KQs", "72o", "54o", "Q9s", "A5s", null]) expect(impliedOddsClass(name)).toBe(false);
+describe("the charts/2 model caveat", () => {
+  it("knows which implied-odds hands charts/2 still under-rates (docs/CHARTS.md §9)", () => {
+    for (const name of ["22", "44", "55", "54s", "65s", "76s", "87s", "A5s"]) expect(impliedOddsClass(name)).toBe(true);
+    for (const name of ["66", "99", "TT", "AA", "AKs", "KQs", "72o", "54o", "98s", "T9s", "97s", "A4s", null]) {
+      expect(impliedOddsClass(name)).toBe(false);
+    }
   });
 
   it("adds its sentence and link only under a bad grade for playing such a hand", () => {

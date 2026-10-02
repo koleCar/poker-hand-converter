@@ -23,20 +23,22 @@
  * it in the browser, the same code in both places.
  *
  * **What is production-ready.** The engine, the river builder and solve, the
- * blob format, isomorphism, translation and the spot key. The turn+river solve
- * is correct (the same engine, a chance node per river card) but ~48x the
- * river's cost; it is for tests, tools and offline precomputation until it has
- * river-card isomorphism and a coarser river menu. See `subgame.ts`.
+ * blob format, isomorphism, translation and the spot key; since A5a the
+ * turn+river solve too, with river-card isomorphism (`TurnSpot.isomorphism`),
+ * optional chance sampling (`SolveOptions.sampling`), a coarse river menu and
+ * a turn-only result (`SolveOptions.nodes`). See `subgame.ts` and `cfr.ts`.
  */
 
 export {
   DEFAULT_DCFR,
   Solver,
+  type ChanceSampling,
   type DcfrParams,
   type Exploitability,
   type RunOptions,
   type RunProgress,
   type RunResult,
+  type SolverConfig,
 } from "./cfr";
 export {
   comboCards,
@@ -53,7 +55,7 @@ export {
   toRange,
   type RangeInput,
 } from "./combos";
-export { handSet, showdownBoard, type Game, type HandSet, type ShowdownBoard } from "./game";
+export { handSet, showdownBoard, type Game, type HandSet, type Mirror, type ShowdownBoard } from "./game";
 export { ACTION, CHANCE, FOLD, rakeOf, SHOWDOWN, TreeBuilder, type Edge, type FlatTree, type Rake } from "./tree";
 export { clairvoyanceGame, clairvoyanceSolution, kuhnGame, leducGame } from "./toys";
 export {
@@ -69,9 +71,11 @@ export {
   type BuiltSubgame,
   type RiverSpot,
   type SpotInput,
+  type TurnIsomorphism,
   type TurnSpot,
 } from "./subgame";
 export {
+  extract,
   handIndex,
   nodeAt,
   rangesAt,
@@ -84,13 +88,18 @@ export {
 } from "./solve";
 export { decodeSolution, encodeSolution, SOLVER_VERSION, SolutionFormatError } from "./format";
 export {
+  boardSymmetries,
   canonicalBoard,
   canonicalSpot,
+  cardOrbit,
   inversePermutation,
   permuteCard,
   permuteCombo,
   permuteRange,
+  spotSymmetries,
   SUIT_PERMUTATIONS,
+  SYMMETRY_TOLERANCE,
+  symmetrize,
   type CanonicalBoard,
   type CanonicalSpot,
 } from "./isomorphism";

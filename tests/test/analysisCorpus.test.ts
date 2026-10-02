@@ -10,6 +10,13 @@
  * and the record agrees with the stats engine about which decisions there
  * were. `analysisSpots.test.ts` and `analysisPreflop.test.ts` pin numbers on
  * hands small enough to read.
+ *
+ * **Turns (A5a).** A turn solve takes a second or more, and the corpus has
+ * hundreds of heads-up turns, so the sweep runs with turn solving off
+ * (`turn: false`: A4's handling, turn decisions as facts and flags, the
+ * river's ranges from the heuristic). A sample of heads-up turn hands is then
+ * analysed exactly as the rebuild does, turns solved, and held to the same
+ * rules plus the turn's own. `analysisTurn.test.ts` has the known answers.
  */
 
 import { describe, expect, it } from "vitest";
@@ -24,8 +31,10 @@ import {
   FLAG_CODES,
   HAND_SKIP_REASONS,
   RIVER_SKIP_REASONS,
+  TURN_SKIP_REASONS,
   analyzeHand,
   riverStudy,
+  turnStudy,
   grade,
   gradeRank,
   worstGrade,
@@ -67,8 +76,16 @@ const HANDS: PhfHand[] = (
 
 const RESULTS: Array<{ hand: PhfHand; analysis: HandAnalysis }> = HANDS.map((hand) => ({
   hand,
-  analysis: analyzeHand(structuredClone(hand), { charts: CHARTS }),
+  analysis: analyzeHand(structuredClone(hand), { charts: CHARTS, turn: false }),
 }));
+
+/** Hands of the sweep with a heads-up hero turn decision the solver would take: the A5a sample. */
+const TURN_SAMPLE_SIZE = 10;
+const TURN_SAMPLE: Array<{ hand: PhfHand; analysis: HandAnalysis }> = RESULTS.filter(({ analysis }) =>
+  analysis.decisions.some((d) => d.street === "turn" && d.facts.players === 2 && d.status === "analysed"),
+)
+  .slice(0, TURN_SAMPLE_SIZE)
+  .map(({ hand }) => ({ hand, analysis: analyzeHand(structuredClone(hand), { charts: CHARTS }) }));
 
 describe("the analysis corpus", () => {
   it("analyses thousands of real hands, and grades a good share of their preflop decisions", () => {
@@ -98,7 +115,7 @@ describe("the analysis corpus", () => {
     expect(sample.length).toBe(8);
     for (const { hand, analysis } of sample) {
       for (const d of analysis.decisions.filter((x) => x.source === "solver")) {
-        const study = riverStudy(structuredClone(hand), d.actionIndex, { charts: CHARTS });
+        const study = riverStudy(structuredClone(hand), d.actionIndex, { charts: CHARTS, turn: false });
         if (!study || !("options" in study)) throw new Error("no study for a graded river");
         expect(study.hero.freq).toEqual(d.options.map((o) => o.freq));
         expect(study.hero.ev).toEqual(d.options.map((o) => o.ev));
@@ -112,6 +129,74 @@ describe("the analysis corpus", () => {
 
   it("is deterministic", () => {
     for (const { hand, analysis } of RESULTS.slice(0, 400)) {
+      expect(analyzeHand(structuredClone(hand), { charts: CHARTS, turn: false })).toEqual(analysis);
+    }
+  });
+});
+
+describe("turn grading on a sample of the corpus (A5a)", { timeout: 180_000 }, () => {
+  const decisions = TURN_SAMPLE.flatMap((r) => r.analysis.decisions);
+  const turns = decisions.filter((d) => d.street === "turn" && d.facts.players === 2);
+
+  it("grades heads-up turn decisions with the solver, and names a turn-* reason for the rest", () => {
+    expect(TURN_SAMPLE.length).toBe(TURN_SAMPLE_SIZE);
+    expect(turns.filter((d) => d.source === "solver").length).toBeGreaterThan(TURN_SAMPLE_SIZE / 2);
+    for (const d of turns) {
+      if (d.source === "solver") {
+        const turn = d.facts.turn!;
+        expect(turn.tree).toMatch(/^turn-/);
+        expect(turn.iterations).toBeGreaterThan(0);
+        expect(turn.converged).toBe(turn.exploitabilityPct <= 1);
+        expect(turn.riverClasses).toBeGreaterThan(0);
+        expect(turn.riverClasses).toBeLessThanOrEqual(44);
+        expect(turn.equity).toBeGreaterThanOrEqual(0);
+        expect(turn.equity).toBeLessThanOrEqual(1);
+        expect(turn.reach.hero).toBeGreaterThanOrEqual(0.02);
+        expect(turn.reach.villain).toBeGreaterThanOrEqual(0.02);
+        expect(d.approximations).toEqual(expect.arrayContaining(["narrowing-heuristic", "rake-profile", "coarse-river"]));
+        expect(d.facts.equity?.source ?? "solver").toBe("solver");
+        if (d.approximations.includes("range-cap")) expect(turn.capped).toBe("blunder");
+        // The grade is §2 from its own options.
+        const again = grade({
+          options: d.options,
+          chosen: d.chosen!,
+          pot: d.facts.potBb,
+          capAtInaccurate: d.approximations.includes("off-tree-size"),
+          capAtMistake: d.approximations.includes("range-cap"),
+        });
+        expect(d.grade).toBe(again.grade);
+        expect(d.options.reduce((sum, o) => sum + o.freq, 0)).toBeCloseTo(1, 2);
+      } else {
+        expect(d.grade).toBeNull();
+        if (d.status === "not-analysed") expect([...TURN_SKIP_REASONS]).toContain(d.reason);
+      }
+      for (const dict of [en, hr]) {
+        for (const sentence of dict.analysis.explain(d)) expect(sentence).not.toMatch(/undefined|NaN|null|\[object/);
+      }
+    }
+  });
+
+  it("narrows the river by the solved turn wherever the turn was solved and the line reaches the river", () => {
+    const rivers = decisions.filter((d) => d.street === "river" && d.source === "solver");
+    for (const d of rivers) expect(["turn-solver", "heuristic"]).toContain(d.facts.river?.narrowing);
+    const handsWithBoth = TURN_SAMPLE.filter(({ analysis }) =>
+      analysis.decisions.some((d) => d.street === "turn" && d.source === "solver") &&
+      analysis.decisions.some((d) => d.street === "river" && d.source === "solver"),
+    );
+    for (const { analysis } of handsWithBoth) {
+      expect(analysis.decisions.some((d) => d.street === "river" && d.facts.river?.narrowing === "turn-solver")).toBe(true);
+    }
+  });
+
+  it("re-solves a turn for the study view to exactly the stored numbers, and is deterministic", () => {
+    const sample = TURN_SAMPLE.filter((r) => r.analysis.decisions.some((d) => d.street === "turn" && d.source === "solver")).slice(0, 1);
+    expect(sample.length).toBe(1);
+    for (const { hand, analysis } of sample) {
+      const d = analysis.decisions.find((x) => x.street === "turn" && x.source === "solver")!;
+      const study = turnStudy(structuredClone(hand), d.actionIndex, { charts: CHARTS });
+      if (!study || !("options" in study)) throw new Error("no study for a graded turn");
+      expect(study.hero.freq).toEqual(d.options.map((o) => o.freq));
+      expect(study.hero.ev).toEqual(d.options.map((o) => o.ev));
       expect(analyzeHand(structuredClone(hand), { charts: CHARTS })).toEqual(analysis);
     }
   });

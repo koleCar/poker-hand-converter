@@ -34,6 +34,12 @@ interface AnswerResultProps {
   chartNode?: ChartNode | null;
   /** Lines under the verdict (a drill's schedule, the "kept" note). */
   children?: ReactNode;
+  /**
+   * Narrow into the river through the solved turn, as the analysis of a real
+   * hand does (drills, the default); the spot trainer builds and grades its
+   * rivers on the heuristic narrowing, so its study does too.
+   */
+  solveTurn?: boolean;
 }
 
 export function useOptionLabel() {
@@ -41,7 +47,7 @@ export function useOptionLabel() {
   return (option: OptionAnalysis) => s.option(option.action, option.sizeBb, option.allIn, option.sizePot);
 }
 
-export function AnswerResult({ decision, hand, chartNode = null, children }: AnswerResultProps) {
+export function AnswerResult({ decision, hand, chartNode = null, children, solveTurn = true }: AnswerResultProps) {
   const t = useDict().analysis;
   const r = t.train.result;
   const label = useOptionLabel();
@@ -103,7 +109,14 @@ export function AnswerResult({ decision, hand, chartNode = null, children }: Ans
       {decision.source === "solver" ? (
         <div className={own.study}>
           <h4 className={styles.subhead}>{r.rangeHeading}</h4>
-          <RiverStudy key={`${hand.meta.handKey}:${decision.actionIndex}`} decision={decision} hand={hand} initialOpen />
+          <RiverStudy
+            key={`${hand.meta.handKey}:${decision.actionIndex}`}
+            decision={decision}
+            hand={hand}
+            initialOpen
+            street={decision.street === "turn" ? "turn" : "river"}
+            solveTurn={solveTurn}
+          />
         </div>
       ) : null}
 

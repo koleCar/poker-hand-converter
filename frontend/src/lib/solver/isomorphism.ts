@@ -150,3 +150,100 @@ export function canonicalSpot(
   }
   return best as CanonicalSpot;
 }
+
+/* ------------------------------------------------- symmetries of a spot - */
+
+/**
+ * The suit permutations that leave a board unchanged *as a set*: on
+ * `Qs Jh 7s 4h` swapping diamonds and clubs (neither is on the board), on a
+ * monotone board any relabelling of the three other suits, on `Ks Kh 7d 2c`
+ * swapping spades and hearts. Always contains the identity; a group.
+ */
+export function boardSymmetries(board: readonly (string | number)[]): number[][] {
+  const cards = parseCards(board);
+  const set = new Set(cards);
+  return SUIT_PERMUTATIONS.filter((perm) => cards.every((card) => set.has(permuteCard(card, perm)))).map((perm) =>
+    perm.slice(),
+  );
+}
+
+/** Relative tolerance for "these two weights are the same" in `spotSymmetries`. */
+export const SYMMETRY_TOLERANCE = 1e-9;
+
+/** `(a ∘ b)(s) = a(b(s))`. */
+function compose(a: readonly number[], b: readonly number[]): number[] {
+  return [0, 1, 2, 3].map((s) => a[b[s]]);
+}
+
+/**
+ * The board's symmetries under which every range is invariant too, up to
+ * `SYMMETRY_TOLERANCE`: narrowed ranges reach the solver with float noise
+ * from summation order, not with real asymmetry. If the survivors are not
+ * closed under composition - possible only through that tolerance - only the
+ * identity is returned. A range from a suit-blind source (a preflop chart,
+ * narrowed by a model that reads only the board and the ranges) keeps every
+ * symmetry of its board; a range holding one specific suited combo does not.
+ */
+export function spotSymmetries(
+  board: readonly (string | number)[],
+  ranges: readonly ArrayLike<number>[],
+): number[][] {
+  const identity = [0, 1, 2, 3];
+  const kept = boardSymmetries(board).filter((perm) =>
+    ranges.every((range) => {
+      for (let c = 0; c < NUM_COMBOS; c += 1) {
+        const a = range[c];
+        const b = range[permuteCombo(c, perm)];
+        if (Math.abs(a - b) > SYMMETRY_TOLERANCE * Math.max(1, Math.abs(a), Math.abs(b))) {
+          return false;
+        }
+      }
+      return true;
+    }),
+  );
+  const key = (perm: readonly number[]) => perm.join("");
+  const keys = new Set(kept.map(key));
+  for (const a of kept) {
+    for (const b of kept) {
+      if (!keys.has(key(compose(a, b)))) {
+        return [identity];
+      }
+    }
+  }
+  return kept.length ? kept : [identity];
+}
+
+/**
+ * A range made exactly invariant under a group of suit permutations: each
+ * combo's weight becomes the mean over its orbit. Used once `spotSymmetries`
+ * found the range invariant up to float noise, so that the solver's mirrored
+ * values are exact rather than nearly so.
+ */
+export function symmetrize(range: ArrayLike<number>, group: readonly (readonly number[])[]): Float64Array {
+  const out = Float64Array.from(range);
+  if (group.length <= 1) {
+    return out;
+  }
+  const done = new Uint8Array(NUM_COMBOS);
+  for (let c = 0; c < NUM_COMBOS; c += 1) {
+    if (done[c]) {
+      continue;
+    }
+    const orbit = [...new Set(group.map((perm) => permuteCombo(c, perm)))];
+    let sum = 0;
+    for (const member of orbit) {
+      sum += range[member];
+    }
+    const mean = sum / orbit.length;
+    for (const member of orbit) {
+      out[member] = mean;
+      done[member] = 1;
+    }
+  }
+  return out;
+}
+
+/** A card's orbit under a group: every card some permutation takes it to, ascending. */
+export function cardOrbit(card: number, group: readonly (readonly number[])[]): number[] {
+  return [...new Set(group.map((perm) => permuteCard(card, perm)))].sort((a, b) => a - b);
+}

@@ -4,7 +4,8 @@
  * ```
  * buildContext (lib/stats) ─▶ heroSpots (walk.ts) ─▶ facts (texture.ts, ranges.ts, lib/equity)
  *                                                  ├▶ preflop: gradePreflop (preflop.ts, lib/charts)
- *                          walkRanges (rangeWalk.ts) ├▶ river: solveRiverSpot → gradeRiver (river.ts, lib/solver)
+ *                          walkRanges (rangeWalk.ts) ├▶ turn: solveTurnSpot → gradeTurn (turn.ts, lib/solver)
+ *                                                  ├▶ river: solveRiverSpot → gradeRiver (river.ts), ranges from the solved turn
  *                                                  └▶ heuristicFlags (heuristics.ts)
  * ```
  *
@@ -14,11 +15,18 @@
  *
  * **The river is graded by our solver (A4)** in a heads-up pot: both ranges
  * are walked from preflop through the flop and turn (`rangeWalk.ts`, a
- * heuristic narrowing model until A5), the river is solved once per hand, and
+ * a heuristic narrowing model until A5), the river is solved once per hand, and
  * each hero river decision reads its combo's strategy and EVs at its node
  * (`source: "solver"`). A river the solver cannot take is `not-analysed` with
- * a `river-*` reason. The flop and turn stay heuristic: flags, never grades,
- * but their equity facts are now against the narrowed range.
+ * a `river-*` reason.
+ *
+ * **The turn is graded by our solver too (A5a)**, the same way: ranges as the
+ * turn card came (narrowed on the flop by the heuristic), one turn + river
+ * solve per hand (`turn.ts`), `turn-*` reasons when it cannot answer. Where
+ * the turn was solved and the line can be followed to the river card, the
+ * river's ranges are the solved turn strategy's instead of the heuristic's
+ * (`RiverFacts.narrowing`). The flop stays heuristic: flags, never grades,
+ * with equity facts against the narrowed range.
  *
  * Deterministic: the same document gives the same analysis, bit for bit,
  * including every sampled equity (the seed is fixed per decision). That is what
@@ -50,12 +58,25 @@ import {
   riverActs,
   riverStudyAt,
   solveRiverSpot,
+  streetActs,
   type RiverFailure,
   type RiverGrade,
   type RiverSolve,
   type RiverStudy,
 } from "./river";
+import {
+  followTurnLine,
+  gradeTurn,
+  riverStartFromTurn,
+  solveTurnSpot,
+  turnStudyAt,
+  type TurnFailure,
+  type TurnGrade,
+  type TurnSolve,
+} from "./turn";
+import { OFF_TREE_DISTANCE } from "../solver";
 import { blockers, boardTexture, draws, madeHand, toIndices } from "./texture";
+import type { PlayerRanges } from "./rangeWalk";
 import {
   ANALYSIS_VERSION,
   type Approximation,
@@ -68,6 +89,7 @@ import {
   type PreflopScenario,
   type RiverSkipReason,
   type SpotFacts,
+  type TurnSkipReason,
 } from "./types";
 import { heroSpots, type Spot } from "./walk";
 
@@ -93,6 +115,13 @@ export interface AnalyzeOptions {
    * The hand-level fields then describe that one decision.
    */
   only?: number | null;
+  /**
+   * Solve heads-up turns (A5a). On by default, and always on in the rebuild.
+   * Off reproduces A4's handling - turn decisions keep their facts and flags
+   * without a grade, and the river's ranges come from the heuristic all the
+   * way - so a test can sweep thousands of hands without a turn solve each.
+   */
+  turn?: boolean;
 }
 
 /** 100bb ±20% (§8): outside this the stack depth is an approximation. */
@@ -114,6 +143,9 @@ const round2 = (value: number) => Math.round(value * 100) / 100;
 const round4 = (value: number) => Math.round(value * 10_000) / 10_000;
 
 type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only">> & { charts: ChartSet | null; only: number | null };
+
+/** `AnalyzeOptions.turn`, defaulted. */
+const solvesTurn = (options: AnalyzeOptions) => options.turn ?? true;
 const round3 = (value: number) => Math.round(value * 1000) / 1000;
 
 /** The hero seat, as the stats engine sees it: a dealt-in seat whose player is the hero. */
@@ -403,6 +435,152 @@ const WALK_REASONS: Record<WalkFailure, RiverSkipReason> = {
   "no-flop": "river-range-empty",
 };
 
+const TURN_WALK_REASONS: Record<WalkFailure, TurnSkipReason> = {
+  "multiway-flop": "turn-multiway-flop",
+  "range-unknown": "turn-range-unknown",
+  "range-empty": "turn-range-empty",
+  "no-flop": "turn-range-empty",
+};
+
+export interface HandTurn {
+  /** Grades one hero turn decision, or says why not (sensitivity check included). */
+  grade(spot: Spot): TurnGrade | TurnFailure;
+  /** The solve and node a decision was graded at, for the study view. */
+  line(spot: Spot): { solve: TurnSolve; node: number } | TurnFailure;
+  /**
+   * Both ranges as the river card came, from the solved turn (the full
+   * narrowing's solve), or null when the turn was not solved, the line left
+   * its tree by more than the off-tree distance, or a range hardly reaches
+   * the river (`turn-unreached`).
+   */
+  riverStart(): PlayerRanges | null;
+}
+
+/**
+ * The hand's turn, solved at most once per narrowing (A5a), exactly like the
+ * river: read at each hero turn decision, with the sensitivity check for
+ * grades of Inaccurate or worse. `turnSpot` is any hero turn decision: the
+ * street's pot and effective stack are the same for all of them.
+ */
+function handTurn(
+  hand: PhfHand,
+  context: StatsContext,
+  hero: number,
+  turnSpot: Spot | null,
+  walked: Walked,
+  softWalk: () => Walked,
+  charts: ChartSet | null,
+  effectiveBb: number,
+  potType: string,
+): HandTurn {
+  const solves = new Map<string, TurnSolve | TurnFailure>();
+  const acts = streetActs(hand, "turn");
+  let riverRanges: PlayerRanges | null | undefined;
+
+  const run = (walk: Walked): TurnSolve | TurnFailure => {
+    if (!turnSpot) return { ok: false, reason: "turn-range-empty", detail: "no hero turn decision" };
+    if (!walk) return { ok: false, reason: "turn-range-empty", detail: "no postflop walk" };
+    if (!walk.ok) return { ok: false, reason: TURN_WALK_REASONS[walk.reason], detail: walk.reason };
+    if (!walk.turnStart) return { ok: false, reason: "turn-range-empty", detail: "no turn in the walk" };
+    const bb = Math.max(1, hand.game.bigBlind);
+    const cards = toIndices(context.players.get(hero)?.holeCards ?? []);
+    const board = toIndices(turnSpot.board);
+    if (cards.length !== 2 || board.length !== 4) return { ok: false, reason: "turn-solve-failed", detail: "cards" };
+    const heroFirst = turnSpot.inPosition === false;
+    const heroPos = String(context.position.get(hero) ?? "?");
+    const villainPos = String(context.position.get(walk.villain) ?? "?");
+    return solveTurnSpot({
+      hand,
+      heroSeat: hero,
+      villainSeat: walk.villain,
+      heroFirst,
+      heroCards: [cards[0], cards[1]],
+      board,
+      potBb: turnSpot.streetPot / bb,
+      stackBb: turnSpot.streetEffBehind / bb,
+      ranges: walk.turnStart,
+      charts,
+      model: walk.model,
+      acts,
+      key: {
+        players: hand.table.maxSeats,
+        stackBucket: `${stackBucket(effectiveBb)}bb`,
+        preflopLine: potType,
+        positions: heroFirst ? [heroPos, villainPos] : [villainPos, heroPos],
+      },
+    });
+  };
+
+  const solved = (which: "full" | "half"): TurnSolve | TurnFailure => {
+    let solve = solves.get(which);
+    if (!solve) {
+      solve = run(which === "full" ? walked : softWalk());
+      solves.set(which, solve);
+    }
+    return solve;
+  };
+
+  const gradeOn = (spot: Spot, which: "full" | "half"): { graded: TurnGrade; solve: TurnSolve; node: number } | TurnFailure => {
+    const solve = solved(which);
+    if (!solve.ok) return solve;
+    const at = acts.findIndex((act) => act.index === spot.action.index);
+    if (at < 0) return { ok: false, reason: "turn-off-tree", detail: "the decision is not on the turn" };
+    const found = followTurnLine(solve, acts.slice(0, at));
+    if (!found.ok) return found;
+    const graded = gradeTurn(solve, found, acts[at]);
+    return graded.ok ? { graded, solve, node: found.node } : graded;
+  };
+
+  const decide = (spot: Spot): { graded: TurnGrade; solve: TurnSolve; node: number } | TurnFailure => {
+    const full = gradeOn(spot, "full");
+    if (!("graded" in full)) return full;
+    const plain = { ...full, graded: { ...full.graded, turn: { ...full.graded.turn, sensitivity: null } } };
+    if (gradeRank(full.graded.grade) < SENSITIVE_FROM) return plain;
+    const half = gradeOn(spot, "half");
+    if (!("graded" in half)) return plain;
+    if (gradeRank(full.graded.grade) - gradeRank(half.graded.grade) > 1) {
+      const approximations = [...new Set([...half.graded.approximations, "range-sensitive" as const])].sort();
+      return {
+        ...half,
+        graded: {
+          ...half.graded,
+          approximations,
+          turn: { ...half.graded.turn, sensitivity: { model: full.graded.turn.model, grade: full.graded.grade } },
+        },
+      };
+    }
+    return {
+      ...full,
+      graded: { ...full.graded, turn: { ...full.graded.turn, sensitivity: { model: half.graded.turn.model, grade: half.graded.grade } } },
+    };
+  };
+
+  const riverStart = (): PlayerRanges | null => {
+    if (riverRanges !== undefined) return riverRanges;
+    riverRanges = null;
+    const river = hand.board.runouts[0]?.river;
+    const solve = solved("full");
+    if (!river || !solve.ok) return riverRanges;
+    const card = toSafeIndices([river]);
+    if (!card) return riverRanges;
+    const found = riverStartFromTurn(solve, acts, card[0]);
+    if (found.ok && found.distance <= OFF_TREE_DISTANCE) riverRanges = found.ranges;
+    return riverRanges;
+  };
+
+  return {
+    grade: (spot) => {
+      const decided = decide(spot);
+      return "graded" in decided ? decided.graded : decided;
+    },
+    line: (spot) => {
+      const decided = decide(spot);
+      return "graded" in decided ? { solve: decided.solve, node: decided.node } : decided;
+    },
+    riverStart,
+  };
+}
+
 export interface HandRiver {
   /** Grades one hero river decision, or says why not (sensitivity check included). */
   grade(spot: Spot): RiverGrade | RiverFailure;
@@ -435,11 +613,12 @@ function handRiver(
   charts: ChartSet | null,
   effectiveBb: number,
   potType: string,
+  fromTurn: () => PlayerRanges | null = () => null,
 ): HandRiver {
   const solves = new Map<string, RiverSolve | RiverFailure>();
   const acts = riverActs(hand);
 
-  const run = (spot: Spot, walk: Walked): RiverSolve | RiverFailure => {
+  const run = (spot: Spot, walk: Walked, which: "full" | "half"): RiverSolve | RiverFailure => {
     if (!walk) return { ok: false, reason: "river-range-empty", detail: "no postflop walk" };
     if (!walk.ok) return { ok: false, reason: WALK_REASONS[walk.reason], detail: walk.reason };
     if (!walk.riverStart) return { ok: false, reason: "river-range-empty", detail: "no river in the walk" };
@@ -450,6 +629,8 @@ function handRiver(
     const heroFirst = spot.inPosition === false;
     const heroPos = String(context.position.get(hero) ?? "?");
     const villainPos = String(context.position.get(walk.villain) ?? "?");
+    // A5a: the full narrowing's river starts from the solved turn where there is one.
+    const solvedTurn = which === "full" ? fromTurn() : null;
     return solveRiverSpot({
       hand,
       heroSeat: hero,
@@ -459,7 +640,8 @@ function handRiver(
       board,
       potBb: spot.streetPot / bb,
       stackBb: spot.streetEffBehind / bb,
-      ranges: walk.riverStart,
+      ranges: solvedTurn ?? walk.riverStart,
+      narrowing: solvedTurn ? "turn-solver" : "heuristic",
       charts,
       model: walk.model,
       key: {
@@ -474,7 +656,7 @@ function handRiver(
   const solved = (spot: Spot, which: "full" | "half"): RiverSolve | RiverFailure => {
     let solve = solves.get(which);
     if (!solve) {
-      solve = run(spot, which === "full" ? walked : softWalk());
+      solve = run(spot, which === "full" ? walked : softWalk(), which);
       solves.set(which, solve);
     }
     return solve;
@@ -573,6 +755,52 @@ function capRiver(
   };
 }
 
+/**
+ * The Mistake cap on a turn grade (`range-cap`), as on the river: the turn's
+ * ranges were narrowed on the flop by the heuristic. Dominated on any
+ * narrowing, and so kept as a Blunder: folding a hand that cannot lose
+ * whatever comes, or calling with one that has no equity at all against the
+ * opponent's preflop range (it cannot even improve).
+ */
+function capTurn(
+  solved: TurnGrade,
+  action: DecisionAnalysis["action"],
+  built: BuiltFacts,
+  walk: RangeWalk | null,
+): TurnGrade {
+  const capped = { ...solved, turn: { ...solved.turn, capped: null as TurnGrade["grade"] | null } };
+  if (gradeRank(solved.grade) <= gradeRank("mistake")) return capped;
+  let dominated = false;
+  if (action === "fold") dominated = built.cannotLose;
+  if (action === "call" && walk) {
+    const facts = built.facts;
+    const combos = weightedCombos(walk.preflop.villain);
+    const versus = equityVsRange({ hero: facts.holeCards, range: combos, board: facts.board, method: "exhaustive" });
+    dominated = versus.combos > 0 && versus.win + versus.tie <= 1e-12;
+  }
+  if (dominated) return capped;
+  return {
+    ...capped,
+    grade: "mistake",
+    approximations: [...new Set([...solved.approximations, "range-cap" as const])].sort(),
+    turn: { ...capped.turn, capped: solved.grade },
+  };
+}
+
+/** The equity fact of a solved turn decision: against the opponent's range at the node, over every river. */
+function turnEquity(solved: TurnGrade, facts: SpotFacts, walk: RangeWalk | null): SpotFacts["equity"] {
+  const previous = facts.equity;
+  if (!previous) return null;
+  return {
+    value: solved.turn.equity,
+    range: walk?.labels.villain ?? previous.range,
+    source: "solver",
+    combos: solved.turn.villainCombos,
+    method: "exhaustive",
+    strong: null,
+  };
+}
+
 /** The equity fact of a solved river decision: against the opponent's range at the node. */
 function riverEquity(solved: RiverGrade, facts: SpotFacts, walk: RangeWalk | null): SpotFacts["equity"] {
   const previous = facts.equity;
@@ -621,13 +849,61 @@ export function riverStudy(
   if (hero === null || handSkip(hand, context, hero) !== null) return null;
   const spot = heroSpots(context, hero).find((s) => s.action.index === actionIndex);
   if (!spot || spot.street !== "river" || spot.opponents.length !== 1) return null;
-  const charts = options.charts ?? null;
-  const walked = rangeWalkOf(hand, context, hero, charts);
-  const softWalk = () => rangeWalkOf(hand, context, hero, charts, halved(heuristicModel));
-  const river = handRiver(hand, context, hero, walked, softWalk, charts, effectiveStackBb(context, hero), potTypeOf(context));
+  const { river } = handSolvers(hand, context, hero, heroSpots(context, hero), options.charts ?? null, solvesTurn(options));
   const found = river.line(spot);
   if (!("solve" in found)) return found;
   return riverStudyAt(found.solve, found.node);
+}
+
+/**
+ * The study view of one hero turn decision (A5a): the hero's whole range at
+ * the node as the turn solve plays it. The same walk and solve `analyzeHand`
+ * runs. Null when the action is not a hero turn decision of a hand the
+ * analysis covers; a `TurnFailure` when the solver cannot take it.
+ */
+export function turnStudy(
+  hand: PhfHand,
+  actionIndex: number,
+  options: AnalyzeOptions = {},
+): RiverStudy | TurnFailure | null {
+  const context = buildContext(hand);
+  const hero = heroSeatOf(context);
+  if (hero === null || handSkip(hand, context, hero) !== null) return null;
+  const spots = heroSpots(context, hero);
+  const spot = spots.find((s) => s.action.index === actionIndex);
+  if (!spot || spot.street !== "turn" || spot.opponents.length !== 1) return null;
+  const { turn } = handSolvers(hand, context, hero, spots, options.charts ?? null, true);
+  const found = turn.line(spot);
+  if (!("solve" in found)) return found;
+  return turnStudyAt(found.solve, found.node);
+}
+
+/**
+ * The turn and river of a hand, wired the way `analyzeHand` wires them: the
+ * river's full narrowing comes from the solved turn when there is one.
+ */
+function handSolvers(
+  hand: PhfHand,
+  context: StatsContext,
+  hero: number,
+  spots: readonly Spot[],
+  charts: ChartSet | null,
+  solveTurns: boolean,
+): { walked: Walked; turn: HandTurn; river: HandRiver } {
+  const walked = spots.some((spot) => spot.street !== "preflop") ? rangeWalkOf(hand, context, hero, charts) : null;
+  let soft: Walked | undefined;
+  const softWalk = () => {
+    soft ??= rangeWalkOf(hand, context, hero, charts, halved(heuristicModel));
+    return soft;
+  };
+  const effectiveBb = effectiveStackBb(context, hero);
+  const potType = potTypeOf(context);
+  const turnSpot = spots.find((spot) => spot.street === "turn" && spot.opponents.length === 1) ?? null;
+  const turn = handTurn(hand, context, hero, turnSpot, walked, softWalk, charts, effectiveBb, potType);
+  const river = handRiver(hand, context, hero, walked, softWalk, charts, effectiveBb, potType, () =>
+    solveTurns ? turn.riverStart() : null,
+  );
+  return { walked, turn, river };
 }
 
 /**
@@ -644,6 +920,7 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     seed: options.seed ?? ANALYSIS_SEED,
     charts: options.charts ?? null,
     only: options.only ?? null,
+    turn: solvesTurn(options),
   };
   const context = buildContext(hand);
   const hero = heroSeatOf(context);
@@ -668,11 +945,9 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   const effectiveBb = effectiveStackBb(context, hero);
   if (effectiveBb < STACK_LOW_BB || effectiveBb > STACK_HIGH_BB) handApprox.add("stack-depth");
 
-  // The range walk (A4): both ranges through a heads-up hand, once.
-  const walked = spots.some((spot) => spot.street !== "preflop") ? rangeWalkOf(hand, context, hero, resolved.charts) : null;
+  // The range walk (A4) through a heads-up hand, once; the turn and river solves (A5a, A4) on it.
+  const { walked, turn, river } = handSolvers(hand, context, hero, spots, resolved.charts, resolved.turn);
   const walk = walked && walked.ok ? walked : null;
-  const softWalk = () => rangeWalkOf(hand, context, hero, resolved.charts, halved(heuristicModel));
-  const river = handRiver(hand, context, hero, walked, softWalk, resolved.charts, effectiveBb, potType);
 
   let preflopSeen = 0;
   const decisions: DecisionAnalysis[] = spots.flatMap((spot) => {
@@ -691,15 +966,25 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     const { facts } = built;
     const approximations = new Set<Approximation>(handApprox);
 
-    // River: the solver, or the reason it cannot answer.
-    const rawSolved = street === "river" && !multiway ? river.grade(spot) : null;
-    const solved = rawSolved?.ok ? capRiver(rawSolved, spot.decision.type as DecisionAnalysis["action"], built, walk) : rawSolved;
-    if (solved?.ok) {
-      facts.river = solved.river;
+    // Turn and river: the solver, or the reason it cannot answer.
+    const action = spot.decision.type as DecisionAnalysis["action"];
+    const rawRiver = street === "river" && !multiway ? river.grade(spot) : null;
+    const rawTurn = street === "turn" && !multiway && resolved.turn ? turn.grade(spot) : null;
+    const solvedRiver = rawRiver?.ok ? capRiver(rawRiver, action, built, walk) : rawRiver;
+    const solvedTurn = rawTurn?.ok ? capTurn(rawTurn, action, built, walk) : rawTurn;
+    if (solvedRiver?.ok) {
+      facts.river = solvedRiver.river;
       if (facts.equity) {
-        facts.equity = riverEquity(solved, facts, walk);
+        facts.equity = riverEquity(solvedRiver, facts, walk);
       }
     }
+    if (solvedTurn?.ok) {
+      facts.turn = solvedTurn.turn;
+      if (facts.equity) {
+        facts.equity = turnEquity(solvedTurn, facts, walk);
+      }
+    }
+    const solved = solvedRiver ?? solvedTurn;
     if (facts.equity) {
       const source = facts.equity.source;
       if (source === "chart") approximations.add("preflop-range");

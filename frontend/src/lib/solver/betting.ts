@@ -36,6 +36,15 @@ export interface BetMenu {
   raise: readonly number[];
   /** Whether all-in is offered as a bet and as a raise. */
   allIn: boolean;
+  /**
+   * Offer the all-in only while it is at most this many pots (a bet's amount
+   * over the pot; a raise's increment over the pot after the call). A 9x-pot
+   * turn shove with 90bb behind is a branch the tree pays for on every
+   * iteration and nobody takes; with a lower stack the same shove is an
+   * ordinary size and stays. A menu size that reaches the stack is an all-in
+   * either way. Unset: always offered.
+   */
+  allInMaxPot?: number;
 }
 
 export interface BettingRules {
@@ -133,7 +142,12 @@ export function buildStreet(ctx: StreetContext, base: readonly [number, number],
     const actions: ActionInfo[] = [];
     const join = (label: string) => (!at || at.endsWith("|") ? at + label : `${at}-${label}`);
 
-    const sized = (fractions: readonly number[], amountOf: (x: number) => number, floor: number) => {
+    const sized = (
+      fractions: readonly number[],
+      amountOf: (x: number) => number,
+      floor: number,
+      potsOf: (amount: number) => number,
+    ) => {
       // Rule 1 floor, rules 2-3 to all-in, rule 4 merge.
       const maxAmount = behindMe;
       const out = new Map<string, number>();
@@ -148,7 +162,7 @@ export function buildStreet(ctx: StreetContext, base: readonly [number, number],
       for (const x of fractions) {
         push(amountOf(x));
       }
-      if (menu.allIn) {
+      if (menu.allIn && !(potsOf(maxAmount) > (menu.allInMaxPot ?? Infinity) + EPS)) {
         push(maxAmount);
       }
       return [...out.values()].sort((a, b) => a - b);
@@ -176,7 +190,12 @@ export function buildStreet(ctx: StreetContext, base: readonly [number, number],
       if (raises < rules.raiseCap && behindOp > EPS && behindMe > toCall + EPS) {
         const potAfterCall = potNow + toCall;
         const floor = toCall + Math.max(lastIncrement, rules.minBet);
-        const amounts = sized(menu.raise, (x) => toCall + x * potAfterCall, floor);
+        const amounts = sized(
+          menu.raise,
+          (x) => toCall + x * potAfterCall,
+          floor,
+          (amount) => (amount - toCall) / potAfterCall,
+        );
         for (const amount of amounts) {
           const kind: ActionKind = behindMe - amount <= EPS ? "allin" : "raise";
           const info = describe(kind, amount, (amount - toCall) / potAfterCall);
@@ -200,7 +219,7 @@ export function buildStreet(ctx: StreetContext, base: readonly [number, number],
           : node(street, op, raises, lastIncrement, true, join(check.label)),
       });
       if (behindMe > EPS) {
-        const amounts = sized(menu.bet, (x) => x * potNow, rules.minBet);
+        const amounts = sized(menu.bet, (x) => x * potNow, rules.minBet, (amount) => amount / potNow);
         for (const amount of amounts) {
           const kind: ActionKind = behindMe - amount <= EPS ? "allin" : "bet";
           const info = describe(kind, amount, amount / potNow);

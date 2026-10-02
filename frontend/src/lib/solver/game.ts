@@ -35,8 +35,26 @@ export interface ShowdownBoard {
   readonly strength: readonly [Float64Array, Float64Array];
 }
 
+/**
+ * A dealt card that a chance node does not deal itself because it is
+ * strategically the same as one it does (suit isomorphism, `subgame.ts`).
+ * Listed under the card that stands for it: `card` is the card left out, and
+ * `map[p][i]` is the index among player p's hands of hand `i` relabelled by
+ * the suit permutation that takes `card` to the one dealt.
+ */
+export interface Mirror {
+  readonly card: number;
+  readonly map: readonly [Int32Array, Int32Array];
+}
+
 export interface Game {
   readonly tree: FlatTree;
+  /**
+   * Per dealt card (index `0 .. numCards - 1`): the cards it stands for, or
+   * undefined. Only a game whose ranges and board are symmetric under those
+   * relabellings may carry them; the engine trusts it.
+   */
+  readonly mirrors?: readonly (readonly Mirror[] | undefined)[];
   /** Real cards are `0 .. numCards - 1`; `numCards + p` is player p's phantom. */
   readonly numCards: number;
   readonly hands: readonly [HandSet, HandSet];

@@ -79,6 +79,11 @@ import "../../styles/stats.css";
 const ANALYSIS_MIGRATION = "supabase/migrations/20261228090000_analysis.sql";
 /** At most this many new hands are analysed without asking. */
 const AUTO_RUN_LIMIT = 300;
+/**
+ * "Start with your most recent hands" (A5a): offered when more than the
+ * smallest of these are behind, each choice smaller than what is behind.
+ */
+const RECENT_CHOICES = [200, 500, 1000] as const;
 const PAGE_SIZE = 25;
 /** The hands list's anchor, for "show them" from the overview. An id, not prose. */
 const HANDS_ID = "analysis-hands";
@@ -151,15 +156,17 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
   }, [scopeKey]);
 
   const startRun = useCallback(
-    async (target: number) => {
+    async (behind: number, recent?: number) => {
       abort.current?.abort();
       const controller = new AbortController();
       abort.current = controller;
+      const target = recent !== undefined ? Math.min(recent, behind) : behind;
       setRun({ status: "running", progress: { processed: 0, saved: 0, failed: 0, pruned: 0 }, target });
       try {
         const progress = await runAnalysis(
           (next) => setRun({ status: "running", progress: next, target }),
           controller.signal,
+          { target, recent },
         );
         setRun(controller.signal.aborted ? { status: "stopped" } : { status: "done", progress });
       } catch (error) {
@@ -254,7 +261,12 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
   }
 
   const runBar = (
-    <RunBar coverage={coverage} run={run} onRun={(target) => void startRun(target)} onStop={() => abort.current?.abort()} />
+    <RunBar
+      coverage={coverage}
+      run={run}
+      onRun={(target, recent) => void startRun(target, recent)}
+      onStop={() => abort.current?.abort()}
+    />
   );
 
   if (coverage.hands === 0) {
@@ -541,16 +553,24 @@ function RunBar({
 }: {
   coverage: AnalysisCoverage;
   run: RunState;
-  onRun: (target: number) => void;
+  onRun: (target: number, recent?: number) => void;
   onStop: () => void;
 }) {
   const t = useDict().analysis.run;
   const behind = coverage.missing + coverage.stale;
+  const choices = RECENT_CHOICES.filter((count) => count < behind);
+  // "" is the whole library; a number, the most recent that many hands.
+  const [scope, setScope] = useState<string>("");
+  const recent = scope === "" ? undefined : Number(scope);
 
   if (run.status === "running") {
+    const eta = run.progress.etaSeconds;
     return (
       <div className={`notice notice--info ${styles.run}`} role="status" aria-live="polite">
-        <span>{t.running(run.progress.processed, run.target)}</span>
+        <span>
+          {t.running(run.progress.processed, run.target)}
+          {eta !== null && eta !== undefined ? ` ${t.eta(eta)}` : ""}
+        </span>
         <button type="button" className="btn btn--sm" onClick={onStop}>
           {t.stop}
         </button>
@@ -585,8 +605,21 @@ function RunBar({
       {lines.map((line) => (
         <span key={line}>{line}</span>
       ))}
+      {behind > 0 && choices.length > 0 ? (
+        <label className={styles.runScope}>
+          <span>{t.scopeLabel}</span>
+          <select value={scope} onChange={(event) => setScope(event.target.value)}>
+            <option value="">{t.scopeAll(behind)}</option>
+            {choices.map((count) => (
+              <option key={count} value={String(count)}>
+                {t.scopeRecent(count)}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       {behind > 0 ? (
-        <button type="button" className="btn btn--sm btn--primary" onClick={() => onRun(behind)}>
+        <button type="button" className="btn btn--sm btn--primary" onClick={() => onRun(behind, recent)}>
           {coverage.stale > 0 ? t.update : coverage.atVersion > 0 ? t.again : t.button}
         </button>
       ) : null}

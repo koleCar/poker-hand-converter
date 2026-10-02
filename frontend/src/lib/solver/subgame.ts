@@ -15,19 +15,20 @@
  * **River: production.** One street, one showdown ordering, a few dozen nodes;
  * solved to well under 0.5% of the pot in about a second (see the benchmark).
  *
- * **Turn + river: correct, not yet fast enough to be the default.** A chance
- * node deals each of the 48 river cards (the 44 left given both hands, weighted
- * `1/44`, with the hands that hold the card zeroed), and below each one is a
- * full river tree. That is ~48x the river's work and memory per iteration;
- * there is no suit isomorphism on the dealt card and no bucketing of river
- * cards yet. Fine for tests, tools and cached precomputation; not something to
- * run on demand in a browser tab with wide ranges and three sizes.
+ * **Turn + river.** A chance node deals each river card (the 44 left given
+ * both hands, weighted `1/44`, with the hands that hold the card zeroed), and
+ * below each one is a river tree: ~44x the river's work per iteration. A5a
+ * makes it affordable per hand: `isomorphism` deals one card per suit class
+ * (exact), `riverMenus` / `riverRaiseCap` give it a coarse river, and a menu's
+ * `allInMaxPot` leaves deep shoves out (`lib/analysis/turn.ts` has the tree
+ * grading uses, and why).
  */
 
 import { cardCode, evaluateMasks, STANDARD } from "../equity";
 import { buildStreet, dealtPath, type BetMenu, type BettingRules, type NodeInfo } from "./betting";
 import { comboHi, comboLo, NUM_COMBOS, parseCards, SolverInputError, toRange, type RangeInput } from "./combos";
-import { handSet, showdownBoard, type Game, type ShowdownBoard } from "./game";
+import { handSet, showdownBoard, type Game, type Mirror, type ShowdownBoard } from "./game";
+import { cardOrbit, permuteCard, permuteCombo, spotSymmetries, symmetrize } from "./isomorphism";
 import { TreeBuilder, type Rake } from "./tree";
 
 export interface SpotInput {
@@ -58,6 +59,26 @@ export type RiverSpot = SpotInput;
 export interface TurnSpot extends SpotInput {
   /** Menus on the river; defaults to `menus`. */
   riverMenus?: readonly [BetMenu, BetMenu];
+  /** Raises per river after the first bet; defaults to `raiseCap`. */
+  riverRaiseCap?: number;
+  /**
+   * Deal one river card per suit-isomorphism class (phase A5a): where the
+   * board and both ranges are symmetric under a suit relabelling, the river
+   * cards it swaps share one subtree, read back through the relabelling. The
+   * ranges are made exactly symmetric first (they are within float noise, or
+   * the symmetry is not used). Exact - the game is the same game - and the
+   * saving is the share of river cards that are someone's mirror: none on a
+   * four-suit turn, a quarter on a two-suit one, half on a monotone one.
+   */
+  isomorphism?: boolean;
+}
+
+/** What suit isomorphism did to a turn game. */
+export interface TurnIsomorphism {
+  /** The suit permutations the board and both ranges are symmetric under. */
+  group: number[][];
+  /** River cards dealt (one per class), each with the cards it stands for, codes. */
+  classes: { card: string; mirrors: string[] }[];
 }
 
 /** A subgame ready for the engine, plus what the result needs to describe it. */
@@ -75,9 +96,11 @@ export interface BuiltSubgame {
   pot: number;
   stack: number;
   firstToAct: 0 | 1;
+  /** Turn games built with `isomorphism`: what it found. */
+  isomorphism?: TurnIsomorphism;
 }
 
-export function rulesOf(spot: SpotInput, menus: readonly [BetMenu, BetMenu]): BettingRules {
+export function rulesOf(spot: SpotInput, menus: readonly [BetMenu, BetMenu], raiseCap = spot.raiseCap): BettingRules {
   for (const menu of menus) {
     for (const x of [...menu.bet, ...menu.raise]) {
       if (!(x > 0) || !Number.isFinite(x)) {
@@ -87,7 +110,7 @@ export function rulesOf(spot: SpotInput, menus: readonly [BetMenu, BetMenu]): Be
   }
   return {
     menus,
-    raiseCap: spot.raiseCap ?? 2,
+    raiseCap: raiseCap ?? 2,
     allInThreshold: spot.allInThreshold ?? 0,
     minBet: spot.minBet ?? 0,
   };
@@ -197,19 +220,36 @@ export function buildRiverGame(spot: RiverSpot): BuiltSubgame {
 export function buildTurnGame(spot: TurnSpot): BuiltSubgame {
   const board = validate(spot, 4);
   const turnRules = rulesOf(spot, spot.menus);
-  const riverRules = rulesOf(spot, spot.riverMenus ?? spot.menus);
-  const h0 = handsOf(toRange(spot.ranges[0]), board);
-  const h1 = handsOf(toRange(spot.ranges[1]), board);
+  const riverRules = rulesOf(spot, spot.riverMenus ?? spot.menus, spot.riverRaiseCap ?? spot.raiseCap);
+  let r0 = toRange(spot.ranges[0]);
+  let r1 = toRange(spot.ranges[1]);
+  // Suit isomorphism: the symmetries of the board both ranges share.
+  const group = spot.isomorphism ? spotSymmetries(board, [r0, r1]) : [[0, 1, 2, 3]];
+  if (group.length > 1) {
+    r0 = symmetrize(r0, group);
+    r1 = symmetrize(r1, group);
+  }
+  const h0 = handsOf(r0, board);
+  const h1 = handsOf(r1, board);
   const builder = new TreeBuilder();
   const info: (NodeInfo | undefined)[] = [];
   const chancePath = new Map<number, string>();
   const firstToAct = spot.firstToAct ?? 0;
 
+  // One river card per class: the lowest of its orbit deals, the rest mirror it.
   const rivers: number[] = [];
+  const classes: { card: number; mirrors: number[] }[] = [];
+  const seen = new Set<number>();
   for (let card = 0; card < 52; card += 1) {
-    if (!board.includes(card)) {
-      rivers.push(card);
+    if (board.includes(card) || seen.has(card)) {
+      continue;
     }
+    const orbit = cardOrbit(card, group);
+    for (const member of orbit) {
+      seen.add(member);
+    }
+    rivers.push(card);
+    classes.push({ card, mirrors: orbit.filter((member) => member !== card) });
   }
   // Given the turn board and both players' hands, 52 - 4 - 4 cards can come.
   const weight = 1 / (52 - 4 - 4);
@@ -240,7 +280,7 @@ export function buildTurnGame(spot: TurnSpot): BuiltSubgame {
                   first: firstToAct,
                   rules: riverRules,
                   info,
-                  close: (r0, r1) => builder.showdown(k, spot.pot, r0, r1, spot.rake),
+                  close: (a0, a1) => builder.showdown(k, spot.pot, a0, a1, spot.rake),
                 },
                 [c0, c1],
                 dealtPath(path, card),
@@ -258,6 +298,42 @@ export function buildTurnGame(spot: TurnSpot): BuiltSubgame {
   const boards = rivers.map((card) =>
     showdownBoard(strengths(h0.cards, [...board, card]), strengths(h1.cards, [...board, card])),
   );
+
+  let mirrors: (Mirror[] | undefined)[] | undefined;
+  let isomorphism: TurnIsomorphism | undefined;
+  if (group.length > 1) {
+    const lookup = [h0.combos, h1.combos].map((combos) => {
+      const at = new Int32Array(NUM_COMBOS).fill(-1);
+      combos.forEach((combo, i) => {
+        at[combo] = i;
+      });
+      return at;
+    });
+    mirrors = new Array(52).fill(undefined);
+    for (const { card, mirrors: others } of classes) {
+      if (!others.length) {
+        continue;
+      }
+      mirrors[card] = others.map((other) => {
+        const perm = group.find((p) => permuteCard(other, p) === card) as number[];
+        const map = [h0.combos, h1.combos].map((combos, p) =>
+          Int32Array.from(combos, (combo) => {
+            const index = lookup[p][permuteCombo(combo, perm)];
+            if (index < 0) {
+              throw new Error("isomorphism: a range is not symmetric after symmetrising");
+            }
+            return index;
+          }),
+        ) as [Int32Array, Int32Array];
+        return { card: other, map };
+      });
+    }
+    isomorphism = {
+      group: group.map((perm) => perm.slice()),
+      classes: classes.map(({ card, mirrors: others }) => ({ card: cardCode(card), mirrors: others.map(cardCode) })),
+    };
+  }
+
   return {
     street: "turn",
     game: {
@@ -267,6 +343,7 @@ export function buildTurnGame(spot: TurnSpot): BuiltSubgame {
       boards,
       pot: spot.pot,
       bigBlind: spot.bigBlind,
+      mirrors,
     },
     board,
     combos: [h0.combos, h1.combos],
@@ -275,5 +352,6 @@ export function buildTurnGame(spot: TurnSpot): BuiltSubgame {
     pot: spot.pot,
     stack: spot.stack,
     firstToAct,
+    isomorphism,
   };
 }

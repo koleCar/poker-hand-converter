@@ -20,7 +20,16 @@
  * next run picks up whatever is still missing.
  */
 
-import { ANALYSIS_VERSION, analyzeHand, riverStudy, type HandAnalysis, type RiverFailure, type RiverStudy } from "../analysis";
+import {
+  ANALYSIS_VERSION,
+  analyzeHand,
+  riverStudy,
+  turnStudy,
+  type HandAnalysis,
+  type RiverFailure,
+  type RiverStudy,
+  type TurnFailure,
+} from "../analysis";
 import { preflopCharts } from "../chartSet";
 
 export { preflopCharts };
@@ -128,10 +137,32 @@ export interface AnalysisProgress {
   failed: number;
   /** Obsolete rows removed at the end. */
   pruned: number;
+  /** Seconds left at the pace so far; null until there is a pace to go by (or no target). */
+  etaSeconds?: number | null;
+}
+
+export interface AnalysisRunOptions {
+  /** How many hands the run is expected to analyse, for the time left. */
+  target?: number;
+  /** Analyse only the most recent this many hands still missing at this version, newest first. */
+  recent?: number;
 }
 
 /** Hands per read; `hands_needing_analysis` caps at 200. */
 const PAGE_SIZE = 100;
+/** Hands per worker job: small enough that the pool stays busy to the end. */
+const CHUNK = 20;
+/** At most this many analysis workers at once. */
+const MAX_WORKERS = 4;
+/** No estimate of the time left before this many hands and seconds. */
+const ETA_MIN_HANDS = 20;
+const ETA_MIN_SECONDS = 5;
+
+/** Workers side by side: one per core but one (the tab's), at most `MAX_WORKERS`. */
+function poolSize(): number {
+  const cores = typeof navigator !== "undefined" && navigator.hardwareConcurrency ? navigator.hardwareConcurrency : 2;
+  return Math.max(1, Math.min(MAX_WORKERS, cores - 1));
+}
 /** Hands per write: `save_hand_analysis` takes 200, and a hand's facts are ~1–4 KB. */
 const WRITE_SIZE = 50;
 const MAX_PRUNE_CALLS = 10;
@@ -166,10 +197,13 @@ function newWorker(): Worker | null {
 function analyser(signal?: AbortSignal): {
   run: (page: AnalyseRequest["page"], onHand?: (done: number) => void) => Promise<AnalysedBatch>;
   close: () => void;
+  /** In a worker; false when it fell back to the main thread (then the pool is just this one). */
+  threaded: boolean;
 } {
   const worker = newWorker();
   if (!worker) {
     return {
+      threaded: false,
       run: async (page, onHand) => {
         // Yield first so the progress line repaints between pages.
         await new Promise((resolve) => setTimeout(resolve, 0));
@@ -186,6 +220,7 @@ function analyser(signal?: AbortSignal): {
   };
   signal?.addEventListener("abort", onAbort, { once: true });
   return {
+    threaded: true,
     run: (page, onHand) =>
       new Promise<AnalysedBatch>((resolve, reject) => {
         if (signal?.aborted) {
@@ -259,57 +294,176 @@ export async function analyseHandNow(phf: PhfHand): Promise<HandAnalysis> {
  * walk and solve the stored grade came from, re-run (§3.4 stores no strategy).
  * Null when the decision is not a river decision the analysis covers.
  */
-export async function studyRiver(phf: PhfHand, actionIndex: number): Promise<RiverStudy | RiverFailure | null> {
+export async function studyRiver(
+  phf: PhfHand,
+  actionIndex: number,
+  options: { turn?: boolean } = {},
+): Promise<RiverStudy | RiverFailure | null> {
+  return (await studyStreet(phf, actionIndex, "river", options.turn ?? true)) as RiverStudy | RiverFailure | null;
+}
+
+/**
+ * The turn study (A5a) for one hero turn decision: the same walk and turn
+ * solve the stored grade came from, re-run in the worker (a second or two).
+ */
+export async function studyTurn(phf: PhfHand, actionIndex: number): Promise<RiverStudy | TurnFailure | null> {
+  return (await studyStreet(phf, actionIndex, "turn", true)) as RiverStudy | TurnFailure | null;
+}
+
+async function studyStreet(
+  phf: PhfHand,
+  actionIndex: number,
+  street: "river" | "turn",
+  turn: boolean,
+): Promise<RiverStudy | RiverFailure | TurnFailure | null> {
   if (viewWorker === undefined) viewWorker = newWorker();
   if (!viewWorker) {
     await new Promise((resolve) => setTimeout(resolve, 0));
-    return riverStudy(structuredClone(phf), actionIndex, { charts: await preflopCharts() });
+    const charts = await preflopCharts();
+    return street === "turn"
+      ? turnStudy(structuredClone(phf), actionIndex, { charts })
+      : riverStudy(structuredClone(phf), actionIndex, { charts, turn });
   }
   jobSequence += 1;
-  return askViewWorker({ type: "study", jobId: jobSequence, phf, actionIndex }, (message) =>
+  return askViewWorker({ type: "study", jobId: jobSequence, phf, actionIndex, street, turn }, (message) =>
     message.type === "studied" ? message.study : undefined,
   );
 }
 
 /**
  * Analyses every hand of the caller's that has no row at the current
- * `ANALYSIS_VERSION`, then prunes rows from older versions.
+ * `ANALYSIS_VERSION`, then prunes rows from older versions; or, with
+ * `options.recent`, only the most recent that many of them, newest first
+ * (A5a: a turn solve costs a second or two, so a large library takes
+ * minutes, and the reader wants their latest sessions first). A recent-only
+ * run never prunes: the older hands still have their old rows until a full
+ * run reaches them.
+ *
+ * **A pool of workers** (one per spare core, at most `MAX_WORKERS`) analyses
+ * chunks of `CHUNK` hands side by side; pages are read one at a time behind
+ * them and every chunk is written as soon as it is done. Progress counts the
+ * hands done, inside chunks too, and estimates the time left from the pace so
+ * far once there is one (`etaSeconds`).
  *
  * Safe to run twice at once and safe to interrupt: every write is
- * `on conflict do nothing` and what is missing is recomputed per page.
- * `signal` stops it between pages.
+ * `on conflict do nothing` and what is missing is recomputed by the
+ * database. `signal` stops it at once (the workers are terminated mid-chunk);
+ * a chunk analysed but not written is simply missing next time.
  */
 export async function runAnalysis(
   onProgress?: (progress: AnalysisProgress) => void,
   signal?: AbortSignal,
+  options: AnalysisRunOptions = {},
 ): Promise<AnalysisProgress> {
-  const total: AnalysisProgress = { processed: 0, saved: 0, failed: 0, pruned: 0 };
+  const total: AnalysisProgress = { processed: 0, saved: 0, failed: 0, pruned: 0, etaSeconds: null };
   if (!(await currentUserId())) {
     return total;
   }
-  const engine = analyser(signal);
+  const recent = options.recent !== undefined && options.recent > 0 ? Math.floor(options.recent) : null;
+  const target = recent ?? options.target ?? null;
+
+  // One controller for the pool: the caller's stop, or the first failure.
+  const inner = new AbortController();
+  const onStop = () => inner.abort();
+  signal?.addEventListener("abort", onStop, { once: true });
+  if (signal?.aborted) inner.abort();
+
+  const first = analyser(inner.signal);
+  const engines = [first];
+  if (first.threaded) {
+    for (let k = 1; k < poolSize(); k += 1) engines.push(analyser(inner.signal));
+  }
+
+  // The read side: pages one at a time, cut into chunks for the pool.
+  const queue: Array<AnalyseRequest["page"]> = [];
   let after: string | null = null;
-  let done = false;
-  try {
-    // Bounded so a server that never runs dry cannot spin a tab forever:
-    // 5,000 pages of 100 is far beyond any library this app could hold.
-    for (let page = 0; page < 5000 && !signal?.aborted; page += 1) {
-      const fetched: Array<{ id: string; phf: PhfHand }> | null = await rpc("hands_needing_analysis", {
+  let beforePlayed: string | null = null;
+  let beforeId: string | null = null;
+  let fetched = 0;
+  let exhausted = false;
+  let reading: Promise<void> | null = null;
+  const read = async (): Promise<void> => {
+    if (exhausted) return;
+    const want = recent === null ? PAGE_SIZE : Math.min(PAGE_SIZE, recent - fetched);
+    if (want <= 0) {
+      exhausted = true;
+      return;
+    }
+    let hands: Array<{ id: string; phf: PhfHand }>;
+    if (recent === null) {
+      const page: Array<{ id: string; phf: PhfHand }> | null = await rpc("hands_needing_analysis", {
         p_version: ANALYSIS_VERSION,
         p_after: after ?? undefined,
-        p_limit: PAGE_SIZE,
+        p_limit: want,
       });
-      const hands: Array<{ id: string; phf: PhfHand }> = fetched ?? [];
-      if (hands.length === 0) {
-        done = true;
-        break;
+      hands = page ?? [];
+      if (hands.length > 0) after = hands[hands.length - 1].id;
+    } else {
+      const page: Array<{ id: string; played_at: string | null; phf: PhfHand }> | null = await rpc(
+        "hands_needing_analysis_recent",
+        {
+          p_version: ANALYSIS_VERSION,
+          p_before_played: beforePlayed ?? undefined,
+          p_before_id: beforeId ?? undefined,
+          p_limit: want,
+        },
+      );
+      const rowsRead = page ?? [];
+      if (rowsRead.length > 0) {
+        beforePlayed = rowsRead[rowsRead.length - 1].played_at;
+        beforeId = rowsRead[rowsRead.length - 1].id;
       }
+      hands = rowsRead.map(({ id, phf }) => ({ id, phf }));
+    }
+    fetched += hands.length;
+    if (hands.length < want || (recent !== null && fetched >= recent)) exhausted = true;
+    for (let i = 0; i < hands.length; i += CHUNK) queue.push(hands.slice(i, i + CHUNK));
+  };
+  const next = async (): Promise<AnalyseRequest["page"] | null> => {
+    // Bounded so a server that never runs dry cannot spin a tab forever.
+    for (let guard = 0; guard < 100_000; guard += 1) {
+      if (inner.signal.aborted) return null;
+      const chunk = queue.shift();
+      if (chunk) return chunk;
+      if (exhausted) return null;
+      reading ??= read().finally(() => {
+        reading = null;
+      });
+      await reading;
+    }
+    return null;
+  };
+
+  const started = Date.now();
+  const inChunk = new Map<number, number>();
+  const report = () => {
+    let partial = 0;
+    for (const done of inChunk.values()) partial += done;
+    const processed = total.processed + partial;
+    const elapsed = (Date.now() - started) / 1000;
+    let etaSeconds: number | null = null;
+    if (target !== null && processed >= ETA_MIN_HANDS && elapsed >= ETA_MIN_SECONDS) {
+      etaSeconds = Math.max(0, Math.round(((target - processed) * elapsed) / processed));
+    }
+    total.etaSeconds = etaSeconds;
+    onProgress?.({ ...total, processed });
+  };
+
+  let failure: unknown = null;
+  const lane = async (k: number) => {
+    for (;;) {
+      const chunk = await next();
+      if (!chunk) return;
+      inChunk.set(k, 0);
       let batch: AnalysedBatch;
       try {
-        const before = total.processed;
-        batch = await engine.run(hands, (inPage) => onProgress?.({ ...total, processed: before + inPage }));
+        batch = await engines[k].run(chunk, (done) => {
+          inChunk.set(k, done);
+          report();
+        });
       } catch (error) {
-        if (error instanceof Stopped) break;
+        inChunk.delete(k);
+        if (error instanceof Stopped) return;
         throw error;
       }
       for (let i = 0; i < batch.rows.length; i += WRITE_SIZE) {
@@ -317,16 +471,25 @@ export async function runAnalysis(
         const saved = await rpc<{ inserted?: number } | null>("save_hand_analysis", { p_rows: slice });
         total.saved += saved?.inserted ?? 0;
       }
-      total.processed += hands.length;
+      inChunk.delete(k);
+      total.processed += chunk.length;
       total.failed += batch.failed.length;
-      after = hands[hands.length - 1].id;
-      onProgress?.({ ...total });
-      if (hands.length < PAGE_SIZE) {
-        done = true;
-        break;
-      }
+      report();
     }
-    if (done) {
+  };
+
+  try {
+    await Promise.all(
+      engines.map((_, k) =>
+        lane(k).catch((error: unknown) => {
+          failure ??= error;
+          inner.abort();
+        }),
+      ),
+    );
+    if (failure) throw failure;
+    const done = exhausted && queue.length === 0 && !inner.signal.aborted;
+    if (done && recent === null) {
       for (let i = 0; i < MAX_PRUNE_CALLS; i += 1) {
         const pruned = await rpc<{ deleted?: number; more?: boolean } | null>("prune_hand_analysis", {
           p_keep_version: ANALYSIS_VERSION,
@@ -335,10 +498,12 @@ export async function runAnalysis(
         total.pruned += pruned?.deleted ?? 0;
         if (!pruned?.more) break;
       }
-      onProgress?.({ ...total });
     }
+    total.etaSeconds = null;
+    onProgress?.({ ...total });
   } finally {
-    engine.close();
+    signal?.removeEventListener("abort", onStop);
+    for (const engine of engines) engine.close();
   }
   return total;
 }

@@ -6,6 +6,7 @@
   "scripts": {
     "test": "vitest run",
     "bench:solver": "vitest run --config scripts/solver-bench/vitest.config.ts",
+    "bench:turn": "vitest run --config scripts/solver-bench/vitest.turn.config.ts",
     "charts:generate": "vitest run --config scripts/preflop-charts/vitest.config.ts generate",
     "charts:report": "vitest run --config scripts/preflop-charts/vitest.config.ts report"
   },

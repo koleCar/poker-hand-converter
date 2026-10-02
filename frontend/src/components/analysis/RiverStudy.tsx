@@ -1,19 +1,20 @@
 /**
- * The river study (`docs/ANALYSIS-PLAN.md` §6.1 *Study*, phase A4): the
- * hero's whole range at a solved river node, as the solver plays it.
+ * The river and turn study (`docs/ANALYSIS-PLAN.md` §6.1 *Study*, phases A4
+ * and A5a): the hero's whole range at a solved node, as the solver plays it.
  *
  *   grid        13×13, each hand class with the solver's mix over the combos
  *               of it the hero's range holds here (reach-weighted), the
  *               hero's class outlined; hover, focus or press a class for its
  *               mix and EV per action
  *   totals      what the whole range does, in % and combos
- *   by hand     made hands, missed draws, nothing — each with its mix
+ *   by hand     made hands, missed draws (river) or draws (turn), nothing —
+ *               each with its mix
  *   by strength value / bluff-catchers / air against the opponent's range
  *   opponent    the opponent's range at the node, by the same categories
  *
  * Nothing here is stored (§3.4): the button re-runs the same walk and the
- * same deterministic solve the grade came from (`studyRiver`, in the analysis
- * worker), so the hero's own row equals the stored options.
+ * same deterministic solve the grade came from (`studyRiver` / `studyTurn`,
+ * in the analysis worker), so the hero's own row equals the stored options.
  *
  * Accessibility follows `ChartGrid`: one tab stop with arrow keys, every cell
  * a button named in words, a polite live region for the detail, and colour
@@ -25,8 +26,8 @@
 
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { DecisionAnalysis } from "../../lib/analysis/types";
-import type { RiverFailure, RiverStudy as Study, StudyOption, StudyRow } from "../../lib/analysis/river";
-import { studyRiver } from "../../lib/db";
+import type { RiverStudy as Study, StudyOption, StudyRow } from "../../lib/analysis/river";
+import { studyRiver, studyTurn } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
 import type { PhfHand } from "../../lib/phf/types";
 import styles from "./analysis.module.css";
@@ -37,7 +38,7 @@ type Loaded =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "missing"; failure: RiverFailure | null }
+  | { status: "missing" }
   | { status: "ready"; study: Study };
 
 /** The fill class of each option: bets by size, small to large; raises and all-in their own. */
@@ -71,21 +72,35 @@ interface RiverStudyProps {
   hand: PhfHand;
   /** Open (and solve) at once: the trainer shows the whole range after every answer. */
   initialOpen?: boolean;
+  /** The street of the decision: the river (A4) or the turn (A5a). */
+  street?: "river" | "turn";
+  /**
+   * A river study: narrow into the river through the solved turn, as the
+   * analysis does (default), or by the heuristic all the way, as the river
+   * trainer's spots are built.
+   */
+  solveTurn?: boolean;
+}
+
+/** The study's strings: the river's, with the turn's own where they differ. */
+export function useStudyStrings(street: "river" | "turn") {
+  const analysis = useDict().analysis;
+  return street === "turn" ? { ...analysis.river, ...analysis.turn } : analysis.river;
 }
 
 /** The button and, once asked for, the study itself. */
-export function RiverStudy({ decision, hand, initialOpen = false }: RiverStudyProps) {
-  const t = useDict().analysis.river;
+export function RiverStudy({ decision, hand, initialOpen = false, street = "river", solveTurn = true }: RiverStudyProps) {
+  const t = useStudyStrings(street);
   const [open, setOpen] = useState(initialOpen);
   const [loaded, setLoaded] = useState<Loaded>({ status: initialOpen ? "loading" : "idle" });
   const started = useRef(false);
 
   const load = () => {
     started.current = true;
-    studyRiver(hand, decision.actionIndex)
+    (street === "turn" ? studyTurn(hand, decision.actionIndex) : studyRiver(hand, decision.actionIndex, { turn: solveTurn }))
       .then((study) => {
         if (study && "options" in study) setLoaded({ status: "ready", study });
-        else setLoaded({ status: "missing", failure: study });
+        else setLoaded({ status: "missing" });
       })
       .catch((reason: unknown) => {
         setLoaded({ status: "error", message: reason instanceof Error ? reason.message : String(reason) });
@@ -147,10 +162,10 @@ function MixBar({ row, classes, labels }: { row: StudyRow; classes: string[]; la
 }
 
 function StudyBody({ study }: { study: Study }) {
-  const t = useDict().analysis.river;
+  const t = useStudyStrings(study.street ?? "river");
   const labels = useLabels(study.options);
   const classes = useMemo(() => actionClasses(study.options), [study.options]);
-  const groups = ["made", "missed", "nothing"] as const;
+  const groups = study.street === "turn" ? (["made", "draws", "nothing"] as const) : (["made", "missed", "nothing"] as const);
 
   return (
     <div className={own.body}>
@@ -267,7 +282,7 @@ function StudyBody({ study }: { study: Study }) {
 }
 
 function RiverGrid({ study, labels, classes }: { study: Study; labels: string[]; classes: string[] }) {
-  const t = useDict().analysis.river;
+  const t = useStudyStrings(study.street ?? "river");
   const startIndex = Math.max(0, GRID_CELLS.findIndex((cell) => cell.name === study.heroClass));
   const [focusIndex, setFocusIndex] = useState(startIndex);
   const [hovered, setHovered] = useState<string | null>(null);

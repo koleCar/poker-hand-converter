@@ -2,8 +2,9 @@
  * Hand analysis: how far each hero decision was from a reference, what it
  * cost, and why. `docs/ANALYSIS-PLAN.md` is the plan; this module is phases
  * A1 (the decision model, the facts, the heuristic flags and the grading
- * rules), A2b (preflop grades from the charts) and A4 (river grades from our
- * solver, on ranges narrowed through the hand).
+ * rules), A2b (preflop grades from the charts), A4 (river grades from our
+ * solver, on ranges narrowed through the hand) and A5a (turn grades from our
+ * solver, and river ranges narrowed by the solved turn).
  *
  * ```
  * types.ts       DecisionAnalysis, HandAnalysis, SpotFacts, flags, ANALYSIS_VERSION
@@ -16,7 +17,8 @@
  * narrowing.ts   the narrowing model: how likely each combo takes an action
  * rangeWalk.ts   both ranges through a heads-up hand, preflop to the river
  * river.ts       the river solve, the line onto its tree, grades, the study view
- * analyze.ts     analyzeHand(hand) -> HandAnalysis; riverStudy(hand, action)
+ * turn.ts        A5a: the turn + river solve, turn grades, the turn study, the river's solved ranges
+ * analyze.ts     analyzeHand(hand) -> HandAnalysis; riverStudy / turnStudy(hand, action)
  * reports.ts     A3: range and hand-adjusted reference frequencies, stats rolled up from nodes
  * ```
  *
@@ -74,7 +76,11 @@ export {
   type RiverSkipReason,
   type SpotFacts,
   type SuitTexture,
+  type TurnFacts,
+  type TurnRole,
+  type TurnSkipReason,
   RIVER_SKIP_REASONS,
+  TURN_SKIP_REASONS,
 } from "./types";
 
 export {
@@ -105,7 +111,7 @@ export {
   THIN_BEHIND,
   heuristicFlags,
 } from "./heuristics";
-export { analyzeHand, heroSeatOf, riverStudy, type AnalyzeOptions } from "./analyze";
+export { analyzeHand, heroSeatOf, riverStudy, turnStudy, type AnalyzeOptions } from "./analyze";
 export {
   BLUFF_ZONE,
   CHECK_REPEAT,
@@ -142,13 +148,18 @@ export {
   RIVER_TARGET_PCT,
   RIVER_TREE,
   followLine,
+  followSolvedLine,
   gradeRiver,
+  mapAct,
   optionsAt,
   rakeOf,
   riverActs,
   riverCategory,
   riverStudyAt,
   solveRiverSpot,
+  streetActs,
+  studyAt,
+  type LineOnTree,
   type RiverAct,
   type RiverCategory,
   type RiverFailure,
@@ -156,9 +167,37 @@ export {
   type RiverSolve,
   type RiverSpotInput,
   type RiverStudy,
+  type StreetAct,
   type StudyOption,
   type StudyRow,
 } from "./river";
+export {
+  ALLIN_MAX_POT,
+  LINE_SIZE_GAP,
+  TURN_CATEGORIES,
+  TURN_MAX_ITERATIONS,
+  TURN_MENU,
+  TURN_PROFILE,
+  TURN_RAISE_CAP,
+  TURN_RIVER_MENU,
+  TURN_TARGET_PCT,
+  TURN_TREE,
+  followTurnLine,
+  gradeTurn,
+  lineMenu,
+  riverOutlook,
+  riverStartFromTurn,
+  solveTurnSpot,
+  turnCategory,
+  turnRole,
+  turnStudyAt,
+  type TurnCategory,
+  type TurnFailure,
+  type TurnGrade,
+  type TurnProfile,
+  type TurnSolve,
+  type TurnSpotInput,
+} from "./turn";
 export {
   MIX_MIN_FREQ,
   bestOption,

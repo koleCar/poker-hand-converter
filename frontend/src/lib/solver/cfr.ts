@@ -47,6 +47,14 @@
  * for the children's reach and one for the node's strategy. The recursion
  * passes offsets into them instead of `subarray` views, which would allocate.
  *
+ * **Turn speed-ups (A5a).** A chance node deals one card per suit class and
+ * adds the classes' other cards back through a relabelling of the hands
+ * (`game.mirrors`, exact); CFR iterations may walk one stratum of a chance
+ * node's cards (`ChanceSampling`, seeded); a player's own node reuses the
+ * regret-matched strategy its opponent's traversal just computed there; and
+ * `evaluate` records EVs only for the nodes asked for. Showdowns read cards in
+ * strength order and skip zero reach.
+ *
  * **Deterministic.** Same game, same parameters, same iteration count - same
  * bits. Nothing here reads a clock or a random source, and the summation order
  * is fixed by the input order.
@@ -63,6 +71,32 @@ export interface DcfrParams {
 
 /** Brown & Sandholm's recommended DCFR parameters. */
 export const DEFAULT_DCFR: Readonly<DcfrParams> = { alpha: 1.5, beta: 0, gamma: 2 };
+
+/**
+ * Public chance sampling, stratified (phase A5a). The edges of every chance
+ * node that leads to more betting are split into `groups` strata by card
+ * (`(rank + suit) mod groups`, so each stratum holds every suit and a spread
+ * of ranks); a CFR iteration walks one stratum and scales it by `groups`,
+ * which keeps every counterfactual value an unbiased estimate. The strata are
+ * visited once per cycle of `groups` iterations, in an order shuffled per
+ * cycle by a seeded generator: deterministic, and no river card waits more
+ * than two cycles. Best response, evaluation and therefore every reported
+ * exploitability always walk every card - the number is exact, not sampled.
+ * A chance node whose children are all terminal (an all-in run out) is never
+ * sampled: it costs nothing and sampling it would only add noise.
+ */
+export interface ChanceSampling {
+  /** Strata per chance node; 1 disables sampling. */
+  groups: number;
+  /** Seed of the per-cycle stratum order. */
+  seed?: number;
+  /** Sample only up to this iteration; every later iteration walks every card. Default: always sample. */
+  until?: number;
+}
+
+export interface SolverConfig {
+  sampling?: ChanceSampling;
+}
 
 export interface Exploitability {
   /** Each player's best-response value against the other's average strategy. */
@@ -86,6 +120,13 @@ export interface RunOptions {
   targetExploitability?: number;
   /** Measure exploitability every this many iterations. Default 10. */
   checkEvery?: number;
+  /**
+   * First measurement at this iteration (default `checkEvery`). A measurement
+   * walks the whole tree three times; on a sampled turn solve that is about
+   * ten sampled iterations' work, so measuring long before the solve can be
+   * near its target is waste.
+   */
+  checkFrom?: number;
   /** Called after each measurement. Returning `false` stops the run. */
   onProgress?: (progress: RunProgress) => boolean | void;
 }
@@ -112,10 +153,26 @@ export class Solver {
   readonly offset: Int32Array;
   /** Cumulative discounted regrets, `[node block][action][hand]`. */
   readonly regrets: Float32Array;
+  /**
+   * Each node's current (regret-matched) strategy as last computed at it as
+   * the opponent's node, and the traversal that computed it (`stamp`). The
+   * player's own next traversal reads it back instead of matching again: the
+   * regrets have not moved in between. Halves the regret matching, which was
+   * a sixth of a solve.
+   */
+  private readonly current: Float32Array;
+  private readonly currentStamp: Int32Array;
+  /** Counts traversals: `2 * iteration + traverser` during CFR. */
+  private stamp = 0;
   /** Cumulative `t^γ`-weighted strategy, same layout. */
   readonly strategySum: Float32Array;
-  /** Counterfactual EV per action per hand from the last `evaluate()`; same layout. */
+  /**
+   * Counterfactual EV per action per hand from the last `evaluate()`, laid out
+   * like `regrets` but only for the nodes it recorded: node `x`'s block starts
+   * at `evOffset[x]`, -1 for a node it skipped.
+   */
   ev: Float32Array | null = null;
+  evOffset: Int32Array | null = null;
   /** Iterations run so far. */
   iterations = 0;
 
@@ -128,6 +185,13 @@ export class Solver {
   /** Sum of both players' payoffs if it is the same at every terminal (no rake), else NaN. */
   private readonly constantSum: number;
 
+  /** Per showdown board, per player: cards and same-combo index in strength order. */
+  private readonly sorted: {
+    c1: [Uint8Array, Uint8Array];
+    c2: [Uint8Array, Uint8Array];
+    same: [Int32Array, Int32Array];
+  }[];
+
   private readonly cfvBuf: Float64Array[] = [];
   private readonly reachBuf: Float64Array[] = [];
   private readonly stratBuf: Float64Array[] = [];
@@ -138,6 +202,16 @@ export class Solver {
   private readonly sumBuf: Float64Array;
   private readonly rootOut: Float64Array;
 
+  /** Sampling: strata per chance node (1 = off), each edge's stratum, which chance nodes are sampled. */
+  private readonly groups: number;
+  private readonly edgeGroup: Uint8Array;
+  private readonly sampledChance: Uint8Array;
+  private readonly rng: () => number;
+  private readonly sampleUntil: number;
+  private cycle: number[] = [];
+  private group = -1;
+  private sampling = false;
+
   private trav = 0;
   private mode = MODE_CFR;
   private recordEv = false;
@@ -145,7 +219,7 @@ export class Solver {
   private dNeg = 0;
   private wStrat = 1;
 
-  constructor(game: Game, params: Partial<DcfrParams> = {}) {
+  constructor(game: Game, params: Partial<DcfrParams> = {}, config: SolverConfig = {}) {
     this.game = game;
     this.params = { ...DEFAULT_DCFR, ...params };
     this.tree = game.tree;
@@ -164,6 +238,8 @@ export class Solver {
     }
     this.offset = offset;
     this.regrets = new Float32Array(total);
+    this.current = new Float32Array(total);
+    this.currentStamp = new Int32Array(tree.size).fill(-2);
     this.strategySum = new Float32Array(total);
 
     // A chance node walks its children one at a time through a single slice,
@@ -184,6 +260,20 @@ export class Solver {
     this.rootOut = new Float64Array(maxHands);
 
     this.same = [sameIndex(game, 0), sameIndex(game, 1)];
+    this.sorted = game.boards.map((board) => {
+      const side = (p: number) => {
+        const order = board.order[p];
+        const hands = game.hands[p];
+        return {
+          c1: Uint8Array.from(order, (i) => hands.c1[i]),
+          c2: Uint8Array.from(order, (i) => hands.c2[i]),
+          same: Int32Array.from(order, (i) => this.same[p][i]),
+        };
+      };
+      const s0 = side(0);
+      const s1 = side(1);
+      return { c1: [s0.c1, s1.c1], c2: [s0.c2, s1.c2], same: [s0.same, s1.same] };
+    });
 
     // Probability mass of all deals: Σ_i w0[i] * (compatible w1 reach of i).
     this.trav = 0;
@@ -194,6 +284,37 @@ export class Solver {
     }
     this.normalizer = norm;
     this.constantSum = constantSum(tree);
+
+    // Chance sampling strata.
+    this.groups = Math.max(1, Math.min(16, Math.floor(config.sampling?.groups ?? 1)));
+    this.edgeGroup = new Uint8Array(tree.children.length);
+    this.sampledChance = new Uint8Array(tree.size);
+    this.rng = mulberry32(config.sampling?.seed ?? 0x5a17);
+    this.sampleUntil = config.sampling?.until ?? Infinity;
+    if (this.groups > 1) {
+      for (let node = 0; node < tree.size; node += 1) {
+        if (tree.type[node] !== CHANCE) {
+          continue;
+        }
+        const start = tree.childStart[node];
+        const end = start + tree.childCount[node];
+        let deeper = false;
+        for (let e = start; e < end; e += 1) {
+          const child = tree.children[e];
+          if (tree.type[child] === ACTION || tree.type[child] === CHANCE) {
+            deeper = true;
+          }
+          const card = tree.edgeCard[e];
+          this.edgeGroup[e] = card >= 0 ? ((card >> 2) + (card & 3)) % this.groups : (e - start) % this.groups;
+        }
+        this.sampledChance[node] = deeper ? 1 : 0;
+      }
+    }
+  }
+
+  /** Strata per chance node this solver samples with; 1 when it does not sample. */
+  get samplingGroups(): number {
+    return this.groups;
   }
 
   /** Total bytes held in typed arrays for this solve. */
@@ -203,7 +324,14 @@ export class Solver {
       scratch += this.cfvBuf[d].byteLength * 3;
     }
     return (
-      this.regrets.byteLength + this.strategySum.byteLength + (this.ev?.byteLength ?? 0) + scratch
+      this.regrets.byteLength +
+      this.strategySum.byteLength +
+      this.current.byteLength +
+      this.currentStamp.byteLength +
+      (this.ev?.byteLength ?? 0) +
+      (this.evOffset?.byteLength ?? 0) +
+      this.offset.byteLength +
+      scratch
     );
   }
 
@@ -219,8 +347,16 @@ export class Solver {
       this.dNeg = pb / (pb + 1);
       this.wStrat = Math.pow(t, gamma);
       this.mode = MODE_CFR;
+      this.sampling = this.groups > 1 && t <= this.sampleUntil;
+      if (this.sampling) {
+        if (this.cycle.length === 0) {
+          this.cycle = shuffled(this.groups, this.rng);
+        }
+        this.group = this.cycle.pop() as number;
+      }
       for (let p = 0; p < 2; p += 1) {
         this.trav = p;
+        this.stamp = 2 * t + p;
         this.walk(tree.root, 0, this.game.hands[1 - p].weight, 0, this.rootOut, 0);
       }
     }
@@ -236,9 +372,11 @@ export class Solver {
     const max = options.maxIterations ?? 1000;
     const target = options.targetExploitability ?? 0.3;
     const every = Math.max(1, options.checkEvery ?? 10);
+    const from = Math.max(1, options.checkFrom ?? every);
     let measured: Exploitability | null = null;
     while (this.iterations < max) {
-      const step = Math.min(every, max - this.iterations);
+      const next = this.iterations < from ? from : this.iterations + every;
+      const step = Math.min(next - this.iterations, max - this.iterations);
       this.iterate(step);
       measured = this.exploitability();
       const keepGoing = options.onProgress?.({ iteration: this.iterations, exploitability: measured });
@@ -289,8 +427,18 @@ export class Solver {
    * at this node and play continues by the average strategy. Comparing two
    * actions' EVs for the same hand is what EV loss is.
    */
-  evaluate(): { value: [number, number]; rootEv: [Float64Array, Float64Array] } {
-    this.ev ??= new Float32Array(this.regrets.length);
+  evaluate(record?: (node: number) => boolean): { value: [number, number]; rootEv: [Float64Array, Float64Array] } {
+    const tree = this.tree;
+    const evOffset = new Int32Array(tree.size).fill(-1);
+    let total = 0;
+    for (let node = 0; node < tree.size; node += 1) {
+      if (tree.type[node] === ACTION && (!record || record(node))) {
+        evOffset[node] = total;
+        total += tree.childCount[node] * this.n[tree.player[node]];
+      }
+    }
+    this.evOffset = evOffset;
+    this.ev = new Float32Array(total);
     this.recordEv = true;
     const value: [number, number] = [0, 0];
     const rootEv: [Float64Array, Float64Array] = [new Float64Array(this.n[0]), new Float64Array(this.n[1])];
@@ -401,7 +549,16 @@ export class Solver {
         return;
       }
       if (mode === MODE_CFR) {
-        this.regretMatch(off, count, n, strat);
+        // The regrets here last changed in this player's previous traversal;
+        // the opponent's traversal since computed this very strategy.
+        if (this.currentStamp[node] === this.stamp - 1) {
+          const current = this.current;
+          for (let k = 0; k < count * n; k += 1) {
+            strat[k] = current[off + k];
+          }
+        } else {
+          this.regretMatch(off, count, n, strat);
+        }
       } else {
         this.average(off, count, n, strat);
       }
@@ -426,14 +583,15 @@ export class Solver {
             regrets[r0 + i] = (r > 0 ? r * dPos : r * dNeg) + cfv[base + i] - out[oOff + i];
           }
         }
-      } else if (this.recordEv) {
+      } else if (this.recordEv && (this.evOffset as Int32Array)[node] >= 0) {
         const ev = this.ev as Float32Array;
+        const evOff = (this.evOffset as Int32Array)[node];
         const norm = this.normBuf;
         this.compat(reach, rOff, norm, 0, 1);
         for (let a = 0; a < count; a += 1) {
           const base = a * n;
           for (let i = 0; i < n; i += 1) {
-            ev[off + base + i] = norm[i] > 0 ? cfv[base + i] / norm[i] : 0;
+            ev[evOff + base + i] = norm[i] > 0 ? cfv[base + i] / norm[i] : 0;
           }
         }
       }
@@ -443,6 +601,12 @@ export class Solver {
     // Opponent's node.
     if (mode === MODE_CFR) {
       this.regretMatch(off, count, m, strat);
+      // Kept for this player's own next traversal (see above).
+      const current = this.current;
+      for (let k = 0; k < count * m; k += 1) {
+        current[off + k] = strat[k];
+      }
+      this.currentStamp[node] = this.stamp;
       const sum = this.strategySum;
       const w = this.wStrat;
       for (let a = 0; a < count; a += 1) {
@@ -494,12 +658,18 @@ export class Solver {
     const pc2 = mine.c2;
     const oc1 = theirs.c1;
     const oc2 = theirs.c2;
-    const w = tree.chanceWeight[node];
+    const mirrors = this.game.mirrors;
+    const sample = this.mode === MODE_CFR && this.sampling && this.sampledChance[node] === 1;
+    const group = this.group;
+    const w = tree.chanceWeight[node] * (sample ? this.groups : 1);
     const childReach = this.reachBuf[depth];
     const cfv = this.cfvBuf[depth];
     out.fill(0, oOff, oOff + n);
     const end = tree.childStart[node] + tree.childCount[node];
     for (let e = tree.childStart[node]; e < end; e += 1) {
+      if (sample && this.edgeGroup[e] !== group) {
+        continue;
+      }
       const card = tree.edgeCard[e];
       let any = 0;
       for (let j = 0; j < m; j += 1) {
@@ -514,6 +684,21 @@ export class Solver {
       for (let i = 0; i < n; i += 1) {
         if (pc1[i] !== card && pc2[i] !== card) {
           out[oOff + i] += w * cfv[i];
+        }
+      }
+      // Suit isomorphism (`game.mirrors`): each card this one stands for is
+      // the same subtree with the hands relabelled, so its values are these
+      // values read through the relabelling.
+      const twins = mirrors?.[card];
+      if (twins) {
+        for (let k = 0; k < twins.length; k += 1) {
+          const other = twins[k].card;
+          const map = twins[k].map[p];
+          for (let i = 0; i < n; i += 1) {
+            if (pc1[i] !== other && pc2[i] !== other) {
+              out[oOff + i] += w * cfv[map[i]];
+            }
+          }
         }
       }
     }
@@ -554,13 +739,15 @@ export class Solver {
     const p = this.trav;
     const o = 1 - p;
     const n = this.n[p];
-    const mine = this.game.hands[p];
-    const theirs = this.game.hands[o];
-    const pc1 = mine.c1;
-    const pc2 = mine.c2;
-    const oc1 = theirs.c1;
-    const oc2 = theirs.c2;
-    const board = this.game.boards[tree.board[node]];
+    const boardId = tree.board[node];
+    const board = this.game.boards[boardId];
+    const sorted = this.sorted[boardId];
+    // Cards in strength order, so the sweeps read them sequentially.
+    const pc1 = sorted.c1[p];
+    const pc2 = sorted.c2[p];
+    const psame = sorted.same[p];
+    const oc1 = sorted.c1[o];
+    const oc2 = sorted.c2[o];
     const ordP = board.order[p];
     const strP = board.strength[p];
     const ordO = board.order[o];
@@ -571,7 +758,6 @@ export class Solver {
     const win = tree.payoff[base];
     const lose = tree.payoff[base + 1];
     const tie = tree.payoff[base + 2];
-    const same = this.same[p];
 
     // Hands impossible on this board are absent from `ordP`; they score zero.
     if (nv < n) {
@@ -580,31 +766,33 @@ export class Solver {
 
     // Ascending: compatible opponent reach strictly weaker than each hand.
     // Running the sweep on to the end leaves the totals - all opponent reach,
-    // and per card - in `cum` / `cs`, which saves a separate pass.
+    // and per card - in `cum` / `cs`, which saves a separate pass. Zero reach
+    // (a hand the opponent's strategy took elsewhere) adds nothing and is skipped.
     const wins = this.winBuf;
     const cs = this.cardSum;
     cs.fill(0);
     let cum = 0;
     let k = 0;
     for (let t = 0; t < nv; t += 1) {
-      const i = ordP[t];
       const s = strP[t];
       while (k < mv && strO[k] < s) {
-        const j = ordO[k];
-        const v = reach[rOff + j];
-        cum += v;
-        cs[oc1[j]] += v;
-        cs[oc2[j]] += v;
+        const v = reach[rOff + ordO[k]];
+        if (v !== 0) {
+          cum += v;
+          cs[oc1[k]] += v;
+          cs[oc2[k]] += v;
+        }
         k += 1;
       }
-      wins[i] = cum - cs[pc1[i]] - cs[pc2[i]];
+      wins[t] = cum - cs[pc1[t]] - cs[pc2[t]];
     }
     for (; k < mv; k += 1) {
-      const j = ordO[k];
-      const v = reach[rOff + j];
-      cum += v;
-      cs[oc1[j]] += v;
-      cs[oc2[j]] += v;
+      const v = reach[rOff + ordO[k]];
+      if (v !== 0) {
+        cum += v;
+        cs[oc1[k]] += v;
+        cs[oc2[k]] += v;
+      }
     }
     const total = cum;
 
@@ -616,21 +804,23 @@ export class Solver {
     const winMinusLose = win - lose;
     const tieMinusLose = tie - lose;
     for (let t = nv - 1; t >= 0; t -= 1) {
-      const i = ordP[t];
       const s = strP[t];
       while (k >= 0 && strO[k] > s) {
-        const j = ordO[k];
-        const v = reach[rOff + j];
-        cum += v;
-        acc[oc1[j]] += v;
-        acc[oc2[j]] += v;
+        const v = reach[rOff + ordO[k]];
+        if (v !== 0) {
+          cum += v;
+          acc[oc1[k]] += v;
+          acc[oc2[k]] += v;
+        }
         k -= 1;
       }
-      const losses = cum - acc[pc1[i]] - acc[pc2[i]];
-      const sm = same[i];
-      const all = total - cs[pc1[i]] - cs[pc2[i]] + (sm >= 0 ? reach[rOff + sm] : 0);
-      const w = wins[i];
-      out[oOff + i] = lose * all + winMinusLose * w + tieMinusLose * (all - w - losses);
+      const a = pc1[t];
+      const b = pc2[t];
+      const losses = cum - acc[a] - acc[b];
+      const sm = psame[t];
+      const all = total - cs[a] - cs[b] + (sm >= 0 ? reach[rOff + sm] : 0);
+      const w = wins[t];
+      out[oOff + ordP[t]] = lose * all + winMinusLose * w + tieMinusLose * (all - w - losses);
     }
   }
 
@@ -683,6 +873,30 @@ export class Solver {
       }
     }
   }
+}
+
+/** A seeded 32-bit generator (mulberry32): the sampling order, reproducible. */
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** `0 .. count - 1` in a seeded random order (Fisher-Yates). */
+function shuffled(count: number, rng: () => number): number[] {
+  const out = Array.from({ length: count }, (_, k) => k);
+  for (let k = count - 1; k > 0; k -= 1) {
+    const j = Math.floor(rng() * (k + 1));
+    const swap = out[k];
+    out[k] = out[j];
+    out[j] = swap;
+  }
+  return out;
 }
 
 /** For each of `p`'s hands, the opponent's hand with the same two cards, or -1. */
