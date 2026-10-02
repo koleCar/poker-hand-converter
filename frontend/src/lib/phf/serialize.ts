@@ -15,12 +15,14 @@
 import { extractCards } from "../cards";
 import { NO_LOW_LINE, assignHiLoHalves, checkNoLowStated } from "./hilo";
 import {
+  BUTTON_BLIND_VERB,
   DEFAULT_TEXT_STYLE,
   PHF_SCHEMA,
   USD,
   formatAmount,
   formatAmountDigits,
   assignPositions,
+  isButtonBlind,
   isHiLoLabel,
   variantFromLabel,
   parseAmount,
@@ -357,7 +359,10 @@ function parseHeader(handId: string, payload: string, sourceText = payload): Hea
       payload,
       gameLabel: gameLabel.trim(),
       unit,
-      smallBlind: parseAmount(stakes[0], unit),
+      // A single stake - GG's ante-only short deck, `ShortDeck No Limit ($0.02)`
+      // - names the one blind the table has, and no small blind. Reading it as
+      // both would invent a small blind nobody posts.
+      smallBlind: stakes.length > 1 ? parseAmount(stakes[0], unit) : 0,
       bigBlind: parseAmount(stakes[1] ?? stakes[0], unit),
       headerAnte: parseAmount(stakes[2], unit),
       playedAt,
@@ -507,6 +512,7 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
   let sawHoleCardsMarker = false;
   let dealtLineCount = 0;
   let runTwoTimesLine = false;
+  let pendingBoardLabel = "";
   let noLowStated = false;
   const straddles: PhfGameStraddleDraft[] = [];
   const foldedPlayers = new Set<string>();
@@ -566,9 +572,16 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
         continue;
       }
 
+      // The runout's name can sit on a line of its own, `FIRST` then
+      // `Board [..]`; see `ResolvedStyle.boardLabelOwnLine`.
+      if (BOARD_LABEL_LINE.test(trimmed)) {
+        pendingBoardLabel = trimmed;
+        continue;
+      }
       const boardMatch = trimmed.match(/^(FIRST |SECOND |THIRD )?Board\s*\[([^\]]*)\]/i);
       if (boardMatch) {
-        const index = runoutIndexForLabel((boardMatch[1] ?? "").trim());
+        const index = runoutIndexForLabel((boardMatch[1] ?? pendingBoardLabel).trim());
+        pendingBoardLabel = "";
         summaryBoards.set(index, extractCards(boardMatch[2]));
         continue;
       }
@@ -766,21 +779,26 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
       continue;
     }
 
+    // `button` is GG's short deck: the one blind of an ante-only table, posted
+    // by the button. It is a big blind in every way the money cares about, so
+    // it is typed as one and the verb says who posted it; see `isButtonBlind`.
     const blindMatch = trimmed.match(
-      new RegExp(String.raw`^(.+?): posts (small|big) blind ${MONEY}( and is all-in)?$`),
+      new RegExp(String.raw`^(.+?): posts (small|big|button) blind ${MONEY}( and is all-in)?$`),
     );
     if (blindMatch) {
       const player = blindMatch[1];
       const amount = parseAmount(blindMatch[3], unit);
+      const kind = blindMatch[2].toLowerCase();
       push({
         street: "preflop",
         seat: seatOf(player),
         player,
-        type: blindMatch[2].toLowerCase() === "small" ? "small-blind" : "big-blind",
+        type: kind === "small" ? "small-blind" : "big-blind",
         amount,
         streetTotal: commit(player, amount),
         allIn: Boolean(blindMatch[4]),
-        label: `${blindMatch[2].toLowerCase()} blind ${formatAmount(amount, unit)}`,
+        ...(kind === "button" ? { verb: BUTTON_BLIND_VERB } : {}),
+        label: `${kind} blind ${formatAmount(amount, unit)}`,
         sourceLine: lineNo,
         rawLine: trimmed,
       });
@@ -859,13 +877,21 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
       const player = postMatch[1];
       const verb = postMatch[2];
       const explicitStraddle = verb !== "posts";
-      const amount = parseAmount(postMatch[3], unit);
+      const printed = parseAmount(postMatch[3], unit);
+      // GG's bare `straddle` states the straddler's street *total*, like the
+      // `to` of a raise: short deck's button blind straddles its own blind
+      // (`posts button blind $0.02`, `straddle $0.04`, `straddle $0.08` is
+      // 0.08 in, not 0.14), and a PLO-5 over-straddle restates the whole stack.
+      // For a straddler with nothing in yet the two readings agree, which is
+      // every other straddle in the corpus. `posts straddle` stays chips added.
+      const already = streetCommit.get(player) ?? 0;
+      const amount = verb === "straddle" ? printed - already : printed;
       // Some sites name the straddle; otherwise a bare "posts" before the deal
       // that exceeds the big blind is one, and anything else is dead money.
       const isStraddle =
         explicitStraddle || (street === "preflop" && amount > header.bigBlind);
       if (isStraddle) {
-        straddles.push({ player, amount });
+        straddles.push({ player, amount: already + amount });
       }
       push({
         street,
@@ -878,7 +904,7 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
         // Echo the room's own verb so the text round-trips; the action type is
         // what code should branch on.
         verb: explicitStraddle ? verb : undefined,
-        label: `posts ${formatAmount(amount, unit)}`,
+        label: `posts ${formatAmount(printed, unit)}`,
         sourceLine: lineNo,
         rawLine: trimmed,
       });
@@ -1238,6 +1264,16 @@ function buildResults(input: {
   const shownAtShowdown = new Set(
     actions.filter((action) => action.type === "show").map((action) => action.player),
   );
+  // Cards a `shows` line exposed that the summary does not repeat - GG prints
+  // `11294517: shows [7s]` for a seat whose summary line is a plain `folded
+  // before Flop`. `StarsHandDraft.build` keeps them, and the two readers have
+  // to agree for a hand to come back from its own text unchanged.
+  const revealedInStream = new Map<string, string[]>();
+  for (const action of actions) {
+    if (action.cards && action.cards.length > 0) {
+      revealedInStream.set(action.player, action.cards);
+    }
+  }
 
   const playerResults: PhfPlayerResult[] = players.map((player) => {
     const summaryLine = summarySeatLines.get(player.seat) ?? null;
@@ -1253,7 +1289,10 @@ function buildResults(input: {
       contributed,
       net: won - contributed,
       wentToShowdown: shownAtShowdown.has(player.name) || parsed.outcome === "showed",
-      shownCards: parsed.shownCards ?? [],
+      shownCards:
+        parsed.shownCards && parsed.shownCards.length > 0
+          ? parsed.shownCards
+          : (revealedInStream.get(player.name) ?? []),
       mucked: parsed.mucked ?? false,
       handDescription: parsed.handDescription ?? null,
       positionLabels: parsed.positionLabels ?? [],
@@ -1346,7 +1385,19 @@ interface ResolvedStyle {
   showdownToken: string;
   tournamentNameStyle: "parens" | "inline";
   levelParenSpace: boolean;
+  /**
+   * Two quirks of one GG export (`ggpoker/12-...`, which fpdb files as an
+   * "internal" build): a run-it-twice SUMMARY that names each runout on a line
+   * of its own - `FIRST`, then `Board [..]` - rather than `FIRST Board [..]`,
+   * and two spaces between `*** FLOP ***` and its cards. Presentation only, so
+   * both are read off the source like the rest of this block, not stored.
+   */
+  boardLabelOwnLine: boolean;
+  flopMarkerGap: string;
 }
+
+/** The runout name on a line of its own; see `ResolvedStyle.boardLabelOwnLine`. */
+const BOARD_LABEL_LINE = /^(?:FIRST|SECOND|THIRD)[ \t]*$/im;
 
 const DEFAULT_FEE_COLUMNS = ["Rake", "Jackpot", "Bingo", "Fortune", "Tax"];
 
@@ -1482,6 +1533,8 @@ function resolveTextStyle(hand: PhfHand): ResolvedStyle {
       tournamentClause && !/^Tournament\s*\(/.test(tournamentClause) ? "inline" : "parens",
     // `Level XI (50/100)` versus GG's glued `Level14(300/600)`.
     levelParenSpace: /Level\s*\S+?\s\(/.test(tournamentClause) || !/Level/.test(tournamentClause),
+    boardLabelOwnLine: BOARD_LABEL_LINE.test(source),
+    flopMarkerGap: /^\*\*\* (?:FIRST |SECOND |THIRD )?FLOP \*\*\* {2}\[/m.test(source) ? "  " : " ",
   };
 }
 
@@ -1609,7 +1662,9 @@ export function toStandardText(hand: PhfHand, options: SerializeOptions = {}): s
       return label ? `${label} ` : "";
     };
     if (run.flop) {
-      lines.push(`*** ${prefix("flop")}FLOP *** [${resolved.slice(0, 3).join(" ")}]`);
+      lines.push(
+        `*** ${prefix("flop")}FLOP ***${style.flopMarkerGap}[${resolved.slice(0, 3).join(" ")}]`,
+      );
       currentBet = 0;
       emitFor("flop", runIndex);
     }
@@ -1658,7 +1713,7 @@ export function toStandardText(hand: PhfHand, options: SerializeOptions = {}): s
   if (hand.meta.textStyle.runItTwiceNote && runCount > 1) {
     lines.push(`Hand was run ${RUN_WORDS[runCount] ?? `${runCount} times`}`);
   }
-  for (const line of boardLines(hand)) {
+  for (const line of boardLines(hand, style)) {
     lines.push(line);
   }
   for (const player of [...hand.players].sort((a, b) => a.seat - b.seat)) {
@@ -1742,7 +1797,12 @@ function headerPayload(hand: PhfHand, style: ResolvedStyle): string {
     return `Tournament #${tour.id}, ${lead} ${hand.game.label} - ${level}${stakes} - ${date}`;
   }
 
-  const stakes = `${money(hand.game.smallBlind, unit)}/${money(hand.game.bigBlind, unit)}`;
+  // GG prints the ante-only short deck with one stake, `ShortDeck No Limit
+  // ($0.02)`, and that is the shape trackers import it in.
+  const stakes =
+    hand.game.variant === "shortdeck" && hand.game.smallBlind === 0
+      ? money(hand.game.bigBlind, unit)
+      : `${money(hand.game.smallBlind, unit)}/${money(hand.game.bigBlind, unit)}`;
   return `${hand.game.label} (${stakes}) - ${date}`;
 }
 
@@ -1795,11 +1855,17 @@ function actionLine(
       return `${action.player}: posts the ante ${money(action.amount)}${allIn}`;
     case "small-blind":
       return `${action.player}: posts small blind ${money(action.amount)}${allIn}`;
-    case "big-blind":
-      return `${action.player}: posts big blind ${money(action.amount)}${allIn}`;
+    case "big-blind": {
+      const verb = isButtonBlind(action) ? BUTTON_BLIND_VERB : "posts big blind";
+      return `${action.player}: ${verb} ${money(action.amount)}${allIn}`;
+    }
     case "missed-blind":
       return `${action.player}: posts missed blind ${money(action.amount)}`;
-    case "straddle":
+    case "straddle": {
+      // GG's bare verb states the street total; see the reader.
+      const printed = action.verb === "straddle" ? action.streetTotal : action.amount;
+      return `${action.player}: ${action.verb ?? "posts"} ${money(printed)}${allIn}`;
+    }
     case "post":
     case "bomb-ante":
       return `${action.player}: ${action.verb ?? "posts"} ${money(action.amount)}${allIn}`;
@@ -1856,7 +1922,7 @@ function summaryPotLine(hand: PhfHand, style: ResolvedStyle): string {
   return `Total pot ${money(hand.results.totalPot)}${breakdown}${columns}`;
 }
 
-function boardLines(hand: PhfHand): string[] {
+function boardLines(hand: PhfHand, style: ResolvedStyle): string[] {
   const runCount = hand.board.runouts.length;
   if (runCount === 1) {
     const captured = hand.board.runouts[0]?.summaryCards;
@@ -1864,15 +1930,19 @@ function boardLines(hand: PhfHand): string[] {
     return cards.length > 0 ? [`Board [${cards.join(" ")}]`] : [];
   }
   const out: string[] = [];
+  const board = (label: string, cards: string[]) =>
+    style.boardLabelOwnLine
+      ? out.push(label, `Board [${cards.join(" ")}]`)
+      : out.push(`${label} Board [${cards.join(" ")}]`);
   for (let i = 0; i < runCount; i += 1) {
     const label = RUN_PREFIXES[i];
     const run = hand.board.runouts[i];
     if (run.summaryCards) {
-      out.push(`${label} Board [${run.summaryCards.join(" ")}]`);
+      board(label, run.summaryCards);
       continue;
     }
     if (i === 0) {
-      out.push(`${label} Board [${resolveRunout(hand.board, 0).join(" ")}]`);
+      board(label, resolveRunout(hand.board, 0));
       continue;
     }
     // Without a captured line, later runouts list only the cards that actually
@@ -1888,7 +1958,7 @@ function boardLines(hand: PhfHand): string[] {
     if (run.river) {
       cards.push(resolved[4]);
     }
-    out.push(`${label} Board [${cards.join(" ")}]`);
+    board(label, cards);
   }
   return out;
 }

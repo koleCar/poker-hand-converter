@@ -2,7 +2,8 @@
  * Equity and all-in EV.
  *
  * ```
- * evaluator.ts   5-7 card values, full deck and short deck (two ranking tables)
+ * evaluator.ts   5-7 card values, full deck and short deck (one table, plus two
+ *                short-deck tables chosen per room)
  * omaha.ts       exactly two from the hand, exactly three from the board
  * enumerate.ts   equity per pot over every runout, or a fixed-seed sample
  * allInEv.ts     PhfHand -> pots at the all-in -> evNet per seat
@@ -44,15 +45,20 @@ export {
 export {
   HAND_CATEGORIES,
   SHORT_DECK,
+  SHORT_DECK_RULE_BY_SITE,
+  SHORT_DECK_STRAIGHT_OVER_TRIPS,
   STANDARD,
   cardCode,
   cardIndex,
   categoryOf,
   evaluate,
   evaluateMasks,
+  shortDeckRuleFor,
+  shortDeckTable,
   suitMasks,
   type HandCategory,
   type RankingTable,
+  type ShortDeckRule,
 } from "./evaluator";
 export {
   boardTripleMasks,

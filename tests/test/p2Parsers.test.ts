@@ -158,9 +158,9 @@ describe(`${site.name} corpus`, () => {
         // Not `toBe("holdem")` any more. A parser emits whatever its own
         // variant lock lists, and the lock is per room -- so the assertion that
         // still bites is that nothing arrives from *outside* the lock. Short
-        // deck is deliberately absent everywhere: nothing downstream models a
-        // 36-card deck, and a short-deck hand read as Hold'em balances against
-        // itself exactly the way a hi/lo hand read as Omaha does.
+        // deck is on no list here: only GG and ACR have short-deck fixtures,
+        // and a short-deck hand read as Hold'em balances against itself
+        // exactly the way a hi/lo hand read as Omaha does.
         expect(UNLOCKED_VARIANTS, where).toContain(hand.game.variant);
         expect(hand.game.variant, where).not.toBe("shortdeck");
       }

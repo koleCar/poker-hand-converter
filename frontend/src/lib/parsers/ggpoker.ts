@@ -51,7 +51,11 @@
  *   runout gets its own `*** FIRST SHOWDOWN ***`; the SUMMARY `SECOND Board`
  *   lists only the cards that differ from the first.
  * - The SUMMARY note is `Hand was run two times`, not PokerStars' "twice".
- * - The straddle verb is bare: `X: straddle $4`, not `X: posts straddle $4`.
+ * - The straddle verb is bare: `X: straddle $4`, not `X: posts straddle $4`,
+ *   and its amount is the straddler's street total, not the chips added.
+ * - Short deck is ante-only: every seat antes, the button alone posts a
+ *   `button blind`, and the header carries one stake - `ShortDeck No Limit
+ *   ($0.02)` - which is that blind.
  */
 
 import { extractCards } from "../cards";
@@ -62,6 +66,7 @@ import {
   type SiteParserContext,
 } from "../phf/detect";
 import {
+  BUTTON_BLIND_VERB,
   CHIPS,
   DEFAULT_TEXT_STYLE,
   ZERO_FEES,
@@ -93,7 +98,7 @@ import {
 } from "./shared/ps-gg-hand";
 import { unsupportedVariantSkip } from "./shared/variant-lock";
 
-export const GGPOKER_PARSER_VERSION = "1.0.0";
+export const GGPOKER_PARSER_VERSION = "1.1.0";
 
 /**
  * What this parser is allowed to read.
@@ -107,11 +112,18 @@ export const GGPOKER_PARSER_VERSION = "1.0.0";
  * the deal block has never been tested against is exactly the assumption this
  * lock exists to refuse. It goes on the list when a fixture does.
  *
- * `ShortDeck No Limit` is in the corpus (fixtures 11 and 12) and stays refused:
- * 36 cards, a flush over a full house, and an ante-only structure with a button
- * blind. That is a different game, not a longer deal.
+ * `ShortDeck No Limit` is on it on the strength of fixtures 11 and 12, five
+ * hands that parse with no warnings, validate and round-trip. Short deck is a
+ * different game rather than a longer deal - 36 cards, a flush over a full
+ * house - and on GG a different posting structure too: everybody antes, the
+ * button alone posts a `button blind`, and anyone may straddle, the button
+ * included, on top of its own blind. The deck and the ranking are the
+ * validator's and the equity module's business; the structure is this file's,
+ * and the two things it needed are the button blind (read as a big blind whose
+ * verb says who posted it, see `isButtonBlind`) and reading a straddle as the
+ * street total GG states it as.
  */
-const GGPOKER_VARIANTS: readonly Variant[] = ["holdem", "omaha", "omaha5"];
+const GGPOKER_VARIANTS: readonly Variant[] = ["holdem", "omaha", "omaha5", "shortdeck"];
 
 /**
  * GG hand ids carry a two-letter product prefix.
@@ -140,7 +152,8 @@ const PRODUCT_PREFIXES: Record<string, string> = {
  * matters for the exports whose hand id carries no product prefix at all -
  * `Poker Hand #1171217378123557259: ShortDeck No Limit ($100)`.
  */
-const GG_GAME_LABEL = /^Poker Hand #\S+:\s*(?:ShortDeck|PLO(?:-\d)?|NLO\d?)\b/m;
+const GG_GAME_LABEL =
+  /^Poker Hand #\S+:\s*(?:ShortDeck|Hold'?em\s+Short\s*Deck|PLO(?:-\d)?|NLO\d?)\b/m;
 
 const HEADER_REGEX = /^(?:GG\s*)?Poker Hand #([A-Za-z0-9_-]+):\s*(.*)$/;
 const HEADER_PREFIX = /^(?:GG\s*)?Poker Hand #[A-Za-z0-9_-]+:/;
@@ -467,13 +480,8 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
 
   const money = (value: string | undefined) => parseAmount(value, unit);
   let inSummary = false;
-  /**
-   * Who has already put *live* money in before the deal.
-   *
-   * Only used by the straddle guard below. Antes are deliberately not counted:
-   * they are dead money and never part of a street commitment.
-   */
-  const livePosters = new Set<string>();
+  /** A runout name printed on its own line, waiting for its `Board` line. */
+  let pendingBoardLabel = "";
 
   for (let i = 1; i < lines.length; i += 1) {
     const rawLine = lines[i];
@@ -506,9 +514,19 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
         draft.noteRunItTwice();
         continue;
       }
+      // Fixture 12 puts the runout's name on a line of its own - `FIRST`, then
+      // `Board [..]` - where every other run-it-twice export writes
+      // `FIRST Board [..]`. Same fact, so it is read into the same field; the
+      // layout is presentation, which `toStandardText` reads off the source.
+      if (/^(?:FIRST|SECOND|THIRD)$/i.test(line)) {
+        pendingBoardLabel = line;
+        continue;
+      }
       const board = line.match(/^(FIRST |SECOND |THIRD )?Board\s*\[([^\]]*)\]/i);
       if (board) {
-        draft.summaryBoard(runoutIndexForLabel((board[1] ?? "").trim()), extractCards(board[2]));
+        const label = (board[1] ?? pendingBoardLabel).trim();
+        pendingBoardLabel = "";
+        draft.summaryBoard(runoutIndexForLabel(label), extractCards(board[2]));
         continue;
       }
       const seat = line.match(/^Seat (\d+):/);
@@ -611,17 +629,19 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
       continue;
     }
 
+    // `button` is short deck's only blind; see `isButtonBlind` for why it is
+    // a big blind with a verb rather than a new kind of posting.
     const blind = line.match(
-      new RegExp(String.raw`^(.+?): posts (small|big) blind ${MONEY}${SUFFIX}$`),
+      new RegExp(String.raw`^(.+?): posts (small|big|button) blind ${MONEY}${SUFFIX}$`),
     );
     if (blind) {
-      draft.post(
-        blind[1],
-        blind[2].toLowerCase() === "small" ? "small-blind" : "big-blind",
-        money(blind[3]),
-        { allIn: allInFrom(blind[4]), line: lineNo, rawLine: line },
-      );
-      livePosters.add(blind[1]);
+      const kind = blind[2].toLowerCase();
+      draft.post(blind[1], kind === "small" ? "small-blind" : "big-blind", money(blind[3]), {
+        allIn: allInFrom(blind[4]),
+        verb: kind === "button" ? BUTTON_BLIND_VERB : undefined,
+        line: lineNo,
+        rawLine: line,
+      });
       continue;
     }
 
@@ -637,39 +657,30 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
     // neither, and the money silently leaves the pot.
     const straddleLine = line.match(new RegExp(String.raw`^(.+?): straddle ${MONEY}${SUFFIX}$`));
     if (straddleLine) {
-      // A straddle from somebody who has already posted live money is refused,
-      // and the reason is arithmetic rather than squeamishness. GG's straddle
-      // amount is the player's **street total**, not the chips they are adding:
+      // The amount is the player's **street total**, like the `to` of a raise,
+      // not the chips this line adds. Four fixtures say so, and in each the
+      // stated pot only balances on that reading:
       //
-      //   fixture 24 - `ce67ea41: posts big blind $50` then `ce67ea41: straddle
-      //   $100`, and the stated `Total pot $255` only balances if that seat put
-      //   in 100 altogether, not 150;
+      //   fixture 24 - `ce67ea41: posts big blind $50` then `straddle $100`:
+      //   100 in altogether, not 150;
       //   fixture 19 - `straddle $0.5` then `straddle $15.35 and is all-in`
-      //   from one seat whose whole stack is $15.35, which cannot be 15.85.
+      //   from a seat whose whole stack is $15.35;
+      //   fixture 11 - short deck's button blind straddling its own blind,
+      //   `posts button blind $0.02`, `straddle $0.04`, `straddle $0.08`, and
+      //   a seat straddling three times in a row to $0.16.
       //
-      // Every post in this pipeline is chips added - `StarsHandDraft.post` and
-      // `parseStandardHand` both commit the amount they are handed - so the
-      // two readings agree only while the straddler has nothing committed yet,
-      // which is the ordinary case and the one every other fixture is. Where
-      // they disagree the hand is refused rather than booked at the wrong size;
-      // teaching the shared reader that a straddle is a "to" amount is a change
-      // to the standard-text grammar and belongs to its own issue.
-      if (livePosters.has(straddleLine[1])) {
-        throw new ParseSkip(
-          "unsupported-straddle",
-          `${straddleLine[1]} straddles after already posting live money. GG states a ` +
-            "straddle as the player's street total, and this converter reads a post as " +
-            "chips added; the two disagree here, so the hand is refused rather than " +
-            "booked with the wrong amount in the pot.",
-        );
-      }
-      draft.post(straddleLine[1], "straddle", money(straddleLine[2]), {
+      // For a straddler with nothing in yet the two readings agree, which is
+      // why this used to be refused rather than read: every post was chips
+      // added, here and in `parseStandardHand`. The standard text now reads a
+      // bare `straddle` the same way, so the chips added go on the action and
+      // the total goes back out as GG printed it.
+      const to = money(straddleLine[2]);
+      draft.post(straddleLine[1], "straddle", to - draft.committed(straddleLine[1]), {
         allIn: allInFrom(straddleLine[3]),
         verb: "straddle",
         line: lineNo,
         rawLine: line,
       });
-      livePosters.add(straddleLine[1]);
       continue;
     }
 
@@ -836,6 +847,7 @@ export const ggpokerParser: SiteParser = {
   id: "ggpoker",
   name: "GGPoker",
   version: GGPOKER_PARSER_VERSION,
+  shortDeck: true,
 
   detect(text: string): number {
     const head = stripBom(text);
@@ -849,11 +861,11 @@ export const ggpokerParser: SiteParser = {
     }
 
     // Why we outrank the generic reader at all, now that it parses GG's
-    // tournament header correctly too: it has no *variant policy*. On the GG
-    // corpus it emits 133 ShortDeck and Omaha hands that validate cleanly and
-    // would be stored as if they were supported, where this parser refuses
-    // them. Round one is Hold'em only and a wrong hand is worse than a refused
-    // one, so GG text still has to reach the parser that says no.
+    // tournament header correctly too: it has no *variant policy*. Every GG
+    // product it would read cleanly and this parser refuses - six-card Omaha,
+    // All-in-or-Fold - would be stored as if it were supported, and a wrong
+    // hand is worse than a refused one, so GG text still has to reach the
+    // parser that says no.
     const ggTournament = /-\s*Level\s*(?:[IVXLCDM]+|\d+)\s*\(/.test(head);
     const ggProduct = /(?:^|[\r\n])(?:GG\s*)?Poker Hand #(?:RC|TM|SD|OM|PL|SG|BR)/i.test(head);
     if (

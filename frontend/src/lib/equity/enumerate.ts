@@ -37,7 +37,14 @@
  * so a given request always returns the same numbers.
  */
 
-import { cardIndex, evaluateMasks, SHORT_DECK, STANDARD, type RankingTable } from "./evaluator";
+import {
+  cardIndex,
+  evaluateMasks,
+  shortDeckTable,
+  STANDARD,
+  type RankingTable,
+  type ShortDeckRule,
+} from "./evaluator";
 import { evaluateOmahaMasks, holePairMasks } from "./omaha";
 
 /** The games this module can evaluate. Hi/lo, stud and draw are not among them. */
@@ -45,6 +52,12 @@ export type EquityGame = "holdem" | "shortdeck" | "omaha" | "omaha5" | "omaha6";
 
 export interface EquityRequest {
   game: EquityGame;
+  /**
+   * Short deck only: whether three of a kind or a straight ranks higher, which
+   * the rooms disagree on. Defaults to `trips-over-straight`; `allInEv` passes
+   * the hand's room's rule (`shortDeckRuleFor`).
+   */
+  shortDeckRule?: ShortDeckRule;
   /** Hole cards per player, as codes like `"Ah"`. */
   hands: readonly (readonly string[])[];
   /** Board cards already dealt: 0, 3, 4 or 5 of them. */
@@ -109,8 +122,8 @@ export function holeCardsFor(game: EquityGame): number {
 }
 
 /** The ranking table a game is scored with. */
-export function tableFor(game: EquityGame): RankingTable {
-  return game === "shortdeck" ? SHORT_DECK : STANDARD;
+export function tableFor(game: EquityGame, shortDeckRule?: ShortDeckRule): RankingTable {
+  return game === "shortdeck" ? shortDeckTable(shortDeckRule) : STANDARD;
 }
 
 function choose(n: number, k: number): number {
@@ -156,7 +169,7 @@ interface Prepared {
 }
 
 function prepare(request: EquityRequest): Prepared {
-  const table = tableFor(request.game);
+  const table = tableFor(request.game, request.shortDeckRule);
   const holeCount = holeCardsFor(request.game);
   const players = request.hands.length;
   if (players < 1 || players > MAX_PLAYERS) {
@@ -171,7 +184,7 @@ function prepare(request: EquityRequest): Prepared {
       throw new EquityInputError(`not a card: ${code}`);
     }
     if (!deckRanks.has(index >> 2)) {
-      throw new EquityInputError(`${code} is not in a ${table.name} deck`);
+      throw new EquityInputError(`${code} is not in the ${table.deckRanks.length * 4}-card deck`);
     }
     if (seen.has(index)) {
       throw new EquityInputError(`${code} appears twice`);

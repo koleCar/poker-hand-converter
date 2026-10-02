@@ -332,41 +332,50 @@ describe("GGPoker corpus", () => {
   });
 
   it("still has to win detection on GG hands, for the variant policy", () => {
-    // The two readers now agree on every hand they both accept, so parsing
-    // alone is no longer the reason GG uploads route here. The reason is what
-    // happens to the hands this parser *refuses*: the generic reader has no
-    // variant policy, so on the exact same bytes it emits ShortDeck hands that
-    // validate cleanly and would be stored as if they were supported. A wrong
-    // hand is worse than a refused one, so detection has to keep sending GG
-    // text to the parser that says no.
+    // The two readers agree on every hand they both accept, so parsing alone is
+    // not the reason GG uploads route here. The reason is what happens to the
+    // hands this parser *refuses*: the generic reader has no variant policy,
+    // so on the same bytes it emits hands that validate cleanly and would be
+    // stored as if they were supported.
     //
-    // Omaha used to make up the bulk of this set and no longer does: it is on
-    // the parser's allowlist, proven by fifteen files of its own. What is left
-    // is short deck, which is a different game rather than a longer deal, plus
-    // the two straddles whose amount the shared reader would mis-commit.
-    let bothAccept = 0;
-    const weRefuseTheyDont: string[] = [];
-    for (const entry of PARSED) {
-      const standard = parseStandardHand(entry.raw, {
-        siteId: "standard",
-        siteName: "standard",
-        originalFilename: null,
-      });
-      if (entry.hand) {
-        bothAccept += 1;
-        continue;
-      }
-      if (entry.skip && standard && validateHand(standard).ok) {
-        weRefuseTheyDont.push(entry.skip.reason);
-        expect(standard.game.variant, entry.raw.split("\n")[0]).not.toBe("holdem");
-      }
-    }
-    expect(bothAccept).toBeGreaterThan(400);
-    // Every one of these is a hand the generic reader would have stored.
-    expect(weRefuseTheyDont.length).toBeGreaterThanOrEqual(2);
-    for (const reason of weRefuseTheyDont) {
-      expect(["unsupported-variant", "unsupported-format"]).toContain(reason);
-    }
+    // The verified corpus no longer holds one. Omaha went first, then short
+    // deck and the two PLO-5 straddles that restate a street total (#47) - each
+    // read once its own files came out clean. What the policy still guards is
+    // what the corpus does not hold, and PLO-6 is the product GG really spreads
+    // with no fixture behind it.
+    expect(PARSED.filter((entry) => !entry.hand).map((entry) => entry.skip?.reason)).toEqual([]);
+    expect(PARSED.length).toBeGreaterThan(400);
+
+    const plo6 = [
+      "Poker Hand #OM2600000012: PLO-6 ($0.25/$0.5) - 2026/03/01 10:00:00",
+      "Table 'PLO6Blue1' 6-max Seat #1 is the button",
+      "Seat 1: aaaaaaaa ($50 in chips)",
+      "Seat 2: Hero ($50 in chips)",
+      "aaaaaaaa: posts small blind $0.25",
+      "Hero: posts big blind $0.5",
+      "*** HOLE CARDS ***",
+      "Dealt to aaaaaaaa ",
+      "Dealt to Hero [Ah Kh Qd Jd Tc 9c]",
+      "aaaaaaaa: folds",
+      "Uncalled bet ($0.25) returned to Hero",
+      "*** SHOWDOWN ***",
+      "Hero collected $0.5 from pot",
+      "*** SUMMARY ***",
+      "Total pot $0.5 | Rake $0",
+      "Seat 1: aaaaaaaa (button) (small blind) folded before Flop",
+      "Seat 2: Hero (big blind) collected ($0.5)",
+    ].join("\n");
+    const standard = parseStandardHand(plo6, {
+      siteId: "standard",
+      siteName: "standard",
+      originalFilename: null,
+    })!;
+    // The generic reader would store it...
+    expect(standard.game.variant).toBe("omaha6");
+    expect(validateHand(standard).ok).toBe(true);
+    // ...so GG has to claim it, and refuse it.
+    expect(detectSite(plo6)[0]?.parser.id).toBe("ggpoker");
+    expect(() => ggpokerParser.parseHand(plo6, CTX)).toThrow(ParseSkip);
   });
 
   it("replays every hand without a negative stack and pays the pot out", () => {
@@ -740,13 +749,10 @@ describe("GGPoker shapes the reference corpus does not contain", () => {
     // enough on its own.
     const file = sampleFiles("ggpoker").find((entry) => entry.name.startsWith("12-"))!;
     expect(ggpokerParser.detect(file.text)).toBe(0.95);
-    // ...and it is then refused, because short deck is a 36-card game.
-    try {
-      ggpokerParser.parseHand(firstHandOf("12-"), CTX);
-      throw new Error("short deck was converted");
-    } catch (error) {
-      expect((error as ParseSkip).reason).toBe("unsupported-variant");
-    }
+    // ...and it is then read as what it is: a 36-card game, not Hold'em.
+    const hand = ggpokerParser.parseHand(firstHandOf("12-"), CTX);
+    expect(hand.game.variant).toBe("shortdeck");
+    expect(hand.meta.warnings).toEqual([]);
   });
 
   it("accounts for a house-funded cash drop instead of refusing the hand", () => {
@@ -804,9 +810,8 @@ describe("GGPoker shapes the reference corpus does not contain", () => {
   it("reads GG's bare straddle verb, which has no 'posts'", () => {
     // Real GG writes `27925b27: straddle $0.04`, not PokerStars'
     // `X: posts straddle $4`. Every straddle in the fpdb corpus is on a PLO-5
-    // or ShortDeck table, which this parser refuses before it reads a single
-    // action line, so the Hold'em hand below is a reconstruction of that verb -
-    // but the verb itself is quoted from fixtures 11 and 19.
+    // or ShortDeck table, so the Hold'em hand below is a reconstruction of that
+    // verb - but the verb itself is quoted from fixtures 11 and 19.
     const hand = ggpokerParser.parseHand(
       [
         "Poker Hand #RC2600000011: Hold'em No Limit ($0.01/$0.02) - 2021/03/01 10:00:00",
@@ -948,23 +953,40 @@ describe("GGPoker refusals", () => {
     }
   });
 
-  it("refuses Short Deck, which GG sells as 6+ Hold'em", () => {
+  it("reads Short Deck under its 6+ Hold'em name as short deck, never as Hold'em", () => {
     // The label contains "Hold'em", so a variant test that looks for that word
     // first happily converts a 36-card game as if it were a 52-card one.
-    const shortDeck = [
-      "Poker Hand #SD2600000009: 6+ Hold'em No Limit ($0.25/$0.5) - 2026/03/01 10:00:00",
-      "Table 'ShortDeck1' 6-max Seat #1 is the button",
-      "Seat 1: aaaaaaaa ($50 in chips)",
-    ].join("\n");
-    try {
-      ggpokerParser.parseHand(shortDeck, CTX);
-      throw new Error("short deck was converted");
-    } catch (error) {
-      expect((error as ParseSkip).reason).toBe("unsupported-variant");
-    }
-    // It is still claimed, so the refusal is recorded against GG rather than
-    // landing in the generic reader and being converted as Hold'em.
-    expect(ggpokerParser.detect(shortDeck)).toBe(0.95);
+    const shortDeck = (holeCards: string) =>
+      [
+        "Poker Hand #SD2600000009: 6+ Hold'em No Limit ($0.25/$0.5) - 2026/03/01 10:00:00",
+        "Table 'ShortDeck1' 6-max Seat #1 is the button",
+        "Seat 1: aaaaaaaa ($50 in chips)",
+        "Seat 2: Hero ($50 in chips)",
+        "aaaaaaaa: posts small blind $0.25",
+        "Hero: posts big blind $0.5",
+        "*** HOLE CARDS ***",
+        "Dealt to aaaaaaaa ",
+        `Dealt to Hero [${holeCards}]`,
+        "aaaaaaaa: folds",
+        "Uncalled bet ($0.25) returned to Hero",
+        "*** SHOWDOWN ***",
+        "Hero collected $0.5 from pot",
+        "*** SUMMARY ***",
+        "Total pot $0.5 | Rake $0",
+        "Seat 1: aaaaaaaa (button) (small blind) folded before Flop",
+        "Seat 2: Hero (big blind) collected ($0.5)",
+      ].join("\n");
+    // Claimed, so it reaches the parser with a short-deck policy.
+    expect(ggpokerParser.detect(shortDeck("Ah Kh"))).toBe(0.95);
+    const hand = ggpokerParser.parseHand(shortDeck("Ah Kh"), CTX);
+    expect(hand.game.variant).toBe("shortdeck");
+    expect(validateHand(hand).ok).toBe(true);
+    // A deuce-to-five cannot be dealt from 36 cards, so a hand holding one is
+    // not a short-deck hand, whatever its label says.
+    const impossible = ggpokerParser.parseHand(shortDeck("Ah 5h"), CTX);
+    expect(validateHand(impossible).errors.map((problem) => problem.code)).toEqual([
+      "card-not-in-deck",
+    ]);
   });
 
   it("refuses a hand with no seat block rather than inventing one", () => {

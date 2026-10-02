@@ -50,13 +50,23 @@ function leg(
  * steal by definition, so the stat measures nothing. **A straddle excludes it
  * too**: with a straddler acting after the blinds, "folded to the cutoff" is
  * not a spot where the remaining players are only the blinds, so the whole
- * premise of the stat is gone.
+ * premise of the stat is gone. **So does a button blind** (GG's short deck):
+ * there is no small and no big blind to steal from, only antes and one blind
+ * on the seat that acts last, so "folded to the cutoff" is a different spot
+ * with a different price, and pooling it with the Hold'em steal would make
+ * neither number mean anything.
  */
+function stealPossible(context: StatsContext): boolean {
+  return (
+    !context.isBombPot &&
+    !context.hasStraddle &&
+    !context.hasButtonBlind &&
+    context.dealtInSeats.length >= 3
+  );
+}
+
 function isStealAttempt(context: StatsContext, decision: Decision): boolean {
-  if (context.isBombPot || context.hasStraddle) {
-    return false;
-  }
-  if (context.dealtInSeats.length < 3) {
+  if (!stealPossible(context)) {
     return false;
   }
   if (decision.street !== "preflop" || decision.type !== "raise") {
@@ -162,7 +172,7 @@ export function preflopCounters(
 
   /* -------------------------------------------------------- steal attempts - */
 
-  if (unopened && !context.isBombPot && !context.hasStraddle && context.dealtInSeats.length >= 3) {
+  if (unopened && stealPossible(context)) {
     const position = context.position.get(seat);
     if (position && STEAL_POSITIONS.has(position)) {
       counters.steal_opp = 1;

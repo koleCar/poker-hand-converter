@@ -370,6 +370,15 @@ function isOmahaHigh(chunk: string): boolean {
   return /^(?:Game )?Hand #\d+ - (?:.*Tournament #\S+ - )?Omaha\(/m.test(chunk);
 }
 
+/**
+ * Six Plus Hold'em, ACR's short deck: `Game ID: ... 6+ (PRR) ($5 Max) (Six Plus Hold'em)`.
+ * It contains the word Hold'em, so it has to be asked for by name rather than
+ * left to `isHoldem`, which deliberately wants the bare `(Hold'em)`.
+ */
+function isSixPlus(chunk: string): boolean {
+  return /^Game ID:.*\(Six Plus Hold'?em\)\s*$/m.test(chunk);
+}
+
 /** The header line a refusal reason has to be judged against. */
 function headerLineOf(chunk: string): string {
   return (
@@ -439,8 +448,9 @@ describe("ACR / Winning Poker Network", () => {
         converted: dialect === "legacy" ? 122 : dialect === "modern" ? 6 : 1,
       });
 
-      // Everything that is not hold'em is either four-card Omaha, which the
-      // parser's allowlist now admits, or a deliberate refusal - never a crash.
+      // Everything that is not hold'em is either four-card Omaha or Six Plus,
+      // which the parser's allowlist now admits, or a deliberate refusal -
+      // never a crash.
       // Hi/Lo keeps its own reason code: it is a different game from the Omaha
       // above it, not an unreadable one, and the distinction is what stops a
       // split pot being booked as a whole one.
@@ -451,6 +461,14 @@ describe("ACR / Winning Poker Network", () => {
           expect(outcome.hand!.game.variant).toBe("omaha");
           expect(outcome.hand!.game.limit).toBe("pl");
           expect(outcome.hand!.game.hiLo).toBe(false);
+          expect(outcome.hand!.meta.warnings, outcome.file).toEqual([]);
+          continue;
+        }
+        if (isSixPlus(outcome.chunk)) {
+          expect(outcome.hand, `${outcome.file}: ${outcome.message}`).not.toBeNull();
+          expect(outcome.hand!.game.variant).toBe("shortdeck");
+          expect(outcome.hand!.game.limit).toBe("nl");
+          expect(outcome.hand!.game.label).toBe("6+ Hold'em No Limit");
           expect(outcome.hand!.meta.warnings, outcome.file).toEqual([]);
           continue;
         }

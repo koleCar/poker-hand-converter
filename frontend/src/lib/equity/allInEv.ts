@@ -55,6 +55,7 @@ import {
   type EquityGame,
   type EquityRequest,
 } from "./enumerate";
+import { shortDeckRuleFor } from "./evaluator";
 
 /**
  * Schema tag for EV rows, versioned separately from `STATS_VERSION`: an
@@ -452,6 +453,9 @@ export function analyzeAllIn(hand: PhfHand, options: AllInEvOptions = {}): AllIn
     result = equity({
       ...options,
       game,
+      // Rooms disagree on trips against a straight in short deck; the room the
+      // hand came from decides (`SHORT_DECK_RULE_BY_SITE`).
+      ...(game === "shortdeck" ? { shortDeckRule: shortDeckRuleFor(hand.meta.siteId) } : {}),
       hands,
       board,
       pots: layers.map((layer) => layer.eligible.map((seat) => index.get(seat) ?? -1)),

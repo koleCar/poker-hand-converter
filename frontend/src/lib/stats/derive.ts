@@ -14,7 +14,7 @@
  */
 
 import { handClass } from "../cards";
-import { holeCardCount, type PhfHand } from "../phf/types";
+import { cardInDeck, holeCardCount, type PhfHand } from "../phf/types";
 import { buildContext } from "./context";
 import { moneyBySeat } from "./money";
 import { cbetChain, postflopCounters } from "./postflop";
@@ -44,10 +44,18 @@ import {
  * separately (`omahaHandClass` in `lib/cards`); wiring it in is additive and
  * belongs with the PLO reporting that would read it, not with M0 — a class
  * column nothing groups by is a column that will be wrong before it is used.
+ *
+ * Short deck uses the same `AKs` / `AKo` / `77` notation, over the nine ranks
+ * the deck has: 81 of the 169 Hold'em classes. A card the deck does not hold
+ * has no class rather than a Hold'em one; the validator refuses such a hand
+ * anyway (`card-not-in-deck`), so this only matters for a hand built in code.
  */
 function classOf(hand: PhfHand, cards: string[]): string | null {
   const dealt = holeCardCount(hand.game.variant);
   if (dealt === null || cards.length !== dealt) {
+    return null;
+  }
+  if (!cards.every((card) => cardInDeck(card, hand.game.variant))) {
     return null;
   }
   return handClass(cards);

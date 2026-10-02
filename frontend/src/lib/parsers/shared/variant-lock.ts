@@ -18,24 +18,24 @@
  * clean but whose five-card hands are not gets `["holdem", "omaha"]` and keeps
  * refusing `omaha5`. Partial unlocking is the normal outcome, not a failure.
  *
- * ## Short deck is not on any list
+ * ## Short deck is its own entry
  *
  * Six-plus Hold'em is dealt from a 36-card deck, a flush beats a full house and
- * `A-6-7-8-9` is a straight. Nothing downstream - hand class, made-hand
- * strength, equity - models any of that, and a short-deck hand read as Hold'em
- * balances against itself exactly the way a hi/lo hand read as Omaha does. It
- * is refused on its own terms here and will be unlocked, if ever, by its own
- * issue.
+ * `A-6-7-8-9` is a straight, and a short-deck hand read as Hold'em balances
+ * against itself exactly the way a hi/lo hand read as Omaha does. It goes on a
+ * list as `"shortdeck"`, and only for a parser whose own short-deck fixtures
+ * are clean - the same bar as everything else here, plus `SiteParser.shortDeck`,
+ * which is the backstop `convertAny` checks against whatever the parser returns.
  *
- * `variantFromLabel` cannot be relied on to spot it: ACR spells it
- * **`Six Plus Hold'em`**, which contains the word Hold'em and no `6+`, so the
- * shared reader answers `holdem`. That is safe while the reader is only asked
- * about labels that already passed a room's own lock, but it is not safe as the
- * *basis* of a lock, which is why `isShortDeckLabel` below tests the spellings
- * directly and runs before the allowlist check.
+ * The spellings are tested directly (`isShortDeckLabel`), before the allowlist,
+ * rather than trusted to `variantFromLabel`: ACR writes **`Six Plus Hold'em`**,
+ * which contains the word Hold'em, and a reader that looked for that word first
+ * would book a 36-card hand as a 52-card one. `variantFromLabel` now knows every
+ * spelling below too, and is kept a superset of this test on purpose - the lock
+ * and the reader must never disagree about a label the lock lets through.
  */
 
-import { ParseSkip } from "../../phf/detect";
+import { ParseSkip, shortDeckSkip } from "../../phf/detect";
 import { variantFromLabel, type LimitType, type Variant } from "../../phf/types";
 
 /** Hold'em only: the list a parser has until its own fixtures say otherwise. */
@@ -43,6 +43,9 @@ export const HOLDEM_ONLY: readonly Variant[] = ["holdem"];
 
 /** Hold'em plus four-card Omaha. */
 export const HOLDEM_OMAHA: readonly Variant[] = ["holdem", "omaha"];
+
+/** Hold'em, four-card Omaha and short deck. */
+export const HOLDEM_OMAHA_SHORTDECK: readonly Variant[] = ["holdem", "omaha", "shortdeck"];
 
 /** Hold'em plus the whole big-O family the rooms actually spread. */
 export const HOLDEM_OMAHA_FAMILY: readonly Variant[] = ["holdem", "omaha", "omaha5", "omaha6"];
@@ -68,8 +71,10 @@ export const NO_HI_LO: readonly Variant[] = [];
  * Spellings the corpus contains: ACR `Six Plus Hold'em`, GGPoker
  * `NLHold'em Short Deck` / `Short Deck`, and the `6+` form the fpdb reference
  * corpus files are named after. Deliberately generous for the same reason
- * `isHiLoLabel` is: a false positive costs one refused hand that a user can
- * report, a false negative books a 36-card hand as a 52-card one.
+ * `isHiLoLabel` is: a false negative books a 36-card hand as a 52-card one. A
+ * false positive costs one refused hand on a parser without short deck, and on
+ * one with it a Hold'em hand would be dealt a deuce-to-five the validator
+ * refuses (`card-not-in-deck`) as soon as any such card is seen.
  */
 export function isShortDeckLabel(label: string): boolean {
   return (
@@ -129,7 +134,7 @@ export function variantOf(label: string): Variant {
  * against.
  *
  * Returns `null` when the label is a game the parser may read. Short deck is
- * tested first and never passes, whatever the list says.
+ * tested first, by spelling, and passes only when `"shortdeck"` is on the list.
  *
  * Call this *after* `unsupportedGameSkip`, so a hi/lo hand keeps its own, more
  * specific reason code rather than being swallowed by this one.
@@ -140,13 +145,12 @@ export function unsupportedVariantSkip(
 ): ParseSkip | null {
   const named = label.trim() ? `"${label.trim()}"` : "This hand";
   if (isShortDeckLabel(normalizeGameName(label))) {
-    return new ParseSkip(
-      "unsupported-variant",
-      `${named} is a short-deck game. It is dealt from 36 cards, a flush beats a ` +
-        "full house and A-6-7-8-9 is a straight; none of that is modelled yet, and a " +
-        "short-deck hand read as Hold'em balances against itself - so it is refused " +
-        "rather than approximated.",
-    );
+    // The second test is the superset promise above, checked rather than
+    // assumed: a parser builds its game from `variantFromLabel`, so a label
+    // this lets through has to read back as short deck there too.
+    return allowed.includes("shortdeck") && variantOf(label) === "shortdeck"
+      ? null
+      : shortDeckSkip(label);
   }
   const variant = variantOf(label);
   if (allowed.includes(variant)) {
@@ -155,8 +159,15 @@ export function unsupportedVariantSkip(
   return new ParseSkip(
     "unsupported-variant",
     `${named} is ${describe(variant)}, which this parser has not been verified ` +
-      `against. It reads ${allowed.map(describe).join(" and ")}.`,
+      `against. It reads ${listOf(allowed.map(describe))}.`,
   );
+}
+
+/** `a`, `a and b`, `a, b and c`. */
+function listOf(items: string[]): string {
+  return items.length <= 1
+    ? (items[0] ?? "")
+    : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 
 /** Human wording for a variant, for refusal messages. */
@@ -196,7 +207,8 @@ function describe(variant: Variant): string {
  * asserts over every combination.
  *
  * The wording is PokerStars', because that is what the standard text already
- * emits for Hold'em and what Holdem Manager and PokerTracker import. `hiLo`
+ * emits for Hold'em and what Holdem Manager and PokerTracker import - short
+ * deck included, which Stars calls `6+ Hold'em`. `hiLo`
  * adds Stars' own `Hi/Lo` (`Omaha Hi/Lo Pot Limit`): the label is the only
  * place the split survives the trip, so a builder that drops it books a split
  * pot as a whole one.
@@ -209,7 +221,9 @@ export function canonicalGameLabel(variant: Variant, limit: LimitType, hiLo = fa
         ? "5 Card Omaha"
         : variant === "omaha6"
           ? "6 Card Omaha"
-          : "Hold'em";
+          : variant === "shortdeck"
+            ? "6+ Hold'em"
+            : "Hold'em";
   const suffix = limit === "pl" ? "Pot Limit" : limit === "fl" ? "Limit" : "No Limit";
   return `${game}${hiLo ? " Hi/Lo" : ""} ${suffix}`;
 }

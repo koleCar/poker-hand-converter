@@ -25,6 +25,7 @@
 import { extractCards, parseCard } from "../../cards";
 import { assignHiLoHalves } from "../../phf/hilo";
 import {
+  BUTTON_BLIND_VERB,
   CHIPS,
   PHF_SCHEMA,
   ZERO_FEES,
@@ -603,22 +604,30 @@ export class StarsHandDraft {
     if (type === "big-blind") {
       this.bigBlindPosted = Math.max(this.bigBlindPosted, amount);
     }
-    if (type === "straddle") {
-      this.straddles.push({ player: name, amount });
-    }
     // Antes and missed blinds are dead money: they go straight to the pot and do
     // not count toward the current street's bet, so they never touch the commit.
     const dead = type === "ante" || type === "missed-blind" || type === "bomb-ante";
+    const streetTotal = dead ? 0 : this.commit(name, amount);
+    if (type === "straddle") {
+      // The straddle's size, which for a seat that already had money in is
+      // its total rather than the chips this line added; see `PhfStraddle`.
+      this.straddles.push({ player: name, amount: streetTotal });
+    }
     this.push({
       street: "preflop",
       seat: this.seatOf(name),
       player: name,
       type,
       amount,
-      streetTotal: dead ? 0 : this.commit(name, amount),
+      streetTotal,
       allIn: options.allIn ?? false,
       verb: options.verb,
-      label: `${type.replace("-", " ")} ${this.money(amount)}`,
+      // The replayer prints this: a button blind says so, and a straddle shows
+      // its size, which is what the room printed.
+      label:
+        options.verb === BUTTON_BLIND_VERB
+          ? `button blind ${this.money(amount)}`
+          : `${type.replace("-", " ")} ${this.money(type === "straddle" ? streetTotal : amount)}`,
       sourceLine: options.line ?? null,
       rawLine: options.rawLine,
     });

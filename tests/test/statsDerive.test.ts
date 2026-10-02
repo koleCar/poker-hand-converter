@@ -71,6 +71,11 @@ describe("the stats corpus", () => {
   it("has the files and hands it thinks it has", () => {
     expect(FILES.length).toBeGreaterThan(400);
     expect(HANDS.length).toBeGreaterThan(5000);
+    // Short deck rides through every property below too: GG's ante-only
+    // tables with a button blind are the structure most likely to trip a
+    // definition written for small and big blinds, so their presence is
+    // asserted rather than assumed.
+    expect(HANDS.filter((hand) => hand.game.variant === "shortdeck").length).toBe(6);
     // Every hand produces at least two rows; a hand with one seat is not a hand.
     expect(ROWS.length).toBeGreaterThan(HANDS.length * 2);
   });

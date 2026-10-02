@@ -14,7 +14,7 @@
  *  - no stack goes negative at any point in the action stream
  *  - every actor is a seated player
  *  - the board size is a legal one and matches the street reached
- *  - no card appears twice anywhere in the hand
+ *  - no card appears twice anywhere in the hand, and every card is in the deck
  *  - in a hi/lo pot, the high and the low half are the same size
  *
  * `error` means the hand is not trustworthy and must not be stored as a normal
@@ -24,6 +24,7 @@
 import { parseCard } from "../cards";
 import { hiLoPayoutContradictions, hiLoPotGroups } from "./hilo";
 import {
+  cardInDeck,
   holeCardCount,
   resolveRunout,
   totalFees,
@@ -153,6 +154,18 @@ export function validateHand(hand: PhfHand): ValidationReport {
   for (const use of distinctCardUses(hand)) {
     if (!parseCard(use.card)) {
       error("invalid-card", `"${use.card}" is not a valid card (${use.where}).`);
+      continue;
+    }
+    // A deuce through five cannot be dealt from a short deck. It is an error
+    // rather than a warning because the card is not odd, it is impossible:
+    // either the variant is wrong or the cards are, and equity, hand class and
+    // made-hand strength would all be computed against a deck that never was.
+    if (!cardInDeck(use.card, hand.game.variant)) {
+      error(
+        "card-not-in-deck",
+        `${use.card} (${use.where}) is not in the 36-card deck ${hand.game.variant} is dealt from.`,
+        { card: use.card },
+      );
       continue;
     }
     const previous = seen.get(use.card);

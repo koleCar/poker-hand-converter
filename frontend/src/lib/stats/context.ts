@@ -32,6 +32,7 @@
 
 import {
   assignPositions,
+  isButtonBlind,
   houseIntoPot,
   isPostingAction,
   resolveRunout,
@@ -140,6 +141,11 @@ export interface StatsContext {
   streetAggressor: Map<PostflopStreet, number | null>;
 
   hasStraddle: boolean;
+  /**
+   * The table's only blind was posted by the button: GG's ante-only short
+   * deck. Read from the stream (`isButtonBlind`) like everything else here.
+   */
+  hasButtonBlind: boolean;
   isBombPot: boolean;
   anteModel: AnteModel;
   isBigBlindAnte: boolean;
@@ -447,6 +453,7 @@ export function buildContext(hand: PhfHand): StatsContext {
     preflopAggressor,
     streetAggressor,
     hasStraddle: hand.actions.some((action) => action.type === "straddle"),
+    hasButtonBlind: hand.actions.some(isButtonBlind),
     isBombPot,
     anteModel,
     isBigBlindAnte: anteModel === "big-blind-ante",
