@@ -1,13 +1,15 @@
 /**
  * Hand analysis over the whole corpus: properties, not numbers.
  *
- * Every real hand in the repository goes through `analyzeHand`, the function
- * the in-browser rebuild runs, and every result is held to what the database
- * will hold it to (the CHECK constraints of `20261228090000_analysis.sql`) and
- * to the rules of `docs/ANALYSIS-PLAN.md`: flags are never louder than
- * Inaccurate, nothing is graded without a reference, a skipped decision says
- * why, and the record agrees with the stats engine about which decisions there
- * were. `analysisSpots.test.ts` pins the numbers on hands small enough to read.
+ * Every real hand in the repository goes through `analyzeHand` with the
+ * committed chart set, exactly as the in-browser rebuild runs it, and every
+ * result is held to what the database will hold it to (the CHECK constraints
+ * of `20261228090000_analysis.sql`) and to the rules of
+ * `docs/ANALYSIS-PLAN.md`: flags are never louder than Inaccurate, a grade
+ * comes only from the charts and only preflop, a skipped decision says why,
+ * and the record agrees with the stats engine about which decisions there
+ * were. `analysisSpots.test.ts` and `analysisPreflop.test.ts` pin numbers on
+ * hands small enough to read.
  */
 
 import { describe, expect, it } from "vitest";
@@ -17,12 +19,16 @@ import { join } from "node:path";
 import {
   ANALYSIS_VERSION,
   APPROXIMATIONS,
+  CHART_SKIP_REASONS,
   DECISION_SKIP_REASONS,
   FLAG_CODES,
   HAND_SKIP_REASONS,
   analyzeHand,
+  grade,
+  worstGrade,
   type HandAnalysis,
 } from "../../frontend/src/lib/analysis/index.js";
+import { loadCharts } from "../../frontend/src/lib/charts/index.js";
 import { decisionFromStored, handAnalysisFromStored, handAnalysisRow } from "../../frontend/src/lib/db/analysisRows.js";
 import { en } from "../../frontend/src/lib/i18n/en.js";
 import { hr } from "../../frontend/src/lib/i18n/hr.js";
@@ -33,6 +39,9 @@ import { weplayFiles } from "./support/corpus.js";
 import { ggCorpusFiles, readTree, type CorpusFile } from "./support/psggCorpus.js";
 
 const ROOT = join(import.meta.dirname, "../..");
+const CHARTS = loadCharts(
+  JSON.parse(readFileSync(join(ROOT, "frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+);
 
 const FILES: CorpusFile[] = [
   ...ggCorpusFiles(),
@@ -55,15 +64,20 @@ const HANDS: PhfHand[] = (
 
 const RESULTS: Array<{ hand: PhfHand; analysis: HandAnalysis }> = HANDS.map((hand) => ({
   hand,
-  analysis: analyzeHand(structuredClone(hand)),
+  analysis: analyzeHand(structuredClone(hand), { charts: CHARTS }),
 }));
 
 describe("the analysis corpus", () => {
-  it("analyses thousands of real hands, most of them in full", () => {
+  it("analyses thousands of real hands, and grades a good share of their preflop decisions", () => {
     expect(RESULTS.length).toBeGreaterThan(5000);
-    const full = RESULTS.filter((r) => r.analysis.status === "full").length;
-    expect(full / RESULTS.length).toBeGreaterThan(0.6);
+    // Most of the corpus is 9-max or deeper than 120bb (§10, A1), which the
+    // 6-max 100bb charts refuse by name; what they cover, they grade.
+    const analysed = RESULTS.filter((r) => r.analysis.status !== "not-analysed").length;
+    expect(analysed / RESULTS.length).toBeGreaterThan(0.3);
+    expect(RESULTS.some((r) => r.analysis.status === "full")).toBe(true);
     expect(RESULTS.some((r) => r.analysis.status === "partial")).toBe(true);
+    const preflop = RESULTS.flatMap((r) => r.analysis.decisions).filter((d) => d.street === "preflop");
+    expect(preflop.filter((d) => d.grade !== null).length).toBeGreaterThan(500);
   });
 
   it("stamps every record with the version", () => {
@@ -72,7 +86,7 @@ describe("the analysis corpus", () => {
 
   it("is deterministic", () => {
     for (const { hand, analysis } of RESULTS.slice(0, 400)) {
-      expect(analyzeHand(structuredClone(hand))).toEqual(analysis);
+      expect(analyzeHand(structuredClone(hand), { charts: CHARTS })).toEqual(analysis);
     }
   });
 });
@@ -95,7 +109,7 @@ describe("every record satisfies the database's own constraints", () => {
 
   it("names every reason, flag and approximation from the closed lists", () => {
     for (const { analysis } of RESULTS) {
-      if (analysis.reason !== null) expect(HAND_SKIP_REASONS).toContain(analysis.reason);
+      if (analysis.reason !== null) expect([...HAND_SKIP_REASONS, ...DECISION_SKIP_REASONS]).toContain(analysis.reason);
       for (const approximation of analysis.approximations) expect(APPROXIMATIONS).toContain(approximation);
       for (const decision of analysis.decisions) {
         if (decision.reason !== null) expect(DECISION_SKIP_REASONS).toContain(decision.reason);
@@ -107,12 +121,11 @@ describe("every record satisfies the database's own constraints", () => {
     }
   });
 
-  it("never flags louder than Inaccurate, and never grades without a reference (§3.6)", () => {
+  it("never flags louder than Inaccurate, and grades only from the charts, only preflop (§3.6)", () => {
     for (const { analysis } of RESULTS) {
-      expect(analysis.grade).toBeNull();
       for (const decision of analysis.decisions) {
-        expect(decision.grade).toBeNull();
-        expect(decision.source).toBe("heuristic");
+        expect(decision.grade !== null).toBe(decision.source === "chart");
+        if (decision.grade !== null) expect(decision.street).toBe("preflop");
         for (const flag of decision.flags) expect(["note", "inaccurate"]).toContain(flag.severity);
         // Anything resting on a placeholder range is a note.
         for (const flag of decision.flags) {
@@ -143,10 +156,60 @@ describe("every record satisfies the database's own constraints", () => {
     }
   });
 
-  it("only ever skips a decision after the flop", () => {
+  it("skips a preflop decision only with the charts' reason, and a postflop one only when multiway", () => {
     for (const { analysis } of RESULTS) {
       for (const decision of analysis.decisions) {
-        if (decision.status === "not-analysed") expect(decision.street).not.toBe("preflop");
+        if (decision.status !== "not-analysed") continue;
+        if (decision.street === "preflop") expect(CHART_SKIP_REASONS).toContain(decision.reason);
+        else expect(decision.reason).toBe("multiway");
+        expect(decision.reason).not.toBe("chart-unavailable");
+      }
+    }
+  });
+
+  it("grades every chart decision by §2 from its own options, and the hand by its decisions", () => {
+    for (const { analysis } of RESULTS) {
+      let evLoss = 0;
+      let graded = 0;
+      for (const decision of analysis.decisions) {
+        if (decision.source !== "chart") continue;
+        graded += 1;
+        expect(decision.chosen).not.toBeNull();
+        const chosen = decision.chosen as number;
+        expect(chosen).toBeGreaterThanOrEqual(0);
+        expect(chosen).toBeLessThan(decision.options.length);
+        // The reference's frequencies sum to one (a fold the tree lacks is
+        // added at zero frequency, so it does not change the sum).
+        expect(decision.options.reduce((sum, option) => sum + option.freq, 0)).toBeCloseTo(1, 2);
+        for (const option of decision.options) {
+          expect(option.freq).toBeGreaterThanOrEqual(0);
+          expect(option.freq).toBeLessThanOrEqual(1);
+          expect(Number.isFinite(option.ev)).toBe(true);
+        }
+        const again = grade({
+          options: decision.options,
+          chosen,
+          pot: decision.facts.potBb,
+          capAtInaccurate: decision.approximations.includes("off-tree-size"),
+        });
+        expect(decision.grade).toBe(again.grade);
+        expect(decision.evLoss).toBeCloseTo(again.evLoss, 2);
+        expect(decision.evLossPot).toBeGreaterThanOrEqual(0);
+        expect(decision.freqDiff).toBeGreaterThanOrEqual(0);
+        expect(decision.freqDiff).toBeLessThanOrEqual(1);
+        expect(decision.score).toBeGreaterThanOrEqual(0);
+        expect(decision.score).toBeLessThanOrEqual(100);
+        expect(decision.facts.chart?.set).toBe(CHARTS.id);
+        expect(CHARTS.nodes.has(decision.facts.chart?.line ?? "?")).toBe(true);
+        evLoss += decision.evLoss ?? 0;
+      }
+      expect(analysis.grade).toBe(worstGrade(analysis.decisions.map((d) => d.grade)));
+      if (graded === 0) {
+        expect(analysis.evLoss).toBeNull();
+        expect(analysis.score).toBeNull();
+      } else {
+        expect(analysis.evLoss).toBeCloseTo(evLoss, 2);
+        expect(analysis.evLossPot).toBeGreaterThanOrEqual(0);
       }
     }
   });
@@ -225,6 +288,18 @@ describe("the explanation layer (§4)", () => {
     }
   });
 
+  it("never quotes MDF preflop (§4), and names a chart grade in the first sentences", () => {
+    for (const decision of decisions) {
+      if (decision.street !== "preflop") continue;
+      expect(en.analysis.explain(decision).join(" ")).not.toMatch(/minimum defence|MDF/);
+      expect(hr.analysis.explain(decision).join(" ")).not.toMatch(/Minimalna obrana|MDF/);
+      if (decision.grade) {
+        expect(en.analysis.explain(decision).join(" ")).toContain(en.analysis.grades[decision.grade]);
+        expect(hr.analysis.explain(decision).join(" ")).toContain(hr.analysis.grades[decision.grade]);
+      }
+    }
+  });
+
   it("gives every flag its own sentence, quoting the flag's own numbers", () => {
     const flagged = decisions.filter((d) => d.flags.length > 0);
     expect(flagged.length).toBeGreaterThan(0);
@@ -242,6 +317,7 @@ describe("the explanation layer (§4)", () => {
 describe("the module stays importable from a worker and a test", () => {
   // Same rule as lib/stats and lib/equity: no framework, no Supabase, no globals.
   const ALLOWED = new Set([
+    "../charts",
     "../phf/types",
     "../cards",
     "../stats/context",

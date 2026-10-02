@@ -1884,6 +1884,7 @@ export type Database = {
         Returns: Json
       }
       analysis_coverage: { Args: { p_version: string }; Returns: Json }
+      analysis_grade_rank: { Args: { p_grade: string }; Returns: number }
       analysis_hand: {
         Args: { p_hand_id: string; p_version?: string }
         Returns: Json

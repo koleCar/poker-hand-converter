@@ -39,6 +39,49 @@ describe("range notation", () => {
     expect(sorted(parseRange("KQ"))).toEqual(["KQo", "KQs"]);
   });
 
+  it("reads pair spans in either order", () => {
+    expect(sorted(parseRange("22-JJ"))).toEqual(["22", "33", "44", "55", "66", "77", "88", "99", "JJ", "TT"]);
+    expect(sorted(parseRange("JJ-22"))).toEqual(sorted(parseRange("22-JJ")));
+    expect(sorted(parseRange("99-QQ"))).toEqual(["99", "JJ", "QQ", "TT"]);
+    expect(sorted(parseRange("22-99"))).toHaveLength(8);
+  });
+
+  it("reads kicker spans, suited and offsuit, in either order", () => {
+    expect(sorted(parseRange("A5s-A2s"))).toEqual(["A2s", "A3s", "A4s", "A5s"]);
+    expect(sorted(parseRange("A5s-A4s"))).toEqual(["A4s", "A5s"]);
+    expect(sorted(parseRange("A2s-A5s"))).toEqual(sorted(parseRange("A5s-A2s")));
+    expect(sorted(parseRange("KTo-K8o"))).toEqual(["K8o", "K9o", "KTo"]);
+    expect(sorted(parseRange("AQs-A9s"))).toEqual(["A9s", "AJs", "AQs", "ATs"]);
+    expect(sorted(parseRange("A2o-ATo"))).toHaveLength(9);
+  });
+
+  it("reads gap spans in either order, and weights on spans", () => {
+    expect(sorted(parseRange("65s-T9s"))).toEqual(sorted(parseRange("T9s-65s")));
+    const weighted = parseRange("99-QQ:0.5, A5s-A4s:0.25");
+    expect(weighted.get("TT")).toBe(0.5);
+    expect(weighted.get("A4s")).toBe(0.25);
+    expect(weighted.size).toBe(6);
+  });
+
+  it("refuses spans that are not one shape", () => {
+    expect(() => parseRange("A5s-K2s")).toThrow(EquityInputError);
+    expect(() => parseRange("A5s-A2o")).toThrow(EquityInputError);
+    expect(() => parseRange("22-A2s")).toThrow(EquityInputError);
+    expect(() => parseRange("22-AA:0")).toThrow(EquityInputError);
+  });
+
+  it("parses every placeholder range the analysis falls back to", async () => {
+    const { defaultRange } = await import("../../frontend/src/lib/analysis/index.js");
+    const lines = ["open", "iso", "limp", "call", "3bet", "call-3bet", "4bet", "call-4bet", "check", "unknown"] as const;
+    const positions = ["UTG", "HJ", "CO", "BTN", "SB", "BB", null] as const;
+    for (const line of lines) {
+      for (const position of positions) {
+        expect(() => defaultRange(line, position)).not.toThrow();
+        expect(defaultRange(line, position).range.size).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it("keeps the larger weight when a class is named twice", () => {
     const range = parseRange("AKs, AK:0.5");
     expect(range.get("AKs")).toBe(1);

@@ -585,9 +585,12 @@ two reports running as a signed-in user.
 
 ## Hand analysis: `hand_analysis`, `decision_analysis`
 
-Phase A1 of `docs/ANALYSIS-PLAN.md` (`20261228090000_analysis.sql`). The engine
+Phase A1 of `docs/ANALYSIS-PLAN.md` (`20261228090000_analysis.sql`), with the
+grade-aware reports of A2b (`20270104090000_analysis_grades.sql`). The engine
 is `frontend/src/lib/analysis` (pure TypeScript, run over the corpus by
-`tests/test/analysisCorpus.test.ts`); these tables hold its answer.
+`tests/test/analysisCorpus.test.ts`); these tables hold its answer. Since
+`analysis/2` the grade columns are filled for preflop decisions graded against
+the charts (`source = 'chart'`); postflop rows are still heuristic.
 
 | Table | Key | What it holds |
 | --- | --- | --- |
@@ -617,12 +620,18 @@ by being run again. `/analysis` runs it on its own only for up to 300 new hands
 on an already-analysed library; a first run or a version change is a button.
 
 **Reports** (all invoker, all take `analysisVersion` — the client always sends
-it): `analysis_coverage(version)`, `analysis_overview(filters)`,
+it): `analysis_coverage(version)`, `analysis_overview(filters)` (graded moves
+and hands, the Perfect…Blunder distribution overall and per street, EV loss in
+bb and in pots, mean score, hands with a Mistake or worse),
 `analysis_breakdown(filters, group)` (`street` / `position` / `pot_type` /
-`scenario`, whitelisted), `analysis_hands(filters, sort, limit, offset)` (sort
-whitelisted) and `analysis_hand(hand_id, version)`. They share
-`analysis_scope(filters)` and `analysis_version_of(filters)`, both granted to
-`authenticated` — the `20261109090000` lesson. Defence against MDF counts
+`preflop_scenario` / `scenario`, whitelisted; per group the five grade counts,
+EV loss and score), `analysis_hands(filters, sort, limit, offset)` (sort
+whitelisted, incl. `ev_loss` and `ev_loss_pot`; each decision carries its EV
+loss) and `analysis_hand(hand_id, version)`. They share
+`analysis_scope(filters)` (filters incl. `grade` — the hand's worst grade
+exactly — and `minGrade` — at least that bad; an unknown grade is 22023),
+`analysis_version_of(filters)` and `analysis_grade_rank(grade)`, all granted
+to `authenticated` — the `20261109090000` lesson. Defence against MDF counts
 postflop decisions only.
 
 ### Tests
@@ -634,6 +643,11 @@ ownership check (a foreign and an unknown id, one answer), server-computed
 aggregates, duplicates that graft nothing, version and status checks, the
 severity cap; coverage, the trimmed document, overview arithmetic, the
 breakdown and sort whitelists, isolation between two users, anon, prune.
+`analysis_grades.test.sql` (A2b): unchanged table grants; invoker and
+`search_path` on the replaced reports and the grade helper; the grade
+filters and their whitelist; graded moves and hands, EV loss and score; the
+distribution overall, by street, by preflop scenario, position and pot type;
+the EV-loss sorts; isolation and anon.
 
 ## Verifying the isolation
 

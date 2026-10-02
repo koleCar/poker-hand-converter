@@ -131,10 +131,11 @@ export function classCombos(name: string): Array<[number, number]> {
  *
  * Comma-separated tokens, each optionally `:weight`:
  *
- *     QQ+        QQ, KK, AA              77-55   77, 66, 55
+ *     QQ+        QQ, KK, AA              77-55   77, 66, 55 (22-JJ: either order)
  *     ATs+       ATs, AJs, AQs, AKs      KQ      KQs and KQo
  *     T9s-65s    T9s, 98s, 87s, 76s, 65s *       every class
- *     A5s:0.5    half of A5s
+ *     A5s-A2s    A5s, A4s, A3s, A2s      KTo-K8o KTo, K9o, K8o
+ *     A5s:0.5    half of A5s             99-QQ:0.5  half of each pair in the span
  *
  * A class named twice keeps its larger weight, so `"AKs, AK:0.5"` is all of the
  * suited combos and half of the offsuit ones. Anything unreadable throws
@@ -177,22 +178,7 @@ function expandToken(token: string): string[] {
   }
   const dash = token.indexOf("-");
   if (dash > 0) {
-    // A span: 77-55 or T9s-65s. Both ends have the same shape and the same gap.
-    const top = token.slice(0, dash);
-    const bottom = token.slice(dash + 1);
-    const a1 = rankOf(top[0], token);
-    const b1 = rankOf(top[1], token);
-    const a2 = rankOf(bottom[0], token);
-    const b2 = rankOf(bottom[1], token);
-    const suffix = top.slice(2);
-    if (suffix !== bottom.slice(2) || a1 - b1 !== a2 - b2 || a1 < a2) {
-      throw new EquityInputError(`not a range span: ${token}`);
-    }
-    const out: string[] = [];
-    for (let step = 0; step <= a1 - a2; step += 1) {
-      out.push(...withSuffix(a1 - step, b1 - step, suffix, token));
-    }
-    return out;
+    return expandSpan(token, token.slice(0, dash), token.slice(dash + 1));
   }
   const plus = token.endsWith("+");
   const body = plus ? token.slice(0, -1) : token;
@@ -218,6 +204,59 @@ function expandToken(token: string): string[] {
     out.push(...withSuffix(high, kicker, suffix, token));
   }
   return out;
+}
+
+/**
+ * A span between two classes of the same shape, written in either order:
+ *
+ *     22-JJ, JJ-22     pairs: every pair between the two
+ *     A5s-A2s          one high card, the kicker runs: A5s, A4s, A3s, A2s
+ *     KTo-K8o          ... offsuit the same way
+ *     T9s-65s          a fixed gap, both cards step down together
+ *
+ * Both ends carry the same suffix. Anything else — two different high cards
+ * with two different gaps (`T9s-75s`), or a pair to a non-pair — is not a
+ * span anyone means, so it throws.
+ */
+function expandSpan(token: string, first: string, second: string): string[] {
+  const end = (part: string) => {
+    if (part.length < 2) throw new EquityInputError(`not a range span: ${token}`);
+    const high = rankOf(part[0], token);
+    const low = rankOf(part[1], token);
+    if (high < low) throw new EquityInputError(`write the higher rank first: ${token}`);
+    return { high, low, suffix: part.slice(2) };
+  };
+  const a = end(first.trim());
+  const b = end(second.trim());
+  if (a.suffix !== b.suffix) {
+    throw new EquityInputError(`not a range span: ${token}`);
+  }
+  const suffix = a.suffix;
+  const out: string[] = [];
+  const aPair = a.high === a.low;
+  const bPair = b.high === b.low;
+  if (aPair || bPair) {
+    if (!(aPair && bPair)) throw new EquityInputError(`not a range span: ${token}`);
+    for (let rank = Math.max(a.high, b.high); rank >= Math.min(a.high, b.high); rank -= 1) {
+      out.push(...withSuffix(rank, rank, suffix, token));
+    }
+    return out;
+  }
+  if (a.high === b.high) {
+    for (let kicker = Math.max(a.low, b.low); kicker >= Math.min(a.low, b.low); kicker -= 1) {
+      out.push(...withSuffix(a.high, kicker, suffix, token));
+    }
+    return out;
+  }
+  if (a.high - a.low === b.high - b.low) {
+    const top = a.high > b.high ? a : b;
+    const steps = Math.abs(a.high - b.high);
+    for (let step = 0; step <= steps; step += 1) {
+      out.push(...withSuffix(top.high - step, top.low - step, suffix, token));
+    }
+    return out;
+  }
+  throw new EquityInputError(`not a range span: ${token}`);
 }
 
 function withSuffix(high: number, low: number, suffix: string, token: string): string[] {

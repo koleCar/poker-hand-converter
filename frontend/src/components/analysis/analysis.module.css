@@ -519,3 +519,427 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
 }
+
+/* =================================================================== A2b */
+/* Grades: icons, the distribution bar, tiles, the options table, the sheet's
+   better-move line, and the 13×13 chart viewer. */
+
+/* ---------------------------------------------------------- grade glyphs */
+
+.gradeIcon {
+  display: inline-block;
+  min-inline-size: 1.1em;
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-mono);
+  line-height: 1;
+  text-align: center;
+}
+
+.gradeTag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.gradeWord {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+/* ---------------------------------------------------- distribution bar */
+
+.gradeBar {
+  display: flex;
+  inline-size: 100%;
+  min-inline-size: 5rem;
+  block-size: 0.6rem;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--surface-inset);
+}
+
+.bar_perfect { background: var(--grade-perfect); }
+.bar_good { background: var(--grade-good); }
+.bar_inaccurate { background: var(--grade-inaccurate); }
+.bar_mistake { background: var(--grade-mistake); }
+.bar_blunder { background: var(--grade-blunder); }
+
+.barCell {
+  min-inline-size: 6rem;
+}
+
+.distribution {
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-3);
+}
+
+.gradeLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+}
+
+.gradeLegend li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.legendWord {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.tiles > div {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-3);
+  background: var(--surface-inset);
+}
+
+.tiles dt {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.tiles dd {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.tiles dd.tileHint {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-tertiary);
+}
+
+.badLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+/* ------------------------------------------------------------- the sheet */
+
+.chipStack {
+  display: inline-grid;
+  justify-items: start;
+  gap: 2px;
+}
+
+.better {
+  padding-inline-start: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--grade-perfect);
+  white-space: nowrap;
+}
+
+.sourceLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.options th[scope="row"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  font-weight: var(--font-weight-medium);
+}
+
+.chosenRow {
+  background: var(--accent-subtle);
+}
+
+.chosenRow th,
+.chosenRow td {
+  font-weight: var(--font-weight-semibold);
+}
+
+.optionName {
+  white-space: nowrap;
+}
+
+.freqCell {
+  display: grid;
+  grid-template-columns: minmax(3rem, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-inline-size: 7rem;
+}
+
+.freqBar {
+  display: block;
+  block-size: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+  overflow: hidden;
+}
+
+.freqBar > span {
+  display: block;
+  block-size: 100%;
+  background: var(--accent);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.study {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.studyActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+/* -------------------------------------------------------- chart actions */
+
+.actFold { background: var(--chart-fold); }
+.actCheck { background: var(--chart-check); }
+.actCall { background: var(--chart-call); }
+.actRaise { background: var(--chart-raise); }
+.actAllin { background: var(--chart-allin); }
+
+.swatch {
+  display: inline-block;
+  flex: none;
+  inline-size: 0.8rem;
+  block-size: 0.8rem;
+  border-radius: var(--radius-1);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+}
+
+/* ------------------------------------------------------ the 13×13 chart */
+
+.browser {
+  display: grid;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.spotField {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+}
+
+.spotField select {
+  inline-size: 100%;
+  max-inline-size: 28rem;
+}
+
+.chart {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+  container: chart / inline-size;
+}
+
+.chartHead {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.chartHead p {
+  margin: 0;
+}
+
+.chartTitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.chartSpot {
+  font-weight: var(--font-weight-semibold);
+}
+
+.chartLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.chartLegend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.grid {
+  display: grid;
+  gap: 2px;
+  inline-size: 100%;
+  max-inline-size: 36rem;
+}
+
+.gridRow {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.gridCellWrap {
+  display: flex;
+  min-inline-size: 0;
+}
+
+.gridCell {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  inline-size: 100%;
+  min-inline-size: 0;
+  aspect-ratio: 1;
+  padding: 1px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-1);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.gridCell:hover {
+  border-color: var(--border-hover);
+}
+
+.gridCell:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.cellName {
+  font-family: var(--font-family-mono);
+  font-size: clamp(0.5rem, 2.1vw, 0.72rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.cellBar {
+  display: flex;
+  align-self: stretch;
+  min-block-size: 0.35rem;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.cellBar > span {
+  display: block;
+  block-size: 100%;
+}
+
+.offRange .cellBar {
+  opacity: 0.35;
+}
+
+.offRange .cellName {
+  color: var(--text-tertiary);
+}
+
+.heroCell {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 2px var(--accent-border);
+}
+
+.shownCell {
+  border-color: var(--text-primary);
+}
+
+.chartBody {
+  display: grid;
+  gap: var(--space-3);
+  align-items: start;
+  min-inline-size: 0;
+}
+
+/* Wide enough for both: the detail beside the grid, where the eye already is.
+   A container query, not a media query: the same chart sits in the narrow
+   Analysis sheet and on the full-width browser page. */
+@container chart (min-width: 46rem) {
+  .chartBody {
+    grid-template-columns: minmax(0, 36rem) minmax(14rem, 22rem);
+  }
+}
+
+.chartDetail {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  min-block-size: 6rem;
+  max-inline-size: 26rem;
+  font-size: var(--font-size-sm);
+}
+
+.chartDetail p {
+  margin: 0;
+}
+
+.chartDetailHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-family-mono);
+}
+
+.detailList {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: var(--space-1) var(--space-3);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.detailList li {
+  display: contents;
+}
+
+@media (forced-colors: active) {
+  .gradeBar > span,
+  .cellBar > span,
+  .swatch,
+  .freqBar > span {
+    forced-color-adjust: none;
+  }
+}

@@ -2,11 +2,15 @@
  * The Analysis sheet: what the replayer shows beside the felt on
  * `/analysis/h/<id>` (`docs/ANALYSIS-PLAN.md` §6.1).
  *
- *   header         the hand's grade word, EV loss and score — "Not graded" and
- *                  dashes until a reference exists, never zeros
+ *   header         the hand's grade word, EV loss in bb and % of the pot, and
+ *                  score — "Not graded" and dashes when nothing was graded,
+ *                  never zeros
  *   banner         the approximations, always shown when there are any (§3.5)
- *   decisions      one chip per hero decision, street by street, coloured
- *   selected       the spot's facts, its flags, and the *why* (§4)
+ *   decisions      one chip per hero decision, street by street, with its
+ *                  grade icon; a bad move shows the better option under it
+ *   selected       the reference's options (action · frequency bar · EV) with
+ *                  the hero's move marked, the spot's facts, its flags, the
+ *                  *why* (§4), and for a chart grade the 13×13 study chart
  *
  * The selection follows the replayer: stepping onto a hero decision selects
  * it, and pressing a chip seeks there. Between decisions the last one stays
@@ -16,18 +20,27 @@
 
 "use client";
 
-import { useState, type ReactNode } from "react";
-import type { DecisionAnalysis, HandAnalysis } from "../../lib/analysis/types";
+import Link from "next/link";
+import { useEffect, useState, type ReactNode } from "react";
+import { bestOption, betterAlternative } from "../../lib/analysis/reference";
+import type { DecisionAnalysis, HandAnalysis, OptionAnalysis } from "../../lib/analysis/types";
+import type { ChartSet } from "../../lib/charts";
+import { preflopCharts } from "../../lib/chartSet";
 import { useDict } from "../../lib/i18n/client";
+import { conceptsForDecision } from "../../lib/learn/links";
 import type { ReplayFrame } from "../../lib/replay";
+import { paths } from "../../lib/routes";
 import { CardRow } from "../replayer/PlayingCard";
 import type { ReplayPosition } from "../replayer/position";
 import styles from "./analysis.module.css";
-import { conceptsForDecision } from "../../lib/learn/links";
+import { ChartGrid } from "./ChartGrid";
+import { GradeIcon } from "./GradeIcon";
 import { LearnLinks } from "./LearnLinks";
 import { loudness, toneOf } from "./tone";
 
 const STREETS = ["preflop", "flop", "turn", "river"] as const;
+/** Decoration before a bad move's better option. */
+const ARROW = "→";
 
 /** The decision the sheet opens on: the loudest, else the first. */
 export function worstDecision(analysis: HandAnalysis): DecisionAnalysis | null {
@@ -47,6 +60,8 @@ interface AnalysisSheetProps {
   /** The analysis was computed here, not read back from the database. */
   fresh: boolean;
 }
+
+type Strings = ReturnType<typeof useDict>["analysis"];
 
 export function AnalysisSheet({ analysis, frame, seek, fresh }: AnalysisSheetProps) {
   const t = useDict().analysis;
@@ -68,18 +83,20 @@ export function AnalysisSheet({ analysis, frame, seek, fresh }: AnalysisSheetPro
     <div className={styles.sheet}>
       <div className={styles.sheetHead}>
         <span className={`${styles.gradeWord} ${analysis.grade ? styles[analysis.grade] : styles.neutral}`}>
+          {analysis.grade ? <GradeIcon grade={analysis.grade} /> : null}
           {analysis.grade ? t.grades[analysis.grade] : t.sheet.notGraded}
         </span>
         <span className={styles.headStat}>
           {t.sheet.evLoss}
           <strong>{analysis.evLoss === null ? "—" : t.sheet.bb(analysis.evLoss)}</strong>
+          {analysis.evLossPot !== null ? <span>{t.sheet.evLossPot(analysis.evLossPot)}</span> : null}
         </span>
         <span className={styles.headStat}>
           {t.sheet.score}
           <strong>{analysis.score === null ? "—" : Math.round(analysis.score)}</strong>
         </span>
       </div>
-      {analysis.grade === null ? <p className={styles.hint}>{t.sheet.notGradedHint}</p> : null}
+      {analysis.grade === null && decisions.length > 0 ? <p className={styles.hint}>{t.sheet.notGradedHint}</p> : null}
       {fresh ? <p className={styles.hint}>{t.hand.fresh}</p> : null}
 
       {analysis.approximations.length > 0 ? (
@@ -110,23 +127,37 @@ export function AnalysisSheet({ analysis, frame, seek, fresh }: AnalysisSheetPro
                     .map((decision) => {
                       const tone = toneOf(decision);
                       const mark = markWord(decision, t);
+                      const better = betterAlternative(decision);
+                      const betterLabel = better ? t.sheet.option(better.action, better.sizeBb, better.allIn) : null;
                       return (
-                        <button
-                          key={decision.order}
-                          type="button"
-                          className={styles.chip}
-                          aria-pressed={selected?.order === decision.order}
-                          aria-label={t.sheet.mark(t.streets[street], t.actions[decision.action], mark)}
-                          onClick={() => {
-                            setPicked(decision.order);
-                            seek({ kind: "action", actionIndex: decision.actionIndex });
-                          }}
-                        >
-                          <span className={`${styles.dot} ${styles[tone]}`} aria-hidden="true" />
-                          <span className={tone === "skipped" ? styles.skipped : undefined}>
-                            {t.actions[decision.action]}
-                          </span>
-                        </button>
+                        <span key={decision.order} className={styles.chipStack}>
+                          <button
+                            type="button"
+                            className={styles.chip}
+                            aria-pressed={selected?.order === decision.order}
+                            aria-label={`${t.sheet.mark(t.streets[street], t.actions[decision.action], mark)}${
+                              betterLabel ? `. ${t.sheet.better(betterLabel)}` : ""
+                            }`}
+                            onClick={() => {
+                              setPicked(decision.order);
+                              seek({ kind: "action", actionIndex: decision.actionIndex });
+                            }}
+                          >
+                            {decision.grade ? (
+                              <GradeIcon grade={decision.grade} />
+                            ) : (
+                              <span className={`${styles.dot} ${styles[tone]}`} aria-hidden="true" />
+                            )}
+                            <span className={tone === "skipped" ? styles.skipped : undefined}>
+                              {t.actions[decision.action]}
+                            </span>
+                          </button>
+                          {betterLabel ? (
+                            <span className={styles.better} aria-hidden="true">
+                              {ARROW} {betterLabel}
+                            </span>
+                          ) : null}
+                        </span>
                       );
                     })}
                 </span>
@@ -136,12 +167,10 @@ export function AnalysisSheet({ analysis, frame, seek, fresh }: AnalysisSheetPro
         </section>
       ) : null}
 
-      {selected ? <DecisionDetail decision={selected} /> : null}
+      {selected ? <DecisionDetail key={selected.order} decision={selected} /> : null}
     </div>
   );
 }
-
-type Strings = ReturnType<typeof useDict>["analysis"];
 
 /** The word a pip or chip is marked with: the grade, else the loudest flag's severity, else nothing. */
 export function markWord(decision: DecisionAnalysis, t: Strings): string | null {
@@ -149,6 +178,96 @@ export function markWord(decision: DecisionAnalysis, t: Strings): string | null 
   if (decision.grade) return t.grades[decision.grade] ?? null;
   if (decision.worstFlag) return t.severity[decision.worstFlag] ?? null;
   return null;
+}
+
+/** The reference's options at the node: action · frequency bar · EV, the hero's move marked. */
+function OptionsTable({ decision }: { decision: DecisionAnalysis }) {
+  const t = useDict().analysis;
+  const s = t.sheet;
+  const best = bestOption(decision);
+  const label = (option: OptionAnalysis) => s.option(option.action, option.sizeBb, option.allIn);
+  return (
+    <div className="stats-table-wrap">
+      <table className={`stats-table ${styles.options}`}>
+        <thead>
+          <tr>
+            <th scope="col">{s.colAction}</th>
+            <th scope="col">{s.colFreq}</th>
+            <th scope="col" className="num">
+              {s.colEv}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {decision.options.map((option, index) => {
+            const mine = index === decision.chosen;
+            return (
+              <tr key={index} className={mine ? styles.chosenRow : undefined} aria-current={mine ? "true" : undefined}>
+                <th scope="row">
+                  <span className={styles.optionName}>{label(option)}</span>
+                  {mine ? <span className={`${styles.tag} ${decision.grade ? styles[decision.grade] : ""}`}>{s.yourMove}</span> : null}
+                  {index === best ? <span className={`${styles.tag} ${styles.perfect}`}>{s.best}</span> : null}
+                </th>
+                <td>
+                  <span className={styles.freqCell}>
+                    <span className={styles.freqBar} aria-hidden="true">
+                      <span style={{ inlineSize: `${Math.max(0, Math.min(1, option.freq)) * 100}%` }} />
+                    </span>
+                    <span className={styles.num}>{s.freq(option.freq)}</span>
+                  </span>
+                </td>
+                <td className="num">{s.signedBb(option.ev)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** The 13×13 chart for a chart-graded decision, loaded when asked for. */
+function Study({ decision }: { decision: DecisionAnalysis }) {
+  const t = useDict().analysis;
+  const ref = decision.facts.chart;
+  const [open, setOpen] = useState(false);
+  const [charts, setCharts] = useState<ChartSet | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open || charts) return;
+    let live = true;
+    preflopCharts()
+      .then((set) => {
+        if (live) setCharts(set);
+      })
+      .catch((reason: unknown) => {
+        if (live) setError(reason instanceof Error ? reason.message : String(reason));
+      });
+    return () => {
+      live = false;
+    };
+  }, [open, charts]);
+
+  if (!ref) return null;
+  // The stored row names its chart set; a set that has since changed would
+  // draw a different chart than the one graded against, so it is not drawn.
+  const node = charts && charts.id === ref.set ? (charts.nodes.get(ref.line) ?? null) : null;
+  return (
+    <div className={styles.study}>
+      <div className={styles.studyActions}>
+        <button type="button" className="btn btn--sm" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
+          {open ? t.sheet.hideStudy : t.sheet.study}
+        </button>
+        <Link className={styles.learnInline} href={paths.analysisCharts(ref.line, decision.facts.handClass)}>
+          {t.sheet.openBrowser}
+        </Link>
+      </div>
+      {open && error ? <p className="notice notice--error">{t.charts.failed(error)}</p> : null}
+      {open && !error && !charts ? <p className={styles.hint}>{t.charts.loading}</p> : null}
+      {open && node ? <ChartGrid key={ref.line} node={node} highlight={decision.facts.handClass} /> : null}
+    </div>
+  );
 }
 
 function DecisionDetail({ decision }: { decision: DecisionAnalysis }) {
@@ -172,19 +291,60 @@ function DecisionDetail({ decision }: { decision: DecisionAnalysis }) {
   rows.push([s.facts.pot, s.bb(facts.potBb)]);
   if (facts.toCallBb > 0) rows.push([s.facts.toCall, s.bb(facts.toCallBb)]);
   if (facts.potOdds !== null) rows.push([s.facts.potOdds, s.pct(facts.potOdds)]);
-  if (facts.mdf !== null) rows.push([s.facts.mdf, s.pct(facts.mdf)]);
+  // MDF is postflop only (§4), even when an older row carries one.
+  if (facts.mdf !== null && facts.street !== "preflop") rows.push([s.facts.mdf, s.pct(facts.mdf)]);
   if (facts.betPot !== null) rows.push([s.facts.betPot, s.ofPot(facts.betPot)]);
   if (facts.spr !== null) rows.push([s.facts.spr, s.ratio(facts.spr)]);
   rows.push([s.facts.effStack, s.bb(facts.effStackBb)]);
   if (facts.blockers.length > 0) rows.push([s.facts.blockers, s.blockersValue(facts)]);
   if (facts.equity) rows.push([s.facts.equity, s.equityValue(facts.equity.value, facts.equity.range)]);
 
+  const graded = decision.grade !== null && decision.options.length > 0;
+
   return (
     <>
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>
-          {s.factsHeading} · {t.streets[decision.street]} · {t.actions[decision.action]}
+          {t.streets[decision.street]} · {t.actions[decision.action]}
         </h3>
+        <p className={styles.sourceLine}>
+          {decision.grade ? (
+            <span className={`${styles.gradeTag} ${styles[decision.grade]}`}>
+              <GradeIcon grade={decision.grade} />
+              {t.grades[decision.grade]}
+            </span>
+          ) : null}
+          {decision.evLoss !== null && decision.evLoss > 0 ? (
+            <span>
+              {s.evLoss} {s.bb(decision.evLoss)}
+              {decision.evLossPot !== null ? ` · ${s.evLossPot(decision.evLossPot)}` : ""}
+            </span>
+          ) : null}
+          <span className={styles.muted}>
+            {decision.status === "not-analysed" ? s.skipped : (s.source[decision.source] ?? decision.source)}
+          </span>
+        </p>
+        {graded ? (
+          <>
+            <h4 className={styles.subhead}>{s.optionsHeading}</h4>
+            <OptionsTable decision={decision} />
+            <Study decision={decision} />
+          </>
+        ) : null}
+      </section>
+
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>{s.whyHeading}</h3>
+        <div className={styles.why}>
+          {t.explain(decision).map((sentence) => (
+            <p key={sentence}>{sentence}</p>
+          ))}
+        </div>
+        <LearnLinks concepts={conceptsForDecision(decision)} />
+      </section>
+
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>{s.factsHeading}</h3>
         <dl className={styles.facts}>
           {rows.map(([label, value]) => (
             <div key={label}>
@@ -209,16 +369,6 @@ function DecisionDetail({ decision }: { decision: DecisionAnalysis }) {
             ))}
           </ul>
         )}
-      </section>
-
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>{s.whyHeading}</h3>
-        <div className={styles.why}>
-          {t.explain(decision).map((sentence) => (
-            <p key={sentence}>{sentence}</p>
-          ))}
-        </div>
-        <LearnLinks concepts={conceptsForDecision(decision)} />
       </section>
     </>
   );

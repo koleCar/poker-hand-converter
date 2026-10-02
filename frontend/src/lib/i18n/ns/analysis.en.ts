@@ -15,13 +15,25 @@
  * words here and nowhere else, so the stored record stays language-free.
  */
 
-import type { DecisionAnalysis, Flag, SpotFacts } from "../../analysis/types";
+import { betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
+import type { DecisionAnalysis, Flag, OptionAnalysis, SpotFacts } from "../../analysis/types";
 
 const num = (value: number, digits = 0) =>
   value.toLocaleString("en-GB", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const hands = (count: number) => `${num(count)} ${count === 1 ? "hand" : "hands"}`;
 const decisions = (count: number) => `${num(count)} ${count === 1 ? "decision" : "decisions"}`;
 const pct = (value: number) => `${num(Math.round(value * 100))}%`;
+/** A share to one decimal under 10%, whole above: "4.5%", "52%". */
+const pct1 = (value: number) => {
+  const p = value * 100;
+  return p > 0 && p < 10 ? `${num(Math.round(p * 10) / 10, 1)}%` : `${num(Math.round(p))}%`;
+};
+/** An EV, signed, to two decimals: "+1.25 bb", "−0.40 bb", "0.00 bb". */
+const signedBb = (value: number) => {
+  const rounded = Math.round(value * 100) / 100;
+  const sign = rounded > 0 ? "+" : rounded < 0 ? "−" : "";
+  return `${sign}${num(Math.abs(rounded), 2)} bb`;
+};
 /** Big blinds, to one decimal when there is one: "2.5 bb", "37 bb", "152.5 bb". */
 const bb = (value: number) => {
   const tenth = Math.round(value * 10) / 10;
@@ -115,6 +127,93 @@ function rangeLabel(key: string): string {
   return label(position && position !== "?" ? position : "seat");
 }
 
+const gradeWords = {
+  perfect: "Perfect",
+  good: "Good",
+  inaccurate: "Inaccurate",
+  mistake: "Mistake",
+  blunder: "Blunder",
+} as Record<string, string>;
+
+/** "raise to 2.5 bb", "call", "all-in": one option as a player says it. */
+function optionLabel(option: OptionAnalysis): string {
+  if (option.allIn) return "all-in";
+  if (option.action === "raise" || option.action === "bet") {
+    return option.sizeBb !== undefined ? `${option.action} to ${bb(option.sizeBb)}` : option.action;
+  }
+  return option.action;
+}
+
+/** "raise to 2.5 bb 60% and call 40%". */
+function mixLabel(decision: DecisionAnalysis): string {
+  return list(referenceMix(decision).map(({ option }) => `${optionLabel(option)} ${pct(option.freq)}`));
+}
+
+/**
+ * Why a preflop decision has no chart grade, as the end of "Not graded: …".
+ * Keyed by the lookup's reason (`CHART_SKIP_REASONS`).
+ */
+const chartReasons = {
+  "chart-straddle": "a straddle changes every price, and no chart covers it",
+  "chart-ante": "antes are in the pot, and the cash charts have none",
+  "chart-players": "the charts are for six-handed tables (five is read as six with UTG folded)",
+  "chart-stack-depth": "the effective stack is outside 100 bb ±20%, and the charts are solved at 100 bb",
+  "chart-limp": "someone open-limped, and the charts have no open limp except the small blind's",
+  "chart-multiway": "this would be a fifth player in the pot, beyond what the charts model",
+  "chart-cold-call": "a cold call of a re-raise is not in the charts' tree",
+  "chart-off-tree": "the line left the charts' betting tree",
+  "chart-rare-line": "the line is too rare at equilibrium to be in the chart set",
+  "chart-action-not-modelled": "your action is not one of the charts' options here",
+  "chart-bad-input": "the hand could not be read onto a chart",
+  "chart-game": "the charts cover No-Limit Hold'em cash games only",
+  "chart-bomb-pot": "a bomb pot has no preflop betting",
+  "chart-no-positions": "the button is unknown, so the positions are too",
+  "chart-no-hero": "the hero's seat has no position",
+  "chart-no-decision": "the decision could not be found on the charts' reading of the hand",
+  "chart-unavailable": "the charts were not loaded",
+} as Record<string, string>;
+
+/** The grade, said against the reference's options (§4, keyed by grade). */
+function chartSentences(decision: DecisionAnalysis): string[] {
+  if (decision.source !== "chart" || decision.chosen === null || !decision.grade) return [];
+  const out: string[] = [];
+  const chosen = decision.options[decision.chosen];
+  if (!chosen) return out;
+  const word = gradeWords[decision.grade] ?? decision.grade;
+  const mix = referenceMix(decision);
+  if (outOfRange(decision)) {
+    out.push(
+      `Your hand is outside the reference range at this node; the reference plays it as ${mixLabel(decision)}.`,
+    );
+  }
+  const plays = mix.length > 1 ? `mixes ${mixLabel(decision)}` : `plays ${mixLabel(decision)}`;
+  const better = betterAlternative(decision);
+  if (decision.grade === "perfect") {
+    out.push(`${word}: you played ${optionLabel(chosen)}; the reference ${plays} here.`);
+  } else if (decision.grade === "good") {
+    out.push(`${word}: the reference plays ${optionLabel(chosen)} ${pct(chosen.freq)} of the time here, and ${plays} overall.`);
+  } else {
+    const loss = decision.evLoss ?? 0;
+    const lossPot = decision.evLossPot ?? 0;
+    out.push(
+      `${word}: the reference ${plays}. ${capitalise(optionLabel(chosen))} costs ${bb(loss)} (${pct(lossPot)} of the pot)${
+        better ? ` against ${optionLabel(better)}` : ""
+      }.`,
+    );
+  }
+  if (decision.approximations.includes("off-tree-size")) {
+    out.push("A raise in this line was far from the charts' size, so the grade is capped at Inaccurate.");
+  }
+  if (modelCaveat(decision)) {
+    out.push(
+      "These charts under-rate hands that win through implied odds — small pairs, suited connectors — so read a grade against playing one as a hint, not a verdict.",
+    );
+  }
+  return out;
+}
+
+const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
 function handPhrase(facts: SpotFacts): string {
   if (!facts.made) return facts.handClass ?? facts.holeCards.join("");
   const base = made[facts.made.class] ?? facts.made.class;
@@ -163,12 +262,12 @@ function flagSentence(flag: Flag, facts: SpotFacts): string {
     case "call-beats-nothing":
       return flag.severity === "inaccurate"
         ? "This call beats nothing: no hand the opponent could hold is worse than yours."
-        : `This call beats nothing in ${rangeLabel(String(p.range))} range — the placeholder range, before any narrowing.`;
+        : `This call beats nothing in ${rangeLabel(String(p.range))} range — its preflop range, before any narrowing.`;
     case "call-without-odds":
       return `The call needed ${num(Number(p.needed))}% equity and your hand had about ${num(Number(p.equity))}% against ${rangeLabel(String(p.range))} range, with no cards to come.`;
     case "fold-with-odds":
       return facts.street === "river"
-        ? `The call needed ${num(Number(p.needed))}% and your hand had about ${num(Number(p.equity))}% even against the stronger half of ${rangeLabel(String(p.range))} range.`
+        ? `The call needed ${num(Number(p.needed))}% and your hand had about ${num(Number(p.equity))}% even against the strongest quarter of ${rangeLabel(String(p.range))} range.`
         : `The call needed ${num(Number(p.needed))}% and your hand had about ${num(Number(p.equity))}% against ${rangeLabel(String(p.range))} range, with nothing left to decide.`;
     case "check-back-nuts":
       return "You checked back the nuts on the river. There can be a reason — a blocker, a merged range — but it is worth a look: nothing here beats a bet.";
@@ -190,10 +289,13 @@ function explain(decision: DecisionAnalysis): string[] {
   const facts = decision.facts;
   const out: string[] = [];
   if (decision.status === "not-analysed") {
+    const chartReason = decision.reason ? chartReasons[decision.reason] : undefined;
     out.push(
       decision.reason === "multiway"
         ? "Not analysed: three or more players were still in after the flop, and nothing here models three ranges at once. Saying nothing beats saying something wrong."
-        : "Not analysed.",
+        : chartReason
+          ? `Not graded: ${chartReason}. Saying nothing beats saying something wrong.`
+          : "Not analysed.",
     );
   }
 
@@ -206,17 +308,23 @@ function explain(decision: DecisionAnalysis): string[] {
     out.push(`${streets[facts.street]}: ${spot}. You hold ${handPhrase(facts)}${drawText}${texture ? ` on a ${texture} board` : ""}.`);
   }
 
+  out.push(...chartSentences(decision));
+
   if (facts.potOdds !== null) {
-    const mdf = facts.mdf !== null ? ` Against this bet the minimum defence is ${pct(facts.mdf)}.` : "";
+    // MDF is a postflop idea (§4): preflop, folding most hands to an open is
+    // simply correct, so it is never quoted there — even from an older row.
+    const mdf = facts.mdf !== null && facts.street !== "preflop" ? ` Against this bet the minimum defence is ${pct(facts.mdf)}.` : "";
     out.push(`Calling ${bb(facts.toCallBb)} into ${bb(facts.potBb)} needs ${pct(facts.potOdds)} equity.${mdf}`);
   }
   if (facts.equity) {
     const strong =
       facts.equity.strong !== null && facts.equity.strong !== undefined
-        ? ` (${pct(facts.equity.strong)} against its stronger half)`
+        ? ` (${pct(facts.equity.strong)} against its stronger quarter)`
         : "";
     out.push(
-      `Against ${rangeLabel(facts.equity.range)} range — a placeholder, not narrowed by later betting — your hand has about ${pct(facts.equity.value)}${strong}.`,
+      facts.equity.source === "chart"
+        ? `Against ${rangeLabel(facts.equity.range)} range as the charts play it — not narrowed by later betting — your hand has about ${pct(facts.equity.value)}${strong}.`
+        : `Against ${rangeLabel(facts.equity.range)} range — a placeholder, not narrowed by later betting — your hand has about ${pct(facts.equity.value)}${strong}.`,
     );
   }
   if (facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) {
@@ -252,15 +360,21 @@ export const analysisEn = {
     emptyHeading: "Nothing analysed yet",
     emptyBody:
       "The analysis walks every decision you made in your saved hands: the board, your hand, the price, and the checks that hold whatever the strategy. It runs in this browser tab.",
+    updatedHeading: "The analysis has a new version",
+    updatedBody:
+      "Your hands were analysed by an earlier version. This one grades your preflop decisions against our charts — frequency, EV and a grade for every move the charts cover. Bring your hands up to date to see them; it runs in this tab.",
     noHandsHeading: "No hands in your library yet",
     noHandsBody: "Upload a hand history first; the analysis reads the hands you have saved.",
   },
 
-  /** The line above everything about what the analysis can and cannot say yet. */
+  /** The line above everything about what the analysis can and cannot say. */
   reference: {
-    title: "No reference strategy yet",
+    title: "Preflop is graded against our charts; postflop is still notes",
     body:
-      "Grades — Perfect to Blunder — arrive with the preflop charts. Until then every decision shows its facts and the checks that are true whatever the strategy. A flag is a note, never a grade.",
+      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own 6-max 100 bb charts wherever a chart covers the spot. After the flop every decision shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade.",
+    model:
+      "The charts (charts/1) under-rate hands that win through implied odds — small pairs and suited connectors — so grades against playing them lean harsh.",
+    browse: "Browse the charts",
   },
 
   run: {
@@ -298,6 +412,23 @@ export const analysisEn = {
     defenceNote:
       "Defended: how often you continued (called or raised) when facing a bet, against the mean MDF of those bets. One sample of your own hands — a direction, not a verdict.",
     approximationsHeading: "Approximations",
+    gradesHeading: "Grades",
+    score: "Score",
+    scoreHint: "Mean over graded moves, 0–100",
+    evLoss100: "EV loss / 100 hands",
+    evLoss100Hint: (count: number) => `over ${hands(count)} with a graded move`,
+    moves: "Moves graded",
+    movesHint: (total: number) => `of ${decisions(total)}`,
+    badHands: (count: number) => `${hands(count)} with a Mistake or a Blunder`,
+    showBad: "Show them",
+    noGrades:
+      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot: six-handed, 100 bb ±20%, no open limpers.",
+    byStreet: "By street",
+    /** Big blinds to two decimals: "1.25 bb". */
+    bb2: (value: number) => `${num(value, 2)} bb`,
+    /** The distribution bar's accessible name: "Perfect 80%, Good 10%, …". */
+    distribution: (parts: string[]) => parts.join(", "),
+    share: (word: string, share: number) => `${word} ${pct1(share)}`,
   },
 
   reasons: {
@@ -310,15 +441,38 @@ export const analysisEn = {
     "hero-cards-unknown": "Your cards are unknown",
     "no-decisions": "You had no decision",
     multiway: "Multiway after the flop",
+    "chart-straddle": "Preflop charts: straddle",
+    "chart-ante": "Preflop charts: antes",
+    "chart-players": "Preflop charts: not 6-max",
+    "chart-stack-depth": "Preflop charts: stacks outside 100 bb ±20%",
+    "chart-limp": "Preflop charts: open limp",
+    "chart-multiway": "Preflop charts: fifth player in",
+    "chart-cold-call": "Preflop charts: cold call of a re-raise",
+    "chart-off-tree": "Preflop charts: off the betting tree",
+    "chart-rare-line": "Preflop charts: line too rare",
+    "chart-action-not-modelled": "Preflop charts: action not modelled",
+    "chart-bad-input": "Preflop charts: unreadable line",
+    "chart-game": "Preflop charts: not NLHE cash",
+    "chart-bomb-pot": "Preflop charts: bomb pot",
+    "chart-no-positions": "Preflop charts: positions unknown",
+    "chart-no-hero": "Preflop charts: no hero position",
+    "chart-no-decision": "Preflop charts: decision not found",
+    "chart-unavailable": "Preflop charts: not loaded",
   } as Record<string, string>,
 
   approximations: {
-    heuristic: "Heuristic checks only, no reference strategy",
-    "placeholder-range": "Equities against default placeholder ranges",
+    heuristic: "Postflop: heuristic checks only, no reference strategy",
+    "placeholder-range": "Equities against default placeholder ranges (no chart node for the opponent's line)",
+    "preflop-range": "Equities against the charts' preflop ranges, not narrowed by later betting",
     antes: "Antes in the pot",
     straddle: "A straddle moved the blinds",
     "stack-depth": "Stacks outside 100 bb ±20%",
     "table-size": "Not a six-handed table",
+    model: "Preflop charts (charts/1) under-rate implied-odds hands: small pairs and suited connectors",
+    "short-handed": "Five-handed, read as six-max with UTG folded",
+    "stack-depth-near": "Stacks within 100 bb ±20%, but not 100 bb",
+    "off-tree-size": "A raise far from the charts' size: grade capped at Inaccurate",
+    "out-of-range": "Your hand is outside the reference range at this node",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,
@@ -358,6 +512,10 @@ export const analysisEn = {
     hands: "Hands",
     count: "Count",
     flag: "Flag",
+    graded: "Graded",
+    evLoss: "EV loss",
+    score: "Score",
+    distribution: "Perfect → Blunder",
   },
 
   breakdown: {
@@ -367,8 +525,11 @@ export const analysisEn = {
       street: "Street",
       position: "Position",
       pot_type: "Pot type",
+      preflop_scenario: "Preflop spot",
       scenario: "Spot",
     } as Record<string, string>,
+    gradesTitle: "Grades",
+    flagsTitle: "Flags and defence",
     unknown: "Unknown",
     scenario: (key: string) => {
       if (preflopScenarios[key]) return preflopScenarios[key];
@@ -392,12 +553,16 @@ export const analysisEn = {
     anyPosition: "Any",
     potType: "Pot",
     anyPot: "Any",
+    grade: "Grade",
+    anyGrade: "Any",
+    badGrades: "Mistake or worse",
     sort: "Sort",
     sorts: {
       recent: "Newest first",
       oldest: "Oldest first",
       flags: "Most flagged",
-      ev_loss: "Most EV lost",
+      ev_loss: "Most EV lost (bb)",
+      ev_loss_pot: "Most EV lost (% of pot)",
       score: "Lowest score",
       result: "Biggest loss",
     } as Record<string, string>,
@@ -414,6 +579,10 @@ export const analysisEn = {
     actions: "Decisions",
     flags: "Flags",
     result: "Result",
+    grade: "Grade",
+    score: "Score",
+    evLoss: "EV loss",
+    evLossPot: "% pot",
     open: (cards: string) => `Open the analysis of ${cards}`,
     empty: "No analysed hands match these filters.",
     previous: "Previous",
@@ -432,9 +601,39 @@ export const analysisEn = {
     toggle: "Analysis",
     toggleTitle: "Show the analysis of this hand",
     notGraded: "Not graded",
-    notGradedHint: "No reference strategy yet — facts and checks only.",
+    notGradedHint:
+      "Nothing in this hand was graded: postflop decisions are notes only, and the preflop charts did not cover this line.",
     evLoss: "EV loss",
+    evLossPot: (value: number) => `${pct(value)} of pot`,
     score: "Score",
+    optionsHeading: "The reference here",
+    colAction: "Action",
+    colFreq: "Frequency",
+    colEv: "EV",
+    yourMove: "Your move",
+    best: "Best",
+    /** Under a bad move's chip: the better option. The arrow is decoration. */
+    better: (label: string) => `Better: ${label}`,
+    option: (action: string, sizeBb: number | undefined, allIn: boolean | undefined) =>
+      allIn
+        ? "All-in"
+        : action === "raise" || action === "bet"
+          ? sizeBb !== undefined
+            ? `${action === "bet" ? "Bet" : "Raise to"} ${bb(sizeBb)}`
+            : action === "bet"
+              ? "Bet"
+              : "Raise"
+          : ({ fold: "Fold", check: "Check", call: "Call" } as Record<string, string>)[action] ?? action,
+    signedBb,
+    freq: pct1,
+    source: {
+      chart: "Graded against the preflop charts",
+      heuristic: "Heuristic checks only — no grade",
+      solver: "Graded against the solver",
+    } as Record<string, string>,
+    study: "Study the chart",
+    hideStudy: "Hide the chart",
+    openBrowser: "Open in the chart browser",
     approximate: "Approximate",
     decisionsHeading: "Your decisions",
     noDecisions: "You made no decision in this hand.",
@@ -483,6 +682,62 @@ export const analysisEn = {
     notFound: "This hand is not in your library.",
     fresh:
       "This hand has not been analysed at the current version yet, so this is a fresh analysis computed in your browser. Run the analysis to save it.",
+  },
+
+  /** The 13×13 chart viewer and the chart browser at `/analysis/charts`. */
+  charts: {
+    heading: "Preflop charts",
+    intro:
+      "Rail's own reference for No-Limit Hold'em cash, six-handed, 100 big blinds deep, computed by our solver — never copied from anyone's charts. Pick a spot: every hand shows how often the reference takes each action, and hovering or focusing a hand shows what each action is worth.",
+    caveatTitle: "A model, with a known weakness",
+    caveat:
+      "These charts (charts/1) value a flop with an equity-realisation model, not a postflop solve. It under-rates hands that win through implied odds: early positions open high cards ahead of small pairs and suited connectors, and flatting is rare. Grades against playing those hands lean harsh.",
+    loading: "Loading the charts…",
+    failed: (message: string) => `The charts did not load: ${message}`,
+    category: "Scenario",
+    spot: "Spot",
+    categories: {
+      rfi: "Open (RFI)",
+      "vs-open": "Facing an open",
+      "vs-3bet": "Facing a 3-bet",
+      "vs-4bet": "Facing a 4-bet or shove",
+      squeeze: "Squeeze",
+      bvb: "Blind vs blind",
+    } as Record<string, string>,
+    verbs: {
+      open: "opens",
+      iso: "raises the limp",
+      limp: "limps",
+      call: "calls",
+      "3bet": "3-bets",
+      "4bet": "4-bets",
+      "5bet": "5-bets",
+      allin: "shoves",
+      check: "checks",
+    } as Record<string, string>,
+    /** "BTN, after CO opens and BTN 3-bets" / "UTG, first in". */
+    spotLabel: (actor: string, steps: Array<{ position: string; verb: string }>) =>
+      steps.length === 0 ? `${actor}, first in` : `${actor}, after ${list(steps.map((s) => `${s.position} ${s.verb}`))}`,
+    action: (action: string, toBb: number) =>
+      action === "raise"
+        ? `Raise to ${bb(toBb)}`
+        : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
+    legend: "Actions",
+    totals: "Whole range",
+    total: (label: string, share: number, combos: number) => `${label} ${pct1(share)} · ${num(Math.round(combos))} combos`,
+    gridLabel: (spot: string) => `${spot}: the reference's mix for all 169 hands`,
+    cellLabel: (hand: string, parts: string[], offRange: boolean) =>
+      `${hand}: ${parts.join(", ")}${offRange ? " (never reaches this spot)" : ""}`,
+    part: (label: string, freq: number) => `${label} ${pct1(freq)}`,
+    detailEmpty: "Hover or focus a hand to see its mix and what each action is worth.",
+    reaches: (share: number) => `Reaches this spot with ${pct1(share)} of its combos.`,
+    offRange: "The reference never gets here with this hand; shown is its best response.",
+    yourHand: "Your hand",
+    pot: (pot: number, toCall: number) => (toCall > 0 ? `Pot ${bb(pot)}, ${bb(toCall)} to call` : `Pot ${bb(pot)}`),
+    evNote: "EV in big blinds, net from the start of the hand: a fold is worth minus what is already in.",
+    set: (id: string, version: string) => `${id} · ${version}`,
+    signedBb,
+    freq: pct1,
   },
 
   explain,

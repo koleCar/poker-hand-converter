@@ -608,3 +608,46 @@ Each phase appends what it learned that changed the plan.
   the one public part of `/analysis`. It found that A1's `parseRange` rejects
   spans like `22-JJ` and `A5s-A4s`, so equity facts silently dropped. The fix
   goes in A2b with the `analysis/2` bump.
+- 2026-10-02 — A2b shipped: preflop grading from the charts, `analysis/2`.
+  - **Wiring.** Every hero preflop decision is looked up in the charts
+    (`lib/analysis/preflop.ts`, through `lib/charts`' public API only); a node
+    gives options, a §2 grade, EV loss in bb and % of the pot, and
+    `source: "chart"`. A refusal is a `not-analysed` decision with the
+    lookup's reason prefixed `chart-` (a preflop "multiway" must not read as
+    the postflop one). Refused preflop decisions **keep their heuristic
+    flags** — "you folded when a check was free" holds on any table.
+  - **A fold the tree lacks is still graded**: folding is worth exactly minus
+    what is already in, so the big blind folding to a limp is graded against a
+    zero-frequency fold option at that EV.
+  - **Approximations** on chart grades: `model` (every grade from `charts/1`;
+    the extra sentence and Learn link only when an implied-odds hand was
+    played and graded worse than Good), `short-handed`, `stack-depth-near`,
+    `off-tree-size` (any raise in the line, the hero's or an opponent's,
+    beyond 25% of the pot: grade capped at Inaccurate), `out-of-range`.
+  - **Opponents' ranges come from the charts** where their line has a node:
+    `range[class] × freq[action][class]` at their last preflop decision.
+    The placeholders parse now (`parseRange` reads `22-JJ`, `A5s-A2s`,
+    `KTo-K8o` in either order) and remain the labelled fallback
+    (`placeholder-range` vs `preflop-range`). Neither is narrowed postflop (A4).
+  - **Owner's local library (5,448 hands):** 5,388 hero preflop decisions,
+    **1,274 graded (24%)** — 78% of those on six-handed 100bb ±20% tables
+    without a straddle. Refused: not 6-max 3,024, stack depth 674, open limp
+    256, rare line 72, straddle 52, off-tree 25, cold call 10, unreadable 1.
+    Perfect 90.0%, Good 0%, Inaccurate 4.2%, Mistake 3.7%, Blunder 2.1%;
+    score 94.1; **3.5 bb / 100 graded hands**. Most EV lost: folds facing an
+    open (20.2 bb, one AA fold on the button is 12.4 of it), folds to 3-bets
+    (4.5), opens (4.0), flats of opens (3.8).
+  - **"Good" almost never happens with `charts/1`:** its strategies are nearly
+    pure, so a move is either the reference's (Perfect) or one it never plays.
+    A3's "your frequency vs reference" is where mixed play will show.
+  - **UI.** Overview grades (score, EV loss / 100, moves, distribution), a
+    grade table in every breakdown (new group: preflop scenario), list columns
+    and a Mistake-or-worse filter, the sheet's options table, better-move line
+    and 13×13 study chart. **`/analysis/charts` is public and indexable** like
+    `/analysis/learn` (robots allow, sitemap): the charts are our own data and
+    the page reads no account.
+  - Migration `20270104090000_analysis_grades.sql`: reports only (grade
+    filters, distribution, EV-loss sort); no table or grant change.
+  - **Open:** `lookupPreflop` answers `bad-input` instead of `multiway` when a
+    fifth entrant closes the tree (both blinds silent folds); one decision in
+    the library.

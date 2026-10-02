@@ -8,6 +8,7 @@ import { recentPublishedHands } from "../lib/server/published";
  * `/sitemap.xml`.
  *
  * The home page, the converter, the concept library (`/analysis/learn/**`),
+ * the preflop chart browser (`/analysis/charts`),
  * every forum thread and every published hand (`/p/:id`) — the whole set of
  * pages that are public, stable and the same for everybody.
  * Published hands are the content F7 exists to create; they are listed from
@@ -19,7 +20,8 @@ import { recentPublishedHands } from "../lib/server/published";
  *  * `/h/:slug` — a capability URL. Enumerating them into a public XML file is
  *    the exact inverse of the property that makes sharing safe. See
  *    `app/h/[slug]/page.tsx`.
- *  * `/library`, `/stats`, `/analysis` (apart from `/analysis/learn`) — one
+ *  * `/library`, `/stats`, `/analysis` (apart from `/analysis/learn` and
+ *    `/analysis/charts`) — one
  *    account's own rows behind RLS. A crawler sees a sign-in prompt, which is
  *    a soft 404 with extra steps.
  *  * the redirect aliases (`/upload`, `/replay`, …) — listing a URL that 308s
@@ -47,6 +49,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: canonicalUrl(paths.analysisLearn()),
       changeFrequency: "monthly",
       priority: 0.7,
+    },
+    {
+      url: canonicalUrl(paths.analysisCharts()),
+      changeFrequency: "monthly",
+      priority: 0.6,
     },
     ...CONCEPT_IDS.map((id) => ({
       url: canonicalUrl(paths.analysisConcept(id)),

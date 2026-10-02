@@ -7,10 +7,12 @@
  * engine. Every amount in an expectation is worked out in the comment above it.
  */
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  analyzeHand,
+  analyzeHand as analyzeWith,
   blockers,
   boardTexture,
   draws,
@@ -21,10 +23,22 @@ import {
   type DecisionAnalysis,
   type HandAnalysis,
 } from "../../frontend/src/lib/analysis/index.js";
+import { loadCharts } from "../../frontend/src/lib/charts/index.js";
 import { parseStandardHand } from "../../frontend/src/lib/phf/serialize.js";
 import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
 
 const CTX = { siteId: "standard", siteName: "standard", originalFilename: null };
+
+/**
+ * The committed chart set, as the rebuild passes it. These fixtures are
+ * three-handed, so the charts refuse their preflop decisions by name
+ * (`chart-players`) and everything pinned here is A1's: facts and flags.
+ * `analysisPreflop.test.ts` pins the chart grades on six-handed hands.
+ */
+const CHARTS = loadCharts(
+  JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
+);
+const analyzeHand = (hand: PhfHand) => analyzeWith(hand, { charts: CHARTS });
 const FEES = "| Rake $0 | Jackpot $0 | Bingo $0 | Fortune $0 | Tax $0";
 
 function parse(text: string): PhfHand {
@@ -285,7 +299,9 @@ describe("pot geometry", () => {
   const analysis = analyzeHand(parse(DEFEND));
 
   it("reads the hero seat and every decision, in the stats engine's order", () => {
-    expect(analysis.status).toBe("full");
+    // Partial: three-handed, so the preflop call has no chart (§3.5).
+    expect(analysis.status).toBe("partial");
+    expect(decision(analysis, "preflop", "call")).toMatchObject({ status: "not-analysed", reason: "chart-players" });
     expect(analysis.heroSeat).toBe(3);
     expect(analysis.decisions.map((d) => `${d.street}:${d.action}`)).toEqual([
       "preflop:call",
@@ -333,7 +349,7 @@ describe("pot geometry", () => {
     expect(river.approximations).toContain("placeholder-range");
   });
 
-  it("has no grade without a reference, and says the source is a heuristic", () => {
+  it("has no grade without a reference: postflop is heuristic, and the charts refuse a three-handed preflop", () => {
     expect(analysis.grade).toBeNull();
     expect(analysis.score).toBeNull();
     expect(analysis.decisions.every((d) => d.grade === null && d.source === "heuristic" && d.options.length === 0)).toBe(true);
@@ -393,12 +409,16 @@ describe("heuristic flags", () => {
 describe("what is not analysed", () => {
   it("skips a multiway postflop decision and says why", () => {
     const analysis = analyzeHand(parse(MULTIWAY));
-    expect(analysis.status).toBe("partial");
+    // Nothing left: the flop bet is multiway and the preflop raise is
+    // three-handed. A hand with no analysed decision names its first reason.
+    expect(analysis.status).toBe("not-analysed");
+    expect(analysis.reason).toBe("chart-players");
     const bet = decision(analysis, "flop", "bet");
     expect(bet.status).toBe("not-analysed");
     expect(bet.reason).toBe("multiway");
     expect(bet.flags).toEqual([]);
-    expect(decision(analysis, "preflop", "raise").status).toBe("analysed");
+    // Three-handed: the preflop raise is not graded either, and says why.
+    expect(decision(analysis, "preflop", "raise").reason).toBe("chart-players");
   });
 
   const mutate = (fn: (hand: PhfHand) => void) => {

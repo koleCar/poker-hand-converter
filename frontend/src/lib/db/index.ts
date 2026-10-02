@@ -77,6 +77,8 @@ export {
   fetchAnalysisHands,
   fetchAnalysisOverview,
   fetchHandAnalysis,
+  analyseHandNow,
+  preflopCharts,
   runAnalysis,
   type AnalysisBreakdownGroup,
   type AnalysisBreakdownRow,

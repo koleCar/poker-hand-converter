@@ -207,6 +207,20 @@
     --grade-blunder: var(--st-danger-500);
     --flag-note: var(--st-info-500);
 
+    /* --------------------------------------------------------- chart actions
+       The preflop chart viewer (phase A2b): one fill per action, the
+       convention most charts share — fold cool and quiet, call green, raise
+       warm, all-in its darker shade. Fills, not text: every cell also carries
+       its class name in --text-primary and every action is named in the
+       legend and the detail, so colour is never the only signal. Each fill is
+       at least 3:1 against --surface-inset (WCAG 1.4.11) except fold, which
+       is deliberately the background-like "nothing happens" colour. */
+    --chart-fold: #3a4757;
+    --chart-check: #5b8def;
+    --chart-call: #2fae78;
+    --chart-raise: #e0623f;
+    --chart-allin: #b8364a;
+
     /* ------------------------------------------------------------ anonymity
        Rooms that do not publish player names. Violet on purpose: it is neither
        a status nor a link, and marking an anonymised table in red or blue would

@@ -6,10 +6,12 @@
  * file names which. The rules mirror `explain()` sentence by sentence, so a
  * link appears exactly when the sentence it explains does: the pot-odds
  * sentence when there was a price, the SPR sentence when SPR was 3 or less
- * before the river, and so on. Flags come first — they are the reason the
+ * before the river, the grading page under a chart grade, MDF never
+ * preflop, and so on. Flags come first — they are the reason the
  * reader opened the decision.
  */
 
+import { modelCaveat } from "../analysis/reference";
 import type { DecisionAnalysis, FlagCode, SpotFacts } from "../analysis/types";
 import type { ConceptId } from "./concepts";
 
@@ -82,8 +84,16 @@ export function conceptsForDecision(decision: DecisionAnalysis, limit = 4): Conc
     for (const id of FLAG_CONCEPTS[flag.code] ?? []) add(id);
   }
   add(facts.street === "preflop" ? preflopConcept(facts, decision.action) : lineConcept(facts, decision.action));
+  // The chart sentences: the grade itself, a hand outside the range, and the
+  // realisation model's known weakness under a bad grade.
+  if (decision.source === "chart" && decision.grade) {
+    add("ev-and-grading");
+    if (decision.approximations.includes("out-of-range")) add("ranges");
+    if (modelCaveat(decision)) add("equity-realisation");
+  }
   if (facts.potOdds !== null) add("pot-odds");
-  if (facts.mdf !== null) add("mdf-alpha");
+  // MDF is postflop only (ANALYSIS-PLAN §4), exactly as `explain()` quotes it.
+  if (facts.mdf !== null && facts.street !== "preflop") add("mdf-alpha");
   if (facts.betPot !== null && (decision.action === "bet" || decision.action === "raise")) add("bet-sizing");
   if (facts.spr !== null && facts.spr <= SHORT_SPR && facts.street !== "river") add("spr");
   if (facts.blockers.length > 0) add("blockers");
