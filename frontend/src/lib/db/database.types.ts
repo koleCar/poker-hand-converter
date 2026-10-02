@@ -1879,6 +1879,7 @@ export type Database = {
         }
         Returns: string
       }
+      analysis_best_action: { Args: { p_options: Json }; Returns: string }
       analysis_breakdown: {
         Args: { p_filters?: Json; p_group?: string }
         Returns: Json
@@ -1889,6 +1890,30 @@ export type Database = {
       }
       analysis_coverage: { Args: { p_version: string }; Returns: Json }
       analysis_grade_rank: { Args: { p_grade: string }; Returns: number }
+      analysis_graded_decisions: {
+        Args: { p_filters?: Json }
+        Returns: {
+          action_index: number
+          best: string
+          ev_loss_bb: number
+          ev_loss_pot: number
+          grade: string
+          hand_id: string
+          hero_position: string
+          line: string
+          ord: number
+          played_at: string
+          position: string
+          pot_type: string
+          scenario: string
+          score: number
+          source: string
+          spot_key: string
+          street: string
+          taken: string
+        }[]
+      }
+      analysis_graded_facets: { Args: { p_version: string }; Returns: Json }
       analysis_hand: {
         Args: { p_hand_id: string; p_version?: string }
         Returns: Json
@@ -1902,6 +1927,18 @@ export type Database = {
         }
         Returns: Json
       }
+      analysis_leak_hands: {
+        Args: {
+          p_deviations?: boolean
+          p_filters?: Json
+          p_keys?: string[]
+          p_limit?: number
+          p_offset?: number
+          p_sort?: string
+        }
+        Returns: Json
+      }
+      analysis_leaks: { Args: { p_filters?: Json }; Returns: Json }
       analysis_node_actions: { Args: { p_filters?: Json }; Returns: Json }
       analysis_node_hands: {
         Args: {
@@ -1943,6 +1980,26 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      analysis_spot_key: {
+        Args: {
+          p_best: string
+          p_line: string
+          p_position: string
+          p_scenario: string
+          p_street: string
+          p_taken: string
+        }
+        Returns: string
+      }
+      analysis_trend: {
+        Args: {
+          p_bucket?: string
+          p_filters?: Json
+          p_gap_minutes?: number
+          p_group?: string
+        }
+        Returns: Json
       }
       analysis_version_of: { Args: { p_filters: Json }; Returns: string }
       can_moderate_board: { Args: { p_board_id: string }; Returns: boolean }

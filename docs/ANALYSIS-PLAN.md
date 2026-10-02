@@ -847,3 +847,99 @@ Each phase appends what it learned that changed the plan.
     point at the checked flop; a flop measurement (A5b) is the next step for
     the charts.
   - `CHARTS_VERSION` is `charts/2`; the lookup API is unchanged.
+- 2026-10-02 — A6 shipped: leaks and progress, at `/analysis/leaks` and
+  `/analysis/progress`, and a "what changed" card on the overview. No grade
+  changes, so still `analysis/3`.
+  - **Sums in SQL, leaks in TypeScript.** Migration
+    `20270201090000_analysis_leaks.sql` adds invoker reports only (no table or
+    grant change):
+    - `analysis_leaks` sums graded decisions per **finest spot**: street,
+      scenario, chart line, seat, the action taken and the reference's best
+      action (the highest-EV option, `analysis_best_action`). Perfect moves
+      are included, because a spot's frequency is every time the player was
+      there.
+    - `analysis_leak_hands` pages the decisions behind a set of spot keys.
+      The key is one string (`analysis_spot_key`) shared by both, so a list
+      and its hands cannot disagree.
+    - `analysis_trend` sums per ISO week, month or session (the statistics
+      screen's 30-minute gap, over every analysed hand), optionally per
+      street, seat or pot type.
+
+    Both return score sums and sums of squares, so means and standard errors
+    are the client's. `lib/analysis/leaks.ts` does the rest, pure and tested.
+  - **What a leak is.** A situation plus one wrong turn in it:
+    - the situation is the street, the scenario, the hero's seat and,
+      preflop, the villain's. Both seats are read from the chart line, so a
+      short-handed hand groups with the 6-max node that graded it;
+    - the wrong turn is taken ≠ best, or the right action at the wrong size.
+
+    Mixed play that cost nothing (every decision Perfect) and leaks under
+    0.05 bb are left out.
+  - **Sparse spots merge up a level**, finest first: (scenario, hero,
+    villain) → (scenario, hero) → (scenario) → (family) → (street). A family
+    is first in / facing a raise / facing a re-raise preflop, and first /
+    vs bet / vs raise postflop.
+    - A group under 10 decisions in its situations is lifted whole. It merges
+      only with the other lifted groups, never with a sibling big enough to
+      stand alone, and such a row says "other opponents / seats / spots".
+    - Confidence: high at 50 decisions in the spot and 5 mistakes, medium at
+      20 and 2, low below.
+  - **Ranking.** Total EV lost by default. Within one filter set, "EV lost
+    per 100 hands" divides every row by the same graded-hand count, so it
+    gives the same order. The other rankings offered are EV per time in the
+    spot (how badly the spot is played) and mistakes.
+  - **"What changed"** compares the last 7 or 30 days **of play** against
+    the stretch before:
+    - the window ends on the last day a graded hand was played, not today,
+      and the card says so;
+    - leaks are grouped on both periods together, so a leak means the same
+      spots in both. A leak compares by mistake rate in its spot
+      (two-proportion z); streets and the whole sample by mean move score
+      (Welch's z);
+    - the words come in tiers: |z| ≥ 1.96 better or worse, ≥ 1 "leaning,
+      could be noise", else "no clear change". Under 20 moves (10 spot
+      decisions) it says "too few", and under 50 moves in the current period
+      the card warns that it is a hint.
+  - **"Drill this"** is shown disabled, with "arrives with the trainer (A7)"
+    as its visible reason, so the entry point exists before the feature.
+  - **Progress** draws per-bucket means, not cumulative lines, on evenly
+    spaced buckets (a gap in play is not a stretch):
+    - the score has its 95% band, and buckets under 20 graded moves are
+      hollow;
+    - the graded volume is drawn under each point;
+    - every chart has a table view and keyboard navigation.
+
+    `niceStep` and `ticks` moved from `WinrateGraph` to
+    `components/stats/chartScale.ts`.
+  - **Owner's local library** (rows graded at `analysis/3` with `charts/1`,
+    before A2a.1's `charts/2` reaches the grades): 1,580 graded moves in
+    1,437 hands, 161.8 bb in 75 leaks, 11.3 bb / 100 hands. Top five by EV
+    lost:
+    1. River, preflop raiser out of position and first to act, checking
+       instead of betting (seats other than the SB, merged from 4 spots):
+       18.9 bb, 5 mistakes in 21 decisions, medium confidence.
+    2. BTN against a CO open, folding instead of 3-betting: 12.4 bb. It is
+       one decision of 39, the AA fold A2b found; low confidence.
+    3. The same river spot, betting instead of checking: 11.4 bb, 4 in 22.
+    4. The same river spot from the SB, checking instead of betting:
+       10.9 bb, 4 in 25.
+    5. River facing a bet, calling instead of raising (merged up to the
+       family): 9.6 bb, 2 in 15, low confidence.
+
+    The first preflop leak with a real sample is folding to a 3-bet where the
+    charts call: 4.5 bb, 8 mistakes in 20 decisions. Rivers dominate the list
+    because their mistakes are big and their samples small. Every river leak
+    still rests on the narrowing model (A4's open point).
+  - **Last 7 days of play (15–21 Feb) against the 7 before:** score 91.4
+    against 92.8. That is "no clear change" overall and on both graded
+    streets; the work-on list is three river leaks, all "too few to tell".
+  - **Open.**
+    - The hand view's Back link still returns to the overview list, not to
+      the leak it was opened from (browser Back works).
+    - The overview card links a leak to the Leaks screen over both compared
+      periods, where it was grouped. With the overview's game or pot filter
+      set, the Leaks screen (which has neither filter) may group it
+      differently and show the list without opening it.
+    - Turn and flop leaks appear as soon as A5 grades them; nothing here
+      depends on the street.
+    - A8b (the study plan) can be built on `groupLeaks` and `comparePeriods`.

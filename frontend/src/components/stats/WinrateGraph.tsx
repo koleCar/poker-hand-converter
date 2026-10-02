@@ -41,6 +41,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { StatsGraph, StatsGraphBucket } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
+import { niceStep, ticks } from "./chartScale";
 import { countIn, dateFormat, numberFormat, useIntlLocale } from "./format";
 
 interface WinrateGraphProps {
@@ -64,27 +65,6 @@ interface Point {
   /** Cumulative hands. */
   x: number;
   bucket: StatsGraphBucket | null;
-}
-
-/** Round a span up to a readable step: 1, 2, 2.5 or 5 times a power of ten. */
-function niceStep(span: number, targetTicks: number): number {
-  if (span <= 0) {
-    return 1;
-  }
-  const rough = span / Math.max(1, targetTicks);
-  const magnitude = 10 ** Math.floor(Math.log10(rough));
-  const normalized = rough / magnitude;
-  const step = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10;
-  return step * magnitude;
-}
-
-function ticks(min: number, max: number, step: number): number[] {
-  const out: number[] = [];
-  for (let value = Math.ceil(min / step) * step; value <= max + 1e-9; value += step) {
-    // Kill the -0 that falls out of the accumulation and prints as "-0".
-    out.push(value === 0 ? 0 : value);
-  }
-  return out;
 }
 
 export function WinrateGraph({ graph }: WinrateGraphProps) {

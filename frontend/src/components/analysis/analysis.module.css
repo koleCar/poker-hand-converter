@@ -458,6 +458,8 @@
 /* "Your analysis · Learn": inside the tab, not in the app bar (§6.0). */
 .subnav ul {
   display: flex;
+  /* Six sections: at 375px they take two lines rather than scroll the page. */
+  flex-wrap: wrap;
   gap: var(--space-1);
   margin: 0;
   padding: 0;

@@ -378,7 +378,8 @@ function HowToRead({ open }: { open: boolean }) {
 
 /* --------------------------------------------------------------- filters - */
 
-function FilterBar({
+/** The report filters (dates, room, stake, seat); shared with Leaks and Progress (A6), which take the same keys. */
+export function FilterBar({
   state,
   facets,
   onChange,

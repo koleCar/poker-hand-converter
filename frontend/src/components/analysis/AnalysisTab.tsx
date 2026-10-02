@@ -54,6 +54,7 @@ import { FLAG_CONCEPTS } from "../../lib/learn/links";
 import { ActionStrip } from "./ActionStrip";
 import { AnalysisNav } from "./AnalysisNav";
 import { GradeIcon } from "./GradeIcon";
+import { WhatChanged } from "./leaks/WhatChanged";
 import { LearnLink } from "./LearnLinks";
 import {
   EMPTY_LIST_STATE,
@@ -298,6 +299,8 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
           }}
         />
       ) : null}
+
+      <WhatChanged scopeKey={scopeKey} generation={generation} />
 
       <BreakdownPanel scopeKey={scopeKey} generation={generation} />
 
