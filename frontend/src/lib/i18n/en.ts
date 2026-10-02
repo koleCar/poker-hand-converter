@@ -303,6 +303,7 @@ export const en = {
     locked: "Locked",
     upvote: "Upvote",
     downvote: "Downvote",
+    anchorAfter: (where: string, what: string) => `${where}, after ${what}`,
     handBadge: "Hand",
     postDate: (date: string) => date,
 

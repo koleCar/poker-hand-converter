@@ -37,6 +37,7 @@ export const replayerEn = {
       river: "River",
       showdown: "Showdown",
     },
+    mark: (count: number, label: string) => `${count} ${count === 1 ? "comment" : "comments"} at ${label}`,
     position: "Position in hand",
     positionValue: (step: number, total: number, caption: string) =>
       `Step ${step} of ${total}. ${caption}`,

@@ -335,6 +335,27 @@
     width: min(1420px, calc(100% - 48px));
   }
 
+}
+
+/* The middle band, 900–1199px: four tabs (longer in Croatian), the bell, the
+   language switch and the account all share one row, so the tagline steps
+   aside and the tabs tighten rather than clip. */
+@media (min-width: 900px) and (max-width: 1199px) {
+  .shell__brand-sub {
+    display: none;
+  }
+
+  .shell__tab {
+    padding-inline: 12px;
+  }
+}
+
+/* -------------------------------------------------------------- > 1200px */
+
+/* The long status ("5,448 hands stored") only where it cannot crowd the tabs:
+   with a language switch in the bar and Croatian tab labels a third longer,
+   900–1200px is the short "5,448". */
+@media (min-width: 1200px) {
   .shell__status-full {
     display: inline;
   }

@@ -40,7 +40,7 @@ export function CommentThread({
     <ol className={styles.thread}>
       {comments.map((comment) => {
         const gone = comment.deleted || comment.removed || comment.body === null;
-        const label = anchorLabel(hand, comment.anchor);
+        const label = anchorLabel(hand, comment.anchor, en.forum.anchorAfter);
         return (
           <li
             key={comment.seq}

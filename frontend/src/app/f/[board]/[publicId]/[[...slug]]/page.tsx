@@ -230,7 +230,12 @@ export default async function PostPage({ params, searchParams }: { params: Param
           ) : null}
 
           {post.poll ? null : (
-          <PostDiscussion hand={hand} site={siteName} initialPosition={decodePosition(t)}>
+          <PostDiscussion
+            hand={hand}
+            site={siteName}
+            initialPosition={decodePosition(t)}
+            anchors={comments.flatMap((comment) => (comment.anchor && !comment.deleted && !comment.removed ? [comment.anchor] : []))}
+          >
             <section id="comments" className="stack">
               <div className={styles.toolbar}>
                 <h2 className={styles.cardTitle}>{en.forum.comments.heading(post.commentCount)}</h2>

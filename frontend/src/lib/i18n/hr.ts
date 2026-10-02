@@ -277,6 +277,7 @@ export const hr: Dict = {
     locked: "Zaključano",
     upvote: "Glasaj za",
     downvote: "Glasaj protiv",
+    anchorAfter: (where: string, what: string) => `${where}, nakon: ${what}`,
     handBadge: "Ruka",
     postDate: (date: string) => date,
 
