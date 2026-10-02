@@ -201,18 +201,34 @@ player's decisions. This is why they come first.
 A counterfactual-regret solver (Discounted CFR, Brown & Sandholm 2019) over a
 fixed betting abstraction, heads-up only.
 
-- **Language.** Rust compiled to WebAssembly. One build runs:
-  - in a Web Worker on the user's machine (free, no server limits);
-  - in a server worker for backfills.
-
-  A TypeScript reference implementation sits in `lib/solver` for tests, under
-  the same import rule as `lib/equity`.
+- **Language.** TypeScript over typed arrays in `lib/solver` (shipped in #90).
+  Same import rule as `lib/equity`, enforced by ESLint. It runs in a Web Worker
+  in the browser and under Node in tests.
+- **Measured (#90, M2 Pro, Node 24), solved to under 0.5% of the pot:**
+  - **River:** 40 ms for ~300 v ~240 combos with two sizes + all-in; 273 ms for
+    ~600 combos with three sizes and rake.
+  - **Turn+river:** 6 s with one size, 36 s with two sizes; 20–80 MB of memory.
+  - **Flop:** about 50× the turn. Not feasible on demand in the browser.
 - **Licensing.** The well-known open-source postflop solvers are AGPL. Rail has
   no licence file and is not open source, so we do not embed them. We write our
   own: the algorithm is published, and the river-only version is small.
-- **Order.** River first: one street, tiny trees, solved in well under a second.
-  Turn next. Flop last: the full tree is too big to solve on demand, so it
-  needs coarse sizings and a cache.
+- **Order and strategy per street:**
+  - **River:** solved on demand for the hand on screen. A full strategy blob is
+    100–500 KB, so re-solving is cheaper than storing and downloading the blob.
+  - **Turn:** too slow per hand. It needs river-card isomorphism, chance
+    sampling, and a coarse river menu below the turn (one size + all-in). It is
+    then precomputed or cached, storing turn-level nodes only (a full blob is
+    10–44 MB).
+  - **Flop:** an offline-precomputed library: canonical flop × preflop line,
+    coarse abstraction, flop-level strategies only. Until that exists, flop
+    decisions stay heuristic.
+- **Bet-size menus:**
+  - **River:** 33 / 75 / 150% + all-in; raises 75% + all-in; cap 2–3. Without
+    the overbet, real overbets land off-tree (§3.3).
+  - **Turn:** 75% (or 33 / 75%) + all-in; cap 1–2.
+- **EV units:** net chips from the start of the street, counting the pot as
+  winnable. Grading reads `ev[action][combo]` and `strategy[action][combo]` at
+  the hero's combo straight from the result.
 - **Inputs.** Two ranges, the board, pot, effective stack, the bet-size menu
   and rake. Ranges come from walking the hand: the preflop chart gives each
   player's range for their line, and every postflop action narrows it by the
@@ -236,13 +252,18 @@ blunder.
 
 ### 3.4 Spot key and cache
 
-`SpotKey` = format, players, stack bucket, preflop line, position pair, board
-reduced to its suit-isomorphic canonical form, the street action so far,
-pot/stack ratio bucket, and rake profile.
+`SpotKey` (`lib/solver/spotKey.ts`) = format, players, stack bucket, preflop
+line, position pair, board reduced to its suit-isomorphic canonical form, the
+street action so far, pot/stack ratio bucket, rake profile, **the bet-menu
+profile**, and **a hash of the canonical ranges**. The last two are needed
+because the ranges depend on the analysis version.
 
-Solved nodes are cached by `(SpotKey, SOLVER_VERSION)`:
-- the strategy goes to Storage;
-- an index row goes to Postgres.
+What is cached depends on the street:
+- **River:** the per-decision results (frequencies and EVs at the hero's
+  decisions), not the strategy. A re-solve takes well under a second.
+- **Turn and flop:** street-level strategies, keyed by
+  `(SpotKey, SOLVER_VERSION)`, with the blob in Storage and an index row in
+  Postgres.
 
 The cache is shared across users. Spot keys contain no hole cards and no player
 names, so sharing reveals nothing about anyone's hands.
@@ -327,7 +348,8 @@ Templates, not free text, because:
 | Work | Where | Why |
 |---|---|---|
 | Decision walk, facts, chart lookup, heuristic | client and the existing `/api/stats/rebuild` path | Cheap; same code as stats |
-| River/turn solve for one hand being viewed | Web Worker (WASM), client | Free, instant enough, no server timeouts |
+| River solve for one hand being viewed | Web Worker, client | Under 0.3 s; free; no server timeouts |
+| Turn / flop strategies | Precomputed library (offline script) + cache | Too slow per hand in the browser (§3.2) |
 | Backfill of a user's whole database | The user's browser (Web Worker), resumable, like the stats rebuild; progress persisted per hand | No host to run; Vercel's function limit is far below a flop solve. A server worker is optional later |
 | Solved-spot cache | Postgres index + Storage blobs | Shared across users, deduped by `SpotKey` |
 
@@ -445,7 +467,7 @@ Each phase ships something usable on its own, has its own PR, migration and
 | **A2 — preflop charts and grading** | <ul><li>Chart format</li><li>a reproducible generator script (our solver, an equity-realisation model) and a committed 6-max 100bb cash set</li><li>preflop grading wired into A1's pipeline</li><li>a 13×13 chart viewer, which is also the preflop "Study" view</li><li>grades shown in the tab</li></ul> | A1, S |
 | **A3 — reports vs reference** | Reference frequencies per stat, position and role, from the charts. Reports panel in the Analysis tab: yours, reference, the difference, and the deviating hands. | A2 |
 | **A4 — river grading** | <ul><li>Range narrowing along the hand: preflop chart, then postflop heuristics until A5</li><li>river solve in a Web Worker</li><li>`spot_solutions` cache (index row + Storage blob, RPC-written)</li><li>river grades and the study grid for river nodes</li></ul> | A2, S |
-| **A5 — turn and flop** | Sizing abstraction, action translation (§3.3), turn and flop solves with caching, full heads-up postflop grading, flop reports by role. | A4 |
+| **A5 — turn and flop** (A5a turn: isomorphism, sampling, cache; A5b flop: offline precomputed library) | Sizing abstraction, action translation (§3.3), turn and flop solves with caching, full heads-up postflop grading, flop reports by role. | A4 |
 | **A6 — leaks and progress** | <ul><li>Leak finder: EV lost grouped by spot, ranked</li><li>score trend</li><li>per-street, position and pot-type breakdowns</li><li>a weekly "what improved / what to work on" summary</li></ul> | A3, A5 |
 | **A7 — training** | <ul><li>**Spot trainer**: play the hero's side of a stored strategy and be graded per move</li><li>**mistake drills**: your own worst spots, replayed until right (spaced repetition)</li><li>"what would you do?" (#51) graded against the reference</li></ul> | A5 |
 | **A8 — learning layer** | <ul><li>A concept library (texture, range/nut advantage, MDF, SPR, blockers, polarisation…), each concept with a definition, an interactive example and links from every explanation that uses it</li><li>a study plan built from the leak finder</li><li>the optional AI-written review, grounded on facts</li></ul> | A6, A7 |
@@ -468,7 +490,8 @@ Each phase ships something usable on its own, has its own PR, migration and
   - "not analysed" is a first-class outcome;
   - heuristic flags are never shown as grades.
 - **Compute.** A flop solve takes seconds to minutes. Mitigations: per-node
-  caching, coarse flop sizings, and client-side WASM for the hand on screen.
+  caching, a precomputed flop library, coarse sizings, and on-demand solving
+  for the river only.
 - **Chart and solver correctness.** Mitigations: exploitability bounds,
   known-game tests, and isomorphism tests, all in CI like the pgTAP suite.
   GTO Wizard's numbers may be used by the owner for a manual sanity check on
@@ -480,3 +503,12 @@ Each phase appends what it learned that changed the plan.
 
 - 2026-10-02 — Rust/WASM replaced by TypeScript (no toolchain in repo/CI/Vercel);
   backfill moved to the browser; Analysis tab (§6.0) and phases S, A7, A8 added.
+- 2026-10-02 — Phase S shipped (#90).
+  - The river is solved on demand in the browser.
+  - The turn needs isomorphism and sampling, then caching.
+  - The flop needs an offline precomputed library; until then it stays
+    heuristic.
+  - The spot key gained the bet-menu profile and a hash of the ranges.
+  - River caching stores per-decision results only.
+  - A5 is split into **A5a**, turn (caching, sampling), and **A5b**, the flop
+    library.
