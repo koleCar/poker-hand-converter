@@ -60,6 +60,10 @@ type Status = "idle" | "loading" | "ready" | "not-installed" | "error";
  */
 const GRAPH_BUCKETS = 60;
 
+/** Identifiers in the "not set up" notice: names, not prose, so not translated. */
+const STATS_TABLE = "hand_stats";
+const STATS_MIGRATION = "supabase/migrations/20261005090000_hand_stats.sql";
+
 export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
   const t = useDict().stats;
   const en = t.tab;
@@ -192,9 +196,9 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
           <h3>{en.notInstalledHeading}</h3>
           <p className="muted">
             {en.notInstalledBody.beforeTable}
-            <code>hand_stats</code>
+            <code>{STATS_TABLE}</code>
             {en.notInstalledBody.beforeFile}
-            <code>supabase/migrations/20261005090000_hand_stats.sql</code>
+            <code>{STATS_MIGRATION}</code>
             {en.notInstalledBody.afterFile}
           </p>
           <button type="button" className="btn" onClick={() => void load()}>

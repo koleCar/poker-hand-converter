@@ -76,24 +76,14 @@ export default defineConfig([
   },
 
   /**
-   * i18n, scoped to `src/app/**` — every App Router surface, which is every
-   * screen written or rewritten by the Next.js cutover.
-   *
-   * It is not global, and that is a deliberate, stated limit rather than an
-   * oversight. The pre-existing components under `src/components/**` carry
-   * several hundred inline strings across the converter, the replayer and the
-   * stats HUD. Hauling all of them through `en.ts` *during* a framework
-   * migration is how you lose a comma in a sentence that explains a refusal
-   * reason — and the migration's whole claim is that behaviour did not change.
-   *
-   * What this scoping does buy is the thing that matters: **the pile cannot
-   * grow.** New UI lands in `src/app/**`, and a new file there cannot ship a
-   * bare literal. Extending the `files` list one directory at a time, as each
-   * legacy component is next touched for another reason, is the cheap path to
-   * full coverage.
+   * i18n: no bare user-facing literal in any screen — `src/app/**` and
+   * `src/components/**`. Copy lives in `src/lib/i18n/` (`en.ts`, `hr.ts` and
+   * the per-area files in `ns/`); see the header of `en.ts` for how a
+   * component reaches it. Names that are not prose (the wordmark, a table or
+   * file name shown in `<code>`) go through a named constant, which says so.
    */
   {
-    files: ['src/app/**/*.tsx'],
+    files: ['src/app/**/*.tsx', 'src/components/**/*.tsx'],
     rules: i18nRules,
   },
 
