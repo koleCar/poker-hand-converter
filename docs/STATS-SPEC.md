@@ -192,7 +192,7 @@ A raise ends the chain. The river link has the same shape, one street on.
 Fixtures: `09-turn-cbet-needs-a-called-flop-cbet.txt`,
 `10-raised-flop-cbet-ends-the-chain.txt`, `17-triple-barrel-and-rake.txt`.
 
-### 4.5 Steal is 0 heads-up and 0 with a straddle
+### 4.5 Steal is 0 heads-up, 0 with a straddle and 0 with a button blind
 
 **Both trackers count heads-up steals. We do not.**
 
@@ -206,9 +206,20 @@ A straddle kills it for a different reason. With a straddler acting after the
 blinds, "folded to the cutoff" no longer means "only the blinds are left", which
 is the entire premise of the stat.
 
-`fold_to_steal_opp` is 0 under both conditions too, for consistency.
+A button blind kills it for a third. GG's short deck is ante-only: everybody
+antes and the button alone posts a blind (PHF-SPEC §3.6). There is no small or
+big blind to steal from, positions are named from the button with no `SB` or
+`BB` (PHF-SPEC §3.5), and "folded to the cutoff" means one player left, who is
+both the button and the blind. That is a real spot with its own price, but it
+is not the one the stat measures, and pooling the two would make neither mean
+anything.
 
-Fixture: `14-heads-up-has-no-steal.txt`.
+`fold_to_steal_opp` is 0 under all three conditions too, for consistency. None
+of this needed a `STATS_VERSION` bump: no stored row predates it, because every
+short-deck hand was refused at conversion until the same change.
+
+Fixtures: `14-heads-up-has-no-steal.txt`; the button blind in
+`tests/test/shortDeck.test.ts`.
 
 ### 4.6 A blind calling a raise is not a cold call
 
@@ -277,7 +288,9 @@ removes by accident.
 
 `handClass` is computed only when `holeCardCount(variant) === 2`. It returns
 `null` for anything else, which is the correct answer rather than a gap: there
-is no agreed one-token class notation for an Omaha hand. Routing through
+is no agreed one-token class notation for an Omaha hand. Short deck deals two
+and uses the Hold'em notation over the nine ranks it has (81 of the 169
+classes); a card the deck cannot hold gets no class. Routing through
 `holeCardCount` keeps the reason visible and stays additive-tolerant if the
 `Variant` union grows.
 
@@ -303,7 +316,7 @@ because a player facing a bet has three legal replies and no fourth.
 | `four_bet` | First decision at raise level 2 | raised |
 | `five_bet` | First decision at raise level 3 | raised |
 | `squeeze` | First decision at raise level 1 with ≥1 caller since the raise | raised |
-| `steal` | Unopened pot, seat in CO/BTN/SB, ≥3 dealt in, no straddle | raised |
+| `steal` | Unopened pot, seat in CO/BTN/SB, ≥3 dealt in, no straddle, no button blind | raised |
 | `fold_to_steal` | Seat is in a blind, a steal was attempted, and this is its first decision with nobody having re-raised in between | legs: fold / `call_steal` / `three_bet_vs_steal` |
 | `fold_to_three_bet` | The seat's own raise was the open, and it now faces a 3-bet **with a decision to make** | legs: fold / `call_three_bet` / `raise_vs_three_bet` |
 | `fold_to_four_bet` | The seat 3-bet and now faces a 4-bet | legs: fold / `call_four_bet` / `raise_vs_four_bet` |

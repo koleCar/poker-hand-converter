@@ -12,7 +12,7 @@
  */
 
 import type { Dict } from "../../lib/i18n/types";
-import { formatAmount, type LimitType, type PhfHand } from "../../lib/phf/types";
+import { formatAmount, isButtonBlind, type LimitType, type PhfHand } from "../../lib/phf/types";
 
 /** Abbreviations, the same in every language. */
 const LIMIT_LABEL: Record<LimitType, string> = { nl: "NL", pl: "PL", fl: "FL" };
@@ -28,8 +28,13 @@ function money(hand: PhfHand, amount: number): string {
   return formatAmount(amount, hand.game.unit, hand.meta.textStyle.decimals);
 }
 
-/** `"$0.25/$0.50"`. */
+/** `"$0.25/$0.50"`, or the one stake of an ante-only short-deck table. */
 export function stakesLabel(hand: PhfHand): string {
+  if (hand.game.variant === "shortdeck" && hand.game.smallBlind === 0) {
+    // GG prints `ShortDeck No Limit ($0.02)`; a `$0/` in front would read as a
+    // small blind of nothing rather than as no small blind at all.
+    return money(hand, hand.game.bigBlind);
+  }
   return `${money(hand, hand.game.smallBlind)}/${money(hand, hand.game.bigBlind)}`;
 }
 
@@ -56,6 +61,12 @@ export function structureBadges(hand: PhfHand, t: Dict["replayer"]): string[] {
     if (game.bombPot.doubleBoard) {
       badges.push(words.doubleBoard);
     }
+  }
+  const buttonBlind = hand.actions.find(isButtonBlind);
+  if (buttonBlind) {
+    // The only blind on an ante-only table, and it is on the button - which
+    // is why no seat is labelled SB or BB in this hand.
+    badges.push(words.buttonBlind(money(hand, buttonBlind.amount)));
   }
   switch (game.anteModel) {
     case "big-blind-ante":

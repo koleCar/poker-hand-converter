@@ -147,16 +147,17 @@ room's Hold'em says nothing about whether it reads that room's Omaha.
 | Reads | Parsers |
 | --- | --- |
 | Hold'em, four- and five-card Omaha, four-card Omaha Hi/Lo | Entraction |
-| Hold'em, four- and five-card Omaha | GGPoker |
+| Hold'em, four- and five-card Omaha, short deck | GGPoker |
 | Hold'em, four-card Omaha, four-card Omaha Hi/Lo | PokerStars, partypoker, 888poker, MicroGaming, Ignition, Full Tilt |
-| Hold'em and four-card Omaha | iPoker, Winamax, ACR/WPN, Chico, Ongame, Unibet |
+| Hold'em, four-card Omaha, short deck | ACR/WPN |
+| Hold'em and four-card Omaha | iPoker, Winamax, Chico, Ongame, Unibet |
 | Hold'em only | WePlay, CoinPoker, PokerBros, Run It Once |
 
 Hi/Lo has a list of its own (`SiteParser.hiLoVariants`), because reading a
 room's Omaha says nothing about reading where its split pot went. Every other
 room, and five-card or stud Hi/Lo everywhere, is refused as `unsupported-hi-lo`;
-short deck, stud, razz and draw games are refused in every room. Several rows
-come with caveats:
+stud, razz and draw games are refused in every room. Several rows come with
+caveats:
 
 - **ACR/WPN** stays off the Hi/Lo list. Of its eight `O8` files the four that
   convert never pay a pot to more than one player, so not one split has been
@@ -173,6 +174,30 @@ come with caveats:
 - **Ignition**'s two 2012 tournament Hi/Lo hands carry the same
   `streets-inferred` note as its 2012 Omaha high files: that export prints no
   street markers.
+
+Short deck (6+ Hold'em) is a different game rather than a longer deal: 36 cards,
+a flush over a full house, `A-6-7-8-9` the low straight. It goes on a room's
+list as its own entry, with a backstop like Hi/Lo's (`SiteParser.shortDeck`),
+and only the two rooms with short-deck fixtures have it; every other room
+refuses it as `unsupported-variant`. The validator refuses a deuce-to-five in a
+short-deck hand (`card-not-in-deck`), and all-in EV deals the runout from the
+36-card deck.
+
+- **GGPoker** short deck is ante-only: every seat antes, the button alone posts
+  a `button blind`, and the header carries that one stake
+  (`ShortDeck No Limit ($0.02)`). The button blind is a big blind whose verb
+  says the button posted it, so positions are named from the button with no
+  `SB` or `BB`, and the steal family of stats is off for these hands. GG's
+  straddle amount is the straddler's street total, which is what lets the
+  button straddle its own blind - reading it that way also converts the two
+  PLO-5 straddle hands that used to be refused.
+- **ACR/WPN** deals Six Plus with an ordinary small and big blind, so only the
+  deck and the ranking differ from its Hold'em. One legacy hand is the whole
+  sample, so the modern dialect still refuses it; it is written out as Stars'
+  `6+ Hold'em No Limit`.
+- The evaluator ranks three of a kind over a straight (Stars' rule).
+  GG's fixture 12 paid a straight over trips, so GG may play the other rule;
+  see the note in `frontend/src/lib/equity/evaluator.ts`.
 
 And two of the Omaha rows:
 

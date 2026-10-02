@@ -436,6 +436,18 @@ export type GameFormat = "cash" | "tournament" | "sng" | "spin";
  */
 export type AnteModel = "none" | "posted-per-player" | "big-blind-ante" | "button-ante";
 
+/**
+ * Whether a card can be dealt in this variant at all.
+ *
+ * Short deck strips the deuces through fives, leaving 36 cards; every other
+ * flop game deals from 52. A `5h` in a short-deck hand is not an odd card, it
+ * is proof the hand is not what its label says, so `validateHand` refuses it.
+ * Takes a card already parsed by `parseCard`; junk is the caller's problem.
+ */
+export function cardInDeck(code: string, variant: Variant): boolean {
+  return variant !== "shortdeck" || !/^[2-5]/.test(code);
+}
+
 /** How many hole cards the variant deals. Used by the duplicate-card checks. */
 export function holeCardCount(variant: Variant): number | null {
   switch (variant) {
@@ -474,7 +486,12 @@ export function variantFromLabel(label: string): Variant {
   if (/6\s*card\s*omaha|omaha\s*6|\bPLO-?6\b/i.test(label)) return "omaha6";
   if (/5\s*card\s*omaha|omaha\s*5|\bPLO-?5\b/i.test(label)) return "omaha5";
   if (/omaha|omahl|\bPLO\b|\bNLO\b/i.test(label)) return "omaha";
-  if (/short\s*deck|6\+/i.test(label)) return "shortdeck";
+  // Before Hold'em, because most spellings contain the word: GG `ShortDeck` /
+  // `Hold'em Short Deck`, PokerStars `6+ Hold'em`, ACR `Six Plus Hold'em`.
+  // Kept a superset of `isShortDeckLabel` in
+  // `parsers/shared/variant-lock.ts`, so a label the lock lets through as
+  // short deck is never read back as a 52-card game.
+  if (/short\s*deck|6\s*\+|\bsix[\s-]*plus\b/i.test(label)) return "shortdeck";
   if (/\brazz\b/i.test(label)) return "razz";
   if (/\bstud\b/i.test(label)) return "stud";
   if (/\bdraw\b|badugi/i.test(label)) return "draw";
@@ -651,9 +668,25 @@ function dealtInSeatsOf(hand: PhfHand): number[] {
   return dealtIn.length >= 2 ? dealtIn : seated;
 }
 
+/**
+ * The ring for a table whose only blind is posted by the button.
+ *
+ * GG's short deck is ante-only: everybody antes and the button alone posts a
+ * `button blind`. Nobody posts a small or a big blind, so naming two seats
+ * `SB` and `BB` would invent blinds that were never paid - and every
+ * blind-defence statistic keyed on those names would count seats that had
+ * nothing in. The seats are named by their distance from the button instead,
+ * as if the two blind seats did not exist: five-handed is `UTG`, `LJ`, `HJ`,
+ * `CO`, `BTN`, ending on the button, which is also the blind.
+ */
+export function buttonBlindRing(n: number): Position[] {
+  return n <= 0 ? [] : positionRing(n + 2).slice(2);
+}
+
 export function assignPositions(hand: PhfHand): void {
   let smallBlindSeat: number | null = null;
   let bigBlindSeat: number | null = null;
+  let buttonBlindSeat: number | null = null;
 
   for (const action of hand.actions) {
     if (action.seat === null) {
@@ -664,7 +697,9 @@ export function assignPositions(hand: PhfHand): void {
     if (action.type === "small-blind" && smallBlindSeat === null) {
       smallBlindSeat = action.seat;
     }
-    if (action.type === "big-blind" && bigBlindSeat === null) {
+    if (isButtonBlind(action)) {
+      buttonBlindSeat ??= action.seat;
+    } else if (action.type === "big-blind" && bigBlindSeat === null) {
       bigBlindSeat = action.seat;
     }
   }
@@ -673,7 +708,21 @@ export function assignPositions(hand: PhfHand): void {
   const size = ringSeats.length;
 
   const positions = new Map<number, Position>();
-  if (size > 0) {
+  if (
+    size > 0 &&
+    buttonBlindSeat !== null &&
+    smallBlindSeat === null &&
+    bigBlindSeat === null &&
+    ringSeats.includes(buttonBlindSeat)
+  ) {
+    // Anchored on who posted it, like every other blind: the button blind is
+    // the last name in the ring, so the ring starts one seat past it.
+    const ring = buttonBlindRing(size);
+    const start = (ringSeats.indexOf(buttonBlindSeat) + 1) % size;
+    for (let offset = 0; offset < size; offset += 1) {
+      positions.set(ringSeats[(start + offset) % size], ring[offset]);
+    }
+  } else if (size > 0) {
     // A dead button - the button sits on a seat nobody is dealt in on, because
     // its occupant left between hands - means there is no button *player*. The
     // rotation still has that slot, so the live seats are named against a ring
@@ -712,6 +761,12 @@ export function assignPositions(hand: PhfHand): void {
 export interface PhfStraddle {
   seat: number;
   player: string;
+  /**
+   * The straddle's size: the straddler's street total once it is posted. The
+   * same as the chips added for an ordinary straddle; for a re-straddle by a
+   * seat that already had money in - GG's short deck has the button blind
+   * straddle its own blind - the chips added are on the action instead.
+   */
   amount: Amount;
   /** 1 = first straddle (usually UTG), 2 = re-straddle, and so on. */
   order: number;
@@ -988,6 +1043,29 @@ export function isPostingAction(type: ActionType): boolean {
   );
 }
 
+/**
+ * The verb GG prints for the one blind of an ante-only short-deck table:
+ * `Hero: posts button blind $0.02`.
+ */
+export const BUTTON_BLIND_VERB = "posts button blind";
+
+/**
+ * Whether a posting is a button blind rather than an ordinary big blind.
+ *
+ * **Why a `big-blind` with a verb, not a new `ActionType`.** It *is* the big
+ * blind in every way the money cares about: live, the bet everybody else has
+ * to match, the seat that gets the option and the walk. Every consumer that
+ * asks "was a blind posted" - bomb-pot detection, the walk, cold calls, the
+ * replayer's posting block - gets the right answer from the type it already
+ * reads, where a new member would be one more case each of them could forget,
+ * and a `phf/2` change besides. The single thing that differs is *who* posts
+ * it, which only the position ring has to know, and `verb` is already the
+ * field that carries a room's own wording through the text round trip.
+ */
+export function isButtonBlind(action: Pick<PhfAction, "type" | "verb">): boolean {
+  return action.type === "big-blind" && action.verb === BUTTON_BLIND_VERB;
+}
+
 export interface PhfAction {
   /** Position in the stream; stable across serialization. */
   index: number;
@@ -1018,7 +1096,8 @@ export interface PhfAction {
    *
    * WePlay writes `Kadiddy: posts straddle $4` where the standard text says
    * `posts $4`. The action type is what code should branch on; this keeps the
-   * wording so the text round-trips.
+   * wording so the text round-trips. The one exception is GG's button blind,
+   * a `big-blind` whose verb is `BUTTON_BLIND_VERB`; see `isButtonBlind`.
    */
   verb?: string;
   /** Which pot a collect came from: "pot", "main pot", "side pot", ... */

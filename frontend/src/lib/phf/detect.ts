@@ -78,6 +78,16 @@ export interface SiteParser {
    * warnings, which includes every half resolved (`assignHiLoHalves`).
    */
   readonly hiLoVariants?: readonly Variant[];
+  /**
+   * Whether this parser reads short deck (`variant: "shortdeck"`).
+   *
+   * Absent - the default - means `convertAny` refuses every short-deck hand
+   * the parser returns, the same backstop `hiLoVariants` is for split pots. A
+   * parser earns it only once its own short-deck fixtures come out clean: the
+   * deal is the Hold'em deal, but the deck, the ranking and - on GG - the
+   * whole posting structure are not.
+   */
+  readonly shortDeck?: boolean;
 }
 
 /** Scores at or above this are considered a match. */
@@ -173,6 +183,28 @@ export function unsupportedGameSkipForGame(
   hiLoVariants: readonly Variant[] = [],
 ): ParseSkip | null {
   return game.hiLo && !hiLoVariants.includes(game.variant) ? hiLoSkip(game.label) : null;
+}
+
+/**
+ * The refusal for a short-deck hand from a parser that has not been proven
+ * against short deck.
+ *
+ * The danger has the same shape as hi/lo: a short-deck hand read as Hold'em is
+ * internally consistent - it balances, it validates - and is wrong about the
+ * deck, the hand ranking and, on GG, who posted what. So it is opt-in per
+ * parser (`SiteParser.shortDeck`) and checked twice, in the parser's own
+ * variant guard (`unsupportedVariantSkip`) and here against whatever a parser
+ * returns.
+ */
+export function shortDeckSkip(label: string): ParseSkip {
+  const named = label.trim() ? `"${label.trim()}"` : "This hand";
+  return new ParseSkip(
+    "unsupported-variant",
+    `${named} is a short-deck game, which this parser has not been verified against. ` +
+      "It is dealt from 36 cards, a flush beats a full house and A-6-7-8-9 is a " +
+      "straight, and a short-deck hand read as Hold'em balances against itself - so " +
+      "it is refused rather than approximated.",
+  );
 }
 
 function hiLoSkip(label: string): ParseSkip {
@@ -411,7 +443,11 @@ export async function convertAny(
 
     // Games we refuse are checked centrally too, for the same reason: a parser
     // that forgets the guard must not be able to leak one into storage.
-    const refusal = unsupportedGameSkipForGame(hand.game, chosen.parser.hiLoVariants);
+    const refusal =
+      unsupportedGameSkipForGame(hand.game, chosen.parser.hiLoVariants) ??
+      (hand.game.variant === "shortdeck" && !chosen.parser.shortDeck
+        ? shortDeckSkip(hand.game.label)
+        : null);
     if (refusal) {
       await fail(
         chunk,

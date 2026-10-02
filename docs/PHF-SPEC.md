@@ -70,9 +70,10 @@ Implementation:
    PLO/5-card/6-card Omaha, short deck, stud, razz, draw, pot-limit and
    fixed-limit before any parser read them, so that adding a room is a new file
    rather than a schema migration. Nineteen parsers later that has held: the
-   `SiteParser` contract has widened only by one optional field
-   (`hiLoVariants`), and the schema additions since have all been optional
-   fields inside `phf/1`.
+   `SiteParser` contract has widened only by two optional fields
+   (`hiLoVariants`, `shortDeck`), and the schema additions since have all been
+   optional fields inside `phf/1`. Short deck needed no new member at all:
+   `shortdeck` was in `Variant` from the start.
 
 ---
 
@@ -246,15 +247,15 @@ normalizes rather than preserves — WePlay rewrites `Weplay Hand #71764146` int
 
 | Field | Meaning |
 | --- | --- |
-| `variant` | `holdem` \| `omaha` \| `omaha5` \| `omaha6` \| `shortdeck` \| `stud` \| `razz` \| `draw` \| `other`. Describes the **deal**, not the pot-award rule; `Omaha Hi/Lo` is `omaha` |
+| `variant` | `holdem` \| `omaha` \| `omaha5` \| `omaha6` \| `shortdeck` \| `stud` \| `razz` \| `draw` \| `other`. Describes the **deal**, not the pot-award rule; `Omaha Hi/Lo` is `omaha`. `shortdeck` (6+ Hold'em) is a separate deal because it is a separate deck: two hole cards from 36, sixes to aces (`cardInDeck`). Read only by the parsers that set `SiteParser.shortDeck` (§8.1); every other short-deck hand is refused with `unsupported-variant` |
 | `limit` | `nl` \| `pl` \| `fl` |
 | `hiLo` | high-low split: half the pot goes to the lowest qualifying hand. A flag rather than a `Variant` member because it is orthogonal to the deal — `omaha` and Omaha Hi/Lo deal the same four cards onto the same board — and putting it in `Variant` would double the union, force every hi/lo twin into `holeCardCount`'s `switch` (a forgotten one returns `null`, which *disables* the cardinality check), and silently change what `variant = 'omaha'` matches in the database. Who won which half is not here but on the awards (§3.10). Supported for four-card Omaha on the parsers that list it in `hiLoVariants`; every other hi/lo hand is refused with `unsupported-hi-lo` |
 | `format` | `cash` \| `tournament` \| `sng` \| `spin` |
 | `unit` | the `CurrencyUnit` for every `Amount` in the hand |
-| `smallBlind` / `bigBlind` | the blinds **actually in force**. For tournaments these come from what was posted, because level headers go stale; the header's own numbers stay on `tournament.levelSmallBlind` / `levelBigBlind` |
+| `smallBlind` / `bigBlind` | the blinds **actually in force**. For tournaments these come from what was posted, because level headers go stale; the header's own numbers stay on `tournament.levelSmallBlind` / `levelBigBlind`. A table with one blind - GG's ante-only short deck, header `ShortDeck No Limit ($0.02)` - has `smallBlind: 0` and that blind as `bigBlind`; the standard text writes it back with the one stake |
 | `anteModel` | `none` \| `posted-per-player` \| `big-blind-ante` \| `button-ante`. Not cosmetic: `big-blind-ante` means one player posts for the table, which changes both the chip-conservation check and the posting animation |
 | `ante` | ante per player under `posted-per-player`, otherwise the single posted ante |
-| `straddles` | `{ seat, player, amount, order }[]`; `order` 1 is the first straddle, 2 a re-straddle |
+| `straddles` | `{ seat, player, amount, order }[]`; `order` 1 is the first straddle, 2 a re-straddle. `amount` is the straddle's size - the straddler's street total once it is posted - which for a seat straddling over money it already had in (GG's button straddling its own button blind) is more than the chips that line added; those are on the action |
 | `bombPot` | `{ ante, dealtToStreet, doubleBoard }` or null. In a bomb pot everyone antes, no blinds are posted and the flop is dealt immediately, so the normal preflop invariants do not apply |
 | `label` | the game label verbatim, e.g. `"Hold'em No Limit"` |
 
@@ -327,6 +328,14 @@ is `ring[1]`. Only when no blind was posted at all - a bomb pot - does it fall
 back to the button. Seats that were not dealt in get `position: null` rather
 than a plausible-looking wrong answer.
 
+**A button blind** (`isButtonBlind`, §3.6) is the one exception. On GG's
+ante-only short-deck tables nobody posts a small or a big blind: everybody
+antes and the button posts the table's only blind. Naming two seats `SB` and
+`BB` there would invent blinds nobody paid, so the ring is
+`buttonBlindRing(n)` - the table below with its first two names dropped and
+anchored on the poster, who is the button: five-handed is `UTG`, `LJ`, `HJ`,
+`CO`, `BTN`. No seat is labelled `SB` or `BB` in such a hand.
+
 The ring is named by the number of players **dealt in**:
 
 | Players | Ring, from the small blind |
@@ -395,6 +404,18 @@ Notes:
 - `cashout-choose` / `cashout-pay` are GG EV-cashout events. They settle
   *outside* the pot and must not change any pot math; both carry `amount: 0`.
 - `isPostingAction(type)` groups everything that happens before the deal.
+- **A button blind is a `big-blind` whose `verb` is `"posts button blind"`**
+  (`BUTTON_BLIND_VERB`; test with `isButtonBlind`). It is GG short deck's only
+  blind, and in every way the money cares about it is a big blind - live, the
+  bet to match, the seat with the option and the walk - so bomb-pot detection,
+  the walk, cold calls and the replayer's posting block all read it correctly
+  from the type. Only who posts it differs, which only the position ring
+  (§3.5) has to know.
+- **GG's bare `straddle` states the street total**, like the `to` of a raise.
+  The action stores the chips added in `amount` and the total in
+  `streetTotal`, and the standard text writes the total back. `posts straddle`
+  (PokerStars, WePlay) is chips added, as before; the two agree for a
+  straddler with nothing in yet.
 
 ### 3.7 `board`
 
@@ -561,6 +582,7 @@ chip) is tolerated on every sum, because sources round their own arithmetic.
 | `no-players` | the hand has seats |
 | `unseated-actor` | every actor in `actions` is a seated player |
 | `invalid-card` | every card code parses |
+| `card-not-in-deck` | every card can be dealt in the variant: no deuce through five in a `shortdeck` hand (`cardInDeck`). Not a partial-information problem but an impossible one - the variant or the cards are wrong |
 | `duplicate-card` | no card appears twice anywhere in the hand. Run-it-twice runouts share the streets they did not re-deal, so only re-dealt streets are counted |
 | `board-size` | each runout has 0, 3, 4 or 5 cards |
 | `hole-card-overflow` | no seat holds more cards than the variant deals (`holeCardCount`). Impossible in a correctly classified hand, so it means the variant is wrong or two hands were merged. Holding *fewer* is a partial reveal, which rooms really do, and is only a warning |
@@ -915,6 +937,9 @@ export interface SiteParser {
 
   /** Deals this parser reads high-low split for, e.g. ["omaha"]. Absent = none (§3.10). */
   readonly hiLoVariants?: readonly Variant[];
+
+  /** Whether this parser reads short deck. Absent = no; `convertAny` refuses it. */
+  readonly shortDeck?: boolean;
 }
 
 export interface SiteParserContext {
@@ -943,6 +968,12 @@ Rules:
   `convertAny` refuses any hi/lo hand whose deal is not on it, whatever the
   parser returned. A deal goes on the list only once your own hi/lo fixtures
   convert with no warnings - which includes every half resolved (§3.10).
+- Short deck is opt-in the same way. Put `"shortdeck"` on your variant lock
+  (`unsupportedVariantSkip` tests the room's spellings - `ShortDeck`,
+  `6+ Hold'em`, `Six Plus Hold'em` - before the allowlist, because two of them
+  contain the word Hold'em) and set `shortDeck: true` on the `SiteParser`, but
+  only once your own short-deck fixtures convert with no warnings. The deck and
+  the ranking are not yours to handle; the posting structure is.
 
 ### 8.2 Two ways to build the `PhfHand`
 

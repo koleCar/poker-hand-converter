@@ -28,6 +28,11 @@ export const standardParser: SiteParser = {
   // text shows (`phf/hilo.ts`), which `tests/test/phfHiLo.test.ts` round-trips
   // for every converted hi/lo fixture.
   hiLoVariants: ["omaha"],
+  // Likewise every short-deck hand: GG's own `ShortDeck No Limit ($0.02)` with
+  // its button blind, and Stars' `6+ Hold'em No Limit` for the rooms that
+  // normalize through this format. `tests/test/shortDeck.test.ts` round-trips
+  // every converted short-deck fixture.
+  shortDeck: true,
 
   detect(text: string): number {
     // Our own output, and the GG exports the format was modelled on.

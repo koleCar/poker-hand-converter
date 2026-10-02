@@ -129,7 +129,8 @@ function assertSoundHand(hand: PhfHand, where: string): void {
   expect(validateHand(hand).errors, where).toEqual([]);
   expect(hand.meta.rawText.length, where).toBeGreaterThan(0);
   // Not a single variant any more: a parser emits whatever its own lock lists.
-  // Short deck is on nobody's list, so that is the one still worth asserting.
+  // Short deck is on none of these rooms' lists - only GG and ACR have
+  // short-deck fixtures - so that is the one still worth asserting.
   expect(["holdem", "omaha", "omaha5", "omaha6"], where).toContain(hand.game.variant);
   expect(hand.game.variant, where).not.toBe("shortdeck");
   expect(hand.meta.handKey, where).toBe(hand.meta.handId);

@@ -96,6 +96,11 @@ function stakesLabelOf(hand: PhfHand): string | null {
     return null;
   }
   const style = hand.meta.textStyle.decimals;
+  // GG's ante-only short deck has one stake, `($0.02)`; the replayer's
+  // `stakesLabel` makes the same call.
+  if (hand.game.variant === "shortdeck" && !smallBlind) {
+    return formatAmount(bigBlind, unit, style);
+  }
   return `${formatAmount(smallBlind, unit, style)}/${formatAmount(bigBlind, unit, style)}`;
 }
 

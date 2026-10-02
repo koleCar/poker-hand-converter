@@ -6,7 +6,7 @@
  * called from inside the functions below, never while the module evaluates.
  */
 
-import type { Amount, PhfAction } from "../../phf/types";
+import { isButtonBlind, type Amount, type PhfAction } from "../../phf/types";
 import { plural } from "../plural";
 import type { Dict } from "../types";
 
@@ -66,9 +66,11 @@ function actionLabel(action: PhfAction, money: (amount: Amount) => string): stri
     case "small-blind":
       return `small blind ${amount}`;
     case "big-blind":
-      return `big blind ${amount}`;
+      return isButtonBlind(action) ? `button blind ${amount}` : `big blind ${amount}`;
     case "straddle":
-      return `straddle ${amount}`;
+      // Its size, which is what the room printed; a seat straddling over its
+      // own blind adds less than that (`PhfStraddle.amount`).
+      return `straddle ${money(action.streetTotal)}`;
     case "post":
       return `post ${amount}`;
     case "missed-blind":
@@ -246,6 +248,7 @@ export const replayerHr: Dict["replayer"] = {
     doubleBoard: "Dvostruki board",
     bbAnte: (ante) => `BB ante ${ante}`,
     btnAnte: (ante) => `BTN ante ${ante}`,
+    buttonBlind: (amount) => `Button blind ${amount}`,
     ante: (ante) => `Ante ${ante}`,
     straddle: (amount) => `Straddle ${amount}`,
     straddles: (count, amounts) =>

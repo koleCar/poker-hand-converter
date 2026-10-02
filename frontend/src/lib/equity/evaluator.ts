@@ -23,9 +23,14 @@
  *  - the order of the categories: a flush beats a full house, and three of a
  *    kind beats a straight.
  *
- * The second point is the GGPoker / PokerStars "6+" ruleset, which is the one
- * the rooms this project parses deal. Some live games rank a straight over
- * trips; that would be a third `RankingTable`, not an `if`.
+ * The second point is the PokerStars "6+" ruleset, and the one this table was
+ * written to for GGPoker too. Some live games rank a straight over trips; that
+ * would be a third `RankingTable`, not an `if`. **The corpus says GG may be one
+ * of them**: in `fixtures/samples/ggpoker/12-...`, on the first board
+ * `Tc 8h Ah 6h Jd`, GG paid `Qs Ks` (an ace-high straight) over `Td Ts`
+ * (three tens). One hand is a reason to check, not yet a reason to change the
+ * table, so it is recorded here; a per-room table would be chosen from
+ * `meta.siteId` in `allInEv`, which is the only caller that knows the room.
  *
  * The evaluation order below is valid for any table because of one card-count
  * fact: with at most seven cards, a flush leaves at most two other cards, which

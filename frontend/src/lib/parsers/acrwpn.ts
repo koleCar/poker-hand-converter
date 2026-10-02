@@ -46,8 +46,9 @@
  *   hold'em hands the winner is named only in the SUMMARY block.
  * - A cancelled hand prints blinds and an uncalled return but deals no cards.
  *
- * Round one is Hold'em only: Omaha, Omaha Hi/Lo, seven-card stud and Six Plus
- * Hold'em all appear in the corpus and are deliberately refused.
+ * Hold'em, four-card Omaha and Six Plus Hold'em are read; Omaha Hi/Lo and
+ * seven-card stud appear in the corpus and are deliberately refused. See
+ * `ACR_VARIANTS`.
  */
 
 import {
@@ -68,7 +69,12 @@ import {
   type Variant,
 } from "../phf/types";
 import { limitFromLabel } from "./shared/ps-gg-hand";
-import { canonicalGameLabel, HOLDEM_OMAHA, unsupportedVariantSkip } from "./shared/variant-lock";
+import {
+  canonicalGameLabel,
+  HOLDEM_OMAHA,
+  HOLDEM_OMAHA_SHORTDECK,
+  unsupportedVariantSkip,
+} from "./shared/variant-lock";
 import { p5RecoverEncoding } from "./shared/p5-encoding";
 import {
   p5BuildHand,
@@ -79,7 +85,7 @@ import {
   type P5Street,
 } from "./shared/p5-handdraft";
 
-const VERSION = "1.0.0";
+const VERSION = "1.1.0";
 
 /**
  * What this parser is allowed to read.
@@ -89,8 +95,17 @@ const VERSION = "1.0.0";
  * parse with no warnings, the same bar every Hold'em file here has to clear.
  * Five- and six-card Omaha are not: the network spreads them, but no sample of
  * either exists, so there is nothing to prove the deal block reads correctly.
- * Seven-card stud, Omaha Hi/Lo and Six Plus Hold'em are all in the corpus and
- * all stay refused.
+ * Seven-card stud and Omaha Hi/Lo are in the corpus and stay refused.
+ *
+ * **Six Plus Hold'em** is on the list on one legacy-dialect hand
+ * (`cash__6+Holdem-...`): it reads with no warnings, its `Bets:` column agrees
+ * with every action line, and it validates against the 36-card deck. One hand
+ * is a thin sample, but the bar is the same one the Omaha files cleared - the
+ * corpus, not an assumption - and short deck changes nothing this grammar
+ * reads: ACR deals it with an ordinary small and big blind, unlike GG's
+ * ante-only tables, so the posting block is the Hold'em one. The modern
+ * dialect has no short-deck sample, so it keeps refusing short deck
+ * (`ACR_MODERN_VARIANTS`) until one turns up.
  *
  * **Why Omaha Hi/Lo stays refused** (no `hiLoVariants`), measured with the
  * split-pot support in `phf/hilo.ts` switched on for this parser: of the eight
@@ -107,7 +122,10 @@ const VERSION = "1.0.0";
  * another cannot be told apart. Until a split from this room reads cleanly,
  * unlocking it would be the assumption the allowlist exists to rule out.
  */
-const ACR_VARIANTS: readonly Variant[] = HOLDEM_OMAHA;
+const ACR_VARIANTS: readonly Variant[] = HOLDEM_OMAHA_SHORTDECK;
+
+/** The modern dialect's list: no short-deck hand of it has ever been read. */
+const ACR_MODERN_VARIANTS: readonly Variant[] = HOLDEM_OMAHA;
 
 /** `Game started at: 2014/3/9 19:37:22` - no leading zeros, no timezone. */
 const LEGACY_HEADER_RE = /^Game started at:\s*(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})\s*$/;
@@ -669,8 +687,10 @@ function parseLegacy(raw: string, ctx: SiteParserContext, dialect: WpnDialect): 
     // written (which is why the one fixed-limit Hold'em fixture in the corpus
     // comes out as `nl`), and Omaha gets the same treatment with the other
     // default: every Omaha table this network spread in the legacy era was
-    // pot-limit, which is what the reference corpus names its files.
-    gameLabel: canonicalGameLabel(variant, variant === "holdem" ? "nl" : "pl"),
+    // pot-limit, which is what the reference corpus names its files. Six Plus
+    // gets the Hold'em default: the header does not say, and nothing in the
+    // one hand of it contradicts no-limit.
+    gameLabel: canonicalGameLabel(variant, variant === "omaha" ? "pl" : "nl"),
     unit,
     decimals: "fixed2",
     smallBlind: scratch.smallBlind,
@@ -742,7 +762,7 @@ function parseModern(raw: string, ctx: SiteParserContext): Parsed {
   }
   const gameName = (tour ? tour[3] : cash![1]).trim();
   const refusal =
-    unsupportedGameSkip(gameName) ?? unsupportedVariantSkip(gameName, ACR_VARIANTS);
+    unsupportedGameSkip(gameName) ?? unsupportedVariantSkip(gameName, ACR_MODERN_VARIANTS);
   if (refusal) {
     throw refusal;
   }
@@ -1057,6 +1077,7 @@ export const acrwpnParser: SiteParser = {
   id: "acrwpn",
   name: "ACR / Winning Poker Network",
   version: VERSION,
+  shortDeck: true,
 
   detect(text: string): number {
     const body = p5RecoverEncoding(text);

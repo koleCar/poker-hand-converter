@@ -148,6 +148,8 @@ export const replayerEn = {
     doubleBoard: "Double board",
     bbAnte: (ante: string) => `BB ante ${ante}`,
     btnAnte: (ante: string) => `BTN ante ${ante}`,
+    /** GG's short deck: the one blind of an ante-only table, on the button. */
+    buttonBlind: (amount: string) => `Button blind ${amount}`,
     ante: (ante: string) => `Ante ${ante}`,
     straddle: (amount: string) => `Straddle ${amount}`,
     straddles: (count: number, amounts: string) => `${count} straddles ${amounts}`,
