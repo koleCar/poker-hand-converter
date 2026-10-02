@@ -129,6 +129,8 @@ per-user counter is a strictly larger table with a cleanup job attached.
 | `drill_review:<user>` | 600 answers / 10 min **per account** | `review_drill()` |
 | `trainer_results:<user>` | 1 200 rows / 10 min **per account** | `record_trainer_results()` |
 | `analysis_share:<user>` | 120 switches / 10 min **per account** | `set_analysis_share()` |
+| `study_plan:<user>` | 60 plans / 10 min **per account** | `save_study_plan()` |
+| `study_task:<user>` | 600 ticks / 10 min **per account** | `set_study_task()` |
 
 `share_view` is the one per-key bucket, because the thing it protects is
 per-key: a view counter anyone can increment by holding a URL is a vanity metric
@@ -737,6 +739,32 @@ only if every decision lands on a hero action of the copy it shows
 (`analysisFitsHand`), the published document, a thread's hand or a share
 page's re-parsed text alike.
 
+**Study plan** (A8b, `20270215090000_analysis_study_plan.sql`): two new
+tables, owner-scoped with RLS select-own and **no client INSERT, UPDATE or
+DELETE grant**, nothing to `anon`.
+
+| Table | Key | What |
+| --- | --- | --- |
+| `study_plans` | `id`; unique `(owner_id, week_start)` | One plan per ISO week (named by its Monday): `kind` (`leaks` / `fundamentals`), the `analysis_version` it was built from, the focus areas as the browser built them (`focus`, at most three, 64 KB) and a small `baseline` (hands, moves, last hand, EV lost). |
+| `study_tasks` | `id`; unique `(plan_id, kind, ref)` | The week's checklist: `read` (a concept id), `train` (a trainer filter: `match_mode`, `match_family`, `match_position`, `match_spots` as `<line>:<seat>`), `drill` (`spot_keys`, or none for every drill), `review` (`hand_id`, FK to `hands`, cascading); a `target` 1–200 and a manual `done_at`. FK to `study_plans`, cascading. |
+
+Writes are two `security definer` functions with explicit `auth.uid()`
+checks and per-account rate limits: `save_study_plan(week, kind, version,
+focus, baseline, tasks)` upserts the caller's plan for this, last or next UTC
+week (`study_week_valid`), validates every task (kind, reference shape,
+target, focus index, trainer filter, spot keys with `drill_keys_valid`, no
+duplicates, at most 40) and a review hand against the caller's own hands
+("No such hand." P0002), refuses a malformed plan whole, and keeps the
+`done_at` of the tasks a rebuild keeps by `(kind, ref)` (60 / 10 min);
+`set_study_task(task, done)` ticks a task named by id *and* owner ("No such
+task." either way), this week's or last week's only (600 / 10 min). The read
+`study_plan(week, from)` is invoker and counts progress inside
+`[from, from + 7 days)` (`from` the reader's local Monday, within a day of
+`week_start`): trainer answers matching a task's filter, distinct drills of
+its spot keys answered; its helpers `study_week` and `study_week_valid` are
+granted to `authenticated` and not to `anon`. The focus snapshot is shape-
+and size-checked only: it is shown back to its owner alone.
+
 ### Tests
 
 `supabase/tests/database/analysis.test.sql`: no client INSERT/UPDATE/DELETE
@@ -776,6 +804,15 @@ another version, a malformed one, a hand id, another user's private hand,
 an unpublished or removed hand; a poll: nothing to anon, a non-voter, or
 through the sealed page, the reference once voted, to the author and a
 moderator, and nothing again once switched off.
+
+`analysis_study_plan.test.sql` (A8b): no client write grant on either table
+and RLS on; definer writers and invoker reader and helpers, `search_path` and
+grants; which weeks a plan may name; progress from trainer answers (mode,
+family, seat, river line and seat) and drill reviews inside the week only,
+and ticks; validation refusing a plan whole; another account's hand; the
+rollover (one row per week, last week untouched, a rebuild keeping ticks by
+kind and reference); an old week's tasks closed; isolation between two users
+and anon.
 
 ## Verifying the isolation
 

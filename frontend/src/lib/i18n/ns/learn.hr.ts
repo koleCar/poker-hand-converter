@@ -42,6 +42,7 @@ export const learnHr: Dict["learn"] = {
     label: "Dijelovi analize",
     overview: "Tvoja analiza",
     train: "Vježbaj",
+    plan: "Plan učenja",
     leaks: "Leakovi",
     progress: "Napredak",
     reports: "Izvještaji",

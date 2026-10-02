@@ -487,7 +487,7 @@
   color: var(--text-primary);
 }
 
-/* Seven sections: on a phone the last four go under "More" (AnalysisNav). */
+/* Eight sections: on a phone all but three go under "More" (AnalysisNav). */
 .subnavMore {
   position: relative;
   display: none;

@@ -50,6 +50,8 @@ export const paths = {
    * settings and, for "Drill this", a leak's spot keys.
    */
   analysisTrain: (query?: string) => (query ? `/analysis/train?${query}` : "/analysis/train"),
+  /** The study plan (phase A8b): this week's focus from the leaks, and its checklist. Private. */
+  analysisPlan: () => "/analysis/plan",
   /**
    * The preflop chart browser (phase A2b). Public and indexable like the
    * concept library: the charts are our own data and read no account. `line`

@@ -91,6 +91,11 @@ export const en = {
       description:
         "Practise preflop and river spots against the same reference your hands are graded by, and drill your own Mistakes until they are right.",
     },
+    analysisPlan: {
+      title: "Study plan — what to work on this week | Rail",
+      description:
+        "This week's focus from your leaks: the concepts to read, the trainer spots to play, your drills and your own hands to review, with progress kept week by week.",
+    },
     analysisProgress: {
       title: "Progress — your score over time | Rail",
       description: "Your analysis score and EV lost per 100 hands by week, month or session, by street, seat and pot type.",

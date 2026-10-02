@@ -56,6 +56,7 @@ import { AnalysisNav } from "./AnalysisNav";
 import { GradeIcon } from "./GradeIcon";
 import { WhatChanged } from "./leaks/WhatChanged";
 import { DrillsDue } from "./train/DrillsDue";
+import { PlanCard } from "./plan/PlanCard";
 import { LearnLink } from "./LearnLinks";
 import {
   EMPTY_LIST_STATE,
@@ -300,6 +301,8 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
           }}
         />
       ) : null}
+
+      <PlanCard generation={generation} />
 
       <DrillsDue generation={generation} />
 

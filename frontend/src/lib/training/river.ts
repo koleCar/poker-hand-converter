@@ -118,9 +118,15 @@ const MAX_ATTEMPTS = 12;
 /** `borderline`: the floor every combo keeps. */
 const BORDERLINE_FLOOR = 0.1;
 
+/** The hero's preflop role on a river line: the last raiser, or the one who called. */
+export const RIVER_ROLES = ["pfr", "caller"] as const;
+export type RiverRole = (typeof RIVER_ROLES)[number];
+
 export interface RiverSpotOptions {
   pot?: RiverPot | "any";
   seat?: RiverSeat | "any";
+  /** Only lines where the hero raised preflop last (`pfr`) or called (`caller`); a limped pot is neither. */
+  role?: RiverRole | "any";
   bias?: DealBias;
 }
 
@@ -193,6 +199,39 @@ function raiserOf(line: string): ChartPosition | null {
   return last;
 }
 
+/** One way a river spot can be dealt: a line, the hero's side, and who that makes the hero. */
+export interface RiverSeating {
+  line: RiverLine;
+  seat: RiverSeat;
+  hero: ChartPosition;
+  villain: ChartPosition;
+  /** The hero's preflop role; `limped` in a limped pot. */
+  role: RiverRole | "limped";
+}
+
+/**
+ * Every (line, side) the river trainer can deal under a filter, from
+ * {@link RIVER_LINES} alone (no chart set needed): what a study plan links to,
+ * and — as `<line id>:<hero seat>` — what it counts the trainer's answers by
+ * (`trainer_results.spot` and `.position`).
+ */
+export function riverSeatings(filter: Pick<RiverSpotOptions, "pot" | "seat" | "role"> = {}, lines: readonly RiverLine[] = RIVER_LINES): RiverSeating[] {
+  const out: RiverSeating[] = [];
+  for (const line of lines) {
+    if (filter.pot && filter.pot !== "any" && line.pot !== filter.pot) continue;
+    const [oop, ip] = flopPlayers(line.line);
+    const raiser = raiserOf(line.line);
+    for (const seat of RIVER_SEATS) {
+      if (filter.seat && filter.seat !== "any" && seat !== filter.seat) continue;
+      const hero = seat === "ip" ? ip : oop;
+      const role: RiverSeating["role"] = raiser === null ? "limped" : raiser === hero ? "pfr" : "caller";
+      if (filter.role && filter.role !== "any" && role !== filter.role) continue;
+      out.push({ line, seat, hero, villain: seat === "ip" ? oop : ip, role });
+    }
+  }
+  return out;
+}
+
 const round2 = (value: number) => Math.round(value * 100) / 100;
 
 /** A street pattern as script actions, sized against the pot; a bet too big for the stacks becomes a check. */
@@ -256,9 +295,20 @@ export function riverDealingWeights(solve: RiverSolve, node: number, bias: DealB
 function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: number): RiverTrainerSpot | null {
   const lines = riverLines(charts, options.pot ?? "any");
   if (lines.length === 0) return null;
-  const line = pickOne(lines, rng);
+  let line: RiverLine;
+  let seat: RiverSeat;
+  if (options.role && options.role !== "any") {
+    // A role pins who the hero is on each line: draw among the seatings that fit.
+    const seatings = riverSeatings({ seat: options.seat, role: options.role }, lines);
+    if (seatings.length === 0) return null;
+    const picked = pickOne(seatings, rng);
+    line = picked.line;
+    seat = picked.seat;
+  } else {
+    line = pickOne(lines, rng);
+    seat = options.seat && options.seat !== "any" ? options.seat : rng() < 0.5 ? "ip" : "oop";
+  }
   const [oop, ip] = flopPlayers(line.line);
-  const seat: RiverSeat = options.seat && options.seat !== "any" ? options.seat : rng() < 0.5 ? "ip" : "oop";
   const hero = seat === "ip" ? ip : oop;
   const villain = seat === "ip" ? oop : ip;
   const raiser = raiserOf(line.line);

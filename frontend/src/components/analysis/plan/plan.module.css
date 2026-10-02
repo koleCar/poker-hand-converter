@@ -1,0 +1,273 @@
+/* The study plan (`/analysis/plan`, phase A8b) and the overview's plan card.
+   Tokens only: both themes come from `styles/tokens/`. Nothing animates. */
+
+.lede {
+  margin: 0 0 var(--space-3);
+  max-inline-size: 72ch;
+  color: var(--text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.muted {
+  color: var(--text-secondary);
+}
+
+/* ------------------------------------------------------------- the week */
+
+.week {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.weekHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+
+.weekHead h3 {
+  margin: 0;
+}
+
+.week p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.meter {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.track {
+  overflow: hidden;
+  block-size: 0.625rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+}
+
+.fill {
+  block-size: 100%;
+  background: var(--accent);
+}
+
+.rebuild {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+/* ------------------------------------------------------------- an area */
+
+.areas {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.area {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.areaHead {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.areaHead h4 {
+  margin: 0;
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-snug);
+}
+
+.areaLabel {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.area p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.leakLines {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding-inline-start: var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+.subhead {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---------------------------------------------------------- the checklist */
+
+.tasks {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.task {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  min-block-size: 2.75rem;
+  padding-block: var(--space-2);
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.task input[type="checkbox"] {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.task input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.taskText {
+  display: grid;
+  gap: 2px;
+  min-inline-size: 0;
+}
+
+.taskText label {
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.task[data-done] .taskText label {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.taskDetail {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.taskAction {
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------ the retrospective */
+
+.retro {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.retro p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.changes {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.changes li {
+  display: grid;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+}
+
+/* --------------------------------------------------- the overview's card */
+
+.card {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.card p {
+  margin: 0;
+}
+
+.cardRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.cardRow .meter {
+  flex: 1 1 12rem;
+}
+
+@media (max-width: 559px) {
+  .task {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .task input[type="checkbox"] {
+    margin-block-start: 0.125rem;
+  }
+
+  .taskAction {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+@media (forced-colors: active) {
+  .fill {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  .track,
+  .tag {
+    border-color: CanvasText;
+  }
+}

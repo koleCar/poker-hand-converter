@@ -45,6 +45,7 @@ export const learnEn = {
     label: "Analysis sections",
     overview: "Your analysis",
     train: "Train",
+    plan: "Plan",
     leaks: "Leaks",
     progress: "Progress",
     reports: "Reports",

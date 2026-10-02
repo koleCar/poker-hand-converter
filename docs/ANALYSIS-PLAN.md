@@ -443,6 +443,10 @@ A top-level tab next to Stats, and the home of everything below.
 - **Learn.** A concept library under `/analysis/learn`, linked from every
   explanation that uses a concept. It is not a new top-level tab: five tabs
   already scroll sideways at 375px (A1).
+- **Plan.** The week's study plan under `/analysis/plan` (A8b): the three
+  costliest leaks the sample can vouch for, each with concepts to read, a
+  trainer session set to the spot, its due drills and hands to review, a
+  checklist that keeps its progress, and last week looked back on.
 
 `analysis` is a new top-level path, so it goes into `username_reservations` in
 the same migration (see `lib/routes.ts`).
@@ -1111,3 +1115,91 @@ Each phase appends what it learned that changed the plan.
     - The analysis is read as anon for the server render of `/p/` and
       threads; an author's own hidden (held, shadow-hidden) thread therefore
       shows its analysis to nobody, the author included.
+
+- 2026-10-02 — A8b shipped: the study plan, at `/analysis/plan` ("Plan" /
+  "Plan učenja" in the sub-nav, under "More" on a phone) and a plan card on
+  the overview. No grade changes, so still `analysis/3`.
+  - **A focus area is a situation, not a leak.** The leak finder's leaks
+    (`groupLeaks`, unchanged) are gathered by the situation they settled at
+    (street, scenario, family, seats): river, preflop raiser out of position
+    first to act, "checking instead of betting" and "betting instead of
+    checking" are one thing to study, with one sample (every graded decision
+    in its situations), the sum of their mistakes, and A6's confidence rule
+    on those. Areas rank by EV lost, which within one sample is also the
+    order of EV lost per 100 hands.
+  - **Confidence.** The plan takes the three costliest areas of medium or
+    high confidence; only if there are fewer does it fill with thin ones,
+    and only with two mistakes or more, labelled "tentative" with a note to
+    review the hands first. The one-hand AA fold of A6 is still not a week's
+    work on its own; inside "BTN vs CO open" (39 decisions, 5 mistakes) it is.
+  - **Each area's checklist** (`lib/training/plan.ts`, pure, 25 tests in
+    `tests/test/studyPlan.test.ts`): up to two concepts (`leakConcepts`), a
+    trainer session set to the spot (20 preflop spots or 10 river spots),
+    the area's due drills (at most 15; undrilled Mistakes count as due), and
+    three of the player's own hands, most EV lost first. A concept or hand
+    two areas share appears once. Too little graded play (none, under 50
+    moves, or no leak) gives **the fundamentals** instead: position, RFI and
+    pot odds, the preflop trainer first in and in the big blind, five river
+    spots, and any drills due. A fundamentals plan made for want of hands is
+    rebuilt on the next visit, so a first analysis turns it into a leaks plan
+    the same day.
+  - **The trainer took two filters** so a link can be the spot (additive,
+    defaults unchanged): preflop `vs` (the line's last raiser; a filter the
+    charts cannot deal is dropped rather than leaving the trainer empty) and
+    river `role` (preflop raiser or caller), with the seat and side it
+    already had. The river trainer's out-of-position hero always acts first,
+    so an area facing a bet is practised in position.
+  - **Progress counts itself.** `study_plan` counts, inside the reader's
+    week, the trainer answers matching a task's filter (preflop: mode,
+    family, seat; river: the `<line>:<seat>` pairs its role and side allow,
+    from `riverSeatings`) and the distinct drills of the area's spot keys
+    answered. Concepts and hands are ticked by hand; anything can be.
+  - **Weeks and the rollover.** A plan is one row per ISO week, named by the
+    reader's local Monday (the database accepts the UTC week and one either
+    side). The week's first visit builds it; last week's stays as it was.
+    The rollover counts an area's weeks in focus, does not ask again for a
+    concept read last week, does not offer a hand reviewed last week, and
+    carries an unreviewed hand over while its area stays. "Rebuild" builds
+    the week again from the latest analysis; tasks it keeps (by kind and
+    reference) keep their ticks.
+  - **Last week** shows the old checklist's completion and, per focus area,
+    A6's comparison: the mistake rate in the spot (two-proportion z, the same
+    tiers and "too few" under 10 decisions) and EV lost per 100 hands. It
+    compares the plan's own week against the one before when graded hands
+    were played in it, and otherwise says so and uses A6's last 7 days of
+    play against the 7 before.
+  - **Storage** (`20270215090000_analysis_study_plan.sql`): `study_plans`
+    and `study_tasks`, RLS select-own, no client write grant; writes through
+    `save_study_plan` (validated, refused whole, a review hand must be the
+    caller's) and `set_study_task` (id and owner, this or last week), both
+    definer, rate-limited; the read `study_plan` and two week helpers
+    invoker. The focus snapshot is the browser's, size- and shape-checked:
+    only its owner reads it. pgTAP: 54 assertions.
+  - **Owner's library** (5,448 hands, analysed at `analysis/3` with
+    `charts/2` on a copy in a local account: 1,588 graded moves in 1,442
+    hands, 75 leaks, 144.3 bb): 33 areas (5 high, 15 medium, 13 low
+    confidence). The plan:
+    1. River, preflop raiser out of position first to act (other seats):
+       21.0 bb, 1.46 bb / 100 hands, 9 mistakes in 26 decisions, medium —
+       betting where the reference checks (11.5 bb) and checking where it
+       bets (9.5 bb). Read bet sizing and range advantage; 10 river spots as
+       the preflop raiser out of position; 5 drills; three hands (99, QJs,
+       KTs).
+    2. River facing a bet (other spots): 16.3 bb, 8 mistakes in 33, medium —
+       calling instead of raising, calling too wide, folding too much. Read
+       MDF and pot odds; 10 river spots in position; 3 drills; three hands.
+    3. Preflop, BTN against a CO open: 14.6 bb, 5 mistakes in 39, medium —
+       13.3 bb of it the AA fold. Read 3-bets; 20 spots facing an open on
+       the button against the cutoff; 5 drills; the AA hand first.
+    The fourth costliest area (river, merged to the street: 14.5 bb, 4
+    mistakes in 8) is low confidence and stays out. Last 7 days of play
+    against the 7 before: score 91.4 against 94.2, "leaning worse"; every
+    focus area "too few" or "no clear change".
+  - **Open.**
+    - A drill task's target is the drills due when the plan is built; a
+      rebuild later in the week counts the ones already answered towards a
+      smaller target.
+    - Flop and turn areas get concepts, drills and hands but no trainer
+      session until there is a flop or turn trainer (A5).
+    - Plans are per week and kept; there is no history screen beyond last
+      week yet.
