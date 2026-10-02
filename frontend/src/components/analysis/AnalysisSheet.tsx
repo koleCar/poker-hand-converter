@@ -188,6 +188,11 @@ export function AnalysisSheet({ analysis, frame, seek, fresh, hand, readOnly = f
                             <span className={tone === "skipped" ? styles.skipped : undefined}>
                               {t.actions[decision.action]}
                             </span>
+                            {decision.source === "approx" ? (
+                              <span className={styles.approxMark} aria-hidden="true">
+                                ≈
+                              </span>
+                            ) : null}
                           </button>
                           {betterLabel ? (
                             <span className={styles.better} aria-hidden="true">
@@ -212,6 +217,8 @@ export function AnalysisSheet({ analysis, frame, seek, fresh, hand, readOnly = f
 /** The word a pip or chip is marked with: the grade, else the loudest flag's severity, else nothing. */
 export function markWord(decision: DecisionAnalysis, t: Strings): string | null {
   if (decision.status === "not-analysed") return t.sheet.skipped;
+  // An approximate multiway grade (A9) says so wherever its grade word is read.
+  if (decision.grade && decision.source === "approx") return `${t.grades[decision.grade] ?? decision.grade} ${t.sheet.approxMark}`;
   if (decision.grade) return t.grades[decision.grade] ?? null;
   if (decision.worstFlag) return t.severity[decision.worstFlag] ?? null;
   return null;
@@ -340,6 +347,16 @@ function DecisionDetail({ decision, hand, readOnly = false }: { decision: Decisi
   rows.push([s.facts.effStack, s.bb(facts.effStackBb)]);
   if (facts.blockers.length > 0) rows.push([s.facts.blockers, s.blockersValue(facts)]);
   if (facts.equity) rows.push([s.facts.equity, s.equityValue(facts.equity.value, facts.equity.range)]);
+  // Multiway (A9): the table, each range and the field, the MDF split, fold equity, the next card.
+  const mw = facts.multiway;
+  if (mw && mw.players >= 3) {
+    rows.push([s.facts.players, s.playersValue(mw.players, mw.behind)]);
+    const each = mw.opponents.filter((o) => o.equity !== null).map((o) => ({ equity: o.equity ?? 0, range: o.range }));
+    if (each.length > 0) rows.push([s.facts.vsEach, s.vsEachValue(each)]);
+    if (mw.mdfSplit) rows.push([s.facts.mdfSplit, s.mdfSplitValue(mw.mdfSplit.mdf, mw.mdfSplit.defenders, mw.mdfSplit.each)]);
+    if (mw.foldEquity) rows.push([s.facts.foldEquity, s.foldEquityValue(mw.foldEquity.all, mw.foldEquity.needed)]);
+    if (mw.outs) rows.push([s.facts.outs, s.outsValue(mw.outs.nut, mw.outs.nonNut, mw.outs.cards)]);
+  }
 
   const graded = decision.grade !== null && decision.options.length > 0;
 
@@ -354,6 +371,7 @@ function DecisionDetail({ decision, hand, readOnly = false }: { decision: Decisi
             <span className={`${styles.gradeTag} ${styles[decision.grade]}`}>
               <GradeIcon grade={decision.grade} />
               {t.grades[decision.grade]}
+              {decision.source === "approx" ? ` ${s.approxMark}` : null}
             </span>
           ) : null}
           {decision.evLoss !== null && decision.evLoss > 0 ? (
@@ -368,7 +386,8 @@ function DecisionDetail({ decision, hand, readOnly = false }: { decision: Decisi
         </p>
         {graded ? (
           <>
-            <h4 className={styles.subhead}>{s.optionsHeading}</h4>
+            <h4 className={styles.subhead}>{decision.source === "approx" ? s.optionsHeadingApprox : s.optionsHeading}</h4>
+            {decision.source === "approx" ? <p className={styles.hint}>{s.approxNote}</p> : null}
             <OptionsTable decision={decision} readOnly={readOnly} />
             {decision.source === "solver" ? (
               hand ? (

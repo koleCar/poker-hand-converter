@@ -54,6 +54,13 @@ export interface RangeWalk {
   riverStart: PlayerRanges | null;
   /** Both preflop ranges, before any board card or postflop action. */
   preflop: PlayerRanges;
+  /**
+   * A9: the pot was multiway earlier (three or more saw the flop) and became
+   * heads-up between these two from the start of `headsUpFrom`. The ranges
+   * were narrowed through the multiway streets by `multiway.ts`'s walk;
+   * `turnStart` is null unless the turn began heads-up.
+   */
+  multiway?: { players: number; headsUpFrom: "turn" | "river" };
 }
 
 const DECISIONS = new Set(["fold", "check", "call", "bet", "raise"]);
@@ -81,13 +88,14 @@ export function flopSeats(context: StatsContext): number[] {
   return context.dealtInSeats.filter((seat) => context.foldedOn.get(seat) !== "preflop");
 }
 
-interface PreflopRange {
+export interface PreflopRange {
   range: Float64Array;
   source: "chart" | "placeholder";
   label: string;
 }
 
-function preflopRangeOf(
+/** One player's preflop range: the charts' for their line, else the labelled placeholder; null with no line. */
+export function preflopRangeOf(
   hand: PhfHand,
   context: StatsContext,
   seat: number,

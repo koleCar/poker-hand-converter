@@ -633,6 +633,11 @@ button can start with the most recent 200 / 500 / 1,000 hands:
 newest first (`played_at` desc, undated last, then `id` desc), keyset on the
 last row. A newest-first run never prunes; turn grades are ordinary
 `decision_analysis` rows (`street = 'turn'`, `source = 'solver'`).
+Since A9 (`20270303090000_analysis_multiway.sql`) `source` may also be
+`'approx'`: a multiway river call or fold graded by showdown EV against
+narrowed ranges, capped at Mistake; its numbers are in `facts.multiway`
+(no table, grant or signature change; the check constraint names four
+sources).
 
 **Reports** (all invoker, all take `analysisVersion` — the client always sends
 it): `analysis_coverage(version)`, `analysis_overview(filters)` (graded moves
@@ -736,7 +741,7 @@ The read names its output keys (`analysis_hand`'s, without `handId`), and
 projects every decision's `options` to the seven `OptionAnalysis` keys,
 `flags` to code / severity / params, and `facts` to the listed `SpotFacts`
 keys (`analysis_public_facts` — a new facts key needs a line there; `turn`
-and `flop` are listed for A5). The rows are written by the owner's browser,
+and `flop` are listed for A5, `multiway` since A9). The rows are written by the owner's browser,
 so a key nobody listed does not reach a stranger. Facts are hero-centric by
 construction (hero's cards, the board to the decision, positions, pot
 geometry, equities against ranges named by line and seat): no villain hole

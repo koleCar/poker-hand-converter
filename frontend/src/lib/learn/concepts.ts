@@ -38,6 +38,7 @@ export const CONCEPT_IDS = [
   "donk-bet",
   "bluff-catching",
   "thin-value",
+  "multiway-pots",
   // Preflop
   "rfi",
   "three-bet",
@@ -65,6 +66,7 @@ export const WIDGET_IDS = [
   "grading",
   "bluff-catcher",
   "value-bet",
+  "multiway",
 ] as const;
 export type WidgetId = (typeof WIDGET_IDS)[number];
 
@@ -87,6 +89,8 @@ export interface WidgetPreset {
   stack?: number;
   /** A third number some widgets start from: equity, bluff share, fold rate or call rate, 0–1. */
   share?: number;
+  /** `multiway`: the number of opponents the bet goes into. */
+  opponents?: number;
   /** Starting cards: the board, and the hero's hand. */
   board?: readonly string[];
   hand?: readonly string[];
@@ -232,6 +236,13 @@ export const CONCEPTS: Readonly<Record<ConceptId, ConceptMeta>> = {
   "thin-value": meta("thin-value", "betting", ["bet-sizing", "bluff-catching", "position"], { id: "value-bet", pot: 20, bet: 7, share: 0.4 }, [
     "check-back-nuts",
   ]),
+  "multiway-pots": meta("multiway-pots", "betting", ["mdf-alpha", "bluff-catching", "dynamic-boards"], {
+    id: "multiway",
+    pot: 12,
+    bet: 8,
+    share: 0.4,
+    opponents: 2,
+  }, ["multiway-bluff", "multiway-slowplay", "multiway-dominated-draw"]),
 
   rfi: meta("rfi", "preflop", ["steal", "position", "three-bet"], {
     id: "bet-math",

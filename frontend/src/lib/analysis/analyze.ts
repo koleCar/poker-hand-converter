@@ -28,16 +28,27 @@
  * (`RiverFacts.narrowing`). The flop stays heuristic: flags, never grades,
  * with equity facts against the narrowed range.
  *
+ * **Multiway pots (A9, `multiway.ts`).** When three or more saw the flop,
+ * every player's range is walked through the hand. A turn or river that
+ * began heads-up is solved exactly as above from those ranges
+ * (`multiway-history`); a multiway decision gets facts against each range
+ * and the field and the multiway flags; a river call or fold facing a bet
+ * in a pot that was multiway gets an approximate grade by showdown EV
+ * (`source: "approx"`, capped at Mistake); everything else multiway is
+ * `not-analysed` with its facts and flags.
+ *
  * Deterministic: the same document gives the same analysis, bit for bit,
  * including every sampled equity (the seed is fixed per decision). That is what
  * lets a stored row be trusted after the fact and what makes "re-run the
  * analysis" a no-op rather than a reshuffle.
  *
  * **What is analysed (§3.5, §8).** v1 covers No-Limit Hold'em cash. A hand
- * outside that is `not-analysed` with its reason; inside it, a postflop
- * decision in a multiway pot is skipped (`partial`), because nothing here — and
- * nothing the solver phases build — models three ranges at once. Saying nothing
- * is better than saying something wrong, and the reader is told which it was.
+ * outside that is `not-analysed` with its reason; inside it, a multiway
+ * postflop decision is graded only where an honest approximation exists (the
+ * river call above) and is otherwise `not-analysed` (`partial`) with its
+ * facts and notes, because no solver here models three ranges at once.
+ * Saying nothing is better than saying something wrong, and the reader is
+ * told which it was.
  */
 
 import { handClass } from "../cards";
@@ -51,6 +62,17 @@ import { heuristicFlags } from "./heuristics";
 import { halved, heuristicModel, weightedCombos, type NarrowingModel } from "./narrowing";
 import { chartRange, gradePreflop } from "./preflop";
 import { flopSeats, walkRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
+import {
+  gradeRiverCall,
+  headsUpWalk,
+  multiwayFacts,
+  multiwayFlags,
+  riverCallEv,
+  walkMultiway,
+  type ApproxGrade,
+  type MultiWalk,
+  type RiverCallFailure,
+} from "./multiway";
 import { defaultRange, preflopLine } from "./ranges";
 import {
   followLine,
@@ -84,6 +106,8 @@ import {
   type DecisionStreet,
   type HandAnalysis,
   type HandSkipReason,
+  type MultiwayFacts,
+  type MultiwaySkipReason,
   type PostflopFacing,
   type PostflopRole,
   type PreflopScenario,
@@ -289,6 +313,7 @@ function buildFacts(
   multiway: boolean,
   options: ResolvedOptions,
   walk: RangeWalk | null,
+  multi: MultiWalk | null = null,
 ): BuiltFacts {
   const hand = context.hand;
   const bb = Math.max(1, hand.game.bigBlind);
@@ -336,11 +361,12 @@ function buildFacts(
   const callAllIn = toCall > 0 && toCall >= spot.heroBehind;
   const noMoreCards = street === "river" || opponentAllIn || callAllIn;
 
-  if (options.equity && !multiway) {
+  if (options.equity) {
     const seed = options.seed + spot.decision.order;
     // The nut checks are against any two cards, so they are certainties rather
-    // than estimates. Cheap on the river (~1,000 combos) and the turn (x44);
-    // on the flop only a hand that could plausibly be unbeatable is checked.
+    // than estimates — however many opponents there are (A9). Cheap on the
+    // river (~1,000 combos) and the turn (x44); on the flop only a hand that
+    // could plausibly be unbeatable is checked.
     const nutCandidate =
       street === "river" ||
       (postflop &&
@@ -362,7 +388,8 @@ function buildFacts(
 
     // An equity against the placeholder range, wherever a price is being
     // judged: facing a bet after the flop, or facing an all-in before it.
-    const villain = villainOf(spot, context);
+    // Multiway (A9) the equity is against the field, in `multiwayFacts`.
+    const villain = multiway ? null : villainOf(spot, context);
     const wantEquity = villain !== null && toCall > 0 && (postflop || opponentAllIn || callAllIn);
     if (wantEquity && villain !== null) {
       const line = preflopLine(context, villain);
@@ -370,7 +397,13 @@ function buildFacts(
       // Postflop in a heads-up pot: the villain's range narrowed by the
       // betting so far (A4). Otherwise the charts' range for the villain's
       // line where a node exists, the labelled placeholder where it does not.
-      const narrowed = postflop && walk && walk.villain === villain ? walk.before(spot.action.index)?.villain : null;
+      // A pot that was multiway earlier (A9): the villain's range from the multiway walk.
+      const narrowed =
+        postflop && walk && walk.villain === villain
+          ? walk.before(spot.action.index)?.villain
+          : postflop && multi
+            ? (multi.before(spot.action.index)?.get(villain) ?? null)
+            : null;
       const fromCharts = narrowed ? null : chartRange(hand, villain, spot.action.index, options.charts);
       const range: ClassWeights | WeightedCombo[] = narrowed
         ? weightedCombos(narrowed)
@@ -438,11 +471,35 @@ function rangeWalkOf(
   hero: number,
   charts: ChartSet | null,
   model: NarrowingModel = heuristicModel,
+  multi: MultiWalk | { ok: false; reason: WalkFailure } | null = null,
 ): RangeWalk | { ok: false; reason: WalkFailure } {
   const seats = flopSeats(context);
+  // A9: three or more saw the flop. The heads-up part of the hand, if a
+  // later street began heads-up, from the multiway walk.
+  if (seats.length > 2 && seats.includes(hero) && multi) {
+    if (!multi.ok) return multi.reason === "multiway-flop" ? multi : { ok: false, reason: multi.reason };
+    return headsUpWalk(multi) ?? { ok: false, reason: "multiway-flop" };
+  }
   if (seats.length !== 2 || !seats.includes(hero)) return { ok: false, reason: seats.length === 0 ? "no-flop" : "multiway-flop" };
   try {
     return walkRanges(hand, context, hero, seats[0] === hero ? seats[1] : seats[0], charts, model);
+  } catch {
+    return { ok: false, reason: "range-empty" };
+  }
+}
+
+/** The multiway walk (A9) of a hand three or more players saw the flop of, or null. Never throws. */
+function multiWalkOf(
+  hand: PhfHand,
+  context: StatsContext,
+  hero: number,
+  charts: ChartSet | null,
+  model: NarrowingModel = heuristicModel,
+): MultiWalk | { ok: false; reason: WalkFailure } | null {
+  const seats = flopSeats(context);
+  if (seats.length <= 2 || !seats.includes(hero)) return null;
+  try {
+    return walkMultiway(hand, context, hero, charts, model);
   } catch {
     return { ok: false, reason: "range-empty" };
   }
@@ -501,6 +558,7 @@ function handTurn(
     if (!turnSpot) return { ok: false, reason: "turn-range-empty", detail: "no hero turn decision" };
     if (!walk) return { ok: false, reason: "turn-range-empty", detail: "no postflop walk" };
     if (!walk.ok) return { ok: false, reason: TURN_WALK_REASONS[walk.reason], detail: walk.reason };
+    if (!walk.turnStart && walk.multiway) return { ok: false, reason: "turn-multiway-flop", detail: "the turn began multiway" };
     if (!walk.turnStart) return { ok: false, reason: "turn-range-empty", detail: "no turn in the walk" };
     const bb = Math.max(1, hand.game.bigBlind);
     const cards = toIndices(context.players.get(hero)?.holeCards ?? []);
@@ -610,6 +668,46 @@ export interface HandRiver {
 
 type Walked = RangeWalk | { ok: false; reason: WalkFailure } | null;
 
+/**
+ * The approximate river call (A9), with the sensitivity check of the solver
+ * grades: a grade of Inaccurate or worse is recomputed on the half-strength
+ * narrowing, and when the two are more than a class apart the milder one is
+ * kept (`range-sensitive`).
+ */
+function approxRiver(
+  spot: Spot,
+  built: BuiltFacts,
+  hand: PhfHand,
+  context: StatsContext,
+  hero: number,
+  multi: MultiWalk,
+  softMulti: () => MultiWalked,
+  charts: ChartSet | null,
+  seed: number,
+): ApproxGrade | RiverCallFailure {
+  const action = spot.decision.type as "fold" | "call";
+  const dominated = action === "fold" ? built.cannotLose : built.beatsNoHolding;
+  const potBb = built.facts.potBb;
+  const on = (walk: MultiWalk, model: NarrowingModel) => {
+    const evs = riverCallEv({ spot, facts: built.facts, hand, context, hero, walk, model, charts, seed });
+    return evs.ok ? gradeRiverCall(evs, action, potBb, dominated) : evs;
+  };
+  const full = on(multi, heuristicModel);
+  if (!full.ok || gradeRank(full.grade) < SENSITIVE_FROM) return full;
+  const softWalk = softMulti();
+  if (!softWalk || !softWalk.ok) return full;
+  const half = on(softWalk, halved(heuristicModel));
+  if (!half.ok) return full;
+  if (gradeRank(full.grade) - gradeRank(half.grade) > 1) {
+    return {
+      ...half,
+      approximations: [...new Set([...half.approximations, "range-sensitive" as const])].sort(),
+      ev: { ...half.ev, sensitivity: { model: multi.model, grade: full.grade } },
+    };
+  }
+  return { ...full, ev: { ...full.ev, sensitivity: { model: softWalk.model, grade: half.grade } } };
+}
+
 /** Grades at or worse than this run the sensitivity check (§3.5, §9). */
 const SENSITIVE_FROM = gradeRank("inaccurate");
 
@@ -641,6 +739,7 @@ function handRiver(
   const run = (spot: Spot, walk: Walked, which: "full" | "half"): RiverSolve | RiverFailure => {
     if (!walk) return { ok: false, reason: "river-range-empty", detail: "no postflop walk" };
     if (!walk.ok) return { ok: false, reason: WALK_REASONS[walk.reason], detail: walk.reason };
+    if (!walk.riverStart && walk.multiway) return { ok: false, reason: "river-multiway-flop", detail: "the river began multiway" };
     if (!walk.riverStart) return { ok: false, reason: "river-range-empty", detail: "no river in the walk" };
     const bb = Math.max(1, hand.game.bigBlind);
     const cards = toIndices(context.players.get(hero)?.holeCards ?? []);
@@ -978,16 +1077,23 @@ function handSolvers(
   charts: ChartSet | null,
   solveTurns: boolean,
   flopLibrary: FlopLibrary | null = null,
-): { walked: Walked; turn: HandTurn; river: HandRiver; flop: HandFlop } {
+): { walked: Walked; multi: MultiWalked; softMulti: () => MultiWalked; turn: HandTurn; river: HandRiver; flop: HandFlop } {
   const postflop = spots.some((spot) => spot.street !== "preflop");
   // A5b: the flop library, where the hand's line and flop have a chunk.
   const found = postflop && flopLibrary ? libraryEntry(hand, context, hero, charts, flopLibrary) : null;
   const entry = found && found.ok ? found : null;
   const model = entry ? libraryModel(entry, heuristicModel) : null;
-  const walked = postflop ? rangeWalkOf(hand, context, hero, charts, model ?? heuristicModel) : null;
+  // A9: three or more saw the flop - every range walked, the heads-up part handed on.
+  const multi = postflop ? multiWalkOf(hand, context, hero, charts) : null;
+  const walked = postflop ? rangeWalkOf(hand, context, hero, charts, model ?? heuristicModel, multi) : null;
+  let softMultiWalk: MultiWalked | undefined;
+  const softMulti = () => {
+    softMultiWalk ??= multi ? multiWalkOf(hand, context, hero, charts, halved(heuristicModel)) : null;
+    return softMultiWalk;
+  };
   let soft: Walked | undefined;
   const softWalk = () => {
-    soft ??= rangeWalkOf(hand, context, hero, charts, halved(heuristicModel));
+    soft ??= rangeWalkOf(hand, context, hero, charts, halved(heuristicModel), softMulti());
     return soft;
   };
   const effectiveBb = effectiveStackBb(context, hero);
@@ -997,8 +1103,10 @@ function handSolvers(
   const river = handRiver(hand, context, hero, walked, softWalk, charts, effectiveBb, potType, () =>
     solveTurns ? turn.riverStart() : null,
   );
-  return { walked, turn, river, flop: { entry, model } };
+  return { walked, multi, softMulti, turn, river, flop: { entry, model } };
 }
+
+type MultiWalked = MultiWalk | { ok: false; reason: WalkFailure } | null;
 
 /**
  * Analyses the hero's decisions in one hand.
@@ -1041,8 +1149,17 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   if (effectiveBb < STACK_LOW_BB || effectiveBb > STACK_HIGH_BB) handApprox.add("stack-depth");
 
   // The range walk (A4) through a heads-up hand, once; the turn and river solves (A5a, A4) on it.
-  const { walked, turn, river, flop } = handSolvers(hand, context, hero, spots, resolved.charts, resolved.turn, resolved.flopLibrary);
+  const { walked, multi: multiWalked, softMulti, turn, river, flop } = handSolvers(
+    hand,
+    context,
+    hero,
+    spots,
+    resolved.charts,
+    resolved.turn,
+    resolved.flopLibrary,
+  );
   const walk = walked && walked.ok ? walked : null;
+  const multi = multiWalked && multiWalked.ok ? multiWalked : null;
 
   let preflopSeen = 0;
   const decisions: DecisionAnalysis[] = spots.flatMap((spot) => {
@@ -1052,11 +1169,11 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     if (resolved.only !== null && spot.action.index !== resolved.only) return [];
     let built: BuiltFacts;
     try {
-      built = buildFacts(spot, context, hero, multiway, resolved, walk);
+      built = buildFacts(spot, context, hero, multiway, resolved, walk, multi);
     } catch {
       // An equity request the engine refuses (a card dealt twice by a broken
       // export) must not cost the decision its other facts.
-      built = buildFacts(spot, context, hero, multiway, { ...resolved, equity: false }, walk);
+      built = buildFacts(spot, context, hero, multiway, { ...resolved, equity: false }, walk, multi);
     }
     const { facts } = built;
     const approximations = new Set<Approximation>(handApprox);
@@ -1083,6 +1200,61 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     if (solvedRiver?.ok) {
       solvedRiver.approximations = libraryApprox(solvedRiver.approximations, flop, solvedRiver.river.narrowing !== "turn-solver");
     }
+
+    // Multiway (A9): facts against every range and the field, and for a river
+    // call or fold facing a bet in a pot that was multiway, the approximate EV.
+    const wasMultiway = multiway || (street === "river" && solvedRiver !== null && !solvedRiver.ok && solvedRiver.reason === "river-multiway-flop");
+    let mw: MultiwayFacts | null = null;
+    let approx: ApproxGrade | null = null;
+    let approxSkip: MultiwaySkipReason | null = null;
+    if (wasMultiway) {
+      try {
+        mw = multiwayFacts({
+          spot,
+          facts,
+          hand,
+          context,
+          hero,
+          walk: multi,
+          model: heuristicModel,
+          seed: resolved.seed + spot.decision.order,
+          equity: resolved.equity,
+        });
+      } catch {
+        mw = null;
+      }
+      if (street === "river" && spot.toCall > 0 && (action === "fold" || action === "call")) {
+        if (!multi) {
+          approxSkip = "multiway-range-unknown";
+        } else {
+          try {
+            const result = approxRiver(spot, built, hand, context, hero, multi, softMulti, resolved.charts, resolved.seed + spot.decision.order);
+            if (result.ok) approx = result;
+            else approxSkip = result.reason;
+          } catch {
+            approxSkip = "multiway-range-unknown";
+          }
+        }
+      }
+      if (mw) {
+        if (approx) mw.ev = approx.ev;
+        facts.multiway = mw;
+        if (multiway) {
+          facts.scenario = `${facts.role}-mw-${mw.lastToAct ? "ip" : "oop"}-${facts.facing}`;
+          if (mw.field !== null) {
+            facts.equity = {
+              value: mw.field,
+              range: `field:${mw.players - 1}`,
+              source: "narrowed",
+              combos: Math.round(mw.opponents.reduce((sum, o) => sum + o.combos, 0)),
+              method: mw.fieldMethod ?? "monte-carlo",
+              strong: null,
+            };
+          }
+        }
+      }
+    }
+
     if (solvedRiver?.ok) {
       facts.river = solvedRiver.river;
       if (facts.equity) {
@@ -1095,7 +1267,7 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
         facts.equity = turnEquity(solvedTurn, facts, walk);
       }
     }
-    const solved = solvedRiver ?? solvedTurn ?? solvedFlop;
+    const solved = approx ? null : (solvedRiver ?? solvedTurn ?? solvedFlop);
     if (facts.equity) {
       const source = facts.equity.source;
       if (source === "chart") approximations.add("preflop-range");
@@ -1107,6 +1279,9 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
       approximations.add("placeholder-range");
     }
     if (solved?.ok && walk && walk.sources.hero === "placeholder") approximations.add("placeholder-range");
+    // A heads-up solve of a pot that was multiway earlier (A9).
+    if (solved?.ok && walk?.multiway) approximations.add("multiway-history");
+    if (mw && mw.opponents.some((o) => o.source === "placeholder")) approximations.add("placeholder-range");
 
     // Preflop: the charts, or the reason they cannot answer.
     const chart =
@@ -1116,14 +1291,20 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
             resolved.charts,
           )
         : null;
-    const skipped = multiway
-      ? "multiway"
-      : chart && !chart.ok
-        ? chart.reason
-        : solved && !solved.ok
-          ? solved.reason
-          : null;
-    if (solved?.ok) {
+    const skipped = approx
+      ? null
+      : approxSkip
+        ? approxSkip
+        : multiway
+          ? "multiway"
+          : chart && !chart.ok
+            ? chart.reason
+            : solved && !solved.ok
+              ? solved.reason
+              : null;
+    if (approx) {
+      for (const value of approx.approximations) approximations.add(value);
+    } else if (solved?.ok) {
       for (const value of solved.approximations) approximations.add(value);
     } else if (chart?.ok) {
       // The chart lookup judged stack depth and table size itself (it refuses
@@ -1140,18 +1321,19 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     // A preflop line the charts refuse keeps its heuristic flags: they hold
     // whatever the strategy (§3.6), and "you folded when a check was free"
     // is as true on a 9-max table as on a 6-max one. A multiway postflop
-    // decision does not: every equity check there assumes one opponent.
-    const flags = multiway
-      ? []
-      : heuristicFlags({
-          spot,
-          facts,
-          cannotLose: built.cannotLose,
-          beatsNoHolding: built.beatsNoHolding,
-          noMoreCards: built.noMoreCards,
-          startingStack: heroStack,
-          bigBlind: bb,
-        });
+    // decision (A9) keeps them too — its equity is against the field — and
+    // adds the multiway ones.
+    const flags = heuristicFlags({
+      spot,
+      facts,
+      cannotLose: built.cannotLose,
+      beatsNoHolding: built.beatsNoHolding,
+      noMoreCards: built.noMoreCards,
+      startingStack: heroStack,
+      bigBlind: bb,
+    });
+    if (multiway && mw) flags.push(...multiwayFlags(spot, facts, mw));
+    flags.sort((a, b) => (a.severity === b.severity ? 0 : a.severity === "inaccurate" ? -1 : 1));
 
     return {
       order: spot.decision.order,
@@ -1170,14 +1352,14 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
         facts.scenario,
         facts.position ?? "?",
       ].join("/"),
-      options: chart?.ok ? chart.options : solved?.ok ? solved.options : [],
-      chosen: chart?.ok ? chart.chosen : solved?.ok ? solved.chosen : null,
-      evLoss: chart?.ok ? chart.evLoss : solved?.ok ? solved.evLoss : null,
-      evLossPot: chart?.ok ? chart.evLossPot : solved?.ok ? solved.evLossPot : null,
-      freqDiff: chart?.ok ? chart.freqDiff : solved?.ok ? solved.freqDiff : null,
-      grade: chart?.ok ? chart.grade : solved?.ok ? solved.grade : null,
-      score: chart?.ok ? chart.score : solved?.ok ? solved.score : null,
-      source: chart?.ok ? "chart" : solved?.ok ? "solver" : "heuristic",
+      options: chart?.ok ? chart.options : solved?.ok ? solved.options : approx ? approx.options : [],
+      chosen: chart?.ok ? chart.chosen : solved?.ok ? solved.chosen : approx ? approx.chosen : null,
+      evLoss: chart?.ok ? chart.evLoss : solved?.ok ? solved.evLoss : approx ? round3(approx.evLoss) : null,
+      evLossPot: chart?.ok ? chart.evLossPot : solved?.ok ? solved.evLossPot : approx ? round4(approx.evLossPot) : null,
+      freqDiff: chart?.ok ? chart.freqDiff : solved?.ok ? solved.freqDiff : approx ? round4(approx.freqDiff) : null,
+      grade: chart?.ok ? chart.grade : solved?.ok ? solved.grade : approx ? approx.grade : null,
+      score: chart?.ok ? chart.score : solved?.ok ? solved.score : approx ? round2(approx.score) : null,
+      source: chart?.ok ? "chart" : solved?.ok ? "solver" : approx ? "approx" : "heuristic",
       approximations: [...approximations].sort(),
       facts,
       flags,

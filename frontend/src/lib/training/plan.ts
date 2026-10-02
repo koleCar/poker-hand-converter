@@ -282,6 +282,8 @@ export function trainerTarget(where: AreaWhere, set: string | null = null): Trai
     }
     return { mode: "preflop", family, seat, vs: family === "rfi" ? null : vs, ...deal };
   }
+  // The river trainer deals heads-up spots: a multiway area (A9) has no trainer.
+  if (where.street === "river" && where.scenario.includes("-mw-")) return null;
   if (where.street === "river") {
     // The river trainer's out-of-position hero acts first; only the hero in
     // position ever faces a bet there. So a spot facing a bet or a raise is

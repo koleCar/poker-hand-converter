@@ -51,7 +51,7 @@ export interface DrillDecision {
   score: number;
   /** Pot before the decision, bb: EV loss is quoted against it. */
   potBb: number;
-  source: "chart" | "solver" | "heuristic";
+  source: "chart" | "solver" | "heuristic" | "approx";
   approximations: readonly (Approximation | string)[];
 }
 
@@ -71,7 +71,8 @@ export function gradeDrill(decision: DrillDecision, answer: number): GradeResult
     chosen: answer,
     pot: decision.potBb,
     capAtInaccurate: decision.approximations.includes("off-tree-size"),
-    capAtMistake: decision.source === "solver",
+    // A solver grade and an approximate multiway one (A9) rest on narrowed ranges.
+    capAtMistake: decision.source === "solver" || decision.source === "approx",
   });
 }
 
@@ -88,7 +89,7 @@ export function asAnswered(decision: DecisionAnalysis, answer: number, result: G
   // `range-cap` says *this* grade was capped at Mistake: true of the answer
   // only when its own uncapped grade was a Blunder.
   const approximations: Approximation[] = decision.approximations.filter((code) => code !== "range-cap");
-  if (decision.source === "solver") {
+  if (decision.source === "solver" || decision.source === "approx") {
     const uncapped = grade({
       options: decision.options,
       chosen: answer,

@@ -124,7 +124,7 @@ interface DecisionAnalysis {
   evLossPot: number;           // evLoss / pot before the decision
   freqDiff: number;            // max(freq) − freq[chosen]
   grade: Grade;                // §2
-  source: "chart" | "solver" | "heuristic";
+  source: "chart" | "solver" | "heuristic" | "approx";   // approx: A9, multiway
   approximations: Approximation[];   // §3.5 — always shown
   facts: SpotFacts;            // §4 — texture, SPR, pot odds, MDF, hand class, blockers
 }
@@ -331,7 +331,10 @@ shows them like GTOW's banner:
 - **Source quality:** a heuristic source (§3.6).
 
 A decision is **not analysed** (`status: partial`) when:
-- the postflop pot is multiway;
+- the postflop pot is multiway, except a river call or fold facing a bet
+  (an approximate grade, `source: "approx"`) and a turn or river that
+  began heads-up after a multiway flop (solved, `multiway-history`) — A9;
+  the rest keeps its multiway facts and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
 - the game is MTT with ICM;
 - it is a bomb pot;

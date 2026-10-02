@@ -10,7 +10,19 @@ import { useState } from "react";
 import { grade } from "../../lib/analysis/grading";
 import type { OptionAnalysis } from "../../lib/analysis/types";
 import { useDict } from "../../lib/i18n/client";
-import { bluffCatcherEv, bluffShare, geometricBet, potSizedBets, spr, valueBetGain } from "../../lib/learn/math";
+import {
+  allFold,
+  alpha,
+  bluffCatcherEv,
+  bluffShare,
+  geometricBet,
+  mdf,
+  mdfSplit,
+  multiwayBluffEv,
+  potSizedBets,
+  spr,
+  valueBetGain,
+} from "../../lib/learn/math";
 import { ShareBar, Slider, Stat, Stats, evTone, useFormats } from "./controls";
 import styles from "./learn.module.css";
 
@@ -115,6 +127,68 @@ export function ValueBet({ pot: pot0, bet: bet0, share }: { pot: number; bet: nu
         />
       </Stats>
       <ShareBar value={beat} marker={0.5} tone={tone} />
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------- multiway - */
+
+/**
+ * Fold equity multiplication and the MDF split (A9): a bet into several
+ * players, each folding as often as the reader sets, against the folds the
+ * bet needs; and what the table's defence asks of each defender.
+ */
+export function MultiwayCalc({
+  pot: pot0,
+  bet: bet0,
+  share,
+  opponents: opponents0,
+}: {
+  pot: number;
+  bet: number;
+  share: number;
+  opponents: number;
+}) {
+  const t = useDict().learn.widgets;
+  const m = t.multiway;
+  const f = useFormats();
+  const [pot, setPot] = useState(pot0);
+  const [bet, setBet] = useState(bet0);
+  const [opponents, setOpponents] = useState(opponents0);
+  const [foldEach, setFoldEach] = useState(share);
+  const needed = alpha(pot, bet);
+  const everyone = allFold(foldEach, opponents);
+  const ev = multiwayBluffEv(pot, bet, foldEach, opponents);
+  const tone = evTone(ev);
+  return (
+    <div className={styles.calc}>
+      <div className={styles.controls}>
+        <Slider label={t.potBeforeBet} value={pot} min={1} max={200} step={0.5} onChange={setPot} format={f.bb} />
+        <Slider
+          label={t.bet}
+          value={bet}
+          min={0.5}
+          max={400}
+          step={0.5}
+          onChange={setBet}
+          format={(value) => `${f.bb(value)} · ${t.ofPot(f.pct(value / Math.max(pot, 1e-9)))}`}
+        />
+        <Slider label={m.opponents} value={opponents} min={1} max={5} step={1} onChange={setOpponents} format={m.opponentCount} />
+        <Slider label={m.foldEach} value={foldEach} min={0} max={1} step={0.01} onChange={setFoldEach} format={f.pct} />
+      </div>
+      <Stats>
+        <Stat lead label={m.allFold} value={f.pct(everyone)} />
+        <Stat label={m.needed} value={f.pct(needed)} />
+        <Stat
+          label={m.bluffEv}
+          value={f.signedBb(ev)}
+          tone={tone}
+          note={m.verdict[tone === "good" ? "bet" : tone === "bad" ? "check" : "either"]}
+        />
+        <Stat label={m.mdfHeadsUp} value={f.pct(mdf(pot, bet))} />
+        <Stat label={m.mdfEach} value={f.pct(mdfSplit(pot, bet, opponents))} />
+      </Stats>
+      <ShareBar value={everyone} marker={needed} tone={tone} />
     </div>
   );
 }

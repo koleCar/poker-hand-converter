@@ -8,7 +8,8 @@ type Betting =
   | "check-raise"
   | "donk-bet"
   | "bluff-catching"
-  | "thin-value";
+  | "thin-value"
+  | "multiway-pots";
 
 /**
  * Betting, Croatian. Same shape as betting.en.ts, and every number in an
@@ -336,5 +337,56 @@ export const bettingHr: ConceptTexts<Betting> = {
       "Thin value bet protiv igrača koji nikad ne calla sa slabijom rukom.",
     ],
     tryIt: "Postavi stopu callova i udio callova koje pobjeđuješ; dobit mijenja predznak točno na polovici.",
+  },
+  "multiway-pots": {
+    summary: "Tri ili više igrača u potu: blef traži da svi foldaju, svaki branitelj smije foldati više, a druge najbolje ruke manje se isplate.",
+    definition: [
+      "Multiway pot je pot za koji se nakon flopa i dalje bore tri ili više igrača. Većina pokerske teorije, i svaki solver koji Rail pokreće, bavi se s dva igrača; s više njih isti brojevi i dalje vrijede, ali se množe.",
+      "Fold equity se množi prema dolje: bet odmah osvaja pot samo kad foldaju svi protivnici, pa ako svaki folda jednako često kao heads-up, zajedno foldaju puno rjeđe. A obrana koju bet traži je podijeljena: svakom branitelju dovoljno je nastaviti s manje od minimalne frekvencije obrane da bi stol u cjelini branio dovoljno (podjela MDF-a).",
+    ],
+    why: [
+      "Blefovi koji su dobri heads-up gube novac protiv dva ili tri igrača. U multiway potu betaj jake ruke i jake drawove, a više slabih ruku pusti.",
+      "Mijenja se i value. Jak jedan par ili dva para ranjiviji su — više igrača drži karte koje ih prestižu — pa je slowplay skuplji i treba betati da ih naplatiš. Drawovi prema ruci koja nije nuts gube vrijednost: kad ti dođe boja, veća je vjerojatnost nego heads-up da netko drži jaču (obrnuti implied odds).",
+      "Rail ocjenjuje multiway odluke samo ondje gdje je to pošteno: call ili fold na riveru po EV-u protiv suženih raspona, označeno kao približno i nikad gore od Greške. Sve ostalo u multiway potu dobiva svoje činjenice i bilješke, i ove ideje iza njih.",
+    ],
+    formulas: [
+      {
+        name: "Svi foldaju",
+        expression: ["f", { sup: "n" }],
+        spoken: "Vjerojatnost da svi protivnici foldaju jednaka je stopi foldanja svakog od njih na potenciju broja protivnika.",
+        where: [
+          ["f", "koliko često svaki protivnik folda"],
+          ["n", "broj protivnika u koje ide bet"],
+        ],
+      },
+      {
+        name: "Podjela MDF-a, svaki branitelj",
+        expression: ["1 − α", { sup: "1/n" }],
+        spoken: "Svaki od n branitelja mora nastaviti jedan minus alfa na potenciju jedan kroz n puta, gdje je alfa bet podijeljen s potom plus bet.",
+        where: [
+          ["α", "bet / (pot + bet), foldovi koje bet treba"],
+          ["n", "igrači koji se brane od njega"],
+        ],
+      },
+    ],
+    example: {
+      title: "Blef od dvije trećine pota u dva igrača",
+      setup: "Pot je 12 bb i betaš 8 bb bez ičega, u dva protivnika. Svaki od njih bi heads-up branio minimum i foldao ostatak.",
+      steps: [
+        "Bet treba foldove u alfa = 8 / (12 + 8) = 40 % slučajeva.",
+        "Heads-up branitelj nastavlja u 12 / 20 = 60 % slučajeva i folda u 40 %: blef je na nuli.",
+        "Dva protivnika koji svaki foldaju 40 % zajedno foldaju samo 0,4 × 0,4 = 16 % puta.",
+        "Blef sada gubi: 0,16 × 12 − 0,84 × 8 = −4,8 bb.",
+        "Podjela MDF-a: da njih dvojica zajedno foldaju najviše 40 %, svakom je dovoljno nastaviti 1 − √0,4 ≈ 37 % puta, a ne 60 %.",
+      ],
+      takeaway: "Sa svakim dodatnim protivnikom blef treba više foldova nego što ih dobiva, a svaki branitelj smije foldati više nego heads-up — zato u multiway potu blefiraj manje i callaj s jačim rukama.",
+    },
+    mistakes: [
+      "Blefiranje u dva ili tri igrača jednako često kao heads-up.",
+      "Call jednako širok kao heads-up jer „netko mora braniti” — obrana je podijeljena.",
+      "Slowplay top para ili dva para na boardu koji se mijenja, pa nekoliko igrača drawa besplatno.",
+      "Call cijelog stacka s drawom koji nije prema nutsu, kad je sa svakim igračem vjerojatnije da netko ima jači.",
+    ],
+    tryIt: "Dodaj protivnike i gledaj kako pada vjerojatnost da svi foldaju, i koliko manje svaki mora braniti.",
   },
 };

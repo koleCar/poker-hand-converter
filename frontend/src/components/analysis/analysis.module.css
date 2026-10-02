@@ -733,6 +733,12 @@
   white-space: nowrap;
 }
 
+/* An approximate multiway grade (A9): "≈" after the action, the word is in the label. */
+.approxMark {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
 .sourceLine {
   display: flex;
   flex-wrap: wrap;
