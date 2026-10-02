@@ -1,4 +1,4 @@
-import { plural } from "../hr";
+import { plural } from "../plural";
 import type { Dict } from "../types";
 
 /** Strings for the converter components, Croatian. Same shape as `converter.en.ts`. */
