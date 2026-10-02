@@ -7,7 +7,7 @@
  */
 
 import type { Amount, PhfAction } from "../../phf/types";
-import { plural } from "../hr";
+import { plural } from "../plural";
 import type { Dict } from "../types";
 
 const num = (value: number) => value.toLocaleString("hr-HR");

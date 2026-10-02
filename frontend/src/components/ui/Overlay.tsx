@@ -25,6 +25,7 @@
  */
 
 import { useCallback, useEffect, useId, useRef } from "react";
+import { useDict } from "../../lib/i18n/client";
 import "../../styles/overlay.css";
 
 export interface OverlayProps {
@@ -76,6 +77,7 @@ export function Overlay({
   className = "",
   children,
 }: OverlayProps) {
+  const en = useDict();
   const ref = useRef<HTMLDialogElement | null>(null);
   const restoreTo = useRef<HTMLElement | null>(null);
   const titleId = useId();
@@ -193,7 +195,7 @@ export function Overlay({
             type="button"
             className="btn btn--icon ov__close"
             onClick={close}
-            aria-label={`Close ${title.toLowerCase()}`}
+            aria-label={en.chrome.closeNamed(title)}
           >
             ✕
           </button>
