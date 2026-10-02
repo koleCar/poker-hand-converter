@@ -45,6 +45,8 @@ const SITES = [
     prefix: "OG-",
     dialect: /^\*{5}\s*History for hand\s/m,
     variants: ["holdem", "omaha"],
+    // The one hi/lo fixture never splits a pot; see `ONGAME_VARIANTS`.
+    hiLo: [],
   },
   {
     id: "entraction",
@@ -53,6 +55,7 @@ const SITES = [
     prefix: "ENT-",
     dialect: /^Game\s#\s*\d+\s+-\s.*-\s+Table\s+"/m,
     variants: ["holdem", "omaha", "omaha5"],
+    hiLo: ["omaha"],
   },
   {
     id: "microgaming",
@@ -61,6 +64,7 @@ const SITES = [
     prefix: "MG-",
     dialect: /<Game\s+hhversion="\d+"\s+id="\d+"/i,
     variants: ["holdem", "omaha"],
+    hiLo: ["omaha"],
   },
 ] as const;
 
@@ -76,10 +80,14 @@ const ALLOWED_REASONS = new Set([
   // A variant the parser has not been proven against - stud, draw, and the
   // Omaha deals no fixture here covers.
   "unsupported-variant",
-  // High-low split, which is a different game from the Omaha above it rather
-  // than an unreadable one, and carries its own reason so it cannot be mistaken
-  // for one. All three of these networks spread it.
+  // High-low split on a network not proven against it (Ongame), which carries
+  // its own reason so it cannot be mistaken for an unreadable variant.
   "unsupported-hi-lo",
+  // A hi/lo payout the shown cards contradict: Entraction's
+  // `07-allin-showdown.txt` pays the whole pot high while the other shown hand
+  // holds 8-7-4-2-A. It shares its hand number with `08-euro-table.txt` but
+  // not its cards, so it is an edited sample rather than a real payout.
+  "hi-lo-payout-contradiction",
   // A tournament whose buy-in the hand never states.
   "tournament-unsupported",
   "play-money",
@@ -115,6 +123,7 @@ function semantics(hand: PhfHand) {
       allIn: action.allIn,
       cards: action.cards ?? null,
       potName: action.potName ?? null,
+      half: action.half ?? null,
     })),
   };
 }
@@ -180,8 +189,11 @@ for (const site of SITES) {
         // widened allowlist has to be widened here too - deliberately, by
         // somebody who looked at the fixtures.
         expect(site.variants as readonly string[], where).toContain(hand.game.variant);
-        // Whatever is on the list, a split-pot hand never is.
-        expect(hand.game.hiLo, where).toBe(false);
+        // A split-pot hand only on a deal the site's hi/lo list names, and only
+        // with every collect's half worked out.
+        if (hand.game.hiLo) {
+          expect(site.hiLo as readonly string[], where).toContain(hand.game.variant);
+        }
         // `meta.rawText` must be the room's own text, not our normalized form.
         expect(hand.meta.rawText).not.toContain("Poker Hand #");
         expect(hand.meta.handKey).toBe(hand.meta.handId);

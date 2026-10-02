@@ -25,6 +25,7 @@ import {
   type SiteParserContext,
 } from "../phf/detect";
 import {
+  isHiLoLabel,
   parseAmount,
   type CurrencyUnit,
   type LimitType,
@@ -32,6 +33,7 @@ import {
   type PhfWarning,
 } from "../phf/types";
 import {
+  OMAHA_HI_LO,
   canonicalGameLabel,
   normalizeGameName,
   unsupportedVariantSkip,
@@ -63,10 +65,18 @@ const VERSION = "1.0.0";
  * What this parser is allowed to read.
  *
  * One file: `08-cassava-skin-thousands-separator.txt`, a `No Limit Omaha` table
- * on the Cassava skin. The other two Omaha files are `OmahaHL` and stay
- * refused by the split-pot rule.
+ * on the Cassava skin. The other two Omaha files are `OmahaHL`; see below.
  */
 const P888_VARIANTS = ["holdem", "omaha"] as const;
+
+/**
+ * Hi/lo this parser reads: `Pot Limit OmahaHL`, two files - a scoop printed as
+ * two identical `collected [ $0.95 ]` lines, and a pot where no low qualified.
+ * 888 never says which collect is which half; the `(Hi: ...)` / `(Lo: ...)`
+ * lines name each player's made hands, not their winnings, and the cards
+ * settle it (`phf/hilo.ts`).
+ */
+const P888_HI_LO = OMAHA_HI_LO;
 
 /** Banners that mean 888 and nothing else. `Cassava` is 888's licence holder. */
 const BRAND_REGEX = /\b(?:888poker|888\.com|Pacific Poker|LuckyAcePoker|Cassava)\b/i;
@@ -82,6 +92,7 @@ export const poker888Parser: SiteParser = {
   id: "888poker",
   name: "888poker",
   version: VERSION,
+  hiLoVariants: P888_HI_LO,
 
   detect(text: string): number {
     const head = bannerAndStakes(text);
@@ -124,7 +135,8 @@ export const poker888Parser: SiteParser = {
     // book half a split pot as a whole one.
     const gameName = normalizeGameName(label);
     const refusal =
-      unsupportedGameSkip(gameName) ?? unsupportedVariantSkip(gameName, P888_VARIANTS);
+      unsupportedGameSkip(gameName, P888_HI_LO) ??
+      unsupportedVariantSkip(gameName, P888_VARIANTS);
     if (refusal) {
       throw refusal;
     }
@@ -279,7 +291,7 @@ export const poker888Parser: SiteParser = {
       }
 
       // Omaha hi-lo prints the made hands as `(Hi: ...)` / `(Lo: ...)` under the
-      // show line. Hold'em never reaches this, and Omaha is refused above.
+      // show line. They restate the shown cards, so nothing is lost by skipping.
       if (/^\((?:Hi|Lo):/i.test(line)) {
         continue;
       }
@@ -320,7 +332,7 @@ export const poker888Parser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "888-",
       handId,
-      gameLabel: canonicalGameLabel(variantOf(label), limitOf(label)),
+      gameLabel: canonicalGameLabel(variantOf(label), limitOf(label), isHiLoLabel(gameName)),
       unit,
       decimals: "fixed2",
       headerSmallBlind: parseAmount(small[2], unit),

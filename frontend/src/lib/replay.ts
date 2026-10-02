@@ -25,6 +25,7 @@ import {
   type PhfAction,
   type PhfHand,
   type Position,
+  type PotHalf,
   type Street,
 } from "./phf/types";
 import { ENGLISH_REPLAY_STRINGS, type ReplayStrings } from "./replayStrings";
@@ -243,7 +244,12 @@ interface AwardGroup {
   name: string;
   /** First collect action that paid this pot, for the frame's anchor. */
   actionIndex: number | null;
-  winners: Array<{ player: string; amount: Amount }>;
+  winners: Array<{ player: string; amount: Amount; half?: PotHalf; actionIndex?: number }>;
+  /**
+   * Which half of a hi/lo pot this beat pays, or `"no-low"` for a hi/lo pot
+   * that went entirely high. Absent everywhere else.
+   */
+  half?: PotHalf | "no-low";
 }
 
 /**
@@ -309,13 +315,49 @@ function awardGroups(hand: PhfHand): AwardGroup[] {
       byKey.set(key, bucket);
     }
 
-    bucket.winners.push({ player: winner.player, amount: winner.amount });
+    bucket.winners.push(
+      winner.half
+        ? {
+            player: winner.player,
+            amount: winner.amount,
+            half: winner.half,
+            ...(source ? { actionIndex: source.index } : {}),
+          }
+        : { player: winner.player, amount: winner.amount },
+    );
     if (bucket.actionIndex === null && source) {
       bucket.actionIndex = source.index;
     }
   }
 
-  return buckets.filter((bucket) => bucket.winners.length > 0);
+  return buckets.filter((bucket) => bucket.winners.length > 0).flatMap(splitHalves);
+}
+
+/**
+ * A hi/lo pot is paid in two beats, high then low, so the viewer sees the split
+ * happen rather than two unrelated wins landing at once. A pot that went
+ * entirely high stays one beat, marked so the caption can say why nobody was
+ * paid low. Pots without halves - every pot outside hi/lo - pass through
+ * untouched, which is what keeps their frames byte-identical.
+ */
+function splitHalves(group: AwardGroup): AwardGroup[] {
+  const high = group.winners.filter((winner) => winner.half === "hi");
+  const low = group.winners.filter((winner) => winner.half === "lo");
+  if (high.length === 0 && low.length === 0) {
+    return [group];
+  }
+  if (low.length === 0 && high.length === group.winners.length) {
+    return [{ ...group, half: "no-low" }];
+  }
+  // Anything unlabelled rides with the high beat: it is a whole share, and the
+  // high half is paid first.
+  const rest = group.winners.filter((winner) => winner.half !== "lo");
+  const anchor = (winners: AwardGroup["winners"]) =>
+    winners.find((winner) => winner.actionIndex !== undefined)?.actionIndex ?? group.actionIndex;
+  return [
+    { ...group, actionIndex: anchor(rest), winners: rest, half: "hi" as const },
+    { ...group, actionIndex: anchor(low), winners: low, half: "lo" as const },
+  ].filter((beat) => beat.winners.length > 0);
 }
 
 /**
@@ -746,7 +788,8 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
   }
 
   // Awards: one frame per pot, main first, so a side pot is paid as its own
-  // beat instead of every winner's stack jumping from dead centre at once.
+  // beat instead of every winner's stack jumping from dead centre at once. A
+  // hi/lo pot is two of those beats, high then low (`splitHalves`).
   sweepBets();
   clearLastActions();
   const groups = awardGroups(hand);
@@ -777,19 +820,38 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
       // What is left in the middle is exactly what is still owed: the fees
       // come off the pot as it is pushed, so they leave with the pot they were
       // taken from rather than lingering as an unpayable remainder.
-      const remaining = groups.slice(index + 1).map((rest, offset) => ({
-        name: rest.name,
-        amount: owed[index + 1 + offset],
-      }));
+      // The two halves of a hi/lo pot are still one pile until both are paid.
+      const remaining: Array<{ name: string; amount: number }> = [];
+      groups.slice(index + 1).forEach((rest, offset) => {
+        const last = remaining[remaining.length - 1];
+        if (last && last.name === rest.name && rest.half) {
+          last.amount += owed[index + 1 + offset];
+        } else {
+          remaining.push({ name: rest.name, amount: owed[index + 1 + offset] });
+        }
+      });
       pot = remaining.reduce((sum, rest) => sum + rest.amount, 0);
       potsOverride = remaining.length > 0 ? remaining : [{ name: "Pot", amount: 0 }];
 
-      const names = group.winners
+      const joined = group.winners
         .map((winner) => words.wins(winner.player, money(winner.amount)))
         .join(" · ");
+      const names =
+        group.half === "hi"
+          ? words.high(joined)
+          : group.half === "lo"
+            ? words.low(joined)
+            : group.half === "no-low"
+              ? words.noLow(joined)
+              : joined;
+      // Two beats of one pot are still one pot: the pot name is only worth
+      // saying when the hand has another.
+      const multiPot = groups.some((entry) => entry.half)
+        ? new Set(groups.map((entry) => entry.name)).size > 1
+        : groups.length > 1;
       snapshot(
         "award",
-        groups.length > 1 ? words.potAward(group.name, names) : names,
+        multiPot ? words.potAward(group.name, names) : names,
         group.winners[0]?.player ?? null,
         {
           holdMs: index === 0 ? BASE_HOLD.award : SIDE_POT_HOLD,

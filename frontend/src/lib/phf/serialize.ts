@@ -13,6 +13,7 @@
  */
 
 import { extractCards } from "../cards";
+import { NO_LOW_LINE, assignHiLoHalves, checkNoLowStated } from "./hilo";
 import {
   DEFAULT_TEXT_STYLE,
   PHF_SCHEMA,
@@ -506,6 +507,7 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
   let sawHoleCardsMarker = false;
   let dealtLineCount = 0;
   let runTwoTimesLine = false;
+  let noLowStated = false;
   const straddles: PhfGameStraddleDraft[] = [];
   const foldedPlayers = new Set<string>();
 
@@ -997,6 +999,14 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
       continue;
     }
 
+    // PokerStars' hi/lo showdown: the whole pot went high. Not an action -
+    // the collects already say who was paid - and `toStandardText` writes it
+    // back from the halves, so it is read as a fact to check, not stored.
+    if (NO_LOW_LINE.test(trimmed)) {
+      noLowStated = true;
+      continue;
+    }
+
     warnings.push({ code: "unknown-line", message: trimmed, line: lineNo });
   }
 
@@ -1179,6 +1189,13 @@ export function parseStandardHand(text: string, ctx: ParseContext): PhfHand | nu
   };
 
   assignPositions(hand);
+  if (hand.game.hiLo) {
+    warnings.push(...assignHiLoHalves(hand));
+    // PokerStars says it in words; the hands have to agree.
+    if (noLowStated) {
+      warnings.push(...checkNoLowStated(hand));
+    }
+  }
   return hand;
 }
 
@@ -1621,6 +1638,9 @@ export function toStandardText(hand: PhfHand, options: SerializeOptions = {}): s
       lines.push(`*** ${labels[i] ? `${labels[i]} ` : ""}${style.showdownToken} ***`);
       // One showdown block settles every runout; several split them by runout.
       emitFor("showdown", labels.length === 1 ? null : i);
+      if (hand.game.hiLo && wentAllHigh(hand, labels.length === 1 ? null : i)) {
+        lines.push("No low hand qualified");
+      }
     }
   }
 
@@ -1657,6 +1677,25 @@ export function toStandardText(hand: PhfHand, options: SerializeOptions = {}): s
   }
 
   return lines.join("\n");
+}
+
+/**
+ * A hi/lo showdown block whose every award went high: PokerStars follows the
+ * collects with `No low hand qualified`, and so does this.
+ *
+ * Stars' rule for a hand with several pots, only some of which had a low, is
+ * not in the corpus - every sample with the line has one pot - so the line is
+ * written only when *nothing* in the block was paid low. That is the reading
+ * that never claims "no low" next to a low collect.
+ */
+function wentAllHigh(hand: PhfHand, runoutIndex: number | null): boolean {
+  const collects = hand.actions.filter(
+    (action) =>
+      action.type === "collect" &&
+      action.street === "showdown" &&
+      (runoutIndex === null || action.runoutIndex === runoutIndex),
+  );
+  return collects.length > 0 && collects.every((action) => action.half === "hi");
 }
 
 function headerPayload(hand: PhfHand, style: ResolvedStyle): string {

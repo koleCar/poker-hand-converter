@@ -31,13 +31,19 @@ import {
   type SiteParserContext,
 } from "../phf/detect";
 import {
+  isHiLoLabel,
   parseAmount,
   variantFromLabel,
   type LimitType,
   type PhfHand,
   type PhfWarning,
 } from "../phf/types";
-import { canonicalGameLabel, HOLDEM_OMAHA, unsupportedVariantSkip } from "./shared/variant-lock";
+import {
+  canonicalGameLabel,
+  HOLDEM_OMAHA,
+  OMAHA_HI_LO,
+  unsupportedVariantSkip,
+} from "./shared/variant-lock";
 import {
   BANNER_REGEX,
   PARTY_DATE_REGEX,
@@ -69,10 +75,16 @@ const VERSION = "1.0.0";
  * player leaving and rejoining, a thousands-separated buy-in, a heads-up table
  * and a five-hand concatenation - eleven hands in all, and every one of them
  * parses with no warnings. partypoker also spread five-card Omaha, but no
- * sample of it exists here, so `omaha5` stays off the list. `PL Omaha Hi-Lo`
- * (fixture 08) is refused one step earlier and keeps its own reason.
+ * sample of it exists here, so `omaha5` stays off the list.
  */
 const PARTY_VARIANTS = HOLDEM_OMAHA;
+
+/**
+ * Hi/lo this parser reads: `PL Omaha Hi-Lo`, one file (08) - a split main pot
+ * behind an all-in, with partypoker's own `wins Lo (...)` label, which agrees
+ * with the cards.
+ */
+const PARTY_HI_LO = OMAHA_HI_LO;
 
 const STREET_REGEX = /^\*{2}\s*Dealing\s+(down cards|flop|turn|river)\s*\*{2}\s*(?:\[([^\]]*)\])?/i;
 const SEAT_REGEX = /^Seat\s+(\d+):\s+(.+?)\s*\(\s*([^)]*?)\s*\)\s*$/;
@@ -84,6 +96,7 @@ export const partypokerParser: SiteParser = {
   id: "partypoker",
   name: "partypoker",
   version: VERSION,
+  hiLoVariants: PARTY_HI_LO,
 
   detect(text: string): number {
     const head = bannerAndStakes(text);
@@ -122,12 +135,12 @@ export const partypokerParser: SiteParser = {
         "The partypoker stakes line is missing or unreadable, so the game is unknown.",
       );
     }
-    // Hi/Lo is refused on its own terms, before the generic variant lock, so
-    // the reason stays true once that lock lifts. `PL Omaha Hi-Lo` is in the
-    // sample corpus and a split pot read as a whole one balances against
-    // itself; nothing downstream would ever notice.
+    // Hi/Lo is checked on its own terms, before the generic variant lock, so a
+    // refused one keeps its own reason: a split pot read as a whole one
+    // balances against itself, and nothing downstream would ever notice.
     const refusal =
-      unsupportedGameSkip(game[7]) ?? unsupportedVariantSkip(game[7], PARTY_VARIANTS);
+      unsupportedGameSkip(game[7], PARTY_HI_LO) ??
+      unsupportedVariantSkip(game[7], PARTY_VARIANTS);
     if (refusal) {
       throw refusal;
     }
@@ -232,6 +245,29 @@ export const partypokerParser: SiteParser = {
         continue;
       }
 
+      // Hi/lo names the half it paid - `wins Lo ($28.75 USD) from the main pot
+      // with 7,5,4,2,A.` - with the amount in brackets. The label is checked
+      // against the cards once the hand is built.
+      const half = line.match(
+        /^(.+?)\s+wins\s+(Hi|Lo)\s+\(([$€£]?[\d,]+(?:\.\d+)?)(?:\s+[A-Z]{3})?\)(?:\s+from the (main pot|side pot)(?:\s+\d+)?)?(?:\s+with\s+.+)?\.?\s*$/i,
+      );
+      if (half && seatNames.has(half[1])) {
+        collected.push({
+          player: half[1],
+          amount: parseAmount(half[3], unit),
+          potName: half[4] ?? "pot",
+          half: half[2].toLowerCase() === "lo" ? "lo" : "hi",
+        });
+        continue;
+      }
+
+      // `fistfock123 shows7,5,4,2,A  for low.` - the low the cards on the
+      // line before already make; no information of its own.
+      const lowShown = line.match(/^(.+?)\s+shows\s*[A2-8](?:,[A2-8]){4}\s+for low\.?\s*$/i);
+      if (lowShown && seatNames.has(lowShown[1])) {
+        continue;
+      }
+
       const posted = line.match(
         /^(.+?)\s+posts\s+(small blind|big blind \+ dead|big blind|ante|dead blind)\s*\[([^\]]*)\]\.?\s*$/i,
       );
@@ -330,7 +366,11 @@ export const partypokerParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "PTY-",
       handId,
-      gameLabel: canonicalGameLabel(variantFromLabel(game[7]), limitOf(game[6])),
+      gameLabel: canonicalGameLabel(
+        variantFromLabel(game[7]),
+        limitOf(game[6]),
+        isHiLoLabel(game[7]),
+      ),
       unit,
       decimals: "fixed2",
       headerSmallBlind: game[4] ? parseAmount(game[2], unit) : 0,

@@ -30,9 +30,12 @@ import {
   ParseSkip,
   type SiteParserContext,
 } from "../../phf/detect";
+import { checkStatedHalves, orderHiLoAwards } from "../../phf/hilo";
 import { parseStandardHand } from "../../phf/serialize";
 import {
   formatAmount,
+  isHiLoLabel,
+  type PotHalf,
   type Amount,
   type CurrencyUnit,
   type DecimalStyle,
@@ -118,6 +121,13 @@ export interface DraftCollect {
   amount: Amount;
   /** "pot" | "main pot" | "side pot", as the source named it. */
   potName?: string;
+  /**
+   * The half of a hi/lo pot the room *said* this paid, when it says
+   * (partypoker's `wins Lo (...)`). Not copied onto the hand - the standard
+   * text cannot carry it and `assignHiLoHalves` works it out from the cards -
+   * but it orders the collect lines and is checked against that answer.
+   */
+  half?: PotHalf;
 }
 
 export interface HandDraft {
@@ -400,6 +410,10 @@ interface Settlement {
 function settle(draft: HandDraft, replay: Replay): Settlement {
   const uncalled = deriveUncalled(replay);
   const reported = draft.collected.reduce((sum, entry) => sum + entry.amount, 0);
+  // Hi/lo collects go out high first within each pot, the order PokerStars
+  // prints and the one `assignHiLoHalves` reads a two-line scoop in.
+  const ordered = (entries: DraftCollect[]) =>
+    isHiLoLabel(draft.gameLabel) ? orderHiLoAwards(entries) : entries;
 
   const withReturn = (): Settlement | null => {
     if (!uncalled) {
@@ -432,14 +446,14 @@ function settle(draft: HandDraft, replay: Replay): Settlement {
         return null;
       }
     }
-    const kept = entries.filter((entry) => entry.amount > 0);
+    const kept = ordered(entries.filter((entry) => entry.amount > 0));
     const totalPot = replay.gross - uncalled.amount;
     const rake = totalPot - kept.reduce((sum, entry) => sum + entry.amount, 0);
     return rake < 0 ? null : { uncalled, collected: kept, totalPot, rake };
   };
 
   const withoutReturn = (): Settlement | null => {
-    const kept = draft.collected.filter((entry) => entry.amount > 0);
+    const kept = ordered(draft.collected.filter((entry) => entry.amount > 0));
     const rake = replay.gross - reported;
     return rake < 0 ? null : { uncalled: null, collected: kept, totalPot: replay.gross, rake };
   };
@@ -693,6 +707,11 @@ export function buildHand(draft: HandDraft, ctx: SiteParserContext): PhfHand {
 
   hand.meta.rawText = draft.rawText;
   hand.meta.warnings = [...draft.warnings, ...hand.meta.warnings];
+  if (hand.game.hiLo) {
+    // Whatever the room said about the halves has to agree with the cards.
+    const { collected } = settle(draft, replayActions(draft));
+    hand.meta.warnings.push(...checkStatedHalves(hand, collected));
+  }
   hand.meta.handKey = hand.meta.handId;
   return hand;
 }

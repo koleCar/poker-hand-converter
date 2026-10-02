@@ -59,7 +59,8 @@ import {
   variantFromLabel,
   type DraftGame,
 } from "./shared/p3-draft";
-import { unsupportedVariantSkip } from "./shared/variant-lock";
+import { OMAHA_HI_LO, unsupportedVariantSkip } from "./shared/variant-lock";
+import { assignHiLoHalves, checkStatedHalves, type StatedAward } from "../phf/hilo";
 
 export const FULLTILT_PARSER_VERSION = "1.0.0";
 
@@ -67,11 +68,18 @@ export const FULLTILT_PARSER_VERSION = "1.0.0";
  * What this parser is allowed to read.
  *
  * One file: `11-cash-plo-hi-showdown.txt`, a heads-up `PL Omaha Hi` table that
- * parses clean. The other three Omaha files are `Omaha H/L` and stay refused by
- * the split-pot rule. That is thin evidence for a variant, which is exactly why
- * it is `omaha` alone and not the family.
+ * parses clean. That is thin evidence for a variant, which is exactly why it is
+ * `omaha` alone and not the family.
  */
 const FULLTILT_VARIANTS = ["holdem", "omaha"] as const;
+
+/**
+ * Hi/lo this parser reads: `PL Omaha H/L` and `FL Omaha H/L`, three files - two
+ * split showdowns and an uncontested pot. Full Tilt is the one room that names
+ * the half on the collect line (`wins the high pot`), and every label agrees
+ * with the cards.
+ */
+const FULLTILT_HI_LO = OMAHA_HI_LO;
 
 const HEADER_REGEX = /^Full Tilt Poker Game #(\d+):\s*(.*)$/;
 const HEADER_PREFIX = /^Full Tilt Poker Game #\d+:/;
@@ -295,10 +303,9 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
     );
   }
   // Hi/Lo first, and explicitly rather than leaving it to the `convertAny`
-  // backstop: three of the four Omaha files here are `Omaha H/L`, and a refusal
-  // that names the split pot is the one a user can act on.
+  // backstop: a refusal that names the split pot is the one a user can act on.
   const refusal =
-    unsupportedGameSkip(header.game.label) ??
+    unsupportedGameSkip(header.game.label, FULLTILT_HI_LO) ??
     unsupportedVariantSkip(header.game.label, FULLTILT_VARIANTS);
   if (refusal) {
     throw refusal;
@@ -338,6 +345,7 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
 
   const seatNames = new Map<number, string>();
   const collectors = new Set<string>();
+  const stated: StatedAward[] = [];
   let buttonSeat: number | null = null;
   let summaryBlock = -1;
   let totalPot = 0;
@@ -505,8 +513,17 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
       new RegExp(String.raw`^(.+?) wins (?:the (high |low )?pot|pot (\d+)) \(${MONEY}\)(?: with .+)?$`),
     );
     if (wins && draft.isSeated(wins[1])) {
-      const potName = wins[3] ? `pot ${wins[3]}` : `${wins[2] ?? ""}pot`;
+      // `the high pot` and `the low pot` are the two halves of *one* pot, so
+      // both are filed under `pot`; the half they name is checked against the
+      // cards once the hand is built (`phf/hilo.ts`).
+      const potName = wins[3] ? `pot ${wins[3]}` : "pot";
+      const half = wins[2]?.trim();
       collectors.add(wins[1]);
+      stated.push({
+        player: wins[1],
+        amount: money(wins[4]),
+        half: half === "high" ? "hi" : half === "low" ? "lo" : undefined,
+      });
       draft.collect(wins[1], money(wins[4]), potName, { line: lineNo, rawLine: line });
       continue;
     }
@@ -624,6 +641,15 @@ function parseOneHand(raw: string, ctx: SiteParserContext): PhfHand {
       amount: action.amount,
       runoutIndex: action.runoutIndex,
     }));
+  if (hand.game.hiLo) {
+    // The halves were worked out by `build` against the runouts as the draft
+    // had them; with the collects moved, they are worked out again.
+    hand.meta.warnings = [
+      ...hand.meta.warnings.filter((warning) => warning.code !== "hi-lo-split-unresolved"),
+      ...assignHiLoHalves(hand),
+      ...checkStatedHalves(hand, stated),
+    ];
+  }
 
   const seated = draft.seatedNames();
   const stranger = hand.actions.find((action) => !seated.has(action.player));
@@ -640,6 +666,7 @@ export const fulltiltParser: SiteParser = {
   id: "fulltilt",
   name: "Full Tilt Poker",
   version: FULLTILT_PARSER_VERSION,
+  hiLoVariants: FULLTILT_HI_LO,
 
   detect(text: string): number {
     // No other room writes this header, and it opens every hand in the corpus.

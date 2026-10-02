@@ -23,6 +23,11 @@ export const standardParser: SiteParser = {
   id: "standard",
   name: "Rail standard",
   version: STANDARD_TEXT_PARSER_VERSION,
+  // Every Omaha Hi/Lo hand a room parser converts is written out in this
+  // format, and has to come back in: the halves are read from the cards the
+  // text shows (`phf/hilo.ts`), which `tests/test/phfHiLo.test.ts` round-trips
+  // for every converted hi/lo fixture.
+  hiLoVariants: ["omaha"],
 
   detect(text: string): number {
     // Our own output, and the GG exports the format was modelled on.

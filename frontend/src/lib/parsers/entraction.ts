@@ -54,6 +54,7 @@ import {
   type SiteParserContext,
 } from "../phf/detect";
 import {
+  isHiLoLabel,
   unitForCode,
   type Amount,
   type CurrencyUnit,
@@ -62,6 +63,7 @@ import {
   type PhfWarning,
 } from "../phf/types";
 import {
+  OMAHA_HI_LO,
   canonicalGameLabel,
   unsupportedVariantSkip,
   variantOf,
@@ -89,10 +91,17 @@ const VERSION = "1.0.0";
  * Limit`. Both parse with no warnings, and the five-card one is the only
  * evidence anywhere in the repository that a five-card deal block reads
  * correctly outside GG - which is why it earns `omaha5` here even though the
- * sample is a single hand. The other four Omaha files are `Omaha Hi/Lo` and
- * stay refused.
+ * sample is a single hand. The other four Omaha files are `Omaha Hi/Lo`; see
+ * below.
  */
 const ENTRACTION_VARIANTS = ["holdem", "omaha", "omaha5"] as const;
+
+/**
+ * Hi/lo this parser reads: four-card `Omaha Hi/Lo`, four files. Entraction
+ * prints one unlabelled `wins:` line per award, so the halves come from the
+ * cards (`phf/hilo.ts`).
+ */
+const ENTRACTION_HI_LO = OMAHA_HI_LO;
 
 /**
  * `Game # <id> - <game> <limit> <CUR> <sb>/<bb> - Table "<name>"`.
@@ -115,6 +124,7 @@ export const entractionParser: SiteParser = {
   id: "entraction",
   name: "Entraction",
   version: VERSION,
+  hiLoVariants: ENTRACTION_HI_LO,
 
   detect(text: string): number {
     // The whole header shape, not just `Game #`: Unibet's 2021 export also opens
@@ -143,11 +153,11 @@ export const entractionParser: SiteParser = {
       throw new ParseSkip("no-header", "The chunk does not open with an Entraction header line.");
     }
     const [, handId, gameWord, limitWord, currency, smallBlind, bigBlind, tableName] = header;
-    // `Omaha Hi/Lo` is four of this corpus's six Omaha files and is refused on
-    // its own terms, before the allowlist, so the reason names the split pot
-    // rather than the deal.
+    // Hi/lo is checked on its own terms, before the allowlist, so a refused one
+    // names the split pot rather than the deal.
     const refusal =
-      unsupportedGameSkip(gameWord) ?? unsupportedVariantSkip(gameWord, ENTRACTION_VARIANTS);
+      unsupportedGameSkip(gameWord, ENTRACTION_HI_LO) ??
+      unsupportedVariantSkip(gameWord, ENTRACTION_VARIANTS);
     if (refusal) {
       throw refusal;
     }
@@ -294,7 +304,7 @@ export const entractionParser: SiteParser = {
       parserVersion: VERSION,
       handPrefix: "ENT-",
       handId,
-      gameLabel: canonicalGameLabel(variant, limitOf(limitWord)),
+      gameLabel: canonicalGameLabel(variant, limitOf(limitWord), isHiLoLabel(gameWord)),
       unit,
       decimals: "fixed2",
       headerSmallBlind: strictAmount(smallBlind, unit, "the header stakes"),

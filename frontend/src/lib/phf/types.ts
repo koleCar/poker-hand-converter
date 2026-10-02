@@ -762,10 +762,13 @@ export interface PhfGame {
    *  - The text serializer stores `label` verbatim and re-derives both facts
    *    from it, so the flag costs nothing to round trip.
    *
-   * Hi/Lo is **not supported yet**. Nothing in this codebase splits a low half,
-   * and a hi/lo hand read as plain Omaha still balances against itself - the
-   * summary states who got what - so `validateHand` cannot catch it. Until real
-   * support lands, every hand with this flag set is refused; see
+   * **What the flag does not carry is who won which half.** That lives on the
+   * awards - `PhfAction.half` on each collect and `results.winners[].half` -
+   * filled in by `assignHiLoHalves` (`phf/hilo.ts`). A hi/lo hand read as
+   * plain Omaha still balances against itself, so the danger was never the
+   * money: it was a split pot booked as two unrelated wins. A parser opts in
+   * per deal (`SiteParser.hiLoVariants`) only once its own fixtures come out
+   * with every half resolved; every other hi/lo hand is still refused, see
    * `unsupportedGameSkip` in `phf/detect.ts`.
    */
   hiLo: boolean;
@@ -957,6 +960,21 @@ export type ActionType =
   | "cashout-choose"
   | "cashout-pay";
 
+/**
+ * Which half of a high-low split pot an award came from.
+ *
+ * - `hi` - the high half, or the **whole pot** when no low qualified: with no
+ *   low hand the high hand is paid everything, and that is still a high award.
+ * - `lo` - the low half.
+ * - absent - the pot was not split: a hand that is not hi/lo, a pot nobody
+ *   contested, or one player taking both halves on a single line.
+ *
+ * A player who scoops on two lines (888 prints `collected [$0.95]` twice) gets
+ * one `hi` and one `lo`; quartering is several `lo` (or `hi`) entries in the
+ * same pot.
+ */
+export type PotHalf = "hi" | "lo";
+
 /** Posting actions happen before the deal and are animated as one block. */
 export function isPostingAction(type: ActionType): boolean {
   return (
@@ -1005,6 +1023,11 @@ export interface PhfAction {
   verb?: string;
   /** Which pot a collect came from: "pot", "main pot", "side pot", ... */
   potName?: string;
+  /**
+   * Which half of a high-low split pot a `collect` paid. Only ever set on a
+   * collect in a `game.hiLo` hand; see `PotHalf` for what absence means.
+   */
+  half?: PotHalf;
   /** Human readable label; the replayer log renders this verbatim. */
   label: string;
   /** 1-based line number inside the raw hand text, for debugging. */
@@ -1243,8 +1266,17 @@ export interface PhfResults {
   pots: Array<{ name: string; amount: Amount }>;
   fees: PhfFees;
   players: PhfPlayerResult[];
-  /** Flattened winner list; one entry per collect, per runout. */
-  winners: Array<{ player: string; seat: number | null; amount: Amount; runoutIndex: number }>;
+  /**
+   * Flattened winner list; one entry per collect, per runout. `half` mirrors
+   * the collect it came from (`PhfAction.half`).
+   */
+  winners: Array<{
+    player: string;
+    seat: number | null;
+    amount: Amount;
+    runoutIndex: number;
+    half?: PotHalf;
+  }>;
   /** Hero's `net`, or null when there is no hero. */
   heroNet: Amount | null;
   wentToShowdown: boolean;

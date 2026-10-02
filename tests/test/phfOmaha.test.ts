@@ -37,9 +37,9 @@ import { validateHand } from "../../frontend/src/lib/phf/validate.js";
  * four-, five- and six-card deals through the validator, the text serializer
  * and the starting-hand class.
  *
- * No parser is unlocked here. These tests go through the standard-text reader,
- * which is the one path that already accepts an Omaha hand, plus the real site
- * fixtures for the refusals.
+ * No parser is unlocked here. These tests go through the standard-text reader
+ * plus the real site fixtures; the split pots themselves - which half each
+ * collect paid - are tested in `phfHiLo.test.ts`.
  */
 
 const ROOT = join(import.meta.dirname, "../..");
@@ -123,40 +123,48 @@ describe("high-low split is recognised, not collapsed into Omaha", () => {
     expect(holeCardCount(variantFromLabel("Omaha Hi/Lo Pot Limit"))).toBe(4);
   });
 
-  it("refuses the real partypoker split-pot fixture with its own reason", async () => {
+  it("reads the real partypoker split-pot fixture as two halves of one pot", async () => {
     // `fixtures/samples/partypoker/08-omaha-hilo-split-pot.txt`, which ends:
     //   robertp10 wins $28.75 USD from the main pot with a pair of Kings.
     //   fistfock123 wins Lo ($28.75 USD) from the main pot with 7,5,4,2,A.
-    // Read as plain Omaha that hand balances perfectly. Nothing downstream
-    // would ever have flagged it.
+    // Read as plain Omaha that hand balances perfectly, which is why it was
+    // refused until the halves were modelled (#47). Now each award says which
+    // half it is, and the room's own `Lo` agrees with the cards.
     const result = await convertAny(sample("partypoker/08-omaha-hilo-split-pot.txt"), {
       sourceFilename: "08-omaha-hilo-split-pot.txt",
     });
-    expect(result.hands).toEqual([]);
-    expect(result.failures).toHaveLength(1);
-    expect(result.failures[0].reason).toBe("unsupported-hi-lo");
-    expect(result.failures[0].detectedSite).toBe("partypoker");
-    expect(result.failures[0].message).toContain("high-low split");
-    // The raw text is kept, which is the other half of the refusal principle.
-    expect(result.failures[0].rawText).toContain("Omaha Hi-Lo");
+    expect(result.failures).toEqual([]);
+    const [hand] = result.hands;
+    expect([hand.game.variant, hand.game.hiLo]).toEqual(["omaha", true]);
+    expect(hand.meta.warnings).toEqual([]);
+    expect(
+      hand.results.winners.map((winner) => [winner.player, winner.amount, winner.half]),
+    ).toEqual([
+      ["robertp10", 2875, "hi"],
+      ["fistfock123", 2875, "lo"],
+    ]);
   });
 
-  it("refuses the PokerStars hi/lo fixtures for the same reason", async () => {
-    const files = [
+  it("reads the PokerStars Omaha hi/lo fixtures and still refuses stud hi/lo", async () => {
+    const omaha = [
       "pokerstars/14-cash-omahahilo-strange-names.txt",
       "pokerstars/15-cash-omahahilo-limit-hi-lo-split.txt",
       "pokerstars/17-cash-omahahilo-nolowqualified.txt",
       "pokerstars/21-cash-omahahilo-mucks-hand.txt",
       "pokerstars/26-cash-nolimit-omahahilo.txt",
-      "pokerstars/44-cash-7stud-hilo-brings-in-streets-excerpt.txt",
     ];
-    for (const file of files) {
+    for (const file of omaha) {
       const result = await convertAny(sample(file), { sourceFilename: file });
-      expect(result.hands, file).toEqual([]);
-      expect(new Set(result.failures.map((failure) => failure.reason)), file).toEqual(
-        new Set(["unsupported-hi-lo"]),
-      );
+      expect(result.failures, file).toEqual([]);
+      expect(result.hands, file).toHaveLength(1);
+      expect(result.hands[0].game.hiLo, file).toBe(true);
+      expect(result.hands[0].meta.warnings, file).toEqual([]);
     }
+    // Stud is not read at all, so its hi/lo twin keeps the hi/lo refusal.
+    const stud = "pokerstars/44-cash-7stud-hilo-brings-in-streets-excerpt.txt";
+    const result = await convertAny(sample(stud), { sourceFilename: stud });
+    expect(result.hands).toEqual([]);
+    expect(result.failures.map((failure) => failure.reason)).toEqual(["unsupported-hi-lo"]);
   });
 
   it("sets the flag on a hand read back out of standard text", () => {
@@ -174,10 +182,11 @@ describe("high-low split is recognised, not collapsed into Omaha", () => {
     expect(result.hands.every((hand) => hand.game.hiLo === false)).toBe(true);
   });
 
-  it("refuses a hi/lo hand from any parser, even one that forgets to check", async () => {
+  it("refuses a hi/lo hand from any parser that has not opted in, even one that forgets to check", async () => {
     // The backstop in `convertAny`. A site parser that never calls
-    // `unsupportedGameSkip` still cannot get a split-pot hand into storage,
-    // which is what makes the guarantee total rather than per-parser.
+    // `unsupportedGameSkip`, and declares no `hiLoVariants`, still cannot get
+    // a split-pot hand into storage, which is what makes the guarantee total
+    // rather than per-parser.
     const forgetful: SiteParser = {
       id: "test-forgetful",
       name: "Forgetful",
@@ -199,12 +208,40 @@ describe("high-low split is recognised, not collapsed into Omaha", () => {
     expect(result.failures[0].stage).toBe("parse");
   });
 
+  it("lets a parser's declared hi/lo deals through the backstop, and only those", async () => {
+    const declared: SiteParser = {
+      id: "test-declared",
+      name: "Declared",
+      version: "1.0.0",
+      hiLoVariants: ["omaha"],
+      detect: (text) => (text.startsWith("DECLARED") ? 1 : 0),
+      splitHands: (text) => [text],
+      parseHand: (raw) => {
+        const hand = parse(HI_LO_TEXT);
+        hand.meta.rawText = raw;
+        return hand;
+      },
+    };
+    registeredForCleanup.push(declared.id);
+    registerParser(declared);
+    const result = await convertAny("DECLARED\n", { siteId: declared.id });
+    expect(result.failures).toEqual([]);
+    expect(result.hands.map((hand) => hand.game.hiLo)).toEqual([true]);
+  });
+
   it("offers parsers a ready-made refusal and stays quiet about everything else", () => {
     const skip = unsupportedGameSkip("PL Omaha Hi-Lo");
     expect(skip).toBeInstanceOf(ParseSkip);
     expect(skip!.reason).toBe("unsupported-hi-lo");
     expect(skip!.stage).toBe("parse");
     expect(unsupportedGameSkip("Omaha Pot Limit")).toBeNull();
+    // With a hi/lo list: the listed deal passes, anything else - five-card
+    // Omaha, stud - is still refused as hi/lo.
+    expect(unsupportedGameSkip("PL Omaha Hi-Lo", ["omaha"])).toBeNull();
+    expect(unsupportedGameSkip("5 Card Omaha Hi/Lo", ["omaha"])?.reason).toBe("unsupported-hi-lo");
+    expect(unsupportedGameSkip("7 Card Stud Hi/Lo Limit", ["omaha"])?.reason).toBe(
+      "unsupported-hi-lo",
+    );
   });
 });
 

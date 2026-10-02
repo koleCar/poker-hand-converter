@@ -48,9 +48,9 @@
  *   closure and cross-checked against the board size; a hand where the two
  *   disagree is refused rather than guessed at.
  *
- * Hold'em and four-card Omaha high are read (see `IGNITION_VARIANTS`); Omaha
- * Hi/Lo and seven-card stud both appear in the corpus and are deliberately
- * refused.
+ * Hold'em, four-card Omaha high and four-card Omaha Hi/Lo are read (see
+ * `IGNITION_VARIANTS` and `IGNITION_HI_LO`); seven-card stud, high or hi/lo,
+ * appears in the corpus and is deliberately refused.
  */
 
 import {
@@ -62,6 +62,7 @@ import {
 import {
   CHIPS,
   holeCardCount,
+  isHiLoLabel,
   parseAmount,
   unitForSymbol,
   type Amount,
@@ -71,6 +72,7 @@ import {
   type PhfWarning,
   type Variant,
 } from "../phf/types";
+import { checkStatedTotals } from "../phf/hilo";
 import {
   p5BuildHand,
   type P5Action,
@@ -81,6 +83,7 @@ import {
 import {
   canonicalGameLabel,
   HOLDEM_OMAHA,
+  OMAHA_HI_LO,
   unsupportedVariantSkip,
   variantOf,
 } from "./shared/variant-lock";
@@ -96,10 +99,22 @@ const VERSION = "1.0.0";
  * side pot), which parse clean. The grammar is the Hold'em grammar with four
  * cards in every bracket; the two places that had to learn the difference are
  * the reveal lines and the summary's `[hole-best]` pair, which used to accept a
- * group only when it was two cards long. Every `OMAHA HiLo` file stays refused
- * on its own reason code, and there is no five-card Omaha anywhere in the corpus.
+ * group only when it was two cards long. There is no five-card Omaha anywhere
+ * in the corpus.
  */
 const IGNITION_VARIANTS: readonly Variant[] = HOLDEM_OMAHA;
+
+/**
+ * Hi/lo this parser reads: four-card `OMAHA HiLo`, six hands in four files -
+ * a high tie quartering against a low, a heads-up split, a tied side pot and
+ * main pot with no low, and three uncontested pots. The summary's own
+ * `HI 30` / `LOW 30` per seat agrees with the cards on every one
+ * (`checkStatedTotals`). The two 2012 tournament hands carry the same
+ * `streets-inferred` note the 2012 Omaha high files do - the export prints no
+ * street markers - and nothing else. `7CARD HiLo` stays refused: stud is not
+ * read at all.
+ */
+const IGNITION_HI_LO: readonly Variant[] = OMAHA_HI_LO;
 
 /** Every brand string this network has ever printed, longest alternative first. */
 const BRANDS = String.raw`Ignition|Bovada|Bodog\.com|Bodog\.eu|Bodog UK|Bodog Canada|Bodog88|Bodog`;
@@ -377,6 +392,7 @@ export const ignitionParser: SiteParser = {
   id: "ignition",
   name: "Ignition / Bodog / Bovada",
   version: VERSION,
+  hiLoVariants: IGNITION_HI_LO,
 
   detect(text: string): number {
     // A byte-order mark sits in front of the header in part of the corpus, so
@@ -409,7 +425,7 @@ export const ignitionParser: SiteParser = {
       throw new ParseSkip("no-header", `Unreadable Ignition header: "${lines[0]}".`);
     }
     const refusal =
-      unsupportedGameSkip(header.gameName) ??
+      unsupportedGameSkip(header.gameName, IGNITION_HI_LO) ??
       unsupportedVariantSkip(header.gameName, IGNITION_VARIANTS);
     if (refusal) {
       throw refusal;
@@ -825,6 +841,7 @@ export const ignitionParser: SiteParser = {
     /* -------------------------------------------------------- summary ----- */
 
     const pseudonyms = [...nameOf.keys()].sort((a, b) => b.length - a.length);
+    const statedSplit = new Map<string, { hi: Amount; lo: Amount }>();
     for (const line of summaryLines) {
       const rest = line.replace(/^Seat\s*\+?\s*\d+\s*:\s*/, "");
       // The summary's seat numbers do not always match the seat block's: a
@@ -837,6 +854,16 @@ export const ignitionParser: SiteParser = {
         continue;
       }
       const player = nameOf.get(pseudonym)!;
+      // Hi/lo: `HI 30` and `LOW 30` are what the room says the seat was paid
+      // for each half, over every pot; checked against the cards once built.
+      const statedHi = rest.match(/\bHI\s+([\d,.]+)/);
+      const statedLo = rest.match(/\bLOW\s+([\d,.]+)/);
+      if (statedHi || statedLo) {
+        statedSplit.set(player, {
+          hi: statedHi ? parseAmount(statedHi[1], unit) : 0,
+          lo: statedLo ? parseAmount(statedLo[1], unit) : 0,
+        });
+      }
       if (holeCards.has(player)) {
         continue;
       }
@@ -938,7 +965,7 @@ export const ignitionParser: SiteParser = {
       gameLabel:
         variant === "holdem"
           ? `Hold'em ${header.limit}`
-          : canonicalGameLabel(variant, limitTypeOf(header.limit)),
+          : canonicalGameLabel(variant, limitTypeOf(header.limit), isHiLoLabel(header.gameName)),
       unit,
       decimals: "fixed2",
       smallBlind: smallBlind || header.levelSmallBlind,
@@ -980,6 +1007,9 @@ export const ignitionParser: SiteParser = {
     }
 
     const hand = p5BuildHand(draft, ctx, `IG${header.handId}`);
+    if (hand.game.hiLo) {
+      hand.meta.warnings.push(...checkStatedTotals(hand, statedSplit));
+    }
     if (playerHashes.length > 0) {
       // The 2021 `[MVS]` header carries a per-seat hash for every seat except
       // the hero's. Whether it is stable for the same player across hands is

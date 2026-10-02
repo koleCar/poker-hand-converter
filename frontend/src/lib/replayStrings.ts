@@ -53,6 +53,16 @@ export interface ReplayStrings {
    */
   potAward: (pot: string, winners: string) => string;
   /**
+   * The high half of a hi/lo pot, paid as its own beat; `winners` is the
+   * already-joined `wins` lines. Wrapped in `potAward` when there is more than
+   * one pot.
+   */
+  high: (winners: string) => string;
+  /** The low half of a hi/lo pot, the beat after `high`. */
+  low: (winners: string) => string;
+  /** A hi/lo pot no low qualified for, so the high hand took all of it. */
+  noLow: (winners: string) => string;
+  /**
    * A pile name as shown on the felt. Frames keep the canonical English name
    * (`Pot`, `Main`, `Side`, `Side 2`, or whatever the room printed) because
    * code and tests key on it; this is only the label.
@@ -87,6 +97,9 @@ export const ENGLISH_REPLAY_STRINGS: ReplayStrings = {
   uncalled: (player, amount) => `Uncalled ${amount} returned to ${player}`,
   wins: (player, amount) => `${player} wins ${amount}`,
   potAward: (pot, winners) => `${pot} pot — ${winners}`,
+  high: (winners) => `High: ${winners}`,
+  low: (winners) => `Low: ${winners}`,
+  noLow: (winners) => `${winners} (no qualifying low)`,
   potName: (name) => name,
   endOfHand: "End of hand",
 };

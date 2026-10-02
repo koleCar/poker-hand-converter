@@ -68,8 +68,8 @@ const SITES: Site[] = [
       // Reachable for anything outside the lock -- `omaha5`, short deck. The
       // corpus has none, but the refusal is the boundary, not the fixture.
       "unsupported-variant",
-      // Hi/lo is refused on its own terms: the low half of the pot is the thing
-      // not modelled, and saying so is more useful than "some variant".
+      // Hi/lo on anything but four-card Omaha (stud, `omaha5`) is refused on
+      // its own terms. The corpus has none, but the refusal is the boundary.
       "unsupported-hi-lo",
       // A header and a SUMMARY block with no seat listing (fixture 13).
       "no-seat-block",
@@ -228,7 +228,15 @@ for (const site of SITES) {
         expect(hand.meta.parserVersion, where).toBe(site.parser.version);
         expect(hand.meta.handKey, where).toBe(`${site.keyPrefix}${hand.meta.handId}`);
         expect(hand.meta.rawText.length, where).toBeGreaterThan(0);
-        expect(hand.game.variant, where).toBe("holdem");
+        // Full Tilt's `FL Omaha H/L` (fixture 08) is the one non-Hold'em hand
+        // this table reaches, and it is read as a split pot (#47).
+        if (hand.game.variant !== "holdem") {
+          expect([site.id, hand.game.variant, hand.game.hiLo], where).toEqual([
+            "fulltilt",
+            "omaha",
+            true,
+          ]);
+        }
         expect(validateHand(hand).errors, where).toEqual([]);
       }
     });
@@ -423,20 +431,44 @@ describe("Full Tilt", () => {
     expect(skip.reason).toBe("no-seat-block");
   });
 
-  it("splits its Omaha by the header: high reads, hi/lo is refused", () => {
-    // This test used to assert all four were refused. Full Tilt's lock lists
-    // `omaha` now, and the line it is drawn on is the header itself -- which is
-    // the property worth keeping. Three of the four fixtures say `H/L`, and a
-    // hi/lo hand read as high-only balances against itself, so nothing
-    // downstream would catch it. It is refused on its own terms.
-    for (const [fixture, label] of [
-      ["03-", "PL Omaha H/L"],
-      ["08-", "FL Omaha H/L"],
-      ["14-", "PL Omaha H/L"],
+  it("splits its Omaha by the header: high reads high, hi/lo reads both halves", () => {
+    // The header decides the game. Three of the four Omaha fixtures say `H/L`
+    // and are read as split pots (#47): `wins the high pot` and `wins the low
+    // pot` are two halves of one pot, filed under `pot` with their half, and
+    // the room's own words agree with the cards.
+    for (const [fixture, label, halves] of [
+      [
+        "03-",
+        "PL Omaha H/L",
+        [
+          ["ReydelMundo", 6155, "hi"],
+          ["pupsaa", 6155, "lo"],
+        ],
+      ],
+      [
+        "08-",
+        "FL Omaha H/L",
+        // $7.75 split at the table's nickel: the odd five cents go high.
+        [
+          ["Greszik", 390, "hi"],
+          ["SomeStupid", 385, "lo"],
+        ],
+      ],
+      // Uncontested: nothing was split, so no half.
+      ["14-", "PL Omaha H/L", [["pupsaa", 100, undefined]]],
     ] as const) {
-      const skip = skipFor("full-tilt", fixture, fulltiltParser);
-      expect(skip.reason, fixture).toBe("unsupported-hi-lo");
-      expect(skip.message).toContain(label);
+      const [hand] = handsOf("full-tilt", fixture, fulltiltParser);
+      expect(hand.game.label, fixture).toBe(label);
+      expect(hand.game.hiLo, fixture).toBe(true);
+      expect(hand.meta.warnings, fixture).toEqual([]);
+      expect(
+        hand.results.winners.map((winner) => [winner.player, winner.amount, winner.half]),
+        fixture,
+      ).toEqual(halves);
+      expect(
+        hand.actions.filter((action) => action.type === "collect").map((action) => action.potName),
+        fixture,
+      ).toEqual(halves.map(() => "pot"));
     }
 
     // `PL Omaha Hi` is high-only and reads clean: four-card deal, pot limit,

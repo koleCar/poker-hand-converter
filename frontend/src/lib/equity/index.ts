@@ -54,4 +54,10 @@ export {
   type HandCategory,
   type RankingTable,
 } from "./evaluator";
-export { boardTripleMasks, evaluateOmaha, evaluateOmahaMasks, holePairMasks } from "./omaha";
+export {
+  boardTripleMasks,
+  evaluateOmaha,
+  evaluateOmahaLow,
+  evaluateOmahaMasks,
+  holePairMasks,
+} from "./omaha";

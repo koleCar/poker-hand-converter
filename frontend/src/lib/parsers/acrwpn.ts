@@ -91,6 +91,21 @@ const VERSION = "1.0.0";
  * either exists, so there is nothing to prove the deal block reads correctly.
  * Seven-card stud, Omaha Hi/Lo and Six Plus Hold'em are all in the corpus and
  * all stay refused.
+ *
+ * **Why Omaha Hi/Lo stays refused** (no `hiLoVariants`), measured with the
+ * split-pot support in `phf/hilo.ts` switched on for this parser: of the eight
+ * `O8` files, the four that convert never pay a pot to more than one player
+ * (folds, and one wheel that scoops on a single line), so not one split pot
+ * came out of this parser. The other four do not convert at all -
+ * a run-it-twice (the modern dialect refuses those in every game), a
+ * tournament with a duplicated card, and two legacy hands whose `Bets:` column
+ * disagrees with the action lines, one of them because `is disconnected and
+ * ALL IN` followed by `allin` is read as a shove rather than disconnect
+ * protection. And that one shows the deeper problem: the legacy summary gives
+ * a single `Collects:` figure per player, summed across the main pot, the
+ * side pot and both halves, so a player paid low in one pot and high in
+ * another cannot be told apart. Until a split from this room reads cleanly,
+ * unlocking it would be the assumption the allowlist exists to rule out.
  */
 const ACR_VARIANTS: readonly Variant[] = HOLDEM_OMAHA;
 
