@@ -40,8 +40,14 @@ import type { Position, Street } from "../phf/types";
  *               (`narrowing.ts`, a heuristic model before A5); postflop
  *               equity facts against the narrowed range; a river decision the
  *               solver cannot take is "not analysed" with a `river-*` reason.
+ *   analysis/4  A5a: heads-up turn decisions graded by our solver (a turn +
+ *               river solve with suit isomorphism and a coarse river menu,
+ *               `turn.ts`); a turn the solver cannot take is "not analysed"
+ *               with a `turn-*` reason; the river's ranges are narrowed by
+ *               the solved turn strategy where the turn was solved
+ *               (`RiverFacts.narrowing`), by the heuristic elsewhere.
  */
-export const ANALYSIS_VERSION = "analysis/3" as const;
+export const ANALYSIS_VERSION = "analysis/4" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -180,6 +186,18 @@ export interface Flag {
  * - `range-sensitive`   re-solved with the narrowing at half strength, the
  *                       grade moved by more than one class; the milder of
  *                       the two is the one shown (§3.5, §9).
+ *
+ * Turn grades (A5a) carry the river's codes where they mean the same thing
+ * (`narrowing-heuristic` for the flop's narrowing, `rake-profile`,
+ * `size-translated` for the turn's sizes 75% and all-in, raises 75% and
+ * all-in, `solver-unconverged` above 1% of the pot, `range-cap`,
+ * `range-sensitive`), plus:
+ *
+ * - `coarse-river`      the turn was solved with a coarse river below it -
+ *                       one bet size (75%) and all-in, no raise - and with
+ *                       the turn's all-in only up to three pots. The river
+ *                       decisions themselves are graded by their own solve
+ *                       with the full menu.
  */
 export const APPROXIMATIONS = [
   "heuristic",
@@ -200,6 +218,7 @@ export const APPROXIMATIONS = [
   "solver-unconverged",
   "range-cap",
   "range-sensitive",
+  "coarse-river",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -280,7 +299,26 @@ export type RiverSkipReason = (typeof RIVER_SKIP_REASONS)[number];
  * pot after the flop, a preflop line the charts do not cover, or a river the
  * solver cannot take.
  */
-export const DECISION_SKIP_REASONS = ["multiway", ...CHART_SKIP_REASONS, ...RIVER_SKIP_REASONS] as const;
+/**
+ * Why a heads-up turn decision has no solver grade (A5a): the river's
+ * reasons, on the turn (`turn-unreached`: under 2% of a range reaches it).
+ */
+export const TURN_SKIP_REASONS = [
+  "turn-multiway-flop",
+  "turn-range-unknown",
+  "turn-range-empty",
+  "turn-off-tree",
+  "turn-unreached",
+  "turn-solve-failed",
+] as const;
+export type TurnSkipReason = (typeof TURN_SKIP_REASONS)[number];
+
+export const DECISION_SKIP_REASONS = [
+  "multiway",
+  ...CHART_SKIP_REASONS,
+  ...RIVER_SKIP_REASONS,
+  ...TURN_SKIP_REASONS,
+] as const;
 export type DecisionSkipReason = (typeof DECISION_SKIP_REASONS)[number];
 
 export type HandStatus = "full" | "partial" | "not-analysed";
@@ -463,6 +501,58 @@ export interface SpotFacts {
 
   /** River, when the solver graded the decision: the solve and the ranges at the node (A4). */
   river?: RiverFacts | null;
+
+  /** Turn, when the solver graded the decision (A5a). */
+  turn?: TurnFacts | null;
+}
+
+/**
+ * The hero's hand against the opponent's range at a turn node, for the *why*:
+ *
+ * - `value`          ahead of most of the range now, and most rivers keep it so;
+ * - `vulnerable`     ahead now, but a fifth or more of the rivers turn it into
+ *                    a loser: a hand that wants protection;
+ * - `draw`           behind now, with rivers that make it strong;
+ * - `bluff-catcher`  facing a bet, ahead of the bluffs and behind the value;
+ * - `medium`         a middling hand that wants a cheap showdown;
+ * - `air`            little equity and few rivers that help.
+ */
+export type TurnRole = "value" | "vulnerable" | "draw" | "bluff-catcher" | "medium" | "air";
+
+/**
+ * What a turn solve says about the spot, stored with the grade (A5a). Plain
+ * numbers, never the strategy: the study view re-solves to draw it.
+ */
+export interface TurnFacts {
+  /** Narrowing model of the flop, e.g. `heuristic/2` (`-half` when the sensitivity check chose it). */
+  model: string;
+  /** Bet-menu profile, e.g. `turn-m1`. */
+  tree: string;
+  rake: string;
+  /** The node in the solved tree, e.g. `X-B7.5`. */
+  path: string;
+  iterations: number;
+  /** Exploitability reached in the full turn + river tree, % of the pot at the start of the turn. */
+  exploitabilityPct: number;
+  converged: boolean;
+  /** `spotHash` of the spot key (§3.4). */
+  spot: string;
+  /** River cards the solve dealt: one per suit-isomorphism class (44 when no suits are interchangeable). */
+  riverClasses: number;
+  heroCombos: number;
+  villainCombos: number;
+  /** Share of the opponent's range at the node the hero's hand beats now, ties half. */
+  heroBeats: number;
+  /** The hero's equity against that range over every river card. */
+  equity: number;
+  /** Share of river cards after which the hero's hand beats at least 75% / under 25% of that range. */
+  rivers: { strong: number; weak: number };
+  role: TurnRole;
+  villain: { strong: number; medium: number; weak: number; shape: RangeShape };
+  translated: number | null;
+  reach: { hero: number; villain: number };
+  capped?: Grade | null;
+  sensitivity?: { model: string; grade: Grade } | null;
 }
 
 /** The hero's hand against the opponent's range at a river node, for the *why*. */
@@ -504,6 +594,12 @@ export interface RiverFacts {
   translated: number | null;
   /** Share of each range, by weight as the river came, that the solve takes down this line to the node. */
   reach: { hero: number; villain: number };
+  /**
+   * How the ranges reached the river (A5a): `turn-solver` when the turn was
+   * solved and the river's ranges are the solved turn strategy's, else
+   * `heuristic` (the model narrowed the turn too). Absent before A5a.
+   */
+  narrowing?: "heuristic" | "turn-solver";
   /** The grade before the Mistake cap (`range-cap`), or null when no cap applied. Absent before the cap existed. */
   capped?: Grade | null;
   /**

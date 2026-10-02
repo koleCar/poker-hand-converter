@@ -216,13 +216,13 @@ function chartSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("off-tree-size")) {
     out.push(
       solver
-        ? "A bet in this river line was far from the solver's sizes, so the grade is capped at Inaccurate."
+        ? `A bet in this ${decision.street === "turn" ? "turn" : "river"} line was far from the solver's sizes, so the grade is capped at Inaccurate.`
         : "A raise in this line was far from the charts' size, so the grade is capped at Inaccurate.",
     );
   }
   if (modelCaveat(decision)) {
     out.push(
-      "These charts under-rate hands that win through implied odds — small pairs, suited connectors — so read a grade against playing one as a hint, not a verdict.",
+      "These charts still under-rate a few hands that win through implied odds — the small pairs, small suited connectors and A5s — and the button's flat of a cutoff open, so read a grade against playing one as a hint, not a verdict.",
     );
   }
   return out;
@@ -239,6 +239,89 @@ const riverReasons = {
   "river-unreached": "the solved strategies almost never take this line with these ranges, so the strategy here is noise",
   "river-solve-failed": "the solver could not take this spot",
 } as Record<string, string>;
+
+/** Why a turn decision has no solver grade (A5a). Keyed by `TURN_SKIP_REASONS`. */
+const turnReasons = {
+  "turn-multiway-flop": "three or more players saw the flop, so there are no two ranges to narrow to the turn",
+  "turn-range-unknown": "a player has no preflop line to start a range from",
+  "turn-range-empty": "a range was left empty by the cards on the board",
+  "turn-off-tree": "the turn line left the solver's betting tree (more raises than it models)",
+  "turn-unreached": "the solved strategies almost never take this line with these ranges, so the strategy here is noise",
+  "turn-solve-failed": "the solver could not take this spot",
+} as Record<string, string>;
+
+/**
+ * The turn solve's *why* (A5a): the hand's role against the range it faces
+ * (value, a hand that wants protection, a draw, a bluff-catcher, a middling
+ * hand, air), equity realisation out of position, the river cards that change
+ * the board, the range's shape, and what the solve rests on. Only numbers
+ * from `facts.turn` and `facts.texture`.
+ */
+function turnSentences(decision: DecisionAnalysis): string[] {
+  const turn = decision.facts.turn;
+  if (decision.source !== "solver" || !turn) return [];
+  const out: string[] = [];
+  const beats = pct(turn.heroBeats);
+  const equity = pct(turn.equity);
+  const v = turn.villain;
+  switch (turn.role) {
+    case "value":
+      out.push(`Your hand beats ${beats} of the opponent's range here and stays ahead on most rivers (${equity} equity): a hand that wants the pot to grow.`);
+      break;
+    case "vulnerable":
+      out.push(
+        `Your hand is ahead now — it beats ${beats} of the opponent's range — but ${pct(turn.rivers.weak)} of the river cards turn it into a loser. A bet charges the hands that can outdraw you and denies them their equity (protection).`,
+      );
+      break;
+    case "draw":
+      out.push(
+        `You are behind now — your hand beats ${beats} of the opponent's range — but ${pct(turn.rivers.strong)} of the river cards make it strong: ${equity} equity in all. A draw can bet as a semi-bluff, or call when the price is right.`,
+      );
+      break;
+    case "bluff-catcher":
+      out.push(`Facing this bet your hand beats ${beats} of the opponent's range, ${equity} equity with the river to come: ahead of the bluffs and the draws, behind the value.`);
+      break;
+    case "medium":
+      out.push(`A middling hand: it beats ${beats} of the opponent's range, ${equity} equity with the river to come. It wants a cheap showdown more than a big pot.`);
+      break;
+    case "air":
+      out.push(`Your hand has ${equity} equity against the opponent's range here and few rivers help it: it wins mostly by making better hands fold.`);
+      break;
+  }
+  if (decision.facts.inPosition === false && (turn.role === "draw" || turn.role === "medium" || turn.role === "bluff-catcher")) {
+    out.push("Out of position you realise less of that equity: you act first on the river, before you see what your opponent does.");
+  }
+  const texture = decision.facts.texture;
+  if (texture && texture.volatility !== null && texture.volatility >= 0.25) {
+    out.push(
+      `${pct(texture.volatility)} of the river cards change this board — a flush or a straight comes in, or an overcard falls. Those are the cards a bet now sets up a second barrel on, for whichever range holds them.`,
+    );
+  }
+  if (v.shape === "polar") {
+    out.push(`The opponent's range here is polarised: ${pct(v.strong)} strong hands and ${pct(v.weak)} weak ones, little in between.`);
+  } else if (v.shape === "merged") {
+    out.push(`The opponent's range here is merged: ${pct(v.medium)} of it is medium-strength hands.`);
+  }
+  if (decision.approximations.includes("size-translated")) {
+    out.push("A bet size in this turn line was read as the nearest of the solver's sizes (75% of the pot and all-in, raises 75% and all-in, plus the sizes this hand used).");
+  }
+  if (turn.capped) {
+    out.push(
+      `On the solver's numbers alone this would be a ${gradeWords[turn.capped] ?? turn.capped}. Ranges narrowed by a heuristic model on the flop cannot carry that verdict, so the grade is capped at Mistake — only a move that loses whatever the opponent holds is called a Blunder.`,
+    );
+  }
+  if (decision.approximations.includes("range-sensitive") && turn.sensitivity) {
+    out.push(
+      `With the flop's narrowing at full strength the solver grades this ${gradeWords[turn.sensitivity.grade] ?? turn.sensitivity.grade}; at half strength, ${gradeWords[decision.grade ?? ""] ?? decision.grade}. The grade rests on the narrowing more than on your hand, so the milder one is shown.`,
+    );
+  }
+  out.push(
+    turn.converged
+      ? `Both ranges were narrowed on the flop by a heuristic model; the turn was solved through the river — with one river bet size and all-in below it — to within ${num(turn.exploitabilityPct, 1)}% of the pot.`
+      : `Both ranges were narrowed on the flop by a heuristic model, and the turn solve stopped at ${num(turn.iterations)} iterations, ${num(turn.exploitabilityPct, 1)}% of the pot from equilibrium: read close calls loosely.`,
+  );
+  return out;
+}
 
 /**
  * The river solve's *why* (A4): what the hero's hand is against the range it
@@ -297,10 +380,14 @@ function riverSentences(decision: DecisionAnalysis): string[] {
       `With the ranges narrowed at full strength the solver grades this ${gradeWords[river.sensitivity.grade] ?? river.sensitivity.grade}; at half strength, ${gradeWords[decision.grade ?? ""] ?? decision.grade}. The grade rests on the narrowing more than on your hand, so the milder one is shown.`,
     );
   }
+  const narrowed =
+    river.narrowing === "turn-solver"
+      ? "Both ranges were narrowed on the flop by a heuristic model and on the turn by the solved turn strategy"
+      : "Both ranges were narrowed on the flop and turn by a heuristic model";
   out.push(
     river.converged
-      ? `Both ranges were narrowed on the flop and turn by a heuristic model — there is no flop or turn solve yet — and the river was solved to within ${num(river.exploitabilityPct, 1)}% of the pot.`
-      : `Both ranges were narrowed on the flop and turn by a heuristic model, and the solve stopped at ${num(river.iterations)} iterations, ${num(river.exploitabilityPct, 1)}% of the pot from equilibrium: read close calls loosely.`,
+      ? `${narrowed}, and the river was solved to within ${num(river.exploitabilityPct, 1)}% of the pot.`
+      : `${narrowed}, and the solve stopped at ${num(river.iterations)} iterations, ${num(river.exploitabilityPct, 1)}% of the pot from equilibrium: read close calls loosely.`,
   );
   return out;
 }
@@ -380,7 +467,9 @@ function explain(decision: DecisionAnalysis): string[] {
   const facts = decision.facts;
   const out: string[] = [];
   if (decision.status === "not-analysed") {
-    const chartReason = decision.reason ? (chartReasons[decision.reason] ?? riverReasons[decision.reason]) : undefined;
+    const chartReason = decision.reason
+      ? (chartReasons[decision.reason] ?? riverReasons[decision.reason] ?? turnReasons[decision.reason])
+      : undefined;
     out.push(
       decision.reason === "multiway"
         ? "Not analysed: three or more players were still in after the flop, and nothing here models three ranges at once. Saying nothing beats saying something wrong."
@@ -400,6 +489,7 @@ function explain(decision: DecisionAnalysis): string[] {
   }
 
   out.push(...chartSentences(decision));
+  out.push(...turnSentences(decision));
   out.push(...riverSentences(decision));
 
   if (facts.potOdds !== null) {
@@ -459,18 +549,18 @@ export const analysisEn = {
       "The analysis walks every decision you made in your saved hands: the board, your hand, the price, and the checks that hold whatever the strategy. It runs in this browser tab.",
     updatedHeading: "The analysis has a new version",
     updatedBody:
-      "Your hands were analysed by an earlier version. This one also grades your river decisions in heads-up pots with our own solver, on ranges narrowed through the hand — on top of preflop grades from our charts. Bring your hands up to date to see them; it runs in this tab and takes a little longer than before.",
+      "Your hands were analysed by an earlier version. This one also grades your turn decisions in heads-up pots with our own solver, and narrows the ranges into the river by the solved turn — on top of the river and preflop grades. Bring your hands up to date to see them; it runs in this tab, and a turn solve takes a second or two per hand, so a large library takes a while. You can start with your most recent hands.",
     noHandsHeading: "No hands in your library yet",
     noHandsBody: "Upload a hand history first; the analysis reads the hands you have saved.",
   },
 
   /** The line above everything about what the analysis can and cannot say. */
   reference: {
-    title: "Preflop is graded against our charts, the river against our solver",
+    title: "Preflop is graded against our charts, the turn and river against our solver",
     body:
-      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own 6-max 100 bb charts wherever a chart covers the spot. River decisions in heads-up pots are graded by our own solver, on ranges narrowed through the hand by a heuristic model. The flop and turn show their facts and the checks that hold whatever the strategy — a flag is a note, never a grade.",
+      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own 6-max 100 bb charts wherever a chart covers the spot. Turn and river decisions in heads-up pots are graded by our own solver, on ranges narrowed on the flop by a heuristic model and into the river by the solved turn. The flop shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade.",
     model:
-      "The charts (charts/1) under-rate hands that win through implied odds — small pairs and suited connectors — so grades against playing them lean harsh.",
+      "The charts (charts/2) value a flop with the flop checked, so they still under-rate a few hands that win through implied odds: UTG folds 22–55, 54s–87s and A5s, and the button almost never flats a cutoff open. Grades against playing those lean harsh.",
     browse: "Browse the charts",
   },
 
@@ -482,6 +572,12 @@ export const analysisEn = {
     running: (done: number, target: number) =>
       target > 0 ? `Analysing… ${num(Math.min(done, target))} of ${hands(target)}` : `Analysing… ${hands(done)}`,
     finished: (count: number) => `Analysed ${hands(count)}.`,
+    /** After "Analysing… 120 of 900 hands": the time left at the pace so far. */
+    eta: (seconds: number) =>
+      seconds < 60 ? "— under a minute left" : `— about ${num(Math.round(seconds / 60))} min left`,
+    scopeLabel: "Analyse",
+    scopeAll: (count: number) => `all ${hands(count)}`,
+    scopeRecent: (count: number) => `the most recent ${num(count)} first`,
     stopped: "Stopped. Run it again to carry on where it left off.",
     failed: (message: string) => `The analysis stopped: ${message}`,
     unreadable: (count: number) => `${num(count)} could not be read — a converter bug, not your file.`,
@@ -519,7 +615,7 @@ export const analysisEn = {
     badHands: (count: number) => `${hands(count)} with a Mistake or a Blunder`,
     showBad: "Show them",
     noGrades:
-      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot (six-handed, 100 bb ±20%, no open limpers), river decisions in heads-up pots by the solver.",
+      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot (six-handed, 100 bb ±20%, no open limpers), turn and river decisions in heads-up pots by the solver.",
     byStreet: "By street",
     /** Big blinds to two decimals: "1.25 bb". */
     bb2: (value: number) => `${num(value, 2)} bb`,
@@ -561,6 +657,12 @@ export const analysisEn = {
     "river-off-tree": "River: off the solver's tree",
     "river-unreached": "River: a line the solve never takes",
     "river-solve-failed": "River: the solver refused the spot",
+    "turn-multiway-flop": "Turn: three or more saw the flop",
+    "turn-range-unknown": "Turn: a range has no preflop line",
+    "turn-range-empty": "Turn: a range is empty",
+    "turn-off-tree": "Turn: off the solver's tree",
+    "turn-unreached": "Turn: a line the solve never takes",
+    "turn-solve-failed": "Turn: the solver refused the spot",
   } as Record<string, string>,
 
   approximations: {
@@ -571,17 +673,18 @@ export const analysisEn = {
     straddle: "A straddle moved the blinds",
     "stack-depth": "Stacks outside 100 bb ±20%",
     "table-size": "Not a six-handed table",
-    model: "Preflop charts (charts/1) under-rate implied-odds hands: small pairs and suited connectors",
+    model: "Preflop charts (charts/2) still under-rate a few implied-odds hands (UTG's small pairs and suited connectors) and the button's flat of a cutoff open",
     "short-handed": "Five-handed, read as six-max with UTG folded",
     "stack-depth-near": "Stacks within 100 bb ±20%, but not 100 bb",
     "off-tree-size": "A raise far from the charts' size: grade capped at Inaccurate",
     "out-of-range": "Your hand is outside the reference range at this node",
-    "narrowing-heuristic": "Ranges narrowed on the flop and turn by a heuristic model, not a solver",
-    "rake-profile": "River solved with the charts' rake (5%, capped at 3 bb), not this room's",
-    "size-translated": "River bet sizes read as the nearest of the solver's sizes",
-    "solver-unconverged": "River solve stopped above 0.5% of the pot from equilibrium",
-    "range-cap": "River grade capped at Mistake: heuristically narrowed ranges cannot support a Blunder",
-    "range-sensitive": "River grade depends on how hard the ranges are narrowed: the milder of two is shown",
+    "narrowing-heuristic": "Ranges narrowed by a heuristic model on the flop (and on the turn where the turn was not solved), not a solver",
+    "rake-profile": "Solved with the charts' rake (5%, capped at 3 bb), not this room's",
+    "size-translated": "Bet sizes read as the nearest of the solver's sizes",
+    "solver-unconverged": "Solve stopped above its target (0.5% of the pot on the river, 1% on the turn) from equilibrium",
+    "range-cap": "Solver grade capped at Mistake: heuristically narrowed ranges cannot support a Blunder",
+    "range-sensitive": "Solver grade depends on how hard the ranges are narrowed: the milder of two is shown",
+    "coarse-river": "Turn solved with a coarse river below it: one bet size and all-in",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,
@@ -711,7 +814,7 @@ export const analysisEn = {
     toggleTitle: "Show the analysis of this hand",
     notGraded: "Not graded",
     notGradedHint:
-      "Nothing in this hand was graded: the preflop charts did not cover this line, the flop and turn are notes only, and the river had no heads-up decision the solver could take.",
+      "Nothing in this hand was graded: the preflop charts did not cover this line, the flop is notes only, and the turn and river had no heads-up decision the solver could take.",
     evLoss: "EV loss",
     evLossPot: (value: number) => `${pct(value)} of pot`,
     score: "Score",
@@ -852,6 +955,44 @@ export const analysisEn = {
     freq: pct1,
   },
 
+  /**
+   * The turn study (A5a): what differs from `river` above, which supplies
+   * everything else (the grid, the legend, the tables' columns).
+   */
+  turn: {
+    study: "Study the turn",
+    loading: "Solving the turn…",
+    failed: (message: string) => `The turn study did not load: ${message}`,
+    gridLabel: (spot: string) => `${spot}: the solver's mix for your range, by hand`,
+    spot: (path: string) => (path ? `Turn after ${path.split("-").join(", ")}` : "Turn, first decision"),
+    groups: { made: "Made hands", draws: "Draws", nothing: "No made hand, no draw" } as Record<string, string>,
+    categories: {
+      "full-house-plus": "Full house or better",
+      flush: "Flush",
+      straight: "Straight",
+      "set-trips": "Set or trips",
+      "two-pair": "Two pair",
+      "top-pair": "Top pair or overpair",
+      "middle-pair": "Second pair, or a pocket pair below the top card",
+      "weak-pair": "Weak pair or underpair",
+      "combo-draw": "Flush draw with a straight draw",
+      "flush-draw": "Flush draw",
+      "straight-draw": "Open-ended straight draw",
+      gutshot: "Gutshot",
+      "ace-high": "Ace high",
+      "no-pair": "No pair",
+    } as Record<string, string>,
+    strengthTitle: "By strength now, against the opponent's range here",
+    strength: {
+      strong: "Ahead: beats 75% or more now",
+      medium: "Middling: beats 25–75% now",
+      weak: "Behind: beats under 25% now",
+    } as Record<string, string>,
+    solved: (iterations: number, exploitability: number) =>
+      `Solved through the river in ${num(iterations)} iterations to within ${num(exploitability, 2)}% of the pot. Ranges narrowed by a heuristic model on the flop; turn sizes 75% of the pot and all-in (raises 75% and all-in) plus any size this hand used; below it a coarse river, 75% and all-in.`,
+    evNote: "EV in big blinds, net from the start of the turn, with the pot counted as winnable.",
+  },
+
   /** The 13×13 chart viewer and the chart browser at `/analysis/charts`. */
   charts: {
     heading: "Preflop charts",
@@ -859,7 +1000,7 @@ export const analysisEn = {
       "Rail's own reference for No-Limit Hold'em cash, six-handed, 100 big blinds deep, computed by our solver — never copied from anyone's charts. Pick a spot: every hand shows how often the reference takes each action, and hovering or focusing a hand shows what each action is worth.",
     caveatTitle: "A model, with a known weakness",
     caveat:
-      "These charts (charts/1) value a flop with an equity-realisation model, not a postflop solve. It under-rates hands that win through implied odds: early positions open high cards ahead of small pairs and suited connectors, and flatting is rare. Grades against playing those hands lean harsh.",
+      "These charts (charts/2) value a flop with an equity-realisation model fitted to our own postflop solver. The measurement checks the flop, so hands that win through implied odds are still a little under-rated: UTG folds 55–22, 87s–54s and A5s, and the button almost never flats a cutoff open. Grades against playing those hands lean harsh.",
     loading: "Loading the charts…",
     failed: (message: string) => `The charts did not load: ${message}`,
     category: "Scenario",

@@ -625,6 +625,14 @@ through `hands_needing_analysis` (invoker; every hand, hero or not, with the
 prunes older versions on the last page. "Missing" is computed, so it resumes
 by being run again. `/analysis` runs it on its own only for up to 300 new hands
 on an already-analysed library; a first run or a version change is a button.
+Since A5a (`20270125090000_analysis_turn.sql`; no table or grant change) a
+pool of up to four workers analyses chunks of 20 hands side by side, and the
+button can start with the most recent 200 / 500 / 1,000 hands:
+`hands_needing_analysis_recent(version, before_played, before_id, limit)`
+(invoker, `search_path` pinned, `authenticated` only) is the same trimmed page
+newest first (`played_at` desc, undated last, then `id` desc), keyset on the
+last row. A newest-first run never prunes; turn grades are ordinary
+`decision_analysis` rows (`street = 'turn'`, `source = 'solver'`).
 
 **Reports** (all invoker, all take `analysisVersion` — the client always sends
 it): `analysis_coverage(version)`, `analysis_overview(filters)` (graded moves
@@ -804,6 +812,10 @@ another version, a malformed one, a hand id, another user's private hand,
 an unpublished or removed hand; a poll: nothing to anon, a non-voter, or
 through the sealed page, the reference once voted, to the author and a
 moderator, and nothing again once switched off.
+`analysis_turn.test.sql` (A5a): invoker, `search_path` and grants on the
+newest-first page; its order (undated last), the version kept apart, the
+trimmed document, keyset paging to the end; a malformed version, isolation,
+anon; still no client write grant on the analysis tables.
 
 `analysis_study_plan.test.sql` (A8b): no client write grant on either table
 and RLS on; definer writers and invoker reader and helpers, `search_path` and

@@ -11,7 +11,8 @@
  *   selected       the reference's options (action · frequency bar · EV) with
  *                  the hero's move marked, the spot's facts, its flags, the
  *                  *why* (§4), and the 13×13 study: the chart for a chart
- *                  grade, the hero's solved river range for a solver grade
+ *                  grade, the hero's solved turn or river range for a
+ *                  solver grade
  *
  * The selection follows the replayer: stepping onto a hero decision selects
  * it, and pressing a chip seeks there. Between decisions the last one stays
@@ -62,7 +63,7 @@ interface AnalysisSheetProps {
   seek: (position: ReplayPosition) => void;
   /** The analysis was computed here, not read back from the database. */
   fresh: boolean;
-  /** The hand itself, for the river study's re-solve. Without it there is no river study. */
+  /** The hand itself, for the turn and river studies' re-solve. Without it there is no solver study. */
   hand?: PhfHand;
   /**
    * A stranger's view of a shared analysis (A7.1): the hero is "the hero",
@@ -363,7 +364,12 @@ function DecisionDetail({ decision, hand, readOnly = false }: { decision: Decisi
             <OptionsTable decision={decision} readOnly={readOnly} />
             {decision.source === "solver" ? (
               hand ? (
-                <RiverStudy decision={decision} hand={hand} />
+                <RiverStudy
+                  key={`${decision.street}-${decision.actionIndex}`}
+                  decision={decision}
+                  hand={hand}
+                  street={decision.street === "turn" ? "turn" : "river"}
+                />
               ) : null
             ) : (
               <Study decision={decision} />

@@ -25,14 +25,31 @@
 
 import { cardCode } from "../equity";
 import type { ActionInfo } from "./betting";
-import { Solver, type DcfrParams, type RunOptions, type RunResult } from "./cfr";
+import { Solver, type ChanceSampling, type DcfrParams, type RunOptions, type RunResult } from "./cfr";
 import { comboHi, comboLo } from "./combos";
 import { SOLVER_VERSION } from "./format";
-import { buildRiverGame, buildTurnGame, type BuiltSubgame, type RiverSpot, type TurnSpot } from "./subgame";
+import {
+  buildRiverGame,
+  buildTurnGame,
+  type BuiltSubgame,
+  type RiverSpot,
+  type TurnIsomorphism,
+  type TurnSpot,
+} from "./subgame";
 import { ACTION, CHANCE } from "./tree";
 
 export interface SolveOptions extends RunOptions {
   dcfr?: Partial<DcfrParams>;
+  /** Stratified public chance sampling of dealt cards (A5a, `cfr.ts`). Off by default. */
+  sampling?: ChanceSampling;
+  /**
+   * Which nodes the result describes. `"all"` (default) is every decision and
+   * chance node. `"turn"` stops at the river deal: the turn's decision nodes
+   * and the chance nodes below them, with no river subtree - what turn
+   * grading reads, at a few percent of the memory and none of the 44 river
+   * copies a structured clone would otherwise carry out of a worker.
+   */
+  nodes?: "all" | "turn";
 }
 
 export interface SolvedNode {
@@ -90,6 +107,12 @@ export interface SolveResult {
   nodes: SolvedNode[];
   /** Bytes the solver held while solving. */
   memoryBytes: number;
+  /** Turn solves with suit isomorphism: the classes of river cards dealt. */
+  isomorphism?: TurnIsomorphism;
+  /** Strata of the chance sampling the solve used; 1 when it did not sample. */
+  samplingGroups?: number;
+  /** `"turn"` when the result stops at the river deal (`SolveOptions.nodes`). */
+  scope?: "all" | "turn";
 }
 
 /** Solves a heads-up river spot. Production-ready. */
@@ -98,8 +121,9 @@ export function solveRiver(spot: RiverSpot, options: SolveOptions = {}): SolveRe
 }
 
 /**
- * Solves a heads-up turn spot through the river. Correct but ~48x the river's
- * cost; see `subgame.ts` before putting it on a user-facing path.
+ * Solves a heads-up turn spot through the river. On its own this is the exact
+ * full tree, ~48x the river's cost; with `spot.isomorphism`, `sampling` and a
+ * coarse river menu it is the A5a turn solve (`subgame.ts`, `cfr.ts`).
  */
 export function solveTurn(spot: TurnSpot, options: SolveOptions = {}): SolveResult {
   return solveBuilt(buildTurnGame(spot), options);
@@ -107,16 +131,24 @@ export function solveTurn(spot: TurnSpot, options: SolveOptions = {}): SolveResu
 
 /** Runs the engine on a built subgame and extracts the result. */
 export function solveBuilt(built: BuiltSubgame, options: SolveOptions = {}): SolveResult {
-  const solver = new Solver(built.game, options.dcfr);
+  const solver = new Solver(built.game, options.dcfr, { sampling: options.sampling });
   const run = solver.run(options);
-  return extract(built, solver, run);
+  return extract(built, solver, run, options.nodes ?? "all");
 }
 
-function extract(built: BuiltSubgame, solver: Solver, run: RunResult): SolveResult {
+/** A finished solver's result, as `solveBuilt` returns it (for callers that drive `Solver` themselves). */
+export function extract(
+  built: BuiltSubgame,
+  solver: Solver,
+  run: RunResult,
+  scope: "all" | "turn" = "all",
+): SolveResult {
   const { game } = built;
   const tree = game.tree;
-  const evaluated = solver.evaluate();
+  const turnOnly = scope === "turn";
+  const evaluated = solver.evaluate(turnOnly ? (node) => built.info[node]?.street !== "river" : undefined);
   const ev = solver.ev as Float32Array;
+  const evOffset = solver.evOffset as Int32Array;
   const nodes: SolvedNode[] = [];
   const n = [game.hands[0].size, game.hands[1].size];
 
@@ -154,6 +186,10 @@ function extract(built: BuiltSubgame, solver: Solver, run: RunResult): SolveResu
         frequency: [],
       };
       nodes.push(entry);
+      if (turnOnly) {
+        entry.children = new Array(count).fill(-1);
+        return index;
+      }
       for (let e = 0; e < count; e += 1) {
         const card = tree.edgeCard[start + e];
         const masked = [0, 1].map((p) => {
@@ -174,7 +210,7 @@ function extract(built: BuiltSubgame, solver: Solver, run: RunResult): SolveResu
     const player = tree.player[node];
     const size = n[player];
     const strategy = solver.averageStrategy(node);
-    const off = solver.offset[node];
+    const off = evOffset[node];
     const info = built.info[node];
     const own = reach[player];
     let total = 0;
@@ -238,6 +274,9 @@ function extract(built: BuiltSubgame, solver: Solver, run: RunResult): SolveResu
     rootEv: [Float32Array.from(evaluated.rootEv[0]), Float32Array.from(evaluated.rootEv[1])],
     nodes,
     memoryBytes: solver.bytes,
+    isomorphism: built.isomorphism,
+    samplingGroups: solver.samplingGroups,
+    scope,
   };
 }
 

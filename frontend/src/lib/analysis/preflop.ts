@@ -40,11 +40,14 @@ import type { Approximation, ChartRef, ChartSkipReason, OptionAnalysis } from ".
 
 /**
  * Chart-set versions with a known modelling weakness: every grade from them
- * carries the `model` approximation. `charts/1` under-rates implied-odds
- * hands (§3.1 "Known weakness"); A2a.1 (`charts/2`) is the fix, and drops
- * out of this list by not being in it.
+ * carries the `model` approximation. `charts/1` under-rated implied-odds
+ * hands broadly (§3.1 "Known weakness"). `charts/2` (A2a.1) fits the
+ * realisation to our postflop solver and fixes most of it, but still values
+ * a flop with the flop checked (`docs/CHARTS.md` §9): UTG folds 55–22,
+ * 87s–54s and A5s, and the button almost never flats a cutoff open. It stays
+ * on the list, and `modelCaveat` names those hands.
  */
-export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1"];
+export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2"];
 
 /** Probability mass, in combos, below which a chart range is too thin to measure an equity against. */
 const MIN_RANGE_COMBOS = 1;

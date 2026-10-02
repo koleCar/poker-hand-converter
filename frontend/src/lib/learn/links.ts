@@ -8,8 +8,11 @@
  * sentence when there was a price, the SPR sentence when SPR was 3 or less
  * before the river, the grading page under a chart or solver grade, MDF never
  * preflop, a river grade's role and range shape (bluff-catching, sizing and
- * polarisation, thin value, blockers), and so on. Flags come first — they are the reason the
- * reader opened the decision.
+ * polarisation, thin value, blockers), a turn grade's (equity realisation for
+ * draws, protection and playing out of position, dynamic boards for the
+ * river cards that change it, bluff-catching, sizing against a polar range),
+ * and so on. Flags come first — they are the reason the reader opened the
+ * decision.
  */
 
 import { modelCaveat } from "../analysis/reference";
@@ -104,6 +107,19 @@ export function conceptsForDecision(decision: DecisionAnalysis, limit = 4): Conc
         add("thin-value");
       }
       if (Math.abs(river.blocks.strong - river.blocks.weak) >= 0.05) add("blockers");
+    }
+    // The turn solver's sentences (A5a): the hand's role (a draw or a hand
+    // that wants protection realise or deny equity; a bluff-catcher), playing
+    // it out of position, the river cards that change the board, a polar range.
+    const turn = facts.turn;
+    if (turn) {
+      if (turn.role === "bluff-catcher") add("bluff-catching");
+      if (turn.role === "draw" || turn.role === "vulnerable") add("equity-realisation");
+      if (facts.inPosition === false && (turn.role === "draw" || turn.role === "medium" || turn.role === "bluff-catcher")) {
+        add("equity-realisation");
+      }
+      if (facts.texture && facts.texture.volatility !== null && facts.texture.volatility >= 0.25) add("dynamic-boards");
+      if (turn.villain.shape === "polar") add("bet-sizing");
     }
     add("ranges");
   }

@@ -5,7 +5,10 @@
  * the spot's hand with the hero's answer appended goes through
  * `analyzeHand(hand, { only })`, the same walk, chart lookup, solve, caps and
  * sensitivity check a real hand gets. A trainer grade and an analysis grade
- * of the same spot are therefore one computation, not two that agree.
+ * of the same spot are therefore one computation, not two that agree - with
+ * one difference since A5a: a trainer river is narrowed through the turn by
+ * the heuristic (`turn: false`), the way the trainer built it, where a real
+ * hand's river starts from its solved turn.
  *
  * **Drills** replay one of the player's own graded decisions. The options
  * were stored with the grade (`decision_analysis.options`), so an answer is
@@ -29,7 +32,10 @@ import type { PhfHand } from "../phf/types";
  * has no hero decision at `actionIndex`. Does not mutate `hand`.
  */
 export function gradeAnswer(hand: PhfHand, actionIndex: number, charts: ChartSet | null): DecisionAnalysis | null {
-  const analysis = analyzeHand(structuredClone(hand), { charts, only: actionIndex });
+  // `turn: false`: a trainer river is built on ranges the heuristic narrowed
+  // through the flop and turn (`river.ts`), so it is graded on them too; a
+  // turn solve per answer would also cost a second or two (A5a).
+  const analysis = analyzeHand(structuredClone(hand), { charts, only: actionIndex, turn: false });
   return analysis.decisions.find((decision) => decision.actionIndex === actionIndex) ?? null;
 }
 

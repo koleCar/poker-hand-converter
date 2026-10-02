@@ -72,6 +72,7 @@ import type {
   RiverFacts,
   RiverRole,
   RiverSkipReason,
+  TurnSkipReason,
 } from "./types";
 
 /* ------------------------------------------------------------ constants - */
@@ -114,7 +115,7 @@ const round4 = (value: number) => Math.round(value * 10_000) / 10_000;
 
 /* ------------------------------------------------------------- the line - */
 
-/** One river decision of either player, in big blinds. */
+/** One decision of either player on a postflop street, in big blinds. */
 export interface RiverAct {
   index: number;
   seat: number;
@@ -132,8 +133,16 @@ export interface RiverAct {
 const DECISIONS = new Set(["fold", "check", "call", "bet", "raise"]);
 const NOT_MONEY = new Set(["collect", "cashout-pay", "cashout-choose", "show", "muck"]);
 
+/** A turn decision has the same shape (A5a). */
+export type StreetAct = RiverAct;
+
 /** The river's decisions, with the money before each. */
 export function riverActs(hand: PhfHand): RiverAct[] {
+  return streetActs(hand, "river");
+}
+
+/** One postflop street's decisions, with the money before each. */
+export function streetActs(hand: PhfHand, target: "flop" | "turn" | "river"): StreetAct[] {
   const bb = Math.max(1, hand.game.bigBlind);
   const out: RiverAct[] = [];
   let pot = 0;
@@ -147,7 +156,7 @@ export function riverActs(hand: PhfHand): RiverAct[] {
       high = 0;
     }
     if (action.seat === null || NOT_MONEY.has(action.type)) continue;
-    if (action.street === "river" && DECISIONS.has(action.type)) {
+    if (action.street === target && DECISIONS.has(action.type)) {
       const mine = totals.get(action.seat) ?? 0;
       const toCall = Math.max(0, high - mine);
       const to = mine + action.amount;
@@ -189,6 +198,11 @@ export interface RiverSpotInput {
   potBb: number;
   stackBb: number;
   ranges: PlayerRanges;
+  /**
+   * How `ranges` reached the river (A5a): through the solved turn strategy
+   * (`turn-solver`), or the heuristic model all the way (default).
+   */
+  narrowing?: "heuristic" | "turn-solver";
   charts: ChartSet | null;
   /** The narrowing model the ranges came from, e.g. `heuristic/2`. */
   model: string;
@@ -229,7 +243,7 @@ export function rakeOf(charts: ChartSet | null): RakeInfo {
 }
 
 /** Drops the combos under `PRUNE_SHARE` of the heaviest. A copy. */
-function pruned(range: Float64Array): Float64Array {
+export function pruned(range: Float64Array): Float64Array {
   let max = 0;
   for (let c = 0; c < NUM_COMBOS; c += 1) max = Math.max(max, range[c]);
   const out = new Float64Array(NUM_COMBOS);
@@ -308,7 +322,7 @@ export function solveRiverSpot(input: RiverSpotInput): RiverSolve | RiverFailure
 
 /* ------------------------------------------------------ line onto tree - */
 
-interface Mapped {
+export interface Mapped {
   /** Edge index at the node. */
   edges: number[];
   /** Probability of each, from the translation (one edge: 1). */
@@ -323,7 +337,7 @@ const SIZED = new Set(["bet", "raise", "allin"]);
  * The edge(s) a real action takes at `node`. A sized action returns its
  * translation's edges, likelier first; `null` when the node has no such edge.
  */
-function mapAct(node: SolvedNode, act: RiverAct, stack: number): Mapped | null {
+export function mapAct(node: SolvedNode, act: StreetAct, stack: number): Mapped | null {
   const kinds = node.actions.map((action) => action.kind);
   if (act.type === "check" || act.type === "call" || act.type === "fold") {
     const edge = kinds.indexOf(act.type);
@@ -332,10 +346,11 @@ function mapAct(node: SolvedNode, act: RiverAct, stack: number): Mapped | null {
   const sized = node.actions.map((action, edge) => ({ action, edge })).filter(({ action }) => SIZED.has(action.kind));
   if (sized.length === 0) return null;
   const allIn = sized.find(({ action }) => action.kind === "allin");
-  // Everything the effective stack allows is in: the tree's all-in.
-  if (act.allIn || act.to >= stack - 1e-6) {
-    const target = allIn ?? sized[sized.length - 1];
-    return { edges: [target.edge], weights: [1], distance: 0 };
+  // Everything the effective stack allows is in: the tree's all-in. A tree
+  // that offers no all-in here (the turn's, past `allInMaxPot`) reads the
+  // shove as a size like any other, which is how it finds out it is off-tree.
+  if ((act.allIn || act.to >= stack - 1e-6) && allIn) {
+    return { edges: [allIn.edge], weights: [1], distance: 0 };
   }
   const x = act.sizePot ?? 0;
   const translation = translateSize(
@@ -360,11 +375,44 @@ export interface LineOnTree {
   reach: { hero: number; villain: number };
 }
 
+/** What following a line needs from a solve: the river's and the turn's alike. */
+export interface LineSolve {
+  result: SolveResult;
+  hero: 0 | 1;
+  input: { heroFirst: boolean; heroSeat: number; villainSeat: number; stackBb: number };
+}
+
+/** A street the solver grades, for the `*-off-tree` / `*-unreached` reasons. */
+export type SolvedStreet = "river" | "turn";
+
+export type LineFailure<S extends SolvedStreet> = {
+  ok: false;
+  reason: S extends "river" ? RiverSkipReason : TurnSkipReason;
+  detail: string;
+};
+
 /**
  * Follows the river's actions before the hero's decision through the solved
  * tree. `acts` are the river decisions before it, in order.
  */
 export function followLine(solve: RiverSolve, acts: readonly RiverAct[]): LineOnTree | RiverFailure {
+  return followSolvedLine(solve, acts, "river");
+}
+
+/**
+ * Follows a street's actions through a solved tree (the river's, or the
+ * turn's for A5a). Ends at the hero's decision node, or - with
+ * `{ end: "street" }` - where the street closes: for a turn that closed with
+ * chips behind, the chance node that deals the river.
+ */
+export function followSolvedLine<S extends SolvedStreet>(
+  solve: LineSolve,
+  acts: readonly StreetAct[],
+  street: S,
+  options: { end?: "hero" | "street" } = {},
+): LineOnTree | LineFailure<S> {
+  const fail = (kind: "off-tree" | "unreached", detail: string): LineFailure<S> =>
+    ({ ok: false, reason: `${street}-${kind}`, detail }) as LineFailure<S>;
   const { result, input } = solve;
   const firstSeat = input.heroFirst ? input.heroSeat : input.villainSeat;
   let at = 0;
@@ -373,10 +421,10 @@ export function followLine(solve: RiverSolve, acts: readonly RiverAct[]): LineOn
     const node = result.nodes[at];
     const player = act.seat === firstSeat ? 0 : 1;
     if (!node || node.kind !== "action" || node.player !== player) {
-      return { ok: false, reason: "river-off-tree", detail: `no decision for ${act.type} at ${node?.path ?? "?"}` };
+      return fail("off-tree", `no decision for ${act.type} at ${node?.path ?? "?"}`);
     }
     const mapped = mapAct(node, act, input.stackBb);
-    if (!mapped) return { ok: false, reason: "river-off-tree", detail: `no ${act.type} at ${node.path || "the root"}` };
+    if (!mapped) return fail("off-tree", `no ${act.type} at ${node.path || "the root"}`);
     let edge = mapped.edges[0];
     let gap = mapped.distance;
     // The opponent's size: one the solve actually uses.
@@ -394,12 +442,14 @@ export function followLine(solve: RiverSolve, acts: readonly RiverAct[]): LineOn
     }
     distance = Math.max(distance, gap);
     const next = node.children[edge];
-    if (next < 0) return { ok: false, reason: "river-off-tree", detail: `the line ends at ${node.labels[edge]}` };
+    if (next < 0) return fail("off-tree", `the line ends at ${node.labels[edge]}`);
     at = next;
   }
   const node = result.nodes[at];
-  if (!node || node.kind !== "action" || node.player !== solve.hero) {
-    return { ok: false, reason: "river-off-tree", detail: "the hero does not act here in the tree" };
+  if (options.end === "street") {
+    if (!node || node.kind !== "chance") return fail("off-tree", "the street does not close here in the tree");
+  } else if (!node || node.kind !== "action" || node.player !== solve.hero) {
+    return fail("off-tree", "the hero does not act here in the tree");
   }
   // Both players must actually reach the node.
   const reach = rangesAt(result, at);
@@ -413,11 +463,10 @@ export function followLine(solve: RiverSolve, acts: readonly RiverAct[]): LineOn
     }
     shares[p] = start > 0 ? now / start : 0;
     if (!(start > 0) || shares[p] < MIN_LINE_REACH) {
-      return {
-        ok: false,
-        reason: "river-unreached",
-        detail: `${p === solve.hero ? "the hero's" : "the opponent's"} range reaches ${node.path || "the root"} ${round4(shares[p])} of the time`,
-      };
+      return fail(
+        "unreached",
+        `${p === solve.hero ? "the hero's" : "the opponent's"} range reaches ${node.path || "the root"} ${round4(shares[p])} of the time`,
+      );
     }
   }
   return { ok: true, node: at, distance, reach: { hero: shares[solve.hero], villain: shares[1 - solve.hero] } };
@@ -459,20 +508,46 @@ export interface RiverGrade extends GradeResult {
   villainRange: Float64Array;
 }
 
+/**
+ * The hero's own size is graded as the better of the one or two tree sizes it
+ * translates to: a size between two solved ones is not worse than both.
+ */
+export function gradeMapped(
+  options: OptionAnalysis[],
+  mapped: Mapped,
+  pot: number,
+  offTree: boolean,
+): { chosen: number; graded: GradeResult } | null {
+  let chosen = mapped.edges[0];
+  let graded: GradeResult | null = null;
+  for (const edge of mapped.edges) {
+    const candidate = grade({ options, chosen: edge, pot, capAtInaccurate: offTree });
+    if (
+      !graded ||
+      gradeRank(candidate.grade) < gradeRank(graded.grade) ||
+      (candidate.grade === graded.grade && candidate.evLoss < graded.evLoss - 1e-12)
+    ) {
+      graded = candidate;
+      chosen = edge;
+    }
+  }
+  return graded ? { chosen, graded } : null;
+}
+
 /** HS of every combo against `range` on the river board. */
 function strengthAgainst(strength: StreetStrength, range: Float64Array): Float64Array {
   return handStrength(strength, range);
 }
 
 /** A solve's per-hand reach at a node as 1,326 weights. */
-function toCombos(result: SolveResult, p: 0 | 1, reach: Float64Array): Float64Array {
+export function toCombos(result: SolveResult, p: 0 | 1, reach: Float64Array): Float64Array {
   const out = new Float64Array(NUM_COMBOS);
   const hands = result.hands[p];
   for (let i = 0; i < hands.length; i += 1) out[hands[i]] = reach[i];
   return out;
 }
 
-function withoutCards(range: Float64Array, cards: readonly number[]): Float64Array {
+export function withoutCards(range: Float64Array, cards: readonly number[]): Float64Array {
   const out = Float64Array.from(range);
   for (let c = 0; c < NUM_COMBOS; c += 1) {
     if (out[c] > 0 && (cards.includes(comboHi(c)) || cards.includes(comboLo(c)))) out[c] = 0;
@@ -480,7 +555,7 @@ function withoutCards(range: Float64Array, cards: readonly number[]): Float64Arr
   return out;
 }
 
-function shapeOf(strong: number, medium: number, weak: number): RangeShape {
+export function shapeOf(strong: number, medium: number, weak: number): RangeShape {
   if (medium < 0.3 && strong >= 0.2 && weak >= 0.15) return "polar";
   if (medium >= 0.45) return "merged";
   return "mixed";
@@ -505,8 +580,17 @@ export interface NodeRanges {
   strength: StreetStrength;
 }
 
+/** What reading ranges and a study off a solve needs: the river's and the turn's alike. */
+export interface StudySolve {
+  result: SolveResult;
+  hero: 0 | 1;
+  heroCombo: number;
+  heroHand: number;
+  input: { board: readonly number[]; heroCards: readonly [number, number] };
+}
+
 /** Both ranges at a node of the solve, as combos, and the board's strengths. */
-export function nodeRanges(solve: RiverSolve, node: number): NodeRanges {
+export function nodeRanges(solve: StudySolve, node: number): NodeRanges {
   const reach = rangesAt(solve.result, node);
   const villain = (1 - solve.hero) as 0 | 1;
   return {
@@ -533,22 +617,9 @@ export function gradeRiver(
   const offTree = Math.max(line.distance, mapped.distance) > OFF_TREE_DISTANCE;
   // EV loss is quoted against the real pot before the decision, the one the
   // reader sees (`facts.potBb`), even when a translated size put the tree's elsewhere.
-  const pot = act.pot;
-  // The hero's own size: graded as the better of its neighbours.
-  let chosen = mapped.edges[0];
-  let graded: GradeResult | null = null;
-  for (const edge of mapped.edges) {
-    const candidate = grade({ options, chosen: edge, pot, capAtInaccurate: offTree });
-    if (
-      !graded ||
-      gradeRank(candidate.grade) < gradeRank(graded.grade) ||
-      (candidate.grade === graded.grade && candidate.evLoss < graded.evLoss - 1e-12)
-    ) {
-      graded = candidate;
-      chosen = edge;
-    }
-  }
-  if (!graded) return { ok: false, reason: "river-off-tree", detail: "nothing to grade against" };
+  const best = gradeMapped(options, mapped, act.pot, offTree);
+  if (!best) return { ok: false, reason: "river-off-tree", detail: "nothing to grade against" };
+  const { chosen, graded } = best;
 
   // The spot, for the *why*.
   const ranges = nodeRanges(solve, line.node);
@@ -616,6 +687,7 @@ export function gradeRiver(
     },
     translated: distance > TRANSLATED_DISTANCE ? round3(distance) : null,
     reach: { hero: round3(line.reach.hero), villain: round3(line.reach.villain) },
+    narrowing: solve.input.narrowing ?? "heuristic",
   };
 
   return {
@@ -706,7 +778,9 @@ export interface StudyRow {
   ev: number[];
 }
 
+/** The study view of a solved node, the river's or the turn's (§6.1). */
 export interface RiverStudy {
+  street: "river" | "turn";
   path: string;
   pot: number;
   toCall: number;
@@ -717,13 +791,14 @@ export interface RiverStudy {
   heroClass: string;
   heroCombo: string;
   hero: { freq: number[]; ev: number[] };
-  categories: Array<{ key: RiverCategory; group: string } & StudyRow>;
+  /** By hand category: `RIVER_CATEGORIES` on the river, `TURN_CATEGORIES` on the turn. */
+  categories: Array<{ key: string; group: string } & StudyRow>;
   /** The hero's range by strength against the opponent's range at the node. */
   strength: Array<{ key: "strong" | "medium" | "weak" } & StudyRow>;
   /** The opponent's range at the node (the hero's cards removed). */
   villain: {
     combos: number;
-    categories: Array<{ key: RiverCategory; group: string; combos: number; share: number }>;
+    categories: Array<{ key: string; group: string; combos: number; share: number }>;
     strength: { strong: number; medium: number; weak: number };
   };
   iterations: number;
@@ -745,6 +820,21 @@ function finish(row: StudyRow): StudyRow {
 
 /** The study view of the hero's decision node: the hero's whole range, as the solve plays it. */
 export function riverStudyAt(solve: RiverSolve, nodeIndex: number): RiverStudy {
+  return studyAt(solve, nodeIndex, "river", RIVER_CATEGORIES, riverCategory);
+}
+
+/**
+ * The study view of any solved node: the hero's range there as the solve
+ * plays it, by class, by category (`categoryOf`, listed in `list`), by
+ * strength now against the opponent's range, and that range.
+ */
+export function studyAt<K extends string>(
+  solve: StudySolve,
+  nodeIndex: number,
+  street: "river" | "turn",
+  list: readonly { key: K; group: string }[],
+  categoryOf: (hole: readonly [number, number], board: readonly number[]) => K,
+): RiverStudy {
   const { result } = solve;
   const node = result.nodes[nodeIndex];
   const p = node.player as 0 | 1;
@@ -759,7 +849,7 @@ export function riverStudyAt(solve: RiverSolve, nodeIndex: number): RiverStudy {
   const villainHs = handStrength(ranges.strength, ranges.hero);
 
   const cells = HAND_CLASSES.map(() => emptyRow(actions));
-  const categories = new Map<RiverCategory, StudyRow>(RIVER_CATEGORIES.map((c) => [c.key, emptyRow(actions)]));
+  const categories = new Map<K, StudyRow>(list.map((c) => [c.key, emptyRow(actions)]));
   const buckets = { strong: emptyRow(actions), medium: emptyRow(actions), weak: emptyRow(actions) };
   const totals = new Array(actions).fill(0);
   let all = 0;
@@ -770,7 +860,7 @@ export function riverStudyAt(solve: RiverSolve, nodeIndex: number): RiverStudy {
     const hole: [number, number] = [comboHi(combo), comboLo(combo)];
     const rows = [
       cells[COMBO_CLASS[combo]],
-      categories.get(riverCategory(hole, board)) as StudyRow,
+      categories.get(categoryOf(hole, board)) as StudyRow,
       hsVsVillain[combo] >= STRONG_HS ? buckets.strong : hsVsVillain[combo] < WEAK_HS ? buckets.weak : buckets.medium,
     ];
     all += w;
@@ -786,13 +876,13 @@ export function riverStudyAt(solve: RiverSolve, nodeIndex: number): RiverStudy {
     }
   }
 
-  const villainCategories = new Map<RiverCategory, number>();
+  const villainCategories = new Map<K, number>();
   let villainAll = 0;
   const villainStrength = { strong: 0, medium: 0, weak: 0 };
   for (let c = 0; c < NUM_COMBOS; c += 1) {
     const w = villainSeen[c];
     if (!(w > 0)) continue;
-    const key = riverCategory([comboHi(c), comboLo(c)], board);
+    const key = categoryOf([comboHi(c), comboLo(c)], board);
     villainCategories.set(key, (villainCategories.get(key) ?? 0) + w);
     villainAll += w;
     const hs = villainHs[c];
@@ -816,6 +906,7 @@ export function riverStudyAt(solve: RiverSolve, nodeIndex: number): RiverStudy {
   const share = (x: number) => (villainAll > 0 ? round3(x / villainAll) : 0);
 
   return {
+    street,
     path: node.path,
     pot: round2(node.pot),
     toCall: round2(node.toCall),
@@ -825,7 +916,7 @@ export function riverStudyAt(solve: RiverSolve, nodeIndex: number): RiverStudy {
     heroClass: HAND_CLASSES[COMBO_CLASS[solve.heroCombo]].name,
     heroCombo: cardCode(comboHi(solve.heroCombo)) + cardCode(comboLo(solve.heroCombo)),
     hero: heroRow,
-    categories: RIVER_CATEGORIES.map((c) => ({ key: c.key, group: c.group, ...finish(categories.get(c.key) as StudyRow) })).filter(
+    categories: list.map((c) => ({ key: c.key as string, group: c.group, ...finish(categories.get(c.key) as StudyRow) })).filter(
       (row) => row.combos > 0,
     ),
     strength: (["strong", "medium", "weak"] as const)
@@ -833,8 +924,8 @@ export function riverStudyAt(solve: RiverSolve, nodeIndex: number): RiverStudy {
       .filter((row) => row.combos > 0),
     villain: {
       combos: round2(villainAll),
-      categories: RIVER_CATEGORIES.filter((c) => (villainCategories.get(c.key) ?? 0) > 0).map((c) => ({
-        key: c.key,
+      categories: list.filter((c) => (villainCategories.get(c.key) ?? 0) > 0).map((c) => ({
+        key: c.key as string,
         group: c.group,
         combos: round2(villainCategories.get(c.key) ?? 0),
         share: share(villainCategories.get(c.key) ?? 0),

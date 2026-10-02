@@ -271,7 +271,7 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
       {answer?.error ? <p className="notice notice--error">{t.failed(answer.error)}</p> : null}
 
       {graded?.decision ? (
-        <AnswerResult decision={graded.decision} hand={graded.hand} chartNode={chartNode}>
+        <AnswerResult decision={graded.decision} hand={graded.hand} chartNode={chartNode} solveTurn={false}>
           <p className={own.muted}>{signedIn ? (answer?.saved ? t.result.saved : null) : t.result.signInToKeep}</p>
         </AnswerResult>
       ) : null}

@@ -66,7 +66,8 @@ const CHARTS: ChartSet = loadCharts(
 
 /** The analysis' own verdict on one decision of a hand, from a full run. */
 function analysed(hand: Parameters<typeof analyzeHand>[0], actionIndex: number): DecisionAnalysis | undefined {
-  return analyzeHand(structuredClone(hand), { charts: CHARTS }).decisions.find((d) => d.actionIndex === actionIndex);
+  // A trainer river is built and graded on the heuristic narrowing (A5a: `turn: false`).
+  return analyzeHand(structuredClone(hand), { charts: CHARTS, turn: false }).decisions.find((d) => d.actionIndex === actionIndex);
 }
 
 /* ------------------------------------------------------------ scheduler - */

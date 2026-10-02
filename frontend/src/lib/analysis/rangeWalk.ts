@@ -4,9 +4,13 @@
  *
  * ```
  * preflop range (charts, else placeholder) ─▶ flop: board removed, each action narrows (narrowing.ts)
- *                                          ─▶ turn: …
- *                                          ─▶ river: the solve takes it from here (river.ts)
+ *                                          ─▶ turn: the turn solve takes it from here (turn.ts, A5a) …
+ *                                          ─▶ river: … and hands the river solve its ranges (river.ts)
  * ```
+ *
+ * The turn and river are narrowed here too, by the same heuristic: for the
+ * equity facts of decisions the solver does not grade, for a river whose turn
+ * could not be solved, and for the river's sensitivity check.
  *
  * Only heads-up pots: exactly two players saw the flop. A pot that was
  * multiway on the flop has no two-range story to tell, whoever is left by
@@ -44,6 +48,8 @@ export interface RangeWalk {
   model: string;
   /** Both ranges immediately before the action with this `PhfAction.index`. */
   before(actionIndex: number): PlayerRanges | null;
+  /** Both ranges as the turn card came, with the board removed. Null if no turn. */
+  turnStart: PlayerRanges | null;
   /** Both ranges as the river card came, with the board removed. Null if no river. */
   riverStart: PlayerRanges | null;
   /** Both preflop ranges, before any board card or postflop action. */
@@ -124,6 +130,7 @@ export function walkRanges(
   const preflop = ranges;
   const checks = new Map<number, number>();
   const snapshots = new Map<number, PlayerRanges>();
+  let turnStart: PlayerRanges | null = null;
   let riverStart: PlayerRanges | null = null;
   const strengths = new Map<NarrowStreet, StreetStrength>();
 
@@ -149,6 +156,7 @@ export function walkRanges(
           empty = true;
           break;
         }
+        if (street === "turn") turnStart = ranges;
         if (street === "river") riverStart = ranges;
       }
     }
@@ -215,6 +223,7 @@ export function walkRanges(
     labels: { hero: heroPre.label, villain: villainPre.label },
     model: model.id,
     before: (actionIndex: number) => snapshots.get(actionIndex) ?? null,
+    turnStart,
     riverStart,
     preflop,
   };

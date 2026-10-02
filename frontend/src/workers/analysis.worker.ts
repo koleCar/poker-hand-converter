@@ -13,8 +13,9 @@
  *
  * - `analyse`: a page of stored hands in, rows out, with a `progress` message
  *   every quarter second or so in between, so the bar moves within a page.
- * - `study`: one hand's river decision, re-solved for the study grid
- *   (`riverStudy`). The same solve the stored grade came from, bit for bit.
+ * - `study`: one hand's river or turn decision, re-solved for the study grid
+ *   (`riverStudy` / `turnStudy`). The same solve the stored grade came from,
+ *   bit for bit.
  * - `hand`: one hand analysed for the hand view when it has no stored row at
  *   the current version — off the main thread, since it may solve a river.
  *
@@ -24,7 +25,15 @@
  * "missing" is computed by the database.
  */
 
-import { analyzeHand, riverStudy, type HandAnalysis, type RiverFailure, type RiverStudy } from "../lib/analysis";
+import {
+  analyzeHand,
+  riverStudy,
+  turnStudy,
+  type HandAnalysis,
+  type RiverFailure,
+  type RiverStudy,
+  type TurnFailure,
+} from "../lib/analysis";
 import { loadDefaultCharts, type ChartSet } from "../lib/charts";
 import { analyseStoredHands, type AnalysedBatch } from "../lib/db/analysisRows";
 import type { PhfHand } from "../lib/phf/types";
@@ -40,6 +49,10 @@ export interface StudyRequest {
   jobId: number;
   phf: PhfHand;
   actionIndex: number;
+  /** Which street's solve; the river when absent. */
+  street?: "river" | "turn";
+  /** A river study: narrow through the solved turn (default) or the heuristic (the river trainer's spots). */
+  turn?: boolean;
 }
 
 export interface HandRequest {
@@ -53,7 +66,7 @@ export type AnalysisWorkerRequest = AnalyseRequest | StudyRequest | HandRequest;
 export type AnalysisWorkerResponse =
   | ({ type: "analysed"; jobId: number } & AnalysedBatch)
   | { type: "progress"; jobId: number; done: number }
-  | { type: "studied"; jobId: number; study: RiverStudy | RiverFailure | null }
+  | { type: "studied"; jobId: number; study: RiverStudy | RiverFailure | TurnFailure | null }
   | { type: "hand"; jobId: number; analysis: HandAnalysis }
   | { type: "error"; jobId: number; message: string };
 
@@ -75,7 +88,10 @@ self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
       return;
     }
     if (request.type === "study") {
-      const study = riverStudy(request.phf, request.actionIndex, { charts: set });
+      const study =
+        request.street === "turn"
+          ? turnStudy(request.phf, request.actionIndex, { charts: set })
+          : riverStudy(request.phf, request.actionIndex, { charts: set, turn: request.turn ?? true });
       self.postMessage({ type: "studied", jobId, study } satisfies AnalysisWorkerResponse);
       return;
     }

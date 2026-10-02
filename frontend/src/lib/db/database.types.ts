@@ -2491,6 +2491,19 @@ export type Database = {
           phf: Json
         }[]
       }
+      hands_needing_analysis_recent: {
+        Args: {
+          p_before_id?: string
+          p_before_played?: string
+          p_limit?: number
+          p_version: string
+        }
+        Returns: {
+          id: string
+          phf: Json
+          played_at: string
+        }[]
+      }
       hands_needing_stats: {
         Args: {
           p_after?: string
