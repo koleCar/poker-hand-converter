@@ -32,6 +32,7 @@ the app touches Supabase.
 - [The forum](#the-forum)
 - [Notifications and realtime](#notifications-and-realtime)
 - [Moderation and anti-abuse](#moderation-and-anti-abuse)
+- [Hand analysis](#hand-analysis-hand_analysis-decision_analysis)
 - [RLS policies and grants](#rls-policies-and-grants)
 - [Indexes and the queries they serve](#indexes-and-the-queries-they-serve)
 - [Applying a migration](#applying-a-migration)
@@ -581,6 +582,58 @@ refusal on mixed units, isolation, anon.
 `supabase/tests/database/stats_rebuild.test.sql`: coverage arithmetic,
 keyset paging, clamping, cross-user isolation, anon refusal, prune, and the
 two reports running as a signed-in user.
+
+## Hand analysis: `hand_analysis`, `decision_analysis`
+
+Phase A1 of `docs/ANALYSIS-PLAN.md` (`20261228090000_analysis.sql`). The engine
+is `frontend/src/lib/analysis` (pure TypeScript, run over the corpus by
+`tests/test/analysisCorpus.test.ts`); these tables hold its answer.
+
+| Table | Key | What it holds |
+| --- | --- | --- |
+| `hand_analysis` | `(hand_id, analysis_version)` | Status (`full` / `partial` / `not-analysed`), the not-analysed `reason`, the hand's `grade` / `score` / `ev_loss_*` (null until a phase brings a reference strategy), `decisions` / `analysed` / `flag_count` / `worst_flag`, `approximations`, `pot_type`. |
+| `decision_analysis` | `(hand_id, analysis_version, ord)` | One row per hero decision: `street`, `action`, `action_index` (what the replayer seeks to), `status` / `reason`, `scenario`, `source`, the grade columns (narrow, for `group by street, grade`), `options` jsonb, `flags` jsonb, pot geometry (`facing_bet`, `pot_bb`, `pot_odds`, `mdf`) and `facts` jsonb for the hand panel. FK to `hand_analysis`, cascading. |
+
+**Stricter than `hand_stats`.** Both tables are `select` to `authenticated`
+under an owner policy and nothing else — no INSERT, no DELETE, nothing to
+`anon`. The only write is `save_hand_analysis`, `security definer`, which
+checks ownership itself (`hands.id` joined with `owner_id = auth.uid()`; a
+foreign id is skipped exactly like an unknown one) and **computes the hand
+row's aggregates from the decisions it was sent**, so `decisions`,
+`analysed`, `flag_count` and `worst_flag` cannot be forged and cannot disagree
+with the decision rows. CHECK constraints hold the status against the counts
+and cap every flag's severity at `inaccurate` (§3.6). Decisions are only ever
+written for a hand row inserted in the same call, so a replayed request cannot
+graft decisions onto an existing analysis. The only delete is
+`prune_hand_analysis` (definer, the caller's rows at other versions only).
+Rate limit: per account, `analysis_insert:<uid>`, 60 000 rows / 10 min.
+
+**Where it runs.** In the browser: `runAnalysis` (`lib/db/analysis.ts`) pages
+through `hands_needing_analysis` (invoker; every hand, hero or not, with the
+`phf` trimmed of `meta.rawText` and the per-action `rawLine`/`label`), runs
+`analyzeHand` in `workers/analysis.worker.ts`, writes 50 hands per call, and
+prunes older versions on the last page. "Missing" is computed, so it resumes
+by being run again. `/analysis` runs it on its own only for up to 300 new hands
+on an already-analysed library; a first run or a version change is a button.
+
+**Reports** (all invoker, all take `analysisVersion` — the client always sends
+it): `analysis_coverage(version)`, `analysis_overview(filters)`,
+`analysis_breakdown(filters, group)` (`street` / `position` / `pot_type` /
+`scenario`, whitelisted), `analysis_hands(filters, sort, limit, offset)` (sort
+whitelisted) and `analysis_hand(hand_id, version)`. They share
+`analysis_scope(filters)` and `analysis_version_of(filters)`, both granted to
+`authenticated` — the `20261109090000` lesson. Defence against MDF counts
+postflop decisions only.
+
+### Tests
+
+`supabase/tests/database/analysis.test.sql`: no client INSERT/UPDATE/DELETE
+grant on either table; definer/invoker and `search_path` on every function;
+the helpers executable by `authenticated`; the route reservation; the writer's
+ownership check (a foreign and an unknown id, one answer), server-computed
+aggregates, duplicates that graft nothing, version and status checks, the
+severity cap; coverage, the trimmed document, overview arithmetic, the
+breakdown and sort whitelists, isolation between two users, anon, prune.
 
 ## Verifying the isolation
 

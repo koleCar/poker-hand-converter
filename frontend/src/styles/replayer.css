@@ -1032,6 +1032,13 @@
   inline-size: min(22rem, 48%);
 }
 
+/* A host's sheet (the Analysis sheet, analysis A1) takes the log's flank, a little
+   wider: it carries a fact table as well as a list. The two never open together. */
+.rp[data-tier="lg"] .rp-ov--sheet .ov__panel {
+  margin-inline-start: auto;
+  inline-size: min(26rem, 52%);
+}
+
 .rp[data-tier="lg"] .rp-ov--result .ov__panel {
   /* Along the bottom, against the transport: the board and the winning seat
      are what the reader is looking at, and they are above it. */
@@ -1615,4 +1622,20 @@ html.rp-fullscreen-lock body {
 .rp__mark:focus-visible {
   outline: 2px solid var(--fg);
   outline-offset: 1px;
+}
+
+/* Analysis pips (analysis A1): one per hero decision, coloured by its grade or by its
+   loudest flag. The colour repeats what the pip's accessible name already says;
+   a decision with nothing to say is a quiet neutral dot rather than no dot, so
+   every decision is one click away. */
+.rp__mark--perfect { background: var(--grade-perfect); }
+.rp__mark--good { background: var(--grade-good); }
+.rp__mark--inaccurate { background: var(--grade-inaccurate); }
+.rp__mark--mistake { background: var(--grade-mistake); }
+.rp__mark--blunder { background: var(--grade-blunder); }
+.rp__mark--note { background: var(--flag-note); }
+
+.rp__mark--neutral {
+  background: var(--surface-raised-2);
+  border-color: var(--border-strong);
 }

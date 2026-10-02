@@ -154,8 +154,12 @@ export function handFacts(hand: PhfHand): HandFacts {
   return { hand: dimensions, seats };
 }
 
-/** See `HandDimensions.potType`. Voluntary preflop raises; a straddle is not one. */
-function potTypeOf(context: ReturnType<typeof buildContext>): PotType {
+/**
+ * See `HandDimensions.potType`. Voluntary preflop raises; a straddle is not one.
+ * Exported for `lib/analysis`, which groups decisions by the same pot type the
+ * statistics breakdown uses and must not grow a second definition of it.
+ */
+export function potTypeOf(context: ReturnType<typeof buildContext>): PotType {
   if (context.isBombPot) return "bomb";
   if (context.isWalk) return "walk";
   const raises = (context.byStreet.get("preflop") ?? []).filter((decision) => decision.type === "raise").length;

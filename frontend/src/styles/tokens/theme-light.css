@@ -176,6 +176,16 @@
     --danger-on-tint: var(--st-danger-700);
     --info-on-tint: var(--st-info-700);
 
+    /* Grades: the same ramp read from the dark end, each clearing 4.5:1 on
+       white and on --n-50 (perfect 6.8 / 6.4, good 5.2 / 4.9, inaccurate
+       6.9 / 6.4, mistake 6.1 / 5.7, blunder 7.5 / 7.1, note 7.0 / 6.6). */
+    --grade-perfect: var(--st-success-700);
+    --grade-good: #2b7a55;
+    --grade-inaccurate: var(--st-warning-700);
+    --grade-mistake: #a3470f;
+    --grade-blunder: var(--st-danger-700);
+    --flag-note: var(--st-info-700);
+
     /* Anonymity. Same violet, read from the dark end: #4a2f96 on the 12% tint
        over white (#f1ecff) is 8.5:1. */
     --anon-fg: #4a2f96;

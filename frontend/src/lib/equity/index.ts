@@ -6,6 +6,7 @@
  *                short-deck tables chosen per room)
  * omaha.ts       exactly two from the hand, exactly three from the board
  * enumerate.ts   equity per pot over every runout, or a fixed-seed sample
+ * range.ts       one hand against a weighted range, card removal applied
  * allInEv.ts     PhfHand -> pots at the all-in -> evNet per seat
  * ```
  *
@@ -60,6 +61,21 @@ export {
   type RankingTable,
   type ShortDeckRule,
 } from "./evaluator";
+export {
+  DEFAULT_RANGE_EXHAUSTIVE_LIMIT,
+  DEFAULT_RANGE_TRIALS,
+  allClasses,
+  classCombos,
+  equityVsRange,
+  parseRange,
+  rangeCombos,
+  rangeShare,
+  strongestOfRange,
+  type ClassWeights,
+  type RangeEquityRequest,
+  type RangeEquityResult,
+  type WeightedCombo,
+} from "./range";
 export {
   boardTripleMasks,
   evaluateOmaha,

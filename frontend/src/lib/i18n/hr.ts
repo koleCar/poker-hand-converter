@@ -9,6 +9,7 @@
  * 5 glasova.
  */
 
+import { analysisHr } from "./ns/analysis.hr";
 import { chromeHr } from "./ns/chrome.hr";
 import { converterHr } from "./ns/converter.hr";
 import { replayerHr } from "./ns/replayer.hr";
@@ -23,6 +24,7 @@ const num = (value: number) => value.toLocaleString("hr-HR");
 
 export const hr: Dict = {
   stats: statsHr,
+  analysis: analysisHr,
   replayer: replayerHr,
   converter: converterHr,
   chrome: chromeHr,
@@ -52,6 +54,15 @@ export const hr: Dict = {
       description:
         "VPIP, PFR, 3-bet, continuation betovi i graf dobitka sa showdownom i bez njega, za svaku spremljenu ruku.",
     },
+    analysis: {
+      title: "Analiza ruku | Rail",
+      description:
+        "Svaka odluka u tvojim spremljenim rukama: board, tvoja ruka, cijena i provjere koje vrijede bez obzira na strategiju.",
+    },
+    analysisHand: {
+      title: "Analiza ruke | Rail",
+      description: "Jedna tvoja ruka, odluku po odluku, u replayeru.",
+    },
     notFound: {
       title: "Stranica nije pronađena | Rail",
       description: "Ova adresa ne odgovara ničemu na Railu.",
@@ -73,6 +84,7 @@ export const hr: Dict = {
     convert: "Učitaj ruku",
     library: "Povijest ruku",
     stats: "Statistika",
+    analysis: "Analiza",
   },
 
   home: {

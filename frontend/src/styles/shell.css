@@ -136,12 +136,23 @@
   grid-area: tabs;
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 1fr;
+  /* Never narrower than a label, and sharing whatever is left. Five tabs (analysis A1)
+     do not fit a 375px phone in either language, so rather than clipping the
+     last one the strip scrolls sideways — and `AppShell` scrolls the active
+     tab into view, so the screen you are on is always visible. */
+  grid-auto-columns: minmax(max-content, 1fr);
   gap: 4px;
   padding: 4px;
   background: var(--bg-elev);
   border: 1px solid var(--line-soft);
   border-radius: 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.shell__tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .shell__tab {
@@ -151,7 +162,8 @@
   justify-content: center;
   gap: 1px;
   min-height: 38px;
-  padding: 6px 12px;
+  padding: 6px 10px;
+  white-space: nowrap;
   border-radius: 9px;
   background: transparent;
   color: var(--fg-muted);
@@ -311,7 +323,7 @@
   }
 
   .shell__tab {
-    padding: 6px 20px;
+    padding: 6px 16px;
   }
 }
 
@@ -337,16 +349,23 @@
 
 }
 
-/* The middle band, 900–1199px: four tabs (longer in Croatian), the bell, the
+/* The middle band, 900–1199px: five tabs (longer in Croatian), the bell, the
    language switch and the account all share one row, so the tagline steps
-   aside and the tabs tighten rather than clip. */
+   aside and the tabs tighten rather than clip. Measured at 900px in Croatian
+   with the Analysis tab (analysis A1): the row fits with these paddings, and if a
+   long screen name ever makes it not fit, the strip scrolls instead of
+   clipping (see `.shell__tabs`). */
 @media (min-width: 900px) and (max-width: 1199px) {
   .shell__brand-sub {
     display: none;
   }
 
   .shell__tab {
-    padding-inline: 12px;
+    padding-inline: 9px;
+  }
+
+  .shell__tab-label {
+    font-size: 13px;
   }
 }
 
