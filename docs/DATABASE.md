@@ -730,7 +730,7 @@ it to the private hand and the account that put it there
 | --- | --- | --- | --- |
 | `set_analysis_share(surface, id, shared)` | **definer** | `authenticated` | The hand behind the surface must be the caller's (`hands.owner_id`) *and* the surface the caller's own; "That hand does not exist." (22023) for a foreign and an unknown hand alike; 120 / 10 min; upsert. |
 | `analysis_share_state(surface, id)` | **definer** | `authenticated` | `{handId, shared, versions}` for the owner, null for anyone else. The toggle's read. |
-| `read_shared_analysis(surface, id, version)` | **definer** | `anon`, `authenticated` | The analysis at exactly `version`, only when (1) the surface is public to the caller by its own page's rule, restated: `published` — visible and not deleted; `post` — the `posts_read` predicate as `read_poll` restates it, the hand not deleted or removed, and **for a poll only once `poll_hides_answer` is false** (voted, author, moderator); `share` — the slug is the capability, as for `read_share`; a hand uuid is never a public surface; (2) the hand is the surface author's own; (3) `analysis_shares.shared`. Null for every other case alike. |
+| `read_shared_analysis(surface, id, version)` | **definer** | `anon`, `authenticated` | The analysis at `version` — or, when the hand has none there, its newest older version flagged `staleVersion: true` (A5a, `20270224090000`) — only when (1) the surface is public to the caller by its own page's rule, restated: `published` — visible and not deleted; `post` — the `posts_read` predicate as `read_poll` restates it, the hand not deleted or removed, and **for a poll only once `poll_hides_answer` is false** (voted, author, moderator); `share` — the slug is the capability, as for `read_share`; a hand uuid is never a public surface; (2) the hand is the surface author's own; (3) `analysis_shares.shared`. Null for every other case alike. |
 
 The read names its output keys (`analysis_hand`'s, without `handId`), and
 projects every decision's `options` to the seven `OptionAnalysis` keys,
@@ -812,6 +812,11 @@ another version, a malformed one, a hand id, another user's private hand,
 an unpublished or removed hand; a poll: nothing to anon, a non-voter, or
 through the sealed page, the reference once voted, to the author and a
 moderator, and nothing again once switched off.
+`analysis_share_fallback.test.sql` (A5a): `read_shared_analysis` still
+definer with an empty `search_path` and open to anon; with no row at the
+requested version the newest older one, flagged `staleVersion`; no flag at
+the version; never a newer row; once re-analysed the current row; switched
+off, nothing at any version.
 `analysis_turn.test.sql` (A5a): invoker, `search_path` and grants on the
 newest-first page; its order (undated last), the version kept apart, the
 trimmed document, keyset paging to the end; a malformed version, isolation,

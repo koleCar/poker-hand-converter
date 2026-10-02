@@ -1317,6 +1317,15 @@ Each phase appends what it learned that changed the plan.
     hands analysed in full. A trainer river (A7) is built and graded on the
     heuristic narrowing (`turn: false`) so that the solve the trainer shows
     is the one that grades it; drills of real hands read the stored rows.
+  - **Shared analyses survive the bump** (A7.1's open point): a version bump
+    used to blank every shared hand until its owner re-ran the analysis, and
+    `analysis/4` is one. `read_shared_analysis` now falls back to the hand's
+    newest *older* stored version, flagged `staleVersion`
+    (`20270224090000_analysis_share_fallback.sql`, pgTAP), and the
+    read-only sheet says "analysed with an earlier version". Checked locally:
+    a shared turn decision, its turn study, and a poll's reference on a turn
+    decision render from `analysis/4` rows. The poll reference itself does not
+    yet say when it is from an earlier version.
   - **`charts/2`'s known weakness** replaces `charts/1`'s in the `model`
     note: the small pairs, small suited connectors and A5s UTG folds, and
     the button's flat of a cutoff open (`docs/CHARTS.md` §9).

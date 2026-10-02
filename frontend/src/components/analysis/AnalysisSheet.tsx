@@ -25,7 +25,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { bestOption, betterAlternative } from "../../lib/analysis/reference";
-import type { DecisionAnalysis, HandAnalysis, OptionAnalysis } from "../../lib/analysis/types";
+import { ANALYSIS_VERSION, type DecisionAnalysis, type HandAnalysis, type OptionAnalysis } from "../../lib/analysis/types";
 import type { ChartSet } from "../../lib/charts";
 import { preflopCharts } from "../../lib/chartSet";
 import { useDict } from "../../lib/i18n/client";
@@ -130,6 +130,9 @@ export function AnalysisSheet({ analysis, frame, seek, fresh, hand, readOnly = f
       {analysis.grade === null && decisions.length > 0 ? <p className={styles.hint}>{t.sheet.notGradedHint}</p> : null}
       {fresh && !readOnly ? <p className={styles.hint}>{t.hand.fresh}</p> : null}
       {readOnly ? <p className={styles.hint}>{t.share.sheet.note}</p> : null}
+      {readOnly && analysis.version !== ANALYSIS_VERSION ? (
+        <p className={styles.hint}>{t.share.sheet.stale(analysis.version)}</p>
+      ) : null}
 
       {analysis.approximations.length > 0 ? (
         <div className={styles.approx}>

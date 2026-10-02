@@ -13,7 +13,8 @@ import { getAnonServerSupabase } from "../supabase/server";
  * Returns the stored row as the database projected it (named keys, no ids);
  * the client island maps it with `handAnalysisFromStored`. Null when the owner
  * has not shared it, the surface is not public, or the hand has no analysis
- * at the current version.
+ * at the current version or an earlier one (an earlier one comes back with
+ * `staleVersion: true`, and the read-only sheet says so).
  */
 export const readSharedAnalysisAnon = cache(
   async (surface: "published" | "post" | "share", id: string): Promise<Record<string, unknown> | null> => {
