@@ -25,7 +25,9 @@ import type { ForumComment, ForumPost } from "../../../../../lib/forum/types";
 import { getDict } from "../../../../../lib/i18n/server";
 import { getParser } from "../../../../../lib/parsers";
 import { canonicalUrl, paths } from "../../../../../lib/routes";
+import { readSharedAnalysisAnon } from "../../../../../lib/server/analysisShare";
 import { readComments, readHiddenPostAsViewer, readPollAnon, readPost } from "../../../../../lib/server/forum";
+import { AnalysisShareToggle } from "../../../../../components/analysis/AnalysisShareToggle";
 import styles from "../../../../../components/forum/forum.module.css";
 
 /**
@@ -152,9 +154,12 @@ export default async function PostPage({ params, searchParams }: { params: Param
 
   // A poll's comments and hand are sealed until the reader answers; the server
   // render is anonymous, so it gets the spot and no discussion (#51).
-  const [comments, poll] = await Promise.all([
+  const [comments, poll, analysis] = await Promise.all([
     post.poll ? Promise.resolve([]) : viewerOnly ? Promise.resolve(viewerOnly.comments) : readComments(post.publicId, commentSort),
     post.poll ? readPollAnon(post.publicId) : Promise.resolve(null),
+    // A7.1: the hand's analysis, when its author shared it. Never for a poll
+    // here: its reference waits for the reader's vote, read in the browser.
+    !post.poll && post.handPhf ? readSharedAnalysisAnon("post", post.publicId) : Promise.resolve(null),
   ]);
   const hand = post.handPhf ?? null;
   const siteName = post.hand ? getParser(post.hand.site)?.name ?? post.hand.site : null;
@@ -252,10 +257,13 @@ export default async function PostPage({ params, searchParams }: { params: Param
             </section>
           ) : null}
 
+          {!post.poll && hand ? <AnalysisShareToggle surface="post" id={post.publicId} refreshOnChange /> : null}
+
           {post.poll ? null : (
           <PostDiscussion
             hand={hand}
             site={siteName}
+            analysis={analysis}
             initialPosition={decodePosition(t)}
             anchors={comments.flatMap((comment) => (comment.anchor && !comment.deleted && !comment.removed ? [comment.anchor] : []))}
           >

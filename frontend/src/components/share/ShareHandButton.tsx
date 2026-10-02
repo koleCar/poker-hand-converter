@@ -6,6 +6,7 @@ import { toStandardText } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
 import { buildSharePreview } from "./preview";
 import { SHARE_UNAVAILABLE_MESSAGE, createShare, isShareBackendReady } from "./shareClient";
+import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
 
 interface ShareHandButtonProps {
   hand: PhfHand;
@@ -244,6 +245,9 @@ export function ShareHandButton({
                   {t.copyBlocked}
                 </p>
               ) : null}
+
+              {/* A7.1: a stored hand's analysis stays private unless this is ticked. */}
+              {storedHandId && !presetUrl ? <AnalysisShareToggle surface="hand" id={storedHandId} /> : null}
             </>
           ) : busy ? (
             <p className="share__hint">{t.creating}</p>

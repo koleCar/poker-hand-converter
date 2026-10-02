@@ -24,6 +24,7 @@ import {
 import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
+import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
 import styles from "./PublishHandButton.module.css";
 
 const MODES: PublishMode[] = ["pseudonyms", "positions", "as-imported"];
@@ -132,6 +133,7 @@ export function PublishHandButton({ storedHandId }: { storedHandId: string | nul
                 <p className="notice notice--info" role="status">
                   {notice}
                 </p>
+                <AnalysisShareToggle surface="hand" id={storedHandId} />
                 <div className={styles.actions}>
                   <Link href={`${paths.submit()}?hand=${encodeURIComponent(publishedId)}`} className="btn btn--primary">
                     {en.publish.discuss}
@@ -147,6 +149,7 @@ export function PublishHandButton({ storedHandId }: { storedHandId: string | nul
             ) : publishedId ? (
               <>
                 <p className="muted">{en.publish.already}</p>
+                <AnalysisShareToggle surface="hand" id={storedHandId} />
                 <div className={styles.actions}>
                   <Link href={`${paths.submit()}?hand=${encodeURIComponent(publishedId)}`} className="btn btn--primary">
                     {en.publish.discuss}
@@ -216,6 +219,9 @@ export function PublishHandButton({ storedHandId }: { storedHandId: string | nul
                 ) : null}
 
                 <p className={`muted ${styles.small}`}>{en.publish.alwaysRemoved}</p>
+
+                {/* A7.1: the analysis stays private unless this is ticked. */}
+                <AnalysisShareToggle surface="hand" id={storedHandId} />
 
                 {blocked ? <p className="notice notice--warn">{blocked}</p> : null}
                 {error ? (

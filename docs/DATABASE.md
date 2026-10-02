@@ -54,7 +54,7 @@ There are exactly three kinds of caller:
 
 | Caller | What they are | What they can reach |
 | --- | --- | --- |
-| **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view, `resolve_username(name)`, and visible rows of `published_hands` (plus `read_published_hand` / `published_hands_by_author`). No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
+| **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view, `resolve_username(name)`, visible rows of `published_hands` (plus `read_published_hand` / `published_hands_by_author`), and `read_shared_analysis(surface, id, version)` — a hand's analysis, only where its owner shared it and the hand is already public to the caller. No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
 | **`authenticated`** | Signed in, identified by `auth.uid()` | Their own hands, their own shares, their own corpus samples. Nobody else's, by any query. |
 | **`service_role`** | Us, from the dashboard or the Management API | Everything. Triage, cleanup, backfills. |
 
@@ -128,6 +128,7 @@ per-user counter is a strictly larger table with a cleanup job attached.
 | `drill_sync:<user>` | 120 syncs / 10 min **per account** | `sync_drill_items()` |
 | `drill_review:<user>` | 600 answers / 10 min **per account** | `review_drill()` |
 | `trainer_results:<user>` | 1 200 rows / 10 min **per account** | `record_trainer_results()` |
+| `analysis_share:<user>` | 120 switches / 10 min **per account** | `set_analysis_share()` |
 
 `share_view` is the one per-key bucket, because the thing it protects is
 per-key: a view counter anyone can increment by holding a URL is a vanity metric
@@ -472,6 +473,7 @@ rule between a reader and the answer:
 | The hand | Its published copy moves to `status = 'poll'`, which `published_hands_public_select` does not match — so `/p/:id`, the author's list, the sitemap, `get_post.handPhf` and the feed card all lose it at once. `read_poll` (definer) returns `poll_phf(...)` — actions before the decision, runout 0 through that street, the hero's cards unless hidden, no villain cards, no results, no source text — until the caller has voted or is the author or a moderator; then the whole document. |
 | The discussion | `comments_read` gains `and not poll_hides_answer(post_id)`, which covers `get_post_comments`, a direct table read and anything later that reads through the policy. |
 | The votes | `post_polls` / `poll_votes` are sealed; reads are counts through `read_poll` / `poll_public`, never voters. |
+| The reference answer (A7.1) | Only when the author shared the hand's analysis, and only through `read_shared_analysis('post', …)`, which returns nothing while `poll_hides_answer` is true for the caller — and never through the sealed hand's `published` surface. See [Hand analysis](#hand-analysis-hand_analysis-decision_analysis). |
 
 `create_poll_post` runs `create_post` (every gate and limit a post gets), then
 seals the hand. The hand must be the caller's, visible, and not the subject of
@@ -699,6 +701,42 @@ the reader's day, and graded Mistakes not drilled yet), `drill_due_by_spot`
 `lib/training/schedule.ts`) and `drill_keys_valid` are granted to
 `authenticated` and not to `anon`.
 
+**Sharing an analysis** (A7.1, `20270222090000_analysis_share.sql`; plan
+§8.4: private by default, a per-hand opt-in). One table, `analysis_shares`
+(`hand_id` primary key → `hands`, cascading; `owner_id`; `shared`;
+timestamps): RLS select-own to `authenticated`, nothing to `anon`, **no
+client INSERT, UPDATE or DELETE grant**. Switching off writes `shared =
+false`; nothing is deleted. A row rather than a column on `hands`, which
+has an owner UPDATE policy: the flag that decides what strangers read is
+not one more column a generic update can set.
+
+A hand is named by a **surface**: `hand` (its uuid), `published`
+(`/p/<public_id>`), `post` (a thread or a poll), `share` (`/h/<slug>`).
+`analysis_share_target(surface, id)` (definer, granted to nobody) resolves
+it to the private hand and the account that put it there
+(`published_hand_sources` / `shares`).
+
+| Function | Security | Who | What |
+| --- | --- | --- | --- |
+| `set_analysis_share(surface, id, shared)` | **definer** | `authenticated` | The hand behind the surface must be the caller's (`hands.owner_id`) *and* the surface the caller's own; "That hand does not exist." (22023) for a foreign and an unknown hand alike; 120 / 10 min; upsert. |
+| `analysis_share_state(surface, id)` | **definer** | `authenticated` | `{handId, shared, versions}` for the owner, null for anyone else. The toggle's read. |
+| `read_shared_analysis(surface, id, version)` | **definer** | `anon`, `authenticated` | The analysis at exactly `version`, only when (1) the surface is public to the caller by its own page's rule, restated: `published` — visible and not deleted; `post` — the `posts_read` predicate as `read_poll` restates it, the hand not deleted or removed, and **for a poll only once `poll_hides_answer` is false** (voted, author, moderator); `share` — the slug is the capability, as for `read_share`; a hand uuid is never a public surface; (2) the hand is the surface author's own; (3) `analysis_shares.shared`. Null for every other case alike. |
+
+The read names its output keys (`analysis_hand`'s, without `handId`), and
+projects every decision's `options` to the seven `OptionAnalysis` keys,
+`flags` to code / severity / params, and `facts` to the listed `SpotFacts`
+keys (`analysis_public_facts` — a new facts key needs a line there; `turn`
+and `flop` are listed for A5). The rows are written by the owner's browser,
+so a key nobody listed does not reach a stranger. Facts are hero-centric by
+construction (hero's cards, the board to the decision, positions, pot
+geometry, equities against ranges named by line and seat): no villain hole
+cards and no screen names are inputs, so the scrubbed copy's pseudonyms
+have nothing to mask. The one place the public view hides more — a poll
+before the reveal — gets nothing at all. The page then draws the analysis
+only if every decision lands on a hero action of the copy it shows
+(`analysisFitsHand`), the published document, a thread's hand or a share
+page's re-parsed text alike.
+
 ### Tests
 
 `supabase/tests/database/analysis.test.sql`: no client INSERT/UPDATE/DELETE
@@ -727,6 +765,17 @@ grants; the SM-2 table; drills only from the caller's own Mistakes and
 Blunders, once, with the spot key, re-pointed at a new version; reviews of
 one's own drill only, option bounds and input validation; queue, summary and
 per-spot counts; trainer results and their summary; isolation and anon.
+`analysis_share.test.sql` (A7.1, 53 assertions): no client write grant on
+`analysis_shares`, RLS on, anon cannot read it; definer and `search_path`
+on all seven functions, internals executable by nobody, the switch and the
+state not by anon; off by default on every surface; only the owner
+switches, by any of their surfaces, with one error for foreign and unknown;
+the public read: shared and published / in a thread / by a share link
+returns the projected analysis (no ids, no unlisted keys), and nothing for
+another version, a malformed one, a hand id, another user's private hand,
+an unpublished or removed hand; a poll: nothing to anon, a non-voter, or
+through the sealed page, the reference once voted, to the author and a
+moderator, and nothing again once switched off.
 
 ## Verifying the isolation
 

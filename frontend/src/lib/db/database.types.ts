@@ -9,6 +9,38 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analysis_shares: {
+        Row: {
+          created_at: string
+          hand_id: string
+          owner_id: string
+          shared: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hand_id: string
+          owner_id: string
+          shared?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hand_id?: string
+          owner_id?: string
+          shared?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_shares_hand_id_fkey"
+            columns: ["hand_id"]
+            isOneToOne: true
+            referencedRelation: "hands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       board_moderators: {
         Row: {
           board_id: string
@@ -2122,6 +2154,9 @@ export type Database = {
         Returns: Json
       }
       analysis_overview: { Args: { p_filters?: Json }; Returns: Json }
+      analysis_public_facts: { Args: { p_facts: Json }; Returns: Json }
+      analysis_public_flags: { Args: { p_flags: Json }; Returns: Json }
+      analysis_public_options: { Args: { p_options: Json }; Returns: Json }
       analysis_scope: {
         Args: { p_filters?: Json }
         Returns: {
@@ -2149,6 +2184,17 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      analysis_share_state: {
+        Args: { p_id: string; p_surface: string }
+        Returns: Json
+      }
+      analysis_share_target: {
+        Args: { p_id: string; p_surface: string }
+        Returns: {
+          hand_id: string
+          owner_id: string
+        }[]
       }
       analysis_spot_key: {
         Args: {
@@ -2505,6 +2551,10 @@ export type Database = {
       read_poll: { Args: { p_post: string }; Returns: Json }
       read_published_hand: { Args: { p_public_id: string }; Returns: Json }
       read_share: { Args: { p_slug: string }; Returns: Json }
+      read_shared_analysis: {
+        Args: { p_id: string; p_surface: string; p_version: string }
+        Returns: Json
+      }
       record_conversion_failures: { Args: { p_failures: Json }; Returns: Json }
       record_share_view: { Args: { p_slug: string }; Returns: boolean }
       record_trainer_results: { Args: { p_rows: Json }; Returns: Json }
@@ -2553,6 +2603,10 @@ export type Database = {
       }
       search_hands: {
         Args: { p_filters?: Json; p_limit?: number; p_offset?: number }
+        Returns: Json
+      }
+      set_analysis_share: {
+        Args: { p_id: string; p_shared: boolean; p_surface: string }
         Returns: Json
       }
       set_player_note: {

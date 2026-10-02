@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HandSummary } from "../../../components/hand/HandSummary";
-import { ReplayViewer } from "../../../components/replayer/ReplayViewer";
+import { AnalysisShareToggle } from "../../../components/analysis/AnalysisShareToggle";
+import { SharedAnalysisReplay } from "../../../components/analysis/SharedAnalysis";
 import { decodePosition, POSITION_PARAM, type ReplayPosition } from "../../../components/replayer/position";
 import { buildSharePreview, formatStakes, shortGameName } from "../../../components/share/preview";
 import { BrandMark } from "../../../components/shell/BrandMark";
@@ -13,6 +14,7 @@ import type { Dict } from "../../../lib/i18n/types";
 import { getParser } from "../../../lib/parsers";
 import type { PhfHand } from "../../../lib/phf/types";
 import { canonicalUrl, paths } from "../../../lib/routes";
+import { readSharedAnalysisAnon } from "../../../lib/server/analysisShare";
 import { readPublishedHand, type PublishedHand } from "../../../lib/server/published";
 import styles from "./published.module.css";
 
@@ -149,6 +151,7 @@ async function PublishedContent({
   const hand: PhfHand = published.phf;
   const siteName = getParser(published.site)?.name ?? published.site;
   const playedOn = formatDay(published.playedOn, en.chrome.intl);
+  const analysis = await readSharedAnalysisAnon("published", published.publicId);
 
   return (
     <article className={styles.article}>
@@ -185,8 +188,13 @@ async function PublishedContent({
         <HandSummary t={en} hand={hand} />
       </section>
 
+      {/* Only the author sees this switch (it renders nothing for anyone else). */}
+      <AnalysisShareToggle surface="published" id={published.publicId} refreshOnChange />
+
       <section className={styles.replay} aria-label={en.published.replayHeading}>
-        <ReplayViewer hand={hand} site={siteName} initialPosition={initialPosition} />
+        {/* Grade pips and a read-only Analysis sheet when the author shared the
+            hand's analysis (A7.1); the plain replayer otherwise. */}
+        <SharedAnalysisReplay hand={hand} site={siteName} initialPosition={initialPosition} analysis={analysis} />
       </section>
     </article>
   );

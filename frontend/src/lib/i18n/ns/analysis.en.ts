@@ -20,6 +20,7 @@ import type { DecisionAnalysis, Flag, OptionAnalysis, SpotFacts } from "../../an
 import { reportsEn } from "./analysisReports.en";
 import { leaksEn, progressEn, summaryEn } from "./analysisLeaks.en";
 import { trainEn } from "./analysisTrain.en";
+import { shareEn } from "./analysisShare.en";
 
 const num = (value: number, digits = 0) =>
   value.toLocaleString("en-GB", { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -916,6 +917,9 @@ export const analysisEn = {
 
   /** The trainer (phase A7): `analysisTrain.en.ts`. */
   train: trainEn,
+
+  /** Sharing a hand's analysis (A7.1): `analysisShare.en.ts`. */
+  share: shareEn,
 
   explain,
 } as const;
