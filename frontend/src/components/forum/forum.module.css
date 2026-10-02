@@ -448,3 +448,18 @@
   border-radius: inherit;
   background: var(--accent);
 }
+
+/* A7.1: a poll's reference answer, beside the votes. */
+.pollReferenceLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.pollReference {
+  padding-block-start: var(--space-3);
+  border-block-start: 1px solid var(--border-subtle);
+}

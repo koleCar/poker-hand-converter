@@ -5,6 +5,7 @@ import type { Dict } from "../types";
 import { reportsHr } from "./analysisReports.hr";
 import { leaksHr, progressHr, summaryHr } from "./analysisLeaks.hr";
 import { trainHr } from "./analysisTrain.hr";
+import { shareHr } from "./analysisShare.hr";
 
 /**
  * Strings for the Analysis tab and the replayer's Analysis sheet, Croatian.
@@ -889,6 +890,8 @@ export const analysisHr: Dict["analysis"] = {
   summary: summaryHr,
 
   train: trainHr,
+
+  share: shareHr,
 
   explain,
 };

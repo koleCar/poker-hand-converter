@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildSharePreview, formatPlayedAt, formatStakes, shortGameName } from "../../../components/share/preview";
 import { BrandMark } from "../../../components/shell/BrandMark";
-import { ReplayViewer } from "../../../components/replayer/ReplayViewer";
+import { AnalysisShareToggle } from "../../../components/analysis/AnalysisShareToggle";
+import { SharedAnalysisReplay } from "../../../components/analysis/SharedAnalysis";
 import { decodePosition, POSITION_PARAM, type ReplayPosition } from "../../../components/replayer/position";
 import { RecordShareView } from "./RecordShareView";
 import { parseHand } from "../../../lib/phf";
@@ -10,6 +11,7 @@ import type { PhfHand } from "../../../lib/phf/types";
 import { getDict } from "../../../lib/i18n/server";
 import type { Dict } from "../../../lib/i18n/types";
 import { paths, sharedHandUrl } from "../../../lib/routes";
+import { readSharedAnalysisAnon } from "../../../lib/server/analysisShare";
 import { readShare, type ShareReadResult } from "../../../lib/server/shares";
 
 /**
@@ -179,6 +181,7 @@ async function SharedHandContent({
 }) {
   const en = await getDict();
   const sharedAt = formatPlayedAt(createdAt, en.chrome.intl);
+  const analysis = await readSharedAnalysisAnon("share", slug);
 
   return (
     <>
@@ -193,8 +196,14 @@ async function SharedHandContent({
           back off the same parameter, resolved lossy-tolerantly — see
           `replayer/position.ts`. */}
       <section className="sharepage__replay">
-        <ReplayViewer hand={hand} initialPosition={initialPosition} />
+        {/* Grade pips and a read-only Analysis sheet when the hand's owner
+            shared its analysis (A7.1); the plain replayer otherwise. */}
+        <SharedAnalysisReplay hand={hand} initialPosition={initialPosition} analysis={analysis} />
       </section>
+
+      {/* Only the link's owner sees this switch (it renders nothing for anyone else). */}
+      <AnalysisShareToggle surface="share" id={slug} refreshOnChange />
+
 
       <section className="sharepage__cta">
         <div>

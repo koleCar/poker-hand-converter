@@ -1045,3 +1045,69 @@ Each phase appends what it learned that changed the plan.
       0.8%-frequency, zero-EV-loss option scores 1. The grade is what the
       trainer leads with; the session's mean score follows §2 as it is.
     - The drill counts on a leak-filtered drill page are the global ones.
+- 2026-10-02 — A7.1 shipped: sharing a hand's analysis, and the reference
+  answer in "What would you do?" (#51). No grade changes, so still
+  `analysis/3`. This is the follow-up A7 left open, with one change: the flag
+  is **per hand**, not per poll (§8.4 says "per-hand opt-in", and one switch
+  is easier to reason about than one per surface).
+  - **The flag.** `analysis_shares(hand_id, owner_id, shared, …)`
+    (`20270222090000_analysis_share.sql`), off by default; RLS select-own, no
+    client write grant; `set_analysis_share(surface, id, shared)` is definer,
+    checks that the hand *and* the surface are the caller's, says "That hand
+    does not exist." for foreign and unknown alike, 120 / 10 min per account.
+    Off writes `false`; nothing is deleted.
+  - **Surfaces.** A hand is named by where it is seen: `hand` (the owner's
+    `/analysis/h/<id>`), `published` (`/p/<id>`), `post` (thread or poll),
+    `share` (`/h/<slug>`). The owner's switch accepts any of them; the
+    public read only the last three.
+  - **Who reads what.** `read_shared_analysis(surface, id, version)` (definer,
+    anon-callable) answers only when the surface is public to the caller by
+    its own page's rule, restated in the function (published: visible; post:
+    the `posts_read` predicate, hand not removed; share: the slug is the
+    capability), the hand is the surface author's own, and the flag is on —
+    at exactly the version asked for. A hand uuid is never a public surface.
+    Output: `analysis_hand`'s named keys without `handId`; options, flags and
+    facts projected to their known keys (`analysis_public_facts`: a new
+    `SpotFacts` key needs a line there — `turn` and `flop` are pre-listed for
+    A5). Facts are hero-centric (no villain cards or names are inputs), so
+    nothing needs masking against the scrubbed copy; the page still draws the
+    analysis only when every decision lands on a hero action of the copy on
+    screen (`analysisFitsHand`; on the corpus it always does, for the
+    published document and for the share page's re-parsed standard text).
+  - **Vote before reveal, server-side.** For a poll, the read returns nothing
+    while `poll_hides_answer` is true for the caller (anon, a reader who has
+    not voted), and the sealed hand's `/p/` surface never answers. After the
+    reveal the poll shows, under each answer's vote bar, the reference's
+    frequency and EV for it and the grade it would get (bet / raise: the
+    sizes' frequencies added, graded by the best size; the drill's rule —
+    `gradeDrill`, same caps, the hero's own option keeps its stored grade),
+    then the full options table with the hero's move, the source and the
+    approximations, and grade pips on the replayer.
+  - **UI.** Grade pips on the rail and a read-only Analysis sheet (closed by
+    default; "the hero" for "you" in the sheet's own labels; a line saying
+    whose analysis it is) on `/p/<id>`, threads with a hand, polls after the
+    reveal, and `/h/<slug>`. In a thread a decision with comments keeps one
+    pip, in the grade's colour, named both ways. The owner's switch, with
+    what becomes visible and where spelled out before it is ticked: the
+    hand's analysis page, the publish dialog, the share dialog, the submit
+    form (with the poll note), and their own `/p/`, thread, poll and share
+    page (it renders nothing for anyone else). **Embeds show nothing extra**:
+    `/embed/{p,h}` stay the bare replayer, and OG images are unchanged.
+  - **Tests.** pgTAP `analysis_share.test.sql`, 53 assertions; Vitest
+    `analysisShare.test.ts` (the fit guard over the GG and sample corpus,
+    against the hand and its standard-text copy; the poll mapping and
+    grades). Verified end to end on the local stack: signed out, a published
+    hand shows nothing until the owner ticks the box, then pips and the sheet
+    (375 px, light and dark); a poll shows no reference to anon or before
+    the vote (no request is even made), and after a second account votes,
+    the reference beside the votes (EN and HR); the author's thread gains
+    pips when shared, for anonymous readers too.
+  - **Open.**
+    - The explanations and approximation texts are written to "you"; on a
+      shared hand they address the hero. The sheet says so; a third-person
+      variant of the templates would be cleaner.
+    - The reference is read at the client's `ANALYSIS_VERSION`: after a bump,
+      shared hands show nothing until their owner re-runs the analysis.
+    - The analysis is read as anon for the server render of `/p/` and
+      threads; an author's own hidden (held, shadow-hidden) thread therefore
+      shows its analysis to nobody, the author included.

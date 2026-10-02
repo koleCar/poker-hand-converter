@@ -26,13 +26,11 @@ import type { PhfHand } from "../../lib/phf/types";
 import { paths } from "../../lib/routes";
 import { decodePosition, type ReplayPosition } from "../replayer/position";
 import { ReplayViewer, type ReplayMark } from "../replayer/ReplayViewer";
-import { AnalysisSheet, markWord, worstDecision } from "./AnalysisSheet";
+import { AnalysisSheet, worstDecision } from "./AnalysisSheet";
+import { AnalysisShareToggle } from "./AnalysisShareToggle";
 import styles from "./analysis.module.css";
-import { toneOf } from "./tone";
+import { ANALYSIS_SHEET_ICON as SHEET_ICON, gradeMarks } from "./SharedAnalysis";
 import { listQuery, parseListState } from "./listState";
-
-/** The sheet's button glyph. Decoration; the button is named in words. */
-const SHEET_ICON = "◎";
 
 type Loaded =
   | { status: "loading" }
@@ -86,21 +84,10 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
     };
   }, [auth.isSignedIn, handId]);
 
-  const marks = useMemo<ReplayMark[]>(() => {
-    if (loaded.status !== "ready") return [];
-    return loaded.analysis.decisions.map((decision) => {
-      const street = t.streets[decision.street] ?? decision.street;
-      const action = t.actions[decision.action] ?? decision.action;
-      const tone = toneOf(decision);
-      return {
-        position: { kind: "action", actionIndex: decision.actionIndex },
-        count: 1,
-        label: `${street} ${action}`,
-        tone: tone === "skipped" ? "neutral" : tone,
-        ariaLabel: t.sheet.mark(street, action, markWord(decision, t)),
-      };
-    });
-  }, [loaded, t]);
+  const marks = useMemo<ReplayMark[]>(
+    () => (loaded.status === "ready" ? gradeMarks(loaded.analysis, t) : []),
+    [loaded, t],
+  );
 
   if (!isDatabaseConfigured) {
     return <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>;
@@ -145,6 +132,8 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
   return (
     <div className={styles.handPage}>
       {backLink}
+      {/* Private by default (§8.4): the owner's one switch for every place this hand is public. */}
+      <AnalysisShareToggle surface="hand" id={handId} />
       <section className="card card--flush">
         <ReplayViewer
           key={loaded.hand.meta.handKey}

@@ -40,6 +40,7 @@ const HR: Record<string, string> = {
   "You must be signed in to rebuild statistics.": "Za obnovu statistike moraš biti prijavljen/a.",
   "You must be signed in to analyse hands.": "Za analizu ruku moraš biti prijavljen/a.",
   "You must be signed in to read the analysis.": "Za analizu moraš biti prijavljen/a.",
+  "You must be signed in to share an analysis.": "Za dijeljenje analize moraš biti prijavljen/a.",
   "You must be signed in to save an analysis.": "Za spremanje analize moraš biti prijavljen/a.",
   "You must be signed in to prune the analysis.": "Za čišćenje analize moraš biti prijavljen/a.",
   "Sign in to post.": "Prijavi se za objavu.",

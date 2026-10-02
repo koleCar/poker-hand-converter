@@ -11,9 +11,15 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { analysisFitsHand } from "../../lib/analysis/share";
+import type { DecisionAnalysis, HandAnalysis } from "../../lib/analysis/types";
 import { useAuth } from "../../lib/auth";
+import { readSharedAnalysis } from "../../lib/db/analysisShare";
 import { forumErrorMessage, readCommentsAsMe, readPoll, votePoll } from "../../lib/db/forum";
 import { CHOICE_LABEL } from "../../lib/forum/poll";
+import { pollReference } from "../../lib/forum/pollReference";
+import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
+import { PollOptionLine, PollReference } from "./PollReference";
 import type { ForumComment, PollChoice, PollState } from "../../lib/forum/types";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
@@ -51,9 +57,23 @@ export function PollThread({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // A7.1: the hand's shared analysis, as this reader may see it. The database
+  // returns it only after the reveal (voted, author or moderator) and only if
+  // the author shared it, so this asks whenever the poll is revealed.
+  const [analysis, setAnalysis] = useState<HandAnalysis | null>(null);
+
   const loadComments = useCallback(() => {
     readCommentsAsMe(post, "best").then(setComments, () => setComments([]));
   }, [post]);
+
+  const loadAnalysis = useCallback(() => {
+    readSharedAnalysis("post", post).then(setAnalysis, () => setAnalysis(null));
+  }, [post]);
+
+  const revealed = poll?.revealed === true;
+  useEffect(() => {
+    if (revealed) loadAnalysis();
+  }, [revealed, loadAnalysis]);
 
   // The server render is anonymous. A signed-in reader may already have
   // answered (or be the author), so ask again as them.
@@ -93,6 +113,12 @@ export function PollThread({
   }
 
   const permalink = (seq: number) => paths.comment(board, post, slug, seq);
+  // The polled decision's stored analysis, when the hand's analysis is shared
+  // and lines up with the hand on screen.
+  const decision =
+    analysis && poll.phf && analysisFitsHand(analysis, poll.phf)
+      ? (analysis.decisions.find((entry) => entry.actionIndex === poll.stopIndex) ?? null)
+      : null;
 
   if (!poll.revealed) {
     return (
@@ -181,10 +207,18 @@ export function PollThread({
           {en.forum.poll.results}
         </h2>
         {poll.isAuthor ? <p className="muted">{en.forum.poll.authorNote}</p> : null}
-        <PollResults poll={poll} />
+        <PollResults poll={poll} decision={decision} />
+        {analysis ? <PollReference decision={decision} /> : null}
+        {poll.isAuthor ? (
+          <>
+            {analysis ? null : <p className="muted">{en.analysis.share.poll.authorHint}</p>}
+            <AnalysisShareToggle surface="post" id={post} poll onChange={loadAnalysis} />
+          </>
+        ) : null}
       </section>
       <PostDiscussion
         hand={poll.phf}
+        analysis={analysis}
         site={site}
         anchors={(comments ?? []).flatMap((comment) => (comment.anchor && !comment.deleted && !comment.removed ? [comment.anchor] : []))}
       >
@@ -199,8 +233,10 @@ export function PollThread({
   );
 }
 
-function PollResults({ poll }: { poll: PollState }) {
+function PollResults({ poll, decision }: { poll: PollState; decision: DecisionAnalysis | null }) {
   const en = useDict();
+  // Each answer read against the reference at the polled decision (A7.1).
+  const reference = decision && decision.grade !== null ? pollReference(decision, poll.options) : null;
   const action = poll.phf?.actions.find((entry) => entry.index === poll.stopIndex) ?? null;
   const happened: PollChoice | null = action
     ? action.allIn && poll.options.includes("allin")
@@ -229,6 +265,7 @@ function PollResults({ poll }: { poll: PollState }) {
             <div className={styles.pollBar} aria-hidden="true">
               <span style={{ width: `${share}%` }} />
             </div>
+            {reference && decision ? <PollOptionLine decision={decision} reference={reference[option]} /> : null}
           </li>
         );
       })}

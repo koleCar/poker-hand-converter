@@ -15,7 +15,9 @@
  */
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import type { HandAnalysis } from "../../lib/analysis/types";
 import type { PhfHand, Street } from "../../lib/phf/types";
+import { useSharedAnalysis } from "../analysis/SharedAnalysis";
 import { anchorLabel } from "../../lib/forum/anchor";
 import { useDict } from "../../lib/i18n/client";
 import { ReplayViewer, type ReplayMark } from "../replayer/ReplayViewer";
@@ -70,6 +72,7 @@ export function PostDiscussion({
   site,
   initialPosition,
   anchors,
+  analysis,
   children,
 }: {
   hand: PhfHand | null;
@@ -77,6 +80,8 @@ export function PostDiscussion({
   initialPosition?: ReplayPosition | null;
   /** The thread's comment anchors, one per comment that has one — pips on the rail. */
   anchors?: CommentAnchor[];
+  /** The hand's shared analysis (A7.1), as stored or mapped; null when its author has not shared it. */
+  analysis?: HandAnalysis | Record<string, unknown> | null;
   children: ReactNode;
 }) {
   const en = useDict();
@@ -107,7 +112,7 @@ export function PostDiscussion({
     document.getElementById("replay")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
-  const marks = useMemo<ReplayMark[]>(() => {
+  const commentMarks = useMemo<ReplayMark[]>(() => {
     if (!hand || !anchors?.length) return [];
     const grouped = new Map<string, ReplayMark>();
     for (const anchor of anchors) {
@@ -126,6 +131,30 @@ export function PostDiscussion({
     return [...grouped.values()];
   }, [hand, anchors, anchorAfter]);
 
+  // A7.1: the hand's shared analysis, when its author shared it — grade pips
+  // and the read-only sheet. The rail has one pip per moment, so a decision
+  // that also has comments keeps the grade's colour and says both in words.
+  const shared = useSharedAnalysis(analysis, hand);
+  const commentWords = en.replayer.controls.mark;
+  const marks = useMemo<ReplayMark[]>(() => {
+    if (!shared) return commentMarks;
+    const graded = new Map<number, ReplayMark>();
+    for (const mark of shared.marks) {
+      if (mark.position.kind === "action") graded.set(mark.position.actionIndex, { ...mark });
+    }
+    const out: ReplayMark[] = [];
+    for (const mark of commentMarks) {
+      const grade = mark.position.kind === "action" ? graded.get(mark.position.actionIndex) : undefined;
+      if (grade) {
+        grade.count = mark.count;
+        grade.ariaLabel = `${grade.ariaLabel ?? grade.label}. ${commentWords(mark.count, mark.label)}`;
+      } else {
+        out.push(mark);
+      }
+    }
+    return [...graded.values(), ...out];
+  }, [shared, commentMarks, commentWords]);
+
   const value = useMemo<SpotContextValue>(
     () => ({ hand, attached, clearAttached: () => setAttached(null), seek }),
     [hand, attached, seek],
@@ -142,6 +171,7 @@ export function PostDiscussion({
             initialPosition={mount.position}
             onPositionChange={onPositionChange}
             marks={marks}
+            sheet={shared?.sheet}
           />
           <div className={styles.spotBar}>
             <button

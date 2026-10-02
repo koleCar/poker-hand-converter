@@ -22,7 +22,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { bestOption, betterAlternative } from "../../lib/analysis/reference";
 import type { DecisionAnalysis, HandAnalysis, OptionAnalysis } from "../../lib/analysis/types";
 import type { ChartSet } from "../../lib/charts";
@@ -64,12 +64,37 @@ interface AnalysisSheetProps {
   fresh: boolean;
   /** The hand itself, for the river study's re-solve. Without it there is no river study. */
   hand?: PhfHand;
+  /**
+   * A stranger's view of a shared analysis (A7.1): the hero is "the hero",
+   * not "you", in the sheet's own labels, and a line says whose analysis it
+   * is. Nothing else changes: the same grades, options, facts and *why*.
+   */
+  readOnly?: boolean;
 }
 
 type Strings = ReturnType<typeof useDict>["analysis"];
 
-export function AnalysisSheet({ analysis, frame, seek, fresh, hand }: AnalysisSheetProps) {
+/** The sheet's strings: the owner's, or — read-only — with the hero named in the third person. */
+function useSheetStrings(readOnly = false): Strings {
   const t = useDict().analysis;
+  return useMemo(() => {
+    if (!readOnly) return t;
+    const voice = t.share.sheet;
+    return {
+      ...t,
+      sheet: {
+        ...t.sheet,
+        yourMove: voice.heroMove,
+        decisionsHeading: voice.decisionsHeading,
+        noDecisions: voice.noDecisions,
+        facts: { ...t.sheet.facts, hand: voice.heroHand },
+      },
+    };
+  }, [t, readOnly]);
+}
+
+export function AnalysisSheet({ analysis, frame, seek, fresh, hand, readOnly = false }: AnalysisSheetProps) {
+  const t = useSheetStrings(readOnly);
   const decisions = analysis.decisions;
   const [picked, setPicked] = useState<number | null>(() => worstDecision(analysis)?.order ?? null);
 
@@ -102,7 +127,8 @@ export function AnalysisSheet({ analysis, frame, seek, fresh, hand }: AnalysisSh
         </span>
       </div>
       {analysis.grade === null && decisions.length > 0 ? <p className={styles.hint}>{t.sheet.notGradedHint}</p> : null}
-      {fresh ? <p className={styles.hint}>{t.hand.fresh}</p> : null}
+      {fresh && !readOnly ? <p className={styles.hint}>{t.hand.fresh}</p> : null}
+      {readOnly ? <p className={styles.hint}>{t.share.sheet.note}</p> : null}
 
       {analysis.approximations.length > 0 ? (
         <div className={styles.approx}>
@@ -174,7 +200,7 @@ export function AnalysisSheet({ analysis, frame, seek, fresh, hand }: AnalysisSh
         </section>
       ) : null}
 
-      {selected ? <DecisionDetail key={selected.order} decision={selected} hand={hand} /> : null}
+      {selected ? <DecisionDetail key={selected.order} decision={selected} hand={hand} readOnly={readOnly} /> : null}
     </div>
   );
 }
@@ -188,8 +214,8 @@ export function markWord(decision: DecisionAnalysis, t: Strings): string | null 
 }
 
 /** The reference's options at the node: action · frequency bar · EV, the hero's move marked. */
-export function OptionsTable({ decision }: { decision: DecisionAnalysis }) {
-  const t = useDict().analysis;
+export function OptionsTable({ decision, readOnly = false }: { decision: DecisionAnalysis; readOnly?: boolean }) {
+  const t = useSheetStrings(readOnly);
   const s = t.sheet;
   const best = bestOption(decision);
   const label = (option: OptionAnalysis) => s.option(option.action, option.sizeBb, option.allIn, option.sizePot);
@@ -277,8 +303,8 @@ function Study({ decision }: { decision: DecisionAnalysis }) {
   );
 }
 
-function DecisionDetail({ decision, hand }: { decision: DecisionAnalysis; hand?: PhfHand }) {
-  const t = useDict().analysis;
+function DecisionDetail({ decision, hand, readOnly = false }: { decision: DecisionAnalysis; hand?: PhfHand; readOnly?: boolean }) {
+  const t = useSheetStrings(readOnly);
   const s = t.sheet;
   const facts = decision.facts;
   const rows: Array<[string, ReactNode]> = [];
@@ -334,7 +360,7 @@ function DecisionDetail({ decision, hand }: { decision: DecisionAnalysis; hand?:
         {graded ? (
           <>
             <h4 className={styles.subhead}>{s.optionsHeading}</h4>
-            <OptionsTable decision={decision} />
+            <OptionsTable decision={decision} readOnly={readOnly} />
             {decision.source === "solver" ? (
               hand ? (
                 <RiverStudy decision={decision} hand={hand} />

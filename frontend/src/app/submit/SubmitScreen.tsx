@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
+import { AnalysisShareToggle } from "../../components/analysis/AnalysisShareToggle";
 import { AppFrame } from "../../components/shell/AppFrame";
 import { useAuth } from "../../lib/auth";
 import { createPollPost, createPost, forumErrorMessage } from "../../lib/db/forum";
@@ -202,6 +203,8 @@ function SubmitForm({
             ) : null}
           </fieldset>
         ) : null}
+        {/* A7.1: the attached hand's analysis stays private unless this is ticked. */}
+        {attached ? <AnalysisShareToggle surface="published" id={attached.publicId} poll={asPoll} /> : null}
         <label className="stack">
           <span>{en.forum.submit.body}</span>
           <textarea
