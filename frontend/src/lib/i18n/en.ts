@@ -350,6 +350,8 @@ export const en = {
         heading: "The forum is unavailable right now",
         body: "This deployment has no database configured.",
       },
+      viewerOnly:
+        "Only you and the moderators can see this post: it is held for review or was removed. Everyone else gets “not found”.",
       backToBoard: (name: string) => `Back to ${name}`,
     },
 

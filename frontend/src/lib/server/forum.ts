@@ -2,7 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import type { Board, FeedPage, FeedSort, ForumComment, ForumPost, PollState, SearchHit } from "../forum/types";
-import { getAnonServerSupabase } from "../supabase/server";
+import { getAnonServerSupabase, getServerSupabase, getServerUser } from "../supabase/server";
 
 /**
  * The forum's server reads. **All of them as `anon`** — see
@@ -95,3 +95,30 @@ export const readPollAnon = cache(async (publicId: string): Promise<PollState | 
   if (error || !data) return null;
   return data as unknown as PollState;
 });
+
+/**
+ * A post the public cannot see, read **as the signed-in viewer** — the one
+ * exception to "all forum reads are anon", and only after the anon read said
+ * no.
+ *
+ * Who gets an answer is the posts policy's call, not this function's: the
+ * author of a post held as spam or hidden by a shadowban, and moderators of a
+ * removed one. Everyone else gets the same "not found" / "removed" a stranger
+ * does. Without this the author's own link 404s at them — the one person who
+ * certainly knows the post exists — while the policy would have let them see it.
+ */
+export async function readHiddenPostAsViewer(
+  publicId: string,
+  sort: string,
+): Promise<{ post: ForumPost; comments: ForumComment[] } | null> {
+  if (!POST_ID.test(publicId) || !(await getServerUser())) return null;
+  const supabase = await getServerSupabase();
+  if (!supabase) return null;
+  const { data } = await supabase.rpc("get_post", { p_public_id: publicId });
+  if (!data) return null;
+  const comments = await supabase.rpc("get_post_comments", { p_public_id: publicId, p_sort: sort });
+  return {
+    post: data as unknown as ForumPost,
+    comments: (Array.isArray(comments.data) ? comments.data : []) as unknown as ForumComment[],
+  };
+}
