@@ -35,6 +35,19 @@ export const paths = {
    * indexable, unlike the rest of `/analysis`: it reads no account data.
    */
   analysisLearn: () => "/analysis/learn",
+  /**
+   * The preflop chart browser (phase A2b). Public and indexable like the
+   * concept library: the charts are our own data and read no account. `line`
+   * is a chart line key (`""` is the UTG open) and `hand` a class to
+   * highlight — what the hand view's Study link passes.
+   */
+  analysisCharts: (line?: string | null, hand?: string | null) => {
+    const params = new URLSearchParams();
+    if (line !== undefined && line !== null) params.set("line", line === "" ? "-" : line);
+    if (hand) params.set("hand", hand);
+    const query = params.toString();
+    return query ? `/analysis/charts?${query}` : "/analysis/charts";
+  },
   /** One concept page. `id` is a `ConceptId` from `lib/learn/concepts.ts`. */
   analysisConcept: (id: string) => `/analysis/learn/${encodeURIComponent(id)}`,
   /** One hand's analysis: the replayer with the Analysis sheet open. */

@@ -8,11 +8,13 @@
  * the rebuild (`runAnalysis` in `lib/db/analysis.ts`) fetches a page, hands it
  * here, and writes what comes back; this file owns nothing but the call.
  *
- * Stateless by design: a page in, rows out. Cancelling is the client's job (it
+ * Stateless by design apart from the chart set, which is loaded once: a page
+ * in, rows out. Cancelling is the client's job (it
  * stops asking), and a page that is analysed but never written is simply
  * analysed again next run — "missing" is computed by the database.
  */
 
+import { loadDefaultCharts, type ChartSet } from "../lib/charts";
 import { analyseStoredHands, type AnalysedBatch } from "../lib/db/analysisRows";
 import type { PhfHand } from "../lib/phf/types";
 
@@ -26,10 +28,14 @@ export type AnalysisWorkerResponse =
   | ({ type: "analysed"; jobId: number } & AnalysedBatch)
   | { type: "error"; jobId: number; message: string };
 
-self.onmessage = (event: MessageEvent<AnalyseRequest>) => {
+/** The preflop charts, loaded on the first page and kept for the worker's life. */
+let charts: Promise<ChartSet> | null = null;
+
+self.onmessage = async (event: MessageEvent<AnalyseRequest>) => {
   const { jobId, page } = event.data;
   try {
-    const batch = analyseStoredHands(page);
+    charts ??= loadDefaultCharts();
+    const batch = analyseStoredHands(page, await charts);
     self.postMessage({ type: "analysed", jobId, ...batch } satisfies AnalysisWorkerResponse);
   } catch (error) {
     self.postMessage({

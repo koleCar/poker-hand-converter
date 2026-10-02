@@ -3,8 +3,16 @@
  *
  * ```
  * buildContext (lib/stats) ─▶ heroSpots (walk.ts) ─▶ facts (texture.ts, ranges.ts, lib/equity)
+ *                                                  ├▶ preflop: gradePreflop (preflop.ts, lib/charts)
  *                                                  └▶ heuristicFlags (heuristics.ts)
  * ```
+ *
+ * **Preflop is graded from the charts (A2b).** Each hero preflop decision is
+ * looked up; a node gives options, a grade and an EV loss (`source: "chart"`),
+ * a refusal makes the decision `not-analysed` with the lookup's reason.
+ * Postflop decisions stay heuristic: flags, never grades. Opponents' ranges
+ * for the equity facts come from the charts where their line has a node, and
+ * from `ranges.ts`'s labelled placeholders where it does not.
  *
  * Deterministic: the same document gives the same analysis, bit for bit,
  * including every sampled equity (the seed is fixed per decision). That is what
@@ -19,12 +27,14 @@
  */
 
 import { handClass } from "../cards";
+import type { ChartSet } from "../charts";
 import { equityVsRange, parseRange, strongestOfRange, type ClassWeights } from "../equity/range";
 import type { PhfHand, Position } from "../phf/types";
 import { buildContext, type StatsContext } from "../stats/context";
 import { potTypeOf } from "../stats/derive";
 import { worstGrade, worstSeverity, meanScore } from "./grading";
 import { heuristicFlags } from "./heuristics";
+import { chartRange, gradePreflop } from "./preflop";
 import { defaultRange, preflopLine } from "./ranges";
 import { blockers, boardTexture, draws, madeHand, toIndices } from "./texture";
 import {
@@ -50,6 +60,12 @@ export interface AnalyzeOptions {
   equity?: boolean;
   /** Base seed for sampled equities. Each decision offsets it by its order. */
   seed?: number;
+  /**
+   * The preflop chart set (`loadDefaultCharts()` from `lib/charts`). Without
+   * it every preflop decision is `not-analysed / chart-unavailable` and the
+   * equity facts use the placeholder ranges — never what the rebuild stores.
+   */
+  charts?: ChartSet | null;
 }
 
 /** 100bb ±20% (§8): outside this the stack depth is an approximation. */
@@ -68,6 +84,9 @@ const STRONG_SHARE = 0.25;
 const ANY_TWO: ClassWeights = parseRange("*");
 
 const round2 = (value: number) => Math.round(value * 100) / 100;
+const round4 = (value: number) => Math.round(value * 10_000) / 10_000;
+
+type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts">> & { charts: ChartSet | null };
 const round3 = (value: number) => Math.round(value * 1000) / 1000;
 
 /** The hero seat, as the stats engine sees it: a dealt-in seat whose player is the hero. */
@@ -189,7 +208,7 @@ function buildFacts(
   context: StatsContext,
   hero: number,
   multiway: boolean,
-  options: Required<AnalyzeOptions>,
+  options: ResolvedOptions,
 ): BuiltFacts {
   const hand = context.hand;
   const bb = Math.max(1, hand.game.bigBlind);
@@ -267,17 +286,22 @@ function buildFacts(
     const wantEquity = villain !== null && toCall > 0 && (postflop || opponentAllIn || callAllIn);
     if (wantEquity && villain !== null) {
       const line = preflopLine(context, villain);
-      const range = defaultRange(line, context.position.get(villain) ?? null);
-      const result = equityVsRange({ hero: holeCodes, range: range.range, board: spot.board, seed });
+      const villainPosition = context.position.get(villain) ?? null;
+      // The charts' range for the villain's line where a node exists; the
+      // labelled placeholder where it does not.
+      const fromCharts = chartRange(hand, villain, spot.action.index, options.charts);
+      const range = fromCharts ? fromCharts.range : defaultRange(line, villainPosition).range;
+      const result = equityVsRange({ hero: holeCodes, range, board: spot.board, seed });
       if (result.combos > 0) {
         let strong: number | null = null;
         if (street === "river") {
-          const top = strongestOfRange(range.range, spot.board, STRONG_SHARE, holeCodes);
+          const top = strongestOfRange(range, spot.board, STRONG_SHARE, holeCodes);
           strong = round3(equityVsRange({ hero: holeCodes, range: top, board: spot.board, seed }).equity);
         }
         equity = {
           value: round3(result.equity),
-          range: range.key,
+          range: `${line}:${villainPosition ?? "?"}`,
+          source: fromCharts ? "chart" : "placeholder",
           combos: result.combos,
           method: result.method,
           strong,
@@ -314,6 +338,7 @@ function buildFacts(
     draws: postflop ? draws(hole, board) : [],
     blockers: postflop ? blockers(hole, board) : [],
     equity,
+    chart: null,
   };
   return { facts, cannotLose, beatsNoHolding, noMoreCards };
 }
@@ -329,9 +354,10 @@ function buildFacts(
  * null.) The caller decides whether to store the result; this only describes.
  */
 export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAnalysis {
-  const resolved: Required<AnalyzeOptions> = {
+  const resolved: ResolvedOptions = {
     equity: options.equity ?? true,
     seed: options.seed ?? ANALYSIS_SEED,
+    charts: options.charts ?? null,
   };
   const context = buildContext(hand);
   const hero = heroSeatOf(context);
@@ -360,9 +386,11 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   const effectiveBb = Math.min(heroStack, deepestOther) / bb;
   if (effectiveBb < STACK_LOW_BB || effectiveBb > STACK_HIGH_BB) handApprox.add("stack-depth");
 
+  let preflopSeen = 0;
   const decisions: DecisionAnalysis[] = spots.map((spot) => {
     const street = spot.street as DecisionStreet;
     const multiway = street !== "preflop" && spot.opponents.length >= 2;
+    const preflopNth = street === "preflop" ? preflopSeen++ : -1;
     let built: BuiltFacts;
     try {
       built = buildFacts(spot, context, hero, multiway, resolved);
@@ -373,9 +401,33 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     }
     const { facts } = built;
     const approximations = new Set<Approximation>(handApprox);
-    approximations.add("heuristic");
-    if (facts.equity) approximations.add("placeholder-range");
+    if (facts.equity) approximations.add(facts.equity.source === "chart" ? "preflop-range" : "placeholder-range");
 
+    // Preflop: the charts, or the reason they cannot answer.
+    const chart =
+      street === "preflop"
+        ? gradePreflop(
+            { hand, heroSeat: hero, nth: preflopNth, actionIndex: spot.action.index, potBb: facts.potBb },
+            resolved.charts,
+          )
+        : null;
+    const skipped = multiway ? "multiway" : chart && !chart.ok ? chart.reason : null;
+    if (chart?.ok) {
+      // The chart lookup judged stack depth and table size itself (it refuses
+      // outside its cover and notes what it approximates), so the hand-level
+      // versions of those two give way to its own.
+      approximations.delete("stack-depth");
+      approximations.delete("table-size");
+      for (const value of chart.approximations) approximations.add(value);
+      facts.chart = chart.chart;
+    } else {
+      approximations.add("heuristic");
+    }
+
+    // A preflop line the charts refuse keeps its heuristic flags: they hold
+    // whatever the strategy (§3.6), and "you folded when a check was free"
+    // is as true on a 9-max table as on a 6-max one. A multiway postflop
+    // decision does not: every equity check there assumes one opponent.
     const flags = multiway
       ? []
       : heuristicFlags({
@@ -393,8 +445,8 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
       actionIndex: spot.action.index,
       street,
       action: spot.decision.type as DecisionAnalysis["action"],
-      status: multiway ? "not-analysed" : "analysed",
-      reason: multiway ? "multiway" : null,
+      status: skipped ? "not-analysed" : "analysed",
+      reason: skipped,
       node: [
         "nlhe",
         hand.game.format,
@@ -405,17 +457,17 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
         facts.scenario,
         facts.position ?? "?",
       ].join("/"),
-      options: [],
-      chosen: null,
-      evLoss: null,
-      evLossPot: null,
-      freqDiff: null,
-      grade: null,
-      score: null,
-      source: "heuristic",
+      options: chart?.ok ? chart.options : [],
+      chosen: chart?.ok ? chart.chosen : null,
+      evLoss: chart?.ok ? chart.evLoss : null,
+      evLossPot: chart?.ok ? chart.evLossPot : null,
+      freqDiff: chart?.ok ? chart.freqDiff : null,
+      grade: chart?.ok ? chart.grade : null,
+      score: chart?.ok ? chart.score : null,
+      source: chart?.ok ? "chart" : "heuristic",
       approximations: [...approximations].sort(),
       facts,
-      flags: multiway ? [] : flags,
+      flags,
       worstFlag: worstSeverity(flags.map((flag) => flag.severity)),
     };
   });
@@ -425,16 +477,23 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   for (const decision of analysed) for (const value of decision.approximations) allApprox.add(value);
   const flagCount = decisions.reduce((sum, decision) => sum + decision.flags.length, 0);
 
+  // §1: the hand's EV loss is the sum over its graded decisions, and its share
+  // of the pot is that sum over the final pot.
+  const graded = decisions.filter((decision) => decision.evLoss !== null);
+  const evLoss = graded.length > 0 ? round3(graded.reduce((sum, decision) => sum + (decision.evLoss ?? 0), 0)) : null;
+  const finalPotBb = Math.max(hand.results.totalPot / bb, ...decisions.map((decision) => decision.facts.potBb));
+  const score = meanScore(decisions.map((decision) => decision.score));
+
   return {
     version: ANALYSIS_VERSION,
     status: analysed.length === 0 ? "not-analysed" : analysed.length === decisions.length ? "full" : "partial",
-    reason: analysed.length === 0 ? "multiway" : null,
+    reason: analysed.length === 0 ? (decisions[0].reason ?? "multiway") : null,
     heroSeat: hero,
     potType,
     grade: worstGrade(decisions.map((decision) => decision.grade)),
-    score: meanScore(decisions.map((decision) => decision.score)),
-    evLoss: null,
-    evLossPot: null,
+    score: score === null ? null : round2(score),
+    evLoss,
+    evLossPot: evLoss === null ? null : finalPotBb > 0 ? round4(evLoss / finalPotBb) : 0,
     decisions,
     approximations: [...allApprox].sort(),
     flagCount,

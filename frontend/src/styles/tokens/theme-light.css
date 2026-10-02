@@ -186,6 +186,14 @@
     --grade-blunder: var(--st-danger-700);
     --flag-note: var(--st-info-700);
 
+    /* Chart actions, light: the same hues lightened for a white page; fold
+       stays the quiet grey. */
+    --chart-fold: #ccd4de;
+    --chart-check: #4a7fe0;
+    --chart-call: #2b9a68;
+    --chart-raise: #d9552f;
+    --chart-allin: #a12a3d;
+
     /* Anonymity. Same violet, read from the dark end: #4a2f96 on the 12% tint
        over white (#f1ecff) is 8.5:1. */
     --anon-fg: #4a2f96;

@@ -14,13 +14,15 @@
  */
 
 import { ANALYSIS_SORTS, type AnalysisFilters, type AnalysisSort } from "../../lib/db/analysis";
-import { FLAG_CODES } from "../../lib/analysis/types";
+import { FLAG_CODES, GRADES } from "../../lib/analysis/types";
 
 export interface AnalysisListState {
   street: string | null;
   /** A flag code, or `any` for any flag. */
   flag: string | null;
   status: string | null;
+  /** A grade name (the hand's worst, exactly), or `bad`: a Mistake or a Blunder. */
+  grade: string | null;
   position: string | null;
   potType: string | null;
   gameFormat: string | null;
@@ -32,6 +34,7 @@ export const EMPTY_LIST_STATE: AnalysisListState = {
   street: null,
   flag: null,
   status: null,
+  grade: null,
   position: null,
   potType: null,
   gameFormat: null,
@@ -45,12 +48,14 @@ export const POT_VALUES = ["limped", "single-raised", "3bet", "4bet+", "walk", "
 export const FORMAT_VALUES = ["cash", "tournament", "sng", "spin"] as const;
 export const POSITION_VALUES = ["UTG", "UTG+1", "UTG+2", "MP", "LJ", "HJ", "CO", "BTN", "SB", "BB"] as const;
 const FLAG_VALUES = [...FLAG_CODES, "any"] as readonly string[];
+export const GRADE_VALUES = ["bad", ...GRADES] as readonly string[];
 
 /** URL key per field: short, because these end up in shared links. */
 const KEYS = {
   street: "street",
   flag: "flag",
   status: "status",
+  grade: "grade",
   position: "pos",
   potType: "pot",
   gameFormat: "fmt",
@@ -76,6 +81,7 @@ export function parseListState(
     street: pick(get(KEYS.street), STREET_VALUES),
     flag: pick(get(KEYS.flag), FLAG_VALUES),
     status: pick(get(KEYS.status), STATUS_VALUES),
+    grade: pick(get(KEYS.grade), GRADE_VALUES),
     position: pick(get(KEYS.position), POSITION_VALUES),
     potType: pick(get(KEYS.potType), POT_VALUES),
     gameFormat: pick(get(KEYS.gameFormat), FORMAT_VALUES),
@@ -90,6 +96,7 @@ export function listQuery(state: AnalysisListState): string {
   if (state.street) params.set(KEYS.street, state.street);
   if (state.flag) params.set(KEYS.flag, state.flag);
   if (state.status) params.set(KEYS.status, state.status);
+  if (state.grade) params.set(KEYS.grade, state.grade);
   if (state.position) params.set(KEYS.position, state.position);
   if (state.potType) params.set(KEYS.potType, state.potType);
   if (state.gameFormat) params.set(KEYS.gameFormat, state.gameFormat);
@@ -107,11 +114,13 @@ export function scopeFilters(state: AnalysisListState): AnalysisFilters {
   return filters;
 }
 
-/** What the list is about: the scope, narrowed by street, flag and coverage. */
+/** What the list is about: the scope, narrowed by street, flag, grade and coverage. */
 export function listFilters(state: AnalysisListState): AnalysisFilters {
   const filters = scopeFilters(state);
   if (state.street) filters.street = state.street;
   if (state.status) filters.status = state.status;
+  if (state.grade === "bad") filters.minGrade = "mistake";
+  else if (state.grade) filters.grade = state.grade;
   if (state.flag === "any") filters.flagged = true;
   else if (state.flag) filters.flag = state.flag;
   return filters;

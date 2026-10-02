@@ -20,7 +20,10 @@
  * next run picks up whatever is still missing.
  */
 
-import { ANALYSIS_VERSION, type HandAnalysis } from "../analysis";
+import { ANALYSIS_VERSION, analyzeHand, type HandAnalysis } from "../analysis";
+import { preflopCharts } from "../chartSet";
+
+export { preflopCharts };
 import type { PhfHand } from "../phf/types";
 import { currentUserId, rpc } from "./client";
 import {
@@ -67,6 +70,10 @@ export interface AnalysisFilters {
   street?: string;
   flag?: string;
   flagged?: boolean;
+  /** The hand's worst grade is exactly this. */
+  grade?: string;
+  /** The hand's worst grade is at least this bad (`mistake`: a Mistake or a Blunder). */
+  minGrade?: string;
 }
 
 /**
@@ -132,6 +139,14 @@ const MAX_PRUNE_CALLS = 10;
 let jobSequence = 0;
 
 /**
+ * A hand analysed here and now, the way the rebuild would store it: the hand
+ * view's answer for a hand with no row at the current version.
+ */
+export async function analyseHandNow(phf: PhfHand): Promise<HandAnalysis> {
+  return analyzeHand(phf, { charts: await preflopCharts() });
+}
+
+/**
  * Analyses one page off the main thread, or on it when a worker cannot be
  * created (a strict CSP, an embedded webview) — slower and janky, but a screen
  * that silently never finishes would be worse.
@@ -151,7 +166,7 @@ function analyser(): { run: (page: AnalyseRequest["page"]) => Promise<AnalysedBa
       run: async (page) => {
         // Yield first so the progress line repaints between pages.
         await new Promise((resolve) => setTimeout(resolve, 0));
-        return analyseStoredHands(page);
+        return analyseStoredHands(page, await preflopCharts());
       },
       close: () => {},
     };
@@ -278,9 +293,32 @@ export interface AnalysisOverview {
   flags: FlagCount[];
   streets: StreetSummary[];
   grades: Array<{ grade: string; decisions: number }>;
+  gradesByStreet: Array<{ street: string; grade: string; decisions: number }>;
+  /** Graded decisions ("moves"). */
+  graded: number;
+  /** Hands with at least one graded decision: the denominator of EV loss per 100 hands. */
+  gradedHands: number;
+  /** Hands whose worst grade is a Mistake or a Blunder. */
+  badHands: number;
   score: number | null;
   evLossBb: number | null;
+  /** Σ EV loss in pots, over graded decisions. */
+  evLossPot: number | null;
   approximations: Array<{ approximation: string; hands: number }>;
+}
+
+/** Per grade, a count. */
+export type GradeCounts = Record<"perfect" | "good" | "inaccurate" | "mistake" | "blunder", number>;
+
+function gradeCounts(value: unknown): GradeCounts {
+  const row = (value ?? {}) as Row;
+  return {
+    perfect: num(row.perfect),
+    good: num(row.good),
+    inaccurate: num(row.inaccurate),
+    mistake: num(row.mistake),
+    blunder: num(row.blunder),
+  };
 }
 
 function streetSummary(row: Row): StreetSummary {
@@ -322,8 +360,17 @@ export async function fetchAnalysisOverview(filters: AnalysisFilters = {}): Prom
     })),
     streets: rows(payload.streets).map(streetSummary),
     grades: rows(payload.grades).map((row) => ({ grade: str(row.grade) ?? "", decisions: num(row.decisions) })),
+    gradesByStreet: rows(payload.gradesByStreet).map((row) => ({
+      street: str(row.street) ?? "",
+      grade: str(row.grade) ?? "",
+      decisions: num(row.decisions),
+    })),
+    graded: num(payload.graded),
+    gradedHands: num(payload.gradedHands),
+    badHands: num(payload.badHands),
     score: maybeNum(payload.score),
     evLossBb: maybeNum(payload.evLossBb),
+    evLossPot: maybeNum(payload.evLossPot),
     approximations: rows(payload.approximations).map((row) => ({
       approximation: str(row.approximation) ?? "",
       hands: num(row.hands),
@@ -331,12 +378,18 @@ export async function fetchAnalysisOverview(filters: AnalysisFilters = {}): Prom
   };
 }
 
-export type AnalysisBreakdownGroup = "street" | "position" | "pot_type" | "scenario";
+export type AnalysisBreakdownGroup = "street" | "position" | "pot_type" | "scenario" | "preflop_scenario";
 
 export interface AnalysisBreakdownRow extends StreetSummary {
   key: string | null;
   hands: number;
   inaccurate: number;
+  /** Graded decisions in the group, and the hands they are in. */
+  graded: number;
+  gradedHands: number;
+  grades: GradeCounts;
+  evLossBb: number | null;
+  score: number | null;
 }
 
 export async function fetchAnalysisBreakdown(
@@ -352,11 +405,16 @@ export async function fetchAnalysisBreakdown(
     key: str(row.key),
     hands: num(row.hands),
     inaccurate: num(row.inaccurate),
+    graded: num(row.graded),
+    gradedHands: num(row.gradedHands),
+    grades: gradeCounts(row.grades),
+    evLossBb: maybeNum(row.evLossBb),
+    score: maybeNum(row.score),
   }));
 }
 
 /** Sort keys `analysis_hands` accepts. */
-export const ANALYSIS_SORTS = ["recent", "oldest", "flags", "ev_loss", "score", "result"] as const;
+export const ANALYSIS_SORTS = ["recent", "oldest", "flags", "ev_loss", "ev_loss_pot", "score", "result"] as const;
 export type AnalysisSort = (typeof ANALYSIS_SORTS)[number];
 
 export interface AnalysisHandDecision {
@@ -366,6 +424,7 @@ export interface AnalysisHandDecision {
   action: string;
   status: string;
   grade: string | null;
+  evLossBb: number | null;
   worstFlag: "note" | "inaccurate" | null;
 }
 
@@ -384,6 +443,7 @@ export interface AnalysisHandRow {
   grade: string | null;
   score: number | null;
   evLossBb: number | null;
+  evLossPot: number | null;
   flagCount: number;
   worstFlag: "note" | "inaccurate" | null;
   netBb: number | null;
@@ -430,6 +490,7 @@ export async function fetchAnalysisHands(
       grade: str(row.grade),
       score: maybeNum(row.score),
       evLossBb: maybeNum(row.evLossBb),
+      evLossPot: maybeNum(row.evLossPot),
       flagCount: num(row.flagCount),
       worstFlag: severity(row.worstFlag),
       netBb: maybeNum(row.netBb),
@@ -440,6 +501,7 @@ export async function fetchAnalysisHands(
         action: str(decision.action) ?? "",
         status: str(decision.status) ?? "",
         grade: str(decision.grade),
+        evLossBb: maybeNum(decision.evLossBb),
         worstFlag: severity(decision.worstFlag),
       })),
     })),

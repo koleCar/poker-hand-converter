@@ -31,8 +31,12 @@ import type { Position, Street } from "../phf/types";
  *
  *   analysis/1  A1: decision walk, facts, heuristic flags. No reference
  *               strategy, so no grades.
+ *   analysis/2  A2b: preflop decisions graded from the charts (`charts/1`);
+ *               a preflop line the charts refuse is "not analysed" with the
+ *               lookup's reason; opponents' ranges derived from the charts
+ *               where a node exists; the placeholder ranges parse (span fix).
  */
-export const ANALYSIS_VERSION = "analysis/1" as const;
+export const ANALYSIS_VERSION = "analysis/2" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -53,6 +57,13 @@ export interface OptionAnalysis {
   action: DecisionAction;
   /** Big blinds, as solved (bucketed, §3.3). */
   size?: number;
+  /**
+   * Preflop: what the actor has in after the action, in bb — "raise to 7.5",
+   * "call 2.5", a fold's or check's own blind. Charts are not pot-relative.
+   */
+  sizeBb?: number;
+  /** The option is the all-in (a chart's 5-bet shove). */
+  allIn?: boolean;
   /** Fraction of the pot. */
   sizePot?: number;
   /** Reference frequency for the hero's exact hand, 0–1. */
@@ -119,19 +130,41 @@ export interface Flag {
  *
  * - `heuristic`         the source is the §3.6 fallback, not a reference.
  * - `placeholder-range` an equity was taken against `ranges.ts`'s default
- *                       ranges, which are a stand-in until A2's charts.
+ *                       ranges: no chart node exists for the opponent's line.
+ * - `preflop-range`     an equity was taken against the opponent's range as
+ *                       the charts play their preflop line — not narrowed by
+ *                       anything that happened after the flop (that is A4).
  * - `antes`             antes are in the pot; the reference has none.
  * - `straddle`          a straddle moved the blinds.
  * - `stack-depth`       the effective stack is outside 100bb ±20%.
  * - `table-size`        not a six-handed table (§8: v1 covers 6-max).
+ *
+ * Chart grades (A2b, §3.1, §3.5):
+ *
+ * - `model`             the chart set has a known modelling weakness
+ *                       (`charts/1` under-rates implied-odds hands, §3.1).
+ * - `short-handed`      five players dealt in, read as 6-max with UTG folded.
+ * - `stack-depth-near`  within 100bb ±20%, but more than 5% away from it.
+ * - `off-tree-size`     a raise in the line (the hero's or an opponent's) is
+ *                       more than 25% of the pot from the chart's size; the
+ *                       grade is capped at Inaccurate (§3.3).
+ * - `out-of-range`      the hero's hand never reaches this node in the
+ *                       reference; its options are the best response, not a
+ *                       mix the reference ever plays.
  */
 export const APPROXIMATIONS = [
   "heuristic",
   "placeholder-range",
+  "preflop-range",
   "antes",
   "straddle",
   "stack-depth",
   "table-size",
+  "model",
+  "short-handed",
+  "stack-depth-near",
+  "off-tree-size",
+  "out-of-range",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -155,8 +188,39 @@ export const HAND_SKIP_REASONS = [
 ] as const;
 export type HandSkipReason = (typeof HAND_SKIP_REASONS)[number];
 
-/** Why one decision of an otherwise analysed hand is not (§3.5). */
-export const DECISION_SKIP_REASONS = ["multiway"] as const;
+/**
+ * Why a preflop decision has no chart grade: the chart lookup's refusal
+ * (`ChartMissReason` in `lib/charts/lookup.ts`, `docs/CHARTS.md` §7), or
+ * `preflopSpotFromHand`'s, prefixed `chart-` so a preflop "multiway" (a fifth
+ * entrant) never reads as the postflop one. `chart-unavailable`: the charts
+ * were not loaded (a caller bug, never stored by the rebuild).
+ */
+export const CHART_SKIP_REASONS = [
+  "chart-straddle",
+  "chart-ante",
+  "chart-players",
+  "chart-stack-depth",
+  "chart-limp",
+  "chart-multiway",
+  "chart-cold-call",
+  "chart-off-tree",
+  "chart-rare-line",
+  "chart-action-not-modelled",
+  "chart-bad-input",
+  "chart-game",
+  "chart-bomb-pot",
+  "chart-no-positions",
+  "chart-no-hero",
+  "chart-no-decision",
+  "chart-unavailable",
+] as const;
+export type ChartSkipReason = (typeof CHART_SKIP_REASONS)[number];
+
+/**
+ * Why one decision of an otherwise analysed hand is not (§3.5): a multiway
+ * pot after the flop, or a preflop line the charts do not cover.
+ */
+export const DECISION_SKIP_REASONS = ["multiway", ...CHART_SKIP_REASONS] as const;
 export type DecisionSkipReason = (typeof DECISION_SKIP_REASONS)[number];
 
 export type HandStatus = "full" | "partial" | "not-analysed";
@@ -304,14 +368,17 @@ export interface SpotFacts {
   blockers: BlockerClass[];
 
   /**
-   * The hero's equity against the opponent's placeholder range (`ranges.ts`),
-   * when a check needed it. Labelled on screen as an estimate against a
-   * default range, because that is all it is until A2.
+   * The hero's equity against the opponent's preflop range, when a check
+   * needed it: the range the charts play for the opponent's line where a
+   * chart node exists (`source: "chart"`), else `ranges.ts`'s placeholder.
+   * Never narrowed by postflop betting (A4), and labelled so on screen.
    */
   equity: {
     value: number;
-    /** Which default range: e.g. `open:BTN`. */
+    /** The opponent's line and position: e.g. `open:BTN`. */
     range: string;
+    /** Where the range came from. Absent on `analysis/1` rows: the placeholder. */
+    source?: "chart" | "placeholder";
     combos: number;
     method: "exhaustive" | "monte-carlo";
     /**
@@ -322,6 +389,24 @@ export interface SpotFacts {
      */
     strong: number | null;
   } | null;
+
+  /**
+   * Preflop, when the charts graded the decision: the node it was graded
+   * at, so the study view can draw the whole 13×13 chart for it.
+   */
+  chart?: ChartRef | null;
+}
+
+/** A chart node, by name: the set it is in and its line key (`docs/CHARTS.md` §6). */
+export interface ChartRef {
+  /** Chart set id, e.g. `nlhe-cash-6max-100bb`. */
+  set: string;
+  /** Line key: one letter per action before the decision (`"fffr"`). */
+  line: string;
+  /** The node's scenario in the charts' vocabulary (`rfi`, `vs-open`, …). */
+  scenario: string;
+  /** How much of the hero's class reaches the node, 0..1. */
+  inRange: number;
 }
 
 /* ------------------------------------------------------------- records - */
@@ -358,7 +443,11 @@ export interface DecisionAnalysis {
 export interface HandAnalysis {
   version: AnalysisVersion;
   status: HandStatus;
-  reason: HandSkipReason | null;
+  /**
+   * Why the hand is not analysed: a hand-level reason, or — when every one of
+   * its decisions was skipped — the first decision's reason.
+   */
+  reason: HandSkipReason | DecisionSkipReason | null;
   heroSeat: number | null;
   /** `walk` / `limped` / `single-raised` / `3bet` / `4bet+` / `bomb`, as the stats engine reads it. */
   potType: string;

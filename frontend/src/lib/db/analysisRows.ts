@@ -20,6 +20,7 @@ import {
   type HandAnalysis,
   type SpotFacts,
 } from "../analysis";
+import type { ChartSet } from "../charts";
 import type { PhfHand } from "../phf/types";
 
 /** One decision as `save_hand_analysis` takes it. */
@@ -128,13 +129,20 @@ export interface AnalysedBatch {
  * Analyses a page of stored hands. Never throws: a hand the engine cannot read
  * is reported in `failed` and stays "missing", so the next run tries it again
  * after the fix ships.
+ *
+ * `charts` is required, not optional: a row stored without them would grade
+ * nothing preflop under a version that promises preflop grades. The caller
+ * loads them once (`loadDefaultCharts()`), not once per page.
  */
-export function analyseStoredHands(page: ReadonlyArray<{ id: string; phf: PhfHand }>): AnalysedBatch {
+export function analyseStoredHands(
+  page: ReadonlyArray<{ id: string; phf: PhfHand }>,
+  charts: ChartSet,
+): AnalysedBatch {
   const rows: HandAnalysisInsert[] = [];
   const failed: string[] = [];
   for (const { id, phf } of page) {
     try {
-      rows.push(handAnalysisRow(id, analyzeHand(phf)));
+      rows.push(handAnalysisRow(id, analyzeHand(phf, { charts })));
     } catch {
       failed.push(id);
     }

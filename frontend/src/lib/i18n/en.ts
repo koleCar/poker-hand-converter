@@ -88,6 +88,11 @@ export const en = {
         "Free poker concepts explained with worked examples and interactive calculators: pot odds, equity realisation, ranges, board texture, MDF, SPR, bet sizing, 3-bets and more.",
     },
     learnConcept: (title: string) => `${title} — poker concepts | Rail`,
+    charts: {
+      title: "Preflop charts: 6-max 100bb cash, every hand's mix and EV | Rail",
+      description:
+        "Rail's own preflop charts for 6-max 100 bb cash: opens, 3-bets, 4-bets, squeezes and blind versus blind, with the frequency and EV of every action for all 169 hands.",
+    },
     notFound: {
       title: "Page not found | Rail",
       description: "That address does not match anything on Rail.",

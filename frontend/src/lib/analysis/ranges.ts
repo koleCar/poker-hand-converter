@@ -1,14 +1,17 @@
 /**
- * Default ranges — **an explicitly labelled placeholder**.
+ * Default ranges — **an explicitly labelled fallback**.
  *
  * The heuristics need *something* to measure an equity against: "you needed
- * 25% and had 41%" is only a sentence if the 41% is against a range. The
- * reference ranges come from A2's preflop charts, computed by our own solver
- * (`docs/ANALYSIS-PLAN.md` §3.1, §8.1). Until then this file supplies a rough,
- * conventional range per preflop line and position, written by hand from
- * general poker knowledge, and every use of it is marked:
+ * 25% and had 41%" is only a sentence if the 41% is against a range. Since
+ * A2b the range comes from the preflop charts wherever the opponent's line has
+ * a chart node (`chartRange` in `preflop.ts`: the frequencies the charts play
+ * that line with, per class). Where it has none — 9-max, deep stacks, a limp,
+ * a line too rare for the set — this file supplies a rough, conventional
+ * range per preflop line and position, written by hand from general poker
+ * knowledge, and every use of it is marked:
  *
  * - the decision carries the `placeholder-range` approximation;
+ * - the equity fact says `source: "placeholder"`;
  * - the equity fact names the range it was taken against (`open:BTN`);
  * - flags built on it are `note` severity unless they also hold against any
  *   two cards.
@@ -75,6 +78,12 @@ const OPEN: Record<Exclude<Band, "bb">, string> = {
 const OPEN_BTN =
   "22+, A2s+, K2s+, Q5s+, J7s+, T7s+, 96s+, 85s+, 75s+, 64s+, 54s, A2o+, K8o+, Q9o+, J9o+, T9o, 98o";
 
+/**
+ * Spans are written either way round and by kicker (`A5s-A2s`, `22-JJ`):
+ * `parseRange` reads both since A2b. Before that most of these threw and the
+ * equity fact silently dropped (ANALYSIS-PLAN §10, A8a); a test now parses
+ * every line from every position.
+ */
 const RANGES: Record<Exclude<PreflopLine, "open">, string> = {
   iso: "66+, A8s+, A5s-A2s:0.5, KTs+, QTs+, JTs, ATo+, KJo+",
   limp: "22-99, A2s-A9s, K2s+, Q5s+, J7s+, T7s+, 97s+, 86s+, 75s+, 64s+, 54s, A2o-ATo, K9o+, QTo+, JTo",

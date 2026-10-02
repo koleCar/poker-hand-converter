@@ -1,13 +1,14 @@
 /**
- * The Analysis tab (`docs/ANALYSIS-PLAN.md` §6.0): coverage, flags, the
- * breakdowns, and the hands list that opens each hand in the replayer.
+ * The Analysis tab (`docs/ANALYSIS-PLAN.md` §6.0): grades, coverage, flags,
+ * the breakdowns, and the hands list that opens each hand in the replayer.
  *
  * Built on the statistics screen's rule — **say which nothing it is** — with
- * one more nothing to tell apart: "analysed, and there is nothing to grade
- * yet". Phase A1 has no reference strategy, so the screen leads with that, in
- * words, and every number below it is a count of facts and flags rather than
- * grades. An empty grade table that reads as "you played perfectly" would be
- * the confident wrong answer §9 warns about.
+ * one more nothing to tell apart: "analysed, and nothing was graded". Since
+ * A2b preflop decisions are graded against the charts wherever a chart
+ * covers the spot; postflop decisions are still facts and flags. The screen
+ * says which is which, and a sample with no graded move says so in words
+ * rather than drawing an empty distribution that reads as "you played
+ * perfectly" — the confident wrong answer §9 warns about.
  *
  * ## Running the analysis
  *
@@ -41,7 +42,8 @@ import {
   type AnalysisSort,
 } from "../../lib/db";
 import { ANALYSIS_SORTS } from "../../lib/db/analysis";
-import { ANALYSIS_VERSION, FLAG_CODES, type FlagCode } from "../../lib/analysis/types";
+import { ANALYSIS_VERSION, FLAG_CODES, GRADES, type FlagCode } from "../../lib/analysis/types";
+import type { GradeCounts } from "../../lib/db/analysis";
 import { useAuth } from "../../lib/auth";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
@@ -51,10 +53,12 @@ import { countIn, dateFormat, numberFormat, useIntlLocale } from "../stats/forma
 import { FLAG_CONCEPTS } from "../../lib/learn/links";
 import { ActionStrip } from "./ActionStrip";
 import { AnalysisNav } from "./AnalysisNav";
+import { GradeIcon } from "./GradeIcon";
 import { LearnLink } from "./LearnLinks";
 import {
   EMPTY_LIST_STATE,
   FORMAT_VALUES,
+  GRADE_VALUES,
   POSITION_VALUES,
   POT_VALUES,
   STATUS_VALUES,
@@ -73,7 +77,9 @@ const ANALYSIS_MIGRATION = "supabase/migrations/20261228090000_analysis.sql";
 /** At most this many new hands are analysed without asking. */
 const AUTO_RUN_LIMIT = 300;
 const PAGE_SIZE = 25;
-const GROUPS = ["street", "position", "pot_type", "scenario"] as const satisfies readonly AnalysisBreakdownGroup[];
+/** The hands list's anchor, for "show them" from the overview. An id, not prose. */
+const HANDS_ID = "analysis-hands";
+const GROUPS = ["street", "position", "pot_type", "preflop_scenario", "scenario"] as const satisfies readonly AnalysisBreakdownGroup[];
 
 type Status = "idle" | "loading" | "ready" | "not-installed" | "error";
 
@@ -266,8 +272,9 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
         <Header />
         <ReferenceNote />
         <div className="card stats-empty">
-          <h3>{t.tab.emptyHeading}</h3>
-          <p className="muted">{t.tab.emptyBody}</p>
+          {/* A version bump is not "nothing analysed": say what changed. */}
+          <h3>{coverage.stale > 0 ? t.tab.updatedHeading : t.tab.emptyHeading}</h3>
+          <p className="muted">{coverage.stale > 0 ? t.tab.updatedBody : t.tab.emptyBody}</p>
           {runBar}
         </div>
       </div>
@@ -282,7 +289,15 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
 
       <ScopeBar state={state} onChange={updateState} />
 
-      {overview ? <Overview overview={overview} /> : null}
+      {overview ? (
+        <Overview
+          overview={overview}
+          onShowBad={() => {
+            updateState({ grade: "bad", sort: "ev_loss", page: 0 });
+            if (typeof document !== "undefined") document.getElementById(HANDS_ID)?.scrollIntoView({ block: "start" });
+          }}
+        />
+      ) : null}
 
       <BreakdownPanel scopeKey={scopeKey} generation={generation} />
 
@@ -304,14 +319,206 @@ function Header({ sample }: { sample?: string }) {
   );
 }
 
-/** Phase A1's honest caveat, above everything it qualifies. */
+/** What is graded and what is not, and the charts' caveat, above everything it qualifies. */
 function ReferenceNote() {
   const t = useDict().analysis.reference;
   return (
     <div className={`notice notice--info ${styles.reference}`}>
       <strong>{t.title}</strong>
       <span>{t.body}</span>
+      <span>{t.model}</span>
+      <Link href={paths.analysisCharts()} className={styles.learnInline}>
+        {t.browse}
+      </Link>
     </div>
+  );
+}
+
+/* --------------------------------------------------------------- grades - */
+
+const pctOf = (part: number, whole: number) => (whole > 0 ? part / whole : 0);
+
+/** Perfect…Blunder as one stacked bar. Decorative: the numbers beside it say the same. */
+function GradeBar({ counts }: { counts: GradeCounts }) {
+  const total = GRADES.reduce((sum, grade) => sum + counts[grade], 0);
+  return (
+    <span className={styles.gradeBar} aria-hidden="true">
+      {GRADES.map((grade) =>
+        counts[grade] > 0 ? (
+          <span
+            key={grade}
+            className={styles[`bar_${grade}`]}
+            style={{ inlineSize: `${pctOf(counts[grade], total) * 100}%` }}
+          />
+        ) : null,
+      )}
+    </span>
+  );
+}
+
+function countsOf(rows: Array<{ grade: string; decisions: number }>): GradeCounts {
+  const counts: GradeCounts = { perfect: 0, good: 0, inaccurate: 0, mistake: 0, blunder: 0 };
+  for (const row of rows) {
+    if (row.grade in counts) counts[row.grade as keyof GradeCounts] += row.decisions;
+  }
+  return counts;
+}
+
+/** One row per key: graded moves, the five shares, EV loss and score. */
+function GradeTable({
+  rows,
+  first,
+  label,
+  compact = false,
+}: {
+  rows: Array<{ key: string | null; graded: number; grades: GradeCounts; evLossBb: number | null; score: number | null }>;
+  first: string;
+  label: (key: string | null) => string;
+  /** Leave out EV loss and score: the overview's by-street table has the distribution only. */
+  compact?: boolean;
+}) {
+  const t = useDict().analysis;
+  const locale = useIntlLocale();
+  const count = countIn(locale);
+  const fixed = numberFormat(locale, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  const pct = numberFormat(locale, { style: "percent", maximumFractionDigits: 0 });
+  return (
+    <div className="stats-table-wrap">
+      <table className="stats-table">
+        <thead>
+          <tr>
+            <th scope="col">{first}</th>
+            <th scope="col" className="num">
+              {t.table.graded}
+            </th>
+            <th scope="col">{t.table.distribution}</th>
+            {GRADES.map((grade) => (
+              <th key={grade} scope="col" className="num">
+                <span className={styles[grade]}>
+                  <GradeIcon grade={grade} />
+                </span>{" "}
+                {t.grades[grade]}
+              </th>
+            ))}
+            {compact ? null : (
+              <>
+                <th scope="col" className="num">
+                  {t.table.evLoss}
+                </th>
+                <th scope="col" className="num">
+                  {t.table.score}
+                </th>
+              </>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.key ?? "unknown"}>
+              <th scope="row">{label(row.key)}</th>
+              <td className="num">{count(row.graded)}</td>
+              <td className={styles.barCell}>{row.graded > 0 ? <GradeBar counts={row.grades} /> : "—"}</td>
+              {GRADES.map((grade) => (
+                <td key={grade} className="num">
+                  {row.graded > 0 ? pct.format(pctOf(row.grades[grade], row.graded)) : "—"}
+                </td>
+              ))}
+              {compact ? null : (
+                <>
+                  <td className="num">{row.evLossBb === null || row.graded === 0 ? "—" : t.sheet.bb(row.evLossBb)}</td>
+                  <td className="num">{row.score === null ? "—" : fixed.format(row.score)}</td>
+                </>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** The headline: score, EV loss per 100 hands, moves graded, and the distribution overall and by street. */
+function GradesCard({ overview, onShowBad }: { overview: AnalysisOverview; onShowBad: () => void }) {
+  const t = useDict().analysis;
+  const locale = useIntlLocale();
+  const count = countIn(locale);
+  const fixed1 = numberFormat(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+  const counts = countsOf(overview.grades);
+  const perHundred = overview.gradedHands > 0 && overview.evLossBb !== null ? (overview.evLossBb / overview.gradedHands) * 100 : null;
+
+  if (overview.graded === 0) {
+    return (
+      <section className={`card stats-group ${styles.wide}`}>
+        <h3 className={styles.cardTitle}>{t.overview.gradesHeading}</h3>
+        <p className="muted">{t.overview.noGrades}</p>
+      </section>
+    );
+  }
+
+  const streets = ["preflop", "flop", "turn", "river"]
+    .map((street) => {
+      const grades = countsOf(overview.gradesByStreet.filter((row) => row.street === street));
+      const graded = GRADES.reduce((sum, grade) => sum + grades[grade], 0);
+      return { key: street, graded, grades, evLossBb: null, score: null };
+    })
+    .filter((row) => row.graded > 0);
+
+  return (
+    <section className={`card stats-group ${styles.wide}`}>
+      <h3 className={styles.cardTitle}>{t.overview.gradesHeading}</h3>
+      <dl className={styles.tiles}>
+        <div>
+          <dt>{t.overview.score}</dt>
+          <dd>{overview.score === null ? "—" : fixed1.format(overview.score)}</dd>
+          <dd className={styles.tileHint}>{t.overview.scoreHint}</dd>
+        </div>
+        <div>
+          <dt>{t.overview.evLoss100}</dt>
+          <dd>{perHundred === null ? "—" : t.overview.bb2(perHundred)}</dd>
+          <dd className={styles.tileHint}>{t.overview.evLoss100Hint(overview.gradedHands)}</dd>
+        </div>
+        <div>
+          <dt>{t.overview.moves}</dt>
+          <dd>{count(overview.graded)}</dd>
+          <dd className={styles.tileHint}>{t.overview.movesHint(overview.decisions)}</dd>
+        </div>
+      </dl>
+
+      <div
+        className={styles.distribution}
+        role="img"
+        aria-label={t.overview.distribution(
+          GRADES.map((grade) => t.overview.share(t.grades[grade], pctOf(counts[grade], overview.graded))),
+        )}
+      >
+        <GradeBar counts={counts} />
+        <ul className={styles.gradeLegend} aria-hidden="true">
+          {GRADES.map((grade) => (
+            <li key={grade} className={styles[grade]}>
+              <GradeIcon grade={grade} />
+              <span className={styles.legendWord}>{t.overview.share(t.grades[grade], pctOf(counts[grade], overview.graded))}</span>
+              <span className={styles.muted}>{count(counts[grade])}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {overview.badHands > 0 ? (
+        <p className={styles.badLine}>
+          <span>{t.overview.badHands(overview.badHands)}</span>
+          <button type="button" className="btn btn--sm" onClick={onShowBad}>
+            {t.overview.showBad}
+          </button>
+        </p>
+      ) : null}
+
+      {streets.length > 0 ? (
+        <>
+          <h4 className={styles.subhead}>{t.overview.byStreet}</h4>
+          <GradeTable rows={streets} first={t.table.street} label={(key) => t.streets[key ?? ""] ?? key ?? ""} compact />
+        </>
+      ) : null}
+    </section>
   );
 }
 
@@ -436,13 +643,15 @@ function ScopeBar({
 
 /* ------------------------------------------------------------- overview - */
 
-function Overview({ overview }: { overview: AnalysisOverview }) {
+function Overview({ overview, onShowBad }: { overview: AnalysisOverview; onShowBad: () => void }) {
   const t = useDict().analysis;
   const count = countIn(useIntlLocale());
   const share = (part: number) => (overview.hands > 0 ? `${(part / overview.hands) * 100}%` : "0%");
 
   return (
     <div className={styles.cards}>
+      <GradesCard overview={overview} onShowBad={onShowBad} />
+
       <section className="card stats-group">
         <h3 className={styles.cardTitle}>{t.overview.coverage}</h3>
         <div className={styles.bar} aria-hidden="true">
@@ -567,7 +776,7 @@ function StreetTable({
   label,
   showHands,
 }: {
-  rows: AnalysisBreakdownRow[];
+  rows: Array<Omit<AnalysisBreakdownRow, "graded" | "gradedHands" | "grades" | "evLossBb" | "score">>;
   first: string;
   label: (key: string | null) => string;
   showHands: boolean;
@@ -655,9 +864,10 @@ function BreakdownPanel({ scopeKey, generation }: { scopeKey: string; generation
     if (key === null) return t.unknown;
     if (shown === "street") return en.analysis.streets[key] ?? key;
     if (shown === "pot_type") return en.stats.breakdown.potTypes[key] ?? key;
-    if (shown === "scenario") return t.scenario(key);
+    if (shown === "scenario" || shown === "preflop_scenario") return t.scenario(key);
     return key;
   };
+  const anyGraded = data?.rows.some((row) => row.graded > 0) ?? false;
 
   return (
     <section className="card stats-group">
@@ -678,7 +888,18 @@ function BreakdownPanel({ scopeKey, generation }: { scopeKey: string; generation
         </div>
       </div>
       {error ? <p className="notice notice--error">{error}</p> : null}
-      {data ? <StreetTable rows={data.rows} first={t.groups[shown]} label={label} showHands /> : null}
+      {data && anyGraded ? (
+        <>
+          <h4 className={styles.subhead}>{t.gradesTitle}</h4>
+          <GradeTable rows={data.rows} first={t.groups[shown]} label={label} />
+        </>
+      ) : null}
+      {data ? (
+        <>
+          <h4 className={styles.subhead}>{t.flagsTitle}</h4>
+          <StreetTable rows={data.rows} first={t.groups[shown]} label={label} showHands />
+        </>
+      ) : null}
     </section>
   );
 }
@@ -734,10 +955,12 @@ function HandsPanel({
   const signed = numberFormat(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1, signDisplay: "exceptZero" });
   const from = total === 0 ? 0 : state.page * PAGE_SIZE + 1;
   const to = Math.min(total, (state.page + 1) * PAGE_SIZE);
-  const anyFilter = state.street || state.flag || state.status || state.sort !== "recent";
+  const anyFilter = state.street || state.flag || state.status || state.grade || state.sort !== "recent";
+  const fixed2 = numberFormat(locale, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  const pctFormat = numberFormat(locale, { style: "percent", maximumFractionDigits: 1 });
 
   return (
-    <section className="card stats-group">
+    <section className="card stats-group" id={HANDS_ID}>
       <div className="card__head">
         <h3>{t.list.heading}</h3>
         <p className="muted">{t.list.total(total)}</p>
@@ -763,6 +986,17 @@ function HandsPanel({
             {FLAG_CODES.map((code) => (
               <option key={code} value={code}>
                 {t.flags[code]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span className="field__label">{t.filters.grade}</span>
+          <select value={state.grade ?? ""} onChange={(event) => onChange({ grade: event.target.value || null, page: 0 })}>
+            <option value="">{t.filters.anyGrade}</option>
+            {GRADE_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {value === "bad" ? t.filters.badGrades : t.grades[value]}
               </option>
             ))}
           </select>
@@ -812,6 +1046,16 @@ function HandsPanel({
                 <th scope="col">{t.list.when}</th>
                 <th scope="col">{t.list.pot}</th>
                 <th scope="col">{t.list.actions}</th>
+                <th scope="col">{t.list.grade}</th>
+                <th scope="col" className="num">
+                  {t.list.score}
+                </th>
+                <th scope="col" className="num">
+                  {t.list.evLoss}
+                </th>
+                <th scope="col" className="num">
+                  {t.list.evLossPot}
+                </th>
                 <th scope="col">{t.list.flags}</th>
                 <th scope="col" className="num">
                   {t.list.result}
@@ -850,6 +1094,19 @@ function HandsPanel({
                         <ActionStrip decisions={row.decisions} />
                       )}
                     </td>
+                    <td>
+                      {row.grade ? (
+                        <span className={`${styles.gradeTag} ${styles[row.grade] ?? ""}`}>
+                          <GradeIcon grade={row.grade} />
+                          {t.grades[row.grade] ?? row.grade}
+                        </span>
+                      ) : (
+                        <span className={styles.muted}>—</span>
+                      )}
+                    </td>
+                    <td className="num">{row.score === null ? "—" : Math.round(row.score)}</td>
+                    <td className="num">{row.evLossBb === null ? "—" : fixed2.format(row.evLossBb)}</td>
+                    <td className="num">{row.evLossPot === null ? "—" : pctFormat.format(row.evLossPot)}</td>
                     <td>
                       {row.flagCount > 0 && row.worstFlag ? (
                         <span className={`${styles.tag} ${styles[row.worstFlag]}`}>

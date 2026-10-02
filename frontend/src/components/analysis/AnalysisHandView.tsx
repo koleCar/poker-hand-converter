@@ -17,10 +17,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { analyzeHand } from "../../lib/analysis";
 import type { HandAnalysis } from "../../lib/analysis/types";
 import { useAuth } from "../../lib/auth";
-import { fetchHandAnalysis, getHand, isDatabaseConfigured, DATABASE_NOT_CONFIGURED_MESSAGE } from "../../lib/db";
+import { analyseHandNow, fetchHandAnalysis, getHand, isDatabaseConfigured, DATABASE_NOT_CONFIGURED_MESSAGE } from "../../lib/db";
 import { useDict } from "../../lib/i18n/client";
 import { getParser } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
@@ -74,7 +73,9 @@ export function AnalysisHandView({ handId, query }: AnalysisHandViewProps) {
         const site = record.site && record.site !== "standard" ? (getParser(record.site)?.name ?? record.site) : null;
         // A structured clone: `analyzeHand` may label positions on the document
         // it is given, and the replayer must see the hand exactly as stored.
-        const analysis = stored ?? analyzeHand(structuredClone(record.phf));
+        // The fresh path loads the preflop charts first (once per page load).
+        const analysis = stored ?? (await analyseHandNow(structuredClone(record.phf)));
+        if (!live) return;
         setLoaded({ status: "ready", hand: record.phf, site, analysis, fresh: stored === null });
       } catch (error) {
         if (live) setLoaded({ status: "error", message: error instanceof Error ? error.message : String(error) });

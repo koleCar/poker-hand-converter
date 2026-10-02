@@ -71,6 +71,11 @@ export const hr: Dict = {
         "Besplatno objašnjeni pokerski pojmovi s razrađenim primjerima i interaktivnim kalkulatorima: pot odds, realizacija equityja, rasponi, tekstura boarda, MDF, SPR, veličina beta, 3-betovi i više.",
     },
     learnConcept: (title: string) => `${title} — pokerski pojmovi | Rail`,
+    charts: {
+      title: "Preflop chartovi: 6-max 100bb cash, mix i EV svake ruke | Rail",
+      description:
+        "Railovi vlastiti preflop chartovi za 6-max 100 bb cash: otvaranja, 3-betovi, 4-betovi, squeezeovi i blind protiv blinda, s frekvencijom i EV-om svake akcije za svih 169 ruku.",
+    },
     notFound: {
       title: "Stranica nije pronađena | Rail",
       description: "Ova adresa ne odgovara ničemu na Railu.",

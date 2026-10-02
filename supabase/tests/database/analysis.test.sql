@@ -180,7 +180,10 @@ select throws_ok($$ select public.analysis_coverage('stats/2') $$, '22023', null
 select throws_ok($$ select public.analysis_overview('{"analysisVersion":"nope"}') $$, '22023', null,
   'so does every report');
 
-select is(public.analysis_overview('{"analysisVersion":"analysis/1"}') - 'flags' - 'streets' - 'reasons' - 'skipped' - 'approximations',
+-- (A2b's `20270104090000_analysis_grades.sql` added the grade keys; they have
+-- their own suite, `analysis_grades.test.sql`.)
+select is(public.analysis_overview('{"analysisVersion":"analysis/1"}') - 'flags' - 'streets' - 'reasons' - 'skipped' - 'approximations'
+          - 'gradesByStreet' - 'graded' - 'gradedHands' - 'badHands' - 'evLossPot',
   '{"analysisVersion":"analysis/1","hands":3,"status":{"full":1,"partial":1,"notAnalysed":1},
     "decisions":5,"analysed":4,"flagged":2,"flaggedHands":2,"grades":[],"score":null,"evLossBb":null}'::jsonb,
   'overview: hands by status, decisions, flags; no grades yet');
