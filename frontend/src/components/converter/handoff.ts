@@ -95,12 +95,13 @@ export function downloadText(fileName: string, text: string): void {
  * Output name for a converted source.
  *
  * Keeps the original stem so a user converting fifty files can still tell them
- * apart, and strips the archive prefix a zip entry carries.
+ * apart, and strips the archive prefix a zip entry carries. `suffix` and
+ * `fallbackStem` are words in the reader's language ("converted", "hands").
  */
-export function outputFileName(sourceName: string): string {
+export function outputFileName(sourceName: string, suffix: string, fallbackStem: string): string {
   const leaf = sourceName.split("→").pop()?.trim() ?? sourceName;
-  const stem = leaf.replace(/\.[^.]+$/, "").replace(/[\\/:*?"<>|]/g, "-").trim() || "hands";
-  return `${stem} - converted.txt`;
+  const stem = leaf.replace(/\.[^.]+$/, "").replace(/[\\/:*?"<>|]/g, "-").trim() || fallbackStem;
+  return `${stem} - ${suffix}.txt`;
 }
 
 /** Copies to the clipboard, falling back to a hidden textarea on http:// origins. */

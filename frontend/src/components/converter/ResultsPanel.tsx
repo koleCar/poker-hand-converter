@@ -9,11 +9,13 @@
  */
 
 import { memo, useMemo, useState } from "react";
+import { useDict, useLocale } from "../../lib/i18n/client";
+import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
 import { toStandardTextFile } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
 import { downloadText, outputFileName } from "./handoff";
 import { toHandRow } from "./handSummary";
-import { formatBytes, formatCount } from "./inputs";
+import { describeProblem, formatBytes, formatCount } from "./inputs";
 import type { SaveState, SourceResult } from "./types";
 
 /** Hands shown before the "show more" button; a page of 6 000 rows helps nobody. */
@@ -36,6 +38,7 @@ const HandRowItem = memo(function HandRowItem({
   onPreview(hand: PhfHand): void;
   onOpenInReplayer(hand: PhfHand): void;
 }) {
+  const t = useDict().converter.results;
   const row = toHandRow(hand);
   return (
     <li className="conv-hand">
@@ -50,8 +53,8 @@ const HandRowItem = memo(function HandRowItem({
         <div className="conv-hand__meta">
           <span>#{row.handId}</span>
           {row.table ? <span>{row.table}</span> : null}
-          <span>{row.seats} players</span>
-          <span>pot {row.pot}</span>
+          <span>{t.players(row.seats)}</span>
+          <span>{t.pot(row.pot)}</span>
           {row.heroNet ? (
             <span className={`conv-hand__net is-${row.netDirection}`}>{row.heroNet}</span>
           ) : null}
@@ -59,10 +62,10 @@ const HandRowItem = memo(function HandRowItem({
       </div>
       <div className="conv-hand__actions">
         <button type="button" className="btn btn--ghost btn--sm" onClick={() => onPreview(hand)}>
-          Preview
+          {t.preview}
         </button>
         <button type="button" className="btn btn--sm" onClick={() => onOpenInReplayer(hand)}>
-          Replay
+          {t.replay}
         </button>
       </div>
     </li>
@@ -108,6 +111,10 @@ export function ResultsPanel({
   siteLabel,
   converting,
 }: ResultsPanelProps) {
+  const en = useDict();
+  const t = en.converter.results;
+  const locale = INTL_LOCALE[useLocale()];
+  const count = (value: number) => formatCount(value, locale);
   const [visible, setVisible] = useState(HAND_PAGE);
   const [openSource, setOpenSource] = useState<string | null>(null);
 
@@ -174,10 +181,7 @@ export function ResultsPanel({
     const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
       now.getDate(),
     ).padStart(2, "0")}`;
-    downloadText(
-      `pokerconverter ${stamp} - ${allHands.length} ${allHands.length === 1 ? "hand" : "hands"}.txt`,
-      toStandardTextFile(allHands),
-    );
+    downloadText(t.downloadAllName(stamp, allHands.length), toStandardTextFile(allHands));
   }
 
   const savedLine = (() => {
@@ -188,20 +192,18 @@ export function ResultsPanel({
       return null;
     }
     if (!dbConfigured) {
-      return "Saving is off in this build — download the file to keep your hands.";
+      return t.savingOffBuild;
     }
     if (!autoSave) {
-      return "Saving is switched off. Your hands stay in this tab only.";
+      return t.savingSwitchedOff;
     }
     switch (saveState.status) {
       case "saving":
-        return `Saving to your library… ${formatCount(saveState.done)} of ${formatCount(saveState.total)}`;
+        return t.savingProgress(saveState.done, saveState.total);
       case "done":
-        return `${formatCount(saveState.inserted)} saved to your library${
-          saveState.duplicates ? `, ${formatCount(saveState.duplicates)} already there` : ""
-        }.`;
+        return t.savedLine(saveState.inserted, saveState.duplicates);
       case "error":
-        return "Some hands could not be saved. Your converted file is still complete.";
+        return t.saveError;
       default:
         return null;
     }
@@ -216,10 +218,7 @@ export function ResultsPanel({
     <section className="card conv-results">
       <header className="card__head conv-results__head">
         <div>
-          <h3>
-            {formatCount(totals.hands)} {totals.hands === 1 ? "hand" : "hands"} converted
-            {stopped ? " so far" : ""}
-          </h3>
+          <h3>{t.heading(totals.hands, stopped)}</h3>
           {savedLine ? <p className="muted">{savedLine}</p> : null}
         </div>
         <div className="conv-results__head-actions">
@@ -232,59 +231,59 @@ export function ResultsPanel({
             onClick={downloadAll}
             disabled={!totals.hands || converting}
           >
-            Download all
+            {t.downloadAll}
           </button>
         </div>
       </header>
 
       {saveState.status === "error" ? (
         <p className="notice notice--warn conv-results__save-error">
-          <span>{saveState.errors[0] ?? "The database refused the write."}</span>
+          <span>{saveState.errors[0] ?? t.writeRefused}</span>
           <button type="button" className="btn btn--ghost btn--sm" onClick={onRetrySave}>
-            Try saving again
+            {t.retrySave}
           </button>
         </p>
       ) : null}
 
       <div className="conv-stats">
         <div className="conv-stat">
-          <span className="conv-stat__value">{formatCount(totals.hands)}</span>
-          <span className="conv-stat__label">{totals.hands === 1 ? "hand" : "hands"}</span>
+          <span className="conv-stat__value">{count(totals.hands)}</span>
+          <span className="conv-stat__label">{t.statHands(totals.hands)}</span>
         </div>
         <div className="conv-stat">
-          <span className="conv-stat__value">{formatCount(totals.filesWithHands)}</span>
-          <span className="conv-stat__label">of {formatCount(sources.length)} files</span>
+          <span className="conv-stat__value">{count(totals.filesWithHands)}</span>
+          <span className="conv-stat__label">{t.statFiles(sources.length)}</span>
         </div>
         {dbConfigured && autoSave && !converting ? (
           <div className="conv-stat conv-stat--good">
-            <span className="conv-stat__value">{formatCount(saveState.inserted)}</span>
-            <span className="conv-stat__label">saved</span>
+            <span className="conv-stat__value">{count(saveState.inserted)}</span>
+            <span className="conv-stat__label">{t.statSaved}</span>
           </div>
         ) : null}
         {/* Re-uploading a session you already imported is normal, and a lone
             "0 saved" tile reads like something broke until you see why. */}
         {dbConfigured && autoSave && !converting && saveState.duplicates > 0 ? (
           <div className="conv-stat">
-            <span className="conv-stat__value">{formatCount(saveState.duplicates)}</span>
-            <span className="conv-stat__label">already in your library</span>
+            <span className="conv-stat__value">{count(saveState.duplicates)}</span>
+            <span className="conv-stat__label">{t.statDuplicates}</span>
           </div>
         ) : null}
         {totals.failures ? (
           <div className="conv-stat conv-stat--warn">
-            <span className="conv-stat__value">{formatCount(totals.failures)}</span>
-            <span className="conv-stat__label">not converted</span>
+            <span className="conv-stat__value">{count(totals.failures)}</span>
+            <span className="conv-stat__label">{t.statFailed}</span>
           </div>
         ) : null}
       </div>
 
       {totals.sites.length > 0 ? (
-        <div className="conv-sites" aria-label="Sites detected">
-          {totals.sites.map(([siteId, count]) => {
+        <div className="conv-sites" aria-label={t.sitesDetected}>
+          {totals.sites.map(([siteId, hands]) => {
             const full = siteLabel(siteId);
             return (
               <span key={siteId} className="conv-chip conv-chip--site" title={full}>
                 <span className="conv-chip__text">{shortSiteName(full)}</span>
-                <em>{formatCount(count)}</em>
+                <em>{count(hands)}</em>
               </span>
             );
           })}
@@ -312,7 +311,9 @@ export function ResultsPanel({
                 </div>
                 <div className="conv-source__tags">
                   {source.problem ? (
-                    <span className="conv-chip conv-chip--bad">{source.problem}</span>
+                    <span className="conv-chip conv-chip--bad">
+                      {describeProblem(source.problem, en.converter.problems, locale)}
+                    </span>
                   ) : (
                     <>
                       <span className="conv-chip" title={siteLabel(source.siteId)}>
@@ -323,18 +324,17 @@ export function ResultsPanel({
                       <span
                         className={`conv-chip ${source.hands.length ? "conv-chip--good" : ""}`}
                       >
-                        {formatCount(source.hands.length)}{" "}
-                        {source.hands.length === 1 ? "hand" : "hands"}
+                        {t.handsChip(source.hands.length)}
                       </span>
                       {source.failures.length ? (
                         <span className="conv-chip conv-chip--warn">
-                          {formatCount(source.failures.length)} skipped
+                          {t.skippedChip(source.failures.length)}
                         </span>
                       ) : null}
                       {source.status === "cancelled" ? (
-                        <span className="conv-chip conv-chip--warn">stopped</span>
+                        <span className="conv-chip conv-chip--warn">{t.stopped}</span>
                       ) : null}
-                      <span className="conv-chip conv-chip--quiet">{formatBytes(source.bytes)}</span>
+                      <span className="conv-chip conv-chip--quiet">{formatBytes(source.bytes, locale)}</span>
                       {source.encoding !== "UTF-8" ? (
                         <span className="conv-chip conv-chip--quiet">{source.encoding}</span>
                       ) : null}
@@ -348,10 +348,13 @@ export function ResultsPanel({
                     type="button"
                     className="btn btn--ghost btn--sm"
                     onClick={() =>
-                      downloadText(outputFileName(source.name), toStandardTextFile(source.hands))
+                      downloadText(
+                        outputFileName(source.name, t.fileSuffix, t.fileStemFallback),
+                        toStandardTextFile(source.hands),
+                      )
                     }
                   >
-                    Download
+                    {t.download}
                   </button>
                 ) : null}
                 {source.failures.length ? (
@@ -361,7 +364,7 @@ export function ResultsPanel({
                     aria-expanded={isOpen}
                     onClick={() => setOpenSource(isOpen ? null : source.id)}
                   >
-                    {isOpen ? "Hide detail" : "Detail"}
+                    {isOpen ? t.hideDetail : t.detail}
                   </button>
                 ) : null}
               </div>
@@ -374,7 +377,7 @@ export function ResultsPanel({
                   ))}
                   {source.failures.length > 20 ? (
                     <li className="muted">
-                      {formatCount(source.failures.length - 20)} more — see the panel below.
+                      {t.moreFailures(source.failures.length - 20)}
                     </li>
                   ) : null}
                 </ul>
@@ -386,7 +389,7 @@ export function ResultsPanel({
 
       {totals.hands > 0 ? (
         <div className="conv-hands">
-          <h4 className="conv-hands__title">Converted hands</h4>
+          <h4 className="conv-hands__title">{t.convertedHands}</h4>
           <ul className="conv-hand-list">
             {visibleHands.map(({ hand, key }) => (
               <HandRowItem
@@ -403,7 +406,7 @@ export function ResultsPanel({
               className="btn btn--ghost conv-hands__more"
               onClick={() => setVisible((count) => count + HAND_PAGE * 3)}
             >
-              Show more — {formatCount(totals.hands - visible)} left
+              {t.showMore(totals.hands - visible)}
             </button>
           ) : null}
         </div>

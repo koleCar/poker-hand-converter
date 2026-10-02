@@ -16,6 +16,7 @@
 
 "use client";
 
+import { useDict } from "../../lib/i18n/client";
 import { SingleHandPanel } from "./SingleHandPanel";
 import { ConverterTab } from "../ConverterTab";
 import "../../styles/upload.css";
@@ -26,12 +27,13 @@ interface UploadTabProps {
 }
 
 export function UploadTab({ onHandsSaved }: UploadTabProps) {
+  const en = useDict();
   return (
     <div className="stack">
       <SingleHandPanel onSaved={onHandsSaved} />
 
       <p className="upload-or">
-        <span>or</span>
+        <span>{en.converter.upload.or}</span>
       </p>
 
       <ConverterTab onHandsSaved={onHandsSaved} />

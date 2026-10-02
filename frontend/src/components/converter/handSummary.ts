@@ -56,35 +56,3 @@ export function toHandRow(hand: PhfHand): HandRow {
     seats: hand.players.length,
   };
 }
-
-/**
- * Human sentence for a failure reason code.
- *
- * The codes come from the parsers and the validator and are written for
- * developers; this is the same information written for the person who just
- * uploaded the file. Unknown codes fall back to the parser's own message, so a
- * parser added tomorrow degrades to "readable" rather than to "blank".
- */
-export const FAILURE_REASON_COPY: Record<string, string> = {
-  "unknown-site": "We do not recognise this hand history format yet.",
-  "no-hands": "We recognised the format but found no complete hands in the text.",
-  "split-failed": "We could not split this file into individual hands.",
-  "parser-error": "Our converter hit something it did not expect in this hand.",
-  "tournament-in-cash-mode": "Tournament hand, skipped because the converter was set to cash games only.",
-  "bomb-pot": "Bomb pot, skipped by request.",
-  "chip-mismatch": "The chips in this hand do not add up, so converting it would give you wrong numbers.",
-  "duplicate-card": "The same card appears twice in this hand.",
-  "bb-only-walk": "Everyone folded to the big blind, so there is no hand to replay.",
-  "uncalled-exceeds-commitment": "The returned uncalled bet is larger than what was actually bet.",
-  "normalized-unparseable": "The hand cleaned up correctly but our reader still could not make sense of it.",
-  "invalid-hand": "The converted hand failed our consistency checks.",
-};
-
-/** What we are going to do about a failure — the honest part of the message. */
-export const FAILURE_STAGE_COPY: Record<string, string> = {
-  detect: "Unsupported format",
-  split: "Could not be split into hands",
-  parse: "Could not be read",
-  validate: "Did not pass our checks",
-  serialize: "Could not be written out",
-};

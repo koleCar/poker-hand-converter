@@ -18,9 +18,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { isDatabaseConfigured, rebuildStats, saveHand } from "../../lib/db";
+import { useDict, useLocale } from "../../lib/i18n/client";
+import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
 import { convertAny, getParser, toStandardText } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
-import { FILE_ACCEPT, loadFile } from "../converter/inputs";
+import { describeProblem, FILE_ACCEPT, loadFile } from "../converter/inputs";
 import { ReplayViewer } from "../replayer/ReplayViewer";
 import { ShareHandButton } from "../share/ShareHandButton";
 
@@ -48,6 +50,9 @@ interface SingleHandPanelProps {
 }
 
 export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
+  const en = useDict();
+  const t = en.converter.upload;
+  const locale = INTL_LOCALE[useLocale()];
   const auth = useAuth();
   const [loaded, setLoaded] = useState<LoadedHand | null>(null);
   const [text, setText] = useState("");
@@ -66,8 +71,9 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
       const [first] = result.hands;
       if (!first) {
         // Every parser writes a human-readable reason; the first one is the
-        // best guess at what the user actually needs to hear.
-        setError(result.failures[0]?.message ?? "That is not a hand history we recognise.");
+        // best guess at what the user actually needs to hear. (Those reasons
+        // are the parsers' own and stay in English.)
+        setError(result.failures[0]?.message ?? t.notRecognised);
         setLoaded(null);
         return;
       }
@@ -82,17 +88,15 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
       setText("");
 
       if (result.hands.length > 1) {
-        setNotice(
-          `${result.hands.length} hands found — showing the first. Use the upload box below to convert them all.`,
-        );
+        setNotice(t.manyFound(result.hands.length));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "That could not be read.");
+      setError(err instanceof Error ? err.message : t.couldNotRead);
       setLoaded(null);
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [t]);
 
   /** Set when save was pressed with no session, so the click survives the dialog. */
   const wantsSaveRef = useRef(false);
@@ -113,7 +117,7 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
     }
     if (!auth.isSignedIn) {
       wantsSaveRef.current = true;
-      auth.requestSignIn("Sign in to keep this hand. Only you will see it.");
+      auth.requestSignIn(en.converter.save.signInReason);
       return;
     }
     setSaving(true);
@@ -124,14 +128,14 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
       // hand carries and re-derives amounts through display floats.
       const result = await saveHand(loaded.hand, toStandardText(loaded.hand));
       setLoaded({ ...loaded, storedId: result.id });
-      setNotice(result.duplicate ? "Already in your library." : "Saved to your library.");
+      setNotice(result.duplicate ? en.converter.save.alreadySaved : en.converter.save.saved);
       onSaved?.();
       if (!result.duplicate) {
         // Background, server-side; see ConverterTab.
         void rebuildStats().catch(() => undefined);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Saving failed.");
+      setError(err instanceof Error ? err.message : en.converter.save.failed);
     } finally {
       setSaving(false);
     }
@@ -145,7 +149,7 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
             className="single__area"
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder="Paste a hand here"
+            placeholder={t.pastePlaceholder}
             rows={6}
             spellCheck={false}
             onKeyDown={(event) => {
@@ -162,7 +166,7 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
               disabled={!text.trim() || busy}
               onClick={() => void loadFromText(text, null)}
             >
-              {busy ? "Reading…" : "Replay it"}
+              {busy ? t.reading : t.replayIt}
             </button>
             <button
               type="button"
@@ -170,7 +174,7 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
               disabled={busy}
               onClick={() => fileRef.current?.click()}
             >
-              Choose a file
+              {t.chooseFile}
             </button>
             <input
               ref={fileRef}
@@ -189,7 +193,9 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
                 if (!source || source.problem) {
                   setBusy(false);
                   setNotice(null);
-                  setError(source?.problem ?? "That file could not be read.");
+                  setError(
+                    source?.problem ? describeProblem(source.problem, en.converter.problems, locale) : t.fileCouldNotRead,
+                  );
                   return;
                 }
                 await loadFromText(source.text, file.name);
@@ -220,8 +226,8 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
                     className="btn btn--icon"
                     onClick={() => void save()}
                     disabled={saving}
-                    aria-label="Save to my library"
-                    title={saving ? "Saving…" : "Save to my library"}
+                    aria-label={en.converter.save.button}
+                    title={saving ? en.converter.save.saving : en.converter.save.button}
                   >
                     💾
                   </button>

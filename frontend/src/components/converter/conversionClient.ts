@@ -17,6 +17,11 @@ export interface ConversionHandlers {
   onBatch(batch: PipelineBatch): void;
   onSourceEnd(sourceId: string): void;
   onDone(info: { cancelled: boolean; usedWorker: boolean }): void;
+  /**
+   * The run failed. `message` is the thrown error's own (technical) text, or
+   * empty when the worker died without one; the caller supplies the words for
+   * that case in the reader's language.
+   */
   onError(message: string): void;
 }
 
@@ -104,7 +109,7 @@ export function startConversion(
     if (!finished) {
       finished = true;
       worker.terminate();
-      handlers.onError(event.message || "The conversion worker stopped unexpectedly.");
+      handlers.onError(event.message || "");
     }
   };
 
