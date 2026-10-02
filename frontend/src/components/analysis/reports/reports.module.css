@@ -1,0 +1,353 @@
+/* Reports (`/analysis/reports`, phase A3).
+
+   Built on the statistics screen's skeleton (`.stats`, `.card`,
+   `.stats-table`) like the rest of the Analysis tab; this file is only what a
+   comparison adds — the verdict tones, the interval under a number, the
+   expandable rows, the spot list and the deviation list. Colours are semantic
+   tokens, which theme-light re-points, so nothing here knows its theme. */
+
+/* --------------------------------------------------------------- tones */
+
+.inLine { color: var(--grade-perfect); }
+.deviates { color: var(--grade-blunder); }
+.tooFew { color: var(--text-secondary); }
+
+.verdict {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.glyph {
+  display: inline-block;
+  min-inline-size: 1em;
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.muted {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* The 95% interval, or "of 120", under a number. */
+.interval {
+  display: block;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+}
+
+/* ------------------------------------------------------------ chrome */
+
+.intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.intro > span {
+  flex: 1 1 18rem;
+}
+
+.how {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.how[hidden] {
+  display: none;
+}
+
+.how p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.howTitle {
+  margin: 0;
+  font-size: var(--font-size-md);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2) var(--space-3);
+}
+
+.filters > label {
+  min-inline-size: 9rem;
+  flex: 1 1 9rem;
+}
+
+.busy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+
+.subhead {
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: var(--font-size-md);
+}
+
+.placeholder {
+  margin: 0;
+}
+
+/* -------------------------------------------------------------- tables */
+
+.table th[scope="row"] {
+  white-space: normal;
+  min-inline-size: 9rem;
+}
+
+.table td,
+.table th {
+  vertical-align: top;
+}
+
+.inner {
+  margin-block-start: var(--space-2);
+}
+
+.caption {
+  caption-side: top;
+  text-align: start;
+  font-weight: var(--font-weight-semibold);
+  padding-block-end: var(--space-1);
+}
+
+.headWithHelp {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* The "?" beside "Your hands": opens the explanation. 24px is the WCAG 2.2
+   minimum target. */
+.help {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.help:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.help:focus-visible,
+.expand:focus-visible,
+.nodeSummary:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* One stat: its row and, under it, the detail row it opens. */
+.group + .group {
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.expand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  min-block-size: 1.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-align: start;
+  cursor: pointer;
+}
+
+.expand:hover span:last-child {
+  text-decoration: underline;
+}
+
+.chevron {
+  inline-size: 1em;
+  color: var(--text-secondary);
+}
+
+.detailRow > td {
+  white-space: normal;
+  background: var(--surface-inset);
+}
+
+.detail {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-2);
+  justify-items: start;
+}
+
+.detail > * {
+  max-inline-size: 100%;
+}
+
+.detail p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.detail > div {
+  inline-size: 100%;
+}
+
+/* Defence cells: yours, then the reference under it. */
+.refInline {
+  display: block;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+/* ---------------------------------------------------------------- spots */
+
+.nodes {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.node {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  padding: var(--space-2) var(--space-3);
+}
+
+.node[open] {
+  background: var(--surface-inset);
+}
+
+.nodeSummary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.nodeLabel {
+  font-weight: var(--font-weight-semibold);
+  flex: 1 1 14rem;
+}
+
+.nodeGap {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-sm);
+}
+
+/* ---------------------------------------------------------------- hands */
+
+.hands {
+  inline-size: 100%;
+}
+
+.handList {
+  display: grid;
+  gap: 0;
+  margin: var(--space-1) 0 var(--space-2);
+  padding: 0;
+  list-style: none;
+}
+
+.handRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-1) var(--space-3);
+  padding-block: var(--space-2);
+  border-block-end: 1px solid var(--border-subtle);
+  font-size: var(--font-size-sm);
+}
+
+@media (min-width: 640px) {
+  .handRow {
+    grid-template-columns: minmax(8rem, auto) minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+.handLink {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  min-block-size: 1.5rem;
+  color: var(--text-link);
+  text-decoration: none;
+}
+
+.handLink:hover .handClass,
+.handLink:focus-visible .handClass {
+  text-decoration: underline;
+}
+
+.handLink:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.handClass {
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-semibold);
+}
+
+.handWhat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+
+.handSpot {
+  flex-basis: 100%;
+  color: var(--text-secondary);
+}
+
+.handGrade {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (forced-colors: active) {
+  .help,
+  .node {
+    border-color: CanvasText;
+  }
+}

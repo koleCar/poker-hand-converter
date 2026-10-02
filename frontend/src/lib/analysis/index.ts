@@ -13,6 +13,7 @@
  * ranges.ts      default ranges per preflop line — the labelled fallback
  * heuristics.ts  §3.6 flags: notes, never grades
  * analyze.ts     analyzeHand(hand) -> HandAnalysis
+ * reports.ts     A3: range and hand-adjusted reference frequencies, stats rolled up from nodes
  * ```
  *
  * **Import rule: this module may import only `lib/phf/types`, `lib/cards`,
@@ -106,3 +107,51 @@ export {
   referenceMix,
 } from "./reference";
 export { WEAK_CHART_VERSIONS, chartRange, gradePreflop, type ChartRange, type PreflopGrade, type PreflopGradeInput } from "./preflop";
+export {
+  CHART_ACTIONS,
+  MIN_PRACTICAL_DIFF,
+  MIN_SAMPLE,
+  POSTFLOP_ORDER,
+  POSTFLOP_ROLES,
+  REPORT_STATS,
+  STAT_SPECS,
+  TABLE_ORDER,
+  WILSON_Z,
+  aggregate,
+  compare,
+  compatibility,
+  defenceTable,
+  handAdjustedReference,
+  inPositionAgainst,
+  nodeKey,
+  nodeReport,
+  nodeSamples,
+  openerOf,
+  opponentRanges,
+  postflopRoles,
+  rangeReference,
+  removalFactors,
+  statParts,
+  statReport,
+  walkLine,
+  wilsonInterval,
+  type ActionFreq,
+  type Comparison,
+  type DefenceRow,
+  type LineStep,
+  type NodeActionCount,
+  type NodeClassCount,
+  type NodeReport,
+  type NodeSample,
+  type OpponentRange,
+  type PostflopCount,
+  type PostflopRoleStats,
+  type PostflopRoleId,
+  type RangeReference,
+  type ReportStatId,
+  type SplitKey,
+  type StatPart,
+  type StatReport,
+  type StatSplit,
+  type Verdict,
+} from "./reports";

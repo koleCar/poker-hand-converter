@@ -61,6 +61,10 @@ export const hr: Dict = {
       description:
         "Svaka odluka u tvojim spremljenim rukama: board, tvoja ruka, cijena i provjere koje vrijede bez obzira na strategiju.",
     },
+    analysisReports: {
+      title: "Izvještaji — tvoje frekvencije prema referenci | Rail",
+      description: "Tvoje preflop frekvencije u svakoj situaciji koju chartovi pokrivaju, uz frekvencije reference i ruke u kojima si od nje odstupio.",
+    },
     analysisHand: {
       title: "Analiza ruke | Rail",
       description: "Jedna tvoja ruka, odluku po odluku, u replayeru.",

@@ -2,6 +2,7 @@ import { betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../
 import type { DecisionAnalysis, Flag, OptionAnalysis, SpotFacts } from "../../analysis/types";
 import { plural } from "../plural";
 import type { Dict } from "../types";
+import { reportsHr } from "./analysisReports.hr";
 
 /**
  * Strings for the Analysis tab and the replayer's Analysis sheet, Croatian.
@@ -714,6 +715,8 @@ export const analysisHr: Dict["analysis"] = {
     signedBb,
     freq: pct1,
   },
+
+  reports: reportsHr,
 
   explain,
 };

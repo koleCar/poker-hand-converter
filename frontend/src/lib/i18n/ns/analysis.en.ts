@@ -17,6 +17,7 @@
 
 import { betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
 import type { DecisionAnalysis, Flag, OptionAnalysis, SpotFacts } from "../../analysis/types";
+import { reportsEn } from "./analysisReports.en";
 
 const num = (value: number, digits = 0) =>
   value.toLocaleString("en-GB", { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -739,6 +740,9 @@ export const analysisEn = {
     signedBb,
     freq: pct1,
   },
+
+  /** `/analysis/reports` (phase A3): its own file, `analysisReports.en.ts`. */
+  reports: reportsEn,
 
   explain,
 } as const;

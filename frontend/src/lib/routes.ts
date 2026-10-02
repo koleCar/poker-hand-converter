@@ -36,6 +36,11 @@ export const paths = {
    */
   analysisLearn: () => "/analysis/learn",
   /**
+   * Reports (phase A3): your frequencies against the reference. Private like
+   * the rest of `/analysis`; `query` is its filters (dates, room, stake, seat).
+   */
+  analysisReports: (query?: string) => (query ? `/analysis/reports?${query}` : "/analysis/reports"),
+  /**
    * The preflop chart browser (phase A2b). Public and indexable like the
    * concept library: the charts are our own data and read no account. `line`
    * is a chart line key (`""` is the UTG open) and `hand` a class to
