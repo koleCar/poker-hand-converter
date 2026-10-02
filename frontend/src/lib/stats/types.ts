@@ -49,8 +49,16 @@ import type {
  * does not need a bump, but redefining `steal_opp` does, because rows derived
  * under the old rule can no longer be summed with rows derived under the new
  * one. The backfill keys off this.
+ *
+ *   stats/1  M1 (#43).
+ *   stats/2  adds `pot_type`. Additive, but stored rows have no value for it,
+ *            and a breakdown that is null for every hand derived before the
+ *            change would be a wrong report rather than an empty one; the bump
+ *            makes the rebuild re-derive them (the screen does it on its own).
  */
-export const STATS_VERSION = "stats/1" as const;
+export type PotType = "walk" | "bomb" | "limped" | "single-raised" | "3bet" | "4bet+";
+
+export const STATS_VERSION = "stats/2" as const;
 export type StatsVersion = typeof STATS_VERSION;
 
 /* -------------------------------------------------------------- counters - */
@@ -399,6 +407,13 @@ export interface HandDimensions {
   isWalk: boolean;
   /** Furthest street the hand reached. */
   streetReached: Street;
+  /**
+   * What kind of pot it became preflop, by the number of voluntary raises:
+   * none (limped), one (single-raised), two (3-bet), three or more (4-bet+).
+   * Walks and bomb pots are their own kinds — neither had a preflop decision
+   * that means anything.
+   */
+  potType: PotType;
   /** Chips the house dropped into the pot (GG cash drop, Run It Once STP). */
   houseIntoPot: Amount;
   /** Everything taken out of the pot: rake, jackpot, bingo, fortune, tax, other. */

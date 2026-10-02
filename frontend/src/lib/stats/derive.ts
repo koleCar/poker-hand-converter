@@ -26,6 +26,7 @@ import {
   type HandDimensions,
   type HandFacts,
   type SeatFacts,
+  type PotType,
 } from "./types";
 
 /**
@@ -136,12 +137,24 @@ export function handFacts(hand: PhfHand): HandFacts {
     hasCashout: context.hasCashout,
     isWalk: context.isWalk,
     streetReached: context.streetReached,
+    potType: potTypeOf(context),
     houseIntoPot: context.houseIntoPot,
     fees: context.fees,
     totalPot: hand.results.totalPot,
   };
 
   return { hand: dimensions, seats };
+}
+
+/** See `HandDimensions.potType`. Voluntary preflop raises; a straddle is not one. */
+function potTypeOf(context: ReturnType<typeof buildContext>): PotType {
+  if (context.isBombPot) return "bomb";
+  if (context.isWalk) return "walk";
+  const raises = (context.byStreet.get("preflop") ?? []).filter((decision) => decision.type === "raise").length;
+  if (raises === 0) return "limped";
+  if (raises === 1) return "single-raised";
+  if (raises === 2) return "3bet";
+  return "4bet+";
 }
 
 /** `handFacts` over many hands, flattened. Convenience for a backfill batch. */

@@ -334,6 +334,7 @@ export type Database = {
           player: string
           player_count: number | null
           position: string | null
+          pot_type: string | null
           raise_cbet_flop: number
           raise_cbet_river: number
           raise_cbet_turn: number
@@ -472,6 +473,7 @@ export type Database = {
           player?: string
           player_count?: number | null
           position?: string | null
+          pot_type?: string | null
           raise_cbet_flop?: number
           raise_cbet_river?: number
           raise_cbet_turn?: number
@@ -610,6 +612,7 @@ export type Database = {
           player?: string
           player_count?: number | null
           position?: string | null
+          pot_type?: string | null
           raise_cbet_flop?: number
           raise_cbet_river?: number
           raise_cbet_turn?: number

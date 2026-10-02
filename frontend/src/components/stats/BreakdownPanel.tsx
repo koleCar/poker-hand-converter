@@ -37,7 +37,7 @@ interface BreakdownPanelProps {
 }
 
 /** In button order; labels and headings are `stats.breakdown.groups`. */
-const GROUPS = ["position", "table_size", "stack_bb", "stakes", "site"] as const satisfies readonly BreakdownGroup[];
+const GROUPS = ["position", "pot_type", "table_size", "stack_bb", "stakes", "site"] as const satisfies readonly BreakdownGroup[];
 
 /** Below this many opportunities a percentage is shown, but dimmed. */
 const THIN_SAMPLE = 20;
@@ -62,6 +62,7 @@ const COLUMNS: Column[] = [
 ];
 
 const STACK_ORDER = ["0-20", "20-40", "40-70", "70-100", "100-150", "150-250", "250+"];
+const POT_ORDER = ["walk", "limped", "single-raised", "3bet", "4bet+", "bomb"];
 
 function order(group: BreakdownGroup, rows: BreakdownRow[]): BreakdownRow[] {
   const sorted = [...rows];
@@ -71,6 +72,8 @@ function order(group: BreakdownGroup, rows: BreakdownRow[]): BreakdownRow[] {
   };
   if (group === "position") {
     sorted.sort((a, b) => rank(POSITIONS, a.key) - rank(POSITIONS, b.key));
+  } else if (group === "pot_type") {
+    sorted.sort((a, b) => rank(POT_ORDER, a.key) - rank(POT_ORDER, b.key));
   } else if (group === "stack_bb") {
     sorted.sort((a, b) => rank(STACK_ORDER, a.key) - rank(STACK_ORDER, b.key));
   } else if (group === "table_size") {
@@ -86,6 +89,9 @@ function label(group: BreakdownGroup, key: string | null, stakes: StakeVolume[],
   }
   if (group === "site") {
     return getParser(key)?.name ?? key;
+  }
+  if (group === "pot_type") {
+    return t.breakdown.potTypes[key] ?? key;
   }
   if (group === "table_size") {
     return key === "2" ? t.breakdown.headsUp : t.breakdown.handed(key);
