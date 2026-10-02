@@ -1,0 +1,20 @@
+{
+ "id": "btn-bb/KhKs9d",
+ "line": "btn-bb",
+ "flop": "KhKs9d",
+ "bytes": 98220,
+ "iterations": 100,
+ "exploitabilityPct": 0.7226422190988487,
+ "stoppedBy": "target",
+ "seconds": 1056.088182667,
+ "solverMb": 1070.530552,
+ "nodes": 565380,
+ "actionNodes": 228646,
+ "boards": 1476,
+ "turnClasses": 37,
+ "hands": [
+  577,
+  433
+ ],
+ "peakRssMb": 1306.40625
+}

@@ -216,7 +216,7 @@ export function decodeSolution(input: Uint8Array | ArrayBuffer): SolveResult {
  * The header is ASCII in practice; the full range is handled anyway.
  */
 
-function utf8Encode(text: string): Uint8Array {
+export function utf8Encode(text: string): Uint8Array {
   const out: number[] = [];
   for (const ch of text) {
     const cp = ch.codePointAt(0) as number;
@@ -233,7 +233,7 @@ function utf8Encode(text: string): Uint8Array {
   return Uint8Array.from(out);
 }
 
-function utf8Decode(bytes: Uint8Array): string {
+export function utf8Decode(bytes: Uint8Array): string {
   let out = "";
   for (let k = 0; k < bytes.length; ) {
     const b = bytes[k];

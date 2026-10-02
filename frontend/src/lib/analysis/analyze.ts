@@ -92,6 +92,15 @@ import {
   type TurnSkipReason,
 } from "./types";
 import { heroSpots, type Spot } from "./walk";
+import {
+  gradeFlop,
+  libraryEntry,
+  libraryModel,
+  type FlopEntry,
+  type FlopGrade,
+  type FlopLibrary,
+  type LibraryModel,
+} from "./flopLibrary";
 
 export interface AnalyzeOptions {
   /**
@@ -122,6 +131,13 @@ export interface AnalyzeOptions {
    * way - so a test can sweep thousands of hands without a turn solve each.
    */
   turn?: boolean;
+  /**
+   * The flop library (A5b): where a hand's line and flop have a chunk, the
+   * flop's ranges are narrowed by its solved strategies and the hero's flop
+   * decisions are graded from it (`flopLibrary.ts`). Absent - the default,
+   * and always while `FLOP_LIBRARY_ENABLED` is off - the flop is heuristic.
+   */
+  flopLibrary?: FlopLibrary | null;
 }
 
 /** 100bb ±20% (§8): outside this the stack depth is an approximation. */
@@ -142,7 +158,11 @@ const ANY_TWO: ClassWeights = parseRange("*");
 const round2 = (value: number) => Math.round(value * 100) / 100;
 const round4 = (value: number) => Math.round(value * 10_000) / 10_000;
 
-type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only">> & { charts: ChartSet | null; only: number | null };
+type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only" | "flopLibrary">> & {
+  charts: ChartSet | null;
+  only: number | null;
+  flopLibrary: FlopLibrary | null;
+};
 
 /** `AnalyzeOptions.turn`, defaulted. */
 const solvesTurn = (options: AnalyzeOptions) => options.turn ?? true;
@@ -787,6 +807,68 @@ function capTurn(
   };
 }
 
+/**
+ * The Mistake cap on a flop grade from the library (`range-cap`): the
+ * library's tree is coarse below the flop and a mapped flop is read by
+ * category, which can carry "this costs a lot" but not "Blunder" - unless
+ * the move loses whatever comes: folding a hand that cannot lose, calling
+ * with no equity at all against the opponent's preflop range.
+ */
+function capFlop(solved: FlopGrade, action: DecisionAnalysis["action"], built: BuiltFacts, walk: RangeWalk | null): FlopGrade {
+  const capped = { ...solved, flop: { ...solved.flop, capped: null as FlopGrade["grade"] | null } };
+  if (gradeRank(solved.grade) <= gradeRank("mistake")) return capped;
+  let dominated = false;
+  if (action === "fold") dominated = built.cannotLose;
+  if (action === "call" && walk) {
+    const facts = built.facts;
+    const combos = weightedCombos(walk.preflop.villain);
+    const versus = equityVsRange({ hero: facts.holeCards, range: combos, board: facts.board, method: "exhaustive" });
+    dominated = versus.combos > 0 && versus.win + versus.tie <= 1e-12;
+  }
+  if (dominated) return capped;
+  return {
+    ...capped,
+    grade: "mistake",
+    approximations: [...new Set([...solved.approximations, "range-cap" as const])].sort(),
+    flop: { ...capped.flop, capped: solved.grade },
+  };
+}
+
+/**
+ * A later street's approximations when the flop's ranges came from the
+ * library: the flop was not narrowed by the heuristic, so its code gives
+ * way to the library's own (mapped, bucketed) - unless the turn too was
+ * narrowed by the heuristic (a river after an unsolved turn).
+ */
+function libraryApprox(list: readonly Approximation[], flop: HandFlop, heuristicTurn: boolean): Approximation[] {
+  if (!flop.entry || flop.model?.flopSource() !== "library" || heuristicTurn) return [...list];
+  const out = new Set(list);
+  out.delete("narrowing-heuristic");
+  if (!flop.entry.exact) {
+    out.add("flop-mapped");
+    out.add("library-bucketed");
+  }
+  return [...out].sort();
+}
+
+/**
+ * Whether an equity fact's range was narrowed by solved strategies all the
+ * way (A5b): the flop by the library, and - on a later street - by the
+ * solve the fact itself comes from (the turn's, or the river's when its
+ * ranges came through the solved turn).
+ */
+function solverNarrowed(
+  street: DecisionStreet,
+  source: string | undefined,
+  flop: HandFlop,
+  river: RiverGrade | RiverFailure | null,
+): boolean {
+  if (flop.model?.flopSource() !== "library") return false;
+  if (street === "flop") return true;
+  if (source !== "solver") return false;
+  return street === "turn" || (street === "river" && river?.ok === true && river.river.narrowing === "turn-solver");
+}
+
 /** The equity fact of a solved turn decision: against the opponent's range at the node, over every river. */
 function turnEquity(solved: TurnGrade, facts: SpotFacts, walk: RangeWalk | null): SpotFacts["equity"] {
   const previous = facts.equity;
@@ -849,7 +931,7 @@ export function riverStudy(
   if (hero === null || handSkip(hand, context, hero) !== null) return null;
   const spot = heroSpots(context, hero).find((s) => s.action.index === actionIndex);
   if (!spot || spot.street !== "river" || spot.opponents.length !== 1) return null;
-  const { river } = handSolvers(hand, context, hero, heroSpots(context, hero), options.charts ?? null, solvesTurn(options));
+  const { river } = handSolvers(hand, context, hero, heroSpots(context, hero), options.charts ?? null, solvesTurn(options), options.flopLibrary ?? null);
   const found = river.line(spot);
   if (!("solve" in found)) return found;
   return riverStudyAt(found.solve, found.node);
@@ -872,7 +954,7 @@ export function turnStudy(
   const spots = heroSpots(context, hero);
   const spot = spots.find((s) => s.action.index === actionIndex);
   if (!spot || spot.street !== "turn" || spot.opponents.length !== 1) return null;
-  const { turn } = handSolvers(hand, context, hero, spots, options.charts ?? null, true);
+  const { turn } = handSolvers(hand, context, hero, spots, options.charts ?? null, true, options.flopLibrary ?? null);
   const found = turn.line(spot);
   if (!("solve" in found)) return found;
   return turnStudyAt(found.solve, found.node);
@@ -882,6 +964,12 @@ export function turnStudy(
  * The turn and river of a hand, wired the way `analyzeHand` wires them: the
  * river's full narrowing comes from the solved turn when there is one.
  */
+/** The hand's flop library entry and the narrowing model built on it, when it reads the library. */
+interface HandFlop {
+  entry: FlopEntry | null;
+  model: LibraryModel | null;
+}
+
 function handSolvers(
   hand: PhfHand,
   context: StatsContext,
@@ -889,8 +977,14 @@ function handSolvers(
   spots: readonly Spot[],
   charts: ChartSet | null,
   solveTurns: boolean,
-): { walked: Walked; turn: HandTurn; river: HandRiver } {
-  const walked = spots.some((spot) => spot.street !== "preflop") ? rangeWalkOf(hand, context, hero, charts) : null;
+  flopLibrary: FlopLibrary | null = null,
+): { walked: Walked; turn: HandTurn; river: HandRiver; flop: HandFlop } {
+  const postflop = spots.some((spot) => spot.street !== "preflop");
+  // A5b: the flop library, where the hand's line and flop have a chunk.
+  const found = postflop && flopLibrary ? libraryEntry(hand, context, hero, charts, flopLibrary) : null;
+  const entry = found && found.ok ? found : null;
+  const model = entry ? libraryModel(entry, heuristicModel) : null;
+  const walked = postflop ? rangeWalkOf(hand, context, hero, charts, model ?? heuristicModel) : null;
   let soft: Walked | undefined;
   const softWalk = () => {
     soft ??= rangeWalkOf(hand, context, hero, charts, halved(heuristicModel));
@@ -903,7 +997,7 @@ function handSolvers(
   const river = handRiver(hand, context, hero, walked, softWalk, charts, effectiveBb, potType, () =>
     solveTurns ? turn.riverStart() : null,
   );
-  return { walked, turn, river };
+  return { walked, turn, river, flop: { entry, model } };
 }
 
 /**
@@ -921,6 +1015,7 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     charts: options.charts ?? null,
     only: options.only ?? null,
     turn: solvesTurn(options),
+    flopLibrary: options.flopLibrary ?? null,
   };
   const context = buildContext(hand);
   const hero = heroSeatOf(context);
@@ -946,7 +1041,7 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   if (effectiveBb < STACK_LOW_BB || effectiveBb > STACK_HIGH_BB) handApprox.add("stack-depth");
 
   // The range walk (A4) through a heads-up hand, once; the turn and river solves (A5a, A4) on it.
-  const { walked, turn, river } = handSolvers(hand, context, hero, spots, resolved.charts, resolved.turn);
+  const { walked, turn, river, flop } = handSolvers(hand, context, hero, spots, resolved.charts, resolved.turn, resolved.flopLibrary);
   const walk = walked && walked.ok ? walked : null;
 
   let preflopSeen = 0;
@@ -972,6 +1067,22 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     const rawTurn = street === "turn" && !multiway && resolved.turn ? turn.grade(spot) : null;
     const solvedRiver = rawRiver?.ok ? capRiver(rawRiver, action, built, walk) : rawRiver;
     const solvedTurn = rawTurn?.ok ? capTurn(rawTurn, action, built, walk) : rawTurn;
+    // A5b: a flop decision the library can follow is graded from it; one it cannot keeps the heuristic.
+    const heroCards = toSafeIndices(built.facts.holeCards);
+    const rawFlop =
+      street === "flop" && !multiway && flop.entry && heroCards?.length === 2
+        ? gradeFlop(flop.entry, spot.action.index, [heroCards[0], heroCards[1]])
+        : null;
+    const solvedFlop = rawFlop?.ok ? capFlop(rawFlop, action, built, walk) : null;
+    if (solvedFlop) {
+      facts.flop = solvedFlop.flop;
+    }
+    if (solvedTurn?.ok) {
+      solvedTurn.approximations = libraryApprox(solvedTurn.approximations, flop, false);
+    }
+    if (solvedRiver?.ok) {
+      solvedRiver.approximations = libraryApprox(solvedRiver.approximations, flop, solvedRiver.river.narrowing !== "turn-solver");
+    }
     if (solvedRiver?.ok) {
       facts.river = solvedRiver.river;
       if (facts.equity) {
@@ -984,12 +1095,13 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
         facts.equity = turnEquity(solvedTurn, facts, walk);
       }
     }
-    const solved = solvedRiver ?? solvedTurn;
+    const solved = solvedRiver ?? solvedTurn ?? solvedFlop;
     if (facts.equity) {
       const source = facts.equity.source;
       if (source === "chart") approximations.add("preflop-range");
       else if (source === "placeholder") approximations.add("placeholder-range");
-      else approximations.add("narrowing-heuristic");
+      // Ranges narrowed by the library on the flop, and by solves after it, are not the heuristic's.
+      else if (!solverNarrowed(street, source, flop, solvedRiver)) approximations.add("narrowing-heuristic");
     }
     if (walk && walk.sources.villain === "placeholder" && (solved?.ok || facts.equity?.source === "narrowed")) {
       approximations.add("placeholder-range");

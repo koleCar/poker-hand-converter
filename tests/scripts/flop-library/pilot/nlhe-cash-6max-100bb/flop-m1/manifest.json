@@ -1,0 +1,182 @@
+{
+ "version": "floplib/1",
+ "solver": "solver/1",
+ "charts": {
+  "id": "nlhe-cash-6max-100bb",
+  "version": "charts/2",
+  "hash": "cea61620"
+ },
+ "tree": "flop-m1",
+ "machine": {
+  "cpu": "Apple M2 Pro",
+  "cores": 10,
+  "node": "v24.21.0"
+ },
+ "entries": [
+  {
+   "line": "btn-bb-3bet",
+   "flop": "AsKh7d",
+   "path": "btn-bb-3bet/AsKh7d.bin",
+   "bytes": 57884,
+   "iterations": 80,
+   "exploitabilityPct": 0.707,
+   "seconds": 344,
+   "solverMb": 333,
+   "peakRssMb": 589
+  },
+  {
+   "line": "btn-bb-3bet",
+   "flop": "AsKh9d",
+   "path": "btn-bb-3bet/AsKh9d.bin",
+   "bytes": 57888,
+   "iterations": 80,
+   "exploitabilityPct": 0.75,
+   "seconds": 323,
+   "solverMb": 333,
+   "peakRssMb": 588
+  },
+  {
+   "line": "btn-bb-3bet",
+   "flop": "Js8s4h",
+   "path": "btn-bb-3bet/Js8s4h.bin",
+   "bytes": 60992,
+   "iterations": 100,
+   "exploitabilityPct": 0.83,
+   "seconds": 297,
+   "solverMb": 223,
+   "peakRssMb": 455
+  },
+  {
+   "line": "btn-bb-3bet",
+   "flop": "KhKs9d",
+   "path": "btn-bb-3bet/KhKs9d.bin",
+   "bytes": 57376,
+   "iterations": 80,
+   "exploitabilityPct": 0.638,
+   "seconds": 204,
+   "solverMb": 213,
+   "peakRssMb": 449
+  },
+  {
+   "line": "btn-bb-3bet",
+   "flop": "Ks6s3s",
+   "path": "btn-bb-3bet/Ks6s3s.bin",
+   "bytes": 59392,
+   "iterations": 100,
+   "exploitabilityPct": 0.726,
+   "seconds": 153,
+   "solverMb": 105,
+   "peakRssMb": 280
+  },
+  {
+   "line": "btn-bb-3bet",
+   "flop": "Qs8s4h",
+   "path": "btn-bb-3bet/Qs8s4h.bin",
+   "bytes": 60240,
+   "iterations": 60,
+   "exploitabilityPct": 0.754,
+   "seconds": 176,
+   "solverMb": 220,
+   "peakRssMb": 501
+  },
+  {
+   "line": "btn-bb-3bet",
+   "flop": "Ts7h4d",
+   "path": "btn-bb-3bet/Ts7h4d.bin",
+   "bytes": 62840,
+   "iterations": 60,
+   "exploitabilityPct": 0.709,
+   "seconds": 294,
+   "solverMb": 370,
+   "peakRssMb": 624
+  },
+  {
+   "line": "btn-bb-3bet",
+   "flop": "Ts8h4d",
+   "path": "btn-bb-3bet/Ts8h4d.bin",
+   "bytes": 62468,
+   "iterations": 60,
+   "exploitabilityPct": 0.787,
+   "seconds": 270,
+   "solverMb": 367,
+   "peakRssMb": 622
+  },
+  {
+   "line": "btn-bb",
+   "flop": "AsKh7d",
+   "path": "btn-bb/AsKh7d.bin",
+   "bytes": 98988,
+   "iterations": 100,
+   "exploitabilityPct": 0.733,
+   "seconds": 1843,
+   "solverMb": 1702,
+   "peakRssMb": 1801
+  },
+  {
+   "line": "btn-bb",
+   "flop": "AsKh9d",
+   "path": "btn-bb/AsKh9d.bin",
+   "bytes": 97588,
+   "iterations": 100,
+   "exploitabilityPct": 0.778,
+   "seconds": 1632,
+   "solverMb": 1676,
+   "peakRssMb": 1927
+  },
+  {
+   "line": "btn-bb",
+   "flop": "KhKs9d",
+   "path": "btn-bb/KhKs9d.bin",
+   "bytes": 98220,
+   "iterations": 100,
+   "exploitabilityPct": 0.723,
+   "seconds": 1056,
+   "solverMb": 1071,
+   "peakRssMb": 1306
+  },
+  {
+   "line": "btn-bb",
+   "flop": "Ks6s3s",
+   "path": "btn-bb/Ks6s3s.bin",
+   "bytes": 102044,
+   "iterations": 100,
+   "exploitabilityPct": 0.93,
+   "seconds": 602,
+   "solverMb": 517,
+   "peakRssMb": 597
+  },
+  {
+   "line": "btn-bb",
+   "flop": "Qs8s4h",
+   "path": "btn-bb/Qs8s4h.bin",
+   "bytes": 102816,
+   "iterations": 100,
+   "exploitabilityPct": 0.753,
+   "seconds": 1272,
+   "solverMb": 1090,
+   "peakRssMb": 1190
+  },
+  {
+   "line": "btn-bb",
+   "flop": "Ts7h4d",
+   "path": "btn-bb/Ts7h4d.bin",
+   "bytes": 103996,
+   "iterations": 100,
+   "exploitabilityPct": 0.805,
+   "seconds": 2160,
+   "solverMb": 1798,
+   "peakRssMb": 1891
+  },
+  {
+   "line": "btn-bb",
+   "flop": "Ts8h4d",
+   "path": "btn-bb/Ts8h4d.bin",
+   "bytes": 103396,
+   "iterations": 100,
+   "exploitabilityPct": 0.855,
+   "seconds": 1995,
+   "solverMb": 1786,
+   "peakRssMb": 1952
+  }
+ ]
+}

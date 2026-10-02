@@ -206,6 +206,22 @@ export interface Flag {
  *                       the turn's all-in only up to three pots. The river
  *                       decisions themselves are graded by their own solve
  *                       with the full menu.
+ *
+ * Flop grades from the flop library (A5b, behind `FLOP_LIBRARY_ENABLED`)
+ * carry `rake-profile`, `coarse-river` (the library's turn and river are
+ * coarse too), `size-translated` / `off-tree-size`, `solver-unconverged`,
+ * `out-of-range` and `range-cap` as above, plus:
+ *
+ * - `flop-mapped`       the library has not solved this flop; it was read
+ *                       from the representative flop of the same texture
+ *                       nearest to it (`lib/solver/flopSet.ts`).
+ * - `library-bucketed`  the hero's hand was read by hand category (made
+ *                       hand and draw) - the mean of the combos in that
+ *                       category - not combo for combo: always on a mapped
+ *                       flop, and for a hand outside the chart's range.
+ *
+ * Turn and river grades of a hand whose flop ranges came from the library
+ * carry the mapping codes instead of `narrowing-heuristic` for the flop.
  */
 export const APPROXIMATIONS = [
   "heuristic",
@@ -227,6 +243,8 @@ export const APPROXIMATIONS = [
   "range-cap",
   "range-sensitive",
   "coarse-river",
+  "flop-mapped",
+  "library-bucketed",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -512,6 +530,34 @@ export interface SpotFacts {
 
   /** Turn, when the solver graded the decision (A5a). */
   turn?: TurnFacts | null;
+
+  /** Flop, when the flop library graded the decision (A5b, behind `FLOP_LIBRARY_ENABLED`). */
+  flop?: FlopFacts | null;
+}
+
+/** What the flop library says about a graded flop decision (A5b). Plain numbers; the chunk is not stored. */
+export interface FlopFacts {
+  source: "library";
+  /** Library line id, e.g. `btn-bb`. */
+  line: string;
+  /** The flop the chunk was solved on (canonical key): the hand's own, or its representative. */
+  flop: string;
+  /** Read from a representative flop (`flop-mapped`). */
+  mapped: boolean;
+  /** Texture distance to it (`flopSet.ts`), 0 when exact. */
+  distance: number;
+  /** Library tree, e.g. `flop-m1`. */
+  tree: string;
+  /** The node in the solved tree, e.g. `X-B1.82`. */
+  path: string;
+  iterations: number;
+  /** Exploitability the chunk's solve reached, % of the flop pot. */
+  exploitabilityPct: number;
+  /** The hero's hand category when it was read by category (`library-bucketed`), e.g. `tp-good/fd`. */
+  bucket: string | null;
+  translated: number | null;
+  reach: { hero: number; villain: number };
+  capped?: Grade | null;
 }
 
 /**

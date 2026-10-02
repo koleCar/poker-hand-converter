@@ -28,6 +28,9 @@
 
 import {
   analyzeHand,
+  FLOP_LIBRARY_BASE,
+  FLOP_LIBRARY_ENABLED,
+  FlopLibraryLoader,
   riverStudy,
   turnStudy,
   type HandAnalysis,
@@ -81,6 +84,17 @@ const PROGRESS_MS = 250;
  */
 let charts: Promise<ChartLibrary> | null = null;
 
+/** The flop library (A5b), only while `FLOP_LIBRARY_ENABLED`: chunks fetched per hand, kept for the worker's life. */
+let flopLibrary: FlopLibraryLoader | null = null;
+
+/** The library holding every chunk these hands read, or null while the flag is off. */
+async function libraryFor(set: ChartLibrary, hands: readonly PhfHand[]): Promise<FlopLibraryLoader | null> {
+  if (!FLOP_LIBRARY_ENABLED) return null;
+  flopLibrary ??= new FlopLibraryLoader(FLOP_LIBRARY_BASE, (url) => fetch(url));
+  for (const hand of hands) await flopLibrary.prefetch(hand, set);
+  return flopLibrary;
+}
+
 self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
   const request = event.data;
   const { jobId } = request;
@@ -93,26 +107,34 @@ self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
     const hands = request.type === "analyse" ? request.page.map((item) => item.phf) : [request.phf];
     await ensureChartSets(set, hands.flatMap((hand) => requiredChartSets(hand, set.specs)));
     if (request.type === "hand") {
-      const analysis = analyzeHand(request.phf, { charts: set });
+      const library = await libraryFor(set, [request.phf]);
+      const analysis = analyzeHand(request.phf, { charts: set, flopLibrary: library });
       self.postMessage({ type: "hand", jobId, analysis } satisfies AnalysisWorkerResponse);
       return;
     }
     if (request.type === "study") {
+      const library = await libraryFor(set, [request.phf]);
       const study =
         request.street === "turn"
-          ? turnStudy(request.phf, request.actionIndex, { charts: set })
-          : riverStudy(request.phf, request.actionIndex, { charts: set, turn: request.turn ?? true });
+          ? turnStudy(request.phf, request.actionIndex, { charts: set, flopLibrary: library })
+          : riverStudy(request.phf, request.actionIndex, { charts: set, turn: request.turn ?? true, flopLibrary: library });
       self.postMessage({ type: "studied", jobId, study } satisfies AnalysisWorkerResponse);
       return;
     }
     let last = Date.now();
-    const batch = analyseStoredHands(request.page, set, (done) => {
-      const now = Date.now();
-      if (now - last >= PROGRESS_MS) {
-        last = now;
-        self.postMessage({ type: "progress", jobId, done } satisfies AnalysisWorkerResponse);
-      }
-    });
+    const library = await libraryFor(set, request.page.map((item) => item.phf));
+    const batch = analyseStoredHands(
+      request.page,
+      set,
+      (done) => {
+        const now = Date.now();
+        if (now - last >= PROGRESS_MS) {
+          last = now;
+          self.postMessage({ type: "progress", jobId, done } satisfies AnalysisWorkerResponse);
+        }
+      },
+      library,
+    );
     self.postMessage({ type: "analysed", jobId, ...batch } satisfies AnalysisWorkerResponse);
   } catch (error) {
     self.postMessage({

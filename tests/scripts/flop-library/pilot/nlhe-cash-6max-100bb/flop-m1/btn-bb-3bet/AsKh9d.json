@@ -1,0 +1,20 @@
+{
+ "id": "btn-bb-3bet/AsKh9d",
+ "line": "btn-bb-3bet",
+ "flop": "AsKh9d",
+ "bytes": 57888,
+ "iterations": 80,
+ "exploitabilityPct": 0.7504874403244118,
+ "stoppedBy": "target",
+ "seconds": 323.404911334,
+ "solverMb": 332.754472,
+ "nodes": 553396,
+ "actionNodes": 213850,
+ "boards": 2352,
+ "turnClasses": 49,
+ "hands": [
+  151,
+  200
+ ],
+ "peakRssMb": 587.515625
+}

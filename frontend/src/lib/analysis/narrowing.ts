@@ -64,7 +64,9 @@
  * `NarrowingModel` is the seam. A5 brings flop and turn strategies; a model
  * that reads `L(c)` from them (`strategy[action][combo]` at the node, exactly
  * as `rangesAt` does inside a solve) drops in through the same interface, and
- * the river solve downstream does not change.
+ * the river solve downstream does not change. The flop library (A5b,
+ * `flopLibrary.ts`'s `libraryModel`, behind `FLOP_LIBRARY_ENABLED`) is the
+ * first such model: it finds the node from `NarrowInput.actionIndex`.
  */
 
 import { evaluateMasks, STANDARD } from "../equity/evaluator";
@@ -136,6 +138,12 @@ export interface NarrowInput {
   action: NarrowAction;
   /** A precomputed `streetStrength(board)`, to share between actions. */
   strength?: StreetStrength;
+  /**
+   * `PhfAction.index` of the action being narrowed by. A model that reads a
+   * solved tree (the flop library, A5b) finds its node from the street's
+   * actions before it; the heuristic ignores it.
+   */
+  actionIndex?: number;
 }
 
 /** How likely each combo of the actor's range is to take the action: 1,326 values in [0, 1]. */

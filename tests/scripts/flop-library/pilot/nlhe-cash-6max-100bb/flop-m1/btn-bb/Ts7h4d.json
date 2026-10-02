@@ -1,0 +1,20 @@
+{
+ "id": "btn-bb/Ts7h4d",
+ "line": "btn-bb",
+ "flop": "Ts7h4d",
+ "bytes": 103996,
+ "iterations": 100,
+ "exploitabilityPct": 0.8045587825469067,
+ "stoppedBy": "target",
+ "seconds": 2159.959600334,
+ "solverMb": 1797.708656,
+ "nodes": 900108,
+ "actionNodes": 363982,
+ "boards": 2352,
+ "turnClasses": 49,
+ "hands": [
+  592,
+  474
+ ],
+ "peakRssMb": 1891.265625
+}

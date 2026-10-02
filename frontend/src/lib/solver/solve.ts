@@ -48,15 +48,18 @@ export interface SolveOptions extends RunOptions {
    * and the chance nodes below them, with no river subtree - what turn
    * grading reads, at a few percent of the memory and none of the 44 river
    * copies a structured clone would otherwise carry out of a worker.
+   * `"flop"` stops at the turn deal the same way (the flop library, A5b).
    */
-  nodes?: "all" | "turn";
+  nodes?: "all" | "turn" | "flop";
+  /** How the engine holds regrets and sums (`SolverConfig.storage`); float32 by default. */
+  storage?: "f32" | "i16";
 }
 
 export interface SolvedNode {
   kind: "action" | "chance";
   /** Acting player index; -1 for a chance node. */
   player: number;
-  street: "turn" | "river";
+  street: "flop" | "turn" | "river";
   /** Labels from the root, e.g. `X-B6.5-C|7h|X`; `""` is the root. */
   path: string;
   /** Result index of the parent node, -1 at the root. */
@@ -83,7 +86,7 @@ export interface SolvedNode {
 
 export interface SolveResult {
   version: typeof SOLVER_VERSION;
-  street: "river" | "turn";
+  street: "river" | "turn" | "flop";
   board: string[];
   pot: number;
   stack: number;
@@ -111,8 +114,8 @@ export interface SolveResult {
   isomorphism?: TurnIsomorphism;
   /** Strata of the chance sampling the solve used; 1 when it did not sample. */
   samplingGroups?: number;
-  /** `"turn"` when the result stops at the river deal (`SolveOptions.nodes`). */
-  scope?: "all" | "turn";
+  /** `"turn"` / `"flop"` when the result stops at the river / turn deal (`SolveOptions.nodes`). */
+  scope?: "all" | "turn" | "flop";
 }
 
 /** Solves a heads-up river spot. Production-ready. */
@@ -131,7 +134,7 @@ export function solveTurn(spot: TurnSpot, options: SolveOptions = {}): SolveResu
 
 /** Runs the engine on a built subgame and extracts the result. */
 export function solveBuilt(built: BuiltSubgame, options: SolveOptions = {}): SolveResult {
-  const solver = new Solver(built.game, options.dcfr, { sampling: options.sampling });
+  const solver = new Solver(built.game, options.dcfr, { sampling: options.sampling, storage: options.storage });
   const run = solver.run(options);
   return extract(built, solver, run, options.nodes ?? "all");
 }
@@ -141,12 +144,19 @@ export function extract(
   built: BuiltSubgame,
   solver: Solver,
   run: RunResult,
-  scope: "all" | "turn" = "all",
+  scope: "all" | "turn" | "flop" = "all",
 ): SolveResult {
   const { game } = built;
   const tree = game.tree;
-  const turnOnly = scope === "turn";
-  const evaluated = solver.evaluate(turnOnly ? (node) => built.info[node]?.street !== "river" : undefined);
+  // A partial result stops at the first deal below its street.
+  const turnOnly = scope !== "all";
+  const evaluated = solver.evaluate(
+    scope === "turn"
+      ? (node) => built.info[node]?.street !== "river"
+      : scope === "flop"
+        ? (node) => built.info[node]?.street === "flop"
+        : undefined,
+  );
   const ev = solver.ev as Float32Array;
   const evOffset = solver.evOffset as Int32Array;
   const nodes: SolvedNode[] = [];
@@ -168,11 +178,13 @@ export function extract(
     const count = tree.childCount[node];
     const labels = tree.edgeLabel.slice(start, start + count);
     if (type === CHANCE) {
+      const path = built.chancePath.get(node) ?? "";
       const entry: SolvedNode = {
         kind: "chance",
         player: -1,
-        street: "river",
-        path: built.chancePath.get(node) ?? "",
+        // The street the card dealt here starts: in a flop game the deal below the flop is the turn.
+        street: built.street === "flop" && !path.includes("|") ? "turn" : "river",
+        path,
         parent,
         parentEdge,
         pot: 0,
@@ -186,7 +198,7 @@ export function extract(
         frequency: [],
       };
       nodes.push(entry);
-      if (turnOnly) {
+      if (turnOnly && (scope === "flop" || built.street !== "flop" || path.includes("|"))) {
         entry.children = new Array(count).fill(-1);
         return index;
       }

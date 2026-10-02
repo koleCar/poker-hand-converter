@@ -1,0 +1,20 @@
+{
+ "id": "btn-bb/AsKh7d",
+ "line": "btn-bb",
+ "flop": "AsKh7d",
+ "bytes": 98988,
+ "iterations": 100,
+ "exploitabilityPct": 0.7326884017588732,
+ "stoppedBy": "target",
+ "seconds": 1843.2997879579998,
+ "solverMb": 1702.367312,
+ "nodes": 900108,
+ "actionNodes": 363982,
+ "boards": 2352,
+ "turnClasses": 49,
+ "hands": [
+  575,
+  434
+ ],
+ "peakRssMb": 1800.84375
+}

@@ -382,12 +382,12 @@ export interface LineSolve {
   input: { heroFirst: boolean; heroSeat: number; villainSeat: number; stackBb: number };
 }
 
-/** A street the solver grades, for the `*-off-tree` / `*-unreached` reasons. */
-export type SolvedStreet = "river" | "turn";
+/** A street the solver grades, for the `*-off-tree` / `*-unreached` reasons (the flop's from the library, A5b, are never stored). */
+export type SolvedStreet = "river" | "turn" | "flop";
 
 export type LineFailure<S extends SolvedStreet> = {
   ok: false;
-  reason: S extends "river" ? RiverSkipReason : TurnSkipReason;
+  reason: S extends "river" ? RiverSkipReason : S extends "turn" ? TurnSkipReason : "flop-off-tree" | "flop-unreached";
   detail: string;
 };
 
@@ -412,7 +412,7 @@ export function followSolvedLine<S extends SolvedStreet>(
   options: { end?: "hero" | "street" } = {},
 ): LineOnTree | LineFailure<S> {
   const fail = (kind: "off-tree" | "unreached", detail: string): LineFailure<S> =>
-    ({ ok: false, reason: `${street}-${kind}`, detail }) as LineFailure<S>;
+    ({ ok: false, reason: `${street}-${kind}`, detail }) as unknown as LineFailure<S>;
   const { result, input } = solve;
   const firstSeat = input.heroFirst ? input.heroSeat : input.villainSeat;
   let at = 0;
