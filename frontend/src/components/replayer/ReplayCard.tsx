@@ -31,6 +31,7 @@
  * is "what would you do?" cannot answer the question in the thumbnail.
  */
 
+import { useDict } from "../../lib/i18n/client";
 import { primaryBoard, formatAmount, type PhfHand } from "../../lib/phf/types";
 import { gameLabel, stakesLabel } from "./handFacts";
 import { PlayingCard } from "./PlayingCard";
@@ -63,6 +64,8 @@ export function ReplayCard({
   onOpen,
   className = "",
 }: ReplayCardProps) {
+  const t = useDict().replayer;
+  const words = t.card;
   const focus =
     (focusSeat !== null ? hand.players.find((player) => player.seat === focusSeat) : null) ??
     hand.players.find((player) => player.isHero) ??
@@ -71,13 +74,14 @@ export function ReplayCard({
   const board = primaryBoard(hand);
   const dealtIn = hand.players.filter((player) => !player.sittingOut).length;
   const stakes = stakesLabel(hand);
-  const game = gameLabel(hand);
+  const game = gameLabel(hand, t);
+  const focusPosition = focus ? spokenPosition(focus.position, t) : null;
 
   const label = [
     `${stakes} ${game}`,
-    `${dealtIn}-handed`,
-    focus?.position ? `${focus.name} in the ${spokenPosition(focus.position)}` : null,
-    board.length ? `board ${board.join(" ")}` : "no flop",
+    words.handed(dealtIn),
+    focus && focusPosition ? words.focus(focus.name, focusPosition) : null,
+    board.length ? words.board(board.join(" ")) : words.noFlop,
   ]
     .filter(Boolean)
     .join(", ");
@@ -87,12 +91,12 @@ export function ReplayCard({
       <span className="rcard__head">
         <span className="rcard__stakes">{stakes}</span>
         <span className="rcard__game">{game}</span>
-        <span className="rcard__seats">{dealtIn}-handed</span>
+        <span className="rcard__seats">{words.handed(dealtIn)}</span>
       </span>
 
       <span className="rcard__hand">
         {focus?.position ? (
-          <span className="pseat__pos" title={spokenPosition(focus.position) ?? undefined}>
+          <span className="pseat__pos" title={focusPosition ?? undefined}>
             {focus.position}
           </span>
         ) : null}
@@ -119,7 +123,7 @@ export function ReplayCard({
         {/* The one line on this card that could come from `hand.results`. */}
         {spoilers ? (
           <span className="rcard__pot">
-            {formatAmount(hand.results.totalPot, hand.game.unit, "minimal", true)} pot
+            {words.pot(formatAmount(hand.results.totalPot, hand.game.unit, "minimal", true))}
           </span>
         ) : (
           <span className="rcard__pot rcard__pot--hidden" aria-hidden="true" />
@@ -142,7 +146,7 @@ export function ReplayCard({
   }
 
   return (
-    <button type="button" className={classes} onClick={onOpen} aria-label={`Replay ${label}`}>
+    <button type="button" className={classes} onClick={onOpen} aria-label={words.replay(label)}>
       {body}
     </button>
   );

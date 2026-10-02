@@ -16,6 +16,7 @@
  */
 
 import { useMemo, useRef, useState } from "react";
+import { useDict } from "../../lib/i18n/client";
 import { holeCardCount, toDisplayNumber, type PhfHand } from "../../lib/phf/types";
 import type { ReplayFrame, SeatFrameState } from "../../lib/replay";
 import { ChipStack } from "./ChipStack";
@@ -30,7 +31,7 @@ import {
   type SeatSlot,
   type TableShape,
 } from "./seatLayout";
-import { actionTone, describeSeat, spokenPosition, type AmountFormatter } from "./tableMath";
+import { describeSeat, spokenPosition, type AmountFormatter } from "./tableMath";
 import { TravellingChips } from "./TravellingChips";
 import type { FrameMotion } from "./useFrameTransition";
 
@@ -198,6 +199,8 @@ export function ReplayTable({
   format,
   focusSeat = null,
 }: ReplayTableProps) {
+  const t = useDict().replayer;
+  const words = t.table;
   const seatCount = clampSeatCount(frame.seats.length);
   const placed = useMemo(() => place(frame.seats, shape), [frame.seats, shape]);
   const metrics = SHAPE_METRICS[shape];
@@ -313,7 +316,7 @@ export function ReplayTable({
       >
         <div className="rp__cloth" aria-hidden="true" />
         <div className="rp__logo" aria-hidden="true">
-          {mask.tableName ?? "Hand Replayer"}
+          {mask.tableName ?? words.logo}
         </div>
 
         <div className="rp__center">
@@ -321,21 +324,21 @@ export function ReplayTable({
               "Main" above "Side" once an all-in has capped somebody. Every pile
               is its own labelled pill — Tier 0, because the split is the single
               most consequential thing on the felt once somebody is capped. */}
-          <div className="rp__pots" ref={potsRef} role="group" aria-label="Pot">
+          <div className="rp__pots" ref={potsRef} role="group" aria-label={words.pot}>
 
             {frame.pots.map((pot, index) => (
               <div
                 key={pot.name}
                 className={`rp__pot ${index > 0 ? "rp__pot--side" : ""}`.trim()}
               >
-                <span className="rp__pot-label">{pot.name}</span>
+                <span className="rp__pot-label">{t.frames.potName(pot.name)}</span>
                 <span className="rp__pot-value">{format(pot.amount, pot.amountBb)}</span>
                 {/* Outstanding bets belong to whichever pot they end up in,
                     which is not decided until they are swept, so the running
                     total sits on the last pile rather than split across them. */}
                 {index === frame.pots.length - 1 && frame.potWithBets > frame.pot ? (
                   <span className="rp__pot-total">
-                    {format(frame.potWithBets, frame.potWithBetsBb)} total
+                    {words.potTotal(format(frame.potWithBets, frame.potWithBetsBb))}
                   </span>
                 ) : null}
               </div>
@@ -343,7 +346,7 @@ export function ReplayTable({
           </div>
 
           <div className={`rp__boards ${hasSecondBoard ? "rp__boards--twin" : ""}`.trim()}>
-            <div className="rp__board" role="group" aria-label="Board">
+            <div className="rp__board" role="group" aria-label={words.board}>
               {boardRows.map((row, rowIndex) => (
                 <div className="rp__board-row" key={`b1-row-${rowIndex}`}>
                   {row.map((code, index) =>
@@ -368,9 +371,9 @@ export function ReplayTable({
               ))}
             </div>
             {hasSecondBoard ? (
-              <div className="rp__board rp__board--second" role="group" aria-label="Second runout">
+              <div className="rp__board rp__board--second" role="group" aria-label={words.secondRunout}>
                 <div className="rp__board-row">
-                  <span className="rp__board-tag">Run 2</span>
+                  <span className="rp__board-tag">{words.runTwo}</span>
                   {frame.boardSecond.map((code, index) => (
                     <PlayingCard
                       key={`b2-${index}-${code}`}
@@ -468,7 +471,7 @@ export function ReplayTable({
           const backs: Array<string | null> =
             seat.hasCards || seat.folded ? Array.from({ length: holeCount }, () => null) : [];
           const cards = revealed ?? backs;
-          const tone = actionTone(seat.lastAction);
+          const tone = seat.lastActionTone;
           const aim = aimFor(slot, ratio);
           return (
             <div
@@ -479,7 +482,7 @@ export function ReplayTable({
               // ("Seat 3, cutoff, Villain, 84 big blinds, folded") rather than
               // as six loose fragments in slot order.
               role="group"
-              aria-label={describeSeat(seat, mask.seat(seat.name))}
+              aria-label={describeSeat(seat, mask.seat(seat.name), t)}
               className={[
                 "pseat",
                 seat.folded ? "pseat--folded" : "",
@@ -515,7 +518,7 @@ export function ReplayTable({
               <div className="pseat__plate" aria-hidden="true">
                 <span className="pseat__name">
                   {seat.position ? (
-                    <span className="pseat__pos" title={spokenPosition(seat.position) ?? undefined}>
+                    <span className="pseat__pos" title={spokenPosition(seat.position, t) ?? undefined}>
                       {seat.position}
                     </span>
                   ) : null}
@@ -527,7 +530,7 @@ export function ReplayTable({
                 </span>
                 <span className="pseat__stack">
                   {seat.allIn && seat.stack <= 0 ? (
-                    <span className="pseat__allin-text">ALL-IN</span>
+                    <span className="pseat__allin-text">{words.allIn}</span>
                   ) : (
                     format(seat.stack, seat.stackBb)
                   )}
@@ -535,14 +538,14 @@ export function ReplayTable({
               </div>
 
               {seat.isButton ? (
-                <span className="pseat__button" title="Dealer button" aria-hidden="true">
+                <span className="pseat__button" title={words.dealerButton} aria-hidden="true">
                   D
                 </span>
               ) : null}
 
               {seat.folded ? (
                 <span className="pseat__state" aria-hidden="true">
-                  Folded
+                  {words.folded}
                 </span>
               ) : null}
 

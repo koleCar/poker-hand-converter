@@ -11,6 +11,8 @@
  */
 
 import { useId } from "react";
+import { useDict } from "../../lib/i18n/client";
+import type { Dict } from "../../lib/i18n/types";
 import { Overlay } from "../ui/Overlay";
 import type { ReplaySettings } from "./replaySettings";
 
@@ -24,34 +26,13 @@ interface ReplaySettingsMenuProps {
   onOpenChange: (open: boolean) => void;
 }
 
-interface ToggleSpec {
-  key: keyof ReplaySettings;
-  label: string;
-  hint: string;
-}
-
-const TOGGLES: ToggleSpec[] = [
-  {
-    key: "bigBlinds",
-    label: "Display chips in big blinds",
-    hint: "Stacks, bets and pots in bb instead of currency (B)",
-  },
-  {
-    key: "showKnownCards",
-    label: "Show known cards",
-    hint: "Reveal every card the history knows, before it was turned over (C)",
-  },
-  {
-    key: "showHeroCards",
-    label: "Show hero hole cards",
-    hint: "Turn off to review the hand without seeing hero's holding (H)",
-  },
-  {
-    key: "anonymousNames",
-    label: "Anonymous table names",
-    hint: "Replace player and table names with Hero / Player 1…",
-  },
-];
+/** Each toggle's label and hint in `replayer.settings`: `key` and `${key}Hint`. */
+const TOGGLES = [
+  "bigBlinds",
+  "showKnownCards",
+  "showHeroCards",
+  "anonymousNames",
+] as const satisfies ReadonlyArray<keyof ReplaySettings & keyof Dict["replayer"]["settings"]>;
 
 export function ReplaySettingsMenu({
   settings,
@@ -61,16 +42,18 @@ export function ReplaySettingsMenu({
   onOpenChange,
 }: ReplaySettingsMenuProps) {
   const hintId = useId();
+  const en = useDict();
+  const words = en.replayer.settings;
 
   return (
     <>
       <button
         type="button"
         className={`btn btn--icon ${open ? "is-active" : ""}`.trim()}
-        aria-label="Replayer settings"
+        aria-label={words.open}
         aria-haspopup="dialog"
         aria-expanded={open}
-        title="Replayer settings"
+        title={words.open}
         onClick={() => onOpenChange(!open)}
       >
         ⚙
@@ -79,26 +62,26 @@ export function ReplaySettingsMenu({
       <Overlay
         open={open}
         onClose={() => onOpenChange(false)}
-        title="Settings"
+        title={words.title}
         anchor={anchor}
         className="rp-ov rp-ov--settings"
       >
         <div className="rp__settings-list">
-          {TOGGLES.map((toggle) => (
-            <label key={toggle.key} className="rp__setting">
+          {TOGGLES.map((key) => (
+            <label key={key} className="rp__setting">
               <input
                 type="checkbox"
-                checked={settings[toggle.key]}
-                aria-describedby={`${hintId}-${toggle.key}`}
-                onChange={(event) => onChange({ [toggle.key]: event.target.checked })}
+                checked={settings[key]}
+                aria-describedby={`${hintId}-${key}`}
+                onChange={(event) => onChange({ [key]: event.target.checked })}
               />
               <span className="rp__setting-switch" aria-hidden="true" />
               <span className="rp__setting-text">
-                {toggle.label}
+                {words[key]}
                 {/* Spelled out rather than hidden in a `title`: a tooltip is
                     unreachable by keyboard and by touch. */}
-                <span className="rp__setting-hint" id={`${hintId}-${toggle.key}`}>
-                  {toggle.hint}
+                <span className="rp__setting-hint" id={`${hintId}-${key}`}>
+                  {words[`${key}Hint`]}
                 </span>
               </span>
             </label>

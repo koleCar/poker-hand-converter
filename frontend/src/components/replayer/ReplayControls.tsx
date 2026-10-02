@@ -15,21 +15,19 @@
  * initials, and keys `1`-`5`). See `dropLadder.ts`.
  */
 
+import { useDict, useLocale } from "../../lib/i18n/client";
+import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
 import type { Street } from "../../lib/phf/types";
 import type { ReplayFrame } from "../../lib/replay";
 import { speedIsCycled, streetsAreInitials, type ReplayTier } from "./dropLadder";
 
 const SPEEDS = [0.5, 1, 1.5, 2, 4];
 
-const STREET_LABEL: Record<Street, string> = {
-  preflop: "Preflop",
-  flop: "Flop",
-  turn: "Turn",
-  river: "River",
-  showdown: "Showdown",
-};
-
-/** Rung 3 of the ladder. One letter each, and all five are distinct. */
+/**
+ * Rung 3 of the ladder. One letter each, and all five are distinct. The street
+ * names are the same English poker words in every language we speak, so their
+ * initials are too; the full names are in `replayer.controls.streets`.
+ */
 const STREET_INITIAL: Record<Street, string> = {
   preflop: "P",
   flop: "F",
@@ -87,6 +85,9 @@ export function ReplayControls({
   onToggleLog,
   onToggleResult,
 }: ReplayControlsProps) {
+  const words = useDict().replayer.controls;
+  const intlLocale = INTL_LOCALE[useLocale()];
+  const speedText = (value: number) => value.toLocaleString(intlLocale);
   const last = frames.length - 1;
   const initials = streetsAreInitials(tier);
 
@@ -124,20 +125,20 @@ export function ReplayControls({
           min={0}
           max={last}
           value={frame.index}
-          aria-label="Position in hand"
-          aria-valuetext={`Step ${frame.index + 1} of ${frames.length}. ${caption}`}
+          aria-label={words.position}
+          aria-valuetext={words.positionValue(frame.index + 1, frames.length, caption)}
           onChange={(event) => onSeek(Number(event.target.value))}
         />
       </div>
 
       <div className="rp__buttons">
-        <div className="rp__playback" role="group" aria-label="Playback">
+        <div className="rp__playback" role="group" aria-label={words.playback}>
           <button
             type="button"
             className="btn btn--icon"
             onClick={() => onSeek(0)}
-            aria-label="Jump to start"
-            title="Start (Home)"
+            aria-label={words.start}
+            title={words.startTitle}
           >
             ⏮
           </button>
@@ -146,8 +147,8 @@ export function ReplayControls({
             className="btn btn--icon"
             onClick={() => onStep(-1)}
             disabled={frame.index === 0}
-            aria-label="Previous action"
-            title="Back (←)"
+            aria-label={words.previous}
+            title={words.previousTitle}
           >
             ◀
           </button>
@@ -155,9 +156,9 @@ export function ReplayControls({
             type="button"
             className="btn btn--play"
             onClick={onTogglePlay}
-            aria-label={playing ? "Pause" : "Play"}
+            aria-label={playing ? words.pause : words.play}
             aria-pressed={playing}
-            title="Play / pause (space)"
+            title={words.playTitle}
           >
             {playing ? "❚❚" : "▶"}
           </button>
@@ -166,8 +167,8 @@ export function ReplayControls({
             className="btn btn--icon"
             onClick={() => onStep(1)}
             disabled={frame.index >= last}
-            aria-label="Next action"
-            title="Forward (→)"
+            aria-label={words.next}
+            title={words.nextTitle}
           >
             ▶
           </button>
@@ -175,15 +176,15 @@ export function ReplayControls({
             type="button"
             className="btn btn--icon"
             onClick={() => onSeek(last)}
-            aria-label="Jump to end"
-            title="End (End)"
+            aria-label={words.end}
+            title={words.endTitle}
           >
             ⏭
           </button>
         </div>
 
         {compact ? null : (
-        <div className="rp__streets" role="group" aria-label="Jump to street">
+        <div className="rp__streets" role="group" aria-label={words.jumpToStreet}>
           {anchors.map((anchor, index) => (
             <button
               key={anchor.street}
@@ -192,11 +193,11 @@ export function ReplayControls({
               aria-pressed={frame.street === anchor.street}
               // The visible text shrinks to an initial at narrow tiers, so the
               // accessible name is stated rather than read off the glyph.
-              aria-label={STREET_LABEL[anchor.street]}
-              title={`${STREET_LABEL[anchor.street]} (${index + 1})`}
+              aria-label={words.streets[anchor.street]}
+              title={`${words.streets[anchor.street]} (${index + 1})`}
               onClick={() => onSeek(anchor.index)}
             >
-              {initials ? STREET_INITIAL[anchor.street] : STREET_LABEL[anchor.street]}
+              {initials ? STREET_INITIAL[anchor.street] : words.streets[anchor.street]}
             </button>
           ))}
         </div>
@@ -208,25 +209,25 @@ export function ReplayControls({
             <button
               type="button"
               className="chip-btn"
-              aria-label={`Playback speed, ${speed} times. Activate for the next speed.`}
-              title="Playback speed"
+              aria-label={words.speedCycle(speedText(speed))}
+              title={words.speed}
               onClick={cycleSpeed}
             >
-              {speed}x
+              {speedText(speed)}x
             </button>
           </div>
         ) : (
-          <div className="rp__speed" role="group" aria-label="Playback speed">
+          <div className="rp__speed" role="group" aria-label={words.speed}>
             {SPEEDS.map((value) => (
               <button
                 key={value}
                 type="button"
                 className={`chip-btn ${speed === value ? "is-active" : ""}`.trim()}
                 aria-pressed={speed === value}
-                aria-label={`${value} times speed`}
+                aria-label={words.speedOption(speedText(value))}
                 onClick={() => onSpeed(value)}
               >
-                {value}x
+                {speedText(value)}x
               </button>
             ))}
           </div>
@@ -241,13 +242,13 @@ export function ReplayControls({
               className={`chip-btn ${resultOpen ? "is-active" : ""}`.trim()}
               aria-pressed={resultOpen}
               aria-haspopup="dialog"
-              aria-label="Result"
-              title="Result"
+              aria-label={words.result}
+              title={words.result}
               onClick={onToggleResult}
             >
               <span aria-hidden="true">🏆</span>
               {/* Rung 1: the label goes, the icon and the name stay. */}
-              <span className="rp__opt-label">Result</span>
+              <span className="rp__opt-label">{words.result}</span>
             </button>
           ) : null}
           <button
@@ -255,12 +256,12 @@ export function ReplayControls({
             className={`chip-btn ${logOpen ? "is-active" : ""}`.trim()}
             aria-pressed={logOpen}
             aria-haspopup="dialog"
-            aria-label="Action log"
-            title="Action log (L)"
+            aria-label={words.log}
+            title={words.logTitle}
             onClick={onToggleLog}
           >
             <span aria-hidden="true">☰</span>
-            <span className="rp__opt-label">Log</span>
+            <span className="rp__opt-label">{words.logShort}</span>
           </button>
         </div>
         )}

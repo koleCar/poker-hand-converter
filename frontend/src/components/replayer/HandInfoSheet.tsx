@@ -18,6 +18,8 @@
  */
 
 import { useMemo } from "react";
+import { useDict, useLocale } from "../../lib/i18n/client";
+import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
 import {
   toBigBlinds,
   toDisplayNumber,
@@ -56,13 +58,14 @@ interface HandInfoSheetProps {
   anchor: React.RefObject<HTMLElement | null>;
 }
 
-const FEE_LABELS: Array<{ key: keyof PhfHand["results"]["fees"]; label: string }> = [
-  { key: "rake", label: "Rake" },
-  { key: "jackpot", label: "Jackpot" },
-  { key: "bingo", label: "Bingo" },
-  { key: "fortune", label: "Fortune" },
-  { key: "tax", label: "Tax" },
-  { key: "other", label: "Other fees" },
+/** In the order the summary line prints them; labels in `replayer.info.feeLabels`. */
+const FEE_KEYS: Array<keyof PhfHand["results"]["fees"]> = [
+  "rake",
+  "jackpot",
+  "bingo",
+  "fortune",
+  "tax",
+  "other",
 ];
 
 /** One row. `null` values are dropped rather than printed as blanks. */
@@ -83,9 +86,10 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
  * still has to be told.
  */
 function Hidden() {
+  const en = useDict();
   return (
     <span className="rp__fact-hidden">
-      —<span className="rp-sr"> hidden until the pot is awarded</span>
+      —<span className="rp-sr">{en.replayer.info.hidden}</span>
     </span>
   );
 }
@@ -101,7 +105,11 @@ export function HandInfoSheet({
   onClose,
   anchor,
 }: HandInfoSheetProps) {
-  const badges = useMemo(() => structureBadges(hand), [hand]);
+  const en = useDict();
+  const t = en.replayer;
+  const words = t.info;
+  const intlLocale = INTL_LOCALE[useLocale()];
+  const badges = useMemo(() => structureBadges(hand, t), [hand, t]);
   const revealed = spoilersRevealed(frame, awardAt);
 
   // Kept in minor units until the last moment, then handed to the same
@@ -111,9 +119,9 @@ export function HandInfoSheet({
     format(toDisplayNumber(amount, hand.game.unit), toBigBlinds(amount, hand.game.bigBlind));
 
   const hero = hand.players.find((player) => player.isHero) ?? null;
-  const heroPosition = hero ? spokenPosition(hero.position) : null;
-  const played = playedAtLabel(hand);
-  const fees = FEE_LABELS.filter(({ key }) => hand.results.fees[key] > 0);
+  const heroPosition = hero ? spokenPosition(hero.position, t) : null;
+  const played = playedAtLabel(hand, intlLocale);
+  const fees = FEE_KEYS.filter((key) => hand.results.fees[key] > 0);
   const tournament = hand.tournament;
 
   const winners = revealed
@@ -124,16 +132,16 @@ export function HandInfoSheet({
     <Overlay
       open={open}
       onClose={onClose}
-      title="Hand info"
+      title={words.title}
       anchor={anchor}
       className="rp-ov rp-ov--info"
     >
       <dl className="rp__facts">
-        <Fact label="Game">
-          {gameLabel(hand)} · {stakesLabel(hand)}
+        <Fact label={words.game}>
+          {gameLabel(hand, t)} · {stakesLabel(hand)}
         </Fact>
         {badges.length > 0 ? (
-          <Fact label="Structure">
+          <Fact label={words.structure}>
             <span className="rp__fact-chips">
               {badges.map((badge) => (
                 <span key={badge} className="rp__fact-chip">
@@ -143,60 +151,60 @@ export function HandInfoSheet({
             </span>
           </Fact>
         ) : null}
-        <Fact label="Effective stack">{money(effective)}</Fact>
-        <Fact label="Table">
-          {[mask.tableName, tableShapeLabel(hand)].filter(Boolean).join(" · ")}
+        <Fact label={words.effectiveStack}>{money(effective)}</Fact>
+        <Fact label={words.table}>
+          {[mask.tableName, tableShapeLabel(hand, t)].filter(Boolean).join(" · ")}
         </Fact>
         {hero ? (
-          <Fact label="Hero">
-            Seat {hero.seat}
+          <Fact label={words.hero}>
+            {words.seat(hero.seat)}
             {heroPosition ? `, ${heroPosition}` : ""}
           </Fact>
         ) : null}
         {tournament ? (
-          <Fact label="Tournament">
+          <Fact label={words.tournament}>
             {[
               tournament.name ?? `#${tournament.id}`,
-              tournament.levelLabel ? `level ${tournament.levelLabel}` : null,
+              tournament.levelLabel ? words.level(tournament.levelLabel) : null,
             ]
               .filter(Boolean)
               .join(" · ")}
           </Fact>
         ) : null}
-        <Fact label="Source">{site ?? hand.meta.siteName}</Fact>
-        <Fact label="Hand id">
+        <Fact label={words.source}>{site ?? hand.meta.siteName}</Fact>
+        <Fact label={words.handId}>
           <span className="rp__fact-id">{hand.meta.handId}</span>
         </Fact>
-        {played ? <Fact label="Played">{played}</Fact> : null}
+        {played ? <Fact label={words.played}>{played}</Fact> : null}
 
         {/* --- gated on frame position, not on which panel is open --- */}
-        <Fact label="Total pot">{revealed ? money(hand.results.totalPot) : <Hidden />}</Fact>
-        <Fact label="Fees">
+        <Fact label={words.totalPot}>{revealed ? money(hand.results.totalPot) : <Hidden />}</Fact>
+        <Fact label={words.fees}>
           {!revealed ? (
             <Hidden />
           ) : totalFees(hand.results.fees) === 0 ? (
-            <span className="rp__fact-none">none</span>
+            <span className="rp__fact-none">{words.none}</span>
           ) : (
             <span className="rp__fact-chips">
-              {fees.map(({ key, label }) => (
+              {fees.map((key) => (
                 <span key={key} className="rp__fact-chip">
-                  {label} {money(hand.results.fees[key])}
+                  {words.feeLabels[key]} {money(hand.results.fees[key])}
                 </span>
               ))}
             </span>
           )}
         </Fact>
-        <Fact label="Winners">
+        <Fact label={words.winners}>
           {!revealed ? (
             <Hidden />
           ) : winners.length === 0 ? (
-            <span className="rp__fact-none">none reported</span>
+            <span className="rp__fact-none">{words.noneReported}</span>
           ) : (
             <span className="rp__fact-chips">
               {winners.map((winner, index) => (
                 <span key={`${winner.player}-${winner.runoutIndex}-${index}`} className="rp__fact-chip">
                   {mask.seat(winner.player)} {money(winner.amount)}
-                  {winner.runoutIndex > 0 ? ` (run ${winner.runoutIndex + 1})` : ""}
+                  {winner.runoutIndex > 0 ? words.run(winner.runoutIndex + 1) : ""}
                 </span>
               ))}
             </span>
