@@ -1000,7 +1000,7 @@ export const analysisEn = {
       "Rail's own reference for No-Limit Hold'em cash — six-handed from 40 to 200 big blinds deep, full ring from 100 to 200 — computed by our solver, never copied from anyone's charts. Pick a table and a spot: every hand shows how often the reference takes each action, and hovering or focusing a hand shows what each action is worth.",
     caveatTitle: "A model, with a known weakness",
     caveat:
-      "These charts (charts/2) value a flop with an equity-realisation model fitted to our own postflop solver. The measurement checks the flop, so hands that win through implied odds are still a little under-rated: UTG folds 55–22, 87s–54s and A5s, and the button almost never flats a cutoff open. Grades against playing those hands lean harsh.",
+      "These charts (charts/2, and charts/3 for other tables and depths) value a flop with an equity-realisation model fitted to our own postflop solver. The measurement checks the flop, so hands that win through implied odds are still a little under-rated: UTG folds 55–22, 87s–54s and A5s, and the button almost never flats a cutoff open. Grades against playing those hands lean harsh.",
     loading: "Loading the charts…",
     failed: (message: string) => `The charts did not load: ${message}`,
     table: "Table and depth",

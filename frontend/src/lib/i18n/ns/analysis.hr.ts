@@ -973,7 +973,7 @@ export const analysisHr: Dict["analysis"] = {
       "Railova vlastita referenca za No-Limit Hold'em cash — šest igrača od 40 do 200 big blindova duboko, puni stol od 100 do 200 — izračunata našim solverom, nikad prepisana iz tuđih chartova. Odaberi stol i situaciju: svaka ruka pokazuje koliko često referenca igra svaku akciju, a kad prijeđeš mišem preko ruke ili je fokusiraš, vidiš koliko svaka akcija vrijedi.",
     caveatTitle: "Model, s poznatom slabošću",
     caveat:
-      "Ovi chartovi (charts/2) vrijednost flopa računaju modelom realizacije equityja prilagođenim našem postflop solveru. Mjerenje checka flop, pa su ruke koje dobivaju kroz implied odds još malo podcijenjene: UTG folda 55–22, 87s–54s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge.",
+      "Ovi chartovi (charts/2, a charts/3 za ostale stolove i dubine) vrijednost flopa računaju modelom realizacije equityja prilagođenim našem postflop solveru. Mjerenje checka flop, pa su ruke koje dobivaju kroz implied odds još malo podcijenjene: UTG folda 55–22, 87s–54s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge.",
     loading: "Učitavam chartove…",
     failed: (message: string) => `Chartovi se nisu učitali: ${message}`,
     table: "Stol i dubina",

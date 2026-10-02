@@ -301,10 +301,14 @@ card removal between opponents (§2).
 
 `preflopCfr.ts`: **Discounted CFR** (Brown & Sandholm 2019; α=1.5, β=0, γ=2,
 the same engine parameters as the postflop solver), alternating updates over
-the six players, every node carrying a 169-vector per player. A traversal
+the six (or nine) players, every node carrying a 169-vector per player. A traversal
 for player `p` stops where `p` folds (the rest of that subtree is `−contribution`
 weighted by the opponents' reach), skips opponent actions nobody takes, and
-applies share matrices column by column skipping zero-reach classes.
+applies share matrices column by column skipping zero-reach classes. A folded
+opponent's reach never changes below its fold, so its mass is computed once
+there rather than at every terminal below (A2c: the same numbers in the same
+order - the 6-max 100bb set regenerates byte for byte - about 1.25x faster at
+nine seats, where terminals dominate).
 `cfr.ts` (the heads-up postflop engine) is untouched.
 
 **No equilibrium guarantee.** CFR converges to a Nash equilibrium only in
@@ -522,6 +526,35 @@ It moves the limped and 4-bet pots more (limped `P` 1.11 at 40bb, 1.02 at
 - **Depths**: under 32bb, 72-80bb and over 240bb (6-max); under 80bb and over
   240bb (9-max).
 
+### 6.6 Coverage
+
+The owner's local library (5,448 hands, 5,388 hero preflop decisions; the
+rows stored at `analysis/4` against a fresh `analyzeHand` with the library,
+`analysis/5`):
+
+| | `analysis/4` (6-max 100bb) | `analysis/5` (library) |
+|---|---|---|
+| Preflop decisions graded | 1,281 (23.8%) | **3,817 (70.8%)** |
+| Refused: table size (`players`) | 3,024 | 210 (heads-up, dead buttons) |
+| Refused: stack depth | 674 | 106 |
+| Refused: open limp | 256 | 933 |
+| Refused: rare line | 65 | 151 |
+| Refused: straddle | 52 | 52 |
+| Refused: off-tree / cold call / multiway / other | 25 / 10 / 0 / 1 | 83 / 27 / 8 / 1 |
+| Solver-graded turns on a placeholder range | 395 of 465 (85%) | **194 of 459 (42%)** |
+| Solver-graded rivers on a placeholder range | 261 of 310 (84%) | **129 of 310 (42%)** |
+
+Graded decisions by set: 6-max 100bb 1,689, 9-max 100bb 961, 6-max 150bb
+637, 9-max 150bb 215, 9-max 200bb 167, 6-max 200bb 75, 6-max 60bb 54, 6-max
+40bb 19; 2,648 carry `short-handed` (mostly 7-8 handed on 9-max, 3-5 handed
+on 6-max) and 1,834 `stack-depth-near`. The refusals that grow are the ones
+the bigger tables now reach: open limps (most 8-handed pots behind a
+limper) and rare lines. Grades: Perfect 90.4%, Good 0.1%, Inaccurate 3.7%,
+Mistake 4.0%, Blunder 1.8%; 182.8 bb lost. The placeholder ranges that are
+left are opponents whose own line has no node (limped pots, mostly).
+`npm run charts:coverage` prints the same tables for the WePlay and GG
+corpora in the repository.
+
 ## 7. Lookup
 
 ```ts
@@ -557,7 +590,7 @@ here), `unavailable` (the library has not loaded the set), `bad-input`.
 `preflopSpotFromHand` itself refuses non-NLHE-cash games and bomb pots.
 Coverage on the corpora is in §6.6.
 
-## 8. Results (committed set)
+## 8. Results
 
 `charts/1` → `charts/2` (`npm run charts:report` prints these for any set):
 
