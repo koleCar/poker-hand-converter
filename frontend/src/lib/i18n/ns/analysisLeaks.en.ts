@@ -268,7 +268,6 @@ export const leaksEn = {
     perMistake: (value: number) => `${bb(value)} per mistake`,
     lowNote: "Low confidence: a few hands, maybe one. Open them before changing anything.",
     drill: "Drill this",
-    drillLater: "Drills of your own spots arrive with the trainer (phase A7).",
   },
 
   hands: {

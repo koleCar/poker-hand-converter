@@ -339,6 +339,130 @@ export type Database = {
           },
         ]
       }
+      drill_items: {
+        Row: {
+          action_index: number
+          analysis_version: string
+          created_at: string
+          due_at: string
+          ease: number
+          hand_id: string
+          id: string
+          interval_days: number
+          lapses: number
+          last_grade: string | null
+          last_reviewed_at: string | null
+          ord: number
+          owner_id: string
+          reps: number
+          reviews: number
+          source_ev_loss_bb: number
+          source_grade: string
+          spot_key: string
+          street: string
+        }
+        Insert: {
+          action_index: number
+          analysis_version: string
+          created_at?: string
+          due_at?: string
+          ease?: number
+          hand_id: string
+          id?: string
+          interval_days?: number
+          lapses?: number
+          last_grade?: string | null
+          last_reviewed_at?: string | null
+          ord: number
+          owner_id: string
+          reps?: number
+          reviews?: number
+          source_ev_loss_bb?: number
+          source_grade: string
+          spot_key: string
+          street: string
+        }
+        Update: {
+          action_index?: number
+          analysis_version?: string
+          created_at?: string
+          due_at?: string
+          ease?: number
+          hand_id?: string
+          id?: string
+          interval_days?: number
+          lapses?: number
+          last_grade?: string | null
+          last_reviewed_at?: string | null
+          ord?: number
+          owner_id?: string
+          reps?: number
+          reviews?: number
+          source_ev_loss_bb?: number
+          source_grade?: string
+          spot_key?: string
+          street?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drill_items_hand_id_fkey"
+            columns: ["hand_id"]
+            isOneToOne: false
+            referencedRelation: "hands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drill_reviews: {
+        Row: {
+          chosen: number
+          due_at: string
+          ease: number
+          ev_loss_bb: number
+          grade: string
+          id: number
+          interval_days: number
+          item_id: string
+          owner_id: string
+          quality: number
+          reviewed_at: string
+        }
+        Insert: {
+          chosen: number
+          due_at: string
+          ease: number
+          ev_loss_bb: number
+          grade: string
+          id?: never
+          interval_days: number
+          item_id: string
+          owner_id: string
+          quality: number
+          reviewed_at?: string
+        }
+        Update: {
+          chosen?: number
+          due_at?: string
+          ease?: number
+          ev_loss_bb?: number
+          grade?: string
+          id?: never
+          interval_days?: number
+          item_id?: string
+          owner_id?: string
+          quality?: number
+          reviewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drill_reviews_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "drill_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hand_analysis: {
         Row: {
           analysed: number
@@ -1708,6 +1832,51 @@ export type Database = {
           },
         ]
       }
+      trainer_results: {
+        Row: {
+          created_at: string
+          ev_loss_bb: number
+          ev_loss_pot: number
+          family: string
+          grade: string
+          hand_class: string | null
+          id: number
+          mode: string
+          owner_id: string
+          position: string | null
+          score: number
+          spot: string
+        }
+        Insert: {
+          created_at?: string
+          ev_loss_bb: number
+          ev_loss_pot: number
+          family: string
+          grade: string
+          hand_class?: string | null
+          id?: never
+          mode: string
+          owner_id: string
+          position?: string | null
+          score: number
+          spot?: string
+        }
+        Update: {
+          created_at?: string
+          ev_loss_bb?: number
+          ev_loss_pot?: number
+          family?: string
+          grade?: string
+          hand_class?: string | null
+          id?: never
+          mode?: string
+          owner_id?: string
+          position?: string | null
+          score?: number
+          spot?: string
+        }
+        Relationships: []
+      }
       unparsed_hands: {
         Row: {
           detected_site: string | null
@@ -2051,6 +2220,41 @@ export type Database = {
         Returns: boolean
       }
       delete_post: { Args: { p_public_id: string }; Returns: boolean }
+      drill_due_by_spot: {
+        Args: { p_until?: string; p_version: string }
+        Returns: Json
+      }
+      drill_keys_valid: { Args: { p_keys: string[] }; Returns: boolean }
+      drill_next: {
+        Args: {
+          p_ease: number
+          p_interval: number
+          p_lapses: number
+          p_quality: number
+          p_reps: number
+        }
+        Returns: {
+          ease: number
+          interval_days: number
+          lapses: number
+          relearn: boolean
+          reps: number
+        }[]
+      }
+      drill_quality: { Args: { p_grade: string }; Returns: number }
+      drill_queue: {
+        Args: {
+          p_due_only?: boolean
+          p_keys?: string[]
+          p_limit?: number
+          p_version: string
+        }
+        Returns: Json
+      }
+      drill_summary: {
+        Args: { p_until?: string; p_version: string }
+        Returns: Json
+      }
       edit_comment: {
         Args: { p_body: string; p_post_public_id: string; p_seq: number }
         Returns: boolean
@@ -2303,6 +2507,7 @@ export type Database = {
       read_share: { Args: { p_slug: string }; Returns: Json }
       record_conversion_failures: { Args: { p_failures: Json }; Returns: Json }
       record_share_view: { Args: { p_slug: string }; Returns: boolean }
+      record_trainer_results: { Args: { p_rows: Json }; Returns: Json }
       recount_forum_counters: { Args: never; Returns: Json }
       recount_forum_karma: { Args: never; Returns: number }
       report_content: {
@@ -2318,6 +2523,15 @@ export type Database = {
       }
       resolve_share: { Args: { p_slug: string }; Returns: Json }
       resolve_username: { Args: { p_username: string }; Returns: Json }
+      review_drill: {
+        Args: {
+          p_chosen: number
+          p_ev_loss_bb: number
+          p_grade: string
+          p_item: string
+        }
+        Returns: Json
+      }
       save_hand_analysis: { Args: { p_rows: Json }; Returns: Json }
       save_hand_ev: { Args: { p_rows: Json }; Returns: Json }
       save_hand_stats: { Args: { p_rows: Json }; Returns: Json }
@@ -2380,6 +2594,11 @@ export type Database = {
       }
       stats_summary: { Args: { p_filters?: Json }; Returns: Json }
       sweep_rate_limits: { Args: never; Returns: number }
+      sync_drill_items: {
+        Args: { p_min_grade?: string; p_version: string }
+        Returns: Json
+      }
+      trainer_summary: { Args: { p_days?: number }; Returns: Json }
       unparsed_summary: { Args: { p_limit?: number }; Returns: Json }
       unpublish_hand: { Args: { p_public_id: string }; Returns: boolean }
       unread_notification_count: { Args: never; Returns: number }

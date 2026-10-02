@@ -204,6 +204,18 @@
   gap: var(--space-1) var(--space-2);
 }
 
+/* Drills due today on a leak's row (A7): a word and a number, not a colour. */
+.drillBadge {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  color: var(--text-primary);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+
 /* --------------------------------------------------------------- trends */
 
 .controls {

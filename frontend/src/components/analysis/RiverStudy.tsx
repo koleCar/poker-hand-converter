@@ -23,7 +23,7 @@
 
 "use client";
 
-import { useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { DecisionAnalysis } from "../../lib/analysis/types";
 import type { RiverFailure, RiverStudy as Study, StudyOption, StudyRow } from "../../lib/analysis/river";
 import { studyRiver } from "../../lib/db";
@@ -69,27 +69,42 @@ export function actionClasses(options: readonly StudyOption[]): string[] {
 interface RiverStudyProps {
   decision: DecisionAnalysis;
   hand: PhfHand;
+  /** Open (and solve) at once: the trainer shows the whole range after every answer. */
+  initialOpen?: boolean;
 }
 
 /** The button and, once asked for, the study itself. */
-export function RiverStudy({ decision, hand }: RiverStudyProps) {
+export function RiverStudy({ decision, hand, initialOpen = false }: RiverStudyProps) {
   const t = useDict().analysis.river;
-  const [open, setOpen] = useState(false);
-  const [loaded, setLoaded] = useState<Loaded>({ status: "idle" });
+  const [open, setOpen] = useState(initialOpen);
+  const [loaded, setLoaded] = useState<Loaded>({ status: initialOpen ? "loading" : "idle" });
+  const started = useRef(false);
+
+  const load = () => {
+    started.current = true;
+    studyRiver(hand, decision.actionIndex)
+      .then((study) => {
+        if (study && "options" in study) setLoaded({ status: "ready", study });
+        else setLoaded({ status: "missing", failure: study });
+      })
+      .catch((reason: unknown) => {
+        setLoaded({ status: "error", message: reason instanceof Error ? reason.message : String(reason) });
+      });
+  };
+
+  // Opened from the start: solve once, on mount.
+  useEffect(() => {
+    if (initialOpen && !started.current) load();
+    // Once, on mount; `load` closes over the decision this instance was made for.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggle = () => {
     const next = !open;
     setOpen(next);
     if (next && loaded.status === "idle") {
       setLoaded({ status: "loading" });
-      studyRiver(hand, decision.actionIndex)
-        .then((study) => {
-          if (study && "options" in study) setLoaded({ status: "ready", study });
-          else setLoaded({ status: "missing", failure: study });
-        })
-        .catch((reason: unknown) => {
-          setLoaded({ status: "error", message: reason instanceof Error ? reason.message : String(reason) });
-        });
+      load();
     }
   };
 

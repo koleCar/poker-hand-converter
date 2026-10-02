@@ -55,6 +55,7 @@ import { ActionStrip } from "./ActionStrip";
 import { AnalysisNav } from "./AnalysisNav";
 import { GradeIcon } from "./GradeIcon";
 import { WhatChanged } from "./leaks/WhatChanged";
+import { DrillsDue } from "./train/DrillsDue";
 import { LearnLink } from "./LearnLinks";
 import {
   EMPTY_LIST_STATE,
@@ -299,6 +300,8 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
           }}
         />
       ) : null}
+
+      <DrillsDue generation={generation} />
 
       <WhatChanged scopeKey={scopeKey} generation={generation} />
 

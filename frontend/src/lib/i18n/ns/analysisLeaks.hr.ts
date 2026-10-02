@@ -261,7 +261,6 @@ export const leaksHr = {
     perMistake: (value: number) => `${bb(value)} po grešci`,
     lowNote: "Niska pouzdanost: nekoliko ruku, možda jedna. Otvori ih prije nego što išta mijenjaš.",
     drill: "Vježbaj ovo",
-    drillLater: "Vježbe tvojih situacija stižu s trenerom (faza A7).",
   },
 
   hands: {

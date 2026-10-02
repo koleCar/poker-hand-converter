@@ -41,11 +41,13 @@ export const learnHr: Dict["learn"] = {
   nav: {
     label: "Dijelovi analize",
     overview: "Tvoja analiza",
+    train: "Vježbaj",
     leaks: "Leakovi",
     progress: "Napredak",
     reports: "Izvještaji",
     charts: "Chartovi",
     learn: "Učenje",
+    more: "Više",
   },
 
   titles,

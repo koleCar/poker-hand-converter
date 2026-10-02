@@ -44,11 +44,13 @@ export const learnEn = {
   nav: {
     label: "Analysis sections",
     overview: "Your analysis",
+    train: "Train",
     leaks: "Leaks",
     progress: "Progress",
     reports: "Reports",
     charts: "Charts",
     learn: "Learn",
+    more: "More",
   },
 
   titles,

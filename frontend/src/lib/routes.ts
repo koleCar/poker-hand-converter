@@ -45,6 +45,12 @@ export const paths = {
   /** Progress (phase A6): score and EV lost over time. Private; `query` is its filters and view. */
   analysisProgress: (query?: string) => (query ? `/analysis/progress?${query}` : "/analysis/progress"),
   /**
+   * The trainer (phase A7): preflop and river spots, and drills of your own
+   * mistakes. Private like the rest of `/analysis`; `query` is the mode, its
+   * settings and, for "Drill this", a leak's spot keys.
+   */
+  analysisTrain: (query?: string) => (query ? `/analysis/train?${query}` : "/analysis/train"),
+  /**
    * The preflop chart browser (phase A2b). Public and indexable like the
    * concept library: the charts are our own data and read no account. `line`
    * is a chart line key (`""` is the UTG open) and `hand` a class to
