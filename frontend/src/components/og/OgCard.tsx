@@ -77,7 +77,7 @@ export function OgCard({
     >
       <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
         <img src={railIconDataUri()} width={64} height={64} alt="" />
-        <span style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-0.02em" }}>rail</span>
+        <span style={{ fontSize: 34, fontWeight: 700, letterSpacing: "-0.02em" }}>{WORDMARK}</span>
         <span style={{ fontSize: 26, color: "#8da0b6", marginLeft: 12 }}>{eyebrow}</span>
       </div>
 
@@ -115,5 +115,8 @@ export function OgCard({
     </div>
   );
 }
+
+/** The wordmark: the product name, the same in every language. */
+const WORDMARK = "rail";
 
 export const OG_SIZE = { width: 1200, height: 630 };

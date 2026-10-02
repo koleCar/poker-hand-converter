@@ -22,6 +22,9 @@ interface BrandMarkProps {
  * It points at `/` — which since #27 is the feed, not the converter. That is
  * the intended change: a logo goes home, and home is now a different screen.
  */
+/** The wordmark is the product name, not copy: the same in every language. */
+const WORDMARK = "rail";
+
 export function BrandMark({ showTagline = true, className }: BrandMarkProps) {
   const en = useDict();
   return (
@@ -31,7 +34,9 @@ export function BrandMark({ showTagline = true, className }: BrandMarkProps) {
         <span className="shell__brand-name">
           {/* Split so the `i` can carry the accent tittle. The surrounding letters
               stay plain text, so the word is still selectable and searchable. */}
-          ra<span className="shell__brand-i">i</span>l
+          {WORDMARK.slice(0, 2)}
+          <span className="shell__brand-i">{WORDMARK[2]}</span>
+          {WORDMARK.slice(3)}
         </span>
         {showTagline ? <span className="shell__brand-sub">{en.brand.tagline}</span> : null}
       </span>
