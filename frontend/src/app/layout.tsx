@@ -49,30 +49,34 @@ import { SessionImport } from "../components/auth/SessionImport";
 import { AuthProvider } from "../lib/auth/AuthProvider";
 import { ProfileProvider } from "../lib/profile/ProfileProvider";
 import { toAuthUser } from "../lib/auth/user";
-import { en } from "../lib/i18n/en";
+import { I18nProvider } from "../lib/i18n/client";
+import { getDict, getLocale } from "../lib/i18n/server";
 import { SITE_URL } from "../lib/routes";
 import { isSupabaseConfigured } from "../lib/supabase/config";
 import { getServerUser } from "../lib/supabase/server";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: en.meta.home.title,
-  description: en.meta.home.description,
-  icons: { icon: "/favicon.svg" },
-  openGraph: {
-    type: "website",
-    siteName: en.brand.name,
+export async function generateMetadata(): Promise<Metadata> {
+  const en = await getDict();
+  return {
+    metadataBase: new URL(SITE_URL),
     title: en.meta.home.title,
     description: en.meta.home.description,
-    images: [{ url: "/og-default.png", width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: en.meta.home.title,
-    description: en.meta.home.description,
-    images: ["/og-default.png"],
-  },
-};
+    icons: { icon: "/favicon.svg" },
+    openGraph: {
+      type: "website",
+      siteName: en.brand.name,
+      title: en.meta.home.title,
+      description: en.meta.home.description,
+      images: [{ url: "/og-default.png", width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: en.meta.home.title,
+      description: en.meta.home.description,
+      images: ["/og-default.png"],
+    },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -116,9 +120,13 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
    * at all, which keeps the provider's old behaviour for an offline build.
    */
   const initialUser = isSupabaseConfigured ? toAuthUser(await getServerUser()) : undefined;
+  // The reader's language (cookie, else Accept-Language). The provider hands
+  // it to every client component, so the first client render uses the same
+  // strings the server rendered.
+  const locale = await getLocale();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <link
           rel="preload"
@@ -143,12 +151,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               session is the same on every screen, and re-subscribing to
               `onAuthStateChange` per navigation would drop and recreate the
               listener for no reason. */}
+          <I18nProvider locale={locale}>
           <AuthProvider initialUser={initialUser}>
             {/* Inside the session, because a profile is a function of it. A
                 database without the identity migration leaves this empty and
                 sign-in untouched — see ProfileProvider. */}
             <ProfileProvider>{children}</ProfileProvider>
           </AuthProvider>
+          </I18nProvider>
         </div>
       </body>
     </html>

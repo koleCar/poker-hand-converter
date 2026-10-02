@@ -8,7 +8,8 @@ import { buildSharePreview, formatStakes, shortGameName } from "../../../compone
 import { BrandMark } from "../../../components/shell/BrandMark";
 import { ReportButton } from "../../../components/forum/ReportButton";
 import { EmbedButton } from "../../../components/embed/EmbedButton";
-import { en } from "../../../lib/i18n/en";
+import { getDict } from "../../../lib/i18n/server";
+import type { Dict } from "../../../lib/i18n/types";
 import { getParser } from "../../../lib/parsers";
 import type { PhfHand } from "../../../lib/phf/types";
 import { canonicalUrl, paths } from "../../../lib/routes";
@@ -35,7 +36,7 @@ interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-function headline(published: PublishedHand): string {
+function headline(en: Dict, published: PublishedHand): string {
   if (published.title) {
     return published.title;
   }
@@ -56,6 +57,7 @@ function formatDay(day: string | null): string | null {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const en = await getDict();
   const { publicId } = await params;
   const result = await readPublishedHand(publicId);
   if (result.status !== "ok") {
@@ -67,7 +69,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const published = result.hand;
   // Spoilers closed: an unfurl is permanently at the deal.
   const preview = buildSharePreview(published.phf, { spoilers: false });
-  const title = `${headline(published)} | Rail`;
+  const title = `${headline(en, published)} | Rail`;
   const url = canonicalUrl(paths.publishedHand(published.publicId));
   return {
     title,
@@ -97,6 +99,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function PublishedHandPage({ params, searchParams }: PageProps) {
+  const en = await getDict();
   const { publicId } = await params;
   // `?t=` read here, on the server, and handed to the replayer: if the client
   // read it from the URL instead, the server would render the deal and the
@@ -135,13 +138,14 @@ export default async function PublishedHandPage({ params, searchParams }: PagePr
   );
 }
 
-function PublishedContent({
+async function PublishedContent({
   published,
   initialPosition,
 }: {
   published: PublishedHand;
   initialPosition: ReplayPosition | null;
 }) {
+  const en = await getDict();
   const hand: PhfHand = published.phf;
   const siteName = getParser(published.site)?.name ?? published.site;
   const playedOn = formatDay(published.playedOn);
@@ -149,7 +153,7 @@ function PublishedContent({
   return (
     <article className={styles.article}>
       <header className={styles.header}>
-        <h1 className={styles.title}>{headline(published)}</h1>
+        <h1 className={styles.title}>{headline(en, published)}</h1>
         <p className={styles.facts}>
           <span>{en.published.facts.site(siteName)}</span>
           <span aria-hidden="true">·</span>
@@ -178,7 +182,7 @@ function PublishedContent({
       </header>
 
       <section className={`card ${styles.card}`}>
-        <HandSummary hand={hand} />
+        <HandSummary t={en} hand={hand} />
       </section>
 
       <section className={styles.replay} aria-label={en.published.replayHeading}>
@@ -189,7 +193,8 @@ function PublishedContent({
 }
 
 /** A hand sealed behind a poll: say so, and point at the question, never the answer. */
-function SealedByPoll({ post }: { post: { board: string; publicId: string; slug: string } | null }) {
+async function SealedByPoll({ post }: { post: { board: string; publicId: string; slug: string } | null }) {
+  const en = await getDict();
   return (
     <section className="sharepage__problem">
       <h1>{en.published.poll.heading}</h1>
@@ -203,7 +208,8 @@ function SealedByPoll({ post }: { post: { board: string; publicId: string; slug:
   );
 }
 
-function Gone({ kind }: { kind: "deleted" | "removed" | "unconfigured" | "error" }) {
+async function Gone({ kind }: { kind: "deleted" | "removed" | "unconfigured" | "error" }) {
+  const en = await getDict();
   const copy =
     kind === "deleted"
       ? en.published.gone.deleted

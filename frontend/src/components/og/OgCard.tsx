@@ -10,7 +10,7 @@
  */
 
 import { railIconDataUri } from "../../lib/brand/markSvg";
-import { en } from "../../lib/i18n/en";
+import type { Dict } from "../../lib/i18n/types";
 
 const SUIT: Record<string, { glyph: string; color: string }> = {
   s: { glyph: "♠", color: "#18202b" },
@@ -52,12 +52,14 @@ export function OgCard({
   facts,
   cards = [],
   badge,
+  t: en,
 }: {
   eyebrow: string;
   title: string;
   facts: string[];
   cards?: string[];
   badge?: string;
+  t: Dict;
 }) {
   return (
     <div

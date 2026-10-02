@@ -8,7 +8,7 @@ import { createPollPost, createPost, forumErrorMessage } from "../../lib/db/foru
 import { CHOICE_LABEL, pollSpots } from "../../lib/forum/poll";
 import type { Board, PollChoice } from "../../lib/forum/types";
 import type { PhfHand } from "../../lib/phf/types";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import styles from "../../components/forum/forum.module.css";
@@ -45,6 +45,7 @@ function SubmitForm({
   attached: Attached | null;
   initialBoard: string | null;
 }) {
+  const en = useDict();
   const auth = useAuth();
   const { profile } = useMyProfile();
   const router = useRouter();

@@ -9,7 +9,7 @@
 import Link from "next/link";
 import { anchorLabel } from "../../lib/forum/anchor";
 import type { ForumComment } from "../../lib/forum/types";
-import { en } from "../../lib/i18n/en";
+import type { Dict } from "../../lib/i18n/types";
 import type { PhfHand } from "../../lib/phf/types";
 import { paths } from "../../lib/routes";
 import { CommentActions } from "./CommentActions";
@@ -26,12 +26,15 @@ export function CommentThread({
   hand,
   locked,
   permalink,
+  t: en,
 }: {
   post: string;
   comments: ForumComment[];
   hand: PhfHand | null;
   locked: boolean;
   permalink: (seq: number) => string;
+  /** The strings, from the caller: this renders from a server page and from `PollThread`. */
+  t: Dict;
 }) {
   return (
     <ol className={styles.thread}>

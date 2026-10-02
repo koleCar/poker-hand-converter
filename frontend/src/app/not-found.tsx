@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { NotFoundScreen } from "./NotFoundScreen";
-import { en } from "../lib/i18n/en";
+import { getDict } from "../lib/i18n/server";
 
 /**
  * 404, rendered inside the app shell.
@@ -10,11 +10,14 @@ import { en } from "../lib/i18n/en";
  * `NotFoundPage` it rendered inside `AppPage`. The copy and the two escape
  * hatches are unchanged.
  */
-export const metadata: Metadata = {
-  title: en.meta.notFound.title,
-  description: en.meta.notFound.description,
-  robots: { index: false, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const en = await getDict();
+  return {
+    title: en.meta.notFound.title,
+    description: en.meta.notFound.description,
+    robots: { index: false, follow: true },
+  };
+}
 
 export default function NotFound() {
   return <NotFoundScreen />;

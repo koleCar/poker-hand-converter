@@ -15,7 +15,7 @@ import { useAuth } from "../../lib/auth";
 import { forumErrorMessage, readCommentsAsMe, readPoll, votePoll } from "../../lib/db/forum";
 import { CHOICE_LABEL } from "../../lib/forum/poll";
 import type { ForumComment, PollChoice, PollState } from "../../lib/forum/types";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { ReplayViewer } from "../replayer/ReplayViewer";
 import { CommentComposer } from "./CommentComposer";
@@ -42,6 +42,7 @@ export function PollThread({
   site: string | null;
   locked: boolean;
 }) {
+  const en = useDict();
   const auth = useAuth();
   const [poll, setPoll] = useState<PollState | null>(initial);
   const [comments, setComments] = useState<ForumComment[] | null>(null);
@@ -186,7 +187,7 @@ export function PollThread({
         <section id="comments" className="stack">
           <CommentComposer post={post} locked={locked} />
           {comments ? (
-            <CommentThread post={post} comments={comments} hand={poll.phf} locked={locked} permalink={permalink} />
+            <CommentThread t={en} post={post} comments={comments} hand={poll.phf} locked={locked} permalink={permalink} />
           ) : null}
         </section>
       </PostDiscussion>
@@ -195,6 +196,7 @@ export function PollThread({
 }
 
 function PollResults({ poll }: { poll: PollState }) {
+  const en = useDict();
   const action = poll.phf?.actions.find((entry) => entry.index === poll.stopIndex) ?? null;
   const happened: PollChoice | null = action
     ? action.allIn && poll.options.includes("allin")

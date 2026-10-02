@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { OgCard, OG_SIZE } from "../../../../components/og/OgCard";
-import { en } from "../../../../lib/i18n/en";
+import { getDict } from "../../../../lib/i18n/server";
 import { getParser } from "../../../../lib/parsers";
 import { readPost } from "../../../../lib/server/forum";
 
@@ -10,15 +10,16 @@ import { readPost } from "../../../../lib/server/forum";
  * shows its question and never the hand's cards (#51).
  */
 export async function GET(_request: Request, { params }: { params: Promise<{ publicId: string }> }) {
+  const en = await getDict();
   const { publicId } = await params;
   const result = await readPost(publicId);
   if (result.status !== "ok") {
-    return new ImageResponse(<OgCard eyebrow={en.og.forumEyebrow} title={en.og.threadFallback} facts={[]} />, OG_SIZE);
+    return new ImageResponse(<OgCard t={en} eyebrow={en.og.forumEyebrow} title={en.og.threadFallback} facts={[]} />, OG_SIZE);
   }
   const post = result.post;
   const hand = post.poll ? null : post.hand;
   return new ImageResponse(
-    <OgCard
+    <OgCard t={en}
       eyebrow={post.board.name}
       title={post.title}
       badge={post.poll ? en.og.pollTitle : undefined}

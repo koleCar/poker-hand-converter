@@ -9,10 +9,11 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { forumErrorMessage } from "../../lib/db/forum";
 import { myPostState, savePost, setThreadSubscription, type SubscriptionLevel } from "../../lib/db/social";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import styles from "./forum.module.css";
 
 export function PostStateControls({ post }: { post: string }) {
+  const en = useDict();
   const auth = useAuth();
   const [saved, setSaved] = useState(false);
   const [level, setLevel] = useState<SubscriptionLevel>(null);

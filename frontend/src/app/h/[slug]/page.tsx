@@ -7,7 +7,8 @@ import { decodePosition, POSITION_PARAM, type ReplayPosition } from "../../../co
 import { RecordShareView } from "./RecordShareView";
 import { parseHand } from "../../../lib/phf";
 import type { PhfHand } from "../../../lib/phf/types";
-import { en } from "../../../lib/i18n/en";
+import { getDict } from "../../../lib/i18n/server";
+import type { Dict } from "../../../lib/i18n/types";
 import { paths, sharedHandUrl } from "../../../lib/routes";
 import { readShare, type ShareReadResult } from "../../../lib/server/shares";
 
@@ -62,6 +63,7 @@ function handOf(result: ShareReadResult): PhfHand | null {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const en = await getDict();
   const { slug } = await params;
   const result = await readShare(slug);
   const hand = handOf(result);
@@ -98,6 +100,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function SharedHandPage({ params, searchParams }: PageProps) {
+  const en = await getDict();
   const { slug } = await params;
   // Read on the server and passed down, so the server render and the first
   // client render open at the same moment; otherwise `?t=` links hydrate with a
@@ -161,7 +164,7 @@ export default async function SharedHandPage({ params, searchParams }: PageProps
 
 /* --------------------------------------------------------------- content */
 
-function SharedHandContent({
+async function SharedHandContent({
   hand,
   createdAt,
   views,
@@ -174,6 +177,7 @@ function SharedHandContent({
   slug: string;
   initialPosition: ReplayPosition | null;
 }) {
+  const en = await getDict();
   const sharedAt = formatPlayedAt(createdAt);
 
   return (
@@ -220,15 +224,21 @@ function SharedHandContent({
   );
 }
 
-const PROBLEMS = {
-  "not-found": en.share.problems.notFound,
-  unconfigured: en.share.problems.unconfigured,
-  unparseable: en.share.problems.unparseable,
-  error: { title: en.share.problems.error.title, body: en.share.problems.gone.body },
-} as const;
+type ProblemKind = "not-found" | "unconfigured" | "unparseable" | "error";
 
-function SharedHandProblem({ kind }: { kind: keyof typeof PROBLEMS }) {
-  const copy = PROBLEMS[kind] ?? PROBLEMS["not-found"];
+function problems(en: Dict): Record<ProblemKind, { title: string; body: string }> {
+  return {
+    "not-found": en.share.problems.notFound,
+    unconfigured: en.share.problems.unconfigured,
+    unparseable: en.share.problems.unparseable,
+    error: { title: en.share.problems.error.title, body: en.share.problems.gone.body },
+  };
+}
+
+async function SharedHandProblem({ kind }: { kind: ProblemKind }) {
+  const en = await getDict();
+  const table = problems(en);
+  const copy = table[kind] ?? table["not-found"];
 
   return (
     <section className="sharepage__problem">

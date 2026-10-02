@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { LibraryScreen } from "./LibraryScreen";
-import { en } from "../../lib/i18n/en";
+import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
 
 /**
@@ -15,12 +15,15 @@ import { paths } from "../../lib/routes";
  * account's own rows behind RLS. There is nothing here for a crawler and
  * nothing a shared render could safely cache.
  */
-export const metadata: Metadata = {
-  title: en.meta.library.title,
-  description: en.meta.library.description,
-  alternates: { canonical: paths.library() },
-  robots: { index: false, follow: true },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const en = await getDict();
+  return {
+    title: en.meta.library.title,
+    description: en.meta.library.description,
+    alternates: { canonical: paths.library() },
+    robots: { index: false, follow: true },
+  };
+}
 
 export default function LibraryPage() {
   return <LibraryScreen />;

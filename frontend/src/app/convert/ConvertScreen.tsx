@@ -2,7 +2,7 @@
 
 import { AppFrame } from "../../components/shell/AppFrame";
 import { UploadTab } from "../../components/upload/UploadTab";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import styles from "./convert.module.css";
 
 /**
@@ -14,6 +14,7 @@ import styles from "./convert.module.css";
  * the code has to keep true — see `page.tsx`.
  */
 export function ConvertScreen() {
+  const en = useDict();
   return (
     <AppFrame tab="convert">
       {({ onHandsSaved }) => (

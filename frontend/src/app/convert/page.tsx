@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ConvertScreen } from "./ConvertScreen";
-import { en } from "../../lib/i18n/en";
+import { getDict } from "../../lib/i18n/server";
 import { paths } from "../../lib/routes";
 
 /**
@@ -42,16 +42,19 @@ import { paths } from "../../lib/routes";
  * says so — that comment is load-bearing for the framework now, not just for
  * the fallback path), and the worker URL is relative to the importing module.
  */
-export const metadata: Metadata = {
-  title: en.meta.convert.title,
-  description: en.meta.convert.description,
-  alternates: { canonical: paths.convert() },
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const en = await getDict();
+  return {
     title: en.meta.convert.title,
     description: en.meta.convert.description,
-    url: paths.convert(),
-  },
-};
+    alternates: { canonical: paths.convert() },
+    openGraph: {
+      title: en.meta.convert.title,
+      description: en.meta.convert.description,
+      url: paths.convert(),
+    },
+  };
+}
 
 export default function ConvertPage() {
   return <ConvertScreen />;

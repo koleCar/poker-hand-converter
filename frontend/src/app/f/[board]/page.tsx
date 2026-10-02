@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Feed, parseFeedParams } from "../../../components/forum/Feed";
 import { ServerFrame } from "../../../components/shell/ServerFrame";
-import { en } from "../../../lib/i18n/en";
+import { getDict } from "../../../lib/i18n/server";
 import { paths } from "../../../lib/routes";
 import { readBoards, readFeed } from "../../../lib/server/forum";
 
@@ -10,6 +10,7 @@ type Params = Promise<{ board: string }>;
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export async function generateMetadata({ params, searchParams }: { params: Params; searchParams: SearchParams }): Promise<Metadata> {
+  const en = await getDict();
   const { board } = await params;
   const { page } = parseFeedParams(await searchParams);
   const found = (await readBoards()).find((entry) => entry.slug === board);
@@ -26,6 +27,7 @@ export async function generateMetadata({ params, searchParams }: { params: Param
 }
 
 export default async function BoardPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
+  const en = await getDict();
   const { board } = await params;
   const { sort, after, page } = parseFeedParams(await searchParams);
   const boards = await readBoards();
@@ -35,7 +37,7 @@ export default async function BoardPage({ params, searchParams }: { params: Para
 
   return (
     <ServerFrame tab="forum">
-      <Feed board={found} boards={boards} sort={sort} page={page} data={data} heading={found.name} />
+      <Feed t={en} board={found} boards={boards} sort={sort} page={page} data={data} heading={found.name} />
     </ServerFrame>
   );
 }

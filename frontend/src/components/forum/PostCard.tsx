@@ -4,13 +4,13 @@
 
 import Link from "next/link";
 import type { ForumPost } from "../../lib/forum/types";
-import { en } from "../../lib/i18n/en";
+import type { Dict } from "../../lib/i18n/types";
 import { paths } from "../../lib/routes";
 import { formatPostDate } from "./format";
 import { VoteButtons } from "./VoteButtons";
 import styles from "./forum.module.css";
 
-export function PostCard({ post }: { post: ForumPost }) {
+export function PostCard({ post, t: en }: { post: ForumPost; t: Dict }) {
   const href = paths.post(post.board.slug, post.publicId, post.slug);
   return (
     <article className={styles.card}>

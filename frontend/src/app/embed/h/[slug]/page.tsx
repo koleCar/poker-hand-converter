@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { EmbedFrame, EmbedGone } from "../../../../components/embed/EmbedFrame";
 import { ReplayViewer } from "../../../../components/replayer/ReplayViewer";
 import { decodePosition, POSITION_PARAM } from "../../../../components/replayer/position";
-import { en } from "../../../../lib/i18n/en";
+import { getDict } from "../../../../lib/i18n/server";
 import { parseHand } from "../../../../lib/phf";
 import { sharedHandUrl } from "../../../../lib/routes";
 import { readShare } from "../../../../lib/server/shares";
@@ -17,12 +17,16 @@ interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export const metadata: Metadata = {
-  title: en.embed.title,
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const en = await getDict();
+  return {
+    title: en.embed.title,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function EmbedSharedHand({ params, searchParams }: PageProps) {
+  const en = await getDict();
   const { slug } = await params;
   const rawT = (await searchParams)[POSITION_PARAM];
   const initialPosition = decodePosition(Array.isArray(rawT) ? rawT[0] : rawT);
@@ -32,10 +36,10 @@ export default async function EmbedSharedHand({ params, searchParams }: PageProp
   const href = sharedHandUrl(slug);
 
   if (!hand) {
-    return <EmbedGone href={href} />;
+    return <EmbedGone t={en} href={href} />;
   }
   return (
-    <EmbedFrame href={href}>
+    <EmbedFrame t={en} href={href}>
       <ReplayViewer hand={hand} mode="embed" initialPosition={initialPosition} />
     </EmbedFrame>
   );

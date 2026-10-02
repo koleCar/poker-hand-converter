@@ -14,11 +14,12 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 
 export function UserMenu() {
+  const en = useDict();
   const auth = useAuth();
   const { profile } = useMyProfile();
   const [open, setOpen] = useState(false);

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { forumErrorMessage } from "../../lib/db/forum";
 import { editPostTitle, setPostFlags, setPostStatus } from "../../lib/db/moderation";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { useCanModerate } from "./ModContext";
 import styles from "./forum.module.css";
@@ -23,6 +23,7 @@ export function PostModTools({
   isLocked: boolean;
   isPinned: boolean;
 }) {
+  const en = useDict();
   const can = useCanModerate();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);

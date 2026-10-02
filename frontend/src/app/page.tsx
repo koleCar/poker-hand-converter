@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Feed, parseFeedParams } from "../components/forum/Feed";
 import { ServerFrame } from "../components/shell/ServerFrame";
-import { en } from "../lib/i18n/en";
+import { getDict } from "../lib/i18n/server";
 import { paths } from "../lib/routes";
 import { readBoards, readFeed } from "../lib/server/forum";
 
@@ -18,6 +18,7 @@ import { readBoards, readFeed } from "../lib/server/forum";
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  const en = await getDict();
   const { page } = parseFeedParams(await searchParams);
   return {
     title: en.forum.metaHomeTitle,
@@ -29,6 +30,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
 }
 
 export default async function HomePage({ searchParams }: { searchParams: SearchParams }) {
+  const en = await getDict();
   const params = await searchParams;
   const { sort, after, page } = parseFeedParams(params);
   const [boards, data] = await Promise.all([readBoards(), readFeed(null, sort, after)]);
@@ -36,7 +38,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
   return (
     <ServerFrame tab="forum">
       {params.auth === "failed" ? <p className="notice notice--warn">{en.auth.callbackFailed}</p> : null}
-      <Feed board={null} boards={boards} sort={sort} page={page} data={data} heading={en.forum.allBoards} />
+      <Feed t={en} board={null} boards={boards} sort={sort} page={page} data={data} heading={en.forum.allBoards} />
     </ServerFrame>
   );
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { OwnProfileActions } from "./OwnProfileActions";
 import { ServerFrame } from "../../../components/shell/ServerFrame";
-import { en } from "../../../lib/i18n/en";
+import { getDict } from "../../../lib/i18n/server";
 import { paths } from "../../../lib/routes";
 import { publishedHandsByAuthor, type PublishedHandSummary } from "../../../lib/server/published";
 import { readProfile, type PublicProfile } from "../../../lib/server/profiles";
@@ -39,6 +39,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const en = await getDict();
   const { username } = await params;
   const result = await readProfile(decodeURIComponent(username));
   const name = result.status === "ok" ? result.profile.username : null;
@@ -53,6 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ProfilePage({ params }: PageProps) {
+  const en = await getDict();
   const { username } = await params;
   const result = await readProfile(decodeURIComponent(username));
 
@@ -91,7 +93,8 @@ function formatJoined(joinedOn: string): string {
   return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(date);
 }
 
-function ProfileContent({ profile, hands }: { profile: PublicProfile; hands: PublishedHandSummary[] }) {
+async function ProfileContent({ profile, hands }: { profile: PublicProfile; hands: PublishedHandSummary[] }) {
+  const en = await getDict();
   return (
     <div className="stack">
       <section className={`card ${styles.header}`}>

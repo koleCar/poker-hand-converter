@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { LanguageSwitch } from "../../components/shell/LanguageSwitch";
 import { useState, type FormEvent } from "react";
 import { Turnstile } from "../../components/auth/Turnstile";
 import { AppFrame } from "../../components/shell/AppFrame";
 import { useAuth } from "../../lib/auth";
 import { setUsername, usernameErrorMessage, type MyProfile } from "../../lib/db/profiles";
-import { en } from "../../lib/i18n/en";
+import { useDict } from "../../lib/i18n/client";
+import type { Dict } from "../../lib/i18n/types";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import styles from "./settings.module.css";
@@ -16,7 +18,21 @@ export function SettingsScreen() {
   return <AppFrame tab={null}>{() => <SettingsBody />}</AppFrame>;
 }
 
+function LanguageSection() {
+  const en = useDict();
+  return (
+    <section className={`card ${styles.section}`} aria-labelledby="settings-language">
+      <h2 id="settings-language" className={styles.subheading}>
+        {en.language.label}
+      </h2>
+      <LanguageSwitch variant="full" />
+      <p className="muted">{en.language.hint}</p>
+    </section>
+  );
+}
+
 function SettingsBody() {
+  const en = useDict();
   const auth = useAuth();
   const { status, profile, refresh } = useMyProfile();
 
@@ -37,6 +53,7 @@ function SettingsBody() {
   return (
     <div className="stack">
       <h1 className={styles.heading}>{en.settings.heading}</h1>
+      <LanguageSection />
       {status === "ready" && profile ? (
         <>
           <UsernameSection profile={profile} onSaved={refresh} />
@@ -73,7 +90,7 @@ function formatDay(iso: string): string {
  * The shape rules, checked before the round trip so "too short" does not need
  * one. Reservations, blocked terms and "taken" are the server's to answer.
  */
-function localProblem(name: string): string | null {
+function localProblem(en: Dict, name: string): string | null {
   if (name.length < 3) return en.settings.username.tooShort;
   if (name.length > 24) return en.settings.username.tooLong;
   if (!/^[A-Za-z0-9_]+$/.test(name)) return en.settings.username.badCharacters;
@@ -82,6 +99,7 @@ function localProblem(name: string): string | null {
 }
 
 function UsernameSection({ profile, onSaved }: { profile: MyProfile; onSaved: () => Promise<void> }) {
+  const en = useDict();
   const [value, setValue] = useState(profile.username);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +120,7 @@ function UsernameSection({ profile, onSaved }: { profile: MyProfile; onSaved: ()
       setNotice(en.settings.username.unchanged);
       return;
     }
-    const problem = localProblem(trimmed);
+    const problem = localProblem(en, trimmed);
     if (problem) {
       setError(problem);
       return;
@@ -183,6 +201,7 @@ function UsernameSection({ profile, onSaved }: { profile: MyProfile; onSaved: ()
 }
 
 function PostingSection({ profile }: { profile: MyProfile }) {
+  const en = useDict();
   const auth = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
