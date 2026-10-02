@@ -60,6 +60,15 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // The service worker must be re-checked on every load, or a deploy that
+        // changes it waits for a cache to expire before any browser sees it.
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache" },
+          { key: "Service-Worker-Allowed", value: "/" },
+        ],
+      },
+      {
         source: "/embed/:path*",
         headers: [{ key: "Content-Security-Policy", value: "frame-ancestors *" }],
       },

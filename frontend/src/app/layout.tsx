@@ -46,6 +46,7 @@ import "../styles/app.css";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { SessionImport } from "../components/auth/SessionImport";
+import { ServiceWorker } from "../components/shell/ServiceWorker";
 import { AuthProvider } from "../lib/auth/AuthProvider";
 import { ProfileProvider } from "../lib/profile/ProfileProvider";
 import { toAuthUser } from "../lib/auth/user";
@@ -141,6 +142,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         {/* Mounted once, for sixty days. See the file header — it has a
             deletion date on it. */}
         <SessionImport />
+        <ServiceWorker />
         {/* `#root` is kept deliberately. `index.css` sizes `html, body, #root`
             to 100% and `.app` / `.shell` are `min-height: 100%` against it, so
             without this element every full-height layout in the app would
