@@ -111,9 +111,9 @@ export const en = {
     },
     learnConcept: (title: string) => `${title} — poker concepts | Rail`,
     charts: {
-      title: "Preflop charts: 6-max 100bb cash, every hand's mix and EV | Rail",
+      title: "Preflop charts: 6-max and 9-max cash, every hand's mix and EV | Rail",
       description:
-        "Rail's own preflop charts for 6-max 100 bb cash: opens, 3-bets, 4-bets, squeezes and blind versus blind, with the frequency and EV of every action for all 169 hands.",
+        "Rail's own preflop charts for 6-max (40-200 bb) and 9-max (100-200 bb) cash: opens, 3-bets, 4-bets, squeezes and blind versus blind, with the frequency and EV of every action for all 169 hands.",
     },
     notFound: {
       title: "Page not found | Rail",

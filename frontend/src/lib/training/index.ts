@@ -33,6 +33,7 @@ export { nextSeed, pickOne, pickWeighted, seeded, type Rng } from "./rng";
 export {
   HERO_NAME,
   POSTFLOP_ORDER,
+  NINE_SCRIPT_POSITIONS,
   SCRIPT_POSITIONS,
   ScriptError,
   completePreflop,
@@ -53,7 +54,9 @@ export {
   DEAL_BIASES,
   MIN_NODE_REACH,
   PREFLOP_FAMILIES,
+  ALL_PREFLOP_SEATS,
   PREFLOP_SEATS,
+  trainerSet,
   dealPreflop,
   dealingWeights,
   familiesOf,

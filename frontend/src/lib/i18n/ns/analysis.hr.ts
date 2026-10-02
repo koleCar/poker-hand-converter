@@ -161,8 +161,8 @@ function mixLabel(decision: DecisionAnalysis): string {
 const chartReasons = {
   "chart-straddle": "straddle mijenja svaku cijenu, a nijedan chart ga ne pokriva",
   "chart-ante": "u potu je ante, a cash chartovi ga nemaju",
-  "chart-players": "chartovi su za stolove sa šest igrača (pet se čita kao šest uz foldani UTG)",
-  "chart-stack-depth": "efektivni stack je izvan 100 bb ±20 %, a chartovi su riješeni za 100 bb",
+  "chart-players": "chartovi pokrivaju od tri do devet igrača (manji stol čita se uz foldane najranije pozicije); heads-up nije pokriven",
+  "chart-stack-depth": "efektivni stack je više od 20 % udaljen od dubine svakog seta chartova (6-max: 40, 60, 100, 150, 200 bb; 9-max: 100, 150, 200 bb)",
   "chart-limp": "netko je open-limpao, a chartovi nemaju open limp osim small blinda",
   "chart-multiway": "ovo bi bio peti igrač u potu, više nego što chartovi modeliraju",
   "chart-cold-call": "hladni call na re-raise nije u stablu chartova",
@@ -543,7 +543,7 @@ export const analysisHr: Dict["analysis"] = {
   reference: {
     title: "Preflop se ocjenjuje prema našim chartovima, turn i river prema našem solveru",
     body:
-      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim 6-max 100 bb chartovima, gdje god chart pokriva situaciju. Turn i river odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje na flopu sužava heuristički model, a do rivera riješeni turn. Flop pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena.",
+      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim preflop chartovima (6-max od 40 do 200 bb, puni stol od 100 do 200 bb), gdje god chart pokriva situaciju. Turn i river odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje na flopu sužava heuristički model, a do rivera riješeni turn. Flop pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena.",
     model:
       "Chartovi (charts/2) flop vrednuju uz checkan flop, pa još podcjenjuju nekoliko ruku koje dobivaju kroz implied odds: UTG folda 22–55, 54s–87s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge.",
     browse: "Pregledaj chartove",
@@ -601,7 +601,7 @@ export const analysisHr: Dict["analysis"] = {
     badHands: (count: number) => `${hands(count)} s greškom ili grubom greškom`,
     showBad: "Prikaži ih",
     noGrades:
-      "U ovom uzorku još ništa nije ocijenjeno. Preflop odluke ocjenjuju se gdje chartovi pokrivaju situaciju (šest igrača, 100 bb ±20 %, bez open limpera), turn i river odluke u heads-up potovima solverom.",
+      "U ovom uzorku još ništa nije ocijenjeno. Preflop odluke ocjenjuju se gdje chartovi pokrivaju situaciju (od tri do devet igrača, 40–200 bb, bez open limpera), turn i river odluke u heads-up potovima solverom.",
     byStreet: "Po streetovima",
     bb2: (value: number) => `${num(value, 2)} bb`,
     distribution: (parts: string[]) => parts.join(", "),
@@ -620,8 +620,8 @@ export const analysisHr: Dict["analysis"] = {
     multiway: "Više igrača nakon flopa",
     "chart-straddle": "Preflop chartovi: straddle",
     "chart-ante": "Preflop chartovi: ante",
-    "chart-players": "Preflop chartovi: nije 6-max",
-    "chart-stack-depth": "Preflop chartovi: stackovi izvan 100 bb ±20 %",
+    "chart-players": "Preflop chartovi: heads-up ili 10+ igrača",
+    "chart-stack-depth": "Preflop chartovi: nema seta za ovu dubinu stacka",
     "chart-limp": "Preflop chartovi: open limp",
     "chart-multiway": "Preflop chartovi: peti igrač u potu",
     "chart-cold-call": "Preflop chartovi: hladni call na re-raise",
@@ -657,9 +657,9 @@ export const analysisHr: Dict["analysis"] = {
     straddle: "Straddle je pomaknuo blindove",
     "stack-depth": "Stackovi izvan 100 bb ±20 %",
     "table-size": "Nije stol za šest igrača",
-    model: "Preflop chartovi (charts/2) još podcjenjuju nekoliko implied-odds ruku (UTG-ove male parove i suited konektore) i flat buttona protiv cutoff opena",
-    "short-handed": "Pet igrača, čitano kao 6-max uz foldani UTG",
-    "stack-depth-near": "Stackovi unutar 100 bb ±20 %, ali ne točno 100 bb",
+    model: "Preflop chartovi (charts/2 i charts/3) još podcjenjuju nekoliko implied-odds ruku (UTG-ove male parove i suited konektore) i flat buttona protiv cutoff opena",
+    "short-handed": "Manje igrača od mjesta u setu chartova, čitano uz foldane najranije pozicije",
+    "stack-depth-near": "Stackovi unutar 20 % od dubine seta chartova, ali ne točno na njoj",
     "off-tree-size": "Raise daleko od veličine u chartovima: ocjena ograničena na Netočno",
     "out-of-range": "Tvoja ruka je izvan referentnog raspona u ovoj situaciji",
     "narrowing-heuristic": "Rasponi suženi heurističkim modelom na flopu (i na turnu gdje turn nije riješen), ne solverom",
@@ -970,12 +970,14 @@ export const analysisHr: Dict["analysis"] = {
   charts: {
     heading: "Preflop chartovi",
     intro:
-      "Railova vlastita referenca za No-Limit Hold'em cash, šest igrača, 100 big blindova duboko, izračunata našim solverom — nikad prepisana iz tuđih chartova. Odaberi situaciju: svaka ruka pokazuje koliko često referenca igra svaku akciju, a kad prijeđeš mišem preko ruke ili je fokusiraš, vidiš koliko svaka akcija vrijedi.",
+      "Railova vlastita referenca za No-Limit Hold'em cash — šest igrača od 40 do 200 big blindova duboko, puni stol od 100 do 200 — izračunata našim solverom, nikad prepisana iz tuđih chartova. Odaberi stol i situaciju: svaka ruka pokazuje koliko često referenca igra svaku akciju, a kad prijeđeš mišem preko ruke ili je fokusiraš, vidiš koliko svaka akcija vrijedi.",
     caveatTitle: "Model, s poznatom slabošću",
     caveat:
-      "Ovi chartovi (charts/2) vrijednost flopa računaju modelom realizacije equityja prilagođenim našem postflop solveru. Mjerenje checka flop, pa su ruke koje dobivaju kroz implied odds još malo podcijenjene: UTG folda 55–22, 87s–54s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge.",
+      "Ovi chartovi (charts/2, a charts/3 za ostale stolove i dubine) vrijednost flopa računaju modelom realizacije equityja prilagođenim našem postflop solveru. Mjerenje checka flop, pa su ruke koje dobivaju kroz implied odds još malo podcijenjene: UTG folda 55–22, 87s–54s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge.",
     loading: "Učitavam chartove…",
     failed: (message: string) => `Chartovi se nisu učitali: ${message}`,
+    table: "Stol i dubina",
+    setOption: (players: number, stackBb: number) => `${players}-max, ${stackBb} bb`,
     category: "Scenarij",
     spot: "Situacija",
     categories: {

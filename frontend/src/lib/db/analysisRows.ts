@@ -132,7 +132,8 @@ export interface AnalysedBatch {
  *
  * `charts` is required, not optional: a row stored without them would grade
  * nothing preflop under a version that promises preflop grades. The caller
- * loads them once (`loadDefaultCharts()`), not once per page. `onHand` is
+ * loads the library once (`loadChartLibrary()`) and, per page, the sets the
+ * page's hands need (`requiredChartSets`, `ensureChartSets`). `onHand` is
  * told how many hands of the page are done, after each one (a river solve
  * makes a page take seconds, and the progress bar should move within it).
  */

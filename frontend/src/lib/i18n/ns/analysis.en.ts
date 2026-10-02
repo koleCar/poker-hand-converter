@@ -164,8 +164,8 @@ function mixLabel(decision: DecisionAnalysis): string {
 const chartReasons = {
   "chart-straddle": "a straddle changes every price, and no chart covers it",
   "chart-ante": "antes are in the pot, and the cash charts have none",
-  "chart-players": "the charts are for six-handed tables (five is read as six with UTG folded)",
-  "chart-stack-depth": "the effective stack is outside 100 bb ±20%, and the charts are solved at 100 bb",
+  "chart-players": "the charts cover three to nine players (a smaller table is read with the earliest seats folded); heads-up is not covered",
+  "chart-stack-depth": "the effective stack is more than 20% from every chart set's depth (6-max: 40, 60, 100, 150, 200 bb; 9-max: 100, 150, 200 bb)",
   "chart-limp": "someone open-limped, and the charts have no open limp except the small blind's",
   "chart-multiway": "this would be a fifth player in the pot, beyond what the charts model",
   "chart-cold-call": "a cold call of a re-raise is not in the charts' tree",
@@ -558,7 +558,7 @@ export const analysisEn = {
   reference: {
     title: "Preflop is graded against our charts, the turn and river against our solver",
     body:
-      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own 6-max 100 bb charts wherever a chart covers the spot. Turn and river decisions in heads-up pots are graded by our own solver, on ranges narrowed on the flop by a heuristic model and into the river by the solved turn. The flop shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade.",
+      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own preflop charts (6-max at 40–200 bb, full ring at 100–200 bb) wherever a chart covers the spot. Turn and river decisions in heads-up pots are graded by our own solver, on ranges narrowed on the flop by a heuristic model and into the river by the solved turn. The flop shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade.",
     model:
       "The charts (charts/2) value a flop with the flop checked, so they still under-rate a few hands that win through implied odds: UTG folds 22–55, 54s–87s and A5s, and the button almost never flats a cutoff open. Grades against playing those lean harsh.",
     browse: "Browse the charts",
@@ -615,7 +615,7 @@ export const analysisEn = {
     badHands: (count: number) => `${hands(count)} with a Mistake or a Blunder`,
     showBad: "Show them",
     noGrades:
-      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot (six-handed, 100 bb ±20%, no open limpers), turn and river decisions in heads-up pots by the solver.",
+      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot (three to nine players, 40–200 bb, no open limpers), turn and river decisions in heads-up pots by the solver.",
     byStreet: "By street",
     /** Big blinds to two decimals: "1.25 bb". */
     bb2: (value: number) => `${num(value, 2)} bb`,
@@ -636,8 +636,8 @@ export const analysisEn = {
     multiway: "Multiway after the flop",
     "chart-straddle": "Preflop charts: straddle",
     "chart-ante": "Preflop charts: antes",
-    "chart-players": "Preflop charts: not 6-max",
-    "chart-stack-depth": "Preflop charts: stacks outside 100 bb ±20%",
+    "chart-players": "Preflop charts: heads-up or 10+ players",
+    "chart-stack-depth": "Preflop charts: no set at this stack depth",
     "chart-limp": "Preflop charts: open limp",
     "chart-multiway": "Preflop charts: fifth player in",
     "chart-cold-call": "Preflop charts: cold call of a re-raise",
@@ -673,9 +673,9 @@ export const analysisEn = {
     straddle: "A straddle moved the blinds",
     "stack-depth": "Stacks outside 100 bb ±20%",
     "table-size": "Not a six-handed table",
-    model: "Preflop charts (charts/2) still under-rate a few implied-odds hands (UTG's small pairs and suited connectors) and the button's flat of a cutoff open",
-    "short-handed": "Five-handed, read as six-max with UTG folded",
-    "stack-depth-near": "Stacks within 100 bb ±20%, but not 100 bb",
+    model: "Preflop charts (charts/2 and charts/3) still under-rate a few implied-odds hands (UTG's small pairs and suited connectors) and the button's flat of a cutoff open",
+    "short-handed": "Fewer players than the chart set's seats, read with the earliest seats folded",
+    "stack-depth-near": "Stacks within 20% of the chart set's depth, but not at it",
     "off-tree-size": "A raise far from the charts' size: grade capped at Inaccurate",
     "out-of-range": "Your hand is outside the reference range at this node",
     "narrowing-heuristic": "Ranges narrowed by a heuristic model on the flop (and on the turn where the turn was not solved), not a solver",
@@ -997,12 +997,15 @@ export const analysisEn = {
   charts: {
     heading: "Preflop charts",
     intro:
-      "Rail's own reference for No-Limit Hold'em cash, six-handed, 100 big blinds deep, computed by our solver — never copied from anyone's charts. Pick a spot: every hand shows how often the reference takes each action, and hovering or focusing a hand shows what each action is worth.",
+      "Rail's own reference for No-Limit Hold'em cash — six-handed from 40 to 200 big blinds deep, full ring from 100 to 200 — computed by our solver, never copied from anyone's charts. Pick a table and a spot: every hand shows how often the reference takes each action, and hovering or focusing a hand shows what each action is worth.",
     caveatTitle: "A model, with a known weakness",
     caveat:
-      "These charts (charts/2) value a flop with an equity-realisation model fitted to our own postflop solver. The measurement checks the flop, so hands that win through implied odds are still a little under-rated: UTG folds 55–22, 87s–54s and A5s, and the button almost never flats a cutoff open. Grades against playing those hands lean harsh.",
+      "These charts (charts/2, and charts/3 for other tables and depths) value a flop with an equity-realisation model fitted to our own postflop solver. The measurement checks the flop, so hands that win through implied odds are still a little under-rated: UTG folds 55–22, 87s–54s and A5s, and the button almost never flats a cutoff open. Grades against playing those hands lean harsh.",
     loading: "Loading the charts…",
     failed: (message: string) => `The charts did not load: ${message}`,
+    table: "Table and depth",
+    /** A chart set: "6-max, 100bb". */
+    setOption: (players: number, stackBb: number) => `${players}-max, ${stackBb}bb`,
     category: "Scenario",
     spot: "Spot",
     categories: {

@@ -12,14 +12,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ChartNode, ChartSet } from "../../../lib/charts";
-import { preflopCharts } from "../../../lib/chartSet";
+import { CHART_SETS, DEFAULT_CHART_SET, type ChartNode, type ChartSet } from "../../../lib/charts";
+import { preflopChartSet } from "../../../lib/chartSet";
 import { recordTrainerResults } from "../../../lib/db/training";
 import { useDict } from "../../../lib/i18n/client";
 import { dealPreflopSpot, dealRiverSpot, gradeSpotAnswer } from "../../../lib/trainer";
 import {
   DEAL_BIASES,
   PREFLOP_FAMILIES,
+  ALL_PREFLOP_SEATS,
   PREFLOP_SEATS,
   RIVER_POTS,
   RIVER_ROLES,
@@ -68,7 +69,7 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
 
   const settings =
     mode === "preflop"
-      ? { family: state.family, seat: state.seat, vs: state.vs, bias: state.deal }
+      ? { set: state.set, family: state.family, seat: state.seat, vs: state.vs, bias: state.deal }
       : { pot: state.pot, seat: state.side, role: state.role, bias: state.deal };
   const settingsKey = JSON.stringify(settings);
   const requestKey = `${mode}|${settingsKey}|${round}`;
@@ -98,19 +99,20 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
     };
   }, [mode, settingsKey, requestKey]);
 
-  // The chart set on the main thread, for the preflop chart grid.
+  // The spot's chart set on the main thread, for the preflop chart grid.
+  const spotSet = dealt?.spot?.kind === "preflop" ? dealt.spot.set : null;
   useEffect(() => {
-    if (mode !== "preflop" || charts) return;
+    if (mode !== "preflop" || !spotSet || charts?.id === spotSet) return;
     let live = true;
-    preflopCharts()
+    preflopChartSet(spotSet)
       .then((set) => {
-        if (live) setCharts(set);
+        if (live && set) setCharts(set);
       })
       .catch(() => undefined);
     return () => {
       live = false;
     };
-  }, [mode, charts]);
+  }, [mode, charts, spotSet]);
 
   const current = dealt?.key === requestKey ? dealt : null;
   const spot = current?.spot ?? null;
@@ -297,7 +299,7 @@ function SpotWords({ spot }: { spot: TrainerSpot }) {
   if (spot.kind === "preflop") {
     const label = en.analysis.charts.spotLabel(
       spot.hero,
-      lineSteps(spot.line).map((step) => ({ position: step.position, verb: en.analysis.charts.verbs[step.verb] ?? step.verb })),
+      lineSteps(spot.line, spot.script.seats).map((step) => ({ position: step.position, verb: en.analysis.charts.verbs[step.verb] ?? step.verb })),
     );
     return (
       <>
@@ -331,13 +333,37 @@ function Settings({
   onChange: (patch: Partial<TrainState>) => void;
 }) {
   const t = useDict().analysis.train.settings;
+  // The chosen set's seats (A2c: 6-max or 9-max); the river trainer is 6-max 100bb.
+  const spec = CHART_SETS.find((s) => s.id === state.set) ?? CHART_SETS.find((s) => s.id === DEFAULT_CHART_SET);
+  const seats = spec?.players === 9 ? ALL_PREFLOP_SEATS : PREFLOP_SEATS;
   return (
     <div className={own.settings} role="group" aria-label={t.label}>
       <label className="field">
         <span className="field__label">{t.table}</span>
-        <select value="nlhe-cash-6max-100bb" onChange={() => undefined}>
-          <option value="nlhe-cash-6max-100bb">{t.tableValue(6, 100)}</option>
-        </select>
+        {mode === "preflop" ? (
+          <select
+            value={state.set}
+            onChange={(event) => {
+              const set = event.target.value;
+              const next = CHART_SETS.find((s) => s.id === set);
+              const nine = next?.players === 9;
+              // A seat the new table lacks is dropped.
+              const keep = (seat: TrainState["seat"]) =>
+                seat && (nine ? ALL_PREFLOP_SEATS : PREFLOP_SEATS).includes(seat) ? seat : null;
+              onChange({ set, seat: keep(state.seat), vs: keep(state.vs) });
+            }}
+          >
+            {CHART_SETS.map((s) => (
+              <option key={s.id} value={s.id}>
+                {t.tableValue(s.players, s.stackBb)}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <select value={DEFAULT_CHART_SET} onChange={() => undefined}>
+            <option value={DEFAULT_CHART_SET}>{t.tableValue(6, 100)}</option>
+          </select>
+        )}
       </label>
       {mode === "preflop" ? (
         <>
@@ -365,7 +391,7 @@ function Settings({
               onChange={(event) => onChange({ seat: (event.target.value || null) as TrainState["seat"] })}
             >
               <option value="">{t.anySeat}</option>
-              {PREFLOP_SEATS.map((seat) => (
+              {seats.map((seat) => (
                 <option key={seat} value={seat}>
                   {seat}
                 </option>
@@ -380,7 +406,7 @@ function Settings({
                 onChange={(event) => onChange({ vs: (event.target.value || null) as TrainState["vs"] })}
               >
                 <option value="">{t.anyRaiser}</option>
-                {PREFLOP_SEATS.map((seat) => (
+                {seats.map((seat) => (
                   <option key={seat} value={seat}>
                     {seat}
                   </option>

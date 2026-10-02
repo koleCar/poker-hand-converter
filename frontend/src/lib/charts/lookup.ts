@@ -21,7 +21,7 @@
  * `{ ok: false, reason }` and the decision is "not analysed".
  */
 
-import type { Position } from "../phf/types";
+import { positionRing, type Position } from "../phf/types";
 import { cardIndex } from "../equity";
 import { classByName, classOfCards, HAND_CLASSES, NUM_CLASSES } from "../solver/handClasses";
 import {
@@ -37,6 +37,9 @@ import {
 } from "../solver/preflopTree";
 import { OFF_TREE_DISTANCE, translateSize } from "../solver/translation";
 import type { ChartAction, ChartNode, ChartPosition, ChartSet } from "./format";
+import { effectiveStackBb, isChartLibrary, pickChartSet, STACK_NOTE_TOLERANCE, STACK_TOLERANCE } from "./registry";
+
+export { STACK_NOTE_TOLERANCE, STACK_TOLERANCE };
 
 /** One real preflop decision. */
 export interface PreflopActionInput {
@@ -71,11 +74,14 @@ export type ChartMissReason =
   | "off-tree"
   | "rare-line"
   | "action-not-modelled"
-  | "bad-input";
+  | "bad-input"
+  | "unavailable";
 
 export interface ChartApproximation {
   kind: "sizing" | "stack-depth" | "short-handed";
   detail: string;
+  /** Stack depth: the chart set that answered (`ChartSet.id`). */
+  set?: string;
   position?: Position;
   realBb?: number;
   chartBb?: number;
@@ -96,6 +102,8 @@ export interface ChartOption {
 export type ChartLookup =
   | {
       ok: true;
+      /** The set that answered: `charts` itself, or the library's set for this table and depth. */
+      set: ChartSet;
       node: ChartNode;
       /** Hand class name, when a hand was given. */
       handClass: string | null;
@@ -115,11 +123,6 @@ export type ChartLookup =
       unmodelled: ("call" | "limp")[];
     }
   | { ok: false; reason: ChartMissReason; detail: string };
-
-/** Effective stack band the 100bb set covers (ANALYSIS-PLAN §8). */
-export const STACK_TOLERANCE = 0.2;
-/** Stack depth further than this from the set's still grades, with a note. */
-export const STACK_NOTE_TOLERANCE = 0.05;
 
 const trees = new WeakMap<ChartSet, PreflopTree>();
 
@@ -159,14 +162,39 @@ export function handClassOf(hand: string | readonly string[]): number {
 
 const miss = (reason: ChartMissReason, detail: string): ChartLookup => ({ ok: false, reason, detail });
 
-/** Position names of a 5-handed table read as 6-max with UTG folded. */
-const FIVE_HANDED: Partial<Record<Position, ChartPosition>> = {
-  UTG: "HJ",
-  CO: "CO",
-  BTN: "BTN",
-  SB: "SB",
-  BB: "BB",
-};
+/**
+ * A `k`-handed table's seats onto a set with at least `k` seats, by distance
+ * from the button: the blinds are the blinds, the table's other seats are the
+ * set's last ones, and the set's earliest seats fold first. Five-handed on
+ * 6-max is UTG -> HJ with UTG folded; eight-handed on 9-max is UTG -> UTG+1,
+ * UTG+1 -> UTG+2 with UTG folded.
+ *
+ * In the charts' own model this is exact up to convergence: a folded
+ * player's range scales every other player's values by a constant per hand
+ * class (card removal between opponents is ignored, docs/CHARTS.md §2), so
+ * the game after the folds is the smaller table's game. What it leaves out
+ * is the real effect of those folds (folded ranges hold fewer aces).
+ */
+function seatMap(
+  positions: readonly Position[],
+  seats: readonly ChartPosition[],
+): { rename: Map<Position, ChartPosition>; folded: ChartPosition[] } | null {
+  const k = positions.length;
+  const ring = positionRing(k);
+  if (k < 3 || k > seats.length || ring.length !== k) return null;
+  const given = new Set(positions);
+  if (given.size !== k || ring.some((p) => !given.has(p))) return null;
+  const table = ring.slice(2);
+  const order = seats.filter((p) => p !== "SB" && p !== "BB");
+  if (order.length + 2 !== seats.length) return null;
+  const skip = order.length - table.length;
+  const rename = new Map<Position, ChartPosition>([
+    ["SB", "SB"],
+    ["BB", "BB"],
+  ]);
+  table.forEach((p, i) => rename.set(p, order[skip + i]));
+  return { rename, folded: order.slice(0, skip) };
+}
 
 /**
  * Looks up the chart node for a hero decision and, given the hero's hand, its
@@ -181,37 +209,50 @@ export function lookupPreflop(
 ): ChartLookup {
   if (spot.straddle) return miss("straddle", "a straddle changes every price; no chart covers it");
   if (spot.ante) return miss("ante", "antes are not modelled by the cash charts");
+  if (isChartLibrary(charts)) {
+    const pick = pickChartSet(charts.specs, spot);
+    if (!pick.ok) return miss(pick.reason, pick.detail);
+    const set = charts.sets.get(pick.spec.id);
+    if (!set) return miss("unavailable", `chart set ${pick.spec.id} is not loaded`);
+    return lookupInSet(set, spot, hand, heroAction);
+  }
+  return lookupInSet(charts, spot, hand, heroAction);
+}
+
+/** `lookupPreflop` on one set. */
+function lookupInSet(
+  charts: ChartSet,
+  spot: PreflopSpot,
+  hand?: string | readonly string[] | null,
+  heroAction?: PreflopActionInput | null,
+): ChartLookup {
   const tree = chartTree(charts);
   const approximations: ChartApproximation[] = [];
 
   // Positions onto the chart's seats.
   const seats = charts.game.positions;
-  let rename: (p: Position) => ChartPosition | null;
-  let line = "";
-  if (spot.positions.length === seats.length) {
-    rename = (p) => ((seats as readonly string[]).includes(p) ? (p as ChartPosition) : null);
-  } else if (spot.positions.length === 5 && seats.length === 6 && seats[0] === "UTG") {
-    rename = (p) => FIVE_HANDED[p] ?? null;
-    line = "f";
+  const mapped = seatMap(spot.positions, seats);
+  if (!mapped) {
+    return miss(
+      "players",
+      spot.positions.length === 2
+        ? "heads-up: the small blind is the button; no chart set models it"
+        : `${spot.positions.length} players dealt in (${spot.positions.join(", ")}); the set is ${seats.length}-max`,
+    );
+  }
+  const rename = (p: Position): ChartPosition | null => mapped.rename.get(p) ?? null;
+  let line = "f".repeat(mapped.folded.length);
+  if (mapped.folded.length) {
     approximations.push({
       kind: "short-handed",
-      detail: "5 players dealt in: read as 6-max with UTG folded",
+      detail: `${spot.positions.length} players dealt in: read as ${seats.length}-max with ${mapped.folded.join(", ")} folded`,
     });
-  } else {
-    return miss("players", `${spot.positions.length} players dealt in; the set is ${seats.length}-max`);
-  }
-  for (const p of spot.positions) {
-    if (!rename(p)) return miss("players", `position ${p} is not on a ${seats.length}-max table`);
   }
   const hero = rename(spot.hero);
   if (!hero) return miss("bad-input", `hero position ${spot.hero} is not dealt in`);
 
   // Stack depth: the hero against the deepest opponent still in at the decision.
-  const stackOf = (p: Position) => spot.stacksBb?.[p] ?? charts.game.stackBb;
-  const folded = new Set(spot.actions.filter((a) => a.type === "fold").map((a) => a.position));
-  const opponents = spot.positions.filter((p) => p !== spot.hero && !folded.has(p));
-  const deepest = opponents.length ? Math.max(...opponents.map(stackOf)) : stackOf(spot.hero);
-  const effective = Math.min(stackOf(spot.hero), deepest);
+  const effective = effectiveStackBb(spot, charts.game.stackBb);
   const depth = charts.game.stackBb;
   if (Math.abs(effective - depth) > STACK_TOLERANCE * depth + 1e-9) {
     return miss("stack-depth", `effective stack ${round2(effective)}bb is outside ${depth}bb ±${STACK_TOLERANCE * 100}%`);
@@ -220,6 +261,7 @@ export function lookupPreflop(
     approximations.push({
       kind: "stack-depth",
       detail: `effective stack ${round2(effective)}bb, charts solved at ${depth}bb`,
+      set: charts.id,
       realBb: round2(effective),
       chartBb: depth,
     });
@@ -237,7 +279,11 @@ export function lookupPreflop(
     const position = rename(action.position);
     if (!position) return miss("bad-input", `unknown position ${action.position}`);
     if (tree.type[node] !== PF_ACTION) {
-      return miss("bad-input", `${action.position} acts after the betting closed in the chart's tree`);
+      // The tree closed the betting because four players are in: everyone
+      // else could only fold. A real fold there is that fold; anything else
+      // is a fifth entrant.
+      if (action.type === "fold") continue;
+      return miss("multiway", `${action.position} would be a fifth player in the pot; the tree only lets it fold`);
     }
     const actor = tree.players[tree.actor[node]];
     if (position !== actor) {
@@ -262,7 +308,7 @@ export function lookupPreflop(
   }
 
   if (tree.type[node] !== PF_ACTION) {
-    return miss("bad-input", "the betting is closed before the hero's decision");
+    return miss("multiway", `the pot has four players in; the tree only lets ${spot.hero} fold`);
   }
   if (tree.players[tree.actor[node]] !== hero) {
     return miss(
@@ -305,6 +351,7 @@ export function lookupPreflop(
   }
   return {
     ok: true,
+    set: charts,
     node: chart,
     handClass: k >= 0 ? HAND_CLASSES[k].name : null,
     inRange: k >= 0 ? chart.range[k] : null,

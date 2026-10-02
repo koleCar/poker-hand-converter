@@ -30,7 +30,7 @@ import {
   type RiverStudy,
   type TurnFailure,
 } from "../analysis";
-import { preflopCharts } from "../chartSet";
+import { preflopCharts, preflopChartsFor } from "../chartSet";
 
 export { preflopCharts };
 import type { PhfHand } from "../phf/types";
@@ -207,7 +207,7 @@ function analyser(signal?: AbortSignal): {
       run: async (page, onHand) => {
         // Yield first so the progress line repaints between pages.
         await new Promise((resolve) => setTimeout(resolve, 0));
-        return analyseStoredHands(page, await preflopCharts(), onHand);
+        return analyseStoredHands(page, await preflopChartsFor(page.map((item) => item.phf)), onHand);
       },
       close: () => {},
     };
@@ -282,7 +282,7 @@ function askViewWorker<T>(
  */
 export async function analyseHandNow(phf: PhfHand): Promise<HandAnalysis> {
   if (viewWorker === undefined) viewWorker = newWorker();
-  if (!viewWorker) return analyzeHand(phf, { charts: await preflopCharts() });
+  if (!viewWorker) return analyzeHand(phf, { charts: await preflopChartsFor([phf]) });
   jobSequence += 1;
   return askViewWorker({ type: "hand", jobId: jobSequence, phf }, (message) =>
     message.type === "hand" ? message.analysis : undefined,
@@ -319,7 +319,7 @@ async function studyStreet(
   if (viewWorker === undefined) viewWorker = newWorker();
   if (!viewWorker) {
     await new Promise((resolve) => setTimeout(resolve, 0));
-    const charts = await preflopCharts();
+    const charts = await preflopChartsFor([phf]);
     return street === "turn"
       ? turnStudy(structuredClone(phf), actionIndex, { charts })
       : riverStudy(structuredClone(phf), actionIndex, { charts, turn });

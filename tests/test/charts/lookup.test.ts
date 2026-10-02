@@ -23,7 +23,7 @@ import {
   type PreflopSpot,
 } from "../../../frontend/src/lib/charts/index.js";
 import { convertAny } from "../../../frontend/src/lib/parsers/index.js";
-import type { PhfHand, Position } from "../../../frontend/src/lib/phf/types.js";
+import { positionRing, type PhfHand, type Position } from "../../../frontend/src/lib/phf/types.js";
 import { HAND_CLASSES } from "../../../frontend/src/lib/solver/index.js";
 import { ggFiles } from "../support/corpus.js";
 
@@ -161,7 +161,13 @@ describe("refusals", () => {
   it("refuses straddles, antes, wrong table sizes and stack depths", () => {
     expect(reason(lookupPreflop(charts, spot("BTN", folds, { straddle: true }), "AA"))).toBe("straddle");
     expect(reason(lookupPreflop(charts, spot("BTN", folds, { ante: true }), "AA"))).toBe("ante");
-    expect(reason(lookupPreflop(charts, { positions: ["SB", "BB", "CO", "BTN"], hero: "BTN", actions: [act("CO", "fold")] }, "AA"))).toBe("players");
+    // Heads-up (the small blind is the button) and more seats than the set has.
+    expect(reason(lookupPreflop(charts, { positions: ["SB", "BB"], hero: "SB", actions: [] }, "AA"))).toBe("players");
+    const nine: Position[] = ["SB", "BB", "UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN"];
+    expect(reason(lookupPreflop(charts, { positions: nine, hero: "BTN", actions: [] }, "AA"))).toBe("players");
+    // A dead button: six live seats named from a seven-seat ring.
+    const dead: Position[] = ["SB", "BB", "UTG", "LJ", "HJ", "CO"];
+    expect(reason(lookupPreflop(charts, { positions: dead, hero: "CO", actions: [] }, "AA"))).toBe("players");
     expect(reason(lookupPreflop(charts, spot("BTN", folds, { stacksBb: { BTN: 150, SB: 150, BB: 150 } }), "AA"))).toBe("stack-depth");
     expect(reason(lookupPreflop(charts, spot("BTN", folds, { stacksBb: { BTN: 60 } }), "AA"))).toBe("stack-depth");
     // 110bb is inside the band, with a note.
@@ -176,6 +182,22 @@ describe("refusals", () => {
     expect(r.node.line).toBe("f");
     expect(r.node.actor).toBe("HJ");
     expect(r.approximations.map((a) => a.kind)).toEqual(["short-handed"]);
+    expect(r.approximations[0].detail).toBe("5 players dealt in: read as 6-max with UTG folded");
+  });
+
+  it("reads 4- and 3-handed tables as 6-max with the earliest seats folded (A2c)", () => {
+    const four = ok(
+      lookupPreflop(charts, { positions: ["SB", "BB", "CO", "BTN"], hero: "BTN", actions: [act("CO", "fold")] }, "A5s"),
+    );
+    expect(four.node.line).toBe("fff");
+    expect(four.node.actor).toBe("BTN");
+    expect(four.approximations[0].detail).toBe("4 players dealt in: read as 6-max with UTG, HJ folded");
+    const three = ok(
+      lookupPreflop(charts, { positions: ["SB", "BB", "BTN"], hero: "BB", actions: [act("BTN", "raise", 2.5), act("SB", "fold")] }, "K9o"),
+    );
+    expect(three.node.line).toBe("fffrf");
+    expect(three.node.scenario).toBe("vs-open");
+    expect(three.approximations.map((a) => a.kind)).toEqual(["short-handed"]);
   });
 
   it("refuses limps, fourth players, cold calls and rare lines", () => {
@@ -269,8 +291,13 @@ describe("real hands from the GG corpus", () => {
     expect(deep.ok && lookupPreflop(charts, deep.spot)).toMatchObject({ ok: false, reason: "stack-depth" });
     const limp = preflopSpotFromHand(find("HD2735958351"), 0);
     expect(limp.ok && lookupPreflop(charts, limp.spot)).toMatchObject({ ok: false, reason: "limp" });
+    // Four-handed was refused before A2c; it is read as 6-max with UTG and HJ folded.
     const fourHanded = preflopSpotFromHand(find("HD2735958714"), 0);
-    expect(fourHanded.ok && lookupPreflop(charts, fourHanded.spot)).toMatchObject({ ok: false, reason: "players" });
+    if (!fourHanded.ok) throw new Error(fourHanded.detail);
+    expect(fourHanded.spot.positions).toHaveLength(4);
+    // (This one is deeper than 120bb: the 100bb set alone refuses it by depth.)
+    const four = lookupPreflop(charts, fourHanded.spot);
+    expect(four.ok ? "ok" : four.reason).toBe("stack-depth");
   });
 
   it("puts every covered hero decision on a node where the hero acts", () => {
@@ -287,7 +314,10 @@ describe("real hands from the GG corpus", () => {
           continue;
         }
         covered += 1;
-        const hero = s.spot.positions.length === 5 && s.spot.hero === "UTG" ? "HJ" : s.spot.hero;
+        // A smaller table's seats are the set's last ones (by distance from the button).
+        const ring = positionRing(s.spot.positions.length).slice(2);
+        const k = ring.indexOf(s.spot.hero);
+        const hero = k < 0 ? s.spot.hero : SIX.slice(0, 4)[4 - ring.length + k];
         expect(r.node.actor).toBe(hero);
         expect(r.chosen).not.toBeNull();
         expect(r.options.length).toBe(r.node.options.length);

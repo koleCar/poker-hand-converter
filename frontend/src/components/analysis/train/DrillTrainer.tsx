@@ -22,7 +22,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DecisionAnalysis } from "../../../lib/analysis/types";
 import type { ChartNode, ChartSet } from "../../../lib/charts";
-import { preflopCharts } from "../../../lib/chartSet";
+import { preflopChartSet } from "../../../lib/chartSet";
 import { fetchHandAnalysis, getHand, isMissingSchemaError } from "../../../lib/db";
 import {
   fetchDrillQueue,
@@ -156,19 +156,20 @@ export function DrillTrainer({ state, onChange, onAnswer, onHelp, onSaved }: Dri
   const spot = current?.status === "ready" ? current : null;
   const answer = answered && item && answered.id === item.id ? answered : null;
 
-  // The chart set, for a preflop drill's chart grid.
+  // The chart set the drill's grade names (table and depth, A2c), for its chart grid.
+  const drillSet = spot?.decision.source === "chart" ? (spot.decision.facts.chart?.set ?? null) : null;
   useEffect(() => {
-    if (charts || spot?.decision.source !== "chart") return;
+    if (!drillSet || charts?.id === drillSet) return;
     let live = true;
-    preflopCharts()
+    preflopChartSet(drillSet)
       .then((set) => {
-        if (live) setCharts(set);
+        if (live && set) setCharts(set);
       })
       .catch(() => undefined);
     return () => {
       live = false;
     };
-  }, [charts, spot]);
+  }, [charts, drillSet]);
 
   const options = useMemo<AnswerOption[]>(
     () =>

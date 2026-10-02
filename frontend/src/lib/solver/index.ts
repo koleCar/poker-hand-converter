@@ -185,6 +185,7 @@ export {
   potAt,
   POT_TYPE_INDEX,
   preflopNodeAt,
+  NINE_MAX,
   SIX_MAX,
   type PreflopPosition,
   type PreflopSizing,

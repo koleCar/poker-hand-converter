@@ -9,11 +9,11 @@
  * address through {@link targetQuery}.
  */
 
-import type { ChartPosition } from "../../../lib/charts";
+import { CHART_SETS, DEFAULT_CHART_SET, type ChartPosition } from "../../../lib/charts";
 import {
+  ALL_PREFLOP_SEATS,
   DEAL_BIASES,
   PREFLOP_FAMILIES,
-  PREFLOP_SEATS,
   RIVER_POTS,
   RIVER_ROLES,
   RIVER_SEATS,
@@ -30,6 +30,8 @@ export type TrainMode = (typeof TRAIN_MODES)[number];
 
 export interface TrainState {
   mode: TrainMode;
+  /** Preflop: the chart set (table and depth, A2c). */
+  set: string;
   family: PreflopFamily | "random";
   seat: ChartPosition | null;
   /** Preflop: only against this raiser (the opener, 3-bettor or 4-bettor). */
@@ -49,6 +51,7 @@ export interface TrainState {
 
 export const DEFAULT_TRAIN_STATE: TrainState = {
   mode: "preflop",
+  set: DEFAULT_CHART_SET,
   family: "random",
   seat: null,
   vs: null,
@@ -70,7 +73,7 @@ const first = (value: string | string[] | undefined) => (Array.isArray(value) ? 
 const oneOf = <T extends string>(value: string | undefined, allowed: readonly T[], fallback: T): T =>
   value !== undefined && (allowed as readonly string[]).includes(value) ? (value as T) : fallback;
 const seatParam = (value: string | undefined) =>
-  value && (PREFLOP_SEATS as readonly string[]).includes(value) ? (value as ChartPosition) : null;
+  value && (ALL_PREFLOP_SEATS as readonly string[]).includes(value) ? (value as ChartPosition) : null;
 
 export function parseTrainState(query: Record<string, string | string[] | undefined>): TrainState {
   const spotsRaw = first(query.spots);
@@ -83,6 +86,7 @@ export function parseTrainState(query: Record<string, string | string[] | undefi
     : [];
   return {
     mode: oneOf(first(query.mode), TRAIN_MODES, spots.length > 0 ? "drills" : DEFAULT_TRAIN_STATE.mode),
+    set: oneOf(first(query.set), CHART_SETS.map((spec) => spec.id), DEFAULT_TRAIN_STATE.set),
     family: oneOf(first(query.family), [...PREFLOP_FAMILIES, "random"] as const, DEFAULT_TRAIN_STATE.family),
     seat: seatParam(first(query.seat)),
     vs: seatParam(first(query.vs)),
@@ -101,6 +105,7 @@ export function trainQuery(state: TrainState): string {
   const params = new URLSearchParams();
   if (state.mode !== DEFAULT_TRAIN_STATE.mode || state.spots) params.set("mode", state.mode);
   if (state.mode === "preflop") {
+    if (state.set !== DEFAULT_TRAIN_STATE.set) params.set("set", state.set);
     if (state.family !== DEFAULT_TRAIN_STATE.family) params.set("family", state.family);
     if (state.seat) params.set("seat", state.seat);
     if (state.vs) params.set("vs", state.vs);

@@ -16,8 +16,10 @@ import { Worker } from "node:worker_threads";
 
 import type { RealisationSample, RealisationSpot } from "../../../frontend/src/lib/solver/preflopRealisation.js";
 
-export function workerPool(threads = availableParallelism(), log = (line: string) => console.log(line)) {
-  const bundle = join(import.meta.dirname, ".cache/realisation-worker.mjs");
+export function workerPool(threads = availableParallelism(), log = (line: string) => console.log(line), name = "") {
+  // One bundle per name: sets generated in parallel processes must not
+  // overwrite each other's while a worker is loading it.
+  const bundle = join(import.meta.dirname, `.cache/realisation-worker${name ? `-${name}` : ""}.mjs`);
   buildSync({
     entryPoints: [join(import.meta.dirname, "worker.ts")],
     bundle: true,

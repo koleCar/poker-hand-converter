@@ -11,8 +11,8 @@
  * are passed in, never loaded here: the JSON is ~630 KB, and the caller (the
  * Web Worker, a test, the hand view) decides when to pay for it.
  *
- * **A refusal is an answer.** A line the charts cannot represent — 9-max, a
- * deep stack, an open limp, a line too rare to be in the set — is a
+ * **A refusal is an answer.** A line the charts cannot represent — heads-up,
+ * a depth no set covers, an open limp, a line too rare to be in the set — is a
  * `not-analysed` decision with the lookup's reason, never a guess (§3.5).
  *
  * **EV units.** A chart EV is net chips from the start of the hand, so EV loss
@@ -45,9 +45,10 @@ import type { Approximation, ChartRef, ChartSkipReason, OptionAnalysis } from ".
  * realisation to our postflop solver and fixes most of it, but still values
  * a flop with the flop checked (`docs/CHARTS.md` §9): UTG folds 55–22,
  * 87s–54s and A5s, and the button almost never flats a cutoff open. It stays
- * on the list, and `modelCaveat` names those hands.
+ * on the list, and `modelCaveat` names those hands. `charts/3` (A2c) is the
+ * same model at other tables and depths, with the same weakness.
  */
-export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2"];
+export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2", "charts/3"];
 
 /** Probability mass, in combos, below which a chart range is too thin to measure an equity against. */
 const MIN_RANGE_COMBOS = 1;
@@ -156,7 +157,8 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
   }
   if (!lookup.ok) return refuse("bad-input", "unreachable");
 
-  const approximations = chartApproximations(charts, lookup.approximations);
+  // The set that answered: `charts` itself, or a library's set for this table and depth.
+  const approximations = chartApproximations(lookup.set, lookup.approximations);
   const inRange = lookup.inRange ?? 0;
   if (inRange < OFF_RANGE) approximations.add("out-of-range");
   const result = grade({
@@ -170,7 +172,7 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
     options,
     chosen,
     approximations: [...approximations].sort(),
-    chart: { set: charts.id, line: lookup.node.line, scenario: lookup.node.scenario, inRange: round4(inRange) },
+    chart: { set: lookup.set.id, line: lookup.node.line, scenario: lookup.node.scenario, inRange: round4(inRange) },
     handClass: lookup.handClass ?? "",
     grade: result.grade,
     evLoss: round3(result.evLoss),

@@ -49,7 +49,7 @@ export function ChartGrid({ node, highlight = null, title }: ChartGridProps) {
   const totals = useMemo(() => actionTotals(node), [node]);
   const spot = t.spotLabel(
     node.actor,
-    lineSteps(node.line).map((step) => ({ position: step.position, verb: t.verbs[step.verb] ?? step.verb })),
+    lineSteps(node.line, node.seats).map((step) => ({ position: step.position, verb: t.verbs[step.verb] ?? step.verb })),
   );
   const shown = hovered ?? picked ?? highlight;
   const detail = shown ? cellData(node, shown) : null;

@@ -31,9 +31,11 @@ const CTX = { siteId: "standard", siteName: "standard", originalFilename: null }
 
 /**
  * The committed chart set, as the rebuild passes it. These fixtures are
- * three-handed, so the charts refuse their preflop decisions by name
- * (`chart-players`) and everything pinned here is A1's: facts and flags.
- * `analysisPreflop.test.ts` pins the chart grades on six-handed hands.
+ * three-handed: before A2c the charts refused their preflop decisions
+ * (`chart-players`); since A2c they are read as 6-max with UTG, HJ and CO
+ * folded (`short-handed`), and the opener's range comes from the charts.
+ * What is pinned here is A1's facts and flags, and A4/A5a's solver grades;
+ * `analysisPreflop.test.ts` pins the chart grades.
  */
 const CHARTS = loadCharts(
   JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json"), "utf8")),
@@ -299,9 +301,12 @@ describe("pot geometry", () => {
   const analysis = analyzeHand(parse(DEFEND));
 
   it("reads the hero seat and every decision, in the stats engine's order", () => {
-    // Partial: three-handed, so the preflop call has no chart (§3.5).
-    expect(analysis.status).toBe("partial");
-    expect(decision(analysis, "preflop", "call")).toMatchObject({ status: "not-analysed", reason: "chart-players" });
+    // Three-handed, read as 6-max with three seats folded (A2c): the preflop
+    // call has a chart node, the big blind's against the button's open.
+    expect(analysis.status).toBe("full");
+    expect(decision(analysis, "preflop", "call")).toMatchObject({ status: "analysed", source: "chart" });
+    expect(decision(analysis, "preflop", "call").facts.chart?.line).toBe("fffrf");
+    expect(decision(analysis, "preflop", "call").approximations).toContain("short-handed");
     expect(analysis.heroSeat).toBe(3);
     expect(analysis.decisions.map((d) => `${d.street}:${d.action}`)).toEqual([
       "preflop:call",
@@ -340,16 +345,17 @@ describe("pot geometry", () => {
     expect(facts.handClass).toBe("KQs");
   });
 
-  it("takes an equity against the opener's placeholder range, and its stronger part on the river", () => {
+  it("takes an equity against the opener's chart range, and its stronger part on the river", () => {
     const river = decision(analysis, "river", "call");
     expect(river.facts.equity?.range).toBe("open:BTN");
     expect(river.facts.equity?.method).toBe("exhaustive");
     expect(river.facts.equity?.strong).not.toBeNull();
     expect(river.facts.equity!.strong!).toBeLessThanOrEqual(river.facts.equity!.value);
-    expect(river.approximations).toContain("placeholder-range");
+    // The button's range is the charts' for its open (A2c), not the placeholder.
+    expect(river.approximations).not.toContain("placeholder-range");
   });
 
-  it("grades the turn and river from the solver: the flop is heuristic, and the charts refuse a three-handed preflop", () => {
+  it("grades the turn and river from the solver, the preflop from the charts; the flop is heuristic", () => {
     for (const d of analysis.decisions) {
       if (d.street === "turn" && d.source === "solver") {
         expect(d.grade).not.toBeNull();
@@ -357,7 +363,12 @@ describe("pot geometry", () => {
       } else if (d.street === "river") {
         expect(d.source).toBe("solver");
         expect(d.grade).not.toBeNull();
-        expect(d.approximations).toEqual(expect.arrayContaining(["narrowing-heuristic", "placeholder-range", "rake-profile"]));
+        expect(d.approximations).toEqual(expect.arrayContaining(["narrowing-heuristic", "rake-profile"]));
+        expect(d.approximations).not.toContain("placeholder-range");
+      } else if (d.street === "preflop") {
+        expect(d.source).toBe("chart");
+        expect(d.grade).not.toBeNull();
+        expect(d.approximations).toContain("short-handed");
       } else {
         expect(d.grade).toBeNull();
         expect(d.source).toBe("heuristic");
@@ -420,16 +431,14 @@ describe("heuristic flags", () => {
 describe("what is not analysed", () => {
   it("skips a multiway postflop decision and says why", () => {
     const analysis = analyzeHand(parse(MULTIWAY));
-    // Nothing left: the flop bet is multiway and the preflop raise is
-    // three-handed. A hand with no analysed decision names its first reason.
-    expect(analysis.status).toBe("not-analysed");
-    expect(analysis.reason).toBe("chart-players");
+    // The flop bet is multiway; the preflop raise is graded from the charts
+    // (three-handed, read as 6-max with three seats folded, A2c).
+    expect(analysis.status).toBe("partial");
     const bet = decision(analysis, "flop", "bet");
     expect(bet.status).toBe("not-analysed");
     expect(bet.reason).toBe("multiway");
     expect(bet.flags).toEqual([]);
-    // Three-handed: the preflop raise is not graded either, and says why.
-    expect(decision(analysis, "preflop", "raise").reason).toBe("chart-players");
+    expect(decision(analysis, "preflop", "raise").source).toBe("chart");
   });
 
   const mutate = (fn: (hand: PhfHand) => void) => {

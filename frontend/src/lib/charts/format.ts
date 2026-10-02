@@ -23,19 +23,30 @@
  * - `range`: uint8, `/ 255`, one per class: the probability that the actor
  *   holds that class here given how it got here (1 = every combo of it).
  *
- * `CHARTS_VERSION` changes with the format or the model: `charts/1` was the
- * hand-set realisation model, `charts/2` (same format) the one fitted to the
- * postflop solver (docs/CHARTS.md §4). A regenerated set with new numbers
- * changes `model.hash`, and the analysis version (`ANALYSIS_VERSION`) is what
- * tells stored grades apart.
+ * `CHARTS_VERSION` changes with the format, the model or the library:
+ * `charts/1` was the hand-set realisation model, `charts/2` (same format) the
+ * one fitted to the postflop solver (docs/CHARTS.md §4), `charts/3` the
+ * library of sets (9-max, 40-200bb; `registry.ts`). Each set carries the
+ * version of the generator that made it and its own `id`. A regenerated set
+ * with new numbers changes `model.hash`, and the analysis version
+ * (`ANALYSIS_VERSION`) is what tells stored grades apart.
  */
 
 import { NUM_CLASSES } from "../solver/handClasses";
 import { decodeBase64, encodeBase64 } from "./base64";
 
-export const CHARTS_VERSION = "charts/2";
+export const CHARTS_VERSION = "charts/3";
 
-export type ChartPosition = "UTG" | "HJ" | "CO" | "BTN" | "SB" | "BB";
+/**
+ * Versions a chart set file may carry. Each set records the generator that
+ * made it: the 6-max 100bb set is still `charts/2`'s; the sets added in A2c
+ * (9-max, other depths) are `charts/3`'s - the same model, measured at their
+ * own table and depth. `CHARTS_VERSION` names the library (`registry.ts`).
+ */
+export const CHART_SET_VERSIONS: readonly string[] = ["charts/2", "charts/3"];
+
+/** Seat names as the stats engine assigns them (`positionRing`), 6-max or 9-max. */
+export type ChartPosition = "UTG" | "UTG+1" | "UTG+2" | "LJ" | "HJ" | "CO" | "BTN" | "SB" | "BB";
 export type ChartAction = "fold" | "check" | "call" | "raise" | "allin";
 
 /**
@@ -101,7 +112,8 @@ export interface ChartNodeJson {
 }
 
 export interface ChartSetJson {
-  version: typeof CHARTS_VERSION;
+  /** The generator version that made this set (`CHART_SET_VERSIONS`). */
+  version: string;
   /** Stable name, e.g. `nlhe-cash-6max-100bb`. */
   id: string;
   game: {
@@ -120,6 +132,8 @@ export interface ChartSetJson {
 /** A decoded node. */
 export interface ChartNode {
   readonly line: string;
+  /** The seats of the node's set, in table order (the actor of each line letter follows from them). */
+  readonly seats: readonly ChartPosition[];
   readonly actor: ChartPosition;
   readonly scenario: ChartScenario;
   readonly steal: boolean;
@@ -142,7 +156,7 @@ export interface ChartNode {
 }
 
 export interface ChartSet {
-  readonly version: typeof CHARTS_VERSION;
+  readonly version: string;
   readonly id: string;
   readonly game: ChartSetJson["game"];
   readonly model: ChartSetJson["model"];
@@ -199,7 +213,7 @@ export function encodeUnit(values: ArrayLike<number>): string {
 
 /* ------------------------------------------------------------ decode - */
 
-function decodeNode(json: ChartNodeJson): ChartNode {
+function decodeNode(json: ChartNodeJson, seats: readonly ChartPosition[]): ChartNode {
   const actions = json.options.length;
   const freqBytes = decodeBase64(json.freq);
   const evBytes = decodeBase64(json.ev);
@@ -219,6 +233,7 @@ function decodeNode(json: ChartNodeJson): ChartNode {
   }
   return {
     line: json.line,
+    seats,
     actor: json.actor,
     scenario: json.scenario,
     steal: json.steal ?? false,
@@ -241,9 +256,9 @@ function decodeNode(json: ChartNodeJson): ChartNode {
 /** Reads a chart set, checking the version and every array's length. */
 export function loadCharts(json: unknown): ChartSet {
   const data = json as ChartSetJson;
-  if (!data || typeof data !== "object" || data.version !== CHARTS_VERSION) {
+  if (!data || typeof data !== "object" || !CHART_SET_VERSIONS.includes(data.version)) {
     throw new ChartFormatError(
-      `not a ${CHARTS_VERSION} chart set (got ${String((data as { version?: unknown })?.version)})`,
+      `not a ${CHART_SET_VERSIONS.join(" / ")} chart set (got ${String((data as { version?: unknown })?.version)})`,
     );
   }
   if (!Array.isArray(data.nodes)) {
@@ -251,7 +266,7 @@ export function loadCharts(json: unknown): ChartSet {
   }
   const nodes = new Map<string, ChartNode>();
   for (const node of data.nodes) {
-    nodes.set(node.line, decodeNode(node));
+    nodes.set(node.line, decodeNode(node, data.game.positions));
   }
   return { version: data.version, id: data.id, game: data.game, model: data.model, nodes };
 }

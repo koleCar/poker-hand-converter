@@ -1,20 +1,20 @@
 /**
- * The tables docs/CHARTS.md §8 quotes, from a chart set: raise-first-in
- * widths, every "folded to the defender" response to an open (fold / call /
- * 3-bet), the opener against a 3-bet, the big blind against a limp.
+ * The tables docs/CHARTS.md §8 quotes, from a chart set of any table size:
+ * raise-first-in widths, every "folded to the defender" response to an open
+ * (fold / call / 3-bet), the opener against a 3-bet, the big blind against a
+ * limp.
  *
- *     npx vitest run --config scripts/preflop-charts/vitest.config.ts report
+ *     npm run charts:report                                   # every committed set
+ *     CHARTS_FILE=path npm run charts:report                  # one file
  *
- * prints them for the committed set (`report.test.ts`).
+ * prints them (`report.test.ts`).
  */
 
 import type { ChartSet } from "../../../frontend/src/lib/charts/format.js";
 import { CLASS_COMBOS } from "../../../frontend/src/lib/solver/handClasses.js";
 
-const POSITIONS = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
-
 /** Per action, share of the actor's range at a node (combo- and reach-weighted). */
-function split(charts: ChartSet, line: string): Record<string, number> | null {
+export function split(charts: ChartSet, line: string): Record<string, number> | null {
   const node = charts.nodes.get(line);
   if (!node) return null;
   const out: Record<string, number> = {};
@@ -28,44 +28,62 @@ function split(charts: ChartSet, line: string): Record<string, number> | null {
   return out;
 }
 
+/** The line where `defender` faces an open by `opener`, everyone else folding. */
+export function vsOpenLine(positions: readonly string[], opener: string, defender: string): string {
+  const o = positions.indexOf(opener);
+  const d = positions.indexOf(defender);
+  return "f".repeat(o) + "r" + "f".repeat(d - o - 1);
+}
+
+/** The opener's node facing a 3-bet from `threeBettor`, everyone else folding. */
+export function vs3betLine(positions: readonly string[], opener: string, threeBettor: string): string {
+  const o = positions.indexOf(opener);
+  const t = positions.indexOf(threeBettor);
+  return vsOpenLine(positions, opener, threeBettor) + "r" + "f".repeat(positions.length - 1 - t);
+}
+
 const pct = (x: number | undefined) => (x === undefined ? "  -  " : `${(100 * x).toFixed(1)}%`.padStart(6));
 
 /** The tables docs/CHARTS.md §8 quotes. */
 export function report(charts: ChartSet): string {
+  const positions = charts.game.positions;
+  const n = positions.length;
   const lines: string[] = [];
+  lines.push(`${charts.id} (${charts.version}): ${charts.nodes.size} nodes`);
   lines.push("RFI (raise / limp):");
-  for (let p = 0; p < 5; p += 1) {
+  for (let p = 0; p < n - 1; p += 1) {
     const s = split(charts, "f".repeat(p));
     if (!s) continue;
-    lines.push(`  ${POSITIONS[p].padEnd(4)} ${pct(1 - (s.fold ?? 0))}  raise ${pct(s.raise)}${s.call ? `  limp ${pct(s.call)}` : ""}`);
+    lines.push(`  ${positions[p].padEnd(5)} ${pct(1 - (s.fold ?? 0))}  raise ${pct(s.raise ?? s.allin)}${s.call ? `  limp ${pct(s.call)}` : ""}`);
   }
   lines.push("Facing an open (folded to the defender): continue = call + 3-bet");
-  for (let o = 0; o < 5; o += 1) {
-    for (let d = o + 1; d < 6; d += 1) {
-      const line = "f".repeat(o) + "r" + "f".repeat(d - o - 1);
+  for (let o = 0; o < n - 1; o += 1) {
+    for (let d = o + 1; d < n; d += 1) {
+      const line = vsOpenLine(positions, positions[o], positions[d]);
       const s = split(charts, line);
       if (!s) {
-        lines.push(`  ${POSITIONS[d].padEnd(4)} vs ${POSITIONS[o].padEnd(4)} (${line}) not in the set`);
+        lines.push(`  ${positions[d].padEnd(5)} vs ${positions[o].padEnd(5)} (${line}) not in the set`);
         continue;
       }
       lines.push(
-        `  ${POSITIONS[d].padEnd(4)} vs ${POSITIONS[o].padEnd(4)} continue ${pct(1 - (s.fold ?? 0))}  call ${pct(s.call)}  3-bet ${pct(s.raise)}`,
+        `  ${positions[d].padEnd(5)} vs ${positions[o].padEnd(5)} continue ${pct(1 - (s.fold ?? 0))}  call ${pct(s.call)}  3-bet ${pct((s.raise ?? 0) + (s.allin ?? 0))}`,
       );
     }
   }
   lines.push("Opener facing a 3-bet (heads-up):");
-  for (const [name, line] of [
-    ["UTG vs BTN", "rffrff"],
-    ["CO vs BTN", "ffrrff"],
-    ["BTN vs BB", "fffrfr"],
-    ["BTN vs SB", "fffrrf"],
-    ["SB vs BB", "ffffrr"],
+  for (const [opener, threeBettor] of [
+    [positions[0], "BTN"],
+    ["CO", "BTN"],
+    ["BTN", "BB"],
+    ["BTN", "SB"],
+    ["SB", "BB"],
   ] as const) {
+    const line = vs3betLine(positions, opener, threeBettor);
     const s = split(charts, line);
-    lines.push(`  ${name.padEnd(11)} ${s ? `fold ${pct(s.fold)}  call ${pct(s.call)}  4-bet ${pct(s.raise)}` : "not in the set"}`);
+    const name = `${opener} vs ${threeBettor}`;
+    lines.push(`  ${name.padEnd(11)} ${s ? `fold ${pct(s.fold)}  call ${pct(s.call)}  4-bet ${pct((s.raise ?? 0) + (s.allin ?? 0))}` : "not in the set"}`);
   }
-  const limp = split(charts, "ffffc");
+  const limp = split(charts, "f".repeat(n - 2) + "c");
   if (limp) lines.push(`BB vs SB limp: check ${pct(limp.check)}  raise ${pct(limp.raise)}`);
   return lines.join("\n");
 }
-

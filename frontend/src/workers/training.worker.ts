@@ -6,19 +6,25 @@
  * solves again, sometimes twice for the sensitivity check). Off the main
  * thread, so the felt and the buttons stay responsive while it works. The
  * jobs themselves are `lib/training/jobs.ts`; this file owns nothing but the
- * calls and the chart set, loaded once for the worker's life.
+ * calls and the chart library, each set loaded once for the worker's life.
  */
 
-import { loadDefaultCharts, type ChartSet } from "../lib/charts";
-import { runTrainingJob, type TrainingRequest, type TrainingResponse } from "../lib/training/jobs";
+import { ensureChartSets, loadChartLibrary, type ChartLibrary } from "../lib/charts";
+import { runTrainingJob, trainingChartSets, type TrainingRequest, type TrainingResponse } from "../lib/training/jobs";
 
-let charts: Promise<ChartSet> | null = null;
+/** The chart library; each set (table and depth, A2c) loads the first time a job needs it. */
+let charts: Promise<ChartLibrary> | null = null;
 
 self.onmessage = async (event: MessageEvent<TrainingRequest>) => {
   const request = event.data;
   try {
-    charts ??= loadDefaultCharts();
-    self.postMessage(runTrainingJob(request, await charts));
+    charts ??= loadChartLibrary().catch((error: unknown) => {
+      charts = null;
+      throw error;
+    });
+    const library = await charts;
+    await ensureChartSets(library, trainingChartSets(request));
+    self.postMessage(runTrainingJob(request, library));
   } catch (error) {
     self.postMessage({
       type: "error",

@@ -9,19 +9,32 @@
  * engine underneath both read exactly what they read for an imported hand.
  * There is no second, trainer-shaped path through the grading to keep in step.
  *
- * Six-max, $0.5/$1 (one big blind is one dollar, so every bb amount is a
- * dollar amount), seat 1 on the button, every stack the same. Money is
- * counted in cents so a 2.5bb open and a 33% bet never drift.
+ * Six-max by default, nine-max for the full-ring chart sets (`seats`, A2c),
+ * $0.5/$1 (one big blind is one dollar, so every bb amount is a dollar
+ * amount), seat 1 on the button, every stack the same. Money is counted in
+ * cents so a 2.5bb open and a 33% bet never drift.
  */
 
 import { parseStandardHand } from "../phf/serialize";
 import type { PhfAction, PhfHand } from "../phf/types";
 
 export const SCRIPT_POSITIONS = ["UTG", "HJ", "CO", "BTN", "SB", "BB"] as const;
-export type ScriptPosition = (typeof SCRIPT_POSITIONS)[number];
+/** The full-ring table, in preflop order (the 9-max chart sets' seats). */
+export const NINE_SCRIPT_POSITIONS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"] as const;
+export type ScriptPosition = (typeof NINE_SCRIPT_POSITIONS)[number];
 
-/** Seat numbers with seat 1 on the button. */
-const SEAT: Record<ScriptPosition, number> = { BTN: 1, SB: 2, BB: 3, UTG: 4, HJ: 5, CO: 6 };
+/** The script's table, in preflop order. */
+function seatsOf(script: Pick<HandScript, "seats">): readonly ScriptPosition[] {
+  return script.seats ?? SCRIPT_POSITIONS;
+}
+
+/** Seat numbers with seat 1 on the button, 2 and 3 the blinds, then the rest in preflop order. */
+function seatNumbers(seats: readonly ScriptPosition[]): Partial<Record<ScriptPosition, number>> {
+  const out: Partial<Record<ScriptPosition, number>> = { BTN: 1, SB: 2, BB: 3 };
+  let next = 4;
+  for (const position of seats) if (out[position] === undefined) out[position] = next++;
+  return out;
+}
 /** Postflop order: the small blind acts first. */
 export const POSTFLOP_ORDER: readonly ScriptPosition[] = ["SB", "BB", "UTG", "HJ", "CO", "BTN"];
 
@@ -38,6 +51,8 @@ export interface ScriptAct {
 export interface HandScript {
   /** Hand number: letters, digits, `_` and `-`. */
   id: string;
+  /** The table, in preflop order; `SCRIPT_POSITIONS` (6-max) when absent. */
+  seats?: readonly ScriptPosition[];
   hero: ScriptPosition;
   /** The hero's hole cards, e.g. `["Ah", "Kd"]`; null deals them face down. */
   heroCards: readonly [string, string] | null;
@@ -91,9 +106,11 @@ interface Lines {
 /** The script as text, and the money state after its last action. Throws `ScriptError` on an impossible script. */
 function write(script: HandScript): Lines {
   if (!/^[A-Za-z0-9_-]{1,40}$/.test(script.id)) throw new ScriptError(`bad hand id ${script.id}`);
+  const positions = seatsOf(script);
+  const seatNo = seatNumbers(positions) as Record<ScriptPosition, number>;
   const stack = cents(script.stackBb);
-  const behind = Object.fromEntries(SCRIPT_POSITIONS.map((p) => [p, stack])) as Record<ScriptPosition, number>;
-  let totals = Object.fromEntries(SCRIPT_POSITIONS.map((p) => [p, 0])) as Record<ScriptPosition, number>;
+  const behind = Object.fromEntries(positions.map((p) => [p, stack])) as Record<ScriptPosition, number>;
+  let totals = Object.fromEntries(positions.map((p) => [p, 0])) as Record<ScriptPosition, number>;
   const folded = new Set<ScriptPosition>();
   let pot = 0;
   let high = 0;
@@ -102,11 +119,11 @@ function write(script: HandScript): Lines {
 
   const lines: string[] = [
     `Poker Hand #${script.id}: Hold'em No Limit ($0.5/$1) - 2026/01/01 12:00:00`,
-    "Table 'Rail trainer' 6-max Seat #1 is the button",
+    `Table 'Rail trainer' ${positions.length}-max Seat #1 is the button`,
   ];
-  const bySeat = [...SCRIPT_POSITIONS].sort((a, b) => SEAT[a] - SEAT[b]);
+  const bySeat = [...positions].sort((a, b) => seatNo[a] - seatNo[b]);
   for (const position of bySeat) {
-    lines.push(`Seat ${SEAT[position]}: ${nameOf(script, position)} (${money(stack)} in chips)`);
+    lines.push(`Seat ${seatNo[position]}: ${nameOf(script, position)} (${money(stack)} in chips)`);
   }
   const post = (position: ScriptPosition, amount: number, word: string) => {
     behind[position] -= amount;
@@ -173,11 +190,11 @@ function write(script: HandScript): Lines {
   for (const [street, acts, cards] of streets) {
     if (!acts) break;
     if (board.length < cards) throw new ScriptError(`no ${street} card`);
-    totals = Object.fromEntries(SCRIPT_POSITIONS.map((p) => [p, 0])) as Record<ScriptPosition, number>;
+    totals = Object.fromEntries(positions.map((p) => [p, 0])) as Record<ScriptPosition, number>;
     high = 0;
     streetPot[street] = bbOf(pot);
     streetBehind[street] = Object.fromEntries(
-      SCRIPT_POSITIONS.filter((p) => !folded.has(p)).map((p) => [p, bbOf(behind[p])]),
+      positions.filter((p) => !folded.has(p)).map((p) => [p, bbOf(behind[p])]),
     );
     const shown = board.slice(0, cards);
     if (street === "flop") lines.push(`*** FLOP *** [${shown.join(" ")}]`);
@@ -193,8 +210,8 @@ function write(script: HandScript): Lines {
       streetPot,
       streetBehind,
       pot: bbOf(pot),
-      behind: Object.fromEntries(SCRIPT_POSITIONS.map((p) => [p, bbOf(behind[p])])) as Record<ScriptPosition, number>,
-      streetTotal: Object.fromEntries(SCRIPT_POSITIONS.map((p) => [p, bbOf(totals[p])])) as Record<ScriptPosition, number>,
+      behind: Object.fromEntries(positions.map((p) => [p, bbOf(behind[p])])) as Record<ScriptPosition, number>,
+      streetTotal: Object.fromEntries(positions.map((p) => [p, bbOf(totals[p])])) as Record<ScriptPosition, number>,
       high: bbOf(high),
       folded: [...folded],
     },
@@ -233,7 +250,7 @@ export function scriptHand(script: HandScript): PhfHand {
  */
 export function completePreflop(script: HandScript): HandScript {
   const acted = new Set(script.preflop.map((a) => a.position));
-  const rest = SCRIPT_POSITIONS.filter((p) => !acted.has(p));
+  const rest = seatsOf(script).filter((p) => !acted.has(p));
   if (rest.length === 0) return script;
   const preflop = [...script.preflop];
   for (const position of rest) {
@@ -243,9 +260,9 @@ export function completePreflop(script: HandScript): HandScript {
   return { ...script, preflop, board: undefined, flop: undefined, turn: undefined, river: undefined };
 }
 
-/** Seat number of a position in every trainer hand. */
-export function seatOf(position: ScriptPosition): number {
-  return SEAT[position];
+/** Seat number of a position in a trainer hand at this table (6-max by default). */
+export function seatOf(position: ScriptPosition, seats: readonly ScriptPosition[] = SCRIPT_POSITIONS): number {
+  return seatNumbers(seats)[position] ?? -1;
 }
 
 const DECISIONS = new Set(["fold", "check", "call", "bet", "raise"]);

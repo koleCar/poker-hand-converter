@@ -79,7 +79,8 @@ export function impliedOddsClass(handClass: string | null): boolean {
  */
 export function modelCaveat(decision: DecisionAnalysis): boolean {
   const flatVsCutoff =
-    decision.action === "call" && decision.facts.position === "BTN" && decision.facts.chart?.line === "ffr";
+    // The cutoff open folded to the button: 6-max "ffr", 9-max "fffffr" (A2c).
+    decision.action === "call" && decision.facts.position === "BTN" && ["ffr", "fffffr"].includes(decision.facts.chart?.line ?? "");
   return (
     decision.approximations.includes("model") &&
     (decision.action === "call" || decision.action === "raise") &&

@@ -37,7 +37,20 @@ export type TrainingResponse =
   | ({ type: "graded"; jobId: number } & GradedAnswer)
   | { type: "error"; jobId: number; message: string };
 
-/** Does one job. Pure apart from the chart set it is given. */
+/**
+ * The chart sets a job needs loaded besides the library's default (A2c): the
+ * set a preflop spot is dealt from, and graded against.
+ */
+export function trainingChartSets(request: TrainingRequest): string[] {
+  if (request.type === "preflop") return request.options.set ? [request.options.set] : [];
+  if (request.type === "answer" && request.spot.kind === "preflop") return [request.spot.set];
+  return [];
+}
+
+/**
+ * Does one job. Pure apart from the chart set it is given: a library (A2c)
+ * with `trainingChartSets(request)` loaded, or one set.
+ */
 export function runTrainingJob(request: TrainingRequest, charts: ChartSet): TrainingResponse {
   const { jobId } = request;
   if (request.type === "preflop") {

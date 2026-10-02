@@ -217,6 +217,7 @@ export {
   POSTFLOP_ROLES,
   REPORT_STATS,
   STAT_SPECS,
+  NINE_TABLE_ORDER,
   TABLE_ORDER,
   WILSON_Z,
   aggregate,

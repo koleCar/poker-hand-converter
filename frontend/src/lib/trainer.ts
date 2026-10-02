@@ -7,6 +7,7 @@
  * janky on a river, but a trainer that never deals would be worse.
  */
 
+import { ensureChartSets } from "./charts";
 import { preflopCharts } from "./chartSet";
 import type {
   GradedAnswer,
@@ -33,8 +34,10 @@ async function ask(request: TrainingRequest): Promise<TrainingResponse> {
   if (!worker) {
     // Yield first so a "dealing…" line can paint.
     await new Promise((resolve) => setTimeout(resolve, 0));
-    const { runTrainingJob } = await import("./training/jobs");
-    return runTrainingJob(request, await preflopCharts());
+    const { runTrainingJob, trainingChartSets } = await import("./training/jobs");
+    const library = await preflopCharts();
+    await ensureChartSets(library, trainingChartSets(request));
+    return runTrainingJob(request, library);
   }
   const live = worker;
   return new Promise<TrainingResponse>((resolve) => {

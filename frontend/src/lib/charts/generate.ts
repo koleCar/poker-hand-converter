@@ -37,6 +37,8 @@ import type { ChartSetJson } from "./format";
 
 export interface GenerateOptions {
   id?: string;
+  /** The set's `version` (default `CHARTS_VERSION`; the 6-max 100bb set is `charts/2`). */
+  version?: string;
   players?: readonly PreflopPosition[];
   stackBb?: number;
   sizing?: Partial<PreflopSizing>;
@@ -226,6 +228,7 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
   const id = options.id ?? `nlhe-cash-${players.length}max-${tree.stackBb}bb`;
   const charts = buildChartSet(solver, {
     id,
+    version: options.version,
     minReach,
     model: {
       tree: {

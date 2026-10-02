@@ -14,13 +14,15 @@ import styles from "../../../components/learn/learn.module.css";
  * no hand and no row, so a signed-out reader and a crawler see what a
  * signed-in player sees. `robots.ts` allows it inside the disallowed
  * `/analysis`, `sitemap.ts` lists it, and the canonical URL drops the query
- * (`?line=` picks a spot, `?hand=` highlights a class — views of one page).
+ * (`?set=` picks a table and depth, `?line=` a spot, `?hand=` highlights a
+ * class — views of one page).
  */
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
+const SET_RE = /^nlhe-cash-\d{1,2}max-\d{1,3}bb$/;
 const LINE_RE = /^(-|[fkcra]{1,24})$/;
 const HAND_RE = /^([AKQJT2-9])([AKQJT2-9])([so])?$/;
 
@@ -45,6 +47,7 @@ export default async function ChartsPage({ searchParams }: PageProps) {
   // Whitelisted: a malformed query is the default chart, never an error.
   const line = first(query.line);
   const hand = first(query.hand);
+  const set = first(query.set);
   const t = en.analysis.charts;
   return (
     <ServerFrame tab="analysis">
@@ -55,6 +58,7 @@ export default async function ChartsPage({ searchParams }: PageProps) {
           <p className={styles.lead}>{t.intro}</p>
         </header>
         <ChartBrowser
+          initialSet={set && SET_RE.test(set) ? set : null}
           initialLine={line && LINE_RE.test(line) ? line : null}
           initialHand={hand && HAND_RE.test(hand) ? hand : null}
         />

@@ -21,6 +21,7 @@ import { describe, expect, it } from "vitest";
 
 import { analyzeHand, grade, opponentRanges, removalFactors, type DecisionAnalysis } from "../../frontend/src/lib/analysis/index.js";
 import { handClassOf, loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
+import { fullLibrary } from "./charts/support.js";
 import { comboHi, comboLo, HAND_CLASSES, rangesAt } from "../../frontend/src/lib/solver/index.js";
 import { cardCode, cardIndex } from "../../frontend/src/lib/equity/evaluator.js";
 import {
@@ -258,6 +259,39 @@ describe("preflop dealing", () => {
       });
     }
     expect(graded).toBeGreaterThan(24);
+  });
+});
+
+describe("preflop dealing from other tables and depths (A2c)", () => {
+  const library = fullLibrary();
+
+  it("deals a 9-max spot as a nine-handed hand and grades it from the same set", () => {
+    let graded = 0;
+    for (const set of ["nlhe-cash-9max-100bb", "nlhe-cash-9max-200bb", "nlhe-cash-6max-40bb"]) {
+      for (let seed = 1; seed <= 6; seed += 1) {
+        const spot = dealPreflop(library, { set, family: "random", bias: "borderline" }, seed);
+        if (!spot) throw new Error(`no spot for ${set} seed ${seed}`);
+        expect(spot.set).toBe(set);
+        const seats = library.sets.get(set)?.game.positions ?? [];
+        expect(spot.hand.players).toHaveLength(seats.length);
+        expect(spot.script.stackBb).toBe(library.sets.get(set)?.game.stackBb);
+        spot.menu.forEach((_, index) => {
+          const { hand, actionIndex } = preflopAnswer(spot, index);
+          const mine = gradeAnswer(hand, actionIndex, library);
+          expect(mine?.source, `${set} ${seed}`).toBe("chart");
+          expect(mine?.facts.chart?.set).toBe(set);
+          expect(mine?.facts.chart?.line).toBe(spot.line);
+          expect(mine?.approximations).not.toContain("short-handed");
+          graded += 1;
+        });
+      }
+    }
+    expect(graded).toBeGreaterThan(30);
+    // A 9-max seat and raiser are dealt as asked.
+    const lj = dealPreflop(library, { set: "nlhe-cash-9max-100bb", family: "vs-open", seat: "BB", vs: "UTG+1" }, 3);
+    expect(lj?.hero).toBe("BB");
+    expect(lj?.line).toMatch(/^fr/);
+    expect(() => dealPreflop(CHARTS, { set: "nlhe-cash-9max-100bb", family: "rfi" }, 1)).toThrow(/not available/);
   });
 });
 

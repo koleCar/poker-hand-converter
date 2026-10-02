@@ -7,9 +7,10 @@
  * generate.ts   the generator as a pure function: equity, tree, DCFR, convergence
  * realisation.ts charts/2: measure realisation with the postflop solver, fit, rounds
  * lookup.ts     a real preflop line -> node, options, approximations (or a reason)
- * fromHand.ts   PhfHand -> the PreflopSpot of one hero decision
+ * fromHand.ts   PhfHand -> the PreflopSpot of one hero decision; the sets a hand needs
+ * registry.ts   charts/3: the library of sets (table x depth), which one answers a spot, lazy loading
  * base64.ts     the blob encoding, without Buffer or atob
- * data/         the committed chart set(s), generated - never edited by hand
+ * data/         the committed chart sets, one JSON per table and depth, generated - never edited by hand
  * ```
  *
  * **Import rule: the same as `lib/solver`, plus `lib/solver` itself.** This
@@ -22,6 +23,7 @@
  */
 
 export {
+  CHART_SET_VERSIONS,
   CHARTS_VERSION,
   ChartFormatError,
   loadCharts,
@@ -90,9 +92,23 @@ export {
   type PreflopActionInput,
   type PreflopSpot,
 } from "./lookup";
-export { preflopSpotFromHand, type SpotFromHandResult } from "./fromHand";
+export { preflopSpotFromHand, requiredChartSets, type SpotFromHandResult } from "./fromHand";
+export {
+  CHART_SETS,
+  chartLibrary,
+  DEFAULT_CHART_SET,
+  effectiveStackBb,
+  ensureChartSets,
+  isChartLibrary,
+  loadChartLibrary,
+  loadChartSet,
+  pickChartSet,
+  type ChartLibrary,
+  type ChartSetPick,
+  type ChartSetSpec,
+} from "./registry";
 
-/** The committed 6-max 100bb cash set, loaded on demand (it is ~1 MB of JSON). */
+/** The committed 6-max 100bb cash set alone, loaded on demand (~0.7 MB of JSON). */
 export async function loadDefaultCharts() {
   const { loadCharts } = await import("./format");
   const data = await import("./data/nlhe-cash-6max-100bb.json");

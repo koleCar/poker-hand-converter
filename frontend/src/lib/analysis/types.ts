@@ -46,8 +46,16 @@ import type { Position, Street } from "../phf/types";
  *               with a `turn-*` reason; the river's ranges are narrowed by
  *               the solved turn strategy where the turn was solved
  *               (`RiverFacts.narrowing`), by the heuristic elsewhere.
+ *   analysis/5  A2c: preflop graded from the chart library (`charts/3`):
+ *               9-max at 100-200bb and 6-max at 40-200bb besides 6-max
+ *               100bb, the set picked per decision and named in
+ *               `facts.chart.set`; 3-5 and 7-8 handed tables read with the
+ *               earliest seats folded (`short-handed`); opponents' chart
+ *               ranges - where every turn and river solve starts - come from
+ *               the same sets, so postflop grades on those tables start from
+ *               chart ranges instead of placeholders.
  */
-export const ANALYSIS_VERSION = "analysis/4" as const;
+export const ANALYSIS_VERSION = "analysis/5" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

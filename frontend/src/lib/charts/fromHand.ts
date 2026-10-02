@@ -9,6 +9,7 @@
 
 import { assignPositions, isPostingAction, type PhfHand, type Position } from "../phf/types";
 import type { PreflopActionInput, PreflopSpot } from "./lookup";
+import { CHART_SETS, pickChartSet, type ChartSetSpec } from "./registry";
 
 export type SpotFromHandResult =
   | {
@@ -102,4 +103,25 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
     actions.push(input);
   }
   return { ok: false, reason: "no-decision", detail: `the hero has no preflop decision #${nth}` };
+}
+
+/**
+ * The ids of the library sets a hand needs: one per table and depth its
+ * players' preflop decisions are looked up at - the hero's, graded, and every
+ * opponent's, whose chart ranges the postflop analysis starts from. A caller
+ * loads these (`ensureChartSets`) before analysing the hand, since the lookup
+ * itself is synchronous.
+ */
+export function requiredChartSets(hand: PhfHand, specs: readonly ChartSetSpec[] = CHART_SETS): string[] {
+  const out = new Set<string>();
+  for (const player of hand.players) {
+    for (let nth = 0; ; nth += 1) {
+      const found = preflopSpotFromHand(hand, nth, player.seat);
+      if (!found.ok) break;
+      if (found.spot.straddle || found.spot.ante) return [];
+      const pick = pickChartSet(specs, found.spot);
+      if (pick.ok) out.add(pick.spec.id);
+    }
+  }
+  return [...out].sort();
 }

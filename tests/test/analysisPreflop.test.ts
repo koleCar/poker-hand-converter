@@ -117,6 +117,19 @@ function rfi(hero: Seat, cards: string, action: "raise" | "fold", to = 2.5): Phf
   return hand({ hero, cards, lines, winner: next, pot: next === "Sb" ? 2 : 2.5, returned: open - 1 });
 }
 
+/** Heads-up: the small blind (the button) opens, the big blind folds. */
+function headsUp(): PhfHand {
+  return hand({
+    hero: "Sb",
+    cards: "Ah Kd",
+    seats: ["Sb", "Bb"],
+    lines: ["Sb: raises $2 to $2.5", "Bb: folds"],
+    winner: "Sb",
+    pot: 2,
+    returned: 1.5,
+  });
+}
+
 const pre = (analysis: HandAnalysis, n = 0): DecisionAnalysis =>
   analysis.decisions.filter((d) => d.street === "preflop")[n];
 
@@ -241,7 +254,13 @@ describe("the hand's grade, EV loss and score", () => {
 /* ---------------------------------------------------------- refusals - */
 
 describe("what the charts refuse, by name", () => {
-  it("refuses a three-handed table", () => {
+  it("refuses a heads-up table", () => {
+    const analysis = analyse(headsUp());
+    expect(pre(analysis)).toMatchObject({ status: "not-analysed", reason: "chart-players", grade: null });
+    expect(analysis).toMatchObject({ status: "not-analysed", reason: "chart-players", grade: null, evLoss: null });
+  });
+
+  it("grades a three-handed table as 6-max with three seats folded (A2c)", () => {
     const h = hand({
       hero: "Btn",
       cards: "Ah Kd",
@@ -251,9 +270,10 @@ describe("what the charts refuse, by name", () => {
       pot: 2.5,
       returned: 1.5,
     });
-    const analysis = analyse(h);
-    expect(pre(analysis)).toMatchObject({ status: "not-analysed", reason: "chart-players", grade: null });
-    expect(analysis).toMatchObject({ status: "not-analysed", reason: "chart-players", grade: null, evLoss: null });
+    const decision = pre(analyse(h));
+    expect(decision).toMatchObject({ status: "analysed", source: "chart", grade: "perfect" });
+    expect(decision.approximations).toContain("short-handed");
+    expect(decision.facts.chart?.line).toBe("fff");
   });
 
   it("refuses a 200bb stack", () => {
@@ -294,20 +314,8 @@ describe("what the charts refuse, by name", () => {
       expect(en.analysis.reasons[reason]).toBeTruthy();
       expect(hr.analysis.reasons[reason]).toBeTruthy();
     }
-    const decision = pre(
-      analyse(
-        hand({
-          hero: "Btn",
-          cards: "Ah Kd",
-          seats: ["Btn", "Sb", "Bb"],
-          lines: ["Btn: raises $1.5 to $2.5", "Sb: folds", "Bb: folds"],
-          winner: "Btn",
-          pot: 2.5,
-          returned: 1.5,
-        }),
-      ),
-    );
-    expect(en.analysis.explain(decision)[0]).toMatch(/^Not graded: the charts are for six-handed tables/);
+    const decision = pre(analyse(headsUp()));
+    expect(en.analysis.explain(decision)[0]).toMatch(/^Not graded: the charts cover three to nine players/);
     expect(hr.analysis.explain(decision)[0]).toMatch(/^Bez ocjene:/);
     expect(conceptsForDecision(decision)).toEqual([]);
   });

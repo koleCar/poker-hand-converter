@@ -46,7 +46,9 @@
  * The words live in `ns/analysisLeaks.*.ts`.
  */
 
-import { walkLine } from "./reports";
+import { positionRing } from "../phf/types";
+import type { ChartPosition } from "../charts";
+import { NINE_TABLE_ORDER, TABLE_ORDER, walkLine } from "./reports";
 
 /* ------------------------------------------------------------ constants - */
 
@@ -131,9 +133,41 @@ export function scenarioFamily(street: string, scenario: string): string {
   return facing ? facing[1] : scenario;
 }
 
+/** Seats from the button (0) for a non-blind seat name, over every table size it occurs at. */
+function distances(position: string): Set<number> {
+  const out = new Set<number>();
+  for (let k = 3; k <= 9; k += 1) {
+    const order = positionRing(k).slice(2);
+    const at = order.indexOf(position as never);
+    if (at >= 0) out.add(order.length - 1 - at);
+  }
+  return out;
+}
+
+/**
+ * The table a chart line was written for (A2c: 6-max and 9-max sets; a row
+ * names its line, not its set): the one whose walk ends on a seat the
+ * decision's own seat can be - the same blind, or a seat as far from the
+ * button (a smaller table is read with its earliest seats folded). 6-max when
+ * both or neither fit.
+ */
+export function lineSeats(line: string, position: string): readonly ChartPosition[] {
+  for (const seats of [TABLE_ORDER, NINE_TABLE_ORDER]) {
+    const next = walkLine(line, seats).next;
+    if (!next) continue;
+    if (next === "SB" || next === "BB") {
+      if (next === position) return seats;
+      continue;
+    }
+    const order = seats.filter((seat) => seat !== "SB" && seat !== "BB");
+    if (distances(position).has(order.length - 1 - order.indexOf(next))) return seats;
+  }
+  return TABLE_ORDER;
+}
+
 /** The line's last raiser, or null when nobody has raised. */
-function lastAggressor(line: string): string | null {
-  const steps = walkLine(line).steps;
+function lastAggressor(line: string, seats: readonly ChartPosition[]): string | null {
+  const steps = walkLine(line, seats).steps;
   for (let index = steps.length - 1; index >= 0; index -= 1) {
     if (steps[index].code === "r" || steps[index].code === "a") return steps[index].position;
   }
@@ -146,9 +180,10 @@ export function spotAttrs(row: SpotRow): SpotAttrs {
   let villain = NONE;
   // A chart grade carries its line; the UTG open's line is empty, and is still a chart node.
   if (row.street === "preflop" && (row.line !== "" || row.scenario === "unopened")) {
-    const walked = walkLine(row.line);
+    const seats = lineSeats(row.line, row.position);
+    const walked = walkLine(row.line, seats);
     if (walked.next) hero = walked.next;
-    villain = lastAggressor(row.line) ?? NONE;
+    villain = lastAggressor(row.line, seats) ?? NONE;
   }
   return {
     street: row.street,
