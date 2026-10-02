@@ -42,7 +42,7 @@ export function PostCard({ post, t: en }: { post: ForumPost; t: Dict }) {
             )}
           </span>
           <span aria-hidden="true">·</span>
-          <time dateTime={post.createdAt}>{formatPostDate(post.createdAt)}</time>
+          <time dateTime={post.createdAt}>{formatPostDate(post.createdAt, en.chrome.intl)}</time>
           <span aria-hidden="true">·</span>
           <Link href={`${href}#comments`}>{en.forum.commentCount(post.commentCount)}</Link>
           {post.isLocked ? (

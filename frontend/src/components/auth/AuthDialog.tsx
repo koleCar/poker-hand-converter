@@ -23,23 +23,13 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAuth } from "../../lib/auth";
+import { useDict } from "../../lib/i18n/client";
 import { Turnstile } from "./Turnstile";
 
 type Mode = "sign-in" | "sign-up" | "reset";
 
-const TITLES: Record<Mode, string> = {
-  "sign-in": "Sign in",
-  "sign-up": "Create an account",
-  reset: "Reset your password",
-};
-
-const SUBMIT: Record<Mode, string> = {
-  "sign-in": "Sign in",
-  "sign-up": "Create account",
-  reset: "Send reset link",
-};
-
 export function AuthDialog() {
+  const { auth: t, close } = useDict().chrome;
   const auth = useAuth();
   const [mode, setMode] = useState<Mode>("sign-in");
   const [email, setEmail] = useState("");
@@ -98,7 +88,7 @@ export function AuthDialog() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (auth.captchaEnabled && !captchaToken) {
-      setError("Complete the robot check first.");
+      setError(t.robotFirst);
       return;
     }
     const token = captchaToken ?? undefined;
@@ -113,15 +103,15 @@ export function AuthDialog() {
       } else if (mode === "sign-up") {
         const outcome = await auth.signUp(email, password, token);
         if (outcome.kind === "confirm-email") {
-          setNotice(`Check ${outcome.email} for a confirmation link, then sign in.`);
+          setNotice(t.confirmSent(outcome.email));
           setMode("sign-in");
         }
       } else {
         await auth.sendPasswordReset(email, token);
-        setNotice(`If ${email.trim()} has an account, a reset link is on its way.`);
+        setNotice(t.resetSent(email.trim()));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "That did not work. Try again.");
+      setError(err instanceof Error ? err.message : t.failed);
     } finally {
       setBusy(false);
       // Spent either way: GoTrue consumes a token on the first request that
@@ -139,7 +129,7 @@ export function AuthDialog() {
       // On success the browser leaves the page, so there is nothing after this.
       await auth.signInWithGoogle();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Google sign-in failed.");
+      setError(err instanceof Error ? err.message : t.googleFailed);
       setBusy(false);
     }
   }
@@ -164,16 +154,16 @@ export function AuthDialog() {
           type="button"
           className="authdlg__close"
           onClick={auth.dismissSignIn}
-          aria-label="Close"
+          aria-label={close}
         >
           ✕
         </button>
 
         <h2 id="authdlg-title" className="authdlg__title">
-          {TITLES[mode]}
+          {t.titles[mode]}
         </h2>
         <p className="authdlg__lead">
-          {auth.signInPrompt ?? "Your hands stay private to your account."}
+          {auth.signInPrompt ?? t.lead}
         </p>
 
         {auth.googleOffered ? (
@@ -187,17 +177,17 @@ export function AuthDialog() {
               <span aria-hidden="true" className="authdlg__google-mark">
                 G
               </span>
-              Continue with Google
+              {t.google}
             </button>
             <p className="authdlg__or">
-              <span>or</span>
+              <span>{t.or}</span>
             </p>
           </>
         ) : null}
 
         <form className="authdlg__form" onSubmit={(event) => void handleSubmit(event)}>
           <label className="authdlg__field">
-            <span>Email</span>
+            <span>{t.email}</span>
             <input
               ref={emailRef}
               type="email"
@@ -211,7 +201,7 @@ export function AuthDialog() {
 
           {mode !== "reset" ? (
             <label className="authdlg__field">
-              <span>Password</span>
+              <span>{t.password}</span>
               <input
                 type="password"
                 value={password}
@@ -239,7 +229,7 @@ export function AuthDialog() {
           ) : null}
 
           <button type="submit" className="btn btn--primary authdlg__submit" disabled={busy}>
-            {busy ? "Working…" : SUBMIT[mode]}
+            {busy ? t.working : t.submit[mode]}
           </button>
         </form>
 
@@ -247,26 +237,26 @@ export function AuthDialog() {
           {mode === "sign-in" ? (
             <>
               <button type="button" className="linkish" onClick={() => switchMode("sign-up")}>
-                Create an account
+                {t.toSignUp}
               </button>
               <button type="button" className="linkish" onClick={() => switchMode("reset")}>
-                Forgot your password?
+                {t.toReset}
               </button>
             </>
           ) : (
             <button type="button" className="linkish" onClick={() => switchMode("sign-in")}>
-              ← Back to sign in
+              {t.toSignIn}
             </button>
           )}
         </div>
 
         <div className="authdlg__guest">
           <button type="button" className="btn btn--ghost btn--sm" onClick={auth.continueAsGuest}>
-            Continue without an account
+            {t.guest}
           </button>
           {/* The one thing a guest cannot work out by trying: converting works,
               keeping does not. Without it the button reads as "lose features". */}
-          <small className="muted">Converting works. Saving and sharing need an account.</small>
+          <small className="muted">{t.guestNote}</small>
         </div>
       </div>
     </div>

@@ -176,7 +176,7 @@ export default async function PostPage({ params, searchParams }: { params: Param
                   )}
                 </span>
                 <span aria-hidden="true">·</span>
-                <time dateTime={post.createdAt}>{formatPostDate(post.createdAt)}</time>
+                <time dateTime={post.createdAt}>{formatPostDate(post.createdAt, en.chrome.intl)}</time>
                 {post.editedAt ? (
                   <>
                     <span aria-hidden="true">·</span>

@@ -85,12 +85,12 @@ export default async function ProfilePage({ params }: PageProps) {
 }
 
 /** `2026-09-29` -> `September 2026`, in UTC so it is the same for everyone. */
-function formatJoined(joinedOn: string): string {
+function formatJoined(joinedOn: string, intl: string): string {
   const date = new Date(`${joinedOn}T00:00:00Z`);
   if (Number.isNaN(date.getTime())) {
     return joinedOn;
   }
-  return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(date);
+  return new Intl.DateTimeFormat(intl, { month: "long", year: "numeric", timeZone: "UTC" }).format(date);
 }
 
 async function ProfileContent({ profile, hands }: { profile: PublicProfile; hands: PublishedHandSummary[] }) {
@@ -104,7 +104,7 @@ async function ProfileContent({ profile, hands }: { profile: PublicProfile; hand
         <div className={styles.identity}>
           <h1 className={styles.name}>{profile.username}</h1>
           <p className={styles.facts}>
-            <span>{en.profile.joined(formatJoined(profile.joinedOn))}</span>
+            <span>{en.profile.joined(formatJoined(profile.joinedOn, en.chrome.intl))}</span>
             <span aria-hidden="true">·</span>
             <span>{en.profile.karma(profile.karma)}</span>
           </p>

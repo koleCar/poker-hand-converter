@@ -73,12 +73,12 @@ function SettingsBody() {
 }
 
 /** `2026-10-29T08:02:17Z` -> `29 October 2026`, the way the server words it. */
-function formatDay(iso: string): string {
+function formatDay(iso: string, intl: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) {
     return iso;
   }
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat(intl, {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -168,7 +168,7 @@ function UsernameSection({ profile, onSaved }: { profile: MyProfile; onSaved: ()
         <p className={`muted ${styles.hint}`}>
           {en.settings.username.rules}
           {locked && profile.nextUsernameChangeAt
-            ? ` ${en.settings.username.nextChange(formatDay(profile.nextUsernameChangeAt))}`
+            ? ` ${en.settings.username.nextChange(formatDay(profile.nextUsernameChangeAt, en.chrome.intl))}`
             : null}
         </p>
 

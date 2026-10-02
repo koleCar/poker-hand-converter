@@ -48,12 +48,12 @@ function headline(en: Dict, published: PublishedHand): string {
   return en.published.headline(formatStakes(hand), shortGameName(hand.game.label), heroText || null);
 }
 
-function formatDay(day: string | null): string | null {
+function formatDay(day: string | null, intl: string): string | null {
   if (!day) return null;
   const date = new Date(`${day}T00:00:00Z`);
   return Number.isNaN(date.getTime())
     ? day
-    : new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date);
+    : new Intl.DateTimeFormat(intl, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date);
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -148,7 +148,7 @@ async function PublishedContent({
   const en = await getDict();
   const hand: PhfHand = published.phf;
   const siteName = getParser(published.site)?.name ?? published.site;
-  const playedOn = formatDay(published.playedOn);
+  const playedOn = formatDay(published.playedOn, en.chrome.intl);
 
   return (
     <article className={styles.article}>
