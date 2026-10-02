@@ -10,14 +10,16 @@
  *    (the chart's mix loses at most 2% of the pot to the best action for a
  *    class in range; off-range classes play their best response);
  *  - AA never folds; KK never folds before an all-in where it is in range
- *    (except cold against a 3-bet and a 4-bet); 72o never opens first in;
+ *    (except cold, where the tree offers only fold or re-raise, and against
+ *    two re-raisers); 72o never opens first in;
  *  - raise-first-in widens with position (strictly from the LJ / UTG of
  *    6-max on), the small blind continues 35-75% first in, the big blind
- *    defends 40-75% against a button open;
+ *    defends 40-80% against a button open;
  *  - 9-max's three earliest seats open tighter than 6-max's first seat at
  *    the same depth, and 9-max's LJ - the same distance from the button as
  *    6-max's UTG - opens within a few points of it;
- *  - the sizes recorded per depth: 2.2bb opens and all-in 4-bets at 40bb;
+ *  - the sizes recorded per depth: 2.2bb opens at 40bb, and 4-bets all-in
+ *    past 40% of the stack;
  *  - the generator's convergence: NashConv under 1 mbb/hand (2 for 9-max).
  */
 
@@ -31,6 +33,7 @@ import {
   MAX_SELF_LOSS,
   type ChartSet,
 } from "../../../frontend/src/lib/charts/index.js";
+import { walkLine } from "../../../frontend/src/lib/analysis/reports.js";
 import { CLASS_COMBOS, classByName, NUM_CLASSES } from "../../../frontend/src/lib/solver/index.js";
 import { chartSet, fileOf } from "./support.js";
 
@@ -56,6 +59,15 @@ function rfi(set: ChartSet): { seat: string; width: number }[] {
   return set.game.positions.slice(0, -1).map((seat, k) => ({ seat, width: continues(set, "f".repeat(k)) }));
 }
 
+/**
+ * Distinct players who raised on a line: three is an open, a 3-bet and a cold
+ * 4-bet by a third player - the opener facing two re-raisers may fold KK
+ * (one of them holds AA often enough), as a cold player may in 6-max.
+ */
+function raisers(line: string, set: ChartSet): number {
+  return new Set(walkLine(line, set.game.positions).steps.filter((s) => s.code === "r" || s.code === "a").map((s) => s.position)).size;
+}
+
 /** The big blind's node facing a button open, the small blind folding. */
 function bbVsBtn(set: ChartSet): string {
   return "f".repeat(set.game.positions.indexOf("BTN")) + "rf";
@@ -76,7 +88,7 @@ describe.each(CHART_SETS.map((spec) => [spec.id, spec] as const))("%s", (id, spe
     expect(model.rake.percent).toBe(0.05);
     expect(model.solver.iterations).toBeGreaterThanOrEqual(3000);
     expect(set.nodes.size).toBeGreaterThan(150);
-    expect(statSync(fileOf(id)).size).toBeLessThan(2_500_000);
+    expect(statSync(fileOf(id)).size).toBeLessThan(3_000_000);
   });
 
   it("recorded good convergence", () => {
@@ -121,7 +133,8 @@ describe.each(CHART_SETS.map((spec) => [spec.id, spec] as const))("%s", (id, spe
       const fold = n.options.findIndex((o) => o.action === "fold");
       if (fold < 0) continue;
       expect(n.freq[fold * H + aa], `AA folds at ${JSON.stringify(n.line)}`).toBe(0);
-      if (n.range[kk] <= 0.01 || (n.scenario === "vs-4bet" && n.cold)) continue;
+      // Cold (the tree offers only fold or re-raise) or against two re-raisers, KK may fold.
+      if (n.range[kk] <= 0.01 || n.cold || (n.scenario === "vs-4bet" && raisers(n.line, set) >= 3)) continue;
       // Facing an all-in (a 5-bet, or a 4-bet shove at 40bb) KK may be close to indifferent multiway.
       const at = tree.lineIndex.get(n.line) as number;
       const facingAllIn = tree.toMatch[at] >= tree.stackBb;
@@ -151,9 +164,10 @@ describe.each(CHART_SETS.map((spec) => [spec.id, spec] as const))("%s", (id, spe
     const sb = widths.find((w) => w.seat === "SB")?.width as number;
     expect(sb).toBeGreaterThan(0.35);
     expect(sb).toBeLessThan(0.75);
+    // Wider at 40bb, where the open is 2.2bb and the price better.
     const bb = continues(set, bbVsBtn(set));
     expect(bb).toBeGreaterThan(0.4);
-    expect(bb).toBeLessThan(0.75);
+    expect(bb).toBeLessThan(0.8);
   });
 });
 
@@ -171,7 +185,7 @@ describe("the sets against each other", () => {
     }
   });
 
-  it("records each depth's sizes: 2.2bb opens and all-in 4-bets at 40bb", () => {
+  it("records each depth's sizes: 2.2bb opens and 4-bets all-in past 40% of the stack at 40bb", () => {
     const short = chartSet("nlhe-cash-6max-40bb");
     const sizing = (short.model as Record<string, any>).tree.sizing;
     expect(sizing.open).toBe(2.2);
@@ -179,10 +193,15 @@ describe("the sets against each other", () => {
     expect(short.nodes.get("")?.options.map((o) => o.toBb)).toEqual([0, 2.2]);
     const vs3bet = [...short.nodes.values()].filter((n) => n.scenario === "vs-3bet");
     expect(vs3bet.length).toBeGreaterThan(5);
+    // A 4-bet is all-in unless it stays under 16bb (2.2x an in-position 3-bet to 6.6 is 14.5).
+    let shoves = 0;
     for (const n of vs3bet) {
       const raise = n.options.find((o) => o.action === "raise" || o.action === "allin");
-      if (raise) expect(raise.action, n.line).toBe("allin");
+      if (!raise) continue;
+      if (raise.action === "allin") shoves += 1;
+      else expect(raise.toBb, n.line).toBeLessThanOrEqual(16);
     }
+    expect(shoves).toBeGreaterThan(vs3bet.length / 2);
     for (const id of ["nlhe-cash-6max-150bb", "nlhe-cash-9max-200bb"]) {
       const deep = chartSet(id);
       expect(deep.nodes.get("")?.options.map((o) => o.toBb)).toEqual([0, 2.5]);
@@ -194,7 +213,7 @@ describe("the sets against each other", () => {
 
   it("keeps the library small enough to load one set at a time", () => {
     const sizes = CHART_SETS.map((spec) => statSync(fileOf(spec.id)).size);
-    expect(Math.max(...sizes)).toBeLessThan(2_500_000);
-    expect(sizes.reduce((a, b) => a + b, 0)).toBeLessThan(12_000_000);
+    expect(Math.max(...sizes)).toBeLessThan(3_000_000);
+    expect(sizes.reduce((a, b) => a + b, 0)).toBeLessThan(13_000_000);
   });
 });

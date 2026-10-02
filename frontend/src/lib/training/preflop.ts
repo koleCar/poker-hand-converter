@@ -20,7 +20,7 @@
  * hard rather than on folding 72o.
  */
 
-import { chartTree, handClassOf, type ChartAction, type ChartNode, type ChartPosition, type ChartSet } from "../charts";
+import { chartTree, handClassOf, isChartLibrary, type ChartAction, type ChartNode, type ChartPosition, type ChartSet } from "../charts";
 import { opponentRanges, removalFactors, walkLine } from "../analysis";
 import type { PhfHand } from "../phf/types";
 import { comboCode, combosOfClass, HAND_CLASSES, NUM_CLASSES } from "../solver";
@@ -35,8 +35,22 @@ export type PreflopFamily = (typeof PREFLOP_FAMILIES)[number];
 export const DEAL_BIASES = ["range", "borderline"] as const;
 export type DealBias = (typeof DEAL_BIASES)[number];
 
-/** Seats in table order. */
+/** Seats in table order (the 6-max sets'; a set's own are `ChartSet.game.positions`). */
 export const PREFLOP_SEATS: readonly ChartPosition[] = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
+/** Every seat a chart set can have, 9-max's included (A2c): what a `seat` / `vs` parameter may name. */
+export const ALL_PREFLOP_SEATS: readonly ChartPosition[] = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
+
+/**
+ * The set to deal from: `id` in a library (loaded by the caller), else
+ * `charts` itself. A library without the set throws - the caller loads it.
+ */
+export function trainerSet(charts: ChartSet, id?: string | null): ChartSet {
+  if (!id || id === charts.id) return charts;
+  if (!isChartLibrary(charts)) throw new RangeError(`chart set ${id} is not available`);
+  const set = charts.sets.get(id);
+  if (!set) throw new RangeError(`chart set ${id} is not loaded`);
+  return set;
+}
 
 /** A node reached less often than this (0.2% of deals) is too rare to drill at random. */
 export const MIN_NODE_REACH = 0.002;
@@ -47,7 +61,7 @@ export const CLOSE_EV_BB = 0.5;
 
 /** The families a node belongs to: the chart browser's categories (`chartSpots.ts`). */
 export function familiesOf(node: ChartNode): PreflopFamily[] {
-  if (node.line.startsWith("ffff")) return node.scenario === "rfi" ? ["rfi", "bvb"] : ["bvb"];
+  if (node.line.startsWith("f".repeat(node.seats.length - 2))) return node.scenario === "rfi" ? ["rfi", "bvb"] : ["bvb"];
   switch (node.scenario) {
     case "rfi":
       return ["rfi"];
@@ -66,9 +80,9 @@ export function familiesOf(node: ChartNode): PreflopFamily[] {
 }
 
 /** The line's last raiser — the player the hero faces — or null in an unopened pot. */
-export function lineAggressor(line: string): ChartPosition | null {
+export function lineAggressor(line: string, seats: readonly ChartPosition[] = PREFLOP_SEATS): ChartPosition | null {
   let last: ChartPosition | null = null;
-  for (const step of walkLine(line).steps) if (step.code === "r" || step.code === "a") last = step.position;
+  for (const step of walkLine(line, seats).steps) if (step.code === "r" || step.code === "a") last = step.position;
   return last;
 }
 
@@ -88,7 +102,7 @@ export function trainerNodes(
     if (node.options.length < 2 || node.reach < MIN_NODE_REACH) continue;
     if (seat && node.actor !== seat) continue;
     if (family !== "random" && !familiesOf(node).includes(family)) continue;
-    if (vs && lineAggressor(node.line) !== vs) continue;
+    if (vs && lineAggressor(node.line, node.seats) !== vs) continue;
     out.push(node);
   }
   return out.sort((a, b) => a.line.length - b.line.length || a.line.localeCompare(b.line));
@@ -136,6 +150,8 @@ export interface PreflopMenuItem {
 
 export interface PreflopSpotOptions {
   family: PreflopFamily | "random";
+  /** Chart set id (table and depth, A2c); the default set when absent. */
+  set?: string | null;
   /** Only this seat as the hero; null for any. */
   seat?: ChartPosition | null;
   /**
@@ -170,7 +186,7 @@ export interface PreflopTrainerSpot {
 /** The chart's line as script actions: who did what, with the tree's sizes. */
 export function lineActs(charts: ChartSet, line: string): ScriptAct[] {
   const tree = chartTree(charts);
-  const { steps } = walkLine(line);
+  const { steps } = walkLine(line, charts.game.positions);
   const acts: ScriptAct[] = [];
   steps.forEach((step, k) => {
     if (step.code === "f") {
@@ -213,7 +229,8 @@ function answerAct(hero: ChartPosition, item: PreflopMenuItem, stackBb: number):
  * Deals one preflop spot from `seed`. Null when no node matches the options
  * (a family the chart set does not have at that seat).
  */
-export function dealPreflop(charts: ChartSet, options: PreflopSpotOptions, seed: number): PreflopTrainerSpot | null {
+export function dealPreflop(library: ChartSet, options: PreflopSpotOptions, seed: number): PreflopTrainerSpot | null {
+  const charts = trainerSet(library, options.set);
   const rng: Rng = seeded(seed);
   let nodes = trainerNodes(charts, options.family, options.seat ?? null, options.vs ?? null);
   if (nodes.length === 0 && options.vs) nodes = trainerNodes(charts, options.family, options.seat ?? null);
@@ -229,6 +246,7 @@ export function dealPreflop(charts: ChartSet, options: PreflopSpotOptions, seed:
     id: `TP${seed.toString(36)}`,
     hero: node.actor,
     heroCards: cards,
+    seats: charts.game.positions,
     stackBb: charts.game.stackBb,
     preflop: lineActs(charts, node.line),
   };

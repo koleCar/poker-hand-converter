@@ -36,6 +36,7 @@ import {
   type Leak,
   type LeakSort,
 } from "../../../lib/analysis/leaks";
+import { lineSeats } from "../../../lib/analysis/leaks";
 import { walkLine } from "../../../lib/analysis/reports";
 import {
   DATABASE_NOT_CONFIGURED_MESSAGE,
@@ -588,9 +589,11 @@ function LeakHands({ leak, filters }: { leak: Leak; filters: AnalysisFilters }) 
   // Merged leaks span several spots: each hand says which one it was.
   const spotOf = (row: LeakHandRow) => {
     if (row.street === "preflop" && (row.line !== "" || row.scenario === "unopened")) {
+      // The line's own table: a 9-max set's line walks on 9-max seats (A2c).
+      const seats = lineSeats(row.line, row.position ?? "");
       return en.charts.spotLabel(
-        walkLine(row.line).next ?? row.position ?? "",
-        lineSteps(row.line).map((step) => ({ position: step.position, verb: en.charts.verbs[step.verb] ?? step.verb })),
+        walkLine(row.line, seats).next ?? row.position ?? "",
+        lineSteps(row.line, seats).map((step) => ({ position: step.position, verb: en.charts.verbs[step.verb] ?? step.verb })),
       );
     }
     return `${en.breakdown.scenario(row.scenario)}${row.position ? ` (${row.position})` : ""}`;

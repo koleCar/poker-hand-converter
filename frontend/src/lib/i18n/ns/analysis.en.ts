@@ -673,7 +673,7 @@ export const analysisEn = {
     straddle: "A straddle moved the blinds",
     "stack-depth": "Stacks outside 100 bb ±20%",
     "table-size": "Not a six-handed table",
-    model: "Preflop charts (charts/2) still under-rate a few implied-odds hands (UTG's small pairs and suited connectors) and the button's flat of a cutoff open",
+    model: "Preflop charts (charts/2 and charts/3) still under-rate a few implied-odds hands (UTG's small pairs and suited connectors) and the button's flat of a cutoff open",
     "short-handed": "Fewer players than the chart set's seats, read with the earliest seats folded",
     "stack-depth-near": "Stacks within 20% of the chart set's depth, but not at it",
     "off-tree-size": "A raise far from the charts' size: grade capped at Inaccurate",

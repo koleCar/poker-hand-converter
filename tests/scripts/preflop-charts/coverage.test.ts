@@ -7,9 +7,10 @@
  * Every hand of the WePlay export (`weplay-hh/`, the owner's library) and of
  * the GG corpus goes through `analyzeHand`, as the in-browser rebuild runs
  * it, once with the 6-max 100bb set alone and once with the whole library;
- * the tables print graded decisions and refusals by reason, and the
- * library's graded decisions by set. Not part of `npm test` (a minute or two:
- * it solves rivers).
+ * the tables print graded decisions and refusals by reason, the library's
+ * graded decisions by set, and how many solver-graded turns and rivers rest
+ * on a placeholder range instead of the charts'. Not part of `npm test`
+ * (several minutes: it solves turns and rivers).
  */
 
 import { readFileSync } from "node:fs";
@@ -50,13 +51,25 @@ interface Tally {
   graded: number;
   reasons: Map<string, number>;
   sets: Map<string, number>;
+  /** Turn and river decisions the solver graded, and how many of them rest on a placeholder range. */
+  solved: Record<"turn" | "river", { graded: number; placeholder: number }>;
 }
 
 function tally(hands: PhfHand[], charts: ChartSet): Tally {
-  const out: Tally = { decisions: 0, graded: 0, reasons: new Map(), sets: new Map() };
+  const out: Tally = {
+    decisions: 0,
+    graded: 0,
+    reasons: new Map(),
+    sets: new Map(),
+    solved: { turn: { graded: 0, placeholder: 0 }, river: { graded: 0, placeholder: 0 } },
+  };
   for (const hand of hands) {
     const analysis = analyzeHand(structuredClone(hand), { charts });
     for (const d of analysis.decisions) {
+      if ((d.street === "turn" || d.street === "river") && d.source === "solver") {
+        out.solved[d.street].graded += 1;
+        if (d.approximations.includes("placeholder-range")) out.solved[d.street].placeholder += 1;
+      }
       if (d.street !== "preflop") continue;
       out.decisions += 1;
       if (d.source === "chart") {
@@ -95,6 +108,10 @@ it("reports chart coverage", async () => {
       `6-max 100bb set alone: graded ${before.graded} (${pct(before.graded, before.decisions)}); refused: ${list(before.reasons)}`,
       `library (${sets.length} sets):  graded ${after.graded} (${pct(after.graded, after.decisions)}); refused: ${list(after.reasons)}`,
       `graded by set: ${list(after.sets)}`,
+      ...(["turn", "river"] as const).map(
+        (street) =>
+          `${street}s graded by the solver: ${before.solved[street].graded} -> ${after.solved[street].graded}; on a placeholder range ${before.solved[street].placeholder} (${pct(before.solved[street].placeholder, before.solved[street].graded)}) -> ${after.solved[street].placeholder} (${pct(after.solved[street].placeholder, after.solved[street].graded)})`,
+      ),
     ];
     console.log(lines.join("\n"));
   }

@@ -10,6 +10,8 @@ import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { analyzeHand } from "../../../frontend/src/lib/analysis/index.js";
+import { lineSeats } from "../../../frontend/src/lib/analysis/leaks.js";
+import { NINE_TABLE_ORDER, TABLE_ORDER, walkLine } from "../../../frontend/src/lib/analysis/reports.js";
 import {
   CHART_SETS,
   chartLibrary,
@@ -177,6 +179,18 @@ describe("lookup through the library", () => {
   });
 });
 
+describe("a stored line's table (leaks name a line, not a set)", () => {
+  it("walks a line on the table whose next seat the decision's own seat can be", () => {
+    // 6-max BTN first in; 9-max LJ first in (UTG+1 on an 8-handed table is two seats earlier).
+    expect(lineSeats("fff", "BTN")).toEqual(TABLE_ORDER);
+    expect(lineSeats("fff", "LJ")).toEqual(NINE_TABLE_ORDER);
+    expect(lineSeats("ff", "UTG")).toEqual(NINE_TABLE_ORDER);
+    // 9-max: HJ opens, the button faces it.
+    expect(walkLine("ffffrf", lineSeats("ffffrf", "BTN")).next).toBe("BTN");
+    expect(lineSeats("fffrf", "BB")).toEqual(TABLE_ORDER);
+  });
+});
+
 describe("real hands from the corpora", () => {
   const library = fullLibrary();
   let weplay: PhfHand[] = [];
@@ -244,7 +258,8 @@ describe("real hands from the corpora", () => {
       reasons.set(key, (reasons.get(key) ?? 0) + 1);
     }
     expect(reasons.get("unavailable") ?? 0).toBe(0);
-    expect(reasons.get("bad-input") ?? 0).toBeLessThanOrEqual(2);
+    // A fifth entrant is `multiway`, never `bad-input` (the open issue of A2b).
+    expect(reasons.get("bad-input") ?? 0).toBeLessThanOrEqual(1);
     // Coverage on the corpora (docs/ANALYSIS-PLAN.md §10, A2c): most decisions get a node.
     expect((reasons.get("ok") ?? 0) / all.length).toBeGreaterThan(0.6);
   });
@@ -252,7 +267,13 @@ describe("real hands from the corpora", () => {
   it("names every set a hand needs, and grades an 8-handed hand from the 9-max set", () => {
     const eightHanded = weplay.find((hand) => {
       const s = preflopSpotFromHand(hand, 0);
-      return s.ok && s.spot.positions.length === 8 && !s.spot.straddle && effectiveStackBb(s.spot) > 90 && effectiveStackBb(s.spot) < 110;
+      return (
+        s.ok &&
+        s.spot.positions.length === 8 &&
+        effectiveStackBb(s.spot) > 90 &&
+        effectiveStackBb(s.spot) < 110 &&
+        lookupPreflop(library, s.spot, s.heroCards, s.heroAction).ok
+      );
     });
     if (!eightHanded) throw new Error("no 8-handed 100bb hand in the WePlay corpus");
     expect(requiredChartSets(eightHanded)).toContain("nlhe-cash-9max-100bb");

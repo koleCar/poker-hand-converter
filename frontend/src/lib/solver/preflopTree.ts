@@ -18,7 +18,7 @@
  * Raise sizes are rounded to half a big blind; a raise that would leave less
  * than nothing behind is an all-in. Other stack depths change the sizes
  * (`PreflopSizing`, recorded in each chart set): at 40bb the open is 2.2bb
- * and every 4-bet is all-in (`allInAbove`).
+ * and a 4-bet past 40% of the stack is all-in (`allInAbove`).
  *
  * **What is cut, and flagged.** A full no-limit preflop tree for six players is
  * astronomically large, almost all of it multiway pots nobody plays. The tree

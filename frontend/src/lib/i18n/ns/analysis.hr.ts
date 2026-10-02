@@ -657,7 +657,7 @@ export const analysisHr: Dict["analysis"] = {
     straddle: "Straddle je pomaknuo blindove",
     "stack-depth": "Stackovi izvan 100 bb ±20 %",
     "table-size": "Nije stol za šest igrača",
-    model: "Preflop chartovi (charts/2) još podcjenjuju nekoliko implied-odds ruku (UTG-ove male parove i suited konektore) i flat buttona protiv cutoff opena",
+    model: "Preflop chartovi (charts/2 i charts/3) još podcjenjuju nekoliko implied-odds ruku (UTG-ove male parove i suited konektore) i flat buttona protiv cutoff opena",
     "short-handed": "Manje igrača od mjesta u setu chartova, čitano uz foldane najranije pozicije",
     "stack-depth-near": "Stackovi unutar 20 % od dubine seta chartova, ali ne točno na njoj",
     "off-tree-size": "Raise daleko od veličine u chartovima: ocjena ograničena na Netočno",

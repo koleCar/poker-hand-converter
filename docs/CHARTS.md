@@ -79,8 +79,8 @@ the shove.
 
 | Depth | Open | SB | 3-bet | 4-bet | 5-bet |
 |---|---|---|---|---|---|
-| 40bb | **2.2bb** (sizes round to 0.1bb) | 3bb | 3x / 4x (+1x per caller) | **all-in** (2.2-2.5x would be 41-48% of the stack) | - |
-| 60bb | 2.5bb | 3bb | 3x / 4x (+1x per caller) | 2.2x / 2.5x; **all-in over a squeeze** (55%) | all-in |
+| 40bb | **2.2bb** (sizes round to 0.1bb) | 3bb | 3x / 4x (+1x per caller) | **all-in**, except 2.2x of an in-position 3-bet (14.5bb, 36%) | all-in |
+| 60bb | 2.5bb | 3bb | 3x / 4x (+1x per caller) | 2.2x / 2.5x over a plain 3-bet; **all-in** over a squeeze or the SB's re-raise of an iso (42-46%) | all-in |
 | 100bb | 2.5bb | 3bb | 3x / 4x (+1x per caller) | 2.2x / 2.5x (at most 33% of the stack) | all-in |
 | 150, 200bb | 2.5bb | 3bb | 3x / 4x (+1x per caller) | 2.2x / 2.5x | all-in |
 
@@ -103,8 +103,9 @@ of guessing (`preflopTree.ts`):
   of it was then forced to fold, and the solver learned to fold AA to a
   3-bet. Cap who enters, never who continues.)
 
-The 6-max tree has 3,825 action nodes (at every depth from 60bb up; 1,159 at
-40bb, where the 4-bet is a shove); the 9-max tree 28,591. The cap of four
+The 6-max tree has 3,825 action nodes at 100bb and deeper, 1,365 at 60bb and
+1,159 at 40bb (an all-in 4-bet ends the raising a level earlier); the 9-max
+tree at 100bb and deeper 28,591. The cap of four
 entrants is the same at nine seats: more seats means more ways to reach a
 four-way pot, not bigger pots.
 
@@ -385,7 +386,24 @@ depth, a loader) and decides which one answers a spot (`pickChartSet`):
    solutions is a solution of neither. Covered: 32-240bb on 6-max except
    72-80bb (20% from neither 60 nor 100), 80-240bb on 9-max.
 
-SETS_TABLE
+| Set | Version | Nodes / tree | Bytes | Chunk, gzip | NashConv (mbb/hand) | Generation |
+|---|---|---|---|---|---|---|
+| `nlhe-cash-6max-40bb` | charts/3 | 335 / 1,159 | 785,898 | 181 KB | 0.038 | 35 min |
+| `nlhe-cash-6max-60bb` | charts/3 | 368 / 1,365 | 881,956 | 211 KB | 0.058 | 36 min |
+| `nlhe-cash-6max-100bb` | charts/2 | 281 / 3,825 | 736,170 | 171 KB | 0.075 | 27 min (10 cached) |
+| `nlhe-cash-6max-150bb` | charts/3 | 343 / 3,825 | 853,183 | 212 KB | 0.121 | 48 min |
+| `nlhe-cash-6max-200bb` | charts/3 | 355 / 3,825 | 886,115 | 224 KB | 0.130 | 57 min |
+| `nlhe-cash-9max-100bb` | charts/3 | 1,033 / 28,591 | 2,381,005 | 570 KB | 0.256 | 126 min |
+| `nlhe-cash-9max-150bb` | charts/3 | 1,139 / 28,591 | 2,641,632 | 645 KB | 0.313 | 131 min |
+| `nlhe-cash-9max-200bb` | charts/3 | 1,129 / 28,591 | 2,623,202 | 641 KB | 0.485 | 133 min |
+| **all eight** | | | **11,789,161** | **2.86 MB** | | ~2 h 15 min wall, 4 at a time |
+
+Generation times are each set's own, measured with four sets running at once
+(three turn+river worker threads each, M-series Mac, 10 cores). A 9-max
+iteration costs ~8x a 6-max one (28,591 action nodes against 3,825), so the
+9-max sets dominate. The 9-max sets converge a little less far in the same
+3,000 iterations (NashConv 0.26-0.49 against 0.04-0.13); every best-response
+gain per seat is under 0.2 mbb/hand.
 
 `CHARTS_VERSION` is `charts/3`; each set carries its own `id` and the
 `version` of the generator that made it: the 6-max 100bb set is still
@@ -410,7 +428,12 @@ gives it its own chunk and nothing loads a set it does not need:
   draw (`preflopChartSet(id)` in `lib/chartSet.ts`); the browser has a
   table-and-depth selector (`?set=`).
 
-BUNDLE_NOTE
+Measured on `next build`: every set is its own chunk (the "Chunk" column
+above; 0.67-0.84 MB raw for 6-max, 2.3-2.6 MB for 9-max), none of them in
+any page's first load; the manifest (ids, seats, depths, loaders) is a few
+hundred bytes in the pages and workers that import `lib/charts`. A hand
+from a 9-handed 150bb table makes the worker fetch one 645 KB (gzip) chunk
+once, not the library.
 
 ### 6.3 Smaller tables: earliest seats folded
 
@@ -430,11 +453,25 @@ after the folds is the smaller table's game. Measured
 model, sizes and depth, against the bigger set read short-handed, and
 against a second native solve at 80% of the iterations as the noise floor):
 
-COMPARE_TABLE
+| Table | Read as | Per-class frequency difference | Noise floor | Largest action-share difference | Noise floor |
+|---|---|---|---|---|---|
+| 5-handed | 6-max 100bb, UTG folded | 0.09% | 0.05% | 0.41 pts | 0.42 pts |
+| 4-handed | 6-max 100bb, UTG, HJ folded | 0.12% | 0.05% | 0.62 pts | 0.36 pts |
+| 3-handed | 6-max 100bb, UTG, HJ, CO folded | 0.18% | 0.07% | 0.45 pts | 0.17 pts |
+| 8-handed | 9-max 100bb, UTG folded | 0.07% | 0.07% | 0.80 pts | 0.38 pts |
+| 7-handed | 9-max 100bb, UTG, UTG+1 folded | 0.15% | 0.05% | 0.77 pts | 0.48 pts |
+
+(Per-class difference: the share of each class that plays differently,
+reach- and range-weighted; action-share difference: the largest gap in a
+reported frequency at a node reached at least 1e-3.) Every RFI width agrees
+to 0.1 point (8-handed: UTG+1 11.4 / 11.4, LJ 15.9 / 15.9, BTN 39.4 / 39.4);
+mean EV differences are 0.05-0.15bb, mostly in deep, rarely reached nodes.
+The reading is within a few tenths of a percent of a native solve - inside
+twice the solver's own noise between two iteration counts.
 
 What the reading leaves out is the real effect of the folds - folded ranges
 hold fewer aces and kings, so the players left hold slightly more - which no
-set models anyway (§2). A separate 8-max set would have cost another ~COST of
+set models anyway (§2). A separate 8-max set would have cost another ~2 hours of
 generation for differences inside the solver's own noise.
 
 ### 6.4 The realisation model per set
@@ -448,10 +485,28 @@ measured on its own ranges at its own stack-to-pot ratios, so a 40bb single
 raised pot (SPR ~7) and a 200bb one (SPR ~36) get the implied odds they
 have. The rounds start from `charts/2`'s fitted model rather than `charts/1`
 and run two rounds instead of three (the start is already a fit); the 40bb
-set has no 4-bet pots to measure (the 4-bet is a shove) and keeps the
-starting 4-bet coefficients, which its tree never uses.
+set measures no 4-bet pot (both measured 4-bets are shoves at 40bb) and
+keeps `charts/2`'s 4-bet coefficients for the few 4-bets that stay a raise.
 
-FIT_TABLE
+Fit error (share RMS, single-raised pots, final round) and the measured
+big-blind realisation against a button open, by set:
+
+| Set | SRP fit error (fitted / charts/1 / equity) | P / I | BB vs BTN open: R out / in position |
+|---|---|---|---|
+| 6-max 40bb | 0.032 / 0.049 / 0.073 | 1.19 / 1.02 | 0.85 / 1.10 |
+| 6-max 60bb | 0.034 / 0.051 / 0.077 | 1.19 / 1.04 | 0.84 / 1.12 |
+| 6-max 100bb (charts/2) | 0.037 / 0.055 / 0.082 | 1.20 / 1.05 | 0.83 / 1.12 |
+| 6-max 150bb | 0.038 / 0.053 / 0.084 | 1.21 / 1.04 | 0.83 / 1.13 |
+| 6-max 200bb | 0.039 / 0.056 / 0.085 | 1.19 / 1.04 | 0.83 / 1.13 |
+| 9-max 100bb | 0.038 / 0.054 / 0.081 | 1.22 / 1.05 | 0.83 / 1.12 |
+| 9-max 150bb | 0.039 / 0.055 / 0.083 | 1.22 / 1.05 | 0.83 / 1.12 |
+| 9-max 200bb | 0.041 / 0.056 / 0.084 | 1.20 / 1.05 | 0.84 / 1.12 |
+
+Depth moves the single-raised realisation less than expected: the out of
+position caller realises 0.85 of its equity at 40bb and 0.83 from 100bb up.
+It moves the limped and 4-bet pots more (limped `P` 1.11 at 40bb, 1.02 at
+200bb; 4-bet pots exist only from 60bb). Every round of every set is in its
+`model.realisationFit`.
 
 ### 6.5 Not covered, by decision
 
@@ -555,6 +610,55 @@ Added by A2a.1, from general poker theory, never from a published chart:
 | UTG opens some suited connectors / wheel aces | T9s, JTs; no 87s–54s, no A5s | partly (§9) |
 | RFI monotone; SB sensible; AA/KK never fold | yes; SB limps 42%, raises 18% | yes |
 
+### 8.2 The A2c sets (`charts/3`)
+
+`npm run charts:report` prints the full tables for every set. RFI widths
+(raise first in; the SB's limp + raise), continue = call + 3-bet:
+
+| | 40bb | 60bb | 100bb | 150bb | 200bb |
+|---|---|---|---|---|---|
+| **6-max** UTG / HJ / CO / BTN | 16.8 / 19.9 / 25.1 / 35.1 | 16.0 / 20.3 / 26.1 / 37.6 | 15.4 / 19.7 / 26.1 / 39.3 | 16.8 / 20.0 / 26.5 / 40.9 | 16.4 / 20.3 / 26.9 / 38.9 |
+| SB first in (limp + raise) | 62.3 (38.5 + 23.8) | 57.8 (32.3 + 25.5) | 59.9 (41.8 + 18.1) | 61.8 (46.8 + 14.9) | 66.4 (54.7 + 11.7) |
+| BB vs BTN open (call + 3-bet) | **78.1** (67.1 + 11.0) | 63.0 (50.2 + 12.8) | 61.7 (49.1 + 12.7) | 62.0 (50.1 + 11.9) | 62.1 (49.7 + 12.4) |
+| BB vs UTG open | **51.2** (45.7 + 5.6) | 28.5 (22.3 + 6.2) | 26.1 (20.4 + 5.7) | 26.2 (20.5 + 5.7) | 26.7 (21.0 + 5.7) |
+| UTG vs BTN 3-bet: fold / call / 4-bet | 45.0 / 36.7 / 18.3 | 51.7 / 25.7 / 22.6 | 42.2 / 40.5 / 17.3 | 43.2 / 37.7 / 19.2 | 41.1 / 40.6 / 18.2 |
+
+| 9-max | 100bb | 150bb | 200bb |
+|---|---|---|---|
+| UTG / UTG+1 / UTG+2 | **10.2 / 11.4 / 13.5** | 10.6 / 11.7 / 13.8 | 10.8 / 12.2 / 13.4 |
+| LJ / HJ / CO / BTN | 15.9 / 20.3 / 26.9 / 39.4 | 16.4 / 20.1 / 26.8 / 40.7 | 16.3 / 20.3 / 26.7 / 39.3 |
+| SB first in (limp + raise) | 58.8 (40.0 + 18.8) | 61.3 (45.5 + 15.8) | 66.6 (54.6 + 12.0) |
+| BB vs BTN open | 62.0 (49.5 + 12.5) | 62.0 (49.7 + 12.3) | 61.1 (48.5 + 12.7) |
+| BB vs UTG open | 19.5 (16.0 + 3.5) | 19.9 (17.0 + 2.9) | 19.9 (17.5 + 2.4) |
+| UTG vs BTN 3-bet: fold / call / 4-bet | 46.3 / 35.2 / 18.5 | 45.0 / 36.3 / 18.7 | 46.7 / 33.7 / 19.6 |
+
+**What the sets say.** The early full-ring seats open 10-14%, tighter than
+6-max's UTG (15-17%), and the 9-max LJ - the same seat as 6-max's UTG -
+opens 15.9-16.4%, within a point of it at every depth: the table size
+changes only the seats in front. Deeper, the small blind limps more (42%
+at 100bb, 55% at 200bb) and raises less; the button and the big blind barely
+move. At **40bb** the big blind defends much wider (78% against a button
+open, 51% against UTG): the 2.2bb open lays it 3.1:1 and the fitted
+out-of-position caller realises 0.85 of its equity there, against 0.83
+deeper (§6.4). That is the model's answer; it is wider than published
+short-stack defence usually is, and the flop measurement (§9) is where to
+check it.
+
+### Sanity bands for every set (tested, `tests/test/charts/sets.test.ts`)
+
+Every set: frequencies sum to 1; EVs consistent with frequencies (the
+chart's mix within 2% of the pot of the best action for every class in
+range, off-range classes on their best response); AA never folds; KK never
+folds before an all-in except cold (fold or re-raise only) or against two
+re-raisers; 72o never opens first in; RFI widens with position (within a
+point among the three earliest full-ring seats, strictly from the LJ on);
+the SB continues 35-75% first in; the BB defends 40-80% against a button
+open; NashConv under 1 mbb/hand (6-max) or 2 (9-max). Across sets: each of
+9-max's three earliest seats opens tighter than 6-max's UTG at the same
+depth, and 9-max's LJ within 4 points of it; the 40bb set opens 2.2bb and
+shoves its 4-bets past 40% of the stack; 150 and 200bb keep raise-sized
+4-bets.
+
 ## 9. Known limits
 
 - **The flop is checked in the measurement** (§4.2). Free cards favour the
@@ -590,8 +694,24 @@ Added by A2a.1, from general poker theory, never from a published chart:
   the SB's limp frequency moved most between rounds (`model.realisationFit`).
 - **No card removal between opponents**, see §2.
 - **Rake on the flop pot** is estimated from a growth factor, not played out.
-- **Out of scope by construction**: antes, straddles, 9-max, other depths,
-  open limps, cold calls of 3-bets, five-way pots, MTT/ICM.
+- **Out of scope by construction**: antes, straddles, heads-up, ten or more
+  players, depths under 32bb, 72-80bb and over 240bb (§6.5), open limps,
+  cold calls of 3-bets, five-way pots, MTT/ICM.
+- **Smaller tables are read on bigger sets** (§6.3): exact in the model up
+  to convergence, but the real card removal of the folded seats is not
+  there.
+- **No interpolation between depths**: a 125bb stack is graded on the
+  150bb set, with a `stack-depth` note; strategies between two depths are
+  whatever the nearer set says.
+- **The 9-max sets are less converged** (NashConv 0.26-0.49 mbb/hand against
+  0.04-0.13 for 6-max at the same 3,000 iterations) and bigger (2.4-2.6 MB
+  each), and keep 7-15 rare nodes out as unconverged
+  (`model.excluded`); the 6-max 200bb set leaves out `rcf` (the button
+  facing an UTG open and a HJ flat, reach 0.15%) the same way.
+- **Reports and the study plan** read the 6-max 100bb set only: Reports'
+  references are per node of the default set (decisions graded on other
+  sets are counted and left out, with A3's note), and the study plan's
+  trainer links name 6-max seats.
 - Lines reached less than 1e-5 at equilibrium are not in the set; real
   players reach some of them.
 
@@ -599,13 +719,24 @@ Added by A2a.1, from general poker theory, never from a published chart:
 
 ```bash
 cd tests
-npm run charts:generate      # ~27 min from scratch on 10 threads, ~10 min with the caches
-npm run charts:report        # the §8 tables for the committed set (CHARTS_FILE=... for another)
+CHARTS_PARALLEL=4 CHARTS_THREADS=12 npm run charts:generate   # every set, ~2 h 15 min wall on 10 cores
+CHARTS_SETS=nlhe-cash-6max-60bb npm run charts:generate       # one set
+npm run charts:report        # the §8 tables for every committed set (CHARTS_FILE=... for one file)
+npm run charts:coverage      # §6.6: graded decisions on the corpora, 6-max 100bb alone vs the library
+npm run charts:compare       # §6.3: a native short-handed solve against a bigger set read short-handed
 ```
 
-It writes `frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json` and prints
-each round's fit, convergence, the §8 tables, size, and whether the bytes
-changed. Time, measured on an M-series Mac (10 threads, Node 24): ~80 s for
+`tests/scripts/preflop-charts/sets.ts` lists every set's table, depth, sizes,
+rounds and starting model. `charts:generate` writes
+`frontend/src/lib/charts/data/<id>.json` per set and prints each round's fit,
+convergence, the §8 tables, size, and whether the bytes changed. With
+`CHARTS_PARALLEL` above 1 it runs one child process per set (a preflop solve
+is single-threaded), splits `CHARTS_THREADS` between them for the
+turn+river workers and logs each to `.cache/logs/<id>.log`; the results do
+not depend on the split. Regenerating the 6-max 100bb set with the A2c code
+writes its committed `charts/2` bytes exactly (checked, cached and after the
+solver's fold-mass cache, which changes no number). The figures below are
+the 6-max 100bb set's alone. Time, measured on an M-series Mac (10 threads, Node 24): ~80 s for
 the equity table (once), then per round ~110 s for the 1,500-iteration solve
 and ~7 min for 1,560 turn+river solves on worker threads, and ~3.5 min for the
 final solve - 1,587 s in all with nothing cached. The turn+river results are
@@ -623,7 +754,7 @@ bytes (checked on the full run, cached and uncached; a small configuration is
 checked in `tests/test/charts/realisation.test.ts`). Overrides for
 experiments: `CHARTS_ITERATIONS`, `CHARTS_BOARDS`, `CHARTS_OUT`,
 `CHARTS_ROUNDS`, `CHARTS_ROUND_ITERATIONS`, `CHARTS_MEASURE_BOARDS`,
-`CHARTS_THREADS`. Not part of `npm test`.
+`CHARTS_THREADS`, `CHARTS_SETS`, `CHARTS_PARALLEL`. Not part of `npm test`.
 
 Any change to a constant, size, cut or the engine changes the numbers; the
 set's `model.hash` changes with them, and the analysis version

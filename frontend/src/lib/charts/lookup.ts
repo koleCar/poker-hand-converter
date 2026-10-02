@@ -279,7 +279,11 @@ function lookupInSet(
     const position = rename(action.position);
     if (!position) return miss("bad-input", `unknown position ${action.position}`);
     if (tree.type[node] !== PF_ACTION) {
-      return miss("bad-input", `${action.position} acts after the betting closed in the chart's tree`);
+      // The tree closed the betting because four players are in: everyone
+      // else could only fold. A real fold there is that fold; anything else
+      // is a fifth entrant.
+      if (action.type === "fold") continue;
+      return miss("multiway", `${action.position} would be a fifth player in the pot; the tree only lets it fold`);
     }
     const actor = tree.players[tree.actor[node]];
     if (position !== actor) {
@@ -304,7 +308,7 @@ function lookupInSet(
   }
 
   if (tree.type[node] !== PF_ACTION) {
-    return miss("bad-input", "the betting is closed before the hero's decision");
+    return miss("multiway", `the pot has four players in; the tree only lets ${spot.hero} fold`);
   }
   if (tree.players[tree.actor[node]] !== hero) {
     return miss(

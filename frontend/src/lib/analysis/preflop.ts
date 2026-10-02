@@ -45,9 +45,10 @@ import type { Approximation, ChartRef, ChartSkipReason, OptionAnalysis } from ".
  * realisation to our postflop solver and fixes most of it, but still values
  * a flop with the flop checked (`docs/CHARTS.md` §9): UTG folds 55–22,
  * 87s–54s and A5s, and the button almost never flats a cutoff open. It stays
- * on the list, and `modelCaveat` names those hands.
+ * on the list, and `modelCaveat` names those hands. `charts/3` (A2c) is the
+ * same model at other tables and depths, with the same weakness.
  */
-export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2"];
+export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2", "charts/3"];
 
 /** Probability mass, in combos, below which a chart range is too thin to measure an equity against. */
 const MIN_RANGE_COMBOS = 1;

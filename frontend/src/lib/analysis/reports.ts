@@ -98,19 +98,26 @@ export interface LineStep {
   code: string;
 }
 
+/** The seats of the 9-max sets, in table order (A2c). */
+export const NINE_TABLE_ORDER: readonly ChartPosition[] = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
+
 /**
  * Who took each action of a line key, and who acts next. A line has one
  * letter per action in turn order, folds included, so the actor of a letter
- * is the next player who has neither folded nor gone all in.
+ * is the next player who has neither folded nor gone all in. `seats` is the
+ * set's table (`ChartSet.game.positions`, `ChartNode.seats`); 6-max by default.
  */
-export function walkLine(line: string): { steps: LineStep[]; next: ChartPosition | null } {
+export function walkLine(
+  line: string,
+  seats: readonly ChartPosition[] = TABLE_ORDER,
+): { steps: LineStep[]; next: ChartPosition | null } {
   const folded = new Set<number>();
   const allIn = new Set<number>();
   const steps: LineStep[] = [];
   let seat = -1;
   const advance = (): number | null => {
-    for (let tries = 0; tries < TABLE_ORDER.length; tries += 1) {
-      seat = (seat + 1) % TABLE_ORDER.length;
+    for (let tries = 0; tries < seats.length; tries += 1) {
+      seat = (seat + 1) % seats.length;
       if (!folded.has(seat) && !allIn.has(seat)) return seat;
     }
     return null;
@@ -119,7 +126,7 @@ export function walkLine(line: string): { steps: LineStep[]; next: ChartPosition
   for (const code of line) {
     const at = advance();
     if (at === null) return { steps, next: null };
-    steps.push({ position: TABLE_ORDER[at], code });
+    steps.push({ position: seats[at], code });
     if (code === "f") folded.add(at);
     else if (code === "a") {
       facingAllIn = true;
@@ -127,7 +134,7 @@ export function walkLine(line: string): { steps: LineStep[]; next: ChartPosition
     } else if (code === "c" && facingAllIn) allIn.add(at);
   }
   const at = advance();
-  return { steps, next: at === null ? null : TABLE_ORDER[at] };
+  return { steps, next: at === null ? null : seats[at] };
 }
 
 /** The player who opened (the first raise of the line), or null. */
@@ -187,7 +194,8 @@ export interface OpponentRange {
  * does not hold are left out — they carry no information the charts have.
  */
 export function opponentRanges(charts: ChartSet, line: string): OpponentRange[] {
-  const { steps, next } = walkLine(line);
+  const seats = charts.game.positions;
+  const { steps, next } = walkLine(line, seats);
   const last = new Map<ChartPosition, { node: ChartNode; option: number; code: string }>();
   for (let k = 0; k < steps.length; k += 1) {
     const node = charts.nodes.get(line.slice(0, k));
@@ -203,7 +211,7 @@ export function opponentRanges(charts: ChartSet, line: string): OpponentRange[] 
     for (let c = 0; c < NUM_CLASSES; c += 1) weights[c] = node.range[c] * node.freq[option * NUM_CLASSES + c];
     out.push({ position, weights, line: node.line, code });
   }
-  return out.sort((a, b) => TABLE_ORDER.indexOf(a.position) - TABLE_ORDER.indexOf(b.position));
+  return out.sort((a, b) => seats.indexOf(a.position) - seats.indexOf(b.position));
 }
 
 /**

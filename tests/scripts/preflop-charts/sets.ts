@@ -36,8 +36,10 @@ const NINE: readonly PreflopPosition[] = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "
  * Sizes by depth. 100bb and deeper keep `charts/2`'s (2.5bb opens, SB 3bb,
  * 3-bets 3x / 4x, 4-bets 2.2x / 2.5x, 5-bet all-in). At 40bb the open is
  * 2.2bb (rounded to 0.1bb), and a raise that puts more than 40% of the stack
- * in is all-in - which makes every 40bb 4-bet a shove and, at 60bb, the 4-bet
- * over a squeeze. Nothing at 100bb or deeper reaches 40% before the 5-bet.
+ * in is all-in - which makes most 40bb 4-bets shoves (all but 2.2x of an
+ * in-position 3-bet) and, at 60bb, the 4-bet over a squeeze or over the
+ * small blind's re-raise of an iso.
+ * Nothing at 100bb or deeper reaches 40% before the 5-bet.
  */
 const ALL_IN_ABOVE = 0.4;
 const SHORT: Partial<PreflopSizing> = { open: 2.2, roundTo: 0.1, allInAbove: ALL_IN_ABOVE };
