@@ -30,6 +30,13 @@ export const paths = {
    * back link returns to exactly the list the reader left.
    */
   analysis: (query?: string) => (query ? `/analysis?${query}` : "/analysis"),
+  /**
+   * The concept library (`docs/ANALYSIS-PLAN.md` §6.0 *Learn*). Public and
+   * indexable, unlike the rest of `/analysis`: it reads no account data.
+   */
+  analysisLearn: () => "/analysis/learn",
+  /** One concept page. `id` is a `ConceptId` from `lib/learn/concepts.ts`. */
+  analysisConcept: (id: string) => `/analysis/learn/${encodeURIComponent(id)}`,
   /** One hand's analysis: the replayer with the Analysis sheet open. */
   analysisHand: (handId: string, query?: string) =>
     `/analysis/h/${encodeURIComponent(handId)}${query ? `?${query}` : ""}`,

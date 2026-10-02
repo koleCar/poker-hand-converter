@@ -41,14 +41,17 @@ import {
   type AnalysisSort,
 } from "../../lib/db";
 import { ANALYSIS_SORTS } from "../../lib/db/analysis";
-import { ANALYSIS_VERSION, FLAG_CODES } from "../../lib/analysis/types";
+import { ANALYSIS_VERSION, FLAG_CODES, type FlagCode } from "../../lib/analysis/types";
 import { useAuth } from "../../lib/auth";
 import { useDict } from "../../lib/i18n/client";
 import { paths } from "../../lib/routes";
 import { getParser } from "../../lib/phf";
 import { CardRow } from "../replayer/PlayingCard";
 import { countIn, dateFormat, numberFormat, useIntlLocale } from "../stats/format";
+import { FLAG_CONCEPTS } from "../../lib/learn/links";
 import { ActionStrip } from "./ActionStrip";
+import { AnalysisNav } from "./AnalysisNav";
+import { LearnLink } from "./LearnLinks";
 import {
   EMPTY_LIST_STATE,
   FORMAT_VALUES,
@@ -291,10 +294,13 @@ export function AnalysisTab({ initialQuery, refreshToken = 0 }: AnalysisTabProps
 function Header({ sample }: { sample?: string }) {
   const t = useDict().analysis.tab;
   return (
-    <header className="stats__head">
-      <h2>{t.heading}</h2>
-      {sample ? <span className="stats__sample">{sample}</span> : null}
-    </header>
+    <>
+      <header className="stats__head">
+        <h2>{t.heading}</h2>
+        {sample ? <span className="stats__sample">{sample}</span> : null}
+      </header>
+      <AnalysisNav current="overview" />
+    </>
   );
 }
 
@@ -509,6 +515,12 @@ function Overview({ overview }: { overview: AnalysisOverview }) {
                       <th scope="row">
                         <span className={`${styles.tag} ${styles[row.severity]}`}>{t.severity[row.severity]}</span>{" "}
                         {t.flags[row.code] ?? row.code}
+                        {FLAG_CONCEPTS[row.code as FlagCode]?.[0] ? (
+                          <>
+                            <br />
+                            <LearnLink concept={FLAG_CONCEPTS[row.code as FlagCode][0]} />
+                          </>
+                        ) : null}
                       </th>
                       <td>{t.streets[row.street] ?? row.street}</td>
                       <td className="num">{count(row.count)}</td>

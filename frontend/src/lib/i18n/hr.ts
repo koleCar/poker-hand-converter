@@ -12,6 +12,7 @@
 import { analysisHr } from "./ns/analysis.hr";
 import { chromeHr } from "./ns/chrome.hr";
 import { converterHr } from "./ns/converter.hr";
+import { learnHr } from "./ns/learn.hr";
 import { replayerHr } from "./ns/replayer.hr";
 import { statsHr } from "./ns/stats.hr";
 import type { Dict } from "./types";
@@ -25,6 +26,7 @@ const num = (value: number) => value.toLocaleString("hr-HR");
 export const hr: Dict = {
   stats: statsHr,
   analysis: analysisHr,
+  learn: learnHr,
   replayer: replayerHr,
   converter: converterHr,
   chrome: chromeHr,
@@ -63,6 +65,12 @@ export const hr: Dict = {
       title: "Analiza ruke | Rail",
       description: "Jedna tvoja ruka, odluku po odluku, u replayeru.",
     },
+    learn: {
+      title: "Nauči pokersku strategiju: pot odds, rasponi, MDF, SPR i više | Rail",
+      description:
+        "Besplatno objašnjeni pokerski pojmovi s razrađenim primjerima i interaktivnim kalkulatorima: pot odds, realizacija equityja, rasponi, tekstura boarda, MDF, SPR, veličina beta, 3-betovi i više.",
+    },
+    learnConcept: (title: string) => `${title} — pokerski pojmovi | Rail`,
     notFound: {
       title: "Stranica nije pronađena | Rail",
       description: "Ova adresa ne odgovara ničemu na Railu.",

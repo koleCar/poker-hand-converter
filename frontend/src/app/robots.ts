@@ -13,15 +13,18 @@ import { canonicalUrl, paths } from "../lib/routes";
  *
  * `/library`, `/stats`, `/analysis` and `/auth` are one account's own screens behind RLS.
  * There is nothing on them for a signed-out crawler and nothing worth spending
- * crawl budget on.
+ * crawl budget on — except `/analysis/learn`, the concept library, which reads
+ * no account data and is allowed back in explicitly. Crawlers resolve a
+ * conflict by the longest matching rule, so the `allow` wins under it.
  *
- * `/` and `/convert` are the two public surfaces and are the whole sitemap.
+ * `/`, `/convert` and the concept library are the public surfaces in the sitemap,
+ * with the forum threads and published hands.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: "/",
+      allow: ["/", paths.analysisLearn()],
       // `/embed/` duplicates `/p/` without its context; `/api/` is machinery.
       disallow: ["/h/", "/embed/", "/api/", paths.library(), paths.stats(), paths.analysis(), "/auth/"],
     },

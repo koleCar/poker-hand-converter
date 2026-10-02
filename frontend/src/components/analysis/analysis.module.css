@@ -452,3 +452,70 @@
     background: CanvasText;
   }
 }
+
+/* ------------------------------------------------- the tab's own sections */
+
+/* "Your analysis · Learn": inside the tab, not in the app bar (§6.0). */
+.subnav ul {
+  display: flex;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.subnavLink {
+  display: inline-block;
+  padding: var(--space-2) var(--space-3);
+  border-block-end: 2px solid transparent;
+  margin-block-end: -1px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.subnavLink:hover {
+  color: var(--text-primary);
+}
+
+.subnavLink[aria-current="page"] {
+  border-block-end-color: var(--accent-border);
+  color: var(--text-primary);
+}
+
+/* ---------------------------------------------------- links into Learn */
+
+.learnLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  margin-block-start: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.learnLabel {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.learnLinks ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.learnLinks a,
+.learnInline {
+  color: var(--text-link);
+}
+
+.learnInline {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+}
