@@ -369,9 +369,13 @@ export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayF
   const bigBlind = hand.game.bigBlind;
   const frames: ReplayFrame[] = [];
   const display = (amount: Amount) => toDisplayNumber(amount, unit);
-  const money = (amount: Amount) => formatAmount(amount, unit);
+  /**
+   * Captions and pills alike write money the way the source did: a room that
+   * prints `$2,637.50` should not read `$2637.5` in the replayer's caption.
+   */
+  const money = (amount: Amount) => formatAmount(amount, unit, hand.meta.textStyle.decimals);
   /** For a rebuilt action pill: the source's own decimal habit, like `PhfAction.label`. */
-  const labelMoney = (amount: Amount) => formatAmount(amount, unit, hand.meta.textStyle.decimals);
+  const labelMoney = money;
 
   const state = new Map<
     string,

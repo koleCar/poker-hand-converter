@@ -296,8 +296,8 @@ describe("the replayer", () => {
     const subject = await hand("pokerstars/15-cash-omahahilo-limit-hi-lo-split.txt");
     const awards = buildReplay(subject).filter((frame) => frame.kind === "award");
     expect(awards.map((frame) => frame.description)).toEqual([
-      "Main pot — High: Crazy Elior wins $2637.5",
-      "Main pot — Low: LewisFriend wins $2637.5",
+      "Main pot — High: Crazy Elior wins $2637.50",
+      "Main pot — Low: LewisFriend wins $2637.50",
       "Side pot — High: Bluf_To_Much wins $2100",
       "Side pot — Low: LewisFriend wins $2100",
     ]);
@@ -318,8 +318,8 @@ describe("the replayer", () => {
     ]);
   });
 
-  it("captions a pot nobody contested exactly as before", async () => {
+  it("captions a pot nobody contested in the source's own decimals", async () => {
     const subject = await hand("pokerstars/14-cash-omahahilo-strange-names.txt");
-    expect(captions(subject)).toEqual(["wo_ooly :D wins $2.5"]);
+    expect(captions(subject)).toEqual(["wo_ooly :D wins $2.50"]);
   });
 });
