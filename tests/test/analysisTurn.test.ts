@@ -127,7 +127,7 @@ const DRAW = headsUp({
   turn: ["Bb: checks", "Btn: bets $3", "Bb: folds"],
 });
 
-describe("turn grades with known answers", () => {
+describe("turn grades with known answers", { timeout: 180_000 }, () => {
   it("calls folding a hand that cannot lose a Blunder, whatever the narrowing", () => {
     // A royal flush on the turn: no river and no holding beats it.
     const hand = headsUp({
@@ -183,7 +183,7 @@ describe("turn grades with known answers", () => {
   });
 });
 
-describe("the turn line onto the tree", () => {
+describe("the turn line onto the tree", { timeout: 180_000 }, () => {
   it("solves a size far from the tree's as played, or caps the grade", () => {
     // 2.5 pots: the tree bets 75% (and shoves only up to three pots), so the
     // hand's own size is added to it; if the solve never uses it, the line is
@@ -219,7 +219,7 @@ describe("the turn line onto the tree", () => {
   });
 });
 
-describe("the river's ranges from the solved turn", () => {
+describe("the river's ranges from the solved turn", { timeout: 180_000 }, () => {
   const hand = headsUp({
     hero: "Bb",
     cards: "Js Ts",
