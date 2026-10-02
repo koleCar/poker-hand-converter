@@ -15,8 +15,9 @@
  *
  * What the tests hold the pipeline to: the fixtures convert with no warnings,
  * validate against the 36-card deck, balance, and come back from standard text
- * equal; positions name no blind nobody posted; equity deals from 36 cards and
- * ranks a flush over a full house; the stats engine keeps the steal family out
+ * equal; positions name no blind nobody posted; equity deals from 36 cards,
+ * ranks a flush over a full house, and ranks trips against a straight the way
+ * the hand's own room pays it; the stats engine keeps the steal family out
  * of a structure it was not defined for; and the replayer plays them.
  */
 
@@ -24,7 +25,16 @@ import { describe, expect, it } from "vitest";
 import { join } from "node:path";
 
 import { handClass } from "../../frontend/src/lib/cards.js";
-import { analyzeAllIn } from "../../frontend/src/lib/equity/index.js";
+import {
+  SHORT_DECK,
+  SHORT_DECK_STRAIGHT_OVER_TRIPS,
+  analyzeAllIn,
+  categoryOf,
+  equity,
+  evaluate,
+  shortDeckRuleFor,
+  shortDeckTable,
+} from "../../frontend/src/lib/equity/index.js";
 import { convertAny } from "../../frontend/src/lib/parsers/index.js";
 import { parseStandardHand, toStandardText } from "../../frontend/src/lib/phf/serialize.js";
 import {
@@ -448,5 +458,90 @@ describe("the replayer", () => {
     const seat = posted!.seats.find((entry) => entry.lastAction?.startsWith("button blind"))!;
     expect(seat.position).toBe("BTN");
     expect(seat.lastActionTone).toBe("post");
+  });
+});
+
+describe("trips against a straight, per room", () => {
+  // Fixture 12, first board. GG paid the straight: `951600 showed [Qs Ks] and
+  // won ($1,354) with Aces-High Straight`, `1802531 ... [Td Ts] and lost with
+  // Three Tens`. That payout is the whole evidence for GG's rule.
+  const BOARD = ["Tc", "8h", "Ah", "6h", "Jd"];
+  const STRAIGHT = ["Qs", "Ks", ...BOARD];
+  const SET = ["Td", "Ts", ...BOARD];
+
+  it("reproduces GG's fixture-12 payout under GG's table, and the reverse under the classic one", () => {
+    const gg = SHORT_DECK_STRAIGHT_OVER_TRIPS;
+    expect(categoryOf(evaluate(STRAIGHT, gg), gg)).toBe("straight");
+    expect(categoryOf(evaluate(SET, gg), gg)).toBe("trips");
+    expect(evaluate(STRAIGHT, gg)).toBeGreaterThan(evaluate(SET, gg));
+    expect(evaluate(STRAIGHT, SHORT_DECK)).toBeLessThan(evaluate(SET, SHORT_DECK));
+    // Both tables still put a flush over a full house.
+    for (const table of [SHORT_DECK, SHORT_DECK_STRAIGHT_OVER_TRIPS]) {
+      expect(evaluate(["6h", "8h", "Th", "Qh", "Ah"], table)).toBeGreaterThan(
+        evaluate(["Ah", "Ad", "Ac", "Ks", "Kh"], table),
+      );
+    }
+  });
+
+  it("agrees with who the fixture says won the first board", () => {
+    const hand = handById("1171217378123557259");
+    const table = shortDeckTable(shortDeckRuleFor(hand.meta.siteId));
+    expect(table).toBe(SHORT_DECK_STRAIGHT_OVER_TRIPS);
+    const board = hand.board.runouts[0].summaryCards!;
+    expect(board).toEqual(BOARD);
+    const hole = (name: string) => hand.players.find((player) => player.name === name)!.holeCards;
+    const winner = hand.actions.find(
+      (action) => action.type === "collect" && action.runoutIndex === 0,
+    )!.player;
+    expect(winner).toBe("951600");
+    expect(evaluate([...hole("951600"), ...board], table)).toBeGreaterThan(
+      evaluate([...hole("1802531"), ...board], table),
+    );
+  });
+
+  it("is decided in one place, and only GG has the evidence to leave the default", () => {
+    expect(shortDeckRuleFor("ggpoker")).toBe("straight-over-trips");
+    expect(shortDeckRuleFor("acrwpn")).toBe("trips-over-straight");
+    expect(shortDeckRuleFor("standard")).toBe("trips-over-straight");
+    expect(shortDeckTable()).toBe(SHORT_DECK);
+  });
+
+  it("changes a turn equity by exactly the jacks", () => {
+    // `Ks Qs` against `Td Ts` on `Tc 8h Ah 6h`: 28 rivers. A jack (four left)
+    // makes the straight; nothing else beats the set, and no river can make a
+    // flush for a player holding no heart. So the straight hand wins 4/28 when
+    // a straight beats trips, and nothing when it does not.
+    const request = {
+      game: "shortdeck" as const,
+      hands: [
+        ["Ks", "Qs"],
+        ["Td", "Ts"],
+      ],
+      board: ["Tc", "8h", "Ah", "6h"],
+    };
+    const gg = equity({ ...request, shortDeckRule: "straight-over-trips" });
+    expect(gg.boards).toBe(28);
+    expect(gg.equity[0]).toBeCloseTo(4 / 28, 12);
+    expect(equity(request).equity).toEqual([0, 1]);
+  });
+
+  it("flips the favourite of GG's own preflop all-in in fixture 12", () => {
+    // `Qs Ks` against `Td Ts`, all in preflop. Under the room's rule the
+    // straight-heavy hand is the favourite; scored by the classic table, as
+    // if the same hand had been dealt anywhere else, it is the underdog.
+    const hand = handById("1171217378123557259");
+    const asGg = analyzeAllIn(hand);
+    const elsewhere = analyzeAllIn({ ...hand, meta: { ...hand.meta, siteId: "acrwpn" } });
+    if (!asGg.applicable || !elsewhere.applicable) {
+      throw new Error("fixture 12 should have an all-in EV");
+    }
+    const kingQueen = (ev: typeof asGg.ev) =>
+      ev.pots[0].equity[ev.pots[0].eligibleSeats.indexOf(1)];
+    expect(asGg.ev.method).toBe("exhaustive");
+    expect(kingQueen(asGg.ev)).toBeGreaterThan(0.5);
+    expect(kingQueen(elsewhere.ev)).toBeLessThan(0.5);
+    const evNet = (ev: typeof asGg.ev) => ev.seats.find((seat) => seat.seat === 1)!.evNet;
+    expect(evNet(asGg.ev)).toBeGreaterThan(0);
+    expect(evNet(elsewhere.ev)).toBeLessThan(0);
   });
 });

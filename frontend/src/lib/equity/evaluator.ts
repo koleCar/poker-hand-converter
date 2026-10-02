@@ -15,22 +15,22 @@
  * the same table and the same card count, which is the only comparison an
  * equity calculation ever makes.
  *
- * **Short deck is a second table, not a flag.** It differs from the full deck in
- * two facts, and both are data:
+ * **Short deck is two more tables, not a flag.** It differs from the full deck
+ * in two facts, and both are data:
  *
  *  - which rank sets are straights (`A-6-7-8-9` is the lowest, `A-2-3-4-5` cannot
  *    be dealt), and
- *  - the order of the categories: a flush beats a full house, and three of a
- *    kind beats a straight.
+ *  - the order of the categories: a flush beats a full house everywhere, and
+ *    where three of a kind and a straight fall depends on the room.
  *
- * The second point is the PokerStars "6+" ruleset, and the one this table was
- * written to for GGPoker too. Some live games rank a straight over trips; that
- * would be a third `RankingTable`, not an `if`. **The corpus says GG may be one
- * of them**: in `fixtures/samples/ggpoker/12-...`, on the first board
- * `Tc 8h Ah 6h Jd`, GG paid `Qs Ks` (an ace-high straight) over `Td Ts`
- * (three tens). One hand is a reason to check, not yet a reason to change the
- * table, so it is recorded here; a per-room table would be chosen from
- * `meta.siteId` in `allInEv`, which is the only caller that knows the room.
+ * The rooms disagree on that last point, so there are two short-deck tables
+ * and `SHORT_DECK_RULE_BY_SITE` below picks one per room:
+ *
+ *  - `SHORT_DECK` - three of a kind over a straight, the classic (original
+ *    Triton) rule. The default for every room whose own payouts have not
+ *    said otherwise.
+ *  - `SHORT_DECK_STRAIGHT_OVER_TRIPS` - a straight over three of a kind, which
+ *    is what GGPoker pays. See the map for the evidence.
  *
  * The evaluation order below is valid for any table because of one card-count
  * fact: with at most seven cards, a flush leaves at most two other cards, which
@@ -116,7 +116,7 @@ for (let mask = 1; mask < 8192; mask += 1) {
  * already shifted into place, so a value is built with one OR.
  */
 export interface RankingTable {
-  readonly name: "standard" | "short-deck";
+  readonly name: "standard" | "short-deck" | "short-deck-straight-over-trips";
   /** Ranks the deck is built from, low to high (0 = deuce). */
   readonly deckRanks: readonly number[];
   readonly straight: Uint8Array;
@@ -205,6 +205,59 @@ export const SHORT_DECK: RankingTable = rankingTable(
     "straight-flush",
   ],
 );
+
+/**
+ * The same 36-card deck as `SHORT_DECK`, with a straight over three of a kind.
+ * A flush still beats a full house.
+ */
+export const SHORT_DECK_STRAIGHT_OVER_TRIPS: RankingTable = rankingTable(
+  "short-deck-straight-over-trips",
+  [4, 5, 6, 7, 8, 9, 10, 11, 12],
+  [{ ranks: [12, 4, 5, 6, 7], top: 7 }, ...runs(8)],
+  [
+    "high-card",
+    "pair",
+    "two-pair",
+    "trips",
+    "straight",
+    "full-house",
+    "flush",
+    "quads",
+    "straight-flush",
+  ],
+);
+
+/** Where a room ranks three of a kind against a straight in short deck. */
+export type ShortDeckRule = "trips-over-straight" | "straight-over-trips";
+
+/**
+ * The short-deck rule per room, keyed by `meta.siteId`. The one place this is
+ * decided; a room that is not listed gets `trips-over-straight`.
+ *
+ * A room goes on this map only on the evidence of its own payouts, the same
+ * bar the parsers' variant locks hold to:
+ *
+ *  - **`ggpoker`: straight over trips.** `fixtures/samples/ggpoker/12-...`,
+ *    first board `Tc 8h Ah 6h Jd`: `Qs Ks` makes an ace-high straight, `Td Ts`
+ *    makes three tens, and GG paid the straight (`951600 ... won ($1,354) with
+ *    Aces-High Straight`, `1802531 ... lost with Three Tens`).
+ *
+ * ACR's one Six Plus hand never reaches a showdown, so it says nothing, and
+ * ACR keeps the default with every other room until a fixture of its own does.
+ */
+export const SHORT_DECK_RULE_BY_SITE: Readonly<Record<string, ShortDeckRule>> = {
+  ggpoker: "straight-over-trips",
+};
+
+/** The short-deck rule for a room; the classic one unless the map says otherwise. */
+export function shortDeckRuleFor(siteId: string): ShortDeckRule {
+  return SHORT_DECK_RULE_BY_SITE[siteId.trim().toLowerCase()] ?? "trips-over-straight";
+}
+
+/** The ranking table a short-deck rule is scored with. */
+export function shortDeckTable(rule: ShortDeckRule = "trips-over-straight"): RankingTable {
+  return rule === "straight-over-trips" ? SHORT_DECK_STRAIGHT_OVER_TRIPS : SHORT_DECK;
+}
 
 /* ------------------------------------------------------------ evaluator - */
 

@@ -195,9 +195,13 @@ short-deck hand (`card-not-in-deck`), and all-in EV deals the runout from the
   deck and the ranking differ from its Hold'em. One legacy hand is the whole
   sample, so the modern dialect still refuses it; it is written out as Stars'
   `6+ Hold'em No Limit`.
-- The evaluator ranks three of a kind over a straight (Stars' rule).
-  GG's fixture 12 paid a straight over trips, so GG may play the other rule;
-  see the note in `frontend/src/lib/equity/evaluator.ts`.
+- **Trips against a straight is ranked per room.** GGPoker ranks a straight
+  over three of a kind: its own payout in fixture 12 gave `Qs Ks` (ace-high
+  straight) the pot over `Td Ts` (three tens). Every other room keeps the
+  classic rule, trips over a straight, until a fixture of its own says
+  otherwise. A flush beats a full house under both. The room-to-rule map is
+  `SHORT_DECK_RULE_BY_SITE` in `frontend/src/lib/equity/evaluator.ts`, and
+  all-in EV reads it from the hand's room.
 
 And two of the Omaha rows:
 
