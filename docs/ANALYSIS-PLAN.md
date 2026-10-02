@@ -209,18 +209,25 @@ player's decisions. This is why they come first.
 - **Hands outside the range:** a hand class that never reaches a node gets the
   best response, and the lookup reports `inRange: false` so the UI can say so.
 
-**Known weakness of `charts/1`.** The realisation model under-rates
-implied-odds hands:
-- early-position opens lean to high cards over small pairs and suited
-  connectors;
-- flatting is rare: BB defends 48% vs a button open, and BTN never flats vs CO.
+**Known weakness of `charts/1`, and what `charts/2` (A2a.1) fixed.**
+`charts/1`'s hand-set realisation model under-rated implied-odds hands:
+UTG opened A9o/A8o and folded 55–22 and small suited connectors; the BB
+defended 48% against a button open; nobody flatted in position.
+`charts/2` fits the realisation model to our own postflop solver (turn+river
+solves of the charts' own ranges on sampled boards, three rounds to a fixed
+point; `docs/CHARTS.md` §4):
+- **Fixed:** BB defends 61.7% vs a button open (49.1% call), and calls more
+  than it 3-bets against every open; UTG folds A9o–A2o and opens 66+, suited
+  aces to A7s, JTs, T9s; lines through a CO–BTN flat are in the set (`ffrc`).
+- **Remains:**
+  - UTG folds 55–22 and 87s–54s;
+  - the BTN flats a CO open only 0.2% (UTG 2%, HJ 1%), flatting and 3-betting
+    being nearly indifferent in the model.
+  Both trace to the measurement checking the flop: it takes a street of
+  betting away from the hands that flop sets and flushes.
 
-Two consequences:
-- Lines through a flat come back as `rare-line`.
-- Grades in those spots carry a `model` approximation note.
-
-A2a.1 reworks the model (`charts/2`). The lasting fix is feeding the A5 flop
-library's realisation back into the preflop solve.
+The lasting fix is a flop measurement: A5b's flop library (or flop solves of
+the realisation spots) fed back into the same fit.
 
 ### 3.2 Postflop — our own solver (`source: "solver"`)
 
@@ -819,3 +826,24 @@ Each phase appends what it learned that changed the plan.
     - **A3 interplay:** Reports' postflop-by-role river column counts only
       analysed decisions. Rivers the solver skips (three-way flops, lines
       the solve never takes) drop out, which suits its "heads-up" label.
+- 2026-10-02 — A2a.1 shipped: `charts/2`, the realisation model fitted to our
+  postflop solver.
+  - **Method.** 13 heads-up spots covering every role and pot type; 120
+    seeded flop+turn deals each, turn and river solved (flop checked, 75% or
+    all-in); per class, realised share over check-down equity; a log-linear
+    weight of 11 class features per seat, fitted per pot type with the
+    position and initiative edges; three rounds of solve → measure → fit,
+    pooling the rounds' measurements. The fit's share error is 27–43% below
+    `charts/1`'s on the same data.
+  - **Rare actions are measured on their candidates.** The button's flat and
+    the small blind's limp are measured on every hand that continues there:
+    measured on the few classes the charts flat with, the fit swung the flat
+    on and off between rounds.
+  - **Result.** BB defends 61.7% vs a button open (was 48.3%); UTG opens 66+
+    and suited hands instead of A9o/A8o; NashConv 0.075 mbb/hand; 736 KB;
+    ~27 min to generate from scratch on 10 threads (turn+river solves on worker
+    threads, cached by job hash).
+  - **Not reached:** UTG folds 55–22; the BTN flats a CO open 0.2%. Both
+    point at the checked flop; a flop measurement (A5b) is the next step for
+    the charts.
+  - `CHARTS_VERSION` is `charts/2`; the lookup API is unchanged.

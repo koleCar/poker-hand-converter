@@ -17,7 +17,13 @@ import {
   preflopEquityTable,
   type PreflopEquityTable,
 } from "../solver/preflopEquity";
-import { realisationAssumptions, STANDARD_RAKE, type RakeProfile } from "../solver/preflopModel";
+import {
+  CHARTS1_REALISATION,
+  realisationAssumptions,
+  STANDARD_RAKE,
+  type RakeProfile,
+  type RealisationModel,
+} from "../solver/preflopModel";
 import {
   buildPreflopTree,
   PF_ACTION,
@@ -49,6 +55,14 @@ export interface GenerateOptions {
   minReach?: number;
   /** Iterations for the standalone SB-vs-BB solve; 0 skips it. */
   headsUpIterations?: number;
+  /**
+   * How pots that see a flop are shared. Default: `CHARTS1_REALISATION`, the
+   * hand-set model; the committed set uses the one fitted to the postflop
+   * solver (`generateRealisedChartSet` in `realisation.ts`).
+   */
+  realisation?: RealisationModel;
+  /** Recorded in the chart set under `model.realisationFit` (how `realisation` was obtained). */
+  realisationFit?: unknown;
   onProgress?: (progress: GenerateProgress) => void;
 }
 
@@ -170,7 +184,8 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
     sizing: options.sizing,
     maxEntrants: options.maxEntrants,
   });
-  const solver = new PreflopSolver({ tree, equity: equity.equity, rake, cardRemoval }, params);
+  const realisation = options.realisation ?? CHARTS1_REALISATION;
+  const solver = new PreflopSolver({ tree, equity: equity.equity, rake, cardRemoval, realisation }, params);
 
   const convergence: ConvergencePoint[] = [];
   let previous = averages(solver);
@@ -197,7 +212,7 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
   if (huIterations > 0 && players.includes("SB") && players.includes("BB")) {
     options.onProgress?.({ phase: "heads-up" });
     const huTree = buildPreflopTree({ players: ["SB", "BB"], stackBb: options.stackBb, sizing: options.sizing });
-    const hu = new PreflopSolver({ tree: huTree, equity: equity.equity, rake, cardRemoval }, params);
+    const hu = new PreflopSolver({ tree: huTree, equity: equity.equity, rake, cardRemoval, realisation }, params);
     hu.iterate(huIterations);
     const ex = hu.exploitability();
     headsUp = {
@@ -225,8 +240,9 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
         ],
         actionNodes: tree.actionNodes,
       },
-      rake: { ...rake, potGrowth: realisationAssumptions().rakePotGrowth },
-      realisation: realisationAssumptions(),
+      rake: { ...rake, potGrowth: realisationAssumptions(realisation).rakePotGrowth },
+      realisation: realisationAssumptions(realisation),
+      ...(options.realisationFit === undefined ? {} : { realisationFit: options.realisationFit }),
       cardRemoval: cardRemoval
         ? "hero-opponent exact at class level (m[i][j]/1225); opponent-opponent ignored"
         : "none (classes independent)",

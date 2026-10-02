@@ -12,8 +12,13 @@
  *  - raise-first-in widths grow with position, UTG < HJ < CO < BTN, and fall
  *    in published-wisdom bands (UTG 13-20%, HJ 16-25%, CO 22-33%, BTN 38-55%,
  *    SB 40-70% including limps);
+ *  - charts/2's bands (A2a.1): the big blind defends 55-70% against a button
+ *    open and calls more than it 3-bets against every open; flats in
+ *    position exist; UTG opens 66+ and suited hands ahead of A9o-A2o;
  *  - AA never folds anywhere; KK never folds where it is in range before an
- *    all-in, and folds a heads-up 5-bet shove at most a quarter of the time;
+ *    all-in (except cold against a 3-bet and a 4-bet), and folds a heads-up
+ *    5-bet shove at most half the time (a 5-bet shove into a 3-bet and a
+ *    4-bet is mostly AA);
  *  - 72o never opens UTG;
  *  - EVs are consistent with frequencies: for a class in range the chart's
  *    mix loses at most 2% of the pot to the class's best action, and the best
@@ -57,7 +62,7 @@ function rfiWidth(line: string): number {
 }
 
 describe("committed chart set", () => {
-  it("is a charts/1 6-max 100bb set of a reasonable size", () => {
+  it("is a charts/2 6-max 100bb set of a reasonable size", () => {
     expect(charts.version).toBe(CHARTS_VERSION);
     expect(charts.id).toBe("nlhe-cash-6max-100bb");
     expect(charts.game.positions).toEqual(["UTG", "HJ", "CO", "BTN", "SB", "BB"]);
@@ -69,6 +74,9 @@ describe("committed chart set", () => {
     expect(model.rake.percent).toBe(0.05);
     expect(model.rake.capBb).toBe(3);
     expect(model.solver.iterations).toBeGreaterThanOrEqual(1000);
+    // charts/2: the realisation model was fitted to the postflop solver, and says how.
+    expect(model.realisation.name).toBe("charts/2-solver-fit");
+    expect(model.realisationFit.rounds.length).toBeGreaterThanOrEqual(1);
   });
 
   it("recorded good convergence", () => {
@@ -127,6 +135,9 @@ describe("committed chart set", () => {
       // indifferent heads-up and may fold with a cold 4-bettor still behind.
       if (n.range[kk] <= 0.01) continue;
       const kkFold = n.freq[fold * H + kk];
+      // A cold player facing a 3-bet and a 4-bet ahead of it (two re-raisers,
+      // fold or shove) may fold KK: one of them holds AA often enough.
+      if (n.scenario === "vs-4bet" && n.cold) continue;
       if (n.scenario !== "vs-allin") {
         expect(kkFold, `KK folds at ${JSON.stringify(n.line)}`).toBeLessThan(0.01);
         continue;
@@ -134,7 +145,7 @@ describe("committed chart set", () => {
       const at = tree.lineIndex.get(n.line) as number;
       let live = 0;
       for (let p = 0; p < 6; p += 1) if (tree.live[at] & (1 << p)) live += 1;
-      if (live === 2) expect(kkFold, `KK folds to a heads-up shove at ${JSON.stringify(n.line)}`).toBeLessThan(0.25);
+      if (live === 2) expect(kkFold, `KK folds to a heads-up shove at ${JSON.stringify(n.line)}`).toBeLessThan(0.5);
     }
     const utg = node("");
     expect(utg.freq[1 * H + classByName("72o")]).toBe(0);
@@ -200,5 +211,74 @@ describe("committed chart set", () => {
     expect(combos).toBe(1326);
     // The UTG range at the root is every combo.
     expect(Array.from(node("").range).every((r) => r === 1)).toBe(true);
+  });
+});
+
+/** Share of the actor's range (combo- and reach-weighted) taking `action` at a node. */
+function rangeShare(line: string, action: string): number {
+  const n = node(line);
+  const a = n.options.findIndex((o) => o.action === action);
+  if (a < 0) return 0;
+  let sum = 0;
+  let total = 0;
+  for (let i = 0; i < H; i += 1) {
+    const w = CLASS_COMBOS[i] * n.range[i];
+    sum += w * n.freq[a * H + i];
+    total += w;
+  }
+  return sum / total;
+}
+
+/** Frequency of `action` for one class at a node. */
+function freqOf(line: string, name: string, action: string): number {
+  const n = node(line);
+  const a = n.options.findIndex((o) => o.action === action);
+  return a < 0 ? 0 : n.freq[a * H + classByName(name)];
+}
+
+describe("charts/2 bands (docs/CHARTS.md §8)", () => {
+  // The bands A2a.1 set from general poker theory (never from a published
+  // chart). The ones the model does not reach are in §9, not here.
+  it("has the big blind defend 55-70% against a button open, mostly by calling", () => {
+    const call = rangeShare("fffrf", "call");
+    const threeBet = rangeShare("fffrf", "raise");
+    expect(call + threeBet).toBeGreaterThan(0.55);
+    expect(call + threeBet).toBeLessThan(0.7);
+    expect(call).toBeGreaterThan(0.3);
+    expect(call).toBeGreaterThan(2 * threeBet);
+  });
+
+  it("has the big blind call more than it 3-bets against every open, and defend wider against later ones", () => {
+    const opens = ["rffff", "frfff", "ffrff", "fffrf"];
+    for (const line of opens) expect(rangeShare(line, "call"), line).toBeGreaterThan(rangeShare(line, "raise"));
+    const defend = opens.map((line) => 1 - rangeShare(line, "fold"));
+    for (let k = 1; k < defend.length; k += 1) expect(defend[k]).toBeGreaterThan(defend[k - 1]);
+  });
+
+  it("flats in position as well as 3-betting", () => {
+    expect(rangeShare("rff", "call")).toBeGreaterThan(0.01);
+    expect(rangeShare("rff", "raise")).toBeGreaterThan(0.05);
+    expect(rangeShare("ffr", "raise")).toBeGreaterThan(0.05);
+  });
+
+  it("opens pairs and suited hands UTG ahead of weak offsuit aces", () => {
+    for (const pair of ["AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66"]) {
+      expect(freqOf("", pair, "raise"), pair).toBeGreaterThan(0.5);
+    }
+    for (const suited of ["A7s", "K7s", "Q9s", "JTs", "T9s"]) {
+      expect(freqOf("", suited, "raise"), suited).toBeGreaterThan(0.5);
+    }
+    for (const ax of ["A9o", "A8o", "A7o", "A6o", "A5o", "A4o", "A3o", "A2o"]) {
+      expect(freqOf("", ax, "raise"), ax).toBeLessThan(0.25);
+    }
+  });
+
+  it("never folds KK to an open or a 3-bet", () => {
+    for (const n of charts.nodes.values()) {
+      if (n.scenario === "vs-allin" || n.scenario === "vs-4bet") continue;
+      const fold = n.options.findIndex((o) => o.action === "fold");
+      if (fold < 0) continue;
+      expect(n.freq[fold * H + classByName("KK")], `KK at ${JSON.stringify(n.line)}`).toBe(0);
+    }
   });
 });

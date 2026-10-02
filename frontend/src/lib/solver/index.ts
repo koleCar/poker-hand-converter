@@ -102,7 +102,8 @@ export { spotHash, spotKey, type SpotKeyParts } from "./spotKey";
  *
  * handClasses.ts   the 169 classes, combo counts, class-level card removal
  * preflopEquity.ts 169x169 heads-up equity, seeded Monte Carlo, symmetrised
- * preflopModel.ts  equity realisation (position, initiative, playability), rake
+ * preflopModel.ts  equity realisation: odds form, weights by role and class features; rake
+ * preflopRealisation.ts  realised shares measured by solving sampled turn+river spots
  * preflopTree.ts   the 6-max action abstraction and its cuts, line keys
  * preflopCfr.ts    DCFR for up to six players over 169-class vectors; NashConv
  */
@@ -132,22 +133,35 @@ export {
   type PreflopEquityTable,
 } from "./preflopEquity";
 export {
+  CHARTS1_REALISATION,
+  CLASS_FEATURES,
   flopRake,
-  INITIATIVE_EDGE,
   NO_RAKE,
-  playability,
-  PLAYABILITY,
-  PLAYABILITY_EXPONENT,
-  POSITION_EDGE,
   POT_TYPES,
   RAKE_POT_GROWTH,
   realisationAssumptions,
+  realisationRole,
+  REALISATION_FEATURES,
+  REALISATION_ROLES,
+  roleBiases,
+  roleWeights,
   shareMatrix,
   STANDARD_RAKE,
-  weightRatio,
   type PotType,
   type RakeProfile,
+  type RealisationFeature,
+  type RealisationModel,
+  type RealisationRole,
+  type RoleRealisation,
 } from "./preflopModel";
+export {
+  addSample,
+  emptySample,
+  measureRealisation,
+  REALISATION_MENU,
+  type RealisationSample,
+  type RealisationSpot,
+} from "./preflopRealisation";
 export {
   buildPreflopTree,
   DEFAULT_SIZING,
