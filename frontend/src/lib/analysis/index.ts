@@ -2,7 +2,8 @@
  * Hand analysis: how far each hero decision was from a reference, what it
  * cost, and why. `docs/ANALYSIS-PLAN.md` is the plan; this module is phases
  * A1 (the decision model, the facts, the heuristic flags and the grading
- * rules) and A2b (preflop grades from the charts).
+ * rules), A2b (preflop grades from the charts) and A4 (river grades from our
+ * solver, on ranges narrowed through the hand).
  *
  * ```
  * types.ts       DecisionAnalysis, HandAnalysis, SpotFacts, flags, ANALYSIS_VERSION
@@ -12,12 +13,16 @@
  * texture.ts     board texture, made hand, draws, blockers
  * ranges.ts      default ranges per preflop line — the labelled fallback
  * heuristics.ts  §3.6 flags: notes, never grades
- * analyze.ts     analyzeHand(hand) -> HandAnalysis
+ * narrowing.ts   the narrowing model: how likely each combo takes an action
+ * rangeWalk.ts   both ranges through a heads-up hand, preflop to the river
+ * river.ts       the river solve, the line onto its tree, grades, the study view
+ * analyze.ts     analyzeHand(hand) -> HandAnalysis; riverStudy(hand, action)
  * reports.ts     A3: range and hand-adjusted reference frequencies, stats rolled up from nodes
  * ```
  *
  * **Import rule: this module may import only `lib/phf/types`, `lib/cards`,
- * `lib/stats`, `lib/equity` and `lib/charts` (its public index only).** The
+ * `lib/stats`, `lib/equity`, `lib/charts` and `lib/solver` (their public
+ * indexes only).** The
  * same rule as `lib/stats` and `lib/equity`, for the same reason: `tests/test/`
  * imports it directly under plain Node, and the rebuild runs the identical
  * function in a Web Worker. No React, no Supabase, no `window`, no `process`.
@@ -63,8 +68,13 @@ export {
   type PostflopFacing,
   type PostflopRole,
   type PreflopScenario,
+  type RangeShape,
+  type RiverFacts,
+  type RiverRole,
+  type RiverSkipReason,
   type SpotFacts,
   type SuitTexture,
+  RIVER_SKIP_REASONS,
 } from "./types";
 
 export {
@@ -95,7 +105,60 @@ export {
   THIN_BEHIND,
   heuristicFlags,
 } from "./heuristics";
-export { analyzeHand, heroSeatOf, type AnalyzeOptions } from "./analyze";
+export { analyzeHand, heroSeatOf, riverStudy, type AnalyzeOptions } from "./analyze";
+export {
+  BLUFF_ZONE,
+  CHECK_REPEAT,
+  CHECK_VALUE,
+  FLOOR,
+  NARROWING_MODEL,
+  VALUE_SHARE,
+  bluffShare,
+  comboRange,
+  effectiveStrength,
+  halved,
+  handStrength,
+  heuristicModel,
+  hitChance,
+  narrow,
+  percentiles,
+  rangeWeight,
+  removeCards,
+  streetStrength,
+  weightedCombos,
+  type NarrowAction,
+  type NarrowInput,
+  type NarrowingModel,
+  type NarrowStreet,
+  type StreetStrength,
+} from "./narrowing";
+export { flopSeats, walkRanges, type PlayerRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
+export {
+  MIN_LINE_REACH,
+  RIVER_CATEGORIES,
+  RIVER_MAX_ITERATIONS,
+  RIVER_MENU,
+  RIVER_RAISE_CAP,
+  RIVER_TARGET_PCT,
+  RIVER_TREE,
+  followLine,
+  gradeRiver,
+  optionsAt,
+  rakeOf,
+  riverActs,
+  riverCategory,
+  riverStudyAt,
+  solveRiverSpot,
+  type RiverAct,
+  type RiverCategory,
+  type RiverFailure,
+  type RiverGrade,
+  type RiverSolve,
+  type RiverSpotInput,
+  type RiverStudy,
+  type StudyOption,
+  type StudyRow,
+} from "./river";
 export {
   MIX_MIN_FREQ,
   bestOption,

@@ -80,6 +80,7 @@ export {
   analyseHandNow,
   preflopCharts,
   runAnalysis,
+  studyRiver,
   type AnalysisBreakdownGroup,
   type AnalysisBreakdownRow,
   type AnalysisCoverage,

@@ -23,8 +23,11 @@ import {
   DECISION_SKIP_REASONS,
   FLAG_CODES,
   HAND_SKIP_REASONS,
+  RIVER_SKIP_REASONS,
   analyzeHand,
+  riverStudy,
   grade,
+  gradeRank,
   worstGrade,
   type HandAnalysis,
 } from "../../frontend/src/lib/analysis/index.js";
@@ -80,6 +83,29 @@ describe("the analysis corpus", () => {
     expect(preflop.filter((d) => d.grade !== null).length).toBeGreaterThan(500);
   });
 
+  it("grades heads-up river decisions with the solver, and says why it skips the others (A4)", () => {
+    const rivers = RESULTS.flatMap((r) => r.analysis.decisions).filter((d) => d.street === "river");
+    const solved = rivers.filter((d) => d.source === "solver");
+    expect(solved.length).toBeGreaterThan(100);
+    for (const d of rivers) {
+      if (d.source !== "solver") expect(d.grade).toBeNull();
+      if (d.status === "not-analysed") expect(["multiway", ...RIVER_SKIP_REASONS]).toContain(d.reason);
+    }
+  });
+
+  it("re-solves a river for the study view to exactly the stored numbers", () => {
+    const sample = RESULTS.filter((r) => r.analysis.decisions.some((d) => d.source === "solver")).slice(0, 8);
+    expect(sample.length).toBe(8);
+    for (const { hand, analysis } of sample) {
+      for (const d of analysis.decisions.filter((x) => x.source === "solver")) {
+        const study = riverStudy(structuredClone(hand), d.actionIndex, { charts: CHARTS });
+        if (!study || !("options" in study)) throw new Error("no study for a graded river");
+        expect(study.hero.freq).toEqual(d.options.map((o) => o.freq));
+        expect(study.hero.ev).toEqual(d.options.map((o) => o.ev));
+      }
+    }
+  });
+
   it("stamps every record with the version", () => {
     expect(new Set(RESULTS.map((r) => r.analysis.version))).toEqual(new Set([ANALYSIS_VERSION]));
   });
@@ -111,6 +137,8 @@ describe("every record satisfies the database's own constraints", () => {
     for (const { analysis } of RESULTS) {
       if (analysis.reason !== null) expect([...HAND_SKIP_REASONS, ...DECISION_SKIP_REASONS]).toContain(analysis.reason);
       for (const approximation of analysis.approximations) expect(APPROXIMATIONS).toContain(approximation);
+      // The database holds at most 16 per row.
+      expect(analysis.approximations.length).toBeLessThanOrEqual(16);
       for (const decision of analysis.decisions) {
         if (decision.reason !== null) expect(DECISION_SKIP_REASONS).toContain(decision.reason);
         expect(decision.status === "analysed").toBe(decision.reason === null);
@@ -121,11 +149,12 @@ describe("every record satisfies the database's own constraints", () => {
     }
   });
 
-  it("never flags louder than Inaccurate, and grades only from the charts, only preflop (§3.6)", () => {
+  it("never flags louder than Inaccurate, and grades only from the charts preflop and the solver on the river (§3.6)", () => {
     for (const { analysis } of RESULTS) {
       for (const decision of analysis.decisions) {
-        expect(decision.grade !== null).toBe(decision.source === "chart");
-        if (decision.grade !== null) expect(decision.street).toBe("preflop");
+        expect(decision.grade !== null).toBe(decision.source === "chart" || decision.source === "solver");
+        if (decision.source === "chart") expect(decision.street).toBe("preflop");
+        if (decision.source === "solver") expect(decision.street).toBe("river");
         for (const flag of decision.flags) expect(["note", "inaccurate"]).toContain(flag.severity);
         // Anything resting on a placeholder range is a note.
         for (const flag of decision.flags) {
@@ -156,23 +185,24 @@ describe("every record satisfies the database's own constraints", () => {
     }
   });
 
-  it("skips a preflop decision only with the charts' reason, and a postflop one only when multiway", () => {
+  it("skips a preflop decision only with the charts' reason, a river one with a river reason, and the flop and turn only when multiway", () => {
     for (const { analysis } of RESULTS) {
       for (const decision of analysis.decisions) {
         if (decision.status !== "not-analysed") continue;
         if (decision.street === "preflop") expect(CHART_SKIP_REASONS).toContain(decision.reason);
+        else if (decision.street === "river") expect(["multiway", ...RIVER_SKIP_REASONS]).toContain(decision.reason);
         else expect(decision.reason).toBe("multiway");
         expect(decision.reason).not.toBe("chart-unavailable");
       }
     }
   });
 
-  it("grades every chart decision by §2 from its own options, and the hand by its decisions", () => {
+  it("grades every chart and solver decision by §2 from its own options, and the hand by its decisions", () => {
     for (const { analysis } of RESULTS) {
       let evLoss = 0;
       let graded = 0;
       for (const decision of analysis.decisions) {
-        if (decision.source !== "chart") continue;
+        if (decision.source !== "chart" && decision.source !== "solver") continue;
         graded += 1;
         expect(decision.chosen).not.toBeNull();
         const chosen = decision.chosen as number;
@@ -191,6 +221,7 @@ describe("every record satisfies the database's own constraints", () => {
           chosen,
           pot: decision.facts.potBb,
           capAtInaccurate: decision.approximations.includes("off-tree-size"),
+          capAtMistake: decision.approximations.includes("range-cap"),
         });
         expect(decision.grade).toBe(again.grade);
         expect(decision.evLoss).toBeCloseTo(again.evLoss, 2);
@@ -199,8 +230,34 @@ describe("every record satisfies the database's own constraints", () => {
         expect(decision.freqDiff).toBeLessThanOrEqual(1);
         expect(decision.score).toBeGreaterThanOrEqual(0);
         expect(decision.score).toBeLessThanOrEqual(100);
-        expect(decision.facts.chart?.set).toBe(CHARTS.id);
-        expect(CHARTS.nodes.has(decision.facts.chart?.line ?? "?")).toBe(true);
+        if (decision.source === "chart") {
+          expect(decision.facts.chart?.set).toBe(CHARTS.id);
+          expect(CHARTS.nodes.has(decision.facts.chart?.line ?? "?")).toBe(true);
+        } else {
+          // A river grade names its solve, and always admits to the narrowing.
+          const river = decision.facts.river!;
+          expect(river.tree).toBe("river-m1");
+          expect(river.iterations).toBeGreaterThan(0);
+          expect(river.exploitabilityPct).toBeGreaterThanOrEqual(0);
+          expect(river.converged).toBe(river.exploitabilityPct <= 0.5);
+          expect(river.reach.hero).toBeGreaterThanOrEqual(0.02);
+          expect(river.reach.villain).toBeGreaterThanOrEqual(0.02);
+          expect(decision.approximations).toEqual(expect.arrayContaining(["narrowing-heuristic", "rake-profile"]));
+          // A Blunder on the river only for a move that loses to anything (§3.5, §9).
+          if (decision.grade === "blunder") {
+            expect(["fold", "call"]).toContain(decision.action);
+            if (decision.action === "fold") expect(decision.flags.map((f) => f.code)).toContain("fold-nuts");
+          }
+          if (decision.approximations.includes("range-sensitive")) {
+            // The milder of two narrowings, kept only when they were more than a class apart.
+            expect(river.sensitivity).toBeTruthy();
+            expect(gradeRank(river.sensitivity!.grade) - gradeRank(river.capped ?? decision.grade!)).toBeGreaterThan(1);
+          }
+          if (decision.approximations.includes("range-cap")) {
+            expect(decision.grade).toBe("mistake");
+            expect(river.capped).toBe("blunder");
+          }
+        }
         evLoss += decision.evLoss ?? 0;
       }
       expect(analysis.grade).toBe(worstGrade(analysis.decisions.map((d) => d.grade)));
@@ -318,6 +375,7 @@ describe("the module stays importable from a worker and a test", () => {
   // Same rule as lib/stats and lib/equity: no framework, no Supabase, no globals.
   const ALLOWED = new Set([
     "../charts",
+    "../solver",
     "../phf/types",
     "../cards",
     "../stats/context",

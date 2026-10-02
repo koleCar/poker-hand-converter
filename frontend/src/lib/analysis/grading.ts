@@ -39,6 +39,12 @@ export interface GradeInput {
    * must not be the one that calls a move a Blunder.
    */
   capAtInaccurate?: boolean;
+  /**
+   * Cap the result at Mistake: a river grade from ranges a heuristic narrowed
+   * (A4) can call a move a Mistake, never a Blunder, unless the move loses
+   * whatever the opponent holds — the caller decides that and leaves this off.
+   */
+  capAtMistake?: boolean;
   /** Never award Perfect — the heuristic source's rule (§3.6). */
   noPerfect?: boolean;
 }
@@ -97,6 +103,9 @@ export function grade(input: GradeInput): GradeResult {
 
   if (input.capAtInaccurate && gradeRank(result) > gradeRank("inaccurate")) {
     result = "inaccurate";
+  }
+  if (input.capAtMistake && gradeRank(result) > gradeRank("mistake")) {
+    result = "mistake";
   }
   if (input.noPerfect && result === "perfect") {
     result = "good";

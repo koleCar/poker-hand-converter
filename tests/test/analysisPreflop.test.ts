@@ -356,13 +356,17 @@ describe("opponents' ranges from the charts", () => {
     expect(range!.combos).toBeLessThan(1326 * 0.8);
   });
 
-  it("uses that range for the equity facts, labelled as the charts' and not narrowed", () => {
+  it("narrows that range through the hand for the postflop equity facts (A4)", () => {
     const analysis = analyse(defend("Kh Qh"));
+    const flop = analysis.decisions.find((d) => d.street === "flop" && d.action === "call")!;
+    expect(flop.facts.equity).toMatchObject({ range: "open:BTN", source: "narrowed" });
+    expect(flop.approximations).toContain("narrowing-heuristic");
+    expect(flop.approximations).not.toContain("placeholder-range");
+    expect(en.analysis.explain(flop).join(" ")).toContain("narrowed by the betting");
+    // The river is the solver's: the equity is against its range at the node.
     const river = analysis.decisions.find((d) => d.street === "river" && d.action === "call")!;
-    expect(river.facts.equity).toMatchObject({ range: "open:BTN", source: "chart" });
-    expect(river.approximations).toContain("preflop-range");
-    expect(river.approximations).not.toContain("placeholder-range");
-    expect(en.analysis.explain(river).join(" ")).toContain("as the charts play it");
+    expect(river.source).toBe("solver");
+    expect(river.facts.equity).toMatchObject({ range: "open:BTN", source: "solver" });
   });
 
   it("falls back to the labelled placeholder where the charts have no node", () => {
@@ -370,8 +374,11 @@ describe("opponents' ranges from the charts", () => {
     const button = h.players.find((p) => p.name === "Btn")!.seat;
     expect(chartRange(h, button, h.actions.find((a) => a.street === "flop")!.index, null)).toBeNull();
     const analysis = analyzeHand(h, { charts: null });
+    const flop = analysis.decisions.find((d) => d.street === "flop" && d.action === "call")!;
+    expect(flop.facts.equity?.source).toBe("narrowed");
+    expect(flop.approximations).toContain("placeholder-range");
     const river = analysis.decisions.find((d) => d.street === "river" && d.action === "call")!;
-    expect(river.facts.equity?.source).toBe("placeholder");
+    expect(river.source).toBe("solver");
     expect(river.approximations).toContain("placeholder-range");
     expect(pre(analysis).reason).toBe("chart-unavailable");
   });

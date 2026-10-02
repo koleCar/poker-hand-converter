@@ -1,19 +1,30 @@
 /**
  * Analysis worker.
  *
- * `analyzeHand` is pure CPU — a decision walk plus, for the spots that price a
- * call, an equity against a range (exhaustive on the turn and river, a seeded
- * sample on the flop). Over a whole library that is seconds of solid work, and
- * on the main thread it would freeze the tab the progress bar is drawn in. So
- * the rebuild (`runAnalysis` in `lib/db/analysis.ts`) fetches a page, hands it
- * here, and writes what comes back; this file owns nothing but the call.
+ * `analyzeHand` is pure CPU — a decision walk, equities against ranges, and
+ * since A4 a river solve for every heads-up hand that reaches one (median
+ * ~0.1 s, the slowest about a second). Over a whole library that is a minute
+ * or more of solid work, and on the main thread it would freeze the tab the
+ * progress bar is drawn in. So the rebuild (`runAnalysis` in
+ * `lib/db/analysis.ts`) fetches a page, hands it here, and writes what comes
+ * back; this file owns nothing but the calls.
  *
- * Stateless by design apart from the chart set, which is loaded once: a page
- * in, rows out. Cancelling is the client's job (it
- * stops asking), and a page that is analysed but never written is simply
- * analysed again next run — "missing" is computed by the database.
+ * Three requests:
+ *
+ * - `analyse`: a page of stored hands in, rows out, with a `progress` message
+ *   every quarter second or so in between, so the bar moves within a page.
+ * - `study`: one hand's river decision, re-solved for the study grid
+ *   (`riverStudy`). The same solve the stored grade came from, bit for bit.
+ * - `hand`: one hand analysed for the hand view when it has no stored row at
+ *   the current version — off the main thread, since it may solve a river.
+ *
+ * Stateless by design apart from the chart set, which is loaded once.
+ * Cancelling is the client's job: it terminates the worker, and a page that
+ * is analysed but never written is simply analysed again next run —
+ * "missing" is computed by the database.
  */
 
+import { analyzeHand, riverStudy, type HandAnalysis, type RiverFailure, type RiverStudy } from "../lib/analysis";
 import { loadDefaultCharts, type ChartSet } from "../lib/charts";
 import { analyseStoredHands, type AnalysedBatch } from "../lib/db/analysisRows";
 import type { PhfHand } from "../lib/phf/types";
@@ -24,18 +35,58 @@ export interface AnalyseRequest {
   page: Array<{ id: string; phf: PhfHand }>;
 }
 
+export interface StudyRequest {
+  type: "study";
+  jobId: number;
+  phf: PhfHand;
+  actionIndex: number;
+}
+
+export interface HandRequest {
+  type: "hand";
+  jobId: number;
+  phf: PhfHand;
+}
+
+export type AnalysisWorkerRequest = AnalyseRequest | StudyRequest | HandRequest;
+
 export type AnalysisWorkerResponse =
   | ({ type: "analysed"; jobId: number } & AnalysedBatch)
+  | { type: "progress"; jobId: number; done: number }
+  | { type: "studied"; jobId: number; study: RiverStudy | RiverFailure | null }
+  | { type: "hand"; jobId: number; analysis: HandAnalysis }
   | { type: "error"; jobId: number; message: string };
 
-/** The preflop charts, loaded on the first page and kept for the worker's life. */
+/** How often, at most, a page reports progress. */
+const PROGRESS_MS = 250;
+
+/** The preflop charts, loaded on the first request and kept for the worker's life. */
 let charts: Promise<ChartSet> | null = null;
 
-self.onmessage = async (event: MessageEvent<AnalyseRequest>) => {
-  const { jobId, page } = event.data;
+self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
+  const request = event.data;
+  const { jobId } = request;
   try {
     charts ??= loadDefaultCharts();
-    const batch = analyseStoredHands(page, await charts);
+    const set = await charts;
+    if (request.type === "hand") {
+      const analysis = analyzeHand(request.phf, { charts: set });
+      self.postMessage({ type: "hand", jobId, analysis } satisfies AnalysisWorkerResponse);
+      return;
+    }
+    if (request.type === "study") {
+      const study = riverStudy(request.phf, request.actionIndex, { charts: set });
+      self.postMessage({ type: "studied", jobId, study } satisfies AnalysisWorkerResponse);
+      return;
+    }
+    let last = Date.now();
+    const batch = analyseStoredHands(request.page, set, (done) => {
+      const now = Date.now();
+      if (now - last >= PROGRESS_MS) {
+        last = now;
+        self.postMessage({ type: "progress", jobId, done } satisfies AnalysisWorkerResponse);
+      }
+    });
     self.postMessage({ type: "analysed", jobId, ...batch } satisfies AnalysisWorkerResponse);
   } catch (error) {
     self.postMessage({

@@ -698,3 +698,124 @@ Each phase appends what it learned that changed the plan.
   - **Open.** The position filter reads the hand's seat while a short-handed
     hand is graded at the 6-max node with UTG folded, so the two can name
     different seats. A6's leak finder can reuse `analysis_node_hands`.
+- 2026-10-02 — A4 shipped: river grading with our solver, `analysis/3`.
+  - **Range narrowing** (`lib/analysis/narrowing.ts`, `rangeWalk.ts`). Each
+    player's preflop range (the charts' for their line, else the labelled
+    placeholder) is expanded to 1,326 combos and multiplied, action by
+    action, by a likelihood `L(combo | action)`: Bayes with the actor's
+    strategy as the likelihood. Before A5 the likelihood is the heuristic
+    model `heuristic/1` (`heuristic/2` after the review, below):
+    - strength is hand strength against the opponent's current range, with
+      card removal, plus draw potential from outs on the flop and turn;
+      ranked as a percentile within the actor's own range;
+    - **bet or raise:** the top 40 / 33 / 28% (flop / turn / river; raises
+      14%) for value, strong draws at 0.75, and the bottom 35% bluffing at a
+      rate solved so bluffs plus draws are `x / (1 + 2x)` of the bets
+      (×1.5 on the flop, ×1.25 on the turn);
+    - **call:** the top `1 / (1 + x)` of the range (the MDF), draws, the very
+      top only 60% (the rest raises);
+    - **check:** caps the range partially (value 35%, air 70%);
+    - every likelihood is at least 0.03, so weights only go down and nothing
+      is ruled out.
+    `NarrowingModel` is the seam: A5 replaces flop and turn narrowing with
+    solved strategies through the same interface. Every grade and equity
+    resting on it carries `narrowing-heuristic`.
+  - **River solve** (`river.ts`), once per hand, read at every hero river
+    decision:
+    - inputs: both ranges at the river card (combos under 0.2% of a range's
+      heaviest dropped), pot and effective stack at the river, the out of
+      position player first, the charts' rake profile (`rake-profile`);
+    - menu as §3.2 (33 / 75 / 150% + all-in; raises 75% + all-in) with a
+      **raise cap of 2**: 3 cost ~20% more solve time over the library and
+      changed no grade distribution;
+    - DCFR to 0.5% of the pot or 2,000 iterations; the exploitability reached
+      is stored (`facts.river`), over 0.5% is `solver-unconverged`.
+  - **The real line onto the tree.** Pseudo-harmonic translation to the
+    likelier side; more than 25% of the pot away is `off-tree-size` and caps
+    the grade, nearer but not exact is `size-translated`. An opponent's size
+    the solve uses under 1% of the time is remapped to the nearest size it
+    does use. The hero's own size is graded as the better of its two
+    neighbours. EV loss is quoted against the real pot.
+  - **Not analysed, by name:** `river-multiway-flop` (three or more saw the
+    flop), `river-unreached` (under 2% of either range reaches the node: a
+    best response to a sliver), `river-off-tree`, `river-range-unknown`,
+    `river-range-empty`, `river-solve-failed`. A skipped river keeps its
+    heuristic flags, like a refused preflop decision.
+  - **Equity facts** on the flop and turn are now against the narrowed range
+    (`source: "narrowed"`); a graded river's are against the solver's range
+    at the node (`source: "solver"`). The postflop flags barely moved (one
+    in the library either way).
+  - **No migration, no `spot_solutions` table.** §3.4: the river's cache is
+    the per-decision rows, which the A1 tables already hold
+    (`source = 'solver'`, grade, EV loss, options); `facts.river` carries the
+    spot hash for a shared cache later. The reports' by-street tables show
+    the river row with no SQL change.
+  - **UI.** River options with bet sizes in bb and % of the pot; the *why*
+    names the hand's role against the range it faces (value, bluff-catcher
+    against a polar range, thin value against a merged one, air), blockers
+    to its strong and weak combos, translation and the narrowing; Learn
+    links for bluff-catching, sizing and polarisation, thin value, blockers,
+    ranges. **River study:** the 13×13 grid of the hero's range at the node
+    (each class's mix over its combos, reach-weighted), action totals, a
+    table by hand (made hands / missed draws / no made hand) and by strength
+    against the opponent's range (value / bluff-catchers / air), and the
+    opponent's range by the same categories. Re-solved in the analysis
+    worker on demand, nothing stored.
+  - **Worker.** Progress every 0.25 s within a page; Stop terminates the
+    worker at once (resumable as before); the hand view's fresh analysis and
+    the study run in their own worker.
+  - **Owner's local library (5,448 hands):**
+    - 467 hero river decisions: **306 graded (66%)**, multiway 79,
+      multiway on the flop 71, unreached 11.
+    - Perfect 67.0%, Good 20.9%, Inaccurate 1.6%, Mistake 4.9%,
+      Blunder 5.6%; mean score 83.6; 143.5 bb lost, most by checking (41 bb,
+      eight Blunders: value and bluffs not bet), calling (20) and folding (18).
+    - **"Good" is common on the river** (21%, against 0% preflop): solved
+      river strategies mix.
+    - 86% of the graded rivers start from a placeholder range (most of the
+      library is 8- or 9-max), 22% have the hero out of their own range
+      (`charts/1` rarely flats), 38% translate a size and 7% are off-tree.
+    - **Backfill: 41 s in the browser** for the whole library (Node: 37 s).
+      Per hand with a river solve: median 106 ms, p90 282 ms, slowest 0.7 s;
+      median 100 iterations (max 320), every solve under 0.5% of the pot.
+    - The stored rows (written by the browser's worker) equal a fresh Node
+      analysis for all 467 river decisions, facts included.
+  - **Open.**
+    - The narrowing is a heuristic and some ranges come out extreme: a
+      villain who checks three streets can be 90% air by the river, which
+      makes a big bluff with ace-high a "Blunder" to check back. A5's solved
+      flop and turn strategies are the fix; until then every river grade says
+      it rests on the model.
+    - The corpus suite now solves every heads-up river in the fixtures:
+      about a minute more in CI.
+  - **Revised before merge (review), still `analysis/3`.** Wrong grades
+    are worse than none (§9), so the numbers above are the first run's;
+    these changes replace them:
+    - **Mistake cap (`range-cap`).** A river grade rests on narrowed ranges,
+      so it is capped at Mistake. The exceptions keep their Blunder because
+      they lose whatever the opponent holds: folding a hand that cannot lose,
+      and calling with a hand that beats nothing in the opponent's
+      *preflop* range (or against any two cards). `grade()` gained
+      `capAtMistake`, and `facts.river.capped` keeps the uncapped grade. The
+      *why* says so in EN and HR.
+    - **Sensitivity check (`range-sensitive`).** A grade of Inaccurate or
+      worse is re-graded on a second solve whose narrowing is at half
+      strength (`halved`: every likelihood `L` becomes `√L`). If the two
+      grades are more than one class apart, the milder one is kept,
+      including its options and its solve (the study view draws the same
+      one). The other grade is in `facts.river.sensitivity`. Only about 12%
+      of the river grades pay for the second solve.
+    - **Checks trim less (`heuristic/2`).** Value checks half the time, up
+      from 35% (traps, pot control). Each earlier postflop check by the same
+      player scales the next check's trim by 0.5. A player who checks three
+      times keeps a realistic middle instead of collapsing into air.
+    - **Local library after the revision:** 306 of 467 river decisions
+      graded (unchanged). Perfect 73.2%, Good 15.7%, Inaccurate 2.0%,
+      Mistake 9.2%, **Blunder 0** (no dominated move in the library). 16
+      Blunders were capped to Mistake, and 3 grades were sensitive (two
+      Blunders and a Mistake became Good). 118.7 bb lost.
+    - **Backfill:** 44 s in the browser (41 s before) and 40 s in Node; the
+      second solve runs 37 times.
+    - **A3 interplay:** Reports' postflop-by-role river column counts only
+      analysed decisions. Rivers the solver skips (three-way flops, lines
+      the solve never takes) drop out, which suits its "heads-up" label.

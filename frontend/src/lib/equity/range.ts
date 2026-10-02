@@ -310,7 +310,7 @@ export function rangeCombos(range: ClassWeights, dead: Iterable<number> = []): W
  * weight reaches `share` of the total; ties at the cut all go in.
  */
 export function strongestOfRange(
-  range: ClassWeights,
+  range: ClassWeights | readonly WeightedCombo[],
   board: readonly string[],
   share: number,
   dead: readonly string[] = [],
@@ -323,7 +323,10 @@ export function strongestOfRange(
   for (const code of dead) card(code, seen);
   const masks = [0, 0, 0, 0];
   for (const index of boardCards) masks[index & 3] |= 1 << (index >> 2);
-  const scored = rangeCombos(range, seen).map((combo) => {
+  const combos = isComboList(range)
+    ? range.filter(({ cards: [a, b], weight }) => weight > 0 && !seen.has(a) && !seen.has(b))
+    : rangeCombos(range, seen);
+  const scored = combos.map((combo) => {
     const own = [...masks];
     own[combo.cards[0] & 3] |= 1 << (combo.cards[0] >> 2);
     own[combo.cards[1] & 3] |= 1 << (combo.cards[1] >> 2);

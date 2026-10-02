@@ -16,12 +16,13 @@
  * - flags built on it are `note` severity unless they also hold against any
  *   two cards.
  *
- * Postflop actions do **not** narrow these ranges in A1. That is A4's range
- * walk ("every postflop action narrows it by the solved strategy"), and doing it
- * by hand here would be inventing a strategy. A villain who bet three streets
- * is therefore measured against their whole preflop range, which flatters a
- * hero's bluff-catcher. That bias is why no flag here may be louder than a note
- * on the strength of these ranges alone.
+ * This file never narrows anything. Since A4 a heads-up hand's postflop
+ * betting narrows whichever preflop range it starts from — the charts' or
+ * one of these — in `rangeWalk.ts` (a labelled heuristic model until A5's
+ * solved flop and turn strategies). Without a walk (a multiway flop), a
+ * villain who bet three streets is still measured against the whole preflop
+ * range, which flatters a hero's bluff-catcher. That bias is why no flag here
+ * may be louder than a note on the strength of these ranges alone.
  *
  * Nothing here is copied from any product or chart (§0, §3.1).
  */

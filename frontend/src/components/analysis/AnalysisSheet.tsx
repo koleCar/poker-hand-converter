@@ -10,7 +10,8 @@
  *                  grade icon; a bad move shows the better option under it
  *   selected       the reference's options (action · frequency bar · EV) with
  *                  the hero's move marked, the spot's facts, its flags, the
- *                  *why* (§4), and for a chart grade the 13×13 study chart
+ *                  *why* (§4), and the 13×13 study: the chart for a chart
+ *                  grade, the hero's solved river range for a solver grade
  *
  * The selection follows the replayer: stepping onto a hero decision selects
  * it, and pressing a chip seeks there. Between decisions the last one stays
@@ -28,6 +29,7 @@ import type { ChartSet } from "../../lib/charts";
 import { preflopCharts } from "../../lib/chartSet";
 import { useDict } from "../../lib/i18n/client";
 import { conceptsForDecision } from "../../lib/learn/links";
+import type { PhfHand } from "../../lib/phf/types";
 import type { ReplayFrame } from "../../lib/replay";
 import { paths } from "../../lib/routes";
 import { CardRow } from "../replayer/PlayingCard";
@@ -36,6 +38,7 @@ import styles from "./analysis.module.css";
 import { ChartGrid } from "./ChartGrid";
 import { GradeIcon } from "./GradeIcon";
 import { LearnLinks } from "./LearnLinks";
+import { RiverStudy } from "./RiverStudy";
 import { loudness, toneOf } from "./tone";
 
 const STREETS = ["preflop", "flop", "turn", "river"] as const;
@@ -59,11 +62,13 @@ interface AnalysisSheetProps {
   seek: (position: ReplayPosition) => void;
   /** The analysis was computed here, not read back from the database. */
   fresh: boolean;
+  /** The hand itself, for the river study's re-solve. Without it there is no river study. */
+  hand?: PhfHand;
 }
 
 type Strings = ReturnType<typeof useDict>["analysis"];
 
-export function AnalysisSheet({ analysis, frame, seek, fresh }: AnalysisSheetProps) {
+export function AnalysisSheet({ analysis, frame, seek, fresh, hand }: AnalysisSheetProps) {
   const t = useDict().analysis;
   const decisions = analysis.decisions;
   const [picked, setPicked] = useState<number | null>(() => worstDecision(analysis)?.order ?? null);
@@ -128,7 +133,9 @@ export function AnalysisSheet({ analysis, frame, seek, fresh }: AnalysisSheetPro
                       const tone = toneOf(decision);
                       const mark = markWord(decision, t);
                       const better = betterAlternative(decision);
-                      const betterLabel = better ? t.sheet.option(better.action, better.sizeBb, better.allIn) : null;
+                      const betterLabel = better
+                        ? t.sheet.option(better.action, better.sizeBb, better.allIn, better.sizePot)
+                        : null;
                       return (
                         <span key={decision.order} className={styles.chipStack}>
                           <button
@@ -167,7 +174,7 @@ export function AnalysisSheet({ analysis, frame, seek, fresh }: AnalysisSheetPro
         </section>
       ) : null}
 
-      {selected ? <DecisionDetail key={selected.order} decision={selected} /> : null}
+      {selected ? <DecisionDetail key={selected.order} decision={selected} hand={hand} /> : null}
     </div>
   );
 }
@@ -185,7 +192,7 @@ function OptionsTable({ decision }: { decision: DecisionAnalysis }) {
   const t = useDict().analysis;
   const s = t.sheet;
   const best = bestOption(decision);
-  const label = (option: OptionAnalysis) => s.option(option.action, option.sizeBb, option.allIn);
+  const label = (option: OptionAnalysis) => s.option(option.action, option.sizeBb, option.allIn, option.sizePot);
   return (
     <div className="stats-table-wrap">
       <table className={`stats-table ${styles.options}`}>
@@ -270,7 +277,7 @@ function Study({ decision }: { decision: DecisionAnalysis }) {
   );
 }
 
-function DecisionDetail({ decision }: { decision: DecisionAnalysis }) {
+function DecisionDetail({ decision, hand }: { decision: DecisionAnalysis; hand?: PhfHand }) {
   const t = useDict().analysis;
   const s = t.sheet;
   const facts = decision.facts;
@@ -328,7 +335,13 @@ function DecisionDetail({ decision }: { decision: DecisionAnalysis }) {
           <>
             <h4 className={styles.subhead}>{s.optionsHeading}</h4>
             <OptionsTable decision={decision} />
-            <Study decision={decision} />
+            {decision.source === "solver" ? (
+              hand ? (
+                <RiverStudy decision={decision} hand={hand} />
+              ) : null
+            ) : (
+              <Study decision={decision} />
+            )}
           </>
         ) : null}
       </section>
