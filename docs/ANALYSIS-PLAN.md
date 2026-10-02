@@ -311,6 +311,17 @@ grades.
 
 ## 4. The explanation layer
 
+Definitions fixed in A1 (#92):
+- **SPR** is measured at the start of the street.
+- **MDF**, and "defended vs MDF", are postflop only. Preflop they read as a
+  leak that is not one.
+- **Dynamic vs static:** the share of next cards that bring a third flush
+  card, two or more new straight combos, or an overcard (counted at half
+  weight). Below 25% is static; from 45% up is dynamic.
+- **Pot-odds flags need narrowed ranges.** Against the placeholder ranges they
+  cried wolf. Until A4 narrows ranges, a river fold is judged against the
+  strongest quarter of the range, and river raises are not flagged.
+
 Every graded decision gets a short *why*, built from facts we can compute. This
 is the Upswing half.
 
@@ -347,7 +358,7 @@ Templates, not free text, because:
 
 | Work | Where | Why |
 |---|---|---|
-| Decision walk, facts, chart lookup, heuristic | client and the existing `/api/stats/rebuild` path | Cheap; same code as stats |
+| Decision walk, facts, chart lookup, heuristic | Browser Web Worker, resumable (shipped in A1: 5,448 hands in ~10 s) | Cheap; same code as stats |
 | River solve for one hand being viewed | Web Worker, client | Under 0.3 s; free; no server timeouts |
 | Turn / flop strategies | Precomputed library (offline script) + cache | Too slow per hand in the browser (§3.2) |
 | Backfill of a user's whole database | The user's browser (Web Worker), resumable, like the stats rebuild; progress persisted per hand | No host to run; Vercel's function limit is far below a flop solve. A server worker is optional later |
@@ -395,6 +406,10 @@ A top-level tab next to Stats, and the home of everything below.
 - **Run analysis.** Analysis runs in the browser. A rebuild or backfill button
   shows progress and is resumable, and the page tells you when the analysis
   version has changed since your hands were analysed.
+
+- **Learn.** A concept library under `/analysis/learn`, linked from every
+  explanation that uses a concept. It is not a new top-level tab: five tabs
+  already scroll sideways at 375px (A1).
 
 `analysis` is a new top-level path, so it goes into `username_reservations` in
 the same migration (see `lib/routes.ts`).
@@ -465,13 +480,15 @@ Each phase ships something usable on its own, has its own PR, migration and
 | **A1 — decision model, heuristics, Analysis tab** | Everything the tab needs to show heuristic data now:<ul><li>`lib/analysis`: decision walk (on `StatsContext`), `SpotFacts` (texture, hand class and draws, SPR, pot odds, MDF, blockers), heuristic flags, and grading constants with `ANALYSIS_VERSION`</li><li>range-vs-hand equity in `lib/equity`</li><li>`hand_analysis` / `decision_analysis` tables, RPCs, pgTAP, and the rebuild path</li><li>i18n `ns/analysis`</li><li>the **`/analysis` tab**: overview, hands list, and `/analysis/h/<id>` with the replayer and Analysis sheet</li></ul> | — |
 | **S — solver core** (parallel to A1) | `lib/solver`, pure TypeScript:<ul><li>DCFR over an explicit tree; best response and exploitability</li><li>Kuhn, Leduc and clairvoyance tests</li><li>a heads-up river subgame builder (ranges, board, pot, stack, sizes, rake)</li><li>suit isomorphism</li><li>a benchmark</li></ul> | — |
 | **A2 — preflop charts and grading** | <ul><li>Chart format</li><li>a reproducible generator script (our solver, an equity-realisation model) and a committed 6-max 100bb cash set</li><li>preflop grading wired into A1's pipeline</li><li>a 13×13 chart viewer, which is also the preflop "Study" view</li><li>grades shown in the tab</li></ul> | A1, S |
+| **A2c — chart coverage** | <ul><li>The same generator, run for more tables: 9-max/full ring, plus 40 / 60 / 150 / 200bb for 6-max and 9-max</li><li>Straddle charts, or an explicit not-analysed</li><li>Lookup picks the nearest set and records the distance as an approximation</li></ul> | A2a |
 | **A3 — reports vs reference** | Reference frequencies per stat, position and role, from the charts. Reports panel in the Analysis tab: yours, reference, the difference, and the deviating hands. | A2 |
 | **A4 — river grading** | <ul><li>Range narrowing along the hand: preflop chart, then postflop heuristics until A5</li><li>river solve in a Web Worker</li><li>`spot_solutions` cache (index row + Storage blob, RPC-written)</li><li>river grades and the study grid for river nodes</li></ul> | A2, S |
 | **A5 — turn and flop** (A5a turn: isomorphism, sampling, cache; A5b flop: offline precomputed library) | Sizing abstraction, action translation (§3.3), turn and flop solves with caching, full heads-up postflop grading, flop reports by role. | A4 |
 | **A6 — leaks and progress** | <ul><li>Leak finder: EV lost grouped by spot, ranked</li><li>score trend</li><li>per-street, position and pot-type breakdowns</li><li>a weekly "what improved / what to work on" summary</li></ul> | A3, A5 |
 | **A7 — training** | <ul><li>**Spot trainer**: play the hero's side of a stored strategy and be graded per move</li><li>**mistake drills**: your own worst spots, replayed until right (spaced repetition)</li><li>"what would you do?" (#51) graded against the reference</li></ul> | A5 |
-| **A8 — learning layer** | <ul><li>A concept library (texture, range/nut advantage, MDF, SPR, blockers, polarisation…), each concept with a definition, an interactive example and links from every explanation that uses it</li><li>a study plan built from the leak finder</li><li>the optional AI-written review, grounded on facts</li></ul> | A6, A7 |
-| **Later** | Multiway approximations, MTT/ICM preflop, PLO, exploitative notes from villain stats. | — |
+| **A8 — learning layer** | <ul><li>A concept library, which can start any time (§6.0 *Learn*) (texture, range/nut advantage, MDF, SPR, blockers, polarisation…), each concept with a definition, an interactive example and links from every explanation that uses it</li><li>a study plan built from the leak finder</li><li>the optional AI-written review, grounded on facts</li></ul> | A6, A7 |
+| **A9 — multiway** | Approximate grading for 3-way postflop pots, about 9% of decisions in a real library: heuristics + MDF split, and solver-based later if feasible. | A4 |
+| **Later** | MTT/ICM preflop, PLO, exploitative notes from villain stats. | — |
 
 ## 8. Decisions taken (2026-10-02)
 
@@ -512,3 +529,10 @@ Each phase appends what it learned that changed the plan.
   - River caching stores per-decision results only.
   - A5 is split into **A5a**, turn (caching, sampling), and **A5b**, the flop
     library.
+- 2026-10-02 — A1 shipped (#92).
+  - **Coverage in the owner's 5,448-hand library:**
+    - 3,207 of 5,168 hands are not 6-max, and 1,682 are outside 100bb ±20%.
+      **A2c** (9-max and other stack depths) is added for this.
+    - 9% of decisions are multiway postflop, so **A9** is added.
+  - MDF is postflop only, and pot-odds flags wait for range narrowing (A4).
+  - Learning content lives under `/analysis/learn`, not a new tab.
