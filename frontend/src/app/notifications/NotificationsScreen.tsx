@@ -94,7 +94,7 @@ function NotificationsList() {
                   <p className={styles.meta}>
                     <span>{item.post.title}</span>
                     <span aria-hidden="true">·</span>
-                    <time dateTime={item.createdAt}>{formatPostDate(item.createdAt)}</time>
+                    <time dateTime={item.createdAt}>{formatPostDate(item.createdAt, en.chrome.intl)}</time>
                   </p>
                   {item.excerpt ? <p className="muted">{item.excerpt}</p> : null}
                 </div>

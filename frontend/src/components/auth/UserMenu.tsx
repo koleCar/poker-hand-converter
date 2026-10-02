@@ -63,7 +63,7 @@ export function UserMenu() {
         className="btn btn--sm usermenu__signin"
         onClick={() => auth.requestSignIn()}
       >
-        Sign in
+        {en.chrome.menu.signIn}
       </button>
     );
   }
@@ -143,7 +143,7 @@ export function UserMenu() {
               }
             }}
           >
-            {busy ? "Signing out…" : "Sign out"}
+            {busy ? en.chrome.menu.signingOut : en.chrome.menu.signOut}
           </button>
         </div>
       ) : null}

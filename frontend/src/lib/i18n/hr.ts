@@ -15,14 +15,9 @@ import { replayerHr } from "./ns/replayer.hr";
 import { statsHr } from "./ns/stats.hr";
 import type { Dict } from "./types";
 
-/** Croatian plural: one (1, 21, 31…), few (2–4, 22–24…), many (everything else). */
-export function plural(count: number, one: string, few: string, many: string): string {
-  const n = Math.abs(count) % 100;
-  const last = n % 10;
-  if (last === 1 && n !== 11) return one;
-  if (last >= 2 && last <= 4 && (n < 12 || n > 14)) return few;
-  return many;
-}
+import { plural } from "./plural";
+
+export { plural };
 
 const num = (value: number) => value.toLocaleString("hr-HR");
 

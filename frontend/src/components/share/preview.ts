@@ -26,7 +26,7 @@ export function formatStakes(hand: { game: Pick<PhfGame, "unit" | "smallBlind" |
   return `${formatAmount(smallBlind, unit)}/${formatAmount(bigBlind, unit)}`;
 }
 
-export function formatPlayedAt(iso: string | null): string | null {
+export function formatPlayedAt(iso: string | null, intl: string = "en-GB"): string | null {
   if (!iso) {
     return null;
   }
@@ -34,7 +34,7 @@ export function formatPlayedAt(iso: string | null): string | null {
   if (Number.isNaN(date.getTime())) {
     return null;
   }
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return date.toLocaleDateString(intl, { day: "numeric", month: "short", year: "numeric" });
 }
 
 /**

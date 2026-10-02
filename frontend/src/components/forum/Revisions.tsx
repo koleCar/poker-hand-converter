@@ -37,7 +37,7 @@ export function Revisions({ post, seq }: { post: string; seq?: number }) {
         <div className={styles.revisions} aria-label={en.moderation.revisions}>
           {items.map((item, index) => (
             <div key={index} className={styles.revision}>
-              <small className="muted">{en.moderation.revisionAt(formatPostDate(item.createdAt))}</small>
+              <small className="muted">{en.moderation.revisionAt(formatPostDate(item.createdAt, en.chrome.intl))}</small>
               {item.title ? <strong>{item.title}</strong> : null}
               <PostText body={item.body} />
             </div>

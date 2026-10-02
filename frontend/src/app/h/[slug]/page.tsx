@@ -178,7 +178,7 @@ async function SharedHandContent({
   initialPosition: ReplayPosition | null;
 }) {
   const en = await getDict();
-  const sharedAt = formatPlayedAt(createdAt);
+  const sharedAt = formatPlayedAt(createdAt, en.chrome.intl);
 
   return (
     <>

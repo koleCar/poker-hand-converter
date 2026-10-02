@@ -60,7 +60,7 @@ export function CommentThread({
                   )}
                   <span aria-hidden="true">·</span>
                   <Link href={permalink(comment.seq)}>
-                    <time dateTime={comment.createdAt}>{formatPostDate(comment.createdAt)}</time>
+                    <time dateTime={comment.createdAt}>{formatPostDate(comment.createdAt, en.chrome.intl)}</time>
                   </Link>
                   {comment.editedAt ? (
                     <>

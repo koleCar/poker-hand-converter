@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
+import { useDict } from "../../lib/i18n/client";
 import { SignInRequiredError } from "../../lib/db";
 import { toStandardText } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
@@ -57,10 +58,13 @@ export function ShareHandButton({
   hand,
   storedHandId = null,
   presetUrl,
-  label = "Share hand",
+  label: labelProp,
   iconOnly = false,
   className,
 }: ShareHandButtonProps) {
+  const dict = useDict();
+  const t = dict.chrome.share;
+  const label = labelProp ?? t.button;
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [url, setUrl] = useState<string | null>(presetUrl ?? null);
@@ -132,12 +136,12 @@ export function ShareHandButton({
       setUrl(result.url);
       setCopyState((await copyToClipboard(result.url, inputRef.current)) ? "copied" : "failed");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not create a share link.");
+      setError(err instanceof Error ? err.message : t.failed);
       // Creating a link stores the hand, so it needs an account — but opening
       // one never does, which is what the dialog's copy says. The message is
       // set either way: on the shared-hand page there is no dialog to open.
       if (err instanceof SignInRequiredError) {
-        auth.requestSignIn("Sign in to create a share link. Anyone you send it to can open it without an account.");
+        auth.requestSignIn(t.signIn);
       }
     } finally {
       setBusy(false);
@@ -166,18 +170,18 @@ export function ShareHandButton({
         }
       >
         <span aria-hidden="true">🔗</span>
-        {iconOnly ? null : busy ? "Creating link…" : label}
+        {iconOnly ? null : busy ? t.creating : label}
       </button>
 
       {open ? (
-        <div className="share__panel" role="dialog" aria-label="Share this hand">
+        <div className="share__panel" role="dialog" aria-label={t.heading}>
           <div className="share__panel-head">
-            <strong>Share this hand</strong>
+            <strong>{t.heading}</strong>
             <button
               type="button"
               className="share__close"
               onClick={() => setOpen(false)}
-              aria-label="Close"
+              aria-label={dict.chrome.close}
             >
               ✕
             </button>
@@ -188,7 +192,7 @@ export function ShareHandButton({
           {url ? (
             <>
               <p className="share__hint">
-                Anyone with this link can replay the hand — no account needed.
+                {t.hint}
               </p>
               <div className="share__row">
                 <input
@@ -198,7 +202,7 @@ export function ShareHandButton({
                   readOnly
                   spellCheck={false}
                   onFocus={(event) => event.currentTarget.select()}
-                  aria-label="Shareable link"
+                  aria-label={t.linkLabel}
                 />
                 <button
                   type="button"
@@ -207,13 +211,13 @@ export function ShareHandButton({
                     setCopyState((await copyToClipboard(url, inputRef.current)) ? "copied" : "failed")
                   }
                 >
-                  Copy
+                  {t.copy}
                 </button>
               </div>
 
               <div className="share__actions">
                 <a className="btn btn--ghost btn--sm" href={url} target="_blank" rel="noreferrer">
-                  Open link
+                  {t.open}
                 </a>
                 {canWebShare ? (
                   <button
@@ -221,28 +225,28 @@ export function ShareHandButton({
                     className="btn btn--ghost btn--sm"
                     onClick={() => {
                       void navigator
-                        .share({ title: "Poker hand replay", url })
+                        .share({ title: t.webShareTitle, url })
                         .catch(() => undefined);
                     }}
                   >
-                    Share via…
+                    {t.via}
                   </button>
                 ) : null}
               </div>
 
               {copyState === "copied" ? (
                 <p className="share__msg share__msg--ok" role="status">
-                  Link copied to clipboard.
+                  {t.copied}
                 </p>
               ) : null}
               {copyState === "failed" ? (
                 <p className="share__msg share__msg--warn" role="status">
-                  Your browser blocked the clipboard. Select the link above and copy it manually.
+                  {t.copyBlocked}
                 </p>
               ) : null}
             </>
           ) : busy ? (
-            <p className="share__hint">Creating link…</p>
+            <p className="share__hint">{t.creating}</p>
           ) : null}
         </div>
       ) : null}

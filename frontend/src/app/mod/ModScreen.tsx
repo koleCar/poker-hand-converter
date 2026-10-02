@@ -139,7 +139,7 @@ function Reports({ onDenied }: { onDenied: () => void }) {
                 <p className={styles.meta}>
                   {item.reporter ? <span>{en.moderation.reportedBy(item.reporter)}</span> : null}
                   <span aria-hidden="true">·</span>
-                  <time dateTime={item.createdAt}>{formatPostDate(item.createdAt)}</time>
+                  <time dateTime={item.createdAt}>{formatPostDate(item.createdAt, en.chrome.intl)}</time>
                   {item.subject?.author ? (
                     <>
                       <span aria-hidden="true">·</span>
@@ -217,7 +217,7 @@ function Spam({ onDenied }: { onDenied: () => void }) {
                 <span aria-hidden="true">·</span>
                 <span>{item.author}</span>
                 <span aria-hidden="true">·</span>
-                <time dateTime={item.createdAt}>{formatPostDate(item.createdAt)}</time>
+                <time dateTime={item.createdAt}>{formatPostDate(item.createdAt, en.chrome.intl)}</time>
               </p>
               {item.excerpt ? <p className="muted">{item.excerpt}</p> : null}
               <div className={styles.row}>
@@ -333,7 +333,7 @@ function Users() {
           <ol className={styles.thread}>
             {user.history.map((entry, index) => (
               <li key={index} className={styles.meta}>
-                {entry.action} · {entry.reason ?? ""} · {formatPostDate(entry.createdAt)}
+                {entry.action} · {entry.reason ?? ""} · {formatPostDate(entry.createdAt, en.chrome.intl)}
               </li>
             ))}
           </ol>
