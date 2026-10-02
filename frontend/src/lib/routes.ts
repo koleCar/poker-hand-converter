@@ -24,6 +24,15 @@ export const paths = {
   convert: () => "/convert",
   library: () => "/library",
   stats: () => "/stats",
+  /**
+   * The Analysis tab (`docs/ANALYSIS-PLAN.md` §6.0). `query` is the list's own
+   * search string (filters, sort, page) without the `?`, so the hand panel's
+   * back link returns to exactly the list the reader left.
+   */
+  analysis: (query?: string) => (query ? `/analysis?${query}` : "/analysis"),
+  /** One hand's analysis: the replayer with the Analysis sheet open. */
+  analysisHand: (handId: string, query?: string) =>
+    `/analysis/h/${encodeURIComponent(handId)}${query ? `?${query}` : ""}`,
   sharedHand: (slug: string) => `/h/${encodeURIComponent(slug)}`,
   /**
    * A public profile. Every top-level segment here is also a row in

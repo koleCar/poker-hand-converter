@@ -31,6 +31,7 @@ const ALLOWED: ReadonlySet<string> = new Set([
   paths.convert(),
   paths.library(),
   paths.stats(),
+  paths.analysis(),
   // The one place a new account is sent to pick a name, and the page that
   // offers "resend the confirmation email" — so the link in that email has to
   // be able to come back here.

@@ -117,6 +117,8 @@ export default defineConfig([
       'src/lib/phf/**/*.ts',
       'src/lib/parsers/**/*.ts',
       'src/lib/stats/**/*.ts',
+      'src/lib/equity/**/*.ts',
+      'src/lib/analysis/**/*.ts',
       'src/lib/replay.ts',
       'src/lib/cards.ts',
       'src/lib/format.ts',

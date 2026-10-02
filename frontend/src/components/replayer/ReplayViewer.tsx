@@ -45,7 +45,9 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import type { ReactNode } from "react";
 import { useDict } from "../../lib/i18n/client";
+import { Overlay } from "../ui/Overlay";
 import { type PhfHand } from "../../lib/phf/types";
 import { buildReplay, streetAnchors, type ReplayFrame } from "../../lib/replay";
 import { ActionLogSheet } from "./ActionLogSheet";
@@ -133,15 +135,57 @@ interface ReplayViewerProps {
    * anchors; nothing else does.
    */
   marks?: ReplayMark[];
+  /**
+   * One more Tier-2 sheet, owned by the host: the Analysis sheet on
+   * `/analysis/h/<id>` (analysis A1). Non-modal like the log, so stepping and seeking
+   * keep working while it is open, and anchored to the stage like every sheet.
+   * Never rendered in an embed, for the reason every sheet is not.
+   */
+  sheet?: ReplaySheet;
   ref?: React.Ref<ReplayViewerHandle>;
 }
 
-/** A moment on the rail, and how many comments are anchored to it. */
+/**
+ * A moment on the rail: the comments anchored to it (#34), or a graded or
+ * flagged decision (analysis A1).
+ */
 export interface ReplayMark {
   position: ReplayPosition;
   count: number;
   /** "flop, after Villain2 bets $4", for the pip's accessible name. */
   label: string;
+  /**
+   * Colours the pip by what it marks — a grade, or a flag's severity — instead
+   * of the accent a comment pip wears. The colour is never the only signal:
+   * `ariaLabel` says the same thing in words.
+   */
+  tone?: ReplayMarkTone;
+  /** The pip's whole accessible name, when it is not a comment count. */
+  ariaLabel?: string;
+}
+
+export type ReplayMarkTone = "perfect" | "good" | "inaccurate" | "mistake" | "blunder" | "note" | "neutral";
+
+/** What the host's sheet is told about the replayer it sits in. */
+export interface ReplaySheetContext {
+  /** The frame on screen. */
+  frame: ReplayFrame;
+  /** Seeks the replayer, the way a pip or a log line does. */
+  seek: (position: ReplayPosition) => void;
+}
+
+export interface ReplaySheet {
+  /** The overlay's title and the transport button's label. */
+  label: string;
+  /** The transport button's tooltip. */
+  buttonTitle: string;
+  /** A glyph for the button; decoration, hidden from assistive tech. */
+  icon: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** A short line in the sheet's head: the hand's grade, say. */
+  note?: ReactNode;
+  render: (context: ReplaySheetContext) => ReactNode;
 }
 
 const SPEED_KEY = "phc.replayer.speed";
@@ -362,6 +406,7 @@ function ReplayStage({
   onPositionChange,
   urlSync,
   marks,
+  sheet,
   ref,
 }: ReplayViewerProps) {
   const embed = mode === "embed";
@@ -377,12 +422,22 @@ function ReplayStage({
   // the rail shows one pip per frame with the total.
   const railMarks = useMemo(() => {
     if (!marks?.length) return [];
-    const byFrame = new Map<number, { index: number; count: number; label: string }>();
+    const byFrame = new Map<
+      number,
+      { index: number; count: number; label: string; tone?: ReplayMarkTone; ariaLabel?: string }
+    >();
     for (const mark of marks) {
       const index = frameIndexForPosition(frames, mark.position);
       const existing = byFrame.get(index);
       if (existing) existing.count += mark.count;
-      else byFrame.set(index, { index, count: mark.count, label: mark.label });
+      else
+        byFrame.set(index, {
+          index,
+          count: mark.count,
+          label: mark.label,
+          tone: mark.tone,
+          ariaLabel: mark.ariaLabel,
+        });
     }
     return [...byFrame.values()].sort((a, b) => a.index - b.index);
   }, [marks, frames]);
@@ -687,6 +742,11 @@ function ReplayStage({
         setLogOpen(false);
         return;
       }
+      if (sheet?.open && event.key === "Escape") {
+        event.preventDefault();
+        sheet.onOpenChange(false);
+        return;
+      }
       const root = rootRef.current;
       if (!root || !root.contains(document.activeElement)) {
         return;
@@ -779,6 +839,7 @@ function ReplayStage({
       last,
       embed,
       fullscreen,
+      sheet,
     ],
   );
 
@@ -915,8 +976,26 @@ function ReplayStage({
         onStep={step}
         onTogglePlay={togglePlay}
         onSpeed={changeSpeed}
-        onToggleLog={() => setLogOpen((current) => !current)}
+        onToggleLog={() => {
+          // The log and a host sheet share the flank beside the felt; one at a time.
+          if (!logOpen) sheet?.onOpenChange(false);
+          setLogOpen((current) => !current);
+        }}
         onToggleResult={() => setResultOpen((current) => !current)}
+        extra={
+          sheet && !embed
+            ? {
+                label: sheet.label,
+                title: sheet.buttonTitle,
+                icon: sheet.icon,
+                open: sheet.open,
+                onToggle: () => {
+                  if (!sheet.open) setLogOpen(false);
+                  sheet.onOpenChange(!sheet.open);
+                },
+              }
+            : undefined
+        }
       />
 
       {/*
@@ -969,6 +1048,24 @@ function ReplayStage({
           />
 
           <ShortcutSheet open={keysOpen} onClose={() => setKeysOpen(false)} anchor={stageRef} />
+
+          {sheet ? (
+            <Overlay
+              // Read while stepping, like the log: never modal.
+              modal={false}
+              open={sheet.open}
+              onClose={() => sheet.onOpenChange(false)}
+              title={sheet.label}
+              note={sheet.note}
+              anchor={stageRef}
+              className="rp-ov rp-ov--sheet"
+            >
+              {sheet.render({
+                frame,
+                seek: (target) => seek(frameIndexForPosition(frames, target)),
+              })}
+            </Overlay>
+          ) : null}
         </>
       )}
     </div>

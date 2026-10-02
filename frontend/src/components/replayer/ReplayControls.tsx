@@ -40,8 +40,14 @@ interface ReplayControlsProps {
   frames: ReplayFrame[];
   frame: ReplayFrame;
   anchors: Array<{ street: Street; index: number }>;
-  /** Comment pips (#34): frame index, comments there, and where that is. */
-  marks?: Array<{ index: number; count: number; label: string }>;
+  /**
+   * Rail pips: comments (#34) or analysed decisions (analysis A1) — frame index, how
+   * many, where. A `tone` colours the pip; `ariaLabel` replaces the comment
+   * wording when the pip is not about comments.
+   */
+  marks?: Array<{ index: number; count: number; label: string; tone?: string; ariaLabel?: string }>;
+  /** A host-owned sheet's button, beside the log's (see `ReplayViewerProps.sheet`). */
+  extra?: { label: string; title: string; icon: string; open: boolean; onToggle: () => void };
   /** `frame.description`, name-masked. The `aria-live` text. */
   caption: string;
   tier: ReplayTier;
@@ -87,6 +93,7 @@ export function ReplayControls({
   onSpeed,
   onToggleLog,
   onToggleResult,
+  extra,
 }: ReplayControlsProps) {
   const words = useDict().replayer.controls;
   const intlLocale = INTL_LOCALE[useLocale()];
@@ -130,10 +137,10 @@ export function ReplayControls({
               <button
                 key={mark.index}
                 type="button"
-                className={`rp__mark${mark.index === frame.index ? " is-current" : ""}`}
+                className={`rp__mark${mark.tone ? ` rp__mark--${mark.tone}` : ""}${mark.index === frame.index ? " is-current" : ""}`}
                 style={{ left: `${last > 0 ? (mark.index / last) * 100 : 0}%` }}
-                aria-label={words.mark(mark.count, mark.label)}
-                title={words.mark(mark.count, mark.label)}
+                aria-label={mark.ariaLabel ?? words.mark(mark.count, mark.label)}
+                title={mark.ariaLabel ?? words.mark(mark.count, mark.label)}
                 onClick={() => onSeek(mark.index)}
               >
                 {mark.count > 1 ? mark.count : null}
@@ -271,6 +278,20 @@ export function ReplayControls({
               <span aria-hidden="true">🏆</span>
               {/* Rung 1: the label goes, the icon and the name stay. */}
               <span className="rp__opt-label">{words.result}</span>
+            </button>
+          ) : null}
+          {extra ? (
+            <button
+              type="button"
+              className={`chip-btn ${extra.open ? "is-active" : ""}`.trim()}
+              aria-pressed={extra.open}
+              aria-haspopup="dialog"
+              aria-label={extra.label}
+              title={extra.title}
+              onClick={extra.onToggle}
+            >
+              <span aria-hidden="true">{extra.icon}</span>
+              <span className="rp__opt-label">{extra.label}</span>
             </button>
           ) : null}
           <button

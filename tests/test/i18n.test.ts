@@ -43,6 +43,19 @@ describe("stats namespace", () => {
   });
 });
 
+describe("analysis namespace", () => {
+  it("counts hands and decisions with the right Croatian forms", () => {
+    expect([1, 2, 5, 21].map(hr.analysis.overview.hands)).toEqual(["1 ruka", "2 ruke", "5 ruku", "21 ruka"]);
+    expect([1, 3, 11].map(hr.analysis.overview.decisions)).toEqual(["1 odluka", "3 odluke", "11 odluka"]);
+    expect(hr.analysis.run.missing(3, 5)).toBe("3 od 5 ruku još nije analizirano.");
+    expect(en.analysis.run.running(10, 0)).toBe("Analysing… 10 hands");
+  });
+  it("names a placeholder range in words, not as its key", () => {
+    expect(en.analysis.sheet.equityValue(0.41, "open:BTN")).toBe("41% vs a BTN open");
+    expect(hr.analysis.sheet.equityValue(0.41, "call-3bet:CO")).toBe("41 % protiv CO calla na 3-bet");
+  });
+});
+
 describe("dictionaries", () => {
   // `Dict` already makes a missing key a compile error; this catches the one
   // thing types cannot: a translation left as an empty string.

@@ -41,7 +41,7 @@ export {
   type MoneyKey,
 } from "./types";
 
-export { handFacts, handFactsAll } from "./derive";
+export { handFacts, handFactsAll, potTypeOf } from "./derive";
 
 export {
   buildContext,

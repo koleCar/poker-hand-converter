@@ -192,6 +192,21 @@
     --danger-on-tint: #ffc9c9;
     --info-on-tint: #c7e6ff;
 
+    /* --------------------------------------------------------------- grades
+       Hand analysis (phase A1): the five grades of docs/ANALYSIS-PLAN.md §2, and
+       the one colour a heuristic flag may wear. Ordered as a ramp from green
+       to red so "worse" reads at a glance; every use pairs the colour with a
+       word or an accessible name, never colour alone. Measured against
+       --surface-raised (#121820):
+         perfect #35c48a 8.0:1 · good #8fd6b6 10.6:1 · inaccurate #e8b23a 9.2:1
+         mistake #f08a4b 7.2:1 · blunder #ef5a5a 5.3:1 · note #3ea6ff 6.9:1 */
+    --grade-perfect: var(--st-success-500);
+    --grade-good: #8fd6b6;
+    --grade-inaccurate: var(--st-warning-500);
+    --grade-mistake: #f08a4b;
+    --grade-blunder: var(--st-danger-500);
+    --flag-note: var(--st-info-500);
+
     /* ------------------------------------------------------------ anonymity
        Rooms that do not publish player names. Violet on purpose: it is neither
        a status nor a link, and marking an anonymised table in red or blue would

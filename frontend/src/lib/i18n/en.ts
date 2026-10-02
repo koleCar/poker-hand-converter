@@ -31,6 +31,7 @@
  * apply the plural rules of their own language (`plural()` in `hr.ts`).
  */
 
+import { analysisEn } from "./ns/analysis.en";
 import { chromeEn } from "./ns/chrome.en";
 import { converterEn } from "./ns/converter.en";
 import { replayerEn } from "./ns/replayer.en";
@@ -39,6 +40,7 @@ import { statsEn } from "./ns/stats.en";
 export const en = {
   // The component namespaces, one file each (`ns/`).
   stats: statsEn,
+  analysis: analysisEn,
   replayer: replayerEn,
   converter: converterEn,
   chrome: chromeEn,
@@ -69,6 +71,15 @@ export const en = {
       description:
         "VPIP, PFR, 3-bet, continuation bets and a showdown / non-showdown win-rate graph, over every hand you have saved.",
     },
+    analysis: {
+      title: "Hand analysis | Rail",
+      description:
+        "Every decision in your saved hands, with the board, your hand, the price and the checks that hold whatever the strategy.",
+    },
+    analysisHand: {
+      title: "Hand analysis — one hand | Rail",
+      description: "One of your hands, decision by decision, in the replayer.",
+    },
     notFound: {
       title: "Page not found | Rail",
       description: "That address does not match anything on Rail.",
@@ -91,6 +102,7 @@ export const en = {
     convert: "Upload hand",
     library: "Hand history",
     stats: "Statistics",
+    analysis: "Analysis",
   },
 
   home: {

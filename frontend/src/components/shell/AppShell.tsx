@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { paths } from "../../lib/routes";
 import { useDict } from "../../lib/i18n/client";
 import type { Dict } from "../../lib/i18n/types";
@@ -23,13 +23,14 @@ import { LanguageSwitch } from "./LanguageSwitch";
  * that used to live in `routes/router.tsx` is gone, and with it the click
  * handler that re-implemented modifier-key and middle-click semantics.
  */
-export type ShellTab = "forum" | "convert" | "library" | "stats";
+export type ShellTab = "forum" | "convert" | "library" | "stats" | "analysis";
 
 const TABS: Array<{ id: ShellTab; label: (en: Dict) => string; path: string }> = [
   { id: "forum", label: (en) => en.nav.forum, path: paths.home() },
   { id: "convert", label: (en) => en.nav.convert, path: paths.convert() },
   { id: "library", label: (en) => en.nav.library, path: paths.library() },
   { id: "stats", label: (en) => en.nav.stats, path: paths.stats() },
+  { id: "analysis", label: (en) => en.nav.analysis, path: paths.analysis() },
 ];
 
 interface AppShellProps {
@@ -44,7 +45,8 @@ interface AppShellProps {
    * something behind it, and the bar collapses to the one thing the app does
    * for a first-time visitor. Statistics sit behind the same gate for the same
    * reason, and a stronger one: a HUD over zero hands is not an empty screen,
-   * it is a screen of dashes that looks broken.
+   * it is a screen of dashes that looks broken. Analysis is the same case as
+   * statistics.
    */
   showHistoryTab: boolean;
   dbConfigured: boolean;
@@ -63,6 +65,17 @@ export function AppShell({
   // The forum and the converter are for everyone; the library and statistics
   // wait until there is something in them.
   const tabs = TABS.filter((entry) => entry.id === "forum" || entry.id === "convert" || showHistoryTab);
+  const navRef = useRef<HTMLElement | null>(null);
+
+  // On a phone the tab strip scrolls sideways (five tabs do not fit 375px);
+  // keep the current screen's tab in view rather than leaving it off the edge.
+  useEffect(() => {
+    const nav = navRef.current;
+    const active = nav?.querySelector<HTMLElement>(".shell__tab.is-active");
+    if (active && nav && nav.scrollWidth > nav.clientWidth) {
+      nav.scrollLeft = active.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2;
+    }
+  }, [tab, tabs.length]);
 
   return (
     <div className="shell">
@@ -73,7 +86,7 @@ export function AppShell({
           {/* One tab is not a choice — rendering it would be a permanently
               selected label next to the logo. */}
           {tabs.length > 1 ? (
-            <nav className="shell__tabs" role="tablist" aria-label={en.nav.sections}>
+            <nav ref={navRef} className="shell__tabs" role="tablist" aria-label={en.nav.sections}>
               {tabs.map((entry) => (
                 <Link
                   key={entry.id}

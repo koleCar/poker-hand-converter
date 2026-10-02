@@ -238,6 +238,175 @@ export type Database = {
           },
         ]
       }
+      decision_analysis: {
+        Row: {
+          action: string
+          action_index: number
+          analysis_version: string
+          approximations: string[]
+          chosen: number | null
+          created_at: string
+          ev_loss_bb: number | null
+          ev_loss_pot: number | null
+          facing_bet: boolean
+          facts: Json
+          flags: Json
+          freq_diff: number | null
+          grade: string | null
+          hand_id: string
+          mdf: number | null
+          node: string
+          options: Json
+          ord: number
+          owner_id: string
+          pot_bb: number | null
+          pot_odds: number | null
+          reason: string | null
+          scenario: string
+          score: number | null
+          source: string
+          status: string
+          street: string
+          worst_flag: string | null
+        }
+        Insert: {
+          action: string
+          action_index: number
+          analysis_version: string
+          approximations?: string[]
+          chosen?: number | null
+          created_at?: string
+          ev_loss_bb?: number | null
+          ev_loss_pot?: number | null
+          facing_bet?: boolean
+          facts?: Json
+          flags?: Json
+          freq_diff?: number | null
+          grade?: string | null
+          hand_id: string
+          mdf?: number | null
+          node: string
+          options?: Json
+          ord: number
+          owner_id: string
+          pot_bb?: number | null
+          pot_odds?: number | null
+          reason?: string | null
+          scenario: string
+          score?: number | null
+          source: string
+          status: string
+          street: string
+          worst_flag?: string | null
+        }
+        Update: {
+          action?: string
+          action_index?: number
+          analysis_version?: string
+          approximations?: string[]
+          chosen?: number | null
+          created_at?: string
+          ev_loss_bb?: number | null
+          ev_loss_pot?: number | null
+          facing_bet?: boolean
+          facts?: Json
+          flags?: Json
+          freq_diff?: number | null
+          grade?: string | null
+          hand_id?: string
+          mdf?: number | null
+          node?: string
+          options?: Json
+          ord?: number
+          owner_id?: string
+          pot_bb?: number | null
+          pot_odds?: number | null
+          reason?: string | null
+          scenario?: string
+          score?: number | null
+          source?: string
+          status?: string
+          street?: string
+          worst_flag?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decision_analysis_hand_id_analysis_version_fkey"
+            columns: ["hand_id", "analysis_version"]
+            isOneToOne: false
+            referencedRelation: "hand_analysis"
+            referencedColumns: ["hand_id", "analysis_version"]
+          },
+        ]
+      }
+      hand_analysis: {
+        Row: {
+          analysed: number
+          analysis_version: string
+          approximations: string[]
+          created_at: string
+          decisions: number
+          ev_loss_bb: number | null
+          ev_loss_pot: number | null
+          flag_count: number
+          grade: string | null
+          hand_id: string
+          hero_seat: number | null
+          owner_id: string
+          pot_type: string | null
+          reason: string | null
+          score: number | null
+          status: string
+          worst_flag: string | null
+        }
+        Insert: {
+          analysed?: number
+          analysis_version: string
+          approximations?: string[]
+          created_at?: string
+          decisions?: number
+          ev_loss_bb?: number | null
+          ev_loss_pot?: number | null
+          flag_count?: number
+          grade?: string | null
+          hand_id: string
+          hero_seat?: number | null
+          owner_id: string
+          pot_type?: string | null
+          reason?: string | null
+          score?: number | null
+          status: string
+          worst_flag?: string | null
+        }
+        Update: {
+          analysed?: number
+          analysis_version?: string
+          approximations?: string[]
+          created_at?: string
+          decisions?: number
+          ev_loss_bb?: number | null
+          ev_loss_pot?: number | null
+          flag_count?: number
+          grade?: string | null
+          hand_id?: string
+          hero_seat?: number | null
+          owner_id?: string
+          pot_type?: string | null
+          reason?: string | null
+          score?: number | null
+          status?: string
+          worst_flag?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hand_analysis_hand_id_fkey"
+            columns: ["hand_id"]
+            isOneToOne: false
+            referencedRelation: "hands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hand_stats: {
         Row: {
           bet_flop: number
@@ -1710,6 +1879,54 @@ export type Database = {
         }
         Returns: string
       }
+      analysis_breakdown: {
+        Args: { p_filters?: Json; p_group?: string }
+        Returns: Json
+      }
+      analysis_coverage: { Args: { p_version: string }; Returns: Json }
+      analysis_hand: {
+        Args: { p_hand_id: string; p_version?: string }
+        Returns: Json
+      }
+      analysis_hands: {
+        Args: {
+          p_filters?: Json
+          p_limit?: number
+          p_offset?: number
+          p_sort?: string
+        }
+        Returns: Json
+      }
+      analysis_overview: { Args: { p_filters?: Json }; Returns: Json }
+      analysis_scope: {
+        Args: { p_filters?: Json }
+        Returns: {
+          analysed: number
+          analysis_version: string
+          approximations: string[]
+          created_at: string
+          decisions: number
+          ev_loss_bb: number | null
+          ev_loss_pot: number | null
+          flag_count: number
+          grade: string | null
+          hand_id: string
+          hero_seat: number | null
+          owner_id: string
+          pot_type: string | null
+          reason: string | null
+          score: number | null
+          status: string
+          worst_flag: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "hand_analysis"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      analysis_version_of: { Args: { p_filters: Json }; Returns: string }
       can_moderate_board: { Args: { p_board_id: string }; Returns: boolean }
       can_moderate_post: { Args: { p_public_id: string }; Returns: boolean }
       create_comment: {
@@ -1834,6 +2051,13 @@ export type Database = {
       hand_stats_filter_sql: { Args: never; Returns: string }
       hand_stats_money_keys: { Args: never; Returns: string[] }
       hands_facets: { Args: never; Returns: Json }
+      hands_needing_analysis: {
+        Args: { p_after?: string; p_limit?: number; p_version: string }
+        Returns: {
+          id: string
+          phf: Json
+        }[]
+      }
       hands_needing_stats: {
         Args: {
           p_after?: string
@@ -1977,6 +2201,10 @@ export type Database = {
       post_status: { Args: { p_public_id: string }; Returns: string }
       posting_block_reason: { Args: { p_uid: string }; Returns: string }
       provisional_username: { Args: never; Returns: string }
+      prune_hand_analysis: {
+        Args: { p_keep_version: string; p_limit?: number }
+        Returns: Json
+      }
       prune_hand_stats: {
         Args: { p_keep_version: string; p_limit?: number }
         Returns: Json
@@ -2015,6 +2243,7 @@ export type Database = {
       }
       resolve_share: { Args: { p_slug: string }; Returns: Json }
       resolve_username: { Args: { p_username: string }; Returns: Json }
+      save_hand_analysis: { Args: { p_rows: Json }; Returns: Json }
       save_hand_ev: { Args: { p_rows: Json }; Returns: Json }
       save_hand_stats: { Args: { p_rows: Json }; Returns: Json }
       save_hands: { Args: { p_hands: Json }; Returns: Json }

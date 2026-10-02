@@ -1,0 +1,454 @@
+/* The Analysis tab and the Analysis sheet (analysis phase A1).
+
+   Layout borrows the statistics screen's global skeleton (`.stats`,
+   `.stats-table`, `.card`) so the two tabs read as siblings; what is here is
+   only what analysis adds — tones, the action strip, the coverage bar, the
+   sheet. Colours are the semantic `--grade-*` / `--flag-note` tokens, which
+   theme-light re-points, so nothing below knows which theme it is in. */
+
+/* ------------------------------------------------------------- tones */
+
+.perfect { color: var(--grade-perfect); }
+.good { color: var(--grade-good); }
+.inaccurate { color: var(--grade-inaccurate); }
+.mistake { color: var(--grade-mistake); }
+.blunder { color: var(--grade-blunder); }
+.note { color: var(--flag-note); }
+.neutral { color: var(--text-secondary); }
+
+.skipped {
+  color: var(--text-tertiary);
+  /* Dotted rather than struck through: a struck "X" reads as a cross. */
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.dot {
+  display: inline-block;
+  flex: none;
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  border-radius: var(--radius-pill);
+  background: currentcolor;
+}
+
+.neutral .dot,
+.dot.neutral {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px currentcolor;
+}
+
+/* -------------------------------------------------------------- banners */
+
+.reference {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.reference strong {
+  font-weight: var(--font-weight-semibold);
+}
+
+.run {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  /* Full width even inside the empty state's flex-start column, or the note
+     below the button has no line of its own to wrap onto. */
+  align-self: stretch;
+}
+
+.run > span {
+  flex: 1 1 auto;
+}
+
+.runNote {
+  flex-basis: 100%;
+  order: 9;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+/* ------------------------------------------------------------- overview */
+
+.cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+/* Two columns once a card can hold its table; the street table spans both. */
+@media (min-width: 760px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.cardTitle {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-lg);
+}
+
+.coverage {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.coverage > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1) var(--space-3);
+  align-items: baseline;
+}
+
+.coverage dt {
+  font-weight: var(--font-weight-medium);
+}
+
+.coverage dt small {
+  display: block;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+.coverage dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-semibold);
+}
+
+.bar {
+  display: flex;
+  block-size: 0.5rem;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--surface-inset);
+  margin-block: var(--space-2) var(--space-3);
+}
+
+.barFull { background: var(--grade-perfect); }
+.barPartial { background: var(--grade-inaccurate); }
+.barNot { background: var(--border-strong); }
+
+.reasons {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.reasons li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--text-secondary);
+}
+
+.reasons span:last-child {
+  font-variant-numeric: tabular-nums;
+}
+
+.subhead {
+  margin: var(--space-4) 0 var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 1px var(--space-2);
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- filters */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2) var(--space-3);
+  margin-block-end: var(--space-3);
+}
+
+.filters select {
+  min-inline-size: 8rem;
+}
+
+/* ---------------------------------------------------------- action strip */
+
+.strip {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+}
+
+.stripStreet {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.stripStreet + .stripStreet::before {
+  content: "·";
+  margin-inline-end: var(--space-1);
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-regular);
+}
+
+/* -------------------------------------------------------------- the list */
+
+.handLink {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  color: inherit;
+  text-decoration: none;
+}
+
+.handLink:hover .handCards,
+.handLink:focus-visible .handCards {
+  text-decoration: underline;
+}
+
+.handCards {
+  font-family: var(--font-family-mono);
+  font-weight: var(--font-weight-semibold);
+}
+
+.muted {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-block-start: var(--space-3);
+}
+
+.up { color: var(--profit-fg); }
+.down { color: var(--loss-fg); }
+
+/* ------------------------------------------------------------- hand page */
+
+.handPage {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.back {
+  justify-self: start;
+}
+
+/* --------------------------------------------------------------- the sheet */
+
+.sheet {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  font-size: var(--font-size-md);
+}
+
+.sheetHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+}
+
+.gradeWord {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.headStat {
+  display: grid;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.headStat strong {
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.approx {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-3);
+  background: var(--warning-bg);
+  color: var(--warning-on-tint);
+  font-size: var(--font-size-sm);
+}
+
+.approx ul {
+  margin: var(--space-1) 0 0;
+  padding-inline-start: 1.1rem;
+}
+
+.streets {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.streetRow {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.streetName {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--text-tertiary);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  /* WCAG 2.5.8: a target this size is easy to hit with a thumb. */
+  min-block-size: 2rem;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised-2);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.section {
+  display: grid;
+  gap: var(--space-2);
+  padding-block-start: var(--space-3);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--text-tertiary);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+}
+
+.facts > div {
+  display: contents;
+}
+
+.facts dt {
+  color: var(--text-secondary);
+}
+
+.facts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.texture {
+  display: block;
+  margin-block-start: var(--space-1);
+  color: var(--text-secondary);
+}
+
+.flagList {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flagList li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.why {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.why p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+@media (forced-colors: active) {
+  .dot {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}
