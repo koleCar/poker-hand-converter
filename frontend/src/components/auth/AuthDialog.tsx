@@ -23,13 +23,15 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAuth } from "../../lib/auth";
-import { useDict } from "../../lib/i18n/client";
+import { useDict, useLocale } from "../../lib/i18n/client";
+import { localizeServerMessage } from "../../lib/i18n/serverErrors";
 import { Turnstile } from "./Turnstile";
 
 type Mode = "sign-in" | "sign-up" | "reset";
 
 export function AuthDialog() {
   const { auth: t, close } = useDict().chrome;
+  const locale = useLocale();
   const auth = useAuth();
   const [mode, setMode] = useState<Mode>("sign-in");
   const [email, setEmail] = useState("");
@@ -111,7 +113,7 @@ export function AuthDialog() {
         setNotice(t.resetSent(email.trim()));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.failed);
+      setError(err instanceof Error ? localizeServerMessage(err.message, locale) : t.failed);
     } finally {
       setBusy(false);
       // Spent either way: GoTrue consumes a token on the first request that
@@ -129,7 +131,7 @@ export function AuthDialog() {
       // On success the browser leaves the page, so there is nothing after this.
       await auth.signInWithGoogle();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.googleFailed);
+      setError(err instanceof Error ? localizeServerMessage(err.message, locale) : t.googleFailed);
       setBusy(false);
     }
   }

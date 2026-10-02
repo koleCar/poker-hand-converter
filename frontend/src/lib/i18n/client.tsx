@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
+import { setActiveLocale } from "./active";
 import { DICTIONARIES } from "./dictionaries";
 import { DEFAULT_LOCALE, LOCALE_COOKIE, type Dict, type Locale } from "./types";
 
@@ -11,6 +12,11 @@ const LocaleContext = createContext<Locale>(DEFAULT_LOCALE);
  * first client render uses the same strings the server did.
  */
 export function I18nProvider({ locale, children }: { locale: Locale; children: ReactNode }) {
+  // For `rpc()`, which runs outside React. Idempotent, browser only: on the
+  // server, requests share this module and must not share a locale.
+  if (typeof window !== "undefined") {
+    setActiveLocale(locale);
+  }
   return <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>;
 }
 
