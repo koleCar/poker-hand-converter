@@ -1,4 +1,4 @@
-import { plural } from "../hr";
+import { plural } from "../plural";
 import type { Dict } from "../types";
 
 /** Strings for the stats components, Croatian. Same shape as `stats.en.ts`. */
