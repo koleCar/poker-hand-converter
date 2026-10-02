@@ -21,11 +21,11 @@ import { decodePosition, POSITION_PARAM } from "../../../../../components/replay
 import { ServerFrame } from "../../../../../components/shell/ServerFrame";
 import { discussionJsonLd, jsonLdScript } from "../../../../../lib/forum/jsonLd";
 import { excerpt } from "../../../../../lib/forum/text";
-import type { ForumPost } from "../../../../../lib/forum/types";
+import type { ForumComment, ForumPost } from "../../../../../lib/forum/types";
 import { getDict } from "../../../../../lib/i18n/server";
 import { getParser } from "../../../../../lib/parsers";
 import { canonicalUrl, paths } from "../../../../../lib/routes";
-import { readComments, readPollAnon, readPost } from "../../../../../lib/server/forum";
+import { readComments, readHiddenPostAsViewer, readPollAnon, readPost } from "../../../../../lib/server/forum";
 import styles from "../../../../../components/forum/forum.module.css";
 
 /**
@@ -68,7 +68,13 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { publicId } = await params;
   const result = await readPost(publicId);
   if (result.status !== "ok") {
-    return { title: en.meta.notFound.title, robots: { index: false, follow: true } };
+    // The author (or a moderator) of a hidden post gets its title in the tab;
+    // nobody gets it indexed.
+    const hidden = await readHiddenPostAsViewer(publicId, "best");
+    return {
+      title: hidden ? `${hidden.post.title} | Rail` : en.meta.notFound.title,
+      robots: { index: false, follow: true },
+    };
   }
   const post = result.post;
   const description =
@@ -97,7 +103,20 @@ export default async function PostPage({ params, searchParams }: { params: Param
   const en = await getDict();
   const { board, publicId, slug } = await params;
   const query = await searchParams;
-  const result = await readPost(publicId);
+  const sortParam = first(query.sort);
+  const commentSort = sortParam === "new" || sortParam === "top" ? sortParam : "best";
+  let result = await readPost(publicId);
+  // Hidden from the public — held as spam, shadow-hidden, removed — but
+  // perhaps not from this reader: its author, or a moderator. Ask again as
+  // them; the policy decides, and a stranger still gets what anon got.
+  let viewerOnly: { comments: ForumComment[] } | null = null;
+  if (result.status === "not-found" || result.status === "removed") {
+    const hidden = await readHiddenPostAsViewer(publicId, commentSort);
+    if (hidden) {
+      result = { status: "ok", post: hidden.post };
+      viewerOnly = { comments: hidden.comments };
+    }
+  }
 
   if (result.status === "not-found") {
     notFound();
@@ -131,12 +150,10 @@ export default async function PostPage({ params, searchParams }: { params: Param
     permanentRedirect(t ? `${canonicalPath}?${POSITION_PARAM}=${encodeURIComponent(t)}` : canonicalPath);
   }
 
-  const sortParam = first(query.sort);
-  const commentSort = sortParam === "new" || sortParam === "top" ? sortParam : "best";
   // A poll's comments and hand are sealed until the reader answers; the server
   // render is anonymous, so it gets the spot and no discussion (#51).
   const [comments, poll] = await Promise.all([
-    post.poll ? Promise.resolve([]) : readComments(post.publicId, commentSort),
+    post.poll ? Promise.resolve([]) : viewerOnly ? Promise.resolve(viewerOnly.comments) : readComments(post.publicId, commentSort),
     post.poll ? readPollAnon(post.publicId) : Promise.resolve(null),
   ]);
   const hand = post.handPhf ?? null;
@@ -209,6 +226,12 @@ export default async function PostPage({ params, searchParams }: { params: Param
               />
             </div>
           </header>
+
+          {viewerOnly ? (
+            <p className="notice notice--warn" role="status">
+              {en.forum.post.viewerOnly}
+            </p>
+          ) : null}
 
           <PostText body={post.body} />
 

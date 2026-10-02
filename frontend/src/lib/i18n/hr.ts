@@ -324,6 +324,8 @@ export const hr: Dict = {
         heading: "Forum trenutno nije dostupan",
         body: "Ova instalacija nema bazu podataka.",
       },
+      viewerOnly:
+        "Ovaj post vidite samo ti i moderatori: zadržan je na pregledu ili je uklonjen. Svi ostali dobivaju „nije pronađeno”.",
       backToBoard: (name: string) => `Natrag na ${name}`,
     },
 
