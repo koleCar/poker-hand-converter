@@ -35,12 +35,13 @@ import {
   type StatsSummary,
 } from "../../lib/db";
 import { useAuth } from "../../lib/auth";
+import { useDict } from "../../lib/i18n/client";
 import { BreakdownPanel } from "./BreakdownPanel";
 import { HandMatrix } from "./HandMatrix";
 import { HudGrid } from "./HudGrid";
 import { OpponentsPanel } from "./OpponentsPanel";
 import { SessionsPanel } from "./SessionsPanel";
-import { stakeLabel } from "./format";
+import { countIn, stakeLabel, useIntlLocale } from "./format";
 import { WinrateGraph } from "./WinrateGraph";
 import "../../styles/stats.css";
 
@@ -60,6 +61,8 @@ type Status = "idle" | "loading" | "ready" | "not-installed" | "error";
 const GRAPH_BUCKETS = 60;
 
 export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
+  const t = useDict().stats;
+  const en = t.tab;
   const auth = useAuth();
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -171,13 +174,10 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
       <div className="stats">
         <Header />
         <div className="card stats-empty">
-          <h3>Sign in to see your statistics</h3>
-          <p className="muted">
-            Statistics are derived from the hands in your library, so they need an
-            account to belong to. Converting, previewing and downloading never do.
-          </p>
+          <h3>{en.signInHeading}</h3>
+          <p className="muted">{en.signInBody}</p>
           <button type="button" className="btn btn--primary" onClick={() => auth.requestSignIn()}>
-            Sign in
+            {en.signIn}
           </button>
         </div>
       </div>
@@ -189,16 +189,16 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
       <div className="stats">
         <Header />
         <div className="card stats-empty">
-          <h3>Statistics are not set up on this database yet</h3>
+          <h3>{en.notInstalledHeading}</h3>
           <p className="muted">
-            Your hands are safe — this screen reads a separate table,{" "}
-            <code>hand_stats</code>, which arrives with its own migration. Apply{" "}
-            <code>supabase/migrations/20261005090000_hand_stats.sql</code> and reload.
-            Nothing else on Rail is affected: uploading, browsing, replaying and sharing
-            all work without it.
+            {en.notInstalledBody.beforeTable}
+            <code>hand_stats</code>
+            {en.notInstalledBody.beforeFile}
+            <code>supabase/migrations/20261005090000_hand_stats.sql</code>
+            {en.notInstalledBody.afterFile}
           </p>
           <button type="button" className="btn" onClick={() => void load()}>
-            Try again
+            {t.common.tryAgain}
           </button>
         </div>
       </div>
@@ -211,7 +211,7 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
         <Header />
         <p className="notice notice--error">{message}</p>
         <button type="button" className="btn" onClick={() => void load()}>
-          Try again
+          {t.common.tryAgain}
         </button>
       </div>
     );
@@ -221,7 +221,7 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
     return (
       <div className="stats">
         <Header />
-        <p className="muted">Reading your hands…</p>
+        <p className="muted">{en.loading}</p>
       </div>
     );
   }
@@ -243,11 +243,8 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
       <div className="stats">
         <Header />
         <div className="card stats-empty">
-          <h3>No hands with statistics yet</h3>
-          <p className="muted">
-            Statistics are derived from the hands in your library, on the server, as they are saved.
-            Upload a hand history and this screen fills in.
-          </p>
+          <h3>{en.emptyHeading}</h3>
+          <p className="muted">{en.emptyBody}</p>
         </div>
       </div>
     );
@@ -255,9 +252,7 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
 
   return (
     <div className="stats">
-      <Header
-        sample={`${summary.hands.toLocaleString("en-GB")} hands · ${summary.statsVersion}`}
-      />
+      <Header sample={en.sample(summary.hands, summary.statsVersion)} />
 
       {coverageBar}
 
@@ -275,11 +270,8 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
 
       <section className="card stats-group">
         <div className="card__head">
-          <h3>Win rate</h3>
-          <p className="muted">
-            Cumulative big blinds, bucketed by hand count rather than by date — a break
-            between sessions is not worth any of the x-axis.
-          </p>
+          <h3>{t.common.winRate}</h3>
+          <p className="muted">{en.winRateNote}</p>
         </div>
         <WinrateGraph graph={graph} />
       </section>
@@ -296,9 +288,10 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
 }
 
 function Header({ sample }: { sample?: string }) {
+  const en = useDict().stats.tab;
   return (
     <header className="stats__head">
-      <h2>Statistics</h2>
+      <h2>{en.heading}</h2>
       {sample ? <span className="stats__sample">{sample}</span> : null}
     </header>
   );
@@ -309,8 +302,6 @@ type RebuildState =
   | { status: "running"; progress: RebuildProgress }
   | { status: "done"; progress: RebuildProgress }
   | { status: "error"; message: string };
-
-const count = (value: number) => value.toLocaleString("en-GB");
 
 /**
  * The line that says how much of the library the numbers cover.
@@ -327,24 +318,23 @@ function CoverageBar({
   rebuild: RebuildState;
   onRebuild: () => void;
 }) {
+  const t = useDict().stats;
+  const en = t.coverage;
   if (rebuild.status === "running") {
     const target = coverage ? coverage.missing + coverage.stale + coverage.evMissing : 0;
     const done = rebuild.progress.processed;
     return (
       <p className="notice notice--info stats-coverage" role="status" aria-live="polite">
-        Updating statistics…{" "}
-        {target > 0
-          ? `${count(Math.min(done, target))} of ${count(target)} hands`
-          : `${count(done)} hands`}
+        {en.running(target > 0 ? Math.min(done, target) : done, target)}
       </p>
     );
   }
   if (rebuild.status === "error") {
     return (
       <p className="notice notice--error stats-coverage">
-        Statistics could not be brought up to date: {rebuild.message}{" "}
+        {en.failedRebuild(rebuild.message)}{" "}
         <button type="button" className="btn btn--sm" onClick={onRebuild}>
-          Try again
+          {t.common.tryAgain}
         </button>
       </p>
     );
@@ -359,15 +349,11 @@ function CoverageBar({
   }
   return (
     <p className="notice notice--warn stats-coverage">
-      {behind > 0
-        ? `${count(behind)} of ${count(coverage.hands)} hands are not in these numbers yet.`
-        : null}
-      {failed > 0
-        ? ` ${count(failed)} could not be read — that is a converter bug, not your file.`
-        : null}{" "}
+      {behind > 0 ? en.behind(behind, coverage.hands) : null}
+      {failed > 0 ? ` ${en.unreadable(failed)}` : null}{" "}
       {behind > 0 ? (
         <button type="button" className="btn btn--sm" onClick={onRebuild}>
-          Rebuild statistics
+          {en.rebuild}
         </button>
       ) : null}
     </p>
@@ -426,13 +412,6 @@ function scopeFilters(scope: Scope, stakes: StakeVolume[]): StatsFilters {
   return filters;
 }
 
-const FORMAT_LABEL: Record<string, string> = {
-  cash: "Cash games",
-  tournament: "Tournaments",
-  "sit-and-go": "Sit & Go",
-  spin: "Spins",
-};
-
 /**
  * The format and stake picker. Renders nothing for a library with a single
  * stake — there is no choice to offer, and an inert control is clutter.
@@ -446,6 +425,10 @@ function ScopeBar({
   scope: Scope;
   onChange: (scope: Scope) => void;
 }) {
+  const t = useDict().stats;
+  const en = t.scope;
+  /** A format the dictionary does not know (a new room's) is shown as its id. */
+  const formatLabels: Partial<Record<string, string>> = en.formats;
   if (stakes.length <= 1) {
     return null;
   }
@@ -460,13 +443,13 @@ function ScopeBar({
     scope.gameFormat === "cash" ? stakes.filter((stake) => stake.gameFormat === "cash") : [];
 
   return (
-    <div className="stats-scope" role="group" aria-label="Which hands">
+    <div className="stats-scope" role="group" aria-label={en.ariaLabel}>
       {formats.size > 1 ? (
         <div className="stats-scope__formats">
           <ScopeButton
             active={scope.gameFormat === null}
             onClick={() => onChange(ALL)}
-            label="All formats"
+            label={en.allFormats}
             count={stakes.reduce((sum, stake) => sum + stake.hands, 0)}
           />
           {[...formats.entries()].map(([format, hands]) => (
@@ -474,7 +457,7 @@ function ScopeBar({
               key={format}
               active={scope.gameFormat === format}
               onClick={() => onChange({ gameFormat: format, stake: null })}
-              label={FORMAT_LABEL[format] ?? format}
+              label={formatLabels[format] ?? format}
               count={hands}
             />
           ))}
@@ -482,7 +465,7 @@ function ScopeBar({
       ) : null}
       {cashStakes.length > 1 ? (
         <label className="field">
-          <span className="field__label">Stakes</span>
+          <span className="field__label">{en.stakes}</span>
           <select
             value={scope.stake ?? ""}
             onChange={(event) =>
@@ -492,10 +475,10 @@ function ScopeBar({
               })
             }
           >
-            <option value="">All stakes</option>
+            <option value="">{en.allStakes}</option>
             {cashStakes.map((stake) => (
               <option key={stakeKey(stake)} value={stakeKey(stake)}>
-                {stakeLabel(stake)} · {count(stake.hands)} hands
+                {en.stakeOption(stakeLabel(stake, t.common.unknownStakes), stake.hands)}
               </option>
             ))}
           </select>
@@ -516,6 +499,7 @@ function ScopeButton({
   label: string;
   count: number;
 }) {
+  const count = countIn(useIntlLocale());
   return (
     <button
       type="button"

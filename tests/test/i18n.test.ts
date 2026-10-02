@@ -29,6 +29,20 @@ describe("plural (hr)", () => {
   });
 });
 
+describe("stats namespace", () => {
+  it("counts hands with the right noun in both languages", () => {
+    expect([1, 2, 5].map(en.stats.common.hands)).toEqual(["1 hand", "2 hands", "5 hands"]);
+    expect([1, 2, 5, 12, 21, 22].map(hr.stats.common.hands)).toEqual([
+      "1 ruka", "2 ruke", "5 ruku", "12 ruku", "21 ruka", "22 ruke",
+    ]);
+  });
+  it("puts the count inside the Croatian sentence, in the case the sentence needs", () => {
+    expect(hr.stats.coverage.behind(3, 5)).toBe("Ove brojke još ne uključuju 3 od 5 ruku.");
+    expect(hr.stats.opponents.overHands(1)).toBe("kroz 1 ruku");
+    expect(hr.stats.sessions.gap(60)).toBe("1 sata");
+  });
+});
+
 describe("dictionaries", () => {
   // `Dict` already makes a missing key a compile error; this catches the one
   // thing types cannot: a translation left as an empty string.

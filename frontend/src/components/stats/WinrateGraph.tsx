@@ -40,6 +40,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { StatsGraph, StatsGraphBucket } from "../../lib/db";
+import { useDict } from "../../lib/i18n/client";
+import { countIn, dateFormat, numberFormat, useIntlLocale } from "./format";
 
 interface WinrateGraphProps {
   graph: StatsGraph;
@@ -47,10 +49,6 @@ interface WinrateGraphProps {
 
 const PAD = { top: 18, right: 22, bottom: 30, left: 56 };
 const HEIGHT = 300;
-
-const COUNT = new Intl.NumberFormat("en-GB");
-const BB = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1, signDisplay: "exceptZero" });
-const DATE = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" });
 
 type SeriesKey = "total" | "showdown" | "nonShowdown" | "allInEv";
 
@@ -90,6 +88,12 @@ function ticks(min: number, max: number, step: number): number[] {
 }
 
 export function WinrateGraph({ graph }: WinrateGraphProps) {
+  const t = useDict().stats;
+  const en = t.graph;
+  const locale = useIntlLocale();
+  const count = countIn(locale);
+  const bb = numberFormat(locale, { maximumFractionDigits: 1, signDisplay: "exceptZero" });
+  const date = dateFormat(locale, { dateStyle: "medium" });
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(860);
   const [hover, setHover] = useState<number | null>(null);
@@ -127,30 +131,25 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
     const series: Series[] = [
       {
         key: "total",
-        label: "Total",
-        hint: "Everything won and lost",
+        ...en.series.total,
         values: [0, ...graph.buckets.map((b) => b.cumNetBbMilli / 1000)],
       },
       {
         key: "showdown",
-        label: "Showdown",
-        hint: "Hands that reached showdown",
+        ...en.series.showdown,
         values: [0, ...graph.buckets.map((b) => b.cumSdBbMilli / 1000)],
       },
       {
         key: "nonShowdown",
-        label: "Non-showdown",
-        hint: "Hands that ended before showdown",
+        ...en.series.nonShowdown,
         values: [0, ...graph.buckets.map((b) => b.cumNsdBbMilli / 1000)],
       },
     ];
     if (graph.allInEv && graph.allInEv.allInHands > 0) {
       series.push({
         key: "allInEv",
-        label: "All-in EV",
-        hint: `Total, with ${COUNT.format(graph.allInEv.allInHands)} all-in ${
-          graph.allInEv.allInHands === 1 ? "runout" : "runouts"
-        } paid at equity`,
+        label: en.series.allInEv.label,
+        hint: en.series.allInEv.hint(graph.allInEv.allInHands),
         values: [0, ...graph.buckets.map((b) => b.cumEvBbMilli / 1000)],
       });
     }
@@ -165,7 +164,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
     const max = Math.ceil(rawMax / step) * step;
 
     return { points, series, min, max: max === min ? min + step : max, step };
-  }, [graph.buckets, graph.allInEv]);
+  }, [graph.buckets, graph.allInEv, en]);
 
   const innerW = Math.max(1, width - PAD.left - PAD.right);
   const innerH = HEIGHT - PAD.top - PAD.bottom;
@@ -201,21 +200,13 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
 
   if (graph.mixedUnitKind) {
     return (
-      <p className="notice notice--warn">
-        This sample mixes tournament chips with cash, so there is no win-rate graph to
-        draw. Chips are not money — what they are worth is the payout structure — and a
-        curve that added them to dollars would be a shape with no meaning. Filter to one
-        game format.
-      </p>
+      <p className="notice notice--warn">{en.mixedUnitKind}</p>
     );
   }
 
   if (graph.buckets.length < 2) {
     return (
-      <p className="notice notice--info">
-        Not enough hands yet to draw a curve. The graph needs at least a couple of
-        buckets of play behind it; keep uploading.
-      </p>
+      <p className="notice notice--info">{en.notEnough}</p>
     );
   }
 
@@ -233,7 +224,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
         height={HEIGHT}
         viewBox={`0 0 ${width} ${HEIGHT}`}
         role="img"
-        aria-label={`Cumulative win rate over ${COUNT.format(graph.hands)} hands, split into total, showdown and non-showdown big blinds won.`}
+        aria-label={en.ariaLabel(graph.hands)}
       >
         {/* Gridlines: hairline, solid, one step off the surface. They exist to
             be read past, so they never get a dash or a second weight. */}
@@ -247,7 +238,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
               y2={yAt(value)}
             />
             <text className="stats-chart__tick stats-chart__tick--y" x={PAD.left - 8} y={yAt(value) + 4}>
-              {COUNT.format(Math.round(value))}
+              {count(Math.round(value))}
             </text>
           </g>
         ))}
@@ -259,7 +250,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
             x={xAt(value)}
             y={HEIGHT - 10}
           >
-            {COUNT.format(Math.round(value))}
+            {count(Math.round(value))}
           </text>
         ))}
 
@@ -315,7 +306,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
         />
       </svg>
 
-      <p className="stats-chart__axis-label">Hands played</p>
+      <p className="stats-chart__axis-label">{en.axisLabel}</p>
 
       {activeBucket ? (
         <div
@@ -328,13 +319,13 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
               xAt(activeBucket.cumHands) > width / 2 ? "translate(-100%, 0)" : "translate(8px, 0)",
           }}
         >
-          <strong>{COUNT.format(activeBucket.cumHands)} hands</strong>
+          <strong>{t.common.hands(activeBucket.cumHands)}</strong>
           <span className="muted">
             {activeBucket.firstPlayedAt
-              ? `${DATE.format(new Date(activeBucket.firstPlayedAt))} – ${
-                  activeBucket.lastPlayedAt ? DATE.format(new Date(activeBucket.lastPlayedAt)) : "?"
+              ? `${date.format(new Date(activeBucket.firstPlayedAt))} – ${
+                  activeBucket.lastPlayedAt ? date.format(new Date(activeBucket.lastPlayedAt)) : "?"
                 }`
-              : "no dates on these hands"}
+              : en.noDates}
           </span>
           <dl>
             {model.series.map((s) => (
@@ -342,7 +333,7 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
                 <dt>
                   <span className={`stats-key stats-key--${s.key}`} /> {s.label}
                 </dt>
-                <dd>{BB.format(s.values[hover ?? 0])} bb</dd>
+                <dd>{t.common.bb(bb.format(s.values[hover ?? 0]))}</dd>
               </div>
             ))}
           </dl>
@@ -358,58 +349,48 @@ export function WinrateGraph({ graph }: WinrateGraphProps) {
           <li key={s.key}>
             <span className={`stats-key stats-key--${s.key}`} />
             <span className="stats-legend__label">{s.label}</span>
-            <span className="stats-legend__value">{BB.format(s.values[s.values.length - 1])} bb</span>
+            <span className="stats-legend__value">{t.common.bb(bb.format(s.values[s.values.length - 1]))}</span>
             <span className="stats-legend__hint">{s.hint}</span>
           </li>
         ))}
         {model.series.some((s) => s.key === "allInEv") ? null : (
           <li className="is-pending">
             <span className="stats-key stats-key--allInEv" />
-            <span className="stats-legend__label">All-in EV</span>
-            <span className="stats-legend__value">
-              {graph.allInEv ? "no all-ins yet" : "not yet computed"}
-            </span>
-            <span className="stats-legend__hint">
-              {graph.allInEv
-                ? "Appears once a hand in this sample has an all-in with cards to come"
-                : "Needs equity over the runout"}
-            </span>
+            <span className="stats-legend__label">{en.series.allInEv.label}</span>
+            <span className="stats-legend__value">{graph.allInEv ? en.noAllIns : en.notComputed}</span>
+            <span className="stats-legend__hint">{graph.allInEv ? en.noAllInsHint : en.notComputedHint}</span>
           </li>
         )}
       </ul>
 
       {graph.mixedCurrency ? (
-        <p className="notice notice--info">
-          This sample spans more than one currency, so the cash series is withheld and
-          only the big-blind ones are drawn. Adding dollars to euros produces a curve
-          with no unit; big blinds are a unit of the game and combine correctly.
-        </p>
+        <p className="notice notice--info">{en.mixedCurrency}</p>
       ) : null}
 
       {/* A table view exists for every chart. It is also the only readout that
           survives a screen reader, a print-out and forced-colors mode. */}
       <details className="stats-chart__table">
-        <summary>Show the numbers</summary>
+        <summary>{en.showNumbers}</summary>
         <table>
           <thead>
             <tr>
-              <th scope="col">Hands</th>
-              <th scope="col">Total</th>
-              <th scope="col">Showdown</th>
-              <th scope="col">Non-showdown</th>
-              <th scope="col">From</th>
-              <th scope="col">To</th>
+              <th scope="col">{t.common.handsHead}</th>
+              <th scope="col">{en.series.total.label}</th>
+              <th scope="col">{en.series.showdown.label}</th>
+              <th scope="col">{en.series.nonShowdown.label}</th>
+              <th scope="col">{en.from}</th>
+              <th scope="col">{en.to}</th>
             </tr>
           </thead>
           <tbody>
             {graph.buckets.map((bucket) => (
               <tr key={bucket.bucket}>
-                <td>{COUNT.format(bucket.cumHands)}</td>
-                <td>{BB.format(bucket.cumNetBbMilli / 1000)}</td>
-                <td>{BB.format(bucket.cumSdBbMilli / 1000)}</td>
-                <td>{BB.format(bucket.cumNsdBbMilli / 1000)}</td>
-                <td>{bucket.firstPlayedAt ? DATE.format(new Date(bucket.firstPlayedAt)) : "—"}</td>
-                <td>{bucket.lastPlayedAt ? DATE.format(new Date(bucket.lastPlayedAt)) : "—"}</td>
+                <td>{count(bucket.cumHands)}</td>
+                <td>{bb.format(bucket.cumNetBbMilli / 1000)}</td>
+                <td>{bb.format(bucket.cumSdBbMilli / 1000)}</td>
+                <td>{bb.format(bucket.cumNsdBbMilli / 1000)}</td>
+                <td>{bucket.firstPlayedAt ? date.format(new Date(bucket.firstPlayedAt)) : "—"}</td>
+                <td>{bucket.lastPlayedAt ? date.format(new Date(bucket.lastPlayedAt)) : "—"}</td>
               </tr>
             ))}
           </tbody>

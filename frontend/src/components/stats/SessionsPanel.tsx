@@ -17,17 +17,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { fetchStatsSessions, type StatsFilters, type StatsSessions } from "../../lib/db";
-import { count, money } from "./format";
+import { useDict } from "../../lib/i18n/client";
+import { countIn, dateFormat, money, numberFormat, useIntlLocale } from "./format";
 
 const GAPS = [15, 30, 60, 120];
 const SHOWN = 15;
 const WIDTH = 640;
 const HEIGHT = 140;
 const PAD = 6;
-
-const BB = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1, signDisplay: "exceptZero" });
-const DAY = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
-const TIME = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" });
 
 /** Money when the scope is one currency of cash; big blinds otherwise. */
 function inMoneyOf(data: StatsSessions | null): boolean {
@@ -39,12 +36,19 @@ function valueOf(data: StatsSessions | null, session: { net: number | null; netB
   return session.netBbMilli === null ? null : session.netBbMilli / 1000;
 }
 
-function duration(start: string, end: string): string {
-  const minutes = Math.max(1, Math.round((Date.parse(end) - Date.parse(start)) / 60000));
-  return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
+/** Whole minutes between two timestamps, at least one. */
+function minutesBetween(start: string, end: string): number {
+  return Math.max(1, Math.round((Date.parse(end) - Date.parse(start)) / 60000));
 }
 
 export function SessionsPanel({ filters, refreshToken }: { filters: StatsFilters; refreshToken: number }) {
+  const t = useDict().stats;
+  const en = t.sessions;
+  const locale = useIntlLocale();
+  const count = countIn(locale);
+  const bb = numberFormat(locale, { maximumFractionDigits: 1, signDisplay: "exceptZero" });
+  const day = dateFormat(locale, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const time = dateFormat(locale, { hour: "2-digit", minute: "2-digit" });
   const [gap, setGap] = useState(30);
   const [data, setData] = useState<StatsSessions | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +78,7 @@ export function SessionsPanel({ filters, refreshToken }: { filters: StatsFilters
   const show = (amount: number): string =>
     inMoney && data?.currency && data.currencyMinorUnits
       ? `${amount > 0 ? "+" : ""}${money(amount, data.currency, data.currencyMinorUnits)}`
-      : `${BB.format(amount)} bb`;
+      : t.common.bb(bb.format(amount));
 
   const line = useMemo(() => {
     if (!data || data.sessions.length < 2) return null;
@@ -104,13 +108,13 @@ export function SessionsPanel({ filters, refreshToken }: { filters: StatsFilters
   return (
     <section className="card stats-group">
       <div className="card__head stats-breakdown__head">
-        <h3>Sessions</h3>
+        <h3>{en.heading}</h3>
         <label className="field field--narrow">
-          <span className="field__label">A break longer than</span>
+          <span className="field__label">{en.breakLongerThan}</span>
           <select value={gap} onChange={(event) => setGap(Number(event.target.value))}>
             {GAPS.map((minutes) => (
               <option key={minutes} value={minutes}>
-                {minutes < 60 ? `${minutes} minutes` : `${minutes / 60} ${minutes === 60 ? "hour" : "hours"}`}
+                {en.gap(minutes)}
               </option>
             ))}
           </select>
@@ -120,10 +124,10 @@ export function SessionsPanel({ filters, refreshToken }: { filters: StatsFilters
       {line ? (
         <figure className="stats-bankroll">
           <figcaption className="muted">
-            Bankroll over {count(data.sessions.length)} sessions:{" "}
+            {en.bankrollCaption(data.sessions.length)}{" "}
             <strong className={line.end >= 0 ? "stats-up" : "stats-down"}>{show(line.end)}</strong>
           </figcaption>
-          <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} preserveAspectRatio="none" role="img" aria-label={`Bankroll, ${show(line.end)} over ${data.sessions.length} sessions`}>
+          <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} preserveAspectRatio="none" role="img" aria-label={en.bankrollAria(show(line.end), data.sessions.length)}>
             <line className="stats-bankroll__zero" x1={0} x2={WIDTH} y1={line.zero} y2={line.zero} />
             <polyline className="stats-bankroll__line" points={line.path} />
           </svg>
@@ -134,12 +138,12 @@ export function SessionsPanel({ filters, refreshToken }: { filters: StatsFilters
         <table className="stats-table">
           <thead>
             <tr>
-              <th scope="col">Session</th>
-              <th scope="col" className="num">Length</th>
-              <th scope="col" className="num">Hands</th>
-              <th scope="col" className="num">Tables</th>
-              <th scope="col" className="num">Result</th>
-              <th scope="col" className="num">bb/100</th>
+              <th scope="col">{en.session}</th>
+              <th scope="col" className="num">{en.length}</th>
+              <th scope="col" className="num">{t.common.handsHead}</th>
+              <th scope="col" className="num">{en.tables}</th>
+              <th scope="col" className="num">{t.common.result}</th>
+              <th scope="col" className="num">{t.common.bb100}</th>
             </tr>
           </thead>
           <tbody>
@@ -150,19 +154,19 @@ export function SessionsPanel({ filters, refreshToken }: { filters: StatsFilters
               return (
                 <tr key={session.startedAt}>
                   <th scope="row">
-                    {DAY.format(new Date(session.startedAt))}
+                    {day.format(new Date(session.startedAt))}
                     <span className="stats-opponents__room">
-                      {TIME.format(new Date(session.startedAt))}–{TIME.format(new Date(session.endedAt))}
+                      {time.format(new Date(session.startedAt))}–{time.format(new Date(session.endedAt))}
                     </span>
                   </th>
-                  <td className="num">{duration(session.startedAt, session.endedAt)}</td>
+                  <td className="num">{en.duration(minutesBetween(session.startedAt, session.endedAt))}</td>
                   <td className="num">{count(session.hands)}</td>
                   <td className="num">{session.tables}</td>
                   <td className={`num ${result === null ? "" : result >= 0 ? "is-up" : "is-down"}`}>
                     {result === null ? "—" : show(result)}
                   </td>
                   <td className={`num ${session.hands < 100 ? "is-thin" : ""}`}>
-                    {bb100 === null ? "—" : BB.format(bb100)}
+                    {bb100 === null ? "—" : bb.format(bb100)}
                   </td>
                 </tr>
               );
@@ -173,7 +177,7 @@ export function SessionsPanel({ filters, refreshToken }: { filters: StatsFilters
       {data.sessions.length > SHOWN ? (
         <div>
           <button type="button" className="btn btn--sm" onClick={() => setAll(!all)}>
-            {all ? "Show the latest only" : `Show all ${count(data.sessions.length)} sessions`}
+            {all ? en.showLatest : en.showAll(data.sessions.length)}
           </button>
         </div>
       ) : null}

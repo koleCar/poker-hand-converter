@@ -18,7 +18,9 @@
  * anyone who wants it.
  */
 
-import { confidenceOf, wilson, type Confidence } from "./uncertainty";
+import { useDict } from "../../lib/i18n/client";
+import { countIn, fixedIn, useIntlLocale } from "./format";
+import { confidenceOf, wilson } from "./uncertainty";
 
 interface StatTileProps {
   label: string;
@@ -30,8 +32,6 @@ interface StatTileProps {
   hint?: string;
 }
 
-const COUNT = new Intl.NumberFormat("en-GB");
-
 /** Confidence bar width, as a fraction of the tile. Capped so "noise" is full. */
 function bandWidth(margin: number): number {
   // 12.5 percentage points of half-width is the cap: past that the interval is
@@ -39,13 +39,11 @@ function bandWidth(margin: number): number {
   return Math.min(100, (margin / 12.5) * 100);
 }
 
-const CONFIDENCE_TITLE: Record<Confidence, string> = {
-  firm: "Tight sample — this number is stable.",
-  loose: "Moderate sample — the shape is real, the decimal is not.",
-  noise: "Small sample — read this as a hint, not a measurement.",
-};
-
 export function StatTile({ label, made, opportunities, hint }: StatTileProps) {
+  const en = useDict().stats.tile;
+  const locale = useIntlLocale();
+  const count = countIn(locale);
+  const one = fixedIn(locale, 1);
   const interval = wilson(made, opportunities);
   const confidence = confidenceOf(interval);
 
@@ -53,16 +51,16 @@ export function StatTile({ label, made, opportunities, hint }: StatTileProps) {
     <div className={`stats-tile stats-tile--${confidence}`}>
       <span className="stats-tile__label">{label}</span>
       <span className="stats-tile__value">
-        {interval ? `${interval.value.toFixed(1)}%` : "—"}
+        {interval ? `${one(interval.value)}%` : "—"}
       </span>
       <span className="stats-tile__sample">
         {interval ? (
           <>
-            {COUNT.format(made)} / {COUNT.format(opportunities)}
-            <span className="stats-tile__margin"> ±{interval.margin.toFixed(1)}</span>
+            {count(made)} / {count(opportunities)}
+            <span className="stats-tile__margin"> ±{one(interval.margin)}</span>
           </>
         ) : (
-          "no opportunities"
+          en.noOpportunities
         )}
       </span>
       {/* Not a progress bar: the fill is the *width of the doubt*, so a short
@@ -70,13 +68,9 @@ export function StatTile({ label, made, opportunities, hint }: StatTileProps) {
           cannot see that the neighbouring tiles make the comparison obvious. */}
       <span
         className="stats-tile__band"
-        title={CONFIDENCE_TITLE[confidence]}
+        title={en.confidence[confidence]}
         role="img"
-        aria-label={
-          interval
-            ? `95% confidence interval ${interval.low.toFixed(1)}% to ${interval.high.toFixed(1)}%`
-            : "no sample"
-        }
+        aria-label={interval ? en.interval(one(interval.low), one(interval.high)) : en.noSample}
       >
         <span
           className="stats-tile__band-fill"

@@ -31,15 +31,15 @@ import {
   type StatsFilters,
   type StatsOpponents,
 } from "../../lib/db";
+import { useDict } from "../../lib/i18n/client";
 import { getParser } from "../../lib/phf";
 import { emptyMoney, rates } from "../../lib/stats";
-import { count } from "./format";
-
-const PCT = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 });
-const AF = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
-const BB = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1, signDisplay: "exceptZero" });
+import { countIn, numberFormat, useIntlLocale } from "./format";
 
 const MIN_HANDS_OPTIONS = [1, 10, 50, 200];
+
+/** The rate columns, in order; headings and tooltips are `stats.columns`. */
+const COLUMNS = ["vpip", "pfr", "threeBet", "foldToThreeBet", "cbet", "foldToCbet", "af", "wtsd"] as const;
 
 /** Storage changes in this tab come through `setEnabled`; nothing to subscribe to. */
 const subscribeNever = () => () => undefined;
@@ -49,10 +49,6 @@ type Phase =
   | { kind: "working"; label: string; done: number }
   | { kind: "error"; message: string };
 
-function pct(value: number | null): string {
-  return value === null ? "—" : PCT.format(value);
-}
-
 export function OpponentsPanel({
   filters,
   refreshToken,
@@ -60,6 +56,14 @@ export function OpponentsPanel({
   filters: StatsFilters;
   refreshToken: number;
 }) {
+  const t = useDict().stats;
+  const en = t.opponents;
+  const locale = useIntlLocale();
+  const count = countIn(locale);
+  const percent = numberFormat(locale, { maximumFractionDigits: 0 });
+  const af = numberFormat(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+  const bb = numberFormat(locale, { maximumFractionDigits: 1, signDisplay: "exceptZero" });
+  const pct = (value: number | null): string => (value === null ? "—" : percent.format(value));
   // The setting lives in this browser's storage, which the server render cannot
   // see: null until hydrated, so neither card flashes in the wrong state.
   const stored = useSyncExternalStore(subscribeNever, villainRowsEnabled, () => null);
@@ -139,34 +143,34 @@ export function OpponentsPanel({
 
   const turnOn = useCallback(async () => {
     if (!setVillainRowsEnabled(true)) {
-      setPhase({ kind: "error", message: "This browser would not save the setting (private mode?)." });
+      setPhase({ kind: "error", message: en.storageRefused });
       return;
     }
     setEnabled(true);
-    setPhase({ kind: "working", label: "Reading opponents from your hands…", done: 0 });
+    setPhase({ kind: "working", label: en.reading, done: 0 });
     try {
       await rebuildStats((progress) =>
-        setPhase({ kind: "working", label: "Reading opponents from your hands…", done: progress.processed }),
+        setPhase({ kind: "working", label: en.reading, done: progress.processed }),
       );
       setPhase({ kind: "idle" });
       setVersion((value) => value + 1);
     } catch (error) {
       setPhase({ kind: "error", message: error instanceof Error ? error.message : String(error) });
     }
-  }, []);
+  }, [en]);
 
   const turnOff = useCallback(async () => {
     setVillainRowsEnabled(false);
     setEnabled(false);
     setData(null);
-    setPhase({ kind: "working", label: "Removing opponent statistics…", done: 0 });
+    setPhase({ kind: "working", label: en.removing, done: 0 });
     try {
       await pruneVillainStats();
       setPhase({ kind: "idle" });
     } catch (error) {
       setPhase({ kind: "error", message: error instanceof Error ? error.message : String(error) });
     }
-  }, []);
+  }, [en]);
 
   if (enabled === null) {
     return null;
@@ -175,7 +179,7 @@ export function OpponentsPanel({
   const status =
     phase.kind === "working" ? (
       <p className="notice notice--info" role="status" aria-live="polite">
-        {phase.label} {phase.done > 0 ? `${count(phase.done)} hands` : ""}
+        {phase.label} {phase.done > 0 ? t.common.hands(phase.done) : ""}
       </p>
     ) : phase.kind === "error" ? (
       <p className="notice notice--error">{phase.message}</p>
@@ -185,15 +189,10 @@ export function OpponentsPanel({
     return (
       <section className="card stats-group">
         <div className="card__head">
-          <h3>Opponents</h3>
+          <h3>{en.heading}</h3>
         </div>
         {status}
-        <p className="muted">
-          A HUD on every regular you have played, and what you win or lose against each. It
-          stores a row per opponent per hand — roughly six times the space your own statistics
-          take — so it is off until you turn it on. Turning it off later deletes those rows;
-          your hands and your own numbers are untouched either way.
-        </p>
+        <p className="muted">{en.offBody}</p>
         <div>
           <button
             type="button"
@@ -201,7 +200,7 @@ export function OpponentsPanel({
             disabled={phase.kind === "working"}
             onClick={() => void turnOn()}
           >
-            Turn on opponent statistics
+            {en.turnOn}
           </button>
         </div>
       </section>
@@ -213,23 +212,23 @@ export function OpponentsPanel({
   return (
     <section className="card stats-group">
       <div className="card__head stats-breakdown__head">
-        <h3>Opponents</h3>
+        <h3>{en.heading}</h3>
         <div className="stats-matrix__controls">
           <label className="field">
-            <span className="field__label">Find a player</span>
+            <span className="field__label">{en.findPlayer}</span>
             <input
               type="search"
               value={search}
-              placeholder="Screen name"
+              placeholder={en.screenName}
               onChange={(event) => setSearch(event.target.value)}
             />
           </label>
           <label className="field field--narrow">
-            <span className="field__label">At least</span>
+            <span className="field__label">{en.atLeast}</span>
             <select value={minHands} onChange={(event) => setMinHands(Number(event.target.value))}>
               {MIN_HANDS_OPTIONS.map((value) => (
                 <option key={value} value={value}>
-                  {value === 1 ? "any sample" : `${value} hands`}
+                  {value === 1 ? en.anySample : t.common.hands(value)}
                 </option>
               ))}
             </select>
@@ -243,19 +242,16 @@ export function OpponentsPanel({
         <table className="stats-table">
           <thead>
             <tr>
-              <th scope="col">Player</th>
-              <th scope="col" className="num">Hands</th>
-              <th scope="col" className="num" title="Voluntarily put money in pot">VPIP</th>
-              <th scope="col" className="num" title="Preflop raise">PFR</th>
-              <th scope="col" className="num" title="3-bet facing one raise">3-bet</th>
-              <th scope="col" className="num" title="Fold to 3-bet after opening">F3B</th>
-              <th scope="col" className="num" title="Flop continuation bet">Cbet</th>
-              <th scope="col" className="num" title="Fold to a flop continuation bet">FvCb</th>
-              <th scope="col" className="num" title="Postflop (bets + raises) / calls">AF</th>
-              <th scope="col" className="num" title="Went to showdown, having seen a flop">WTSD</th>
+              <th scope="col">{en.player}</th>
+              <th scope="col" className="num">{t.common.handsHead}</th>
+              {COLUMNS.map((id) => (
+                <th key={id} scope="col" className="num" title={t.columns[id].title}>
+                  {t.columns[id].head}
+                </th>
+              ))}
               {data && !data.mixedUnitKind ? (
-                <th scope="col" className="num" title="Your result in the hands they were dealt into">
-                  You vs them
+                <th scope="col" className="num" title={en.youVsThem.title}>
+                  {en.youVsThem.head}
                 </th>
               ) : null}
             </tr>
@@ -277,9 +273,9 @@ export function OpponentsPanel({
                       className="stats-opponents__note"
                       aria-expanded={editing === noteKey}
                       onClick={() => setEditing(editing === noteKey ? null : noteKey)}
-                      title={note?.note || "Add a private note"}
+                      title={note?.note || en.addNote}
                     >
-                      {note ? [note.tags.join(" · "), note.note].filter(Boolean).join(" — ") : "+ note"}
+                      {note ? [note.tags.join(" · "), note.note].filter(Boolean).join(" — ") : en.noteButton}
                     </button>
                   </th>
                   <td className="num">{count(row.counters.hands)}</td>
@@ -293,16 +289,16 @@ export function OpponentsPanel({
                   <td className={`num ${row.counters.fold_to_cbet_flop_opp < 20 ? "is-thin" : ""}`}>
                     {pct(r.foldToCbetFlop)}
                   </td>
-                  <td className="num">{r.aggressionFactor === null ? "—" : AF.format(r.aggressionFactor)}</td>
+                  <td className="num">{r.aggressionFactor === null ? "—" : af.format(r.aggressionFactor)}</td>
                   <td className={`num ${row.counters.wtsd_opp < 20 ? "is-thin" : ""}`}>{pct(r.wtsd)}</td>
                   {data && !data.mixedUnitKind ? (
                     <td
                       className={`num ${
                         row.heroNetBb === null ? "" : row.heroNetBb >= 0 ? "is-up" : "is-down"
                       } ${row.heroMoneyHands < 100 ? "is-thin" : ""}`}
-                      title={`over ${count(row.heroMoneyHands)} hands`}
+                      title={en.overHands(row.heroMoneyHands)}
                     >
-                      {row.heroNetBb === null ? "—" : `${BB.format(row.heroNetBb)} bb`}
+                      {row.heroNetBb === null ? "—" : t.common.bb(bb.format(row.heroNetBb))}
                     </td>
                   ) : null}
                 </tr>
@@ -323,7 +319,7 @@ export function OpponentsPanel({
             {data && rows.length === 0 ? (
               <tr>
                 <td colSpan={11} className="muted">
-                  {search ? "Nobody by that name in this scope." : "No opponents in this scope yet."}
+                  {search ? en.nobodyByThatName : en.noOpponents}
                 </td>
               </tr>
             ) : null}
@@ -332,12 +328,10 @@ export function OpponentsPanel({
       </div>
 
       <p className="muted stats-breakdown__note">
-        {data && data.opaqueRows > 0
-          ? `${count(data.opaqueRows)} opponent-hands from rooms that hide names between sessions (GGPoker) are not listed — the same tag in two sessions may be two people. `
-          : ""}
-        Rooms that label seats by position (Ignition) never record opponents.{" "}
+        {data && data.opaqueRows > 0 ? `${en.opaque(data.opaqueRows)} ` : ""}
+        {en.positional}{" "}
         <button type="button" className="btn btn--ghost btn--sm" onClick={() => void turnOff()}>
-          Turn off and delete opponent statistics
+          {en.turnOff}
         </button>
       </p>
     </section>
@@ -358,6 +352,7 @@ function NoteEditor({
   onSave: (note: string, tags: string[]) => Promise<void>;
   onCancel: () => void;
 }) {
+  const en = useDict().stats.opponents.note;
   const [text, setText] = useState(note?.note ?? "");
   const [tags, setTags] = useState((note?.tags ?? []).join(", "));
   const [error, setError] = useState<string | null>(null);
@@ -380,25 +375,25 @@ function NoteEditor({
   return (
     <div className="stats-note">
       <label className="field">
-        <span className="field__label">Note (only you see it)</span>
+        <span className="field__label">{en.label}</span>
         <textarea value={text} rows={2} maxLength={2000} onChange={(event) => setText(event.target.value)} />
       </label>
       <label className="field">
-        <span className="field__label">Tags, comma-separated</span>
-        <input value={tags} placeholder="nit, station, reg" onChange={(event) => setTags(event.target.value)} />
+        <span className="field__label">{en.tags}</span>
+        <input value={tags} placeholder={en.tagsPlaceholder} onChange={(event) => setTags(event.target.value)} />
       </label>
       {error ? <p className="notice notice--error">{error}</p> : null}
       <div className="stats-note__actions">
         <button type="button" className="btn btn--sm btn--primary" disabled={busy} onClick={() => void save()}>
-          Save
+          {en.save}
         </button>
         {note ? (
           <button type="button" className="btn btn--sm" disabled={busy} onClick={() => void save(true)}>
-            Delete note
+            {en.delete}
           </button>
         ) : null}
         <button type="button" className="btn btn--sm btn--ghost" onClick={onCancel}>
-          Cancel
+          {en.cancel}
         </button>
       </div>
     </div>
