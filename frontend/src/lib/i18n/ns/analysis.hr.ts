@@ -711,7 +711,7 @@ export const analysisHr: Dict["analysis"] = {
     badHands: (count: number) => `${hands(count)} s greškom ili grubom greškom`,
     showBad: "Prikaži ih",
     noGrades:
-      "U ovom uzorku još ništa nije ocijenjeno. Preflop odluke ocjenjuju se gdje chartovi pokrivaju situaciju (od tri do devet igrača, 40–200 bb, bez open limpera), turn i river odluke u heads-up potovima solverom.",
+      "U ovom uzorku još ništa nije ocijenjeno. Preflop odluke ocjenjuju se gdje chartovi pokrivaju situaciju (od tri do devet igrača, 40–200 bb, bez open limpera), turn i river odluke u heads-up potovima solverom, a multiway call ili fold na riveru približno.",
     byStreet: "Po streetovima",
     bb2: (value: number) => `${num(value, 2)} bb`,
     distribution: (parts: string[]) => parts.join(", "),
@@ -921,7 +921,7 @@ export const analysisHr: Dict["analysis"] = {
     toggleTitle: "Prikaži analizu ove ruke",
     notGraded: "Bez ocjene",
     notGradedHint:
-      "Ništa u ovoj ruci nije ocijenjeno: preflop chartovi ne pokrivaju ovu liniju, flop je samo bilješke, a na turnu i riveru nije bilo heads-up odluke koju solver može riješiti.",
+      "Ništa u ovoj ruci nije ocijenjeno: preflop chartovi ne pokrivaju ovu liniju, flop je samo bilješke, a na turnu i riveru nije bilo heads-up odluke koju solver može riješiti ni multiway calla ili folda na riveru koji bi se procijenio.",
     evLoss: "Gubitak EV-a",
     evLossPot: (value: number) => `${pct(value)} pota`,
     score: "Bodovi",
