@@ -1835,6 +1835,114 @@ export type Database = {
           },
         ]
       }
+      study_plans: {
+        Row: {
+          analysis_version: string
+          baseline: Json
+          created_at: string
+          focus: Json
+          id: string
+          kind: string
+          owner_id: string
+          updated_at: string
+          week_start: string
+        }
+        Insert: {
+          analysis_version: string
+          baseline?: Json
+          created_at?: string
+          focus?: Json
+          id?: string
+          kind: string
+          owner_id: string
+          updated_at?: string
+          week_start: string
+        }
+        Update: {
+          analysis_version?: string
+          baseline?: Json
+          created_at?: string
+          focus?: Json
+          id?: string
+          kind?: string
+          owner_id?: string
+          updated_at?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
+      study_tasks: {
+        Row: {
+          created_at: string
+          done_at: string | null
+          focus: number | null
+          hand_id: string | null
+          id: string
+          kind: string
+          match_family: string | null
+          match_mode: string | null
+          match_position: string | null
+          match_spots: string[] | null
+          ord: number
+          owner_id: string
+          plan_id: string
+          ref: string
+          spot_keys: string[] | null
+          target: number
+        }
+        Insert: {
+          created_at?: string
+          done_at?: string | null
+          focus?: number | null
+          hand_id?: string | null
+          id?: string
+          kind: string
+          match_family?: string | null
+          match_mode?: string | null
+          match_position?: string | null
+          match_spots?: string[] | null
+          ord: number
+          owner_id: string
+          plan_id: string
+          ref: string
+          spot_keys?: string[] | null
+          target?: number
+        }
+        Update: {
+          created_at?: string
+          done_at?: string | null
+          focus?: number | null
+          hand_id?: string | null
+          id?: string
+          kind?: string
+          match_family?: string | null
+          match_mode?: string | null
+          match_position?: string | null
+          match_spots?: string[] | null
+          ord?: number
+          owner_id?: string
+          plan_id?: string
+          ref?: string
+          spot_keys?: string[] | null
+          target?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_tasks_hand_id_fkey"
+            columns: ["hand_id"]
+            isOneToOne: false
+            referencedRelation: "hands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_tasks_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "study_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       thread_subscriptions: {
         Row: {
           created_at: string
@@ -2590,6 +2698,17 @@ export type Database = {
         Args: { p_public_id: string; p_saved?: boolean }
         Returns: boolean
       }
+      save_study_plan: {
+        Args: {
+          p_analysis_version: string
+          p_baseline: Json
+          p_focus: Json
+          p_kind: string
+          p_tasks: Json
+          p_week_start: string
+        }
+        Returns: Json
+      }
       scrub_phf: {
         Args: {
           p_mode?: Database["public"]["Enums"]["publish_mode"]
@@ -2616,6 +2735,10 @@ export type Database = {
           p_site: string
           p_tags?: string[]
         }
+        Returns: Json
+      }
+      set_study_task: {
+        Args: { p_done: boolean; p_task: string }
         Returns: Json
       }
       set_thread_subscription: {
@@ -2647,6 +2770,12 @@ export type Database = {
         Returns: Json
       }
       stats_summary: { Args: { p_filters?: Json }; Returns: Json }
+      study_plan: {
+        Args: { p_from?: string; p_week_start: string }
+        Returns: Json
+      }
+      study_week: { Args: never; Returns: string }
+      study_week_valid: { Args: { p_week_start: string }; Returns: boolean }
       sweep_rate_limits: { Args: never; Returns: number }
       sync_drill_items: {
         Args: { p_min_grade?: string; p_version: string }

@@ -3,7 +3,7 @@
  * graded exactly as the analysis grades a real hand there.
  *
  * ```
- * family / seat ─▶ trainerNodes ─▶ a node (weighted by √reach)
+ * family / seat / vs ─▶ trainerNodes ─▶ a node (weighted by √reach)
  *                                 ─▶ dealingWeights ─▶ a hand class ─▶ a combo (suits uniform)
  *                                 ─▶ the line as a hand (handText.ts) ─▶ the spot on the felt
  * answer ─▶ the same hand plus the hero's action ─▶ gradeAnswer (analyzeHand, grade.ts)
@@ -65,17 +65,30 @@ export function familiesOf(node: ChartNode): PreflopFamily[] {
   }
 }
 
-/** The nodes a session can deal: a real choice, reached often enough, in the family and at the seat asked for. */
+/** The line's last raiser — the player the hero faces — or null in an unopened pot. */
+export function lineAggressor(line: string): ChartPosition | null {
+  let last: ChartPosition | null = null;
+  for (const step of walkLine(line).steps) if (step.code === "r" || step.code === "a") last = step.position;
+  return last;
+}
+
+/**
+ * The nodes a session can deal: a real choice, reached often enough, in the
+ * family and at the seat asked for, and — `vs` — against that opener,
+ * 3-bettor or 4-bettor (the line's last raiser).
+ */
 export function trainerNodes(
   charts: ChartSet,
   family: PreflopFamily | "random",
   seat: ChartPosition | null = null,
+  vs: ChartPosition | null = null,
 ): ChartNode[] {
   const out: ChartNode[] = [];
   for (const node of charts.nodes.values()) {
     if (node.options.length < 2 || node.reach < MIN_NODE_REACH) continue;
     if (seat && node.actor !== seat) continue;
     if (family !== "random" && !familiesOf(node).includes(family)) continue;
+    if (vs && lineAggressor(node.line) !== vs) continue;
     out.push(node);
   }
   return out.sort((a, b) => a.line.length - b.line.length || a.line.localeCompare(b.line));
@@ -125,6 +138,13 @@ export interface PreflopSpotOptions {
   family: PreflopFamily | "random";
   /** Only this seat as the hero; null for any. */
   seat?: ChartPosition | null;
+  /**
+   * Only against this raiser (the opener, 3-bettor or 4-bettor); null for any.
+   * A narrowing the chart set cannot deal (no node there reached often
+   * enough) is dropped rather than leaving the trainer empty: a study plan's
+   * link still deals the family at the seat.
+   */
+  vs?: ChartPosition | null;
   bias?: DealBias;
 }
 
@@ -195,7 +215,8 @@ function answerAct(hero: ChartPosition, item: PreflopMenuItem, stackBb: number):
  */
 export function dealPreflop(charts: ChartSet, options: PreflopSpotOptions, seed: number): PreflopTrainerSpot | null {
   const rng: Rng = seeded(seed);
-  const nodes = trainerNodes(charts, options.family, options.seat ?? null);
+  let nodes = trainerNodes(charts, options.family, options.seat ?? null, options.vs ?? null);
+  if (nodes.length === 0 && options.vs) nodes = trainerNodes(charts, options.family, options.seat ?? null);
   if (nodes.length === 0) return null;
   const node = nodes[pickWeighted(nodes.map((n) => Math.sqrt(n.reach)), rng)];
   const weights = dealingWeights(charts, node, options.bias ?? "range");

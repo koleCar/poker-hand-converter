@@ -53,6 +53,10 @@ export const trainHr = {
     pots: { any: "Bilo koji pot", ...potNames } as Record<string, string>,
     side: "Tvoja pozicija",
     sides: { any: "Svejedno", ip: "U poziciji", oop: "Bez pozicije" } as Record<string, string>,
+    vs: "Protiv raisea s",
+    anyRaiser: "Bilo koje pozicije",
+    role: "Tvoja uloga preflop",
+    roles: { any: "Svejedno", pfr: "Raiseao si zadnji", caller: "Callao si" } as Record<string, string>,
   },
 
   dealing: "Dijelim…",

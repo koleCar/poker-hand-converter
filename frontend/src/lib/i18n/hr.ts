@@ -74,6 +74,11 @@ export const hr: Dict = {
       description:
         "Vježbaj preflop i river situacije protiv iste reference po kojoj se ocjenjuju tvoje ruke i ponavljaj vlastite greške dok ne budu točne.",
     },
+    analysisPlan: {
+      title: "Plan učenja — na čemu raditi ovaj tjedan | Rail",
+      description:
+        "Fokus ovog tjedna iz tvojih leakova: pojmovi za čitanje, situacije za trener, tvoje vježbe i vlastite ruke za pregled, s napretkom iz tjedna u tjedan.",
+    },
     analysisProgress: {
       title: "Napredak — tvoj score kroz vrijeme | Rail",
       description: "Score analize i izgubljeni EV na 100 ruku po tjednu, mjesecu ili sesiji, po streetu, poziciji i vrsti pota.",

@@ -51,6 +51,10 @@ export const trainEn = {
     pots: { any: "Any pot", ...potNames } as Record<string, string>,
     side: "Your position",
     sides: { any: "Either", ip: "In position", oop: "Out of position" } as Record<string, string>,
+    vs: "Against a raise from",
+    anyRaiser: "Any seat",
+    role: "Your role preflop",
+    roles: { any: "Either", pfr: "You raised last", caller: "You called" } as Record<string, string>,
   },
 
   dealing: "Dealing…",

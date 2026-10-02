@@ -129,7 +129,8 @@ export function WhatChanged({ scopeKey, generation }: { scopeKey: string; genera
   );
 }
 
-function TrendTag({ trend }: { trend: Trend }) {
+/** A trend as a word and a glyph, never colour alone (the study plan's retrospective uses it too). */
+export function TrendTag({ trend }: { trend: Trend }) {
   const t = useDict().analysis.summary;
   const tone =
     trend === "better" || trend === "leaning-better"

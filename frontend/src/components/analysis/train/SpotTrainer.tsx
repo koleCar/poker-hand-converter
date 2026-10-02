@@ -22,6 +22,7 @@ import {
   PREFLOP_FAMILIES,
   PREFLOP_SEATS,
   RIVER_POTS,
+  RIVER_ROLES,
   RIVER_SEATS,
   handUpTo,
   nextSeed,
@@ -67,8 +68,8 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
 
   const settings =
     mode === "preflop"
-      ? { family: state.family, seat: state.seat, bias: state.deal }
-      : { pot: state.pot, seat: state.side, bias: state.deal };
+      ? { family: state.family, seat: state.seat, vs: state.vs, bias: state.deal }
+      : { pot: state.pot, seat: state.side, role: state.role, bias: state.deal };
   const settingsKey = JSON.stringify(settings);
   const requestKey = `${mode}|${settingsKey}|${round}`;
 
@@ -342,7 +343,14 @@ function Settings({
         <>
           <label className="field">
             <span className="field__label">{t.family}</span>
-            <select value={state.family} onChange={(event) => onChange({ family: event.target.value as TrainState["family"] })}>
+            <select
+              value={state.family}
+              onChange={(event) => {
+                const family = event.target.value as TrainState["family"];
+                // Nobody has raised before a first-in decision: no raiser to face.
+                onChange(family === "rfi" ? { family, vs: null } : { family });
+              }}
+            >
               {(["random", ...PREFLOP_FAMILIES] as const).map((family) => (
                 <option key={family} value={family}>
                   {t.families[family]}
@@ -364,6 +372,22 @@ function Settings({
               ))}
             </select>
           </label>
+          {state.family !== "rfi" ? (
+            <label className="field">
+              <span className="field__label">{t.vs}</span>
+              <select
+                value={state.vs ?? ""}
+                onChange={(event) => onChange({ vs: (event.target.value || null) as TrainState["vs"] })}
+              >
+                <option value="">{t.anyRaiser}</option>
+                {PREFLOP_SEATS.map((seat) => (
+                  <option key={seat} value={seat}>
+                    {seat}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
         </>
       ) : (
         <>
@@ -383,6 +407,16 @@ function Settings({
               {(["any", ...RIVER_SEATS] as const).map((side) => (
                 <option key={side} value={side}>
                   {t.sides[side]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span className="field__label">{t.role}</span>
+            <select value={state.role} onChange={(event) => onChange({ role: event.target.value as TrainState["role"] })}>
+              {(["any", ...RIVER_ROLES] as const).map((role) => (
+                <option key={role} value={role}>
+                  {t.roles[role]}
                 </option>
               ))}
             </select>

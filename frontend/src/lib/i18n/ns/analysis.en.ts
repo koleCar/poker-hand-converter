@@ -21,6 +21,7 @@ import { reportsEn } from "./analysisReports.en";
 import { leaksEn, progressEn, summaryEn } from "./analysisLeaks.en";
 import { trainEn } from "./analysisTrain.en";
 import { shareEn } from "./analysisShare.en";
+import { planEn } from "./analysisPlan.en";
 
 const num = (value: number, digits = 0) =>
   value.toLocaleString("en-GB", { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -920,6 +921,9 @@ export const analysisEn = {
 
   /** Sharing a hand's analysis (A7.1): `analysisShare.en.ts`. */
   share: shareEn,
+
+  /** The study plan (phase A8b): `analysisPlan.en.ts`. */
+  plan: planEn,
 
   explain,
 } as const;

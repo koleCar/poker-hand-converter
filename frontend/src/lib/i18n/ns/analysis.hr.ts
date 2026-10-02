@@ -6,6 +6,7 @@ import { reportsHr } from "./analysisReports.hr";
 import { leaksHr, progressHr, summaryHr } from "./analysisLeaks.hr";
 import { trainHr } from "./analysisTrain.hr";
 import { shareHr } from "./analysisShare.hr";
+import { planHr } from "./analysisPlan.hr";
 
 /**
  * Strings for the Analysis tab and the replayer's Analysis sheet, Croatian.
@@ -892,6 +893,7 @@ export const analysisHr: Dict["analysis"] = {
   train: trainHr,
 
   share: shareHr,
+  plan: planHr,
 
   explain,
 };
