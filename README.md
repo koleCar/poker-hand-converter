@@ -639,6 +639,7 @@ than writing a migration to undo history.
 | What is a hand, exactly? What are the invariants? | [`docs/PHF-SPEC.md`](docs/PHF-SPEC.md) |
 | How do I write a parser for a new room? | [`docs/PHF-SPEC.md` §8](docs/PHF-SPEC.md) |
 | What does column X mean? Why is the RLS like that? | [`docs/DATABASE.md`](docs/DATABASE.md) |
+| Where do the preflop reference charts come from? How do I regenerate them? | [`docs/CHARTS.md`](docs/CHARTS.md) |
 | What does room X's format look like? | `docs/research/hh-formats/<site>.md` |
 | Which formats are alike? Which can share a parser? | [`docs/research/FORMAT-MATRIX.md`](docs/research/FORMAT-MATRIX.md) |
 | Which room should we support next, and what will it cost? | [`docs/research/COVERAGE-PLAN.md`](docs/research/COVERAGE-PLAN.md) |

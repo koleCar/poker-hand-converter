@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "bench:solver": "vitest run --config scripts/solver-bench/vitest.config.ts"
+    "bench:solver": "vitest run --config scripts/solver-bench/vitest.config.ts",
+    "charts:generate": "vitest run --config scripts/preflop-charts/vitest.config.ts"
   },
   "keywords": [],
   "author": "",

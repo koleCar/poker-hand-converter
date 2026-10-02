@@ -1,5 +1,6 @@
 /**
- * Postflop solver: Discounted CFR over heads-up subgames (plan §3.2).
+ * Postflop solver: Discounted CFR over heads-up subgames (plan §3.2), and the
+ * multi-player preflop game the chart generator solves (§3.1, docs/CHARTS.md).
  *
  * ```
  * combos.ts       1326 combo indices, weighted ranges, range text ("TT+, AKs:0.5")
@@ -95,3 +96,76 @@ export {
 } from "./isomorphism";
 export { OFF_TREE_DISTANCE, pseudoHarmonic, translateSize, type Translation } from "./translation";
 export { spotHash, spotKey, type SpotKeyParts } from "./spotKey";
+
+/*
+ * Preflop (phase A2a): the multi-player game the chart generator solves.
+ *
+ * handClasses.ts   the 169 classes, combo counts, class-level card removal
+ * preflopEquity.ts 169x169 heads-up equity, seeded Monte Carlo, symmetrised
+ * preflopModel.ts  equity realisation (position, initiative, playability), rake
+ * preflopTree.ts   the 6-max action abstraction and its cuts, line keys
+ * preflopCfr.ts    DCFR for up to six players over 169-class vectors; NashConv
+ */
+export {
+  CLASS_COMBOS,
+  classByName,
+  classIndex,
+  classOfCards,
+  classOfCombo,
+  COMBO_CLASS,
+  combosOfClass,
+  COMBOS_AFTER_HAND,
+  comboShare,
+  COMPAT,
+  HAND_CLASSES,
+  incidence,
+  independentMass,
+  massVector,
+  NUM_CLASSES,
+  type HandClass,
+} from "./handClasses";
+export {
+  DEFAULT_EQUITY_BOARDS,
+  DEFAULT_EQUITY_SEED,
+  preflopEquityTable,
+  type PreflopEquityOptions,
+  type PreflopEquityTable,
+} from "./preflopEquity";
+export {
+  flopRake,
+  INITIATIVE_EDGE,
+  NO_RAKE,
+  playability,
+  PLAYABILITY,
+  PLAYABILITY_EXPONENT,
+  POSITION_EDGE,
+  POT_TYPES,
+  RAKE_POT_GROWTH,
+  realisationAssumptions,
+  shareMatrix,
+  STANDARD_RAKE,
+  weightRatio,
+  type PotType,
+  type RakeProfile,
+} from "./preflopModel";
+export {
+  buildPreflopTree,
+  DEFAULT_SIZING,
+  FLAG_COLD_CALL_CUT,
+  FLAG_LIMP_CUT,
+  FLAG_MULTIWAY_CAP,
+  PF_ACTION,
+  PF_ALLIN,
+  PF_FLOP,
+  PF_FOLD,
+  POSTFLOP_ORDER,
+  potAt,
+  POT_TYPE_INDEX,
+  preflopNodeAt,
+  SIX_MAX,
+  type PreflopPosition,
+  type PreflopSizing,
+  type PreflopTree,
+  type PreflopTreeConfig,
+} from "./preflopTree";
+export { PreflopSolver, type PreflopExploitability, type PreflopGame } from "./preflopCfr";
