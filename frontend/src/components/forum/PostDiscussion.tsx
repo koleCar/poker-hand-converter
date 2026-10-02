@@ -18,7 +18,8 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 import type { PhfHand, Street } from "../../lib/phf/types";
 import { anchorLabel } from "../../lib/forum/anchor";
 import { useDict } from "../../lib/i18n/client";
-import { ReplayViewer } from "../replayer/ReplayViewer";
+import { ReplayViewer, type ReplayMark } from "../replayer/ReplayViewer";
+import type { CommentAnchor } from "../../lib/forum/types";
 import type { ReplayPosition } from "../replayer/position";
 import styles from "./forum.module.css";
 
@@ -47,11 +48,15 @@ export function useSpot(): SpotContextValue {
   return useContext(SpotContext);
 }
 
-function spotOf(hand: PhfHand, position: ReplayPosition): Spot | null {
+function spotOf(
+  hand: PhfHand,
+  position: ReplayPosition,
+  after: (where: string, what: string) => string,
+): Spot | null {
   if (position.kind === "action") {
     const action = hand.actions.find((candidate) => candidate.index >= position.actionIndex);
     if (!action) return null;
-    const label = anchorLabel(hand, { actionIndex: action.index, street: action.street });
+    const label = anchorLabel(hand, { actionIndex: action.index, street: action.street }, after);
     return { actionIndex: action.index, street: action.street, label: label ?? action.street };
   }
   if (position.kind === "street") {
@@ -64,16 +69,20 @@ export function PostDiscussion({
   hand,
   site,
   initialPosition,
+  anchors,
   children,
 }: {
   hand: PhfHand | null;
   site?: string | null;
   initialPosition?: ReplayPosition | null;
+  /** The thread's comment anchors, one per comment that has one — pips on the rail. */
+  anchors?: CommentAnchor[];
   children: ReactNode;
 }) {
   const en = useDict();
   const [current, setCurrent] = useState<Spot | null>(null);
   const [attached, setAttached] = useState<Spot | null>(null);
+  const anchorAfter = en.forum.anchorAfter;
   const [mount, setMount] = useState<{ key: number; position: ReplayPosition | null }>({
     key: 0,
     position: initialPosition ?? null,
@@ -81,9 +90,9 @@ export function PostDiscussion({
 
   const onPositionChange = useCallback(
     (position: ReplayPosition) => {
-      if (hand) setCurrent(spotOf(hand, position));
+      if (hand) setCurrent(spotOf(hand, position, anchorAfter));
     },
-    [hand],
+    [hand, anchorAfter],
   );
 
   const seek = useCallback((actionIndex: number | null, street: string | null) => {
@@ -97,6 +106,25 @@ export function PostDiscussion({
     setMount((previous) => ({ key: previous.key + 1, position }));
     document.getElementById("replay")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
+
+  const marks = useMemo<ReplayMark[]>(() => {
+    if (!hand || !anchors?.length) return [];
+    const grouped = new Map<string, ReplayMark>();
+    for (const anchor of anchors) {
+      const position: ReplayPosition | null =
+        anchor.actionIndex !== null
+          ? { kind: "action", actionIndex: anchor.actionIndex }
+          : anchor.street
+            ? { kind: "street", street: anchor.street as Street }
+            : null;
+      if (!position) continue;
+      const key = `${anchor.actionIndex ?? ""}:${anchor.street ?? ""}`;
+      const existing = grouped.get(key);
+      if (existing) existing.count += 1;
+      else grouped.set(key, { position, count: 1, label: anchorLabel(hand, anchor, anchorAfter) ?? "" });
+    }
+    return [...grouped.values()];
+  }, [hand, anchors, anchorAfter]);
 
   const value = useMemo<SpotContextValue>(
     () => ({ hand, attached, clearAttached: () => setAttached(null), seek }),
@@ -113,6 +141,7 @@ export function PostDiscussion({
             site={site}
             initialPosition={mount.position}
             onPositionChange={onPositionChange}
+            marks={marks}
           />
           <div className={styles.spotBar}>
             <button

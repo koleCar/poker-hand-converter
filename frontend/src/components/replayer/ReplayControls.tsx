@@ -40,6 +40,8 @@ interface ReplayControlsProps {
   frames: ReplayFrame[];
   frame: ReplayFrame;
   anchors: Array<{ street: Street; index: number }>;
+  /** Comment pips (#34): frame index, comments there, and where that is. */
+  marks?: Array<{ index: number; count: number; label: string }>;
   /** `frame.description`, name-masked. The `aria-live` text. */
   caption: string;
   tier: ReplayTier;
@@ -70,6 +72,7 @@ export function ReplayControls({
   frames,
   frame,
   anchors,
+  marks = [],
   caption,
   tier,
   playing,
@@ -119,6 +122,25 @@ export function ReplayControls({
             />
           ))}
         </div>
+        {/* Comment pips: real buttons above the rail, so a reader can jump to
+            the moment a comment is about without hunting for it. */}
+        {marks.length ? (
+          <div className="rp__marks">
+            {marks.map((mark) => (
+              <button
+                key={mark.index}
+                type="button"
+                className={`rp__mark${mark.index === frame.index ? " is-current" : ""}`}
+                style={{ left: `${last > 0 ? (mark.index / last) * 100 : 0}%` }}
+                aria-label={words.mark(mark.count, mark.label)}
+                title={words.mark(mark.count, mark.label)}
+                onClick={() => onSeek(mark.index)}
+              >
+                {mark.count > 1 ? mark.count : null}
+              </button>
+            ))}
+          </div>
+        ) : null}
         <input
           className="rp__scrub"
           type="range"

@@ -133,6 +133,7 @@ export const replayerHr: Dict["replayer"] = {
       river: "River",
       showdown: "Showdown",
     },
+    mark: (count: number, label: string) => `${count} ${plural(count, "komentar", "komentara", "komentara")} kod: ${label}`,
     position: "Mjesto u ruci",
     positionValue: (step, total, caption) => `Korak ${num(step)} od ${num(total)}. ${caption}`,
     playback: "Reprodukcija",

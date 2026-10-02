@@ -183,7 +183,11 @@ export function PollThread({
         {poll.isAuthor ? <p className="muted">{en.forum.poll.authorNote}</p> : null}
         <PollResults poll={poll} />
       </section>
-      <PostDiscussion hand={poll.phf} site={site}>
+      <PostDiscussion
+        hand={poll.phf}
+        site={site}
+        anchors={(comments ?? []).flatMap((comment) => (comment.anchor && !comment.deleted && !comment.removed ? [comment.anchor] : []))}
+      >
         <section id="comments" className="stack">
           <CommentComposer post={post} locked={locked} />
           {comments ? (

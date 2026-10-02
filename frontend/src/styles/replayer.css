@@ -1580,3 +1580,39 @@ html.rp-fullscreen-lock body {
   overflow: hidden;
   overscroll-behavior: none;
 }
+
+/* Comment pips (#34): one per moment the thread talks about, above the rail,
+   on the same 0–100% scale as the street ticks. A real button each, so the
+   moment a comment is about is one press away. */
+.rp__marks {
+  position: absolute;
+  inset-inline: 0.5rem;
+  inset-block-start: -0.35rem;
+  block-size: 0;
+}
+
+.rp__mark {
+  position: absolute;
+  translate: -50% -50%;
+  min-inline-size: 0.875rem;
+  block-size: 0.875rem;
+  padding: 0 0.2rem;
+  border: 2px solid var(--surface-raised);
+  border-radius: var(--radius-pill);
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
+  font-size: 0.6rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rp__mark.is-current {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.rp__mark:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 1px;
+}

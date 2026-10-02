@@ -26,7 +26,16 @@ export interface AnchorLike {
   seat?: number | null;
 }
 
-export function anchorLabel(hand: PhfHand | null | undefined, anchor: AnchorLike | null | undefined): string | null {
+/**
+ * `after` joins the street to the action. The reader's dictionary passes its
+ * own (`forum.anchorAfter`); street names and the hand's action text are poker
+ * terms and the source's own words, and stay as they are.
+ */
+export function anchorLabel(
+  hand: PhfHand | null | undefined,
+  anchor: AnchorLike | null | undefined,
+  after: (where: string, what: string) => string = (where, what) => `${where}, after ${what}`,
+): string | null {
   if (!anchor) {
     return null;
   }
@@ -40,5 +49,5 @@ export function anchorLabel(hand: PhfHand | null | undefined, anchor: AnchorLike
   }
   const where = STREET_WORD[action.street] ?? action.street;
   const who = action.player || "";
-  return `${where}, after ${`${who} ${action.label}`.trim()}`;
+  return after(where, `${who} ${action.label}`.trim());
 }

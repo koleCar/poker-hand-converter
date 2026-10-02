@@ -127,7 +127,21 @@ interface ReplayViewerProps {
   urlSync?: boolean;
   /** `card` mode only: reveal the pot. Off by default, per #23. */
   spoilers?: boolean;
+  /**
+   * Moments the surrounding discussion talks about (#34): a pip on the rail
+   * for each, seeking there when pressed. A forum post passes its comments'
+   * anchors; nothing else does.
+   */
+  marks?: ReplayMark[];
   ref?: React.Ref<ReplayViewerHandle>;
+}
+
+/** A moment on the rail, and how many comments are anchored to it. */
+export interface ReplayMark {
+  position: ReplayPosition;
+  count: number;
+  /** "flop, after Villain2 bets $4", for the pip's accessible name. */
+  label: string;
 }
 
 const SPEED_KEY = "phc.replayer.speed";
@@ -347,6 +361,7 @@ function ReplayStage({
   focusSeat = null,
   onPositionChange,
   urlSync,
+  marks,
   ref,
 }: ReplayViewerProps) {
   const embed = mode === "embed";
@@ -358,6 +373,19 @@ function ReplayStage({
   // Captions and action pills are written in the reader's language.
   const frames = useMemo(() => buildReplay(hand, { strings: t.frames }), [hand, t]);
   const anchors = useMemo(() => streetAnchors(frames), [frames]);
+  // Several anchors can land on one frame (two comments on the same action);
+  // the rail shows one pip per frame with the total.
+  const railMarks = useMemo(() => {
+    if (!marks?.length) return [];
+    const byFrame = new Map<number, { index: number; count: number; label: string }>();
+    for (const mark of marks) {
+      const index = frameIndexForPosition(frames, mark.position);
+      const existing = byFrame.get(index);
+      if (existing) existing.count += mark.count;
+      else byFrame.set(index, { index, count: mark.count, label: mark.label });
+    }
+    return [...byFrame.values()].sort((a, b) => a.index - b.index);
+  }, [marks, frames]);
   // Street markers are already the chips above the scrubber and the board on
   // the felt; in the log they were three-quarters noise.
   const logFrames = useMemo(() => frames.filter((entry) => entry.kind !== "street"), [frames]);
@@ -873,6 +901,7 @@ function ReplayStage({
         frames={frames}
         frame={frame}
         anchors={anchors}
+        marks={railMarks}
         caption={caption}
         tier={tier}
         playing={playing}
