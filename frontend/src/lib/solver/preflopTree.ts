@@ -1,5 +1,6 @@
 /**
- * The preflop betting tree for no-limit hold'em cash, 6-max by default.
+ * The preflop betting tree for no-limit hold'em cash: 6-max by default, any
+ * table from heads-up to nine-handed (`NINE_MAX`), any stack depth.
  *
  * **The action abstraction** (the sizes live in `PreflopSizing` and are part of
  * the chart's recorded assumptions):
@@ -15,7 +16,9 @@
  * | Facing an all-in | fold, call |
  *
  * Raise sizes are rounded to half a big blind; a raise that would leave less
- * than nothing behind is an all-in.
+ * than nothing behind is an all-in. Other stack depths change the sizes
+ * (`PreflopSizing`, recorded in each chart set): at 40bb the open is 2.2bb
+ * and every 4-bet is all-in (`allInAbove`).
  *
  * **What is cut, and flagged.** A full no-limit preflop tree for six players is
  * astronomically large, almost all of it multiway pots nobody plays. The tree
@@ -53,19 +56,33 @@
 
 import type { PotType } from "./preflopModel";
 
-export type PreflopPosition = "UTG" | "HJ" | "CO" | "BTN" | "SB" | "BB";
+/**
+ * Seat names as the stats engine assigns them (`positionRing` in
+ * `lib/phf/types.ts`): a table's seats are named by their distance from the
+ * button, so the 6-max UTG and the 9-max LJ are the same distance from it.
+ */
+export type PreflopPosition = "UTG" | "UTG+1" | "UTG+2" | "LJ" | "HJ" | "CO" | "BTN" | "SB" | "BB";
 
 /** The six seats of a 6-max table, in preflop action order. */
 export const SIX_MAX: readonly PreflopPosition[] = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 
-/** Postflop acting order: higher acts later (is in position). */
+/** The nine seats of a full-ring table, in preflop action order. */
+export const NINE_MAX: readonly PreflopPosition[] = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
+
+/**
+ * Postflop acting order: higher acts later (is in position). Only the order
+ * matters; a table's seats are always a subsequence of `NINE_MAX`.
+ */
 export const POSTFLOP_ORDER: Readonly<Record<PreflopPosition, number>> = {
   SB: 0,
   BB: 1,
   UTG: 2,
-  HJ: 3,
-  CO: 4,
-  BTN: 5,
+  "UTG+1": 3,
+  "UTG+2": 4,
+  LJ: 5,
+  HJ: 6,
+  CO: 7,
+  BTN: 8,
 };
 
 export interface PreflopSizing {
@@ -89,6 +106,12 @@ export interface PreflopSizing {
   fourBetOop: number;
   /** Raise sizes are rounded to this. */
   roundTo: number;
+  /**
+   * A raise that would put more than this share of the starting stack in is
+   * made all-in instead (a 4-bet at 40bb). Absent: only a raise that reaches
+   * the stack is all-in. The 100bb trees never reach 40% before the 5-bet.
+   */
+  allInAbove?: number;
 }
 
 export const DEFAULT_SIZING: Readonly<PreflopSizing> = {
@@ -105,7 +128,7 @@ export const DEFAULT_SIZING: Readonly<PreflopSizing> = {
 };
 
 export interface PreflopTreeConfig {
-  /** Seats dealt in, in preflop action order. Default: all six. */
+  /** Seats dealt in, in preflop action order (a subsequence of `NINE_MAX`). Default: `SIX_MAX`. */
   players?: readonly PreflopPosition[];
   /** Starting stack of every player, in big blinds. Default 100. */
   stackBb?: number;
@@ -198,18 +221,19 @@ interface State {
 }
 
 function roundSize(x: number, step: number): number {
-  return Math.round(x / step) * step;
+  // The outer rounding drops float noise (22 x 0.1 = 2.2000000000000006).
+  return Math.round(Math.round(x / step) * step * 1e6) / 1e6;
 }
 
 /** Builds the tree. 3,825 action nodes for 6-max with the defaults. */
 export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
   const players = [...(config.players ?? SIX_MAX)];
   for (const position of players) {
-    if (!SIX_MAX.includes(position)) {
+    if (!NINE_MAX.includes(position)) {
       throw new Error(`unknown position ${position}`);
     }
   }
-  const order = players.map((p) => SIX_MAX.indexOf(p));
+  const order = players.map((p) => NINE_MAX.indexOf(p));
   for (let k = 1; k < order.length; k += 1) {
     if (order[k] <= order[k - 1]) {
       throw new Error("players must be in preflop action order");
@@ -318,6 +342,7 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
       to = stack;
     }
     to = roundSize(to, sizing.roundTo);
+    if (sizing.allInAbove !== undefined && to > sizing.allInAbove * stack) return stack;
     return to >= stack ? stack : to;
   };
 

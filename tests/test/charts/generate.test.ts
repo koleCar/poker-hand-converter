@@ -18,7 +18,7 @@ import {
 } from "../../../frontend/src/lib/charts/index.js";
 import { decodeBase64, encodeBase64 } from "../../../frontend/src/lib/charts/base64.js";
 import { encodeEv, encodeFreq } from "../../../frontend/src/lib/charts/format.js";
-import { NUM_CLASSES, preflopEquityTable } from "../../../frontend/src/lib/solver/index.js";
+import { buildPreflopTree, NINE_MAX, NUM_CLASSES, preflopEquityTable } from "../../../frontend/src/lib/solver/index.js";
 
 const SMALL = {
   players: ["BTN", "SB", "BB"] as const,
@@ -52,6 +52,65 @@ describe("chart generator", () => {
     const two = generateChartSet({ ...SMALL, iterations: 30, sizing: { open: 2.2 } }).charts;
     expect(one.model.hash).not.toBe(two.model.hash);
     expect((two.model as Record<string, any>).tree.sizing.open).toBe(2.2);
+  });
+});
+
+describe("other tables and depths (A2c)", () => {
+  it("builds full-ring trees from the stats engine's seat names", () => {
+    expect(buildPreflopTree({ players: NINE_MAX }).actionNodes).toBe(28591);
+    expect(buildPreflopTree({ players: ["UTG", "UTG+1", "LJ", "HJ", "CO", "BTN", "SB", "BB"] }).actionNodes).toBe(16266);
+    // The 6-max tree is unchanged by the wider seat list.
+    expect(buildPreflopTree().actionNodes).toBe(3825);
+    expect(() => buildPreflopTree({ players: ["HJ", "UTG", "BB"] })).toThrow(/order/);
+    expect(() => buildPreflopTree({ players: ["MP" as never, "BB"] })).toThrow(/unknown position/);
+  });
+
+  it("makes a raise all-in past `allInAbove` of the stack, and rounds sizes without float noise", () => {
+    const sizing = { open: 2.2, roundTo: 0.1, allInAbove: 0.4 };
+    const tree = buildPreflopTree({ stackBb: 40, sizing });
+    const codes = (line: string) => {
+      const node = tree.lineIndex.get(line) as number;
+      const out: [string, number][] = [];
+      for (let e = tree.childStart[node]; e < tree.childStart[node] + tree.childCount[node]; e += 1) {
+        out.push([tree.edgeCode[e], tree.edgeTo[e]]);
+      }
+      return out;
+    };
+    expect(codes("")).toEqual([["f", 0], ["r", 2.2]]);
+    // BTN 3-bets UTG in position: 3 x 2.2 = 6.6; UTG's 4-bet (2.5 x 6.6 = 16.5 > 16) is all-in.
+    expect(codes("rff")).toEqual([["f", 0], ["c", 2.2], ["r", 6.6]]);
+    expect(codes("rffrff")).toEqual([["f", 2.2], ["c", 6.6], ["a", 40]]);
+    // At 100bb the same rule changes nothing before the 5-bet.
+    const deep = buildPreflopTree({ sizing: { allInAbove: 0.4 } });
+    expect(deep.actionNodes).toBe(3825);
+  });
+
+  it("generates a short-stacked set with 9-max seat names deterministically", () => {
+    const config = {
+      players: ["UTG+2", "BTN", "SB", "BB"] as const,
+      stackBb: 40,
+      sizing: { open: 2.2, roundTo: 0.1, allInAbove: 0.4 },
+      equityBoards: 400,
+      equitySeed: 99,
+      iterations: 40,
+      checkEvery: 20,
+      headsUpIterations: 0,
+      minReach: 0,
+    };
+    const a = serializeCharts(generateChartSet(config).charts);
+    const b = serializeCharts(generateChartSet(config).charts);
+    expect(a).toBe(b);
+    const set = loadCharts(JSON.parse(a));
+    expect(set.id).toBe("nlhe-cash-4max-40bb");
+    expect(set.game.positions).toEqual(["UTG+2", "BTN", "SB", "BB"]);
+    expect(set.nodes.get("")?.options.map((o) => [o.action, o.toBb])).toEqual([
+      ["fold", 0],
+      ["raise", 2.2],
+    ]);
+    const vs3bet = [...set.nodes.values()].filter((n) => n.scenario === "vs-3bet");
+    expect(vs3bet.length).toBeGreaterThan(0);
+    for (const n of vs3bet) expect(n.options.map((o) => o.action)).toContain("allin");
+    expect((set.model as Record<string, any>).tree.sizing.allInAbove).toBe(0.4);
   });
 });
 

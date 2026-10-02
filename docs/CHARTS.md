@@ -1,7 +1,9 @@
-# CHARTS — preflop reference charts, `charts/2`
+# CHARTS — preflop reference charts, `charts/3`
 
-Phases A2a and A2a.1 of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec). Rail's
-preflop reference for **NLHE cash, 6-max, 100bb**: for every decision point
+Phases A2a, A2a.1 and A2c of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec).
+Rail's preflop reference for **NLHE cash**: a library of chart sets
+(**6-max at 40 / 60 / 100 / 150 / 200bb, 9-max at 100 / 150 / 200bb**, §6),
+each one for every decision point
 of a preflop betting tree and every one of the 169 hand classes, a frequency
 and an EV in big blinds per action. Grading (§2) reads both.
 
@@ -10,7 +12,9 @@ DCFR) on a model described below, reproducibly, from a seed. Nothing from GTO
 Wizard, Upswing or any published chart is used as input, as a target or for
 tuning. `charts/1` (A2a) set the realisation model's constants by hand;
 `charts/2` (A2a.1) **measures** them with our own postflop solver (§4) - the
-only inputs are the rules, the sizes, the rake and the solvers.
+only inputs are the rules, the sizes, the rake and the solvers. `charts/3`
+(A2c) runs the same pipeline for more tables and depths and adds the library
+that picks a set per spot (§6).
 
 ```
 frontend/src/lib/solver/
@@ -18,18 +22,20 @@ frontend/src/lib/solver/
   preflopEquity.ts  169x169 all-in equity, seeded Monte Carlo
   preflopModel.ts   equity realisation (odds form, roles, class features), rake
   preflopRealisation.ts  realised shares measured on a turn+river solve
-  preflopTree.ts    the 6-max action abstraction and its cuts
-  preflopCfr.ts     DCFR for up to six players; best response, NashConv
+  preflopTree.ts    the action abstraction and its cuts, 2-9 seats, any depth
+  preflopCfr.ts     DCFR for up to nine players; best response, NashConv
 frontend/src/lib/charts/
   format.ts         CHARTS_VERSION, JSON format, encode/decode, loadCharts
   build.ts          solved game -> chart set (reach, ranges, scenarios, filters)
   generate.ts       one solve -> chart set, as a pure function
   realisation.ts    charts/2: spots, measurement jobs, the fit, the rounds
   lookup.ts         real preflop line -> node + options + approximations
-  fromHand.ts       PhfHand -> the spot of one hero preflop decision
-  data/nlhe-cash-6max-100bb.json   the committed set (generated)
-tests/scripts/preflop-charts/      npm run charts:generate (worker pool, cache), charts:report
-tests/test/charts/ (realisation.test.ts), tests/test/solver/preflop.test.ts
+  fromHand.ts       PhfHand -> the spot of one hero preflop decision; the sets a hand needs
+  registry.ts       charts/3: the sets, which one answers a spot, lazy loading
+  data/nlhe-cash-<6|9>max-<depth>bb.json   the committed sets (generated)
+tests/scripts/preflop-charts/      npm run charts:generate (sets.ts, worker pool, cache),
+                                   charts:report, charts:coverage, charts:compare
+tests/test/charts/ (data, sets, registry, lookup, realisation, generate), tests/test/solver/preflop.test.ts
 ```
 
 `lib/charts` follows `lib/solver`'s import rule (ESLint-enforced): it may
@@ -40,8 +46,12 @@ it runs under plain Node in the tests and in a Web Worker in the browser.
 
 ## 1. The game
 
-Six players, UTG, HJ, CO, BTN, SB, BB; blinds 0.5/1; no ante; every stack
-100bb. Postflop order SB, BB, UTG, HJ, CO, BTN decides who is in position.
+Six players, UTG, HJ, CO, BTN, SB, BB, or nine, UTG, UTG+1, UTG+2, LJ, HJ,
+CO, BTN, SB, BB - the stats engine's names (`positionRing`), which name a
+seat by its distance from the button, so 6-max's UTG and 9-max's LJ are the
+same seat. Blinds 0.5/1; no ante; every stack the set's depth (40, 60, 100,
+150 or 200bb). Postflop order SB, BB, then the seats in table order, decides
+who is in position.
 
 ### 1.1 Action abstraction
 
@@ -61,6 +71,22 @@ standard 3-bet split by position (out of position needs a bigger price to
 deny realisation); +1x per caller keeps the squeezer's price per opponent;
 2.2–2.5x 4-bets leave ~75bb behind (one more decision, the shove).
 
+**By depth** (`tests/scripts/preflop-charts/sets.ts`, recorded in each set's
+`model.tree.sizing`). One rule for every A2c set, `allInAbove: 0.4`: a raise
+that would put more than 40% of the starting stack in is all-in instead -
+the point where the stack-to-pot ratio behind leaves no real decision but
+the shove.
+
+| Depth | Open | SB | 3-bet | 4-bet | 5-bet |
+|---|---|---|---|---|---|
+| 40bb | **2.2bb** (sizes round to 0.1bb) | 3bb | 3x / 4x (+1x per caller) | **all-in** (2.2-2.5x would be 41-48% of the stack) | - |
+| 60bb | 2.5bb | 3bb | 3x / 4x (+1x per caller) | 2.2x / 2.5x; **all-in over a squeeze** (55%) | all-in |
+| 100bb | 2.5bb | 3bb | 3x / 4x (+1x per caller) | 2.2x / 2.5x (at most 33% of the stack) | all-in |
+| 150, 200bb | 2.5bb | 3bb | 3x / 4x (+1x per caller) | 2.2x / 2.5x | all-in |
+
+Deep, the 5-bet stays a shove: a real non-all-in 5-bet maps onto it by
+action translation and is usually `offTree` (§7), which caps the grade.
+
 ### 1.2 What the tree leaves out
 
 A complete six-player no-limit tree is astronomically large. The tree keeps
@@ -77,7 +103,10 @@ of guessing (`preflopTree.ts`):
   of it was then forced to fold, and the solver learned to fold AA to a
   3-bet. Cap who enters, never who continues.)
 
-The 6-max tree has 3,825 action nodes.
+The 6-max tree has 3,825 action nodes (at every depth from 60bb up; 1,159 at
+40bb, where the 4-bet is a shove); the 9-max tree 28,591. The cap of four
+entrants is the same at nine seats: more seats means more ways to reach a
+four-way pot, not bigger pots.
 
 ## 2. Hands and card removal
 
@@ -301,9 +330,12 @@ Measured for the committed set (M-series Mac, Node 24):
 | Heads-up BvB, 1,000 iterations | 0.025 mbb/hand |
 | Time | see §10 (~27 min from scratch, ~10 min with the caches) |
 
-## 6. The chart set
+## 6. The chart sets
 
-`data/nlhe-cash-6max-100bb.json`, 736 KB (736,170 bytes), 281 nodes. Header
+### 6.1 One set
+
+Every set is one file, `data/<id>.json`; `nlhe-cash-6max-100bb.json`, for
+example, is 736 KB (736,170 bytes) with 281 nodes. Header
 (`model`) records every assumption above - the fitted realisation model's
 every coefficient (`realisation`) and how it was fitted, round by round
 (`realisationFit`) - plus the convergence history and a hash; then one node
@@ -336,6 +368,105 @@ callers), `vs-iso`, `vs-3bet` (4-bet; `cold` if not yet in), `vs-4bet`,
    (argmax EV) rather than an average strategy that never applied — what a
    player who got there anyway should do.
 
+### 6.2 The library (`charts/3`)
+
+`lib/charts/registry.ts` lists the committed sets (`CHART_SETS`: id, seats,
+depth, a loader) and decides which one answers a spot (`pickChartSet`):
+
+1. **Table.** `k` players dealt in are read on the smallest set with at least
+   `k` seats: 3-6 handed on a 6-max set, 7-9 handed on a 9-max set. Fewer
+   players than seats is the `short-handed` approximation (§6.3). Heads-up
+   and ten or more are refused (`players`, §6.5).
+2. **Depth.** Among that table's sets, the nearest to the effective stack
+   (the hero against the deepest opponent still in), by relative distance.
+   Further than **20%** from every one is refused (`stack-depth`); more than
+   5% away is the `stack-depth` approximation, with the set and both depths.
+   Strategies are **never interpolated** between two depths: a mix of two
+   solutions is a solution of neither. Covered: 32-240bb on 6-max except
+   72-80bb (20% from neither 60 nor 100), 80-240bb on 9-max.
+
+SETS_TABLE
+
+`CHARTS_VERSION` is `charts/3`; each set carries its own `id` and the
+`version` of the generator that made it: the 6-max 100bb set is still
+`charts/2`'s, byte for byte (regenerated with the A2c code: identical
+bytes), the others are `charts/3`. Grades store the set's id
+(`facts.chart.set`).
+
+**A library is a chart set.** `ChartLibrary` extends `ChartSet`; its own
+fields are the default set's (6-max 100bb), so code that reads one set's
+nodes - Reports, the 13x13 viewers - keeps working, while `lookupPreflop`
+sees a library and answers from the set the spot needs (`result.set`).
+
+**Lazy loading.** Each set is its own dynamic `import()`, so the bundler
+gives it its own chunk and nothing loads a set it does not need:
+
+- the analysis worker loads the library with its default set, and before a
+  page of hands the sets those hands need (`requiredChartSets`: every
+  player's preflop decisions, since opponents' chart ranges feed the
+  postflop analysis; `ensureChartSets`). A set not loaded is `unavailable`,
+  which the rebuild never stores;
+- the chart browser and the hand view's study chart load the one set they
+  draw (`preflopChartSet(id)` in `lib/chartSet.ts`); the browser has a
+  table-and-depth selector (`?set=`).
+
+BUNDLE_NOTE
+
+### 6.3 Smaller tables: earliest seats folded
+
+A `k`-handed table is read on an `n`-seat set by distance from the button:
+the blinds are the blinds, the table's other seats are the set's last
+`k - 2`, and the set's first `n - k` seats fold before the hand starts.
+Five-handed on 6-max: UTG -> HJ with UTG folded; 4-handed: CO, BTN with UTG
+and HJ folded; 8-handed on 9-max: UTG -> UTG+1, UTG+1 -> UTG+2 with UTG
+folded; 7-handed: UTG -> UTG+2, with UTG and UTG+1 folded.
+
+**Why not separate 7- and 8-max sets.** In the charts' model this reading is
+exact up to convergence: card removal between opponents is ignored (§2), so a
+folded player's range multiplies every other player's counterfactual values
+by a constant per hand class, which regret matching does not see; the game
+after the folds is the smaller table's game. Measured
+(`npm run charts:compare`: a native solve with the bigger set's realisation
+model, sizes and depth, against the bigger set read short-handed, and
+against a second native solve at 80% of the iterations as the noise floor):
+
+COMPARE_TABLE
+
+What the reading leaves out is the real effect of the folds - folded ranges
+hold fewer aces and kings, so the players left hold slightly more - which no
+set models anyway (§2). A separate 8-max set would have cost another ~COST of
+generation for differences inside the solver's own noise.
+
+### 6.4 The realisation model per set
+
+Reused from `charts/2`, unchanged: the odds form, the class features, the
+thirteen spots (`REALISATION_SPOTS`, which name seats every table has), the
+measurement (120 seeded flop+turn deals per spot, 60-iteration turn+river
+solves, 75% bet or all-in), the fit, the rake. **Refitted per set**: every
+A2c set runs the whole pipeline at its own table and depth - the spots are
+measured on its own ranges at its own stack-to-pot ratios, so a 40bb single
+raised pot (SPR ~7) and a 200bb one (SPR ~36) get the implied odds they
+have. The rounds start from `charts/2`'s fitted model rather than `charts/1`
+and run two rounds instead of three (the start is already a fit); the 40bb
+set has no 4-bet pots to measure (the 4-bet is a shove) and keeps the
+starting 4-bet coefficients, which its tree never uses.
+
+FIT_TABLE
+
+### 6.5 Not covered, by decision
+
+- **Straddles** stay refused (`straddle`). A straddle is a third blind that
+  moves the first decision and every price; covering it means another tree
+  (straddler acting last preflop, opens against 4bb) per table and depth.
+  In the WePlay export 52 of 6,121 hero preflop decisions (0.8%) have one -
+  not worth a set yet.
+- **Heads-up** stays refused (`players`): the button is the small blind and
+  acts last after the flop, which no set models (our blind-versus-blind is
+  the small blind out of position). 111 decisions (1.8%) in the WePlay export.
+- **Ten or more players, antes, open limps, cold calls of 3-bets**: as before.
+- **Depths**: under 32bb, 72-80bb and over 240bb (6-max); under 80bb and over
+  240bb (9-max).
+
 ## 7. Lookup
 
 ```ts
@@ -353,17 +484,23 @@ the real actions on the tree; raises map to the node's one raise size via
 
 - `sizing` — a real raise differs from the chart's; `distance` in pot
   fractions; `offTree` beyond 0.25 of the pot (§3.3: caps the grade);
-- `stack-depth` — effective stack within ±20% but more than 5% from 100bb;
-- `short-handed` — five players dealt in, read as 6-max with UTG folded.
+- `stack-depth` — effective stack within 20% of the answering set's depth
+  but more than 5% from it (`set`, `realBb`, `chartBb`);
+- `short-handed` — fewer players than the set's seats, read with the earliest
+  seats folded (§6.3).
 
-Refusals, `{ ok: false, reason, detail }`: `straddle`, `ante`, `players` (not 5
-or 6 dealt in), `stack-depth` (effective stack outside 80–120bb), `limp` (an
-open limp other than the SB's), `multiway` (a fifth entrant), `cold-call`,
-`off-tree`, `rare-line`, `action-not-modelled` (the hero's real action is
-not an option here), `bad-input`. `preflopSpotFromHand` itself refuses
-non-NLHE-cash games and bomb pots. On the GG fixture corpus, ~58% of hero
-preflop decisions get a node; most of the rest are deeper than 120bb or
-behind an open limp.
+`charts` is one set or the library (§6.2); the result names the set that
+answered (`set`). With one set the lookup reads only that set's table sizes
+(3 to its seats) and depth (±20%), as before.
+
+Refusals, `{ ok: false, reason, detail }`: `straddle`, `ante`, `players`
+(heads-up, ten or more, or positions that are not a `k`-handed ring - a dead
+button), `stack-depth` (no set within 20%), `limp` (an open limp other than
+the SB's), `multiway` (a fifth entrant), `cold-call`, `off-tree`,
+`rare-line`, `action-not-modelled` (the hero's real action is not an option
+here), `unavailable` (the library has not loaded the set), `bad-input`.
+`preflopSpotFromHand` itself refuses non-NLHE-cash games and bomb pots.
+Coverage on the corpora is in §6.6.
 
 ## 8. Results (committed set)
 

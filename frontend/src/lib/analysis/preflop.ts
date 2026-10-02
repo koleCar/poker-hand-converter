@@ -11,8 +11,8 @@
  * are passed in, never loaded here: the JSON is ~630 KB, and the caller (the
  * Web Worker, a test, the hand view) decides when to pay for it.
  *
- * **A refusal is an answer.** A line the charts cannot represent — 9-max, a
- * deep stack, an open limp, a line too rare to be in the set — is a
+ * **A refusal is an answer.** A line the charts cannot represent — heads-up,
+ * a depth no set covers, an open limp, a line too rare to be in the set — is a
  * `not-analysed` decision with the lookup's reason, never a guess (§3.5).
  *
  * **EV units.** A chart EV is net chips from the start of the hand, so EV loss
@@ -156,7 +156,8 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
   }
   if (!lookup.ok) return refuse("bad-input", "unreachable");
 
-  const approximations = chartApproximations(charts, lookup.approximations);
+  // The set that answered: `charts` itself, or a library's set for this table and depth.
+  const approximations = chartApproximations(lookup.set, lookup.approximations);
   const inRange = lookup.inRange ?? 0;
   if (inRange < OFF_RANGE) approximations.add("out-of-range");
   const result = grade({
@@ -170,7 +171,7 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
     options,
     chosen,
     approximations: [...approximations].sort(),
-    chart: { set: charts.id, line: lookup.node.line, scenario: lookup.node.scenario, inRange: round4(inRange) },
+    chart: { set: lookup.set.id, line: lookup.node.line, scenario: lookup.node.scenario, inRange: round4(inRange) },
     handClass: lookup.handClass ?? "",
     grade: result.grade,
     evLoss: round3(result.evLoss),

@@ -866,6 +866,8 @@ export interface RealisedGenerateOptions extends Omit<GenerateOptions, "realisat
   measure?: Partial<RealisationMeasureOptions>;
   /** The model the first round's solve uses. Default `CHARTS1_REALISATION`. */
   start?: RealisationModel;
+  /** The fitted model's recorded name. Default `charts/2-solver-fit`. */
+  fitName?: string;
   /**
    * Runs turn+river solves. The script runs them on worker threads; the result
    * must be in job order. Default: one after another, here.
@@ -907,6 +909,20 @@ function continueWidth(solver: PreflopSolver, line: string): number {
 }
 
 /**
+ * The lines whose widths each round records: every seat's raise first in,
+ * and the big blind against a button open (the small blind folding).
+ */
+function widthLines(tree: PreflopTree): [string, string][] {
+  const out: [string, string][] = [];
+  tree.players.forEach((position, k) => {
+    if (position !== "BB") out.push([position, "f".repeat(k)]);
+  });
+  const btn = tree.players.indexOf("BTN");
+  if (btn >= 0 && tree.players.includes("SB")) out.push(["BB vs BTN", "f".repeat(btn) + "rf"]);
+  return out;
+}
+
+/**
  * The `charts/2` generator: rounds of solve, measure the realisation the
  * charts' own ranges get from the postflop solver, fit; then the final solve
  * with the last fitted model. See the module header.
@@ -941,17 +957,10 @@ export async function generateRealisedChartSet(
     const samples = aggregateSamples(spots, await run(jobs));
     measuredSpots.push(...spots);
     measuredSamples.push(...samples);
-    const fit = fitRealisation(measuredSpots, measuredSamples, solved.equity.equity, model);
+    const fit = fitRealisation(measuredSpots, measuredSamples, solved.equity.equity, model, options.fitName);
     model = fit.model;
     const widths: Record<string, number> = {};
-    for (const [name, line] of [
-      ["UTG", ""],
-      ["HJ", "f"],
-      ["CO", "ff"],
-      ["BTN", "fff"],
-      ["SB", "ffff"],
-      ["BB vs BTN", "fffrf"],
-    ] as const) {
+    for (const [name, line] of widthLines(solved.solver.tree)) {
       widths[name] = continueWidth(solved.solver, line);
     }
     const entry: RealisationRound = {

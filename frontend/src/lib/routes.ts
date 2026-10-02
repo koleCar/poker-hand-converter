@@ -58,8 +58,10 @@ export const paths = {
    * is a chart line key (`""` is the UTG open) and `hand` a class to
    * highlight — what the hand view's Study link passes.
    */
-  analysisCharts: (line?: string | null, hand?: string | null) => {
+  analysisCharts: (line?: string | null, hand?: string | null, set?: string | null) => {
     const params = new URLSearchParams();
+    // `set` is a chart set id (`lib/charts/registry.ts`); absent is the default set.
+    if (set) params.set("set", set);
     if (line !== undefined && line !== null) params.set("line", line === "" ? "-" : line);
     if (hand) params.set("hand", hand);
     const query = params.toString();

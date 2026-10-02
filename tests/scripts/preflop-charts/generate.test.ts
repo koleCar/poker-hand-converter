@@ -1,25 +1,37 @@
 /**
- * Generates the committed preflop chart set:
- * `frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json`.
+ * Generates the committed preflop chart sets,
+ * `frontend/src/lib/charts/data/<id>.json` (configs in `sets.ts`).
  *
- *     cd tests && npm run charts:generate
+ *     cd tests && npm run charts:generate                       # every set
+ *     CHARTS_SETS=nlhe-cash-9max-100bb npm run charts:generate  # one set
+ *     CHARTS_PARALLEL=4 npm run charts:generate                 # four at a time
  *
- * The `charts/2` pipeline (`generateRealisedChartSet`, docs/CHARTS.md §4):
- * rounds of preflop solve -> turn+river solves of the charts' own heads-up
- * ranges (on worker threads) -> fit of the realisation model; then the final
- * solve. Deterministic: the equity sample and the deals are seeded and the
- * solvers read no clock, so a rerun with the same code writes the same bytes
- * (the script says whether the file changed). The equity table is cached in
- * `.cache/` (git-ignored) because it depends only on its boards and seed.
+ * Per set, the `charts/2` pipeline (`generateRealisedChartSet`, docs/CHARTS.md
+ * §4): rounds of preflop solve -> turn+river solves of the charts' own
+ * heads-up ranges (on worker threads) -> fit of the realisation model; then
+ * the final solve. Deterministic: the equity sample and the deals are seeded
+ * and the solvers read no clock, so a rerun with the same code writes the
+ * same bytes (the script says whether each file changed). The equity table is
+ * cached in `.cache/` (git-ignored) because it depends only on its boards and
+ * seed.
  *
- * Environment (for experiments; the committed set uses the defaults):
- * `CHARTS_ITERATIONS`, `CHARTS_BOARDS`, `CHARTS_OUT`, `CHARTS_ROUNDS`,
- * `CHARTS_ROUND_ITERATIONS`, `CHARTS_MEASURE_BOARDS`, `CHARTS_THREADS`;
- * `CHARTS_NO_CACHE=1` re-solves the realisation spots instead of reading
- * `.cache/realisation-*.json` (keyed by the jobs, not by the code).
+ * **Parallel.** A preflop solve is single-threaded, so with `CHARTS_PARALLEL`
+ * above 1 and more than one set this process runs one child process per set
+ * (at most that many at once), splits `CHARTS_THREADS` between them for the
+ * turn+river workers, writes each child's log to `.cache/logs/<id>.log`, and
+ * prints each set's summary when it finishes. Results do not depend on the
+ * split.
+ *
+ * Environment (for experiments; the committed sets use the defaults):
+ * `CHARTS_SETS`, `CHARTS_PARALLEL`, `CHARTS_ITERATIONS`, `CHARTS_BOARDS`,
+ * `CHARTS_OUT` (one set only), `CHARTS_ROUNDS`, `CHARTS_ROUND_ITERATIONS`,
+ * `CHARTS_MEASURE_BOARDS`, `CHARTS_THREADS`; `CHARTS_NO_CACHE=1` re-solves the
+ * realisation spots instead of reading `.cache/realisation-*.json` (keyed by
+ * the jobs, not by the code).
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { availableParallelism } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,7 +44,6 @@ import {
   generateRealisedChartSet,
   PRODUCTION_MEASURE,
   PRODUCTION_ROUND_ITERATIONS,
-  PRODUCTION_ROUNDS,
 } from "../../../frontend/src/lib/charts/realisation.js";
 import {
   DEFAULT_EQUITY_BOARDS,
@@ -40,15 +51,22 @@ import {
   preflopEquityTable,
   type PreflopEquityTable,
 } from "../../../frontend/src/lib/solver/preflopEquity.js";
+import { CHARTS1_REALISATION, type RealisationModel } from "../../../frontend/src/lib/solver/preflopModel.js";
 import { cachedRun, workerPool } from "./pool.js";
 import { report } from "./report.js";
+import { SET_CONFIGS, setConfig, type SetConfig } from "./sets.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "../../..");
-const OUT = process.env.CHARTS_OUT ?? join(ROOT, "frontend/src/lib/charts/data/nlhe-cash-6max-100bb.json");
+const DATA = join(ROOT, "frontend/src/lib/charts/data");
+const SETS = (process.env.CHARTS_SETS ?? SET_CONFIGS.map((c) => c.id).join(","))
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean)
+  .map(setConfig);
+const PARALLEL = Math.max(1, Number(process.env.CHARTS_PARALLEL ?? 1));
 const ITERATIONS = Number(process.env.CHARTS_ITERATIONS ?? PRODUCTION_ITERATIONS);
 const BOARDS = Number(process.env.CHARTS_BOARDS ?? DEFAULT_EQUITY_BOARDS);
-const ROUNDS = Number(process.env.CHARTS_ROUNDS ?? PRODUCTION_ROUNDS);
 const ROUND_ITERATIONS = Number(process.env.CHARTS_ROUND_ITERATIONS ?? PRODUCTION_ROUND_ITERATIONS);
 const MEASURE_BOARDS = Number(process.env.CHARTS_MEASURE_BOARDS ?? PRODUCTION_MEASURE.boards);
 const THREADS = Number(process.env.CHARTS_THREADS ?? availableParallelism());
@@ -71,31 +89,48 @@ function cachedEquity(): PreflopEquityTable {
   return table;
 }
 
-it("generates the 6-max 100bb chart set", async () => {
+/** `charts/2`'s fitted realisation model, read from the committed 6-max 100bb set. */
+function charts2Fit(): RealisationModel {
+  const json = JSON.parse(readFileSync(join(DATA, "nlhe-cash-6max-100bb.json"), "utf8"));
+  const recorded = json.model.realisation as RealisationModel;
+  return { name: recorded.name, source: recorded.source, potTypes: recorded.potTypes };
+}
+
+async function generateSet(config: SetConfig, threads: number): Promise<void> {
+  const out = SETS.length === 1 && process.env.CHARTS_OUT ? process.env.CHARTS_OUT : join(DATA, `${config.id}.json`);
+  const rounds = Number(process.env.CHARTS_ROUNDS ?? config.rounds);
   const started = performance.now();
   const equity = cachedEquity();
+  const log = (line: string) => console.log(`[${config.id}] ${line}`);
   let last = performance.now();
   const result = await generateRealisedChartSet({
+    id: config.id,
+    version: config.version,
+    players: config.players,
+    stackBb: config.stackBb,
+    sizing: config.sizing,
     equity,
     equityBoards: BOARDS,
     iterations: ITERATIONS,
-    rounds: ROUNDS,
+    rounds,
     roundIterations: ROUND_ITERATIONS,
     measure: { boards: MEASURE_BOARDS },
-    run: process.env.CHARTS_NO_CACHE ? workerPool(THREADS) : cachedRun(workerPool(THREADS)),
+    start: config.start === "charts/1" ? CHARTS1_REALISATION : charts2Fit(),
+    fitName: config.fitName,
+    run: process.env.CHARTS_NO_CACHE ? workerPool(threads, log, config.id) : cachedRun(workerPool(threads, log, config.id), log),
     onRound: (round) => {
       const now = performance.now();
-      console.log(`round ${round.round}: ${round.jobs} turn+river solves; ${((now - last) / 1000).toFixed(0)} s`);
-      console.log(`  widths under this round's solve: ${JSON.stringify(round.widths)}`);
+      log(`round ${round.round}: ${round.jobs} turn+river solves; ${((now - last) / 1000).toFixed(0)} s`);
+      log(`  widths under this round's solve: ${JSON.stringify(round.widths)}`);
       for (const fit of round.fit) {
-        console.log(
+        log(
           `  ${fit.potType}: rmse fitted ${fit.rmse.fitted} / charts/1 ${fit.rmse.charts1} / equity ${fit.rmse.equity}; P ${fit.positionEdge} I ${fit.initiativeEdge}`,
         );
         for (const a of fit.average) {
-          console.log(`    ${a.line.padEnd(11)} ${a.positions.join(" v ")}: R measured ${a.measured.join(" / ")}  fitted ${a.fitted.join(" / ")}`);
+          log(`    ${a.line.padEnd(14)} ${a.positions.join(" v ")}: R measured ${a.measured.join(" / ")}  fitted ${a.fitted.join(" / ")}`);
         }
         for (const g of fit.groups) {
-          console.log(`    ${g.seat.padEnd(3)} ${g.group.padEnd(42)} R measured ${g.measured.toFixed(3)}  fitted ${g.fitted.toFixed(3)}  (weight ${g.weight})`);
+          log(`    ${g.seat.padEnd(3)} ${g.group.padEnd(42)} R measured ${g.measured.toFixed(3)}  fitted ${g.fitted.toFixed(3)}  (weight ${g.weight})`);
         }
       }
       last = now;
@@ -103,34 +138,82 @@ it("generates the 6-max 100bb chart set", async () => {
     onProgress: (p) => {
       if (p.phase === "solve") {
         const now = performance.now();
-        console.log(`iteration ${p.iteration}: NashConv ${p.nashConvMbb?.toFixed(2)} mbb/hand (${((now - last) / 1000).toFixed(1)} s)`);
+        log(`iteration ${p.iteration}: NashConv ${p.nashConvMbb?.toFixed(2)} mbb/hand (${((now - last) / 1000).toFixed(1)} s)`);
         last = now;
       }
     },
   });
   const text = serializeCharts(result.charts);
-  const previous = existsSync(OUT) ? readFileSync(OUT, "utf8") : null;
-  mkdirSync(dirname(OUT), { recursive: true });
-  writeFileSync(OUT, text);
+  const previous = existsSync(out) ? readFileSync(out, "utf8") : null;
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, text);
   const seconds = (performance.now() - started) / 1000;
 
   const charts = loadCharts(JSON.parse(text));
-  console.log("\n=== preflop charts ===");
-  console.log(`file: ${OUT}`);
-  console.log(`bytes: ${Buffer.byteLength(text)}; nodes: ${charts.nodes.size} of ${result.tree.actionNodes}`);
-  console.log(`changed: ${previous === null ? "new file" : previous === text ? "no (identical bytes)" : "yes"}`);
-  console.log(`time: ${seconds.toFixed(1)} s (${ROUNDS} rounds, final ${result.solver.iterations} iterations, ${THREADS} threads)`);
-  console.log(`NashConv: ${result.final.nashConvMbb.toFixed(3)} mbb/hand; per position ${result.final.gainMbb.map((g) => g.toFixed(3)).join(", ")}`);
-  console.log(`history: ${result.convergence.map((c) => `${c.iteration}:${c.nashConvMbb}`).join(" ")}`);
-  console.log(`heads-up BvB: ${JSON.stringify(result.headsUp)}`);
-  console.log(`strategy change per checkpoint: ${result.convergence.map((c) => `${c.iteration}:${c.strategyChange}`).join(" ")}`);
-  console.log(report(charts));
+  const lines: string[] = [];
+  lines.push(`\n=== preflop charts: ${config.id} ===`);
+  lines.push(`file: ${out}`);
+  lines.push(`bytes: ${Buffer.byteLength(text)}; nodes: ${charts.nodes.size} of ${result.tree.actionNodes}`);
+  lines.push(`changed: ${previous === null ? "new file" : previous === text ? "no (identical bytes)" : "yes"}`);
+  lines.push(`time: ${seconds.toFixed(1)} s (${rounds} rounds, final ${result.solver.iterations} iterations, ${threads} threads)`);
+  lines.push(`NashConv: ${result.final.nashConvMbb.toFixed(3)} mbb/hand; per position ${result.final.gainMbb.map((g) => g.toFixed(3)).join(", ")}`);
+  lines.push(`history: ${result.convergence.map((c) => `${c.iteration}:${c.nashConvMbb}`).join(" ")}`);
+  lines.push(`heads-up BvB: ${JSON.stringify(result.headsUp)}`);
+  lines.push(`strategy change per checkpoint: ${result.convergence.map((c) => `${c.iteration}:${c.strategyChange}`).join(" ")}`);
+  lines.push(report(charts));
   const reaches = nodeReaches(result.solver);
-  const counts = [1e-3, 1e-4, 2e-5, 1e-5, 1e-6, 0].map(
-    (t) => `>=${t}: ${Array.from(reaches).filter((r) => r >= t).length}`,
-  );
-  console.log(`action nodes by reach: ${counts.join(", ")}`);
+  const counts = [1e-3, 1e-4, 2e-5, 1e-5, 1e-6, 0].map((t) => `>=${t}: ${Array.from(reaches).filter((r) => r >= t).length}`);
+  lines.push(`action nodes by reach: ${counts.join(", ")}`);
   const excluded = (result.charts.model as { excluded: { unconverged: unknown[] } }).excluded.unconverged;
-  console.log(`left out as unconverged: ${excluded.length} ${JSON.stringify(excluded)}`);
-  console.log(`realisation model: ${JSON.stringify((result.charts.model as { realisation: unknown }).realisation)}`);
+  lines.push(`left out as unconverged: ${excluded.length} ${JSON.stringify(excluded)}`);
+  lines.push(`realisation model: ${JSON.stringify((result.charts.model as { realisation: unknown }).realisation)}`);
+  console.log(lines.join("\n"));
+}
+
+/** Runs each set in its own child process, `PARALLEL` at a time. */
+async function generateInChildren(sets: readonly SetConfig[]): Promise<void> {
+  const logs = join(HERE, ".cache/logs");
+  mkdirSync(logs, { recursive: true });
+  const threads = Math.max(1, Math.floor(THREADS / Math.min(PARALLEL, sets.length)));
+  const vitest = join(ROOT, "tests/node_modules/vitest/vitest.mjs");
+  const queue = [...sets];
+  const failures: string[] = [];
+  const runOne = (config: SetConfig) =>
+    new Promise<void>((resolve) => {
+      const file = join(logs, `${config.id}.log`);
+      const stream = createWriteStream(file);
+      const started = performance.now();
+      console.log(`${config.id}: started (${threads} threads), log ${file}`);
+      const child = spawn(
+        process.execPath,
+        [vitest, "run", "--config", join(HERE, "vitest.config.ts"), "generate"],
+        {
+          cwd: join(ROOT, "tests"),
+          env: { ...process.env, CHARTS_SETS: config.id, CHARTS_PARALLEL: "1", CHARTS_THREADS: String(threads) },
+          stdio: ["ignore", "pipe", "pipe"],
+        },
+      );
+      child.stdout.pipe(stream, { end: false });
+      child.stderr.pipe(stream, { end: false });
+      child.on("close", (code) => {
+        stream.end();
+        const minutes = ((performance.now() - started) / 60_000).toFixed(1);
+        console.log(`${config.id}: ${code === 0 ? "done" : `FAILED (${code})`} in ${minutes} min`);
+        if (code !== 0) failures.push(config.id);
+        resolve();
+      });
+    });
+  const lanes = Array.from({ length: Math.min(PARALLEL, sets.length) }, async () => {
+    for (let next = queue.shift(); next; next = queue.shift()) await runOne(next);
+  });
+  await Promise.all(lanes);
+  if (failures.length) throw new Error(`chart sets failed: ${failures.join(", ")} (see .cache/logs/)`);
+}
+
+it("generates the chart sets", async () => {
+  if (SETS.length > 1 && PARALLEL > 1) {
+    await generateInChildren(SETS);
+    return;
+  }
+  for (const config of SETS) await generateSet(config, THREADS);
 });

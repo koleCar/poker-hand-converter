@@ -27,7 +27,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { bestOption, betterAlternative } from "../../lib/analysis/reference";
 import { ANALYSIS_VERSION, type DecisionAnalysis, type HandAnalysis, type OptionAnalysis } from "../../lib/analysis/types";
 import type { ChartSet } from "../../lib/charts";
-import { preflopCharts } from "../../lib/chartSet";
+import { preflopChartSet } from "../../lib/chartSet";
 import { useDict } from "../../lib/i18n/client";
 import { conceptsForDecision } from "../../lib/learn/links";
 import type { PhfHand } from "../../lib/phf/types";
@@ -271,12 +271,17 @@ function Study({ decision }: { decision: DecisionAnalysis }) {
   const [charts, setCharts] = useState<ChartSet | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const setId = ref?.set ?? null;
   useEffect(() => {
-    if (!open || charts) return;
+    if (!open || charts || !setId) return;
     let live = true;
-    preflopCharts()
+    // The set the grade names (one per table and depth, charts/3).
+    preflopChartSet(setId)
       .then((set) => {
-        if (live) setCharts(set);
+        if (live) {
+          if (set) setCharts(set);
+          else setError(setId);
+        }
       })
       .catch((reason: unknown) => {
         if (live) setError(reason instanceof Error ? reason.message : String(reason));
@@ -284,7 +289,7 @@ function Study({ decision }: { decision: DecisionAnalysis }) {
     return () => {
       live = false;
     };
-  }, [open, charts]);
+  }, [open, charts, setId]);
 
   if (!ref) return null;
   // The stored row names its chart set; a set that has since changed would
@@ -296,7 +301,7 @@ function Study({ decision }: { decision: DecisionAnalysis }) {
         <button type="button" className="btn btn--sm" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
           {open ? t.sheet.hideStudy : t.sheet.study}
         </button>
-        <Link className={styles.learnInline} href={paths.analysisCharts(ref.line, decision.facts.handClass)}>
+        <Link className={styles.learnInline} href={paths.analysisCharts(ref.line, decision.facts.handClass, ref.set)}>
           {t.sheet.openBrowser}
         </Link>
       </div>

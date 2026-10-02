@@ -32,6 +32,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  CHART_SET_VERSIONS,
   CHARTS_VERSION,
   chartTree,
   IN_RANGE,
@@ -62,8 +63,11 @@ function rfiWidth(line: string): number {
 }
 
 describe("committed chart set", () => {
-  it("is a charts/2 6-max 100bb set of a reasonable size", () => {
-    expect(charts.version).toBe(CHARTS_VERSION);
+  it("is the charts/2 6-max 100bb set of a reasonable size", () => {
+    // The library is charts/3 (A2c); this set is still the one A2a.1 generated.
+    expect(charts.version).toBe("charts/2");
+    expect(CHART_SET_VERSIONS).toContain(charts.version);
+    expect(CHARTS_VERSION).toBe("charts/3");
     expect(charts.id).toBe("nlhe-cash-6max-100bb");
     expect(charts.game.positions).toEqual(["UTG", "HJ", "CO", "BTN", "SB", "BB"]);
     expect(charts.game.stackBb).toBe(100);

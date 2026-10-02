@@ -8,7 +8,9 @@
     "bench:solver": "vitest run --config scripts/solver-bench/vitest.config.ts",
     "bench:turn": "vitest run --config scripts/solver-bench/vitest.turn.config.ts",
     "charts:generate": "vitest run --config scripts/preflop-charts/vitest.config.ts generate",
-    "charts:report": "vitest run --config scripts/preflop-charts/vitest.config.ts report"
+    "charts:report": "vitest run --config scripts/preflop-charts/vitest.config.ts report",
+    "charts:coverage": "vitest run --config scripts/preflop-charts/vitest.config.ts coverage",
+    "charts:compare": "vitest run --config scripts/preflop-charts/vitest.config.ts compare"
   },
   "keywords": [],
   "author": "",

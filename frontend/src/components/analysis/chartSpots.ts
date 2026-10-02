@@ -8,7 +8,10 @@
 
 import { handClassOf, type ChartNode, type ChartSet } from "../../lib/charts";
 
-/** Table order, as the chart set's line keys are written (`docs/CHARTS.md` §6). */
+/**
+ * Table order of the 6-max sets, as their line keys are written
+ * (`docs/CHARTS.md` §6); a node's own set's order is `node.seats`.
+ */
 export const CHART_POSITIONS = ["UTG", "HJ", "CO", "BTN", "SB", "BB"] as const;
 
 export const SPOT_CATEGORIES = ["rfi", "vs-open", "vs-3bet", "vs-4bet", "squeeze", "bvb"] as const;
@@ -65,7 +68,7 @@ export function lineSteps(line: string, positions: readonly string[] = CHART_POS
 
 /** Everyone from UTG to the button folded: a blind-versus-blind pot. */
 function blindVersusBlind(node: ChartNode): boolean {
-  return node.line.startsWith("ffff");
+  return node.line.startsWith("f".repeat(node.seats.length - 2));
 }
 
 /** The categories a node is listed under in the browser. The SB's open is both an RFI and a BvB spot. */
@@ -90,10 +93,11 @@ export function categoriesOf(node: ChartNode): SpotCategory[] {
 
 /** Nodes of one category, by actor in table order, then by line. */
 export function nodesIn(charts: ChartSet, category: SpotCategory): ChartNode[] {
+  const seats: readonly string[] = charts.game.positions;
   const out = [...charts.nodes.values()].filter((node) => categoriesOf(node).includes(category));
   return out.sort(
     (a, b) =>
-      CHART_POSITIONS.indexOf(a.actor) - CHART_POSITIONS.indexOf(b.actor) ||
+      seats.indexOf(a.actor) - seats.indexOf(b.actor) ||
       a.line.length - b.line.length ||
       a.line.localeCompare(b.line),
   );

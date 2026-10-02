@@ -197,15 +197,25 @@ Not copied from GTO Wizard, Upswing or anyone else.
 Preflop decisions are 81% of all moves (§0.1), so charts alone grade most of a
 player's decisions. This is why they come first.
 
-**Shipped in A2a (#95), details in `docs/CHARTS.md`.**
+**Shipped in A2a (#95), widened in A2c; details in `docs/CHARTS.md`.**
 - **Source:** our own multi-player DCFR over the 169 classes, plus a
-  realisation model for pots that see a flop.
-- **Set:** 280 tree nodes for 6-max 100bb, `charts/1`, 631 KB.
-- **Convergence:** NashConv 0.06 mbb/hand.
+  realisation model for pots that see a flop, fitted per set to our own
+  turn+river solves (A2a.1).
+- **Sets (`charts/3`, A2c):** a library of eight, one JSON per table and
+  depth, loaded lazily one set at a time:
+  - 6-max at 40 / 60 / 100 / 150 / 200bb (the 100bb set is `charts/2`'s,
+    unchanged);
+  - 9-max (UTG, UTG+1, UTG+2, LJ, HJ, CO, BTN, SB, BB) at 100 / 150 / 200bb.
+- **Convergence:** NashConv 0.08–0.13 mbb/hand (6-max), 0.26–0.49 (9-max).
+- **Lookup picks the set:** the smallest table with enough seats, then the
+  nearest depth within 20%, never interpolated; the distance is a
+  `stack-depth` approximation.
 - **Lookup refuses, with a reason:** `limp`, `cold-call`, `multiway` (more than
-  4 entrants), `rare-line`, `action-not-modelled`, and depth beyond ±20%.
-- **Lookup approximates:** `short-handed` (5-max is read as 6-max with UTG
-  folded), and off-tree sizes, by action translation.
+  4 entrants), `rare-line`, `action-not-modelled`, `straddle`, heads-up and
+  10+ players (`players`), and depths no set covers.
+- **Lookup approximates:** `short-handed` (3–5 handed read as 6-max, 7–8
+  handed as 9-max, the earliest seats folded: exact in the model up to
+  convergence), and off-tree sizes, by action translation.
 - **Hands outside the range:** a hand class that never reaches a node gets the
   best response, and the lookup reports `inRange: false` so the UI can say so.
 

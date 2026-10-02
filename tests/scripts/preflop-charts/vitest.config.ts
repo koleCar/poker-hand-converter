@@ -10,7 +10,8 @@ export default defineConfig({
   root: fileURLToPath(new URL("../..", import.meta.url)),
   test: {
     include: ["scripts/preflop-charts/*.test.ts"],
-    testTimeout: 60 * 60_000,
+    // Every set from scratch, several at a time, takes hours.
+    testTimeout: 12 * 60 * 60_000,
     fileParallelism: false,
   },
 });

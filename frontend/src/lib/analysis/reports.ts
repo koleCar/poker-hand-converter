@@ -53,10 +53,23 @@ import { allClasses, classCombos } from "../equity/range";
 export const CHART_ACTIONS: readonly ChartAction[] = ["fold", "check", "call", "raise", "allin"];
 export type ActionFreq = Record<ChartAction, number>;
 
-/** Table order, as chart line keys are written (`docs/CHARTS.md` §6). */
+/**
+ * Table order, as the 6-max sets' line keys are written (`docs/CHARTS.md` §6).
+ * Reports read the library's own fields, the 6-max 100bb set (A2c).
+ */
 export const TABLE_ORDER: readonly ChartPosition[] = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 /** Postflop order: lower acts first. The later of two players is in position. */
-export const POSTFLOP_ORDER: Readonly<Record<ChartPosition, number>> = { SB: 0, BB: 1, UTG: 2, HJ: 3, CO: 4, BTN: 5 };
+export const POSTFLOP_ORDER: Readonly<Record<ChartPosition, number>> = {
+  SB: 0,
+  BB: 1,
+  UTG: 2,
+  "UTG+1": 3,
+  "UTG+2": 4,
+  LJ: 5,
+  HJ: 6,
+  CO: 7,
+  BTN: 8,
+};
 
 /** Below this many decisions a comparison is "too few to say", whatever the interval. */
 export const MIN_SAMPLE = 10;

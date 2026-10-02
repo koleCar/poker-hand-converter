@@ -19,7 +19,8 @@
  * - `hand`: one hand analysed for the hand view when it has no stored row at
  *   the current version — off the main thread, since it may solve a river.
  *
- * Stateless by design apart from the chart set, which is loaded once.
+ * Stateless by design apart from the chart library, whose sets are loaded
+ * once each, when a hand first needs them.
  * Cancelling is the client's job: it terminates the worker, and a page that
  * is analysed but never written is simply analysed again next run —
  * "missing" is computed by the database.
@@ -34,7 +35,7 @@ import {
   type RiverStudy,
   type TurnFailure,
 } from "../lib/analysis";
-import { loadDefaultCharts, type ChartSet } from "../lib/charts";
+import { ensureChartSets, loadChartLibrary, requiredChartSets, type ChartLibrary } from "../lib/charts";
 import { analyseStoredHands, type AnalysedBatch } from "../lib/db/analysisRows";
 import type { PhfHand } from "../lib/phf/types";
 
@@ -73,15 +74,24 @@ export type AnalysisWorkerResponse =
 /** How often, at most, a page reports progress. */
 const PROGRESS_MS = 250;
 
-/** The preflop charts, loaded on the first request and kept for the worker's life. */
-let charts: Promise<ChartSet> | null = null;
+/**
+ * The preflop chart library, loaded on the first request and kept for the
+ * worker's life; each set (one per table and depth) is loaded the first time
+ * a hand needs it.
+ */
+let charts: Promise<ChartLibrary> | null = null;
 
 self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
   const request = event.data;
   const { jobId } = request;
   try {
-    charts ??= loadDefaultCharts();
+    charts ??= loadChartLibrary().catch((error: unknown) => {
+      charts = null;
+      throw error;
+    });
     const set = await charts;
+    const hands = request.type === "analyse" ? request.page.map((item) => item.phf) : [request.phf];
+    await ensureChartSets(set, hands.flatMap((hand) => requiredChartSets(hand, set.specs)));
     if (request.type === "hand") {
       const analysis = analyzeHand(request.phf, { charts: set });
       self.postMessage({ type: "hand", jobId, analysis } satisfies AnalysisWorkerResponse);

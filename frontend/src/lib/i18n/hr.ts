@@ -94,9 +94,9 @@ export const hr: Dict = {
     },
     learnConcept: (title: string) => `${title} — pokerski pojmovi | Rail`,
     charts: {
-      title: "Preflop chartovi: 6-max 100bb cash, mix i EV svake ruke | Rail",
+      title: "Preflop chartovi: 6-max i 9-max cash, mix i EV svake ruke | Rail",
       description:
-        "Railovi vlastiti preflop chartovi za 6-max 100 bb cash: otvaranja, 3-betovi, 4-betovi, squeezeovi i blind protiv blinda, s frekvencijom i EV-om svake akcije za svih 169 ruku.",
+        "Railovi vlastiti preflop chartovi za 6-max (40-200 bb) i 9-max (100-200 bb) cash: otvaranja, 3-betovi, 4-betovi, squeezeovi i blind protiv blinda, s frekvencijom i EV-om svake akcije za svih 169 ruku.",
     },
     notFound: {
       title: "Stranica nije pronađena | Rail",

@@ -68,6 +68,8 @@ export const IN_RANGE = 0.05;
 
 export interface BuildChartOptions {
   id: string;
+  /** The generator version written as `version`. Default `CHARTS_VERSION`. */
+  version?: string;
   /** Nodes reached less often than this are not written. */
   minReach: number;
   /** Assumptions and convergence, written as `model` (a hash is added). */
@@ -278,7 +280,7 @@ export function buildChartSet(solver: PreflopSolver, options: BuildChartOptions)
   visit(0);
 
   const body: ChartSetJson = {
-    version: CHARTS_VERSION,
+    version: options.version ?? CHARTS_VERSION,
     id: options.id,
     game: {
       variant: "holdem" as const,

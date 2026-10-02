@@ -117,6 +117,15 @@ export class PreflopSolver {
   private readonly terminals = new Map<number, Terminal>();
   private readonly reach: Float64Array;
   private readonly saveBuf: Float64Array[] = [];
+  /** Per depth: the mass of the player who folded on the edge into that depth. */
+  private readonly foldBuf: Float64Array[] = [];
+  /**
+   * Per player: its mass `R_q` while the walk is below its fold, else null.
+   * A folded player's reach never changes again on that path, so its mass is
+   * computed once at the fold instead of at every terminal below it - the
+   * same numbers in the same order, about twice as fast at nine seats.
+   */
+  private readonly foldMass: (Float64Array | null)[] = [];
   private readonly cfvBuf: Float64Array[] = [];
   private readonly stratBuf: Float64Array[] = [];
   private readonly shareN = new Float64Array(H);
@@ -162,8 +171,10 @@ export class PreflopSolver {
     this.strategySum = new Float64Array(total);
 
     this.reach = new Float64Array(n * H);
+    for (let p = 0; p < n; p += 1) this.foldMass.push(null);
     for (let d = 0; d <= tree.maxDepth + 1; d += 1) {
       this.saveBuf.push(new Float64Array(H));
+      this.foldBuf.push(new Float64Array(H));
       this.cfvBuf.push(new Float64Array(tree.maxChildren * H));
       this.stratBuf.push(new Float64Array(tree.maxChildren * H));
     }
@@ -446,10 +457,25 @@ export class PreflopSolver {
         any += v;
       }
       if (any === 0) continue;
+      const folds = tree.edgeCode[start + a] === "f";
+      if (folds) {
+        const mass = this.foldBuf[depth + 1];
+        this.massOf(reach.subarray(base, base + H), mass);
+        this.foldMass[q] = mass;
+      }
       this.walk(tree.children[start + a], depth + 1, cfv, 0);
+      if (folds) this.foldMass[q] = null;
       for (let i = 0; i < H; i += 1) out[oOff + i] += cfv[i];
     }
     for (let i = 0; i < H; i += 1) reach[base + i] = save[i];
+  }
+
+  /** `R_q`: the cached mass of a folded player, or computed into `scratch`. */
+  private massOfPlayer(q: number, scratch: Float64Array): Float64Array {
+    const cached = this.foldMass[q];
+    if (cached) return cached;
+    this.massOf(this.reach.subarray(q * H, q * H + H), scratch);
+    return scratch;
   }
 
   /** `R(i)` of an opponent's reach vector, with or without card removal. */
@@ -464,10 +490,9 @@ export class PreflopSolver {
   /** `Π_{q ≠ trav} R_q(i)` into `out`. */
   private opponentMass(out: Float64Array): void {
     out.fill(1);
-    const m = this.tmpE;
     for (let q = 0; q < this.players; q += 1) {
       if (q === this.trav) continue;
-      this.massOf(this.reach.subarray(q * H, q * H + H), m);
+      const m = this.massOfPlayer(q, this.tmpE);
       for (let i = 0; i < H; i += 1) out[i] *= m[i];
     }
   }
@@ -506,8 +531,8 @@ export class PreflopSolver {
         active.push(q);
         continue;
       }
-      this.massOf(reach.subarray(q * H, q * H + H), m);
-      for (let i = 0; i < H; i += 1) fold[i] *= m[i];
+      const mq = this.massOfPlayer(q, m);
+      for (let i = 0; i < H; i += 1) fold[i] *= mq[i];
     }
 
     if (t.kind === PF_FOLD) {
