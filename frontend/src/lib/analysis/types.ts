@@ -171,6 +171,15 @@ export interface Flag {
  *                       within 25% of the pot. Not capped.
  * - `solver-unconverged` the solve stopped at its iteration cap above 0.5% of
  *                       the pot exploitable.
+ * - `range-cap`         the solver's numbers made the move a Blunder, but
+ *                       ranges a heuristic narrowed cannot carry that: the
+ *                       grade is capped at Mistake. Not applied to a move
+ *                       that loses whatever the opponent holds (folding a
+ *                       hand that cannot lose; calling with one that beats
+ *                       nothing in the opponent's preflop range).
+ * - `range-sensitive`   re-solved with the narrowing at half strength, the
+ *                       grade moved by more than one class; the milder of
+ *                       the two is the one shown (§3.5, §9).
  */
 export const APPROXIMATIONS = [
   "heuristic",
@@ -189,6 +198,8 @@ export const APPROXIMATIONS = [
   "rake-profile",
   "size-translated",
   "solver-unconverged",
+  "range-cap",
+  "range-sensitive",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -465,7 +476,7 @@ export type RangeShape = "polar" | "merged" | "mixed";
  * re-solves, deterministically, to draw it.
  */
 export interface RiverFacts {
-  /** Narrowing model, e.g. `heuristic/1`. */
+  /** Narrowing model, e.g. `heuristic/2` (`heuristic/2-half` when the sensitivity check chose the softer one). */
   model: string;
   /** Bet-menu profile, e.g. `river-m1`. */
   tree: string;
@@ -493,6 +504,14 @@ export interface RiverFacts {
   translated: number | null;
   /** Share of each range, by weight as the river came, that the solve takes down this line to the node. */
   reach: { hero: number; villain: number };
+  /** The grade before the Mistake cap (`range-cap`), or null when no cap applied. Absent before the cap existed. */
+  capped?: Grade | null;
+  /**
+   * The sensitivity check: the grade the other narrowing gave (the half-strength
+   * one, or — when that one is shown — the full one). Null when not run: it
+   * runs only for grades of Inaccurate or worse.
+   */
+  sensitivity?: { model: string; grade: Grade } | null;
 }
 
 /** A chart node, by name: the set it is in and its line key (`docs/CHARTS.md` §6). */

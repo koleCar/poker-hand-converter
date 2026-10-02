@@ -190,7 +190,7 @@ export interface RiverSpotInput {
   stackBb: number;
   ranges: PlayerRanges;
   charts: ChartSet | null;
-  /** The narrowing model the ranges came from, e.g. `heuristic/1`. */
+  /** The narrowing model the ranges came from, e.g. `heuristic/2`. */
   model: string;
   /** For the spot key. */
   key: { players: number; stackBucket: string; preflopLine: string; positions: readonly [string, string] };

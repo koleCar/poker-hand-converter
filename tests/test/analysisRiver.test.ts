@@ -30,7 +30,9 @@ import {
   bluffShare,
   comboRange,
   followLine,
+  grade,
   gradeRank,
+  halved,
   gradeRiver,
   handStrength,
   heuristicModel,
@@ -153,7 +155,7 @@ const narrowed = (street: "flop" | "turn" | "river", kind: "check" | "bet" | "ca
   return { board, actor, opponent, after };
 };
 
-describe("narrowing (heuristic/1)", () => {
+describe("narrowing (heuristic/2)", () => {
   it("only ever lowers a weight, never below the floor of a live combo, and keeps zeros zero", () => {
     for (const street of ["flop", "turn", "river"] as const) {
       for (const [kind, size] of [
@@ -259,6 +261,43 @@ describe("narrowing (heuristic/1)", () => {
     }
   });
 
+  it("trims a repeated check less, so a checked range keeps its medium hands", () => {
+    const board = BOARD.slice(0, 4);
+    const actor = removeCards(Float64Array.from(BB), board);
+    const opponent = removeCards(Float64Array.from(BTN), board);
+    const base = { street: "turn" as const, board, actor, opponent };
+    const first = heuristicModel.likelihood({ ...base, action: { kind: "check", sizePot: null, allIn: false, checksBefore: 0 } });
+    const third = heuristicModel.likelihood({ ...base, action: { kind: "check", sizePot: null, allIn: false, checksBefore: 2 } });
+    let trimmed = 0;
+    for (let c = 0; c < NUM_COMBOS; c += 1) {
+      if (!(actor[c] > 0)) continue;
+      expect(third[c]).toBeGreaterThanOrEqual(first[c] - 1e-12);
+      if (first[c] < 1) {
+        trimmed += 1;
+        // A quarter of the first check's trim.
+        expect(1 - third[c]).toBeCloseTo((1 - first[c]) / 4, 9);
+      }
+    }
+    expect(trimmed).toBeGreaterThan(0);
+  });
+
+  it("halves a model's evidence for the sensitivity check: every likelihood becomes its square root", () => {
+    const { actor, board } = narrowed("river", "bet", 0.75);
+    const input = {
+      street: "river" as const,
+      board,
+      actor,
+      opponent: removeCards(Float64Array.from(BB), board),
+      action: { kind: "bet" as const, sizePot: 0.75, allIn: false },
+    };
+    const full = heuristicModel.likelihood(input);
+    const half = halved(heuristicModel).likelihood(input);
+    expect(halved(heuristicModel).id).toBe("heuristic/2-half");
+    for (let c = 0; c < NUM_COMBOS; c += 1) {
+      if (actor[c] > 0) expect(half[c]).toBeCloseTo(Math.sqrt(full[c]), 12);
+    }
+  });
+
   it("turns outs into the chance of hitting", () => {
     expect(hitChance(9, 3)).toBeCloseTo(1 - (38 / 47) * (37 / 46), 10);
     expect(hitChance(9, 4)).toBeCloseTo(9 / 46, 10);
@@ -275,7 +314,7 @@ describe("narrowing (heuristic/1)", () => {
       opponent: removeCards(Float64Array.from(BB), board),
       action: { kind: "bet", sizePot: 0.75, allIn: false },
     });
-    expect(heuristicModel.id).toBe("heuristic/1");
+    expect(heuristicModel.id).toBe("heuristic/2");
     for (let c = 0; c < NUM_COMBOS; c += 1) {
       if (actor[c] > 0) {
         expect(likelihood[c]).toBeGreaterThanOrEqual(FLOOR);
@@ -384,6 +423,41 @@ describe("river grades with known answers", () => {
     expect(fold.evLossPot!).toBeGreaterThan(0.5);
     expect(fold.flags.map((f) => f.code)).toContain("fold-nuts");
     expect(analysis.grade).toBe("blunder");
+  });
+
+  it("never calls a move a Blunder on narrowed ranges unless it loses to anything: ace high checked back", () => {
+    // Three checks by the big blind leave a capped range, and the solver
+    // likes a bluff with ace high here — but how much the opponent's range is
+    // air is the narrowing's guess, so this is a Mistake at worst (§3.5, §9).
+    const analysis = analyse(
+      headsUp({
+        hero: "Btn",
+        cards: "Ac Th",
+        board: ["3d", "Ks", "5d", "9s", "Kd"],
+        flop: ["Bb: checks", "Btn: bets $2", "Bb: calls $2"],
+        turn: ["Bb: checks", "Btn: checks"],
+        river: ["Bb: checks", "Btn: checks"],
+      }),
+    );
+    const check = river(analysis, "check");
+    expect(check.source).toBe("solver");
+    expect(check.grade).not.toBe("blunder");
+    if (check.facts.river!.capped) {
+      expect(check.approximations).toContain("range-cap");
+      expect(check.grade).toBe("mistake");
+      expect(en.analysis.explain(check).join(" ")).toContain("capped at Mistake");
+      expect(hr.analysis.explain(check).join(" ")).toContain("ograničena na Grešku");
+    }
+  });
+
+  it("caps at Mistake in grade() itself, after the off-tree cap", () => {
+    const options = [
+      { action: "check" as const, freq: 1, ev: 10 },
+      { action: "bet" as const, freq: 0, ev: 0, sizeBb: 5, sizePot: 0.5 },
+    ];
+    expect(grade({ options, chosen: 1, pot: 10 }).grade).toBe("blunder");
+    expect(grade({ options, chosen: 1, pot: 10, capAtMistake: true }).grade).toBe("mistake");
+    expect(grade({ options, chosen: 1, pot: 10, capAtMistake: true, capAtInaccurate: true }).grade).toBe("inaccurate");
   });
 
   it("does not call with air that beats nothing, and folds it at no cost", () => {

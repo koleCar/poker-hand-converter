@@ -38,9 +38,9 @@ import { equityVsRange, parseRange, strongestOfRange, type ClassWeights, type We
 import type { PhfHand, Position } from "../phf/types";
 import { buildContext, type StatsContext } from "../stats/context";
 import { potTypeOf } from "../stats/derive";
-import { worstGrade, worstSeverity, meanScore } from "./grading";
+import { gradeRank, worstGrade, worstSeverity, meanScore } from "./grading";
 import { heuristicFlags } from "./heuristics";
-import { weightedCombos } from "./narrowing";
+import { halved, heuristicModel, weightedCombos, type NarrowingModel } from "./narrowing";
 import { chartRange, gradePreflop } from "./preflop";
 import { flopSeats, walkRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
 import { defaultRange, preflopLine } from "./ranges";
@@ -378,11 +378,12 @@ function rangeWalkOf(
   context: StatsContext,
   hero: number,
   charts: ChartSet | null,
+  model: NarrowingModel = heuristicModel,
 ): RangeWalk | { ok: false; reason: WalkFailure } {
   const seats = flopSeats(context);
   if (seats.length !== 2 || !seats.includes(hero)) return { ok: false, reason: seats.length === 0 ? "no-flop" : "multiway-flop" };
   try {
-    return walkRanges(hand, context, hero, seats[0] === hero ? seats[1] : seats[0], charts);
+    return walkRanges(hand, context, hero, seats[0] === hero ? seats[1] : seats[0], charts, model);
   } catch {
     return { ok: false, reason: "range-empty" };
   }
@@ -396,53 +397,64 @@ const WALK_REASONS: Record<WalkFailure, RiverSkipReason> = {
 };
 
 export interface HandRiver {
-  /** The river solve, run at most once per hand (the first call runs it). */
-  solved(spot: Spot): RiverSolve | RiverFailure;
-  /** Grades one hero river decision, or says why not. */
+  /** Grades one hero river decision, or says why not (sensitivity check included). */
   grade(spot: Spot): RiverGrade | RiverFailure;
-  /** The hero's decision node for a river spot, for the study view. */
+  /** The solve and node a decision was graded at, for the study view. */
   line(spot: Spot): { solve: RiverSolve; node: number } | RiverFailure;
 }
 
+type Walked = RangeWalk | { ok: false; reason: WalkFailure } | null;
+
+/** Grades at or worse than this run the sensitivity check (§3.5, §9). */
+const SENSITIVE_FROM = gradeRank("inaccurate");
+
 /**
- * The hand's river, solved at most once and read at each hero river decision:
- * a hand with a check and then a call is one solve read twice.
+ * The hand's river, solved at most once per narrowing and read at each hero
+ * river decision: a hand with a check and then a call is one solve read twice.
+ *
+ * **The sensitivity check.** A grade of Inaccurate or worse is re-graded on a
+ * second solve whose ranges were narrowed at half strength (`halved`). When
+ * the two grades are more than one class apart, the grade rests on the
+ * narrowing rather than on the hand: the milder of the two is kept — its
+ * options, its EVs, its solve (so the study view draws the same one) — and
+ * marked `range-sensitive`. Only the bad grades pay for a second solve.
  */
 function handRiver(
   hand: PhfHand,
   context: StatsContext,
   hero: number,
-  walked: RangeWalk | { ok: false; reason: WalkFailure } | null,
+  walked: Walked,
+  softWalk: () => Walked,
   charts: ChartSet | null,
   effectiveBb: number,
   potType: string,
 ): HandRiver {
-  let cached: RiverSolve | RiverFailure | null = null;
+  const solves = new Map<string, RiverSolve | RiverFailure>();
   const acts = riverActs(hand);
 
-  const run = (spot: Spot): RiverSolve | RiverFailure => {
-    if (!walked) return { ok: false, reason: "river-range-empty", detail: "no postflop walk" };
-    if (!walked.ok) return { ok: false, reason: WALK_REASONS[walked.reason], detail: walked.reason };
-    if (!walked.riverStart) return { ok: false, reason: "river-range-empty", detail: "no river in the walk" };
+  const run = (spot: Spot, walk: Walked): RiverSolve | RiverFailure => {
+    if (!walk) return { ok: false, reason: "river-range-empty", detail: "no postflop walk" };
+    if (!walk.ok) return { ok: false, reason: WALK_REASONS[walk.reason], detail: walk.reason };
+    if (!walk.riverStart) return { ok: false, reason: "river-range-empty", detail: "no river in the walk" };
     const bb = Math.max(1, hand.game.bigBlind);
     const cards = toIndices(context.players.get(hero)?.holeCards ?? []);
     const board = toIndices(spot.board);
     if (cards.length !== 2 || board.length !== 5) return { ok: false, reason: "river-solve-failed", detail: "cards" };
     const heroFirst = spot.inPosition === false;
     const heroPos = String(context.position.get(hero) ?? "?");
-    const villainPos = String(context.position.get(walked.villain) ?? "?");
+    const villainPos = String(context.position.get(walk.villain) ?? "?");
     return solveRiverSpot({
       hand,
       heroSeat: hero,
-      villainSeat: walked.villain,
+      villainSeat: walk.villain,
       heroFirst,
       heroCards: [cards[0], cards[1]],
       board,
       potBb: spot.streetPot / bb,
       stackBb: spot.streetEffBehind / bb,
-      ranges: walked.riverStart,
+      ranges: walk.riverStart,
       charts,
-      model: walked.model,
+      model: walk.model,
       key: {
         players: hand.table.maxSeats,
         stackBucket: `${stackBucket(effectiveBb)}bb`,
@@ -452,28 +464,106 @@ function handRiver(
     });
   };
 
-  const solved = (spot: Spot) => (cached ??= run(spot));
-
-  const line = (spot: Spot): { solve: RiverSolve; node: number } | RiverFailure => {
-    const solve = solved(spot);
-    if (!solve.ok) return solve;
-    const at = acts.findIndex((act) => act.index === spot.action.index);
-    if (at < 0) return { ok: false, reason: "river-off-tree", detail: "the decision is not on the river" };
-    const found = followLine(solve, acts.slice(0, at));
-    return found.ok ? { solve, node: found.node } : found;
+  const solved = (spot: Spot, which: "full" | "half"): RiverSolve | RiverFailure => {
+    let solve = solves.get(which);
+    if (!solve) {
+      solve = run(spot, which === "full" ? walked : softWalk());
+      solves.set(which, solve);
+    }
+    return solve;
   };
 
-  const grade = (spot: Spot): RiverGrade | RiverFailure => {
-    const solve = solved(spot);
+  const gradeOn = (
+    spot: Spot,
+    which: "full" | "half",
+  ): { graded: RiverGrade; solve: RiverSolve; node: number } | RiverFailure => {
+    const solve = solved(spot, which);
     if (!solve.ok) return solve;
     const at = acts.findIndex((act) => act.index === spot.action.index);
     if (at < 0) return { ok: false, reason: "river-off-tree", detail: "the decision is not on the river" };
     const found = followLine(solve, acts.slice(0, at));
     if (!found.ok) return found;
-    return gradeRiver(solve, found, acts[at]);
+    const graded = gradeRiver(solve, found, acts[at]);
+    return graded.ok ? { graded, solve, node: found.node } : graded;
   };
 
-  return { solved, grade, line };
+  const decide = (spot: Spot): { graded: RiverGrade; solve: RiverSolve; node: number } | RiverFailure => {
+    const full = gradeOn(spot, "full");
+    if (!("graded" in full)) return full;
+    if (gradeRank(full.graded.grade) < SENSITIVE_FROM) {
+      return { ...full, graded: { ...full.graded, river: { ...full.graded.river, sensitivity: null } } };
+    }
+    const half = gradeOn(spot, "half");
+    if (!("graded" in half)) {
+      return { ...full, graded: { ...full.graded, river: { ...full.graded.river, sensitivity: null } } };
+    }
+    if (gradeRank(full.graded.grade) - gradeRank(half.graded.grade) > 1) {
+      const approximations = [...new Set([...half.graded.approximations, "range-sensitive" as const])].sort();
+      return {
+        ...half,
+        graded: {
+          ...half.graded,
+          approximations,
+          river: { ...half.graded.river, sensitivity: { model: full.graded.river.model, grade: full.graded.grade } },
+        },
+      };
+    }
+    return {
+      ...full,
+      graded: {
+        ...full.graded,
+        river: { ...full.graded.river, sensitivity: { model: half.graded.river.model, grade: half.graded.grade } },
+      },
+    };
+  };
+
+  const grade = (spot: Spot): RiverGrade | RiverFailure => {
+    const decided = decide(spot);
+    return "graded" in decided ? decided.graded : decided;
+  };
+
+  const line = (spot: Spot): { solve: RiverSolve; node: number } | RiverFailure => {
+    const decided = decide(spot);
+    return "graded" in decided ? { solve: decided.solve, node: decided.node } : decided;
+  };
+
+  return { grade, line };
+}
+
+/**
+ * The Mistake cap (`range-cap`, §3.5, §9): a river grade rests on ranges a
+ * heuristic narrowed, which can carry "this costs a lot" but not "Blunder"
+ * — unless the move loses whatever the opponent holds. Folding a hand that
+ * cannot lose, or calling with one that beats nothing the opponent could
+ * hold after their preflop line, is dominated on any narrowing and keeps its
+ * Blunder.
+ */
+function capRiver(
+  solved: RiverGrade,
+  action: DecisionAnalysis["action"],
+  built: BuiltFacts,
+  walk: RangeWalk | null,
+): RiverGrade {
+  const capped = { ...solved, river: { ...solved.river, capped: null as RiverGrade["grade"] | null } };
+  if (gradeRank(solved.grade) <= gradeRank("mistake")) return capped;
+  let dominated = false;
+  if (action === "fold") dominated = built.cannotLose;
+  if (action === "call") {
+    dominated = built.beatsNoHolding;
+    if (!dominated && walk) {
+      const facts = built.facts;
+      const combos = weightedCombos(walk.preflop.villain);
+      const versus = equityVsRange({ hero: facts.holeCards, range: combos, board: facts.board, method: "exhaustive" });
+      dominated = versus.combos > 0 && versus.win + versus.tie <= 1e-12;
+    }
+  }
+  if (dominated) return capped;
+  return {
+    ...capped,
+    grade: "mistake",
+    approximations: [...new Set([...solved.approximations, "range-cap" as const])].sort(),
+    river: { ...capped.river, capped: solved.grade },
+  };
 }
 
 /** The equity fact of a solved river decision: against the opponent's range at the node. */
@@ -526,7 +616,8 @@ export function riverStudy(
   if (!spot || spot.street !== "river" || spot.opponents.length !== 1) return null;
   const charts = options.charts ?? null;
   const walked = rangeWalkOf(hand, context, hero, charts);
-  const river = handRiver(hand, context, hero, walked, charts, effectiveStackBb(context, hero), potTypeOf(context));
+  const softWalk = () => rangeWalkOf(hand, context, hero, charts, halved(heuristicModel));
+  const river = handRiver(hand, context, hero, walked, softWalk, charts, effectiveStackBb(context, hero), potTypeOf(context));
   const found = river.line(spot);
   if (!("solve" in found)) return found;
   return riverStudyAt(found.solve, found.node);
@@ -572,7 +663,8 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   // The range walk (A4): both ranges through a heads-up hand, once.
   const walked = spots.some((spot) => spot.street !== "preflop") ? rangeWalkOf(hand, context, hero, resolved.charts) : null;
   const walk = walked && walked.ok ? walked : null;
-  const river = handRiver(hand, context, hero, walked, resolved.charts, effectiveBb, potType);
+  const softWalk = () => rangeWalkOf(hand, context, hero, resolved.charts, halved(heuristicModel));
+  const river = handRiver(hand, context, hero, walked, softWalk, resolved.charts, effectiveBb, potType);
 
   let preflopSeen = 0;
   const decisions: DecisionAnalysis[] = spots.map((spot) => {
@@ -591,7 +683,8 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     const approximations = new Set<Approximation>(handApprox);
 
     // River: the solver, or the reason it cannot answer.
-    const solved = street === "river" && !multiway ? river.grade(spot) : null;
+    const rawSolved = street === "river" && !multiway ? river.grade(spot) : null;
+    const solved = rawSolved?.ok ? capRiver(rawSolved, spot.decision.type as DecisionAnalysis["action"], built, walk) : rawSolved;
     if (solved?.ok) {
       facts.river = solved.river;
       if (facts.equity) {

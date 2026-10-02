@@ -27,6 +27,7 @@ import {
   analyzeHand,
   riverStudy,
   grade,
+  gradeRank,
   worstGrade,
   type HandAnalysis,
 } from "../../frontend/src/lib/analysis/index.js";
@@ -136,6 +137,8 @@ describe("every record satisfies the database's own constraints", () => {
     for (const { analysis } of RESULTS) {
       if (analysis.reason !== null) expect([...HAND_SKIP_REASONS, ...DECISION_SKIP_REASONS]).toContain(analysis.reason);
       for (const approximation of analysis.approximations) expect(APPROXIMATIONS).toContain(approximation);
+      // The database holds at most 16 per row.
+      expect(analysis.approximations.length).toBeLessThanOrEqual(16);
       for (const decision of analysis.decisions) {
         if (decision.reason !== null) expect(DECISION_SKIP_REASONS).toContain(decision.reason);
         expect(decision.status === "analysed").toBe(decision.reason === null);
@@ -218,6 +221,7 @@ describe("every record satisfies the database's own constraints", () => {
           chosen,
           pot: decision.facts.potBb,
           capAtInaccurate: decision.approximations.includes("off-tree-size"),
+          capAtMistake: decision.approximations.includes("range-cap"),
         });
         expect(decision.grade).toBe(again.grade);
         expect(decision.evLoss).toBeCloseTo(again.evLoss, 2);
@@ -239,6 +243,20 @@ describe("every record satisfies the database's own constraints", () => {
           expect(river.reach.hero).toBeGreaterThanOrEqual(0.02);
           expect(river.reach.villain).toBeGreaterThanOrEqual(0.02);
           expect(decision.approximations).toEqual(expect.arrayContaining(["narrowing-heuristic", "rake-profile"]));
+          // A Blunder on the river only for a move that loses to anything (§3.5, §9).
+          if (decision.grade === "blunder") {
+            expect(["fold", "call"]).toContain(decision.action);
+            if (decision.action === "fold") expect(decision.flags.map((f) => f.code)).toContain("fold-nuts");
+          }
+          if (decision.approximations.includes("range-sensitive")) {
+            // The milder of two narrowings, kept only when they were more than a class apart.
+            expect(river.sensitivity).toBeTruthy();
+            expect(gradeRank(river.sensitivity!.grade) - gradeRank(river.capped ?? decision.grade!)).toBeGreaterThan(1);
+          }
+          if (decision.approximations.includes("range-cap")) {
+            expect(decision.grade).toBe("mistake");
+            expect(river.capped).toBe("blunder");
+          }
         }
         evLoss += decision.evLoss ?? 0;
       }

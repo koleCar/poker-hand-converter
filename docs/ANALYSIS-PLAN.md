@@ -704,7 +704,7 @@ Each phase appends what it learned that changed the plan.
     placeholder) is expanded to 1,326 combos and multiplied, action by
     action, by a likelihood `L(combo | action)`: Bayes with the actor's
     strategy as the likelihood. Before A5 the likelihood is the heuristic
-    model `heuristic/1`:
+    model `heuristic/1` (`heuristic/2` after the review, below):
     - strength is hand strength against the opponent's current range, with
       card removal, plus draw potential from outs on the flop and turn;
       ranked as a percentile within the actor's own range;
@@ -788,3 +788,34 @@ Each phase appends what it learned that changed the plan.
       it rests on the model.
     - The corpus suite now solves every heads-up river in the fixtures:
       about a minute more in CI.
+  - **Revised before merge (review), still `analysis/3`.** Wrong grades
+    are worse than none (§9), so the numbers above are the first run's;
+    these changes replace them:
+    - **Mistake cap (`range-cap`).** A river grade rests on narrowed ranges,
+      so it is capped at Mistake. The exceptions keep their Blunder because
+      they lose whatever the opponent holds: folding a hand that cannot lose,
+      and calling with a hand that beats nothing in the opponent's
+      *preflop* range (or against any two cards). `grade()` gained
+      `capAtMistake`, and `facts.river.capped` keeps the uncapped grade. The
+      *why* says so in EN and HR.
+    - **Sensitivity check (`range-sensitive`).** A grade of Inaccurate or
+      worse is re-graded on a second solve whose narrowing is at half
+      strength (`halved`: every likelihood `L` becomes `√L`). If the two
+      grades are more than one class apart, the milder one is kept,
+      including its options and its solve (the study view draws the same
+      one). The other grade is in `facts.river.sensitivity`. Only about 12%
+      of the river grades pay for the second solve.
+    - **Checks trim less (`heuristic/2`).** Value checks half the time, up
+      from 35% (traps, pot control). Each earlier postflop check by the same
+      player scales the next check's trim by 0.5. A player who checks three
+      times keeps a realistic middle instead of collapsing into air.
+    - **Local library after the revision:** 306 of 467 river decisions
+      graded (unchanged). Perfect 73.2%, Good 15.7%, Inaccurate 2.0%,
+      Mistake 9.2%, **Blunder 0** (no dominated move in the library). 16
+      Blunders were capped to Mistake, and 3 grades were sensitive (two
+      Blunders and a Mistake became Good). 118.7 bb lost.
+    - **Backfill:** 44 s in the browser (41 s before) and 40 s in Node; the
+      second solve runs 37 times.
+    - **A3 interplay:** Reports' postflop-by-role river column counts only
+      analysed decisions. Rivers the solver skips (three-way flops, lines
+      the solve never takes) drop out, which suits its "heads-up" label.

@@ -16,7 +16,7 @@
  * written down below, deterministic and tested. Every grade that rests on it
  * carries the `narrowing-heuristic` approximation.
  *
- * ## The model (`heuristic/1`)
+ * ## The model (`heuristic/2`)
  *
  * **Strength.** For each combo, its *hand strength* HS: the share of the
  * opponent's current range it beats now (ties half), with card removal — a
@@ -47,8 +47,14 @@
  *   keep calling (`DRAW_CALL`), and the very top calls only `TOP_CALL`
  *   of the time — the rest of it raises.
  * - **Check**: the range is *capped* partially — value checks `CHECK_VALUE`
- *   of the time (a slowplay), the middle always, draws `CHECK_DRAW`, the
- *   bottom `CHECK_AIR` (the rest of it bluffed).
+ *   of the time (traps and pot control), the middle always, draws
+ *   `CHECK_DRAW`, the bottom `CHECK_AIR` (the rest of it bluffed). **A
+ *   repeated check trims less**: the actor's `k`-th earlier postflop check
+ *   scales the trim by `CHECK_REPEAT^k`. A player who has already checked is
+ *   capped; checking again is mostly pot control, not new information, and
+ *   trimming three checks at full strength left a "check, check, check"
+ *   range as nothing but air with no medium hands — which made a river bluff
+ *   look mandatory (`heuristic/1`, A4's first library run).
  *
  * The constants are part of `ANALYSIS_VERSION`: changing one re-narrows every
  * stored river grade.
@@ -67,7 +73,7 @@ import { classByName, comboHi, comboLo, combosOfClass, NUM_COMBOS } from "../sol
 import { draws } from "./texture";
 
 /** The model's id, stored with every river grade. */
-export const NARROWING_MODEL = "heuristic/1";
+export const NARROWING_MODEL = "heuristic/2";
 
 /** The least any likelihood is: nothing is ever ruled out completely. */
 export const FLOOR = 0.03;
@@ -90,7 +96,9 @@ export const TOP_CALL = 0.6;
 /** Where "the top" starts, as a percentile. */
 export const TOP_ZONE = 0.95;
 /** Value checks this often (a slowplay); the rest of it bets. */
-export const CHECK_VALUE = 0.35;
+export const CHECK_VALUE = 0.5;
+/** Each earlier postflop check by the same player scales the next check's trim by this. */
+export const CHECK_REPEAT = 0.5;
 export const CHECK_DRAW = 0.6;
 export const CHECK_AIR = 0.7;
 /** How much of a draw's chance of hitting turns into equity. */
@@ -113,6 +121,8 @@ export interface NarrowAction {
    */
   sizePot: number | null;
   allIn: boolean;
+  /** How many times the actor has already checked after the flop in this hand. */
+  checksBefore?: number;
 }
 
 export interface NarrowInput {
@@ -430,24 +440,25 @@ function call(input: NarrowInput, { q, outs }: Scored): Float64Array {
 
 function check(input: NarrowInput, { q, outs }: Scored): Float64Array {
   const { street, actor } = input;
+  const repeat = Math.pow(CHECK_REPEAT, Math.max(0, input.action.checksBefore ?? 0));
   const cut = 1 - VALUE_SHARE[street];
   const out = new Float64Array(NUM_COMBOS);
   for (let c = 0; c < NUM_COMBOS; c += 1) {
     if (!(actor[c] > 0) || Number.isNaN(q[c])) continue;
     const o = outs[c];
     if (o >= STRONG_DRAW_OUTS) {
-      out[c] = CHECK_DRAW;
+      out[c] = 1 - (1 - CHECK_DRAW) * repeat;
       continue;
     }
     const value = ramp(q[c], cut - RAMP, cut);
     const air = q[c] < BLUFF_ZONE && o < WEAK_DRAW_OUTS ? 1 - ramp(q[c], BLUFF_ZONE - RAMP, BLUFF_ZONE) : 0;
     // Value fades to CHECK_VALUE, air to CHECK_AIR, the middle checks.
-    out[c] = Math.max(FLOOR, 1 - value * (1 - CHECK_VALUE) - air * (1 - CHECK_AIR));
+    out[c] = Math.max(FLOOR, 1 - repeat * (value * (1 - CHECK_VALUE) + air * (1 - CHECK_AIR)));
   }
   return out;
 }
 
-/** The `heuristic/1` model: see the header. */
+/** The `heuristic/2` model: see the header. */
 export const heuristicModel: NarrowingModel = {
   id: NARROWING_MODEL,
   likelihood(input: NarrowInput): Float64Array {
@@ -464,6 +475,24 @@ export const heuristicModel: NarrowingModel = {
     }
   },
 };
+
+/**
+ * The same model at half the strength: every likelihood `L` becomes `√L`,
+ * i.e. each action counts as half the evidence. The sensitivity check of a
+ * river grade (`analyze.ts`) re-solves with it: a grade that moves by more
+ * than one class between the two narrowings rests on the narrowing, not on
+ * the hand.
+ */
+export function halved(model: NarrowingModel): NarrowingModel {
+  return {
+    id: `${model.id}-half`,
+    likelihood(input: NarrowInput): Float64Array {
+      const out = model.likelihood(input);
+      for (let c = 0; c < out.length; c += 1) out[c] = Math.sqrt(Math.max(0, out[c]));
+      return out;
+    },
+  };
+}
 
 /** One narrowing step: a new range, `actor · L`. Never mutates its input. */
 export function narrow(input: NarrowInput, model: NarrowingModel = heuristicModel): Float64Array {

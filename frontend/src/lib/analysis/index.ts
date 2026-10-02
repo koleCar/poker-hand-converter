@@ -108,12 +108,15 @@ export {
 export { analyzeHand, heroSeatOf, riverStudy, type AnalyzeOptions } from "./analyze";
 export {
   BLUFF_ZONE,
+  CHECK_REPEAT,
+  CHECK_VALUE,
   FLOOR,
   NARROWING_MODEL,
   VALUE_SHARE,
   bluffShare,
   comboRange,
   effectiveStrength,
+  halved,
   handStrength,
   heuristicModel,
   hitChance,

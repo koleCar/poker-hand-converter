@@ -233,6 +233,16 @@ function riverSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("size-translated")) {
     out.push("Veličine betova u ovoj river liniji pročitane su kao najbliže solverove veličine (33 %, 75 %, 150 % pota, all-in).");
   }
+  if (river.capped) {
+    out.push(
+      `Samo po solverovim brojevima ovo bi bila ocjena ${gradeWords[river.capped] ?? river.capped}. Rasponi suženi heurističkim modelom ne mogu nositi takvu presudu, pa je ocjena ograničena na Grešku — Gruba greška je samo potez koji gubi što god protivnik drži.`,
+    );
+  }
+  if (decision.approximations.includes("range-sensitive") && river.sensitivity) {
+    out.push(
+      `S rasponima suženima punom snagom solver ovo ocjenjuje kao ${gradeWords[river.sensitivity.grade] ?? river.sensitivity.grade}; upola slabije, kao ${gradeWords[decision.grade ?? ""] ?? decision.grade}. Ocjena više ovisi o sužavanju nego o tvojoj ruci, pa je prikazana blaža.`,
+    );
+  }
   out.push(
     river.converged
       ? `Oba raspona sužena su na flopu i turnu heurističkim modelom — solvera za flop i turn još nema — a river je riješen do ${num(river.exploitabilityPct, 1)} % pota od ravnoteže.`
@@ -550,6 +560,8 @@ export const analysisHr: Dict["analysis"] = {
     "rake-profile": "River riješen s rakeom iz chartova (5 %, najviše 3 bb), ne s rakeom ove sobe",
     "size-translated": "Veličine river betova pročitane kao najbliže solverove veličine",
     "solver-unconverged": "Rješavanje rivera stalo je iznad 0,5 % pota od ravnoteže",
+    "range-cap": "River ocjena ograničena na Grešku: heuristički suženi rasponi ne mogu nositi Grubu grešku",
+    "range-sensitive": "River ocjena ovisi o tome koliko se rasponi sužavaju: prikazana je blaža od dvije",
   } as Record<string, string>,
 
   severity: { note: "Bilješka", inaccurate: "Netočno" } as Record<string, string>,

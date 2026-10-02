@@ -283,6 +283,16 @@ function riverSentences(decision: DecisionAnalysis): string[] {
   if (decision.approximations.includes("size-translated")) {
     out.push("Bet sizes in this river line were read as the nearest of the solver's sizes (33%, 75%, 150% of the pot, all-in).");
   }
+  if (river.capped) {
+    out.push(
+      `On the solver's numbers alone this would be a ${gradeWords[river.capped] ?? river.capped}. Ranges narrowed by a heuristic model cannot carry that verdict, so the grade is capped at Mistake — only a move that loses whatever the opponent holds is called a Blunder.`,
+    );
+  }
+  if (decision.approximations.includes("range-sensitive") && river.sensitivity) {
+    out.push(
+      `With the ranges narrowed at full strength the solver grades this ${gradeWords[river.sensitivity.grade] ?? river.sensitivity.grade}; at half strength, ${gradeWords[decision.grade ?? ""] ?? decision.grade}. The grade rests on the narrowing more than on your hand, so the milder one is shown.`,
+    );
+  }
   out.push(
     river.converged
       ? `Both ranges were narrowed on the flop and turn by a heuristic model — there is no flop or turn solve yet — and the river was solved to within ${num(river.exploitabilityPct, 1)}% of the pot.`
@@ -566,6 +576,8 @@ export const analysisEn = {
     "rake-profile": "River solved with the charts' rake (5%, capped at 3 bb), not this room's",
     "size-translated": "River bet sizes read as the nearest of the solver's sizes",
     "solver-unconverged": "River solve stopped above 0.5% of the pot from equilibrium",
+    "range-cap": "River grade capped at Mistake: heuristically narrowed ranges cannot support a Blunder",
+    "range-sensitive": "River grade depends on how hard the ranges are narrowed: the milder of two is shown",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,

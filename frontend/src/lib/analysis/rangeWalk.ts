@@ -46,6 +46,8 @@ export interface RangeWalk {
   before(actionIndex: number): PlayerRanges | null;
   /** Both ranges as the river card came, with the board removed. Null if no river. */
   riverStart: PlayerRanges | null;
+  /** Both preflop ranges, before any board card or postflop action. */
+  preflop: PlayerRanges;
 }
 
 const DECISIONS = new Set(["fold", "check", "call", "bet", "raise"]);
@@ -119,6 +121,8 @@ export function walkRanges(
   if (!heroPre || !villainPre) return { ok: false, reason: "range-unknown" };
 
   let ranges: PlayerRanges = { hero: heroPre.range, villain: villainPre.range };
+  const preflop = ranges;
+  const checks = new Map<number, number>();
   const snapshots = new Map<number, PlayerRanges>();
   let riverStart: PlayerRanges | null = null;
   const strengths = new Map<NarrowStreet, StreetStrength>();
@@ -185,10 +189,11 @@ export function walkRanges(
           board: strength.board,
           actor: actorIsHero ? ranges.hero : ranges.villain,
           opponent: actorIsHero ? ranges.villain : ranges.hero,
-          action: { kind, sizePot, allIn: action.allIn },
+          action: { kind, sizePot, allIn: action.allIn, checksBefore: checks.get(action.seat) ?? 0 },
           strength,
         };
         const next = narrow(input, model);
+        if (kind === "check") checks.set(action.seat, (checks.get(action.seat) ?? 0) + 1);
         ranges = actorIsHero ? { hero: next, villain: ranges.villain } : { hero: ranges.hero, villain: next };
       }
     }
@@ -211,5 +216,6 @@ export function walkRanges(
     model: model.id,
     before: (actionIndex: number) => snapshots.get(actionIndex) ?? null,
     riverStart,
+    preflop,
   };
 }
