@@ -487,6 +487,75 @@
   color: var(--text-primary);
 }
 
+/* Seven sections: on a phone the last four go under "More" (AnalysisNav). */
+.subnavMore {
+  position: relative;
+  display: none;
+}
+
+.subnavMore summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.subnavMore summary::-webkit-details-marker {
+  display: none;
+}
+
+.subnavMore summary:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.subnavCaret {
+  margin-inline-start: var(--space-1);
+  font-size: var(--font-size-xs);
+}
+
+.subnav .subnavMenu {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-end: 0;
+  z-index: var(--z-menu);
+  display: grid;
+  gap: 0;
+  min-inline-size: 11rem;
+  padding: var(--space-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-overlay);
+  box-shadow: var(--elevation-1);
+}
+
+.subnavMenu .subnavLink {
+  display: block;
+  border-block-end: 0;
+  border-inline-start: 2px solid transparent;
+  margin: 0;
+}
+
+.subnavMenu .subnavLink[aria-current="page"] {
+  border-inline-start-color: var(--accent-border);
+}
+
+@media (max-width: 559px) {
+  .subnav ul {
+    flex-wrap: nowrap;
+  }
+
+  .subnavWide {
+    display: none;
+  }
+
+  .subnavMore {
+    display: block;
+  }
+
+  .subnavLink {
+    padding-inline: var(--space-2);
+  }
+}
+
 /* ---------------------------------------------------- links into Learn */
 
 .learnLinks {

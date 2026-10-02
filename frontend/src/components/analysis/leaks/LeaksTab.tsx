@@ -16,10 +16,10 @@
  *   best move with the hands you held, the numbers, the merge note, Learn
  *   links, the hands (`analysis_leak_hands`), and "Drill this".
  *
- * **"Drill this" is shown disabled, with its reason in words**, until the
- * trainer (A7) exists: the button marks where drills will start from, and a
- * reader learns now that their own leaks will be drillable, rather than
- * meeting a control that silently appears later.
+ * **"Drill this"** (phase A7) opens the trainer's drills on the leak's spot
+ * keys: the Mistakes and Blunders behind it, as "what would you do?". Each
+ * row says how many of them are due today (`drill_due_by_spot`; a Mistake
+ * not drilled yet counts as due, since the trainer's first sync makes it so).
  */
 
 "use client";
@@ -46,6 +46,7 @@ import {
 } from "../../../lib/db";
 import type { AnalysisFilters } from "../../../lib/db/analysis";
 import { fetchLeakHands, fetchLeaks, type LeakHandRow, type LeaksReport } from "../../../lib/db/analysisLeaks";
+import { fetchDrillsBySpot } from "../../../lib/db/training";
 import { useAuth } from "../../../lib/auth";
 import { useDict } from "../../../lib/i18n/client";
 import { paths } from "../../../lib/routes";
@@ -59,6 +60,7 @@ import { FilterBar } from "../reports/ReportsTab";
 import { reportsFilters } from "../reports/reportsState";
 import analysisStyles from "../analysis.module.css";
 import reportStyles from "../reports/reports.module.css";
+import { drillQuery } from "../train/trainState";
 import { leaksQuery, parseLeaksState, type LeaksState } from "./leaksState";
 import styles from "./leaks.module.css";
 import "../../../styles/stats.css";
@@ -92,6 +94,7 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
   const [attempt, setAttempt] = useState(0);
   const [howOpen, setHowOpen] = useState(false);
   const [all, setAll] = useState(false);
+  const [drills, setDrills] = useState<Map<string, { items: number; due: number }> | null>(null);
   // Only a leak named by the address on arrival is scrolled to; one opened here stays put.
   const arrivedOn = useRef(state.leak);
 
@@ -130,6 +133,21 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
       live = false;
     };
   }, [auth.isSignedIn, filterKey, requestKey]);
+
+  // Drills per spot: the trainer's counts, for "Drill this". Quiet when the
+  // drills are not installed (the trainer's migration) or anything fails.
+  useEffect(() => {
+    if (!isDatabaseConfigured || !auth.isSignedIn) return;
+    let live = true;
+    fetchDrillsBySpot()
+      .then((map) => {
+        if (live) setDrills(map);
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [auth.isSignedIn, refreshToken]);
 
   const loading = answer?.key !== requestKey;
   const status = answer?.status ?? "loading";
@@ -263,6 +281,7 @@ export function LeaksTab({ initialQuery, refreshToken = 0 }: LeaksTabProps) {
                 rank={shown.indexOf(leak) + 1}
                 open={state.leak === leak.id}
                 filters={filters}
+                drills={drills}
                 onToggle={() => updateState({ leak: state.leak === leak.id ? null : leak.id })}
               />
             ))}
@@ -385,22 +404,41 @@ function ConfidenceTag({ leak }: { leak: Leak }) {
   );
 }
 
+/** A leak's drills: how many there are and how many are due today, summed over its spots. */
+function drillCount(leak: Leak, drills: Map<string, { items: number; due: number }> | null) {
+  if (!drills) return null;
+  let items = 0;
+  let due = 0;
+  for (const key of leak.keys) {
+    const row = drills.get(key);
+    if (row) {
+      items += row.items;
+      due += row.due;
+    }
+  }
+  return { items, due };
+}
+
 function LeakItem({
   leak,
   rank,
   open,
   filters,
+  drills,
   onToggle,
 }: {
   leak: Leak;
   rank: number;
   open: boolean;
   filters: AnalysisFilters;
+  drills: Map<string, { items: number; due: number }> | null;
   onToggle: () => void;
 }) {
   const t = useDict().analysis.leaks;
+  const train = useDict().analysis.train.leak;
   const words = useLeakWords()(leak);
   const panelId = useId();
+  const count = drillCount(leak, drills);
   return (
     <li id={`leak-${leak.id}`} className={styles.leak} data-open={open || undefined}>
       <h4 className={styles.leakHeading}>
@@ -423,16 +461,26 @@ function LeakItem({
         <span>{t.spotTimes(leak.mistakes, leak.spotDecisions)}</span>
         <span>{t.perMistake(leak.perMistake)}</span>
         <ConfidenceTag leak={leak} />
+        {count && count.due > 0 ? <span className={styles.drillBadge}>{train.badge(count.due)}</span> : null}
       </p>
       <div id={panelId} hidden={!open} className={styles.leakPanel}>
-        {open ? <LeakDetail leak={leak} filters={filters} /> : null}
+        {open ? <LeakDetail leak={leak} filters={filters} drills={count} /> : null}
       </div>
     </li>
   );
 }
 
-function LeakDetail({ leak, filters }: { leak: Leak; filters: AnalysisFilters }) {
+function LeakDetail({
+  leak,
+  filters,
+  drills,
+}: {
+  leak: Leak;
+  filters: AnalysisFilters;
+  drills: { items: number; due: number } | null;
+}) {
   const t = useDict().analysis.leaks;
+  const train = useDict().analysis.train.leak;
   const drillId = useId();
   return (
     <div className={reportStyles.detail}>
@@ -494,12 +542,14 @@ function LeakDetail({ leak, filters }: { leak: Leak; filters: AnalysisFilters })
       <LearnLinks concepts={leakConcepts(leak.attrs)} />
 
       <div className={styles.drill}>
-        <button type="button" className="btn btn--sm" disabled aria-describedby={drillId}>
+        <Link href={paths.analysisTrain(drillQuery(leak.keys))} className="btn btn--sm" aria-describedby={drills ? drillId : undefined}>
           {t.detail.drill}
-        </button>
-        <span id={drillId} className={reportStyles.muted}>
-          {t.detail.drillLater}
-        </span>
+        </Link>
+        {drills ? (
+          <span id={drillId} className={reportStyles.muted}>
+            {train.due(drills.due, drills.items)}
+          </span>
+        ) : null}
       </div>
 
       <LeakHands leak={leak} filters={filters} />

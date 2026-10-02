@@ -119,6 +119,7 @@ export default defineConfig([
       'src/lib/stats/**/*.ts',
       'src/lib/equity/**/*.ts',
       'src/lib/analysis/**/*.ts',
+      'src/lib/training/**/*.ts',
       'src/lib/learn/**/*.ts',
       'src/lib/replay.ts',
       'src/lib/cards.ts',
@@ -215,6 +216,50 @@ export default defineConfig([
         { name: 'window', message: 'lib/charts runs in a Web Worker; there is no window.' },
         { name: 'document', message: 'lib/charts runs in a Web Worker; there is no document.' },
         { name: 'process', message: 'lib/charts runs in the browser too. Pass configuration in.' },
+      ],
+    },
+  },
+
+  /**
+   * The trainer's import rule (header of `src/lib/training/index.ts`): the
+   * analysis' allow-list plus the analysis itself. The trainer deals and grades
+   * in a Web Worker and under plain Node in tests/test, like the analysis.
+   */
+  {
+    files: ['src/lib/training/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['next', 'next/*', 'server-only', 'client-only', 'react', 'react/*', 'react-dom', '@supabase/*'],
+              message:
+                'lib/training runs under plain Node in tests/test and in a Web Worker. No framework imports.',
+            },
+            {
+              group: [
+                '../*',
+                '!../phf',
+                '!../cards',
+                '!../stats',
+                '!../equity',
+                '!../charts',
+                '!../solver',
+                '!../analysis',
+                '@/*',
+              ],
+              message:
+                'lib/training may import only lib/phf, lib/cards, lib/stats, lib/equity, lib/charts, lib/solver and lib/analysis.',
+            },
+          ],
+        },
+      ],
+      'no-restricted-globals': [
+        'error',
+        { name: 'window', message: 'lib/training runs in a Web Worker; there is no window.' },
+        { name: 'document', message: 'lib/training runs in a Web Worker; there is no document.' },
+        { name: 'process', message: 'lib/training runs in the browser too. Pass configuration in.' },
       ],
     },
   },

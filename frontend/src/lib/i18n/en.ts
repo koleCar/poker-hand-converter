@@ -86,6 +86,11 @@ export const en = {
       title: "Leaks — the spots that cost you the most | Rail",
       description: "Your graded decisions grouped into spots and ranked by the EV they cost against the reference, with the hands behind each one.",
     },
+    analysisTrain: {
+      title: "Train — preflop, river and your own mistakes | Rail",
+      description:
+        "Practise preflop and river spots against the same reference your hands are graded by, and drill your own Mistakes until they are right.",
+    },
     analysisProgress: {
       title: "Progress — your score over time | Rail",
       description: "Your analysis score and EV lost per 100 hands by week, month or session, by street, seat and pot type.",

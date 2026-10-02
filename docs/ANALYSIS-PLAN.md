@@ -943,3 +943,105 @@ Each phase appends what it learned that changed the plan.
     - Turn and flop leaks appear as soon as A5 grades them; nothing here
       depends on the street.
     - A8b (the study plan) can be built on `groupLeaks` and `comparePeriods`.
+- 2026-10-02 — A7 shipped: training, at `/analysis/train` ("Train" in the
+  tab's sub-nav). No grade changes, so still `analysis/3`. Started before A5
+  (its listed dependency): the trainers use what is graded today — preflop
+  charts and river solves — and pick up turn and flop grades when A5 lands.
+  - **One grader.** A trainer spot is a real hand: a short script written as
+    standard hand-history text and read back by the upload parser
+    (`lib/training/handText.ts`). An answer is graded by `analyzeHand` on the
+    spot's hand with the answer appended, through a new, additive
+    `AnalyzeOptions.only` (analyse one decision: the same walk, chart lookup,
+    solve, caps and sensitivity check, without the hand's other decisions — so
+    the trainer will not pay for turn solves once A5a grades turns). A
+    trainer grade is the analysis grade of the same spot by construction; the
+    tests compare the two decision for decision, preflop and river.
+  - **Found on the way.** A hand names a seat "dealt in" by its actions, so
+    a spot that stops at an early decision (UTG first in) left the players
+    behind out of the ring — and the chart lookup refused it as a 2-handed
+    table. The trainer completes the orbit after the decision
+    (`completePreflop`: a fold facing a bet, else a check). And
+    `walkRanges` records the river ranges at the river's first action, so a
+    spot where the hero is first to act walks a hand with a placeholder first
+    river action (the ranges are taken before narrowing by it).
+  - **Preflop trainer.** Families as in the chart browser (RFI, facing an
+    open, facing a 3-bet, squeeze, blind vs blind, facing a 4-bet) or any,
+    optionally one seat; a node is drawn by √reach among those reached in at
+    least 0.2% of deals; a class by `combos × range × card removal` (A3's
+    `removalFactors` of the players before), optionally tilted toward close
+    decisions (`borderline`: × (0.1 + 1 − max freq + e^(−EV gap / 0.5 bb)));
+    suits uniform. `charts/2` is nearly pure: the tilt doubles the share of
+    mixed spots (best option under 85%) from 3.5% to 7% of deals. After the
+    answer: the grade, EV lost, the options table, the whole 13×13 chart with
+    the hand outlined, the *why* and its Learn links. Table size and depth
+    offer the one set there is (6-max, 100 bb) until A2c adds more.
+  - **River trainer.** Twelve heads-up preflop lines the charts play (single
+    raised: UTG/HJ/CO/BTN/SB against the BB and BTN against the SB; 3-bet:
+    CO–BTN, CO–BB, BTN–SB, BTN–BB, SB–BB; a limped SB–BB pot), a random
+    board, flop and turn lines from five patterns (check-check, a 33% or 75%
+    bet called, in or out of position) weighted by who has the initiative,
+    no bet over 60% of the stack before the river. Both ranges walk exactly
+    as the analysis walks them (`heuristic/2`), the river is solved by
+    `solveRiverSpot`, an in-position hero first faces the villain's action
+    drawn from the solve's own frequencies (actions taken at least 1% of the
+    time), and the hero's combo is drawn from their reach at the node (the
+    solve's own hands, so never a board card; `borderline` tilts toward mixed
+    combos). Because the walk ignores the hero's cards and the solve adds the
+    combo only when it is not already in the range, the spot's solve is the
+    one the grade re-runs. Measured on 120 seeds (Node, M2 Pro): generation
+    median 153 ms, p90 0.70 s, slowest 1.7 s; grading an answer median
+    171 ms, p90 0.82 s (it solves again, twice when the sensitivity check
+    runs). Both run in a worker (`workers/training.worker.ts`). Every river
+    spot says its ranges rest on the narrowing model.
+  - **Drills.** `sync_drill_items` makes a drill of every graded decision of
+    yours that is a Mistake or worse (Inaccurate on request), once; a
+    re-analysis at a new version re-points the drill and keeps its schedule,
+    and a decision no longer graded Mistake simply stops coming up. A drill
+    shows your hand up to the decision (`handUpTo`, the forum poll's rule:
+    nothing after it, nobody else's cards) and its stored options; the move
+    you made keeps its stored grade, any other answer is graded with
+    `grade()` and the analysis' caps (an off-tree size at Inaccurate, a
+    solver grade at Mistake — the "loses whatever they hold" exceptions are
+    not re-judged for another action). Scheduling is SM-2 with the answer's
+    grade as quality (Perfect 5, Good 4, Inaccurate 3 passes, Mistake 1 and
+    Blunder 0 fail): ease ± by SM-2's formula in [1.30, 3.00], a pass goes
+    1 day, 6 days, then interval × ease (half up, at most a year), a fail
+    comes back in 10 minutes. The database computes it (`drill_next`); the
+    TypeScript copy is tested on the same table of cases.
+  - **Where drills show.** The overview has a "Drills" line (due now and
+    today, plus Mistakes not drilled yet). On Leaks, "Drill this" is a link
+    to the trainer on the leak's spot keys, and every row shows how many of
+    its drills are due today (`drill_due_by_spot`). Owner's local library at
+    `analysis/3`: 102 drills (Mistakes and Blunders); the top leak (river,
+    PFR out of position checking instead of betting) has 4.
+  - **Storage** (`20270208090000_analysis_training.sql`): `drill_items`,
+    `drill_reviews`, `trainer_results`; RLS select-own, no client write grant;
+    writes through three definer RPCs with ownership checks and per-account
+    rate limits; invoker reads. The answer's grade is computed in the browser
+    and only shape-checked by the database (a false grade only reschedules
+    the sender's own drills). pgTAP: 51 assertions.
+  - **UI.** EN/HR; keyboard play everywhere outside the replayer and form
+    fields (`1`–`9` for the n-th answer, `F` `X` `C` `A` for fold, check,
+    call, all-in, `N`/Enter for the next spot, `?` for the key sheet, the
+    replayer's pattern); a session score with Perfect…Blunder counts,
+    streaks of moves the reference plays, EV lost and mean score, and,
+    signed in, the last 30 days per trainer. With seven sections the
+    sub-nav keeps three tabs on a phone and puts the rest under "More".
+  - **Not built: "what would you do?" graded against the reference (#51).**
+    §8.4 makes analysis private and showing it on a shared hand a per-hand
+    opt-in, and no such flag exists yet (`shares` and polls carry none). The
+    follow-up: a per-post `share_analysis` flag on `forum_polls` (or the
+    share), set by the author when posting; `read_poll` returns, after the
+    reveal only, the stored `decision_analysis` row of the poll's stop index
+    when the flag is set (definer, the flag checked server-side); the poll
+    then shows the reference's options next to the votes, with the grade's
+    source and approximations. Until then a poll shows votes only.
+  - **Open.**
+    - A river spot's p90 (0.7 s to deal, 0.8 s to grade) is over the 0.3 s
+      the plan hoped for: wide limped and single-raised ranges checked down
+      to the river make the biggest solves. A turn-style coarser menu would
+      be faster but would no longer be the analysis' grade.
+    - §2's move score reads oddly in a trainer: a Perfect answer at a
+      0.8%-frequency, zero-EV-loss option scores 1. The grade is what the
+      trainer leads with; the session's mean score follows §2 as it is.
+    - The drill counts on a leak-filtered drill page are the global ones.

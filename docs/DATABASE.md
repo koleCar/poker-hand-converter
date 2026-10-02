@@ -125,6 +125,9 @@ per-user counter is a strictly larger table with a cleanup job attached.
 | `unparsed_insert` | 5 000 records / 10 min | `record_conversion_failures()` |
 | `share_create` | 300 shares / hour | `create_share()` |
 | `share_view:<slug>` | 600 views / hour **per slug** | `record_share_view()` |
+| `drill_sync:<user>` | 120 syncs / 10 min **per account** | `sync_drill_items()` |
+| `drill_review:<user>` | 600 answers / 10 min **per account** | `review_drill()` |
+| `trainer_results:<user>` | 1 200 rows / 10 min **per account** | `record_trainer_results()` |
 
 `share_view` is the one per-key bucket, because the thing it protects is
 per-key: a view counter anyone can increment by holding a URL is a vanity metric
@@ -668,6 +671,34 @@ its hands share) and `analysis_graded_facets(version)` are granted to
 `authenticated` and not to `anon`. Grouping into leaks, merging thin spots,
 ranking and period comparison are `lib/analysis/leaks.ts`.
 
+**Training** (A7, `20270208090000_analysis_training.sql`): three new tables,
+all owner-scoped with RLS select-own and **no client INSERT, UPDATE or
+DELETE grant**, nothing to `anon`.
+
+| Table | Key | What |
+| --- | --- | --- |
+| `drill_items` | `id`; unique `(owner_id, hand_id, action_index)` | One drill per own graded decision of Mistake or worse (Inaccurate on request): the `analysis_version` and `ord` of its row, `street`, the leak finder's `spot_key`, the source grade and EV loss, and its SM-2 state (`reps`, `lapses`, `ease` 1.30–3.00, `interval_days` 0–365, `due_at`, `reviews`, `last_grade`). FK to `hands`, cascading. |
+| `drill_reviews` | `id` | Every answer to a drill: option chosen, grade, EV loss, SM-2 quality, and the schedule it led to. FK to `drill_items`, cascading. |
+| `trainer_results` | `id` | Every graded trainer answer: `mode` (`preflop` / `river` / `drill`), family, spot, seat, hand class, grade, EV loss (bb and pot), score. |
+
+Writes are three `security definer` functions with explicit `auth.uid()`
+ownership checks and per-account rate limits: `sync_drill_items(version,
+min_grade)` builds drills from the caller's own decisions (joined to `hands`
+on id *and* owner; idempotent; a drill seen at another version is re-pointed
+and keeps its schedule; 120 / 10 min); `review_drill(item, chosen, grade,
+ev_loss)` names the drill by id *and* owner ("No such drill." P0002 either
+way), checks the option index against the stored options, and reschedules
+with `drill_next` (600 / 10 min); `record_trainer_results(rows)` takes at
+most 50 rows whose columns the table checks (1 200 rows / 10 min). The answer's
+grade comes from the browser (`lib/training`): a false one only reschedules
+the sender's own drills. Reads are invoker: `drill_queue(version, keys,
+due_only, limit)`, `drill_summary(version, until)` (due now, due by the end of
+the reader's day, and graded Mistakes not drilled yet), `drill_due_by_spot`
+(the Leaks rows' counts) and `trainer_summary(days)`; their helpers
+`drill_quality`, `drill_next` (SM-2, the same cases as
+`lib/training/schedule.ts`) and `drill_keys_valid` are granted to
+`authenticated` and not to `anon`.
+
 ### Tests
 
 `supabase/tests/database/analysis.test.sql`: no client INSERT/UPDATE/DELETE
@@ -690,7 +721,12 @@ list's order, paging, action filter and validation; isolation and anon. `analysi
 action and the spot key; per-spot sums (Perfect moves counted, Good not a
 mistake), dates and facets; every filter and one version per report; the
 leak list's order, deviations, paging and validation; weekly, monthly and
-session buckets (and the gap), per street and seat; isolation and anon.
+session buckets (and the gap), per street and seat; isolation and anon. `analysis_training.test.sql` (A7): no client write grant on the three
+tables and RLS on; definer writers and invoker readers, `search_path` and
+grants; the SM-2 table; drills only from the caller's own Mistakes and
+Blunders, once, with the spot key, re-pointed at a new version; reviews of
+one's own drill only, option bounds and input validation; queue, summary and
+per-spot counts; trainer results and their summary; isolation and anon.
 
 ## Verifying the isolation
 

@@ -188,7 +188,7 @@ export function markWord(decision: DecisionAnalysis, t: Strings): string | null 
 }
 
 /** The reference's options at the node: action · frequency bar · EV, the hero's move marked. */
-function OptionsTable({ decision }: { decision: DecisionAnalysis }) {
+export function OptionsTable({ decision }: { decision: DecisionAnalysis }) {
   const t = useDict().analysis;
   const s = t.sheet;
   const best = bestOption(decision);

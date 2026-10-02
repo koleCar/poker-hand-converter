@@ -1,0 +1,396 @@
+/* The trainer (`/analysis/train`, phase A7). Tokens only: both themes come
+   from `styles/tokens/`. Nothing here animates; the replayer owns its own
+   motion and already follows `prefers-reduced-motion`. */
+
+.lede {
+  margin: 0 0 var(--space-3);
+  max-inline-size: 72ch;
+  color: var(--text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.muted {
+  color: var(--text-secondary);
+}
+
+/* ------------------------------------------------------------- modes */
+
+.modes ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.modeLink {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.modeLink:hover {
+  border-color: var(--accent-border);
+}
+
+.modeLink[aria-current="page"] {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+}
+
+.modeLink:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ layout */
+
+.layout {
+  display: grid;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+.main,
+.side {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+  min-inline-size: 0;
+}
+
+@media (min-width: 1100px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+  }
+}
+
+.trainer {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2) var(--space-3);
+}
+
+.settings select {
+  min-block-size: 2.75rem;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-block-size: 2.75rem;
+}
+
+.check input {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+.leakFilter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+/* -------------------------------------------------------------- spot */
+
+.spot {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.spotHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--font-size-md);
+}
+
+.status {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.hero {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-1);
+}
+
+.heroLabel {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.promptText {
+  display: grid;
+  gap: var(--space-1);
+  min-inline-size: 0;
+  flex: 1 1 16rem;
+}
+
+.promptText p {
+  margin: 0;
+}
+
+.question {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* The felt: an embedded replayer takes its height from this box. */
+.table {
+  block-size: clamp(18rem, 52svh, 30rem);
+  min-inline-size: 0;
+}
+
+.note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* ----------------------------------------------------------- answers */
+
+.answers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: var(--space-2);
+}
+
+.answer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-block-size: 3rem;
+  text-align: start;
+}
+
+.answer[data-picked] {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+}
+
+.answer:disabled[data-picked] {
+  opacity: 1;
+}
+
+.answerLabel {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.answerKeys {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.answerKeys kbd,
+.inlineKey {
+  padding: 0 0.35em;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-1);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+}
+
+.inlineKey {
+  margin-inline-start: var(--space-2);
+  color: inherit;
+}
+
+.nextRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ------------------------------------------------------------ result */
+
+.result {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.verdict {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.verdict p {
+  margin: 0;
+}
+
+.verdictHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.verdictGrade {
+  font-size: var(--font-size-lg);
+}
+
+.verdictMove {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.verdictLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+
+.schedule {
+  font-weight: var(--font-weight-semibold);
+}
+
+.study {
+  min-inline-size: 0;
+}
+
+/* ----------------------------------------------------------- session */
+
+.session {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.sessionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.sessionHead button {
+  margin-inline-start: auto;
+}
+
+.counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.counts div {
+  display: grid;
+  gap: 2px;
+}
+
+.counts dt {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.counts dd {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.classes {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.classItem {
+  display: grid;
+  grid-template-columns: 1.75rem 1fr auto;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.className {
+  color: var(--text-primary);
+}
+
+.classItem strong {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.history {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history li {
+  display: grid;
+  gap: 2px;
+}
+
+.history span {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* ------------------------------------------------- overview drill card */
+
+.dueCard {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  text-align: start;
+}
+
+.dueCard p {
+  margin: 0;
+  flex: 1 1 16rem;
+}
+
+@media (forced-colors: active) {
+  .modeLink[aria-current="page"],
+  .answer[data-picked] {
+    outline: 2px solid CanvasText;
+  }
+}

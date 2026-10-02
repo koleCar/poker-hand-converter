@@ -86,6 +86,13 @@ export interface AnalyzeOptions {
    * equity facts use the placeholder ranges — never what the rebuild stores.
    */
   charts?: ChartSet | null;
+  /**
+   * Analyse only the hero decision at this `PhfAction.index` (the trainer,
+   * phase A7): the same walk, facts, grade, caps and sensitivity check a full
+   * run gives that decision, without paying for the hand's other decisions.
+   * The hand-level fields then describe that one decision.
+   */
+  only?: number | null;
 }
 
 /** 100bb ±20% (§8): outside this the stack depth is an approximation. */
@@ -106,7 +113,7 @@ const ANY_TWO: ClassWeights = parseRange("*");
 const round2 = (value: number) => Math.round(value * 100) / 100;
 const round4 = (value: number) => Math.round(value * 10_000) / 10_000;
 
-type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts">> & { charts: ChartSet | null };
+type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only">> & { charts: ChartSet | null; only: number | null };
 const round3 = (value: number) => Math.round(value * 1000) / 1000;
 
 /** The hero seat, as the stats engine sees it: a dealt-in seat whose player is the hero. */
@@ -636,6 +643,7 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     equity: options.equity ?? true,
     seed: options.seed ?? ANALYSIS_SEED,
     charts: options.charts ?? null,
+    only: options.only ?? null,
   };
   const context = buildContext(hand);
   const hero = heroSeatOf(context);
@@ -667,10 +675,11 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   const river = handRiver(hand, context, hero, walked, softWalk, resolved.charts, effectiveBb, potType);
 
   let preflopSeen = 0;
-  const decisions: DecisionAnalysis[] = spots.map((spot) => {
+  const decisions: DecisionAnalysis[] = spots.flatMap((spot) => {
     const street = spot.street as DecisionStreet;
     const multiway = street !== "preflop" && spot.opponents.length >= 2;
     const preflopNth = street === "preflop" ? preflopSeen++ : -1;
+    if (resolved.only !== null && spot.action.index !== resolved.only) return [];
     let built: BuiltFacts;
     try {
       built = buildFacts(spot, context, hero, multiway, resolved, walk);
@@ -779,6 +788,9 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     };
   });
 
+  if (decisions.length === 0) {
+    return emptyAnalysis("no-decisions", hero, potType);
+  }
   const analysed = decisions.filter((decision) => decision.status === "analysed");
   const allApprox = new Set<Approximation>();
   for (const decision of analysed) for (const value of decision.approximations) allApprox.add(value);

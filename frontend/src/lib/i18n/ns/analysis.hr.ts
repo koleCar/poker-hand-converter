@@ -4,6 +4,7 @@ import { plural } from "../plural";
 import type { Dict } from "../types";
 import { reportsHr } from "./analysisReports.hr";
 import { leaksHr, progressHr, summaryHr } from "./analysisLeaks.hr";
+import { trainHr } from "./analysisTrain.hr";
 
 /**
  * Strings for the Analysis tab and the replayer's Analysis sheet, Croatian.
@@ -886,6 +887,8 @@ export const analysisHr: Dict["analysis"] = {
   leaks: leaksHr,
   progress: progressHr,
   summary: summaryHr,
+
+  train: trainHr,
 
   explain,
 };

@@ -69,6 +69,11 @@ export const hr: Dict = {
       title: "Leakovi — situacije koje te najviše koštaju | Rail",
       description: "Tvoje ocijenjene odluke grupirane u situacije i poredane po EV-u koji su te koštale u odnosu na referencu, s rukama iza svake.",
     },
+    analysisTrain: {
+      title: "Vježbaj — preflop, river i tvoje greške | Rail",
+      description:
+        "Vježbaj preflop i river situacije protiv iste reference po kojoj se ocjenjuju tvoje ruke i ponavljaj vlastite greške dok ne budu točne.",
+    },
     analysisProgress: {
       title: "Napredak — tvoj score kroz vrijeme | Rail",
       description: "Score analize i izgubljeni EV na 100 ruku po tjednu, mjesecu ili sesiji, po streetu, poziciji i vrsti pota.",
