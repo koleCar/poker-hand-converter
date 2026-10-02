@@ -36,12 +36,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../lib/auth";
 import {
-  DATABASE_NOT_CONFIGURED_MESSAGE,
   isDatabaseConfigured,
   rebuildStats,
   recordConversionFailures,
   saveHands,
 } from "../lib/db";
+import { useDict } from "../lib/i18n/client";
 import { getParser, getParsers } from "../lib/phf";
 import { paths } from "../lib/routes";
 import type { PhfHand } from "../lib/phf/types";
@@ -51,7 +51,7 @@ import { HandPreview } from "./converter/HandPreview";
 import { ResultsPanel } from "./converter/ResultsPanel";
 import { startConversion, type ConversionJob } from "./converter/conversionClient";
 import { parkHandForReplayer } from "./converter/handoff";
-import { formatCount, loadFile, sourceFromText, type LoadedSource } from "./converter/inputs";
+import { loadFile, sourceFromText, type LoadedSource } from "./converter/inputs";
 import type { PipelineBatch, PipelineSource } from "./converter/pipeline";
 import { IDLE_SAVE, type SaveState, type SourceResult } from "./converter/types";
 import "../styles/converter.css";
@@ -120,6 +120,7 @@ interface HeldSave {
 }
 
 export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
+  const t = useDict().converter.batch;
   const router = useRouter();
   const [sources, setSources] = useState<SourceResult[]>([]);
   const [reading, setReading] = useState(false);
@@ -155,8 +156,8 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
 
   const siteLabel = useCallback(
     (siteId: string | null) =>
-      siteId ? getParser(siteId)?.name ?? siteId : "Format we do not know yet",
-    [],
+      siteId ? getParser(siteId)?.name ?? siteId : t.unknownFormat,
+    [t],
   );
 
   const openInReplayer = useCallback(
@@ -409,7 +410,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
             jobRef.current = null;
             flushBatches();
             setConverting(false);
-            setError(message);
+            setError(message || t.workerStopped);
             setSources((current) =>
               current.map((source) =>
                 source.status === "running" ? { ...source, status: "done" } : source,
@@ -419,7 +420,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
         },
       );
     },
-    [persist, queueBatch, flushBatches],
+    [persist, queueBatch, flushBatches, t],
   );
 
   /* -------------------------------------------------------------- input - */
@@ -453,20 +454,20 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
         }
         addSources(loaded);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Those files could not be read.");
+        setError(err instanceof Error ? err.message : t.readFailed);
       } finally {
         setReading(false);
       }
     },
-    [addSources],
+    [addSources, t],
   );
 
   const handleText = useCallback(
     (text: string) => {
-      const existing = sources.filter((source) => source.name.startsWith("Pasted text")).length;
-      addSources([sourceFromText(text, existing ? `Pasted text ${existing + 1}` : "Pasted text")]);
+      const existing = sources.filter((source) => source.name.startsWith(t.pastedText)).length;
+      addSources([sourceFromText(text, existing ? t.pastedTextNumbered(existing + 1) : t.pastedText)]);
     },
-    [addSources, sources],
+    [addSources, sources, t],
   );
 
   function reset() {
@@ -538,27 +539,27 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
               <span className="conv-switch__thumb" />
             </span>
             <span className="conv-switch__text">
-              <strong>Save to my library</strong>
+              <strong>{t.autoSave}</strong>
               {/* Only the two cases a person cannot work out for themselves:
                   the feature is missing, or it needs an account they have not
                   got yet. When it simply works, the toggle says everything. */}
               {!isDatabaseConfigured ? (
-                <small>Unavailable in this build.</small>
+                <small>{t.autoSaveUnavailable}</small>
               ) : !auth.isSignedIn ? (
-                <small>Convert now, sign in after.</small>
+                <small>{t.autoSaveSignedOut}</small>
               ) : null}
             </span>
           </label>
 
           {sources.length > 0 ? (
             <button type="button" className="btn btn--ghost" onClick={reset} disabled={busy}>
-              Start over
+              {t.startOver}
             </button>
           ) : null}
         </div>
 
         {!isDatabaseConfigured ? (
-          <p className="notice notice--warn">{DATABASE_NOT_CONFIGURED_MESSAGE}</p>
+          <p className="notice notice--warn">{t.dbNotConfigured}</p>
         ) : null}
 
         {/* The held-results offer. Deliberately phrased around what is already
@@ -566,27 +567,17 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
             nowhere to live yet. */}
         {held ? (
           <div className="notice notice--info conv-signin">
-            <span>
-              {formatCount(held.hands.length)}{" "}
-              {held.hands.length === 1 ? "hand" : "hands"} converted. Sign in to keep{" "}
-              {held.hands.length === 1 ? "it" : "them"}.
-            </span>
+            <span>{t.held(held.hands.length)}</span>
             <span className="conv-signin__actions">
               <button
                 type="button"
                 className="btn btn--primary btn--sm"
-                onClick={() =>
-                  auth.requestSignIn(
-                    `Sign in to save ${formatCount(held.hands.length)} converted ${
-                      held.hands.length === 1 ? "hand" : "hands"
-                    } to your library.`,
-                  )
-                }
+                onClick={() => auth.requestSignIn(t.heldSignInReason(held.hands.length))}
               >
-                Sign in and save
+                {t.signInAndSave}
               </button>
               <button type="button" className="btn btn--ghost btn--sm" onClick={() => setHeld(null)}>
-                Not now
+                {t.notNow}
               </button>
             </span>
           </div>
@@ -600,13 +591,13 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
           <div className="conv-progress__head">
             <strong>
               {reading
-                ? "Reading your files…"
+                ? t.readingFiles
                 : progress.current
-                  ? `Converting ${progress.current.name}`
-                  : "Converting…"}
+                  ? t.convertingFile(progress.current.name)
+                  : t.converting}
             </strong>
             <button type="button" className="btn btn--ghost btn--sm" onClick={() => jobRef.current?.cancel()}>
-              Stop
+              {t.stop}
             </button>
           </div>
           <div
@@ -619,10 +610,12 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
             <span className="conv-bar__fill" style={{ width: `${Math.max(2, progress.percent)}%` }} />
           </div>
           <p className="muted conv-progress__detail">
-            {formatCount(progress.handsDone)} hands converted
-            {progress.files > 1
-              ? ` · file ${formatCount(Math.min(progress.filesDone + 1, progress.files))} of ${formatCount(progress.files)}`
-              : ` · ${progress.percent}%`}
+            {t.progressDetail(
+              progress.handsDone,
+              progress.files,
+              Math.min(progress.filesDone + 1, progress.files),
+              progress.percent,
+            )}
           </p>
         </section>
       ) : null}
@@ -654,8 +647,7 @@ export function ConverterTab({ onHandsSaved, onOpenHand }: ConverterTabProps) {
 
       {usedWorker === false && hasFinished ? (
         <p className="muted conv-footnote">
-          This browser would not start a background worker, so conversion ran on the page itself.
-          Large files may have felt slow.
+          {t.noWorker}
         </p>
       ) : null}
 

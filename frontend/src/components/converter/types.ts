@@ -9,6 +9,7 @@
 
 import type { ConversionFailure } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
+import type { SourceProblem } from "./inputs";
 
 export type SourceStatus = "queued" | "running" | "done" | "cancelled" | "skipped";
 
@@ -18,7 +19,7 @@ export interface SourceResult {
   bytes: number;
   encoding: string;
   /** Set when the file could not even be decoded; it never reaches the pipeline. */
-  problem?: string;
+  problem?: SourceProblem;
   status: SourceStatus;
   /** Registry id of the parser that claimed the text, once detection has run. */
   siteId: string | null;

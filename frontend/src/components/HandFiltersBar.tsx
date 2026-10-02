@@ -21,13 +21,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { extractCards, resolveHeroQuery } from "../lib/cards";
 import {
-  anonymizationNote,
   fetchHandFacets,
   isDatabaseConfigured,
   type HandFacets,
   type PositionLabel,
 } from "../lib/db";
 import { POSITIONS, type ReplayerFilterForm } from "./handFilters";
+import { useDict } from "../lib/i18n/client";
 import { getParser } from "../lib/phf";
 import { CardRow } from "./replayer/PlayingCard";
 
@@ -43,6 +43,7 @@ interface HandFiltersBarProps {
 }
 
 export function HandFiltersBar({ value, onApply, onReset, loading }: HandFiltersBarProps) {
+  const t = useDict().converter.filters;
   const [draft, setDraft] = useState<ReplayerFilterForm>(value);
   const [advanced, setAdvanced] = useState(false);
   const [facets, setFacets] = useState<HandFacets | null>(null);
@@ -100,10 +101,12 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
       (facets?.anonymizations ?? []).find((entry) => entry.value === "positional")?.count ?? 0,
     [facets],
   );
-  const positionalNote = anonymizationNote("positional");
+  // The same sentence as `anonymizationNote("positional")` in the data layer,
+  // in the reader's language.
+  const positionalNote = t.positionalNote;
   const nameFilterIsLossy = positionalCount > 0 && draft.player.trim().length > 0;
 
-  const potCurrency = draft.gameFormat === "tournament" ? "chips" : "the table currency";
+  const potCurrencyHint = draft.gameFormat === "tournament" ? t.minPotChips : t.minPotCurrency;
 
   return (
     <form
@@ -115,51 +118,51 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
     >
       <div className="filters__row">
         <label className="field field--grow">
-          <span className="field__label">Board</span>
+          <span className="field__label">{t.board}</span>
           <input
             type="text"
             value={draft.board}
-            placeholder="e.g. Ah Kd 2c  or  AhKd"
+            placeholder={t.boardPlaceholder}
             onChange={(event) => set("board", event.target.value)}
           />
           <span className="field__hint">
             {boardPreview.length ? (
               <>
-                Hands whose board contains <CardRow cards={boardPreview} size="xs" />
+                {t.boardMatches} <CardRow cards={boardPreview} size="xs" />
               </>
             ) : (
-              "Every card you enter must appear on the board"
+              t.boardHint
             )}
           </span>
         </label>
 
         <label className="field field--grow">
-          <span className="field__label">Hero hole cards</span>
+          <span className="field__label">{t.heroCards}</span>
           <input
             type="text"
             value={draft.heroCards}
-            placeholder="e.g. AhKs  or  AKs  or  TT"
+            placeholder={t.heroCardsPlaceholder}
             onChange={(event) => set("heroCards", event.target.value)}
           />
           <span className="field__hint">
             {heroQuery.kind === "class" ? (
-              `Hand class: ${heroQuery.values.join(" / ")}`
+              t.handClass(heroQuery.values.join(" / "))
             ) : heroQuery.kind === "cards" ? (
               <>
-                Exactly <CardRow cards={heroQuery.values} size="xs" />
+                {t.exactly} <CardRow cards={heroQuery.values} size="xs" />
               </>
             ) : (
-              "Exact cards (AhKs) or a hand class (AKs, AKo, AK, TT)"
+              t.heroCardsHint
             )}
           </span>
         </label>
 
         <div className="filters__actions">
           <button type="submit" className="btn btn--primary" disabled={loading}>
-            {loading ? "Searching…" : "Search"}
+            {loading ? t.searching : t.search}
           </button>
           <button type="button" className="btn btn--ghost" onClick={onReset}>
-            Reset
+            {t.reset}
           </button>
           <button
             type="button"
@@ -167,20 +170,20 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
             onClick={() => setAdvanced((current) => !current)}
             aria-expanded={advanced}
           >
-            {advanced ? "Fewer filters" : "More filters"}
+            {advanced ? t.fewerFilters : t.moreFilters}
           </button>
         </div>
       </div>
 
       <div className="filters__quick">
-        <span className="muted">Quick:</span>
+        <span className="muted">{t.quick}</span>
         <button
           type="button"
           className={`chip-btn ${draft.showdownOnly ? "is-active" : ""}`}
           aria-pressed={draft.showdownOnly}
           onClick={() => applyNow({ ...draft, showdownOnly: !draft.showdownOnly })}
         >
-          Showdown only
+          {t.showdownOnly}
         </button>
         <button
           type="button"
@@ -188,7 +191,7 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
           aria-pressed={draft.heroWonOnly}
           onClick={() => applyNow({ ...draft, heroWonOnly: !draft.heroWonOnly })}
         >
-          Hero in profit
+          {t.heroWon}
         </button>
         <button
           type="button"
@@ -198,14 +201,14 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
             applyNow({ ...draft, sort: draft.sort === "pot_desc" ? "played_desc" : "pot_desc" })
           }
         >
-          Biggest pots
+          {t.biggestPots}
         </button>
       </div>
 
       {/* Hero position is the one filter that works on every room, anonymized
           or not, so it sits in the always-visible part of the bar. */}
       <fieldset className="filters__positions">
-        <legend className="field__label">Hero position</legend>
+        <legend className="field__label">{t.heroPosition}</legend>
         <div className="filters__chips">
           {POSITIONS.map((position) => (
             <button
@@ -224,7 +227,7 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
               className="chip-btn chip-btn--clear"
               onClick={() => set("heroPositions", [])}
             >
-              Clear
+              {t.clear}
             </button>
           ) : null}
         </div>
@@ -234,58 +237,56 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
         <>
           <div className="filters__row filters__row--advanced">
             <label className="field">
-              <span className="field__label">Player at the table</span>
+              <span className="field__label">{t.player}</span>
               <input
                 type="text"
                 value={draft.player}
-                placeholder="exact screen name"
+                placeholder={t.playerPlaceholder}
                 onChange={(event) => set("player", event.target.value)}
               />
               <span className="field__hint">
-                {positionalCount > 0
-                  ? `Exact screen name. ${positionalCount} hands from rooms that label seats by position cannot match it.`
-                  : "Exact screen name, as the room wrote it."}
+                {positionalCount > 0 ? t.playerHintLossy(positionalCount) : t.playerHint}
               </span>
             </label>
 
             <label className="field">
-              <span className="field__label">Site</span>
+              <span className="field__label">{t.site}</span>
               <select value={draft.site} onChange={(event) => set("site", event.target.value)}>
-                <option value="">Every room</option>
+                <option value="">{t.everyRoom}</option>
                 {(facets?.sites ?? []).map((site) => (
                   <option key={site.value} value={site.value}>
-                    {siteLabel(site.value)} ({site.count})
+                    {t.siteOption(siteLabel(site.value), site.count)}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="field">
-              <span className="field__label">Game</span>
+              <span className="field__label">{t.game}</span>
               <select
                 value={draft.gameFormat}
                 onChange={(event) =>
                   set("gameFormat", event.target.value as ReplayerFilterForm["gameFormat"])
                 }
               >
-                <option value="">Cash and tournament</option>
-                <option value="cash">Cash only</option>
-                <option value="tournament">Tournament only</option>
+                <option value="">{t.gameAny}</option>
+                <option value="cash">{t.gameCash}</option>
+                <option value="tournament">{t.gameTournament}</option>
               </select>
             </label>
 
             <label className="field">
-              <span className="field__label">Table</span>
+              <span className="field__label">{t.table}</span>
               <input
                 type="text"
                 value={draft.tableName}
-                placeholder="e.g. NLHPurple"
+                placeholder={t.tablePlaceholder}
                 onChange={(event) => set("tableName", event.target.value)}
               />
             </label>
 
             <label className="field field--narrow">
-              <span className="field__label">Min pot</span>
+              <span className="field__label">{t.minPot}</span>
               <input
                 type="number"
                 step={draft.gameFormat === "tournament" ? "1" : "0.01"}
@@ -293,11 +294,11 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
                 value={draft.minPot}
                 onChange={(event) => set("minPot", event.target.value)}
               />
-              <span className="field__hint">In {potCurrency}</span>
+              <span className="field__hint">{potCurrencyHint}</span>
             </label>
 
             <label className="field field--narrow">
-              <span className="field__label">From</span>
+              <span className="field__label">{t.from}</span>
               <input
                 type="date"
                 value={draft.fromDate}
@@ -306,7 +307,7 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
             </label>
 
             <label className="field field--narrow">
-              <span className="field__label">To</span>
+              <span className="field__label">{t.to}</span>
               <input
                 type="date"
                 value={draft.toDate}
@@ -315,24 +316,24 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
             </label>
 
             <label className="field">
-              <span className="field__label">Sort by</span>
+              <span className="field__label">{t.sortBy}</span>
               <select
                 value={draft.sort}
                 onChange={(event) =>
                   set("sort", event.target.value as ReplayerFilterForm["sort"])
                 }
               >
-                <option value="played_desc">Newest first</option>
-                <option value="played_asc">Oldest first</option>
-                <option value="pot_desc">Biggest pot</option>
-                <option value="profit_desc">Hero's biggest win</option>
-                <option value="profit_asc">Hero's biggest loss</option>
+                <option value="played_desc">{t.sort.played_desc}</option>
+                <option value="played_asc">{t.sort.played_asc}</option>
+                <option value="pot_desc">{t.sort.pot_desc}</option>
+                <option value="profit_desc">{t.sort.profit_desc}</option>
+                <option value="profit_asc">{t.sort.profit_asc}</option>
               </select>
             </label>
           </div>
 
           <fieldset className="filters__positions">
-            <legend className="field__label">Winner position</legend>
+            <legend className="field__label">{t.winnerPosition}</legend>
             <div className="filters__chips">
               {POSITIONS.map((position) => (
                 <button
@@ -351,13 +352,12 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
                   className="chip-btn chip-btn--clear"
                   onClick={() => set("winnerPositions", [])}
                 >
-                  Clear
+                  {t.clear}
                 </button>
               ) : null}
             </div>
             <span className="field__hint">
-              Who took the pot, by seat. This is the only way to ask that question of a room that
-              does not give you names.
+              {t.winnerHint}
             </span>
           </fieldset>
         </>
@@ -367,7 +367,7 @@ export function HandFiltersBar({ value, onApply, onReset, loading }: HandFilters
           moment the missing hands would otherwise disappear without comment. */}
       {nameFilterIsLossy && positionalNote ? (
         <p className="notice notice--warn filters__note">
-          <strong>{positionalCount} hands are excluded by the name filter.</strong> {positionalNote}
+          <strong>{t.excluded(positionalCount)}</strong> {positionalNote}
         </p>
       ) : null}
     </form>

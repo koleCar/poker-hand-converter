@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { useDict } from "../../lib/i18n/client";
 import { toStandardText } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
 import { copyToClipboard, downloadText } from "./handoff";
@@ -21,6 +22,7 @@ interface HandPreviewProps {
 }
 
 export function HandPreview({ hand, onClose, onOpenInReplayer }: HandPreviewProps) {
+  const t = useDict().converter.preview;
   const [copied, setCopied] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   const text = toStandardText(hand);
@@ -49,19 +51,19 @@ export function HandPreview({ hand, onClose, onOpenInReplayer }: HandPreviewProp
         className="conv-modal__panel"
         role="dialog"
         aria-modal="true"
-        aria-label={`Hand ${row.handId}`}
+        aria-label={t.dialogLabel(row.handId)}
         onClick={(event) => event.stopPropagation()}
       >
         <header className="conv-modal__head">
           <div>
-            <h3>Hand #{row.handId}</h3>
+            <h3>{t.heading(row.handId)}</h3>
             <p className="muted">
               {row.siteName} · {row.stakes}
               {row.table ? ` · ${row.table}` : ""}
             </p>
           </div>
           <button ref={closeRef} type="button" className="btn btn--ghost btn--sm" onClick={onClose}>
-            Close
+            {t.close}
           </button>
         </header>
 
@@ -69,7 +71,7 @@ export function HandPreview({ hand, onClose, onOpenInReplayer }: HandPreviewProp
 
         <footer className="conv-modal__actions">
           <button type="button" className="btn btn--primary" onClick={() => onOpenInReplayer(hand, text)}>
-            Open in replayer
+            {t.openInReplayer}
           </button>
           <button
             type="button"
@@ -79,14 +81,14 @@ export function HandPreview({ hand, onClose, onOpenInReplayer }: HandPreviewProp
               setTimeout(() => setCopied(false), 2000);
             }}
           >
-            {copied ? "Copied" : "Copy text"}
+            {copied ? t.copied : t.copyText}
           </button>
           <button
             type="button"
             className="btn btn--ghost"
-            onClick={() => downloadText(`hand-${row.handId}.txt`, text)}
+            onClick={() => downloadText(t.fileName(row.handId), text)}
           >
-            Download
+            {t.download}
           </button>
         </footer>
       </div>

@@ -24,6 +24,7 @@ import {
   searchHands,
   type HandSummary,
 } from "../lib/db";
+import { useDict } from "../lib/i18n/client";
 import { getParser, parseHand, toStandardText } from "../lib/phf";
 import type { PhfHand } from "../lib/phf/types";
 import { PENDING_HAND_KEY, type PendingHand } from "./converter/handoff";
@@ -108,6 +109,8 @@ interface ReplayerTabProps {
 }
 
 export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
+  const en = useDict();
+  const t = en.converter.library;
   const auth = useAuth();
   const [filters, setFilters] = useState<ReplayerFilterForm>(EMPTY_REPLAYER_FILTERS);
   const [rows, setRows] = useState<HandSummary[]>([]);
@@ -135,14 +138,14 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
         setRows(result.rows);
         setTotal(result.total);
       } catch (err) {
-        setListError(err instanceof Error ? err.message : "Could not load hands.");
+        setListError(err instanceof Error ? err.message : t.loadFailed);
         setRows([]);
         setTotal(0);
       } finally {
         setLoading(false);
       }
     },
-    [],
+    [t],
   );
 
   // `isSignedIn` is a dependency because the library *is* the session: signing
@@ -165,7 +168,7 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
       const record = await getHand(row.id);
       const hand = record ? parseHand(record.standardText) : null;
       if (!hand) {
-        setListError("This hand could not be parsed.");
+        setListError(t.parseFailed);
         return;
       }
       setLoaded({
@@ -176,7 +179,7 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      setListError(err instanceof Error ? err.message : "Could not load this hand.");
+      setListError(err instanceof Error ? err.message : t.loadHandFailed);
     }
   }
 
@@ -188,8 +191,8 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
       origin: "converter",
       siteId: hand.meta.siteId,
     });
-    setNotice("From the converter — not saved to your library.");
-  }, []);
+    setNotice(t.fromConverter);
+  }, [t]);
 
   // Runs once per mount, and clears the key so a later reload does not
   // resurrect it.
@@ -219,7 +222,7 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
     }
     if (!auth.isSignedIn) {
       wantsSaveRef.current = true;
-      auth.requestSignIn("Sign in to keep this hand. Only you will see it.");
+      auth.requestSignIn(en.converter.save.signInReason);
       return;
     }
     setSaving(true);
@@ -229,14 +232,14 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
       // hand carries and re-derives amounts through display floats.
       const result = await saveHand(loaded.hand, toStandardText(loaded.hand));
       setLoaded({ ...loaded, storedId: result.id });
-      setNotice(result.duplicate ? "Already in your library." : "Saved to your library.");
+      setNotice(result.duplicate ? en.converter.save.alreadySaved : en.converter.save.saved);
       onHandsSaved();
       if (!result.duplicate) {
         // Background, server-side; see ConverterTab.
         void rebuildStats().catch(() => undefined);
       }
     } catch (err) {
-      setListError(err instanceof Error ? err.message : "Saving failed.");
+      setListError(err instanceof Error ? err.message : en.converter.save.failed);
     } finally {
       setSaving(false);
     }
@@ -271,8 +274,8 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
                     className="btn btn--icon"
                     onClick={() => void saveLoadedHand()}
                     disabled={saving}
-                    aria-label="Save to my library"
-                    title={saving ? "Saving…" : "Save to my library"}
+                    aria-label={en.converter.save.button}
+                    title={saving ? en.converter.save.saving : en.converter.save.button}
                   >
                     💾
                   </button>
@@ -286,13 +289,13 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
       <section className="card">
         <header className="card__head">
           <div>
-            <h2>Hand history</h2>
+            <h2>{t.heading}</h2>
             <p className="muted">
               {!isDatabaseConfigured
-                ? "No database configured."
+                ? t.noDatabase
                 : !auth.isSignedIn
-                  ? "Private to your account."
-                  : `${total.toLocaleString("en-US")} ${total === 1 ? "hand" : "hands"}`}
+                  ? t.privateToAccount
+                  : t.count(total)}
             </p>
           </div>
         </header>
@@ -303,13 +306,13 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
             returning user does not see it flash before their session restores. */}
         {isDatabaseConfigured && !auth.isSignedIn && auth.status !== "loading" ? (
           <div className="signin-gate">
-            <p>Sign in to see the hands you have saved.</p>
+            <p>{t.signInPrompt}</p>
             <button
               type="button"
               className="btn btn--primary btn--sm"
-              onClick={() => auth.requestSignIn("Sign in to open your hand library.")}
+              onClick={() => auth.requestSignIn(t.signInReason)}
             >
-              Sign in
+              {t.signIn}
             </button>
           </div>
         ) : (
@@ -338,18 +341,16 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
                   disabled={page === 0}
                   onClick={() => setPage((current) => Math.max(0, current - 1))}
                 >
-                  ← Previous
+                  {t.previous}
                 </button>
-                <span className="muted">
-                  Page {page + 1} of {pageCount}
-                </span>
+                <span className="muted">{t.page(page + 1, pageCount)}</span>
                 <button
                   type="button"
                   className="btn btn--ghost btn--sm"
                   disabled={page + 1 >= pageCount}
                   onClick={() => setPage((current) => current + 1)}
                 >
-                  Next →
+                  {t.next}
                 </button>
               </div>
             ) : null}

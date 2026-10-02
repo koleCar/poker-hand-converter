@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { useDict } from "../../lib/i18n/client";
 import { FILE_ACCEPT, filesFromDrop } from "./inputs";
 
 interface DropZoneProps {
@@ -33,14 +34,15 @@ const MIN_PASTE_LENGTH = 40;
  */
 const MAX_LISTED_SITES = 5;
 
-function listSites(names: string[]): string {
+function listSites(names: string[], more: (listed: string, more: number) => string): string {
   if (names.length <= MAX_LISTED_SITES) {
     return names.join(", ");
   }
-  return `${names.slice(0, MAX_LISTED_SITES).join(", ")} and ${names.length - MAX_LISTED_SITES} more`;
+  return more(names.slice(0, MAX_LISTED_SITES).join(", "), names.length - MAX_LISTED_SITES);
 }
 
 export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
+  const t = useDict().converter.drop;
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const folderRef = useRef<HTMLInputElement>(null);
@@ -163,7 +165,7 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
           box never light up at the same time. */}
       {pageDragging && !dragging ? (
         <div className="conv-dropveil" aria-hidden="true">
-          <span>Drop anywhere to convert</span>
+          <span>{t.veil}</span>
         </div>
       ) : null}
       <div
@@ -224,7 +226,7 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
           </svg>
         </div>
 
-        <p className="conv-drop__title">Drop files or a whole export folder</p>
+        <p className="conv-drop__title">{t.title}</p>
 
         <div className="conv-drop__actions">
           <button
@@ -233,7 +235,7 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
             disabled={busy}
             onClick={() => inputRef.current?.click()}
           >
-            Choose files
+            {t.chooseFiles}
           </button>
           {/* A whole HandHistory folder is how trackers export, and dragging
               one only works with a mouse. On desktop the picker can do it too. */}
@@ -244,7 +246,7 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
               disabled={busy}
               onClick={() => folderRef.current?.click()}
             >
-              Choose a folder
+              {t.chooseFolder}
             </button>
           ) : null}
         </div>
@@ -253,7 +255,7 @@ export function DropZone({ onFiles, onText, busy, siteNames }: DropZoneProps) {
             is "does it handle my room?", and nothing on the page answers it.
             The list comes from the parser registry, so it stays true on its
             own as parsers are added. */}
-        <p className="conv-drop__hint">{listSites(siteNames)}</p>
+        <p className="conv-drop__hint">{listSites(siteNames, t.moreSites)}</p>
       </div>
 
     </div>

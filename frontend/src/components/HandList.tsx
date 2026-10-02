@@ -10,6 +10,8 @@
 
 import { formatAmount, type CurrencyUnit } from "../lib/phf/types";
 import { handUnit, type HandSummary } from "../lib/db";
+import { useDict, useLocale } from "../lib/i18n/client";
+import { INTL_LOCALE } from "../lib/i18n/dictionaries";
 import { getParser } from "../lib/phf";
 import { CardRow } from "./replayer/PlayingCard";
 
@@ -28,9 +30,9 @@ function money(unit: CurrencyUnit, amount: number | null): string {
   return formatAmount(amount, unit, unit.minorUnits > 1 ? "fixed2" : "minimal", true);
 }
 
-function formatDate(iso: string | null): string {
+function formatDate(iso: string | null, locale: string): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("en-GB", {
+  return new Date(iso).toLocaleString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "2-digit",
@@ -46,9 +48,9 @@ function formatDate(iso: string | null): string {
  * registry name ("Rail standard") is far too long for a list cell,
  * so it gets a short one here.
  */
-function siteLabel(id: string): string {
+function siteLabel(id: string, standardFormat: string): string {
   if (id === "standard") {
-    return "Standard format";
+    return standardFormat;
   }
   return getParser(id)?.name ?? id;
 }
@@ -61,28 +63,26 @@ interface HandListProps {
 }
 
 export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
+  const t = useDict().converter.list;
+  const locale = INTL_LOCALE[useLocale()];
+
   if (loading && rows.length === 0) {
-    return <div className="empty">Loading hands…</div>;
+    return <div className="empty">{t.loading}</div>;
   }
 
   if (rows.length === 0) {
-    return (
-      <div className="empty">
-        No hands match these filters. Convert your hand histories on the Converter tab, or
-        upload a single hand above.
-      </div>
-    );
+    return <div className="empty">{t.empty}</div>;
   }
 
   return (
     <div className="hand-table" role="table">
       <div className="hand-table__head" role="row">
-        <span>Time</span>
-        <span>Hero</span>
-        <span>Board</span>
-        <span>Table</span>
-        <span>Pot</span>
-        <span>Hero P/L</span>
+        <span>{t.columns.time}</span>
+        <span>{t.columns.hero}</span>
+        <span>{t.columns.board}</span>
+        <span>{t.columns.table}</span>
+        <span>{t.columns.pot}</span>
+        <span>{t.columns.heroNet}</span>
         <span />
       </div>
       {rows.map((row) => {
@@ -104,11 +104,11 @@ export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
             tabIndex={0}
           >
             <span className="hand-table__time">
-              {formatDate(row.playedAt)}
+              {formatDate(row.playedAt, locale)}
               {/* The room, not the internal key: "#standard:HD75320833" told the
                   user nothing and leaked a parser id into the interface. */}
               <small>
-                {siteLabel(row.site)}
+                {siteLabel(row.site, t.standardFormat)}
                 {row.siteHandId ? ` · #${row.siteHandId}` : ""}
               </small>
             </span>
@@ -129,7 +129,7 @@ export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
               {row.boardCards.length ? (
                 <CardRow cards={row.boardCards} size="xs" />
               ) : (
-                <span className="muted">preflop</span>
+                <span className="muted">{t.preflop}</span>
               )}
             </span>
             <span className="hand-table__table">
@@ -152,12 +152,12 @@ export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
               {positional ? (
                 <span
                   className="tag tag--anon"
-                  title="This room labels every seat by its position rather than naming the player, so the name filter cannot find this hand. Filter by position instead."
+                  title={t.anonTitle}
                 >
-                  ANON
+                  {t.anon}
                 </span>
               ) : null}
-              {row.wentToShowdown ? <span className="tag tag--sd">SD</span> : null}
+              {row.wentToShowdown ? <span className="tag tag--sd">{t.showdown}</span> : null}
               <button
                 type="button"
                 className="btn btn--sm"
@@ -166,7 +166,7 @@ export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
                   onOpen(row);
                 }}
               >
-                Replay
+                {t.replay}
               </button>
             </span>
           </div>

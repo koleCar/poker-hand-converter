@@ -10,7 +10,33 @@
  * says why instead of failing as "unknown site".
  *
  * Nothing here knows about poker. It hands `lib/phf` clean `\n`-separated text.
+ *
+ * Nor does it know about languages: a file that cannot be read carries a
+ * {@link SourceProblem} code, and the component that shows it picks the words
+ * ({@link describeProblem}, `converter.problems` in the dictionaries).
  */
+
+import type { Dict } from "../../lib/i18n/types";
+
+/**
+ * Why a file cannot be converted at all, as a code rather than a sentence.
+ *
+ * `detail` is an exception's own message when there was one; it is technical
+ * and is shown as thrown.
+ */
+export type SourceProblem =
+  | { kind: "empty" }
+  | { kind: "no-text" }
+  | { kind: "binary" }
+  | { kind: "not-zip" }
+  | { kind: "encrypted-entry" }
+  | { kind: "zip64" }
+  | { kind: "cannot-unzip" }
+  | { kind: "unreadable-entry"; detail?: string }
+  | { kind: "empty-archive" }
+  | { kind: "too-large"; bytes: number }
+  | { kind: "unreadable-file"; detail?: string }
+  | { kind: "nothing-pasted" };
 
 /** A file (or archive entry) that is ready to convert. */
 export interface LoadedSource {
@@ -29,7 +55,7 @@ export interface LoadedSource {
    * archive we could not open. Kept as a per-file note rather than a thrown
    * error so one bad file in a fifty-file drop does not cost the other 49.
    */
-  problem?: string;
+  problem?: SourceProblem;
 }
 
 /** Extensions real hand history exports actually use, for the file picker. */
@@ -174,10 +200,10 @@ function decodeLegacySingleByte(body: Uint8Array): string | null {
 }
 
 /** Decodes bytes to text, or explains why we will not try. */
-export function decodeSource(buffer: ArrayBuffer): { text: string; encoding: string; problem?: string } {
+export function decodeSource(buffer: ArrayBuffer): { text: string; encoding: string; problem?: SourceProblem } {
   const bytes = new Uint8Array(buffer);
   if (bytes.length === 0) {
-    return { text: "", encoding: "UTF-8", problem: "The file is empty." };
+    return { text: "", encoding: "UTF-8", problem: { kind: "empty" } };
   }
 
   const { label, offset, pretty } = pickEncoding(bytes);
@@ -211,7 +237,7 @@ export function decodeSource(buffer: ArrayBuffer): { text: string; encoding: str
     return {
       text: "",
       encoding,
-      problem: "This looks like a binary file, not a hand history. Check you picked the right file.",
+      problem: { kind: "binary" },
     };
   }
 
@@ -219,7 +245,7 @@ export function decodeSource(buffer: ArrayBuffer): { text: string; encoding: str
   // normalize CRLF and lone CR so every parser downstream sees one line ending.
   const normalized = text.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
   if (!normalized.trim()) {
-    return { text: "", encoding, problem: "The file has no text in it." };
+    return { text: "", encoding, problem: { kind: "no-text" } };
   }
   return { text: normalized, encoding };
 }
@@ -254,11 +280,14 @@ function findEocd(view: DataView): number {
   return -1;
 }
 
+/** Thrown when the browser has no `DecompressionStream`; reported as `cannot-unzip`. */
+class UnzipUnsupportedError extends Error {}
+
 async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {
   const Decompression = (globalThis as { DecompressionStream?: typeof DecompressionStream })
     .DecompressionStream;
   if (!Decompression) {
-    throw new Error("This browser cannot unzip files. Unzip it yourself and drop the .txt files in.");
+    throw new UnzipUnsupportedError("DecompressionStream is not available");
   }
   const stream = new Blob([data as unknown as BlobPart]).stream().pipeThrough(new Decompression("deflate-raw"));
   return new Uint8Array(await new Response(stream).arrayBuffer());
@@ -272,7 +301,7 @@ export async function readZip(file: File): Promise<LoadedSource[]> {
 
   const eocd = findEocd(view);
   if (eocd < 0) {
-    return [{ id: nextId(), name: file.name, bytes: file.size, text: "", encoding: "-", problem: "This is not a readable zip archive." }];
+    return [{ id: nextId(), name: file.name, bytes: file.size, text: "", encoding: "-", problem: { kind: "not-zip" } }];
   }
 
   const entryCount = view.getUint16(eocd + 10, true);
@@ -304,11 +333,11 @@ export async function readZip(file: File): Promise<LoadedSource[]> {
       continue;
     }
     if (flags & 0x0001) {
-      out.push({ id: nextId(), name: label, bytes: uncompressedSize, text: "", encoding: "-", problem: "Encrypted zip entries are not supported." });
+      out.push({ id: nextId(), name: label, bytes: uncompressedSize, text: "", encoding: "-", problem: { kind: "encrypted-entry" } });
       continue;
     }
     if (compressedSize === 0xffffffff || uncompressedSize === 0xffffffff) {
-      out.push({ id: nextId(), name: label, bytes: 0, text: "", encoding: "-", problem: "Zip64 archives are not supported. Unzip it and drop the files in." });
+      out.push({ id: nextId(), name: label, bytes: 0, text: "", encoding: "-", problem: { kind: "zip64" } });
       continue;
     }
 
@@ -333,13 +362,16 @@ export async function readZip(file: File): Promise<LoadedSource[]> {
         bytes: uncompressedSize,
         text: "",
         encoding: "-",
-        problem: error instanceof Error ? error.message : "Could not read this archive entry.",
+        problem:
+          error instanceof UnzipUnsupportedError
+            ? { kind: "cannot-unzip" }
+            : { kind: "unreadable-entry", detail: error instanceof Error ? error.message : undefined },
       });
     }
   }
 
   if (out.length === 0) {
-    return [{ id: nextId(), name: file.name, bytes: file.size, text: "", encoding: "-", problem: "The archive has no files in it." }];
+    return [{ id: nextId(), name: file.name, bytes: file.size, text: "", encoding: "-", problem: { kind: "empty-archive" } }];
   }
   return out;
 }
@@ -359,7 +391,7 @@ export async function loadFile(file: File): Promise<LoadedSource[]> {
       bytes: file.size,
       text: "",
       encoding: "-",
-      problem: `That file is ${formatBytes(file.size)}. Hand histories are not that big — this one is skipped.`,
+      problem: { kind: "too-large", bytes: file.size },
     }];
   }
   if (isZip(file)) {
@@ -375,13 +407,16 @@ export async function loadFile(file: File): Promise<LoadedSource[]> {
       bytes: file.size,
       text: "",
       encoding: "-",
-      problem: error instanceof Error ? error.message : "Could not read this file.",
+      problem: { kind: "unreadable-file", detail: error instanceof Error ? error.message : undefined },
     }];
   }
 }
 
-/** Wraps pasted text as a source so it flows through the same pipeline. */
-export function sourceFromText(text: string, name = "Pasted text"): LoadedSource {
+/**
+ * Wraps pasted text as a source so it flows through the same pipeline. `name`
+ * is a display name in the reader's language ("Pasted text").
+ */
+export function sourceFromText(text: string, name: string): LoadedSource {
   const normalized = text.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
   return {
     id: nextId(),
@@ -389,7 +424,7 @@ export function sourceFromText(text: string, name = "Pasted text"): LoadedSource
     bytes: new Blob([normalized]).size,
     text: normalized,
     encoding: "UTF-8",
-    problem: normalized.trim() ? undefined : "There was nothing in the box.",
+    problem: normalized.trim() ? undefined : { kind: "nothing-pasted" },
   };
 }
 
@@ -479,16 +514,53 @@ export async function filesFromDrop(transfer: DataTransfer): Promise<File[]> {
 
 /* ---------------------------------------------------------------- format - */
 
-export function formatBytes(bytes: number): string {
+/** `locale` is a BCP 47 tag: `INTL_LOCALE[useLocale()]` in a component. */
+export function formatBytes(bytes: number, locale: string): string {
   if (bytes < 1024) {
-    return `${bytes} B`;
+    return `${formatCount(bytes, locale)} B`;
   }
   if (bytes < 1024 * 1024) {
-    return `${Math.round(bytes / 1024)} kB`;
+    return `${formatCount(Math.round(bytes / 1024), locale)} kB`;
   }
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  const megabytes = bytes / (1024 * 1024);
+  return `${megabytes.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} MB`;
 }
 
-export function formatCount(value: number): string {
-  return value.toLocaleString("en-US");
+/** `locale` is a BCP 47 tag: `INTL_LOCALE[useLocale()]` in a component. */
+export function formatCount(value: number, locale: string): string {
+  return value.toLocaleString(locale);
+}
+
+/** A {@link SourceProblem} in the reader's words. */
+export function describeProblem(
+  problem: SourceProblem,
+  t: Dict["converter"]["problems"],
+  locale: string,
+): string {
+  switch (problem.kind) {
+    case "empty":
+      return t.empty;
+    case "no-text":
+      return t.noText;
+    case "binary":
+      return t.binary;
+    case "not-zip":
+      return t.notZip;
+    case "encrypted-entry":
+      return t.encryptedEntry;
+    case "zip64":
+      return t.zip64;
+    case "cannot-unzip":
+      return t.cannotUnzip;
+    case "unreadable-entry":
+      return problem.detail ?? t.unreadableEntry;
+    case "empty-archive":
+      return t.emptyArchive;
+    case "too-large":
+      return t.tooLarge(formatBytes(problem.bytes, locale));
+    case "unreadable-file":
+      return problem.detail ?? t.unreadableFile;
+    case "nothing-pasted":
+      return t.nothingPasted;
+  }
 }

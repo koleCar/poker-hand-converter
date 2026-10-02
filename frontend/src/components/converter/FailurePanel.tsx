@@ -13,8 +13,10 @@
  */
 
 import { useState } from "react";
+import { useDict, useLocale } from "../../lib/i18n/client";
+import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
+import type { Dict } from "../../lib/i18n/types";
 import type { ConversionFailure } from "../../lib/phf";
-import { FAILURE_REASON_COPY, FAILURE_STAGE_COPY } from "./handSummary";
 import { copyToClipboard, downloadText } from "./handoff";
 import { formatCount } from "./inputs";
 
@@ -26,13 +28,13 @@ import { formatCount } from "./inputs";
  * instead of waiting for a release that cannot happen: WPT Global withdrew
  * hand-history export entirely in June 2026, and PPPoker has never shipped
  * one. Matched on the raw text because no parser claims these files, so there
- * is no site id to key off.
+ * is no site id to key off. The explanation itself is in the dictionaries
+ * (`converter.failures.refusals`), keyed by `id`.
  */
 interface KnownRefusal {
-  id: string;
+  id: keyof Dict["converter"]["failures"]["refusals"];
   label: string;
   signature: RegExp;
-  why: string;
 }
 
 const KNOWN_REFUSALS: KnownRefusal[] = [
@@ -40,15 +42,11 @@ const KNOWN_REFUSALS: KnownRefusal[] = [
     id: "wpt-global",
     label: "WPT Global",
     signature: /^\s*WPT\s+Global\s+Hand\s+#/im,
-    why:
-      "This is a WPT Global hand. WPT Global removed hand-history export from its client in June 2026, so files like this one can no longer be produced and we are not adding a converter for them. Your file still downloads below.",
   },
   {
     id: "pppoker",
     label: "PPPoker",
     signature: /^\s*PPPoker\s+Hand\s+#/im,
-    why:
-      "This is a PPPoker hand. PPPoker has no hand-history export — whatever produced this file is not the client, so we cannot convert it reliably and are not adding a converter for it.",
   },
 ];
 
@@ -99,27 +97,6 @@ export function groupFailures(failures: ConversionFailure[]): FailureGroup[] {
 /** How many raw samples one group is worth reading before it repeats itself. */
 const SAMPLE_LIMIT = 3;
 
-/**
- * What we did with the samples, in a sentence.
- *
- * Re-uploading the same unsupported file is the common case — people try again
- * after an update — so "0 new samples" has to read as the non-event it is
- * rather than as a failure.
- */
-function keptCopy(created: number, updated: number): string {
-  const plural = (n: number) => (n === 1 ? "hand" : "hands");
-  if (created > 0 && updated > 0) {
-    return `We kept ${formatCount(created)} new ${plural(created)} and already had ${formatCount(updated)}. They are the queue we write the next converters from.`;
-  }
-  if (created > 0) {
-    return `We kept ${formatCount(created)} new ${plural(created)}. They are the queue we write the next converters from.`;
-  }
-  if (updated > 0) {
-    return `We already had ${updated === 1 ? "this one" : `all ${formatCount(updated)} of these`} — your upload moved ${updated === 1 ? "it" : "them"} up the queue.`;
-  }
-  return "We could not keep a copy of these, so download them if you want us to see them.";
-}
-
 interface FailurePanelProps {
   failures: ConversionFailure[];
   /** Display name for a registry site id. */
@@ -136,6 +113,8 @@ interface FailurePanelProps {
 }
 
 export function FailurePanel({ failures, siteLabel, recorded, notKept }: FailurePanelProps) {
+  const t = useDict().converter.failures;
+  const locale = INTL_LOCALE[useLocale()];
   const [open, setOpen] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const groups = groupFailures(failures);
@@ -155,7 +134,7 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
   }
 
   function downloadGroup(group: FailureGroup) {
-    const name = `unconverted - ${siteLabel(group.site)} - ${group.reason}.txt`.replace(/[\\/:*?"<>|]/g, "-");
+    const name = t.fileName(siteLabel(group.site), group.reason).replace(/[\\/:*?"<>|]/g, "-");
     downloadText(name, group.failures.map((f) => f.rawText).join("\n\n"));
   }
 
@@ -163,20 +142,17 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
     <section className="card conv-failures">
       <header className="card__head">
         <div>
-          <h3>
-            {formatCount(failures.length)} {failures.length === 1 ? "hand" : "hands"} we could not
-            convert{allRefused ? "" : " yet"}
-          </h3>
+          <h3>{t.heading(failures.length, allRefused)}</h3>
           <p className="muted">
             {allRefused
-              ? "Download them below for your own copy."
+              ? t.downloadForCopy
               : notKept === "no-database"
-                ? "Nothing left your browser — this build has no database."
+                ? t.notKeptNoDb
                 : notKept === "saving-off"
-                  ? "Nothing left your browser; saving is switched off."
+                  ? t.notKeptSavingOff
                   : recorded === null
-                    ? "Keeping a copy so we can write a converter…"
-                    : keptCopy(recorded.created, recorded.updated)}
+                    ? t.keeping
+                    : t.kept(recorded.created, recorded.updated)}
           </p>
         </div>
       </header>
@@ -189,13 +165,13 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
             <li key={group.key} className="conv-failure">
               <div className="conv-failure__head">
                 <div className="conv-failure__title">
-                  <span className="conv-failure__count">{formatCount(group.failures.length)}</span>
+                  <span className="conv-failure__count">{formatCount(group.failures.length, locale)}</span>
                   <div>
                     <strong>{group.refusal?.label ?? siteLabel(group.site)}</strong>
                     <span className="conv-failure__stage">
                       {group.refusal
-                        ? "Not supported"
-                        : FAILURE_STAGE_COPY[group.stage] ?? group.stage}
+                        ? t.notSupported
+                        : (t.stages as Record<string, string>)[group.stage] ?? group.stage}
                     </span>
                   </div>
                 </div>
@@ -205,20 +181,22 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
                   aria-expanded={isOpen}
                   onClick={() => setOpen(isOpen ? null : group.key)}
                 >
-                  {isOpen ? "Hide hand" : "Show hand"}
+                  {isOpen ? t.hideHand : t.showHand}
                 </button>
               </div>
 
               <p className="conv-failure__why">
-                {group.refusal?.why ?? FAILURE_REASON_COPY[group.reason] ?? group.message}
+                {group.refusal
+                  ? t.refusals[group.refusal.id]
+                  : (t.reasons as Record<string, string>)[group.reason] ?? group.message}
               </p>
 
               <div className="conv-failure__actions">
                 <button type="button" className="btn btn--ghost btn--sm" onClick={() => void copyGroup(group)}>
-                  {copied === group.key ? "Copied" : "Copy sample"}
+                  {copied === group.key ? t.copied : t.copySample}
                 </button>
                 <button type="button" className="btn btn--ghost btn--sm" onClick={() => downloadGroup(group)}>
-                  Download {formatCount(group.failures.length)}
+                  {t.downloadCount(group.failures.length)}
                 </button>
                 <code className="conv-failure__code">{group.reason}</code>
               </div>
@@ -232,8 +210,7 @@ export function FailurePanel({ failures, siteLabel, recorded, notKept }: Failure
                   ))}
                   {group.failures.length > samples.length ? (
                     <p className="muted conv-failure__more">
-                      {formatCount(group.failures.length - samples.length)} more like this — download the group
-                      to see them all.
+                      {t.moreLikeThis(group.failures.length - samples.length)}
                     </p>
                   ) : null}
                 </div>
