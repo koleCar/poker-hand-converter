@@ -40,6 +40,10 @@ export const paths = {
    * the rest of `/analysis`; `query` is its filters (dates, room, stake, seat).
    */
   analysisReports: (query?: string) => (query ? `/analysis/reports?${query}` : "/analysis/reports"),
+  /** Leaks (phase A6): EV lost by spot, ranked. Private; `query` is its filters, sort and open leak. */
+  analysisLeaks: (query?: string) => (query ? `/analysis/leaks?${query}` : "/analysis/leaks"),
+  /** Progress (phase A6): score and EV lost over time. Private; `query` is its filters and view. */
+  analysisProgress: (query?: string) => (query ? `/analysis/progress?${query}` : "/analysis/progress"),
   /**
    * The preflop chart browser (phase A2b). Public and indexable like the
    * concept library: the charts are our own data and read no account. `line`

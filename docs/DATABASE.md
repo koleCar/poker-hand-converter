@@ -650,6 +650,24 @@ option taken as a chart action, `allin` for a stored shove) is granted to
 `authenticated` and not to `anon`. The reference frequencies themselves are
 chart arithmetic in the browser (`lib/analysis/reports.ts`).
 
+**Leaks and progress** (A6, `20270201090000_analysis_leaks.sql`; no table or
+grant change): `analysis_leaks(filters)` sums the graded decisions per finest
+spot — street, scenario, chart line, seat, action taken, best action — with
+decisions, hands, those worse than Perfect, those Inaccurate or worse, EV lost
+in bb and pots, and score sums and sums of squares; plus graded hands, first
+and last date, and the facets. `analysis_leak_hands(filters, keys, deviations,
+sort, limit, offset)` is the list behind a leak (up to 500 spot keys, shape
+and sort validated, 22023 otherwise). `analysis_trend(filters, bucket, group,
+gap_minutes)` sums the same per ISO week, month or session (`bucket`
+whitelisted; sessions by the `stats_sessions` gap rule over every analysed
+hand) and per `all` / `street` / `position` / `pot_type`. All three are
+invoker over `analysis_scope` through the helper
+`analysis_graded_decisions(filters)`; their helpers `analysis_best_action`
+(the highest-EV option), `analysis_spot_key` (the one key string the list and
+its hands share) and `analysis_graded_facets(version)` are granted to
+`authenticated` and not to `anon`. Grouping into leaks, merging thin spots,
+ranking and period comparison are `lib/analysis/leaks.ts`.
+
 ### Tests
 
 `supabase/tests/database/analysis.test.sql`: no client INSERT/UPDATE/DELETE
@@ -667,7 +685,12 @@ the EV-loss sorts; isolation and anon. `analysis_reports.test.sql` (A3):
 unchanged table grants; invoker, `search_path` and grants on both reports and
 the helper; the per-node, per-class and postflop counts; `allin` for a shove;
 every filter, facets that ignore them, one version per report; the deviation
-list's order, paging, action filter and validation; isolation and anon.
+list's order, paging, action filter and validation; isolation and anon. `analysis_leaks.test.sql` (A6): unchanged table grants; invoker,
+`search_path` and grants on the three reports and four helpers; the best
+action and the spot key; per-spot sums (Perfect moves counted, Good not a
+mistake), dates and facets; every filter and one version per report; the
+leak list's order, deviations, paging and validation; weekly, monthly and
+session buckets (and the gap), per street and seat; isolation and anon.
 
 ## Verifying the isolation
 

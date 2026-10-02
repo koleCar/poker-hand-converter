@@ -18,6 +18,7 @@
 import { betterAlternative, modelCaveat, outOfRange, referenceMix } from "../../analysis/reference";
 import type { DecisionAnalysis, Flag, OptionAnalysis, SpotFacts } from "../../analysis/types";
 import { reportsEn } from "./analysisReports.en";
+import { leaksEn, progressEn, summaryEn } from "./analysisLeaks.en";
 
 const num = (value: number, digits = 0) =>
   value.toLocaleString("en-GB", { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -906,6 +907,11 @@ export const analysisEn = {
 
   /** `/analysis/reports` (phase A3): its own file, `analysisReports.en.ts`. */
   reports: reportsEn,
+
+  /** Leaks, progress and the overview's "what changed" card (phase A6): `analysisLeaks.en.ts`. */
+  leaks: leaksEn,
+  progress: progressEn,
+  summary: summaryEn,
 
   explain,
 } as const;

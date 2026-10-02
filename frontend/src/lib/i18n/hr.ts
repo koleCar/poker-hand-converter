@@ -65,6 +65,14 @@ export const hr: Dict = {
       title: "Izvještaji — tvoje frekvencije prema referenci | Rail",
       description: "Tvoje preflop frekvencije u svakoj situaciji koju chartovi pokrivaju, uz frekvencije reference i ruke u kojima si od nje odstupio.",
     },
+    analysisLeaks: {
+      title: "Leakovi — situacije koje te najviše koštaju | Rail",
+      description: "Tvoje ocijenjene odluke grupirane u situacije i poredane po EV-u koji su te koštale u odnosu na referencu, s rukama iza svake.",
+    },
+    analysisProgress: {
+      title: "Napredak — tvoj score kroz vrijeme | Rail",
+      description: "Score analize i izgubljeni EV na 100 ruku po tjednu, mjesecu ili sesiji, po streetu, poziciji i vrsti pota.",
+    },
     analysisHand: {
       title: "Analiza ruke | Rail",
       description: "Jedna tvoja ruka, odluku po odluku, u replayeru.",

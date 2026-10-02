@@ -1,0 +1,382 @@
+/* Leaks, progress and the "what changed" card (phase A6).
+
+   Built on the statistics screen's skeleton (`.stats`, `.card`,
+   `.stats-chart`) and the Reports module (filters, hand rows) like the rest
+   of the Analysis tab; this file is only what a leak list, a trend chart and
+   a period comparison add. Colours are semantic tokens, which theme-light
+   re-points, so nothing here knows its theme. */
+
+.srOnly {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------- the list */
+
+.leaks {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.leak {
+  /* A deep link scrolls here: clear the sticky app bar. */
+  scroll-margin-block-start: 8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  padding: var(--space-2) var(--space-3);
+}
+
+.leak[data-open] {
+  background: var(--surface-inset);
+}
+
+.leakHeading {
+  margin: 0;
+  font-size: inherit;
+}
+
+/* The whole first line is the button: title, spot, EV lost. 44px tall at
+   least on touch, never a hover-only target. */
+.leakToggle {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  inline-size: 100%;
+  min-block-size: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.leakToggle:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.leakToggle:hover .leakTitle {
+  text-decoration: underline;
+}
+
+.rank {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.leakName {
+  display: grid;
+  gap: 2px;
+}
+
+.leakTitle {
+  font-weight: var(--font-weight-semibold);
+}
+
+.leakContext {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* EV lost: under the name on a phone, at the end of the line on a wider screen. */
+.leakEv {
+  grid-column: 3;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 640px) {
+  .leakToggle {
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+  }
+
+  .leakEv {
+    grid-column: auto;
+    text-align: end;
+    white-space: nowrap;
+  }
+}
+
+.leakStats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin: var(--space-1) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.leakPanel[hidden] {
+  display: none;
+}
+
+/* Confidence: three dots and a word, never colour alone. */
+.confidence {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.confidenceGlyph {
+  font-size: var(--font-size-xs);
+  letter-spacing: 1px;
+}
+
+.low {
+  color: var(--text-secondary);
+}
+
+.medium,
+.high {
+  color: var(--text-primary);
+}
+
+.high .confidenceGlyph {
+  color: var(--grade-perfect);
+}
+
+/* --------------------------------------------------------- one leak open */
+
+.describe {
+  font-size: var(--font-size-md);
+}
+
+.mixes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-2) var(--space-4);
+  inline-size: 100%;
+}
+
+.mixes p {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.mixHead {
+  margin: 0 0 var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-2) var(--space-4);
+  inline-size: 100%;
+  margin: 0;
+}
+
+.numbers dt {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.numbers dd {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.drill {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}
+
+/* --------------------------------------------------------------- trends */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2) var(--space-3);
+}
+
+.controls > label {
+  min-inline-size: 9rem;
+  flex: 1 1 9rem;
+}
+
+.trend {
+  min-inline-size: 0;
+}
+
+.trendHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+}
+
+.trendName {
+  margin: 0;
+  font-size: var(--font-size-md);
+}
+
+.trendHint {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.trendPlot {
+  position: relative;
+  border-radius: var(--radius-sm);
+}
+
+.trendPlot:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.band {
+  fill: var(--text-primary);
+  fill-opacity: 0.1;
+  stroke: none;
+}
+
+.volumeBar {
+  fill: var(--border-subtle);
+}
+
+/* A bucket with few moves: hollow, because its mean swings by chance. */
+.thinDot {
+  fill: var(--surface-raised);
+  stroke: var(--text-primary);
+  stroke-width: 1.5;
+}
+
+.tableInterval {
+  display: block;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.multiples {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--space-4);
+}
+
+/* ------------------------------------------------------ what changed card */
+
+.summary {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.summaryHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+
+.summary p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.periodToggle {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.periodToggle button[aria-pressed="true"] {
+  border-color: var(--accent-border);
+  color: var(--text-primary);
+}
+
+.changes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-3) var(--space-4);
+}
+
+.changeList {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.changeList li {
+  display: grid;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+}
+
+.changeHead {
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-md);
+}
+
+.trendWord {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  font-weight: var(--font-weight-semibold);
+}
+
+.better {
+  color: var(--grade-perfect);
+}
+
+.worse {
+  color: var(--grade-blunder);
+}
+
+.neutral {
+  color: var(--text-secondary);
+}
+
+.streetLines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.summaryLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+@media (forced-colors: active) {
+  .leak {
+    border-color: CanvasText;
+  }
+
+  .band {
+    forced-color-adjust: none;
+    fill: GrayText;
+  }
+}

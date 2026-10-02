@@ -82,6 +82,14 @@ export const en = {
       title: "Reports — your frequencies against the reference | Rail",
       description: "Your preflop frequencies at every spot the charts cover, next to the reference's, with the hands where you left it.",
     },
+    analysisLeaks: {
+      title: "Leaks — the spots that cost you the most | Rail",
+      description: "Your graded decisions grouped into spots and ranked by the EV they cost against the reference, with the hands behind each one.",
+    },
+    analysisProgress: {
+      title: "Progress — your score over time | Rail",
+      description: "Your analysis score and EV lost per 100 hands by week, month or session, by street, seat and pot type.",
+    },
     analysisHand: {
       title: "Hand analysis — one hand | Rail",
       description: "One of your hands, decision by decision, in the replayer.",

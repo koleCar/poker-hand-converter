@@ -3,6 +3,7 @@ import type { DecisionAnalysis, Flag, OptionAnalysis, SpotFacts } from "../../an
 import { plural } from "../plural";
 import type { Dict } from "../types";
 import { reportsHr } from "./analysisReports.hr";
+import { leaksHr, progressHr, summaryHr } from "./analysisLeaks.hr";
 
 /**
  * Strings for the Analysis tab and the replayer's Analysis sheet, Croatian.
@@ -881,6 +882,10 @@ export const analysisHr: Dict["analysis"] = {
   },
 
   reports: reportsHr,
+
+  leaks: leaksHr,
+  progress: progressHr,
+  summary: summaryHr,
 
   explain,
 };
