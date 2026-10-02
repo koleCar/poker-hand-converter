@@ -21,10 +21,12 @@ import {
   type StatsBreakdown,
   type StatsFilters,
 } from "../../lib/db";
+import { useDict } from "../../lib/i18n/client";
+import type { Dict } from "../../lib/i18n/types";
 import { getParser } from "../../lib/phf";
 import { emptyMoney, rates, type StatsRates } from "../../lib/stats";
 import { POSITIONS } from "../handFilters";
-import { count, stakeLabel } from "./format";
+import { countIn, numberFormat, stakeLabel, useIntlLocale } from "./format";
 
 interface BreakdownPanelProps {
   filters: StatsFilters;
@@ -34,42 +36,29 @@ interface BreakdownPanelProps {
   refreshToken: number;
 }
 
-const GROUPS: Array<{ id: BreakdownGroup; label: string; head: string }> = [
-  { id: "position", label: "Position", head: "Position" },
-  { id: "table_size", label: "Table size", head: "Players" },
-  { id: "stack_bb", label: "Stack depth", head: "Stack (bb)" },
-  { id: "stakes", label: "Stakes", head: "Stakes" },
-  { id: "site", label: "Room", head: "Room" },
-];
+/** In button order; labels and headings are `stats.breakdown.groups`. */
+const GROUPS = ["position", "table_size", "stack_bb", "stakes", "site"] as const satisfies readonly BreakdownGroup[];
 
 /** Below this many opportunities a percentage is shown, but dimmed. */
 const THIN_SAMPLE = 20;
 
-const PCT = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
-const BB100 = new Intl.NumberFormat("en-GB", {
-  maximumFractionDigits: 1,
-  minimumFractionDigits: 1,
-  signDisplay: "exceptZero",
-});
-
 type Column = {
-  id: string;
-  head: string;
-  title: string;
+  /** Also the key of its heading and tooltip in `stats.columns`. */
+  id: keyof Dict["stats"]["columns"];
   rate: (r: StatsRates) => number | null;
   opp: (row: BreakdownRow) => number;
 };
 
 const COLUMNS: Column[] = [
-  { id: "vpip", head: "VPIP", title: "Voluntarily put money in pot", rate: (r) => r.vpip, opp: (x) => x.counters.vpip_opp },
-  { id: "pfr", head: "PFR", title: "Preflop raise", rate: (r) => r.pfr, opp: (x) => x.counters.pfr_opp },
-  { id: "rfi", head: "RFI", title: "Raised first in", rate: (r) => r.rfi, opp: (x) => x.counters.rfi_opp },
-  { id: "3b", head: "3-bet", title: "3-bet facing one raise", rate: (r) => r.threeBet, opp: (x) => x.counters.three_bet_opp },
-  { id: "f3b", head: "F3B", title: "Fold to 3-bet after opening", rate: (r) => r.foldToThreeBet, opp: (x) => x.counters.fold_to_three_bet_opp },
-  { id: "steal", head: "Steal", title: "Steal attempt from CO, BTN or SB", rate: (r) => r.steal, opp: (x) => x.counters.steal_opp },
-  { id: "cbet", head: "Cbet", title: "Flop continuation bet", rate: (r) => r.cbetFlop, opp: (x) => x.counters.cbet_flop_opp },
-  { id: "wtsd", head: "WTSD", title: "Went to showdown, having seen a flop", rate: (r) => r.wtsd, opp: (x) => x.counters.wtsd_opp },
-  { id: "wsd", head: "W$SD", title: "Won money at showdown", rate: (r) => r.wsd, opp: (x) => x.counters.wsd_opp },
+  { id: "vpip", rate: (r) => r.vpip, opp: (x) => x.counters.vpip_opp },
+  { id: "pfr", rate: (r) => r.pfr, opp: (x) => x.counters.pfr_opp },
+  { id: "rfi", rate: (r) => r.rfi, opp: (x) => x.counters.rfi_opp },
+  { id: "threeBet", rate: (r) => r.threeBet, opp: (x) => x.counters.three_bet_opp },
+  { id: "foldToThreeBet", rate: (r) => r.foldToThreeBet, opp: (x) => x.counters.fold_to_three_bet_opp },
+  { id: "steal", rate: (r) => r.steal, opp: (x) => x.counters.steal_opp },
+  { id: "cbet", rate: (r) => r.cbetFlop, opp: (x) => x.counters.cbet_flop_opp },
+  { id: "wtsd", rate: (r) => r.wtsd, opp: (x) => x.counters.wtsd_opp },
+  { id: "wsd", rate: (r) => r.wsd, opp: (x) => x.counters.wsd_opp },
 ];
 
 const STACK_ORDER = ["0-20", "20-40", "40-70", "70-100", "100-150", "150-250", "250+"];
@@ -91,26 +80,32 @@ function order(group: BreakdownGroup, rows: BreakdownRow[]): BreakdownRow[] {
   return sorted;
 }
 
-function label(group: BreakdownGroup, key: string | null, stakes: StakeVolume[]): string {
+function label(group: BreakdownGroup, key: string | null, stakes: StakeVolume[], t: Dict["stats"]): string {
   if (key === null) {
-    return "Unknown";
+    return t.breakdown.unknown;
   }
   if (group === "site") {
     return getParser(key)?.name ?? key;
   }
   if (group === "table_size") {
-    return key === "2" ? "Heads-up" : `${key}-handed`;
+    return key === "2" ? t.breakdown.headsUp : t.breakdown.handed(key);
   }
   if (group === "stakes") {
     const match = stakes.find(
       (stake) => `${stake.currency}:${stake.smallBlind ?? ""}:${stake.bigBlind ?? ""}` === key,
     );
-    return match ? stakeLabel(match) : key;
+    return match ? stakeLabel(match, t.common.unknownStakes) : key;
   }
   return key;
 }
 
 export function BreakdownPanel({ filters, stakes, refreshToken }: BreakdownPanelProps) {
+  const t = useDict().stats;
+  const en = t.breakdown;
+  const locale = useIntlLocale();
+  const count = countIn(locale);
+  const pct = numberFormat(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+  const bb100 = numberFormat(locale, { maximumFractionDigits: 1, minimumFractionDigits: 1, signDisplay: "exceptZero" });
   const [group, setGroup] = useState<BreakdownGroup>("position");
   const [data, setData] = useState<StatsBreakdown | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -142,30 +137,30 @@ export function BreakdownPanel({ filters, stakes, refreshToken }: BreakdownPanel
     (stake) => !filters.gameFormat || stake.gameFormat === filters.gameFormat,
   );
   const offered = GROUPS.filter((entry) => {
-    if (entry.id === "stakes") {
+    if (entry === "stakes") {
       return scopedStakes.length > 1 && filters.bigBlind === undefined;
     }
     return true;
   });
 
-  const current = GROUPS.find((entry) => entry.id === group) ?? GROUPS[0];
+  const current = en.groups[GROUPS.find((entry) => entry === group) ?? GROUPS[0]];
   const rows = data && data.group === group ? order(group, data.rows) : [];
   const moneyShown = rows.some((row) => row.money !== null);
 
   return (
     <section className="card stats-group">
       <div className="card__head stats-breakdown__head">
-        <h3>Breakdown</h3>
-        <div className="stats-scope__formats" role="group" aria-label="Split by">
+        <h3>{en.heading}</h3>
+        <div className="stats-scope__formats" role="group" aria-label={en.splitBy}>
           {offered.map((entry) => (
             <button
-              key={entry.id}
+              key={entry}
               type="button"
-              className={`btn btn--sm${entry.id === group ? " btn--primary" : ""}`}
-              aria-pressed={entry.id === group}
-              onClick={() => setGroup(entry.id)}
+              className={`btn btn--sm${entry === group ? " btn--primary" : ""}`}
+              aria-pressed={entry === group}
+              onClick={() => setGroup(entry)}
             >
-              {entry.label}
+              {en.groups[entry].label}
             </button>
           ))}
         </div>
@@ -179,16 +174,16 @@ export function BreakdownPanel({ filters, stakes, refreshToken }: BreakdownPanel
             <tr>
               <th scope="col">{current.head}</th>
               <th scope="col" className="num">
-                Hands
+                {t.common.handsHead}
               </th>
               {moneyShown ? (
-                <th scope="col" className="num" title="Big blinds won per 100 hands">
-                  bb/100
+                <th scope="col" className="num" title={en.bb100Title}>
+                  {t.common.bb100}
                 </th>
               ) : null}
               {COLUMNS.map((column) => (
-                <th key={column.id} scope="col" className="num" title={column.title}>
-                  {column.head}
+                <th key={column.id} scope="col" className="num" title={t.columns[column.id].title}>
+                  {t.columns[column.id].head}
                 </th>
               ))}
             </tr>
@@ -202,7 +197,7 @@ export function BreakdownPanel({ filters, stakes, refreshToken }: BreakdownPanel
               });
               return (
                 <tr key={row.key ?? "unknown"}>
-                  <th scope="row">{label(group, row.key, stakes)}</th>
+                  <th scope="row">{label(group, row.key, stakes, t)}</th>
                   <td className="num">{count(row.counters.hands)}</td>
                   {moneyShown ? (
                     <td
@@ -214,10 +209,10 @@ export function BreakdownPanel({ filters, stakes, refreshToken }: BreakdownPanel
                             : "is-down"
                       } ${row.moneyHands < 100 ? "is-thin" : ""}`}
                       title={
-                        row.money ? `${BB100.format(r.netBb)} bb over ${count(row.moneyHands)} hands` : undefined
+                        row.money ? en.moneyTitle(bb100.format(r.netBb), row.moneyHands) : undefined
                       }
                     >
-                      {row.money && r.bb100 !== null ? BB100.format(r.bb100) : "—"}
+                      {row.money && r.bb100 !== null ? bb100.format(r.bb100) : "—"}
                     </td>
                   ) : null}
                   {COLUMNS.map((column) => {
@@ -227,9 +222,9 @@ export function BreakdownPanel({ filters, stakes, refreshToken }: BreakdownPanel
                       <td
                         key={column.id}
                         className={`num ${opp < THIN_SAMPLE ? "is-thin" : ""}`}
-                        title={value === null ? undefined : `${count(opp)} opportunities`}
+                        title={value === null ? undefined : en.opportunities(opp)}
                       >
-                        {value === null ? "—" : PCT.format(value)}
+                        {value === null ? "—" : pct.format(value)}
                       </td>
                     );
                   })}
@@ -239,10 +234,7 @@ export function BreakdownPanel({ filters, stakes, refreshToken }: BreakdownPanel
           </tbody>
         </table>
       </div>
-      <p className="muted stats-breakdown__note">
-        Grey numbers rest on fewer than {THIN_SAMPLE} opportunities, and a dotted win rate on
-        fewer than 100 hands — a direction, not a reading.
-      </p>
+      <p className="muted stats-breakdown__note">{en.note(THIN_SAMPLE)}</p>
     </section>
   );
 }

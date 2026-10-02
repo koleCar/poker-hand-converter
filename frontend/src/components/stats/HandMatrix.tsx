@@ -22,20 +22,17 @@ import {
   type StatsBreakdown,
   type StatsFilters,
 } from "../../lib/db";
+import { useDict } from "../../lib/i18n/client";
 import { emptyMoney, rates } from "../../lib/stats";
 import { POSITIONS } from "../handFilters";
-import { count } from "./format";
+import { countIn, numberFormat, useIntlLocale } from "./format";
 
 const RANKS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"] as const;
 
 type Metric = "bb100" | "vpip" | "pfr" | "hands";
 
-const METRICS: Array<{ id: Metric; label: string }> = [
-  { id: "bb100", label: "Win rate" },
-  { id: "vpip", label: "VPIP" },
-  { id: "pfr", label: "PFR" },
-  { id: "hands", label: "Dealt" },
-];
+/** In button order; labels are `stats.matrix.metrics`. */
+const METRICS: Metric[] = ["bb100", "vpip", "pfr", "hands"];
 
 /** `AKs` for row A / column K above the diagonal; `AKo` below; `AA` on it. */
 function classAt(row: number, col: number): string {
@@ -73,11 +70,11 @@ function cellData(row: BreakdownRow): CellData {
   };
 }
 
-const PCT = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 });
-const BB = new Intl.NumberFormat("en-GB", {
-  maximumFractionDigits: 1,
-  signDisplay: "exceptZero",
-});
+interface CellFormat {
+  count: (value: number) => string;
+  pct: Intl.NumberFormat;
+  bb: Intl.NumberFormat;
+}
 
 /**
  * How strongly to tint a cell, 0..1. Win rate is scaled to ±150 bb/100 and
@@ -105,7 +102,7 @@ function intensity(metric: Metric, cell: CellData | undefined, maxHandsPerCombo:
   return Math.min(1, Math.abs(cell.bb100) / 150) * (0.25 + 0.75 * confidence);
 }
 
-function cellValue(metric: Metric, cell: CellData | undefined): string {
+function cellValue(metric: Metric, cell: CellData | undefined, { count, pct, bb }: CellFormat): string {
   if (!cell || cell.hands === 0) {
     return "";
   }
@@ -113,11 +110,11 @@ function cellValue(metric: Metric, cell: CellData | undefined): string {
     case "hands":
       return count(cell.hands);
     case "vpip":
-      return cell.vpip === null ? "" : PCT.format(cell.vpip);
+      return cell.vpip === null ? "" : pct.format(cell.vpip);
     case "pfr":
-      return cell.pfr === null ? "" : PCT.format(cell.pfr);
+      return cell.pfr === null ? "" : pct.format(cell.pfr);
     default:
-      return cell.bb100 === null ? "" : BB.format(cell.bb100 / 100);
+      return cell.bb100 === null ? "" : bb.format(cell.bb100 / 100);
   }
 }
 
@@ -128,6 +125,15 @@ export function HandMatrix({
   filters: StatsFilters;
   refreshToken: number;
 }) {
+  const t = useDict().stats;
+  const en = t.matrix;
+  const locale = useIntlLocale();
+  const format: CellFormat = {
+    count: countIn(locale),
+    pct: numberFormat(locale, { maximumFractionDigits: 0 }),
+    bb: numberFormat(locale, { maximumFractionDigits: 1, signDisplay: "exceptZero" }),
+  };
+  const { pct, bb } = format;
   const [metric, setMetric] = useState<Metric>("bb100");
   const [position, setPosition] = useState<string>("");
   const [data, setData] = useState<StatsBreakdown | null>(null);
@@ -191,25 +197,25 @@ export function HandMatrix({
   return (
     <section className="card stats-group">
       <div className="card__head stats-breakdown__head">
-        <h3>Starting hands</h3>
+        <h3>{en.heading}</h3>
         <div className="stats-matrix__controls">
-          <div className="stats-scope__formats" role="group" aria-label="Colour by">
-            {METRICS.filter((entry) => entry.id !== "bb100" || moneyAvailable).map((entry) => (
+          <div className="stats-scope__formats" role="group" aria-label={en.colourBy}>
+            {METRICS.filter((entry) => entry !== "bb100" || moneyAvailable).map((entry) => (
               <button
-                key={entry.id}
+                key={entry}
                 type="button"
-                className={`btn btn--sm${entry.id === activeMetric ? " btn--primary" : ""}`}
-                aria-pressed={entry.id === activeMetric}
-                onClick={() => setMetric(entry.id)}
+                className={`btn btn--sm${entry === activeMetric ? " btn--primary" : ""}`}
+                aria-pressed={entry === activeMetric}
+                onClick={() => setMetric(entry)}
               >
-                {entry.label}
+                {en.metrics[entry]}
               </button>
             ))}
           </div>
           <label className="field field--narrow">
-            <span className="field__label">Position</span>
+            <span className="field__label">{en.position}</span>
             <select value={position} onChange={(event) => setPosition(event.target.value)}>
-              <option value="">Every seat</option>
+              <option value="">{en.everySeat}</option>
               {POSITIONS.map((entry) => (
                 <option key={entry} value={entry}>
                   {entry}
@@ -225,7 +231,7 @@ export function HandMatrix({
       <div
         className={`stats-matrix stats-matrix--${activeMetric}`}
         role="grid"
-        aria-label="Starting hands, thirteen by thirteen"
+        aria-label={en.gridLabel}
       >
         {RANKS.map((_, row) => (
           <div key={row} role="row" className="stats-matrix__row">
@@ -249,11 +255,11 @@ export function HandMatrix({
                   }`}
                   style={{ "--cell-strength": `${Math.round(strength * 85)}%` } as React.CSSProperties}
                   aria-pressed={selected === handClass}
-                  aria-label={`${handClass}: ${cell ? `${cell.hands} hands` : "never dealt"}`}
+                  aria-label={en.cellLabel(handClass, cell ? cell.hands : null)}
                   onClick={() => setSelected(selected === handClass ? null : handClass)}
                 >
                   <span className="stats-matrix__class">{handClass}</span>
-                  <span className="stats-matrix__value">{cellValue(activeMetric, cell)}</span>
+                  <span className="stats-matrix__value">{cellValue(activeMetric, cell, format)}</span>
                 </button>
               );
             })}
@@ -265,25 +271,25 @@ export function HandMatrix({
         {selected ? (
           detail ? (
             <>
-              <strong>{selected}</strong> · {count(detail.hands)} hands
-              {detail.vpip !== null ? ` · VPIP ${PCT.format(detail.vpip)}%` : ""}
-              {detail.pfr !== null ? ` · PFR ${PCT.format(detail.pfr)}%` : ""}
+              <strong>{selected}</strong> · {t.common.hands(detail.hands)}
+              {detail.vpip !== null ? ` · ${en.metrics.vpip} ${pct.format(detail.vpip)}%` : ""}
+              {detail.pfr !== null ? ` · ${en.metrics.pfr} ${pct.format(detail.pfr)}%` : ""}
               {detail.hasMoney && detail.bb100 !== null
-                ? ` · ${BB.format(detail.netBb)} bb (${BB.format(detail.bb100)} bb/100)`
+                ? ` · ${en.detailMoney(bb.format(detail.netBb), bb.format(detail.bb100))}`
                 : ""}
             </>
           ) : (
             <>
-              <strong>{selected}</strong> · never dealt in this sample
+              <strong>{selected}</strong> · {en.neverDealt}
             </>
           )
         ) : (
           <span className="muted">
             {activeMetric === "bb100"
-              ? "Win rate per hand, in bb per hand played. Pale cells are thin samples, not small results."
+              ? en.hint.bb100
               : activeMetric === "hands"
-                ? "How often each hand was dealt, per combination — a flat grid is a fair deck."
-                : "How often you played each hand. Select a cell for the numbers."}
+                ? en.hint.hands
+                : en.hint.played}
           </span>
         )}
       </p>
