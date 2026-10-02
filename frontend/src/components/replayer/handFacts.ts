@@ -11,30 +11,16 @@
  * `spoilersRevealed` in `tableMath.ts` for the things that are not.
  */
 
-import {
-  formatAmount,
-  type LimitType,
-  type PhfHand,
-  type Variant,
-} from "../../lib/phf/types";
+import type { Dict } from "../../lib/i18n/types";
+import { formatAmount, type LimitType, type PhfHand } from "../../lib/phf/types";
 
-const VARIANT_LABEL: Record<Variant, string> = {
-  holdem: "Hold’em",
-  omaha: "Omaha",
-  omaha5: "5-card Omaha",
-  omaha6: "6-card Omaha",
-  shortdeck: "Short deck",
-  stud: "Stud",
-  razz: "Razz",
-  draw: "Draw",
-  other: "",
-};
-
+/** Abbreviations, the same in every language. */
 const LIMIT_LABEL: Record<LimitType, string> = { nl: "NL", pl: "PL", fl: "FL" };
 
 /** `"NL Hold’em"`, or the source's own label when the variant is unrecognised. */
-export function gameLabel(hand: PhfHand): string {
-  const variant = VARIANT_LABEL[hand.game.variant];
+export function gameLabel(hand: PhfHand, t: Dict["replayer"]): string {
+  // `other` has no name of ours; the source's label is the best there is.
+  const variant = hand.game.variant === "other" ? null : t.facts.variants[hand.game.variant];
   return variant ? `${LIMIT_LABEL[hand.game.limit]} ${variant}` : hand.game.label;
 }
 
@@ -56,8 +42,9 @@ export function stakesLabel(hand: PhfHand): string {
  * so a reader who cannot see them is misreading every stack-to-pot ratio in
  * the hand.
  */
-export function structureBadges(hand: PhfHand): string[] {
+export function structureBadges(hand: PhfHand, t: Dict["replayer"]): string[] {
   const { game, table } = hand;
+  const words = t.facts;
   const badges: string[] = [];
 
   if (table.fastFold) {
@@ -65,49 +52,52 @@ export function structureBadges(hand: PhfHand): string[] {
   }
   if (game.bombPot) {
     // No blinds and straight to the flop, so "preflop" never happens.
-    badges.push(`Bomb pot ${money(hand, game.bombPot.ante)}`);
+    badges.push(words.bombPot(money(hand, game.bombPot.ante)));
     if (game.bombPot.doubleBoard) {
-      badges.push("Double board");
+      badges.push(words.doubleBoard);
     }
   }
   switch (game.anteModel) {
     case "big-blind-ante":
       // One post for the whole table, not one per player.
-      badges.push(`BB ante ${money(hand, game.ante)}`);
+      badges.push(words.bbAnte(money(hand, game.ante)));
       break;
     case "button-ante":
-      badges.push(`BTN ante ${money(hand, game.ante)}`);
+      badges.push(words.btnAnte(money(hand, game.ante)));
       break;
     case "posted-per-player":
       if (game.ante > 0) {
-        badges.push(`Ante ${money(hand, game.ante)}`);
+        badges.push(words.ante(money(hand, game.ante)));
       }
       break;
     default:
       break;
   }
   if (game.straddles.length === 1) {
-    badges.push(`Straddle ${money(hand, game.straddles[0].amount)}`);
+    badges.push(words.straddle(money(hand, game.straddles[0].amount)));
   } else if (game.straddles.length > 1) {
     const amounts = game.straddles
       .slice()
       .sort((a, b) => a.order - b.order)
       .map((straddle) => money(hand, straddle.amount))
       .join(" / ");
-    badges.push(`${game.straddles.length} straddles ${amounts}`);
+    badges.push(words.straddles(game.straddles.length, amounts));
   }
   return badges;
 }
 
 /** `"6-max"`, plus how many were actually dealt in when it is not a full table. */
-export function tableShapeLabel(hand: PhfHand): string {
+export function tableShapeLabel(hand: PhfHand, t: Dict["replayer"]): string {
   const dealtIn = hand.players.filter((player) => !player.sittingOut).length;
   const max = hand.table.maxSeats;
-  return max > 0 && dealtIn !== max ? `${max}-max · ${dealtIn} dealt in` : `${max}-max`;
+  return max > 0 && dealtIn !== max ? t.facts.tableShapeDealt(max, dealtIn) : t.facts.tableShape(max);
 }
 
-/** The hand's own timestamp, in the reader's locale. `null` when unknown. */
-export function playedAtLabel(hand: PhfHand): string | null {
+/**
+ * The hand's own timestamp, in the reader's language (`intlLocale` is a BCP 47
+ * tag, `INTL_LOCALE[useLocale()]`). `null` when unknown.
+ */
+export function playedAtLabel(hand: PhfHand, intlLocale: string): string | null {
   if (!hand.playedAt) {
     return null;
   }
@@ -115,7 +105,7 @@ export function playedAtLabel(hand: PhfHand): string | null {
   if (Number.isNaN(date.getTime())) {
     return null;
   }
-  return date.toLocaleString(undefined, {
+  return date.toLocaleString(intlLocale, {
     dateStyle: "medium",
     timeStyle: "short",
   });

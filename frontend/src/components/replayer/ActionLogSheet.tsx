@@ -19,6 +19,7 @@
  */
 
 import { useEffect, useRef } from "react";
+import { useDict } from "../../lib/i18n/client";
 import type { ReplayFrame } from "../../lib/replay";
 import { Overlay } from "../ui/Overlay";
 import type { NameMask } from "./replaySettings";
@@ -43,13 +44,14 @@ export function ActionLogSheet({
   onClose,
   anchor,
 }: ActionLogSheetProps) {
+  const en = useDict();
   return (
     <Overlay
       // A transcript, not a dialog: you read it while stepping.
       modal={false}
       open={open}
       onClose={onClose}
-      title="Action log"
+      title={en.replayer.log.title}
       anchor={anchor}
       className="rp-ov rp-ov--log"
     >

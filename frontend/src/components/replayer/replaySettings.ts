@@ -1,3 +1,4 @@
+import type { Dict } from "../../lib/i18n/types";
 import type { PhfHand } from "../../lib/phf/types";
 import type { AmountUnit } from "./tableMath";
 
@@ -80,21 +81,24 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export const ANONYMOUS_TABLE_NAME = "Table";
-
-export function createNameMask(hand: PhfHand, anonymous: boolean): NameMask {
+/** `t` supplies the neutral labels, in the reader's language. */
+export function createNameMask(hand: PhfHand, anonymous: boolean, t: Dict["replayer"]): NameMask {
   const tableName = hand.table.name;
   if (!anonymous) {
     return { seat: (name) => name, text: IDENTITY_TEXT, tableName };
   }
 
+  const anonymousTable = t.settings.anonymousTable;
   const alias = new Map<string, string>();
   let counter = 0;
   for (const player of [...hand.players].sort((a, b) => a.seat - b.seat)) {
-    alias.set(player.name, player.isHero ? "Hero" : `Player ${++counter}`);
+    alias.set(
+      player.name,
+      player.isHero ? t.settings.anonymousHero : t.settings.anonymousPlayer(++counter),
+    );
   }
   if (tableName) {
-    alias.set(tableName, ANONYMOUS_TABLE_NAME);
+    alias.set(tableName, anonymousTable);
   }
 
   const seatName = (name: string) => alias.get(name) ?? name;
@@ -108,6 +112,6 @@ export function createNameMask(hand: PhfHand, anonymous: boolean): NameMask {
   return {
     seat: seatName,
     text: pattern ? (value) => value.replace(pattern, (match) => alias.get(match) ?? match) : IDENTITY_TEXT,
-    tableName: tableName ? ANONYMOUS_TABLE_NAME : null,
+    tableName: tableName ? anonymousTable : null,
   };
 }

@@ -9,6 +9,7 @@
  */
 
 import { useMemo } from "react";
+import { useDict } from "../../lib/i18n/client";
 import {
   toBigBlinds,
   toDisplayNumber,
@@ -42,13 +43,13 @@ interface ShowdownStripProps {
  * and "rake $0.15" on a hand that actually paid $0.15 rake plus $0.02 jackpot
  * plus $0.01 fortune is simply a wrong number.
  */
-const FEE_LABELS: Array<{ key: keyof PhfHand["results"]["fees"]; label: string }> = [
-  { key: "rake", label: "rake" },
-  { key: "jackpot", label: "jackpot" },
-  { key: "bingo", label: "bingo" },
-  { key: "fortune", label: "fortune" },
-  { key: "tax", label: "tax" },
-  { key: "other", label: "other" },
+const FEE_KEYS: Array<keyof PhfHand["results"]["fees"]> = [
+  "rake",
+  "jackpot",
+  "bingo",
+  "fortune",
+  "tax",
+  "other",
 ];
 
 export function ShowdownStrip({
@@ -62,6 +63,9 @@ export function ShowdownStrip({
   onClose,
   anchor,
 }: ShowdownStripProps) {
+  const en = useDict();
+  const t = en.replayer;
+  const words = t.showdown;
   const unit = hand.game.unit;
   const money = (amount: Amount) =>
     format(toDisplayNumber(amount, unit), toBigBlinds(amount, hand.game.bigBlind));
@@ -106,29 +110,29 @@ export function ShowdownStrip({
       : [];
 
   const revealed = spoilersRevealed(frame, awardAt);
-  const fees = FEE_LABELS.filter(({ key }) => hand.results.fees[key] > 0);
+  const fees = FEE_KEYS.filter((key) => hand.results.fees[key] > 0);
   const splitPot = rows.filter((seat) => seat.winAmount > 0).length > 1;
 
   const note = revealed ? (
     <>
-      Pot {money(hand.results.totalPot)}
+      {words.pot(money(hand.results.totalPot))}
       {/* The breakdown the summary reported, which is what the middle of the
           felt was drawing as separate piles. */}
       {hand.results.pots.length > 1
         ? hand.results.pots.map((pot) => (
             <span key={pot.name} className="rp__sheet-fee">
               {" "}
-              · {pot.name.toLowerCase()} {money(pot.amount)}
+              · {t.frames.potName(pot.name).toLowerCase()} {money(pot.amount)}
             </span>
           ))
         : null}
-      {fees.map(({ key, label }) => (
+      {fees.map((key) => (
         <span key={key} className="rp__sheet-fee">
           {" "}
-          · {label} {money(hand.results.fees[key])}
+          · {words.feeLabels[key]} {money(hand.results.fees[key])}
         </span>
       ))}
-      {splitPot ? <span className="rp__sheet-fee"> · split</span> : null}
+      {splitPot ? <span className="rp__sheet-fee">{words.split}</span> : null}
     </>
   ) : null;
 
@@ -138,7 +142,7 @@ export function ShowdownStrip({
       // sheet closes itself rather than hanging around empty.
       open={open && rows.length > 0}
       onClose={onClose}
-      title={showdown ? "Showdown" : "Result"}
+      title={showdown ? words.showdownTitle : words.resultTitle}
       note={note}
       anchor={anchor}
       className="rp-ov rp-ov--result"
@@ -151,7 +155,7 @@ export function ShowdownStrip({
           const result = resultBySeat.get(seat.seatNo);
           const made =
             result?.cashoutRisk !== null && result?.cashoutRisk !== undefined
-              ? `cashed out · risk ${money(result.cashoutRisk)}`
+              ? words.cashedOut(money(result.cashoutRisk))
               : (descriptions.get(seat.name) ?? "");
           return (
             <li
@@ -160,7 +164,7 @@ export function ShowdownStrip({
             >
               <span className="rp__result-who">
                 {seat.position ? (
-                  <span className="pseat__pos" title={spokenPosition(seat.position) ?? undefined}>
+                  <span className="pseat__pos" title={spokenPosition(seat.position, t) ?? undefined}>
                     {seat.position}
                   </span>
                 ) : null}
@@ -172,7 +176,7 @@ export function ShowdownStrip({
                 ) : seat.cards ? (
                   <CardRow cards={seat.cards} size="sm" />
                 ) : showdown ? (
-                  <span className="muted">{result?.mucked ? "mucked" : "folded"}</span>
+                  <span className="muted">{result?.mucked ? words.mucked : words.folded}</span>
                 ) : null}
               </span>
               <span className="rp__result-desc">{hideHero ? "" : made}</span>

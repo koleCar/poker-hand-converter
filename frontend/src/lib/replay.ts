@@ -27,6 +27,10 @@ import {
   type Position,
   type Street,
 } from "./phf/types";
+import { ENGLISH_REPLAY_STRINGS, type ReplayStrings } from "./replayStrings";
+
+export type { ReplayStrings } from "./replayStrings";
+export { ENGLISH_REPLAY_STRINGS } from "./replayStrings";
 
 export type FrameKind =
   | "setup"
@@ -58,9 +62,54 @@ export interface SeatFrameState {
   /** Face-up cards, or null while the hand is face down / mucked. */
   cards: string[] | null;
   hasCards: boolean;
+  /** The action pill under the seat, in the language the frames were built in. */
   lastAction: string | null;
+  /**
+   * Colour/shape family of that pill. Worked out from the English wording
+   * whatever language `lastAction` is in, so a translation cannot recolour it.
+   */
+  lastActionTone: ActionTone;
   isActing: boolean;
   winAmount: number;
+}
+
+export type ActionTone =
+  | "fold"
+  | "check"
+  | "call"
+  | "aggressive"
+  | "allin"
+  | "post"
+  | "show"
+  | "win"
+  | "neutral";
+
+/**
+ * Colour/shape family for the little action pill under a seat, read off the
+ * English pill text (`ENGLISH_REPLAY_STRINGS`).
+ */
+export function actionTone(label: string | null): ActionTone {
+  if (!label) {
+    return "neutral";
+  }
+  const text = label.toLowerCase();
+  if (text.startsWith("+") || text.includes("wins")) return "win";
+  if (text.includes("all-in")) return "allin";
+  if (text.includes("fold")) return "fold";
+  if (text.includes("check")) return "check";
+  if (text.includes("call")) return "call";
+  if (text.includes("bet") || text.includes("raise")) return "aggressive";
+  if (text.includes("blind") || text.includes("ante") || text.includes("posts")) return "post";
+  if (text.includes("show") || text.includes("muck")) return "show";
+  return "neutral";
+}
+
+export interface ReplayOptions {
+  /**
+   * The words the captions and action pills are written in. English when
+   * omitted, which is what the tests and every server-side caller get.
+   */
+  strings?: ReplayStrings;
 }
 
 /**
@@ -272,11 +321,15 @@ function awardGroups(hand: PhfHand): AwardGroup[] {
 /**
  * Turns a hand into an ordered list of full table snapshots.
  */
-export function buildReplay(hand: PhfHand): ReplayFrame[] {
+export function buildReplay(hand: PhfHand, options: ReplayOptions = {}): ReplayFrame[] {
+  const words = options.strings ?? ENGLISH_REPLAY_STRINGS;
   const unit = hand.game.unit;
   const bigBlind = hand.game.bigBlind;
   const frames: ReplayFrame[] = [];
   const display = (amount: Amount) => toDisplayNumber(amount, unit);
+  const money = (amount: Amount) => formatAmount(amount, unit);
+  /** For a rebuilt action pill: the source's own decimal habit, like `PhfAction.label`. */
+  const labelMoney = (amount: Amount) => formatAmount(amount, unit, hand.meta.textStyle.decimals);
 
   const state = new Map<
     string,
@@ -292,9 +345,31 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
       cards: string[];
       revealed: boolean;
       lastAction: string | null;
+      lastActionTone: ActionTone;
       winAmount: Amount;
     }
   >();
+
+  /**
+   * Sets the pill under a seat. `render` is asked once in English, which is
+   * what the tone is read from, and once more in the reader's language when
+   * that is not English.
+   */
+  function setPill(
+    entry: { lastAction: string | null; lastActionTone: ActionTone },
+    render: (strings: ReplayStrings) => string,
+  ): string {
+    const english = render(ENGLISH_REPLAY_STRINGS);
+    const shown = words === ENGLISH_REPLAY_STRINGS ? english : render(words);
+    entry.lastAction = shown;
+    entry.lastActionTone = actionTone(english);
+    return shown;
+  }
+
+  function clearPill(entry: { lastAction: string | null; lastActionTone: ActionTone }): void {
+    entry.lastAction = null;
+    entry.lastActionTone = "neutral";
+  }
 
   const seatOrder = [...hand.players].sort((a, b) => a.seat - b.seat);
   const outOfPot = new Map<number, Amount>();
@@ -320,6 +395,7 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
       cards: player.holeCards,
       revealed: false,
       lastAction: null,
+      lastActionTone: "neutral",
       winAmount: 0,
     });
   }
@@ -421,6 +497,7 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
         cards: showCards && entry.cards.length > 0 ? entry.cards : null,
         hasCards: cardsDealt && !entry.folded,
         lastAction: entry.lastAction,
+        lastActionTone: entry.lastActionTone,
         isActing: actingPlayer === player.name,
         winAmount: display(entry.winAmount),
       };
@@ -473,7 +550,7 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
 
   function clearLastActions(): void {
     for (const entry of state.values()) {
-      entry.lastAction = null;
+      clearPill(entry);
     }
   }
 
@@ -501,19 +578,19 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
     if (!entry) continue;
     entry.stack -= action.amount;
     entry.bet += action.amount;
-    entry.lastAction = action.label;
+    const pill = setPill(entry, (strings) => strings.actionLabel(action, labelMoney));
     if (action.allIn || entry.stack <= 0) {
       entry.allIn = true;
       entry.stack = Math.max(0, entry.stack);
     }
-    snapshot("post", `${action.player} ${action.label}`, action.player, {
+    snapshot("post", words.acted(action.player, pill), action.player, {
       actionIndex: action.index,
     });
   }
 
   cardsDealt = true;
   clearLastActions();
-  snapshot("deal", "Hole cards dealt", null);
+  snapshot("deal", words.holeCardsDealt, null);
 
   for (const action of playActions) {
     const entry = state.get(action.player);
@@ -527,13 +604,13 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
     ) {
       if (sweepBets()) {
         clearLastActions();
-        snapshot("collect", "Chips to the pot", null);
+        snapshot("collect", words.chipsToPot, null);
       }
       currentStreet = action.street;
       board = boardSliceFor(action.street, fullBoard);
       boardSecond = boardSliceFor(action.street, fullBoardSecond);
       clearLastActions();
-      snapshot("street", `${action.street.toUpperCase()} ${board.join(" ")}`, null);
+      snapshot("street", words.street(action.street, board), null);
     }
 
     if (showdownish && currentStreet !== "showdown") {
@@ -544,7 +621,7 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
       );
       if (sweepBets()) {
         clearLastActions();
-        snapshot("collect", "Chips to the pot", null);
+        snapshot("collect", words.chipsToPot, null);
       }
       // Everyone is committed and the rest of the board is about to arrive in
       // one go. The frame on screen right now is the last one before it.
@@ -555,7 +632,7 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
         currentStreet = nextStreet;
         board = boardSliceFor(nextStreet, fullBoard);
         boardSecond = boardSliceFor(nextStreet, fullBoardSecond);
-        snapshot("street", `${nextStreet.toUpperCase()} ${board.join(" ")}`, null);
+        snapshot("street", words.street(nextStreet, board), null);
       }
       currentStreet = "showdown";
     }
@@ -567,15 +644,15 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
     switch (action.type) {
       case "fold": {
         entry.folded = true;
-        entry.lastAction = "fold";
-        snapshot("action", `${action.player} folds`, action.player, {
+        setPill(entry, (strings) => strings.foldLabel);
+        snapshot("action", words.folds(action.player), action.player, {
           actionIndex: action.index,
         });
         break;
       }
       case "check": {
-        entry.lastAction = "check";
-        snapshot("action", `${action.player} checks`, action.player, {
+        setPill(entry, (strings) => strings.checkLabel);
+        snapshot("action", words.checks(action.player), action.player, {
           actionIndex: action.index,
         });
         break;
@@ -591,8 +668,11 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
           entry.allIn = true;
           entry.stack = Math.max(0, entry.stack);
         }
-        entry.lastAction = action.allIn ? `${action.label} · all-in` : action.label;
-        snapshot("action", `${action.player} ${entry.lastAction}`, action.player, {
+        const pill = setPill(entry, (strings) => {
+          const label = strings.actionLabel(action, labelMoney);
+          return action.allIn ? strings.allIn(label) : label;
+        });
+        snapshot("action", words.acted(action.player, pill), action.player, {
           actionIndex: action.index,
         });
         break;
@@ -602,10 +682,10 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
         entry.stack += returned;
         entry.bet -= returned;
         entry.allIn = false;
-        entry.lastAction = null;
+        clearPill(entry);
         snapshot(
           "collect",
-          `Uncalled ${formatAmount(returned, unit)} returned to ${action.player}`,
+          words.uncalled(action.player, money(returned)),
           null,
           { actionIndex: action.index },
         );
@@ -616,21 +696,19 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
         if (action.cards?.length) {
           entry.cards = action.cards;
         }
-        entry.lastAction = action.description ?? "shows";
+        setPill(entry, (strings) => action.description ?? strings.showsLabel);
         currentStreet = "showdown";
         snapshot(
           "showdown",
-          `${action.player} shows ${entry.cards.join(" ")}${
-            action.description ? ` (${action.description})` : ""
-          }`,
+          words.shows(action.player, entry.cards, action.description ?? null),
           action.player,
           { actionIndex: action.index },
         );
         break;
       }
       case "muck": {
-        entry.lastAction = "mucks";
-        snapshot("showdown", `${action.player} mucks`, action.player, {
+        setPill(entry, (strings) => strings.mucksLabel);
+        snapshot("showdown", words.mucks(action.player), action.player, {
           actionIndex: action.index,
         });
         break;
@@ -658,13 +736,13 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
   ) {
     if (sweepBets()) {
       clearLastActions();
-      snapshot("collect", "Chips to the pot", null);
+      snapshot("collect", words.chipsToPot, null);
     }
     currentStreet = reached;
     board = boardSliceFor(reached, fullBoard);
     boardSecond = boardSliceFor(reached, fullBoardSecond);
     clearLastActions();
-    snapshot("street", `${reached.toUpperCase()} ${board.join(" ")}`, null);
+    snapshot("street", words.street(reached, board), null);
   }
 
   // Awards: one frame per pot, main first, so a side pot is paid as its own
@@ -691,7 +769,8 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
         if (!entry) continue;
         entry.stack += winner.amount;
         entry.winAmount += winner.amount;
-        entry.lastAction = `+${formatAmount(entry.winAmount, unit)}`;
+        const won = `+${money(entry.winAmount)}`;
+        setPill(entry, () => won);
         paid.push({ seatNo: entry.seatNo, amount: display(winner.amount) });
       }
 
@@ -706,11 +785,11 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
       potsOverride = remaining.length > 0 ? remaining : [{ name: "Pot", amount: 0 }];
 
       const names = group.winners
-        .map((winner) => `${winner.player} wins ${formatAmount(winner.amount, unit)}`)
+        .map((winner) => words.wins(winner.player, money(winner.amount)))
         .join(" · ");
       snapshot(
         "award",
-        groups.length > 1 ? `${group.name} pot — ${names}` : names,
+        groups.length > 1 ? words.potAward(group.name, names) : names,
         group.winners[0]?.player ?? null,
         {
           holdMs: index === 0 ? BASE_HOLD.award : SIDE_POT_HOLD,
@@ -720,7 +799,7 @@ export function buildReplay(hand: PhfHand): ReplayFrame[] {
       );
     }
   } else {
-    snapshot("award", "End of hand", null);
+    snapshot("award", words.endOfHand, null);
   }
 
   return frames;

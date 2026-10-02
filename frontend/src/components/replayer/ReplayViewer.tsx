@@ -45,6 +45,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { useDict } from "../../lib/i18n/client";
 import { type PhfHand } from "../../lib/phf/types";
 import { buildReplay, streetAnchors, type ReplayFrame } from "../../lib/replay";
 import { ActionLogSheet } from "./ActionLogSheet";
@@ -352,7 +353,10 @@ function ReplayStage({
   // `embed` never writes: see `ReplayViewerProps.urlSync`.
   const addressable = !embed && (urlSync ?? mode === "full");
 
-  const frames = useMemo(() => buildReplay(hand), [hand]);
+  const en = useDict();
+  const t = en.replayer;
+  // Captions and action pills are written in the reader's language.
+  const frames = useMemo(() => buildReplay(hand, { strings: t.frames }), [hand, t]);
   const anchors = useMemo(() => streetAnchors(frames), [frames]);
   // Street markers are already the chips above the scrubber and the board on
   // the felt; in the log they were three-quarters noise.
@@ -398,8 +402,8 @@ function ReplayStage({
     [settings, hand.game.unit, hand.game.bigBlind, hand.meta.textStyle.decimals],
   );
   const mask = useMemo(
-    () => createNameMask(hand, settings.anonymousNames),
-    [hand, settings.anonymousNames],
+    () => createNameMask(hand, settings.anonymousNames, t),
+    [hand, settings.anonymousNames, t],
   );
 
   const last = frames.length - 1;
@@ -756,8 +760,8 @@ function ReplayStage({
       className={`btn btn--icon ${fullscreen.mode !== "off" ? "is-active" : ""}`.trim()}
       onClick={() => void fullscreen.toggle()}
       aria-pressed={fullscreen.mode !== "off"}
-      aria-label={fullscreen.mode === "off" ? "Full screen" : "Exit full screen"}
-      title={fullscreen.mode === "off" ? "Full screen (F)" : "Exit full screen (F)"}
+      aria-label={fullscreen.mode === "off" ? t.viewer.fullScreen : t.viewer.exitFullScreen}
+      title={fullscreen.mode === "off" ? t.viewer.fullScreenTitle : t.viewer.exitFullScreenTitle}
     >
       {fullscreen.mode === "off" ? "⛶" : "✕"}
     </button>
@@ -786,11 +790,11 @@ function ReplayStage({
       // as what it is rather than as an unnamed group of divs.
       tabIndex={0}
       role="group"
-      aria-roledescription="poker hand replayer"
+      aria-roledescription={t.viewer.roleDescription}
       aria-label={
         embed
-          ? `${gameLabel(hand)} ${stakesLabel(hand)} hand replayer.`
-          : `${gameLabel(hand)} ${stakesLabel(hand)} hand replayer. Press question mark for keyboard shortcuts.`
+          ? t.viewer.label(gameLabel(hand, t), stakesLabel(hand))
+          : t.viewer.labelWithKeys(gameLabel(hand, t), stakesLabel(hand))
       }
       onKeyDown={onKeyDown}
     >
@@ -813,7 +817,7 @@ function ReplayStage({
           <div className="rp__meta">
             {site ? <span>{site}</span> : null}
             <span>{stakesLabel(hand)}</span>
-            <span>{gameLabel(hand)}</span>
+            <span>{gameLabel(hand, t)}</span>
           </div>
           <div className="rp__header-actions">
             {headerExtra}
@@ -823,8 +827,8 @@ function ReplayStage({
               onClick={() => setInfoOpen(true)}
               aria-haspopup="dialog"
               aria-expanded={infoOpen}
-              aria-label="Hand info"
-              title="Hand info (I)"
+              aria-label={t.viewer.handInfo}
+              title={t.viewer.handInfoTitle}
             >
               ⓘ
             </button>
@@ -841,8 +845,8 @@ function ReplayStage({
                 type="button"
                 className="btn btn--icon"
                 onClick={onClose}
-                aria-label="Close replayer"
-                title="Close"
+                aria-label={t.viewer.close}
+                title={t.viewer.closeTitle}
               >
                 ✕
               </button>

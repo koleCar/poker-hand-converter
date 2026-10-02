@@ -1,5 +1,6 @@
 import { memo } from "react";
-import { SUIT_NAME, SUIT_PATH, isRedSuit, parseCard, type Suit } from "../../lib/cards";
+import { SUIT_PATH, isRedSuit, parseCard, type Suit } from "../../lib/cards";
+import { useDict } from "../../lib/i18n/client";
 
 export type CardSize = "xs" | "sm" | "md" | "lg" | "xl";
 
@@ -34,14 +35,6 @@ const SUIT_CLASS: Record<Suit, string> = {
   c: "suit-c",
 };
 
-const RANK_NAME: Record<string, string> = {
-  A: "Ace",
-  K: "King",
-  Q: "Queen",
-  J: "Jack",
-  T: "Ten",
-};
-
 /**
  * The suit pip, drawn rather than typed.
  *
@@ -72,6 +65,7 @@ function PlayingCardImpl({
   dealY = -1,
   className = "",
 }: PlayingCardProps) {
+  const words = useDict().replayer.playingCard;
   const card = code ? parseCard(code) : null;
 
   const classes = [
@@ -89,8 +83,8 @@ function PlayingCardImpl({
   // Spelled out rather than "Ah": screen readers render the suit glyph
   // inconsistently, and the glyph is also the only non-colour suit cue.
   const label = card
-    ? `${RANK_NAME[card.rank] ?? card.rank} of ${SUIT_NAME[card.suit]}`
-    : "face-down card";
+    ? words.card(words.ranks[card.rank] ?? card.rank, words.suits[card.suit])
+    : words.faceDown;
 
   return (
     <span

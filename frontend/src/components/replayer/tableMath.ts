@@ -1,3 +1,4 @@
+import type { Dict } from "../../lib/i18n/types";
 import type { ReplayFrame, SeatFrameState } from "../../lib/replay";
 import {
   formatAmount,
@@ -80,37 +81,6 @@ export function effectiveStack(hand: PhfHand): Amount {
   return sorted[1];
 }
 
-export type ActionTone =
-  | "fold"
-  | "check"
-  | "call"
-  | "aggressive"
-  | "allin"
-  | "post"
-  | "show"
-  | "win"
-  | "neutral";
-
-/**
- * Colour/shape family for the little action pill under a seat. Derived from the
- * label text because that is all the frame carries.
- */
-export function actionTone(label: string | null): ActionTone {
-  if (!label) {
-    return "neutral";
-  }
-  const text = label.toLowerCase();
-  if (text.startsWith("+") || text.includes("wins")) return "win";
-  if (text.includes("all-in")) return "allin";
-  if (text.includes("fold")) return "fold";
-  if (text.includes("check")) return "check";
-  if (text.includes("call")) return "call";
-  if (text.includes("bet") || text.includes("raise")) return "aggressive";
-  if (text.includes("blind") || text.includes("ante") || text.includes("posts")) return "post";
-  if (text.includes("show") || text.includes("muck")) return "show";
-  return "neutral";
-}
-
 /* ---------------------------------------------------------- spoiler gate - */
 
 /**
@@ -164,27 +134,14 @@ export function hasShowdownResult(hand: PhfHand, frame: ReplayFrame): boolean {
  * Position abbreviations read aloud. `CO` is spelled by a screen reader as
  * "see oh", which is not a poker seat.
  */
-const POSITION_SPOKEN: Record<Position, string> = {
-  BTN: "button",
-  SB: "small blind",
-  BB: "big blind",
-  UTG: "under the gun",
-  "UTG+1": "under the gun plus one",
-  "UTG+2": "under the gun plus two",
-  MP: "middle position",
-  LJ: "lojack",
-  HJ: "hijack",
-  CO: "cutoff",
-};
-
-export function spokenPosition(position: Position | null): string | null {
-  return position ? POSITION_SPOKEN[position] : null;
+export function spokenPosition(position: Position | null, t: Dict["replayer"]): string | null {
+  return position ? t.seat.positions[position] : null;
 }
 
 /** "84 big blinds", "1.5 big blinds", "1 big blind". */
-export function spokenStack(bb: number): string {
+export function spokenStack(bb: number, t: Dict["replayer"]): string {
   const rounded = Math.abs(bb) >= 100 ? Math.round(bb) : Math.round(bb * 10) / 10;
-  return `${rounded} big blind${rounded === 1 ? "" : "s"}`;
+  return t.seat.stack(rounded);
 }
 
 /**
@@ -196,33 +153,34 @@ export function spokenStack(bb: number): string {
  * toggles the gear, and "eighty four b b" is what a screen reader would
  * otherwise make of the visible `84bb`.
  */
-export function describeSeat(seat: SeatFrameState, displayName: string): string {
-  const parts: string[] = [`Seat ${seat.seatNo}`];
-  const position = spokenPosition(seat.position);
+export function describeSeat(seat: SeatFrameState, displayName: string, t: Dict["replayer"]): string {
+  const words = t.seat;
+  const parts: string[] = [words.seat(seat.seatNo)];
+  const position = spokenPosition(seat.position, t);
   if (position) {
     parts.push(position);
   }
   parts.push(displayName);
   if (seat.isHero) {
-    parts.push("hero");
+    parts.push(words.hero);
   }
-  parts.push(spokenStack(seat.stackBb));
+  parts.push(spokenStack(seat.stackBb, t));
   if (seat.isButton) {
-    parts.push("dealer button");
+    parts.push(words.dealerButton);
   }
   if (seat.bet > 0) {
-    parts.push(`${spokenStack(seat.betBb)} in front`);
+    parts.push(words.inFront(spokenStack(seat.betBb, t)));
   }
   if (seat.folded) {
-    parts.push("folded");
+    parts.push(words.folded);
   } else if (seat.allIn) {
-    parts.push("all in");
+    parts.push(words.allIn);
   }
   if (seat.isActing) {
-    parts.push("to act");
+    parts.push(words.toAct);
   }
   if (seat.winAmount > 0) {
-    parts.push("winner");
+    parts.push(words.winner);
   } else if (seat.lastAction) {
     parts.push(seat.lastAction);
   }
