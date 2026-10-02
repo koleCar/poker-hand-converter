@@ -4,7 +4,8 @@
   "description": "Vitest harness for the poker hand history converter",
   "type": "module",
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "bench:solver": "vitest run --config scripts/solver-bench/vitest.config.ts"
   },
   "keywords": [],
   "author": "",
