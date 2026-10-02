@@ -114,6 +114,7 @@ interface DecisionAnalysis {
   options: Array<{
     action: "fold" | "check" | "call" | "bet" | "raise";
     size?: number;             // bb, as solved (bucketed, §3.3)
+    sizeBb?: number;           // preflop: "raise to X" in bb (charts are not pot-relative)
     sizePot?: number;          // fraction of pot
     freq: number;              // 0–1, reference frequency for the hero's exact hand
     ev: number;                // bb, for the hero's exact hand
@@ -195,6 +196,31 @@ Not copied from GTO Wizard, Upswing or anyone else.
 
 Preflop decisions are 81% of all moves (§0.1), so charts alone grade most of a
 player's decisions. This is why they come first.
+
+**Shipped in A2a (#95), details in `docs/CHARTS.md`.**
+- **Source:** our own multi-player DCFR over the 169 classes, plus a
+  realisation model for pots that see a flop.
+- **Set:** 280 tree nodes for 6-max 100bb, `charts/1`, 631 KB.
+- **Convergence:** NashConv 0.06 mbb/hand.
+- **Lookup refuses, with a reason:** `limp`, `cold-call`, `multiway` (more than
+  4 entrants), `rare-line`, `action-not-modelled`, and depth beyond ±20%.
+- **Lookup approximates:** `short-handed` (5-max is read as 6-max with UTG
+  folded), and off-tree sizes, by action translation.
+- **Hands outside the range:** a hand class that never reaches a node gets the
+  best response, and the lookup reports `inRange: false` so the UI can say so.
+
+**Known weakness of `charts/1`.** The realisation model under-rates
+implied-odds hands:
+- early-position opens lean to high cards over small pairs and suited
+  connectors;
+- flatting is rare: BB defends 48% vs a button open, and BTN never flats vs CO.
+
+Two consequences:
+- Lines through a flat come back as `rare-line`.
+- Grades in those spots carry a `model` approximation note.
+
+A2a.1 reworks the model (`charts/2`). The lasting fix is feeding the A5 flop
+library's realisation back into the preflop solve.
 
 ### 3.2 Postflop — our own solver (`source: "solver"`)
 
@@ -480,6 +506,7 @@ Each phase ships something usable on its own, has its own PR, migration and
 | **A1 — decision model, heuristics, Analysis tab** | Everything the tab needs to show heuristic data now:<ul><li>`lib/analysis`: decision walk (on `StatsContext`), `SpotFacts` (texture, hand class and draws, SPR, pot odds, MDF, blockers), heuristic flags, and grading constants with `ANALYSIS_VERSION`</li><li>range-vs-hand equity in `lib/equity`</li><li>`hand_analysis` / `decision_analysis` tables, RPCs, pgTAP, and the rebuild path</li><li>i18n `ns/analysis`</li><li>the **`/analysis` tab**: overview, hands list, and `/analysis/h/<id>` with the replayer and Analysis sheet</li></ul> | — |
 | **S — solver core** (parallel to A1) | `lib/solver`, pure TypeScript:<ul><li>DCFR over an explicit tree; best response and exploitability</li><li>Kuhn, Leduc and clairvoyance tests</li><li>a heads-up river subgame builder (ranges, board, pot, stack, sizes, rake)</li><li>suit isomorphism</li><li>a benchmark</li></ul> | — |
 | **A2 — preflop charts and grading** | <ul><li>Chart format</li><li>a reproducible generator script (our solver, an equity-realisation model) and a committed 6-max 100bb cash set</li><li>preflop grading wired into A1's pipeline</li><li>a 13×13 chart viewer, which is also the preflop "Study" view</li><li>grades shown in the tab</li></ul> | A1, S |
+| **A2a.1 — chart realism** | Reworks the realisation model so implied-odds hands, flats and small pairs come out right (§3.1), as `charts/2`. | A2a |
 | **A2c — chart coverage** | <ul><li>The same generator, run for more tables: 9-max/full ring, plus 40 / 60 / 150 / 200bb for 6-max and 9-max</li><li>Straddle charts, or an explicit not-analysed</li><li>Lookup picks the nearest set and records the distance as an approximation</li></ul> | A2a |
 | **A3 — reports vs reference** | Reference frequencies per stat, position and role, from the charts. Reports panel in the Analysis tab: yours, reference, the difference, and the deviating hands. | A2 |
 | **A4 — river grading** | <ul><li>Range narrowing along the hand: preflop chart, then postflop heuristics until A5</li><li>river solve in a Web Worker</li><li>`spot_solutions` cache (index row + Storage blob, RPC-written)</li><li>river grades and the study grid for river nodes</li></ul> | A2, S |
@@ -570,3 +597,14 @@ Each phase appends what it learned that changed the plan.
     facts, so it is an `analysis/2` bump, best done with A4's narrowing.
   - A8 is split: **A8a** (this), **A8b** the study plan (needs A6), **A8c**
     the AI-written review.
+- 2026-10-02 — A2a shipped (#95).
+  - Multi-player CFR converged (NashConv 0.06 mbb/hand) once the tree's caps
+    limited who may *enter* a pot rather than who may *continue*.
+  - The realisation model under-rates implied-odds hands, so **A2a.1** is
+    added.
+  - Lookup covers 58% of the GG corpus's hero preflop decisions. Most of the
+    misses are deeper than 120bb (A2c) or behind open limps.
+- 2026-10-02 — A8a shipped (#94): the concept library at `/analysis/learn`,
+  the one public part of `/analysis`. It found that A1's `parseRange` rejects
+  spans like `22-JJ` and `A5s-A4s`, so equity facts silently dropped. The fix
+  goes in A2b with the `analysis/2` bump.
