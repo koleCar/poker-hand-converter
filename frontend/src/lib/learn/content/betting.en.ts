@@ -8,7 +8,8 @@ type Betting =
   | "check-raise"
   | "donk-bet"
   | "bluff-catching"
-  | "thin-value";
+  | "thin-value"
+  | "multiway-pots";
 
 /** Betting, English. Every number in an example is checked in `tests/test/learn.test.ts`. */
 export const bettingEn: ConceptTexts<Betting> = {
@@ -332,5 +333,56 @@ export const bettingEn: ConceptTexts<Betting> = {
       "Betting thin against a player who never calls with worse.",
     ],
     tryIt: "Set the call rate and the share of calls you beat; the gain flips sign at exactly half.",
+  },
+  "multiway-pots": {
+    summary: "Three or more players in the pot: bluffs need everyone to fold, each defender can fold more, and second-best hands get paid off less.",
+    definition: [
+      "A multiway pot is one that three or more players still contest after the flop. Most of poker theory, and every solver Rail runs, is about two players; with more, the same numbers still apply, but they multiply.",
+      "Fold equity multiplies down: a bet wins at once only when every opponent folds, so if each folds as often as they would heads-up, together they fold far less. And the defence a bet asks for is shared: each defender needs to continue with less than the minimum defence frequency for the table as a whole to defend enough (the MDF split).",
+    ],
+    why: [
+      "Bluffs that are fine heads-up lose money into two or three players. Multiway, bet your strong hands and strong draws, and give up more of your air.",
+      "Value changes too. A strong one-pair hand or two pair is more vulnerable — more players hold cards that outdraw it — so slowplaying it is more expensive, and it should bet to charge them. Draws to a hand that is not the nuts lose value: when your flush comes in, someone holding a higher one is likelier than heads-up (reverse implied odds).",
+      "Rail grades multiway decisions only where that is honest: a river call or fold by its EV against narrowed ranges, labelled approximate and never worse than a Mistake. Everything else multiway gets its facts and notes, and these ideas behind them.",
+    ],
+    formulas: [
+      {
+        name: "Everyone folds",
+        expression: ["f", { sup: "n" }],
+        spoken: "The chance that every opponent folds equals each one's fold rate to the power of the number of opponents.",
+        where: [
+          ["f", "how often each opponent folds"],
+          ["n", "the opponents the bet goes into"],
+        ],
+      },
+      {
+        name: "MDF split, each defender",
+        expression: ["1 − α", { sup: "1/n" }],
+        spoken: "Each of n defenders must continue one minus alpha to the power one over n of the time, where alpha is the bet over the pot plus the bet.",
+        where: [
+          ["α", "bet / (pot + bet), the folds the bet needs"],
+          ["n", "the players defending against it"],
+        ],
+      },
+    ],
+    example: {
+      title: "A two-thirds-pot bluff into two players",
+      setup: "The pot is 12 bb and you bet 8 bb with nothing, into two opponents. Each of them, heads-up, would defend the minimum and fold the rest.",
+      steps: [
+        "The bet needs folds alpha = 8 / (12 + 8) = 40% of the time.",
+        "Heads-up, a defender continues 12 / 20 = 60% of the time and folds 40%: the bluff breaks even.",
+        "Two opponents who each fold 40% both fold only 0.4 × 0.4 = 16% of the time.",
+        "The bluff now loses: 0.16 × 12 − 0.84 × 8 = −4.8 bb.",
+        "The MDF split: for the two of them together to fold no more than 40%, each needs to continue only 1 − √0.4 ≈ 37% of the time, not 60%.",
+      ],
+      takeaway: "With every extra opponent a bluff needs more folds than it gets, and each defender can fold more than heads-up — so multiway, bluff less and call with stronger hands.",
+    },
+    mistakes: [
+      "Bluffing into two or three players as often as heads-up.",
+      "Calling as wide as heads-up because \"someone has to defend\" — the defence is shared.",
+      "Slowplaying top pair or two pair on a board that changes, letting several players draw for free.",
+      "Calling off the stack with a draw that is not to the nuts, when a better one is likelier with every player.",
+    ],
+    tryIt: "Add opponents and watch how often they all fold drop, and how much less each one needs to defend.",
   },
 };

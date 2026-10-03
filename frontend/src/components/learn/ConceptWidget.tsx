@@ -10,7 +10,7 @@ import type { WidgetPreset } from "../../lib/learn/concepts";
 import type { RangeId } from "../../lib/learn/presets";
 import { BetMath } from "./BetMath";
 import { BoardExplorer, ComboCounter, EquityDemo, RangeVsRange } from "./CardWidgets";
-import { BluffCatcher, GradeExplorer, SprCalculator, ValueBet } from "./SimpleCalcs";
+import { BluffCatcher, GradeExplorer, MultiwayCalc, SprCalculator, ValueBet } from "./SimpleCalcs";
 
 export function ConceptWidget({ preset }: { preset: WidgetPreset }) {
   const { pot = 10, bet = 5, stack = 100, share = 0.5 } = preset;
@@ -42,6 +42,8 @@ export function ConceptWidget({ preset }: { preset: WidgetPreset }) {
       return <BluffCatcher pot={pot} bet={bet} share={share} />;
     case "value-bet":
       return <ValueBet pot={pot} bet={bet} share={share} />;
+    case "multiway":
+      return <MultiwayCalc pot={pot} bet={bet} share={share} opponents={preset.opponents ?? 2} />;
     default:
       return null;
   }

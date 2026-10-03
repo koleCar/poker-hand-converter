@@ -75,6 +75,37 @@ export function bluffShare(pot: number, bet: number): number {
   return safe(bet, pot + 2 * bet, 0);
 }
 
+/* ------------------------------------------------------------ multiway - */
+
+/**
+ * The chance that every one of `opponents` players folds, when each folds
+ * `foldEach` of the time independently: `foldEach^opponents`. Fold equity
+ * multiplies down with every extra player.
+ */
+export function allFold(foldEach: number, opponents: number): number {
+  return Math.pow(Math.min(1, Math.max(0, foldEach)), Math.max(0, Math.floor(opponents)));
+}
+
+/**
+ * The MDF split: how much of their range each of `defenders` players must
+ * continue with so that, defending independently, they all fold no more than
+ * alpha together: `1 − alpha^(1/defenders)`. One defender: the MDF.
+ */
+export function mdfSplit(pot: number, bet: number, defenders: number): number {
+  const k = Math.max(1, Math.floor(defenders));
+  return 1 - Math.pow(alpha(pot, bet), 1 / k);
+}
+
+/**
+ * EV of a bet that never wins when called, into `opponents` players who each
+ * fold `foldEach` of the time: win the pot when all fold, lose the bet
+ * otherwise.
+ */
+export function multiwayBluffEv(pot: number, bet: number, foldEach: number, opponents: number): number {
+  const folds = allFold(foldEach, opponents);
+  return folds * pot - (1 - folds) * bet;
+}
+
 /** Value combos per bluff combo in that range: `(pot + bet) / bet`. */
 export function valuePerBluff(pot: number, bet: number): number {
   return safe(pot + bet, bet, Infinity);

@@ -124,7 +124,7 @@ interface DecisionAnalysis {
   evLossPot: number;           // evLoss / pot before the decision
   freqDiff: number;            // max(freq) − freq[chosen]
   grade: Grade;                // §2
-  source: "chart" | "solver" | "heuristic";
+  source: "chart" | "solver" | "heuristic" | "approx";   // approx: A9, multiway
   approximations: Approximation[];   // §3.5 — always shown
   facts: SpotFacts;            // §4 — texture, SPR, pot odds, MDF, hand class, blockers
 }
@@ -331,7 +331,10 @@ shows them like GTOW's banner:
 - **Source quality:** a heuristic source (§3.6).
 
 A decision is **not analysed** (`status: partial`) when:
-- the postflop pot is multiway;
+- the postflop pot is multiway, except a river call or fold facing a bet
+  (an approximate grade, `source: "approx"`) and a turn or river that
+  began heads-up after a multiway flop (solved, `multiway-history`) — A9;
+  the rest keeps its multiway facts and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
 - the game is MTT with ICM;
 - it is a bomb pot;
@@ -1747,3 +1750,102 @@ Each phase appends what it learned that changed the plan.
       pots, so the re-solve changes their ranges by the tremble only.
     - The in-browser rebuild to `analysis/6` of the owner's library is
       still to run; the numbers above are from the Node run.
+- 2026-10-03 — A9 shipped: multiway postflop analysis, `analysis/7` (after
+  A2d's `analysis/6`).
+  - **No multiway solver, so three honest tiers** (`lib/analysis/multiway.ts`):
+    1. **Facts and flags, always.** Every player who saw the flop is walked
+       through the hand: each range narrowed by its own actions with the
+       same `NarrowingModel`. With three or more live the heuristic reads
+       the field — a combo's strength is the product of its heads-up
+       strengths against each other range (opponents independent; card
+       removal between two opponents' ranges ignored in the narrowing,
+       exact in the equities), value bets scale by 0.8 and bluffs-and-draws
+       by 0.5 per player beyond two, and a caller defends the **MDF split**
+       `1 − α^(1/k)` of its range (`k` defenders, `α = x / (1 + x)`). With
+       two left it is the heads-up input exactly, so every heads-up grade is
+       unchanged. `facts.multiway`: equity against each opponent's narrowed
+       range and against the field (`equityVsRanges`, new in `lib/equity`:
+       exact over compatible tuples, else seeded sampling that rejects
+       whole tuples), players still to act after the hero, the MDF split,
+       the fold equity of a bet (each opponent's heads-up fold rate by the
+       model, and their product against the α the bet needs), the next
+       card's nut and non-nut outs, reverse implied odds. Flags, notes
+       unless said: `multiway-bluff` (Inaccurate only on the river with
+       under 5% against the field and under half the folds needed),
+       `multiway-slowplay` (a strong hand checked or two pair+ flatted on
+       a board with volatility ≥ 25%, not when checking to the preflop
+       raiser), `multiway-dominated-draw` (calling off a non-nut draw with
+       less equity than the price). The §3.6 flags now run multiway too,
+       their equity against the field.
+    2. **An approximate river grade** (`source: "approx"`,
+       `multiway-approx`): a river call or fold facing a bet in a pot that
+       was multiway. On the river the showdown is exact given the ranges:
+       call EV = Σ over the ways the players still to answer can respond
+       (each calls with the model's call likelihood, independently; nobody
+       re-raises; at most three of them) of P × (share × raked pot − call).
+       Fold = 0. The better one at 100% (a best response, not a mix), §2's
+       thresholds, capped at Mistake (`range-cap`) unless the move loses to
+       anything, the half-strength sensitivity check (`range-sensitive`).
+       Raising is not compared, and the sheet says so. Side pots, crowds
+       (4+ to answer) and unwalkable ranges are refused by name
+       (`multiway-side-pot`, `-crowded`, `-range-unknown`).
+    3. **Heads-up reducible** (`multiway-history`): a turn or river that
+       *began* heads-up after a multiway flop is solved by the existing
+       turn and river solvers from the multiway walk's ranges
+       (`headsUpWalk`); the river still narrows through the solved turn.
+       A street that became heads-up mid-street keeps `turn-` /
+       `river-multiway-flop` ("began multiway").
+    Everything else multiway (flop and turn decisions, river bets and
+    checks) is `not-analysed / multiway` with its facts and flags.
+  - **Scenarios** of multiway decisions read `caller-mw-oop-vs-bet` ("ip"
+    = last to act among the players in): Reports' heads-up role table
+    leaves them out by its regex, Leaks label them "multiway", and the
+    study plan gives a multiway river area no (heads-up) trainer session.
+    Heads-up-reducible decisions keep heads-up scenarios and count in the
+    role table: they are heads-up at the node.
+  - **Learn**: "Multiway pots" (betting group), with a calculator for the
+    MDF split and fold-equity multiplication (`learn/math.ts`: `allFold`,
+    `mdfSplit`, `multiwayBluffEv`; the example's numbers tested).
+  - **Migration** `20270310090000_analysis_multiway.sql`: the
+    `decision_analysis.source` check names `approx`, and
+    `analysis_public_facts` keeps `multiway` (pgTAP, 9 assertions).
+  - **Owner's library** (5,448 hands, Node, the same `analyzeHand` the
+    worker runs, all eight chart sets):
+    - multiway facts on 677 decisions (670 with three or more players at
+      the decision: flop 393, turn 198, river 79);
+    - **river graded 308 → 394 of 467** (66% → 84%): 63 heads-up-reducible
+      solver grades (`river-multiway-flop` 71 → 1) and 23 approximate
+      grades (23 of the 24 river calls and folds facing a bet multiway;
+      one side pot). Still not analysed on the river: 58 multiway bets and
+      checks, 3 raises;
+    - **turn: 47 of the 73 heads-up turns after a multiway flop are now
+      solved**; 25 began multiway and became heads-up mid-street, 1 is
+      unreached;
+    - approximate grades: Perfect 21, Mistake 2 (one capped from Blunder),
+      2 range-sensitive; 6.0 bb EV loss. `multiway-history` grades: river
+      Perfect 41, Good 15, Inaccurate 1, Mistake 6; turn Perfect 35, Good
+      5, Inaccurate 2, Mistake 5;
+    - flags: slowplay 27 (flop 16, turn 11), bluff into a crowd 10 (one
+      Inaccurate), dominated draw 0;
+    - hands not analysed 1,542 → 1,522 (they now have a graded decision);
+    - cost: the whole library without turn solves 37.6 s → 56.2 s; the
+      1,282 hands three or more saw the flop of, turns solved, 89 s.
+  - **Verified** in the browser on a fresh local account (378 copied hands,
+    the multiway ones and 60 more): the in-browser rebuild stores
+    `analysis/7` rows with `source = 'approx'`; the sheet shows the
+    "(approximate)" grade, the ≈ chip, the options note, the multiway fact
+    rows and *why* in EN and HR, light and dark, at 375 px; the overview's
+    coverage and flag rows link "Multiway pots"; the Learn page's
+    calculator works.
+  - **Open.**
+    - Rests on the heuristic narrowing: a river raise range is polar by the
+      model (14% value), so folding two pair to a raise can read as a
+      Mistake; the cap and sensitivity check limit the damage, as on the
+      heads-up river.
+    - Multiway river bets and checks have no grade: a bet's EV needs every
+      opponent's response tree, which the call/fold model does not give.
+    - The chart ranges of multiway preflop callers are thin (`charts/2`'s
+      flats), so some opponents' ranges are a few combos.
+    - With A5b's flop library (rebased onto it), the multiway walk still
+      narrows a multiway flop by the heuristic: the library is heads-up. The
+      walk passes `actionIndex` like the heads-up one.

@@ -361,7 +361,7 @@ describe("the range walk", () => {
     expect(rangeWeight(start.hero)).toBeLessThan(rangeWeight(atFlop.hero));
   });
 
-  it("refuses a pot three players saw the flop of", () => {
+  it("solves a pot three players saw the flop of from where it became heads-up (A9)", () => {
     const text = [
       "Poker Hand #RVM: Hold'em No Limit ($0.5/$1) - 2026/01/01 12:00:00",
       "Table 'Rv' 6-max Seat #1 is the button",
@@ -395,10 +395,14 @@ describe("the range walk", () => {
     ].join("\n");
     const analysis = analyse(parseStandardHand(text, CTX)!);
     const call = river(analysis, "call");
-    expect(call.status).toBe("not-analysed");
-    expect(call.reason).toBe("river-multiway-flop");
-    expect(en.analysis.explain(call)[0]).toContain("three or more players saw the flop");
-    expect(hr.analysis.explain(call)[0]).toContain("Bez ocjene");
+    // The heads-up walk alone still refuses it; the multiway walk hands the
+    // heads-up turn and river to the solvers (`multiway-history`).
+    expect(call.status).toBe("analysed");
+    expect(call.source).toBe("solver");
+    expect(call.approximations).toContain("multiway-history");
+    expect(call.facts.river?.model).toMatch(/\+mw$/);
+    expect(en.analysis.explain(call).join(" ")).toContain("Three or more players saw the flop");
+    expect(hr.analysis.explain(call).join(" ")).toContain("Flop su vidjela tri ili više igrača");
   });
 });
 

@@ -59,6 +59,28 @@
  * The constants are part of `ANALYSIS_VERSION`: changing one re-narrows every
  * stored river grade.
  *
+ * ## Multiway (A9)
+ *
+ * With three or more players in the pot (`NarrowInput.players`, and the
+ * other players' ranges in `NarrowInput.opponents`) the same model reads:
+ *
+ * - **Strength against the field**: HS is the product of the combo's HS
+ *   against each opponent's range — the chance of beating all of them, the
+ *   opponents taken as independent of each other (card removal between two
+ *   opponents' ranges is ignored here; each one's removal against the actor
+ *   is exact).
+ * - **Fewer bets, far fewer bluffs**: the value share is scaled by
+ *   `MULTIWAY_VALUE` and the bluff-and-draw target by `MULTIWAY_BLUFF` for
+ *   each player beyond two. A bluff has to get through everyone.
+ * - **The MDF split**: against a bet of `x` pots, the defenders together must
+ *   continue `1 / (1 + x)` of the time; if each of the `k` defenders
+ *   continues independently with a share `d`, everyone folds `(1 − d)^k`
+ *   of the time, so `d = 1 − α^(1/k)` with `α = x / (1 + x)`. A caller
+ *   defends that top share of its range (heads-up, `k = 1`, it is the MDF).
+ *
+ * Heads-up inputs (no `opponents`, `players` unset or 2) are untouched: every
+ * heads-up grade is the same as before A9.
+ *
  * ## Designed to be replaced
  *
  * `NarrowingModel` is the seam. A5 brings flop and turn strategies; a model
@@ -109,6 +131,26 @@ export const DRAW_REALISATION = 0.75;
 export const STRONG_DRAW_OUTS = 8;
 /** Outs below this are no draw at all (a backdoor is not a reason to bet). */
 export const WEAK_DRAW_OUTS = 4;
+/** Multiway (A9): the value share is scaled by this for each player beyond two. */
+export const MULTIWAY_VALUE = 0.8;
+/** Multiway (A9): the bluff-and-draw share of a betting range is scaled by this for each player beyond two. */
+export const MULTIWAY_BLUFF = 0.5;
+
+/**
+ * The MDF split (A9): the share of its range each of `defenders` players must
+ * continue with against a bet of `sizePot` × the pot, if they defend
+ * independently and together fold no more than `α = x / (1 + x)`:
+ * `1 − α^(1/k)`. With one defender it is the MDF, `1 / (1 + x)`.
+ */
+export function mdfSplit(sizePot: number, defenders: number): number {
+  const x = Math.max(0, sizePot);
+  const k = Math.max(1, Math.floor(defenders));
+  const alpha = x / (1 + x);
+  return 1 - Math.pow(alpha, 1 / k);
+}
+
+/** Players beyond two at the action: 0 heads-up. */
+const extraPlayers = (input: NarrowInput) => Math.max(0, (input.players ?? 2) - 2);
 
 export type NarrowStreet = "flop" | "turn" | "river";
 
@@ -129,6 +171,17 @@ export interface NarrowAction {
 
 export interface NarrowInput {
   street: NarrowStreet;
+  /**
+   * Players in the pot at the action, the actor included (A9). Unset or 2 is
+   * heads-up; 3 or more turns on the multiway adjustments above.
+   */
+  players?: number;
+  /**
+   * Multiway (A9): every other live player's range at the same moment. With
+   * two or more, strength is against the field (the product of the HS
+   * against each); `opponent` is then one of them, for models that read one.
+   */
+  opponents?: readonly Float64Array[];
   /** Card indices of the board on this street. */
   board: readonly number[];
   /** The actor's range before the action, 1,326 weights. */
@@ -388,7 +441,15 @@ interface Scored {
 
 function scored(input: NarrowInput): Scored {
   const strength = input.strength ?? streetStrength(input.board);
-  const hs = handStrength(strength, input.opponent);
+  let hs = handStrength(strength, input.opponent);
+  if (input.opponents && input.opponents.length >= 2) {
+    // A9: the chance of beating every opponent, each taken independently.
+    hs = handStrength(strength, input.opponents[0]);
+    for (let i = 1; i < input.opponents.length; i += 1) {
+      const other = handStrength(strength, input.opponents[i]);
+      for (let c = 0; c < NUM_COMBOS; c += 1) hs[c] *= other[c];
+    }
+  }
   const ehs = effectiveStrength(strength, hs);
   return { q: percentiles(ehs, input.actor), outs: strength.outs };
 }
@@ -396,9 +457,10 @@ function scored(input: NarrowInput): Scored {
 function aggressive(input: NarrowInput, { q, outs }: Scored): Float64Array {
   const { street, actor, action } = input;
   const x = action.sizePot !== null && action.sizePot > 0 ? action.sizePot : 0.5;
-  const share = action.kind === "raise" ? VALUE_SHARE.raise : VALUE_SHARE[street];
+  const extra = extraPlayers(input);
+  const share = (action.kind === "raise" ? VALUE_SHARE.raise : VALUE_SHARE[street]) * Math.pow(MULTIWAY_VALUE, extra);
   const cut = 1 - share;
-  const target = Math.min(MAX_BLUFF_SHARE, bluffShare(x) * BLUFF_STREET[street]);
+  const target = Math.min(MAX_BLUFF_SHARE, bluffShare(x) * BLUFF_STREET[street] * Math.pow(MULTIWAY_BLUFF, extra));
 
   const out = new Float64Array(NUM_COMBOS);
   const bluffZone: number[] = [];
@@ -433,7 +495,9 @@ function aggressive(input: NarrowInput, { q, outs }: Scored): Float64Array {
 function call(input: NarrowInput, { q, outs }: Scored): Float64Array {
   const { actor, action } = input;
   const x = action.sizePot !== null && action.sizePot > 0 ? action.sizePot : 0.5;
-  const cut = x / (1 + x); // fold the bottom 1 − MDF
+  // Fold the bottom 1 − MDF; multiway, the bottom 1 − d of the MDF split (A9).
+  const extra = extraPlayers(input);
+  const cut = extra > 0 ? 1 - mdfSplit(x, extra + 1) : x / (1 + x);
   const out = new Float64Array(NUM_COMBOS);
   for (let c = 0; c < NUM_COMBOS; c += 1) {
     if (!(actor[c] > 0) || Number.isNaN(q[c])) continue;

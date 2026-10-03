@@ -7,6 +7,7 @@
  * omaha.ts       exactly two from the hand, exactly three from the board
  * enumerate.ts   equity per pot over every runout, or a fixed-seed sample
  * range.ts       one hand against a weighted range, card removal applied
+ * multiway.ts    one hand against several ranges at once (the field), card removal across all
  * allInEv.ts     PhfHand -> pots at the all-in -> evNet per seat
  * ```
  *
@@ -76,6 +77,13 @@ export {
   type RangeEquityResult,
   type WeightedCombo,
 } from "./range";
+export {
+  DEFAULT_MULTIWAY_EXHAUSTIVE_LIMIT,
+  DEFAULT_MULTIWAY_TRIALS,
+  equityVsRanges,
+  type MultiwayEquityRequest,
+  type MultiwayEquityResult,
+} from "./multiway";
 export {
   boardTripleMasks,
   evaluateOmaha,

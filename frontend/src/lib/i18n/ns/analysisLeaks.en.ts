@@ -123,9 +123,17 @@ function spotContext(where: Where): string {
     if (where.family === "vs-reraise") return "Facing a 3-bet or more";
     return "Any spot";
   }
-  const match = /^(pfr|caller|limped)-(ip|oop)-(first|vs-bet|vs-raise)$/.exec(where.scenario);
+  // A multiway spot (A9) reads `caller-mw-oop-vs-bet`: "ip" is last to act among the players in.
+  const match = /^(pfr|caller|limped)-(?:(mw)-)?(ip|oop)-(first|vs-bet|vs-raise)$/.exec(where.scenario);
   if (match) {
-    const parts = [roleWords[match[1]], match[2] === "ip" ? "in position" : "out of position", facingWords[match[3]]];
+    const where2 = match[2]
+      ? match[3] === "ip"
+        ? "multiway, last to act"
+        : "multiway, with players to act behind"
+      : match[3] === "ip"
+        ? "in position"
+        : "out of position";
+    const parts = [roleWords[match[1]], where2, facingWords[match[4]]];
     const text = parts.join(", ");
     return `${text.charAt(0).toUpperCase()}${text.slice(1)}${hero ? ` (${hero})` : ""}`;
   }

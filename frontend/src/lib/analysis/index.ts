@@ -3,8 +3,9 @@
  * cost, and why. `docs/ANALYSIS-PLAN.md` is the plan; this module is phases
  * A1 (the decision model, the facts, the heuristic flags and the grading
  * rules), A2b (preflop grades from the charts), A4 (river grades from our
- * solver, on ranges narrowed through the hand) and A5a (turn grades from our
- * solver, and river ranges narrowed by the solved turn).
+ * solver, on ranges narrowed through the hand), A5a (turn grades from our
+ * solver, and river ranges narrowed by the solved turn) and A9 (multiway
+ * postflop: facts, flags, an approximate river call, heads-up-reducible solves).
  *
  * ```
  * types.ts       DecisionAnalysis, HandAnalysis, SpotFacts, flags, ANALYSIS_VERSION
@@ -18,6 +19,7 @@
  * rangeWalk.ts   both ranges through a heads-up hand, preflop to the river
  * river.ts       the river solve, the line onto its tree, grades, the study view
  * turn.ts        A5a: the turn + river solve, turn grades, the turn study, the river's solved ranges
+ * multiway.ts    A9: every range through a multiway hand, multiway facts and flags, the approximate river call
  * analyze.ts     analyzeHand(hand) -> HandAnalysis; riverStudy / turnStudy(hand, action)
  * reports.ts     A3: range and hand-adjusted reference frequencies, stats rolled up from nodes
  * ```
@@ -41,6 +43,7 @@ export {
   FLAG_SEVERITIES,
   GRADES,
   HAND_SKIP_REASONS,
+  MULTIWAY_SKIP_REASONS,
   type AnalysisSource,
   type AnalysisVersion,
   type Approximation,
@@ -66,6 +69,10 @@ export {
   type KickerClass,
   type MadeHand,
   type MadeHandClass,
+  type MultiwayEv,
+  type MultiwayFacts,
+  type MultiwayOpponent,
+  type MultiwaySkipReason,
   type OptionAnalysis,
   type PostflopFacing,
   type PostflopRole,
@@ -118,6 +125,8 @@ export {
   CHECK_REPEAT,
   CHECK_VALUE,
   FLOOR,
+  MULTIWAY_BLUFF,
+  MULTIWAY_VALUE,
   NARROWING_MODEL,
   VALUE_SHARE,
   bluffShare,
@@ -127,6 +136,7 @@ export {
   handStrength,
   heuristicModel,
   hitChance,
+  mdfSplit,
   narrow,
   percentiles,
   rangeWeight,
@@ -139,7 +149,35 @@ export {
   type NarrowStreet,
   type StreetStrength,
 } from "./narrowing";
-export { flopSeats, walkRanges, type PlayerRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
+export { flopSeats, preflopRangeOf, walkRanges, type PlayerRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
+export {
+  BLUFF_EQUITY_DRAWING,
+  BLUFF_EQUITY_RIVER,
+  CALL_OFF_SHARE,
+  EV_PRUNE_SHARE,
+  FIELD_TRIALS,
+  MAX_RESPONDERS,
+  MULTIWAY_MODEL_SUFFIX,
+  SLOWPLAY_CALL_EQUITY,
+  SLOWPLAY_EQUITY,
+  VULNERABLE_VOLATILITY,
+  callShare,
+  gradeRiverCall,
+  headsUpWalk,
+  multiwayFacts,
+  multiwayFlags,
+  nextCardOuts,
+  riverCallEv,
+  tableAt,
+  walkMultiway,
+  type ApproxGrade,
+  type MultiWalk,
+  type RiverCallEv,
+  type RiverCallFailure,
+  type RiverCallInput,
+  type SeatRanges,
+  type TableAt,
+} from "./multiway";
 export {
   categoryReader,
   chartLineOf,

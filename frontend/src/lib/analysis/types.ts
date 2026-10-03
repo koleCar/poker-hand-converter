@@ -60,8 +60,18 @@ import type { Position, Street } from "../phf/types";
  *               of refused (`chart-limp`); a fourth limper is `chart-multiway`.
  *               An opponent who open-limped keeps the placeholder limp range
  *               (the charts' limper is the tremble: any hand).
+ *   analysis/7  A9 (after A2d's analysis/6): multiway postflop. Every multiway decision gets facts
+ *               against each opponent's narrowed range and the field
+ *               (`facts.multiway`) and the multiway flags; a river call or
+ *               fold facing a bet in a pot that was multiway is graded by an
+ *               approximate EV against the narrowed ranges
+ *               (`source: "approx"`, `multiway-approx`, capped at Mistake);
+ *               a turn or river that began heads-up after a multiway flop is
+ *               solved as before from ranges narrowed through the multiway
+ *               streets (`multiway-history`). Narrowing reads three or more
+ *               ranges (`narrowing.ts`, the MDF split).
  */
-export const ANALYSIS_VERSION = "analysis/6" as const;
+export const ANALYSIS_VERSION = "analysis/7" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -75,7 +85,12 @@ export const GRADES = ["perfect", "good", "inaccurate", "mistake", "blunder"] as
 export type Grade = (typeof GRADES)[number];
 
 /** Where a decision's reference came from. Always shown next to the grade. */
-export type AnalysisSource = "chart" | "solver" | "heuristic";
+/**
+ * `approx` (A9): an EV comparison against narrowed ranges, not a solved
+ * strategy — a multiway river call or fold. Graded on §2's thresholds,
+ * capped at Mistake, always labelled "approximate (multiway)".
+ */
+export type AnalysisSource = "chart" | "solver" | "heuristic" | "approx";
 
 /** One option at a node, as the reference strategy plays it (§1). */
 export interface OptionAnalysis {
@@ -118,6 +133,21 @@ export interface OptionAnalysis {
  *                        against the pot that it is committed anyway.
  * - `committed-fold`     folded after putting most of the stack in, to a price
  *                        that needed very little equity.
+ *
+ * Multiway (A9), each resting on the narrowed ranges, so a note unless said:
+ *
+ * - `multiway-bluff`     bet or raised with little equity against the field
+ *                        into two or more players, when even folding as often
+ *                        as heads-up each, they would all fold less often
+ *                        than the bet needs. Inaccurate only on the river
+ *                        with almost no equity and less than half the folds.
+ * - `multiway-slowplay`  checked or flat-called a strong but vulnerable hand
+ *                        (one pair at the top, two pair, a set, a made hand
+ *                        on a board that changes) on the flop or turn with
+ *                        two or more opponents: more hands to outdraw it.
+ * - `multiway-dominated-draw` called off a large part of the stack with a
+ *                        draw that is not to the nuts, little made hand and
+ *                        less equity against the field than the price.
  */
 export const FLAG_CODES = [
   "fold-nuts",
@@ -128,6 +158,9 @@ export const FLAG_CODES = [
   "check-back-nuts",
   "thin-stack-behind",
   "committed-fold",
+  "multiway-bluff",
+  "multiway-slowplay",
+  "multiway-dominated-draw",
 ] as const;
 export type FlagCode = (typeof FLAG_CODES)[number];
 
@@ -235,6 +268,19 @@ export interface Flag {
  *                       limped (`charts/4`): the reference itself barely
  *                       limps there, so it plays against a limper who may
  *                       hold any hand (docs/CHARTS.md §1.3).
+ *
+ * Multiway (A9):
+ *
+ * - `multiway-approx`   an approximate grade (`source: "approx"`): a river
+ *                       call against a fold, by showdown EV against each
+ *                       opponent's narrowed range; players still to act call
+ *                       or fold by the narrowing model (never raise); raising
+ *                       is not one of the options compared. Capped at
+ *                       Mistake.
+ * - `multiway-history`  solved heads-up from a street that began heads-up,
+ *                       but three or more saw the flop: the ranges were
+ *                       narrowed through the multiway streets, with card
+ *                       removal between opponents only approximate.
  */
 export const APPROXIMATIONS = [
   "heuristic",
@@ -259,6 +305,8 @@ export const APPROXIMATIONS = [
   "flop-mapped",
   "library-bucketed",
   "limp-tremble",
+  "multiway-approx",
+  "multiway-history",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -277,7 +325,7 @@ export const HAND_SKIP_REASONS = [
   "bomb-pot",
   "hero-cards-unknown",
   "no-decisions",
-  /** Every hero decision was in a multiway pot after the flop. */
+  /** Every hero decision was in a multiway pot after the flop, and none got an approximate grade. */
   "multiway",
 ] as const;
 export type HandSkipReason = (typeof HAND_SKIP_REASONS)[number];
@@ -313,8 +361,10 @@ export type ChartSkipReason = (typeof CHART_SKIP_REASONS)[number];
 /**
  * Why a heads-up river decision has no solver grade (A4):
  *
- * - `river-multiway-flop` three or more players saw the flop; there is no
- *                         two-range story to narrow, whoever is left.
+ * - `river-multiway-flop` the river began with three or more players in
+ *                         (A9: a river that began heads-up after a multiway
+ *                         flop is solved, `multiway-history`); a call or fold
+ *                         there gets the approximate grade instead.
  * - `river-range-unknown` a player has no preflop line to start a range from.
  * - `river-range-empty`   card removal or narrowing left a range empty.
  * - `river-off-tree`      the line left the solver's tree: more raises than
@@ -353,8 +403,23 @@ export const TURN_SKIP_REASONS = [
 ] as const;
 export type TurnSkipReason = (typeof TURN_SKIP_REASONS)[number];
 
+/**
+ * Why a multiway postflop decision has no grade (A9). Each still gets its
+ * facts and flags:
+ *
+ * - `multiway`               no reference exists for the spot: anything but
+ *                            a river call or fold facing a bet (§10, A9);
+ * - `multiway-side-pot`      a river call with a side pot (an all-in for
+ *                            less) — the showdown is not one pot;
+ * - `multiway-crowded`       more than three players still to answer the bet;
+ * - `multiway-range-unknown` a player's range could not be walked (no
+ *                            preflop line, or emptied by the board).
+ */
+export const MULTIWAY_SKIP_REASONS = ["multiway", "multiway-side-pot", "multiway-crowded", "multiway-range-unknown"] as const;
+export type MultiwaySkipReason = (typeof MULTIWAY_SKIP_REASONS)[number];
+
 export const DECISION_SKIP_REASONS = [
-  "multiway",
+  ...MULTIWAY_SKIP_REASONS,
   ...CHART_SKIP_REASONS,
   ...RIVER_SKIP_REASONS,
   ...TURN_SKIP_REASONS,
@@ -547,6 +612,9 @@ export interface SpotFacts {
 
   /** Flop, when the flop library graded the decision (A5b, behind `FLOP_LIBRARY_ENABLED`). */
   flop?: FlopFacts | null;
+
+  /** A multiway postflop decision (A9): the field, the MDF split, fold equity, outs, the approximate EV. */
+  multiway?: MultiwayFacts | null;
 }
 
 /** What the flop library says about a graded flop decision (A5b). Plain numbers; the chunk is not stored. */
@@ -572,6 +640,82 @@ export interface FlopFacts {
   translated: number | null;
   reach: { hero: number; villain: number };
   capped?: Grade | null;
+}
+
+/** One opponent of a multiway decision, in acting order (A9). */
+export interface MultiwayOpponent {
+  position: Position | null;
+  /** `line:position`, as `SpotFacts.equity.range`. */
+  range: string;
+  source: "chart" | "placeholder";
+  /** The hero's equity against this range alone, narrowed to the decision. */
+  equity: number | null;
+  /** Weighted combos in the range, the hero's cards and the board removed. */
+  combos: number;
+  /** Still to act after the hero on this street. */
+  toAct: boolean;
+  allIn: boolean;
+}
+
+/**
+ * Multiway facts (A9). Every number is against ranges narrowed through the
+ * hand by the heuristic model with three or more ranges (`narrowing.ts`).
+ */
+export interface MultiwayFacts {
+  /** Players in the pot at the decision, the hero included. */
+  players: number;
+  /** The narrowing model, e.g. `heuristic/2+mw`. */
+  model: string;
+  opponents: MultiwayOpponent[];
+  /** The hero's equity against every opponent at once (the field). */
+  field: number | null;
+  fieldMethod: "exhaustive" | "monte-carlo" | null;
+  /** Opponents still to act after the hero on this street. */
+  behind: number;
+  /** The hero acts last on this street among the players still in. */
+  lastToAct: boolean;
+  /** Not facing a bet, with the preflop raiser still to act after the hero: checking to the raiser. */
+  raiserBehind: boolean;
+  /**
+   * Facing a bet: the defence it asks of the table (`mdf`, as heads-up) and
+   * what that is per defender if they share it independently (`each`,
+   * `1 − α^(1/k)` over `defenders`).
+   */
+  mdfSplit: { mdf: number; defenders: number; each: number } | null;
+  /**
+   * The hero bet or raised: the fold rate the bet needs (`needed`, α), the
+   * model's estimate of each opponent's fold rate if they defended as they
+   * would heads-up, and the chance everyone folds (their product).
+   */
+  foldEquity: { needed: number; each: number[]; all: number } | null;
+  /**
+   * Flop and turn: of the `cards` next cards, how many make the hero's hand
+   * the nuts, and how many make it a straight or better that is not the nuts.
+   */
+  outs: { nut: number; nonNut: number; cards: number } | null;
+  /** A straight-or-better draw whose outs are mostly not the nuts, with two or more opponents. */
+  reverseImplied: boolean;
+  /** River, facing a bet: the approximate EV of calling against folding. */
+  ev: MultiwayEv | null;
+}
+
+/** The approximate river call (A9): showdown EV against the narrowed ranges. */
+export interface MultiwayEv {
+  /** bb, net from the decision: calling against folding (a fold is 0). */
+  call: number;
+  /** The hero's share of the pot at showdown, averaged over the ways the players to act answer. */
+  equity: number;
+  /** Expected pot if the hero calls, bb, before rake. */
+  pot: number;
+  /** Players still to answer after the hero's call, and the model's chance each calls. */
+  respond: Array<{ position: Position | null; call: number }>;
+  /** Ways the players to act can answer (call or fold each). */
+  scenarios: number;
+  rake: string;
+  /** The grade before the Mistake cap, or null. */
+  capped: Grade | null;
+  /** The grade on the half-strength narrowing; null when not run. */
+  sensitivity: { model: string; grade: Grade } | null;
 }
 
 /**

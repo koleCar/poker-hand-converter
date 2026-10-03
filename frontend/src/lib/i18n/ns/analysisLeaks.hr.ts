@@ -121,9 +121,17 @@ function spotContext(where: Where): string {
     if (where.family === "vs-reraise") return "Protiv 3-beta ili više";
     return "Bilo koja situacija";
   }
-  const match = /^(pfr|caller|limped)-(ip|oop)-(first|vs-bet|vs-raise)$/.exec(where.scenario);
+  // Multiway situacija (A9) glasi `caller-mw-oop-vs-bet`: "ip" je zadnji na potezu.
+  const match = /^(pfr|caller|limped)-(?:(mw)-)?(ip|oop)-(first|vs-bet|vs-raise)$/.exec(where.scenario);
   if (match) {
-    const text = [roleWords[match[1]], match[2] === "ip" ? "u poziciji" : "izvan pozicije", facingWords[match[3]]].join(", ");
+    const place = match[2]
+      ? match[3] === "ip"
+        ? "multiway, zadnji na potezu"
+        : "multiway, s igračima koji igraju iza"
+      : match[3] === "ip"
+        ? "u poziciji"
+        : "izvan pozicije";
+    const text = [roleWords[match[1]], place, facingWords[match[4]]].join(", ");
     return `${capital(text)}${hero ? ` (${hero})` : ""}`;
   }
   if (known(where.family)) return capital(facingWords[where.family] ?? where.family);

@@ -526,13 +526,16 @@ export type LeakConcept =
   | "thin-value"
   | "continuation-bet"
   | "donk-bet"
-  | "range-advantage";
+  | "range-advantage"
+  | "multiway-pots";
 
 /** Concept pages that explain a leak (`lib/learn/concepts.ts`), most relevant first, at most two. */
 export function leakConcepts(attrs: SpotAttrs): LeakConcept[] {
   const { street, scenario, family, hero, taken, best } = attrs;
   const kind = leakKind(taken, best);
   const out: LeakConcept[] = [];
+  // A multiway spot (A9, `-mw-` in the scenario): the multiway page first.
+  if (street !== "preflop" && scenario.includes("-mw-")) out.push("multiway-pots");
   if (street === "preflop") {
     if (scenario === "squeeze") out.push("squeeze");
     else if (scenario === "vs-open") out.push(hero === "BB" || hero === "SB" ? "blind-defence" : "three-bet");

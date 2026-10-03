@@ -30,6 +30,7 @@ import {
   DECISION_SKIP_REASONS,
   FLAG_CODES,
   HAND_SKIP_REASONS,
+  MULTIWAY_SKIP_REASONS,
   RIVER_SKIP_REASONS,
   TURN_SKIP_REASONS,
   analyzeHand,
@@ -105,8 +106,25 @@ describe("the analysis corpus", () => {
     const solved = rivers.filter((d) => d.source === "solver");
     expect(solved.length).toBeGreaterThan(100);
     for (const d of rivers) {
-      if (d.source !== "solver") expect(d.grade).toBeNull();
-      if (d.status === "not-analysed") expect(["multiway", ...RIVER_SKIP_REASONS]).toContain(d.reason);
+      if (d.source !== "solver" && d.source !== "approx") expect(d.grade).toBeNull();
+      if (d.status === "not-analysed") expect([...MULTIWAY_SKIP_REASONS, ...RIVER_SKIP_REASONS]).toContain(d.reason);
+    }
+  });
+
+  it("grades multiway river calls and folds approximately, and nothing else multiway (A9)", () => {
+    const decisions = RESULTS.flatMap((r) => r.analysis.decisions);
+    const approx = decisions.filter((d) => d.source === "approx");
+    expect(approx.length).toBeGreaterThan(10);
+    for (const d of approx) {
+      expect(d.street).toBe("river");
+      expect(["fold", "call"]).toContain(d.action);
+      expect(d.options.map((o) => o.action)).toEqual(["fold", "call"]);
+      expect(d.approximations).toContain("multiway-approx");
+      expect(d.facts.multiway?.ev).toBeTruthy();
+    }
+    // Every multiway postflop decision carries its multiway facts.
+    for (const d of decisions) {
+      if (d.street !== "preflop" && d.facts.players >= 3) expect(d.facts.multiway?.players).toBe(d.facts.players);
     }
   });
 
@@ -237,9 +255,9 @@ describe("every record satisfies the database's own constraints", () => {
   it("never flags louder than Inaccurate, and grades only from the charts preflop and the solver on the river (§3.6)", () => {
     for (const { analysis } of RESULTS) {
       for (const decision of analysis.decisions) {
-        expect(decision.grade !== null).toBe(decision.source === "chart" || decision.source === "solver");
+        expect(decision.grade !== null).toBe(decision.source === "chart" || decision.source === "solver" || decision.source === "approx");
         if (decision.source === "chart") expect(decision.street).toBe("preflop");
-        if (decision.source === "solver") expect(decision.street).toBe("river");
+        if (decision.source === "solver" || decision.source === "approx") expect(decision.street).toBe("river");
         for (const flag of decision.flags) expect(["note", "inaccurate"]).toContain(flag.severity);
         // Anything resting on a placeholder range is a note.
         for (const flag of decision.flags) {
@@ -275,7 +293,7 @@ describe("every record satisfies the database's own constraints", () => {
       for (const decision of analysis.decisions) {
         if (decision.status !== "not-analysed") continue;
         if (decision.street === "preflop") expect(CHART_SKIP_REASONS).toContain(decision.reason);
-        else if (decision.street === "river") expect(["multiway", ...RIVER_SKIP_REASONS]).toContain(decision.reason);
+        else if (decision.street === "river") expect([...MULTIWAY_SKIP_REASONS, ...RIVER_SKIP_REASONS]).toContain(decision.reason);
         else expect(decision.reason).toBe("multiway");
         expect(decision.reason).not.toBe("chart-unavailable");
       }
@@ -287,7 +305,7 @@ describe("every record satisfies the database's own constraints", () => {
       let evLoss = 0;
       let graded = 0;
       for (const decision of analysis.decisions) {
-        if (decision.source !== "chart" && decision.source !== "solver") continue;
+        if (decision.source !== "chart" && decision.source !== "solver" && decision.source !== "approx") continue;
         graded += 1;
         expect(decision.chosen).not.toBeNull();
         const chosen = decision.chosen as number;
@@ -318,6 +336,19 @@ describe("every record satisfies the database's own constraints", () => {
         if (decision.source === "chart") {
           expect(decision.facts.chart?.set).toBe(CHARTS.id);
           expect(CHARTS.nodes.has(decision.facts.chart?.line ?? "?")).toBe(true);
+        } else if (decision.source === "approx") {
+          // A9: capped at Mistake unless the move loses to anything.
+          const ev = decision.facts.multiway!.ev!;
+          if (decision.grade === "blunder") {
+            if (decision.action === "fold") expect(decision.flags.map((f) => f.code)).toContain("fold-nuts");
+          }
+          if (decision.approximations.includes("range-cap")) {
+            expect(decision.grade).toBe("mistake");
+            expect(ev.capped).toBe("blunder");
+          }
+          if (decision.approximations.includes("range-sensitive")) {
+            expect(gradeRank(ev.sensitivity!.grade) - gradeRank(ev.capped ?? decision.grade!)).toBeGreaterThan(1);
+          }
         } else {
           // A river grade names its solve, and always admits to the narrowing.
           const river = decision.facts.river!;
@@ -466,6 +497,7 @@ describe("the module stays importable from a worker and a test", () => {
     "../stats/context",
     "../stats/derive",
     "../equity/range",
+    "../equity/multiway",
     "../equity/evaluator",
   ]);
   const dir = join(import.meta.dirname, "../../frontend/src/lib/analysis");

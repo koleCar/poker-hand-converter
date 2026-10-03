@@ -29,6 +29,9 @@ export const FLAG_CONCEPTS: Readonly<Record<FlagCode, readonly ConceptId[]>> = {
   "check-back-nuts": ["thin-value", "bet-sizing"],
   "thin-stack-behind": ["spr"],
   "committed-fold": ["spr", "pot-odds"],
+  "multiway-bluff": ["multiway-pots", "mdf-alpha"],
+  "multiway-slowplay": ["multiway-pots", "dynamic-boards"],
+  "multiway-dominated-draw": ["multiway-pots", "pot-odds"],
 };
 
 /** The SPR at or under which `explain()` says the next bet commits the stacks. */
@@ -82,7 +85,8 @@ export function conceptsForDecision(decision: DecisionAnalysis, limit = 4): Conc
   const add = (id: ConceptId | null) => {
     if (id && !out.includes(id)) out.push(id);
   };
-  if (decision.status === "not-analysed") return out;
+  // A multiway decision without a grade (A9) still explains its facts and flags.
+  if (decision.status === "not-analysed" && !facts.multiway) return out;
 
   for (const flag of decision.flags) {
     for (const id of FLAG_CONCEPTS[flag.code] ?? []) add(id);
@@ -123,6 +127,13 @@ export function conceptsForDecision(decision: DecisionAnalysis, limit = 4): Conc
       if (turn.villain.shape === "polar") add("bet-sizing");
     }
     add("ranges");
+  }
+  // A multiway decision (A9): the sentences on the field, the MDF split,
+  // fold equity and reverse implied odds; an approximate grade is still a grade.
+  if (facts.multiway && facts.multiway.players >= 3) add("multiway-pots");
+  if (decision.source === "approx" && decision.grade) {
+    add("ev-and-grading");
+    add("multiway-pots");
   }
   if (facts.potOdds !== null) add("pot-odds");
   // MDF is postflop only (ANALYSIS-PLAN §4), exactly as `explain()` quotes it.
