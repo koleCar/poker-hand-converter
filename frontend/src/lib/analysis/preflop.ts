@@ -25,6 +25,7 @@
 import { allClasses, type ClassWeights } from "../equity/range";
 import {
   CHARTS_VERSION,
+  isOpenLimpNode,
   OFF_RANGE,
   handClassOf,
   lookupPreflop,
@@ -45,10 +46,11 @@ import type { Approximation, ChartRef, ChartSkipReason, OptionAnalysis } from ".
  * realisation to our postflop solver and fixes most of it, but still values
  * a flop with the flop checked (`docs/CHARTS.md` §9): UTG folds 55–22,
  * 87s–54s and A5s, and the button almost never flats a cutoff open. It stays
- * on the list, and `modelCaveat` names those hands. `charts/3` (A2c) is the
+ * on the list, and `modelCaveat` names those hands. `charts/4` (A2d, limp
+ * trees) and `charts/3` (A2c) are the
  * same model at other tables and depths, with the same weakness.
  */
-export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2", "charts/3"];
+export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2", "charts/3", "charts/4"];
 
 /** Probability mass, in combos, below which a chart range is too thin to measure an equity against. */
 const MIN_RANGE_COMBOS = 1;
@@ -111,6 +113,7 @@ function chartApproximations(charts: ChartSet, list: readonly ChartApproximation
 function cutReason(cut: readonly string[], action: PreflopActionInput["type"]): string | null {
   if (action !== "call") return null;
   if (cut.includes("limp")) return "limp";
+  if (cut.includes("limpers-cap")) return "multiway";
   if (cut.includes("cold-call")) return "cold-call";
   if (cut.includes("multiway-call")) return "multiway";
   return null;
@@ -159,6 +162,8 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
 
   // The set that answered: `charts` itself, or a library's set for this table and depth.
   const approximations = chartApproximations(lookup.set, lookup.approximations);
+  // Behind an open limp the reference's limper is the tremble's: any hand (charts/4).
+  if (isOpenLimpNode(lookup.node)) approximations.add("limp-tremble");
   const inRange = lookup.inRange ?? 0;
   if (inRange < OFF_RANGE) approximations.add("out-of-range");
   const result = grade({
@@ -196,6 +201,16 @@ export interface ChartRange {
   combos: number;
 }
 
+/** Whether `position` called before any raise (limped) from a seat other than the blinds. */
+function openLimped(position: string, actions: readonly PreflopActionInput[]): boolean {
+  if (position === "SB" || position === "BB") return false;
+  for (const action of actions) {
+    if (action.type === "raise") return false;
+    if (action.type === "call" && action.position === position) return true;
+  }
+  return false;
+}
+
 /**
  * An opponent's preflop range as the charts play their line: at the node of
  * their last preflop decision before `beforeActionIndex`, each class weighted
@@ -219,6 +234,11 @@ export function chartRange(
   if (nth < 0) return null;
   const found = preflopSpotFromHand(hand, nth, seat);
   if (!found.ok || found.heroAction.type === "fold") return null;
+  // A seat other than the blinds that limped: in the charts (`charts/4`) its
+  // limp is the tremble - every class, "a limper may hold anything" - which
+  // is what the players facing it are graded against, but no range to start
+  // a postflop walk from. The labelled placeholder limp range is better.
+  if (openLimped(found.spot.hero, [...found.spot.actions, found.heroAction])) return null;
   const lookup = lookupPreflop(charts, found.spot, null, found.heroAction);
   if (!lookup.ok || lookup.chosen === null || lookup.chosen < 0) return null;
   const node = lookup.node;

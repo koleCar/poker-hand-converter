@@ -76,7 +76,7 @@ export const reportsHr = {
     mixed:
       "Ruka koju referenca igra na dva načina na popisu ruku je Savršena u oba slučaja; tek ovdje, kroz mnogo ruku, vidi se ako uvijek biraš istu stranu.",
     model:
-      "Referenca su Railovi vlastiti chartovi za 6-max 100 bb (charts/1). Podcjenjuju ruke koje dobivaju kroz implied odds, pa male parove i suited connectore callaju i otvaraju rjeđe od većine igrača.",
+      "Referenca su Railovi vlastiti chartovi (charts/4: 6-max i full ring, od 40 do 200 bb, s limpanim potovima), svaka odluka prema skupu koji ju je ocijenio. I dalje malo podcjenjuju ruke koje dobivaju kroz implied odds, pa male parove i suited connectore callaju i otvaraju rjeđe od većine igrača. U limpanom potu limper u referenci može imati bilo koju ruku.",
   },
 
   columns: {
@@ -105,6 +105,16 @@ export const reportsHr = {
   summary: (yours: string, reference: string, verdict: string) => `Ti ${yours}, referenca ${reference}: ${verdict}`,
   noDecisions: "Još nema odluka",
 
+  /** Filtar skupa charta (A2d). */
+  sets: {
+    label: "Charti",
+    all: (count: number) => `Svi stolovi i dubine (${num(count)})`,
+    option: (name: string, decisions: string) => `${name} · ${decisions}`,
+    note: "Svaka se odluka uspoređuje sa skupom charta koji ju je ocijenio; statistika preko više skupova važe referencu svakog skupa tvojim odlukama u njemu.",
+    tableTag: (label: string, table: number) => `${label} · ${table}-max`,
+    nodeTag: (spot: string, set: string) => `${spot} (${set})`,
+  },
+
   stats: {
     heading: "Tvoje statistike prema referenci",
     note: "Poznate preflop statistike, zbrojene iz chart situacija iza njih. Otvori redak za pozicije i ruke u kojima si odstupio od reference.",
@@ -119,6 +129,7 @@ export const reportsHr = {
       "fold-to-three-bet-oop": "Fold na 3-bet, izvan pozicije",
       "four-bet": "4-bet",
       squeeze: "Squeeze",
+      iso: "Izolacijski raise",
     } as Record<string, string>,
     definitions: {
       rfi: "Svi prije tebe su foldali, a ti si raiseao. Limp malog blinda nije open.",
@@ -130,6 +141,7 @@ export const reportsHr = {
       "fold-to-three-bet-oop": "Otvorio si, 3-betao te igrač koji na flopu igra iza tebe, i foldao si.",
       "four-bet": "Reraiseao si 3-bet — kao opener, caller ili hladno.",
       squeeze: "Reraiseao si open koji je callao jedan ili više igrača.",
+      iso: "Raiseao si preko jednog ili više limpera, a da nitko nije raiseao (limperi u referenci mogu imati bilo koju ruku: limp je modeliran kao greška koju svatko može napraviti).",
     } as Record<string, string>,
     tips: {
       rfi: "Širina bi trebala rasti od pozicije do pozicije prema buttonu. Razlika na jednoj poziciji obično je nekoliko klasa ruku — otvori redak te pozicije i pročitaj ruke.",
@@ -141,6 +153,7 @@ export const reportsHr = {
       "fold-to-three-bet-oop": "Callovi izvan pozicije realiziraju manje; foldaj više ili 4-betaj vrh i nekoliko blokera.",
       "four-bet": "4-betovi su uglavnom vrh raspona i nekoliko blokera (as) koji ne callaju dobro.",
       squeeze: "Calleri ograničavaju svoje raspone; squeezeaj veće od 3-beta i s rukama koje se dobro igraju kao raise.",
+      iso: "Limperi su slabi i široki: izoliraj češće u poziciji i s kasnijih pozicija, veće s više limpera, a overlimpaj ruke kojima odgovara jeftin flop s više igrača.",
     } as Record<string, string>,
   },
 

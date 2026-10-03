@@ -15,6 +15,17 @@
  * | Facing a 4-bet | fold, call, 5-bet all-in |
  * | Facing an all-in | fold, call |
  *
+ * **With limps** (`maxLimpers`, `charts/4`, A2d) the unopened rows change:
+ *
+ * | Spot | Options |
+ * |---|---|
+ * | Unopened, UTG-BTN | fold, limp, open to 2.5bb |
+ * | Behind 1-2 limpers (3 for the small blind's completion) | fold, over-limp, isolate |
+ * | Behind `maxLimpers` limpers | fold, isolate (`FLAG_LIMPERS_CAP`) |
+ * | BB behind limpers | check, isolate |
+ * | Isolation raise | 4bb, +1bb per limper beyond the first, +1bb out of position of a limper (a blind) |
+ * | Facing an isolation raise | fold, call, re-raise 3x (+1x per caller); behind an open limp the next raise is all-in |
+ *
  * Raise sizes are rounded to half a big blind; a raise that would leave less
  * than nothing behind is an all-in. Other stack depths change the sizes
  * (`PreflopSizing`, recorded in each chart set): at 40bb the open is 2.2bb
@@ -40,7 +51,11 @@
  *   folds and gets no node at all.
  * - **Up to four players see a flop or are all-in**, valued by the multiway
  *   realisation model (`preflopModel.ts`).
- * - **No open limps** except the small blind's, and no limp-behind.
+ * - **No open limps** except the small blind's, and no limp-behind - unless
+ *   `maxLimpers` is set: then anyone but the big blind may limp until that
+ *   many have, limpers count as entrants, and behind a limp from a seat other
+ *   than the blinds the pot's 4-bet is all-in (one raise level fewer: limped
+ *   pots that reach a 4-bet are rare, and the level is most of the tree).
  *
  * **Flat arrays, pre-order.** Same shape as `tree.ts`: node fields in parallel
  * typed arrays, children a contiguous slice. Node 0 is the root; ids follow a
@@ -90,13 +105,24 @@ export interface PreflopSizing {
   open: number;
   /** Small blind's raise to, when it raises first in. */
   sbOpen: number;
-  /** Big blind's raise to over a small-blind limp. */
+  /**
+   * Isolation raise to over one limper, in position of it (the big blind over
+   * a small-blind limp; the button over an UTG limp).
+   */
   isoVsLimp: number;
+  /** Added to the isolation raise per limper beyond the first. */
+  isoPerLimper: number;
+  /** Added to the isolation raise when the raiser is out of position of a limper (a blind isolating). */
+  isoOop: number;
   /** 3-bet to, as a multiple of the raise faced: in position of the raiser. */
   threeBetIp: number;
   /** ... out of position (the blinds against a steal). */
   threeBetOop: number;
-  /** The small blind's re-raise of the big blind's raise over its limp. */
+  /**
+   * A re-raise of an isolation raise (the small blind's over the big blind's
+   * raise of its limp; any limper's limp-raise), as a multiple of the raise,
+   * plus `squeezePerCaller` per caller of the isolation raise.
+   */
   threeBetVsIso: number;
   /** Added per caller between the open and the 3-bet (a squeeze), in units of the raise faced. */
   squeezePerCaller: number;
@@ -118,6 +144,8 @@ export const DEFAULT_SIZING: Readonly<PreflopSizing> = {
   open: 2.5,
   sbOpen: 3,
   isoVsLimp: 4,
+  isoPerLimper: 1,
+  isoOop: 1,
   threeBetIp: 3,
   threeBetOop: 4,
   threeBetVsIso: 3,
@@ -140,6 +168,14 @@ export interface PreflopTreeConfig {
   maxEntrants?: number;
   /** Whether the small blind may complete. Default true. */
   sbLimp?: boolean;
+  /**
+   * Open limps (`charts/4`, A2d). 0, the default, is `charts/3`'s tree: only
+   * the small blind may limp (complete). Above 0 every seat but the big blind
+   * may limp first in or behind, until this many have limped (the small
+   * blind's completion counts); the next would-be limper may only fold or
+   * raise (`FLAG_LIMPERS_CAP`). Limpers count as entrants (`maxEntrants`).
+   */
+  maxLimpers?: number;
 }
 
 /* Node types. */
@@ -155,8 +191,10 @@ export const PF_ALLIN = 3;
 export const FLAG_MULTIWAY_CAP = 1;
 /** A cold call (of a 3-bet or 4-bet) was removed. */
 export const FLAG_COLD_CALL_CUT = 2;
-/** An open limp was removed (every unopened node but the small blind's). */
+/** An open limp was removed (every unopened node but the small blind's, in a tree without limps). */
 export const FLAG_LIMP_CUT = 4;
+/** A limp was removed because `maxLimpers` players have limped already (a tree with limps). */
+export const FLAG_LIMPERS_CAP = 8;
 
 export const POT_TYPE_INDEX: readonly PotType[] = ["limped", "srp", "3bet", "4bet", "allin"];
 
@@ -166,6 +204,8 @@ export interface PreflopTree {
   readonly sizing: Readonly<PreflopSizing>;
   readonly maxEntrants: number;
   readonly sbLimp: boolean;
+  /** 0: only the small blind limps; above 0: anyone may, up to this many limpers. */
+  readonly maxLimpers: number;
   readonly size: number;
   readonly type: Uint8Array;
   /** Actor of an action node, winner of a fold terminal, -1 otherwise. */
@@ -215,7 +255,11 @@ interface State {
   /** Players still to act, in order. */
   pending: number[];
   limped: boolean;
-  /** The current raise is the BB's raise over a limp. */
+  /** Players who limped (completed or called the big blind before any raise). */
+  limpers: number;
+  /** A seat other than the blinds limped: the pot's 4-bet is all-in. */
+  openLimped: boolean;
+  /** The current raise is an isolation raise (the first raise, over one or more limpers). */
   isoRaise: boolean;
   line: string;
 }
@@ -247,6 +291,7 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
   const sizing: PreflopSizing = { ...DEFAULT_SIZING, ...config.sizing };
   const maxEntrants = config.maxEntrants ?? 4;
   const sbLimp = config.sbLimp ?? true;
+  const maxLimpers = Math.max(0, Math.floor(config.maxLimpers ?? 0));
   const sb = players.indexOf("SB");
   const bb = players.indexOf("BB");
   const postflop = players.map((p) => POSTFLOP_ORDER[p]);
@@ -327,23 +372,39 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
   const raiseTo = (s: State, p: number): number => {
     let to: number;
     if (s.level === 0) {
-      to = s.limped && p === bb ? sizing.isoVsLimp : p === sb ? sizing.sbOpen : sizing.open;
+      to = s.limped ? isoTo(s, p) : p === sb ? sizing.sbOpen : sizing.open;
     } else if (s.level === 1) {
       if (s.isoRaise) {
-        to = sizing.threeBetVsIso * s.toMatch;
+        to = sizing.threeBetVsIso * s.toMatch + sizing.squeezePerCaller * s.callers * s.toMatch;
       } else {
         const ip = postflop[p] > postflop[s.aggressor];
         to = (ip ? sizing.threeBetIp : sizing.threeBetOop) * s.toMatch + sizing.squeezePerCaller * s.callers * s.toMatch;
       }
-    } else if (s.level === 2) {
+    } else if (s.level === 2 && !s.openLimped) {
       const ip = postflop[p] > postflop[s.aggressor];
       to = (ip ? sizing.fourBetIp : sizing.fourBetOop) * s.toMatch;
     } else {
+      // A 5-bet; and behind an open limp, already the 4-bet (see the header).
       to = stack;
     }
     to = roundSize(to, sizing.roundTo);
     if (sizing.allInAbove !== undefined && to > sizing.allInAbove * stack) return stack;
     return to >= stack ? stack : to;
+  };
+
+  /**
+   * Isolation raise of `p` over the limpers at `s`: `isoVsLimp`, plus
+   * `isoPerLimper` per limper beyond the first, plus `isoOop` when `p` is
+   * out of position of any limper. The big blind over a small-blind limp is
+   * `isoVsLimp` (4bb), as in `charts/3`.
+   */
+  const isoTo = (s: State, p: number): number => {
+    let oop = false;
+    for (let q = 0; q < n; q += 1) {
+      if (q === p || !(s.live & (1 << q)) || !(s.voluntary & (1 << q))) continue;
+      if (postflop[q] > postflop[p]) oop = true;
+    }
+    return sizing.isoVsLimp + sizing.isoPerLimper * Math.max(0, s.limpers - 1) + (oop ? sizing.isoOop : 0);
   };
 
   const step = (s: State, depth: number): number => {
@@ -391,12 +452,14 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
             callers: s.callers + (limp ? 0 : 1),
             voluntary: s.voluntary | (1 << p),
             limped: s.limped || limp,
+            limpers: s.limpers + (limp ? 1 : 0),
+            openLimped: s.openLimped || (limp && p !== sb),
             pending: rest,
             line: s.line + "c",
           },
         });
       } else if (s.level === 0) {
-        flags[id] |= FLAG_LIMP_CUT;
+        flags[id] |= maxLimpers > 0 ? FLAG_LIMPERS_CAP : FLAG_LIMP_CUT;
       } else {
         flags[id] |= s.level === 1 ? FLAG_MULTIWAY_CAP : FLAG_COLD_CALL_CUT;
       }
@@ -426,7 +489,7 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
           aggressor: p,
           callers: 0,
           voluntary: s.voluntary | (1 << p),
-          isoRaise: s.level === 0 && s.limped && p === bb,
+          isoRaise: s.level === 0 && s.limped,
           pending,
           line: s.line + (to >= stack ? "a" : "r"),
         },
@@ -456,8 +519,13 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
   /** Whether `p` may call at `s` under the limp, multiway and cold-call cuts. */
   function callAllowed(s: State, p: number, isVoluntary: boolean): boolean {
     if (s.level === 0) {
-      // Only the small blind may limp (complete); nobody limps behind.
-      return p === sb && sbLimp && !s.limped;
+      if (maxLimpers === 0) {
+        // Only the small blind may limp (complete); nobody limps behind.
+        return p === sb && sbLimp && !s.limped;
+      }
+      // Anyone but the big blind (who checks), up to `maxLimpers` limpers.
+      if (p === bb || (p === sb && !sbLimp)) return false;
+      return s.limpers < maxLimpers && mayEnter(s, isVoluntary);
     }
     if (s.level === 1) {
       return mayEnter(s, isVoluntary);
@@ -486,6 +554,8 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
     voluntary: 0,
     pending: players.map((_, k) => k),
     limped: false,
+    limpers: 0,
+    openLimped: false,
     isoRaise: false,
     line: "",
   };
@@ -517,6 +587,7 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
     sizing,
     maxEntrants,
     sbLimp,
+    maxLimpers,
     size,
     type: Uint8Array.from(type),
     actor: Int8Array.from(actor),

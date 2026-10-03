@@ -43,6 +43,16 @@ export interface GenerateOptions {
   stackBb?: number;
   sizing?: Partial<PreflopSizing>;
   maxEntrants?: number;
+  /** Open limps up to this many limpers (`charts/4`); 0 or absent: only the small blind limps. */
+  maxLimpers?: number;
+  /** The open limp's tremble (`PreflopGame.limpFloor`); only with `maxLimpers`. */
+  limpFloor?: number;
+  /**
+   * Nodes behind a limp (a non-blind seat's) are kept down to this reach
+   * instead of `minReach` (they exist off the equilibrium path, reached through
+   * the tremble). Default `minReach`.
+   */
+  minLimpReach?: number;
   rake?: Readonly<RakeProfile>;
   cardRemoval?: boolean;
   equityBoards?: number;
@@ -185,9 +195,11 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
     stackBb: options.stackBb,
     sizing: options.sizing,
     maxEntrants: options.maxEntrants,
+    maxLimpers: options.maxLimpers,
   });
   const realisation = options.realisation ?? CHARTS1_REALISATION;
-  const solver = new PreflopSolver({ tree, equity: equity.equity, rake, cardRemoval, realisation }, params);
+  const limpFloor = tree.maxLimpers > 0 ? (options.limpFloor ?? 0) : 0;
+  const solver = new PreflopSolver({ tree, equity: equity.equity, rake, cardRemoval, realisation, limpFloor }, params);
 
   const convergence: ConvergencePoint[] = [];
   let previous = averages(solver);
@@ -230,13 +242,17 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
     id,
     version: options.version,
     minReach,
+    minLimpReach: tree.maxLimpers > 0 ? (options.minLimpReach ?? minReach) : undefined,
     model: {
       tree: {
         sizing: tree.sizing,
         maxEntrants: tree.maxEntrants,
         sbLimp: tree.sbLimp,
+        ...(tree.maxLimpers > 0 ? { maxLimpers: tree.maxLimpers, limpFloor } : {}),
         cuts: [
-          "no open limps except the small blind's",
+          tree.maxLimpers > 0
+            ? `open limps and over-limps from every seat but the big blind, at most ${tree.maxLimpers} limpers (the small blind's completion counts); every non-blind seat limps at least ${limpFloor} of every class (the tremble)`
+            : "no open limps except the small blind's",
           "at most four players put money in voluntarily; players already in may always continue",
           "no cold call of a 3-bet or 4-bet",
           "5-bet is all-in; a cold player facing an all-in folds",

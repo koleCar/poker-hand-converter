@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   CHARTS_VERSION,
   generateChartSet,
+  isOpenLimpNode,
   loadCharts,
   serializeCharts,
 } from "../../../frontend/src/lib/charts/index.js";
@@ -111,6 +112,55 @@ describe("other tables and depths (A2c)", () => {
     expect(vs3bet.length).toBeGreaterThan(0);
     for (const n of vs3bet) expect(n.options.map((o) => o.action)).toContain("allin");
     expect((set.model as Record<string, any>).tree.sizing.allInAbove).toBe(0.4);
+  });
+});
+
+describe("limp trees (A2d)", () => {
+  const config = {
+    players: ["CO", "BTN", "SB", "BB"] as const,
+    stackBb: 40,
+    maxLimpers: 2,
+    limpFloor: 0.01,
+    minLimpReach: 0,
+    equityBoards: 400,
+    equitySeed: 99,
+    iterations: 150,
+    checkEvery: 150,
+    headsUpIterations: 0,
+    minReach: 0,
+  };
+
+  it("generates a set with limped pots deterministically, and records the tree", () => {
+    const a = serializeCharts(generateChartSet(config).charts);
+    expect(serializeCharts(generateChartSet(config).charts)).toBe(a);
+    const set = loadCharts(JSON.parse(a));
+    const tree = (set.model as Record<string, any>).tree;
+    expect(tree.maxLimpers).toBe(2);
+    expect(tree.limpFloor).toBe(0.01);
+    expect(set.nodes.get("")?.options.map((o) => o.action)).toEqual(["fold", "call", "raise"]);
+    // The button behind the cutoff's limp, the limper facing the button's isolation.
+    const vsLimp = set.nodes.get("c");
+    expect(vsLimp?.scenario).toBe("vs-limp");
+    expect(vsLimp?.limpers).toEqual(["CO"]);
+    expect(isOpenLimpNode(vsLimp!)).toBe(true);
+    expect(set.nodes.get("crff")?.scenario).toBe("vs-iso");
+    // Two limpers: the small blind may not complete a third time.
+    expect(set.nodes.get("cc")?.cut).toContain("limpers-cap");
+    // The blinds' own limped pot is not an open limp.
+    expect(isOpenLimpNode(set.nodes.get("ffc")!)).toBe(false);
+    // Every class limps at least the tremble at the cutoff (a uint8 rounds 1% to 3/255).
+    const root = set.nodes.get("")!;
+    for (let i = 0; i < NUM_CLASSES; i += 1) expect(root.freq[NUM_CLASSES + i]).toBeGreaterThanOrEqual(2 / 255);
+  });
+
+  it("keeps nodes behind a limp down to their own reach floor", () => {
+    const strict = loadCharts(JSON.parse(serializeCharts(generateChartSet({ ...config, minReach: 0.01, minLimpReach: 0.01 }).charts)));
+    const loose = loadCharts(JSON.parse(serializeCharts(generateChartSet({ ...config, minReach: 0.01, minLimpReach: 0 }).charts)));
+    const limped = (set: typeof strict) => [...set.nodes.values()].filter((n) => isOpenLimpNode(n)).length;
+    expect(limped(loose)).toBeGreaterThan(limped(strict));
+    // Nodes off the limp are the same either way.
+    const plain = (set: typeof strict) => [...set.nodes.values()].filter((n) => !isOpenLimpNode(n)).map((n) => n.line);
+    expect(plain(loose)).toEqual(plain(strict));
   });
 });
 

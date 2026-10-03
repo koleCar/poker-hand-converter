@@ -13,6 +13,7 @@ import { comboShare, NUM_CLASSES } from "../solver/handClasses";
 import {
   FLAG_COLD_CALL_CUT,
   FLAG_LIMP_CUT,
+  FLAG_LIMPERS_CAP,
   FLAG_MULTIWAY_CAP,
   PF_ACTION,
   potAt,
@@ -72,6 +73,13 @@ export interface BuildChartOptions {
   version?: string;
   /** Nodes reached less often than this are not written. */
   minReach: number;
+  /**
+   * Nodes behind an open limp (a seat other than the blinds limped) are kept
+   * down to this reach instead (`charts/4`): they are reached through the
+   * limp's tremble, off the equilibrium path, and are what grades a hero
+   * facing a limper. Default `minReach`.
+   */
+  minLimpReach?: number;
   /** Assumptions and convergence, written as `model` (a hash is added). */
   model: Record<string, unknown>;
 }
@@ -139,6 +147,15 @@ export function buildChartSet(solver: PreflopSolver, options: BuildChartOptions)
   const steps: Step[] = [];
   const unconverged: { line: string; reach: number; loss: number }[] = [];
 
+  /** Whether a seat other than the blinds limped (called before any raise) on the way here. */
+  const openLimped = (path: readonly Step[]): boolean => {
+    for (const step of path) {
+      if (step.code === "r" || step.code === "a") return false;
+      if (step.code === "c" && positions[step.actor] !== "SB" && positions[step.actor] !== "BB") return true;
+    }
+    return false;
+  };
+
   const visit = (node: number): void => {
     if (tree.type[node] !== PF_ACTION) return;
     const actor = tree.actor[node];
@@ -151,7 +168,9 @@ export function buildChartSet(solver: PreflopSolver, options: BuildChartOptions)
       nodeReach *= comboShare(reach.subarray(p * H, p * H + H));
     }
 
-    if (nodeReach >= options.minReach) {
+    // Behind a non-blind seat's limp, the lower threshold.
+    const threshold = openLimped(steps) ? (options.minLimpReach ?? options.minReach) : options.minReach;
+    if (nodeReach >= threshold) {
       const loss = selfLoss(node, actor, strat);
       if (loss <= MAX_SELF_LOSS) {
         nodes.push(describe(node, actor, nodeReach, strat));
@@ -199,9 +218,9 @@ export function buildChartSet(solver: PreflopSolver, options: BuildChartOptions)
     const voluntary = (tree.voluntary[node] & (1 << actor)) !== 0;
     const aggressor = tree.aggressor[node];
 
-    // Opener, limper and the callers of the current raise, from the explicit steps.
+    // Opener, limpers and the callers of the current raise, from the explicit steps.
     let opener = -1;
-    let limper = -1;
+    const limpers: number[] = [];
     let raises = 0;
     let callers: number[] = [];
     let firstDecision = true;
@@ -212,15 +231,19 @@ export function buildChartSet(solver: PreflopSolver, options: BuildChartOptions)
         if (raises === 1) opener = step.actor;
         callers = [];
       } else if (step.code === "c") {
-        if (raises === 0) limper = step.actor;
+        if (raises === 0) limpers.push(step.actor);
         else callers.push(step.actor);
       }
     }
-    const isoRaise = level === 1 && limper >= 0 && opener === aggressor && positions[opener] === "BB";
+    // An isolation raise: the first raise, over one or more limpers.
+    const isoRaise = level === 1 && limpers.length > 0 && opener === aggressor;
 
     let scenario: ChartScenario;
-    if (level === 0) scenario = position === "BB" ? "vs-limp" : "rfi";
-    else if (level === 1) scenario = isoRaise ? "vs-iso" : callers.length ? "squeeze" : "vs-open";
+    if (level === 0) scenario = limpers.length ? "vs-limp" : "rfi";
+    else if (level === 1) {
+      // A limper facing the isolation raise; anyone else faces a raise like an open.
+      scenario = isoRaise && limpers.includes(actor) ? "vs-iso" : callers.length ? "squeeze" : "vs-open";
+    }
     else if (level === 2) scenario = "vs-3bet";
     else if (level === 3) scenario = "vs-4bet";
     else scenario = "vs-allin";
@@ -251,10 +274,12 @@ export function buildChartSet(solver: PreflopSolver, options: BuildChartOptions)
     if (level >= 2 && !voluntary) out.cold = true;
     if (aggressor >= 0) out.facing = { position: positions[aggressor], toBb: tree.toMatch[node] };
     if (callers.length) out.callers = callers.map((p) => positions[p]);
-    const cut: ("multiway-call" | "cold-call" | "limp")[] = [];
+    if (limpers.length) out.limpers = limpers.map((p) => positions[p]);
+    const cut: ("multiway-call" | "cold-call" | "limp" | "limpers-cap")[] = [];
     if (tree.flags[node] & FLAG_MULTIWAY_CAP) cut.push("multiway-call");
     if (tree.flags[node] & FLAG_COLD_CALL_CUT) cut.push("cold-call");
     if (tree.flags[node] & FLAG_LIMP_CUT) cut.push("limp");
+    if (tree.flags[node] & FLAG_LIMPERS_CAP) cut.push("limpers-cap");
     if (cut.length) out.cut = cut;
 
     for (let a = 0; a < count; a += 1) {

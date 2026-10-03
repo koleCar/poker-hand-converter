@@ -41,6 +41,7 @@ export const trainHr = {
       "vs-3bet": "Protiv 3-beta",
       squeeze: "Squeeze",
       bvb: "Blind protiv blinda",
+      "vs-limp": "Protiv limpera",
       "vs-4bet": "Protiv 4-beta",
     } as Record<string, string>,
     seat: "Tvoja pozicija",

@@ -11,7 +11,8 @@
     "charts:report": "vitest run --config scripts/preflop-charts/vitest.config.ts report",
     "charts:coverage": "vitest run --config scripts/preflop-charts/vitest.config.ts coverage",
     "charts:compare": "vitest run --config scripts/preflop-charts/vitest.config.ts compare",
-    "floplib": "node scripts/flop-library/cli.mjs"
+    "floplib": "node scripts/flop-library/cli.mjs",
+    "charts:library": "vitest run --config scripts/preflop-charts/vitest.config.ts library"
   },
   "keywords": [],
   "author": "",

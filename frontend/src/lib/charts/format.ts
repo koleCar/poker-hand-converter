@@ -26,7 +26,8 @@
  * `CHARTS_VERSION` changes with the format, the model or the library:
  * `charts/1` was the hand-set realisation model, `charts/2` (same format) the
  * one fitted to the postflop solver (docs/CHARTS.md §4), `charts/3` the
- * library of sets (9-max, 40-200bb; `registry.ts`). Each set carries the
+ * library of sets (9-max, 40-200bb; `registry.ts`), `charts/4` the limp
+ * trees (open limps and over-limps from every seat, A2d). Each set carries the
  * version of the generator that made it and its own `id`. A regenerated set
  * with new numbers changes `model.hash`, and the analysis version
  * (`ANALYSIS_VERSION`) is what tells stored grades apart.
@@ -35,7 +36,7 @@
 import { NUM_CLASSES } from "../solver/handClasses";
 import { decodeBase64, encodeBase64 } from "./base64";
 
-export const CHARTS_VERSION = "charts/3";
+export const CHARTS_VERSION = "charts/4";
 
 /**
  * Versions a chart set file may carry. Each set records the generator that
@@ -43,7 +44,7 @@ export const CHARTS_VERSION = "charts/3";
  * (9-max, other depths) are `charts/3`'s - the same model, measured at their
  * own table and depth. `CHARTS_VERSION` names the library (`registry.ts`).
  */
-export const CHART_SET_VERSIONS: readonly string[] = ["charts/2", "charts/3"];
+export const CHART_SET_VERSIONS: readonly string[] = ["charts/2", "charts/3", "charts/4"];
 
 /** Seat names as the stats engine assigns them (`positionRing`), 6-max or 9-max. */
 export type ChartPosition = "UTG" | "UTG+1" | "UTG+2" | "LJ" | "HJ" | "CO" | "BTN" | "SB" | "BB";
@@ -56,10 +57,10 @@ export type ChartAction = "fold" | "check" | "call" | "raise" | "allin";
  * | Scenario | Spot | Stats counter |
  * |---|---|---|
  * | `rfi` | unopened pot (SB: limp or raise) | `rfi_opp`, `steal_opp` from CO/BTN/SB |
- * | `vs-limp` | BB after the SB completes | `iso_opp` |
+ * | `vs-limp` | one or more limpers, no raise (the BB after the SB completes; anyone behind an open limp) | `iso_opp` |
  * | `vs-open` | one raise, no callers | `three_bet_opp`, `fold_to_steal_opp` for a blind vs CO/BTN/SB |
  * | `squeeze` | one raise and one or more callers | `three_bet_opp`, `squeeze_opp` |
- * | `vs-iso` | SB after limping, facing the BB's raise | `three_bet_opp` |
+ * | `vs-iso` | a limper facing the isolation raise (the SB after the BB's raise of its limp) | `three_bet_opp` |
  * | `vs-3bet` | two raises | `four_bet_opp`, `fold_to_three_bet_opp` for the opener |
  * | `vs-4bet` | three raises | `five_bet_opp`, `fold_to_four_bet_opp` for the 3-bettor |
  * | `vs-allin` | a 5-bet all-in | — |
@@ -96,6 +97,8 @@ export interface ChartNodeJson {
   facing?: { position: ChartPosition; toBb: number };
   /** Callers of the current raise so far. */
   callers?: ChartPosition[];
+  /** Players who limped before the first raise (`charts/4`; the small blind's completion included). */
+  limpers?: ChartPosition[];
   potBb: number;
   /** Chips the actor has in already. */
   inBb: number;
@@ -104,7 +107,7 @@ export interface ChartNodeJson {
   /** Probability that a hand reaches this node at all, under the charts. */
   reach: number;
   /** Options removed from the tree here (see `preflopTree.ts`). */
-  cut?: ("multiway-call" | "cold-call" | "limp")[];
+  cut?: ("multiway-call" | "cold-call" | "limp" | "limpers-cap")[];
   options: ChartOptionJson[];
   freq: string;
   ev: string;
@@ -141,6 +144,7 @@ export interface ChartNode {
   readonly cold: boolean;
   readonly facing: { position: ChartPosition; toBb: number } | null;
   readonly callers: readonly ChartPosition[];
+  readonly limpers: readonly ChartPosition[];
   readonly potBb: number;
   readonly inBb: number;
   readonly toMatchBb: number;
@@ -164,6 +168,17 @@ export interface ChartSet {
 }
 
 export class ChartFormatError extends Error {}
+
+/**
+ * Whether a seat other than the blinds limped on the node's line (`charts/4`):
+ * the node is in a limped pot, reached through the limp's tremble - facing
+ * the limpers, a limper facing the isolation raise, or anything after it. The
+ * blinds' own limped pot (the small blind completes) is not one: it is
+ * blind-versus-blind play the equilibrium reaches.
+ */
+export function isOpenLimpNode(node: Pick<ChartNode, "limpers">): boolean {
+  return node.limpers.some((position) => position !== "SB" && position !== "BB");
+}
 
 /* ------------------------------------------------------------ encode - */
 
@@ -241,6 +256,7 @@ function decodeNode(json: ChartNodeJson, seats: readonly ChartPosition[]): Chart
     cold: json.cold ?? false,
     facing: json.facing ?? null,
     callers: json.callers ?? [],
+    limpers: json.limpers ?? [],
     potBb: json.potBb,
     inBb: json.inBb,
     toMatchBb: json.toMatchBb,

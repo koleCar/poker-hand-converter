@@ -55,6 +55,7 @@ function row(
   const nonPerfect = extra.nonPerfect ?? (taken === best ? 0 : decisions);
   return {
     key: [street, scenario, line, position, taken, best].join("|"),
+    ...(extra.set !== undefined ? { set: extra.set } : {}),
     street,
     scenario,
     line,
@@ -126,6 +127,62 @@ describe("spot attributes", () => {
     expect(parseLeakId(id)).toEqual(atLevel(attrs, 1));
     expect(parseLeakId("preflop~vs-open")).toBeNull();
     expect(parseLeakId("a~b~c~d~e~f~<script>")).toBeNull();
+  });
+
+  it("names a full-ring spot on its own table and keeps it apart from 6-max's (A2d)", () => {
+    const six = spotAttrs(row("preflop", "unopened", "", "UTG", "fold", "raise", 1, { set: "nlhe-cash-6max-100bb" }));
+    const nine = spotAttrs(row("preflop", "unopened", "", "UTG", "fold", "raise", 1, { set: "nlhe-cash-9max-150bb" }));
+    expect(six).toMatchObject({ hero: "UTG" });
+    expect(six.table).toBeUndefined();
+    expect(nine).toMatchObject({ hero: "UTG", table: "9max" });
+    expect(leakId(six)).toBe("preflop~unopened~first-in~UTG~-~fold~raise");
+    expect(leakId(nine)).toBe("preflop~unopened~first-in~UTG~-~fold~raise~9max");
+    expect(parseLeakId(leakId(nine))).toEqual(nine);
+    expect(parseLeakId(`${leakId(six)}~6max`)).toBeNull();
+    // The table goes when the seat does.
+    expect(atLevel(nine, 1).table).toBe("9max");
+    expect(atLevel(nine, 2).table).toBeUndefined();
+    // A 9-max line names 9-max seats: UTG+1, UTG+2 fold, the LJ opens, the HJ faces it.
+    expect(spotAttrs(row("preflop", "vs-open", "fffr", "HJ", "fold", "call", 1, { set: "nlhe-cash-9max-100bb" }))).toMatchObject({
+      hero: "HJ",
+      villain: "LJ",
+      table: "9max",
+    });
+  });
+
+  it("faces the first limper in a limped pot, and nobody behind the small blind's completion (A2d)", () => {
+    // UTG limps, HJ and CO fold: the button faces UTG's limp.
+    expect(spotAttrs(row("preflop", "vs-limp", "cff", "BTN", "fold", "raise", 1, { set: "nlhe-cash-6max-100bb" }))).toMatchObject({
+      hero: "BTN",
+      villain: "UTG",
+    });
+    // The big blind's option after the small blind completes is blind vs blind: no villain, as before.
+    expect(spotAttrs(row("preflop", "bb-option", "ffffc", "BB", "check", "raise", 1)).villain).toBe(NONE);
+    // UTG limps, the button isolates: UTG faces the button's raise.
+    expect(spotAttrs(row("preflop", "vs-open", "cffrff", "UTG", "fold", "call", 1)).villain).toBe("BTN");
+  });
+
+  it("splits a spot key met on two sets into two situations, and counts each leak's sets", () => {
+    const rows = [
+      row("preflop", "unopened", "", "UTG", "fold", "raise", 12, { set: "nlhe-cash-6max-100bb", evLossBb: 3 }),
+      row("preflop", "unopened", "", "UTG", "fold", "raise", 15, { set: "nlhe-cash-9max-100bb", evLossBb: 2 }),
+      row("preflop", "unopened", "", "UTG", "fold", "raise", 4, { set: "nlhe-cash-9max-150bb", evLossBb: 1 }),
+    ];
+    const leaks = groupLeaks(rows, { hands: 100 });
+    expect(leaks.map((leak) => leak.id).sort()).toEqual([
+      "preflop~unopened~first-in~UTG~-~fold~raise",
+      "preflop~unopened~first-in~UTG~-~fold~raise~9max",
+    ]);
+    const nine = leaks.find((leak) => leak.attrs.table === "9max")!;
+    expect(nine.decisions).toBe(19);
+    expect(nine.sets).toEqual({ "nlhe-cash-9max-100bb": 15, "nlhe-cash-9max-150bb": 4 });
+    expect(nine.keys).toEqual(["preflop|unopened||UTG|fold|raise"]);
+    // Two periods merge equal keys per set, never across them.
+    expect(mergeRows([...rows, ...rows]).map((r) => [r.set, r.decisions])).toEqual([
+      ["nlhe-cash-6max-100bb", 24],
+      ["nlhe-cash-9max-100bb", 30],
+      ["nlhe-cash-9max-150bb", 8],
+    ]);
   });
 
   it("calls a row a leak row when the move was not the best, or was at the wrong size", () => {

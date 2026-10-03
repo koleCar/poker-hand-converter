@@ -22,6 +22,7 @@ import {
   REPORT_STATS,
   STAT_SPECS,
   aggregate,
+  buildReports,
   compare,
   compatibility,
   defenceTable,
@@ -35,6 +36,7 @@ import {
   postflopRoles,
   rangeReference,
   removalFactors,
+  sampleSets,
   statParts,
   statReport,
   walkLine,
@@ -45,7 +47,7 @@ import {
 } from "../../frontend/src/lib/analysis/index.js";
 import { actionTotals, GRID_CELLS } from "../../frontend/src/components/analysis/chartSpots.js";
 import { wilson } from "../../frontend/src/components/stats/uncertainty.js";
-import { handClassOf, loadCharts, type ChartNode, type ChartSet } from "../../frontend/src/lib/charts/index.js";
+import { chartLibrary, handClassOf, loadCharts, type ChartNode, type ChartSet } from "../../frontend/src/lib/charts/index.js";
 import { en } from "../../frontend/src/lib/i18n/en.js";
 import { hr } from "../../frontend/src/lib/i18n/hr.js";
 
@@ -330,8 +332,15 @@ describe("familiar stats, rolled up from nodes", () => {
     const utgSplit = report.splits.find((s) => s.key.position === "UTG")!;
     expect(utgSplit.comparison.yours).toBeCloseTo(0.1);
     expect(utgSplit.comparison.reference).toBeCloseTo(refUtg.raise + refUtg.allin, 12);
-    // The hand-adjusted reference of the whole row: AA opens, 72o folds.
-    expect(report.total.adjusted).toBeCloseTo(13 / 40, 2);
+    // The hand-adjusted reference of the whole row: AA opens, 72o folds (each
+    // but for the 0.5% limp tremble of charts/4).
+    const opens = (node: ChartNode, name: string) => {
+      const k = handClassOf(name);
+      return node.options.reduce((sum, o, a) => sum + (o.action === "raise" || o.action === "allin" ? node.freq[a * 169 + k] : 0), 0);
+    };
+    const adjusted = (3 * opens(utg, "AA") + 27 * opens(utg, "72o") + 10 * opens(btn, "AA")) / 40;
+    expect(report.total.adjusted).toBeCloseTo(adjusted, 9);
+    expect(report.total.adjusted).toBeCloseTo(13 / 40, 1);
   });
 
   it("falls back to the reference's own reach weighting with no decisions", () => {
@@ -419,5 +428,104 @@ describe("the words", () => {
     expect(hr.analysis.reports.points(-0.053)).toBe("−5,3 p. b.");
     expect(hr.analysis.reports.sample(1274, 1232)).toBe("Ocijenjenih odluka: 1.274, u 1.232 ruke");
     expect(hr.analysis.reports.sample(5, 1)).toBe("Ocijenjenih odluka: 5, u 1 ruci");
+  });
+});
+
+describe("several chart sets (A2d)", () => {
+  const nine: ChartSet = loadCharts(
+    JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-9max-100bb.json"), "utf8")),
+  );
+  const library = chartLibrary([charts, nine]);
+  const firstIn = (set: ChartSet, actor: string) =>
+    [...set.nodes.values()].find((node) => node.scenario === "rfi" && node.actor === actor)!;
+  /** `sampleAt` on any set. */
+  function sampleOn(set: ChartSet, node: ChartNode, hands: Array<[string, string, number]>): NodeSample {
+    const actions: NodeActionCount[] = [];
+    const classes: NodeClassCount[] = [];
+    const byAction = new Map<string, number>();
+    for (const [handClass, action, n] of hands) {
+      byAction.set(action, (byAction.get(action) ?? 0) + n);
+      classes.push({ set: set.id, line: node.line, handClass, action, decisions: n });
+    }
+    for (const [action, n] of byAction) {
+      actions.push({ set: set.id, line: node.line, scenario: node.scenario, action, decisions: n, deviations: 0, evLossBb: 0 });
+    }
+    return nodeSamples(actions, classes)[0];
+  }
+  const sixUtg = firstIn(charts, "UTG");
+  const nineUtg = firstIn(nine, "UTG");
+  const sixBtn = firstIn(charts, "BTN");
+  // The same line ("", UTG first in) on both tables: two different seats.
+  const samples = [
+    sampleOn(charts, sixUtg, [["AA", "raise", 4], ["72o", "fold", 16]]),
+    sampleOn(nine, nineUtg, [["AA", "raise", 2], ["72o", "fold", 58]]),
+    sampleOn(charts, sixBtn, [["K9o", "raise", 5], ["72o", "fold", 5]]),
+  ];
+  const byKey = new Map(samples.map((sample) => [sample.key, sample]));
+  const made = (set: ChartSet, node: ChartNode) => {
+    const ref = rangeReference(set, node).freq;
+    return ref.raise + ref.allin;
+  };
+
+  it("keys a node by its set, so one line on two tables is two samples", () => {
+    expect(nodeKey(charts.id, "")).not.toBe(nodeKey(nine.id, ""));
+    expect(sampleSets(samples)).toEqual([
+      { set: nine.id, decisions: 60 },
+      { set: charts.id, decisions: 30 },
+    ]);
+  });
+
+  it("pools a stat over sets, each node's reference weighted by the player's decisions there", () => {
+    const report = statReport([charts, nine], byKey, "rfi");
+    const expected = (20 * made(charts, sixUtg) + 60 * made(nine, nineUtg) + 10 * made(charts, sixBtn)) / 90;
+    expect(report.total.decisions).toBe(90);
+    expect(report.total.made).toBe(11);
+    expect(report.total.reference).toBeCloseTo(expected, 12);
+    // One set alone is that set's part of it.
+    const six = statReport(charts, byKey, "rfi");
+    expect(six.total.decisions).toBe(30);
+    expect(six.total.reference).toBeCloseTo((20 * made(charts, sixUtg) + 10 * made(charts, sixBtn)) / 30, 12);
+  });
+
+  it("keeps each table's seats apart in the splits, 6-max first", () => {
+    const report = statReport([charts, nine], byKey, "rfi");
+    const utg = report.splits.filter((split) => split.key.position === "UTG");
+    expect(utg.map((split) => split.key.table)).toEqual([6, 9]);
+    expect(utg.map((split) => split.comparison.decisions)).toEqual([20, 60]);
+    expect(utg[1].comparison.reference).toBeCloseTo(made(nine, nineUtg), 12);
+    // 9-max's own seats are there, after 6-max's.
+    const tables = report.splits.map((split) => split.key.table ?? 6);
+    expect(tables).toEqual([...tables].sort((a, b) => a - b));
+    expect(report.splits.some((split) => split.key.position === "UTG+1" && split.key.table === 9)).toBe(true);
+  });
+
+  it("builds the whole screen over every set with decisions, or one", () => {
+    const all = buildReports(library, samples);
+    expect(all.sets).toEqual([nine.id, charts.id]);
+    expect(all.unmatched).toBe(0);
+    expect(all.nodes.map((n) => n.sample.decisions)).toEqual([60, 20, 10]);
+    expect(all.nodes[0].node).toBe(nineUtg);
+    expect(all.stats.find((stat) => stat.id === "rfi")!.total.decisions).toBe(90);
+    const one = buildReports(library, samples, charts.id);
+    expect(one.sets).toEqual([charts.id]);
+    expect(one.nodes.every((n) => n.sample.set === charts.id)).toBe(true);
+    expect(one.stats.find((stat) => stat.id === "rfi")!.total.decisions).toBe(30);
+  });
+
+  it("counts decisions on a set the library has not loaded as unmatched", () => {
+    const built = buildReports(chartLibrary([charts]), samples);
+    expect(built.unmatched).toBe(60);
+    expect(built.sets).toEqual([charts.id]);
+    expect(built.stats.find((stat) => stat.id === "rfi")!.total.decisions).toBe(30);
+  });
+
+  it("finds a 9-max opener on its own table", () => {
+    const ip = statParts(nine, new Map(), STAT_SPECS["fold-to-three-bet-ip"].applies, ["fold"]);
+    const oop = statParts(nine, new Map(), STAT_SPECS["fold-to-three-bet-oop"].applies, ["fold"]);
+    expect(ip.length + oop.length).toBeGreaterThan(0);
+    for (const part of [...ip, ...oop]) {
+      expect(openerOf(part.node.line, nine.game.positions)).toBe(part.node.actor);
+      expect(part.split.table).toBe(9);
+    }
   });
 });

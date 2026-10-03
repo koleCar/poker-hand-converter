@@ -143,6 +143,8 @@ const gradeWords = {
 /** "raise to 2.5 bb", "bet 3.1 bb (33%)", "call", "all-in": one option as a player says it. */
 function optionLabel(option: OptionAnalysis): string {
   if (option.allIn) return "all-in";
+  // A preflop call to one big blind is a limp (charts/4 has them from every seat).
+  if (option.action === "call" && option.sizeBb === 1) return "limp";
   if (option.action === "bet" && option.sizeBb !== undefined && option.sizePot !== undefined) {
     return `bet ${bb(option.sizeBb)} (${pct(option.sizePot)})`;
   }
@@ -673,7 +675,7 @@ export const analysisEn = {
     straddle: "A straddle moved the blinds",
     "stack-depth": "Stacks outside 100 bb ±20%",
     "table-size": "Not a six-handed table",
-    model: "Preflop charts (charts/2 and charts/3) still under-rate a few implied-odds hands (UTG's small pairs and suited connectors) and the button's flat of a cutoff open",
+    model: "Preflop charts (charts/2 to charts/4) still under-rate a few implied-odds hands (UTG's small pairs and suited connectors) and the button's flat of a cutoff open",
     "short-handed": "Fewer players than the chart set's seats, read with the earliest seats folded",
     "stack-depth-near": "Stacks within 20% of the chart set's depth, but not at it",
     "off-tree-size": "A raise far from the charts' size: grade capped at Inaccurate",
@@ -687,6 +689,7 @@ export const analysisEn = {
     "coarse-river": "Turn solved with a coarse river below it: one bet size and all-in",
     "flop-mapped": "Flop read from the nearest solved flop of the same texture, not solved itself",
     "library-bucketed": "Your hand read by its category (made hand and draw) in the flop library, not combo for combo",
+    "limp-tremble": "A limped pot: the charts barely limp there themselves, so they assume the limper may hold any hand",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,
@@ -1002,7 +1005,7 @@ export const analysisEn = {
       "Rail's own reference for No-Limit Hold'em cash — six-handed from 40 to 200 big blinds deep, full ring from 100 to 200 — computed by our solver, never copied from anyone's charts. Pick a table and a spot: every hand shows how often the reference takes each action, and hovering or focusing a hand shows what each action is worth.",
     caveatTitle: "A model, with a known weakness",
     caveat:
-      "These charts (charts/2, and charts/3 for other tables and depths) value a flop with an equity-realisation model fitted to our own postflop solver. The measurement checks the flop, so hands that win through implied odds are still a little under-rated: UTG folds 55–22, 87s–54s and A5s, and the button almost never flats a cutoff open. Grades against playing those hands lean harsh.",
+      "These charts (charts/4) value a flop with an equity-realisation model fitted to our own postflop solver. The measurement checks the flop, so hands that win through implied odds are still a little under-rated: UTG folds 55–22, 87s–54s and A5s, and the button almost never flats a cutoff open. Grades against playing those hands lean harsh. Limped pots are in: the reference rarely limps itself outside the small blind, so behind a limp it assumes the limper may hold any hand.",
     loading: "Loading the charts…",
     failed: (message: string) => `The charts did not load: ${message}`,
     table: "Table and depth",
@@ -1017,10 +1020,11 @@ export const analysisEn = {
       "vs-4bet": "Facing a 4-bet or shove",
       squeeze: "Squeeze",
       bvb: "Blind vs blind",
+      "vs-limp": "Limped pots",
     } as Record<string, string>,
     verbs: {
       open: "opens",
-      iso: "raises the limp",
+      iso: "isolates",
       limp: "limps",
       call: "calls",
       "3bet": "3-bets",
@@ -1035,7 +1039,9 @@ export const analysisEn = {
     action: (action: string, toBb: number) =>
       action === "raise"
         ? `Raise to ${bb(toBb)}`
-        : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
+        : action === "call" && toBb === 1
+          ? "Limp"
+          : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
     legend: "Actions",
     totals: "Whole range",
     total: (label: string, share: number, combos: number) => `${label} ${pct1(share)} · ${num(Math.round(combos))} combos`,

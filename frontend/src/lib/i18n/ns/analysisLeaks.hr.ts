@@ -60,6 +60,8 @@ interface Where {
   family: string;
   hero: string;
   villain: string;
+  /** `"9max"`: situacija s full-ring charta (A2d), imenovana sa stolom. */
+  table?: string;
 }
 
 const known = (part: string) => part !== ANY && part !== NONE;
@@ -82,8 +84,14 @@ const facingWords = { first: "prvi na potezu", "vs-bet": "protiv beta", "vs-rais
 
 const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 
-/** "BB protiv BTN opena", "CO prvi ulazi", "Kao preflop raiser, u poziciji, prvi na potezu". */
+/** "BB protiv BTN opena", "CO prvi ulazi"; full ring to kaže: "UTG prvi ulazi (9-max)". */
 function context(where: Where): string {
+  const text = spotContext(where);
+  return where.table === "9max" && known(where.hero) ? `${text} (9-max)` : text;
+}
+
+/** "BB protiv BTN opena", "CO prvi ulazi", "Kao preflop raiser, u poziciji, prvi na potezu". */
+function spotContext(where: Where): string {
   const hero = known(where.hero) ? where.hero : null;
   const villain = known(where.villain) ? where.villain : null;
   const lead = hero ? `${hero} ` : "";
@@ -102,9 +110,9 @@ function context(where: Where): string {
       case "vs-4bet":
         return capital(`${lead}protiv ${villain ? `${villain} 4-beta` : "4-beta"}`);
       case "bb-option":
-        return "Opcija BB-a nakon limpova";
+        return villain && villain !== "SB" ? `Opcija BB-a nakon ${villain} limpa` : "Opcija BB-a nakon limpova";
       case "vs-limp":
-        return capital(`${lead}protiv limpera`);
+        return capital(`${lead}protiv ${villain ? `${villain} limpa` : "limpera"}`);
       default:
         break;
     }

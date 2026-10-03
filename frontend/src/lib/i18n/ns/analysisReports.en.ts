@@ -76,7 +76,7 @@ export const reportsEn = {
     mixed:
       "A hand the reference plays two ways is Perfect either way in the hand list; it is here, over many hands, that always picking one side shows.",
     model:
-      "The reference is Rail's own 6-max 100 bb charts (charts/1). They under-rate hands that win through implied odds, so they flat and open small pairs and suited connectors less than most players do.",
+      "The reference is Rail's own charts (charts/4: 6-max and full ring, 40 to 200 bb, limped pots included), each decision against the set that graded it. They still under-rate hands that win through implied odds a little, so they flat and open small pairs and suited connectors less than most players do. In a limped pot the reference's limper may hold any hand.",
   },
 
   columns: {
@@ -107,6 +107,18 @@ export const reportsEn = {
   summary: (yours: string, reference: string, verdict: string) => `You ${yours}, reference ${reference}: ${verdict}`,
   noDecisions: "No decisions yet",
 
+  /** The chart set filter (A2d). */
+  sets: {
+    label: "Charts",
+    all: (count: number) => `All ${num(count)} tables and depths`,
+    /** "6-max, 100bb · 1,689 decisions". */
+    option: (name: string, decisions: string) => `${name} · ${decisions}`,
+    note: "Every decision is compared with the chart set that graded it; a stat across sets weighs each set's reference by your decisions there.",
+    /** "UTG vs CO · 9-max". */
+    tableTag: (label: string, table: number) => `${label} · ${table}-max`,
+    nodeTag: (spot: string, set: string) => `${spot} (${set})`,
+  },
+
   stats: {
     heading: "Your stats against the reference",
     note: "The familiar preflop stats, added up from the chart spots behind them. Open a row for its seats and the hands where you left the reference.",
@@ -121,6 +133,7 @@ export const reportsEn = {
       "fold-to-three-bet-oop": "Fold to a 3-bet, out of position",
       "four-bet": "4-bet",
       squeeze: "Squeeze",
+      iso: "Isolation raise",
     } as Record<string, string>,
     definitions: {
       rfi: "Everyone before you folded and you raised. The small blind's limp is not an open.",
@@ -134,6 +147,7 @@ export const reportsEn = {
         "You opened, were 3-bet by a player who acts after you on the flop, and folded.",
       "four-bet": "You re-raised a 3-bet — as the opener, a caller or cold.",
       squeeze: "You re-raised an open that one or more players had called.",
+      iso: "You raised over one or more limpers, nobody having raised (the reference's limpers may hold any hand: it models a limp as a mistake anyone can make).",
     } as Record<string, string>,
     tips: {
       rfi: "Width should grow seat by seat to the button. A gap at one seat is usually a few hand classes — open the seat's row and read the hands.",
@@ -145,6 +159,7 @@ export const reportsEn = {
       "fold-to-three-bet-oop": "Out of position calls realise less; fold more, or 4-bet the top and a few blockers.",
       "four-bet": "4-bets are mostly the top of the range and a few blockers (an ace) that do not call well.",
       squeeze: "Callers cap their ranges; squeeze bigger than a 3-bet and with hands that play well as a raise.",
+      iso: "Limpers are weak and wide: isolate more often in position and from later seats, bigger with more limpers, and over-limp the hands that want a cheap multiway flop.",
     } as Record<string, string>,
   },
 

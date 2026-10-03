@@ -46,7 +46,7 @@
  * index and `lib/equity`. The words live in `ns/analysis.*.ts`.
  */
 
-import { handClassOf, type ChartAction, type ChartNode, type ChartPosition, type ChartSet } from "../charts";
+import { handClassOf, isChartLibrary, isOpenLimpNode, type ChartAction, type ChartNode, type ChartPosition, type ChartSet } from "../charts";
 import { allClasses, classCombos } from "../equity/range";
 
 /** Chart actions in a fixed order: the order every report lists them in. */
@@ -137,9 +137,9 @@ export function walkLine(
   return { steps, next: at === null ? null : seats[at] };
 }
 
-/** The player who opened (the first raise of the line), or null. */
-export function openerOf(line: string): ChartPosition | null {
-  const first = walkLine(line).steps.find((step) => step.code === "r" || step.code === "a");
+/** The player who opened (the first raise of the line), or null. `seats`: the line's table (6-max by default). */
+export function openerOf(line: string, seats: readonly ChartPosition[] = TABLE_ORDER): ChartPosition | null {
+  const first = walkLine(line, seats).steps.find((step) => step.code === "r" || step.code === "a");
   return first ? first.position : null;
 }
 
@@ -520,6 +520,11 @@ export function nodeReport(charts: ChartSet, sample: NodeSample, options: { card
  * | `fold-to-three-bet-ip` / `-oop` | `vs-3bet`, the actor opened, in / out of position against the 3-bettor | fold |
  * | `four-bet` | `vs-3bet` (cold included) | raise, all-in |
  * | `squeeze` | `squeeze` (an open and one or more callers) | raise, all-in |
+ * | `iso` | `vs-limp` behind a limp from a seat other than the blinds (`charts/4`) | raise, all-in |
+ *
+ * The raised-pot stats leave limped pots out (an isolation raise is not an
+ * open; the stats engine counts it as `iso`, not `rfi`), so `iso` is the
+ * one row about them.
  */
 export const REPORT_STATS = [
   "rfi",
@@ -531,13 +536,19 @@ export const REPORT_STATS = [
   "fold-to-three-bet-oop",
   "four-bet",
   "squeeze",
+  "iso",
 ] as const;
 export type ReportStatId = (typeof REPORT_STATS)[number];
 
-/** How a stat splits: the actor, and the player it is responding to (if any). */
+/**
+ * How a stat splits: the actor, and the player it is responding to (if any),
+ * on a table of `table` seats (A2d: a 9-max UTG is not a 6-max UTG).
+ */
 export interface SplitKey {
   position: ChartPosition;
   versus: ChartPosition | null;
+  /** Seats of the set the node is in: 6 or 9. */
+  table?: number;
 }
 
 const RAISES: readonly ChartAction[] = ["raise", "allin"];
@@ -548,8 +559,8 @@ const DEFEND: readonly ChartAction[] = ["call", "raise", "allin"];
 export const inPositionAgainst = (actor: ChartPosition, other: ChartPosition) => POSTFLOP_ORDER[actor] > POSTFLOP_ORDER[other];
 
 function foldToThreeBet(node: ChartNode, ip: boolean): SplitKey | null {
-  if (node.scenario !== "vs-3bet" || node.cold || !node.facing) return null;
-  if (openerOf(node.line) !== node.actor) return null;
+  if (node.scenario !== "vs-3bet" || node.cold || !node.facing || isOpenLimpNode(node)) return null;
+  if (openerOf(node.line, node.seats) !== node.actor) return null;
   if (inPositionAgainst(node.actor, node.facing.position) !== ip) return null;
   return { position: node.actor, versus: node.facing.position };
 }
@@ -568,12 +579,14 @@ export const STAT_SPECS: Readonly<
   "three-bet": {
     made: RAISES,
     applies: (node) =>
-      node.scenario === "vs-open" && node.facing ? { position: node.actor, versus: node.facing.position } : null,
+      node.scenario === "vs-open" && node.facing && !isOpenLimpNode(node)
+        ? { position: node.actor, versus: node.facing.position }
+        : null,
   },
   "blind-defence": {
     made: DEFEND,
     applies: (node) =>
-      node.scenario === "vs-open" && node.facing && (node.actor === "SB" || node.actor === "BB")
+      node.scenario === "vs-open" && node.facing && !isOpenLimpNode(node) && (node.actor === "SB" || node.actor === "BB")
         ? { position: node.actor, versus: node.facing.position }
         : null,
   },
@@ -587,12 +600,24 @@ export const STAT_SPECS: Readonly<
   "four-bet": {
     made: RAISES,
     applies: (node) =>
-      node.scenario === "vs-3bet" && node.facing ? { position: node.actor, versus: node.facing.position } : null,
+      node.scenario === "vs-3bet" && node.facing && !isOpenLimpNode(node)
+        ? { position: node.actor, versus: node.facing.position }
+        : null,
   },
   squeeze: {
     made: RAISES,
     applies: (node) =>
-      node.scenario === "squeeze" && node.facing ? { position: node.actor, versus: node.facing.position } : null,
+      node.scenario === "squeeze" && node.facing && !isOpenLimpNode(node)
+        ? { position: node.actor, versus: node.facing.position }
+        : null,
+  },
+  iso: {
+    made: RAISES,
+    // Facing limpers, nobody having raised: split by the first limper.
+    applies: (node) =>
+      node.scenario === "vs-limp" && isOpenLimpNode(node)
+        ? { position: node.actor, versus: node.limpers.find((p) => p !== "SB" && p !== "BB") ?? null }
+        : null,
   },
 };
 
@@ -662,7 +687,10 @@ export interface StatReport {
   evLossBb: number;
 }
 
-const splitId = (key: SplitKey) => `${key.position}|${key.versus ?? ""}`;
+const splitId = (key: SplitKey) => `${key.table ?? 6}|${key.position}|${key.versus ?? ""}`;
+
+/** Table order of a split's seats. */
+const seatOrder = (table: number | undefined) => (table === 9 ? NINE_TABLE_ORDER : TABLE_ORDER);
 
 /** The parts of a set of made-actions over every node `applies` accepts. */
 export function statParts(
@@ -673,9 +701,11 @@ export function statParts(
   options: { cardRemoval?: boolean } = {},
 ): StatPart[] {
   const parts: StatPart[] = [];
+  const table = charts.game.positions.length;
   for (const node of charts.nodes.values()) {
-    const split = applies(node);
-    if (!split) continue;
+    const found = applies(node);
+    if (!found) continue;
+    const split: SplitKey = { ...found, table };
     const key = nodeKey(charts.id, node.line);
     const sample = samples.get(key) ?? null;
     const range = rangeReference(charts, node, options).freq;
@@ -708,22 +738,31 @@ function splitsOf(parts: readonly StatPart[]): StatSplit[] {
       deviations: group.reduce((sum, part) => sum + (part.sample?.deviations ?? 0), 0),
       evLossBb: group.reduce((sum, part) => sum + (part.sample?.evLossBb ?? 0), 0),
     }))
-    .sort(
-      (a, b) =>
-        TABLE_ORDER.indexOf(a.key.position) - TABLE_ORDER.indexOf(b.key.position) ||
-        (a.key.versus ? TABLE_ORDER.indexOf(a.key.versus) : -1) - (b.key.versus ? TABLE_ORDER.indexOf(b.key.versus) : -1),
-    );
+    .sort((a, b) => {
+      const order = seatOrder(a.key.table);
+      return (
+        (a.key.table ?? 6) - (b.key.table ?? 6) ||
+        order.indexOf(a.key.position) - order.indexOf(b.key.position) ||
+        (a.key.versus ? order.indexOf(a.key.versus) : -1) - (b.key.versus ? order.indexOf(b.key.versus) : -1)
+      );
+    });
 }
 
-/** One familiar stat, rolled up from the nodes, with its split by position. */
+/**
+ * One familiar stat, rolled up from the nodes, with its split by position.
+ * `charts` is one set or several (A2d): the parts of every set are pooled,
+ * each node's reference weighted by the player's decisions there, so "RFI
+ * overall" is the reference for the mix of tables, depths and seats the
+ * player actually opened from; the splits keep each table's seats apart.
+ */
 export function statReport(
-  charts: ChartSet,
+  charts: ChartSet | readonly ChartSet[],
   samples: ReadonlyMap<string, NodeSample>,
   id: ReportStatId,
   options: { cardRemoval?: boolean } = {},
 ): StatReport {
   const spec = STAT_SPECS[id];
-  const parts = statParts(charts, samples, spec.applies, spec.made, options);
+  const parts = setsOf(charts).flatMap((set) => statParts(set, samples, spec.applies, spec.made, options));
   return {
     id,
     made: spec.made,
@@ -745,14 +784,15 @@ export interface DefenceRow {
 }
 
 export function defenceTable(
-  charts: ChartSet,
+  charts: ChartSet | readonly ChartSet[],
   samples: ReadonlyMap<string, NodeSample>,
   options: { cardRemoval?: boolean } = {},
 ): DefenceRow[] {
   const applies = STAT_SPECS["blind-defence"].applies;
-  const fold = splitsOf(statParts(charts, samples, applies, FOLD, options));
-  const call = splitsOf(statParts(charts, samples, applies, ["call"], options));
-  const threeBet = splitsOf(statParts(charts, samples, applies, RAISES, options));
+  const parts = (made: readonly ChartAction[]) => setsOf(charts).flatMap((set) => statParts(set, samples, applies, made, options));
+  const fold = splitsOf(parts(FOLD));
+  const call = splitsOf(parts(["call"]));
+  const threeBet = splitsOf(parts(RAISES));
   return fold.map((row, i) => ({
     key: row.key,
     fold: row.comparison,
@@ -760,6 +800,78 @@ export function defenceTable(
     threeBet: threeBet[i].comparison,
     nodes: row.nodes,
   }));
+}
+
+/* ------------------------------------------------------- several sets - */
+
+const setsOf = (charts: ChartSet | readonly ChartSet[]): readonly ChartSet[] =>
+  Array.isArray(charts) ? (charts as readonly ChartSet[]) : [charts as ChartSet];
+
+/** Per chart set, the player's decisions in the samples, most first (ties by id). */
+export function sampleSets(samples: readonly NodeSample[]): Array<{ set: string; decisions: number }> {
+  const bySet = new Map<string, number>();
+  for (const sample of samples) bySet.set(sample.set, (bySet.get(sample.set) ?? 0) + sample.decisions);
+  return [...bySet]
+    .map(([set, decisions]) => ({ set, decisions }))
+    .sort((a, b) => b.decisions - a.decisions || (a.set < b.set ? -1 : 1));
+}
+
+/** A set of a library (or the one set given) by id, when loaded. */
+export function chartSetById(charts: ChartSet, id: string): ChartSet | null {
+  if (charts.id === id) return charts;
+  return isChartLibrary(charts) ? (charts.sets.get(id) ?? null) : null;
+}
+
+export interface ReportsBuild {
+  /** Per node, against the set that graded it; most decisions first. */
+  nodes: NodeReport[];
+  /** Decisions at nodes no loaded set in scope holds (left out, with a note). */
+  unmatched: number;
+  stats: StatReport[];
+  defence: DefenceRow[];
+  /** The sets the report reads: the one asked for, or every set with decisions (the default set with none). */
+  sets: string[];
+}
+
+/**
+ * The whole Reports screen's chart side, over one set or all of them (A2d).
+ * `only` names one set; null reads every set the player has decisions on,
+ * each node against its own set, the rolled-up stats pooling them by the
+ * player's decisions (`statReport`). Sets the samples name that are not loaded
+ * count as unmatched, like nodes a set lacks.
+ */
+export function buildReports(
+  charts: ChartSet,
+  samples: readonly NodeSample[],
+  only: string | null = null,
+  options: { cardRemoval?: boolean } = {},
+): ReportsBuild {
+  const inScope = only ? samples.filter((sample) => sample.set === only) : samples;
+  const ids = only ? [only] : sampleSets(samples).map((entry) => entry.set);
+  const sets = (ids.length ? ids : [charts.id]).map((id) => chartSetById(charts, id)).filter((set): set is ChartSet => !!set);
+  const byKey = new Map(inScope.map((sample) => [sample.key, sample]));
+  const nodes: NodeReport[] = [];
+  let unmatched = 0;
+  for (const sample of inScope) {
+    const set = chartSetById(charts, sample.set);
+    const one = set ? nodeReport(set, sample, options) : null;
+    if (one) nodes.push(one);
+    else unmatched += sample.decisions;
+  }
+  nodes.sort(
+    (a, b) =>
+      b.sample.decisions - a.sample.decisions ||
+      a.node.line.length - b.node.line.length ||
+      a.node.line.localeCompare(b.node.line) ||
+      a.sample.set.localeCompare(b.sample.set),
+  );
+  return {
+    nodes,
+    unmatched,
+    stats: REPORT_STATS.map((id) => statReport(sets, byKey, id, options)),
+    defence: defenceTable(sets, byKey, options),
+    sets: sets.map((set) => set.id),
+  };
 }
 
 /* ------------------------------------------------------------ postflop - */

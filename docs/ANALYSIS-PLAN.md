@@ -197,22 +197,27 @@ Not copied from GTO Wizard, Upswing or anyone else.
 Preflop decisions are 81% of all moves (§0.1), so charts alone grade most of a
 player's decisions. This is why they come first.
 
-**Shipped in A2a (#95), widened in A2c; details in `docs/CHARTS.md`.**
+**Shipped in A2a (#95), widened in A2c and A2d; details in `docs/CHARTS.md`.**
 - **Source:** our own multi-player DCFR over the 169 classes, plus a
   realisation model for pots that see a flop, fitted per set to our own
   turn+river solves (A2a.1).
-- **Sets (`charts/3`, A2c):** a library of eight, one JSON per table and
-  depth, loaded lazily one set at a time:
-  - 6-max at 40 / 60 / 100 / 150 / 200bb (the 100bb set is `charts/2`'s,
-    unchanged);
-  - 9-max (UTG, UTG+1, UTG+2, LJ, HJ, CO, BTN, SB, BB) at 100 / 150 / 200bb.
-- **Convergence:** NashConv 0.04–0.13 mbb/hand (6-max), 0.26–0.49 (9-max).
+- **Sets (`charts/4`, A2c + A2d):** a library of eight, one JSON per table
+  and depth, loaded lazily one set at a time:
+  - 6-max at 40 / 60 / 100 / 150 / 200bb (the 100bb set on `charts/2`'s
+    fit);
+  - 9-max (UTG, UTG+1, UTG+2, LJ, HJ, CO, BTN, SB, BB) at 100 / 150 / 200bb;
+  - every set with **limped pots** (A2d): open limps and over-limps from
+    every seat, isolation raises sized by the limpers, the limper's answers,
+    at most three limpers; solved with a 0.5% limp tremble so the spots
+    behind a limp are trained although the equilibrium barely limps.
+- **Convergence:** NashConv 0.06–0.33 mbb/hand (6-max), 0.27–0.44 (9-max) with the limp trees (`charts/3`: 0.04–0.13, 0.26–0.49).
 - **Lookup picks the set:** the smallest table with enough seats, then the
   nearest depth within 20%, never interpolated; the distance is a
   `stack-depth` approximation.
-- **Lookup refuses, with a reason:** `limp`, `cold-call`, `multiway` (more than
-  4 entrants), `rare-line`, `action-not-modelled`, `straddle`, heads-up and
-  10+ players (`players`), and depths no set covers.
+- **Lookup refuses, with a reason:** `cold-call`, `multiway` (more than
+  4 entrants, or a fourth limper), `rare-line`, `action-not-modelled`,
+  `straddle`, heads-up and 10+ players (`players`), and depths no set covers
+  (`limp` only for a set without limp trees).
 - **Lookup approximates:** `short-handed` (3–5 handed read as 6-max, 7–8
   handed as 9-max, the earliest seats folded: exact in the model up to
   convergence), and off-tree sizes, by action translation.
@@ -1603,3 +1608,142 @@ Each phase appends what it learned that changed the plan.
       above; `FLOP_LIBRARY_BASE` is a placeholder until then.
     - Charts' realisation from flop solves (`docs/CHARTS.md` §9) can read
       the library once it exists.
+- 2026-10-03 — A2d shipped: limped pots in the charts (`charts/4`), every
+  chart consumer on every set, `analysis/6`.
+  - **Why.** After A2c the biggest refusal in the owner's library was the
+    open limp: 933 hero decisions (17% of preflop), 399 of them on the
+    9-max 100bb set, 284 on 6-max 100bb, 90 on 6-max 150bb, 77 on 9-max
+    150bb, 60 on 9-max 200bb; 694 behind one limper, 191 behind two, 37
+    behind three, 11 behind four. And Reports and the study plan still read
+    only the 6-max 100bb set.
+  - **The limp tree** (`preflopTree.ts`, `maxLimpers: 3`; `docs/CHARTS.md`
+    §1.3). Every seat but the big blind may limp first in or behind until
+    three have (the small blind's completion counts); the next may only
+    fold or isolate (`limpers-cap`, the lookup's `multiway`). The big blind
+    behind limpers checks or isolates. Isolation: 4bb over one limper in
+    position, +1bb per extra limper, +1bb out of position of a limper (a
+    blind); the big blind over the small blind's completion stays 4bb, so
+    blind-versus-blind is `charts/3`'s. Facing an isolation: fold, call,
+    re-raise 3x (+1x per caller). Limpers are entrants (at most four). Behind
+    an open limp the pot's 4-bet is all-in: that raise level is a third of
+    the tree and no library decision reaches it. Sizes, 100bb: 6-max 3,825
+    -> 10,361 action nodes, 9-max 28,591 -> 79,131 (three limpers without
+    the shove cut would have been 14,837 and 118,947).
+  - **The tremble.** The equilibrium hardly limps outside the small blind,
+    and CFR does not train anyone's strategy facing a limp nobody makes (an
+    opponent's regrets are weighted by the limper's reach). So the solve is
+    an **ε-perturbed game** (Selten's trembling hand): every class limps at
+    least 0.5% at every unopened non-blind node (`limpFloor`); regret
+    matching on the free part, play with the perturbed one, best responses
+    and NashConv in the perturbed game (`preflopCfr.ts`). The reference's
+    limper therefore holds any hand; that is labelled on every grade behind
+    a limp (new approximation `limp-tremble`), and an opponent who
+    open-limped keeps the placeholder limp range for the postflop walk
+    (`chartRange`). Nodes behind an open limp are kept down to a reach of
+    1e-6 (`minLimpReach`).
+  - **Generation.** Every set re-solved once (3,000 iterations) on its own
+    committed realisation fit (`reuseFit`, `sets.ts`): the tremble moves the
+    fit's heads-up ranges by about the fit's own round-to-round noise
+    (raise-first-in widths by at most 0.6 points, the big blind's defence
+    against a button open by 0.1), and re-measuring would have cost ~3
+    hours more. A solver speed-up made the 9-max trees affordable: a
+    multiway terminal's pair products `S_ab π_b` are kept between
+    traversals until `b`'s own traversal changes its reach (same numbers,
+    identical checksums; ~1/3 off the limp trees' iteration time).
+    | Set | Nodes (charts/3) | Bytes | gzip | NashConv (charts/3) | Solve |
+    |---|---|---|---|---|---|
+    | 6-max 40bb | 834 (335) | 1.95 MB | 486 KB | 0.058 (0.038) | 7 min |
+    | 6-max 60bb | 883 (368) | 2.12 MB | 545 KB | 0.065 (0.058) | 10 min |
+    | 6-max 100bb | 752 (281) | 1.87 MB | 486 KB | 0.094 (0.075) | 14 min |
+    | 6-max 150bb | 814 (343) | 1.99 MB | 530 KB | 0.139 (0.121) | 14 min |
+    | 6-max 200bb | 815 (355) | 2.00 MB | 537 KB | 0.332 (0.130) | 15 min |
+    | 9-max 100bb | 2,705 (1,033) | 6.40 MB | 1.64 MB | 0.313 (0.256) | 110 min |
+    | 9-max 150bb | 2,888 (1,139) | 6.87 MB | 1.78 MB | 0.270 (0.313) | 112 min |
+    | 9-max 200bb | 2,795 (1,129) | 6.65 MB | 1.73 MB | 0.439 (0.485) | 114 min |
+
+    29.8 MB in all (11.8 MB), still one lazy chunk per set; ~1 h 55 min
+    wall, five sets at a time on a shared 10-core Mac (9-max: 1.5-2.5 GB
+    each). Deterministic: a rerun of the 6-max 40bb set writes the same
+    bytes.
+  - **What they say** (`docs/CHARTS.md` §8.3, all tested per set): isolation
+    widens with position and against a later limper (6-max 100bb: HJ, CO,
+    button 13.3 / 15.4 / 18.8% against an UTG limp, the button 28.9%
+    against a cutoff limp; 9-max 7.4% from UTG+1 to 11.3% on the button);
+    AA and KK isolate at every node facing limpers, 72o folds; the button
+    over-limps an early limp 10-16%, the small blind completes behind
+    58-72%; the big blind checks behind 89-97%; the limper facing an
+    isolation folds about half, calls and re-raises a quarter each. The
+    equilibrium limps 0.4-0.7% from every non-blind seat (the tremble plus
+    traps: AA 3.9% UTG, at the same EV as opening).
+  - **Straddles stay refused**, by cost: 52 decisions (1.0%), 4-6 handed at
+    100-120bb; one 6-max 100bb UTG-straddle set would grade ~45 for a third
+    tree shape (a third blind, the straddler's option, the lookup's straddle
+    seat) to build and keep.
+  - **Coverage, owner's library** (5,388 hero preflop decisions, a Node run
+    of `analyzeHand` over the exported stored hands, `npm run
+    charts:library`): **3,817 -> 4,687 graded (70.8% -> 87.0%)**. Refused
+    now: table size 210, rare line 165, off-tree 118, stack depth 106,
+    straddle 52, cold call 27, multiway 20, action not modelled 3; open limp
+    **0** (933). Of the 1,000 decisions behind an open limp 871 are graded
+    (Perfect 763, Good 15, Inaccurate 49, Mistake 33, Blunder 11); off-tree
+    47 are mostly WePlay players posting a dead big blind (their check in
+    turn has no seat in any tree). Preflop grades: Perfect 89.9%, Good
+    0.4%, Inaccurate 4.1%, Mistake 3.9%, Blunder 1.7%; 224.4 bb lost
+    (182.8). Rivers on a placeholder range: 42%, unchanged (the limper keeps
+    the placeholder).
+  - **Every consumer on every set.**
+    - *Reports (A3)*: `buildReports` reads every set the player has
+      decisions on, each node against its own set; the familiar stats pool
+      the sets' nodes, each node's reference weighted by the player's
+      decisions there (`statReport` takes a list of sets), and split by
+      seat **and table** (a 9-max UTG is not a 6-max one). A set filter
+      ("All N tables and depths" by default, or one) and the set on each
+      node's row and its chart link. New stat **isolation raise** (`iso`);
+      limped pots stay out of the raised-pot stats (an isolation is not an
+      open), as in the stats engine. Tests: pooled references are the
+      decision-weighted sums, 6- and 9-max UTG stay apart, unloaded sets
+      count as unmatched.
+    - *Leaks (A6)*: migration `20270303090000_analysis_leaks_sets.sql`
+      replaces `analysis_leaks` (same signature and grants, invoker) so a
+      row is one finest spot **on one chart set**, with `set`; a full-ring
+      spot's ids end in `~9max` (6-max and postflop ids unchanged), and
+      its name says "(9-max)"; facing limpers the villain is the first
+      limper ("BTN vs UTG limp"). pgTAP: 53 assertions (3 new).
+    - *Study plan (A8b)*: a focus area's trainer target carries the set its
+      leaks were graded on most (`areaSet`; the reference
+      `preflop/rfi/UTG+1/nlhe-cash-9max-150bb`), 9-max seats are valid,
+      and facing limpers maps to the new trainer family.
+    - *Trainer (A7)*: family **facing limpers** (`vs-limp`), dealt from
+      nodes reached at least 1e-4 (limped pots live on the tremble); the
+      table selector already took every set.
+    - Chart browser: a "Limped pots" category (nodes reached 1e-4 and more);
+      options read "Limp" and the explanations "limp" for a call of one big
+      blind; the best alternative among equal-EV options is the most
+      played one (AA's limp-trap is worth exactly its open).
+  - **Checked** in the browser on the worktree's dev server, offline: the
+    chart browser's limped pots and the trainer's "Facing limpers" spot,
+    graded with the `limp-tremble` note. Reports, Leaks and the plan
+    against stored rows need a signed-in account and were checked by the
+    tests and the build only.
+  - **Open.**
+    - At 200bb (6- and 9-max) the big blind facing a single limp is left
+      out as unconverged (its mix gives up 2.2-2.8% of the pot for one
+      class after 3,000 iterations): `rare-line` there. More iterations for
+      the 200bb sets would likely bring it in.
+    - The reference's limper holds any hand: isolating is graded against a
+      limper who folds to it about half the time. A population limp range
+      is an exploitative input the charts do not take; the flop library
+      (A5b) will not change this.
+    - The 9-max chunks are 1.6-1.8 MB gzip (0.6 before); a 9-handed hand
+      costs one such download. Most of a set's bytes are deep limped-pot
+      nodes; a coarser `minLimpReach` or 8-bit EVs would halve it.
+    - Players posting a dead big blind (WePlay) are off every tree (~35
+      decisions).
+    - **A5b's pilot chunks** were solved from `charts/3`'s 6-max 100bb
+      ranges; their hash guard now answers `charts-differ` for them (the
+      library is behind its flag, so no grade changes), and the two pilot
+      tests that grade from them skip until the pilot is re-solved on
+      `charts/4` (`npm run floplib`). The flop library's lines are raised
+      pots, so the re-solve changes their ranges by the tremble only.
+    - The in-browser rebuild to `analysis/6` of the owner's library is
+      still to run; the numbers above are from the Node run.

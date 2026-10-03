@@ -20,7 +20,7 @@
  * hard rather than on folding 72o.
  */
 
-import { chartTree, handClassOf, isChartLibrary, type ChartAction, type ChartNode, type ChartPosition, type ChartSet } from "../charts";
+import { chartTree, handClassOf, isChartLibrary, isOpenLimpNode, type ChartAction, type ChartNode, type ChartPosition, type ChartSet } from "../charts";
 import { opponentRanges, removalFactors, walkLine } from "../analysis";
 import type { PhfHand } from "../phf/types";
 import { comboCode, combosOfClass, HAND_CLASSES, NUM_CLASSES } from "../solver";
@@ -28,7 +28,7 @@ import { completePreflop, handUpTo, scriptHand, type HandScript, type ScriptAct 
 import { nextSeed, pickOne, pickWeighted, seeded, type Rng } from "./rng";
 
 /** The scenario families a session can pick, in the chart browser's vocabulary. */
-export const PREFLOP_FAMILIES = ["rfi", "vs-open", "vs-3bet", "squeeze", "bvb", "vs-4bet"] as const;
+export const PREFLOP_FAMILIES = ["rfi", "vs-open", "vs-3bet", "squeeze", "bvb", "vs-4bet", "vs-limp"] as const;
 export type PreflopFamily = (typeof PREFLOP_FAMILIES)[number];
 
 /** How hands are dealt: as the range holds them, or biased to the hard ones. */
@@ -54,6 +54,14 @@ export function trainerSet(charts: ChartSet, id?: string | null): ChartSet {
 
 /** A node reached less often than this (0.2% of deals) is too rare to drill at random. */
 export const MIN_NODE_REACH = 0.002;
+/**
+ * The same floor for limped pots (`charts/4`): they are reached through the
+ * limp's tremble (0.5% of hands per seat), so even the common ones - one
+ * limper, then the button - sit below `MIN_NODE_REACH`. Dealt by √reach
+ * like every node, they come up rarely at random and on every deal of the
+ * `vs-limp` family.
+ */
+export const MIN_LIMP_NODE_REACH = 1e-4;
 /** `borderline`: the floor every class keeps, so a pure fold is still dealt now and then. */
 export const BORDERLINE_FLOOR = 0.1;
 /** `borderline`: EV gap (bb) at which two options count as close. */
@@ -62,6 +70,7 @@ export const CLOSE_EV_BB = 0.5;
 /** The families a node belongs to: the chart browser's categories (`chartSpots.ts`). */
 export function familiesOf(node: ChartNode): PreflopFamily[] {
   if (node.line.startsWith("f".repeat(node.seats.length - 2))) return node.scenario === "rfi" ? ["rfi", "bvb"] : ["bvb"];
+  if (isOpenLimpNode(node)) return ["vs-limp"];
   switch (node.scenario) {
     case "rfi":
       return ["rfi"];
@@ -79,11 +88,18 @@ export function familiesOf(node: ChartNode): PreflopFamily[] {
   }
 }
 
-/** The line's last raiser — the player the hero faces — or null in an unopened pot. */
+/**
+ * The line's last raiser — the player the hero faces — or, in a pot nobody has
+ * raised, its first limper; null in an unopened pot.
+ */
 export function lineAggressor(line: string, seats: readonly ChartPosition[] = PREFLOP_SEATS): ChartPosition | null {
   let last: ChartPosition | null = null;
-  for (const step of walkLine(line, seats).steps) if (step.code === "r" || step.code === "a") last = step.position;
-  return last;
+  let limper: ChartPosition | null = null;
+  for (const step of walkLine(line, seats).steps) {
+    if (step.code === "r" || step.code === "a") last = step.position;
+    else if (step.code === "c" && last === null && limper === null) limper = step.position;
+  }
+  return last ?? limper;
 }
 
 /**
@@ -99,7 +115,8 @@ export function trainerNodes(
 ): ChartNode[] {
   const out: ChartNode[] = [];
   for (const node of charts.nodes.values()) {
-    if (node.options.length < 2 || node.reach < MIN_NODE_REACH) continue;
+    const limped = isOpenLimpNode(node);
+    if (node.options.length < 2 || node.reach < (limped ? MIN_LIMP_NODE_REACH : MIN_NODE_REACH)) continue;
     if (seat && node.actor !== seat) continue;
     if (family !== "random" && !familiesOf(node).includes(family)) continue;
     if (vs && lineAggressor(node.line, node.seats) !== vs) continue;
