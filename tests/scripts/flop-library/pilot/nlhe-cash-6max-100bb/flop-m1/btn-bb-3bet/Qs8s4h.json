@@ -1,0 +1,20 @@
+{
+ "id": "btn-bb-3bet/Qs8s4h",
+ "line": "btn-bb-3bet",
+ "flop": "Qs8s4h",
+ "bytes": 60240,
+ "iterations": 60,
+ "exploitabilityPct": 0.7543925146146478,
+ "stoppedBy": "target",
+ "seconds": 175.57382012500003,
+ "solverMb": 219.577148,
+ "nodes": 336920,
+ "actionNodes": 130208,
+ "boards": 1429,
+ "turnClasses": 36,
+ "hands": [
+  165,
+  216
+ ],
+ "peakRssMb": 501.03125
+}

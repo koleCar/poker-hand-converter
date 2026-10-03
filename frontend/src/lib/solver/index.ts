@@ -15,6 +15,9 @@
  * isomorphism.ts  suit permutations and canonical boards / spots
  * translation.ts  pseudo-harmonic mapping of real sizes onto solved ones
  * spotKey.ts      the cache key, with no hole cards and no names
+ * flop.ts         flop+turn+river games and solves, suit isomorphism on both deals (A5b)
+ * flopSet.ts      the 1,755 canonical flops, the library's ~100 representatives, the mapping
+ * flopLibrary.ts  FLOPLIB_VERSION: the library's chunk format, encode / decode
  * ```
  *
  * **Import rule: this module may import only `lib/phf/types`, `lib/cards` and
@@ -103,6 +106,50 @@ export {
   type CanonicalBoard,
   type CanonicalSpot,
 } from "./isomorphism";
+export {
+  buildFlopGame,
+  solveFlop,
+  type FlopProgress,
+  type FlopSolve,
+  type FlopSolveOptions,
+  type FlopSpot,
+} from "./flop";
+export type { FlopIsomorphism } from "./subgame";
+export {
+  canonicalFlops,
+  classQuota,
+  computeRepresentatives,
+  FLOP_CLASSES,
+  FLOP_DISTANCE_WEIGHTS,
+  FLOP_REPRESENTATIVE_COUNT,
+  FLOP_REPRESENTATIVES,
+  flopCards,
+  flopDistance,
+  flopFeatures,
+  flopIndices,
+  flopKey,
+  kMedoids,
+  mapFlop,
+  MIN_PER_CLASS,
+  representativeCoverage,
+  straightPairs,
+  type CanonicalFlop,
+  type FlopClass,
+  type FlopFeatures,
+  type FlopMapping,
+} from "./flopSet";
+export {
+  chunkHeader,
+  chunkPath,
+  decodeChunk,
+  encodeChunk,
+  FLOPLIB_VERSION,
+  FlopChunkFormatError,
+  type FlopChunk,
+  type FlopChunkHeader,
+  type FlopManifest,
+  type FlopManifestEntry,
+} from "./flopLibrary";
 export { OFF_TREE_DISTANCE, pseudoHarmonic, translateSize, type Translation } from "./translation";
 export { spotHash, spotKey, type SpotKeyParts } from "./spotKey";
 

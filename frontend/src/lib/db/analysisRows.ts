@@ -17,6 +17,7 @@ import {
   ANALYSIS_VERSION,
   analyzeHand,
   type DecisionAnalysis,
+  type FlopLibrary,
   type HandAnalysis,
   type SpotFacts,
 } from "../analysis";
@@ -141,13 +142,15 @@ export function analyseStoredHands(
   page: ReadonlyArray<{ id: string; phf: PhfHand }>,
   charts: ChartSet,
   onHand?: (done: number) => void,
+  /** The flop library (A5b), already holding the page's chunks; only while `FLOP_LIBRARY_ENABLED`. */
+  flopLibrary: FlopLibrary | null = null,
 ): AnalysedBatch {
   const rows: HandAnalysisInsert[] = [];
   const failed: string[] = [];
   let done = 0;
   for (const { id, phf } of page) {
     try {
-      rows.push(handAnalysisRow(id, analyzeHand(phf, { charts })));
+      rows.push(handAnalysisRow(id, analyzeHand(phf, { charts, flopLibrary })));
     } catch {
       failed.push(id);
     }

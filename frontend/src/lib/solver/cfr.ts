@@ -96,6 +96,21 @@ export interface ChanceSampling {
 
 export interface SolverConfig {
   sampling?: ChanceSampling;
+  /**
+   * How regrets and the average strategy are held (phase A5b).
+   *
+   * - `"f32"` (default): one float32 per action per hand, plus the strategy
+   *   reuse cache - 12 bytes per entry.
+   * - `"i16"`: 16-bit, quantised per node - regrets as int16 and strategy
+   *   sums as uint16, each node's block scaled by its largest magnitude, and
+   *   no reuse cache: 4 bytes per entry, a third of the memory. Regret
+   *   matching and the average strategy only read ratios within a hand's row,
+   *   so the node's scale cancels; what quantisation costs is resolution
+   *   relative to the node's largest entry (1/32767 for regrets, 1/65535 for
+   *   sums), which only touches hands with a tiny share of the node's reach.
+   *   A flop game (`flop.ts`) needs it: in float32 one solve held ~2.7 GB.
+   */
+  storage?: "f32" | "i16";
 }
 
 export interface Exploitability {
@@ -129,6 +144,12 @@ export interface RunOptions {
   checkFrom?: number;
   /** Called after each measurement. Returning `false` stops the run. */
   onProgress?: (progress: RunProgress) => boolean | void;
+  /**
+   * Called after every iteration (a flop solve's iteration takes seconds).
+   * Returning `false` stops the run at once, without a final measurement:
+   * the result then carries the last measured exploitability, NaN if none.
+   */
+  onIteration?: (iteration: number) => boolean | void;
 }
 
 export interface RunProgress {
@@ -166,6 +187,17 @@ export class Solver {
   private stamp = 0;
   /** Cumulative `t^γ`-weighted strategy, same layout. */
   readonly strategySum: Float32Array;
+  /**
+   * `storage: "i16"`: regrets and strategy sums as 16-bit integers, same
+   * layout, each node's block times its scale (`regretScale[node]`,
+   * `sumScale[node]`). `regrets`, `strategySum` and the reuse cache are then
+   * empty.
+   */
+  readonly compact: boolean;
+  private readonly regrets16: Int16Array;
+  private readonly sums16: Uint16Array;
+  private readonly regretScale: Float32Array;
+  private readonly sumScale: Float32Array;
   /**
    * Counterfactual EV per action per hand from the last `evaluate()`, laid out
    * like `regrets` but only for the nodes it recorded: node `x`'s block starts
@@ -237,10 +269,17 @@ export class Solver {
       }
     }
     this.offset = offset;
-    this.regrets = new Float32Array(total);
-    this.current = new Float32Array(total);
-    this.currentStamp = new Int32Array(tree.size).fill(-2);
-    this.strategySum = new Float32Array(total);
+    this.compact = config.storage === "i16";
+    const f32 = this.compact ? 0 : total;
+    const i16 = this.compact ? total : 0;
+    this.regrets = new Float32Array(f32);
+    this.current = new Float32Array(f32);
+    this.currentStamp = new Int32Array(this.compact ? 0 : tree.size).fill(-2);
+    this.strategySum = new Float32Array(f32);
+    this.regrets16 = new Int16Array(i16);
+    this.sums16 = new Uint16Array(i16);
+    this.regretScale = new Float32Array(this.compact ? tree.size : 0);
+    this.sumScale = new Float32Array(this.compact ? tree.size : 0);
 
     // A chance node walks its children one at a time through a single slice,
     // so only action nodes set the width; sizing by the 48-card deal would
@@ -326,6 +365,10 @@ export class Solver {
     return (
       this.regrets.byteLength +
       this.strategySum.byteLength +
+      this.regrets16.byteLength +
+      this.sums16.byteLength +
+      this.regretScale.byteLength +
+      this.sumScale.byteLength +
       this.current.byteLength +
       this.currentStamp.byteLength +
       (this.ev?.byteLength ?? 0) +
@@ -377,7 +420,16 @@ export class Solver {
     while (this.iterations < max) {
       const next = this.iterations < from ? from : this.iterations + every;
       const step = Math.min(next - this.iterations, max - this.iterations);
-      this.iterate(step);
+      if (options.onIteration) {
+        for (let k = 0; k < step; k += 1) {
+          this.iterate(1);
+          if (options.onIteration(this.iterations) === false) {
+            return { iterations: this.iterations, exploitability: measured ?? unmeasured(), stoppedBy: "cancelled" };
+          }
+        }
+      } else {
+        this.iterate(step);
+      }
       measured = this.exploitability();
       const keepGoing = options.onProgress?.({ iteration: this.iterations, exploitability: measured });
       if (measured.percentPot <= target) {
@@ -467,7 +519,11 @@ export class Solver {
     const count = tree.childCount[node];
     const size = this.n[tree.player[node]];
     const strat = this.stratBuf[0];
-    this.average(this.offset[node], count, size, strat);
+    if (this.compact) {
+      this.average16(this.offset[node], count, size, strat);
+    } else {
+      this.average(this.offset[node], count, size, strat);
+    }
     return Float32Array.from(strat.subarray(0, count * size));
   }
 
@@ -478,6 +534,14 @@ export class Solver {
   setAverageStrategy(node: number, strategy: ArrayLike<number>): void {
     const off = this.offset[node];
     const len = this.tree.childCount[node] * this.n[this.tree.player[node]];
+    if (this.compact) {
+      const buf = new Float64Array(len);
+      for (let k = 0; k < len; k += 1) {
+        buf[k] = strategy[k];
+      }
+      this.sumScale[node] = encodeU16(buf, len, this.sums16, off);
+      return;
+    }
     for (let k = 0; k < len; k += 1) {
       this.strategySum[off + k] = strategy[k];
     }
@@ -518,6 +582,10 @@ export class Solver {
     }
     if (type === CHANCE) {
       this.chance(node, depth, reach, rOff, out, oOff);
+      return;
+    }
+    if (this.compact) {
+      this.actionCompact(node, depth, reach, rOff, out, oOff);
       return;
     }
 
@@ -640,6 +708,134 @@ export class Solver {
     }
   }
 
+  /**
+   * An action node with 16-bit storage (`SolverConfig.storage`): the same
+   * arithmetic as `walk`'s, reading regrets and sums through each node's
+   * scale. Regret matching and averaging read the integers directly - the
+   * scale is common to the block, so it cancels in every ratio.
+   */
+  private actionCompact(
+    node: number,
+    depth: number,
+    reach: Float64Array,
+    rOff: number,
+    out: Float64Array,
+    oOff: number,
+  ): void {
+    const tree = this.tree;
+    const p = this.trav;
+    const n = this.n[p];
+    const m = this.n[1 - p];
+    const start = tree.childStart[node];
+    const count = tree.childCount[node];
+    const off = this.offset[node];
+    const cfv = this.cfvBuf[depth];
+    const strat = this.stratBuf[depth];
+    const mode = this.mode;
+
+    if (tree.player[node] === p) {
+      for (let a = 0; a < count; a += 1) {
+        this.walk(tree.children[start + a], depth + 1, reach, rOff, cfv, a * n);
+      }
+      if (mode === MODE_BEST) {
+        for (let i = 0; i < n; i += 1) {
+          let best = cfv[i];
+          for (let a = 1; a < count; a += 1) {
+            const v = cfv[a * n + i];
+            if (v > best) {
+              best = v;
+            }
+          }
+          out[oOff + i] = best;
+        }
+        return;
+      }
+      if (mode === MODE_CFR) {
+        this.regretMatch16(off, count, n, strat);
+      } else {
+        this.average16(off, count, n, strat);
+      }
+      for (let i = 0; i < n; i += 1) {
+        out[oOff + i] = strat[i] * cfv[i];
+      }
+      for (let a = 1; a < count; a += 1) {
+        const base = a * n;
+        for (let i = 0; i < n; i += 1) {
+          out[oOff + i] += strat[base + i] * cfv[base + i];
+        }
+      }
+      if (mode === MODE_CFR) {
+        // Decode, discount, add this iteration's regret, re-encode at the
+        // block's new scale. The reach slab of this depth is free here (it
+        // is only used at the opponent's nodes) and serves as the buffer.
+        const regrets = this.regrets16;
+        const scale = this.regretScale[node];
+        const dPos = this.dPos;
+        const dNeg = this.dNeg;
+        const next = this.reachBuf[depth];
+        for (let a = 0; a < count; a += 1) {
+          const base = a * n;
+          const r0 = off + base;
+          for (let i = 0; i < n; i += 1) {
+            const r = regrets[r0 + i] * scale;
+            next[base + i] = (r > 0 ? r * dPos : r * dNeg) + cfv[base + i] - out[oOff + i];
+          }
+        }
+        this.regretScale[node] = encodeI16(next, count * n, regrets, off);
+      } else if (this.recordEv && (this.evOffset as Int32Array)[node] >= 0) {
+        const ev = this.ev as Float32Array;
+        const evOff = (this.evOffset as Int32Array)[node];
+        const norm = this.normBuf;
+        this.compat(reach, rOff, norm, 0, 1);
+        for (let a = 0; a < count; a += 1) {
+          const base = a * n;
+          for (let i = 0; i < n; i += 1) {
+            ev[evOff + base + i] = norm[i] > 0 ? cfv[base + i] / norm[i] : 0;
+          }
+        }
+      }
+      return;
+    }
+
+    // Opponent's node.
+    const childReach = this.reachBuf[depth];
+    if (mode === MODE_CFR) {
+      this.regretMatch16(off, count, m, strat);
+      const sums = this.sums16;
+      const scale = this.sumScale[node];
+      const w = this.wStrat;
+      // The child reach slab doubles as the decode buffer: it is rewritten below.
+      for (let a = 0; a < count; a += 1) {
+        const base = a * m;
+        const s0 = off + base;
+        for (let j = 0; j < m; j += 1) {
+          childReach[base + j] = sums[s0 + j] * scale + w * reach[rOff + j] * strat[base + j];
+        }
+      }
+      this.sumScale[node] = encodeU16(childReach, count * m, sums, off);
+    } else {
+      this.average16(off, count, m, strat);
+    }
+    out.fill(0, oOff, oOff + n);
+    for (let a = 0; a < count; a += 1) {
+      const base = a * m;
+      let any = 0;
+      for (let j = 0; j < m; j += 1) {
+        const v = reach[rOff + j] * strat[base + j];
+        childReach[base + j] = v;
+        any += v;
+      }
+      if (any === 0) {
+        continue;
+      }
+      this.walk(tree.children[start + a], depth + 1, childReach, base, cfv, a * n);
+      const cBase = a * n;
+      for (let i = 0; i < n; i += 1) {
+        out[oOff + i] += cfv[cBase + i];
+      }
+    }
+  }
+
   private chance(
     node: number,
     depth: number,
@@ -659,6 +855,7 @@ export class Solver {
     const oc1 = theirs.c1;
     const oc2 = theirs.c2;
     const mirrors = this.game.mirrors;
+    const edgeMirrors = this.game.edgeMirrors;
     const sample = this.mode === MODE_CFR && this.sampling && this.sampledChance[node] === 1;
     const group = this.group;
     const w = tree.chanceWeight[node] * (sample ? this.groups : 1);
@@ -689,7 +886,7 @@ export class Solver {
       // Suit isomorphism (`game.mirrors`): each card this one stands for is
       // the same subtree with the hands relabelled, so its values are these
       // values read through the relabelling.
-      const twins = mirrors?.[card];
+      const twins = edgeMirrors ? edgeMirrors[e] : mirrors?.[card];
       if (twins) {
         for (let k = 0; k < twins.length; k += 1) {
           const other = twins[k].card;
@@ -852,6 +1049,54 @@ export class Solver {
     }
   }
 
+  /** `regretMatch` over the 16-bit regrets: the node's scale cancels in the ratio. */
+  private regretMatch16(off: number, count: number, size: number, strat: Float64Array): void {
+    const regrets = this.regrets16;
+    const sum = this.sumBuf;
+    sum.fill(0, 0, size);
+    for (let a = 0; a < count; a += 1) {
+      const r0 = off + a * size;
+      for (let i = 0; i < size; i += 1) {
+        const r = regrets[r0 + i];
+        if (r > 0) {
+          sum[i] += r;
+        }
+      }
+    }
+    const uniform = 1 / count;
+    for (let a = 0; a < count; a += 1) {
+      const base = a * size;
+      const r0 = off + base;
+      for (let i = 0; i < size; i += 1) {
+        const r = regrets[r0 + i];
+        const s = sum[i];
+        strat[base + i] = s > 0 ? (r > 0 ? r / s : 0) : uniform;
+      }
+    }
+  }
+
+  /** `average` over the 16-bit sums. */
+  private average16(off: number, count: number, size: number, strat: Float64Array): void {
+    const sums = this.sums16;
+    const sum = this.sumBuf;
+    sum.fill(0, 0, size);
+    for (let a = 0; a < count; a += 1) {
+      const r0 = off + a * size;
+      for (let i = 0; i < size; i += 1) {
+        sum[i] += sums[r0 + i];
+      }
+    }
+    const uniform = 1 / count;
+    for (let a = 0; a < count; a += 1) {
+      const base = a * size;
+      const r0 = off + base;
+      for (let i = 0; i < size; i += 1) {
+        const s = sum[i];
+        strat[base + i] = s > 0 ? sums[r0 + i] / s : uniform;
+      }
+    }
+  }
+
   /** Normalised average strategy, uniform where a hand never reached the node. */
   private average(off: number, count: number, size: number, strat: Float64Array): void {
     const sums = this.strategySum;
@@ -873,6 +1118,63 @@ export class Solver {
       }
     }
   }
+}
+
+/**
+ * Quantises `values[0 .. len)` into `out[off ..]` as int16 at the block's own
+ * scale (largest magnitude -> 32767) and returns the scale; 0 for an all-zero
+ * block. Round to nearest: deterministic.
+ */
+function encodeI16(values: Float64Array, len: number, out: Int16Array, off: number): number {
+  let max = 0;
+  for (let k = 0; k < len; k += 1) {
+    const v = values[k];
+    const a = v < 0 ? -v : v;
+    if (a > max) {
+      max = a;
+    }
+  }
+  if (!(max > 0) || !Number.isFinite(max)) {
+    out.fill(0, off, off + len);
+    return 0;
+  }
+  const inv = 32767 / max;
+  for (let k = 0; k < len; k += 1) {
+    out[off + k] = Math.round(values[k] * inv);
+  }
+  return max / 32767;
+}
+
+/** `encodeI16` for non-negative values: uint16, largest -> 65535. */
+function encodeU16(values: Float64Array, len: number, out: Uint16Array, off: number): number {
+  let max = 0;
+  for (let k = 0; k < len; k += 1) {
+    if (values[k] > max) {
+      max = values[k];
+    }
+  }
+  if (!(max > 0) || !Number.isFinite(max)) {
+    out.fill(0, off, off + len);
+    return 0;
+  }
+  const inv = 65535 / max;
+  for (let k = 0; k < len; k += 1) {
+    const v = values[k];
+    out[off + k] = v > 0 ? Math.round(v * inv) : 0;
+  }
+  return max / 65535;
+}
+
+/** An exploitability that was never measured (a run cancelled before its first measurement). */
+function unmeasured(): Exploitability {
+  return {
+    bestResponse: [NaN, NaN],
+    value: [NaN, NaN],
+    nashConv: NaN,
+    exploitability: NaN,
+    percentPot: NaN,
+    mbb: NaN,
+  };
 }
 
 /** A seeded 32-bit generator (mulberry32): the sampling order, reproducible. */

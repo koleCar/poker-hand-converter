@@ -1,0 +1,20 @@
+{
+ "id": "btn-bb-3bet/Ts7h4d",
+ "line": "btn-bb-3bet",
+ "flop": "Ts7h4d",
+ "bytes": 62840,
+ "iterations": 60,
+ "exploitabilityPct": 0.7092096019025155,
+ "stoppedBy": "target",
+ "seconds": 293.76961412500003,
+ "solverMb": 369.6618,
+ "nodes": 553396,
+ "actionNodes": 213850,
+ "boards": 2352,
+ "turnClasses": 49,
+ "hands": [
+  172,
+  219
+ ],
+ "peakRssMb": 623.59375
+}

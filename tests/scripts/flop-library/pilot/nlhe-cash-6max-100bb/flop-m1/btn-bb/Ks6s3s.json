@@ -1,0 +1,20 @@
+{
+ "id": "btn-bb/Ks6s3s",
+ "line": "btn-bb",
+ "flop": "Ks6s3s",
+ "bytes": 102044,
+ "iterations": 100,
+ "exploitabilityPct": 0.9296329863413525,
+ "stoppedBy": "target",
+ "seconds": 601.670268458,
+ "solverMb": 517.3035,
+ "nodes": 259065,
+ "actionNodes": 104788,
+ "boards": 675,
+ "turnClasses": 23,
+ "hands": [
+  595,
+  470
+ ],
+ "peakRssMb": 597.421875
+}

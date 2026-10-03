@@ -77,7 +77,7 @@ export interface ActionInfo {
 
 /** What the result needs to describe an action node of a betting street. */
 export interface NodeInfo {
-  street: "turn" | "river";
+  street: "flop" | "turn" | "river";
   path: string;
   /** Pot before this decision, including every bet already in. */
   pot: number;
@@ -89,7 +89,7 @@ export interface NodeInfo {
 
 export interface StreetContext {
   builder: TreeBuilder;
-  street: "turn" | "river";
+  street: "flop" | "turn" | "river";
   /** Dead money at the start of the subgame. */
   pot: number;
   /** Effective stack at the start of the subgame. */

@@ -1,0 +1,20 @@
+{
+ "id": "btn-bb/Qs8s4h",
+ "line": "btn-bb",
+ "flop": "Qs8s4h",
+ "bytes": 102816,
+ "iterations": 100,
+ "exploitabilityPct": 0.7534898395724855,
+ "stoppedBy": "target",
+ "seconds": 1272.0597620409999,
+ "solverMb": 1090.40558,
+ "nodes": 547392,
+ "actionNodes": 221372,
+ "boards": 1429,
+ "turnClasses": 36,
+ "hands": [
+  593,
+  470
+ ],
+ "peakRssMb": 1190.140625
+}

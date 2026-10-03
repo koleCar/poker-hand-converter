@@ -669,6 +669,8 @@ export const analysisHr: Dict["analysis"] = {
     "range-cap": "Solverova ocjena ograničena na Grešku: heuristički suženi rasponi ne mogu nositi Grubu grešku",
     "range-sensitive": "Solverova ocjena ovisi o tome koliko se rasponi sužavaju: prikazana je blaža od dvije",
     "coarse-river": "Turn riješen s grubim riverom ispod njega: jedna veličina beta i all-in",
+    "flop-mapped": "Flop očitan s najbližeg riješenog flopa iste teksture, a ne riješen sam",
+    "library-bucketed": "Tvoja ruka očitana po kategoriji (gotova ruka i draw) u biblioteci flopova, a ne kombinacija po kombinacija",
   } as Record<string, string>,
 
   severity: { note: "Bilješka", inaccurate: "Netočno" } as Record<string, string>,

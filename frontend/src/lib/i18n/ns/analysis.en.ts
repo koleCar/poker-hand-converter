@@ -685,6 +685,8 @@ export const analysisEn = {
     "range-cap": "Solver grade capped at Mistake: heuristically narrowed ranges cannot support a Blunder",
     "range-sensitive": "Solver grade depends on how hard the ranges are narrowed: the milder of two is shown",
     "coarse-river": "Turn solved with a coarse river below it: one bet size and all-in",
+    "flop-mapped": "Flop read from the nearest solved flop of the same texture, not solved itself",
+    "library-bucketed": "Your hand read by its category (made hand and draw) in the flop library, not combo for combo",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,

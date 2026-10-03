@@ -55,6 +55,15 @@ export interface Game {
    * relabellings may carry them; the engine trusts it.
    */
   readonly mirrors?: readonly (readonly Mirror[] | undefined)[];
+  /**
+   * Per chance edge (parallel to `tree.children`): the cards that edge's card
+   * stands for, or undefined. Takes precedence over `mirrors` when present.
+   * A game that deals two streets (the flop library's turn and river, A5b)
+   * needs it: below each turn card only the suit relabellings that keep that
+   * turn card fixed may pair river cards, so the same river card can stand
+   * for different cards under different turns.
+   */
+  readonly edgeMirrors?: readonly (readonly Mirror[] | undefined)[];
   /** Real cards are `0 .. numCards - 1`; `numCards + p` is player p's phantom. */
   readonly numCards: number;
   readonly hands: readonly [HandSet, HandSet];

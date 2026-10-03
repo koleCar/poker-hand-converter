@@ -199,6 +199,7 @@ export function walkRanges(
           opponent: actorIsHero ? ranges.villain : ranges.hero,
           action: { kind, sizePot, allIn: action.allIn, checksBefore: checks.get(action.seat) ?? 0 },
           strength,
+          actionIndex: action.index,
         };
         const next = narrow(input, model);
         if (kind === "check") checks.set(action.seat, (checks.get(action.seat) ?? 0) + 1);

@@ -264,8 +264,10 @@ fixed betting abstraction, heads-up only.
     turn sizes added to the tree. About a second or two for a real spot;
     nothing is cached (no two spots in a library share a key).
   - **Flop:** an offline-precomputed library: canonical flop × preflop line,
-    coarse abstraction, flop-level strategies only. Until that exists, flop
-    decisions stay heuristic.
+    coarse abstraction, flop-level strategies only. A5b built the pipeline
+    and solved a pilot (§10); the analysis reads it only behind
+    `FLOP_LIBRARY_ENABLED`, off until the full library exists. Until then
+    flop decisions stay heuristic.
 - **Bet-size menus:**
   - **River:** 33 / 75 / 150% + all-in; raises 75% + all-in; cap 2–3. Without
     the overbet, real overbets land off-tree (§3.3).
@@ -406,7 +408,7 @@ Templates, not free text, because:
 | Decision walk, facts, chart lookup, heuristic | Browser Web Worker, resumable (shipped in A1: 5,448 hands in ~10 s) | Cheap; same code as stats |
 | River solve for one hand being viewed | Web Worker, client | Under 0.3 s; free; no server timeouts |
 | Turn solve for one hand | Web Worker, client, per hand (A5a) | One to a few seconds with A5a's speed-ups; the backfill runs a pool of workers |
-| Flop strategies | Precomputed library (offline script) | Too slow per hand in the browser (§3.2, §10 A5a) |
+| Flop strategies | Precomputed library (offline script, `tests/scripts/flop-library`); chunks fetched by the worker per hand (A5b) | Too slow per hand in the browser (§3.2, §10 A5a) |
 | Backfill of a user's whole database | The user's browser (Web Worker), resumable, like the stats rebuild; progress persisted per hand | No host to run; Vercel's function limit is far below a flop solve. A server worker is optional later |
 | Solved-spot cache | Postgres index + Storage blobs | Shared across users, deduped by `SpotKey` |
 
@@ -1421,3 +1423,183 @@ Each phase appends what it learned that changed the plan.
       owner's library is still to run.
     - Remaining refusals: open limps (933) are the biggest; a limp tree
       for full ring would be next.
+
+- 2026-10-03 — A5b, pilot: the flop library's pipeline, a pilot solve and
+  the full run's estimate. The analysis reads the library only behind
+  `FLOP_LIBRARY_ENABLED`, which is off, so no grade changes: still
+  `analysis/5`. **The full run (~235 core-hours) waits for the owner.**
+  - **Flop solver** (`lib/solver/flop.ts`, additive): flop betting, the
+    turn dealt, A5a's turn tree, the river dealt, A5a's river.
+    - **Suit isomorphism on both deals**: turn cards by the orbits of the
+      flop's symmetry group, river cards by the orbits of the turn card's
+      stabiliser (below `7h` on `Ks 8s 2d` hearts and clubs are no longer
+      interchangeable), read back through per-edge mirrors
+      (`Game.edgeMirrors`). Exact: the isomorphic solve, spread over every
+      card, has the full game's best responses and values to 1e-6 on a
+      two-tone and a monotone flop, and the full game matches the naive
+      pairwise evaluator through both deals (tests). It saves nothing on a
+      rainbow flop, a quarter of the turn cards on a two-tone one and half
+      on a monotone one, plus rivers below: the BTN–BB monotone pilot flop
+      held 0.5 GB against 1.8 GB rainbow.
+    - **16-bit storage** (`SolverConfig.storage: "i16"`): regrets as int16
+      and strategy sums as uint16, each node's block scaled by its largest
+      magnitude, and no strategy-reuse cache: 4 bytes per entry instead of
+      12. Regret matching and averaging read ratios within a hand's row, so
+      the scale cancels; the cost is resolution relative to the node's
+      largest entry. On a test tree the root strategy stays within 2%
+      (mean |Δfreq|) of float32's and the exploitability within the same
+      band. The float32 path (turn, river) is unchanged.
+    - **Exploitability is exact**: a full best response over the whole
+      flop+turn+river tree (no sampling), measured at iteration 40 and
+      every 20 after, ~1.5 iterations' time each. It is the exploitability
+      of exactly the strategy the solver holds (16-bit sums included).
+    - Progress and cancel per iteration (`RunOptions.onIteration`);
+      deterministic (same job, same bytes).
+  - **The tree, `flop-m1`, chosen by measurement** on the widest
+    single-raised line (BTN–BB, 601 v 473 combos on `Qs7h2d`; solver
+    entries, 16-bit):
+
+    | Tree | entries | memory | s / iteration |
+    |---|---|---|---|
+    | flop 33/75% + raise 50% + all-in ≤ 3 pots, A5a turn (one raise) and river | 638 M | 2.55 GB | 14–21 |
+    | the same with one flop size (33%) | 414 M | 1.66 GB | |
+    | **two flop sizes, no turn raise** (chosen) | 449 M | 1.80 GB | 11 alone, 18–22 four at a time |
+    | no turn raise, river all-in ≤ 3 pots | 335 M | 1.34 GB | |
+
+    The river is 99% of the entries. Two flop sizes because real flop bets
+    cluster at both (one would put most 66–75% bets off the tree); the turn
+    raise is what gave way. The river keeps its all-in (A5a: the nuts need
+    their shove).
+  - **Representative flops** (`lib/solver/flopSet.ts`): the 1,755 canonical
+    flops fall into eight texture classes (unpaired rainbow, monotone,
+    two-tone by which two ranks share the suit; paired rainbow and two-tone;
+    trips); a flop maps only within its class, to the nearest
+    representative by `1.5·|Δhigh| + |Δmiddle| + 0.7·|Δlow| + 0.4·|Δstraights|`
+    (straights: hole-rank pairs that make a straight with the flop). 100
+    representatives by weighted k-medoids per class, split by the classes'
+    share of the 22,100 flops (at least two each). Committed as data
+    (`FLOP_REPRESENTATIVES`); a test recomputes them. Mean distance of a
+    flop to its representative 1.9 ranks, the worst 9.6.
+  - **Lines** (`FLOP_LINES`): the river trainer's twelve heads-up pots (SRP
+    of every opener against the BB and BTN against the SB, five 3-bet pots,
+    the SB limp). Ranges are the charts' for the line, read by the
+    analysis' own walk on a scripted hand, so a library spot starts from
+    exactly the ranges a real hand on that line gets. Keyed by chart set
+    id (pilot: `nlhe-cash-6max-100bb`); chunks of another set (A2c's 9-max
+    and other depths) can be added the same way.
+  - **Format** (`lib/solver/flopLibrary.ts`, `FLOPLIB_VERSION = floplib/1`):
+    one chunk per (set, tree, line, canonical flop): a header naming what
+    was solved (chart set id, version and model hash, line, players, pot,
+    stack, rake, target) and the flop-level solve in the existing solution
+    blob (`format.ts`: strategies 16-bit, EVs float32) - every flop
+    decision node with strategy and EV per combo, the turn deals with no
+    subtree. 57–63 KB for a 3-bet pot, 98–104 KB for BTN–BB; ~50% gzipped.
+    Under `<base>/<set>/<tree>/<line>/<flop>.bin` with a `manifest.json`;
+    the worker's `FlopLibraryLoader` fetches a set's manifest and then
+    single chunks a hand needs. Never bundled into a page.
+  - **Batch runner** (`tests/scripts/flop-library`, `npm run floplib`): a
+    queue on disk, one solve per process (memory returned on exit, its own
+    peak RSS, cancel is a kill), chunks and stats written atomically, so it
+    resumes where it stopped; a memory budget (`--mem`) with each job's
+    peak predicted from its ranges and turn classes; `--only N`, `--lines`,
+    `--flops`, `--estimate`, `--validate`; `manifest.json` with times,
+    memory and exploitability per spot.
+  - **Integration, behind the flag** (`lib/analysis/flopLibrary.ts`):
+    - a hand reads the library when it is heads-up to the flop on one of
+      the lines, its line was answered by the chunk's chart set (id and
+      model hash), and its SPR at the flop is within 30% of the solve's;
+    - the hand's own flop reads its chunk combo for combo (through the suit
+      relabelling); any other flop reads its representative's **by hand
+      category** (made hand × draw, coarser when thin): `flop-mapped` and
+      `library-bucketed`. Amounts and EVs are scaled by the real pot over
+      the solved one;
+    - **narrowing**: `libraryModel` is a `NarrowingModel` reading
+      `L(c | action)` from the solved node (found from the street's actions
+      through `NarrowInput.actionIndex`, followed as grading follows a
+      line); off the tree it falls back to the heuristic for the rest of
+      the street. The turn then starts from the library's ranges, and turn
+      and river grades drop `narrowing-heuristic` (tested on the pilot: a
+      3-bet pot's turn solve);
+    - **flop grading** (`gradeFlop`): options, frequency and EV for the
+      hero's combo (or category) at the node, `grade()`, `source: "solver"`,
+      `rake-profile`, `coarse-river`, translation codes, `range-cap` (Mistake
+      unless dominated), `facts.flop` (`FlopFacts`). A decision the
+      library cannot follow keeps the heuristic.
+    - Shared edits are small: `NarrowInput.actionIndex`,
+      `AnalyzeOptions.flopLibrary`, `SolvedStreet` gains `flop`, two
+      approximation codes (EN/HR texts), `SpotFacts.flop`.
+  - **Pilot** (6-max 100bb, `flop-m1`, target 1% of the flop pot; committed
+    in `tests/scripts/flop-library/pilot/` with the five validation solves, 1.1 MB), on the M2 Pro (10
+    cores) shared with another agent's chart generation (load 5–20), four
+    solves at a time:
+
+    | Line | Flop | iterations | exploitability | time | solver / peak RSS | chunk |
+    |---|---|---|---|---|---|---|
+    | BTN–BB SRP | `Ts7h4d` | 100 | 0.80% | 36.0 min | 1.80 / 1.89 GB | 104 KB |
+    | | `AsKh7d` | 100 | 0.73% | 30.7 min | 1.70 / 1.80 GB | 99 KB |
+    | | `Qs8s4h` | 100 | 0.75% | 21.2 min | 1.09 / 1.19 GB | 103 KB |
+    | | `KhKs9d` | 100 | 0.72% | 17.6 min | 1.07 / 1.31 GB | 98 KB |
+    | | `Ks6s3s` | 100 | 0.93% | 10.0 min | 0.52 / 0.60 GB | 102 KB |
+    | BB 3-bet, BTN calls | `Ts7h4d` | 60 | 0.71% | 4.9 min | 0.37 / 0.62 GB | 63 KB |
+    | | `AsKh7d` | 80 | 0.71% | 5.7 min | 0.33 / 0.59 GB | 58 KB |
+    | | `Qs8s4h` | 60 | 0.75% | 2.9 min | 0.22 / 0.50 GB | 60 KB |
+    | | `KhKs9d` | 80 | 0.64% | 3.4 min | 0.21 / 0.45 GB | 57 KB |
+    | | `Ks6s3s` | 100 | 0.73% | 2.5 min | 0.11 / 0.28 GB | 59 KB |
+
+    Every solve reached the target; single-raised pots take ~100
+    iterations (5% of the pot at 40), 3-bet pots 60–100. A BTN–BB rainbow
+    flop alone on a quiet machine runs ~11 s an iteration (~20 min a
+    solve); four at a time under that load, 18–22 s.
+  - **Validation of the mapping** (`--validate`): five more flops solved
+    and read the way the analysis reads a mapped flop, each combo of the
+    real flop's own solve against its category on the representative,
+    reach-weighted over the 14 flop nodes; "own categories" reads the
+    flop's own solve by category - the cost of categories alone:
+
+    | Line | Flop → representative | strategy TV (own categories) | mean \|ΔEV\| % pot (own) | same top action | same check/call grade |
+    |---|---|---|---|---|---|
+    | 3-bet | `AsKh9d` → `AsKh7d` (1.4) | 12.6% (9.6%) | 4.3% (3.0%) | 86% | 71% |
+    | 3-bet | `Ts8h4d` → `Ts7h4d` (1.0) | 19.1% (16.8%) | 5.9% (5.2%) | 83% | 62% |
+    | 3-bet | `Js8s4h` → `Qs8s4h` (1.5) | 27.5% (18.7%) | 9.3% (4.6%) | 70% | 55% |
+    | BTN–BB SRP | `AsKh9d` → `AsKh7d` (1.4) | 10.1% (8.0%) | 5.4% (3.9%) | 87% | 81% |
+    | BTN–BB SRP | `Ts8h4d` → `Ts7h4d` (1.0) | 18.9% (15.0%) | 6.1% (4.4%) | 80% | 61% |
+
+    Mapping to a near representative costs little beyond reading by
+    category at all; **reading by category is the larger loss**: a
+    category's mean strategy is not a combo's (kickers, blockers, which
+    draw), and the grade of a check or call agrees only 55–81% of the time.
+    A mapped (or out-of-range) flop grade is therefore approximate in a way
+    an exact one is not; `range-cap` keeps it from Blunder, and it is
+    labelled. Finer categories or more representatives are the levers.
+  - **Full-run estimate on this machine** (`--estimate`, fitted on the 15
+    pilot solves by each line's live combos × turn classes): **~235
+    core-hours** for 12 lines × 100 flops (BTN–BB 34, SB–BB 30, CO–BB 23,
+    HJ–BB 18, BTN–SB 17, UTG–BB 14, 3-bet pots 9–14 each, the SB limp 43 -
+    the widest ranges); **~85 MB** of chunks (~45 MB gzipped); the widest
+    solve (the SB limp) ~1.9 GB of arrays, ~2.3 GB resident. Four solves at
+    a time (the 16 GB of memory and a usable machine) is **~60 hours**;
+    eight on an otherwise idle machine about 30. The pilot's times are
+    under load: a quiet machine is perhaps a third faster.
+  - **Options** for the owner:
+    - the full run as is, overnight runs resumed (`npm run floplib`
+      resumes);
+    - **the six SRP lines and two 3-bet pots first** (~150 core-hours), or
+      **the 50 most-covering flops** (half: ~110 core-hours, mapping
+      distances grow);
+    - **a coarser tree** (`no turn raise, river all-in ≤ 3 pots`: −25%
+      memory and time), or one flop size (about a third less, but most
+      66–75% bets would be off the tree: not recommended);
+    - a **cloud machine**: a 32–64-core, 128 GB instance runs ~16–30 solves
+      at once, so the full run is roughly 8–15 hours of one machine; the
+      runner needs only Node and the repo (worth checking that its first
+      chunk there is byte-identical to the pilot's: another CPU and V8 build
+      should, but need not, round alike).
+  - **Open.**
+    - The library is a pilot: `FLOP_LIBRARY_ENABLED` stays off until the
+      full run, then its first grades are a version bump.
+    - Category reading is coarse (above); the SB limp's convergence is
+      untested (only BTN–BB and its 3-bet pot were solved).
+    - Hosting: chunks go to Storage (or any static host) under the layout
+      above; `FLOP_LIBRARY_BASE` is a placeholder until then.
+    - Charts' realisation from flop solves (`docs/CHARTS.md` §9) can read
+      the library once it exists.

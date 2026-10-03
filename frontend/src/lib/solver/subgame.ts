@@ -81,9 +81,19 @@ export interface TurnIsomorphism {
   classes: { card: string; mirrors: string[] }[];
 }
 
+/** What suit isomorphism did to a flop game (`flop.ts`, A5b). */
+export interface FlopIsomorphism {
+  /** The suit permutations the flop and both ranges are symmetric under. */
+  group: number[][];
+  /** Turn cards dealt (one per class), each with the cards it stands for, codes, and how many river classes are dealt below it. */
+  turns: { card: string; mirrors: string[]; rivers: number }[];
+  /** Showdown boards (turn x river classes) the game holds. */
+  boards: number;
+}
+
 /** A subgame ready for the engine, plus what the result needs to describe it. */
 export interface BuiltSubgame {
-  street: "river" | "turn";
+  street: "river" | "turn" | "flop";
   game: Game;
   /** Card indices of the board. */
   board: number[];
@@ -98,6 +108,8 @@ export interface BuiltSubgame {
   firstToAct: 0 | 1;
   /** Turn games built with `isomorphism`: what it found. */
   isomorphism?: TurnIsomorphism;
+  /** Flop games built with `isomorphism`: what it found. */
+  flopIsomorphism?: FlopIsomorphism;
 }
 
 export function rulesOf(spot: SpotInput, menus: readonly [BetMenu, BetMenu], raiseCap = spot.raiseCap): BettingRules {

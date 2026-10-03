@@ -91,8 +91,9 @@ export function naiveValues(built: BuiltSubgame, solver: Solver): NaiveValues {
         const child = walk(tree.children[e], p, best, masked, [...dealt, card]);
         mine.forEach((h, i) => {
           if (!holds(h, card)) {
-            // Independent of the tree's stored weight: 44 cards remain.
-            out[i] += child[i] / 44;
+            // Independent of the tree's stored weight: every card no one
+            // can see is equally likely (44 under a turn, 45 under a flop).
+            out[i] += child[i] / (52 - board.length - dealt.length - 4);
           }
         });
       }
