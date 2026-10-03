@@ -56,7 +56,7 @@ import {
   type Trend,
 } from "../analysis/leaks";
 import type { ChartPosition } from "../charts";
-import { PREFLOP_FAMILIES, PREFLOP_SEATS, type PreflopFamily } from "./preflop";
+import { ALL_PREFLOP_SEATS, PREFLOP_FAMILIES, type PreflopFamily } from "./preflop";
 import { RIVER_POTS, RIVER_ROLES, RIVER_SEATS, riverSeatings, type RiverPot, type RiverRole, type RiverSeat } from "./river";
 
 /* ------------------------------------------------------------ constants - */
@@ -131,6 +131,8 @@ export interface AreaWhere {
   family: string;
   hero: string;
   villain: string;
+  /** `"9max"`: a full-ring chart spot (A2d, `SpotAttrs.table`). */
+  table?: string;
 }
 
 /** One wrong turn inside an area. */
@@ -143,7 +145,14 @@ export interface FocusLeak {
 }
 
 export type TrainerTarget =
-  | { mode: "preflop"; family: PreflopFamily | "random"; seat: ChartPosition | null; vs: ChartPosition | null }
+  | {
+      mode: "preflop";
+      family: PreflopFamily | "random";
+      seat: ChartPosition | null;
+      vs: ChartPosition | null;
+      /** The chart set to deal from (A2d): the one the player met the area on most; absent, the trainer's default. */
+      set?: string | null;
+    }
   | { mode: "river"; pot: RiverPot | "any"; side: RiverSeat | "any"; role: RiverRole | "any" };
 
 export interface FocusArea {
@@ -197,24 +206,45 @@ const whereOf = (leak: Leak): AreaWhere => ({
   family: leak.attrs.family,
   hero: leak.attrs.hero,
   villain: leak.attrs.villain,
+  ...(leak.attrs.table ? { table: leak.attrs.table } : {}),
 });
 
-/** An area's id: its situation at the level it settled. */
-export const areaId = (where: AreaWhere) => [where.street, where.scenario, where.family, where.hero, where.villain].join("~");
+/** An area's id: its situation at the level it settled (a full-ring area ends in `~9max`). */
+export const areaId = (where: AreaWhere) =>
+  [where.street, where.scenario, where.family, where.hero, where.villain, ...(where.table ? [where.table] : [])].join("~");
 
 const known = (part: string) => part !== ANY && part !== NONE;
 const seatOf = (part: string): ChartPosition | null =>
-  known(part) && (PREFLOP_SEATS as readonly string[]).includes(part) ? (part as ChartPosition) : null;
+  known(part) && (ALL_PREFLOP_SEATS as readonly string[]).includes(part) ? (part as ChartPosition) : null;
+/** A chart set id as the trainer takes it (`nlhe-cash-9max-100bb`). */
+const SET_ID = /^nlhe-cash-[0-9]max-[0-9]{2,3}bb$/;
+
+/**
+ * The set an area's trainer deals from (A2d): the chart set its leaks were
+ * graded on most, so a full-ring 150bb leak is practised on the full-ring
+ * 150bb charts. Ties go to the alphabetically first id; null off the charts.
+ */
+export function areaSet(leaks: readonly Pick<Leak, "sets">[]): string | null {
+  const total = new Map<string, number>();
+  for (const leak of leaks) for (const [set, n] of Object.entries(leak.sets ?? {})) total.set(set, (total.get(set) ?? 0) + n);
+  let best: string | null = null;
+  for (const [set, n] of [...total].sort((a, b) => (a[0] < b[0] ? -1 : 1))) {
+    if (best === null || n > (total.get(best) ?? 0)) best = set;
+  }
+  return best;
+}
 
 /**
  * The trainer that practises an area: preflop the chart family at the seat
  * (and against the raiser), on the river the hero's role and side; null for a
  * street there is no trainer for (the flop and the turn, until A5).
  */
-export function trainerTarget(where: AreaWhere): TrainerTarget | null {
+export function trainerTarget(where: AreaWhere, set: string | null = null): TrainerTarget | null {
   if (where.street === "preflop") {
     const seat = seatOf(where.hero);
     const vs = seatOf(where.villain);
+    // On the set the area was met on; a 9-max seat with no set, on the trainer's default table, would not exist.
+    const deal = set && SET_ID.test(set) ? { set } : {};
     let family: PreflopFamily;
     switch (where.scenario) {
       case "unopened":
@@ -235,17 +265,22 @@ export function trainerTarget(where: AreaWhere): TrainerTarget | null {
         family = "vs-4bet";
         break;
       case "vs-limp":
+        // Facing limpers (charts/4): the limped-pot trainer, against the first limper.
+        family = "vs-limp";
+        break;
       case "bb-option":
-        family = "bvb";
+        // The big blind behind the small blind's completion is blind vs blind;
+        // behind anyone else's limp (the villain is the first limper), a limped pot.
+        family = vs && vs !== "SB" ? "vs-limp" : "bvb";
         break;
       default:
         // Merged up to the family: the family's trainer, any seat the parts still name.
         if (where.family === "first-in") family = "rfi";
         else if (where.family === "vs-raise") family = "vs-open";
         else if (where.family === "vs-reraise") family = "vs-3bet";
-        else return { mode: "preflop", family: "random", seat: null, vs: null };
+        else return { mode: "preflop", family: "random", seat: null, vs: null, ...deal };
     }
-    return { mode: "preflop", family, seat, vs: family === "rfi" ? null : vs };
+    return { mode: "preflop", family, seat, vs: family === "rfi" ? null : vs, ...deal };
   }
   if (where.street === "river") {
     // The river trainer's out-of-position hero acts first; only the hero in
@@ -261,10 +296,15 @@ export function trainerTarget(where: AreaWhere): TrainerTarget | null {
   return null;
 }
 
-/** A trainer target as a task reference: `preflop/vs-open/BTN/vs-CO`, `river/any/oop/pfr`. */
+/**
+ * A trainer target as a task reference: `preflop/vs-open/BTN/vs-CO`,
+ * `preflop/rfi/UTG/nlhe-cash-9max-100bb` (A2d: the set last), `river/any/oop/pfr`.
+ */
 export function trainerRef(target: TrainerTarget): string {
   if (target.mode === "preflop") {
-    return ["preflop", target.family, target.seat ?? "any", target.vs ? `vs-${target.vs}` : null].filter(Boolean).join("/");
+    return ["preflop", target.family, target.seat ?? "any", target.vs ? `vs-${target.vs}` : null, target.set ?? null]
+      .filter(Boolean)
+      .join("/");
   }
   return ["river", target.pot, target.side, target.role].join("/");
 }
@@ -273,15 +313,18 @@ export function trainerRef(target: TrainerTarget): string {
 export function parseTrainerRef(ref: string): TrainerTarget | null {
   const parts = ref.split("/");
   const seat = (part: string | undefined) =>
-    part && (PREFLOP_SEATS as readonly string[]).includes(part) ? (part as ChartPosition) : null;
+    part && (ALL_PREFLOP_SEATS as readonly string[]).includes(part) ? (part as ChartPosition) : null;
   const oneOf = <T extends string>(part: string | undefined, allowed: readonly T[]): T | "any" | null =>
     part === "any" ? "any" : part && (allowed as readonly string[]).includes(part) ? (part as T) : null;
-  if (parts[0] === "preflop" && parts.length >= 3 && parts.length <= 4) {
+  if (parts[0] === "preflop" && parts.length >= 3 && parts.length <= 5) {
     const family = oneOf(parts[1], [...PREFLOP_FAMILIES, "random"] as const);
     if (!family || family === "any") return null;
     if (parts[2] !== "any" && !seat(parts[2])) return null;
-    if (parts[3] !== undefined && !(parts[3].startsWith("vs-") && seat(parts[3].slice(3)))) return null;
-    return { mode: "preflop", family, seat: seat(parts[2]), vs: parts[3] ? seat(parts[3].slice(3)) : null };
+    const rest = parts.slice(3);
+    const set = rest.length && SET_ID.test(rest[rest.length - 1]) ? (rest.pop() as string) : null;
+    if (rest.length > 1) return null;
+    if (rest[0] !== undefined && !(rest[0].startsWith("vs-") && seat(rest[0].slice(3)))) return null;
+    return { mode: "preflop", family, seat: seat(parts[2]), vs: rest[0] ? seat(rest[0].slice(3)) : null, ...(set ? { set } : {}) };
   }
   if (parts[0] === "river" && parts.length === 4) {
     const pot = oneOf(parts[1], RIVER_POTS);
@@ -350,6 +393,7 @@ export function focusAreas(rows: readonly SpotRow[], hands: number): FocusArea[]
     const concepts: string[] = [];
     for (const leak of sorted) for (const concept of leakConcepts(leak.attrs)) if (!concepts.includes(concept)) concepts.push(concept);
     const where = whereOf(sorted[0]);
+    const set = areaSet(sorted);
     areas.push({
       id,
       where,
@@ -371,7 +415,7 @@ export function focusAreas(rows: readonly SpotRow[], hands: number): FocusArea[]
       confidence: confidenceOf(spotDecisions, mistakes),
       tentative: false,
       concepts: concepts.slice(0, AREA_CONCEPTS),
-      trainer: trainerTarget(where),
+      trainer: trainerTarget(where, set),
       weeks: 1,
       reviews: [],
     });
@@ -706,9 +750,10 @@ const CONFIDENCES: readonly Confidence[] = ["low", "medium", "high"];
 function parseTrainer(value: unknown): TrainerTarget | null {
   if (!value || typeof value !== "object") return null;
   const v = value as Record<string, unknown>;
-  const seat = (x: unknown) => (typeof x === "string" && (PREFLOP_SEATS as readonly string[]).includes(x) ? (x as ChartPosition) : null);
+  const seat = (x: unknown) => (typeof x === "string" && (ALL_PREFLOP_SEATS as readonly string[]).includes(x) ? (x as ChartPosition) : null);
   if (v.mode === "preflop" && typeof v.family === "string" && [...PREFLOP_FAMILIES, "random"].includes(v.family)) {
-    return { mode: "preflop", family: v.family as PreflopFamily | "random", seat: seat(v.seat), vs: seat(v.vs) };
+    const set = typeof v.set === "string" && SET_ID.test(v.set) ? { set: v.set } : {};
+    return { mode: "preflop", family: v.family as PreflopFamily | "random", seat: seat(v.seat), vs: seat(v.vs), ...set };
   }
   if (v.mode === "river") {
     const pick = <T extends string>(x: unknown, allowed: readonly T[]): T | "any" =>
@@ -735,6 +780,7 @@ export function parseFocus(value: unknown): FocusArea[] {
       family: str(w.family, PART, ANY),
       hero: str(w.hero, PART, ANY),
       villain: str(w.villain, PART, ANY),
+      ...(w.table === "9max" ? { table: "9max" } : {}),
     };
     if (!where.street) return [];
     const leaks = Array.isArray(r.leaks)

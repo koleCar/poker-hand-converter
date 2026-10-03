@@ -293,7 +293,7 @@ describe("what the charts refuse, by name", () => {
     expect(decision.reason).toBe("chart-stack-depth");
   });
 
-  it("refuses a line behind an open limp", () => {
+  it("grades a line behind an open limp (charts/4), saying the limper may hold anything", () => {
     const decision = pre(
       analyse(
         hand({
@@ -306,7 +306,11 @@ describe("what the charts refuse, by name", () => {
         }),
       ),
     );
-    expect(decision.reason).toBe("chart-limp");
+    expect(decision).toMatchObject({ status: "analysed", source: "chart", action: "raise" });
+    expect(decision.facts.chart).toMatchObject({ line: "cf", scenario: "vs-limp" });
+    expect(decision.approximations).toContain("limp-tremble");
+    // AKo isolates a limp from the cutoff: the reference's move.
+    expect(referenceMix(decision)[0].option.action).toBe("raise");
   });
 
   it("explains a refusal in both languages, and links to nothing it did not say", () => {
@@ -407,7 +411,8 @@ describe("explanation templates (§4)", () => {
 
   it("names a Perfect move as the reference's play", () => {
     const open = pre(analyse(rfi("Utg", "Ah Ad", "raise")));
-    expect(en.analysis.explain(open).join(" ")).toContain("Perfect: you played raise to 2.5 bb; the reference plays raise to 2.5 bb 100% here.");
+    // AA limps as a trap now and then (charts/4), opening the rest.
+    expect(en.analysis.explain(open).join(" ")).toMatch(/Perfect: you played raise to 2\.5 bb; the reference plays raise to 2\.5 bb 9\d% here\./);
   });
 
   it("says when the hand is outside the reference range at the node", () => {

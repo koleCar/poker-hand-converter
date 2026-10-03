@@ -22,7 +22,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = extensions, public;
 
-select plan(50);
+select plan(53);
 
 -- ------------------------------------------------------------------ setup --
 
@@ -66,7 +66,10 @@ insert into public.hands (id, owner_id, hand_key, phf, standard_text, site, hero
    array['9s','8s'], '2026-04-01T12:00:00Z'),
   ('00000000-0000-0000-0000-0000000a6b01', '00000000-0000-0000-0000-0000000a6bb1', 'weplay:lkb1',
    '{"schema":"phf/1"}', 'std', 'weplay', 2, 'BB', 'cash', 'USD', 100, 50, 100, 0,
-   array['Ah','Ad'], '2026-03-03T10:00:00Z');
+   array['Ah','Ad'], '2026-03-03T10:00:00Z'),
+  ('00000000-0000-0000-0000-0000000a6b02', '00000000-0000-0000-0000-0000000a6bb1', 'weplay:lkb2',
+   '{"schema":"phf/1"}', 'std', 'weplay', 2, 'BB', 'cash', 'USD', 100, 50, 100, 0,
+   array['Kh','Jh'], '2026-03-04T10:00:00Z');
 
 -- -------------------------------------------------------------- grants --
 
@@ -186,7 +189,7 @@ select is(
 select is(
   (select r - 'key' from jsonb_array_elements(public.analysis_leaks('{"analysisVersion":"analysis/3"}') -> 'rows') r
    where r ->> 'key' = 'preflop|vs-open|fffrf|BB|fold|call'),
-  '{"street":"preflop","scenario":"vs-open","line":"fffrf","position":"BB","taken":"fold","best":"call",
+  '{"set":"nlhe-cash-6max-100bb","street":"preflop","scenario":"vs-open","line":"fffrf","position":"BB","taken":"fold","best":"call",
     "decisions":2,"hands":2,"nonPerfect":2,"mistakes":2,"evLossBb":2.800,"evLossPot":0.5500,
     "scoreSum":50.00,"scoreSq":2500.00}'::jsonb,
   'per spot: decisions, hands, worse than Perfect, Inaccurate or worse, EV lost in bb and pot, score sums');
@@ -195,6 +198,11 @@ select is(
    from jsonb_array_elements(public.analysis_leaks('{"analysisVersion":"analysis/3"}') -> 'rows') r
    where r ->> 'street' = 'river'),
   '1:0:0.300', 'a Good move is worse than Perfect but not a mistake; postflop the line is empty and the seat is the decision''s');
+select ok(
+  (select bool_and(r -> 'set' = 'null'::jsonb)
+   from jsonb_array_elements(public.analysis_leaks('{"analysisVersion":"analysis/3"}') -> 'rows') r
+   where r ->> 'street' = 'river'),
+  'A2d: a decision not graded from the charts has no chart set');
 select is(
   (select string_agg(format('%s:%s', s ->> 'site', s ->> 'hands'), ',' order by s ->> 'site')
    from jsonb_array_elements(public.analysis_leaks('{"analysisVersion":"analysis/3"}') -> 'facets' -> 'sites') s),
@@ -326,6 +334,22 @@ select is(
   (select sum((r ->> 'graded')::int)::int
    from jsonb_array_elements(public.analysis_trend('{"analysisVersion":"analysis/3"}', 'session') -> 'rows') r),
   1, '... and so does B''s trend');
+
+-- A2d: the same finest spot on two chart sets is two rows, one per set.
+select is(public.save_hand_analysis($$[
+  {"hand_id":"00000000-0000-0000-0000-0000000a6b02","analysis_version":"analysis/3","status":"full","hero_seat":2,
+   "pot_type":"single-raised","grade":"mistake","score":40,"ev_loss_bb":1,"ev_loss_pot":0.25,"approximations":[],"decisions":[
+     {"ord":0,"action_index":5,"street":"preflop","action":"fold","status":"analysed","node":"n","scenario":"vs-open",
+      "source":"chart","grade":"mistake","score":40,"ev_loss_bb":1,"ev_loss_pot":0.25,"freq_diff":1,
+      "options":[{"action":"fold","sizeBb":1,"freq":0,"ev":-1},{"action":"call","sizeBb":2.5,"freq":1,"ev":0}],"chosen":0,
+      "flags":[],"approximations":[],"facing_bet":true,"pot_bb":4,
+      "facts":{"handClass":"KJs","position":"BB","chart":{"set":"nlhe-cash-6max-150bb","line":"fffrf","scenario":"vs-open","inRange":1}}}]}
+]$$::jsonb) ->> 'inserted', '1', 'B stores the same spot graded on the 150bb set');
+select is(
+  (select string_agg(format('%s:%s:%s', r ->> 'key', r ->> 'set', r ->> 'decisions'), ',' order by r ->> 'set')
+   from jsonb_array_elements(public.analysis_leaks('{"analysisVersion":"analysis/3"}') -> 'rows') r),
+  'preflop|vs-open|fffrf|BB|fold|call:nlhe-cash-6max-100bb:1,preflop|vs-open|fffrf|BB|fold|call:nlhe-cash-6max-150bb:1',
+  '... and its leak rows split by chart set under the same spot key');
 
 select pg_temp.act_as_anon();
 select throws_ok($$ select public.analysis_leaks('{}') $$, '42501', null, 'anon reads no leaks');

@@ -23,8 +23,19 @@ export interface ReportsState {
 
 export const EMPTY_REPORTS_STATE: ReportsState = { from: null, to: null, room: null, stake: null, position: null };
 
-/** The seats a chart covers, in table order. */
-export const REPORT_POSITIONS = ["UTG", "HJ", "CO", "BTN", "SB", "BB"] as const;
+/** The seats the charts cover, in table order: 6-max's, and 9-max's own seats among them (A2c). */
+export const REPORT_POSITIONS = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"] as const;
+
+/** The Reports screen's chart set filter (A2d), in the address bar as `set`; absent is every set. */
+export const REPORT_SET_KEY = "set";
+const SET_RE = /^nlhe-cash-[0-9]max-[0-9]{2,3}bb$/;
+
+/** The `set` parameter, or null for "all sets". */
+export function parseReportSet(source: URLSearchParams | Record<string, string | string[] | undefined>): string | null {
+  const value = source instanceof URLSearchParams ? source.get(REPORT_SET_KEY) : source[REPORT_SET_KEY];
+  const one = Array.isArray(value) ? value[0] : value;
+  return one && SET_RE.test(one) ? one : null;
+}
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const ROOM_RE = /^[a-z0-9][a-z0-9-]{0,39}$/;

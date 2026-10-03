@@ -63,6 +63,8 @@ interface Where {
   family: string;
   hero: string;
   villain: string;
+  /** `"9max"`: a full-ring chart spot (A2d), named with its table. */
+  table?: string;
 }
 
 const known = (part: string) => part !== ANY && part !== NONE;
@@ -84,8 +86,14 @@ function title(kind: LeakKind, where: Where): string {
 const roleWords = { pfr: "as the preflop raiser", caller: "as the preflop caller", limped: "in a limped pot" } as Record<string, string>;
 const facingWords = { first: "first to act", "vs-bet": "facing a bet", "vs-raise": "facing a raise" } as Record<string, string>;
 
-/** "BB vs BTN open", "CO first in", "as the preflop raiser, in position, first to act". */
+/** "BB vs BTN open", "CO first in"; a full-ring spot says so: "UTG first in (9-max)". */
 function context(where: Where): string {
+  const text = spotContext(where);
+  return where.table === "9max" && known(where.hero) ? `${text} (9-max)` : text;
+}
+
+/** "BB vs BTN open", "CO first in", "as the preflop raiser, in position, first to act". */
+function spotContext(where: Where): string {
   const hero = known(where.hero) ? where.hero : null;
   const villain = known(where.villain) ? where.villain : null;
   if (where.street === "preflop") {
@@ -104,9 +112,9 @@ function context(where: Where): string {
       case "vs-4bet":
         return `${who ? `${who} ` : ""}vs ${villain ? `${villain} 4-bet` : "a 4-bet"}`.replace(/^vs/, "Vs");
       case "bb-option":
-        return "BB option after limps";
+        return villain && villain !== "SB" ? `BB option after ${villain} limps` : "BB option after limps";
       case "vs-limp":
-        return `${who ? `${who} ` : ""}vs limpers`.replace(/^vs/, "Vs");
+        return `${who ? `${who} ` : ""}vs ${villain ? `${villain} limp` : "limpers"}`.replace(/^vs/, "Vs");
       default:
         break;
     }

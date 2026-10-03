@@ -7,7 +7,8 @@
  *
  * - **Folds, checks and calls** map to the tree's edge of the same kind. A
  *   call the tree does not have (a fourth player into a pot, a cold call of
- *   a 3-bet, an open limp) ends the walk with that reason.
+ *   a 3-bet, a limp past the tree's `maxLimpers` - `multiway` - or, in a set
+ *   without limp trees, any open limp - `limp`) ends the walk with that reason.
  * - **Raises** map to the node's one raise size (or its all-in). The real size
  *   is compared with the chart's as a fraction of the pot - `(raise to - bet
  *   to match) / (pot after calling)` - through `lib/solver`'s
@@ -28,6 +29,7 @@ import {
   buildPreflopTree,
   FLAG_COLD_CALL_CUT,
   FLAG_LIMP_CUT,
+  FLAG_LIMPERS_CAP,
   FLAG_MULTIWAY_CAP,
   PF_ACTION,
   potAt,
@@ -130,13 +132,16 @@ const trees = new WeakMap<ChartSet, PreflopTree>();
 export function chartTree(charts: ChartSet): PreflopTree {
   let tree = trees.get(charts);
   if (!tree) {
-    const model = charts.model as { tree?: { sizing?: PreflopSizing; maxEntrants?: number; sbLimp?: boolean } };
+    const model = charts.model as {
+      tree?: { sizing?: PreflopSizing; maxEntrants?: number; sbLimp?: boolean; maxLimpers?: number };
+    };
     tree = buildPreflopTree({
       players: charts.game.positions as PreflopPosition[],
       stackBb: charts.game.stackBb,
       sizing: model.tree?.sizing,
       maxEntrants: model.tree?.maxEntrants,
       sbLimp: model.tree?.sbLimp,
+      maxLimpers: model.tree?.maxLimpers,
     });
     trees.set(charts, tree);
   }
@@ -323,7 +328,7 @@ function lookupInSet(
 
   const unmodelled: ("call" | "limp")[] = [];
   if (tree.flags[node] & (FLAG_MULTIWAY_CAP | FLAG_COLD_CALL_CUT)) unmodelled.push("call");
-  if (tree.flags[node] & FLAG_LIMP_CUT) unmodelled.push("limp");
+  if (tree.flags[node] & (FLAG_LIMP_CUT | FLAG_LIMPERS_CAP)) unmodelled.push("limp");
 
   // The hero's own action.
   let chosen: number | null = null;
@@ -423,6 +428,9 @@ function applyAction(
     if (e < 0) {
       const flags = tree.flags[node];
       if (flags & FLAG_LIMP_CUT) return fail("limp", `${position} limps; only the small blind's limp is in the tree`);
+      if (flags & FLAG_LIMPERS_CAP) {
+        return fail("multiway", `${position} limps behind ${tree.maxLimpers} limpers; the tree models at most ${tree.maxLimpers}`);
+      }
       if (flags & FLAG_COLD_CALL_CUT) return fail("cold-call", `${position} cold-calls a re-raise`);
       if (flags & FLAG_MULTIWAY_CAP) return fail("multiway", `${position} would be a fourth player in the pot`);
       return fail("off-tree", `${position} calls where the tree has no call`);

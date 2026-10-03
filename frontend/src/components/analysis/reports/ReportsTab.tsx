@@ -25,20 +25,22 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
-import type { ChartNode, ChartSet } from "../../../lib/charts";
+import { CHART_SETS, ensureChartSets, type ChartLibrary, type ChartNode, type ChartPosition } from "../../../lib/charts";
 import {
+  NINE_TABLE_ORDER,
   POSTFLOP_ROLES,
-  REPORT_STATS,
-  defenceTable,
-  nodeReport,
+  TABLE_ORDER,
+  buildReports,
   nodeSamples,
   postflopRoles,
-  statReport,
+  sampleSets,
   walkLine,
+  type ReportsBuild,
   type Comparison,
   type DefenceRow,
   type NodeReport,
   type PostflopCount,
+  type SplitKey,
   type StatReport,
   type Verdict,
 } from "../../../lib/analysis/reports";
@@ -67,6 +69,8 @@ import analysisStyles from "../analysis.module.css";
 import {
   EMPTY_REPORTS_STATE,
   REPORT_POSITIONS,
+  REPORT_SET_KEY,
+  parseReportSet,
   parseReportsState,
   reportsFilters,
   reportsQuery,
@@ -94,6 +98,7 @@ const STAT_CONCEPTS: Record<string, ConceptId> = {
   "fold-to-three-bet-oop": "three-bet",
   "four-bet": "three-bet",
   squeeze: "squeeze",
+  iso: "steal",
 };
 
 /** Glyphs, not words: the same in every language, beside the verdict's word. */
@@ -113,58 +118,56 @@ interface ReportsTabProps {
   refreshToken?: number;
 }
 
-interface Built {
-  nodes: NodeReport[];
-  unmatched: number;
-  stats: StatReport[];
-  defence: DefenceRow[];
-}
-
-function build(charts: ChartSet, report: NodeActionsReport): Built {
-  const samples = nodeSamples(report.actions, report.classes);
-  const byKey = new Map(samples.map((sample) => [sample.key, sample]));
-  const nodes: NodeReport[] = [];
-  let unmatched = 0;
-  for (const sample of samples) {
-    const one = nodeReport(charts, sample);
-    if (one) nodes.push(one);
-    else unmatched += sample.decisions;
-  }
-  nodes.sort((a, b) => b.sample.decisions - a.sample.decisions || a.node.line.length - b.node.line.length || a.node.line.localeCompare(b.node.line));
-  return {
-    nodes,
-    unmatched,
-    stats: REPORT_STATS.map((id) => statReport(charts, byKey, id)),
-    defence: defenceTable(charts, byKey),
-  };
-}
+/** The seats of a chart set id's table (A2c: 6-max or 9-max). */
+const seatsOfSet = (id: string): readonly ChartPosition[] =>
+  CHART_SETS.find((spec) => spec.id === id)?.players === 9 ? NINE_TABLE_ORDER : TABLE_ORDER;
 
 export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) {
   const t = useDict().analysis.reports;
   const auth = useAuth();
   const [state, setState] = useState<ReportsState>(() => parseReportsState(initialQuery));
+  // The chart set filter (A2d): null reads every set the player has decisions on.
+  const [setFilter, setSetFilter] = useState<string | null>(() => parseReportSet(initialQuery));
   // The latest answer, tagged with the request it answers: "loading" is
   // derived (the answer on screen is for an older request), so the effect
   // below never sets state before its fetch resolves.
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [data, setData] = useState<{ coverage: AnalysisCoverage | null; report: NodeActionsReport | null } | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const [charts, setCharts] = useState<ChartSet | null>(null);
+  const [charts, setCharts] = useState<ChartLibrary | null>(null);
+  // The sets loaded so far for this report's decisions; the build reruns when it grows.
+  const [loadedSets, setLoadedSets] = useState("");
   const [chartsError, setChartsError] = useState<string | null>(null);
   const [howOpen, setHowOpen] = useState(false);
 
   const filters = useMemo(() => reportsFilters(state), [state]);
   const filterKey = JSON.stringify(filters);
 
-  const updateState = useCallback((patch: Partial<ReportsState>) => {
-    setState((current) => {
-      const next = { ...current, ...patch };
-      if (typeof window !== "undefined") {
-        window.history.replaceState(window.history.state, "", paths.analysisReports(reportsQuery(next)));
-      }
-      return next;
-    });
+  const writeAddress = useCallback((next: ReportsState, set: string | null) => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(reportsQuery(next));
+    if (set) params.set(REPORT_SET_KEY, set);
+    window.history.replaceState(window.history.state, "", paths.analysisReports(params.toString()));
   }, []);
+
+  const updateState = useCallback(
+    (patch: Partial<ReportsState>) => {
+      setState((current) => {
+        const next = { ...current, ...patch };
+        writeAddress(next, setFilter);
+        return next;
+      });
+    },
+    [setFilter, writeAddress],
+  );
+
+  const updateSet = useCallback(
+    (set: string | null) => {
+      setSetFilter(set);
+      writeAddress(state, set);
+    },
+    [state, writeAddress],
+  );
 
   useEffect(() => {
     let live = true;
@@ -208,7 +211,35 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
   const message = answer?.message ?? null;
   const coverage = data?.coverage ?? null;
   const report = data?.report ?? null;
-  const built = useMemo(() => (charts && report ? build(charts, report) : null), [charts, report]);
+  const samples = useMemo(() => (report ? nodeSamples(report.actions, report.classes) : null), [report]);
+  const setsWithDecisions = useMemo(() => (samples ? sampleSets(samples) : []), [samples]);
+  // Load every set the player's decisions were graded on (each set is its own chunk).
+  const setKey = setsWithDecisions
+    .map((entry) => entry.set)
+    .filter((id) => CHART_SETS.some((spec) => spec.id === id))
+    .join(",");
+  useEffect(() => {
+    if (!charts || !setKey) return;
+    let live = true;
+    ensureChartSets(charts, setKey.split(","))
+      .then(() => {
+        if (live) setLoadedSets(setKey);
+      })
+      .catch((error: unknown) => {
+        if (live) setChartsError(error instanceof Error ? error.message : String(error));
+      });
+    return () => {
+      live = false;
+    };
+  }, [charts, setKey]);
+  const activeSet = setFilter && setsWithDecisions.some((entry) => entry.set === setFilter) ? setFilter : null;
+  // Built once the sets the decisions name are in the library (`loadedSets` is the key they loaded for).
+  const ready = !!charts && !!samples && (setKey === "" || loadedSets === setKey);
+  const built: ReportsBuild | null = useMemo(
+    () => (ready && charts && samples ? buildReports(charts, samples, activeSet) : null),
+    [ready, charts, samples, activeSet],
+  );
+  const multiTable = built ? new Set(built.sets.map((id) => seatsOfSet(id).length)).size > 1 : false;
 
   if (!isDatabaseConfigured) {
     return (
@@ -293,6 +324,9 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
       <HowToRead open={howOpen} />
 
       <FilterBar state={state} facets={report.facets} onChange={updateState} />
+      {setsWithDecisions.length > 1 ? (
+        <SetFilter sets={setsWithDecisions} value={activeSet} onChange={updateSet} />
+      ) : null}
 
       {chartsError ? <p className="notice notice--error">{t.chartsFailed(chartsError)}</p> : null}
       {loading ? (
@@ -311,9 +345,9 @@ export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) 
 
       {built && report.decisions > 0 && charts ? (
         <>
-          <StatsSection stats={built.stats} filters={filters} onHow={() => setHowOpen(true)} />
-          <DefenceSection rows={built.defence} />
-          <NodesSection nodes={built.nodes} filters={filters} onHow={() => setHowOpen(true)} />
+          <StatsSection stats={built.stats} filters={filters} multiTable={multiTable} onHow={() => setHowOpen(true)} />
+          <DefenceSection rows={built.defence} multiTable={multiTable} />
+          <NodesSection nodes={built.nodes} filters={filters} multiSet={built.sets.length > 1} onHow={() => setHowOpen(true)} />
         </>
       ) : null}
 
@@ -455,6 +489,53 @@ export function FilterBar({
   );
 }
 
+/**
+ * Which chart sets the report reads (A2d): every set the player has graded
+ * decisions on - each node against its own set, the stats pooling them by
+ * the player's decisions - or one table and depth.
+ */
+function SetFilter({
+  sets,
+  value,
+  onChange,
+}: {
+  sets: Array<{ set: string; decisions: number }>;
+  value: string | null;
+  onChange: (set: string | null) => void;
+}) {
+  const t = useDict().analysis;
+  const count = countIn(useIntlLocale());
+  return (
+    <div className={styles.filters} role="group" aria-label={t.reports.sets.label}>
+      <label className="field">
+        <span className="field__label">{t.reports.sets.label}</span>
+        <select value={value ?? ""} onChange={(event) => onChange(event.target.value || null)}>
+          <option value="">{t.reports.sets.all(sets.length)}</option>
+          {sets.map((entry) => {
+            const spec = CHART_SETS.find((s) => s.id === entry.set);
+            const name = spec ? t.charts.setOption(spec.players, spec.stackBb) : entry.set;
+            return (
+              <option key={entry.set} value={entry.set}>
+                {t.reports.sets.option(name, count(entry.decisions))}
+              </option>
+            );
+          })}
+        </select>
+      </label>
+      <p className={styles.muted}>{t.reports.sets.note}</p>
+    </div>
+  );
+}
+
+/** A split's label, with its table when the report reads both 6-max and 9-max sets. */
+function useSplitLabel(multiTable: boolean) {
+  const t = useDict().analysis.reports;
+  return (key: SplitKey) => {
+    const label = t.splitLabel(key.position, key.versus);
+    return multiTable ? t.sets.tableTag(label, key.table ?? 6) : label;
+  };
+}
+
 /* ----------------------------------------------------------- comparisons - */
 
 function VerdictTag({ verdict }: { verdict: Verdict }) {
@@ -534,7 +615,17 @@ function ComparisonHead({ first, onHow }: { first: string; onHow: () => void }) 
 
 /* ------------------------------------------------------------------ stats - */
 
-function StatsSection({ stats, filters, onHow }: { stats: StatReport[]; filters: AnalysisFilters; onHow: () => void }) {
+function StatsSection({
+  stats,
+  filters,
+  multiTable,
+  onHow,
+}: {
+  stats: StatReport[];
+  filters: AnalysisFilters;
+  multiTable: boolean;
+  onHow: () => void;
+}) {
   const t = useDict().analysis.reports;
   return (
     <section className="card stats-group" aria-labelledby="reports-stats">
@@ -548,7 +639,7 @@ function StatsSection({ stats, filters, onHow }: { stats: StatReport[]; filters:
             <ComparisonHead first={t.columns.stat} onHow={onHow} />
           </thead>
           {stats.map((stat) => (
-            <StatRow key={stat.id} stat={stat} filters={filters} />
+            <StatRow key={stat.id} stat={stat} filters={filters} multiTable={multiTable} />
           ))}
         </table>
       </div>
@@ -556,7 +647,7 @@ function StatsSection({ stats, filters, onHow }: { stats: StatReport[]; filters:
   );
 }
 
-function StatRow({ stat, filters }: { stat: StatReport; filters: AnalysisFilters }) {
+function StatRow({ stat, filters, multiTable }: { stat: StatReport; filters: AnalysisFilters; multiTable: boolean }) {
   const t = useDict().analysis.reports;
   const count = countIn(useIntlLocale());
   const [open, setOpen] = useState(false);
@@ -589,7 +680,7 @@ function StatRow({ stat, filters }: { stat: StatReport; filters: AnalysisFilters
               <p>{t.stats.definitions[stat.id]}</p>
               <p className={styles.muted}>{t.stats.tips[stat.id]}</p>
               {STAT_CONCEPTS[stat.id] ? <LearnLink concept={STAT_CONCEPTS[stat.id]} /> : null}
-              <SplitTable stat={stat} />
+              <SplitTable stat={stat} multiTable={multiTable} />
               {stat.nodes.length > 0 ? <NodeHands nodes={stat.nodes} filters={filters} /> : null}
             </div>
           ) : null}
@@ -599,9 +690,10 @@ function StatRow({ stat, filters }: { stat: StatReport; filters: AnalysisFilters
   );
 }
 
-function SplitTable({ stat }: { stat: StatReport }) {
+function SplitTable({ stat, multiTable }: { stat: StatReport; multiTable: boolean }) {
   const t = useDict().analysis.reports;
   const count = countIn(useIntlLocale());
+  const splitLabel = useSplitLabel(multiTable);
   return (
     <div className="stats-table-wrap">
       <table className={`stats-table ${styles.table} ${styles.inner}`}>
@@ -629,8 +721,8 @@ function SplitTable({ stat }: { stat: StatReport }) {
         </thead>
         <tbody>
           {stat.splits.map((split) => (
-            <tr key={`${split.key.position}|${split.key.versus ?? ""}`}>
-              <th scope="row">{t.splitLabel(split.key.position, split.key.versus)}</th>
+            <tr key={`${split.key.table ?? 6}|${split.key.position}|${split.key.versus ?? ""}`}>
+              <th scope="row">{splitLabel(split.key)}</th>
               <td className="num">{count(split.comparison.decisions)}</td>
               <ComparisonCells c={split.comparison} />
             </tr>
@@ -643,9 +735,10 @@ function SplitTable({ stat }: { stat: StatReport }) {
 
 /* ---------------------------------------------------------------- defence - */
 
-function DefenceSection({ rows }: { rows: DefenceRow[] }) {
+function DefenceSection({ rows, multiTable }: { rows: DefenceRow[]; multiTable: boolean }) {
   const t = useDict().analysis.reports;
   const count = countIn(useIntlLocale());
+  const splitLabel = useSplitLabel(multiTable);
   const cell = (label: string, c: Comparison) => {
     const yours = c.yours === null ? "—" : t.pct(c.yours);
     const reference = c.reference === null ? "—" : t.pct(c.reference);
@@ -690,8 +783,8 @@ function DefenceSection({ rows }: { rows: DefenceRow[] }) {
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={`${row.key.position}|${row.key.versus ?? ""}`}>
-                <th scope="row">{t.splitLabel(row.key.position, row.key.versus)}</th>
+              <tr key={`${row.key.table ?? 6}|${row.key.position}|${row.key.versus ?? ""}`}>
+                <th scope="row">{splitLabel(row.key)}</th>
                 <td className="num">{count(row.fold.decisions)}</td>
                 {cell(t.defence.fold, row.fold)}
                 {cell(t.defence.call, row.call)}
@@ -713,13 +806,23 @@ function useSpotLabel() {
     (node: ChartNode) =>
       t.spotLabel(
         node.actor,
-        lineSteps(node.line).map((step) => ({ position: step.position, verb: t.verbs[step.verb] ?? step.verb })),
+        lineSteps(node.line, node.seats).map((step) => ({ position: step.position, verb: t.verbs[step.verb] ?? step.verb })),
       ),
     [t],
   );
 }
 
-function NodesSection({ nodes, filters, onHow }: { nodes: NodeReport[]; filters: AnalysisFilters; onHow: () => void }) {
+function NodesSection({
+  nodes,
+  filters,
+  multiSet,
+  onHow,
+}: {
+  nodes: NodeReport[];
+  filters: AnalysisFilters;
+  multiSet: boolean;
+  onHow: () => void;
+}) {
   const en = useDict().analysis;
   const t = en.reports;
   const [category, setCategory] = useState<SpotCategory | "">("");
@@ -749,7 +852,7 @@ function NodesSection({ nodes, filters, onHow }: { nodes: NodeReport[]; filters:
       <ul className={styles.nodes}>
         {visible.map((report) => (
           <li key={report.sample.key}>
-            <NodeItem report={report} filters={filters} onHow={onHow} />
+            <NodeItem report={report} filters={filters} multiSet={multiSet} onHow={onHow} />
           </li>
         ))}
       </ul>
@@ -762,9 +865,22 @@ function NodesSection({ nodes, filters, onHow }: { nodes: NodeReport[]; filters:
   );
 }
 
-function NodeItem({ report, filters, onHow }: { report: NodeReport; filters: AnalysisFilters; onHow: () => void }) {
-  const t = useDict().analysis.reports;
-  const label = useSpotLabel()(report.node);
+function NodeItem({
+  report,
+  filters,
+  multiSet,
+  onHow,
+}: {
+  report: NodeReport;
+  filters: AnalysisFilters;
+  multiSet: boolean;
+  onHow: () => void;
+}) {
+  const en = useDict().analysis;
+  const t = en.reports;
+  const spot = useSpotLabel()(report.node);
+  const spec = CHART_SETS.find((s) => s.id === report.sample.set);
+  const label = multiSet && spec ? t.sets.nodeTag(spot, en.charts.setOption(spec.players, spec.stackBb)) : spot;
   const [open, setOpen] = useState(false);
   // The line the summary quotes: the widest gap among the actions that
   // deviate, so "Deviates" never sits next to a gap that does not.
@@ -807,7 +923,7 @@ function NodeItem({ report, filters, onHow }: { report: NodeReport; filters: Ana
               </tbody>
             </table>
           </div>
-          <Link href={paths.analysisCharts(report.node.line)} className={analysisStyles.learnInline}>
+          <Link href={paths.analysisCharts(report.node.line, null, report.sample.set)} className={analysisStyles.learnInline}>
             {t.nodes.study}
           </Link>
           <NodeHands nodes={[report.sample.key]} filters={filters} single />
@@ -863,8 +979,11 @@ function NodeHands({ nodes, filters, single = false }: { nodes: string[]; filter
     iso ? dateFormat(locale, { day: "2-digit", month: "2-digit", year: "2-digit" }).format(new Date(iso)) : "";
   const spotLabel = (row: NodeHandRow) =>
     en.charts.spotLabel(
-      walkLine(row.line).next ?? "",
-      lineSteps(row.line).map((step) => ({ position: step.position, verb: en.charts.verbs[step.verb] ?? step.verb })),
+      walkLine(row.line, seatsOfSet(row.set)).next ?? "",
+      lineSteps(row.line, seatsOfSet(row.set)).map((step) => ({
+        position: step.position,
+        verb: en.charts.verbs[step.verb] ?? step.verb,
+      })),
     );
 
   return (

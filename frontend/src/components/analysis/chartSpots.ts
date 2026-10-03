@@ -6,7 +6,7 @@
  * Reads chart nodes only through `lib/charts`' public types.
  */
 
-import { handClassOf, type ChartNode, type ChartSet } from "../../lib/charts";
+import { handClassOf, isOpenLimpNode, type ChartNode, type ChartSet } from "../../lib/charts";
 
 /**
  * Table order of the 6-max sets, as their line keys are written
@@ -14,7 +14,7 @@ import { handClassOf, type ChartNode, type ChartSet } from "../../lib/charts";
  */
 export const CHART_POSITIONS = ["UTG", "HJ", "CO", "BTN", "SB", "BB"] as const;
 
-export const SPOT_CATEGORIES = ["rfi", "vs-open", "vs-3bet", "vs-4bet", "squeeze", "bvb"] as const;
+export const SPOT_CATEGORIES = ["rfi", "vs-open", "vs-3bet", "vs-4bet", "squeeze", "bvb", "vs-limp"] as const;
 export type SpotCategory = (typeof SPOT_CATEGORIES)[number];
 
 export type StepVerb = "open" | "iso" | "limp" | "call" | "3bet" | "4bet" | "5bet" | "allin" | "check";
@@ -71,9 +71,14 @@ function blindVersusBlind(node: ChartNode): boolean {
   return node.line.startsWith("f".repeat(node.seats.length - 2));
 }
 
-/** The categories a node is listed under in the browser. The SB's open is both an RFI and a BvB spot. */
+/**
+ * The categories a node is listed under in the browser. The SB's open is both
+ * an RFI and a BvB spot; everything behind a limp from a seat other than the
+ * blinds (`charts/4`) is a limped pot.
+ */
 export function categoriesOf(node: ChartNode): SpotCategory[] {
   if (blindVersusBlind(node)) return node.scenario === "rfi" ? ["rfi", "bvb"] : ["bvb"];
+  if (isOpenLimpNode(node)) return ["vs-limp"];
   switch (node.scenario) {
     case "rfi":
       return ["rfi"];
@@ -91,10 +96,19 @@ export function categoriesOf(node: ChartNode): SpotCategory[] {
   }
 }
 
+/**
+ * Limped-pot nodes the browser lists (`charts/4` keeps them down to 1e-6 of
+ * hands; a list of hundreds helps nobody): those reached at least this often.
+ * A rarer one still opens from a link (`?line=`), and grades all the same.
+ */
+export const BROWSE_LIMP_REACH = 1e-4;
+
 /** Nodes of one category, by actor in table order, then by line. */
 export function nodesIn(charts: ChartSet, category: SpotCategory): ChartNode[] {
   const seats: readonly string[] = charts.game.positions;
-  const out = [...charts.nodes.values()].filter((node) => categoriesOf(node).includes(category));
+  const out = [...charts.nodes.values()].filter(
+    (node) => categoriesOf(node).includes(category) && (category !== "vs-limp" || node.reach >= BROWSE_LIMP_REACH),
+  );
   return out.sort(
     (a, b) =>
       seats.indexOf(a.actor) - seats.indexOf(b.actor) ||

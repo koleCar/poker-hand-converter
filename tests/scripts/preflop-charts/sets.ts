@@ -13,13 +13,22 @@
  *   depth - the realisation is re-measured on their own ranges at their own
  *   stack-to-pot ratios - starting from `charts/2`'s fitted model, with two
  *   rounds instead of three (the start is already a fit).
+ * - `charts/4` (A2d) adds the limp tree to every set (`maxLimpers`, the
+ *   tremble `limpFloor`, nodes behind a limp kept down to `minLimpReach`) and
+ *   solves it once with the set's own committed realisation fit
+ *   (`reuseFit`): no new measurement rounds. The fit's spots are heads-up
+ *   raised pots and the blinds' limped pot, whose ranges a tremble of 0.5%
+ *   barely moves (docs/CHARTS.md §6.7), and re-measuring every set would
+ *   cost hours more. The fit's own record (`model.realisationFit`) is carried
+ *   over with a note, so a rerun reads the same model and writes the same
+ *   bytes.
  */
 
 import type { PreflopPosition, PreflopSizing } from "../../../frontend/src/lib/solver/preflopTree.js";
 
 export interface SetConfig {
   id: string;
-  version: "charts/2" | "charts/3";
+  version: "charts/2" | "charts/3" | "charts/4";
   players: readonly PreflopPosition[];
   stackBb: number;
   sizing?: Partial<PreflopSizing>;
@@ -27,7 +36,21 @@ export interface SetConfig {
   /** The realisation model the first round solves with. */
   start: "charts/1" | "charts/2-fit";
   fitName: string;
+  /** Solve once with the committed set's own fitted realisation model (no rounds). */
+  reuseFit?: boolean;
+  /** Open limps up to this many limpers (`charts/4`). */
+  maxLimpers?: number;
+  /** The open limp's tremble. */
+  limpFloor?: number;
+  /** Nodes behind an open limp are kept down to this reach. */
+  minLimpReach?: number;
 }
+
+/**
+ * The limp tree of every `charts/4` set (docs/CHARTS.md §1.3): at most three
+ * limpers, a 0.5% tremble, nodes behind a limp kept down to 1e-6 of hands.
+ */
+export const LIMPS = { maxLimpers: 3, limpFloor: 0.005, minLimpReach: 1e-6 } as const;
 
 const SIX: readonly PreflopPosition[] = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
 const NINE: readonly PreflopPosition[] = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
@@ -56,8 +79,18 @@ const a2c = (players: readonly PreflopPosition[], stackBb: number, sizing: Parti
   fitName: `charts/3-solver-fit-${players.length}max-${stackBb}bb`,
 });
 
+/** A `charts/4` set: the A2c configuration plus the limp tree, solved once on its committed fit. */
+const a2d = (config: SetConfig): SetConfig => ({ ...config, version: "charts/4", reuseFit: true, ...LIMPS });
+
+/**
+ * Every committed set, in the order the limp refusals of the owner's library
+ * ask for them (A2d: 9-max 100bb 399, 6-max 100bb 284, 6-max 150bb 90, 9-max
+ * 150bb 77, 9-max 200bb 60, 6-max 60bb 18, 6-max 200bb 3, 6-max 40bb 2).
+ * The 6-max 100bb set keeps `charts/2`'s sizes and its `charts/2` fit.
+ */
 export const SET_CONFIGS: readonly SetConfig[] = [
-  {
+  a2d(a2c(NINE, 100, STANDARD)),
+  a2d({
     id: "nlhe-cash-6max-100bb",
     version: "charts/2",
     players: SIX,
@@ -65,14 +98,13 @@ export const SET_CONFIGS: readonly SetConfig[] = [
     rounds: 3,
     start: "charts/1",
     fitName: "charts/2-solver-fit",
-  },
-  a2c(NINE, 100, STANDARD),
-  a2c(SIX, 150, STANDARD),
-  a2c(SIX, 200, STANDARD),
-  a2c(NINE, 150, STANDARD),
-  a2c(NINE, 200, STANDARD),
-  a2c(SIX, 60, STANDARD),
-  a2c(SIX, 40, SHORT),
+  }),
+  a2d(a2c(SIX, 150, STANDARD)),
+  a2d(a2c(NINE, 150, STANDARD)),
+  a2d(a2c(NINE, 200, STANDARD)),
+  a2d(a2c(SIX, 60, STANDARD)),
+  a2d(a2c(SIX, 200, STANDARD)),
+  a2d(a2c(SIX, 40, SHORT)),
 ];
 
 export function setConfig(id: string): SetConfig {

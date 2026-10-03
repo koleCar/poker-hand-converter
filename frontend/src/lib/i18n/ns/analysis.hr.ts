@@ -144,6 +144,8 @@ const gradeWords = {
 /** "raise na 2,5 bb", "bet 3,1 bb (33 %)", "call", "all-in". */
 function optionLabel(option: OptionAnalysis): string {
   if (option.allIn) return "all-in";
+  // A preflop call to one big blind is a limp (charts/4 has them from every seat).
+  if (option.action === "call" && option.sizeBb === 1) return "limp";
   if (option.action === "bet" && option.sizeBb !== undefined && option.sizePot !== undefined) {
     return `bet ${bb(option.sizeBb)} (${pct(option.sizePot)})`;
   }
@@ -657,7 +659,7 @@ export const analysisHr: Dict["analysis"] = {
     straddle: "Straddle je pomaknuo blindove",
     "stack-depth": "Stackovi izvan 100 bb ±20 %",
     "table-size": "Nije stol za šest igrača",
-    model: "Preflop chartovi (charts/2 i charts/3) još podcjenjuju nekoliko implied-odds ruku (UTG-ove male parove i suited konektore) i flat buttona protiv cutoff opena",
+    model: "Preflop chartovi (od charts/2 do charts/4) još podcjenjuju nekoliko implied-odds ruku (UTG-ove male parove i suited konektore) i flat buttona protiv cutoff opena",
     "short-handed": "Manje igrača od mjesta u setu chartova, čitano uz foldane najranije pozicije",
     "stack-depth-near": "Stackovi unutar 20 % od dubine seta chartova, ali ne točno na njoj",
     "off-tree-size": "Raise daleko od veličine u chartovima: ocjena ograničena na Netočno",
@@ -668,6 +670,7 @@ export const analysisHr: Dict["analysis"] = {
     "solver-unconverged": "Rješavanje je stalo iznad cilja (0,5 % pota na riveru, 1 % na turnu) od ravnoteže",
     "range-cap": "Solverova ocjena ograničena na Grešku: heuristički suženi rasponi ne mogu nositi Grubu grešku",
     "range-sensitive": "Solverova ocjena ovisi o tome koliko se rasponi sužavaju: prikazana je blaža od dvije",
+    "limp-tremble": "Limpani pot: chartovi tu sami gotovo ne limpaju, pa pretpostavljaju da limper može imati bilo koju ruku",
     "coarse-river": "Turn riješen s grubim riverom ispod njega: jedna veličina beta i all-in",
     "flop-mapped": "Flop očitan s najbližeg riješenog flopa iste teksture, a ne riješen sam",
     "library-bucketed": "Tvoja ruka očitana po kategoriji (gotova ruka i draw) u biblioteci flopova, a ne kombinacija po kombinacija",
@@ -975,7 +978,7 @@ export const analysisHr: Dict["analysis"] = {
       "Railova vlastita referenca za No-Limit Hold'em cash — šest igrača od 40 do 200 big blindova duboko, puni stol od 100 do 200 — izračunata našim solverom, nikad prepisana iz tuđih chartova. Odaberi stol i situaciju: svaka ruka pokazuje koliko često referenca igra svaku akciju, a kad prijeđeš mišem preko ruke ili je fokusiraš, vidiš koliko svaka akcija vrijedi.",
     caveatTitle: "Model, s poznatom slabošću",
     caveat:
-      "Ovi chartovi (charts/2, a charts/3 za ostale stolove i dubine) vrijednost flopa računaju modelom realizacije equityja prilagođenim našem postflop solveru. Mjerenje checka flop, pa su ruke koje dobivaju kroz implied odds još malo podcijenjene: UTG folda 55–22, 87s–54s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge.",
+      "Ovi chartovi (charts/4) vrijednost flopa računaju modelom realizacije equityja prilagođenim našem postflop solveru. Mjerenje checka flop, pa su ruke koje dobivaju kroz implied odds još malo podcijenjene: UTG folda 55–22, 87s–54s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge. Limpani potovi su uključeni: referenca sama rijetko limpa izvan small blinda, pa iza limpa pretpostavlja da limper može imati bilo koju ruku.",
     loading: "Učitavam chartove…",
     failed: (message: string) => `Chartovi se nisu učitali: ${message}`,
     table: "Stol i dubina",
@@ -989,10 +992,11 @@ export const analysisHr: Dict["analysis"] = {
       "vs-4bet": "Protiv 4-beta ili all-ina",
       squeeze: "Squeeze",
       bvb: "Blind protiv blinda",
+      "vs-limp": "Pot s limperima",
     } as Record<string, string>,
     verbs: {
       open: "otvori",
-      iso: "raisea limp",
+      iso: "izolira",
       limp: "limpa",
       call: "calla",
       "3bet": "3-beta",
@@ -1006,7 +1010,9 @@ export const analysisHr: Dict["analysis"] = {
     action: (action: string, toBb: number) =>
       action === "raise"
         ? `Raise na ${bb(toBb)}`
-        : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
+        : action === "call" && toBb === 1
+          ? "Limp"
+          : (({ fold: "Fold", check: "Check", call: "Call", allin: "All-in" }) as Record<string, string>)[action] ?? action,
     legend: "Akcije",
     totals: "Cijeli raspon",
     total: (label: string, share: number, count: number) => `${label} ${pct1(share)} · ${combos(Math.round(count))}`,

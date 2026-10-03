@@ -39,6 +39,23 @@
  * column by column from their transpose, skipping opponent classes with zero
  * reach, so narrow 4-bet and 5-bet ranges cost a fraction of a full product.
  *
+ * **Trembling limps** (`limpFloor`, A2d). A tree with open limps
+ * (`maxLimpers`) has nodes behind a limp that the equilibrium may never reach:
+ * if no seat but the small blind ever limps, nobody's strategy facing a limp
+ * is trained - CFR weights a player's regrets by the opponents' reach, and the
+ * limper's is zero. So the game is **perturbed** (Selten's trembling hand; the
+ * ε-perturbed games of Farina, Kroer and Sandholm): at every unopened decision
+ * of a seat other than the blinds, every class limps with probability at
+ * least `ε`, `y = (1 - ε)·x + ε·e_limp`. Regret matching runs on the free
+ * part `x` (the regrets use `x`'s value as the baseline, the strategy sum
+ * averages `x`), and the game is played with `y` - in every traversal, the
+ * best response, the evaluation and `averageStrategy`. The best response is
+ * the perturbed game's (`(1 - ε)·max + ε·limp`), so NashConv is measured in
+ * the game that is solved. A limper's range behind a limp is then its
+ * equilibrium limps plus `ε` of every class - "a limper may hold anything" -
+ * and its own later decisions (facing an isolation raise) are trained for
+ * every class, as any player's are.
+ *
  * **Deterministic.** No clock, no random source, a fixed summation order.
  */
 
@@ -69,6 +86,12 @@ export interface PreflopGame {
   cardRemoval?: boolean;
   /** How a pot that sees a flop is shared (default: `CHARTS1_REALISATION`). */
   realisation?: RealisationModel;
+  /**
+   * The open limp's tremble (`charts/4`, A2d; 0 or absent: none): at every
+   * unopened decision of a seat other than the blinds, every class limps at
+   * least this often. See "Trembling limps" in the header.
+   */
+  limpFloor?: number;
 }
 
 export interface PreflopExploitability {
@@ -99,6 +122,13 @@ interface Terminal {
   net: number;
   /** For live players a and b: share matrix (transposed) of a against b; `null` on the diagonal. */
   share: (Float64Array | null)[][];
+  /**
+   * Multiway pots: `S_ab π_b` per ordered pair (`[a * n + b]`) and the mass
+   * `R_b` per player, kept between traversals (see `pairProduct`), with the
+   * stamp each was computed at. Allocated on first use.
+   */
+  products: (Float64Array | null)[] | null;
+  stamps: Float64Array | null;
 }
 
 export class PreflopSolver {
@@ -110,6 +140,10 @@ export class PreflopSolver {
   readonly offset: Int32Array;
   readonly regrets: Float64Array;
   readonly strategySum: Float64Array;
+  /** The limp tremble `ε` (0: none). */
+  readonly limpFloor: number;
+  /** Per node: the child index of a trembling limp edge, or -1. */
+  readonly floorEdge: Int8Array;
   /** Per action per class EV in bb, from the last `evaluate()`. */
   ev: Float64Array | null = null;
   iterations = 0;
@@ -128,8 +162,9 @@ export class PreflopSolver {
   private readonly foldMass: (Float64Array | null)[] = [];
   private readonly cfvBuf: Float64Array[] = [];
   private readonly stratBuf: Float64Array[] = [];
+  private readonly playBuf: Float64Array[] = [];
+  private readonly baseBuf = new Float64Array(H);
   private readonly shareN = new Float64Array(H);
-  private readonly tmpT = new Float64Array(H);
   private readonly tmpW = new Float64Array(H);
   private readonly tmpM = new Float64Array(H);
   private readonly tmpX = new Float64Array(H);
@@ -148,6 +183,16 @@ export class PreflopSolver {
   private dPos = 0;
   private dNeg = 0;
   private wStrat = 1;
+  /**
+   * Cache stamps for the multiway products (`pairProduct`): a player's reach
+   * at a terminal changes only when its own regrets do - in its own CFR
+   * traversal - so a product `S_ab π_b` stays valid until `b`'s next one.
+   * `epoch[b]` counts those traversals; `generation` changes with every
+   * `iterate`, `exploitability` and `evaluate` call (a change of mode, or
+   * regrets set from outside between calls).
+   */
+  private readonly epoch: Int32Array;
+  private generation = 0;
 
   constructor(game: PreflopGame, params: Partial<DcfrParams> = {}) {
     this.game = game;
@@ -169,14 +214,28 @@ export class PreflopSolver {
     this.offset = offset;
     this.regrets = new Float64Array(total);
     this.strategySum = new Float64Array(total);
+    this.limpFloor = Math.max(0, game.limpFloor ?? 0);
+    this.floorEdge = new Int8Array(tree.size).fill(-1);
+    if (this.limpFloor > 0) {
+      for (let node = 0; node < tree.size; node += 1) {
+        if (tree.type[node] !== PF_ACTION || tree.level[node] !== 0) continue;
+        const actor = tree.players[tree.actor[node]];
+        if (actor === "SB" || actor === "BB") continue;
+        for (let a = 0; a < tree.childCount[node]; a += 1) {
+          if (tree.edgeCode[tree.childStart[node] + a] === "c") this.floorEdge[node] = a;
+        }
+      }
+    }
 
     this.reach = new Float64Array(n * H);
+    this.epoch = new Int32Array(n);
     for (let p = 0; p < n; p += 1) this.foldMass.push(null);
     for (let d = 0; d <= tree.maxDepth + 1; d += 1) {
       this.saveBuf.push(new Float64Array(H));
       this.foldBuf.push(new Float64Array(H));
       this.cfvBuf.push(new Float64Array(tree.maxChildren * H));
       this.stratBuf.push(new Float64Array(tree.maxChildren * H));
+      this.playBuf.push(new Float64Array(tree.maxChildren * H));
     }
 
     // Terminals and their share matrices, cached by (pot type, both roles).
@@ -234,7 +293,7 @@ export class PreflopSolver {
           }
         }
       }
-      this.terminals.set(node, { kind, live, pot, net, share });
+      this.terminals.set(node, { kind, live, pot, net, share, products: null, stamps: null });
     }
   }
 
@@ -249,9 +308,11 @@ export class PreflopSolver {
       this.dNeg = pb / (pb + 1);
       this.wStrat = Math.pow(t, gamma);
       this.mode = MODE_CFR;
+      if (k === 0) this.generation += 1;
       for (let p = 0; p < this.players; p += 1) {
         if (only && !only.includes(p)) continue;
         this.rootWalk(p);
+        this.epoch[p] += 1;
       }
     }
   }
@@ -261,6 +322,7 @@ export class PreflopSolver {
     const n = this.players;
     const bestResponse: number[] = [];
     const value: number[] = [];
+    this.generation += 1;
     for (let p = 0; p < n; p += 1) {
       this.mode = MODE_BEST;
       bestResponse.push(this.rootValue(p));
@@ -287,6 +349,7 @@ export class PreflopSolver {
     this.ev ??= new Float64Array(this.regrets.length);
     this.recordEv = true;
     const out: number[] = [];
+    this.generation += 1;
     try {
       this.mode = MODE_EVAL;
       for (let p = 0; p < this.players; p += 1) {
@@ -303,6 +366,7 @@ export class PreflopSolver {
     const count = this.tree.childCount[node];
     const out = new Float64Array(count * H);
     this.average(this.offset[node], count, out);
+    this.floor(node, count, out, out);
     return out;
   }
 
@@ -311,6 +375,7 @@ export class PreflopSolver {
     const count = this.tree.childCount[node];
     const out = new Float64Array(count * H);
     this.regretMatch(this.offset[node], count, out);
+    this.floor(node, count, out, out);
     return out;
   }
 
@@ -385,6 +450,14 @@ export class PreflopSolver {
       this.average(off, count, strat);
     }
     for (let i = 0; i < H; i += 1) save[i] = reach[base + i];
+    // The strategy played: `strat` itself, or its trembling version. The
+    // traverser's regrets and strategy sum keep the free part `strat`.
+    const fe = this.floorEdge[node];
+    let play = strat;
+    if (fe >= 0) {
+      if (q === p && mode === MODE_CFR) play = this.playBuf[depth];
+      this.floor(node, count, strat, play);
+    }
 
     if (q === p) {
       const cfv = this.cfvBuf[depth];
@@ -395,26 +468,28 @@ export class PreflopSolver {
           continue;
         }
         const s0 = a * H;
-        for (let i = 0; i < H; i += 1) reach[base + i] = save[i] * strat[s0 + i];
+        for (let i = 0; i < H; i += 1) reach[base + i] = save[i] * play[s0 + i];
         this.walk(child, depth + 1, cfv, a * H);
       }
       for (let i = 0; i < H; i += 1) reach[base + i] = save[i];
 
       if (mode === MODE_BEST) {
+        const eps = fe >= 0 ? this.limpFloor : 0;
         for (let i = 0; i < H; i += 1) {
           let best = cfv[i];
           for (let a = 1; a < count; a += 1) {
             const v = cfv[a * H + i];
             if (v > best) best = v;
           }
-          out[oOff + i] = best;
+          // In the perturbed game a best response still limps `ε`.
+          out[oOff + i] = fe >= 0 ? (1 - eps) * best + eps * cfv[fe * H + i] : best;
         }
         return;
       }
-      for (let i = 0; i < H; i += 1) out[oOff + i] = strat[i] * cfv[i];
+      for (let i = 0; i < H; i += 1) out[oOff + i] = play[i] * cfv[i];
       for (let a = 1; a < count; a += 1) {
         const s0 = a * H;
-        for (let i = 0; i < H; i += 1) out[oOff + i] += strat[s0 + i] * cfv[s0 + i];
+        for (let i = 0; i < H; i += 1) out[oOff + i] += play[s0 + i] * cfv[s0 + i];
       }
       if (mode === MODE_CFR) {
         const regrets = this.regrets;
@@ -422,12 +497,24 @@ export class PreflopSolver {
         const dPos = this.dPos;
         const dNeg = this.dNeg;
         const w = this.wStrat;
+        // The regret baseline is the free part's value: `out` itself without a tremble.
+        let baseline: Float64Array = out;
+        let bOff = oOff;
+        if (fe >= 0) {
+          baseline = this.baseBuf;
+          bOff = 0;
+          for (let i = 0; i < H; i += 1) baseline[i] = strat[i] * cfv[i];
+          for (let a = 1; a < count; a += 1) {
+            const s0 = a * H;
+            for (let i = 0; i < H; i += 1) baseline[i] += strat[s0 + i] * cfv[s0 + i];
+          }
+        }
         for (let a = 0; a < count; a += 1) {
           const s0 = a * H;
           const r0 = off + s0;
           for (let i = 0; i < H; i += 1) {
             const r = regrets[r0 + i];
-            regrets[r0 + i] = (r > 0 ? r * dPos : r * dNeg) + cfv[s0 + i] - out[oOff + i];
+            regrets[r0 + i] = (r > 0 ? r * dPos : r * dNeg) + cfv[s0 + i] - baseline[bOff + i];
             sums[r0 + i] += w * save[i] * strat[s0 + i];
           }
         }
@@ -452,7 +539,7 @@ export class PreflopSolver {
       const s0 = a * H;
       let any = 0;
       for (let i = 0; i < H; i += 1) {
-        const v = save[i] * strat[s0 + i];
+        const v = save[i] * play[s0 + i];
         reach[base + i] = v;
         any += v;
       }
@@ -565,13 +652,11 @@ export class PreflopSolver {
     share.fill(1);
     prodR.fill(1);
     for (const q of active) {
-      const rq = reach.subarray(q * H, q * H + H);
-      const A = this.tmpA;
-      matVecT(t.share[p][q] as Float64Array, rq, A);
-      this.massOf(rq, m);
+      const A = this.pairProduct(t, p, q);
+      const mq = this.pairProduct(t, q, q);
       for (let i = 0; i < H; i += 1) {
         share[i] *= A[i];
-        prodR[i] *= m[i];
+        prodR[i] *= mq[i];
       }
     }
     for (let i = 0; i < H; i += 1) {
@@ -582,8 +667,7 @@ export class PreflopSolver {
       weighted.set(reach.subarray(q * H, q * H + H));
       for (const r of active) {
         if (r === q) continue;
-        const T = this.tmpT;
-        matVecT(t.share[q][r] as Float64Array, reach.subarray(r * H, r * H + H), T);
+        const T = this.pairProduct(t, q, r);
         for (let j = 0; j < H; j += 1) weighted[j] *= T[j];
       }
       const mass = this.tmpM;
@@ -597,7 +681,50 @@ export class PreflopSolver {
     }
   }
 
+  /**
+   * At a multiway terminal: `S_ab π_b` for `a ≠ b` (a's expected pairwise
+   * share against b's reach), or `R_b` for `a = b`, computed once and kept
+   * until `b`'s strategy changes (`epoch`) or the solver changes mode
+   * (`generation`). The same numbers as computing them afresh - each depends
+   * on `b`'s reach alone, which only `b`'s own traversal changes - at a third
+   * to a half of the multiway cost (a pair is otherwise recomputed by every
+   * other live player's traversal).
+   */
+  private pairProduct(t: Terminal, a: number, b: number): Float64Array {
+    const n = this.players;
+    if (!t.products || !t.stamps) {
+      t.products = new Array(n * n).fill(null);
+      t.stamps = new Float64Array(n * n).fill(-1);
+    }
+    const k = a * n + b;
+    const stamp = this.generation * 1e7 + this.epoch[b];
+    let out = t.products[k];
+    if (out && t.stamps[k] === stamp) return out;
+    if (!out) {
+      out = new Float64Array(H);
+      t.products[k] = out;
+    }
+    const rb = this.reach.subarray(b * H, b * H + H);
+    if (a === b) this.massOf(rb, out);
+    else matVecT(t.share[a][b] as Float64Array, rb, out);
+    t.stamps[k] = stamp;
+    return out;
+  }
+
   /* --------------------------------------------------------- strategies - */
+
+  /** `out = (1 - ε)·x + ε·e_limp` at a trembling node; a copy of `x` elsewhere (nothing when in place). */
+  private floor(node: number, count: number, x: Float64Array, out: Float64Array): void {
+    const fe = this.floorEdge[node];
+    if (fe < 0) {
+      if (out !== x) out.set(x.subarray(0, count * H));
+      return;
+    }
+    const keep = 1 - this.limpFloor;
+    for (let k = 0; k < count * H; k += 1) out[k] = keep * x[k];
+    const s0 = fe * H;
+    for (let i = 0; i < H; i += 1) out[s0 + i] += this.limpFloor;
+  }
 
   private regretMatch(off: number, count: number, strat: Float64Array): void {
     const regrets = this.regrets;

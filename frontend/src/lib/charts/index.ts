@@ -26,6 +26,7 @@ export {
   CHART_SET_VERSIONS,
   CHARTS_VERSION,
   ChartFormatError,
+  isOpenLimpNode,
   loadCharts,
   serializeCharts,
   type ChartAction,

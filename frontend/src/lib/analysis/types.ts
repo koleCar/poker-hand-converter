@@ -54,8 +54,14 @@ import type { Position, Street } from "../phf/types";
  *               ranges - where every turn and river solve starts - come from
  *               the same sets, so postflop grades on those tables start from
  *               chart ranges instead of placeholders.
+ *   analysis/6  A2d: `charts/4` - limp trees in every set (open limps,
+ *               over-limps, isolation raises, the limper's answers; at most
+ *               three limpers), so decisions behind a limp are graded instead
+ *               of refused (`chart-limp`); a fourth limper is `chart-multiway`.
+ *               An opponent who open-limped keeps the placeholder limp range
+ *               (the charts' limper is the tremble: any hand).
  */
-export const ANALYSIS_VERSION = "analysis/5" as const;
+export const ANALYSIS_VERSION = "analysis/6" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -222,6 +228,13 @@ export interface Flag {
  *
  * Turn and river grades of a hand whose flop ranges came from the library
  * carry the mapping codes instead of `narrowing-heuristic` for the flop.
+ *
+ * Preflop chart grades (A2d) add:
+ *
+ * - `limp-tremble`      a preflop grade in a pot a seat other than the blinds
+ *                       limped (`charts/4`): the reference itself barely
+ *                       limps there, so it plays against a limper who may
+ *                       hold any hand (docs/CHARTS.md §1.3).
  */
 export const APPROXIMATIONS = [
   "heuristic",
@@ -245,6 +258,7 @@ export const APPROXIMATIONS = [
   "coarse-river",
   "flop-mapped",
   "library-bucketed",
+  "limp-tremble",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 

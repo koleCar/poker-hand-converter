@@ -84,6 +84,12 @@ export const ANY = "*";
 /** One finest spot, as `analysis_leaks` returns it. */
 export interface SpotRow {
   key: string;
+  /**
+   * The chart set the decisions were graded on (A2d,
+   * `20270303090000_analysis_leaks_sets.sql`); null or absent for decisions
+   * not graded from the charts. A spot key can head one row per set.
+   */
+  set?: string | null;
   street: string;
   scenario: string;
   /** Chart line for chart grades, empty otherwise. */
@@ -114,7 +120,20 @@ export interface SpotAttrs {
   villain: string;
   taken: string;
   best: string;
+  /**
+   * `"9max"` for a preflop chart spot on a full-ring set (A2d), whose seats
+   * share names with 6-max's but are other seats (9-max's UTG is three seats
+   * further from the button). Absent for 6-max and postflop, so their ids are
+   * what they were.
+   */
+  table?: typeof NINE_MAX_TABLE;
 }
+
+/** The table tag of a full-ring chart spot (`SpotAttrs.table`, the last part of its ids). */
+export const NINE_MAX_TABLE = "9max";
+
+/** Whether a chart set id is a full-ring set (`nlhe-cash-9max-100bb`). */
+export const isNineMaxSet = (set: string | null | undefined): boolean => !!set && /-9max-/.test(set);
 
 /**
  * The family a scenario belongs to, the level between a scenario and the
@@ -165,25 +184,33 @@ export function lineSeats(line: string, position: string): readonly ChartPositio
   return TABLE_ORDER;
 }
 
-/** The line's last raiser, or null when nobody has raised. */
-function lastAggressor(line: string, seats: readonly ChartPosition[]): string | null {
+/**
+ * The player the hero faces on a line: its last raiser, or - nobody having
+ * raised - its first limper from a seat other than the blinds (`charts/4`);
+ * null in an unopened pot and behind the small blind's completion alone.
+ */
+function lineVillain(line: string, seats: readonly ChartPosition[]): string | null {
   const steps = walkLine(line, seats).steps;
   for (let index = steps.length - 1; index >= 0; index -= 1) {
     if (steps[index].code === "r" || steps[index].code === "a") return steps[index].position;
   }
-  return null;
+  const limper = steps.find((step) => step.code === "c" && step.position !== "SB" && step.position !== "BB");
+  return limper ? limper.position : null;
 }
 
 /** A finest row's attributes (see the header for where each comes from). */
 export function spotAttrs(row: SpotRow): SpotAttrs {
   let hero = row.position || NONE;
   let villain = NONE;
+  let nine = false;
   // A chart grade carries its line; the UTG open's line is empty, and is still a chart node.
   if (row.street === "preflop" && (row.line !== "" || row.scenario === "unopened")) {
-    const seats = lineSeats(row.line, row.position);
+    // The row's own set names its table (A2d); rows without one, the line's walk.
+    const seats = row.set ? (isNineMaxSet(row.set) ? NINE_TABLE_ORDER : TABLE_ORDER) : lineSeats(row.line, row.position);
+    nine = seats === NINE_TABLE_ORDER;
     const walked = walkLine(row.line, seats);
     if (walked.next) hero = walked.next;
-    villain = lastAggressor(row.line, seats) ?? NONE;
+    villain = lineVillain(row.line, seats) ?? NONE;
   }
   return {
     street: row.street,
@@ -193,6 +220,7 @@ export function spotAttrs(row: SpotRow): SpotAttrs {
     villain,
     taken: row.taken,
     best: row.best,
+    ...(nine ? { table: NINE_MAX_TABLE } : {}),
   };
 }
 
@@ -206,20 +234,25 @@ export function atLevel(attrs: SpotAttrs, level: number): SpotAttrs {
     villain: level >= 1 ? ANY : attrs.villain,
     taken: attrs.taken,
     best: attrs.best,
+    // The table goes with the seats it names: once the hero's seat is dropped, so is it.
+    ...(attrs.table && level < 2 ? { table: attrs.table } : {}),
   };
 }
 
-/** A situation: the attributes without what was done there. */
-export const situationKey = (a: SpotAttrs) => [a.street, a.scenario, a.family, a.hero, a.villain].join("~");
-/** A leak's id: stable across reloads and filters, safe in a URL. */
-export const leakId = (a: SpotAttrs) => [a.street, a.scenario, a.family, a.hero, a.villain, a.taken, a.best].join("~");
+const tablePart = (a: SpotAttrs) => (a.table ? [a.table] : []);
+/** A situation: the attributes without what was done there (a full-ring spot ends in `~9max`). */
+export const situationKey = (a: SpotAttrs) => [a.street, a.scenario, a.family, a.hero, a.villain, ...tablePart(a)].join("~");
+/** A leak's id: stable across reloads and filters, safe in a URL (a full-ring spot ends in `~9max`). */
+export const leakId = (a: SpotAttrs) =>
+  [a.street, a.scenario, a.family, a.hero, a.villain, a.taken, a.best, ...tablePart(a)].join("~");
 
 /** The parts of a leak id, or null for anything that is not one. */
 export function parseLeakId(id: string): SpotAttrs | null {
   const parts = id.split("~");
-  if (parts.length !== 7 || parts.some((part) => !/^[A-Za-z0-9+*-]{1,40}$/.test(part))) return null;
+  if (parts.length !== 7 && !(parts.length === 8 && parts[7] === NINE_MAX_TABLE)) return null;
+  if (parts.some((part) => !/^[A-Za-z0-9+*-]{1,40}$/.test(part))) return null;
   const [street, scenario, family, hero, villain, taken, best] = parts;
-  return { street, scenario, family, hero, villain, taken, best };
+  return { street, scenario, family, hero, villain, taken, best, ...(parts[7] ? { table: NINE_MAX_TABLE } : {}) };
 }
 
 /** A row is part of some leak when its move was not the reference's, or was at the wrong size. */
@@ -267,6 +300,8 @@ export interface Leak {
   partial: boolean;
   /** Finest spot keys whose decisions this leak is made of (for `analysis_leak_hands`). */
   keys: string[];
+  /** Decisions of this wrong turn per chart set (A2d); empty off the charts. */
+  sets: Record<string, number>;
   /** Finest situations it covers (more than one: merged), as {@link situationKey}s. */
   situationKeys: string[];
   /** Decisions that took this wrong turn. */
@@ -314,7 +349,8 @@ interface Built {
 export function groupLeaks(input: readonly SpotRow[], options: GroupOptions): Leak[] {
   const minSample = options.minSample ?? MIN_SPOT_SAMPLE;
   const minEv = options.minEv ?? MIN_LEAK_EV_BB;
-  const rows = [...input].sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+  const order = (row: SpotRow) => `${row.key}\u0000${row.set ?? ""}`;
+  const rows = [...input].sort((a, b) => (order(a) < order(b) ? -1 : order(a) > order(b) ? 1 : 0));
 
   // Every graded decision counts towards its situation's frequency, per finest situation.
   const finestAttrs = new Map<SpotRow, SpotAttrs>();
@@ -388,8 +424,10 @@ export function groupLeaks(input: readonly SpotRow[], options: GroupOptions): Le
     let evLossBb = 0;
     let evLossPot = 0;
     const keys: string[] = [];
+    const sets: Record<string, number> = {};
     const situations = new Set<string>();
     for (const { row, finest } of group.rows) {
+      if (row.set) sets[row.set] = (sets[row.set] ?? 0) + row.decisions;
       decisions += row.decisions;
       mistakes += row.nonPerfect;
       serious += row.mistakes;
@@ -415,7 +453,8 @@ export function groupLeaks(input: readonly SpotRow[], options: GroupOptions): Le
       attrs: group.attrs,
       level,
       partial: level > 0 && (finerCache.get(level)?.has(leakId(group.attrs)) ?? false),
-      keys: keys.sort(),
+      keys: [...new Set(keys)].sort(),
+      sets,
       situationKeys: [...situations].sort(),
       decisions,
       mistakes,
@@ -689,9 +728,11 @@ export function comparePeriods(current: readonly SpotRow[], prior: readonly Spot
 export function mergeRows(rows: readonly SpotRow[]): SpotRow[] {
   const byKey = new Map<string, SpotRow>();
   for (const row of rows) {
-    const seen = byKey.get(row.key);
+    // One row per finest spot and chart set (A2d), as the database sums them.
+    const id = `${row.key}\u0000${row.set ?? ""}`;
+    const seen = byKey.get(id);
     if (!seen) {
-      byKey.set(row.key, { ...row });
+      byKey.set(id, { ...row });
       continue;
     }
     seen.decisions += row.decisions;

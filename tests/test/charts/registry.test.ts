@@ -125,7 +125,8 @@ describe("lookup through the library", () => {
     expect(r.node.line).toBe("");
     expect(r.node.actor).toBe("UTG");
     expect(r.approximations).toEqual([]);
-    expect(r.options.find((o) => o.action === "raise")?.freq).toBe(1);
+    // AA opens all but its limp (the tremble and a trap, charts/4).
+    expect(r.options.find((o) => o.action === "raise")?.freq).toBeGreaterThan(0.9);
   });
 
   it("reads 8- and 7-handed as 9-max with the earliest seats folded", () => {
@@ -262,6 +263,32 @@ describe("real hands from the corpora", () => {
     expect(reasons.get("bad-input") ?? 0).toBeLessThanOrEqual(1);
     // Coverage on the corpora (docs/ANALYSIS-PLAN.md §10, A2c): most decisions get a node.
     expect((reasons.get("ok") ?? 0) / all.length).toBeGreaterThan(0.6);
+  });
+
+  it("puts real decisions behind a limp on the limp tree (charts/4)", () => {
+    // Every hero decision with a limp from a seat other than the blinds before it, no raise yet or after one.
+    const limped = [...decisions(weplay), ...decisions(gg)].filter(({ spot }) => {
+      for (const a of spot.actions) {
+        if (a.type === "raise") return false;
+        if (a.type === "call" && a.position !== "SB" && a.position !== "BB") return true;
+      }
+      return false;
+    });
+    expect(limped.length).toBeGreaterThan(300);
+    const reasons = new Map<string, number>();
+    for (const { spot, lookup } of limped) {
+      reasons.set(lookup.ok ? "ok" : lookup.reason, (reasons.get(lookup.ok ? "ok" : lookup.reason) ?? 0) + 1);
+      if (!lookup.ok) continue;
+      // The node is a limped pot, its limpers the real ones (on the set's seats).
+      expect(lookup.node.limpers.length).toBeGreaterThan(0);
+      expect(lookup.node.limpers.some((p) => p !== "SB" && p !== "BB")).toBe(true);
+      const limpers = spot.actions.filter((a) => a.type === "call").length;
+      expect(lookup.node.limpers.length).toBeLessThanOrEqual(limpers);
+      expect(lookup.chosen).not.toBeNull();
+    }
+    // Nothing is refused as an open limp any more; the rest are other reasons (depth, table, a fourth limper).
+    expect(reasons.get("limp") ?? 0).toBe(0);
+    expect((reasons.get("ok") ?? 0) / limped.length).toBeGreaterThan(0.7);
   });
 
   it("names every set a hand needs, and grades an 8-handed hand from the 9-max set", () => {

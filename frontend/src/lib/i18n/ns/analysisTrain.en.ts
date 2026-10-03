@@ -39,6 +39,7 @@ export const trainEn = {
       "vs-3bet": "Facing a 3-bet",
       squeeze: "Squeeze",
       bvb: "Blind vs blind",
+      "vs-limp": "Facing limpers",
       "vs-4bet": "Facing a 4-bet",
     } as Record<string, string>,
     seat: "Your seat",

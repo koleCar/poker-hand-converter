@@ -85,5 +85,50 @@ export function report(charts: ChartSet): string {
   }
   const limp = split(charts, "f".repeat(n - 2) + "c");
   if (limp) lines.push(`BB vs SB limp: check ${pct(limp.check)}  raise ${pct(limp.raise)}`);
+  lines.push(...limpReport(charts));
   return lines.join("\n");
+}
+
+/** The line where seat `seat` faces a limp by `limper`, everyone else folding. */
+export function vsLimpLine(limper: number, seat: number): string {
+  return "f".repeat(limper) + "c" + "f".repeat(seat - limper - 1);
+}
+
+/**
+ * Limped pots (`charts/4`, docs/CHARTS.md §8.3): every seat behind the first
+ * seat's limp and behind the cutoff's (fold / over-limp / isolate; the big
+ * blind check / isolate), and the limper facing the button's isolation.
+ */
+export function limpReport(charts: ChartSet): string[] {
+  const positions = charts.game.positions;
+  const n = positions.length;
+  const btn = positions.indexOf("BTN");
+  if (!charts.nodes.has("c" + "f".repeat(btn - 1))) return [];
+  const out: string[] = ["Facing one limp, everyone else folding (fold / over-limp / isolate; BB: check / isolate):"];
+  for (const limper of [0, btn - 1]) {
+    for (let seat = limper + 1; seat < n; seat += 1) {
+      const line = vsLimpLine(limper, seat);
+      const s = split(charts, line);
+      const who = `${positions[seat]} vs ${positions[limper]} limp`;
+      if (!s) {
+        out.push(`  ${who.padEnd(18)} (${line}) not in the set`);
+        continue;
+      }
+      const iso = (s.raise ?? 0) + (s.allin ?? 0);
+      out.push(
+        positions[seat] === "BB"
+          ? `  ${who.padEnd(18)} check ${pct(s.check)}  isolate ${pct(iso)}`
+          : `  ${who.padEnd(18)} fold ${pct(s.fold)}  over-limp ${pct(s.call)}  isolate ${pct(iso)}`,
+      );
+    }
+  }
+  out.push("The limper facing the button's isolation (fold / call / re-raise):");
+  for (const limper of [0, btn - 1]) {
+    const line = vsLimpLine(limper, btn) + "r" + "ff";
+    const s = split(charts, line);
+    out.push(`  ${positions[limper].padEnd(5)} ${s ? `fold ${pct(s.fold)}  call ${pct(s.call)}  re-raise ${pct((s.raise ?? 0) + (s.allin ?? 0))}` : "not in the set"}`);
+  }
+  const limpers = [...charts.nodes.values()].filter((node) => node.limpers.some((p) => p !== "SB" && p !== "BB")).length;
+  out.push(`Nodes behind an open limp: ${limpers} of ${charts.nodes.size}`);
+  return out;
 }

@@ -93,6 +93,7 @@ export function conceptsForDecision(decision: DecisionAnalysis, limit = 4): Conc
   if (decision.source === "chart" && decision.grade) {
     add("ev-and-grading");
     if (decision.approximations.includes("out-of-range")) add("ranges");
+    if (decision.approximations.includes("limp-tremble")) add("ranges");
     if (modelCaveat(decision)) add("equity-realisation");
   }
   // The river solver's sentences (A4): the grade, the hand's role against the

@@ -37,7 +37,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { it } from "vitest";
 
-import { PRODUCTION_ITERATIONS } from "../../../frontend/src/lib/charts/generate.js";
+import { generateChartSet, PRODUCTION_ITERATIONS, type GenerateResult } from "../../../frontend/src/lib/charts/generate.js";
 import { loadCharts, serializeCharts } from "../../../frontend/src/lib/charts/format.js";
 import { nodeReaches } from "../../../frontend/src/lib/charts/build.js";
 import {
@@ -96,14 +96,54 @@ function charts2Fit(): RealisationModel {
   return { name: recorded.name, source: recorded.source, potTypes: recorded.potTypes };
 }
 
+/**
+ * The committed set's own fitted realisation model and its record, for a
+ * `reuseFit` set (`charts/4`): solved once with it, no new rounds. The record
+ * is carried over with `reusedBy` set (replaced, never nested), so the
+ * regenerated file reads back the same model and a rerun writes the same bytes.
+ */
+function committedFit(config: SetConfig): { model: RealisationModel; record: Record<string, unknown> } {
+  const json = JSON.parse(readFileSync(join(DATA, `${config.id}.json`), "utf8"));
+  const recorded = json.model.realisation as RealisationModel;
+  const record = { ...(json.model.realisationFit as Record<string, unknown>) };
+  record.reusedBy =
+    "charts/4 (A2d): the limp tree solved once with this set's committed fit, not re-measured (docs/CHARTS.md §6.7)";
+  return { model: { name: recorded.name, source: recorded.source, potTypes: recorded.potTypes }, record };
+}
+
 async function generateSet(config: SetConfig, threads: number): Promise<void> {
   const out = SETS.length === 1 && process.env.CHARTS_OUT ? process.env.CHARTS_OUT : join(DATA, `${config.id}.json`);
-  const rounds = Number(process.env.CHARTS_ROUNDS ?? config.rounds);
+  const rounds = config.reuseFit ? 0 : Number(process.env.CHARTS_ROUNDS ?? config.rounds);
   const started = performance.now();
   const equity = cachedEquity();
   const log = (line: string) => console.log(`[${config.id}] ${line}`);
   let last = performance.now();
-  const result = await generateRealisedChartSet({
+  const onProgress = (p: { phase: string; iteration?: number; nashConvMbb?: number }) => {
+    if (p.phase === "solve") {
+      const now = performance.now();
+      log(`iteration ${p.iteration}: NashConv ${p.nashConvMbb?.toFixed(2)} mbb/hand (${((now - last) / 1000).toFixed(1)} s)`);
+      last = now;
+    }
+  };
+  const limps = { maxLimpers: config.maxLimpers, limpFloor: config.limpFloor, minLimpReach: config.minLimpReach };
+  let result: GenerateResult;
+  if (config.reuseFit) {
+    const fit = committedFit(config);
+    result = generateChartSet({
+      id: config.id,
+      version: config.version,
+      players: config.players,
+      stackBb: config.stackBb,
+      sizing: config.sizing,
+      ...limps,
+      equity,
+      equityBoards: BOARDS,
+      iterations: ITERATIONS,
+      realisation: fit.model,
+      realisationFit: fit.record,
+      onProgress,
+    });
+  } else result = await generateRealisedChartSet({
     id: config.id,
     version: config.version,
     players: config.players,
@@ -117,6 +157,7 @@ async function generateSet(config: SetConfig, threads: number): Promise<void> {
     measure: { boards: MEASURE_BOARDS },
     start: config.start === "charts/1" ? CHARTS1_REALISATION : charts2Fit(),
     fitName: config.fitName,
+    ...limps,
     run: process.env.CHARTS_NO_CACHE ? workerPool(threads, log, config.id) : cachedRun(workerPool(threads, log, config.id), log),
     onRound: (round) => {
       const now = performance.now();
@@ -135,13 +176,7 @@ async function generateSet(config: SetConfig, threads: number): Promise<void> {
       }
       last = now;
     },
-    onProgress: (p) => {
-      if (p.phase === "solve") {
-        const now = performance.now();
-        log(`iteration ${p.iteration}: NashConv ${p.nashConvMbb?.toFixed(2)} mbb/hand (${((now - last) / 1000).toFixed(1)} s)`);
-        last = now;
-      }
-    },
+    onProgress,
   });
   const text = serializeCharts(result.charts);
   const previous = existsSync(out) ? readFileSync(out, "utf8") : null;
@@ -155,7 +190,7 @@ async function generateSet(config: SetConfig, threads: number): Promise<void> {
   lines.push(`file: ${out}`);
   lines.push(`bytes: ${Buffer.byteLength(text)}; nodes: ${charts.nodes.size} of ${result.tree.actionNodes}`);
   lines.push(`changed: ${previous === null ? "new file" : previous === text ? "no (identical bytes)" : "yes"}`);
-  lines.push(`time: ${seconds.toFixed(1)} s (${rounds} rounds, final ${result.solver.iterations} iterations, ${threads} threads)`);
+  lines.push(`time: ${seconds.toFixed(1)} s (${rounds} rounds, final ${result.solver.iterations} iterations, ${threads} threads); tree ${result.tree.actionNodes} action nodes; rss ${(process.memoryUsage().rss / 1e6).toFixed(0)} MB`);
   lines.push(`NashConv: ${result.final.nashConvMbb.toFixed(3)} mbb/hand; per position ${result.final.gainMbb.map((g) => g.toFixed(3)).join(", ")}`);
   lines.push(`history: ${result.convergence.map((c) => `${c.iteration}:${c.nashConvMbb}`).join(" ")}`);
   lines.push(`heads-up BvB: ${JSON.stringify(result.headsUp)}`);

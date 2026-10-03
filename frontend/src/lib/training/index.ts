@@ -153,6 +153,7 @@ export {
   trainerMatch,
   trainerRef,
   trainerTarget,
+  areaSet,
   weekBounds,
   weekStart,
   withReviews,

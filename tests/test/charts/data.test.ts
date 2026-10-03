@@ -36,6 +36,7 @@ import {
   CHARTS_VERSION,
   chartTree,
   IN_RANGE,
+  isOpenLimpNode,
   loadCharts,
   MAX_SELF_LOSS,
   type ChartNode,
@@ -63,16 +64,16 @@ function rfiWidth(line: string): number {
 }
 
 describe("committed chart set", () => {
-  it("is the charts/2 6-max 100bb set of a reasonable size", () => {
-    // The library is charts/3 (A2c); this set is still the one A2a.1 generated.
-    expect(charts.version).toBe("charts/2");
+  it("is the 6-max 100bb set of a reasonable size, charts/2's fit on charts/4's limp tree", () => {
+    // charts/4 (A2d) re-solved this set with limps, on the fit A2a.1 measured.
+    expect(charts.version).toBe("charts/4");
     expect(CHART_SET_VERSIONS).toContain(charts.version);
-    expect(CHARTS_VERSION).toBe("charts/3");
+    expect(CHARTS_VERSION).toBe("charts/4");
     expect(charts.id).toBe("nlhe-cash-6max-100bb");
     expect(charts.game.positions).toEqual(["UTG", "HJ", "CO", "BTN", "SB", "BB"]);
     expect(charts.game.stackBb).toBe(100);
     expect(charts.nodes.size).toBeGreaterThan(100);
-    expect(statSync(FILE).size).toBeLessThan(1_500_000);
+    expect(statSync(FILE).size).toBeLessThan(3_000_000);
     const model = charts.model as Record<string, any>;
     expect(model.hash).toMatch(/^[0-9a-f]{8}$/);
     expect(model.rake.percent).toBe(0.05);
@@ -142,18 +143,26 @@ describe("committed chart set", () => {
       // A cold player facing a 3-bet and a 4-bet ahead of it (two re-raisers,
       // fold or shove) may fold KK: one of them holds AA often enough.
       if (n.scenario === "vs-4bet" && n.cold) continue;
-      if (n.scenario !== "vs-allin") {
+      // Cold behind an open limp the tree offers only fold or a 100bb shove (charts/4).
+      if (n.cold && isOpenLimpNode(n)) continue;
+      const at = tree.lineIndex.get(n.line) as number;
+      // Behind an open limp the 4-bet is already all-in (charts/4): judged as a shove.
+      if (tree.toMatch[at] < tree.stackBb) {
         expect(kkFold, `KK folds at ${JSON.stringify(n.line)}`).toBeLessThan(0.01);
         continue;
       }
-      const at = tree.lineIndex.get(n.line) as number;
       let live = 0;
       for (let p = 0; p < 6; p += 1) if (tree.live[at] & (1 << p)) live += 1;
-      if (live === 2) expect(kkFold, `KK folds to a heads-up shove at ${JSON.stringify(n.line)}`).toBeLessThan(0.5);
+      // Behind an open limp the shove is the 4-bet, from a range of aces and little else (charts/4).
+      if (live === 2 && !isOpenLimpNode(n)) {
+        expect(kkFold, `KK folds to a heads-up shove at ${JSON.stringify(n.line)}`).toBeLessThan(0.5);
+      }
     }
     const utg = node("");
-    expect(utg.freq[1 * H + classByName("72o")]).toBe(0);
-    expect(utg.freq[1 * H + classByName("AA")]).toBe(1);
+    const open = utg.options.findIndex((o) => o.action === "raise");
+    expect(utg.freq[open * H + classByName("72o")]).toBe(0);
+    // Every class limps at least the tremble's 0.5% (charts/4), AA a little more (a trap); it opens the rest.
+    expect(utg.freq[open * H + classByName("AA")]).toBeGreaterThan(0.95);
   });
 
   it("has EVs consistent with its frequencies", () => {
@@ -280,6 +289,8 @@ describe("charts/2 bands (docs/CHARTS.md §8)", () => {
   it("never folds KK to an open or a 3-bet", () => {
     for (const n of charts.nodes.values()) {
       if (n.scenario === "vs-allin" || n.scenario === "vs-4bet") continue;
+      // Cold behind an open limp the tree offers only fold or a 100bb shove (charts/4).
+      if (n.cold && isOpenLimpNode(n)) continue;
       const fold = n.options.findIndex((o) => o.action === "fold");
       if (fold < 0) continue;
       expect(n.freq[fold * H + classByName("KK")], `KK at ${JSON.stringify(n.line)}`).toBe(0);

@@ -24,6 +24,7 @@ import {
   MIN_PLAN_MOVES,
   TRAIN_TARGET,
   addWeeks,
+  areaSet,
   areaChange,
   daysLeft,
   dealPreflop,
@@ -239,6 +240,33 @@ describe("trainer targets", () => {
     for (const junk of ["", "preflop", "preflop/moon/BTN", "preflop/rfi/XX", "preflop/vs-open/BTN/CO", "river/srp/ip", "river/srp/up/pfr"]) {
       expect(parseTrainerRef(junk)).toBeNull();
     }
+  });
+
+  it("practises an area on the set it was met on most, and names 9-max seats (A2d)", () => {
+    expect(areaSet([{ sets: { "nlhe-cash-9max-100bb": 3, "nlhe-cash-6max-100bb": 2 } }, { sets: { "nlhe-cash-6max-100bb": 2 } }])).toBe(
+      "nlhe-cash-6max-100bb",
+    );
+    expect(areaSet([{ sets: { "nlhe-cash-9max-150bb": 2, "nlhe-cash-9max-100bb": 2 } }])).toBe("nlhe-cash-9max-100bb");
+    expect(areaSet([{ sets: {} }])).toBeNull();
+    const where = { street: "preflop", scenario: "unopened", family: "first-in", hero: "UTG+1", villain: "-", table: "9max" };
+    const target = trainerTarget(where, "nlhe-cash-9max-150bb");
+    expect(target).toEqual({ mode: "preflop", family: "rfi", seat: "UTG+1", vs: null, set: "nlhe-cash-9max-150bb" });
+    expect(trainerRef(target!)).toBe("preflop/rfi/UTG+1/nlhe-cash-9max-150bb");
+    expect(trainerRef(target!)).toMatch(/^(preflop|river)(\/[A-Za-z0-9+-]{1,20}){0,5}$/);
+    expect(parseTrainerRef(trainerRef(target!))).toEqual(target);
+    const vs = { mode: "preflop", family: "vs-open", seat: "LJ", vs: "UTG+2", set: "nlhe-cash-9max-100bb" } as const;
+    expect(parseTrainerRef(trainerRef(vs))).toEqual(vs);
+    expect(parseTrainerRef("preflop/rfi/UTG/nlhe-cash-9max-100bb/vs-CO")).toBeNull();
+    // A set the trainer does not know is left out, not passed on.
+    expect(trainerTarget(where, "something-else")).toEqual({ mode: "preflop", family: "rfi", seat: "UTG+1", vs: null });
+  });
+
+  it("practises facing limpers on the limped-pot trainer (A2d)", () => {
+    const where = (scenario: string, hero: string, villain: string) => ({ street: "preflop", scenario, family: "first-in", hero, villain });
+    expect(trainerTarget(where("vs-limp", "BTN", "UTG"))).toEqual({ mode: "preflop", family: "vs-limp", seat: "BTN", vs: "UTG" });
+    expect(trainerTarget(where("bb-option", "BB", "CO"))).toEqual({ mode: "preflop", family: "vs-limp", seat: "BB", vs: "CO" });
+    // Behind the small blind's completion alone it is still blind vs blind.
+    expect(trainerTarget(where("bb-option", "BB", "-"))).toEqual({ mode: "preflop", family: "bvb", seat: "BB", vs: null });
   });
 
   it("deals preflop spots against the raiser asked for, and drops a filter the charts cannot deal", () => {

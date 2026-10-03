@@ -12,11 +12,21 @@ import { PERFECT_FREQ_BAND } from "./grading";
 /** An option is part of the reference's mix from this frequency up (the grading band). */
 export const MIX_MIN_FREQ = PERFECT_FREQ_BAND;
 
-/** Index of the highest-EV option: what EV loss is measured against. Null with no options. */
+/**
+ * Index of the highest-EV option: what EV loss is measured against. Among
+ * options of equal EV, the one the reference plays most (an equilibrium mix
+ * is indifferent: AA limping as a trap is worth what opening it is, and the
+ * open is what to show). Null with no options.
+ */
 export function bestOption(decision: Pick<DecisionAnalysis, "options">): number | null {
   let best: number | null = null;
   decision.options.forEach((option, index) => {
-    if (best === null || option.ev > decision.options[best].ev) best = index;
+    if (best === null) {
+      best = index;
+      return;
+    }
+    const top = decision.options[best];
+    if (option.ev > top.ev || (option.ev === top.ev && option.freq > top.freq)) best = index;
   });
   return best;
 }

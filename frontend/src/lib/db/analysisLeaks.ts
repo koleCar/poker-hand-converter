@@ -79,6 +79,7 @@ export async function fetchLeaks(filters: AnalysisFilters = {}): Promise<LeaksRe
     last: str(payload.last),
     rows: rows(payload.rows).map((row) => ({
       key: String(row.key ?? ""),
+      set: str(row.set),
       street: String(row.street ?? ""),
       scenario: String(row.scenario ?? ""),
       line: String(row.line ?? ""),

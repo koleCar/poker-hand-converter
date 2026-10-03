@@ -137,7 +137,8 @@ export function dueDrillQuery(keys: readonly string[] | null): string {
 /** The address of a study plan's trainer task: the trainer set to the area's spot. */
 export function targetQuery(target: TrainerTarget): string {
   if (target.mode === "preflop") {
-    return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "preflop", family: target.family, seat: target.seat, vs: target.vs });
+    const set = target.set && CHART_SETS.some((spec) => spec.id === target.set) ? target.set : DEFAULT_TRAIN_STATE.set;
+    return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "preflop", set, family: target.family, seat: target.seat, vs: target.vs });
   }
   return trainQuery({ ...DEFAULT_TRAIN_STATE, mode: "river", pot: target.pot, side: target.side, role: target.role });
 }
