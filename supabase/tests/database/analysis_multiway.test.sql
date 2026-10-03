@@ -1,4 +1,4 @@
--- pgTAP: hand analysis, phase A9 -- `20270303090000_analysis_multiway.sql`.
+-- pgTAP: hand analysis, phase A9 -- `20270310090000_analysis_multiway.sql`.
 --
 --   * an approximate multiway grade (`source = 'approx'`) is stored through
 --     the usual writer, as the caller, and read back under RLS;

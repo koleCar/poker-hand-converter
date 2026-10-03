@@ -633,7 +633,7 @@ button can start with the most recent 200 / 500 / 1,000 hands:
 newest first (`played_at` desc, undated last, then `id` desc), keyset on the
 last row. A newest-first run never prunes; turn grades are ordinary
 `decision_analysis` rows (`street = 'turn'`, `source = 'solver'`).
-Since A9 (`20270303090000_analysis_multiway.sql`) `source` may also be
+Since A9 (`20270310090000_analysis_multiway.sql`) `source` may also be
 `'approx'`: a multiway river call or fold graded by showdown EV against
 narrowed ranges, capped at Mistake; its numbers are in `facts.multiway`
 (no table, grant or signature change; the check constraint names four

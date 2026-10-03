@@ -1806,7 +1806,7 @@ Each phase appends what it learned that changed the plan.
   - **Learn**: "Multiway pots" (betting group), with a calculator for the
     MDF split and fold-equity multiplication (`learn/math.ts`: `allFold`,
     `mdfSplit`, `multiwayBluffEv`; the example's numbers tested).
-  - **Migration** `20270303090000_analysis_multiway.sql`: the
+  - **Migration** `20270310090000_analysis_multiway.sql`: the
     `decision_analysis.source` check names `approx`, and
     `analysis_public_facts` keeps `multiway` (pgTAP, 9 assertions).
   - **Owner's library** (5,448 hands, Node, the same `analyzeHand` the
