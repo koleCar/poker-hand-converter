@@ -14,6 +14,7 @@ import { chromeHr } from "./ns/chrome.hr";
 import { converterHr } from "./ns/converter.hr";
 import { courseHr } from "./ns/course.hr";
 import { learnHr } from "./ns/learn.hr";
+import { manualHr } from "./ns/manual.hr";
 import { replayerHr } from "./ns/replayer.hr";
 import { statsHr } from "./ns/stats.hr";
 import type { Dict } from "./types";
@@ -31,6 +32,7 @@ export const hr: Dict = {
   course: courseHr,
   replayer: replayerHr,
   converter: converterHr,
+  manual: manualHr,
   chrome: chromeHr,
 
   brand: {
@@ -48,6 +50,11 @@ export const hr: Dict = {
       title: "Konverter hand historyja — WePlay, PokerStars, GGPoker | Rail",
       description:
         "Pretvori hand historyje iz bilo koje pokerske sobe u standardni format koji uvoze Holdem Manager i PokerTracker. Besplatno, u pregledniku, ništa se ne šalje.",
+    },
+    convertManual: {
+      title: "Ručni unos pokerske ruke — izrada hand historyja | Rail",
+      description:
+        "Složi pokersku ruku ručno: sjedala, stackovi, blindovi, svaka akcija i showdown. Odigraj je, preuzmi kao hand history ili spremi. Besplatno, u pregledniku.",
     },
     library: {
       title: "Povijest ruku | Rail",

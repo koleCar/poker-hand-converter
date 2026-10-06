@@ -15,11 +15,13 @@
 
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { isDatabaseConfigured, rebuildStats, saveHand } from "../../lib/db";
 import { useDict, useLocale } from "../../lib/i18n/client";
 import { INTL_LOCALE } from "../../lib/i18n/dictionaries";
+import { paths } from "../../lib/routes";
 import { convertAny, getParser, toStandardText } from "../../lib/phf";
 import type { PhfHand } from "../../lib/phf/types";
 import { describeProblem, FILE_ACCEPT, loadFile } from "../converter/inputs";
@@ -176,6 +178,10 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
             >
               {t.chooseFile}
             </button>
+            {/* No hand history at all? Build one by hand. */}
+            <Link href={paths.convertManual()} className="btn">
+              {en.manual.entry}
+            </Link>
             <input
               ref={fileRef}
               type="file"

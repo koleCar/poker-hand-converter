@@ -1,0 +1,396 @@
+/* Manual hand entry (`/convert/manual`). Tokens only, like every new surface. */
+
+.heading {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.subheading {
+  margin: 0 0 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-dim);
+  font-weight: 600;
+}
+
+.dim {
+  color: var(--fg-dim);
+  font-size: 12.5px;
+}
+
+.headRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.modeSwitch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modeLabel {
+  font-size: 12px;
+  color: var(--fg-dim);
+  margin-right: 2px;
+}
+
+.problems {
+  margin: 0;
+  padding-left: 28px;
+}
+
+/* ------------------------------------------------------------ amounts - */
+
+.amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.amount input {
+  width: 96px;
+  font-variant-numeric: tabular-nums;
+}
+
+.amountSuffix {
+  min-width: 16px;
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+.amountInvalid input {
+  border-color: var(--danger-fg);
+}
+
+/* ------------------------------------------------------------ players - */
+
+.effective {
+  margin: 0;
+  font-size: 13px;
+}
+
+.setAll {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.seatTable {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+
+.seatRow {
+  display: grid;
+  grid-template-columns: 96px minmax(130px, 1fr) 140px 60px 50px minmax(110px, auto);
+  gap: 10px;
+  align-items: center;
+  min-width: 620px;
+  padding: 7px 12px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 13px;
+}
+
+.seatRow input[type="text"] {
+  width: 100%;
+}
+
+.seatHead {
+  border-top: 0;
+  background: var(--bg-elev-2);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-dim);
+  font-weight: 650;
+}
+
+.seatEmpty {
+  opacity: 0.55;
+}
+
+.seatNo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+}
+
+.pos {
+  display: inline-block;
+  min-width: 36px;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elev-2);
+  border: 1px solid var(--line);
+  color: var(--fg-muted);
+  font-size: 10.5px;
+  font-weight: 650;
+  text-align: center;
+}
+
+.cardsBtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 2px 8px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.cardsBtn:hover:not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+.cardsBtn:disabled {
+  cursor: default;
+}
+
+/* ------------------------------------------------------------ actions - */
+
+.pattern {
+  margin: 0;
+  font-size: 13px;
+}
+
+.streets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.street {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.streetHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.streetName {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--fg-muted);
+}
+
+.boardBtn {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.logLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.posting {
+  color: var(--fg-dim);
+}
+
+.logName {
+  font-weight: 600;
+}
+
+.k_fold {
+  color: var(--fg-dim);
+}
+
+.k_bet,
+.k_raise {
+  color: var(--chart-raise);
+}
+
+.allIn {
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--danger-fg) 14%, transparent);
+  color: var(--danger-on-tint);
+  font-size: 10.5px;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+.remove {
+  margin-left: auto;
+  padding: 0 6px;
+  border: 0;
+  background: none;
+  color: var(--fg-dim);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.remove:hover {
+  color: var(--danger-fg);
+}
+
+.prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 13.5px;
+}
+
+.prompt p {
+  margin: 0;
+}
+
+.actionBar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent-fg) 6%, transparent);
+}
+
+.toAct {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 13.5px;
+}
+
+.fold {
+  color: var(--danger-fg);
+}
+
+.sizing {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ------------------------------------------------------------- result - */
+
+.showdown,
+.pots,
+.net {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.showdown li,
+.net li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.potHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.plus {
+  color: var(--profit-fg);
+}
+
+.minus {
+  color: var(--loss-fg);
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 2px;
+}
+
+@media (max-width: 640px) {
+  .amount input {
+    width: 80px;
+  }
+}

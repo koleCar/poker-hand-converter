@@ -22,6 +22,8 @@ export const paths = {
   /** The feed. As of #27 this is the landing page, not the converter. */
   home: () => "/",
   convert: () => "/convert",
+  /** Manual hand entry: build a hand action by action. Makes no server requests either. */
+  convertManual: () => "/convert/manual",
   library: () => "/library",
   stats: () => "/stats",
   /**

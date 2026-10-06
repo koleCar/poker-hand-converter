@@ -36,6 +36,7 @@ import { chromeEn } from "./ns/chrome.en";
 import { converterEn } from "./ns/converter.en";
 import { courseEn } from "./ns/course.en";
 import { learnEn } from "./ns/learn.en";
+import { manualEn } from "./ns/manual.en";
 import { replayerEn } from "./ns/replayer.en";
 import { statsEn } from "./ns/stats.en";
 
@@ -47,6 +48,7 @@ export const en = {
   course: courseEn,
   replayer: replayerEn,
   converter: converterEn,
+  manual: manualEn,
   chrome: chromeEn,
 
   brand: {
@@ -64,6 +66,11 @@ export const en = {
       title: "Poker hand history converter — WePlay, PokerStars, GGPoker | Rail",
       description:
         "Convert hand histories from any poker room into the standard format Holdem Manager and PokerTracker import. Free, in your browser, nothing uploaded.",
+    },
+    convertManual: {
+      title: "Enter a poker hand manually — hand history builder | Rail",
+      description:
+        "Build a poker hand by hand: seats, stacks, blinds, every action and the showdown. Replay it, download it as a hand history, or save it. Free, in your browser.",
     },
     library: {
       title: "Hand history | Rail",

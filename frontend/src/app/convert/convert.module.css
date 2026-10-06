@@ -22,3 +22,25 @@
   font-size: 11px;
   line-height: 1;
 }
+
+/* `/convert/manual`'s head. */
+.manualHead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.manualTitle {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.manualIntro {
+  margin: 0;
+  max-width: 70ch;
+  color: var(--fg-muted);
+  font-size: 14px;
+  line-height: var(--line-height-normal);
+}
