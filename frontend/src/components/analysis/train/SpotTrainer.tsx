@@ -293,7 +293,7 @@ export function SpotTrainer({ mode, state, onChange, onAnswer, signedIn, onHelp,
 }
 
 /** The spot in words: who did what before the hero, the pot and the price. */
-function SpotWords({ spot }: { spot: TrainerSpot }) {
+export function SpotWords({ spot }: { spot: TrainerSpot }) {
   const en = useDict();
   const t = en.analysis.train;
   if (spot.kind === "preflop") {
@@ -316,7 +316,9 @@ function SpotWords({ spot }: { spot: TrainerSpot }) {
           ? t.riverFacing(spot.villain, spot.facing.kind, spot.facing.to, spot.facing.sizePot)
           : spot.seat === "ip"
             ? t.riverChecked(spot.villain)
-            : t.riverFirst}
+            : spot.kind === "turn"
+              ? en.course.spot.turnFirst
+              : t.riverFirst}
       </p>
       <p className={own.muted}>{t.potLine(spot.potBb, spot.toCallBb, spot.stackBb)}</p>
     </>

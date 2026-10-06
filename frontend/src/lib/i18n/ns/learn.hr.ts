@@ -48,14 +48,14 @@ export const learnHr: Dict["learn"] = {
     progress: "Napredak",
     reports: "Izvještaji",
     charts: "Chartovi",
-    learn: "Učenje",
+    learn: "Pojmovi",
     more: "Više",
   },
 
   titles,
 
   index: {
-    heading: "Učenje",
+    heading: "Pojmovi",
     intro:
       "Ideje iza svakog objašnjenja u tvojoj analizi: što znače, matematika gdje je ima, razrađen primjer i nešto za isprobati. Svaka poveznica u objašnjenju vodi na jednu od ovih stranica.",
     groups: {
@@ -68,7 +68,7 @@ export const learnHr: Dict["learn"] = {
   },
 
   page: {
-    breadcrumb: "Učenje",
+    breadcrumb: "Pojmovi",
     backToIndex: "Svi pojmovi",
     definition: "Što je to",
     why: "Zašto je važno",

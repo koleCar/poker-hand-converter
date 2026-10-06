@@ -443,7 +443,7 @@ export function pickFocus(areas: readonly FocusArea[], count = PLAN_FOCUS): Focu
 /* ----------------------------------------------------------- the plan - */
 
 export type PlanKind = "leaks" | "fundamentals";
-export type TaskKind = "read" | "train" | "drill" | "review";
+export type TaskKind = "read" | "train" | "drill" | "review" | "lesson";
 
 export interface PlanTask {
   kind: TaskKind;
@@ -501,6 +501,12 @@ export interface TaskInput {
   /** Per finest spot key: drills and drills due (`drill_due_by_spot`). */
   drills: ReadonlyMap<string, { items: number; due: number }>;
   previous?: PreviousPlan | null;
+  /**
+   * The lesson that teaches an area (Learn L1, `lib/learn/recommend.ts`'s
+   * `lessonForArea`, passed in so this module stays free of `lib/learn`):
+   * a written lesson the learner has not passed, or null.
+   */
+  lessonFor?: (area: FocusArea) => string | null;
 }
 
 /** Concepts and hands last week's plan finished, and the hands it left open per area. */
@@ -538,6 +544,10 @@ export function planTasks(input: TaskInput): PlanTask[] {
     tasks.push(task);
   };
   input.areas.forEach((area, focus) => {
+    // The lesson for the leak first (Learn L1): it covers the concepts, and
+    // its last exercise is the area's own hands.
+    const lesson = input.lessonFor?.(area) ?? null;
+    if (lesson) add({ kind: "lesson", ref: lesson, target: 1, focus });
     for (const concept of area.concepts) {
       // Read last week: not asked again.
       if (read.has(concept)) continue;
@@ -575,11 +585,13 @@ export function planTasks(input: TaskInput): PlanTask[] {
  * concepts, the preflop trainer first in and defending the big blind, a few
  * river spots, and any drills already due.
  */
-export function fundamentalsTasks(drillsDue: number, previous?: PreviousPlan | null): PlanTask[] {
+export function fundamentalsTasks(drillsDue: number, previous?: PreviousPlan | null, lesson: string | null = null): PlanTask[] {
   const { read } = carried(previous);
   const tasks: PlanTask[] = [];
+  // The first fundamentals lesson the learner has not passed (Learn L1), when there is one.
+  if (lesson) tasks.push({ kind: "lesson", ref: lesson, target: 1, focus: null });
   for (const concept of FUNDAMENTAL_CONCEPTS) if (!read.has(concept)) tasks.push({ kind: "read", ref: concept, target: 1, focus: null });
-  if (tasks.length === 0) tasks.push({ kind: "read", ref: "blind-defence", target: 1, focus: null });
+  if (!tasks.some((task) => task.kind === "read")) tasks.push({ kind: "read", ref: "blind-defence", target: 1, focus: null });
   const targets: TrainerTarget[] = [
     { mode: "preflop", family: "rfi", seat: null, vs: null },
     { mode: "preflop", family: "vs-open", seat: "BB", vs: null },

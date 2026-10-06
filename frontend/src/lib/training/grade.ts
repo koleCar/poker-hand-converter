@@ -31,11 +31,17 @@ import type { PhfHand } from "../phf/types";
  * The analysis' verdict on one hero decision of `hand`, or null when the hand
  * has no hero decision at `actionIndex`. Does not mutate `hand`.
  */
-export function gradeAnswer(hand: PhfHand, actionIndex: number, charts: ChartSet | null): DecisionAnalysis | null {
-  // `turn: false`: a trainer river is built on ranges the heuristic narrowed
-  // through the flop and turn (`river.ts`), so it is graded on them too; a
-  // turn solve per answer would also cost a second or two (A5a).
-  const analysis = analyzeHand(structuredClone(hand), { charts, only: actionIndex, turn: false });
+export function gradeAnswer(
+  hand: PhfHand,
+  actionIndex: number,
+  charts: ChartSet | null,
+  options: { turn?: boolean } = {},
+): DecisionAnalysis | null {
+  // `turn: false` (the default): a trainer river is built on ranges the
+  // heuristic narrowed through the flop and turn (`river.ts`), so it is graded
+  // on them too; a turn solve per answer would also cost a second or two
+  // (A5a). A trainer turn (`turn.ts`) is graded by the turn solve itself.
+  const analysis = analyzeHand(structuredClone(hand), { charts, only: actionIndex, turn: options.turn ?? false });
   return analysis.decisions.find((decision) => decision.actionIndex === actionIndex) ?? null;
 }
 

@@ -51,14 +51,14 @@ export const learnEn = {
     progress: "Progress",
     reports: "Reports",
     charts: "Charts",
-    learn: "Learn",
+    learn: "Concepts",
     more: "More",
   },
 
   titles,
 
   index: {
-    heading: "Learn",
+    heading: "Concepts",
     intro:
       "The ideas behind every explanation in your analysis: what each one means, the maths where there is some, a worked example and something to try. Every link in an explanation lands on one of these pages.",
     groups: {
@@ -71,7 +71,7 @@ export const learnEn = {
   },
 
   page: {
-    breadcrumb: "Learn",
+    breadcrumb: "Concepts",
     backToIndex: "All concepts",
     definition: "What it is",
     why: "Why it matters",

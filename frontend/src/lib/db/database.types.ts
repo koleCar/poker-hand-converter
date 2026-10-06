@@ -1197,6 +1197,93 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_cards: {
+        Row: {
+          created_at: string
+          due_at: string
+          ease: number
+          exercise_id: string
+          id: string
+          interval_days: number
+          item: Json
+          item_key: string
+          kind: string
+          lapses: number
+          last_grade: string | null
+          last_reviewed_at: string | null
+          lesson_id: string
+          owner_id: string
+          reps: number
+          reviews: number
+        }
+        Insert: {
+          created_at?: string
+          due_at?: string
+          ease?: number
+          exercise_id: string
+          id?: string
+          interval_days?: number
+          item: Json
+          item_key: string
+          kind: string
+          lapses?: number
+          last_grade?: string | null
+          last_reviewed_at?: string | null
+          lesson_id: string
+          owner_id: string
+          reps?: number
+          reviews?: number
+        }
+        Update: {
+          created_at?: string
+          due_at?: string
+          ease?: number
+          exercise_id?: string
+          id?: string
+          interval_days?: number
+          item?: Json
+          item_key?: string
+          kind?: string
+          lapses?: number
+          last_grade?: string | null
+          last_reviewed_at?: string | null
+          lesson_id?: string
+          owner_id?: string
+          reps?: number
+          reviews?: number
+        }
+        Relationships: []
+      }
+      lesson_progress: {
+        Row: {
+          exercises: Json
+          lesson_id: string
+          owner_id: string
+          passed_at: string | null
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          exercises?: Json
+          lesson_id: string
+          owner_id: string
+          passed_at?: string | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          exercises?: Json
+          lesson_id?: string
+          owner_id?: string
+          passed_at?: string | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       moderation_actions: {
         Row: {
           action: string
@@ -2163,6 +2250,7 @@ export type Database = {
       }
     }
     Functions: {
+      add_lesson_cards: { Args: { p_cards: Json }; Returns: Json }
       admin_create_board: {
         Args: { p_description?: string; p_name: string; p_slug: string }
         Returns: string
@@ -2677,6 +2765,7 @@ export type Database = {
         Returns: Json
       }
       record_conversion_failures: { Args: { p_failures: Json }; Returns: Json }
+      record_lesson_results: { Args: { p_rows: Json }; Returns: Json }
       record_share_view: { Args: { p_slug: string }; Returns: boolean }
       record_trainer_results: { Args: { p_rows: Json }; Returns: Json }
       recount_forum_counters: { Args: never; Returns: Json }
@@ -2701,6 +2790,10 @@ export type Database = {
           p_grade: string
           p_item: string
         }
+        Returns: Json
+      }
+      review_lesson_card: {
+        Args: { p_card: string; p_grade: string }
         Returns: Json
       }
       save_hand_analysis: { Args: { p_rows: Json }; Returns: Json }

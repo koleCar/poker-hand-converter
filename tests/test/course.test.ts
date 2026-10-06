@@ -1,0 +1,607 @@
+/**
+ * The Learn tab (L1, `frontend/src/lib/learn/course.ts` and friends), pinned.
+ *
+ * 1. **The catalogue**: every lesson id, prerequisite, concept, chart set,
+ *    seat and flag resolves; codes are unique; nothing names a lesson that
+ *    does not exist; no curated example hands yet.
+ * 2. **The words**: every lesson has an outline in both languages; a lesson
+ *    is written exactly when both languages have its body; the two bodies
+ *    have the same structure (sections, blocks, widgets, checkpoints, right
+ *    answers, checks); every exercise has its line; every widget preset is
+ *    real; every number a lesson states is recomputed.
+ * 3. **The practice**: every generated item is deterministic in its seed and
+ *    gradable — its own answer passes, a wrong one fails, and the answer is
+ *    the engine's (`grade()`, `boardTexture()`, the hand classes).
+ * 4. **Progress and cards**: the sticky rules the database also applies,
+ *    automatic passing, review cards round-tripping through storage.
+ * 5. **Recommendations**: leaks map to the lessons that teach them.
+ */
+
+import { describe, expect, it } from "vitest";
+
+import { boardTexture, toIndices } from "../../frontend/src/lib/analysis/texture.js";
+import { grade } from "../../frontend/src/lib/analysis/grading.js";
+import { FLAG_CODES, GRADES, type OptionAnalysis } from "../../frontend/src/lib/analysis/types.js";
+import { CHART_SETS } from "../../frontend/src/lib/charts/index.js";
+import { cardIndex } from "../../frontend/src/lib/equity/evaluator.js";
+import { en } from "../../frontend/src/lib/i18n/en.js";
+import { hr } from "../../frontend/src/lib/i18n/hr.js";
+import { CONCEPT_IDS, WIDGET_IDS, type WidgetPreset } from "../../frontend/src/lib/learn/concepts.js";
+import {
+  CALC_KINDS,
+  CLASSIFY_KINDS,
+  LESSONS,
+  LESSON_IDS,
+  MODULE_IDS,
+  RESERVED_LEARN_SEGMENTS,
+  TRACKS,
+  TRACK_IDS,
+  courseOrder,
+  isPlanned,
+  lessonsIn,
+  requiredExercises,
+  writtenLessons,
+  type LessonId,
+} from "../../frontend/src/lib/learn/course.js";
+import { checkHolds, MATH } from "../../frontend/src/lib/learn/lessons/checks.js";
+import { LESSON_BODIES, LESSON_OUTLINES } from "../../frontend/src/lib/learn/lessons/index.js";
+import type { LessonBlock, LessonBody, MathCheck } from "../../frontend/src/lib/learn/lessons/types.js";
+import {
+  CLOSE_MAX,
+  RAISER_FAVOURED,
+  exactEquity,
+  generateCalc,
+  generateClassify,
+  gradeCalc,
+  gradeClassify,
+  handBucket,
+  needed,
+  passes,
+} from "../../frontend/src/lib/learn/practice.js";
+import { COMBO_PRESETS, MATCHUP_PRESETS, RANGE_TEXT } from "../../frontend/src/lib/learn/presets.js";
+import {
+  addLocalCards,
+  applyResult,
+  cardFor,
+  exerciseResult,
+  lessonComplete,
+  lessonStatus,
+  localCard,
+  parseCardItem,
+  parseLocalCards,
+  parseLocalProgress,
+  progressAsResults,
+  progressFromRows,
+  reviewLocalCard,
+  type ProgressMap,
+} from "../../frontend/src/lib/learn/progress.js";
+import { globMatch, lessonForArea, patternScore, recommend } from "../../frontend/src/lib/learn/recommend.js";
+import { ALL_PREFLOP_SEATS, PREFLOP_FAMILIES } from "../../frontend/src/lib/training/preflop.js";
+import { RIVER_POTS, RIVER_ROLES, RIVER_SEATS } from "../../frontend/src/lib/training/river.js";
+
+const NOW = new Date("2026-10-06T10:00:00Z");
+
+/* ------------------------------------------------------------ catalogue - */
+
+describe("the course catalogue", () => {
+  it("has the ten modules' 58 lessons and M0's four, in order, with unique codes", () => {
+    expect(LESSON_IDS.length).toBe(62);
+    expect(new Set(LESSON_IDS).size).toBe(62);
+    expect(courseOrder().map((meta) => meta.id)).toEqual([...LESSON_IDS]);
+    expect(lessonsIn("m0")).toHaveLength(4);
+    const codes = courseOrder().map((meta) => meta.code);
+    expect(new Set(codes).size).toBe(62);
+    for (const meta of courseOrder()) expect(meta.code).toMatch(new RegExp(`^M${meta.module.slice(1)}-L\\d+$`));
+  });
+
+  it("puts every module in exactly one track", () => {
+    const placed = TRACK_IDS.flatMap((track) => TRACKS[track]);
+    expect([...placed].sort()).toEqual([...MODULE_IDS].sort());
+    for (const module of MODULE_IDS) expect(lessonsIn(module).length).toBeGreaterThan(0);
+  });
+
+  it("uses ids a URL and the database accept, never a reserved /learn segment", () => {
+    for (const id of LESSON_IDS) {
+      expect(id).toMatch(/^[a-z0-9][a-z0-9-]{1,63}$/);
+      expect(RESERVED_LEARN_SEGMENTS as readonly string[]).not.toContain(id);
+    }
+  });
+
+  it("names only lessons that exist as prerequisites, each earlier in the course", () => {
+    const order = new Map(LESSON_IDS.map((id, index) => [id, index]));
+    for (const meta of courseOrder()) {
+      for (const prereq of meta.prereqs) {
+        expect(LESSONS[prereq], `${meta.id} → ${prereq}`).toBeDefined();
+        expect(order.get(prereq)!, `${meta.id} → ${prereq}`).toBeLessThan(order.get(meta.id)!);
+      }
+    }
+  });
+
+  it("links only concepts that exist", () => {
+    for (const meta of courseOrder()) {
+      expect(meta.concepts.length).toBeGreaterThan(0);
+      for (const concept of meta.concepts) expect(CONCEPT_IDS as readonly string[], meta.id).toContain(concept);
+    }
+  });
+
+  it("defines exercises the engine can deal: real chart sets, seats, families and river filters", () => {
+    const sets = new Set(CHART_SETS.map((spec) => spec.id));
+    for (const meta of courseOrder()) {
+      expect(meta.exercises.length, meta.id).toBeGreaterThan(0);
+      const ids = meta.exercises.map((def) => def.id);
+      expect(new Set(ids).size, meta.id).toBe(ids.length);
+      for (const def of meta.exercises) {
+        expect(def.id).toMatch(/^[a-z0-9][a-z0-9-]{0,39}$/);
+        if (def.kind === "chart-quiz") {
+          expect([...PREFLOP_FAMILIES, "random"]).toContain(def.family);
+          if (def.set) expect(sets.has(def.set), `${meta.id}/${def.id}`).toBe(true);
+          if (def.seat) expect(ALL_PREFLOP_SEATS).toContain(def.seat);
+          if (def.vs) expect(ALL_PREFLOP_SEATS).toContain(def.vs);
+        }
+        if (def.kind === "solver-spot") {
+          expect([...RIVER_POTS, "any"]).toContain(def.pot);
+          expect([...RIVER_SEATS, "any"]).toContain(def.seat);
+          expect([...RIVER_ROLES, "any"]).toContain(def.role);
+          if (def.facing === "check" || def.facing === "bet") expect(def.seat === "ip" || def.seat === "any").toBe(true);
+        }
+        if (def.kind === "calc") expect(CALC_KINDS).toContain(def.calc);
+        if (def.kind === "classify") expect(CLASSIFY_KINDS).toContain(def.classify);
+        if ("count" in def && def.kind !== "own-hands") {
+          expect(def.count).toBeGreaterThan(0);
+          expect(def.pass).toBeGreaterThan(0);
+          expect(def.pass).toBeLessThanOrEqual(1);
+        }
+        if (def.kind === "own-hands") for (const flag of def.flags ?? []) expect(FLAG_CODES as readonly string[]).toContain(flag);
+      }
+    }
+  });
+
+  it("gives every written lesson at least one exercise that counts towards passing it", () => {
+    for (const meta of writtenLessons()) expect(requiredExercises(meta).length, meta.id).toBeGreaterThan(0);
+  });
+
+  it("writes M0–M3 and the 3-bet-pot range-splitting lesson, and nothing else yet", () => {
+    const written = writtenLessons().map((meta) => meta.id);
+    for (const module of ["m0", "m1", "m2", "m3"] as const) for (const meta of lessonsIn(module)) expect(written).toContain(meta.id);
+    expect(written).toContain("range-splitting-ip-vs-checks-3bp");
+    expect(written).toHaveLength(4 + 6 + 6 + 8 + 1);
+  });
+
+  it("matches leaks with real streets and flags", () => {
+    for (const meta of courseOrder()) {
+      for (const pattern of meta.match.spots) expect(["preflop", "flop", "turn", "river"]).toContain(pattern.street);
+      for (const flag of meta.match.flags) expect(FLAG_CODES as readonly string[]).toContain(flag);
+    }
+  });
+
+  it("has an empty slot for curated example hands, and no example yet", () => {
+    for (const meta of courseOrder()) expect(meta.examples ?? []).toHaveLength(0);
+  });
+
+  it("names every lesson, module and track in both languages", () => {
+    for (const id of LESSON_IDS) {
+      expect(en.course.titles[id], id).toBeTruthy();
+      expect(hr.course.titles[id], id).toBeTruthy();
+    }
+    for (const module of MODULE_IDS) {
+      expect(en.course.modules[module]).toBeTruthy();
+      expect(hr.course.modules[module]).toBeTruthy();
+    }
+    for (const track of TRACK_IDS) {
+      expect(en.course.tracks[track]).toBeTruthy();
+      expect(hr.course.tracks[track]).toBeTruthy();
+    }
+  });
+});
+
+/* ---------------------------------------------------------------- words - */
+
+function validCards(codes: readonly string[] | undefined, lengths: number[]): boolean {
+  if (!codes) return true;
+  if (!lengths.includes(codes.length)) return false;
+  const indices = codes.map(cardIndex);
+  return indices.every((index) => index >= 0) && new Set(indices).size === indices.length;
+}
+
+function presetProblem(preset: WidgetPreset): string | null {
+  if (!(WIDGET_IDS as readonly string[]).includes(preset.id)) return `unknown widget ${preset.id}`;
+  if (preset.id === "equity") {
+    if (preset.preset && !(preset.preset in RANGE_TEXT)) return `unknown range ${preset.preset}`;
+    if (!validCards(preset.hand, [2])) return "bad hand";
+  }
+  if (preset.id === "range-vs-range") {
+    if (preset.preset && !MATCHUP_PRESETS.some((m) => m.id === preset.preset)) return `unknown matchup ${preset.preset}`;
+    if (!validCards(preset.board, [0, 3, 4, 5])) return "bad board";
+  }
+  if (preset.id === "combos") {
+    if (preset.preset && !COMBO_PRESETS.some((c) => c.id === preset.preset)) return `unknown combo preset ${preset.preset}`;
+    if (!validCards(preset.hand, [2])) return "bad hand";
+  }
+  if (preset.id === "board-texture" && !validCards(preset.board, [0, 3, 4, 5])) return "bad board";
+  if (preset.id === "bet-math" && preset.focus && !["pot-odds", "mdf", "alpha", "polar", "steal"].includes(preset.focus)) {
+    return `bad focus ${preset.focus}`;
+  }
+  for (const key of ["pot", "bet", "stack"] as const) {
+    const value = preset[key];
+    if (value !== undefined && !(value > 0)) return `bad ${key}`;
+  }
+  if (preset.share !== undefined && !(preset.share >= 0 && preset.share <= 1)) return "bad share";
+  return null;
+}
+
+/** A block's structure, without its words. */
+function shape(block: LessonBlock): string {
+  if (typeof block === "string") return "p";
+  if ("list" in block) return `list:${block.list.length}`;
+  if ("widget" in block) return `widget:${JSON.stringify(block.widget)}:${block.caption ? 1 : 0}`;
+  if ("checkpoint" in block) {
+    const c = block.checkpoint;
+    return `checkpoint:${c.options.length}:${c.answer}:${JSON.stringify(c.math ?? null)}:${JSON.stringify(c.reveal ?? null)}`;
+  }
+  if ("formula" in block) return "formula";
+  return `note:${block.note.tone}`;
+}
+
+function bodyShape(body: LessonBody): unknown {
+  return {
+    sections: body.sections.map((section) => section.blocks.map(shape)),
+    rules: body.heuristics.rules.length,
+    breaks: body.heuristics.breaks.length,
+    exercises: Object.keys(body.exercises).sort(),
+    checks: body.checks,
+  };
+}
+
+function* blocks(body: LessonBody): Generator<LessonBlock> {
+  for (const section of body.sections) yield* section.blocks;
+}
+
+describe("the lessons' words", () => {
+  it("give every lesson an outline in both languages, with the same number of goals", () => {
+    for (const id of LESSON_IDS) {
+      for (const locale of ["en", "hr"] as const) {
+        const outline = LESSON_OUTLINES[locale][id];
+        expect(outline, `${locale}/${id}`).toBeDefined();
+        expect(outline.summary.length, `${locale}/${id}`).toBeGreaterThan(20);
+        expect(outline.summary.length, `${locale}/${id}`).toBeLessThanOrEqual(160);
+        expect(outline.goals.length, `${locale}/${id}`).toBeGreaterThanOrEqual(3);
+        expect(outline.goals.length, `${locale}/${id}`).toBeLessThanOrEqual(5);
+      }
+      expect(LESSON_OUTLINES.hr[id].goals.length, id).toBe(LESSON_OUTLINES.en[id].goals.length);
+    }
+  });
+
+  it("have a body in both languages exactly for the written lessons", () => {
+    for (const meta of courseOrder()) {
+      expect(Boolean(LESSON_BODIES.en[meta.id]), `en/${meta.id}`).toBe(meta.written);
+      expect(Boolean(LESSON_BODIES.hr[meta.id]), `hr/${meta.id}`).toBe(meta.written);
+    }
+  });
+
+  it("have the same structure in English and Croatian", () => {
+    for (const meta of writtenLessons()) {
+      expect(bodyShape(LESSON_BODIES.hr[meta.id]!), meta.id).toEqual(bodyShape(LESSON_BODIES.en[meta.id]!));
+    }
+  });
+
+  it("introduce every exercise of the lesson, and no other", () => {
+    for (const meta of writtenLessons()) {
+      for (const locale of ["en", "hr"] as const) {
+        const body = LESSON_BODIES[locale][meta.id]!;
+        expect(Object.keys(body.exercises).sort(), `${locale}/${meta.id}`).toEqual(meta.exercises.map((def) => def.id).sort());
+        for (const line of Object.values(body.exercises)) expect(line.length).toBeGreaterThan(10);
+      }
+    }
+  });
+
+  it("teach in sections, with checkpoints whose answers exist, and rules of thumb", () => {
+    for (const meta of writtenLessons()) {
+      const body = LESSON_BODIES.en[meta.id]!;
+      expect(body.sections.length, meta.id).toBeGreaterThanOrEqual(3);
+      const checkpoints = [...blocks(body)].filter((block) => typeof block !== "string" && "checkpoint" in block);
+      expect(checkpoints.length, meta.id).toBeGreaterThanOrEqual(1);
+      for (const block of checkpoints) {
+        const c = (block as { checkpoint: { options: readonly string[]; answer: number } }).checkpoint;
+        expect(c.options.length).toBeGreaterThanOrEqual(2);
+        expect(c.options.length).toBeLessThanOrEqual(5);
+        expect(c.answer).toBeGreaterThanOrEqual(0);
+        expect(c.answer).toBeLessThan(c.options.length);
+        expect(new Set(c.options).size, meta.id).toBe(c.options.length);
+      }
+      expect(body.heuristics.rules.length).toBeGreaterThanOrEqual(2);
+      expect(body.heuristics.breaks.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("open every widget on a preset that exists", () => {
+    for (const meta of writtenLessons()) {
+      for (const block of blocks(LESSON_BODIES.en[meta.id]!)) {
+        if (typeof block === "string") continue;
+        const preset = "widget" in block ? block.widget : "checkpoint" in block ? block.checkpoint.reveal : undefined;
+        if (preset) expect(presetProblem(preset), `${meta.id}: ${JSON.stringify(preset)}`).toBeNull();
+      }
+    }
+  });
+
+  it("recompute every number a lesson states", () => {
+    const all: Array<[string, MathCheck]> = [];
+    for (const meta of writtenLessons()) {
+      const body = LESSON_BODIES.en[meta.id]!;
+      for (const check of body.checks) all.push([meta.id, check]);
+      for (const block of blocks(body)) {
+        if (typeof block !== "string" && "checkpoint" in block && block.checkpoint.math) all.push([meta.id, block.checkpoint.math]);
+      }
+    }
+    expect(all.length).toBeGreaterThan(20);
+    for (const [id, check] of all) {
+      expect(MATH[check.fn], `${id}: ${check.fn}`).toBeDefined();
+      expect(checkHolds(check), `${id}: ${check.fn}(${check.args.join(", ")}) = ${MATH[check.fn](...check.args)} ≠ ${check.value}`).toBe(true);
+    }
+  });
+
+  it("carry an honesty banner where the catalogue says the engine cannot solve the spot yet", () => {
+    for (const meta of writtenLessons()) {
+      if (!meta.notes?.length) continue;
+      for (const locale of ["en", "hr"] as const) {
+        const notes = [...blocks(LESSON_BODIES[locale][meta.id]!)].filter((block) => typeof block !== "string" && "note" in block);
+        expect(notes.length, `${locale}/${meta.id}`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("put the Learn banners' words in both dictionaries", () => {
+    for (const note of ["flop-library-off", "approximate-ranges", "conceptual", "straddle-not-analysed"]) {
+      expect(en.course.notes[note]).toBeTruthy();
+      expect(hr.course.notes[note]).toBeTruthy();
+    }
+  });
+});
+
+/* ------------------------------------------------------------- practice - */
+
+describe("generated calc items", () => {
+  const SEEDS = Array.from({ length: 25 }, (_, i) => (i + 1) * 104729);
+
+  it("are the same item for the same seed, and pass with their own answer", () => {
+    for (const kind of CALC_KINDS) {
+      for (const seed of SEEDS) {
+        const item = generateCalc(kind, seed);
+        expect(generateCalc(kind, seed)).toEqual(item);
+        expect(Number.isFinite(item.answer), `${kind}/${seed}`).toBe(true);
+        expect(gradeCalc(item, item.answer).correct, `${kind}/${seed}`).toBe(true);
+        if (item.unit !== "grade") {
+          expect(gradeCalc(item, item.answer + item.tolerance * 2 + 0.5).correct).toBe(false);
+          expect(gradeCalc(item, item.answer - item.tolerance * 2 - 0.5).correct).toBe(false);
+        } else {
+          expect(gradeCalc(item, (item.answer + 1) % GRADES.length).correct).toBe(false);
+        }
+      }
+    }
+  });
+
+  it("ask grades that grade() itself gives, over every grade", () => {
+    const seen = new Set<number>();
+    for (const seed of Array.from({ length: 80 }, (_, i) => i * 7919 + 3)) {
+      const item = generateCalc("grade", seed);
+      const p = item.params as { options: OptionAnalysis[]; chosen: number; pot: number };
+      expect(GRADES.indexOf(grade({ options: p.options, chosen: p.chosen, pot: p.pot }).grade)).toBe(item.answer);
+      seen.add(item.answer);
+    }
+    expect(seen.size).toBe(GRADES.length);
+  });
+
+  it("price calls, steals and the big blind's defence with the concept library's formulas", () => {
+    const pot = generateCalc("pot-odds", 42);
+    const { pot: p, bet } = pot.params as { pot: number; bet: number };
+    expect(pot.answer).toBeCloseTo(bet / (p + 2 * bet), 9);
+    const steal = generateCalc("steal", 42);
+    const open = (steal.params as { open: number }).open;
+    expect(steal.answer).toBeCloseTo(open / (1.5 + open), 9);
+    const blind = generateCalc("blind-price", 42);
+    const o = (blind.params as { open: number }).open;
+    expect(blind.answer).toBeCloseTo((o - 1) / (2 * o + 0.5), 9);
+  });
+
+  it("enumerate draw equities exactly: two hands' shares add to one", () => {
+    for (const seed of [1, 2, 3]) {
+      const item = generateCalc("outs-equity", seed);
+      const p = item.params as { flop: string[]; hero: string[]; villain: string[] };
+      const a = exactEquity(toIndices(p.hero), toIndices(p.villain), toIndices(p.flop));
+      const b = exactEquity(toIndices(p.villain), toIndices(p.hero), toIndices(p.flop));
+      expect(a).toBeCloseTo(item.answer, 12);
+      expect(a + b).toBeCloseTo(1, 12);
+      expect(item.working.outs).toBeGreaterThanOrEqual(4);
+    }
+  });
+});
+
+describe("generated classify items", () => {
+  it("are deterministic, gradable, and answered by the engine's own words", () => {
+    for (const kind of CLASSIFY_KINDS) {
+      const seeds = kind === "turn-card" ? [11, 22] : kind === "range-advantage" || kind === "nut-advantage" ? [11, 22, 33, 44] : [11, 22, 33, 44, 55, 66, 77, 88];
+      for (const seed of seeds) {
+        const item = generateClassify(kind, seed);
+        expect(item.buckets).toContain(item.answer);
+        expect(gradeClassify(item, item.answer)).toBe(true);
+        expect(gradeClassify(item, item.buckets.find((b) => b !== item.answer)!)).toBe(false);
+        if (kind !== "turn-card") expect(generateClassify(kind, seed)).toEqual(item);
+        const board = toIndices(item.board);
+        const texture = boardTexture(board)!;
+        if (kind === "texture") {
+          const truth = { suits: texture.suits, pairing: texture.paired ? "paired" : "unpaired", connectedness: texture.connectedness, "high-card": texture.highCard }[item.ask];
+          expect(item.answer).toBe(truth);
+        }
+        if (kind === "dynamism") expect(item.answer).toBe(texture.dynamism);
+        if (kind === "hand-class") expect(item.answer).toBe(handBucket(toIndices(item.hand!), board)!.bucket);
+        if (kind === "range-advantage") {
+          const equity = Number(item.detail.equity);
+          expect(item.answer === "raiser" ? equity >= RAISER_FAVOURED - 0.0005 : equity <= CLOSE_MAX + 0.0005).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("sort hands into the five plain buckets", () => {
+    expect(handBucket(toIndices(["Ah", "As"]), toIndices(["Kd", "7c", "2h"]))!.bucket).toBe("top");
+    expect(handBucket(toIndices(["7h", "7s"]), toIndices(["Kd", "7c", "2h"]))!.bucket).toBe("strong");
+    expect(handBucket(toIndices(["8h", "8s"]), toIndices(["Kd", "7c", "2h"]))!.bucket).toBe("middle");
+    expect(handBucket(toIndices(["Qh", "Jh"]), toIndices(["Th", "9h", "2c"]))!.bucket).toBe("draw");
+    expect(handBucket(toIndices(["Qc", "Jd"]), toIndices(["5h", "4h", "2c"]))!.bucket).toBe("air");
+  });
+});
+
+describe("pass rules", () => {
+  it("need a share of the asked count, and a finished session", () => {
+    expect(needed(10, 0.7)).toBe(7);
+    expect(needed(6, 0.67)).toBe(5);
+    expect(needed(3, 0.5)).toBe(2);
+    expect(passes(7, 10, 10, 0.7)).toBe(true);
+    expect(passes(6, 10, 10, 0.7)).toBe(false);
+    expect(passes(7, 9, 10, 0.7)).toBe(false);
+  });
+});
+
+/* ------------------------------------------------------------- progress - */
+
+describe("lesson progress", () => {
+  const meta = LESSONS["pot-odds"];
+
+  it("keeps an exercise's latest score, and its pass and the lesson's pass sticky", () => {
+    let map: ProgressMap = {};
+    map = applyResult(map, { lesson: "pot-odds", exercise: "price-drill", correct: 8, total: 10, passed: true }, NOW);
+    expect(lessonStatus(map["pot-odds"])).toBe("in-progress");
+    map = applyResult(map, { lesson: "pot-odds", exercise: "price-drill", correct: 4, total: 10, passed: false }, NOW);
+    expect(map["pot-odds"]!.exercises["price-drill"]).toMatchObject({ correct: 4, total: 10, passed: true, attempts: 2 });
+    map = applyResult(map, { lesson: "pot-odds", exercise: null, lessonPassed: true }, NOW);
+    expect(lessonStatus(map["pot-odds"])).toBe("mastered");
+    map = applyResult(map, { lesson: "pot-odds", exercise: "price-drill", correct: 1, total: 10, passed: false, lessonPassed: false }, NOW);
+    expect(map["pot-odds"]!.status).toBe("passed");
+    expect(map["pot-odds"]!.passedAt).toBe(NOW.toISOString());
+  });
+
+  it("passes a lesson automatically when its last counted exercise passes, ignoring own hands", () => {
+    expect(requiredExercises(meta).map((def) => def.id)).toEqual(["price-drill"]);
+    const first = exerciseResult({}, meta, "price-drill", 6, 10, false);
+    expect(first.lessonPassed).toBe(false);
+    const passed = exerciseResult({}, meta, "price-drill", 8, 10, true);
+    expect(passed.lessonPassed).toBe(true);
+    const map = applyResult({}, passed, NOW);
+    expect(lessonComplete(meta, map["pot-odds"]!.exercises)).toBe(true);
+    // Already passed: a later result does not "pass" it again.
+    expect(exerciseResult(map, meta, "price-drill", 10, 10, true).lessonPassed).toBe(false);
+  });
+
+  it("needs every counted exercise of a lesson with several", () => {
+    const m = LESSONS["facing-3bets-and-4bets"];
+    expect(exerciseResult({}, m, "vs-3bet", 9, 10, true).lessonPassed).toBe(false);
+    const map = applyResult({}, exerciseResult({}, m, "vs-3bet", 9, 10, true), NOW);
+    expect(exerciseResult(map, m, "vs-4bet", 5, 6, true).lessonPassed).toBe(true);
+  });
+
+  it("reads stored rows and the browser's storage defensively", () => {
+    const map = progressFromRows([
+      { lesson_id: "pot-odds", status: "passed", exercises: { "price-drill": { correct: 8, total: 10, passed: true, attempts: 1, at: "x" } }, started_at: "a", passed_at: "b" },
+      { lesson_id: "not-a-lesson", status: "passed", exercises: {} },
+      { lesson_id: "board-texture", status: "started", exercises: { "Bad Id": {}, "read-the-flop": "junk" } },
+    ]);
+    expect(Object.keys(map).sort()).toEqual(["board-texture", "pot-odds"]);
+    expect(map["board-texture"]!.exercises).toEqual({});
+    expect(parseLocalProgress("{broken")).toEqual({});
+    expect(parseLocalProgress(JSON.stringify(map))).toEqual(map);
+    expect(parseLocalCards("[1,2,{}]")).toEqual([]);
+  });
+
+  it("turns local progress back into results that rebuild it", () => {
+    let map: ProgressMap = {};
+    map = applyResult(map, exerciseResult(map, meta, "price-drill", 8, 10, true), NOW);
+    map = applyResult(map, { lesson: "how-rail-teaches", exercise: null }, NOW);
+    let rebuilt: ProgressMap = {};
+    for (const result of progressAsResults(map)) rebuilt = applyResult(rebuilt, result, NOW);
+    expect(lessonStatus(rebuilt["pot-odds"])).toBe("mastered");
+    expect(lessonStatus(rebuilt["how-rail-teaches"])).toBe("in-progress");
+  });
+});
+
+describe("review cards", () => {
+  it("round-trip every generated exercise's item through storage", () => {
+    for (const meta of courseOrder()) {
+      for (const def of meta.exercises) {
+        if (isPlanned(def) || def.kind === "own-hands" || (def.kind === "solver-spot" && def.street === "flop")) continue;
+        const card = cardFor(meta, def, 123456);
+        expect(card.key).toMatch(/^[a-z0-9][a-z0-9:._-]{2,159}$/);
+        expect(JSON.stringify(card.item).length).toBeLessThan(2048);
+        expect(parseCardItem(JSON.parse(JSON.stringify(card.item)))).toEqual(card.item);
+      }
+    }
+    expect(parseCardItem({ k: "calc", calc: "nope", seed: 1 })).toBeNull();
+    expect(parseCardItem({ k: "chart", seed: -1, family: "rfi" })).toBeNull();
+  });
+
+  it("schedule a browser-kept card by the drills' SM-2, and bring a missed-again card back now", () => {
+    const meta = LESSONS["pot-odds"];
+    const def = meta.exercises[0];
+    if (def.kind !== "calc") throw new Error("pot-odds starts with a calc exercise");
+    const card = localCard(cardFor(meta, def, 7), NOW);
+    const right = reviewLocalCard(card, "perfect", NOW);
+    expect(right.state.intervalDays).toBe(1);
+    expect(right.state.reps).toBe(1);
+    const wrong = reviewLocalCard(right, "mistake", NOW);
+    expect(wrong.state.reps).toBe(0);
+    expect(wrong.state.lapses).toBe(1);
+    const later = new Date(NOW.getTime() + 5 * 86_400_000);
+    const deck = addLocalCards([right], [cardFor(meta, def, 7)], later);
+    expect(deck).toHaveLength(1);
+    expect(Date.parse(deck[0].state.dueAt)).toBeLessThanOrEqual(later.getTime());
+    expect(parseLocalCards(JSON.stringify(deck))).toEqual(deck);
+  });
+});
+
+/* -------------------------------------------------------- recommendations - */
+
+describe("recommendations from leaks", () => {
+  const area = (street: string, scenario: string, family: string, hero: string, best = "raise") => ({
+    id: [street, scenario, family, hero, "-"].join("~"),
+    where: { street, scenario, family, hero, villain: "-" },
+    leaks: [{ id: "x", taken: "fold", best, evLossBb: 3, mistakes: 3 }],
+    evLossBb: 3,
+    per100: 1.25,
+  });
+
+  it("matches scenario patterns with wildcards", () => {
+    expect(globMatch("pfr-*-first", "pfr-ip-first")).toBe(true);
+    expect(globMatch("pfr-*-first", "pfr-mw-ip-first")).toBe(true);
+    expect(globMatch("pfr-ip-*", "caller-ip-first")).toBe(false);
+    expect(globMatch("vs-open", "vs-open")).toBe(true);
+    expect(patternScore({ street: "flop", scenarios: ["pfr-*-first"] }, { street: "turn", scenario: "pfr-ip-first", family: "first", hero: "BTN" })).toBe(0);
+    // Merged to the family: still matches, less specifically.
+    expect(patternScore({ street: "river", scenarios: ["caller-*-vs-bet"] }, { street: "river", scenario: "*", family: "vs-bet", hero: "*" })).toBe(2);
+  });
+
+  it("sends a leak to the written lesson that teaches its spot", () => {
+    const written = { writtenOnly: true } as const;
+    expect(lessonForArea(area("preflop", "unopened", "first-in", "UTG"), written)).toBe("positions-and-opening-ranges");
+    expect(lessonForArea(area("preflop", "vs-open", "vs-raise", "BB", "call"), written)).toBe("blind-play-and-bvb");
+    expect(lessonForArea(area("preflop", "vs-open", "vs-raise", "BTN", "raise"), written)).toBe("three-betting");
+    expect(lessonForArea(area("preflop", "vs-open", "vs-raise", "CO", "call"), written)).toBe("facing-an-open");
+    expect(lessonForArea(area("preflop", "vs-3bet", "vs-reraise", "CO"), written)).toBe("facing-3bets-and-4bets");
+    expect(lessonForArea(area("preflop", "squeeze", "vs-raise", "BB"), written)).toBe("squeezes-and-multiway-preflop");
+    expect(lessonForArea(area("preflop", "vs-limp", "first-in", "BTN"), written)).toBe("limpers-and-isolation");
+    expect(lessonForArea(area("river", "caller-ip-vs-bet", "vs-bet", "BTN", "call"), written)).toBe("bluffing-math-alpha-mdf");
+    expect(lessonForArea(area("flop", "pfr-ip-first", "first", "BTN", "bet"), written)).toBe("range-advantage");
+    // Nothing written teaches a river bet as the raiser yet: no lesson rather than a wrong one.
+    expect(lessonForArea(area("river", "pfr-oop-first", "first", "SB", "bet"), written)).toBeNull();
+    // The map also badges lessons that are coming soon.
+    expect(lessonForArea(area("river", "pfr-oop-first", "first", "SB", "bet"))).toBe("thin-value");
+  });
+
+  it("never recommends a passed lesson, and adds lessons for flags seen often", () => {
+    const passed = new Set<LessonId>(["positions-and-opening-ranges"]);
+    expect(lessonForArea(area("preflop", "unopened", "first-in", "UTG"), { passed, writtenOnly: true })).toBe("open-sizing");
+    const recs = recommend([area("preflop", "unopened", "first-in", "UTG")], [{ code: "check-back-nuts", decisions: 5 }, { code: "fold-nuts", decisions: 1 }]);
+    expect(recs.map((rec) => [rec.lesson, rec.reason])).toEqual([
+      ["positions-and-opening-ranges", "leak"],
+      ["checking-back-and-delayed-cbets", "flag"],
+    ]);
+    expect(recs[0].per100).toBe(1.25);
+  });
+});

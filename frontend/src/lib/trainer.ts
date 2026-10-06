@@ -16,6 +16,7 @@ import type {
   TrainerSpot,
   TrainingRequest,
   TrainingResponse,
+  TurnSpotOptions,
 } from "./training";
 
 let worker: Worker | null | undefined;
@@ -69,6 +70,13 @@ export async function dealPreflopSpot(options: PreflopSpotOptions, seed: number)
 export async function dealRiverSpot(options: RiverSpotOptions, seed: number): Promise<TrainerSpot | null> {
   sequence += 1;
   const response = await ask({ type: "river", jobId: sequence, options, seed });
+  return unwrap(response, (r) => (r.type === "spot" ? r.spot : undefined));
+}
+
+/** A turn spot for `seed` (Learn L1), or null when the generator found none. Solves a turn: about a second. */
+export async function dealTurnSpot(options: TurnSpotOptions, seed: number): Promise<TrainerSpot | null> {
+  sequence += 1;
+  const response = await ask({ type: "turn", jobId: sequence, options, seed });
   return unwrap(response, (r) => (r.type === "spot" ? r.spot : undefined));
 }
 

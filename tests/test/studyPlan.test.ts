@@ -407,6 +407,24 @@ describe("the week's plan", () => {
     expect(after.filter((task) => task.kind === "read").map((task) => task.ref)).toEqual(["rfi", "pot-odds"]);
   });
 
+  it("puts the lesson for a leak first in its area (Learn L1), once, and in the fundamentals when given", () => {
+    const withLessons = planTasks({
+      areas: focus.areas,
+      hands: { [RIVER_AREA]: ["h1", "h2", "h3", "h4"], [SB_AREA]: ["h2", "h5"] },
+      drills,
+      lessonFor: (area) => (area.where.street === "preflop" ? "positions-and-opening-ranges" : null),
+    });
+    const lessons = withLessons.filter((task) => task.kind === "lesson");
+    expect(lessons.map((task) => `${task.focus}:${task.ref}:${task.target}`)).toEqual(["1:positions-and-opening-ranges:1"]);
+    expect(withLessons.filter((task) => task.focus === 1)[0].kind).toBe("lesson");
+    expect(rpcTask(lessons[0])).toMatchObject({ kind: "lesson", ref: "positions-and-opening-ranges", hand_id: null, match_mode: null, spot_keys: null });
+    // Without a resolver the plan is exactly what it was.
+    expect(withLessons.filter((task) => task.kind !== "lesson")).toEqual(tasks);
+    const basics = fundamentalsTasks(0, null, "pot-odds");
+    expect(basics[0]).toEqual({ kind: "lesson", ref: "pot-odds", target: 1, focus: null });
+    expect(basics.slice(1)).toEqual(fundamentalsTasks(0));
+  });
+
   it("measures progress by tasks done, and partly done ones by their share", () => {
     const progress = planProgress([
       { kind: "read", focus: 0, done: true, progress: 1, target: 1 },

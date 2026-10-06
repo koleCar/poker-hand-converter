@@ -34,6 +34,7 @@
 import { analysisEn } from "./ns/analysis.en";
 import { chromeEn } from "./ns/chrome.en";
 import { converterEn } from "./ns/converter.en";
+import { courseEn } from "./ns/course.en";
 import { learnEn } from "./ns/learn.en";
 import { replayerEn } from "./ns/replayer.en";
 import { statsEn } from "./ns/stats.en";
@@ -43,6 +44,7 @@ export const en = {
   stats: statsEn,
   analysis: analysisEn,
   learn: learnEn,
+  course: courseEn,
   replayer: replayerEn,
   converter: converterEn,
   chrome: chromeEn,
@@ -110,6 +112,16 @@ export const en = {
         "Free poker concepts explained with worked examples and interactive calculators: pot odds, equity realisation, ranges, board texture, MDF, SPR, bet sizing, 3-bets and more.",
     },
     learnConcept: (title: string) => `${title} — poker concepts | Rail`,
+    course: {
+      title: "Learn poker: a cash-game course with drills graded by a solver | Rail",
+      description:
+        "A free course in cash-game poker, from pot odds and ranges to preflop and 3-bet pots: short lessons, predict-then-reveal checkpoints, and practice generated and graded by Rail's own charts and solver.",
+    },
+    lesson: (title: string) => `${title} — Learn | Rail`,
+    learnReview: {
+      title: "Review — your missed quiz items | Rail",
+      description: "The quiz items you missed in lessons, back on a spaced-repetition schedule.",
+    },
     charts: {
       title: "Preflop charts: 6-max and 9-max cash, every hand's mix and EV | Rail",
       description:
@@ -138,6 +150,7 @@ export const en = {
     library: "Hand history",
     stats: "Statistics",
     analysis: "Analysis",
+    learn: "Learn",
   },
 
   home: {
