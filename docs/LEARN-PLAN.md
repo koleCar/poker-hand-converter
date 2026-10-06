@@ -38,31 +38,79 @@ calculators at runtime, or is plain arithmetic the tests recompute.**
    written yet is in the map as "coming soon".
 7. **Progress is automatic.** A lesson is passed when its gradable exercises
    pass. No "mark as seen".
+8. **No basics in the course (owner's rule, 2026-10-06).** The course assumes
+   the learner already plays: no lessons on names, positions as vocabulary,
+   board types, hand rankings, or the general maths and range vocabulary. Those
+   stay in the concept library (`/analysis/learn`) as reference, linked from a
+   lesson the first time it uses a term. A lesson teaches the maths it needs in
+   place, in one or two lines, at the spot where it decides something.
+9. **The order is the order of a hand (owner's rule, 2026-10-06).**
+   1. How to play **preflop**.
+   2. How to play the **flop**, situation by situation.
+   3. The **turn**.
+   4. The **river**.
+   5. Then **exploits**: how to adjust against real people, and which
+      adjustments pay most.
 
 ## 2. The course
 
-Ten modules plus an orientation, in four tracks. 62 lessons (M0's 4 plus 58).
-Lesson ids are the `LessonId` union in `frontend/src/lib/learn/course.ts`;
-titles are in the dictionary (`course.titles`), outlines and bodies in
-`frontend/src/lib/learn/lessons/`.
+Five tracks, in the order of a hand (principle 9), with no basics track
+(principle 8). Lesson ids are the `LessonId` union in
+`frontend/src/lib/learn/course.ts`. Titles are in the dictionary
+(`course.titles`); outlines and bodies are in `frontend/src/lib/learn/lessons/`.
 
-| Track | Module | Lessons | L1 |
-|---|---|---|---|
-| Foundations | **M0 Orientation** | how to study with Rail; equilibrium, exploits and why the solver mixes; reading your analysis and leaks; variance, bankroll and judging decisions | written |
-| | **M1 Poker maths** | pot odds; equity, outs and quick estimates; expected value; counting combinations; alpha and MDF; realisation and implied odds | written |
-| | **M2 Thinking in ranges** | from one hand to a range; range advantage; nut advantage; reading the flop; who the next card helps; narrowing a range street by street | written |
-| Preflop | **M3 Preflop** | seats and opening ranges (6-max and full ring); open sizes online and live; facing an open; 3-betting; facing 3-bets and 4-bets; blind defence and blind vs blind; squeezes; limpers and isolation | written |
-| After the flop | **M4** Single-raised pots as the raiser | why the raiser bets; flop bets by board type; which hands bet; out of position as the raiser; checking back and betting later; facing a check-raise | L2 |
-| | **M5** Single-raised pots as the caller | defending a flop bet; check-raising; floating and stabbing in position; leading into the raiser; facing a second barrel; big blind vs button end to end | L2 |
-| | **M6** 3-bet and 4-bet pots | SPR and commitment; betting as the 3-bettor; calling a 3-bet; **in position after a check: small, big or check** (owner's request); 3-bet pots on the turn and river; 4-bet pots | M6-L4 written; rest L3 |
-| | **M7** The turn | kinds of turn card; betting again; sizes and overbets; after a checked flop | L2 |
-| | **M8** The river | value, bluffs and the middle; thin value; picking bluffs; bluff-catching; river sizes; raises and leads | L2 |
-| | **M9** Multiway | what changes with three players; betting into two; defending and leading; preflop choices that make pots multiway | L3 |
-| Live and exploits | **M10** | live dynamics; straddles preflop; straddled pots after the flop; 200bb deep; adjusting to the pool; player types | L3 |
+### Restructure from L1
 
-Every lesson in the catalogue already has its prerequisites, linked concepts,
-exercise definitions and the spots and flags that tie it to leaks, so a later
-phase only writes the words and builds the widgets it waits for.
+L1 shipped a Foundations track: M0 orientation, M1 poker maths, M2 thinking in
+ranges.
+
+**Out of the course map.** M1 and M2 leave the map. Their pages become concept
+reference, in the concept library or as a `/learn/reference/...` page. Their
+ideas are folded into the first lesson that needs them:
+- pot odds and realisation in *facing an open*;
+- alpha / MDF in *defending a flop bet*;
+- combos and blockers in *picking bluffs*;
+- range and nut advantage in *flop bets by board type*.
+
+M0's "how Rail teaches / reading your analysis" becomes the map's short intro
+panel, not a lesson. Nothing is deleted from the database: old progress rows
+for removed ids are left in place and simply not shown.
+
+### The tracks
+
+| Track | Module | Lessons (existing ids; *new* in italics) |
+|---|---|---|
+| **1. Preflop** | **P1** Opening | positions-and-opening-ranges, open-sizing, limpers-and-isolation |
+| | **P2** Facing raises | facing-an-open, three-betting, facing-3bets-and-4bets, squeezes-and-multiway-preflop |
+| | **P3** Blinds and depth | blind-play-and-bvb, multiway-preflop-choices, *preflop-by-stack-depth* (40 / 60 / 150 / 200bb, from the chart sets) |
+| **2. Flop** | **F1** SRP, raiser in position | cbet-why-and-when, cbet-by-texture, hand-classes-on-the-flop, checking-back-and-delayed-cbets |
+| | **F2** SRP, raiser out of position | oop-as-the-raiser, facing-a-check-raise |
+| | **F3** SRP, caller | defending-vs-cbets, check-raising, floating-and-stabbing-ip, probes-and-donk-bets, bb-vs-btn-blueprint |
+| | **F4** 3-bet and 4-bet pots | spr-and-commitment, cbetting-as-the-3bettor, playing-3bp-as-the-caller, range-splitting-ip-vs-checks-3bp, four-bet-pots |
+| | **F5** Multiway flops | multiway-principles, multiway-as-the-raiser, multiway-defence |
+| **3. Turn** | **T1** Betting again | turn-card-classes, double-barreling, turn-sizing-and-overbets, turn-after-flop-checks-through |
+| | **T2** Defending the turn | facing-turn-barrels, *turn-check-raise-and-probe* |
+| | **T3** Turn in 3-bet pots | *3bp-turn* (split from 3bp-turn-and-river) |
+| **4. River** | **R1** Betting the river | river-polarisation, thin-value, choosing-bluffs-blockers, river-sizing |
+| | **R2** Facing river bets | bluff-catching, facing-river-raises |
+| | **R3** River in 3-bet pots | *3bp-river* (split from 3bp-turn-and-river) |
+| **5. Exploits** | **X1** Reading people | player-profiles, *reading-hud-stats* (the opponents panel's numbers, and how many hands each needs before it means anything) |
+| | **X2** The pool | population-exploits, *exploiting-overfolders*, *exploiting-calling-stations*, *exploiting-aggressive-players*, *underbluffed-rivers* |
+| | **X3** Exploit lab | *node-locking-in-rail* (lock an opponent's frequency at a node, re-solve, see the best response and what it gains and risks), *when-not-to-exploit* (sample size, counter-exploits, the cost of being wrong) |
+| | **X4** Live and deep | live-game-dynamics, straddle-preflop, straddle-postflop-low-spr, deep-stacks-200bb |
+
+**Removed from the path:** `how-rail-teaches`, `gto-mixing-and-simplifying`,
+`reading-rail-reports` and `variance-bankroll-and-tilt` (intro panel and
+reference), all of M1 and all of M2.
+
+**Exploit lessons are engine-backed like everything else.** Rail has its own
+evidence for them:
+- the owner's own database: villain stats (M4 opponents panel, `villain_stats`) give pool tendencies with sample sizes;
+- the solver: an *exploit lab* fixes an opponent's strategy at a node and computes the best response against it, a best response with one player's strategy frozen, which `lib/solver` already does for exploitability.
+
+No population figures are copied from anywhere. A number about "the pool" is
+either the learner's own data, with its sample size, or clearly labelled
+theory with no number.
 
 ## 3. Exercises
 
@@ -102,10 +150,12 @@ views, a live/online path toggle, re-check nudges, a daily five-minute dose.
 
 | Phase | Delivers |
 |---|---|
-| **L1** (this) | The Learn tab and course map; the full catalogue; written lessons for M0–M3 and M6-L4 in English and Croatian; `chart-quiz`, `solver-spot` (river and turn), `calc` with answer-first reveal, `classify`, `own-hands`; recommendations, the plan's lesson task, review cards, automatic progress; storage for signed-in learners, browser storage for signed-out ones. |
-| **L2** | M4, M5, M7, M8 written; the `range-split` widget, turn and river first (graded per hand class by Rail's turn and river solves), then flop when the library is on. |
-| **L3** | M6, M9, M10 written; the `range-paint` widget; the placement test; mastery from real-hand improvement (the leak finder's mistake rate in the lesson's spots before and after); the range-walk widget (M2-L6). |
-| **L4** | Curated example hands with source attribution in the lessons' `examples` slot (a separate research job is collecting them from a video channel); flop drills once `FLOP_LIBRARY_ENABLED` is on (M4, M5, M6-L4's flop split, the texture triad and the SPR toggle). |
+| **L1** (shipped, #110) | The Learn tab and course map; the full catalogue; written lessons for M0–M3 and M6-L4 in English and Croatian; `chart-quiz`, `solver-spot` (river and turn), `calc` with answer-first reveal, `classify`, `own-hands`; recommendations, the plan's lesson task, review cards, automatic progress; storage for signed-in learners, browser storage for signed-out ones. |
+| **L1.1** — restructure (principles 8–9) | <ul><li>Tracks and modules as in §2; M0–M2 out of the map (intro panel and reference)</li><li>their key ideas folded into the first lesson that uses them</li><li>the new ids added as "coming soon"</li><li>the plan's lesson tasks and leak recommendations re-pointed</li><li>tests updated</li></ul> |
+| **L2** — flop | Track 2 written (F1–F5); the `range-split` widget (turn/river buckets now, flop buckets when the flop library is on). |
+| **L3** — turn and river | Tracks 3–4 written; `range-paint`; mastery from real-hand improvement. |
+| **L4** — exploits | Track 5 written, plus the **exploit lab**: solver node-locking UI, the opponents-panel tie-in, pool tendencies from the learner's own villain stats with sample sizes. |
+| **L5** | Placement test, curated example hands (`examples` slot), flop drills once `FLOP_LIBRARY_ENABLED` is on. |
 
 ## 6. What L1 shipped
 
