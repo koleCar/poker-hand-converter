@@ -131,6 +131,9 @@ per-user counter is a strictly larger table with a cleanup job attached.
 | `analysis_share:<user>` | 120 switches / 10 min **per account** | `set_analysis_share()` |
 | `study_plan:<user>` | 60 plans / 10 min **per account** | `save_study_plan()` |
 | `study_task:<user>` | 600 ticks / 10 min **per account** | `set_study_task()` |
+| `lesson_results:<user>` | 300 calls (≤ 100 results each) / 10 min **per account** | `record_lesson_results()` |
+| `lesson_cards:<user>` | 120 calls (≤ 20 cards each) / 10 min **per account** | `add_lesson_cards()` |
+| `lesson_review:<user>` | 600 reviews / 10 min **per account** | `review_lesson_card()` |
 
 `share_view` is the one per-key bucket, because the thing it protects is
 per-key: a view counter anyone can increment by holding a URL is a vanity metric
@@ -835,6 +838,51 @@ and ticks; validation refusing a plan whole; another account's hand; the
 rollover (one row per week, last week untouched, a rebuild keeping ticks by
 kind and reference); an old week's tasks closed; isolation between two users
 and anon.
+
+`learn_progress.test.sql` (Learn L1, 50 assertions): see below.
+
+## Learn: `lesson_progress`, `lesson_cards`
+
+Learn L1 (`20270317090000_learn_progress.sql`, `docs/LEARN-PLAN.md`). The
+course ships with the app; exercises are generated and graded in the
+browser. Two tables keep a signed-in learner's state, owner-scoped with RLS
+select-own, **no client INSERT, UPDATE or DELETE grant**, nothing to `anon`
+(a signed-out learner keeps the same two things in the browser's storage):
+
+| Table | Key | What |
+| --- | --- | --- |
+| `lesson_progress` | `(owner_id, lesson_id)` | `status` `started` / `passed` (sticky, with `passed_at`), and `exercises`: per exercise id the latest `correct`/`total`, an ever-`passed` flag and `attempts` (16 KB). |
+| `lesson_cards` | `id`; unique `(owner_id, item_key)` | A missed quiz item: its `kind` (`chart-quiz`, `solver-spot`, `calc`, `classify`), a small `item` spec (kind and seed, ≤ 2 KB) the browser regenerates it from, and the drills' SM-2 state (`reps`, `lapses`, `ease`, `interval_days`, `due_at`, `reviews`, `last_grade`). |
+
+Writes are three `security definer` functions with explicit `auth.uid()`
+checks, `search_path = ''` and per-account rate limits:
+`record_lesson_results(rows)` (≤ 100; lesson and exercise ids by shape,
+`0 ≤ correct ≤ total ≤ 1000`; validated whole; at most 200 lessons per
+account, since the database does not know the catalogue);
+`add_lesson_cards(cards)` (≤ 20; kind, key and item shape; a card missed
+again is due now; at most 2,000 per account); `review_lesson_card(card,
+grade)` (named by id *and* owner, "No such card." either way; the schedule is
+`drill_quality` + `drill_next`, the drills' own). Results and grades come
+from the browser and are shape-checked only: a false one marks only its
+sender's lessons. Reads are plain selects under RLS.
+
+The study plan's `study_tasks.kind` gains `lesson` (reference: a lesson id):
+`save_study_plan` accepts it and `study_plan` counts it done when the
+caller's `lesson_progress` row for it is `passed`. `learn` joins
+`username_reservations` (a new top-level route).
+
+### Tests
+
+`learn_progress.test.sql`: no client write grant on either table, no grant
+at all to anon, RLS on; the three writers definer, every function (and the
+replaced study-plan pair) with an empty `search_path`, `study_plan` still
+invoker; execute for `authenticated` (with the SM-2 helpers) and not for
+anon; the route reservation; latest score, sticky exercise and lesson passes,
+attempts; validation refusing a batch whole; the 200-lesson cap; cards once
+per item, missed again due now, kinds and shapes and the 20-card batch;
+SM-2 on review (pass: a day, fail: relearned in ten minutes); another
+account's card; isolation; the plan's lesson task done only for the passing
+account; anon reads and writes nothing.
 
 ## Verifying the isolation
 

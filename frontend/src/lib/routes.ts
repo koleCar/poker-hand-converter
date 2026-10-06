@@ -67,6 +67,17 @@ export const paths = {
     const query = params.toString();
     return query ? `/analysis/charts?${query}` : "/analysis/charts";
   },
+  /**
+   * The Learn tab (Learn L1, `docs/LEARN-PLAN.md`): the course map. Public and
+   * indexable: the course reads no account data on the server (a learner's
+   * progress is read in the browser). A top-level segment, so `learn` is a
+   * reserved username (`20270317090000_learn_progress.sql`).
+   */
+  learn: () => "/learn",
+  /** One lesson. `id` is a `LessonId` from `lib/learn/course.ts`. */
+  lesson: (id: string) => `/learn/${encodeURIComponent(id)}`,
+  /** The review queue: missed quiz items on their spaced-repetition schedule. */
+  learnReview: () => "/learn/review",
   /** One concept page. `id` is a `ConceptId` from `lib/learn/concepts.ts`. */
   analysisConcept: (id: string) => `/analysis/learn/${encodeURIComponent(id)}`,
   /** One hand's analysis: the replayer with the Analysis sheet open. */

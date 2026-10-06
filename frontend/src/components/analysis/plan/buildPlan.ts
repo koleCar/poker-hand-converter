@@ -13,6 +13,9 @@ import { ANALYSIS_VERSION } from "../../../lib/analysis";
 import { fetchLeakHands, fetchLeaks } from "../../../lib/db/analysisLeaks";
 import { saveStudyPlan, type StoredPlan } from "../../../lib/db/studyPlan";
 import { fetchDrillSummary, fetchDrillsBySpot } from "../../../lib/db/training";
+import { fetchLessonProgress } from "../../../lib/db/learn";
+import type { LessonId } from "../../../lib/learn/course";
+import { lessonForArea } from "../../../lib/learn/recommend";
 import {
   fundamentalsTasks,
   planFocus,
@@ -36,8 +39,19 @@ export function previousOf(plan: StoredPlan | null): PreviousPlan | null {
   };
 }
 
+/** The fundamentals plan's lesson: the first of these the learner has not passed (Learn L1). */
+const FUNDAMENTAL_LESSONS: readonly LessonId[] = ["pot-odds", "positions-and-opening-ranges", "facing-an-open", "blind-play-and-bvb"];
+
+/** Lessons passed, so a plan never asks for one again; empty when the Learn tables are not there yet. */
+async function passedLessons(): Promise<Set<LessonId>> {
+  const progress = await fetchLessonProgress().catch(() => null);
+  return new Set(
+    (Object.keys(progress ?? {}) as LessonId[]).filter((id) => progress?.[id]?.status === "passed"),
+  );
+}
+
 export async function buildPlan(week: string, previous: StoredPlan | null): Promise<void> {
-  const report = await fetchLeaks({});
+  const [report, passed] = await Promise.all([fetchLeaks({}), passedLessons()]);
   const rows = report?.rows ?? [];
   const hands = report?.hands ?? 0;
   const graded = report?.graded ?? 0;
@@ -77,14 +91,21 @@ export async function buildPlan(week: string, previous: StoredPlan | null): Prom
       }
       handIds[area.id] = ids;
     });
-    tasks = planTasks({ areas, hands: handIds, drills, previous: prior });
+    tasks = planTasks({
+      areas,
+      hands: handIds,
+      drills,
+      previous: prior,
+      lessonFor: (area) => lessonForArea(area, { passed, writtenOnly: true }),
+    });
     areas = withReviews(areas, tasks, known);
   } else {
     const summary = await fetchDrillSummary().catch(() => null);
-    tasks = fundamentalsTasks(summary ? summary.due + summary.candidates : 0, prior);
+    const lesson = FUNDAMENTAL_LESSONS.find((id) => !passed.has(id)) ?? null;
+    tasks = fundamentalsTasks(summary ? summary.due + summary.candidates : 0, prior, lesson);
   }
 
-  await saveStudyPlan({
+  const input = {
     weekStart: week,
     kind: focus.kind,
     analysisVersion: ANALYSIS_VERSION,
@@ -97,5 +118,13 @@ export async function buildPlan(week: string, previous: StoredPlan | null): Prom
       reason: focus.reason,
     },
     tasks,
-  });
+  };
+  try {
+    await saveStudyPlan(input);
+  } catch (error) {
+    // A database without the Learn migration refuses the `lesson` kind: the
+    // plan is still worth having without it.
+    if (!tasks.some((task) => task.kind === "lesson")) throw error;
+    await saveStudyPlan({ ...input, tasks: tasks.filter((task) => task.kind !== "lesson") });
+  }
 }

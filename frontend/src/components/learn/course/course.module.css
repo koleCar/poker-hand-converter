@@ -1,0 +1,499 @@
+/* The Learn tab (`/learn`, Learn L1): the course map, lesson pages, their
+   checkpoints and exercises, and the review queue.
+
+   Mobile first, like the concept library: one column at 375px, a readable
+   measure on wide screens, buttons that wrap rather than scroll. Every colour
+   is a semantic token. */
+
+/* ------------------------------------------------------------- the page */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-inline-size: 52rem;
+  margin-inline: auto;
+  inline-size: 100%;
+}
+
+.pageHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  overflow-wrap: anywhere;
+}
+
+.lead {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-secondary);
+  max-inline-size: 65ch;
+}
+
+.eyebrow {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.eyebrow a,
+.related a,
+.section a {
+  color: var(--text-link);
+}
+
+.muted {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.conceptsLink {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  line-height: var(--line-height-relaxed);
+}
+
+.section > p,
+.section li {
+  max-inline-size: 70ch;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding-inline-start: var(--space-5);
+}
+
+.related {
+  font-size: var(--font-size-sm);
+}
+
+.widget {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.banner {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius-2);
+  background: var(--warning-bg);
+  color: var(--warning-on-tint);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.banner[data-tone="conceptual"] {
+  border-color: var(--accent-border);
+  background: var(--accent-subtle);
+  color: var(--accent-on-subtle);
+}
+
+.lessonMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pager {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.pager > * {
+  justify-self: start;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+@media (min-width: 640px) {
+  .pager {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .pager > :last-child {
+    justify-self: end;
+  }
+}
+
+/* ------------------------------------------------------------ the map */
+
+.map {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.mapBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-inset);
+}
+
+.noteActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.trackTitle {
+  font-size: var(--font-size-2xl);
+}
+
+.module {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.moduleTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--font-size-lg);
+}
+
+.moduleCode,
+.lessonCode {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.lessons {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .lessons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.lessonCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  block-size: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-3);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.lessonCard[data-written] {
+  border-color: var(--border-default);
+  background: linear-gradient(180deg, var(--surface-raised), var(--surface-raised-fade));
+  color: var(--text-primary);
+}
+
+.lessonCard:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
+.lessonHead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lessonTitle {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-link);
+}
+
+.lessonCard:not([data-written]) .lessonTitle {
+  color: var(--text-secondary);
+}
+
+.lessonSummary {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--text-secondary);
+}
+
+.lessonTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-block-start: var(--space-1);
+}
+
+.tag,
+.status,
+.passedTag,
+.recommended {
+  align-self: flex-start;
+  padding: 1px var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.status[data-status="in-progress"] {
+  border-color: var(--accent-border);
+  color: var(--accent-fg);
+}
+
+.status[data-status="mastered"],
+.passedTag {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-on-tint);
+}
+
+.recommended {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-on-tint);
+}
+
+/* ------------------------------------------------------ checkpoints */
+
+.checkpoint {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--accent-border);
+  border-inline-start-width: 4px;
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.checkpointLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-fg);
+}
+
+.checkpointQuestion,
+.question {
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.choice {
+  white-space: normal;
+  text-align: start;
+}
+
+.choice[data-state="right"] {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-on-tint);
+}
+
+.choice[data-state="wrong"] {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-on-tint);
+}
+
+.checkpointAnswer,
+.revealBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.right {
+  color: var(--success-fg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.wrong {
+  color: var(--danger-fg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.reveal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+}
+
+/* -------------------------------------------------------- exercises */
+
+.exercise {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.exercise[data-passed] {
+  border-color: var(--success-border);
+}
+
+.exerciseHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.exerciseHead h3 {
+  font-size: var(--font-size-lg);
+}
+
+.planned {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-2);
+}
+
+.session,
+.item,
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.nextRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.cardsLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.cardsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.answerForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.answerForm input {
+  inline-size: 8rem;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.optionTable {
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.optionTable th,
+.optionTable td {
+  padding: var(--space-1) var(--space-3);
+  border-block-end: 1px solid var(--border-subtle);
+  text-align: start;
+}
+
+.optionTable tr[data-chosen] th,
+.optionTable tr[data-chosen] td {
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+}
+
+.chosenTag {
+  margin-inline-start: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--accent-fg);
+}
+
+.mastered {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-3);
+  background: var(--success-bg);
+  color: var(--success-on-tint);
+}

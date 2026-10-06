@@ -12,6 +12,7 @@
 import { analysisHr } from "./ns/analysis.hr";
 import { chromeHr } from "./ns/chrome.hr";
 import { converterHr } from "./ns/converter.hr";
+import { courseHr } from "./ns/course.hr";
 import { learnHr } from "./ns/learn.hr";
 import { replayerHr } from "./ns/replayer.hr";
 import { statsHr } from "./ns/stats.hr";
@@ -27,6 +28,7 @@ export const hr: Dict = {
   stats: statsHr,
   analysis: analysisHr,
   learn: learnHr,
+  course: courseHr,
   replayer: replayerHr,
   converter: converterHr,
   chrome: chromeHr,
@@ -93,6 +95,16 @@ export const hr: Dict = {
         "Besplatno objašnjeni pokerski pojmovi s razrađenim primjerima i interaktivnim kalkulatorima: pot odds, realizacija equityja, rasponi, tekstura boarda, MDF, SPR, veličina beta, 3-betovi i više.",
     },
     learnConcept: (title: string) => `${title} — pokerski pojmovi | Rail`,
+    course: {
+      title: "Nauči poker: tečaj cash igre s vježbama koje ocjenjuje solver | Rail",
+      description:
+        "Besplatan tečaj cash pokera, od pot oddsa i rangeova do preflopa i 3-bet potova: kratke lekcije, provjere u kojima prvo predviđaš pa vidiš odgovor, i vježbe koje generiraju i ocjenjuju Railovi vlastiti chartovi i solver.",
+    },
+    lesson: (title: string) => `${title} — Učenje | Rail`,
+    learnReview: {
+      title: "Ponavljanje — pitanja koja si promašio | Rail",
+      description: "Pitanja iz lekcija koja si promašio, ponovno po rasporedu razmaknutog ponavljanja.",
+    },
     charts: {
       title: "Preflop chartovi: 6-max i 9-max cash, mix i EV svake ruke | Rail",
       description:
@@ -120,6 +132,7 @@ export const hr: Dict = {
     library: "Povijest ruku",
     stats: "Statistika",
     analysis: "Analiza",
+    learn: "Učenje",
   },
 
   home: {

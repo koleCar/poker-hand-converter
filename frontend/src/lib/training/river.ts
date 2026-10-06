@@ -78,7 +78,7 @@ export const RIVER_LINES: readonly RiverLine[] = [
 ];
 
 /** One flop or turn line, by who acts: `o` out of position, `i` in position. */
-interface StreetPattern {
+export interface StreetPattern {
   id: string;
   steps: ReadonlyArray<readonly ["o" | "i", "check" | "call" | "bet", number?]>;
 }
@@ -92,7 +92,7 @@ const PATTERNS: Record<string, StreetPattern> = {
 };
 
 /** How often each pattern is played, by who has the initiative (the preflop raiser). */
-const PATTERN_WEIGHTS: Record<"ip" | "oop" | "none", Record<"flop" | "turn", Array<[string, number]>>> = {
+export const PATTERN_WEIGHTS: Record<"ip" | "oop" | "none", Record<"flop" | "turn", Array<[string, number]>>> = {
   // The preflop raiser in position: c-bets or checks back; the caller rarely leads.
   ip: {
     flop: [["xb33", 0.45], ["xb75", 0.15], ["xx", 0.32], ["b33", 0.06], ["b75", 0.02]],
@@ -112,9 +112,9 @@ const PATTERN_WEIGHTS: Record<"ip" | "oop" | "none", Record<"flop" | "turn", Arr
 /** A bet that would put in more than this share of what is behind is played as a check instead: no all-ins before the river. */
 const MAX_BET_SHARE = 0.6;
 /** The villain's river action is drawn only from actions the solve takes at least this often (the analysis' `MIN_ACTION_FREQ`). */
-const MIN_VILLAIN_FREQ = 0.01;
+export const MIN_VILLAIN_FREQ = 0.01;
 /** Attempts before giving up on a seed (a line the solve never reaches, a range emptied by the board). */
-const MAX_ATTEMPTS = 12;
+export const MAX_ATTEMPTS = 12;
 /** `borderline`: the floor every combo keeps. */
 const BORDERLINE_FLOOR = 0.1;
 
@@ -128,6 +128,34 @@ export interface RiverSpotOptions {
   /** Only lines where the hero raised preflop last (`pfr`) or called (`caller`); a limped pot is neither. */
   role?: RiverRole | "any";
   bias?: DealBias;
+  /**
+   * In position only (the villain acts first there): deal only spots where
+   * the villain checked (`check`) or bet (`bet`). Asking for either makes the
+   * hero the in-position player. Additive (Learn, L1); absent means any.
+   */
+  facing?: "check" | "bet" | "any";
+}
+
+/** The seat a spot filter pins: a `facing` filter is an in-position spot by definition. */
+export function filterSeat(options: Pick<RiverSpotOptions, "seat" | "facing">): RiverSeat | "any" {
+  if (options.facing === "check" || options.facing === "bet") return "ip";
+  return options.seat ?? "any";
+}
+
+/** The villain's first actions a `facing` filter allows, as weights over the root's actions. */
+export function facingWeights(
+  actions: ReadonlyArray<{ kind: ActionKind }>,
+  frequency: ArrayLike<number>,
+  facing: RiverSpotOptions["facing"],
+  minFreq: number,
+): number[] {
+  return actions.map((action, i) => {
+    const f = frequency[i];
+    if (!(f >= minFreq)) return 0;
+    if (facing === "check" && action.kind !== "check") return 0;
+    if (facing === "bet" && action.kind === "check") return 0;
+    return f;
+  });
 }
 
 export interface RiverMenuItem {
@@ -193,7 +221,7 @@ export function flopPlayers(line: string): [ChartPosition, ChartPosition] {
 }
 
 /** The last raiser on a preflop line, or null for a limped pot. */
-function raiserOf(line: string): ChartPosition | null {
+export function raiserOf(line: string): ChartPosition | null {
   let last: ChartPosition | null = null;
   for (const step of walkLine(line).steps) if (step.code === "r" || step.code === "a") last = step.position;
   return last;
@@ -232,10 +260,10 @@ export function riverSeatings(filter: Pick<RiverSpotOptions, "pot" | "seat" | "r
   return out;
 }
 
-const round2 = (value: number) => Math.round(value * 100) / 100;
+export const round2 = (value: number) => Math.round(value * 100) / 100;
 
 /** A street pattern as script actions, sized against the pot; a bet too big for the stacks becomes a check. */
-function streetActs(
+export function patternActs(
   pattern: StreetPattern,
   oop: ChartPosition,
   ip: ChartPosition,
@@ -243,18 +271,18 @@ function streetActs(
   behind: number,
 ): ScriptAct[] {
   const bet = pattern.steps.find((step) => step[1] === "bet");
-  if (bet && (bet[2] ?? 0) * pot > MAX_BET_SHARE * behind) return streetActs(PATTERNS.xx, oop, ip, pot, behind);
+  if (bet && (bet[2] ?? 0) * pot > MAX_BET_SHARE * behind) return patternActs(PATTERNS.xx, oop, ip, pot, behind);
   return pattern.steps.map(([who, type, size]) => {
     const position = who === "o" ? oop : ip;
     return type === "bet" ? { position, type, to: round2((size ?? 0) * pot) } : { position, type };
   });
 }
 
-function drawPattern(weights: Array<[string, number]>, rng: Rng): StreetPattern {
+export function drawPattern(weights: Array<[string, number]>, rng: Rng): StreetPattern {
   return PATTERNS[weights[pickWeighted(weights.map(([, w]) => w), rng)][0]];
 }
 
-function menuOf(solve: RiverSolve, node: number): RiverMenuItem[] {
+export function menuOf(solve: Pick<RiverSolve, "result">, node: number): RiverMenuItem[] {
   return solve.result.nodes[node].actions.map((action) => ({
     kind: action.kind,
     to: round2(action.to),
@@ -263,7 +291,7 @@ function menuOf(solve: RiverSolve, node: number): RiverMenuItem[] {
   }));
 }
 
-function shuffled(rng: Rng): number[] {
+export function shuffled(rng: Rng): number[] {
   const deck = Array.from({ length: 52 }, (_, i) => i);
   for (let i = deck.length - 1; i > 0; i -= 1) {
     const j = Math.floor(rng() * (i + 1));
@@ -273,7 +301,7 @@ function shuffled(rng: Rng): number[] {
 }
 
 /** Per hand of the hero at the node: how often it is dealt (reach, × interest when `borderline`). */
-export function riverDealingWeights(solve: RiverSolve, node: number, bias: DealBias = "range"): Float64Array {
+export function riverDealingWeights(solve: Pick<RiverSolve, "result" | "hero">, node: number, bias: DealBias = "range"): Float64Array {
   const result = solve.result;
   const reach = rangesAt(result, node)[solve.hero];
   const at = result.nodes[node];
@@ -297,16 +325,17 @@ function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: nu
   if (lines.length === 0) return null;
   let line: RiverLine;
   let seat: RiverSeat;
+  const wantSeat = filterSeat(options);
   if (options.role && options.role !== "any") {
     // A role pins who the hero is on each line: draw among the seatings that fit.
-    const seatings = riverSeatings({ seat: options.seat, role: options.role }, lines);
+    const seatings = riverSeatings({ seat: wantSeat, role: options.role }, lines);
     if (seatings.length === 0) return null;
     const picked = pickOne(seatings, rng);
     line = picked.line;
     seat = picked.seat;
   } else {
     line = pickOne(lines, rng);
-    seat = options.seat && options.seat !== "any" ? options.seat : rng() < 0.5 ? "ip" : "oop";
+    seat = wantSeat !== "any" ? wantSeat : rng() < 0.5 ? "ip" : "oop";
   }
   const [oop, ip] = flopPlayers(line.line);
   const hero = seat === "ip" ? ip : oop;
@@ -322,9 +351,9 @@ function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: nu
 
   // Flop and turn, sized against the pot as it stands.
   const afterPre = scriptMoney(base);
-  const flop = streetActs(drawPattern(PATTERN_WEIGHTS[initiative].flop, rng), oop, ip, afterPre.pot, Math.min(afterPre.behind[oop], afterPre.behind[ip]));
+  const flop = patternActs(drawPattern(PATTERN_WEIGHTS[initiative].flop, rng), oop, ip, afterPre.pot, Math.min(afterPre.behind[oop], afterPre.behind[ip]));
   const afterFlop = scriptMoney({ ...base, flop });
-  const turn = streetActs(drawPattern(PATTERN_WEIGHTS[initiative].turn, rng), oop, ip, afterFlop.pot, Math.min(afterFlop.behind[oop], afterFlop.behind[ip]));
+  const turn = patternActs(drawPattern(PATTERN_WEIGHTS[initiative].turn, rng), oop, ip, afterFlop.pot, Math.min(afterFlop.behind[oop], afterFlop.behind[ip]));
   const toRiver: HandScript = { ...base, flop, turn, river: [] };
   const money = scriptMoney(toRiver);
   const potBb = money.streetPot.river ?? 0;
@@ -377,10 +406,7 @@ function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: nu
   const riverActs: ScriptAct[] = [];
   if (!heroFirst) {
     const root = solve.result.nodes[0];
-    const pick = pickWeighted(
-      root.frequency.map((f) => (f >= MIN_VILLAIN_FREQ ? f : 0)),
-      rng,
-    );
+    const pick = pickWeighted(facingWeights(root.actions, root.frequency, options.facing, MIN_VILLAIN_FREQ), rng);
     if (pick < 0) return null;
     const action = root.actions[pick];
     const to = round2(action.to);

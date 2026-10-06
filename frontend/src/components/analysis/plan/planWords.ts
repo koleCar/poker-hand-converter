@@ -64,6 +64,8 @@ export function usePlanWords() {
         }
         case "drill":
           return item.focus === null ? t.tasks.drillAll(item.target) : t.tasks.drill(item.target);
+        case "lesson":
+          return en.course.plan.task(en.course.titles[item.ref] ?? item.ref);
         default: {
           const hand = focus?.reviews.find((review) => review.handId === item.handId) ?? null;
           const detail = hand
@@ -73,7 +75,7 @@ export function usePlanWords() {
         }
       }
     },
-    [t, titles, trainerWhat, date],
+    [t, en, titles, trainerWhat, date],
   );
 
   return { area, task, trainerWhat, date };

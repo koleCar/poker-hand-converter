@@ -23,7 +23,7 @@ const num = (value: unknown): number =>
 const str = (value: unknown): string | null => (typeof value === "string" && value.length > 0 ? value : null);
 const strings = (value: unknown): string[] | null =>
   Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : null;
-const TASK_KINDS: readonly TaskKind[] = ["read", "train", "drill", "review"];
+const TASK_KINDS: readonly TaskKind[] = ["read", "train", "drill", "review", "lesson"];
 
 export interface StoredTask {
   id: string;

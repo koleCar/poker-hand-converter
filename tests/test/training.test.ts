@@ -36,6 +36,7 @@ import {
   dealingWeights,
   emptySession,
   generateRiverSpot,
+  generateTurnSpot,
   gradeAnswer,
   gradeDrill,
   handUpTo,
@@ -56,6 +57,7 @@ import {
   sessionAccuracy,
   sessionScore,
   trainerNodes,
+  turnAnswer,
   type DrillDecision,
   type HandScript,
   type RiverTrainerSpot,
@@ -393,6 +395,57 @@ describe("river dealing weights", () => {
       const cards = [cardCode(comboHi(hands[i])), cardCode(comboLo(hands[i]))];
       expect(cards.some((c) => spot.board.includes(c))).toBe(false);
     }
+  });
+});
+
+/* ---------------------------------------------- facing filter, turn spots - */
+
+describe("spots facing a check or a bet (Learn L1)", () => {
+  it("deal an in-position river hero the villain's check, or a bet, as asked", () => {
+    const checked = generateRiverSpot(CHARTS, { pot: "3bp", role: "pfr", facing: "check" }, 5);
+    expect(checked?.seat).toBe("ip");
+    expect(checked?.facing).toBeNull();
+    expect(checked?.script.river?.[0]).toMatchObject({ position: checked?.villain, type: "check" });
+    const bet = generateRiverSpot(CHARTS, { pot: "srp", facing: "bet" }, 9);
+    expect(bet?.seat).toBe("ip");
+    expect(bet?.facing).not.toBeNull();
+  });
+
+  it("leave the unfiltered river deal exactly as it was", () => {
+    // `facing` absent draws the villain's action from the same weights as before.
+    const a = generateRiverSpot(CHARTS, { bias: "range" }, 77);
+    const b = generateRiverSpot(CHARTS, { bias: "range", facing: "any" }, 77);
+    expect(b && { ...b, hand: null }).toEqual(a && { ...a, hand: null });
+  });
+});
+
+describe("turn spots (Learn L1)", () => {
+  it("deal an in-position 3-bet-pot hero a check, a combo from their range, and the turn tree's menu", () => {
+    for (const role of ["pfr", "caller"] as const) {
+      const spot = generateTurnSpot(CHARTS, { pot: "3bp", seat: "ip", role, facing: "check" }, 11);
+      if (!spot) throw new Error(`no ${role} turn spot`);
+      expect(spot.kind).toBe("turn");
+      expect(spot.board).toHaveLength(4);
+      expect(spot.seat).toBe("ip");
+      expect(spot.facing).toBeNull();
+      expect(spot.cards.some((card) => spot.board.includes(card))).toBe(false);
+      expect(spot.menu.map((item) => item.kind)).toContain("check");
+      expect(spot.menu.some((item) => item.kind === "bet" || item.kind === "allin")).toBe(true);
+      expect(spot.hand.players.find((p) => p.isHero)?.holeCards).toEqual(spot.cards);
+    }
+  });
+
+  it("grade an answer exactly as the analysis grades the same hand, turn solve on", () => {
+    const spot = generateTurnSpot(CHARTS, { pot: "3bp", seat: "ip", role: "caller", facing: "check" }, 22);
+    if (!spot) throw new Error("no turn spot");
+    const answer = turnAnswer(spot, 0);
+    const graded = gradeAnswer(answer.hand, answer.actionIndex, CHARTS, { turn: true });
+    const full = analyzeHand(structuredClone(answer.hand), { charts: CHARTS }).decisions.find((d) => d.actionIndex === answer.actionIndex);
+    expect(graded?.source).toBe("solver");
+    expect(graded?.street).toBe("turn");
+    expect(graded?.grade).toBe(full?.grade);
+    expect(graded?.evLoss).toBe(full?.evLoss);
+    expect(graded?.options).toEqual(full?.options);
   });
 });
 

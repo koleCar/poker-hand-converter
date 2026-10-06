@@ -23,15 +23,27 @@ import { LanguageSwitch } from "./LanguageSwitch";
  * that used to live in `routes/router.tsx` is gone, and with it the click
  * handler that re-implemented modifier-key and middle-click semantics.
  */
-export type ShellTab = "forum" | "convert" | "library" | "stats" | "analysis";
+export type ShellTab = "forum" | "convert" | "library" | "stats" | "analysis" | "learn";
 
+/**
+ * Learn (L1) is a tab for everyone, like the forum and the converter: the
+ * course works signed out, with progress kept in the browser. It goes last,
+ * so a signed-out visitor sees three tabs (forum, convert, learn) and a
+ * signed-in player with hands six; on a phone the strip already scrolls
+ * sideways and keeps the current tab in view (see the effect below), so a
+ * sixth tab costs one more swipe, not a second row (`docs/LEARN-PLAN.md`).
+ */
 const TABS: Array<{ id: ShellTab; label: (en: Dict) => string; path: string }> = [
   { id: "forum", label: (en) => en.nav.forum, path: paths.home() },
   { id: "convert", label: (en) => en.nav.convert, path: paths.convert() },
   { id: "library", label: (en) => en.nav.library, path: paths.library() },
   { id: "stats", label: (en) => en.nav.stats, path: paths.stats() },
   { id: "analysis", label: (en) => en.nav.analysis, path: paths.analysis() },
+  { id: "learn", label: (en) => en.nav.learn, path: paths.learn() },
 ];
+
+/** Tabs offered to everyone, with or without a library. */
+const OPEN_TABS: readonly ShellTab[] = ["forum", "convert", "learn"];
 
 interface AppShellProps {
   /** Null on routes with no tab (e.g. 404). */
@@ -64,7 +76,7 @@ export function AppShell({
   const en = useDict();
   // The forum and the converter are for everyone; the library and statistics
   // wait until there is something in them.
-  const tabs = TABS.filter((entry) => entry.id === "forum" || entry.id === "convert" || showHistoryTab);
+  const tabs = TABS.filter((entry) => OPEN_TABS.includes(entry.id) || showHistoryTab);
   const navRef = useRef<HTMLElement | null>(null);
 
   // On a phone the tab strip scrolls sideways (five tabs do not fit 375px);

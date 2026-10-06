@@ -464,8 +464,10 @@ A top-level tab next to Stats, and the home of everything below.
   version has changed since your hands were analysed.
 
 - **Learn.** A concept library under `/analysis/learn`, linked from every
-  explanation that uses a concept. It is not a new top-level tab: five tabs
-  already scroll sideways at 375px (A1).
+  explanation that uses a concept ("Concepts" in this sub-nav since L1). It is
+  not a new top-level tab: five tabs already scroll sideways at 375px (A1).
+  The course built on it is the top-level Learn tab (`/learn`,
+  `docs/LEARN-PLAN.md`), which links back here.
 - **Plan.** The week's study plan under `/analysis/plan` (A8b): the three
   costliest leaks the sample can vouch for, each with concepts to read, a
   trainer session set to the spot, its due drills and hands to review, a
@@ -549,6 +551,7 @@ Each phase ships something usable on its own, has its own PR, migration and
 | **A7 — training** | <ul><li>**Spot trainer**: play the hero's side of a stored strategy and be graded per move</li><li>**mistake drills**: your own worst spots, replayed until right (spaced repetition)</li><li>"what would you do?" (#51) graded against the reference</li></ul> | A5 |
 | **A8 — learning layer** (A8a: the concept library) | <ul><li>**A8a** — a concept library, which can start any time (§6.0 *Learn*) (texture, range/nut advantage, MDF, SPR, blockers, polarisation…), each concept with a definition, an interactive example and links from every explanation that uses it</li><li>**A8b** — a study plan built from the leak finder</li><li>**A8c** — the optional AI-written review, grounded on facts</li></ul> | A8a: A1. A8b: A6, A7 |
 | **A9 — multiway** | Approximate grading for 3-way postflop pots, about 9% of decisions in a real library: heuristics + MDF split, and solver-based later if feasible. | A4 |
+| **L1–L4 — the Learn tab** (`docs/LEARN-PLAN.md`) | A top-level course at `/learn`: 62 lessons in tracks and modules, practice generated and graded by the charts, the solver and the concept library's maths, the learner's own hands as the last exercise, lessons recommended from leaks (a `lesson` task in the plan), missed items as SM-2 review cards. L1: catalogue, M0–M3 and M6-L4 written, turn spots; L2–L4: the other modules, `range-split`, `range-paint`, placement, curated hands, flop drills. | A7, A8a, A8b |
 | **Later** | MTT/ICM preflop, PLO, exploitative notes from villain stats. | — |
 
 ## 8. Decisions taken (2026-10-02)
@@ -1849,3 +1852,34 @@ Each phase appends what it learned that changed the plan.
     - With A5b's flop library (rebased onto it), the multiway walk still
       narrows a multiway flop by the heuristic: the library is heads-up. The
       walk passes `actionIndex` like the heads-up one.
+- 2026-10-06 — L1 shipped: the Learn tab (`docs/LEARN-PLAN.md`). No grade
+  changes, so still `analysis/7`.
+  - **A top-level course at `/learn`**, for everyone: tracks → modules → 62
+    lessons with the learner's status, "coming soon" for the unwritten ones,
+    and badges from the leak finder ("you lose X bb / 100 here"). "Learn" is
+    the last main tab (three tabs signed out, six with a library; the strip
+    already scrolled at 375px). The concept library stays at `/analysis/learn`
+    and is "Concepts" in this tab's sub-nav.
+  - **The catalogue** (`lib/learn/course.ts`): a closed `LessonId` union like
+    `ConceptId`, with prerequisites, concepts, exercises and the spots and
+    flags each lesson teaches. 25 lessons written in English and Croatian (M0–M3
+    and M6-L4, the owner's request); every computed number recomputed by
+    `tests/test/course.test.ts`, the two languages held to one structure.
+  - **Practice graded by this plan's engine**: chart quizzes and river spots
+    through `analyzeHand` (the A7 trainer), new **turn spots**
+    (`lib/training/turn.ts`, graded with the turn solve on: a trainer turn
+    grade is the analysis' turn grade, tested), a `facing` filter (the
+    in-position hero facing a check or a bet), calc items answered before the
+    concept library's calculator reveals them, classify items read by
+    `texture.ts` and the hand classes, and the learner's own decisions,
+    spoiler-safe through `gradeDrill`.
+  - **Smart features**: a lesson per focus area in the study plan (task kind
+    `lesson`, counted done when the lesson is passed); missed items as review
+    cards on the drills' SM-2 (`drill_next`); lessons passed automatically.
+  - **Migration** `20270317090000_learn_progress.sql`: `lesson_progress`,
+    `lesson_cards`, three definer writers, the `lesson` task in
+    `save_study_plan` / `study_plan`, `learn` reserved; pgTAP 50 assertions.
+    Signed out, the same model lives in the browser's storage.
+  - **Open**: the flop parts wait for the flop library (L4); `range-split` and
+    `range-paint` are typed placeholders (L2, L3); the turn tree has one bet
+    size, so M6-L4's turn drill is check / 75% / all-in.

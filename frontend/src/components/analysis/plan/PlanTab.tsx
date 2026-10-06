@@ -518,7 +518,8 @@ function TaskRow({
   drills: Map<string, { items: number; due: number }> | null;
   onToggle: (task: StoredTask, done: boolean) => void;
 }) {
-  const t = useDict().analysis.plan;
+  const en = useDict();
+  const t = en.analysis.plan;
   const words = usePlanWords();
   const id = useId();
   const label = words.task(task, areas);
@@ -553,6 +554,11 @@ function TaskRow({
       detail = `${t.tasks.counted(task.counted, task.target)}${due === null ? "" : ` · ${t.tasks.dueNow(due)}`}`;
       break;
     }
+    case "lesson":
+      // Done when the lesson is passed (Learn L1): `study_plan` counts it.
+      href = paths.lesson(task.ref);
+      action = en.course.plan.open;
+      break;
     default:
       href = paths.analysisHand(task.handId ?? task.ref);
       action = t.tasks.openHand;

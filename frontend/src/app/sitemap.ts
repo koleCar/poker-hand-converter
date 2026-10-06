@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { CONCEPT_IDS } from "../lib/learn/concepts";
+import { writtenLessons } from "../lib/learn/course";
 import { canonicalUrl, paths } from "../lib/routes";
 import { recentPosts } from "../lib/server/forum";
 import { recentPublishedHands } from "../lib/server/published";
@@ -7,7 +8,8 @@ import { recentPublishedHands } from "../lib/server/published";
 /**
  * `/sitemap.xml`.
  *
- * The home page, the converter, the concept library (`/analysis/learn/**`),
+ * The home page, the converter, the Learn tab and its written lessons
+ * (`/learn/**`), the concept library (`/analysis/learn/**`),
  * the preflop chart browser (`/analysis/charts`),
  * every forum thread and every published hand (`/p/:id`) — the whole set of
  * pages that are public, stable and the same for everybody.
@@ -45,6 +47,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: canonicalUrl(paths.learn()),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    // Written lessons only: a "coming soon" page is an outline, not yet worth a crawl.
+    ...writtenLessons().map((meta) => ({
+      url: canonicalUrl(paths.lesson(meta.id)),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     {
       url: canonicalUrl(paths.analysisLearn()),
       changeFrequency: "monthly",

@@ -78,6 +78,8 @@ export {
   RIVER_POTS,
   RIVER_ROLES,
   RIVER_SEATS,
+  facingWeights,
+  filterSeat,
   flopPlayers,
   generateRiverSpot,
   riverAnswer,
@@ -93,6 +95,7 @@ export {
   type RiverSpotOptions,
   type RiverTrainerSpot,
 } from "./river";
+export { generateTurnSpot, turnAnswer, type TurnSpotOptions, type TurnTrainerSpot } from "./turn";
 export { asAnswered, gradeAnswer, gradeDrill, type DrillDecision } from "./grade";
 export {
   INITIAL_EASE,
@@ -109,6 +112,7 @@ export {
   type DrillState,
 } from "./schedule";
 export {
+  answerHand,
   runTrainingJob,
   type GradedAnswer,
   type TrainerSpot,
