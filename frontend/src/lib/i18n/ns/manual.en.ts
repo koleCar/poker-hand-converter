@@ -13,12 +13,41 @@ export const manualEn = {
   entry: "Enter a hand manually",
 
   title: "Enter a hand manually",
-  intro:
-    "Set up the table, click through the action street by street, and get a hand you can replay, download or save — the same as one converted from a room. Nothing leaves this tab.",
   back: "Back to the converter",
   reset: "Start a new hand",
   resetConfirm: "Clear this hand and start a new one?",
   restored: "Your unfinished hand was restored from this browser.",
+
+  /** The settings bar above the table. */
+  bar: {
+    game: "Game",
+    players: "Players",
+    stakes: (sb: string, bb: string) => `${sb}/${bb}`,
+    effective: (amount: string) => `${amount} effective`,
+  },
+
+  /** The felt and the panel beside it. */
+  table: {
+    pills: {
+      ante: (amount: string) => `Ante ${amount}`,
+      "small-blind": (amount: string) => `SB ${amount}`,
+      "big-blind": (amount: string) => `BB ${amount}`,
+      straddle: (amount: string) => `Straddle ${amount}`,
+      fold: () => "Fold",
+      check: () => "Check",
+      call: (amount: string) => `Call ${amount}`,
+      bet: (amount: string) => `Bet ${amount}`,
+      raise: (amount: string) => `Raise ${amount}`,
+    },
+    hint: "Click a player to enter their action, or the board to deal the cards.",
+    next: (position: string, name: string) => `Next: ${position ? `${position} ` : ""}${name}`,
+    notTheirTurn: (name: string) => `It is ${name}'s turn.`,
+    goToActor: "Go to the player to act",
+    startingStack: "Starting stack",
+    makeHero: "Hero",
+    makeButton: "Button here",
+    handOver: "The hand is over. Pick the winners below if they are not decided, then replay or save it.",
+  },
 
   amounts: {
     label: "Amounts in",

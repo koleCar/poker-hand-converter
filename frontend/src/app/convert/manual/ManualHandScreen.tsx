@@ -15,19 +15,19 @@ export function ManualHandScreen() {
     <AppFrame tab="convert">
       {({ onHandsSaved }) => (
         <div className="stack">
+          {/* One line of chrome: the table is the page. */}
           <div className={styles.manualHead}>
             <Link href={paths.convert()} className="btn btn--ghost btn--sm">
               ← {t.back}
             </Link>
             <h1 className={styles.manualTitle}>{t.title}</h1>
-            <p className={styles.manualIntro}>{t.intro}</p>
+            <p className={styles.manualIntro}>
+              <span aria-hidden="true" className={styles.privacyMark}>
+                ⦿
+              </span>{" "}
+              {en.convert.privacy}
+            </p>
           </div>
-          <p className={styles.privacy}>
-            <span aria-hidden="true" className={styles.privacyMark}>
-              ⦿
-            </span>
-            {en.convert.privacy}
-          </p>
           <ManualHandEditor onSaved={onHandsSaved} />
         </div>
       )}

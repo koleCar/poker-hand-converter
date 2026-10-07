@@ -9,12 +9,39 @@ export const manualHr: Dict["manual"] = {
   entry: "Unesi ruku ručno",
 
   title: "Ručni unos ruke",
-  intro:
-    "Postavi stol, klikni akcije ulicu po ulicu i dobiješ ruku koju možeš odigrati, preuzeti ili spremiti — jednako kao ruku pretvorenu iz sobe. Ništa ne napušta ovu karticu.",
   back: "Natrag na konverter",
   reset: "Nova ruka",
   resetConfirm: "Obrisati ovu ruku i početi novu?",
   restored: "Tvoja nedovršena ruka vraćena je iz ovog preglednika.",
+
+  bar: {
+    game: "Igra",
+    players: "Igrači",
+    stakes: (sb: string, bb: string) => `${sb}/${bb}`,
+    effective: (amount: string) => `${amount} efektivno`,
+  },
+
+  table: {
+    pills: {
+      ante: (amount: string) => `Ante ${amount}`,
+      "small-blind": (amount: string) => `SB ${amount}`,
+      "big-blind": (amount: string) => `BB ${amount}`,
+      straddle: (amount: string) => `Straddle ${amount}`,
+      fold: () => "Fold",
+      check: () => "Check",
+      call: (amount: string) => `Call ${amount}`,
+      bet: (amount: string) => `Bet ${amount}`,
+      raise: (amount: string) => `Raise ${amount}`,
+    },
+    hint: "Klikni igrača da uneseš njegovu akciju ili board da podijeliš karte.",
+    next: (position: string, name: string) => `Sljedeći: ${position ? `${position} ` : ""}${name}`,
+    notTheirTurn: (name: string) => `Na potezu je ${name}.`,
+    goToActor: "Idi na igrača na potezu",
+    startingStack: "Početni stack",
+    makeHero: "Hero",
+    makeButton: "Button ovdje",
+    handOver: "Ruka je gotova. Ako pobjednici nisu određeni, odaberi ih ispod, pa je odigraj ili spremi.",
+  },
 
   amounts: {
     label: "Iznosi u",

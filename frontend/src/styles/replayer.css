@@ -1639,3 +1639,27 @@ html.rp-fullscreen-lock body {
   background: var(--surface-raised-2);
   border-color: var(--border-strong);
 }
+
+/* ------------------------------------------- clickable felt (manual entry) */
+
+/* Only the manual-entry editor makes seats and the board pressable; the
+   replayer never does, so none of this reaches it. */
+.pseat--clickable,
+.rp__board--clickable {
+  cursor: pointer;
+}
+
+.pseat--clickable:hover .pseat__plate {
+  border-color: var(--border-hover);
+}
+
+.pseat--clickable:focus-visible,
+.rp__board--clickable:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.rp__board--clickable:hover .rp__board-slot {
+  border-color: var(--accent-border);
+}

@@ -27,6 +27,7 @@ function toLocalInput(iso: string): string {
 
 /* ------------------------------------------------------------------ game - */
 
+/** Rendered inside the settings bar's dialog, which carries the title. */
 export function GamePanel({ state, update }: { state: EditorState; update: Update }) {
   const t = useDict().manual.game;
   const players = useDict().manual.players;
@@ -36,9 +37,7 @@ export function GamePanel({ state, update }: { state: EditorState; update: Updat
     update((current) => ({ ...current, tournament: { ...current.tournament, ...patch } }));
 
   return (
-    <section className="card">
-      <h2 className={styles.heading}>{t.heading}</h2>
-
+    <section className={styles.dialogBody}>
       <div className={styles.fields}>
         <label className="field field--narrow">
           <span className="field__label">{t.format}</span>
@@ -260,9 +259,8 @@ export function PlayersPanel({ state, update, engine, onPickCards, mode, unit, b
     }));
 
   return (
-    <section className="card">
+    <section className={styles.dialogBody}>
       <div className={styles.headRow}>
-        <h2 className={styles.heading}>{t.heading}</h2>
         <p className={styles.effective}>
           <span className="field__label">{t.effective}</span>{" "}
           <strong>{formatFor(effective, mode, unit, bigBlind)}</strong>

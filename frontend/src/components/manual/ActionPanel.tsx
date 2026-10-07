@@ -20,26 +20,25 @@ import styles from "./manual.module.css";
 
 type Update = (patch: Partial<EditorState> | ((current: EditorState) => EditorState)) => void;
 
-interface ActionPanelProps {
+interface HandLogProps {
   state: EditorState;
   update: Update;
   engine: EngineState;
-  disabled: boolean;
   onPickBoard: () => void;
   mode: AmountMode;
   unit: CurrencyUnit;
   bigBlind: Amount;
 }
 
-export function ActionPanel({ state, update, engine, disabled, onPickBoard, mode, unit, bigBlind }: ActionPanelProps) {
+/**
+ * The hand so far, street by street: the betting pattern, every action with
+ * the button to take it back (and everything after it), and the board.
+ */
+export function HandLog({ state, update, engine, onPickBoard, mode, unit, bigBlind }: HandLogProps) {
   const t = useDict().manual.actions;
   const fmt = (amount: Amount) => formatFor(amount, mode, unit, bigBlind);
   const nameOf = new Map(engine.players.map((player) => [player.seat, player]));
   const stale = state.actions.length - engine.validCount;
-
-  /** Adds a decision, dropping whatever no longer fits after the valid prefix. */
-  const act = (action: ManualAction) =>
-    update((current) => ({ ...current, actions: [...current.actions.slice(0, engine.validCount), action] }));
   const truncate = (count: number) =>
     update((current) => ({ ...current, actions: current.actions.slice(0, count), picks: {} }));
 
@@ -47,92 +46,52 @@ export function ActionPanel({ state, update, engine, disabled, onPickBoard, mode
   const streets = MANUAL_STREETS.filter(
     (street) => street === "preflop" || engine.log.some((entry) => entry.street === street) || BOARD_SIZE[street] <= engine.boardReached,
   );
-  const status = engine.status;
 
   return (
-    <section className="card">
-      <div className={styles.headRow}>
-        <h2 className={styles.heading}>{t.heading}</h2>
-        {!disabled ? (
-          <p className={styles.pattern}>
-            <span className="field__label">{t.pattern}</span>{" "}
-            <strong>{t.potType[pattern.potType]}</strong>
-            {pattern.players.length > 0 ? (
-              <span>
-                {" · "}
-                {pattern.players.length === 2 ? t.versus(pattern.players) : t.multiway(pattern.players.length)}
-              </span>
-            ) : null}
-          </p>
+    <section className={styles.logPanel} aria-label={t.heading}>
+      <p className={styles.pattern}>
+        <span className="field__label">{t.pattern}</span>{" "}
+        <strong>{t.potType[pattern.potType]}</strong>
+        {pattern.players.length > 0 ? (
+          <span>
+            {" · "}
+            {pattern.players.length === 2 ? t.versus(pattern.players) : t.multiway(pattern.players.length)}
+          </span>
         ) : null}
-      </div>
+      </p>
 
-      {disabled ? <p className={styles.dim}>{t.setupFirst}</p> : null}
+      <ol className={styles.streets}>
+        {streets.map((street) => (
+          <li key={street} className={styles.street}>
+            <div className={styles.streetHead}>
+              <span className={styles.streetName}>{t.streets[street]}</span>
+              {street !== "preflop" ? (
+                <button type="button" className={styles.boardBtn} onClick={onPickBoard} aria-label={t.editBoard} title={t.editBoard}>
+                  <CardRow cards={boardFor(state.board, street)} size="xs" />
+                </button>
+              ) : null}
+              <span className={styles.dim}>{t.pot(fmt(potAtStart(engine, street)))}</span>
+            </div>
+            <ul className={styles.log}>
+              {engine.log
+                .filter((entry) => entry.street === street)
+                .map((entry, i) => (
+                  <LogLine
+                    key={`${street}-${i}`}
+                    entry={entry}
+                    position={nameOf.get(entry.seat)?.position ?? null}
+                    fmt={fmt}
+                    onRemove={entry.index !== null ? () => truncate(entry.index!) : null}
+                  />
+                ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
 
-      {!disabled ? (
-        <ol className={styles.streets}>
-          {streets.map((street) => (
-            <li key={street} className={styles.street}>
-              <div className={styles.streetHead}>
-                <span className={styles.streetName}>{t.streets[street]}</span>
-                {street !== "preflop" ? (
-                  <button type="button" className={styles.boardBtn} onClick={onPickBoard} aria-label={t.editBoard} title={t.editBoard}>
-                    <CardRow cards={boardFor(state.board, street)} size="xs" />
-                  </button>
-                ) : null}
-                <span className={styles.dim}>{t.pot(fmt(potAtStart(engine, street)))}</span>
-              </div>
-              <ul className={styles.log}>
-                {engine.log
-                  .filter((entry) => entry.street === street)
-                  .map((entry, i) => (
-                    <LogLine
-                      key={`${street}-${i}`}
-                      entry={entry}
-                      position={nameOf.get(entry.seat)?.position ?? null}
-                      fmt={fmt}
-                      onRemove={entry.index !== null ? () => truncate(entry.index!) : null}
-                    />
-                  ))}
-              </ul>
-            </li>
-          ))}
-        </ol>
-      ) : null}
+      {stale > 0 ? <p className="notice notice--warn">{t.stale(stale)}</p> : null}
 
-      {!disabled && stale > 0 ? <p className="notice notice--warn">{t.stale(stale)}</p> : null}
-
-      {!disabled && status.kind === "betting" ? (
-        <ActionBar
-          key={`${engine.validCount}-${state.amountMode}`}
-          options={status.options}
-          player={nameOf.get(status.options.seat)!}
-          street={engine.street}
-          bigBlind={bigBlind}
-          mode={mode}
-          unit={unit}
-          onAct={act}
-        />
-      ) : null}
-
-      {!disabled && status.kind === "needs-board" ? (
-        <div className={styles.prompt}>
-          {status.runout ? <p>{t.runout}</p> : null}
-          <button type="button" className="btn btn--primary" onClick={onPickBoard}>
-            {t.dealStreet[status.street]}
-          </button>
-        </div>
-      ) : null}
-
-      {!disabled && status.kind === "complete" ? (
-        <p className={styles.prompt}>
-          {status.ending === "fold"
-            ? t.wonUncontested(engine.players.find((player) => !player.folded)?.name ?? "")
-            : t.showdown}
-        </p>
-      ) : null}
-
-      {!disabled && engine.validCount > 0 ? (
+      {engine.validCount > 0 ? (
         <div className={styles.row}>
           <button type="button" className="btn btn--sm" onClick={() => truncate(engine.validCount - 1)}>
             {t.undo}
@@ -191,7 +150,7 @@ function LogLine({
 
 /* ------------------------------------------------------------ action bar - */
 
-interface ActionBarProps {
+export interface ActionBarProps {
   options: ActionOptions;
   player: EngineState["players"][number];
   street: ManualStreet;
@@ -201,7 +160,7 @@ interface ActionBarProps {
   onAct: (action: ManualAction) => void;
 }
 
-function ActionBar({ options, player, street, bigBlind, mode, unit, onAct }: ActionBarProps) {
+export function ActionBar({ options, player, street, bigBlind, mode, unit, onAct }: ActionBarProps) {
   const t = useDict().manual.actions;
   const fmt = (amount: Amount) => formatFor(amount, mode, unit, bigBlind);
   const [size, setSize] = useState<Amount>(options.minTo);

@@ -17,7 +17,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useDict } from "../../lib/i18n/client";
-import { holeCardCount, toDisplayNumber, type PhfHand } from "../../lib/phf/types";
+import { holeCardCount, toDisplayNumber, type PhfGame, type PhfPlayer } from "../../lib/phf/types";
 import type { ReplayFrame, SeatFrameState } from "../../lib/replay";
 import { ChipStack } from "./ChipStack";
 import { PlayingCard } from "./PlayingCard";
@@ -35,8 +35,17 @@ import { describeSeat, spokenPosition, type AmountFormatter } from "./tableMath"
 import { TravellingChips } from "./TravellingChips";
 import type { FrameMotion } from "./useFrameTransition";
 
+/**
+ * The parts of a hand the felt reads. A full `PhfHand` fits; so does the
+ * manual-entry editor's hand-in-progress, which has no PHF document yet.
+ */
+export interface TableHand {
+  game: Pick<PhfGame, "variant" | "bigBlind" | "unit">;
+  players: ReadonlyArray<Pick<PhfPlayer, "name" | "holeCards">>;
+}
+
 interface ReplayTableProps {
-  hand: PhfHand;
+  hand: TableHand;
   frame: ReplayFrame;
   /** Chosen by the viewer's ResizeObserver so the slots and CSS agree. */
   shape: TableShape;
@@ -61,6 +70,13 @@ interface ReplayTableProps {
    * turn them face up early.
    */
   focusSeat?: number | null;
+  /**
+   * Makes every seat a button. The replayer never passes it; the manual-entry
+   * editor (`components/manual/`) does, to pick whose action to enter.
+   */
+  onSeatClick?: (seatNo: number) => void;
+  /** Makes the board a button, likewise for the editor: it opens the card picker. */
+  onBoardClick?: () => void;
 }
 
 interface Placed {
@@ -84,6 +100,14 @@ function fanSteps(holeCount: number): { down: number; up: number } {
     down: 1 - 0.75 / (count - 1),
     up: count <= 2 ? 0.12 : count <= 4 ? 0.3 : 0.46,
   };
+}
+
+/** Enter and Space press a `role="button"` that is not a `<button>`. */
+function pressKey(event: React.KeyboardEvent, press: () => void): void {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    press();
+  }
 }
 
 /** Where a chip stack hangs relative to its designed spot. */
@@ -198,6 +222,8 @@ export function ReplayTable({
   mask,
   format,
   focusSeat = null,
+  onSeatClick,
+  onBoardClick,
 }: ReplayTableProps) {
   const t = useDict().replayer;
   const words = t.table;
@@ -346,7 +372,14 @@ export function ReplayTable({
           </div>
 
           <div className={`rp__boards ${hasSecondBoard ? "rp__boards--twin" : ""}`.trim()}>
-            <div className="rp__board" role="group" aria-label={words.board}>
+            <div
+              className={`rp__board ${onBoardClick ? "rp__board--clickable" : ""}`.trim()}
+              role={onBoardClick ? "button" : "group"}
+              aria-label={words.board}
+              tabIndex={onBoardClick ? 0 : undefined}
+              onClick={onBoardClick}
+              onKeyDown={onBoardClick ? (event) => pressKey(event, onBoardClick) : undefined}
+            >
               {boardRows.map((row, rowIndex) => (
                 <div className="rp__board-row" key={`b1-row-${rowIndex}`}>
                   {row.map((code, index) =>
@@ -481,10 +514,15 @@ export function ReplayTable({
               // is why all four are `aria-hidden` below. Read as one sentence
               // ("Seat 3, cutoff, Villain, 84 big blinds, folded") rather than
               // as six loose fragments in slot order.
-              role="group"
+              role={onSeatClick ? "button" : "group"}
               aria-label={describeSeat(seat, mask.seat(seat.name), t)}
+              aria-pressed={onSeatClick ? seat.seatNo === focusSeat : undefined}
+              tabIndex={onSeatClick ? 0 : undefined}
+              onClick={onSeatClick ? () => onSeatClick(seat.seatNo) : undefined}
+              onKeyDown={onSeatClick ? (event) => pressKey(event, () => onSeatClick(seat.seatNo)) : undefined}
               className={[
                 "pseat",
+                onSeatClick ? "pseat--clickable" : "",
                 seat.folded ? "pseat--folded" : "",
                 seat.isActing ? "pseat--acting" : "",
                 seat.isHero ? "pseat--hero" : "",
