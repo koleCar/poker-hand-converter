@@ -7,7 +7,6 @@ import { useDict } from "../../lib/i18n/client";
 import type { BuildResult } from "../../lib/manual";
 import { toStandardText } from "../../lib/phf";
 import { copyToClipboard, downloadText, outputFileName } from "../converter/handoff";
-import { ReplayViewer } from "../replayer/ReplayViewer";
 import { ShareHandButton } from "../share/ShareHandButton";
 import styles from "./manual.module.css";
 
@@ -21,8 +20,9 @@ interface OutputPanelProps {
 }
 
 /**
- * The finished hand: the replayer, and the ways out of the editor — download,
- * copy, share, save. Saving is the only thing on the page that talks to a
+ * The finished hand and the ways out of the editor: download, share, copy,
+ * save. The hand is already on the table above, so there is no second
+ * replayer here. Saving is the only thing on the page that talks to a
  * server, and only when the user asks, exactly like the paste box on
  * `/convert` (`upload/SingleHandPanel.tsx`, whose save flow this follows).
  */
@@ -105,6 +105,12 @@ export function OutputPanel({ built, stored, onStored, onSaved }: OutputPanelPro
             >
               {t.download}
             </button>
+            <ShareHandButton
+              key={text}
+              hand={built.hand}
+              storedHandId={stored?.id ?? null}
+              label={t.share}
+            />
             <button
               type="button"
               className="btn btn--sm"
@@ -134,15 +140,6 @@ export function OutputPanel({ built, stored, onStored, onSaved }: OutputPanelPro
         {notice ? <p className={`notice notice--${notice.kind}`}>{notice.text}</p> : null}
       </section>
 
-      <section className="card card--flush">
-        <ReplayViewer
-          key={text}
-          hand={built.hand}
-          site={dict.manual.title}
-          urlSync={false}
-          headerExtra={<ShareHandButton hand={built.hand} storedHandId={stored?.id ?? null} iconOnly />}
-        />
-      </section>
     </>
   );
 }

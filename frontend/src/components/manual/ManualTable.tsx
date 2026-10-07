@@ -15,6 +15,7 @@ interface ManualTableProps {
   selectedSeat: number | null;
   onSeatClick: (seat: number) => void;
   onBoardClick: () => void;
+  onSeatCardsClick: (seat: number) => void;
 }
 
 const IDENTITY = { seat: (name: string) => name, text: (value: string) => value, tableName: null };
@@ -24,7 +25,7 @@ const IDENTITY = { seat: (name: string) => name, text: (value: string) => value,
  * `.rp__stage` boxes the replayer uses, so the stylesheet treats it exactly
  * the same. The shape is measured off the stage the way `ReplayViewer` does.
  */
-export function ManualTable({ hand, frame, format, selectedSeat, onSeatClick, onBoardClick }: ManualTableProps) {
+export function ManualTable({ hand, frame, format, selectedSeat, onSeatClick, onBoardClick, onSeatCardsClick }: ManualTableProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const [shape, setShape] = useState<TableShape>("classic");
 
@@ -67,6 +68,7 @@ export function ManualTable({ hand, frame, format, selectedSeat, onSeatClick, on
           focusSeat={selectedSeat}
           onSeatClick={onSeatClick}
           onBoardClick={onBoardClick}
+          onSeatCardsClick={onSeatCardsClick}
         />
       </div>
     </div>

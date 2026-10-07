@@ -1663,3 +1663,8 @@ html.rp-fullscreen-lock body {
 .rp__board--clickable:hover .rp__board-slot {
   border-color: var(--accent-border);
 }
+
+.pseat__cards--clickable:hover .pcard {
+  outline: 2px solid var(--accent-border);
+  outline-offset: 1px;
+}

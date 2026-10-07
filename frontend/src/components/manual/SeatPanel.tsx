@@ -1,10 +1,9 @@
 "use client";
 
 import { useDict } from "../../lib/i18n/client";
-import type { EngineState, ManualAction } from "../../lib/manual";
+import type { EngineState } from "../../lib/manual";
 import type { Amount, CurrencyUnit } from "../../lib/phf/types";
 import { CardRow } from "../replayer/PlayingCard";
-import { ActionBar } from "./ActionPanel";
 import { AmountInput } from "./AmountInput";
 import type { CardTarget } from "./CardDialog";
 import { formatFor, type AmountMode, type EditorState } from "./editorState";
@@ -17,8 +16,6 @@ interface SeatPanelProps {
   state: EditorState;
   update: Update;
   engine: EngineState;
-  onAct: (action: ManualAction) => void;
-  onSelect: (seat: number | null) => void;
   onPickCards: (target: CardTarget) => void;
   mode: AmountMode;
   unit: CurrencyUnit;
@@ -26,10 +23,10 @@ interface SeatPanelProps {
 }
 
 /**
- * The player picked on the felt: their action when it is their turn, and
- * their seat (name, stack, cards, hero, button) either way.
+ * The seat picked on the felt: name, starting stack, cards, hero and button.
+ * The player's action is not here; it is in the bubble beside the seat.
  */
-export function SeatPanel({ seat, state, update, engine, onAct, onSelect, onPickCards, mode, unit, bigBlind }: SeatPanelProps) {
+export function SeatPanel({ seat, state, update, engine, onPickCards, mode, unit, bigBlind }: SeatPanelProps) {
   const dict = useDict().manual;
   const t = dict.table;
   const players = dict.players;
@@ -37,9 +34,6 @@ export function SeatPanel({ seat, state, update, engine, onAct, onSelect, onPick
   const player = engine.players.find((candidate) => candidate.seat === seat);
   if (!entry || !player) return null;
 
-  const status = engine.status;
-  const acting = status.kind === "betting" && status.options.seat === seat;
-  const actor = status.kind === "betting" ? engine.players.find((p) => p.seat === status.options.seat) : undefined;
   const setSeat = (patch: Partial<EditorState["seats"][number]>) =>
     update((current) => ({
       ...current,
@@ -48,34 +42,11 @@ export function SeatPanel({ seat, state, update, engine, onAct, onSelect, onPick
 
   return (
     <section className={styles.seatPanel} aria-label={player.name}>
-      {acting && status.kind === "betting" ? (
-        <ActionBar
-          key={`${engine.validCount}-${mode}`}
-          options={status.options}
-          player={player}
-          street={engine.street}
-          bigBlind={bigBlind}
-          mode={mode}
-          unit={unit}
-          onAct={onAct}
-        />
-      ) : (
-        <div className={styles.seatPanelHead}>
-          <p className={styles.toAct}>
-            {player.position ? <span className={styles.pos}>{player.position}</span> : null}
-            <strong>{player.name}</strong>
-            <span className={styles.dim}>{formatFor(player.stack, mode, unit, bigBlind)}</span>
-          </p>
-          {actor ? (
-            <div className={styles.row}>
-              <span className={styles.dim}>{t.notTheirTurn(actor.name)}</span>
-              <button type="button" className="btn btn--sm" onClick={() => onSelect(null)}>
-                {t.goToActor}
-              </button>
-            </div>
-          ) : null}
-        </div>
-      )}
+      <p className={styles.toAct}>
+        {player.position ? <span className={styles.pos}>{player.position}</span> : null}
+        <strong>{player.name}</strong>
+        <span className={styles.dim}>{formatFor(player.stack, mode, unit, bigBlind)}</span>
+      </p>
 
       <div className={styles.seatEdit}>
         <label className="field field--narrow">

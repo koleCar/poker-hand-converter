@@ -1,4 +1,3 @@
-import { plural } from "../plural";
 import type { Dict } from "../types";
 
 /** Strings for manual hand entry, Croatian. Same shape as `manual.en.ts`. */
@@ -37,10 +36,21 @@ export const manualHr: Dict["manual"] = {
     next: (position: string, name: string) => `Sljedeći: ${position ? `${position} ` : ""}${name}`,
     notTheirTurn: (name: string) => `Na potezu je ${name}.`,
     goToActor: "Idi na igrača na potezu",
+    skipped: (list: string) => `Prije njega: ${list}`,
     startingStack: "Početni stack",
     makeHero: "Hero",
     makeButton: "Button ovdje",
     handOver: "Ruka je gotova. Ako pobjednici nisu određeni, odaberi ih ispod, pa je odigraj ili spremi.",
+  },
+
+  nav: {
+    label: "Kretanje kroz ruku",
+    start: "Na početak",
+    back: "Nazad",
+    forward: "Naprijed",
+    end: "Na kraj",
+    step: (at: number, total: number) => `${at} / ${total}`,
+    reviewing: "Pregledavaš ruku. Idi na kraj da nastaviš unos.",
   },
 
   amounts: {
@@ -116,19 +126,6 @@ export const manualHr: Dict["manual"] = {
   },
 
   actions: {
-    heading: "Akcija",
-    pattern: "Tijek",
-    potType: {
-      walk: "Walk",
-      limped: "Limpani pot",
-      srp: "Single-raised pot",
-      threeBet: "3-bet pot",
-      fourBet: "4-bet pot",
-      fiveBet: "5-bet+ pot",
-    },
-    versus: (players: readonly string[]) => players.join(" vs "),
-    multiway: (count: number) => `${num(count)} igrača`,
-    toAct: (name: string) => `Na potezu: ${name}`,
     toCall: (amount: string) => `Za call ${amount}`,
     pot: (amount: string) => `Pot ${amount}`,
     fold: "Fold",
@@ -137,6 +134,7 @@ export const manualHr: Dict["manual"] = {
     callAllIn: (amount: string) => `Call ${amount} all-in`,
     bet: "Bet",
     raise: "Raise na",
+    raiseShort: "Raise",
     betAmount: "Iznos beta",
     raiseAmount: "Raise na",
     sizeHint: (min: string, max: string) => `Od ${min} do ${max}`,
@@ -151,30 +149,12 @@ export const manualHr: Dict["manual"] = {
       allIn: "All-in",
     },
     undo: "Poništi",
-    clear: "Obriši akciju",
-    removeFrom: "Ukloni ovu akciju i sve nakon nje",
-    verbs: {
-      ante: (amount: string) => `plaća ante ${amount}`,
-      "small-blind": (amount: string) => `plaća small blind ${amount}`,
-      "big-blind": (amount: string) => `plaća big blind ${amount}`,
-      straddle: (amount: string) => `straddle ${amount}`,
-      fold: () => "fold",
-      check: () => "check",
-      call: (amount: string) => `call ${amount}`,
-      bet: (amount: string) => `bet ${amount}`,
-      raise: (amount: string) => `raise na ${amount}`,
-    },
     allIn: "all-in",
-    streets: { preflop: "Preflop", flop: "Flop", turn: "Turn", river: "River" },
     dealStreet: { flop: "Podijeli flop", turn: "Podijeli turn", river: "Podijeli river" },
     runout: "Nitko više ne može betati — podijeli ostatak boarda.",
     board: "Board",
-    editBoard: "Promijeni board",
-    stale: (count: number) =>
-      `${num(count)} ${plural(count, "unesena akcija više ne odgovara", "unesene akcije više ne odgovaraju", "unesenih akcija više ne odgovara")}; ${plural(count, "zanemarena je i bit će uklonjena", "zanemarene su i bit će uklonjene", "zanemarene su i bit će uklonjene")} kad dodaš sljedeću.`,
     wonUncontested: (name: string) => `${name} osvaja pot — svi ostali su foldali.`,
     showdown: "Ruka ide na showdown.",
-    setupFirst: "Ispravi postavke iznad da bi mogao unositi akciju.",
   },
 
   result: {
@@ -212,6 +192,7 @@ export const manualHr: Dict["manual"] = {
     refused: "Ruku nije bilo moguće izgraditi:",
     warnings: "Izgrađena s upozorenjima:",
     download: "Preuzmi .txt",
+    share: "Podijeli",
     copy: "Kopiraj tekst",
     copied: "Kopirano.",
     copyFailed: "Kopiranje nije uspjelo.",

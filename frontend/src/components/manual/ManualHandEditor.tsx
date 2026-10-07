@@ -26,6 +26,7 @@ import {
   buildManualDraft,
   buildManualHand,
   newManualHandId,
+  passUntil,
   replayManual,
   settleManual,
   setupProblems,
@@ -36,7 +37,8 @@ import type { Dict } from "../../lib/i18n/types";
 import { formatAmount } from "../../lib/phf/types";
 import { Overlay } from "../ui/Overlay";
 import { createAmountFormatter } from "../replayer/tableMath";
-import { HandLog } from "./ActionPanel";
+import { ActionBar } from "./ActionBar";
+import { ActionBubble } from "./ActionBubble";
 import { ManualTable } from "./ManualTable";
 import { SeatPanel } from "./SeatPanel";
 import { tableFrame, tableHand } from "./tableFrame";
@@ -70,6 +72,8 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
   /** Seat picked on the felt; null follows the player to act. */
   const [selected, setSelected] = useState<number | null>(null);
   const [settings, setSettings] = useState<"game" | "players" | null>(null);
+  /** How many entered actions the table is showing; null is the end of the hand. */
+  const [cursor, setCursor] = useState<number | null>(null);
 
   // Restore after mount, not in the initial state: the server render has no
   // storage, and the first client render has to match it.
@@ -142,18 +146,62 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
   // The panel follows whoever is to act unless a seat was picked on the felt.
   const focused = selected !== null && engine.players.some((p) => p.seat === selected) ? selected : actorSeat;
 
-  /** Adds a decision, dropping whatever no longer fits after the valid prefix. */
+  // Picking a seat further round the table skips ahead to it: the seats in
+  // between pass (fold preflop, check when there is nothing to call). The
+  // table previews that, and the bubble offers the picked seat's options.
+  const jump = useMemo(() => {
+    if (actorSeat === null || problems.length > 0) return null;
+    return passUntil(setup, state.actions, state.board)(focused ?? actorSeat);
+  }, [setup, state.actions, state.board, focused, actorSeat, problems.length]);
+  // Stepping back through the hand shows the table as it was after `cursor`
+  // actions. Nothing is changed by looking; entering an action or undoing
+  // returns to the end.
+  const viewing = cursor !== null && cursor < engine.validCount;
+  const past = useMemo(
+    () => (viewing ? replayManual(setup, state.actions.slice(0, cursor!), state.board) : null),
+    [viewing, setup, state.actions, cursor, state.board],
+  );
+  const step = (to: number | null) => setCursor(to === null || to >= engine.validCount ? null : Math.max(0, to));
+  const position = viewing ? cursor! : engine.validCount;
+
+  const shown = past ?? jump?.state ?? engine;
+  const bubbleStatus = viewing ? undefined : jump?.state.status;
+  const skipped = jump ? jump.actions.slice(engine.validCount) : [];
+
+  /** Adds a decision (and any passes skipped over), dropping what no longer fits. */
   const act = (action: ManualAction) => {
-    const actions = [...state.actions.slice(0, engine.validCount), action];
+    const actions = [...(jump?.actions ?? state.actions.slice(0, engine.validCount)), action];
     update({ actions });
     setSelected(null);
+    setCursor(null);
     // The street closed and needs cards: open the picker straight away.
     if (replayManual(setup, actions, state.board).status.kind === "needs-board") {
       setCardTarget({ kind: "board" });
     }
   };
-  const undo = () =>
+  const undo = () => {
+    setCursor(null);
     update((current) => ({ ...current, actions: current.actions.slice(0, Math.max(0, engine.validCount - 1)), picks: {} }));
+  };
+
+  // The arrow keys step through the hand, unless a field or a dialog has them.
+  const stepRef = useRef(step);
+  stepRef.current = step;
+  const positionRef = useRef(position);
+  positionRef.current = position;
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest("input, textarea, select, dialog")) return;
+      if (event.altKey || event.metaKey || event.ctrlKey) return;
+      if (event.key === "ArrowLeft") stepRef.current(positionRef.current - 1);
+      else if (event.key === "ArrowRight") stepRef.current(positionRef.current + 1);
+      else return;
+      event.preventDefault();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const format = useMemo(
     () => createAmountFormatter(state.amountMode === "bb" ? "bb" : "chips", unit, state.bigBlind),
@@ -163,15 +211,20 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
     () =>
       tableFrame(
         state,
-        engine,
-        status.kind === "complete" ? settlement : null,
+        shown,
+        !viewing && status.kind === "complete" ? settlement : null,
         unit,
         (entry, amount) => t.table.pills[entry.kind](amount),
         (amount) => format(amount / unit.minorUnits, amount / state.bigBlind),
       ),
-    [state, engine, status.kind, settlement, unit, t, format],
+    [state, shown, viewing, status.kind, settlement, unit, t, format],
   );
-  const actor = engine.players.find((p) => p.seat === actorSeat);
+  const actor = shown.players.find((p) => p.seat === (bubbleStatus?.kind === "betting" ? bubbleStatus.options.seat : actorSeat));
+  const tableRef = useRef<HTMLDivElement>(null);
+  const positionOf = (seat: number) => {
+    const player = engine.players.find((p) => p.seat === seat);
+    return player?.position ?? player?.name ?? "";
+  };
 
   return (
     <div className="stack">
@@ -204,9 +257,6 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
               </button>
             ))}
           </div>
-          <button type="button" className="btn btn--sm" disabled={engine.validCount === 0} onClick={undo}>
-            ↶ {t.actions.undo}
-          </button>
           <button type="button" className="btn btn--ghost btn--sm" onClick={reset}>
             {t.reset}
           </button>
@@ -215,28 +265,88 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
 
       <div className={styles.workspace}>
         <div className={styles.tableCol}>
-          <ManualTable
-            hand={tableHand(state, unit)}
-            frame={frame}
-            format={format}
-            selectedSeat={selected}
-            onSeatClick={(seat) => setSelected(seat === actorSeat ? null : seat)}
-            onBoardClick={() => setCardTarget({ kind: "board" })}
-          />
+          <div ref={tableRef}>
+            <ManualTable
+              hand={tableHand(state, unit)}
+              frame={frame}
+              format={format}
+              selectedSeat={selected}
+              onSeatClick={(seat) => {
+                setCursor(null);
+                setSelected(seat === actorSeat ? null : seat);
+              }}
+              onSeatCardsClick={(seat) => setCardTarget({ kind: "seat", seat })}
+              onBoardClick={() => setCardTarget({ kind: "board" })}
+            />
+          </div>
+          <div className={styles.nav} role="group" aria-label={t.nav.label}>
+            <button type="button" className="btn btn--sm" disabled={position === 0} onClick={() => step(0)} aria-label={t.nav.start} title={t.nav.start}>
+              ⏮
+            </button>
+            <button
+              type="button"
+              className="btn btn--sm"
+              disabled={position === 0}
+              onClick={() => step(position - 1)}
+              aria-label={t.nav.back}
+              title={t.nav.back}
+            >
+              ◀ {t.nav.back}
+            </button>
+            <span className={styles.navStep}>{t.nav.step(position, engine.validCount)}</span>
+            <button
+              type="button"
+              className="btn btn--sm"
+              disabled={!viewing}
+              onClick={() => step(position + 1)}
+              aria-label={t.nav.forward}
+              title={t.nav.forward}
+            >
+              {t.nav.forward} ▶
+            </button>
+            <button type="button" className="btn btn--sm" disabled={!viewing} onClick={() => step(null)} aria-label={t.nav.end} title={t.nav.end}>
+              ⏭
+            </button>
+            <button type="button" className={`btn ${styles.undo}`} disabled={engine.validCount === 0} onClick={undo}>
+              ↶ {t.actions.undo}
+            </button>
+          </div>
+          {/* After mount only: the bubble is a portal, which the server cannot render. */}
+          {loaded && bubbleStatus?.kind === "betting" && actor && !cardTarget && !settings ? (
+            <ActionBubble tableRef={tableRef} seat={actor.seat} layoutKey={`${state.actions.length}-${focused}-${state.amountMode}`}>
+              <ActionBar
+                key={`${engine.validCount}-${actor.seat}-${state.amountMode}`}
+                options={bubbleStatus.options}
+                player={actor}
+                street={shown.street}
+                onAct={act}
+                note={
+                  skipped.length > 0
+                    ? t.table.skipped(
+                        skipped.map((pass) => `${positionOf(pass.seat)} ${t.table.pills[pass.kind as "fold" | "check"]()}`).join(", "),
+                      )
+                    : null
+                }
+                {...fmtProps}
+              />
+            </ActionBubble>
+          ) : null}
           <div className={styles.strip} aria-live="polite">
-            {problems.length > 0 ? (
+            {viewing ? (
+              <span className={styles.dim}>{t.nav.reviewing}</span>
+            ) : problems.length > 0 ? (
               <>
                 <span className="notice notice--warn">{t.setupProblems[problems[0]]}</span>
                 <button type="button" className="btn btn--sm" onClick={() => setSettings("players")}>
                   {t.bar.players}
                 </button>
               </>
-            ) : status.kind === "betting" && actor ? (
+            ) : bubbleStatus?.kind === "betting" && actor ? (
               <>
                 <strong className={styles.next}>{t.table.next(actor.position ?? "", actor.name)}</strong>
                 <span className={styles.dim}>
-                  {t.actions.pot(fmt(status.options.pot))}
-                  {status.options.toCall > 0 ? ` · ${t.actions.toCall(fmt(status.options.toCall))}` : ""}
+                  {t.actions.pot(fmt(bubbleStatus.options.pot))}
+                  {bubbleStatus.options.toCall > 0 ? ` · ${t.actions.toCall(fmt(bubbleStatus.options.toCall))}` : ""}
                 </span>
                 <span className={styles.dim}>{t.table.hint}</span>
               </>
@@ -268,25 +378,7 @@ export function ManualHandEditor({ onSaved }: ManualHandEditorProps) {
               {...fmtProps}
             />
           ) : problems.length === 0 && focused !== null ? (
-            <SeatPanel
-              seat={focused}
-              state={state}
-              update={update}
-              engine={engine}
-              onAct={act}
-              onSelect={setSelected}
-              onPickCards={setCardTarget}
-              {...fmtProps}
-            />
-          ) : null}
-          {problems.length === 0 ? (
-            <HandLog
-              state={state}
-              update={update}
-              engine={engine}
-              onPickBoard={() => setCardTarget({ kind: "board" })}
-              {...fmtProps}
-            />
+            <SeatPanel seat={focused} state={state} update={update} engine={engine} onPickCards={setCardTarget} {...fmtProps} />
           ) : null}
         </aside>
       </div>

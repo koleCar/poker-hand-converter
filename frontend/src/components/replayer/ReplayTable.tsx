@@ -77,6 +77,12 @@ interface ReplayTableProps {
   onSeatClick?: (seatNo: number) => void;
   /** Makes the board a button, likewise for the editor: it opens the card picker. */
   onBoardClick?: () => void;
+  /**
+   * A click on a seat's cards rather than on the seat, for the editor's card
+   * picker. Mouse only: the editor's seat panel has the same picker behind a
+   * real button, so the cards need not be a second tab stop inside the seat.
+   */
+  onSeatCardsClick?: (seatNo: number) => void;
 }
 
 interface Placed {
@@ -224,6 +230,7 @@ export function ReplayTable({
   focusSeat = null,
   onSeatClick,
   onBoardClick,
+  onSeatCardsClick,
 }: ReplayTableProps) {
   const t = useDict().replayer;
   const words = t.table;
@@ -515,6 +522,8 @@ export function ReplayTable({
               // ("Seat 3, cutoff, Villain, 84 big blinds, folded") rather than
               // as six loose fragments in slot order.
               role={onSeatClick ? "button" : "group"}
+              // Lets a caller find the seat on screen (the editor's action bubble).
+              data-seat-no={seat.seatNo}
               aria-label={describeSeat(seat, mask.seat(seat.name), t)}
               aria-pressed={onSeatClick ? seat.seatNo === focusSeat : undefined}
               tabIndex={onSeatClick ? 0 : undefined}
@@ -535,7 +544,17 @@ export function ReplayTable({
                 .join(" ")}
               style={slotStyle(slot)}
             >
-              <div className="pseat__cards">
+              <div
+                className={`pseat__cards ${onSeatCardsClick ? "pseat__cards--clickable" : ""}`.trim()}
+                onClick={
+                  onSeatCardsClick
+                    ? (event) => {
+                        event.stopPropagation();
+                        onSeatCardsClick(seat.seatNo);
+                      }
+                    : undefined
+                }
+              >
                 {cards.map((code, index) => (
                   <PlayingCard
                     key={`${seat.seatNo}-${index}-${code ?? "back"}`}

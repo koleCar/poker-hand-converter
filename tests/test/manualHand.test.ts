@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildManualDraft,
   buildManualHand,
+  passUntil,
   replayManual,
   settleManual,
   type ManualAction,
@@ -206,6 +207,40 @@ describe("manual engine", () => {
       [1, "small-blind"],
       [2, "big-blind"],
     ]);
+  });
+});
+
+describe("skipping ahead to a seat", () => {
+  it("folds everyone before the seat preflop", () => {
+    const jump = passUntil(sixMax(), [], [])(6);
+    expect(jump?.actions).toEqual([
+      { seat: 3, kind: "fold" },
+      { seat: 4, kind: "fold" },
+      { seat: 5, kind: "fold" },
+    ]);
+    if (jump?.state.status.kind !== "betting") throw new Error("expected betting");
+    expect(jump.state.status.options.seat).toBe(6);
+  });
+
+  it("checks the skipped seats when there is nothing to call", () => {
+    const actions: ManualAction[] = [
+      { seat: 3, kind: "call" },
+      { seat: 4, kind: "fold" },
+      { seat: 5, kind: "fold" },
+      { seat: 6, kind: "fold" },
+      { seat: 1, kind: "call" },
+      { seat: 2, kind: "check" },
+    ];
+    const jump = passUntil(sixMax(), actions, ["7c", "8d", "2s"])(3);
+    expect(jump?.actions.slice(actions.length)).toEqual([
+      { seat: 1, kind: "check" },
+      { seat: 2, kind: "check" },
+    ]);
+  });
+
+  it("refuses a seat that will not act again on this street", () => {
+    const actions: ManualAction[] = [{ seat: 3, kind: "fold" }];
+    expect(passUntil(sixMax(), actions, [])(3)).toBeNull();
   });
 });
 

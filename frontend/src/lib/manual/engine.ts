@@ -523,3 +523,34 @@ export function replayManual(
 
   return state;
 }
+
+/**
+ * The decisions that bring the action to `seat` when the user skips ahead to
+ * it: everybody in between takes the passive option — a check when there is
+ * nothing to call, a fold otherwise. Preflop that is "everyone before the
+ * raiser folded", which is what a skipped seat almost always did.
+ *
+ * Returns the entered actions with the passes appended and the state they
+ * reach, or null when `seat` will not act again on this street (folded, all
+ * in, or the street closes before it comes round).
+ */
+export function passUntil(
+  setup: ManualSetup,
+  actions: readonly ManualAction[],
+  board: readonly string[],
+): (seat: number) => { actions: ManualAction[]; state: EngineState } | null {
+  const start = replayManual(setup, actions, board);
+  const base = actions.slice(0, start.validCount);
+  return (seat) => {
+    let state = start;
+    const next = [...base];
+    for (let guard = 0; guard <= setup.seats.length; guard += 1) {
+      if (state.status.kind !== "betting" || state.street !== start.street) return null;
+      const options = state.status.options;
+      if (options.seat === seat) return { actions: next, state };
+      next.push({ seat: options.seat, kind: options.canCheck ? "check" : "fold" });
+      state = replayManual(setup, next, board);
+    }
+    return null;
+  };
+}
