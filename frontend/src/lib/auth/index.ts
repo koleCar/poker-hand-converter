@@ -23,3 +23,4 @@ export {
   type AuthUser,
   type SignUpOutcome,
 } from "./session";
+export { markSignInOffered, wasSignInOffered } from "./offer";

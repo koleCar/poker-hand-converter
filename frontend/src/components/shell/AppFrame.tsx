@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { hasPendingHand } from "../converter/handoff";
 import { AppShell, type ShellTab } from "./AppShell";
-import { useAuth } from "../../lib/auth";
+import { markSignInOffered, useAuth, wasSignInOffered } from "../../lib/auth";
 import { countHands } from "../../lib/db";
 import { paths } from "../../lib/routes";
 import { isSupabaseConfigured } from "../../lib/supabase/config";
@@ -103,20 +103,21 @@ export function AppFrame({ tab, redirectWhenEmpty = false, children }: AppFrameP
   }, [redirectWhenEmpty, settled, historyOpen, router]);
 
   /**
-   * Offer the dialog once, to someone who has never answered the question.
+   * Offer the dialog once per browser session, to someone who has never
+   * answered the question.
    *
    * Not a gate: dismissing it, or choosing "continue without an account",
    * leaves a fully working converter. It exists because the alternative is a
    * person converting a 5000-hand file and only then discovering that saving it
-   * needed an account. `askedRef` keeps a re-render from reopening a dialog the
-   * user just closed.
+   * needed an account. The latch is per session, not per mount (`lib/auth/offer.ts`):
+   * every route mounts its own `AppFrame`, and a visitor who closed the dialog
+   * must not get it back on the next link they follow.
    */
-  const askedRef = useRef(false);
   useEffect(() => {
-    if (askedRef.current || !auth.configured || auth.status !== "signed-out" || auth.isGuest) {
+    if (wasSignInOffered() || !auth.configured || auth.status !== "signed-out" || auth.isGuest) {
       return;
     }
-    askedRef.current = true;
+    markSignInOffered();
     auth.requestSignIn();
   }, [auth]);
 
