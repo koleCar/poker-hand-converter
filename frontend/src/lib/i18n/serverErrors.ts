@@ -124,6 +124,8 @@ const HR: Record<string, string> = {
   "Email not confirmed": "E-mail adresa još nije potvrđena. Link je u e-mailu koji smo poslali.",
   "User already registered": "Račun s tim e-mailom već postoji.",
   "Password should be at least 6 characters.": "Lozinka mora imati najmanje 6 znakova.",
+  "Google sign-in is not available yet. Use email and password for now.":
+    "Prijava Googleom još nije dostupna. Za sad se prijavi e-mailom i lozinkom.",
 };
 
 const HR_PATTERNS: Array<[RegExp, (match: RegExpMatchArray) => string]> = [

@@ -9,7 +9,11 @@
  */
 
 import type { Session } from "@supabase/supabase-js";
-import { isGoogleAuthOffered as googleOffered } from "../supabase/config";
+import {
+  isGoogleAuthOffered as googleOffered,
+  SUPABASE_ANON_KEY,
+  SUPABASE_URL,
+} from "../supabase/config";
 import { getBrowserSupabase } from "../supabase/browser";
 import { paths, SITE_URL } from "../routes";
 import { safeNextPath } from "./nextPath";
@@ -39,10 +43,13 @@ function client() {
   return instance;
 }
 
+/**
+ * Shown to visitors, so it says nothing about dashboards. Switching it on:
+ * Supabase → Authentication → Providers → Google, with a Google Cloud OAuth
+ * client whose redirect URI is `<SUPABASE_URL>/auth/v1/callback`.
+ */
 const GOOGLE_DISABLED_MESSAGE =
-  "Google sign-in is not switched on for this project yet. Enable it under " +
-  "Authentication → Providers in the Supabase dashboard, then try again. " +
-  "Email and password work now.";
+  "Google sign-in is not available yet. Use email and password for now.";
 
 /** The shape both `AuthError` and `AuthApiError` satisfy. */
 interface AuthFailure {
@@ -142,11 +149,37 @@ export async function signUpWithPassword(
  * important after the await.
  */
 export async function signInWithGoogle(): Promise<void> {
+  // `signInWithOAuth` never reports a disabled provider: it navigates to
+  // `/auth/v1/authorize`, and GoTrue answers that with a bare JSON 400
+  // ("Unsupported provider: provider is not enabled") in place of the app.
+  // The public settings endpoint says up front whether Google is on.
+  if ((await isProviderEnabled("google")) === false) {
+    throw new Error(GOOGLE_DISABLED_MESSAGE);
+  }
   const { error } = await client().auth.signInWithOAuth({
     provider: "google",
     options: { redirectTo: redirectUrl() },
   });
   fail(error);
+}
+
+/**
+ * Reads `external.<provider>` from GoTrue's public settings. `null` when the
+ * answer is unknown (network, odd response) — the caller then tries anyway
+ * rather than blocking a sign-in on a check that could not run.
+ */
+async function isProviderEnabled(provider: string): Promise<boolean | null> {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
+      headers: { apikey: SUPABASE_ANON_KEY! },
+    });
+    if (!response.ok) return null;
+    const settings = (await response.json()) as { external?: Record<string, unknown> };
+    const value = settings.external?.[provider];
+    return typeof value === "boolean" ? value : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function sendPasswordReset(email: string, captchaToken?: string): Promise<void> {
