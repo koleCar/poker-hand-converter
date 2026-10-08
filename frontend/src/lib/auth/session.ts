@@ -75,6 +75,10 @@ function describe(error: AuthFailure): string {
       return "An account with that email already exists. Sign in instead.";
     case "weak_password":
       return "That password is too weak. Use at least six characters.";
+    case "same_password":
+      return "That is already your password. Pick a different one.";
+    case "reauthentication_needed":
+      return "Sign out and back in, then change your password again.";
     case "over_email_send_rate_limit":
       return "Too many emails were sent to that address. Wait a few minutes and try again.";
     case "over_request_rate_limit":
@@ -182,11 +186,32 @@ async function isProviderEnabled(provider: string): Promise<boolean | null> {
   }
 }
 
+/**
+ * The reset link signs the user in and lands on `/settings`, whose "Change
+ * password" section is where the new password is actually set — the link by
+ * itself only proves who they are.
+ */
 export async function sendPasswordReset(email: string, captchaToken?: string): Promise<void> {
   const { error } = await client().auth.resetPasswordForEmail(email.trim(), {
-    redirectTo: redirectUrl(),
+    redirectTo: redirectUrl(paths.settings()),
     ...(captchaToken ? { captchaToken } : {}),
   });
+  fail(error);
+}
+
+/**
+ * Sets a new password on the signed-in account.
+ *
+ * No current password and no captcha: GoTrue asks for neither on
+ * `PUT /user`, and a user who arrived from the reset link does not have the
+ * old one. If "Secure password change" is ever switched on in the dashboard,
+ * this fails with `reauthentication_needed` until the session is fresh.
+ *
+ * Works for an account that signed up with Google too — it gives that account
+ * a password alongside the provider.
+ */
+export async function updatePassword(password: string): Promise<void> {
+  const { error } = await client().auth.updateUser({ password });
   fail(error);
 }
 
@@ -237,8 +262,12 @@ export async function signOut(): Promise<void> {
  * that has to work. Today's list only covers `localhost:5173` / `:4173`, which
  * were the Vite ports; `next dev` serves on 3000.
  */
-function redirectUrl(): string {
+function redirectUrl(path?: string): string {
   const next =
-    typeof window === "undefined" ? paths.home() : safeNextPath(window.location.pathname);
+    path !== undefined
+      ? safeNextPath(path)
+      : typeof window === "undefined"
+        ? paths.home()
+        : safeNextPath(window.location.pathname);
   return `${SITE_URL}/auth/callback?next=${encodeURIComponent(next)}`;
 }

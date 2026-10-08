@@ -43,6 +43,7 @@ export interface AuthContextValue {
   signInWithGoogle: () => Promise<void>;
   sendPasswordReset: (email: string, captchaToken?: string) => Promise<void>;
   resendConfirmation: (email: string, captchaToken?: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   signOut: () => Promise<void>;
   continueAsGuest: () => void;
 

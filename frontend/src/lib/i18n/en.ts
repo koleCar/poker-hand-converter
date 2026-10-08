@@ -663,6 +663,17 @@ export const en = {
       resending: "Sending…",
       resent: (email: string) => `A new confirmation link is on its way to ${email}.`,
     },
+    password: {
+      heading: "Password",
+      hint: "At least six characters.",
+      newLabel: "New password",
+      confirmLabel: "Repeat the new password",
+      tooShort: "Use at least six characters.",
+      mismatch: "The two passwords do not match.",
+      save: "Change password",
+      saving: "Saving…",
+      saved: "Password changed. Use the new one next time you sign in.",
+    },
   },
 } as const;
 

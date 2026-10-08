@@ -126,6 +126,10 @@ const HR: Record<string, string> = {
   "Password should be at least 6 characters.": "Lozinka mora imati najmanje 6 znakova.",
   "Google sign-in is not available yet. Use email and password for now.":
     "Prijava Googleom još nije dostupna. Za sad se prijavi e-mailom i lozinkom.",
+  // `lib/auth/session.ts` rewords these GoTrue codes before they get here.
+  "That password is too weak. Use at least six characters.": "Lozinka je preslaba. Upiši najmanje šest znakova.",
+  "That is already your password. Pick a different one.": "To ti je već lozinka. Odaberi neku drugu.",
+  "Sign out and back in, then change your password again.": "Odjavi se i ponovno prijavi, pa opet promijeni lozinku.",
 };
 
 const HR_PATTERNS: Array<[RegExp, (match: RegExpMatchArray) => string]> = [

@@ -7,7 +7,8 @@ import { Turnstile } from "../../components/auth/Turnstile";
 import { AppFrame } from "../../components/shell/AppFrame";
 import { useAuth } from "../../lib/auth";
 import { setUsername, usernameErrorMessage, type MyProfile } from "../../lib/db/profiles";
-import { useDict } from "../../lib/i18n/client";
+import { useDict, useLocale } from "../../lib/i18n/client";
+import { localizeServerMessage } from "../../lib/i18n/serverErrors";
 import type { Dict } from "../../lib/i18n/types";
 import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
@@ -68,6 +69,9 @@ function SettingsBody() {
               : en.settings.loadFailed}
         </p>
       )}
+      {/* Outside the profile gate: the password belongs to the auth account,
+          which exists even when the profile row failed to load. */}
+      <PasswordSection />
     </div>
   );
 }
@@ -194,6 +198,108 @@ function UsernameSection({ profile, onSaved }: { profile: MyProfile; onSaved: ()
           <Link href={paths.profile(profile.username)} className="btn btn--ghost">
             {en.settings.username.viewProfile}
           </Link>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+/** GoTrue's `password_min_length` on this project; it re-checks on save. */
+const MIN_PASSWORD_LENGTH = 6;
+
+function PasswordSection() {
+  const en = useDict();
+  const auth = useAuth();
+  const locale = useLocale();
+  const words = en.settings.password;
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setNotice(null);
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(words.tooShort);
+      return;
+    }
+    if (password !== confirm) {
+      setError(words.mismatch);
+      return;
+    }
+    setBusy(true);
+    try {
+      await auth.updatePassword(password);
+      setPassword("");
+      setConfirm("");
+      setNotice(words.saved);
+    } catch (err) {
+      setError(err instanceof Error ? localizeServerMessage(err.message, locale) : String(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className={`card ${styles.section}`} aria-labelledby="settings-password">
+      <h2 id="settings-password" className={styles.subheading}>
+        {words.heading}
+      </h2>
+
+      <form className={styles.form} onSubmit={(event) => void handleSubmit(event)}>
+        {/* Tells a password manager which account the new password belongs to. */}
+        <input
+          type="email"
+          autoComplete="username"
+          value={auth.user?.email ?? ""}
+          readOnly
+          hidden
+        />
+        <label className={styles.field}>
+          <span>{words.newLabel}</span>
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="new-password"
+            minLength={MIN_PASSWORD_LENGTH}
+            required
+            aria-describedby="settings-password-hint"
+          />
+        </label>
+        <label className={styles.field}>
+          <span>{words.confirmLabel}</span>
+          <input
+            type="password"
+            value={confirm}
+            onChange={(event) => setConfirm(event.target.value)}
+            autoComplete="new-password"
+            minLength={MIN_PASSWORD_LENGTH}
+            required
+          />
+        </label>
+        <p id="settings-password-hint" className={`muted ${styles.hint}`}>
+          {words.hint}
+        </p>
+
+        {error ? (
+          <p className="notice notice--error" role="alert">
+            {error}
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="notice notice--info" role="status">
+            {notice}
+          </p>
+        ) : null}
+
+        <div className={styles.actions}>
+          <button type="submit" className="btn btn--primary" disabled={busy}>
+            {busy ? words.saving : words.save}
+          </button>
         </div>
       </form>
     </section>

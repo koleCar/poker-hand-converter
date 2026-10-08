@@ -636,5 +636,16 @@ export const hr: Dict = {
       resending: "Šaljem…",
       resent: (email: string) => `Novi link za potvrdu stiže na ${email}.`,
     },
+    password: {
+      heading: "Lozinka",
+      hint: "Najmanje šest znakova.",
+      newLabel: "Nova lozinka",
+      confirmLabel: "Ponovi novu lozinku",
+      tooShort: "Upiši najmanje šest znakova.",
+      mismatch: "Lozinke se ne podudaraju.",
+      save: "Promijeni lozinku",
+      saving: "Spremam…",
+      saved: "Lozinka je promijenjena. Sljedeći put se prijavi novom.",
+    },
   },
 };

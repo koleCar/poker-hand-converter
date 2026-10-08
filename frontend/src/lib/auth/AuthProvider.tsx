@@ -34,6 +34,7 @@ import {
   signOut as endSession,
   signUpWithPassword,
   toAuthUser,
+  updatePassword,
   type AuthUser,
 } from "./session";
 
@@ -181,6 +182,7 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
       signInWithGoogle: startGoogleSignIn,
       sendPasswordReset: sendPasswordResetRequest,
       resendConfirmation,
+      updatePassword,
       signOut,
       continueAsGuest,
       requestSignIn,

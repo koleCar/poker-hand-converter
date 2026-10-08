@@ -87,8 +87,11 @@ describe("localizeServerMessage", () => {
     const sql = readdirSync(dir).map((f) => readFileSync(join(dir, f), "utf8")).join("\n");
     const source = readFileSync(join(import.meta.dirname, "../../frontend/src/lib/i18n/serverErrors.ts"), "utf8");
     const keys = [...source.matchAll(/^\s+"([A-Z][^"]+)":/gm)].map((m) => m[1]).concat([...source.matchAll(/^\s+'([^']+)':/gm)].map((m) => m[1]));
+    // GoTrue's own messages, plus the sentences `lib/auth/session.ts` rewords its codes into.
+    const sessionSource = readFileSync(join(import.meta.dirname, "../../frontend/src/lib/auth/session.ts"), "utf8");
     const authOnly = new Set(["Invalid login credentials", "Email not confirmed", "User already registered", "Password should be at least 6 characters."]);
-    const stale = keys.filter((key) => !authOnly.has(key) && !sql.includes(key.replace(/'/g, "''")));
+    const fromSession = (key: string) => sessionSource.includes(`"${key}"`);
+    const stale = keys.filter((key) => !authOnly.has(key) && !fromSession(key) && !sql.includes(key.replace(/'/g, "''")));
     expect(stale).toEqual([]);
   });
 });
