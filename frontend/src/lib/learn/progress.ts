@@ -189,6 +189,8 @@ export type CardItem =
       seat: RiverSeat | "any";
       role: RiverRole | "any";
       facing?: "check" | "bet" | "any";
+      /** The turn only (L3): the flop line before it. */
+      flop?: "checked" | "bet";
       bias: DealBias;
     }
   | {
@@ -203,15 +205,35 @@ export type CardItem =
       bias: DealBias;
     }
   | {
-      /** A range split (L2): stored as a `solver-spot` card, since a solve grades it. */
+      /** A range split (L2; the river since L3): stored as a `solver-spot` card, since a solve grades it. */
       k: "split";
-      street: "flop" | "turn";
+      street: "flop" | "turn" | "river";
       seed: number;
       pot: RiverPot | "any";
       seat: RiverSeat | "any";
       role: RiverRole | "any";
       facing?: FlopFacing;
       line?: string;
+      /** The turn only (L3): the flop line before it. */
+      flop?: "checked" | "bet";
+    }
+  | {
+      /** A range paint of a chart's first-in range (L3): a `chart-quiz` card, since the chart grades it. */
+      k: "paint";
+      source: "chart";
+      seed: number;
+      set?: string | null;
+      seat?: ChartPosition | null;
+    }
+  | {
+      /** A range paint of a river node (L3): a `solver-spot` card. */
+      k: "paint";
+      source: "river";
+      seed: number;
+      pot: RiverPot | "any";
+      seat: RiverSeat | "any";
+      role: RiverRole | "any";
+      facing?: "check" | "bet" | "any";
     };
 
 export type CardKind = "chart-quiz" | "solver-spot" | "calc" | "classify";
@@ -260,6 +282,24 @@ export function cardFor(meta: LessonMeta, def: GeneratedExerciseDef, seed: numbe
           role: def.role,
           ...(def.facing ? { facing: def.facing } : {}),
           ...(def.line ? { line: def.line } : {}),
+          ...(def.flop ? { flop: def.flop } : {}),
+        },
+      };
+    case "range-paint":
+      if (def.source === "chart") {
+        return { ...base, kind: "chart-quiz", item: { k: "paint", source: "chart", seed: seed >>> 0, set: def.set ?? null, seat: def.seat ?? null } };
+      }
+      return {
+        ...base,
+        kind: "solver-spot",
+        item: {
+          k: "paint",
+          source: "river",
+          seed: seed >>> 0,
+          pot: def.pot,
+          seat: def.seat,
+          role: def.role,
+          ...(def.facing ? { facing: def.facing } : {}),
         },
       };
     default:
@@ -289,6 +329,7 @@ export function cardFor(meta: LessonMeta, def: GeneratedExerciseDef, seed: numbe
           seat: def.seat,
           role: def.role,
           ...(def.facing === "check" || def.facing === "bet" || def.facing === "any" ? { facing: def.facing } : {}),
+          ...(def.street === "turn" && def.flop ? { flop: def.flop } : {}),
           bias: def.bias,
         },
       };
@@ -329,6 +370,7 @@ export function parseCardItem(value: unknown): CardItem | null {
       seat: v.seat as RiverSeat | "any",
       role: v.role as RiverRole | "any",
       ...(v.facing === "check" || v.facing === "bet" ? { facing: v.facing } : {}),
+      ...(v.k === "turn" && (v.flop === "checked" || v.flop === "bet") ? { flop: v.flop } : {}),
       bias,
     };
   }
@@ -345,7 +387,27 @@ export function parseCardItem(value: unknown): CardItem | null {
       bias,
     };
   }
-  if (v.k === "split" && (v.street === "flop" || v.street === "turn") && postflop) {
+  if (v.k === "paint" && v.source === "chart") {
+    return {
+      k: "paint",
+      source: "chart",
+      seed,
+      set: typeof v.set === "string" && /^[a-z0-9-]{1,64}$/.test(v.set) ? v.set : null,
+      seat: typeof v.seat === "string" ? (v.seat as ChartPosition) : null,
+    };
+  }
+  if (v.k === "paint" && v.source === "river" && postflop) {
+    return {
+      k: "paint",
+      source: "river",
+      seed,
+      pot: v.pot as RiverPot | "any",
+      seat: v.seat as RiverSeat | "any",
+      role: v.role as RiverRole | "any",
+      ...(v.facing === "check" || v.facing === "bet" || v.facing === "any" ? { facing: v.facing } : {}),
+    };
+  }
+  if (v.k === "split" && (v.street === "flop" || v.street === "turn" || v.street === "river") && postflop) {
     return {
       k: "split",
       street: v.street,
@@ -355,6 +417,7 @@ export function parseCardItem(value: unknown): CardItem | null {
       role: v.role as RiverRole | "any",
       ...(isFacing(v.facing) ? { facing: v.facing } : {}),
       ...(isLine(v.line) ? { line: v.line } : {}),
+      ...(v.street === "turn" && (v.flop === "checked" || v.flop === "bet") ? { flop: v.flop } : {}),
     };
   }
   return null;

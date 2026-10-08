@@ -14,6 +14,8 @@ import { SUPABASE_URL } from "./supabase/config";
 import type {
   FlopSpotOptions,
   GradedAnswer,
+  PaintItem,
+  PaintOptions,
   PreflopSpotOptions,
   RiverSpotOptions,
   SplitItem,
@@ -106,11 +108,18 @@ export async function dealFlopSpot(options: FlopSpotOptions, seed: number): Prom
   return unwrap(response, (r) => (r.type === "spot" ? r.spot : undefined));
 }
 
-/** A range-split item for `seed` (Learn L2): a flop from the library, or a turn solved on demand. */
+/** A range-split item for `seed` (Learn L2–L3): a flop from the library, or a turn or river solved on demand. */
 export async function dealSplit(options: SplitOptions, seed: number): Promise<SplitItem | null> {
   sequence += 1;
   const response = await ask({ type: "split", jobId: sequence, options, seed });
   return unwrap(response, (r) => (r.type === "split" ? r.item : undefined));
+}
+
+/** A range-paint item for `seed` (Learn L3): a chart's first-in range, or a river node solved on demand. */
+export async function dealPaint(options: PaintOptions, seed: number): Promise<PaintItem | null> {
+  sequence += 1;
+  const response = await ask({ type: "paint", jobId: sequence, options, seed });
+  return unwrap(response, (r) => (r.type === "paint" ? r.item : undefined));
 }
 
 /** The answer graded by the analysis, with the hand it was graded on. */

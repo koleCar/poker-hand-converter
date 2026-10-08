@@ -4,6 +4,7 @@
  * card for later (smart feature 3: the drills' SM-2 schedule).
  *
  * - `chart-quiz` and `solver-spot`: trainer spots (`SpotItemView`);
+ * - `range-split` and `range-paint`: a whole range sorted or painted (`SplitItemView`, `PaintItemView`);
  * - `calc` and `classify`: generated items (`PracticeItems.tsx`);
  * - `own-hands`: the learner's own decisions (`OwnHandsExercise`);
  * - planned kinds: what they will be, and what they wait for.
@@ -25,6 +26,7 @@ import { FLOP_DRILLS_AVAILABLE } from "../../../lib/trainer";
 import { nextSeed } from "../../../lib/training/rng";
 import { useLearn } from "./LearnStore";
 import { OwnHandsExercise } from "./OwnHandsExercise";
+import { PaintItemView } from "./PaintItemView";
 import { CalcItemView, ClassifyItemView, type ItemAnswer } from "./PracticeItems";
 import { SplitItemView } from "./SplitItemView";
 import { SpotItemView, type SpotItem } from "./SpotItemView";
@@ -229,5 +231,6 @@ export function CardItemView({
   if (generated?.kind === "classify") return <ClassifyItemView item={generated.item} onAnswer={onAnswer} />;
   if (generated?.kind === "error") return <p className="notice notice--warn">{t.stale}</p>;
   if (item.k === "split") return <SplitItemView card={item} onAnswer={onAnswer} />;
+  if (item.k === "paint") return <PaintItemView card={item} onAnswer={onAnswer} />;
   return <SpotItemView item={item as SpotItem} signedIn={signedIn} onAnswer={onAnswer} />;
 }

@@ -1,6 +1,7 @@
 /**
  * One range split (Learn L2, the `range-split` exercise): the hero's whole
- * range at a flop node of Rail's flop library (or a turn solved on demand),
+ * range at a flop node of Rail's flop library (or a turn or river solved on
+ * demand),
  * sorted by hand class. The learner puts each class where they think it
  * goes — check, a small bet, a big bet; or fold, call, raise — and then sees
  * the solve's own mix per class (`lib/training/split.ts`).
@@ -30,7 +31,7 @@ const DEAL_TRIES = 5;
 async function deal(card: SplitCard): Promise<SplitItem | null> {
   for (let attempt = 0; attempt < DEAL_TRIES; attempt += 1) {
     const seed = (card.seed + attempt * 0x9e3779b1) >>> 0;
-    const item = await dealSplit({ street: card.street, pot: card.pot, seat: card.seat, role: card.role, facing: card.facing, line: card.line }, seed);
+    const item = await dealSplit({ street: card.street, pot: card.pot, seat: card.seat, role: card.role, facing: card.facing, line: card.line, flop: card.flop }, seed);
     if (item) return item;
   }
   return null;
@@ -84,6 +85,7 @@ export function SplitItemView({ card, onAnswer }: { card: SplitCard; onAnswer: (
 
   const label = (key: string): string => {
     if (item.street === "turn") return en.analysis.turn.categories[key] ?? key;
+    if (item.street === "river") return en.analysis.river.categories[key] ?? key;
     const [made, draw] = key.split("/");
     const m = t.made[made] ?? made;
     return draw && draw !== "none" ? `${m} + ${t.draws[draw] ?? draw}` : m;
@@ -113,7 +115,7 @@ export function SplitItemView({ card, onAnswer }: { card: SplitCard; onAnswer: (
         </span>
       </div>
       <p>{en.analysis.train.riverSpot(item.pot, item.hero, item.villain, item.seat === "ip")}</p>
-      <p>{item.before.length > 0 ? item.before.map((step) => t.step(step.who === "hero" ? t.you : item.villain, step.kind, step.sizePot)).join(" ") : t.first(item.street)}</p>
+      <p>{item.before.length > 0 ? item.before.map((step) => t.step(step.who === "hero" ? t.you : item.villain, step.kind, step.sizePot, step.who === "hero")).join(" ") : t.first(item.street)}</p>
       <p className={styles.muted}>{t.pot(f.bb(item.potBb), item.toCallBb > 0 ? f.bb(item.toCallBb) : null)}</p>
       <p id={`${id}-q`} className={styles.question}>
         {t.question(item.street)}
@@ -166,7 +168,9 @@ export function SplitItemView({ card, onAnswer }: { card: SplitCard; onAnswer: (
           <p className={styles.muted}>
             {item.source === "library"
               ? t.libraryNote(en.course.spot.lineName(item.lineId), f.num(item.iterations, 0), f.num(item.exploitabilityPct, 2))
-              : t.turnNote}
+              : item.source === "river-solve"
+                ? t.riverNote
+                : t.turnNote}
           </p>
         </div>
       )}

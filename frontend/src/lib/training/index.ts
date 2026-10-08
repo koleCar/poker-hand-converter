@@ -95,6 +95,7 @@ export {
   type RiverSpotOptions,
   type RiverTrainerSpot,
 } from "./river";
+export { riverSetup, type RiverSetup } from "./river";
 export { generateTurnSpot, turnAnswer, turnSetup, type TurnSetup, type TurnSpotOptions, type TurnTrainerSpot } from "./turn";
 export {
   flopAnswer,
@@ -113,6 +114,7 @@ export {
 export {
   MAX_SPLIT_ROWS,
   MIN_SPLIT_SHARE,
+  OVERBET_MIN,
   SMALL_MAX,
   SPLIT_PASS,
   SPLIT_SLACK,
@@ -125,7 +127,27 @@ export {
   type SplitItem,
   type SplitOptions,
   type SplitRow,
+  type SplitStreet,
 } from "./split";
+export {
+  PAINT_IN,
+  PAINT_MIN_COMBOS,
+  PAINT_OUT,
+  PAINT_PASS,
+  cellTarget,
+  chartCells,
+  firstInNode,
+  generatePaint,
+  gradePaint,
+  nodeCells,
+  paintable,
+  railPainting,
+  type CellTarget,
+  type PaintCell,
+  type PaintGrade,
+  type PaintItem,
+  type PaintOptions,
+} from "./paint";
 export { asAnswered, gradeAnswer, gradeDrill, type DrillDecision } from "./grade";
 export {
   INITIAL_EASE,

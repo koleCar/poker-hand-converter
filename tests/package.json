@@ -14,7 +14,8 @@
     "floplib": "node scripts/flop-library/cli.mjs",
     "charts:library": "vitest run --config scripts/preflop-charts/vitest.config.ts library",
     "floplib:measure": "vitest run --config scripts/flop-library/vitest.config.ts measure",
-    "floplib:bets": "vitest run --config scripts/flop-library/vitest.config.ts flopBets"
+    "floplib:bets": "vitest run --config scripts/flop-library/vitest.config.ts flopBets",
+    "learn:directions": "vitest run --config scripts/learn-directions/vitest.config.ts"
   },
   "keywords": [],
   "author": "",

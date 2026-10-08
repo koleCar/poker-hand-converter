@@ -282,6 +282,20 @@ export function drawPattern(weights: Array<[string, number]>, rng: Rng): StreetP
   return PATTERNS[weights[pickWeighted(weights.map(([, w]) => w), rng)][0]];
 }
 
+/** Which flop lines a turn spot may follow (Learn L3): the flop checked through, or a bet called; any when absent. */
+export type FlopLineFilter = "checked" | "bet" | "any";
+
+/**
+ * The flop pattern under a filter: `checked` is the check-through (nothing
+ * drawn), `bet` one of the patterns with a bet, drawn by the same weights; no
+ * filter draws as always, so an unfiltered seed deals what it always did.
+ */
+export function drawFlopPattern(weights: Array<[string, number]>, filter: FlopLineFilter | undefined, rng: Rng): StreetPattern {
+  if (filter === "checked") return PATTERNS.xx;
+  if (filter === "bet") return drawPattern(weights.filter(([id]) => id !== "xx"), rng);
+  return drawPattern(weights, rng);
+}
+
 export function menuOf(solve: Pick<RiverSolve, "result">, node: number): RiverMenuItem[] {
   return solve.result.nodes[node].actions.map((action) => ({
     kind: action.kind,
@@ -320,7 +334,33 @@ export function riverDealingWeights(solve: Pick<RiverSolve, "result" | "hero">, 
   return out;
 }
 
-function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: number): RiverTrainerSpot | null {
+/** A river solved for a seed's line, seat and board, before anything is dealt to the hero. */
+export interface RiverSetup {
+  line: RiverLine;
+  seat: RiverSeat;
+  hero: ChartPosition;
+  villain: ChartPosition;
+  /** Five cards. */
+  board: string[];
+  /** The hand through the turn, the river dealt and empty. */
+  toRiver: HandScript;
+  heroFirst: boolean;
+  potBb: number;
+  stack: number;
+  villainSeat: number;
+  solve: RiverSolve;
+  sources: { hero: "chart" | "placeholder"; villain: "chart" | "placeholder" };
+  model: string;
+}
+
+/**
+ * A line, a board, flop and turn lines and the river solved from both
+ * narrowed ranges: the first half of a river spot, and what the river split
+ * and paint read (Learn L3). Null when the attempt does not reach a solve.
+ * Draws from `rng` in the order a river spot always has, so a seed deals the
+ * same spot it did before the split existed.
+ */
+export function riverSetup(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: number): RiverSetup | null {
   const lines = riverLines(charts, options.pot ?? "any");
   if (lines.length === 0) return null;
   let line: RiverLine;
@@ -399,6 +439,13 @@ function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: nu
     },
   });
   if (!solve.ok) return null;
+  return { line, seat, hero, villain, board, toRiver, heroFirst, potBb, stack, villainSeat, solve, sources: walk.sources, model: walk.model };
+}
+
+function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: number): RiverTrainerSpot | null {
+  const setup = riverSetup(charts, options, rng, seed);
+  if (!setup) return null;
+  const { line, seat, hero, villain, board, toRiver, heroFirst, potBb, stack, villainSeat, solve } = setup;
 
   // In position: the villain acts first, as the solve plays its range.
   const acts: RiverAct[] = [];
@@ -458,8 +505,8 @@ function attempt(charts: ChartSet, options: RiverSpotOptions, rng: Rng, seed: nu
     toCallBb: round2(node.toCall),
     stackBb: round2(stack),
     facing,
-    sources: walk.sources,
-    model: walk.model,
+    sources: setup.sources,
+    model: setup.model,
     iterations: solve.result.iterations,
     exploitabilityPct: Math.round(solve.result.exploitabilityPct * 1000) / 1000,
   };

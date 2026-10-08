@@ -4,6 +4,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { ExerciseBlock } from "../../../components/learn/course/ExerciseBlock";
 import { LearnProvider } from "../../../components/learn/course/LearnStore";
 import { Block } from "../../../components/learn/course/LessonBlocks";
+import { LessonMastery } from "../../../components/learn/course/LessonMastery";
 import { LessonStatusChip, MasteredBanner, StorageNote } from "../../../components/learn/course/LessonStatus";
 import { RichText } from "../../../components/learn/course/RichText";
 import { ServerFrame } from "../../../components/shell/ServerFrame";
@@ -161,6 +162,7 @@ export default async function LessonPage({ params }: PageProps) {
                 <h2 id={id("practice")}>{t.lesson.practice}</h2>
                 <p className={styles.muted}>{t.lesson.practiceIntro}</p>
                 <MasteredBanner lesson={lesson} />
+                <LessonMastery lesson={lesson} />
                 {meta.exercises.map((def, i) => (
                   <ExerciseBlock key={def.id} meta={meta} def={def} index={i + 1} intro={body.exercises[def.id] ?? ""} />
                 ))}

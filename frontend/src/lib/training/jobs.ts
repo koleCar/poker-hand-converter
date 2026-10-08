@@ -8,7 +8,8 @@
  * - `river`: generate a river spot from a seed (`generateRiverSpot`);
  * - `turn`: generate a turn spot from a seed (`generateTurnSpot`, Learn L1);
  * - `flop`: generate a flop spot from the flop library (`generateFlopSpot`, Learn L2);
- * - `split`: a range-split item, flop (the library) or turn (`generateSplit`, Learn L2);
+ * - `split`: a range-split item, flop (the library), turn or river (`generateSplit`, Learn L2–L3);
+ * - `paint`: a range-paint item, a chart's first-in range or a river node (`generatePaint`, Learn L3);
  * - `answer`: the spot's hand with the answer appended, graded by the
  *   analysis (`gradeAnswer`; a turn spot with the turn solve on, a flop spot
  *   with the flop library).
@@ -22,7 +23,8 @@ import type { ChartSet } from "../charts";
 import type { PhfHand } from "../phf/types";
 import { flopAnswer, flopChunkFor, generateFlopSpot, type FlopSpotOptions, type FlopTrainerSpot } from "./flop";
 import { gradeAnswer } from "./grade";
-import { dealPreflop, preflopAnswer, type PreflopSpotOptions, type PreflopTrainerSpot } from "./preflop";
+import { generatePaint, type PaintItem, type PaintOptions } from "./paint";
+import { dealPreflop, preflopAnswer, trainerSet, type PreflopSpotOptions, type PreflopTrainerSpot } from "./preflop";
 import { generateRiverSpot, riverAnswer, type RiverSpotOptions, type RiverTrainerSpot } from "./river";
 import { generateSplit, type SplitItem, type SplitOptions } from "./split";
 import { generateTurnSpot, turnAnswer, type TurnSpotOptions, type TurnTrainerSpot } from "./turn";
@@ -35,6 +37,7 @@ export type TrainingRequest =
   | { type: "turn"; jobId: number; options: TurnSpotOptions; seed: number }
   | { type: "flop"; jobId: number; options: FlopSpotOptions; seed: number }
   | { type: "split"; jobId: number; options: SplitOptions; seed: number }
+  | { type: "paint"; jobId: number; options: PaintOptions; seed: number }
   | { type: "answer"; jobId: number; spot: TrainerSpot; menuIndex: number };
 
 export interface GradedAnswer {
@@ -48,6 +51,7 @@ export interface GradedAnswer {
 export type TrainingResponse =
   | { type: "spot"; jobId: number; spot: TrainerSpot | null }
   | { type: "split"; jobId: number; item: SplitItem | null }
+  | { type: "paint"; jobId: number; item: PaintItem | null }
   | ({ type: "graded"; jobId: number } & GradedAnswer)
   | { type: "error"; jobId: number; message: string };
 
@@ -58,6 +62,7 @@ export type TrainingResponse =
 export function trainingChartSets(request: TrainingRequest): string[] {
   if (request.type === "preflop") return request.options.set ? [request.options.set] : [];
   if (request.type === "answer" && request.spot.kind === "preflop") return [request.spot.set];
+  if (request.type === "paint" && request.options.source === "chart" && request.options.set) return [request.options.set];
   return [];
 }
 
@@ -130,6 +135,11 @@ export function runTrainingJob(request: TrainingRequest, charts: ChartSet, flopL
   }
   if (request.type === "split") {
     return { type: "split", jobId, item: generateSplit(charts, flopLibrary, request.options, request.seed) };
+  }
+  if (request.type === "paint") {
+    const options = request.options;
+    const set = options.source === "chart" ? trainerSet(charts, options.set) : charts;
+    return { type: "paint", jobId, item: generatePaint(set, options, request.seed) };
   }
   const answer = answerHand(request.spot, request.menuIndex);
   const decision = gradeAnswer(answer.hand, answer.actionIndex, charts, {

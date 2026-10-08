@@ -597,3 +597,103 @@
   background: var(--success-bg);
   color: var(--success-on-tint);
 }
+
+/* The range paint (L3): the 13×13 grid, one toggle per hand class. */
+.paintGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  max-width: 34rem;
+  user-select: none;
+  touch-action: none;
+}
+
+.paintRow {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.paintSlot {
+  display: flex;
+  min-width: 0;
+}
+
+.paintCell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-size: clamp(0.5rem, 2.2vw, var(--font-size-xs));
+  line-height: 1;
+  cursor: pointer;
+}
+
+.paintCell:focus-visible {
+  outline: 2px solid var(--accent-fg);
+  outline-offset: 1px;
+}
+
+.paintCell[data-on] {
+  border-color: var(--accent-border);
+  background: var(--surface-selected);
+  color: var(--text-on-selected);
+}
+
+.paintCell[data-empty] {
+  background: var(--surface-inset);
+  color: var(--text-tertiary);
+  cursor: default;
+  opacity: 0.55;
+}
+
+.paintCell[data-state="right"] {
+  border-color: var(--success-border);
+  box-shadow: inset 0 0 0 1px var(--success-border);
+}
+
+.paintCell[data-state="missed"],
+.paintCell[data-state="extra"] {
+  border-color: var(--danger-border);
+  box-shadow: inset 0 0 0 2px var(--danger-border);
+}
+
+.paintMark {
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-size: 0.6em;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Mastery from real hands (L3): before and after passing the lesson. */
+.masteryBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.masteryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-3);
+}
+
+.masteryGrid > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
