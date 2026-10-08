@@ -74,9 +74,22 @@ export const replayerEn = {
     showHeroCardsHint: "Turn off to review the hand without seeing hero's holding (H)",
     anonymousNames: "Anonymous table names",
     anonymousNamesHint: "Replace player and table names with Hero / Player 1…",
+    showPotOdds: "Show pot odds",
+    showPotOddsHint: "Price of the spot in the top-left corner when hero faces or makes a bet",
     anonymousHero: "Hero",
     anonymousPlayer: (n: number) => `Player ${n}`,
     anonymousTable: "Table",
+  },
+
+  odds: {
+    facingTitle: "Pot odds",
+    callToWin: (call: string, pot: string) => `Call ${call} to win ${pot}`,
+    needEquity: (share: string) => `need ${share} equity`,
+    betTitle: (share: string) => `Bet ${share} pot`,
+    raiseTitle: (amount: string) => `Raise to ${amount}`,
+    betInto: (risk: string, pot: string) => `${risk} into ${pot}`,
+    callerNeeds: "Caller needs equity",
+    bluffNeeds: "Bluff needs folds",
   },
 
   log: {

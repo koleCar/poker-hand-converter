@@ -16,6 +16,8 @@ export interface ReplaySettings {
   showHeroCards: boolean;
   /** Replace player and table names with neutral labels. */
   anonymousNames: boolean;
+  /** Pot odds box in the stage's top-left corner. */
+  showPotOdds: boolean;
 }
 
 export const DEFAULT_REPLAY_SETTINGS: ReplaySettings = {
@@ -23,6 +25,7 @@ export const DEFAULT_REPLAY_SETTINGS: ReplaySettings = {
   showKnownCards: false,
   showHeroCards: true,
   anonymousNames: false,
+  showPotOdds: true,
 };
 
 const SETTINGS_KEY = "phc.replayer.settings";

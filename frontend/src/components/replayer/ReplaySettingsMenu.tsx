@@ -33,6 +33,7 @@ const TOGGLES = [
   "showKnownCards",
   "showHeroCards",
   "anonymousNames",
+  "showPotOdds",
 ] as const satisfies ReadonlyArray<keyof ReplaySettings & keyof Dict["replayer"]["settings"]>;
 
 export function ReplaySettingsMenu({

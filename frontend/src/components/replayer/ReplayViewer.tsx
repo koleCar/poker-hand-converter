@@ -56,6 +56,8 @@ import { ReplayCard } from "./ReplayCard";
 import { ReplayControls } from "./ReplayControls";
 import { ReplaySettingsMenu } from "./ReplaySettingsMenu";
 import { ReplayTable } from "./ReplayTable";
+import { potOddsAt } from "./potOdds";
+import { PotOddsBox } from "./PotOddsBox";
 import { shapeFor, type TableShape } from "./seatLayout";
 import { ShortcutSheet } from "./ShortcutSheet";
 import { ShowdownStrip } from "./ShowdownStrip";
@@ -494,6 +496,10 @@ function ReplayStage({
   const frame = frames[Math.min(index, last)];
   const awardAt = useMemo(() => firstAwardIndex(frames), [frames]);
   const caption = mask.text(frame.description);
+  const odds = useMemo(
+    () => (settings.showPotOdds ? potOddsAt(frames, Math.min(index, last)) : null),
+    [settings.showPotOdds, frames, index, last],
+  );
 
   // The two questions every animation in the subtree is answered by. `motion`
   // is `"step"` only when the viewer advanced by exactly one frame; everything
@@ -957,6 +963,7 @@ function ReplayStage({
           format={format}
           focusSeat={focusSeat}
         />
+        {odds ? <PotOddsBox odds={odds} format={format} /> : null}
       </div>
 
       <ReplayControls

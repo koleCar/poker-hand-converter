@@ -174,9 +174,22 @@ export const replayerHr: Dict["replayer"] = {
     showHeroCardsHint: "Isključi za pregled ruke bez gledanja u heroove karte (H)",
     anonymousNames: "Anonimna imena",
     anonymousNamesHint: "Zamijeni imena igrača i stola s Hero / Igrač 1…",
+    showPotOdds: "Prikaži pot odds",
+    showPotOddsHint: "Cijena situacije u gornjem lijevom kutu kad hero facea ili radi bet",
     anonymousHero: "Hero",
     anonymousPlayer: (n) => `Igrač ${n}`,
     anonymousTable: "Stol",
+  },
+
+  odds: {
+    facingTitle: "Pot odds",
+    callToWin: (call, pot) => `Call ${call} za pot ${pot}`,
+    needEquity: (share) => `treba ${share} equityja`,
+    betTitle: (share) => `Bet ${share} pota`,
+    raiseTitle: (amount) => `Raise na ${amount}`,
+    betInto: (risk, pot) => `${risk} u pot ${pot}`,
+    callerNeeds: "Caller treba equity",
+    bluffNeeds: "Blef treba foldova",
   },
 
   log: {

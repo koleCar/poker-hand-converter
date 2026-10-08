@@ -413,6 +413,78 @@
     var(--surface-sunken);
 }
 
+/* Pot odds, pinned to the stage's top-left corner rather than the felt: the
+   felt's corner is rail at most shapes, while the stage's is dead space. */
+.rp__odds {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.5rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-inline-size: 9.5rem;
+  max-inline-size: 13rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: rgb(0 0 0 / 55%);
+  border: 1px solid rgb(255 255 255 / 12%);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 35%);
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--felt-text-muted);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.rp__odds-title {
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--money-fg);
+}
+
+.rp__odds-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.rp__odds-value {
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-bold);
+  color: #fff;
+}
+
+.rp__odds-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.rp__odds-strong {
+  font-weight: var(--font-weight-bold);
+  color: #fff;
+}
+
+/* A phone-sized stage has no spare corner: keep just the headline. */
+@container rpstage (max-inline-size: 30rem) {
+  .rp__odds {
+    min-inline-size: 0;
+    padding: 0.25rem 0.45rem;
+    font-size: 0.6875rem;
+  }
+
+  .rp__odds-line {
+    display: none;
+  }
+
+  .rp__odds-value {
+    font-size: 0.9375rem;
+  }
+}
+
 /* The letterbox: the shape's aspect ratio, as large as the stage allows.
    `cqi` / `cqb` here measure the STAGE, which is exactly right — this element
    is the thing being sized by it. It is then a container in its own right so
