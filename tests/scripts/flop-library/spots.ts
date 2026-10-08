@@ -10,9 +10,9 @@
 
 import type { ChartSet } from "../../../frontend/src/lib/charts/index.js";
 import { walkRanges } from "../../../frontend/src/lib/analysis/rangeWalk.js";
-import { flopPlayersOf, type FlopLine } from "../../../frontend/src/lib/analysis/flopLibrary.js";
+import { flopPlayersOf, lineSeats, type FlopLine } from "../../../frontend/src/lib/analysis/flopLibrary.js";
 import { buildContext } from "../../../frontend/src/lib/stats/context.js";
-import { scriptHand, scriptMoney, seatOf, type HandScript } from "../../../frontend/src/lib/training/handText.js";
+import { NINE_SCRIPT_POSITIONS, scriptHand, scriptMoney, seatOf, type HandScript } from "../../../frontend/src/lib/training/handText.js";
 import { lineActs } from "../../../frontend/src/lib/training/preflop.js";
 
 export interface LineSpot {
@@ -28,11 +28,14 @@ export interface LineSpot {
 
 /** The spot of a line under a chart set. Throws when the charts cannot play the line. */
 export function lineSpot(charts: ChartSet, line: FlopLine): LineSpot {
-  const [oop, ip] = flopPlayersOf(line.key);
+  if (charts.game.players !== line.players) throw new Error(`line ${line.id} is spelled for ${line.players}-max, the set is ${charts.game.players}-max`);
+  const [oop, ip] = flopPlayersOf(line.key, lineSeats(line));
+  const seats = line.players === 9 ? NINE_SCRIPT_POSITIONS : undefined;
   const preflop = lineActs(charts, line.key);
   // Any flop will do: the walk's preflop ranges are read before the board.
   const script: HandScript = {
     id: `FL${line.id.replace(/[^a-z0-9]/gi, "")}`,
+    seats,
     hero: oop,
     heroCards: null,
     stackBb: charts.game.stackBb,
@@ -41,7 +44,7 @@ export function lineSpot(charts: ChartSet, line: FlopLine): LineSpot {
     flop: [{ position: oop, type: "check" }],
   };
   const hand = scriptHand(script);
-  const walk = walkRanges(hand, buildContext(hand), seatOf(oop), seatOf(ip), charts);
+  const walk = walkRanges(hand, buildContext(hand), seatOf(oop, seats), seatOf(ip, seats), charts);
   if (!walk.ok) throw new Error(`line ${line.id}: no range walk (${walk.reason})`);
   if (walk.sources.hero !== "chart" || walk.sources.villain !== "chart") {
     throw new Error(`line ${line.id}: the charts give no range for ${walk.sources.hero === "chart" ? ip : oop}`);

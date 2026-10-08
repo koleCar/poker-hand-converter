@@ -1924,3 +1924,31 @@ Each phase appends what it learned that changed the plan.
     read by coarse categories (the A5b pilot's 55–81% check/call grade
     agreement); multiway flops stay heuristic; the Learn flop drills (L2)
     can now be graded.
+- 2026-10-08 — A5b, full-ring lines: the flop library's 9-max lines (the
+  runner and the reader); no chunks yet, so no grade changes: still
+  `analysis/8`.
+  - **Why.** Measured on the owner's library (heads-up flops with a hero
+    flop decision, by the set and line `chartLineOf` places them on): the
+    9-max sets answer 7–9-handed hands; their placed heads-up lines are few
+    (btn-bb, co-bb, hj-bb, lj-bb, sb-bb, sb-limp a handful each, ~25 hands)
+    next to the 6-max sets (which also answer 8-max tables with six or fewer
+    dealt in). The bigger losses are elsewhere and listed below.
+  - **Lines.** `FLOP_LINES_9MAX`: the twelve 6-max pots spelled over nine
+    seats plus lojack vs big blind (13 lines × 100 flops = 1,300 solves);
+    `flopLinesFor(players)` picks a set's lines, `lineSeats` / `flopPlayersOf
+    (key, seats)` read a full-ring key, and `chunkFor` matches a hand's line
+    against its own set's table. A button open-limp has no chart range (the
+    charts' open limper is the tremble), so it is not solved. The runner
+    takes `--set nlhe-cash-9max-100bb` and defaults to that set's lines.
+  - **Compute.** The nightly runner (`~/Projects/rail-floplib-out/bin/start.sh`)
+    now runs the 9-max set; when its 1,300 chunks are done they go to the
+    same bucket with `upload.sh … nlhe-cash-9max-100bb` and the version
+    bumps then.
+  - **Open (what keeps heads-up flops off the library).** Of ~620 heads-up
+    flops with a hero decision, 237 have no chart line: heads-up tables
+    (`players`, 52), stacks outside every set (`stack-depth`, ~60), straddles,
+    and **~45 where the two flop players' own lookups pick different depth
+    sets** (each by its own effective stack, e.g. 6-max 100bb vs 150bb):
+    picking the set by the pair's effective stack would place them. The 6-max
+    150bb / 60bb / 200bb sets reach ~45 more heads-up flops on library lines
+    with no chunks.

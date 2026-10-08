@@ -20,7 +20,7 @@ npm run floplib                                     # the full run: 12 lines x 1
 |---|---|---|
 | `--out DIR` | `tests/scripts/flop-library/out` (git-ignored) | where chunks go: `<out>/<set>/<tree>/<line>/<flop>.bin` |
 | `--set ID` | `nlhe-cash-6max-100bb` | the chart set (`frontend/src/lib/charts/data/<ID>.json`) the ranges come from |
-| `--lines a,b` | all 12 `FLOP_LINES` | line ids |
+| `--lines a,b` | every line of the set's table (`flopLinesFor`: 12 for 6-max, 13 for the 9-max sets) | line ids |
 | `--flops a,b` | the 100 representatives, most-covering first | any flops (any suits; canonicalised) |
 | `--only N` | all | the first N jobs of the queue (flops in order, each with every line) |
 | `--threads N` | half the cores | solves at a time, one process each |
