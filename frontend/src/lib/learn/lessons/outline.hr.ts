@@ -8,7 +8,7 @@ import type { LessonOutlines } from "./types";
  * range, "prednost raspona", "prednost u nutsu", "izvan pozicije").
  */
 export const outlineHr: LessonOutlines = {
-  // ---- M0 orientation
+  // ---- Reference pages since L1.1 (`REFERENCE_IDS`): L1's M0 orientation
   "how-rail-teaches": {
     summary: "Kako radi Railov ciklus učenja (nauči ideju, uvježbaj je, igraj, pregledaj svoje ruke) i što ti govore ocjene i gubitak EV-a.",
     goals: [
@@ -49,7 +49,7 @@ export const outlineHr: LessonOutlines = {
     ],
   },
 
-  // ---- M1 poker maths
+  // ---- Reference: L1's M1 poker maths
   "pot-odds": {
     summary: "Kako izračunati koliki dio konačnog pota košta call, a time i koliko equityja call treba da bude na nuli.",
     goals: [
@@ -107,7 +107,7 @@ export const outlineHr: LessonOutlines = {
     ],
   },
 
-  // ---- M2 ranges
+  // ---- Reference: L1's M2 ranges
   "thinking-in-ranges": {
     summary: "Kako prestati pogađati jednu ruku i zamisliti sve ruke koje protivnik može imati, polazeći od mreže 13×13 i akcije prije flopa.",
     goals: [
@@ -163,6 +163,7 @@ export const outlineHr: LessonOutlines = {
     ],
   },
 
+  // ---- Lessons. The map's order is `LESSON_IDS`; this file is grouped by L1's modules.
   // ---- M3 preflop
   "positions-and-opening-ranges": {
     summary: "Ime svakog sjedala za stolom 6-max i 9-max i zašto se rasponi otvaranja šire što si bliže buttonu.",
@@ -236,6 +237,15 @@ export const outlineHr: LessonOutlines = {
       "Odigraj opciju big blinda i limpane potove nakon flopa.",
     ],
   },
+  "preflop-by-stack-depth": {
+    summary: "Kako se otvaranje, 3-bet i call mijenjaju od 40 do 200 big blindova, čitano iz Railova seta chartova za svaku dubinu.",
+    goals: [
+      "Objasni zašto kratki stackovi otvaraju uže i na 3-bet češće odgovaraju all-inom ili foldom.",
+      "Imenuj ruke koje dobivaju na vrijednosti kako stackovi rastu i one koje gube.",
+      "Prilagodi call na 3-bet stacku koji ostaje iza.",
+      "Odaberi set chartova koji odgovara stacku koji stvarno imaš.",
+    ],
+  },
 
   // ---- M4 single-raised pots as the preflop raiser
   "cbet-why-and-when": {
@@ -254,6 +264,7 @@ export const outlineHr: LessonOutlines = {
       "Checkaj češće i betaj veće na srednjim, povezanim flopovima.",
       "Igraj jednobojne flopove malim betovima i češćim checkom.",
       "Objasni zašto zaštita malo vrijedi na statičnim boardovima, a puno na dinamičnim.",
+      "Pročitaj [[range-advantage|prednost raspona]] (čiji je cijeli raspon ispred na ovom flopu) i [[nut-advantage|prednost u nutsu]] (tko drži više najjačih ruku): prva određuje koliko često betaš, druga koliko veliko.",
     ],
   },
   "hand-classes-on-the-flop": {
@@ -301,6 +312,7 @@ export const outlineHr: LessonOutlines = {
       "Zadrži ruke s backdoor drawovima i foldaj ruke bez equityja.",
       "Biraj fold, call ili raise prema klasi ruke.",
       "Provjeri call i prema cijeni i prema equityju koji će tvoja ruka realizirati.",
+      "Izračunaj [[bluffing-math-alpha-mdf|alfu i MDF]] za bet pred kojim si: alfa, bet ÷ (pot + bet), govori koliko često čisti blef mora uspjeti, a MDF, 1 − alfa, koliki dio tvog raspona mora nastaviti.",
     ],
   },
   "check-raising": {
@@ -337,6 +349,15 @@ export const outlineHr: LessonOutlines = {
       "Biraj callove s dodatnim drawovima i šansama za dva para.",
       "Objasni kako ograničen raspon niske parove pretvara u call.",
       "Biraj callove po tome kako se ruka igra na riveru, a ne samo po paru koji drži.",
+    ],
+  },
+  "turn-check-raise-and-probe": {
+    summary: "Kako caller napada turn izvan pozicije: lead nakon checkanog flopa i check-raise na drugi barrel.",
+    goals: [
+      "Betaj turn prvi kad karta odgovara tvom rasponu, a raiser je checkao flop.",
+      "Složi check-raise na turnu od jakih ruku i drawova koji su se popravili.",
+      "Biraj između check-calla, check-raisea i leada prema klasi ruke.",
+      "Odredi veličinu leada na turnu prema stackovima iza.",
     ],
   },
   "bb-vs-btn-blueprint": {
@@ -389,13 +410,22 @@ export const outlineHr: LessonOutlines = {
       "Objasni čemu služi svaka opcija: value, oduzimanje equityja, fold equity, kontrola pota ili zaštita.",
     ],
   },
-  "3bp-turn-and-river": {
-    summary: "Kako se igraju zadnja dva streeta 3-bet pota s kratkim stackovima: barrel ili odustajanje, veličine za all-in i callanje ograničenih raspona.",
+  "3bp-turn": {
+    summary: "Kako se igra turn u 3-bet potu s malo iza: barrel ili odustajanje i veličina koja do rivera stavlja stackove u pot.",
     goals: [
-      "Odluči na turnu hoćeš li barrelati ili odustati, znajući da se tu obično odlučuju stackovi.",
-      "Odaberi veličine na turnu i riveru tako da stackovi uđu u pot do rivera.",
-      "Biraj prave blefove za polarizirane all-ine.",
-      "Hvataj blefove protiv ograničenih raspona i foldaj na all-ine s premalo blefova.",
+      "Odluči na turnu hoćeš li barrelati ili odustati, znajući da to obično odlučuje o stackovima.",
+      "Odredi veličinu na turnu tako da je all-in na riveru prirodan sljedeći bet.",
+      "Prepoznaj karte na turnu koje pomiču prednost između 3-betaša i callera.",
+      "Brani turn kao caller bez prevelikog folda svojeg raspona.",
+    ],
+  },
+  "3bp-river": {
+    summary: "Kako se igra river u 3-bet potu: polarizirani all-inovi, odabir pravih blefova i call protiv raspona s premalo blefova.",
+    goals: [
+      "Betaj river all-in s polariziranim rasponom value ruku i pravih blefova.",
+      "Biraj blefove prema kartama koje držiš kad je stack jedina preostala veličina.",
+      "Hvataj blefove protiv raspona koji više ne mogu držati najjače ruke.",
+      "Foldaj na all-inove na riveru koji drže premalo blefova.",
     ],
   },
   "four-bet-pots": {
@@ -473,6 +503,7 @@ export const outlineHr: LessonOutlines = {
       "Izbjegavaj blefove koji drže karte iz protivnikovih ruku za fold.",
       "Objasni zašto promašeni flush draw može biti slabiji blef nego što izgleda.",
       "Odluči koji promašeni drawovi betaju, a koji odustaju.",
+      "Broji [[combos-and-card-removal|kombinacije i uklanjanje karata]]: par ima 6 kombinacija, suited ruka 4, offsuit ruka 12, a svaka karta koju držiš uklanja kombinacije kojima je potrebna.",
     ],
   },
   "bluff-catching": {
@@ -597,6 +628,69 @@ export const outlineHr: LessonOutlines = {
       "Češće kradi blindove nitovima i poštuj njihovu agresiju.",
       "Protiv manijaka callaj šire do kraja i češće postavljaj zamke.",
       "Protiv solidnih regulara ostani blizu osnovne strategije.",
+    ],
+  },
+  "reading-hud-stats": {
+    summary: "Što broje brojke u Railovu panelu protivnika i koliko ruku svaka treba prije nego što išta znači.",
+    goals: [
+      "Pročitaj svaku statistiku u panelu protivnika i situacije koje broji.",
+      "Objasni zašto je učestalost na malo ruku uglavnom šum.",
+      "Razlikuj statistiku koja se brzo ustali od one kojoj trebaju stotine prilika.",
+      "Pretvori statistiku s dovoljnim uzorkom u jednu konkretnu prilagodbu.",
+    ],
+  },
+  "exploiting-overfolders": {
+    summary: "Kako više zaraditi protiv igrača koji prečesto foldaju: više blefova, manji betovi i znanje odakle dolaze njihovi foldovi.",
+    goals: [
+      "Prepoznaj igrača koji folda više nego što veličina beta dopušta, iz svojih podataka.",
+      "Dodaj blefove ondje odakle dolaze dodatni foldovi, a value betove ostavi kakvi jesu.",
+      "Koristi manje betove kad i mali bet već donosi fold.",
+      "Imenuj rizik: što gubiš ako prestanu foldati.",
+    ],
+  },
+  "exploiting-calling-stations": {
+    summary: "Kako igrati protiv igrača koji previše callaju: tanji value, manje blefova i veće veličine s jakim rukama.",
+    goals: [
+      "Prepoznaj igrača koji calla češće nego što cijena opravdava.",
+      "Betaj za value tanje ruke koje bi protiv uravnoteženog protivnika checkale.",
+      "Smanji blefove, prije svega na riveru.",
+      "Betaj veće s jakim rukama kad callovi ionako dolaze.",
+    ],
+  },
+  "exploiting-aggressive-players": {
+    summary: "Kako igrati protiv igrača koji prečesto betaju i raiseaju: širi call do kraja, češći check jakih ruku i pusti ih da blefiraju.",
+    goals: [
+      "Prepoznaj agresiju koja je veća od ruku koje stoje iza nje.",
+      "Proširi raspon za hvatanje blefova protiv čestih barrela.",
+      "Checkaj jake ruke češće da protivnik nastavi betati.",
+      "Izbjegavaj tanke betove na koje dobiješ samo raise koji te makne s equityja.",
+    ],
+  },
+  "underbluffed-rivers": {
+    summary: "Gdje betovi na riveru drže premalo blefova i kako ondje foldati više, prosuđeno iz tvojih ruku i veličine uzorka.",
+    goals: [
+      "Objasni zašto neke linije na riveru drže manje blefova nego što veličina beta traži.",
+      "Foldaj više bluff-catchera ondje gdje tvoji podaci pokazuju malo blefova.",
+      "Provjeri uzorak iza procjene na riveru prije nego što po njoj igraš.",
+      "Nastavi callati ondje gdje linija još drži dovoljno blefova.",
+    ],
+  },
+  "node-locking-in-rail": {
+    summary: "Zaključaj protivnikovu učestalost u jednoj odluci, ponovno riješi i vidi najbolji odgovor: što donosi i što riskira.",
+    goals: [
+      "Zaključaj protivnikovu strategiju u jednoj odluci u Railovu solveru.",
+      "Pročitaj najbolji odgovor na zaključanu strategiju.",
+      "Usporedi što iskorištavanje donosi s onim što gubi ako je procjena kriva.",
+      "Biraj zaključavanja koja odgovaraju onome što pokazuju tvoji podaci.",
+    ],
+  },
+  "when-not-to-exploit": {
+    summary: "Kada ostati blizu osnovne strategije: tanki uzorci, protivnici koji se prilagode natrag i procjene koje skupo koštaju ako su krive.",
+    goals: [
+      "Procijeni je li uzorak dovoljno velik da po njemu igraš.",
+      "Prepoznaj protivnike koji se prilagođavaju i iskorištavaju tebe.",
+      "Odvagni što iskorištavanje donosi naspram cijene pogreške.",
+      "Vrati se osnovnoj strategiji kad procjena nije jasna.",
     ],
   },
 };

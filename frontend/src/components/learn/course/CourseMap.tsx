@@ -21,7 +21,7 @@ import { fetchAnalysisOverview } from "../../../lib/db";
 import { fetchLeaks } from "../../../lib/db/analysisLeaks";
 import type { FlagCode } from "../../../lib/analysis/types";
 import { useDict } from "../../../lib/i18n/client";
-import { TRACK_IDS, TRACKS, lessonsIn, writtenLessons, type LessonId } from "../../../lib/learn/course";
+import { TRACK_IDS, TRACKS, lessonsIn, moduleCode, writtenLessons, type LessonId } from "../../../lib/learn/course";
 import { lessonStatus, type LessonStatus } from "../../../lib/learn/progress";
 import { recommend, type Recommendation } from "../../../lib/learn/recommend";
 import { paths } from "../../../lib/routes";
@@ -141,7 +141,7 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
             return (
               <section key={module} className={styles.module} aria-labelledby={`module-${module}`}>
                 <h3 id={`module-${module}`} className={styles.moduleTitle}>
-                  <span className={styles.moduleCode}>{t.moduleCode(Number(module.slice(1)))}</span>
+                  <span className={styles.moduleCode}>{t.moduleCode(moduleCode(module))}</span>
                   <span>{t.modules[module]}</span>
                   {ready < lessons.length ? <span className={styles.muted}>{t.map.lessonCount(ready, lessons.length)}</span> : null}
                 </h3>

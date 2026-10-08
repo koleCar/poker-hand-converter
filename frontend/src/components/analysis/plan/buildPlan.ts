@@ -39,8 +39,12 @@ export function previousOf(plan: StoredPlan | null): PreviousPlan | null {
   };
 }
 
-/** The fundamentals plan's lesson: the first of these the learner has not passed (Learn L1). */
-const FUNDAMENTAL_LESSONS: readonly LessonId[] = ["pot-odds", "positions-and-opening-ranges", "facing-an-open", "blind-play-and-bvb"];
+/**
+ * The fundamentals plan's lesson: the first of these the learner has not
+ * passed (Learn L1). The course's first preflop lessons since L1.1: pot odds
+ * and realisation are taught inside *facing an open*, not in a maths lesson.
+ */
+const FUNDAMENTAL_LESSONS: readonly LessonId[] = ["positions-and-opening-ranges", "facing-an-open", "blind-play-and-bvb", "three-betting"];
 
 /** Lessons passed, so a plan never asks for one again; empty when the Learn tables are not there yet. */
 async function passedLessons(): Promise<Set<LessonId>> {

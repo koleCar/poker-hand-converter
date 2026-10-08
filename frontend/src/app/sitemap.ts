@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { CONCEPT_IDS } from "../lib/learn/concepts";
-import { writtenLessons } from "../lib/learn/course";
+import { REFERENCE_IDS, writtenLessons } from "../lib/learn/course";
 import { canonicalUrl, paths } from "../lib/routes";
 import { recentPosts } from "../lib/server/forum";
 import { recentPublishedHands } from "../lib/server/published";
@@ -62,6 +62,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: canonicalUrl(paths.lesson(meta.id)),
       changeFrequency: "monthly" as const,
       priority: 0.7,
+    })),
+    // The reference pages (L1.1): L1's orientation, maths and range lessons, kept as reading.
+    ...REFERENCE_IDS.map((id) => ({
+      url: canonicalUrl(paths.learnReference(id)),
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
     })),
     {
       url: canonicalUrl(paths.analysisLearn()),

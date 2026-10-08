@@ -1,14 +1,18 @@
 /**
  * The Learn tab (L1, `frontend/src/lib/learn/course.ts` and friends), pinned.
  *
- * 1. **The catalogue**: every lesson id, prerequisite, concept, chart set,
- *    seat and flag resolves; codes are unique; nothing names a lesson that
- *    does not exist; no curated example hands yet.
- * 2. **The words**: every lesson has an outline in both languages; a lesson
- *    is written exactly when both languages have its body; the two bodies
- *    have the same structure (sections, blocks, widgets, checkpoints, right
- *    answers, checks); every exercise has its line; every widget preset is
- *    real; every number a lesson states is recomputed.
+ * 1. **The catalogue**: the five tracks in the order of a hand (L1.1); every
+ *    lesson id, prerequisite, concept, chart set, seat and flag resolves;
+ *    codes are unique; nothing names a lesson that does not exist; L1's
+ *    orientation, maths and range lessons are reference pages, not lessons;
+ *    no curated example hands yet.
+ * 2. **The words**: every lesson and reference page has an outline in both
+ *    languages; a lesson is written exactly when both languages have its
+ *    body; the two bodies have the same structure (sections, blocks, widgets,
+ *    checkpoints, right answers, checks, reference links); every exercise has
+ *    its line; every widget preset is real; every number a lesson or
+ *    reference page states is recomputed; the ideas L1.1 folded into lessons
+ *    link their reference page.
  * 3. **The practice**: every generated item is deterministic in its seed and
  *    gradable — its own answer passes, a wrong one fails, and the answer is
  *    the engine's (`grade()`, `boardTexture()`, the hand classes).
@@ -33,19 +37,27 @@ import {
   LESSONS,
   LESSON_IDS,
   MODULE_IDS,
+  MOVED_LESSONS,
+  REFERENCE_BY_GROUP,
+  REFERENCE_CONCEPTS,
+  REFERENCE_GROUPS,
+  REFERENCE_IDS,
   RESERVED_LEARN_SEGMENTS,
   TRACKS,
   TRACK_IDS,
   courseOrder,
+  isLessonId,
   isPlanned,
+  isReferenceId,
   lessonsIn,
+  moduleCode,
   requiredExercises,
   writtenLessons,
   type LessonId,
 } from "../../frontend/src/lib/learn/course.js";
 import { checkHolds, MATH } from "../../frontend/src/lib/learn/lessons/checks.js";
-import { LESSON_BODIES, LESSON_OUTLINES } from "../../frontend/src/lib/learn/lessons/index.js";
-import type { LessonBlock, LessonBody, MathCheck } from "../../frontend/src/lib/learn/lessons/types.js";
+import { LESSON_BODIES, LESSON_OUTLINES, REFERENCE_BODIES } from "../../frontend/src/lib/learn/lessons/index.js";
+import { plainText, refLinks, type LessonBlock, type LessonBody, type MathCheck } from "../../frontend/src/lib/learn/lessons/types.js";
 import {
   CLOSE_MAX,
   RAISER_FAVOURED,
@@ -84,14 +96,61 @@ const NOW = new Date("2026-10-06T10:00:00Z");
 /* ------------------------------------------------------------ catalogue - */
 
 describe("the course catalogue", () => {
-  it("has the ten modules' 58 lessons and M0's four, in order, with unique codes", () => {
-    expect(LESSON_IDS.length).toBe(62);
-    expect(new Set(LESSON_IDS).size).toBe(62);
+  it("has five tracks in the order of a hand, 18 modules and 56 lessons, in order, with unique codes", () => {
+    expect([...TRACK_IDS]).toEqual(["preflop", "flop", "turn", "river", "exploits"]);
+    expect(MODULE_IDS).toHaveLength(18);
+    expect(LESSON_IDS.length).toBe(56);
+    expect(new Set(LESSON_IDS).size).toBe(56);
     expect(courseOrder().map((meta) => meta.id)).toEqual([...LESSON_IDS]);
-    expect(lessonsIn("m0")).toHaveLength(4);
+    // The map's order: track by track, module by module.
+    expect(TRACK_IDS.flatMap((track) => TRACKS[track]).flatMap((module) => lessonsIn(module).map((meta) => meta.id))).toEqual([...LESSON_IDS]);
     const codes = courseOrder().map((meta) => meta.code);
-    expect(new Set(codes).size).toBe(62);
-    for (const meta of courseOrder()) expect(meta.code).toMatch(new RegExp(`^M${meta.module.slice(1)}-L\\d+$`));
+    expect(new Set(codes).size).toBe(56);
+    for (const meta of courseOrder()) expect(meta.code).toMatch(new RegExp(`^${moduleCode(meta.module)}-L\\d+$`));
+    expect(LESSONS["positions-and-opening-ranges"].code).toBe("P1-L1");
+    expect(LESSONS["when-not-to-exploit"].code).toBe("X3-L2");
+  });
+
+  it("lays the modules out as the plan's §2 table", () => {
+    const ids = (module: (typeof MODULE_IDS)[number]) => lessonsIn(module).map((meta) => meta.id);
+    expect(ids("p1")).toEqual(["positions-and-opening-ranges", "open-sizing", "limpers-and-isolation"]);
+    expect(ids("p2")).toEqual(["facing-an-open", "three-betting", "facing-3bets-and-4bets", "squeezes-and-multiway-preflop"]);
+    expect(ids("p3")).toEqual(["blind-play-and-bvb", "multiway-preflop-choices", "preflop-by-stack-depth"]);
+    expect(ids("f1")).toEqual(["cbet-why-and-when", "cbet-by-texture", "hand-classes-on-the-flop", "checking-back-and-delayed-cbets"]);
+    expect(ids("f2")).toEqual(["oop-as-the-raiser", "facing-a-check-raise"]);
+    expect(ids("f3")).toEqual(["defending-vs-cbets", "check-raising", "floating-and-stabbing-ip", "probes-and-donk-bets", "bb-vs-btn-blueprint"]);
+    expect(ids("f4")).toEqual(["spr-and-commitment", "cbetting-as-the-3bettor", "playing-3bp-as-the-caller", "range-splitting-ip-vs-checks-3bp", "four-bet-pots"]);
+    expect(ids("f5")).toEqual(["multiway-principles", "multiway-as-the-raiser", "multiway-defence"]);
+    expect(ids("t1")).toEqual(["turn-card-classes", "double-barreling", "turn-sizing-and-overbets", "turn-after-flop-checks-through"]);
+    expect(ids("t2")).toEqual(["facing-turn-barrels", "turn-check-raise-and-probe"]);
+    expect(ids("t3")).toEqual(["3bp-turn"]);
+    expect(ids("r1")).toEqual(["river-polarisation", "thin-value", "choosing-bluffs-blockers", "river-sizing"]);
+    expect(ids("r2")).toEqual(["bluff-catching", "facing-river-raises"]);
+    expect(ids("r3")).toEqual(["3bp-river"]);
+    expect(ids("x1")).toEqual(["player-profiles", "reading-hud-stats"]);
+    expect(ids("x2")).toEqual(["population-exploits", "exploiting-overfolders", "exploiting-calling-stations", "exploiting-aggressive-players", "underbluffed-rivers"]);
+    expect(ids("x3")).toEqual(["node-locking-in-rail", "when-not-to-exploit"]);
+    expect(ids("x4")).toEqual(["live-game-dynamics", "straddle-preflop", "straddle-postflop-low-spr", "deep-stacks-200bb"]);
+  });
+
+  it("keeps L1's orientation, maths and range lessons off the map as reference pages (L1.1)", () => {
+    expect(REFERENCE_IDS).toHaveLength(16);
+    for (const id of REFERENCE_IDS) {
+      expect(isLessonId(id), id).toBe(false);
+      expect(isReferenceId(id)).toBe(true);
+      expect(id).toMatch(/^[a-z0-9][a-z0-9-]{1,63}$/);
+      for (const concept of REFERENCE_CONCEPTS[id]) expect(CONCEPT_IDS as readonly string[], id).toContain(concept);
+    }
+    expect(REFERENCE_GROUPS.flatMap((group) => REFERENCE_BY_GROUP[group])).toEqual([...REFERENCE_IDS]);
+    for (const id of ["gto-mixing-and-simplifying", "reading-rail-reports", "variance-bankroll-and-tilt", "how-rail-teaches", "pot-odds", "range-narrowing"]) {
+      expect(isLessonId(id), id).toBe(false);
+    }
+    // A moved lesson redirects to one that exists; the old id is not a lesson.
+    for (const [from, to] of Object.entries(MOVED_LESSONS)) {
+      expect(isLessonId(from)).toBe(false);
+      expect(isReferenceId(from)).toBe(false);
+      expect(isLessonId(to)).toBe(true);
+    }
   });
 
   it("puts every module in exactly one track", () => {
@@ -105,6 +164,7 @@ describe("the course catalogue", () => {
       expect(id).toMatch(/^[a-z0-9][a-z0-9-]{1,63}$/);
       expect(RESERVED_LEARN_SEGMENTS as readonly string[]).not.toContain(id);
     }
+    expect(RESERVED_LEARN_SEGMENTS as readonly string[]).toContain("reference");
   });
 
   it("names only lessons that exist as prerequisites, each earlier in the course", () => {
@@ -160,11 +220,19 @@ describe("the course catalogue", () => {
     for (const meta of writtenLessons()) expect(requiredExercises(meta).length, meta.id).toBeGreaterThan(0);
   });
 
-  it("writes M0–M3 and the 3-bet-pot range-splitting lesson, and nothing else yet", () => {
+  it("has L1's preflop lessons and the 3-bet-pot range-splitting lesson written, and nothing else yet", () => {
     const written = writtenLessons().map((meta) => meta.id);
-    for (const module of ["m0", "m1", "m2", "m3"] as const) for (const meta of lessonsIn(module)) expect(written).toContain(meta.id);
-    expect(written).toContain("range-splitting-ip-vs-checks-3bp");
-    expect(written).toHaveLength(4 + 6 + 6 + 8 + 1);
+    expect(written).toEqual([
+      "positions-and-opening-ranges",
+      "open-sizing",
+      "limpers-and-isolation",
+      "facing-an-open",
+      "three-betting",
+      "facing-3bets-and-4bets",
+      "squeezes-and-multiway-preflop",
+      "blind-play-and-bvb",
+      "range-splitting-ip-vs-checks-3bp",
+    ]);
   });
 
   it("matches leaks with real streets and flags", () => {
@@ -178,8 +246,8 @@ describe("the course catalogue", () => {
     for (const meta of courseOrder()) expect(meta.examples ?? []).toHaveLength(0);
   });
 
-  it("names every lesson, module and track in both languages", () => {
-    for (const id of LESSON_IDS) {
+  it("names every lesson, reference page, module and track in both languages", () => {
+    for (const id of [...LESSON_IDS, ...REFERENCE_IDS]) {
       expect(en.course.titles[id], id).toBeTruthy();
       expect(hr.course.titles[id], id).toBeTruthy();
     }
@@ -190,6 +258,15 @@ describe("the course catalogue", () => {
     for (const track of TRACK_IDS) {
       expect(en.course.tracks[track]).toBeTruthy();
       expect(hr.course.tracks[track]).toBeTruthy();
+    }
+    for (const group of REFERENCE_GROUPS) {
+      expect(en.course.map.reference.groups[group]).toBeTruthy();
+      expect(hr.course.map.reference.groups[group]).toBeTruthy();
+    }
+    expect(hr.course.map.introPanel.points).toHaveLength(en.course.map.introPanel.points.length);
+    for (const kind of ["chart-quiz", "solver-spot", "calc", "classify", "own-hands", "range-split", "range-paint", "range-walk", "pot-tracking", "profile-quiz", "node-lock", "placement"]) {
+      expect(en.course.exerciseKinds[kind], kind).toBeTruthy();
+      expect(hr.course.exerciseKinds[kind], kind).toBeTruthy();
     }
   });
 });
@@ -230,9 +307,12 @@ function presetProblem(preset: WidgetPreset): string | null {
 }
 
 /** A block's structure, without its words. */
+/** The reference links a text holds, in order: English and Croatian link the same pages. */
+const linksOf = (text: string) => refLinks(text).flatMap((part) => (part.ref ? [part.ref] : []));
+
 function shape(block: LessonBlock): string {
-  if (typeof block === "string") return "p";
-  if ("list" in block) return `list:${block.list.length}`;
+  if (typeof block === "string") return `p:${linksOf(block).join(",")}`;
+  if ("list" in block) return `list:${block.list.length}:${block.list.map((item) => linksOf(item).join(",")).join("|")}`;
   if ("widget" in block) return `widget:${JSON.stringify(block.widget)}:${block.caption ? 1 : 0}`;
   if ("checkpoint" in block) {
     const c = block.checkpoint;
@@ -256,9 +336,34 @@ function* blocks(body: LessonBody): Generator<LessonBlock> {
   for (const section of body.sections) yield* section.blocks;
 }
 
+/** Every text of a body that may hold a reference link (paragraphs, list items, rules), and every one that may not. */
+function texts(body: LessonBody): { linked: string[]; plain: string[] } {
+  const linked: string[] = [...body.heuristics.rules];
+  const plain: string[] = [...body.heuristics.breaks, ...Object.values(body.exercises)];
+  for (const section of body.sections) {
+    plain.push(section.heading);
+    for (const block of section.blocks) {
+      if (typeof block === "string") linked.push(block);
+      else if ("list" in block) linked.push(...block.list);
+      else if ("widget" in block) plain.push(block.caption ?? "");
+      else if ("checkpoint" in block) plain.push(block.checkpoint.question, block.checkpoint.explain, ...block.checkpoint.options);
+      else if ("note" in block) plain.push(block.note.text);
+    }
+  }
+  return { linked, plain };
+}
+
+/** Every written body: the lessons on the map and the reference pages, by locale. */
+function allBodies(locale: "en" | "hr"): Array<[string, LessonBody]> {
+  return [
+    ...writtenLessons().map((meta) => [meta.id, LESSON_BODIES[locale][meta.id]!] as [string, LessonBody]),
+    ...REFERENCE_IDS.map((id) => [id, REFERENCE_BODIES[locale][id]] as [string, LessonBody]),
+  ];
+}
+
 describe("the lessons' words", () => {
-  it("give every lesson an outline in both languages, with the same number of goals", () => {
-    for (const id of LESSON_IDS) {
+  it("give every lesson and reference page an outline in both languages, with the same number of goals", () => {
+    for (const id of [...LESSON_IDS, ...REFERENCE_IDS]) {
       for (const locale of ["en", "hr"] as const) {
         const outline = LESSON_OUTLINES[locale][id];
         expect(outline, `${locale}/${id}`).toBeDefined();
@@ -268,7 +373,60 @@ describe("the lessons' words", () => {
         expect(outline.goals.length, `${locale}/${id}`).toBeLessThanOrEqual(5);
       }
       expect(LESSON_OUTLINES.hr[id].goals.length, id).toBe(LESSON_OUTLINES.en[id].goals.length);
+      // Goals may link a reference page, the same ones in both languages; a summary is plain text.
+      expect(LESSON_OUTLINES.hr[id].goals.map(linksOf), id).toEqual(LESSON_OUTLINES.en[id].goals.map(linksOf));
+      for (const locale of ["en", "hr"] as const) expect(linksOf(LESSON_OUTLINES[locale][id].summary), `${locale}/${id}`).toEqual([]);
     }
+    // No outline for an id that is neither a lesson nor a reference page.
+    for (const locale of ["en", "hr"] as const) {
+      expect(Object.keys(LESSON_OUTLINES[locale]).sort()).toEqual([...LESSON_IDS, ...REFERENCE_IDS].sort());
+    }
+  });
+
+  it("give every reference page a body in both languages, with the same structure", () => {
+    for (const id of REFERENCE_IDS) {
+      expect(REFERENCE_BODIES.en[id], id).toBeDefined();
+      expect(REFERENCE_BODIES.hr[id], id).toBeDefined();
+      expect(bodyShape(REFERENCE_BODIES.hr[id]), id).toEqual(bodyShape(REFERENCE_BODIES.en[id]));
+    }
+  });
+
+  it("link only reference pages, and only from paragraphs, list items, rules and goals", () => {
+    let links = 0;
+    for (const locale of ["en", "hr"] as const) {
+      for (const [id, body] of allBodies(locale)) {
+        const { linked, plain } = texts(body);
+        for (const text of linked) {
+          for (const ref of linksOf(text)) {
+            expect(isReferenceId(ref), `${locale}/${id}: ${ref}`).toBe(true);
+            links += 1;
+          }
+          expect(plainText(text)).not.toMatch(/\[\[|\]\]/);
+        }
+        for (const text of plain) expect(text, `${locale}/${id}`).not.toMatch(/\[\[/);
+      }
+      for (const id of [...LESSON_IDS, ...REFERENCE_IDS]) {
+        for (const goal of LESSON_OUTLINES[locale][id].goals) {
+          for (const ref of linksOf(goal)) expect(isReferenceId(ref), `${locale}/${id}: ${ref}`).toBe(true);
+        }
+      }
+    }
+    expect(links).toBeGreaterThan(0);
+  });
+
+  it("fold L1's maths and range ideas into the first lesson that needs them, linking the reference page (L1.1)", () => {
+    const outlineLinks = (locale: "en" | "hr", id: LessonId) => LESSON_OUTLINES[locale][id].goals.flatMap(linksOf);
+    const bodyLinks = (locale: "en" | "hr", id: LessonId) => texts(LESSON_BODIES[locale][id]!).linked.flatMap(linksOf);
+    for (const locale of ["en", "hr"] as const) {
+      // Written: in the lesson's text, in place.
+      expect(bodyLinks(locale, "facing-an-open")).toEqual(expect.arrayContaining(["pot-odds", "equity-realisation-and-implied-odds"]));
+      // Not written yet: in the outline, for the later phase to write.
+      expect(outlineLinks(locale, "defending-vs-cbets")).toContain("bluffing-math-alpha-mdf");
+      expect(outlineLinks(locale, "choosing-bluffs-blockers")).toContain("combos-and-card-removal");
+      expect(outlineLinks(locale, "cbet-by-texture")).toEqual(expect.arrayContaining(["range-advantage", "nut-advantage"]));
+    }
+    // A written target would have to carry the idea in its body, not only its outline.
+    for (const id of ["defending-vs-cbets", "choosing-bluffs-blockers", "cbet-by-texture"] as const) expect(LESSONS[id].written).toBe(false);
   });
 
   it("have a body in both languages exactly for the written lessons", () => {
@@ -314,22 +472,21 @@ describe("the lessons' words", () => {
   });
 
   it("open every widget on a preset that exists", () => {
-    for (const meta of writtenLessons()) {
-      for (const block of blocks(LESSON_BODIES.en[meta.id]!)) {
+    for (const [id, body] of allBodies("en")) {
+      for (const block of blocks(body)) {
         if (typeof block === "string") continue;
         const preset = "widget" in block ? block.widget : "checkpoint" in block ? block.checkpoint.reveal : undefined;
-        if (preset) expect(presetProblem(preset), `${meta.id}: ${JSON.stringify(preset)}`).toBeNull();
+        if (preset) expect(presetProblem(preset), `${id}: ${JSON.stringify(preset)}`).toBeNull();
       }
     }
   });
 
-  it("recompute every number a lesson states", () => {
+  it("recompute every number a lesson or reference page states", () => {
     const all: Array<[string, MathCheck]> = [];
-    for (const meta of writtenLessons()) {
-      const body = LESSON_BODIES.en[meta.id]!;
-      for (const check of body.checks) all.push([meta.id, check]);
+    for (const [id, body] of allBodies("en")) {
+      for (const check of body.checks) all.push([id, check]);
       for (const block of blocks(body)) {
-        if (typeof block !== "string" && "checkpoint" in block && block.checkpoint.math) all.push([meta.id, block.checkpoint.math]);
+        if (typeof block !== "string" && "checkpoint" in block && block.checkpoint.math) all.push([id, block.checkpoint.math]);
       }
     }
     expect(all.length).toBeGreaterThan(20);
@@ -464,31 +621,33 @@ describe("pass rules", () => {
 /* ------------------------------------------------------------- progress - */
 
 describe("lesson progress", () => {
-  const meta = LESSONS["pot-odds"];
+  const ID = "facing-an-open";
+  const EX = "call-3bet-fold";
+  const meta = LESSONS[ID];
 
   it("keeps an exercise's latest score, and its pass and the lesson's pass sticky", () => {
     let map: ProgressMap = {};
-    map = applyResult(map, { lesson: "pot-odds", exercise: "price-drill", correct: 8, total: 10, passed: true }, NOW);
-    expect(lessonStatus(map["pot-odds"])).toBe("in-progress");
-    map = applyResult(map, { lesson: "pot-odds", exercise: "price-drill", correct: 4, total: 10, passed: false }, NOW);
-    expect(map["pot-odds"]!.exercises["price-drill"]).toMatchObject({ correct: 4, total: 10, passed: true, attempts: 2 });
-    map = applyResult(map, { lesson: "pot-odds", exercise: null, lessonPassed: true }, NOW);
-    expect(lessonStatus(map["pot-odds"])).toBe("mastered");
-    map = applyResult(map, { lesson: "pot-odds", exercise: "price-drill", correct: 1, total: 10, passed: false, lessonPassed: false }, NOW);
-    expect(map["pot-odds"]!.status).toBe("passed");
-    expect(map["pot-odds"]!.passedAt).toBe(NOW.toISOString());
+    map = applyResult(map, { lesson: ID, exercise: EX, correct: 8, total: 10, passed: true }, NOW);
+    expect(lessonStatus(map[ID])).toBe("in-progress");
+    map = applyResult(map, { lesson: ID, exercise: EX, correct: 4, total: 10, passed: false }, NOW);
+    expect(map[ID]!.exercises[EX]).toMatchObject({ correct: 4, total: 10, passed: true, attempts: 2 });
+    map = applyResult(map, { lesson: ID, exercise: null, lessonPassed: true }, NOW);
+    expect(lessonStatus(map[ID])).toBe("mastered");
+    map = applyResult(map, { lesson: ID, exercise: EX, correct: 1, total: 10, passed: false, lessonPassed: false }, NOW);
+    expect(map[ID]!.status).toBe("passed");
+    expect(map[ID]!.passedAt).toBe(NOW.toISOString());
   });
 
   it("passes a lesson automatically when its last counted exercise passes, ignoring own hands", () => {
-    expect(requiredExercises(meta).map((def) => def.id)).toEqual(["price-drill"]);
-    const first = exerciseResult({}, meta, "price-drill", 6, 10, false);
+    expect(requiredExercises(meta).map((def) => def.id)).toEqual([EX]);
+    const first = exerciseResult({}, meta, EX, 6, 12, false);
     expect(first.lessonPassed).toBe(false);
-    const passed = exerciseResult({}, meta, "price-drill", 8, 10, true);
+    const passed = exerciseResult({}, meta, EX, 10, 12, true);
     expect(passed.lessonPassed).toBe(true);
     const map = applyResult({}, passed, NOW);
-    expect(lessonComplete(meta, map["pot-odds"]!.exercises)).toBe(true);
+    expect(lessonComplete(meta, map[ID]!.exercises)).toBe(true);
     // Already passed: a later result does not "pass" it again.
-    expect(exerciseResult(map, meta, "price-drill", 10, 10, true).lessonPassed).toBe(false);
+    expect(exerciseResult(map, meta, EX, 12, 12, true).lessonPassed).toBe(false);
   });
 
   it("needs every counted exercise of a lesson with several", () => {
@@ -500,12 +659,15 @@ describe("lesson progress", () => {
 
   it("reads stored rows and the browser's storage defensively", () => {
     const map = progressFromRows([
-      { lesson_id: "pot-odds", status: "passed", exercises: { "price-drill": { correct: 8, total: 10, passed: true, attempts: 1, at: "x" } }, started_at: "a", passed_at: "b" },
+      { lesson_id: ID, status: "passed", exercises: { [EX]: { correct: 8, total: 10, passed: true, attempts: 1, at: "x" } }, started_at: "a", passed_at: "b" },
       { lesson_id: "not-a-lesson", status: "passed", exercises: {} },
-      { lesson_id: "board-texture", status: "started", exercises: { "Bad Id": {}, "read-the-flop": "junk" } },
+      { lesson_id: "three-betting", status: "started", exercises: { "Bad Id": {}, "three-bet-or-not": "junk" } },
+      // L1.1: rows of lessons that left the map stay in the database, and are not shown.
+      { lesson_id: "pot-odds", status: "passed", exercises: { "price-drill": { correct: 8, total: 10, passed: true, attempts: 1, at: "x" } } },
+      { lesson_id: "how-rail-teaches", status: "started", exercises: {} },
     ]);
-    expect(Object.keys(map).sort()).toEqual(["board-texture", "pot-odds"]);
-    expect(map["board-texture"]!.exercises).toEqual({});
+    expect(Object.keys(map).sort()).toEqual([ID, "three-betting"]);
+    expect(map["three-betting"]!.exercises).toEqual({});
     expect(parseLocalProgress("{broken")).toEqual({});
     expect(parseLocalProgress(JSON.stringify(map))).toEqual(map);
     expect(parseLocalCards("[1,2,{}]")).toEqual([]);
@@ -513,12 +675,14 @@ describe("lesson progress", () => {
 
   it("turns local progress back into results that rebuild it", () => {
     let map: ProgressMap = {};
-    map = applyResult(map, exerciseResult(map, meta, "price-drill", 8, 10, true), NOW);
-    map = applyResult(map, { lesson: "how-rail-teaches", exercise: null }, NOW);
+    map = applyResult(map, exerciseResult(map, meta, EX, 10, 12, true), NOW);
+    map = applyResult(map, { lesson: "three-betting", exercise: null }, NOW);
     let rebuilt: ProgressMap = {};
     for (const result of progressAsResults(map)) rebuilt = applyResult(rebuilt, result, NOW);
-    expect(lessonStatus(rebuilt["pot-odds"])).toBe("mastered");
-    expect(lessonStatus(rebuilt["how-rail-teaches"])).toBe("in-progress");
+    expect(lessonStatus(rebuilt[ID])).toBe("mastered");
+    expect(lessonStatus(rebuilt["three-betting"])).toBe("in-progress");
+    // A browser that kept progress on a lesson that left the map: dropped when read back.
+    expect(Object.keys(parseLocalProgress(JSON.stringify({ ...map, "pot-odds": map[ID] })))).not.toContain("pot-odds");
   });
 });
 
@@ -538,9 +702,9 @@ describe("review cards", () => {
   });
 
   it("schedule a browser-kept card by the drills' SM-2, and bring a missed-again card back now", () => {
-    const meta = LESSONS["pot-odds"];
+    const meta = LESSONS["open-sizing"];
     const def = meta.exercises[0];
-    if (def.kind !== "calc") throw new Error("pot-odds starts with a calc exercise");
+    if (def.kind !== "calc") throw new Error("open-sizing starts with a calc exercise");
     const card = localCard(cardFor(meta, def, 7), NOW);
     const right = reviewLocalCard(card, "perfect", NOW);
     expect(right.state.intervalDays).toBe(1);
@@ -586,12 +750,34 @@ describe("recommendations from leaks", () => {
     expect(lessonForArea(area("preflop", "vs-3bet", "vs-reraise", "CO"), written)).toBe("facing-3bets-and-4bets");
     expect(lessonForArea(area("preflop", "squeeze", "vs-raise", "BB"), written)).toBe("squeezes-and-multiway-preflop");
     expect(lessonForArea(area("preflop", "vs-limp", "first-in", "BTN"), written)).toBe("limpers-and-isolation");
-    expect(lessonForArea(area("river", "caller-ip-vs-bet", "vs-bet", "BTN", "call"), written)).toBe("bluffing-math-alpha-mdf");
-    expect(lessonForArea(area("flop", "pfr-ip-first", "first", "BTN", "bet"), written)).toBe("range-advantage");
-    // Nothing written teaches a river bet as the raiser yet: no lesson rather than a wrong one.
+    // Until F1 is written, the written in-position lesson (a 3-bet pot) stands in for a flop bet in position.
+    expect(lessonForArea(area("flop", "pfr-ip-first", "first", "BTN", "bet"), written)).toBe("range-splitting-ip-vs-checks-3bp");
+    // Nothing written teaches a river bet as the raiser, or a river call, yet: no lesson rather than a wrong one.
     expect(lessonForArea(area("river", "pfr-oop-first", "first", "SB", "bet"), written)).toBeNull();
-    // The map also badges lessons that are coming soon.
+    expect(lessonForArea(area("river", "caller-ip-vs-bet", "vs-bet", "BTN", "call"), written)).toBeNull();
+    // The map also badges lessons that are coming soon, in the track of the hand's street.
     expect(lessonForArea(area("river", "pfr-oop-first", "first", "SB", "bet"))).toBe("thin-value");
+    expect(lessonForArea(area("river", "caller-ip-vs-bet", "vs-bet", "BTN", "call"))).toBe("bluff-catching");
+    expect(lessonForArea(area("flop", "caller-oop-vs-bet", "vs-bet", "BB", "call"))).toBe("defending-vs-cbets");
+    expect(lessonForArea(area("turn", "caller-ip-vs-bet", "vs-bet", "BTN", "fold"))).toBe("facing-turn-barrels");
+  });
+
+  it("points every leak and flag at a lesson on the map, never at a reference page (L1.1)", () => {
+    const flagged = new Set(courseOrder().flatMap((meta) => meta.match.flags));
+    // Every heuristic flag still has a lesson that explains it.
+    for (const flag of FLAG_CODES) expect(flagged.has(flag), flag).toBe(true);
+    for (const flag of FLAG_CODES) {
+      for (const rec of recommend([], [{ code: flag, decisions: 9 }])) expect(isLessonId(rec.lesson), `${flag} → ${rec.lesson}`).toBe(true);
+    }
+    for (const street of ["preflop", "flop", "turn", "river"]) {
+      for (const scenario of ["unopened", "vs-open", "vs-3bet", "pfr-ip-first", "pfr-oop-first", "caller-ip-vs-bet", "caller-oop-vs-bet", "pfr-ip-vs-raise"]) {
+        const id = lessonForArea(area(street, scenario, "*", "*", "call"));
+        if (id !== null) {
+          expect(isLessonId(id)).toBe(true);
+          expect(isReferenceId(id)).toBe(false);
+        }
+      }
+    }
   });
 
   it("never recommends a passed lesson, and adds lessons for flags seen often", () => {

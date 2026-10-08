@@ -7,7 +7,7 @@ import type { LessonOutlines } from "./types";
  * goals as `outline.hr.ts`. Plain concepts only: no chart or solver numbers.
  */
 export const outlineEn: LessonOutlines = {
-  // ---- M0 orientation
+  // ---- Reference pages since L1.1 (`REFERENCE_IDS`): L1's M0 orientation
   "how-rail-teaches": {
     summary: "How Rail's study loop works (learn an idea, drill it, play, review your own hands) and what its grades and EV loss tell you.",
     goals: [
@@ -48,7 +48,7 @@ export const outlineEn: LessonOutlines = {
     ],
   },
 
-  // ---- M1 poker maths
+  // ---- Reference: L1's M1 poker maths
   "pot-odds": {
     summary: "How to work out what share of the final pot a call costs, and so how much equity the call needs to break even.",
     goals: [
@@ -106,7 +106,7 @@ export const outlineEn: LessonOutlines = {
     ],
   },
 
-  // ---- M2 ranges
+  // ---- Reference: L1's M2 ranges
   "thinking-in-ranges": {
     summary: "How to stop guessing one hand and picture every hand an opponent could hold, starting from the 13×13 grid and the preflop action.",
     goals: [
@@ -162,6 +162,7 @@ export const outlineEn: LessonOutlines = {
     ],
   },
 
+  // ---- Lessons. The map's order is `LESSON_IDS`; this file is grouped by L1's modules.
   // ---- M3 preflop
   "positions-and-opening-ranges": {
     summary: "The name of every seat at a 6-max and a 9-max table, and why opening ranges get wider the closer you sit to the button.",
@@ -235,6 +236,15 @@ export const outlineEn: LessonOutlines = {
       "Play the big blind's option and limped pots after the flop.",
     ],
   },
+  "preflop-by-stack-depth": {
+    summary: "How opening, 3-betting and calling change from 40 to 200 big blinds deep, read from Rail's own chart set at each depth.",
+    goals: [
+      "Explain why short stacks open tighter and answer a 3-bet more often with all-in or fold.",
+      "Name the hands that gain value as stacks get deeper, and the ones that lose it.",
+      "Adjust a call facing a 3-bet to the stack left behind.",
+      "Pick the chart set that matches the stack you actually have.",
+    ],
+  },
 
   // ---- M4 single-raised pots as the preflop raiser
   "cbet-why-and-when": {
@@ -253,6 +263,7 @@ export const outlineEn: LessonOutlines = {
       "Check more and bet bigger on middling, connected flops.",
       "Play monotone flops with small bets and more checks.",
       "Explain why protection matters little on static boards and a lot on dynamic ones.",
+      "Read [[range-advantage|range advantage]] (whose whole range is ahead on this flop) and [[nut-advantage|nut advantage]] (who holds more of the strongest hands): the first sets how often you bet, the second how big.",
     ],
   },
   "hand-classes-on-the-flop": {
@@ -300,6 +311,7 @@ export const outlineEn: LessonOutlines = {
       "Keep hands with backdoor draws and fold hands with no equity.",
       "Choose fold, call or raise by hand class.",
       "Check a call against both the price and the equity your hand will realise.",
+      "Work out [[bluffing-math-alpha-mdf|alpha and MDF]] for the bet you face: alpha, bet ÷ (pot + bet), is how often a pure bluff must work, and MDF, 1 − alpha, is how much of your range must continue.",
     ],
   },
   "check-raising": {
@@ -336,6 +348,15 @@ export const outlineEn: LessonOutlines = {
       "Prefer calls with extra draws and chances to make two pair.",
       "Explain how a capped range turns low pairs into calls.",
       "Choose calls by how the hand plays on the river, not only by the pair it holds.",
+    ],
+  },
+  "turn-check-raise-and-probe": {
+    summary: "How the caller attacks the turn out of position: leading after a checked flop, and check-raising a second barrel.",
+    goals: [
+      "Lead the turn when the card favours your range and the raiser checked the flop.",
+      "Build a turn check-raise from strong hands and draws that improved.",
+      "Choose between check-call, check-raise and a lead by hand class.",
+      "Size a turn lead for the stacks left behind.",
     ],
   },
   "bb-vs-btn-blueprint": {
@@ -388,13 +409,22 @@ export const outlineEn: LessonOutlines = {
       "Explain what each option is for: value, denial, fold equity, pot control or protection.",
     ],
   },
-  "3bp-turn-and-river": {
-    summary: "How the last two streets of a 3-bet pot play with short stacks: barrel or give up, all-in sizing, and calling down capped ranges.",
+  "3bp-turn": {
+    summary: "How the turn plays in a 3-bet pot with little behind: barrel or give up, and size so the stacks go in by the river.",
     goals: [
       "Decide on the turn whether to barrel or give up, knowing it usually settles the stacks.",
-      "Size turn and river bets so the stacks go in by the river.",
-      "Pick real bluffs for polarised all-ins.",
-      "Catch bluffs against capped ranges and fold to shoves that hold too few bluffs.",
+      "Size the turn so a river all-in is the natural next bet.",
+      "Recognise turn cards that shift the advantage between the 3-bettor and the caller.",
+      "Defend the turn as the caller without folding too much of your range.",
+    ],
+  },
+  "3bp-river": {
+    summary: "How the river plays in a 3-bet pot: polarised all-ins, picking real bluffs, and calling down against ranges with too few.",
+    goals: [
+      "Bet the river all-in with a polarised range of value hands and real bluffs.",
+      "Pick bluffs by the cards you hold when the stack is the only size left.",
+      "Catch bluffs against ranges that can no longer hold the strongest hands.",
+      "Fold to river all-ins that hold too few bluffs.",
     ],
   },
   "four-bet-pots": {
@@ -472,6 +502,7 @@ export const outlineEn: LessonOutlines = {
       "Avoid bluffs that hold cards from the opponent's folding hands.",
       "Explain why a missed flush draw can be a weaker bluff than it looks.",
       "Decide which missed draws bet and which give up.",
+      "Count [[combos-and-card-removal|combinations and card removal]]: a pair has 6 combos, a suited hand 4, an offsuit hand 12, and every card you hold removes the combos that need it.",
     ],
   },
   "bluff-catching": {
@@ -596,6 +627,69 @@ export const outlineEn: LessonOutlines = {
       "Steal more from nits and respect their aggression.",
       "Call down wider and trap more against maniacs.",
       "Stay close to the baseline against solid regulars.",
+    ],
+  },
+  "reading-hud-stats": {
+    summary: "What the numbers in Rail's opponents panel count, and how many hands each needs before it tells you anything.",
+    goals: [
+      "Read each stat in the opponents panel and the situations it counts.",
+      "Explain why a frequency over a few hands is mostly noise.",
+      "Tell a stat that settles quickly from one that needs hundreds of chances.",
+      "Turn a stat with enough sample behind it into one concrete adjustment.",
+    ],
+  },
+  "exploiting-overfolders": {
+    summary: "How to win more against players who fold too often: bluff more, bet smaller, and know which spots their folds come from.",
+    goals: [
+      "Spot a player who folds more than the bet size allows, from your own data.",
+      "Add bluffs where the extra folds come from, and keep your value bets as they are.",
+      "Use smaller bets when a small bet already gets the fold.",
+      "Name the risk: what you lose if they stop folding.",
+    ],
+  },
+  "exploiting-calling-stations": {
+    summary: "How to play against players who call too much: bet thinner for value, bluff less, and size up with strong hands.",
+    goals: [
+      "Recognise a player who calls more often than the price justifies.",
+      "Value-bet thinner hands that would check against a balanced opponent.",
+      "Cut bluffs, above all on the river.",
+      "Bet bigger with strong hands when the calls come anyway.",
+    ],
+  },
+  "exploiting-aggressive-players": {
+    summary: "How to face players who bet and raise too often: call down wider, check strong hands more, and let them bluff.",
+    goals: [
+      "Recognise aggression that runs ahead of the hands behind it.",
+      "Widen your bluff-catching range against frequent barrels.",
+      "Check strong hands more often so the opponent keeps betting.",
+      "Avoid thin bets that only get raised off your equity.",
+    ],
+  },
+  "underbluffed-rivers": {
+    summary: "Where river bets hold too few bluffs and how to fold more there, judged from your own hands and their sample sizes.",
+    goals: [
+      "Explain why some river lines hold fewer bluffs than the bet size needs.",
+      "Fold more bluff-catchers where your own data shows few bluffs.",
+      "Check the sample behind a river read before acting on it.",
+      "Keep calling where a line still holds enough bluffs.",
+    ],
+  },
+  "node-locking-in-rail": {
+    summary: "Lock an opponent's frequency at one decision, re-solve, and see the best response: what it gains and what it risks.",
+    goals: [
+      "Lock an opponent's strategy at one decision in Rail's solver.",
+      "Read the best response against the locked strategy.",
+      "Compare what the exploit gains with what it loses if the read is wrong.",
+      "Choose locks that match what your own data shows.",
+    ],
+  },
+  "when-not-to-exploit": {
+    summary: "When to stay close to the baseline strategy: thin samples, opponents who adjust back, and reads that cost a lot if wrong.",
+    goals: [
+      "Judge whether a sample is big enough to act on.",
+      "Recognise opponents who adjust and exploit you back.",
+      "Weigh what an exploit gains against the cost of being wrong.",
+      "Fall back to the baseline when the read is unclear.",
     ],
   },
 };

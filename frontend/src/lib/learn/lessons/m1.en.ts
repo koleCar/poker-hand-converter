@@ -1,6 +1,9 @@
 import type { LessonBodies } from "./types";
 
 /**
+ * Reference pages since L1.1 (`/learn/reference/<id>`, `REFERENCE_IDS`):
+ * L1's M1 — poker maths, out of the course map, kept read-only.
+ *
  * M1 — poker maths, English. Every computed number in a section is listed in
  * its lesson's `checks` (or a checkpoint's `math`) and recomputed by
  * `tests/test/course.test.ts`.
@@ -101,7 +104,7 @@ export const m1En: LessonBodies<
               "Your equity has to be measured against the hands that actually bet like this, not against every hand the opponent could hold.",
             ],
           },
-          "So the price is the starting point of every call, not the end of it. The next lessons add equity, outs and realisation on top of it.",
+          "So the price is the starting point of every call, not the end of it. The [[equity-and-outs|equity and outs]] and [[equity-realisation-and-implied-odds|realisation]] pages add the rest on top of it.",
         ],
       },
     ],
@@ -210,7 +213,7 @@ export const m1En: LessonBodies<
         blocks: [
           "Yes, and that is the point to remember. The ×4 number is your equity if you see the turn and the river for the price of one call. That only happens when someone is all in, or when you are sure the turn will check through.",
           "Say the pot is 20 bb and your opponent bets 10 bb on the flop. The final pot is 20 + 10 + 10 = 40 bb, so a call needs 10 / 40 = 25%. With a flush draw, ×4 says 36%, a comfortable call. But if a second bet is coming on the turn when you miss, your call only buys one card, and ×2 says 18%: short of the price.",
-          "So use ×4 when no more money can go in, and ×2 when it can. The gap between them has to be paid for by what you win later when you hit. That is implied odds, the subject of the last lesson in this module.",
+          "So use ×4 when no more money can go in, and ×2 when it can. The gap between them has to be paid for by what you win later when you hit. That is implied odds, the subject of the [[equity-realisation-and-implied-odds|realisation and implied odds]] page.",
           {
             checkpoint: {
               question: "Your opponent moves all in on the flop and you hold a flush draw. Which estimate fits?",
@@ -695,7 +698,7 @@ export const m1En: LessonBodies<
               math: { fn: "product", args: [0.35, 0.7], value: 0.245 },
             },
           },
-          "The realisation factors in this lesson are illustrations, not solved numbers. Rail's preflop charts already include realisation; the exercise below lets you see where that puts the borderline hands.",
+          "The realisation factors in this lesson are illustrations, not solved numbers. Rail's preflop charts already include realisation; the big blind's defence drills in the course show where that puts the borderline hands.",
         ],
       },
       {

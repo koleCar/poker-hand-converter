@@ -1,6 +1,9 @@
 import type { LessonBodies } from "./types";
 
 /**
+ * Reference pages since L1.1 (`/learn/reference/<id>`, `REFERENCE_IDS`):
+ * L1's M0 — orientation, out of the course map, kept read-only.
+ *
  * M0 — orijentacija, hrvatski. Ista struktura i isti brojevi kao m0.en.ts;
  * `tests/test/course.test.ts` provjerava i jedno i drugo. Pokerske riječi
  * ostaju one koje koriste hrvatski igrači; čitatelju se obraćamo s „ti”.

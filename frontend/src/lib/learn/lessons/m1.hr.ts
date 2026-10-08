@@ -1,6 +1,9 @@
 import type { LessonBodies } from "./types";
 
 /**
+ * Reference pages since L1.1 (`/learn/reference/<id>`, `REFERENCE_IDS`):
+ * L1's M1 — poker maths, out of the course map, kept read-only.
+ *
  * M1 — matematika pokera, hrvatski. Ista struktura i isti brojevi kao
  * m1.en.ts; `tests/test/course.test.ts` provjerava i jedno i drugo. Pokerske
  * riječi ostaju one koje koriste hrvatski igrači; čitatelju se obraćamo s „ti”.
@@ -100,7 +103,7 @@ export const m1Hr: LessonBodies<
               "Svoj equity moraš mjeriti protiv ruku koje stvarno ovako betaju, a ne protiv svih ruku koje protivnik može imati.",
             ],
           },
-          "Cijena je dakle početak svakog calla, a ne njegov kraj. Sljedeće lekcije na nju dodaju equity, outove i realizaciju.",
+          "Cijena je dakle početak svakog calla, a ne njegov kraj. Stranice o [[equity-and-outs|equityju i outovima]] i [[equity-realisation-and-implied-odds|realizaciji]] na nju dodaju ostalo.",
         ],
       },
     ],
@@ -209,7 +212,7 @@ export const m1Hr: LessonBodies<
         blocks: [
           "Da, i to je ono što treba zapamtiti. Broj ×4 tvoj je equity ako turn i river vidiš za cijenu jednog calla. To se događa samo kad je netko all-in ili kad si siguran da će turn proći u checkovima.",
           "Recimo da je pot 20 bb, a protivnik na flopu beta 10 bb. Konačni pot je 20 + 10 + 10 = 40 bb, pa call treba 10 / 40 = 25 %. S flush drawom ×4 kaže 36 %, udoban call. Ali ako na turnu, kad promašiš, dolazi drugi bet, tvoj call kupuje samo jednu kartu, a ×2 kaže 18 %: manje od cijene.",
-          "Zato ×4 koristi kad više nema novca koji može ući, a ×2 kad ima. Razliku između njih mora platiti ono što kasnije osvojiš kad pogodiš. To su implied odds, tema posljednje lekcije ovog modula.",
+          "Zato ×4 koristi kad više nema novca koji može ući, a ×2 kad ima. Razliku između njih mora platiti ono što kasnije osvojiš kad pogodiš. To su implied odds, tema stranice o [[equity-realisation-and-implied-odds|realizaciji i implied odds]].",
           {
             checkpoint: {
               question: "Protivnik ide all-in na flopu, a ti imaš flush draw. Koja procjena vrijedi?",
@@ -694,7 +697,7 @@ export const m1Hr: LessonBodies<
               math: { fn: "product", args: [0.35, 0.7], value: 0.245 },
             },
           },
-          "Faktori realizacije u ovoj lekciji su ilustracije, a ne riješeni brojevi. Railovi preflop chartovi već uključuju realizaciju; vježba ispod pokazuje gdje to stavlja granične ruke.",
+          "Faktori realizacije u ovoj lekciji su ilustracije, a ne riješeni brojevi. Railovi preflop chartovi već uključuju realizaciju; vježbe obrane big blinda u tečaju pokazuju gdje to stavlja granične ruke.",
         ],
       },
       {
