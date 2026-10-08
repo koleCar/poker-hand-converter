@@ -50,7 +50,7 @@ async function deal(item: SpotItem): Promise<TrainerSpot | null> {
       const options: PreflopSpotOptions = { family: item.family, set: item.set ?? null, seat: item.seat ?? null, vs: item.vs ?? null, bias: item.bias };
       spot = await dealPreflopSpot(options, seed);
     } else {
-      const options: RiverSpotOptions & TurnSpotOptions = { pot: item.pot, seat: item.seat, role: item.role, bias: item.bias, facing: item.facing };
+      const options: RiverSpotOptions & TurnSpotOptions = { pot: item.pot, seat: item.seat, role: item.role, bias: item.bias, facing: item.facing, flop: item.flop };
       spot = item.k === "turn" ? await dealTurnSpot(options, seed) : await dealRiverSpot(options, seed);
     }
     if (spot) return spot;

@@ -214,6 +214,8 @@ export const courseHr = {
       "Railova knjižnica flopova je heads-up. Flopove s više igrača analiza čita heuristikom i podjelom minimalne obrane, s činjenicama i oznakama, ali bez ocjene solvera, pa su vježbe u ovoj lekciji računske i na tvojim rukama.",
     "approximate-ranges":
       "Približno: rasponi ovdje su ručno napisani rasponi za učenje ili počivaju na Railovom modelu sužavanja, a ne na rješenju cijele ruke. Ono što treba zapamtiti je smjer.",
+    "turn-tree":
+      "Rail rješava turn s jednom veličinom beta, tri četvrtine pota, plus all-in kad su stackovi kratki, i grubim riverom ispod njega: isto stablo koje ocjenjuje tvoje turnove. Manji betovi na turnu i overbetovi ovdje se uče riječima i na riveru, čije rješenje ima više veličina.",
     conceptual: "Konceptualno: Rail ovu situaciju još ne analizira, pa lekcija uči ideju bez ocijenjene vježbe.",
     "straddle-not-analysed": "Rail još ne analizira potove sa straddleom: chartova za straddle nema, pa se ovo uči riječima.",
   } as Record<string, string>,
@@ -226,7 +228,7 @@ export const courseHr = {
     "own-hands": "Tvoje vlastite analizirane ruke u ovoj situaciji",
     "range-split": "Razvrstavanje klasa ruku cijelog raspona po akcijama, ocijenjeno Railovim rješenjem po klasi",
     "depth-split": "Razvrstavanje klasa ruku na 200bb naspram 100bb (planirano)",
-    "range-paint": "Bojanje raspona na mreži 13×13 (planirano)",
+    "range-paint": "Bojanje raspona na mreži 13×13, ocijenjeno polje po polje prema Railovu chartu ili rješenju",
     "range-walk": "Pogađanje raspona street po street na tvojoj ruci (planirano)",
     "pot-tracking": "Praćenje pota u ruci kao uživo (planirano)",
     "profile-quiz": "Prepoznavanje tipova igrača iz statistike (planirano)",
@@ -269,7 +271,7 @@ export const courseHr = {
     noSpot: "Nijedna situacija ne odgovara ovim postavkama. Pokušaj ponovno.",
     planned: {
       "depth-split": "Planirano: razvrstaj isti raspon na 200bb i na 100bb i usporedi obje podjele s Railovim rješenjima.",
-      "range-paint": "Planirano: oboji raspon na mreži 13×13 i usporedi ga s Railovim chartom.",
+      "range-paint": "Planirano: oboji raspon pozicije sa straddleom na mreži 13×13, kad Rail dobije straddle chartove s kojima ga može usporediti.",
       "range-walk": "Planirano: ponovno odigraj svoju ruku i pogađaj protivnikov raspon na svakom streetu, pa usporedi s Railovim sužavanjem.",
       "pot-tracking": "Planirano: ruka kao uživo u kojoj pratiš koliko je u potu.",
       "profile-quiz": "Planirano: prepoznaj tipove svojih protivnika iz njihove statistike.",
@@ -314,12 +316,10 @@ export const courseHr = {
 
   split: {
     question: (street: string) =>
-      street === "turn"
-        ? "Ovdje je cijeli tvoj raspon na turnu. Stavi svaku klasu ruku tamo gdje misliš da je Railovo rješenje najčešće igra."
-        : "Ovdje je cijeli tvoj raspon na flopu. Stavi svaku klasu ruku tamo gdje misliš da je Railovo rješenje najčešće igra.",
-    groups: { check: "Check", small: "Mali bet", big: "Veliki bet", fold: "Fold", call: "Call", raise: "Raise" } as Record<string, string>,
+      `Ovdje je cijeli tvoj raspon na ${street === "river" ? "riveru" : street === "turn" ? "turnu" : "flopu"}. Stavi svaku klasu ruku tamo gdje misliš da je Railovo rješenje najčešće igra.`,
+    groups: { check: "Check", small: "Mali bet", big: "Veliki bet", overbet: "Overbet", fold: "Fold", call: "Call", raise: "Raise" } as Record<string, string>,
     you: "Ti",
-    first: (street: string) => (street === "turn" ? "Ti si prvi na potezu na turnu." : "Ti si prvi na potezu na flopu."),
+    first: (street: string) => `Ti si prvi na potezu na ${street === "river" ? "riveru" : street === "turn" ? "turnu" : "flopu"}.`,
     step: (who: string, kind: string, sizePot: number) =>
       kind === "check"
         ? `${who}: check.`
@@ -339,6 +339,8 @@ export const courseHr = {
       `Iz Railove knjižnice flopova: rasponi iz chartova za ${line} riješeni na ovom flopu (betovi od 33 % i 75 % pota, jedan raise, all-in), ${iterations} iteracija, unutar ${exploitability} % pota. Mali bet ovdje je do pola pota. Klasa se računa kao točna kad Rail tvoj izbor igra najviše 15 postotnih bodova rjeđe od svog najčešćeg.`,
     turnNote:
       "Iz rješenja turna na licu mjesta: preflop rasponi iz chartova suženi na flopu Railovim heurističkim modelom, turn riješen s betom od 75 % pota i all-inom. Klasa se računa kao točna kad Rail tvoj izbor igra najviše 15 postotnih bodova rjeđe od svog najčešćeg.",
+    riverNote:
+      "Iz rješenja rivera na licu mjesta: preflop rasponi iz chartova suženi na flopu i turnu Railovim heurističkim modelom, river riješen s betovima od 33 %, 75 % i 150 % pota i all-inom. Mali bet je do pola pota, veliki do pota, overbet veći. Klasa se računa kao točna kad Rail tvoj izbor igra najviše 15 postotnih bodova rjeđe od svog najčešćeg.",
     made: {
       "fh+": "Full house ili bolje",
       flush: "Boja",
@@ -363,6 +365,53 @@ export const courseHr = {
       gut: "gutshot",
       bd: "backdoor dro",
     } as Record<string, string>,
+  },
+
+  paint: {
+    questionOpen: (seat: string) => `Oboji svaku ruku koju ${seat} igra kad svi prije njega foldaju: raise ili limp.`,
+    questionBet: "Oboji ruke svog raspona ovdje koje Railovo rješenje beta.",
+    questionContinue: "Oboji ruke svog raspona ovdje s kojima Railovo rješenje nastavlja: call ili raise.",
+    how: (inside: string, outside: string, pass: string) =>
+      `Klikni ili povuci za bojanje, rade i strelice i razmaknica. Ruku koju Rail igra barem ${inside} puta treba obojiti, onu koju igra najviše ${outside} ostaviti praznom, a sve između računa se kako god. Trebaš ${pass} ruku koje se računaju, ponderirano kombinacijama.`,
+    cell: (hand: string, on: boolean) => `${hand}, ${on ? "obojeno" : "nije obojeno"}`,
+    cellGraded: (hand: string, on: boolean, share: string, state: string | null) =>
+      `${hand}, ${on ? "obojeno" : "nije obojeno"}, Rail ${share}${state === "right" ? ", točno" : state === "missed" ? ", treba obojiti" : state === "extra" ? ", treba ostaviti prazno" : ""}`,
+    notInRange: (hand: string) => `${hand}: nije u rasponu ovdje`,
+    railShare: (hand: string, share: string) => `${hand}: Rail ${share}`,
+    clear: "Očisti",
+    check: "Provjeri moje bojanje",
+    result: (score: string, passed: boolean) => `${score} ruku koje se računaju točno${passed ? " — računa se kao točno." : " — nedovoljno da se računa kao točno."}`,
+    counts: (missed: number, extra: number) =>
+      `Neobojenih ruku koje Rail igra: ${missed} (−); obojenih ruku koje Rail ne igra: ${extra} (+).`,
+    legend: "✓ točno · − treba obojiti · + treba ostaviti prazno. Pređi mišem preko ruke ili je fokusiraj da vidiš koliko je Rail igra.",
+    chartNote: (set: string) => `Iz Railova charta ${set}: udio igre svake ruke kad svi prije te pozicije foldaju.`,
+    riverNote: (iterations: string, exploitability: string) =>
+      `Iz rješenja rivera na licu mjesta (preflop rasponi iz chartova suženi na flopu i turnu Railovim heurističkim modelom; betovi od 33 %, 75 % i 150 % pota i all-in; ${iterations} iteracija, unutar ${exploitability} % pota). Udio ruke računa se na kombinacijama koje tvoj raspon ovdje još drži.`,
+  },
+
+  mastery: {
+    title: "U tvojim rukama otkad si ga položio",
+    loading: "Čitam tvoje analizirane ruke…",
+    failed: (message: string) => `Ne mogu pročitati tvoje ruke: ${message}`,
+    noSpots: "Ova lekcija nije vezana uz jednu situaciju iz pronalaska propusta, pa je Rail ne može mjeriti na tvojim rukama.",
+    since: (day: string) => `Tvoje ocijenjene odluke u situacijama ove lekcije, prije i nakon ${day}.`,
+    before: "Prije",
+    after: "Nakon",
+    decisions: (n: number) => `odluka: ${n}`,
+    perDecision: (bb: string, pot: string) => `${bb} izgubljeno po odluci (${pot} pota)`,
+    mistakes: (rate: string) => `${rate} ocijenjeno kao Netočno ili gore`,
+    none: "Nema ocijenjenih odluka",
+    tooFew: (min: number) => `Još nema dovoljno ruku: Rail imenuje promjenu od ${min} ocijenjenih odluka sa svake strane.`,
+    trend: {
+      better: "Bolje otkad si je položio: promjena je veća od šuma uzorka.",
+      "leaning-better": "Naginje boljem otkad si je položio, ali to još može biti šum.",
+      steady: "Otprilike isto kao prije: uzorak još ne vidi promjenu.",
+      "leaning-worse": "Naginje lošijem otkad si je položio, ali to još može biti šum. Ponavljanje lekcije može pomoći.",
+      worse: "Lošije otkad si je položio, više od šuma uzorka. Vrijedi ponovno pogledati lekciju.",
+      "too-few": "Još nema dovoljno ruku.",
+    } as Record<string, string>,
+    method:
+      "Mjereno prosječnom ocjenom poteza testom koji koristi i pronalazak propusta, na rukama odigranima prije i nakon dana kad si položio lekciju, na trenutnoj verziji analize. Ništa se ne sprema: ažurira se kako učitavaš i analiziraš nove ruke.",
   },
 
   spot: {

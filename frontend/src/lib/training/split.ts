@@ -7,10 +7,13 @@
  * ```
  * flop: a line and flop of the library (flop.ts) ─▶ the hero's node, drawn from the solve's frequencies
  * turn: a turn spot's solve (turn.ts, A5a)        ─▶ the same walk
+ * river: a river spot's solve (river.ts, A4; L3)  ─▶ the same walk
  *   ─▶ every combo the hero's range holds there, by category: `flopBucket` (made hand × draw) on the
- *      flop, `turnCategory` on the turn — the categories the analysis itself reads solves by
+ *      flop, `turnCategory` on the turn, `riverCategory` on the river — the categories the
+ *      analysis itself reads solves by
  *   ─▶ per category: its share of the range and the reach-weighted mix of the solve's actions,
- *      grouped into check / small (≤ half the pot) / big (bigger, all-in), or fold / call / raise
+ *      grouped into check / small (≤ half the pot) / big (bigger, all-in), or fold / call / raise;
+ *      on the river, whose menu has an overbet, bets over the pot are a group of their own
  * answer ─▶ one group per category ─▶ right where the solve plays that group within
  *   `SPLIT_SLACK` of its most played one (a class the solve mixes has more than one right answer)
  * ```
@@ -20,18 +23,21 @@
  */
 
 import type { ChartPosition, ChartSet } from "../charts";
-import { flopBucket, turnCategory, TURN_CATEGORIES, type FlopLibrary } from "../analysis";
+import { flopBucket, RIVER_CATEGORIES, riverCategory, turnCategory, TURN_CATEGORIES, type FlopLibrary } from "../analysis";
 import { cardCode, cardIndex } from "../equity/evaluator";
 import { comboHi, comboLo, permuteCard, rangesAt, SUIT_PERMUTATIONS, type ActionKind, type SolveResult } from "../solver";
 import { heroNode, plannedChunk, type FlopSpotOptions } from "./flop";
-import { MAX_ATTEMPTS, type RiverPot, type RiverSeat } from "./river";
+import { MAX_ATTEMPTS, riverSetup, type RiverPot, type RiverSeat } from "./river";
 import { pickOne, seeded } from "./rng";
 import { turnSetup } from "./turn";
 
-export type SplitGroup = "check" | "small" | "big" | "fold" | "call" | "raise";
+export type SplitGroup = "check" | "small" | "big" | "overbet" | "fold" | "call" | "raise";
+export type SplitStreet = "flop" | "turn" | "river";
 
 /** A bet up to this share of the pot is "small"; bigger, and all-in, is "big". */
 export const SMALL_MAX = 0.5;
+/** On the river only: a bet over this share of the pot (the 150% size, an all-in over the pot) is an "overbet". */
+export const OVERBET_MIN = 1;
 /** A category is right within this many points of the solve's most played group. */
 export const SPLIT_SLACK = 0.15;
 /** Categories with less of the range than this are left out of the item. */
@@ -42,11 +48,13 @@ export const MAX_SPLIT_ROWS = 8;
 export const SPLIT_PASS = 0.7;
 
 export interface SplitOptions extends FlopSpotOptions {
-  street: "flop" | "turn";
+  street: SplitStreet;
+  /** The turn only: after the flop checked through, or after a flop bet was called (Learn L3). */
+  flop?: "checked" | "bet" | "any";
 }
 
 export interface SplitRow {
-  /** `flopBucket` (`tp-good/bd`) on the flop, `turnCategory` (`top-pair`) on the turn. */
+  /** `flopBucket` (`tp-good/bd`) on the flop, `turnCategory` (`top-pair`) on the turn, `riverCategory` on the river. */
   key: string;
   /** Weighted combos of the hero's range at the node. */
   combos: number;
@@ -58,14 +66,14 @@ export interface SplitRow {
 
 export interface SplitItem {
   kind: "split";
-  street: "flop" | "turn";
+  street: SplitStreet;
   seed: number;
   lineId: string;
   pot: RiverPot;
   hero: ChartPosition;
   villain: ChartPosition;
   seat: RiverSeat;
-  /** Three or four cards. */
+  /** Three, four or five cards. */
   board: string[];
   /** The street's actions before the decision. */
   before: Array<{ who: "hero" | "villain"; kind: ActionKind; sizePot: number }>;
@@ -75,31 +83,34 @@ export interface SplitItem {
   rows: SplitRow[];
   /** The whole range's mix per group. */
   overall: number[];
-  /** Where the numbers come from: the flop library's chunk, or the turn solve (ranges narrowed by the heuristic). */
-  source: "library" | "turn-solve";
+  /** Where the numbers come from: the flop library's chunk, or a turn or river solve (ranges narrowed by the heuristic). */
+  source: "library" | "turn-solve" | "river-solve";
   iterations: number;
   exploitabilityPct: number;
 }
 
 /* -------------------------------------------------------------- groups - */
 
-function groupOf(result: SolveResult, node: number, a: number): SplitGroup {
+function groupOf(result: SolveResult, node: number, a: number, street: SplitStreet): SplitGroup {
   const at = result.nodes[node];
   const action = at.actions[a];
   if (at.toCall > 0) return action.kind === "fold" ? "fold" : action.kind === "call" ? "call" : "raise";
   if (action.kind === "check") return "check";
-  return action.kind === "bet" && action.sizePot <= SMALL_MAX + 1e-9 ? "small" : "big";
+  if (action.kind === "bet" && action.sizePot <= SMALL_MAX + 1e-9) return "small";
+  return street === "river" && action.sizePot > OVERBET_MIN + 1e-9 ? "overbet" : "big";
 }
 
-const GROUP_ORDER: readonly SplitGroup[] = ["fold", "check", "call", "small", "big", "raise"];
+const GROUP_ORDER: readonly SplitGroup[] = ["fold", "check", "call", "small", "big", "overbet", "raise"];
 
 /** The made-hand and draw parts of a flop category, strongest first: the order rows are shown in. */
 const FLOP_MADE = ["fh+", "flush", "straight", "set", "trips", "two-pair", "overpair", "tp-top", "tp-good", "tp-weak", "middle", "weak", "ace-high", "nothing"];
 const FLOP_DRAW = ["combo", "nfd", "fd", "oesd", "gut", "bd", "none"];
 const TURN_ORDER: string[] = TURN_CATEGORIES.map((c) => c.key);
+const RIVER_ORDER: string[] = RIVER_CATEGORIES.map((c) => c.key);
 
-function rowOrder(street: "flop" | "turn", key: string): number {
+function rowOrder(street: SplitStreet, key: string): number {
   if (street === "turn") return TURN_ORDER.indexOf(key);
+  if (street === "river") return RIVER_ORDER.indexOf(key);
   const [made, draw] = key.split("/");
   return FLOP_MADE.indexOf(made) * 10 + FLOP_DRAW.indexOf(draw);
 }
@@ -112,14 +123,14 @@ function rowOrder(street: "flop" | "turn", key: string): number {
 export function splitTable(
   result: SolveResult,
   node: number,
-  street: "flop" | "turn",
+  street: SplitStreet,
   board: readonly number[],
 ): { groups: SplitGroup[]; rows: SplitRow[]; overall: number[] } {
   const at = result.nodes[node];
   const p = at.player as 0 | 1;
   const n = result.hands[p].length;
   const reach = rangesAt(result, node)[p];
-  const byAction = at.actions.map((_, a) => groupOf(result, node, a));
+  const byAction = at.actions.map((_, a) => groupOf(result, node, a, street));
   const groups = GROUP_ORDER.filter((g) => byAction.includes(g));
   const g = byAction.map((group) => groups.indexOf(group));
   const sums = new Map<string, { combos: number; freq: number[] }>();
@@ -130,7 +141,7 @@ export function splitTable(
     if (!(w > 0)) continue;
     const combo = result.hands[p][i];
     const hole: [number, number] = [comboHi(combo), comboLo(combo)];
-    const key = street === "flop" ? flopBucket(hole, board) : turnCategory(hole, board);
+    const key = street === "flop" ? flopBucket(hole, board) : street === "turn" ? turnCategory(hole, board) : riverCategory(hole, board);
     let row = sums.get(key);
     if (!row) {
       row = { combos: 0, freq: new Array(groups.length).fill(0) };
@@ -161,7 +172,7 @@ export function splitTable(
 
 /* ------------------------------------------------------------ the item - */
 
-function before(result: SolveResult, steps: ReadonlyArray<{ node: number; edge: number; player: 0 | 1 }>, hero: 0 | 1, street: "flop" | "turn"): SplitItem["before"] {
+function before(result: SolveResult, steps: ReadonlyArray<{ node: number; edge: number; player: 0 | 1 }>, hero: 0 | 1, street: SplitStreet): SplitItem["before"] {
   return steps
     .filter((step) => result.nodes[step.node].street === street)
     .map((step) => {
@@ -211,7 +222,7 @@ function flopSplit(charts: ChartSet, library: FlopLibrary, options: SplitOptions
 function turnSplit(charts: ChartSet, options: SplitOptions, seed: number): SplitItem | null {
   const rng = seeded(seed);
   for (let tries = 0; tries < MAX_ATTEMPTS; tries += 1) {
-    const setup = turnSetup(charts, { pot: options.pot, seat: options.seat, role: options.role, bias: options.bias }, rng, seed);
+    const setup = turnSetup(charts, { pot: options.pot, seat: options.seat, role: options.role, bias: options.bias, flop: options.flop }, rng, seed);
     if (!setup) continue;
     const { solve } = setup;
     const result = solve.result;
@@ -243,6 +254,43 @@ function turnSplit(charts: ChartSet, options: SplitOptions, seed: number): Split
   return null;
 }
 
+function riverSplit(charts: ChartSet, options: SplitOptions, seed: number): SplitItem | null {
+  const rng = seeded(seed);
+  for (let tries = 0; tries < MAX_ATTEMPTS; tries += 1) {
+    // Facing a check is in position; a bet or a raise to answer, either seat (the walk finds the node).
+    const seat = options.facing === "check" ? "ip" : options.seat;
+    const setup = riverSetup(charts, { pot: options.pot, seat, role: options.role, bias: options.bias }, rng, seed);
+    if (!setup) continue;
+    const { solve } = setup;
+    const result = solve.result;
+    const walked = heroNode(result, solve.hero, options.facing, rng, "river");
+    if (!walked) continue;
+    const board = setup.board.map(cardIndex);
+    const table = splitTable(result, walked.node, "river", board);
+    if (table.rows.length < 3 || table.groups.length < 2) continue;
+    const node = result.nodes[walked.node];
+    return {
+      kind: "split",
+      street: "river",
+      seed,
+      lineId: setup.line.id,
+      pot: setup.line.pot,
+      hero: setup.hero,
+      villain: setup.villain,
+      seat: setup.seat,
+      board: setup.board,
+      before: before(result, walked.steps, solve.hero, "river"),
+      potBb: Math.round(node.pot * 100) / 100,
+      toCallBb: Math.round(node.toCall * 100) / 100,
+      ...table,
+      source: "river-solve",
+      iterations: result.iterations,
+      exploitabilityPct: Math.round(result.exploitabilityPct * 1000) / 1000,
+    };
+  }
+  return null;
+}
+
 /**
  * A split item for `seed`, or null when none could be made (the flop needs
  * the library with the plan's chunk loaded: `flopChunkFor` names it).
@@ -250,6 +298,7 @@ function turnSplit(charts: ChartSet, options: SplitOptions, seed: number): Split
  */
 export function generateSplit(charts: ChartSet, library: FlopLibrary | null, options: SplitOptions, seed: number): SplitItem | null {
   if (options.street === "turn") return turnSplit(charts, options, seed);
+  if (options.street === "river") return riverSplit(charts, options, seed);
   return library ? flopSplit(charts, library, options, seed) : null;
 }
 

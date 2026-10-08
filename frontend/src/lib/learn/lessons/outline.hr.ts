@@ -354,8 +354,8 @@ export const outlineHr: LessonOutlines = {
   "turn-check-raise-and-probe": {
     summary: "Kako caller napada turn izvan pozicije: lead nakon checkanog flopa i check-raise na drugi barrel.",
     goals: [
-      "Betaj turn prvi kad karta odgovara tvom rasponu, a raiser je checkao flop.",
-      "Složi check-raise na turnu od jakih ruku i drawova koji su se popravili.",
+      "Betaj turn prvi rijetko: samo s rukama koje odmah žele velik pot.",
+      "Složi check-raise na turnu uglavnom od jakih gotovih ruku, uz nekoliko najjačih drawova.",
       "Biraj između check-calla, check-raisea i leada prema klasi ruke.",
       "Odredi veličinu leada na turnu prema stackovima iza.",
     ],
@@ -470,7 +470,7 @@ export const outlineHr: LessonOutlines = {
     summary: "Kako igrati turn nakon što su oba igrača checkala flop: lead izvan pozicije, bet u poziciji i obrana od obojega.",
     goals: [
       "Objasni kako checkani flop ograničava oba raspona, svaki na svoj način.",
-      "Leadaj turn izvan pozicije kad karta ide u prilog tvom rasponu.",
+      "Objasni zašto Railovo rješenje rijetko leada turn izvan pozicije, čak i nakon checkanog flopa.",
       "Betaj turn u poziciji nakon što je flop prošao check-check.",
       "Brani se razumno od leadova i odgođenih betova na turnu.",
     ],
@@ -501,7 +501,7 @@ export const outlineHr: LessonOutlines = {
     goals: [
       "Biraj blefove koji drže karte iz protivnikovih ruku za call.",
       "Izbjegavaj blefove koji drže karte iz protivnikovih ruku za fold.",
-      "Objasni zašto promašeni flush draw može biti slabiji blef nego što izgleda.",
+      "Blefiraj najprije rukama koje checkom ne mogu dobiti.",
       "Odluči koji promašeni drawovi betaju, a koji odustaju.",
       "Broji [[combos-and-card-removal|kombinacije i uklanjanje karata]]: par ima 6 kombinacija, suited ruka 4, offsuit ruka 12, a svaka karta koju držiš uklanja kombinacije kojima je potrebna.",
     ],
@@ -526,12 +526,12 @@ export const outlineHr: LessonOutlines = {
     ],
   },
   "facing-river-raises": {
-    summary: "Kako odgovoriti na raise ili lead na riveru i zašto većina igrača river raisea s jakim rukama puno češće nego s blefovima.",
+    summary: "Kako odgovoriti na raise svog beta na riveru: zašto je jak, koje ruke nastavljaju i kako ga mijenja veličina tvog beta.",
     goals: [
-      "Shvati raise na riveru kao obično jaku ruku, posebno u live igri.",
-      "Odluči koje ruke još mogu callati raise na riveru.",
-      "Raiseaj ili callaj češće protiv širokih leadova na riveru nakon checkanog turna.",
-      "Razlikuj kad fold iskorištava populaciju, a kad predaje previše.",
+      "Shvati raise na riveru kao jaku ruku: na njega foldaj većinu ruku s jednim parom.",
+      "Odluči koje ruke još mogu callati raise na riveru, a koje reraiseaju.",
+      "Očekuj više raiseova, i više blefova među njima, protiv malih betova.",
+      "Izračunaj cijenu calla protiv raisea i shvati zašto sama cijena ne odlučuje.",
     ],
   },
 

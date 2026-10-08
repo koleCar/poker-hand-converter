@@ -353,8 +353,8 @@ export const outlineEn: LessonOutlines = {
   "turn-check-raise-and-probe": {
     summary: "How the caller attacks the turn out of position: leading after a checked flop, and check-raising a second barrel.",
     goals: [
-      "Lead the turn when the card favours your range and the raiser checked the flop.",
-      "Build a turn check-raise from strong hands and draws that improved.",
+      "Lead the turn rarely: only with hands that want a big pot now.",
+      "Build a turn check-raise mostly from strong made hands, with a few of the strongest draws.",
       "Choose between check-call, check-raise and a lead by hand class.",
       "Size a turn lead for the stacks left behind.",
     ],
@@ -469,7 +469,7 @@ export const outlineEn: LessonOutlines = {
     summary: "How to play the turn after both players checked the flop: leading out of position, betting in position, and defending against both.",
     goals: [
       "Explain how a checked flop caps both ranges in different ways.",
-      "Lead the turn out of position when the card favours your range.",
+      "Explain why Rail's solve rarely leads the turn out of position, even after the flop checks through.",
       "Bet the turn in position after the flop checks through.",
       "Defend sensibly against turn leads and delayed bets.",
     ],
@@ -500,7 +500,7 @@ export const outlineEn: LessonOutlines = {
     goals: [
       "Choose bluffs that hold cards from the opponent's calling hands.",
       "Avoid bluffs that hold cards from the opponent's folding hands.",
-      "Explain why a missed flush draw can be a weaker bluff than it looks.",
+      "Bluff first with hands that cannot win by checking.",
       "Decide which missed draws bet and which give up.",
       "Count [[combos-and-card-removal|combinations and card removal]]: a pair has 6 combos, a suited hand 4, an offsuit hand 12, and every card you hold removes the combos that need it.",
     ],
@@ -525,12 +525,12 @@ export const outlineEn: LessonOutlines = {
     ],
   },
   "facing-river-raises": {
-    summary: "How to respond to a raise or a lead on the river, and why most players raise the river with strong hands far more than with bluffs.",
+    summary: "How to answer a raise of your river bet: why it is strong, which hands continue, and how your bet size changes it.",
     goals: [
-      "Read a river raise as usually strong, especially in live games.",
-      "Decide which hands can still call a river raise.",
-      "Raise or call more against wide river leads after the turn checks through.",
-      "Tell where folding exploits the pool and where it gives up too much.",
+      "Read a river raise as strong: fold most one-pair hands to it.",
+      "Decide which hands can still call a river raise, and which re-raise.",
+      "Expect more raises, and more bluffs among them, against small bets.",
+      "Price a call against a raise, and see why the price alone does not decide it.",
     ],
   },
 

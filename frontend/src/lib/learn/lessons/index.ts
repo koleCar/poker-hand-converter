@@ -10,8 +10,9 @@
  *
  * - `outline.*`: every lesson's summary and goals, written or not (the map,
  *   and a "coming soon" page), and every reference page's;
- * - `m3.*` (preflop), `f1.*`–`f5.*` and `m6.*` (the flop track, L2): the
- *   bodies of the written lessons (`LessonMeta.written`);
+ * - `m3.*` (preflop), `f1.*`–`f5.*` and `m6.*` (the flop track, L2), `t.*`
+ *   and `r.*` (the turn and river tracks, L3): the bodies of the written
+ *   lessons (`LessonMeta.written`);
  * - `m0.*`, `m1.*`, `m2.*`: the reference pages' bodies (L1's orientation,
  *   maths and range lessons, out of the map since L1.1; `REFERENCE_IDS`).
  */
@@ -40,13 +41,17 @@ import { m6En } from "./m6.en";
 import { m6Hr } from "./m6.hr";
 import { outlineEn } from "./outline.en";
 import { outlineHr } from "./outline.hr";
+import { rEn } from "./r.en";
+import { rHr } from "./r.hr";
+import { tEn } from "./t.en";
+import { tHr } from "./t.hr";
 import type { LessonBody, LessonOutline, LessonOutlines, PageId } from "./types";
 
 type Bodies = Partial<Record<LessonId, LessonBody>>;
 type ReferenceBodies = Readonly<Record<ReferenceId, LessonBody>>;
 
-const en: Bodies = { ...m3En, ...f1En, ...f2En, ...f3En, ...f4En, ...m6En, ...f5En };
-const hr: Bodies = { ...m3Hr, ...f1Hr, ...f2Hr, ...f3Hr, ...f4Hr, ...m6Hr, ...f5Hr };
+const en: Bodies = { ...m3En, ...f1En, ...f2En, ...f3En, ...f4En, ...m6En, ...f5En, ...tEn, ...rEn };
+const hr: Bodies = { ...m3Hr, ...f1Hr, ...f2Hr, ...f3Hr, ...f4Hr, ...m6Hr, ...f5Hr, ...tHr, ...rHr };
 
 export const LESSON_BODIES: Readonly<Record<Locale, Bodies>> = { en, hr };
 export const REFERENCE_BODIES: Readonly<Record<Locale, ReferenceBodies>> = {

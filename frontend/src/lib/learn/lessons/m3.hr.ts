@@ -102,7 +102,7 @@ export const m3Hr: LessonBodies<
       "opens-9max":
         "Isti drill za stolom od devet igrača. Primijeti koliko su prva tri sjedala uža od bilo čega u 6-maxu.",
       "paint-a-seat":
-        "Oboji raspon za otvaranje jednog sjedala na mreži, pa ga usporedi s Railovim chartom polje po polje. Uskoro.",
+        "Dva sjedala za stolom od šest igrača: oboji ruke koje svako otvara prema Railovu chartu za 100 bb, pa pogledaj ocjenu polje po polje.",
     },
     checks: [
       { fn: "allFold", args: [0.9, 2], value: 0.81 },

@@ -216,6 +216,8 @@ export const courseEn = {
       "Rail's flop library is heads-up. Multiway flops are read by the analysis' heuristic and the minimum-defence split, with facts and flags but no solver grade, so this lesson's practice is arithmetic and your own hands.",
     "approximate-ranges":
       "Approximate: the ranges here are hand-written teaching ranges or rest on Rail's narrowing model, not on a solve of the whole hand. The direction is what to take away.",
+    "turn-tree":
+      "Rail solves the turn with one bet size, three quarters of the pot, plus all-in when the stacks are short, and a coarse river below it: the same tree that grades your own turns. Smaller turn bets and overbets are taught here in words and on the river, whose solve has more sizes.",
     conceptual: "Conceptual: Rail does not analyse this spot yet, so this lesson teaches the idea without a graded drill.",
     "straddle-not-analysed": "Rail does not analyse straddled pots yet: there are no straddle charts, so this is taught in words.",
   } as Record<string, string>,
@@ -228,7 +230,7 @@ export const courseEn = {
     "own-hands": "Your own analysed hands in this spot",
     "range-split": "Sorting a whole range's hand classes into actions, graded by Rail's solve per class",
     "depth-split": "Sorting hand classes at 200bb against 100bb (planned)",
-    "range-paint": "Painting a range on the 13×13 grid (planned)",
+    "range-paint": "Painting a range on the 13×13 grid, graded cell by cell against Rail's chart or solve",
     "range-walk": "Guessing a range street by street on your own hand (planned)",
     "pot-tracking": "Keeping track of the pot in a live-style hand (planned)",
     "profile-quiz": "Naming player types from their stats (planned)",
@@ -269,7 +271,7 @@ export const courseEn = {
     noSpot: "No spot matched these settings. Try again.",
     planned: {
       "depth-split": "Planned: sort the same range at 200bb and at 100bb, and compare both splits with Rail's solves.",
-      "range-paint": "Planned: paint a 13×13 range and be scored against Rail's chart.",
+      "range-paint": "Planned: paint a straddled seat's range on the 13×13 grid, once Rail has straddle charts to score it against.",
       "range-walk": "Planned: replay one of your hands and guess the opponent's range on each street, then compare with Rail's narrowing.",
       "pot-tracking": "Planned: a live-style hand where you keep track of the pot.",
       "profile-quiz": "Planned: name your opponents' types from their stats.",
@@ -314,12 +316,10 @@ export const courseEn = {
 
   split: {
     question: (street: string) =>
-      street === "turn"
-        ? "Your whole range is here on the turn. Put each hand class where you think Rail's solve mostly plays it."
-        : "Your whole range is here on the flop. Put each hand class where you think Rail's solve mostly plays it.",
-    groups: { check: "Check", small: "Small bet", big: "Big bet", fold: "Fold", call: "Call", raise: "Raise" } as Record<string, string>,
+      `Your whole range is here on the ${street === "river" ? "river" : street === "turn" ? "turn" : "flop"}. Put each hand class where you think Rail's solve mostly plays it.`,
+    groups: { check: "Check", small: "Small bet", big: "Big bet", overbet: "Overbet", fold: "Fold", call: "Call", raise: "Raise" } as Record<string, string>,
     you: "You",
-    first: (street: string) => (street === "turn" ? "You are first to act on the turn." : "You are first to act on the flop."),
+    first: (street: string) => `You are first to act on the ${street === "river" ? "river" : street === "turn" ? "turn" : "flop"}.`,
     step: (who: string, kind: string, sizePot: number) =>
       kind === "check"
         ? `${who} checks.`
@@ -339,6 +339,8 @@ export const courseEn = {
       `From Rail's flop library: the ${line} chart ranges solved on this flop (bets of 33% and 75% of the pot, one raise, all-in), ${iterations} iterations, within ${exploitability}% of the pot. A small bet here is up to half the pot. A class counts as right when Rail plays your choice within 15 points of its most played one.`,
     turnNote:
       "From a turn solve on demand: the charts' preflop ranges narrowed on the flop by Rail's heuristic model, the turn solved with bets of 75% of the pot and all-in. A class counts as right when Rail plays your choice within 15 points of its most played one.",
+    riverNote:
+      "From a river solve on demand: the charts' preflop ranges narrowed on the flop and turn by Rail's heuristic model, the river solved with bets of 33%, 75% and 150% of the pot and all-in. A small bet is up to half the pot, a big one up to the pot, an overbet more. A class counts as right when Rail plays your choice within 15 points of its most played one.",
     made: {
       "fh+": "Full house or better",
       flush: "Flush",
@@ -363,6 +365,53 @@ export const courseEn = {
       gut: "gutshot",
       bd: "backdoor draws",
     } as Record<string, string>,
+  },
+
+  paint: {
+    questionOpen: (seat: string) => `Paint every hand ${seat} plays when the action folds to it: raises or limps.`,
+    questionBet: "Paint the hands of your range here that Rail's solve bets.",
+    questionContinue: "Paint the hands of your range here that Rail's solve continues with: calls or raises.",
+    how: (inside: string, outside: string, pass: string) =>
+      `Click or drag to paint, arrow keys and Space work too. A hand Rail plays at least ${inside} of the time must be painted, one it plays at most ${outside} left empty, and anything in between counts either way. You need ${pass} of the hands that matter, weighted by combos.`,
+    cell: (hand: string, on: boolean) => `${hand}, ${on ? "painted" : "not painted"}`,
+    cellGraded: (hand: string, on: boolean, share: string, state: string | null) =>
+      `${hand}, ${on ? "painted" : "not painted"}, Rail ${share}${state === "right" ? ", right" : state === "missed" ? ", should be painted" : state === "extra" ? ", should be empty" : ""}`,
+    notInRange: (hand: string) => `${hand}: not in the range here`,
+    railShare: (hand: string, share: string) => `${hand}: Rail ${share}`,
+    clear: "Clear",
+    check: "Check my painting",
+    result: (score: string, passed: boolean) => `${score} of the hands that matter right${passed ? " — counts as right." : " — not enough to count as right."}`,
+    counts: (missed: number, extra: number) =>
+      `${missed === 1 ? "1 hand" : `${missed} hands`} left empty that Rail plays (−), ${extra === 1 ? "1 hand" : `${extra} hands`} painted that Rail does not (+).`,
+    legend: "✓ right · − should be painted · + should be empty. Hover a hand, or focus it, to see how often Rail plays it.",
+    chartNote: (set: string) => `From Rail's ${set} chart: each hand's share of plays when the action folds to the seat.`,
+    riverNote: (iterations: string, exploitability: string) =>
+      `From a river solve on demand (the charts' preflop ranges narrowed on the flop and turn by Rail's heuristic model; bets of 33%, 75% and 150% of the pot and all-in; ${iterations} iterations, within ${exploitability}% of the pot). A hand's share is over the combos of it your range still holds here.`,
+  },
+
+  mastery: {
+    title: "In your own hands since you passed it",
+    loading: "Reading your analysed hands…",
+    failed: (message: string) => `Could not read your hands: ${message}`,
+    noSpots: "This lesson is not tied to one spot of the leak finder, so Rail cannot measure it from your hands.",
+    since: (day: string) => `Your graded decisions in this lesson's spots, before and after ${day}.`,
+    before: "Before",
+    after: "After",
+    decisions: (n: number) => (n === 1 ? "1 decision" : `${n} decisions`),
+    perDecision: (bb: string, pot: string) => `${bb} lost per decision (${pot} of the pot)`,
+    mistakes: (rate: string) => `${rate} graded Inaccurate or worse`,
+    none: "No graded decisions",
+    tooFew: (min: number) => `Not enough hands yet: Rail names a change from ${min} graded decisions on each side.`,
+    trend: {
+      better: "Better since you passed it: the change is bigger than the sample's noise.",
+      "leaning-better": "Leaning better since you passed it, though it could still be noise.",
+      steady: "About the same as before: no change the sample can see yet.",
+      "leaning-worse": "Leaning worse since you passed it, though it could still be noise. A replay of the lesson may help.",
+      worse: "Worse since you passed it, by more than the sample's noise. Worth a second look at the lesson.",
+      "too-few": "Not enough hands yet.",
+    } as Record<string, string>,
+    method:
+      "Measured by mean move score with the leak finder's own test, on hands played before and after the day you passed the lesson, at the current analysis version. Nothing is stored: it updates as you upload and analyse more hands.",
   },
 
   spot: {

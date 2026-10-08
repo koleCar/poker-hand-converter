@@ -39,7 +39,7 @@ import {
   MAX_ATTEMPTS,
   MIN_VILLAIN_FREQ,
   PATTERN_WEIGHTS,
-  drawPattern,
+  drawFlopPattern,
   facingWeights,
   filterSeat,
   flopPlayers,
@@ -51,6 +51,7 @@ import {
   riverSeatings,
   round2,
   shuffled,
+  type FlopLineFilter,
   type RiverLine,
   type RiverMenuItem,
   type RiverPot,
@@ -66,6 +67,8 @@ export interface TurnSpotOptions {
   bias?: DealBias;
   /** In position: only spots where the villain checked or bet first. Asking makes the hero the in-position player. */
   facing?: "check" | "bet" | "any";
+  /** Only turns after the flop checked through (`checked`) or after a flop bet was called (`bet`) (Learn L3). */
+  flop?: FlopLineFilter;
 }
 
 export interface TurnTrainerSpot {
@@ -147,7 +150,13 @@ export function turnSetup(charts: ChartSet, options: TurnSpotOptions, rng: Rng, 
   const base: HandScript = { id: `TT${seed.toString(36)}`, hero, heroCards: null, stackBb, preflop, board };
 
   const afterPre = scriptMoney(base);
-  const flop = patternActs(drawPattern(PATTERN_WEIGHTS[initiative].flop, rng), oop, ip, afterPre.pot, Math.min(afterPre.behind[oop], afterPre.behind[ip]));
+  const flop = patternActs(
+    drawFlopPattern(PATTERN_WEIGHTS[initiative].flop, options.flop, rng),
+    oop,
+    ip,
+    afterPre.pot,
+    Math.min(afterPre.behind[oop], afterPre.behind[ip]),
+  );
   const toTurn: HandScript = { ...base, flop, turn: [] };
   const money = scriptMoney(toTurn);
   const potBb = money.streetPot.turn ?? 0;

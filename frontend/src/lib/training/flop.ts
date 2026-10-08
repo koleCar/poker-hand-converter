@@ -223,7 +223,7 @@ export function heroNode(
   hero: 0 | 1,
   facing: FlopFacing | undefined,
   rng: Rng,
-  street: "flop" | "turn" = "flop",
+  street: "flop" | "turn" | "river" = "flop",
 ): { node: number; steps: TreeStep[] } | null {
   const steps: TreeStep[] = [];
   let node = 0;

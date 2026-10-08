@@ -204,7 +204,21 @@ describe("the course catalogue", () => {
           if (def.seat) expect(ALL_PREFLOP_SEATS).toContain(def.seat);
           if (def.vs) expect(ALL_PREFLOP_SEATS).toContain(def.vs);
         }
+        if (def.kind === "range-paint" && !isPlanned(def)) {
+          // L3: a chart's first-in range (a real set and seat), or a river node (the river filters).
+          if (def.source === "chart") {
+            if (def.set) expect(sets.has(def.set), `${meta.id}/${def.id}`).toBe(true);
+            if (def.seat) expect(ALL_PREFLOP_SEATS).toContain(def.seat);
+          } else {
+            expect([...RIVER_POTS, "any"]).toContain(def.pot);
+            expect([...RIVER_SEATS, "any"]).toContain(def.seat);
+            expect([...RIVER_ROLES, "any"]).toContain(def.role);
+            if (def.facing === "check") expect(def.seat === "ip" || def.seat === "any").toBe(true);
+          }
+        }
         if (def.kind === "solver-spot" || def.kind === "range-split") {
+          // The flop line before a turn (L3) filters turns only.
+          if (def.flop) expect(def.street, `${meta.id}/${def.id}`).toBe("turn");
           expect([...RIVER_POTS, "any"]).toContain(def.pot);
           expect([...RIVER_SEATS, "any"]).toContain(def.seat);
           expect([...RIVER_ROLES, "any"]).toContain(def.role);
@@ -213,7 +227,7 @@ describe("the course catalogue", () => {
             expect(["check", "bet", "raise", "any", undefined]).toContain(def.facing);
             if (def.facing === "check") expect(def.seat === "ip" || def.seat === "any").toBe(true);
             if (def.line) expect(FLOP_LINES.map((l) => l.id), `${meta.id}/${def.id}`).toContain(def.line);
-            if (def.kind === "range-split") expect(["flop", "turn"]).toContain(def.street);
+            if (def.kind === "range-split") expect(["flop", "turn", "river"]).toContain(def.street);
           } else {
             expect(def.line, `${meta.id}/${def.id}`).toBeUndefined();
             expect(def.facing === "raise", `${meta.id}/${def.id}`).toBe(false);
@@ -251,7 +265,7 @@ describe("the course catalogue", () => {
     }
   });
 
-  it("has L1's preflop lessons and the whole flop track written (L2), and nothing later yet", () => {
+  it("has L1's preflop lessons, the flop track (L2) and the turn and river tracks (L3) written, and no exploits yet", () => {
     const written = writtenLessons().map((meta) => meta.id);
     expect(written).toEqual([
       "positions-and-opening-ranges",
@@ -263,8 +277,10 @@ describe("the course catalogue", () => {
       "squeezes-and-multiway-preflop",
       "blind-play-and-bvb",
       ...TRACKS.flop.flatMap((module) => lessonsIn(module).map((meta) => meta.id)),
+      ...TRACKS.turn.flatMap((module) => lessonsIn(module).map((meta) => meta.id)),
+      ...TRACKS.river.flatMap((module) => lessonsIn(module).map((meta) => meta.id)),
     ]);
-    expect(written).toHaveLength(8 + 19);
+    expect(written).toHaveLength(8 + 19 + 7 + 7);
   });
 
   it("matches leaks with real streets and flags", () => {
@@ -456,15 +472,17 @@ describe("the lessons' words", () => {
       // Written in L2: alpha / MDF where a flop bet is defended, range and nut advantage where the flop bet is sized.
       expect(bodyLinks(locale, "defending-vs-cbets")).toContain("bluffing-math-alpha-mdf");
       expect(bodyLinks(locale, "cbet-by-texture")).toEqual(expect.arrayContaining(["range-advantage", "nut-advantage"]));
-      // Not written yet: in the outline, for the later phase to write.
+      // Written in L3: combos and card removal where river bluffs are picked.
+      expect(bodyLinks(locale, "choosing-bluffs-blockers")).toContain("combos-and-card-removal");
+      // In the outline too.
       expect(outlineLinks(locale, "defending-vs-cbets")).toContain("bluffing-math-alpha-mdf");
       expect(outlineLinks(locale, "choosing-bluffs-blockers")).toContain("combos-and-card-removal");
       expect(outlineLinks(locale, "cbet-by-texture")).toEqual(expect.arrayContaining(["range-advantage", "nut-advantage"]));
     }
-    // A written target carries the idea in its body: the two flop lessons do since L2; R1's waits for L3.
+    // A written target carries the idea in its body: the two flop lessons since L2, R1's since L3.
     expect(LESSONS["defending-vs-cbets"].written).toBe(true);
     expect(LESSONS["cbet-by-texture"].written).toBe(true);
-    expect(LESSONS["choosing-bluffs-blockers"].written).toBe(false);
+    expect(LESSONS["choosing-bluffs-blockers"].written).toBe(true);
   });
 
   it("teach the maths in place where a flop lesson decides with it (L2)", () => {
@@ -478,6 +496,15 @@ describe("the lessons' words", () => {
     expect(checksOf("cbet-why-and-when")).toEqual(expect.arrayContaining(["alpha", "bluffEv"]));
     expect(checksOf("spr-and-commitment")).toContain("spr");
     expect(checksOf("multiway-principles")).toEqual(expect.arrayContaining(["allFold", "mdfSplit"]));
+    // L3: the turn and river lessons price in place too.
+    expect(checksOf("double-barreling")).toContain("alpha");
+    expect(checksOf("facing-turn-barrels")).toEqual(expect.arrayContaining(["requiredEquity", "mdf"]));
+    expect(checksOf("turn-sizing-and-overbets")).toContain("geometricBet");
+    expect(checksOf("3bp-turn")).toContain("spr");
+    expect(checksOf("river-polarisation")).toContain("bluffShare");
+    expect(checksOf("bluff-catching")).toEqual(expect.arrayContaining(["requiredEquity", "bluffCatcherEv", "mdf"]));
+    expect(checksOf("river-sizing")).toEqual(expect.arrayContaining(["alpha", "mdf"]));
+    expect(checksOf("3bp-river")).toEqual(expect.arrayContaining(["alpha", "requiredEquity"]));
     // The board table is Rail's own library, on the lesson that sizes flop bets.
     const widgets = [...blocks(LESSON_BODIES.en["cbet-by-texture"]!)].flatMap((block) => (typeof block !== "string" && "widget" in block ? [block.widget.id] : []));
     expect(widgets).toContain("flop-bets");
@@ -766,7 +793,21 @@ describe("review cards", () => {
     const split = cardFor(LESSONS["check-raising"], LESSONS["check-raising"].exercises[0] as GeneratedExerciseDef, 6);
     expect(split.kind).toBe("solver-spot");
     expect(split.item).toMatchObject({ k: "split", street: "flop", facing: "bet", seat: "oop" });
-    expect(parseCardItem({ k: "split", street: "river", seed: 1, pot: "srp", seat: "ip", role: "any" })).toBeNull();
+    // L3: a river split, a turn split after a checked flop, and the two kinds of paint.
+    expect(parseCardItem({ k: "split", street: "river", seed: 1, pot: "srp", seat: "ip", role: "any" })).toEqual({ k: "split", street: "river", seed: 1, pot: "srp", seat: "ip", role: "any" });
+    expect(parseCardItem({ k: "split", street: "turn", seed: 1, pot: "srp", seat: "oop", role: "caller", flop: "checked" })).toMatchObject({ flop: "checked" });
+    expect(parseCardItem({ k: "split", street: "river", seed: 1, pot: "srp", seat: "ip", role: "any", flop: "checked" })).not.toHaveProperty("flop");
+    expect(parseCardItem({ k: "split", street: "preflop", seed: 1, pot: "srp", seat: "ip", role: "any" })).toBeNull();
+    const paintChart = cardFor(LESSONS["positions-and-opening-ranges"], LESSONS["positions-and-opening-ranges"].exercises[2] as GeneratedExerciseDef, 9);
+    expect(paintChart.kind).toBe("chart-quiz");
+    expect(paintChart.item).toMatchObject({ k: "paint", source: "chart", set: "nlhe-cash-6max-100bb" });
+    const paintRiver = cardFor(LESSONS["river-polarisation"], LESSONS["river-polarisation"].exercises[1] as GeneratedExerciseDef, 9);
+    expect(paintRiver.kind).toBe("solver-spot");
+    expect(paintRiver.item).toMatchObject({ k: "paint", source: "river", facing: "check", seat: "ip" });
+    expect(parseCardItem({ k: "paint", source: "chart", seed: 1, set: "../x" })).toEqual({ k: "paint", source: "chart", seed: 1, set: null, seat: null });
+    expect(parseCardItem({ k: "paint", source: "river", seed: 1 })).toBeNull();
+    const turn = cardFor(LESSONS["turn-after-flop-checks-through"], LESSONS["turn-after-flop-checks-through"].exercises[0] as GeneratedExerciseDef, 4);
+    expect(turn.item).toMatchObject({ k: "turn", flop: "checked", facing: "check" });
     expect(parseCardItem({ k: "flop", seed: 1, pot: "srp", seat: "ip", role: "any", line: "../x" })).toEqual({ k: "flop", seed: 1, pot: "srp", seat: "ip", role: "any", bias: "range" });
     expect(parseCardItem({ k: "calc", calc: "nope", seed: 1 })).toBeNull();
     expect(parseCardItem({ k: "chart", seed: -1, family: "rfi" })).toBeNull();
@@ -830,11 +871,17 @@ describe("recommendations from leaks", () => {
     expect(lessonForArea(area("flop", "caller-oop-vs-bet", "vs-bet", "BB", "raise"), written)).toBe("check-raising");
     expect(lessonForArea(area("flop", "caller-ip-first", "first", "BB", "bet"), written)).toBe("floating-and-stabbing-ip");
     expect(lessonForArea(area("flop", "caller-oop-first", "first", "BB", "check"), written)).toBe("probes-and-donk-bets");
-    expect(lessonForArea(area("turn", "pfr-ip-first", "first", "BTN", "bet"), written)).toBe("checking-back-and-delayed-cbets");
+    // L3: turn and river leaks land on the T and R lessons.
+    expect(lessonForArea(area("turn", "pfr-ip-first", "first", "BTN", "bet"), written)).toBe("double-barreling");
+    expect(lessonForArea(area("turn", "pfr-ip-first", "first", "BTN", "check"), written)).toBe("double-barreling");
+    expect(lessonForArea(area("turn", "caller-oop-vs-bet", "vs-bet", "BB", "call"), written)).toBe("facing-turn-barrels");
+    expect(lessonForArea(area("turn", "caller-oop-vs-bet", "vs-bet", "BB", "raise"), written)).toBe("turn-check-raise-and-probe");
+    expect(lessonForArea(area("turn", "caller-oop-first", "first", "BB", "bet"), written)).toBe("turn-check-raise-and-probe");
+    expect(lessonForArea(area("river", "pfr-ip-first", "first", "BTN", "check"), written)).toBe("choosing-bluffs-blockers");
+    expect(lessonForArea(area("river", "caller-ip-vs-raise", "vs-raise", "BTN", "fold"), written)).toBe("facing-river-raises");
     expect(lessonForArea(area("flop", "caller-mw-oop-vs-bet", "vs-bet", "BB", "call"), written)).toBe("multiway-principles");
-    // Nothing written teaches a river bet as the raiser, or a river call, yet: no lesson rather than a wrong one.
-    expect(lessonForArea(area("river", "pfr-oop-first", "first", "SB", "bet"), written)).toBeNull();
-    expect(lessonForArea(area("river", "caller-ip-vs-bet", "vs-bet", "BTN", "call"), written)).toBeNull();
+    expect(lessonForArea(area("river", "pfr-oop-first", "first", "SB", "bet"), written)).toBe("thin-value");
+    expect(lessonForArea(area("river", "caller-ip-vs-bet", "vs-bet", "BTN", "call"), written)).toBe("bluff-catching");
     // The map also badges lessons that are coming soon, in the track of the hand's street.
     expect(lessonForArea(area("river", "pfr-oop-first", "first", "SB", "bet"))).toBe("thin-value");
     expect(lessonForArea(area("river", "caller-ip-vs-bet", "vs-bet", "BTN", "call"))).toBe("bluff-catching");

@@ -103,7 +103,7 @@ export const m3En: LessonBodies<
       "opens-9max":
         "The same drill at a nine-handed table. Watch how much tighter the first three seats are than anything at six-max.",
       "paint-a-seat":
-        "Paint one seat's opening range on the grid, then compare it with Rail's chart cell by cell. Coming soon.",
+        "Two seats at a six-handed table: paint the hands each one opens from Rail's 100 bb chart, then see it graded cell by cell.",
     },
     checks: [
       { fn: "allFold", args: [0.9, 2], value: 0.81 },
