@@ -227,7 +227,7 @@ export const courseEn = {
     "turn-tree":
       "Rail solves the turn with one bet size, three quarters of the pot, plus all-in when the stacks are short, and a coarse river below it: the same tree that grades your own turns. Smaller turn bets and overbets are taught here in words and on the river, whose solve has more sizes.",
     conceptual: "Conceptual: Rail does not analyse this spot yet, so this lesson teaches the idea without a graded drill.",
-    "straddle-not-analysed": "Rail does not analyse straddled pots yet: there are no straddle charts, so this is taught in words.",
+    "straddle-not-analysed": "Rail analyses one straddle only: a single 2bb straddle from the seat left of the big blind, 4-6 handed, near 100bb. Other straddled pots are taught in words.",
     "locked-read":
       "The exploit lab locks one tendency of the opponent on a river Rail solves on demand, keeps the rest of the opponent's strategy at the solve, and computes your best response. A lock is your read of a player, not a fact, and the lab works on the river only; the ranges rest on Rail's narrowing model.",
   } as Record<string, string>,

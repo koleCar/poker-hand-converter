@@ -82,8 +82,16 @@ import type { Position, Street } from "../phf/types";
  *               flop players' lookups land on sets of different depths, both
  *               are placed on the set nearest the pair's effective stack
  *               (`chartLineOf`), so their flop can read the library.
+ *   analysis/10 A2e: `charts/5`, the straddle set (6-max 100bb, a 2bb UTG
+ *               straddle). A straddled hand that fits it - one straddle, 2bb,
+ *               from the first seat left of the big blind, 4-6 handed, the
+ *               effective stack within 100bb ±20% - is graded preflop from it
+ *               instead of `chart-straddle`, its players' preflop ranges (and
+ *               the postflop walks and solves that start from them) are its,
+ *               and it no longer carries the hand-level `straddle`
+ *               approximation. Every other straddle is refused as before.
  */
-export const ANALYSIS_VERSION = "analysis/9" as const;
+export const ANALYSIS_VERSION = "analysis/10" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -205,7 +213,8 @@ export interface Flag {
  *                       the charts play their preflop line — not narrowed by
  *                       anything that happened after the flop (that is A4).
  * - `antes`             antes are in the pot; the reference has none.
- * - `straddle`          a straddle moved the blinds.
+ * - `straddle`          a straddle moved the blinds, and no chart set models it
+ *                       (A2e: the straddle set covers one straddle shape).
  * - `stack-depth`       the effective stack is outside 100bb ±20%.
  * - `table-size`        not a six-handed table (§8: v1 covers 6-max).
  *

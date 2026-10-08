@@ -2049,3 +2049,46 @@ Each phase appends what it learned that changed the plan.
     daily dose deal the lessons' existing card specs; `pot-tracking` counts
     its answer with `scriptMoney`, and `profile-read` uses the pool
     section's `foldRead`.
+- 2026-10-08 — A2e, the straddle chart set (`charts/5`), `analysis/10`
+  (`docs/CHARTS.md` §1.4, §6.8). Reopens A2d's "straddles stay refused, by
+  cost" for the one shape that holds most of them. No migration.
+  - **A third blind in the tree** (`PreflopTreeConfig.straddle`): a 2bb
+    straddle from the first seat left of the big blind, not a raise; the
+    action starts at the HJ and the straddler has the option last; both
+    blinds may complete or raise first in. The tree's players, and the set's
+    `game.positions`, are in action order (`HJ, CO, BTN, SB, BB, UTG`), so
+    every line walker reads the set with its own seats. Trees without a
+    straddle are byte-identical (node arrays hashed against `main`).
+  - **`nlhe-cash-6max-100bb-straddle`**: sizes against 2bb (open 5bb, a
+    blind's raise first in 6bb, isolation 8bb), the limp tree and its
+    tremble, the realisation measured on its own fifteen spots in two rounds
+    from `charts/2`'s fit (fit error 0.032-0.034 per pot type, against
+    0.050-0.053 for `charts/1`'s model). 854 nodes of a 4,906-node tree,
+    2.0 MB (539 KB gzip). NashConv **0.166 mbb/hand** at 3,000 iterations;
+    43 min on four threads next to the flop-library batch. HJ / CO / BTN
+    open 18.7 / 23.2 / 31.2%; the straddler defends 45 / 55 / 67% against
+    HJ / CO / BTN opens, the big blind in front of it 13-17%.
+  - **Lookup**: `pickChartSet` reads a straddled spot only on a straddle
+    set and an unstraddled one never on it; the straddle set answers one
+    straddle, its size, from the seat left of the big blind, 4-6 handed,
+    within 100bb ±20% (`straddleMismatch`). Everything else stays
+    `chart-straddle`, with a detail naming what it was.
+  - **Consumers**: preflop grades and chart ranges (`chartRange`, so the
+    range walk, the turn and river solves and the multiway narrowing) come
+    from the straddle set; the money was already the hand's own (the walk
+    counts the straddle post as live money: pot 3.5bb before the first
+    decision). A straddle the charts model no longer carries the hand-level
+    `straddle` approximation. The trainer deals the set (`HandScript.straddle`
+    posts it), the chart browser and Reports list it, and the Learn
+    `straddle-preflop` paint is real (no longer planned).
+  - **Measured on the owner's library** (`npm run charts:library`, the same
+    export at `analysis/9` and `analysis/10`): of 52 straddled decisions,
+    **41 graded** (Perfect 36, Inaccurate 2, Mistake 3) and 11 still
+    `chart-straddle` (10 outside 80-120bb, one straddle from another seat);
+    preflop graded 4,687 -> 4,728 (87.0% -> 87.8%), every other count the
+    same; solver-graded rivers on a placeholder range 172 -> 166 of 370.
+  - **Open**: other straddle shapes (button, re-straddle, other depths or
+    tables) need their own sets; straddled leaks group with unstraddled
+    6-max ones in the leak finder (no `table` tag yet), and the study plan
+    sends them to the 6-max 100bb trainer; the flop library has no straddled
+    lines.

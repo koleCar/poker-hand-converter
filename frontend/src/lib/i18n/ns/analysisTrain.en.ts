@@ -47,7 +47,7 @@ export const trainEn = {
     deal: "Hands",
     deals: { range: "As the range holds them", borderline: "Mostly the close ones" } as Record<string, string>,
     table: "Table",
-    tableValue: (players: number, stack: number) => `${players}-max · ${num(stack)} bb · cash`,
+    tableValue: (players: number, stack: number, straddle = false) => `${players}-max · ${num(stack)} bb · ${straddle ? "straddle · " : ""}cash`,
     pot: "Pot",
     pots: { any: "Any pot", ...potNames } as Record<string, string>,
     side: "Your position",

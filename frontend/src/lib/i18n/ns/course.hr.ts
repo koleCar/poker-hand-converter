@@ -225,7 +225,7 @@ export const courseHr = {
     "turn-tree":
       "Rail rješava turn s jednom veličinom beta, tri četvrtine pota, plus all-in kad su stackovi kratki, i grubim riverom ispod njega: isto stablo koje ocjenjuje tvoje turnove. Manji betovi na turnu i overbetovi ovdje se uče riječima i na riveru, čije rješenje ima više veličina.",
     conceptual: "Konceptualno: Rail ovu situaciju još ne analizira, pa lekcija uči ideju bez ocijenjene vježbe.",
-    "straddle-not-analysed": "Rail još ne analizira potove sa straddleom: chartova za straddle nema, pa se ovo uči riječima.",
+    "straddle-not-analysed": "Rail analizira samo jedan straddle: jedan straddle od 2 bb sa sjedala lijevo od big blinda, za 4-6 igrača, oko 100 bb. Ostali potovi sa straddleom uče se riječima.",
     "locked-read":
       "Exploit laboratorij zaključava jednu protivnikovu sklonost na riveru koji Rail rješava na zahtjev, ostatak protivnikove strategije ostavlja kakav je u solveu i računa tvoj najbolji odgovor. Zaključavanje je tvoja procjena igrača, a ne činjenica, i laboratorij radi samo na riveru; rasponi počivaju na Railovu modelu sužavanja.",
   } as Record<string, string>,

@@ -84,7 +84,9 @@ export function report(charts: ChartSet): string {
     lines.push(`  ${name.padEnd(11)} ${s ? `fold ${pct(s.fold)}  call ${pct(s.call)}  4-bet ${pct((s.raise ?? 0) + (s.allin ?? 0))}` : "not in the set"}`);
   }
   const limp = split(charts, "f".repeat(n - 2) + "c");
-  if (limp) lines.push(`BB vs SB limp: check ${pct(limp.check)}  raise ${pct(limp.raise)}`);
+  // Without a straddle the big blind behind the small blind's completion; with one, the straddler behind the big blind's.
+  const option = charts.game.straddle ? `${charts.game.straddle.position} (straddle) vs BB limp` : "BB vs SB limp";
+  if (limp) lines.push(`${option}: check ${pct(limp.check)}  raise ${pct(limp.raise)}`);
   lines.push(...limpReport(charts));
   return lines.join("\n");
 }

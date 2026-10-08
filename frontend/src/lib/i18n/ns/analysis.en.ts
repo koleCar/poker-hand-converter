@@ -181,7 +181,7 @@ function mixLabel(decision: DecisionAnalysis): string {
  * Keyed by the lookup's reason (`CHART_SKIP_REASONS`).
  */
 const chartReasons = {
-  "chart-straddle": "a straddle changes every price, and no chart covers it",
+  "chart-straddle": "a straddle changes every price, and the charts cover only one: a single 2bb straddle from the seat left of the big blind, 4-6 handed, near 100bb",
   "chart-ante": "antes are in the pot, and the cash charts have none",
   "chart-players": "the charts cover three to nine players (a smaller table is read with the earliest seats folded); heads-up is not covered",
   "chart-stack-depth": "the effective stack is more than 20% from every chart set's depth (6-max: 40, 60, 100, 150, 200 bb; 9-max: 100, 150, 200 bb)",
@@ -791,7 +791,7 @@ export const analysisEn = {
     "placeholder-range": "Equities against default placeholder ranges (no chart node for the opponent's line)",
     "preflop-range": "Equities against the charts' preflop ranges, not narrowed by later betting",
     antes: "Antes in the pot",
-    straddle: "A straddle moved the blinds",
+    straddle: "A straddle moved the blinds, and no chart set models this one",
     "stack-depth": "Stacks outside 100 bb ±20%",
     "table-size": "Not a six-handed table",
     model: "Preflop charts (charts/2 to charts/4) still under-rate a few implied-odds hands (UTG's small pairs and suited connectors) and the button's flat of a cutoff open",
@@ -1156,7 +1156,7 @@ export const analysisEn = {
     failed: (message: string) => `The charts did not load: ${message}`,
     table: "Table and depth",
     /** A chart set: "6-max, 100bb". */
-    setOption: (players: number, stackBb: number) => `${players}-max, ${stackBb}bb`,
+    setOption: (players: number, stackBb: number, straddle = false) => `${players}-max, ${stackBb}bb${straddle ? ", straddle" : ""}`,
     category: "Scenario",
     spot: "Spot",
     categories: {

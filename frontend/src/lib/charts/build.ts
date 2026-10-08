@@ -266,7 +266,7 @@ export function buildChartSet(solver: PreflopSolver, options: BuildChartOptions)
       level === 1 &&
       !isoRaise &&
       firstDecision &&
-      (position === "SB" || position === "BB") &&
+      (position === "SB" || position === "BB" || (tree.straddle !== null && actor === n - 1)) &&
       STEAL_POSITIONS.includes(positions[opener])
     ) {
       out.vsSteal = true;
@@ -314,6 +314,7 @@ export function buildChartSet(solver: PreflopSolver, options: BuildChartOptions)
       players: n,
       positions: [...positions],
       stackBb: tree.stackBb,
+      ...(tree.straddle ? { straddle: { position: tree.straddle.position as ChartPosition, bb: tree.straddle.bb } } : {}),
     },
     model: {
       ...options.model,

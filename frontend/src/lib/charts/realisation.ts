@@ -128,6 +128,35 @@ export const REALISATION_SPOTS: readonly RealisationSpotSpec[] = [
 ];
 
 /**
+ * The measured spots of a straddled tree (A2e, the 6-max UTG straddle): the
+ * same roles in every pot type, with the straddler in the big blind's place
+ * as the last blind - the raiser in position against the straddler and the
+ * big blind, out of position against the button and against the straddler
+ * (the small blind's open); the straddler and the small blind 3-betting the
+ * button, the button 3-betting earlier opens; 4-bets out of position (in
+ * position, a 4-bet over the straddler's 4x 3-bet is past 40% of the stack
+ * and all-in); and the limped pots a blind's completion makes, the small
+ * blind's and the big blind's, the straddler checking behind.
+ */
+export const STRADDLE_REALISATION_SPOTS: readonly RealisationSpotSpec[] = [
+  { potType: "srp", actions: [["BTN", "r"], ["UTG", "c"]] },
+  { potType: "srp", actions: [["CO", "r"], ["UTG", "c"]] },
+  { potType: "srp", actions: [["HJ", "r"], ["UTG", "c"]] },
+  { potType: "srp", actions: [["BTN", "r"], ["BB", "c"]] },
+  { potType: "srp", actions: [["CO", "r"], ["BTN", "c"]], candidates: "BTN" },
+  { potType: "srp", actions: [["HJ", "r"], ["BTN", "c"]], candidates: "BTN" },
+  { potType: "srp", actions: [["SB", "r"], ["UTG", "c"]] },
+  { potType: "3bet", actions: [["BTN", "r"], ["UTG", "r"], ["BTN", "c"]] },
+  { potType: "3bet", actions: [["BTN", "r"], ["SB", "r"], ["BTN", "c"]] },
+  { potType: "3bet", actions: [["CO", "r"], ["BTN", "r"], ["CO", "c"]] },
+  { potType: "3bet", actions: [["HJ", "r"], ["BTN", "r"], ["HJ", "c"]] },
+  { potType: "4bet", actions: [["CO", "r"], ["BTN", "r"], ["CO", "r"], ["BTN", "c"]] },
+  { potType: "4bet", actions: [["HJ", "r"], ["CO", "r"], ["HJ", "r"], ["CO", "c"]] },
+  { potType: "limped", actions: [["SB", "c"], ["UTG", "k"]], candidates: "SB" },
+  { potType: "limped", actions: [["BB", "c"], ["UTG", "k"]], candidates: "BB" },
+];
+
+/**
  * The terminal a spec leads to in this tree, or -1 (a player missing, an
  * action not offered); `decisions` gets the node of each scripted action.
  */
@@ -199,10 +228,15 @@ export interface PreparedSpot {
  * The spots of `REALISATION_SPOTS` that exist in this tree with a big enough
  * range on both sides (at least `minCombos` reach-weighted combos).
  */
-export function prepareSpots(solver: PreflopSolver, minClassReach: number, minCombos = 8): PreparedSpot[] {
+export function prepareSpots(
+  solver: PreflopSolver,
+  minClassReach: number,
+  minCombos = 8,
+  specs: readonly RealisationSpotSpec[] = REALISATION_SPOTS,
+): PreparedSpot[] {
   const tree = solver.tree;
   const out: PreparedSpot[] = [];
-  for (const spec of REALISATION_SPOTS) {
+  for (const spec of specs) {
     const decisions: number[] = [];
     const node = spotTerminal(tree, spec, decisions);
     if (node < 0 || POT_TYPE_INDEX[tree.potType[node]] !== spec.potType) continue;
@@ -868,6 +902,8 @@ export interface RealisedGenerateOptions extends Omit<GenerateOptions, "realisat
   start?: RealisationModel;
   /** The fitted model's recorded name. Default `charts/2-solver-fit`. */
   fitName?: string;
+  /** The spots measured each round. Default `REALISATION_SPOTS` (a straddled tree: `STRADDLE_REALISATION_SPOTS`). */
+  spots?: readonly RealisationSpotSpec[];
   /**
    * Runs turn+river solves. The script runs them on worker threads; the result
    * must be in job order. Default: one after another, here.
@@ -952,7 +988,8 @@ export async function generateRealisedChartSet(
       onProgress: undefined,
     });
     equity = solved.equity;
-    const spots = prepareSpots(solved.solver, measure.minClassReach).map((s) => ({ ...s, round }));
+    const specs = options.spots ?? (options.straddle ? STRADDLE_REALISATION_SPOTS : REALISATION_SPOTS);
+    const spots = prepareSpots(solved.solver, measure.minClassReach, undefined, specs).map((s) => ({ ...s, round }));
     const jobs = measurementJobs(spots, measure);
     const samples = aggregateSamples(spots, await run(jobs));
     measuredSpots.push(...spots);

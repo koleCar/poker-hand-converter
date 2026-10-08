@@ -362,7 +362,7 @@ function Settings({
           >
             {CHART_SETS.map((s) => (
               <option key={s.id} value={s.id}>
-                {t.tableValue(s.players, s.stackBb)}
+                {t.tableValue(s.players, s.stackBb, Boolean(s.straddle))}
               </option>
             ))}
           </select>

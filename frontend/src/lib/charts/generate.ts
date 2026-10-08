@@ -30,6 +30,7 @@ import {
   SIX_MAX,
   type PreflopPosition,
   type PreflopSizing,
+  type PreflopStraddle,
   type PreflopTree,
 } from "../solver/preflopTree";
 import { buildChartSet } from "./build";
@@ -43,6 +44,8 @@ export interface GenerateOptions {
   stackBb?: number;
   sizing?: Partial<PreflopSizing>;
   maxEntrants?: number;
+  /** A straddle by the first seat left of the big blind (A2e); absent: none. */
+  straddle?: PreflopStraddle;
   /** Open limps up to this many limpers (`charts/4`); 0 or absent: only the small blind limps. */
   maxLimpers?: number;
   /** The open limp's tremble (`PreflopGame.limpFloor`); only with `maxLimpers`. */
@@ -196,6 +199,7 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
     sizing: options.sizing,
     maxEntrants: options.maxEntrants,
     maxLimpers: options.maxLimpers,
+    straddle: options.straddle,
   });
   const realisation = options.realisation ?? CHARTS1_REALISATION;
   const limpFloor = tree.maxLimpers > 0 ? (options.limpFloor ?? 0) : 0;
@@ -237,7 +241,7 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
   }
 
   options.onProgress?.({ phase: "charts" });
-  const id = options.id ?? `nlhe-cash-${players.length}max-${tree.stackBb}bb`;
+  const id = options.id ?? `nlhe-cash-${players.length}max-${tree.stackBb}bb${tree.straddle ? "-straddle" : ""}`;
   const charts = buildChartSet(solver, {
     id,
     version: options.version,
@@ -249,9 +253,15 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
         maxEntrants: tree.maxEntrants,
         sbLimp: tree.sbLimp,
         ...(tree.maxLimpers > 0 ? { maxLimpers: tree.maxLimpers, limpFloor } : {}),
+        ...(tree.straddle ? { straddle: tree.straddle } : {}),
         cuts: [
+          ...(tree.straddle
+            ? [
+                `a ${tree.straddle.bb}bb straddle by ${tree.straddle.position} (a blind, not a raise): the action starts left of it and it has the option last; both blinds may complete or raise first in (the small blind's size)`,
+              ]
+            : []),
           tree.maxLimpers > 0
-            ? `open limps and over-limps from every seat but the big blind, at most ${tree.maxLimpers} limpers (the small blind's completion counts); every non-blind seat limps at least ${limpFloor} of every class (the tremble)`
+            ? `open limps and over-limps from every seat but the ${tree.straddle ? "straddler" : "big blind"}, at most ${tree.maxLimpers} limpers (the small blind's completion counts); every non-blind seat limps at least ${limpFloor} of every class (the tremble)`
             : "no open limps except the small blind's",
           "at most four players put money in voluntarily; players already in may always continue",
           "no cold call of a 3-bet or 4-bet",
@@ -279,8 +289,9 @@ export function generateChartSet(options: GenerateOptions = {}): GenerateResult 
       },
       convergence: {
         nashConvMbb: round(final.nashConvMbb, 3),
-        gainMbbByPosition: Object.fromEntries(players.map((p, k) => [p, round(final.gainMbb[k], 3)])),
-        valueBbByPosition: Object.fromEntries(players.map((p, k) => [p, round(final.value[k], 4)])),
+        // The solver's players are the tree's, in action order (a straddle puts the straddler last).
+        gainMbbByPosition: Object.fromEntries(tree.players.map((p, k) => [p, round(final.gainMbb[k], 3)])),
+        valueBbByPosition: Object.fromEntries(tree.players.map((p, k) => [p, round(final.value[k], 4)])),
         rakeBbPerHand: round(-final.valueSum, 4),
         history: convergence,
         headsUpBlindVsBlind: headsUp,

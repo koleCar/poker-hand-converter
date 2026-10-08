@@ -57,6 +57,18 @@
  *   than the blinds the pot's 4-bet is all-in (one raise level fewer: limped
  *   pots that reach a 4-bet are rare, and the level is most of the tree).
  *
+ * **A straddle** (`straddle`, A2e): a third forced bet by the first seat
+ * left of the big blind (6-max's UTG), 2bb in the committed set. It is a
+ * blind, not a raise: the pot is unopened (`level` 0) at 2bb to match, the
+ * action starts at the seat left of the straddler, and the straddler acts
+ * last preflop with the option the big blind has without one (check behind
+ * limpers, or raise). The tree's `players` are then in **action order** -
+ * `HJ, CO, BTN, SB, BB, UTG` - so line keys, actor indices and every walk of
+ * a line read the same way as in a tree without a straddle. Both blinds face
+ * the straddle: either may fold, complete (a blind's limp, with `maxLimpers`)
+ * or raise first in (`sbOpen`). Sizes against the straddle are the set's own
+ * (`PreflopSizing`, in big blinds).
+ *
  * **Flat arrays, pre-order.** Same shape as `tree.ts`: node fields in parallel
  * typed arrays, children a contiguous slice. Node 0 is the root; ids follow a
  * depth-first walk, so a chart written in node order reads like the tree.
@@ -155,6 +167,12 @@ export const DEFAULT_SIZING: Readonly<PreflopSizing> = {
   roundTo: 0.5,
 };
 
+/** A straddle: the seat that posts it (the first left of the big blind) and its size in big blinds. */
+export interface PreflopStraddle {
+  position: PreflopPosition;
+  bb: number;
+}
+
 export interface PreflopTreeConfig {
   /** Seats dealt in, in preflop action order (a subsequence of `NINE_MAX`). Default: `SIX_MAX`. */
   players?: readonly PreflopPosition[];
@@ -168,6 +186,12 @@ export interface PreflopTreeConfig {
   maxEntrants?: number;
   /** Whether the small blind may complete. Default true. */
   sbLimp?: boolean;
+  /**
+   * A straddle by the first seat left of the big blind (`players[0]` in table
+   * order), `bb` big blinds (see the header). Absent: no straddle. Needs
+   * `maxLimpers` for the blinds to complete.
+   */
+  straddle?: PreflopStraddle;
   /**
    * Open limps (`charts/4`, A2d). 0, the default, is `charts/3`'s tree: only
    * the small blind may limp (complete). Above 0 every seat but the big blind
@@ -199,7 +223,13 @@ export const FLAG_LIMPERS_CAP = 8;
 export const POT_TYPE_INDEX: readonly PotType[] = ["limped", "srp", "3bet", "4bet", "allin"];
 
 export interface PreflopTree {
+  /**
+   * The seats in preflop action order: table order (`UTG` ... `BB`), or with
+   * a straddle, starting left of the straddler and ending with it.
+   */
   readonly players: readonly PreflopPosition[];
+  /** The straddle, or null. Its seat is `players[players.length - 1]`. */
+  readonly straddle: Readonly<PreflopStraddle> | null;
   readonly stackBb: number;
   readonly sizing: Readonly<PreflopSizing>;
   readonly maxEntrants: number;
@@ -271,21 +301,30 @@ function roundSize(x: number, step: number): number {
 
 /** Builds the tree. 3,825 action nodes for 6-max with the defaults. */
 export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
-  const players = [...(config.players ?? SIX_MAX)];
-  for (const position of players) {
+  const table = [...(config.players ?? SIX_MAX)];
+  for (const position of table) {
     if (!NINE_MAX.includes(position)) {
       throw new Error(`unknown position ${position}`);
     }
   }
-  const order = players.map((p) => NINE_MAX.indexOf(p));
+  const order = table.map((p) => NINE_MAX.indexOf(p));
   for (let k = 1; k < order.length; k += 1) {
     if (order[k] <= order[k - 1]) {
       throw new Error("players must be in preflop action order");
     }
   }
-  if (players.length < 2) {
+  if (table.length < 2) {
     throw new Error("need at least two players");
   }
+  const straddle = config.straddle ? { position: config.straddle.position, bb: config.straddle.bb } : null;
+  if (straddle) {
+    if (table.length < 3 || table[0] !== straddle.position || straddle.position === "SB" || straddle.position === "BB") {
+      throw new Error("a straddle is posted by the first seat left of the big blind");
+    }
+    if (!(straddle.bb > 1)) throw new Error("a straddle is more than the big blind");
+  }
+  // Action order: with a straddle, the straddler acts last preflop.
+  const players = straddle ? [...table.slice(1), table[0]] : table;
   const n = players.length;
   const stack = config.stackBb ?? 100;
   const sizing: PreflopSizing = { ...DEFAULT_SIZING, ...config.sizing };
@@ -295,6 +334,8 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
   const sb = players.indexOf("SB");
   const bb = players.indexOf("BB");
   const postflop = players.map((p) => POSTFLOP_ORDER[p]);
+  // Who has the option in an unopened pot: checks behind limpers, may raise them.
+  const option = straddle ? n - 1 : bb;
 
   const type: number[] = [];
   const actor: number[] = [];
@@ -372,7 +413,8 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
   const raiseTo = (s: State, p: number): number => {
     let to: number;
     if (s.level === 0) {
-      to = s.limped ? isoTo(s, p) : p === sb ? sizing.sbOpen : sizing.open;
+      // A blind raising first in: the small blind, or either blind facing a straddle.
+      to = s.limped ? isoTo(s, p) : p === sb || p === bb ? sizing.sbOpen : sizing.open;
     } else if (s.level === 1) {
       if (s.isoRaise) {
         to = sizing.threeBetVsIso * s.toMatch + sizing.squeezePerCaller * s.callers * s.toMatch;
@@ -453,7 +495,7 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
             voluntary: s.voluntary | (1 << p),
             limped: s.limped || limp,
             limpers: s.limpers + (limp ? 1 : 0),
-            openLimped: s.openLimped || (limp && p !== sb),
+            openLimped: s.openLimped || (limp && p !== sb && p !== bb),
             pending: rest,
             line: s.line + "c",
           },
@@ -464,7 +506,7 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
         flags[id] |= s.level === 1 ? FLAG_MULTIWAY_CAP : FLAG_COLD_CALL_CUT;
       }
     } else {
-      // Not facing a bet: only the BB (unopened, or after an SB limp) gets here.
+      // Not facing a bet: only the option (the BB, or the straddler) gets here, after limps.
       edges.push({ code: "k", to: s.contrib[p], next: { ...s, pending: rest, line: s.line + "k" } });
     }
 
@@ -523,8 +565,8 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
         // Only the small blind may limp (complete); nobody limps behind.
         return p === sb && sbLimp && !s.limped;
       }
-      // Anyone but the big blind (who checks), up to `maxLimpers` limpers.
-      if (p === bb || (p === sb && !sbLimp)) return false;
+      // Anyone but the option (who checks), up to `maxLimpers` limpers.
+      if (p === option || (p === sb && !sbLimp)) return false;
       return s.limpers < maxLimpers && mayEnter(s, isVoluntary);
     }
     if (s.level === 1) {
@@ -544,11 +586,12 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
   const contrib = new Array(n).fill(0);
   if (sb >= 0) contrib[sb] = 0.5;
   if (bb >= 0) contrib[bb] = 1;
+  if (straddle) contrib[n - 1] = straddle.bb;
   const root: State = {
     contrib,
     live: (1 << n) - 1,
     level: 0,
-    toMatch: bb >= 0 ? 1 : 0.5,
+    toMatch: straddle ? straddle.bb : bb >= 0 ? 1 : 0.5,
     aggressor: -1,
     callers: 0,
     voluntary: 0,
@@ -583,6 +626,7 @@ export function buildPreflopTree(config: PreflopTreeConfig = {}): PreflopTree {
 
   return {
     players,
+    straddle,
     stackBb: stack,
     sizing,
     maxEntrants,

@@ -28,8 +28,11 @@ import {
   isOpenLimpNode,
   OFF_RANGE,
   handClassOf,
+  isChartLibrary,
   lookupPreflop,
+  pickChartSet,
   preflopSpotFromHand,
+  straddleMismatch,
   type ChartApproximation,
   type ChartLookup,
   type ChartSet,
@@ -47,10 +50,10 @@ import type { Approximation, ChartRef, ChartSkipReason, OptionAnalysis } from ".
  * a flop with the flop checked (`docs/CHARTS.md` §9): UTG folds 55–22,
  * 87s–54s and A5s, and the button almost never flats a cutoff open. It stays
  * on the list, and `modelCaveat` names those hands. `charts/4` (A2d, limp
- * trees) and `charts/3` (A2c) are the
- * same model at other tables and depths, with the same weakness.
+ * trees), `charts/3` (A2c) and `charts/5` (A2e, the straddle set) are the
+ * same model at other tables, depths and blinds, with the same weakness.
  */
-export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2", "charts/3", "charts/4"];
+export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2", "charts/3", "charts/4", "charts/5"];
 
 /** Probability mass, in combos, below which a chart range is too thin to measure an equity against. */
 const MIN_RANGE_COMBOS = 1;
@@ -185,6 +188,21 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
     freqDiff: round4(result.freqDiff),
     score: round2(result.score),
   };
+}
+
+/**
+ * Whether the charts model this hand's straddle (A2e): the hero's first
+ * preflop spot is one a straddle set answers - a single 2bb straddle from
+ * the first seat left of the big blind, 4-6 handed, near 100bb. Such a hand
+ * is graded preflop and its ranges start from that set, so it does not carry
+ * the hand-level `straddle` approximation.
+ */
+export function chartsModelStraddle(hand: PhfHand, heroSeat: number, charts: ChartSet | null): boolean {
+  if (!charts) return false;
+  const found = preflopSpotFromHand(hand, 0, heroSeat);
+  if (!found.ok || !found.spot.straddle) return false;
+  if (isChartLibrary(charts)) return pickChartSet(charts.specs, found.spot).ok;
+  return straddleMismatch(charts.game.straddle ?? null, charts.game.positions.length, found.spot) === null;
 }
 
 /* ---------------------------------------------------------------- ranges - */

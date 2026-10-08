@@ -27,7 +27,8 @@
  * `charts/1` was the hand-set realisation model, `charts/2` (same format) the
  * one fitted to the postflop solver (docs/CHARTS.md §4), `charts/3` the
  * library of sets (9-max, 40-200bb; `registry.ts`), `charts/4` the limp
- * trees (open limps and over-limps from every seat, A2d). Each set carries the
+ * trees (open limps and over-limps from every seat, A2d), `charts/5` the
+ * straddle set (a 6-max 100bb UTG straddle, A2e). Each set carries the
  * version of the generator that made it and its own `id`. A regenerated set
  * with new numbers changes `model.hash`, and the analysis version
  * (`ANALYSIS_VERSION`) is what tells stored grades apart.
@@ -36,15 +37,16 @@
 import { NUM_CLASSES } from "../solver/handClasses";
 import { decodeBase64, encodeBase64 } from "./base64";
 
-export const CHARTS_VERSION = "charts/4";
+export const CHARTS_VERSION = "charts/5";
 
 /**
  * Versions a chart set file may carry. Each set records the generator that
  * made it: the 6-max 100bb set is still `charts/2`'s; the sets added in A2c
  * (9-max, other depths) are `charts/3`'s - the same model, measured at their
- * own table and depth. `CHARTS_VERSION` names the library (`registry.ts`).
+ * own table and depth; the limp trees are `charts/4`'s, the straddle set
+ * `charts/5`'s. `CHARTS_VERSION` names the library (`registry.ts`).
  */
-export const CHART_SET_VERSIONS: readonly string[] = ["charts/2", "charts/3", "charts/4"];
+export const CHART_SET_VERSIONS: readonly string[] = ["charts/2", "charts/3", "charts/4", "charts/5"];
 
 /** Seat names as the stats engine assigns them (`positionRing`), 6-max or 9-max. */
 export type ChartPosition = "UTG" | "UTG+1" | "UTG+2" | "LJ" | "HJ" | "CO" | "BTN" | "SB" | "BB";
@@ -124,8 +126,15 @@ export interface ChartSetJson {
     limit: "nl";
     format: "cash";
     players: number;
+    /**
+     * The seats in preflop action order (the actor of each line letter follows
+     * from them): table order, or with a straddle, starting left of the
+     * straddler and ending with it.
+     */
     positions: ChartPosition[];
     stackBb: number;
+    /** A straddle set (A2e): who posts it (the first seat left of the big blind) and its size in bb. */
+    straddle?: { position: ChartPosition; bb: number };
   };
   /** Every assumption and the measured convergence; free-form but stable. */
   model: Record<string, unknown> & { hash: string };

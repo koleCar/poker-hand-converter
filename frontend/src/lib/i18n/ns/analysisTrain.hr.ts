@@ -49,7 +49,7 @@ export const trainHr = {
     deal: "Ruke",
     deals: { range: "Kako ih range drži", borderline: "Uglavnom tijesne odluke" } as Record<string, string>,
     table: "Stol",
-    tableValue: (players: number, stack: number) => `${players}-max · ${num(stack)} bb · cash`,
+    tableValue: (players: number, stack: number, straddle = false) => `${players}-max · ${num(stack)} bb · ${straddle ? "straddle · " : ""}cash`,
     pot: "Pot",
     pots: { any: "Bilo koji pot", ...potNames } as Record<string, string>,
     side: "Tvoja pozicija",

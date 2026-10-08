@@ -24,11 +24,11 @@
  *   bytes.
  */
 
-import type { PreflopPosition, PreflopSizing } from "../../../frontend/src/lib/solver/preflopTree.js";
+import type { PreflopPosition, PreflopSizing, PreflopStraddle } from "../../../frontend/src/lib/solver/preflopTree.js";
 
 export interface SetConfig {
   id: string;
-  version: "charts/2" | "charts/3" | "charts/4";
+  version: "charts/2" | "charts/3" | "charts/4" | "charts/5";
   players: readonly PreflopPosition[];
   stackBb: number;
   sizing?: Partial<PreflopSizing>;
@@ -44,6 +44,8 @@ export interface SetConfig {
   limpFloor?: number;
   /** Nodes behind an open limp are kept down to this reach. */
   minLimpReach?: number;
+  /** A straddle by the first seat left of the big blind (`charts/5`). */
+  straddle?: PreflopStraddle;
 }
 
 /**
@@ -83,6 +85,34 @@ const a2c = (players: readonly PreflopPosition[], stackBb: number, sizing: Parti
 const a2d = (config: SetConfig): SetConfig => ({ ...config, version: "charts/4", reuseFit: true, ...LIMPS });
 
 /**
+ * `charts/5` (A2e): the 6-max 100bb set with a 2bb straddle from UTG
+ * (docs/CHARTS.md §1.4). A third blind: the action starts at the HJ and the
+ * straddler has the option last. Every size the big blind sets is doubled -
+ * the open is 2.5 straddles (5bb), the small blind's and the big blind's
+ * raise first in 3 straddles (6bb), an isolation 4 straddles (8bb) plus one
+ * per further limper and one out of position; 3-bets and 4-bets are the same
+ * multiples of the raise. At 100bb that is a 50-straddle game, so the
+ * `allInAbove` rule makes the 4-bet over a 4x (out of position) 3-bet a shove.
+ * The limp tree and its tremble as in `charts/4`. The realisation is
+ * measured on its own ranges, A2c's way (two rounds from `charts/2`'s fit),
+ * on the straddled tree's own spots (`STRADDLE_REALISATION_SPOTS`): the
+ * stack-to-pot ratios of a straddled pot are a 50bb game's, and the
+ * straddler is a blind the fitted spots never saw.
+ */
+const STRADDLE: SetConfig = {
+  id: "nlhe-cash-6max-100bb-straddle",
+  version: "charts/5",
+  players: SIX,
+  stackBb: 100,
+  sizing: { open: 5, sbOpen: 6, isoVsLimp: 8, isoPerLimper: 2, isoOop: 2, allInAbove: ALL_IN_ABOVE },
+  rounds: 2,
+  start: "charts/2-fit",
+  fitName: "charts/5-solver-fit-6max-100bb-straddle",
+  ...LIMPS,
+  straddle: { position: "UTG", bb: 2 },
+};
+
+/**
  * Every committed set, in the order the limp refusals of the owner's library
  * ask for them (A2d: 9-max 100bb 399, 6-max 100bb 284, 6-max 150bb 90, 9-max
  * 150bb 77, 9-max 200bb 60, 6-max 60bb 18, 6-max 200bb 3, 6-max 40bb 2).
@@ -105,6 +135,7 @@ export const SET_CONFIGS: readonly SetConfig[] = [
   a2d(a2c(SIX, 60, STANDARD)),
   a2d(a2c(SIX, 200, STANDARD)),
   a2d(a2c(SIX, 40, SHORT)),
+  STRADDLE,
 ];
 
 export function setConfig(id: string): SetConfig {

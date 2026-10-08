@@ -62,13 +62,17 @@ describe("the registry", () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).toContain(DEFAULT_CHART_SET);
     for (const spec of CHART_SETS) {
-      expect(spec.id).toBe(`nlhe-cash-${spec.players}max-${spec.stackBb}bb`);
+      expect(spec.id).toBe(`nlhe-cash-${spec.players}max-${spec.stackBb}bb${spec.straddle ? "-straddle" : ""}`);
       const set = chartSet(spec.id);
       expect(set.id).toBe(spec.id);
       expect(set.game.positions).toHaveLength(spec.players);
       expect(set.game.stackBb).toBe(spec.stackBb);
     }
-    expect(CHART_SETS.filter((s) => s.players === 6).map((s) => s.stackBb)).toEqual([40, 60, 100, 150, 200]);
+    expect(CHART_SETS.filter((s) => s.players === 6 && !s.straddle).map((s) => s.stackBb)).toEqual([40, 60, 100, 150, 200]);
+    // charts/5 (A2e): one straddle set, 6-max 100bb, a 2bb straddle from UTG.
+    expect(CHART_SETS.filter((s) => s.straddle).map((s) => [s.id, s.straddle])).toEqual([
+      ["nlhe-cash-6max-100bb-straddle", { position: "UTG", bb: 2 }],
+    ]);
     expect(CHART_SETS.filter((s) => s.players === 9).map((s) => s.stackBb)).toEqual([100, 150, 200]);
   });
 

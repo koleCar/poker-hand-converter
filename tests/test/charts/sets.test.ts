@@ -74,7 +74,10 @@ function bbVsBtn(set: ChartSet): string {
   return "f".repeat(set.game.positions.indexOf("BTN")) + "rf";
 }
 
-describe.each(CHART_SETS.map((spec) => [spec.id, spec] as const))("%s", (id, spec) => {
+/** The sets without a straddle; the straddle set has its own bands (`straddle.test.ts`). */
+const UNSTRADDLED = CHART_SETS.filter((spec) => !spec.straddle);
+
+describe.each(UNSTRADDLED.map((spec) => [spec.id, spec] as const))("%s", (id, spec) => {
   const set = chartSet(id);
   const model = set.model as Record<string, any>;
 
@@ -196,7 +199,7 @@ function share(set: ChartSet, line: string, actions: readonly string[]): number 
 }
 const ISO = ["raise", "allin"];
 
-describe.each(CHART_SETS.map((spec) => [spec.id, spec] as const))("%s: limped pots (charts/4)", (id) => {
+describe.each(UNSTRADDLED.map((spec) => [spec.id, spec] as const))("%s: limped pots (charts/4)", (id) => {
   const set = chartSet(id);
   const seats = set.game.positions;
   const tree = (set.model as Record<string, any>).tree;

@@ -27,6 +27,7 @@ import { cardIndex } from "../equity";
 import { classByName, classOfCards, HAND_CLASSES, NUM_CLASSES } from "../solver/handClasses";
 import {
   buildPreflopTree,
+  NINE_MAX,
   FLAG_COLD_CALL_CUT,
   FLAG_LIMP_CUT,
   FLAG_LIMPERS_CAP,
@@ -39,7 +40,14 @@ import {
 } from "../solver/preflopTree";
 import { OFF_TREE_DISTANCE, translateSize } from "../solver/translation";
 import type { ChartAction, ChartNode, ChartPosition, ChartSet } from "./format";
-import { effectiveStackBb, isChartLibrary, pickChartSet, STACK_NOTE_TOLERANCE, STACK_TOLERANCE } from "./registry";
+import {
+  effectiveStackBb,
+  isChartLibrary,
+  pickChartSet,
+  STACK_NOTE_TOLERANCE,
+  STACK_TOLERANCE,
+  straddleMismatch,
+} from "./registry";
 
 export { STACK_NOTE_TOLERANCE, STACK_TOLERANCE };
 
@@ -62,7 +70,14 @@ export interface PreflopSpot {
   /** Starting stacks in bb, by position. Missing stacks are taken as 100bb. */
   stacksBb?: Partial<Record<Position, number>>;
   ante?: boolean;
+  /** Somebody straddled. */
   straddle?: boolean;
+  /**
+   * The straddles posted, in order: who and to how much (bb). A straddle set
+   * (A2e) answers exactly one, by the first seat left of the big blind, of
+   * its size; anything else is refused (`straddle`).
+   */
+  straddles?: readonly { position: Position; toBb: number }[];
 }
 
 export type ChartMissReason =
@@ -135,8 +150,11 @@ export function chartTree(charts: ChartSet): PreflopTree {
     const model = charts.model as {
       tree?: { sizing?: PreflopSizing; maxEntrants?: number; sbLimp?: boolean; maxLimpers?: number };
     };
+    const straddle = charts.game.straddle;
     tree = buildPreflopTree({
-      players: charts.game.positions as PreflopPosition[],
+      // The builder takes table order; a straddle set stores action order.
+      players: [...(charts.game.positions as PreflopPosition[])].sort((a, b) => NINE_MAX.indexOf(a) - NINE_MAX.indexOf(b)),
+      ...(straddle ? { straddle: { position: straddle.position, bb: straddle.bb } } : {}),
       stackBb: charts.game.stackBb,
       sizing: model.tree?.sizing,
       maxEntrants: model.tree?.maxEntrants,
@@ -183,12 +201,31 @@ const miss = (reason: ChartMissReason, detail: string): ChartLookup => ({ ok: fa
 function seatMap(
   positions: readonly Position[],
   seats: readonly ChartPosition[],
+  straddler: ChartPosition | null = null,
 ): { rename: Map<Position, ChartPosition>; folded: ChartPosition[] } | null {
   const k = positions.length;
   const ring = positionRing(k);
   if (k < 3 || k > seats.length || ring.length !== k) return null;
   const given = new Set(positions);
   if (given.size !== k || ring.some((p) => !given.has(p))) return null;
+  if (straddler) {
+    // A straddle set (seats in action order, the straddler last): the table's
+    // straddler (the first seat left of the big blind) is the set's, the
+    // other seats are the set's last ones before the blinds, and the set's
+    // first seats to act - the ones left of its straddler - fold first.
+    if (k < 4) return null;
+    const order = seats.filter((p) => p !== "SB" && p !== "BB" && p !== straddler);
+    const others = ring.slice(3);
+    if (order.length + 3 !== seats.length) return null;
+    const skip = order.length - others.length;
+    const rename = new Map<Position, ChartPosition>([
+      ["SB", "SB"],
+      ["BB", "BB"],
+      [ring[2], straddler],
+    ]);
+    others.forEach((p, i) => rename.set(p, order[skip + i]));
+    return { rename, folded: order.slice(0, skip) };
+  }
   const table = ring.slice(2);
   const order = seats.filter((p) => p !== "SB" && p !== "BB");
   if (order.length + 2 !== seats.length) return null;
@@ -212,15 +249,20 @@ export function lookupPreflop(
   hand?: string | readonly string[] | null,
   heroAction?: PreflopActionInput | null,
 ): ChartLookup {
-  if (spot.straddle) return miss("straddle", "a straddle changes every price; no chart covers it");
-  if (spot.ante) return miss("ante", "antes are not modelled by the cash charts");
   if (isChartLibrary(charts)) {
+    // A straddle no set models is refused as one, ahead of everything else.
     const pick = pickChartSet(charts.specs, spot);
+    if (!pick.ok && pick.reason === "straddle") return miss("straddle", pick.detail);
+    if (spot.ante) return miss("ante", "antes are not modelled by the cash charts");
     if (!pick.ok) return miss(pick.reason, pick.detail);
     const set = charts.sets.get(pick.spec.id);
     if (!set) return miss("unavailable", `chart set ${pick.spec.id} is not loaded`);
     return lookupInSet(set, spot, hand, heroAction);
   }
+  // One set: it answers only the straddle it models (none, or its own).
+  const mismatch = straddleMismatch(charts.game.straddle ?? null, charts.game.positions.length, spot);
+  if (mismatch) return miss("straddle", mismatch);
+  if (spot.ante) return miss("ante", "antes are not modelled by the cash charts");
   return lookupInSet(charts, spot, hand, heroAction);
 }
 
@@ -236,7 +278,8 @@ function lookupInSet(
 
   // Positions onto the chart's seats.
   const seats = charts.game.positions;
-  const mapped = seatMap(spot.positions, seats);
+  const straddle = charts.game.straddle ?? null;
+  const mapped = seatMap(spot.positions, seats, straddle?.position ?? null);
   if (!mapped) {
     return miss(
       "players",
@@ -277,6 +320,11 @@ function lookupInSet(
   real.set("SB", 0.5);
   real.set("BB", 1);
   let realToMatch = 1;
+  if (straddle) {
+    // The real straddle is the set's size (`straddleMismatch`).
+    real.set(straddle.position, straddle.bb);
+    realToMatch = straddle.bb;
+  }
   let node = tree.lineIndex.get(line) ?? -1;
   if (node < 0) return miss("off-tree", "no root node");
 

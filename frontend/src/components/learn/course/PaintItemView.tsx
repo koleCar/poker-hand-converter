@@ -264,7 +264,7 @@ export function PaintItemView({ card, onAnswer }: { card: PaintCard; onAnswer: (
           <p className={styles.muted}>{t.legend}</p>
           <p className={styles.muted}>
             {item.source === "chart"
-              ? t.chartNote(dict.analysis.charts.setOption(Number(item.set.match(/(\d+)max/)?.[1] ?? 6), Number(item.set.match(/(\d+)bb/)?.[1] ?? 100)))
+              ? t.chartNote(dict.analysis.charts.setOption(Number(item.set.match(/(\d+)max/)?.[1] ?? 6), Number(item.set.match(/(\d+)bb/)?.[1] ?? 100), item.set.endsWith("-straddle")))
               : t.riverNote(f.num(item.iterations ?? 0, 0), f.num(item.exploitabilityPct ?? 0, 2))}
           </p>
         </div>

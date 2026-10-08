@@ -767,7 +767,7 @@ export const xEn: LessonBodies<
           {
             note: {
               tone: "conceptual",
-              text: "Rail has no straddle charts, so the straddled ranges are taught in words. The chart sets at shallower depths are the nearest Rail has, but they are not straddled games.",
+              text: "Rail has one straddle chart set: 6-max at 100bb with a 2bb straddle from UTG, opens to 5bb (2.5 straddles). The exercise below paints its opening ranges. Other straddles (a button straddle, a re-straddle, other depths) are still taught in words.",
             },
           },
         ],
@@ -787,7 +787,7 @@ export const xEn: LessonBodies<
     exercises: {
       "straddle-steal": "Six opens into blinds and straddles: how often must everyone fold?",
       "straddle-price": "Five calls to price against a bet: how much equity do they need?",
-      "straddle-charts": "Planned: paint a straddled seat's range once Rail has straddle charts.",
+      "straddle-charts": "Paint a seat's opening range in a straddled 6-max game at 100bb.",
     },
     checks: [
       { fn: "sum", args: [0.5, 1, 2], value: 3.5 },

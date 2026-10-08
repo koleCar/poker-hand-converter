@@ -179,7 +179,7 @@ function mixLabel(decision: DecisionAnalysis): string {
 
 /** Kraj rečenice "Bez ocjene: …", po razlogu odbijanja chartova. */
 const chartReasons = {
-  "chart-straddle": "straddle mijenja svaku cijenu, a nijedan chart ga ne pokriva",
+  "chart-straddle": "straddle mijenja svaku cijenu, a chartovi pokrivaju samo jedan: jedan straddle od 2 bb sa sjedala lijevo od big blinda, za 4-6 igrača, oko 100 bb",
   "chart-ante": "u potu je ante, a cash chartovi ga nemaju",
   "chart-players": "chartovi pokrivaju od tri do devet igrača (manji stol čita se uz foldane najranije pozicije); heads-up nije pokriven",
   "chart-stack-depth": "efektivni stack je više od 20 % udaljen od dubine svakog seta chartova (6-max: 40, 60, 100, 150, 200 bb; 9-max: 100, 150, 200 bb)",
@@ -767,7 +767,7 @@ export const analysisHr: Dict["analysis"] = {
     "placeholder-range": "Equity protiv privremenih zadanih raspona (chartovi nemaju čvor za protivnikovu liniju)",
     "preflop-range": "Equity protiv preflop raspona iz chartova, nesuženih kasnijim betovima",
     antes: "Ante u potu",
-    straddle: "Straddle je pomaknuo blindove",
+    straddle: "Straddle je pomaknuo blindove, a nijedan skup chartova ne modelira ovaj",
     "stack-depth": "Stackovi izvan 100 bb ±20 %",
     "table-size": "Nije stol za šest igrača",
     model: "Preflop chartovi (od charts/2 do charts/4) još podcjenjuju nekoliko implied-odds ruku (UTG-ove male parove i suited konektore) i flat buttona protiv cutoff opena",
@@ -1118,7 +1118,7 @@ export const analysisHr: Dict["analysis"] = {
     loading: "Učitavam chartove…",
     failed: (message: string) => `Chartovi se nisu učitali: ${message}`,
     table: "Stol i dubina",
-    setOption: (players: number, stackBb: number) => `${players}-max, ${stackBb} bb`,
+    setOption: (players: number, stackBb: number, straddle = false) => `${players}-max, ${stackBb} bb${straddle ? ", straddle" : ""}`,
     category: "Scenarij",
     spot: "Situacija",
     categories: {

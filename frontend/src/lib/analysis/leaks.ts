@@ -48,7 +48,7 @@
 
 import { positionRing } from "../phf/types";
 import type { ChartPosition } from "../charts";
-import { NINE_TABLE_ORDER, TABLE_ORDER, walkLine } from "./reports";
+import { NINE_TABLE_ORDER, seatsOfSet, TABLE_ORDER, walkLine } from "./reports";
 
 /* ------------------------------------------------------------ constants - */
 
@@ -206,7 +206,7 @@ export function spotAttrs(row: SpotRow): SpotAttrs {
   // A chart grade carries its line; the UTG open's line is empty, and is still a chart node.
   if (row.street === "preflop" && (row.line !== "" || row.scenario === "unopened")) {
     // The row's own set names its table (A2d); rows without one, the line's walk.
-    const seats = row.set ? (isNineMaxSet(row.set) ? NINE_TABLE_ORDER : TABLE_ORDER) : lineSeats(row.line, row.position);
+    const seats = row.set ? seatsOfSet(row.set) : lineSeats(row.line, row.position);
     nine = seats === NINE_TABLE_ORDER;
     const walked = walkLine(row.line, seats);
     if (walked.next) hero = walked.next;
