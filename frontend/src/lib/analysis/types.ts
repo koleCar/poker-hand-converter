@@ -76,8 +76,14 @@ import type { Position, Street } from "../phf/types";
  *               representative by hand category (`flop-mapped`) - and narrows
  *               the flop's ranges by the solved strategies, so the turn and
  *               river start from them (`flopLibrary.ts`).
+ *   analysis/9  The button-small-blind pot reads its flop chunks: a hand's
+ *               placed line (`fffrc`) matches the library's (`fffrcf`) once
+ *               trailing folds are dropped (`sameLine`); and when the two
+ *               flop players' lookups land on sets of different depths, both
+ *               are placed on the set nearest the pair's effective stack
+ *               (`chartLineOf`), so their flop can read the library.
  */
-export const ANALYSIS_VERSION = "analysis/8" as const;
+export const ANALYSIS_VERSION = "analysis/9" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

@@ -23,7 +23,7 @@
  */
 
 import type { ChartPosition, ChartSet } from "../charts";
-import { chartLineOf, FLOP_LINES, LIBRARY_MODEL, type FlopLibrary, type FlopLine } from "../analysis";
+import { chartLineOf, FLOP_LINES, sameLine, LIBRARY_MODEL, type FlopLibrary, type FlopLine } from "../analysis";
 import { cardCode, cardIndex } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import {
@@ -122,9 +122,8 @@ const readable = new Map<string, boolean>();
  * Whether a real hand on this line reads the library, as the analysis
  * places it (`chartLineOf` on a scripted hand gives the line's own key). A
  * drill is only dealt where the analysis would grade the same hand from the
- * library: since A5b, `btn-sb` is placed as `fffrc` (the big blind's fold
- * after the small blind's call is not part of either flop player's line), so
- * its chunks are never read and it is left out.
+ * library (`sameLine`: a placed `fffrc` reads the `fffrcf` chunks since
+ * `analysis/9`).
  */
 export function analysisReadsLine(charts: ChartSet, line: FlopLine): boolean {
   const key = `${charts.id}:${charts.model.hash}:${line.id}`;
@@ -134,7 +133,8 @@ export function analysisReadsLine(charts: ChartSet, line: FlopLine): boolean {
       const [oop, ip] = flopPlayers(line.key);
       const hand = scriptHand({ id: "LINE", hero: oop, heroCards: null, stackBb: charts.game.stackBb, preflop: lineActs(charts, line.key), board: ["2c", "7d", "Kh"], flop: [] });
       const seats = [seatOf(oop), seatOf(ip)];
-      ok = chartLineOf(hand, seats, charts)?.line === line.key;
+      const placed = chartLineOf(hand, seats, charts)?.line;
+      ok = placed !== undefined && sameLine(line.key, placed);
     } catch {
       ok = false;
     }

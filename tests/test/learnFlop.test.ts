@@ -60,8 +60,8 @@ describe("the loader under concurrent jobs (L2)", () => {
 });
 
 describe("which library lines the drills deal (L2)", () => {
-  it("deals only lines a real hand reads the library on: every line but btn-sb, which the analysis places as fffrc", () => {
-    for (const line of FLOP_LINES) expect(analysisReadsLine(CHARTS, line), line.id).toBe(line.id !== "btn-sb");
+  it("deals only lines a real hand reads the library on: every line, btn-sb included (placed fffrc, keyed fffrcf)", () => {
+    for (const line of FLOP_LINES) expect(analysisReadsLine(CHARTS, line), line.id).toBe(true);
   });
 });
 
