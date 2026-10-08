@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ConceptWidget } from "../../../components/learn/ConceptWidget";
-import { Formula } from "../../../components/learn/Formula";
-import { Checkpoint } from "../../../components/learn/course/Checkpoint";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ExerciseBlock } from "../../../components/learn/course/ExerciseBlock";
 import { LearnProvider } from "../../../components/learn/course/LearnStore";
+import { Block } from "../../../components/learn/course/LessonBlocks";
 import { LessonStatusChip, MasteredBanner, StorageNote } from "../../../components/learn/course/LessonStatus";
+import { RichText } from "../../../components/learn/course/RichText";
 import { ServerFrame } from "../../../components/shell/ServerFrame";
 import { getDict, getLocale } from "../../../lib/i18n/server";
-import { LESSONS, isLessonId, neighbours, type LessonMeta } from "../../../lib/learn/course";
-import { lessonBody, lessonOutline, type LessonBlock } from "../../../lib/learn/lessons";
+import { LESSONS, MOVED_LESSONS, isLessonId, isReferenceId, moduleCode, neighbours, type LessonMeta } from "../../../lib/learn/course";
+import { lessonBody, lessonOutline } from "../../../lib/learn/lessons";
 import { paths } from "../../../lib/routes";
 import styles from "../../../components/learn/course/course.module.css";
 
@@ -23,6 +22,10 @@ import styles from "../../../components/learn/course/course.module.css";
  *
  * Public and indexable like the course map: nothing on the server reads an
  * account; progress and "your hands" are the learner's, read in the browser.
+ *
+ * Old addresses keep working (L1.1): an L1 orientation, maths or range lesson
+ * is a reference page now and redirects there, and a split lesson redirects
+ * to its first half (`MOVED_LESSONS`).
  */
 
 interface PageProps {
@@ -45,40 +48,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-function Block({ block, whereLabel }: { block: LessonBlock; whereLabel: string }) {
-  if (typeof block === "string") return <p>{block}</p>;
-  if ("list" in block) {
-    return (
-      <ul className={styles.list}>
-        {block.list.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
-    );
-  }
-  if ("widget" in block) {
-    return (
-      <figure className={styles.widget}>
-        <ConceptWidget preset={block.widget} />
-        {block.caption ? <figcaption className={styles.muted}>{block.caption}</figcaption> : null}
-      </figure>
-    );
-  }
-  if ("checkpoint" in block) {
-    const c = block.checkpoint;
-    return <Checkpoint question={c.question} options={c.options} answer={c.answer} explain={c.explain} reveal={c.reveal} />;
-  }
-  if ("formula" in block) return <Formula formula={block.formula} whereLabel={whereLabel} />;
-  return (
-    <p className={styles.banner} data-tone={block.note.tone}>
-      {block.note.text}
-    </p>
-  );
+/** Where an address that is not a lesson (any more) lives now, or null. */
+function movedTo(segment: string): string | null {
+  if (isReferenceId(segment)) return paths.learnReference(segment);
+  const moved = MOVED_LESSONS[segment];
+  return moved ? paths.lesson(moved) : null;
 }
 
 export default async function LessonPage({ params }: PageProps) {
   const { lesson } = await params;
-  if (!isLessonId(lesson)) notFound();
+  if (!isLessonId(lesson)) {
+    const to = movedTo(lesson);
+    if (to) permanentRedirect(to);
+    notFound();
+  }
   const [en, locale] = await Promise.all([getDict(), getLocale()]);
   const t = en.course;
   const meta: LessonMeta = LESSONS[lesson];
@@ -96,7 +79,7 @@ export default async function LessonPage({ params }: PageProps) {
               <Link href={paths.learn()}>{t.lesson.breadcrumb}</Link>
               <span aria-hidden="true"> / </span>
               <span>
-                {t.moduleCode(Number(meta.module.slice(1)))} · {t.modules[meta.module]}
+                {t.moduleCode(moduleCode(meta.module))} · {t.modules[meta.module]}
               </span>
             </p>
             <p className={styles.lessonMeta}>
@@ -118,7 +101,9 @@ export default async function LessonPage({ params }: PageProps) {
             <h2 id={id("goals")}>{t.lesson.goals}</h2>
             <ul className={styles.list}>
               {outline.goals.map((goal) => (
-                <li key={goal}>{goal}</li>
+                <li key={goal}>
+                  <RichText text={goal} />
+                </li>
               ))}
             </ul>
             {meta.prereqs.length > 0 ? (
@@ -159,7 +144,9 @@ export default async function LessonPage({ params }: PageProps) {
                 <h2 id={id("rules")}>{t.lesson.heuristics}</h2>
                 <ul className={styles.list}>
                   {body.heuristics.rules.map((rule) => (
-                    <li key={rule}>{rule}</li>
+                    <li key={rule}>
+                      <RichText text={rule} />
+                    </li>
                   ))}
                 </ul>
                 <h3>{t.lesson.breaks}</h3>

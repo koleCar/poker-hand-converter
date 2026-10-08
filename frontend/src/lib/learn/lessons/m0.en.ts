@@ -1,6 +1,9 @@
 import type { LessonBodies } from "./types";
 
 /**
+ * Reference pages since L1.1 (`/learn/reference/<id>`, `REFERENCE_IDS`):
+ * L1's M0 — orientation, out of the course map, kept read-only.
+ *
  * M0 — orientation, English. Every computed number in a section is listed in
  * its lesson's `checks` (or a checkpoint's `math`) and recomputed by
  * `tests/test/course.test.ts`.

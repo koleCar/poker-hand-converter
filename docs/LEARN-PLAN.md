@@ -59,7 +59,7 @@ Five tracks, in the order of a hand (principle 9), with no basics track
 `frontend/src/lib/learn/course.ts`. Titles are in the dictionary
 (`course.titles`); outlines and bodies are in `frontend/src/lib/learn/lessons/`.
 
-### Restructure from L1
+### Restructure from L1 (shipped in L1.1, see §7)
 
 L1 shipped a Foundations track: M0 orientation, M1 poker maths, M2 thinking in
 ranges.
@@ -151,7 +151,7 @@ views, a live/online path toggle, re-check nudges, a daily five-minute dose.
 | Phase | Delivers |
 |---|---|
 | **L1** (shipped, #110) | The Learn tab and course map; the full catalogue; written lessons for M0–M3 and M6-L4 in English and Croatian; `chart-quiz`, `solver-spot` (river and turn), `calc` with answer-first reveal, `classify`, `own-hands`; recommendations, the plan's lesson task, review cards, automatic progress; storage for signed-in learners, browser storage for signed-out ones. |
-| **L1.1** — restructure (principles 8–9) | <ul><li>Tracks and modules as in §2; M0–M2 out of the map (intro panel and reference)</li><li>their key ideas folded into the first lesson that uses them</li><li>the new ids added as "coming soon"</li><li>the plan's lesson tasks and leak recommendations re-pointed</li><li>tests updated</li></ul> |
+| **L1.1** (shipped) — restructure (principles 8–9) | <ul><li>Tracks and modules as in §2; M0–M2 out of the map (intro panel and reference)</li><li>their key ideas folded into the first lesson that uses them</li><li>the new ids added as "coming soon"</li><li>the plan's lesson tasks and leak recommendations re-pointed</li><li>tests updated</li></ul> |
 | **L2** — flop | Track 2 written (F1–F5); the `range-split` widget (turn/river buckets now, flop buckets when the flop library is on). |
 | **L3** — turn and river | Tracks 3–4 written; `range-paint`; mastery from real-hand improvement. |
 | **L4** — exploits | Track 5 written, plus the **exploit lab**: solver node-locking UI, the opponents-panel tie-in, pool tendencies from the learner's own villain stats with sample sizes. |
@@ -196,7 +196,57 @@ views, a live/online path toggle, re-check nudges, a daily five-minute dose.
   `localStorage`, with an explicit "add it to this account" offer after
   signing in.
 
-## 7. Open after L1
+## 7. What L1.1 shipped
+
+- **The map is the §2 table.** Five tracks (Preflop, Flop, Turn, River,
+  Exploits) and 18 modules, P1–P3, F1–F5, T1–T3, R1–R3, X1–X4, with lesson
+  codes from the module (`P1-L1` … `X4-L4`). 56 lessons: the 45 L1 ids that
+  stay, moved into place, and 11 new ones as "coming soon", with titles,
+  outlines and planned exercises in English and Croatian:
+  `preflop-by-stack-depth` (chart quizzes on the 40, 60, 150 and 200 bb sets),
+  `turn-check-raise-and-probe`, `3bp-turn` and `3bp-river` (split from
+  `3bp-turn-and-river`), `reading-hud-stats`, `exploiting-overfolders`,
+  `exploiting-calling-stations`, `exploiting-aggressive-players`,
+  `underbluffed-rivers`, `node-locking-in-rail` and `when-not-to-exploit`. A
+  new planned exercise kind, `node-lock`, names the exploit lab's widget.
+- **M0–M2 left the map** and became **reference pages** at
+  `/learn/reference/<id>` (`REFERENCE_IDS`, 16 pages): the L1 text, widgets and
+  checkpoints, read-only, with no practice and no progress. Chosen over
+  pointing at the concept library because the concept pages have their own,
+  shorter text: this keeps every written L1 page reachable unchanged. The old
+  `/learn/<id>` addresses redirect there (308); `/learn/3bp-turn-and-river`
+  redirects to `/learn/3bp-turn`; `reference` is a reserved `/learn` segment.
+  The pages are in the sitemap.
+- **M0 is the map's intro panel**: "How Rail teaches" (the study loop, what a
+  grade and EV loss mean, how leaks become recommendations, your own hands and
+  review cards) and the list of reference pages by group.
+- **Ideas folded into the first lesson that needs them**, each linking its
+  reference page the first time the term is used. Lesson text and outline
+  goals may hold `[[ref-id|label]]` links (`refLinks`, rendered by
+  `RichText`); the tests hold every target to a reference id and English and
+  Croatian to the same targets.
+  - *Facing an open* (written): two lines in place on pot odds and
+    realisation; *card removal* links its page.
+  - *Defending a flop bet*, *picking river bluffs*, *flop bets by board type*
+    (not written yet): a goal in the outline on alpha / MDF, combos and card
+    removal, and range and nut advantage, for L2 and L3 to write. Their
+    catalogue entries gained the matching drills (`alpha-mdf` and `combos`
+    calcs, `range-advantage` and `nut-advantage` classify items).
+- **Recommendations and the plan re-pointed.** No match, prerequisite, plan
+  task or link names a removed id (`LessonId` no longer holds them, so the
+  compiler checks it). Leak patterns and flags the maths lessons carried moved
+  to the lessons on the map: flop and turn calls to *defending a flop bet* and
+  *facing a second barrel*, river calls and `fold-nuts` to *bluff-catching*,
+  `free-fold` to *which hands bet and which check*. Every heuristic flag still
+  has a lesson. The fundamentals plan's lesson is now the first unpassed of
+  *seats and opening ranges*, *facing an open*, *the blinds*, *3-betting*.
+- **Old progress is kept, not shown.** No migration: the database checks only
+  a lesson id's shape. Progress rows and review cards for removed ids stay as
+  they are; the app reads them through `isLessonId` (dropped), and the review
+  queue's counts and deals ask only for lessons on the map. A plan saved
+  before L1.1 that names a removed lesson links to its reference page.
+
+## 8. Open after L1 and L1.1
 
 - The `range-advantage`, `nut-advantage` and turn-card classify items use the
   concept library's hand-written ranges, not Rail's charts; their buckets are
@@ -214,3 +264,10 @@ views, a live/online path toggle, re-check nudges, a daily five-minute dose.
   a library not yet re-analysed shows none.
 - The lesson's results and cards are graded in the browser and only
   shape-checked by the database, as trainer answers are.
+- Until F1 is written, a flop-bet-in-position leak is matched to the written
+  3-bet-pot lesson (*in position after a check*): a leak area does not know
+  the pot type. The river and flop-call leaks wait for R2 and F3 to be
+  written (no written lesson rather than a wrong one).
+- Reference pages keep L1's wording, so a few lines still read as part of a
+  lesson ("this lesson"); the cross-links to the next page were made into
+  reference links.

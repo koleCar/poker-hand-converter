@@ -1,6 +1,9 @@
 import type { LessonBodies } from "./types";
 
 /**
+ * Reference pages since L1.1 (`/learn/reference/<id>`, `REFERENCE_IDS`):
+ * L1's M2 — thinking in ranges, out of the course map, kept read-only.
+ *
  * M2 — razmišljanje u rasponima, hrvatski. Ista struktura kao `m2.en.ts`, s
  * istim brojevima (decimalni zarez) i istim `checks`; poker riječi ostaju one
  * kojima se služe hrvatski igrači, kao u `content/ranges.hr.ts`.
@@ -70,7 +73,7 @@ export const m2Hr: LessonBodies<
               "Open uklanja ruke preslabe za igru s te pozicije.",
               "Call na raise uklanja većinu najboljih ruku, koje bi napravile reraise, i najslabije, koje bi foldale.",
               "3-bet zadržava najjače ruke i nekoliko pažljivo odabranih blefova.",
-              "Svaki bet, call i check nakon flopa ponovno reže; posljednja lekcija ovog modula to prati street po street.",
+              "Svaki bet, call i check nakon flopa ponovno reže; stranica o [[range-narrowing|sužavanju raspona]] to prati street po street.",
             ],
           },
           "Odavde dolazi i „inicijativa”. Preflop raiser i dalje drži najveće parove i najbolje asove; caller ih je većinu ispustio time što nije napravio reraise. Tko može prvi betati na flopu proizlazi iz te razlike, a ne iz pravila o tome tko je raiseao.",
@@ -183,14 +186,14 @@ export const m2Hr: LessonBodies<
             caption:
               "Open s UTG-a protiv big blinda na istom 8♥7♥6♣. Što je raspon otvaranja uži, to ostaje više ispred, čak i na boardovima koji pašu calleru. Prebaci na dvoboj s buttonom za usporedbu.",
           },
-          "Prednost raspona određuje koliko često betaš. Koliko veliko betaš ovisi o tome tko ima više najjačih ruku, a to je sljedeća lekcija.",
+          "Prednost raspona određuje koliko često betaš. Koliko veliko betaš ovisi o tome tko ima više najjačih ruku, a to je [[nut-advantage|prednost u nutsu]].",
         ],
       },
       {
         heading: "Što ti ne govori",
         blocks: [
           "To je prosjek. Buttonov raspon koji je ispred na A♠8♦3♣ i dalje ima mnogo ruku koje su promašile, a big blind koji je u prosjeku iza i dalje ima svoje setove. Prednost raspona uokviruje odluku; odluku donosi mjesto tvoje ruke u tvom rasponu.",
-          "I pomiče se. Svaka karta na turnu i riveru mijenja ravnotežu, ponekad jako, a jedna od kasnijih lekcija ovog modula mjeri koliko.",
+          "I pomiče se. Svaka karta na turnu i riveru mijenja ravnotežu, ponekad jako, a stranica o tome [[who-the-next-card-helps|kome pomaže sljedeća karta]] mjeri koliko.",
         ],
       },
     ],

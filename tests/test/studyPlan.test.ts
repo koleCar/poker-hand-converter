@@ -420,8 +420,8 @@ describe("the week's plan", () => {
     expect(rpcTask(lessons[0])).toMatchObject({ kind: "lesson", ref: "positions-and-opening-ranges", hand_id: null, match_mode: null, spot_keys: null });
     // Without a resolver the plan is exactly what it was.
     expect(withLessons.filter((task) => task.kind !== "lesson")).toEqual(tasks);
-    const basics = fundamentalsTasks(0, null, "pot-odds");
-    expect(basics[0]).toEqual({ kind: "lesson", ref: "pot-odds", target: 1, focus: null });
+    const basics = fundamentalsTasks(0, null, "positions-and-opening-ranges");
+    expect(basics[0]).toEqual({ kind: "lesson", ref: "positions-and-opening-ranges", target: 1, focus: null });
     expect(basics.slice(1)).toEqual(fundamentalsTasks(0));
   });
 

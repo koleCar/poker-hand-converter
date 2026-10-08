@@ -2,9 +2,10 @@
  * Strings for the Learn tab (`/learn`, Learn L1), English. Spread into `en.ts`
  * as `course`; `course.hr.ts` is the same shape.
  *
- * Only the short strings live here: lesson, module and track titles (the
- * course map and the study plan name lessons client-side), the page chrome
- * and the exercises' words. A lesson's outline and body are in
+ * Only the short strings live here: lesson, reference-page (L1.1), module
+ * and track titles (the course map and the study plan name lessons
+ * client-side, and a plan saved before L1.1 may still name a reference
+ * page), the page chrome and the exercises' words. A lesson's outline and body are in
  * `lib/learn/lessons/`, read by the server only.
  *
  * Numbers arrive already formatted for the reader's locale, so these
@@ -52,7 +53,6 @@ const titles = {
   "cbetting-as-the-3bettor": "Betting the flop as the 3-bettor",
   "playing-3bp-as-the-caller": "Calling a 3-bet and playing after",
   "range-splitting-ip-vs-checks-3bp": "In position after a check in a 3-bet pot: small, big or check",
-  "3bp-turn-and-river": "3-bet pots on the turn and river",
   "four-bet-pots": "4-bet pots",
   "turn-card-classes": "Kinds of turn card",
   "double-barreling": "Betting the turn again",
@@ -74,38 +74,75 @@ const titles = {
   "deep-stacks-200bb": "Playing 200 big blinds deep",
   "population-exploits": "Adjusting to the player pool",
   "player-profiles": "Recognising player types",
+  "preflop-by-stack-depth": "Preflop at 40, 60, 150 and 200 big blinds",
+  "turn-check-raise-and-probe": "Leading and check-raising the turn",
+  "3bp-turn": "3-bet pots on the turn",
+  "3bp-river": "3-bet pots on the river",
+  "reading-hud-stats": "Reading opponent stats, and when to trust them",
+  "exploiting-overfolders": "Against players who fold too much",
+  "exploiting-calling-stations": "Against players who call too much",
+  "exploiting-aggressive-players": "Against players who bet and raise too much",
+  "underbluffed-rivers": "River bets with too few bluffs",
+  "node-locking-in-rail": "Node-locking in Rail: the best response to a read",
+  "when-not-to-exploit": "When not to exploit",
 } as Record<string, string>;
 
 export const courseEn = {
   titles,
 
   modules: {
-    m0: "Orientation",
-    m1: "Poker maths",
-    m2: "Thinking in ranges",
-    m3: "Preflop",
-    m4: "Single-raised pots as the raiser",
-    m5: "Single-raised pots as the caller",
-    m6: "3-bet and 4-bet pots",
-    m7: "The turn",
-    m8: "The river",
-    m9: "Multiway pots",
-    m10: "Live cash, deep stacks and exploits",
+    p1: "Opening",
+    p2: "Facing raises",
+    p3: "Blinds and stack depth",
+    f1: "Single-raised pots: raiser in position",
+    f2: "Single-raised pots: raiser out of position",
+    f3: "Single-raised pots: the caller",
+    f4: "3-bet and 4-bet pots",
+    f5: "Multiway flops",
+    t1: "Betting again",
+    t2: "Defending the turn",
+    t3: "The turn in 3-bet pots",
+    r1: "Betting the river",
+    r2: "Facing river bets",
+    r3: "The river in 3-bet pots",
+    x1: "Reading people",
+    x2: "The player pool",
+    x3: "The exploit lab",
+    x4: "Live and deep",
   } as Record<string, string>,
 
   tracks: {
-    foundations: "Foundations",
     preflop: "Preflop",
-    postflop: "After the flop",
-    live: "Live and exploits",
+    flop: "The flop",
+    turn: "The turn",
+    river: "The river",
+    exploits: "Exploits",
   } as Record<string, string>,
 
-  moduleCode: (n: number) => `Module ${n}`,
+  moduleCode: (code: string) => `Module ${code}`,
 
   map: {
     heading: "Learn",
     intro:
-      "A course in cash-game poker, from the maths to the river. Every lesson teaches one idea, lets you predict before it shows you, and ends with practice generated and graded by Rail's own charts, solver and calculators — and, signed in, with your own hands.",
+      "A course in cash-game poker in the order of a hand: preflop, the flop situation by situation, the turn, the river, then exploits. Every lesson teaches one idea, lets you predict before it shows you, and ends with practice generated and graded by Rail's own charts, solver and calculators — and, signed in, with your own hands.",
+    introPanel: {
+      heading: "How Rail teaches",
+      points: [
+        "Learn one idea, predict before the lesson shows you, then practise it on spots that Rail's own charts, solver and calculators deal and grade.",
+        "A grade is the EV you gave up against Rail's reference, in big blinds and as a share of the pot: a close call costs almost nothing, a real mistake costs a lot.",
+        "Your analysis ranks leaks by the big blinds they cost per 100 hands, and a lesson marked “Recommended” teaches the spot that costs you most.",
+        "Signed in, a lesson ends with your own hands in its spot, the costliest first; items you miss come back as review cards.",
+      ],
+      more: "The course assumes the basics. The ideas it builds on are reference pages, linked from a lesson the first time it uses a term:",
+    },
+    reference: {
+      heading: "Reference",
+      groups: {
+        orientation: "Using Rail",
+        maths: "Poker maths",
+        ranges: "Ranges and boards",
+      } as Record<string, string>,
+    },
     concepts: "Concept library",
     conceptsHint: "Every idea the lessons use, with a worked example and a calculator.",
     review: (due: number) => (due === 1 ? "1 review card due" : `${due} review cards due`),
@@ -165,6 +202,9 @@ export const courseEn = {
     comingSoonBody:
       "Its outline is here so you can see where it fits. The written lesson and its drills arrive with a later phase of the course.",
     comingSoonPractice: "Practice it will have:",
+    referenceEyebrow: "Reference",
+    referenceGoals: "On this page",
+    referenceNote: "A reference page: an idea the course assumes, without practice or progress. Lessons link here the first time they use the term.",
     optional: "Optional",
     notCounted: "Does not count towards passing",
   },
@@ -189,6 +229,7 @@ export const courseEn = {
     "range-walk": "Guessing a range street by street on your own hand (planned)",
     "pot-tracking": "Keeping track of the pot in a live-style hand (planned)",
     "profile-quiz": "Naming player types from their stats (planned)",
+    "node-lock": "Locking an opponent's strategy in the solver and reading the best response (planned)",
     placement: "A placement test (planned)",
   } as Record<string, string>,
 
@@ -229,6 +270,7 @@ export const courseEn = {
       "range-walk": "Planned: replay one of your hands and guess the opponent's range on each street, then compare with Rail's narrowing.",
       "pot-tracking": "Planned: a live-style hand where you keep track of the pot.",
       "profile-quiz": "Planned: name your opponents' types from their stats.",
+      "node-lock": "Planned: lock an opponent's frequency at one decision, re-solve it with Rail's solver, and compare the best response with the baseline.",
       placement: "Planned: a short placement test that suggests where to start.",
     } as Record<string, string>,
     waits: {

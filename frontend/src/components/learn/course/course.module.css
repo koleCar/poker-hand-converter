@@ -142,6 +142,56 @@
 
 /* ------------------------------------------------------------ the map */
 
+/* The map's intro panel (L1.1): how Rail teaches, and the reference pages. */
+.introPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+  line-height: var(--line-height-relaxed);
+}
+
+.introHeading {
+  font-size: var(--font-size-lg);
+}
+
+.introPanel a {
+  color: var(--text-link);
+}
+
+.referenceGroups {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .referenceGroups {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.referenceGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+.referenceList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
 .map {
   display: flex;
   flex-direction: column;

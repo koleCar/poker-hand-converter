@@ -19,7 +19,7 @@
 
 import type { WidgetPreset } from "../concepts";
 import type { Formula } from "../content/types";
-import type { LessonId } from "../course";
+import type { LessonId, ReferenceId } from "../course";
 
 /** The formulas a lesson's numbers may come from: `lib/learn/math.ts`, by name (`checks.ts` maps them). */
 export type MathFn =
@@ -67,8 +67,36 @@ export interface Checkpoint {
   math?: MathCheck;
 }
 
+/**
+ * A paragraph or list item may link a reference page inline, the first time a
+ * lesson uses its term: `[[pot-odds|pot odds]]` renders "pot odds" as a link
+ * to `/learn/reference/pot-odds` (`refLinks` parses it; the tests hold every
+ * target to a `ReferenceId`, and English and Croatian to the same targets).
+ * Outline goals may do the same. Nowhere else: summaries, captions and
+ * checkpoints are plain text.
+ */
+export const REF_LINK = /\[\[([a-z0-9-]+)\|([^\]]+)\]\]/g;
+
+/** A text split into plain runs and reference links, in order. */
+export function refLinks(text: string): Array<{ text: string; ref?: string }> {
+  const out: Array<{ text: string; ref?: string }> = [];
+  let at = 0;
+  for (const match of text.matchAll(REF_LINK)) {
+    if (match.index! > at) out.push({ text: text.slice(at, match.index) });
+    out.push({ text: match[2], ref: match[1] });
+    at = match.index! + match[0].length;
+  }
+  if (at < text.length) out.push({ text: text.slice(at) });
+  return out;
+}
+
+/** The text without its link markup: what a plain-text reader (a meta description) sees. */
+export function plainText(text: string): string {
+  return text.replace(REF_LINK, "$2");
+}
+
 export type LessonBlock =
-  /** A paragraph. */
+  /** A paragraph (may hold `[[ref|label]]` links). */
   | string
   | { readonly list: readonly string[] }
   | { readonly widget: WidgetPreset; readonly caption?: string }
@@ -101,5 +129,8 @@ export interface LessonBody {
   checks: readonly MathCheck[];
 }
 
-export type LessonOutlines = { readonly [id in LessonId]: LessonOutline };
-export type LessonBodies<K extends LessonId = LessonId> = { readonly [id in K]: LessonBody };
+/** A page with words in `lessons/`: a lesson on the map, or a reference page (L1's M0–M2). */
+export type PageId = LessonId | ReferenceId;
+
+export type LessonOutlines = { readonly [id in PageId]: LessonOutline };
+export type LessonBodies<K extends PageId = LessonId> = { readonly [id in K]: LessonBody };

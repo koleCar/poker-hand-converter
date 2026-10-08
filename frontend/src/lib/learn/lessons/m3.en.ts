@@ -46,7 +46,7 @@ export const m3En: LessonBodies<
         heading: "Position after the flop",
         blocks: [
           "The second reason is position. An open from the cutoff or button is usually played in position after the flop, because only the blinds act after you and they act first on every later street. An open from UTG is often called by a player who will act after you on every street.",
-          "Acting last lets you see what the opponent does before you decide, take free cards, and bet when they show weakness. Hands that need help from the board, such as suited connectors and small pairs, gain the most from that. This is why opening ranges get wider with every seat closer to the button.",
+          "Acting last lets you see what the opponent does before you decide, take free cards, and bet when they show weakness. Hands that need help from the board, such as suited connectors and small pairs, gain the most from that. This is why [[thinking-in-ranges|opening ranges]] get wider with every seat closer to the button.",
         ],
       },
       {
@@ -249,7 +249,7 @@ export const m3En: LessonBodies<
         heading: "Dominated hands",
         blocks: [
           "A hand is dominated when the opener often holds the same high card with a better kicker. KJ against an early open is the classic case: when you pair your king you can be against AK or KQ, and you lose a big pot with the second-best pair.",
-          "Card removal shows why it matters which cards you hold. With A♠J♦, the opener's AK drops from 16 combos to 3 × 4 = 12, and so does AQ, but KQ keeps all 16. You block some of the hands that dominate you, not all of them.",
+          "[[combos-and-card-removal|Card removal]] shows why it matters which cards you hold. With A♠J♦, the opener's AK drops from 16 combos to 3 × 4 = 12, and so does AQ, but KQ keeps all 16. You block some of the hands that dominate you, not all of them.",
           {
             widget: { id: "combos", preset: "broadway", hand: ["As", "Jd"] },
             caption: "Pick your hand and see how many combos of each strong broadway hand are left. Try K♣J♦ and Q♥J♥ as well.",
@@ -269,6 +269,7 @@ export const m3En: LessonBodies<
       {
         heading: "In position or out of position",
         blocks: [
+          "Two ideas price every call here. [[pot-odds|Pot odds]]: the equity a call needs is the call divided by the pot after you call, the opener's raise included. [[equity-realisation-and-implied-odds|Realisation]]: the share of that equity a hand turns into winnings, higher in position and for hands that make strong hands, lower out of position.",
           "Calling in position, say on the button against a cutoff open, is the easiest call in poker: you act last on every street and realise more of your equity. Only the blinds are left behind you to squeeze.",
           "Calling out of position is worse. The small blind is out of position to the opener and still has the big blind behind it. Against a 2.5 bb button open, the small blind calls 2 bb into a pot of 4 bb, while the big blind would call 1.5 bb into the same pot and needs only about 27.3%.",
           {

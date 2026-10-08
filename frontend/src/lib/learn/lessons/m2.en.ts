@@ -1,6 +1,9 @@
 import type { LessonBodies } from "./types";
 
 /**
+ * Reference pages since L1.1 (`/learn/reference/<id>`, `REFERENCE_IDS`):
+ * L1's M2 — thinking in ranges, out of the course map, kept read-only.
+ *
  * M2 — thinking in ranges, English. Every computed number in a section is
  * listed in its lesson's `checks` (or a checkpoint's `math`) and recomputed by
  * `tests/test/course.test.ts`. Range equities and nut shares are never quoted:
@@ -71,7 +74,7 @@ export const m2En: LessonBodies<
               "Opening removes the hands too weak to play from that seat.",
               "Calling a raise removes most of the best hands, which would have re-raised, and the worst, which would have folded.",
               "A 3-bet keeps the strongest hands and a handful of chosen bluffs.",
-              "Every bet, call and check after the flop cuts again; the last lesson of this module follows that street by street.",
+              "Every bet, call and check after the flop cuts again; the [[range-narrowing|range narrowing]] page follows that street by street.",
             ],
           },
           "This is also where \"initiative\" comes from. The preflop raiser still holds the biggest pairs and the best aces; the caller gave most of those away by not re-raising. Who can bet first on the flop follows from that difference, not from a rule about who raised.",
@@ -184,14 +187,14 @@ export const m2En: LessonBodies<
             caption:
               "An under-the-gun open against the big blind on the same 8♥7♥6♣. The tighter the opening range, the further ahead it stays, even on boards that suit the caller. Switch to the button matchup to compare.",
           },
-          "Range advantage sets how often you bet. How big you bet depends on who holds more of the very strongest hands, which is the next lesson.",
+          "Range advantage sets how often you bet. How big you bet depends on who holds more of the very strongest hands, which is [[nut-advantage|nut advantage]].",
         ],
       },
       {
         heading: "What it does not tell you",
         blocks: [
           "It is an average. A button range that is ahead on A♠8♦3♣ still holds plenty of hands that missed, and a big blind behind on average still has its sets. Range advantage frames the decision; where your hand sits in your range makes it.",
-          "And it moves. Every turn and river card shifts the balance, sometimes a lot, and a later lesson in this module measures how.",
+          "And it moves. Every turn and river card shifts the balance, sometimes a lot, and the [[who-the-next-card-helps|next card]] page measures how.",
         ],
       },
     ],

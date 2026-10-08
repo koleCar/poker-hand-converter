@@ -8,6 +8,7 @@
  */
 
 import type { Grade } from "../analysis/types";
+import { LESSON_IDS } from "../learn/course";
 import { progressFromRows, cardFromRow, type Card, type LessonResult, type NewCard, type ProgressMap } from "../learn/progress";
 import { currentUserId, requireDb, rpc } from "./client";
 
@@ -66,12 +67,20 @@ export async function reviewLessonCard(id: string, grade: Grade): Promise<CardRe
 const CARD_COLUMNS =
   "id, lesson_id, exercise_id, kind, item_key, item, reps, lapses, ease, interval_days, due_at, reviews, last_grade";
 
+/**
+ * Lessons whose cards are shown: those on the map. Cards (and progress rows)
+ * of L1 lessons that left the map in L1.1 stay in the database untouched;
+ * they are just not dealt or counted.
+ */
+const SHOWN_LESSONS: readonly string[] = LESSON_IDS;
+
 /** Cards due by `until` (now by default), soonest first. */
 export async function fetchDueCards(limit = 20, until: Date = new Date()): Promise<Card[]> {
   if (!(await currentUserId())) return [];
   const { data, error } = await requireDb()
     .from("lesson_cards")
     .select(CARD_COLUMNS)
+    .in("lesson_id", SHOWN_LESSONS)
     .lte("due_at", until.toISOString())
     .order("due_at", { ascending: true })
     .limit(limit);
@@ -89,7 +98,7 @@ export async function fetchCardCounts(endOfDay: Date): Promise<CardCounts | null
   if (!(await currentUserId())) return null;
   const client = requireDb();
   const count = async (until: Date | null) => {
-    let query = client.from("lesson_cards").select("id", { count: "exact", head: true });
+    let query = client.from("lesson_cards").select("id", { count: "exact", head: true }).in("lesson_id", SHOWN_LESSONS);
     if (until) query = query.lte("due_at", until.toISOString());
     const { count: n, error } = await query;
     if (error) throw new Error(error.message);

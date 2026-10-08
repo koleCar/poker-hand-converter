@@ -45,7 +45,7 @@ export const m3Hr: LessonBodies<
         heading: "Pozicija nakon flopa",
         blocks: [
           "Drugi razlog je pozicija. Open s cutoffa ili buttona nakon flopa se obično igra u poziciji, jer nakon tebe igraju samo blindovi, a oni na svakoj kasnijoj ulici igraju prvi. Open iz UTG-a često calla igrač koji će na svakoj ulici igrati nakon tebe.",
-          "Kad igraš zadnji, vidiš što protivnik radi prije nego što odlučiš, uzimaš besplatne karte i betaš kad pokaže slabost. Najviše od toga dobivaju ruke kojima treba pomoć boarda, poput suited konektora i malih parova. Zato se rasponi za otvaranje šire sa svakim sjedalom bliže buttonu.",
+          "Kad igraš zadnji, vidiš što protivnik radi prije nego što odlučiš, uzimaš besplatne karte i betaš kad pokaže slabost. Najviše od toga dobivaju ruke kojima treba pomoć boarda, poput suited konektora i malih parova. Zato se [[thinking-in-ranges|rasponi za otvaranje]] šire sa svakim sjedalom bliže buttonu.",
         ],
       },
       {
@@ -248,7 +248,7 @@ export const m3Hr: LessonBodies<
         heading: "Dominirane ruke",
         blocks: [
           "Ruka je dominirana kad otvarač često drži istu visoku kartu s boljim kickerom. KJ protiv ranog opena klasičan je primjer: kad spojiš kralja, možeš biti protiv AK ili KQ, i izgubiti velik pot s drugim najboljim parom.",
-          "Uklanjanje karata pokazuje zašto je važno koje karte držiš. S A♠J♦ otvaračev AK pada sa 16 kombinacija na 3 × 4 = 12, isto kao i AQ, ali KQ zadržava svih 16. Blokiraš dio ruku koje te dominiraju, ali ne sve.",
+          "[[combos-and-card-removal|Uklanjanje karata]] pokazuje zašto je važno koje karte držiš. S A♠J♦ otvaračev AK pada sa 16 kombinacija na 3 × 4 = 12, isto kao i AQ, ali KQ zadržava svih 16. Blokiraš dio ruku koje te dominiraju, ali ne sve.",
           {
             widget: { id: "combos", preset: "broadway", hand: ["As", "Jd"] },
             caption: "Odaberi svoju ruku i vidi koliko je kombinacija svake jake broadway ruke ostalo. Probaj i K♣J♦ i Q♥J♥.",
@@ -268,6 +268,7 @@ export const m3Hr: LessonBodies<
       {
         heading: "U poziciji ili izvan pozicije",
         blocks: [
+          "Dvije ideje određuju cijenu svakog calla ovdje. [[pot-odds|Pot odds]]: equity koji call treba jednak je callu podijeljenom s potom nakon tvog calla, uključujući otvaračev raise. [[equity-realisation-and-implied-odds|Realizacija]]: udio tog equityja koji ruka pretvori u dobitak, veći u poziciji i za ruke koje rade jake ruke, manji izvan pozicije.",
           "Call u poziciji, recimo na buttonu protiv opena s cutoffa, najlakši je call u pokeru: igraš zadnji na svakoj ulici i realiziraš više svojeg equityja. Iza tebe za squeeze ostaju samo blindovi.",
           "Call izvan pozicije je lošiji. Small blind je izvan pozicije prema otvaraču, a iza sebe još ima big blind. Protiv opena od 2,5 bb s buttona small blind calla 2 bb u pot od 4 bb, dok bi big blind callao 1,5 bb u isti pot i treba mu samo oko 27,3 %.",
           {
