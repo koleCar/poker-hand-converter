@@ -208,8 +208,10 @@ export const courseHr = {
   },
 
   notes: {
-    "flop-library-off":
-      "Railova knjižnica flopova još nije uključena, pa se flop ovdje uči riječima i Rail ne ocjenjuje situacije na flopu. Vježbe na turnu i riveru već danas rješava Railov vlastiti solver.",
+    "flop-mapped":
+      "Vježbe na flopu ovdje se dijele iz Railove knjižnice flopova: dvanaest heads-up linija za 6-max i 100bb, svaka riješena na 100 reprezentativnih flopova. Flop u vježbi uvijek je jedan od njih, pa se ocjenjuje kombinacija po kombinaciju. Tvoje ruke na bilo kojem drugom flopu čitaju se s najbližeg riješenog flopa po kategoriji ruke, a analiza takve ocjene označava kao mapirane.",
+    "multiway-heuristic":
+      "Railova knjižnica flopova je heads-up. Flopove s više igrača analiza čita heuristikom i podjelom minimalne obrane, s činjenicama i oznakama, ali bez ocjene solvera, pa su vježbe u ovoj lekciji računske i na tvojim rukama.",
     "approximate-ranges":
       "Približno: rasponi ovdje su ručno napisani rasponi za učenje ili počivaju na Railovom modelu sužavanja, a ne na rješenju cijele ruke. Ono što treba zapamtiti je smjer.",
     conceptual: "Konceptualno: Rail ovu situaciju još ne analizira, pa lekcija uči ideju bez ocijenjene vježbe.",
@@ -222,7 +224,8 @@ export const courseHr = {
     calc: "Brojevi koje izračunaš prije nego što ih kalkulator pokaže",
     classify: "Boardovi i ruke za razvrstavanje, ocijenjeni Railovim čitačem boarda i ruke",
     "own-hands": "Tvoje vlastite analizirane ruke u ovoj situaciji",
-    "range-split": "Razvrstavanje klasa ruku po akcijama (planirano)",
+    "range-split": "Razvrstavanje klasa ruku cijelog raspona po akcijama, ocijenjeno Railovim rješenjem po klasi",
+    "depth-split": "Razvrstavanje klasa ruku na 200bb naspram 100bb (planirano)",
     "range-paint": "Bojanje raspona na mreži 13×13 (planirano)",
     "range-walk": "Pogađanje raspona street po street na tvojoj ruci (planirano)",
     "pot-tracking": "Praćenje pota u ruci kao uživo (planirano)",
@@ -265,7 +268,7 @@ export const courseHr = {
     retry: "Pokušaj ponovno",
     noSpot: "Nijedna situacija ne odgovara ovim postavkama. Pokušaj ponovno.",
     planned: {
-      "range-split": "Planirano: razvrstaj klase ruku po akcijama (check, mali bet, veliki bet) i dobij ocjenu Railovog solvera po klasi.",
+      "depth-split": "Planirano: razvrstaj isti raspon na 200bb i na 100bb i usporedi obje podjele s Railovim rješenjima.",
       "range-paint": "Planirano: oboji raspon na mreži 13×13 i usporedi ga s Railovim chartom.",
       "range-walk": "Planirano: ponovno odigraj svoju ruku i pogađaj protivnikov raspon na svakom streetu, pa usporedi s Railovim sužavanjem.",
       "pot-tracking": "Planirano: ruka kao uživo u kojoj pratiš koliko je u potu.",
@@ -275,14 +278,103 @@ export const courseHr = {
     } as Record<string, string>,
     waits: {
       widget: "Ova vježba treba alat koji još nije napravljen.",
-      "flop-library": "Čeka Railovu knjižnicu flopova (još nije uključena).",
+      "flop-library": "Čeka rješenja flopova na ovoj dubini: Railova knjižnica flopova pokriva samo heads-up linije za 6-max i 100bb.",
       "villain-stats": "Čeka statistiku protivnika u analizi.",
       "straddle-charts": "Čeka chartove za straddle, kojih Rail još nema.",
     } as Record<string, string>,
     flopOff: "Situacije na flopu trebaju Railovu knjižnicu flopova, koja još nije uključena. Vježba se otvara kad bude.",
+    flopUnavailable:
+      "Situacije na flopu dijele se iz Railove knjižnice flopova, do koje ova kopija Raila ne može doći (nema postavljenu bazu). Vježba radi na objavljenoj stranici.",
+  },
+
+  flopBets: {
+    line: "Linija",
+    lines: {
+      "btn-bb": "Button otvara, big blind calla (buttonu se checka)",
+      "utg-bb": "UTG otvara, big blind calla (UTG-u se checka)",
+      "btn-bb-3bet": "Big blind 3-beta button i prvi je na potezu",
+    } as Record<string, string>,
+    caption: (flops: number) => `Prva odluka preflop raisera na flopu na ${flops} flopova koje je Rail riješio, po skupinama boardova`,
+    group: "Skupina boardova",
+    flops: "Flopovi",
+    bet: "Beta",
+    big: "Beta veliko",
+    groups: {
+      "ace-high": "As visoko, bez para",
+      "king-queen-high": "Kralj ili dama visoko, bez para",
+      middle: "Dečko do osmice visoko, bez para",
+      low: "Sedmica visoko ili niže, bez para",
+      monotone: "Monoton",
+      paired: "Upareni",
+      trips: "Tris na boardu",
+    } as Record<string, string>,
+    source:
+      "Railova vlastita knjižnica flopova: rasponi iz chartova za 6-max i 100bb za tu liniju, riješeni na svakom flopu s betovima od 33 % i 75 % pota. „Beta“ je udio cijelog raspona koji beta; „beta veliko“ udio koji beta 75 % ili all-in. Svaki riješeni flop broji se jednom, pa je broj za skupinu obični prosjek njezinih flopova.",
+  },
+
+  split: {
+    question: (street: string) =>
+      street === "turn"
+        ? "Ovdje je cijeli tvoj raspon na turnu. Stavi svaku klasu ruku tamo gdje misliš da je Railovo rješenje najčešće igra."
+        : "Ovdje je cijeli tvoj raspon na flopu. Stavi svaku klasu ruku tamo gdje misliš da je Railovo rješenje najčešće igra.",
+    groups: { check: "Check", small: "Mali bet", big: "Veliki bet", fold: "Fold", call: "Call", raise: "Raise" } as Record<string, string>,
+    you: "Ti",
+    first: (street: string) => (street === "turn" ? "Ti si prvi na potezu na turnu." : "Ti si prvi na potezu na flopu."),
+    step: (who: string, kind: string, sizePot: number) =>
+      kind === "check"
+        ? `${who}: check.`
+        : kind === "call"
+          ? `${who}: call.`
+          : kind === "allin"
+            ? `${who}: all-in.`
+            : `${who}: ${kind === "raise" ? "raise" : "bet"} od ${Math.round(sizePot * 100)} % pota.`,
+    pot: (pot: string, toCall: string | null) => (toCall ? `Pot ${pot} · za call ${toCall}` : `Pot ${pot}`),
+    share: (share: string) => `${share} tvog raspona`,
+    check: "Provjeri moju podjelu",
+    railMix: (mix: string) => `Rail: ${mix}`,
+    overall: (mix: string) => `Cijeli tvoj raspon, kako ga Rail igra: ${mix}.`,
+    result: (correct: number, total: number, passed: boolean) =>
+      `${correct} od ${total} klasa tamo gdje ih Rail igra${passed ? " — računa se kao točno." : " — nedovoljno da se računa kao točno."}`,
+    libraryNote: (line: string, iterations: string, exploitability: string) =>
+      `Iz Railove knjižnice flopova: rasponi iz chartova za ${line} riješeni na ovom flopu (betovi od 33 % i 75 % pota, jedan raise, all-in), ${iterations} iteracija, unutar ${exploitability} % pota. Mali bet ovdje je do pola pota. Klasa se računa kao točna kad Rail tvoj izbor igra najviše 15 postotnih bodova rjeđe od svog najčešćeg.`,
+    turnNote:
+      "Iz rješenja turna na licu mjesta: preflop rasponi iz chartova suženi na flopu Railovim heurističkim modelom, turn riješen s betom od 75 % pota i all-inom. Klasa se računa kao točna kad Rail tvoj izbor igra najviše 15 postotnih bodova rjeđe od svog najčešćeg.",
+    made: {
+      "fh+": "Full house ili bolje",
+      flush: "Boja",
+      straight: "Skala",
+      set: "Set",
+      trips: "Tris",
+      "two-pair": "Dva para",
+      overpair: "Overpar",
+      "tp-top": "Gornji par, najbolji kicker",
+      "tp-good": "Gornji par, dobar kicker",
+      "tp-weak": "Gornji par, slab kicker",
+      middle: "Drugi par ili par ispod najviše karte",
+      weak: "Slab par ili underpar",
+      "ace-high": "As visoko",
+      nothing: "Bez para",
+    } as Record<string, string>,
+    draws: {
+      combo: "dro na boju i skalu",
+      nfd: "dro na najjaču boju",
+      fd: "dro na boju",
+      oesd: "otvoreni dro na skalu",
+      gut: "gutshot",
+      bd: "backdoor dro",
+    } as Record<string, string>,
   },
 
   spot: {
+    flopNote: (line: string, iterations: string, exploitability: string) =>
+      `Situacija na flopu iz Railove knjižnice flopova: rasponi iz chartova za ${line} riješeni na ovom flopu (betovi od 33 % i 75 % pota, jedan raise, all-in; ${iterations} iteracija, unutar ${exploitability} % pota), isto rješenje kojim se ocjenjuju tvoji flopovi na ovoj liniji.`,
+    flopFirst: "Ti si prvi na potezu na flopu.",
+    raised: (villain: string, to: number) => `${villain} raisea na ${String(Math.round(to * 100) / 100).replace(".", ",")} bb.`,
+    lineName: (id: string) => {
+      const parts = id.split("-");
+      const seats = parts.filter((p) => p !== "3bet" && p !== "limp").map((p) => p.toUpperCase());
+      return `${seats.join("–")}${parts.includes("3bet") ? ", 3-bet pot" : parts.includes("limp") ? ", limpani pot" : ""}`;
+    },
     turnNote:
       "Situacija na turnu: Rail rješava turn i grubi river (bet od 75 % pota ili all-in), isto rješenje kojim analiza ocjenjuje turnove. Traje sekundu-dvije.",
     ownCards: "Tvoja ruka",

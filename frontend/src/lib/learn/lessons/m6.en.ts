@@ -4,7 +4,8 @@ import type { LessonBodies } from "./types";
  * M6 — 3-bet and 4-bet pots, English. Every computed number in a section is
  * listed in its lesson's `checks` (or a checkpoint's `math`) and recomputed by
  * `tests/test/course.test.ts`. No solver frequency is quoted: the split is
- * described by direction, and the drills grade with Rail's own solves.
+ * described by direction (since L2, the direction of Rail's flop library),
+ * and the split and the drills grade with Rail's own solves.
  */
 export const m6En: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
   "range-splitting-ip-vs-checks-3bp": {
@@ -22,8 +23,8 @@ export const m6En: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
           "Either way your whole range now has three options: bet small, bet big or check back. Splitting the range means deciding which hands go where, and why, before you think about the one hand you hold.",
           {
             note: {
-              tone: "conceptual",
-              text: "The flop part of this lesson is conceptual for now. Rail's flop library is not switched on yet, so the flop split is taught in words, and the drills run on the turn and the river, which Rail solves today.",
+              tone: "approximate",
+              text: "The flop split here is graded by Rail's flop library, which solves the 3-bet-pot lines at 6-max 100bb on 100 representative flops each. Your own hands on other flops are read from the nearest solved flop by hand category.",
             },
           },
         ],
@@ -71,22 +72,22 @@ export const m6En: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
         heading: "Role A: the 3-bettor when the caller checks",
         blocks: [
           "Read the check first. In a 3-bet pot the caller checks to the 3-bettor almost every time, so the check tells you very little: the whole calling range is still there, strong hands included.",
-          "Small bets are the main bucket on boards where you have the range advantage: ace-high, king-high and dry, or low and paired. Overpairs, top pairs and many hands with only overcards and backdoor draws bet together. The small size works because the calling range is condensed: it holds few hands that can attack a small bet and many that must pay or fold.",
-          "Big bets grow on dynamic boards where you still hold enough of the strongest hands, such as two-tone broadway flops. Strong but vulnerable hands, like overpairs, top pair with a good kicker and two pair, bet big to build the pot before bad turn cards arrive, and strong draws join them.",
-          "Checking back is biggest on middling connected boards, where the caller's pocket pairs, suited connectors and suited broadways make sets, two pairs and straights. Medium pairs, one-pair hands that hate facing a check-raise with so little behind, and ace-high hands that can win at showdown go here, along with a few strong hands.",
+          "Small bets are the main bucket, by far. In Rail's solves of the button's 3-bet against the cutoff, the 3-bettor bets small with most of its range on almost every board: overpairs, top pairs, sets and many hands with only overcards and backdoor draws bet together. The small size works because the calling range is condensed: it holds few hands that can attack a small bet and many that must pay or fold.",
+          "Big bets are rare in position. They come mostly from overpairs and the strongest hands, a little more often on low boards, where the caller's range has the most pairs and draws to charge.",
+          "Checking back is the medium hands' bucket: second pairs and weaker top pairs that win at showdown but hate facing a check-raise with so little behind. It grows on monotone and ace-high boards, where the caller's range holds more of the hands that can fight back.",
           {
             widget: { id: "range-vs-range", focus: "range", preset: "3bet-vs-call", board: ["Ad", "Kc", "4h"] },
             caption:
-              "Illustrative 3-bet and calling ranges, written by hand for teaching, on A♦K♣4♥. Switch the board to T♥9♥8♣ and watch the 3-bettor's lead disappear: that is the board where the check-back bucket grows.",
+              "Illustrative 3-bet and calling ranges, written by hand for teaching, on A♦K♣4♥. Switch the board to T♥9♥8♣ and watch the 3-bettor's lead shrink: the split exercise shows what Rail's solve then does.",
           },
         ],
       },
       {
         heading: "Role B: the caller when the 3-bettor checks",
         blocks: [
-          "Here the check carries real information. An out-of-position 3-bettor bets often on high boards that suit its range, so a check there leans towards medium hands, though it can still hide an overpair. On low connected boards it checks more often, so the checking range is wider and holds fewer of the very best hands.",
-          "Small stabs are your widest bucket on dry, low and paired boards. Medium and weak pairs, overcards with backdoor draws, and hands that profit from making unimproved big cards fold all bet small into a checking range full of them.",
-          "Big bets appear where you hold the strongest hands: low and middling connected boards, where your sets, two pairs and straights are hands the 3-bettor rarely has. Value hands and strong draws bet big, sized to get the stacks in by the river.",
+          "Here the check carries real information. In Rail's solves an out-of-position 3-bettor bets most flops, so its checks are a smaller, weaker share of its range, though they can still hide an overpair.",
+          "Even so, checking back is your biggest bucket. The caller's strongest hands, sets, two pairs and top pair with a top kicker, bet most of the time, and some air bets with them; middle and weak pairs check almost always.",
+          "Your bets are mostly small. You bet most on low and middling boards, where your pairs and connectors hit, and least on king- and queen-high boards, where the 3-bettor's checks still hold strong hands. Bigger bets come from the strongest hands, two pairs, sets and the best top pairs.",
           "Checking back suits made hands of medium strength that fear a check-raise, hands that will reach showdown and realise their equity anyway, and some strong hands, especially when the 3-bettor is likely to bet the turn.",
           {
             checkpoint: {
@@ -105,15 +106,15 @@ export const m6En: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
           {
             list: [
               "High, dry boards: as the 3-bettor, bet small with most of the range; as the caller, check back more, and keep your stabs small.",
-              "Middling connected and two-tone boards: as the 3-bettor, polarise, with more big bets, more checks and fewer small bets; as the caller, bet more often and bigger.",
-              "Low paired boards: small bets for whoever bets. Few strong hands exist, and most hands are either well ahead or drawing thin.",
-              "Monotone boards: smaller bets and more checks. The high cards of the flush suit decide which hands bet.",
+              "Middling and low boards: as the 3-bettor, still bet small with most of the range, with a few more big bets on the lowest boards; as the caller, bet more often, mostly small.",
+              "Paired boards: small bets for whoever bets. Few strong hands exist, and most hands are either well ahead or drawing thin.",
+              "Monotone and ace-high boards: more checks from the 3-bettor, and smaller bets. The high cards of the flush suit decide which hands bet.",
             ],
           },
           {
             widget: { id: "board-texture", focus: "dynamism", board: ["Th", "9h", "8c"] },
             caption:
-              "T♥9♥8♣: connected, two-tone and dynamic. Swap in 3♠3♦8♣ or A♦K♣4♥ and watch volatility fall. The split follows the same line, from polarised towards small and frequent.",
+              "T♥9♥8♣: connected, two-tone and dynamic. Swap in 3♠3♦8♣ or A♦K♣4♥ and watch volatility fall. The split exercise shows how Rail's solve moves the buckets between boards like these.",
           },
         ],
       },
@@ -146,7 +147,7 @@ export const m6En: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
         blocks: [
           "Many live 3-bettors check only their weak hands and bet everything strong. Against them a check is a strong sign that the range is capped, and in role B you can stab more often and with more hands.",
           "Against players who almost never check-raise, the main reason to check back medium hands disappears: bet them for thin value and protection, and your check-back bucket shrinks. Against players who check-raise a lot, check back more of them.",
-          "The drills put you in this exact spot on the turn and the river: a 3-bet pot, you in position, the opponent checked. On the turn you choose between checking, betting 75% of the pot and, when the stack is at most three pots, going all in. On the river you choose from a check, several bet sizes and all in. The grade is the one the analysis gives a real hand.",
+          "The split puts your whole range in this spot on one of the flop library's flops, and the drills then put you in it on the turn and the river: a 3-bet pot, you in position, the opponent checked. On the turn you choose between checking, betting 75% of the pot and, when the stack is at most three pots, going all in. On the river you choose from a check, several bet sizes and all in. The grade is the one the analysis gives a real hand.",
           {
             note: {
               tone: "approximate",
@@ -159,8 +160,8 @@ export const m6En: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
     heuristics: {
       rules: [
         "Name the bucket's job first: value, protection, denial, fold equity or pot control.",
-        "As the in-position 3-bettor, bet small and often on high, dry and low paired boards; polarise on middling connected ones.",
-        "As the in-position caller, read the check: on high boards it leans medium, on low connected boards it is wide and capped.",
+        "As the in-position 3-bettor, bet small with most of the range; check back medium pairs, more on monotone and ace-high boards.",
+        "As the in-position caller, check back most medium pairs and bet your strongest hands, mostly small, most often on low and middling boards.",
         "Big bets need the strongest hands; check back the one-pair hands that cannot stand a raise.",
         "Deeper stacks mean bigger sizes, more checks and less love for one pair.",
       ],
@@ -172,7 +173,7 @@ export const m6En: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
     },
     exercises: {
       "flop-split":
-        "Coming with the flop library: drag hand categories into bet small, bet big and check back after the check, and compare your split with Rail's solve for that flop.",
+        "Three flops from Rail's flop library in a 3-bet pot, you in position after a check: put each hand class into check, small bet or big bet, graded class by class against the solve.",
       "turn-3bettor":
         "Two turn spots as the in-position 3-bettor after a check, solved by Rail on demand: check, bet 75% of the pot, or all in when the stack is short enough.",
       "turn-caller":

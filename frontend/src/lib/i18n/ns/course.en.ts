@@ -210,8 +210,10 @@ export const courseEn = {
   },
 
   notes: {
-    "flop-library-off":
-      "Rail's flop library is not switched on yet, so the flop is taught here in words and Rail does not grade flop spots. Drills on the turn and river run on Rail's own solver today.",
+    "flop-mapped":
+      "The flop drills here are dealt from Rail's flop library: twelve heads-up 6-max 100bb lines, each solved on 100 representative flops. A drill's flop is one of those, so it is graded combo for combo. Your own hands on any other flop are read from the nearest solved flop by hand category, and the analysis marks those grades as mapped.",
+    "multiway-heuristic":
+      "Rail's flop library is heads-up. Multiway flops are read by the analysis' heuristic and the minimum-defence split, with facts and flags but no solver grade, so this lesson's practice is arithmetic and your own hands.",
     "approximate-ranges":
       "Approximate: the ranges here are hand-written teaching ranges or rest on Rail's narrowing model, not on a solve of the whole hand. The direction is what to take away.",
     conceptual: "Conceptual: Rail does not analyse this spot yet, so this lesson teaches the idea without a graded drill.",
@@ -224,7 +226,8 @@ export const courseEn = {
     calc: "Numbers to work out before the calculator shows them",
     classify: "Boards and hands to sort, graded by Rail's board and hand reader",
     "own-hands": "Your own analysed hands in this spot",
-    "range-split": "Sorting hand classes into actions (planned)",
+    "range-split": "Sorting a whole range's hand classes into actions, graded by Rail's solve per class",
+    "depth-split": "Sorting hand classes at 200bb against 100bb (planned)",
     "range-paint": "Painting a range on the 13×13 grid (planned)",
     "range-walk": "Guessing a range street by street on your own hand (planned)",
     "pot-tracking": "Keeping track of the pot in a live-style hand (planned)",
@@ -265,7 +268,7 @@ export const courseEn = {
     retry: "Retry",
     noSpot: "No spot matched these settings. Try again.",
     planned: {
-      "range-split": "Planned: sort hand classes into actions (check, small bet, big bet) and be graded by Rail's solver per class.",
+      "depth-split": "Planned: sort the same range at 200bb and at 100bb, and compare both splits with Rail's solves.",
       "range-paint": "Planned: paint a 13×13 range and be scored against Rail's chart.",
       "range-walk": "Planned: replay one of your hands and guess the opponent's range on each street, then compare with Rail's narrowing.",
       "pot-tracking": "Planned: a live-style hand where you keep track of the pot.",
@@ -275,14 +278,103 @@ export const courseEn = {
     } as Record<string, string>,
     waits: {
       widget: "This exercise needs a widget that is not built yet.",
-      "flop-library": "Waits for Rail's flop library (not switched on yet).",
+      "flop-library": "Waits for flop solves at this depth: Rail's flop library covers 6-max 100bb heads-up lines only.",
       "villain-stats": "Waits for opponent statistics in the analysis.",
       "straddle-charts": "Waits for straddle charts, which Rail does not have yet.",
     } as Record<string, string>,
     flopOff: "Flop spots need Rail's flop library, which is not switched on yet. This exercise opens when it is.",
+    flopUnavailable:
+      "Flop spots are dealt from Rail's flop library, which this copy of Rail cannot reach (it has no database configured). The exercise works on the hosted site.",
+  },
+
+  flopBets: {
+    line: "Line",
+    lines: {
+      "btn-bb": "Button opens, big blind calls (button checked to)",
+      "utg-bb": "Under the gun opens, big blind calls (UTG checked to)",
+      "btn-bb-3bet": "Big blind 3-bets the button and is first to act",
+    } as Record<string, string>,
+    caption: (flops: number) => `The preflop raiser's first flop decision on ${flops} flops Rail solved, by board group`,
+    group: "Board group",
+    flops: "Flops",
+    bet: "Bets",
+    big: "Bets big",
+    groups: {
+      "ace-high": "Ace-high, unpaired",
+      "king-queen-high": "King- or queen-high, unpaired",
+      middle: "Jack- to eight-high, unpaired",
+      low: "Seven-high or lower, unpaired",
+      monotone: "Monotone",
+      paired: "Paired",
+      trips: "Trips",
+    } as Record<string, string>,
+    source:
+      "Rail's own flop library: the 6-max 100bb chart ranges for the line, solved on each flop with bets of 33% and 75% of the pot. “Bets” is the share of the whole range that bets; “bets big” the share that bets 75% or all-in. Each solved flop counts once, so a group's figure is a plain average over its flops.",
+  },
+
+  split: {
+    question: (street: string) =>
+      street === "turn"
+        ? "Your whole range is here on the turn. Put each hand class where you think Rail's solve mostly plays it."
+        : "Your whole range is here on the flop. Put each hand class where you think Rail's solve mostly plays it.",
+    groups: { check: "Check", small: "Small bet", big: "Big bet", fold: "Fold", call: "Call", raise: "Raise" } as Record<string, string>,
+    you: "You",
+    first: (street: string) => (street === "turn" ? "You are first to act on the turn." : "You are first to act on the flop."),
+    step: (who: string, kind: string, sizePot: number) =>
+      kind === "check"
+        ? `${who} checks.`
+        : kind === "call"
+          ? `${who} calls.`
+          : kind === "allin"
+            ? `${who} goes all-in.`
+            : `${who} ${kind === "raise" ? "raises" : "bets"} ${Math.round(sizePot * 100)}% of the pot.`,
+    pot: (pot: string, toCall: string | null) => (toCall ? `Pot ${pot} · ${toCall} to call` : `Pot ${pot}`),
+    share: (share: string) => `${share} of your range`,
+    check: "Check my split",
+    railMix: (mix: string) => `Rail: ${mix}`,
+    overall: (mix: string) => `Your whole range, as Rail plays it: ${mix}.`,
+    result: (correct: number, total: number, passed: boolean) =>
+      `${correct} of ${total} classes where Rail plays them${passed ? " — counts as right." : " — not enough to count as right."}`,
+    libraryNote: (line: string, iterations: string, exploitability: string) =>
+      `From Rail's flop library: the ${line} chart ranges solved on this flop (bets of 33% and 75% of the pot, one raise, all-in), ${iterations} iterations, within ${exploitability}% of the pot. A small bet here is up to half the pot. A class counts as right when Rail plays your choice within 15 points of its most played one.`,
+    turnNote:
+      "From a turn solve on demand: the charts' preflop ranges narrowed on the flop by Rail's heuristic model, the turn solved with bets of 75% of the pot and all-in. A class counts as right when Rail plays your choice within 15 points of its most played one.",
+    made: {
+      "fh+": "Full house or better",
+      flush: "Flush",
+      straight: "Straight",
+      set: "Set",
+      trips: "Trips",
+      "two-pair": "Two pair",
+      overpair: "Overpair",
+      "tp-top": "Top pair, top kicker",
+      "tp-good": "Top pair, good kicker",
+      "tp-weak": "Top pair, weak kicker",
+      middle: "Second pair or a pair below the top card",
+      weak: "Weak pair or underpair",
+      "ace-high": "Ace high",
+      nothing: "No pair",
+    } as Record<string, string>,
+    draws: {
+      combo: "flush and straight draw",
+      nfd: "nut flush draw",
+      fd: "flush draw",
+      oesd: "open-ended straight draw",
+      gut: "gutshot",
+      bd: "backdoor draws",
+    } as Record<string, string>,
   },
 
   spot: {
+    flopNote: (line: string, iterations: string, exploitability: string) =>
+      `A flop spot from Rail's flop library: the ${line} chart ranges solved on this flop (bets of 33% and 75% of the pot, one raise, all-in; ${iterations} iterations, within ${exploitability}% of the pot), the same solve that grades your own flops on this line.`,
+    flopFirst: "You are first to act on the flop.",
+    raised: (villain: string, to: number) => `${villain} raises to ${Math.round(to * 100) / 100} bb.`,
+    lineName: (id: string) => {
+      const parts = id.split("-");
+      const seats = parts.filter((p) => p !== "3bet" && p !== "limp").map((p) => p.toUpperCase());
+      return `${seats.join("–")}${parts.includes("3bet") ? " 3-bet pot" : parts.includes("limp") ? " limped pot" : ""}`;
+    },
     turnNote: "A turn spot: Rail solves the turn and a coarse river (bet 75% of the pot or all-in), the same solve that grades the analysis' turns. It takes a second or two.",
     ownCards: "Your hand",
     turnFirst: "You are first to act on the turn.",

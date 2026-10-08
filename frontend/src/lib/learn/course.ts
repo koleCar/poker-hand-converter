@@ -240,7 +240,7 @@ export type ClassifyKind = (typeof CLASSIFY_KINDS)[number];
  * catalogue can name them now; the lesson page shows them as planned and they
  * never count towards passing a lesson.
  */
-export const PLANNED_KINDS = ["range-split", "range-paint", "range-walk", "pot-tracking", "profile-quiz", "node-lock", "placement"] as const;
+export const PLANNED_KINDS = ["depth-split", "range-paint", "range-walk", "pot-tracking", "profile-quiz", "node-lock", "placement"] as const;
 export type PlannedKind = (typeof PLANNED_KINDS)[number];
 
 /** A spot as the leak finder names it. Scenario entries may use `*` as a wildcard (`pfr-ip-*`, `*-vs-bet`). */
@@ -272,7 +272,10 @@ export interface ChartQuizDef extends ExerciseBase {
   bias: DealBias;
 }
 
-/** Postflop trainer spots: river spots (A7) and turn spots (`lib/training/turn.ts`). The flop needs the A5b library. */
+/**
+ * Postflop trainer spots: river spots (A7), turn spots (`lib/training/turn.ts`)
+ * and flop spots from the A5b library (`lib/training/flop.ts`, Learn L2).
+ */
 export interface SolverSpotDef extends ExerciseBase {
   kind: "solver-spot";
   street: "flop" | "turn" | "river";
@@ -281,9 +284,34 @@ export interface SolverSpotDef extends ExerciseBase {
   pot: RiverPot | "any";
   seat: RiverSeat | "any";
   role: RiverRole | "any";
-  /** In position: only spots where the villain checked to the hero (`check`) or bet (`bet`). */
-  facing?: "check" | "bet" | "any";
+  /**
+   * Turn and river, in position only: spots where the villain checked to the
+   * hero (`check`) or bet (`bet`). The flop (`FlopFacing`): `check` in
+   * position, `bet` a bet to answer from either seat, `raise` the hero's bet
+   * raised.
+   */
+  facing?: "check" | "bet" | "raise" | "any";
+  /** Flop only: one line of the library (`FLOP_LINES` id, `btn-bb`). */
+  line?: string;
   bias: DealBias;
+}
+
+/**
+ * The range split (Learn L2, `lib/training/split.ts`): the hand classes of
+ * the hero's range at a node sorted into check / small / big, or fold / call
+ * / raise, graded per class by the solve (the flop library, or a turn solve).
+ */
+export interface SplitDef extends ExerciseBase {
+  kind: "range-split";
+  street: "flop" | "turn";
+  count: number;
+  /** Share of items right; an item is right when most of its classes are (`SPLIT_PASS`). */
+  pass: number;
+  pot: RiverPot | "any";
+  seat: RiverSeat | "any";
+  role: RiverRole | "any";
+  facing?: "check" | "bet" | "raise" | "any";
+  line?: string;
 }
 
 export interface CalcDef extends ExerciseBase {
@@ -321,28 +349,45 @@ export interface PlannedDef extends ExerciseBase {
   street?: "flop" | "turn" | "river";
 }
 
-export type ExerciseDef = ChartQuizDef | SolverSpotDef | CalcDef | ClassifyDef | OwnHandsDef | PlannedDef;
-export type GeneratedExerciseDef = ChartQuizDef | SolverSpotDef | CalcDef | ClassifyDef;
+export type ExerciseDef = ChartQuizDef | SolverSpotDef | SplitDef | CalcDef | ClassifyDef | OwnHandsDef | PlannedDef;
+export type GeneratedExerciseDef = ChartQuizDef | SolverSpotDef | SplitDef | CalcDef | ClassifyDef;
 
 export function isPlanned(def: ExerciseDef): def is PlannedDef {
   return (PLANNED_KINDS as readonly string[]).includes(def.kind);
 }
 
+/** Whether an exercise reads the flop library (a flop spot or a flop split). */
+export function readsFlopLibrary(def: ExerciseDef): boolean {
+  return (def.kind === "solver-spot" || def.kind === "range-split") && def.street === "flop";
+}
+
 /**
  * Whether an exercise counts towards passing its lesson: every generated
- * exercise Rail can grade today. Own hands, planned widgets and flop spots
- * while the flop library is off do not.
+ * exercise Rail can grade today. Own hands and planned widgets do not; flop
+ * spots and flop splits count while the flop library is on
+ * (`FLOP_LIBRARY_ENABLED`, since `analysis/8`).
  */
 export function countsTowardsPass(def: ExerciseDef, flopLibrary = false): def is GeneratedExerciseDef {
   if (def.kind === "own-hands" || isPlanned(def)) return false;
-  if (def.kind === "solver-spot" && def.street === "flop") return flopLibrary;
+  if (readsFlopLibrary(def)) return flopLibrary;
   return true;
 }
 
 /* --------------------------------------------------------------- lessons - */
 
-/** Where an honesty banner is due: the analysis' own words for what the engine cannot solve yet. */
-export type LessonNote = "flop-library-off" | "approximate-ranges" | "conceptual" | "straddle-not-analysed";
+/**
+ * Where an honesty banner is due: the analysis' own words for what the engine
+ * cannot solve yet, or solves only approximately.
+ *
+ * - `flop-mapped`: the drills deal the flop library's own flops; a real hand
+ *   on any other flop is read from its nearest solved flop by hand category
+ *   (`flop-mapped`, `library-bucketed`), and only 6-max 100bb heads-up lines
+ *   are in the library (L2);
+ * - `multiway-heuristic`: the library is heads-up; multiway flops are read by
+ *   the heuristic and the MDF split (A9), without a solver grade (L2).
+ */
+export type LessonNote = "flop-mapped" | "multiway-heuristic" | "approximate-ranges" | "conceptual" | "straddle-not-analysed";
+export const LESSON_NOTES: readonly LessonNote[] = ["flop-mapped", "multiway-heuristic", "approximate-ranges", "conceptual", "straddle-not-analysed"];
 
 /**
  * A curated example hand from outside Rail, with where it came from. The slot
@@ -412,6 +457,17 @@ const solver = (id: string, street: SolverSpotDef["street"], count: number, extr
   seat: "any",
   role: "any",
   bias: "range",
+  ...extra,
+});
+const split = (id: string, street: SplitDef["street"], count: number, extra: Partial<SplitDef> = {}): SplitDef => ({
+  id,
+  kind: "range-split",
+  street,
+  count,
+  pass: 0.67,
+  pot: "any",
+  seat: "any",
+  role: "any",
   ...extra,
 });
 const hands = (extra: Omit<OwnHandsDef, "id" | "kind" | "count"> & { count?: number }): OwnHandsDef => ({
@@ -563,9 +619,12 @@ const LIST: LessonMeta[] = [
     "f1",
     ["positions-and-opening-ranges"],
     ["continuation-bet", "range-advantage", "nut-advantage"],
-    [solver("flop-cbets", "flop", 6, { pot: "srp", role: "pfr" })],
-    { spots: [spot("flop", ["pfr-ip-first", "pfr-oop-first"])] },
-    { notes: ["flop-library-off"] },
+    [
+      solver("flop-cbets", "flop", 6, { pot: "srp", role: "pfr", seat: "ip", facing: "check" }),
+      hands({ spots: [spot("flop", ["pfr-ip-first"])], potType: "single-raised" }),
+    ],
+    { spots: [spot("flop", ["pfr-ip-first"], { best: ["bet"] })] },
+    { ...WRITTEN, notes: ["flop-mapped"] },
   ),
   lesson(
     "cbet-by-texture",
@@ -573,29 +632,39 @@ const LIST: LessonMeta[] = [
     ["cbet-why-and-when"],
     ["board-texture", "range-advantage", "nut-advantage", "dynamic-boards", "bet-sizing"],
     [
-      planned("split-three-flops", "range-split", "flop-library", "flop"),
-      classify("texture-warmup", "texture", 8),
+      split("split-three-flops", "flop", 3, { pot: "srp", role: "pfr", seat: "ip", facing: "check" }),
       classify("who-is-ahead", "range-advantage", 6),
       classify("who-has-the-nuts", "nut-advantage", 6),
+      hands({ spots: [spot("flop", ["pfr-ip-first"])], potType: "single-raised" }),
     ],
     { spots: [spot("flop", ["pfr-ip-first"])] },
-    { notes: ["flop-library-off", "approximate-ranges"] },
+    { ...WRITTEN, notes: ["flop-mapped", "approximate-ranges"] },
   ),
   lesson(
     "hand-classes-on-the-flop",
     "f1",
     ["cbet-by-texture"],
     ["continuation-bet", "thin-value"],
-    [classify("name-the-hand", "hand-class", 10), planned("split-one-flop", "range-split", "flop-library", "flop"), hands({ spots: [spot("flop", ["pfr-*-first"])] })],
-    { spots: [spot("flop", ["pfr-ip-first", "pfr-oop-first"])], flags: ["free-fold"] },
+    [
+      classify("name-the-hand", "hand-class", 8),
+      split("split-one-flop", "flop", 2, { pot: "srp", role: "pfr", seat: "ip", facing: "check" }),
+      hands({ spots: [spot("flop", ["pfr-*-first"])] }),
+    ],
+    { spots: [spot("flop", ["pfr-ip-first", "pfr-oop-first"], { best: ["check"] })], flags: ["free-fold"] },
+    { ...WRITTEN, notes: ["flop-mapped"] },
   ),
   lesson(
     "checking-back-and-delayed-cbets",
     "f1",
     ["hand-classes-on-the-flop"],
     ["continuation-bet", "thin-value"],
-    [solver("delayed-turns", "turn", 3, { role: "pfr", seat: "ip", pot: "srp", facing: "check" }), hands({ flags: ["check-back-nuts"] })],
+    [
+      solver("check-back-flops", "flop", 4, { pot: "srp", role: "pfr", seat: "ip", facing: "check", bias: "borderline" }),
+      solver("delayed-turns", "turn", 3, { role: "pfr", seat: "ip", pot: "srp", facing: "check" }),
+      hands({ flags: ["check-back-nuts"] }),
+    ],
     { spots: [spot("turn", ["pfr-ip-first"])], flags: ["check-back-nuts"] },
+    { ...WRITTEN, notes: ["flop-mapped", "approximate-ranges"] },
   ),
 
   // ---- F2 single-raised pots, the raiser out of position
@@ -604,17 +673,22 @@ const LIST: LessonMeta[] = [
     "f2",
     ["hand-classes-on-the-flop"],
     ["position", "check-raise"],
-    [solver("oop-rivers", "river", 4, { role: "pfr", seat: "oop", pot: "srp" }), solver("oop-flops", "flop", 4, { role: "pfr", seat: "oop", pot: "srp" })],
-    { spots: everyStreet(["pfr-oop-first"]) },
+    [
+      solver("oop-flops", "flop", 5, { role: "pfr", seat: "oop", pot: "srp" }),
+      solver("oop-rivers", "river", 3, { role: "pfr", seat: "oop", pot: "srp" }),
+      hands({ spots: [spot("flop", ["pfr-oop-first"])] }),
+    ],
+    { spots: [spot("flop", ["pfr-oop-first"])] },
+    { ...WRITTEN, notes: ["flop-mapped"] },
   ),
   lesson(
     "facing-a-check-raise",
     "f2",
     ["hand-classes-on-the-flop"],
     ["check-raise", "mdf-alpha"],
-    [solver("flop-vs-raise", "flop", 4, { role: "pfr" }), hands({ spots: [spot("flop", ["pfr-*-vs-raise"])] })],
+    [solver("flop-vs-raise", "flop", 5, { role: "pfr", facing: "raise" }), hands({ spots: [spot("flop", ["pfr-*-vs-raise"])] })],
     { spots: [spot("flop", ["pfr-ip-vs-raise", "pfr-oop-vs-raise"])] },
-    { notes: ["flop-library-off"] },
+    { ...WRITTEN, notes: ["flop-mapped"] },
   ),
 
   // ---- F3 single-raised pots, the caller
@@ -625,46 +699,68 @@ const LIST: LessonMeta[] = [
     ["mdf-alpha", "pot-odds", "equity-realisation"],
     [
       calc("sizing-quiz", "alpha-mdf", 8),
-      solver("flop-defence", "flop", 6, { role: "caller", pot: "srp" }),
+      solver("flop-defence", "flop", 6, { role: "caller", pot: "srp", facing: "bet" }),
       hands({ flags: ["call-without-odds", "fold-with-odds"], spots: [spot("flop", ["caller-*-vs-bet"])] }),
     ],
     {
       spots: [spot("flop", ["caller-ip-vs-bet", "caller-oop-vs-bet", "pfr-ip-vs-bet", "pfr-oop-vs-bet", "limped-*-vs-bet"])],
       flags: ["call-without-odds", "fold-with-odds"],
     },
-    { notes: ["flop-library-off"] },
+    { ...WRITTEN, notes: ["flop-mapped"] },
   ),
   lesson(
     "check-raising",
     "f3",
     ["defending-vs-cbets"],
     ["check-raise", "nut-advantage"],
-    [planned("fold-call-raise", "range-split", "flop-library", "flop")],
+    [
+      split("fold-call-raise", "flop", 3, { pot: "srp", role: "caller", seat: "oop", facing: "bet" }),
+      solver("raise-or-not", "flop", 4, { pot: "srp", role: "caller", seat: "oop", facing: "bet", bias: "borderline" }),
+      hands({ spots: [spot("flop", ["caller-oop-vs-bet"])] }),
+    ],
     { spots: [spot("flop", ["caller-oop-vs-bet"], { best: ["raise"] })] },
-    { notes: ["flop-library-off"] },
+    { ...WRITTEN, notes: ["flop-mapped"] },
   ),
   lesson(
     "floating-and-stabbing-ip",
     "f3",
     ["defending-vs-cbets"],
     ["position", "continuation-bet"],
-    [solver("stab-turns", "turn", 3, { role: "caller", seat: "ip", pot: "srp", facing: "check" })],
+    [
+      solver("float-flops", "flop", 3, { role: "caller", seat: "ip", pot: "srp", facing: "bet" }),
+      solver("stab-flops", "flop", 3, { role: "caller", seat: "ip", pot: "srp", facing: "check" }),
+      solver("stab-turns", "turn", 3, { role: "caller", seat: "ip", pot: "srp", facing: "check" }),
+      hands({ spots: [spot("flop", ["caller-ip-*"]), spot("turn", ["caller-ip-first"])] }),
+    ],
     { spots: [spot("turn", ["caller-ip-first"]), spot("flop", ["caller-ip-first"])] },
+    { ...WRITTEN, notes: ["flop-mapped", "approximate-ranges"] },
   ),
   lesson(
     "probes-and-donk-bets",
     "f3",
     ["floating-and-stabbing-ip"],
     ["donk-bet", "range-advantage"],
-    [solver("probe-turns", "turn", 3, { role: "caller", seat: "oop", pot: "srp" })],
+    [
+      solver("lead-or-check", "flop", 4, { role: "caller", seat: "oop", pot: "srp" }),
+      solver("probe-turns", "turn", 3, { role: "caller", seat: "oop", pot: "srp" }),
+      hands({ spots: [spot("flop", ["caller-oop-first"]), spot("turn", ["caller-oop-first"])] }),
+    ],
     { spots: [spot("turn", ["caller-oop-first"]), spot("flop", ["caller-oop-first"])] },
+    { ...WRITTEN, notes: ["flop-mapped", "approximate-ranges"] },
   ),
   lesson(
     "bb-vs-btn-blueprint",
     "f3",
     ["defending-vs-cbets", "check-raising", "floating-and-stabbing-ip", "probes-and-donk-bets"],
     ["blind-defence", "continuation-bet", "mdf-alpha"],
-    [solver("mixed-rivers", "river", 5, { pot: "srp" }), solver("mixed-turns", "turn", 3, { pot: "srp" }), hands({ spots: everyStreet(["caller-*"]) })],
+    [
+      solver("bb-flops", "flop", 5, { line: "btn-bb", seat: "oop", facing: "bet" }),
+      solver("mixed-turns", "turn", 3, { pot: "srp" }),
+      solver("mixed-rivers", "river", 3, { pot: "srp" }),
+      hands({ spots: everyStreet(["caller-*"]), potType: "single-raised" }),
+    ],
+    {},
+    { ...WRITTEN, notes: ["flop-mapped", "approximate-ranges"] },
   ),
 
   // ---- F4 3-bet and 4-bet pots
@@ -673,27 +769,42 @@ const LIST: LessonMeta[] = [
     "f4",
     ["hand-classes-on-the-flop", "defending-vs-cbets"],
     ["spr", "bet-sizing"],
-    [calc("spr-drill", "spr", 8), hands({ flags: ["committed-fold", "thin-stack-behind"] })],
+    [
+      calc("spr-drill", "spr", 6),
+      solver("3bp-commit", "flop", 4, { pot: "3bp", facing: "bet" }),
+      hands({ flags: ["committed-fold", "thin-stack-behind"] }),
+    ],
     { flags: ["committed-fold", "thin-stack-behind"] },
+    { ...WRITTEN, notes: ["flop-mapped"] },
   ),
   lesson(
     "cbetting-as-the-3bettor",
     "f4",
     ["spr-and-commitment"],
     ["continuation-bet", "range-advantage", "spr"],
-    [solver("3bp-flops", "flop", 6, { pot: "3bp", role: "pfr" }), solver("3bp-rivers", "river", 4, { pot: "3bp", role: "pfr" })],
+    [
+      solver("3bp-flops", "flop", 6, { pot: "3bp", role: "pfr" }),
+      solver("3bp-rivers", "river", 3, { pot: "3bp", role: "pfr" }),
+      hands({ spots: [spot("flop", ["pfr-*-first"])], potType: "3bet" }),
+    ],
     { spots: [spot("flop", ["pfr-ip-first", "pfr-oop-first"])] },
-    { notes: ["flop-library-off"] },
+    { ...WRITTEN, notes: ["flop-mapped"] },
   ),
   lesson(
     "playing-3bp-as-the-caller",
     "f4",
     ["spr-and-commitment"],
     ["check-raise", "bluff-catching", "spr"],
-    [solver("3bp-caller-rivers", "river", 4, { pot: "3bp", role: "caller" })],
+    [
+      solver("3bp-defence", "flop", 5, { pot: "3bp", role: "caller", facing: "bet" }),
+      solver("3bp-caller-rivers", "river", 3, { pot: "3bp", role: "caller" }),
+      hands({ spots: [spot("flop", ["caller-*"])], potType: "3bet" }),
+    ],
     // The flop only: a river bluff-catching leak goes to R2, not to a 3-bet-pot lesson
     // (a leak area does not know the pot type).
-    { spots: [spot("flop", ["caller-*-vs-bet"])] },
+    // Heads-up only: a multiway flop leak goes to F5.
+    { spots: [spot("flop", ["caller-ip-vs-bet", "caller-oop-vs-bet"])] },
+    { ...WRITTEN, notes: ["flop-mapped"] },
   ),
   lesson(
     "range-splitting-ip-vs-checks-3bp",
@@ -701,7 +812,7 @@ const LIST: LessonMeta[] = [
     ["spr-and-commitment", "cbetting-as-the-3bettor", "playing-3bp-as-the-caller", "cbet-by-texture"],
     ["continuation-bet", "bet-sizing", "range-advantage", "nut-advantage", "board-texture", "dynamic-boards", "spr", "check-raise"],
     [
-      planned("flop-split", "range-split", "flop-library", "flop"),
+      split("flop-split", "flop", 3, { pot: "3bp", seat: "ip", facing: "check" }),
       solver("turn-3bettor", "turn", 2, { pot: "3bp", seat: "ip", role: "pfr", facing: "check" }),
       solver("turn-caller", "turn", 2, { pot: "3bp", seat: "ip", role: "caller", facing: "check" }),
       solver("river-3bettor", "river", 3, { pot: "3bp", seat: "ip", role: "pfr", facing: "check" }),
@@ -709,15 +820,16 @@ const LIST: LessonMeta[] = [
       hands({ spots: everyStreet(["pfr-ip-first", "caller-ip-first"]), potType: "3bet" }),
     ],
     { spots: everyStreet(["pfr-ip-first", "caller-ip-first"]) },
-    { ...WRITTEN, notes: ["flop-library-off", "approximate-ranges"] },
+    { ...WRITTEN, notes: ["flop-mapped", "approximate-ranges"] },
   ),
   lesson(
     "four-bet-pots",
     "f4",
     ["spr-and-commitment"],
     ["spr", "three-bet"],
-    [chart("vs-4bet", "vs-4bet", 8), calc("4bp-spr", "spr", 5)],
+    [chart("vs-4bet", "vs-4bet", 8), calc("4bp-spr", "spr", 5), hands({ spots: [spot("flop", ["pfr-*", "caller-*"])], potType: "4bet+" })],
     { spots: [spot("preflop", ["vs-4bet"])] },
+    { ...WRITTEN, notes: ["conceptual"] },
   ),
 
   // ---- F5 multiway flops
@@ -728,14 +840,16 @@ const LIST: LessonMeta[] = [
     ["multiway-pots"],
     [calc("multiway-maths", "multiway", 6), hands({ flags: ["multiway-bluff", "multiway-slowplay", "multiway-dominated-draw"] })],
     { spots: everyStreet(["*-mw-*"]), flags: ["multiway-bluff", "multiway-slowplay", "multiway-dominated-draw"] },
+    { ...WRITTEN, notes: ["multiway-heuristic"] },
   ),
   lesson(
     "multiway-as-the-raiser",
     "f5",
     ["multiway-principles"],
     ["multiway-pots", "continuation-bet"],
-    [hands({ spots: [spot("flop", ["pfr-mw-*-first"])] })],
+    [calc("bluff-into-two", "multiway", 5), hands({ spots: [spot("flop", ["pfr-mw-*-first"])] })],
     { spots: [spot("flop", ["pfr-mw-ip-first", "pfr-mw-oop-first"])] },
+    { ...WRITTEN, notes: ["multiway-heuristic"] },
   ),
   lesson(
     "multiway-defence",
@@ -744,6 +858,7 @@ const LIST: LessonMeta[] = [
     ["multiway-pots", "mdf-alpha"],
     [calc("mdf-split", "multiway", 6), hands({ spots: everyStreet(["*-mw-*-vs-bet"]) })],
     { spots: everyStreet(["caller-mw-*-vs-bet", "pfr-mw-*-vs-bet"]) },
+    { ...WRITTEN, notes: ["multiway-heuristic"] },
   ),
 
   /* =============================================================== 3. Turn */
@@ -797,7 +912,7 @@ const LIST: LessonMeta[] = [
     "t2",
     ["facing-turn-barrels", "probes-and-donk-bets"],
     ["check-raise", "donk-bet", "nut-advantage"],
-    [solver("probe-or-check", "turn", 4, { role: "caller", seat: "oop", pot: "srp" }), planned("turn-fold-call-raise", "range-split", "widget", "turn")],
+    [solver("probe-or-check", "turn", 4, { role: "caller", seat: "oop", pot: "srp" }), split("turn-fold-call-raise", "turn", 2, { role: "caller", seat: "oop", pot: "srp", facing: "bet" })],
     { spots: [spot("turn", ["caller-oop-vs-bet"], { best: ["raise"] }), spot("turn", ["caller-oop-first"], { best: ["bet"] })] },
   ),
 
@@ -967,7 +1082,7 @@ const LIST: LessonMeta[] = [
     "x4",
     ["spr-and-commitment"],
     ["spr", "equity-realisation", "bet-sizing"],
-    [chart("deep-opens", "rfi", 12, { set: TABLE_6_200 }), chart("deep-defence", "vs-open", 12, { set: TABLE_6_200 }), planned("spr-toggle", "range-split", "flop-library", "flop")],
+    [chart("deep-opens", "rfi", 12, { set: TABLE_6_200 }), chart("deep-defence", "vs-open", 12, { set: TABLE_6_200 }), planned("spr-toggle", "depth-split", "flop-library", "flop")],
     { spots: [spot("preflop", ["unopened", "vs-open"])] },
   ),
 ];

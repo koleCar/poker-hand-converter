@@ -21,8 +21,8 @@ export const m6Hr: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
           "U oba slučaja cijeli tvoj raspon sada ima tri mogućnosti: mali bet, veliki bet ili check iza. Podijeliti raspon znači odlučiti koja ruka ide kamo, i zašto, prije nego što pomisliš na jednu ruku koju držiš.",
           {
             note: {
-              tone: "conceptual",
-              text: "Dio ove lekcije o flopu zasad je konceptualan. Railova knjižnica flopova još nije uključena, pa se podjela na flopu uči riječima, a vježbe se igraju na turnu i riveru, koje Rail već danas rješava.",
+              tone: "approximate",
+              text: "Podjelu na flopu ovdje ocjenjuje Railova knjižnica flopova, koja rješava linije 3-bet pota za 6-max i 100bb na po 100 reprezentativnih flopova. Tvoje ruke na drugim flopovima čitaju se s najbližeg riješenog flopa po kategoriji ruke.",
             },
           },
         ],
@@ -70,9 +70,9 @@ export const m6Hr: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
         heading: "Uloga A: 3-bettor kad caller checka",
         blocks: [
           "Prvo pročitaj check. U 3-bet potu caller gotovo uvijek checka 3-bettoru, pa ti check govori vrlo malo: cijeli raspon calla je i dalje tu, zajedno s jakim rukama.",
-          "Mali betovi glavna su skupina na boardovima na kojima imaš prednost raspona: s asom, suhi s kraljem ili niski i upareni. Overpairovi, top parovi i mnoge ruke sa samo overkartama i backdoor drawovima betaju zajedno. Mala veličina funkcionira jer je raspon calla sažet: ima malo ruku koje mogu napasti mali bet, a mnogo onih koje moraju platiti ili foldati.",
-          "Veliki betovi rastu na dinamičnim boardovima na kojima i dalje imaš dovoljno najjačih ruku, primjerice na dvobojnim visokim flopovima. Jake, ali ranjive ruke, poput overpaira, top para s dobrim kickerom i dva para, betaju veliko da izgrade pot prije nego što dođu loše karte na turnu, a pridružuju im se jaki drawovi.",
-          "Check iza najveći je na srednjim povezanim boardovima, gdje callerovi džepni parovi, suited connectori i suited broadway ruke slažu setove, dva para i skale. Ovdje idu srednji parovi, ruke s jednim parom koje mrze check-raise uz tako malo iza i ruke s asom kao najvišom kartom koje mogu dobiti na showdownu, uz nekoliko jakih ruku.",
+          "Mali betovi daleko su najveća skupina. U Railovim rješenjima buttonova 3-beta protiv cutoffa 3-bettor beta malo s većinom raspona na gotovo svakom boardu: overpairovi, top parovi, setovi i mnoge ruke sa samo overkartama i backdoor drawovima betaju zajedno. Mala veličina funkcionira jer je raspon calla sažet: ima malo ruku koje mogu napasti mali bet, a mnogo onih koje moraju platiti ili foldati.",
+          "Veliki betovi u poziciji su rijetki. Dolaze uglavnom od overpaira i najjačih ruku, nešto češće na niskim boardovima, gdje raspon calla ima najviše parova i drawova koje treba naplatiti.",
+          "Check iza skupina je srednjih ruku: drugih parova i slabijih top parova koji dobivaju na showdownu, ali mrze check-raise uz tako malo iza. Raste na jednobojnim boardovima i boardovima s asom, gdje raspon calla ima više ruku koje mogu uzvratiti.",
           {
             widget: { id: "range-vs-range", focus: "range", preset: "3bet-vs-call", board: ["Ad", "Kc", "4h"] },
             caption:
@@ -83,9 +83,9 @@ export const m6Hr: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
       {
         heading: "Uloga B: caller kad 3-bettor checka",
         blocks: [
-          "Ovdje check nosi stvarnu informaciju. 3-bettor izvan pozicije često beta na visokim boardovima koji pašu njegovu rasponu, pa check ondje naginje srednjim rukama, iako i dalje može skrivati overpair. Na niskim povezanim boardovima checka češće, pa je raspon s kojim checka širi i ima manje najboljih ruku.",
-          "Mali betovi tvoja su najšira skupina na suhim, niskim i uparenim boardovima. Srednji i slabi parovi, overkarte s backdoor drawovima i ruke koje zarađuju kad visoke karte bez pogotka foldaju betaju malo u raspon pun takvih ruku.",
-          "Veliki betovi pojavljuju se tamo gdje ti imaš najjače ruke: na niskim i srednjim povezanim boardovima, gdje su tvoji setovi, dva para i skale ruke koje 3-bettor rijetko ima. Value ruke i jaki drawovi betaju veliko, veličinom odabranom da stackovi uđu do rivera.",
+          "Ovdje check nosi stvarnu informaciju. U Railovim rješenjima 3-bettor izvan pozicije beta većinu flopova, pa su njegovi checkovi manji i slabiji dio raspona, iako i dalje mogu skrivati overpair.",
+          "Unatoč tome, check iza tvoja je najveća skupina. Najjače callerove ruke, setovi, dva para i top par s najboljim kickerom, većinom betaju, a s njima i nešto ruku bez ičega; srednji i slabi parovi gotovo uvijek checkaju.",
+          "Tvoji betovi su uglavnom mali. Najviše betaš na niskim i srednjim boardovima, gdje tvoji parovi i connectori pogađaju, a najmanje na boardovima s kraljem ili damom, gdje checkovi 3-bettora i dalje drže jake ruke. Veći betovi dolaze od najjačih ruku: dva para, setova i najboljih top parova.",
           "Check iza paše gotovim rukama srednje jačine koje se boje check-raisea, rukama koje će ionako doći do showdowna i realizirati svoj equity, i nekim jakim rukama, osobito kad će 3-bettor vjerojatno betati turn.",
           {
             checkpoint: {
@@ -104,15 +104,15 @@ export const m6Hr: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
           {
             list: [
               "Visoki, suhi boardovi: kao 3-bettor betaj malo s većinom raspona; kao caller češće checkaj iza, a betove drži malima.",
-              "Srednji povezani i dvobojni boardovi: kao 3-bettor polariziraj, s više velikih betova, više checkova i manje malih betova; kao caller betaj češće i veće.",
-              "Niski upareni boardovi: mali betovi za onoga tko beta. Jakih ruku je malo, a većina ruku je ili daleko ispred ili ima malo outova.",
-              "Jednobojni boardovi: manji betovi i više checkova. Visoke karte boje flusha odlučuju koje ruke betaju.",
+              "Srednji i niski boardovi: kao 3-bettor i dalje betaj malo s većinom raspona, uz nešto više velikih betova na najnižim boardovima; kao caller betaj češće, uglavnom malo.",
+              "Upareni boardovi: mali betovi za onoga tko beta. Jakih ruku je malo, a većina ruku je ili daleko ispred ili ima malo outova.",
+              "Jednobojni boardovi i boardovi s asom: više checkova 3-bettora i manji betovi. Visoke karte boje flusha odlučuju koje ruke betaju.",
             ],
           },
           {
             widget: { id: "board-texture", focus: "dynamism", board: ["Th", "9h", "8c"] },
             caption:
-              "T♥9♥8♣: povezan, dvobojan i dinamičan. Ubaci 3♠3♦8♣ ili A♦K♣4♥ i gledaj kako volatilnost pada. Podjela prati istu liniju, od polarizirane prema maloj i čestoj.",
+              "T♥9♥8♣: povezan, dvobojan i dinamičan. Ubaci 3♠3♦8♣ ili A♦K♣4♥ i gledaj kako volatilnost pada. Vježba podjele pokazuje kako Railovo rješenje pomiče skupine između ovakvih boardova.",
           },
         ],
       },
@@ -145,7 +145,7 @@ export const m6Hr: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
         blocks: [
           "Mnogi live 3-bettori checkaju samo slabe ruke, a sve jako betaju. Protiv njih je check jak znak da je raspon capped, pa u ulozi B možeš betati češće i s više ruku.",
           "Protiv igrača koji gotovo nikad ne rade check-raise nestaje glavni razlog za check iza sa srednjim rukama: betaj ih za tanki value i zaštitu, i tvoja se skupina checka iza smanjuje. Protiv igrača koji često rade check-raise checkaj iza više takvih ruku.",
-          "Vježbe te stavljaju upravo u ovu situaciju na turnu i riveru: 3-bet pot, ti u poziciji, protivnik je checkao. Na turnu biraš između checka, beta od 75 % pota i, kad stack nije veći od tri pota, all-ina. Na riveru biraš između checka, nekoliko veličina beta i all-ina. Ocjena je ona koju analiza daje pravoj ruci.",
+          "Podjela stavlja cijeli tvoj raspon u ovu situaciju na jednom od flopova iz knjižnice flopova, a vježbe te zatim stavljaju u nju na turnu i riveru: 3-bet pot, ti u poziciji, protivnik je checkao. Na turnu biraš između checka, beta od 75 % pota i, kad stack nije veći od tri pota, all-ina. Na riveru biraš između checka, nekoliko veličina beta i all-ina. Ocjena je ona koju analiza daje pravoj ruci.",
           {
             note: {
               tone: "approximate",
@@ -158,8 +158,8 @@ export const m6Hr: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
     heuristics: {
       rules: [
         "Prvo imenuj posao skupine: value, zaštita, uskraćivanje equityja, fold equity ili kontrola pota.",
-        "Kao 3-bettor u poziciji betaj malo i često na visokim, suhim i niskim uparenim boardovima; na srednjim povezanima polariziraj.",
-        "Kao caller u poziciji pročitaj check: na visokim boardovima naginje srednjim rukama, na niskim povezanima širok je i capped.",
+        "Kao 3-bettor u poziciji betaj malo s većinom raspona; srednje parove checkaj iza, više na jednobojnim boardovima i boardovima s asom.",
+        "Kao caller u poziciji checkaj iza većinu srednjih parova, a najjače ruke betaj, uglavnom malo, najčešće na niskim i srednjim boardovima.",
         "Veliki betovi trebaju najjače ruke; ruke s jednim parom koje ne podnose raise checkaj iza.",
         "Dublji stackovi znače veće veličine, više checkova i manje ljubavi prema jednom paru.",
       ],
@@ -171,7 +171,7 @@ export const m6Hr: LessonBodies<"range-splitting-ip-vs-checks-3bp"> = {
     },
     exercises: {
       "flop-split":
-        "Stiže s knjižnicom flopova: nakon checka razvrstaj kategorije ruku na mali bet, veliki bet i check iza, pa usporedi svoju podjelu s Railovim rješenjem za taj flop.",
+        "Tri flopa iz Railove knjižnice flopova u 3-bet potu, ti u poziciji nakon checka: svaku klasu ruku stavi u check, mali bet ili veliki bet, a ocjenjuje se klasa po klasa prema rješenju.",
       "turn-3bettor":
         "Dvije situacije na turnu kao 3-bettor u poziciji nakon checka, koje Rail rješava na zahtjev: check, bet od 75 % pota ili all-in kad je stack dovoljno kratak.",
       "turn-caller":

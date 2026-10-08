@@ -18,7 +18,7 @@ import type { ChartNode, ChartSet } from "../../../lib/charts";
 import { preflopChartSet } from "../../../lib/chartSet";
 import { recordTrainerResults } from "../../../lib/db/training";
 import { useDict } from "../../../lib/i18n/client";
-import { dealPreflopSpot, dealRiverSpot, dealTurnSpot, gradeSpotAnswer } from "../../../lib/trainer";
+import { dealFlopSpot, dealPreflopSpot, dealRiverSpot, dealTurnSpot, gradeSpotAnswer } from "../../../lib/trainer";
 import { handUpTo, type GradedAnswer, type PreflopSpotOptions, type RiverSpotOptions, type TrainerSpot, type TurnSpotOptions } from "../../../lib/training";
 import type { CardItem } from "../../../lib/learn/progress";
 import { CardRow } from "../../replayer/PlayingCard";
@@ -28,19 +28,25 @@ import { AnswerResult } from "../../analysis/train/AnswerResult";
 import { SpotWords } from "../../analysis/train/SpotTrainer";
 import { lastAction } from "../../analysis/train/spotPosition";
 import own from "../../analysis/train/train.module.css";
+import { useFormats } from "../controls";
 import type { ItemAnswer } from "./PracticeItems";
 import styles from "./course.module.css";
 
 /** Seeds tried after the item's own before saying no spot matches; the same on every replay, so a card deals the same spot. */
 const DEAL_TRIES = 3;
 
-export type SpotItem = Extract<CardItem, { k: "chart" | "river" | "turn" }>;
+export type SpotItem = Extract<CardItem, { k: "chart" | "river" | "turn" | "flop" }>;
 
 async function deal(item: SpotItem): Promise<TrainerSpot | null> {
   for (let attempt = 0; attempt < DEAL_TRIES; attempt += 1) {
     const seed = (item.seed + attempt * 0x9e3779b1) >>> 0;
     let spot: TrainerSpot | null;
-    if (item.k === "chart") {
+    if (item.k === "flop") {
+      spot = await dealFlopSpot(
+        { pot: item.pot, seat: item.seat, role: item.role, facing: item.facing, line: item.line, bias: item.bias },
+        seed,
+      );
+    } else if (item.k === "chart") {
       const options: PreflopSpotOptions = { family: item.family, set: item.set ?? null, seat: item.seat ?? null, vs: item.vs ?? null, bias: item.bias };
       spot = await dealPreflopSpot(options, seed);
     } else {
@@ -59,6 +65,7 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
   const en = useDict();
   const t = en.analysis.train;
   const c = en.course.exercise;
+  const f = useFormats();
   const [attempt, setAttempt] = useState(0);
   const [dealt, setDealt] = useState<Dealt | null>(null);
   const [answered, setAnswered] = useState<Answered | null>(null);
@@ -122,7 +129,8 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
             return;
           }
           onAnswer({ correct: d.grade === "perfect" || d.grade === "good", grade: d.grade });
-          if (!signedIn || spot.kind === "turn") return;
+          // The trainer history keeps preflop and river answers (its modes); turn and flop spots are Learn's own.
+          if (!signedIn || spot.kind === "turn" || spot.kind === "flop") return;
           recordTrainerResults([
             {
               mode: spot.kind,
@@ -189,7 +197,11 @@ export function SpotItemView({ item, signedIn, onAnswer }: { item: SpotItem; sig
       <AnswerBar options={options} picked={answered?.picked ?? null} disabled={Boolean(answered)} onPick={pick} />
       {spot.kind !== "preflop" ? (
         <p className={own.note}>
-          {spot.kind === "turn" ? `${en.course.spot.turnNote} ${en.course.spot.turnRanges}` : t.rangesNote}
+          {spot.kind === "turn"
+            ? `${en.course.spot.turnNote} ${en.course.spot.turnRanges}`
+            : spot.kind === "flop"
+              ? en.course.spot.flopNote(en.course.spot.lineName(spot.lineId), f.num(spot.iterations, 0), f.num(spot.exploitabilityPct, 2))
+              : t.rangesNote}
           {spot.sources.hero === "placeholder" || spot.sources.villain === "placeholder" ? ` ${t.placeholderNote}` : ""}
         </p>
       ) : null}

@@ -28,7 +28,7 @@
  */
 
 import type { ChartPosition, ChartSet } from "../charts";
-import { followTurnLine, solveTurnSpot, streetActs, walkRanges } from "../analysis";
+import { followTurnLine, solveTurnSpot, streetActs, walkRanges, type TurnSolve } from "../analysis";
 import { cardCode } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import { comboHi, comboLo, NUM_COMBOS } from "../solver";
@@ -95,7 +95,29 @@ export interface TurnTrainerSpot {
   exploitabilityPct: number;
 }
 
-function attempt(charts: ChartSet, options: TurnSpotOptions, rng: Rng, seed: number): TurnTrainerSpot | null {
+/** A turn solved for a seed's line, seat and board, before anything is dealt to the hero. */
+export interface TurnSetup {
+  line: RiverLine;
+  seat: RiverSeat;
+  hero: ChartPosition;
+  villain: ChartPosition;
+  /** Four cards. */
+  board: string[];
+  /** The hand through the flop, the turn dealt and empty. */
+  toTurn: HandScript;
+  heroFirst: boolean;
+  stack: number;
+  solve: TurnSolve;
+  sources: { hero: "chart" | "placeholder"; villain: "chart" | "placeholder" };
+  model: string;
+}
+
+/**
+ * A line, a board, a flop line and the turn solved from both narrowed ranges:
+ * the first half of a turn spot, and what the split exercise reads by
+ * category (Learn L2). Null when the attempt does not reach a solve.
+ */
+export function turnSetup(charts: ChartSet, options: TurnSpotOptions, rng: Rng, seed: number): TurnSetup | null {
   const lines = riverLines(charts, options.pot ?? "any");
   if (lines.length === 0) return null;
   const wantSeat = filterSeat(options);
@@ -169,6 +191,13 @@ function attempt(charts: ChartSet, options: TurnSpotOptions, rng: Rng, seed: num
     },
   });
   if (!solve.ok) return null;
+  return { line, seat, hero, villain, board, toTurn, heroFirst, stack, solve, sources: walk.sources, model: walk.model };
+}
+
+function attempt(charts: ChartSet, options: TurnSpotOptions, rng: Rng, seed: number): TurnTrainerSpot | null {
+  const setup = turnSetup(charts, options, rng, seed);
+  if (!setup) return null;
+  const { line, seat, hero, villain, board, toTurn, heroFirst, stack, solve } = setup;
 
   let facing: TurnTrainerSpot["facing"] = null;
   const turnActs: ScriptAct[] = [];
@@ -216,8 +245,8 @@ function attempt(charts: ChartSet, options: TurnSpotOptions, rng: Rng, seed: num
     toCallBb: round2(node.toCall),
     stackBb: round2(stack),
     facing,
-    sources: walk.sources,
-    model: walk.model,
+    sources: setup.sources,
+    model: setup.model,
     iterations: solve.result.iterations,
     exploitabilityPct: Math.round(solve.result.exploitabilityPct * 1000) / 1000,
   };

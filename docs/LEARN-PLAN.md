@@ -32,8 +32,10 @@ calculators at runtime, or is plain arithmetic the tests recompute.**
    analysed decisions in that spot, worst EV loss first, replayed
    spoiler-safe — something no reference course can do.
 5. **Honest about what is not solved.** Where the engine cannot solve a spot
-   yet (the flop library is off, straddles have no charts, ranges rest on the
-   narrowing model), the lesson says so with the analysis' own words.
+   yet (a flop the library did not solve is read from its nearest solved
+   flop, multiway and 4-bet-pot flops are not in the library, straddles have
+   no charts, ranges rest on the narrowing model), the lesson says so with the
+   analysis' own words.
 6. **Nothing locks.** Prerequisites are advice; every lesson opens. A lesson not
    written yet is in the map as "coming soon".
 7. **Progress is automatic.** A lesson is passed when its gradable exercises
@@ -117,17 +119,19 @@ theory with no number.
 | Kind | What | Graded by | L1 |
 |---|---|---|---|
 | `chart-quiz` | preflop trainer spots by family, seat, raiser and chart set (6/9-max, 40–200bb, limped) | the charts, through `analyzeHand` | yes |
-| `solver-spot` | river spots (A7) and **turn spots** (new, `lib/training/turn.ts`), optionally "the villain checked" or "bet" (in position); flop when the library is on | the river / turn solve, through `analyzeHand` | river, turn |
+| `solver-spot` | river spots (A7) and **turn spots** (new, `lib/training/turn.ts`), optionally "the villain checked" or "bet" (in position); **flop spots** from the flop library (L2, `lib/training/flop.ts`): facing a check, a bet or a raise, any seat, a line filter | the river / turn solve, the flop library's chunk, through `analyzeHand` | river, turn; flop in L2 |
 | `calc` | a number to work out (pot odds, draw equity by exact enumeration, EV trees, combos, alpha/MDF, SPR, grades, steal and big-blind prices, bb/100, all-in EV, multiway folds), answered before the calculator reveals it | `math.ts`, exact equity, `grade()` | yes |
 | `classify` | sort a board or hand: suits, pairing, connectedness, high card, dynamism, hand class; range advantage, nut advantage and turn-card shifts on the concept library's illustrative ranges | `texture.ts`, `madeHand`/`draws`, `rangeVsRange`, `nutShare` | yes |
 | `own-hands` | the learner's decisions matching the lesson's spots or flags, worst EV loss first, spoiler-safe | the stored grade (`gradeDrill`) | yes |
-| `range-split` | put hand classes into check / small / big (or fold / call / raise) | the solver per `flopBucket` category | placeholder |
+| `range-split` | put hand classes into check / small / big (or fold / call / raise) | the solve's mix per class: `flopBucket` categories on a library flop, `turnCategory` on a turn solve | L2 (`lib/training/split.ts`) |
+| `depth-split` | the same split at 200bb against 100bb | flop solves at other depths | placeholder |
 | `range-paint` | paint a 13×13 range | a chart | placeholder |
 | `range-walk`, `pot-tracking`, `profile-quiz`, `placement` | see §5 | | placeholders |
 
 Pass rules are per exercise (a share of the items, e.g. 7 of 10). Own hands
-and planned widgets never count towards passing; flop spots count once the
-flop library is on.
+and planned widgets never count towards passing; flop spots and flop splits
+count where they can be played: the flag on (`FLOP_LIBRARY_ENABLED`, since
+`analysis/8`) and the library reachable (a Supabase URL).
 
 ## 4. Smart features
 
@@ -152,7 +156,7 @@ views, a live/online path toggle, re-check nudges, a daily five-minute dose.
 |---|---|
 | **L1** (shipped, #110) | The Learn tab and course map; the full catalogue; written lessons for M0–M3 and M6-L4 in English and Croatian; `chart-quiz`, `solver-spot` (river and turn), `calc` with answer-first reveal, `classify`, `own-hands`; recommendations, the plan's lesson task, review cards, automatic progress; storage for signed-in learners, browser storage for signed-out ones. |
 | **L1.1** (shipped) — restructure (principles 8–9) | <ul><li>Tracks and modules as in §2; M0–M2 out of the map (intro panel and reference)</li><li>their key ideas folded into the first lesson that uses them</li><li>the new ids added as "coming soon"</li><li>the plan's lesson tasks and leak recommendations re-pointed</li><li>tests updated</li></ul> |
-| **L2** — flop | Track 2 written (F1–F5); the `range-split` widget (turn/river buckets now, flop buckets when the flop library is on). |
+| **L2** (shipped) — flop | Track 2 written (F1–F5); flop spots from the library; the `range-split` widget (flop buckets from the library, turn categories from a turn solve); the raiser's flop bets by board group from Rail's own library. See §8. |
 | **L3** — turn and river | Tracks 3–4 written; `range-paint`; mastery from real-hand improvement. |
 | **L4** — exploits | Track 5 written, plus the **exploit lab**: solver node-locking UI, the opponents-panel tie-in, pool tendencies from the learner's own villain stats with sample sizes. |
 | **L5** | Placement test, curated example hands (`examples` slot), flop drills once `FLOP_LIBRARY_ENABLED` is on. |
@@ -246,12 +250,109 @@ views, a live/online path toggle, re-check nudges, a daily five-minute dose.
   queue's counts and deals ask only for lessons on the map. A plan saved
   before L1.1 that names a removed lesson links to its reference page.
 
-## 8. Open after L1 and L1.1
+## 8. What L2 shipped
 
+- **Track 2 written**, English and Croatian, all 19 lessons of F1–F5:
+  `cbet-why-and-when`, `cbet-by-texture`, `hand-classes-on-the-flop`,
+  `checking-back-and-delayed-cbets` (F1); `oop-as-the-raiser`,
+  `facing-a-check-raise` (F2); `defending-vs-cbets`, `check-raising`,
+  `floating-and-stabbing-ip`, `probes-and-donk-bets`, `bb-vs-btn-blueprint`
+  (F3); `spr-and-commitment`, `cbetting-as-the-3bettor`,
+  `playing-3bp-as-the-caller`, `four-bet-pots` (F4, with M6-L4's
+  `range-splitting-ip-vs-checks-3bp` revised); `multiway-principles`,
+  `multiway-as-the-raiser`, `multiway-defence` (F5). Bodies in
+  `lib/learn/lessons/f1.*`–`f5.*`.
+  - The ideas L1.1 folded in are written in place: alpha / MDF where a flop
+    bet is defended (and priced again for a check-raise), range and nut
+    advantage where flop bets are sized.
+  - **No basics; every number is arithmetic the course test recomputes** (pots,
+    alpha, MDF, prices, SPR, the geometric bet, multiway folds and the MDF
+    split) or Rail's own at runtime. Frequencies are never written into the
+    text; the words give directions, and those were **checked against Rail's
+    own library before writing** (e.g. the big blind folds more than MDF to a
+    small c-bet; the in-position 3-bettor bets small with most of its range;
+    out of position the 3-bettor still bets most flops; the small blind as
+    raiser checks nearly every low board). Where Rail's library contradicted
+    L1's wording, the text and outline goals were changed: M6-L4's split
+    (big bets are rare for the in-position 3-bettor; its checks grow on
+    monotone and ace-high boards) and the 3-bet-pot outlines.
+  - **Honesty banners** (principle 5): `flop-mapped` on every lesson with flop
+    drills (drills are dealt on solved flops, a real hand on another flop is
+    read from its nearest solved flop by category), `multiway-heuristic` on
+    F5 (the library is heads-up), `conceptual` on 4-bet pots (not in the
+    library). `flop-library-off` is gone.
+- **Flop spots** (`lib/training/flop.ts`): a line of `FLOP_LINES` and a flop
+  the library holds (`planFlop`, drawn first so the worker can fetch the one
+  chunk), the chunk's suits relabelled at random (the same canonical flop:
+  exact, never mapped), the line before the hero's decision drawn from the
+  solve's own frequencies (`heroNode`: facing a check, a bet or a raise, or
+  the first decision), the hero's combo from its range at the node.
+  `gradeAnswer(…, { flopLibrary })` runs `analyzeHand` on the finished hand,
+  which reads the same chunk and lands on the same node (tested on the
+  pilot: `source: "solver"`, not mapped, same menu). Filters: pot, seat,
+  role, facing, and a line (`bb-vs-btn-blueprint` deals `btn-bb` only).
+- **The range split** (`lib/training/split.ts`, `SplitItemView`): the hero's
+  whole range at the node, every combo by its `flopBucket` category (made hand
+  × draw) on a library flop, or by `turnCategory` on a turn solve (A5a); the
+  largest categories (at least 3% of the range, at most 8); groups check /
+  small (≤ half the pot) / big, or fold / call / raise. A class is right when
+  the solve plays the pick within 15 points of its most played group (a mixed
+  class has more than one right answer); an item is right at 70% of its
+  classes. The item carries the solve's numbers, so the browser grades it.
+  Live on `cbet-by-texture`, `hand-classes-on-the-flop`, `check-raising` and
+  M6-L4 (flop), and `turn-check-raise-and-probe` (turn, lesson not written).
+- **The raiser's flop bets by board group** (`flop-bets` widget,
+  `lib/learn/flopBets.ts`): for BTN–BB and UTG–BB (the button checked to) and
+  the big blind's 3-bet against the button, the share of the raiser's range
+  that bets, and bets big, at its first decision, averaged per board group
+  over the library's 100 flops. The rows are `lib/learn/data/flop-bets.json`
+  (13 KB), written from the full run by `npm run floplib:bets`; the tests
+  recompute every row the committed pilot holds from its chunks and every
+  group from the rows. Rail's own solves only, labelled as such.
+- **In the browser**: the trainer worker builds a `FlopLibraryLoader` on
+  `flopLibraryBase(SUPABASE_URL)` and fetches the one chunk a job needs
+  (`prepareFlopLibrary` / `trainingChunk`), never bundled. Flop exercises
+  count towards passing where they can be played (flag on and a Supabase
+  URL, `FLOP_DRILLS_AVAILABLE`); without one they say so. **Loader fix:**
+  `FlopLibraryLoader.ready` now shares an in-flight manifest fetch — the
+  trainer worker answers jobs concurrently, and a second job used to read
+  the half-loaded manifest as empty and deal nothing (no grade change; the
+  analysis worker loads sequentially).
+- **No migration.** Flop spots and splits are `solver-spot` review cards
+  (items `k: "flop"` and `k: "split"`; the database checks only the card
+  kind and the item's size). A new planned kind, `depth-split` (200bb against
+  100bb), replaces X4's planned flop split.
+- **Recommendations and the plan**: flop leaks now land on the F lessons by
+  their spot match (written lessons win, best action decides between
+  *why the raiser bets* and *which hands bet and which check*); L1.1's
+  stand-in (the 3-bet-pot split for every in-position flop leak) is gone, and
+  a multiway flop leak goes to F5. The plan's lesson tasks follow, since they
+  ask the same matcher for written lessons.
+- **Verified** in the browser against the full library served locally: the
+  split (fold / call / raise on an HJ–BB flop) and a big-blind flop spot
+  graded "Perfect, graded against the solver" from the chunk.
+
+## 9. Open after L1, L1.1 and L2
+
+- **`btn-sb` is never read by the analysis**: `chartLineOf` places a
+  button–small-blind pot as `fffrc` (the big blind's later fold is not part
+  of either flop player's line), but its chunks are keyed `fffrcf`, so real
+  hands on that line keep the heuristic flop. The drills skip the line
+  (`analysisReadsLine`); fixing the analysis is a grade change (a version
+  bump), for the analysis track.
+- Flop drills cover the library: 6-max, 100bb, heads-up, eleven lines. 9-max,
+  other depths, 4-bet pots and multiway flops are taught in words and graded
+  in your own hands by the heuristic.
+- The turn split reads A5a's coarse turn tree (check, 75%, all-in), so its
+  groups are check / big or fold / call / raise; the river has no split yet.
+- The trainer history (`trainer_results`) keeps preflop and river answers
+  only; flop and turn spots count in the lesson, not in the study plan's
+  trainer tasks.
 - The `range-advantage`, `nut-advantage` and turn-card classify items use the
   concept library's hand-written ranges, not Rail's charts; their buckets are
-  set on those ranges (`practice.ts`). Moving them onto chart ranges is an L2
-  task once the flop library gives real flop ranges.
+  set on those ranges (`practice.ts`). The flop-bets table and the split now
+  give Rail's own numbers next to them; moving the classify items onto the
+  library's ranges is still open.
 - Turn spots use A5a's coarse tree (check, 75%, all-in when short), so the
   turn "small bet" bucket of M6-L4 is taught in words; the river offers several
   sizes.
@@ -264,10 +365,9 @@ views, a live/online path toggle, re-check nudges, a daily five-minute dose.
   a library not yet re-analysed shows none.
 - The lesson's results and cards are graded in the browser and only
   shape-checked by the database, as trainer answers are.
-- Until F1 is written, a flop-bet-in-position leak is matched to the written
-  3-bet-pot lesson (*in position after a check*): a leak area does not know
-  the pot type. The river and flop-call leaks wait for R2 and F3 to be
-  written (no written lesson rather than a wrong one).
+- A leak area does not know the pot type, so a flop leak in a 3-bet pot can
+  land on the single-raised lesson for the same spot. River leaks wait for
+  R1–R2 to be written (no written lesson rather than a wrong one).
 - Reference pages keep L1's wording, so a few lines still read as part of a
   lesson ("this lesson"); the cross-links to the next page were made into
   reference links.

@@ -95,7 +95,37 @@ export {
   type RiverSpotOptions,
   type RiverTrainerSpot,
 } from "./river";
-export { generateTurnSpot, turnAnswer, type TurnSpotOptions, type TurnTrainerSpot } from "./turn";
+export { generateTurnSpot, turnAnswer, turnSetup, type TurnSetup, type TurnSpotOptions, type TurnTrainerSpot } from "./turn";
+export {
+  flopAnswer,
+  flopChunkFor,
+  flopFilterSeat,
+  flopSeatings,
+  generateFlopSpot,
+  heroNode,
+  libraryFlops,
+  planFlop,
+  type FlopFacing,
+  type FlopPlan,
+  type FlopSpotOptions,
+  type FlopTrainerSpot,
+} from "./flop";
+export {
+  MAX_SPLIT_ROWS,
+  MIN_SPLIT_SHARE,
+  SMALL_MAX,
+  SPLIT_PASS,
+  SPLIT_SLACK,
+  generateSplit,
+  gradeSplit,
+  rightGroups,
+  splitTable,
+  type SplitGrade,
+  type SplitGroup,
+  type SplitItem,
+  type SplitOptions,
+  type SplitRow,
+} from "./split";
 export { asAnswered, gradeAnswer, gradeDrill, type DrillDecision } from "./grade";
 export {
   INITIAL_EASE,
@@ -113,7 +143,10 @@ export {
 } from "./schedule";
 export {
   answerHand,
+  needsFlopLibrary,
+  prepareFlopLibrary,
   runTrainingJob,
+  trainingChunk,
   type GradedAnswer,
   type TrainerSpot,
   type TrainingRequest,
