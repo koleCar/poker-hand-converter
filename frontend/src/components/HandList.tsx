@@ -80,7 +80,7 @@ export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
         <span>{t.columns.time}</span>
         <span>{t.columns.hero}</span>
         <span>{t.columns.board}</span>
-        <span>{t.columns.table}</span>
+        <span>{t.columns.stakes}</span>
         <span>{t.columns.pot}</span>
         <span>{t.columns.heroNet}</span>
         <span />
@@ -107,7 +107,9 @@ export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
               {formatDate(row.playedAt, locale)}
               {/* The room, not the internal key: "#standard:HD75320833" told the
                   user nothing and leaked a parser id into the interface. */}
-              <small>
+              <small
+                title={`${siteLabel(row.site, t.standardFormat)}${row.siteHandId ? ` · #${row.siteHandId}` : ""}`}
+              >
                 {siteLabel(row.site, t.standardFormat)}
                 {row.siteHandId ? ` · #${row.siteHandId}` : ""}
               </small>
@@ -132,13 +134,12 @@ export function HandList({ rows, loading, activeId, onOpen }: HandListProps) {
                 <span className="muted">{t.preflop}</span>
               )}
             </span>
-            <span className="hand-table__table">
-              {row.tableName ?? "—"}
-              <small>
-                {row.smallBlind !== null || row.bigBlind !== null
-                  ? `${money(unit, row.smallBlind)}/${money(unit, row.bigBlind)}`
-                  : row.stakesLabel ?? "—"}
-              </small>
+            {/* Stakes only: the table name ("Liverpool Bomb Pot (3BB-5BB) #2")
+                says nothing a player filters by and wrapped the row. */}
+            <span className="hand-table__stakes">
+              {row.smallBlind !== null || row.bigBlind !== null
+                ? `${money(unit, row.smallBlind)}/${money(unit, row.bigBlind)}`
+                : (row.stakesLabel ?? "—")}
             </span>
             <span>{money(unit, row.totalPot)}</span>
             <span

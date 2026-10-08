@@ -242,7 +242,7 @@ export const converterEn = {
       time: "Time",
       hero: "Hero",
       board: "Board",
-      table: "Table",
+      stakes: "Stakes",
       pot: "Pot",
       heroNet: "Hero P/L",
     },
@@ -257,6 +257,8 @@ export const converterEn = {
 
   /** `HandFiltersBar`. Position labels (UTG, BTN…) stay as poker writes them. */
   filters: {
+    title: "Filters",
+    activeCount: (count: number) => `${num(count)} active`,
     board: "Board",
     boardPlaceholder: "e.g. Ah Kd 2c  or  AhKd",
     boardMatches: "Hands whose board contains",

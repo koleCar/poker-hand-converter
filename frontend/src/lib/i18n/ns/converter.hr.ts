@@ -218,7 +218,7 @@ export const converterHr: Dict["converter"] = {
       time: "Vrijeme",
       hero: "Hero",
       board: "Board",
-      table: "Stol",
+      stakes: "Ulog",
       pot: "Pot",
       heroNet: "Hero +/−",
     },
@@ -232,6 +232,8 @@ export const converterHr: Dict["converter"] = {
   },
 
   filters: {
+    title: "Filteri",
+    activeCount: (count: number) => `${num(count)} ${plural(count, "aktivan", "aktivna", "aktivnih")}`,
     board: "Board",
     boardPlaceholder: "npr. Ah Kd 2c  ili  AhKd",
     boardMatches: "Ruke čiji board sadrži",

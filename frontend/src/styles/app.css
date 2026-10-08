@@ -493,14 +493,66 @@
 
 /* --------------------------------------------------------------- filters */
 
+.filters-panel {
+  background: var(--bg);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+}
+
+.filters-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px 6px 6px;
+}
+
+.filters-panel__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filters-panel__toggle:hover {
+  background: var(--bg-elev-2);
+}
+
+.filters-panel__chevron {
+  inline-size: 1em;
+  color: var(--fg-dim);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.filters-panel__count {
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--accent-border);
+  background: color-mix(in srgb, var(--accent-fg) 15%, transparent);
+  color: var(--accent-on-subtle);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .filters {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 14px;
-  background: var(--bg);
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius-sm);
+  padding: 4px 14px 14px;
+}
+
+.filters[hidden] {
+  display: none;
 }
 
 .filters__row {
@@ -611,9 +663,14 @@
   border-radius: var(--radius-sm);
 }
 
+/* One grid for the whole table, rows as subgrids. With a grid per row, the
+   `auto` actions column sized itself per row — a row with an SD tag got a
+   wider last column than one without, and every other column shifted. */
 .hand-table {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns:
+    165px 140px minmax(190px, 1fr) 110px 90px 100px max-content;
+  column-gap: 12px;
   border: 1px solid var(--line-soft);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -622,10 +679,23 @@
 .hand-table__head,
 .hand-table__row {
   display: grid;
-  grid-template-columns: 150px 120px minmax(190px, 1fr) 140px 90px 100px auto;
-  gap: 12px;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
   padding: 9px 13px;
+}
+
+/* Numbers line up on their right edge, headers with them. */
+.hand-table__head > :nth-child(5),
+.hand-table__row > :nth-child(5),
+.hand-table__head > :nth-child(6),
+.hand-table__row > :nth-child(6) {
+  text-align: right;
+}
+
+.hand-table__stakes {
+  color: var(--fg-muted);
+  white-space: nowrap;
 }
 
 .hand-table__head {
@@ -660,17 +730,20 @@
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
-.hand-table__time,
-.hand-table__table {
+.hand-table__time {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   line-height: 1.35;
 }
 
-.hand-table__time small,
-.hand-table__table small {
+/* Room and hand id; long ids are cut rather than allowed to widen the column. */
+.hand-table__time small {
+  overflow: hidden;
   color: var(--fg-dim);
   font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .hand-table__class {
@@ -735,14 +808,9 @@
 /* ----------------------------------------------------------- responsive */
 
 @media (max-width: 1100px) {
-  .hand-table__head,
-  .hand-table__row {
-    grid-template-columns: 120px 100px minmax(150px, 1fr) 90px 80px auto;
-  }
-
-  .hand-table__head > span:nth-child(4),
-  .hand-table__row > span:nth-child(4) {
-    display: none;
+  .hand-table {
+    grid-template-columns:
+      130px 120px minmax(150px, 1fr) 90px 80px 90px max-content;
   }
 }
 
@@ -751,10 +819,20 @@
     padding: 16px 12px 56px;
   }
 
+  .hand-table {
+    display: flex;
+    flex-direction: column;
+  }
+
   .hand-table__head,
   .hand-table__row {
     grid-template-columns: 1fr 1fr;
-    row-gap: 6px;
+    gap: 6px 12px;
+  }
+
+  .hand-table__row > :nth-child(5),
+  .hand-table__row > :nth-child(6) {
+    text-align: left;
   }
 
   .hand-table__head {
