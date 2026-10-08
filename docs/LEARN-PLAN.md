@@ -343,7 +343,8 @@ nudges, a daily five-minute dose.
   of either flop player's line), but its chunks are keyed `fffrcf`, so real
   hands on that line keep the heuristic flop. The drills skip the line
   (`analysisReadsLine`); fixing the analysis is a grade change (a version
-  bump), for the analysis track.
+  bump), for the analysis track. (Fixed in `analysis/9`: the line is read and
+  dealt again.)
 - Flop drills cover the library: 6-max, 100bb, heads-up, eleven lines. 9-max,
   other depths, 4-bet pots and multiway flops are taught in words and graded
   in your own hands by the heuristic.

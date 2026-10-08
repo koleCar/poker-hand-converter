@@ -1998,7 +1998,7 @@ Each phase appends what it learned that changed the plan.
     (backlog) and more representatives where the mapping distance is 3+
     are the two levers.
 - 2026-10-08 — Learn L3: the turn and river tracks (`docs/LEARN-PLAN.md`
-  §10). No grade changes: still `analysis/8`; no migration.
+  §10). No grade changes: still `analysis/9`; no migration.
   - **Training, additive**: `riverSetup` (the river spot's first half, the
     same draws from the seed, so a river spot is unchanged), the river range
     split (`riverCategory`, an overbet group above the pot), a turn flop-line
