@@ -6,6 +6,7 @@ import { LearnProvider } from "../../../components/learn/course/LearnStore";
 import { Block } from "../../../components/learn/course/LessonBlocks";
 import { LessonMastery } from "../../../components/learn/course/LessonMastery";
 import { LessonStatusChip, MasteredBanner, StorageNote } from "../../../components/learn/course/LessonStatus";
+import { PoolTendencies } from "../../../components/learn/course/PoolTendencies";
 import { RichText } from "../../../components/learn/course/RichText";
 import { ServerFrame } from "../../../components/shell/ServerFrame";
 import { getDict, getLocale } from "../../../lib/i18n/server";
@@ -157,6 +158,13 @@ export default async function LessonPage({ params }: PageProps) {
                   ))}
                 </ul>
               </section>
+
+              {meta.pool ? (
+                <section className={styles.section} aria-labelledby={id("pool")}>
+                  <h2 id={id("pool")}>{t.pool.title}</h2>
+                  <PoolTendencies topic={meta.pool} />
+                </section>
+              ) : null}
 
               <section className={styles.section} aria-labelledby={id("practice")}>
                 <h2 id={id("practice")}>{t.lesson.practice}</h2>

@@ -697,3 +697,10 @@
   flex-direction: column;
   gap: var(--space-1);
 }
+
+/* Learn L4: the learner's own pool on an exploit lesson. */
+.pool {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

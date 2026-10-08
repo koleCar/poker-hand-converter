@@ -18,6 +18,7 @@
  * flop.ts         flop+turn+river games and solves, suit isomorphism on both deals (A5b)
  * flopSet.ts      the 1,755 canonical flops, the library's ~100 representatives, the mapping
  * flopLibrary.ts  FLOPLIB_VERSION: the library's chunk format, encode / decode
+ * lock.ts         the exploit lab (Learn L4): lock a node, best-respond, gain and risk
  * ```
  *
  * **Import rule: this module may import only `lib/phf/types`, `lib/cards` and
@@ -35,6 +36,7 @@
 export {
   DEFAULT_DCFR,
   Solver,
+  type BestResponseRow,
   type ChanceSampling,
   type DcfrParams,
   type Exploitability,
@@ -89,6 +91,17 @@ export {
   type SolveOptions,
   type SolveResult,
 } from "./solve";
+export {
+  exploitLab,
+  groupShareOf,
+  loadResult,
+  lockedStrategy,
+  ownReach,
+  resultNodeIds,
+  type LabOptions,
+  type LabResult,
+  type NodeLock,
+} from "./lock";
 export { decodeSolution, encodeSolution, SOLVER_VERSION, SolutionFormatError } from "./format";
 export {
   boardSymmetries,

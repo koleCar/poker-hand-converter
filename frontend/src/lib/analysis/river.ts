@@ -58,6 +58,7 @@ import {
   STANDARD_RAKE,
   translateSize,
   type BetMenu,
+  type RiverSpot,
   type SolvedNode,
   type SolveResult,
 } from "../solver";
@@ -227,7 +228,7 @@ export interface RiverSolve {
 
 export type RiverFailure = { ok: false; reason: RiverSkipReason; detail: string };
 
-interface RakeInfo {
+export interface RakeInfo {
   name: string;
   percent: number;
   cap: number;
@@ -252,8 +253,19 @@ export function pruned(range: Float64Array): Float64Array {
   return out;
 }
 
-/** Solves the river of a heads-up hand. */
-export function solveRiverSpot(input: RiverSpotInput): RiverSolve | RiverFailure {
+/**
+ * The river game a spot is solved as: both ranges pruned (the hero's combo
+ * added at the floor when its own range had dropped it), the menu, the rake.
+ * `solveRiverSpot` solves exactly this; the exploit lab (Learn L4,
+ * `training/lab.ts`) rebuilds the same game from a solve's input to lock it.
+ */
+export function riverSpotOf(input: RiverSpotInput): {
+  spot: RiverSpot;
+  heroCombo: number;
+  outOfRange: boolean;
+  rake: RakeInfo;
+  ranges: [Float64Array, Float64Array];
+} {
   const heroCombo = comboIndex(input.heroCards[0], input.heroCards[1]);
   // Weights stay what the walk made them — the probability of holding each
   // combo given the line, in [0, 1] — so a range's sum is its size in combos.
@@ -267,28 +279,35 @@ export function solveRiverSpot(input: RiverSpotInput): RiverSolve | RiverFailure
   }
   const ranges: [Float64Array, Float64Array] = input.heroFirst ? [heroRange, villainRange] : [villainRange, heroRange];
   const rake = rakeOf(input.charts);
+  const spot: RiverSpot = {
+    board: [...input.board],
+    ranges,
+    pot: input.potBb,
+    stack: input.stackBb,
+    firstToAct: 0,
+    menus: [RIVER_MENU, RIVER_MENU],
+    raiseCap: RIVER_RAISE_CAP,
+    allInThreshold: RIVER_ALLIN_THRESHOLD,
+    minBet: RIVER_MIN_BET,
+    rake: { percent: rake.percent, cap: rake.cap },
+    bigBlind: 1,
+  };
+  return { spot, heroCombo, outOfRange, rake, ranges };
+}
+
+/** The solve options a river spot is solved with. */
+export const RIVER_SOLVE_OPTIONS = { maxIterations: RIVER_MAX_ITERATIONS, targetExploitability: RIVER_TARGET_PCT, checkEvery: RIVER_CHECK_EVERY } as const;
+
+/** Solves the river of a heads-up hand. */
+export function solveRiverSpot(input: RiverSpotInput): RiverSolve | RiverFailure {
+  const { spot: riverSpot, heroCombo, outOfRange, rake, ranges } = riverSpotOf(input);
   if (!(input.potBb > 0) || !(input.stackBb > 0)) {
     return { ok: false, reason: "river-off-tree", detail: "nothing behind to bet" };
   }
 
   let result: SolveResult;
   try {
-    result = solveRiver(
-      {
-        board: [...input.board],
-        ranges,
-        pot: input.potBb,
-        stack: input.stackBb,
-        firstToAct: 0,
-        menus: [RIVER_MENU, RIVER_MENU],
-        raiseCap: RIVER_RAISE_CAP,
-        allInThreshold: RIVER_ALLIN_THRESHOLD,
-        minBet: RIVER_MIN_BET,
-        rake: { percent: rake.percent, cap: rake.cap },
-        bigBlind: 1,
-      },
-      { maxIterations: RIVER_MAX_ITERATIONS, targetExploitability: RIVER_TARGET_PCT, checkEvery: RIVER_CHECK_EVERY },
-    );
+    result = solveRiver(riverSpot, RIVER_SOLVE_OPTIONS);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return { ok: false, reason: /empty/.test(message) ? "river-range-empty" : "river-solve-failed", detail: message };

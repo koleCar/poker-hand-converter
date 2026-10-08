@@ -120,12 +120,13 @@ theory with no number.
 |---|---|---|---|
 | `chart-quiz` | preflop trainer spots by family, seat, raiser and chart set (6/9-max, 40–200bb, limped) | the charts, through `analyzeHand` | yes |
 | `solver-spot` | river spots (A7) and **turn spots** (new, `lib/training/turn.ts`), optionally "the villain checked" or "bet" (in position), and for the turn the flop line before it (checked through, or a bet called; L3); **flop spots** from the flop library (L2, `lib/training/flop.ts`): facing a check, a bet or a raise, any seat, a line filter | the river / turn solve, the flop library's chunk, through `analyzeHand` | river, turn; flop in L2 |
-| `calc` | a number to work out (pot odds, draw equity by exact enumeration, EV trees, combos, alpha/MDF, SPR, grades, steal and big-blind prices, bb/100, all-in EV, multiway folds), answered before the calculator reveals it | `math.ts`, exact equity, `grade()` | yes |
+| `calc` | a number to work out (pot odds, draw equity by exact enumeration, EV trees, combos, alpha/MDF, SPR, grades, steal and big-blind prices, bb/100, all-in EV, multiway folds; the 95% interval on a stat over n chances, or the chances it needs, L4), answered before the calculator reveals it | `math.ts`, exact equity, `grade()` | yes |
 | `classify` | sort a board or hand: suits, pairing, connectedness, high card, dynamism, hand class; range advantage, nut advantage and turn-card shifts on the concept library's illustrative ranges | `texture.ts`, `madeHand`/`draws`, `rangeVsRange`, `nutShare` | yes |
 | `own-hands` | the learner's decisions matching the lesson's spots or flags, worst EV loss first, spoiler-safe | the stored grade (`gradeDrill`) | yes |
 | `range-split` | put hand classes into check / small / big (or fold / call / raise); the river adds an overbet group | the solve's mix per class: `flopBucket` categories on a library flop, `turnCategory` on a turn solve, `riverCategory` on a river solve | L2 (`lib/training/split.ts`); river in L3 |
 | `depth-split` | the same split at 200bb against 100bb | flop solves at other depths | placeholder |
 | `range-paint` | paint a 13×13 range: a seat's first-in range, or the hands of a river range that bet or continue | the chart, or the river solve, cell by cell (`lib/training/paint.ts`) | L3; the straddle paint still planned |
+| `node-lock` | the exploit lab: a river solved on demand, one opponent tendency locked (a preset of `LAB_PRESETS`, or any), and one hand to play against it | the solver's best response against the lock, its EV per action (`gradeLab`) | L4 (`lib/training/lab.ts`) |
 | `range-walk`, `pot-tracking`, `profile-quiz`, `placement` | see §5 | | placeholders |
 
 Pass rules are per exercise (a share of the items, e.g. 7 of 10). Own hands
@@ -162,7 +163,7 @@ nudges, a daily five-minute dose.
 | **L1.1** (shipped) — restructure (principles 8–9) | <ul><li>Tracks and modules as in §2; M0–M2 out of the map (intro panel and reference)</li><li>their key ideas folded into the first lesson that uses them</li><li>the new ids added as "coming soon"</li><li>the plan's lesson tasks and leak recommendations re-pointed</li><li>tests updated</li></ul> |
 | **L2** (shipped) — flop | Track 2 written (F1–F5); flop spots from the library; the `range-split` widget (flop buckets from the library, turn categories from a turn solve); the raiser's flop bets by board group from Rail's own library. See §8. |
 | **L3** (shipped) — turn and river | Tracks 3–4 written; `range-paint`; the river split; mastery from real-hand improvement. See §10. |
-| **L4** — exploits | Track 5 written, plus the **exploit lab**: solver node-locking UI, the opponents-panel tie-in, pool tendencies from the learner's own villain stats with sample sizes. |
+| **L4** (shipped) — exploits | Track 5 written, plus the **exploit lab**: solver node-locking UI, the opponents-panel tie-in, pool tendencies from the learner's own villain stats with sample sizes. See §12. |
 | **L5** | Placement test, curated example hands (`examples` slot), flop drills once `FLOP_LIBRARY_ENABLED` is on. |
 
 ## 6. What L1 shipped
@@ -474,3 +475,126 @@ nudges, a daily five-minute dose.
 - The paint widget and the river split were checked in the browser (chart
   and river sources, keyboard, 375px); mastery by its unit tests only (no
   signed-in session with analysed hands was used).
+
+## 12. What L4 shipped
+
+- **Track 5 written**, English and Croatian, all 13 lessons of X1–X4:
+  `player-profiles`, `reading-hud-stats` (X1); `population-exploits`,
+  `exploiting-overfolders`, `exploiting-calling-stations`,
+  `exploiting-aggressive-players`, `underbluffed-rivers` (X2);
+  `node-locking-in-rail`, `when-not-to-exploit` (X3); `live-game-dynamics`,
+  `straddle-preflop`, `straddle-postflop-low-spr`, `deep-stacks-200bb` (X4).
+  Bodies in `lib/learn/lessons/x.*`.
+  - **The owner's rule for exploit numbers.** A number about an opponent or
+    "the pool" is the learner's own data with its sample (the pool section,
+    read at runtime), Rail's own solve (the lab at runtime; the
+    clairvoyance toy game worked by hand in `node-locking-in-rail` and
+    `when-not-to-exploit`, its numbers matched by `learnLab.test.ts`), or
+    plain arithmetic the course test recomputes (alpha, bluff EVs, the
+    bluff-catcher's EV, the margin of error, SPRs, geometric bets). No
+    population figure from anywhere.
+  - **`reading-hud-stats`** explains each stat of the opponents panel by its
+    chances (not hands) and teaches the 95% interval on a frequency,
+    1.96 × √(p(1 − p) / n), and its inverse (`marginOfError`,
+    `sampleNeeded` in `math.ts`; a `sample-size` widget and calc kind).
+  - **Directions read from the lab first** (`npm run learn:lab` from
+    `tests/`, a few hundred rivers of the trainer's generator, the hero in
+    position): against an over-folder the best response bluffs with almost
+    every hand without showdown value, turns weak pairs and ace-high into
+    bluffs, and bets its strongest hands smaller; against a station it
+    stops bluffing, bets its strong hands as big as it can and bets some
+    middle pairs; against a player who never raises it bets top and middle
+    pairs far more; against a rare bluffer it folds more bluff-catchers
+    (middle and weak pairs most, top pairs and two pairs too); against an
+    over-bluffer it calls far more with middle and weak pairs and ace-high
+    and raises some air. On almost every river the counter costs more than
+    the read gains; the baseline opponent usually costs less than the gain
+    but rarely nothing; the baseline's own cost against its counter is the
+    solve's small exploitability. **Where the lab or the charts contradicted
+    the L1.1 outlines, the outlines changed**: over-folders are bluffed with
+    big sizes and value-bet small (not "use smaller bets"), the aggressive
+    player's lesson calls wider and raises air (the lab has no basis for
+    "check strong hands more"), the population lesson's "common low-stakes
+    counters" are gone, the profiles lesson keeps only lab-backed
+    adjustments, and the 200bb lesson follows Rail's 200bb charts (far more
+    suited aces from the early seats; offsuit broadways barely change).
+  - **Honesty banners**: a new one, `locked-read` (a lock is a read of a
+    player, kept frozen elsewhere, on a river only), with
+    `approximate-ranges`, on every lesson with a lab exercise;
+    `straddle-not-analysed` and `conceptual` on the straddle lessons.
+- **The exploit lab** (`lib/solver/lock.ts`, `lib/training/lab.ts`; the
+  `node-lock` exercise and the `exploit-lab` widget, `LockItemView`,
+  `ExploitLab`, `LabReport`):
+  - **The spot**: a river spot of the trainer (`riverSetup`), the hero in
+    position. The same game is rebuilt from the solve's input
+    (`riverSpotOf`) and the solve's strategies loaded (`loadResult`): no
+    second solve.
+  - **The locks** (`LAB_LOCKS`, presets in `labPresets.ts`): *fold-to-bet*
+    — after the opponent checks and the hero bets, the opponent's fold share
+    at every size is the solve's plus a shift (over-folder +20 points,
+    station −25), the weakest hands folding first; *never-raise* — no raise
+    of a river bet; *air-bets* — first to act, the opponent bets a share of
+    its air (no pair, ace-high, missed draws: 5% the rare bluffer, 60% the
+    over-bluffer). The widget sets any value.
+  - **The response**: the rest of the opponent's strategy stays the
+    solve's, and the hero best-responds everywhere (`Solver.bestResponse`,
+    keeping the solve's mix in a hand within 0.5% of the pot of its best
+    action). Reported in bb per river from these ranges: the gain over the
+    solve's strategy against the locked opponent, the cost if the opponent
+    really plays the solve, the cost against the opponent's own best
+    response to the exploit, and the solve's own cost against its counter.
+    Below them, the one or two hero decisions the response changes most,
+    by `riverCategory`, solve against response.
+  - **Grading** (the one-grader rule): a hand at the most changed decision
+    where the response's best action beats the solve's favourite by at
+    least 2% of the pot; an answer is right within 1% of the pot of the
+    best EV against the locked opponent. The item carries the numbers, so
+    the browser grades it (like the range split). It runs in the trainer
+    worker, about 0.2 s an item.
+  - **Validated** on the clairvoyance game at its closed-form equilibrium:
+    lock the bluff-catcher to fold 75% (or 25%) and the lab returns the
+    hand-worked best response, gain (an eighth of the pot), cost against
+    the baseline (zero) and cost against a counter (a quarter of the pot);
+    it agrees with a CFR solve of the same game. The lock's own arithmetic
+    (order, partial hand, mask, fallback, reach weights) and the river items
+    (determinism, the locked share, a non-negative gain, the grader's
+    tolerance) are tested too.
+  - **Cards**: a lab item is a `solver-spot` review card (item `k: "lock"`,
+    the preset and the seed): no migration.
+- **The opponents-panel tie-in** (`lib/learn/pool.ts`, `PoolTendencies`):
+  on `player-profiles`, `reading-hud-stats`, the X2 lessons and
+  `when-not-to-exploit`, a "your own pool" section sums the learner's
+  opponents from `stats_opponents` (the existing invoker function, under
+  RLS; at most the 200 most-seen opponents, said so) into each stat the
+  lesson is about, with its chances, its 95% interval and a level (not
+  enough data below 30 chances or past ± 10 points; rough; settled within
+  ± 5), and the chances it would need. A read is suggested only where plain
+  arithmetic draws a line: folds to a flop c-bet wholly above what a
+  half-pot bluff needs points at *against players who fold too much* and
+  its lab preset, wholly below what a third-pot bluff needs at *against
+  players who call too much*. Signed out, without a database, or without
+  opponent statistics, it says so; rooms whose names do not survive a
+  session are left out and counted. **No migration.**
+- **Recommendations**: a river call the reference folds now lands on
+  *river bets with too few bluffs* (it beats the plain bluff-catching
+  match by its best action); `call-beats-nothing` and `fold-with-odds` add
+  the X2 lessons after the R and F lessons that carry them first. The plan's
+  lesson tasks follow, since they ask the same matcher for written lessons.
+
+## 13. Open after L4
+
+- **The lab is a river only.** The engine is game-agnostic (`exploitLab`
+  takes any solver), but a turn lab needs a turn result loaded the same
+  way and a few seconds of solving; the turn tree has one bet size.
+- **A lock is frozen elsewhere.** The opponent does not adapt anywhere but
+  the lock; a full re-solve with the lock in place (node-locking in the
+  strict sense) is not built.
+- **The pool is summed from the opponents panel**: at most 200 opponents,
+  and only the stats the panel keeps. There is no river-bluff stat, so
+  *river bets with too few bluffs* has no pool read; only folds to a flop
+  c-bet produce suggestions. Pool stats are not filtered by stake or site.
+- The `profile-quiz`, `pot-tracking`, straddle paint and `depth-split`
+  exercises stay planned; the X4 lessons practise with calcs, chart quizzes
+  and 3-bet-pot rivers (the nearest SPR Rail solves to a straddled pot).
+- The lab and the pool section were checked by their tests and a signed-out
+  browser session; no signed-in session with opponent statistics was used.

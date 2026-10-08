@@ -14,6 +14,8 @@ import { SUPABASE_URL } from "./supabase/config";
 import type {
   FlopSpotOptions,
   GradedAnswer,
+  LabItem,
+  LabOptions,
   PaintItem,
   PaintOptions,
   PreflopSpotOptions,
@@ -120,6 +122,13 @@ export async function dealPaint(options: PaintOptions, seed: number): Promise<Pa
   sequence += 1;
   const response = await ask({ type: "paint", jobId: sequence, options, seed });
   return unwrap(response, (r) => (r.type === "paint" ? r.item : undefined));
+}
+
+/** An exploit-lab item for `seed` (Learn L4): a river solved on demand, a tendency locked, the best response. */
+export async function dealLab(options: LabOptions, seed: number): Promise<LabItem | null> {
+  sequence += 1;
+  const response = await ask({ type: "lab", jobId: sequence, options, seed });
+  return unwrap(response, (r) => (r.type === "lab" ? r.item : undefined));
 }
 
 /** The answer graded by the analysis, with the hand it was graded on. */

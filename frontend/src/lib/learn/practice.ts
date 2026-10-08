@@ -29,7 +29,7 @@ import { cardCode, evaluate } from "../equity/evaluator";
 import { pickOne, seeded, type Rng } from "../training/rng";
 import type { CalcKind, ClassifyKind } from "./course";
 import type { WidgetPreset } from "./concepts";
-import { allFold, alpha, callEv, countCombos, mdf, mdfSplit, nutShare, rangeVsRange, requiredEquity, spr } from "./math";
+import { allFold, alpha, callEv, countCombos, marginOfError, mdf, mdfSplit, nutShare, rangeVsRange, requiredEquity, sampleNeeded, spr } from "./math";
 import { presetRange } from "./presets";
 
 /* ---------------------------------------------------------------- shared - */
@@ -480,6 +480,44 @@ function multiwayItem(seed: number, rng: Rng): CalcItem {
   };
 }
 
+/**
+ * Learn L4 (`reading-hud-stats`, `when-not-to-exploit`): how far a stat over
+ * `n` chances can sit from the player's true frequency (the 95% interval's
+ * half-width), or how many chances it needs for a given margin. Plain
+ * sampling arithmetic (`marginOfError`, `sampleNeeded`).
+ */
+function sampleSizeItem(seed: number, rng: Rng): CalcItem {
+  const p = round(0.1 + Math.floor(rng() * 15) * 0.05, 2);
+  if (rng() < 0.5) {
+    const n = pickOne([20, 30, 50, 80, 100, 150, 200, 300, 500, 1000] as const, rng);
+    const answer = marginOfError(p, n);
+    return {
+      kind: "sample-size",
+      seed,
+      ask: "margin",
+      params: { p, n },
+      unit: "pct",
+      answer,
+      tolerance: Math.max(0.005, 0.1 * answer),
+      widget: { id: "sample-size", share: p, count: n },
+      working: { variance: round(p * (1 - p), 4) },
+    };
+  }
+  const margin = pickOne([0.03, 0.05, 0.08, 0.1] as const, rng);
+  const answer = sampleNeeded(p, margin);
+  return {
+    kind: "sample-size",
+    seed,
+    ask: "needed",
+    params: { p, margin },
+    unit: "count",
+    answer,
+    tolerance: Math.max(2, 0.1 * answer),
+    widget: { id: "sample-size", share: p, count: Math.max(1, Math.round(answer)) },
+    working: { variance: round(p * (1 - p), 4) },
+  };
+}
+
 const CALC_MAKERS: Readonly<Record<CalcKind, (seed: number, rng: Rng) => CalcItem>> = {
   "pot-odds": potOddsItem,
   "outs-equity": outsEquityItem,
@@ -493,6 +531,7 @@ const CALC_MAKERS: Readonly<Record<CalcKind, (seed: number, rng: Rng) => CalcIte
   per100: per100Item,
   "allin-ev": allinEvItem,
   multiway: multiwayItem,
+  "sample-size": sampleSizeItem,
 };
 
 /** A calc item for `seed`. Deterministic. */

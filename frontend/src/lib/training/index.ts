@@ -13,6 +13,7 @@
  * grade.ts     a trainer answer graded by the analysis itself; a drill answer against its stored options
  * schedule.ts  SM-2 for drills (the database runs the same arithmetic)
  * session.ts   a session's score: Perfect…Blunder counts, streaks, EV lost
+ * lab.ts       the exploit lab (Learn L4): a river with an opponent tendency locked, the best response
  * jobs.ts      the trainer worker's requests and answers, and the function that does them
  * plan.ts      the study plan (A8b): focus areas from the leak finder, the week's checklist, the retrospective
  * ```
@@ -148,6 +149,33 @@ export {
   type PaintItem,
   type PaintOptions,
 } from "./paint";
+export {
+  AIR_CATEGORIES,
+  LAB_CLEAR,
+  LAB_KEEP,
+  LAB_LOCKS,
+  LAB_PRESET_IDS,
+  LAB_PRESETS,
+  LAB_TOLERANCE,
+  generateLab,
+  gradeLab,
+  isLabPreset,
+  isShift,
+  labOn,
+  labWorlds,
+  validValue,
+  viewAt,
+  type LabItem,
+  type LabLock,
+  type LabLockView,
+  type LabOptions,
+  type LabPreset,
+  type LabQuestion,
+  type LabRow,
+  type LabStep,
+  type LabView,
+  type LabWorlds,
+} from "./lab";
 export { asAnswered, gradeAnswer, gradeDrill, type DrillDecision } from "./grade";
 export {
   INITIAL_EASE,

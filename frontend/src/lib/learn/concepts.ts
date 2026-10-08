@@ -69,6 +69,10 @@ export const WIDGET_IDS = [
   "multiway",
   // Learn L2: the raiser's flop bets by board group, over Rail's flop library (`flopBets.ts`); `preset` is the line.
   "flop-bets",
+  // Learn L4: the 95% interval on a stat over a number of chances (`share` the stat, `count` the chances).
+  "sample-size",
+  // Learn L4: the exploit lab on a river solved on demand; `preset` is a `LAB_PRESETS` id.
+  "exploit-lab",
 ] as const;
 export type WidgetId = (typeof WIDGET_IDS)[number];
 
@@ -93,6 +97,8 @@ export interface WidgetPreset {
   share?: number;
   /** `multiway`: the number of opponents the bet goes into. */
   opponents?: number;
+  /** `sample-size`: the number of chances a stat was counted over. */
+  count?: number;
   /** Starting cards: the board, and the hero's hand. */
   board?: readonly string[];
   hand?: readonly string[];

@@ -5,6 +5,7 @@
  *
  * - `chart-quiz` and `solver-spot`: trainer spots (`SpotItemView`);
  * - `range-split` and `range-paint`: a whole range sorted or painted (`SplitItemView`, `PaintItemView`);
+ * - `node-lock`: the exploit lab, a hand against a locked opponent (`LockItemView`, L4);
  * - `calc` and `classify`: generated items (`PracticeItems.tsx`);
  * - `own-hands`: the learner's own decisions (`OwnHandsExercise`);
  * - planned kinds: what they will be, and what they wait for.
@@ -25,6 +26,7 @@ import { cardFor, exerciseResult, type NewCard } from "../../../lib/learn/progre
 import { FLOP_DRILLS_AVAILABLE } from "../../../lib/trainer";
 import { nextSeed } from "../../../lib/training/rng";
 import { useLearn } from "./LearnStore";
+import { LockItemView } from "./LockItemView";
 import { OwnHandsExercise } from "./OwnHandsExercise";
 import { PaintItemView } from "./PaintItemView";
 import { CalcItemView, ClassifyItemView, type ItemAnswer } from "./PracticeItems";
@@ -232,5 +234,6 @@ export function CardItemView({
   if (generated?.kind === "error") return <p className="notice notice--warn">{t.stale}</p>;
   if (item.k === "split") return <SplitItemView card={item} onAnswer={onAnswer} />;
   if (item.k === "paint") return <PaintItemView card={item} onAnswer={onAnswer} />;
+  if (item.k === "lock") return <LockItemView card={item} onAnswer={onAnswer} />;
   return <SpotItemView item={item as SpotItem} signedIn={signedIn} onAnswer={onAnswer} />;
 }
