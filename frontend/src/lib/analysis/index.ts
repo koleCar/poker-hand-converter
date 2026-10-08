@@ -182,6 +182,7 @@ export {
   categoryReader,
   chartLineOf,
   chunkFor,
+  sameLine,
   flopLibraryBase,
   FLOP_LIBRARY_ENABLED,
   FLOP_LINES,

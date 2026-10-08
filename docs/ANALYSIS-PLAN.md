@@ -1966,3 +1966,34 @@ Each phase appends what it learned that changed the plan.
     `fffrc`, but `FLOP_LINES` keys it `fffrcf`, so real `btn-sb` hands never
     read their chunks (heuristic flop). Fixing it changes grades (a version
     bump); the Learn drills skip that line meanwhile.
+- 2026-10-08 — A5b, reading fixes and the full library's validation,
+  `analysis/9`.
+  - **Button–small-blind pots read their chunks.** A hand's placed line ends
+    at the later flop player's decision (`fffrc`); the library spells the
+    big blind's fold too (`fffrcf`). `sameLine` compares them without
+    trailing folds; the Learn drills deal `btn-sb` again.
+  - **Mixed-depth placements.** When the two flop players' own lookups land
+    on sets of different depths (each judged against its deepest opponent
+    at the time), `chartLineOf` now places both on the set nearest the
+    pair's effective stack instead of giving up. On the owner's library this
+    places most of the ~45 such hands, mostly on the 6-max 150bb set (no
+    chunks yet), so it barely moves grades today.
+  - **Measured** (same run as above): 121 of 1,095 hero flop decisions now
+    graded from the library (was 118); Perfect 97, Good 18, Inaccurate 3,
+    Mistake 3.
+  - **`--validate` on the full library.** 24 mapped flops solved on their
+    own (btn-bb, co-bb, sb-bb, btn-bb-3bet × Jd9c4h, Ah7c2d, Kc8d8h, 6c5d4h,
+    QhJd3c, Tc9c2d), compared with reading them from their representative
+    by hand category. Medians (range):
+    - strategy distance (TV) 16.4% (10–27%); the floor of reading by
+      category on the flop's own solve is 12.9%;
+    - |ΔEV| per action 6.5% of the pot (3–14%); floor 3.9%;
+    - same top action 84% (70–93%);
+    - same check/call grade 69% (48–76%), as the pilot's 55–81%.
+
+    The worst pairs are the farthest mappings: a low connected flop read
+    from another (6-5-4 → 7-5-3: TV 25–26%, ΔEV 11–14% of the pot) and a
+    paired board from a lower pair (K-8-8 → K-6-6 on sb-bb). Category
+    reading itself costs about two thirds of the error; finer buckets
+    (backlog) and more representatives where the mapping distance is 3+
+    are the two levers.

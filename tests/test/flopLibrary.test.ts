@@ -20,6 +20,7 @@ import {
   flopBucket,
   FLOP_LIBRARY_ENABLED,
   chunkFor,
+  sameLine,
   FLOP_LINES,
   FLOP_LINES_9MAX,
   flopLinesFor,
@@ -496,5 +497,15 @@ describe("the library's lines on every table", () => {
     const found = chunkFor(hand, buildContext(hand), chartLibrary([CHARTS, CHARTS9]), { has: () => true });
     expect(found).toMatchObject({ set: "nlhe-cash-9max-100bb", flop: "Ts7h4d", exact: true });
     expect(found?.line).toBe(FLOP_LINES_9MAX.find((l) => l.id === "btn-bb"));
+  });
+});
+
+describe("matching a hand's line to the library's", () => {
+  it("drops folds after the last voluntary action", () => {
+    expect(sameLine("fffrcf", "fffrc")).toBe(true);
+    expect(sameLine("ffffffrcf", "ffffffrc")).toBe(true);
+    expect(sameLine("fffrfc", "fffrfc")).toBe(true);
+    expect(sameLine("fffrfc", "fffrc")).toBe(false);
+    expect(sameLine("fffrfrc", "fffrfc")).toBe(false);
   });
 });

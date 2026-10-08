@@ -40,7 +40,7 @@
  */
 
 import type { ChartPosition, ChartSet } from "../charts";
-import { lookupPreflop, preflopSpotFromHand } from "../charts";
+import { isChartLibrary, lookupPreflop, preflopSpotFromHand, type PreflopActionInput, type PreflopSpot } from "../charts";
 import { cardCode } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import {
@@ -154,6 +154,17 @@ export const FLOP_LINES_9MAX: readonly FlopLine[] = [
   { id: "sb-bb-3bet", pot: "3bp", key: "fffffffrrc", players: 9 },
   { id: "sb-limp", pot: "limped", key: "fffffffck", players: 9 },
 ];
+
+/**
+ * Whether a library line and a hand's placed line are the same pot: equal
+ * once folds after the last voluntary action are dropped. A hand's line ends
+ * at the later flop player's last decision (`chartLineOf`), so the big
+ * blind folding behind the button-small-blind pot is not part of it, while
+ * the library spells it (`fffrcf`).
+ */
+export function sameLine(libraryKey: string, placedKey: string): boolean {
+  return libraryKey.replace(/f+$/, "") === placedKey.replace(/f+$/, "");
+}
 
 /** The library's lines for a chart set's table size (7-9 handed play on the full-ring sets). */
 export function flopLinesFor(players: number): readonly FlopLine[] {
@@ -390,12 +401,14 @@ function flopPair(context: StatsContext): [number, number] | null {
  * that answered it (a chart library picks one per table and depth), read the
  * way `chartRange` reads each player's line: the chart node of each flop
  * player's last preflop decision plus the action taken there; the longer of
- * the two is the whole line. Null when the charts cannot place it, or the
- * two players' lines were answered by different sets.
+ * the two is the whole line. When a chart library answers the two players
+ * from sets of different depths (each judged against its own deepest
+ * opponent), both are placed on the set nearest the pair's own effective
+ * stack (`analysis/9`). Null when the charts cannot place it.
  */
 export function chartLineOf(hand: PhfHand, seats: readonly number[], charts: ChartSet): { line: string; set: ChartSet } | null {
-  let best: { line: string; set: ChartSet } | null = null;
-  for (const seat of seats) {
+  type Placed = { line: string; set: ChartSet; spot: PreflopSpot; action: PreflopActionInput };
+  const place = (seat: number, within: ChartSet): Placed | null => {
     let nth = -1;
     for (const action of hand.actions) {
       if (action.street !== "preflop") continue;
@@ -404,13 +417,39 @@ export function chartLineOf(hand: PhfHand, seats: readonly number[], charts: Cha
     if (nth < 0) return null;
     const found = preflopSpotFromHand(hand, nth, seat);
     if (!found.ok) return null;
-    const lookup = lookupPreflop(charts, found.spot, null, found.heroAction);
+    const lookup = lookupPreflop(within, found.spot, null, found.heroAction);
     if (!lookup.ok || lookup.chosen === null || lookup.chosen < 0) return null;
-    const line = lookup.node.line + lookup.node.options[lookup.chosen].code;
-    if (best && best.set.id !== lookup.set.id) return null;
-    if (!best || line.length > best.line.length) best = { line, set: lookup.set };
+    return { line: lookup.node.line + lookup.node.options[lookup.chosen].code, set: lookup.set, spot: found.spot, action: found.heroAction };
+  };
+  let placed: Placed[] = [];
+  for (const seat of seats) {
+    const one = place(seat, charts);
+    if (!one) return null;
+    placed.push(one);
   }
-  return best;
+  if (new Set(placed.map((p) => p.set.id)).size > 1) {
+    // Each lookup judged depth by its own player against the deepest opponent
+    // still in at that decision, so the two flop players can land on sets of
+    // different depths (100bb and 150bb). The flop is played between these two:
+    // place both on the set nearest their own effective stack.
+    if (!isChartLibrary(charts)) return null;
+    const stack = (p: Placed) => p.spot.stacksBb?.[p.spot.hero] ?? p.set.game.stackBb;
+    const pairBb = Math.min(...placed.map(stack));
+    const target = [...placed].sort((a, b) => Math.abs(a.set.game.stackBb - pairBb) - Math.abs(b.set.game.stackBb - pairBb))[0].set;
+    const again: Placed[] = [];
+    for (const p of placed) {
+      if (p.set.id === target.id) {
+        again.push(p);
+        continue;
+      }
+      const lookup = lookupPreflop(target, p.spot, null, p.action);
+      if (!lookup.ok || lookup.chosen === null || lookup.chosen < 0) return null;
+      again.push({ ...p, line: lookup.node.line + lookup.node.options[lookup.chosen].code, set: target });
+    }
+    placed = again;
+  }
+  const best = placed.reduce((a, b) => (b.line.length > a.line.length ? b : a));
+  return { line: best.line, set: best.set };
 }
 
 /** The (set, line, flop) chunk a hand would read, with how: the exact canonical flop or its representative. */
@@ -430,7 +469,7 @@ export function chunkFor(
     return null;
   }
   const placed = chartLineOf(hand, pair, charts);
-  const line = placed ? flopLinesFor(placed.set.game.players).find((l) => l.key === placed.line) : undefined;
+  const line = placed ? flopLinesFor(placed.set.game.players).find((l) => sameLine(l.key, placed.line)) : undefined;
   if (!placed || !line) return null;
   const set = placed.set.id;
   const key = flopKey(cards);
