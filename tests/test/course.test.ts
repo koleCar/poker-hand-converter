@@ -19,6 +19,10 @@
  * 4. **Progress and cards**: the sticky rules the database also applies,
  *    automatic passing, review cards round-tripping through storage.
  * 5. **Recommendations**: leaks map to the lessons that teach them.
+ * 6. **Exploits (L4)**: the exploit lessons' honesty banners, the lab's
+ *    exercises and cards, the sampling arithmetic, and the learner's own pool
+ *    (`lib/learn/pool.ts`) summed from opponents-panel rows. The lab itself is
+ *    `learnLab.test.ts`.
  */
 
 import { describe, expect, it } from "vitest";
@@ -96,6 +100,9 @@ import {
 import { globMatch, lessonForArea, patternScore, recommend } from "../../frontend/src/lib/learn/recommend.js";
 import { ALL_PREFLOP_SEATS, PREFLOP_FAMILIES } from "../../frontend/src/lib/training/preflop.js";
 import { RIVER_POTS, RIVER_ROLES, RIVER_SEATS } from "../../frontend/src/lib/training/river.js";
+import { LAB_PRESET_IDS } from "../../frontend/src/lib/training/labPresets.js";
+import { marginOfError, sampleNeeded } from "../../frontend/src/lib/learn/math.js";
+import { MIN_CHANCES, POOL_STATS, POOL_TOPIC_STATS, poolOf, poolReads, poolStat } from "../../frontend/src/lib/learn/pool.js";
 
 const NOW = new Date("2026-10-06T10:00:00Z");
 
@@ -235,6 +242,8 @@ describe("the course catalogue", () => {
           }
         }
         if (def.kind === "calc") expect(CALC_KINDS).toContain(def.calc);
+        // L4: the exploit lab deals one of its presets, or any.
+        if (def.kind === "node-lock" && !isPlanned(def)) expect(["any", ...LAB_PRESET_IDS]).toContain(def.preset);
         if (def.kind === "classify") expect(CLASSIFY_KINDS).toContain(def.classify);
         if ("count" in def && def.kind !== "own-hands") {
           expect(def.count).toBeGreaterThan(0);
@@ -265,7 +274,7 @@ describe("the course catalogue", () => {
     }
   });
 
-  it("has L1's preflop lessons, the flop track (L2) and the turn and river tracks (L3) written, and no exploits yet", () => {
+  it("has L1's preflop lessons, the flop track (L2), the turn and river tracks (L3) and the exploits track (L4) written", () => {
     const written = writtenLessons().map((meta) => meta.id);
     expect(written).toEqual([
       "positions-and-opening-ranges",
@@ -279,8 +288,9 @@ describe("the course catalogue", () => {
       ...TRACKS.flop.flatMap((module) => lessonsIn(module).map((meta) => meta.id)),
       ...TRACKS.turn.flatMap((module) => lessonsIn(module).map((meta) => meta.id)),
       ...TRACKS.river.flatMap((module) => lessonsIn(module).map((meta) => meta.id)),
+      ...TRACKS.exploits.flatMap((module) => lessonsIn(module).map((meta) => meta.id)),
     ]);
-    expect(written).toHaveLength(8 + 19 + 7 + 7);
+    expect(written).toHaveLength(8 + 19 + 7 + 7 + 13);
   });
 
   it("matches leaks with real streets and flags", () => {
@@ -352,6 +362,9 @@ function presetProblem(preset: WidgetPreset): string | null {
   }
   if (preset.share !== undefined && !(preset.share >= 0 && preset.share <= 1)) return "bad share";
   if (preset.id === "flop-bets" && !FLOP_BET_SPOTS.some((s) => s.line === preset.preset)) return `unknown flop-bets line ${preset.preset}`;
+  // L4: the sample-size calculator opens on a stat and its chances; the lab on one of its presets.
+  if (preset.id === "sample-size" && !(Number.isInteger(preset.count) && (preset.count as number) > 0)) return "bad count";
+  if (preset.id === "exploit-lab" && !(LAB_PRESET_IDS as readonly string[]).includes(preset.preset ?? "")) return `unknown lab preset ${preset.preset}`;
   return null;
 }
 
@@ -882,6 +895,9 @@ describe("recommendations from leaks", () => {
     expect(lessonForArea(area("flop", "caller-mw-oop-vs-bet", "vs-bet", "BB", "call"), written)).toBe("multiway-principles");
     expect(lessonForArea(area("river", "pfr-oop-first", "first", "SB", "bet"), written)).toBe("thin-value");
     expect(lessonForArea(area("river", "caller-ip-vs-bet", "vs-bet", "BTN", "call"), written)).toBe("bluff-catching");
+    // L4: a river call the reference folds is a call against too few bluffs.
+    expect(lessonForArea(area("river", "caller-ip-vs-bet", "vs-bet", "BTN", "fold"), written)).toBe("underbluffed-rivers");
+    expect(lessonForArea(area("river", "pfr-oop-vs-bet", "vs-bet", "SB", "fold"), written)).toBe("underbluffed-rivers");
     // The map also badges lessons that are coming soon, in the track of the hand's street.
     expect(lessonForArea(area("river", "pfr-oop-first", "first", "SB", "bet"))).toBe("thin-value");
     expect(lessonForArea(area("river", "caller-ip-vs-bet", "vs-bet", "BTN", "call"))).toBe("bluff-catching");
@@ -916,5 +932,110 @@ describe("recommendations from leaks", () => {
       ["checking-back-and-delayed-cbets", "flag"],
     ]);
     expect(recs[0].per100).toBe(1.25);
+    // L4: an exploit flag reaches the X2 lesson once the lesson that carries it first is passed.
+    const done = new Set<LessonId>(["bluff-catching"]);
+    expect(recommend([], [{ code: "call-beats-nothing", decisions: 5 }], { passed: done }).map((rec) => rec.lesson)).toEqual(["underbluffed-rivers"]);
+  });
+});
+
+/* ------------------------------------------------------------- exploits - */
+
+describe("the exploits track (L4)", () => {
+  it("says on every lesson with a lab exercise that a lock is a read on a river solve (principle 5)", () => {
+    for (const meta of writtenLessons()) {
+      if (!meta.exercises.some((def) => def.kind === "node-lock")) continue;
+      expect(meta.notes ?? [], meta.id).toContain("locked-read");
+      expect(meta.notes ?? [], meta.id).toContain("approximate-ranges");
+    }
+    // The planned node-lock of L1.1 is built: no exercise waits for it any more.
+    for (const meta of courseOrder()) for (const def of meta.exercises) expect(isPlanned(def) && def.kind === ("node-lock" as string), meta.id).toBe(false);
+  });
+
+  it("stores a lab item as a solver-spot card of its preset", () => {
+    const meta = LESSONS["exploiting-overfolders"];
+    const def = meta.exercises.find((d) => d.kind === "node-lock") as GeneratedExerciseDef;
+    const card = cardFor(meta, def, 77);
+    expect(card.kind).toBe("solver-spot");
+    expect(card.item).toEqual({ k: "lock", seed: 77, preset: "overfold" });
+    expect(parseCardItem({ k: "lock", seed: 1, preset: "any" })).toEqual({ k: "lock", seed: 1, preset: "any" });
+    expect(parseCardItem({ k: "lock", seed: 1, preset: "nope" })).toBeNull();
+  });
+
+  it("shows the learner's own pool on the X lessons that read one, and the lab on the X2 lessons", () => {
+    expect(LESSONS["exploiting-overfolders"].pool).toBe("overfold");
+    expect(LESSONS["exploiting-calling-stations"].pool).toBe("station");
+    expect(LESSONS["exploiting-aggressive-players"].pool).toBe("aggro");
+    expect(LESSONS["underbluffed-rivers"].pool).toBe("underbluff");
+    expect(LESSONS["reading-hud-stats"].pool).toBe("all");
+    const presets = (id: LessonId) => LESSONS[id].exercises.flatMap((def) => (def.kind === "node-lock" ? [def.preset] : []));
+    expect(presets("exploiting-overfolders")).toEqual(["overfold"]);
+    expect(presets("exploiting-calling-stations")).toEqual(["station", "passive"]);
+    expect(presets("exploiting-aggressive-players")).toEqual(["maniac"]);
+    expect(presets("underbluffed-rivers")).toEqual(["underbluff"]);
+    for (const topic of Object.keys(POOL_TOPIC_STATS) as Array<keyof typeof POOL_TOPIC_STATS>) {
+      for (const stat of POOL_TOPIC_STATS[topic]) expect(POOL_STATS).toContain(stat);
+    }
+  });
+
+  it("works the sampling arithmetic the HUD lesson teaches", () => {
+    // 1.96 × √(p(1 − p) / n), and its inverse.
+    expect(marginOfError(0.3, 50)).toBeCloseTo(1.96 * Math.sqrt(0.21 / 50), 12);
+    expect(sampleNeeded(0.3, marginOfError(0.3, 50))).toBeCloseTo(50, 9);
+    expect(sampleNeeded(0.3, 0.025) / sampleNeeded(0.3, 0.05)).toBeCloseTo(4, 12);
+    expect(marginOfError(0.3, 0)).toBe(Infinity);
+    // The calc items name a widget the lesson can open.
+    const item = generateCalc("sample-size", 5);
+    expect(item.widget?.id).toBe("sample-size");
+  });
+
+  it("sums the opponents panel's rows into the learner's own pool, with each stat's chances and interval", () => {
+    const row = (counters: Record<string, number>) => ({ counters });
+    const pool = poolOf([
+      row({ hands: 400, fold_to_cbet_flop: 30, fold_to_cbet_flop_opp: 50, wtsd: 40, wtsd_opp: 120, bet_flop: 30, raise_flop: 10, call_flop: 50, fold_flop: 30 }),
+      row({ hands: 600, fold_to_cbet_flop: 42, fold_to_cbet_flop_opp: 70, wtsd: 50, wtsd_opp: 130, bet_turn: 20, call_river: 10 }),
+    ]);
+    expect(pool.players).toBe(2);
+    expect(pool.hands).toBe(1000);
+    const fold = pool.stats.foldToCbet;
+    expect(fold.made).toBe(72);
+    expect(fold.chances).toBe(120);
+    expect(fold.value).toBeCloseTo(0.6, 12);
+    expect(fold.margin).toBeCloseTo(marginOfError(0.6, 120), 12);
+    expect(fold.level).toBe("rough");
+    // Aggression: bets and raises over every postflop decision.
+    expect(pool.stats.aggression.made).toBe(60);
+    expect(pool.stats.aggression.chances).toBe(150);
+    // No chance, no number.
+    expect(pool.stats.threeBet).toMatchObject({ value: null, margin: null, level: "thin" });
+    // 60% ± 8.8 over 120 chances clears the 33.3% a half-pot bluff needs: a read, with its lesson and lab preset.
+    expect(poolReads(pool)).toEqual([expect.objectContaining({ stat: "foldToCbet", direction: "above", lesson: "exploiting-overfolders", preset: "overfold" })]);
+  });
+
+  it("reads nothing into a thin stat, and only a whole interval past the line", () => {
+    expect(poolStat("foldToCbet", 9, MIN_CHANCES - 1).level).toBe("thin");
+    const thin = poolOf([{ counters: { fold_to_cbet_flop: 7, fold_to_cbet_flop_opp: 10 } }]);
+    expect(poolReads(thin)).toEqual([]);
+    // 20% over 400 chances: ± 3.9, wholly below the 25% a third-pot bluff needs.
+    const callers = poolOf([{ counters: { fold_to_cbet_flop: 80, fold_to_cbet_flop_opp: 400 } }]);
+    expect(callers.stats.foldToCbet.level).toBe("settled");
+    expect(poolReads(callers)).toEqual([expect.objectContaining({ direction: "below", lesson: "exploiting-calling-stations", preset: "station" })]);
+    // 30% over 400: between the lines, no read.
+    expect(poolReads(poolOf([{ counters: { fold_to_cbet_flop: 120, fold_to_cbet_flop_opp: 400 } }]))).toEqual([]);
+    expect(poolOf([]).players).toBe(0);
+  });
+
+  it("puts the pool and lab words in both dictionaries", () => {
+    for (const id of LAB_PRESET_IDS) {
+      expect(en.course.lab.presets[id], id).toBeTruthy();
+      expect(hr.course.lab.presets[id], id).toBeTruthy();
+    }
+    for (const id of POOL_STATS) {
+      expect(en.course.pool.stats[id], id).toBeTruthy();
+      expect(hr.course.pool.stats[id], id).toBeTruthy();
+    }
+    for (const lock of ["fold-to-bet", "never-raise", "air-bets"]) {
+      expect(en.course.lab.lockLine[lock]("x")).toBeTruthy();
+      expect(hr.course.lab.lockLine[lock]("x")).toBeTruthy();
+    }
   });
 });

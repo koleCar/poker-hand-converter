@@ -36,6 +36,8 @@ export type MathFn =
   | "geometricBet"
   | "allFold"
   | "mdfSplit"
+  | "marginOfError"
+  | "sampleNeeded"
   | "product"
   | "sum"
   | "ratio";

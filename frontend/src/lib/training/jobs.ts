@@ -10,6 +10,7 @@
  * - `flop`: generate a flop spot from the flop library (`generateFlopSpot`, Learn L2);
  * - `split`: a range-split item, flop (the library), turn or river (`generateSplit`, Learn L2–L3);
  * - `paint`: a range-paint item, a chart's first-in range or a river node (`generatePaint`, Learn L3);
+ * - `lab`: an exploit-lab item, a river with an opponent tendency locked (`generateLab`, Learn L4);
  * - `answer`: the spot's hand with the answer appended, graded by the
  *   analysis (`gradeAnswer`; a turn spot with the turn solve on, a flop spot
  *   with the flop library).
@@ -23,6 +24,7 @@ import type { ChartSet } from "../charts";
 import type { PhfHand } from "../phf/types";
 import { flopAnswer, flopChunkFor, generateFlopSpot, type FlopSpotOptions, type FlopTrainerSpot } from "./flop";
 import { gradeAnswer } from "./grade";
+import { generateLab, type LabItem, type LabOptions } from "./lab";
 import { generatePaint, type PaintItem, type PaintOptions } from "./paint";
 import { dealPreflop, preflopAnswer, trainerSet, type PreflopSpotOptions, type PreflopTrainerSpot } from "./preflop";
 import { generateRiverSpot, riverAnswer, type RiverSpotOptions, type RiverTrainerSpot } from "./river";
@@ -38,6 +40,7 @@ export type TrainingRequest =
   | { type: "flop"; jobId: number; options: FlopSpotOptions; seed: number }
   | { type: "split"; jobId: number; options: SplitOptions; seed: number }
   | { type: "paint"; jobId: number; options: PaintOptions; seed: number }
+  | { type: "lab"; jobId: number; options: LabOptions; seed: number }
   | { type: "answer"; jobId: number; spot: TrainerSpot; menuIndex: number };
 
 export interface GradedAnswer {
@@ -52,6 +55,7 @@ export type TrainingResponse =
   | { type: "spot"; jobId: number; spot: TrainerSpot | null }
   | { type: "split"; jobId: number; item: SplitItem | null }
   | { type: "paint"; jobId: number; item: PaintItem | null }
+  | { type: "lab"; jobId: number; item: LabItem | null }
   | ({ type: "graded"; jobId: number } & GradedAnswer)
   | { type: "error"; jobId: number; message: string };
 
@@ -140,6 +144,9 @@ export function runTrainingJob(request: TrainingRequest, charts: ChartSet, flopL
     const options = request.options;
     const set = options.source === "chart" ? trainerSet(charts, options.set) : charts;
     return { type: "paint", jobId, item: generatePaint(set, options, request.seed) };
+  }
+  if (request.type === "lab") {
+    return { type: "lab", jobId, item: generateLab(charts, request.options, request.seed) };
   }
   const answer = answerHand(request.spot, request.menuIndex);
   const decision = gradeAnswer(answer.hand, answer.actionIndex, charts, {

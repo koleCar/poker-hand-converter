@@ -603,31 +603,30 @@ export const outlineHr: LessonOutlines = {
     ],
   },
   "deep-stacks-200bb": {
-    summary: "Kako se igra mijenja na 200 big blindova: koje ruke dobivaju ili gube prije flopa, veći betovi nakon njega i zašto jedan par vrijedi manje.",
+    summary: "Kako se igra mijenja na 200 big blindova: što Railovi chartovi za 200 bb otvaraju više, veći betovi nakon flopa i zašto jedan par vrijedi manje.",
     goals: [
-      "Kad si dubok, otvaraj i brani više suited, povezanih ruku i manje offsuit broadway ruku.",
+      "S ranih mjesta otvaraj više suited asova, kao Railovi chartovi za 200 bb.",
       "Objasni zašto su potencijal za nuts i implied odds važniji s dubokim stackovima.",
       "Cijeni ruke s jednim parom manje uz viši SPR.",
       "Koristi veće betove da planovi kroz više streetova i dalje dovedu stackove u pot.",
     ],
   },
   "population-exploits": {
-    summary: "Kako krenuti od uravnotežene strategije, uočiti što populacija igrača radi previše ili premalo i prilagoditi se bez novih leakova.",
+    summary: "Kako krenuti od Railove osnove, čitati vlastiti pool iz vlastitih protivnika s njihovim uzorcima i prilagoditi se bez novih leakova.",
     goals: [
-      "Kreni od ravnoteže kao polazišta prije bilo kakve prilagodbe.",
-      "Uoči gdje igrači betaju, callaju ili blefiraju previše ili premalo.",
-      "Primijeni uobičajene protumjere na niskim ulozima, poput češćeg folda na velike betove na riveru.",
-      "Prati prilagodbu kroz kasnije streetove da ne postane novi leak.",
+      "Kreni od solvea kao osnove prije bilo kakve prilagodbe.",
+      "Čitaj svoj pool iz panela protivnika, s prilikama iza svake statistike.",
+      "Procjenu poola sudi prema foldovima koje blef treba.",
+      "Prati prilagodbu kroz svaku odluku koju dotiče.",
     ],
   },
   "player-profiles": {
-    summary: "Kako po statistikama prepoznati calling stationa, nita, manijaka i solidne regulare te glavnu prilagodbu protiv svakoga od njih.",
+    summary: "Kako svrstati igrača po broju ruku koje igra i po agresivnosti, i jedna prilagodba koju Railov exploit laboratorij nalazi protiv svakog tipa.",
     goals: [
-      "Prepoznaj calling stationa, nita, manijaka, TAG-a i LAG-a po statistikama.",
-      "Protiv calling stationa betaj više za value i manje blefiraj.",
-      "Češće kradi blindove nitovima i poštuj njihovu agresiju.",
-      "Protiv manijaka callaj šire do kraja i češće postavljaj zamke.",
-      "Protiv solidnih regulara ostani blizu osnovne strategije.",
+      "Svrstaj igrača po dva pitanja: koliko ruku i koliko agresivno.",
+      "Pročitaj tip iz panela protivnika, s uzorkom iza njega.",
+      "Imenuj glavnu prilagodbu protiv onih koji foldaju, callaju, pasivnih igrača i blefera.",
+      "Tip shvati kao procjenu koja može biti kriva i vrati se osnovi.",
     ],
   },
   "reading-hud-stats": {
@@ -640,11 +639,11 @@ export const outlineHr: LessonOutlines = {
     ],
   },
   "exploiting-overfolders": {
-    summary: "Kako više zaraditi protiv igrača koji prečesto foldaju: više blefova, manji betovi i znanje odakle dolaze njihovi foldovi.",
+    summary: "Kako više zaraditi protiv igrača koji previše foldaju: blefiraj s puno više ruku, slabe parove pretvori u blefove, a jake ruke betaj manje.",
     goals: [
       "Prepoznaj igrača koji folda više nego što veličina beta dopušta, iz svojih podataka.",
-      "Dodaj blefove ondje odakle dolaze dodatni foldovi, a value betove ostavi kakvi jesu.",
-      "Koristi manje betove kad i mali bet već donosi fold.",
+      "Blefiraj gotovo svakom rukom koja ne može dobiti na showdownu, pa i slabim parovima.",
+      "Najjače ruke betaj manje kad foldovi dolaze na svakoj veličini.",
       "Imenuj rizik: što gubiš ako prestanu foldati.",
     ],
   },
@@ -658,12 +657,12 @@ export const outlineHr: LessonOutlines = {
     ],
   },
   "exploiting-aggressive-players": {
-    summary: "Kako igrati protiv igrača koji prečesto betaju i raiseaju: širi call do kraja, češći check jakih ruku i pusti ih da blefiraju.",
+    summary: "Kako igrati protiv igrača koji previše blefiraju: širi call parovima, raise dijelom zraka i agresija suđena po showdownu.",
     goals: [
-      "Prepoznaj agresiju koja je veća od ruku koje stoje iza nje.",
-      "Proširi raspon za hvatanje blefova protiv čestih barrela.",
-      "Checkaj jake ruke češće da protivnik nastavi betati.",
-      "Izbjegavaj tanke betove na koje dobiješ samo raise koji te makne s equityja.",
+      "Cijeni bluff-catch prema udjelu blefova u betovima protivnika.",
+      "Protiv onih koji previše blefiraju callaj šire sa srednjim i slabim parovima i asom kao najvišom kartom.",
+      "Raiseaj dio zraka kad su dodatni betovi zrak koji folda.",
+      "Razlikuj agresiju od blefiranja po onome što igrač pokaže na showdownu.",
     ],
   },
   "underbluffed-rivers": {
@@ -676,7 +675,7 @@ export const outlineHr: LessonOutlines = {
     ],
   },
   "node-locking-in-rail": {
-    summary: "Zaključaj protivnikovu učestalost u jednoj odluci, ponovno riješi i vidi najbolji odgovor: što donosi i što riskira.",
+    summary: "Zaključaj jednu protivnikovu odluku u Railovu solveru i vidi najbolji odgovor protiv nje: što donosi i što riskira.",
     goals: [
       "Zaključaj protivnikovu strategiju u jednoj odluci u Railovu solveru.",
       "Pročitaj najbolji odgovor na zaključanu strategiju.",

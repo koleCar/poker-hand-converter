@@ -602,31 +602,30 @@ export const outlineEn: LessonOutlines = {
     ],
   },
   "deep-stacks-200bb": {
-    summary: "How play changes at 200 big blinds: which hands gain or lose before the flop, bigger bets after it, and why one pair is worth less.",
+    summary: "How play changes at 200 big blinds: what Rail's 200bb charts open more, bigger bets after the flop, and why one pair is worth less.",
     goals: [
-      "Open and defend more suited, connected hands and fewer offsuit broadway hands when deep.",
+      "Open more suited aces from the early seats, as Rail's 200bb charts do.",
       "Explain why nut potential and implied odds matter more with deep stacks.",
       "Value one-pair hands less at a higher SPR.",
       "Use bigger sizes so plans over several streets still get the stacks in.",
     ],
   },
   "population-exploits": {
-    summary: "How to start from a balanced strategy, spot what the player pool does too much or too little, and adjust without opening new leaks.",
+    summary: "How to start from Rail's baseline, read your own pool from your own opponents with their samples, and adjust without opening new leaks.",
     goals: [
-      "Start from the equilibrium baseline before you adjust anything.",
-      "Spot where players bet, call or bluff too much or too little.",
-      "Apply common low-stakes counters, such as folding more to big river bets.",
-      "Follow an adjustment through the later streets so it does not become a leak.",
+      "Start from the solve as the baseline before you adjust anything.",
+      "Read your own pool from the opponents panel, with the chances behind each stat.",
+      "Judge a pool read against the folds a bluff needs.",
+      "Follow an adjustment through every decision it touches.",
     ],
   },
   "player-profiles": {
-    summary: "How to recognise calling stations, nits, maniacs and solid regulars from their stats, and the main adjustment against each of them.",
+    summary: "How to place a player by how many hands he plays and how aggressively, and the one adjustment Rail's exploit lab finds against each type.",
     goals: [
-      "Recognise calling stations, nits, maniacs, TAGs and LAGs from their stats.",
-      "Value bet more and bluff less against calling stations.",
-      "Steal more from nits and respect their aggression.",
-      "Call down wider and trap more against maniacs.",
-      "Stay close to the baseline against solid regulars.",
+      "Place a player by two questions: how many hands, and how aggressively.",
+      "Read a type from the opponents panel, with the sample behind it.",
+      "Name the main adjustment against folders, callers, passive players and bluffers.",
+      "Treat a type as a read that can be wrong, and fall back to the baseline.",
     ],
   },
   "reading-hud-stats": {
@@ -639,11 +638,11 @@ export const outlineEn: LessonOutlines = {
     ],
   },
   "exploiting-overfolders": {
-    summary: "How to win more against players who fold too often: bluff more, bet smaller, and know which spots their folds come from.",
+    summary: "How to win more against players who fold too much: bluff with far more hands, turn weak pairs into bluffs, and bet strong hands smaller.",
     goals: [
       "Spot a player who folds more than the bet size allows, from your own data.",
-      "Add bluffs where the extra folds come from, and keep your value bets as they are.",
-      "Use smaller bets when a small bet already gets the fold.",
+      "Bluff with almost every hand that cannot win at showdown, and with weak pairs too.",
+      "Bet your strongest hands smaller when the folds come at every size.",
       "Name the risk: what you lose if they stop folding.",
     ],
   },
@@ -657,12 +656,12 @@ export const outlineEn: LessonOutlines = {
     ],
   },
   "exploiting-aggressive-players": {
-    summary: "How to face players who bet and raise too often: call down wider, check strong hands more, and let them bluff.",
+    summary: "How to face players who bluff too much: call down wider with pairs, raise some air, and judge aggression by what they show down.",
     goals: [
-      "Recognise aggression that runs ahead of the hands behind it.",
-      "Widen your bluff-catching range against frequent barrels.",
-      "Check strong hands more often so the opponent keeps betting.",
-      "Avoid thin bets that only get raised off your equity.",
+      "Price a bluff-catch against a bettor's share of bluffs.",
+      "Call down wider with middle pairs, weak pairs and ace-high against over-bluffers.",
+      "Raise some air when the extra bets are air that folds.",
+      "Tell aggression from bluffing by what a player shows down.",
     ],
   },
   "underbluffed-rivers": {
@@ -675,7 +674,7 @@ export const outlineEn: LessonOutlines = {
     ],
   },
   "node-locking-in-rail": {
-    summary: "Lock an opponent's frequency at one decision, re-solve, and see the best response: what it gains and what it risks.",
+    summary: "Lock one decision of an opponent in Rail's solver and see the best response against it: what it gains, and what it risks.",
     goals: [
       "Lock an opponent's strategy at one decision in Rail's solver.",
       "Read the best response against the locked strategy.",

@@ -220,6 +220,8 @@ export const courseEn = {
       "Rail solves the turn with one bet size, three quarters of the pot, plus all-in when the stacks are short, and a coarse river below it: the same tree that grades your own turns. Smaller turn bets and overbets are taught here in words and on the river, whose solve has more sizes.",
     conceptual: "Conceptual: Rail does not analyse this spot yet, so this lesson teaches the idea without a graded drill.",
     "straddle-not-analysed": "Rail does not analyse straddled pots yet: there are no straddle charts, so this is taught in words.",
+    "locked-read":
+      "The exploit lab locks one tendency of the opponent on a river Rail solves on demand, keeps the rest of the opponent's strategy at the solve, and computes your best response. A lock is your read of a player, not a fact, and the lab works on the river only; the ranges rest on Rail's narrowing model.",
   } as Record<string, string>,
 
   exerciseKinds: {
@@ -234,7 +236,7 @@ export const courseEn = {
     "range-walk": "Guessing a range street by street on your own hand (planned)",
     "pot-tracking": "Keeping track of the pot in a live-style hand (planned)",
     "profile-quiz": "Naming player types from their stats (planned)",
-    "node-lock": "Locking an opponent's strategy in the solver and reading the best response (planned)",
+    "node-lock": "Locking an opponent's tendency in Rail's solver and playing the best response against it",
     placement: "A placement test (planned)",
   } as Record<string, string>,
 
@@ -437,6 +439,7 @@ export const courseEn = {
       pct: "%",
       bb: "bb",
       count: "combos",
+      chances: "chances",
     } as Record<string, string>,
     tolerance: (value: string) => `within ${value}`,
     questions: {
@@ -458,6 +461,10 @@ export const courseEn = {
         `You bluff into ${opponents} opponents, each folding ${folds} of the time on their own. How often do they all fold?`,
       "multiway-mdf-split": (opponents: number, size: string) =>
         `A bet of ${size} of the pot goes into ${opponents} players. How much of their range must each defend so that together they fold no more than the bet needs?`,
+      "sample-margin": (value: string, n: string) =>
+        `An opponent's stat reads ${value} over ${n} chances. How far either side of it does the 95% interval reach (in points)?`,
+      "sample-needed": (value: string, margin: string) =>
+        `A stat sits near ${value}. How many chances does it need before its 95% interval is within ± ${margin}?`,
     },
     combosShape: {
       pair: "a pair",
@@ -479,6 +486,8 @@ export const courseEn = {
       "allin-ev": (win: string, lose: string, required: string, answer: string) =>
         `Win: +${win}. Lose: ${lose}. The call needs ${required} equity; its EV is ${answer}.`,
       multiway: (alpha: string, answer: string) => `The bet needs ${alpha} folds in all; the answer is ${answer}.`,
+      "sample-margin": (variance: string, answer: string) => `1.96 × √(${variance} ÷ chances) = ${answer}.`,
+      "sample-needed": (variance: string, answer: string) => `1.96² × ${variance} ÷ margin² = ${answer} chances.`,
     },
     revealWidget: "The calculator, on these numbers:",
     cards: { flop: "Flop", board: "Board", you: "You", opponent: "Opponent" },
@@ -561,6 +570,112 @@ export const courseEn = {
       board: "the board",
     } as Record<string, string>,
     illustrative: "Illustrative ranges from the concept library, written by hand for teaching.",
+  },
+
+  lab: {
+    presets: {
+      overfold: "Folds too much to river bets",
+      station: "Calls river bets too much",
+      passive: "Never raises a river bet",
+      underbluff: "Rarely bluffs the river",
+      maniac: "Bluffs the river a lot",
+    } as Record<string, string>,
+    lockLine: {
+      "fold-to-bet": (shift: string) => `Locked: the opponent folds ${shift} points to your river bets compared with Rail's solve, at every size.`,
+      "never-raise": () => "Locked: the opponent never raises your river bets.",
+      "air-bets": (share: string) => `Locked: the opponent bets ${share} of its air (no pair, ace-high, missed draws) when first to act on the river.`,
+    } as Record<string, (value: string) => string>,
+    lockAt: (where: string, eq: string, locked: string) => `${where} — Rail's solve: ${eq}; locked: ${locked}.`,
+    lockWhat: {
+      "fold-to-bet": "folds",
+      "never-raise": "raises",
+      "air-bets": "air that bets",
+    } as Record<string, string>,
+    first: "First to act",
+    action: (kind: string, sizePot: number) =>
+      kind === "allin"
+        ? "All-in"
+        : kind === "bet"
+          ? `Bet ${Math.round(sizePot * 100)}%`
+          : kind === "raise"
+            ? `Raise ${Math.round(sizePot * 100)}%`
+            : (({ fold: "Fold", check: "Check", call: "Call" }) as Record<string, string>)[kind] ?? kind,
+    preset: "The read",
+    value: {
+      "fold-to-bet": "Folds compared with the solve",
+      "never-raise": "Raises",
+      "air-bets": "Air that bets",
+    } as Record<string, string>,
+    run: "Lock and solve",
+    another: "Another river",
+    running: "Solving the river and the best response…",
+    numbers: "What the read is worth, in bb per river from these ranges",
+    gain: "Gain over Rail's baseline against this opponent",
+    riskEq: "Cost if the opponent really plays like the solve",
+    riskCounter: "Cost if the opponent sees it and counters",
+    baselineRisk: "The baseline's own cost against its counter",
+    ofPot: (bb: string, pct: string) => `${bb} (${pct} of the pot)`,
+    viewTitle: (steps: string) => `Your decision: ${steps}`,
+    category: "Your hands",
+    baseline: "Rail's solve",
+    response: "Best response",
+    overall: "Whole range",
+    question: (category: string) => `You hold this hand (${category}). Against this opponent, what does the best response do?`,
+    railAnswer: (eq: string, best: string) => `Rail's solve plays it ${eq}; against the lock the best response plays it ${best}.`,
+    evLine: "EV against the locked opponent, per action:",
+    tolerance: (pct: string) => `An answer counts as right within ${pct} of the pot of the best action.`,
+    note: (iterations: string, exploitability: string) =>
+      `From a river solve on demand (the charts' ranges narrowed on the flop and turn by Rail's heuristic model; bets of 33%, 75% and 150% of the pot and all-in; ${iterations} iterations, within ${exploitability}% of the pot). The opponent keeps the solve's strategy everywhere except the lock; you best-respond everywhere. Values are your expectation over every deal of both ranges at the start of the river.`,
+    none: "Rail found no river this read changes. Try another river or another read.",
+  },
+
+  pool: {
+    title: "Your own pool",
+    intro: "Your opponents' tendencies from your own hands, summed over the opponents panel, with how many chances each stat had and the 95% interval that sample allows.",
+    signIn: "Sign in, and keep opponent statistics in Statistics → Opponents, to see your own pool here.",
+    noDatabase: "This copy of Rail has no database, so it has no opponent statistics to show.",
+    loading: "Reading your opponent statistics…",
+    failed: (message: string) => `Could not read your opponent statistics: ${message}`,
+    none: "No opponent statistics yet. Turn them on in Statistics → Opponents (rooms that hide names across sessions are left out), then come back.",
+    opaque: (rows: string) => `${rows} opponent rows from rooms whose names do not survive a session are left out.`,
+    summary: (players: string, hands: string) => `${players} opponents, ${hands} hands with them.`,
+    capped: (players: string) => `Only your ${players} most-seen opponents are summed.`,
+    stats: {
+      vpip: "Put money in preflop",
+      pfr: "Raised preflop",
+      threeBet: "3-bet",
+      foldToThreeBet: "Folded to a 3-bet",
+      cbet: "C-bet the flop",
+      foldToCbet: "Folded to a flop c-bet",
+      wtsd: "Went to showdown",
+      wsd: "Won at showdown",
+      aggression: "Bet or raised (postflop decisions)",
+    } as Record<string, string>,
+    value: (value: string, margin: string, n: string) => `${value} ± ${margin} over ${n} chances`,
+    levels: {
+      thin: "not enough data",
+      rough: "a rough read",
+      settled: "settled",
+    } as Record<string, string>,
+    noChances: "no chances yet",
+    needed: (n: string) => `About ${n} chances for ± 5 points.`,
+    read: {
+      above: (stat: string, size: string, needs: string) =>
+        `Your pool's ${stat} interval sits wholly above the ${needs} folds a ${size}-pot bluff needs. Practise against it in the lab:`,
+      below: (stat: string, size: string, needs: string) =>
+        `Your pool's ${stat} interval sits wholly below the ${needs} folds a ${size}-pot bluff needs. Practise against it in the lab:`,
+    } as Record<string, (stat: string, size: string, needs: string) => string>,
+    noRead: "Nothing here clears its interval yet: play the baseline, and let the sample grow before you lean on a read.",
+    lessonLink: (title: string) => `Lesson: ${title}`,
+  },
+
+  sampleSize: {
+    stat: "The stat",
+    chances: "Chances it was counted over",
+    margin: "95% interval",
+    range: "Plausible range",
+    needed: "Chances for ± 5 points",
+    count: (n: string) => `${n} chances`,
   },
 
   ownHands: {

@@ -163,6 +163,14 @@ export interface RunResult {
   stoppedBy: "target" | "max-iterations" | "cancelled";
 }
 
+/** One node of a recorded best response (`Solver.bestResponse`), `[action][hand]` like `averageStrategy`. */
+export interface BestResponseRow {
+  /** The response: one-hot, or the average strategy where that is within `keep` of the best. */
+  strategy: Float32Array;
+  /** Each action's EV for each hand against the opponent's strategy, the responder playing on by its best response. */
+  ev: Float32Array;
+}
+
 const MODE_CFR = 0;
 const MODE_BEST = 1;
 const MODE_EVAL = 2;
@@ -246,6 +254,9 @@ export class Solver {
 
   private trav = 0;
   private mode = MODE_CFR;
+  /** `bestResponse(p, keep)` with a record: the response per node of p, filled during the walk. */
+  private bestRecord: Map<number, BestResponseRow> | null = null;
+  private bestKeep = -1;
   private recordEv = false;
   private dPos = 0;
   private dNeg = 0;
@@ -547,6 +558,56 @@ export class Solver {
     }
   }
 
+  /**
+   * Player `p`'s value when both play the current average strategy: an
+   * expectation over deals, in chips (the exploit lab, Learn L4).
+   */
+  value(p: 0 | 1): number {
+    return this.rootValue(p, MODE_EVAL);
+  }
+
+  /**
+   * Player `p`'s best response to the other's current average strategy (the
+   * exploit lab, Learn L4): its value, and per node of `p` the response
+   * itself with each action's EV against that strategy.
+   *
+   * A best response is pure: each hand takes its best action. With `keep`
+   * at zero or more, a hand whose average strategy is within `keep` chips of
+   * its best action keeps that strategy instead - so the response changes only
+   * the hands that gain more than `keep` from changing, and an indifferent
+   * hand does not flip to an arbitrary corner. `value` is the pure response's
+   * (the most `p` can make); `strategy` is what to install to play it. A node
+   * the walk never reaches - every opponent hand's reach is zero there - is
+   * left out of `strategy` and keeps its average.
+   */
+  bestResponse(p: 0 | 1, keep = -1): { value: number; strategy: Map<number, BestResponseRow> } {
+    const record = new Map<number, BestResponseRow>();
+    this.bestRecord = record;
+    this.bestKeep = keep;
+    try {
+      return { value: this.rootValue(p, MODE_BEST), strategy: record };
+    } finally {
+      this.bestRecord = null;
+      this.bestKeep = -1;
+    }
+  }
+
+  /** A copy of the average-strategy sums, to put back with `restoreAverage` (float32 storage only). */
+  averageSnapshot(): Float32Array {
+    if (this.compact) {
+      throw new Error("averageSnapshot needs float32 storage");
+    }
+    return Float32Array.from(this.strategySum);
+  }
+
+  /** Puts back sums taken by `averageSnapshot`. */
+  restoreAverage(snapshot: Float32Array): void {
+    if (this.compact || snapshot.length !== this.strategySum.length) {
+      throw new Error("not a snapshot of this solver");
+    }
+    this.strategySum.set(snapshot);
+  }
+
   /** Root value for player `p` in `mode`, normalised to an expectation over deals. */
   private rootValue(p: number, mode: number): number {
     this.trav = p;
@@ -604,6 +665,9 @@ export class Solver {
         this.walk(tree.children[start + a], depth + 1, reach, rOff, cfv, a * n);
       }
       if (mode === MODE_BEST) {
+        if (this.bestRecord) {
+          this.recordBest(node, depth, count, n, cfv, reach, rOff);
+        }
         for (let i = 0; i < n; i += 1) {
           let best = cfv[i];
           for (let a = 1; a < count; a += 1) {
@@ -738,6 +802,9 @@ export class Solver {
         this.walk(tree.children[start + a], depth + 1, reach, rOff, cfv, a * n);
       }
       if (mode === MODE_BEST) {
+        if (this.bestRecord) {
+          this.recordBest(node, depth, count, n, cfv, reach, rOff);
+        }
         for (let i = 0; i < n; i += 1) {
           let best = cfv[i];
           for (let a = 1; a < count; a += 1) {
@@ -1019,6 +1086,52 @@ export class Solver {
       const w = wins[t];
       out[oOff + ordP[t]] = lose * all + winMinusLose * w + tieMinusLose * (all - w - losses);
     }
+  }
+
+  /**
+   * `bestResponse`'s record at one of the traverser's nodes: the action values
+   * the walk just computed (`cfv`), as EVs and as the response row.
+   */
+  private recordBest(
+    node: number,
+    depth: number,
+    count: number,
+    n: number,
+    cfv: Float64Array,
+    reach: Float64Array,
+    rOff: number,
+  ): void {
+    const norm = this.normBuf;
+    this.compat(reach, rOff, norm, 0, 1);
+    // The strategy slab of this depth is free at the traverser's own node in a best-response walk.
+    const strat = this.stratBuf[depth];
+    if (this.compact) {
+      this.average16(this.offset[node], count, n, strat);
+    } else {
+      this.average(this.offset[node], count, n, strat);
+    }
+    const strategy = new Float32Array(count * n);
+    const ev = new Float32Array(count * n);
+    const keep = this.bestKeep;
+    for (let i = 0; i < n; i += 1) {
+      let best = cfv[i];
+      let bestA = 0;
+      let mix = strat[i] * cfv[i];
+      for (let a = 1; a < count; a += 1) {
+        const v = cfv[a * n + i];
+        mix += strat[a * n + i] * v;
+        if (v > best) {
+          best = v;
+          bestA = a;
+        }
+      }
+      const kept = keep >= 0 && mix >= best - keep * norm[i];
+      for (let a = 0; a < count; a += 1) {
+        strategy[a * n + i] = kept ? strat[a * n + i] : a === bestA ? 1 : 0;
+        ev[a * n + i] = norm[i] > 0 ? cfv[a * n + i] / norm[i] : 0;
+      }
+    }
+    (this.bestRecord as Map<number, BestResponseRow>).set(node, { strategy, ev });
   }
 
   /* ------------------------------------------------------- strategies - */

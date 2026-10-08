@@ -22,6 +22,7 @@
 
 import type { FlagCode } from "../analysis/types";
 import type { ChartPosition } from "../charts";
+import type { LabPreset } from "../training/labPresets";
 import type { DealBias, PreflopFamily } from "../training/preflop";
 import type { RiverPot, RiverRole, RiverSeat } from "../training/river";
 import type { ConceptId } from "./concepts";
@@ -228,6 +229,8 @@ export const CALC_KINDS = [
   "per100",
   "allin-ev",
   "multiway",
+  // Learn L4: the 95% interval on a stat over n chances, or the chances a stat needs.
+  "sample-size",
 ] as const;
 export type CalcKind = (typeof CALC_KINDS)[number];
 
@@ -241,8 +244,9 @@ export type ClassifyKind = (typeof CLASSIFY_KINDS)[number];
  * never count towards passing a lesson. `range-paint` is built (L3,
  * {@link PaintDef}) and stays here for the paints that still wait for data
  * (straddle charts): a planned exercise is the one with `waitsFor`.
+ * `node-lock`, planned since L1.1, is built (L4, {@link NodeLockDef}).
  */
-export const PLANNED_KINDS = ["depth-split", "range-paint", "range-walk", "pot-tracking", "profile-quiz", "node-lock", "placement"] as const;
+export const PLANNED_KINDS = ["depth-split", "range-paint", "range-walk", "pot-tracking", "profile-quiz", "placement"] as const;
 export type PlannedKind = (typeof PLANNED_KINDS)[number];
 
 /** A spot as the leak finder names it. Scenario entries may use `*` as a wildcard (`pfr-ip-*`, `*-vs-bet`). */
@@ -337,6 +341,19 @@ export type PaintDef = ExerciseBase & {
     | { source: "river"; pot: RiverPot | "any"; seat: RiverSeat | "any"; role: RiverRole | "any"; facing?: "check" | "bet" | "any" }
   );
 
+/**
+ * The exploit lab (Learn L4, `lib/training/lab.ts`): a river solved on
+ * demand, one opponent tendency locked (a preset of `LAB_PRESETS`, or any),
+ * and a hand to play against it — graded by the best response the solver
+ * computes against the lock.
+ */
+export interface NodeLockDef extends ExerciseBase {
+  kind: "node-lock";
+  count: number;
+  pass: number;
+  preset: LabPreset | "any";
+}
+
 export interface CalcDef extends ExerciseBase {
   kind: "calc";
   calc: CalcKind;
@@ -372,8 +389,8 @@ export interface PlannedDef extends ExerciseBase {
   street?: "flop" | "turn" | "river";
 }
 
-export type ExerciseDef = ChartQuizDef | SolverSpotDef | SplitDef | PaintDef | CalcDef | ClassifyDef | OwnHandsDef | PlannedDef;
-export type GeneratedExerciseDef = ChartQuizDef | SolverSpotDef | SplitDef | PaintDef | CalcDef | ClassifyDef;
+export type ExerciseDef = ChartQuizDef | SolverSpotDef | SplitDef | PaintDef | NodeLockDef | CalcDef | ClassifyDef | OwnHandsDef | PlannedDef;
+export type GeneratedExerciseDef = ChartQuizDef | SolverSpotDef | SplitDef | PaintDef | NodeLockDef | CalcDef | ClassifyDef;
 
 export function isPlanned(def: ExerciseDef): def is PlannedDef {
   return "waitsFor" in def;
@@ -410,10 +427,28 @@ export function countsTowardsPass(def: ExerciseDef, flopLibrary = false): def is
  *   the heuristic and the MDF split (A9), without a solver grade (L2);
  * - `turn-tree`: the turn is solved on A5a's coarse tree — one bet size, 75%
  *   of the pot, plus all-in up to three pots — so turn sizes other than those
- *   are taught in words (L3).
+ *   are taught in words (L3);
+ * - `locked-read`: the exploit lab freezes the opponent everywhere but the
+ *   lock and best-responds on a river solve: a read is a model of a player,
+ *   and the lab is a river only (L4).
  */
-export type LessonNote = "flop-mapped" | "multiway-heuristic" | "approximate-ranges" | "turn-tree" | "conceptual" | "straddle-not-analysed";
-export const LESSON_NOTES: readonly LessonNote[] = ["flop-mapped", "multiway-heuristic", "approximate-ranges", "turn-tree", "conceptual", "straddle-not-analysed"];
+export type LessonNote = "flop-mapped" | "multiway-heuristic" | "approximate-ranges" | "turn-tree" | "conceptual" | "straddle-not-analysed" | "locked-read";
+export const LESSON_NOTES: readonly LessonNote[] = [
+  "flop-mapped",
+  "multiway-heuristic",
+  "approximate-ranges",
+  "turn-tree",
+  "conceptual",
+  "straddle-not-analysed",
+  "locked-read",
+];
+
+/**
+ * Which of the learner's own pool tendencies a lesson shows (Learn L4, the
+ * opponents-panel tie-in, `lib/learn/pool.ts`): read at runtime from their
+ * own opponent statistics, with sample sizes.
+ */
+export type PoolTopic = "all" | "overfold" | "station" | "aggro" | "underbluff";
 
 /**
  * A curated example hand from outside Rail, with where it came from. The slot
@@ -443,6 +478,8 @@ export interface LessonMeta {
   written: boolean;
   notes?: readonly LessonNote[];
   examples?: readonly LessonExample[];
+  /** The learner's own pool tendencies this lesson shows (L4). */
+  pool?: PoolTopic;
 }
 
 /* ------------------------------------------------------------- shorthand - */
@@ -525,6 +562,7 @@ const hands = (extra: Omit<OwnHandsDef, "id" | "kind" | "count"> & { count?: num
   count: extra.count ?? 3,
   ...extra,
 });
+const lab = (id: string, preset: NodeLockDef["preset"], count: number, pass = 0.5): NodeLockDef => ({ id, kind: "node-lock", count, pass, preset });
 const planned = (id: string, kind: PlannedKind, waitsFor: PlannedDef["waitsFor"] = "widget", street?: PlannedDef["street"]): PlannedDef => ({
   id,
   kind,
@@ -539,7 +577,7 @@ const lesson = (
   concepts: ConceptId[],
   exercises: ExerciseDef[],
   match: { spots?: SpotPattern[]; flags?: FlagCode[] } = {},
-  extra: Partial<Pick<LessonMeta, "written" | "notes" | "examples">> = {},
+  extra: Partial<Pick<LessonMeta, "written" | "notes" | "examples" | "pool">> = {},
 ): LessonMeta => {
   return {
     id,
@@ -552,6 +590,7 @@ const lesson = (
     written: extra.written ?? false,
     ...(extra.notes ? { notes: extra.notes } : {}),
     ...(extra.examples ? { examples: extra.examples } : {}),
+    ...(extra.pool ? { pool: extra.pool } : {}),
   };
 };
 const WRITTEN = { written: true } as const;
@@ -1112,50 +1151,85 @@ const LIST: LessonMeta[] = [
   /* ============================================================ 5. Exploits */
 
   // ---- X1 reading people
-  lesson("player-profiles", "x1", [], ["gto-vs-exploitative"], [planned("profile-quiz", "profile-quiz", "villain-stats")]),
+  lesson(
+    "player-profiles",
+    "x1",
+    ["bluff-catching", "thin-value"],
+    ["gto-vs-exploitative"],
+    [lab("profile-reads", "any", 4), planned("profile-quiz", "profile-quiz", "villain-stats")],
+    {},
+    { ...WRITTEN, notes: ["locked-read", "approximate-ranges"], pool: "all" },
+  ),
   lesson(
     "reading-hud-stats",
     "x1",
     ["player-profiles"],
     ["gto-vs-exploitative", "ev-and-grading"],
-    [planned("read-the-panel", "profile-quiz", "villain-stats")],
+    [calc("margin-of-error", "sample-size", 6)],
+    {},
+    { ...WRITTEN, pool: "all" },
   ),
 
   // ---- X2 the pool
   lesson(
     "population-exploits",
     "x2",
-    ["player-profiles", "bluff-catching"],
+    ["reading-hud-stats"],
     ["gto-vs-exploitative", "bluff-catching"],
-    [planned("exploit-hands", "profile-quiz", "villain-stats")],
+    [lab("pool-reads", "any", 4), hands({ spots: [spot("river", ["*-vs-bet"]), spot("river", ["*-first"])] })],
+    {},
+    { ...WRITTEN, notes: ["locked-read", "approximate-ranges"], pool: "all" },
   ),
   lesson(
     "exploiting-overfolders",
     "x2",
     ["population-exploits"],
     ["gto-vs-exploitative", "mdf-alpha", "steal"],
-    [calc("bluff-break-even", "alpha-mdf", 6), planned("overfold-lock", "node-lock")],
+    [calc("bluff-break-even", "alpha-mdf", 6), lab("overfold-lock", "overfold", 4), hands({ spots: [spot("river", ["pfr-*-first", "caller-*-first"])] })],
+    {},
+    { ...WRITTEN, notes: ["locked-read", "approximate-ranges"], pool: "overfold" },
   ),
   lesson(
     "exploiting-calling-stations",
     "x2",
-    ["population-exploits"],
+    ["population-exploits", "thin-value"],
     ["gto-vs-exploitative", "thin-value"],
-    [solver("value-rivers", "river", 4, { seat: "ip", facing: "check" }), planned("station-lock", "node-lock")],
+    [
+      lab("station-lock", "station", 4),
+      lab("passive-lock", "passive", 3),
+      solver("value-rivers", "river", 4, { seat: "ip", facing: "check" }),
+      hands({ flags: ["check-back-nuts"], spots: [spot("river", ["*-first"])] }),
+    ],
+    {},
+    { ...WRITTEN, notes: ["locked-read", "approximate-ranges"], pool: "station" },
   ),
   lesson(
     "exploiting-aggressive-players",
     "x2",
-    ["population-exploits"],
+    ["population-exploits", "bluff-catching"],
     ["gto-vs-exploitative", "bluff-catching", "check-raise"],
-    [solver("catch-barrels", "turn", 3, { seat: "ip", facing: "bet" }), planned("aggro-lock", "node-lock")],
+    [
+      lab("aggro-lock", "maniac", 4),
+      solver("catch-barrels", "turn", 3, { seat: "ip", facing: "bet" }),
+      hands({ flags: ["fold-with-odds"], spots: [spot("river", ["*-vs-bet"]), spot("turn", ["*-vs-bet"])] }),
+    ],
+    // After the defence lessons, which carry the flag first.
+    { flags: ["fold-with-odds"] },
+    { ...WRITTEN, notes: ["locked-read", "approximate-ranges", "turn-tree"], pool: "aggro" },
   ),
   lesson(
     "underbluffed-rivers",
     "x2",
     ["population-exploits", "bluff-catching"],
     ["gto-vs-exploitative", "bluff-catching", "mdf-alpha"],
-    [solver("river-calls", "river", 4, { seat: "ip", facing: "bet" }), planned("underbluff-lock", "node-lock")],
+    [
+      lab("underbluff-lock", "underbluff", 4),
+      solver("river-calls", "river", 4, { seat: "ip", facing: "bet" }),
+      hands({ flags: ["call-beats-nothing"], spots: [spot("river", ["*-vs-bet"])] }),
+    ],
+    // A river call the reference folds: the hand called a range with too few bluffs for it.
+    { spots: [spot("river", ["pfr-*-vs-bet", "caller-*-vs-bet"], { best: ["fold"] })], flags: ["call-beats-nothing"] },
+    { ...WRITTEN, notes: ["locked-read", "approximate-ranges"], pool: "underbluff" },
   ),
 
   // ---- X3 the exploit lab
@@ -1164,28 +1238,38 @@ const LIST: LessonMeta[] = [
     "x3",
     ["population-exploits"],
     ["gto-vs-exploitative", "ev-and-grading"],
-    [planned("lock-a-node", "node-lock")],
+    [lab("lock-a-node", "any", 6)],
     {},
-    { notes: ["conceptual"] },
+    { ...WRITTEN, notes: ["locked-read", "approximate-ranges"] },
   ),
   lesson(
     "when-not-to-exploit",
     "x3",
-    ["node-locking-in-rail"],
+    ["node-locking-in-rail", "reading-hud-stats"],
     ["gto-vs-exploitative", "ev-and-grading"],
-    [calc("sample-size", "per100", 5), planned("exploit-or-not", "node-lock")],
+    [calc("sample-size", "sample-size", 5), lab("exploit-or-not", "any", 4)],
+    {},
+    { ...WRITTEN, notes: ["locked-read", "approximate-ranges"], pool: "all" },
   ),
 
   // ---- X4 live and deep
-  lesson("live-game-dynamics", "x4", ["open-sizing"], ["rfi", "spr"], [planned("pot-tracking", "pot-tracking")]),
+  lesson(
+    "live-game-dynamics",
+    "x4",
+    ["open-sizing"],
+    ["rfi", "spr"],
+    [calc("live-spr", "spr", 5), calc("live-steal", "steal", 5), planned("pot-tracking", "pot-tracking")],
+    {},
+    WRITTEN,
+  ),
   lesson(
     "straddle-preflop",
     "x4",
     ["open-sizing"],
     ["rfi", "blind-defence"],
-    [planned("straddle-charts", "range-paint", "straddle-charts")],
+    [calc("straddle-steal", "steal", 6), calc("straddle-price", "pot-odds", 5), planned("straddle-charts", "range-paint", "straddle-charts")],
     {},
-    { notes: ["straddle-not-analysed", "conceptual"] },
+    { ...WRITTEN, notes: ["straddle-not-analysed", "conceptual"] },
   ),
   lesson(
     "straddle-postflop-low-spr",
@@ -1194,7 +1278,7 @@ const LIST: LessonMeta[] = [
     ["spr", "multiway-pots"],
     [calc("low-spr", "spr", 6), solver("low-spr-rivers", "river", 3, { pot: "3bp" })],
     {},
-    { notes: ["straddle-not-analysed"] },
+    { ...WRITTEN, notes: ["straddle-not-analysed", "approximate-ranges"] },
   ),
   lesson(
     "deep-stacks-200bb",
@@ -1203,6 +1287,7 @@ const LIST: LessonMeta[] = [
     ["spr", "equity-realisation", "bet-sizing"],
     [chart("deep-opens", "rfi", 12, { set: TABLE_6_200 }), chart("deep-defence", "vs-open", 12, { set: TABLE_6_200 }), planned("spr-toggle", "depth-split", "flop-library", "flop")],
     { spots: [spot("preflop", ["unopened", "vs-open"])] },
+    WRITTEN,
   ),
 ];
 

@@ -2011,3 +2011,30 @@ Each phase appends what it learned that changed the plan.
   - **Direction check** (`npm run learn:directions`): the lessons' claims
     read from the trainer's turn and river solves by hand category before
     they were written.
+- 2026-10-08 — Learn L4: the exploits track and the exploit lab
+  (`docs/LEARN-PLAN.md` §12). No grade changes: still `analysis/9`; no
+  migration.
+  - **Solver, additive**: `Solver.value(p)`, `Solver.bestResponse(p, keep)`
+    (the best-response walk that exploitability already ran, now able to
+    record the response per node with each action's EV; `keep` leaves a
+    hand within that many chips of its best action on its average mix),
+    `averageSnapshot` / `restoreAverage`; `lib/solver/lock.ts`:
+    `lockedStrategy` (a group of actions' share at a node set to a number,
+    hands moving in a stated order), `loadResult` (a full result's
+    strategies into a fresh solver of the same game), `ownReach`, and
+    `exploitLab` (lock one player, best-respond, and measure the gain over
+    the equilibrium against the lock, the cost against the equilibrium
+    opponent, the cost against the opponent's own best response, and the
+    equilibrium's cost against its counter). Verified on the clairvoyance
+    game at its closed-form equilibrium, by hand (`learnLab.test.ts`).
+  - **River, refactor only**: `riverSpotOf(input)` is the exact game
+    `solveRiverSpot` solves (pruned ranges, menu, rake), so the lab rebuilds
+    it from a solve's input; `RIVER_SOLVE_OPTIONS`. The river solve and its
+    grades are unchanged.
+  - **Training**: `lib/training/lab.ts` (a river spot with the hero in
+    position, one of three locks — folds to a river bet shifted from the
+    solve at every size, never raises, bets a share of its air first to act
+    — the best response, the decisions it changes by `riverCategory`, and a
+    question graded by the response's own EVs), a `lab` job in the trainer
+    worker, about 0.2 s per item. `npm run learn:lab` from `tests/` is the
+    direction check the exploit lessons were written from.

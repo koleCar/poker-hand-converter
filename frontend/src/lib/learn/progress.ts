@@ -22,6 +22,7 @@ import { nextDrillState, newDrillState, QUALITY, type DrillState } from "../trai
 import type { Grade } from "../analysis/types";
 import type { DealBias, PreflopFamily } from "../training/preflop";
 import type { RiverPot, RiverRole, RiverSeat } from "../training/river";
+import { isLabPreset, type LabPreset } from "../training/labPresets";
 import type { FlopFacing } from "../training/flop";
 import type { ChartPosition } from "../charts";
 import {
@@ -226,6 +227,12 @@ export type CardItem =
       seat?: ChartPosition | null;
     }
   | {
+      /** An exploit-lab item (L4): a `solver-spot` card, since the solver's best response grades it. */
+      k: "lock";
+      seed: number;
+      preset: LabPreset | "any";
+    }
+  | {
       /** A range paint of a river node (L3): a `solver-spot` card. */
       k: "paint";
       source: "river";
@@ -285,6 +292,8 @@ export function cardFor(meta: LessonMeta, def: GeneratedExerciseDef, seed: numbe
           ...(def.flop ? { flop: def.flop } : {}),
         },
       };
+    case "node-lock":
+      return { ...base, kind: "solver-spot", item: { k: "lock", seed: seed >>> 0, preset: def.preset } };
     case "range-paint":
       if (def.source === "chart") {
         return { ...base, kind: "chart-quiz", item: { k: "paint", source: "chart", seed: seed >>> 0, set: def.set ?? null, seat: def.seat ?? null } };
@@ -387,6 +396,7 @@ export function parseCardItem(value: unknown): CardItem | null {
       bias,
     };
   }
+  if (v.k === "lock" && (v.preset === "any" || isLabPreset(v.preset))) return { k: "lock", seed, preset: v.preset };
   if (v.k === "paint" && v.source === "chart") {
     return {
       k: "paint",

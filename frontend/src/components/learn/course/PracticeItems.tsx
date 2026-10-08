@@ -107,6 +107,15 @@ function useCalcWords(item: CalcItem) {
       question = t.questions["allin-ev"](bb(p.stack), bb(p.dead), f.pct(p.equity));
       working = t.working["allin-ev"](bb(w.win), bb(w.lose), f.pct(w.required), f.signedBb(item.answer));
       break;
+    case "sample-size":
+      if (item.ask === "margin") {
+        question = t.questions["sample-margin"](f.pct(p.p), f.num(p.n, 0));
+        working = t.working["sample-margin"](f.num(w.variance, 4), f.pct(item.answer));
+      } else {
+        question = t.questions["sample-needed"](f.pct(p.p), f.pct(p.margin));
+        working = t.working["sample-needed"](f.num(w.variance, 4), f.num(Math.round(item.answer), 0));
+      }
+      break;
     case "multiway":
       question =
         item.ask === "all-fold"
@@ -115,7 +124,8 @@ function useCalcWords(item: CalcItem) {
       working = t.working.multiway(f.pct(w.alpha), f.pct(item.answer));
       break;
   }
-  const unit = item.unit === "pct" ? "%" : item.unit === "bb" ? (item.kind === "per100" ? "bb / 100" : "bb") : item.unit === "count" ? t.units.count : "";
+  const unit =
+    item.unit === "pct" ? "%" : item.unit === "bb" ? (item.kind === "per100" ? "bb / 100" : "bb") : item.unit === "count" ? (item.kind === "sample-size" ? t.units.chances : t.units.count) : "";
   const tolerance = item.unit === "pct" ? f.pct(item.tolerance) : item.unit === "count" || item.unit === "grade" ? null : f.num(item.tolerance, 2);
   return { question, working, answerText, unit, tolerance };
 }

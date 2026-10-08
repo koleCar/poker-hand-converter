@@ -218,6 +218,8 @@ export const courseHr = {
       "Rail rješava turn s jednom veličinom beta, tri četvrtine pota, plus all-in kad su stackovi kratki, i grubim riverom ispod njega: isto stablo koje ocjenjuje tvoje turnove. Manji betovi na turnu i overbetovi ovdje se uče riječima i na riveru, čije rješenje ima više veličina.",
     conceptual: "Konceptualno: Rail ovu situaciju još ne analizira, pa lekcija uči ideju bez ocijenjene vježbe.",
     "straddle-not-analysed": "Rail još ne analizira potove sa straddleom: chartova za straddle nema, pa se ovo uči riječima.",
+    "locked-read":
+      "Exploit laboratorij zaključava jednu protivnikovu sklonost na riveru koji Rail rješava na zahtjev, ostatak protivnikove strategije ostavlja kakav je u solveu i računa tvoj najbolji odgovor. Zaključavanje je tvoja procjena igrača, a ne činjenica, i laboratorij radi samo na riveru; rasponi počivaju na Railovu modelu sužavanja.",
   } as Record<string, string>,
 
   exerciseKinds: {
@@ -232,7 +234,7 @@ export const courseHr = {
     "range-walk": "Pogađanje raspona street po street na tvojoj ruci (planirano)",
     "pot-tracking": "Praćenje pota u ruci kao uživo (planirano)",
     "profile-quiz": "Prepoznavanje tipova igrača iz statistike (planirano)",
-    "node-lock": "Zaključavanje protivnikove strategije u solveru i čitanje najboljeg odgovora (planirano)",
+    "node-lock": "Zaključavanje protivnikove sklonosti u Railovu solveru i igranje najboljeg odgovora protiv nje",
     placement: "Test razine (planirano)",
   } as Record<string, string>,
 
@@ -438,6 +440,7 @@ export const courseHr = {
       pct: "%",
       bb: "bb",
       count: "kombinacija",
+      chances: "prilika",
     } as Record<string, string>,
     tolerance: (value: string) => `uz odstupanje do ${value}`,
     questions: {
@@ -459,6 +462,10 @@ export const courseHr = {
         `Blefiraš u ${opponents} protivnika, a svaki sam za sebe folda u ${folds} slučajeva. Koliko često foldaju svi?`,
       "multiway-mdf-split": (opponents: number, size: string) =>
         `Bet od ${size} pota ide u ${opponents} igrača. Koliki dio raspona svaki mora braniti da zajedno ne foldaju više nego što bet treba?`,
+      "sample-margin": (value: string, n: string) =>
+        `Protivnikova statistika pokazuje ${value} kroz ${n} prilika. Koliko daleko s obje strane seže interval od 95% (u postotnim bodovima)?`,
+      "sample-needed": (value: string, margin: string) =>
+        `Statistika je blizu ${value}. Koliko prilika treba prije nego što joj interval od 95% bude unutar ± ${margin}?`,
     },
     combosShape: {
       pair: "par",
@@ -481,6 +488,8 @@ export const courseHr = {
       "allin-ev": (win: string, lose: string, required: string, answer: string) =>
         `Pobjeda: +${win}. Poraz: ${lose}. Call treba ${required} equityja; njegov EV je ${answer}.`,
       multiway: (alpha: string, answer: string) => `Bet ukupno treba ${alpha} foldova; odgovor je ${answer}.`,
+      "sample-margin": (variance: string, answer: string) => `1,96 × √(${variance} ÷ prilike) = ${answer}.`,
+      "sample-needed": (variance: string, answer: string) => `1,96² × ${variance} ÷ margina² = ${answer} prilika.`,
     },
     revealWidget: "Kalkulator, s ovim brojevima:",
     cards: { flop: "Flop", board: "Board", you: "Ti", opponent: "Protivnik" },
@@ -563,6 +572,112 @@ export const courseHr = {
       board: "board",
     } as Record<string, string>,
     illustrative: "Ilustrativni rasponi iz knjižnice pojmova, ručno napisani za učenje.",
+  },
+
+  lab: {
+    presets: {
+      overfold: "Previše folda na river betove",
+      station: "Previše plaća river betove",
+      passive: "Nikad ne raisea river bet",
+      underbluff: "Rijetko blefira river",
+      maniac: "Puno blefira river",
+    } as Record<string, string>,
+    lockLine: {
+      "fold-to-bet": (shift: string) => `Zaključano: protivnik folda ${shift} bodova na tvoje river betove u odnosu na Railov solve, na svakoj veličini.`,
+      "never-raise": () => "Zaključano: protivnik nikad ne raisea tvoje river betove.",
+      "air-bets": (share: string) => `Zaključano: protivnik beta ${share} svog zraka (bez para, as-high, promašeni drawovi) kad prvi djeluje na riveru.`,
+    } as Record<string, (value: string) => string>,
+    lockAt: (where: string, eq: string, locked: string) => `${where} — Railov solve: ${eq}; zaključano: ${locked}.`,
+    lockWhat: {
+      "fold-to-bet": "foldova",
+      "never-raise": "raiseova",
+      "air-bets": "zraka koji beta",
+    } as Record<string, string>,
+    first: "Prvi na potezu",
+    action: (kind: string, sizePot: number) =>
+      kind === "allin"
+        ? "All-in"
+        : kind === "bet"
+          ? `Bet ${Math.round(sizePot * 100)}%`
+          : kind === "raise"
+            ? `Raise ${Math.round(sizePot * 100)}%`
+            : (({ fold: "Fold", check: "Check", call: "Call" }) as Record<string, string>)[kind] ?? kind,
+    preset: "Procjena",
+    value: {
+      "fold-to-bet": "Foldovi u odnosu na solve",
+      "never-raise": "Raiseovi",
+      "air-bets": "Zrak koji beta",
+    } as Record<string, string>,
+    run: "Zaključaj i riješi",
+    another: "Drugi river",
+    running: "Rješavam river i najbolji odgovor…",
+    numbers: "Koliko procjena vrijedi, u bb po riveru iz ovih raspona",
+    gain: "Dobitak u odnosu na Railovu osnovu protiv ovog protivnika",
+    riskEq: "Trošak ako protivnik zapravo igra kao solve",
+    riskCounter: "Trošak ako protivnik to vidi i kontrira",
+    baselineRisk: "Trošak same osnove protiv njezina kontriranja",
+    ofPot: (bb: string, pct: string) => `${bb} (${pct} pota)`,
+    viewTitle: (steps: string) => `Tvoja odluka: ${steps}`,
+    category: "Tvoje ruke",
+    baseline: "Railov solve",
+    response: "Najbolji odgovor",
+    overall: "Cijeli raspon",
+    question: (category: string) => `Držiš ovu ruku (${category}). Što protiv ovog protivnika radi najbolji odgovor?`,
+    railAnswer: (eq: string, best: string) => `Railov solve je igra ${eq}; protiv zaključanog protivnika najbolji odgovor je igra ${best}.`,
+    evLine: "EV protiv zaključanog protivnika, po akciji:",
+    tolerance: (pct: string) => `Odgovor se računa kao točan unutar ${pct} pota od najbolje akcije.`,
+    note: (iterations: string, exploitability: string) =>
+      `Iz rješenja rivera na zahtjev (rasponi iz chartova suženi na flopu i turnu Railovim heurističkim modelom; betovi od 33%, 75% i 150% pota i all-in; ${iterations} iteracija, unutar ${exploitability}% pota). Protivnik zadržava strategiju solvea svugdje osim na zaključanom mjestu; ti svugdje igraš najbolji odgovor. Vrijednosti su tvoje očekivanje preko svih dijeljenja obaju raspona na početku rivera.`,
+    none: "Rail nije našao river koji ova procjena mijenja. Probaj drugi river ili drugu procjenu.",
+  },
+
+  pool: {
+    title: "Tvoj vlastiti pool",
+    intro: "Sklonosti tvojih protivnika iz tvojih ruku, zbrojene preko panela protivnika, s brojem prilika koje je svaka statistika imala i intervalom od 95% koji taj uzorak dopušta.",
+    signIn: "Prijavi se i vodi statistiku protivnika u Statistika → Protivnici da ovdje vidiš svoj pool.",
+    noDatabase: "Ova kopija Raila nema bazu, pa nema statistike protivnika za prikaz.",
+    loading: "Čitam statistiku tvojih protivnika…",
+    failed: (message: string) => `Statistiku protivnika nije bilo moguće pročitati: ${message}`,
+    none: "Još nema statistike protivnika. Uključi je u Statistika → Protivnici (sobe koje skrivaju imena između sesija su izostavljene), pa se vrati.",
+    opaque: (rows: string) => `Izostavljeno je ${rows} redaka protivnika iz soba čija imena ne preživljavaju sesiju.`,
+    summary: (players: string, hands: string) => `${players} protivnika, ${hands} ruku s njima.`,
+    capped: (players: string) => `Zbrojeno je samo tvojih ${players} najčešće viđenih protivnika.`,
+    stats: {
+      vpip: "Uložio novac prije flopa",
+      pfr: "Raiseao prije flopa",
+      threeBet: "3-bet",
+      foldToThreeBet: "Foldao na 3-bet",
+      cbet: "C-bet na flopu",
+      foldToCbet: "Foldao na c-bet na flopu",
+      wtsd: "Došao do showdowna",
+      wsd: "Dobio na showdownu",
+      aggression: "Betao ili raiseao (odluke nakon flopa)",
+    } as Record<string, string>,
+    value: (value: string, margin: string, n: string) => `${value} ± ${margin} kroz ${n} prilika`,
+    levels: {
+      thin: "premalo podataka",
+      rough: "gruba procjena",
+      settled: "pouzdano",
+    } as Record<string, string>,
+    noChances: "još nema prilika",
+    needed: (n: string) => `Oko ${n} prilika za ± 5 bodova.`,
+    read: {
+      above: (stat: string, size: string, needs: string) =>
+        `Interval statistike „${stat}” tvog poola leži cijeli iznad ${needs} foldova koje treba blef od ${size} pota. Vježbaj protiv toga u laboratoriju:`,
+      below: (stat: string, size: string, needs: string) =>
+        `Interval statistike „${stat}” tvog poola leži cijeli ispod ${needs} foldova koje treba blef od ${size} pota. Vježbaj protiv toga u laboratoriju:`,
+    } as Record<string, (stat: string, size: string, needs: string) => string>,
+    noRead: "Ovdje još ništa ne prelazi svoj interval: igraj osnovu i pusti da uzorak naraste prije nego što se osloniš na procjenu.",
+    lessonLink: (title: string) => `Lekcija: ${title}`,
+  },
+
+  sampleSize: {
+    stat: "Statistika",
+    chances: "Broj prilika",
+    margin: "Interval od 95%",
+    range: "Uvjerljiv raspon",
+    needed: "Prilike za ± 5 bodova",
+    count: (n: string) => `${n} prilika`,
   },
 
   ownHands: {

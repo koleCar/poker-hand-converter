@@ -6,12 +6,17 @@
 
 "use client";
 
+import dynamic from "next/dynamic";
 import type { WidgetPreset } from "../../lib/learn/concepts";
 import type { RangeId } from "../../lib/learn/presets";
 import { BetMath } from "./BetMath";
 import { BoardExplorer, ComboCounter, EquityDemo, RangeVsRange } from "./CardWidgets";
 import { FlopBets } from "./FlopBets";
+import { SampleSize } from "./SampleSize";
 import { BluffCatcher, GradeExplorer, MultiwayCalc, SprCalculator, ValueBet } from "./SimpleCalcs";
+
+/** The exploit lab talks to the trainer worker and carries the solver's types: loaded only where a page opens it. */
+const ExploitLab = dynamic(() => import("./ExploitLab").then((m) => m.ExploitLab), { ssr: false });
 
 export function ConceptWidget({ preset }: { preset: WidgetPreset }) {
   const { pot = 10, bet = 5, stack = 100, share = 0.5 } = preset;
@@ -47,6 +52,10 @@ export function ConceptWidget({ preset }: { preset: WidgetPreset }) {
       return <MultiwayCalc pot={pot} bet={bet} share={share} opponents={preset.opponents ?? 2} />;
     case "flop-bets":
       return <FlopBets line={preset.preset} />;
+    case "sample-size":
+      return <SampleSize share={preset.share} count={preset.count} />;
+    case "exploit-lab":
+      return <ExploitLab preset={preset.preset} />;
     default:
       return null;
   }

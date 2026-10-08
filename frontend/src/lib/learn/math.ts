@@ -145,6 +145,29 @@ export function realisedEquity(equity: number, realisation: number): number {
   return Math.min(1, Math.max(0, equity * realisation));
 }
 
+/* -------------------------------------------------------------- sampling - */
+
+/** The z of a 95% interval. */
+export const Z95 = 1.96;
+
+/**
+ * The half-width of a 95% interval on a frequency seen `p` of `n` times (the
+ * normal approximation): `1.96 · √(p(1 − p) / n)`. A stat of 30% over 50
+ * chances is 30% ± 12.7 points. Learn L4 (`reading-hud-stats`).
+ */
+export function marginOfError(p: number, n: number): number {
+  if (!(n > 0)) return Infinity;
+  const q = Math.min(1, Math.max(0, p));
+  return Z95 * Math.sqrt((q * (1 - q)) / n);
+}
+
+/** The chances a frequency near `p` needs before its 95% interval is ± `margin`: `1.96² · p(1 − p) / margin²`. */
+export function sampleNeeded(p: number, margin: number): number {
+  if (!(margin > 0)) return Infinity;
+  const q = Math.min(1, Math.max(0, p));
+  return (Z95 * Z95 * q * (1 - q)) / (margin * margin);
+}
+
 /* -------------------------------------------------------------- geometry - */
 
 /** Stack-to-pot ratio: effective stack behind over the pot, at the start of a street. */
