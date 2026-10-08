@@ -1,8 +1,9 @@
-# CHARTS — preflop reference charts, `charts/4`
+# CHARTS — preflop reference charts, `charts/5`
 
-Phases A2a, A2a.1, A2c and A2d of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec).
+Phases A2a, A2a.1, A2c, A2d and A2e of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec).
 Rail's preflop reference for **NLHE cash**: a library of chart sets
-(**6-max at 40 / 60 / 100 / 150 / 200bb, 9-max at 100 / 150 / 200bb**, §6),
+(**6-max at 40 / 60 / 100 / 150 / 200bb, 9-max at 100 / 150 / 200bb, and
+6-max 100bb with a 2bb UTG straddle**, §6),
 each one for every decision point
 of a preflop betting tree and every one of the 169 hand classes, a frequency
 and an EV in big blinds per action. Grading (§2) reads both.
@@ -17,6 +18,8 @@ only inputs are the rules, the sizes, the rake and the solvers. `charts/3`
 that picks a set per spot (§6). `charts/4` (A2d) adds limped pots to every
 set: open limps, over-limps, isolation raises and the limpers' answers
 (§1.3), solved once per set on its committed realisation fit (§6.7).
+`charts/5` (A2e) adds the straddle set: a third blind, the straddler's
+option last, its own realisation measured on its own spots (§1.4, §6.8).
 
 ```
 frontend/src/lib/solver/
@@ -35,9 +38,10 @@ frontend/src/lib/charts/
   fromHand.ts       PhfHand -> the spot of one hero preflop decision; the sets a hand needs
   registry.ts       charts/3: the sets, which one answers a spot, lazy loading
   data/nlhe-cash-<6|9>max-<depth>bb.json   the committed sets (generated)
+  data/nlhe-cash-6max-100bb-straddle.json  the straddle set (charts/5, generated)
 tests/scripts/preflop-charts/      npm run charts:generate (sets.ts, worker pool, cache),
                                    charts:report, charts:coverage, charts:compare
-tests/test/charts/ (data, sets, registry, lookup, realisation, generate), tests/test/solver/preflop.test.ts
+tests/test/charts/ (data, sets, straddle, registry, lookup, realisation, generate), tests/test/solver/preflop.test.ts
 ```
 
 `lib/charts` follows `lib/solver`'s import rule (ESLint-enforced): it may
@@ -187,6 +191,54 @@ the postflop walk does not start from it: an opponent who open-limped keeps
 the labelled placeholder limp range (`chartRange`, `lib/analysis/preflop.ts`);
 everyone else facing the limp (the isolator, the big blind who checked)
 starts from the charts as before.
+
+### 1.4 Straddled pots (`charts/5`, A2e)
+
+A straddle is a **third blind**: a forced 2bb from the first seat left of the
+big blind (6-max's UTG), posted before the cards. `charts/5` adds one set
+for it, `nlhe-cash-6max-100bb-straddle`, on its own tree
+(`PreflopTreeConfig.straddle`):
+
+- **It is a blind, not a raise.** The pot is unopened (`level` 0) at 2bb to
+  match - the stats engine's rule too (`lib/stats/preflop.ts`: a straddle is
+  a blind). The action starts at the HJ; the straddler acts **last**
+  preflop with the option the big blind has without a straddle: behind
+  limpers it checks or isolates, folded to it the pot is a walk.
+- **Action order is the set's seat order.** The tree's `players` and the
+  set's `game.positions` are `HJ, CO, BTN, SB, BB, UTG`, so a line key is
+  still one letter per action in that order (`"ffr"` is the HJ and CO
+  folding and the button opening: the small blind's node), and every walk
+  of a line (the lookup, Reports, the trainer, the browser) reads it with
+  the set's own seats. `game.straddle` records `{ position: "UTG", bb: 2 }`.
+- **Both blinds face the straddle**: fold, complete to 2bb (a blind's limp,
+  like the small blind's completion without a straddle: no tremble, and no
+  all-in 4-bet behind it) or raise first in.
+- **Sizes against 2bb** (`sets.ts`): every size the big blind sets doubles -
+  the open is 2.5 straddles (**5bb**), a blind's raise first in 3 straddles
+  (**6bb**), an isolation **8bb** over one limper, +2bb per further limper
+  and +2bb out of position of a limper (the straddler isolating a button
+  limp: 10bb). 3-bets and 4-bets are the same multiples of the raise faced
+  (3x / 4x +1x per caller; 2.2x / 2.5x), so they scale by themselves.
+- **A 50-straddle game.** 100bb behind a 2bb straddle is 50 straddles, and
+  the A2c rule `allInAbove: 0.4` makes some 4-bets shoves: over the
+  straddler's 4x 3-bet (20bb) a 2.2x 4-bet is 44bb, past 40% of the stack.
+  A 4-bet over an in-position 3-bet (15bb x 2.5 = 37.5bb) stays a raise.
+- The limp tree (`maxLimpers` 3, the 0.5% tremble from the HJ, CO and
+  button) and every cut of §1.2 as in `charts/4`.
+
+| | Nodes in the tree | Kept |
+|---|---|---|
+| 6-max 100bb, no straddle (`charts/4`) | 10,361 | 752 |
+| 6-max 100bb, UTG straddle (`charts/5`) | **4,906** | (§6.2) |
+
+The straddled tree is half the size: one fewer seat ever opens (the
+straddler only has its option), and the shallower 50-straddle stack ends the
+raising a level earlier more often.
+
+**What it does not cover**: a straddle from any other seat (a button or
+Mississippi straddle), a re-straddle, a straddle of another size, 3-handed
+(the seat left of the big blind is the button) or 7 and more handed, and
+other depths; each is refused as `straddle`, with what it was (§7).
 
 ## 2. Hands and card removal
 
@@ -498,6 +550,7 @@ fit (§6.7), with `charts/3` in brackets:
 | `nlhe-cash-9max-150bb` | 2,888 / 79,131 (1,139 / 28,591) | 1,736 | 6,873,614 | 1,776 KB (645) | 0.270 (0.313) | 112 min |
 | `nlhe-cash-9max-200bb` | 2,795 / 79,131 (1,129 / 28,591) | 1,677 | 6,648,602 | 1,726 KB (641) | 0.439 (0.485) | 114 min |
 | **all eight** | | | **29,848,576** (11,789,161) | **8.7 MB** (2.86) | | **~1 h 55 min wall**, five at a time |
+| `nlhe-cash-6max-100bb-straddle` (`charts/5`, §6.8) | 854 / 4,906 | 492 | 2,022,496 | 539 KB | 0.166 | 43 min with two measurement rounds |
 
 Solve times are each set's own: one 3,000-iteration solve (no measurement
 rounds, §6.7) per set, five sets at once on a 10-core M-series Mac shared with
@@ -508,7 +561,8 @@ and three- and four-way limped pots between wide ranges. The 6-max 200bb set
 converges least far of the 6-max sets (0.33, most of it the small blind's
 0.16); every best-response gain per seat is under 0.16 mbb/hand.
 
-`CHARTS_VERSION` is `charts/4`; every set is `charts/4`'s, each carrying its
+`CHARTS_VERSION` is `charts/5` (A2e: the library gained the straddle set,
+§6.8); the eight sets above are `charts/4`'s, unchanged, each carrying its
 own `id` (the 6-max 100bb set on `charts/2`'s fit, the others on their A2c
 fits). Grades store the set's id (`facts.chart.set`).
 
@@ -616,16 +670,13 @@ It moves the limped and 4-bet pots more (limped `P` 1.11 at 40bb, 1.02 at
 
 ### 6.5 Not covered, by decision
 
-- **Straddles** stay refused (`straddle`), decided again in A2d by cost. A
-  straddle is a third blind that moves the first decision and every price;
-  covering it means a tree with a third blind (action starting left of the
-  straddler, the straddler's option last, opens and isolations against
-  2bb), a straddle seat in the lookup, and its own solve per table and depth.
-  In the owner's library 52 of 5,388 hero preflop decisions (1.0%) have one:
-  4- to 6-handed, 100-120bb almost all of them, so one 6-max 100bb UTG-straddle
-  set would grade about 45 - under a point of coverage, for a third tree
-  shape to build, test and keep. Not worth it before the flop library; the
-  case to reopen it is a library with more straddled games.
+- **Straddles, but one** (`charts/5`, A2e, §1.4). A2d refused them by cost
+  (52 of 5,388 hero preflop decisions, 1.0%, 4- to 6-handed at 100-120bb
+  almost all of them). A2e builds the one set that covers most of them, a
+  6-max 100bb set with a 2bb straddle from UTG; every other straddle - another
+  seat, a re-straddle, another size, 3 or 7+ handed, another depth - stays
+  refused (`straddle`), and a straddle set per depth or table is the case to
+  reopen if a library brings more straddled games.
 - **Heads-up** stays refused (`players`): the button is the small blind and
   acts last after the flop, which no set models (our blind-versus-blind is
   the small blind out of position). 111 decisions (1.8%) in the WePlay export.
@@ -671,6 +722,17 @@ measured without the turn solve here; the share on a placeholder range does
 not move, because an opponent who open-limped keeps the placeholder limp
 range (§1.3).
 
+**A2e, straddled hands** (`analysis/10` against `analysis/9`, the same
+`npm run charts:library` run on both): the 52 hero preflop decisions in
+straddled hands were all `straddle`; **41 are graded** now, on the straddle
+set - Perfect 36, Inaccurate 2, Mistake 3 (0.8 bb lost) - and 11 stay
+refused as `straddle`: 10 at an effective stack outside 80-120bb (44-65bb
+and 168-188bb, mostly 4-handed), one whose straddler is not the seat left
+of the big blind. Every other count is unchanged (4,687 -> 4,728 graded,
+87.0% -> 87.8%); the 41 are RFI 23, facing an open 10, facing limpers 5,
+squeeze 3. Solver-graded rivers on a placeholder range: 172 -> 166 of 370
+(the straddled pots' players now start from the straddle set's ranges).
+
 Graded decisions by set at `analysis/6`: 6-max 100bb 1,957, 9-max 100bb
 1,325, 6-max 150bb 727, 9-max 150bb 290, 9-max 200bb 217, 6-max 200bb 78,
 6-max 60bb 72, 6-max 40bb 21 (`analysis/5`: 1,689, 961, 637, 215, 167, 75,
@@ -701,6 +763,87 @@ machine for a change of that size. Limped pots behind an open limp use the
 fitted `limped` (no raise) and `srp` (an isolation) coefficients; no
 multiway limped pot is measured (as no multiway pot ever was, §9).
 
+### 6.8 `charts/5`: the straddle set (A2e)
+
+`nlhe-cash-6max-100bb-straddle` is the 6-max 100bb game with a 2bb straddle
+from UTG (§1.4), generated by the same pipeline as an A2c set: two
+measure-and-fit rounds from `charts/2`'s fitted model, then the final
+3,000-iteration solve, the limp tree and its tremble as in `charts/4`
+(`sets.ts`). It is **not** solved on a committed fit: a straddled pot is a
+50-straddle game, its stack-to-pot ratios a 50bb game's, and the straddler is
+a blind none of the fitted spots had.
+
+**Its own spots** (`STRADDLE_REALISATION_SPOTS`): the thirteen spots name
+an UTG that opens, and a straddler never opens. The straddle set measures
+fifteen heads-up spots with the same roles - the button, cutoff and HJ open
+and the straddler calls (raiser in position), the button opens and the big
+blind calls, the cutoff and HJ open and the button continues (candidates,
+raiser out of position), the small blind opens and the straddler calls; the
+straddler and the small blind 3-bet the button, the button 3-bets the
+cutoff and HJ; two 4-bet pots with the 4-bettor out of position (in
+position the 4-bet over a 4x 3-bet is all-in, §1.4); and the two limped
+pots a blind's completion makes, the small blind's and the big blind's, the
+straddler checking behind (candidates). 1,800 turn+river solves a round.
+
+| Pot type | fit error (fitted / `charts/1` / equity), final round | `P` | `I` |
+|---|---|---|---|
+| limped | **0.032** / 0.053 / 0.058 | 1.12 | – |
+| single-raised | **0.033** / 0.050 / 0.074 | 1.15 | 1.06 |
+| 3-bet | **0.034** / 0.052 / 0.071 | 1.36 | 1.22 |
+| 4-bet | **0.028** / 0.065 / 0.060 | 0.78 | (1) |
+
+Range-average realisation, measured on the last round's ranges, out of
+position / in position: the straddler calling a button open 0.86 / 1.10, a
+cutoff open 0.86 / 1.10, an HJ open 0.86 / 1.09; the big blind calling a
+button open 0.86 / 1.15; the small blind's open against the straddler
+0.97 / 1.05; the small blind's and the big blind's completion against the
+straddler 1.01 / 0.98 and 0.99 / 1.01. The straddler realises what a big
+blind does in an unstraddled game (0.83-0.85) and a little more: it closes
+the action and is in position on the blinds. With both measured 4-bet pots
+on an out-of-position 4-bettor the initiative edge cannot be told from
+position (`I` fixed at 1), so the 4-bet `P` below 1 is the 4-bettor's
+initiative carried as position.
+
+**Convergence** (same Mac, Node 24, four turn+river threads next to the
+flop-library batch's four solves): NashConv 2.85 -> 0.86 -> 0.46 -> 0.27 ->
+0.20 -> **0.166 mbb/hand** at 3,000 iterations; best-response gains HJ
+0.015, CO 0.025, BTN 0.032, SB 0.022, BB 0.042, UTG (the straddler) 0.030;
+strategy change at the last checkpoint 0.003; heads-up blind versus blind
+0.127. Eight nodes left out as unconverged, all reached under 5e-5 of hands
+(the big blind behind the small blind's completion, `fffc`, among them: the
+small blind completes almost never). Values per hand: HJ +0.23, CO +0.28,
+BTN +0.36, SB -0.19, BB -0.53, the straddler -0.73 bb; rake 0.59 bb.
+**Time**: 2,555 s (43 min): two rounds of a 1,500-iteration solve
+(~5 min) and 1,800 turn+river solves (~18 min on four threads), then the
+final solve (~11 min). 430 MB resident. A rerun reads the turn+river results from the cache (`.cache/realisation-*.json`) and takes 15 min; it wrote the same numbers.
+
+**What the set says** (`npm run charts:report`; continue = call + 3-bet):
+
+| | |
+|---|---|
+| RFI HJ / CO / BTN | 18.7 / 23.2 / 31.2% (limps 0.7-0.9%, the tremble) |
+| SB first in | 25.2% (all raises; it completes almost never) |
+| BB folded to | 71.3%: completes 52.5%, raises 18.9% |
+| Straddler vs HJ / CO / BTN open | 44.8 / 54.8 / 66.5% (calls 38.1 / 47.0 / 56.6%) |
+| Straddler vs SB / BB open | 66.3 / 81.1% |
+| BB vs HJ / CO / BTN open (straddler behind) | 12.5 / 13.6 / 16.6% |
+| Opener vs a 3-bet: HJ v BTN, BTN v BB (fold / call / 4-bet) | 51.0 / 26.4 / 22.6, 50.2 / 32.5 / 17.2 |
+| Straddler behind the BB's completion: check / raise | 55.4 / 44.6% |
+| BTN vs an HJ limp: fold / over-limp / isolate | 75.6 / 7.9 / 16.5% |
+
+Against the unstraddled 6-max 100bb set (`charts/4`) every seat opens
+tighter from the HJ on (the HJ 18.7% against about 20%, the button 31.2%
+against about 39%): three blinds behind, a 5bb open lays them more than a
+2.5bb open lays two, and 100bb is 50 straddles. The straddler defends like
+a big blind that closes the action (two thirds against a button open, as
+the unstraddled big blind's 61.7%), and the big blind in front of it, with
+the straddler still to act, plays a cold caller's 13-17%.
+
+Sanity bands (`tests/test/charts/straddle.test.ts`): frequencies sum to 1
+and EVs are consistent with them; AA never folds; 72o never opens; RFI
+widens HJ < CO < BTN; the straddler defends wider against later opens and
+wider than the big blind in front of it; NashConv under 1 mbb/hand.
+
 ## 7. Lookup
 
 ```ts
@@ -726,6 +869,24 @@ the real actions on the tree; raises map to the node's one raise size via
 `charts` is one set or the library (§6.2); the result names the set that
 answered (`set`). With one set the lookup reads only that set's table sizes
 (3 to its seats) and depth (±20%), as before.
+
+**Straddled spots** (`charts/5`, A2e). `preflopSpotFromHand` records every
+straddle posted (`spot.straddles`: who, and its street total in bb).
+`pickChartSet` reads a straddled spot **only** on a straddle set, and an
+unstraddled one never on it. A straddle set answers exactly one straddle,
+of its size (±1%), posted by the first seat left of the big blind
+(`positionRing(k)[2]`: UTG 6- and 5-handed, the CO 4-handed), 4 to 6
+players, the effective stack within the set's ±20% (`straddleMismatch`).
+Anything else is refused as `straddle`, with a detail that names it ("a
+straddle at 150bb effective; the straddle sets cover 100bb ±20%", "BTN
+straddled; only a straddle from the first seat left of the big blind (UTG)
+is charted", "2 straddles (a re-straddle)", "a 3bb straddle", "a straddle
+3-handed"). A spot the set can read is mapped like any smaller table, the
+straddler onto the set's straddler: 5-handed the set's HJ folds before the
+hand, 4-handed the HJ and the CO (`short-handed`). The replay starts with
+the straddle in (`real`: 2bb to match). Given one set instead of the
+library, a set without a straddle refuses every straddled spot and the
+straddle set every unstraddled one. A straddled spot with antes is `ante`.
 
 Refusals, `{ ok: false, reason, detail }`: `straddle`, `ante`, `players`
 (heads-up, ten or more, or positions that are not a `k`-handed ring - a dead
@@ -937,7 +1098,13 @@ reached under 1e-5 (a re-raiser's range there can be AA alone).
   the SB's limp frequency moved most between rounds (`model.realisationFit`).
 - **No card removal between opponents**, see §2.
 - **Rake on the flop pot** is estimated from a growth factor, not played out.
-- **Out of scope by construction**: antes, straddles, heads-up, ten or more
+- **One straddle shape** (§1.4, §6.8): 6-max 100bb, a 2bb straddle from the
+  seat left of the big blind. The straddle set's sizes are the unstraddled
+  game's doubled (a 5bb open); live straddled games often open bigger, which
+  the lookup reads as a sizing approximation (`offTree` past 25% of the pot).
+  Its heads-up blind-versus-blind calibration is the unstraddled
+  two-player game at its sizes, not a straddled one (none is two-player).
+- **Out of scope by construction**: antes, every other straddle, heads-up, ten or more
   players, depths under 32bb, 72-80bb and over 240bb (§6.5), a fourth
   limper, cold calls of 3-bets, five-way pots, MTT/ICM, players posting a
   dead big blind out of turn.
@@ -981,6 +1148,7 @@ reached under 1e-5 (a re-raiser's range there can be AA alone).
 cd tests
 CHARTS_PARALLEL=5 CHARTS_THREADS=5 npm run charts:generate    # every set, ~1 h 55 min wall (charts/4: one solve per set)
 CHARTS_SETS=nlhe-cash-6max-60bb npm run charts:generate       # one set
+CHARTS_SETS=nlhe-cash-6max-100bb-straddle CHARTS_THREADS=4 npm run charts:generate   # the straddle set, ~43 min (two rounds)
 npm run charts:report        # the §8 tables for every committed set (CHARTS_FILE=... for one file)
 npm run charts:coverage      # §6.6: graded decisions on the corpora, 6-max 100bb alone vs the library
 npm run charts:compare       # §6.3: a native short-handed solve against a bigger set read short-handed

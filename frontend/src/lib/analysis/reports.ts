@@ -46,7 +46,7 @@
  * index and `lib/equity`. The words live in `ns/analysis.*.ts`.
  */
 
-import { handClassOf, isChartLibrary, isOpenLimpNode, type ChartAction, type ChartNode, type ChartPosition, type ChartSet } from "../charts";
+import { CHART_SETS, handClassOf, isChartLibrary, isOpenLimpNode, type ChartAction, type ChartNode, type ChartPosition, type ChartSet } from "../charts";
 import { allClasses, classCombos } from "../equity/range";
 
 /** Chart actions in a fixed order: the order every report lists them in. */
@@ -100,6 +100,19 @@ export interface LineStep {
 
 /** The seats of the 9-max sets, in table order (A2c). */
 export const NINE_TABLE_ORDER: readonly ChartPosition[] = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
+
+/** The straddle set's seats (A2e), in action order: left of the straddler first, the straddler (UTG) last. */
+export const STRADDLE_TABLE_ORDER: readonly ChartPosition[] = ["HJ", "CO", "BTN", "SB", "BB", "UTG"];
+
+/**
+ * The seats a chart set's lines are written in, by its id: 6-max or 9-max
+ * table order, or the straddle set's action order (the straddler last).
+ */
+export function seatsOfSet(id: string | null | undefined): readonly ChartPosition[] {
+  const spec = id ? CHART_SETS.find((s) => s.id === id) : undefined;
+  if (spec?.straddle) return STRADDLE_TABLE_ORDER;
+  return spec?.players === 9 || (!!id && /-9max-/.test(id)) ? NINE_TABLE_ORDER : TABLE_ORDER;
+}
 
 /**
  * Who took each action of a line key, and who acts next. A line has one

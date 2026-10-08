@@ -760,7 +760,7 @@ export const xHr: LessonBodies<
           {
             note: {
               tone: "conceptual",
-              text: "Rail nema chartove za straddle, pa se rasponi sa straddleom uče riječima. Setovi chartova na plićim dubinama najbliže su što Rail ima, ali nisu igre sa straddleom.",
+              text: "Rail ima jedan set chartova za straddle: 6-max na 100 bb sa straddleom od 2 bb s UTG-a, otvaranja na 5 bb (2,5 straddlea). Vježba ispod boji njegove raspone otvaranja. Ostali straddleovi (straddle na buttonu, re-straddle, druge dubine) i dalje se uče riječima.",
             },
           },
         ],
@@ -780,7 +780,7 @@ export const xHr: LessonBodies<
     exercises: {
       "straddle-steal": "Šest otvaranja u blindove i straddleove: koliko često svi moraju foldati?",
       "straddle-price": "Pet callova za izračunati protiv beta: koliko im equityja treba?",
-      "straddle-charts": "Planirano: oboji raspon mjesta sa straddleom kad Rail dobije chartove za straddle.",
+      "straddle-charts": "Oboji raspon otvaranja jedne pozicije u 6-max igri sa straddleom na 100 bb.",
     },
     checks: [
       { fn: "sum", args: [0.5, 1, 2], value: 3.5 },

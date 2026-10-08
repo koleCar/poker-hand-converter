@@ -125,7 +125,12 @@ async function generateSet(config: SetConfig, threads: number): Promise<void> {
       last = now;
     }
   };
-  const limps = { maxLimpers: config.maxLimpers, limpFloor: config.limpFloor, minLimpReach: config.minLimpReach };
+  const limps = {
+    maxLimpers: config.maxLimpers,
+    limpFloor: config.limpFloor,
+    minLimpReach: config.minLimpReach,
+    ...(config.straddle ? { straddle: config.straddle } : {}),
+  };
   let result: GenerateResult;
   if (config.reuseFit) {
     const fit = committedFit(config);
@@ -191,7 +196,7 @@ async function generateSet(config: SetConfig, threads: number): Promise<void> {
   lines.push(`bytes: ${Buffer.byteLength(text)}; nodes: ${charts.nodes.size} of ${result.tree.actionNodes}`);
   lines.push(`changed: ${previous === null ? "new file" : previous === text ? "no (identical bytes)" : "yes"}`);
   lines.push(`time: ${seconds.toFixed(1)} s (${rounds} rounds, final ${result.solver.iterations} iterations, ${threads} threads); tree ${result.tree.actionNodes} action nodes; rss ${(process.memoryUsage().rss / 1e6).toFixed(0)} MB`);
-  lines.push(`NashConv: ${result.final.nashConvMbb.toFixed(3)} mbb/hand; per position ${result.final.gainMbb.map((g) => g.toFixed(3)).join(", ")}`);
+  lines.push(`NashConv: ${result.final.nashConvMbb.toFixed(3)} mbb/hand; per position ${result.final.gainMbb.map((g, k) => `${result.tree.players[k]} ${g.toFixed(3)}`).join(", ")}`);
   lines.push(`history: ${result.convergence.map((c) => `${c.iteration}:${c.nashConvMbb}`).join(" ")}`);
   lines.push(`heads-up BvB: ${JSON.stringify(result.headsUp)}`);
   lines.push(`strategy change per checkpoint: ${result.convergence.map((c) => `${c.iteration}:${c.strategyChange}`).join(" ")}`);

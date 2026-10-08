@@ -25,15 +25,14 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useState } from "react";
-import { CHART_SETS, ensureChartSets, type ChartLibrary, type ChartNode, type ChartPosition } from "../../../lib/charts";
+import { CHART_SETS, ensureChartSets, type ChartLibrary, type ChartNode } from "../../../lib/charts";
 import {
-  NINE_TABLE_ORDER,
   POSTFLOP_ROLES,
-  TABLE_ORDER,
   buildReports,
   nodeSamples,
   postflopRoles,
   sampleSets,
+  seatsOfSet,
   walkLine,
   type ReportsBuild,
   type Comparison,
@@ -118,9 +117,6 @@ interface ReportsTabProps {
   refreshToken?: number;
 }
 
-/** The seats of a chart set id's table (A2c: 6-max or 9-max). */
-const seatsOfSet = (id: string): readonly ChartPosition[] =>
-  CHART_SETS.find((spec) => spec.id === id)?.players === 9 ? NINE_TABLE_ORDER : TABLE_ORDER;
 
 export function ReportsTab({ initialQuery, refreshToken = 0 }: ReportsTabProps) {
   const t = useDict().analysis.reports;
@@ -513,7 +509,7 @@ function SetFilter({
           <option value="">{t.reports.sets.all(sets.length)}</option>
           {sets.map((entry) => {
             const spec = CHART_SETS.find((s) => s.id === entry.set);
-            const name = spec ? t.charts.setOption(spec.players, spec.stackBb) : entry.set;
+            const name = spec ? t.charts.setOption(spec.players, spec.stackBb, Boolean(spec.straddle)) : entry.set;
             return (
               <option key={entry.set} value={entry.set}>
                 {t.reports.sets.option(name, count(entry.decisions))}
@@ -880,7 +876,7 @@ function NodeItem({
   const t = en.reports;
   const spot = useSpotLabel()(report.node);
   const spec = CHART_SETS.find((s) => s.id === report.sample.set);
-  const label = multiSet && spec ? t.sets.nodeTag(spot, en.charts.setOption(spec.players, spec.stackBb)) : spot;
+  const label = multiSet && spec ? t.sets.nodeTag(spot, en.charts.setOption(spec.players, spec.stackBb, Boolean(spec.straddle))) : spot;
   const [open, setOpen] = useState(false);
   // The line the summary quotes: the widest gap among the actions that
   // deviate, so "Deviates" never sits next to a gap that does not.

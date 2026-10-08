@@ -69,7 +69,9 @@ export const CLOSE_EV_BB = 0.5;
 
 /** The families a node belongs to: the chart browser's categories (`chartSpots.ts`). */
 export function familiesOf(node: ChartNode): PreflopFamily[] {
-  if (node.line.startsWith("f".repeat(node.seats.length - 2))) return node.scenario === "rfi" ? ["rfi", "bvb"] : ["bvb"];
+  // Folded to the blinds (on a straddle set: to the blinds and the straddler, its seats' last three).
+  const blinds = node.seats[node.seats.length - 1] === "BB" ? 2 : 3;
+  if (node.line.startsWith("f".repeat(node.seats.length - blinds))) return node.scenario === "rfi" ? ["rfi", "bvb"] : ["bvb"];
   if (isOpenLimpNode(node)) return ["vs-limp"];
   switch (node.scenario) {
     case "rfi":
@@ -264,6 +266,7 @@ export function dealPreflop(library: ChartSet, options: PreflopSpotOptions, seed
     hero: node.actor,
     heroCards: cards,
     seats: charts.game.positions,
+    ...(charts.game.straddle ? { straddle: { ...charts.game.straddle } } : {}),
     stackBb: charts.game.stackBb,
     preflop: lineActs(charts, node.line),
   };

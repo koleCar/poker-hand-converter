@@ -33,8 +33,8 @@ calculators at runtime, or is plain arithmetic the tests recompute.**
    spoiler-safe — something no reference course can do.
 5. **Honest about what is not solved.** Where the engine cannot solve a spot
    yet (a flop the library did not solve is read from its nearest solved
-   flop, multiway and 4-bet-pot flops are not in the library, straddles have
-   no charts, ranges rest on the narrowing model), the lesson says so with the
+   flop, multiway and 4-bet-pot flops are not in the library, only one
+   straddle shape has charts, ranges rest on the narrowing model), the lesson says so with the
    analysis' own words.
 6. **Nothing locks.** Prerequisites are advice; every lesson opens. A lesson not
    written yet is in the map as "coming soon".
@@ -125,7 +125,7 @@ theory with no number.
 | `own-hands` | the learner's decisions matching the lesson's spots or flags, worst EV loss first, spoiler-safe | the stored grade (`gradeDrill`) | yes |
 | `range-split` | put hand classes into check / small / big (or fold / call / raise); the river adds an overbet group | the solve's mix per class: `flopBucket` categories on a library flop, `turnCategory` on a turn solve, `riverCategory` on a river solve | L2 (`lib/training/split.ts`); river in L3 |
 | `depth-split` | the same split at 200bb against 100bb | flop solves at other depths | placeholder |
-| `range-paint` | paint a 13×13 range: a seat's first-in range, or the hands of a river range that bet or continue | the chart, or the river solve, cell by cell (`lib/training/paint.ts`) | L3; the straddle paint still planned |
+| `range-paint` | paint a 13×13 range: a seat's first-in range, or the hands of a river range that bet or continue | the chart, or the river solve, cell by cell (`lib/training/paint.ts`) | L3; the straddle paint since A2e (the straddle chart set) |
 | `node-lock` | the exploit lab: a river solved on demand, one opponent tendency locked (a preset of `LAB_PRESETS`, or any), and one hand to play against it | the solver's best response against the lock, its EV per action (`gradeLab`) | L4 (`lib/training/lab.ts`) |
 | `pot-tracking` (a `calc` kind) | a live full-ring hand to the turn, action by action: the pot when the turn is dealt | Rail's own hand writer (`scriptMoney`) | L5 |
 | `profile-quiz` (the `profile-read` classify kind) | an opponent's folds to a flop c-bet over n chances: what the stat supports | the pool section's own rule (`foldRead`, `pool.ts`) | L5 |
@@ -697,8 +697,10 @@ Later: "isolate one variable" comparison views, a live/online path toggle.
 
 - **Not built from the "Later" list**: "isolate one variable" comparison views
   and a live/online path toggle. Of the planned widgets, `range-walk`,
-  `depth-split` (needs 200bb flop solves) and the straddle paint (needs
-  straddle charts) stay planned.
+  `depth-split` (needs 200bb flop solves) stay planned. The straddle paint
+  is real since A2e (2026-10-08): `straddle-preflop` paints first-in ranges
+  on the straddle chart set (6-max 100bb, a 2bb UTG straddle,
+  `docs/CHARTS.md` §1.4).
 - **Tested out does not finish a study-plan task.** The database's
   `study_plan` counts a `lesson` task done when the lesson is *passed*; a
   tested-out lesson stays open there (changing that is a migration).

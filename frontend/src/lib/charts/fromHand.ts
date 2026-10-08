@@ -60,6 +60,14 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
   }
 
   const bb = game.bigBlind;
+  // Straddles in the order posted: who, and to how much (the street total).
+  const straddles: { position: Position; toBb: number }[] = [];
+  for (const action of hand.actions) {
+    if (action.type !== "straddle" || action.seat === null) continue;
+    const at = position.get(action.seat);
+    if (at) straddles.push({ position: at, toBb: action.streetTotal / bb });
+  }
+  const straddled = hand.actions.some((a) => a.type === "straddle");
   const actions: PreflopActionInput[] = [];
   let seen = 0;
   for (const action of hand.actions) {
@@ -91,7 +99,8 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
             actions,
             stacksBb,
             ante: hand.actions.some((a) => a.type === "ante"),
-            straddle: hand.actions.some((a) => a.type === "straddle"),
+            straddle: straddled,
+            ...(straddled ? { straddles } : {}),
           },
           heroAction: input,
           heroCards: cards,
@@ -108,7 +117,8 @@ export function preflopSpotFromHand(hand: PhfHand, nth = 0, heroSeat?: number): 
 /**
  * The ids of the library sets a hand needs: one per table and depth its
  * players' preflop decisions are looked up at - the hero's, graded, and every
- * opponent's, whose chart ranges the postflop analysis starts from. A caller
+ * opponent's, whose chart ranges the postflop analysis starts from; a
+ * straddled hand's is the straddle set, when one fits (A2e). A caller
  * loads these (`ensureChartSets`) before analysing the hand, since the lookup
  * itself is synchronous.
  */
@@ -118,7 +128,7 @@ export function requiredChartSets(hand: PhfHand, specs: readonly ChartSetSpec[] 
     for (let nth = 0; ; nth += 1) {
       const found = preflopSpotFromHand(hand, nth, player.seat);
       if (!found.ok) break;
-      if (found.spot.straddle || found.spot.ante) return [];
+      if (found.spot.ante) return [];
       const pick = pickChartSet(specs, found.spot);
       if (pick.ok) out.add(pick.spec.id);
     }

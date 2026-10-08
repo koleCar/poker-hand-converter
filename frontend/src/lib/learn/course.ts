@@ -253,8 +253,8 @@ export type ClassifyKind = (typeof CLASSIFY_KINDS)[number];
  * Exercises that need a widget Rail does not have yet. They are typed so the
  * catalogue can name them now; the lesson page shows them as planned and they
  * never count towards passing a lesson. `range-paint` is built (L3,
- * {@link PaintDef}) and stays here for the paints that still wait for data
- * (straddle charts): a planned exercise is the one with `waitsFor`.
+ * {@link PaintDef}); the straddle paint that waited for straddle charts is
+ * real since A2e: a planned exercise is the one with `waitsFor`.
  * `node-lock`, planned since L1.1, is built (L4, {@link NodeLockDef}).
  * L5 built `pot-tracking` (a `calc` kind), `profile-quiz` (the `profile-read`
  * classify kind) and the placement test (its own page, `/learn/placement`,
@@ -512,6 +512,8 @@ const TABLE_6_100 = "nlhe-cash-6max-100bb";
 const TABLE_6_150 = "nlhe-cash-6max-150bb";
 const TABLE_9_100 = "nlhe-cash-9max-100bb";
 const TABLE_6_200 = "nlhe-cash-6max-200bb";
+/** The straddle set (A2e): 6-max 100bb, a 2bb straddle from UTG. */
+const TABLE_6_STRADDLE = "nlhe-cash-6max-100bb-straddle";
 
 const spot = (street: SpotPattern["street"], scenarios?: string[], extra: Partial<SpotPattern> = {}): SpotPattern => ({
   street,
@@ -1289,7 +1291,7 @@ const LIST: LessonMeta[] = [
     "x4",
     ["open-sizing"],
     ["rfi", "blind-defence"],
-    [calc("straddle-steal", "steal", 6), calc("straddle-price", "pot-odds", 5), planned("straddle-charts", "range-paint", "straddle-charts")],
+    [calc("straddle-steal", "steal", 6), calc("straddle-price", "pot-odds", 5), paintChart("straddle-charts", 4, { set: TABLE_6_STRADDLE })],
     {},
     { ...WRITTEN, notes: ["straddle-not-analysed", "conceptual"] },
   ),

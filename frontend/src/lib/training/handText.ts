@@ -28,11 +28,16 @@ function seatsOf(script: Pick<HandScript, "seats">): readonly ScriptPosition[] {
   return script.seats ?? SCRIPT_POSITIONS;
 }
 
-/** Seat numbers with seat 1 on the button, 2 and 3 the blinds, then the rest in preflop order. */
+/**
+ * Seat numbers with seat 1 on the button, 2 and 3 the blinds, then the rest in
+ * table order (a straddled table's `seats` are in action order, the
+ * straddler last; it still sits left of the big blind).
+ */
 function seatNumbers(seats: readonly ScriptPosition[]): Partial<Record<ScriptPosition, number>> {
   const out: Partial<Record<ScriptPosition, number>> = { BTN: 1, SB: 2, BB: 3 };
   let next = 4;
-  for (const position of seats) if (out[position] === undefined) out[position] = next++;
+  const table = [...seats].sort((a, b) => NINE_SCRIPT_POSITIONS.indexOf(a) - NINE_SCRIPT_POSITIONS.indexOf(b));
+  for (const position of table) if (out[position] === undefined) out[position] = next++;
   return out;
 }
 /** Postflop order: the small blind acts first. */
@@ -53,6 +58,8 @@ export interface HandScript {
   id: string;
   /** The table, in preflop order; `SCRIPT_POSITIONS` (6-max) when absent. */
   seats?: readonly ScriptPosition[];
+  /** A straddle (the straddle chart set, A2e): who posts it, the first seat left of the big blind, and how much, bb. */
+  straddle?: { position: ScriptPosition; bb: number };
   hero: ScriptPosition;
   /** The hero's hole cards, e.g. `["Ah", "Kd"]`; null deals them face down. */
   heroCards: readonly [string, string] | null;
@@ -134,6 +141,15 @@ function write(script: HandScript): Lines {
   };
   post("SB", 50, "small");
   post("BB", 100, "big");
+  if (script.straddle) {
+    const { position, bb } = script.straddle;
+    const amount = cents(bb);
+    behind[position] -= amount;
+    totals[position] += amount;
+    pot += amount;
+    high = Math.max(high, totals[position]);
+    lines.push(`${nameOf(script, position)}: posts straddle ${money(amount)}`);
+  }
   lines.push("*** HOLE CARDS ***");
   lines.push(script.heroCards ? `Dealt to ${HERO_NAME} [${script.heroCards.join(" ")}]` : `Dealt to ${HERO_NAME}`);
 

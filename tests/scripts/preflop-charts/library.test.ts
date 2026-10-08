@@ -99,8 +99,12 @@ it("reports chart coverage on a stored library", { timeout: 4 * 60 * 60_000 }, a
     }
     return false;
   };
+  // Decisions in straddled hands (A2e, the straddle set): graded by grade, refused by reason and why.
+  const straddled = new Map<string, number>();
+  const straddleWhy = new Map<string, number>();
   for (const hand of hands) {
     const analysis = analyzeHand(structuredClone(hand), { charts: library, turn: false });
+    const hasStraddle = hand.actions.some((a) => a.type === "straddle");
     let nth = 0;
     for (const d of analysis.decisions) {
       if (d.street === "river" && d.source === "solver") {
@@ -120,6 +124,14 @@ it("reports chart coverage on a stored library", { timeout: 4 * 60 * 60_000 }, a
         }
       }
       decisions += 1;
+      if (hasStraddle) {
+        bump(straddled, d.source === "chart" ? `graded (${d.grade})` : String(d.reason));
+        if (d.reason === "chart-straddle" && analysis.heroSeat !== null) {
+          const found = preflopSpotFromHand(hand, nth, analysis.heroSeat);
+          const pick = found.ok ? pickChartSet(CHART_SETS, found.spot) : null;
+          bump(straddleWhy, pick && !pick.ok ? pick.detail.replace(/[\d.]+bb effective/, "Nbb effective") : "?");
+        }
+      }
       if (d.source === "chart") {
         graded += 1;
         bump(bySet, d.facts.chart?.set ?? "?");
@@ -144,6 +156,8 @@ it("reports chart coverage on a stored library", { timeout: 4 * 60 * 60_000 }, a
       `grades: ${list(grades)}; EV lost ${evLoss.toFixed(1)} bb`,
       `rivers graded by the solver: ${rivers}, on a placeholder range ${riversPlaceholder} (${pct(riversPlaceholder, rivers)})`,
       `behind an open limp (${[...behindLimp.values()].reduce((a, b) => a + b, 0)}): ${list(behindLimp)}`,
+      `straddled hands (${[...straddled.values()].reduce((a, b) => a + b, 0)} decisions): ${list(straddled)}`,
+      `  still refused as a straddle: ${list(straddleWhy)}`,
       `open-limp refusals by set and shape:`,
       ...[...limps].sort((a, b) => b[1] - a[1]).map(([k, v]) => `  ${String(v).padStart(4)}  ${k}`),
     ].join("\n"),

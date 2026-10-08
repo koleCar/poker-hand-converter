@@ -32,7 +32,7 @@
  * hands need first (`requiredChartSets`, `ensureChartSets`).
  */
 
-import type { Position } from "../phf/types";
+import { positionRing, type Position } from "../phf/types";
 import { loadCharts, type ChartSet } from "./format";
 import type { PreflopSpot } from "./lookup";
 
@@ -42,6 +42,12 @@ export interface ChartSetSpec {
   /** Seats of the set's table: 6 or 9. */
   players: number;
   stackBb: number;
+  /**
+   * A straddle set (`charts/5`, A2e): the straddle it models - by the first
+   * seat left of the big blind (the set's `UTG`), `bb` big blinds. Such a set
+   * answers only hands with that straddle, and they only it.
+   */
+  straddle?: { position: "UTG"; bb: number };
   /** The set's JSON (a dynamic import: one chunk per set). */
   load: () => Promise<unknown>;
 }
@@ -64,6 +70,13 @@ export const CHART_SETS: readonly ChartSetSpec[] = [
   { id: "nlhe-cash-9max-100bb", players: 9, stackBb: 100, load: () => import("./data/nlhe-cash-9max-100bb.json") },
   { id: "nlhe-cash-9max-150bb", players: 9, stackBb: 150, load: () => import("./data/nlhe-cash-9max-150bb.json") },
   { id: "nlhe-cash-9max-200bb", players: 9, stackBb: 200, load: () => import("./data/nlhe-cash-9max-200bb.json") },
+  {
+    id: "nlhe-cash-6max-100bb-straddle",
+    players: 6,
+    stackBb: 100,
+    straddle: { position: "UTG", bb: 2 },
+    load: () => import("./data/nlhe-cash-6max-100bb-straddle.json"),
+  },
 ];
 
 /** Every set of the library, chosen per spot; usable wherever one `ChartSet` is (its own fields are the default set's). */
@@ -89,12 +102,76 @@ export function effectiveStackBb(spot: PreflopSpot, missing = 100): number {
 
 export type ChartSetPick =
   | { ok: true; spec: ChartSetSpec; effectiveBb: number }
-  | { ok: false; reason: "players" | "stack-depth"; detail: string };
+  | { ok: false; reason: "players" | "stack-depth" | "straddle"; detail: string };
 
 const round2 = (x: number) => Math.round(x * 100) / 100;
 
+/** A straddle's size matches a set's within this (relative): a 2bb straddle is 2bb. */
+export const STRADDLE_SIZE_TOLERANCE = 0.01;
+
+/**
+ * Why a set that models `straddle` (or none, when null) cannot answer the
+ * spot's straddle, or null when it can: a set without one answers only
+ * unstraddled hands; a straddle set answers exactly one straddle, of its
+ * size, posted by the first seat left of the big blind, at a table of 4 to
+ * its seats (3-handed, that seat is the button).
+ */
+export function straddleMismatch(
+  straddle: { position: string; bb: number } | null,
+  seats: number,
+  spot: PreflopSpot,
+): string | null {
+  if (!spot.straddle) return straddle ? "the set models a straddle; this hand has none" : null;
+  if (!straddle) return "a straddle changes every price; this set has none";
+  const k = spot.positions.length;
+  const posted = spot.straddles ?? [];
+  if (posted.length !== 1) {
+    return posted.length > 1
+      ? `${posted.length} straddles (a re-straddle); only a single ${straddle.bb}bb straddle from the first seat left of the big blind is charted`
+      : "the straddle could not be read";
+  }
+  const [one] = posted;
+  if (k < 4 || k > seats) {
+    return `a straddle ${k}-handed; the straddle set covers 4 to ${seats} players`;
+  }
+  const ring = positionRing(k);
+  if (one.position !== ring[2]) {
+    return `${one.position} straddled; only a straddle from the first seat left of the big blind (${ring[2]}) is charted`;
+  }
+  if (Math.abs(one.toBb - straddle.bb) > STRADDLE_SIZE_TOLERANCE * straddle.bb) {
+    return `a ${round2(one.toBb)}bb straddle; the straddle set models ${straddle.bb}bb`;
+  }
+  return null;
+}
+
 /** The set that answers a spot (see the header), or why none does. */
 export function pickChartSet(specs: readonly ChartSetSpec[], spot: PreflopSpot): ChartSetPick {
+  if (spot.straddle) {
+    // Straddled hands are read on a straddle set or not at all (`straddle`).
+    const straddled = specs.filter((s) => s.straddle);
+    if (!straddled.length) return { ok: false, reason: "straddle", detail: "a straddle changes every price; no chart set models one" };
+    const why = straddled.map((s) => straddleMismatch(s.straddle ?? null, s.players, spot));
+    const fits = straddled.filter((_, i) => why[i] === null);
+    if (!fits.length) return { ok: false, reason: "straddle", detail: why[0] ?? "" };
+    const pick = pickByDepth(fits, spot);
+    if (!pick.ok) {
+      const depths = fits.map((s) => `${s.stackBb}bb`).join(" / ");
+      return {
+        ok: false,
+        reason: "straddle",
+        detail: `a straddle at ${round2(effectiveStackBb(spot))}bb effective; the straddle sets cover ${depths} ±${STACK_TOLERANCE * 100}%`,
+      };
+    }
+    return pick;
+  }
+  return pickByDepth(
+    specs.filter((s) => !s.straddle),
+    spot,
+  );
+}
+
+/** Among `specs` (one kind: with or without a straddle), the table and the depth. */
+function pickByDepth(specs: readonly ChartSetSpec[], spot: PreflopSpot): ChartSetPick {
   const k = spot.positions.length;
   if (k < 3) {
     return { ok: false, reason: "players", detail: "heads-up: the small blind is the button; no chart set models it" };

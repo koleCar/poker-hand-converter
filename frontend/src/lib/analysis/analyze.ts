@@ -60,7 +60,7 @@ import { potTypeOf } from "../stats/derive";
 import { gradeRank, worstGrade, worstSeverity, meanScore } from "./grading";
 import { heuristicFlags } from "./heuristics";
 import { halved, heuristicModel, weightedCombos, type NarrowingModel } from "./narrowing";
-import { chartRange, gradePreflop } from "./preflop";
+import { chartRange, chartsModelStraddle, gradePreflop } from "./preflop";
 import { flopSeats, walkRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
 import {
   gradeRiverCall,
@@ -1142,7 +1142,8 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
   const bb = Math.max(1, hand.game.bigBlind);
   const handApprox = new Set<Approximation>();
   if (context.anteModel !== "none") handApprox.add("antes");
-  if (context.hasStraddle) handApprox.add("straddle");
+  // A straddle the charts model (A2e) is in the reference; any other is not.
+  if (context.hasStraddle && !chartsModelStraddle(hand, hero, resolved.charts)) handApprox.add("straddle");
   if (hand.table.maxSeats !== SIX_MAX) handApprox.add("table-size");
   const heroStack = context.players.get(hero)?.startingStack ?? 0;
   const effectiveBb = effectiveStackBb(context, hero);

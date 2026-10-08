@@ -104,6 +104,8 @@ export {
   loadChartLibrary,
   loadChartSet,
   pickChartSet,
+  STRADDLE_SIZE_TOLERANCE,
+  straddleMismatch,
   type ChartLibrary,
   type ChartSetPick,
   type ChartSetSpec,

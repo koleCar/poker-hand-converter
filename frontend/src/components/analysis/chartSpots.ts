@@ -66,9 +66,14 @@ export function lineSteps(line: string, positions: readonly string[] = CHART_POS
   return steps;
 }
 
-/** Everyone from UTG to the button folded: a blind-versus-blind pot. */
+/**
+ * Everyone from UTG to the button folded: a blind-versus-blind pot (on a
+ * straddle set, whose seats end with the straddler: the blinds and the
+ * straddler).
+ */
 function blindVersusBlind(node: ChartNode): boolean {
-  return node.line.startsWith("f".repeat(node.seats.length - 2));
+  const blinds = node.seats[node.seats.length - 1] === "BB" ? 2 : 3;
+  return node.line.startsWith("f".repeat(node.seats.length - blinds));
 }
 
 /**
