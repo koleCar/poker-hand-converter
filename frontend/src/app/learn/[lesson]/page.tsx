@@ -4,7 +4,9 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { ExerciseBlock } from "../../../components/learn/course/ExerciseBlock";
 import { LearnProvider } from "../../../components/learn/course/LearnStore";
 import { Block } from "../../../components/learn/course/LessonBlocks";
+import { LessonExamples } from "../../../components/learn/course/LessonExamples";
 import { LessonMastery } from "../../../components/learn/course/LessonMastery";
+import { ModuleCapstone } from "../../../components/learn/course/ModuleCapstone";
 import { LessonStatusChip, MasteredBanner, StorageNote } from "../../../components/learn/course/LessonStatus";
 import { PoolTendencies } from "../../../components/learn/course/PoolTendencies";
 import { RichText } from "../../../components/learn/course/RichText";
@@ -12,6 +14,7 @@ import { ServerFrame } from "../../../components/shell/ServerFrame";
 import { getDict, getLocale } from "../../../lib/i18n/server";
 import { LESSONS, MOVED_LESSONS, isLessonId, isReferenceId, moduleCode, neighbours, type LessonMeta } from "../../../lib/learn/course";
 import { lessonBody, lessonOutline } from "../../../lib/learn/lessons";
+import { capstoneLesson } from "../../../lib/learn/mixed";
 import { paths } from "../../../lib/routes";
 import styles from "../../../components/learn/course/course.module.css";
 
@@ -159,6 +162,13 @@ export default async function LessonPage({ params }: PageProps) {
                 </ul>
               </section>
 
+              {meta.examples?.length ? (
+                <section className={styles.section} aria-labelledby={id("examples")}>
+                  <h2 id={id("examples")}>{t.examples.heading}</h2>
+                  <LessonExamples meta={meta} />
+                </section>
+              ) : null}
+
               {meta.pool ? (
                 <section className={styles.section} aria-labelledby={id("pool")}>
                   <h2 id={id("pool")}>{t.pool.title}</h2>
@@ -175,6 +185,8 @@ export default async function LessonPage({ params }: PageProps) {
                   <ExerciseBlock key={def.id} meta={meta} def={def} index={i + 1} intro={body.exercises[def.id] ?? ""} />
                 ))}
               </section>
+
+              {capstoneLesson(meta.module) === lesson ? <ModuleCapstone module={meta.module} /> : null}
             </>
           ) : (
             <section className={styles.section} aria-labelledby={id("soon")}>

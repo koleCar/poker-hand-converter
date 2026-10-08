@@ -43,6 +43,8 @@ export interface LearnStore {
   due: number | null;
   /** Records one result; resolves once it is kept (or rejects with why not). */
   record: (result: LessonResult) => Promise<void>;
+  /** Records several results at once (the placement test's tested-out lessons, L5). */
+  recordMany: (results: readonly LessonResult[]) => Promise<void>;
   /** Makes review cards; resolves with how many were new. */
   addCards: (cards: readonly NewCard[]) => Promise<number>;
   /** Signed in, with progress from a signed-out session in this browser: how many lessons. */
@@ -144,6 +146,22 @@ export function LearnProvider({ children }: { children: ReactNode }) {
     [mode],
   );
 
+  const recordMany = useCallback(
+    async (results: readonly LessonResult[]) => {
+      if (results.length === 0) return;
+      const now = new Date();
+      const next = results.reduce((map, result) => applyResult(map, result, now), progressRef.current);
+      progressRef.current = next;
+      setProgress(next);
+      if (mode === "account") {
+        await recordLessonResults(results);
+      } else {
+        writeLocal(LOCAL_PROGRESS_KEY, JSON.stringify(next));
+      }
+    },
+    [mode],
+  );
+
   const addCards = useCallback(
     async (cards: readonly NewCard[]) => {
       if (cards.length === 0) return 0;
@@ -182,8 +200,8 @@ export function LearnProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<LearnStore>(
-    () => ({ mode, progress, due, record, addCards, localLessons, mergeLocal, discardLocal, error }),
-    [mode, progress, due, record, addCards, localLessons, mergeLocal, discardLocal, error],
+    () => ({ mode, progress, due, record, recordMany, addCards, localLessons, mergeLocal, discardLocal, error }),
+    [mode, progress, due, record, recordMany, addCards, localLessons, mergeLocal, discardLocal, error],
   );
   return <LearnContext.Provider value={value}>{children}</LearnContext.Provider>;
 }

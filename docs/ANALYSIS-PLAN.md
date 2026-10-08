@@ -2038,3 +2038,14 @@ Each phase appends what it learned that changed the plan.
     question graded by the response's own EVs), a `lab` job in the trainer
     worker, about 0.2 s per item. `npm run learn:lab` from `tests/` is the
     direction check the exploit lessons were written from.
+- 2026-10-08 — Learn L5: the extras (`docs/LEARN-PLAN.md` §14). No grade
+  changes: still `analysis/9`; no migration.
+  - **Reads only**: example hands pick from `analysis_leak_hands` (the
+    costliest mistake, and a clean Perfect from the recent decisions with
+    `deviations` off) and re-check nudges read `analysis_leaks` before and
+    after the day a lesson was settled (at most six day/pot-type groups),
+    both invoker under RLS.
+  - **Training, additive**: none. The placement test, capstones and the
+    daily dose deal the lessons' existing card specs; `pot-tracking` counts
+    its answer with `scriptMoney`, and `profile-read` uses the pool
+    section's `foldRead`.

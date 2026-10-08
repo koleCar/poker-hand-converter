@@ -211,7 +211,7 @@ export function isReferenceId(value: unknown): value is ReferenceId {
 }
 
 /** Path segments under `/learn` that are not lessons. A lesson id may never be one. */
-export const RESERVED_LEARN_SEGMENTS = ["review", "reference"] as const;
+export const RESERVED_LEARN_SEGMENTS = ["review", "reference", "placement"] as const;
 
 /* ------------------------------------------------------------- exercises - */
 
@@ -231,11 +231,22 @@ export const CALC_KINDS = [
   "multiway",
   // Learn L4: the 95% interval on a stat over n chances, or the chances a stat needs.
   "sample-size",
+  // Learn L5: the pot through a scripted live-style hand, counted by Rail's own hand writer.
+  "pot-tracking",
 ] as const;
 export type CalcKind = (typeof CALC_KINDS)[number];
 
 /** Sorting boards and hands into buckets, graded by `lib/analysis/texture.ts`, hand classes and range equity. */
-export const CLASSIFY_KINDS = ["texture", "dynamism", "hand-class", "range-advantage", "nut-advantage", "turn-card"] as const;
+export const CLASSIFY_KINDS = [
+  "texture",
+  "dynamism",
+  "hand-class",
+  "range-advantage",
+  "nut-advantage",
+  "turn-card",
+  // Learn L5: what an opponent's fold-to-c-bet stat over n chances supports, by the pool section's own rule.
+  "profile-read",
+] as const;
 export type ClassifyKind = (typeof CLASSIFY_KINDS)[number];
 
 /**
@@ -245,8 +256,11 @@ export type ClassifyKind = (typeof CLASSIFY_KINDS)[number];
  * {@link PaintDef}) and stays here for the paints that still wait for data
  * (straddle charts): a planned exercise is the one with `waitsFor`.
  * `node-lock`, planned since L1.1, is built (L4, {@link NodeLockDef}).
+ * L5 built `pot-tracking` (a `calc` kind), `profile-quiz` (the `profile-read`
+ * classify kind) and the placement test (its own page, `/learn/placement`,
+ * not an exercise of a lesson).
  */
-export const PLANNED_KINDS = ["depth-split", "range-paint", "range-walk", "pot-tracking", "profile-quiz", "placement"] as const;
+export const PLANNED_KINDS = ["depth-split", "range-paint", "range-walk"] as const;
 export type PlannedKind = (typeof PLANNED_KINDS)[number];
 
 /** A spot as the leak finder names it. Scenario entries may use `*` as a wildcard (`pfr-ip-*`, `*-vs-bet`). */
@@ -451,16 +465,24 @@ export const LESSON_NOTES: readonly LessonNote[] = [
 export type PoolTopic = "all" | "overfold" | "station" | "aggro" | "underbluff";
 
 /**
- * A curated example hand from outside Rail, with where it came from. The slot
- * is here for the example hands a separate research job is collecting; none
- * are in the catalogue yet (L4).
+ * An example hand on a lesson (Learn L5, the `examples` slot). **Two sources
+ * only, never a hand, a player or a video from outside Rail:**
+ *
+ * - `own`: the learner's own analysed decisions in the lesson's spots (and
+ *   flags). The most instructive are picked at runtime (`lib/learn/examples.ts`):
+ *   the costliest mistake, and a clean Perfect where the other options cost the
+ *   most. They are shown spoiler-safe, with a short "why" Rail writes from the
+ *   grade's own numbers and a link to the replayer at the decision.
+ * - `scripted`: a hand Rail scripts itself. One of the lesson's own trainer
+ *   exercises is dealt from a fixed seed (`exampleSeed`), written out as hand
+ *   text by `scriptHand`, and graded by the analysis like any trainer spot.
+ *
+ * {@link examplesOf} fills the slot for every written lesson; the catalogue
+ * never names a hand.
  */
-export interface LessonExample {
-  id: string;
-  source: { kind: "video"; channel: string; url: string; title: string; timestamp?: string };
-  /** The hand in standard hand-history text, as Rail parses an upload. */
-  handText: string;
-}
+export type LessonExample =
+  | { id: "your-hands"; kind: "own"; spots: readonly SpotPattern[]; flags: readonly FlagCode[]; potType?: string }
+  | { id: "rail-hand"; kind: "scripted"; exercise: string; seed: number };
 
 export interface LessonMeta {
   id: LessonId;
@@ -1156,7 +1178,7 @@ const LIST: LessonMeta[] = [
     "x1",
     ["bluff-catching", "thin-value"],
     ["gto-vs-exploitative"],
-    [lab("profile-reads", "any", 4), planned("profile-quiz", "profile-quiz", "villain-stats")],
+    [lab("profile-reads", "any", 4), classify("profile-quiz", "profile-read", 6)],
     {},
     { ...WRITTEN, notes: ["locked-read", "approximate-ranges"], pool: "all" },
   ),
@@ -1258,7 +1280,7 @@ const LIST: LessonMeta[] = [
     "x4",
     ["open-sizing"],
     ["rfi", "spr"],
-    [calc("live-spr", "spr", 5), calc("live-steal", "steal", 5), planned("pot-tracking", "pot-tracking")],
+    [calc("live-spr", "spr", 5), calc("live-steal", "steal", 5), calc("pot-tracking", "pot-tracking", 4, 0.75)],
     {},
     WRITTEN,
   ),
@@ -1291,13 +1313,66 @@ const LIST: LessonMeta[] = [
   ),
 ];
 
-/** Lessons in course order, with their `P1-L<k>`-style codes filled in. */
+/**
+ * A lesson's fixed example seed (L5): FNV-1a of its id, so the scripted example
+ * hand is the same on every visit and in the tests.
+ */
+export function exampleSeed(id: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < id.length; i += 1) {
+    hash ^= id.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash >>> 0;
+}
+
+/** Whether an exercise deals one hand to play (a chart spot, a postflop spot or a lab hand): what a scripted example shows. */
+function dealsAHand(def: ExerciseDef): def is ChartQuizDef | SolverSpotDef | NodeLockDef {
+  return def.kind === "chart-quiz" || def.kind === "solver-spot" || def.kind === "node-lock";
+}
+
+/**
+ * The `examples` slot of a written lesson (L5): its own hands where the
+ * lesson names spots or flags to find them by, and one hand Rail scripts from
+ * its first exercise that deals a hand (a turn or river spot before a flop
+ * one, which needs the flop library). Nothing from outside Rail.
+ */
+export function examplesOf(meta: LessonMeta): LessonExample[] {
+  if (!meta.written) return [];
+  const out: LessonExample[] = [];
+  const spots: SpotPattern[] = [...meta.match.spots];
+  const flags: FlagCode[] = [...meta.match.flags];
+  let potType: string | undefined;
+  for (const def of meta.exercises) {
+    if (def.kind !== "own-hands") continue;
+    spots.push(...(def.spots ?? []));
+    flags.push(...(def.flags ?? []));
+    potType ??= def.potType;
+  }
+  const seen = new Set<string>();
+  const uniqueSpots = spots.filter((pattern) => {
+    const key = JSON.stringify(pattern);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  if (uniqueSpots.length > 0 || flags.length > 0) {
+    out.push({ id: "your-hands", kind: "own", spots: uniqueSpots, flags: [...new Set(flags)], ...(potType ? { potType } : {}) });
+  }
+  const hands = meta.exercises.filter(dealsAHand);
+  const scripted = hands.find((def) => !readsFlopLibrary(def)) ?? hands[0];
+  if (scripted) out.push({ id: "rail-hand", kind: "scripted", exercise: scripted.id, seed: exampleSeed(meta.id) });
+  return out;
+}
+
+/** Lessons in course order, with their `P1-L<k>`-style codes and their examples filled in. */
 function withCodes(list: LessonMeta[]): LessonMeta[] {
   const counts = new Map<ModuleId, number>();
   return list.map((meta) => {
     const k = (counts.get(meta.module) ?? 0) + 1;
     counts.set(meta.module, k);
-    return { ...meta, code: `${moduleCode(meta.module)}-L${k}` };
+    const examples = examplesOf(meta);
+    return { ...meta, code: `${moduleCode(meta.module)}-L${k}`, ...(examples.length > 0 ? { examples } : {}) };
   });
 }
 

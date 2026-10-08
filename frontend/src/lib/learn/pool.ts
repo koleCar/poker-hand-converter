@@ -144,16 +144,25 @@ export const READ_SIZES = { above: 0.5, below: 1 / 3 } as const;
  * the line.
  */
 export function poolReads(pool: Pool): PoolRead[] {
-  const out: PoolRead[] = [];
-  const fold = pool.stats.foldToCbet;
-  if (fold.level !== "thin" && fold.value !== null && fold.margin !== null) {
-    const above = alpha(1, READ_SIZES.above);
-    const below = alpha(1, READ_SIZES.below);
-    if (fold.value - fold.margin > above) {
-      out.push({ stat: "foldToCbet", size: READ_SIZES.above, needs: above, direction: "above", lesson: "exploiting-overfolders", preset: "overfold" });
-    } else if (fold.value + fold.margin < below) {
-      out.push({ stat: "foldToCbet", size: READ_SIZES.below, needs: below, direction: "below", lesson: "exploiting-calling-stations", preset: "station" });
-    }
+  const read = foldRead(pool.stats.foldToCbet);
+  return read ? [read] : [];
+}
+
+/**
+ * The read one fold-to-c-bet stat supports, or null: its whole 95% interval
+ * above what a half-pot bluff needs, or wholly below what a third-pot bluff
+ * needs, and the stat not "thin". The pool section and the profile quiz
+ * (L5) use this one rule.
+ */
+export function foldRead(fold: PoolStat): PoolRead | null {
+  if (fold.level === "thin" || fold.value === null || fold.margin === null) return null;
+  const above = alpha(1, READ_SIZES.above);
+  const below = alpha(1, READ_SIZES.below);
+  if (fold.value - fold.margin > above) {
+    return { stat: "foldToCbet", size: READ_SIZES.above, needs: above, direction: "above", lesson: "exploiting-overfolders", preset: "overfold" };
   }
-  return out;
+  if (fold.value + fold.margin < below) {
+    return { stat: "foldToCbet", size: READ_SIZES.below, needs: below, direction: "below", lesson: "exploiting-calling-stations", preset: "station" };
+  }
+  return null;
 }

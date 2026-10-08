@@ -127,7 +127,9 @@ theory with no number.
 | `depth-split` | the same split at 200bb against 100bb | flop solves at other depths | placeholder |
 | `range-paint` | paint a 13×13 range: a seat's first-in range, or the hands of a river range that bet or continue | the chart, or the river solve, cell by cell (`lib/training/paint.ts`) | L3; the straddle paint still planned |
 | `node-lock` | the exploit lab: a river solved on demand, one opponent tendency locked (a preset of `LAB_PRESETS`, or any), and one hand to play against it | the solver's best response against the lock, its EV per action (`gradeLab`) | L4 (`lib/training/lab.ts`) |
-| `range-walk`, `pot-tracking`, `profile-quiz`, `placement` | see §5 | | placeholders |
+| `pot-tracking` (a `calc` kind) | a live full-ring hand to the turn, action by action: the pot when the turn is dealt | Rail's own hand writer (`scriptMoney`) | L5 |
+| `profile-quiz` (the `profile-read` classify kind) | an opponent's folds to a flop c-bet over n chances: what the stat supports | the pool section's own rule (`foldRead`, `pool.ts`) | L5 |
+| `range-walk` | see §15 | | placeholder |
 
 Pass rules are per exercise (a share of the items, e.g. 7 of 10). Own hands
 and planned widgets never count towards passing; flop spots and flop splits
@@ -150,10 +152,16 @@ count where they can be played: the flag on (`FLOP_LIBRARY_ENABLED`, since
 5. **Mastery from real-hand improvement** (L3). Once a signed-in learner has
    passed a lesson, the lesson page compares their own graded decisions in its
    spots before and after the day they passed it (`lib/learn/mastery.ts`).
+6. **Placement test with test-out** (L5, `/learn/placement`): a short mixed
+   test per track; a module whose items pass marks its lessons "tested out".
+7. **Interleaved module capstones** (L5): a mixed review at the end of each
+   module.
+8. **A daily five-minute dose** (L5): due review cards and one new item from
+   the recommended lesson, on the map and on `/learn/review`.
+9. **Re-check nudges** (L5): a lesson passed or tested out whose own hands got
+   worse since, past the noise, is recommended again on the map.
 
-Later (L4+): a placement test with test-out, interleaved module capstones,
-"isolate one variable" comparison views, a live/online path toggle, re-check
-nudges, a daily five-minute dose.
+Later: "isolate one variable" comparison views, a live/online path toggle.
 
 ## 5. Phases
 
@@ -164,7 +172,7 @@ nudges, a daily five-minute dose.
 | **L2** (shipped) — flop | Track 2 written (F1–F5); flop spots from the library; the `range-split` widget (flop buckets from the library, turn categories from a turn solve); the raiser's flop bets by board group from Rail's own library. See §8. |
 | **L3** (shipped) — turn and river | Tracks 3–4 written; `range-paint`; the river split; mastery from real-hand improvement. See §10. |
 | **L4** (shipped) — exploits | Track 5 written, plus the **exploit lab**: solver node-locking UI, the opponents-panel tie-in, pool tendencies from the learner's own villain stats with sample sizes. See §12. |
-| **L5** | Placement test, curated example hands (`examples` slot), flop drills once `FLOP_LIBRARY_ENABLED` is on. |
+| **L5** (shipped) — extras | Placement test with test-out, the `examples` slot (your own hands, or a hand Rail scripts; nothing from outside), interleaved module capstones, the daily dose, re-check nudges, and the `pot-tracking` and `profile-quiz` widgets. (Flop drills shipped in L2.) See §14. |
 
 ## 6. What L1 shipped
 
@@ -598,3 +606,114 @@ nudges, a daily five-minute dose.
   and 3-bet-pot rivers (the nearest SPR Rail solves to a straddled pot).
 - The lab and the pool section were checked by their tests and a signed-out
   browser session; no signed-in session with opponent statistics was used.
+
+## 14. What L5 shipped
+
+- **No basics, nothing from outside, no migration.** Every L5 piece deals and
+  grades with what the lessons already use; the one new status rides on the
+  existing progress model and writer.
+- **Placement test with test-out** (`/learn/placement`, `lib/learn/mixed.ts`,
+  `PlacementTest`): pick a track, and Rail deals four items from each of its
+  modules, interleaved across modules, from the lessons' own counted
+  exercises (`requiredExercises`; flop items only where the flop library can
+  be played), as the same card specs, through the same views and graders.
+  - **The rule**: a module tests out at three of four graded items right
+    (75%, above every exercise's own pass share, since it stands in for all of
+    them), with at least three graded. An item that cannot be dealt can be
+    skipped; it is not graded and never counts as wrong.
+  - **Tested out is its own status**, not "mastered". A passed module writes,
+    for each written lesson not already passed or tested out, a `tested-out`
+    entry (`TESTED_OUT`) in the lesson's `exercises` map with the module's
+    score, through `record_lesson_results` (signed in) or the browser's
+    storage; `lessonPassed` is never set. The map shows "Tested out" and
+    counts it apart ("N mastered, M tested out"); passing the exercises later
+    still masters the lesson. **No migration**: the database checks only the
+    shape of an exercise id, and `tested-out` is no exercise of any lesson
+    (the course test holds that). Missed items join the review cards.
+  - Tested-out lessons are "done" for recommendations and the dose, and their
+    real-hand mastery is measured from the day they were tested out (with its
+    own title on the lesson page).
+- **The `examples` slot** (`examplesOf` in `course.ts`, `lib/learn/examples.ts`,
+  `LessonExamples`). The L1 type (a video source and hand text) is gone; an
+  example is now one of two kinds only, filled in for every written lesson,
+  never naming a hand:
+  - `own`: the learner's own analysed decisions in the lesson's spots (its
+    leak match and own-hands spots, with the own-hands pot type), or its flags.
+    Rail picks **the costliest mistake** (the largest EV loss among
+    Inaccurate or worse) and **a clean Perfect** (the reference plays the
+    move at least 90% of the time and it is the best by EV; among those, the
+    one whose next best option gives up the most). Spoiler-safe: the spot and
+    the hand show first, the verdict and the "why" only on request, and the
+    link replays the hand to the decision. The "why" is Rail's sentence on the
+    grade's own numbers: the move, the reference's move, and what the
+    difference cost (or, for a Perfect, what the next best option gives up).
+    Signed in only.
+  - `scripted`: a hand Rail deals itself from one of the lesson's own trainer
+    exercises (a chart spot, a turn or river spot before a flop one, or a lab
+    hand) at a fixed seed (`exampleSeed`, FNV-1a of the lesson id), written
+    out by `scriptHand` and graded by the analysis like any trainer spot; not
+    recorded. Works signed out.
+  - The course test holds every example to these two kinds and to the
+    lesson's own spots, flags and exercises, with nothing that could carry an
+    outside source.
+- **Interleaved module capstones** (`ModuleCapstone`): on each module's last
+  written lesson, six items mixed across the module's lessons, one lesson
+  after another (`moduleItems`: lessons shuffled, round-robin, a fresh
+  exercise of each lesson first). The map links each module's review. Missed
+  items become review cards; the score is shown, not stored.
+- **The daily five-minute dose** (`DailyDose`, on the map and above the
+  review queue): up to four due review cards (the longest due first) and one
+  new item from the first recommended lesson not yet done, else the next
+  lesson in course order, placed in the middle. Review cards are rescheduled
+  as in the queue; a missed new item becomes a card. "Done for today" is a
+  per-browser note (`rail.learn.dose.v1`).
+- **Re-check nudges** (`lib/learn/recheck.ts`, `useRechecks`): the map reads
+  L3's mastery for the lessons passed or tested out, grouped by the day they
+  were settled and their pot type (two leak-finder reads per group, at most
+  six groups, the latest first), and badges a lesson "Re-check" only when its
+  own decisions got **worse** past the leak finder's clear line with at least
+  20 graded decisions on each side, saying how many before and after. A lean
+  or a thin sample is never a nudge. Read-only, nothing stored.
+- **Planned widgets built** (Rail-computed answers only):
+  - `pot-tracking` on *how live games differ* (a `calc` kind): a live
+    full-ring hand to the turn, action by action (opens of 3–8 bb, callers,
+    some 3-bets, flops bet or checked through); the answer is the pot when
+    the turn is dealt, as Rail's own hand writer counts it (`scriptMoney`).
+    The test recounts every hand from its listed actions and parses it.
+  - `profile-quiz` on *recognising player types* (the `profile-read` classify
+    kind): an opponent's folds to a flop c-bet over n chances (a drill's
+    numbers, said so on screen), sorted into "folds more than a half-pot
+    bluff needs", "less than a third-pot bluff needs" or "no read yet" by the
+    pool section's own rule (`foldRead`, now shared with `poolReads`).
+- **Words**: everything new in English and Croatian; the course test holds
+  the new namespaces to the same keys, and the dictionaries no longer list
+  `pot-tracking`, `profile-quiz` or `placement` as planned.
+- **Verified** in the browser (signed out, local build): the map's dose and
+  placement link, a dose item dealt from the recommended lesson, a placement
+  run to its result, the tested-out chip and count, a pot-tracking item, a
+  lesson's scripted example and a module review.
+
+## 15. Open after L5
+
+- **Not built from the "Later" list**: "isolate one variable" comparison views
+  and a live/online path toggle. Of the planned widgets, `range-walk`,
+  `depth-split` (needs 200bb flop solves) and the straddle paint (needs
+  straddle charts) stay planned.
+- **Tested out does not finish a study-plan task.** The database's
+  `study_plan` counts a `lesson` task done when the lesson is *passed*; a
+  tested-out lesson stays open there (changing that is a migration).
+- **A capstone's score is not kept**, only its missed items as cards. A
+  placement run that tests nothing out keeps nothing but its cards.
+- **Own examples and re-checks need a signed-in learner with analysed hands**
+  at the current analysis version, and were checked by their unit tests only
+  (no signed-in session was used). Lessons matched only by flags pick their
+  example by the flag's costliest hand; lessons with neither spots nor flags
+  (the X3 lab lessons, *how live games differ*) have only a scripted example,
+  or none.
+- **Re-checks read at most six (day, pot type) groups**; an older pass is not
+  re-checked until it is among the six most recent.
+- The placement test and the dose deal any counted exercise of a lesson,
+  including river and lab solves (a second or two each); the flop items need
+  the flop library, as in the lessons.
+- Everything open after L4 (§13) stays open, apart from `profile-quiz` and
+  `pot-tracking`.

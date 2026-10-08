@@ -149,12 +149,20 @@ export const courseEn = {
     reviewNone: "No review cards due",
     reviewLink: "Review",
     progress: (done: number, total: number) => `${done} of ${total} written lessons mastered`,
+    progressTested: (done: number, tested: number, total: number) => `${done} of ${total} written lessons mastered, ${tested} tested out`,
     statusLabel: "Status",
     status: {
       "not-started": "Not started",
       "in-progress": "In progress",
+      "tested-out": "Tested out",
       mastered: "Mastered",
     } as Record<string, string>,
+    recheck: (before: number, after: number) => `Re-check: worse in your own hands since (${before} graded decisions before, ${after} after)`,
+    recheckNote:
+      "“Re-check” marks a lesson you passed or tested out of whose spots you have played worse since, by more than the sample's noise: at least 20 graded decisions on each side, by the leak finder's own test. Fewer hands, or a mere lean, never re-checks a lesson.",
+    capstone: (code: string) => `Module ${code} review`,
+    placement: "Placement test",
+    placementHint: "Already play these spots? Test out of a module instead of working through it.",
     comingSoon: "Coming soon",
     recommended: "Recommended",
     recommendedLeak: (per100: string) => `Recommended: you lose ${per100} bb / 100 hands here`,
@@ -234,10 +242,7 @@ export const courseEn = {
     "depth-split": "Sorting hand classes at 200bb against 100bb (planned)",
     "range-paint": "Painting a range on the 13×13 grid, graded cell by cell against Rail's chart or solve",
     "range-walk": "Guessing a range street by street on your own hand (planned)",
-    "pot-tracking": "Keeping track of the pot in a live-style hand (planned)",
-    "profile-quiz": "Naming player types from their stats (planned)",
     "node-lock": "Locking an opponent's tendency in Rail's solver and playing the best response against it",
-    placement: "A placement test (planned)",
   } as Record<string, string>,
 
   checkpoint: {
@@ -275,10 +280,7 @@ export const courseEn = {
       "depth-split": "Planned: sort the same range at 200bb and at 100bb, and compare both splits with Rail's solves.",
       "range-paint": "Planned: paint a straddled seat's range on the 13×13 grid, once Rail has straddle charts to score it against.",
       "range-walk": "Planned: replay one of your hands and guess the opponent's range on each street, then compare with Rail's narrowing.",
-      "pot-tracking": "Planned: a live-style hand where you keep track of the pot.",
-      "profile-quiz": "Planned: name your opponents' types from their stats.",
       "node-lock": "Planned: lock an opponent's frequency at one decision, re-solve it with Rail's solver, and compare the best response with the baseline.",
-      placement: "Planned: a short placement test that suggests where to start.",
     } as Record<string, string>,
     waits: {
       widget: "This exercise needs a widget that is not built yet.",
@@ -394,6 +396,7 @@ export const courseEn = {
 
   mastery: {
     title: "In your own hands since you passed it",
+    titleTested: "In your own hands since you tested out of it",
     loading: "Reading your analysed hands…",
     failed: (message: string) => `Could not read your hands: ${message}`,
     noSpots: "This lesson is not tied to one spot of the leak finder, so Rail cannot measure it from your hands.",
@@ -465,6 +468,21 @@ export const courseEn = {
         `An opponent's stat reads ${value} over ${n} chances. How far either side of it does the 95% interval reach (in points)?`,
       "sample-needed": (value: string, margin: string) =>
         `A stat sits near ${value}. How many chances does it need before its 95% interval is within ± ${margin}?`,
+      "pot-tracking": "A live full-ring game, $0.5/$1 blinds, everyone 200 bb deep. Keep count as the hand goes: how many big blinds are in the pot when the turn is dealt?",
+    },
+    potSteps: {
+      preflop: "Preflop",
+      flop: "Flop",
+      act: (position: string, type: string, to: string) =>
+        type === "fold"
+          ? `${position} folds`
+          : type === "check"
+            ? `${position} checks`
+            : type === "call"
+              ? `${position} calls`
+              : type === "bet"
+                ? `${position} bets ${to}`
+                : `${position} raises to ${to}`,
     },
     combosShape: {
       pair: "a pair",
@@ -488,6 +506,7 @@ export const courseEn = {
       multiway: (alpha: string, answer: string) => `The bet needs ${alpha} folds in all; the answer is ${answer}.`,
       "sample-margin": (variance: string, answer: string) => `1.96 × √(${variance} ÷ chances) = ${answer}.`,
       "sample-needed": (variance: string, answer: string) => `1.96² × ${variance} ÷ margin² = ${answer} chances.`,
+      "pot-tracking": (preflop: string, flop: string, answer: string) => `${preflop} went in before the flop (the blinds included) and ${flop} on the flop: ${answer}.`,
     },
     revealWidget: "The calculator, on these numbers:",
     cards: { flop: "Flop", board: "Board", you: "You", opponent: "Opponent" },
@@ -514,7 +533,10 @@ export const courseEn = {
       "range-advantage": "Button open against a big-blind call: on this flop, is the opener clearly ahead, or is it close?",
       "nut-advantage": "UTG open against a big-blind call: the opener holds more of the strongest hands. Is that lead big or small here?",
       "turn-card": "Button open against a big-blind call. Does this turn card help the opener, the caller, or neither?",
+      "profile-read": "What does this stat support, by the rule your own pool section uses?",
     },
+    profileStat: (made: number, chances: number, value: string) =>
+      `An opponent folded to ${made} of ${chances} flop c-bets (${value}). These are a drill's numbers, not anyone's real statistics.`,
     buckets: {
       texture: {
         rainbow: "Rainbow (three suits)",
@@ -541,6 +563,11 @@ export const courseEn = {
       "range-advantage": { raiser: "The opener is clearly ahead", close: "Close" } as Record<string, string>,
       "nut-advantage": { big: "Big lead", small: "Small lead" } as Record<string, string>,
       "turn-card": { raiser: "The opener", neutral: "Neither", caller: "The caller" } as Record<string, string>,
+      "profile-read": {
+        overfolds: "Folds more than a half-pot bluff needs",
+        underfolds: "Folds less than a third-pot bluff needs",
+        "no-read": "No read yet",
+      } as Record<string, string>,
     },
     detail: {
       volatility: (value: string) => `Volatility ${value}: the share of next cards that change the board.`,
@@ -549,6 +576,8 @@ export const courseEn = {
       nuts: (raiser: string, caller: string) => `In the top 10% of hands: opener ${raiser}, caller ${caller}.`,
       shift: (before: string, after: string) => `The opener's range equity: ${before} on the flop, ${after} with this turn.`,
       made: (made: string) => `You have: ${made}.`,
+      profile: (value: string, margin: string, above: string, below: string) =>
+        `${value} ± ${margin} (the 95% interval). A half-pot bluff needs ${above} folds, a third-pot bluff ${below}. A read needs the whole interval past one of those lines, and at least 30 chances with an interval no wider than ± 10 points.`,
     },
     madeHand: {
       "straight-flush": "a straight flush",
@@ -708,5 +737,78 @@ export const courseEn = {
   plan: {
     task: (title: string) => `Lesson: ${title}`,
     open: "Open the lesson",
+  },
+
+  mixed: {
+    skip: "Skip",
+    new: "New",
+    review: "Review",
+  },
+
+  placement: {
+    heading: "Placement test",
+    intro:
+      "Already play some of these spots well? Take a short mixed test on one track: a few items from each of its modules, dealt and graded exactly as the lessons deal and grade them. A module you pass is marked “tested out”: a status of its own, not “mastered”, so the lessons stay open for you whenever you want them.",
+    pick: "Pick a track",
+    track: (modules: number, items: number) => `${modules} modules, ${items} items`,
+    rules: (perModule: number, share: string, min: number) =>
+      `${perModule} items per module, mixed across the track. A module tests out at ${share} of its graded items right, with at least ${min} graded; an item that cannot be dealt can be skipped and does not count against you.`,
+    start: (track: string) => `Take the test: ${track}`,
+    resultTitle: "How it went",
+    module: (code: string, name: string, correct: number, graded: number) => `${code} ${name}: ${correct} of ${graded} right`,
+    testedOut: (lessons: number) => (lessons === 1 ? "tested out: 1 lesson marked" : `tested out: ${lessons} lessons marked`),
+    already: "tested out — its lessons were already passed or tested out",
+    notYet: "not tested out — start here:",
+    tooFew: "too few graded items to judge",
+    recorded: "Saved to your account.",
+    recordedLocal: "Saved in this browser.",
+    again: "Take another track",
+    signedOut: "Signed out, your results are kept in this browser only.",
+  },
+
+  capstone: {
+    heading: (code: string) => `Module ${code} review`,
+    intro: (count: number) =>
+      `${count} items mixed across this module's lessons: a spot from one lesson, a sum from another. Telling which idea a spot asks for is half of it. Missed items join your review cards; the score is not kept.`,
+    start: "Start the review",
+    result: (correct: number, graded: number) => `${correct} of ${graded} right.`,
+    again: "Another review",
+    empty: "No lesson of this module has practice Rail can deal here yet.",
+  },
+
+  dose: {
+    heading: "Today's five minutes",
+    intro: "A few review cards that are due and one new item from the lesson Rail points you to: the smallest useful daily habit.",
+    plan: (reviews: number, lesson: string | null) =>
+      `${reviews === 1 ? "1 review card" : `${reviews} review cards`}${lesson ? ` and 1 new item from “${lesson}”` : ""}.`,
+    nothing: "Nothing is due and every lesson is done. Come back tomorrow.",
+    start: "Start",
+    loading: "Getting today's items…",
+    done: (correct: number, graded: number) => `Done for today: ${correct} of ${graded} right.`,
+    doneToday: "Done for today. Your next dose is ready tomorrow.",
+    again: "Do another",
+  },
+
+  examples: {
+    heading: "Example hands",
+    intro: "Examples come from two places only: your own analysed hands in this lesson's spots, and a hand Rail deals and grades itself. Never a hand from outside Rail.",
+    ownTitle: "From your own hands",
+    signIn: "Sign in, with analysed hands, to see examples from your own play here.",
+    find: "Find my examples",
+    loading: "Looking through your analysed hands…",
+    failed: (message: string) => `Could not read your hands: ${message}`,
+    none: "No graded decision of yours in this lesson's spots yet.",
+    costliest: "Your costliest decision here",
+    perfect: "A clean Perfect of yours here",
+    spot: (street: string, position: string | null) => (position ? `${street}, ${position}` : street),
+    show: "Show why",
+    open: "Replay it to this decision",
+    whyMistake: (taken: string, reference: string, loss: string, pot: string | null, grade: string) =>
+      `You played ${taken} (${grade}). Rail's reference prefers ${reference}; the difference cost ${loss}${pot ? `, ${pot} of the pot` : ""}.`,
+    whyPerfect: (taken: string, freq: string, next: string, margin: string) =>
+      `You played ${taken}, which Rail's reference plays ${freq} of the time here. The next best option, ${next}, gives up ${margin}: this is where getting it right paid.`,
+    scriptedTitle: "A hand Rail deals",
+    scriptedIntro: "Rail scripts this hand from the lesson's own practice, always the same one, and grades it with the analysis. Decide first, then read Rail's verdict.",
+    deal: "Deal it",
   },
 } as const;

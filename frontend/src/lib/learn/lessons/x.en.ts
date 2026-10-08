@@ -97,7 +97,7 @@ export const xEn: LessonBodies<
     },
     exercises: {
       "profile-reads": "Four rivers, each with one of the five reads locked: play the hand Rail's best response plays against it.",
-      "profile-quiz": "Planned: name your own opponents' types from their stats.",
+      "profile-quiz": "Six opponents' folds to a flop c-bet, each over a number of chances: say what the stat supports — folding more than a half-pot bluff needs, less than a third-pot bluff needs, or no read yet — by the same rule your own pool section uses.",
     },
     checks: [{ fn: "marginOfError", args: [0.4, 100], value: 0.096 }],
   },
@@ -723,7 +723,7 @@ export const xEn: LessonBodies<
     exercises: {
       "live-spr": "Five SPRs to work out from a pot and the stacks behind.",
       "live-steal": "Five opens to price: how often must everyone fold?",
-      "pot-tracking": "Planned: a live-style hand where you keep track of the pot.",
+      "pot-tracking": "Four live hands at a full table, action by action: count the pot to the turn without a pot display.",
     },
     checks: [
       { fn: "ratio", args: [2.5, 4], value: 0.625 },

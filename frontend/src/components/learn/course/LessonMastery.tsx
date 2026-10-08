@@ -4,6 +4,9 @@
  * spots before and after the day they passed it, side by side, and whether
  * the change is bigger than the sample's noise — or "not enough hands yet".
  *
+ * A lesson tested out by the placement test (L5) is measured from the day it
+ * was tested out, under its own title.
+ *
  * Reads the leak finder's report twice (`analysis_leaks`, invoker, under
  * RLS: only the learner's own rows), nothing stored. A signed-out reader, or
  * one who has not passed the lesson, sees nothing here.
@@ -16,6 +19,7 @@ import { fetchLeaks } from "../../../lib/db/analysisLeaks";
 import { useDict } from "../../../lib/i18n/client";
 import { LESSONS, type LessonId } from "../../../lib/learn/course";
 import { lessonPotType, lessonSpots, MASTERY_MIN_DECISIONS, masteryFrom, passDay, type Mastery, type MasterySide } from "../../../lib/learn/mastery";
+import { settledAt } from "../../../lib/learn/progress";
 import { useFormats } from "../controls";
 import { useLearn } from "./LearnStore";
 import styles from "./course.module.css";
@@ -27,7 +31,9 @@ export function LessonMastery({ lesson }: { lesson: LessonId }) {
   const store = useLearn();
   const meta = LESSONS[lesson];
   const record = store.progress[lesson];
-  const passedAt = record?.status === "passed" ? record.passedAt : null;
+  // Passed, or tested out by the placement test (L5): measured from that day.
+  const passedAt = settledAt(record);
+  const tested = record?.status !== "passed" && passedAt !== null;
   const day = passedAt ? passDay(passedAt) : null;
   const hasSpots = lessonSpots(meta).length > 0;
   const [state, setState] = useState<State | null>(null);
@@ -54,14 +60,14 @@ export function LessonMastery({ lesson }: { lesson: LessonId }) {
   if (!hasSpots) {
     return (
       <div className={styles.masteryBox}>
-        <strong>{t.title}</strong>
+        <strong>{tested ? t.titleTested : t.title}</strong>
         <p className={styles.muted}>{t.noSpots}</p>
       </div>
     );
   }
   return (
     <section className={styles.masteryBox} aria-live="polite">
-      <strong>{t.title}</strong>
+      <strong>{tested ? t.titleTested : t.title}</strong>
       {!state ? (
         <p className={styles.muted} role="status">
           {t.loading}
