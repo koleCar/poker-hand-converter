@@ -19,6 +19,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DecisionAnalysis } from "../../../lib/analysis/types";
+import { FLOP_DRILLS_AVAILABLE } from "../../../lib/trainer";
 import { useAuth } from "../../../lib/auth";
 import { fetchAnalysisHands, fetchHandAnalysis, getHand } from "../../../lib/db";
 import { fetchLeakHands, fetchLeaks } from "../../../lib/db/analysisLeaks";
@@ -145,7 +146,7 @@ export function OwnHandsExercise({ meta, def }: { meta: LessonMeta; def: OwnHand
       <Finished
         count={found.items.length}
         onRecord={() =>
-          store.record(exerciseResult(store.progress, meta, def.id, score.correct, score.total, score.total > 0, false)).catch(() => undefined)
+          store.record(exerciseResult(store.progress, meta, def.id, score.correct, score.total, score.total > 0, FLOP_DRILLS_AVAILABLE)).catch(() => undefined)
         }
         onRestart={start}
       />

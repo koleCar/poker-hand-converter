@@ -18,13 +18,15 @@
 import { useCallback, useMemo, useState } from "react";
 import { FLOP_LIBRARY_ENABLED } from "../../../lib/analysis/flopLibrary";
 import { useDict } from "../../../lib/i18n/client";
-import { countsTowardsPass, isPlanned, type ExerciseDef, type GeneratedExerciseDef, type LessonMeta } from "../../../lib/learn/course";
+import { countsTowardsPass, isPlanned, readsFlopLibrary, type ExerciseDef, type GeneratedExerciseDef, type LessonMeta } from "../../../lib/learn/course";
 import { generateCalc, generateClassify, needed, passes } from "../../../lib/learn/practice";
 import { cardFor, exerciseResult, type NewCard } from "../../../lib/learn/progress";
+import { FLOP_DRILLS_AVAILABLE } from "../../../lib/trainer";
 import { nextSeed } from "../../../lib/training/rng";
 import { useLearn } from "./LearnStore";
 import { OwnHandsExercise } from "./OwnHandsExercise";
 import { CalcItemView, ClassifyItemView, type ItemAnswer } from "./PracticeItems";
+import { SplitItemView } from "./SplitItemView";
 import { SpotItemView, type SpotItem } from "./SpotItemView";
 import styles from "./course.module.css";
 
@@ -41,7 +43,8 @@ export function ExerciseBlock({ meta, def, index, intro }: ExerciseBlockProps) {
   const t = useDict().course;
   const store = useLearn();
   const record = store.progress[meta.id]?.exercises[def.id];
-  const counts = countsTowardsPass(def, FLOP_LIBRARY_ENABLED);
+  // Flop exercises count where they can be played: the flag on and the library reachable.
+  const counts = countsTowardsPass(def, FLOP_DRILLS_AVAILABLE);
   const label = t.lesson.exerciseLabel(index);
 
   return (
@@ -73,8 +76,11 @@ function ExerciseBody({ meta, def }: { meta: LessonMeta; def: ExerciseDef }) {
     );
   }
   if (def.kind === "own-hands") return <OwnHandsExercise meta={meta} def={def} />;
-  if (def.kind === "solver-spot" && def.street === "flop" && !FLOP_LIBRARY_ENABLED) {
+  if (readsFlopLibrary(def) && !FLOP_LIBRARY_ENABLED) {
     return <p className="notice notice--warn">{t.flopOff}</p>;
+  }
+  if (readsFlopLibrary(def) && !FLOP_DRILLS_AVAILABLE) {
+    return <p className="notice notice--warn">{t.flopUnavailable}</p>;
   }
   return <Session meta={meta} def={def} />;
 }
@@ -105,7 +111,7 @@ function Session({ meta, def }: { meta: LessonMeta; def: GeneratedExerciseDef })
         if (answer && !answer.correct) missed.push(cardFor(meta, def, seeds[i]));
       });
       try {
-        await store.record(exerciseResult(store.progress, meta, def.id, correct, graded.length, passed, FLOP_LIBRARY_ENABLED));
+        await store.record(exerciseResult(store.progress, meta, def.id, correct, graded.length, passed, FLOP_DRILLS_AVAILABLE));
         const cards = await store.addCards(missed);
         setSaved({ cards, error: null });
       } catch (error) {
@@ -222,5 +228,6 @@ export function CardItemView({
   if (generated?.kind === "calc") return <CalcItemView item={generated.item} onAnswer={onAnswer} />;
   if (generated?.kind === "classify") return <ClassifyItemView item={generated.item} onAnswer={onAnswer} />;
   if (generated?.kind === "error") return <p className="notice notice--warn">{t.stale}</p>;
+  if (item.k === "split") return <SplitItemView card={item} onAnswer={onAnswer} />;
   return <SpotItemView item={item as SpotItem} signedIn={signedIn} onAnswer={onAnswer} />;
 }

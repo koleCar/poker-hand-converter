@@ -24,7 +24,16 @@
  */
 
 import type { ChartSet } from "../charts";
-import { analyzeHand, grade, type Approximation, type DecisionAnalysis, type Grade, type GradeResult, type OptionAnalysis } from "../analysis";
+import {
+  analyzeHand,
+  grade,
+  type Approximation,
+  type DecisionAnalysis,
+  type FlopLibrary,
+  type Grade,
+  type GradeResult,
+  type OptionAnalysis,
+} from "../analysis";
 import type { PhfHand } from "../phf/types";
 
 /**
@@ -35,13 +44,19 @@ export function gradeAnswer(
   hand: PhfHand,
   actionIndex: number,
   charts: ChartSet | null,
-  options: { turn?: boolean } = {},
+  options: { turn?: boolean; flopLibrary?: FlopLibrary | null } = {},
 ): DecisionAnalysis | null {
   // `turn: false` (the default): a trainer river is built on ranges the
   // heuristic narrowed through the flop and turn (`river.ts`), so it is graded
   // on them too; a turn solve per answer would also cost a second or two
-  // (A5a). A trainer turn (`turn.ts`) is graded by the turn solve itself.
-  const analysis = analyzeHand(structuredClone(hand), { charts, only: actionIndex, turn: options.turn ?? false });
+  // (A5a). A trainer turn (`turn.ts`) is graded by the turn solve itself, and
+  // a trainer flop (`flop.ts`, Learn L2) by the flop library it was dealt from.
+  const analysis = analyzeHand(structuredClone(hand), {
+    charts,
+    only: actionIndex,
+    turn: options.turn ?? false,
+    flopLibrary: options.flopLibrary ?? null,
+  });
   return analysis.decisions.find((decision) => decision.actionIndex === actionIndex) ?? null;
 }
 

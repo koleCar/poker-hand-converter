@@ -10,13 +10,24 @@
  *
  * - `outline.*`: every lesson's summary and goals, written or not (the map,
  *   and a "coming soon" page), and every reference page's;
- * - `m3.*`, `m6.*`: the bodies of the written lessons (`LessonMeta.written`);
+ * - `m3.*` (preflop), `f1.*`–`f5.*` and `m6.*` (the flop track, L2): the
+ *   bodies of the written lessons (`LessonMeta.written`);
  * - `m0.*`, `m1.*`, `m2.*`: the reference pages' bodies (L1's orientation,
  *   maths and range lessons, out of the map since L1.1; `REFERENCE_IDS`).
  */
 
 import type { Locale } from "../../i18n/types";
 import type { LessonId, ReferenceId } from "../course";
+import { f1En } from "./f1.en";
+import { f1Hr } from "./f1.hr";
+import { f2En } from "./f2.en";
+import { f2Hr } from "./f2.hr";
+import { f3En } from "./f3.en";
+import { f3Hr } from "./f3.hr";
+import { f4En } from "./f4.en";
+import { f4Hr } from "./f4.hr";
+import { f5En } from "./f5.en";
+import { f5Hr } from "./f5.hr";
 import { m0En } from "./m0.en";
 import { m0Hr } from "./m0.hr";
 import { m1En } from "./m1.en";
@@ -34,8 +45,8 @@ import type { LessonBody, LessonOutline, LessonOutlines, PageId } from "./types"
 type Bodies = Partial<Record<LessonId, LessonBody>>;
 type ReferenceBodies = Readonly<Record<ReferenceId, LessonBody>>;
 
-const en: Bodies = { ...m3En, ...m6En };
-const hr: Bodies = { ...m3Hr, ...m6Hr };
+const en: Bodies = { ...m3En, ...f1En, ...f2En, ...f3En, ...f4En, ...m6En, ...f5En };
+const hr: Bodies = { ...m3Hr, ...f1Hr, ...f2Hr, ...f3Hr, ...f4Hr, ...m6Hr, ...f5Hr };
 
 export const LESSON_BODIES: Readonly<Record<Locale, Bodies>> = { en, hr };
 export const REFERENCE_BODIES: Readonly<Record<Locale, ReferenceBodies>> = {

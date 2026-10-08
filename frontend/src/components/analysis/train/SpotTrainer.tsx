@@ -313,12 +313,17 @@ export function SpotWords({ spot }: { spot: TrainerSpot }) {
       <p>{t.riverSpot(spot.pot, spot.hero, spot.villain, spot.seat === "ip")}</p>
       <p>
         {spot.facing
-          ? t.riverFacing(spot.villain, spot.facing.kind, spot.facing.to, spot.facing.sizePot)
+          ? spot.facing.kind === "raise" ||
+            (spot.kind === "flop" && (spot.script.flop ?? []).some((act) => act.position === spot.hero && act.type === "bet"))
+            ? en.course.spot.raised(spot.villain, spot.facing.to)
+            : t.riverFacing(spot.villain, spot.facing.kind, spot.facing.to, spot.facing.sizePot)
           : spot.seat === "ip"
             ? t.riverChecked(spot.villain)
             : spot.kind === "turn"
               ? en.course.spot.turnFirst
-              : t.riverFirst}
+              : spot.kind === "flop"
+                ? en.course.spot.flopFirst
+                : t.riverFirst}
       </p>
       <p className={own.muted}>{t.potLine(spot.potBb, spot.toCallBb, spot.stackBb)}</p>
     </>

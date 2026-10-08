@@ -308,7 +308,7 @@ export const outlineEn: LessonOutlines = {
     summary: "How to defend against a flop c-bet as the caller: how wide to go against small and big bets, and which hands fold, call or raise.",
     goals: [
       "Defend wider against small c-bets and tighter against big ones.",
-      "Keep hands with backdoor draws and fold hands with no equity.",
+      "Continue with most pairs and every real draw; fold hands with no pair and no draw.",
       "Choose fold, call or raise by hand class.",
       "Check a call against both the price and the equity your hand will realise.",
       "Work out [[bluffing-math-alpha-mdf|alpha and MDF]] for the bet you face: alpha, bet ÷ (pot + bet), is how often a pure bluff must work, and MDF, 1 − alpha, is how much of your range must continue.",
@@ -327,8 +327,8 @@ export const outlineEn: LessonOutlines = {
     summary: "How to call a c-bet in position with hands that can win later, and how to bet when the raiser checks to you.",
     goals: [
       "Call in position with hands that can improve or take the pot later.",
-      "Explain why a check from the raiser caps their range.",
-      "Bet small with a wide range when the raiser checks to you.",
+      "Read the raiser's check together with the board.",
+      "Bet small and often when the raiser checks on boards that favour your range.",
       "Keep strong hands among your stabs so they are hard to attack.",
     ],
   },
@@ -383,19 +383,19 @@ export const outlineEn: LessonOutlines = {
   "cbetting-as-the-3bettor": {
     summary: "How the 3-bettor bets the flop in and out of position, and how a low SPR changes which hands bet and how big.",
     goals: [
-      "Bet small and often in position on high, paired and ace-high flops.",
-      "Take more care on middling, connected flops.",
-      "Check more out of position, especially on low boards.",
+      "Bet small and often in position on most flops.",
+      "Check medium pairs more on monotone and ace-high flops.",
+      "Keep betting most flops out of position, too.",
       "Explain why big pairs act like very strong hands at a low SPR.",
       "Bet bigger with strong hands that are vulnerable.",
     ],
   },
   "playing-3bp-as-the-caller": {
-    summary: "How to play a 3-bet pot as the caller: defending against small c-bets, check-raising low connected boards and catching bluffs.",
+    summary: "How to play a 3-bet pot as the caller: defending against small c-bets, raising low connected boards and catching bluffs.",
     goals: [
       "Explain why the caller's range is packed with middling pairs and suited hands.",
       "Defend against small c-bets with enough of your range.",
-      "Check-raise on low, connected boards the 3-bettor misses.",
+      "Raise more on low and connected boards, less on ace-high and monotone ones.",
       "Catch bluffs on the river against capped lines.",
     ],
   },

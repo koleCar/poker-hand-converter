@@ -292,23 +292,34 @@ export class FlopLibraryLoader implements FlopLibrary {
     return `${this.base.replace(/\/$/, "")}/${path}`;
   }
 
-  /** Loads a set's manifest (once). False when there is none. */
+  /** Per set id: the manifest's fetch, shared by every caller while it is in flight. */
+  private readonly loading = new Map<string, Promise<void>>();
+
+  /**
+   * Loads a set's manifest (once). False when there is none. Callers that
+   * arrive while the manifest is still being fetched wait for the same fetch
+   * (the trainer worker answers several jobs at once, Learn L2).
+   */
   async ready(set: string): Promise<boolean> {
-    let keys = this.manifests.get(set);
-    if (!keys) {
-      keys = new Set();
+    let pending = this.loading.get(set);
+    if (!pending) {
+      const keys = new Set<string>();
       this.manifests.set(set, keys);
-      try {
-        const response = await this.fetcher(this.url(`${set}/${this.tree}/manifest.json`));
-        if (response.ok) {
-          const manifest = (await response.json()) as FlopManifest;
-          for (const entry of manifest.entries) keys.add(`${entry.line}/${entry.flop}`);
+      pending = (async () => {
+        try {
+          const response = await this.fetcher(this.url(`${set}/${this.tree}/manifest.json`));
+          if (response.ok) {
+            const manifest = (await response.json()) as FlopManifest;
+            for (const entry of manifest.entries) keys.add(`${entry.line}/${entry.flop}`);
+          }
+        } catch {
+          // No manifest: nothing of this set is in the library.
         }
-      } catch {
-        // No manifest: nothing of this set is in the library.
-      }
+      })();
+      this.loading.set(set, pending);
     }
-    return keys.size > 0;
+    await pending;
+    return (this.manifests.get(set)?.size ?? 0) > 0;
   }
 
   has(set: string, line: string, flop: string): boolean {
@@ -317,6 +328,25 @@ export class FlopLibraryLoader implements FlopLibrary {
 
   get(set: string, line: string, flop: string): FlopChunk | null {
     return this.chunks.get(`${set}/${line}/${flop}`) ?? null;
+  }
+
+  /**
+   * Fetches one chunk by name (the Learn flop drills, which deal from a
+   * chunk rather than read a hand's), loading its set's manifest first.
+   * Null when the library does not hold it or it cannot be fetched. Never throws.
+   */
+  async load(set: string, line: string, flop: string): Promise<FlopChunk | null> {
+    if (!(await this.ready(set)) || !this.has(set, line, flop)) return null;
+    const key = `${set}/${line}/${flop}`;
+    if (!this.chunks.has(key)) {
+      try {
+        const response = await this.fetcher(this.url(chunkPath(set, this.tree, line, flop)));
+        this.chunks.set(key, response.ok ? decodeChunk(await response.arrayBuffer()) : null);
+      } catch {
+        this.chunks.set(key, null);
+      }
+    }
+    return this.chunks.get(key) ?? null;
   }
 
   /** Fetches the chunk a hand would read, if any. Never throws: a missing chunk is the heuristic. */

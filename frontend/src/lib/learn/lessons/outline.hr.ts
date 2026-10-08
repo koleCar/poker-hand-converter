@@ -309,7 +309,7 @@ export const outlineHr: LessonOutlines = {
     summary: "Kako se kao caller braniti od c-beta na flopu: koliko široko protiv malih i velikih betova te koje ruke foldaju, callaju ili raiseaju.",
     goals: [
       "Brani se šire protiv malih c-betova, a uže protiv velikih.",
-      "Zadrži ruke s backdoor drawovima i foldaj ruke bez equityja.",
+      "Nastavi s većinom parova i svakim pravim drawom, a foldaj ruke bez para i bez drawa.",
       "Biraj fold, call ili raise prema klasi ruke.",
       "Provjeri call i prema cijeni i prema equityju koji će tvoja ruka realizirati.",
       "Izračunaj [[bluffing-math-alpha-mdf|alfu i MDF]] za bet pred kojim si: alfa, bet ÷ (pot + bet), govori koliko često čisti blef mora uspjeti, a MDF, 1 − alfa, koliki dio tvog raspona mora nastaviti.",
@@ -328,8 +328,8 @@ export const outlineHr: LessonOutlines = {
     summary: "Kako u poziciji callati c-bet s rukama koje mogu pobijediti kasnije i kako betati kad ti raiser checka.",
     goals: [
       "Callaj u poziciji s rukama koje se mogu popraviti ili kasnije uzeti pot.",
-      "Objasni zašto raiserov check ograničava njegov raspon.",
-      "Betaj malo sa širokim rasponom kad ti raiser checka.",
+      "Čitaj raiserov check zajedno s boardom.",
+      "Betaj malo i često kad ti raiser checka na boardovima koji pogoduju tvom rasponu.",
       "Zadrži jake ruke među tim betovima da ih je teško napasti.",
     ],
   },
@@ -384,19 +384,19 @@ export const outlineHr: LessonOutlines = {
   "cbetting-as-the-3bettor": {
     summary: "Kako igrač koji je 3-betao beta flop u poziciji i izvan nje te kako nizak SPR mijenja koje ruke betaju i koliko veliko.",
     goals: [
-      "Betaj malo i često u poziciji na visokim i uparenim flopovima te flopovima s asom.",
-      "Budi oprezniji na srednjim, povezanim flopovima.",
-      "Checkaj češće izvan pozicije, posebno na niskim boardovima.",
+      "Betaj malo i često u poziciji na većini flopova.",
+      "Srednje parove češće checkaj na jednobojnim flopovima i flopovima s asom.",
+      "I izvan pozicije betaj većinu flopova.",
       "Objasni zašto se veliki parovi uz nizak SPR ponašaju kao vrlo jake ruke.",
       "Betaj veće s jakim rukama koje su ranjive.",
     ],
   },
   "playing-3bp-as-the-caller": {
-    summary: "Kako igrati 3-bet pot kao caller: obrana od malih c-betova, check-raise na niskim povezanim boardovima i hvatanje blefova.",
+    summary: "Kako igrati 3-bet pot kao caller: obrana od malih c-betova, raise na niskim povezanim boardovima i hvatanje blefova.",
     goals: [
       "Objasni zašto je callerov raspon pun srednjih parova i suited ruku.",
       "Brani se od malih c-betova s dovoljno raspona.",
-      "Check-raiseaj na niskim, povezanim boardovima koje promaši igrač koji je 3-betao.",
+      "Raiseaj više na niskim i povezanim boardovima, a manje na boardovima s asom i jednobojnima.",
       "Hvataj blefove na riveru protiv ograničenih linija.",
     ],
   },

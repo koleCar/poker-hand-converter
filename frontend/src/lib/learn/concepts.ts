@@ -67,6 +67,8 @@ export const WIDGET_IDS = [
   "bluff-catcher",
   "value-bet",
   "multiway",
+  // Learn L2: the raiser's flop bets by board group, over Rail's flop library (`flopBets.ts`); `preset` is the line.
+  "flop-bets",
 ] as const;
 export type WidgetId = (typeof WIDGET_IDS)[number];
 

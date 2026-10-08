@@ -22,6 +22,7 @@ import { nextDrillState, newDrillState, QUALITY, type DrillState } from "../trai
 import type { Grade } from "../analysis/types";
 import type { DealBias, PreflopFamily } from "../training/preflop";
 import type { RiverPot, RiverRole, RiverSeat } from "../training/river";
+import type { FlopFacing } from "../training/flop";
 import type { ChartPosition } from "../charts";
 import {
   CALC_KINDS,
@@ -189,6 +190,28 @@ export type CardItem =
       role: RiverRole | "any";
       facing?: "check" | "bet" | "any";
       bias: DealBias;
+    }
+  | {
+      /** A flop spot from the flop library (L2). */
+      k: "flop";
+      seed: number;
+      pot: RiverPot | "any";
+      seat: RiverSeat | "any";
+      role: RiverRole | "any";
+      facing?: FlopFacing;
+      line?: string;
+      bias: DealBias;
+    }
+  | {
+      /** A range split (L2): stored as a `solver-spot` card, since a solve grades it. */
+      k: "split";
+      street: "flop" | "turn";
+      seed: number;
+      pot: RiverPot | "any";
+      seat: RiverSeat | "any";
+      role: RiverRole | "any";
+      facing?: FlopFacing;
+      line?: string;
     };
 
 export type CardKind = "chart-quiz" | "solver-spot" | "calc" | "classify";
@@ -224,7 +247,38 @@ export function cardFor(meta: LessonMeta, def: GeneratedExerciseDef, seed: numbe
         kind: "chart-quiz",
         item: { k: "chart", seed: seed >>> 0, family: def.family, seat: def.seat ?? null, vs: def.vs ?? null, set: def.set ?? null, bias: def.bias },
       };
+    case "range-split":
+      return {
+        ...base,
+        kind: "solver-spot",
+        item: {
+          k: "split",
+          street: def.street,
+          seed: seed >>> 0,
+          pot: def.pot,
+          seat: def.seat,
+          role: def.role,
+          ...(def.facing ? { facing: def.facing } : {}),
+          ...(def.line ? { line: def.line } : {}),
+        },
+      };
     default:
+      if (def.street === "flop") {
+        return {
+          ...base,
+          kind: "solver-spot",
+          item: {
+            k: "flop",
+            seed: seed >>> 0,
+            pot: def.pot,
+            seat: def.seat,
+            role: def.role,
+            ...(def.facing ? { facing: def.facing } : {}),
+            ...(def.line ? { line: def.line } : {}),
+            bias: def.bias,
+          },
+        };
+      }
       return {
         ...base,
         kind: "solver-spot",
@@ -234,12 +288,16 @@ export function cardFor(meta: LessonMeta, def: GeneratedExerciseDef, seed: numbe
           pot: def.pot,
           seat: def.seat,
           role: def.role,
-          ...(def.facing ? { facing: def.facing } : {}),
+          ...(def.facing === "check" || def.facing === "bet" || def.facing === "any" ? { facing: def.facing } : {}),
           bias: def.bias,
         },
       };
   }
 }
+
+const FACINGS = ["check", "bet", "raise", "any"] as const;
+const isFacing = (x: unknown): x is FlopFacing => (FACINGS as readonly unknown[]).includes(x);
+const isLine = (x: unknown): x is string => typeof x === "string" && /^[a-z0-9-]{1,32}$/.test(x);
 
 /** A stored item read back, or null when it is not one this version understands. */
 export function parseCardItem(value: unknown): CardItem | null {
@@ -272,6 +330,31 @@ export function parseCardItem(value: unknown): CardItem | null {
       role: v.role as RiverRole | "any",
       ...(v.facing === "check" || v.facing === "bet" ? { facing: v.facing } : {}),
       bias,
+    };
+  }
+  const postflop = typeof v.pot === "string" && typeof v.seat === "string" && typeof v.role === "string";
+  if (v.k === "flop" && postflop) {
+    return {
+      k: "flop",
+      seed,
+      pot: v.pot as RiverPot | "any",
+      seat: v.seat as RiverSeat | "any",
+      role: v.role as RiverRole | "any",
+      ...(isFacing(v.facing) ? { facing: v.facing } : {}),
+      ...(isLine(v.line) ? { line: v.line } : {}),
+      bias,
+    };
+  }
+  if (v.k === "split" && (v.street === "flop" || v.street === "turn") && postflop) {
+    return {
+      k: "split",
+      street: v.street,
+      seed,
+      pot: v.pot as RiverPot | "any",
+      seat: v.seat as RiverSeat | "any",
+      role: v.role as RiverRole | "any",
+      ...(isFacing(v.facing) ? { facing: v.facing } : {}),
+      ...(isLine(v.line) ? { line: v.line } : {}),
     };
   }
   return null;

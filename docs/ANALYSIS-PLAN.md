@@ -1952,3 +1952,17 @@ Each phase appends what it learned that changed the plan.
     picking the set by the pair's effective stack would place them. The 6-max
     150bb / 60bb / 200bb sets reach ~45 more heads-up flops on library lines
     with no chunks.
+- 2026-10-08 — Learn L2: the flop track, graded from the flop library
+  (`docs/LEARN-PLAN.md` §8). No grade changes: still `analysis/8`.
+  - **Flop drills on the library**: `lib/training/flop.ts` deals a spot on a
+    library line and flop (exact, suits relabelled), graded by `analyzeHand`
+    with the same chunk; `lib/training/split.ts` reads a solved node by
+    `flopBucket` (or a turn solve by `turnCategory`) for the Learn range
+    split. The trainer worker fetches the one chunk a job needs.
+  - **Loader**: `FlopLibraryLoader.ready` shares an in-flight manifest fetch
+    (concurrent callers used to read a half-loaded manifest as empty).
+    Additive, `load(set, line, flop)` fetches a chunk by name.
+  - **Found, not fixed**: `chartLineOf` places a button–small-blind pot as
+    `fffrc`, but `FLOP_LINES` keys it `fffrcf`, so real `btn-sb` hands never
+    read their chunks (heuristic flop). Fixing it changes grades (a version
+    bump); the Learn drills skip that line meanwhile.

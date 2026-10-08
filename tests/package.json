@@ -13,7 +13,8 @@
     "charts:compare": "vitest run --config scripts/preflop-charts/vitest.config.ts compare",
     "floplib": "node scripts/flop-library/cli.mjs",
     "charts:library": "vitest run --config scripts/preflop-charts/vitest.config.ts library",
-    "floplib:measure": "vitest run --config scripts/flop-library/vitest.config.ts measure"
+    "floplib:measure": "vitest run --config scripts/flop-library/vitest.config.ts measure",
+    "floplib:bets": "vitest run --config scripts/flop-library/vitest.config.ts flopBets"
   },
   "keywords": [],
   "author": "",
