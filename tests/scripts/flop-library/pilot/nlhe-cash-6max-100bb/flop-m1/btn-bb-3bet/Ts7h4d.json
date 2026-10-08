@@ -2,19 +2,19 @@
  "id": "btn-bb-3bet/Ts7h4d",
  "line": "btn-bb-3bet",
  "flop": "Ts7h4d",
- "bytes": 62840,
+ "bytes": 62348,
  "iterations": 60,
- "exploitabilityPct": 0.7092096019025155,
+ "exploitabilityPct": 0.6914870066006169,
  "stoppedBy": "target",
- "seconds": 293.76961412500003,
- "solverMb": 369.6618,
+ "seconds": 272.888422625,
+ "solverMb": 365.973256,
  "nodes": 553396,
  "actionNodes": 213850,
  "boards": 2352,
  "turnClasses": 49,
  "hands": [
-  172,
+  168,
   219
  ],
- "peakRssMb": 623.59375
+ "peakRssMb": 516.203125
 }

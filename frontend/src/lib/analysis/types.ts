@@ -70,8 +70,14 @@ import type { Position, Street } from "../phf/types";
  *               solved as before from ranges narrowed through the multiway
  *               streets (`multiway-history`). Narrowing reads three or more
  *               ranges (`narrowing.ts`, the MDF split).
+ *   analysis/8  A5b on: the flop library (6-max 100bb, 12 lines × 100
+ *               flops) grades heads-up flop decisions on its lines from the
+ *               solve - exact flops combo for combo, other flops from their
+ *               representative by hand category (`flop-mapped`) - and narrows
+ *               the flop's ranges by the solved strategies, so the turn and
+ *               river start from them (`flopLibrary.ts`).
  */
-export const ANALYSIS_VERSION = "analysis/7" as const;
+export const ANALYSIS_VERSION = "analysis/8" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

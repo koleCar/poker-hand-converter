@@ -2,19 +2,19 @@
  "id": "btn-bb-3bet/Ks6s3s",
  "line": "btn-bb-3bet",
  "flop": "Ks6s3s",
- "bytes": 59392,
- "iterations": 100,
- "exploitabilityPct": 0.7260937605511681,
+ "bytes": 58900,
+ "iterations": 80,
+ "exploitabilityPct": 0.8276652621387657,
  "stoppedBy": "target",
- "seconds": 152.9911655,
- "solverMb": 105.3973,
+ "seconds": 99.375579625,
+ "solverMb": 104.331428,
  "nodes": 159821,
  "actionNodes": 61776,
  "boards": 675,
  "turnClasses": 23,
  "hands": [
-  168,
+  164,
   217
  ],
- "peakRssMb": 279.984375
+ "peakRssMb": 214.421875
 }

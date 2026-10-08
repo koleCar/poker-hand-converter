@@ -2,11 +2,11 @@
  "id": "btn-bb/AsKh7d",
  "line": "btn-bb",
  "flop": "AsKh7d",
- "bytes": 98988,
+ "bytes": 98996,
  "iterations": 100,
- "exploitabilityPct": 0.7326884017588732,
+ "exploitabilityPct": 0.737310397217133,
  "stoppedBy": "target",
- "seconds": 1843.2997879579998,
+ "seconds": 1752.4653864580002,
  "solverMb": 1702.367312,
  "nodes": 900108,
  "actionNodes": 363982,
@@ -16,5 +16,5 @@
   575,
   434
  ],
- "peakRssMb": 1800.84375
+ "peakRssMb": 1800.9375
 }

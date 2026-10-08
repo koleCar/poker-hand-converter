@@ -1880,6 +1880,47 @@ Each phase appends what it learned that changed the plan.
     `lesson_cards`, three definer writers, the `lesson` task in
     `save_study_plan` / `study_plan`, `learn` reserved; pgTAP 50 assertions.
     Signed out, the same model lives in the browser's storage.
-  - **Open**: the flop parts wait for the flop library (L4); `range-split` and
+  - **Open**: the flop parts wait for the flop library (on since `analysis/8`); `range-split` and
     `range-paint` are typed placeholders (L2, L3); the turn tree has one bet
     size, so M6-L4's turn drill is check / 75% / all-in.
+- 2026-10-08 — A5b on: the full flop library graded in the analysis,
+  `analysis/8`.
+  - **The run.** All 12 lines × 100 representative flops of the 6-max 100bb
+    set (`charts/4`, hash `ecad38d0`) solved on the owner's M2 Pro in the
+    evening and weekend windows (2026-10-03 → 10-07, ~281 core-hours):
+    1,200 chunks, 86 MB, every solve below 1% of the pot (worst 0.9996%,
+    utg-bb Qs6h3d; most stop at the 1% target after 60–120 iterations,
+    the SB limp at 120–200). `--validate` had nothing to compare (only
+    representatives solved); 24 mapped flops on four lines (btn-bb, co-bb,
+    sb-bb, btn-bb-3bet) are being solved outside the library for it, and
+    their numbers follow in this entry.
+  - **Hosting.** Migration `20270331090000_flop_library_bucket.sql`: a
+    public Storage bucket `flop-library` (1 MB, octet-stream/json only) with
+    **no** storage.objects policy, so clients can neither list nor write
+    (pgTAP; on prod anon writes are refused by RLS, a list returns nothing).
+    `tests/scripts/flop-library/upload.sh` uploads a run from the owner's
+    machine with the service-role key fetched from the Management API into
+    the script's process only. The worker reads
+    `<NEXT_PUBLIC_SUPABASE_URL>/storage/v1/object/public/flop-library`
+    (`flopLibraryBase`, outside the pure lib layer's config rule);
+    without a Supabase URL the flop stays heuristic.
+  - **Pilot** regenerated on `charts/4` from ten of the run's chunks; its
+    two grading tests run again.
+  - **Measured on the owner's library** (`npm run floplib:measure`, 5,448
+    stored hands, the worker's `analyzeHand` and loader in Node):
+    - Flop: 118 of 1,095 hero flop decisions (10.8%) now graded from the
+      library — 108 mapped, 10 exact; Perfect 96, Good 16, Inaccurate 3,
+      Mistake 3; 5.7 bb of EV loss found where the heuristic graded nothing.
+    - Why so few: of the hands with a hero flop decision, 6-max heads-up at
+      80–120bb are ~131; 9-max heads-up at 100bb are 183 more (backlog: the
+      9-max lines), multiway flops ~450 (the library is heads-up) and
+      other depths ~230.
+    - Turn and river (first 600 hands, turn solving on): the flop narrowing
+      moves 3 of 81 turn grades (EV loss 9.4 → 7.7 bb) and 1 of 55 river
+      grades.
+  - `ANALYSIS_VERSION` `analysis/8`: flop grades and the ranges the turn
+    and river start from change. No table migration.
+  - **Open.** 9-max 100bb lines (most of the owner's hands); mapped flops
+    read by coarse categories (the A5b pilot's 55–81% check/call grade
+    agreement); multiway flops stay heuristic; the Learn flop drills (L2)
+    can now be graded.

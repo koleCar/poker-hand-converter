@@ -1,8 +1,8 @@
 /**
  * The flop library (phase A5b): the representative flops and the mapping,
- * the chunk format and its loader, and the analysis reading it - behind
- * `FLOP_LIBRARY_ENABLED`, which is off, so every test hands the analysis a
- * library explicitly.
+ * the chunk format and its loader, and the analysis reading it. The worker
+ * loads the library (`FLOP_LIBRARY_ENABLED`); `analyzeHand` reads one only
+ * when handed it, so every test hands the analysis a library explicitly.
  *
  * The chunk the analysis reads here is solved in the test, on the 3-bet pot
  * the pilot solves (BTN opens, BB 3-bets, BTN calls), with the charts' real
@@ -306,8 +306,8 @@ function flopDecision(hand: ReturnType<typeof handOn>, library: FlopChunk[] | nu
 }
 
 describe("the analysis reading the library", () => {
-  it("is off by default", () => {
-    expect(FLOP_LIBRARY_ENABLED).toBe(false);
+  it("is on in the worker, and the analysis reads it only when handed one", () => {
+    expect(FLOP_LIBRARY_ENABLED).toBe(true);
     const decision = flopDecision(handOn(["Ts", "7h", "4d"], [LEAD(), CALL]), null);
     expect(decision?.source).toBe("heuristic");
     expect(decision?.facts.flop ?? null).toBeNull();

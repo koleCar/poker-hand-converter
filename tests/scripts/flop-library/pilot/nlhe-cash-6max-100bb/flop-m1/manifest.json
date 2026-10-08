@@ -3,8 +3,8 @@
  "solver": "solver/1",
  "charts": {
   "id": "nlhe-cash-6max-100bb",
-  "version": "charts/2",
-  "hash": "cea61620"
+  "version": "charts/4",
+  "hash": "ecad38d0"
  },
  "tree": "flop-m1",
  "machine": {
@@ -17,111 +17,67 @@
    "line": "btn-bb-3bet",
    "flop": "AsKh7d",
    "path": "btn-bb-3bet/AsKh7d.bin",
-   "bytes": 57884,
+   "bytes": 57508,
    "iterations": 80,
-   "exploitabilityPct": 0.707,
-   "seconds": 344,
-   "solverMb": 333,
-   "peakRssMb": 589
-  },
-  {
-   "line": "btn-bb-3bet",
-   "flop": "AsKh9d",
-   "path": "btn-bb-3bet/AsKh9d.bin",
-   "bytes": 57888,
-   "iterations": 80,
-   "exploitabilityPct": 0.75,
-   "seconds": 323,
-   "solverMb": 333,
-   "peakRssMb": 588
-  },
-  {
-   "line": "btn-bb-3bet",
-   "flop": "Js8s4h",
-   "path": "btn-bb-3bet/Js8s4h.bin",
-   "bytes": 60992,
-   "iterations": 100,
-   "exploitabilityPct": 0.83,
-   "seconds": 297,
-   "solverMb": 223,
-   "peakRssMb": 455
+   "exploitabilityPct": 0.729,
+   "seconds": 319,
+   "solverMb": 330,
+   "peakRssMb": 479
   },
   {
    "line": "btn-bb-3bet",
    "flop": "KhKs9d",
    "path": "btn-bb-3bet/KhKs9d.bin",
-   "bytes": 57376,
+   "bytes": 56884,
    "iterations": 80,
-   "exploitabilityPct": 0.638,
-   "seconds": 204,
-   "solverMb": 213,
-   "peakRssMb": 449
+   "exploitabilityPct": 0.634,
+   "seconds": 199,
+   "solverMb": 211,
+   "peakRssMb": 343
   },
   {
    "line": "btn-bb-3bet",
    "flop": "Ks6s3s",
    "path": "btn-bb-3bet/Ks6s3s.bin",
-   "bytes": 59392,
-   "iterations": 100,
-   "exploitabilityPct": 0.726,
-   "seconds": 153,
-   "solverMb": 105,
-   "peakRssMb": 280
+   "bytes": 58900,
+   "iterations": 80,
+   "exploitabilityPct": 0.828,
+   "seconds": 99,
+   "solverMb": 104,
+   "peakRssMb": 214
   },
   {
    "line": "btn-bb-3bet",
    "flop": "Qs8s4h",
    "path": "btn-bb-3bet/Qs8s4h.bin",
-   "bytes": 60240,
+   "bytes": 59752,
    "iterations": 60,
-   "exploitabilityPct": 0.754,
-   "seconds": 176,
-   "solverMb": 220,
-   "peakRssMb": 501
+   "exploitabilityPct": 0.772,
+   "seconds": 164,
+   "solverMb": 217,
+   "peakRssMb": 350
   },
   {
    "line": "btn-bb-3bet",
    "flop": "Ts7h4d",
    "path": "btn-bb-3bet/Ts7h4d.bin",
-   "bytes": 62840,
+   "bytes": 62348,
    "iterations": 60,
-   "exploitabilityPct": 0.709,
-   "seconds": 294,
-   "solverMb": 370,
-   "peakRssMb": 624
-  },
-  {
-   "line": "btn-bb-3bet",
-   "flop": "Ts8h4d",
-   "path": "btn-bb-3bet/Ts8h4d.bin",
-   "bytes": 62468,
-   "iterations": 60,
-   "exploitabilityPct": 0.787,
-   "seconds": 270,
-   "solverMb": 367,
-   "peakRssMb": 622
+   "exploitabilityPct": 0.691,
+   "seconds": 273,
+   "solverMb": 366,
+   "peakRssMb": 516
   },
   {
    "line": "btn-bb",
    "flop": "AsKh7d",
    "path": "btn-bb/AsKh7d.bin",
-   "bytes": 98988,
+   "bytes": 98996,
    "iterations": 100,
-   "exploitabilityPct": 0.733,
-   "seconds": 1843,
+   "exploitabilityPct": 0.737,
+   "seconds": 1752,
    "solverMb": 1702,
    "peakRssMb": 1801
-  },
-  {
-   "line": "btn-bb",
-   "flop": "AsKh9d",
-   "path": "btn-bb/AsKh9d.bin",
-   "bytes": 97588,
-   "iterations": 100,
-   "exploitabilityPct": 0.778,
-   "seconds": 1632,
-   "solverMb": 1676,
-   "peakRssMb": 1927
   },
   {
    "line": "btn-bb",
@@ -129,10 +85,10 @@
    "path": "btn-bb/KhKs9d.bin",
    "bytes": 98220,
    "iterations": 100,
-   "exploitabilityPct": 0.723,
-   "seconds": 1056,
+   "exploitabilityPct": 0.765,
+   "seconds": 1057,
    "solverMb": 1071,
-   "peakRssMb": 1306
+   "peakRssMb": 1204
   },
   {
    "line": "btn-bb",
@@ -140,43 +96,32 @@
    "path": "btn-bb/Ks6s3s.bin",
    "bytes": 102044,
    "iterations": 100,
-   "exploitabilityPct": 0.93,
-   "seconds": 602,
+   "exploitabilityPct": 0.966,
+   "seconds": 553,
    "solverMb": 517,
-   "peakRssMb": 597
+   "peakRssMb": 627
   },
   {
    "line": "btn-bb",
    "flop": "Qs8s4h",
    "path": "btn-bb/Qs8s4h.bin",
-   "bytes": 102816,
+   "bytes": 102804,
    "iterations": 100,
-   "exploitabilityPct": 0.753,
-   "seconds": 1272,
+   "exploitabilityPct": 0.757,
+   "seconds": 1153,
    "solverMb": 1090,
-   "peakRssMb": 1190
+   "peakRssMb": 1217
   },
   {
    "line": "btn-bb",
    "flop": "Ts7h4d",
    "path": "btn-bb/Ts7h4d.bin",
-   "bytes": 103996,
+   "bytes": 104004,
    "iterations": 100,
-   "exploitabilityPct": 0.805,
-   "seconds": 2160,
+   "exploitabilityPct": 0.794,
+   "seconds": 2058,
    "solverMb": 1798,
-   "peakRssMb": 1891
-  },
-  {
-   "line": "btn-bb",
-   "flop": "Ts8h4d",
-   "path": "btn-bb/Ts8h4d.bin",
-   "bytes": 103396,
-   "iterations": 100,
-   "exploitabilityPct": 0.855,
-   "seconds": 1995,
-   "solverMb": 1786,
-   "peakRssMb": 1952
+   "peakRssMb": 1898
   }
  ]
 }
