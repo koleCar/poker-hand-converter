@@ -26,6 +26,7 @@ import { useMyProfile } from "../../lib/profile/context";
 import { paths } from "../../lib/routes";
 import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
 import styles from "./PublishHandButton.module.css";
+import { Icon } from "../ui/Icon";
 
 const MODES: PublishMode[] = ["pseudonyms", "positions", "as-imported"];
 
@@ -113,7 +114,7 @@ export function PublishHandButton({ storedHandId }: { storedHandId: string | nul
         aria-label={publishedId ? en.publish.publishedButton : en.publish.button}
         title={publishedId ? en.publish.publishedButton : en.publish.button}
       >
-        {publishedId ? "🌐" : "📣"}
+        <Icon name={publishedId ? "globe" : "megaphone"} />
       </button>
 
       {open ? (

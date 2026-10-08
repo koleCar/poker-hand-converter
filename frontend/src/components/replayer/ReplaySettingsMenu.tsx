@@ -15,6 +15,7 @@ import { useDict } from "../../lib/i18n/client";
 import type { Dict } from "../../lib/i18n/types";
 import { Overlay } from "../ui/Overlay";
 import type { ReplaySettings } from "./replaySettings";
+import { Icon } from "../ui/Icon";
 
 interface ReplaySettingsMenuProps {
   settings: ReplaySettings;
@@ -56,7 +57,7 @@ export function ReplaySettingsMenu({
         title={words.open}
         onClick={() => onOpenChange(!open)}
       >
-        ⚙
+        <Icon name="settings" />
       </button>
 
       <Overlay

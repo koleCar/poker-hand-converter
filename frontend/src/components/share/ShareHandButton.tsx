@@ -7,6 +7,7 @@ import type { PhfHand } from "../../lib/phf/types";
 import { buildSharePreview } from "./preview";
 import { SHARE_UNAVAILABLE_MESSAGE, createShare, isShareBackendReady } from "./shareClient";
 import { AnalysisShareToggle } from "../analysis/AnalysisShareToggle";
+import { Icon } from "../ui/Icon";
 
 interface ShareHandButtonProps {
   hand: PhfHand;
@@ -170,7 +171,7 @@ export function ShareHandButton({
             : SHARE_UNAVAILABLE_MESSAGE
         }
       >
-        <span aria-hidden="true">🔗</span>
+        <Icon name="link" />
         {iconOnly ? null : busy ? t.creating : label}
       </button>
 

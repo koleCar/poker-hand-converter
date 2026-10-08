@@ -169,6 +169,27 @@
   min-block-size: var(--rp-hit);
   inline-size: var(--rp-hit);
   padding-block: 0;
+  background: transparent;
+  border-color: transparent;
+  color: var(--fg-muted);
+  transition: color 120ms ease, transform 80ms ease;
+}
+
+/* Bare icons: no chrome at rest, colour carries hover and the open state.
+   The hit area stays the full `--rp-hit` square. */
+.rp__header .btn--icon:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  color: var(--fg);
+}
+
+.rp__header .btn--icon.is-active {
+  color: var(--accent);
+}
+
+.rp__header .btn--icon .icon {
+  inline-size: 1.375rem;
+  block-size: 1.375rem;
 }
 
 /* The root is focusable so the key map has something to be scoped to; a

@@ -35,6 +35,7 @@ import {
   type ReplayerFilterForm,
 } from "./handFilters";
 import { HandList } from "./HandList";
+import { Icon } from "./ui/Icon";
 import { ReplayViewer } from "./replayer/ReplayViewer";
 import { PublishHandButton } from "./share/PublishHandButton";
 import { ShareHandButton } from "./share/ShareHandButton";
@@ -277,7 +278,7 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
                     aria-label={en.converter.save.button}
                     title={saving ? en.converter.save.saving : en.converter.save.button}
                   >
-                    💾
+                    <Icon name="save" />
                   </button>
                 ) : null}
               </>

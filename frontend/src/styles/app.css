@@ -149,6 +149,20 @@
   font-size: 13px;
 }
 
+/* `components/ui/Icon`. Sized off the text so it sits in a labelled button
+   too; icon-only rows size it up where they need to. */
+.icon {
+  inline-size: 1.25em;
+  block-size: 1.25em;
+  flex: none;
+  vertical-align: middle;
+}
+
+.btn--icon .icon {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
 .btn--play {
   width: 48px;
   height: 38px;

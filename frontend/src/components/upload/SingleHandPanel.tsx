@@ -27,6 +27,7 @@ import type { PhfHand } from "../../lib/phf/types";
 import { describeProblem, FILE_ACCEPT, loadFile } from "../converter/inputs";
 import { ReplayViewer } from "../replayer/ReplayViewer";
 import { ShareHandButton } from "../share/ShareHandButton";
+import { Icon } from "../ui/Icon";
 
 /** `standard` is our own re-import format, not a room, so it is not a label. */
 function siteLabel(id: string): string | null {
@@ -235,7 +236,7 @@ export function SingleHandPanel({ onSaved }: SingleHandPanelProps) {
                     aria-label={en.converter.save.button}
                     title={saving ? en.converter.save.saving : en.converter.save.button}
                   >
-                    💾
+                    <Icon name="save" />
                   </button>
                 ) : null}
               </>

@@ -80,6 +80,7 @@ import {
   type ReplaySettings,
 } from "./replaySettings";
 import { createAmountFormatter, firstAwardIndex, hasShowdownResult } from "./tableMath";
+import { Icon } from "../ui/Icon";
 
 export type ReplayMode = "full" | "embed" | "card";
 
@@ -852,7 +853,7 @@ function ReplayStage({
       aria-label={fullscreen.mode === "off" ? t.viewer.fullScreen : t.viewer.exitFullScreen}
       title={fullscreen.mode === "off" ? t.viewer.fullScreenTitle : t.viewer.exitFullScreenTitle}
     >
-      {fullscreen.mode === "off" ? "⛶" : "✕"}
+      <Icon name={fullscreen.mode === "off" ? "maximize" : "minimize"} />
     </button>
   );
 
@@ -919,7 +920,7 @@ function ReplayStage({
               aria-label={t.viewer.handInfo}
               title={t.viewer.handInfoTitle}
             >
-              ⓘ
+              <Icon name="info" />
             </button>
             <ReplaySettingsMenu
               settings={settings}
@@ -937,7 +938,7 @@ function ReplayStage({
                 aria-label={t.viewer.close}
                 title={t.viewer.closeTitle}
               >
-                ✕
+                <Icon name="close" />
               </button>
             ) : null}
           </div>
