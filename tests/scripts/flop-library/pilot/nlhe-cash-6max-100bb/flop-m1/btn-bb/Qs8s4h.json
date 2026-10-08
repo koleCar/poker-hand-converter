@@ -2,11 +2,11 @@
  "id": "btn-bb/Qs8s4h",
  "line": "btn-bb",
  "flop": "Qs8s4h",
- "bytes": 102816,
+ "bytes": 102804,
  "iterations": 100,
- "exploitabilityPct": 0.7534898395724855,
+ "exploitabilityPct": 0.7566330192064803,
  "stoppedBy": "target",
- "seconds": 1272.0597620409999,
+ "seconds": 1152.6014895,
  "solverMb": 1090.40558,
  "nodes": 547392,
  "actionNodes": 221372,
@@ -16,5 +16,5 @@
   593,
   470
  ],
- "peakRssMb": 1190.140625
+ "peakRssMb": 1217.265625
 }

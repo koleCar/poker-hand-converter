@@ -4,9 +4,9 @@
  "flop": "KhKs9d",
  "bytes": 98220,
  "iterations": 100,
- "exploitabilityPct": 0.7226422190988487,
+ "exploitabilityPct": 0.7649290849095048,
  "stoppedBy": "target",
- "seconds": 1056.088182667,
+ "seconds": 1056.6776272500001,
  "solverMb": 1070.530552,
  "nodes": 565380,
  "actionNodes": 228646,
@@ -16,5 +16,5 @@
   577,
   433
  ],
- "peakRssMb": 1306.40625
+ "peakRssMb": 1203.8125
 }

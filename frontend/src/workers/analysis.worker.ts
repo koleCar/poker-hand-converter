@@ -28,7 +28,7 @@
 
 import {
   analyzeHand,
-  FLOP_LIBRARY_BASE,
+  flopLibraryBase,
   FLOP_LIBRARY_ENABLED,
   FlopLibraryLoader,
   riverStudy,
@@ -41,6 +41,7 @@ import {
 import { ensureChartSets, loadChartLibrary, requiredChartSets, type ChartLibrary } from "../lib/charts";
 import { analyseStoredHands, type AnalysedBatch } from "../lib/db/analysisRows";
 import type { PhfHand } from "../lib/phf/types";
+import { SUPABASE_URL } from "../lib/supabase/config";
 
 export interface AnalyseRequest {
   type: "analyse";
@@ -89,8 +90,9 @@ let flopLibrary: FlopLibraryLoader | null = null;
 
 /** The library holding every chunk these hands read, or null while the flag is off. */
 async function libraryFor(set: ChartLibrary, hands: readonly PhfHand[]): Promise<FlopLibraryLoader | null> {
-  if (!FLOP_LIBRARY_ENABLED) return null;
-  flopLibrary ??= new FlopLibraryLoader(FLOP_LIBRARY_BASE, (url) => fetch(url));
+  const base = flopLibraryBase(SUPABASE_URL);
+  if (!FLOP_LIBRARY_ENABLED || !base) return null;
+  flopLibrary ??= new FlopLibraryLoader(base, (url) => fetch(url));
   for (const hand of hands) await flopLibrary.prefetch(hand, set);
   return flopLibrary;
 }

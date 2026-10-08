@@ -9,10 +9,12 @@
  *         └▶ flop grading: the hero's options, freq and EV at the node, grade() (§2), source "solver" (`gradeFlop`)
  * ```
  *
- * **Disabled by default** (`FLOP_LIBRARY_ENABLED`): only the pilot exists
- * (§10 A5b). The analysis reads the library only when it is handed one
- * (`AnalyzeOptions.flopLibrary`); the worker hands it one only when the flag
- * is on. Tests hand it the pilot's chunks or a small solve of their own.
+ * **On** (`FLOP_LIBRARY_ENABLED`, since `analysis/8`): the full library of
+ * the 6-max 100bb set (12 lines × 100 flops) is in the public Storage bucket
+ * `flop-library` (§10 A5b). The analysis reads the library only when it is
+ * handed one (`AnalyzeOptions.flopLibrary`); the worker hands it one while the
+ * flag is on and a Supabase URL is configured. Tests hand it the pilot's
+ * chunks or a small solve of their own.
  *
  * **When a hand reads the library**: heads-up to the flop on one of
  * `FLOP_LINES` (both players' preflop ranges are the charts' for the line -
@@ -80,14 +82,22 @@ import { TURN_DCFR, TURN_MENU, TURN_RIVER_MENU } from "./turn";
 import type { Approximation, FlopFacts, OptionAnalysis } from "./types";
 
 /**
- * The flop library is off until the full library exists: the worker never
- * loads one, so `analyzeHand` grades the flop with the heuristic, as before.
- * Turning it on is a grade change (`ANALYSIS_VERSION`).
+ * The worker loads the flop library and `analyzeHand` grades the flop from
+ * it where a hand's line and flop are solved (the heuristic elsewhere).
+ * Switching it is a grade change (`ANALYSIS_VERSION`).
  */
-export const FLOP_LIBRARY_ENABLED = false;
+export const FLOP_LIBRARY_ENABLED = true;
 
-/** Where the worker fetches chunks from when the flag is on (`<base>/<set>/<tree>/<line>/<flop>.bin`). */
-export const FLOP_LIBRARY_BASE = "/floplib";
+/**
+ * Where the worker fetches chunks from (`<base>/<set>/<tree>/<line>/<flop>.bin`):
+ * the public, read-only Storage bucket `flop-library` of the configured
+ * Supabase project (migration 20270331090000; uploaded by
+ * `tests/scripts/flop-library/upload.sh`). Null without a Supabase URL - the
+ * flop stays heuristic.
+ */
+export function flopLibraryBase(supabaseUrl: string | null | undefined): string | null {
+  return supabaseUrl ? `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/flop-library` : null;
+}
 
 /* ---------------------------------------------------------- the lines - */
 
