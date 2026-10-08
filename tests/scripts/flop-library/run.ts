@@ -24,7 +24,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFile
 import { availableParallelism, cpus, totalmem } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
-import { FLOP_LINES, FLOP_PROFILE } from "../../../frontend/src/lib/analysis/flopLibrary.js";
+import { FLOP_PROFILE, flopLinesFor, type FlopLine } from "../../../frontend/src/lib/analysis/flopLibrary.js";
 import { rakeOf } from "../../../frontend/src/lib/analysis/river.js";
 import { loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
 import {
@@ -50,7 +50,7 @@ import { validateDir } from "./validate.js";
 interface Options {
   out: string;
   set: string;
-  lines: string[];
+  lines: string[] | null;
   flops: string[];
   only: number | null;
   threads: number;
@@ -75,7 +75,7 @@ function parseArgs(argv: string[]): Options {
   return {
     out: resolve(get("out") ?? join(ROOT, "tests/scripts/flop-library/out")),
     set: get("set") ?? "nlhe-cash-6max-100bb",
-    lines: list(get("lines")) ?? FLOP_LINES.map((l) => l.id),
+    lines: list(get("lines")),
     flops: (list(get("flops")) ?? byWeight).map((f) => flopKey(f.match(/../g) ?? [])),
     only: get("only") ? Number(get("only")) : null,
     threads: Number(get("threads") ?? Math.max(1, Math.floor(availableParallelism() / 2))),
@@ -177,9 +177,9 @@ function writeManifest(dir: string, charts: ChartSet, stats: StatsFile[]): void 
 const fmtH = (seconds: number) => (seconds / 3600).toFixed(1);
 
 /** The full-run estimate: per-unit-work time, memory and size fitted on the finished solves. */
-function estimate(options: Options, spots: Map<string, LineSpot>, stats: StatsFile[], log: (s: string) => void): void {
+function estimate(options: Options, lines: readonly FlopLine[], spots: Map<string, LineSpot>, stats: StatsFile[], log: (s: string) => void): void {
   const all: { line: string; flop: string; hands: number; work: number }[] = [];
-  for (const line of FLOP_LINES) {
+  for (const line of lines) {
     const spot = spots.get(line.id);
     if (!spot) continue;
     for (const flop of FLOP_REPRESENTATIVES) all.push({ line: line.id, flop, ...workOf(spot, flop) });
@@ -209,7 +209,7 @@ function estimate(options: Options, spots: Map<string, LineSpot>, stats: StatsFi
   const bytes = all.reduce((sum, j) => sum + j.hands * bytesPerHand, 0);
   const biggest = all.reduce((best, j) => (j.work > best.work ? j : best), all[0]);
   log("");
-  log(`Full-run estimate (${FLOP_LINES.length} lines x ${FLOP_REPRESENTATIVES.length} flops = ${all.length} solves), fitted on ${done.length} finished:`);
+  log(`Full-run estimate (${lines.length} lines x ${FLOP_REPRESENTATIVES.length} flops = ${all.length} solves), fitted on ${done.length} finished:`);
   log(`  time:   ${fmtH(coreSeconds)} core-hours in all, ${fmtH(remainingSeconds)} still to run`);
   for (const threads of [options.threads, availableParallelism()]) {
     log(`          ${fmtH(remainingSeconds / threads)} h wall at ${threads} solves in parallel (if memory allows, below)`);
@@ -217,7 +217,7 @@ function estimate(options: Options, spots: Map<string, LineSpot>, stats: StatsFi
   log(`  disk:   ${(bytes / 1e6).toFixed(0)} MB of chunks (${((bytes / all.length) / 1e3).toFixed(0)} KB per solve on average)`);
   log(`  memory: up to ${(biggest.work * mbPerWork / 1e3).toFixed(1)} GB of solver arrays, ~${(biggest.work * rssPerWork / 1e3).toFixed(1)} GB resident, for the widest (${biggest.line} ${biggest.flop}); ` +
     `${(options.memGb).toFixed(0)} GB budget fits ~${Math.max(1, Math.floor((options.memGb * 1e3) / (biggest.work * rssPerWork)))} of those at once`);
-  log(`  per line (core-hours): ${FLOP_LINES.map((l) => `${l.id} ${fmtH(all.filter((j) => j.line === l.id).reduce((s, j) => s + j.work * secondsPerWork, 0))}`).join(", ")}`);
+  log(`  per line (core-hours): ${lines.map((l) => `${l.id} ${fmtH(all.filter((j) => j.line === l.id).reduce((s, j) => s + j.work * secondsPerWork, 0))}`).join(", ")}`);
 }
 
 async function main(): Promise<void> {
@@ -228,8 +228,11 @@ async function main(): Promise<void> {
   const treeDir = join(options.out, options.set, FLOP_PROFILE.tree);
   mkdirSync(treeDir, { recursive: true });
 
+  // The set's table decides the lines (6-max, or full ring for the 9-max sets).
+  const lines = flopLinesFor(charts.game.players);
+  const wanted = options.lines ?? lines.map((l) => l.id);
   const spots = new Map<string, LineSpot>();
-  for (const line of FLOP_LINES) {
+  for (const line of lines) {
     try {
       spots.set(line.id, lineSpot(charts, line));
     } catch (error) {
@@ -238,7 +241,7 @@ async function main(): Promise<void> {
   }
   const stats = readStats(treeDir);
   if (options.estimate) {
-    estimate(options, spots, stats, log);
+    estimate(options, lines, spots, stats, log);
     return;
   }
   if (options.validate) {
@@ -258,8 +261,8 @@ async function main(): Promise<void> {
   // The queue: flops in coverage order, each with every line asked for.
   const jobs: Job[] = [];
   for (const flop of options.flops) {
-    for (const lineId of options.lines) {
-      const line = FLOP_LINES.find((l) => l.id === lineId);
+    for (const lineId of wanted) {
+      const line = lines.find((l) => l.id === lineId);
       const spot = spots.get(lineId);
       if (!line || !spot) throw new Error(`unknown or unplayable line ${lineId}`);
       jobs.push({

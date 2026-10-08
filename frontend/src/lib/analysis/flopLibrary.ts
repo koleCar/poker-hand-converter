@@ -106,39 +106,80 @@ export interface FlopLine {
   id: string;
   pot: "srp" | "3bp" | "limped";
   key: string;
+  /** The table the key is spelled for: 6-max (six codes before the flop players) or full ring. */
+  players: 6 | 9;
 }
 
 /**
- * The preflop lines of the library: the river trainer's twelve heads-up pots
+ * The 6-max lines of the library: the river trainer's twelve heads-up pots
  * (`lib/training/river.ts`), every one reached by the charts with real
  * frequency - single raised pots of every opener against the big blind and
  * the button against the small blind, the common 3-bet pots, and the small
  * blind's limp. Most common first (the batch runner's order).
  */
 export const FLOP_LINES: readonly FlopLine[] = [
-  { id: "btn-bb", pot: "srp", key: "fffrfc" },
-  { id: "co-bb", pot: "srp", key: "ffrffc" },
-  { id: "sb-bb", pot: "srp", key: "ffffrc" },
-  { id: "hj-bb", pot: "srp", key: "frfffc" },
-  { id: "utg-bb", pot: "srp", key: "rffffc" },
-  { id: "btn-sb", pot: "srp", key: "fffrcf" },
-  { id: "btn-bb-3bet", pot: "3bp", key: "fffrfrc" },
-  { id: "btn-sb-3bet", pot: "3bp", key: "fffrrfc" },
-  { id: "co-btn-3bet", pot: "3bp", key: "ffrrffc" },
-  { id: "co-bb-3bet", pot: "3bp", key: "ffrffrc" },
-  { id: "sb-bb-3bet", pot: "3bp", key: "ffffrrc" },
-  { id: "sb-limp", pot: "limped", key: "ffffck" },
+  { id: "btn-bb", pot: "srp", key: "fffrfc", players: 6 },
+  { id: "co-bb", pot: "srp", key: "ffrffc", players: 6 },
+  { id: "sb-bb", pot: "srp", key: "ffffrc", players: 6 },
+  { id: "hj-bb", pot: "srp", key: "frfffc", players: 6 },
+  { id: "utg-bb", pot: "srp", key: "rffffc", players: 6 },
+  { id: "btn-sb", pot: "srp", key: "fffrcf", players: 6 },
+  { id: "btn-bb-3bet", pot: "3bp", key: "fffrfrc", players: 6 },
+  { id: "btn-sb-3bet", pot: "3bp", key: "fffrrfc", players: 6 },
+  { id: "co-btn-3bet", pot: "3bp", key: "ffrrffc", players: 6 },
+  { id: "co-bb-3bet", pot: "3bp", key: "ffrffrc", players: 6 },
+  { id: "sb-bb-3bet", pot: "3bp", key: "ffffrrc", players: 6 },
+  { id: "sb-limp", pot: "limped", key: "ffffck", players: 6 },
 ];
 
-const POSTFLOP: readonly ChartPosition[] = ["SB", "BB", "UTG", "HJ", "CO", "BTN"];
+/**
+ * The full-ring lines (the 9-max sets, which also answer 7- and 8-handed
+ * tables): the same twelve pots spelled over nine seats, plus the lojack
+ * against the big blind, the seat 6-max does not have (§10, 2026-10-08).
+ * An open limp from the button has no chart range (the charts' open limper
+ * is the tremble), so it is not solved. Most common first.
+ */
+export const FLOP_LINES_9MAX: readonly FlopLine[] = [
+  { id: "btn-bb", pot: "srp", key: "ffffffrfc", players: 9 },
+  { id: "co-bb", pot: "srp", key: "fffffrffc", players: 9 },
+  { id: "sb-bb", pot: "srp", key: "fffffffrc", players: 9 },
+  { id: "hj-bb", pot: "srp", key: "ffffrfffc", players: 9 },
+  { id: "lj-bb", pot: "srp", key: "fffrffffc", players: 9 },
+  { id: "utg-bb", pot: "srp", key: "rfffffffc", players: 9 },
+  { id: "btn-sb", pot: "srp", key: "ffffffrcf", players: 9 },
+  { id: "btn-bb-3bet", pot: "3bp", key: "ffffffrfrc", players: 9 },
+  { id: "btn-sb-3bet", pot: "3bp", key: "ffffffrrfc", players: 9 },
+  { id: "co-btn-3bet", pot: "3bp", key: "fffffrrffc", players: 9 },
+  { id: "co-bb-3bet", pot: "3bp", key: "fffffrffrc", players: 9 },
+  { id: "sb-bb-3bet", pot: "3bp", key: "fffffffrrc", players: 9 },
+  { id: "sb-limp", pot: "limped", key: "fffffffck", players: 9 },
+];
 
-/** The two players who see the flop on a line, out of position first. */
-export function flopPlayersOf(key: string): [ChartPosition, ChartPosition] {
-  const { steps } = walkLine(key);
+/** The library's lines for a chart set's table size (7-9 handed play on the full-ring sets). */
+export function flopLinesFor(players: number): readonly FlopLine[] {
+  return players > 6 ? FLOP_LINES_9MAX : FLOP_LINES;
+}
+
+/** Postflop order over every position a hand can name (a full ring's middle seat may be `MP`). */
+const POSTFLOP: readonly string[] = ["SB", "BB", "UTG", "UTG+1", "UTG+2", "MP", "LJ", "HJ", "CO", "BTN"];
+
+const SIX_SEATS: readonly ChartPosition[] = ["UTG", "HJ", "CO", "BTN", "SB", "BB"];
+const NINE_SEATS: readonly ChartPosition[] = ["UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN", "SB", "BB"];
+
+/** The table a line is spelled over, in preflop order. */
+export function lineSeats(line: Pick<FlopLine, "players">): readonly ChartPosition[] {
+  return line.players === 9 ? NINE_SEATS : SIX_SEATS;
+}
+
+/** The two players who see the flop on a line, out of position first (6-max unless the seats are given). */
+export function flopPlayersOf(key: string, seats: readonly ChartPosition[] = SIX_SEATS): [ChartPosition, ChartPosition] {
+  const { steps } = walkLine(key, seats);
   const folded = new Set(steps.filter((s) => s.code === "f").map((s) => s.position));
-  const live = (["UTG", "HJ", "CO", "BTN", "SB", "BB"] as const).filter((p) => !folded.has(p));
+  const live = seats.filter((p) => !folded.has(p));
   if (live.length !== 2) throw new RangeError(`line ${key} is not heads-up to the flop`);
-  live.sort((a, b) => POSTFLOP.indexOf(a) - POSTFLOP.indexOf(b));
+  // Postflop the blinds act first, then the rest in preflop order.
+  const order = [...seats.slice(-2), ...seats.slice(0, -2)];
+  live.sort((a, b) => order.indexOf(a) - order.indexOf(b));
   return [live[0], live[1]];
 }
 
@@ -359,7 +400,7 @@ export function chunkFor(
     return null;
   }
   const placed = chartLineOf(hand, pair, charts);
-  const line = FLOP_LINES.find((l) => l.key === placed?.line);
+  const line = placed ? flopLinesFor(placed.set.game.players).find((l) => l.key === placed.line) : undefined;
   if (!placed || !line) return null;
   const set = placed.set.id;
   const key = flopKey(cards);
@@ -602,8 +643,8 @@ export function libraryEntry(
   const villainChart = chartRange(hand, villain, cut, charts);
   if (!heroChart || !villainChart) return { ok: false, reason: "ranges" };
 
-  const heroPos = context.position.get(hero) as ChartPosition | undefined;
-  const villainPos = context.position.get(villain) as ChartPosition | undefined;
+  const heroPos = context.position.get(hero) ?? undefined;
+  const villainPos = context.position.get(villain) ?? undefined;
   const heroFirst = heroPos !== undefined && villainPos !== undefined ? POSTFLOP.indexOf(heroPos) < POSTFLOP.indexOf(villainPos) : true;
   const money = flopMoney(hand, context, [hero, villain]);
   if (!money) return { ok: false, reason: "depth" };

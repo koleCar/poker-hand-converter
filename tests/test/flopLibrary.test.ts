@@ -19,8 +19,13 @@ import {
   analyzeHand,
   flopBucket,
   FLOP_LIBRARY_ENABLED,
+  chunkFor,
   FLOP_LINES,
+  FLOP_LINES_9MAX,
+  flopLinesFor,
+  flopPlayersOf,
   FLOP_PROFILE,
+  lineSeats,
   FlopLibraryLoader,
   libraryEntry,
   libraryModel,
@@ -29,7 +34,7 @@ import {
   type FlopEntry,
   type FlopProfile,
 } from "../../frontend/src/lib/analysis/index.js";
-import { loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
+import { chartLibrary, loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
 import { cardCode, cardIndex } from "../../frontend/src/lib/equity/evaluator.js";
 import {
   canonicalFlops,
@@ -54,7 +59,7 @@ import {
   type FlopChunk,
 } from "../../frontend/src/lib/solver/index.js";
 import { buildContext } from "../../frontend/src/lib/stats/context.js";
-import { scriptHand, seatOf, type HandScript, type ScriptAct } from "../../frontend/src/lib/training/handText.js";
+import { NINE_SCRIPT_POSITIONS, scriptHand, seatOf, type HandScript, type ScriptAct } from "../../frontend/src/lib/training/handText.js";
 import { lineActs } from "../../frontend/src/lib/training/preflop.js";
 import { jobHeader, solveJob, type Job } from "../scripts/flop-library/job.js";
 import { lineSpot } from "../scripts/flop-library/spots.js";
@@ -445,5 +450,51 @@ describe("the analysis reading the library", () => {
 
   it("maps each real flop to the chunk it reads", () => {
     expect(flopKey(["Th", "7d", "4c"])).toBe(FLOP);
+  });
+});
+
+describe("the library's lines on every table", () => {
+  const CHARTS9: ChartSet = loadCharts(
+    JSON.parse(readFileSync(join(import.meta.dirname, "../../frontend/src/lib/charts/data/nlhe-cash-9max-100bb.json"), "utf8")),
+  );
+
+  it("plays every 6-max and full-ring line on its own set, heads-up to the flop", () => {
+    for (const [lines, charts] of [
+      [FLOP_LINES, CHARTS],
+      [FLOP_LINES_9MAX, CHARTS9],
+    ] as const) {
+      expect(flopLinesFor(charts.game.players)).toBe(lines);
+      expect(new Set(lines.map((l) => l.id)).size).toBe(lines.length);
+      for (const line of lines) {
+        const spot = lineSpot(charts, line);
+        expect(spot.players).toEqual(flopPlayersOf(line.key, lineSeats(line)));
+        expect(spot.pot).toBeGreaterThan(1);
+        expect(spot.stack).toBeGreaterThan(spot.pot);
+      }
+    }
+  });
+
+  it("names the flop players out of position first on a full ring", () => {
+    expect(flopPlayersOf("ffffffrfc", lineSeats({ players: 9 }))).toEqual(["BB", "BTN"]);
+    expect(flopPlayersOf("fffrffffc", lineSeats({ players: 9 }))).toEqual(["BB", "LJ"]);
+    expect(flopPlayersOf("fffffffrc", lineSeats({ players: 9 }))).toEqual(["SB", "BB"]);
+    expect(flopPlayersOf("fffrfc")).toEqual(["BB", "BTN"]);
+  });
+
+  it("finds a full-ring hand's chunk on the 9-max set's lines", () => {
+    const script: HandScript = {
+      id: "FL9TEST",
+      seats: NINE_SCRIPT_POSITIONS,
+      hero: "BTN",
+      heroCards: ["Ah", "Kd"],
+      stackBb: 100,
+      preflop: lineActs(CHARTS9, "ffffffrfc"),
+      board: ["Ts", "7h", "4d"],
+      flop: [{ position: "BB", type: "check" }],
+    };
+    const hand = scriptHand(script);
+    const found = chunkFor(hand, buildContext(hand), chartLibrary([CHARTS, CHARTS9]), { has: () => true });
+    expect(found).toMatchObject({ set: "nlhe-cash-9max-100bb", flop: "Ts7h4d", exact: true });
+    expect(found?.line).toBe(FLOP_LINES_9MAX.find((l) => l.id === "btn-bb"));
   });
 });
