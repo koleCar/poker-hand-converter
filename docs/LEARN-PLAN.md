@@ -119,13 +119,13 @@ theory with no number.
 | Kind | What | Graded by | L1 |
 |---|---|---|---|
 | `chart-quiz` | preflop trainer spots by family, seat, raiser and chart set (6/9-max, 40–200bb, limped) | the charts, through `analyzeHand` | yes |
-| `solver-spot` | river spots (A7) and **turn spots** (new, `lib/training/turn.ts`), optionally "the villain checked" or "bet" (in position); **flop spots** from the flop library (L2, `lib/training/flop.ts`): facing a check, a bet or a raise, any seat, a line filter | the river / turn solve, the flop library's chunk, through `analyzeHand` | river, turn; flop in L2 |
+| `solver-spot` | river spots (A7) and **turn spots** (new, `lib/training/turn.ts`), optionally "the villain checked" or "bet" (in position), and for the turn the flop line before it (checked through, or a bet called; L3); **flop spots** from the flop library (L2, `lib/training/flop.ts`): facing a check, a bet or a raise, any seat, a line filter | the river / turn solve, the flop library's chunk, through `analyzeHand` | river, turn; flop in L2 |
 | `calc` | a number to work out (pot odds, draw equity by exact enumeration, EV trees, combos, alpha/MDF, SPR, grades, steal and big-blind prices, bb/100, all-in EV, multiway folds), answered before the calculator reveals it | `math.ts`, exact equity, `grade()` | yes |
 | `classify` | sort a board or hand: suits, pairing, connectedness, high card, dynamism, hand class; range advantage, nut advantage and turn-card shifts on the concept library's illustrative ranges | `texture.ts`, `madeHand`/`draws`, `rangeVsRange`, `nutShare` | yes |
 | `own-hands` | the learner's decisions matching the lesson's spots or flags, worst EV loss first, spoiler-safe | the stored grade (`gradeDrill`) | yes |
-| `range-split` | put hand classes into check / small / big (or fold / call / raise) | the solve's mix per class: `flopBucket` categories on a library flop, `turnCategory` on a turn solve | L2 (`lib/training/split.ts`) |
+| `range-split` | put hand classes into check / small / big (or fold / call / raise); the river adds an overbet group | the solve's mix per class: `flopBucket` categories on a library flop, `turnCategory` on a turn solve, `riverCategory` on a river solve | L2 (`lib/training/split.ts`); river in L3 |
 | `depth-split` | the same split at 200bb against 100bb | flop solves at other depths | placeholder |
-| `range-paint` | paint a 13×13 range | a chart | placeholder |
+| `range-paint` | paint a 13×13 range: a seat's first-in range, or the hands of a river range that bet or continue | the chart, or the river solve, cell by cell (`lib/training/paint.ts`) | L3; the straddle paint still planned |
 | `range-walk`, `pot-tracking`, `profile-quiz`, `placement` | see §5 | | placeholders |
 
 Pass rules are per exercise (a share of the items, e.g. 7 of 10). Own hands
@@ -146,9 +146,13 @@ count where they can be played: the flag on (`FLOP_LIBRARY_ENABLED`, since
 4. **Automatic progress.** A lesson is passed when its gradable exercises
    pass, recorded the moment the last one does.
 
-Later (L3+): a placement test with test-out, mastery from real-hand
-improvement, interleaved module capstones, "isolate one variable" comparison
-views, a live/online path toggle, re-check nudges, a daily five-minute dose.
+5. **Mastery from real-hand improvement** (L3). Once a signed-in learner has
+   passed a lesson, the lesson page compares their own graded decisions in its
+   spots before and after the day they passed it (`lib/learn/mastery.ts`).
+
+Later (L4+): a placement test with test-out, interleaved module capstones,
+"isolate one variable" comparison views, a live/online path toggle, re-check
+nudges, a daily five-minute dose.
 
 ## 5. Phases
 
@@ -157,7 +161,7 @@ views, a live/online path toggle, re-check nudges, a daily five-minute dose.
 | **L1** (shipped, #110) | The Learn tab and course map; the full catalogue; written lessons for M0–M3 and M6-L4 in English and Croatian; `chart-quiz`, `solver-spot` (river and turn), `calc` with answer-first reveal, `classify`, `own-hands`; recommendations, the plan's lesson task, review cards, automatic progress; storage for signed-in learners, browser storage for signed-out ones. |
 | **L1.1** (shipped) — restructure (principles 8–9) | <ul><li>Tracks and modules as in §2; M0–M2 out of the map (intro panel and reference)</li><li>their key ideas folded into the first lesson that uses them</li><li>the new ids added as "coming soon"</li><li>the plan's lesson tasks and leak recommendations re-pointed</li><li>tests updated</li></ul> |
 | **L2** (shipped) — flop | Track 2 written (F1–F5); flop spots from the library; the `range-split` widget (flop buckets from the library, turn categories from a turn solve); the raiser's flop bets by board group from Rail's own library. See §8. |
-| **L3** — turn and river | Tracks 3–4 written; `range-paint`; mastery from real-hand improvement. |
+| **L3** (shipped) — turn and river | Tracks 3–4 written; `range-paint`; the river split; mastery from real-hand improvement. See §10. |
 | **L4** — exploits | Track 5 written, plus the **exploit lab**: solver node-locking UI, the opponents-panel tie-in, pool tendencies from the learner's own villain stats with sample sizes. |
 | **L5** | Placement test, curated example hands (`examples` slot), flop drills once `FLOP_LIBRARY_ENABLED` is on. |
 
@@ -344,7 +348,8 @@ views, a live/online path toggle, re-check nudges, a daily five-minute dose.
   other depths, 4-bet pots and multiway flops are taught in words and graded
   in your own hands by the heuristic.
 - The turn split reads A5a's coarse turn tree (check, 75%, all-in), so its
-  groups are check / big or fold / call / raise; the river has no split yet.
+  groups are check / big or fold / call / raise. (The river split, with its
+  overbet group, shipped in L3.)
 - The trainer history (`trainer_results`) keeps preflop and river answers
   only; flop and turn spots count in the lesson, not in the study plan's
   trainer tasks.
@@ -366,8 +371,105 @@ views, a live/online path toggle, re-check nudges, a daily five-minute dose.
 - The lesson's results and cards are graded in the browser and only
   shape-checked by the database, as trainer answers are.
 - A leak area does not know the pot type, so a flop leak in a 3-bet pot can
-  land on the single-raised lesson for the same spot. River leaks wait for
-  R1–R2 to be written (no written lesson rather than a wrong one).
+  land on the single-raised lesson for the same spot. (Since L3 river leaks
+  land on R1–R2; T3 and R3 carry no leak match for this reason.)
 - Reference pages keep L1's wording, so a few lines still read as part of a
   lesson ("this lesson"); the cross-links to the next page were made into
   reference links.
+
+## 10. What L3 shipped
+
+- **Tracks 3 and 4 written**, English and Croatian, all 14 lessons of T1–T3
+  and R1–R3: `turn-card-classes`, `double-barreling`,
+  `turn-sizing-and-overbets`, `turn-after-flop-checks-through` (T1);
+  `facing-turn-barrels`, `turn-check-raise-and-probe` (T2); `3bp-turn` (T3);
+  `river-polarisation`, `thin-value`, `choosing-bluffs-blockers`,
+  `river-sizing` (R1); `bluff-catching`, `facing-river-raises` (R2);
+  `3bp-river` (R3). Bodies in `lib/learn/lessons/t.*` and `r.*`.
+  - Combos and card removal, folded into *picking river bluffs* by L1.1, are
+    written there and link their reference page.
+  - **No basics; the maths in place**: alpha, minimum defence, the price of a
+    call, the bluff share of a polarised range, the value bet's break-even,
+    the geometric bet and the SPR of a 3-bet pot, each where it decides
+    something. Every number is arithmetic the course test recomputes.
+  - **Directions checked against Rail's own solves before writing**
+    (`tests/scripts/learn-directions`, `npm run learn:directions` from
+    `tests/`: a few dozen turn solves and a few hundred river solves of the
+    trainer's own generator, by hand category). Among what it showed: the
+    raiser barrels most on pairing cards and overcards and least on the card
+    that puts a third of a suit on the board, where even top pairs check; out
+    of position a flush draw folds to a turn bet more often than a middle
+    pair; the turn check-raise is mostly strong made hands; river middle pairs
+    check most of all, ace-high far more than no pair; river overbets are more
+    common in position after a check; middle pairs fold more as the bet grows;
+    a raise of a river bet is folded to by most one-pair hands, and small bets
+    are raised more often; in 3-bet pots the river all-in is the most common
+    bet. **Where Rail contradicted the L1.1 outlines, the outlines changed**:
+    the turn probe and lead (rare in Rail's solves, in both lines), the missed
+    flush draw as a weak bluff (not what the solve does by category; the goal
+    is now "bluff first with hands that cannot win by checking"), and the river
+    raise lesson's population claims (now: read a raise as strong, from
+    Rail's own solve; its title is now "Facing a river raise").
+  - **Honesty banners**: `approximate-ranges` on every T and R lesson (ranges
+    narrowed by the heuristic model), and a new one, `turn-tree`, on the T
+    lessons: the turn is solved with one bet size, so smaller turn bets and
+    overbets are taught in words and on the river.
+- **Turn and river practice** on the existing generators, graded by
+  `analyzeHand`: `solver-spot` exercises with the `facing` filters and, new, a
+  **flop-line filter for turns** (`TurnSpotOptions.flop`: the flop checked
+  through, or a bet called; `drawFlopPattern`; an unfiltered seed deals what
+  it always did). `range-split` on the turn (barrels, probes, defence,
+  3-bet pots) and, new, **on the river** (`riverSetup`, the river spot's
+  first half shared with the split and the paint; `riverCategory` rows; an
+  overbet group above the pot; a raise of the hero's bet reached through the
+  hero's bet).
+- **`range-paint`** (`lib/training/paint.ts`, `PaintItemView`): paint the
+  13×13 grid; a cell Rail plays at least 75% of the time must be painted, at
+  most 25% left empty, anything between counts either way; the score is over
+  the cells that matter (every cell to paint, and every cell painted),
+  weighted by combos; an item is right at 80%. Two sources: a chart set's
+  first-in range for a seat (`positions-and-opening-ranges`' `paint-a-seat`,
+  planned since L1, is live) and a river node solved on demand — the hands
+  that bet (`river-polarisation`) or that continue against a bet
+  (`bluff-catching`). Click, drag, arrow keys and Space; colour is never
+  alone (✓, −, +). Cards are `chart-quiz` or `solver-spot` review cards
+  (items `k: "paint"`): no migration. The straddle paint stays planned.
+- **Mastery from real-hand improvement** (`lib/learn/mastery.ts`,
+  `LessonMastery`): on a passed lesson, for a signed-in learner, the leak
+  finder's report (`analysis_leaks`, invoker, RLS) is read twice — hands
+  played before the day the lesson was passed, and from it on — and the rows
+  matching the lesson's spots (its leak match and its own-hands spots, with
+  the own-hands pot type) are summed: decisions, EV lost per decision (bb and
+  % of the pot), share graded Inaccurate or worse. The change is the leak
+  finder's own Welch z on the mean move score; below 20 graded decisions on
+  either side it says "not enough hands yet". Nothing stored, **no
+  migration**.
+- **Recommendations and the plan**: turn and river leaks now land on the T
+  and R lessons (a turn barrel leak on *the second barrel*, a turn
+  check-raise or lead on T2-L2, a river bet on *thin value*, a river check
+  on *picking river bluffs*, a river call on *bluff-catching*, a raised river
+  bet on R2-L2). The 3-bet-pot lessons carry no leak match (a leak area does
+  not know the pot type) and are reached from the map, the course order and
+  their own hands. The plan's lesson tasks follow, since they ask the same
+  matcher for written lessons.
+
+## 11. Open after L3
+
+- **Mastery is measured, not acted on.** It is shown on the lesson page; the
+  map's "mastered" still means the exercises passed, and a lesson whose own
+  hands got worse is not re-recommended yet.
+- Mastery splits on the day a lesson was passed, by when hands were played,
+  and reads the current analysis version only: a library not re-analysed
+  since a version bump shows "not enough hands" until it is. Lessons matched
+  only by flags (e.g. *SPR and commitment*) have no spots to measure.
+- The turn is solved with one bet size: the turn sizing lesson's overbets are
+  practised on the river split. A finer turn tree is the analysis track's.
+- The river spot generator answers checks and bets in position; a river
+  raise is practised in the split only (the solver-spot `facing` has no
+  `raise` on the river).
+- The direction check (`npm run learn:directions`) uses the trainer's
+  heuristic narrowing and the 6-max 100bb charts; 9-max and other depths are
+  taught by the same words.
+- The paint widget and the river split were checked in the browser (chart
+  and river sources, keyboard, 375px); mastery by its unit tests only (no
+  signed-in session with analysed hands was used).

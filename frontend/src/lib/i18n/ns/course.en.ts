@@ -63,7 +63,7 @@ const titles = {
   "choosing-bluffs-blockers": "Picking river bluffs",
   "bluff-catching": "Calling down with a bluff-catcher",
   "river-sizing": "River bet sizes",
-  "facing-river-raises": "River raises and leads",
+  "facing-river-raises": "Facing a river raise",
   "multiway-principles": "What changes with three or more players",
   "multiway-as-the-raiser": "Betting into two opponents",
   "multiway-defence": "Defending and leading multiway",
@@ -320,14 +320,15 @@ export const courseEn = {
     groups: { check: "Check", small: "Small bet", big: "Big bet", overbet: "Overbet", fold: "Fold", call: "Call", raise: "Raise" } as Record<string, string>,
     you: "You",
     first: (street: string) => `You are first to act on the ${street === "river" ? "river" : street === "turn" ? "turn" : "flop"}.`,
-    step: (who: string, kind: string, sizePot: number) =>
+    /** `self`: the hero ("You check."), else a seat ("BB checks."). */
+    step: (who: string, kind: string, sizePot: number, self = false) =>
       kind === "check"
-        ? `${who} checks.`
+        ? `${who} ${self ? "check" : "checks"}.`
         : kind === "call"
-          ? `${who} calls.`
+          ? `${who} ${self ? "call" : "calls"}.`
           : kind === "allin"
-            ? `${who} goes all-in.`
-            : `${who} ${kind === "raise" ? "raises" : "bets"} ${Math.round(sizePot * 100)}% of the pot.`,
+            ? `${who} ${self ? "go" : "goes"} all-in.`
+            : `${who} ${kind === "raise" ? (self ? "raise" : "raises") : self ? "bet" : "bets"} ${Math.round(sizePot * 100)}% of the pot.`,
     pot: (pot: string, toCall: string | null) => (toCall ? `Pot ${pot} · ${toCall} to call` : `Pot ${pot}`),
     share: (share: string) => `${share} of your range`,
     check: "Check my split",

@@ -115,7 +115,7 @@ export function SplitItemView({ card, onAnswer }: { card: SplitCard; onAnswer: (
         </span>
       </div>
       <p>{en.analysis.train.riverSpot(item.pot, item.hero, item.villain, item.seat === "ip")}</p>
-      <p>{item.before.length > 0 ? item.before.map((step) => t.step(step.who === "hero" ? t.you : item.villain, step.kind, step.sizePot)).join(" ") : t.first(item.street)}</p>
+      <p>{item.before.length > 0 ? item.before.map((step) => t.step(step.who === "hero" ? t.you : item.villain, step.kind, step.sizePot, step.who === "hero")).join(" ") : t.first(item.street)}</p>
       <p className={styles.muted}>{t.pot(f.bb(item.potBb), item.toCallBb > 0 ? f.bb(item.toCallBb) : null)}</p>
       <p id={`${id}-q`} className={styles.question}>
         {t.question(item.street)}

@@ -59,7 +59,7 @@ const titles = {
   "choosing-bluffs-blockers": "Kako odabrati blef na riveru",
   "bluff-catching": "Call do kraja s bluff-catcherom",
   "river-sizing": "Veličine beta na riveru",
-  "facing-river-raises": "Raiseovi i leadovi na riveru",
+  "facing-river-raises": "Kad ti raiseaju bet na riveru",
   "multiway-principles": "Što se mijenja s tri ili više igrača",
   "multiway-as-the-raiser": "Bet u dva protivnika",
   "multiway-defence": "Obrana i lead u multiway potu",
@@ -320,6 +320,7 @@ export const courseHr = {
     groups: { check: "Check", small: "Mali bet", big: "Veliki bet", overbet: "Overbet", fold: "Fold", call: "Call", raise: "Raise" } as Record<string, string>,
     you: "Ti",
     first: (street: string) => `Ti si prvi na potezu na ${street === "river" ? "riveru" : street === "turn" ? "turnu" : "flopu"}.`,
+    // The hero's own step reads the same in Croatian ("Ti: check."), so `self` is not needed here.
     step: (who: string, kind: string, sizePot: number) =>
       kind === "check"
         ? `${who}: check.`

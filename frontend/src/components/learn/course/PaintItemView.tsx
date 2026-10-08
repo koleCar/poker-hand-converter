@@ -122,14 +122,21 @@ export function PaintItemView({ card, onAnswer }: { card: PaintCard; onAnswer: (
   const onPointerDown = (event: PointerEvent<HTMLButtonElement>, k: number) => {
     if (graded || !item.cells[k] || event.button !== 0) return;
     event.preventDefault();
+    // A touch captures the pointer to the first cell; release it so the drag reaches the others.
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     const value = !painted[k];
     drag.current = value;
     set(k, value);
     setFocus(k);
+    // Cancelling the pointer's default also cancels the focus a click gives: give it back, so the keys work from here.
+    event.currentTarget.focus({ preventScroll: true });
   };
-  const onPointerEnter = (k: number) => {
-    if (graded || drag.current === null || !item.cells[k]) return;
-    set(k, drag.current);
+  /** A drag paints every cell under the pointer, read from the point itself (fast moves skip enter events). */
+  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (graded || drag.current === null) return;
+    const under = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>("[data-k]");
+    const k = under ? Number(under.dataset.k) : -1;
+    if (k >= 0 && item.cells[k]) set(k, drag.current);
   };
   const move = (event: KeyboardEvent<HTMLButtonElement>, k: number) => {
     const row = Math.floor(k / 13);
@@ -154,11 +161,6 @@ export function PaintItemView({ card, onAnswer }: { card: PaintCard; onAnswer: (
       case "End":
         next = row * 13 + 12;
         break;
-      case " ":
-      case "Enter":
-        event.preventDefault();
-        if (!graded && item.cells[k]) set(k, !painted[k]);
-        return;
       default:
         return;
     }
@@ -199,7 +201,7 @@ export function PaintItemView({ card, onAnswer }: { card: PaintCard; onAnswer: (
         {question}
       </p>
       <p className={styles.muted}>{t.how(f.pct(PAINT_IN), f.pct(PAINT_OUT), f.pct(PAINT_PASS))}</p>
-      <div className={styles.paintGrid} role="grid" aria-labelledby={`${id}-q`}>
+      <div className={styles.paintGrid} role="grid" aria-labelledby={`${id}-q`} onPointerMove={onPointerMove}>
         {Array.from({ length: 13 }, (_, row) => (
           <div key={row} role="row" className={styles.paintRow}>
             {Array.from({ length: 13 }, (_, col) => {
@@ -228,8 +230,12 @@ export function PaintItemView({ card, onAnswer }: { card: PaintCard; onAnswer: (
                     title={graded && cell ? t.railShare(name, f.pct(cell.f)) : name}
                     disabled={!cell}
                     tabIndex={k === focus ? 0 : -1}
+                    data-k={k}
                     onPointerDown={(event) => onPointerDown(event, k)}
-                    onPointerEnter={() => onPointerEnter(k)}
+                    // Space, Enter and assistive technology click without a pointer (detail 0); a pointer paints on pointerdown.
+                    onClick={(event) => {
+                      if (event.detail === 0 && !graded && cell) set(k, !painted[k]);
+                    }}
                     onKeyDown={(event) => move(event, k)}
                     onFocus={() => setFocus(k)}
                   >

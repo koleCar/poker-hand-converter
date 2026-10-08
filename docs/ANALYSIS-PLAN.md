@@ -1997,3 +1997,17 @@ Each phase appends what it learned that changed the plan.
     reading itself costs about two thirds of the error; finer buckets
     (backlog) and more representatives where the mapping distance is 3+
     are the two levers.
+- 2026-10-08 — Learn L3: the turn and river tracks (`docs/LEARN-PLAN.md`
+  §10). No grade changes: still `analysis/8`; no migration.
+  - **Training, additive**: `riverSetup` (the river spot's first half, the
+    same draws from the seed, so a river spot is unchanged), the river range
+    split (`riverCategory`, an overbet group above the pot), a turn flop-line
+    filter (`TurnSpotOptions.flop`), and `lib/training/paint.ts` (a chart's
+    first-in range or a river node per hand class, graded cell by cell), a
+    `paint` job in the trainer worker.
+  - **Mastery** reads `analysis_leaks` twice (`to` / `from` the day a lesson
+    was passed) and compares the mean move score with the leak finder's own
+    `meanZ`; nothing stored.
+  - **Direction check** (`npm run learn:directions`): the lessons' claims
+    read from the trainer's turn and river solves by hand category before
+    they were written.
