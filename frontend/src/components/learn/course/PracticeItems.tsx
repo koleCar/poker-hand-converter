@@ -116,6 +116,10 @@ function useCalcWords(item: CalcItem) {
         working = t.working["sample-needed"](f.num(w.variance, 4), f.num(Math.round(item.answer), 0));
       }
       break;
+    case "pot-tracking":
+      question = t.questions["pot-tracking"];
+      working = t.working["pot-tracking"](bb(w.preflop), bb(w.flop), bb(item.answer));
+      break;
     case "multiway":
       question =
         item.ask === "all-fold"
@@ -164,7 +168,10 @@ export function CalcItemView({ item, onAnswer }: { item: CalcItem; onAnswer: (an
     cards.push([t.calc.cards.flop, p.flop as string[]], [t.calc.cards.you, p.hero as string[]], [t.calc.cards.opponent, p.villain as string[]]);
   } else if (item.kind === "combos") {
     cards.push([t.calc.cards.board, p.board as string[]], [t.calc.cards.you, p.hero as string[]]);
+  } else if (item.kind === "pot-tracking") {
+    cards.push([t.calc.cards.flop, p.board as string[]]);
   }
+  const steps = item.kind === "pot-tracking" ? potStepGroups(p.steps as readonly string[]) : null;
 
   return (
     <div className={styles.item}>
@@ -177,6 +184,15 @@ export function CalcItemView({ item, onAnswer }: { item: CalcItem; onAnswer: (an
             </span>
           ))}
         </div>
+      ) : null}
+      {steps ? (
+        <ol className={styles.potSteps}>
+          {steps.map(([street, acts]) => (
+            <li key={street}>
+              <strong>{t.calc.potSteps[street]}</strong>: {acts.map((a) => t.calc.potSteps.act(a.position, a.type, a.to ? f.bb(a.to) : "")).join(", ")}
+            </li>
+          ))}
+        </ol>
       ) : null}
       <p id={`${id}-q`} className={styles.question}>
         {words.question}
@@ -265,6 +281,22 @@ export function CalcItemView({ item, onAnswer }: { item: CalcItem; onAnswer: (an
   );
 }
 
+/** A pot-tracking item's steps (`street:position:type:to`) by street, for the list above its question. */
+function potStepGroups(steps: readonly string[]): Array<["preflop" | "flop", Array<{ position: string; type: string; to: number | null }>]> {
+  const groups: Array<["preflop" | "flop", Array<{ position: string; type: string; to: number | null }>]> = [];
+  for (const step of steps) {
+    const [street, position, type, to] = step.split(":");
+    if (street !== "preflop" && street !== "flop") continue;
+    let group = groups.find(([name]) => name === street);
+    if (!group) {
+      group = [street, []];
+      groups.push(group);
+    }
+    group[1].push({ position, type, to: to ? Number(to) : null });
+  }
+  return groups;
+}
+
 /* -------------------------------------------------------------- classify - */
 
 export function ClassifyItemView({ item, onAnswer }: { item: ClassifyItem; onAnswer: (answer: ItemAnswer) => void }) {
@@ -296,12 +328,17 @@ export function ClassifyItemView({ item, onAnswer }: { item: ClassifyItem; onAns
     detail.push(t.detail.shift(f.pct(Number(d.before)), f.pct(Number(d.after))));
   } else if (item.kind === "hand-class") {
     detail.push(t.detail.made(t.madeHand[String(d.made)] ?? String(d.made)));
+  } else if (item.kind === "profile-read") {
+    detail.push(t.detail.profile(f.pct(Number(d.value)), f.pct(Number(d.margin)), f.pct(Number(d.above)), f.pct(Number(d.below))));
   }
   const illustrative = item.kind === "range-advantage" || item.kind === "nut-advantage" || item.kind === "turn-card";
 
   return (
     <div className={styles.item}>
-      <div className={styles.cardsLine}>
+      {item.kind === "profile-read" ? (
+        <p className={styles.question}>{t.profileStat(Number(d.made), Number(d.chances), f.pct(Number(d.value)))}</p>
+      ) : null}
+      <div className={styles.cardsLine} hidden={item.board.length === 0 || undefined}>
         <span className={styles.cardsGroup}>
           <span className={styles.muted}>{en.course.calc.cards.board}</span>
           <CardRow cards={[...item.board]} size="md" />

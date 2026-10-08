@@ -90,7 +90,7 @@ export const xHr: LessonBodies<
     },
     exercises: {
       "profile-reads": "Četiri rivera, svaki s jednom od pet zaključanih procjena: odigraj ruku kako je igra Railov najbolji odgovor.",
-      "profile-quiz": "Planirano: imenuj tipove svojih protivnika iz njihove statistike.",
+      "profile-quiz": "Šest protivnikovih statistika foldanja na c-bet na flopu, svaka kroz neki broj prilika: reci što statistika podržava — foldanje više nego što treba blefu od pola pota, manje nego što treba blefu od trećine pota, ili još nema očitanja — po istom pravilu koje koristi odjeljak o tvom poolu.",
     },
     checks: [{ fn: "marginOfError", args: [0.4, 100], value: 0.096 }],
   },
@@ -716,7 +716,7 @@ export const xHr: LessonBodies<
     exercises: {
       "live-spr": "Pet SPR-ova za izračunati iz pota i stackova iza.",
       "live-steal": "Pet otvaranja za izračunati: koliko često svi moraju foldati?",
-      "pot-tracking": "Planirano: ruka u stilu igre uživo u kojoj pratiš pot.",
+      "pot-tracking": "Četiri ruke uživo za punim stolom, akciju po akciju: izbroji pot do turna bez prikaza pota.",
     },
     checks: [
       { fn: "ratio", args: [2.5, 4], value: 0.625 },

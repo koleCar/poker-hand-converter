@@ -15,19 +15,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useAuth } from "../../../lib/auth";
-import { fetchAnalysisOverview } from "../../../lib/db";
-import { fetchLeaks } from "../../../lib/db/analysisLeaks";
-import type { FlagCode } from "../../../lib/analysis/types";
 import { useDict } from "../../../lib/i18n/client";
 import { TRACK_IDS, TRACKS, lessonsIn, moduleCode, writtenLessons, type LessonId } from "../../../lib/learn/course";
+import { capstoneLesson } from "../../../lib/learn/mixed";
 import { lessonStatus, type LessonStatus } from "../../../lib/learn/progress";
-import { recommend, type Recommendation } from "../../../lib/learn/recommend";
+import type { Recommendation } from "../../../lib/learn/recommend";
 import { paths } from "../../../lib/routes";
-import { focusAreas, pickFocus } from "../../../lib/training/plan";
 import { useFormats } from "../controls";
+import { DailyDose } from "./DailyDose";
 import { useLearn } from "./LearnStore";
+import { useRechecks, useRecommendations } from "./useCourseSignals";
 import styles from "./course.module.css";
 
 export function CourseMap({ summaries }: { summaries: Readonly<Record<string, string>> }) {
@@ -36,36 +35,15 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
   const f = useFormats();
   const store = useLearn();
   const auth = useAuth();
-  const [recs, setRecs] = useState<Map<LessonId, Recommendation>>(new Map());
+  const recs = useRecommendations();
+  const rechecks = useRechecks();
+  const recommended = useMemo(() => [...recs.keys()] as LessonId[], [recs]);
   const [merged, setMerged] = useState<string | null>(null);
 
-  const passed = useMemo(
-    () => new Set((Object.keys(store.progress) as LessonId[]).filter((id) => store.progress[id]?.status === "passed")),
-    [store.progress],
-  );
-  const passedKey = [...passed].sort().join(",");
-
-  useEffect(() => {
-    if (store.mode !== "account") return;
-    let live = true;
-    Promise.all([fetchLeaks({}), fetchAnalysisOverview({})])
-      .then(([report, overview]) => {
-        if (!live || !report) return;
-        const areas = pickFocus(focusAreas(report.rows, report.hands), 5);
-        const flagTotals = new Map<string, number>();
-        for (const flag of overview?.flags ?? []) flagTotals.set(flag.code, (flagTotals.get(flag.code) ?? 0) + flag.count);
-        const flags = [...flagTotals].map(([code, decisions]) => ({ code: code as FlagCode, decisions }));
-        const done = new Set(passedKey ? (passedKey.split(",") as LessonId[]) : []);
-        setRecs(new Map(recommend(areas, flags, { passed: done }).map((rec) => [rec.lesson, rec])));
-      })
-      .catch(() => undefined);
-    return () => {
-      live = false;
-    };
-  }, [store.mode, passedKey]);
-
   const written = writtenLessons();
-  const mastered = written.filter((meta) => passed.has(meta.id)).length;
+  const statuses = written.map((meta) => lessonStatus(store.progress[meta.id]));
+  const mastered = statuses.filter((status) => status === "mastered").length;
+  const tested = statuses.filter((status) => status === "tested-out").length;
 
   const badge = (rec: Recommendation | undefined) => {
     if (!rec) return null;
@@ -81,7 +59,7 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
   return (
     <div className={styles.map}>
       <div className={styles.mapBar}>
-        <p>{store.mode === "loading" ? " " : t.map.progress(mastered, written.length)}</p>
+        <p>{store.mode === "loading" ? " " : tested > 0 ? t.map.progressTested(mastered, tested, written.length) : t.map.progress(mastered, written.length)}</p>
         <p>
           {store.due !== null && store.due > 0 ? (
             <Link href={paths.learnReview()} className="btn btn--sm btn--primary">
@@ -128,7 +106,15 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
         </div>
       ) : null}
       {merged ? <p className={styles.muted}>{merged}</p> : null}
+      <DailyDose recommended={recommended} />
+      <p className={styles.panelRow}>
+        <Link href={paths.learnPlacement()} className="btn btn--sm">
+          {t.map.placement}
+        </Link>
+        <span className={styles.muted}>{t.map.placementHint}</span>
+      </p>
       {recs.size > 0 ? <p className={styles.muted}>{t.map.recommendedNote}</p> : null}
+      {rechecks.size > 0 ? <p className={styles.muted}>{t.map.recheckNote}</p> : null}
 
       {TRACK_IDS.map((track) => (
         <section key={track} className={styles.track} aria-labelledby={`track-${track}`}>
@@ -138,6 +124,7 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
           {TRACKS[track].map((module) => {
             const lessons = lessonsIn(module);
             const ready = lessons.filter((meta) => meta.written).length;
+            const closing = capstoneLesson(module);
             return (
               <section key={module} className={styles.module} aria-labelledby={`module-${module}`}>
                 <h3 id={`module-${module}`} className={styles.moduleTitle}>
@@ -145,6 +132,11 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
                   <span>{t.modules[module]}</span>
                   {ready < lessons.length ? <span className={styles.muted}>{t.map.lessonCount(ready, lessons.length)}</span> : null}
                 </h3>
+                {closing ? (
+                  <p className={styles.moduleReview}>
+                    <Link href={`${paths.lesson(closing)}#capstone-${module}`}>{t.map.capstone(moduleCode(module))}</Link>
+                  </p>
+                ) : null}
                 <ol className={styles.lessons}>
                   {lessons.map((meta) => {
                     const status: LessonStatus = lessonStatus(store.progress[meta.id]);
@@ -167,6 +159,11 @@ export function CourseMap({ summaries }: { summaries: Readonly<Record<string, st
                               <span className={styles.tag}>{t.map.comingSoon}</span>
                             )}
                             {badge(recs.get(meta.id))}
+                            {rechecks.has(meta.id) ? (
+                              <span className={styles.recheck}>
+                                {t.map.recheck(rechecks.get(meta.id)?.before ?? 0, rechecks.get(meta.id)?.after ?? 0)}
+                              </span>
+                            ) : null}
                           </span>
                         </Link>
                       </li>

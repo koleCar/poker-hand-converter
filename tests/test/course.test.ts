@@ -5,7 +5,7 @@
  *    lesson id, prerequisite, concept, chart set, seat and flag resolves;
  *    codes are unique; nothing names a lesson that does not exist; L1's
  *    orientation, maths and range lessons are reference pages, not lessons;
- *    no curated example hands yet.
+ *    example hands only from the learner's own hands or scripted by Rail (L5).
  * 2. **The words**: every lesson and reference page has an outline in both
  *    languages; a lesson is written exactly when both languages have its
  *    body; the two bodies have the same structure (sections, blocks, widgets,
@@ -23,6 +23,10 @@
  *    exercises and cards, the sampling arithmetic, and the learner's own pool
  *    (`lib/learn/pool.ts`) summed from opponents-panel rows. The lab itself is
  *    `learnLab.test.ts`.
+ * 7. **L5's widgets**: the pot-tracking hand recounted action by action and
+ *    parsed as a real hand, and the profile quiz answered by the pool
+ *    section's own rule. The placement test, capstones, dose, examples and
+ *    re-check nudges are `learnExtras.test.ts`.
  */
 
 import { describe, expect, it } from "vitest";
@@ -48,12 +52,15 @@ import {
   REFERENCE_BY_GROUP,
   REFERENCE_CONCEPTS,
   REFERENCE_GROUPS,
+  PLANNED_KINDS,
   REFERENCE_IDS,
   RESERVED_LEARN_SEGMENTS,
   TRACKS,
   TRACK_IDS,
   countsTowardsPass,
   courseOrder,
+  exampleSeed,
+  examplesOf,
   isLessonId,
   isPlanned,
   isReferenceId,
@@ -79,7 +86,11 @@ import {
   handBucket,
   needed,
   passes,
+  potTrackingScript,
+  profileBucket,
+  PROFILE_BUCKETS,
 } from "../../frontend/src/lib/learn/practice.js";
+import { scriptHand } from "../../frontend/src/lib/training/handText.js";
 import { COMBO_PRESETS, MATCHUP_PRESETS, RANGE_TEXT } from "../../frontend/src/lib/learn/presets.js";
 import {
   addLocalCards,
@@ -95,6 +106,7 @@ import {
   progressAsResults,
   progressFromRows,
   reviewLocalCard,
+  TESTED_OUT,
   type ProgressMap,
 } from "../../frontend/src/lib/learn/progress.js";
 import { globMatch, lessonForArea, patternScore, recommend } from "../../frontend/src/lib/learn/recommend.js";
@@ -300,8 +312,43 @@ describe("the course catalogue", () => {
     }
   });
 
-  it("has an empty slot for curated example hands, and no example yet", () => {
-    for (const meta of courseOrder()) expect(meta.examples ?? []).toHaveLength(0);
+  it("fills the examples slot only from the learner's own hands or a hand Rail scripts, never from outside (L5)", () => {
+    for (const meta of courseOrder()) {
+      const examples = meta.examples ?? [];
+      if (!meta.written) {
+        expect(examples, meta.id).toHaveLength(0);
+        continue;
+      }
+      for (const example of examples) {
+        // Two kinds only, and nothing that could carry an outside source: no URL, no hand text, no player.
+        expect(["own", "scripted"], meta.id).toContain(example.kind);
+        expect(JSON.stringify(example), meta.id).not.toMatch(/https?:|handText|source|channel|video/i);
+        if (example.kind === "own") {
+          const ownSpots = meta.exercises.flatMap((def) => (def.kind === "own-hands" ? (def.spots ?? []) : []));
+          for (const pattern of [...meta.match.spots, ...ownSpots]) expect(example.spots, meta.id).toContainEqual(pattern);
+          const ownFlags = meta.exercises.flatMap((def) => (def.kind === "own-hands" ? (def.flags ?? []) : []));
+          expect(new Set(example.flags), meta.id).toEqual(new Set([...meta.match.flags, ...ownFlags]));
+        } else {
+          const def = meta.exercises.find((d) => d.id === example.exercise);
+          expect(def && ["chart-quiz", "solver-spot", "node-lock"].includes(def.kind), meta.id).toBe(true);
+          expect(example.seed).toBe(exampleSeed(meta.id));
+          // A turn or river spot before a flop spot, which needs the flop library.
+          if (def && readsFlopLibrary(def)) {
+            expect(meta.exercises.some((d) => ["chart-quiz", "solver-spot", "node-lock"].includes(d.kind) && !readsFlopLibrary(d)), meta.id).toBe(false);
+          }
+        }
+      }
+      const hasHandExercise = meta.exercises.some((d) => ["chart-quiz", "solver-spot", "node-lock"].includes(d.kind));
+      expect(examples.some((e) => e.kind === "scripted"), meta.id).toBe(hasHandExercise);
+    }
+    // The seed is a fixed function of the id: the same example on every visit.
+    expect(exampleSeed("thin-value")).toBe(exampleSeed("thin-value"));
+    expect(exampleSeed("thin-value")).not.toBe(exampleSeed("bluff-catching"));
+    expect(examplesOf({ ...LESSONS["thin-value"], written: false })).toEqual([]);
+  });
+
+  it("never names the placement test's progress key as an exercise (L5)", () => {
+    for (const meta of courseOrder()) for (const def of meta.exercises) expect(def.id, meta.id).not.toBe(TESTED_OUT);
   });
 
   it("names every lesson, reference page, module and track in both languages", () => {
@@ -322,10 +369,21 @@ describe("the course catalogue", () => {
       expect(hr.course.map.reference.groups[group]).toBeTruthy();
     }
     expect(hr.course.map.introPanel.points).toHaveLength(en.course.map.introPanel.points.length);
-    for (const kind of ["chart-quiz", "solver-spot", "calc", "classify", "own-hands", "range-split", "depth-split", "range-paint", "range-walk", "pot-tracking", "profile-quiz", "node-lock", "placement"]) {
+    for (const kind of ["chart-quiz", "solver-spot", "calc", "classify", "own-hands", "range-split", "range-paint", "node-lock", ...PLANNED_KINDS]) {
       expect(en.course.exerciseKinds[kind], kind).toBeTruthy();
       expect(hr.course.exerciseKinds[kind], kind).toBeTruthy();
     }
+    for (const kind of PLANNED_KINDS) {
+      expect(en.course.exercise.planned[kind], kind).toBeTruthy();
+      expect(hr.course.exercise.planned[kind], kind).toBeTruthy();
+    }
+    // L5 built these: nothing waits for them, and the dictionaries no longer call them planned.
+    for (const kind of ["pot-tracking", "profile-quiz", "placement"]) {
+      expect((PLANNED_KINDS as readonly string[]).includes(kind)).toBe(false);
+      expect(en.course.exerciseKinds[kind]).toBeUndefined();
+      expect(hr.course.exercise.planned[kind]).toBeUndefined();
+    }
+    expect(Object.keys(hr.course.exerciseKinds).sort()).toEqual(Object.keys(en.course.exerciseKinds).sort());
   });
 });
 
@@ -1036,6 +1094,97 @@ describe("the exploits track (L4)", () => {
     for (const lock of ["fold-to-bet", "never-raise", "air-bets"]) {
       expect(en.course.lab.lockLine[lock]("x")).toBeTruthy();
       expect(hr.course.lab.lockLine[lock]("x")).toBeTruthy();
+    }
+  });
+});
+
+/* ----------------------------------------------------------- L5 widgets - */
+
+describe("the L5 widgets", () => {
+  it("count the pot of a live hand to the turn, as an independent recount of every action finds it", () => {
+    const SEEDS = Array.from({ length: 60 }, (_, i) => i * 7919 + 11);
+    let threeBets = 0;
+    let checkedFlops = 0;
+    for (const seed of SEEDS) {
+      const script = potTrackingScript(seed);
+      const item = generateCalc("pot-tracking", seed);
+      // A legal hand: it parses as an upload would.
+      expect(() => scriptHand(script)).not.toThrow();
+      // Recount from the listed steps alone: each player's chips on the street, a call matching the most in.
+      let pot = 1.5;
+      const recount = (steps: string[], street: string, start: Map<string, number>) => {
+        const put = new Map(start);
+        let high = Math.max(0, ...put.values());
+        for (const step of steps) {
+          const [s, position, type, to] = step.split(":");
+          if (s !== street) continue;
+          const mine = put.get(position) ?? 0;
+          if (type === "call") {
+            pot += high - mine;
+            put.set(position, high);
+          } else if (type === "bet" || type === "raise") {
+            pot += Number(to) - mine;
+            put.set(position, Number(to));
+            high = Number(to);
+          }
+        }
+      };
+      const steps = item.params.steps as string[];
+      recount(steps, "preflop", new Map([["SB", 0.5], ["BB", 1]]));
+      expect(item.working.preflop, `${seed}`).toBeCloseTo(pot, 9);
+      recount(steps, "flop", new Map());
+      expect(item.answer, `${seed}`).toBeCloseTo(pot, 9);
+      expect(item.working.preflop + item.working.flop).toBeCloseTo(item.answer, 9);
+      // At least two players see the turn: someone called, or the flop checked through with two or more.
+      const folded = new Set(steps.filter((s) => s.split(":")[2] === "fold").map((s) => s.split(":")[1]));
+      expect(9 - folded.size, `${seed}`).toBeGreaterThanOrEqual(2);
+      if (steps.filter((s) => s.startsWith("preflop:") && s.includes(":raise:")).length > 1) threeBets += 1;
+      if (!steps.some((s) => s.startsWith("flop:") && s.includes(":bet:"))) checkedFlops += 1;
+      // Every amount is a whole or half big blind.
+      expect(Number.isInteger(item.answer * 2), `${seed}`).toBe(true);
+    }
+    // The generator deals both shapes it promises: some 3-bet pots, some checked flops.
+    expect(threeBets).toBeGreaterThan(0);
+    expect(checkedFlops).toBeGreaterThan(0);
+  });
+
+  it("answer the profile quiz by the pool section's own rule, over all three answers", () => {
+    const seen = new Set<string>();
+    for (const seed of Array.from({ length: 40 }, (_, i) => i * 104729 + 5)) {
+      const item = generateClassify("profile-read", seed);
+      const made = Number(item.detail.made);
+      const chances = Number(item.detail.chances);
+      const reads = poolReads(poolOf([{ counters: { fold_to_cbet_flop: made, fold_to_cbet_flop_opp: chances } }]));
+      const expected = reads.length === 0 ? "no-read" : reads[0].direction === "above" ? "overfolds" : "underfolds";
+      expect(item.answer, `${seed}`).toBe(expected);
+      expect(profileBucket(made, chances)).toBe(expected);
+      seen.add(item.answer);
+    }
+    expect(seen).toEqual(new Set(PROFILE_BUCKETS));
+    // A thin stat is never a read, however far it sits from the line.
+    expect(profileBucket(9, 10)).toBe("no-read");
+    expect(profileBucket(1, 10)).toBe("no-read");
+    expect(profileBucket(700, 1000)).toBe("overfolds");
+    expect(profileBucket(150, 1000)).toBe("underfolds");
+  });
+
+  it("put the L5 words in both dictionaries, with the same keys", () => {
+    for (const bucket of PROFILE_BUCKETS) {
+      expect(en.course.classify.buckets["profile-read"][bucket]).toBeTruthy();
+      expect(hr.course.classify.buckets["profile-read"][bucket]).toBeTruthy();
+    }
+    for (const type of ["fold", "check", "call", "bet", "raise"]) {
+      expect(en.course.calc.potSteps.act("UTG", type, "5 bb")).toContain("UTG");
+      expect(hr.course.calc.potSteps.act("UTG", type, "5 bb")).toContain("UTG");
+    }
+    expect(en.course.map.status["tested-out"]).toBeTruthy();
+    expect(hr.course.map.status["tested-out"]).toBeTruthy();
+    const keys = (node: unknown): string[] =>
+      node && typeof node === "object" && !Array.isArray(node)
+        ? Object.entries(node).flatMap(([k, v]) => [k, ...keys(v).map((sub) => `${k}.${sub}`)])
+        : [];
+    for (const ns of ["mixed", "placement", "capstone", "dose", "examples"] as const) {
+      expect(keys(hr.course[ns]).sort(), ns).toEqual(keys(en.course[ns]).sort());
     }
   });
 });

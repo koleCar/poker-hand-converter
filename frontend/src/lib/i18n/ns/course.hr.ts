@@ -150,12 +150,20 @@ export const courseHr = {
     reviewNone: "Nema kartica za ponavljanje",
     reviewLink: "Ponavljanje",
     progress: (done: number, total: number) => `Savladano ${done} od ${total} napisanih lekcija`,
+    progressTested: (done: number, tested: number, total: number) => `Savladano ${done} od ${total} napisanih lekcija, testom preskočeno ${tested}`,
     statusLabel: "Stanje",
     status: {
       "not-started": "Nije započeto",
       "in-progress": "U tijeku",
+      "tested-out": "Preskočeno testom",
       mastered: "Savladano",
     } as Record<string, string>,
+    recheck: (before: number, after: number) => `Ponovi: lošije u tvojim rukama otad (ocijenjenih odluka prije: ${before}, poslije: ${after})`,
+    recheckNote:
+      "„Ponovi” označava lekciju koju si položio ili preskočio testom, a u čijim situacijama otad igraš lošije, više od šuma uzorka: barem 20 ocijenjenih odluka sa svake strane, po testu koji koristi i pronalazak propusta. Manje ruku, ili tek naginjanje, nikad ne vraća lekciju.",
+    capstone: (code: string) => `Ponavljanje modula ${code}`,
+    placement: "Test razine",
+    placementHint: "Već dobro igraš ove situacije? Preskoči modul testom umjesto da prolaziš lekciju po lekciju.",
     comingSoon: "Uskoro",
     recommended: "Preporučeno",
     recommendedLeak: (per100: string) => `Preporučeno: ovdje gubiš ${per100} bb na 100 ruku`,
@@ -232,10 +240,7 @@ export const courseHr = {
     "depth-split": "Razvrstavanje klasa ruku na 200bb naspram 100bb (planirano)",
     "range-paint": "Bojanje raspona na mreži 13×13, ocijenjeno polje po polje prema Railovu chartu ili rješenju",
     "range-walk": "Pogađanje raspona street po street na tvojoj ruci (planirano)",
-    "pot-tracking": "Praćenje pota u ruci kao uživo (planirano)",
-    "profile-quiz": "Prepoznavanje tipova igrača iz statistike (planirano)",
     "node-lock": "Zaključavanje protivnikove sklonosti u Railovu solveru i igranje najboljeg odgovora protiv nje",
-    placement: "Test razine (planirano)",
   } as Record<string, string>,
 
   checkpoint: {
@@ -275,10 +280,7 @@ export const courseHr = {
       "depth-split": "Planirano: razvrstaj isti raspon na 200bb i na 100bb i usporedi obje podjele s Railovim rješenjima.",
       "range-paint": "Planirano: oboji raspon pozicije sa straddleom na mreži 13×13, kad Rail dobije straddle chartove s kojima ga može usporediti.",
       "range-walk": "Planirano: ponovno odigraj svoju ruku i pogađaj protivnikov raspon na svakom streetu, pa usporedi s Railovim sužavanjem.",
-      "pot-tracking": "Planirano: ruka kao uživo u kojoj pratiš koliko je u potu.",
-      "profile-quiz": "Planirano: prepoznaj tipove svojih protivnika iz njihove statistike.",
       "node-lock": "Planirano: zaključaj protivnikovu učestalost u jednoj odluci, ponovno je riješi Railovim solverom i usporedi najbolji odgovor s osnovnom strategijom.",
-      placement: "Planirano: kratki test razine koji predlaže odakle krenuti.",
     } as Record<string, string>,
     waits: {
       widget: "Ova vježba treba alat koji još nije napravljen.",
@@ -394,6 +396,7 @@ export const courseHr = {
 
   mastery: {
     title: "U tvojim rukama otkad si ga položio",
+    titleTested: "U tvojim rukama otkad si je preskočio testom",
     loading: "Čitam tvoje analizirane ruke…",
     failed: (message: string) => `Ne mogu pročitati tvoje ruke: ${message}`,
     noSpots: "Ova lekcija nije vezana uz jednu situaciju iz pronalaska propusta, pa je Rail ne može mjeriti na tvojim rukama.",
@@ -466,6 +469,21 @@ export const courseHr = {
         `Protivnikova statistika pokazuje ${value} kroz ${n} prilika. Koliko daleko s obje strane seže interval od 95% (u postotnim bodovima)?`,
       "sample-needed": (value: string, margin: string) =>
         `Statistika je blizu ${value}. Koliko prilika treba prije nego što joj interval od 95% bude unutar ± ${margin}?`,
+      "pot-tracking": "Igra uživo za punim stolom, blindovi $0,5/$1, svi s 200 bb. Broji kako ruka ide: koliko je big blindova u potu kad se podijeli turn?",
+    },
+    potSteps: {
+      preflop: "Preflop",
+      flop: "Flop",
+      act: (position: string, type: string, to: string) =>
+        type === "fold"
+          ? `${position} folda`
+          : type === "check"
+            ? `${position} checka`
+            : type === "call"
+              ? `${position} plaća call`
+              : type === "bet"
+                ? `${position} beta ${to}`
+                : `${position} raisea na ${to}`,
     },
     combosShape: {
       pair: "par",
@@ -490,6 +508,7 @@ export const courseHr = {
       multiway: (alpha: string, answer: string) => `Bet ukupno treba ${alpha} foldova; odgovor je ${answer}.`,
       "sample-margin": (variance: string, answer: string) => `1,96 × √(${variance} ÷ prilike) = ${answer}.`,
       "sample-needed": (variance: string, answer: string) => `1,96² × ${variance} ÷ margina² = ${answer} prilika.`,
+      "pot-tracking": (preflop: string, flop: string, answer: string) => `Prije flopa ušlo je ${preflop} (s blindovima), a na flopu ${flop}: ${answer}.`,
     },
     revealWidget: "Kalkulator, s ovim brojevima:",
     cards: { flop: "Flop", board: "Board", you: "Ti", opponent: "Protivnik" },
@@ -516,7 +535,10 @@ export const courseHr = {
       "range-advantage": "Open s buttona protiv calla iz big blinda: je li na ovom flopu otvarač jasno ispred ili je tijesno?",
       "nut-advantage": "Open s UTG-a protiv calla iz big blinda: otvarač ima više najjačih ruku. Je li ta prednost ovdje velika ili mala?",
       "turn-card": "Open s buttona protiv calla iz big blinda. Pomaže li ova karta na turnu otvaraču, calleru ili nikome?",
+      "profile-read": "Što ova statistika podržava, po pravilu koje koristi odjeljak o tvom poolu?",
     },
+    profileStat: (made: number, chances: number, value: string) =>
+      `Protivnik je foldao na ${made} od ${chances} c-betova na flopu (${value}). To su brojevi vježbe, ne ničija stvarna statistika.`,
     buckets: {
       texture: {
         rainbow: "Rainbow (tri boje)",
@@ -543,6 +565,11 @@ export const courseHr = {
       "range-advantage": { raiser: "Otvarač je jasno ispred", close: "Tijesno" } as Record<string, string>,
       "nut-advantage": { big: "Velika prednost", small: "Mala prednost" } as Record<string, string>,
       "turn-card": { raiser: "Otvaraču", neutral: "Nikome", caller: "Calleru" } as Record<string, string>,
+      "profile-read": {
+        overfolds: "Folda više nego što treba blefu od pola pota",
+        underfolds: "Folda manje nego što treba blefu od trećine pota",
+        "no-read": "Još nema očitanja",
+      } as Record<string, string>,
     },
     detail: {
       volatility: (value: string) => `Volatilnost ${value}: udio sljedećih karata koje mijenjaju board.`,
@@ -551,6 +578,8 @@ export const courseHr = {
       nuts: (raiser: string, caller: string) => `U gornjih 10 % ruku: otvarač ${raiser}, caller ${caller}.`,
       shift: (before: string, after: string) => `Equity otvaračeva raspona: ${before} na flopu, ${after} s ovim turnom.`,
       made: (made: string) => `Imaš: ${made}.`,
+      profile: (value: string, margin: string, above: string, below: string) =>
+        `${value} ± ${margin} (interval od 95%). Blef od pola pota treba ${above} foldova, blef od trećine pota ${below}. Očitanje traži da cijeli interval bude preko jedne od tih crta, uz barem 30 prilika i interval ne širi od ± 10 bodova.`,
     },
     madeHand: {
       "straight-flush": "straight flush",
@@ -710,5 +739,77 @@ export const courseHr = {
   plan: {
     task: (title: string) => `Lekcija: ${title}`,
     open: "Otvori lekciju",
+  },
+
+  mixed: {
+    skip: "Preskoči",
+    new: "Novo",
+    review: "Ponavljanje",
+  },
+
+  placement: {
+    heading: "Test razine",
+    intro:
+      "Već dobro igraš neke od ovih situacija? Riješi kratki izmiješani test za jedan smjer: nekoliko pitanja iz svakog njegova modula, podijeljenih i ocijenjenih točno kao u lekcijama. Modul koji položiš označava se kao „preskočeno testom”: to je zasebno stanje, ne „savladano”, pa su ti lekcije otvorene kad god ih poželiš.",
+    pick: "Odaberi smjer",
+    track: (modules: number, items: number) => `modula: ${modules}, pitanja: ${items}`,
+    rules: (perModule: number, share: string, min: number) =>
+      `${perModule} pitanja po modulu, izmiješana kroz cijeli smjer. Modul se preskače uz ${share} točnih od ocijenjenih pitanja i barem ${min} ocijenjena; pitanje koje se ne može podijeliti možeš preskočiti i ne broji se protiv tebe.`,
+    start: (track: string) => `Počni test: ${track}`,
+    resultTitle: "Kako je prošlo",
+    module: (code: string, name: string, correct: number, graded: number) => `${code} ${name}: ${correct} od ${graded} točno`,
+    testedOut: (count: number) => `preskočeno testom: označeno ${lessons(count)}`,
+    already: "preskočeno testom — njegove lekcije već su bile položene ili preskočene",
+    notYet: "nije preskočeno — kreni odavde:",
+    tooFew: "premalo ocijenjenih pitanja za procjenu",
+    recorded: "Spremljeno na tvoj račun.",
+    recordedLocal: "Spremljeno u ovom pregledniku.",
+    again: "Odaberi drugi smjer",
+    signedOut: "Dok nisi prijavljen, rezultati se čuvaju samo u ovom pregledniku.",
+  },
+
+  capstone: {
+    heading: (code: string) => `Ponavljanje modula ${code}`,
+    intro: (count: number) =>
+      `${count} pitanja izmiješanih iz lekcija ovog modula: situacija iz jedne lekcije, račun iz druge. Prepoznati koju ideju situacija traži pola je posla. Promašena pitanja idu u tvoje kartice za ponavljanje; rezultat se ne sprema.`,
+    start: "Počni ponavljanje",
+    result: (correct: number, graded: number) => `${correct} od ${graded} točno.`,
+    again: "Još jedno ponavljanje",
+    empty: "Nijedna lekcija ovog modula još nema vježbu koju Rail ovdje može podijeliti.",
+  },
+
+  dose: {
+    heading: "Današnjih pet minuta",
+    intro: "Nekoliko kartica za ponavljanje koje su na redu i jedno novo pitanje iz lekcije na koju te Rail upućuje: najmanja korisna dnevna navika.",
+    plan: (reviews: number, lesson: string | null) => `Za ponavljanje: ${cards(reviews)}${lesson ? `, i jedno novo pitanje iz lekcije „${lesson}”` : ""}.`,
+    nothing: "Ništa nije na redu i sve lekcije su gotove. Vrati se sutra.",
+    start: "Počni",
+    loading: "Pripremam današnja pitanja…",
+    done: (correct: number, graded: number) => `Gotovo za danas: ${correct} od ${graded} točno.`,
+    doneToday: "Gotovo za danas. Sljedeća doza čeka te sutra.",
+    again: "Još jednu",
+  },
+
+  examples: {
+    heading: "Primjeri ruku",
+    intro: "Primjeri dolaze samo s dva mjesta: iz tvojih analiziranih ruku u situacijama ove lekcije i iz ruke koju Rail sam podijeli i ocijeni. Nikad ruka izvan Raila.",
+    ownTitle: "Iz tvojih ruku",
+    signIn: "Prijavi se, s analiziranim rukama, da ovdje vidiš primjere iz vlastite igre.",
+    find: "Pronađi moje primjere",
+    loading: "Pregledavam tvoje analizirane ruke…",
+    failed: (message: string) => `Ne mogu pročitati tvoje ruke: ${message}`,
+    none: "Još nemaš ocijenjenih odluka u situacijama ove lekcije.",
+    costliest: "Tvoja najskuplja odluka ovdje",
+    perfect: "Tvoja čista ocjena Savršeno ovdje",
+    spot: (street: string, position: string | null) => (position ? `${street}, ${position}` : street),
+    show: "Pokaži zašto",
+    open: "Odigraj je do ove odluke",
+    whyMistake: (taken: string, reference: string, loss: string, pot: string | null, grade: string) =>
+      `Odigrao si ${taken} (${grade}). Railova referentna strategija radije igra ${reference}; razlika je stajala ${loss}${pot ? `, ${pot} pota` : ""}.`,
+    whyPerfect: (taken: string, freq: string, next: string, margin: string) =>
+      `Odigrao si ${taken}, što Railova referentna strategija ovdje igra u ${freq} slučajeva. Sljedeća najbolja opcija, ${next}, gubi ${margin}: ovdje se isplatilo pogoditi.`,
+    scriptedTitle: "Ruka koju dijeli Rail",
+    scriptedIntro: "Rail ovu ruku slaže iz vježbe same lekcije, uvijek istu, i ocjenjuje je analizom. Prvo odluči, pa pročitaj Railovu ocjenu.",
+    deal: "Podijeli je",
   },
 } as const;

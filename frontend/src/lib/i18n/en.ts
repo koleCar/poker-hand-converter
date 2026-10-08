@@ -129,6 +129,10 @@ export const en = {
       title: "Review — your missed quiz items | Rail",
       description: "The quiz items you missed in lessons, back on a spaced-repetition schedule.",
     },
+    learnPlacement: {
+      title: "Placement test — test out of what you already know | Rail",
+      description: "A short mixed test per track, dealt and graded by Rail's own engine: pass a module's items and its lessons are marked tested out.",
+    },
     charts: {
       title: "Preflop charts: 6-max and 9-max cash, every hand's mix and EV | Rail",
       description:

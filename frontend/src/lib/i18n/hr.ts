@@ -112,6 +112,10 @@ export const hr: Dict = {
       title: "Ponavljanje — pitanja koja si promašio | Rail",
       description: "Pitanja iz lekcija koja si promašio, ponovno po rasporedu razmaknutog ponavljanja.",
     },
+    learnPlacement: {
+      title: "Test razine — preskoči ono što već znaš | Rail",
+      description: "Kratki izmiješani test po smjeru, koji dijeli i ocjenjuje Railov vlastiti engine: položi pitanja modula i njegove lekcije bit će označene kao preskočene testom.",
+    },
     charts: {
       title: "Preflop chartovi: 6-max i 9-max cash, mix i EV svake ruke | Rail",
       description:

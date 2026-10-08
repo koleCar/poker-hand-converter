@@ -58,7 +58,21 @@ export interface LessonRecord {
 
 export type ProgressMap = Partial<Record<LessonId, LessonRecord>>;
 
-export type LessonStatus = "not-started" | "in-progress" | "mastered";
+/**
+ * Map status. `tested-out` (L5): the placement test passed the lesson's
+ * module, a status of its own, distinct from passing the lesson's exercises
+ * (which still makes it `mastered`).
+ */
+export type LessonStatus = "not-started" | "in-progress" | "tested-out" | "mastered";
+
+/**
+ * The progress key a placement test writes for each lesson of a module it
+ * passes (L5): an entry in the lesson's `exercises` map with `passed: true`.
+ * It is no exercise of any lesson (`course.test.ts` holds that), so it never
+ * counts towards passing; the existing model and writer carry it, with no
+ * migration.
+ */
+export const TESTED_OUT = "tested-out";
 
 /** One result as the database's writer takes it (`record_lesson_results`). */
 export interface LessonResult {
@@ -105,7 +119,29 @@ export function lessonComplete(meta: LessonMeta, exercises: Readonly<Record<stri
 
 export function lessonStatus(record: LessonRecord | undefined): LessonStatus {
   if (!record) return "not-started";
-  return record.status === "passed" ? "mastered" : "in-progress";
+  if (record.status === "passed") return "mastered";
+  return record.exercises[TESTED_OUT]?.passed ? "tested-out" : "in-progress";
+}
+
+/** When a placement test tested the lesson out (ISO), or null. */
+export function testedOutAt(record: LessonRecord | undefined): string | null {
+  const entry = record?.exercises[TESTED_OUT];
+  return entry?.passed && entry.at ? entry.at : null;
+}
+
+/** Whether the learner is done with a lesson: passed it, or tested out of it. */
+export function lessonDone(record: LessonRecord | undefined): boolean {
+  const status = lessonStatus(record);
+  return status === "mastered" || status === "tested-out";
+}
+
+/**
+ * The day a lesson's real-hand mastery is measured from (L3, L5): when it was
+ * passed, else when it was tested out. Null for neither.
+ */
+export function settledAt(record: LessonRecord | undefined): string | null {
+  if (record?.status === "passed" && record.passedAt) return record.passedAt;
+  return testedOutAt(record);
 }
 
 /**

@@ -80,6 +80,8 @@ export const paths = {
   lesson: (id: string) => `/learn/${encodeURIComponent(id)}`,
   /** The review queue: missed quiz items on their spaced-repetition schedule. */
   learnReview: () => "/learn/review",
+  /** The placement test (Learn L5): a short mixed test per track; a module passed tests out its lessons. */
+  learnPlacement: () => "/learn/placement",
   /**
    * One reference page (Learn L1.1): an idea the course assumes, kept from L1's
    * orientation, maths and range lessons. `id` is a `ReferenceId`.

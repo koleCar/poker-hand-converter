@@ -704,3 +704,80 @@
   flex-direction: column;
   gap: var(--space-3);
 }
+
+/* ------------------------------------------------------------- Learn L5 */
+
+.cardsLine[hidden] {
+  display: none;
+}
+
+/* A pot-tracking hand's actions, street by street. */
+.potSteps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-inline-start: var(--space-5);
+  line-height: var(--line-height-relaxed);
+}
+
+.status[data-status="tested-out"] {
+  border-style: dashed;
+  border-color: var(--success-border);
+  color: var(--success-on-tint);
+}
+
+.recheck {
+  align-self: flex-start;
+  padding: 1px var(--space-2);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  color: var(--accent-fg);
+}
+
+/* The map's daily dose and placement link, a module capstone, a lesson's examples. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-3);
+  background: var(--surface-raised);
+}
+
+.panelHeading {
+  font-size: var(--font-size-lg);
+}
+
+.panelRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.outcomes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-inline-start: var(--space-5);
+}
+
+.examples {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.exampleCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2);
+}
+
+.moduleReview {
+  font-size: var(--font-size-sm);
+}

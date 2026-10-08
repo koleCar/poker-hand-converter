@@ -26,10 +26,12 @@ import { grade, type GradeResult } from "../analysis/grading";
 import { boardTexture, draws, madeHand, toIndices } from "../analysis/texture";
 import { GRADES, type Grade, type MadeHandClass, type OptionAnalysis } from "../analysis/types";
 import { cardCode, evaluate } from "../equity/evaluator";
+import { NINE_SCRIPT_POSITIONS, scriptMoney, type HandScript, type ScriptAct, type ScriptPosition } from "../training/handText";
 import { pickOne, seeded, type Rng } from "../training/rng";
 import type { CalcKind, ClassifyKind } from "./course";
 import type { WidgetPreset } from "./concepts";
 import { allFold, alpha, callEv, countCombos, marginOfError, mdf, mdfSplit, nutShare, rangeVsRange, requiredEquity, sampleNeeded, spr } from "./math";
+import { foldRead, poolStat, READ_SIZES } from "./pool";
 import { presetRange } from "./presets";
 
 /* ---------------------------------------------------------------- shared - */
@@ -518,6 +520,135 @@ function sampleSizeItem(seed: number, rng: Rng): CalcItem {
   };
 }
 
+/* ------------------------------------------------------ pot tracking (L5) - */
+
+/** A step of a pot-tracking hand as the question lists it: `street:position:type:to` (`to` for a bet or raise, bb). */
+export type PotStep = string;
+
+const LIVE_OPENS = [3, 4, 5, 6, 8] as const;
+/** Postflop order at a full ring: the blinds first, then the preflop order. */
+const NINE_POSTFLOP: readonly ScriptPosition[] = ["SB", "BB", "UTG", "UTG+1", "UTG+2", "LJ", "HJ", "CO", "BTN"];
+const halfBb = (value: number) => Math.max(1, Math.round(value * 2) / 2);
+
+/**
+ * A live-style full-ring hand to the turn (Learn L5, `live-game-dynamics`):
+ * an open of 3–8 bb, callers, sometimes a 3-bet, a flop that is bet or
+ * checked through. Random but legal: every amount is a whole or half big
+ * blind and at least two players see the turn.
+ */
+export function potTrackingScript(seed: number): HandScript {
+  const rng = seeded(seed >>> 0);
+  const seats = NINE_SCRIPT_POSITIONS;
+  const put = new Map<ScriptPosition, number>([
+    ["SB", 0.5],
+    ["BB", 1],
+  ]);
+  const live = new Set<ScriptPosition>();
+  const pre: ScriptAct[] = [];
+  const openerAt = Math.floor(rng() * 6);
+  const open: number = pickOne(LIVE_OPENS, rng);
+  let high = open;
+  let threeBettor: ScriptPosition | null = null;
+  seats.forEach((position, index) => {
+    if (index < openerAt) {
+      pre.push({ position, type: "fold" });
+      return;
+    }
+    if (index === openerAt) {
+      pre.push({ position, type: "raise", to: open });
+      put.set(position, open);
+      live.add(position);
+      return;
+    }
+    const roll = rng();
+    const lastChance = position === "BB" && live.size === 1;
+    if (!threeBettor && !lastChance && roll < 0.12) {
+      const to = halfBb(open * 3.5);
+      pre.push({ position, type: "raise", to });
+      put.set(position, to);
+      high = to;
+      threeBettor = position;
+      live.add(position);
+    } else if (roll < 0.45 || lastChance) {
+      pre.push({ position, type: "call" });
+      put.set(position, high);
+      live.add(position);
+    } else {
+      pre.push({ position, type: "fold" });
+    }
+  });
+  if (threeBettor) {
+    // The players who put in less than the 3-bet answer it, in order after the 3-bettor.
+    const at = seats.indexOf(threeBettor);
+    const order = [...seats.slice(at + 1), ...seats.slice(0, at)].filter((p) => live.has(p) && (put.get(p) ?? 0) < high);
+    let called = 0;
+    order.forEach((position, index) => {
+      const last = index === order.length - 1;
+      if (rng() < 0.45 || (last && called === 0)) {
+        pre.push({ position, type: "call" });
+        put.set(position, high);
+        called += 1;
+      } else {
+        pre.push({ position, type: "fold" });
+        live.delete(position);
+      }
+    });
+  }
+  const flopPot = [...put.values()].reduce((a, b) => a + b, 0);
+  const players = NINE_POSTFLOP.filter((p) => live.has(p));
+  const flop: ScriptAct[] = [];
+  if (rng() < 0.25) {
+    for (const position of players) flop.push({ position, type: "check" });
+  } else {
+    const bettorAt = Math.floor(rng() * players.length);
+    const bet = halfBb(flopPot * pickOne([0.33, 0.5, 0.75] as const, rng));
+    for (const position of players.slice(0, bettorAt)) flop.push({ position, type: "check" });
+    flop.push({ position: players[bettorAt], type: "bet", to: bet });
+    const answer = [...players.slice(bettorAt + 1), ...players.slice(0, bettorAt)];
+    let called = 0;
+    answer.forEach((position, index) => {
+      const last = index === answer.length - 1;
+      if (rng() < 0.5 || (last && called === 0)) {
+        flop.push({ position, type: "call" });
+        called += 1;
+      } else {
+        flop.push({ position, type: "fold" });
+      }
+    });
+  }
+  const board = codes(deal(rng, 4));
+  return { id: `pot-${seed >>> 0}`, seats, hero: "BTN", heroCards: null, stackBb: 200, preflop: pre, board, flop, turn: [] };
+}
+
+/** The script's actions as the question lists them. */
+export function potSteps(script: HandScript): PotStep[] {
+  const step = (street: string) => (a: ScriptAct) => `${street}:${a.position}:${a.type}:${a.to ?? ""}`;
+  return [...script.preflop.map(step("preflop")), ...(script.flop ?? []).map(step("flop"))];
+}
+
+/**
+ * Learn L5 (`live-game-dynamics`): keep track of the pot. The answer is the
+ * pot at the start of the turn as Rail's own hand writer counts it
+ * (`scriptMoney`, the money every trainer hand goes through).
+ */
+function potTrackingItem(seed: number): CalcItem {
+  const script = potTrackingScript(seed);
+  const money = scriptMoney(script);
+  const preflop = money.streetPot.flop ?? 0;
+  const answer = money.streetPot.turn ?? 0;
+  return {
+    kind: "pot-tracking",
+    seed,
+    ask: "turn-pot",
+    params: { steps: potSteps(script), board: script.board?.slice(0, 3) ?? [] },
+    unit: "bb",
+    answer,
+    tolerance: 0.25,
+    widget: null,
+    working: { preflop, flop: round(answer - preflop, 2) },
+  };
+}
+
 const CALC_MAKERS: Readonly<Record<CalcKind, (seed: number, rng: Rng) => CalcItem>> = {
   "pot-odds": potOddsItem,
   "outs-equity": outsEquityItem,
@@ -532,6 +663,7 @@ const CALC_MAKERS: Readonly<Record<CalcKind, (seed: number, rng: Rng) => CalcIte
   "allin-ev": allinEvItem,
   multiway: multiwayItem,
   "sample-size": sampleSizeItem,
+  "pot-tracking": (seed) => potTrackingItem(seed),
 };
 
 /** A calc item for `seed`. Deterministic. */
@@ -828,6 +960,58 @@ function turnCardItem(seed: number, rng: Rng): ClassifyItem {
   throw new Error(`turn-card: no turn for seed ${seed}`);
 }
 
+/* ------------------------------------------------- profile reads (L5) - */
+
+export const PROFILE_BUCKETS = ["overfolds", "underfolds", "no-read"] as const;
+const PROFILE_CHANCES = [12, 20, 35, 60, 100, 160, 250, 400, 800] as const;
+
+/** A fold-to-c-bet stat's bucket by the pool section's own rule (`foldRead`): its whole interval past a bluff's break-even, or no read. */
+export function profileBucket(made: number, chances: number): (typeof PROFILE_BUCKETS)[number] {
+  const read = foldRead(poolStat("foldToCbet", made, chances));
+  return read === null ? "no-read" : read.direction === "above" ? "overfolds" : "underfolds";
+}
+
+/**
+ * Learn L5 (`player-profiles`, the `profile-quiz` exercise): an opponent's
+ * folds to a flop c-bet over some chances — a drill's numbers, not a figure
+ * about any real pool — sorted by what they support: folds more than a
+ * half-pot bluff needs, less than a third-pot bluff needs, or no read yet
+ * (the interval too wide, or straddling the line). Graded by the rule the
+ * learner's own pool section uses (`lib/learn/pool.ts`).
+ */
+function profileReadItem(seed: number, rng: Rng): ClassifyItem {
+  const target = pickOne(PROFILE_BUCKETS, rng);
+  let fallback: ClassifyItem | null = null;
+  for (let attempt = 0; attempt < 200; attempt += 1) {
+    const chances = pickOne(PROFILE_CHANCES, rng);
+    const value = 0.1 + Math.floor(rng() * 71) / 100;
+    const made = Math.round(value * chances);
+    const stat = poolStat("foldToCbet", made, chances);
+    const answer = profileBucket(made, chances);
+    const item: ClassifyItem = {
+      kind: "profile-read",
+      seed,
+      ask: "fold-to-cbet",
+      board: [],
+      buckets: PROFILE_BUCKETS,
+      answer,
+      detail: {
+        made,
+        chances,
+        value: round(stat.value ?? 0, 4),
+        margin: round(Math.min(1, stat.margin ?? 1), 4),
+        above: round(alpha(1, READ_SIZES.above), 4),
+        below: round(alpha(1, READ_SIZES.below), 4),
+        level: stat.level,
+      },
+      widget: { id: "sample-size", share: round(stat.value ?? 0, 2), count: chances },
+    };
+    if (answer === target) return item;
+    fallback ??= item;
+  }
+  return fallback as ClassifyItem;
+}
+
 const CLASSIFY_MAKERS: Readonly<Record<ClassifyKind, (seed: number, rng: Rng) => ClassifyItem>> = {
   texture: textureItem,
   dynamism: dynamismItem,
@@ -835,6 +1019,7 @@ const CLASSIFY_MAKERS: Readonly<Record<ClassifyKind, (seed: number, rng: Rng) =>
   "range-advantage": rangeAdvantageItem,
   "nut-advantage": nutAdvantageItem,
   "turn-card": turnCardItem,
+  "profile-read": profileReadItem,
 };
 
 /** A classify item for `seed`. Deterministic. */
