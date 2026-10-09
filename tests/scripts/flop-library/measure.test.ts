@@ -14,10 +14,13 @@
  * batch runner writes them. Turns are not solved (`turn: false`): flop grades
  * do not depend on them. `FLOPLIB_TURN_SAMPLE=N` also analyses the first N
  * hands with turn solving on and reports how turn and river grades move with
- * the flop's narrowing.
+ * the flop's narrowing. `FLOPLIB_DUMP=/path/to/out.jsonl` also writes each
+ * hero flop decision the library grades (hand number, decision, grade, EV
+ * loss, mapped or exact, the category read): two dumps of the same hands
+ * under two versions of the reading compare decision for decision.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "vitest";
 
@@ -29,6 +32,7 @@ const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
 const FILE = process.env.FLOPLIB_HANDS ?? "";
 const DIR = process.env.FLOPLIB_DIR ?? "";
 const TURN_SAMPLE = Number(process.env.FLOPLIB_TURN_SAMPLE ?? 0);
+const DUMP = process.env.FLOPLIB_DUMP ?? "";
 
 const bump = (m: Map<string, number>, key: string, by = 1) => m.set(key, (m.get(key) ?? 0) + by);
 const list = (m: Map<string, number>) =>
@@ -108,12 +112,21 @@ it("measures the flop library on a stored library", { timeout: 12 * 60 * 60_000 
 
   const started = performance.now();
   const flop = fresh();
-  for (const hand of hands) {
+  const dump: string[] = [];
+  for (const [h, hand] of hands.entries()) {
     await library.prefetch(hand, charts);
     const before = analyzeHand(structuredClone(hand), { charts, turn: false });
     const after = analyzeHand(structuredClone(hand), { charts, turn: false, flopLibrary: library });
     compare("flop", before, after, flop);
+    if (DUMP) {
+      after.decisions.forEach((d, k) => {
+        if (d.street !== "flop" || d.source !== "solver") return;
+        const facts = d.facts.flop?.source === "library" ? d.facts.flop : null;
+        dump.push(JSON.stringify({ hand: h, decision: k, grade: d.grade, evLoss: d.evLoss, mapped: facts?.mapped ?? null, bucket: facts?.bucket ?? null }));
+      });
+    }
   }
+  if (DUMP) writeFileSync(DUMP, dump.join("\n") + "\n");
   console.log(`=== ${FILE}: ${hands.length} hands (${((performance.now() - started) / 1000).toFixed(0)} s)`);
   report("flop", flop);
 

@@ -27,8 +27,9 @@
  * other flop reads its representative's chunk (`mapFlop`) **by hand
  * category**: each combo of the real flop takes the reach-weighted mean
  * strategy and EV of the combos in the same category on the representative
- * (`flopBucket`: made hand × draw), with coarser categories when that one is
- * empty there. Approximations `flop-mapped` and `library-bucketed`. A hero
+ * (`flopReadingBucket`: made hand × draw, finer than the teaching
+ * `flopBucket` since `analysis/12`), with coarser categories when that one
+ * is thin there (`readingChain`). Approximations `flop-mapped` and `library-bucketed`. A hero
  * combo the exact chunk does not hold (out of the chart range) is read by
  * category too (`library-bucketed`, `out-of-range`).
  *
@@ -41,7 +42,7 @@
 
 import type { ChartPosition, ChartSet } from "../charts";
 import { isChartLibrary, lookupPreflop, preflopSpotFromHand, type PreflopActionInput, type PreflopSpot } from "../charts";
-import { cardCode } from "../equity/evaluator";
+import { cardCode, categoryOf, evaluate } from "../equity/evaluator";
 import type { PhfHand } from "../phf/types";
 import {
   canonicalBoard,
@@ -533,9 +534,140 @@ export function flopBucket(hole: readonly [number, number], board: readonly numb
   return `${m}/${d}`;
 }
 
-/** Category keys from fine to coarse: the bucket, the made hand alone, everything. */
-function bucketChain(bucket: string): string[] {
-  return [bucket, `${bucket.split("/")[0]}/*`, "*"];
+/* -------------------------------------------- the reading categories - */
+
+const rankOf = (card: number) => card >> 2;
+const suitOf = (card: number) => card & 3;
+
+/** Per board (sorted cards): the value of the best straight two hole cards can make on it, or -1. */
+const nutStraights = new Map<string, number>();
+
+function nutStraight(board: readonly number[]): number {
+  const key = [...board].sort((a, b) => a - b).join(",");
+  let best = nutStraights.get(key);
+  if (best !== undefined) return best;
+  best = -1;
+  for (let a = 0; a < 52; a += 1) {
+    if (board.includes(a)) continue;
+    for (let b = a + 1; b < 52; b += 1) {
+      // Two suits apart: a straight, never a flush (a straight's value is suit-blind).
+      if (board.includes(b) || suitOf(a) === suitOf(b)) continue;
+      const value = evaluate([a, b, ...board]);
+      if (categoryOf(value) === "straight" && value > best) best = value;
+    }
+  }
+  nutStraights.set(key, best);
+  return best;
+}
+
+/** As `texture.ts`'s kicker of a one-card pair: the best rank left is `top`, the next two `good`. */
+function kickerOf(kicker: number, pairRank: number, boardRanks: ReadonlySet<number>): "top" | "good" | "weak" {
+  let better = 0;
+  for (let rank = 12; rank > kicker; rank -= 1) if (rank !== pairRank && !boardRanks.has(rank)) better += 1;
+  return better === 0 ? "top" : better <= 2 ? "good" : "weak";
+}
+
+/**
+ * The made half of `flopReadingBucket`: `flopBucket`'s made hand split where
+ * the two halves play differently, every split rank-relative to the board:
+ * the nut straight from a lower one, a set by the board card it pairs (top,
+ * middle, bottom), trips by kicker, two pair by which two (top two, top and
+ * bottom, bottom two), a pocket pair between the top two board ranks
+ * (`pp-mid`) apart from a second pair by kicker, third pair apart from an
+ * underpair, and unpaired hands by their overcards to the board (0-2) and
+ * whether a hole card is under the bottom board rank (`u`).
+ */
+function readingMade(hole: readonly [number, number], board: readonly number[]): string {
+  const made = madeHand(hole, board);
+  const ranks = [...new Set(board.map(rankOf))].sort((a, b) => b - a);
+  const boardRanks = new Set(ranks);
+  const [h1, h2] = [rankOf(hole[0]), rankOf(hole[1])].sort((a, b) => b - a);
+  switch (made?.class) {
+    case "straight-flush":
+    case "quads":
+    case "full-house":
+      return "fh+";
+    case "flush":
+    case "overpair":
+      return made.class;
+    case "straight":
+      return evaluate([...hole, ...board]) >= nutStraight(board) ? "straight-nut" : "straight-low";
+    case "set": {
+      const at = ranks.indexOf(h1);
+      return at === 0 ? "set-top" : at === ranks.length - 1 ? "set-bottom" : "set-middle";
+    }
+    case "trips": {
+      const paired = boardRanks.has(h1) ? h1 : h2;
+      return `trips-${kickerOf(paired === h1 ? h2 : h1, paired, boardRanks)}`;
+    }
+    case "two-pair": {
+      const at = [ranks.indexOf(h1), ranks.indexOf(h2)].sort((a, b) => a - b);
+      return at[0] === 0 && at[1] === 1 ? "two-top" : at[0] === 0 ? "two-top-bottom" : "two-bottom";
+    }
+    case "top-pair":
+      return `tp-${made.kicker ?? "weak"}`;
+    case "pocket-pair-below-top":
+      return "pp-mid";
+    case "second-pair":
+      return made.kicker === "weak" ? "second-weak" : "second-good";
+    case "weak-pair":
+      return "third";
+    case "underpair":
+      return "underpair";
+    default: {
+      const overs = (h1 > ranks[0] ? 1 : 0) + (h2 > ranks[0] && h2 !== h1 ? 1 : 0);
+      const under = h2 < ranks[ranks.length - 1] ? "u" : "";
+      return `${made?.class === "ace-high" ? "ah" : "hc"}-${overs}${under}`;
+    }
+  }
+}
+
+/**
+ * The draw half of `flopReadingBucket`: the flush part (nut or other flush
+ * draw; else a backdoor flush, nut or not) and the straight part (open-ended,
+ * gutshot, or a backdoor straight) apart, `flush.straight` (`nfd.gut`,
+ * `bdf.bds`, `.` for none).
+ */
+function readingDraw(hole: readonly [number, number], board: readonly number[]): string {
+  const found = draws(hole, board);
+  let flush = found.includes("nut-flush-draw") ? "nfd" : found.includes("flush-draw") ? "fd" : "";
+  if (!flush && found.includes("backdoor-flush")) {
+    const counts = [0, 0, 0, 0];
+    for (const card of [...hole, ...board]) counts[suitOf(card)] += 1;
+    const suit = counts.findIndex((n, s) => n === 3 && hole.some((card) => suitOf(card) === s));
+    let best = 12;
+    while (best >= 0 && board.some((card) => suitOf(card) === suit && rankOf(card) === best)) best -= 1;
+    flush = hole.some((card) => suitOf(card) === suit && rankOf(card) === best) ? "bdnf" : "bdf";
+  }
+  const straight = found.includes("oesd") ? "oesd" : found.includes("gutshot") ? "gut" : found.includes("backdoor-straight") ? "bds" : "";
+  return `${flush}.${straight}`;
+}
+
+/**
+ * The finer category the analysis reads a mapped flop by (`analysis/12`, §10
+ * 2026-10-09): `made/draw` of `readingMade` and `readingDraw`, e.g.
+ * `set-bottom/bdnf.` or `hc-2/nfd.gut`. Teaching keeps the coarse
+ * `flopBucket` (the Learn range split); this one is for reading a
+ * representative, where the coarse categories pooled hands that play apart
+ * (a nut straight with a low one, a bottom set with a top one, two
+ * overcards with none, a nut backdoor with no draw at all).
+ */
+export function flopReadingBucket(hole: readonly [number, number], board: readonly number[]): string {
+  return `${readingMade(hole, board)}/${readingDraw(hole, board)}`;
+}
+
+/**
+ * The categories a combo reads, finest first: the reading bucket, its made
+ * half with the coarse draw, the coarse bucket (`flopBucket`), the made half
+ * alone, the coarse made hand alone, everything. A combo reads the first
+ * with enough reach (`MIN_BUCKET_COMBOS`), so a thin fine category falls
+ * back to its nearest coarser neighbour. Coarse keys carry a `~`.
+ */
+export function readingChain(hole: readonly [number, number], board: readonly number[]): string[] {
+  const coarse = flopBucket(hole, board);
+  const [made, draw] = coarse.split("/");
+  const fine = readingMade(hole, board);
+  return [`${fine}/${readingDraw(hole, board)}`, `${fine}/~${draw}`, `~${coarse}`, `${fine}/*`, `~${made}/*`, "*"];
 }
 
 /** Per node of a result: reach-weighted mean strategy and EV per category, for the acting player. */
@@ -544,10 +676,17 @@ interface BucketTable {
   rows: Map<string, Float64Array>;
 }
 
-function bucketTables(result: SolveResult, boardCards: readonly number[]): (BucketTable | null)[] {
-  const keyOf = [0, 1].map((p) =>
-    Array.from(result.hands[p], (combo) => flopBucket([comboHi(combo), comboLo(combo)], boardCards)),
-  );
+/** How a combo is read by category: its keys, finest first (`readingChain`; `coarseChain` was the reading before `analysis/12`). */
+export type CategoryChain = (hole: readonly [number, number], board: readonly number[]) => string[];
+
+/** The reading before `analysis/12`: `flopBucket`, its made hand alone, everything (kept for `--validate`'s comparison). */
+export const coarseChain: CategoryChain = (hole, board) => {
+  const bucket = flopBucket(hole, board);
+  return [bucket, `${bucket.split("/")[0]}/*`, "*"];
+};
+
+function bucketTables(result: SolveResult, boardCards: readonly number[], chain: CategoryChain = readingChain): (BucketTable | null)[] {
+  const keyOf = [0, 1].map((p) => Array.from(result.hands[p], (combo) => chain([comboHi(combo), comboLo(combo)], boardCards)));
   return result.nodes.map((node, index) => {
     if (node.kind !== "action") return null;
     const p = node.player;
@@ -558,7 +697,7 @@ function bucketTables(result: SolveResult, boardCards: readonly number[]): (Buck
     for (let i = 0; i < n; i += 1) {
       const w = reach[i];
       if (!(w > 0)) continue;
-      for (const key of bucketChain(keyOf[p][i])) {
+      for (const key of keyOf[p][i]) {
         let row = rows.get(key);
         if (!row) {
           row = new Float64Array(1 + 2 * count);
@@ -575,13 +714,13 @@ function bucketTables(result: SolveResult, boardCards: readonly number[]): (Buck
   });
 }
 
-/** The category row a combo reads: the finest with enough reach. */
-function bucketRow(table: BucketTable, bucket: string): Float64Array | null {
-  for (const key of bucketChain(bucket)) {
+/** The category row a combo reads (its keys, finest first): the finest with enough reach. */
+function bucketRow(table: BucketTable, keys: readonly string[]): Float64Array | null {
+  for (const key of keys) {
     const row = table.rows.get(key);
     if (row && row[0] >= MIN_BUCKET_COMBOS) return row;
   }
-  for (const key of bucketChain(bucket)) {
+  for (const key of keys) {
     const row = table.rows.get(key);
     if (row && row[0] > 0) return row;
   }
@@ -590,19 +729,21 @@ function bucketRow(table: BucketTable, bucket: string): Float64Array | null {
 
 /**
  * Reading a flop solve by hand category, as a mapped flop reads its
- * representative: for a node (result index) and a category (`flopBucket`),
- * the reach-weighted mean strategy and EV per action of the combos in that
- * category there (coarser when it is too thin), or null. For the pilot's
- * validation of the mapping (`tests/scripts/flop-library/validate.ts`).
+ * representative: for a node (result index) and a combo's category keys
+ * (`chain`, `readingChain` by default), the reach-weighted mean strategy and
+ * EV per action of the combos in its finest category with enough reach
+ * there, or null. For the validation of the mapping
+ * (`tests/scripts/flop-library/validate.ts`).
  */
 export function categoryReader(
   result: SolveResult,
   board: readonly number[],
-): (node: number, bucket: string) => { strategy: number[]; ev: number[] } | null {
-  const tables = bucketTables(result, board);
-  return (node, bucket) => {
+  chain: CategoryChain = readingChain,
+): (node: number, keys: readonly string[]) => { strategy: number[]; ev: number[] } | null {
+  const tables = bucketTables(result, board, chain);
+  return (node, keys) => {
     const table = tables[node];
-    const row = table ? bucketRow(table, bucket) : null;
+    const row = table ? bucketRow(table, keys) : null;
     if (!row) return null;
     const count = (row.length - 1) / 2;
     return {
@@ -752,7 +893,7 @@ export function libraryEntry(
   const hands: [Uint16Array, Uint16Array] = [new Uint16Array(0), new Uint16Array(0)];
   const weights: [Float32Array, Float32Array] = [new Float32Array(0), new Float32Array(0)];
   const source: [Int32Array, Int32Array] = [new Int32Array(0), new Int32Array(0)];
-  const buckets: [string[], string[]] = [[], []];
+  const buckets: [string[][], string[][]] = [[], []];
   const bucketed: [Uint8Array, Uint8Array] = [new Uint8Array(0), new Uint8Array(0)];
   for (const p of [0, 1] as const) {
     const combos: number[] = [];
@@ -764,7 +905,7 @@ export function libraryEntry(
     hands[p] = Uint16Array.from(combos);
     weights[p] = Float32Array.from(combos, (c) => ordered[p][c]);
     source[p] = Int32Array.from(combos, (c) => (want.exact ? libIndex[p][permuteCombo(c, perm)] : -1));
-    buckets[p] = combos.map((c) => flopBucket([comboHi(c), comboLo(c)], board));
+    buckets[p] = combos.map((c) => readingChain([comboHi(c), comboLo(c)], board));
     bucketed[p] = Uint8Array.from(source[p], (s) => (s < 0 ? 1 : 0));
   }
 
@@ -972,7 +1113,7 @@ export function gradeFlop(entry: FlopEntry, actionIndex: number, heroCards: read
     path: node.path,
     iterations: result.iterations,
     exploitabilityPct: round3(result.exploitabilityPct),
-    bucket: bucketedHero ? flopBucket(heroCards, entry.board) : null,
+    bucket: bucketedHero ? flopReadingBucket(heroCards, entry.board) : null,
     translated: distance > TRANSLATED_DISTANCE ? round3(distance) : null,
     reach: { hero: round3(found.reach.hero), villain: round3(found.reach.villain) },
   };

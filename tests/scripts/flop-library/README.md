@@ -13,6 +13,7 @@ npm run floplib -- --estimate                       # what the full run costs, f
 npm run floplib -- --only 4 --threads 4             # the first four jobs of the queue
 npm run floplib -- --lines btn-bb,btn-bb-3bet --flops Ts7h4d,AsKh7d --threads 4 --mem 8
 npm run floplib -- --validate                       # mapped flops against their representatives
+npm run floplib -- --validate --loo                 # each representative from its nearest other one (held out)
 npm run floplib                                     # the full run: 12 lines x 100 flops
 ```
 
@@ -28,7 +29,8 @@ npm run floplib                                     # the full run: 12 lines x 1
 | `--progress S` | 60 | seconds between progress lines per solve |
 | `--dry` | | list the jobs to run and stop |
 | `--estimate` | | print the full-run estimate and stop |
-| `--validate` | | compare every solved non-representative flop with its representative, by hand category |
+| `--validate` | | compare every solved non-representative flop with its representative, by hand category (the analysis's reading and the coarse one before `analysis/12`, with medians) |
+| `--loo` | | with `--validate`: read every solved representative from its nearest other representative on the line instead (held out; `--lines` narrows it) |
 
 **Resumable.** Each solve runs in its own process and writes its chunk and a
 stats file (`<flop>.json`: iterations, exploitability, time, memory)

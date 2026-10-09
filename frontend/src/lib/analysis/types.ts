@@ -95,8 +95,16 @@ import type { Position, Street } from "../phf/types";
  *               facing a single limp is graded instead of `chart-rare-line`,
  *               and every grade, EV and preflop range read from them moves
  *               by the longer solve.
+ *   analysis/12 A mapped flop (and a hero combo outside an exact chunk's
+ *               range) reads its representative by finer hand categories
+ *               (`flopReadingBucket`, `readingChain`: the nut straight, the
+ *               set by board card, two pair by which two, overcards, the
+ *               flush and straight draws apart, nut backdoors), falling back
+ *               to the coarse `flopBucket` when a fine one is thin; the
+ *               stored `facts.flop.bucket` is the fine category (§10
+ *               2026-10-09).
  */
-export const ANALYSIS_VERSION = "analysis/11" as const;
+export const ANALYSIS_VERSION = "analysis/12" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -661,7 +669,7 @@ export interface FlopFacts {
   iterations: number;
   /** Exploitability the chunk's solve reached, % of the flop pot. */
   exploitabilityPct: number;
-  /** The hero's hand category when it was read by category (`library-bucketed`), e.g. `tp-good/fd`. */
+  /** The hero's hand category when it was read by category (`library-bucketed`): `flopReadingBucket` since `analysis/12` (e.g. `tp-good/fd.`), `flopBucket` before (`tp-good/fd`). */
   bucket: string | null;
   translated: number | null;
   reach: { hero: number; villain: number };

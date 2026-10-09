@@ -18,6 +18,8 @@ import { beforeAll, describe, expect, it } from "vitest";
 import {
   analyzeHand,
   flopBucket,
+  flopReadingBucket,
+  readingChain,
   FLOP_LIBRARY_ENABLED,
   chunkFor,
   sameLine,
@@ -133,6 +135,32 @@ describe("hand categories", () => {
     // Relabelled suits, same category.
     const board2 = ["Kh", "7d", "2c"].map(cardIndex);
     expect(flopBucket([cardIndex("Ad"), cardIndex("Kc")], board2)).toBe(cat("Ah", "Kd"));
+  });
+
+  const fine = (a: string, b: string, on: readonly number[] = board) => flopReadingBucket([cardIndex(a), cardIndex(b)], on);
+  it("reads a mapped flop by finer categories, rank-relative and suit-blind (analysis/12)", () => {
+    expect(fine("Ah", "Kd")).toBe("tp-top/.");
+    expect(fine("7s", "7d")).toBe("set-middle/.");
+    expect(fine("2s", "2c")).toBe("set-bottom/.");
+    expect(fine("Kh", "Kd")).toBe("set-top/.");
+    // Ace-high with one overcard, the nut backdoor flush and a backdoor straight.
+    expect(fine("As", "Qs")).toBe("ah-1/bdnf.bds");
+    expect(fine("6h", "5h")).toBe("hc-0/bdf.bds");
+    // The nut straight apart from a lower one.
+    const low = ["6s", "5h", "4d"].map(cardIndex);
+    expect(fine("8h", "7c", low)).toMatch(/^straight-nut\//);
+    expect(fine("7h", "3c", low)).toMatch(/^straight-low\//);
+    expect(fine("3h", "2c", low)).toMatch(/^straight-low\//);
+    // Suits relabelled, same category.
+    const board2 = ["Kh", "7d", "2c"].map(cardIndex);
+    expect(fine("Ad", "Qd", board2)).toBe(fine("As", "Qs"));
+  });
+
+  it("falls back from the fine category to the coarse ones", () => {
+    const chain = readingChain([cardIndex("As"), cardIndex("Qs")], board);
+    expect(chain[0]).toBe(fine("As", "Qs"));
+    expect(chain).toContain(`~${cat("As", "Qs")}`);
+    expect(chain.at(-1)).toBe("*");
   });
 });
 
