@@ -34,11 +34,23 @@ import {
   lineSteps,
   nodesIn,
 } from "../../frontend/src/components/analysis/chartSpots.js";
-import { handClassOf, loadCharts, type ChartSet } from "../../frontend/src/lib/charts/index.js";
+import {
+  CHART_SETS,
+  chartLibrary,
+  DEFAULT_CHART_SET,
+  handClassOf,
+  loadCharts,
+  lookupPreflop,
+  preflopSpotFromHand,
+  rareLineChartSets,
+  rareLineDepthSets,
+  type ChartSet,
+} from "../../frontend/src/lib/charts/index.js";
 import { en } from "../../frontend/src/lib/i18n/en.js";
 import { hr } from "../../frontend/src/lib/i18n/hr.js";
 import { conceptsForDecision } from "../../frontend/src/lib/learn/links.js";
 import { parseStandardHand } from "../../frontend/src/lib/phf/serialize.js";
+import { chartSet, fullLibrary } from "./charts/support.js";
 import type { PhfHand } from "../../frontend/src/lib/phf/types.js";
 
 const CHARTS: ChartSet = loadCharts(
@@ -530,5 +542,60 @@ describe("the chart viewer's reading of a chart set", () => {
       const totals = actionTotals(node);
       expect(totals.reduce((sum, total) => sum + total.share, 0)).toBeCloseTo(1, 6);
     }
+  });
+});
+
+/* ------------------------------------------- rare lines (analysis/13) - */
+
+describe("a line too rare for its set, read on a neighbouring depth (analysis/13)", () => {
+  /** UTG opens, the cutoff flats, the hero folds 72o in the small blind; checked down. */
+  const flatted = () =>
+    hand({
+      hero: "Sb",
+      cards: "7c 2d",
+      lines: ["Utg: raises $1.5 to $2.5", "Hj: folds", "Co: calls $2.5", "Btn: folds", "Sb: folds", "Bb: folds"],
+      more: [
+        "*** FLOP *** [Kd 7h 2s]",
+        "Utg: checks",
+        "Co: checks",
+        "*** TURN *** [Kd 7h 2s] [9h]",
+        "Utg: checks",
+        "Co: checks",
+        "*** RIVER *** [Kd 7h 2s 9h] [3d]",
+        "Utg: checks",
+        "Co: checks",
+      ],
+      winner: "Utg",
+      pot: 6.5,
+    });
+
+  it("grades it from the nearest depth that charts it, flagged and capped", () => {
+    const decision = pre(analyzeHand(flatted(), { charts: fullLibrary(), turn: false }));
+    expect(decision).toMatchObject({ status: "analysed", source: "chart", action: "fold" });
+    // At 100bb the cutoff never flats an UTG open; the 150bb set charts the spot.
+    expect(decision.facts.chart?.set).toBe("nlhe-cash-6max-150bb");
+    expect(decision.approximations).toContain("rare-line-depth");
+    expect(gradeRank(decision.grade!)).toBeLessThanOrEqual(gradeRank("inaccurate"));
+  });
+
+  it("stays refused while the neighbouring sets are not loaded, and names them", () => {
+    const only = chartLibrary([chartSet(DEFAULT_CHART_SET)]);
+    const h = flatted();
+    expect(pre(analyzeHand(structuredClone(h), { charts: only, turn: false })).reason).toBe("chart-rare-line");
+    expect(rareLineChartSets(h, only)).toEqual(["nlhe-cash-6max-150bb", "nlhe-cash-6max-60bb"]);
+    // The lookup alone (opponents' ranges, the flop library) never reads another depth.
+    const found = preflopSpotFromHand(h, 0);
+    expect(found.ok && lookupPreflop(fullLibrary(), found.spot, null, null)).toMatchObject({ ok: false, reason: "rare-line" });
+  });
+
+  it("reads only the adjacent depths of the same table, nearest first", () => {
+    const spec = (id: string) => CHART_SETS.find((s) => s.id === id)!;
+    const depths = (id: string, bb?: number) => rareLineDepthSets(CHART_SETS, spec(id), bb).map((s) => s.stackBb);
+    expect(depths("nlhe-cash-6max-100bb")).toEqual([150, 60]);
+    expect(depths("nlhe-cash-6max-100bb", 85)).toEqual([60, 150]);
+    expect(depths("nlhe-cash-9max-100bb")).toEqual([150]);
+    expect(depths("nlhe-cash-9max-200bb")).toEqual([150]);
+    expect(depths("nlhe-cash-6max-40bb")).toEqual([60]);
+    expect(depths("nlhe-cash-6max-100bb-straddle")).toEqual([]);
   });
 });

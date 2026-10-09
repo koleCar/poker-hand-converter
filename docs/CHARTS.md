@@ -569,7 +569,8 @@ callers), `vs-iso`, `vs-3bet` (4-bet; `cold` if not yet in), `vs-4bet`,
 
 1. nodes reached less than **1e-5** of hands at equilibrium (`minReach`) —
    strategies there are the least trained, and the lines are rare enough that
-   "not in the chart set" (`rare-line`) is the honest answer;
+   "not in the chart set" (`rare-line`) is the honest answer at that depth
+   (grading reads such a line on a neighbouring depth that charts it, §7.1);
 2. nodes where, for some class in range, the chart's own mix loses more than
    **2% of the pot** to that class's best action at the final EVs — nodes the
    equilibrium stops visiting early in the solve, whose averages are relics
@@ -822,6 +823,13 @@ calling: `ffffcffrcr`, reached exactly 1e-6 at `charts/4` and just under it
 now). Graded 4,728 -> 4,727; Perfect 4,249 -> 4,250, Good 20 -> 17,
 Inaccurate 192 -> 194, Mistake 186 -> 185; 225.1 bb lost (225.2).
 
+**Rare lines on a neighbouring depth** (`analysis/13` against
+`analysis/12`, §7.1): `rare-line` 166 -> 46, 119 graded from the 60, 150
+or 200bb sets (Perfect 109, Good 1, Inaccurate 9) and one
+`action-not-modelled`; graded 4,727 -> 4,846 (89.9%), Perfect 4,359, Good
+18, Inaccurate 203, Mistake 185, Blunder 81; 230.3 bb lost. Squeeze
+decisions 260 -> 357, facing a 3-bet 282 -> 301.
+
 Graded decisions by set at `analysis/6`: 6-max 100bb 1,957, 9-max 100bb
 1,325, 6-max 150bb 727, 9-max 150bb 290, 9-max 200bb 217, 6-max 200bb 78,
 6-max 60bb 72, 6-max 40bb 21 (`analysis/5`: 1,689, 961, 637, 215, 167, 75,
@@ -982,10 +990,72 @@ Refusals, `{ ok: false, reason, detail }`: `straddle`, `ante`, `players`
 button), `stack-depth` (no set within 20%), `multiway` (a fifth entrant, or
 a fourth limper - `charts/4`), `limp` (an open limp other than the SB's, only
 on a set without limp trees), `cold-call`, `off-tree`,
-`rare-line`, `action-not-modelled` (the hero's real action is not an option
+`rare-line` (the node is in the tree but not in the set: reached under
+`minReach`, or left out as unconverged - the detail says which),
+`action-not-modelled` (the hero's real action is not an option
 here), `unavailable` (the library has not loaded the set), `bad-input`.
 `preflopSpotFromHand` itself refuses non-NLHE-cash games and bomb pots.
 Coverage on the corpora is in §6.6.
+
+### 7.1 Rare lines on a neighbouring depth (`analysis/13`)
+
+`lookupPreflop(library, spot, hand, heroAction, { rareLineDepth: true })`:
+when the answering set returns `rare-line`, the spot is replayed on the
+neighbouring depths of the same table (and straddle) - the nearest charted
+depth below and the nearest above, never further, nearest first by depth
+ratio to the effective stack (`rareLineDepthSets`): a 6-max 100bb line is
+read at 150bb, then 60bb; 9-max 100bb at 150bb; 6-max 40bb at 60bb. The
+first set whose replay reaches a stored node answers (the raises are mapped
+to its sizes as usual, and its own `sizing` and `short-handed`
+approximations apply; the `stack-depth` check and note do not). The result
+carries a `rare-line-depth` approximation (`set`, `realBb`, `chartBb`);
+grading adds the `rare-line-depth` flag and caps the grade at Inaccurate,
+like an off-tree size. If no neighbour charts the line either, the refusal
+stands.
+
+**Why this is sound, and nothing else was.**
+
+- **(a) Grading the low-reach node itself** is not possible: the sets do
+  not store a node below `minReach` at all (the average strategy is solver
+  state, not in the JSON), and they carry no per-node convergence data
+  beyond `model.excluded.unconverged`. It would need a regeneration, and
+  the strategies there are the least trained in the solve (§6.1).
+- **(b) A neighbouring depth** reads a node that passed *its* set's rules -
+  reached at least `minReach` (behind an open limp, `minLimpReach`), and
+  self-loss at most 2% of the pot - so the strategy graded against is one
+  that converged. What is approximate is the depth, and the flag says so.
+- **Why the line exists at the other depth.** In the owner's library 126 of
+  the 166 rare-line refusals (`analysis/12`) are an open with one or more
+  flat calls from seats other than the blinds before the hero - mostly
+  folds (137 of 166 hero actions). At 100bb the charts almost never flat an
+  open (they 3-bet or fold), so a node behind a flat is
+  reached under 1e-5: the equilibrium there has almost no flatting range to
+  respond to. At 150bb (and at 60bb) the same flat is common enough to be charted,
+  and the node behind it is charted against a real flatting range - which
+  is what the hero is facing.
+- **The cap.** Depth moves the 3-bet and squeeze sizes' consequences, so a
+  close mix at the neighbour is not a precise reference: the grade can say
+  Perfect, Good or Inaccurate, never Mistake or Blunder.
+- **Ranges are not read this way.** Only grading asks for it: the opponents'
+  chart ranges (`chartRange`) and the flop library's placement keep the
+  answering set's nodes, so a hand's postflop ranges never mix depths.
+
+**Loading.** Whether a line is rare is only known from the set that answers
+it, so the app loads a hand's sets in two steps: `requiredChartSets`, then
+`rareLineChartSets(hand, library)` - the neighbours of the decisions the
+loaded sets refuse as `rare-line` (`lib/chartSet.ts`, the analysis worker).
+A neighbour that is not loaded is skipped, and the refusal stands.
+
+**Measured** on the owner's library (`npm run charts:library`, `analysis/12`
+-> `analysis/13`, decision by decision with `CHARTS_LIBRARY_DUMP`): 166
+`rare-line` refusals -> **46**; **119 graded** (Perfect 109, Good 1,
+Inaccurate 9 - 7 of them capped from a loss of 3-28% of the pot), one becomes
+`action-not-modelled` (the hero's raise of a 4-bet has no edge on the 150bb tree). Read at:
+6-max 100 -> 150bb 47, 6-max 100 -> 60bb 18, 9-max 100 -> 150bb 48, 9-max
+200 -> 150bb 4, 6-max 150 -> 200bb 2. Every other decision is unchanged.
+Graded 4,727 -> 4,846 (87.7% -> 89.9%); 225.1 -> 230.3 bb lost. The 46
+left are 9-max lines for the most part (43), where the 150bb set leaves the
+line out too and there is no shallower 9-max set.
 
 ## 8. Results
 

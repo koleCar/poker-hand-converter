@@ -21,7 +21,7 @@
  * handed the same rejection forever.
  */
 
-import { ensureChartSets, loadChartLibrary, requiredChartSets, type ChartLibrary, type ChartSet } from "./charts";
+import { ensureChartSets, loadChartLibrary, rareLineChartSets, requiredChartSets, type ChartLibrary, type ChartSet } from "./charts";
 import type { PhfHand } from "./phf/types";
 
 let loading: Promise<ChartLibrary> | null = null;
@@ -38,6 +38,8 @@ export function preflopCharts(): Promise<ChartLibrary> {
 export async function preflopChartsFor(hands: readonly PhfHand[]): Promise<ChartLibrary> {
   const library = await preflopCharts();
   await ensureChartSets(library, hands.flatMap((hand) => requiredChartSets(hand, library.specs)));
+  // A rare line is read on a neighbouring depth when graded (analysis/13); known once the sets above are in.
+  await ensureChartSets(library, hands.flatMap((hand) => rareLineChartSets(hand, library)));
   return library;
 }
 

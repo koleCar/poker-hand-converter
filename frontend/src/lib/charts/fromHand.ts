@@ -8,8 +8,8 @@
  */
 
 import { assignPositions, isPostingAction, type PhfHand, type Position } from "../phf/types";
-import type { PreflopActionInput, PreflopSpot } from "./lookup";
-import { CHART_SETS, pickChartSet, type ChartSetSpec } from "./registry";
+import { lookupPreflop, rareLineDepthSets, type PreflopActionInput, type PreflopSpot } from "./lookup";
+import { CHART_SETS, pickChartSet, type ChartLibrary, type ChartSetSpec } from "./registry";
 
 export type SpotFromHandResult =
   | {
@@ -131,6 +131,30 @@ export function requiredChartSets(hand: PhfHand, specs: readonly ChartSetSpec[] 
       if (found.spot.ante) return [];
       const pick = pickChartSet(specs, found.spot);
       if (pick.ok) out.add(pick.spec.id);
+    }
+  }
+  return [...out].sort();
+}
+
+/**
+ * The neighbouring-depth sets (`rareLineDepthSets`) a hand's `rare-line`
+ * decisions are read on when graded (`LookupOptions.rareLineDepth`). Whether
+ * a line is rare is only known from the set that answers it, so this needs
+ * the sets `requiredChartSets` lists already loaded: a caller loads those
+ * first, then these. Every player's decisions are read, like
+ * `requiredChartSets`, so whichever seat is graded finds its set.
+ */
+export function rareLineChartSets(hand: PhfHand, library: ChartLibrary): string[] {
+  const out = new Set<string>();
+  for (const player of hand.players) {
+    for (let nth = 0; ; nth += 1) {
+      const found = preflopSpotFromHand(hand, nth, player.seat);
+      if (!found.ok) break;
+      const lookup = lookupPreflop(library, found.spot, null, null);
+      if (lookup.ok || lookup.reason !== "rare-line") continue;
+      const pick = pickChartSet(library.specs, found.spot);
+      if (!pick.ok) continue;
+      for (const spec of rareLineDepthSets(library.specs, pick.spec, pick.effectiveBb)) out.add(spec.id);
     }
   }
   return [...out].sort();

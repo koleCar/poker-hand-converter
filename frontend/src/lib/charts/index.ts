@@ -84,16 +84,18 @@ export {
   chartTree,
   handClassOf,
   lookupPreflop,
+  rareLineDepthSets,
   STACK_NOTE_TOLERANCE,
   STACK_TOLERANCE,
   type ChartApproximation,
   type ChartLookup,
   type ChartMissReason,
   type ChartOption,
+  type LookupOptions,
   type PreflopActionInput,
   type PreflopSpot,
 } from "./lookup";
-export { preflopSpotFromHand, requiredChartSets, type SpotFromHandResult } from "./fromHand";
+export { preflopSpotFromHand, rareLineChartSets, requiredChartSets, type SpotFromHandResult } from "./fromHand";
 export {
   CHART_SETS,
   chartLibrary,

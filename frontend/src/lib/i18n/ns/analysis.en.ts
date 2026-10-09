@@ -189,7 +189,7 @@ const chartReasons = {
   "chart-multiway": "this would be a fifth player in the pot, beyond what the charts model",
   "chart-cold-call": "a cold call of a re-raise is not in the charts' tree",
   "chart-off-tree": "the line left the charts' betting tree",
-  "chart-rare-line": "the line is too rare at equilibrium to be in the chart set",
+  "chart-rare-line": "the line is too rare at equilibrium to be in the chart set, at this stack depth or the nearest charted ones",
   "chart-action-not-modelled": "your action is not one of the charts' options here",
   "chart-bad-input": "the hand could not be read onto a chart",
   "chart-game": "the charts cover No-Limit Hold'em cash games only",
@@ -809,6 +809,8 @@ export const analysisEn = {
     "flop-mapped": "Flop read from the nearest solved flop of the same texture, not solved itself",
     "library-bucketed": "Your hand read by its category (made hand and draw) in the flop library, not combo for combo",
     "limp-tremble": "A limped pot: the charts barely limp there themselves, so they assume the limper may hold any hand",
+    "rare-line-depth":
+      "The line is too rare at this stack depth to be charted, so it is read on the nearest depth that charts it; graded no worse than Inaccurate",
     "multiway-approx":
       "Approximate multiway grade: a river call against a fold, by showdown EV on narrowed ranges; players to act call or fold by the model, raising is not compared; capped at Mistake",
     "multiway-history": "Three or more saw the flop: solved heads-up from where the pot became heads-up, on ranges narrowed through the multiway streets",

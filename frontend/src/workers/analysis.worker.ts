@@ -38,7 +38,7 @@ import {
   type RiverStudy,
   type TurnFailure,
 } from "../lib/analysis";
-import { ensureChartSets, loadChartLibrary, requiredChartSets, type ChartLibrary } from "../lib/charts";
+import { ensureChartSets, loadChartLibrary, rareLineChartSets, requiredChartSets, type ChartLibrary } from "../lib/charts";
 import { analyseStoredHands, type AnalysedBatch } from "../lib/db/analysisRows";
 import type { PhfHand } from "../lib/phf/types";
 import { SUPABASE_URL } from "../lib/supabase/config";
@@ -108,6 +108,8 @@ self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
     const set = await charts;
     const hands = request.type === "analyse" ? request.page.map((item) => item.phf) : [request.phf];
     await ensureChartSets(set, hands.flatMap((hand) => requiredChartSets(hand, set.specs)));
+    // A rare line is read on a neighbouring depth when graded (analysis/13); known once the sets above are in.
+    await ensureChartSets(set, hands.flatMap((hand) => rareLineChartSets(hand, set)));
     if (request.type === "hand") {
       const library = await libraryFor(set, [request.phf]);
       const analysis = analyzeHand(request.phf, { charts: set, flopLibrary: library });

@@ -187,7 +187,7 @@ const chartReasons = {
   "chart-multiway": "ovo bi bio peti igrač u potu, više nego što chartovi modeliraju",
   "chart-cold-call": "hladni call na re-raise nije u stablu chartova",
   "chart-off-tree": "linija je izašla iz stabla betova u chartovima",
-  "chart-rare-line": "linija je u ravnoteži prerijetka da bi bila u chartovima",
+  "chart-rare-line": "linija je u ravnoteži prerijetka da bi bila u chartovima, na ovoj dubini stacka ili najbližima",
   "chart-action-not-modelled": "tvoja akcija ovdje nije jedna od opcija u chartovima",
   "chart-bad-input": "ruku nije bilo moguće smjestiti na chart",
   "chart-game": "chartovi pokrivaju samo No-Limit Hold'em cash",
@@ -782,6 +782,8 @@ export const analysisHr: Dict["analysis"] = {
     "range-cap": "Solverova ocjena ograničena na Grešku: heuristički suženi rasponi ne mogu nositi Grubu grešku",
     "range-sensitive": "Solverova ocjena ovisi o tome koliko se rasponi sužavaju: prikazana je blaža od dvije",
     "limp-tremble": "Limpani pot: chartovi tu sami gotovo ne limpaju, pa pretpostavljaju da limper može imati bilo koju ruku",
+    "rare-line-depth":
+      "Linija je na ovoj dubini stacka prerijetka da bi bila u chartovima, pa je očitana na najbližoj dubini koja je ima; ocjena nije gora od Netočno",
     "coarse-river": "Turn riješen s grubim riverom ispod njega: jedna veličina beta i all-in",
     "flop-mapped": "Flop očitan s najbližeg riješenog flopa iste teksture, a ne riješen sam",
     "library-bucketed": "Tvoja ruka očitana po kategoriji (gotova ruka i draw) u biblioteci flopova, a ne kombinacija po kombinacija",

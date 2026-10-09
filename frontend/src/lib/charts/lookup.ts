@@ -19,7 +19,10 @@
  *   no node; a real fold there is skipped, anything else is off the tree.
  *
  * Nothing is guessed: a line the tree cannot represent returns
- * `{ ok: false, reason }` and the decision is "not analysed".
+ * `{ ok: false, reason }` and the decision is "not analysed". A line the
+ * tree has but the set leaves out (`rare-line`) can be read, when the caller
+ * asks (`LookupOptions.rareLineDepth`), on a neighbouring depth that charts
+ * it, flagged `rare-line-depth` (docs/CHARTS.md §7.1).
  */
 
 import { positionRing, type Position } from "../phf/types";
@@ -43,6 +46,8 @@ import type { ChartAction, ChartNode, ChartPosition, ChartSet } from "./format";
 import {
   effectiveStackBb,
   isChartLibrary,
+  type ChartLibrary,
+  type ChartSetSpec,
   pickChartSet,
   STACK_NOTE_TOLERANCE,
   STACK_TOLERANCE,
@@ -95,9 +100,9 @@ export type ChartMissReason =
   | "unavailable";
 
 export interface ChartApproximation {
-  kind: "sizing" | "stack-depth" | "short-handed";
+  kind: "sizing" | "stack-depth" | "short-handed" | "rare-line-depth";
   detail: string;
-  /** Stack depth: the chart set that answered (`ChartSet.id`). */
+  /** Stack depth and rare-line depth: the chart set that answered (`ChartSet.id`). */
   set?: string;
   position?: Position;
   realBb?: number;
@@ -238,6 +243,38 @@ function seatMap(
   return { rename, folded: order.slice(0, skip) };
 }
 
+export interface LookupOptions {
+  /**
+   * A line the answering set leaves out (`rare-line`) is read on the
+   * neighbouring depth of the same table that charts it (`rareLineDepthSets`),
+   * with the `rare-line-depth` approximation (docs/CHARTS.md §7.1). Only for a
+   * library, and only for grading: the opponents' chart ranges stay on the
+   * answering set's nodes.
+   */
+  rareLineDepth?: boolean;
+}
+
+/**
+ * The sets a `rare-line` spot answered by `spec` may be read on instead
+ * (`LookupOptions.rareLineDepth`): the same table and straddle, the nearest
+ * charted depth below and the nearest above - never further, so a 100bb line
+ * is read at 60 or 150bb, never at 40 or 200 - nearest first by depth ratio to
+ * `effectiveBb`.
+ */
+export function rareLineDepthSets(
+  specs: readonly ChartSetSpec[],
+  spec: ChartSetSpec,
+  effectiveBb: number = spec.stackBb,
+): ChartSetSpec[] {
+  const same = specs.filter(
+    (s) => s.players === spec.players && (s.straddle?.bb ?? 0) === (spec.straddle?.bb ?? 0) && s.stackBb !== spec.stackBb,
+  );
+  const below = same.filter((s) => s.stackBb < spec.stackBb).sort((a, b) => b.stackBb - a.stackBb)[0];
+  const above = same.filter((s) => s.stackBb > spec.stackBb).sort((a, b) => a.stackBb - b.stackBb)[0];
+  const ratio = (s: ChartSetSpec) => Math.abs(Math.log(s.stackBb / Math.max(effectiveBb, 1e-9)));
+  return [below, above].filter((s): s is ChartSetSpec => s !== undefined).sort((a, b) => ratio(a) - ratio(b));
+}
+
 /**
  * Looks up the chart node for a hero decision and, given the hero's hand, its
  * options. `heroAction` is the hero's real decision: it selects `chosen` and
@@ -248,6 +285,7 @@ export function lookupPreflop(
   spot: PreflopSpot,
   hand?: string | readonly string[] | null,
   heroAction?: PreflopActionInput | null,
+  options: LookupOptions = {},
 ): ChartLookup {
   if (isChartLibrary(charts)) {
     // A straddle no set models is refused as one, ahead of everything else.
@@ -257,7 +295,9 @@ export function lookupPreflop(
     if (!pick.ok) return miss(pick.reason, pick.detail);
     const set = charts.sets.get(pick.spec.id);
     if (!set) return miss("unavailable", `chart set ${pick.spec.id} is not loaded`);
-    return lookupInSet(set, spot, hand, heroAction);
+    const found = lookupInSet(set, spot, hand, heroAction);
+    if (found.ok || found.reason !== "rare-line" || !options.rareLineDepth) return found;
+    return readAtNeighbouringDepth(charts, pick.spec, pick.effectiveBb, spot, hand, heroAction) ?? found;
   }
   // One set: it answers only the straddle it models (none, or its own).
   const mismatch = straddleMismatch(charts.game.straddle ?? null, charts.game.positions.length, spot);
@@ -266,12 +306,54 @@ export function lookupPreflop(
   return lookupInSet(charts, spot, hand, heroAction);
 }
 
-/** `lookupPreflop` on one set. */
+/**
+ * A `rare-line` spot read on a neighbouring depth (`rareLineDepthSets`) that
+ * charts the line: the first that answers, or null. The node there passed
+ * that set's own exclusion rules (reach at least `minReach`, self-loss at
+ * most `MAX_SELF_LOSS`), so the strategy read is one that converged; what is
+ * approximate is the depth, which the `rare-line-depth` approximation names
+ * and the grade is capped for. A set that is not loaded is skipped
+ * (`rareLineChartSets` lists the ones a hand needs).
+ */
+function readAtNeighbouringDepth(
+  library: ChartLibrary,
+  spec: ChartSetSpec,
+  effectiveBb: number,
+  spot: PreflopSpot,
+  hand?: string | readonly string[] | null,
+  heroAction?: PreflopActionInput | null,
+): ChartLookup | null {
+  for (const other of rareLineDepthSets(library.specs, spec, effectiveBb)) {
+    const set = library.sets.get(other.id);
+    if (!set) continue;
+    const found = lookupInSet(set, spot, hand, heroAction, false);
+    // The hero's own action missing there is an answer too: the caller names it.
+    if (!found.ok && found.reason !== "action-not-modelled") continue;
+    if (!found.ok) return found;
+    return {
+      ...found,
+      approximations: [
+        {
+          kind: "rare-line-depth",
+          detail: `the ${spec.stackBb}bb set leaves this line out; read on the ${other.stackBb}bb set, which charts it (effective stack ${round2(effectiveBb)}bb)`,
+          set: other.id,
+          realBb: round2(effectiveBb),
+          chartBb: other.stackBb,
+        },
+        ...found.approximations,
+      ],
+    };
+  }
+  return null;
+}
+
+/** `lookupPreflop` on one set; `checkDepth` false reads it at any effective stack (`readAtNeighbouringDepth`). */
 function lookupInSet(
   charts: ChartSet,
   spot: PreflopSpot,
   hand?: string | readonly string[] | null,
   heroAction?: PreflopActionInput | null,
+  checkDepth = true,
 ): ChartLookup {
   const tree = chartTree(charts);
   const approximations: ChartApproximation[] = [];
@@ -302,10 +384,10 @@ function lookupInSet(
   // Stack depth: the hero against the deepest opponent still in at the decision.
   const effective = effectiveStackBb(spot, charts.game.stackBb);
   const depth = charts.game.stackBb;
-  if (Math.abs(effective - depth) > STACK_TOLERANCE * depth + 1e-9) {
+  if (checkDepth && Math.abs(effective - depth) > STACK_TOLERANCE * depth + 1e-9) {
     return miss("stack-depth", `effective stack ${round2(effective)}bb is outside ${depth}bb ±${STACK_TOLERANCE * 100}%`);
   }
-  if (Math.abs(effective - depth) > STACK_NOTE_TOLERANCE * depth) {
+  if (checkDepth && Math.abs(effective - depth) > STACK_NOTE_TOLERANCE * depth) {
     approximations.push({
       kind: "stack-depth",
       detail: `effective stack ${round2(effective)}bb, charts solved at ${depth}bb`,
@@ -371,7 +453,14 @@ function lookupInSet(
   }
   const chart = charts.nodes.get(tree.line[node]);
   if (!chart) {
-    return miss("rare-line", `line ${JSON.stringify(tree.line[node])} is in the tree but too rare to be in the chart set`);
+    const key = tree.line[node];
+    const unconverged = (charts.model.excluded as { unconverged?: { line: string }[] } | undefined)?.unconverged;
+    return miss(
+      "rare-line",
+      unconverged?.some((u) => u.line === key)
+        ? `line ${JSON.stringify(key)} is in the tree, but the solve did not converge there (left out of the chart set)`
+        : `line ${JSON.stringify(key)} is in the tree but too rare to be in the chart set`,
+    );
   }
 
   const unmodelled: ("call" | "limp")[] = [];
