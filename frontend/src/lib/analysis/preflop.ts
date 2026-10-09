@@ -50,10 +50,11 @@ import type { Approximation, ChartRef, ChartSkipReason, OptionAnalysis } from ".
  * a flop with the flop checked (`docs/CHARTS.md` §9): UTG folds 55–22,
  * 87s–54s and A5s, and the button almost never flats a cutoff open. It stays
  * on the list, and `modelCaveat` names those hands. `charts/4` (A2d, limp
- * trees), `charts/3` (A2c) and `charts/5` (A2e, the straddle set) are the
- * same model at other tables, depths and blinds, with the same weakness.
+ * trees), `charts/3` (A2c), `charts/5` (A2e, the straddle set) and
+ * `charts/6` (the 200bb sets solved longer) are the same model at other
+ * tables, depths and blinds, with the same weakness.
  */
-export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2", "charts/3", "charts/4", "charts/5"];
+export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2", "charts/3", "charts/4", "charts/5", "charts/6"];
 
 /** Probability mass, in combos, below which a chart range is too thin to measure an equity against. */
 const MIN_RANGE_COMBOS = 1;

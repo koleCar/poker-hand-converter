@@ -12,7 +12,7 @@
  * Not part of `npm test`: it needs a local export of someone's hands.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "vitest";
 
@@ -62,6 +62,23 @@ function limpShape(hand: PhfHand, heroSeat: number, nth: number): string {
   return `${set} | ${role} | ${limpers} limper${limpers === 1 ? "" : "s"}${raises ? `, ${raises} raise${raises > 1 ? "s" : ""}` : ""}`;
 }
 
+/** A rare-line refusal's set, hero seat and the line's shape (limpers before the hero, raises). */
+function rareShape(hand: PhfHand, heroSeat: number, nth: number): string {
+  const found = preflopSpotFromHand(hand, nth, heroSeat);
+  if (!found.ok) return "?";
+  const pick = pickChartSet(CHART_SETS, found.spot);
+  const set = pick.ok ? pick.spec.id.replace("nlhe-cash-", "") : "?";
+  let limpers = 0;
+  let raises = 0;
+  for (const a of found.spot.actions) {
+    if (a.type === "raise") raises += 1;
+    else if (a.type === "call" && raises === 0) limpers += 1;
+  }
+  const limped = `${limpers} limper${limpers === 1 ? "" : "s"}`;
+  const shape = raises ? `${raises} raise${raises > 1 ? "s" : ""}${limpers ? `, ${limped} before` : ""}` : limped;
+  return `${set} | ${found.spot.hero} | ${shape}`;
+}
+
 it("reports chart coverage on a stored library", { timeout: 4 * 60 * 60_000 }, async () => {
   if (!FILE || !existsSync(FILE)) {
     console.log("CHARTS_LIBRARY is not set to a JSONL file of PHF hands; nothing to do");
@@ -102,6 +119,10 @@ it("reports chart coverage on a stored library", { timeout: 4 * 60 * 60_000 }, a
   // Decisions in straddled hands (A2e, the straddle set): graded by grade, refused by reason and why.
   const straddled = new Map<string, number>();
   const straddleWhy = new Map<string, number>();
+  // Rare-line refusals by set, hero seat and shape; CHARTS_LIBRARY_DUMP=<file> writes every hero
+  // preflop decision's outcome, one JSON per line, to compare two runs decision by decision.
+  const rare = new Map<string, number>();
+  const dump: string[] = [];
   for (const hand of hands) {
     const analysis = analyzeHand(structuredClone(hand), { charts: library, turn: false });
     const hasStraddle = hand.actions.some((a) => a.type === "straddle");
@@ -124,6 +145,16 @@ it("reports chart coverage on a stored library", { timeout: 4 * 60 * 60_000 }, a
         }
       }
       decisions += 1;
+      dump.push(
+        JSON.stringify({
+          decision: dump.length,
+          source: d.source,
+          reason: d.reason ?? null,
+          grade: d.grade ?? null,
+          set: d.facts.chart?.set ?? null,
+          shape: d.reason === "chart-rare-line" && analysis.heroSeat !== null ? rareShape(hand, analysis.heroSeat, nth) : null,
+        }),
+      );
       if (hasStraddle) {
         bump(straddled, d.source === "chart" ? `graded (${d.grade})` : String(d.reason));
         if (d.reason === "chart-straddle" && analysis.heroSeat !== null) {
@@ -140,6 +171,7 @@ it("reports chart coverage on a stored library", { timeout: 4 * 60 * 60_000 }, a
         evLoss += d.evLoss ?? 0;
       } else {
         bump(reasons, String(d.reason));
+        if (d.reason === "chart-rare-line" && analysis.heroSeat !== null) bump(rare, rareShape(hand, analysis.heroSeat, nth));
         if (d.reason === "chart-limp" && analysis.heroSeat !== null) {
           bump(limps, limpShape(hand, analysis.heroSeat, nth));
         }
@@ -158,8 +190,11 @@ it("reports chart coverage on a stored library", { timeout: 4 * 60 * 60_000 }, a
       `behind an open limp (${[...behindLimp.values()].reduce((a, b) => a + b, 0)}): ${list(behindLimp)}`,
       `straddled hands (${[...straddled.values()].reduce((a, b) => a + b, 0)} decisions): ${list(straddled)}`,
       `  still refused as a straddle: ${list(straddleWhy)}`,
+      `rare-line refusals by set, hero and shape:`,
+      ...[...rare].sort((a, b) => b[1] - a[1]).map(([k, v]) => `  ${String(v).padStart(4)}  ${k}`),
       `open-limp refusals by set and shape:`,
       ...[...limps].sort((a, b) => b[1] - a[1]).map(([k, v]) => `  ${String(v).padStart(4)}  ${k}`),
     ].join("\n"),
   );
+  if (process.env.CHARTS_LIBRARY_DUMP) writeFileSync(process.env.CHARTS_LIBRARY_DUMP, dump.join("\n") + "\n");
 });

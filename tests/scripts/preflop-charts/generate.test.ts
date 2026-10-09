@@ -65,7 +65,9 @@ const SETS = (process.env.CHARTS_SETS ?? SET_CONFIGS.map((c) => c.id).join(","))
   .filter(Boolean)
   .map(setConfig);
 const PARALLEL = Math.max(1, Number(process.env.CHARTS_PARALLEL ?? 1));
-const ITERATIONS = Number(process.env.CHARTS_ITERATIONS ?? PRODUCTION_ITERATIONS);
+/** `CHARTS_ITERATIONS` overrides every set's own count (`SetConfig.iterations`, default `PRODUCTION_ITERATIONS`). */
+const iterationsOf = (config: SetConfig) =>
+  Number(process.env.CHARTS_ITERATIONS ?? config.iterations ?? PRODUCTION_ITERATIONS);
 const BOARDS = Number(process.env.CHARTS_BOARDS ?? DEFAULT_EQUITY_BOARDS);
 const ROUND_ITERATIONS = Number(process.env.CHARTS_ROUND_ITERATIONS ?? PRODUCTION_ROUND_ITERATIONS);
 const MEASURE_BOARDS = Number(process.env.CHARTS_MEASURE_BOARDS ?? PRODUCTION_MEASURE.boards);
@@ -143,7 +145,7 @@ async function generateSet(config: SetConfig, threads: number): Promise<void> {
       ...limps,
       equity,
       equityBoards: BOARDS,
-      iterations: ITERATIONS,
+      iterations: iterationsOf(config),
       realisation: fit.model,
       realisationFit: fit.record,
       onProgress,
@@ -156,7 +158,7 @@ async function generateSet(config: SetConfig, threads: number): Promise<void> {
     sizing: config.sizing,
     equity,
     equityBoards: BOARDS,
-    iterations: ITERATIONS,
+    iterations: iterationsOf(config),
     rounds,
     roundIterations: ROUND_ITERATIONS,
     measure: { boards: MEASURE_BOARDS },

@@ -22,13 +22,15 @@
  *   cost hours more. The fit's own record (`model.realisationFit`) is carried
  *   over with a note, so a rerun reads the same model and writes the same
  *   bytes.
+ * - `charts/6` solves the two 200bb `charts/4` sets for 9,000 iterations
+ *   instead of 3,000 (`deep`, docs/CHARTS.md §5.1); nothing else changes.
  */
 
 import type { PreflopPosition, PreflopSizing, PreflopStraddle } from "../../../frontend/src/lib/solver/preflopTree.js";
 
 export interface SetConfig {
   id: string;
-  version: "charts/2" | "charts/3" | "charts/4" | "charts/5";
+  version: "charts/2" | "charts/3" | "charts/4" | "charts/5" | "charts/6";
   players: readonly PreflopPosition[];
   stackBb: number;
   sizing?: Partial<PreflopSizing>;
@@ -46,6 +48,8 @@ export interface SetConfig {
   minLimpReach?: number;
   /** A straddle by the first seat left of the big blind (`charts/5`). */
   straddle?: PreflopStraddle;
+  /** Iterations of the final solve (default `PRODUCTION_ITERATIONS`, 3,000; `CHARTS_ITERATIONS` overrides). */
+  iterations?: number;
 }
 
 /**
@@ -83,6 +87,17 @@ const a2c = (players: readonly PreflopPosition[], stackBb: number, sizing: Parti
 
 /** A `charts/4` set: the A2c configuration plus the limp tree, solved once on its committed fit. */
 const a2d = (config: SetConfig): SetConfig => ({ ...config, version: "charts/4", reuseFit: true, ...LIMPS });
+
+/**
+ * `charts/6`: the 200bb sets' limp trees solved for 9,000 iterations instead
+ * of 3,000 (docs/CHARTS.md §5.1). Their big blind facing a single limp kept
+ * early regrets that the 0.5% tremble's tiny counterfactual weights take
+ * thousands of iterations to wear down: after 3,000 its average mix still
+ * lost 2.2-2.8% of the pot for a class, and the node was left out as
+ * unconverged. Same fit, same tree, same engine; only the solve is longer.
+ */
+export const DEEP_ITERATIONS = 9000;
+const deep = (config: SetConfig): SetConfig => ({ ...a2d(config), version: "charts/6", iterations: DEEP_ITERATIONS });
 
 /**
  * `charts/5` (A2e): the 6-max 100bb set with a 2bb straddle from UTG
@@ -131,9 +146,9 @@ export const SET_CONFIGS: readonly SetConfig[] = [
   }),
   a2d(a2c(SIX, 150, STANDARD)),
   a2d(a2c(NINE, 150, STANDARD)),
-  a2d(a2c(NINE, 200, STANDARD)),
+  deep(a2c(NINE, 200, STANDARD)),
   a2d(a2c(SIX, 60, STANDARD)),
-  a2d(a2c(SIX, 200, STANDARD)),
+  deep(a2c(SIX, 200, STANDARD)),
   a2d(a2c(SIX, 40, SHORT)),
   STRADDLE,
 ];

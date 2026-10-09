@@ -2092,3 +2092,76 @@ Each phase appends what it learned that changed the plan.
     6-max ones in the leak finder (no `table` tag yet), and the study plan
     sends them to the 6-max 100bb trainer; the flop library has no straddled
     lines.
+- 2026-10-09 — The 200bb limp nodes converge: `charts/6`, `analysis/11`
+  (`docs/CHARTS.md` §5.1). Closes A2d's open item "at 200bb the big blind
+  facing a single limp is left out as unconverged". No migration.
+  - **Diagnosis.** Measured on the 6-max 200bb solve, checkpoint by
+    checkpoint (the 3,000-iteration state reproduces the committed set
+    exactly), and on the 9-max 200bb solve to 1,000 iterations. The node is
+    reached only through the 0.5% limp tremble; the big blind's regrets
+    there are weighted by the limper's reach, which is about a third in the
+    first iterations and the tremble's 0.5% later - each iteration's regret
+    shrinks ~60x, and DCFR's positive-regret discount (`t^1.5/(t^1.5+1)`)
+    never forgets the early ones. At 3,000 iterations the big blind with
+    AQo behind a cutoff limp still carried regret +0.24 (check) and +0.20
+    (isolate) while isolating was worth 0.105bb more and each iteration
+    moved the check's regret by -3e-5: a 55/45 mix, 2.55% of the pot lost.
+    Not the DCFR parameters, the tremble's size, a degenerate class or the
+    tree: the worst class falls steadily with iterations (6-max: BB vs CO
+    limp 2.55% at 3,000, 1.89% at 4,000, 1.18% at 6,000, 0.76% at 9,000).
+  - **Fix.** The two 200bb sets are solved for 9,000 iterations
+    (`SetConfig.iterations`, `sets.ts`; the generator reads it, and
+    `CHARTS_ITERATIONS` still overrides). Same fit, tree, tremble and
+    engine. Every other set's configuration is identical to `main`'s and
+    its bytes too (regenerated and compared: 6-max 40, 60, 100 and 150bb;
+    `model.hash` of 6-max 100bb `ecad38d0` and 9-max 100bb `204ec7be`
+    unchanged, so the flop library's chunks still match). A change to the
+    engine (forgetting stale regrets, or starting the trembling nodes at
+    the tremble) would have moved every set, the flop library's two among
+    them.
+  - **Results.** Measured on the 6-max 200bb solve, checkpoint by checkpoint, the
+    three big-blind nodes cross the 2% bar at ~4,000-4,500 iterations and
+    sit at 0.8-1.0% at 9,000; 9,000 is that with a 2x margin (9-max
+    converges more slowly).
+
+    | Set | Nodes (charts/4) | Left out as unconverged | NashConv mbb/hand | Bytes | Solve |
+    |---|---|---|---|---|---|
+    | 6-max 200bb | 829 (815) | 2 (19) | 0.182 (0.332) | 2.03 MB, 538 KB gzip | 45 min |
+    | 9-max 200bb | 2,841 (2,795) | 7 (61) | 0.247 (0.439) | 6.77 MB, 1.73 MB gzip | 6 h 04 min |
+
+    The big blind facing a single limp is in both sets from every seat
+    (6-max: check 92.3% behind a cutoff limp; 9-max 91.9%), and the 9-max
+    `rc` and `rrr` nodes (3e-4 and 1e-4 of hands) are back. Every other
+    node left out is reached under 1e-5, except the 6-max small blind
+    behind two limps (`fcfc`, reached 3e-4: KK re-raises where calling
+    is worth 0.1bb more at the final averages - not the stale-regret
+    pattern; 2.6% of the pot, 3.5% at `charts/4`). Widths move by at most 0.3 points
+    outside limped pots, up to 2.6 inside them. Each solve ran alone in its
+    own process beside the flop-library batch's four solves (9-max at times
+    thermally throttled).
+  - **Measured on the owner's library** (`npm run charts:library`, the same
+    export as A2e, now with a per-decision dump to compare two runs and the
+    rare-line refusals by set, seat and shape): the
+    library has **no** hero decision as the big blind facing a single limp
+    at 200bb, so **no `rare-line` refusal becomes graded** (165 -> 166:
+    none of the 165 was such a node; 7 were on the 9-max 200bb set, the
+    rest at 100-150bb). Five of the 295 decisions graded on the 200bb sets
+    change: grades Good -> Perfect (6-max), Good -> Perfect, Good ->
+    Inaccurate, Mistake -> Inaccurate (9-max), and one 9-max decision
+    becomes `rare-line` (`ffffcffrcr`, reached exactly 1e-6 at `charts/4`,
+    just under the cut now). Graded 4,728 -> 4,727 (87.7%); Perfect 4,250,
+    Good 17, Inaccurate 194, Mistake 185, Blunder 81; 225.1 bb lost
+    (225.2). Rivers on a placeholder range 166 of 370, unchanged.
+  - `CHARTS_VERSION` `charts/6` (the two sets carry it; the other seven keep
+    theirs), `ANALYSIS_VERSION` `analysis/11`: grades read from the 200bb
+    sets change.
+  - **Open.** The fix is bought with iterations: the 9-max 200bb set now
+    takes ~6 hours to regenerate. A solver change that rescales or forgets
+    the early regrets of trembling lines would converge every set's limp
+    nodes in far fewer iterations, but regenerates every set (and the flop
+    library keyed to the 100bb hashes). The 9-max 150bb set still leaves
+    the big blind behind an HJ limp out (and 46 other rare nodes); the same
+    9,000 iterations would likely bring it in, ~6 hours. The 6-max 200bb small
+    blind behind two limps (`fcfc`) stays out. The rare-line refusals that
+    matter in the owner's library are 100bb lines below the 1e-5 reach cut,
+    not unconverged nodes.
