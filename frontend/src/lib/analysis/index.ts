@@ -180,6 +180,10 @@ export {
 } from "./multiway";
 export {
   categoryReader,
+  coarseChain,
+  readingChain,
+  flopReadingBucket,
+  type CategoryChain,
   chartLineOf,
   chunkFor,
   sameLine,

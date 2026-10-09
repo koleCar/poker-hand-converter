@@ -2165,3 +2165,107 @@ Each phase appends what it learned that changed the plan.
     blind behind two limps (`fcfc`) stays out. The rare-line refusals that
     matter in the owner's library are 100bb lines below the 1e-5 reach cut,
     not unconverged nodes.
+- 2026-10-09 — A5b, finer categories for mapped flops, `analysis/12`. No
+  migration. Closes the backlog item of the 2026-10-08 validation ("finer
+  buckets").
+  - **What changed.** A mapped flop (and a hero combo an exact chunk does
+    not hold) reads its representative by a finer category,
+    `flopReadingBucket` = made × draw. Every split is rank-relative to the
+    board and suit-blind:
+    - made: the nut straight apart from a lower one; a set by the board
+      card it pairs (top, middle, bottom); trips by kicker; two pair by
+      which two (top two, top and bottom, bottom two); a pocket pair
+      between the top two board ranks apart from a second pair, which
+      splits by kicker; third pair apart from an underpair; unpaired hands
+      by their overcards to the board (0-2) and whether a hole card is
+      under the bottom board rank;
+    - draw: the flush part (nut or other flush draw, else a backdoor flush,
+      nut or not) and the straight part (open-ended, gutshot, backdoor)
+      apart, so a combo draw keeps both and a backdoor no longer pools with
+      no draw.
+
+    A combo reads the finest category with enough reach at the node
+    (`MIN_BUCKET_COMBOS`, unchanged at 0.5 combos), falling back through
+    `readingChain`: fine made × fine draw, fine made × coarse draw, the
+    coarse `flopBucket`, fine made alone, coarse made alone, everything.
+    `flopBucket` itself is unchanged, so the Learn range split
+    (`training/split.ts`) and its tests still teach the coarse categories.
+    The stored `facts.flop.bucket` is now the fine category.
+  - **Validation** (`npm run floplib -- --validate`, which now prints both
+    readings, the own-category floor for every metric, and the medians).
+    The 24 mapped pairs of 2026-10-08, medians, coarse → fine:
+    - strategy distance (TV) 16.5% → 12.8% (floor 12.9% → 8.1%);
+    - |ΔEV| per action 6.50% → 5.37% of the pot (floor 3.89% → 1.70%);
+    - same top action 84.2% → 87.9% (floor 87.4% → 93.0%);
+    - **same check/call grade 69.0% → 75.5%** (range 47.5–75.7% →
+      49.5–86.6%; floor 75.8% → 84.2%).
+
+    | Line | Flop → rep | TV | \|ΔEV\| % pot | Same top action | Same check/call grade |
+    |---|---|---|---|---|---|
+    | btn-bb-3bet | 6s5h4d → 7s5h3d | 23.0 → 23.0 | 12.6 → 12.4 | 73.8 → 72.4 | 55.4 → 57.4 |
+    | btn-bb-3bet | As7h2d → As6h3d | 13.3 → 10.9 | 5.2 → 4.3 | 92.2 → 93.9 | 72.0 → 79.2 |
+    | btn-bb-3bet | Js9h4d → Js9h3d | 17.0 → 9.9 | 6.0 → 3.9 | 79.8 → 88.0 | 70.3 → 75.8 |
+    | btn-bb-3bet | Ks8d8h → Ks6d6h | 11.7 → 11.4 | 6.2 → 6.1 | 93.4 → 93.2 | 69.8 → 71.5 |
+    | btn-bb-3bet | QsJh3d → QsTh4d | 15.1 → 12.1 | 9.8 → 8.1 | 86.3 → 87.7 | 74.2 → 78.4 |
+    | btn-bb-3bet | Ts9s2h → Ts7s4h | 26.8 → 23.3 | 9.0 → 7.8 | 71.6 → 76.8 | 53.1 → 60.8 |
+    | btn-bb | 6s5h4d → 7s5h3d | 25.4 → 24.7 | 10.8 → 11.3 | 74.1 → 74.4 | 68.1 → 70.4 |
+    | btn-bb | As7h2d → As6h3d | 13.7 → 9.8 | 3.8 → 2.6 | 84.6 → 88.8 | 75.7 → 80.3 |
+    | btn-bb | Js9h4d → Js9h3d | 12.6 → 5.9 | 4.1 → 2.2 | 84.9 → 91.7 | 72.7 → 86.6 |
+    | btn-bb | Ks8d8h → Ks6d6h | 16.0 → 13.3 | 3.1 → 2.9 | 84.4 → 87.0 | 65.6 → 71.0 |
+    | btn-bb | QsJh3d → QsTh4d | 10.2 → 5.5 | 4.6 → 3.0 | 90.9 → 94.3 | 72.3 → 84.3 |
+    | btn-bb | Ts9s2h → Ts7s4h | 17.7 → 13.7 | 7.6 → 6.5 | 84.1 → 85.4 | 63.9 → 76.9 |
+    | co-bb | 6s5h4d → 7s5h3d | 25.8 → 24.9 | 10.6 → 10.7 | 72.9 → 73.7 | 69.2 → 71.9 |
+    | co-bb | As7h2d → As6h3d | 15.6 → 11.0 | 4.6 → 3.3 | 85.9 → 91.4 | 68.8 → 75.3 |
+    | co-bb | Js9h4d → Js9h3d | 14.4 → 7.1 | 6.5 → 4.8 | 83.0 → 90.8 | 65.4 → 78.5 |
+    | co-bb | Ks8d8h → Ks6d6h | 16.2 → 13.0 | 4.1 → 3.9 | 87.5 → 90.3 | 71.4 → 75.3 |
+    | co-bb | QsJh3d → QsTh4d | 13.8 → 10.2 | 6.5 → 5.4 | 80.3 → 85.2 | 70.6 → 79.3 |
+    | co-bb | Ts9s2h → Ts7s4h | 18.8 → 16.1 | 7.4 → 6.3 | 83.8 → 84.6 | 65.5 → 76.4 |
+    | sb-bb | 6s5h4d → 7s5h3d | 26.2 → 25.1 | 13.9 → 14.4 | 71.3 → 74.1 | 47.5 → 49.5 |
+    | sb-bb | As7h2d → As6h3d | 15.9 → 12.9 | 7.1 → 6.2 | 87.3 → 90.1 | 64.5 → 69.0 |
+    | sb-bb | Js9h4d → Js9h3d | 18.2 → 10.7 | 5.4 → 2.7 | 85.5 → 90.6 | 75.7 → 85.4 |
+    | sb-bb | Ks8d8h → Ks6d6h | 24.7 → 24.1 | 5.1 → 5.2 | 69.5 → 70.2 | 54.6 → 52.2 |
+    | sb-bb | QsJh3d → QsTh4d | 16.7 → 12.8 | 6.5 → 5.3 | 88.9 → 90.7 | 72.6 → 80.1 |
+    | sb-bb | Ts9s2h → Ts7s4h | 25.8 → 20.7 | 8.2 → 6.8 | 74.5 → 73.5 | 60.2 → 74.8 |
+
+    It hurts in a few places, all on the farthest mappings. sb-bb K-8-8 →
+    K-6-6 loses 2.4 points of check/call grade (54.6% → 52.2%). |ΔEV| gets
+    slightly worse on the three 6-5-4 → 7-5-3 pairs outside the 3-bet pot
+    (+0.1 to +0.5% of the pot) and on sb-bb K-8-8 (+0.04). Top action drops
+    by 0.2–1.4 points on three pairs. The low connected flops stay the
+    worst (TV 23–25%): there the whole range plays differently, which no
+    hand category fixes.
+  - **Held out.** The 24 pairs informed the choice, so the reading was
+    also checked on pairs it was not tuned on (`--validate --loo`): every
+    representative of the full 6-max library is read from its nearest
+    *other* representative on the line (texture distance ≤ 3.5; 552 pairs,
+    46 per line). Medians, coarse → fine: TV 20.7% → 17.5% (floor 13.4% →
+    7.1%), |ΔEV| 8.15% → 7.42% of the pot (floor 3.99% → 1.83%), same top
+    action 78.3% → 81.7% (floor 86.3% → 92.5%), **same check/call grade
+    62.9% → 69.8%** (floor 73.4% → 86.2%). Check/call grade improves by
+    more than a point on 452 pairs and worsens by more than a point on 23
+    (worst −6.8). By line, the median check/call grade rises 4–15 points
+    everywhere except btn-sb, which slips at the median (49.6% → 48.5%;
+    8 of its 46 pairs are worse, its median pair gains 2.5 points).
+  - **Tried and not shipped** (on the 24, check/call grade against 69.0%).
+    Draw splits alone reach 71.8%, made-hand splits alone 70.4%, and both
+    together 74.6%. The nut backdoor and undercard splits add the last
+    0.9 points. Thresholds: `MIN_BUCKET_COMBOS` at 0-0.25 gains at most
+    0.2 points, and at 1-2 it loses at every setting, so it stays at 0.5.
+    Bucketing by hand-strength percentile within the preflop range is
+    worse than the made-hand categories on its own (71.9%). Inside them it
+    adds 0.8-1.3 points on the 24 and 0.7 held out, not worth reading the
+    real range's percentiles into the entry.
+  - **Measured** on the owner's stored library (`npm run floplib:measure`,
+    5,448 hands, 1,095 hero flop decisions; the measure now takes
+    `FLOPLIB_DUMP` to compare two runs decision by decision): 127 graded
+    from the library either way (117 mapped, 10 exact). 11 grades move,
+    all mapped, all weak hands with backdoor or gutshot draws that the
+    coarse category had pooled: Perfect → Good 5, Good → Perfect 2,
+    Good → Mistake 2, Good → Inaccurate 2. Perfect 100 → 97, Good 20 → 19,
+    Inaccurate 3 → 5, Mistake 4 → 6; EV loss 7.9 → 8.8 bb.
+  - `ANALYSIS_VERSION` `analysis/12`: grades of mapped flops change.
+  - **Open.** What is left is mostly the mapping, not the category: the
+    6-5-4 → 7-5-3 pairs and the paired board read from a lower pair keep
+    a TV of 23–25%, against a floor of 6–12%. More representatives where
+    the mapping distance is 3+ is still the lever. btn-sb does not gain
+    from the finer reading (held out), which is worth a look.

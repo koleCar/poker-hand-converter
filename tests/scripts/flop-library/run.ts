@@ -45,7 +45,7 @@ import {
 } from "../../../frontend/src/lib/solver/index.js";
 import type { Job } from "./job.js";
 import { lineSpot, type LineSpot } from "./spots.js";
-import { validateDir } from "./validate.js";
+import { medians, validateDir, validateLeaveOneOut, type PairMetrics } from "./validate.js";
 
 interface Options {
   out: string;
@@ -57,6 +57,8 @@ interface Options {
   memGb: number;
   estimate: boolean;
   validate: boolean;
+  /** With `validate`: read each representative from its nearest other one instead (`validateLeaveOneOut`). */
+  loo: boolean;
   dry: boolean;
   progressSec: number;
 }
@@ -82,6 +84,7 @@ function parseArgs(argv: string[]): Options {
     memGb: Number(get("mem") ?? Math.round(totalmem() / 2 / 1e9)),
     estimate: has("estimate"),
     validate: has("validate"),
+    loo: has("loo"),
     dry: has("dry"),
     progressSec: Number(get("progress") ?? 60),
   };
@@ -245,15 +248,22 @@ async function main(): Promise<void> {
     return;
   }
   if (options.validate) {
-    const pairs = validateDir(treeDir, stats);
+    const wantedLines = options.lines ? new Set(options.lines) : null;
+    const pairs = options.loo
+      ? validateLeaveOneOut(treeDir, wantedLines ? stats.filter((e) => wantedLines.has(e.line)) : stats)
+      : validateDir(treeDir, stats);
     if (!pairs.length) log("validate: no solved flop with its representative solved on the same line");
     const pct = (x: number) => `${(100 * x).toFixed(1)}%`;
+    const line = (m: PairMetrics) =>
+      `strategy TV ${pct(m.tv)} (own categories ${pct(m.tvOwn)}), |dEV| ${m.evPot.toFixed(2)}% pot (own ${m.evPotOwn.toFixed(2)}%), ` +
+      `same top action ${pct(m.sameBest)} (own ${pct(m.sameBestOwn)}), same check/call grade ${pct(m.samePassiveGrade)} (own ${pct(m.samePassiveGradeOwn)})`;
     for (const r of pairs) {
-      log(
-        `${r.line} ${r.flop} -> ${r.representative} (distance ${r.distance.toFixed(1)}, ${r.nodes} nodes): ` +
-          `strategy TV ${pct(r.tv)} (own categories ${pct(r.tvOwn)}), |dEV| ${r.evPot.toFixed(2)}% pot (own ${r.evPotOwn.toFixed(2)}%), ` +
-          `same top action ${pct(r.sameBest)}, same check/call grade ${pct(r.samePassiveGrade)}`,
-      );
+      log(`${r.line} ${r.flop} -> ${r.representative} (distance ${r.distance.toFixed(1)}, ${r.nodes} nodes): ${line(r)}`);
+      log(`  before (coarse categories): ${line(r.before)}`);
+    }
+    if (pairs.length) {
+      log(`median of ${pairs.length} pairs: ${line(medians(pairs))}`);
+      log(`  before (coarse categories): ${line(medians(pairs.map((r) => r.before)))}`);
     }
     return;
   }
