@@ -103,8 +103,13 @@ import type { Position, Street } from "../phf/types";
  *               to the coarse `flopBucket` when a fine one is thin; the
  *               stored `facts.flop.bucket` is the fine category (§10
  *               2026-10-09).
+ *   analysis/13 A hero preflop decision on a line too rare for its set
+ *               (`chart-rare-line`) is graded on the neighbouring depth of the
+ *               same table that charts the line - 100bb read at 150 or 60bb,
+ *               never further - with `rare-line-depth`, capped at Inaccurate
+ *               (docs/CHARTS.md §7.1, ANALYSIS-PLAN §10 2026-10-09).
  */
-export const ANALYSIS_VERSION = "analysis/12" as const;
+export const ANALYSIS_VERSION = "analysis/13" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -302,6 +307,10 @@ export interface Flag {
  *                       limped (`charts/4`): the reference itself barely
  *                       limps there, so it plays against a limper who may
  *                       hold any hand (docs/CHARTS.md §1.3).
+ * - `rare-line-depth`   (analysis/13) the line is too rare at the answering
+ *                       set's depth to be charted there (`rare-line`), and is
+ *                       read on the neighbouring depth of the same table that
+ *                       charts it (docs/CHARTS.md §7.1). Capped at Inaccurate.
  *
  * Multiway (A9):
  *
@@ -339,6 +348,7 @@ export const APPROXIMATIONS = [
   "flop-mapped",
   "library-bucketed",
   "limp-tremble",
+  "rare-line-depth",
   "multiway-approx",
   "multiway-history",
 ] as const;

@@ -56,6 +56,14 @@ import type { Approximation, ChartRef, ChartSkipReason, OptionAnalysis } from ".
  */
 export const WEAK_CHART_VERSIONS: readonly string[] = ["charts/1", "charts/2", "charts/3", "charts/4", "charts/5", "charts/6"];
 
+/**
+ * Grading reads a `rare-line` spot on the neighbouring depth that charts the
+ * line (`docs/CHARTS.md` §7.1, analysis/13), with the `rare-line-depth`
+ * approximation and the grade capped at Inaccurate. The opponents' chart
+ * ranges (`chartRange`) do not: they stay on the answering set's nodes.
+ */
+const RARE_LINE_DEPTH = { rareLineDepth: true } as const;
+
 /** Probability mass, in combos, below which a chart range is too thin to measure an equity against. */
 const MIN_RANGE_COMBOS = 1;
 
@@ -109,6 +117,7 @@ function chartApproximations(charts: ChartSet, list: readonly ChartApproximation
     if (item.kind === "short-handed") out.add("short-handed");
     else if (item.kind === "stack-depth") out.add("stack-depth-near");
     else if (item.kind === "sizing" && item.offTree) out.add("off-tree-size");
+    else if (item.kind === "rare-line-depth") out.add("rare-line-depth");
   }
   return out;
 }
@@ -137,7 +146,8 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
   if (!found.heroCards) return refuse("bad-input", "the hero's cards are unknown");
 
   const heroAction = found.heroAction;
-  let lookup = lookupPreflop(charts, found.spot, found.heroCards, heroAction);
+  // A line too rare for its set is read on a neighbouring depth that charts it (analysis/13).
+  let lookup = lookupPreflop(charts, found.spot, found.heroCards, heroAction, RARE_LINE_DEPTH);
   let options: OptionAnalysis[];
   let chosen: number;
 
@@ -147,7 +157,7 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
   } else if (lookup.ok || lookup.reason === "action-not-modelled") {
     // The node exists but the hero's action is not one of its edges. Look the
     // node up alone to name what is missing.
-    const bare = lookupPreflop(charts, found.spot, found.heroCards, null);
+    const bare = lookupPreflop(charts, found.spot, found.heroCards, null, RARE_LINE_DEPTH);
     if (!bare.ok) return refuse(bare.reason, bare.detail);
     const cut = cutReason(bare.node.cut, heroAction.type);
     if (cut) return refuse(cut, `${found.spot.hero} ${heroAction.type}s where the tree has no ${heroAction.type}`);
@@ -174,7 +184,8 @@ export function gradePreflop(input: PreflopGradeInput, charts: ChartSet | null):
     options,
     chosen,
     pot: input.potBb,
-    capAtInaccurate: approximations.has("off-tree-size"),
+    // Off the chart's size, or read at another depth: the reference is near, not exact.
+    capAtInaccurate: approximations.has("off-tree-size") || approximations.has("rare-line-depth"),
   });
   return {
     ok: true,

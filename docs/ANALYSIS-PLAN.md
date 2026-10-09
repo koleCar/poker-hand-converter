@@ -2269,3 +2269,63 @@ Each phase appends what it learned that changed the plan.
     a TV of 23–25%, against a floor of 6–12%. More representatives where
     the mapping distance is 3+ is still the lever. btn-sb does not gain
     from the finer reading (held out), which is worth a look.
+- 2026-10-09 — Rare lines read on a neighbouring depth, `analysis/13`
+  (`docs/CHARTS.md` §7.1). No migration, no chart regenerated.
+  - **Why this issue.** After `charts/6` the largest preflop refusal left
+    in the owner's library is `rare-line`: 166 of 5,388 hero preflop
+    decisions (`analysis/12`). The other candidates cost more for less:
+    more flop-library representatives where the mapping is far (new flop
+    solves), multiway flops (a large project), and the 9-max 150bb set at
+    9,000 iterations (~6 hours of compute, for a set that holds only 8 of
+    the 166).
+  - **What the 166 are** (`npm run charts:library`, its rare-line breakdown,
+    and a per-decision pass over the same export). Every one is in the tree
+    (the replay reaches the node, so none is a missing line): 163 are left
+    out by the reach cut (1e-5), 3 as unconverged (6-max 150bb `frcf` twice,
+    9-max 100bb `fffffcc`). By set: 9-max 100bb 79, 6-max 100bb 67, 9-max
+    150bb 8, 9-max 200bb 8, 6-max 150bb 4. By shape: **126 are an open with
+    one or more flat calls from seats other than the blinds before the
+    hero** (UTG opens, the cutoff flats, the hero is in the small blind),
+    33 a flatted or limped pot re-raised, 6 three or more limpers, 1 other.
+    The hero folds 137 of them, raises 15, calls 13, checks 1. At 100bb the
+    charts almost never flat an open (3-bet or fold), so what follows a
+    flat is reached under 1e-5; 126 of the 166 lines are charted at some
+    other depth of the same table, where the flat is common enough.
+  - **Options.** (a) Grading the low-reach node with a caveat is not
+    possible without a regeneration: the sets store nothing below
+    `minReach` (the strategies live in the solver, not the JSON) and carry
+    no per-node convergence data beyond `model.excluded.unconverged`, so
+    there is nothing converged to grade from. (b) The nearest modelled node
+    by **depth** is: a neighbouring set's node passed that set's own rules
+    (reach, self-loss under 2% of the pot), and it plays against a real
+    flatting range, which is what the hero faces. Mapping by position or by
+    dropping the flatter would change the pot and the number of players,
+    not just a parameter. (c) Explaining the refusal better stays for what
+    is left.
+  - **What changed.** `lookupPreflop(..., { rareLineDepth: true })` (the
+    grade only): a `rare-line` spot is replayed on the nearest charted
+    depth below and above in the same table (`rareLineDepthSets`, nearest
+    first by depth ratio, never two steps away); the first that reaches a
+    stored node answers, with the new `rare-line-depth` approximation, and
+    the grade is capped at Inaccurate. The opponents' chart ranges and the
+    flop library's placement do not read across depths. The app loads the
+    neighbours a hand needs in a second step (`rareLineChartSets`). The
+    `rare-line` detail now says when a node was left out as unconverged
+    rather than rare, and the user-facing reason says the line is too rare
+    at this depth or the nearest ones.
+  - **Measured** (`npm run charts:library`, compared decision by decision
+    with `CHARTS_LIBRARY_DUMP`): `rare-line` **166 -> 46**; **119 graded** -
+    Perfect 109, Good 1, Inaccurate 9 (7 of them capped: they lose 3-28% of
+    the pot at the neighbour) - and one becomes `action-not-modelled`. Read
+    at: 6-max 100 -> 150bb 47, 100 -> 60bb 18; 9-max 100 -> 150bb 48, 200
+    -> 150bb 4; 6-max 150 -> 200bb 2. Nothing else moves. Graded 4,727 ->
+    4,846 (87.7% -> 89.9%): Perfect 4,250 -> 4,359, Good 17 -> 18,
+    Inaccurate 194 -> 203, Mistake 185, Blunder 81; 225.1 -> 230.3 bb lost.
+    By scenario, squeeze 260 -> 357 and facing a 3-bet 282 -> 301.
+  - `ANALYSIS_VERSION` `analysis/13`: stored `chart-rare-line` decisions
+    become graded.
+  - **Open.** The 46 left are 43 on 9-max sets: lines the 150bb set leaves
+    out too, with no shallower 9-max set to read. A 9-max 60bb set, or
+    regenerating with a lower reach cut for nodes behind a flat (the
+    strategies there would need their own convergence check), are the
+    levers; neither is worth it for 46 decisions now.
