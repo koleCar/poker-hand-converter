@@ -68,8 +68,8 @@ describe("committed chart set", () => {
     // charts/4 (A2d) re-solved this set with limps, on the fit A2a.1 measured.
     expect(charts.version).toBe("charts/4");
     expect(CHART_SET_VERSIONS).toContain(charts.version);
-    // charts/5 (A2e) adds the straddle set; this set is still charts/4's.
-    expect(CHARTS_VERSION).toBe("charts/5");
+    // charts/5 (A2e) adds the straddle set and charts/6 re-solves the 200bb sets; this set is still charts/4's.
+    expect(CHARTS_VERSION).toBe("charts/6");
     expect(charts.id).toBe("nlhe-cash-6max-100bb");
     expect(charts.game.positions).toEqual(["UTG", "HJ", "CO", "BTN", "SB", "BB"]);
     expect(charts.game.stackBb).toBe(100);

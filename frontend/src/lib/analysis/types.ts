@@ -90,8 +90,13 @@ import type { Position, Street } from "../phf/types";
  *               the postflop walks and solves that start from them) are its,
  *               and it no longer carries the hand-level `straddle`
  *               approximation. Every other straddle is refused as before.
+ *   analysis/11 `charts/6`: the 6-max and 9-max 200bb sets re-solved for
+ *               9,000 iterations (docs/CHARTS.md §5.1). Their big blind
+ *               facing a single limp is graded instead of `chart-rare-line`,
+ *               and every grade, EV and preflop range read from them moves
+ *               by the longer solve.
  */
-export const ANALYSIS_VERSION = "analysis/10" as const;
+export const ANALYSIS_VERSION = "analysis/11" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */

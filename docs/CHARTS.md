@@ -1,6 +1,6 @@
-# CHARTS — preflop reference charts, `charts/5`
+# CHARTS — preflop reference charts, `charts/6`
 
-Phases A2a, A2a.1, A2c, A2d and A2e of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec).
+Phases A2a, A2a.1, A2c, A2d and A2e (and `charts/6`, the 200bb re-solve) of [`ANALYSIS-PLAN.md`](ANALYSIS-PLAN.md) (§3.1 is the spec).
 Rail's preflop reference for **NLHE cash**: a library of chart sets
 (**6-max at 40 / 60 / 100 / 150 / 200bb, 9-max at 100 / 150 / 200bb, and
 6-max 100bb with a 2bb UTG straddle**, §6),
@@ -20,6 +20,8 @@ set: open limps, over-limps, isolation raises and the limpers' answers
 (§1.3), solved once per set on its committed realisation fit (§6.7).
 `charts/5` (A2e) adds the straddle set: a third blind, the straddler's
 option last, its own realisation measured on its own spots (§1.4, §6.8).
+`charts/6` solves the two 200bb sets for 9,000 iterations instead of 3,000,
+so their big blind facing a single limp converges and is in the set (§5.1).
 
 ```
 frontend/src/lib/solver/
@@ -481,6 +483,63 @@ Measured for the committed set (M-series Mac, Node 24):
 | Heads-up BvB, 1,000 iterations | 0.025 mbb/hand |
 | Time | see §10 (~27 min from scratch, ~10 min with the caches) |
 
+### 5.1 The deep limp nodes: 9,000 iterations at 200bb (`charts/6`)
+
+After `charts/4` both 200bb sets left the **big blind facing a single limp**
+out as unconverged (§6.1) from most seats: 6-max from the HJ, CO and button
+(`fcfff`, `ffcff`, `fffcf`), 9-max from the HJ, CO and button
+(`ffffcfff`, `fffffcff`, `ffffffcf`); the chart's own mix lost 2.2-2.8% of
+the pot for one class after 3,000 iterations, so a big blind there was
+`rare-line`.
+
+**Why: early regrets the tremble cannot outvote.** The node is reached only
+through the limp's tremble (about 6e-4 of hands). CFR weights the big
+blind's regrets there by the opponents' reach - mostly the limper's
+probability of limping. In the first iterations the limper's strategy is
+near uniform (a third of every class limps), later it is the tremble's 0.5%
+plus a few traps: the counterfactual values, and with them each iteration's
+regret, shrink by about 60x. DCFR discounts a positive regret by
+`t^1.5 / (t^1.5 + 1)` per iteration, a product that stays far from zero, so
+the regrets of the first few dozen iterations are never forgotten - and at
+the tremble's weight it takes thousands of iterations to wear them down.
+Measured on the 6-max 200bb solve at 3,000 iterations (the committed set,
+reproduced checkpoint for checkpoint): the big blind with AQo behind a
+cutoff limp has cumulative regret +0.24 for checking and +0.20 for
+isolating, while isolating is worth 0.105bb more per hand and each
+iteration moves the check's regret by -3e-5. Regret matching therefore
+still mixes 55/45, and the average (weighted `t^2`) carries the mix of every
+earlier iteration: 2.55% of the pot lost. It is not the DCFR parameters
+being wrong for the game, a degenerate class or a tree error: the same
+nodes clear the 2% bar by 3,000 iterations at 100bb and in the 6-max 150bb
+set, and at 200bb the worst class shrinks steadily with more iterations
+(6-max 200bb):
+
+| Iterations | 1,000 | 2,000 | 3,000 | 4,000 | 5,000 | 6,000 | 7,000 | 8,000 | 9,000 |
+|---|---|---|---|---|---|---|---|---|---|
+| BB vs HJ limp, worst class (% of the pot) | 2.19 | 2.48 | 2.24 | 1.83 | 1.51 | 1.26 | 1.05 | 0.83 | 0.77 |
+| BB vs CO limp | 3.06 | 3.56 | 2.55 | 1.89 | 1.38 | 1.18 | 1.00 | 0.85 | 0.76 |
+| BB vs button limp | 3.99 | 2.96 | 2.25 | 2.07 | 1.81 | 1.44 | 1.11 | 1.03 | 0.97 |
+| Nodes left out as unconverged (the set) | 72 | 34 | 19 | 12 | 8 | 3 | 3 | 2 | 2 |
+| NashConv (mbb/hand) | 1.25 | 0.49 | 0.33 | 0.26 | 0.23 | 0.21 | 0.20 | 0.19 | **0.18** |
+
+The 9-max 200bb solve shows the same thing (measured to 1,000 iterations:
+the big blind with AQs behind an HJ limp carries regret +0.16 for checking
+and +0.14 for isolating while isolating is worth 0.15bb more). At 9,000
+iterations it keeps the big blind facing a limp from every seat, leaves 7
+nodes out instead of 61 (all reached under 1e-5) and measures NashConv
+0.25 (1.60, 0.66, 0.44, 0.35, 0.30, 0.28, 0.27, 0.26, 0.25 at 1,000 to
+9,000).
+
+**The fix: a longer solve, nothing else.** The two 200bb sets are solved for
+**9,000 iterations** (`SetConfig.iterations` in `sets.ts`), on the same
+committed fit, tree, tremble and engine; every other set keeps 3,000 and
+its bytes. 9,000 rather than the ~4,500 where the 6-max nodes cross 2%:
+half the bar is a margin, and 9-max converges more slowly. A principled
+change to the solve (forgetting regrets the tremble's scale makes stale,
+or starting the trembling nodes at the tremble) would have changed every
+set's numbers, including the 6-max and 9-max 100bb sets the flop library
+is keyed to; a longer solve changes only the two sets that need it.
+
 ## 6. The chart sets
 
 ### 6.1 One set
@@ -545,11 +604,11 @@ fit (§6.7), with `charts/3` in brackets:
 | `nlhe-cash-6max-60bb` | 883 / 6,341 (368 / 1,365) | 514 | 2,120,012 | 545 KB (211) | 0.065 (0.058) | 10 min |
 | `nlhe-cash-6max-100bb` | 752 / 10,361 (281 / 3,825) | 476 | 1,869,915 | 486 KB (171) | 0.094 (0.075) | 14 min |
 | `nlhe-cash-6max-150bb` | 814 / 10,361 (343 / 3,825) | 468 | 1,988,228 | 530 KB (212) | 0.139 (0.121) | 14 min |
-| `nlhe-cash-6max-200bb` | 815 / 10,361 (355 / 3,825) | 455 | 1,996,785 | 537 KB (224) | 0.332 (0.130) | 15 min |
+| `nlhe-cash-6max-200bb` (`charts/6`, §5.1) | **829** / 10,361 (`charts/4`: 815) | 469 | 2,033,580 | 538 KB | **0.182** (`charts/4`: 0.332) | 45 min, 9,000 iterations |
 | `nlhe-cash-9max-100bb` | 2,705 / 79,131 (1,033 / 28,591) | 1,693 | 6,403,193 | 1,640 KB (570) | 0.313 (0.256) | 110 min |
 | `nlhe-cash-9max-150bb` | 2,888 / 79,131 (1,139 / 28,591) | 1,736 | 6,873,614 | 1,776 KB (645) | 0.270 (0.313) | 112 min |
-| `nlhe-cash-9max-200bb` | 2,795 / 79,131 (1,129 / 28,591) | 1,677 | 6,648,602 | 1,726 KB (641) | 0.439 (0.485) | 114 min |
-| **all eight** | | | **29,848,576** (11,789,161) | **8.7 MB** (2.86) | | **~1 h 55 min wall**, five at a time |
+| `nlhe-cash-9max-200bb` (`charts/6`, §5.1) | **2,841** / 79,131 (`charts/4`: 2,795) | 1,735 | 6,768,378 | 1,731 KB | **0.247** (`charts/4`: 0.439) | 6 h 04 min, 9,000 iterations |
+| **all eight** | | | **30,005,147** (`charts/4`: 29,848,576) | **8.7 MB** | | |
 | `nlhe-cash-6max-100bb-straddle` (`charts/5`, §6.8) | 854 / 4,906 | 492 | 2,022,496 | 539 KB | 0.166 | 43 min with two measurement rounds |
 
 Solve times are each set's own: one 3,000-iteration solve (no measurement
@@ -557,14 +616,30 @@ rounds, §6.7) per set, five sets at once on a 10-core M-series Mac shared with
 another agent's flop solves; peak memory 0.35-0.53 GB for a 6-max set,
 1.5-2.5 GB for a 9-max one. A 9-max iteration now costs ~2 s (the first
 hundreds ~3.5 s), against ~0.6 s for `charts/3`'s tree: 2.8x the action nodes
-and three- and four-way limped pots between wide ranges. The 6-max 200bb set
-converges least far of the 6-max sets (0.33, most of it the small blind's
-0.16); every best-response gain per seat is under 0.16 mbb/hand.
+and three- and four-way limped pots between wide ranges. At `charts/4` the
+6-max 200bb set converged least far of the 6-max sets (0.33, most of it the
+small blind's 0.16).
 
-`CHARTS_VERSION` is `charts/5` (A2e: the library gained the straddle set,
-§6.8); the eight sets above are `charts/4`'s, unchanged, each carrying its
-own `id` (the 6-max 100bb set on `charts/2`'s fit, the others on their A2c
-fits). Grades store the set's id (`facts.chart.set`).
+**`charts/6`, the 200bb sets solved longer** (§5.1): the two 200bb rows are
+the 9,000-iteration solves, each in its own process next to the
+flop-library batch's four solves (the 9-max one at times thermally
+throttled; ~2 s per iteration after the first thousand, peak
+2.1 GB). Left out as unconverged: 6-max **19 -> 2**, 9-max **61 -> 7**,
+every one left reached under 1e-5 of hands except the 6-max small blind
+behind two limps (`fcfc`, 3e-4); the big blind facing a single limp
+is in both sets from every seat, and so are the 9-max cold-call and 3-bet
+nodes `rc` and `rrr` (reached 3e-4 and 1e-4) that `charts/4` also left out.
+Raise-first-in and defence widths move by at most 0.3 points, limped-pot
+frequencies by up to 2.6 (the 6-max small blind facing an UTG limp folds
+23.7% instead of 26.3%, §8.3). Best-response gains per seat: 6-max under
+0.02 mbb/hand except the small blind's 0.13; 9-max under 0.05 except the
+button's 0.09.
+
+`CHARTS_VERSION` is `charts/6` (the 200bb sets re-solved, §5.1); before it
+`charts/5` (A2e) added the straddle set (§6.8). The other six sets above
+are `charts/4`'s, unchanged byte for byte, each carrying its own `id` (the
+6-max 100bb set on `charts/2`'s fit, the others on their A2c fits). Grades
+store the set's id (`facts.chart.set`).
 
 `charts/3` (A2c), for the record: 6-max 40 / 60 / 100 / 150 / 200bb had
 335 / 368 / 281 / 343 / 355 nodes of 1,159 / 1,365 / 3,825 trees, NashConv
@@ -732,6 +807,20 @@ of the big blind. Every other count is unchanged (4,687 -> 4,728 graded,
 87.0% -> 87.8%); the 41 are RFI 23, facing an open 10, facing limpers 5,
 squeeze 3. Solver-graded rivers on a placeholder range: 172 -> 166 of 370
 (the straddled pots' players now start from the straddle set's ranges).
+
+**`charts/6`, the 200bb re-solve** (`analysis/11` against `analysis/10`,
+the same export, compared decision by decision with
+`CHARTS_LIBRARY_DUMP`): the library has **no** hero decision as the big
+blind facing a single limp at 200bb, so no `rare-line` refusal becomes
+graded - the 165 are 6-max and 9-max 100bb lines for the most part (the
+200bb sets had 7, all on the 9-max set and none of them a big blind behind a limp). Five of the 295
+decisions graded on the 200bb sets change: four grades (6-max: Good ->
+Perfect; 9-max: Good -> Perfect, Good -> Inaccurate, Mistake ->
+Inaccurate) and one 9-max decision that becomes `rare-line` (the small
+blind facing an HJ limper's re-raise of its isolation, the big blind
+calling: `ffffcffrcr`, reached exactly 1e-6 at `charts/4` and just under it
+now). Graded 4,728 -> 4,727; Perfect 4,249 -> 4,250, Good 20 -> 17,
+Inaccurate 192 -> 194, Mistake 186 -> 185; 225.1 bb lost (225.2).
 
 Graded decisions by set at `analysis/6`: 6-max 100bb 1,957, 9-max 100bb
 1,325, 6-max 150bb 727, 9-max 150bb 290, 9-max 200bb 217, 6-max 200bb 78,
@@ -991,16 +1080,16 @@ check it.
 rest folding: fold / over-limp / isolate (the big blind: check / isolate);
 then the limper facing the button's isolation, the blinds folding:
 
-| | 6-max 40bb | 6-max 100bb | 6-max 200bb | 9-max 100bb | 9-max 200bb |
+| | 6-max 40bb | 6-max 100bb | 6-max 200bb (`charts/6`) | 9-max 100bb | 9-max 200bb (`charts/6`) |
 |---|---|---|---|---|---|
-| Second seat vs first seat's limp | 85.5 / 3.6 / 10.9 | 85.5 / 1.2 / 13.3 | 85.7 / 1.9 / 12.4 | 92.1 / 0.5 / 7.4 | 92.3 / 1.5 / 6.2 |
-| CO vs first seat's limp | 80.4 / 7.4 / 12.3 | 80.9 / 3.7 / 15.4 | 80.8 / 4.6 / 14.6 | 82.5 / 6.8 / 10.7 | 80.5 / 8.9 / 10.6 |
-| BTN vs first seat's limp | 71.3 / 15.6 / 13.2 | 70.6 / 10.6 / 18.8 | 71.1 / 10.8 / 18.1 | 74.6 / 14.1 / 11.3 | 72.6 / 15.5 / 11.9 |
-| SB vs first seat's limp | 27.8 / 63.6 / 8.5 | 23.8 / 68.3 / 7.9 | 26.3 / 66.3 / 7.4 | 29.3 / 65.9 / 4.8 | 24.8 / 72.1 / 3.1 |
-| BB vs first seat's limp | 94.2 / 5.8 | 94.8 / 5.2 | 95.9 / 4.1 | 96.7 / 3.3 | 97.0 / 3.0 |
-| BTN vs CO limp | 69.0 / 9.6 / 21.5 | 68.2 / 2.9 / 28.9 | 66.8 / 3.6 / 29.5 | 67.6 / 2.2 / 30.2 | 67.1 / 3.9 / 29.0 |
-| BB vs CO limp | 90.7 / 9.3 | 88.8 / 11.2 | (left out, below) | 91.6 / 8.4 | (left out) |
-| First-seat limper vs BTN isolation: fold / call / re-raise | 49.7 / 25.6 / 24.7 | 50.3 / 23.1 / 26.6 | 52.0 / 23.2 / 24.7 | 46.2 / 30.7 / 23.2 | 48.8 / 26.1 / 25.0 |
+| Second seat vs first seat's limp | 85.5 / 3.6 / 10.9 | 85.5 / 1.2 / 13.3 | 85.7 / 2.1 / 12.2 | 92.1 / 0.5 / 7.4 | 92.4 / 1.4 / 6.3 |
+| CO vs first seat's limp | 80.4 / 7.4 / 12.3 | 80.9 / 3.7 / 15.4 | 80.8 / 4.6 / 14.7 | 82.5 / 6.8 / 10.7 | 80.4 / 8.9 / 10.6 |
+| BTN vs first seat's limp | 71.3 / 15.6 / 13.2 | 70.6 / 10.6 / 18.8 | 70.9 / 10.9 / 18.2 | 74.6 / 14.1 / 11.3 | 72.5 / 15.5 / 12.0 |
+| SB vs first seat's limp | 27.8 / 63.6 / 8.5 | 23.8 / 68.3 / 7.9 | 23.7 / 68.7 / 7.6 | 29.3 / 65.9 / 4.8 | 23.6 / 73.3 / 3.1 |
+| BB vs first seat's limp | 94.2 / 5.8 | 94.8 / 5.2 | 95.9 / 4.1 | 96.7 / 3.3 | 97.1 / 2.9 |
+| BTN vs CO limp | 69.0 / 9.6 / 21.5 | 68.2 / 2.9 / 28.9 | 67.1 / 3.4 / 29.5 | 67.6 / 2.2 / 30.2 | 67.0 / 3.8 / 29.1 |
+| BB vs CO limp | 90.7 / 9.3 | 88.8 / 11.2 | **92.3 / 7.7** | 91.6 / 8.4 | **91.9 / 8.1** |
+| First-seat limper vs BTN isolation: fold / call / re-raise | 49.7 / 25.6 / 24.7 | 50.3 / 23.1 / 26.6 | 51.7 / 23.7 / 24.6 | 46.2 / 30.7 / 23.2 | 48.9 / 25.9 / 25.2 |
 
 (60bb and 150bb sit between their neighbours: the button isolates an UTG
 limp 16.1% / 18.4% at 6-max, a CO limp 25.8% / 30.4%.)
@@ -1030,10 +1119,12 @@ limp 16.1% / 18.4% at 6-max, a CO limp 25.8% / 30.4%.)
   points from `charts/3` (6-max 100bb UTG 15.4% -> 15.1% raise, plus 0.6%
   limps; 9-max 100bb UTG 10.2% -> 9.6%), and the blinds' defence hardly at
   all (BB vs a button open 61.7% in both at 6-max 100bb).
-- **Left out as unconverged** (§6.1): at 200bb both tables drop the big
-  blind facing a single limp from most seats (its mix loses 2.2-2.8% of the
-  pot for one class after 3,000 iterations), so a big blind there is
-  `rare-line`; 1 to 57 other nodes behind a limp per set, nearly all reached
+- **Left out as unconverged** (§6.1): at `charts/4` both 200bb sets
+  dropped the big blind facing a single limp from most seats (its mix lost
+  2.2-2.8% of the pot for one class after 3,000 iterations); `charts/6`
+  solves them for 9,000 iterations and keeps it from every seat (§5.1).
+  The 9-max 150bb set still leaves the big blind behind an HJ limp out.
+  Otherwise 1 to 47 nodes per set, nearly all behind a limp and reached
   under 1e-4 of hands.
 
 ### Sanity bands for every set (tested, `tests/test/charts/sets.test.ts`)
@@ -1124,17 +1215,24 @@ reached under 1e-5 (a re-raiser's range there can be AA alone).
   pots outside the blinds and the multiway limped pots are valued by the
   blinds' fitted limped-pot coefficients and the pairwise multiway rule, not
   measured.
-- **The limp trees converge a little less far** (§6.2: 6-max 200bb 0.33 and
-  9-max 200bb 0.44 mbb/hand) and are bigger: 1.9-2.1 MB per 6-max set and
+- **The limp trees converge a little less far** (§6.2: at 3,000 iterations
+  6-max 200bb 0.33 and 9-max 200bb 0.44 mbb/hand, 0.18 and 0.25 at
+  `charts/6`'s 9,000) and are bigger: 1.9-2.1 MB per 6-max set and
   6.4-6.9 MB per 9-max set (0.5 and 1.7 MB gzip), 30 MB in all.
+- **Iterations per set, not per node.** The tremble's nodes learn at its
+  0.5% weight, slowly (§5.1); the 200bb sets buy convergence with 3x the
+  iterations, which costs the 9-max set ~6 hours. A solver that rescales
+  or forgets the early, large regrets of trembling lines would converge
+  them in far fewer, at the price of regenerating every set.
 - **Smaller tables are read on bigger sets** (§6.3): exact in the model up
   to convergence, but the real card removal of the folded seats is not
   there.
 - **No interpolation between depths**: a 125bb stack is graded on the
   150bb set, with a `stack-depth` note; strategies between two depths are
   whatever the nearer set says.
-- **The 9-max sets are less converged** (NashConv 0.27-0.44 mbb/hand against
-  0.06-0.33 for 6-max at the same 3,000 iterations) and bigger, and keep
+- **The 9-max sets are less converged** (NashConv 0.27-0.31 mbb/hand at
+  100 and 150bb against 0.06-0.14 for 6-max at the same 3,000 iterations;
+  at 200bb 0.25 against 0.18 at 9,000) and bigger, and keep
   rare nodes out as unconverged (`model.excluded`).
 - **Reports, Leaks and the study plan read every set** since A2d (a set
   filter on Reports; each leak and focus area on the set it was met on);
@@ -1146,19 +1244,25 @@ reached under 1e-5 (a re-raiser's range there can be AA alone).
 
 ```bash
 cd tests
-CHARTS_PARALLEL=5 CHARTS_THREADS=5 npm run charts:generate    # every set, ~1 h 55 min wall (charts/4: one solve per set)
+CHARTS_PARALLEL=5 CHARTS_THREADS=5 npm run charts:generate    # every set, ~6 h wall: the 9-max 200bb set's 9,000 iterations (charts/6)
+CHARTS_SETS=nlhe-cash-6max-200bb npm run charts:generate      # a 200bb set: 9,000 iterations (sets.ts), 45 min; 9-max ~6 h
 CHARTS_SETS=nlhe-cash-6max-60bb npm run charts:generate       # one set
 CHARTS_SETS=nlhe-cash-6max-100bb-straddle CHARTS_THREADS=4 npm run charts:generate   # the straddle set, ~43 min (two rounds)
 npm run charts:report        # the §8 tables for every committed set (CHARTS_FILE=... for one file)
 npm run charts:coverage      # §6.6: graded decisions on the corpora, 6-max 100bb alone vs the library
 npm run charts:compare       # §6.3: a native short-handed solve against a bigger set read short-handed
 CHARTS_LIBRARY=library.jsonl npm run charts:library   # §6.6: the same on an export of stored hands (one PHF JSON per line)
+CHARTS_LIBRARY=library.jsonl CHARTS_LIBRARY_DUMP=run.jsonl npm run charts:library   # also every decision's outcome, to diff two runs
 ```
 
 `charts/4` (A2d) sets carry `reuseFit` in `sets.ts`: the generator solves
 each once on the realisation model and fit record of its own committed file
 (§6.7), without rounds, so the turn+river measurement below does not run. A
-rerun writes the same bytes (checked on the 6-max 40bb set).
+rerun writes the same bytes (checked on the 6-max 40bb set, and for
+`charts/6` on the 6-max 40, 60, 100 and 150bb sets: regenerated with the
+`charts/6` generator, byte for byte the committed files). The 200bb sets
+also carry `iterations: 9000` (§5.1); `CHARTS_ITERATIONS` overrides every
+set's count for experiments.
 
 `tests/scripts/preflop-charts/sets.ts` lists every set's table, depth, sizes,
 rounds and starting model. `charts:generate` writes
