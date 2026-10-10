@@ -2329,3 +2329,71 @@ Each phase appends what it learned that changed the plan.
     regenerating with a lower reach cut for nodes behind a flat (the
     strategies there would need their own convergence check), are the
     levers; neither is worth it for 46 decisions now.
+- 2026-10-10 — The 9-max 150bb limp nodes converge: `charts/7`,
+  `analysis/14` (`docs/CHARTS.md` §5.1). Closes `charts/6`'s open item "the
+  9-max 150bb set still leaves the big blind behind an HJ limp out". No
+  migration.
+  - **Diagnosis.** Measured on the 9-max 150bb solve, checkpoint by
+    checkpoint, with a diagnostic copy of the generator's loop (its
+    3,000-iteration state reproduces the committed `charts/4` set exactly:
+    2,888 nodes, the same 47 left out, NashConv 0.270). The same stale
+    early regrets as at 200bb: the node is reached only through the 0.5%
+    tremble (the HJ limp, 4.8e-4 of hands), its worst class is AQo at every
+    checkpoint, and the loss falls steadily with iterations - 3.75% of the
+    pot at 1,000, 3.34% at 2,000, **2.42%** at 3,000, 1.81% at 4,000, 1.19%
+    at 5,000, 0.79% at 6,000, 0.32% at 8,000, **0.21%** at 9,000. Behind
+    the CO and button limps it starts under the bar at 3,000 (1.53%, 1.84%)
+    and ends at 0.59% and 0.75%; behind the earlier seats under 1%
+    throughout. Not a degenerate class, the tremble's size or the tree.
+  - **Iterations.** The HJ node crosses 2% at ~3,700; 9,000 (the 200bb
+    sets' count, `DEEP_ITERATIONS`) is more than twice that, and leaves the
+    worst big-blind-vs-limp node at 0.75%, under half the bar. More would
+    cost ~1.5-2 h per 1,000 on the shared machine for nodes already well
+    inside it.
+  - **Fix.** `nlhe-cash-9max-150bb` is solved for 9,000 iterations (`deep`
+    in `sets.ts`, version `charts/7`). Same fit, tree, tremble and engine.
+    Only that file changes; every other set's configuration is `main`'s and
+    its bytes too (6-max 40 and 100bb regenerated and compared byte for
+    byte; `model.hash` of 6-max 100bb `ecad38d0` and 9-max 100bb `204ec7be`
+    untouched, so the flop library's chunks still match).
+  - **Results.** 2,924 nodes (2,888), **13 left out as unconverged (47)**,
+    all reached under 1e-4; NashConv **0.087** mbb/hand (0.270), every
+    seat's best-response gain under 0.015; 6.96 MB, 1.80 MB gzip. The big
+    blind facing a single limp is in the set from every seat (checks 94.3%
+    behind an HJ limp). 56 nodes come in, 20 rare ones (1e-6 to 1e-5) drop
+    under the reach cut. Widths move by at most 0.4 points outside limped
+    pots (SB raise first in 15.7% -> 15.3%, limp 45.8% -> 46.4%), up to 1.0
+    inside them. **Generation: 13 h 38 min** (49,051 s) single-threaded,
+    beside the flop-library batch's four solves and the diagnostic solve,
+    at 30-50% of a core per process; peak 1.9 GB. The generator's 12-hour
+    vitest timeout fired before the file was reported (the solve is
+    synchronous, so the file was written whole); it is now 24 hours.
+  - **Measured on the owner's library** (`npm run charts:library`, the same
+    export, decision by decision with `CHARTS_LIBRARY_DUMP`, which now also
+    records each decision's line, `rare-line-depth` and EV loss): there is
+    no hero decision as the big blind behind an HJ limp at 150bb. Of the
+    342 decisions graded on the set (52 of them 9-max 100 and 200bb rare
+    lines read on it), two change grade (Inaccurate -> Perfect, Good ->
+    Perfect) and 12 keep it with an EV loss moved by 0.01-0.09bb (4 of them
+    rare lines read across depths). **Three 9-max 100bb `rare-line`
+    refusals are now graded on the 150bb set** (`rare-line-depth`), all
+    Perfect: the small blind behind a cutoff and a button limp (`fffffcc`,
+    unconverged at `charts/4`) and the big blind and the HJ opener facing a
+    squeeze after a cutoff flat (`ffffrcrf`, `ffffrcrff`, now reached
+    1.2e-5). `rare-line` 46 -> 43; graded 4,846 -> 4,849 (90.0%); Perfect
+    4,364, Good 17, Inaccurate 202, Mistake 185, Blunder 81; 230.3 bb lost
+    (unchanged to 0.1bb). Rivers on a placeholder range 166 of 370,
+    unchanged.
+  - `CHARTS_VERSION` `charts/7` (the set carries it; the other eight keep
+    theirs), `ANALYSIS_VERSION` `analysis/14`: grades read from the 9-max
+    150bb set change. `sets.test`: the big blind facing a single limp is
+    now required from every seat in every set; the EV-consistency check
+    skips classes within half a 1/255 step of the in-range bar (a stored
+    range of 0.051 can be a generator reach under 0.05).
+  - **Open.** Every chart set now keeps the big blind facing a single limp.
+    The 6-max 200bb small blind behind two limps (`fcfc`) stays out. The
+    three 9,000-iteration sets cost 45 min to 14 hours each to regenerate;
+    a solver change that forgets the trembling lines' early regrets would
+    converge them in far fewer, at the price of regenerating every set
+    (and the flop library keyed to the 100bb hashes). The 43 `rare-line`
+    refusals left are 40 on 9-max sets, lines no 9-max depth charts.

@@ -108,8 +108,14 @@ import type { Position, Street } from "../phf/types";
  *               same table that charts the line - 100bb read at 150 or 60bb,
  *               never further - with `rare-line-depth`, capped at Inaccurate
  *               (docs/CHARTS.md §7.1, ANALYSIS-PLAN §10 2026-10-09).
+ *   analysis/14 `charts/7`: the 9-max 150bb set re-solved for 9,000
+ *               iterations (docs/CHARTS.md §5.1), so its big blind facing a
+ *               single limp converges from every seat. Every grade, EV and
+ *               preflop range read from it moves by the longer solve -
+ *               including the 9-max 100bb and 200bb rare lines read on it
+ *               (`rare-line-depth`).
  */
-export const ANALYSIS_VERSION = "analysis/13" as const;
+export const ANALYSIS_VERSION = "analysis/14" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
