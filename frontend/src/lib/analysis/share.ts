@@ -22,3 +22,26 @@ export function analysisFitsHand(analysis: Pick<HandAnalysis, "decisions">, hand
     return Boolean(action && action.seat === hero.seat && action.street === decision.street && action.type === decision.action);
   });
 }
+
+/**
+ * The analysis without the facts that are the owner's and not the hand's:
+ * `facts.villain` (analysis/20), the owner's statistics on an opponent from
+ * their private library. `read_shared_analysis` leaves it out
+ * (`20270407090000`); every reader of a shared analysis drops it again, so a
+ * stale server or a cached row cannot put it in a public page. Takes a stored
+ * row (`decisions[].facts`) or a mapped `HandAnalysis` alike; returns the
+ * same object when there is nothing to drop.
+ */
+export function withoutOwnerFacts<T extends object>(analysis: T): T {
+  const decisions = (analysis as { decisions?: unknown }).decisions;
+  if (!Array.isArray(decisions)) return analysis;
+  let changed = false;
+  const stripped = decisions.map((decision: unknown) => {
+    if (!decision || typeof decision !== "object") return decision;
+    const facts = (decision as { facts?: unknown }).facts;
+    if (!facts || typeof facts !== "object" || Array.isArray(facts) || !("villain" in facts)) return decision;
+    changed = true;
+    return { ...decision, facts: Object.fromEntries(Object.entries(facts).filter(([key]) => key !== "villain")) };
+  });
+  return changed ? ({ ...analysis, decisions: stripped } as T) : analysis;
+}

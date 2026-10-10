@@ -3187,9 +3187,6 @@ Each phase appends what it learned that changed the plan.
       frequency, might separate limp ranges better than overall looseness.
     - The snapshot is the panel's 200 biggest samples; a library with more
       than 200 regulars of 30+ hands leaves the rest on the population.
-    - The shared read (`read_shared_analysis`) still returns
-      `facts.villain` in its JSON, though the shared sheet does not show
-      it; strip it server-side the next time a migration touches that
-      function.
+    - ~~The shared read still returns `facts.villain`~~ Done: it never did (`analysis_public_facts` lists keys); now also `- 'villain'` in `read_shared_analysis` and `withoutOwnerFacts` client-side (`20270407090000`, `analysis_share_villain.test.sql`).
     - The parameters are the owner's opponents' (one pool, around $0.50/$1);
       refit on more libraries when there are some.

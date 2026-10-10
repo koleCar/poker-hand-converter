@@ -14,7 +14,7 @@ import { describe, expect, it } from "vitest";
 import { join } from "node:path";
 
 import { analyzeHand, grade, type DecisionAnalysis } from "../../frontend/src/lib/analysis/index.js";
-import { analysisFitsHand } from "../../frontend/src/lib/analysis/share.js";
+import { analysisFitsHand, withoutOwnerFacts } from "../../frontend/src/lib/analysis/share.js";
 import { optionsForChoice, pollReference } from "../../frontend/src/lib/forum/pollReference.js";
 import { gradeDrill } from "../../frontend/src/lib/training/grade.js";
 import { parseHand } from "../../frontend/src/lib/phf/index.js";
@@ -141,5 +141,49 @@ describe("pollReference", () => {
   it("answers nothing for an ungraded decision", () => {
     const decision = flopBet({ grade: null, chosen: null, evLoss: null, evLossPot: null, freqDiff: null, score: null });
     expect(pollReference(decision, ["check", "bet"])).toEqual({ check: null, bet: null });
+  });
+});
+
+describe("withoutOwnerFacts", () => {
+  const villain = {
+    position: "BB",
+    range: "bb-defence:BB",
+    hands: 312,
+    passive: 0.24,
+    shrunk: 0.23,
+    stats: { vpipOpp: 312, vpip: 110, pfr: 35 },
+  };
+  // The turn's and river's own `villain` is the range's shape, read from the hand: it stays.
+  const river = { role: "bluff-catcher", villain: { strong: 0.3, medium: 0.3, weak: 0.4, shape: "polar" } };
+
+  it("drops an opponent's statistics from a stored row, and nothing else", () => {
+    const row = {
+      analysisVersion: "analysis/20",
+      grade: "good",
+      decisions: [
+        { ord: 0, facts: { potBb: 12, villain, river } },
+        { ord: 1, facts: { potBb: 20 } },
+      ],
+    };
+    const out = withoutOwnerFacts(row);
+    expect(out.decisions.map((decision) => "villain" in decision.facts)).toEqual([false, false]);
+    expect(out.decisions[0]).toEqual({ ord: 0, facts: { potBb: 12, river } });
+    expect(out.decisions[1]).toBe(row.decisions[1]);
+    expect(out.grade).toBe("good");
+    expect(row.decisions[0].facts.villain).toBe(villain);
+  });
+
+  it("drops them from a mapped analysis on its way to the read-only sheet", () => {
+    const decision = flopBet({ facts: { potBb: 12, villain, river } as unknown as DecisionAnalysis["facts"] });
+    const mapped = withoutOwnerFacts({ decisions: [decision] });
+    expect(mapped.decisions[0].facts).toEqual({ potBb: 12, river });
+    expect(mapped.decisions[0].grade).toBe(decision.grade);
+  });
+
+  it("hands back the same object when there is nothing to drop", () => {
+    const row = { decisions: [{ ord: 0, facts: { potBb: 12, river } }, { ord: 1, facts: null }] };
+    expect(withoutOwnerFacts(row)).toBe(row);
+    const bare = { grade: "good" };
+    expect(withoutOwnerFacts(bare)).toBe(bare);
   });
 });
