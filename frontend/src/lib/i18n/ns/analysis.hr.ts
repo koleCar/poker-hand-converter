@@ -131,6 +131,12 @@ const lines = {
   "4bet": (pos: string) => `${pos} 4-beta`,
   "call-4bet": (pos: string) => `${pos} calla na 4-bet`,
   check: (pos: string) => `${pos} checka`,
+  // Population lines (analysis/19); before analysis/20 they fell through to "any two cards".
+  "cold-call": (pos: string) => `${pos} hladnog calla`,
+  "bb-defence": (pos: string) => `${pos} obrane`,
+  "first-limp": (pos: string) => `${pos} limpa`,
+  "over-limp": (pos: string) => `${pos} over-limpa`,
+  "limp-call": (pos: string) => `${pos} limpa pa calla`,
   unknown: () => "bilo koje dvije karte",
 } as Record<string, (pos: string) => string>;
 
@@ -853,6 +859,8 @@ export const analysisHr: Dict["analysis"] = {
       "Igrač koji je limpao pa callao raise počinje od zadanog limp raspona: raspon callanja iz chartova tamo lošije odgovara rukama koje takvi igrači pokažu",
     "range-population":
       "Protivnik koji je flat-callao raise ili limpao počinje od Railova populacijskog raspona za tu liniju, prilagođenog rukama koje takvi igrači pokažu: stvarni calleri i limperi igraju znatno šire od chartova",
+    "range-villain":
+      "Raspon kojim big blind brani proširen je ili sužen prema VPIP − PFR tog igrača u tvojim rukama, povučen prema prosjeku protivnika ovisno o uzorku (prikazan uz činjenice); ne ispod 30 ruku",
   } as Record<string, string>,
 
   severity: { note: "Bilješka", inaccurate: "Netočno" } as Record<string, string>,
@@ -1053,7 +1061,11 @@ export const analysisHr: Dict["analysis"] = {
       mdfSplit: "Podjela MDF-a",
       foldEquity: "Svi foldaju",
       outs: "Sljedeća karta",
+      villain: "Protivnikove statistike",
     },
+    /** analysis/20: uzorak na kojem je raspon pomaknut (`SpotFacts.villain`). */
+    villainValue: (range: string, passive: number, hands: number) =>
+      `raspon ${rangeLabel(range)}: VPIP − PFR ${pct(passive)}, uzorak ${num(hands)} ${plural(hands, "ruka", "ruke", "ruku")} iz tvoje biblioteke`,
     playersValue: (players: number, behind: number) =>
       behind === 0 ? `${num(players)} igrača, ti si zadnji` : `${num(players)} igrača, iza tebe ${opponentsNom(behind)}`,
     vsEachValue: (rows: Array<{ equity: number; range: string }>) => rows.map((r) => `${pct(r.equity)} protiv ${rangeLabel(r.range)}`).join(" · "),

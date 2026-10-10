@@ -27,6 +27,7 @@ import type { PhfHand, Position } from "../phf/types";
 import type { StatsContext } from "../stats/context";
 import { comboRange, heuristicModel, narrow, removeCards, rangeWeight, streetStrength, type NarrowAction, type NarrowingModel, type NarrowStreet, type StreetStrength } from "./narrowing";
 import { populationLine, populationRange } from "./population";
+import { villainKey, villainRange, villainSample, type VillainSample, type VillainStatsMap } from "./villain";
 import { chartRange, WALK_RANGE_OPTIONS } from "./preflop";
 import { defaultRange, preflopLine } from "./ranges";
 import { toIndices } from "./texture";
@@ -98,9 +99,11 @@ export function flopSeats(context: StatsContext): number[] {
  * (`ChartRangeOptions.neighbourDepth`); `range-limp-call` a limper who
  * called an isolation raise, started from the placeholder limp range;
  * (analysis/19) `range-population` an opponent's flat call or limp, started
- * from the population range fitted on shown hands (`population.ts`).
+ * from the population range fitted on shown hands (`population.ts`);
+ * (analysis/20) `range-villain` that population range moved by the
+ * opponent's own statistics in the learner's library (`villain.ts`).
  */
-export type RangeApprox = "range-neighbour-depth" | "range-limp-call" | "range-population";
+export type RangeApprox = "range-neighbour-depth" | "range-limp-call" | "range-population" | "range-villain";
 
 /** What the analysis asks of the preflop ranges beyond the charts (analysis/19). */
 export interface PreflopRangeOptions {
@@ -110,6 +113,14 @@ export interface PreflopRangeOptions {
    * (`population.ts`, `range-population`). Unset - the trainers - nobody does.
    */
   populationHero?: number;
+  /**
+   * Opponents' statistics in the learner's library, by `villainKey(site,
+   * player)` (analysis/20): a population range on a line they move
+   * (`VILLAIN_LINES`, the big blind's defence) is moved by the player's
+   * VPIP − PFR, shrunk by their sample (`villain.ts`, `range-villain`). Only
+   * with `populationHero`.
+   */
+  villains?: VillainStatsMap | null;
 }
 
 export interface PreflopClassRange {
@@ -117,6 +128,8 @@ export interface PreflopClassRange {
   source: "chart" | "placeholder";
   label: string;
   approx: RangeApprox[];
+  /** The player's own statistics the range was moved on (`range-villain`, analysis/20). */
+  villain?: VillainSample;
 }
 
 export interface PreflopRange {
@@ -124,6 +137,8 @@ export interface PreflopRange {
   source: "chart" | "placeholder";
   label: string;
   approx: RangeApprox[];
+  /** The player's own statistics the range was moved on (`range-villain`, analysis/20). */
+  villain?: VillainSample;
 }
 
 /**
@@ -152,7 +167,9 @@ function limpedThenCalled(context: StatsContext, seat: number, position: Positio
  * times the charts' call frequency there). Since analysis/19, with
  * `options.populationHero`, an opponent's flat call or limp starts from the
  * population range ahead of both (`range-population`; the source stays
- * `placeholder`: not the charts').
+ * `placeholder`: not the charts'). Since analysis/20, with `options.villains`,
+ * a big blind's defence is moved by the player's own statistics
+ * (`range-villain`, `villain.ts`).
  */
 export function preflopClassRange(
   hand: PhfHand,
@@ -168,7 +185,20 @@ export function preflopClassRange(
   if (options.populationHero !== undefined && seat !== options.populationHero) {
     const population = populationLine(hand, context, seat, beforeIndex);
     if (population) {
-      return { range: populationRange(population), source: "placeholder", label: `${population}:${position ?? "?"}`, approx: ["range-population"] };
+      const populationLabel = `${population}:${position ?? "?"}`;
+      const name = context.players.get(seat)?.name ?? "";
+      const stats = options.villains && name ? options.villains[villainKey(hand.meta.siteId, name)] : null;
+      const sample = villainSample(population, stats);
+      if (sample) {
+        return {
+          range: villainRange(population, sample),
+          source: "placeholder",
+          label: populationLabel,
+          approx: ["range-population", "range-villain"],
+          villain: sample,
+        };
+      }
+      return { range: populationRange(population), source: "placeholder", label: populationLabel, approx: ["range-population"] };
     }
   }
   const fromCharts = chartRange(hand, seat, beforeIndex, charts, WALK_RANGE_OPTIONS);

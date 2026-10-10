@@ -25,6 +25,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { villainsOfFacts } from "../../lib/analysis/analyze";
 import type { DecisionAnalysis } from "../../lib/analysis/types";
 import type { RiverStudy as Study, StudyOption, StudyRow } from "../../lib/analysis/river";
 import { studyRiver, studyTurn } from "../../lib/db";
@@ -97,7 +98,11 @@ export function RiverStudy({ decision, hand, initialOpen = false, street = "rive
 
   const load = () => {
     started.current = true;
-    (street === "turn" ? studyTurn(hand, decision.actionIndex) : studyRiver(hand, decision.actionIndex, { turn: solveTurn }))
+    // analysis/20: the opponents' statistics the stored grade read, not today's.
+    const villains = decision.facts.villain ? villainsOfFacts(hand, decision.facts.villain) : null;
+    (street === "turn"
+      ? studyTurn(hand, decision.actionIndex, { villains })
+      : studyRiver(hand, decision.actionIndex, { turn: solveTurn, villains }))
       .then((study) => {
         if (study && "options" in study) setLoaded({ status: "ready", study });
         else setLoaded({ status: "missing" });

@@ -37,6 +37,7 @@ import {
   type RiverFailure,
   type RiverStudy,
   type TurnFailure,
+  type VillainStatsMap,
 } from "../lib/analysis";
 import { ensureChartSets, loadChartLibrary, rareLineChartSets, requiredChartSets, type ChartLibrary } from "../lib/charts";
 import { analyseStoredHands, type AnalysedBatch } from "../lib/db/analysisRows";
@@ -47,6 +48,8 @@ export interface AnalyseRequest {
   type: "analyse";
   jobId: number;
   page: Array<{ id: string; phf: PhfHand }>;
+  /** The run's snapshot of the opponents' statistics (analysis/20); null or absent: none. */
+  villains?: VillainStatsMap | null;
 }
 
 export interface StudyRequest {
@@ -58,12 +61,16 @@ export interface StudyRequest {
   street?: "river" | "turn";
   /** A river study: narrow through the solved turn (default) or the heuristic (the river trainer's spots). */
   turn?: boolean;
+  /** The opponents' statistics the stored row was analysed with (analysis/20). */
+  villains?: VillainStatsMap | null;
 }
 
 export interface HandRequest {
   type: "hand";
   jobId: number;
   phf: PhfHand;
+  /** The opponents' statistics (analysis/20). */
+  villains?: VillainStatsMap | null;
 }
 
 export type AnalysisWorkerRequest = AnalyseRequest | StudyRequest | HandRequest;
@@ -112,16 +119,17 @@ self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
     await ensureChartSets(set, hands.flatMap((hand) => rareLineChartSets(hand, set)));
     if (request.type === "hand") {
       const library = await libraryFor(set, [request.phf]);
-      const analysis = analyzeHand(request.phf, { charts: set, flopLibrary: library });
+      const analysis = analyzeHand(request.phf, { charts: set, flopLibrary: library, villains: request.villains ?? null });
       self.postMessage({ type: "hand", jobId, analysis } satisfies AnalysisWorkerResponse);
       return;
     }
     if (request.type === "study") {
       const library = await libraryFor(set, [request.phf]);
+      const villains = request.villains ?? null;
       const study =
         request.street === "turn"
-          ? turnStudy(request.phf, request.actionIndex, { charts: set, flopLibrary: library })
-          : riverStudy(request.phf, request.actionIndex, { charts: set, turn: request.turn ?? true, flopLibrary: library });
+          ? turnStudy(request.phf, request.actionIndex, { charts: set, flopLibrary: library, villains })
+          : riverStudy(request.phf, request.actionIndex, { charts: set, turn: request.turn ?? true, flopLibrary: library, villains });
       self.postMessage({ type: "studied", jobId, study } satisfies AnalysisWorkerResponse);
       return;
     }
@@ -138,6 +146,7 @@ self.onmessage = async (event: MessageEvent<AnalysisWorkerRequest>) => {
         }
       },
       library,
+      request.villains ?? null,
     );
     self.postMessage({ type: "analysed", jobId, ...batch } satisfies AnalysisWorkerResponse);
   } catch (error) {

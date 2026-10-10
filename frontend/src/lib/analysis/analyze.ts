@@ -66,7 +66,17 @@ import { gradeRank, worstGrade, worstSeverity, meanScore } from "./grading";
 import { heuristicFlags } from "./heuristics";
 import { halved, heuristicModel, weightedCombos, type NarrowingModel } from "./narrowing";
 import { chartsModelStraddle, gradePreflop } from "./preflop";
-import { flopSeats, preflopClassRange, walkRanges, type RangeApprox, type RangeWalk, type WalkFailure } from "./rangeWalk";
+import {
+  flopSeats,
+  preflopClassRange,
+  walkRanges,
+  type PreflopRangeOptions,
+  type RangeApprox,
+  type RangeWalk,
+  type WalkFailure,
+} from "./rangeWalk";
+import { populationLine } from "./population";
+import { villainKey, villainSample, type VillainStatsMap } from "./villain";
 import {
   flopCallEv,
   gradeFlopCall,
@@ -123,6 +133,7 @@ import {
   type RiverSkipReason,
   type SpotFacts,
   type TurnSkipReason,
+  type VillainFact,
 } from "./types";
 import { heroSpots, type Spot } from "./walk";
 import {
@@ -171,6 +182,16 @@ export interface AnalyzeOptions {
    * and always while `FLOP_LIBRARY_ENABLED` is off - the flop is heuristic.
    */
   flopLibrary?: FlopLibrary | null;
+  /**
+   * (analysis/20) Opponents' statistics in the learner's own library, by
+   * `villainKey(site, player)`: VPIP, PFR and the hands they were counted
+   * over (`villain.ts`). A big blind who flat-called a raise with at least
+   * `VILLAIN_MIN_HANDS` hands behind their numbers starts from the population
+   * range moved by their VPIP − PFR, shrunk by the sample (`range-villain`),
+   * and the decision shows the sample (`SpotFacts.villain`). Absent - the
+   * trainers, a library without opponent statistics - nothing moves.
+   */
+  villains?: VillainStatsMap | null;
 }
 
 /** 100bb ±20% (§8): outside this the stack depth is an approximation. */
@@ -191,11 +212,15 @@ const ANY_TWO: ClassWeights = parseRange("*");
 const round2 = (value: number) => Math.round(value * 100) / 100;
 const round4 = (value: number) => Math.round(value * 10_000) / 10_000;
 
-type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only" | "flopLibrary">> & {
+type ResolvedOptions = Required<Omit<AnalyzeOptions, "charts" | "only" | "flopLibrary" | "villains">> & {
   charts: ChartSet | null;
   only: number | null;
   flopLibrary: FlopLibrary | null;
+  villains: VillainStatsMap | null;
 };
+
+/** What the walks and the equity facts ask of an opponent's preflop range (analysis/19, analysis/20). */
+const rangeOptions = (hero: number, villains: VillainStatsMap | null): PreflopRangeOptions => ({ populationHero: hero, villains });
 
 /** `AnalyzeOptions.turn`, defaulted. */
 const solvesTurn = (options: AnalyzeOptions) => options.turn ?? true;
@@ -417,7 +442,7 @@ function buildFacts(
             ? (multi.before(spot.action.index)?.get(villain) ?? null)
             : null;
       // The preflop range as the walks read it (`preflopClassRange`, analysis/18).
-      const preflop = narrowed ? null : preflopClassRange(hand, context, villain, spot.action.index, options.charts, { populationHero: hero });
+      const preflop = narrowed ? null : preflopClassRange(hand, context, villain, spot.action.index, options.charts, rangeOptions(hero, options.villains));
       const range: ClassWeights | WeightedCombo[] = narrowed
         ? weightedCombos(narrowed)
         : preflop
@@ -486,6 +511,7 @@ function rangeWalkOf(
   charts: ChartSet | null,
   model: NarrowingModel = heuristicModel,
   multi: MultiWalk | { ok: false; reason: WalkFailure } | null = null,
+  villains: VillainStatsMap | null = null,
 ): RangeWalk | { ok: false; reason: WalkFailure } {
   const seats = flopSeats(context);
   // A9: three or more saw the flop. The heads-up part of the hand, if a
@@ -496,7 +522,7 @@ function rangeWalkOf(
   }
   if (seats.length !== 2 || !seats.includes(hero)) return { ok: false, reason: seats.length === 0 ? "no-flop" : "multiway-flop" };
   try {
-    return walkRanges(hand, context, hero, seats[0] === hero ? seats[1] : seats[0], charts, model, { populationHero: hero });
+    return walkRanges(hand, context, hero, seats[0] === hero ? seats[1] : seats[0], charts, model, rangeOptions(hero, villains));
   } catch {
     return { ok: false, reason: "range-empty" };
   }
@@ -509,11 +535,12 @@ function multiWalkOf(
   hero: number,
   charts: ChartSet | null,
   model: NarrowingModel = heuristicModel,
+  villains: VillainStatsMap | null = null,
 ): MultiWalk | { ok: false; reason: WalkFailure } | null {
   const seats = flopSeats(context);
   if (seats.length <= 2 || !seats.includes(hero)) return null;
   try {
-    return walkMultiway(hand, context, hero, charts, model, { populationHero: hero });
+    return walkMultiway(hand, context, hero, charts, model, rangeOptions(hero, villains));
   } catch {
     return { ok: false, reason: "range-empty" };
   }
@@ -1050,7 +1077,16 @@ export function riverStudy(
   if (hero === null || handSkip(hand, context, hero) !== null) return null;
   const spot = heroSpots(context, hero).find((s) => s.action.index === actionIndex);
   if (!spot || spot.street !== "river" || spot.opponents.length !== 1) return null;
-  const { river } = handSolvers(hand, context, hero, heroSpots(context, hero), options.charts ?? null, solvesTurn(options), options.flopLibrary ?? null);
+  const { river } = handSolvers(
+    hand,
+    context,
+    hero,
+    heroSpots(context, hero),
+    options.charts ?? null,
+    solvesTurn(options),
+    options.flopLibrary ?? null,
+    options.villains ?? null,
+  );
   const found = river.line(spot);
   if (!("solve" in found)) return found;
   return riverStudyAt(found.solve, found.node);
@@ -1073,7 +1109,7 @@ export function turnStudy(
   const spots = heroSpots(context, hero);
   const spot = spots.find((s) => s.action.index === actionIndex);
   if (!spot || spot.street !== "turn" || spot.opponents.length !== 1) return null;
-  const { turn } = handSolvers(hand, context, hero, spots, options.charts ?? null, true, options.flopLibrary ?? null);
+  const { turn } = handSolvers(hand, context, hero, spots, options.charts ?? null, true, options.flopLibrary ?? null, options.villains ?? null);
   const found = turn.line(spot);
   if (!("solve" in found)) return found;
   return turnStudyAt(found.solve, found.node);
@@ -1097,6 +1133,7 @@ function handSolvers(
   charts: ChartSet | null,
   solveTurns: boolean,
   flopLibrary: FlopLibrary | null = null,
+  villains: VillainStatsMap | null = null,
 ): { walked: Walked; multi: MultiWalked; softMulti: () => MultiWalked; turn: HandTurn; river: HandRiver; flop: HandFlop } {
   const postflop = spots.some((spot) => spot.street !== "preflop");
   // A5b: the flop library, where the hand's line and flop have a chunk.
@@ -1104,16 +1141,16 @@ function handSolvers(
   const entry = found && found.ok ? found : null;
   const model = entry ? libraryModel(entry, heuristicModel) : null;
   // A9: three or more saw the flop - every range walked, the heads-up part handed on.
-  const multi = postflop ? multiWalkOf(hand, context, hero, charts) : null;
-  const walked = postflop ? rangeWalkOf(hand, context, hero, charts, model ?? heuristicModel, multi) : null;
+  const multi = postflop ? multiWalkOf(hand, context, hero, charts, heuristicModel, villains) : null;
+  const walked = postflop ? rangeWalkOf(hand, context, hero, charts, model ?? heuristicModel, multi, villains) : null;
   let softMultiWalk: MultiWalked | undefined;
   const softMulti = () => {
-    softMultiWalk ??= multi ? multiWalkOf(hand, context, hero, charts, halved(heuristicModel)) : null;
+    softMultiWalk ??= multi ? multiWalkOf(hand, context, hero, charts, halved(heuristicModel), villains) : null;
     return softMultiWalk;
   };
   let soft: Walked | undefined;
   const softWalk = () => {
-    soft ??= rangeWalkOf(hand, context, hero, charts, halved(heuristicModel), softMulti());
+    soft ??= rangeWalkOf(hand, context, hero, charts, halved(heuristicModel), softMulti(), villains);
     return soft;
   };
   const effectiveBb = effectiveStackBb(context, hero);
@@ -1127,6 +1164,51 @@ function handSolvers(
 }
 
 type MultiWalked = MultiWalk | { ok: false; reason: WalkFailure } | null;
+
+/**
+ * The opponent whose preflop range their own statistics move (analysis/20),
+ * with the sample: the seat other than the hero that saw the flop on a line
+ * `villain.ts` moves. Only the big blind's defence is such a line, so a
+ * hand has at most one.
+ */
+function villainFactOf(hand: PhfHand, context: StatsContext, hero: number, villains: VillainStatsMap): VillainFact | null {
+  const cut = hand.actions.find((action) => action.street !== "preflop" && action.street !== "showdown")?.index ?? Number.MAX_SAFE_INTEGER;
+  for (const seat of context.dealtInSeats) {
+    if (seat === hero) continue;
+    const line = populationLine(hand, context, seat, cut);
+    const name = context.players.get(seat)?.name ?? "";
+    if (!line || !name) continue;
+    const sample = villainSample(line, villains[villainKey(hand.meta.siteId, name)]);
+    if (!sample) continue;
+    const position = (context.position.get(seat) ?? null) as Position | null;
+    return {
+      position,
+      range: `${line}:${position ?? "?"}`,
+      hands: sample.hands,
+      passive: sample.passive,
+      shrunk: sample.shrunk,
+      stats: { ...sample.stats },
+    };
+  }
+  return null;
+}
+
+/**
+ * The opponents' statistics a stored decision was analysed with, as
+ * `AnalyzeOptions.villains` takes them (analysis/20): the study views re-run
+ * the walk and the solve, and must read the same ranges the stored grade
+ * read, not today's statistics. Empty without a `SpotFacts.villain`.
+ */
+export function villainsOfFacts(hand: PhfHand, fact: VillainFact | null | undefined): VillainStatsMap {
+  if (!fact) return {};
+  const context = buildContext(structuredClone(hand));
+  for (const seat of context.dealtInSeats) {
+    if ((context.position.get(seat) ?? null) !== fact.position) continue;
+    const name = context.players.get(seat)?.name ?? "";
+    if (name) return { [villainKey(hand.meta.siteId, name)]: { ...fact.stats } };
+  }
+  return {};
+}
 
 /**
  * Analyses the hero's decisions in one hand.
@@ -1144,6 +1226,7 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     only: options.only ?? null,
     turn: solvesTurn(options),
     flopLibrary: options.flopLibrary ?? null,
+    villains: options.villains ?? null,
   };
   const context = buildContext(hand);
   const hero = heroSeatOf(context);
@@ -1178,9 +1261,12 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     resolved.charts,
     resolved.turn,
     resolved.flopLibrary,
+    resolved.villains,
   );
   const walk = walked && walked.ok ? walked : null;
   const multi = multiWalked && multiWalked.ok ? multiWalked : null;
+  // analysis/20: the one opponent whose range their own statistics moved (only a big blind's defence can be).
+  const villainFact = resolved.villains ? villainFactOf(hand, context, hero, resolved.villains) : null;
 
   let preflopSeen = 0;
   const decisions: DecisionAnalysis[] = spots.flatMap((spot) => {
@@ -1317,6 +1403,8 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     if (walk && (solved?.ok || facts.equity?.source === "narrowed")) for (const item of walk.approx.villain) approximations.add(item);
     if (solved?.ok && walk) for (const item of walk.approx.hero) approximations.add(item);
     if (mw) for (const opponent of mw.opponents) for (const item of opponent.approx ?? []) approximations.add(item);
+    // analysis/20: a range moved by the opponent's own statistics shows the sample it was moved on.
+    if (approximations.has("range-villain") && villainFact) facts.villain = villainFact;
 
     // Preflop: the charts, or the reason they cannot answer.
     const chart =

@@ -347,6 +347,9 @@ function DecisionDetail({ decision, hand, readOnly = false }: { decision: Decisi
   rows.push([s.facts.effStack, s.bb(facts.effStackBb)]);
   if (facts.blockers.length > 0) rows.push([s.facts.blockers, s.blockersValue(facts)]);
   if (facts.equity) rows.push([s.facts.equity, s.equityValue(facts.equity.value, facts.equity.range)]);
+  // analysis/20: an opponent's range moved by their own statistics, with the sample it was moved on.
+  // The owner's own view only: a shared sheet does not show what the owner's statistics say about a player.
+  if (facts.villain && !readOnly) rows.push([s.facts.villain, s.villainValue(facts.villain.range, facts.villain.passive, facts.villain.hands)]);
   // Multiway (A9): the table, each range and the field, the MDF split, fold equity, the next card.
   const mw = facts.multiway;
   if (mw && mw.players >= 3) {

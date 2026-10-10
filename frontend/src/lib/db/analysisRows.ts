@@ -20,6 +20,7 @@ import {
   type FlopLibrary,
   type HandAnalysis,
   type SpotFacts,
+  type VillainStatsMap,
 } from "../analysis";
 import type { ChartSet } from "../charts";
 import type { PhfHand } from "../phf/types";
@@ -145,13 +146,15 @@ export function analyseStoredHands(
   onHand?: (done: number) => void,
   /** The flop library (A5b), already holding the page's chunks; only while `FLOP_LIBRARY_ENABLED`. */
   flopLibrary: FlopLibrary | null = null,
+  /** The run's snapshot of the opponents' statistics (analysis/20); each row records the sample it read. */
+  villains: VillainStatsMap | null = null,
 ): AnalysedBatch {
   const rows: HandAnalysisInsert[] = [];
   const failed: string[] = [];
   let done = 0;
   for (const { id, phf } of page) {
     try {
-      rows.push(handAnalysisRow(id, analyzeHand(phf, { charts, flopLibrary })));
+      rows.push(handAnalysisRow(id, analyzeHand(phf, { charts, flopLibrary, villains })));
     } catch {
       failed.push(id);
     }

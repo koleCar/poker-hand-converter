@@ -333,7 +333,9 @@ shows them like GTOW's banner:
   limp placeholder (`range-limp-call`); since `analysis/19` an opponent's
   flat call of a single raise or limp from outside the blinds started from
   the population range fitted on shown hands (`range-population`, with
-  `placeholder-range`: not the charts').
+  `placeholder-range`: not the charts'); since `analysis/20` an opponent's
+  big blind defence moved by their own VPIP − PFR in the learner's library,
+  with the sample shown (`range-villain`).
 - **Source quality:** a heuristic source (§3.6).
 
 A decision is **not analysed** (`status: partial`) when:
@@ -365,7 +367,10 @@ A decision is **not analysed** (`status: partial`) when:
   limper) or limped and called the raise behind starts from Rail's
   population range for that line instead, ahead of the charts and the
   placeholder (`range-population`; not the hero's own range, not after a
-  preflop all-in; §10 2026-10-10, population callers). The rest (flop
+  preflop all-in; §10 2026-10-10, population callers); since `analysis/20`
+  a big blind's defence is moved by the player's own statistics where the
+  learner keeps them, at least 30 hands (`range-villain`; §10 2026-10-10,
+  villain statistics). The rest (flop
   and turn checks and bets, river bets and checks) keeps its multiway facts
   and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
@@ -3059,3 +3064,132 @@ Each phase appends what it learned that changed the plan.
       the chunk; reading the population there needs chunks solved from it.
     - Other lines (3-bets, calls of 3-bets, isolations) stay on the charts:
       `analysis/18` found them about even or better there.
+- 2026-10-10 — Villain statistics, `analysis/20` (`lib/analysis/villain.ts`,
+  `docs/CHARTS.md` §7.2). No migration, no chart regenerated.
+  - **Why.** `analysis/19`'s open item: `population/1` is one range per line
+    for everybody; the learner's own statistics on a villain (VPIP − PFR,
+    limp and cold-call frequency) should widen or narrow it per player.
+  - **Data.** The 782 shown opponents of `analysis/19` (same extract, same
+    score: mean log-likelihood per combo, a hand outside the range at a
+    twentieth of a uniform combo), and every opponent's statistics counters
+    in every one of the 5,448 hands (`handFacts`, the counters the opponents
+    panel sums; `npm run ranges:extract` now also writes them to a local
+    `.stats.jsonl`, never committed). Each shown hand is scored with its
+    player's statistics counted over their *other* hands (leave one out),
+    and again over only the hands played *before* it (a time split); the
+    population shape and the adjustment's parameters are fitted on the other
+    four folds of players (five folds by player, as `population/1`);
+    standard errors clustered by player. `tests/scripts/caller-ranges/villain.mjs`.
+  - **The model.** The line's logit moves by δ = γ · (logit(r̂) − logit(p)
+    − c), r̂ = (made + k·p) / (chances + k): the player's rate shrunk to the
+    pool's p by k hands of prior weight, nothing below a minimum sample.
+  - **Candidates**, held out, leave one out (Δ against `population/1` per
+    combo; γ, k, c fitted per fold):
+
+    | statistic (per line) | all (782) | cold call | BB defence | first limp | over-limp | limp-call |
+    |---|---|---|---|---|---|---|
+    | VPIP − PFR, one γ, no c | +0.015 ± 0.011 | +0.002 | +0.074 | −0.052 | +0.026 | −0.028 |
+    | VPIP − PFR, γ per line, c | +0.021 ± 0.011 | +0.005 | +0.079 | −0.010 | −0.028 | −0.021 |
+    | VPIP, γ per line, c | +0.030 ± 0.012 | +0.011 ± 0.013 | +0.075 | −0.016 | +0.069 ± 0.063 | 0.000 |
+    | cold-call / limp frequency (BB: VPIP − PFR), γ per line, c | +0.020 ± 0.009 | −0.003 | +0.075 | −0.011 | +0.009 | −0.018 |
+    | the same, BB on its call-vs-steal rate | +0.008 ± 0.008 | 0.000 | +0.036 ± 0.015 | −0.013 | +0.005 | −0.017 |
+
+    Every statistic tried helps the big blind's defence (+0.04 to +0.08,
+    3-5 standard errors) and nothing else: cold calls within ±0.01, limps
+    and limp-calls slightly worse with every statistic (first limps −0.01
+    to −0.06, more than 3 standard errors without a per-line γ), over-limps
+    noise (48 hands). The fits want little shrinkage (k mostly at its floor
+    of 1 with leave one out, 7-17 hands on the time split). A shift for
+    the big blind alone was then chosen on these same held-out numbers - a
+    mild selection, but the gain is there under every statistic and both
+    splits.
+  - **Shipped: `villain/1`**, four numbers (`villain.ts`): the big blind's
+    defence only; VPIP − PFR over `vpip_opp`; at least 30 hands (`MIN`); k
+    = 15 hands; the pool's rate p = 0.1741 (every opponent in the owner's
+    library); γ = 1.318, c = −0.207 (fitted on every shown hand against the
+    shipped `population/1`). Nothing per player stored. Held out as shipped
+    (k and the minimum fixed, γ and c fitted per fold):
+
+    | split | BB defence (256) | all (782) | BB defences moved (\|δ\| > 0.05) |
+    |---|---|---|---|
+    | leave one out | **+0.065 ± 0.019** (−6.944 → −6.879) | +0.021 ± 0.006 | 232 |
+    | only earlier hands | **+0.060 ± 0.018** (−6.944 → −6.884) | +0.020 ± 0.006 | 186 |
+
+    A proper score (95% the range, 5% uniform) gives +0.061 and +0.057; the
+    weighted score (each hand by how often its player plays the line) +0.061
+    and +0.057. About a quarter of what `population/1` gained over any two
+    cards on this line (+0.25), so a small correction, but a real one.
+  - **What reads it.** `AnalyzeOptions.villains` (by `villainKey(site,
+    player)`: `{ vpipOpp, vpip, pfr }`) → `PreflopRangeOptions.villains` →
+    `preflopClassRange`: an opponent's `bb-defence` population range with a
+    sample of at least 30 hands is moved (`range-villain`, beside
+    `range-population`), for the walks (heads-up and multiway, both
+    narrowing models) and the equity facts. The decision records the sample
+    whenever it carries the flag (`SpotFacts.villain`: position, line,
+    hands, the raw and shrunk rate, the counters), and the sheet shows it
+    ("Opponent's own stats: a BB defence: VPIP − PFR 24% over 312 hands in
+    your library"; EN/HR) - exploit numbers only from the learner's own
+    statistics, with their sample. Not on a shared sheet (read-only): the
+    owner's statistics on a player are the owner's.
+  - **Where the statistics come from.** The opponents panel's own report
+    (`stats_opponents`, an invoker read under RLS, unchanged): cash games,
+    rooms with persistent names, at least 30 hands, the 200 biggest
+    samples (its cap). A learner who keeps no opponent rows (the panel's
+    setting, off by default) gets exactly the `analysis/19` analysis. No
+    migration, no new grant.
+  - **Staleness.** Grades now depend on other hands, so the rebuild
+    (`runAnalysis`) reads one snapshot at its start and hands it to every
+    worker; each stored row records the counters its ranges read
+    (`SpotFacts.villain.stats`). A row is not re-analysed when the
+    statistics later grow - "missing" stays per version, so no migration -
+    and the next version bump re-analyses every hand with that day's
+    statistics. The hand view's fresh analysis (a hand with no row) uses a
+    snapshot at most ten minutes old, and the turn and river study views
+    hand back the stored counters (`villainsOfFacts`), so a re-solve reads
+    the ranges the stored grade read, not today's.
+  - **Also fixed.** `analysis/19`'s population labels (`cold-call:BTN`,
+    `bb-defence:BB`, ...) were missing from the sheet's range names and read
+    "any two cards"; they now read as lines in both languages.
+  - **Measured on the owner's library** (`npm run ranges:villain-measure`:
+    the 5,448 hands, flop library and turn solving on; every opponent's
+    counters summed over the whole library; the 213 hands where an opponent
+    who saw the flop with the hero is a big blind defending with at least
+    30 hands of statistics - 133 heads-up, 80 multiway; 123 such ranges
+    widened, 90 narrowed, a mean sample of 320 hands and a mean shift of
+    +0.43 logits - analysed without and with the statistics, 751 hero
+    decisions compared one by one):
+    - preflop does not move (213 decisions);
+    - 432 postflop decisions carry the new flag (flop 169, turn 163, river
+      100); 243 equity facts change (flop 114, turn 85, river 44), on
+      average by less than a fifth of a point either way (widened and
+      narrowed ranges cancel);
+    - graded: flop 89 → 89, turn 149 → 149, river 96 → 97 (one river
+      solved that was not); 26 grades change class, all solver grades:
+      turn 9, river 17; no flop grade moves (the library's heads-up flops
+      keep the charts' ranges; the multiway flop calls held);
+    - turn Perfect 111 → 114, Inaccurate 8 → 5, Mistake 9 → 9, EV loss
+      13.1 → 12.3bb; river Perfect 71 → 70, Good 19 → 20, Mistake 5 → 7,
+      EV loss 14.6 → 24.9bb (three river spots become Mistakes: a check
+      worth 5.3bb and a fold worth 4.7bb against a widened big blind, and
+      a 1.3bb check).
+  - `ANALYSIS_VERSION` `analysis/20`. Tests (`analysisVillain`): the
+    stored rule (lines, minimum, prior); nothing below 30 hands, without
+    statistics or with broken counters; the shrinkage (exact formula, a
+    larger sample moves further, the shrunk rate tends to the player's, a
+    loose player widens and a tight one narrows); looked up by room and
+    name, nobody else's; a cold caller unmoved; the walk, the flag and the
+    sample on the decision, nothing without statistics (the whole analysis
+    byte-identical below the minimum); the stored counters handed back for
+    a study re-run; both languages, and the population lines named.
+  - **Open.**
+    - Limps and limp-calls did not move with any statistic tried; a limp
+      frequency counted per position, or the limp-then-fold-to-a-raise
+      frequency, might separate limp ranges better than overall looseness.
+    - The snapshot is the panel's 200 biggest samples; a library with more
+      than 200 regulars of 30+ hands leaves the rest on the population.
+    - The shared read (`read_shared_analysis`) still returns
+      `facts.villain` in its JSON, though the shared sheet does not show
+      it; strip it server-side the next time a migration touches that
+      function.
+    - The parameters are the owner's opponents' (one pool, around $0.50/$1);
+      refit on more libraries when there are some.
