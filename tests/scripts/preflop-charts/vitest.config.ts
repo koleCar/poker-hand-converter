@@ -11,7 +11,7 @@ export default defineConfig({
   test: {
     include: ["scripts/preflop-charts/*.test.ts"],
     // Every set from scratch, several at a time, takes hours.
-    testTimeout: 12 * 60 * 60_000,
+    testTimeout: 24 * 60 * 60_000,
     fileParallelism: false,
   },
 });

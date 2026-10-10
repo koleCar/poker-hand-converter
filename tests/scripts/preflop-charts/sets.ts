@@ -24,13 +24,15 @@
  *   bytes.
  * - `charts/6` solves the two 200bb `charts/4` sets for 9,000 iterations
  *   instead of 3,000 (`deep`, docs/CHARTS.md §5.1); nothing else changes.
+ * - `charts/7` does the same for the 9-max 150bb set (`deep`, version
+ *   `charts/7`, docs/CHARTS.md §5.1).
  */
 
 import type { PreflopPosition, PreflopSizing, PreflopStraddle } from "../../../frontend/src/lib/solver/preflopTree.js";
 
 export interface SetConfig {
   id: string;
-  version: "charts/2" | "charts/3" | "charts/4" | "charts/5" | "charts/6";
+  version: "charts/2" | "charts/3" | "charts/4" | "charts/5" | "charts/6" | "charts/7";
   players: readonly PreflopPosition[];
   stackBb: number;
   sizing?: Partial<PreflopSizing>;
@@ -95,9 +97,15 @@ const a2d = (config: SetConfig): SetConfig => ({ ...config, version: "charts/4",
  * thousands of iterations to wear down: after 3,000 its average mix still
  * lost 2.2-2.8% of the pot for a class, and the node was left out as
  * unconverged. Same fit, same tree, same engine; only the solve is longer.
+ * `charts/7` gives the 9-max 150bb set the same 9,000: at 3,000 its big
+ * blind behind an HJ limp lost 2.42% (AQo), crossing 2% at ~3,700.
  */
 export const DEEP_ITERATIONS = 9000;
-const deep = (config: SetConfig): SetConfig => ({ ...a2d(config), version: "charts/6", iterations: DEEP_ITERATIONS });
+const deep = (config: SetConfig, version: "charts/6" | "charts/7" = "charts/6"): SetConfig => ({
+  ...a2d(config),
+  version,
+  iterations: DEEP_ITERATIONS,
+});
 
 /**
  * `charts/5` (A2e): the 6-max 100bb set with a 2bb straddle from UTG
@@ -145,7 +153,7 @@ export const SET_CONFIGS: readonly SetConfig[] = [
     fitName: "charts/2-solver-fit",
   }),
   a2d(a2c(SIX, 150, STANDARD)),
-  a2d(a2c(NINE, 150, STANDARD)),
+  deep(a2c(NINE, 150, STANDARD), "charts/7"),
   deep(a2c(NINE, 200, STANDARD)),
   a2d(a2c(SIX, 60, STANDARD)),
   deep(a2c(SIX, 200, STANDARD)),

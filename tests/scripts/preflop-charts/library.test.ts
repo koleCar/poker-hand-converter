@@ -152,6 +152,9 @@ it("reports chart coverage on a stored library", { timeout: 4 * 60 * 60_000 }, a
           reason: d.reason ?? null,
           grade: d.grade ?? null,
           set: d.facts.chart?.set ?? null,
+          line: d.facts.chart?.line ?? null,
+          depth: d.approximations.includes("rare-line-depth"),
+          evLoss: d.evLoss === null ? null : Math.round(d.evLoss * 1000) / 1000,
           shape: d.reason === "chart-rare-line" && analysis.heroSeat !== null ? rareShape(hand, analysis.heroSeat, nth) : null,
         }),
       );

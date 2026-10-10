@@ -342,7 +342,7 @@ describe("a straddled hand, end to end", () => {
   it("grades the straddled open from the straddle set, and counts the straddle in the pot", () => {
     const analysis = analyzeHand(structuredClone(hand), { charts: library, turn: false });
     expect(analysis.version).toBe(ANALYSIS_VERSION);
-    expect(ANALYSIS_VERSION).toBe("analysis/13");
+    expect(ANALYSIS_VERSION).toBe("analysis/14");
     const preflop = analysis.decisions.find((d) => d.street === "preflop");
     expect(preflop?.source).toBe("chart");
     expect(preflop?.facts.chart).toMatchObject({ set: ID, line: "ff", scenario: "rfi" });
