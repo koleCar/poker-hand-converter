@@ -51,8 +51,14 @@
  * later: one card to come, the factor measured on Rail's own heads-up turn
  * solves (A5a's solver on turns dealt from the flop library,
  * `TURN_REALISATION`), the same categories, its own margin
- * (`TURN_MARGIN_POT`). A call that leaves the hero, or everyone else in a
- * way, all-in ends the betting: that way's share is realised as it is.
+ * (`TURN_MARGIN_POT`).
+ *
+ * **Both streets** (since `analysis/17` on the flop too): a call that leaves
+ * the hero, or everyone else in a way, all-in ends the betting, and that
+ * way's share is realised as it is (no factor); a call or fold facing a
+ * re-raise is refused (`multiway-reraise`), the factors having been measured
+ * on trees with one raise - unless the call ends the betting in every way,
+ * when no factor is used and nothing is left to measure.
  */
 
 import { equityVsRange, type WeightedCombo } from "../equity/range";
@@ -77,7 +83,7 @@ import {
   type StreetStrength,
 } from "./narrowing";
 import { flopSeats, preflopRangeOf, type PlayerRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
-import { flopBucket } from "./flopLibrary";
+import { FLOP_PROFILE, flopBucket } from "./flopLibrary";
 import { rakeOf } from "./river";
 import { toIndices } from "./texture";
 import { TURN_RAISE_CAP } from "./turn";
@@ -724,77 +730,79 @@ export interface RiverCallEv {
 /* --------------------------------------------- the flop's realisation - */
 
 /** The realisation table's id, stored with every approximate flop grade. */
-export const FLOP_REALISATION_MODEL = "floplib-r/1";
+export const FLOP_REALISATION_MODEL = "floplib-r/2";
 
 /**
- * Flop realisation factors (`analysis/15`): the share of the pot a hand facing
- * a flop bet goes on to win, as a multiple of its equity, measured on the
- * flop library (heads-up, `flop-m1`, the 6-max and 9-max 100bb lines as on
- * 2026-10-10: 1,602 chunks, 15,174
- * nodes facing a bet or a raise): per position after the call (last to act
- * or not), the made-hand part of `flopBucket` and whether the hand has a
- * draw (a flush draw, open-ender or gutshot; a backdoor is no draw). Fitted
- * per category by least squares on
+ * Flop realisation factors (`analysis/15`; refitted for `analysis/17` as
+ * `floplib-r/2`): the share of the pot a hand facing a flop bet goes on to
+ * win, as a multiple of its equity, measured on the flop library (heads-up,
+ * `flop-m1`, the 6-max and 9-max 100bb lines as on 2026-10-10: 1,691 chunks):
+ * per position after the call (last to act or not), the made-hand part of
+ * `flopBucket` and whether the hand has a draw (a flush draw, open-ender or
+ * gutshot; a backdoor is no draw). Fitted per category by least squares on
  *
  *     EV(call) − EV(fold) + toCall  ≈  R · equity · raked pot after the call
  *
- * (every number a fraction of the pot, each node's range weighted by reach).
+ * (every number a fraction of the pot, each node's range weighted by reach)
+ * at every node facing a bet or a raise **short of an all-in call**, which
+ * realises its equity exactly (R = 1.0002 measured) and takes no factor -
+ * the turn's rule (`floplib-r/1` was fitted with the all-in calls in).
  * Implied odds are in `R`: a set wins more than its equity of today's pot,
  * ace-high less. `tests/scripts/flop-library/realisation.ts` measures it
  * (`npm run floplib:realisation`); §10 of `docs/ANALYSIS-PLAN.md` has
  * the fit and its held-out error.
  */
 export const FLOP_REALISATION: Readonly<Record<string, number>> = {
-  "ip|ace-high|d": 1.013,
-  "ip|ace-high|nd": 0.675,
-  "ip|fh+|nd": 1.383,
-  "ip|flush|nd": 1.283,
-  "ip|middle|d": 0.938,
-  "ip|middle|nd": 0.712,
-  "ip|nothing|d": 1.129,
-  "ip|nothing|nd": 0.728,
-  "ip|overpair|d": 0.947,
-  "ip|overpair|nd": 1.009,
-  "ip|set|nd": 1.41,
-  "ip|straight|d": 1.429,
-  "ip|straight|nd": 1.354,
-  "ip|tp-good|d": 0.979,
-  "ip|tp-good|nd": 0.868,
-  "ip|tp-top|d": 1.049,
-  "ip|tp-top|nd": 0.969,
-  "ip|tp-weak|d": 1.048,
-  "ip|tp-weak|nd": 0.81,
-  "ip|trips|nd": 1.211,
-  "ip|two-pair|nd": 1.197,
-  "ip|weak|d": 0.994,
-  "ip|weak|nd": 0.772,
-  "oop|ace-high|d": 0.87,
-  "oop|ace-high|nd": 0.602,
-  "oop|fh+|nd": 1.353,
-  "oop|flush|nd": 1.213,
-  "oop|middle|d": 0.84,
-  "oop|middle|nd": 0.681,
-  "oop|nothing|d": 0.99,
-  "oop|nothing|nd": 0.577,
-  "oop|overpair|d": 0.975,
-  "oop|overpair|nd": 1.049,
-  "oop|set|nd": 1.321,
-  "oop|straight|d": 1.411,
-  "oop|straight|nd": 1.318,
-  "oop|tp-good|d": 0.929,
-  "oop|tp-good|nd": 0.796,
-  "oop|tp-top|d": 1.021,
-  "oop|tp-top|nd": 0.943,
-  "oop|tp-weak|d": 0.994,
-  "oop|tp-weak|nd": 0.767,
-  "oop|trips|nd": 1.141,
-  "oop|two-pair|nd": 1.142,
-  "oop|weak|d": 0.869,
-  "oop|weak|nd": 0.644,
+  "ip|ace-high|d": 1.016,
+  "ip|ace-high|nd": 0.615,
+  "ip|fh+|nd": 1.574,
+  "ip|flush|nd": 1.421,
+  "ip|middle|d": 0.93,
+  "ip|middle|nd": 0.672,
+  "ip|nothing|d": 1.158,
+  "ip|nothing|nd": 0.685,
+  "ip|overpair|d": 0.929,
+  "ip|overpair|nd": 1.011,
+  "ip|set|nd": 1.637,
+  "ip|straight|d": 1.666,
+  "ip|straight|nd": 1.54,
+  "ip|tp-good|d": 0.974,
+  "ip|tp-good|nd": 0.826,
+  "ip|tp-top|d": 1.065,
+  "ip|tp-top|nd": 0.954,
+  "ip|tp-weak|d": 1.062,
+  "ip|tp-weak|nd": 0.779,
+  "ip|trips|nd": 1.306,
+  "ip|two-pair|nd": 1.273,
+  "ip|weak|d": 1.009,
+  "ip|weak|nd": 0.728,
+  "oop|ace-high|d": 0.836,
+  "oop|ace-high|nd": 0.514,
+  "oop|fh+|nd": 1.497,
+  "oop|flush|nd": 1.288,
+  "oop|middle|d": 0.807,
+  "oop|middle|nd": 0.603,
+  "oop|nothing|d": 0.988,
+  "oop|nothing|nd": 0.522,
+  "oop|overpair|d": 0.956,
+  "oop|overpair|nd": 1.087,
+  "oop|set|nd": 1.465,
+  "oop|straight|d": 1.599,
+  "oop|straight|nd": 1.425,
+  "oop|tp-good|d": 0.909,
+  "oop|tp-good|nd": 0.741,
+  "oop|tp-top|d": 1.034,
+  "oop|tp-top|nd": 0.912,
+  "oop|tp-weak|d": 0.989,
+  "oop|tp-weak|nd": 0.727,
+  "oop|trips|nd": 1.217,
+  "oop|two-pair|nd": 1.178,
+  "oop|weak|d": 0.856,
+  "oop|weak|nd": 0.595,
 };
 
 /** A category the table lacks (a set with a draw) reads its no-draw row, then the position's mean. */
-export const FLOP_REALISATION_POSITION: Readonly<Record<"ip" | "oop", number>> = { ip: 0.995, oop: 0.899 };
+export const FLOP_REALISATION_POSITION: Readonly<Record<"ip" | "oop", number>> = { ip: 0.993, oop: 0.868 };
 
 /**
  * The flop grade counts only the EV loss beyond this share of the pot: the
@@ -923,7 +931,9 @@ export function turnCallEv(input: RiverCallInput): RiverCallEv | RiverCallFailur
  * The EV of calling a flop bet against folding (`analysis/15`): the river's
  * enumeration of who answers, with the hero's showdown share of each way
  * multiplied by its flop realisation factor (`FLOP_REALISATION`), in
- * position when the hero acts after every player left in that way.
+ * position when the hero acts after every player left in that way. Since
+ * `analysis/17` as the turn's: a way the call leaves all-in takes no factor,
+ * and a re-raise is refused.
  */
 export function flopCallEv(input: RiverCallInput): RiverCallEv | RiverCallFailure {
   return callEv(input, "flop");
@@ -938,13 +948,6 @@ function callEv(input: RiverCallInput, street: "flop" | "turn" | "river"): River
   const owed = table.high - spot.heroStreet;
   if (spot.toCall <= 0) return { ok: false, reason: "multiway-range-unknown", detail: "nothing to call" };
   if (spot.toCall < owed - 1e-9) return { ok: false, reason: "multiway-side-pot", detail: "the hero calls all-in for less" };
-  // The turn's factor was measured on a tree with one raise (`TURN_RAISE_CAP`): a re-raise is outside it.
-  if (street === "turn") {
-    const aggressions = hand.actions.filter(
-      (a) => a.street === "turn" && a.index < spot.action.index && (a.type === "bet" || a.type === "raise"),
-    ).length;
-    if (aggressions > 1 + TURN_RAISE_CAP) return { ok: false, reason: "multiway-reraise", detail: `${aggressions} bets and raises before the call` };
-  }
   if (table.opponents.some((o) => o.allIn && o.streetTotal < table.high)) {
     return { ok: false, reason: "multiway-side-pot", detail: "an opponent is all-in for less" };
   }
@@ -954,7 +957,7 @@ function callEv(input: RiverCallInput, street: "flop" | "turn" | "river"): River
 
   const fixed: Float64Array[] = [];
   const fixedSeats: number[] = [];
-  // Chips behind once the bet is matched (the turn's no-more-betting rule).
+  // Chips behind once the bet is matched (the no-more-betting rule).
   const behindAfter = new Map<number, number>();
   const responders: Array<{ seat: number; amount: number; range: Float64Array }> = [];
   for (const opponent of table.opponents) {
@@ -973,6 +976,20 @@ function callEv(input: RiverCallInput, street: "flop" | "turn" | "river"): River
     }
   }
   const heroAllIn = spot.heroBehind - spot.toCall <= 1e-9;
+  // The flop's and the turn's factors were measured on trees with one raise
+  // (`FLOP_PROFILE.flopRaiseCap`, `TURN_RAISE_CAP`): a re-raise is outside
+  // them - unless the call ends the betting whoever answers (the hero, or every
+  // other player, all-in), when no factor is applied and the share is exact.
+  if (street !== "river") {
+    const cap = street === "flop" ? FLOP_PROFILE.flopRaiseCap : TURN_RAISE_CAP;
+    const aggressions = hand.actions.filter(
+      (a) => a.street === street && a.index < spot.action.index && (a.type === "bet" || a.type === "raise"),
+    ).length;
+    const closes = heroAllIn || [...behindAfter.values()].every((behind) => behind <= 1e-9);
+    if (aggressions > 1 + cap && !closes) {
+      return { ok: false, reason: "multiway-reraise", detail: `${aggressions} bets and raises before the call` };
+    }
+  }
   if (responders.length > MAX_RESPONDERS) return { ok: false, reason: "multiway-crowded", detail: `${responders.length} to answer` };
 
   // Each player still to answer calls by the model's call likelihood against
@@ -1042,8 +1059,8 @@ function callEv(input: RiverCallInput, street: "flop" | "turn" | "river"): River
     let factor = 1;
     if (category !== null) {
       const ip = seats.every((seat) => orderOf(seat) < table.actorOrder);
-      // The turn: nobody left to bet against (the hero or every other player in this way all-in) realises the share as it is.
-      const closed = street === "turn" && (heroAllIn || seats.every((seat) => (behindAfter.get(seat) ?? 0) <= 1e-9));
+      // Nobody left to bet against (the hero or every other player in this way all-in): the share is realised as it is.
+      const closed = heroAllIn || seats.every((seat) => (behindAfter.get(seat) ?? 0) <= 1e-9);
       factor = closed ? 1 : factorOf(category, ip);
       factorSum += probability * factor;
       if (ip) ipShare += probability;

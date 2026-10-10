@@ -340,8 +340,15 @@ A decision is **not analysed** (`status: partial`) when:
   EV loss beyond 5% of the pot counts; capped at Mistake; §10
   2026-10-10), and, since `analysis/16`, a turn call or fold facing a bet
   in a pot three or more saw the turn of (approximate, `turn-realisation`:
-  the same with a factor measured on Rail's own heads-up turn solves, an
-  all-in call taking none; §10 2026-10-10, multiway turns). The rest (flop
+  the same with a factor measured on Rail's own heads-up turn solves; §10
+  2026-10-10, multiway turns). On both streets, since `analysis/17`, a call
+  that ends the betting (an all-in) takes no factor, and a call or fold
+  facing a re-raise is refused (`multiway-reraise`: the factors were
+  measured on trees with one raise) unless the call ends the betting; the
+  flop table is fitted without the all-in calls (`floplib-r/2`; §10
+  2026-10-10, multiway rules and placeholder ranges). Opponents whose line
+  no chart covers - most often an open limper - start from the labelled
+  placeholder range (`placeholder-range`). The rest (flop
   and turn checks and bets, river bets and checks) keeps its multiway facts
   and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
@@ -2674,3 +2681,141 @@ Each phase appends what it learned that changed the plan.
       adding them would move flop grades (a version bump of its own).
     - The corpus is 100bb 6-max; deeper and shorter stacks read the same
       table (the full-ring check above is 100bb too).
+- 2026-10-10 — Multiway rules and placeholder ranges, `analysis/17`. No
+  migration.
+  - **The flop takes the turn's two rules** (`callEv` in `multiway.ts`):
+    - a call that ends the betting - the hero all-in, or every other player
+      in a way all-in - takes no factor in that way (`realisation.allIn`).
+      Measured on the flop library (1,691 chunks): at the 146,236 sampled
+      all-in calls `EV(call) − EV(fold) + toCall` against
+      `equity × raked pot` gives R = 1.0002 (the largest single gap 2.2% of
+      the pot, the chunks' stored precision);
+    - a call or fold facing a **re-raise** is refused (`multiway-reraise`):
+      the flop library's tree has one raise (`FLOP_PROFILE.flopRaiseCap`) -
+      **unless the call ends the betting** (a re-raise all-in the call
+      closes), where no factor is used and nothing is left to measure. The
+      exception holds on the turn too; on the owner's library it moves no
+      turn decision (both turn refusals have chips behind).
+  - **The flop table refitted without the all-in calls** (`floplib-r/2`,
+    `npm run floplib:realisation`, which now measures all-in calls apart).
+    `floplib-r/1` was fitted with them in: they were 10% of the samples,
+    all at R = 1, and pulled every category towards 1. Kept in, today's
+    library reproduces `floplib-r/1` to within 0.017 (the batch's new
+    chunks change nothing); left out, strong hands go up and weak ones down:
+    sets 1.41 → 1.64 in position (1.32 → 1.46 out), straights and full
+    houses by 0.15-0.24, ace-high out of position 0.60 → 0.51, position means
+    0.993 / 0.868 (were 0.995 / 0.899). Held out (fitted on the flops whose
+    name hashes even, judged on the other 600,899 samples short of an all-in
+    call; margin 5%):
+
+    | | verdict | \|ΔEV\| % pot | same side | false alarms | misses |
+    |---|---|---|---|---|---|
+    | `floplib-r/1` | 86.8% | 11.3 | 85.3% | 6.6% | 5.2% |
+    | **`floplib-r/2`** | 86.2% | 11.2 | **85.9%** | **6.6%** | **4.8%** |
+
+    and on the held-out all-in calls R = 1 against the old factor: same side 90.7% / 87.5%, false alarms 6.0% / 9.5%, |ΔEV| 0.04 /
+    15.1% of the pot.
+  - **Measured on the owner's library** (5,448 hands, flop library and turn
+    solving on, every hero decision of `analysis/16` and `analysis/17`
+    compared one by one with dumps, 7,695): only flop approximate grades
+    move.
+    - **143 multiway flop decisions graded** (was 144): Perfect 133 (132),
+      Inaccurate 0 (1), Mistake 10 (11); EV loss 14.2bb (19.9). One fold
+      facing a re-raise is refused (a Mistake of 5.0bb: in a limped pot the
+      hero bet, was raised and re-raised, and folded); one
+      call of an all-in re-raise stays graded under the exception (Perfect,
+      its factor 1.32 → 1); four all-in calls in all now take no factor (all
+      Perfect before and after); the refit moves the factor by 0.05 on
+      average (at most 0.32), turns one Inaccurate fold into Perfect and
+      changes the EV loss of ten Mistakes (none changes class).
+    - Flop decisions graded 275 → 274, flop EV loss 28.9 → 23.2bb;
+      `multiway-reraise` on the flop 0 → 1. Turn, river and preflop grades
+      do not move; all decisions graded 6,106 → 6,105.
+  - **Where the placeholder ranges come from** (the same library at
+    `analysis/16`; `npm run floplib:measure` now lists them by line). 452
+    hands saw a flop three or more ways with the hero in; 129 are bomb pots
+    (no preflop line, never graded). In the other 323, 481 of the 769
+    opponents who saw the flop start from a placeholder (63%; the hero's own
+    range in 81 hands):
+    - **open limpers 194** - 118 first in, 76 over-limping behind a limper
+      (`chartRange` refuses every non-blind limp, `openLimped`);
+    - callers 173: no chart set at the stack depth 63, a limper calling an
+      isolation 46 (it then reads the `call` placeholder), a line too rare
+      for its set 26, a chart range under one combo 26 (a call the charts
+      all but never make), off the tree 12; limpers at a depth no set covers
+      19, a big blind's check the tree does not hold 10 and smaller groups.
+    - At the graded decisions (opponents still in): flop 118 of 144 rest on
+      a placeholder - first limpers in 58, over-limpers 25, callers at an
+      uncharted depth 16, limpers calling an isolation 18, thin calls 13 -
+      turn 54 of 76 (23, 11, 10, 8, 5). **The first limper is the most
+      common placeholder**, then the over-limper.
+  - **Can a Rail-own range replace it? Not soundly, so it stays.**
+    - *The suggested recipe* - the hands the charts would not raise first in
+      at the limper's seat, weighted by a calling tendency (the big blind's
+      continue frequency against that seat's open, or the placeholder) - is
+      about 200 combos (the placeholder 408) and holds no hand the charts
+      always open: no TT+ or AQ+.
+    - *Checked where hands were shown.* Over the same export, the
+      opponents (the hero left out; no ante, straddle or bomb pot) open-limp
+      12.0% of 10,457 first-in chances and raise 23.0% (9-max UTG: limp
+      14.5%, raise 14.6%), and over-limp 17.4% of 2,265. Their shown hands
+      (239 first limpers, 55 over-limpers, 389 open-raisers as a control)
+      against each candidate on the 6-max or 9-max 100bb set, per combo:
+
+      | shown | candidate | holds the hand | mean log-likelihood |
+      |---|---|---|---|
+      | open-raisers (control) | the charts' open range | 74.8% | **−6.81** |
+      | | the placeholder open range | 74.0% | −6.85 |
+      | | any two cards | 100% | −7.19 |
+      | first limpers | any two cards | 100% | **−7.19** |
+      | | the placeholder limp range | 56.1% | −7.89 |
+      | | not raised × big blind's continue (the recipe) | 26.8% | −8.97 |
+      | | not raised × placeholder | 31.8% | −8.70 |
+      | | not raised | 68.2% | −8.23 |
+
+      (A hand the range does not hold is scored at a twentieth of a uniform
+      combo.) The control behaves: where the range is known the charts' range
+      beats any two cards. For limpers the recipe explains the shown hands
+      clearly worse than the placeholder (it holds a quarter of them), and
+      nothing narrower beats any two cards: 12.6% of the shown first limps
+      are TT+ or AQ+ (AA 6, AKo 9, QQ 3) - about 10% after the showdown's
+      lean towards premiums (28.5% shown among open-raisers against about
+      22% of the charts' opening combos). Real limpers limp traps; the
+      placeholder holds none of them, and the recipe removes them by
+      construction.
+    - *The over-limper's chart range* (the over-limp node minus the 0.5%
+      tremble) is 45 combos on average, 3.4% of hands, against the 17.4%
+      the population over-limps: the equilibrium's best response to a
+      limper who may hold anything, not what over-limpers hold. A2d's rule
+      (no non-blind limp starts a walk from the charts) stands for both.
+    - *How much the grades depend on it.* The 452 multiway hands analysed
+      again with only the first limper's range swapped (1,190 decisions;
+      81 flop and turn approximate grades have a first limper): any two
+      cards moves 3 approximate grades (and 4 solver grades after a flop
+      that began heads-up), the recipe 4 (+3), a tight range (22+, A2s+,
+      KTs+, QTs+, JTs, T9s, 98s, ATo+, KJo+) 3 (+7). The approximate ones
+      are calls and folds of 1-3bb whose EV moves by under 1bb, across the
+      margin (and one the recipe leaves without a range). The
+      limper's own postflop actions narrow it far more than where it
+      starts, so the first limper's preflop range is not what moves these
+      grades.
+    - So the placeholder stays, labelled as before (`placeholder-range`).
+      The learner's own villain statistics (VPIP − PFR) would be the honest
+      input, but they are not in the analysis context and `analyzeHand`
+      reads no database.
+  - `ANALYSIS_VERSION` `analysis/17` (flop grades move). Tests: the flop's
+    all-in rule against enumeration, the re-raise refusal and its all-in
+    exception, both languages (`analysisMultiway`); all-in calls marked and
+    realising exactly on the pilot (`flopRealisation`); the corpus
+    invariants (the flop table's id, no factor on an all-in call).
+  - **Open.**
+    - A limp range with traps (premiums at a small weight) fits the shown
+      limps better than the placeholder, but its weights would come from
+      one player's opponents and a biased sample; the per-villain statistics
+      (VPIP − PFR, limp frequency) are the better input, once the analysis
+      can be handed them.
+    - Callers at depths no set covers (63) and rare lines (26) could read a
+      neighbouring depth for the range as grading does since `analysis/13`
+      (`rare-line-depth`); a limper calling an isolation could start from
+      the limp range times the charts' call frequency facing the isolation.
+      Neither moves many grades on this library (the swaps above bound it).

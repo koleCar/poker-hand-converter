@@ -26,6 +26,9 @@
  * (`flopCallEv` on the heuristic walk), and the two grades are compared.
  * The dump also holds the approximate flop grades.
  *
+ * **Placeholder ranges** (`analysis/17`): at the approximate flop and turn
+ * grades, the preflop lines of the opponents whose range is a placeholder.
+ *
  * **Multiway turns** (`analysis/16`): the hero's turn decisions in pots three
  * or more saw the turn of (players at the decision, facing a bet or not,
  * action, pot type, depth), by source and grade; the dump holds the
@@ -189,6 +192,21 @@ function multiwayTurns(hand: PhfHand, after: HandAnalysis, out: Map<string, numb
 }
 
 /**
+ * Where the placeholder ranges come from (analysis/17): at every approximate
+ * multiway grade, the preflop line of each opponent still in whose range is a
+ * placeholder (`limp`, `call`, ...: the line without the position).
+ */
+function placeholderCensus(after: HandAnalysis, out: Map<string, number>) {
+  for (const d of after.decisions) {
+    if (d.source !== "approx" || d.street === "river") continue;
+    bump(out, "graded");
+    const lines = new Set((d.facts.multiway?.opponents ?? []).filter((o) => o.source === "placeholder").map((o) => o.range.split(":")[0]));
+    if (lines.size > 0) bump(out, "with a placeholder");
+    for (const line of lines) bump(out, `line ${line}`);
+  }
+}
+
+/**
  * The approximate turn call against the turn solver where both answer: each
  * heads-up turn call or fold facing a bet that the solver grades, graded
  * again by `turnCallEv` on the heuristic walk, and by the bare showdown
@@ -249,6 +267,7 @@ it("measures the flop library on a stored library", { timeout: 12 * 60 * 60_000 
   const multiway = new Map<string, number>();
   const check = new Map<string, number>();
   const turns = new Map<string, number>();
+  const placeholders = new Map<string, number>();
   for (const [h, hand] of hands.entries()) {
     await library.prefetch(hand, charts);
     const before = analyzeHand(structuredClone(hand), { charts, turn: false });
@@ -263,6 +282,7 @@ it("measures the flop library on a stored library", { timeout: 12 * 60 * 60_000 
       if (d.source === "approx") bump(multiway, "approx EV loss bb", d.evLoss ?? 0);
     }
     multiwayTurns(hand, after, turns);
+    placeholderCensus(after, placeholders);
     if (DUMP) {
       after.decisions.forEach((d, k) => {
         const approxTurn = d.street === "turn" && d.source === "approx";
@@ -298,6 +318,8 @@ it("measures the flop library on a stored library", { timeout: 12 * 60 * 60_000 
       `--- multiway turns (three or more saw the turn): ${turns.get("decisions") ?? 0} hero turn decisions`,
       `  ${list(new Map([...turns].filter(([k]) => k !== "decisions" && !k.startsWith("approx EV"))))}`,
       `  approximate grades' EV loss: ${(turns.get("approx EV loss bb") ?? 0).toFixed(1)} bb`,
+      `--- placeholder ranges at the approximate multiway grades (analysis/17): ${placeholders.get("graded") ?? 0} graded, ${placeholders.get("with a placeholder") ?? 0} with one`,
+      `  opponents' preflop lines (each counted once per decision): ${list(new Map([...placeholders].filter(([k]) => k.startsWith("line "))))}`,
     ].join("\n"),
   );
 

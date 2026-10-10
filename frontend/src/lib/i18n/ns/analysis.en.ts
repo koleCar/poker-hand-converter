@@ -267,7 +267,7 @@ const multiwayReasons = {
   "multiway-crowded": "more than three players were still to answer the bet",
   "multiway-range-unknown": "a player's range could not be walked through the hand",
   "multiway-reraise":
-    "this is a re-raise on the turn, and the approximate turn call rests on a measurement of turns with at most one raise",
+    "this is a re-raise on the flop or turn, and the approximate call there rests on a measurement of flops and turns with at most one raise",
 } as Record<string, string>;
 
 /** A flop realisation category (`made|d`), in words. */
@@ -325,14 +325,14 @@ function approxSentences(decision: DecisionAnalysis): string[] {
       out.push(
         `One card is still to come, so the share of the pot it goes on to win is that equity times ${real.factor.toFixed(2)}: what ${realisationWords(real.category)} realises ${where} facing a turn bet, measured on Rail's own heads-up turn solves.`,
       );
-      if (real.allIn) {
-        out.push(
-          `${real.allIn >= 0.999 ? "The call" : `${pct(real.allIn)} of the time the call`} leaves nobody to bet against (an all-in), and then the share is what it wins.`,
-        );
-      }
     } else {
       out.push(
         `Two cards are still to come, so the share of the pot it goes on to win is that equity times ${real.factor.toFixed(2)}: what ${realisationWords(real.category)} realises ${where} facing a flop bet, measured on Rail's heads-up flop library.`,
+      );
+    }
+    if (real.allIn) {
+      out.push(
+        `${real.allIn >= 0.999 ? "The call" : `${pct(real.allIn)} of the time the call`} leaves nobody to bet against (an all-in), and then the share is what it wins.`,
       );
     }
     out.push(
@@ -809,7 +809,7 @@ export const analysisEn = {
     "multiway-side-pot": "Multiway: a side pot",
     "multiway-crowded": "Multiway: four or more to answer",
     "multiway-range-unknown": "Multiway: a range could not be walked",
-    "multiway-reraise": "Multiway turn: facing a re-raise",
+    "multiway-reraise": "Multiway flop or turn: facing a re-raise",
     "chart-straddle": "Preflop charts: straddle",
     "chart-ante": "Preflop charts: antes",
     "chart-players": "Preflop charts: heads-up or 10+ players",

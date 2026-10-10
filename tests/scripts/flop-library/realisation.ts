@@ -16,6 +16,9 @@
  * fitted by weighted least squares in units of the pot, each node's range
  * weighted by its reach (each node counts once). Every third combo of a
  * range is measured (`SAMPLE_EVERY`), which is plenty and a third of the work.
+ * A call that puts the caller all-in is marked (`Sample.allIn`): it ends the
+ * betting and realises its equity exactly, so since `analysis/17` the fit
+ * leaves it out and the analysis applies no factor there (the turn's rule).
  *
  * **Held out.** Fitted on the flops whose name hashes even, judged on the
  * others, against the library's own grade (§2, all of the node's options) of
@@ -186,6 +189,8 @@ export interface Sample {
   fold: { f: number; e: number };
   call: { f: number; e: number };
   raise: { f: number; e: number } | null;
+  /** The call puts the caller all-in: no betting is left, so it realises its equity exactly (`analysis/17` leaves these out of the fit). */
+  allIn?: boolean;
 }
 
 const hashOf = (text: string) => {
@@ -209,6 +214,7 @@ export function chunkSamples(chunk: FlopChunk): Sample[] {
     const foldEdge = node.actions.findIndex((a) => a.kind === "fold");
     if (callEdge < 0 || foldEdge < 0) return;
     const p = node.player as 0 | 1;
+    const allIn = node.toCall >= node.behind - 1e-9;
     const reach = rangesAt(result, index);
     const equities = nodeEquities(pre, hands, p, reach[1 - p]);
     const n = hands[p].length;
@@ -242,6 +248,7 @@ export function chunkSamples(chunk: FlopChunk): Sample[] {
         fold: { f: node.strategy[foldEdge * n + i], e: evFold },
         call: { f: node.strategy[callEdge * n + i], e: evCall },
         raise,
+        ...(allIn ? { allIn: true } : {}),
       });
     }
   });
