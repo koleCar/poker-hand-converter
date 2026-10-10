@@ -873,6 +873,10 @@ export const analysisEn = {
     "turn-realisation":
       "Turn: the share of the pot your hand goes on to win is its equity times a factor measured on Rail's own heads-up turn solves, by position and hand category; only the EV loss beyond 5% of the pot counts",
     "multiway-history": "Three or more saw the flop: solved heads-up from where the pot became heads-up, on ranges narrowed through the multiway streets",
+    "range-neighbour-depth":
+      "A player's preflop range is read from the charts at the nearest stack depth that has their line, since no chart covers it at this depth",
+    "range-limp-call":
+      "A player who limped and then called a raise starts from the default limp range: the charts' calling range there fits what such players show down worse",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,

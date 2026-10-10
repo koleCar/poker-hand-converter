@@ -68,8 +68,9 @@ export const WEAK_CHART_VERSIONS: readonly string[] = [
 /**
  * Grading reads a `rare-line` spot on the neighbouring depth that charts the
  * line (`docs/CHARTS.md` §7.1, analysis/13), with the `rare-line-depth`
- * approximation and the grade capped at Inaccurate. The opponents' chart
- * ranges (`chartRange`) do not: they stay on the answering set's nodes.
+ * approximation and the grade capped at Inaccurate. The postflop walks read
+ * ranges there too since analysis/18 (`WALK_RANGE_OPTIONS`); the flop
+ * library's placement stays on the answering set's nodes.
  */
 const RARE_LINE_DEPTH = { rareLineDepth: true } as const;
 
@@ -232,13 +233,42 @@ const DECISIONS = new Set(["fold", "check", "call", "bet", "raise"]);
 const CLASS_NAMES = allClasses();
 const COMBOS_OF = (name: string) => (name.length === 2 ? 6 : name.endsWith("s") ? 4 : 12);
 
+/** How a chart range was approximated (analysis/18). */
+export type ChartRangeApprox = "range-neighbour-depth";
+
 export interface ChartRange {
   range: ClassWeights;
   /** The node the range was read at. */
   line: string;
   /** Weighted combos in the range, before card removal. */
   combos: number;
+  /** The approximations taken to read it (`ChartRangeOptions`); empty when none. */
+  approx: ChartRangeApprox[];
 }
+
+/**
+ * What `chartRange` may do where the answering set has no node for the line
+ * (analysis/18, ANALYSIS-PLAN §10 2026-10-10, neighbouring ranges). Off by
+ * default: the flop library's placement (`flopLibrary.ts`) reads the
+ * answering set alone, as its chunks were solved from it.
+ */
+export interface ChartRangeOptions {
+  /**
+   * A line too rare for its set (`rare-line`), or one at a depth no set of
+   * the table covers (`stack-depth`), is read on the nearest charted depth
+   * below or above (never two steps away): `range-neighbour-depth`. Not for a
+   * flat call of a single raise (`flatCall`): the charts' flat-calling ranges
+   * explain the calls players show down worse than the placeholder even at
+   * their own depth, so there the placeholder stays.
+   */
+  neighbourDepth?: boolean;
+}
+
+/** A range's lookup on a neighbouring depth: a rare line, or a depth no set covers (`ChartRangeOptions.neighbourDepth`). */
+const NEIGHBOUR_DEPTH = { rareLineDepth: true, uncoveredDepth: true } as const;
+
+/** The options the postflop walks and the equity facts read opponents' ranges with (analysis/18). */
+export const WALK_RANGE_OPTIONS: ChartRangeOptions = { neighbourDepth: true };
 
 /** Whether `position` called before any raise (limped) from a seat other than the blinds. */
 function openLimped(position: string, actions: readonly PreflopActionInput[]): boolean {
@@ -250,19 +280,27 @@ function openLimped(position: string, actions: readonly PreflopActionInput[]): b
   return false;
 }
 
+/** Whether a decision is a flat call of exactly one raise (the `call` line: a cold call, the big blind's defence). */
+function flatCall(actions: readonly PreflopActionInput[], decision: PreflopActionInput): boolean {
+  return decision.type === "call" && actions.filter((action) => action.type === "raise").length === 1;
+}
+
 /**
  * An opponent's preflop range as the charts play their line: at the node of
  * their last preflop decision before `beforeActionIndex`, each class weighted
  * by how much of it reaches the node and how often it then takes the action
  * the opponent took — `range[class] × freq[action][class]`, the product of the
  * frequencies along their whole line. Null when the charts have no node for
- * the line (the caller falls back to the labelled placeholder).
+ * the line (the caller falls back to the labelled placeholder). `options`
+ * widen what is read (`ChartRangeOptions`, analysis/18), each labelled in
+ * `approx`.
  */
 export function chartRange(
   hand: PhfHand,
   seat: number,
   beforeActionIndex: number,
   charts: ChartSet | null,
+  options: ChartRangeOptions = {},
 ): ChartRange | null {
   if (!charts) return null;
   let nth = -1;
@@ -278,7 +316,8 @@ export function chartRange(
   // is what the players facing it are graded against, but no range to start
   // a postflop walk from. The labelled placeholder limp range is better.
   if (openLimped(found.spot.hero, [...found.spot.actions, found.heroAction])) return null;
-  const lookup = lookupPreflop(charts, found.spot, null, found.heroAction);
+  const neighbour = options.neighbourDepth === true && !flatCall(found.spot.actions, found.heroAction);
+  const lookup = lookupPreflop(charts, found.spot, null, found.heroAction, neighbour ? NEIGHBOUR_DEPTH : {});
   if (!lookup.ok || lookup.chosen === null || lookup.chosen < 0) return null;
   const node = lookup.node;
   const classes = node.range.length;
@@ -294,7 +333,10 @@ export function chartRange(
     }
   }
   if (combos < MIN_RANGE_COMBOS) return null;
-  return { range: weights, line: node.line, combos: round2(combos) };
+  const approx: ChartRangeApprox[] = lookup.approximations.some((a) => a.kind === "rare-line-depth" || a.kind === "uncovered-depth")
+    ? ["range-neighbour-depth"]
+    : [];
+  return { range: weights, line: node.line, combos: round2(combos), approx };
 }
 
 /** The charts' format version, re-exported so callers can name what they graded against. */

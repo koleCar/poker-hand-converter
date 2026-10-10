@@ -22,10 +22,11 @@
  */
 
 import type { ChartSet } from "../charts";
+import type { ClassWeights } from "../equity/range";
 import type { PhfHand, Position } from "../phf/types";
 import type { StatsContext } from "../stats/context";
 import { comboRange, heuristicModel, narrow, removeCards, rangeWeight, streetStrength, type NarrowAction, type NarrowingModel, type NarrowStreet, type StreetStrength } from "./narrowing";
-import { chartRange } from "./preflop";
+import { chartRange, WALK_RANGE_OPTIONS } from "./preflop";
 import { defaultRange, preflopLine } from "./ranges";
 import { toIndices } from "./texture";
 
@@ -43,6 +44,8 @@ export interface RangeWalk {
   villain: number;
   /** Where each preflop range came from. */
   sources: { hero: "chart" | "placeholder"; villain: "chart" | "placeholder" };
+  /** How each preflop range was approximated beyond its source (analysis/18). */
+  approx: { hero: RangeApprox[]; villain: RangeApprox[] };
   /** `line:position`, e.g. `open:BTN`: what the screen names each range by. */
   labels: { hero: string; villain: string };
   model: string;
@@ -88,13 +91,73 @@ export function flopSeats(context: StatsContext): number[] {
   return context.dealtInSeats.filter((seat) => context.foldedOn.get(seat) !== "preflop");
 }
 
+/**
+ * How a preflop range was approximated beyond its source (analysis/18):
+ * `range-neighbour-depth` a chart range read on a neighbouring depth
+ * (`ChartRangeOptions.neighbourDepth`); `range-limp-call` a limper who
+ * called an isolation raise, started from the placeholder limp range.
+ */
+export type RangeApprox = "range-neighbour-depth" | "range-limp-call";
+
+export interface PreflopClassRange {
+  range: ClassWeights;
+  source: "chart" | "placeholder";
+  label: string;
+  approx: RangeApprox[];
+}
+
 export interface PreflopRange {
   range: Float64Array;
   source: "chart" | "placeholder";
   label: string;
+  approx: RangeApprox[];
 }
 
-/** One player's preflop range: the charts' for their line, else the labelled placeholder; null with no line. */
+/**
+ * Whether a seat other than the blinds limped and then flat-called the raise
+ * behind it (the `call` line after a limp): its first voluntary preflop
+ * action a call before any raise, its last a call of the first raise.
+ */
+function limpedThenCalled(context: StatsContext, seat: number, position: Position | null): boolean {
+  if (position === "SB" || position === "BB") return false;
+  const mine = (context.byStreet.get("preflop") ?? []).filter(
+    (decision) => decision.seat === seat && (decision.type === "call" || decision.type === "raise" || decision.type === "bet"),
+  );
+  if (mine.length < 2) return false;
+  const first = mine[0];
+  const last = mine[mine.length - 1];
+  return first.type === "call" && first.raisesBefore === 0 && last.type === "call" && last.raisesBefore === 1;
+}
+
+/**
+ * One player's preflop range by class: the charts' for their line (on a
+ * neighbouring depth where the answering set has no node,
+ * `WALK_RANGE_OPTIONS`), else the labelled placeholder; null with no line. A
+ * limper who called an isolation raise starts from the placeholder limp
+ * range, not the `call` one (`range-limp-call`, analysis/18: it explains the
+ * hands such players show down far better, and better than the limp range
+ * times the charts' call frequency there).
+ */
+export function preflopClassRange(
+  hand: PhfHand,
+  context: StatsContext,
+  seat: number,
+  beforeIndex: number,
+  charts: ChartSet | null,
+): PreflopClassRange | null {
+  const line = preflopLine(context, seat);
+  const position = (context.position.get(seat) ?? null) as Position | null;
+  const label = `${line}:${position ?? "?"}`;
+  const fromCharts = chartRange(hand, seat, beforeIndex, charts, WALK_RANGE_OPTIONS);
+  if (fromCharts) return { range: fromCharts.range, source: "chart", label, approx: [...fromCharts.approx] };
+  if (line === "unknown") return null;
+  if (line === "call" && limpedThenCalled(context, seat, position)) {
+    return { range: defaultRange("limp", position).range, source: "placeholder", label: `limp:${position ?? "?"}`, approx: ["range-limp-call"] };
+  }
+  return { range: defaultRange(line, position).range, source: "placeholder", label, approx: [] };
+}
+
+/** One player's preflop range over combos (`preflopClassRange`); null with no line. */
 export function preflopRangeOf(
   hand: PhfHand,
   context: StatsContext,
@@ -102,13 +165,8 @@ export function preflopRangeOf(
   beforeIndex: number,
   charts: ChartSet | null,
 ): PreflopRange | null {
-  const line = preflopLine(context, seat);
-  const position = (context.position.get(seat) ?? null) as Position | null;
-  const label = `${line}:${position ?? "?"}`;
-  const fromCharts = chartRange(hand, seat, beforeIndex, charts);
-  if (fromCharts) return { range: comboRange(fromCharts.range), source: "chart", label };
-  if (line === "unknown") return null;
-  return { range: comboRange(defaultRange(line, position).range), source: "placeholder", label };
+  const found = preflopClassRange(hand, context, seat, beforeIndex, charts);
+  return found ? { ...found, range: comboRange(found.range) } : null;
 }
 
 /**
@@ -229,6 +287,7 @@ export function walkRanges(
     hero,
     villain,
     sources: { hero: heroPre.source, villain: villainPre.source },
+    approx: { hero: heroPre.approx, villain: villainPre.approx },
     labels: { hero: heroPre.label, villain: villainPre.label },
     model: model.id,
     before: (actionIndex: number) => snapshots.get(actionIndex) ?? null,

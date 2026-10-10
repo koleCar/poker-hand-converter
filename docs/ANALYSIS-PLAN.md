@@ -328,6 +328,9 @@ shows them like GTOW's banner:
 - **Not modelled:** antes or straddle; rake differing from the solve; stack
   depth differing from the nearest bucket by more than 20%.
 - **Sizing:** off-tree bet size (§3.3).
+- **Ranges:** a placeholder preflop range; since `analysis/18` a chart range
+  read on a neighbouring depth (`range-neighbour-depth`) or a limp-caller's
+  limp placeholder (`range-limp-call`).
 - **Source quality:** a heuristic source (§3.6).
 
 A decision is **not analysed** (`status: partial`) when:
@@ -348,7 +351,12 @@ A decision is **not analysed** (`status: partial`) when:
   flop table is fitted without the all-in calls (`floplib-r/2`; §10
   2026-10-10, multiway rules and placeholder ranges). Opponents whose line
   no chart covers - most often an open limper - start from the labelled
-  placeholder range (`placeholder-range`). The rest (flop
+  placeholder range (`placeholder-range`); since `analysis/18` a line at a
+  depth no set covers, or too rare for its set, is read on the nearest
+  charted depth instead (`range-neighbour-depth`; not a flat call of a
+  single raise, which keeps the placeholder), and a limper who called an
+  isolation raise starts from the placeholder limp range
+  (`range-limp-call`; §10 2026-10-10, neighbouring ranges). The rest (flop
   and turn checks and bets, river bets and checks) keeps its multiway facts
   and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
@@ -2819,3 +2827,100 @@ Each phase appends what it learned that changed the plan.
       (`rare-line-depth`); a limper calling an isolation could start from
       the limp range times the charts' call frequency facing the isolation.
       Neither moves many grades on this library (the swaps above bound it).
+- 2026-10-10 — Neighbouring ranges, `analysis/18` (`docs/CHARTS.md` §7.2).
+  No migration, no chart regenerated.
+  - **Why.** `analysis/17` traced 481 of 769 opponents in the owner's
+    multiway hands to a placeholder and proposed two cheap fixes: callers at
+    a depth no set covers (63) and lines too rare for their set (26) read a
+    neighbouring depth's chart range, as grading does since `analysis/13`;
+    and a limper who called an isolation (46, then on the `call`
+    placeholder) starts from the limp placeholder times the charts' call
+    frequency against the isolation.
+  - **What was built.** `lookupPreflop(..., { uncoveredDepth: true })`: a
+    spot whose effective stack no set of its table covers is replayed on the
+    nearest charted depth below and above (`uncoveredDepthSets`, never two
+    steps). `chartRange(..., { neighbourDepth: true })` asks for it and for
+    `rareLineDepth`; the walks and the equity facts read every preflop range
+    through `preflopClassRange` with those options (`WALK_RANGE_OPTIONS`).
+    `rareLineChartSets` also lists the uncovered depths' neighbours, so the
+    worker and the app load them. The flop library's placement
+    (`chartLineOf`, `libraryEntry`) calls `chartRange` without options: a
+    heads-up pot that reads the library keeps the answering set, and a
+    neighbour-depth read only happens where the library could not be read
+    anyway (its ranges missing).
+  - **Validated against shown hands** (the opponents' showdowns in the
+    owner's 5,448 hands, the hero left out; no ante, straddle or bomb pot;
+    mean log-likelihood per combo, a hand outside the range scored at a
+    twentieth of a uniform combo, as `analysis/17`; Δ ± its standard error,
+    paired):
+    - *Does the depth step hurt where the line is charted?* Each charted
+      line (no all-in) re-read on its nearest other depth: −7.724 against
+      the line's own chart's −7.693 (Δ −0.03 ± 0.03, n = 911). Barely.
+    - *But the charts' own flat calls lose to the placeholder* at their own
+      depth: cold calls −9.75 against −8.34 (the charts hold 9% of the shown
+      hands, 38 combos on average: they 3-bet or fold), the big blind's
+      defence −7.89 against −7.22; every other line is about even or better
+      on the chart (3-bets −6.68 against −7.10, calls of a 3-bet −7.52
+      against −8.56, opens −6.95 against −7.04).
+    - *The proposal as written does not beat the placeholder:*
+
+      | shown hands at | n | placeholder | proposal | shipped |
+      |---|---|---|---|---|
+      | flat calls at an uncovered depth or a rare line | 110 | **−7.97** | −8.67 (Δ −0.70 ± 0.22) | placeholder kept |
+      | other lines there (open, iso, 3-bet, 4-bet, calls of a re-raise, the small blind's limp, checks) | 258 | −7.78 | **−7.63** (Δ +0.16 ± 0.13) | neighbouring depth |
+      | limpers who called an isolation | 85 | −9.03 (`call`) | −9.20, limp × the charts' call frequency (Δ −0.18 ± 0.24) | |
+      | | | | **−7.78**, the limp placeholder alone (Δ +1.25 ± 0.29) | limp placeholder |
+
+      Any two cards scores −7.19 on every row: real players' ranges are
+      wider than any of these. The charts' call frequency against an
+      isolation removes the hands limp-callers show down (they call with
+      what they limped), and so does the `call` placeholder (it lacks the
+      offsuit broadways and weak aces of the limp range).
+    - *Shipped,* on the final code (`preflopClassRange` against the
+      `analysis/17` reading, every shown opponent whose range changes): 258
+      read on a neighbouring depth −7.78 → −7.63, 104 limp-callers −9.14 →
+      −7.86 (coverage 20% → 56%); all 362 −8.17 → −7.69 (Δ +0.48 ± 0.12).
+  - **Flags.** `range-neighbour-depth` and `range-limp-call` (EN/HR), added
+    wherever the placeholder's flag would be asked: the equity fact's range,
+    a heads-up walk's villain (and the hero on a solved grade), a multiway
+    opponent (`MultiwayOpponent.approx`). A limp-caller's range stays a
+    placeholder (`placeholder-range`, labelled `limp:UTG`).
+  - **Multiway placeholders** (the census of `analysis/17`, flop seen three
+    or more ways, the hero in, no bomb pot): 479 of 767 opponents → **447**
+    on a placeholder; 32 now read a neighbouring depth's chart, 46
+    limp-callers start from the limp placeholder. The callers at uncovered
+    depths and the rare-line callers stay on the placeholder, as the
+    validation says they should.
+  - **Measured on the owner's library** (5,448 hands, flop library and turn
+    solving on; the 1,123 hands where any player's range changes analysed
+    with `analysis/17` and `analysis/18` side by side, 1,555 hero decisions
+    compared one by one; every other hand's ranges are identical):
+    - preflop grades do not move (9 equity facts of a preflop all-in now
+      against a neighbouring chart range, `preflop-range` for
+      `placeholder-range`);
+    - 279 postflop decisions carry a new flag (flop 104, turn 109, river
+      66); 221 equity facts change;
+    - postflop grades in these hands: Perfect 150 → 145, Good 14 → 21,
+      Inaccurate 2 → 1, Mistake 15 → 11; graded 181 → 178 (three turn
+      solves and one river solve now meet a line the new ranges never take,
+      `*-unreached`; one river is solved that was not); 24 grades change
+      class: turn solver 12, river solver 11, one multiway flop call (a
+      Mistake of 1.7bb becomes Perfect); EV loss flop 4.3 → 2.2bb, turn 30.2
+      → 40.8bb (one turn fold, already a capped Mistake, 12.0 → 25.9bb),
+      river 10.1 → 10.7bb. One heuristic note appears and one goes.
+  - `ANALYSIS_VERSION` `analysis/18`. Tests (`analysisRanges`): the
+    uncovered depths' neighbours; a 75bb 3-bettor read on the 60bb set with
+    the flag, refused without the option; a flat caller kept on the
+    placeholder; the walk and the decision carry the flag; the sets listed
+    for loading and nothing read that is not loaded; a limp-caller on the
+    limp placeholder through the multiway walk to the decision; both
+    languages.
+  - **Open.**
+    - The charts' flat-calling ranges explain shown calls worse than the
+      placeholder even where the line is charted (cold calls hold 9% of the
+      shown hands). Charted callers' ranges in the walks are the largest
+      remaining range error; widening them (a population calling range, or
+      the learner's villain statistics once the analysis is handed them) is
+      the lever, not more chart depths.
+    - Callers at uncovered depths and rare-line callers stay on the
+      placeholder; the first limper and the over-limper too (`analysis/17`).

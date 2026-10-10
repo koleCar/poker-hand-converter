@@ -82,7 +82,7 @@ import {
   type NarrowStreet,
   type StreetStrength,
 } from "./narrowing";
-import { flopSeats, preflopRangeOf, type PlayerRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
+import { flopSeats, preflopRangeOf, type PlayerRanges, type RangeApprox, type RangeWalk, type WalkFailure } from "./rangeWalk";
 import { FLOP_PROFILE, flopBucket } from "./flopLibrary";
 import { rakeOf } from "./river";
 import { toIndices } from "./texture";
@@ -130,6 +130,8 @@ export interface MultiWalk {
   /** The seats that saw the flop. */
   seats: number[];
   sources: ReadonlyMap<number, "chart" | "placeholder">;
+  /** How each preflop range was approximated beyond its source (analysis/18). */
+  approx: ReadonlyMap<number, RangeApprox[]>;
   labels: ReadonlyMap<number, string>;
   /** The narrowing model's id with `+mw`. */
   model: string;
@@ -174,12 +176,14 @@ export function walkMultiway(
   const cut = firstPostflop?.index ?? Number.MAX_SAFE_INTEGER;
   const ranges = new Map<number, Float64Array>();
   const sources = new Map<number, "chart" | "placeholder">();
+  const approx = new Map<number, RangeApprox[]>();
   const labels = new Map<number, string>();
   for (const seat of seats) {
     const pre = preflopRangeOf(hand, context, seat, cut, charts);
     if (!pre) return { ok: false, reason: "range-unknown" };
     ranges.set(seat, pre.range);
     sources.set(seat, pre.source);
+    approx.set(seat, pre.approx);
     labels.set(seat, pre.label);
   }
   const preflop: SeatRanges = new Map(ranges);
@@ -277,6 +281,7 @@ export function walkMultiway(
     hero,
     seats,
     sources,
+    approx,
     labels,
     model: `${model.id}${MULTIWAY_MODEL_SUFFIX}`,
     before: (actionIndex) => snapshots.get(actionIndex) ?? null,
@@ -310,6 +315,7 @@ export function headsUpWalk(multi: MultiWalk): RangeWalk | null {
     hero,
     villain,
     sources: { hero: multi.sources.get(hero) ?? "placeholder", villain: multi.sources.get(villain) ?? "placeholder" },
+    approx: { hero: multi.approx.get(hero) ?? [], villain: multi.approx.get(villain) ?? [] },
     labels: { hero: multi.labels.get(hero) ?? "unknown:?", villain: multi.labels.get(villain) ?? "unknown:?" },
     model: multi.model,
     before: (actionIndex) => pair(multi.before(actionIndex)),
@@ -536,6 +542,7 @@ export function multiwayFacts(input: MultiwayFactsInput): MultiwayFacts {
       position: (context.position.get(seat.seat) ?? null) as Position | null,
       range: walk?.labels.get(seat.seat) ?? "unknown:?",
       source: walk?.sources.get(seat.seat) ?? "placeholder",
+      ...(walk?.approx.get(seat.seat)?.length ? { approx: [...(walk.approx.get(seat.seat) as RangeApprox[])] } : {}),
       equity,
       combos,
       toAct,

@@ -132,8 +132,16 @@ import type { Position, Street } from "../phf/types";
  *               without the all-in calls (`floplib-r/2`). Placeholder ranges
  *               unchanged (ANALYSIS-PLAN §10 2026-10-10, multiway rules and
  *               placeholder ranges).
+ *   analysis/18 Opponents' (and the hero's) preflop ranges for the postflop
+ *               walks and equity facts: a line at a depth no set covers, or
+ *               too rare for its set, is read on the nearest charted depth
+ *               below or above (`range-neighbour-depth`), except a flat call
+ *               of a single raise; a limper who called an isolation raise
+ *               starts from the placeholder limp range (`range-limp-call`).
+ *               The flop library's placement is unchanged (ANALYSIS-PLAN §10
+ *               2026-10-10, neighbouring ranges).
  */
-export const ANALYSIS_VERSION = "analysis/17" as const;
+export const ANALYSIS_VERSION = "analysis/18" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -353,6 +361,15 @@ export interface Flag {
  *                       the factor measured on Rail's own heads-up turn
  *                       solves; only the EV loss beyond the turn's margin
  *                       counts.
+ * Preflop ranges (analysis/18), wherever `placeholder-range` would be asked:
+ *
+ * - `range-neighbour-depth` a range the walks or an equity start from was read
+ *                       from the charts at the nearest charted depth (the
+ *                       line is too rare for its set, or no set covers the
+ *                       depth); never a flat call of a single raise.
+ * - `range-limp-call`   a limper who called an isolation raise starts from
+ *                       the placeholder limp range, not the `call` one.
+ *
  * - `multiway-history` solved heads-up from a street that began heads-up,
  *                       but three or more saw the flop: the ranges were
  *                       narrowed through the multiway streets, with card
@@ -386,6 +403,8 @@ export const APPROXIMATIONS = [
   "multiway-history",
   "flop-realisation",
   "turn-realisation",
+  "range-neighbour-depth",
+  "range-limp-call",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -732,6 +751,12 @@ export interface MultiwayOpponent {
   /** `line:position`, as `SpotFacts.equity.range`. */
   range: string;
   source: "chart" | "placeholder";
+  /**
+   * How the preflop range was read beyond its source (analysis/18): on a
+   * neighbouring depth's chart, or a limp-caller's limp placeholder. Absent
+   * when neither.
+   */
+  approx?: ("range-neighbour-depth" | "range-limp-call")[];
   /** The hero's equity against this range alone, narrowed to the decision. */
   equity: number | null;
   /** Weighted combos in the range, the hero's cards and the board removed. */
