@@ -17,7 +17,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { analysisFitsHand } from "../../lib/analysis/share";
+import { analysisFitsHand, withoutOwnerFacts } from "../../lib/analysis/share";
 import type { HandAnalysis } from "../../lib/analysis/types";
 import { handAnalysisFromStored } from "../../lib/db/analysisRows";
 import { useDict } from "../../lib/i18n/client";
@@ -48,12 +48,17 @@ export function gradeMarks(analysis: HandAnalysis, t: Strings): ReplayMark[] {
   });
 }
 
-/** A stored row as the database projected it, or an analysis already mapped, as a `HandAnalysis`. */
+/**
+ * A stored row as the database projected it, or an analysis already mapped, as a `HandAnalysis`,
+ * without the owner's own facts (`withoutOwnerFacts`: an opponent's statistics).
+ */
 export function asHandAnalysis(value: HandAnalysis | Record<string, unknown> | null | undefined): HandAnalysis | null {
   if (!value) return null;
-  return "version" in value && Array.isArray(value.decisions) && "evLoss" in value
-    ? (value as HandAnalysis)
-    : handAnalysisFromStored(value as Record<string, unknown>);
+  return withoutOwnerFacts(
+    "version" in value && Array.isArray(value.decisions) && "evLoss" in value
+      ? (value as HandAnalysis)
+      : handAnalysisFromStored(value as Record<string, unknown>),
+  );
 }
 
 /**

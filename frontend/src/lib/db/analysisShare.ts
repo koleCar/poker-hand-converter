@@ -10,6 +10,7 @@
  */
 
 import { ANALYSIS_VERSION, type HandAnalysis } from "../analysis";
+import { withoutOwnerFacts } from "../analysis/share";
 import { handAnalysisFromStored } from "./analysisRows";
 import { currentUserId, isDatabaseConfigured, rpc } from "./client";
 
@@ -55,5 +56,5 @@ export async function setAnalysisShare(surface: ShareSurface, id: string, shared
 export async function readSharedAnalysis(surface: PublicSurface, id: string): Promise<HandAnalysis | null> {
   if (!isDatabaseConfigured) return null;
   const raw = await rpc<unknown>("read_shared_analysis", { p_surface: surface, p_id: id, p_version: ANALYSIS_VERSION });
-  return raw && typeof raw === "object" ? handAnalysisFromStored(raw as Record<string, unknown>) : null;
+  return raw && typeof raw === "object" ? withoutOwnerFacts(handAnalysisFromStored(raw as Record<string, unknown>)) : null;
 }

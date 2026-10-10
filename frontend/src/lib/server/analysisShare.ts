@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { withoutOwnerFacts } from "../analysis/share";
 import { ANALYSIS_VERSION } from "../analysis/types";
 import { getAnonServerSupabase } from "../supabase/server";
 
@@ -26,6 +27,7 @@ export const readSharedAnalysisAnon = cache(
       p_version: ANALYSIS_VERSION,
     });
     if (error || !data || typeof data !== "object" || Array.isArray(data)) return null;
-    return data as Record<string, unknown>;
+    // An opponent's statistics are the owner's: never into the page's HTML.
+    return withoutOwnerFacts(data as Record<string, unknown>);
   },
 );

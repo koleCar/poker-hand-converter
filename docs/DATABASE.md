@@ -745,7 +745,17 @@ projects every decision's `options` to the seven `OptionAnalysis` keys,
 `flags` to code / severity / params, and `facts` to the listed `SpotFacts`
 keys (`analysis_public_facts` — a new facts key needs a line there; `turn`
 and `flop` are listed for A5, `multiway` since A9). The rows are written by the owner's browser,
-so a key nobody listed does not reach a stranger. Facts are hero-centric by
+so a key nobody listed does not reach a stranger. **`facts.villain` never
+does** (`analysis/20`: an opponent's VPIP / PFR counters and sample from the
+owner's private library — the owner's, not the hand's): it is not on that
+list, and since `20270407090000_shared_analysis_strip_villain.sql` the reader
+also removes it itself (`analysis_public_facts(d.facts) - 'villain'`), so a
+later line on the list cannot let it through; the turn's and river's own
+`villain` (the range's shape, from the hand) stays. The owner's own
+`analysis_hand` still returns it. The browser drops it again on every shared
+read (`withoutOwnerFacts`, `lib/analysis/share.ts`: the server render's
+`readSharedAnalysisAnon`, the poll's `readSharedAnalysis`, the sheet's
+`asHandAnalysis`). Facts are hero-centric by
 construction (hero's cards, the board to the decision, positions, pot
 geometry, equities against ranges named by line and seat): no villain hole
 cards and no screen names are inputs, so the scrubbed copy's pseudonyms
@@ -825,6 +835,14 @@ definer with an empty `search_path` and open to anon; with no row at the
 requested version the newest older one, flagged `staleVersion`; no flag at
 the version; never a newer row; once re-analysed the current row; switched
 off, nothing at any version.
+`analysis_share_villain.test.sql` (analysis/20, 15 assertions):
+`read_shared_analysis` still definer with an empty `search_path`, open to
+anon and authenticated, not to public, and dropping `villain` in its own
+body; a decision stored with `facts.villain` comes back without it (to anon,
+a signed-in stranger and the owner alike, at the version and through the
+older-version fallback, no counter anywhere in the document), every other
+fact — the turn's and river's range shapes included — and the rest of the
+analysis unchanged; the owner's `analysis_hand` still has it.
 `analysis_turn.test.sql` (A5a): invoker, `search_path` and grants on the
 newest-first page; its order (undated last), the version kept apart, the
 trimmed document, keyset paging to the end; a malformed version, isolation,
