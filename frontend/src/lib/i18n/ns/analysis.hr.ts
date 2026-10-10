@@ -223,13 +223,36 @@ const turnReasons = {
 /** Kraj rečenice "Bez ocjene: …" za multiway odluku (A9), po `MULTIWAY_SKIP_REASONS`. */
 const multiwayReasons = {
   multiway:
-    "u potu su tri ili više igrača, a nijedan solver ne modelira tri raspona odjednom; približnu ocjenu dobiva samo call ili fold na riveru protiv beta",
-  "multiway-side-pot": "side pot (all-in za manje) dijeli showdown, a približni river call to ne modelira",
+    "u potu su tri ili više igrača, a nijedan solver ne modelira tri raspona odjednom; približnu ocjenu dobiva samo call ili fold na flopu ili riveru protiv beta",
+  "multiway-side-pot": "side pot (all-in za manje) dijeli showdown, a približni call to ne modelira",
   "multiway-crowded": "na bet je trebalo odgovoriti više od tri igrača",
   "multiway-range-unknown": "raspon jednog igrača nije se mogao provesti kroz ruku",
 } as Record<string, string>;
 
-/** *Zašto* približne multiway ocjene (A9): EV calla u odnosu na fold i na čemu počiva. */
+/** Kategorija realizacije na flopu (`made|d`), riječima. */
+const realisationMade = {
+  "fh+": "full house ili jače",
+  flush: "flush",
+  straight: "straight",
+  set: "set",
+  trips: "trips",
+  "two-pair": "dva para",
+  overpair: "overpair",
+  "tp-top": "top par s top kickerom",
+  "tp-good": "top par s dobrim kickerom",
+  "tp-weak": "top par sa slabim kickerom",
+  middle: "srednji par",
+  weak: "slab par",
+  "ace-high": "as high",
+  nothing: "bez para",
+} as Record<string, string>;
+
+function realisationWords(category: string): string {
+  const [made, draw] = category.split("|");
+  return `${realisationMade[made] ?? made} ${draw === "d" ? "s drawom" : "bez drawa"}`;
+}
+
+/** *Zašto* približne multiway ocjene (A9; flop od analysis/15): EV calla u odnosu na fold i na čemu počiva. */
 function approxSentences(decision: DecisionAnalysis): string[] {
   const ev = decision.facts.multiway?.ev;
   if (decision.source !== "approx" || !ev || !decision.grade || decision.chosen === null) return [];
@@ -240,12 +263,28 @@ function approxSentences(decision: DecisionAnalysis): string[] {
     `${word} (približno, multiway): protiv raspona kako su suženi, call vrijedi ${signedBb(ev.call)} u odnosu na fold, pa je ${better} bolji od to dvoje.`,
   );
   if (decision.grade !== "perfect" && decision.evLoss !== null) {
-    out.push(`${decision.action === "fold" ? "Fold" : "Call"} košta ${bb(decision.evLoss)} (${pct(decision.evLossPot ?? 0)} pota).`);
+    out.push(
+      `${decision.action === "fold" ? "Fold" : "Call"} košta ${bb(decision.evLoss)} (${pct(decision.evLossPot ?? 0)} pota)${ev.realisation ? " iznad margine modela (niže)" : ""}.`,
+    );
   }
   const respond = ev.respond.map((r) => `${r.position ?? "jedan igrač"} calla u oko ${pct(r.call)} slučajeva`);
-  out.push(
-    `Ako callaš, tvoja ruka u prosjeku osvaja ${pct(ev.equity)} showdown pota od oko ${bb(ev.pot)}${respond.length > 0 ? `, dok ${list(respond)}` : ""}.`,
-  );
+  const real = ev.realisation;
+  if (real) {
+    const where = real.ip >= 0.999 ? "u poziciji" : real.ip <= 0.001 ? "izvan pozicije" : `u poziciji u ${pct(real.ip)} slučajeva`;
+    out.push(
+      `Ako callaš, tvoja ruka ima ${pct(ev.equity)} equityja protiv polja u potu od oko ${bb(ev.pot)}${respond.length > 0 ? `, dok ${list(respond)}` : ""}.`,
+    );
+    out.push(
+      `Dolaze još dvije karte, pa je udio pota koji će ruka osvojiti taj equity puta ${real.factor.toFixed(2)}: koliko ${realisationWords(real.category)} realizira ${where} protiv beta na flopu, izmjereno na Railovoj heads-up biblioteci flopova.`,
+    );
+    out.push(
+      `To mjerenje od ruke do ruke griješi za nekoliko posto pota, pa se potezu računa samo gubitak EV-a veći od ${pct(real.margin)} pota.`,
+    );
+  } else {
+    out.push(
+      `Ako callaš, tvoja ruka u prosjeku osvaja ${pct(ev.equity)} showdown pota od oko ${bb(ev.pot)}${respond.length > 0 ? `, dok ${list(respond)}` : ""}.`,
+    );
+  }
   out.push(
     "Igrači koji su još na potezu callaju ili foldaju prema modelu sužavanja i nikad ne re-raiseaju, a raise nije među uspoređenim opcijama: čitaj ovo kao procjenu, ne kao riješen odgovor.",
   );
@@ -653,7 +692,7 @@ export const analysisHr: Dict["analysis"] = {
   reference: {
     title: "Preflop se ocjenjuje prema našim chartovima, turn i river prema našem solveru",
     body:
-      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim preflop chartovima (6-max od 40 do 200 bb, puni stol od 100 do 200 bb), gdje god chart pokriva situaciju. Turn i river odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje na flopu sužava heuristički model, a do rivera riješeni turn. Flop pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena. Multiway potovi dobivaju činjenice protiv raspona svakog protivnika, a call ili fold na riveru približnu ocjenu, označenu kao takvu.",
+      "Preflop odluke dobivaju ocjenu, od Savršeno do Gruba greška, prema Railovim vlastitim preflop chartovima (6-max od 40 do 200 bb, puni stol od 100 do 200 bb), gdje god chart pokriva situaciju. Turn i river odluke u heads-up potovima ocjenjuje naš vlastiti solver, na rasponima koje na flopu sužava heuristički model, a do rivera riješeni turn. Flop pokazuje svoje činjenice i provjere koje vrijede bez obzira na strategiju — oznaka je bilješka, nikad ocjena. Multiway potovi dobivaju činjenice protiv raspona svakog protivnika, a call ili fold na flopu ili riveru približnu ocjenu, označenu kao takvu.",
     model:
       "Chartovi (charts/2) flop vrednuju uz checkan flop, pa još podcjenjuju nekoliko ruku koje dobivaju kroz implied odds: UTG folda 22–55, 54s–87s i A5s, a button gotovo nikad ne flata cutoff open. Ocjene protiv igranja takvih ruku su stroge.",
     browse: "Pregledaj chartove",
@@ -711,7 +750,7 @@ export const analysisHr: Dict["analysis"] = {
     badHands: (count: number) => `${hands(count)} s greškom ili grubom greškom`,
     showBad: "Prikaži ih",
     noGrades:
-      "U ovom uzorku još ništa nije ocijenjeno. Preflop odluke ocjenjuju se gdje chartovi pokrivaju situaciju (od tri do devet igrača, 40–200 bb, bez open limpera), turn i river odluke u heads-up potovima solverom, a multiway call ili fold na riveru približno.",
+      "U ovom uzorku još ništa nije ocijenjeno. Preflop odluke ocjenjuju se gdje chartovi pokrivaju situaciju (od tri do devet igrača, 40–200 bb, bez open limpera), turn i river odluke u heads-up potovima solverom, a multiway call ili fold na flopu ili riveru približno.",
     byStreet: "Po streetovima",
     bb2: (value: number) => `${num(value, 2)} bb`,
     distribution: (parts: string[]) => parts.join(", "),
@@ -728,8 +767,8 @@ export const analysisHr: Dict["analysis"] = {
     "hero-cards-unknown": "Tvoje karte nisu poznate",
     "no-decisions": "Nisi imao/la nijednu odluku",
     multiway: "Multiway: samo činjenice i bilješke",
-    "multiway-side-pot": "Multiway river: side pot",
-    "multiway-crowded": "Multiway river: četiri ili više na potezu",
+    "multiway-side-pot": "Multiway: side pot",
+    "multiway-crowded": "Multiway: četiri ili više na potezu",
     "multiway-range-unknown": "Multiway: raspon se nije mogao provesti",
     "chart-straddle": "Preflop chartovi: straddle",
     "chart-ante": "Preflop chartovi: ante",
@@ -788,7 +827,9 @@ export const analysisHr: Dict["analysis"] = {
     "flop-mapped": "Flop očitan s najbližeg riješenog flopa iste teksture, a ne riješen sam",
     "library-bucketed": "Tvoja ruka očitana po kategoriji (gotova ruka i draw) u biblioteci flopova, a ne kombinacija po kombinacija",
     "multiway-approx":
-      "Približna multiway ocjena: call na riveru u odnosu na fold, po showdown EV-u na suženim rasponima; igrači na potezu callaju ili foldaju prema modelu, raise se ne uspoređuje; najviše Greška",
+      "Približna multiway ocjena: call na flopu ili riveru u odnosu na fold, po showdown EV-u na suženim rasponima; igrači na potezu callaju ili foldaju prema modelu, raise se ne uspoređuje; najviše Greška",
+    "flop-realisation":
+      "Flop: udio pota koji će ruka osvojiti je njezin equity puta faktor izmjeren na heads-up biblioteci flopova, po poziciji i kategoriji ruke; računa se samo gubitak EV-a veći od 5% pota",
     "multiway-history": "Flop su vidjela tri ili više igrača: riješeno heads-up od trenutka kad je pot postao heads-up, na rasponima suženima kroz multiway streetove",
   } as Record<string, string>,
 
@@ -923,7 +964,7 @@ export const analysisHr: Dict["analysis"] = {
     toggleTitle: "Prikaži analizu ove ruke",
     notGraded: "Bez ocjene",
     notGradedHint:
-      "Ništa u ovoj ruci nije ocijenjeno: preflop chartovi ne pokrivaju ovu liniju, flop je samo bilješke, a na turnu i riveru nije bilo heads-up odluke koju solver može riješiti ni multiway calla ili folda na riveru koji bi se procijenio.",
+      "Ništa u ovoj ruci nije ocijenjeno: preflop chartovi ne pokrivaju ovu liniju, flop je samo bilješke, a na turnu i riveru nije bilo heads-up odluke koju solver može riješiti ni multiway calla ili folda na flopu ili riveru koji bi se procijenio.",
     evLoss: "Gubitak EV-a",
     evLossPot: (value: number) => `${pct(value)} pota`,
     score: "Bodovi",

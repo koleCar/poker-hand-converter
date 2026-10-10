@@ -219,7 +219,7 @@ export const courseHr = {
     "flop-mapped":
       "Vježbe na flopu ovdje se dijele iz Railove knjižnice flopova: dvanaest heads-up linija za 6-max i 100bb, svaka riješena na 100 reprezentativnih flopova. Flop u vježbi uvijek je jedan od njih, pa se ocjenjuje kombinacija po kombinaciju. Tvoje ruke na bilo kojem drugom flopu čitaju se s najbližeg riješenog flopa po kategoriji ruke, a analiza takve ocjene označava kao mapirane.",
     "multiway-heuristic":
-      "Railova knjižnica flopova je heads-up. Flopove s više igrača analiza čita heuristikom i podjelom minimalne obrane, s činjenicama i oznakama, ali bez ocjene solvera, pa su vježbe u ovoj lekciji računske i na tvojim rukama.",
+      "Railova knjižnica flopova je heads-up. Flopove s više igrača analiza čita heuristikom i podjelom minimalne obrane, s činjenicama i oznakama, ali bez ocjene solvera (call ili fold protiv beta dobiva približnu), pa su vježbe u ovoj lekciji računske i na tvojim rukama.",
     "approximate-ranges":
       "Približno: rasponi ovdje su ručno napisani rasponi za učenje ili počivaju na Railovom modelu sužavanja, a ne na rješenju cijele ruke. Ono što treba zapamtiti je smjer.",
     "turn-tree":

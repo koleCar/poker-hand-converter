@@ -343,7 +343,7 @@ export const bettingEn: ConceptTexts<Betting> = {
     why: [
       "Bluffs that are fine heads-up lose money into two or three players. Multiway, bet your strong hands and strong draws, and give up more of your air.",
       "Value changes too. A strong one-pair hand or two pair is more vulnerable — more players hold cards that outdraw it — so slowplaying it is more expensive, and it should bet to charge them. Draws to a hand that is not the nuts lose value: when your flush comes in, someone holding a higher one is likelier than heads-up (reverse implied odds).",
-      "Rail grades multiway decisions only where that is honest: a river call or fold by its EV against narrowed ranges, labelled approximate and never worse than a Mistake. Everything else multiway gets its facts and notes, and these ideas behind them.",
+      "Rail grades multiway decisions only where that is honest: a flop or river call or fold by its EV against narrowed ranges (on the flop, times what such a hand realises later), labelled approximate and never worse than a Mistake. Everything else multiway gets its facts and notes, and these ideas behind them.",
     ],
     formulas: [
       {

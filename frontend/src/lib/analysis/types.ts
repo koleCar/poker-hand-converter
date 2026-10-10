@@ -114,8 +114,15 @@ import type { Position, Street } from "../phf/types";
  *               preflop range read from it moves by the longer solve -
  *               including the 9-max 100bb and 200bb rare lines read on it
  *               (`rare-line-depth`).
+ *   analysis/15 A flop call or fold facing a bet in a pot three or more saw
+ *               the flop of is graded approximately (`source: "approx"`,
+ *               `multiway-approx`, `flop-realisation`): the river's EV over
+ *               who answers, the hero's share times a realisation factor
+ *               measured on the flop library, only the EV loss beyond 5% of
+ *               the pot counted, capped at Mistake (ANALYSIS-PLAN §10
+ *               2026-10-10).
  */
-export const ANALYSIS_VERSION = "analysis/14" as const;
+export const ANALYSIS_VERSION = "analysis/15" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -326,6 +333,11 @@ export interface Flag {
  *                       or fold by the narrowing model (never raise); raising
  *                       is not one of the options compared. Capped at
  *                       Mistake.
+ * - `flop-realisation`  (analysis/15) an approximate flop call or fold: the
+ *                       share of the pot a hand goes on to win is its equity
+ *                       against the field times a factor measured on the
+ *                       heads-up flop library by position and hand category;
+ *                       only the EV loss beyond 5% of the pot counts.
  * - `multiway-history`  solved heads-up from a street that began heads-up,
  *                       but three or more saw the flop: the ranges were
  *                       narrowed through the multiway streets, with card
@@ -357,6 +369,7 @@ export const APPROXIMATIONS = [
   "rare-line-depth",
   "multiway-approx",
   "multiway-history",
+  "flop-realisation",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -745,11 +758,15 @@ export interface MultiwayFacts {
   outs: { nut: number; nonNut: number; cards: number } | null;
   /** A straight-or-better draw whose outs are mostly not the nuts, with two or more opponents. */
   reverseImplied: boolean;
-  /** River, facing a bet: the approximate EV of calling against folding. */
+  /** River or flop (`analysis/15`), facing a bet: the approximate EV of calling against folding. */
   ev: MultiwayEv | null;
 }
 
-/** The approximate river call (A9): showdown EV against the narrowed ranges. */
+/**
+ * The approximate call (A9 on the river; the flop since `analysis/15`):
+ * showdown EV against the narrowed ranges, on the flop times a realisation
+ * factor measured on the flop library.
+ */
 export interface MultiwayEv {
   /** bb, net from the decision: calling against folding (a fold is 0). */
   call: number;
@@ -766,6 +783,13 @@ export interface MultiwayEv {
   capped: Grade | null;
   /** The grade on the half-strength narrowing; null when not run. */
   sensitivity: { model: string; grade: Grade } | null;
+  /**
+   * Flop only (`analysis/15`): the realisation table (`floplib-r/1`), the
+   * hero's category (`made|d` / `made|nd`), the factor applied (averaged over
+   * the ways the players to act answer), how often the hero is last to act
+   * after the call, and the margin of the pot the grade forgives.
+   */
+  realisation?: { model: string; category: string; factor: number; ip: number; margin: number };
 }
 
 /**

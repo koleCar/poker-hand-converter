@@ -221,7 +221,7 @@ export const courseEn = {
     "flop-mapped":
       "The flop drills here are dealt from Rail's flop library: twelve heads-up 6-max 100bb lines, each solved on 100 representative flops. A drill's flop is one of those, so it is graded combo for combo. Your own hands on any other flop are read from the nearest solved flop by hand category, and the analysis marks those grades as mapped.",
     "multiway-heuristic":
-      "Rail's flop library is heads-up. Multiway flops are read by the analysis' heuristic and the minimum-defence split, with facts and flags but no solver grade, so this lesson's practice is arithmetic and your own hands.",
+      "Rail's flop library is heads-up. Multiway flops are read by the analysis' heuristic and the minimum-defence split, with facts and flags but no solver grade (a call or fold facing a bet gets an approximate one), so this lesson's practice is arithmetic and your own hands.",
     "approximate-ranges":
       "Approximate: the ranges here are hand-written teaching ranges or rest on Rail's narrowing model, not on a solve of the whole hand. The direction is what to take away.",
     "turn-tree":

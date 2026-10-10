@@ -10,6 +10,9 @@
  *   is exactly the heads-up walk.
  * - **The approximate river call** against exact enumeration, with and
  *   without a player still to answer; refusals by name; the grade and its cap.
+ * - **The approximate flop call** (`analysis/15`): the realisation table,
+ *   exact against enumeration with nobody to answer, the heads-up answer
+ *   when the player behind always folds, the margin and the cap.
  * - **Heads-up reducible**: the grade equals the heads-up solver run on the
  *   same ranges, and says `multiway-history`.
  * - **Flags, explanations, links, determinism.**
@@ -22,7 +25,14 @@ import { describe, expect, it } from "vitest";
 import {
   analyzeHand,
   callShare,
+  FLOP_MARGIN_POT,
+  FLOP_REALISATION,
+  flopCallEv,
+  flopRealisation,
+  flopRealisationCategory,
   followLine,
+  grade,
+  gradeFlopCall,
   gradeRank,
   gradeRiver,
   gradeRiverCall,
@@ -545,5 +555,124 @@ describe("multiway flags", () => {
 
   it("is deterministic, sampled equities included", () => {
     for (const h of [bluff, draw]) expect(analyzeHand(structuredClone(h), { charts: CHARTS })).toEqual(analyse(h));
+  });
+});
+
+/* ------------------------------------------- the approximate flop call - */
+
+function flopSpot(h: PhfHand, action: string) {
+  const context = buildContext(h);
+  const hero = heroSeatOf(context)!;
+  const spot = heroSpots(context, hero).find((s) => s.street === "flop" && s.decision.type === action)!;
+  const facts = decisionOn(analyzeHand(structuredClone(h), { charts: CHARTS, turn: false }), "flop", action).facts;
+  const seat = (name: string) => h.players.find((p) => p.name === name)!.seat;
+  return { context, hero, spot, facts, seat };
+}
+
+describe("the approximate flop call (analysis/15)", { timeout: 120_000 }, () => {
+  // Flop: the big blind checks, the cutoff bets, the button (the hero) calls; the big blind is still to answer.
+  const behind = hand("Btn", "Ks Jd", [...THREE_WAY, FLOP, "Bb: checks", "Co: bets $4", "Btn: calls $4", "Bb: folds"]);
+  // Flop: the big blind bets, the cutoff calls, the hero closes the action.
+  const closing = hand("Btn", "Ks Jd", [...THREE_WAY, FLOP, "Bb: bets $4", "Co: calls $4", "Btn: calls $4"]);
+  const heroCards = parseCards(["Ks", "Jd"]) as [number, number];
+  const board = parseCards(["Kd", "7c", "2s"]);
+  const coRange = ["Ac Kh", "Qh Qd", "Th Ts", "9s 8s"];
+  const bbRange = ["Kc Qc", "7h 7d", "As 3s", "6c 5c"];
+  const rake = rakeOf(CHARTS);
+  const raked = (pot: number) => pot - Math.min(pot * rake.percent, rake.cap);
+
+  it("reads a realisation factor for every category, in and out of position", () => {
+    const made = ["fh+", "flush", "straight", "set", "trips", "two-pair", "overpair", "tp-top", "tp-good", "tp-weak", "middle", "weak", "ace-high", "nothing"];
+    for (const m of made) {
+      for (const d of ["d", "nd"]) {
+        for (const ip of [true, false]) {
+          const r = flopRealisation(`${m}|${d}`, ip);
+          expect(r).toBeGreaterThan(0.5);
+          expect(r).toBeLessThan(1.5);
+        }
+      }
+    }
+    // A set with a draw is not in the table: it reads the set's no-draw row.
+    expect(flopRealisation("set|d", true)).toBe(FLOP_REALISATION["ip|set|nd"]);
+    expect(flopRealisationCategory(heroCards, board)).toBe("tp-good|nd");
+    expect(flopRealisationCategory(parseCards(["8c", "6c"]) as [number, number], parseCards(["9c", "7d", "2c"]))).toBe("nothing|d");
+    expect(Object.keys(FLOP_REALISATION).every((k) => /^(ip|oop)\|[a-z+-]+\|n?d$/.test(k))).toBe(true);
+  });
+
+  it("is the realised share of the pot against fixed ranges when nobody is left to answer", () => {
+    const { context, hero, spot, facts, seat } = flopSpot(closing, "call");
+    const walk = stubWalk(hero, new Map([[hero, ["Ks Jd"]], [seat("Bb"), bbRange], [seat("Co"), coRange]]));
+    const result = flopCallEv({ spot, facts, hand: closing, context, hero, walk, model: heuristicModel, charts: CHARTS, seed: 1 }) as RiverCallEv;
+    expect(result.ok).toBe(true);
+    expect(result.respond).toEqual([]);
+    const share = bruteForce(["Ks", "Jd"], [bbRange.map((c) => combo(c)), coRange.map((c) => combo(c))], ["Kd", "7c", "2s"]);
+    // The button acts last on the turn: in position.
+    const factor = FLOP_REALISATION["ip|tp-good|nd"];
+    expect(result.realisation).toEqual({ model: "floplib-r/1", category: "tp-good|nd", factor, ip: 1, margin: FLOP_MARGIN_POT });
+    expect(result.equity).toBeCloseTo(share, 2);
+    expect(result.call).toBeCloseTo(factor * share * raked(facts.potBb + facts.toCallBb) - facts.toCallBb, 1);
+  });
+
+  it("is the heads-up answer when the player still to answer (nearly) always folds", () => {
+    const { context, hero, spot, facts, seat } = flopSpot(behind, "call");
+    const walk = stubWalk(hero, new Map([[hero, ["Ks Jd"]], [seat("Bb"), bbRange], [seat("Co"), coRange]]));
+    // A model under which every caller folds: the big blind's answer is a fold.
+    const folds = { id: "folds", likelihood: () => new Float64Array(NUM_COMBOS).fill(1e-9) };
+    const result = flopCallEv({ spot, facts, hand: behind, context, hero, walk, model: folds, charts: CHARTS, seed: 1 }) as RiverCallEv;
+    expect(result.respond.length).toBe(1);
+    expect(result.respond[0].call).toBeLessThan(1e-6);
+    const share = bruteForce(["Ks", "Jd"], [coRange.map((c) => combo(c))], ["Kd", "7c", "2s"]);
+    const factor = FLOP_REALISATION["ip|tp-good|nd"];
+    expect(result.realisation?.ip).toBeCloseTo(1, 6);
+    expect(result.call).toBeCloseTo(factor * share * raked(facts.potBb + facts.toCallBb) - facts.toCallBb, 2);
+    // Under the heuristic model the big blind calls some of the time.
+    const real = flopCallEv({ spot, facts, hand: behind, context, hero, walk, model: heuristicModel, charts: CHARTS, seed: 1 }) as RiverCallEv;
+    expect(real.respond[0].call).toBeGreaterThan(0.05);
+    expect(real.scenarios).toBe(2);
+  });
+
+  it("counts only the EV loss beyond the margin, capped at Mistake, from its own options", () => {
+    const evs: RiverCallEv = { ok: true, call: -0.4, equity: 0.3, pot: 18, respond: [], scenarios: 1, rake: "r" };
+    // Pot 10: the margin is 0.5bb.
+    const near = gradeFlopCall(evs, "call", 10);
+    expect(near.grade).toBe("perfect");
+    expect(near.evLoss).toBe(0);
+    expect(near.approximations).toEqual(["flop-realisation", "multiway-approx", "narrowing-heuristic", "rake-profile"]);
+    const far = gradeFlopCall({ ...evs, call: -1.5 }, "call", 10);
+    expect(far.evLoss).toBeCloseTo(1, 9);
+    expect(far.grade).toBe("mistake");
+    expect(far.ev.capped).toBe("blunder");
+    expect(far.approximations).toContain("range-cap");
+    expect(far.ev.call).toBe(-1.5);
+    expect(far.options.map((o) => o.ev)).toEqual([0, -1]);
+    expect(gradeFlopCall({ ...evs, call: -1.5 }, "fold", 10).grade).toBe("perfect");
+    const mild = gradeFlopCall({ ...evs, call: 0.65 }, "fold", 10);
+    expect(mild.grade).toBe("inaccurate");
+    for (const g of [near, far, mild]) {
+      expect(grade({ options: g.options, chosen: g.chosen, pot: 10, capAtMistake: g.approximations.includes("range-cap") }).grade).toBe(g.grade);
+    }
+  });
+
+  it("grades a three-way flop call and a heads-up one on a multiway flop, labelled, in both languages", () => {
+    const call = decisionOn(analyse(behind), "flop", "call");
+    expect(call.status).toBe("analysed");
+    expect(call.source).toBe("approx");
+    expect(call.approximations).toEqual(expect.arrayContaining(["flop-realisation", "multiway-approx", "narrowing-heuristic"]));
+    expect(call.facts.multiway?.ev?.realisation?.category).toBe("tp-good|nd");
+    expect(gradeRank(call.grade!)).toBeLessThanOrEqual(gradeRank("mistake"));
+    expect(en.analysis.explain(call).join(" ")).toContain("heads-up flop library");
+    expect(hr.analysis.explain(call).join(" ")).toContain("biblioteci flopova");
+    expect(en.analysis.approximations["flop-realisation"]).toBeTruthy();
+    expect(hr.analysis.approximations["flop-realisation"]).toBeTruthy();
+    // The big blind folds before the hero answers the bet: heads-up at the decision, but on no library line.
+    const hu = hand("Btn", "Ks Jd", [...THREE_WAY, FLOP, "Bb: checks", "Co: bets $4", "Bb: folds", "Btn: calls $4"]);
+    const second = decisionOn(analyse(hu), "flop", "call");
+    expect(second.facts.players).toBe(2);
+    expect(second.source).toBe("approx");
+    expect(second.facts.multiway?.ev?.respond).toEqual([]);
+    // Checks stay ungraded multiway.
+    const check = decisionOn(analyse(hand("Bb", "Ks Jd", [...THREE_WAY, ...CHECKED(FLOP)])), "flop", "check");
+    expect(check.status).toBe("not-analysed");
+    expect(check.reason).toBe("multiway");
   });
 });
