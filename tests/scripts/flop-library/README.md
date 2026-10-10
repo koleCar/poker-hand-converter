@@ -83,14 +83,18 @@ decisions in pots three or more saw the turn of, and, under
 `FLOPLIB_TURN_SAMPLE`, every heads-up turn call or fold the turn solver
 grades graded again by the approximate turn call, with its factor and with
 R = 1. `FLOPLIB_TURN_BEFORE=0` skips the turn sample's pass without the
-library (about 40 minutes for 5,448 hands instead of twice that).
+library (about 40 minutes for 5,448 hands instead of twice that). Since
+`analysis/17` it also lists, at the approximate flop and turn grades, the
+preflop lines of the opponents whose range is a placeholder.
 
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 (`realisation.ts`: every node facing a bet, every third combo, exact equity
 against the node's range) and prints it next to the committed table, then
 its held-out agreement with the library (fitted on half the flops, judged on
-the other half) at several margins. About ten minutes for 1,600 chunks.
+the other half) at several margins. All-in calls are measured apart (they
+realise their equity exactly) and left out of the fit (`analysis/17`). About
+ten minutes for 1,700 chunks.
 
 **The turn realisation table.** `npm run floplib:turn-realisation` measures
 `TURN_REALISATION` on Rail's own turn solves (`turnRealisation.ts`): every

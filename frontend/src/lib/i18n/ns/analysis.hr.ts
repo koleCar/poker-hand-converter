@@ -228,7 +228,7 @@ const multiwayReasons = {
   "multiway-crowded": "na bet je trebalo odgovoriti više od tri igrača",
   "multiway-range-unknown": "raspon jednog igrača nije se mogao provesti kroz ruku",
   "multiway-reraise":
-    "ovo je re-raise na turnu, a približni call na turnu počiva na mjerenju turnova s najviše jednim raiseom",
+    "ovo je re-raise na flopu ili turnu, a približni call ondje počiva na mjerenju flopova i turnova s najviše jednim raiseom",
 } as Record<string, string>;
 
 /** Kategorija realizacije na flopu (`made|d`), riječima. */
@@ -280,14 +280,14 @@ function approxSentences(decision: DecisionAnalysis): string[] {
       out.push(
         `Dolazi još jedna karta, pa je udio pota koji će ruka osvojiti taj equity puta ${real.factor.toFixed(2)}: koliko ${realisationWords(real.category)} realizira ${where} protiv beta na turnu, izmjereno na Railovim vlastitim heads-up rješenjima turna.`,
       );
-      if (real.allIn) {
-        out.push(
-          `${real.allIn >= 0.999 ? "Nakon calla" : `U ${pct(real.allIn)} slučajeva nakon calla`} nema više nikoga tko može betati (all-in), pa je udio upravo ono što call osvaja.`,
-        );
-      }
     } else {
       out.push(
         `Dolaze još dvije karte, pa je udio pota koji će ruka osvojiti taj equity puta ${real.factor.toFixed(2)}: koliko ${realisationWords(real.category)} realizira ${where} protiv beta na flopu, izmjereno na Railovoj heads-up biblioteci flopova.`,
+      );
+    }
+    if (real.allIn) {
+      out.push(
+        `${real.allIn >= 0.999 ? "Nakon calla" : `U ${pct(real.allIn)} slučajeva nakon calla`} nema više nikoga tko može betati (all-in), pa je udio upravo ono što call osvaja.`,
       );
     }
     out.push(
@@ -783,7 +783,7 @@ export const analysisHr: Dict["analysis"] = {
     "multiway-side-pot": "Multiway: side pot",
     "multiway-crowded": "Multiway: četiri ili više na potezu",
     "multiway-range-unknown": "Multiway: raspon se nije mogao provesti",
-    "multiway-reraise": "Multiway turn: protiv re-raisea",
+    "multiway-reraise": "Multiway flop ili turn: protiv re-raisea",
     "chart-straddle": "Preflop chartovi: straddle",
     "chart-ante": "Preflop chartovi: ante",
     "chart-players": "Preflop chartovi: heads-up ili 10+ igrača",

@@ -111,7 +111,7 @@ describe("the analysis corpus", () => {
     }
   });
 
-  it("grades multiway flop, turn and river calls and folds approximately, and nothing else multiway (A9, analysis/15, analysis/16)", () => {
+  it("grades multiway flop, turn and river calls and folds approximately, and nothing else multiway (A9, analysis/15, analysis/16, analysis/17)", () => {
     const decisions = RESULTS.flatMap((r) => r.analysis.decisions);
     const approx = decisions.filter((d) => d.source === "approx");
     expect(approx.length).toBeGreaterThan(10);
@@ -128,6 +128,12 @@ describe("the analysis corpus", () => {
       expect(d.approximations.includes("turn-realisation")).toBe(d.street === "turn");
       expect(Boolean(d.facts.multiway?.ev?.realisation)).toBe(d.street !== "river");
       if (d.street !== "river") expect(d.grade).not.toBe("blunder");
+      if (d.street === "flop") expect(d.facts.multiway?.ev?.realisation?.model).toBe("floplib-r/2");
+      // An all-in call ends the betting: no factor (the turn since analysis/16, the flop since analysis/17).
+      if (d.street !== "river" && d.action === "call" && d.facts.allIn) {
+        expect(d.facts.multiway?.ev?.realisation?.factor).toBe(1);
+        expect(d.facts.multiway?.ev?.realisation?.allIn).toBe(1);
+      }
     }
     // Every multiway postflop decision carries its multiway facts.
     for (const d of decisions) {

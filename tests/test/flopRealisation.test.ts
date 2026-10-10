@@ -4,7 +4,7 @@
  * per-node equities are exact (against `equityVsRange` enumerating), every
  * measured combo falls in a category the committed table holds, and the
  * least-squares fit and the agreement measure do what they say on numbers
- * worked by hand. The table itself is measured on the full library by
+ * worked by hand; an all-in call realises its equity exactly (`analysis/17`). The table itself is measured on the full library by
  * `npm run floplib:realisation`.
  */
 
@@ -60,6 +60,20 @@ describe.runIf(existsSync(CHUNK))("the flop realisation measurement", { timeout:
     const own = samples.filter((s) => FLOP_REALISATION[s.key] !== undefined).reduce((t, s) => t + s.w, 0);
     const all = samples.reduce((t, s) => t + s.w, 0);
     expect(own / all).toBeGreaterThan(0.95);
+  });
+
+  it("marks the all-in calls, and they realise their equity exactly (analysis/17: no factor, left out of the fit)", () => {
+    // A 3-bet pot: the flop all-in is within three pots.
+    const threeBet = decodeChunk(readFileSync(join(DIR, "btn-bb-3bet/Ts7h4d.bin")));
+    const samples = chunkSamples(threeBet);
+    expect(chunkSamples(chunk).some((s) => s.allIn)).toBe(false);
+    const allIn = samples.filter((s) => s.allIn);
+    expect(allIn.length).toBeGreaterThan(50);
+    expect(samples.length - allIn.length).toBeGreaterThan(500);
+    // EV(call) - EV(fold) + toCall = equity x raked pot, to the chunk's stored precision.
+    for (const s of allIn) expect(Math.abs(s.y - s.x)).toBeLessThan(0.025);
+    const fit = fitRealisation(allIn.map((s) => ({ ...s, key: "all-in" }))).get("all-in")!;
+    expect(fit.r).toBeCloseTo(1, 2);
   });
 });
 

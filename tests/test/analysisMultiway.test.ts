@@ -15,7 +15,8 @@
  *   when the player behind always folds, the margin and the cap.
  * - **The approximate turn call** (`analysis/16`): the same with the turn's
  *   table; three-way with a certain folder equals the heads-up answer; an
- *   all-in call takes no factor.
+ *   all-in call takes no factor. Since `analysis/17` the flop's call follows
+ *   the same two rules: no factor on an all-in call, a re-raise refused.
  * - **Heads-up reducible**: the grade equals the heads-up solver run on the
  *   same ranges, and says `multiway-history`.
  * - **Flags, explanations, links, determinism.**
@@ -597,7 +598,7 @@ describe("the approximate flop call (analysis/15)", { timeout: 120_000 }, () => 
         for (const ip of [true, false]) {
           const r = flopRealisation(`${m}|${d}`, ip);
           expect(r).toBeGreaterThan(0.5);
-          expect(r).toBeLessThan(1.5);
+          expect(r).toBeLessThan(1.7);
         }
       }
     }
@@ -617,7 +618,7 @@ describe("the approximate flop call (analysis/15)", { timeout: 120_000 }, () => 
     const share = bruteForce(["Ks", "Jd"], [bbRange.map((c) => combo(c)), coRange.map((c) => combo(c))], ["Kd", "7c", "2s"]);
     // The button acts last on the turn: in position.
     const factor = FLOP_REALISATION["ip|tp-good|nd"];
-    expect(result.realisation).toEqual({ model: "floplib-r/1", category: "tp-good|nd", factor, ip: 1, margin: FLOP_MARGIN_POT });
+    expect(result.realisation).toEqual({ model: "floplib-r/2", category: "tp-good|nd", factor, ip: 1, margin: FLOP_MARGIN_POT });
     expect(result.equity).toBeCloseTo(share, 2);
     expect(result.call).toBeCloseTo(factor * share * raked(facts.potBb + facts.toCallBb) - facts.toCallBb, 1);
   });
@@ -660,6 +661,66 @@ describe("the approximate flop call (analysis/15)", { timeout: 120_000 }, () => 
     for (const g of [near, far, mild]) {
       expect(grade({ options: g.options, chosen: g.chosen, pot: 10, capAtMistake: g.approximations.includes("range-cap") }).grade).toBe(g.grade);
     }
+  });
+
+  it("takes no factor where the call leaves nobody to bet against (analysis/17)", () => {
+    // The hero calls the rest of a short stack on the flop.
+    const short = hand(
+      "Btn",
+      "Ks Jd",
+      [...THREE_WAY, FLOP, "Bb: checks", "Co: bets $7.5", "Btn: calls $7.5 and is all-in", "Bb: folds"],
+      { Btn: 10 },
+    );
+    const { context, hero, spot, facts, seat } = flopSpot(short, "call");
+    expect(spot.heroBehind).toBe(spot.toCall);
+    const walk = stubWalk(hero, new Map([[hero, ["Ks Jd"]], [seat("Bb"), bbRange], [seat("Co"), coRange]]));
+    const folds = { id: "folds", likelihood: () => new Float64Array(NUM_COMBOS).fill(1e-9) };
+    const result = flopCallEv({ spot, facts, hand: short, context, hero, walk, model: folds, charts: CHARTS, seed: 1 }) as RiverCallEv;
+    expect(result.realisation?.factor).toBe(1);
+    expect(result.realisation?.allIn).toBe(1);
+    const share = bruteForce(["Ks", "Jd"], [coRange.map((c) => combo(c))], ["Kd", "7c", "2s"]);
+    expect(result.call).toBeCloseTo(share * raked(facts.potBb + facts.toCallBb) - facts.toCallBb, 2);
+    // With chips behind for everyone the factor applies, and no all-in is reported.
+    const deep = flopSpot(behind, "call");
+    const deepWalk = stubWalk(deep.hero, new Map([[deep.hero, ["Ks Jd"]], [deep.seat("Bb"), bbRange], [deep.seat("Co"), coRange]]));
+    const full = flopCallEv({ ...deep, hand: behind, walk: deepWalk, model: folds, charts: CHARTS, seed: 1 }) as RiverCallEv;
+    expect(full.realisation?.factor).toBeCloseTo(FLOP_REALISATION["ip|tp-good|nd"], 3);
+    expect(full.realisation?.allIn).toBeUndefined();
+    const graded = decisionOn(analyse(short), "flop", "call");
+    expect(graded.source).toBe("approx");
+    expect(en.analysis.explain(graded).join(" ")).toContain("nobody to bet against");
+    expect(hr.analysis.explain(graded).join(" ")).toContain("nema više nikoga");
+  });
+
+  it("refuses a call or fold facing a re-raise, by name (analysis/17)", () => {
+    const reraise = hand("Btn", "Ks Jd", [
+      ...THREE_WAY,
+      FLOP,
+      "Bb: bets $4",
+      "Co: calls $4",
+      "Btn: raises $8 to $12",
+      "Bb: raises $20 to $32",
+      "Co: calls $28",
+      "Btn: folds",
+    ]);
+    const refused = decisionOn(analyse(reraise), "flop", "fold");
+    expect(refused.status).toBe("not-analysed");
+    expect(refused.reason).toBe("multiway-reraise");
+    expect(refused.grade).toBeNull();
+    // A re-raise all-in that the hero's call closes needs no factor: graded, the share exact.
+    const shove = hand(
+      "Btn",
+      "Ks Jd",
+      [...THREE_WAY, FLOP, "Bb: bets $4", "Co: folds", "Btn: raises $8 to $12", "Bb: raises $85.5 to $97.5 and is all-in", "Btn: calls $85.5"],
+    );
+    const closing = decisionOn(analyse(shove), "flop", "call");
+    expect(closing.source).toBe("approx");
+    expect(closing.facts.multiway?.ev?.realisation?.factor).toBe(1);
+    expect(closing.facts.multiway?.ev?.realisation?.allIn).toBe(1);
+    // One raise is inside the measured tree: a call of a raise is still graded.
+    const raised = hand("Btn", "Ks Jd", [...THREE_WAY, FLOP, "Bb: bets $4", "Co: raises $8 to $12", "Btn: calls $12", "Bb: folds"]);
+    const call = decisionOn(analyse(raised), "flop", "call");
+    expect(call.source).toBe("approx");
   });
 
   it("grades a three-way flop call and a heads-up one on a multiway flop, labelled, in both languages", () => {

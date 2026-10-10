@@ -125,8 +125,15 @@ import type { Position, Street } from "../phf/types";
  *               the turn of is graded the same way (`turn-realisation`): the
  *               factor measured on Rail's own heads-up turn solves, capped at
  *               Mistake (ANALYSIS-PLAN §10 2026-10-10, multiway turns).
+ *   analysis/17 The flop's approximate call follows the turn's two rules: a
+ *               call that ends the betting (an all-in) takes no factor, and a
+ *               call or fold facing a re-raise is refused (`multiway-reraise`)
+ *               unless the call ends the betting; the flop table is refitted
+ *               without the all-in calls (`floplib-r/2`). Placeholder ranges
+ *               unchanged (ANALYSIS-PLAN §10 2026-10-10, multiway rules and
+ *               placeholder ranges).
  */
-export const ANALYSIS_VERSION = "analysis/16" as const;
+export const ANALYSIS_VERSION = "analysis/17" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -488,9 +495,9 @@ export type TurnSkipReason = (typeof TURN_SKIP_REASONS)[number];
  * - `multiway-crowded`       more than three players still to answer the bet;
  * - `multiway-range-unknown` a player's range could not be walked (no
  *                            preflop line, or emptied by the board);
- * - `multiway-reraise`       (analysis/16) a turn call or fold facing a
- *                            re-raise: the turn's realisation was measured on
- *                            a tree with one raise.
+ * - `multiway-reraise`       a turn (analysis/16) or flop (analysis/17) call
+ *                            or fold facing a re-raise: the realisation
+ *                            factors were measured on trees with one raise.
  */
 export const MULTIWAY_SKIP_REASONS = ["multiway", "multiway-side-pot", "multiway-crowded", "multiway-range-unknown", "multiway-reraise"] as const;
 export type MultiwaySkipReason = (typeof MULTIWAY_SKIP_REASONS)[number];
@@ -799,7 +806,7 @@ export interface MultiwayEv {
   sensitivity: { model: string; grade: Grade } | null;
   /**
    * Flop (`analysis/15`) and turn (`analysis/16`): the realisation table
-   * (`floplib-r/1`, `turnsolve-r/1`), the hero's category (`made|d` /
+   * (`floplib-r/1`, since `analysis/17` `floplib-r/2`; `turnsolve-r/1`), the hero's category (`made|d` /
    * `made|nd`), the factor applied (averaged over
    * the ways the players to act answer), how often the hero is last to act
    * after the call, and the margin of the pot the grade forgives.
@@ -810,7 +817,7 @@ export interface MultiwayEv {
     factor: number;
     ip: number;
     margin: number;
-    /** Turn only, when above 0: how often the call ends the betting (an all-in), where the share takes no factor. */
+    /** When above 0: how often the call ends the betting (an all-in), where the share takes no factor (the turn since `analysis/16`, the flop since `analysis/17`). */
     allIn?: number;
   };
 }
