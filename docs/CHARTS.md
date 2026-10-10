@@ -1138,6 +1138,14 @@ against −7.22). Read on a neighbour, uncharted flat calls lose to the
 placeholder too (−8.67 against −7.97, n = 110); every other line gains
 (−7.63 against −7.78, n = 258). So flat calls keep the placeholder.
 
+**Since `analysis/19`** the analysis reads neither for an opponent's flat
+call of a single raise, or a limp from outside the blinds: those start from
+Rail's population range for the line (`lib/analysis/population.ts`,
+`range-population`), fitted on the shown hands and validated held out
+against the charts, the placeholder and any two cards (ANALYSIS-PLAN §10
+2026-10-10, population callers). The charts' ranges stay what the hero's own
+range, the trainers and the flop library's placement read.
+
 **Loading.** `rareLineChartSets` also lists the `uncoveredDepthSets` of a
 decision the loaded sets refuse as `stack-depth`; a set not loaded is
 skipped.

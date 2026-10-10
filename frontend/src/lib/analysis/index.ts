@@ -149,7 +149,19 @@ export {
   type NarrowStreet,
   type StreetStrength,
 } from "./narrowing";
-export { flopSeats, preflopClassRange, preflopRangeOf, walkRanges, type PlayerRanges, type PreflopClassRange, type RangeApprox, type RangeWalk, type WalkFailure } from "./rangeWalk";
+export {
+  flopSeats,
+  preflopClassRange,
+  preflopRangeOf,
+  walkRanges,
+  type PlayerRanges,
+  type PreflopClassRange,
+  type PreflopRangeOptions,
+  type RangeApprox,
+  type RangeWalk,
+  type WalkFailure,
+} from "./rangeWalk";
+export { POPULATION_RANGES, populationLine, populationRange, type PopulationLine } from "./population";
 export {
   BLUFF_EQUITY_DRAWING,
   BLUFF_EQUITY_RIVER,

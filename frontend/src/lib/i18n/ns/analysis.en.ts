@@ -877,6 +877,8 @@ export const analysisEn = {
       "A player's preflop range is read from the charts at the nearest stack depth that has their line, since no chart covers it at this depth",
     "range-limp-call":
       "A player who limped and then called a raise starts from the default limp range: the charts' calling range there fits what such players show down worse",
+    "range-population":
+      "An opponent who flat-called a raise or limped starts from Rail's population range for that line, fitted on the hands such players show down: real callers and limpers play far wider than the charts",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,

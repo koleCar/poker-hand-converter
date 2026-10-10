@@ -82,7 +82,7 @@ import {
   type NarrowStreet,
   type StreetStrength,
 } from "./narrowing";
-import { flopSeats, preflopRangeOf, type PlayerRanges, type RangeApprox, type RangeWalk, type WalkFailure } from "./rangeWalk";
+import { flopSeats, preflopRangeOf, type PlayerRanges, type PreflopRangeOptions, type RangeApprox, type RangeWalk, type WalkFailure } from "./rangeWalk";
 import { FLOP_PROFILE, flopBucket } from "./flopLibrary";
 import { rakeOf } from "./river";
 import { toIndices } from "./texture";
@@ -168,6 +168,7 @@ export function walkMultiway(
   hero: number,
   charts: ChartSet | null,
   model: NarrowingModel = heuristicModel,
+  rangeOptions: PreflopRangeOptions = {},
 ): MultiWalk | { ok: false; reason: WalkFailure } {
   const seats = flopSeats(context);
   if (seats.length === 0) return { ok: false, reason: "no-flop" };
@@ -179,7 +180,7 @@ export function walkMultiway(
   const approx = new Map<number, RangeApprox[]>();
   const labels = new Map<number, string>();
   for (const seat of seats) {
-    const pre = preflopRangeOf(hand, context, seat, cut, charts);
+    const pre = preflopRangeOf(hand, context, seat, cut, charts, rangeOptions);
     if (!pre) return { ok: false, reason: "range-unknown" };
     ranges.set(seat, pre.range);
     sources.set(seat, pre.source);

@@ -330,7 +330,10 @@ shows them like GTOW's banner:
 - **Sizing:** off-tree bet size (§3.3).
 - **Ranges:** a placeholder preflop range; since `analysis/18` a chart range
   read on a neighbouring depth (`range-neighbour-depth`) or a limp-caller's
-  limp placeholder (`range-limp-call`).
+  limp placeholder (`range-limp-call`); since `analysis/19` an opponent's
+  flat call of a single raise or limp from outside the blinds started from
+  the population range fitted on shown hands (`range-population`, with
+  `placeholder-range`: not the charts').
 - **Source quality:** a heuristic source (§3.6).
 
 A decision is **not analysed** (`status: partial`) when:
@@ -356,7 +359,13 @@ A decision is **not analysed** (`status: partial`) when:
   charted depth instead (`range-neighbour-depth`; not a flat call of a
   single raise, which keeps the placeholder), and a limper who called an
   isolation raise starts from the placeholder limp range
-  (`range-limp-call`; §10 2026-10-10, neighbouring ranges). The rest (flop
+  (`range-limp-call`; §10 2026-10-10, neighbouring ranges). Since
+  `analysis/19` an opponent who flat-called a single raise (a cold call, the
+  big blind's defence), limped from outside the blinds (first in or behind a
+  limper) or limped and called the raise behind starts from Rail's
+  population range for that line instead, ahead of the charts and the
+  placeholder (`range-population`; not the hero's own range, not after a
+  preflop all-in; §10 2026-10-10, population callers). The rest (flop
   and turn checks and bets, river bets and checks) keeps its multiway facts
   and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
@@ -2924,3 +2933,129 @@ Each phase appends what it learned that changed the plan.
       the lever, not more chart depths.
     - Callers at uncovered depths and rare-line callers stay on the
       placeholder; the first limper and the over-limper too (`analysis/17`).
+- 2026-10-10 — Population callers, `analysis/19` (`lib/analysis/population.ts`,
+  `docs/CHARTS.md` §7.2). No migration, no chart regenerated.
+  - **Why.** `analysis/18` found the charts' flat-calling ranges explain the
+    calls players show down worse than the placeholder even at their own
+    depth (cold calls −9.75 against −8.34), and `analysis/17` found nothing
+    narrower than any two cards explains shown limps. Callers and limpers
+    were the largest remaining range error.
+  - **Data.** The opponents' showdowns in the owner's 5,448 hands (the hero
+    left out; no ante, straddle or bomb pot; no preflop all-in), by the
+    line of their last preflop decision: cold calls of a single raise 260,
+    the big blind's defence 256, first limps 116, over-limps 48, limps then
+    calls of the raise 102 (782). Scored as `analysis/17`: mean
+    log-likelihood per combo, a hand outside the range at a twentieth of a
+    uniform combo (any two cards −7.19). `npm run ranges:extract` writes a
+    local file (never committed); `tests/scripts/caller-ranges/` fits and
+    validates on it.
+  - **Candidates**, held out (five folds by player, 256 players; every
+    shown hand predicted by a fit that never saw its player), per line:
+
+    | candidate | cold call | BB defence | first limp | over-limp | limp-call |
+    |---|---|---|---|---|---|
+    | the placeholder | −8.49 | −7.29 | −7.85 | −8.27 | −9.17 |
+    | the charts (own depth, else neighbour; else the placeholder) | −9.65 | −7.95 | −7.40 | −9.06 | −9.30 |
+    | the `analysis/18` reading | −9.36 | −7.80 | −7.85 | −8.27 | −7.85 |
+    | any two cards | −7.19 | −7.19 | −7.19 | −7.19 | −7.19 |
+    | the charts' call + 3-bet (raise) range | −8.91 | −7.73 | −8.17 | −8.97 | −9.16 |
+    | logit on the charts' own EV (σ((EV(best of call, raise) − EV(fold)) / pot − b) / τ), b, τ fitted; with a floor | −7.05 | −7.05 | −6.99 | −7.13 | −7.91 |
+    | **a shape fitted on shown hands** (logistic over nine class features) | **−6.80** | **−6.93** | **−6.90** | −7.17 | **−7.05** |
+
+    The charts' economics, read as a quantal response, beat the placeholder
+    and the charts but barely any two cards (+0.14 on cold calls, +0.14 on
+    the big blind) and lose on limp-calls (the node after a limp is the
+    tremble's). Adding the price, the seat band or the callers before to the
+    fitted shape gains nothing (cold calls −6.83 against −6.84); one shape
+    shared by the lines with a shift per line does as well as one per line
+    (the three limp lines −7.01 either way, the two flat calls −6.90). The
+    shared shape over all five lines shipped.
+  - **The showdown's lean.** Shown hands lean strong. Two corrections, both
+    in the fit: (1) each class's propensity to be shown, measured on the
+    same players' 312 shown open-raises against the charts' open ranges
+    (relative: AA 3.9, AKs 3.7, QJs 2.5, 22 1.3, K7o 1.1, 72o 0.8) - the fit
+    maximises the likelihood of range × propensity and stores the range;
+    (2) each shown hand weighted by how often its player plays the line
+    against how often they show it down (capped at 4), so loose players who
+    reach showdown often do not stand for everyone. The corrected ranges are
+    wider (cold call about 430 → 540 combos) and score the same held out.
+  - **Shipped: `population/1`**, 14 numbers (`population.ts`), no hand and
+    nothing per player stored. Widths: cold call 540 combos (41%), the big
+    blind 623 (47%), first limp 729, limp-call 712, over-limp 778. Pairs and
+    suited hands high, offsuit trash low; big pairs below small ones on the
+    flat lines (they re-raise: AA 43% of a cold call, 22 62%). Held out, as
+    shipped (corrections on; five folds by player; Δ ± standard error
+    clustered by player):
+
+    | line | n | `population/1` | Δ placeholder | Δ charts | Δ `analysis/18` | Δ any two |
+    |---|---|---|---|---|---|---|
+    | cold call | 260 | −6.86 | +1.63 ± 0.16 | +2.79 ± 0.10 | +2.50 ± 0.11 | +0.33 ± 0.03 |
+    | BB defence | 256 | −6.94 | +0.35 ± 0.09 | +1.01 ± 0.12 | +0.86 ± 0.11 | +0.25 ± 0.03 |
+    | first limp | 116 | −6.96 | +0.89 ± 0.18 | +0.44 ± 0.08 | +0.89 ± 0.18 | +0.23 ± 0.03 |
+    | over-limp | 48 | −7.09 | +1.18 ± 0.28 | +1.96 ± 0.15 | +1.18 ± 0.28 | +0.10 ± 0.06 |
+    | limp-call | 102 | −7.00 | +2.17 ± 0.21 | +2.30 ± 0.17 | +0.85 ± 0.18 | +0.19 ± 0.04 |
+    | all | 782 | −6.93 | +1.14 ± 0.09 | +1.74 ± 0.07 | +1.43 ± 0.07 | +0.26 ± 0.02 |
+
+    Split by date instead (fitted on the hands before 2026-02-08, judged
+    on the rest, and the other way round): all +1.14 ± 0.09 over the
+    placeholder, +1.42 ± 0.07 over `analysis/18`, +0.25 ± 0.02 over any two
+    cards; over-limp +0.04 ± 0.08 over any two. Under a proper score (95%
+    the range, 5% uniform) and with the propensity applied to every
+    candidate the differences are the same within 0.05. Every line clears
+    the placeholder, the charts and the `analysis/18` reading by more than 3
+    standard errors; the over-limp is not clearly better than any two cards.
+  - **What reads it.** `preflopClassRange(..., { populationHero })`: every
+    seat but the hero whose line is a flat call of a single raise, a limp
+    from outside the blinds (first in or behind a limper) or such a limp
+    then a call of the raise starts from its line's range, ahead of the
+    charts, the neighbouring depth and the placeholder; NLHE cash with no
+    ante, straddle, bomb pot or preflop all-in before the decision only.
+    Source `placeholder` (not the charts'), label `cold-call:BTN` etc.,
+    flag `range-population` (EN/HR). The analysis passes it to the walks
+    (heads-up and multiway) and the equity facts. Unchanged: the hero's own
+    range, the trainers' walks (they ask for no population), the small
+    blind's completion and the big blind's check (blind against blind, the
+    charts'), and the flop library's placement (a heads-up flop the library
+    answers is narrowed by its chunk, solved from the charts' ranges).
+    Checked on the final code: the 782 shown opponents −8.36 → −6.92 (Δ
+    +1.44 ± 0.07), every one of them read from the population range.
+  - **Measured on the owner's library** (`npm run ranges:measure`: the
+    5,448 hands, flop library and turn solving on; the 585 hands where an
+    opponent who saw the flop with the hero reads a population range - 288
+    heads-up, 297 multiway; 829 such opponents: cold calls 296, the big
+    blind 231, first limps 155, over-limps 76, limp-calls 71 - analysed with
+    `analysis/18` and `analysis/19` side by side, 2,123 hero decisions
+    compared one by one):
+    - preflop does not move (587 decisions; no preflop equity fact reads a
+      population range: they face an all-in);
+    - 1,294 postflop decisions carry the new flag (flop 516, turn 494, river
+      284); 865 equity facts change (flop 450, turn 283, river 132), the
+      hero's equity up 3.3, 3.9 and 2.1 points on average: wider callers;
+    - graded: flop 200 → 200, turn 356 → 361, river 236 → 235 (six turns
+      and two rivers solved that were not, one turn and three rivers no
+      longer solved: lines the new ranges never take); 123 grades change
+      class (flop 5, turn 68, river 50) - the flop's five are multiway
+      approximate Mistakes that become Perfect;
+    - Perfect flop 171 → 176, turn 269 → 277, river 174 → 174; Mistake flop
+      11 → 6, turn 35 → 30, river 18 → 11; EV loss flop 16.5 → 7.1bb, turn
+      53.5 → 43.9bb, river 83.9 → 40.4bb (five river spots of 6-17bb become
+      Perfect or Good: against a wider caller the hero's value bet, raise or
+      check was right).
+  - `ANALYSIS_VERSION` `analysis/19`. Tests (`analysisRanges`): the stored
+    fit (weights in 0..1, widths, shape); the line of each seat (cold call,
+    big blind, first limp, over-limp, limp-call; not the blinds' limp, not
+    after an all-in); opponents only, and only when asked; the heads-up
+    walk and the decision carry the flag in both languages; a limp-caller
+    through the multiway walk.
+  - **Open.**
+    - The fit is one player's opponents (the owner's cash games, around
+      $0.50/$1): a population, not a player. The learner's own villain
+      statistics (VPIP − PFR, limp and cold-call frequency), once the
+      analysis is handed them, should widen or narrow these per villain.
+    - Shown hands still lean to players and hands that reach showdown; the
+      two corrections use the opens as a yardstick, which assumes the
+      showdown leans the same way after a call as after a raise.
+    - Heads-up flops the library answers keep the charts' ranges through
+      the chunk; reading the population there needs chunks solved from it.
+    - Other lines (3-bets, calls of 3-bets, isolations) stay on the charts:
+      `analysis/18` found them about even or better there.
