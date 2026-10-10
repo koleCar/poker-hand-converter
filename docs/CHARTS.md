@@ -1092,9 +1092,10 @@ stands.
 - **The cap.** Depth moves the 3-bet and squeeze sizes' consequences, so a
   close mix at the neighbour is not a precise reference: the grade can say
   Perfect, Good or Inaccurate, never Mistake or Blunder.
-- **Ranges are not read this way.** Only grading asks for it: the opponents'
-  chart ranges (`chartRange`) and the flop library's placement keep the
-  answering set's nodes, so a hand's postflop ranges never mix depths.
+- **Ranges.** Until `analysis/18` only grading asked for it. Since then the
+  postflop walks' preflop ranges are read this way too, except flat calls
+  (§7.2); the flop library's placement still keeps the answering set's
+  nodes, so a heads-up pot that reads the library never mixes depths.
 
 **Loading.** Whether a line is rare is only known from the set that answers
 it, so the app loads a hand's sets in two steps: `requiredChartSets`, then
@@ -1112,6 +1113,34 @@ Inaccurate 9 - 7 of them capped from a loss of 3-28% of the pot), one becomes
 Graded 4,727 -> 4,846 (87.7% -> 89.9%); 225.1 -> 230.3 bb lost. The 46
 left are 9-max lines for the most part (43), where the 150bb set leaves the
 line out too and there is no shallower 9-max set.
+
+### 7.2 Preflop ranges on a neighbouring depth (`analysis/18`)
+
+The postflop walks (`rangeWalk.ts`, `multiway.ts`) and the equity facts start
+each player from `preflopClassRange`, which asks `chartRange(...,
+WALK_RANGE_OPTIONS)`: the lookup with `rareLineDepth` (§7.1) and
+`uncoveredDepth` - a spot whose effective stack no set of its table covers
+(`pickChartSet`'s `stack-depth`: 6-max 72-80bb, under 32bb or over 240bb;
+9-max under 80bb or over 240bb) is replayed on the nearest charted depth
+below and the nearest above (`uncoveredDepthSets`, nearest first by depth
+ratio, never further; a 9-max 50bb spot reads the 100bb set). The range
+carries `range-neighbour-depth`.
+
+**Not for a flat call of a single raise** (a cold call, the big blind's
+defence). Checked on the opponents' shown hands in the owner's library
+(mean log-likelihood per combo, a hand outside the range at a twentieth of
+a uniform combo; ANALYSIS-PLAN §10 2026-10-10, neighbouring ranges): on
+charted lines the neighbouring depth's range scores like the line's own
+chart (−7.724 against −7.693, n = 911), but the charts' flat-calling ranges
+explain shown calls far worse than the placeholder even at their own depth
+(cold calls: 9% of shown hands held, −9.75 against −8.34; big blind −7.89
+against −7.22). Read on a neighbour, uncharted flat calls lose to the
+placeholder too (−8.67 against −7.97, n = 110); every other line gains
+(−7.63 against −7.78, n = 258). So flat calls keep the placeholder.
+
+**Loading.** `rareLineChartSets` also lists the `uncoveredDepthSets` of a
+decision the loaded sets refuse as `stack-depth`; a set not loaded is
+skipped.
 
 ## 8. Results
 

@@ -94,6 +94,7 @@ export {
   type LookupOptions,
   type PreflopActionInput,
   type PreflopSpot,
+  uncoveredDepthSets,
 } from "./lookup";
 export { preflopSpotFromHand, rareLineChartSets, requiredChartSets, type SpotFromHandResult } from "./fromHand";
 export {

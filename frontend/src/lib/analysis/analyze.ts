@@ -65,8 +65,8 @@ import { potTypeOf } from "../stats/derive";
 import { gradeRank, worstGrade, worstSeverity, meanScore } from "./grading";
 import { heuristicFlags } from "./heuristics";
 import { halved, heuristicModel, weightedCombos, type NarrowingModel } from "./narrowing";
-import { chartRange, chartsModelStraddle, gradePreflop } from "./preflop";
-import { flopSeats, walkRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
+import { chartsModelStraddle, gradePreflop } from "./preflop";
+import { flopSeats, preflopClassRange, walkRanges, type RangeApprox, type RangeWalk, type WalkFailure } from "./rangeWalk";
 import {
   flopCallEv,
   gradeFlopCall,
@@ -297,6 +297,8 @@ interface BuiltFacts {
   cannotLose: boolean;
   beatsNoHolding: boolean;
   noMoreCards: boolean;
+  /** How the equity fact's preflop range was approximated (analysis/18); empty for a narrowed one. */
+  rangeApprox: RangeApprox[];
 }
 
 /**
@@ -365,6 +367,7 @@ function buildFacts(
   let cannotLose = false;
   let beatsNoHolding = false;
   let equity: SpotFacts["equity"] = null;
+  let rangeApprox: RangeApprox[] = [];
 
   const opponentAllIn = spot.opponents.length > 0 && spot.opponents.every((opponent) => opponent.allIn);
   const callAllIn = toCall > 0 && toCall >= spot.heroBehind;
@@ -413,11 +416,12 @@ function buildFacts(
           : postflop && multi
             ? (multi.before(spot.action.index)?.get(villain) ?? null)
             : null;
-      const fromCharts = narrowed ? null : chartRange(hand, villain, spot.action.index, options.charts);
+      // The preflop range as the walks read it (`preflopClassRange`, analysis/18).
+      const preflop = narrowed ? null : preflopClassRange(hand, context, villain, spot.action.index, options.charts);
       const range: ClassWeights | WeightedCombo[] = narrowed
         ? weightedCombos(narrowed)
-        : fromCharts
-          ? fromCharts.range
+        : preflop
+          ? preflop.range
           : defaultRange(line, villainPosition).range;
       const result = equityVsRange({ hero: holeCodes, range, board: spot.board, seed });
       if (result.combos > 0) {
@@ -428,12 +432,13 @@ function buildFacts(
         }
         equity = {
           value: round3(result.equity),
-          range: `${line}:${villainPosition ?? "?"}`,
-          source: narrowed ? "narrowed" : fromCharts ? "chart" : "placeholder",
+          range: preflop?.label ?? `${line}:${villainPosition ?? "?"}`,
+          source: narrowed ? "narrowed" : (preflop?.source ?? "placeholder"),
           combos: result.combos,
           method: result.method,
           strong,
         };
+        rangeApprox = preflop?.approx ?? [];
       }
     }
   }
@@ -468,7 +473,7 @@ function buildFacts(
     equity,
     chart: null,
   };
-  return { facts, cannotLose, beatsNoHolding, noMoreCards };
+  return { facts, cannotLose, beatsNoHolding, noMoreCards, rangeApprox };
 }
 
 /* ---------------------------------------------------------------- river - */
@@ -1307,6 +1312,11 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
     // A heads-up solve of a pot that was multiway earlier (A9).
     if (solved?.ok && walk?.multiway) approximations.add("multiway-history");
     if (mw && mw.opponents.some((o) => o.source === "placeholder")) approximations.add("placeholder-range");
+    // How those preflop ranges were read (analysis/18), wherever the placeholder's flag would be asked.
+    if (facts.equity && facts.equity.source !== "narrowed") for (const item of built.rangeApprox) approximations.add(item);
+    if (walk && (solved?.ok || facts.equity?.source === "narrowed")) for (const item of walk.approx.villain) approximations.add(item);
+    if (solved?.ok && walk) for (const item of walk.approx.hero) approximations.add(item);
+    if (mw) for (const opponent of mw.opponents) for (const item of opponent.approx ?? []) approximations.add(item);
 
     // Preflop: the charts, or the reason they cannot answer.
     const chart =

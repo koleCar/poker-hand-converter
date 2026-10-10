@@ -8,7 +8,7 @@
  */
 
 import { assignPositions, isPostingAction, type PhfHand, type Position } from "../phf/types";
-import { lookupPreflop, rareLineDepthSets, type PreflopActionInput, type PreflopSpot } from "./lookup";
+import { lookupPreflop, rareLineDepthSets, uncoveredDepthSets, type PreflopActionInput, type PreflopSpot } from "./lookup";
 import { CHART_SETS, pickChartSet, type ChartLibrary, type ChartSetSpec } from "./registry";
 
 export type SpotFromHandResult =
@@ -137,12 +137,16 @@ export function requiredChartSets(hand: PhfHand, specs: readonly ChartSetSpec[] 
 }
 
 /**
- * The neighbouring-depth sets (`rareLineDepthSets`) a hand's `rare-line`
- * decisions are read on when graded (`LookupOptions.rareLineDepth`). Whether
- * a line is rare is only known from the set that answers it, so this needs
- * the sets `requiredChartSets` lists already loaded: a caller loads those
- * first, then these. Every player's decisions are read, like
- * `requiredChartSets`, so whichever seat is graded finds its set.
+ * The neighbouring-depth sets a hand's decisions may be read on: those of its
+ * `rare-line` decisions (`rareLineDepthSets`), read there when graded
+ * (`LookupOptions.rareLineDepth`) and for the opponents' ranges, and, since
+ * analysis/18, those of decisions at a depth no set covers
+ * (`uncoveredDepthSets`), read there for the opponents' ranges only
+ * (`LookupOptions.uncoveredDepth`). Whether a line is rare is only known
+ * from the set that answers it, so this needs the sets `requiredChartSets`
+ * lists already loaded: a caller loads those first, then these. Every
+ * player's decisions are read, like `requiredChartSets`, so whichever seat is
+ * graded or walked finds its set.
  */
 export function rareLineChartSets(hand: PhfHand, library: ChartLibrary): string[] {
   const out = new Set<string>();
@@ -151,6 +155,10 @@ export function rareLineChartSets(hand: PhfHand, library: ChartLibrary): string[
       const found = preflopSpotFromHand(hand, nth, player.seat);
       if (!found.ok) break;
       const lookup = lookupPreflop(library, found.spot, null, null);
+      if (!lookup.ok && lookup.reason === "stack-depth") {
+        for (const spec of uncoveredDepthSets(library.specs, found.spot)) out.add(spec.id);
+        continue;
+      }
       if (lookup.ok || lookup.reason !== "rare-line") continue;
       const pick = pickChartSet(library.specs, found.spot);
       if (!pick.ok) continue;

@@ -100,9 +100,9 @@ export type ChartMissReason =
   | "unavailable";
 
 export interface ChartApproximation {
-  kind: "sizing" | "stack-depth" | "short-handed" | "rare-line-depth";
+  kind: "sizing" | "stack-depth" | "short-handed" | "rare-line-depth" | "uncovered-depth";
   detail: string;
-  /** Stack depth and rare-line depth: the chart set that answered (`ChartSet.id`). */
+  /** Stack depth, rare-line depth and uncovered depth: the chart set that answered (`ChartSet.id`). */
   set?: string;
   position?: Position;
   realBb?: number;
@@ -248,10 +248,19 @@ export interface LookupOptions {
    * A line the answering set leaves out (`rare-line`) is read on the
    * neighbouring depth of the same table that charts it (`rareLineDepthSets`),
    * with the `rare-line-depth` approximation (docs/CHARTS.md §7.1). Only for a
-   * library, and only for grading: the opponents' chart ranges stay on the
-   * answering set's nodes.
+   * library: grading asks for it, and since analysis/18 the postflop walks'
+   * preflop ranges (`chartRange` with `neighbourDepth`, §7.2); the flop
+   * library's placement never does.
    */
   rareLineDepth?: boolean;
+  /**
+   * A spot at an effective stack no set of its table covers (`stack-depth`)
+   * is read on the nearest charted depth below or above it
+   * (`uncoveredDepthSets`), with the `uncovered-depth` approximation. Only for
+   * a library, and only for the opponents' preflop ranges (`chartRange`,
+   * analysis/18): grading still refuses the spot.
+   */
+  uncoveredDepth?: boolean;
 }
 
 /**
@@ -276,6 +285,29 @@ export function rareLineDepthSets(
 }
 
 /**
+ * The sets a spot at a depth no set covers (`pickChartSet`'s `stack-depth`)
+ * may be read on (`LookupOptions.uncoveredDepth`): the table `pickChartSet`
+ * would pick (the smallest with enough seats, no straddle), its nearest
+ * charted depth below the effective stack and its nearest above - never
+ * further - nearest first by depth ratio. Empty for a straddled spot or a
+ * table no set has.
+ */
+export function uncoveredDepthSets(specs: readonly ChartSetSpec[], spot: PreflopSpot): ChartSetSpec[] {
+  if (spot.straddle) return [];
+  const plain = specs.filter((s) => !s.straddle);
+  const k = spot.positions.length;
+  const seats = plain.map((s) => s.players).filter((n) => n >= k);
+  if (k < 3 || !seats.length) return [];
+  const table = Math.min(...seats);
+  const effectiveBb = effectiveStackBb(spot);
+  const same = plain.filter((s) => s.players === table);
+  const below = same.filter((s) => s.stackBb < effectiveBb).sort((a, b) => b.stackBb - a.stackBb)[0];
+  const above = same.filter((s) => s.stackBb >= effectiveBb).sort((a, b) => a.stackBb - b.stackBb)[0];
+  const ratio = (s: ChartSetSpec) => Math.abs(Math.log(s.stackBb / Math.max(effectiveBb, 1e-9)));
+  return [below, above].filter((s): s is ChartSetSpec => s !== undefined).sort((a, b) => ratio(a) - ratio(b));
+}
+
+/**
  * Looks up the chart node for a hero decision and, given the hero's hand, its
  * options. `heroAction` is the hero's real decision: it selects `chosen` and
  * adds the hero's own sizing approximation.
@@ -292,6 +324,9 @@ export function lookupPreflop(
     const pick = pickChartSet(charts.specs, spot);
     if (!pick.ok && pick.reason === "straddle") return miss("straddle", pick.detail);
     if (spot.ante) return miss("ante", "antes are not modelled by the cash charts");
+    if (!pick.ok && pick.reason === "stack-depth" && options.uncoveredDepth) {
+      return readAtUncoveredDepth(charts, spot, hand, heroAction) ?? miss(pick.reason, pick.detail);
+    }
     if (!pick.ok) return miss(pick.reason, pick.detail);
     const set = charts.sets.get(pick.spec.id);
     if (!set) return miss("unavailable", `chart set ${pick.spec.id} is not loaded`);
@@ -336,6 +371,41 @@ function readAtNeighbouringDepth(
         {
           kind: "rare-line-depth",
           detail: `the ${spec.stackBb}bb set leaves this line out; read on the ${other.stackBb}bb set, which charts it (effective stack ${round2(effectiveBb)}bb)`,
+          set: other.id,
+          realBb: round2(effectiveBb),
+          chartBb: other.stackBb,
+        },
+        ...found.approximations,
+      ],
+    };
+  }
+  return null;
+}
+
+/**
+ * A spot at a depth no set covers, read on the nearest charted depth below
+ * or above (`uncoveredDepthSets`): the first loaded set that reaches a node,
+ * or null. Like `readAtNeighbouringDepth`, the node passed that set's own
+ * rules; the depth is what is approximate (`uncovered-depth`).
+ */
+function readAtUncoveredDepth(
+  library: ChartLibrary,
+  spot: PreflopSpot,
+  hand?: string | readonly string[] | null,
+  heroAction?: PreflopActionInput | null,
+): ChartLookup | null {
+  const effectiveBb = effectiveStackBb(spot);
+  for (const other of uncoveredDepthSets(library.specs, spot)) {
+    const set = library.sets.get(other.id);
+    if (!set) continue;
+    const found = lookupInSet(set, spot, hand, heroAction, false);
+    if (!found.ok) continue;
+    return {
+      ...found,
+      approximations: [
+        {
+          kind: "uncovered-depth",
+          detail: `no ${other.players}-max set covers an effective stack of ${round2(effectiveBb)}bb; read on the ${other.stackBb}bb set`,
           set: other.id,
           realBb: round2(effectiveBb),
           chartBb: other.stackBb,

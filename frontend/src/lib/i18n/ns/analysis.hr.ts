@@ -847,6 +847,10 @@ export const analysisHr: Dict["analysis"] = {
     "turn-realisation":
       "Turn: udio pota koji će ruka osvojiti je njezin equity puta faktor izmjeren na Railovim vlastitim heads-up rješenjima turna, po poziciji i kategoriji ruke; računa se samo gubitak EV-a veći od 5% pota",
     "multiway-history": "Flop su vidjela tri ili više igrača: riješeno heads-up od trenutka kad je pot postao heads-up, na rasponima suženima kroz multiway streetove",
+    "range-neighbour-depth":
+      "Preflop raspon igrača očitan je iz chartova na najbližoj dubini stacka koja ima njegovu liniju, jer ga na ovoj dubini nijedan chart ne pokriva",
+    "range-limp-call":
+      "Igrač koji je limpao pa callao raise počinje od zadanog limp raspona: raspon callanja iz chartova tamo lošije odgovara rukama koje takvi igrači pokažu",
   } as Record<string, string>,
 
   severity: { note: "Bilješka", inaccurate: "Netočno" } as Record<string, string>,
