@@ -17,6 +17,8 @@
     "floplib:realisation": "vitest run --config scripts/flop-library/vitest.config.ts flop-library/realisation",
     "floplib:turn-realisation": "vitest run --config scripts/flop-library/vitest.config.ts flop-library/turnRealisation",
     "floplib:bets": "vitest run --config scripts/flop-library/vitest.config.ts flopBets",
+    "ranges:extract": "vitest run --config scripts/caller-ranges/vitest.config.ts extract",
+    "ranges:measure": "vitest run --config scripts/caller-ranges/vitest.config.ts measure",
     "learn:directions": "vitest run --config scripts/learn-directions/vitest.config.ts directions",
     "learn:lab": "vitest run --config scripts/learn-directions/vitest.config.ts lab"
   },

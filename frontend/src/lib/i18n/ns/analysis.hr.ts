@@ -851,6 +851,8 @@ export const analysisHr: Dict["analysis"] = {
       "Preflop raspon igrača očitan je iz chartova na najbližoj dubini stacka koja ima njegovu liniju, jer ga na ovoj dubini nijedan chart ne pokriva",
     "range-limp-call":
       "Igrač koji je limpao pa callao raise počinje od zadanog limp raspona: raspon callanja iz chartova tamo lošije odgovara rukama koje takvi igrači pokažu",
+    "range-population":
+      "Protivnik koji je flat-callao raise ili limpao počinje od Railova populacijskog raspona za tu liniju, prilagođenog rukama koje takvi igrači pokažu: stvarni calleri i limperi igraju znatno šire od chartova",
   } as Record<string, string>,
 
   severity: { note: "Bilješka", inaccurate: "Netočno" } as Record<string, string>,

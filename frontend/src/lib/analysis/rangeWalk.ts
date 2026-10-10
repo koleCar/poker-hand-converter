@@ -26,6 +26,7 @@ import type { ClassWeights } from "../equity/range";
 import type { PhfHand, Position } from "../phf/types";
 import type { StatsContext } from "../stats/context";
 import { comboRange, heuristicModel, narrow, removeCards, rangeWeight, streetStrength, type NarrowAction, type NarrowingModel, type NarrowStreet, type StreetStrength } from "./narrowing";
+import { populationLine, populationRange } from "./population";
 import { chartRange, WALK_RANGE_OPTIONS } from "./preflop";
 import { defaultRange, preflopLine } from "./ranges";
 import { toIndices } from "./texture";
@@ -95,9 +96,21 @@ export function flopSeats(context: StatsContext): number[] {
  * How a preflop range was approximated beyond its source (analysis/18):
  * `range-neighbour-depth` a chart range read on a neighbouring depth
  * (`ChartRangeOptions.neighbourDepth`); `range-limp-call` a limper who
- * called an isolation raise, started from the placeholder limp range.
+ * called an isolation raise, started from the placeholder limp range;
+ * (analysis/19) `range-population` an opponent's flat call or limp, started
+ * from the population range fitted on shown hands (`population.ts`).
  */
-export type RangeApprox = "range-neighbour-depth" | "range-limp-call";
+export type RangeApprox = "range-neighbour-depth" | "range-limp-call" | "range-population";
+
+/** What the analysis asks of the preflop ranges beyond the charts (analysis/19). */
+export interface PreflopRangeOptions {
+  /**
+   * The hero's seat: every other seat whose line is a flat call of a single
+   * raise or a limp from outside the blinds starts from the population range
+   * (`population.ts`, `range-population`). Unset - the trainers - nobody does.
+   */
+  populationHero?: number;
+}
 
 export interface PreflopClassRange {
   range: ClassWeights;
@@ -136,7 +149,10 @@ function limpedThenCalled(context: StatsContext, seat: number, position: Positio
  * limper who called an isolation raise starts from the placeholder limp
  * range, not the `call` one (`range-limp-call`, analysis/18: it explains the
  * hands such players show down far better, and better than the limp range
- * times the charts' call frequency there).
+ * times the charts' call frequency there). Since analysis/19, with
+ * `options.populationHero`, an opponent's flat call or limp starts from the
+ * population range ahead of both (`range-population`; the source stays
+ * `placeholder`: not the charts').
  */
 export function preflopClassRange(
   hand: PhfHand,
@@ -144,10 +160,17 @@ export function preflopClassRange(
   seat: number,
   beforeIndex: number,
   charts: ChartSet | null,
+  options: PreflopRangeOptions = {},
 ): PreflopClassRange | null {
   const line = preflopLine(context, seat);
   const position = (context.position.get(seat) ?? null) as Position | null;
   const label = `${line}:${position ?? "?"}`;
+  if (options.populationHero !== undefined && seat !== options.populationHero) {
+    const population = populationLine(hand, context, seat, beforeIndex);
+    if (population) {
+      return { range: populationRange(population), source: "placeholder", label: `${population}:${position ?? "?"}`, approx: ["range-population"] };
+    }
+  }
   const fromCharts = chartRange(hand, seat, beforeIndex, charts, WALK_RANGE_OPTIONS);
   if (fromCharts) return { range: fromCharts.range, source: "chart", label, approx: [...fromCharts.approx] };
   if (line === "unknown") return null;
@@ -164,8 +187,9 @@ export function preflopRangeOf(
   seat: number,
   beforeIndex: number,
   charts: ChartSet | null,
+  options: PreflopRangeOptions = {},
 ): PreflopRange | null {
-  const found = preflopClassRange(hand, context, seat, beforeIndex, charts);
+  const found = preflopClassRange(hand, context, seat, beforeIndex, charts, options);
   return found ? { ...found, range: comboRange(found.range) } : null;
 }
 
@@ -180,6 +204,7 @@ export function walkRanges(
   villain: number,
   charts: ChartSet | null,
   model: NarrowingModel = heuristicModel,
+  rangeOptions: PreflopRangeOptions = {},
 ): RangeWalk | { ok: false; reason: WalkFailure } {
   const seats = flopSeats(context);
   if (seats.length === 0) return { ok: false, reason: "no-flop" };
@@ -188,8 +213,8 @@ export function walkRanges(
   }
   const firstPostflop = hand.actions.find((action) => action.street !== "preflop" && action.street !== "showdown");
   const cut = firstPostflop?.index ?? Number.MAX_SAFE_INTEGER;
-  const heroPre = preflopRangeOf(hand, context, hero, cut, charts);
-  const villainPre = preflopRangeOf(hand, context, villain, cut, charts);
+  const heroPre = preflopRangeOf(hand, context, hero, cut, charts, rangeOptions);
+  const villainPre = preflopRangeOf(hand, context, villain, cut, charts, rangeOptions);
   if (!heroPre || !villainPre) return { ok: false, reason: "range-unknown" };
 
   let ranges: PlayerRanges = { hero: heroPre.range, villain: villainPre.range };

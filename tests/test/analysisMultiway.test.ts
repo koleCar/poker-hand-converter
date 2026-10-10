@@ -472,7 +472,8 @@ describe("heads-up reducible spots", { timeout: 120_000 }, () => {
     // The same solve by hand, from `headsUpWalk`.
     const context = buildContext(h);
     const hero = heroSeatOf(context)!;
-    const walk = headsUpWalk(walkMultiway(h, context, hero, CHARTS) as MultiWalk)!;
+    // As the analysis walks it: opponents' flat calls on the population range (analysis/19).
+    const walk = headsUpWalk(walkMultiway(h, context, hero, CHARTS, undefined, { populationHero: hero }) as MultiWalk)!;
     expect(walk.multiway?.headsUpFrom).toBe("turn");
     const spots = heroSpots(context, hero);
     const spot = spots.find((s) => s.street === "river" && s.decision.type === "call")!;

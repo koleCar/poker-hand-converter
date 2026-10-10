@@ -417,7 +417,7 @@ function buildFacts(
             ? (multi.before(spot.action.index)?.get(villain) ?? null)
             : null;
       // The preflop range as the walks read it (`preflopClassRange`, analysis/18).
-      const preflop = narrowed ? null : preflopClassRange(hand, context, villain, spot.action.index, options.charts);
+      const preflop = narrowed ? null : preflopClassRange(hand, context, villain, spot.action.index, options.charts, { populationHero: hero });
       const range: ClassWeights | WeightedCombo[] = narrowed
         ? weightedCombos(narrowed)
         : preflop
@@ -496,7 +496,7 @@ function rangeWalkOf(
   }
   if (seats.length !== 2 || !seats.includes(hero)) return { ok: false, reason: seats.length === 0 ? "no-flop" : "multiway-flop" };
   try {
-    return walkRanges(hand, context, hero, seats[0] === hero ? seats[1] : seats[0], charts, model);
+    return walkRanges(hand, context, hero, seats[0] === hero ? seats[1] : seats[0], charts, model, { populationHero: hero });
   } catch {
     return { ok: false, reason: "range-empty" };
   }
@@ -513,7 +513,7 @@ function multiWalkOf(
   const seats = flopSeats(context);
   if (seats.length <= 2 || !seats.includes(hero)) return null;
   try {
-    return walkMultiway(hand, context, hero, charts, model);
+    return walkMultiway(hand, context, hero, charts, model, { populationHero: hero });
   } catch {
     return { ok: false, reason: "range-empty" };
   }
