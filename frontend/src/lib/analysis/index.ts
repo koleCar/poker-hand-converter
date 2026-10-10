@@ -82,6 +82,7 @@ export {
   type RiverRole,
   type RiverSkipReason,
   type SpotFacts,
+  type VillainFact,
   type SuitTexture,
   type TurnFacts,
   type FlopFacts,
@@ -119,7 +120,7 @@ export {
   THIN_BEHIND,
   heuristicFlags,
 } from "./heuristics";
-export { analyzeHand, heroSeatOf, riverStudy, turnStudy, type AnalyzeOptions } from "./analyze";
+export { analyzeHand, heroSeatOf, riverStudy, turnStudy, villainsOfFacts, type AnalyzeOptions } from "./analyze";
 export {
   BLUFF_ZONE,
   CHECK_REPEAT,
@@ -162,6 +163,19 @@ export {
   type WalkFailure,
 } from "./rangeWalk";
 export { POPULATION_RANGES, populationLine, populationRange, type PopulationLine } from "./population";
+export {
+  VILLAIN_LINES,
+  VILLAIN_MIN_HANDS,
+  VILLAIN_POOL_PASSIVE,
+  VILLAIN_PRIOR_HANDS,
+  VILLAIN_RANGES,
+  villainKey,
+  villainRange,
+  villainSample,
+  type VillainSample,
+  type VillainStats,
+  type VillainStatsMap,
+} from "./villain";
 export {
   BLUFF_EQUITY_DRAWING,
   BLUFF_EQUITY_RIVER,

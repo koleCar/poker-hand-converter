@@ -130,6 +130,12 @@ const lines = {
   "4bet": (pos: string) => `a ${pos} 4-bet`,
   "call-4bet": (pos: string) => `a ${pos} call of a 4-bet`,
   check: (pos: string) => `a ${pos} check`,
+  // Population lines (analysis/19); before analysis/20 they fell through to "any two cards".
+  "cold-call": (pos: string) => `a ${pos} cold call`,
+  "bb-defence": (pos: string) => `a ${pos} defence`,
+  "first-limp": (pos: string) => `a ${pos} limp`,
+  "over-limp": (pos: string) => `a ${pos} over-limp`,
+  "limp-call": (pos: string) => `a ${pos} limp-call`,
   unknown: () => "any two cards",
 } as Record<string, (pos: string) => string>;
 
@@ -879,6 +885,8 @@ export const analysisEn = {
       "A player who limped and then called a raise starts from the default limp range: the charts' calling range there fits what such players show down worse",
     "range-population":
       "An opponent who flat-called a raise or limped starts from Rail's population range for that line, fitted on the hands such players show down: real callers and limpers play far wider than the charts",
+    "range-villain":
+      "The big blind's defending range is widened or narrowed by that player's own VPIP − PFR in your hands, shrunk toward the pool's by the sample (shown with the facts); not below 30 hands",
   } as Record<string, string>,
 
   severity: { note: "Note", inaccurate: "Inaccurate" } as Record<string, string>,
@@ -1085,7 +1093,11 @@ export const analysisEn = {
       mdfSplit: "MDF split",
       foldEquity: "Everyone folds",
       outs: "Next card",
+      villain: "Opponent's own stats",
     },
+    /** analysis/20: the sample a range was moved on (`SpotFacts.villain`). */
+    villainValue: (range: string, passive: number, hands: number) =>
+      `${rangeLabel(range)}: VPIP − PFR ${pct(passive)} over ${num(hands)} ${hands === 1 ? "hand" : "hands"} in your library`,
     playersValue: (players: number, behind: number) =>
       behind === 0 ? `${num(players)}-way, you act last` : `${num(players)}-way, ${opponents(behind)} to act behind`,
     vsEachValue: (rows: Array<{ equity: number; range: string }>) => rows.map((r) => `${pct(r.equity)} vs ${rangeLabel(r.range)}`).join(" · "),

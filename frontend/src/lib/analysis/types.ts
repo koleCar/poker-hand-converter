@@ -148,8 +148,18 @@ import type { Position, Street } from "../phf/types";
  *               charts and the placeholder; the hero's own range and the
  *               trainers are unchanged (ANALYSIS-PLAN §10 2026-10-10,
  *               population callers).
+ *   analysis/20 An opponent's big blind defence with at least 30 hands of
+ *               their own statistics in the learner's library (the
+ *               opponents panel's VPIP and PFR, handed in as
+ *               `AnalyzeOptions.villains`) starts from the population range
+ *               moved by their VPIP − PFR, shrunk toward the pool's by the
+ *               sample (`villain/1`, `range-villain`); the decision records
+ *               the sample (`SpotFacts.villain`). No other line moves; no
+ *               statistics, no change. Population lines are labelled as
+ *               such on screen (they read "any two cards" before)
+ *               (ANALYSIS-PLAN §10 2026-10-10, villain statistics).
  */
-export const ANALYSIS_VERSION = "analysis/19" as const;
+export const ANALYSIS_VERSION = "analysis/20" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -380,6 +390,10 @@ export interface Flag {
  *                       population range fitted on shown hands
  *                       (`population.ts`), not the charts' or the
  *                       placeholder.
+ * - `range-villain`     (analysis/20) that population range, for a big
+ *                       blind's defence, moved by the player's own VPIP − PFR
+ *                       in the learner's library, shrunk by the sample
+ *                       (`villain.ts`); the sample is in `SpotFacts.villain`.
  * - `range-limp-call`   a limper who called an isolation raise starts from
  *                       the placeholder limp range, not the `call` one.
  *
@@ -419,6 +433,7 @@ export const APPROXIMATIONS = [
   "range-neighbour-depth",
   "range-limp-call",
   "range-population",
+  "range-villain",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -732,6 +747,29 @@ export interface SpotFacts {
 
   /** A multiway postflop decision (A9): the field, the MDF split, fold equity, outs, the approximate EV. */
   multiway?: MultiwayFacts | null;
+
+  /**
+   * (analysis/20) The opponent whose preflop range was moved by their own
+   * statistics in the learner's library (`range-villain`), with the sample:
+   * the one input of this decision that is not from the hand alone. Absent
+   * when no range read any.
+   */
+  villain?: VillainFact | null;
+}
+
+/** An opponent's own statistics a range was moved on (analysis/20, `villain.ts`). */
+export interface VillainFact {
+  position: Position | null;
+  /** `bb-defence:BB`: the population line the statistics moved. */
+  range: string;
+  /** Hands behind the statistics (`vpip_opp`). */
+  hands: number;
+  /** (VPIP − PFR) / hands, unshrunk. */
+  passive: number;
+  /** The rate shrunk toward the pool's, as the range read it. */
+  shrunk: number;
+  /** What a rebuild hands back to reproduce the range (`VillainStats`). */
+  stats: { vpipOpp: number; vpip: number; pfr: number };
 }
 
 /** What the flop library says about a graded flop decision (A5b). Plain numbers; the chunk is not stored. */
@@ -770,7 +808,7 @@ export interface MultiwayOpponent {
    * neighbouring depth's chart, or a limp-caller's limp placeholder. Absent
    * when neither.
    */
-  approx?: ("range-neighbour-depth" | "range-limp-call" | "range-population")[];
+  approx?: ("range-neighbour-depth" | "range-limp-call" | "range-population" | "range-villain")[];
   /** The hero's equity against this range alone, narrowed to the decision. */
   equity: number | null;
   /** Weighted combos in the range, the hero's cards and the board removed. */

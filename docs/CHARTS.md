@@ -1146,6 +1146,13 @@ against the charts, the placeholder and any two cards (ANALYSIS-PLAN §10
 2026-10-10, population callers). The charts' ranges stay what the hero's own
 range, the trainers and the flop library's placement read.
 
+**Since `analysis/20`** an opponent's big blind defence, where the learner
+keeps opponent statistics with at least 30 hands behind them, starts from
+that population range moved by the player's own VPIP − PFR, shrunk toward
+the pool's by the sample (`lib/analysis/villain.ts`, `range-villain`;
+ANALYSIS-PLAN §10 2026-10-10, villain statistics). The other population
+lines do not move: held out, no statistic improved them.
+
 **Loading.** `rareLineChartSets` also lists the `uncoveredDepthSets` of a
 decision the loaded sets refuse as `stack-depth`; a set not loaded is
 skipped.

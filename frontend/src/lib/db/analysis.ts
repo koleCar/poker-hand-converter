@@ -25,16 +25,21 @@ import {
   analyzeHand,
   riverStudy,
   turnStudy,
+  VILLAIN_MIN_HANDS,
+  villainKey,
   type HandAnalysis,
   type RiverFailure,
   type RiverStudy,
   type TurnFailure,
+  type VillainStats,
+  type VillainStatsMap,
 } from "../analysis";
 import { preflopCharts, preflopChartsFor } from "../chartSet";
 
 export { preflopCharts };
 import type { PhfHand } from "../phf/types";
 import { currentUserId, rpc } from "./client";
+import { fetchStatsOpponents } from "./stats";
 import {
   analyseStoredHands,
   handAnalysisFromStored,
@@ -126,6 +131,51 @@ export async function fetchAnalysisCoverage(): Promise<AnalysisCoverage | null> 
   };
 }
 
+/* ------------------------------------------------- opponents' statistics - */
+
+/** The opponents the snapshot reads: `stats_opponents` caps at 200, biggest sample first. */
+const VILLAIN_SNAPSHOT_LIMIT = 200;
+/** How long the hand view reuses a snapshot before reading a fresh one. */
+const VILLAIN_SNAPSHOT_MS = 10 * 60_000;
+
+let villainSnapshot: { at: number; value: Promise<VillainStatsMap | null> } | null = null;
+
+/**
+ * The learner's opponents' statistics for the analysis (analysis/20,
+ * `lib/analysis/villain.ts`): VPIP, PFR and hands of every opponent with at
+ * least `VILLAIN_MIN_HANDS` hands in cash games, from the opponents panel's
+ * own report (`stats_opponents`, an invoker read under RLS; rooms with
+ * persistent names only, the 200 biggest samples). Null when the learner keeps
+ * no opponent rows (the panel's setting is off) or the read fails: the
+ * analysis then reads the population ranges, as before.
+ *
+ * A snapshot: the rebuild reads one at its start (`fresh`), and every row it
+ * writes records the sample its ranges were moved on (`SpotFacts.villain`).
+ * Rows are not re-analysed when the statistics later grow; the next version
+ * bump re-analyses them all with the statistics of that day.
+ */
+export function villainStatsSnapshot(fresh = false): Promise<VillainStatsMap | null> {
+  const now = Date.now();
+  if (fresh || !villainSnapshot || now - villainSnapshot.at > VILLAIN_SNAPSHOT_MS) {
+    villainSnapshot = { at: now, value: loadVillainStats() };
+  }
+  return villainSnapshot.value;
+}
+
+async function loadVillainStats(): Promise<VillainStatsMap | null> {
+  try {
+    const report = await fetchStatsOpponents({ minHands: VILLAIN_MIN_HANDS, gameFormat: "cash" }, "", VILLAIN_SNAPSHOT_LIMIT);
+    const out: Record<string, VillainStats> = {};
+    for (const row of report.rows) {
+      if (!row.site || !row.player) continue;
+      out[villainKey(row.site, row.player)] = { vpipOpp: row.counters.vpip_opp, vpip: row.counters.vpip, pfr: row.counters.pfr };
+    }
+    return Object.keys(out).length > 0 ? out : null;
+  } catch {
+    return null;
+  }
+}
+
 /* --------------------------------------------------------------- rebuild - */
 
 export interface AnalysisProgress {
@@ -194,7 +244,11 @@ function newWorker(): Worker | null {
  * once, mid-page, rather than waiting for the page to finish: what was not
  * written is simply missing next time.
  */
-function analyser(signal?: AbortSignal): {
+function analyser(
+  signal?: AbortSignal,
+  /** The run's snapshot of the opponents' statistics (analysis/20). */
+  villains: VillainStatsMap | null = null,
+): {
   run: (page: AnalyseRequest["page"], onHand?: (done: number) => void) => Promise<AnalysedBatch>;
   close: () => void;
   /** In a worker; false when it fell back to the main thread (then the pool is just this one). */
@@ -207,7 +261,7 @@ function analyser(signal?: AbortSignal): {
       run: async (page, onHand) => {
         // Yield first so the progress line repaints between pages.
         await new Promise((resolve) => setTimeout(resolve, 0));
-        return analyseStoredHands(page, await preflopChartsFor(page.map((item) => item.phf)), onHand);
+        return analyseStoredHands(page, await preflopChartsFor(page.map((item) => item.phf)), onHand, null, villains);
       },
       close: () => {},
     };
@@ -238,7 +292,7 @@ function analyser(signal?: AbortSignal): {
           else if (message.type === "error") reject(new Error(message.message));
         };
         live.onerror = (event) => reject(new Error(event.message || "analysis worker failed"));
-        live.postMessage({ type: "analyse", jobId, page } satisfies AnalyseRequest);
+        live.postMessage({ type: "analyse", jobId, page, villains } satisfies AnalyseRequest);
       }),
     close: () => {
       signal?.removeEventListener("abort", onAbort);
@@ -278,13 +332,16 @@ function askViewWorker<T>(
 /**
  * A hand analysed here and now, the way the rebuild would store it: the hand
  * view's answer for a hand with no row at the current version. In a worker
- * when one can be made: a river solve can take a second.
+ * when one can be made: a river solve can take a second. With the opponents'
+ * statistics as the rebuild would read them (analysis/20, a snapshot at most
+ * ten minutes old).
  */
 export async function analyseHandNow(phf: PhfHand): Promise<HandAnalysis> {
+  const villains = await villainStatsSnapshot();
   if (viewWorker === undefined) viewWorker = newWorker();
-  if (!viewWorker) return analyzeHand(phf, { charts: await preflopChartsFor([phf]) });
+  if (!viewWorker) return analyzeHand(phf, { charts: await preflopChartsFor([phf]), villains });
   jobSequence += 1;
-  return askViewWorker({ type: "hand", jobId: jobSequence, phf }, (message) =>
+  return askViewWorker({ type: "hand", jobId: jobSequence, phf, villains }, (message) =>
     message.type === "hand" ? message.analysis : undefined,
   );
 }
@@ -293,21 +350,30 @@ export async function analyseHandNow(phf: PhfHand): Promise<HandAnalysis> {
  * The river study for one hero river decision of a hand on screen: the same
  * walk and solve the stored grade came from, re-run (§3.4 stores no strategy).
  * Null when the decision is not a river decision the analysis covers.
+ * `villains`: the opponents' statistics the stored row was analysed with
+ * (`villainsOfFacts`, analysis/20), so the re-run reads the same ranges.
  */
 export async function studyRiver(
   phf: PhfHand,
   actionIndex: number,
-  options: { turn?: boolean } = {},
+  options: { turn?: boolean; villains?: VillainStatsMap | null } = {},
 ): Promise<RiverStudy | RiverFailure | null> {
-  return (await studyStreet(phf, actionIndex, "river", options.turn ?? true)) as RiverStudy | RiverFailure | null;
+  return (await studyStreet(phf, actionIndex, "river", options.turn ?? true, options.villains ?? null)) as
+    | RiverStudy
+    | RiverFailure
+    | null;
 }
 
 /**
  * The turn study (A5a) for one hero turn decision: the same walk and turn
  * solve the stored grade came from, re-run in the worker (a second or two).
  */
-export async function studyTurn(phf: PhfHand, actionIndex: number): Promise<RiverStudy | TurnFailure | null> {
-  return (await studyStreet(phf, actionIndex, "turn", true)) as RiverStudy | TurnFailure | null;
+export async function studyTurn(
+  phf: PhfHand,
+  actionIndex: number,
+  options: { villains?: VillainStatsMap | null } = {},
+): Promise<RiverStudy | TurnFailure | null> {
+  return (await studyStreet(phf, actionIndex, "turn", true, options.villains ?? null)) as RiverStudy | TurnFailure | null;
 }
 
 async function studyStreet(
@@ -315,17 +381,18 @@ async function studyStreet(
   actionIndex: number,
   street: "river" | "turn",
   turn: boolean,
+  villains: VillainStatsMap | null,
 ): Promise<RiverStudy | RiverFailure | TurnFailure | null> {
   if (viewWorker === undefined) viewWorker = newWorker();
   if (!viewWorker) {
     await new Promise((resolve) => setTimeout(resolve, 0));
     const charts = await preflopChartsFor([phf]);
     return street === "turn"
-      ? turnStudy(structuredClone(phf), actionIndex, { charts })
-      : riverStudy(structuredClone(phf), actionIndex, { charts, turn });
+      ? turnStudy(structuredClone(phf), actionIndex, { charts, villains })
+      : riverStudy(structuredClone(phf), actionIndex, { charts, turn, villains });
   }
   jobSequence += 1;
-  return askViewWorker({ type: "study", jobId: jobSequence, phf, actionIndex, street, turn }, (message) =>
+  return askViewWorker({ type: "study", jobId: jobSequence, phf, actionIndex, street, turn, villains }, (message) =>
     message.type === "studied" ? message.study : undefined,
   );
 }
@@ -368,10 +435,12 @@ export async function runAnalysis(
   signal?.addEventListener("abort", onStop, { once: true });
   if (signal?.aborted) inner.abort();
 
-  const first = analyser(inner.signal);
+  // One snapshot of the opponents' statistics for the whole run (analysis/20).
+  const villains = await villainStatsSnapshot(true);
+  const first = analyser(inner.signal, villains);
   const engines = [first];
   if (first.threaded) {
-    for (let k = 1; k < poolSize(); k += 1) engines.push(analyser(inner.signal));
+    for (let k = 1; k < poolSize(); k += 1) engines.push(analyser(inner.signal, villains));
   }
 
   // The read side: pages one at a time, cut into chunks for the pool.

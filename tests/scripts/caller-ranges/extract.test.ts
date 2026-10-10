@@ -31,6 +31,25 @@ import {
 import { allClasses, type ClassWeights } from "../../../frontend/src/lib/equity/range.js";
 import type { PhfHand, Position } from "../../../frontend/src/lib/phf/types.js";
 import { buildContext } from "../../../frontend/src/lib/stats/context.js";
+import { handFacts } from "../../../frontend/src/lib/stats/derive.js";
+import type { CounterKey } from "../../../frontend/src/lib/stats/types.js";
+
+/** The statistics counters the per-villain study reads (analysis/20). */
+const VILLAIN_COUNTERS: readonly CounterKey[] = [
+  "hands",
+  "vpip_opp",
+  "vpip",
+  "pfr",
+  "limp_opp",
+  "limp",
+  "cold_call_opp",
+  "cold_call",
+  "three_bet_opp",
+  "three_bet",
+  "fold_to_steal_opp",
+  "fold_to_steal",
+  "call_steal",
+];
 
 const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
 const FILE = process.env.CALLERS_HANDS ?? "";
@@ -63,10 +82,20 @@ it("extracts shown opponents", () => {
   const charts = chartLibrary([single, ...sets.filter((s) => s !== single)]);
 
   const out: string[] = [];
+  // analysis/20: every opponent's statistics counters, per hand, for the
+  // per-villain study (villain.mjs): computed without the held-out hand there.
+  const stats: string[] = [];
   const skipped = new Map<string, number>();
   const tally = new Map<string, number>();
   const bump = (k: string) => skipped.set(k, (skipped.get(k) ?? 0) + 1);
   for (const [h, hand] of hands.entries()) {
+    for (const seat of handFacts(structuredClone(hand)).seats) {
+      if (seat.isHero) continue;
+      const villain = createHash("sha256").update(`${hand.meta.siteId}:${seat.player}`).digest("hex").slice(0, 12);
+      const c: Record<string, number> = {};
+      for (const key of VILLAIN_COUNTERS) if (seat.counters[key]) c[key] = seat.counters[key];
+      stats.push(JSON.stringify({ h, date: hand.playedAt, villain, c }));
+    }
     if (hand.actions.some((a) => a.type === "ante" || a.type === "straddle" || a.type === "bomb-ante")) {
       bump("ante/straddle/bomb");
       continue;
@@ -202,4 +231,5 @@ it("extracts shown opponents", () => {
   for (const name of NAMES) names[handClassOf(name)] = name;
   writeFileSync(`${OUT}.tally.json`, JSON.stringify(Object.fromEntries(tally)));
   writeFileSync(`${OUT}.classes.json`, JSON.stringify(names));
+  writeFileSync(`${OUT}.stats.jsonl`, stats.join("\n") + "\n");
 });
