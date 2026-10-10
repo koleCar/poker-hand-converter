@@ -47,15 +47,21 @@ export interface Runouts {
   orders: [Uint16Array, Uint16Array];
 }
 
-export function runouts(board: readonly number[], hands: readonly [Uint16Array, Uint16Array]): Runouts {
+/**
+ * Every runout of `toCome` cards - two from the flop (turn and river), one
+ * from the turn (the river, `turnRealisation.ts`) - and each combo's value.
+ */
+export function runouts(board: readonly number[], hands: readonly [Uint16Array, Uint16Array], toCome: 1 | 2 = 2): Runouts {
   const dead = new Uint8Array(52);
   for (const c of board) dead[c] = 1;
   const base = [0, 0, 0, 0];
   for (const c of board) base[c & 3] |= 1 << (c >> 2);
+  // One card to come is a "pair" of the same card twice.
   const pairs: Array<[number, number]> = [];
   for (let t = 0; t < 52; t += 1) {
     if (dead[t]) continue;
-    for (let r = t + 1; r < 52; r += 1) if (!dead[r]) pairs.push([t, r]);
+    if (toCome === 1) pairs.push([t, t]);
+    else for (let r = t + 1; r < 52; r += 1) if (!dead[r]) pairs.push([t, r]);
   }
   const values = hands.map((list) => new Int32Array(pairs.length * list.length)) as [Int32Array, Int32Array];
   pairs.forEach(([t, r], k) => {

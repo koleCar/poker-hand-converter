@@ -338,8 +338,12 @@ A decision is **not analysed** (`status: partial`) when:
   or more saw the flop of (approximate, `flop-realisation`: the showdown
   share times a realisation factor measured on the flop library; only the
   EV loss beyond 5% of the pot counts; capped at Mistake; §10
-  2026-10-10). The rest (flop checks and bets, the turn, river bets and
-  checks) keeps its multiway facts and flags;
+  2026-10-10), and, since `analysis/16`, a turn call or fold facing a bet
+  in a pot three or more saw the turn of (approximate, `turn-realisation`:
+  the same with a factor measured on Rail's own heads-up turn solves, an
+  all-in call taking none; §10 2026-10-10, multiway turns). The rest (flop
+  and turn checks and bets, river bets and checks) keeps its multiway facts
+  and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
 - the game is MTT with ICM;
 - it is a bomb pot;
@@ -2532,3 +2536,141 @@ Each phase appends what it learned that changed the plan.
     - Raises are not compared (3 decisions), and nobody re-raises behind
       the hero; the turn's multiway decisions (a turn realisation from the
       turn solver) are the next candidate.
+- 2026-10-10 — Multiway turns: an approximate turn call, `analysis/16`. No
+  migration (`approx` is allowed; skip reasons and approximations are not
+  constrained in the database).
+  - **What they are.** The owner's library (5,448 hands, `analysis/15`)
+    has 223 hero turn decisions in pots three or more saw the turn of, all
+    ungraded: 198 with three or more at the decision (`multiway`) and 25
+    heads-up at it after a turn fold before the hero (`turn-multiway-flop`:
+    the turn solver starts heads-up from the street's start).
+    - players at the decision: 3: 159, 4: 33, 5: 5, 6: 1, and 2: 25;
+    - **not facing a bet 133** (check 108, bet 25); **facing a bet 90**
+      (fold 58, call 21, raise 11): **79 calls and folds**, 72 against a
+      bet and 7 against a raise; players still to answer behind the hero
+      none 33 (22 of them heads-up at the decision), one 40, two 6; sizes
+      about a quarter to a third of the pot 23, half 21, three quarters 23,
+      a pot or more 12;
+    - pot type: single-raised 124, limped 90, 3-bet 8, 4-bet 1;
+    - effective stack: 80-120bb 155, 120-170bb 29, 170bb+ 16, 50-80bb 15,
+      under 50bb 8; 146 on full-ring tables, 77 on 6-max.
+  - **Method** (`turnCallEv`, `gradeTurnCall` in `multiway.ts`): the
+    flop's (`analysis/15`) with one card to come. Everyone's range from the
+    multiway walk, every way the players still to answer respond, the
+    hero's share against the field times a **turn realisation factor**
+    `TURN_REALISATION` (`turnsolve-r/1`, 42 numbers), the EV loss beyond
+    `TURN_MARGIN_POT` (5%) of the pot graded, capped at Mistake, with the
+    half-strength sensitivity check. Approximations `multiway-approx`,
+    `turn-realisation`, `narrowing-heuristic`, `rake-profile`. Two rules
+    the flop does not have:
+    - a call that leaves the hero, or every other player in a way, all-in
+      takes no factor in that way (nothing is left to bet: the share is
+      what the call wins; `realisation.allIn` says how often). Measured: at
+      the solves' all-in calls `EV(call) − EV(fold) + toCall` equals
+      `equity × raked pot` to float precision;
+    - a call or fold facing a **re-raise** is refused (`multiway-reraise`):
+      the factor was measured on A5a's tree, which has one raise.
+  - **Measuring R on the turn, not assuming it.** No heads-up turn library
+    exists, so the corpus is made from the flop library
+    (`npm run floplib:turn-realisation`, `turnRealisation.ts`): every flop
+    ending of every 6-max 100bb chunk with chips behind that at least 3% of
+    both ranges reach (checked through, a bet called, a raise called) is
+    dealt one turn card, fixed by a hash of the flop, line and path, with
+    both ranges as the library's strategy plays them there, and solved
+    exactly as A5a solves a hand's turn (`TURN_PROFILE`: 75% and all-in,
+    one raise, the coarse river, 1% of the pot, isomorphism), plus a third
+    of a pot to the bet menu - the owner's multiway turn bets run from a
+    quarter pot to a pot, and a single size would measure only the call of
+    75%. **1,200 chunks, 6,505 turns, 3.35 million samples** (every third
+    combo at every turn node facing a bet or a raise, short of an all-in
+    call), about 1 h 40 min on three processes beside the batch. The same
+    least squares per position after the call × `flopRealisationCategory`
+    on the turn board; categories under 50 nodes of weight (a set, trips,
+    two pair or straight with a draw, two out-of-position draws) read their
+    no-draw row. In position: full house+ 1.30, set 1.27, straight 1.21,
+    flush 1.20, trips 1.03, two pair 1.01, overpair 0.88, top pair top
+    kicker 0.86, good 0.80, weak 0.76, middle pair 0.71, weak pair 0.73, ace
+    high 0.67 (with a draw 0.91), no pair 0.84 (with a draw 1.19); out of
+    position lower by up to 0.38 (no pair without a draw 0.46; overpairs
+    about the same). **Not close to
+    1**: the position means are 1.00 and 0.88, but the spread between
+    categories is the flop's, so a margin alone does not do (below).
+  - **Validation** where an exact answer exists.
+    - *Held out against the turn solves* (fitted on the flops whose name
+      hashes even, judged on the other 1.5 million samples; the solve's
+      grade of the same action from all its options):
+
+      | | call/fold verdict | \|ΔEV\| % pot | same side of Good/Inaccurate | approx Mistake that is one | approx Perfect that is Perfect/Good | false alarms | misses |
+      |---|---|---|---|---|---|---|---|
+      | raw equity (R = 1) | 79.8% | 16.0 | 74.2% | 60.2% | 87.6% | 18.2% | 5.2% |
+      | R = 1, margin 5% | 79.8% | 16.0 | 75.7% | 63.3% | 85.1% | 14.8% | 7.2% |
+      | R by position | 81.4% | 14.5 | 75.7% | 61.8% | 89.0% | 17.4% | 4.6% |
+      | the flop's table, margin 5% | 86.5% | 12.3 | 84.3% | 76.1% | 90.6% | 8.5% | 4.5% |
+      | R by category, no margin | 86.9% | 10.3 | 81.0% | 69.0% | 94.3% | 13.2% | 2.2% |
+      | margin 3% | 86.9% | 10.3 | 84.0% | 74.9% | 92.4% | 9.3% | 3.4% |
+      | **margin 5% (shipped)** | **87.0%** | **10.3** | **85.2%** | **78.6%** | **90.7%** | **7.3%** | **4.5%** |
+      | margin 8% | 86.9% | 10.3 | 85.8% | 82.9% | 88.0% | 5.0% | 6.5% |
+      | margin 10% | 86.9% | 10.3 | 85.5% | 85.4% | 86.0% | 3.9% | 8.1% |
+
+      By pot at 5%: single-raised 84.9% same side, 8.0% false alarms;
+      3-bet 86.2%, 5.3%; limped 84.6%, 8.0%. Facing a third of a pot
+      86.2%, 5.1%; three quarters 84.8%, 8.2%. 5% for the flop's reason:
+      four in five of the approximation's Mistakes are Mistakes by the
+      solver while it misses under 5%; from 8% on the misses outnumber the
+      false alarms. The 42-row table loses nothing to every category
+      (85.2%, 7.3% either way); refitted on every sample it moves by at most
+      0.0005.
+    - *On another corpus*: 152 chunks of the full-ring 100bb set (a twelfth
+      each of four shards, 398,729 samples: other preflop ranges and seats),
+      judged with the 6-max fit: verdict 87.1%, same side 85.1%, false
+      alarms 7.2%, misses 4.7% (R = 1: 75.4%, 14.8%).
+    - *The owner's heads-up turn decisions* (`npm run floplib:measure` with
+      `FLOPLIB_TURN_SAMPLE`, new section): every heads-up turn call or fold
+      facing a bet that the turn solver grades (114) graded again by the
+      approximation on the heuristic walk. With the factor: same grade 84,
+      same side 97 (85.1%), **false alarms 7 (6.1%)**, misses 6; with
+      R = 1: same grade 84, same side 94, false alarms 15 (13.2%), misses 4.
+    - *Three-way with one player certain to fold* (unit test): the turn
+      call with the player behind folding (call likelihood 1e-9) equals
+      the heads-up call in the same pot, the big blind having folded before
+      the hero, to 1e-4 bb, and both equal `R × share × raked pot − call`
+      against enumeration. With nobody left to answer it is the realised
+      share of the enumerated showdown; with the hero all-in it is the
+      share itself.
+  - **Measured on the owner's library** (with the flop library and turn
+    solving, every hero decision of `analysis/15` and `analysis/16`
+    compared one by one, 7,695): only multiway turn calls and folds move.
+    - **76 multiway turn decisions graded** (approximate) of the 79 calls
+      and folds facing a bet (2 refused as re-raises, 1 as a side pot):
+      Perfect 72, Inaccurate 1, Mistake 3 (1 capped from Blunder); 3.1bb of
+      EV loss. Folds 56 (Perfect 54, Inaccurate 1, Mistake 1), calls 20
+      (Perfect 18, Mistake 2). 55 with three or more at the decision, 21
+      heads-up at it; placeholder ranges in 54; 2 kept milder by the
+      sensitivity check; one all-in call realised at 1.
+    - Hero turn decisions graded 508 → 584 of 745 (68.2% → 78.4%);
+      Perfect 369 → 441, Inaccurate 12 → 13, Mistake 50 → 53; turn EV loss
+      136.7 → 139.8bb. `multiway` refusals on the turn 198 → 141 (the
+      checks, bets and raises), `turn-multiway-flop` 25 → 3. Flop and river
+      grades do not move; all decisions graded 6,030 → 6,106.
+    - The re-raise rule was added after the first pass: without it a fold
+      of K♠5♠ (flush draw) to a big-blind 3-bet on T♠7♠2♥T♥ read 45% equity
+      against a narrowed calling range and came out a capped Mistake of
+      22bb - a 3-bet range the heuristic does not narrow and a spot the
+      measured tree does not hold.
+  - `ANALYSIS_VERSION` `analysis/16`. Tests: the turn table and its
+    categories, the exact no-responder EV, the three-way certain-folder
+    equivalence with the heads-up call, the all-in rule, the margin, cap
+    and label, the re-raise refusal, the analysis and both languages
+    (`analysisMultiway`); the corpus's turns and ranges, exact equities
+    over the river, the all-in calls realising exactly, the shard files
+    (`turnRealisation`); the corpus invariants for turn `approx`.
+  - **Open.**
+    - Turn checks and bets (133) stay ungraded, for the flop's reason.
+    - The factor is heads-up and applied to the share against two or more
+      ranges, and the narrowing is the larger risk (54 of the 76 rest on a
+      placeholder range), as on the flop; the margin covers the factor's
+      heads-up error only.
+    - The flop's call has no all-in rule and no re-raise refusal yet;
+      adding them would move flop grades (a version bump of its own).
+    - The corpus is 100bb 6-max; deeper and shorter stacks read the same
+      table (the full-ring check above is 100bb too).

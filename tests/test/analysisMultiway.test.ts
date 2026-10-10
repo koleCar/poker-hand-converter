@@ -13,6 +13,9 @@
  * - **The approximate flop call** (`analysis/15`): the realisation table,
  *   exact against enumeration with nobody to answer, the heads-up answer
  *   when the player behind always folds, the margin and the cap.
+ * - **The approximate turn call** (`analysis/16`): the same with the turn's
+ *   table; three-way with a certain folder equals the heads-up answer; an
+ *   all-in call takes no factor.
  * - **Heads-up reducible**: the grade equals the heads-up solver run on the
  *   same ranges, and says `multiway-history`.
  * - **Flags, explanations, links, determinism.**
@@ -36,6 +39,7 @@ import {
   gradeRank,
   gradeRiver,
   gradeRiverCall,
+  gradeTurnCall,
   headsUpWalk,
   heroSeatOf,
   heroSpots,
@@ -48,6 +52,11 @@ import {
   riverStudy,
   solveRiverSpot,
   streetStrength,
+  TURN_MARGIN_POT,
+  TURN_REALISATION,
+  TURN_REALISATION_MODEL,
+  turnCallEv,
+  turnRealisation,
   walkMultiway,
   walkRanges,
   flopSeats,
@@ -672,6 +681,177 @@ describe("the approximate flop call (analysis/15)", { timeout: 120_000 }, () => 
     expect(second.facts.multiway?.ev?.respond).toEqual([]);
     // Checks stay ungraded multiway.
     const check = decisionOn(analyse(hand("Bb", "Ks Jd", [...THREE_WAY, ...CHECKED(FLOP)])), "flop", "check");
+    expect(check.status).toBe("not-analysed");
+    expect(check.reason).toBe("multiway");
+  });
+});
+
+/* ------------------------------------------- the approximate turn call - */
+
+function turnSpot(h: PhfHand, action: string) {
+  const context = buildContext(h);
+  const hero = heroSeatOf(context)!;
+  const spot = heroSpots(context, hero).find((s) => s.street === "turn" && s.decision.type === action)!;
+  const facts = decisionOn(analyzeHand(structuredClone(h), { charts: CHARTS, turn: false }), "turn", action).facts;
+  const seat = (name: string) => h.players.find((p) => p.name === name)!.seat;
+  return { context, hero, spot, facts, seat };
+}
+
+describe("the approximate turn call (analysis/16)", { timeout: 120_000 }, () => {
+  // Turn: the big blind checks, the cutoff bets, the button (the hero) calls; the big blind is still to answer.
+  const behind = hand("Btn", "Ks Jd", [...THREE_WAY, ...CHECKED(FLOP), TURN, "Bb: checks", "Co: bets $4", "Btn: calls $4", "Bb: folds"]);
+  // The big blind folds before the hero answers: heads-up at the decision, three at the turn's start.
+  const folded = hand("Btn", "Ks Jd", [...THREE_WAY, ...CHECKED(FLOP), TURN, "Bb: checks", "Co: bets $4", "Bb: folds", "Btn: calls $4"]);
+  // The big blind bets, the cutoff calls, the hero closes the action.
+  const closing = hand("Btn", "Ks Jd", [...THREE_WAY, ...CHECKED(FLOP), TURN, "Bb: bets $4", "Co: calls $4", "Btn: calls $4"]);
+  // The hero calls the rest of a short stack: nobody is left to bet against.
+  const allIn = hand(
+    "Btn",
+    "Ks Jd",
+    [...THREE_WAY, ...CHECKED(FLOP), TURN, "Bb: checks", "Co: bets $7.5", "Btn: calls $7.5 and is all-in", "Bb: folds"],
+    { Btn: 10 },
+  );
+  const board = ["Kd", "7c", "2s", "9h"];
+  const heroCards = parseCards(["Ks", "Jd"]) as [number, number];
+  const coRange = ["Ac Kh", "Qh Qd", "Th Ts", "9s 8s"];
+  const bbRange = ["Kc Qc", "7h 7d", "As 3s", "6c 5c"];
+  const rake = rakeOf(CHARTS);
+  const raked = (pot: number) => pot - Math.min(pot * rake.percent, rake.cap);
+  const folds = { id: "folds", likelihood: () => new Float64Array(NUM_COMBOS).fill(1e-9) };
+
+  it("reads a turn realisation factor for every category, in and out of position", () => {
+    const made = ["fh+", "flush", "straight", "set", "trips", "two-pair", "overpair", "tp-top", "tp-good", "tp-weak", "middle", "weak", "ace-high", "nothing"];
+    for (const m of made) {
+      for (const d of ["d", "nd"]) {
+        for (const ip of [true, false]) {
+          const r = turnRealisation(`${m}|${d}`, ip);
+          expect(r).toBeGreaterThan(0.4);
+          expect(r).toBeLessThan(1.5);
+        }
+      }
+    }
+    expect(Object.keys(TURN_REALISATION).every((k) => /^(ip|oop)\|[a-z+-]+\|n?d$/.test(k))).toBe(true);
+    // The flop's categories, read on the turn board.
+    expect(flopRealisationCategory(heroCards, parseCards(board))).toBe("tp-good|nd");
+    expect(flopRealisationCategory(parseCards(["8c", "6c"]) as [number, number], parseCards(["9c", "7d", "2c", "Kh"]))).toBe("nothing|d");
+  });
+
+  it("is the realised share of the pot against fixed ranges when nobody is left to answer", () => {
+    const { context, hero, spot, facts, seat } = turnSpot(closing, "call");
+    const walk = stubWalk(hero, new Map([[hero, ["Ks Jd"]], [seat("Bb"), bbRange], [seat("Co"), coRange]]));
+    const result = turnCallEv({ spot, facts, hand: closing, context, hero, walk, model: heuristicModel, charts: CHARTS, seed: 1 }) as RiverCallEv;
+    expect(result.ok).toBe(true);
+    expect(result.respond).toEqual([]);
+    const share = bruteForce(["Ks", "Jd"], [bbRange.map((c) => combo(c)), coRange.map((c) => combo(c))], board);
+    const factor = turnRealisation("tp-good|nd", true);
+    expect(result.realisation).toEqual({ model: TURN_REALISATION_MODEL, category: "tp-good|nd", factor, ip: 1, margin: TURN_MARGIN_POT });
+    expect(result.equity).toBeCloseTo(share, 2);
+    expect(result.call).toBeCloseTo(factor * share * raked(facts.potBb + facts.toCallBb) - facts.toCallBb, 1);
+  });
+
+  it("three-way with the player behind certain to fold is the heads-up answer", () => {
+    const three = turnSpot(behind, "call");
+    const walk = stubWalk(three.hero, new Map([[three.hero, ["Ks Jd"]], [three.seat("Bb"), bbRange], [three.seat("Co"), coRange]]));
+    const input = { spot: three.spot, facts: three.facts, context: three.context, hero: three.hero, hand: behind, walk, charts: CHARTS, seed: 1 };
+    const result = turnCallEv({ ...input, model: folds }) as RiverCallEv;
+    expect(result.respond.length).toBe(1);
+    expect(result.respond[0].call).toBeLessThan(1e-6);
+    expect(result.realisation?.ip).toBeCloseTo(1, 6);
+    // The same pot heads-up: the big blind folded before the hero's call.
+    const two = turnSpot(folded, "call");
+    expect(two.spot.potBefore).toBe(three.spot.potBefore);
+    const huWalk = stubWalk(two.hero, new Map([[two.hero, ["Ks Jd"]], [two.seat("Co"), coRange]]));
+    const hu = turnCallEv({
+      spot: two.spot,
+      facts: two.facts,
+      context: two.context,
+      hero: two.hero,
+      hand: folded,
+      walk: huWalk,
+      model: heuristicModel,
+      charts: CHARTS,
+      seed: 1,
+    }) as RiverCallEv;
+    expect(hu.respond).toEqual([]);
+    expect(result.call).toBeCloseTo(hu.call, 4);
+    expect(result.equity).toBeCloseTo(hu.equity, 4);
+    const share = bruteForce(["Ks", "Jd"], [coRange.map((c) => combo(c))], board);
+    const factor = turnRealisation("tp-good|nd", true);
+    expect(hu.call).toBeCloseTo(factor * share * raked(two.facts.potBb + two.facts.toCallBb) - two.facts.toCallBb, 2);
+    // Under the heuristic model the big blind calls some of the time.
+    const real = turnCallEv({ ...input, model: heuristicModel }) as RiverCallEv;
+    expect(real.respond[0].call).toBeGreaterThan(0.05);
+    expect(real.scenarios).toBe(2);
+  });
+
+  it("takes no factor where the call leaves nobody to bet against", () => {
+    const { context, hero, spot, facts, seat } = turnSpot(allIn, "call");
+    expect(spot.heroBehind).toBe(spot.toCall);
+    const walk = stubWalk(hero, new Map([[hero, ["Ks Jd"]], [seat("Bb"), bbRange], [seat("Co"), coRange]]));
+    const result = turnCallEv({ spot, facts, hand: allIn, context, hero, walk, model: folds, charts: CHARTS, seed: 1 }) as RiverCallEv;
+    expect(result.realisation?.factor).toBe(1);
+    expect(result.realisation?.allIn).toBe(1);
+    const share = bruteForce(["Ks", "Jd"], [coRange.map((c) => combo(c))], board);
+    expect(result.call).toBeCloseTo(share * raked(facts.potBb + facts.toCallBb) - facts.toCallBb, 2);
+  });
+
+  it("counts only the EV loss beyond the margin, capped at Mistake, labelled turn-realisation", () => {
+    const evs: RiverCallEv = { ok: true, call: -0.4 * TURN_MARGIN_POT * 10, equity: 0.3, pot: 18, respond: [], scenarios: 1, rake: "r" };
+    const near = gradeTurnCall(evs, "call", 10);
+    expect(near.grade).toBe("perfect");
+    expect(near.evLoss).toBe(0);
+    expect(near.approximations).toEqual(["multiway-approx", "narrowing-heuristic", "rake-profile", "turn-realisation"]);
+    const far = gradeTurnCall({ ...evs, call: -(1 + TURN_MARGIN_POT * 10) }, "call", 10);
+    expect(far.evLoss).toBeCloseTo(1, 9);
+    expect(far.grade).toBe("mistake");
+    expect(far.ev.capped).toBe("blunder");
+    expect(far.approximations).toContain("range-cap");
+    expect(gradeTurnCall({ ...evs, call: -1.5 }, "fold", 10).grade).toBe("perfect");
+    for (const g of [near, far]) {
+      expect(grade({ options: g.options, chosen: g.chosen, pot: 10, capAtMistake: g.approximations.includes("range-cap") }).grade).toBe(g.grade);
+    }
+  });
+
+  it("grades a three-way turn call and a heads-up one after a three-way turn start, labelled, in both languages", () => {
+    const call = decisionOn(analyse(behind), "turn", "call");
+    expect(call.status).toBe("analysed");
+    expect(call.source).toBe("approx");
+    expect(call.approximations).toEqual(expect.arrayContaining(["turn-realisation", "multiway-approx", "narrowing-heuristic"]));
+    expect(call.approximations).not.toContain("flop-realisation");
+    expect(call.facts.multiway?.ev?.realisation?.model).toBe(TURN_REALISATION_MODEL);
+    expect(call.facts.multiway?.ev?.realisation?.category).toBe("tp-good|nd");
+    expect(gradeRank(call.grade!)).toBeLessThanOrEqual(gradeRank("mistake"));
+    expect(en.analysis.explain(call).join(" ")).toContain("heads-up turn solves");
+    expect(hr.analysis.explain(call).join(" ")).toContain("rješenjima turna");
+    expect(en.analysis.approximations["turn-realisation"]).toBeTruthy();
+    expect(hr.analysis.approximations["turn-realisation"]).toBeTruthy();
+    const second = decisionOn(analyse(folded), "turn", "call");
+    expect(second.facts.players).toBe(2);
+    expect(second.source).toBe("approx");
+    expect(second.facts.multiway?.ev?.respond).toEqual([]);
+    const shove = decisionOn(analyse(allIn), "turn", "call");
+    expect(shove.source).toBe("approx");
+    expect(en.analysis.explain(shove).join(" ")).toContain("nobody to bet against");
+    expect(hr.analysis.explain(shove).join(" ")).toContain("nema više nikoga");
+    // A re-raise is outside the measured tree (one raise): refused by name.
+    const reraise = hand("Btn", "Ks Jd", [
+      ...THREE_WAY,
+      ...CHECKED(FLOP),
+      TURN,
+      "Bb: bets $4",
+      "Co: calls $4",
+      "Btn: raises $8 to $12",
+      "Bb: raises $20 to $32",
+      "Co: folds",
+      "Btn: folds",
+    ]);
+    const refused = decisionOn(analyse(reraise), "turn", "fold");
+    expect(refused.status).toBe("not-analysed");
+    expect(refused.reason).toBe("multiway-reraise");
+    expect(en.analysis.reasons["multiway-reraise"]).toBeTruthy();
+    expect(hr.analysis.reasons["multiway-reraise"]).toBeTruthy();
+    // Checks stay ungraded multiway.
+    const check = decisionOn(analyse(hand("Bb", "Ks Jd", [...THREE_WAY, ...CHECKED(FLOP), ...CHECKED(TURN)])), "turn", "check");
     expect(check.status).toBe("not-analysed");
     expect(check.reason).toBe("multiway");
   });
