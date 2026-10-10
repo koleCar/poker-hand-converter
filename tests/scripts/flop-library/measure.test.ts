@@ -18,15 +18,34 @@
  * hero flop decision the library grades (hand number, decision, grade, EV
  * loss, mapped or exact, the category read): two dumps of the same hands
  * under two versions of the reading compare decision for decision.
+ *
+ * **Multiway flops** (`analysis/15`): the hero's flop decisions in pots three
+ * or more saw the flop of, by source, action and grade, and the approximate
+ * flop call checked where an exact answer exists - every heads-up flop call
+ * or fold the library grades is graded a second time by the approximation
+ * (`flopCallEv` on the heuristic walk), and the two grades are compared.
+ * The dump also holds the approximate flop grades.
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "vitest";
 
-import { analyzeHand, FlopLibraryLoader, type HandAnalysis } from "../../../frontend/src/lib/analysis/index.js";
+import {
+  analyzeHand,
+  FlopLibraryLoader,
+  flopCallEv,
+  gradeFlopCall,
+  gradeRank,
+  heroSeatOf,
+  heroSpots,
+  heuristicModel,
+  walkMultiway,
+  type HandAnalysis,
+} from "../../../frontend/src/lib/analysis/index.js";
 import { CHART_SETS, chartLibrary, DEFAULT_CHART_SET, loadCharts, type ChartSet } from "../../../frontend/src/lib/charts/index.js";
 import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
+import { buildContext } from "../../../frontend/src/lib/stats/context.js";
 
 const DATA = join(import.meta.dirname, "../../../frontend/src/lib/charts/data");
 const FILE = process.env.FLOPLIB_HANDS ?? "";
@@ -95,6 +114,40 @@ function report(title: string, r: ReturnType<typeof fresh>) {
   );
 }
 
+/** Seats that acted on the flop. */
+const flopPlayers = (hand: PhfHand) => new Set(hand.actions.filter((a) => a.street === "flop" && a.seat !== null).map((a) => a.seat)).size;
+
+/**
+ * The approximate flop call against the library where both answer: each
+ * heads-up flop call or fold facing a bet that the library grades, graded
+ * again by `flopCallEv` on the heuristic walk. "library -> approximate".
+ */
+function approxAgainstLibrary(hand: PhfHand, after: HandAnalysis, charts: ChartSet, out: Map<string, number>) {
+  const targets = after.decisions.filter(
+    (d) => d.street === "flop" && d.source === "solver" && (d.action === "call" || d.action === "fold") && d.facts.toCallBb > 0,
+  );
+  if (targets.length === 0) return;
+  const copy = structuredClone(hand);
+  const context = buildContext(copy);
+  const hero = heroSeatOf(context);
+  if (hero === null) return;
+  const walk = walkMultiway(copy, context, hero, charts, heuristicModel);
+  if (!walk.ok) return;
+  const spots = heroSpots(context, hero);
+  for (const d of targets) {
+    const spot = spots.find((s) => s.action.index === d.actionIndex);
+    if (!spot || !d.grade) continue;
+    const evs = flopCallEv({ spot, facts: d.facts, hand: copy, context, hero, walk, model: heuristicModel, charts, seed: 7 });
+    if (!evs.ok) continue;
+    const ours = gradeFlopCall(evs, d.action as "call" | "fold", d.facts.potBb).grade;
+    bump(out, `${d.grade} -> ${ours}`);
+    bump(out, "n");
+    if (ours === d.grade) bump(out, "same");
+    if (gradeRank(ours) >= 2 === gradeRank(d.grade) >= 2) bump(out, "same side");
+    if (gradeRank(ours) >= 3 && gradeRank(d.grade) <= 1) bump(out, "false alarm");
+  }
+}
+
 it("measures the flop library on a stored library", { timeout: 12 * 60 * 60_000 }, async () => {
   if (!FILE || !existsSync(FILE) || !DIR || !existsSync(DIR)) {
     console.log("FLOPLIB_HANDS (JSONL of PHF hands) and FLOPLIB_DIR (the library) must both be set; nothing to do");
@@ -113,22 +166,53 @@ it("measures the flop library on a stored library", { timeout: 12 * 60 * 60_000 
   const started = performance.now();
   const flop = fresh();
   const dump: string[] = [];
+  const multiway = new Map<string, number>();
+  const check = new Map<string, number>();
   for (const [h, hand] of hands.entries()) {
     await library.prefetch(hand, charts);
     const before = analyzeHand(structuredClone(hand), { charts, turn: false });
     const after = analyzeHand(structuredClone(hand), { charts, turn: false, flopLibrary: library });
     compare("flop", before, after, flop);
+    approxAgainstLibrary(hand, after, charts, check);
+    const mwFlop = flopPlayers(hand) >= 3;
+    for (const d of after.decisions) {
+      if (d.street !== "flop" || !mwFlop) continue;
+      bump(multiway, "decisions");
+      bump(multiway, `${d.source} ${d.action}${d.facts.toCallBb > 0 ? " facing a bet" : ""}${d.grade ? ` ${d.grade}` : ""}`);
+      if (d.source === "approx") bump(multiway, "approx EV loss bb", d.evLoss ?? 0);
+    }
     if (DUMP) {
       after.decisions.forEach((d, k) => {
-        if (d.street !== "flop" || d.source !== "solver") return;
+        if (d.street !== "flop" || (d.source !== "solver" && d.source !== "approx")) return;
         const facts = d.facts.flop?.source === "library" ? d.facts.flop : null;
-        dump.push(JSON.stringify({ hand: h, decision: k, grade: d.grade, evLoss: d.evLoss, mapped: facts?.mapped ?? null, bucket: facts?.bucket ?? null }));
+        const real = d.facts.multiway?.ev?.realisation ?? null;
+        dump.push(
+          JSON.stringify({
+            hand: h,
+            decision: k,
+            source: d.source,
+            grade: d.grade,
+            evLoss: d.evLoss,
+            mapped: facts?.mapped ?? null,
+            bucket: facts?.bucket ?? real?.category ?? null,
+          }),
+        );
       });
     }
   }
   if (DUMP) writeFileSync(DUMP, dump.join("\n") + "\n");
   console.log(`=== ${FILE}: ${hands.length} hands (${((performance.now() - started) / 1000).toFixed(0)} s)`);
   report("flop", flop);
+  console.log(
+    [
+      `--- multiway flops (three or more saw the flop): ${multiway.get("decisions") ?? 0} hero flop decisions`,
+      `  ${list(new Map([...multiway].filter(([k]) => k !== "decisions" && !k.startsWith("approx EV"))))}`,
+      `  approximate grades' EV loss: ${(multiway.get("approx EV loss bb") ?? 0).toFixed(1)} bb`,
+      `--- the approximate flop call against the library (heads-up flop calls and folds both grade): ${check.get("n") ?? 0}`,
+      `  same grade ${check.get("same") ?? 0}, same side of Good/Inaccurate ${check.get("same side") ?? 0}, false alarms (approx Mistake, library Perfect or Good) ${check.get("false alarm") ?? 0}`,
+      `  ${list(new Map([...check].filter(([k]) => k.includes("->"))))}`,
+    ].join("\n"),
+  );
 
   if (TURN_SAMPLE > 0) {
     const turn = fresh();

@@ -333,8 +333,13 @@ shows them like GTOW's banner:
 A decision is **not analysed** (`status: partial`) when:
 - the postflop pot is multiway, except a river call or fold facing a bet
   (an approximate grade, `source: "approx"`) and a turn or river that
-  began heads-up after a multiway flop (solved, `multiway-history`) — A9;
-  the rest keeps its multiway facts and flags;
+  began heads-up after a multiway flop (solved, `multiway-history`) — A9 —
+  and, since `analysis/15`, a flop call or fold facing a bet in a pot three
+  or more saw the flop of (approximate, `flop-realisation`: the showdown
+  share times a realisation factor measured on the flop library; only the
+  EV loss beyond 5% of the pot counts; capped at Mistake; §10
+  2026-10-10). The rest (flop checks and bets, the turn, river bets and
+  checks) keeps its multiway facts and flags;
 - the game is PLO, Short Deck or a Hi/Lo variant;
 - the game is MTT with ICM;
 - it is a bomb pot;
@@ -2397,3 +2402,133 @@ Each phase appends what it learned that changed the plan.
     converge them in far fewer, at the price of regenerating every set
     (and the flop library keyed to the 100bb hashes). The 43 `rare-line`
     refusals left are 40 on 9-max sets, lines no 9-max depth charts.
+- 2026-10-10 — Multiway flops: an approximate flop call, `analysis/15`. No
+  migration (`decision_analysis.source` already allows `approx`).
+  - **What the ~450 are.** The owner's library (5,448 hands, `analysis/14`
+    with the flop library) has 434 hero flop decisions in pots three or
+    more saw the flop of, all ungraded:
+    - players at the decision: 3: 282, 4: 85, 5: 24, 6: 2, and 41
+      heads-up at the decision (a player folded on the flop before the
+      hero acted; no library line fits);
+    - pot type: single-raised 237, limped 173, 3-bet 20, 4-bet 4;
+    - action: **not facing a bet 285** (check 267, of which 54 check behind
+      as the last to act; bet 18); **facing a bet 149** (fold 94, call 52,
+      raise 3; 137 against a bet, 12 against a raise). Facing a bet, the
+      players still to answer behind the hero: none 70, one 63, two 12,
+      three 4; sizes about a quarter pot 43, half 58, three quarters 28,
+      a pot or more 18;
+    - effective stack: 80-120bb 285, 120-170bb 73, 50-80bb 27, 170bb+ 27,
+      under 50bb 22; 292 on full-ring tables, 142 on 6-max;
+    - ranges: in 331 of the 393 with three or more at the decision at least
+      one opponent's range is a placeholder (a flat or a limp no chart
+      covers).
+  - **Method** (`flopCallEv`, `gradeFlopCall` in `multiway.ts`). A flop call
+    or fold facing a bet in a pot three or more saw the flop of is graded
+    like A9's river call: everyone's range from the multiway walk, every
+    way the players still to answer can respond (each calls with the
+    narrowing model's likelihood, nobody raises, at most three), the
+    hero's share against the field exactly or sampled (`equityVsRanges`).
+    What the river does not need: two cards are to come, so a call wins
+    the share **times a realisation factor** `R` - the hand's later
+    winnings (implied odds included) as a multiple of its equity of the
+    pot after the call. `R` is a table (`FLOP_REALISATION`, `floplib-r/1`,
+    46 numbers) **measured on Rail's own flop library**: at every node
+    facing a bet or raise of the 6-max and 9-max 100bb chunks (1,602
+    chunks, 15,174 nodes; every third combo, 1.4 million), the solve's
+    `EV(call) − EV(fold) + toCall` against `equity × raked pot` (exact
+    equity against the bettor's range at the node), least squares per
+    position after the call (last to act or not) × made hand (`flopBucket`'s
+    made part) × draw or not. In position: sets 1.41, two pair 1.20,
+    overpairs 1.01, top pair top kicker 0.97, weak kicker 0.81, middle pair
+    0.71, ace high 0.68 (with a draw 1.01), no pair 0.73 (with a draw 1.13);
+    out of position mostly lower (by up to 0.15 for no pair; overpairs
+    slightly higher). In a multiway way the hero is
+    "in position" when acting after everyone left in it. Applying a
+    heads-up factor to the share against two or more ranges is **the
+    assumption**, and the reason for the margin below.
+    - **The grade.** Fold (0) against call, the better at 100%, §2's
+      thresholds on **only the EV loss beyond 5% of the pot**
+      (`FLOP_MARGIN_POT`, the factor's measured error: inside it the two
+      are too close to call), always capped at Mistake (`range-cap`), with
+      the half-strength sensitivity check. The options carry the EV beyond
+      the margin, so the grade is §2 of its options as everywhere; the
+      model's own call EV and the factor are stored in
+      `facts.multiway.ev` (`realisation`: table, category, factor, share in
+      position, margin). Approximations `multiway-approx`,
+      `flop-realisation`, `narrowing-heuristic`, `rake-profile`.
+  - **Validation** where an exact answer exists.
+    - *Against the library, held out* (`npm run floplib:realisation`:
+      fitted on the flops whose name hashes even, judged on the other
+      644,850 samples; each node's range by reach; the library's grade of
+      the same action from all its options):
+
+      | | call/fold verdict | \|ΔEV\| % pot | same side of Good/Inaccurate | approx Mistake that is one | approx Perfect that is Perfect/Good | false alarms | misses |
+      |---|---|---|---|---|---|---|---|
+      | raw equity (R = 1) | 80.8% | 16.4 | 75.2% | 64.8% | 85.8% | 15.9% | 6.2% |
+      | R by position | 81.4% | 15.9 | 76.4% | 66.0% | 87.0% | 15.2% | 5.6% |
+      | R by category, no margin | 87.1% | 12.0 | 83.5% | 73.4% | 94.0% | 11.5% | 2.3% |
+      | margin 3% | 87.1% | 12.0 | 85.2% | 77.7% | 91.9% | 8.7% | 3.5% |
+      | **margin 5% (shipped)** | **87.1%** | **12.0** | **85.8%** | **80.6%** | **90.2%** | **7.0%** | **4.6%** |
+      | margin 8% | 87.1% | 12.0 | 86.0% | 84.5% | 87.3% | 4.9% | 6.7% |
+      | margin 10% | 87.1% | 12.0 | 85.5% | 86.7% | 85.2% | 3.9% | 8.3% |
+      | margin 15% | 87.1% | 12.0 | 83.1% | 91.0% | 80.3% | 2.1% | 12.7% |
+
+      (A false alarm: the approximation says Mistake, the library Perfect
+      or Good; a miss the other way round; call and fold each half of a
+      combo.) By pot, at 5%: single-raised 84.3% same side, 6.9% false
+      alarms; 3-bet 86.6%, 7.3%; limped 88.9%, 4.6%. For comparison, the
+      library's own mapped flops agree on the exact check/call grade 75.5%
+      (2026-10-09). 5% is the smallest margin at which four in five of the
+      approximation's Mistakes are Mistakes by the library while it misses
+      under 5%; from 8% on the misses outnumber the false alarms.
+      Refitted on every chunk the table moves by at most 0.003.
+    - *The whole pipeline, heads-up* (`npm run floplib:measure`, new
+      section): every heads-up flop call or fold of the owner's library
+      that the library grades (26) graded again by the approximation on
+      the heuristic walk: same grade 20, same side 25, **no false alarm**;
+      the one miss is a call the library marks Mistake because it only
+      raises there (raising is not compared).
+    - *Three-way with one player (nearly) sure to fold.* With the player
+      behind folding (a model whose call likelihood is 1e-9), the three-way
+      answer is exactly the heads-up one against the bettor's range (unit
+      test, against enumeration); with nobody left to answer it is the
+      realised share of the enumerated showdown. So a three-way spot
+      where one player nearly always folds inherits the heads-up agreement
+      above; the part no exact answer checks is the factor applied against
+      two or more live ranges.
+  - **Measured on the owner's library** (`npm run floplib:measure`, the
+    same export, with the flop library; `analysis/14` → `analysis/15`):
+    - **144 multiway flop decisions graded** (approximate) of the 146
+      calls and folds facing a bet (2 refused as side pots): Perfect 132,
+      Inaccurate 1, Mistake 11 (5 of them capped from Blunder); 19.9bb of
+      EV loss. Folds 93 (Perfect 88, Mistake 4, Inaccurate 1), calls 51
+      (Perfect 44, Mistake 7). 106 with three or more at the decision, 38
+      heads-up at it after a flop fold. Placeholder ranges in 118 of them.
+    - Hero flop decisions graded 129 → 273 of 1,095 (11.8% → 24.9%);
+      `multiway` refusals on the flop 393 → 285 (the checks and bets).
+      Flop grades Perfect 99 → 231, Good 19, Inaccurate 5 → 6, Mistake
+      6 → 17; flop EV loss 8.8 → 28.8bb. Turn and river grades do not move
+      (the walks are unchanged).
+  - `ANALYSIS_VERSION` `analysis/15`: flop multiway decisions get grades.
+    Tests: the table and its categories, the exact no-responder EV, the
+    heads-up reduction, the margin and cap from the options, the analysis
+    and both languages (`analysisMultiway`), the measurement's exact node
+    equities on the pilot and the fit (`flopRealisation`), the corpus
+    invariants for flop `approx`.
+  - **Open.**
+    - **Checks and bets (285) stay ungraded.** A bet's EV needs every
+      opponent's answer and the streets after; a check's is the same tree
+      seen from the other side. Nothing in the engine grounds either
+      multiway, so they keep facts and flags.
+    - The factor is heads-up. Multiway the hero's realisation is likely
+      lower for one-pair hands and higher for nut draws; no multiway
+      reference exists to measure it. The margin covers the heads-up
+      error, not this.
+    - The narrowing is the larger risk: e.g. 4-4 on 2-2-2 called against a
+      bet and a call reads 9% equity because the heuristic narrows the
+      bettor to overpairs, a Mistake the library would not give. The cap
+      and the margin bound it; a flop narrowing from the library for
+      multiway pots would fix it.
+    - Raises are not compared (3 decisions), and nobody re-raises behind
+      the hero; the turn's multiway decisions (a turn realisation from the
+      turn solver) are the next candidate.

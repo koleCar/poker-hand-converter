@@ -262,16 +262,40 @@ const riverReasons = {
 /** Why a multiway decision has no grade (A9). Keyed by `MULTIWAY_SKIP_REASONS`. */
 const multiwayReasons = {
   multiway:
-    "three or more players are in the pot, and no solver models three ranges at once; only a river call or fold facing a bet gets an approximate grade",
-  "multiway-side-pot": "a side pot (an all-in for less) splits the showdown, which the approximate river call does not model",
+    "three or more players are in the pot, and no solver models three ranges at once; only a flop or river call or fold facing a bet gets an approximate grade",
+  "multiway-side-pot": "a side pot (an all-in for less) splits the showdown, which the approximate call does not model",
   "multiway-crowded": "more than three players were still to answer the bet",
   "multiway-range-unknown": "a player's range could not be walked through the hand",
 } as Record<string, string>;
 
+/** A flop realisation category (`made|d`), in words. */
+const realisationMade = {
+  "fh+": "a full house or better",
+  flush: "a flush",
+  straight: "a straight",
+  set: "a set",
+  trips: "trips",
+  "two-pair": "two pair",
+  overpair: "an overpair",
+  "tp-top": "top pair, top kicker",
+  "tp-good": "top pair, good kicker",
+  "tp-weak": "top pair, weak kicker",
+  middle: "a middle pair",
+  weak: "a weak pair",
+  "ace-high": "ace high",
+  nothing: "no pair",
+} as Record<string, string>;
+
+function realisationWords(category: string): string {
+  const [made, draw] = category.split("|");
+  return `${realisationMade[made] ?? made} ${draw === "d" ? "with a draw" : "without a draw"}`;
+}
+
 /**
- * The approximate multiway grade's *why* (A9): the EV of calling against
- * folding, the showdown share behind it, who was still to answer, and what
- * the number rests on. Only numbers from `facts.multiway.ev` and the record.
+ * The approximate multiway grade's *why* (A9; the flop since analysis/15):
+ * the EV of calling against folding, the showdown share behind it, who was
+ * still to answer, and what the number rests on. Only numbers from
+ * `facts.multiway.ev` and the record.
  */
 function approxSentences(decision: DecisionAnalysis): string[] {
   const ev = decision.facts.multiway?.ev;
@@ -283,12 +307,28 @@ function approxSentences(decision: DecisionAnalysis): string[] {
     `${word} (approximate, multiway): against the ranges as narrowed, calling is worth ${signedBb(ev.call)} compared with folding, so ${better} is the better of the two.`,
   );
   if (decision.grade !== "perfect" && decision.evLoss !== null) {
-    out.push(`${decision.action === "fold" ? "Folding" : "Calling"} costs ${bb(decision.evLoss)} (${pct(decision.evLossPot ?? 0)} of the pot).`);
+    out.push(
+      `${decision.action === "fold" ? "Folding" : "Calling"} costs ${bb(decision.evLoss)} (${pct(decision.evLossPot ?? 0)} of the pot)${ev.realisation ? " beyond the model's margin (below)" : ""}.`,
+    );
   }
   const respond = ev.respond.map((r) => `${r.position ?? "a player"} calling about ${pct(r.call)} of the time`);
-  out.push(
-    `If you call, your hand wins ${pct(ev.equity)} of a showdown pot of about ${bb(ev.pot)} on average${respond.length > 0 ? `, with ${list(respond)}` : ""}.`,
-  );
+  const real = ev.realisation;
+  if (real) {
+    const where = real.ip >= 0.999 ? "in position" : real.ip <= 0.001 ? "out of position" : `in position ${pct(real.ip)} of the time`;
+    out.push(
+      `If you call, your hand has ${pct(ev.equity)} equity against the field in a pot of about ${bb(ev.pot)}${respond.length > 0 ? `, with ${list(respond)}` : ""}.`,
+    );
+    out.push(
+      `Two cards are still to come, so the share of the pot it goes on to win is that equity times ${real.factor.toFixed(2)}: what ${realisationWords(real.category)} realises ${where} facing a flop bet, measured on Rail's heads-up flop library.`,
+    );
+    out.push(
+      `That measurement is off by several percent of the pot from hand to hand, so only an EV loss beyond ${pct(real.margin)} of the pot counts against the move.`,
+    );
+  } else {
+    out.push(
+      `If you call, your hand wins ${pct(ev.equity)} of a showdown pot of about ${bb(ev.pot)} on average${respond.length > 0 ? `, with ${list(respond)}` : ""}.`,
+    );
+  }
   out.push(
     "Players still to act call or fold by the narrowing model and never re-raise, and raising is not one of the options compared: read this as an estimate, not a solved answer.",
   );
@@ -676,7 +716,7 @@ export const analysisEn = {
   reference: {
     title: "Preflop is graded against our charts, the turn and river against our solver",
     body:
-      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own preflop charts (6-max at 40–200 bb, full ring at 100–200 bb) wherever a chart covers the spot. Turn and river decisions in heads-up pots are graded by our own solver, on ranges narrowed on the flop by a heuristic model and into the river by the solved turn. The flop shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade. Multiway pots get facts against every opponent's range, and a river call or fold gets an approximate grade, labelled as such.",
+      "Preflop decisions get a grade, Perfect to Blunder, against Rail's own preflop charts (6-max at 40–200 bb, full ring at 100–200 bb) wherever a chart covers the spot. Turn and river decisions in heads-up pots are graded by our own solver, on ranges narrowed on the flop by a heuristic model and into the river by the solved turn. The flop shows its facts and the checks that hold whatever the strategy — a flag is a note, never a grade. Multiway pots get facts against every opponent's range, and a flop or river call or fold gets an approximate grade, labelled as such.",
     model:
       "The charts (charts/2) value a flop with the flop checked, so they still under-rate a few hands that win through implied odds: UTG folds 22–55, 54s–87s and A5s, and the button almost never flats a cutoff open. Grades against playing those lean harsh.",
     browse: "Browse the charts",
@@ -733,7 +773,7 @@ export const analysisEn = {
     badHands: (count: number) => `${hands(count)} with a Mistake or a Blunder`,
     showBad: "Show them",
     noGrades:
-      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot (three to nine players, 40–200 bb, no open limpers), turn and river decisions in heads-up pots by the solver, and multiway river calls and folds approximately.",
+      "Nothing graded in this sample yet. Preflop decisions are graded where the charts cover the spot (three to nine players, 40–200 bb, no open limpers), turn and river decisions in heads-up pots by the solver, and multiway flop and river calls and folds approximately.",
     byStreet: "By street",
     /** Big blinds to two decimals: "1.25 bb". */
     bb2: (value: number) => `${num(value, 2)} bb`,
@@ -752,8 +792,8 @@ export const analysisEn = {
     "hero-cards-unknown": "Your cards are unknown",
     "no-decisions": "You had no decision",
     multiway: "Multiway: facts and notes only",
-    "multiway-side-pot": "Multiway river: a side pot",
-    "multiway-crowded": "Multiway river: four or more to answer",
+    "multiway-side-pot": "Multiway: a side pot",
+    "multiway-crowded": "Multiway: four or more to answer",
     "multiway-range-unknown": "Multiway: a range could not be walked",
     "chart-straddle": "Preflop charts: straddle",
     "chart-ante": "Preflop charts: antes",
@@ -812,7 +852,9 @@ export const analysisEn = {
     "rare-line-depth":
       "The line is too rare at this stack depth to be charted, so it is read on the nearest depth that charts it; graded no worse than Inaccurate",
     "multiway-approx":
-      "Approximate multiway grade: a river call against a fold, by showdown EV on narrowed ranges; players to act call or fold by the model, raising is not compared; capped at Mistake",
+      "Approximate multiway grade: a flop or river call against a fold, by showdown EV on narrowed ranges; players to act call or fold by the model, raising is not compared; capped at Mistake",
+    "flop-realisation":
+      "Flop: the share of the pot your hand goes on to win is its equity times a factor measured on the heads-up flop library, by position and hand category; only the EV loss beyond 5% of the pot counts",
     "multiway-history": "Three or more saw the flop: solved heads-up from where the pot became heads-up, on ranges narrowed through the multiway streets",
   } as Record<string, string>,
 
@@ -949,7 +991,7 @@ export const analysisEn = {
     toggleTitle: "Show the analysis of this hand",
     notGraded: "Not graded",
     notGradedHint:
-      "Nothing in this hand was graded: the preflop charts did not cover this line, the flop is notes only, and the turn and river had no heads-up decision the solver could take, nor a multiway river call or fold to estimate.",
+      "Nothing in this hand was graded: the preflop charts did not cover this line, the flop is notes only, and the turn and river had no heads-up decision the solver could take, nor a multiway flop or river call or fold to estimate.",
     evLoss: "EV loss",
     evLossPot: (value: number) => `${pct(value)} of pot`,
     score: "Score",

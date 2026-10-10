@@ -347,7 +347,7 @@ export const bettingHr: ConceptTexts<Betting> = {
     why: [
       "Blefovi koji su dobri heads-up gube novac protiv dva ili tri igrača. U multiway potu betaj jake ruke i jake drawove, a više slabih ruku pusti.",
       "Mijenja se i value. Jak jedan par ili dva para ranjiviji su — više igrača drži karte koje ih prestižu — pa je slowplay skuplji i treba betati da ih naplatiš. Drawovi prema ruci koja nije nuts gube vrijednost: kad ti dođe boja, veća je vjerojatnost nego heads-up da netko drži jaču (obrnuti implied odds).",
-      "Rail ocjenjuje multiway odluke samo ondje gdje je to pošteno: call ili fold na riveru po EV-u protiv suženih raspona, označeno kao približno i nikad gore od Greške. Sve ostalo u multiway potu dobiva svoje činjenice i bilješke, i ove ideje iza njih.",
+      "Rail ocjenjuje multiway odluke samo ondje gdje je to pošteno: call ili fold na flopu ili riveru po EV-u protiv suženih raspona (na flopu puta ono što takva ruka kasnije realizira), označeno kao približno i nikad gore od Greške. Sve ostalo u multiway potu dobiva svoje činjenice i bilješke, i ove ideje iza njih.",
     ],
     formulas: [
       {

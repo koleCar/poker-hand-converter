@@ -9,7 +9,8 @@
  *   ├▶ headsUpWalk: the pot became heads-up at a street's start ─▶ the heads-up solvers, `multiway-history`
  *   ├▶ multiwayFacts: equity against each range and the field, the MDF split, fold equity, outs
  *   ├▶ multiwayFlags: bluffing into a crowd, slowplaying a vulnerable hand, calling off with a dominated draw
- *   └▶ riverCallEv: a river call against a fold, by showdown EV ─▶ `source: "approx"`
+ *   ├▶ riverCallEv: a river call against a fold, by showdown EV ─▶ `source: "approx"`
+ *   └▶ flopCallEv: a flop call against a fold, the showdown share realised by FLOP_REALISATION ─▶ `source: "approx"` (analysis/15)
  * ```
  *
  * **The walk.** Each player who saw the flop starts from their preflop range
@@ -32,6 +33,18 @@
  * callers' ranges narrowed by the call. The grade compares calling with
  * folding only — raising is not modelled — and is capped at Mistake, like
  * every grade resting on narrowed ranges.
+ *
+ * **The approximate flop call** (`analysis/15`). Two cards are to come, so
+ * the showdown share is not what a call wins: a hand facing a flop bet goes
+ * on to win its equity times a *realisation factor* - more for sets and
+ * draws (implied odds), less for ace-high and weak pairs - measured on the
+ * heads-up flop library by position after the call and hand category
+ * (`FLOP_REALISATION`). The enumeration of who answers is the river's; each
+ * way's share is multiplied by the factor for the hero's category, in
+ * position when the hero acts after everyone left in that way. Applying a
+ * heads-up factor to the share against several ranges is the assumption;
+ * held out on the library the factor's own error is several percent of the
+ * pot, so the grade counts only the EV loss beyond `FLOP_MARGIN_POT` of it.
  */
 
 import { equityVsRange, type WeightedCombo } from "../equity/range";
@@ -56,6 +69,7 @@ import {
   type StreetStrength,
 } from "./narrowing";
 import { flopSeats, preflopRangeOf, type PlayerRanges, type RangeWalk, type WalkFailure } from "./rangeWalk";
+import { flopBucket } from "./flopLibrary";
 import { rakeOf } from "./river";
 import { toIndices } from "./texture";
 import type { Approximation, Flag, Grade, MultiwayEv, MultiwayFacts, MultiwayOpponent, SpotFacts } from "./types";
@@ -690,6 +704,104 @@ export interface RiverCallEv {
   respond: MultiwayEv["respond"];
   scenarios: number;
   rake: string;
+  /** Flop only: the realisation factor applied to the share (`FLOP_REALISATION`). */
+  realisation?: MultiwayEv["realisation"];
+}
+
+/* --------------------------------------------- the flop's realisation - */
+
+/** The realisation table's id, stored with every approximate flop grade. */
+export const FLOP_REALISATION_MODEL = "floplib-r/1";
+
+/**
+ * Flop realisation factors (`analysis/15`): the share of the pot a hand facing
+ * a flop bet goes on to win, as a multiple of its equity, measured on the
+ * flop library (heads-up, `flop-m1`, the 6-max and 9-max 100bb lines as on
+ * 2026-10-10: 1,602 chunks, 15,174
+ * nodes facing a bet or a raise): per position after the call (last to act
+ * or not), the made-hand part of `flopBucket` and whether the hand has a
+ * draw (a flush draw, open-ender or gutshot; a backdoor is no draw). Fitted
+ * per category by least squares on
+ *
+ *     EV(call) − EV(fold) + toCall  ≈  R · equity · raked pot after the call
+ *
+ * (every number a fraction of the pot, each node's range weighted by reach).
+ * Implied odds are in `R`: a set wins more than its equity of today's pot,
+ * ace-high less. `tests/scripts/flop-library/realisation.ts` measures it
+ * (`npm run floplib:realisation`); §10 of `docs/ANALYSIS-PLAN.md` has
+ * the fit and its held-out error.
+ */
+export const FLOP_REALISATION: Readonly<Record<string, number>> = {
+  "ip|ace-high|d": 1.013,
+  "ip|ace-high|nd": 0.675,
+  "ip|fh+|nd": 1.383,
+  "ip|flush|nd": 1.283,
+  "ip|middle|d": 0.938,
+  "ip|middle|nd": 0.712,
+  "ip|nothing|d": 1.129,
+  "ip|nothing|nd": 0.728,
+  "ip|overpair|d": 0.947,
+  "ip|overpair|nd": 1.009,
+  "ip|set|nd": 1.41,
+  "ip|straight|d": 1.429,
+  "ip|straight|nd": 1.354,
+  "ip|tp-good|d": 0.979,
+  "ip|tp-good|nd": 0.868,
+  "ip|tp-top|d": 1.049,
+  "ip|tp-top|nd": 0.969,
+  "ip|tp-weak|d": 1.048,
+  "ip|tp-weak|nd": 0.81,
+  "ip|trips|nd": 1.211,
+  "ip|two-pair|nd": 1.197,
+  "ip|weak|d": 0.994,
+  "ip|weak|nd": 0.772,
+  "oop|ace-high|d": 0.87,
+  "oop|ace-high|nd": 0.602,
+  "oop|fh+|nd": 1.353,
+  "oop|flush|nd": 1.213,
+  "oop|middle|d": 0.84,
+  "oop|middle|nd": 0.681,
+  "oop|nothing|d": 0.99,
+  "oop|nothing|nd": 0.577,
+  "oop|overpair|d": 0.975,
+  "oop|overpair|nd": 1.049,
+  "oop|set|nd": 1.321,
+  "oop|straight|d": 1.411,
+  "oop|straight|nd": 1.318,
+  "oop|tp-good|d": 0.929,
+  "oop|tp-good|nd": 0.796,
+  "oop|tp-top|d": 1.021,
+  "oop|tp-top|nd": 0.943,
+  "oop|tp-weak|d": 0.994,
+  "oop|tp-weak|nd": 0.767,
+  "oop|trips|nd": 1.141,
+  "oop|two-pair|nd": 1.142,
+  "oop|weak|d": 0.869,
+  "oop|weak|nd": 0.644,
+};
+
+/** A category the table lacks (a set with a draw) reads its no-draw row, then the position's mean. */
+export const FLOP_REALISATION_POSITION: Readonly<Record<"ip" | "oop", number>> = { ip: 0.995, oop: 0.899 };
+
+/**
+ * The flop grade counts only the EV loss beyond this share of the pot: the
+ * realisation model's error. Held out on the library, a margin of 5% keeps
+ * 80% of the Mistake-or-worse calls right (73% with none) at a cost of a few
+ * mild misses (§10, `analysis/15`).
+ */
+export const FLOP_MARGIN_POT = 0.05;
+
+/** The realisation category of a hole-card pair on a flop: `made|d` or `made|nd`, position apart. */
+export function flopRealisationCategory(hole: readonly [number, number], board: readonly number[]): string {
+  const [made, draw] = flopBucket(hole, board).split("/");
+  return `${made}|${draw === "none" || draw === "bd" ? "nd" : "d"}`;
+}
+
+/** The realisation factor of a category (`flopRealisationCategory`) in or out of position. */
+export function flopRealisation(category: string, ip: boolean): number {
+  const pos = ip ? "ip" : "oop";
+  const made = category.split("|")[0];
+  return FLOP_REALISATION[`${pos}|${category}`] ?? FLOP_REALISATION[`${pos}|${made}|nd`] ?? FLOP_REALISATION_POSITION[pos];
 }
 
 /**
@@ -697,6 +809,20 @@ export interface RiverCallEv {
  * (module comment). Every amount in big blinds; a fold is 0.
  */
 export function riverCallEv(input: RiverCallInput): RiverCallEv | RiverCallFailure {
+  return callEv(input, "river");
+}
+
+/**
+ * The EV of calling a flop bet against folding (`analysis/15`): the river's
+ * enumeration of who answers, with the hero's showdown share of each way
+ * multiplied by its flop realisation factor (`FLOP_REALISATION`), in
+ * position when the hero acts after every player left in that way.
+ */
+export function flopCallEv(input: RiverCallInput): RiverCallEv | RiverCallFailure {
+  return callEv(input, "flop");
+}
+
+function callEv(input: RiverCallInput, street: "flop" | "river"): RiverCallEv | RiverCallFailure {
   const { spot, facts, hand, context, hero, walk } = input;
   const bb = Math.max(1, hand.game.bigBlind);
   const table = tableAt(hand, spot.action.index);
@@ -713,14 +839,17 @@ export function riverCallEv(input: RiverCallInput): RiverCallEv | RiverCallFailu
   if (!heroRange) return { ok: false, reason: "multiway-range-unknown", detail: "no hero range" };
 
   const fixed: Float64Array[] = [];
+  const fixedSeats: number[] = [];
   const responders: Array<{ seat: number; amount: number; range: Float64Array }> = [];
   for (const opponent of table.opponents) {
     const range = ranges.get(opponent.seat);
     if (!range) return { ok: false, reason: "multiway-range-unknown", detail: `no range for seat ${opponent.seat}` };
     const own = prepared(range, heroCards, EV_PRUNE_SHARE);
     if (rangeWeight(own) <= 0) return { ok: false, reason: "multiway-range-unknown", detail: `seat ${opponent.seat}'s range is empty` };
-    if (opponent.allIn || opponent.streetTotal >= table.high) fixed.push(own);
-    else responders.push({ seat: opponent.seat, amount: Math.min(table.high - opponent.streetTotal, opponent.behind), range: own });
+    if (opponent.allIn || opponent.streetTotal >= table.high) {
+      fixed.push(own);
+      fixedSeats.push(opponent.seat);
+    } else responders.push({ seat: opponent.seat, amount: Math.min(table.high - opponent.streetTotal, opponent.behind), range: own });
   }
   if (responders.length > MAX_RESPONDERS) return { ok: false, reason: "multiway-crowded", detail: `${responders.length} to answer` };
 
@@ -733,7 +862,7 @@ export function riverCallEv(input: RiverCallInput): RiverCallEv | RiverCallFailu
   const answers = responders.map((responder) => {
     const others = [heroRange, ...fixed, ...responders.filter((r) => r !== responder).map((r) => r.range)];
     const narrowInput: Omit<NarrowInput, "action"> = {
-      street: "river",
+      street,
       board,
       actor: responder.range,
       opponent: others[0],
@@ -754,16 +883,24 @@ export function riverCallEv(input: RiverCallInput): RiverCallEv | RiverCallFailu
   let equity = 0;
   let expectedPot = 0;
   let scenarios = 0;
+  // The flop: the share realised later, by the hero's hand category and
+  // whether the hero acts after everyone left in each way.
+  const category = street === "flop" && heroCards.length === 2 ? flopRealisationCategory([heroCards[0], heroCards[1]], board) : null;
+  const orderOf = (seat: number) => table.order.get(seat) ?? Number.MAX_SAFE_INTEGER;
+  let factorSum = 0;
+  let ipShare = 0;
   const ways = 1 << answers.length;
   for (let mask = 0; mask < ways; mask += 1) {
     let probability = 1;
     let pot = potBb + callBb;
     const field = [...fixed];
+    const seats = [...fixedSeats];
     answers.forEach((answer, i) => {
       if (mask & (1 << i)) {
         probability *= answer.p;
         pot += answer.amount / bb;
         field.push(answer.calling);
+        seats.push(answer.seat);
       } else {
         probability *= 1 - answer.p;
       }
@@ -777,7 +914,14 @@ export function riverCallEv(input: RiverCallInput): RiverCallEv | RiverCallFailu
         : equityVsRanges({ hero: facts.holeCards, ranges: lists, board: facts.board, seed: input.seed + mask, trials: FIELD_TRIALS * 2 }).equity;
     // The solver's rake rule (`lib/solver/tree.ts`): a share of the final pot, capped.
     const raked = pot - Math.min(pot * rake.percent, rake.cap);
-    ev += probability * (share * raked - callBb);
+    let factor = 1;
+    if (category !== null) {
+      const ip = seats.every((seat) => orderOf(seat) < table.actorOrder);
+      factor = flopRealisation(category, ip);
+      factorSum += probability * factor;
+      if (ip) ipShare += probability;
+    }
+    ev += probability * (factor * share * raked - callBb);
     equity += probability * share;
     expectedPot += probability * pot;
   }
@@ -792,6 +936,9 @@ export function riverCallEv(input: RiverCallInput): RiverCallEv | RiverCallFailu
     })),
     scenarios,
     rake: rake.name,
+    ...(category !== null
+      ? { realisation: { model: FLOP_REALISATION_MODEL, category, factor: round3(factorSum), ip: round3(ipShare), margin: FLOP_MARGIN_POT } }
+      : {}),
   };
 }
 
@@ -810,21 +957,41 @@ export interface ApproxGrade extends GradeResult {
  * the opponents hold (`dominated`).
  */
 export function gradeRiverCall(evs: RiverCallEv, action: "fold" | "call", potBb: number, dominated: boolean): ApproxGrade {
+  return gradeCall(evs, action, potBb, dominated, 0);
+}
+
+/**
+ * The approximate grade of a flop call or fold (`analysis/15`): as the
+ * river's, on `flopCallEv`, but only the EV loss beyond `FLOP_MARGIN_POT` of
+ * the pot counts - the realisation model's own error - and it is always
+ * capped at Mistake (on the flop no hand loses to everything for sure). The
+ * options carry the EV beyond the margin (the grade is §2 of the options,
+ * as everywhere); the model's own EV of the call stays in `ev.call`.
+ */
+export function gradeFlopCall(evs: RiverCallEv, action: "fold" | "call", potBb: number): ApproxGrade {
+  return gradeCall(evs, action, potBb, false, FLOP_MARGIN_POT);
+}
+
+function gradeCall(evs: RiverCallEv, action: "fold" | "call", potBb: number, dominated: boolean, margin: number): ApproxGrade {
   const callBest = evs.call > 0;
   const options: ApproxGrade["options"] = [
     { action: "fold", freq: callBest ? 0 : 1, ev: 0 },
     { action: "call", freq: callBest ? 1 : 0, ev: evs.call },
   ];
   const chosen = action === "fold" ? 0 : 1;
-  const raw = grade({ options, chosen, pot: potBb });
+  // Within the margin the two are too close for the model to call: no loss.
+  const beyond = Math.sign(evs.call) * Math.max(0, Math.abs(evs.call) - margin * potBb);
+  const graded = margin > 0 ? options.map((option) => ({ ...option, ev: option.action === "call" ? beyond : 0 })) : options;
+  const raw = grade({ options: graded, chosen, pot: potBb });
   const capped = !dominated && gradeRank(raw.grade) > gradeRank("mistake");
-  const result = capped ? grade({ options, chosen, pot: potBb, capAtMistake: true }) : raw;
+  const result = capped ? grade({ options: graded, chosen, pot: potBb, capAtMistake: true }) : raw;
   const approximations: Approximation[] = ["multiway-approx", "narrowing-heuristic", "rake-profile"];
+  if (margin > 0) approximations.push("flop-realisation");
   if (capped) approximations.push("range-cap");
   return {
     ...result,
     ok: true,
-    options,
+    options: graded,
     chosen,
     approximations: approximations.sort(),
     ev: {
@@ -836,6 +1003,7 @@ export function gradeRiverCall(evs: RiverCallEv, action: "fold" | "call", potBb:
       rake: evs.rake,
       capped: capped ? (raw.grade as Grade) : null,
       sensitivity: null,
+      ...(evs.realisation ? { realisation: evs.realisation } : {}),
     },
   };
 }

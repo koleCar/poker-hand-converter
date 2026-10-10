@@ -75,3 +75,14 @@ chunks and then the manifest.
 JSONL export of PHF hands (`FLOPLIB_HANDS`) with and without a local library
 (`FLOPLIB_DIR`, the runner's `--out`) and reports how the hero's flop grades
 change; `FLOPLIB_TURN_SAMPLE=N` adds the turn and river of the first N hands.
+It also reports the hero's flop decisions in multiway pots (by source,
+action and grade) and grades every heads-up flop call or fold the library
+grades a second time by the approximate multiway flop call (`analysis/15`),
+comparing the two.
+
+**The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
+measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
+(`realisation.ts`: every node facing a bet, every third combo, exact equity
+against the node's range) and prints it next to the committed table, then
+its held-out agreement with the library (fitted on half the flops, judged on
+the other half) at several margins. About ten minutes for 1,600 chunks.
