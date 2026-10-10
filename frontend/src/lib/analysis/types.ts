@@ -121,8 +121,12 @@ import type { Position, Street } from "../phf/types";
  *               measured on the flop library, only the EV loss beyond 5% of
  *               the pot counted, capped at Mistake (ANALYSIS-PLAN §10
  *               2026-10-10).
+ *   analysis/16 A turn call or fold facing a bet in a pot three or more saw
+ *               the turn of is graded the same way (`turn-realisation`): the
+ *               factor measured on Rail's own heads-up turn solves, capped at
+ *               Mistake (ANALYSIS-PLAN §10 2026-10-10, multiway turns).
  */
-export const ANALYSIS_VERSION = "analysis/15" as const;
+export const ANALYSIS_VERSION = "analysis/16" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
@@ -338,7 +342,11 @@ export interface Flag {
  *                       against the field times a factor measured on the
  *                       heads-up flop library by position and hand category;
  *                       only the EV loss beyond 5% of the pot counts.
- * - `multiway-history`  solved heads-up from a street that began heads-up,
+ * - `turn-realisation`  (analysis/16) the same on the turn: one card to come,
+ *                       the factor measured on Rail's own heads-up turn
+ *                       solves; only the EV loss beyond the turn's margin
+ *                       counts.
+ * - `multiway-history` solved heads-up from a street that began heads-up,
  *                       but three or more saw the flop: the ranges were
  *                       narrowed through the multiway streets, with card
  *                       removal between opponents only approximate.
@@ -370,6 +378,7 @@ export const APPROXIMATIONS = [
   "multiway-approx",
   "multiway-history",
   "flop-realisation",
+  "turn-realisation",
 ] as const;
 export type Approximation = (typeof APPROXIMATIONS)[number];
 
@@ -471,14 +480,19 @@ export type TurnSkipReason = (typeof TURN_SKIP_REASONS)[number];
  * facts and flags:
  *
  * - `multiway`               no reference exists for the spot: anything but
- *                            a river call or fold facing a bet (§10, A9);
+ *                            a call or fold facing a bet (§10: A9 on the
+ *                            river, analysis/15 the flop, analysis/16 the
+ *                            turn);
  * - `multiway-side-pot`      a river call with a side pot (an all-in for
  *                            less) — the showdown is not one pot;
  * - `multiway-crowded`       more than three players still to answer the bet;
  * - `multiway-range-unknown` a player's range could not be walked (no
- *                            preflop line, or emptied by the board).
+ *                            preflop line, or emptied by the board);
+ * - `multiway-reraise`       (analysis/16) a turn call or fold facing a
+ *                            re-raise: the turn's realisation was measured on
+ *                            a tree with one raise.
  */
-export const MULTIWAY_SKIP_REASONS = ["multiway", "multiway-side-pot", "multiway-crowded", "multiway-range-unknown"] as const;
+export const MULTIWAY_SKIP_REASONS = ["multiway", "multiway-side-pot", "multiway-crowded", "multiway-range-unknown", "multiway-reraise"] as const;
 export type MultiwaySkipReason = (typeof MULTIWAY_SKIP_REASONS)[number];
 
 export const DECISION_SKIP_REASONS = [
@@ -758,14 +772,14 @@ export interface MultiwayFacts {
   outs: { nut: number; nonNut: number; cards: number } | null;
   /** A straight-or-better draw whose outs are mostly not the nuts, with two or more opponents. */
   reverseImplied: boolean;
-  /** River or flop (`analysis/15`), facing a bet: the approximate EV of calling against folding. */
+  /** River, flop (`analysis/15`) or turn (`analysis/16`), facing a bet: the approximate EV of calling against folding. */
   ev: MultiwayEv | null;
 }
 
 /**
- * The approximate call (A9 on the river; the flop since `analysis/15`):
- * showdown EV against the narrowed ranges, on the flop times a realisation
- * factor measured on the flop library.
+ * The approximate call (A9 on the river; the flop since `analysis/15`, the
+ * turn since `analysis/16`): showdown EV against the narrowed ranges, on the
+ * flop and turn times a realisation factor measured on Rail's own solves.
  */
 export interface MultiwayEv {
   /** bb, net from the decision: calling against folding (a fold is 0). */
@@ -784,12 +798,21 @@ export interface MultiwayEv {
   /** The grade on the half-strength narrowing; null when not run. */
   sensitivity: { model: string; grade: Grade } | null;
   /**
-   * Flop only (`analysis/15`): the realisation table (`floplib-r/1`), the
-   * hero's category (`made|d` / `made|nd`), the factor applied (averaged over
+   * Flop (`analysis/15`) and turn (`analysis/16`): the realisation table
+   * (`floplib-r/1`, `turnsolve-r/1`), the hero's category (`made|d` /
+   * `made|nd`), the factor applied (averaged over
    * the ways the players to act answer), how often the hero is last to act
    * after the call, and the margin of the pot the grade forgives.
    */
-  realisation?: { model: string; category: string; factor: number; ip: number; margin: number };
+  realisation?: {
+    model: string;
+    category: string;
+    factor: number;
+    ip: number;
+    margin: number;
+    /** Turn only, when above 0: how often the call ends the betting (an all-in), where the share takes no factor. */
+    allIn?: number;
+  };
 }
 
 /**

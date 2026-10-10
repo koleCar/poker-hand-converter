@@ -78,7 +78,12 @@ change; `FLOPLIB_TURN_SAMPLE=N` adds the turn and river of the first N hands.
 It also reports the hero's flop decisions in multiway pots (by source,
 action and grade) and grades every heads-up flop call or fold the library
 grades a second time by the approximate multiway flop call (`analysis/15`),
-comparing the two.
+comparing the two. The same for the turn (`analysis/16`): the hero's turn
+decisions in pots three or more saw the turn of, and, under
+`FLOPLIB_TURN_SAMPLE`, every heads-up turn call or fold the turn solver
+grades graded again by the approximate turn call, with its factor and with
+R = 1. `FLOPLIB_TURN_BEFORE=0` skips the turn sample's pass without the
+library (about 40 minutes for 5,448 hands instead of twice that).
 
 **The flop realisation table.** `FLOPLIB_DIR=... npm run floplib:realisation`
 measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
@@ -86,3 +91,19 @@ measures `FLOP_REALISATION` (`lib/analysis/multiway.ts`) on a local library
 against the node's range) and prints it next to the committed table, then
 its held-out agreement with the library (fitted on half the flops, judged on
 the other half) at several margins. About ten minutes for 1,600 chunks.
+
+**The turn realisation table.** `npm run floplib:turn-realisation` measures
+`TURN_REALISATION` on Rail's own turn solves (`turnRealisation.ts`): every
+flop ending of a chunk that both ranges reach (3% or more) is dealt one fixed
+turn card and solved with A5a's turn solver (plus a third of a pot to the bet
+menu); every turn node facing a bet short of an all-in call is measured like
+the flop's. Two steps, the first resumable and run in shards side by side:
+
+    cd tests && FLOPLIB_DIR=... TURNREAL_OUT=/path/to/samples TURNREAL_SHARD=0/3 npm run floplib:turn-realisation   # also 1/3, 2/3
+    cd tests && TURNREAL_OUT=/path/to/samples [TURNREAL_JUDGE=/path/to/other] npm run floplib:turn-realisation
+
+The 6-max 100bb set (1,200 chunks, 6,505 turns) took about 1 h 40 min on three
+processes beside the batch. The report prints the table (rows of 50+ nodes)
+next to the committed one and the held-out agreement; `TURNREAL_JUDGE` judges
+it on a second corpus too (`FLOPLIB_SETS=nlhe-cash-9max-100bb` with
+`TURNREAL_SHARD=k/12` for a slice of the full-ring set).

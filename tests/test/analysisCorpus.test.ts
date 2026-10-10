@@ -111,21 +111,23 @@ describe("the analysis corpus", () => {
     }
   });
 
-  it("grades multiway flop and river calls and folds approximately, and nothing else multiway (A9, analysis/15)", () => {
+  it("grades multiway flop, turn and river calls and folds approximately, and nothing else multiway (A9, analysis/15, analysis/16)", () => {
     const decisions = RESULTS.flatMap((r) => r.analysis.decisions);
     const approx = decisions.filter((d) => d.source === "approx");
     expect(approx.length).toBeGreaterThan(10);
     expect(approx.filter((d) => d.street === "flop").length).toBeGreaterThan(10);
+    expect(approx.filter((d) => d.street === "turn").length).toBeGreaterThan(0);
     for (const d of approx) {
-      expect(["flop", "river"]).toContain(d.street);
+      expect(["flop", "turn", "river"]).toContain(d.street);
       expect(["fold", "call"]).toContain(d.action);
       expect(d.options.map((o) => o.action)).toEqual(["fold", "call"]);
       expect(d.approximations).toContain("multiway-approx");
       expect(d.facts.multiway?.ev).toBeTruthy();
-      // The flop's realisation, and never a Blunder there.
+      // The flop's and the turn's realisation, and never a Blunder there.
       expect(d.approximations.includes("flop-realisation")).toBe(d.street === "flop");
-      expect(Boolean(d.facts.multiway?.ev?.realisation)).toBe(d.street === "flop");
-      if (d.street === "flop") expect(d.grade).not.toBe("blunder");
+      expect(d.approximations.includes("turn-realisation")).toBe(d.street === "turn");
+      expect(Boolean(d.facts.multiway?.ev?.realisation)).toBe(d.street !== "river");
+      if (d.street !== "river") expect(d.grade).not.toBe("blunder");
     }
     // Every multiway postflop decision carries its multiway facts.
     for (const d of decisions) {
@@ -263,7 +265,7 @@ describe("every record satisfies the database's own constraints", () => {
         expect(decision.grade !== null).toBe(decision.source === "chart" || decision.source === "solver" || decision.source === "approx");
         if (decision.source === "chart") expect(decision.street).toBe("preflop");
         if (decision.source === "solver") expect(decision.street).toBe("river");
-        if (decision.source === "approx") expect(["flop", "river"]).toContain(decision.street);
+        if (decision.source === "approx") expect(["flop", "turn", "river"]).toContain(decision.street);
         for (const flag of decision.flags) expect(["note", "inaccurate"]).toContain(flag.severity);
         // Anything resting on a placeholder range is a note.
         for (const flag of decision.flags) {
@@ -300,8 +302,7 @@ describe("every record satisfies the database's own constraints", () => {
         if (decision.status !== "not-analysed") continue;
         if (decision.street === "preflop") expect(CHART_SKIP_REASONS).toContain(decision.reason);
         else if (decision.street === "river") expect([...MULTIWAY_SKIP_REASONS, ...RIVER_SKIP_REASONS]).toContain(decision.reason);
-        else if (decision.street === "flop") expect(MULTIWAY_SKIP_REASONS).toContain(decision.reason);
-        else expect(decision.reason).toBe("multiway");
+        else expect(MULTIWAY_SKIP_REASONS).toContain(decision.reason);
         expect(decision.reason).not.toBe("chart-unavailable");
       }
     }

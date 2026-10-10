@@ -25,6 +25,17 @@
  * or fold the library grades is graded a second time by the approximation
  * (`flopCallEv` on the heuristic walk), and the two grades are compared.
  * The dump also holds the approximate flop grades.
+ *
+ * **Multiway turns** (`analysis/16`): the hero's turn decisions in pots three
+ * or more saw the turn of (players at the decision, facing a bet or not,
+ * action, pot type, depth), by source and grade; the dump holds the
+ * approximate turn grades too. Under `FLOPLIB_TURN_SAMPLE` the approximate
+ * turn call is checked against the turn solver: every heads-up turn call or
+ * fold the solver grades is graded again by `turnCallEv` on the heuristic
+ * walk, with the turn's factor and without it (R = 1: `riverCallEv` on the
+ * same spot, which heads-up is the bare showdown share), both through the
+ * turn's margin. `FLOPLIB_TURN_BEFORE=0` skips the before-the-library pass of
+ * the turn sample (only the turn check is wanted, at half the cost).
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -37,9 +48,12 @@ import {
   flopCallEv,
   gradeFlopCall,
   gradeRank,
+  gradeTurnCall,
   heroSeatOf,
   heroSpots,
   heuristicModel,
+  riverCallEv,
+  turnCallEv,
   walkMultiway,
   type HandAnalysis,
 } from "../../../frontend/src/lib/analysis/index.js";
@@ -52,6 +66,7 @@ const FILE = process.env.FLOPLIB_HANDS ?? "";
 const DIR = process.env.FLOPLIB_DIR ?? "";
 const TURN_SAMPLE = Number(process.env.FLOPLIB_TURN_SAMPLE ?? 0);
 const DUMP = process.env.FLOPLIB_DUMP ?? "";
+const TURN_BEFORE = process.env.FLOPLIB_TURN_BEFORE !== "0";
 
 const bump = (m: Map<string, number>, key: string, by = 1) => m.set(key, (m.get(key) ?? 0) + by);
 const list = (m: Map<string, number>) =>
@@ -148,6 +163,71 @@ function approxAgainstLibrary(hand: PhfHand, after: HandAnalysis, charts: ChartS
   }
 }
 
+/** Seats still in when the turn came: those that acted on the flop, less the flop's folds. */
+const turnPlayers = (hand: PhfHand) => {
+  const seats = new Set(hand.actions.filter((a) => a.street === "flop" && a.seat !== null).map((a) => a.seat));
+  for (const a of hand.actions) if (a.street === "flop" && a.type === "fold") seats.delete(a.seat);
+  return seats.size;
+};
+
+const depthOf = (bb: number) => (bb < 50 ? "<50bb" : bb < 80 ? "50-80bb" : bb <= 120 ? "80-120bb" : bb <= 170 ? "120-170bb" : "170bb+");
+
+/** The hero's turn decisions in pots three or more saw the turn of: what they are, and how they are graded. */
+function multiwayTurns(hand: PhfHand, after: HandAnalysis, out: Map<string, number>) {
+  if (turnPlayers(hand) < 3) return;
+  for (const d of after.decisions) {
+    if (d.street !== "turn") continue;
+    const facing = d.facts.toCallBb > 0;
+    bump(out, "decisions");
+    bump(out, `players ${d.facts.players}`);
+    bump(out, `${facing ? "facing a bet" : "not facing a bet"}: ${d.action}`);
+    bump(out, `pot ${after.potType}`);
+    bump(out, `depth ${depthOf(d.facts.effStackBb)}`);
+    bump(out, `graded: ${d.source} ${d.action}${facing ? " facing a bet" : ""} ${d.grade ?? d.reason ?? ""}`);
+    if (d.source === "approx") bump(out, "approx EV loss bb", d.evLoss ?? 0);
+  }
+}
+
+/**
+ * The approximate turn call against the turn solver where both answer: each
+ * heads-up turn call or fold facing a bet that the solver grades, graded
+ * again by `turnCallEv` on the heuristic walk, and by the bare showdown
+ * share (R = 1) through the same margin. "solver -> approximate".
+ */
+function approxAgainstTurnSolver(hand: PhfHand, after: HandAnalysis, charts: ChartSet, out: Map<string, number>) {
+  const targets = after.decisions.filter(
+    (d) => d.street === "turn" && d.source === "solver" && (d.action === "call" || d.action === "fold") && d.facts.toCallBb > 0,
+  );
+  if (targets.length === 0) return;
+  const copy = structuredClone(hand);
+  const context = buildContext(copy);
+  const hero = heroSeatOf(context);
+  if (hero === null) return;
+  const walk = walkMultiway(copy, context, hero, charts, heuristicModel);
+  if (!walk.ok) return;
+  const spots = heroSpots(context, hero);
+  for (const d of targets) {
+    const spot = spots.find((s) => s.action.index === d.actionIndex);
+    if (!spot || !d.grade) continue;
+    const input = { spot, facts: d.facts, hand: copy, context, hero, walk, model: heuristicModel, charts, seed: 7 };
+    const evs = turnCallEv(input);
+    const bare = riverCallEv(input);
+    if (!evs.ok || !bare.ok) continue;
+    bump(out, "n");
+    for (const [name, e] of [
+      ["factor", evs],
+      ["R = 1", bare],
+    ] as const) {
+      const ours = gradeTurnCall(e, d.action as "call" | "fold", d.facts.potBb).grade;
+      bump(out, `${name}: ${d.grade} -> ${ours}`);
+      if (ours === d.grade) bump(out, `${name} same`);
+      if (gradeRank(ours) >= 2 === gradeRank(d.grade) >= 2) bump(out, `${name} same side`);
+      if (gradeRank(ours) >= 3 && gradeRank(d.grade) <= 1) bump(out, `${name} false alarm`);
+      if (gradeRank(d.grade) >= 3 && gradeRank(ours) <= 1) bump(out, `${name} miss`);
+    }
+  }
+}
+
 it("measures the flop library on a stored library", { timeout: 12 * 60 * 60_000 }, async () => {
   if (!FILE || !existsSync(FILE) || !DIR || !existsSync(DIR)) {
     console.log("FLOPLIB_HANDS (JSONL of PHF hands) and FLOPLIB_DIR (the library) must both be set; nothing to do");
@@ -168,6 +248,7 @@ it("measures the flop library on a stored library", { timeout: 12 * 60 * 60_000 
   const dump: string[] = [];
   const multiway = new Map<string, number>();
   const check = new Map<string, number>();
+  const turns = new Map<string, number>();
   for (const [h, hand] of hands.entries()) {
     await library.prefetch(hand, charts);
     const before = analyzeHand(structuredClone(hand), { charts, turn: false });
@@ -181,15 +262,18 @@ it("measures the flop library on a stored library", { timeout: 12 * 60 * 60_000 
       bump(multiway, `${d.source} ${d.action}${d.facts.toCallBb > 0 ? " facing a bet" : ""}${d.grade ? ` ${d.grade}` : ""}`);
       if (d.source === "approx") bump(multiway, "approx EV loss bb", d.evLoss ?? 0);
     }
+    multiwayTurns(hand, after, turns);
     if (DUMP) {
       after.decisions.forEach((d, k) => {
-        if (d.street !== "flop" || (d.source !== "solver" && d.source !== "approx")) return;
+        const approxTurn = d.street === "turn" && d.source === "approx";
+        if ((d.street !== "flop" || (d.source !== "solver" && d.source !== "approx")) && !approxTurn) return;
         const facts = d.facts.flop?.source === "library" ? d.facts.flop : null;
         const real = d.facts.multiway?.ev?.realisation ?? null;
         dump.push(
           JSON.stringify({
             hand: h,
             decision: k,
+            street: d.street,
             source: d.source,
             grade: d.grade,
             evLoss: d.evLoss,
@@ -211,21 +295,35 @@ it("measures the flop library on a stored library", { timeout: 12 * 60 * 60_000 
       `--- the approximate flop call against the library (heads-up flop calls and folds both grade): ${check.get("n") ?? 0}`,
       `  same grade ${check.get("same") ?? 0}, same side of Good/Inaccurate ${check.get("same side") ?? 0}, false alarms (approx Mistake, library Perfect or Good) ${check.get("false alarm") ?? 0}`,
       `  ${list(new Map([...check].filter(([k]) => k.includes("->"))))}`,
+      `--- multiway turns (three or more saw the turn): ${turns.get("decisions") ?? 0} hero turn decisions`,
+      `  ${list(new Map([...turns].filter(([k]) => k !== "decisions" && !k.startsWith("approx EV"))))}`,
+      `  approximate grades' EV loss: ${(turns.get("approx EV loss bb") ?? 0).toFixed(1)} bb`,
     ].join("\n"),
   );
 
   if (TURN_SAMPLE > 0) {
     const turn = fresh();
     const river = fresh();
+    const solverCheck = new Map<string, number>();
     const t0 = performance.now();
     for (const hand of hands.slice(0, TURN_SAMPLE)) {
-      const before = analyzeHand(structuredClone(hand), { charts });
       const after = analyzeHand(structuredClone(hand), { charts, flopLibrary: library });
+      const before = TURN_BEFORE ? analyzeHand(structuredClone(hand), { charts }) : after;
       compare("turn", before, after, turn);
       compare("river", before, after, river);
+      approxAgainstTurnSolver(hand, after, charts, solverCheck);
     }
     console.log(`=== turn and river, first ${TURN_SAMPLE} hands (${((performance.now() - t0) / 1000).toFixed(0)} s)`);
     report("turn", turn);
     report("river", river);
+    const n = solverCheck.get("n") ?? 0;
+    console.log(`--- the approximate turn call against the turn solver (heads-up turn calls and folds it grades): ${n}`);
+    for (const name of ["factor", "R = 1"]) {
+      console.log(
+        `  ${name}: same grade ${solverCheck.get(`${name} same`) ?? 0}, same side ${solverCheck.get(`${name} same side`) ?? 0}, ` +
+          `false alarms ${solverCheck.get(`${name} false alarm`) ?? 0}, misses ${solverCheck.get(`${name} miss`) ?? 0}`,
+      );
+      console.log(`    ${list(new Map([...solverCheck].filter(([k]) => k.startsWith(`${name}:`))))}`);
+    }
   }
 });

@@ -37,8 +37,10 @@
  * (`source: "approx"`, capped at Mistake), and so does a flop call or fold
  * facing a bet in a pot three or more saw the flop of (`analysis/15`: the
  * showdown share times a realisation factor measured on the flop library,
- * `flop-realisation`); everything else multiway is `not-analysed` with its
- * facts and flags.
+ * `flop-realisation`), and a turn call or fold facing a bet in a pot three
+ * or more saw the turn of (`analysis/16`: the factor measured on Rail's own
+ * heads-up turn solves, `turn-realisation`); everything else multiway is
+ * `not-analysed` with its facts and flags.
  *
  * Deterministic: the same document gives the same analysis, bit for bit,
  * including every sampled equity (the seed is fixed per decision). That is what
@@ -48,7 +50,7 @@
  * **What is analysed (§3.5, §8).** v1 covers No-Limit Hold'em cash. A hand
  * outside that is `not-analysed` with its reason; inside it, a multiway
  * postflop decision is graded only where an honest approximation exists (the
- * flop and river calls above) and is otherwise `not-analysed` (`partial`) with its
+ * flop, turn and river calls above) and is otherwise `not-analysed` (`partial`) with its
  * facts and notes, because no solver here models three ranges at once.
  * Saying nothing is better than saying something wrong, and the reader is
  * told which it was.
@@ -69,10 +71,12 @@ import {
   flopCallEv,
   gradeFlopCall,
   gradeRiverCall,
+  gradeTurnCall,
   headsUpWalk,
   multiwayFacts,
   multiwayFlags,
   riverCallEv,
+  turnCallEv,
   walkMultiway,
   type ApproxGrade,
   type MultiWalk,
@@ -674,7 +678,8 @@ export interface HandRiver {
 type Walked = RangeWalk | { ok: false; reason: WalkFailure } | null;
 
 /**
- * The approximate call (A9 on the river, `analysis/15` on the flop), with the
+ * The approximate call (A9 on the river, `analysis/15` on the flop,
+ * `analysis/16` on the turn), with the
  * sensitivity check of the solver grades: a grade of Inaccurate or worse is
  * recomputed on the half-strength narrowing, and when the two are more than
  * a class apart the milder one is kept (`range-sensitive`).
@@ -693,12 +698,14 @@ function approxCall(
   const action = spot.decision.type as "fold" | "call";
   const dominated = action === "fold" ? built.cannotLose : built.beatsNoHolding;
   const potBb = built.facts.potBb;
-  const flop = spot.street === "flop";
+  const street = spot.street;
   const on = (walk: MultiWalk, model: NarrowingModel) => {
     const input = { spot, facts: built.facts, hand, context, hero, walk, model, charts, seed };
-    const evs = flop ? flopCallEv(input) : riverCallEv(input);
+    const evs = street === "flop" ? flopCallEv(input) : street === "turn" ? turnCallEv(input) : riverCallEv(input);
     if (!evs.ok) return evs;
-    return flop ? gradeFlopCall(evs, action, potBb) : gradeRiverCall(evs, action, potBb, dominated);
+    if (street === "flop") return gradeFlopCall(evs, action, potBb);
+    if (street === "turn") return gradeTurnCall(evs, action, potBb);
+    return gradeRiverCall(evs, action, potBb, dominated);
   };
   const full = on(multi, heuristicModel);
   if (!full.ok || gradeRank(full.grade) < SENSITIVE_FROM) return full;
@@ -1210,13 +1217,17 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
       solvedRiver.approximations = libraryApprox(solvedRiver.approximations, flop, solvedRiver.river.narrowing !== "turn-solver");
     }
 
-    // Multiway (A9): facts against every range and the field, and for a river
-    // or (analysis/15) flop call or fold facing a bet in a pot that was
-    // multiway, the approximate EV. A flop that three or more saw is
-    // multiway even once the hero is heads-up on it: the library is not.
+    // Multiway (A9): facts against every range and the field, and for a river,
+    // (analysis/15) flop or (analysis/16) turn call or fold facing a bet in a
+    // pot that was multiway, the approximate EV. A flop that three or more
+    // saw is multiway even once the hero is heads-up on it (the library is
+    // not); so is a turn that began with three or more (the turn solver is
+    // heads-up from the street's start).
+    const turnBeganMultiway = street === "turn" && multi !== null && (multi.starts.turn?.size ?? 0) > 2;
     const wasMultiway =
       multiway ||
       (street === "flop" && multiWalked !== null) ||
+      turnBeganMultiway ||
       (street === "river" && solvedRiver !== null && !solvedRiver.ok && solvedRiver.reason === "river-multiway-flop");
     let mw: MultiwayFacts | null = null;
     let approx: ApproxGrade | null = null;
@@ -1237,7 +1248,7 @@ export function analyzeHand(hand: PhfHand, options: AnalyzeOptions = {}): HandAn
       } catch {
         mw = null;
       }
-      if ((street === "river" || street === "flop") && spot.toCall > 0 && (action === "fold" || action === "call")) {
+      if (spot.toCall > 0 && (action === "fold" || action === "call")) {
         if (!multi) {
           approxSkip = "multiway-range-unknown";
         } else {
