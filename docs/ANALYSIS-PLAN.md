@@ -3190,3 +3190,88 @@ Each phase appends what it learned that changed the plan.
     - ~~The shared read still returns `facts.villain`~~ Done: it never did (`analysis_public_facts` lists keys); now also `- 'villain'` in `read_shared_analysis` and `withoutOwnerFacts` client-side (`20270407090000`, `analysis_share_villain.test.sql`).
     - The parameters are the owner's opponents' (one pool, around $0.50/$1);
       refit on more libraries when there are some.
+- 2026-10-11 — Villain limp statistics: **nothing shipped**
+  (`tests/scripts/caller-ranges/limp.mjs`, `limpCounters.ts`).
+  `ANALYSIS_VERSION` stays `analysis/20`; no migration, no behaviour change.
+  - **Why.** `analysis/20`'s open item: limps and limp-calls did not move with
+    VPIP − PFR, VPIP or the overall limp frequency; a limp frequency counted
+    per position, or what a limper does facing a raise, might separate limp
+    ranges better than overall looseness.
+  - **Data.** The 266 shown limps of `analysis/19`'s extract (first limps
+    116, over-limps 48, limp-calls 102; 119 players; 224 of them have at
+    least 30 hands of statistics behind them leave one out, 143 counting
+    only earlier hands), scored as `analysis/19`/`analysis/20` (mean log-likelihood
+    per combo, a hand outside the range at a twentieth of a uniform combo).
+    New counters, counted from the hands for the study only
+    (`limpCounters.ts`; `npm run ranges:extract` writes them, with `rfi` and
+    `iso`, to the local `.stats.jsonl`, never committed): the open limp per
+    position group (EP UTG..UTG+2, MP MP/LJ/HJ, LP CO/BTN, the small blind's
+    completion), the over-limp, and a limper's answer to a raise behind
+    (fold, call, re-raise). Pool rates over the library's 308 opponents: open
+    limp 12.0% (EP 12.9, MP 13.2, LP 9.9, SB 15.3), over-limp 17.6%; facing a
+    raise after a limp (803 times) fold 38.4%, call 56.7%, re-raise 5.0%.
+    Players differ a lot (open limp, the 170 with 30+ hands: 10th percentile
+    0%, median 6%, 90th 49%), but samples are thin where it matters: the
+    median regular has 31 open-limp chances (EP 13, MP 8, LP 8), 7 over-limp
+    chances and 2 limps that met a raise.
+  - **Method.** `analysis/20`'s, unchanged: five folds by player; in each
+    the population shape refitted on the other players, the adjustment's
+    parameters on their shown limps; δ = γ · (logit(r̂) − logit(p) − c), r̂
+    shrunk to the pool's p by k hands (k fitted, and fixed at 15), nothing
+    below 30 hands (`vpip_opp`); every held-out limp scored with its player's
+    statistics counted over their other hands (leave one out) and over only
+    earlier hands; standard errors clustered by player. Twelve statistics ×
+    seven forms (one γ; γ per line; each line alone with γ and c, the form
+    `villain/1` shipped; γ per line and c; a *tilt*, δ[class] = u · (γ0 + γ1
+    · z[class]) with z the class's standardised logit - stronger or weaker
+    hands, not only more of them), 84 candidates, four runs each.
+  - **Held out** (Δ against `population/1` per combo; γ per line and c, k
+    fitted - the form of `analysis/20`'s table):
+
+    | statistic | all limps (266) | first limp | over-limp | limp-call | all limps, earlier hands only |
+    |---|---|---|---|---|---|
+    | overall limp (`limp_opp`, `analysis/20`'s) | −0.006 ± 0.008 | −0.013 | +0.001 | −0.002 | +0.001 ± 0.005 |
+    | VPIP − PFR | −0.005 ± 0.008 | −0.011 | +0.011 | −0.005 | +0.001 ± 0.006 |
+    | open limp, EP + MP + LP | −0.009 ± 0.008 | −0.012 | −0.025 | +0.003 | −0.006 ± 0.003 |
+    | open limp, with the SB's completion | −0.018 ± 0.009 | −0.022 | −0.045 | −0.000 | +0.001 ± 0.004 |
+    | open limp in the hand's position group | −0.009 ± 0.009 | −0.018 | −0.013 | +0.003 | −0.010 ± 0.005 |
+    | over-limp | −0.008 ± 0.010 | −0.008 | −0.008 | −0.007 | −0.010 ± 0.011 |
+    | limp, then fold to a raise | −0.010 ± 0.006 | −0.011 | −0.025 | −0.001 | −0.008 ± 0.005 |
+    | limp, then call a raise | −0.022 ± 0.011 | −0.014 | −0.095 | +0.003 | −0.017 ± 0.008 |
+    | limp, then re-raise | −0.007 ± 0.005 | −0.007 | −0.032 | +0.005 | −0.011 ± 0.006 |
+    | limp share (limps / limps + opens + isolations) | −0.017 ± 0.016 | −0.017 | −0.073 | +0.009 | −0.015 ± 0.008 |
+    | each line its own (position open limp / over-limp / limp-call) | −0.012 ± 0.009 | −0.027 | +0.002 | −0.000 | −0.012 ± 0.007 |
+    | the same, limp-calls on limp-then-fold | −0.015 ± 0.011 | −0.026 | −0.013 | −0.002 | −0.021 ± 0.012 |
+
+    The other forms say the same. With one γ and no offset every statistic
+    loses on the limps together in all four runs (leave one out and earlier
+    hands, k fitted and 15: −0.004 to −0.016). The tilt loses too (all
+    limps −0.004 to −0.033, first limps worst). Each line alone, the most
+    consistent of the 84 × 4: a first limp on the player's over-limp rate
+    +0.008 ± 0.005, +0.001 ± 0.004, +0.011 ± 0.008, +0.013 ± 0.008 (leave
+    one out, k fitted / 15; earlier hands, k fitted / 15); a limp-call on the
+    open-limp rate in its position +0.006 ± 0.005, +0.002 ± 0.002, +0.007 ±
+    0.006, +0.007 ± 0.006; an over-limp never above zero. A few single cells
+    reach two standard errors in one run and turn over in another (a first
+    limp on limp-then-fold: +0.008 ± 0.004 on earlier hands, −0.018 ± 0.008
+    leave one out); across 84 candidates × 4 runs × 3 lines that is what
+    chance gives, and even the consistent ones are a tenth of the big
+    blind's +0.065. Compare `analysis/20`: every statistic tried moved the
+    big blind's defence by +0.04 to +0.08 in both splits.
+  - **Not shipped.** No candidate beats population-only on held-out shown
+    limps, so `population/1` stays the limp and limp-call range for
+    everybody; `villain/1` still moves the big blind only. No counter added
+    to the statistics, nothing in the app, no version bump.
+  - **Open.**
+    - Why nothing moves: the population limp ranges are already wide
+      (`population/1`: first limp 729 combos, over-limp 778, limp-call 712)
+      and the per-position and facing-a-raise samples are a handful of
+      chances per player; a pool with more hands per regular (or several
+      learners' libraries) may show what this one cannot.
+    - The limp-call on its position's open-limp rate (+0.002 to +0.007) and
+      the first limp on the over-limp rate (+0.001 to +0.013) are the only
+      positive signs; worth re-testing, not shipping, when the shown limps
+      double.
+    - The limp lines' ranges could still differ by what the player does
+      after the flop (a limper who check-folds most flops), which no
+      preflop counter sees; untested.

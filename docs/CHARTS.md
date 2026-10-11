@@ -1151,7 +1151,9 @@ keeps opponent statistics with at least 30 hands behind them, starts from
 that population range moved by the player's own VPIP − PFR, shrunk toward
 the pool's by the sample (`lib/analysis/villain.ts`, `range-villain`;
 ANALYSIS-PLAN §10 2026-10-10, villain statistics). The other population
-lines do not move: held out, no statistic improved them.
+lines do not move: held out, no statistic improved them - for limps and
+limp-calls not even the open limp per position, the over-limp or a
+limper's answer to a raise (§10 2026-10-11, villain limp statistics).
 
 **Loading.** `rareLineChartSets` also lists the `uncoveredDepthSets` of a
 decision the loaded sets refuse as `stack-depth`; a set not loaded is

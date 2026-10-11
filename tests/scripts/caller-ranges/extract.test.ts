@@ -33,8 +33,9 @@ import type { PhfHand, Position } from "../../../frontend/src/lib/phf/types.js";
 import { buildContext } from "../../../frontend/src/lib/stats/context.js";
 import { handFacts } from "../../../frontend/src/lib/stats/derive.js";
 import type { CounterKey } from "../../../frontend/src/lib/stats/types.js";
+import { limpCounters } from "./limpCounters.js";
 
-/** The statistics counters the per-villain study reads (analysis/20). */
+/** The statistics counters the per-villain studies read (analysis/20; the raise-first-in and isolation counters for the limp study, 2026-10-11). */
 const VILLAIN_COUNTERS: readonly CounterKey[] = [
   "hands",
   "vpip_opp",
@@ -44,6 +45,10 @@ const VILLAIN_COUNTERS: readonly CounterKey[] = [
   "limp",
   "cold_call_opp",
   "cold_call",
+  "rfi_opp",
+  "rfi",
+  "iso_opp",
+  "iso",
   "three_bet_opp",
   "three_bet",
   "fold_to_steal_opp",
@@ -89,10 +94,12 @@ it("extracts shown opponents", () => {
   const tally = new Map<string, number>();
   const bump = (k: string) => skipped.set(k, (skipped.get(k) ?? 0) + 1);
   for (const [h, hand] of hands.entries()) {
+    // analysis/21 candidates: limps by position group, over-limps, and what a limper did facing a raise.
+    const limps = limpCounters(buildContext(structuredClone(hand)));
     for (const seat of handFacts(structuredClone(hand)).seats) {
       if (seat.isHero) continue;
       const villain = createHash("sha256").update(`${hand.meta.siteId}:${seat.player}`).digest("hex").slice(0, 12);
-      const c: Record<string, number> = {};
+      const c: Record<string, number> = { ...limps.get(seat.seat) };
       for (const key of VILLAIN_COUNTERS) if (seat.counters[key]) c[key] = seat.counters[key];
       stats.push(JSON.stringify({ h, date: hand.playedAt, villain, c }));
     }
