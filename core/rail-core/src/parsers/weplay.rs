@@ -142,37 +142,6 @@ fn strip_bom(text: &str) -> &str {
     text.strip_prefix('\u{FEFF}').unwrap_or(text)
 }
 
-/// `value % modulus === 0` for a JavaScript number: true exactly when the
-/// value is finite and an integer multiple of `modulus` (`fmod` is exact).
-fn is_multiple_of(value: JsNumber, modulus: u64) -> bool {
-    let JsNumber::Finite {
-        significand,
-        exponent,
-        ..
-    } = value
-    else {
-        return false;
-    };
-    if significand == 0 {
-        return true;
-    }
-    let modulus = u128::from(modulus);
-    if exponent >= 0 {
-        // significand * 2^exponent, reduced modulo `modulus` step by step.
-        let mut rest = u128::from(significand) % modulus;
-        for _ in 0..exponent {
-            rest = (rest * 2) % modulus;
-        }
-        return rest == 0;
-    }
-    let shift = exponent.unsigned_abs();
-    if shift >= 64 || significand & ((1_u64 << shift) - 1) != 0 {
-        // Not an integer, so no multiple of an integer.
-        return false;
-    }
-    u128::from(significand >> shift) % modulus == 0
-}
-
 /// `MoneyContext`.
 #[derive(Debug, Clone)]
 struct Money {
@@ -193,7 +162,7 @@ fn format_units(units: JsNumber, money: &Money) -> String {
         return format!("{symbol}{}", units.to_js_string());
     }
     let divided = units / JsNumber::from_u64(money.minor_units);
-    if is_multiple_of(units, money.minor_units) {
+    if units.is_multiple_of(money.minor_units) {
         format!("{symbol}{}", divided.to_js_string())
     } else {
         format!("{symbol}{}", divided.to_fixed(2))

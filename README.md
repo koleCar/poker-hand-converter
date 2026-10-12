@@ -96,7 +96,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Component | Today | Target | Phase |
 | --- | --- | --- | --- |
 | Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer; empty Rust workspace in place (R0.1) | Same format, defined in Rust and exported to TypeScript | 0 |
-| Parsers | **19 parsers in TypeScript**, run in the browser; in Rust so far `standard` and the PokerStars family (`pokerstars`, `ggpoker`, `weplay`, `coinpoker`), each equal to the TypeScript on every corpus file (R0.6, R0.7) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
+| Parsers | **19 parsers in TypeScript**, run in the browser; in Rust so far `standard`, the PokerStars family (`pokerstars`, `ggpoker`, `weplay`, `coinpoker`) and the `*****` family (`partypoker`, `888poker`, `pokerbros`), each equal to the TypeScript on every corpus file (R0.6–R0.8) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
 | Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads) | Same registry fed by the desktop too, with consent and anonymisation | 0 |
 | `config/sites.json` | — | Paths, formats, window titles and HUD policy per room | 0–1 |
 | File watcher | — | FSEvents / ReadDirectoryChangesW + periodic rescan | 1 |
@@ -397,11 +397,24 @@ regenerate its TypeScript declarations with
 Workspace lints deny lossy integer casts and float arithmetic, because money is
 integer minor units everywhere; the core crates forbid `unsafe`.
 
+Convert files from the command line with the Rust core (since R0.8; the parsers
+ported so far):
+
+```bash
+cargo run -p rail-core --bin rail-convert -- <file>...          # per file: encoding, detected parsers, hands, refusals
+cargo run -p rail-core --bin rail-convert -- --json <file>...   # stdout: each file's hands as a canonical PHF array
+cargo run -p rail-core --bin rail-convert -- --text <file>...   # stdout: each file's standard text, byte for byte
+```
+
+With `--json` or `--text` the per-file summary goes to stderr. The exit code is
+1 only when a file cannot be read (2 for a usage error); a refused hand or an
+unrecognised file is part of the result. `meta.parsedAt` is pinned to
+1970-01-01, as in the goldens: the core has no clock.
+
 Coming with later steps:
 
 | Command | What it does | Step |
 | --- | --- | --- |
-| `cargo run -p rail-core --bin rail-convert -- <file>` | Convert a file from the command line | R0.7 |
 | `npm run tauri dev --workspace app` | Desktop app in development | R1.1 |
 | `cargo run -p rail-hud-sim` | Table simulator: fake tables writing real corpus hands, for HUD work without a poker client | R3.1 |
 

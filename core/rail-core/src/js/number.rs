@@ -49,6 +49,13 @@ pub enum JsNumber {
     },
 }
 
+/// `+0`.
+impl Default for JsNumber {
+    fn default() -> Self {
+        Self::ZERO
+    }
+}
+
 impl JsNumber {
     /// `+0`.
     pub const ZERO: Self = Self::Finite {
@@ -579,6 +586,54 @@ impl JsNumber {
         } else {
             self
         }
+    }
+
+    /// `Math.min(a, b)`: `NaN` if either is, and `-0` over `+0`.
+    pub fn min_of(self, other: Self) -> Self {
+        if self.is_nan() || other.is_nan() {
+            Self::Nan
+        } else if self.less_than(other) {
+            self
+        } else if other.less_than(self) || other.is_sign_negative() {
+            other
+        } else {
+            self
+        }
+    }
+
+    /// `x % modulus === 0`: true exactly when `x` is finite and an integer
+    /// multiple of `modulus` (`%` on doubles is exact, so this is too).
+    /// `false` for a `modulus` of 0 (`x % 0` is `NaN`).
+    pub fn is_multiple_of(self, modulus: u64) -> bool {
+        let Self::Finite {
+            significand,
+            exponent,
+            ..
+        } = self
+        else {
+            return false;
+        };
+        if modulus == 0 {
+            return false;
+        }
+        if significand == 0 {
+            return true;
+        }
+        let modulus = u128::from(modulus);
+        if exponent >= 0 {
+            // significand * 2^exponent, reduced modulo `modulus` step by step.
+            let mut rest = u128::from(significand) % modulus;
+            for _ in 0..exponent {
+                rest = (rest * 2) % modulus;
+            }
+            return rest == 0;
+        }
+        let shift = exponent.unsigned_abs();
+        if shift >= 64 || significand & ((1_u64 << shift) - 1) != 0 {
+            // Not an integer, so no multiple of an integer.
+            return false;
+        }
+        u128::from(significand >> shift) % modulus == 0
     }
 
     /// `Math.floor(x)`.

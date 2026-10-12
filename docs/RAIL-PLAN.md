@@ -800,6 +800,128 @@ under WASM; the registry records an unknown file end to end.
 
 ### R0.8 Parsers, `*****` family — M
 - `partypoker`, `pokerstars888` (888poker), `pokerbros`.
+- *As built* (§15):
+  - **Layout** (`core/rail-core/src/parsers/`): `partypoker.rs`,
+    `pokerstars888.rs` (`Poker888Parser`, id `888poker`), `pokerbros.rs`
+    (both converter dialects), and in `shared/` `p2_partygaming.rs` (all of
+    `p2-partygaming.ts`: the banner, 888 and partypoker stakes/date/game
+    patterns, `banner_and_stakes`, `known_zone`, `iso_from_party_date`,
+    `iso_from_888_date`, `unit_for`, `bracket_amount`,
+    `split_bannered_hands`, `is_noise_line`, `is_chat_line`, plus the
+    `boardOf` both rooms copy, as `dealing_board`) and `p2_handbuilder.rs`
+    (all of `p2-handbuilder.ts`: `DraftStreet`, `DRAFT_STREETS`,
+    `DraftSeat`, `DraftKind`, `DraftAction` (with `DraftAction::new`),
+    `DraftCollect`, `HandDraft`, `draft_to_standard_text`,
+    `format_header_date`, `build_hand`). The three parsers are registered in
+    `index.ts` order (`888poker`, `partypoker` after `ggpoker`; `pokerbros`
+    after `runitonce`).
+  - **For the rooms still to come**: `p2_handbuilder` is the builder of
+    iPoker and MicroGaming (R0.9) and of Ongame, Entraction and Unibet
+    (R0.10, Unibet calls `draft_to_standard_text` and `format_header_date`
+    directly); Ongame also uses `iso_from_party_date` and `known_zone`.
+    `toTotal` (iPoker's raise-to) is implemented and exercised by
+    PokerBros' party dialect.
+  - **The draft is in JavaScript numbers.** The TypeScript builder replays
+    the betting in doubles and *prints* the results (commitments, the
+    derived uncalled return, pot, rake) into standard text that
+    `parse_standard_hand` reads back. So every amount of a draft is a
+    `JsNumber` (`money::parse_amount_js`, `format_amount_js`, new), and so are
+    seat numbers, the table size and the button (`Seat 007:` prints as
+    `Seat 7:`): a twenty-digit amount prints as `$1e+21` and reads back as
+    121 cents in both. `JsNumber` gained `min_of` (`Math.min`),
+    `is_multiple_of` (moved from WePlay) and `Default`; the shared
+    `formatAmountDigits` now tests `% minorUnits === 0` exactly for every
+    double (it was exact only within `i64`; no corpus hand changes). JS
+    `Date.UTC` (`date_utc`: years 0-99 are 19xx, every field rolls over,
+    TimeClip) joined `phf/serialize/date.rs`.
+  - **A change in R0.7a's shared modules**: the clone dialect
+    (`parse_stars_family_body`) no longer refuses a table size or button
+    beyond `u32` on the spot. It passes the JavaScript numbers to
+    `StarsHandDraft::set_table_numbers` (new), which holds them back and
+    makes `build` return the parser error only if no later `set_table`
+    replaced them - which is when the TypeScript's hand holds a number no
+    PHF can. PokerBros needs that: it rewrites a button on an empty seat
+    from the small blind, so a `Seat #99999999999999999999 is the button`
+    becomes a valid hand in TypeScript (found by the soak run).
+    `DialectResult` gained `button_seat_number` and `max_seats_number`.
+  - **Golden agreement** (`tests/golden_sites.rs`): `partypoker` **15 / 15**
+    files, **18** hands, **1** refusal (`no-winner`); `888poker` **14 / 14**
+    files, **13** hands, **1** refusal (`truncated-hand`); `pokerbros`
+    **2 / 2** files, **2** hands (warnings `button-seat-empty`,
+    `unknown-timezone`, `ambiguous-timestamp`, `hero-attribution`) - each
+    fully: ranking, chunks, PHF, standard text per hand and per file
+    (including both hi/lo fixtures of 888 and partypoker's `wins Lo`),
+    warnings, refusal stage, reason, message and fingerprint, stats.
+    Whole-file detection of the eight ported parsers equals the goldens on
+    **all 556** files.
+  - **Beyond the corpus** (`tests/data/p2pb-vectors.{mjs,json}`, 1.8 MB, run
+    by `tests/p2pb_vectors.rs`; the generator bundles the TypeScript): the
+    three parsers' splits of every corpus file and of 16 edge texts, 24
+    detection probes, **3 145** seeded mutations of every corpus chunk of
+    the three rooms (catalogues of each dialect's lines; other banners and
+    stakes lines - currencies, zones, hi/lo, stud, five-card Omaha, the
+    European 888 locale, rolled-over dates -; changed amounts; cut hands;
+    `\r` / `\r\n` / U+2028 line ends; a BOM), each through **all three**
+    parsers - detection and outcome, 9 435 outcomes (1 851 hands), every
+    refusal reason of the three reached - and the 31 corpus files
+    re-encoded six ways (UTF-16 LE with and without BOM, UTF-16 BE,
+    Windows-1252 with `€` and `£` amounts, CRLF) through `rail_core::convert`
+    (186 files, 198 hands): all equal. Two soak runs with other seeds
+    (`P2PB_STRESS=<seed>`, 31 135 cases each) were equal too, after the
+    deferral above.
+  - **TS oddities kept**: partypoker skips any line equal to the stakes line
+    and takes the unit from the symbol alone (`$0.05/$0.10 EUR` is USD); an
+    888 seat line after `** Summary **` is not a seat line and falls through
+    to the other patterns; both rooms read the board off the raw text
+    (`boardOf`: the first `** Dealing flop ** [..]` at a JavaScript line
+    start, `\s*` may span lines), so a marker with an empty bracket is no
+    board and the actions on a street without board cards never reach the
+    hand (the builder writes a street's lines only under its marker); a turn
+    or river bracket keeps its first card; PokerBros' party dialect keeps
+    the last card of a turn/river bracket instead, falls back to the highest
+    seat (not a table size) for `maxSeats`, keeps leading whitespace in
+    `rawText` (`trimEnd` only) and books a blind posted by an unseated name;
+    `big blind + dead` before any big blind is all live; the builder labels
+    `(small blind)` / `(big blind)` by the first poster's name and looks the
+    name up by seat number (a duplicated seat number labels the first);
+    the last `shows` of a player wins the SUMMARY; a `NaN` rake is accepted
+    (`NaN < 0` is false); `Date.UTC` reads a year `0014` as 1914 and rolls
+    `February 31, 25:61:61` over; an unknown month leaves the header date
+    empty; `knownZone` is TypeScript's `in` over upper-cased keys (no
+    prototype member is upper case, so it is a plain lookup).
+  - **Not reproducible, reported**: nothing new. A seat beyond `u32` is
+    still R0.6's parser error (now deferred for the table line, above);
+    `toISOString`'s `RangeError` is unreachable for four-digit years.
+  - **`rail-convert`** (README §8; no step had owned it): a `[[bin]]` of
+    `rail-core`, plain `std` and `serde_json` (already a dependency) - no new
+    dependency, and the wasm32 build, which compiles every target of the
+    package, still passes. `rail-convert [--json | --text] <file>...`:
+    `rail_core::convert` per file; a summary (encoding, ranking, hands,
+    refusals with chunk, stage, reason, message), or the canonical PHF array
+    (`--json`) or the standard text file byte for byte (`--text`) on stdout
+    with the summaries on stderr. Exit 1 only when a file cannot be read, 2
+    for a usage error. `tests/rail_convert.rs` runs the binary on three
+    corpus files against their goldens (PHF hashes, `standardTextFile`) and
+    checks the exit codes.
+  - 36 TypeScript test cases translated (`tests/p2pb_parsers.rs`): the
+    888poker and partypoker parts of `p2Parsers.test.ts` (corpus, hand
+    keys, the shared detection namespace), the PokerBros parts of
+    `p3Parsers.test.ts` (corpus, all seven PokerBros tests, the namespace),
+    the 888poker/partypoker parts of `phfHiLo` (halves, the converted hi/lo
+    fixtures) and `phfOmaha` (partypoker 08), plus source and unit tests in
+    the modules. Skipped: the replayer checks (`buildReplay`), the all-in EV
+    check (R2.2), and the iPoker, Full Tilt and Run It Once parts.
+    `legacyNetworks.test.ts` is Ongame, Entraction and MicroGaming only;
+    `phfDetect` and `phfPositions` have no part about these rooms.
+  - **For R0.9** (`ipoker`, `microgaming`): both build on `p2_handbuilder`
+    (draft amounts are `JsNumber`; set `to_total` for iPoker's raise code).
+    Both read XML with `shared/p2-xml.ts`, a hand-written reader (not a
+    library) whose leniency and `malformed-xml` refusals are behaviour - port
+    it rather than substituting `quick-xml`, or hold `quick-xml` to it with
+    vectors. MicroGaming also needs `p4-textroom.ts`'s `decodeBase64Utf16`
+    and `strictAmount`. iPoker assembles `meta.rawText` itself (R0.5a's
+    decode note: 26 hands). `p2pb-vectors.mjs` is a template for mutation
+    vectors that run every case through several parsers.
 
 ### R0.9 Parsers, XML — M
 - `ipoker`, `microgaming`. Choose the XML reader once (`quick-xml`), share it.
@@ -1234,3 +1356,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-12 | **R0.6 done**: `serialize.ts` in Rust (`rail_core::phf::serialize`): `toStandardText` with every presentation rule of `resolveTextStyle`, `toStandardTextFile`, the reader (`parseStandardHand`, `splitStandardHands`, `parseStandardText`) and the `standard` parser, registered (moved from R0.7). `golden::SERIALIZER` is on: the text hash agrees on **8 422 / 8 422** hands and the per-file hash on **556 / 556** files; the 39 files `standard` wins match their goldens fully (881 hands). Round trip over every golden hand, held to the TypeScript's answers (`tests/data/serialize-vectors.*`): the re-read hand equals the TypeScript's on 8 422 / 8 422, semantically equal on 8 097 (the TypeScript's own round trip loses something on the same 325), byte-stable on 8 421 (the same one exception); 2 460 mutations and 25 texts agree. Lookahead patterns written as code, tested against Node; V8's `Date` reading reproduced (day rollover, `24:00`). 39 TS test cases translated. Not reproducible, reported: `seat: -1` for a straddler without a seat and seat-like numbers beyond `u32` (an error here), zone-less dates (local time in JS). |
 | 2026-10-12 | **R0.7a done** (R0.7 split into R0.7a and R0.7b): `pokerstars` and `ggpoker` in Rust, with all of `ps-gg-hand.ts` (`StarsHandDraft`), `p3-draft.ts` and `p3-stars-dialect.ts` as reusable modules in `parsers::shared`; both registered. Goldens: `pokerstars` **45 / 45** files (108 hands, 5 refusals), `ggpoker` **24 / 24** (215 hands, 2 refusals), fully; the 39 `standard` files now with their whole ranking; whole-file detection of the ported parsers equal to the goldens on all 556 files. Beyond the corpus, held to the TypeScript (`tests/data/psgg-vectors.*`): 3 420 mutated chunks through both parsers and 164 clone-dialect cases equal (two 17 054-case soak runs too). The GG parser and `parse_standard_hand` agree on every GG cash hand. 117 TS test cases translated, `psggInvariants.ts` included. Not reproducible, reported: a straddler with no seat line (`seat: -1`) - the same `unseated-actor` refusal, reached by `BuildError::UnseatedStraddler`. |
 | 2026-10-12 | **R0.7b done, R0.7 complete** (A9: R1.1-R1.3 may start): `weplay` and `coinpoker` in Rust, registered in `index.ts` order. WePlay's normalizer computes in `JsNumber` (doubles, `%`, `toFixed`) and hands its text to `parse_standard_hand`; CoinPoker builds on `StarsHandDraft` and edits `results` after `build`. Goldens: `weplay` **128 / 128** files (6 726 hands, 96 refusals incl. one validator `chip-mismatch`), `coinpoker` **16 / 16** (21 hands, 1 refusal), fully; whole-file detection of the five ported parsers equal to the goldens on all 556 files. Beyond the corpus (`tests/data/wpcp-vectors.*`): 3 291 mutated chunks under default and strict options, WePlay's normalizer alone too, all equal (two soak runs of ~29 400 cases too); `byteCompat` reproduced against the frozen pre-PHF converter (5 983 hands: 5 783 identical, 199 in the three accepted classes, 1 dropped). 65 TS test cases translated. Not reproducible, reported: a WePlay table size, button or seat beyond `u32` (R0.6's rule). |
+| 2026-10-12 | **R0.8 done**: `partypoker`, `888poker` and `pokerbros` in Rust, registered in `index.ts` order, with all of `p2-partygaming.ts` and `p2-handbuilder.ts` as reusable modules in `parsers::shared` (the builder of iPoker, MicroGaming, Ongame, Entraction and Unibet too). The draft builder computes in `JsNumber` - amounts, seats, size and button are printed into the standard text it re-reads. Goldens: `partypoker` **15 / 15** files (18 hands, 1 refusal), `888poker` **14 / 14** (13 hands, 1 refusal), `pokerbros` **2 / 2** (2 hands), fully; whole-file detection of the eight ported parsers equal to the goldens on all 556 files. Beyond the corpus (`tests/data/p2pb-vectors.*`): 3 145 mutated chunks through all three parsers and the 31 files re-encoded six ways (UTF-16 LE/BE, Windows-1252, CRLF) through `convert`, all equal (two 31 135-case soak runs too). R0.7a's clone dialect now defers a table size or button beyond `u32` to `build` (`set_table_numbers`), so PokerBros' button correction reproduces the TypeScript. `rail-convert` built (README §8): a std-only `[[bin]]` of `rail-core`, summary / `--json` / `--text`, smoke-tested against the goldens. 36 TS test cases translated. |

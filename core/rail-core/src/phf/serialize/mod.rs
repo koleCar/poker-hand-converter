@@ -44,7 +44,7 @@ use std::sync::LazyLock;
 use regex::Regex;
 
 pub use self::date::format_played_at;
-pub(crate) use self::date::parse_played_at;
+pub(crate) use self::date::{date_utc, parse_instant, parse_played_at, to_iso_string, utc_fields};
 pub use self::read::{
     STANDARD_TEXT_PARSER_VERSION, StandardContext, parse_standard_hand, parse_standard_text,
     split_standard_hands,

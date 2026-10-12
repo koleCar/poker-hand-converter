@@ -174,6 +174,42 @@ pub(crate) fn to_iso_string(ms: i64) -> String {
     )
 }
 
+/// `Date.UTC(year, month, day, hour, minute, second)` for integer arguments
+/// (`month` 0-based and possibly out of range, as JavaScript allows): a year
+/// from 0 to 99 is 1900 + year, every field rolls over (`MakeDay`,
+/// `MakeTime`), and an instant beyond ±8.64e15 ms is `None` (`NaN`). The
+/// arithmetic is exact: the TypeScript's doubles are exact for these
+/// integers, which the PartyGaming date regexes keep to a few digits.
+pub(crate) fn date_utc(
+    year: i64,
+    month: i64,
+    day: i64,
+    hour: i64,
+    minute: i64,
+    second: i64,
+) -> Option<i64> {
+    let year = if (0..=99).contains(&year) {
+        1900 + year
+    } else {
+        year
+    };
+    let year = year.checked_add(month.div_euclid(12))?;
+    let month = month.rem_euclid(12) + 1;
+    // Far beyond the ±100 000 000-day range already; also keeps the civil
+    // arithmetic below inside `i64`.
+    if year.abs() > 1_000_000 {
+        return None;
+    }
+    let days = i128::from(days_from_civil(year, month, 1)) + i128::from(day) - 1;
+    let time =
+        i128::from(hour) * 3_600_000 + i128::from(minute) * 60_000 + i128::from(second) * 1000;
+    let ms = days * i128::from(DAY_MS) + time;
+    if ms.abs() > i128::from(MAX_TIME_MS) {
+        return None;
+    }
+    i64::try_from(ms).ok()
+}
+
 /// `new Date(text)`'s UTC fields, `None` for an invalid date.
 pub(crate) fn utc_fields(text: &str) -> Option<UtcFields> {
     parse_instant(text).map(fields)

@@ -609,6 +609,11 @@ pub struct StarsHandDraft {
     run_it_twice_note: bool,
     small_blind_posted: Amount,
     big_blind_posted: Amount,
+    /// What `set_table_numbers` could not hold as a `u32` (`"a table size"`,
+    /// `"a button seat"`); `build` fails with the parser error while it is
+    /// set. A later `set_table` replaces it, as a later `setTable` replaces
+    /// the JavaScript number.
+    table_unrepresentable: Option<&'static str>,
 }
 
 /// `map.get(key) ?? 0` over an insertion-ordered map.
@@ -659,6 +664,7 @@ impl StarsHandDraft {
             run_it_twice_note: false,
             small_blind_posted: 0,
             big_blind_posted: 0,
+            table_unrepresentable: None,
         }
     }
 
@@ -705,6 +711,31 @@ impl StarsHandDraft {
         self.max_seats = max_seats;
         self.button_seat = button_seat;
         self.fast_fold = fast_fold;
+        self.table_unrepresentable = None;
+    }
+
+    /// `setTable(name, maxSeats, buttonSeat, fastFold)` with the size and the
+    /// button as the JavaScript numbers the TypeScript passes. A value beyond
+    /// `u32` is held back (the size as 0, the button as `None`) and makes
+    /// [`build`](Self::build) return the parser error - the TypeScript's hand
+    /// would hold a number no PHF can - unless a later `set_table` replaces
+    /// it, as PokerBros does with a button on an empty seat.
+    pub fn set_table_numbers(
+        &mut self,
+        name: Option<String>,
+        max_seats: JsNumber,
+        button_seat: Option<JsNumber>,
+        fast_fold: Option<String>,
+    ) {
+        let as_u32 = |n: JsNumber| n.to_i64().and_then(|n| u32::try_from(n).ok());
+        let size = as_u32(max_seats);
+        let button = button_seat.map(as_u32);
+        self.set_table(name, size.unwrap_or(0), button.flatten(), fast_fold);
+        if size.is_none() {
+            self.table_unrepresentable = Some("a table size");
+        } else if button.is_some_and(|button| button.is_none()) {
+            self.table_unrepresentable = Some("a button seat");
+        }
     }
 
     /// `seat(seat, name, stack, sittingOut = false)`; a name listed twice is
@@ -1367,8 +1398,18 @@ impl StarsHandDraft {
     /// the pipeline is the authority. For a hi/lo game the halves are
     /// assigned as `parseStandardHand` does, so the room's hand and its
     /// standard text agree.
-    #[allow(clippy::too_many_lines)]
     pub fn build(&mut self) -> Result<PhfHand, BuildError> {
+        let hand = self.build_hand()?;
+        // The TypeScript builds this hand; its table size or button is a
+        // number no PHF holds (see `set_table_numbers`).
+        match self.table_unrepresentable {
+            Some(what) => Err(BuildError::Thrown(unrepresentable(what))),
+            None => Ok(hand),
+        }
+    }
+
+    #[allow(clippy::too_many_lines)]
+    fn build_hand(&mut self) -> Result<PhfHand, BuildError> {
         let unit = self.init.game.unit.clone();
 
         if self.max_seats == 0 {

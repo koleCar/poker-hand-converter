@@ -222,21 +222,30 @@ fn saturating_amount(value: JsNumber) -> Amount {
 /// with `Number()`, multiplies by the unit's minor units and `Math.round`s, as
 /// doubles. (`undefined`/`null` in TypeScript are the empty string here.)
 pub fn parse_amount(raw: &str, unit: &CurrencyUnit) -> Amount {
+    saturating_amount(parse_amount_js(raw, unit))
+}
+
+/// `parseAmount` as the JavaScript number it returns, for a parser that goes
+/// on computing with it in doubles (the PartyGaming draft builder,
+/// `parsers::shared::p2_handbuilder`): `Math.round(Number(cleaned) *
+/// minorUnits)`, which beyond 2^53 or past `i64` is not what
+/// [`parse_amount`] saturates to.
+pub fn parse_amount_js(raw: &str, unit: &CurrencyUnit) -> JsNumber {
     if raw.is_empty() {
-        return 0;
+        return JsNumber::ZERO;
     }
     let cleaned: String = raw
         .chars()
         .filter(|c| c.is_ascii_digit() || *c == '.' || *c == '-')
         .collect();
     if cleaned.is_empty() {
-        return 0;
+        return JsNumber::ZERO;
     }
     let value = JsNumber::parse(&cleaned);
     if !value.is_finite() {
-        return 0;
+        return JsNumber::ZERO;
     }
-    saturating_amount((value * minor_units(unit)).round())
+    (value * minor_units(unit)).round()
 }
 
 /// Why a printed amount could not be held exactly (`AmountProblem`).
@@ -410,12 +419,9 @@ fn format_digits(
         abs.to_js_string()
     } else {
         let whole = abs / minor_units(unit);
-        // `abs % minorUnits === 0`: abs is an integer here, so the remainder
-        // is exact (and NaN, never 0, for a zero divisor).
-        let divisible = unit.minor_units != 0
-            && abs
-                .to_i64()
-                .is_some_and(|n| n % i64::from(unit.minor_units) == 0);
+        // `abs % minorUnits === 0`: exact for every double (and NaN, never
+        // 0, for a zero divisor or a non-finite amount).
+        let divisible = abs.is_multiple_of(u64::from(unit.minor_units));
         if divisible {
             // Both styles drop the decimals on round amounts: "$3", never "$3.00".
             whole.to_js_string()
@@ -459,6 +465,22 @@ pub fn format_amount(
         group_thousands,
     );
     if amount < 0 {
+        format!("-{}{digits}", unit.symbol)
+    } else {
+        format!("{}{digits}", unit.symbol)
+    }
+}
+
+/// `formatAmount` for an amount held as a JavaScript number: `NaN`,
+/// `Infinity` and integers beyond 2^53 print as JavaScript prints them.
+pub fn format_amount_js(
+    amount: JsNumber,
+    unit: &CurrencyUnit,
+    style: DecimalStyle,
+    group_thousands: bool,
+) -> String {
+    let digits = format_digits(amount.abs(), unit, style, group_thousands);
+    if amount.less_than(JsNumber::ZERO) {
         format!("-{}{digits}", unit.symbol)
     } else {
         format!("{}{digits}", unit.symbol)

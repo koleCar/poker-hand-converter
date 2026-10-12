@@ -159,3 +159,46 @@ fn coinpoker() {
     assert_eq!(report.pending_text_hashes, 0);
     assert_eq!(report.unported_candidates, 0);
 }
+
+/// `partypoker` (R0.8): NL, PL and FL Hold'em, PL Omaha, the `PL Omaha
+/// Hi-Lo` split pot with partypoker's own `wins Lo (...)`, dead blinds,
+/// sit-outs, timebank lines, a five-hand file; one refusal (`no-winner`, a
+/// hand cut off before it was settled).
+#[test]
+fn partypoker() {
+    let report = golden::check(Selection::Parsers(&["partypoker"]));
+    assert_eq!(
+        report.files, 15,
+        "the set of files `partypoker` wins changed"
+    );
+    assert_eq!(report.hands, 18);
+    assert_eq!(report.refusals, 1);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `888poker` (R0.8): 888poker, LuckyAcePoker and Cassava skins - NL and FL
+/// Hold'em, NL Omaha, `Pot Limit OmahaHL` (a scoop, a pot with no low), a
+/// dead blind, thousands separators; one refusal (`truncated-hand`).
+#[test]
+fn poker888() {
+    let report = golden::check(Selection::Parsers(&["888poker"]));
+    assert_eq!(report.files, 14, "the set of files `888poker` wins changed");
+    assert_eq!(report.hands, 13);
+    assert_eq!(report.refusals, 1);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `pokerbros` (R0.8): the one hand in both converter dialects - the party
+/// dialect (derived pot and rake, the hero mis-attribution, the 12-hour
+/// clock) and the PokerStars dialect (the button on an empty seat).
+#[test]
+fn pokerbros() {
+    let report = golden::check(Selection::Parsers(&["pokerbros"]));
+    assert_eq!(report.files, 2, "the set of files `pokerbros` wins changed");
+    assert_eq!(report.hands, 2);
+    assert_eq!(report.refusals, 0);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
