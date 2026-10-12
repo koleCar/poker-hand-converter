@@ -366,7 +366,7 @@ async function main(): Promise<void> {
   const finished = readStats(treeDir);
   writeManifest(treeDir, charts, finished);
   log(`\n${todo.length - failed} solved, ${failed} failed, in ${((Date.now() - started) / 3600_000).toFixed(2)} h wall`);
-  estimate(options, spots, finished, log);
+  estimate(options, lines, spots, finished, log);
 }
 
 main().catch((error) => {
