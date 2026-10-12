@@ -1,0 +1,17 @@
+[package]
+name = "rail-core-wasm"
+description = "WebAssembly facade over rail-core for the web app and the TypeScript harness"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+repository.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rail-core = { path = "../rail-core" }
+
+[lints]
+workspace = true

@@ -1,0 +1,49 @@
+# Rail core, desktop and HUD crates (docs/RAIL-PLAN.md §3.1).
+#
+# The web app and the TypeScript test harness are npm projects and live outside
+# this workspace; `rail-core-wasm` is how they will reach the Rust core.
+
+[workspace]
+resolver = "3"
+members = [
+  "core/rail-core",
+  "core/rail-core-wasm",
+  "core/rail-stats",
+  "core/rail-equity",
+  "core/rail-store",
+  "core/rail-watch",
+  "core/rail-sync",
+  "core/rail-config",
+  "hud/rail-hud",
+  "hud/rail-hud-sim",
+]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.99"
+# The licence is an open decision (docs/RAIL-PLAN.md P8, Q7). Until it is made,
+# nothing here is published.
+publish = false
+repository = "https://github.com/koleCar/poker-hand-converter"
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+missing_debug_implementations = "warn"
+
+[workspace.lints.clippy]
+# Money is integer minor units everywhere (docs/PHF-SPEC.md §1). A silent
+# `as` between integer widths, or into a float, is how an amount goes wrong
+# without anything failing.
+cast_possible_truncation = "deny"
+cast_possible_wrap = "deny"
+cast_sign_loss = "deny"
+cast_precision_loss = "deny"
+float_arithmetic = "deny"
+dbg_macro = "deny"
+todo = "deny"
+unwrap_used = "warn"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

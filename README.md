@@ -95,7 +95,7 @@ Performance targets (guideline §1, measured from Phase 2):
 
 | Component | Today | Target | Phase |
 | --- | --- | --- | --- |
-| Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer | Same format, defined in Rust and exported to TypeScript | 0 |
+| Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer; empty Rust workspace in place (R0.1) | Same format, defined in Rust and exported to TypeScript | 0 |
 | Parsers | **19 parsers in TypeScript**, run in the browser | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
 | Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads) | Same registry fed by the desktop too, with consent and anonymisation | 0 |
 | `config/sites.json` | — | Paths, formats, window titles and HUD policy per room | 0–1 |
@@ -363,22 +363,36 @@ npm test                     # 3188 tests over the real corpus
 Database tests (pgTAP) run against a local Supabase stack; see
 [`docs/DATABASE.md`](docs/DATABASE.md).
 
-### Rust core, desktop app and HUD (from Phase 0)
+### Rust workspace (since R0.1)
 
-Requires a Rust toolchain (pinned in `rust-toolchain.toml` once it lands):
+The Cargo workspace at the root holds the core, desktop and HUD crates
+(`core/`, `hud/`); see [`docs/RAIL-PLAN.md` §3.1](docs/RAIL-PLAN.md#31-cargo-workspace).
+`rust-toolchain.toml` pins the compiler, so rustup installs the right one on the
+first `cargo` call. Install rustup once:
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-Then, as each part lands:
+What CI runs on Linux, macOS and Windows:
 
-| Command | What it does |
-| --- | --- |
-| `cargo test --workspace` | Core unit tests and the golden diff against the TypeScript oracle |
-| `cargo run -p rail-core --bin rail-convert -- <file>` | Convert a file from the command line |
-| `npm run tauri dev --workspace app` | Desktop app in development |
-| `cargo run -p rail-hud-sim` | Table simulator: fake tables writing real corpus hands, for HUD work without a poker client |
+```bash
+cargo fmt --all --check
+cargo clippy --workspace --all-targets --locked -- -D warnings
+cargo test --workspace --locked
+cargo build -p rail-core -p rail-core-wasm --target wasm32-unknown-unknown --locked
+```
+
+Workspace lints deny lossy integer casts and float arithmetic, because money is
+integer minor units everywhere; the core crates forbid `unsafe`.
+
+Coming with later steps:
+
+| Command | What it does | Step |
+| --- | --- | --- |
+| `cargo run -p rail-core --bin rail-convert -- <file>` | Convert a file from the command line | R0.7 |
+| `npm run tauri dev --workspace app` | Desktop app in development | R1.1 |
+| `cargo run -p rail-hud-sim` | Table simulator: fake tables writing real corpus hands, for HUD work without a poker client | R3.1 |
 
 ---
 

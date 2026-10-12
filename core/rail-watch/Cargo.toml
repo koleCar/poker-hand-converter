@@ -1,0 +1,15 @@
+[package]
+name = "rail-watch"
+description = "Hand-history folder discovery, watching and incremental reading"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+repository.workspace = true
+
+[dependencies]
+rail-core = { path = "../rail-core" }
+rail-config = { path = "../rail-config" }
+
+[lints]
+workspace = true

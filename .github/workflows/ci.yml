@@ -82,6 +82,36 @@ jobs:
         run: npm run build
         working-directory: frontend
 
+  # The Rust workspace: Rail core, the desktop crates and the HUD
+  # (docs/RAIL-PLAN.md R0.1). Every pull request builds on macOS and Windows
+  # (guideline §14), and Linux is the cheapest runner for the WebAssembly build
+  # the web app will use. The toolchain comes from rust-toolchain.toml, which
+  # rustup on the runner installs on the first cargo call.
+  core:
+    name: Rust core (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Format
+        run: cargo fmt --all --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace --locked
+
+      - name: WebAssembly build
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo build -p rail-core -p rail-core-wasm --target wasm32-unknown-unknown --locked
+
   database:
     name: Migrations and pgTAP
     runs-on: ubuntu-latest
