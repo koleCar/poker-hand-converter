@@ -15,7 +15,8 @@
 //! `formatAmount`, buy-ins), [`game`] (variant and hi/lo labels, deck and deal
 //! size, position geometry) and [`hand`] (action, board, chip-movement and
 //! lookup helpers). `assignPositions` is [`crate::positions`] and `hilo.ts` is
-//! [`hilo`] (R0.5b).
+//! [`hilo`] (R0.5b); `serialize.ts`, the standard text in both directions, is
+//! [`serialize`] (R0.6).
 //!
 //! Design rules that the rest of the model assumes (from `types.ts`):
 //!
@@ -54,6 +55,7 @@ pub mod hand;
 pub mod hilo;
 pub mod money;
 mod serde_util;
+pub mod serialize;
 mod tags;
 
 #[cfg(test)]

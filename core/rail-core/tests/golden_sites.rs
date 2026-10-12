@@ -46,8 +46,21 @@ fn the_harness_reports_a_changed_field() {
     );
 }
 
+/// `standard` (R0.6): our own text read back - the `gg-hh/` reference files,
+/// their copies under `fixtures/samples/ggpoker/`, GG's AoF Omaha sample and
+/// the stats fixtures. Detection, chunks, every hand's PHF, standard text and
+/// warnings, the per-file text, refusals and stats.
+#[test]
+fn standard() {
+    let report = golden::check(Selection::Parsers(&["standard"]));
+    assert_eq!(report.files, 39, "the set of files `standard` wins changed");
+    assert_eq!(report.hands, 881);
+    assert_eq!(report.refusals, 0);
+    assert_eq!(report.pending_text_hashes, 0);
+}
+
 // R0.7 onwards, one line per site (or family):
 // #[test]
 // fn pokerstars_family() {
-//     golden::check(Selection::Parsers(&["pokerstars", "ggpoker", "weplay", "coinpoker", "standard"]));
+//     golden::check(Selection::Parsers(&["pokerstars", "ggpoker", "weplay", "coinpoker"]));
 // }

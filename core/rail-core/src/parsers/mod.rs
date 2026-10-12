@@ -9,6 +9,7 @@
 //! matching `index.ts`.
 
 pub mod shared;
+pub mod standard;
 
 use std::sync::LazyLock;
 
@@ -39,7 +40,7 @@ pub const REGISTRATION_ORDER: [&str; 19] = [
 
 /// Every parser ported so far. A parser step adds one line here.
 fn ported() -> Vec<Box<dyn SiteParser>> {
-    vec![]
+    vec![Box::new(standard::StandardParser)]
 }
 
 /// A registry of `parsers` in [`REGISTRATION_ORDER`].
