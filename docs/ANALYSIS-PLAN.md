@@ -3275,3 +3275,18 @@ Each phase appends what it learned that changed the plan.
     - The limp lines' ranges could still differ by what the player does
       after the flop (a limper who check-folds most flops), which no
       preflop counter sees; untested.
+- 2026-10-12 — A5b, the full-ring flop library live, `analysis/21`.
+  - **The run.** All 13 full-ring lines × 100 representative flops of the
+    9-max 100bb set (`charts/4`, hash `204ec7be`) solved on the owner's
+    machine 2026-10-08 → 10-12 (~347 core-hours; the last 183 at six solves
+    at a time in 6.75 h): 1,300 chunks, 92 MB, every solve below 1% of the
+    pot. Uploaded to the `flop-library` bucket with `upload.sh`; the
+    manifest and a sample of 40 chunks verified byte for byte from the
+    public URL.
+  - **Measured** (`floplib:measure`, 5,448 stored hands, both libraries):
+    136 of 1,095 hero flop decisions graded from the library (122 mapped,
+    14 exact), up from 127 with the 6-max library alone; as §10
+    2026-10-08 predicted, few of the owner's full-ring heads-up flops sit
+    on these lines (most are multiway or placed on 6-max sets).
+  - **Fix.** The runner's closing estimate crashed after a finished run
+    (an old call site missed the lines argument); no effect on the chunks.

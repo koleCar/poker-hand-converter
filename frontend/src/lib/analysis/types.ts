@@ -158,8 +158,12 @@ import type { Position, Street } from "../phf/types";
  *               statistics, no change. Population lines are labelled as
  *               such on screen (they read "any two cards" before)
  *               (ANALYSIS-PLAN §10 2026-10-10, villain statistics).
+ *   analysis/21 The full-ring flop library is live: 13 lines × 100 flops of
+ *               the 9-max 100bb set (`FLOP_LINES_9MAX`) in the
+ *               `flop-library` bucket, so heads-up flops on those lines are
+ *               graded from their solves like 6-max ones.
  */
-export const ANALYSIS_VERSION = "analysis/20" as const;
+export const ANALYSIS_VERSION = "analysis/21" as const;
 export type AnalysisVersion = typeof ANALYSIS_VERSION;
 
 /** The four streets a decision can be made on. */
