@@ -8,6 +8,7 @@
 //! the list panics on first use, and a test fails when the list stops
 //! matching `index.ts`.
 
+pub mod chico;
 pub mod coinpoker;
 pub mod ggpoker;
 pub mod ipoker;
@@ -19,6 +20,7 @@ pub mod pokerstars888;
 pub mod shared;
 pub mod standard;
 pub mod weplay;
+pub mod winamax;
 
 use std::sync::LazyLock;
 
@@ -60,6 +62,8 @@ fn ported() -> Vec<Box<dyn SiteParser>> {
         Box::new(pokerbros::PokerBrosParser),
         Box::new(ipoker::IPokerParser),
         Box::new(microgaming::MicroGamingParser),
+        Box::new(winamax::WinamaxParser),
+        Box::new(chico::ChicoParser),
     ]
 }
 
