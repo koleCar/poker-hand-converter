@@ -1,0 +1,164 @@
+{
+  "chunks": 10,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "winamax",
+        "permille": 950
+      }
+    ],
+    "top": "winamax"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-5334642-851-1383822088",
+      "index": 0,
+      "parser": "winamax",
+      "phf": "eb33e5bef8d8ba3dcdf6082114529c55bd63c13d5f55a50046545979e36bfc79",
+      "standardText": "f775d7b84f7036118c55b00e10377b1a24d6efc0633b24181f714a52c776cfe4",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "WMX-5334642-852-1383822101",
+      "index": 1,
+      "parser": "winamax",
+      "phf": "086c03087a2cd1a97dabfccb97557225c4d650332b8f38a9d912391dc268c13d",
+      "standardText": "2d600780d1359bca050147c9e637b215d99b01b429c6dc295a86882109dc88e7",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "WMX-5334642-853-1383822121",
+      "index": 2,
+      "parser": "winamax",
+      "phf": "75982afed82f32331ac6a81f38ead2067f12d05ffc5cac995963fbd46ccf7877",
+      "standardText": "a455d2b3a4a72c5de15c7cd8a25c579c4677fa2ec19380546ee81481e8f31d3d",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "WMX-5334642-854-1383822172",
+      "index": 3,
+      "parser": "winamax",
+      "phf": "15d40ca35e755f3759695a80fc2561d7e932cc1c8fc249154aee14c74571f275",
+      "standardText": "36a9b74445871c72cecaee03e60003503d72709b0f5ac9c82024f48983e69edf",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "WMX-5334642-855-1383822188",
+      "index": 4,
+      "parser": "winamax",
+      "phf": "c38d8bae674aa023155526aaba31297cc41d95e84189b5681261e22d785dafe0",
+      "standardText": "28aeb77931769d1ca2a1c4771fec1f4f0ba4e2a46bbf3e47e12a0019baef6a44",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "WMX-5334642-859-1383822324",
+      "index": 5,
+      "parser": "winamax",
+      "phf": "5eed5ec630a1d3d010da26b2b7972d6119c3b137e521ad1e2d4c4accce0a7330",
+      "standardText": "ddc61f221eeef94de253c0f4170735e4dc631ee4958652bfd2f442c15833ba68",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "WMX-5334642-860-1383822346",
+      "index": 6,
+      "parser": "winamax",
+      "phf": "0a9d92897100bac7ed90a020f2041a92c81cf724bf2a43525fadd57dfe1fe056",
+      "standardText": "e2e3d3047a844381cc06d450cfaf005141d9915468dc1a1f7cd5b871ada56283",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "WMX-5334642-861-1383822375",
+      "index": 7,
+      "parser": "winamax",
+      "phf": "0ad63eebf21cf78e1441e64c61fdec85ebd4e49803d46e6948845c240d890b54",
+      "standardText": "d46da8b246e70b4b48a186dbe7fa997b90d093e3cdb4cbd9b56c86f34ed1f59f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "WMX-5334642-876-1383822984",
+      "index": 8,
+      "parser": "winamax",
+      "phf": "2e48447c4b9406cde59d7196a6e769128267ed71681685138ef3844f5cffbf6b",
+      "standardText": "ead82f89fa9ce3f049a021b2690d1a0c45a5a57d69181cc67abca195b62ba06d",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "WMX-5334642-877-1383823023",
+      "index": 9,
+      "parser": "winamax",
+      "phf": "b9baca2d3dd898fca7c027a18ad4daf03c63ff36fc29a0a6ea88a1704728d72a",
+      "standardText": "5583b7158671a882642c3d5c1f26e79a652a9e80253749135d45cc307daeb26f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 6588,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_MultipleHandsTests_10MultipleHands.txt",
+    "sha256": "cb7748ab198a70464753862af9301217386580d881b11e8fc25804bed0e2b6a0"
+  },
+  "refusals": [],
+  "standardTextFile": "587ea6fc0f2b93318090fc93bdbf7fd7717d19a79c9aecb0c882c8ed22672865",
+  "stats": {
+    "bySite": {
+      "winamax": 10
+    },
+    "converted": 10,
+    "failed": 0,
+    "total": 10
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "4107052743",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "2f02631b5d28392316fb953807a3dea9d0d04f4dda278b3d5afca94e9b34ead5",
+      "standardText": "d88ba02553c77f936687b66e1147dada4f2fbc41d6adce94e58565a359519b0d",
+      "warnings": [
+        {
+          "code": "mvs-player-hashes",
+          "message": "2=c71406de5a711d4f3560fcd2f7b1c775 4=5f5cd5577bfe16396f0f37b58309c6c3 5=25aa02c4148e13bae3c79c11fd23659f 7=e40636b41c414986ac11f621bafda566 8=d8dfc52b19fde5aba177fb3cba840532"
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1733,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD - $1.00-$2.00 - 202104.Bodog.com.MVS.txt",
+    "sha256": "fc50b6d3589e508099e70a81454f536c2699c7ba45b05426a00f2ee77174976e"
+  },
+  "refusals": [],
+  "standardTextFile": "d88ba02553c77f936687b66e1147dada4f2fbc41d6adce94e58565a359519b0d",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

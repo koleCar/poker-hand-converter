@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2607518885",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "c3e1163d67029ae9f9a74063f81c116091fa8f4fccf2df97c100aa5ee08feaed",
+      "standardText": "249df31b38b095cb6c576df07a6a3c5b8e88faf47b676d4947c1c8cbf52f29e7",
+      "warnings": [
+        {
+          "code": "streets-inferred",
+          "message": "No street markers; 3 post-flop round(s) recovered from betting closure."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1014,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__LHE-USD-2-4-201205.Bodog.txt",
+    "sha256": "3946a608404b1c25fdd0fca1e478ff31c15b12797cc9399417389a7fb1255b77"
+  },
+  "refusals": [],
+  "standardTextFile": "249df31b38b095cb6c576df07a6a3c5b8e88faf47b676d4947c1c8cbf52f29e7",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

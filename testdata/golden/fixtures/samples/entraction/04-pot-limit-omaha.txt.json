@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646630562",
+      "index": 0,
+      "parser": "entraction",
+      "phf": "eef2e72327c92349fea6a8d186d1eb2ace63ea36a4962abc5072f49188ab115c",
+      "standardText": "4efecc10c250b91fc91f6918956f288354ebc7b6b83bf663d1f0831ead843627",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 911,
+    "path": "fixtures/samples/entraction/04-pot-limit-omaha.txt",
+    "sha256": "d227411c88b9bf07188c13176057a949f44a57f61513c85512d0b706fdf366c6"
+  },
+  "refusals": [],
+  "standardTextFile": "4efecc10c250b91fc91f6918956f288354ebc7b6b83bf663d1f0831ead843627",
+  "stats": {
+    "bySite": {
+      "entraction": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

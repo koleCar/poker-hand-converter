@@ -1,0 +1,73 @@
+{
+  "chunks": 3,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "4101241030",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "e087988e7e8742bb17b671f958c82d205cf045579c41cea2795409c96c28edad",
+      "standardText": "c57d7279593c42a998e9323645320e746a14f19a8230a1e6adc74cfdfa9563a0",
+      "warnings": [
+        {
+          "code": "derived-pot",
+          "message": "The SUMMARY block states no pot; it was taken from the action stream."
+        }
+      ]
+    },
+    {
+      "handId": "4101241126",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "11f4d3f6831aab53df9720c66d4db2696bd579a68d2a2e00aa018a8ae7d80fcf",
+      "standardText": "1b8547edd62acee75eb6626ffb22cf728ed4bfa76c3cc5f1c9da4c71213cf0c3",
+      "warnings": [
+        {
+          "code": "derived-pot",
+          "message": "The SUMMARY block states no pot; it was taken from the action stream."
+        }
+      ]
+    },
+    {
+      "handId": "4101241231",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "0b54429fbb29dd373c38637b54a4b2cc4b1bc3b8cb02d135292e612c9c89d73f",
+      "standardText": "00f3d0b3f7f8eb1d81d062355e04066dc9c06580e5d2b97d60db4f2d7400f890",
+      "warnings": [
+        {
+          "code": "derived-pot",
+          "message": "The SUMMARY block states no pot; it was taken from the action stream."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 3831,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-6max-USD - $0.10-$0.25 - 202104.ZonePoker.txt",
+    "sha256": "420c8df6dfba137663da5810c8b23413585f48c0684d9133ac1c56aa7d56a647"
+  },
+  "refusals": [],
+  "standardTextFile": "713903100502efc098a6ab44cf5bbbf87f9c3bba1de9affc6ec7f3ccb6ad31d5",
+  "stats": {
+    "bySite": {
+      "ignition": 3
+    },
+    "converted": 3,
+    "failed": 0,
+    "total": 3
+  }
+}

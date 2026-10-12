@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2641146259",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "c79d26244112292d4016c536e90067ba973b5f96a327fda4e71c4cfa4c207db5",
+      "standardText": "d7d4ce2cf49105e1fcfd90966bf95de9ab0b10cb69d5225e6dacd51186abaff0",
+      "warnings": [
+        {
+          "code": "streets-inferred",
+          "message": "No street markers; 3 post-flop round(s) recovered from betting closure."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2060,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__PLO8-USD-MTT - $10-$1 - 201207.allin.call.pf.txt",
+    "sha256": "5c94bfd62fbc2ceba4020f6043b07ba30114fb198cad675ab0f134e8c6cdfe9a"
+  },
+  "refusals": [],
+  "standardTextFile": "d7d4ce2cf49105e1fcfd90966bf95de9ab0b10cb69d5225e6dacd51186abaff0",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 2139,
+    "path": "fixtures/samples/merge/10-sitting-out.txt",
+    "sha256": "505937d0dfbc194940e31330676bf0ab8724dbf83d9563e88a15cf7e8e47ce71"
+  },
+  "refusals": [
+    {
+      "fingerprint": "3733d40495e8f6844ac709b1f55891aaa7e05092218a6f15bd099f23aa0111d0",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

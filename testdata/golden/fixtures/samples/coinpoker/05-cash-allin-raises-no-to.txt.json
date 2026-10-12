@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "352024761",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "8ef04048e4b81ccf27ea52c0b6310dd717d8941c7b931caf658049f41b10f8bd",
+      "standardText": "ebeaedd49162961683e52dbd90642429da57577a55e5ac55f7e6b220e62cb92c",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1388,
+    "path": "fixtures/samples/coinpoker/05-cash-allin-raises-no-to.txt",
+    "sha256": "6328f2047d5b6521010320df9deafc5c15a310bfa7e469dc80b8dec5d39b7508"
+  },
+  "refusals": [],
+  "standardTextFile": "ebeaedd49162961683e52dbd90642429da57577a55e5ac55f7e6b220e62cb92c",
+  "stats": {
+    "bySite": {
+      "coinpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

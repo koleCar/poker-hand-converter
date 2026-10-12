@@ -1,0 +1,66 @@
+{
+  "chunks": 3,
+  "decode": {
+    "encoding": "UTF-16 LE",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "698338917",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "edb425d2f1bf7fc882d212f35f68b27639f6fffcc8a20af577ed240d5de6797c",
+      "standardText": "a39edeca80acbd99bc71568b744b2b5e22ed4e1178be40986db91fff6c9584ad",
+      "warnings": []
+    },
+    {
+      "handId": "698339423",
+      "index": 1,
+      "parser": "acrwpn",
+      "phf": "e144886e679e4bb74e7df4e9636a5da3d8bb4a7c4f49bbb4b67c577c6b81d94f",
+      "standardText": "98645f2fe0e019199f99b4ea65d6e0a0375999a62c1230e5d947fd289bcb53a4",
+      "warnings": []
+    },
+    {
+      "handId": "698339630",
+      "index": 2,
+      "parser": "acrwpn",
+      "phf": "6851c7f3b972096b2508e72b1248d343cba985a79120bb2801e577ac5c127a87",
+      "standardText": "e5d3f6bbc19d0052fee49c5c408e7e3ddc67455e9512a17ff330c4b52467fc79",
+      "warnings": [
+        {
+          "code": "unknown-summary-line",
+          "context": {
+            "line": 87
+          },
+          "message": "�"
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 8593,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-6max-USD-0.01-0.02-201608.Cap.HH00000000 G0.txt",
+    "sha256": "c24c507b445c9baa3542547eacac7e40aeca226e86a4d496588c179f1c5e7f03"
+  },
+  "refusals": [],
+  "standardTextFile": "18df730ff8574cc88488897e8db4fbb498b87cd05b003f0598ea0aa12f797fd5",
+  "stats": {
+    "bySite": {
+      "acrwpn": 3
+    },
+    "converted": 3,
+    "failed": 0,
+    "total": 3
+  }
+}

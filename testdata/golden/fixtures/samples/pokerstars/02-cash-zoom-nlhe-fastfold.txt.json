@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "109664415396",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "c5b8557f61016aab0a693619e2ae52b093b8208c74e7d51057f7510f72ffe0a3",
+      "standardText": "d784c97eab79c8d44d13c23203ba853c86cfc281fa90aff0149aba50a2c44546",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1052,
+    "path": "fixtures/samples/pokerstars/02-cash-zoom-nlhe-fastfold.txt",
+    "sha256": "72ae3939a79027f4d1278217b12908f40e14ab9b29a304731ea44f1591197e80"
+  },
+  "refusals": [],
+  "standardTextFile": "d784c97eab79c8d44d13c23203ba853c86cfc281fa90aff0149aba50a2c44546",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

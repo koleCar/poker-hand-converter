@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646494612",
+      "index": 0,
+      "parser": "entraction",
+      "phf": "38d487ec0bb78ae6b16e07b3f81578b5a6ed8aa22f22acedb981c5f2834a457f",
+      "standardText": "252baed20d86066718306200e53a4e5ae4f37a1af7d64be366b1a4845f6a42cb",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1040,
+    "path": "fixtures/samples/entraction/02-fixed-limit-holdem.txt",
+    "sha256": "a0805ff33cc8217d1b2a1bf9e28edb551e298dc32ad248202d6dc026680c95a3"
+  },
+  "refusals": [],
+  "standardTextFile": "252baed20d86066718306200e53a4e5ae4f37a1af7d64be366b1a4845f6a42cb",
+  "stats": {
+    "bySite": {
+      "entraction": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

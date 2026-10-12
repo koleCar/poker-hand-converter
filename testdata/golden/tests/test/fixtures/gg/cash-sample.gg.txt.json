@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD76346675",
+      "index": 0,
+      "parser": "standard",
+      "phf": "876943b7b30d0315343be48151b86229f1a6b141111917f51600f75d8f57e2b9",
+      "standardText": "6127d4505d41b7763bea62f05dd3181ae3982d9db391193ec7c079942e41aaf2",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1119,
+    "path": "tests/test/fixtures/gg/cash-sample.gg.txt",
+    "sha256": "9a80d34987a3c20684dfb256b8493cd056e6509119e39a995e25190cacec45c3"
+  },
+  "refusals": [],
+  "standardTextFile": "6127d4505d41b7763bea62f05dd3181ae3982d9db391193ec7c079942e41aaf2",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

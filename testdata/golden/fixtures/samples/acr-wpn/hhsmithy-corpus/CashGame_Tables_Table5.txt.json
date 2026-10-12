@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "328766507",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "3ab307bc4befff03e5ae13e8cc9b36010f94293a31b7c1c78460d356563b05ab",
+      "standardText": "b04892fe3f3bac7a693af26608f9f60e11fbf67b7e04022ded753558498138b9",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1782,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_Tables_Table5.txt",
+    "sha256": "cb65ceafd6835294238c8a3a1c77f8465e531efa85dbead48b6b4455d7d5edd8"
+  },
+  "refusals": [],
+  "standardTextFile": "b04892fe3f3bac7a693af26608f9f60e11fbf67b7e04022ded753558498138b9",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

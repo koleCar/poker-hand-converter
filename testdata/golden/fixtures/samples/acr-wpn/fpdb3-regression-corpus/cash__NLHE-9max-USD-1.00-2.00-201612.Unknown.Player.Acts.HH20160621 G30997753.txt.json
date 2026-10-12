@@ -1,0 +1,52 @@
+{
+  "chunks": 2,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 3318,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-9max-USD-1.00-2.00-201612.Unknown.Player.Acts.HH20160621 G30997753.txt",
+    "sha256": "908962657d775f54bc9c04a221cb0f042c17660fd6fd7eb40c65db72a14d95f1"
+  },
+  "refusals": [
+    {
+      "fingerprint": "a99581f74105b96b0181a08986c322e672c877abd09ee045ef94bbaf6d9be2aa",
+      "index": 0,
+      "message": "The export did not name the player in \"Player  has big blind (2)\".",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unnamed-actor",
+      "site": "acrwpn",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "f3098b4ed2482526678d5f3dcfa0039aeb9cf8a583c1395984868524eb820189",
+      "index": 1,
+      "message": "The export did not name the player in \"Player  has big blind (2)\".",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unnamed-actor",
+      "site": "acrwpn",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 2,
+    "total": 2
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "chunks": 19,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD71764050",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "e1989107bdf64cb992d93dcca1e1c9a762c6a85fe9ede584b2d09abc61428e34",
+      "standardText": "77ccde5407bf222b7ed3c4cb1fcceb4aceef52b81b0d31da5eafd7fa6def1654",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764071",
+      "index": 1,
+      "parser": "weplay",
+      "phf": "a1bd70dafc5cb51f553f28209a18319e209513298f039669fcd9e4af304f7fa5",
+      "standardText": "9520cf12fbd1f4314bb0b95fec903502be5b90136ac9930d5182ead9376e3174",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764108",
+      "index": 2,
+      "parser": "weplay",
+      "phf": "bd8d84dac7ae67b1ac6ac0459f3549cf64f058c85028bb1847eb1ca9a3e76928",
+      "standardText": "bd4d9f6967cfb6c96b3b5ea57db0414e9591ad96f62884a510ae9abb9c036c13",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764146",
+      "index": 3,
+      "parser": "weplay",
+      "phf": "ba7c05b97e2e5a00884bc06940cd96439d82c3e3c66ba222367c1d1eb6623d20",
+      "standardText": "a25342280c6aba33b0717d53b9cb45170df548b3242ac55397e904011874311a",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764170",
+      "index": 4,
+      "parser": "weplay",
+      "phf": "2b6d18c494b7988e88d0fa12ba85d6f5baafc189b464a445b9bcbc081e02ea90",
+      "standardText": "0c959a332005589bc983a84f88471a5d410dad4186fb0731c1b5ec1dad933ee9",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764190",
+      "index": 5,
+      "parser": "weplay",
+      "phf": "5eb9126780cbc602f5d07109114e7067536096d4723a5968c82fff0795f1edc1",
+      "standardText": "42b9d9c31602f0d9e3124c163951b39465a9970514203dcf85030ecb2b61b33f",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764200",
+      "index": 6,
+      "parser": "weplay",
+      "phf": "c720fc0830c0ce5f5b160dedd5907cc52f59cf6e8d2b81ca3f1c21b9d1dcc252",
+      "standardText": "0557d955f74767cab3ab5412bfd899aca3ae805bc9b5a2f29609fae9b9a267ac",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764216",
+      "index": 7,
+      "parser": "weplay",
+      "phf": "fe80914cb85e994ad4927fa771dff405d702bf2e372ab6396d255f190592009a",
+      "standardText": "8fe1d20dac0c8de1ffffdd94bd0a1bdc107fb66dfa0bd02c70d16de453b0e567",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764239",
+      "index": 8,
+      "parser": "weplay",
+      "phf": "bbdec96de2932155916dd609285fc5d33105d7a1baf236e583b60cb8f0f9cda3",
+      "standardText": "71e12d01cb260bd21d0d6769bacb69f300f7667dcf9358e7db0a9a19be13b3b0",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764271",
+      "index": 9,
+      "parser": "weplay",
+      "phf": "bc7f7fbeaaf67939bba3d4a9f6cb333025c918a538deea8ef38af5a90d557ca4",
+      "standardText": "6b501a5b15c550f23063803883eb1d1b15dc7fd4ec9e6c471ebb5b4101bb98f8",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764282",
+      "index": 10,
+      "parser": "weplay",
+      "phf": "a726b520f8066ea906cd245dff5ea39100d227141426d2e6378f2d61dcc56ce7",
+      "standardText": "54b615cafb389e34fe20e4f1874f5ebfd4b67c09b13a377e3db5e0ee07475770",
+      "warnings": []
+    },
+    {
+      "handId": "HD71764298",
+      "index": 11,
+      "parser": "weplay",
+      "phf": "c5cd24692de8873e0e75401efb78e67f699d0aa0a1549a407be312a4386f6c02",
+      "standardText": "11a3d3649cf5add1448588639a48e66538f018e80e052af1d7316bf9026dcc6e",
+      "warnings": []
+    },
+    {
+      "handId": "HD71768316",
+      "index": 12,
+      "parser": "weplay",
+      "phf": "b72f84a0d3ef77d78ccb8688e286a69af968fc9a677ea64503c8b8798926b58a",
+      "standardText": "551ba94118b2b0440d40545f5ea071117dfe068b57b2cd99988ce2f43bcccc5b",
+      "warnings": []
+    },
+    {
+      "handId": "HD71768327",
+      "index": 13,
+      "parser": "weplay",
+      "phf": "692f435e9b6ae70c7e1fc928ae4e23fe72a3e136022d3c7e5f9efcf34b80f656",
+      "standardText": "c5fd08a8413f8b1aa4df008dad00054da14ed72ef6e8f4ff191aa412513b961b",
+      "warnings": []
+    },
+    {
+      "handId": "HD71768350",
+      "index": 14,
+      "parser": "weplay",
+      "phf": "7a8e93d37b8cdd3554df8421eb220c608f66fb98ce502241bee563bc801bcca1",
+      "standardText": "7422db41324175cf9167a446c7c2862c7dac2bcdd6b448a6dba2ea69d3059df1",
+      "warnings": []
+    },
+    {
+      "handId": "HD71768360",
+      "index": 15,
+      "parser": "weplay",
+      "phf": "8ced35a2490247205cd0aa09044914f98a666fe654584de33bfd9c52002c1382",
+      "standardText": "131a0836a717a57c346af5178f4bba98ee4866fef79368c059bc1e05017af3cb",
+      "warnings": []
+    },
+    {
+      "handId": "HD71768377",
+      "index": 16,
+      "parser": "weplay",
+      "phf": "0dbaec2f6a4f81975393f0918baa7cac350d91753203a7de8dd62a747954dbf3",
+      "standardText": "19005b0c21d178c233c0bc02a08034cdb8b7f8e625ab9096c6c8c6fac72f1f03",
+      "warnings": []
+    },
+    {
+      "handId": "HD71768385",
+      "index": 17,
+      "parser": "weplay",
+      "phf": "68632257ad63089f0a6b0853edc77405c4b4d6690976813907f9c0145fab8e44",
+      "standardText": "f109d3a5427833f29498bece96dcfb14f01892a41861c62ceb403a8d231e7950",
+      "warnings": []
+    },
+    {
+      "handId": "HD71768399",
+      "index": 18,
+      "parser": "weplay",
+      "phf": "372acc6bea20a09cdb72d6aea2679e6cd09c81c1f110dcb249e2203bb6fb44dc",
+      "standardText": "6bacf342b5f2b13c54acedadea175d21470d8de035ba3b7c12990cb60dda6c00",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 22093,
+    "path": "weplay-hh/h.kolaric992@gmail.com/HH20260106 Lisbon #2 (#11475800) - $1-$2 - Money 3 No Limit Hold_em.txt",
+    "sha256": "09a86e74b74d3ec62c76091c0029ebf178c6bccbc9c65f69b577399e79da4d68"
+  },
+  "refusals": [],
+  "standardTextFile": "c90a13683b03e150fd54f83ba39f0e7acf0d24c2b4187e9cf2e0cac729f095cf",
+  "stats": {
+    "bySite": {
+      "weplay": 19
+    },
+    "converted": 19,
+    "failed": 0,
+    "total": 19
+  }
+}

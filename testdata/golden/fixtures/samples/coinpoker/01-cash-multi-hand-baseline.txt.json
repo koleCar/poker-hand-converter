@@ -1,0 +1,66 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "256459677",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "46d9c5eabbf1749d7b4af8d3b2e65c34d143e91b8da9739f2affea7ff3557628",
+      "standardText": "6f76f51c808ed0352c893f88772acac83010b3b7e8df4f20d973ea2843eae8ae",
+      "warnings": []
+    },
+    {
+      "handId": "256460002",
+      "index": 1,
+      "parser": "coinpoker",
+      "phf": "97f29ec17382660bb0307ccbba619d55d9bb5940507d897c93c49a5bf555d193",
+      "standardText": "bacc8e34a4de2cdff342ff76c10a9a64cf38d7c71d2753cf92f41137177750dd",
+      "warnings": []
+    },
+    {
+      "handId": "352695201",
+      "index": 2,
+      "parser": "coinpoker",
+      "phf": "e13901892ec8ea552697ba50e4e584001a4d10bca8966ba596ab75024b328f4b",
+      "standardText": "95a62d29d3b5a468cc348ce033bd6de3de6f1e5be9e5984589e488bb4b831851",
+      "warnings": []
+    },
+    {
+      "handId": "352675127",
+      "index": 3,
+      "parser": "coinpoker",
+      "phf": "07c04bb03acb6ca211c51592430e75d239a9f26993ddb659ed1db815edcf8f1e",
+      "standardText": "76c0e04805ad9f4cab1c1d407133d22db673718534ee91ab89b28964ea358f4c",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 5406,
+    "path": "fixtures/samples/coinpoker/01-cash-multi-hand-baseline.txt",
+    "sha256": "3472a8cc97c235296f4cf0cd703e0062c89decdfd9b743c625305fd09f5f847f"
+  },
+  "refusals": [],
+  "standardTextFile": "98647d6c1aecd657e22fd5522235635955ddee257fd235dc4eb5b23e08a018e0",
+  "stats": {
+    "bySite": {
+      "coinpoker": 4
+    },
+    "converted": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

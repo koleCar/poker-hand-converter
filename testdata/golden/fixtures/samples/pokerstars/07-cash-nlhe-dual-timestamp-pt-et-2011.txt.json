@@ -1,0 +1,51 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "61777648755",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "7be43e5e7389c69100d983c8390d67e07d826f7de00fe68e8b92544c1ed29ded",
+      "standardText": "b47a47f70552bc0ccb8b096e31437e19704dfa13e1522aa0b1fc10e88641a754",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        },
+        {
+          "code": "uncalled-return-reconstructed",
+          "message": "The source omitted the uncalled return of $2.50 to Mohamedali13; it was rebuilt from the reported pot."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 907,
+    "path": "fixtures/samples/pokerstars/07-cash-nlhe-dual-timestamp-pt-et-2011.txt",
+    "sha256": "7f6ca3b55f558df4309ae58e945f7d606fc7d4e219afcc662dfc246154565a5a"
+  },
+  "refusals": [],
+  "standardTextFile": "b47a47f70552bc0ccb8b096e31437e19704dfa13e1522aa0b1fc10e88641a754",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

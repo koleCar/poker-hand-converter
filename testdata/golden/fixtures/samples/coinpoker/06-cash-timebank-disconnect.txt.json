@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "352025868",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "eca8d561c8fdb415061fa198ea2a9642c61f562ed6f4164f259d43f96d3491b5",
+      "standardText": "ce7cb0cfbfd6e404cbfecd5bf7df0c7fc73c54b7e59e6f38eab837357c9e3e1b",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1443,
+    "path": "fixtures/samples/coinpoker/06-cash-timebank-disconnect.txt",
+    "sha256": "e4cf693e216a746c6e361b4be661ba3b30cdc6346d1b84058409b3578d4398ba"
+  },
+  "refusals": [],
+  "standardTextFile": "ce7cb0cfbfd6e404cbfecd5bf7df0c7fc73c54b7e59e6f38eab837357c9e3e1b",
+  "stats": {
+    "bySite": {
+      "coinpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

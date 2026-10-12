@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3304886256",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "64163a628666e08af008b314037caeb08359b8bacf93229d80eaf564448285d4",
+      "standardText": "09f57be7ea29992d4600d8af9713962757413a3c07d1741ff4ae6232c621d4ee",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 2076,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-USD-MTT - ($5 Knockout) - $10-$1 - 201512.KO.txt",
+    "sha256": "386d4d55a2114c156242c5a4f019c32185739c280dffd999f149864c0685bd06"
+  },
+  "refusals": [],
+  "standardTextFile": "09f57be7ea29992d4600d8af9713962757413a3c07d1741ff4ae6232c621d4ee",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

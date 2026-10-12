@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 665,
+    "path": "fixtures/samples/partypoker/15-invalid-hand-truncated.txt",
+    "sha256": "c14856eece4dc67076da086da3fbe179531599fedfee40633a0618660b766b93"
+  },
+  "refusals": [
+    {
+      "fingerprint": "a7a684e688ab4153ca36251c3ffd840010e34e520b24cdf617179d16b94f8c9e",
+      "index": 0,
+      "message": "No `wins` line, so the hand text was cut off before it was settled.",
+      "parserVersion": "1.0.0",
+      "permille": 900,
+      "reason": "no-winner",
+      "site": "partypoker",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD83820277",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "2d31185b33beeaeb558c910bcad2068fcc31e51dfcd9ed17bae67ff3fca93ac8",
+      "standardText": "4b52fcca8a8a93005880cdd83f73b9eae6985cb6e2a82ee57369a067dcc4df7b",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1319,
+    "path": "tests/test/fixtures/weplay/summary-hidden-cards.txt",
+    "sha256": "5c3f8113bff6e9d8ec5c346946300ceaa9484c9c4508d062d925867d1b1f5285"
+  },
+  "refusals": [],
+  "standardTextFile": "4b52fcca8a8a93005880cdd83f73b9eae6985cb6e2a82ee57369a067dcc4df7b",
+  "stats": {
+    "bySite": {
+      "weplay": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

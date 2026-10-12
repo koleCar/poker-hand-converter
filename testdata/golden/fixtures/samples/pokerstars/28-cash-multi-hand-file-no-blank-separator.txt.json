@@ -1,0 +1,788 @@
+{
+  "chunks": 58,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "109673992001",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "2f34eaac11719db91a389bbd366c2ec571c521251114fbb4e91195f8e682f589",
+      "standardText": "a18af2b4f22642e31c17e6c770cafd84ec174b9ece9f3ef5ea4679bb7a2d8f5f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674128046",
+      "index": 1,
+      "parser": "pokerstars",
+      "phf": "8a5470bcf4f92e079aade8fc07849d5a792c27f55bebb0a4f843152e0831d56c",
+      "standardText": "aeb946fb2b732b994d1b73eb4d9c501ee2b8a9fea8248e966064bc8453b059e7",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674148786",
+      "index": 2,
+      "parser": "pokerstars",
+      "phf": "d7bada1bdefa743a5b7c10244776ab56756addf56370fa1b7ce5cbe4de38c4ba",
+      "standardText": "e71c4a53bf14c45539813c1e899405ffcf0e3873a10795a43813b643789063ce",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673533027",
+      "index": 3,
+      "parser": "pokerstars",
+      "phf": "dbef509aaf7af2be4ba30aac6de065ae6f8dab1758c94d0312b82e09a6cec534",
+      "standardText": "fb0763fbf2064c6958d622975a87c5304fb6a5502a1168430000ff4241837e76",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673554313",
+      "index": 4,
+      "parser": "pokerstars",
+      "phf": "1367d2f26a6c837d06682d0bc24124901570c4fcfb8af374adb5a0b8a4fdbe92",
+      "standardText": "207530d29bc067444f1fedcb107497e59fa43e4bc8785c041ce44be5d169ede0",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673561342",
+      "index": 5,
+      "parser": "pokerstars",
+      "phf": "04b3b8945410a3341fad6f45a481b77602206536d4e800b59202aee07719c7ed",
+      "standardText": "426b4ca10e29a498f5ec59d62a486a298055bb5c2b3a825284da06198f498720",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673572373",
+      "index": 6,
+      "parser": "pokerstars",
+      "phf": "22c5f9950997fa7d44d0a145c769919457ce0190ccdd803ada050b252948885c",
+      "standardText": "fbc952251deb0bd953768666f52924eb6f1249e002ac4632b55317238b7df01b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673589735",
+      "index": 7,
+      "parser": "pokerstars",
+      "phf": "d4902d8c717ea7520b816278182bf43159a6cde1113a611a5f0e34598acb86a9",
+      "standardText": "3c421cbdd2d27b5b2d1d8c33d6651c62d4b1b153e3400321a9ada1a90fd54975",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673602306",
+      "index": 8,
+      "parser": "pokerstars",
+      "phf": "a24917bfb1651568e6c334f0e5bbe98c2f8fae518e3057e1d64791647e940e95",
+      "standardText": "a4198c2a84fb78d0ac05a97678bb6b225d4e006417aa8b321719d2d7c3ba117f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673610680",
+      "index": 9,
+      "parser": "pokerstars",
+      "phf": "834914bdf1a1f42469911343d4fa30f736580c0f68821939be863d6e30cdad14",
+      "standardText": "036bc31e4306ae82e44e68073619743aee962ccfed49dc01f63f1e34041b3976",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673992001",
+      "index": 10,
+      "parser": "pokerstars",
+      "phf": "2f34eaac11719db91a389bbd366c2ec571c521251114fbb4e91195f8e682f589",
+      "standardText": "a18af2b4f22642e31c17e6c770cafd84ec174b9ece9f3ef5ea4679bb7a2d8f5f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674128046",
+      "index": 11,
+      "parser": "pokerstars",
+      "phf": "8a5470bcf4f92e079aade8fc07849d5a792c27f55bebb0a4f843152e0831d56c",
+      "standardText": "aeb946fb2b732b994d1b73eb4d9c501ee2b8a9fea8248e966064bc8453b059e7",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674148786",
+      "index": 12,
+      "parser": "pokerstars",
+      "phf": "d7bada1bdefa743a5b7c10244776ab56756addf56370fa1b7ce5cbe4de38c4ba",
+      "standardText": "e71c4a53bf14c45539813c1e899405ffcf0e3873a10795a43813b643789063ce",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673533027",
+      "index": 13,
+      "parser": "pokerstars",
+      "phf": "dbef509aaf7af2be4ba30aac6de065ae6f8dab1758c94d0312b82e09a6cec534",
+      "standardText": "fb0763fbf2064c6958d622975a87c5304fb6a5502a1168430000ff4241837e76",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673554313",
+      "index": 14,
+      "parser": "pokerstars",
+      "phf": "1367d2f26a6c837d06682d0bc24124901570c4fcfb8af374adb5a0b8a4fdbe92",
+      "standardText": "207530d29bc067444f1fedcb107497e59fa43e4bc8785c041ce44be5d169ede0",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673561342",
+      "index": 15,
+      "parser": "pokerstars",
+      "phf": "04b3b8945410a3341fad6f45a481b77602206536d4e800b59202aee07719c7ed",
+      "standardText": "426b4ca10e29a498f5ec59d62a486a298055bb5c2b3a825284da06198f498720",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673572373",
+      "index": 16,
+      "parser": "pokerstars",
+      "phf": "22c5f9950997fa7d44d0a145c769919457ce0190ccdd803ada050b252948885c",
+      "standardText": "fbc952251deb0bd953768666f52924eb6f1249e002ac4632b55317238b7df01b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673589735",
+      "index": 17,
+      "parser": "pokerstars",
+      "phf": "d4902d8c717ea7520b816278182bf43159a6cde1113a611a5f0e34598acb86a9",
+      "standardText": "3c421cbdd2d27b5b2d1d8c33d6651c62d4b1b153e3400321a9ada1a90fd54975",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673602306",
+      "index": 18,
+      "parser": "pokerstars",
+      "phf": "a24917bfb1651568e6c334f0e5bbe98c2f8fae518e3057e1d64791647e940e95",
+      "standardText": "a4198c2a84fb78d0ac05a97678bb6b225d4e006417aa8b321719d2d7c3ba117f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673610680",
+      "index": 19,
+      "parser": "pokerstars",
+      "phf": "834914bdf1a1f42469911343d4fa30f736580c0f68821939be863d6e30cdad14",
+      "standardText": "036bc31e4306ae82e44e68073619743aee962ccfed49dc01f63f1e34041b3976",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673992001",
+      "index": 20,
+      "parser": "pokerstars",
+      "phf": "2f34eaac11719db91a389bbd366c2ec571c521251114fbb4e91195f8e682f589",
+      "standardText": "a18af2b4f22642e31c17e6c770cafd84ec174b9ece9f3ef5ea4679bb7a2d8f5f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674128046",
+      "index": 21,
+      "parser": "pokerstars",
+      "phf": "8a5470bcf4f92e079aade8fc07849d5a792c27f55bebb0a4f843152e0831d56c",
+      "standardText": "aeb946fb2b732b994d1b73eb4d9c501ee2b8a9fea8248e966064bc8453b059e7",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674148786",
+      "index": 22,
+      "parser": "pokerstars",
+      "phf": "d7bada1bdefa743a5b7c10244776ab56756addf56370fa1b7ce5cbe4de38c4ba",
+      "standardText": "e71c4a53bf14c45539813c1e899405ffcf0e3873a10795a43813b643789063ce",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673533027",
+      "index": 23,
+      "parser": "pokerstars",
+      "phf": "dbef509aaf7af2be4ba30aac6de065ae6f8dab1758c94d0312b82e09a6cec534",
+      "standardText": "fb0763fbf2064c6958d622975a87c5304fb6a5502a1168430000ff4241837e76",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673554313",
+      "index": 24,
+      "parser": "pokerstars",
+      "phf": "1367d2f26a6c837d06682d0bc24124901570c4fcfb8af374adb5a0b8a4fdbe92",
+      "standardText": "207530d29bc067444f1fedcb107497e59fa43e4bc8785c041ce44be5d169ede0",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673561342",
+      "index": 25,
+      "parser": "pokerstars",
+      "phf": "04b3b8945410a3341fad6f45a481b77602206536d4e800b59202aee07719c7ed",
+      "standardText": "426b4ca10e29a498f5ec59d62a486a298055bb5c2b3a825284da06198f498720",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673572373",
+      "index": 26,
+      "parser": "pokerstars",
+      "phf": "22c5f9950997fa7d44d0a145c769919457ce0190ccdd803ada050b252948885c",
+      "standardText": "fbc952251deb0bd953768666f52924eb6f1249e002ac4632b55317238b7df01b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673589735",
+      "index": 27,
+      "parser": "pokerstars",
+      "phf": "d4902d8c717ea7520b816278182bf43159a6cde1113a611a5f0e34598acb86a9",
+      "standardText": "3c421cbdd2d27b5b2d1d8c33d6651c62d4b1b153e3400321a9ada1a90fd54975",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673602306",
+      "index": 28,
+      "parser": "pokerstars",
+      "phf": "a24917bfb1651568e6c334f0e5bbe98c2f8fae518e3057e1d64791647e940e95",
+      "standardText": "a4198c2a84fb78d0ac05a97678bb6b225d4e006417aa8b321719d2d7c3ba117f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673610680",
+      "index": 29,
+      "parser": "pokerstars",
+      "phf": "834914bdf1a1f42469911343d4fa30f736580c0f68821939be863d6e30cdad14",
+      "standardText": "036bc31e4306ae82e44e68073619743aee962ccfed49dc01f63f1e34041b3976",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673992001",
+      "index": 30,
+      "parser": "pokerstars",
+      "phf": "2f34eaac11719db91a389bbd366c2ec571c521251114fbb4e91195f8e682f589",
+      "standardText": "a18af2b4f22642e31c17e6c770cafd84ec174b9ece9f3ef5ea4679bb7a2d8f5f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674128046",
+      "index": 31,
+      "parser": "pokerstars",
+      "phf": "8a5470bcf4f92e079aade8fc07849d5a792c27f55bebb0a4f843152e0831d56c",
+      "standardText": "aeb946fb2b732b994d1b73eb4d9c501ee2b8a9fea8248e966064bc8453b059e7",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674148786",
+      "index": 32,
+      "parser": "pokerstars",
+      "phf": "d7bada1bdefa743a5b7c10244776ab56756addf56370fa1b7ce5cbe4de38c4ba",
+      "standardText": "e71c4a53bf14c45539813c1e899405ffcf0e3873a10795a43813b643789063ce",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673533027",
+      "index": 33,
+      "parser": "pokerstars",
+      "phf": "dbef509aaf7af2be4ba30aac6de065ae6f8dab1758c94d0312b82e09a6cec534",
+      "standardText": "fb0763fbf2064c6958d622975a87c5304fb6a5502a1168430000ff4241837e76",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673554313",
+      "index": 34,
+      "parser": "pokerstars",
+      "phf": "1367d2f26a6c837d06682d0bc24124901570c4fcfb8af374adb5a0b8a4fdbe92",
+      "standardText": "207530d29bc067444f1fedcb107497e59fa43e4bc8785c041ce44be5d169ede0",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673561342",
+      "index": 35,
+      "parser": "pokerstars",
+      "phf": "04b3b8945410a3341fad6f45a481b77602206536d4e800b59202aee07719c7ed",
+      "standardText": "426b4ca10e29a498f5ec59d62a486a298055bb5c2b3a825284da06198f498720",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673572373",
+      "index": 36,
+      "parser": "pokerstars",
+      "phf": "22c5f9950997fa7d44d0a145c769919457ce0190ccdd803ada050b252948885c",
+      "standardText": "fbc952251deb0bd953768666f52924eb6f1249e002ac4632b55317238b7df01b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673589735",
+      "index": 37,
+      "parser": "pokerstars",
+      "phf": "d4902d8c717ea7520b816278182bf43159a6cde1113a611a5f0e34598acb86a9",
+      "standardText": "3c421cbdd2d27b5b2d1d8c33d6651c62d4b1b153e3400321a9ada1a90fd54975",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673602306",
+      "index": 38,
+      "parser": "pokerstars",
+      "phf": "a24917bfb1651568e6c334f0e5bbe98c2f8fae518e3057e1d64791647e940e95",
+      "standardText": "a4198c2a84fb78d0ac05a97678bb6b225d4e006417aa8b321719d2d7c3ba117f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673610680",
+      "index": 39,
+      "parser": "pokerstars",
+      "phf": "834914bdf1a1f42469911343d4fa30f736580c0f68821939be863d6e30cdad14",
+      "standardText": "036bc31e4306ae82e44e68073619743aee962ccfed49dc01f63f1e34041b3976",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673992001",
+      "index": 40,
+      "parser": "pokerstars",
+      "phf": "2f34eaac11719db91a389bbd366c2ec571c521251114fbb4e91195f8e682f589",
+      "standardText": "a18af2b4f22642e31c17e6c770cafd84ec174b9ece9f3ef5ea4679bb7a2d8f5f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674128046",
+      "index": 41,
+      "parser": "pokerstars",
+      "phf": "8a5470bcf4f92e079aade8fc07849d5a792c27f55bebb0a4f843152e0831d56c",
+      "standardText": "aeb946fb2b732b994d1b73eb4d9c501ee2b8a9fea8248e966064bc8453b059e7",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674148786",
+      "index": 42,
+      "parser": "pokerstars",
+      "phf": "d7bada1bdefa743a5b7c10244776ab56756addf56370fa1b7ce5cbe4de38c4ba",
+      "standardText": "e71c4a53bf14c45539813c1e899405ffcf0e3873a10795a43813b643789063ce",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673533027",
+      "index": 43,
+      "parser": "pokerstars",
+      "phf": "dbef509aaf7af2be4ba30aac6de065ae6f8dab1758c94d0312b82e09a6cec534",
+      "standardText": "fb0763fbf2064c6958d622975a87c5304fb6a5502a1168430000ff4241837e76",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673554313",
+      "index": 44,
+      "parser": "pokerstars",
+      "phf": "1367d2f26a6c837d06682d0bc24124901570c4fcfb8af374adb5a0b8a4fdbe92",
+      "standardText": "207530d29bc067444f1fedcb107497e59fa43e4bc8785c041ce44be5d169ede0",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673561342",
+      "index": 45,
+      "parser": "pokerstars",
+      "phf": "04b3b8945410a3341fad6f45a481b77602206536d4e800b59202aee07719c7ed",
+      "standardText": "426b4ca10e29a498f5ec59d62a486a298055bb5c2b3a825284da06198f498720",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673572373",
+      "index": 46,
+      "parser": "pokerstars",
+      "phf": "22c5f9950997fa7d44d0a145c769919457ce0190ccdd803ada050b252948885c",
+      "standardText": "fbc952251deb0bd953768666f52924eb6f1249e002ac4632b55317238b7df01b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673589735",
+      "index": 47,
+      "parser": "pokerstars",
+      "phf": "d4902d8c717ea7520b816278182bf43159a6cde1113a611a5f0e34598acb86a9",
+      "standardText": "3c421cbdd2d27b5b2d1d8c33d6651c62d4b1b153e3400321a9ada1a90fd54975",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673602306",
+      "index": 48,
+      "parser": "pokerstars",
+      "phf": "a24917bfb1651568e6c334f0e5bbe98c2f8fae518e3057e1d64791647e940e95",
+      "standardText": "a4198c2a84fb78d0ac05a97678bb6b225d4e006417aa8b321719d2d7c3ba117f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673610680",
+      "index": 49,
+      "parser": "pokerstars",
+      "phf": "834914bdf1a1f42469911343d4fa30f736580c0f68821939be863d6e30cdad14",
+      "standardText": "036bc31e4306ae82e44e68073619743aee962ccfed49dc01f63f1e34041b3976",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673992001",
+      "index": 50,
+      "parser": "pokerstars",
+      "phf": "2f34eaac11719db91a389bbd366c2ec571c521251114fbb4e91195f8e682f589",
+      "standardText": "a18af2b4f22642e31c17e6c770cafd84ec174b9ece9f3ef5ea4679bb7a2d8f5f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674128046",
+      "index": 51,
+      "parser": "pokerstars",
+      "phf": "8a5470bcf4f92e079aade8fc07849d5a792c27f55bebb0a4f843152e0831d56c",
+      "standardText": "aeb946fb2b732b994d1b73eb4d9c501ee2b8a9fea8248e966064bc8453b059e7",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674148786",
+      "index": 52,
+      "parser": "pokerstars",
+      "phf": "d7bada1bdefa743a5b7c10244776ab56756addf56370fa1b7ce5cbe4de38c4ba",
+      "standardText": "e71c4a53bf14c45539813c1e899405ffcf0e3873a10795a43813b643789063ce",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673533027",
+      "index": 53,
+      "parser": "pokerstars",
+      "phf": "dbef509aaf7af2be4ba30aac6de065ae6f8dab1758c94d0312b82e09a6cec534",
+      "standardText": "fb0763fbf2064c6958d622975a87c5304fb6a5502a1168430000ff4241837e76",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673554313",
+      "index": 54,
+      "parser": "pokerstars",
+      "phf": "1367d2f26a6c837d06682d0bc24124901570c4fcfb8af374adb5a0b8a4fdbe92",
+      "standardText": "207530d29bc067444f1fedcb107497e59fa43e4bc8785c041ce44be5d169ede0",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673561342",
+      "index": 55,
+      "parser": "pokerstars",
+      "phf": "04b3b8945410a3341fad6f45a481b77602206536d4e800b59202aee07719c7ed",
+      "standardText": "426b4ca10e29a498f5ec59d62a486a298055bb5c2b3a825284da06198f498720",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673572373",
+      "index": 56,
+      "parser": "pokerstars",
+      "phf": "22c5f9950997fa7d44d0a145c769919457ce0190ccdd803ada050b252948885c",
+      "standardText": "fbc952251deb0bd953768666f52924eb6f1249e002ac4632b55317238b7df01b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673589735",
+      "index": 57,
+      "parser": "pokerstars",
+      "phf": "d4902d8c717ea7520b816278182bf43159a6cde1113a611a5f0e34598acb86a9",
+      "standardText": "3c421cbdd2d27b5b2d1d8c33d6651c62d4b1b153e3400321a9ada1a90fd54975",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 75703,
+    "path": "fixtures/samples/pokerstars/28-cash-multi-hand-file-no-blank-separator.txt",
+    "sha256": "a9ac98aaa484cc0011b896cae734f20cf20f0b1a18fb82422a22558945a08dd8"
+  },
+  "refusals": [],
+  "standardTextFile": "1a054197e6976a2814daa1e840b918dcb71018fb9bcfce7b701c9dccebd8bd72",
+  "stats": {
+    "bySite": {
+      "pokerstars": 58
+    },
+    "converted": 58,
+    "failed": 0,
+    "total": 58
+  }
+}

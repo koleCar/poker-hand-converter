@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-13549974403",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "af1887f9dd2a9fc8ef16412199ab2806f998fa6b17ddb7799b9843de4ce76bce",
+      "standardText": "55eb24078e8cee33424d0f82507394d02cdfeb1ca9743718453b1922f413789b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 786,
+    "path": "fixtures/samples/partypoker/09-fixed-limit-holdem.txt",
+    "sha256": "5d1da477216ea57d682a256d1d9e9c209d776dfcff2daba6e7c8227f08291b7f"
+  },
+  "refusals": [],
+  "standardTextFile": "55eb24078e8cee33424d0f82507394d02cdfeb1ca9743718453b1922f413789b",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

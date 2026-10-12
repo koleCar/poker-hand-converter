@@ -1,0 +1,51 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "61910233643",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "43b30be9285e076631202f1197f35269c1c189a542b9f35ad96e88c40472ec03",
+      "standardText": "9f19c45e10391d3b113f5da99e1c14df48bb84741f1f23ea9003f3ae9178332b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        },
+        {
+          "code": "uncalled-return-reconstructed",
+          "message": "The source omitted the uncalled return of $36 to DarkEvilus; it was rebuilt from the reported pot."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1121,
+    "path": "fixtures/samples/pokerstars/08-cash-nlhe-cap-game-reached-cap.txt",
+    "sha256": "af5599142263ffcd869acaf7d6b1eca2cebfdd43d181c64ac4824de10d18c21a"
+  },
+  "refusals": [],
+  "standardTextFile": "9f19c45e10391d3b113f5da99e1c14df48bb84741f1f23ea9003f3ae9178332b",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

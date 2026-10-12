@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "352034259",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "0554555eb19ea39e938961381f4db65ca812cf3a11d4e1a77d8be6a19fbebdf5",
+      "standardText": "eff721c93980236f96074226a2f8e0e661af4ad8973d93ca530409b8e6e39bd9",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1104,
+    "path": "fixtures/samples/coinpoker/07-cash-didnt-post-big-blind.txt",
+    "sha256": "2472aad2ecfd9f1dcd984ad1a94f4b286e6c98c5454ff326ae9ba3faf86b029d"
+  },
+  "refusals": [],
+  "standardTextFile": "eff721c93980236f96074226a2f8e0e661af4ad8973d93ca530409b8e6e39bd9",
+  "stats": {
+    "bySite": {
+      "coinpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

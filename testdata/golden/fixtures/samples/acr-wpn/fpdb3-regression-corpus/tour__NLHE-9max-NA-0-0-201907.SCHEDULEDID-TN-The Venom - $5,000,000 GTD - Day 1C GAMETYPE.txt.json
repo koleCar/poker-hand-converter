@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "80586589",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "de87e360527be892e45234f918cf137fbd9ff68840fc7a52d9eddf0fbcad8a56",
+      "standardText": "bed0e22d1c22dacf1afc0830044aab091c5a850eba870fba49b7071e467b0c39",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1462,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-9max-NA-0-0-201907.SCHEDULEDID-TN-The Venom - $5,000,000 GTD - Day 1C GAMETYPE.txt",
+    "sha256": "36f36f6adae47fbfaedc6185692d4370a4bdc042f9693895efc659fab98e37c2"
+  },
+  "refusals": [],
+  "standardTextFile": "bed0e22d1c22dacf1afc0830044aab091c5a850eba870fba49b7071e467b0c39",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "1296393662",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "8dbf8079f70e2319dab018d04071aa705c869b2d8dd289bc28825e366c3aa142",
+      "standardText": "9eccd5bbfec003b3ebc7aed4f218386e3d4c2e097927c2d99b7c2bb66e3f67cc",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1641,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-8max-NA-0-0-202207.GTD.txt",
+    "sha256": "d108a94b772cce189660349b1432b783bf2a14596055fb4d3203c6e0955b1a46"
+  },
+  "refusals": [],
+  "standardTextFile": "9eccd5bbfec003b3ebc7aed4f218386e3d4c2e097927c2d99b7c2bb66e3f67cc",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "unibet",
+        "permille": 950
+      }
+    ],
+    "top": "unibet"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "UB-1558006464",
+      "index": 0,
+      "parser": "unibet",
+      "phf": "e612aa0c9321950bc83ceb713b0dae6faba82286059ec21030285aaed0ebc95f",
+      "standardText": "f164f2a2d9ffc115908da79aa8901a933a0e41480b53416aa55db48f6e65ba16",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1162,
+    "path": "fixtures/samples/unibet/04-tournament-nlhe-2026-anonymised.txt",
+    "sha256": "24981c72a4871942c666122bca602bf0ee097884fa4291102ce91d4fb36c6084"
+  },
+  "refusals": [],
+  "standardTextFile": "f164f2a2d9ffc115908da79aa8901a933a0e41480b53416aa55db48f6e65ba16",
+  "stats": {
+    "bySite": {
+      "unibet": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

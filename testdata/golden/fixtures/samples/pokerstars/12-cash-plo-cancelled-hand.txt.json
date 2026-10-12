@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 250
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 323,
+    "path": "fixtures/samples/pokerstars/12-cash-plo-cancelled-hand.txt",
+    "sha256": "98c281bd6ba2342ddaf3ae510d432d735632519b7bdadc7e2d3b945ec8e367aa"
+  },
+  "refusals": [
+    {
+      "fingerprint": "fb3231325c9f1ecaf95ea9364ed34b4ebca43d97a356b63034a80b0fbebb5e32",
+      "index": 0,
+      "message": "PokerStars cancelled the hand.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "hand-cancelled",
+      "site": "pokerstars",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

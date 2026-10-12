@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-13550695573",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "aefeec9d8ce7074b29ddee0f1f098a30fa0bae26e9f270a1761dc3799d6161fe",
+      "standardText": "6ae9a00b50b64edfdd3c25f48fc0083c88cea5f7f270a0f296881ca4832a09bb",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 651,
+    "path": "fixtures/samples/partypoker/03-threebet-no-showdown.txt",
+    "sha256": "3dc6a8d7a6b1a66a616c4abb210db468105b8691182f661a8fef43b5ab80e0ec"
+  },
+  "refusals": [],
+  "standardTextFile": "6ae9a00b50b64edfdd3c25f48fc0083c88cea5f7f270a0f296881ca4832a09bb",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

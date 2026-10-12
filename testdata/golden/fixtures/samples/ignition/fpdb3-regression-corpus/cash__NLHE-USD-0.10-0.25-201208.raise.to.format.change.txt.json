@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2628482935",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "44bae47cd632a0a90ec5921efa1709cd5c169d874af35073f3dd0b262ff7851c",
+      "standardText": "3d57d199de83a879ae89135392be940beb839b31385d08c359f05b587be89275",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1111,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD-0.10-0.25-201208.raise.to.format.change.txt",
+    "sha256": "cacd7f53c4e8eb6f578aaa762ba617396d2b0326450826fbb2c27ee91301bfa1"
+  },
+  "refusals": [],
+  "standardTextFile": "3d57d199de83a879ae89135392be940beb839b31385d08c359f05b587be89275",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

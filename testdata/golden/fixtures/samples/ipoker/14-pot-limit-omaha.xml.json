@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ipoker",
+        "permille": 950
+      }
+    ],
+    "top": "ipoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5383652813",
+      "index": 0,
+      "parser": "ipoker",
+      "phf": "3c75b7038bf84ebdb48746ee3c5cf585020b44ca859117ebfcee21e502569c47",
+      "standardText": "5cbefb3b584e267a0b13d232420ff6a27ec475fad99768a137a096aadaf7555a",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2274,
+    "path": "fixtures/samples/ipoker/14-pot-limit-omaha.xml",
+    "sha256": "c56bf426ee5b7f29cfd9e3a52297c5f87effb693669866ff769f935423d00279"
+  },
+  "refusals": [],
+  "standardTextFile": "5cbefb3b584e267a0b13d232420ff6a27ec475fad99768a137a096aadaf7555a",
+  "stats": {
+    "bySite": {
+      "ipoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

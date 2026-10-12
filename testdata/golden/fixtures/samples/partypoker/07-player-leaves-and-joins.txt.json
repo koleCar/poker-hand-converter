@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-1420500000",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "c8a01bb0738e043eebfec4b49379280ad0589574a27207150fdd2b94fa7e62ab",
+      "standardText": "7047bf0f834c3ef6b82a6194fd191d18c7e7ea786e1464deb68006749155856c",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 979,
+    "path": "fixtures/samples/partypoker/07-player-leaves-and-joins.txt",
+    "sha256": "8b74b645843a048241b8041746d986387b175d6ca7911989100799686cc85bd2"
+  },
+  "refusals": [],
+  "standardTextFile": "7047bf0f834c3ef6b82a6194fd191d18c7e7ea786e1464deb68006749155856c",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

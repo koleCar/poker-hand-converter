@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "109680525613",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "8aad6c2ae370024d3e45b39793fc54df65add48c344991014ff630ae21f52124",
+      "standardText": "445b8aaf864b44dcc4043b7dff535617dc5c1d4aff03978c678cb61a0960331f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1760,
+    "path": "fixtures/samples/pokerstars/26-cash-nolimit-omahahilo.txt",
+    "sha256": "aecf7b7379fdf463044aa2b127a66c95c79d5ce37c4b7f7ea77415255389a382"
+  },
+  "refusals": [],
+  "standardTextFile": "445b8aaf864b44dcc4043b7dff535617dc5c1d4aff03978c678cb61a0960331f",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

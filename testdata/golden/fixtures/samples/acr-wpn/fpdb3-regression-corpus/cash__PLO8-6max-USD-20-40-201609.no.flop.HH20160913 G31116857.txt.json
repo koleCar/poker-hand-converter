@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1500,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO8-6max-USD-20-40-201609.no.flop.HH20160913 G31116857.txt",
+    "sha256": "a4b9677512e17508bb613cc06f7e4bb416eeada5be4165638ab9d6664897c954"
+  },
+  "refusals": [
+    {
+      "fingerprint": "54c286c809bb694b97da304a390f4fd2c3f8f4214eaedb44359e932a22225699",
+      "index": 0,
+      "message": "\"Omaha HiLow\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "acrwpn",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

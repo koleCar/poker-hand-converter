@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1590,
+    "path": "fixtures/samples/pokerstars/45-cash-razz-brings-in-excerpt.txt",
+    "sha256": "65923380ac38ea6a764b13447e0754b27944e50cc36d03303cd5edea364ae703"
+  },
+  "refusals": [
+    {
+      "fingerprint": "e9ef0d0fb4ca8f06c414a315f858c939a7a3373ad8b47b9177a8262a2788bb71",
+      "index": 0,
+      "message": "\"Razz Limit\" is razz, which this parser has not been verified against. It reads Hold'em and Omaha.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "pokerstars",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

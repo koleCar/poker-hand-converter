@@ -1,0 +1,114 @@
+{
+  "chunks": 9,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD73832042",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "41dedda02b04ebe3481cf330138cd9cf4cc596df415d8dc13e60d70371e181f5",
+      "standardText": "1b71f28f4bd6a3c9758f3ff49addb6a0ad6f1451413577adc3a2115c062375dc",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832073",
+      "index": 1,
+      "parser": "weplay",
+      "phf": "ba089a2df7dc55a05a8a859678420d98423a24c3b6a3c1f4ee5b68913192d288",
+      "standardText": "b9990745c88e09ca1fb3535dc467f88ea022fe7b8840e96588a375475f89941f",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832085",
+      "index": 2,
+      "parser": "weplay",
+      "phf": "a15570483b13301cd501039cc696734bde48bebc5a18947d87a9b100c5a315f6",
+      "standardText": "b1aaa937cb447bd4cf2735512362adf1fa3ec2bbf1e540b9a8c1fa26e12e9393",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832133",
+      "index": 3,
+      "parser": "weplay",
+      "phf": "150057a8a804d989784b96214d1fb4e9b968871551fe58e64de557124f306399",
+      "standardText": "cd0b4a0923d8316a5495aef8988aca8d88c5382bd46d3ea316368a1d6a85e70e",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832170",
+      "index": 4,
+      "parser": "weplay",
+      "phf": "b6133e59e68b07505bf89508ad4295f24f7e5572e7015999a263037f36f0f3ef",
+      "standardText": "d1ced8e672e19d9fbeb83faf4d2b26618eef29b9d0106bb5a7fc7526d71f5294",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832194",
+      "index": 5,
+      "parser": "weplay",
+      "phf": "e244ece20c28f40cd1231292f760b425f6c7d57adbb110254df89b77370d2254",
+      "standardText": "63e67a08ba159c136077d3cdcdaa8a7e180715d67aaf73ab0003f700c4e49c68",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832221",
+      "index": 6,
+      "parser": "weplay",
+      "phf": "b7c122cd7ff4df9d0a212672c91169562ef3e18baa38546375593ec9f6ddcf10",
+      "standardText": "e253d3d135ddfc93c1ac6bc760828d0b63313d2e1b4958272729ff3ebd5635ca",
+      "warnings": [
+        {
+          "code": "button-not-seated",
+          "context": {
+            "seat": 2
+          },
+          "message": "The button is on seat 2, which is empty."
+        }
+      ]
+    },
+    {
+      "handId": "HD73832229",
+      "index": 7,
+      "parser": "weplay",
+      "phf": "de2462ebe5d493ea89fbb5e5376f10a699a3b1ced135a434ff55f035f9e26d7d",
+      "standardText": "fd42f65871ce6976cd838ea40261362098d55516eae7327f205a39cad5d8a28d",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832241",
+      "index": 8,
+      "parser": "weplay",
+      "phf": "ec7803c5d6b6d5f0cdc447ce0d29801d99966100bbdcf720734b73251c262811",
+      "standardText": "35fbe44bec289543d254269b53c0f8e6c4adaabdfef43f734c5e1de7867984eb",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 9753,
+    "path": "weplay-hh/kole1992/HH20260126 London #1 (#11410800) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt",
+    "sha256": "0b65e2ac1d9267dcc4321e22c9e85cf229374b4f6624696b8dddacb9bb1284cd"
+  },
+  "refusals": [],
+  "standardTextFile": "e2eb5cbc00fe67ed96d7a347395c55179085edc04f949e8b84fa3b29a50a0a5c",
+  "stats": {
+    "bySite": {
+      "weplay": 9
+    },
+    "converted": 9,
+    "failed": 0,
+    "total": 9
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ggpoker",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 900
+      }
+    ],
+    "top": "ggpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "1171217378123557259",
+      "index": 0,
+      "parser": "ggpoker",
+      "phf": "c2e75f18476e053702b05826b40e130e282e8cd05670d88aedc76ce29c8095e6",
+      "standardText": "72fb4286bcf034981b605db55745c11affc0d4cd73788e22638af0fc7fef29d4",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1260,
+    "path": "fixtures/samples/ggpoker/12-fpdb3-cash-nl-shortdeck-5max-usd-100-202104-internal.txt",
+    "sha256": "72bee2eb34afeed91ca0916b882565ab39155e8f39f1750c6d003f121c073dba"
+  },
+  "refusals": [],
+  "standardTextFile": "72fb4286bcf034981b605db55745c11affc0d4cd73788e22638af0fc7fef29d4",
+  "stats": {
+    "bySite": {
+      "ggpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

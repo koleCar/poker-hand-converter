@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 3306,
+    "path": "fixtures/samples/bossmedia/08-omaha-showdown.txt",
+    "sha256": "341add5a4c6214afffa423cd2aef5cefad9ec8cd86095eeb131469e8d8caaba6"
+  },
+  "refusals": [
+    {
+      "fingerprint": "a8ea752e0c7fb7e11571914c7e85062814bfc8a4422660cc0b55a8708f6f0566",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

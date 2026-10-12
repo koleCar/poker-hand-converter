@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ipoker",
+        "permille": 950
+      }
+    ],
+    "top": "ipoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5383392792",
+      "index": 0,
+      "parser": "ipoker",
+      "phf": "488091fd46a24567298dd660a38f62ae9429a62ef3eadd0c1640e20e53362b1b",
+      "standardText": "3770d70adacd3de3d88f4ccb89612fa238d5b6e8170ea3540f3530a1253469fb",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2679,
+    "path": "fixtures/samples/ipoker/01-basic-hand-pl-omaha-eur.xml",
+    "sha256": "ccb1b727b8c5b8cc0d86ac65f03fe9da9eeee54306475d15a6fb305567aaccdc"
+  },
+  "refusals": [],
+  "standardTextFile": "3770d70adacd3de3d88f4ccb89612fa238d5b6e8170ea3540f3530a1253469fb",
+  "stats": {
+    "bySite": {
+      "ipoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

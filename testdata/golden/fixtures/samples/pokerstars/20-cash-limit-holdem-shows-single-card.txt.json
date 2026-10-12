@@ -1,0 +1,54 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "86005187865",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "1498537de974d8ca6224c9ee34ceeae9cc0d215f1774985acc22b4bdf9b96e1f",
+      "standardText": "56984e592b805996149e61f54a6033744bd4a583573f554e525be53e4444191e",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        },
+        {
+          "code": "hole-card-count",
+          "context": {
+            "player": "Zaza5573"
+          },
+          "message": "Zaza5573 has 1 hole cards; holdem deals 2."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1352,
+    "path": "fixtures/samples/pokerstars/20-cash-limit-holdem-shows-single-card.txt",
+    "sha256": "bbbd70a7d7b90f8778c76e5ec5c1e1d18348c2ddc0372c8a0b82f13750414c35"
+  },
+  "refusals": [],
+  "standardTextFile": "56984e592b805996149e61f54a6033744bd4a583573f554e525be53e4444191e",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

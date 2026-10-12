@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "132630000000",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "99b3c6019364ddbf11b7f4cd17ae1588f9328621f78dadf91f0361004e9090ad",
+      "standardText": "e84844b2fedf3300e8700e5987d7c2c8d7dc2e2c71a2e030201a7f4603e77f3c",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1410,
+    "path": "fixtures/samples/pokerstars/32-cash-zoom-plo-wet-et-header.txt",
+    "sha256": "9268c8ef7e7f5349b783bc86caf115195cd517adc781050cf67afdee0df42d4c"
+  },
+  "refusals": [],
+  "standardTextFile": "e84844b2fedf3300e8700e5987d7c2c8d7dc2e2c71a2e030201a7f4603e77f3c",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

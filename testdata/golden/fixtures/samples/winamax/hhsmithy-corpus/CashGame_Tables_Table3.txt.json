@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "winamax",
+        "permille": 950
+      }
+    ],
+    "top": "winamax"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-5282949-1701-1382615078",
+      "index": 0,
+      "parser": "winamax",
+      "phf": "860bc5ed55261cba67add338b788c39180502a0b4e994b40c0a2e7d872aa103c",
+      "standardText": "90cc07b86b7d7496c13066898ea36e8a263d9814c48af07e4e90649abe108c67",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 776,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_Tables_Table3.txt",
+    "sha256": "7563ff4384b299ebda256576e6d6cbb41699521ee2e3f72c695004ee46d90773"
+  },
+  "refusals": [],
+  "standardTextFile": "90cc07b86b7d7496c13066898ea36e8a263d9814c48af07e4e90649abe108c67",
+  "stats": {
+    "bySite": {
+      "winamax": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

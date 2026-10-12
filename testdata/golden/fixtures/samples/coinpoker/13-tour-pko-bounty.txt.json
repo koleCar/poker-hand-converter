@@ -1,0 +1,54 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "185484049",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "3f784bdf4bfed2e7e88269917e08f8b876e62fdb972964df12a7c44fff3cf443",
+      "standardText": "2933a054f0f7a39431d273c319a34eb4b6f2dc8b0abe6589840a085e5e19e9ad",
+      "warnings": [
+        {
+          "code": "button-not-seated",
+          "context": {
+            "seat": 2
+          },
+          "message": "The button is on seat 2, which is empty."
+        },
+        {
+          "code": "buy-in-not-stated",
+          "message": "CoinPoker's header states no buy-in for \"₮0.10 Mega Sat to ₮1 Mini Dojo PKO, 15 Seats GTD\"; tournament.buyIn is 0."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1299,
+    "path": "fixtures/samples/coinpoker/13-tour-pko-bounty.txt",
+    "sha256": "db36b7083b964e0ddd96ccf59f77c12de94f2b2960b588337675561eadf3f9a3"
+  },
+  "refusals": [],
+  "standardTextFile": "2933a054f0f7a39431d273c319a34eb4b6f2dc8b0abe6589840a085e5e19e9ad",
+  "stats": {
+    "bySite": {
+      "coinpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

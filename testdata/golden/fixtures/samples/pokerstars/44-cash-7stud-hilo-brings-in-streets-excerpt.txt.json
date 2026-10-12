@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1695,
+    "path": "fixtures/samples/pokerstars/44-cash-7stud-hilo-brings-in-streets-excerpt.txt",
+    "sha256": "c31667a2e42912e7d14104cfedfbdbb14b921d403b87c46a370a4522b3c01140"
+  },
+  "refusals": [
+    {
+      "fingerprint": "decb207b2315019e2941b6b5ef59d23ba36527118d1e5ba2f1efa8369ba42bcb",
+      "index": 0,
+      "message": "\"7 Card Stud Hi/Lo Limit\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "pokerstars",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

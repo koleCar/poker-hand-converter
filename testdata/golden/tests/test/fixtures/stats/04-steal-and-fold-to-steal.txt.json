@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST04",
+      "index": 0,
+      "parser": "standard",
+      "phf": "b624387d54cd82cfc1a3bf69d50194cf919e83d1a95701d5ed947ef7842a4f90",
+      "standardText": "d2d25ffdeca9131b789cf4b2083c3c2890d9042e12643e8ede8bf3e329ae9258",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 841,
+    "path": "tests/test/fixtures/stats/04-steal-and-fold-to-steal.txt",
+    "sha256": "44499b70bc8ca1e4781e2f8c32a7ac04846800bfbf4d89548df7132b47df0af4"
+  },
+  "refusals": [],
+  "standardTextFile": "d2d25ffdeca9131b789cf4b2083c3c2890d9042e12643e8ede8bf3e329ae9258",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

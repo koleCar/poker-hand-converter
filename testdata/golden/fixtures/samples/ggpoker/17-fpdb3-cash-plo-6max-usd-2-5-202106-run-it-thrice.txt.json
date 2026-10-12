@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ggpoker",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 900
+      }
+    ],
+    "top": "ggpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "OM260919438",
+      "index": 0,
+      "parser": "ggpoker",
+      "phf": "b957d1b94b5b152a9c103f72758bac86dede13bf605ace27590c71be3e1453c3",
+      "standardText": "ced94be4abbef37749798441ed0487d8bcb262b43518d2ee61ee335c7b550004",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1801,
+    "path": "fixtures/samples/ggpoker/17-fpdb3-cash-plo-6max-usd-2-5-202106-run-it-thrice.txt",
+    "sha256": "bb869ca222bf60ee50963b0b1a79577528fd2738381b62ba571408964138195d"
+  },
+  "refusals": [],
+  "standardTextFile": "ced94be4abbef37749798441ed0487d8bcb262b43518d2ee61ee335c7b550004",
+  "stats": {
+    "bySite": {
+      "ggpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

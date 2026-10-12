@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "888poker",
+        "permille": 950
+      }
+    ],
+    "top": "888poker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "888-359567819",
+      "index": 0,
+      "parser": "888poker",
+      "phf": "ca7efe8a9d836a1406578b024a03b517c9bcc7b53b4f97292559839e27aa8a01",
+      "standardText": "ff83307421964ecafe5bf62ca74b48c10776d23d819dfcdea2efe5ef36bed6a6",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 897,
+    "path": "fixtures/samples/888poker/04-dead-blind-notation.txt",
+    "sha256": "c2b09cf0c15c5d330b96400b0a56b6ef34ada696b72586ea6a25cd35c8944f80"
+  },
+  "refusals": [],
+  "standardTextFile": "ff83307421964ecafe5bf62ca74b48c10776d23d819dfcdea2efe5ef36bed6a6",
+  "stats": {
+    "bySite": {
+      "888poker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

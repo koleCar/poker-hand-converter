@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST12",
+      "index": 0,
+      "parser": "standard",
+      "phf": "069364cbd532d38ebac2a6713523209cb964d67b706d56240cf15d3af37393e7",
+      "standardText": "facaef5bf875f4c8f04abd58baaffa5d4f260472dcce382fec4e4b46997f2f4a",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 906,
+    "path": "tests/test/fixtures/stats/12-limped-pot-has-no-cbet.txt",
+    "sha256": "9f781c9613672d8cee88cf3aa56ff53bc8221ae38825acc9fc695b67af0219be"
+  },
+  "refusals": [],
+  "standardTextFile": "facaef5bf875f4c8f04abd58baaffa5d4f260472dcce382fec4e4b46997f2f4a",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

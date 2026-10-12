@@ -1,0 +1,55 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "4086249181",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "f01f345619c65a2054d8864a1d01cd90cc09cb90238ca97323b12e51e9e6c0ae",
+      "standardText": "5bd3d869b81b0b2dab3534a4fe11882183e2c2adef5b43ebff0c2b4099e2bdb1",
+      "warnings": [
+        {
+          "code": "missing-button",
+          "message": "The button seat is unknown, so positions cannot be resolved."
+        },
+        {
+          "code": "dead-button",
+          "message": "No seat is on the button; \"Set dealer [5]\" names no seated player."
+        },
+        {
+          "code": "mvs-player-hashes",
+          "message": "1=d07e9231948e51d3174b777a4673828d 2=44fbd5113ff5581f5a26b0ba89c64fce 4=4be1435659dd6477e8716fba5499e672 6=0bce045b1715d3fe9f17816328eec5e2"
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1721,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD - $0.25-$0.50 - 202103.MVS.version.txt",
+    "sha256": "bb0e8f62489659671c3cb923bc80c239139d37f09ee2cf67ba19057090cd5fa7"
+  },
+  "refusals": [],
+  "standardTextFile": "5bd3d869b81b0b2dab3534a4fe11882183e2c2adef5b43ebff0c2b4099e2bdb1",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

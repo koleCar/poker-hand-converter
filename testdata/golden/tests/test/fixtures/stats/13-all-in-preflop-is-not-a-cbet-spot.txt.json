@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST13",
+      "index": 0,
+      "parser": "standard",
+      "phf": "2eeabab3feb919d788488824ec3a43c060a7b55597c805617a0fa3d8aa5ba5f6",
+      "standardText": "ebb81165a72ab5f190ec863d66ea47e49bb4581231acc1e3218dcf1e1422759d",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1074,
+    "path": "tests/test/fixtures/stats/13-all-in-preflop-is-not-a-cbet-spot.txt",
+    "sha256": "c4aa9eb9edca12084fe925f54188df63a0b8b9f309bc4cfb0c076109e9188803"
+  },
+  "refusals": [],
+  "standardTextFile": "ebb81165a72ab5f190ec863d66ea47e49bb4581231acc1e3218dcf1e1422759d",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

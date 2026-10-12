@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 250
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "75726253875",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "d366af62d03dad9bf1ddc27acba79406c73c7874bc6814007535cbd19836cd79",
+      "standardText": "a8f2f6f6677811fe49b2ceef67945ac371ce25a3f3e435757e1321cb0af948e3",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1682,
+    "path": "fixtures/samples/pokerstars/37-tour-stt-playmoney-nocurrency-allin-blind-finishplace.txt",
+    "sha256": "d03b4ffa9609255d9ea84fe6fb112ab87a3bf8b5e7a252c46a48d6bc3cd4614d"
+  },
+  "refusals": [],
+  "standardTextFile": "a8f2f6f6677811fe49b2ceef67945ac371ce25a3f3e435757e1321cb0af948e3",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

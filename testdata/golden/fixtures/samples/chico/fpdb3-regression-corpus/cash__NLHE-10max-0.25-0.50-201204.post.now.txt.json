@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "chico",
+        "permille": 950
+      }
+    ],
+    "top": "chico"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1002060530",
+      "index": 0,
+      "parser": "chico",
+      "phf": "c4189d2f4c39c48f8b1b302de04f45a48892a4013da75e916f9aac35ee9cad14",
+      "standardText": "859e5fbf911b3ea4886b1316fbfd84b772d4da1668c9b35b3c57d36f321fcf9a",
+      "warnings": [
+        {
+          "code": "board-from-summary",
+          "message": "The street markers stop after 4 cards; the rest of the board is taken from the summary, which is the only place it is written down."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1568,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-0.25-0.50-201204.post.now.txt",
+    "sha256": "fbb5bef28e0c2610dc59ffea13290874618664ad2a119d20ab8e546c8296305e"
+  },
+  "refusals": [],
+  "standardTextFile": "859e5fbf911b3ea4886b1316fbfd84b772d4da1668c9b35b3c57d36f321fcf9a",
+  "stats": {
+    "bySite": {
+      "chico": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

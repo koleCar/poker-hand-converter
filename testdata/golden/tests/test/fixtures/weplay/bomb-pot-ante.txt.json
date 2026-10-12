@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD90000004",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "8c824382552b2439625a75f0e7f26fe2811e622813f4755ca30aea0fcf94c5b7",
+      "standardText": "684f3fa42d52d272e9b416e2b098136cbf882fff664dd46f23cca0fe126702b6",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 800,
+    "path": "tests/test/fixtures/weplay/bomb-pot-ante.txt",
+    "sha256": "87fe125841b256d199acd0d72a3a49cbf85a64d75bb4ef3e821045afaf955ff7"
+  },
+  "refusals": [],
+  "standardTextFile": "684f3fa42d52d272e9b416e2b098136cbf882fff664dd46f23cca0fe126702b6",
+  "stats": {
+    "bySite": {
+      "weplay": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

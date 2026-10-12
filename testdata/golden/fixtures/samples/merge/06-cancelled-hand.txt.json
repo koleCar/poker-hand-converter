@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 606,
+    "path": "fixtures/samples/merge/06-cancelled-hand.txt",
+    "sha256": "52b03d0c0fdee46caabde66c88b02cca1aa1c9052274ab72db5a13854b6a2e01"
+  },
+  "refusals": [
+    {
+      "fingerprint": "2fb6d3a3e2b1c787b0a9fd813fa78c2973c7f5f3219cdaec013029d3071f17eb",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

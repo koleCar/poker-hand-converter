@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 784,
+    "path": "tests/test/fixtures/weplay/zero-stack-actor.txt",
+    "sha256": "a807827985e984bd7152a391993466ebadb547135284c44750c99a55fc2c6f8d"
+  },
+  "refusals": [
+    {
+      "fingerprint": "075b08ce59645e98c70ceec90660431ab7bd3610320922c2f04255217b328220",
+      "index": 0,
+      "message": "A player with a zero stack acted (Raicevic).",
+      "parserVersion": "2.0.0",
+      "permille": 990,
+      "reason": "zero-stack-actor",
+      "site": "weplay",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

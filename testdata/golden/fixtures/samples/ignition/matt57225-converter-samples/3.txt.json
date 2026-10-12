@@ -1,0 +1,104 @@
+{
+  "chunks": 7,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3534011697",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "3255e57130b6b3bd8d46e374d29290e9bd3208b4be6773ebd9d818346859c868",
+      "standardText": "ba08cd8a6d9c7be5b3f519e7a98e54cbbe46c2d1063019ca1845d92c26412bdd",
+      "warnings": []
+    },
+    {
+      "handId": "3534013264",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "e01e5fad3cb200b2f1fe71551b21343d06a72792b88907fc421b21ae1a537a68",
+      "standardText": "5f89fc1ddfe2673a27882e5785bfacfa62c97c0be1e5213e8adbb3ca64639c96",
+      "warnings": []
+    },
+    {
+      "handId": "3534013634",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "7770f62ca59c50cd05a985ba6646b5209a8ada41fb6845d3436cdcebe7112435",
+      "standardText": "e1c4b8dce4fa853ff97f7a16677ffe8a5166788bd788461f9942a4eca4993a7c",
+      "warnings": []
+    },
+    {
+      "handId": "3534014376",
+      "index": 3,
+      "parser": "ignition",
+      "phf": "2f6677b068990bb22fb293b72e0c0312db1c651dc2413c3d5920048a07266da0",
+      "standardText": "bca277ec5f3b1234b3286b1166c0b9f7bfbf31c314dadfa2b09644b765f954d3",
+      "warnings": []
+    },
+    {
+      "handId": "3534015122",
+      "index": 4,
+      "parser": "ignition",
+      "phf": "35c1e547fe947f9d3bfe03c25490e23cce2dafcae271498a6064e830badeb674",
+      "standardText": "c0e5b3fbd24f5aea973974f0e19546d029d6e848e3f992afb1992d0d24aad0b8",
+      "warnings": [
+        {
+          "code": "no-winner",
+          "message": "Nobody collected the pot."
+        },
+        {
+          "code": "dead-small-blind",
+          "message": "No small blind was posted; the seat to the button's left was empty."
+        }
+      ]
+    },
+    {
+      "handId": "3534015248",
+      "index": 5,
+      "parser": "ignition",
+      "phf": "db4a4219163527c0e8061e51c0cb643d1816e71c337a3686e7eec51fd47592df",
+      "standardText": "acd4308f3afc289f05dbcc6dad52aa951a1aeb8b08c50a7c15c1094b57e6a5bc",
+      "warnings": [
+        {
+          "code": "missing-button",
+          "message": "The button seat is unknown, so positions cannot be resolved."
+        }
+      ]
+    },
+    {
+      "handId": "3534015780",
+      "index": 6,
+      "parser": "ignition",
+      "phf": "6c1983ff9007814a621d3b7fd6085039d39b8f44d55c6ad0fc900d169b4c7afe",
+      "standardText": "370942bbab6946ec6f98a5183f08691eca968d5f8181ae0f95fc65ca4dd5a8e3",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 10265,
+    "path": "fixtures/samples/ignition/matt57225-converter-samples/3.txt",
+    "sha256": "d93b44d8536c7638814179e87a430b65acb279bb0150306dbc716f9c61fe5403"
+  },
+  "refusals": [],
+  "standardTextFile": "4a5c512cd67b0f387f2d97524928f1aa759356f0b17a2078d40cc9a73e040f2c",
+  "stats": {
+    "bySite": {
+      "ignition": 7
+    },
+    "converted": 7,
+    "failed": 0,
+    "total": 7
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "fulltilt",
+        "permille": 950
+      }
+    ],
+    "top": "fulltilt"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 502,
+    "path": "fixtures/samples/full-tilt/13-cash-edge-case-no-actions-summary-only.txt",
+    "sha256": "1431d39c6a6cb88cb2c777b86986c0e4748482bfc4c013e4f9e6dc1bc9981653"
+  },
+  "refusals": [
+    {
+      "fingerprint": "606a925fa9aa831a9a361d2d8df1b7ee4061ccc68b882ef532ed1790e1528968",
+      "index": 0,
+      "message": "The hand has no seat listing, so there is nothing to attribute the action to.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "no-seat-block",
+      "site": "fulltilt",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

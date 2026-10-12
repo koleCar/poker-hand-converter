@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ongame",
+        "permille": 950
+      }
+    ],
+    "top": "ongame"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361850810-474",
+      "index": 0,
+      "parser": "ongame",
+      "phf": "0f7793184370b4a69329790a66882b81b0a188acfbe1428d816978a8db908408",
+      "standardText": "f804e853eeb0f261954f0ee22e74307c4ac7ed43db559f344c6421edacd431a8",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 995,
+    "path": "fixtures/samples/ongame/01-basic-hand-nlhe.txt",
+    "sha256": "13338b477d6e9d95162c0d1e8f21b77c3f6ecbc260e8d10541d33a19443b6db5"
+  },
+  "refusals": [],
+  "standardTextFile": "f804e853eeb0f261954f0ee22e74307c4ac7ed43db559f344c6421edacd431a8",
+  "stats": {
+    "bySite": {
+      "ongame": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

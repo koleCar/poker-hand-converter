@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ongame",
+        "permille": 950
+      }
+    ],
+    "top": "ongame"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361709806-1",
+      "index": 0,
+      "parser": "ongame",
+      "phf": "003fe33aa04a56de652eaca82233ac35cc691cc8880f6c8671abd8208bf02d02",
+      "standardText": "7d0db0ad56d5c9d7a9f83dab41a0fb95c136df5711c81b6c06a9088c2a8f1000",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 579,
+    "path": "fixtures/samples/ongame/02-fixed-limit-holdem.txt",
+    "sha256": "ef57715e82ac46095873c0a5cda3e835787b05d709c95b469748f1f065e19b79"
+  },
+  "refusals": [],
+  "standardTextFile": "7d0db0ad56d5c9d7a9f83dab41a0fb95c136df5711c81b6c06a9088c2a8f1000",
+  "stats": {
+    "bySite": {
+      "ongame": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

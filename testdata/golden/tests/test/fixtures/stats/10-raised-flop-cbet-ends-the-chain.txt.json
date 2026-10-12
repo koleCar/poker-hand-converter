@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST10",
+      "index": 0,
+      "parser": "standard",
+      "phf": "45e3df2474a99c4c113bc06b9893b2825590cad101216b5a38b5f4eb784bb514",
+      "standardText": "a1463f46e76cbd30c25b752ced34bc06878aee948b9bbf614ee0ea46d654c691",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1006,
+    "path": "tests/test/fixtures/stats/10-raised-flop-cbet-ends-the-chain.txt",
+    "sha256": "a516607982be742b8ad5e4f7660ea91c70b9ab99c05734396f5eedfb91eac210"
+  },
+  "refusals": [],
+  "standardTextFile": "a1463f46e76cbd30c25b752ced34bc06878aee948b9bbf614ee0ea46d654c691",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

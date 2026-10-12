@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "45201040897",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "f7dc206aa49c8732780271c37e2313d1e70b6757918600cd17449c33c21551be",
+      "standardText": "b84fe141242c27e78420b9fe56b47a4a49b3a265052e04303789b7391d8edaea",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1852,
+    "path": "fixtures/samples/pokerstars/38-tour-stt-limit-holdem-sidepot.txt",
+    "sha256": "df62f3bd2e596fd2b6c1005601b1668f8149b301af751917dd4b5a079c3df409"
+  },
+  "refusals": [],
+  "standardTextFile": "b84fe141242c27e78420b9fe56b47a4a49b3a265052e04303789b7391d8edaea",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

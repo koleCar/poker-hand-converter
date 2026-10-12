@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 19889,
+    "path": "fixtures/samples/bossmedia/09-multiple-hands-concatenated.txt",
+    "sha256": "7b75c3afce3f7520c7f354a2a4a25d19122d518bcf58c623d9a9ec7ce1250a8d"
+  },
+  "refusals": [
+    {
+      "fingerprint": "ea8ba2f7c102ac8d78c49a0b2f860b51cebde4fe0ed1d6ebf9cce53609356cde",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 466,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_ValidHandTests_CancelledHand.txt",
+    "sha256": "8d1c4dfa60848d99dd79fa3e221792b284dbfd249c595261dd0910327aa0d027"
+  },
+  "refusals": [
+    {
+      "fingerprint": "4a00f5eb0203cc34d631d8ccd837de10ec708cb7d1920a0e61e425f0021341b1",
+      "index": 0,
+      "message": "No cards were dealt; the table cancelled the hand before the deal.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "cancelled-hand",
+      "site": "acrwpn",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

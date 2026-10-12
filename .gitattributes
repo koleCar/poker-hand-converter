@@ -10,3 +10,9 @@ fixtures/** -text -diff
 gg-hh/** -text -diff
 weplay-hh/** -text -diff
 tests/test/fixtures/** -text -diff
+
+# The golden oracle (testdata/golden/README.md, docs/RAIL-PLAN.md R0.3) is
+# generated text that the Rust core must reproduce byte for byte, on Windows
+# too. Unlike the fixtures it is our own output, so it stays diffable - but it
+# is always LF, whatever core.autocrlf says on the machine that checks it out.
+testdata/golden/** text eol=lf

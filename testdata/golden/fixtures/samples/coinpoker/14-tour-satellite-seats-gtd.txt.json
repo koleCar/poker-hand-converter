@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "184522293",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "7b56ea319381b3fc23443e5c0254534007a28726b2eb1bc854158abc76ccea88",
+      "standardText": "4d3ba719765aeef95cb9d8e1c437663258422d8003120a123a4fe9c10d5d7f07",
+      "warnings": [
+        {
+          "code": "buy-in-not-stated",
+          "message": "CoinPoker's header states no buy-in for \"₮0.01 Centroll to ₮1 Prime Mega Sat, 75 Seats GTD\"; tournament.buyIn is 0."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1640,
+    "path": "fixtures/samples/coinpoker/14-tour-satellite-seats-gtd.txt",
+    "sha256": "092c0ac9e746b3e09f27749be35b202dda6a48915a5893fcba30ba8afa49943c"
+  },
+  "refusals": [],
+  "standardTextFile": "4d3ba719765aeef95cb9d8e1c437663258422d8003120a123a4fe9c10d5d7f07",
+  "stats": {
+    "bySite": {
+      "coinpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "winamax",
+        "permille": 950
+      }
+    ],
+    "top": "winamax"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-5334663-1379-1383796492",
+      "index": 0,
+      "parser": "winamax",
+      "phf": "47db80303ba51c84e9fd01adf5d8d6c2ae8f16859c41298da5247ad0b5cc7826",
+      "standardText": "0131a2b63350ad7ec4e46837f31584f8fba59dc1db7cf8bf40e2777a2631b571",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1277,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_PlayerTests_OmahaShowdown.txt",
+    "sha256": "156fd02746f15ffb54c42125b997282595a36f72d30f8a6b8f85c48bd3310f04"
+  },
+  "refusals": [],
+  "standardTextFile": "0131a2b63350ad7ec4e46837f31584f8fba59dc1db7cf8bf40e2777a2631b571",
+  "stats": {
+    "bySite": {
+      "winamax": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

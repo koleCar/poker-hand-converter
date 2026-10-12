@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "109690806574",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "02131e06f4edd34b1ab34555a922a94faae6fd9a827364038510ff621a63aecb",
+      "standardText": "78a19a7f0ed759482da340383b06d4e6becab1cfe07131f83edd42824a804630",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1830,
+    "path": "fixtures/samples/pokerstars/09-cash-nlhe-sidepot-ante-mojibake-name.txt",
+    "sha256": "0c291538296fbb8daf82b9c3708f9c18390e4e1801403f384c852ca9f7fdcb99"
+  },
+  "refusals": [],
+  "standardTextFile": "78a19a7f0ed759482da340383b06d4e6becab1cfe07131f83edd42824a804630",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

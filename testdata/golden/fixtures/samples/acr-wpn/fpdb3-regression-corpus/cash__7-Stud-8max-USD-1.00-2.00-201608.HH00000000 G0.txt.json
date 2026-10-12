@@ -1,0 +1,72 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-16 LE",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 8831,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__7-Stud-8max-USD-1.00-2.00-201608.HH00000000 G0.txt",
+    "sha256": "7f18168d887cfcecc5cbe2513ebc2ab21d21816562f5643a653396a130f20f68"
+  },
+  "refusals": [
+    {
+      "fingerprint": "60f0fc6bfd998c8372e6e82d192220f035210f78204b9208cd115d8b84c30be4",
+      "index": 0,
+      "message": "\"Seven Cards Stud\" is seven-card stud, which this parser has not been verified against. It reads Hold'em, Omaha and short-deck Hold'em.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "acrwpn",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "2bf3ae7fc67f4495489dbd13bdf15d4e0a9b42186e589c5f832b2c2633e99450",
+      "index": 1,
+      "message": "\"Seven Cards Stud\" is seven-card stud, which this parser has not been verified against. It reads Hold'em, Omaha and short-deck Hold'em.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "acrwpn",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "1e069a25ae31e81e5b634809a3b46c8a769cec9b689f4e493184990bbda75c3e",
+      "index": 2,
+      "message": "\"Seven Cards Stud\" is seven-card stud, which this parser has not been verified against. It reads Hold'em, Omaha and short-deck Hold'em.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "acrwpn",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "4ae3d1183ff4e783d180830f65e8564c8e84a76268437a7bc94d9a033c67b142",
+      "index": 3,
+      "message": "\"Seven Cards Stud\" is seven-card stud, which this parser has not been verified against. It reads Hold'em, Omaha and short-deck Hold'em.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "acrwpn",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 4,
+    "total": 4
+  }
+}

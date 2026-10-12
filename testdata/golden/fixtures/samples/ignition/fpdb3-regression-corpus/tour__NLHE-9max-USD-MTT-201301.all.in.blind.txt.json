@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2710007631",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "fe8d99e2eeff37e662a398b29ef29e4f529ed57508d7da86e754ca648f1ce198",
+      "standardText": "7574930bad1044e44002f2dcc17a39bcda8b076cae8ae943e2257cd55029fdf5",
+      "warnings": [
+        {
+          "code": "stale-level-blinds",
+          "message": "The level header advertises 50/100 but 50/19 was posted; the posted blinds win."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1413,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT-201301.all.in.blind.txt",
+    "sha256": "d9016800762f19788e9a9b2a35af7bd5923f463ddd621f6167784720ce4cd981"
+  },
+  "refusals": [],
+  "standardTextFile": "7574930bad1044e44002f2dcc17a39bcda8b076cae8ae943e2257cd55029fdf5",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

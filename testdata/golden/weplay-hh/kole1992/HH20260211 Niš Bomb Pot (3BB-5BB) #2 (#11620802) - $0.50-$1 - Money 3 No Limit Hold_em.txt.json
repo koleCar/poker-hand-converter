@@ -1,0 +1,98 @@
+{
+  "chunks": 7,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD75426051",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "68da333ddaa1c43367c5f37a74b8480c6105264a1280220f766f194c7fb0c241",
+      "standardText": "b4fb323e4c5813d2f61b1f418e1ff37459898bb4e782ad3ac7d4743d5e655e2f",
+      "warnings": []
+    },
+    {
+      "handId": "HD75426056",
+      "index": 1,
+      "parser": "weplay",
+      "phf": "bbd4aa3df8e84887332ee1ab91fa35c7da0742f51be1987889f8b43631231ae1",
+      "standardText": "3268bde5b8cc7adc571f9fdcad0a9e02c9b9980034bb64a2e04aaacc0926a165",
+      "warnings": []
+    },
+    {
+      "handId": "HD75426076",
+      "index": 2,
+      "parser": "weplay",
+      "phf": "8cb1090b5c2a971302a580c7d644fb297f92352db1a48f23f270eb98af3f6942",
+      "standardText": "4580dc7bcf616256608d87e1644efdcbe1fe60e9ca4582cda92d54731913b401",
+      "warnings": []
+    },
+    {
+      "handId": "HD75426106",
+      "index": 3,
+      "parser": "weplay",
+      "phf": "168c75f660b7d3b22d5c9e78be20e17df80dba45de29464bf1efacbc2b5871cb",
+      "standardText": "098e2c901654bf00b97b49b99622ab661b4659c7613c49cdc516a5e5c50fdb63",
+      "warnings": []
+    },
+    {
+      "handId": "HD75426140",
+      "index": 4,
+      "parser": "weplay",
+      "phf": "6ad560d793ee431ffd7c26e14d8231b2481e252f51cf8bbcd8fbb23c28a4a89a",
+      "standardText": "e1aa29d09aeceb8368f27850ebb1bc31ccebdbe5a9ee405cef2482e2391c1e3c",
+      "warnings": []
+    },
+    {
+      "handId": "HD75426173",
+      "index": 5,
+      "parser": "weplay",
+      "phf": "0225b29653e4a7006067d1e1c2f145cdf3c0b2b1e9d05e9f7e80ae2fd4a1cddd",
+      "standardText": "6ee2a41fd095c86a4c9b83195772a943300a27d6cd45b894695303cb6374547f",
+      "warnings": [
+        {
+          "code": "button-not-seated",
+          "context": {
+            "seat": 2
+          },
+          "message": "The button is on seat 2, which is empty."
+        }
+      ]
+    },
+    {
+      "handId": "HD75426180",
+      "index": 6,
+      "parser": "weplay",
+      "phf": "c0be3175442dfab2fece480cec00f63c97801be94073e54348b34fd693f06e44",
+      "standardText": "2b909feee769a9e397c7ed6715c77418c59d186010164c27e91e674298547df6",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 7070,
+    "path": "weplay-hh/kole1992/HH20260211 Niš Bomb Pot (3BB-5BB) #2 (#11620802) - $0.50-$1 - Money 3 No Limit Hold_em.txt",
+    "sha256": "a682027f92f6f50f0bf5a1851b46244a479b59c21a46d0e76162c74e68f224a9"
+  },
+  "refusals": [],
+  "standardTextFile": "a1221de4e4d244162babdd1deb3757b95ace13f1e927b058a871f2d7bb77e202",
+  "stats": {
+    "bySite": {
+      "weplay": 7
+    },
+    "converted": 7,
+    "failed": 0,
+    "total": 7
+  }
+}

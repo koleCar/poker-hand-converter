@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1891,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__PLO8-9max-USD-15-201906.SITGOID-TN-$15 PLO Hi{BACKSLASH}Lo Turbo - On Demand GAMETYPE.txt",
+    "sha256": "0cddd469b81f054a76692256d65c304e324e627d6acd9ee7e337f34eff48a22d"
+  },
+  "refusals": [
+    {
+      "fingerprint": "2f7dbd0bbfc081a10b66b588fb0b794f22fb4075f1677bf5a98d2836a3860c29",
+      "index": 0,
+      "message": "\"Omaha H/L\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "acrwpn",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

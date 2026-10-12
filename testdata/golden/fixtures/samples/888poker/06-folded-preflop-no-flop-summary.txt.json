@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "888poker",
+        "permille": 950
+      }
+    ],
+    "top": "888poker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "888-301639730",
+      "index": 0,
+      "parser": "888poker",
+      "phf": "d98ff162325446f37e3f68b63fa81820ff6ff73513f0cd06c0f92106bd7c7ba5",
+      "standardText": "754f826299bde6cf5535026b97c7bbaed805d0e6b29cc3b7b400bf98cc009d67",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 521,
+    "path": "fixtures/samples/888poker/06-folded-preflop-no-flop-summary.txt",
+    "sha256": "c7f1610cd25096c0971caf05e03afe0a7a8dcbab12ca5848f3565fe9f0ab8de9"
+  },
+  "refusals": [],
+  "standardTextFile": "754f826299bde6cf5535026b97c7bbaed805d0e6b29cc3b7b400bf98cc009d67",
+  "stats": {
+    "bySite": {
+      "888poker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

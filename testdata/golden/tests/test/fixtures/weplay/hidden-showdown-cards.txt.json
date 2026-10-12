@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD90000005",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "12d1fc33a9dc0ee1828b2896fc97785c9771d8b279e1a946202de936b42d810e",
+      "standardText": "92a1575476c4944fae7e399fe24cd64fe24aa0dd9e23578da3172e07e4ecb07a",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1088,
+    "path": "tests/test/fixtures/weplay/hidden-showdown-cards.txt",
+    "sha256": "508d06b75d0fe4eb62629ce2efc4a38717e31654d65a4fdaa152e6071ad53efb"
+  },
+  "refusals": [],
+  "standardTextFile": "92a1575476c4944fae7e399fe24cd64fe24aa0dd9e23578da3172e07e4ecb07a",
+  "stats": {
+    "bySite": {
+      "weplay": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

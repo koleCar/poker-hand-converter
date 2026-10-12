@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "191700538",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "dbf4e48cc8f375f350f4ba32e93c2ab0dafecaf6180753d6e97b40fb52673424",
+      "standardText": "c61f7de9049dade5fc63998bd4322b693f7d315b9fd023d2a35e67fe585fb7ed",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1040,
+    "path": "fixtures/samples/coinpoker/02-cash-plain-single-hand.txt",
+    "sha256": "afec26a57d45b5aa5a3d7d96eb4a283789ae62f2dbe0e91d9c0f64f800af209f"
+  },
+  "refusals": [],
+  "standardTextFile": "c61f7de9049dade5fc63998bd4322b693f7d315b9fd023d2a35e67fe585fb7ed",
+  "stats": {
+    "bySite": {
+      "coinpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

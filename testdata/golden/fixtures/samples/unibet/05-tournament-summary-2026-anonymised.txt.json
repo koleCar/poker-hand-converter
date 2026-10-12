@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "unibet",
+        "permille": 900
+      }
+    ],
+    "top": "unibet"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 289,
+    "path": "fixtures/samples/unibet/05-tournament-summary-2026-anonymised.txt",
+    "sha256": "92d02fc53c8403a8edd26bddee89fb21cf8b5895ae4352ac0f35c63665182ab8"
+  },
+  "refusals": [
+    {
+      "fingerprint": "22a69374931d4e93b9bf5fd2ce379b10612871b132c04e28d4cf0e2957651e25",
+      "index": 0,
+      "message": "This is a Unibet tournament-summary record, not a hand history; there are no hands in it to convert.",
+      "parserVersion": "1.0.0",
+      "permille": 900,
+      "reason": "tournament-summary",
+      "site": "unibet",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

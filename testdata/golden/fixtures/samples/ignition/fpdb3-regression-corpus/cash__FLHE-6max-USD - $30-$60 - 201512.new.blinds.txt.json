@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3183548059",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "7d2ddbb8cd5ae4ee7026521b9719e3b0a429caafed402dfdf2b96e9deaf4e593",
+      "standardText": "486bfb9dc49cc549cde6b0526174d1820f56de78aada314de21d68655b1c3243",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1560,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__FLHE-6max-USD - $30-$60 - 201512.new.blinds.txt",
+    "sha256": "4f14f38258989d3477b34e8ddd0a133f0ad5019da4625929ad137c31feb1bd05"
+  },
+  "refusals": [],
+  "standardTextFile": "486bfb9dc49cc549cde6b0526174d1820f56de78aada314de21d68655b1c3243",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

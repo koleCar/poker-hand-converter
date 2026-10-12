@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST17",
+      "index": 0,
+      "parser": "standard",
+      "phf": "5c0efc203abfd1e899d51a710b6e02deb9b7947ddef866b2c055189ab7e080ae",
+      "standardText": "d19530c445245344f0da6fd6f5880044c27375a87c0ca5d21005679a53c09b8b",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1065,
+    "path": "tests/test/fixtures/stats/17-triple-barrel-and-rake.txt",
+    "sha256": "d457819fa106467b89bbeffe6c1a5e80beb8d3b26cff146b275882ce0ce55966"
+  },
+  "refusals": [],
+  "standardTextFile": "d19530c445245344f0da6fd6f5880044c27375a87c0ca5d21005679a53c09b8b",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

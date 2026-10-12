@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ongame",
+        "permille": 950
+      }
+    ],
+    "top": "ongame"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361991211-178",
+      "index": 0,
+      "parser": "ongame",
+      "phf": "ddf83666fcb519b33d34718826b64dd2f315d04b8955a71b77cdc7211ec4db95",
+      "standardText": "4a8dbe4a45dcd1ee39fffc284b24801414b5ccf7d42ac09603e6fac5556bbceb",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1087,
+    "path": "fixtures/samples/ongame/03-omaha-showdown.txt",
+    "sha256": "ec575ac75e9e97e67c9fe070803ca9ffd7828dd1fbb4fde9d89ac625e86ebb1c"
+  },
+  "refusals": [],
+  "standardTextFile": "4a8dbe4a45dcd1ee39fffc284b24801414b5ccf7d42ac09603e6fac5556bbceb",
+  "stats": {
+    "bySite": {
+      "ongame": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

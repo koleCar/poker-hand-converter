@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 250
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "124689908714",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "c1c058286b5f9e9951d3027b5f3372c9fa200f84500f1ad51b49e5630116079f",
+      "standardText": "17ea0f6bd83984bd08ca4fc6aa58a457c82403f7eb77d8c15918403df51f5542",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 2084,
+    "path": "fixtures/samples/pokerstars/03-cash-plo-run-it-twice-sidepot-dualtimestamp.txt",
+    "sha256": "5117b5fb0c6f2cae9a2248b0647a26afddc2dafbc973a029c6f97b69d4732ac2"
+  },
+  "refusals": [],
+  "standardTextFile": "17ea0f6bd83984bd08ca4fc6aa58a457c82403f7eb77d8c15918403df51f5542",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

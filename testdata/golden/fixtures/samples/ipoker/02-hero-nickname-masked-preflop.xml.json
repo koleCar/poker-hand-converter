@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ipoker",
+        "permille": 950
+      }
+    ],
+    "top": "ipoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5383708755",
+      "index": 0,
+      "parser": "ipoker",
+      "phf": "40add6dd3cd11574fdf6886c3af74419299ea03f527cd29bad62e8fbf0a0c829",
+      "standardText": "4de0549e9719353f76ac45038f035bdc964625a38e6b542714cf8726d003272b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1498,
+    "path": "fixtures/samples/ipoker/02-hero-nickname-masked-preflop.xml",
+    "sha256": "09d981c28b4b49b407bd23705973f434589be6e24fc3c77a1d23654f2bfcbf49"
+  },
+  "refusals": [],
+  "standardTextFile": "4de0549e9719353f76ac45038f035bdc964625a38e6b542714cf8726d003272b",
+  "stats": {
+    "bySite": {
+      "ipoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

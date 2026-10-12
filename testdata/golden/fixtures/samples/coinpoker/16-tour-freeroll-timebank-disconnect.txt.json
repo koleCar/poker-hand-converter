@@ -1,0 +1,66 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "177956038",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "36f4757be5b751eec4ff5b52d28ba67fb2570106aba13205c3d3ea37483603ee",
+      "standardText": "2423a51345a8417fe7ea73d420ff4b5ef0922bb33aab0d368e8eb8265d42dc8a",
+      "warnings": []
+    },
+    {
+      "handId": "177958604",
+      "index": 1,
+      "parser": "coinpoker",
+      "phf": "9aa1c75b402edb0e798aabb34bc77181e6bf6ed2147d966fbf17ed70b34dccc0",
+      "standardText": "7567c85bb0ff07fdc383883857f5d75c66b5a22a15868350d59c6bfc81ebf982",
+      "warnings": []
+    },
+    {
+      "handId": "177958730",
+      "index": 2,
+      "parser": "coinpoker",
+      "phf": "c5cfe0e3d25ad6273e4847d73294036161408c4a5aa6f4d43cd1b1cf2f97a2c7",
+      "standardText": "d3ebe0709304024c5996b3a6b197a13ad3373b8f4605d014c00384e5f0ca695d",
+      "warnings": []
+    },
+    {
+      "handId": "177959001",
+      "index": 3,
+      "parser": "coinpoker",
+      "phf": "c071d10c4abde20d6bc63fdbba85a69619e7e4d6d983a81d6b4e745568c6b4c7",
+      "standardText": "ec2d15657b17062b139885e3d50910e269a480d5778ce7345ac6d7393d868535",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 5722,
+    "path": "fixtures/samples/coinpoker/16-tour-freeroll-timebank-disconnect.txt",
+    "sha256": "ef3c3aacb0855c87b8b7763ce992347e13d4db58798a7803db4b6af735695a48"
+  },
+  "refusals": [],
+  "standardTextFile": "9474ee225fbb58e2ad4be67767e4269152e536ca56ca93c0149d9d4817a9c86d",
+  "stats": {
+    "bySite": {
+      "coinpoker": 4
+    },
+    "converted": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

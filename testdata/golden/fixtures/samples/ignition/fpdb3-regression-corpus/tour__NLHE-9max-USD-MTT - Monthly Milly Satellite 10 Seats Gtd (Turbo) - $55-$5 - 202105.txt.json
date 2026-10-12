@@ -1,0 +1,58 @@
+{
+  "chunks": 3,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "4294547312",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "b21c62f12bc42000721c51f43798cafc539c093dc4893a3b8b797e03bdf3843f",
+      "standardText": "e86dff69b8d876d3dec8c2b7eae763cd708397026c020478825f445d64039c24",
+      "warnings": []
+    },
+    {
+      "handId": "4294547849",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "4b9e61abcccb9bc7c33133e54a6a56677914da5a9bb35a73fc21b99ebddc88d6",
+      "standardText": "4fe3f665cf9646fcd3a25aafd5abe9379abb5a348973525f0b62dabe1f333e6f",
+      "warnings": []
+    },
+    {
+      "handId": "4294548239",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "7144572dd146706199a6da5799c9937a169f3f597a971a861e3b9f340e338bf1",
+      "standardText": "3a24b77eab9c139f10bf235b149630643f1a3a056b54a2cbbec49ebc309d048b",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 2897,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - Monthly Milly Satellite 10 Seats Gtd (Turbo) - $55-$5 - 202105.txt",
+    "sha256": "009f34847a49111a0fc904adcadf865f3d4c47df451117e56fa4b8d284027874"
+  },
+  "refusals": [],
+  "standardTextFile": "43c1983c69f30e46c23650923903c0c1ee01201304a15638b9d2c5c3f3805c55",
+  "stats": {
+    "bySite": {
+      "ignition": 3
+    },
+    "converted": 3,
+    "failed": 0,
+    "total": 3
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "fulltilt",
+        "permille": 950
+      }
+    ],
+    "top": "fulltilt"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "98765421548",
+      "index": 0,
+      "parser": "fulltilt",
+      "phf": "259ec0a3438190d85e80c3a055a7635e77ef4df2bdd8c7a26eef72406c5d01b5",
+      "standardText": "8829cf4f4edafe287c2b6a22252ede29d9c2c39b7ec42d2ad8d0010834e0cff2",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1312,
+    "path": "fixtures/samples/full-tilt/10-cash-nlhe-dealt-to-hero-dual-timezone-anonymized.txt",
+    "sha256": "47726f6694de957fdad587c421e7eb66f96108627e9ed931d1826ce0aae8b3a1"
+  },
+  "refusals": [],
+  "standardTextFile": "8829cf4f4edafe287c2b6a22252ede29d9c2c39b7ec42d2ad8d0010834e0cff2",
+  "stats": {
+    "bySite": {
+      "fulltilt": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

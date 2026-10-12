@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646515978",
+      "index": 0,
+      "parser": "entraction",
+      "phf": "10949acaa967093d0ad065313330fb2fc2301c3ad98ec5466fd313b41fc721d6",
+      "standardText": "b56ef1b9a774b3e45ea595c43f810b1db1b1d9498c9f0980b0d1e849b7bf03b6",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1139,
+    "path": "fixtures/samples/entraction/06-fixed-limit-omaha-hilo.txt",
+    "sha256": "468a67b473d716b970ff37e1d9e716ce8f3d56558672746ab29dde5fb68c80df"
+  },
+  "refusals": [],
+  "standardTextFile": "b56ef1b9a774b3e45ea595c43f810b1db1b1d9498c9f0980b0d1e849b7bf03b6",
+  "stats": {
+    "bySite": {
+      "entraction": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

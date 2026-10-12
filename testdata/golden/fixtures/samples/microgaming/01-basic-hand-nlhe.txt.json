@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "microgaming",
+        "permille": 950
+      }
+    ],
+    "top": "microgaming"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049092037",
+      "index": 0,
+      "parser": "microgaming",
+      "phf": "d66828da412c254a225a544efc4db47b60ffbcfacf4df3e9eab2d4251aaca462",
+      "standardText": "f51efe8c59ddbd40d25f4569ae24e642267187deb306b01cbf4250d65b4b6392",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1736,
+    "path": "fixtures/samples/microgaming/01-basic-hand-nlhe.txt",
+    "sha256": "479fb4cb86560ab941b630de25fa0f96d4fa5fc68d8b4018df8ea7f67e858724"
+  },
+  "refusals": [],
+  "standardTextFile": "f51efe8c59ddbd40d25f4569ae24e642267187deb306b01cbf4250d65b4b6392",
+  "stats": {
+    "bySite": {
+      "microgaming": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

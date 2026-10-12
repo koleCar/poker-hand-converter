@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3589791199",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "e43d49fc695246ad7a0f1fcd1e8b6ae618d3f4d5d1ee13c0f4a18412cdb34d2e",
+      "standardText": "87d389f1daac601f5cb01dd5b9fea99fd2023920d2b20eac6e8b86ef2575fd30",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1283,
+    "path": "fixtures/samples/ignition/matt57225-converter-samples/1.txt",
+    "sha256": "0ea39729fcb3a42ae8202917b96bce6a883fecacf9223259ac993a2ad836e87d"
+  },
+  "refusals": [],
+  "standardTextFile": "87d389f1daac601f5cb01dd5b9fea99fd2023920d2b20eac6e8b86ef2575fd30",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

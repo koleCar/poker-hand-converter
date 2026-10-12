@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "109679365424",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "e4b747917b73f5b61ded7447c27fb2ad68ca2ab26666c5ea066e920f0dbd58fc",
+      "standardText": "406972eb782e975bdee432d1bfff421ba550e1401f4f9fe64a8dbf4287d4c7b3",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1326,
+    "path": "fixtures/samples/pokerstars/23-cash-fixed-limit-holdem.txt",
+    "sha256": "c9f17a2fd1d49776b4d2b7c6745ef77ba7d394df3025799e53bc937178533fdb"
+  },
+  "refusals": [],
+  "standardTextFile": "406972eb782e975bdee432d1bfff421ba550e1401f4f9fe64a8dbf4287d4c7b3",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

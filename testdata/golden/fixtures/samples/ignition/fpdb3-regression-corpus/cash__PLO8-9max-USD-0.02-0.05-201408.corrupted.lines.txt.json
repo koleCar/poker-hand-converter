@@ -1,0 +1,58 @@
+{
+  "chunks": 3,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2902233667",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "3acd64295c8ec1d1f28169b55feb536a2f32567a4305c049f4842c6703b14226",
+      "standardText": "d682121f9f788b3e5a151b6490caad5554ba84fcc5b8d7cc557aac6a3f6b1a0f",
+      "warnings": []
+    },
+    {
+      "handId": "2902234353",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "a61fa0840f2d6519d80930f900f75b1355917301309a721acbc9c65648d3b83a",
+      "standardText": "dfb59a494390c09de564546a2a10646dd61e9c138def0002a32bf7c3842a2e57",
+      "warnings": []
+    },
+    {
+      "handId": "2902235417",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "a0d1016dd737f267f4eb480487ed2bff330d997580851ac161df1c061869535c",
+      "standardText": "c74dba6d8d21358c886d2672d352fdf94fd0a8b1b36cd84f26fbbf85dc7f17b2",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 6214,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__PLO8-9max-USD-0.02-0.05-201408.corrupted.lines.txt",
+    "sha256": "e7b9168850b4bcf24ca27a74041b760760dcc041e86fac226b892deb383e8fc0"
+  },
+  "refusals": [],
+  "standardTextFile": "fe013e1c894c66ce2999bd73ce077cac14bf7ac6288a5c47610f71477503534c",
+  "stats": {
+    "bySite": {
+      "ignition": 3
+    },
+    "converted": 3,
+    "failed": 0,
+    "total": 3
+  }
+}

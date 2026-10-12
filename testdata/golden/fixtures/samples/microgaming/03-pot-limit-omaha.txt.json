@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "Windows-1252",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "microgaming",
+        "permille": 950
+      }
+    ],
+    "top": "microgaming"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049133154",
+      "index": 0,
+      "parser": "microgaming",
+      "phf": "858d13d02d5cacf42942c735e29489dc437ab9ce8708b1ca7ad5f4b94770d0ce",
+      "standardText": "efed8c01c561626452d22dbe0e15828e59c685c707a47f9b5c8e121ab3b8f19c",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2596,
+    "path": "fixtures/samples/microgaming/03-pot-limit-omaha.txt",
+    "sha256": "628e76d2a347997e59f5ecd8515903dfc9c4493774e295ae2ecffd6f14829db0"
+  },
+  "refusals": [],
+  "standardTextFile": "efed8c01c561626452d22dbe0e15828e59c685c707a47f9b5c8e121ab3b8f19c",
+  "stats": {
+    "bySite": {
+      "microgaming": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

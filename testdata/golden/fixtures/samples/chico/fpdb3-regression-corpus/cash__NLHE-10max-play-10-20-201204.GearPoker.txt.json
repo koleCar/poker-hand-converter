@@ -1,0 +1,64 @@
+{
+  "chunks": 2,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "chico",
+        "permille": 950
+      }
+    ],
+    "top": "chico"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1014850512",
+      "index": 0,
+      "parser": "chico",
+      "phf": "a22433a18d41d50793dc7e697541b5b65cadc066a64fd9b3e2876bc132865446",
+      "standardText": "c39ba89e2d45c08d18ad0a22f8b557fff087448e087a02c2089cb3082c7d5ca1",
+      "warnings": [
+        {
+          "code": "play-money-table",
+          "message": "The table is flagged as play money, so the amounts are not real currency."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-1014850775",
+      "index": 1,
+      "parser": "chico",
+      "phf": "646857aba276762fe25c338a7878706c2f3ba08373ffebf9d1a4dd2a0fbd4afc",
+      "standardText": "56aa65b4ec63b32ebef1cb73cd4ad91d24c77117eaa6c517593d15ce2ea26cd1",
+      "warnings": [
+        {
+          "code": "play-money-table",
+          "message": "The table is flagged as play money, so the amounts are not real currency."
+        },
+        {
+          "code": "unreadable-shown-cards",
+          "message": "Seat 5 is shown as [Jh Td Qs Kc As], which is the made hand rather than hole cards, so no hole cards were recorded for the seat."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2400,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-play-10-20-201204.GearPoker.txt",
+    "sha256": "60d32032f2f0160dcbf633aedcb2cad6091a190e69abffccdc914564664d3477"
+  },
+  "refusals": [],
+  "standardTextFile": "08246c2652fb0f6d3ff53f51938ff376f5401192a4ca4befd3542b4b710c5c2c",
+  "stats": {
+    "bySite": {
+      "chico": 2
+    },
+    "converted": 2,
+    "failed": 0,
+    "total": 2
+  }
+}

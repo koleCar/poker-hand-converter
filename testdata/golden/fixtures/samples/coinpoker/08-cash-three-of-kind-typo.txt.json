@@ -1,0 +1,50 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "352023091",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "055afe88dad215d4677a20912f6f24ad4477346c692a598d15f5826b6c2f0eff",
+      "standardText": "6083cd9db2757128dd4739a9f154b4e2bf6f221355fab98351e7d972f23ef00c",
+      "warnings": [
+        {
+          "code": "button-not-seated",
+          "context": {
+            "seat": 7
+          },
+          "message": "The button is on seat 7, which is empty."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1596,
+    "path": "fixtures/samples/coinpoker/08-cash-three-of-kind-typo.txt",
+    "sha256": "c94027e0885a5df2043367480ef21053f0ba3db6bb4f9d5b3dba7abe4bfbfc5e"
+  },
+  "refusals": [],
+  "standardTextFile": "6083cd9db2757128dd4739a9f154b4e2bf6f221355fab98351e7d972f23ef00c",
+  "stats": {
+    "bySite": {
+      "coinpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

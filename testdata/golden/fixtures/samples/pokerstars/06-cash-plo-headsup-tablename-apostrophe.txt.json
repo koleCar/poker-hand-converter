@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "62279382715",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "39f630a334547e836d79a7ece4d95f4fb46655304af9ea7cd580a28e3e649997",
+      "standardText": "1ff668a187a07f3a9fd978ffc1e2b62900eed98627a9a0da3f7af8e53e1c0e4c",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 561,
+    "path": "fixtures/samples/pokerstars/06-cash-plo-headsup-tablename-apostrophe.txt",
+    "sha256": "ea75bd42a2ca86e495ec2d6313b6e793bb32147e9de89389cef5ac28ac9efcb7"
+  },
+  "refusals": [],
+  "standardTextFile": "1ff668a187a07f3a9fd978ffc1e2b62900eed98627a9a0da3f7af8e53e1c0e4c",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

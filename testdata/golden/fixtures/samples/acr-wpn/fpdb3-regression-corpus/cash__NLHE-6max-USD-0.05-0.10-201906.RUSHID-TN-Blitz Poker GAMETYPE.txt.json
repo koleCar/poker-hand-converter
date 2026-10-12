@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "68217077",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "f2f53ebc653343ea54a0cd6fa616bc209406270370c050a6b9cdb765523fa265",
+      "standardText": "ede577c9c890677de299d496fd44fce825b717dc41198415d9592849ea42e167",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 863,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-6max-USD-0.05-0.10-201906.RUSHID-TN-Blitz Poker GAMETYPE.txt",
+    "sha256": "8547dff729944dfa03f5ead35a0964aff8b88d4c9523242b16617ef2cd1d2b0c"
+  },
+  "refusals": [],
+  "standardTextFile": "ede577c9c890677de299d496fd44fce825b717dc41198415d9592849ea42e167",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

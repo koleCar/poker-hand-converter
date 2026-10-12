@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "109663597247",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "b9c254ec457664bdbe13730945c2318b21d5244437233e1fb67ff9d18efed305",
+      "standardText": "58d0448666af4c55c9f5683227bec9dbd201f9593fe7e7367fee738aa46aa176",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 784,
+    "path": "fixtures/samples/pokerstars/25-cash-pot-limit-omaha.txt",
+    "sha256": "1d024665ed9522ceb298cb2a3942288b8704a610163ef976c624a099a38e31df"
+  },
+  "refusals": [],
+  "standardTextFile": "58d0448666af4c55c9f5683227bec9dbd201f9593fe7e7367fee738aa46aa176",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

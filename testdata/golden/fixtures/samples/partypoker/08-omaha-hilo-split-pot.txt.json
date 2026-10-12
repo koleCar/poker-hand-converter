@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-13550918572",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "c84b8f96cf845095d36d106d53ca7ac21fb683b8869bb5faec7fa293f405c427",
+      "standardText": "02bf44b7425735f19328ee628b3a408a1a358ac11b65ba42869ab208e8637aa3",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1090,
+    "path": "fixtures/samples/partypoker/08-omaha-hilo-split-pot.txt",
+    "sha256": "ffaffb6de6d34243cff92d3d68e92533e00bf006c5c6fee07c60ad9d59f7a011"
+  },
+  "refusals": [],
+  "standardTextFile": "02bf44b7425735f19328ee628b3a408a1a358ac11b65ba42869ab208e8637aa3",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

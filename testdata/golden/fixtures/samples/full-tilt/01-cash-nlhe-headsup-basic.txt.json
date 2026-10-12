@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "fulltilt",
+        "permille": 950
+      }
+    ],
+    "top": "fulltilt"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "33727950903",
+      "index": 0,
+      "parser": "fulltilt",
+      "phf": "fa1e7829cdf5f6384f9d7f2a00fe0dd2464afefd3218712cecc90f250db44928",
+      "standardText": "beacad78a988c95ee236755c27cacb34d7946634e3c6e50f8ce3a4bdb9247a85",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 689,
+    "path": "fixtures/samples/full-tilt/01-cash-nlhe-headsup-basic.txt",
+    "sha256": "94b91a03e7408c89656fbd471c7fc93206722c49a3cbabb73c94d3892b6c8d69"
+  },
+  "refusals": [],
+  "standardTextFile": "beacad78a988c95ee236755c27cacb34d7946634e3c6e50f8ce3a4bdb9247a85",
+  "stats": {
+    "bySite": {
+      "fulltilt": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3325979755",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "ea3ff4430a874cec0acfc13c585906a49e0afb146577d2781f38ae35484cc4b9",
+      "standardText": "6ec1f3abf6ee742c6f5f6ac22407c610a9482ec8863d08fc61ae07c240c8d815",
+      "warnings": [
+        {
+          "code": "dead-small-blind",
+          "message": "No small blind was posted; the seat to the button's left was empty."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1498,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-STT - $3-$0.30 - 201601.repeat.actions.ok.txt",
+    "sha256": "a1690ffc144de33883229e8c14af4035ad1ad261330e4f6b84881e17759ad9d3"
+  },
+  "refusals": [],
+  "standardTextFile": "6ec1f3abf6ee742c6f5f6ac22407c610a9482ec8863d08fc61ae07c240c8d815",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

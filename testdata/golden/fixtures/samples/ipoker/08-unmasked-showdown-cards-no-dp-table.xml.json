@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ipoker",
+        "permille": 950
+      }
+    ],
+    "top": "ipoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-3311227441",
+      "index": 0,
+      "parser": "ipoker",
+      "phf": "e1bc7830fd5ee162cd05523b24dafbb1bbe0776ab4150fc5cfbc129c230b9c7f",
+      "standardText": "1bf37bb4170579e288dfbfed3f23a5c8d8bf76b4149fdca99879733630e7a7e2",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2463,
+    "path": "fixtures/samples/ipoker/08-unmasked-showdown-cards-no-dp-table.xml",
+    "sha256": "a267055e4fc8718dc52a1ca39ba14e2dbb7313a0c1577825e8fb9911b52cb7f5"
+  },
+  "refusals": [],
+  "standardTextFile": "1bf37bb4170579e288dfbfed3f23a5c8d8bf76b4149fdca99879733630e7a7e2",
+  "stats": {
+    "bySite": {
+      "ipoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

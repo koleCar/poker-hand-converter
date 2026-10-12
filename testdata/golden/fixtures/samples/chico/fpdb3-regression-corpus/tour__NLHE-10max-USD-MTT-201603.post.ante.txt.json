@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "chico",
+        "permille": 950
+      }
+    ],
+    "top": "chico"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1587461647",
+      "index": 0,
+      "parser": "chico",
+      "phf": "64e147c89a3cf36f457d0377847e8b5b1211bd56084e9ffd2606cc9534bc5c70",
+      "standardText": "3b00bf0d2386ccfc715ebedf917ebb25918b0c2494e72fb18398ed2713e89552",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1826,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/tour__NLHE-10max-USD-MTT-201603.post.ante.txt",
+    "sha256": "7126dd35d20ba29846becf2d02bd09acebdecdb7e3cc0b71bbbc8cba51bda12c"
+  },
+  "refusals": [],
+  "standardTextFile": "3b00bf0d2386ccfc715ebedf917ebb25918b0c2494e72fb18398ed2713e89552",
+  "stats": {
+    "bySite": {
+      "chico": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

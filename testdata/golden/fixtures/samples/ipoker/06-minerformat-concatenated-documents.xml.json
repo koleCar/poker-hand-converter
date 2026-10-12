@@ -1,0 +1,81 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ipoker",
+        "permille": 950
+      }
+    ],
+    "top": "ipoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5382871187",
+      "index": 0,
+      "parser": "ipoker",
+      "phf": "e5efe112d12cee243d380c9db7db4842fc5d8ab779150b9c9b2f91cf6e985e70",
+      "standardText": "29cf2729ccd9dadfe961f4f49bb2bc3c15c918ebf62bf204ce5292e9947e624b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383845527",
+      "index": 1,
+      "parser": "ipoker",
+      "phf": "d93fe98cf438b1cba133321b6ad24372d0be2ee3c9158f6870b6af05aae7a9c1",
+      "standardText": "f9e66f5b94c8a5f4d60d0022a972593bc5fb04392ce49dfc51546c6d32da21e8",
+      "warnings": []
+    },
+    {
+      "handId": "IPN-5383888874",
+      "index": 2,
+      "parser": "ipoker",
+      "phf": "f03adc3d340926c77246e3027b04d99f020231d78fd1092f54ed4975ce10c43d",
+      "standardText": "a7ec911c221518c80bd49086ae71f956ad1c83991c60502f803ac5f405465f36",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383352629",
+      "index": 3,
+      "parser": "ipoker",
+      "phf": "dd8818d9135c68c21c0618fc854301a4e82cf89d7ef3db568bd568aa45e97701",
+      "standardText": "5bb5e847ddc19c5e40575933ebc2105593a7bd6ccf359f8f4e1735d3e9651792",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 8016,
+    "path": "fixtures/samples/ipoker/06-minerformat-concatenated-documents.xml",
+    "sha256": "8966b0b86644d3d5417dcb0d341b59f6afa5e64be3ff95cccb95e84a06e4a358"
+  },
+  "refusals": [],
+  "standardTextFile": "9d8c74b09e5f564fc084583bac0a2fb1039e931f2eaf25809e47adb9046b51a8",
+  "stats": {
+    "bySite": {
+      "ipoker": 4
+    },
+    "converted": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

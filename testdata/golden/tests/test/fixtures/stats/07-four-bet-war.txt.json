@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST07",
+      "index": 0,
+      "parser": "standard",
+      "phf": "cbb7d7433561a9505f6dcafd221f3af6cd6da8ffd8e449082b5c1a19adce4685",
+      "standardText": "a78772d5d59f8ce3a4cae0f35d036844a70005e235b97719534b2479ccf757ab",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 872,
+    "path": "tests/test/fixtures/stats/07-four-bet-war.txt",
+    "sha256": "dd2bfed20d6e6933b723345ac9dab323bd9c0f1dd50354748a041b826ccb7242"
+  },
+  "refusals": [],
+  "standardTextFile": "a78772d5d59f8ce3a4cae0f35d036844a70005e235b97719534b2479ccf757ab",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

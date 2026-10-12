@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3325954749",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "65b68c03913ba5682a106c14324a2c2504c6dd34eb71214714408cc262630adb",
+      "standardText": "47ac8bfd69131f0cd11799d7e4ee664deaa0d78a4c486bbe0cc700ab4c3d041b",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 2103,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-STT - $3-$0.30 - 201601.out.of.order.seats.txt",
+    "sha256": "586a608e4e0f2fb28adcda5c21a6a173c1e7090771b2cd0e01bcceb8d3c1388a"
+  },
+  "refusals": [],
+  "standardTextFile": "47ac8bfd69131f0cd11799d7e4ee664deaa0d78a4c486bbe0cc700ab4c3d041b",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

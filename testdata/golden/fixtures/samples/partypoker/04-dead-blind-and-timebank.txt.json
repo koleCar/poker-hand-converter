@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-14507003662",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "a52ef4566c2173c6903379a3449c66cbf1ed269c753f19f45e0bf5f48159867b",
+      "standardText": "19d28514aba693062d283180b5e98c1445bffa1394b2d1d688ccf559d6a4d56e",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1306,
+    "path": "fixtures/samples/partypoker/04-dead-blind-and-timebank.txt",
+    "sha256": "5bc95feb6d588c4f29773511b24509b97e273f3d76293bbd77d6a4f259a3122f"
+  },
+  "refusals": [],
+  "standardTextFile": "19d28514aba693062d283180b5e98c1445bffa1394b2d1d688ccf559d6a4d56e",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

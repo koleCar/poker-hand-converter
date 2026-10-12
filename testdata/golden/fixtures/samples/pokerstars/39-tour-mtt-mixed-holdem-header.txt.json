@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "47282250043",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "d9196236a676386c3c88ec59267653dfafcbacc4ca3682aa60480c7da914da96",
+      "standardText": "32e878f421bb81a4e839d326e1dad8a8b6c111252f88e6bac36a2d4e93ea2995",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1241,
+    "path": "fixtures/samples/pokerstars/39-tour-mtt-mixed-holdem-header.txt",
+    "sha256": "1d04fc2e089e9c6b112c57fd651940a688859e5bf839cb8cb75befe8d4842dc8"
+  },
+  "refusals": [],
+  "standardTextFile": "32e878f421bb81a4e839d326e1dad8a8b6c111252f88e6bac36a2d4e93ea2995",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

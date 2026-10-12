@@ -1,0 +1,138 @@
+{
+  "chunks": 12,
+  "decode": {
+    "encoding": "UTF-16 LE",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "698319898",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "3ec407c3d8652b49daefe887f83687e7d663c16e74ee52a87c95a4131e3f61aa",
+      "standardText": "979391cca67bf15ba64811a26ad237439bb9371e1a4ac5953c92f191477539af",
+      "warnings": []
+    },
+    {
+      "handId": "698320334",
+      "index": 1,
+      "parser": "acrwpn",
+      "phf": "c8024c50ddfb7c8c066804e6bfac96ca230cc82e4cc9032957a9d470160655ef",
+      "standardText": "d999fc8aafecc01dd22d630e6fbdf0b52fa5f8626618368d8a9ed8e16614943d",
+      "warnings": []
+    },
+    {
+      "handId": "698320846",
+      "index": 2,
+      "parser": "acrwpn",
+      "phf": "ce714b025fb90c1af85aaac5152a96a9728de647c97f606ab78248c6a19fc64a",
+      "standardText": "309bfb0af27756f72f742472f962f302eb0ff5c91f071fa11dd786ef19bf0480",
+      "warnings": []
+    },
+    {
+      "handId": "698321712",
+      "index": 3,
+      "parser": "acrwpn",
+      "phf": "54ed0bcd4558b385571faf63f8de3782a27c9e86f1a41cb782771fee997efabc",
+      "standardText": "1b9a912e75bf6c358b5f2213dd69a1f30e9b32e7c1c40b9005ee738ed8559441",
+      "warnings": []
+    },
+    {
+      "handId": "698322413",
+      "index": 4,
+      "parser": "acrwpn",
+      "phf": "c38bc71ec7c305d27b9fdfc545ec0fb7043c3f1a50809cd92dfae6e21763ba9d",
+      "standardText": "82ee2aec090186b40cfe1dd32a145e9092cf04f3f053feef9b15d1a38d289c36",
+      "warnings": []
+    },
+    {
+      "handId": "698323033",
+      "index": 5,
+      "parser": "acrwpn",
+      "phf": "db13ae93fd3e211793383757226484ab1f9157fbdef4259e24198ad777de2fa3",
+      "standardText": "a26f8d0562e4d01ea795282cace71f3e6ea0691a5a0d05e00406ae18b241c3c8",
+      "warnings": []
+    },
+    {
+      "handId": "698323774",
+      "index": 6,
+      "parser": "acrwpn",
+      "phf": "8e70d8d5f86dfe8d643a8d5dbf15fb5a5de89a8c6b45ed7036b949f38e9602b1",
+      "standardText": "f8e29e10b2047be56717cd3c9fae62fba12b735c675e15d7f75d58acb7b5812f",
+      "warnings": []
+    },
+    {
+      "handId": "698324448",
+      "index": 7,
+      "parser": "acrwpn",
+      "phf": "65f5de104e67dc8c841f0507b2af706d363b1a24baaaae207864b8326ba41be7",
+      "standardText": "79417460aee9a7187bf1914aaf59d31d9d389e7d35fd405edb0ddd1c035a510f",
+      "warnings": []
+    },
+    {
+      "handId": "698325252",
+      "index": 8,
+      "parser": "acrwpn",
+      "phf": "5eb80688ce4774b4bf0ac6d6b4ab74f1771b51e6e139549aced99a1518eb3b43",
+      "standardText": "ee807428ae4d1ceee4546f7fdaf286db25e57fe47aca701d59a112b7bd6df633",
+      "warnings": []
+    },
+    {
+      "handId": "698326064",
+      "index": 9,
+      "parser": "acrwpn",
+      "phf": "29bf3e749037a0b6ad6d1a7d5c01c75ce696a58888911e45e13e5959756e258d",
+      "standardText": "d0e27683f57a57f4f0d7488bdc3b7b503d3dfab7c2498bff5522a1e54d2ab1e6",
+      "warnings": []
+    },
+    {
+      "handId": "698326759",
+      "index": 10,
+      "parser": "acrwpn",
+      "phf": "ed173f274f087bceff18974f1907051997b2cbd823e57a360fe5f79a495e6d1d",
+      "standardText": "6cedfaccd294245caa9a3edb58c69cfacc291cf431088ac44284bed9802e01e9",
+      "warnings": []
+    },
+    {
+      "handId": "698327591",
+      "index": 11,
+      "parser": "acrwpn",
+      "phf": "e08ffe3b6da00808808f221a15cfc4fb8cda4c107405927510a0983c95ccd745",
+      "standardText": "c8a4e28e3e5cfd5d86ed0b91b95f8467342f152021f3566aba61fadfe3f0ad3b",
+      "warnings": [
+        {
+          "code": "unknown-summary-line",
+          "context": {
+            "line": 143
+          },
+          "message": "�"
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 53029,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-9max-play-5.00-10.00-201608.HH00000000 G0.txt",
+    "sha256": "6659e85989a054003dd1da3f627bb5ca06f7da9e32a803ca2fd86e38b1ae5a26"
+  },
+  "refusals": [],
+  "standardTextFile": "9109d3ac9031ad848e8d4f8c91acaa6234a0cfd83e85115267bb46ee0953e2f3",
+  "stats": {
+    "bySite": {
+      "acrwpn": 12
+    },
+    "converted": 12,
+    "failed": 0,
+    "total": 12
+  }
+}

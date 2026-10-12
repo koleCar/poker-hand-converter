@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "microgaming",
+        "permille": 950
+      }
+    ],
+    "top": "microgaming"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049093555",
+      "index": 0,
+      "parser": "microgaming",
+      "phf": "f79062d06d798e1fff1dbb773e4aaa6e13f41b31cd0714bcb948c0d7b5d3ea17",
+      "standardText": "b7d6f2f9df95a0a9e9a3e9d2253b8d200d39c2dbd855bcb752b14423a69b1884",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2716,
+    "path": "fixtures/samples/microgaming/05-allin-showdown.txt",
+    "sha256": "636ea20afc773496c418753fbddab0f4975b321295764a31b839de6b85fd0b0a"
+  },
+  "refusals": [],
+  "standardTextFile": "b7d6f2f9df95a0a9e9a3e9d2253b8d200d39c2dbd855bcb752b14423a69b1884",
+  "stats": {
+    "bySite": {
+      "microgaming": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

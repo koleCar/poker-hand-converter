@@ -1,0 +1,82 @@
+{
+  "chunks": 5,
+  "decode": {
+    "encoding": "UTF-16 LE",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 14241,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO8-6max-USD-0.10-0.25-201608.HH00000000 G0.txt",
+    "sha256": "540dab337e81eba831c84c64d2f3956cb5ccf5f8b532cf49e742473f885e12a8"
+  },
+  "refusals": [
+    {
+      "fingerprint": "9fece7056a0e1df2e2076bc239d3e4545781ffc76664ccf5bfa3e7c38792592e",
+      "index": 0,
+      "message": "\"Omaha HiLow\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "acrwpn",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "51affdd443f2dc35a19779bceb3d029f86568f1520d1142324c78453bf8500c0",
+      "index": 1,
+      "message": "\"Omaha HiLow\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "acrwpn",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "3ef7bd1ee16746738226143f90a8fe7effd28484ef8107a71ec7940fd0e34cae",
+      "index": 2,
+      "message": "\"Omaha HiLow\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "acrwpn",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "f515a447d1de6f4a17604e8e81210d3b663c661914e1afc0513da24013813d5d",
+      "index": 3,
+      "message": "\"Omaha HiLow\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "acrwpn",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "3819f46adfaf052f70eeeda0317aa78009dab47dab08ebea0e541af6c44443dc",
+      "index": 4,
+      "message": "\"Omaha HiLow\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "acrwpn",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 5,
+    "total": 5
+  }
+}

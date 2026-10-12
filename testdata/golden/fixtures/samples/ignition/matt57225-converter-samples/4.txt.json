@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3670655814",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "b176d63b5d691ace0f171cf8e4c91adeb0eacd509bc11769ddae6b949c4efaae",
+      "standardText": "53d9626a63addbaecabd7dec8f76f8961158f2a33fb74270f93521f4374e63f1",
+      "warnings": [
+        {
+          "code": "derived-pot",
+          "message": "The SUMMARY block states no pot; it was taken from the action stream."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1290,
+    "path": "fixtures/samples/ignition/matt57225-converter-samples/4.txt",
+    "sha256": "0c003b50f154cdd72fde0072f8c87b1a5b59358f1bf7dd25d1fb29f34f688a74"
+  },
+  "refusals": [],
+  "standardTextFile": "53d9626a63addbaecabd7dec8f76f8961158f2a33fb74270f93521f4374e63f1",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

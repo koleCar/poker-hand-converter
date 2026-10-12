@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST02",
+      "index": 0,
+      "parser": "standard",
+      "phf": "ee0c34eae4a1a48c3774d253d1e062d77b8e586208775c77d836a94f3c0993f5",
+      "standardText": "a9087166cbd53417b0f3f0e45df743dfc671aa0cd2a989feb5cf7ad75ffc95d4",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 845,
+    "path": "tests/test/fixtures/stats/02-straddle-open-is-not-a-three-bet.txt",
+    "sha256": "bfafd0c279574fc03660c779a4502243d2add0bb558121144150603a5e18f155"
+  },
+  "refusals": [],
+  "standardTextFile": "a9087166cbd53417b0f3f0e45df743dfc671aa0cd2a989feb5cf7ad75ffc95d4",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

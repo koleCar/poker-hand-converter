@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD75876391",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "25e62003ebddfa9d82805543e3c22c4b553028ffcb425fdae5666c27e7c63269",
+      "standardText": "579e34ee7f58f14b6be63ac596bbb0c38fb2b55fec921519b42291290f54b0e7",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1380,
+    "path": "tests/test/fixtures/weplay/tournament-sample.txt",
+    "sha256": "f6a7863f4e056594ff4764eb67fce9b2bfd49d8098b1e68a53f292a0546352fa"
+  },
+  "refusals": [],
+  "standardTextFile": "579e34ee7f58f14b6be63ac596bbb0c38fb2b55fec921519b42291290f54b0e7",
+  "stats": {
+    "bySite": {
+      "weplay": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

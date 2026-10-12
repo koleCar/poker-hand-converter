@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646515987",
+      "index": 0,
+      "parser": "entraction",
+      "phf": "7d56cf2f81bb8207de66a4401a256a65f999493b69f931efc25c1a49e41b3819",
+      "standardText": "971b38d9abe785a194b01224eed087e9d0cf2be2ffa18415b7d5b32a1123fabc",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1230,
+    "path": "fixtures/samples/entraction/12-omaha-hilo-showdown-split-pot.txt",
+    "sha256": "20500e66f7c94a4a6edc1ef801084ad4b86e25af94658756a3ecc0726f7edfe6"
+  },
+  "refusals": [],
+  "standardTextFile": "971b38d9abe785a194b01224eed087e9d0cf2be2ffa18415b7d5b32a1123fabc",
+  "stats": {
+    "bySite": {
+      "entraction": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

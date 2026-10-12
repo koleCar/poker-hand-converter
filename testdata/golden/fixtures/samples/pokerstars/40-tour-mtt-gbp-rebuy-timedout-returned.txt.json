@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "64603934169",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "17fe56d8312c1fdd795dc2ee399e366adc78b2cccac8ca27de8f845dfbb4e131",
+      "standardText": "07fba92f8d783502efa45de80c2b255c379b6998c911e229a38ed76279d00ff4",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1518,
+    "path": "fixtures/samples/pokerstars/40-tour-mtt-gbp-rebuy-timedout-returned.txt",
+    "sha256": "558c1c631b60d0e528bb328338cbd0d500b3db565998b4c32b0038f75a647eae"
+  },
+  "refusals": [],
+  "standardTextFile": "07fba92f8d783502efa45de80c2b255c379b6998c911e229a38ed76279d00ff4",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

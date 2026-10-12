@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "runitonce",
+        "permille": 950
+      }
+    ],
+    "top": "runitonce"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1838,
+    "path": "fixtures/samples/run-it-once/02-cash-plo-splash-the-pot-sidepot-showdown.txt",
+    "sha256": "f89dbca85470e1804d12f996a3e055169b18ac691356480edccf8796c5a1ee1d"
+  },
+  "refusals": [
+    {
+      "fingerprint": "8ce1268a0365a80e4d6731cdb3c91bcc2e9aed99bbcd5aefcec38f048f623c05",
+      "index": 0,
+      "message": "\"Omaha Pot Limit\" is Omaha, which this parser has not been verified against. It reads Hold'em.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "runitonce",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

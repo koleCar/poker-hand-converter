@@ -1,0 +1,76 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2629950879",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "6d30998d88524aaba1628c5bd6dfbe897633fff2910ce10414bac3d698e05174",
+      "standardText": "36adfe77d7f2931b0d55a1f80e3d197b17fff64b2d2a4e6f64edd611a4b9add7",
+      "warnings": []
+    },
+    {
+      "handId": "2629951423",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "0eed4e0ae30319e3190fcfd971071e93c1483d384843b3997c307c50d9a3fa56",
+      "standardText": "a5fd7898ea4f63a34a2ce250b08a004beb0f9a87f657838bb4b5c1d08d85f84f",
+      "warnings": [
+        {
+          "code": "dead-small-blind",
+          "message": "No small blind was posted; the seat to the button's left was empty."
+        }
+      ]
+    },
+    {
+      "handId": "2629951525",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "e158546e7188ce6781eaf5213435cbb834d509642337df9b694f39d1ec486d55",
+      "standardText": "d2bfd1deec7906f066efe231431638378512feb4617046f692e3a86ef4d93e04",
+      "warnings": [
+        {
+          "code": "missing-button",
+          "message": "The button seat is unknown, so positions cannot be resolved."
+        }
+      ]
+    },
+    {
+      "handId": "2629951668",
+      "index": 3,
+      "parser": "ignition",
+      "phf": "ea9fc5683195677eb6c43e308283712e2d1ed116ca712fefb3a0c6a0998ca23d",
+      "standardText": "2969b57c0d61b7236965effcbe38b0391b473cc4b57b0b5050eb444e61e33274",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 4935,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD-0.10-0.25-201209.RING - $0.10-$0.25 - .post.both.txt",
+    "sha256": "dff140460db4a83059f50ebfc41a0e5079e87274d439963c8a8521f2882de1c1"
+  },
+  "refusals": [],
+  "standardTextFile": "df0775c660185cf7fea709ff1283a4cd2be72c132e7a325d4a201eaf1ec623ba",
+  "stats": {
+    "bySite": {
+      "ignition": 4
+    },
+    "converted": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

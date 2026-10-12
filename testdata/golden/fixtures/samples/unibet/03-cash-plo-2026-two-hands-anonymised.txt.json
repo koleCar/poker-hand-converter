@@ -1,0 +1,53 @@
+{
+  "chunks": 2,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "unibet",
+        "permille": 950
+      }
+    ],
+    "top": "unibet"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "UB-1558006027",
+      "index": 0,
+      "parser": "unibet",
+      "phf": "9e51d0df6db2b149081c7ace93a0407ae9392ec777be00dc4c0f25a6c6c3c4a6",
+      "standardText": "7278ce0f7599e5a0c762ed1abd79cfcace090a6a164da999cbf9d205edd1ed65",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 2050,
+    "path": "fixtures/samples/unibet/03-cash-plo-2026-two-hands-anonymised.txt",
+    "sha256": "46cc2119978a80ebc674caadb5550e53ba68f0ebee06d81d915d5ab4dda9f2f9"
+  },
+  "refusals": [
+    {
+      "fingerprint": "26e6511e334ae2b9dad49d56c000858393e8946bb3c715bf2a3448b26bd32a74",
+      "index": 1,
+      "message": "No `wins` line, so the source never says who was given the pot. Unibet omits the winner on some preflop-fold hands and the pot cannot be assigned without guessing.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "no-winner",
+      "site": "unibet",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": "7278ce0f7599e5a0c762ed1abd79cfcace090a6a164da999cbf9d205edd1ed65",
+  "stats": {
+    "bySite": {
+      "unibet": 1
+    },
+    "converted": 1,
+    "failed": 1,
+    "total": 2
+  }
+}

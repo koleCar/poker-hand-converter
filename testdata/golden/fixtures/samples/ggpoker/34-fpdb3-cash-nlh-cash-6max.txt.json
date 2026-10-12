@@ -1,0 +1,67 @@
+{
+  "chunks": 3,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ggpoker",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 900
+      }
+    ],
+    "top": "ggpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "TM2917910182",
+      "index": 2,
+      "parser": "ggpoker",
+      "phf": "a6ebf3d6a05678448a85a37678a878629894f22f98d40503bc6d1e653bb4dd58",
+      "standardText": "05a465d824bfff6cd0c8c5fd774694a11de27086c3aee1996163e89f88f9c3d5",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 3844,
+    "path": "fixtures/samples/ggpoker/34-fpdb3-cash-nlh-cash-6max.txt",
+    "sha256": "e0ac42b8935189a86dba430b15495d4d2311afc97669cfd596f37ab6b081435f"
+  },
+  "refusals": [
+    {
+      "fingerprint": "01d719d6e481d1e3384c72e9bb4119e9126aed0ac6881d9c857902a92bfedf68",
+      "index": 0,
+      "message": "\"Hero:\" acts but is not in the seat block.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unseated-actor",
+      "site": "ggpoker",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "9b47d37c8ea3a42c9c54dd808d0a1500121ac145cd534d60063e4ce8f3e41e73",
+      "index": 1,
+      "message": "\"Hero:\" acts but is not in the seat block.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unseated-actor",
+      "site": "ggpoker",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": "05a465d824bfff6cd0c8c5fd774694a11de27086c3aee1996163e89f88f9c3d5",
+  "stats": {
+    "bySite": {
+      "ggpoker": 1
+    },
+    "converted": 1,
+    "failed": 2,
+    "total": 3
+  }
+}

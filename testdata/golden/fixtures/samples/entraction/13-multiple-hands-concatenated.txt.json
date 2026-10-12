@@ -1,0 +1,164 @@
+{
+  "chunks": 10,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646500717",
+      "index": 0,
+      "parser": "entraction",
+      "phf": "b448c4f41ee0a8832720453133602bc35a3cacf29c971347096380bda04fcf3b",
+      "standardText": "5d68cfe4ee4216f3860df90547c0ed2559090fa761351a3d53f8c255c31c56f1",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "ENT-2646505732",
+      "index": 1,
+      "parser": "entraction",
+      "phf": "113215a4d8f36805a8566f1f3b64580e6a920bdae0245e10b5fe32abdb244ad9",
+      "standardText": "cfb485c1b1b232a17f0d39c54677ab63efdba11d3816ccb200d9319a1aa542e0",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "ENT-2646505738",
+      "index": 2,
+      "parser": "entraction",
+      "phf": "975b1a1c3b389161a341fd39425c62e2391d69cc306ea27c50d8270dba20087c",
+      "standardText": "20a734e7a033e90496cb9906eaa983788a32380743625d40aee30a1917135774",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "ENT-2646505757",
+      "index": 3,
+      "parser": "entraction",
+      "phf": "437ad0bfa0f93f829915a58dc23a1891c67118d9e727fc963bb9340654ef79f4",
+      "standardText": "03665bcbd74d5aee9fe11ae5748d88afef545b6ea01d72b67b21a5847a4321a6",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "ENT-2646505763",
+      "index": 4,
+      "parser": "entraction",
+      "phf": "138694a45c348bdaabc8d1576620678d7c48e6d168884c3bd387c6b61b2d8f60",
+      "standardText": "274a187ebb31cd47c7a581373d54d583ed84df47aea4521ac98e5c31c6ca532e",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "ENT-2646505793",
+      "index": 5,
+      "parser": "entraction",
+      "phf": "cdd40d5019ec9362a05fcaa15bd45c55d9ed897f890024dd503c8cd6ffbe9834",
+      "standardText": "7bbde72d29230d9a5cec793ee4589ad306e1da5175282fe55aa85ac9099ecc3d",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "ENT-2646505796",
+      "index": 6,
+      "parser": "entraction",
+      "phf": "a073ff509b7a9f96f4b2e286ccb3e67a7934d04d130ff34288144070527a0b0a",
+      "standardText": "2d4d2a2f8390cd47822b2c4adde1f995bef90700b31e413050dee30945fad929",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "ENT-2646505827",
+      "index": 7,
+      "parser": "entraction",
+      "phf": "e769d8e7888e05dddc7f3ed60778fdc3922a104fe711897857ae3b3552d88fc6",
+      "standardText": "2476ee909b715311cb7ee2894d9fedbf9477954be03e486cec732718af97f186",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "ENT-2646505835",
+      "index": 8,
+      "parser": "entraction",
+      "phf": "ab7c3515233d296877e9fe3852cb25be12f4ad64b9595a7bfaa6135a8ecfca38",
+      "standardText": "5cb61c3cbad728bad56fe8b99515b783631884f4416d9a1849e98369b72ebbb2",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "ENT-2646505855",
+      "index": 9,
+      "parser": "entraction",
+      "phf": "fe465224e19eeaa86f88fcc59562821dfffd1988e363cd57dfc5c5f289a9aba0",
+      "standardText": "d40a4dcfdd18deda6278d7b771914019015de55ceca35ae9fb309c17da2e105c",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 7432,
+    "path": "fixtures/samples/entraction/13-multiple-hands-concatenated.txt",
+    "sha256": "479c13109f38a3b35369e2dba7056ddf84c38fd31d43db6c317ee3af2fa61142"
+  },
+  "refusals": [],
+  "standardTextFile": "7b1dcc424f8b303d3d0a6426e9e9056ebfd87c94f30136c7f0dd167a0b585503",
+  "stats": {
+    "bySite": {
+      "entraction": 10
+    },
+    "converted": 10,
+    "failed": 0,
+    "total": 10
+  }
+}

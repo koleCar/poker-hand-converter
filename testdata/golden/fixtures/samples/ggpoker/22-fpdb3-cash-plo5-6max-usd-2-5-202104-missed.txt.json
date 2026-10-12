@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ggpoker",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 900
+      }
+    ],
+    "top": "ggpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "OM102163",
+      "index": 0,
+      "parser": "ggpoker",
+      "phf": "915813b482b9fed04d68c8c0c147b2a429d69ec45ec82f4c54de2cb8fbf94314",
+      "standardText": "3d3c511725227ea7baa39904b60883167ba66b2d2a0da7ae4d6d686881b12bb4",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1096,
+    "path": "fixtures/samples/ggpoker/22-fpdb3-cash-plo5-6max-usd-2-5-202104-missed.txt",
+    "sha256": "354ab25711ff547e86f77c9d1875d554ae38cc7daf3964488cc102eea998890b"
+  },
+  "refusals": [],
+  "standardTextFile": "3d3c511725227ea7baa39904b60883167ba66b2d2a0da7ae4d6d686881b12bb4",
+  "stats": {
+    "bySite": {
+      "ggpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

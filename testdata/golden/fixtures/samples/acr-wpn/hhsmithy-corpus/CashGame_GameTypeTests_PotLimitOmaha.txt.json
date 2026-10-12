@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "262003062",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "17e999ec01b91a93815e57f3d3c1bace7ad7563e38284a32d8ba074619b1b736",
+      "standardText": "7f1a1109c349f874c493918f8123b536622005c8effa21d94bc3edc383a40f74",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 834,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_GameTypeTests_PotLimitOmaha.txt",
+    "sha256": "a0c7af777f503a16620ec0c9f3257116f91a34af9a9451054e985d95c3b90edc"
+  },
+  "refusals": [],
+  "standardTextFile": "7f1a1109c349f874c493918f8123b536622005c8effa21d94bc3edc383a40f74",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

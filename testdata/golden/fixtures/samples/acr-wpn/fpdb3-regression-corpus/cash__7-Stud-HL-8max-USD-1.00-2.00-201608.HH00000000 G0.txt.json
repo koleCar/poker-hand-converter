@@ -1,0 +1,52 @@
+{
+  "chunks": 2,
+  "decode": {
+    "encoding": "UTF-16 LE",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 3955,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__7-Stud-HL-8max-USD-1.00-2.00-201608.HH00000000 G0.txt",
+    "sha256": "f90afd89e4ba7ac31dbf4661b4761d3e2c35175540550ca61acb936aea662e42"
+  },
+  "refusals": [
+    {
+      "fingerprint": "b75701338b189d01314745bdc6f1314a0ff8b1ef3f84152f9524032bfb39bafc",
+      "index": 0,
+      "message": "\"Seven Cards Stud HiLow\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "acrwpn",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "7d11b2379e83aec5ea66743d01d76cd5ddfe73b42a76fcffab4de919095001e3",
+      "index": 1,
+      "message": "\"Seven Cards Stud HiLow\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "acrwpn",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 2,
+    "total": 2
+  }
+}

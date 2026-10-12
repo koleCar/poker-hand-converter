@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD79415709",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "06d4efb51d48831295809f1818d1a1d7303467fd0f5f0a57a11cca44e060f4bc",
+      "standardText": "b893d0dce55ea7588407846a7109b2413c82686d0ac116ee11e885f21903ae3c",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 839,
+    "path": "tests/test/fixtures/weplay/phantom-river-walk.txt",
+    "sha256": "5c312226f78d028788fb4a14602da8e1d465f46ff43141754724b55d6e88b760"
+  },
+  "refusals": [],
+  "standardTextFile": "b893d0dce55ea7588407846a7109b2413c82686d0ac116ee11e885f21903ae3c",
+  "stats": {
+    "bySite": {
+      "weplay": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

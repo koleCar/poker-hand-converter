@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "chico",
+        "permille": 950
+      }
+    ],
+    "top": "chico"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1605730318",
+      "index": 0,
+      "parser": "chico",
+      "phf": "3d8aa5e9425299f16e2a36b51259bbccd22eceb7e975701c5653bec33594e8a2",
+      "standardText": "89636d574c8d4e2122c8129ec16129bd986ac97b4cc0812d4b5185fa3797a05f",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1539,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-USD-0.01-0.02-201605.fold.blinds.antes.txt",
+    "sha256": "f2128ad32d8449cfa6c06c9996470fd74b664cd4b10352619049cd65d2648011"
+  },
+  "refusals": [],
+  "standardTextFile": "89636d574c8d4e2122c8129ec16129bd986ac97b4cc0812d4b5185fa3797a05f",
+  "stats": {
+    "bySite": {
+      "chico": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

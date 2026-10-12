@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646515969",
+      "index": 0,
+      "parser": "entraction",
+      "phf": "fc9e17af712104bdc2220ea61066912efa76ad2f0f51bd11f35679731de8f1a6",
+      "standardText": "be473191767e4525faafce906ad72a9a35e8d14a56f386d1c2114c5479fa8792",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1290,
+    "path": "fixtures/samples/entraction/08-euro-table.txt",
+    "sha256": "b0bbce2e29e74b3005d6421dc16074cfced020a98b1b6a2d75ab61c743dc4434"
+  },
+  "refusals": [],
+  "standardTextFile": "be473191767e4525faafce906ad72a9a35e8d14a56f386d1c2114c5479fa8792",
+  "stats": {
+    "bySite": {
+      "entraction": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

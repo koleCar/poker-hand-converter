@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "fulltilt",
+        "permille": 950
+      }
+    ],
+    "top": "fulltilt"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "33727835942",
+      "index": 0,
+      "parser": "fulltilt",
+      "phf": "f0359c0486b6a83fb3438488a2bdf759edeb2090e5a02d849d1e01c7fa607fd4",
+      "standardText": "24bb1ef8f995e3e788677cc80aebec5904e521d6e7df2d1a0f90ae23b23c27a9",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1290,
+    "path": "fixtures/samples/full-tilt/08-cash-flo8-fixed-limit-omaha-hilo.txt",
+    "sha256": "8d421524fd1c545241baa060dbb9e691318629099e19d06b847c3c7d2530e35c"
+  },
+  "refusals": [],
+  "standardTextFile": "24bb1ef8f995e3e788677cc80aebec5904e521d6e7df2d1a0f90ae23b23c27a9",
+  "stats": {
+    "bySite": {
+      "fulltilt": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

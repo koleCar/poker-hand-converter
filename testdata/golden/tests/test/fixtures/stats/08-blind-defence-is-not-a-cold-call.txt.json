@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST08",
+      "index": 0,
+      "parser": "standard",
+      "phf": "c4dda6bbea68d89b8685c52d25c411d4e123dcb10dac210ea066009b92e586cf",
+      "standardText": "db151f0e3b3e86f50775a42a0f982117313394e9674b79a43d9e517c70ebd850",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1098,
+    "path": "tests/test/fixtures/stats/08-blind-defence-is-not-a-cold-call.txt",
+    "sha256": "3cfba058697e35a9a0537315c88f2ac22bbd4221df9ad5f7d168da3d90d02606"
+  },
+  "refusals": [],
+  "standardTextFile": "db151f0e3b3e86f50775a42a0f982117313394e9674b79a43d9e517c70ebd850",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

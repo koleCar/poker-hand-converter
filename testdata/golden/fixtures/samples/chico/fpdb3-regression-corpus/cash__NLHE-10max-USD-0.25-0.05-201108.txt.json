@@ -1,0 +1,240 @@
+{
+  "chunks": 20,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "chico",
+        "permille": 950
+      }
+    ],
+    "top": "chico"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-900202143",
+      "index": 0,
+      "parser": "chico",
+      "phf": "335fc0edfb9dcc72dedbf26315375156810806a2cde7061b62a0717c26fb863f",
+      "standardText": "142f6bacf7038a26488a8944da70c2e88528190549cc074f88bfeeece2410ab8",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-900202264",
+      "index": 1,
+      "parser": "chico",
+      "phf": "29981d6055578e68695efafc38ca9935784ff26c9b67aca9fa978a0b1e58379c",
+      "standardText": "75486e1e9997c65f6a90c2c0960833e4c1f9853119e4bff2caec49757b1fd0a6",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-900202374",
+      "index": 2,
+      "parser": "chico",
+      "phf": "069a36f08878362946bde429e898719b6525f425361a8269fd783de2b4bd8f64",
+      "standardText": "b7607bee15fba8347decb9ab624a472d6d19d536fa3911c4627563038d0c4f5c",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900202587",
+      "index": 3,
+      "parser": "chico",
+      "phf": "1845b473e5d3e8fa8c8e7ea75d655becec17748fbc30d2d8bbb11c8cb8c323b0",
+      "standardText": "367dd4d3145e72fa6df5090d4b68fd69a7417984071a6a88cbfc8425b18144cb",
+      "warnings": [
+        {
+          "code": "board-from-summary",
+          "message": "The street markers stop after 3 cards; the rest of the board is taken from the summary, which is the only place it is written down."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-900202762",
+      "index": 4,
+      "parser": "chico",
+      "phf": "0090f5bc4f97fb5ef3b4b33c36cfcb9823c2a03dafccc6306742a584b6b9e31d",
+      "standardText": "fd55e158df9efd8b863cab3d9d6e24d001cbd89600e56e14a769d0c9cd875265",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900202861",
+      "index": 5,
+      "parser": "chico",
+      "phf": "d89a193ecf7f80597bfd258200d4cadbf3d85c952b0b3f25f94767ce84b576cc",
+      "standardText": "703137c95554e6b4561f5cdb50e4a5c0e3641bd7b07fcc5eb39288ee762cfe2a",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900203093",
+      "index": 6,
+      "parser": "chico",
+      "phf": "de3e738ab98d57e3c5e3dc41e5fdbe8e662f39c655741b47c542926d624af167",
+      "standardText": "188d9932dfcc614b4ddfa515f9f9d36d7898062d328ce4ef6ddc7d0af25a5197",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900203361",
+      "index": 7,
+      "parser": "chico",
+      "phf": "b5eb2519c0b2e7bd38281757ce59ef0c454b58a204de25cded20b809f368d569",
+      "standardText": "3bdb97dc200316b8a8d9fa88c2254e7028de11a9ea631859df62427301807e18",
+      "warnings": [
+        {
+          "code": "button-not-seated",
+          "context": {
+            "seat": 7
+          },
+          "message": "The button is on seat 7, which is empty."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-900203618",
+      "index": 8,
+      "parser": "chico",
+      "phf": "a1049131b93bdba43cebdc8dc4c5a03ce73d1fa63a566038b52b7a91070932e2",
+      "standardText": "564510fdce56f5da956db296f52d8e926b4b4b59bd9d96fbcaea65b183afe992",
+      "warnings": [
+        {
+          "code": "board-from-summary",
+          "message": "The street markers stop after 0 cards; the rest of the board is taken from the summary, which is the only place it is written down."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-900203897",
+      "index": 9,
+      "parser": "chico",
+      "phf": "56791d67a12b2afc041c54b2aa8683198f520de6fa1b37317015b1942b87fcb3",
+      "standardText": "bc67e2e21c30dd197de5dbdc33960b3ff1a55c607812a235b041bc6e9118ffd0",
+      "warnings": [
+        {
+          "code": "board-from-summary",
+          "message": "The street markers stop after 4 cards; the rest of the board is taken from the summary, which is the only place it is written down."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-900204578",
+      "index": 11,
+      "parser": "chico",
+      "phf": "0c6e7a64a2dbd2d9bdf5a1a0ccbafadb9dbffda827d87776425cbeacda822352",
+      "standardText": "b4c309d3cb52572a46a7199d45797edeb4b343713fb5b97556374e902d30895d",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900204711",
+      "index": 12,
+      "parser": "chico",
+      "phf": "12717b7906ab32b3ac53a700c7fd1f528dfd2d2889e0e1acfd8a34f3adbfae3e",
+      "standardText": "c2af8bea31834c6d368e40dc4624de45f539662ce3f9aa52ca0f8c4db73d994a",
+      "warnings": [
+        {
+          "code": "button-not-seated",
+          "context": {
+            "seat": 2
+          },
+          "message": "The button is on seat 2, which is empty."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-900204952",
+      "index": 13,
+      "parser": "chico",
+      "phf": "759bb07b8c12b90ccdf76939a9bcc0a995427b6dd5eb8fb6427efab08c750709",
+      "standardText": "dcab5d5ac28cb48fe9f58c3c2feb21b1ce561fa83b25fef2bc8bea3fc1da8578",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900205080",
+      "index": 14,
+      "parser": "chico",
+      "phf": "fa77c1492048d7bf631b4d5e76aece849e41a03b708dd4343554f9046cc3449d",
+      "standardText": "36ba2aa02851f77d11c68700291a2b461612ca8da0726104ab5f165ef64b4236",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900205218",
+      "index": 15,
+      "parser": "chico",
+      "phf": "a752fb1ce67c7b9c366df7b37fd7e62ac748bb136963c9a9df66d03d1a08d3c5",
+      "standardText": "e189f25df9ce830f1a2ae777b9ed77cc5645741eae02edd2157047132e4f11ba",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900205431",
+      "index": 16,
+      "parser": "chico",
+      "phf": "82127c2cd7253fe85fcf7c12ea96675e5548ddd98ac8f11d2db495b7f7e68024",
+      "standardText": "fac35d1404edbea473ec2967385495740424abf6519b5d002ecbf88aace8615a",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900205688",
+      "index": 17,
+      "parser": "chico",
+      "phf": "792aa72e9370a1d45081d4627ba96c820e703f2bdb1deeece4813476ed5463e4",
+      "standardText": "4f137769c8ffdd707f15273f7e4e0739792806ade05841e04066127ae9bf71a1",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900205774",
+      "index": 18,
+      "parser": "chico",
+      "phf": "1d3af3d917484292f647118d20cbd6d3f8edcbbbe98869cd645f46a8a90d0a99",
+      "standardText": "2633f5cfde477ca8f1a7af4a92edef932fb03bbaebc686ac95c79f51eb0ab1b9",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 22813,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-USD-0.25-0.05-201108.txt",
+    "sha256": "61b2e2ec8edb7df1e8c6762b5901bc5e2f99662b0b76c85d6885b3c0e73571d6"
+  },
+  "refusals": [
+    {
+      "fingerprint": "28310746515a1209eda26baa76348d3596ccae67caee98cd68e51a08c6b9b365",
+      "index": 10,
+      "message": "Player5 is 359 below zero after \"Player5: raises $3.09 to $3.59\".; Player5 is 709 below zero after \"Player5: calls $3.50\".",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "negative-stack",
+      "site": "chico",
+      "stage": "validate"
+    },
+    {
+      "fingerprint": "60477ef71aeec25aabe51aa076cabaa0d839d6f901b39b0323582f2320bfc143",
+      "index": 19,
+      "message": "The hand has no readable `Total pot` line.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "truncated-hand",
+      "site": "chico",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": "f3f3c8fd52d917275d2507c4258b91533b9aa9497e1af9c9db7ecc8b191eb38c",
+  "stats": {
+    "bySite": {
+      "chico": 18
+    },
+    "converted": 18,
+    "failed": 2,
+    "total": 20
+  }
+}
