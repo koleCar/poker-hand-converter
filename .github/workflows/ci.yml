@@ -127,6 +127,13 @@ jobs:
   # (guideline §14), and Linux is the cheapest runner for the WebAssembly build
   # the web app will use. The toolchain comes from rust-toolchain.toml, which
   # rustup on the runner installs on the first cargo call.
+  #
+  # `cargo test` includes the golden round trip (R0.4): every corpus hand's
+  # PHF deserialized into the Rust model and re-serialized byte for byte. The
+  # bodies it reads are the gitignored testdata/golden-full/, which the
+  # TypeScript emitter writes in ~15 s, so Node runs here first on every OS.
+  # The test checks those bodies against the committed hashes before using
+  # them, and fails rather than skips when they are missing.
   core:
     name: Rust core (${{ matrix.os }})
     strategy:
@@ -139,14 +146,36 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - run: npm ci
+        working-directory: tests
+
       - name: Format
         run: cargo fmt --all --check
 
       - name: Clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
 
+      - name: Full goldens for the round trip
+        run: npm run golden:emit
+        working-directory: tests
+
+      # Also fails when core/rail-core-wasm/types/phf.d.ts is not what the
+      # Rust model generates (phf::dts).
       - name: Test
         run: cargo test --workspace --locked
+
+      # The generated declarations against frontend/src/lib/phf/types.ts,
+      # type by type (tests/scripts/phf-dts/check.ts). The same on every OS.
+      - name: Declarations match types.ts
+        if: matrix.os == 'ubuntu-latest'
+        run: npm run phf:dts-check
+        working-directory: tests
 
       - name: WebAssembly build
         if: matrix.os == 'ubuntu-latest'

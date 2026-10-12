@@ -6,11 +6,15 @@
 //! (docs/RAIL-PLAN.md R0.4–R0.10). The TypeScript implementation is the
 //! reference: for every corpus file the Rust output must equal its golden
 //! output (R0.3) before anything here replaces it.
+//!
+//! - [`phf`]: the hand model (R0.4).
+//! - [`canonical`]: the canonical JSON the goldens are written in, and that
+//!   PHF hashes are taken over.
 
-/// The hand format every parser produces. Rail Hand Format is PHF; the
-/// identifier stays `phf/1` because every stored `hands` row carries it
-/// (docs/RAIL_GUIDELINE.md §2, amendment A1).
-pub const PHF_SCHEMA: &str = "phf/1";
+pub mod canonical;
+pub mod phf;
+
+pub use phf::PHF_SCHEMA;
 
 #[cfg(test)]
 mod tests {
@@ -25,5 +29,12 @@ mod tests {
             types_ts.contains(&format!("\"{PHF_SCHEMA}\"")),
             "frontend/src/lib/phf/types.ts no longer declares {PHF_SCHEMA:?}"
         );
+    }
+
+    /// The constant and the serde tag of `PhfSchema::V1` are one value.
+    #[test]
+    fn schema_tag_matches_constant() {
+        let tag = serde_json::to_value(crate::phf::PhfSchema::V1).ok();
+        assert_eq!(tag, Some(serde_json::Value::from(PHF_SCHEMA)));
     }
 }

@@ -22,7 +22,8 @@
     "ranges:villain-measure": "vitest run --config scripts/caller-ranges/vitest.config.ts villainMeasure",
     "learn:directions": "vitest run --config scripts/learn-directions/vitest.config.ts directions",
     "learn:lab": "vitest run --config scripts/learn-directions/vitest.config.ts lab",
-    "golden:emit": "vitest run --config scripts/golden/vitest.config.ts"
+    "golden:emit": "vitest run --config scripts/golden/vitest.config.ts",
+    "phf:dts-check": "tsc -p scripts/phf-dts"
   },
   "keywords": [],
   "author": "",

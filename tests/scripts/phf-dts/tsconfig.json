@@ -1,0 +1,15 @@
+{
+  // `npm run phf:dts-check`: type-checks check.ts, which compares the
+  // declarations generated from the Rust PHF model with types.ts. Nothing is
+  // emitted and nothing runs.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": false,
+    "types": []
+  },
+  "files": ["check.ts"]
+}
