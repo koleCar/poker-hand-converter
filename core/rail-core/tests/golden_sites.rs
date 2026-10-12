@@ -128,8 +128,34 @@ fn ported_parsers_rank_every_corpus_file_as_the_goldens_do() {
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
 
-// R0.7b onwards, one line per site (or family):
-// #[test]
-// fn weplay() {
-//     golden::check(Selection::Parsers(&["weplay"]));
-// }
+/// `weplay` (R0.7b): the `weplay-hh/` exports of both accounts, the WePlay
+/// samples and the regression fixtures - cash, tournaments, bomb pots,
+/// straddles, run-it-twice, hidden `##` cards; refusals for BB-only walks,
+/// an uncalled bet over the commitment, a ghost ante, Omaha, a short all-in
+/// small blind, a zero-stack actor, and one hand the validator refuses
+/// (`chip-mismatch`).
+#[test]
+fn weplay() {
+    let report = golden::check(Selection::Parsers(&["weplay"]));
+    assert_eq!(report.files, 128, "the set of files `weplay` wins changed");
+    assert_eq!(report.hands, 6726);
+    assert_eq!(report.refusals, 96);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `coinpoker` (R0.7b): the 16 CoinPoker samples - USDT cash, MTT, PKO,
+/// satellite, freeroll, straddle, the all-in raise without `to`, dead blinds,
+/// a side pot; one refusal (`hand-cancelled`).
+#[test]
+fn coinpoker() {
+    let report = golden::check(Selection::Parsers(&["coinpoker"]));
+    assert_eq!(
+        report.files, 16,
+        "the set of files `coinpoker` wins changed"
+    );
+    assert_eq!(report.hands, 21);
+    assert_eq!(report.refusals, 1);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
