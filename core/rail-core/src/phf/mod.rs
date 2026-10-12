@@ -14,7 +14,8 @@
 //! [`money`] (currency units, `parseAmount`, `parseAmountStrict`,
 //! `formatAmount`, buy-ins), [`game`] (variant and hi/lo labels, deck and deal
 //! size, position geometry) and [`hand`] (action, board, chip-movement and
-//! lookup helpers). `assignPositions` is `crate::positions` (R0.5b).
+//! lookup helpers). `assignPositions` is [`crate::positions`] and `hilo.ts` is
+//! [`hilo`] (R0.5b).
 //!
 //! Design rules that the rest of the model assumes (from `types.ts`):
 //!
@@ -50,8 +51,10 @@
 
 pub mod game;
 pub mod hand;
+pub mod hilo;
 pub mod money;
 mod serde_util;
+mod tags;
 
 #[cfg(test)]
 mod dts;

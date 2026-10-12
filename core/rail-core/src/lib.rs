@@ -17,14 +17,19 @@
 //!   driver (R0.5).
 //! - [`parsers`]: the site parsers and the code they share (R0.5 onwards).
 //! - [`positions`], [`validate`]: `assignPositions` and `validateHand`
-//!   (R0.5b; the pipeline already calls them).
+//!   (R0.5b), and [`phf::hilo`], which decides the halves of a split pot.
+//! - [`cards`], [`eval`]: reading cards, and hand evaluation (full deck,
+//!   short deck, Omaha high and the eight-or-better low) - what validation
+//!   and hi/lo need now, and what all-in EV (R2.2) builds on.
 //! - [`js`]: the JavaScript semantics the reference depends on - `\s`,
 //!   regular expressions, IEEE-754 number arithmetic.
 
 pub mod canonical;
+pub mod cards;
 pub mod convert;
 pub mod decode;
 pub mod detect;
+pub mod eval;
 pub mod js;
 pub mod parsers;
 pub mod phf;
