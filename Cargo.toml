@@ -44,6 +44,11 @@ dbg_macro = "deny"
 todo = "deny"
 unwrap_used = "warn"
 
+# The golden round-trip test (core/rail-core/tests/golden_roundtrip.rs) reads
+# ~130 MB of JSON; unoptimised serde_json makes that the slowest test by far.
+[profile.dev.package.serde_json]
+opt-level = 3
+
 [profile.release]
 lto = "thin"
 codegen-units = 1

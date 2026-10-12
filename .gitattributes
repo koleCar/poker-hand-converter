@@ -16,3 +16,8 @@ tests/test/fixtures/** -text -diff
 # too. Unlike the fixtures it is our own output, so it stays diffable - but it
 # is always LF, whatever core.autocrlf says on the machine that checks it out.
 testdata/golden/** text eol=lf
+
+# TypeScript declarations generated from the Rust PHF model (docs/RAIL-PLAN.md
+# R0.4). A cargo test compares them byte for byte with what the model renders,
+# so they are LF on every checkout, Windows included.
+core/rail-core-wasm/types/*.d.ts text eol=lf

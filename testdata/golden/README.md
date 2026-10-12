@@ -199,7 +199,11 @@ full-tree file it appears in.
   `Option<Option<T>>` (with `serde_with::rust::double_option`) where TypeScript
   says `?: T | null`. Serialize through `serde_json::Value` (or sort keys
   yourself) - a derived `Serialize` writes struct fields in declaration order,
-  not sorted.
+  not sorted. *As built:* `rail_core::phf` (strict helpers in
+  `phf/serde_util.rs`, no `serde_with`) and
+  `rail_core::canonical::to_canonical_json`;
+  `core/rail-core/tests/golden_roundtrip.rs` is the test that reads
+  `testdata/golden-full/`.
 - **R0.5, detection scores.** Over the whole corpus only five scores occur
   (0.99, 0.95, 0.9, 0.86, 0.25), and the detectors' source is mostly literal
   constants. If that holds when they are ported, the Rust detectors can return

@@ -381,11 +381,18 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 What CI runs on Linux, macOS and Windows:
 
 ```bash
+(cd tests && npm ci && npm run golden:emit)   # cargo test needs testdata/golden-full/
 cargo fmt --all --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo test --workspace --locked
 cargo build -p rail-core -p rail-core-wasm --target wasm32-unknown-unknown --locked
+(cd tests && npm run phf:dts-check)           # Rust-generated PHF declarations = types.ts
 ```
+
+`cargo test` round-trips every golden hand through the Rust PHF model and
+fails, rather than skips, without the full goldens. After changing the model,
+regenerate its TypeScript declarations with
+`RAIL_UPDATE_DTS=1 cargo test -p rail-core --lib phf::dts`.
 
 Workspace lints deny lossy integer casts and float arithmetic, because money is
 integer minor units everywhere; the core crates forbid `unsafe`.
