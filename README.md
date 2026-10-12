@@ -1,646 +1,452 @@
-# PokerConverter
+# Rail
 
-A browser-based converter and replayer for poker hand histories.
+**A poker tracker and HUD for macOS and Windows, with a web app on the same
+data.**
 
-Drop an export from almost any poker room into it and you get back one
-canonical representation of every hand — which you can then download as
-tracker-importable text, step through in a visual replayer, keep in a
-searchable library, or hand to someone else as a link.
+Rail reads hand histories from almost any poker room, turns every hand into one
+canonical document, and builds everything else on top of that document: a
+heads-up display over your tables, a library of your hands with a replayer,
+reports, opponent profiles, and post-session analysis. The desktop app and the
+web app share one account and one database (Supabase), so a hand played on the
+desktop shows up on the web, and a file uploaded on the web shows up on the
+desktop.
 
-The conversion runs entirely in the browser — hand histories never leave the
-tab. The data store is Supabase (Postgres + PostgREST), and every query the app
-makes runs **as the signed-in user**, policed by RLS; there is no service-role
-key in the app and no privileged middle tier. Next.js renders on the server for
-the two things that need it: the session cookie, and the Open Graph tags on a
-shared hand.
+Rail is free until it is fully built, and then moves to a subscription.
 
-Converting, previewing, downloading and replaying need no account at all. An
-account is what gives you a *library*: hands you save belong to you and nobody
-else can read them. The one deliberate exception is a share link — anyone you
-send one to can replay that hand without signing in.
-
-Live: **https://poker-hand-converter.vercel.app**
-
----
-
-## The pipeline
-
-There is one idea underneath the whole project: **PHF**, the Poker Hand Format
-(`phf/1`). It is a typed JSON document that describes a hand completely —
-money as integer minor units, an authoritative action stream, run-it-twice as
-an array rather than a special case, and mandatory provenance saying which
-parser produced it from which bytes.
-
-Everything else is a conversion into or out of that one shape:
-
-```
-raw text / XML
-      │
-      ├─ detectSite(text)             → ranked parser candidates, scored 0..1
-      ├─ parser.splitHands(text)      → one chunk per hand
-      ├─ parser.parseHand(chunk)      → PhfHand
-      ├─ assignPositions(hand)        → BTN/SB/BB/… from the posted blinds
-      ├─ validateHand(hand)           → errors (refuse) / warnings (keep, flag)
-      │
-      ├─ toStandardText(hand)         → GG-style text, for tracker import
-      ├─ buildReplay(hand)            → frames, for the replayer
-      ├─ handInsertFromPhf(hand)      → a `hands` row, for the library
-      └─ ConversionFailure[]          → the corpus of what we could not read
-```
-
-The GG-style plain text this app produces is **one output of PHF, not the
-source of truth**. It exists for exactly one reason: Holdem Manager and
-PokerTracker import that shape, and their importers are byte-sensitive. So the
-serializer preserves things no structured field should have to model —
-decimal style, digit grouping, which fee columns the summary printed, an
-incidental triple space in a GG tournament header — and a round-trip test
-asserts `toStandardText(parseStandardText(t)) === t` over the whole corpus.
-
-Full specification, including the type system and the invariants the validator
-enforces: **[`docs/PHF-SPEC.md`](docs/PHF-SPEC.md)**.
-
----
-
-## The refusal principle
-
-This is the design decision that shaped everything else, so it is worth
-stating plainly rather than listing as a feature.
-
-**A hand that cannot be converted faithfully is refused.** It is not
-approximated, not guessed at, not silently dropped. It is recorded — with its
-original text, the site we thought wrote it, how confident we were, which
-pipeline stage gave up and why — in the `unparsed_hands` corpus, and the user
-is told it was refused.
-
-The reason is that the failure modes here are not symmetrical. A hand that
-fails to convert is a visible, recoverable annoyance: the user sees it, and the
-raw text is still on disk. A hand that converts *wrongly* — a raise sized off
-the wrong number, a pot that balances because a rounding error cancelled
-itself, a play-money table counted into a real-money win rate — gets imported
-into a tracker and quietly poisons a player's statistics. They will not notice.
-They will make decisions on it for months. There is no way back, because the
-tracker's database no longer distinguishes the bad rows from the good ones.
-
-So the bias runs one way: **refuse when unsure**. Concretely, that means
-
-- every parser throws `ParseSkip(reason, message)` for a format it recognises
-  but is not certain it can represent — unsupported variants, corrupt sources,
-  ambiguous amounts, all-in-or-fold tables, cancelled hands;
-- `parseAmountStrict` refuses `1 234,50 €` rather than guessing at the
-  separators, because the wrong guess is off by 100x and still balances;
-- any line a parser does not understand becomes a recorded warning, never a
-  silent drop, and the corpus tests fail the build if a site a parser claims to
-  understand produces warnings;
-- `validateHand` treats a chip-conservation or payout mismatch as an *error*,
-  which means the hand is never stored as a normal hand.
-
-Several parsers deliberately refuse formats they could plausibly have handled.
-The GGPoker parser carries a `FOREIGN_BRANDING` guard that rejects WPT Global
-files even though they look close enough to try, because "close enough" is how
-you get wrong bet sizing. That rejection is the correct behaviour, not a gap.
-
-High-low split is the clearest case of all. An `Omaha Hi/Lo` hand read as plain
-Omaha *balances perfectly* - the summary states who collected what, so chip
-conservation, payout conservation and every other invariant in `validateHand`
-pass. There is no downstream check that would ever catch it, and half of every
-pot would be attributed to the wrong rule. So Hi/Lo is read only where a room's
-own fixtures prove it, with every award labelled as the high or the low half
-(worked out from the cards; see `docs/PHF-SPEC.md` §3.10), and refused by name,
-`unsupported-hi-lo`, everywhere else rather than left to look like a hand we
-understood.
-
-The corpus is the other half of the deal. A refusal is not a dead end — it is
-a work item with a reproduction attached. `unparsed_gaps` rolls the corpus up
-by site, stage and reason, ordered by how often each one is hit, and the top
-row is the answer to "which parser do we write next".
-
----
-
-## Coverage
-
-**19 registered parsers** (`frontend/src/lib/parsers/`), covering rather more
-than 19 rooms — the Ignition parser also handles Bodog and Bovada, the Chico
-parser handles its skins, and ACR/WPN covers the network:
-
-| Shape | Parsers |
+| | |
 | --- | --- |
-| PokerStars-family text | PokerStars, GGPoker, WePlay, CoinPoker |
-| `***** Hand History for Game *****` text | partypoker, 888poker, PokerBros |
-| XML | iPoker, MicroGaming |
-| Its own dialect | Winamax, ACR/WPN, Ignition (also Bodog and Bovada), Chico (BetOnline, PayNoRake, ActionPoker, Gear Poker), Full Tilt, Ongame, Entraction, Unibet, Run It Once |
-| Our own output | `standard` — the GG-style text this app emits, so its own exports round-trip |
+| Live web app | **https://poker-hand-converter.vercel.app** |
+| Product guideline (source of truth for *what*) | [`docs/RAIL_GUIDELINE.md`](docs/RAIL_GUIDELINE.md) |
+| Implementation plan (source of truth for *how* and *in what order*) | [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) |
+| The web app as it stands today | [`docs/WEB.md`](docs/WEB.md) |
 
-"PokerStars-family in shape" is not the same as "safe to parse with a
-PokerStars regex", which is why Full Tilt sits in the last row despite looking
-like a member: `Uncalled bet **of** $20`, action lines with no colon, the
-button declared after the blinds, and two incompatible header word orders.
-Each of those is a way to produce a hand that balances against itself and is
-still wrong.
-
-### Variants
-
-Each parser carries its own variant allowlist
-(`frontend/src/lib/parsers/shared/variant-lock.ts`), and a variant goes on a
-room's list only once that room's own fixtures convert it cleanly. Reading a
-room's Hold'em says nothing about whether it reads that room's Omaha.
-
-| Reads | Parsers |
-| --- | --- |
-| Hold'em, four- and five-card Omaha, four-card Omaha Hi/Lo | Entraction |
-| Hold'em, four- and five-card Omaha, short deck | GGPoker |
-| Hold'em, four-card Omaha, four-card Omaha Hi/Lo | PokerStars, partypoker, 888poker, MicroGaming, Ignition, Full Tilt |
-| Hold'em, four-card Omaha, short deck | ACR/WPN |
-| Hold'em and four-card Omaha | iPoker, Winamax, Chico, Ongame, Unibet |
-| Hold'em only | WePlay, CoinPoker, PokerBros, Run It Once |
-
-Hi/Lo has a list of its own (`SiteParser.hiLoVariants`), because reading a
-room's Omaha says nothing about reading where its split pot went. Every other
-room, and five-card or stud Hi/Lo everywhere, is refused as `unsupported-hi-lo`;
-stud, razz and draw games are refused in every room. Several rows come with
-caveats:
-
-- **ACR/WPN** stays off the Hi/Lo list. Of its eight `O8` files the four that
-  convert never pay a pot to more than one player, so not one split has been
-  read from this room, and the other four fail for reasons of
-  their own (a run-it-twice, a duplicated card, two legacy hands whose `Bets:`
-  column disagrees with the actions). Its legacy summary also sums each
-  player's winnings across pots and halves into one `Collects:` figure.
-- **Ongame** stays off it too: its one Hi/Lo file never splits a pot, and no
-  Ongame file in any game shows how the room prints a pot paid to two players.
-- **Entraction** converts three of its four Hi/Lo files. The fourth pays the
-  whole pot high while the other shown hand holds a qualifying low, and is
-  refused as `hi-lo-payout-contradiction`; it shares its hand number with
-  another fixture but not its cards.
-- **Ignition**'s two 2012 tournament Hi/Lo hands carry the same
-  `streets-inferred` note as its 2012 Omaha high files: that export prints no
-  street markers.
-
-Short deck (6+ Hold'em) is a different game rather than a longer deal: 36 cards,
-a flush over a full house, `A-6-7-8-9` the low straight. It goes on a room's
-list as its own entry, with a backstop like Hi/Lo's (`SiteParser.shortDeck`),
-and only the two rooms with short-deck fixtures have it; every other room
-refuses it as `unsupported-variant`. The validator refuses a deuce-to-five in a
-short-deck hand (`card-not-in-deck`), and all-in EV deals the runout from the
-36-card deck.
-
-- **GGPoker** short deck is ante-only: every seat antes, the button alone posts
-  a `button blind`, and the header carries that one stake
-  (`ShortDeck No Limit ($0.02)`). The button blind is a big blind whose verb
-  says the button posted it, so positions are named from the button with no
-  `SB` or `BB`, and the steal family of stats is off for these hands. GG's
-  straddle amount is the straddler's street total, which is what lets the
-  button straddle its own blind - reading it that way also converts the two
-  PLO-5 straddle hands that used to be refused.
-- **ACR/WPN** deals Six Plus with an ordinary small and big blind, so only the
-  deck and the ranking differ from its Hold'em. One legacy hand is the whole
-  sample, so the modern dialect still refuses it; it is written out as Stars'
-  `6+ Hold'em No Limit`.
-- **Trips against a straight is ranked per room.** GGPoker ranks a straight
-  over three of a kind: its own payout in fixture 12 gave `Qs Ks` (ace-high
-  straight) the pot over `Td Ts` (three tens). Every other room keeps the
-  classic rule, trips over a straight, until a fixture of its own says
-  otherwise. A flush beats a full house under both. The room-to-rule map is
-  `SHORT_DECK_RULE_BY_SITE` in `frontend/src/lib/equity/evaluator.ts`, and
-  all-in EV reads it from the hand's room.
-
-And two of the Omaha rows:
-
-- **Chico** labels its four-card hands `Hold'em Pot Limit`, so the variant is
-  taken from the number of cards dealt. Only 4 of the 17 hands in its one Omaha
-  file convert. The other 13 are refused because the network's own pot
-  accounting doesn't add up: a printed `Rake 0.00` on hands that were raked, or
-  side pots missing from the summary. Their variant has nothing to do with it.
-- **Run It Once** has one Omaha file, and it is refused. It is a
-  splash-the-pot side-pot hand whose `collected` lines count the promotional
-  money twice. Nothing in the file says which pot the money really went to.
-
-Which formats can share a parser, and why the "everything is a PokerStars
-clone" intuition is wrong, is worked through in
-[`docs/research/FORMAT-MATRIX.md`](docs/research/FORMAT-MATRIX.md). What to
-build next and what each one costs is in
-[`docs/research/COVERAGE-PLAN.md`](docs/research/COVERAGE-PLAN.md). Per-room
-detail lives in the 22 documents under `docs/research/hh-formats/`.
-
-### The corpus
-
-**413 real hand-history files across 22 site directories**, in
-`fixtures/samples/`. **There are no synthetic fixtures.** Every file is a real
-export or a real data-mined sample, and each site directory carries a
-`SOURCES.md` recording where its files came from and what is verified about
-them. Two directories are deliberately special: `wpt-global/` is empty and its
-`SOURCES.md` explains that no sample can exist, because the room removed
-hand-history export in June 2026; `phh/` holds the PHH interchange spec rather
-than a room.
-
-Alongside that sit the two original corpora the project started from —
-`weplay-hh/` (104 real WePlay exports, across two account folders) and
-`gg-hh/` (10 reference files in the GG format, used as the byte-exactness
-target for what the serializer must produce) — plus
-`tests/test/fixtures/`, which holds regression cases that each exist because
-a specific real hand broke something.
-
-A caveat worth knowing before trusting a row in the matrix: the corpus is
-cash-heavy and era-skewed. Only a few rooms have verified tournament samples,
-and the legacy-network files are roughly 2012–2015, so partypoker and 888 are
-verified *for that era*.
-
-### `.gitattributes` — do not "tidy" this
-
-```
-fixtures/** -text -diff
-gg-hh/** -text -diff
-weplay-hh/** -text -diff
-tests/test/fixtures/** -text -diff
-```
-
-Real exports ship with CRLF, bare CR, UTF-16LE and Windows-1252 bytes, and the
-parsers exist precisely to survive that. Git's autocrlf normalisation (at least
-one machine here has `core.autocrlf=input`) rewrites CRLF to LF *on commit*,
-which silently turns a CRLF test case into an LF one while the working tree
-still looks correct. Marking the fixture trees binary means the stored blob is
-the original bytes. Removing these lines will corrupt the evidence the
-byte-exactness tests depend on, and it will not be obvious that it happened.
-
-Encoding is handled as a corpus-wide property rather than a per-site quirk: 22
-of the 413 files are not UTF-8, and you cannot tell which from the site, the
-era or a `0x80` sniff. See `FORMAT-MATRIX.md` §5 for why the only correct test
-is "attempt a strict UTF-8 decode, then check for a BOM, then try
-Windows-1252".
+> **Where we are (2026-10-12).** The web app is live and mature: 19 parsers,
+> a 413-file real corpus, 3188 tests, library, replayer, statistics, all-in EV,
+> hand analysis with our own solver, a course and a forum. The desktop app and
+> the HUD do not exist yet. Building them is Phases 0–3 of the plan; the first
+> step is porting the parser core from TypeScript to Rust.
 
 ---
 
-## The app
+## Contents
 
-**Next.js 15, App Router**, in `frontend/src/app/`. The hand-rolled matcher that
-used to live in `frontend/src/routes/` is gone — Next's file-system router
-matches and `next.config.ts` redirects, and keeping a second answer to "what
-does this path mean" alongside the framework's is how the two drift apart.
-
-| Route | What it is |
-| --- | --- |
-| `/` | **The feed.** Placeholder for now: it says so, and points at the two things that work. This is where the product is going, which is why the converter had to move off it. |
-| `/convert` | **Converter.** Drop files, a folder, a zip, or paste text. Detection and conversion run in a Web Worker and start immediately — the intent of dropping a hand history on a hand-history converter is not ambiguous, and there is a cancel button. Converted hands are saved to the library (toggleable), refused hands go to the corpus, and the output is downloadable per file or combined. **This route makes zero server requests**; see below. |
-| `/library` | **Library and replayer.** Pick a hand from your library with filters, or upload/paste a single one. Animated table: pot per street, bets in front of each seat, all-in state, dealer button, run-it-twice boards, final pot distribution. Play/pause, step, scrub, jump to a street, 0.5×–4× speed, reveal all known cards. Keyboard: `←`/`→` step, `space` play/pause, `Home`/`End`. |
-| `/stats` | **Statistics.** VPIP, PFR, 3-bet, c-bets and a showdown / non-showdown win-rate graph over your library. Renders and explains itself when signed out rather than bouncing you somewhere else. |
-| `/analysis` | **Analysis** (`docs/ANALYSIS-PLAN.md`, phase A1). Every hero decision in your library with its facts — board texture, hand class and draws, pot odds, MDF, SPR, blockers — and the heuristic checks that hold whatever the strategy. Runs in the browser; `/analysis/h/<id>` opens a hand in the replayer with the Analysis sheet. No grades until the preflop charts (A2). |
-| `/h/:slug` | **A shared hand.** A capability URL to one hand, server-rendered, with real per-request Open Graph tags from `generateMetadata`. `noindex, follow` — a capability URL in a search index is a contradiction. |
-| `/auth/callback` | The one address every sign-in returns to. Exchanges `?code=` for a cookie session; `?next=` is validated against a fixed allow-list of relative paths. |
-
-Permanent (308) redirects, in `next.config.ts`, for every address these screens
-used to have: `/upload` and `/converter` → `/convert`; `/replay`, `/replayer`
-and `/hands` → `/library`; `/statistics` and `/graph` → `/stats`. `/` is
-deliberately not redirected — it is the feed now.
-
-### The converter makes no server requests
-
-A file dropped on `/convert` is read, decoded, detected, parsed and serialized
-entirely in the tab, and handed back as a `Blob` download. **Hand histories
-never leave the browser.** The only traffic the page can generate is the app's
-own JavaScript and an explicit, opt-in save to your own library when you are
-signed in.
-
-That is a promise the code has to keep, so it is written down three times: as a
-standing comment in `frontend/src/app/convert/page.tsx`, as a line of UI copy on
-the page itself (so a change that breaks it also makes the app tell a visible
-lie), and here. It is verified by driving the real page with a browser and
-asserting that no request leaves the origin.
-
-The table, cards and chips are generated as CSS and SVG inside the app. No
-image assets, so nothing to license, nothing to load at runtime, and it stays
-sharp at any resolution.
-
-**Without a database** the app still converts, previews, downloads and replays
-an uploaded hand. The library and sharing are disabled and the UI says so
-explicitly rather than failing silently.
+1. [What Rail is for](#1-what-rail-is-for)
+2. [Principles](#2-principles)
+3. [Status by component](#3-status-by-component)
+4. [Architecture](#4-architecture)
+5. [Components](#5-components)
+6. [Rooms, formats and HUD policy](#6-rooms-formats-and-hud-policy)
+7. [Repository layout](#7-repository-layout)
+8. [Getting started](#8-getting-started)
+9. [Rules for working in this repository](#9-rules-for-working-in-this-repository)
+10. [Roadmap](#10-roadmap)
+11. [Documentation index](#11-documentation-index)
 
 ---
 
-## Running it
+## 1. What Rail is for
+
+Rail wins on a combination no single competitor offers today:
+
+- **A modern HUD** that reads at a glance: few numbers, colours that mean
+  something, details only on click.
+- **An interface a new user masters in minutes.** Install, sign in, confirm the
+  folders Rail found, open a table. Three steps to the first HUD.
+- **The same hands in the app and on the web.** Local-first on the desktop,
+  synced to Supabase in the background, readable from any browser.
+- **First-class macOS and Windows**, built from one codebase.
+- **Correct numbers.** A hand that cannot be read faithfully is refused and
+  recorded, never guessed at (see §2).
+
+Rail is a study and tracking tool. It never gives advice during play (no solver
+output, no action recommendations at the table), and it switches the HUD off on
+rooms that do not allow one.
+
+---
+
+## 2. Principles
+
+From the guideline (§1), plus the two that the existing code was built on and
+that the desktop work must keep.
+
+| Principle | What it means in practice |
+| --- | --- |
+| **Works immediately** | After install Rail finds the hand-history folders itself and shows a HUD without manual setup. Advanced options exist but are never in the way. |
+| **Speed is a feature** | The HUD updates within a second of a hand ending; reports open instantly on large databases. |
+| **Local-first** | The desktop app works offline. Sync to Supabase happens in the background. |
+| **One source of logic** | Parsing and statistics live in Rail core, shared by the app and the web. |
+| **Room rules are respected by default** | Compliance mode is on by default; Rail offers nothing that could get an account closed. |
+| **Refuse when unsure** | A hand that cannot be converted faithfully is refused with a machine-readable reason, recorded, and shown to the user. Never approximated, never silently dropped. A wrong hand poisons a player's statistics for months; a refused one is a visible, recoverable annoyance. ([`docs/WEB.md`](docs/WEB.md#the-refusal-principle)) |
+| **No synthetic fixtures** | Every test hand is a real export. Generated data is allowed only for performance benchmarks, is labelled as such, and never lives under the fixture trees. |
+
+Performance targets (guideline §1, measured from Phase 2):
+
+| Measure | Target |
+| --- | --- |
+| Install to first HUD | < 5 min |
+| HUD delay after a hand ends | < 1 s |
+| Local import of old hands | ≥ 5,000 hands/s |
+| Opening a report over 1 million hands | < 1 s |
+| Tables with a HUD and no slowdown | ≥ 12 |
+
+---
+
+## 3. Status by component
+
+| Component | Today | Target | Phase |
+| --- | --- | --- | --- |
+| Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer | Same format, defined in Rust and exported to TypeScript | 0 |
+| Parsers | **19 parsers in TypeScript**, run in the browser | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
+| Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads) | Same registry fed by the desktop too, with consent and anonymisation | 0 |
+| `config/sites.json` | — | Paths, formats, window titles and HUD policy per room | 0–1 |
+| File watcher | — | FSEvents / ReadDirectoryChangesW + periodic rescan | 1 |
+| Local database | — | SQLite (WAL), cache for HUD and offline | 1 |
+| Sync | Web saves to Supabase directly | Desktop outbox → idempotent upsert; pull of web uploads | 1 |
+| Desktop sign-in | — | System browser + PKCE + `rail://` deep link | 1 |
+| Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats` | Ported to Rust, computed at import; display stats defined in `config/stats/` | 2 |
+| Desktop UI | — | Tauri 2 + React: Today, Hands, Reports, Players, HUD, Settings | 2 |
+| HUD | — | Separate native process, Windows first, then macOS | 3 |
+| Web app | **Live**: converter, library, replayer, stats, sessions, notes, all-in EV, analysis, Learn, forum, share links | Parses with the WASM core; reads desktop-synced hands live | 4 |
+| Analysis | **Live on web**: phases S, A1–A9 of [`docs/ANALYSIS-PLAN.md`](docs/ANALYSIS-PLAN.md) | Session review, leak finder in the app (never during play) | 5 |
+| Subscription | — | Plans, Stripe, EU VAT | 6 |
+
+---
+
+## 4. Architecture
+
+```mermaid
+flowchart LR
+  subgraph Desktop["Desktop app · macOS and Windows (Tauri 2)"]
+    FW["rail-watch<br/>default + user folders"] --> CORE["rail-core<br/>detect · parse · validate"]
+    CORE --> STATS["rail-stats<br/>counters per seat"]
+    STATS --> LDB[("rail-store<br/>SQLite, WAL")]
+    LDB --> UI["App UI<br/>React + packages/ui"]
+    LDB -. read-only .-> HUD["rail-hud<br/>separate process,<br/>native overlay"]
+    FW -. "hand imported (IPC)" .-> HUD
+    LDB --> SYNC["rail-sync<br/>outbox, batches"]
+  end
+  subgraph SB["Supabase (EU)"]
+    PG[("Postgres + RLS<br/>hands, hand_stats, …")]
+    ST["Storage<br/>original files (opt-in)"]
+    AU["Auth + Realtime"]
+  end
+  SYNC -- "upsert / pull" --> PG
+  WEB["Web app · Next.js<br/>rail-core as WASM in a worker"] <--> SB
+```
+
+**Three rules hold the picture together:**
+
+1. **Rail core is the only thing that reads a hand-history file.** Everything
+   downstream — database, statistics, HUD, replayer, web — works only with the
+   normalized hand (PHF) that core returns.
+2. **The HUD reads only the local database.** A network round trip after every
+   hand is neither fast enough nor reliable enough. Supabase connects the app
+   and the web; it is never on the HUD's path.
+3. **The HUD is its own process.** A stalled UI, a long report or a crash in the
+   app never freezes or kills overlays on live tables, and vice versa.
+
+The latency budget from "hand written to disk" to "HUD redrawn" and the process
+and IPC design are in [`docs/RAIL-PLAN.md` §3](docs/RAIL-PLAN.md#3-target-architecture).
+
+---
+
+## 5. Components
+
+### 5.1 Rail core (`core/`, Rust — Phase 0)
+
+The parser, today's `frontend/src/lib/{phf,parsers}`, ported to Rust crate by
+crate. It is compiled natively into the desktop app and to WebAssembly for the
+web. One file goes through:
+
+1. **Decode** — strict UTF-8, then BOM, then Windows-1252; 22 of the 413 corpus
+   files are not UTF-8 and the site does not tell you which.
+2. **Detect** — rank parser candidates, scored 0..1.
+3. **Split and parse** — one PHF hand per chunk, or a `ParseSkip(reason)`.
+4. **Positions** — BTN/SB/BB/… from the posted blinds.
+5. **Validate** — chip conservation, payouts, cards; errors refuse the hand.
+6. **Dedupe** — `(owner, site, hand id)`.
+7. **Derive statistics** — counters per seat (Phase 2).
+
+The TypeScript implementation is the **reference oracle** for the port: for
+every file in the corpus it produces golden output, and the Rust core must
+reproduce it exactly before it replaces anything. The format itself is
+specified in [`docs/PHF-SPEC.md`](docs/PHF-SPEC.md). The guideline calls it the
+*Rail Hand Format*; it is PHF, and the identifier stays `phf/1` because every
+stored row already carries it.
+
+### 5.2 File watcher (`core/rail-watch`, Phase 1)
+
+- Finds the default folders of every known room on first run and shows them with
+  file counts and the date of the last hand; the user confirms with one click
+  and chooses "import everything" or "only new hands".
+- Settings → Folders: add (picker, external and network drives), edit the path,
+  override the room, enable or disable without deleting imported hands,
+  recursive watching, per-folder status (last import, hands today, errors,
+  quarantined hands).
+- OS notifications (FSEvents on macOS, ReadDirectoryChangesW on Windows) with a
+  periodic rescan as the safety net; network drives are polled.
+- Files the room is still writing are read from the last remembered offset, and
+  a hand is imported only once it is complete.
+- Known folders, file patterns and formats live in
+  `config/sites.json`, so a new path ships without a new app version.
+
+### 5.3 Local database and sync (`core/rail-store`, `core/rail-sync`, Phase 1)
+
+SQLite in WAL mode: the app writes, the HUD reads concurrently. Hands are stored
+as compressed PHF; statistics as counters plus per-player rollups so the HUD and
+reports only add up ready numbers. Every imported hand enters an outbox; the
+sync worker sends batches to Supabase as an idempotent insert keyed by the
+dedupe key (hands are immutable, so there are no conflicts), and pulls hands
+that arrived through the web.
+
+### 5.4 Statistics engine (`core/rail-stats`, Phase 2)
+
+Today's [`stats/2`](docs/STATS-SPEC.md) engine — every judgement call where
+PokerTracker 4 and Holdem Manager 3 disagree is written down there — ported to
+Rust and run at import. Stats are stored as *made / had the chance* counters, so
+every value carries its sample size and the UI can show how reliable it is.
+Displayed statistics are data in `config/stats/`, identical in the app and on
+the web; custom statistics are built in an editor and preview on the user's own
+hands immediately. A definition change recomputes only the counters it touches.
+
+Starting set (~30): VPIP, PFR, 3-bet, fold to 3-bet, 4-bet, steal, fold to
+steal, limp; c-bet flop/turn, fold to c-bet, check-raise, donk bet, aggression
+frequency; WTSD, W$SD, WWSF; bb/100, all-in EV bb/100, rake per 100.
+
+### 5.5 Desktop app (`app/`, Tauri 2 + React + TypeScript, Phases 1–2)
+
+Six screens:
+
+| Screen | What the user does there |
+| --- | --- |
+| Today | Current session, result, hands played, import status |
+| Hands | Filterable list, replayer, tags and notes |
+| Reports | Winnings and all-in EV graphs, results by position and situation |
+| Players | Opponent profile, notes, colour tags |
+| HUD | Visual editor and presets |
+| Settings | Folders, rooms, account, theme |
+
+Filters are chips in one row (position, limit, date, stack depth) with saved
+filters; Cmd/Ctrl + K opens a command palette; dark and light themes and a
+density setting; English first with translations prepared from the start;
+automatic, signed updates (Apple notarization, Windows code signing).
+
+### 5.6 HUD (`hud/`, Rust, Phase 3)
+
+- 4–6 stats by default (e.g. VPIP, PFR, 3-bet, hands), coloured by value ranges
+  with a legend and editable thresholds; values are dimmed while the sample is
+  small; click or hover opens a popup with situational detail and notes.
+- Visual editor: drag-and-drop stats, presets for cash, MTT and Spin, layouts
+  per room and table size; seat positions remembered per table size.
+- One transparent, click-through overlay window per table, owned by and moving
+  with the table window.
+
+| Task | Windows | macOS |
+| --- | --- | --- |
+| Find tables | `EnumWindows`, titles and process names | Accessibility API (`AXTitle`), `CGWindowList` for bounds |
+| Overlay | layered, no-activate, click-through window owned by the table | non-activating transparent `NSPanel` ordered above the table |
+| Follow moves and resizes | `SetWinEventHook` | `AXObserver` notifications |
+| User permissions | usually none | Accessibility (Screen Recording only if a room's titles need it) |
+
+**Compliance mode** is on by default: `config/sites.json` says per room whether
+a HUD is allowed, and Rail refuses to attach where it is not. No real-time
+assistance of any kind; no sharing or selling of opponent data between users;
+the room list is re-checked before every release.
+
+### 5.7 Web (`frontend/` → `web/`, Next.js 15)
+
+Live today; described in full in [`docs/WEB.md`](docs/WEB.md). In the target
+picture it shows the same Hands, Reports and Players screens and replayer as the
+app, built from the same component library, and reads hands the desktop synced
+— live, through Realtime. Parsing stays **in the browser** (the WASM core in a
+Web Worker), so the existing promise that a dropped file never leaves the tab
+unless the user saves it still holds. The HUD exists only in the desktop app.
+
+### 5.8 Supabase (`supabase/`)
+
+Project `riybwcfnclphacnfawiq`, Central EU, Postgres 17. Every query runs as the
+signed-in user under RLS; there is no service-role key in either client. Rows
+are insert-only for clients (update and delete are refused everywhere, with a
+handful of narrow `security definer` exceptions). Full schema, threat model and
+migration procedure: [`docs/DATABASE.md`](docs/DATABASE.md).
+
+| Guideline table | In this repository |
+| --- | --- |
+| `profiles` | exists (`20261007090000`); subscription plan added in Phase 6 |
+| `hands` | exists; unique on `(owner_id, hand_key)` where `hand_key = site:hand id` |
+| `hand_players` | covered by `hand_stats` (one row per dealt-in seat) — not added |
+| `players` | new in Phase 2 (tags, colours); `player_notes` exists |
+| `player_stats` | new in Phase 2, only if the 1M-hand benchmark needs it server-side |
+| `hand_sources` | new in Phase 1 |
+| `hud_layouts` | new in Phase 3 |
+| `unsupported_formats` | the existing `unparsed_hands` corpus, extended in Phase 0 |
+
+---
+
+## 6. Rooms, formats and HUD policy
+
+Rail aims at every game format and as many rooms as possible. "Parser" is the
+state of the TypeScript parser today; every row still has to be ported to Rust
+in Phase 0. "Live files" is whether the client writes hand histories to disk
+while you play, which a HUD needs. **The HUD and live-file columns are a
+starting point to verify, not a policy**: Phase 3 opens with a dated,
+sourced compliance check of every room, and only that check goes into
+`config/sites.json`.
+
+| Room or network | Parser | Live files | HUD (to verify) |
+| --- | --- | --- | --- |
+| PokerStars | ✅ | yes | likely allowed |
+| GGPoker (GG Network) | ✅ | no — downloaded afterwards, opponents hashed | likely prohibited |
+| Winamax | ✅ | yes | likely allowed |
+| 888poker | ✅ (2012–15 era verified) | to verify | to verify |
+| partypoker | ✅ (2012–15 era verified) | to verify | likely prohibited |
+| iPoker network | ✅ | per skin | per skin |
+| Winning Poker Network (ACR) | ✅ | yes | likely allowed |
+| WPT Global | — (no export exists since June 2026) | no | not applicable |
+| CoinPoker | ✅ | to verify | to verify |
+| Unibet Poker | ✅ | to verify | to verify |
+| Chico network | ✅ | to verify | to verify |
+| Ignition / Bodog / Bovada | ✅ | no — anonymous tables | not useful |
+| WePlay, PokerBros, MicroGaming, Full Tilt, Ongame, Entraction, Run It Once | ✅ | — | — (import only) |
+
+Games: No Limit and Pot Limit Hold'em, Omaha (4 and 5 cards, Hi/Lo where a room's
+own fixtures prove it), short deck. Structures: cash and fast-fold, MTT
+(including bounty/PKO), SNG, Spin & Go. Stud, razz and draw games are refused by
+name. Per-room detail: [`docs/research/hh-formats/`](docs/research/hh-formats/);
+what to build next: [`docs/research/COVERAGE-PLAN.md`](docs/research/COVERAGE-PLAN.md).
+
+---
+
+## 7. Repository layout
+
+Today, and where each part is going (the move is a planned step,
+[`docs/RAIL-PLAN.md` R0.14](docs/RAIL-PLAN.md#phase-0--foundations)):
+
+| Today | Target | Contents |
+| --- | --- | --- |
+| `frontend/src/lib/{phf,parsers}` | `core/rail-core` | Parsers, PHF model, validation, serializer |
+| `frontend/src/lib/stats`, `lib/equity` | `core/rail-stats`, `core/rail-equity` | Statistics and all-in EV |
+| — | `core/rail-store`, `core/rail-watch`, `core/rail-sync` | SQLite, file watcher, sync |
+| — | `app/` | Tauri desktop app |
+| — | `hud/` | Native HUD overlay, Windows and macOS |
+| `frontend/` | `web/` | Next.js web app (Vercel root directory moves with it) |
+| `frontend/src/components`, `src/styles/tokens` | `packages/ui/` | Shared components and design tokens |
+| `supabase/` | `supabase/` | Migrations, RLS, pgTAP tests |
+| — | `config/` | `sites.json` and `stats/` |
+| `fixtures/`, `gg-hh/`, `weplay-hh/`, `tests/test/fixtures/` | `testdata/` | Real corpus and goldens (moved with a byte-hash check) |
+| `tests/` | `tests/` | TypeScript harness; the oracle until the port is complete |
+| `docs/` | `docs/` | Guideline, plan, specs, research |
+
+---
+
+## 8. Getting started
+
+### Web app (works today)
 
 ```bash
 cd frontend
 npm install
-cp .env.example .env.local   # then fill in the Supabase URL and anon key
-npm run dev
+cp .env.example .env.local   # Supabase URL and anon key; optional
+npm run dev                  # http://localhost:3000
 ```
 
-Default: `http://localhost:3000`.
+Without `.env.local` the app runs as an offline converter and says so.
 
-`npm run dev` uses Turbopack. It is verified — including that it handles the
-`new Worker(new URL(…, import.meta.url))` in `conversionClient.ts`, which was
-the one genuine unknown of the migration — and the full 7.9 MB corpus converts
-to byte-identical output under it. `npm run dev:webpack` is the escape hatch if
-that ever stops being true.
-
-`.env.local` is optional — see the paragraph above for what you lose without
-it.
-
-## Tests
+### Tests (work today)
 
 ```bash
 cd tests
-npm test
+npm install
+npm test                     # 3188 tests over the real corpus
 ```
 
-**3188 tests across 29 files.** `tests/` is a test harness with no runtime of
-its own — it exercises the frontend libraries directly against the real corpus.
-Nothing is asserted against a hand somebody made up.
+Database tests (pgTAP) run against a local Supabase stack; see
+[`docs/DATABASE.md`](docs/DATABASE.md).
 
-What they actually check, per hand, over every sample file:
+### Rust core, desktop app and HUD (from Phase 0)
 
-- **Detection** — the right parser ranks first for every file in the corpus.
-- **No unknown lines** — a hand a parser claims to understand parses with
-  `meta.warnings === []`, so an unhandled line shape fails the build rather
-  than reaching a user.
-- **Validation** — every emitted hand satisfies the PHF invariants; every
-  refused hand carries a machine-readable reason.
-- **Round trip** — `parseStandardText(toStandardText(h))` is semantically equal
-  to `h`.
-- **Byte compatibility** — the re-serialized text is byte-identical to the
-  source, which is what tracker import depends on.
-- **Positions** — resolved positions are cross-checked against the rooms' own
-  `(button)` / `(small blind)` summary labels, at every table size from
-  heads-up to nine-handed.
-- **Replay** — no stack goes negative at any point, and the whole pot is
-  awarded in the final frame.
-
-## Adding a poker room
-
-1. Write `frontend/src/lib/parsers/<site>.ts` exporting a `SiteParser`.
-2. Add one `registerParser` call in `frontend/src/lib/parsers/index.ts`.
-3. Put real sample files in `fixtures/samples/<site>/` with a `SOURCES.md`, and
-   add the site to `tests/test/support/corpus.ts` so the table-driven tests
-   pick it up.
-
-Nothing else changes: detection, validation, failure recording, the text
-serializer, the replayer and the database layer all work off `PhfHand`.
-
-The contract, an annotated skeleton, the two strategies for building a hand
-(normalise-to-standard-text vs. build-the-object-directly), and the six tests a
-new parser must come with are in
-[`docs/PHF-SPEC.md` §8](docs/PHF-SPEC.md). Read §1 and §2 first — the money
-rules are where a new parser is most likely to go quietly wrong.
-
----
-
-## Repository layout
-
-| Path | What it is |
-| --- | --- |
-| `frontend/src/lib/phf/` | The format: `types.ts`, `validate.ts`, `serialize.ts`, `detect.ts` |
-| `frontend/src/lib/parsers/` | One file per poker room, plus `shared/` helpers and the registry |
-| `frontend/src/lib/db/` | Supabase client layer — save, search, corpus, shares, anonymization |
-| `frontend/src/lib/replay.ts` | PHF → replay frames |
-| `frontend/src/lib/solver/` | Postflop solver (DCFR, heads-up river and turn). Pure TS, also runs in a Web Worker; benchmark: `cd tests && npm run bench:solver` |
-| `frontend/src/lib/supabase/` | `config`, `browser`, `server`, `middleware` — the only modules that construct a Supabase client |
-| `frontend/src/lib/server/` | Server-only readers. `server-only` imported, never reachable from the browser bundle |
-| `frontend/src/lib/i18n/` | `en.ts`. Every user-facing string on the App Router surfaces |
-| `frontend/src/lib/routes.ts` | `paths` and `sharedHandUrl`. What survived the old route table |
-| `frontend/src/app/` | The App Router: pages, layout, `sitemap.ts`, `robots.ts`, `auth/callback` |
-| `frontend/src/components/` | `converter/`, `replayer/`, `share/`, `shell/`, `stats/`, `auth/` |
-| `frontend/src/styles/` | ~4400 lines of global CSS, plus the token layer. New components use CSS Modules |
-| `frontend/src/workers/` | Conversion off the main thread |
-| `tests/` | Test harness only — no runtime backend |
-| `supabase/migrations/` | Schema |
-| `fixtures/samples/` | The real hand-history corpus, one directory per site |
-| `gg-hh/`, `weplay-hh/` | The original reference and source corpora the project started from |
-| `docs/` | `PHF-SPEC.md`, `DATABASE.md`, and `research/` |
-
----
-
-## Rules that are load-bearing
-
-Three conventions here are not style preferences. Each one has a lint rule
-behind it, and each one was written down because breaking it is cheap, silent,
-and expensive to undo.
-
-### 1. The pure-TypeScript layer may not import the framework
-
-**Nothing under `frontend/src/lib/{phf,parsers,replay,cards,format,stats}` may
-import `next/*`, `server-only`, or read `process.env`.**
-
-`tests/test/*.ts` imports those modules directly, by relative path —
-`../../frontend/src/lib/phf/serialize.js` and a dozen more — under plain Node
-with no bundler and no framework. **3114 tests across 435 fixtures hang off
-that.** A single framework import anywhere in that subtree breaks all of them at
-once, and the failure reads as an unrelated module-resolution error rather than
-as "somebody put a Next import in the parser layer".
-
-It is also why **the Vercel root directory stays `frontend`** and why
-`frontend/src/lib/**` did not move when the App Router arrived. The App Router
-lives at `frontend/src/app/`, which Next resolves natively, precisely so that
-`lib/` could stay exactly where the test harness expects it.
-
-Anything Next-shaped goes in `lib/supabase/`, `lib/server/` or `app/`.
-`lib/routes.ts` and `lib/i18n/` are deliberately outside the rule: they are app
-configuration, not corpus code, and nothing in `tests/test` imports them.
-
-Enforced by `no-restricted-imports` and `no-restricted-properties` in
-`frontend/eslint.config.js`, scoped to exactly those paths.
-
-### 2. The CSS is an asset, not debt
-
-~4400 lines of global CSS, imported in a **pinned order** from
-`frontend/src/app/layout.tsx`. That order is load-bearing and is documented in
-the file: `theme-light.css` overrides `:root` at the same specificity and only
-wins by arriving later, and `styles/app.css` has to come last because its
-`.btn` / `.card` families are the base the component sheets override. Sheets
-that belong to one screen (`converter.css`, `stats.css`, `upload.css`,
-`overlay.css`) stay imported from their components so Next code-splits them.
-
-**New components use CSS Modules. Not Tailwind.** Rewriting every component
-mid-migration is how the replayer's container-query layout — genuinely hard CSS,
-tuned against real screenshots — gets quietly lost, and the rebrand arrives as
-token changes, for which custom properties are the cheapest interface.
-
-The design tokens each declare their own `@layer tokens` block. They used to be
-put in that layer by the importer (`@import "..." layer(tokens)`), which does
-**not** survive the Next build: css-loader emits the layer condition in the
-media slot, producing `@media layer(tokens){…}`, which is not a valid media
-query and which every browser therefore drops. The symptom is an app that
-builds and lints cleanly and renders as unstyled HTML. Do not reintroduce that
-form.
-
-`stylelint.config.js` still enforces the two rules that matter: no primitive
-tokens and no raw hex outside `src/styles/tokens/`.
-
-### 3. User-facing strings go through `lib/i18n/en.ts`
-
-The product is English-only and Croatian is coming. The difference between "add
-a locale" and "refactor every component" is decided now, not then.
-
-Enforced by a `no-restricted-syntax` rule on **`src/app/**`** — bare JSX text
-and bare `alt` / `title` / `placeholder` / `aria-label` attributes are errors
-there. The scope is a stated limit, not an oversight: the pre-existing
-components under `src/components/**` still carry several hundred inline strings,
-and hauling them through `en.ts` during a framework migration is how a sentence
-that explains a refusal reason loses a comma. What the scoping buys is that the
-pile **cannot grow** — new UI lands in `src/app/**`, and a new file there cannot
-ship a bare literal.
-
----
-
-## Database (Supabase)
-
-Project `riybwcfnclphacnfawiq` (`poker converter`), Postgres 17. Baseline
-migration: `supabase/migrations/20260916190000_phf_baseline.sql`. Client layer:
-`frontend/src/lib/db/`. Nothing else in the app touches Supabase.
-
-Every column, the RLS reasoning, which query each index serves, how to apply a
-migration and how to triage the corpus are in
-**[`docs/DATABASE.md`](docs/DATABASE.md)**. The short version:
-
-| Table | What it holds |
-| --- | --- |
-| `hands` | One successfully converted hand: the canonical `phf jsonb` document, the rendered `standard_text`, the original `source_text`, plus a denormalized column per searchable field (site, hero, position, cards, board, stakes, pot, profit, …). Unique on `hand_key`, so re-uploading a file is a no-op. |
-| `unparsed_hands` | The **failure corpus**. Deduped by `fingerprint` with an occurrence counter and a triage `status`. |
-| `unparsed_gaps` | View: the corpus rolled up by site / stage / reason, ordered by impact. |
-| `shares` | Short-slug public links to one hand. Sealed from the client; reachable only through `create_share()` and the `read_share()` / `record_share_view()` pair. |
-
-Money is stored as **integer minor units** everywhere, matching PHF.
-
-### Anonymized rooms
-
-Some rooms do not print persistent screen names, and the failure mode is
-silent, so the schema models it explicitly. `hands.site_anonymization` says
-what the names on a row are worth:
-
-| Value | Meaning | Example |
-| --- | --- | --- |
-| `none` | Persistent screen names | PokerStars, WePlay |
-| `positional` | Position labels that remap every hand | Ignition, Bodog, Bovada |
-| `opaque-id` | Per-session tokens — hashes or numeric ids | GGPoker, data-mined ACR/WPN |
-
-`positional` is the destructive one. Ignition writes `Dealer`, `Small Blind`,
-`UTG+2` in place of names, and the button rotates, so "UTG+1" is a different
-human every hand. Filtering `player_names = 'UTG+1'` over those rows would not
-error — it would confidently return a different person from every row. So
-those names are dropped before they reach the database, `player_names` and
-`winners` are empty for such rows, and `hero_position` / `showdown_positions` /
-`winner_positions` carry the identity instead. For those sites, position *is*
-the identity.
-
-Detection is per-hand and partly structural, not a hard-coded site list, so a
-future anonymizing room gets labelled correctly the first time someone uploads
-one. See `frontend/src/lib/db/anonymization.ts`.
-
-### Accounts and RLS, briefly
-
-The deployed bundle is public, so the anon key is public by construction —
-anyone can read it out of the JavaScript and talk to PostgREST directly. Every
-policy is therefore written for an untrusted caller, and the *only* thing that
-separates two users' hands is the database, never the UI.
-
-- Every row in `hands` has an `owner_id`. `select` and `insert` are policed by
-  `owner_id = auth.uid()`, so there is no query a client can construct that
-  returns somebody else's hand. `anon` has no grant on the table at all.
-- `update` and `delete` are refused **everywhere**, for everyone, on every
-  table. Counters that must move (share views, failure occurrences) do so
-  inside `security definer` functions that can touch nothing else.
-- `shares` has no grants and no policies. A slug is a capability URL, so
-  `read_share()` is the only door and it is `security definer` — which is
-  exactly why a share link works for a stranger with no account, and why
-  `create_share()` has to check ownership explicitly rather than lean on RLS.
-  `read_share` is `stable` and returns an explicit projection; the view counter
-  lives in `record_share_view`, a separate `volatile` function, so a page can be
-  rendered (and its unfurl tags generated) without counting a reader. The
-  combined `resolve_share` is deprecated and removable on or after 2026-11-27.
-- Dedupe is `(owner_id, hand_key)`, not `hand_key`. A global key would tell the
-  second person to upload a hand "already stored" and then show them nothing,
-  because the row they collided with is not theirs to read.
-- `unparsed_hands` holds raw uploads, so a row is readable only by whoever
-  submitted it. The corpus stays globally deduped — the occurrence counter is
-  the whole point of the table — but reading across it is a service-role job.
-
-Signing in uses Supabase Auth with **cookie sessions** (`@supabase/ssr`): email
-+ password, or Google once the provider is configured in the dashboard. Every
-sign-in returns to one address, `/auth/callback`, which exchanges the code
-server-side; `?next=` there is validated against a fixed allow-list of relative
-paths, because an open redirect on a page that has just minted a session is an
-account-takeover vector rather than a phishing nuisance.
-
-Server-side code resolves identity with **`getUser()`, never `getSession()`** —
-`getSession()` decodes the cookie without verifying the JWT signature, which is
-fine for a value this origin wrote into its own storage and wrong for input that
-arrived over the wire. A **guest** is simply signed out: everything
-client-side works, and nothing is stored, because there is no id to store it
-under. The converter holds a finished run in memory and offers to save it after
-sign-in, so the login never arrives before the value does.
-
-### Applying migrations
-
-**`supabase db push` does not work here** — the CLI cannot get a login role.
-Use the Management API with the personal access token from the macOS keychain;
-the exact commands and the verification queries (including how to confirm RLS
-through the *anon* key rather than the PAT, which proves nothing) are in
-[`docs/DATABASE.md`](docs/DATABASE.md#applying-a-migration).
-
----
-
-## Deployment (Vercel)
-
-Production is **https://poker-hand-converter.vercel.app**. Every push to `main`
-deploys.
-
-- **Root directory**: `frontend`. This is not cosmetic — see "The rule that
-  keeps the test harness alive" below.
-- **Framework preset**: Next.js (build `npm run build`, output `.next`).
-  `frontend/vercel.json` pins `"framework": "nextjs"` so the project setting
-  cannot silently disagree with the repository; it also keeps the
-  `deploymentEnabled.staging: false` guard. Everything else that file used to
-  carry — the SPA rewrite and the User-Agent fork for `/h/:slug` — is gone,
-  because the framework renders on the server now.
-- **Environment variables**, in all three environments:
-  - `NEXT_PUBLIC_SUPABASE_URL`
-  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-  - `NEXT_PUBLIC_SITE_URL` (optional; defaults to the current `*.vercel.app` host)
-
-Without those the deploy still works, as an offline converter.
-
-> **These were renamed at the Next.js cutover** (`VITE_*` → `NEXT_PUBLIC_*`),
-> because Vite inlined `import.meta.env.VITE_*` and Next inlines
-> `process.env.NEXT_PUBLIC_*`. **Update the Vercel project settings before the
-> first deploy**, or production ships as an offline converter — which it will
-> say plainly in the UI, but which is still not what anyone wants.
->
-> Two other one-time steps, both outside this repository:
->
-> 1. Add `<NEXT_PUBLIC_SITE_URL>/auth/callback` to Supabase → Authentication →
->    URL Configuration → Redirect URLs, for every environment. The old list
->    covered `localhost:5173` / `:4173`, which were the Vite ports; `next dev`
->    serves on 3000, and the callback is now a single fixed address rather than
->    "whatever page you happened to be on".
-> 2. Expect **every existing session to be signed out** on cutover: the token
->    moves from `localStorage["sb-<ref>-auth-token"]` to cookies.
->    `components/auth/SessionImport.tsx` carries one over on the user's next
->    visit and then deletes itself. That file has a deletion date in its header
->    — **2026-11-28** — and nothing else references it.
-
-Manual deploy:
+Requires a Rust toolchain (pinned in `rust-toolchain.toml` once it lands):
 
 ```bash
-cd frontend
-npx vercel deploy --prod
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-Vercel is the only way the frontend ships. An older path served the built
-`dist/` out of a Supabase Storage bucket; it was deleted because SPA routes
-404'd there and it was the one place in the repo that handled a service-role
-key. The two migrations that created that bucket (`20260226123000`,
-`20260308091000`) are still applied and are now inert — leave them alone rather
-than writing a migration to undo history.
+Then, as each part lands:
+
+| Command | What it does |
+| --- | --- |
+| `cargo test --workspace` | Core unit tests and the golden diff against the TypeScript oracle |
+| `cargo run -p rail-core --bin rail-convert -- <file>` | Convert a file from the command line |
+| `npm run tauri dev --workspace app` | Desktop app in development |
+| `cargo run -p rail-hud-sim` | Table simulator: fake tables writing real corpus hands, for HUD work without a poker client |
 
 ---
 
-## Where to read next
+## 9. Rules for working in this repository
+
+The guideline is the source of truth for the plan: **a change of plan goes into
+[`docs/RAIL_GUIDELINE.md`](docs/RAIL_GUIDELINE.md) first, then into the code.**
+Proposed changes to the guideline (amendments; A1–A11 are accepted) wait in
+[`docs/RAIL-PLAN.md` §2](docs/RAIL-PLAN.md#2-proposed-amendments-to-the-guideline)
+until the owner accepts them.
+
+From the guideline (§14):
+
+- A new room or format is a parser + golden tests + an entry in
+  `config/sites.json`, in the same pull request.
+- Database changes only through migrations in `supabase/`.
+- A new statistic is a definition in `config/stats/`, not code in the app or
+  the web.
+- Every pull request builds on macOS and Windows.
+
+Carried over from the web app, each with a lint rule or test behind it
+(details in [`docs/WEB.md`](docs/WEB.md#rules-that-are-load-bearing)):
+
+- **The pure layer may not import the framework.** Nothing under
+  `frontend/src/lib/{phf,parsers,replay,cards,format,stats}` imports `next/*`,
+  `server-only` or `process.env`; the test harness imports those files directly.
+- **Never normalise the fixture trees.** `.gitattributes` marks them binary so
+  CRLF, UTF-16LE and Windows-1252 bytes survive; the byte-exactness tests depend
+  on it.
+- **CSS Modules and design tokens, not ad-hoc styles**; no raw hex outside the
+  token layer.
+- **User-facing strings go through i18n** (`lib/i18n/en.ts` today).
+- **Server code resolves identity with `getUser()`, never `getSession()`.**
+- **Merge only when every CI check is green.**
+
+---
+
+## 10. Roadmap
+
+Each phase starts when the previous one meets its exit criterion. Steps, owners
+of each decision and risks are in [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md).
+
+| Phase | Scope | Done when |
+| --- | --- | --- |
+| **0 — Foundations** | Rust core (all 19 parsers), golden diff, `sites.json`, unsupported-format registry, rename to Rail, repository layout, CI on macOS + Windows | The Rust core reproduces the TypeScript output for every file in the corpus, natively and as WASM |
+| **1 — Import and sync** | Tauri shell, watcher, folder management, SQLite, desktop sign-in, sync to Supabase | Hands from a new session reach Supabase with no manual step |
+| **2 — Stats and UI** | Stats in Rust, `config/stats/`, shared UI package, the five non-HUD screens, replayer | The performance targets hold on a 1M-hand benchmark database |
+| **3 — HUD** | Compliance check, table simulator, Windows HUD, then macOS, editor, presets | HUD on 12 tables on both systems, only on rooms that allow it |
+| **4 — Web** | WASM core in the browser, bulk upload, live desktop hands, screen parity | A hand uploaded on the web and the same hand from the app look identical |
+| **5 — Analysis** | Session review, leak finder, preflop charts vs played hands, in the app | — |
+| **6 — Subscription** | Plans, Stripe, EU VAT, early-user benefit | — |
+
+---
+
+## 11. Documentation index
 
 | Question | Document |
 | --- | --- |
-| What is a hand, exactly? What are the invariants? | [`docs/PHF-SPEC.md`](docs/PHF-SPEC.md) |
-| How do I write a parser for a new room? | [`docs/PHF-SPEC.md` §8](docs/PHF-SPEC.md) |
-| What does column X mean? Why is the RLS like that? | [`docs/DATABASE.md`](docs/DATABASE.md) |
-| Where do the preflop reference charts come from? How do I regenerate them? | [`docs/CHARTS.md`](docs/CHARTS.md) |
-| What does room X's format look like? | `docs/research/hh-formats/<site>.md` |
-| Which formats are alike? Which can share a parser? | [`docs/research/FORMAT-MATRIX.md`](docs/research/FORMAT-MATRIX.md) |
-| Which room should we support next, and what will it cost? | [`docs/research/COVERAGE-PLAN.md`](docs/research/COVERAGE-PLAN.md) |
-| Where did this sample file come from? | `fixtures/samples/<site>/SOURCES.md` |
+| What are we building and why? | [`docs/RAIL_GUIDELINE.md`](docs/RAIL_GUIDELINE.md) |
+| In what order, with what steps, and what is still undecided? | [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) |
+| How does the web app work today? | [`docs/WEB.md`](docs/WEB.md) |
+| What is a hand, exactly? How do I write a parser? | [`docs/PHF-SPEC.md`](docs/PHF-SPEC.md) |
+| What does each statistic mean, and where do PT4 and HM3 disagree? | [`docs/STATS-SPEC.md`](docs/STATS-SPEC.md) |
+| Schema, RLS, threat model, applying a migration | [`docs/DATABASE.md`](docs/DATABASE.md) |
+| How hand analysis works | [`docs/ANALYSIS-PLAN.md`](docs/ANALYSIS-PLAN.md) |
+| The course | [`docs/LEARN-PLAN.md`](docs/LEARN-PLAN.md) |
+| Preflop reference charts | [`docs/CHARTS.md`](docs/CHARTS.md) |
+| What does room X's format look like? | `docs/research/hh-formats/<room>.md` |
+| Which formats are alike? | [`docs/research/FORMAT-MATRIX.md`](docs/research/FORMAT-MATRIX.md) |
+| Which room next? | [`docs/research/COVERAGE-PLAN.md`](docs/research/COVERAGE-PLAN.md) |
+| Where did this sample come from? | `fixtures/samples/<room>/SOURCES.md` |

@@ -14,7 +14,7 @@
  * `undefined` in the browser bundle, which is why there is no helper here.
  *
  * **Vercel project settings must be updated before the first deploy**, in all
- * three environments. See the deployment runbook in the README.
+ * three environments. See the deployment runbook in docs/WEB.md.
  *
  * ## Why the anon key being public is fine
  *
