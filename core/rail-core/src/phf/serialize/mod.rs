@@ -44,6 +44,7 @@ use std::sync::LazyLock;
 use regex::Regex;
 
 pub use self::date::format_played_at;
+pub(crate) use self::date::parse_played_at;
 pub use self::read::{
     STANDARD_TEXT_PARSER_VERSION, StandardContext, parse_standard_hand, parse_standard_text,
     split_standard_hands,
@@ -96,7 +97,7 @@ fn is_line_terminator(c: char) -> bool {
 
 /// Byte offsets where `^` matches under JavaScript's `m` flag: 0 and after
 /// every line terminator.
-fn line_starts(text: &str) -> impl Iterator<Item = usize> + '_ {
+pub(crate) fn line_starts(text: &str) -> impl Iterator<Item = usize> + '_ {
     std::iter::once(0).chain(
         text.char_indices()
             .filter(|(_, c)| is_line_terminator(*c))

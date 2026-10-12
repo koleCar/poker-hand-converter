@@ -8,6 +8,8 @@
 //! the list panics on first use, and a test fails when the list stops
 //! matching `index.ts`.
 
+pub mod ggpoker;
+pub mod pokerstars;
 pub mod shared;
 pub mod standard;
 
@@ -40,7 +42,11 @@ pub const REGISTRATION_ORDER: [&str; 19] = [
 
 /// Every parser ported so far. A parser step adds one line here.
 fn ported() -> Vec<Box<dyn SiteParser>> {
-    vec![Box::new(standard::StandardParser)]
+    vec![
+        Box::new(standard::StandardParser),
+        Box::new(pokerstars::PokerStarsParser),
+        Box::new(ggpoker::GgPokerParser),
+    ]
 }
 
 /// A registry of `parsers` in [`REGISTRATION_ORDER`].

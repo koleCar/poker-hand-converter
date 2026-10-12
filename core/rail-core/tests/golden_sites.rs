@@ -49,7 +49,9 @@ fn the_harness_reports_a_changed_field() {
 /// `standard` (R0.6): our own text read back - the `gg-hh/` reference files,
 /// their copies under `fixtures/samples/ggpoker/`, GG's AoF Omaha sample and
 /// the stats fixtures. Detection, chunks, every hand's PHF, standard text and
-/// warnings, the per-file text, refusals and stats.
+/// warnings, the per-file text, refusals and stats. Since R0.7a the ranking
+/// is compared whole: `ggpoker`'s 0.86 under `standard`'s 0.9 on all 38 of
+/// these files that carry a GG fee line.
 #[test]
 fn standard() {
     let report = golden::check(Selection::Parsers(&["standard"]));
@@ -57,10 +59,77 @@ fn standard() {
     assert_eq!(report.hands, 881);
     assert_eq!(report.refusals, 0);
     assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
 }
 
-// R0.7 onwards, one line per site (or family):
+/// `pokerstars` (R0.7a): PokerStars cash, Zoom, Home Games, play money,
+/// tournaments, hi/lo, run-it-twice; refusals for stud, razz, badugi, stud
+/// hi/lo and a cancelled hand.
+#[test]
+fn pokerstars() {
+    let report = golden::check(Selection::Parsers(&["pokerstars"]));
+    assert_eq!(
+        report.files, 45,
+        "the set of files `pokerstars` wins changed"
+    );
+    assert_eq!(report.hands, 108);
+    assert_eq!(report.refusals, 5);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `ggpoker` (R0.7a): the GG samples `standard` does not win - tournaments,
+/// Omaha, PLO-5, short deck, Rush & Cash, straddles, cash drops, all-in
+/// insurance, run-it-twice; two `unseated-actor` refusals.
+#[test]
+fn ggpoker() {
+    let report = golden::check(Selection::Parsers(&["ggpoker"]));
+    assert_eq!(report.files, 24, "the set of files `ggpoker` wins changed");
+    assert_eq!(report.hands, 215);
+    assert_eq!(report.refusals, 2);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// Whole-file detection over the entire corpus (556 files), restricted to the
+/// parsers ported so far: every ported parser scores every file exactly as
+/// the golden ranking says - claiming no file of a site not yet ported, and
+/// ranked in the same order. This is what keeps the files of later sites from
+/// being misrouted once their parser arrives.
+#[test]
+fn ported_parsers_rank_every_corpus_file_as_the_goldens_do() {
+    let registry = rail_core::parsers::builtin();
+    let mut files = 0;
+    let mut problems = Vec::new();
+    for (path, golden) in golden::goldens() {
+        let bytes = golden::input_bytes(&path, &golden);
+        let decoded = rail_core::decode::decode_source(&bytes);
+        if decoded.problem.is_some() {
+            continue;
+        }
+        files += 1;
+        let expected: Vec<(String, u64)> = golden["detected"]["candidates"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|c| Some((c["parser"].as_str()?.to_owned(), c["permille"].as_u64()?)))
+            .filter(|(id, _)| registry.get(id).is_some())
+            .collect();
+        let actual: Vec<(String, u64)> = registry
+            .detect_site(&decoded.text)
+            .iter()
+            .map(|c| (c.parser.id().to_owned(), u64::from(c.permille)))
+            .collect();
+        if expected != actual {
+            problems.push(format!("{path}: expected {expected:?}, got {actual:?}"));
+        }
+    }
+    assert!(files > 500, "{files}");
+    assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+// R0.7b onwards, one line per site (or family):
 // #[test]
-// fn pokerstars_family() {
-//     golden::check(Selection::Parsers(&["pokerstars", "ggpoker", "weplay", "coinpoker"]));
+// fn weplay() {
+//     golden::check(Selection::Parsers(&["weplay"]));
 // }
