@@ -96,7 +96,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Component | Today | Target | Phase |
 | --- | --- | --- | --- |
 | Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer; empty Rust workspace in place (R0.1) | Same format, defined in Rust and exported to TypeScript | 0 |
-| Parsers | **19 parsers in TypeScript**, run in the browser; in Rust so far `standard`, `pokerstars` and `ggpoker`, each equal to the TypeScript on every corpus file (R0.6, R0.7a) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
+| Parsers | **19 parsers in TypeScript**, run in the browser; in Rust so far `standard` and the PokerStars family (`pokerstars`, `ggpoker`, `weplay`, `coinpoker`), each equal to the TypeScript on every corpus file (R0.6, R0.7) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
 | Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads) | Same registry fed by the desktop too, with consent and anonymisation | 0 |
 | `config/sites.json` | — | Paths, formats, window titles and HUD policy per room | 0–1 |
 | File watcher | — | FSEvents / ReadDirectoryChangesW + periodic rescan | 1 |

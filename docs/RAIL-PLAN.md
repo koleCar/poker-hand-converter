@@ -706,6 +706,98 @@ under WASM; the registry records an unknown file end to end.
     `ported_parsers_rank_every_corpus_file_as_the_goldens_do`, which will
     then hold the new parser's scores on all 556 files.
 
+- *As built, R0.7b* (§15) - **with it R0.7, the PokerStars family, is
+  complete: amendment A9 lets R1.1-R1.3 start.**
+  - **Layout** (`core/rail-core/src/parsers/`): `weplay.rs` (all of
+    `weplay.ts`: the normalizer `normalize_weplay_chunk` - exported, as the
+    TypeScript exports it for `byteCompat` - `is_bomb_pot_hand`,
+    `is_omaha_hand`, and `WePlayParser`, which reads the normalized text with
+    `parse_standard_hand` and puts the WePlay original back on
+    `meta.rawText`) and `coinpoker.rs` (`CoinPokerParser` on
+    `StarsHandDraft`, `looks_like_coinpoker`). Both registered in `index.ts`
+    order (`weplay` first, `coinpoker` after `ipoker`). No new shared module:
+    CoinPoker needed nothing `ps_gg_hand` did not already export.
+  - **WePlay's arithmetic is JavaScript's**: the normalizer computes in
+    doubles (`Math.round(Number(raw) * minorUnits)`, `to - raiseBy`,
+    `Math.max`, `units % minorUnits === 0`, `(units / 100).toFixed(2)`,
+    `String(units)`), so every unit value is a `JsNumber`; `x % m === 0` is
+    `is_multiple_of` (finite and an exact multiple - `fmod` is exact). A
+    thousandth, or a twenty-digit stack, rewrites to the TypeScript's bytes
+    (`$NaN`, `Infinity` included).
+  - **Patterns** are the TypeScript source (tests check every literal,
+    template and refusal message). Written as code and tested against Node:
+    WePlay's hand split (`(?=^Weplay Hand #\d+:)/gm`) and its zero-stack
+    probe (a `RegExp` built from an escaped player name: a literal prefix plus
+    the verb and an ASCII `\b`); `split(/\r?\n/)` (`split_lines`).
+  - **Golden agreement** (`tests/golden_sites.rs`): `weplay` **128 / 128**
+    files, **6 726** hands, **96** refusals (`bb-only-walk` 88,
+    `uncalled-exceeds-commitment` 3, `ghost-ante`, `unsupported-variant`,
+    `short-allin-small-blind`, `zero-stack-actor` 1 each, and the validator's
+    `chip-mismatch` on `HH20260126 Manchester #3`); `coinpoker` **16 / 16**
+    files, **21** hands, **1** refusal (`hand-cancelled`) - each fully:
+    ranking, chunks, PHF, standard text per hand and per file (WePlay's
+    `dealtLinesForAllPlayers`, bomb pots, run-it-twice, straddles included),
+    warnings (143 `button-not-seated`; CoinPoker's 2 `buy-in-not-stated`),
+    refusal stage, reason, message and fingerprint, stats. Whole-file
+    detection of the five ported parsers equals the goldens on **all 556**
+    files.
+  - **Beyond the corpus** (`tests/data/wpcp-vectors.{mjs,json}`, 1.9 MB, run
+    by `tests/wpcp_vectors.rs`; the generator bundles the TypeScript): both
+    parsers' splits of every corpus file and of edge texts, 22 detection
+    probes, and **3 291** seeded mutations (2 389 WePlay, 902 CoinPoker; line
+    catalogues of each room's shapes, other headers - currencies, tournaments,
+    Omaha, All-in or Fold, unparseable -, changed amounts - thousandths,
+    twenty digits -, cut summaries, `\r` / `\r\n` / U+2028 line ends, a BOM),
+    each through its parser with the default and the strict options
+    (`cashOnly`, `skipBombPots`) and, for WePlay, through
+    `normalize_weplay_chunk` alone: all equal, every WePlay and CoinPoker
+    refusal reason reached. Two soak runs with other seeds
+    (`WPCP_STRESS=<seed>`, 29 414 and 29 404 cases) were equal too. The file
+    also records the frozen pre-PHF converter's output for `byteCompat`
+    (5 983 hands: 5 783 identical, 148 / 40 / 11 in the three accepted
+    classes, 1 dropped with a refusal), which the Rust test reproduces
+    exactly.
+  - **TS oddities kept**: a whitespace-only WePlay line survives
+    normalization (only `""` is dropped); WePlay's header seat lines go
+    through the SUMMARY scrubber too (a seat line containing `folded` loses
+    any ` showed [..]` / ` and lost with ..`); a `€` or `£` anywhere in a
+    chunk (a player name) sets the cash symbol; `posts straddle` and `posts
+    the ante` do not move WePlay's tracked bet (`: posts ${AMOUNT}` needs the
+    amount right after `posts`), so a raise after a straddle is rewritten
+    against the big blind - the reader re-derives it, which is what makes
+    the straddle test pass; WePlay's detector accepts a header only at the
+    start or after `\n` while its split also cuts at `\r` and U+2028/9; the
+    normalizer's per-street commitment map is written and never read (not
+    ported - no effect); CoinPoker's `(straddle)` re-read replaces every
+    position label (a `(button)` on the same line is lost) and keeps the
+    first reading's hand description when the re-read has none; a nameless
+    CoinPoker tournament warns `no buy-in for "null"`; CoinPoker's
+    `[\r\n]` header probe misses a header after U+2028 (0.3, not 0.95).
+  - **Not reproducible, reported**: a WePlay table size, button or seat
+    beyond `u32` is the reader's `parser-error` (R0.6's rule); the
+    TypeScript builds the hand and only its canonical JSON fails. An amount
+    beyond 2^53 builds in both and is unrepresentable in both (the vector
+    test checks the JSON path). Warnings added after `build` (R0.7a's note):
+    neither parser adds any - CoinPoker edits `results` and may refuse
+    `unseated-actor` after `build`, both on the owned hand.
+  - 65 TypeScript test cases translated (`tests/wpcp_parsers.rs`): all of
+    `weplayParserPhf.test.ts` (16) and `coinpokerParser.test.ts` (36),
+    `byteCompat.test.ts`, the WePlay halves of `phfRoundTrip` (3),
+    `phfPositions` (the SUMMARY-label oracle and every table size 2-9),
+    `phfDetect` (5), `phfValidate` (1) and `handParser` (1), plus 12 unit
+    tests. Skipped: the replayer checks (`buildReplay`), `toBigBlinds` (a
+    display helper, not ported); `handParser`'s WePlay test drives
+    `converter.ts`'s `convertCashWeplayFile` (the UI's legacy facade, not
+    core), reproduced as test support. `phfCoreGaps` has no WePlay part
+    (it is all parser-free and was R0.5/R0.6).
+  - **For R0.8** (`partypoker`, `888poker`, `pokerbros`): `pokerbros` reads
+    through `parse_stars_family_body` (R0.7a, already held to the TypeScript
+    by vectors). A parser that normalizes text before reading it should keep
+    its unit values as `JsNumber` (WePlay's pattern); `wpcp-vectors.mjs`
+    shows how to record outcomes under several option sets and how to accept
+    the two unrepresentable cases (`unrepresentable_alike` in
+    `wpcp_vectors.rs`). `rail-convert` (README §8, "R0.7") is not built yet.
+
 ### R0.8 Parsers, `*****` family — M
 - `partypoker`, `pokerstars888` (888poker), `pokerbros`.
 
@@ -1141,3 +1233,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-12 | **R0.5b done**: `assignPositions`, `validateHand` (every code, message, context and order) and all of `hilo.ts` in Rust, with the evaluator they need - `cards.ts`'s `parseCard`/`extractCards` and all of `equity/evaluator.ts` and `omaha.ts` (full deck, both short-deck tables, `SHORT_DECK_RULE_BY_SITE`, Omaha high and the eight-or-better low) as `rail_core::eval`, which R2.2 builds on. Against every golden hand: positions **8 422 / 8 422**, validation **8 422 / 8 422** (no errors; all 532 warnings, 463 validator + 69 parser), hi/lo halves **22 / 22**. The corpus has 3 validate-stage refusals (`negative-stack`, `hi-lo-payout-contradiction`, `chip-mismatch`, one each); their pre-validation hands and 1 825 seeded mutations of golden hands replay the TypeScript's positions, reports and halves exactly (`tests/data/check-vectors.*`). 64 TS test cases translated. `validateHand` can throw (an unreadable card in a hi/lo showdown) and `convertAny` does not catch it, so `convert_any` now returns `Result`. |
 | 2026-10-12 | **R0.6 done**: `serialize.ts` in Rust (`rail_core::phf::serialize`): `toStandardText` with every presentation rule of `resolveTextStyle`, `toStandardTextFile`, the reader (`parseStandardHand`, `splitStandardHands`, `parseStandardText`) and the `standard` parser, registered (moved from R0.7). `golden::SERIALIZER` is on: the text hash agrees on **8 422 / 8 422** hands and the per-file hash on **556 / 556** files; the 39 files `standard` wins match their goldens fully (881 hands). Round trip over every golden hand, held to the TypeScript's answers (`tests/data/serialize-vectors.*`): the re-read hand equals the TypeScript's on 8 422 / 8 422, semantically equal on 8 097 (the TypeScript's own round trip loses something on the same 325), byte-stable on 8 421 (the same one exception); 2 460 mutations and 25 texts agree. Lookahead patterns written as code, tested against Node; V8's `Date` reading reproduced (day rollover, `24:00`). 39 TS test cases translated. Not reproducible, reported: `seat: -1` for a straddler without a seat and seat-like numbers beyond `u32` (an error here), zone-less dates (local time in JS). |
 | 2026-10-12 | **R0.7a done** (R0.7 split into R0.7a and R0.7b): `pokerstars` and `ggpoker` in Rust, with all of `ps-gg-hand.ts` (`StarsHandDraft`), `p3-draft.ts` and `p3-stars-dialect.ts` as reusable modules in `parsers::shared`; both registered. Goldens: `pokerstars` **45 / 45** files (108 hands, 5 refusals), `ggpoker` **24 / 24** (215 hands, 2 refusals), fully; the 39 `standard` files now with their whole ranking; whole-file detection of the ported parsers equal to the goldens on all 556 files. Beyond the corpus, held to the TypeScript (`tests/data/psgg-vectors.*`): 3 420 mutated chunks through both parsers and 164 clone-dialect cases equal (two 17 054-case soak runs too). The GG parser and `parse_standard_hand` agree on every GG cash hand. 117 TS test cases translated, `psggInvariants.ts` included. Not reproducible, reported: a straddler with no seat line (`seat: -1`) - the same `unseated-actor` refusal, reached by `BuildError::UnseatedStraddler`. |
+| 2026-10-12 | **R0.7b done, R0.7 complete** (A9: R1.1-R1.3 may start): `weplay` and `coinpoker` in Rust, registered in `index.ts` order. WePlay's normalizer computes in `JsNumber` (doubles, `%`, `toFixed`) and hands its text to `parse_standard_hand`; CoinPoker builds on `StarsHandDraft` and edits `results` after `build`. Goldens: `weplay` **128 / 128** files (6 726 hands, 96 refusals incl. one validator `chip-mismatch`), `coinpoker` **16 / 16** (21 hands, 1 refusal), fully; whole-file detection of the five ported parsers equal to the goldens on all 556 files. Beyond the corpus (`tests/data/wpcp-vectors.*`): 3 291 mutated chunks under default and strict options, WePlay's normalizer alone too, all equal (two soak runs of ~29 400 cases too); `byteCompat` reproduced against the frozen pre-PHF converter (5 983 hands: 5 783 identical, 199 in the three accepted classes, 1 dropped). 65 TS test cases translated. Not reproducible, reported: a WePlay table size, button or seat beyond `u32` (R0.6's rule). |
