@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2605762685",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "6c5af5e2b2b2dab013528e02a1e6a6e732775fe84deb7fb40147537e50358c49",
+      "standardText": "5d0fa42a09fc68d71fff582e859cff4b0079ae94582d06b2b36304cbf41831e5",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1508,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__PLO-USD-2.00-4.00-201205.multiway.allin.txt",
+    "sha256": "96a51ffceca6c0eed1e73ee1d2bc639c42934c41f8e0d19a6e5ba9e350e4a1ed"
+  },
+  "refusals": [],
+  "standardTextFile": "5d0fa42a09fc68d71fff582e859cff4b0079ae94582d06b2b36304cbf41831e5",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

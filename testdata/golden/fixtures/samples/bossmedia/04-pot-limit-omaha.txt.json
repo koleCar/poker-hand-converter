@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1651,
+    "path": "fixtures/samples/bossmedia/04-pot-limit-omaha.txt",
+    "sha256": "2eedf20227ff72b09df4902db7456a63ddd1450d02674e80e59faeb5a8822488"
+  },
+  "refusals": [
+    {
+      "fingerprint": "e30b0a8795d5ed9912d4a6c17cb54776db676ca49b8c906e4ed1f3f795ba9432",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

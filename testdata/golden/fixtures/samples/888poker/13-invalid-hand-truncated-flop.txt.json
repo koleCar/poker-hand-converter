@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "888poker",
+        "permille": 950
+      }
+    ],
+    "top": "888poker"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 780,
+    "path": "fixtures/samples/888poker/13-invalid-hand-truncated-flop.txt",
+    "sha256": "071f26fcd8b3acd4b1f7b0486b98cdc6cfb398fbef5437d23b79095afc9f6368"
+  },
+  "refusals": [
+    {
+      "fingerprint": "cbe4f764eaf1b98d0501d60a3eaa1543a4ea8b87472788e8682e210a90a6bd74",
+      "index": 0,
+      "message": "The hand has no `** Summary **` block, so nothing says what was won.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "truncated-hand",
+      "site": "888poker",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

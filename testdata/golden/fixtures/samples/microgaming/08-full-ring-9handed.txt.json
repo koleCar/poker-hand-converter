@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "microgaming",
+        "permille": 950
+      }
+    ],
+    "top": "microgaming"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049101693",
+      "index": 0,
+      "parser": "microgaming",
+      "phf": "7c9ffc25c4d55fff66e4c30e3cd2e9a565706bec3ed58288bd0b543b69d1c3d2",
+      "standardText": "a3d64fc917d2f50db12b469a9232e97605489c1db414f7f53c07b4fccb136223",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2936,
+    "path": "fixtures/samples/microgaming/08-full-ring-9handed.txt",
+    "sha256": "5ae6550ce4040484fb0e73eb83bf7bfa5e3f34f075f9be8b7b4de3124863e164"
+  },
+  "refusals": [],
+  "standardTextFile": "a3d64fc917d2f50db12b469a9232e97605489c1db414f7f53c07b4fccb136223",
+  "stats": {
+    "bySite": {
+      "microgaming": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

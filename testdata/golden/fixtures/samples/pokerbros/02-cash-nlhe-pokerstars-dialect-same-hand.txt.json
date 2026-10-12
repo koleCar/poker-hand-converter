@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerbros",
+        "permille": 950
+      }
+    ],
+    "top": "pokerbros"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "1616183514566",
+      "index": 0,
+      "parser": "pokerbros",
+      "phf": "cb426b7b5a5f89ada85ca9b0e0a5578f3aae22d22ee821b3f5ba49fac746aae8",
+      "standardText": "f489c7b752feef3dbd8633c39d381ff2132ed5bbb7947e0bea152210f304ac46",
+      "warnings": [
+        {
+          "code": "button-seat-empty",
+          "message": "The table line puts the button on seat 2, which nobody occupies; it was read as seat 1, the seat before the small blind."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1199,
+    "path": "fixtures/samples/pokerbros/02-cash-nlhe-pokerstars-dialect-same-hand.txt",
+    "sha256": "39f3dc665146d80079625e777da9456dee1e802070f39807bffc502dc9b6cd0f"
+  },
+  "refusals": [],
+  "standardTextFile": "f489c7b752feef3dbd8633c39d381ff2132ed5bbb7947e0bea152210f304ac46",
+  "stats": {
+    "bySite": {
+      "pokerbros": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

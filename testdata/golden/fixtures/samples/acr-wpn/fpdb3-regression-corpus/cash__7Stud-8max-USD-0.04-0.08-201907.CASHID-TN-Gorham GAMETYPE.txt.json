@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1765,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__7Stud-8max-USD-0.04-0.08-201907.CASHID-TN-Gorham GAMETYPE.txt",
+    "sha256": "4b558445e316e373e1c55d7526e48a78eac6f3457727c7ed4d4fea1839cfb781"
+  },
+  "refusals": [
+    {
+      "fingerprint": "17ac8b0240b0f7f9f91d4cc450b1ea000abb28c53d872168d1ca71362ab318bc",
+      "index": 0,
+      "message": "\"7Stud\" is a game this converter does not recognise, which this parser has not been verified against. It reads Hold'em and Omaha.",
+      "parserVersion": "1.1.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "acrwpn",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ipoker",
+        "permille": 950
+      }
+    ],
+    "top": "ipoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5383708755",
+      "index": 0,
+      "parser": "ipoker",
+      "phf": "449a114aff3ff9f603be63d407e4b638cf7fc50341a929d9efeb4dea8c33bcd1",
+      "standardText": "19c23333157dc90f9407e21affb06a6af6763ae624cbf8e833b62c9eed1fef2b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1524,
+    "path": "fixtures/samples/ipoker/13-fixed-limit-holdem.xml",
+    "sha256": "fa16d2ff331c2bec7e1d5d8c9834163f01ba9db93f480ddbf65b54ef7e5f4a4a"
+  },
+  "refusals": [],
+  "standardTextFile": "19c23333157dc90f9407e21affb06a6af6763ae624cbf8e833b62c9eed1fef2b",
+  "stats": {
+    "bySite": {
+      "ipoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

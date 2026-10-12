@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1799,
+    "path": "fixtures/samples/bossmedia/02-fixed-limit-holdem.txt",
+    "sha256": "7130adfb78522c2e67b417e20921d087f7db2f02d215674c9059f4853408f85b"
+  },
+  "refusals": [
+    {
+      "fingerprint": "a5f1c62a169109781f2d96f91656963cd42578061fed4cdc00ae1b98ea76b13b",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2596777580",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "a187f008ad9cf33476cded39cf1ad01fbf9e548dcc6e5ed30525cace863fee9d",
+      "standardText": "853aa03daf89aac1b566909a6a57348cdc57c67941222e02c3c247c34c7161da",
+      "warnings": []
+    },
+    {
+      "handId": "2596777720",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "0491005780fe15af8f3e0e418e41913d96e400079bd89f66bdabd6a7ec02c48c",
+      "standardText": "364ff353bba614413c163dd1c76563f61b4b8d0e8f948954120f2492166b9eeb",
+      "warnings": []
+    },
+    {
+      "handId": "2596777803",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "9f3c9b88b75845d9175b45b6715203dff516e67635cb17cc2f54efeb5cf0f6cf",
+      "standardText": "be2a8fc964812c8bd5812f49ddc1ef591049429ee098637d59085f915e55735e",
+      "warnings": []
+    },
+    {
+      "handId": "2596777989",
+      "index": 3,
+      "parser": "ignition",
+      "phf": "f2f6b44ad59ad1864d9ada73736e075744d8b1fd0ae56a1a6714205bc33b3b13",
+      "standardText": "e937ef311ab42ca94a327edbbf647f9f1ec905c20ddaa769275f24f850e4e483",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 4923,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__LHE-USD-8-16-201204.old.format.txt",
+    "sha256": "35c5f122134cc74842599006cb96b2acbc8f399cb91c83833680176c40c97187"
+  },
+  "refusals": [],
+  "standardTextFile": "78d2f03427b51f780da8acc1fa5b79cbbc3362ac4c5adad771790622fd9b5623",
+  "stats": {
+    "bySite": {
+      "ignition": 4
+    },
+    "converted": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

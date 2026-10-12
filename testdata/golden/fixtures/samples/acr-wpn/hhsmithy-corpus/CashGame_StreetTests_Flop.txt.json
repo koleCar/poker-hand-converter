@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "258592151",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "812c7d84cc9c57be9a5b42a7ae49e553b7619ed7b6a4fbc799acf0a747650489",
+      "standardText": "c9fc2ae9595f35eaa7be0dbc7f55a3049fc1999b07aeaa5f2f76fd3ca7e67185",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1258,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_StreetTests_Flop.txt",
+    "sha256": "616b6613aaa889a789f9674a630d4886113123fb5c0e977b4f300c3c8c3ec3d7"
+  },
+  "refusals": [],
+  "standardTextFile": "c9fc2ae9595f35eaa7be0dbc7f55a3049fc1999b07aeaa5f2f76fd3ca7e67185",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

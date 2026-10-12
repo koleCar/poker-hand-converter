@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST16",
+      "index": 0,
+      "parser": "standard",
+      "phf": "7acf619b48e723723dd3e3303b8af461cebc4f519403dffec8079cce894b7bcc",
+      "standardText": "a01c81b11eaff941d9acaa0489b3433ed6ec37ec2200e9fc8f5eaf9531eb336c",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 941,
+    "path": "tests/test/fixtures/stats/16-fold-to-cbet-legs.txt",
+    "sha256": "d39c5b7c10cc7297868a0ffdd7d2e6420aa0ec26434ad90d3048c32ed30818e1"
+  },
+  "refusals": [],
+  "standardTextFile": "a01c81b11eaff941d9acaa0489b3433ed6ec37ec2200e9fc8f5eaf9531eb336c",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

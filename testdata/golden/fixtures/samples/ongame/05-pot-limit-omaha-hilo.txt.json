@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ongame",
+        "permille": 950
+      }
+    ],
+    "top": "ongame"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 589,
+    "path": "fixtures/samples/ongame/05-pot-limit-omaha-hilo.txt",
+    "sha256": "3828804d68f5d8ffafc9f6dc9a7e9af276cb2a65c184274c5720c732f68aa550"
+  },
+  "refusals": [
+    {
+      "fingerprint": "363b277b1fd4a5d63b95ce4d0d5c33185824b482d9f3acaad3fbdb2c0ff07f98",
+      "index": 0,
+      "message": "\"OMAHA HI LO\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "ongame",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

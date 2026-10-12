@@ -1,0 +1,50 @@
+{
+  "chunks": 2,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "56397699000",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "ef1f364e9be6c884305de3233dc2b4488c1272a205ea98f07103c72c79bc5806",
+      "standardText": "cafe2810d85f700a6b23d0b538ccf7153a3dcb2c2328e229e56d1663f895d175",
+      "warnings": []
+    },
+    {
+      "handId": "56397717005",
+      "index": 1,
+      "parser": "pokerstars",
+      "phf": "2fdcb882fc99476c77804a22385b11126b93f94f62594df80b904cc923e18f03",
+      "standardText": "d041ee4697ccb2ebee3f9ecfbc2aa09db400fae5e97c480f9a76120072e90eb3",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 2247,
+    "path": "fixtures/samples/pokerstars/48-cash-nlhe-thirdparty-export-trailing-whitespace.txt",
+    "sha256": "f9ca52fcdf1664e67cb05edb4815f827c65f20a5e5ac1bd2390de281e840a3c9"
+  },
+  "refusals": [],
+  "standardTextFile": "0b429a76c703f0f85adde1bc7f08e87fd0dac54acef03a3020a7a2c6a4f4e6a9",
+  "stats": {
+    "bySite": {
+      "pokerstars": 2
+    },
+    "converted": 2,
+    "failed": 0,
+    "total": 2
+  }
+}

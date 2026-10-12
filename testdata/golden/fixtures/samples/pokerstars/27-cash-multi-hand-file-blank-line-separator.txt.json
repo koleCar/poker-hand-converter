@@ -1,0 +1,164 @@
+{
+  "chunks": 10,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "109673992001",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "c8284d54193085d0ee5ba8402d4d0e9210d81e4a207e36359a69c5361f76cead",
+      "standardText": "a18af2b4f22642e31c17e6c770cafd84ec174b9ece9f3ef5ea4679bb7a2d8f5f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674128046",
+      "index": 1,
+      "parser": "pokerstars",
+      "phf": "8a797795ba4a36383a9511f6ca48fe31b519cf03f221e43002996ae756febfc2",
+      "standardText": "aeb946fb2b732b994d1b73eb4d9c501ee2b8a9fea8248e966064bc8453b059e7",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109674148786",
+      "index": 2,
+      "parser": "pokerstars",
+      "phf": "ea1ce3e54881695739ec8db4ba91b63fe28adda6e78ecfcb86e8c2a71a5b4d13",
+      "standardText": "e71c4a53bf14c45539813c1e899405ffcf0e3873a10795a43813b643789063ce",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673533027",
+      "index": 3,
+      "parser": "pokerstars",
+      "phf": "bcf5efb9f422c71861cf746e63f282cb6ad8643864f52f2a4a6a2f403cbb2e39",
+      "standardText": "fb0763fbf2064c6958d622975a87c5304fb6a5502a1168430000ff4241837e76",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673554313",
+      "index": 4,
+      "parser": "pokerstars",
+      "phf": "414b82f6671322349119226ba6a899a363f42b143869c19c944de5c5f4849ab9",
+      "standardText": "207530d29bc067444f1fedcb107497e59fa43e4bc8785c041ce44be5d169ede0",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673561342",
+      "index": 5,
+      "parser": "pokerstars",
+      "phf": "55e7962d44b9599b2fede8ecb87ce6cf01b0bf515cd4a33522ebeb43eaa44976",
+      "standardText": "426b4ca10e29a498f5ec59d62a486a298055bb5c2b3a825284da06198f498720",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673572373",
+      "index": 6,
+      "parser": "pokerstars",
+      "phf": "be8bfbf6a585ef53081d7e1cf4fca1ea01c53d1bb5e86fde1f0869bdc50e7d31",
+      "standardText": "fbc952251deb0bd953768666f52924eb6f1249e002ac4632b55317238b7df01b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673589735",
+      "index": 7,
+      "parser": "pokerstars",
+      "phf": "d3d457b0bfa1f532096c83be2b91572ee4c3fe18cc83de292c51b07c78cef2f8",
+      "standardText": "3c421cbdd2d27b5b2d1d8c33d6651c62d4b1b153e3400321a9ada1a90fd54975",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673602306",
+      "index": 8,
+      "parser": "pokerstars",
+      "phf": "c4706d591ced0f7b4033004c8b970a6208c54e2b857b82a0faa7571b1c33a068",
+      "standardText": "a4198c2a84fb78d0ac05a97678bb6b225d4e006417aa8b321719d2d7c3ba117f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "109673610680",
+      "index": 9,
+      "parser": "pokerstars",
+      "phf": "bf7fafbf00cccd1edc7dd61f83ba78e800423c9842f1e0f3bfec72f2fd8c12e4",
+      "standardText": "036bc31e4306ae82e44e68073619743aee962ccfed49dc01f63f1e34041b3976",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 13037,
+    "path": "fixtures/samples/pokerstars/27-cash-multi-hand-file-blank-line-separator.txt",
+    "sha256": "cf855ac899086405a4dc96d788348e1fa44134ec1af1f07191531a586a1bd081"
+  },
+  "refusals": [],
+  "standardTextFile": "0a1023bb32fb54f703f2170e792bb58e50dcfdb902b4fdc773d58e35d4d5e832",
+  "stats": {
+    "bySite": {
+      "pokerstars": 10
+    },
+    "converted": 10,
+    "failed": 0,
+    "total": 10
+  }
+}

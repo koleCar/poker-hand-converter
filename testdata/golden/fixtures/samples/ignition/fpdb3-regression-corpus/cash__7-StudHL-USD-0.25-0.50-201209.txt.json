@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 2129,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__7-StudHL-USD-0.25-0.50-201209.txt",
+    "sha256": "56b568a71480cca76dfebf0daa64979af5c1d8d35910be9ea9841c39f518c22a"
+  },
+  "refusals": [
+    {
+      "fingerprint": "131386a43f0a73f3f9bb36bcc586ea28cd03e4bdb6f7b5762c85f2ecad422faa",
+      "index": 0,
+      "message": "\"7 Card Stud Hi/Lo\" is a high-low split game this parser has not been verified against. Half the pot goes to the low hand, and a hi/lo hand read as a high-only hand balances against itself - so it is refused rather than approximated.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unsupported-hi-lo",
+      "site": "ignition",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

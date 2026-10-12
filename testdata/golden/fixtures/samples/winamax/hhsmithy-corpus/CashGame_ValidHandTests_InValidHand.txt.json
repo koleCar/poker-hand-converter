@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "Windows-1252",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 650,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_ValidHandTests_InValidHand.txt",
+    "sha256": "0fcbb630439603c1231aa2891c1233aae218003bf46fe9cca540b5f206a4b622"
+  },
+  "refusals": [
+    {
+      "fingerprint": "296922c2675fa4c24f951113073ea7136e495faf368510d61221ee3a727ad18b",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

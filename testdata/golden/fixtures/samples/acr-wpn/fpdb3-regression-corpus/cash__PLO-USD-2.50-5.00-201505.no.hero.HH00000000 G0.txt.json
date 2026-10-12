@@ -1,0 +1,54 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-16 LE",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "10005881",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "bd078adc53c94cfd3755fb407bb8a8eef443e8d58c9f2c5de58df1e93a88dc9c",
+      "standardText": "9285acf3abc3be500673424f1711345c7d079463d59e236dd54f739b872b6703",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        },
+        {
+          "code": "unknown-summary-line",
+          "context": {
+            "line": 79
+          },
+          "message": "�"
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2569,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO-USD-2.50-5.00-201505.no.hero.HH00000000 G0.txt",
+    "sha256": "3e3743006afe37d2d0acb94d060bb67f0ce749c7f6b691b415271abd1b0010a2"
+  },
+  "refusals": [],
+  "standardTextFile": "9285acf3abc3be500673424f1711345c7d079463d59e236dd54f739b872b6703",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

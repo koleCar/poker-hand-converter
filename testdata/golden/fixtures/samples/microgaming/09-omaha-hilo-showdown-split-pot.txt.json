@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "microgaming",
+        "permille": 950
+      }
+    ],
+    "top": "microgaming"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049105591",
+      "index": 0,
+      "parser": "microgaming",
+      "phf": "9d2cccdf3e5a6499925c82d47c82c72dea020c518f1853dade63bcecf188b4a4",
+      "standardText": "98f47bf97a9dea9e39c6aa4c50629fc31f8d319b89068f2586cd4b23be82506f",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2735,
+    "path": "fixtures/samples/microgaming/09-omaha-hilo-showdown-split-pot.txt",
+    "sha256": "bbe1c8d8313509b8fa58b6547fc4f4688621fd485332b9b5a5b33963393d61ec"
+  },
+  "refusals": [],
+  "standardTextFile": "98f47bf97a9dea9e39c6aa4c50629fc31f8d319b89068f2586cd4b23be82506f",
+  "stats": {
+    "bySite": {
+      "microgaming": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

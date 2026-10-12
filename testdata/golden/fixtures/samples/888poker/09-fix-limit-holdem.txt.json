@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "888poker",
+        "permille": 950
+      }
+    ],
+    "top": "888poker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "888-280096744",
+      "index": 0,
+      "parser": "888poker",
+      "phf": "6ffa88be5dfed094ed3679a2a39ca88248d9d079b5bf3ab431753eee53d93a21",
+      "standardText": "d59ca076889693185cb81ca384949bc0abf09fe8a529f61c9d9d11d4b192a61c",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 658,
+    "path": "fixtures/samples/888poker/09-fix-limit-holdem.txt",
+    "sha256": "f9b9a36b84e1677108e3eb682864dccb89b60b66dcd557fa04468272cd73d655"
+  },
+  "refusals": [],
+  "standardTextFile": "d59ca076889693185cb81ca384949bc0abf09fe8a529f61c9d9d11d4b192a61c",
+  "stats": {
+    "bySite": {
+      "888poker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

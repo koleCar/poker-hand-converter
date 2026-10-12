@@ -1,0 +1,51 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 250
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "86183965766",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "6fbf94a83483f1a7937e9d2cbe5ac27f396e011dead1b8786dd47bc9717196b8",
+      "standardText": "12a81e90a6d6adf715913fb03679725b99022f5e6d97cd2e70c3e772fdc57e91",
+      "warnings": [
+        {
+          "code": "mixed-betting-structure",
+          "message": "\"Hold'em Pot Limit Pre-Flop, No Limit Post-Flop\" caps preflop and postflop differently; game.limit records the preflop cap only."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1398,
+    "path": "fixtures/samples/pokerstars/36-tour-stt-mixed-pl-preflop-nl-postflop.txt",
+    "sha256": "e4fc317d94e48cb60a7b2921cb890a433a2bc42e89119b9098d63c40f53aee49"
+  },
+  "refusals": [],
+  "standardTextFile": "12a81e90a6d6adf715913fb03679725b99022f5e6d97cd2e70c3e772fdc57e91",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

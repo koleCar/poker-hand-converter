@@ -1,0 +1,58 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2690849153",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "efaefd35d6e0b447324a6cfb47875505e450b5843cb553667c1f3cfbc656b4c9",
+      "standardText": "74b939756e650a99a7fb61c1aa6c326796254333deff51a01a3b6c2d4235b30c",
+      "warnings": [
+        {
+          "code": "lone-ante-posted-live",
+          "context": {
+            "line": 6
+          },
+          "message": "Dealer is the only seat to post an ante; treated as a live post."
+        },
+        {
+          "code": "dead-small-blind",
+          "message": "No small blind was posted; the seat to the button's left was empty."
+        },
+        {
+          "code": "stale-level-blinds",
+          "message": "The level header advertises 24/48 but 0/166 was posted; the posted blinds win."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 944,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-10-201211.ante.all.in.txt",
+    "sha256": "c41282b91b117982c195b4b9d2301902e5c6f108064da9195e1f60ca155679ad"
+  },
+  "refusals": [],
+  "standardTextFile": "74b939756e650a99a7fb61c1aa6c326796254333deff51a01a3b6c2d4235b30c",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ongame",
+        "permille": 950
+      }
+    ],
+    "top": "ongame"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361920831-66",
+      "index": 0,
+      "parser": "ongame",
+      "phf": "b9e2ed8f674f95f6e6419b619035f94b78afeaffdfd00ccad3756eab25d085a7",
+      "standardText": "6259dd6e1e6e3e0a721dad1fd79f8013a6ccb3e2cc2644b0d075fb37ad7233c0",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 766,
+    "path": "fixtures/samples/ongame/11-no-hole-cards-visible.txt",
+    "sha256": "5d47aba15e33293fe7d7e0f638970522fa351b5c977e7e4dda0dacc1f9b9568e"
+  },
+  "refusals": [],
+  "standardTextFile": "6259dd6e1e6e3e0a721dad1fd79f8013a6ccb3e2cc2644b0d075fb37ad7233c0",
+  "stats": {
+    "bySite": {
+      "ongame": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

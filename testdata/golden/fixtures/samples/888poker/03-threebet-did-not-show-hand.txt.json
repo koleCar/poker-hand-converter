@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "888poker",
+        "permille": 950
+      }
+    ],
+    "top": "888poker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "888-280083902",
+      "index": 0,
+      "parser": "888poker",
+      "phf": "46c59b606b3f55fd9717c2c33c67981e6374307c89c6c81b87e719eb349a759c",
+      "standardText": "f285608433dbc9fc76db09a16b0d6ede6b3da607dba0b0e00d7150c797609049",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 955,
+    "path": "fixtures/samples/888poker/03-threebet-did-not-show-hand.txt",
+    "sha256": "fc6ad9c34c5fe5ff3f269771ec90517517381390404c4be9b4897a46e398681b"
+  },
+  "refusals": [],
+  "standardTextFile": "f285608433dbc9fc76db09a16b0d6ede6b3da607dba0b0e00d7150c797609049",
+  "stats": {
+    "bySite": {
+      "888poker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

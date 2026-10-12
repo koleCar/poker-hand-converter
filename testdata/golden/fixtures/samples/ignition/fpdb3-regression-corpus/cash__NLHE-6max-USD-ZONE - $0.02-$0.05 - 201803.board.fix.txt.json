@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3581708086",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "2d1990caf3deda171140f042a413ac4ec4d7a70f81c39dd2c739f2a9d7ba624d",
+      "standardText": "2555e50edee078f3e9b0eaf5162410d118ad7d4c6eef5d544cb7a8e782cdbbe7",
+      "warnings": [
+        {
+          "code": "derived-pot",
+          "message": "The SUMMARY block states no pot; it was taken from the action stream."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1435,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-6max-USD-ZONE - $0.02-$0.05 - 201803.board.fix.txt",
+    "sha256": "9f69bd18f4ec5218b4460e20831a6a2390b7f992ab6e024aaf0a6e70870a2023"
+  },
+  "refusals": [],
+  "standardTextFile": "2555e50edee078f3e9b0eaf5162410d118ad7d4c6eef5d544cb7a8e782cdbbe7",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

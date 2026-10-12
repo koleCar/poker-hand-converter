@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "352026582",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "0822ec05cc3443baf4e97dd56adfc48ffc8a709d953ce90d320eb0ea285d081c",
+      "standardText": "d0d679ac8d1e0978489bcb081afd8082daf9822741409f25eb3807634b32d448",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1311,
+    "path": "fixtures/samples/coinpoker/10-cash-seat-out-of-hand-sittingout.txt",
+    "sha256": "5ca142aebfbe9a1464d6880c48ecff2fd8e776b2d7538d831bf3d1a8480535e5"
+  },
+  "refusals": [],
+  "standardTextFile": "d0d679ac8d1e0978489bcb081afd8082daf9822741409f25eb3807634b32d448",
+  "stats": {
+    "bySite": {
+      "coinpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

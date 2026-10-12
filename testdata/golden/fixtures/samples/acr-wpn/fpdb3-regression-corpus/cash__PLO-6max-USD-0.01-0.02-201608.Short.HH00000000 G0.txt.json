@@ -1,0 +1,58 @@
+{
+  "chunks": 2,
+  "decode": {
+    "encoding": "UTF-16 LE",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "693980441",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "0b1e18086ff773751acf06582ac6d5c4867c2c31c2420aca0b7f38c680eb0f0b",
+      "standardText": "6492a4e54824ea7f11d4b1987e12c0f777605b2b231d93e9003530dae606cc19",
+      "warnings": []
+    },
+    {
+      "handId": "693980591",
+      "index": 1,
+      "parser": "acrwpn",
+      "phf": "c00ee0d1da797c5fef85122a83bbadc404ef2b1a4d8ca9369eaaeba197429f99",
+      "standardText": "625d429a22cbcf5acb3b1b6fd048dd2dcf952c702a717a3c5a9f8a37ebbab73d",
+      "warnings": [
+        {
+          "code": "unknown-summary-line",
+          "context": {
+            "line": 133
+          },
+          "message": "�"
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 8111,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO-6max-USD-0.01-0.02-201608.Short.HH00000000 G0.txt",
+    "sha256": "346bb588e793e88d89fee8dc609e4b3d94b18fdd19a45d0710d7b8eba1f90008"
+  },
+  "refusals": [],
+  "standardTextFile": "5558254bf933f27f339501a791d04b9631a7143d907c964b1e9d636d1148c473",
+  "stats": {
+    "bySite": {
+      "acrwpn": 2
+    },
+    "converted": 2,
+    "failed": 0,
+    "total": 2
+  }
+}

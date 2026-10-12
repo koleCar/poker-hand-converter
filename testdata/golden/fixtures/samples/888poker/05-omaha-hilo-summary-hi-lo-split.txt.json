@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "888poker",
+        "permille": 950
+      }
+    ],
+    "top": "888poker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "888-441695827",
+      "index": 0,
+      "parser": "888poker",
+      "phf": "ce663844e8933e6454882a63edd2e925298a94d198100b05d9e578edf0e3061e",
+      "standardText": "e5584db366c2cfe01f123050df060f1d2c4fd7ae45e1f10095056bf187701dd0",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 792,
+    "path": "fixtures/samples/888poker/05-omaha-hilo-summary-hi-lo-split.txt",
+    "sha256": "8bc4c60e4fee988be4a4c0cfbd9159e79c01b338f2ab7cc0773be4550645b9ce"
+  },
+  "refusals": [],
+  "standardTextFile": "e5584db366c2cfe01f123050df060f1d2c4fd7ae45e1f10095056bf187701dd0",
+  "stats": {
+    "bySite": {
+      "888poker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

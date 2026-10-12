@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2647361051",
+      "index": 0,
+      "parser": "entraction",
+      "phf": "a063ea55253769b552d88434cbcc4e524b5e67f8f98c9a1fb0731d167672ad61",
+      "standardText": "f6806348ea52f39001af9b33734b318873dbe73099cfe99e89c9d77614252c06",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 612,
+    "path": "fixtures/samples/entraction/09-heads-up.txt",
+    "sha256": "20b5c07e292dd211af468c975e2d939f75d1227196bdfbb20855375f2ad87833"
+  },
+  "refusals": [],
+  "standardTextFile": "f6806348ea52f39001af9b33734b318873dbe73099cfe99e89c9d77614252c06",
+  "stats": {
+    "bySite": {
+      "entraction": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

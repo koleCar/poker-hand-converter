@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "fulltilt",
+        "permille": 950
+      }
+    ],
+    "top": "fulltilt"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "33730111975",
+      "index": 0,
+      "parser": "fulltilt",
+      "phf": "1b08dcd66d8eced913ea50200ae0f887852b909b3cf9e8e6c8647ae2adb507ba",
+      "standardText": "3ded2372da25495ffe529637cb96d8e4fc302888506771883f8d2fe9d81839f5",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1072,
+    "path": "fixtures/samples/full-tilt/12-cash-nlhe-allin-showdown.txt",
+    "sha256": "e51d3e59aeceebe7080f009cb5dc27b18a086df97f4d8fafeae362db37fda5d8"
+  },
+  "refusals": [],
+  "standardTextFile": "3ded2372da25495ffe529637cb96d8e4fc302888506771883f8d2fe9d81839f5",
+  "stats": {
+    "bySite": {
+      "fulltilt": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

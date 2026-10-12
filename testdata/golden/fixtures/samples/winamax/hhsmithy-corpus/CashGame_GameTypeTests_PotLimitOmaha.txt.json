@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "Windows-1252",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "winamax",
+        "permille": 950
+      }
+    ],
+    "top": "winamax"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-5313422-1-1383828693",
+      "index": 0,
+      "parser": "winamax",
+      "phf": "dc00c3d28b215b40205a2ceb14abeaf124dae964bae62aab91210ed0d626de7c",
+      "standardText": "a8d822e180250bcaf2e00c86231f46417eca1c8dabcba1b07c307bab08fd8e29",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 965,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_GameTypeTests_PotLimitOmaha.txt",
+    "sha256": "c7979b82d19e5c360a6c139c5ba5b37a2eac1852d697f7ded3b8ec78e8277a16"
+  },
+  "refusals": [],
+  "standardTextFile": "a8d822e180250bcaf2e00c86231f46417eca1c8dabcba1b07c307bab08fd8e29",
+  "stats": {
+    "bySite": {
+      "winamax": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

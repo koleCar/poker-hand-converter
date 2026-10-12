@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "fulltilt",
+        "permille": 950
+      }
+    ],
+    "top": "fulltilt"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "33729180182",
+      "index": 0,
+      "parser": "fulltilt",
+      "phf": "d8c1a7a1def8fd73f9a772f34f9a9417eb8db2234b5a8091c336507e0524105d",
+      "standardText": "74566d1c12ad31477db5f5267536075c8dfaf4c5319b9892cc0d4f2017f92e78",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 713,
+    "path": "fixtures/samples/full-tilt/07-cash-flhe-fixed-limit-holdem.txt",
+    "sha256": "2c22a57563e3d22a814fcb7ba2310159520fa857e8dab19e4a4432ceb67fd188"
+  },
+  "refusals": [],
+  "standardTextFile": "74566d1c12ad31477db5f5267536075c8dfaf4c5319b9892cc0d4f2017f92e78",
+  "stats": {
+    "bySite": {
+      "fulltilt": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

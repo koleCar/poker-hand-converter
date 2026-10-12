@@ -27,3 +27,7 @@ pnpm-debug.log*
 
 # Rust
 /target/
+
+# Golden oracle with PHF bodies written out (~137 MB); regenerate with
+# `npm run golden:emit` in tests/. See testdata/golden/README.md.
+/testdata/golden-full/

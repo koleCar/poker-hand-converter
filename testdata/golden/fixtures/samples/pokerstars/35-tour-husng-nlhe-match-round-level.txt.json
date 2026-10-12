@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "41888200000",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "56fee34f834ec53bfb46b3911049c9d4f2db9ce6e56179181cab1e2466531cae",
+      "standardText": "86352c616c039d262ce70b3b8acc6b27e165c040c8e77d977e38dae6348a22df",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1035,
+    "path": "fixtures/samples/pokerstars/35-tour-husng-nlhe-match-round-level.txt",
+    "sha256": "5c95f017026b104f04318821806a42efee5030475df0a2e61361088dfbf5532d"
+  },
+  "refusals": [],
+  "standardTextFile": "86352c616c039d262ce70b3b8acc6b27e165c040c8e77d977e38dae6348a22df",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

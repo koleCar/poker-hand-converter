@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "270567990173",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "50e5b4ed0f10693883040547019f9da93304e8d3232e7b49a86eb024a88e72bb",
+      "standardText": "dce19729f1a65f085bac766db031d25b2816cba01addd64993f9619952b5ce90",
+      "warnings": [
+        {
+          "code": "numeric-player-ids",
+          "message": "Every seat is a numeric id rather than a screen name, and no seat is marked as the hero; the names are not usable as player identities."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2502,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-NA-0-0 HH00000000 T2-G0-201801.data.mined.format.txt",
+    "sha256": "6cec8bb9147b3a7630f84e9afb200c401fb45107ccbc5858e0841d81007e17d7"
+  },
+  "refusals": [],
+  "standardTextFile": "dce19729f1a65f085bac766db031d25b2816cba01addd64993f9619952b5ce90",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

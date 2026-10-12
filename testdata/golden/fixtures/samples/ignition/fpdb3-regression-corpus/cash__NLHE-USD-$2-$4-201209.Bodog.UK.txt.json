@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2635581996",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "2d1168ca3627123607207ee6a286e4db83493488256ea3d05fd79b2e3171fb9e",
+      "standardText": "c796349928e3256d0bfac98e03efa0ee3b299360dc504dd69a9564b3c21101ff",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1168,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD-$2-$4-201209.Bodog.UK.txt",
+    "sha256": "4afe621aeec6d37998dad4f646965399d17766bc3092c0beccc7e2d7dc903371"
+  },
+  "refusals": [],
+  "standardTextFile": "c796349928e3256d0bfac98e03efa0ee3b299360dc504dd69a9564b3c21101ff",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

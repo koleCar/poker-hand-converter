@@ -1,0 +1,71 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "4370494854",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "aab320ac3027900a5808cea134c37ea6f1d735780a8354ab6fa0db661a755a23",
+      "standardText": "f86ee282470c7112518e6c44bba2ebd2ad7370123a1fd9c7c424f2a24918d9d3",
+      "warnings": [
+        {
+          "code": "missing-button",
+          "message": "The button seat is unknown, so positions cannot be resolved."
+        }
+      ]
+    },
+    {
+      "handId": "4370495444",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "bb1851209f986a33449512124ac21c7d0752eef8b839ed43ba117172c949c004",
+      "standardText": "4fcb90c243734055e56c4b99c8bfde57d1a2cd3cbc174834b7410afff11d61f9",
+      "warnings": []
+    },
+    {
+      "handId": "4370495877",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "51bf157bc6898e75e1e881442cd35ed13198c58e6b14ac03a025ed5af5db39aa",
+      "standardText": "cfd4a24fc9b09350f4e1f06646dcca90fb94ed816e382fa00499c2cfffef29f6",
+      "warnings": []
+    },
+    {
+      "handId": "4370496336",
+      "index": 3,
+      "parser": "ignition",
+      "phf": "fb9ce39837f7a803f40488a8eee7a1653a80649d1a23b98a51c15926bdd32d63",
+      "standardText": "f349c56bf5048ed3f5313832d7386720b51ad0854f9f102598811b825d9cba3d",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 6911,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - SMPO Super Duper High Roller No.145 - $150.000 Gtd - $1,000-$55 - 202108.txt",
+    "sha256": "aced36c11fa6135f97b721c95b5cfefd77cd7f2c149b64a8e93b1751e8efb3d2"
+  },
+  "refusals": [],
+  "standardTextFile": "b1010455fb8b438db4158d2baf5ca651f592296aa1bdf83829df26d272242da8",
+  "stats": {
+    "bySite": {
+      "ignition": 4
+    },
+    "converted": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "chunks": 16,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD73726026",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "a415b9392d6add1227c63f1333c582668d1959e95fe99de7515268ab59de13a9",
+      "standardText": "1ad0dfa79cf4e26228617bc95464e2ad5eeed7e24c074e71638bf2bc755c7a6a",
+      "warnings": []
+    },
+    {
+      "handId": "HD73726055",
+      "index": 1,
+      "parser": "weplay",
+      "phf": "a3030716d03dc7d9ab7c30350f7b6c73b16ce3fc25cf681da768fb08be0bfa9d",
+      "standardText": "076993ce49624abfa2f1230e806677bbbf04827de196793e971a3a43c37cb9f9",
+      "warnings": []
+    },
+    {
+      "handId": "HD73726109",
+      "index": 2,
+      "parser": "weplay",
+      "phf": "095180baf470b9c458c4b4d0a03d9fda425aa12773c10f41aa9a1825fbb9ce43",
+      "standardText": "6a7fe3c296409c9a7c8e80e1fc60fffcf519d3d7d94d983ad21166010c17a19d",
+      "warnings": []
+    },
+    {
+      "handId": "HD73726176",
+      "index": 3,
+      "parser": "weplay",
+      "phf": "b703ed162b5eca6123185a8745aefd9b3e104444d2b9dbdee31b591b1c3f494b",
+      "standardText": "c6e0514ef4579d8a203dd7b9d0720e06b8b310f1f637ca9b54adacf3a995c9ac",
+      "warnings": []
+    },
+    {
+      "handId": "HD73726203",
+      "index": 4,
+      "parser": "weplay",
+      "phf": "a4c991c693ea5b64da99336c1931d79a323abe3ea8cb2913df8014bc9f9ecc79",
+      "standardText": "610f41bec14c6fbe0022c8c59e257551d41d9b170315829bf9848edfc70b294b",
+      "warnings": []
+    },
+    {
+      "handId": "HD73726227",
+      "index": 5,
+      "parser": "weplay",
+      "phf": "c166f1b6d4e1b38e71d21ef805f8ee3c0135398a23da7b00595b3969521db18b",
+      "standardText": "0d4590e97a6fa045d0f8c0617e3148533b2ed34ae4f05e468082db523312c4dc",
+      "warnings": []
+    },
+    {
+      "handId": "HD73726254",
+      "index": 6,
+      "parser": "weplay",
+      "phf": "fa3c2b10811b8fcfd0d9e9e705c0a416d7a83e482855a55d2cbe228898542f3c",
+      "standardText": "0e05a459010821303334bde6faf9ac056d24ffb92bfd570469af6de7aa002bb7",
+      "warnings": []
+    },
+    {
+      "handId": "HD73726269",
+      "index": 7,
+      "parser": "weplay",
+      "phf": "de098b637403aede2991717beedffe0027726d29aa7ddb8472733e095d7fd6be",
+      "standardText": "1ca66d6b582d931f07ec1a96d67e296e2e196ab16c9f14c7a0bf6f2c18c1104d",
+      "warnings": []
+    },
+    {
+      "handId": "HD73727318",
+      "index": 8,
+      "parser": "weplay",
+      "phf": "1a0b56805db31288d2e80d81ee9711c6348417d3c26e078e8bd73b264f68477b",
+      "standardText": "15b6864821dcdac036d7e8d6768cc289cbc7621ad4a2b271a650094373774448",
+      "warnings": []
+    },
+    {
+      "handId": "HD73727397",
+      "index": 10,
+      "parser": "weplay",
+      "phf": "de6362fd625c089fce5d8d4dd89f23327cad91f4e44d2d06da53dd31c3165eac",
+      "standardText": "94313066b3651ebe73cf9c94ffb90f2a14b836309b5bc99bf4668352a8761807",
+      "warnings": [
+        {
+          "code": "button-not-seated",
+          "context": {
+            "seat": 1
+          },
+          "message": "The button is on seat 1, which is empty."
+        }
+      ]
+    },
+    {
+      "handId": "HD73727458",
+      "index": 11,
+      "parser": "weplay",
+      "phf": "bfcab76b327b9325f8efc8c9632b4a3bb4aef3a62ea58bf0f8b97cce6c4e0019",
+      "standardText": "e98c93e550ad2d74ff730c02af1d1717e82760c451ae749ffb489d42cef20c1e",
+      "warnings": []
+    },
+    {
+      "handId": "HD73727497",
+      "index": 12,
+      "parser": "weplay",
+      "phf": "150b7606698ea2fdb8efd6a25d911abfdaed5a80a6af02603a6eb4aa930ec329",
+      "standardText": "59b404e064655688ef6d5465bf1963c7be3104f2aa40c590eebb1cd52371f331",
+      "warnings": []
+    },
+    {
+      "handId": "HD73727584",
+      "index": 13,
+      "parser": "weplay",
+      "phf": "01ebdfc56e7da9238a980d0e94d5c2ae9e169b7757008df067bbb7472ff0a828",
+      "standardText": "6e822f99a26e270061d2f2f6321f6728db6e1ddbaf48cf6cddce4c4f2897bd09",
+      "warnings": []
+    },
+    {
+      "handId": "HD73727658",
+      "index": 14,
+      "parser": "weplay",
+      "phf": "1d407a75ab17ea8b8ab5d7a953949c39a082a97eed63bdf5ac6744bc3bc9c847",
+      "standardText": "1265c42e3b1af7db05f3ead16bf60a28a120507d7365430e39af619b00d171b5",
+      "warnings": []
+    },
+    {
+      "handId": "HD73727682",
+      "index": 15,
+      "parser": "weplay",
+      "phf": "ebbd88714f4ab0043416425ea608069da862ee8fbc524006a7c885836436aba9",
+      "standardText": "7dae240b509047eb11ad1340f5765a9cabc9cead2461e8c414a32f0f57a6ef2c",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 22281,
+    "path": "weplay-hh/kole1992/HH20260125 Manchester #1 (#11555801) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt",
+    "sha256": "e874d40a0aa6ec74aaddc8e7f121bdae28ae81ca805cca94398637a1be915cbf"
+  },
+  "refusals": [
+    {
+      "fingerprint": "45b3b1ad0d12f4909843847cdd1dfce7a27d7ba037f551fcfe14203a8e9fb379",
+      "index": 9,
+      "message": "Big blind posted without a small blind (BB-only walk).",
+      "parserVersion": "2.0.0",
+      "permille": 990,
+      "reason": "bb-only-walk",
+      "site": "weplay",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": "6359830a5f3a3c25732ec827624d7f76d0bd3082efe0d6361cd8b50a1e297927",
+  "stats": {
+    "bySite": {
+      "weplay": 15
+    },
+    "converted": 15,
+    "failed": 1,
+    "total": 16
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2599656336",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "043a0da9326d138d1bd534dcb00e22609a2f321604392ed0223181cc030ebe9a",
+      "standardText": "e5140ce9fe5e8c896e8461d0d7a04c69c0a6bb93d11f01cf9797cafd1dccd6ce",
+      "warnings": [
+        {
+          "code": "streets-inferred",
+          "message": "No street markers; 1 post-flop round(s) recovered from betting closure."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1417,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__LHE-9max-USD - $20-$40 - 201204.limit.blinds.txt",
+    "sha256": "9d6b7abcb1710fe324f26f32f876fce57e633f6756c5543345738c23af9e0648"
+  },
+  "refusals": [],
+  "standardTextFile": "e5140ce9fe5e8c896e8461d0d7a04c69c0a6bb93d11f01cf9797cafd1dccd6ce",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

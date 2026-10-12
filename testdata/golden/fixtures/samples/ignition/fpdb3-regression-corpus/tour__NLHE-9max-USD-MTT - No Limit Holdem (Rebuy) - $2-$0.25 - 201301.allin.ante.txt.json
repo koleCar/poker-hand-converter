@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2697696244",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "b2c58c63e8ad4413722048a2adb54381d960687fc4d9f78aac90ccd6167d53d0",
+      "standardText": "cb5dfafc3abfa2422280c8107b7c62428cce4e933b18f5714ae0b41344cff00e",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1850,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - No Limit Holdem (Rebuy) - $2-$0.25 - 201301.allin.ante.txt",
+    "sha256": "6ac40bf03bd1ed8d66ba17a125d4dd42fa5a417069a04c0a27a01409dd56fdc1"
+  },
+  "refusals": [],
+  "standardTextFile": "cb5dfafc3abfa2422280c8107b7c62428cce4e933b18f5714ae0b41344cff00e",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

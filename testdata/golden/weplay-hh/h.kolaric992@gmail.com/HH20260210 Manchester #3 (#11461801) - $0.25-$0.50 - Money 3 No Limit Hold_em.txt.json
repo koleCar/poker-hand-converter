@@ -1,0 +1,90 @@
+{
+  "chunks": 7,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD75322558",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "c107f0681d044df64ac3fc72d335bb365694d976c201fb794ad51de4977ace89",
+      "standardText": "02a3269923da6d9618b25c6e2639f9bec8f3a90f573792a06e7ddc68da9c7583",
+      "warnings": []
+    },
+    {
+      "handId": "HD75322643",
+      "index": 1,
+      "parser": "weplay",
+      "phf": "d8d090445abf724edfcdc296da350e08c480de2fe29cc08ef97d8de27e4585ac",
+      "standardText": "4a82ddda4529c597d735fff1e7ee5433dfaf206ebc2ca72a4076cd14ba509b95",
+      "warnings": []
+    },
+    {
+      "handId": "HD75322674",
+      "index": 2,
+      "parser": "weplay",
+      "phf": "3a9f6e64bee557e7641167f4f4094f7bc4bd35b64225b19702af9db907de9704",
+      "standardText": "502ccb799254d6f5c9b3beec98f5af814ce7919f375161c50518513961e7b30f",
+      "warnings": []
+    },
+    {
+      "handId": "HD75322701",
+      "index": 3,
+      "parser": "weplay",
+      "phf": "195e979c4c11fc2f8c5c59f61def2b84cc74a15b0483870856b3c7776d4db860",
+      "standardText": "11d2b662755137dc10db1778c0212a50e568c38a721ba6f90b978d284d4e668b",
+      "warnings": []
+    },
+    {
+      "handId": "HD75322725",
+      "index": 4,
+      "parser": "weplay",
+      "phf": "edb5bff6c3442da12235b8f3f1532252c32eff6d669916aee302531859fab6cc",
+      "standardText": "afd4940be81799b877368723467de9ed8ac665e98f4c754085300c6eed4a8034",
+      "warnings": []
+    },
+    {
+      "handId": "HD75322748",
+      "index": 5,
+      "parser": "weplay",
+      "phf": "d16f22c599078b91b6515cca71a10b4b099da5630199d85366a03ab108b71efe",
+      "standardText": "b0db89e5ee8752905a0cea08eef4ff9a6de8c764a7fbe6f9758b0cdb038be190",
+      "warnings": []
+    },
+    {
+      "handId": "HD75322772",
+      "index": 6,
+      "parser": "weplay",
+      "phf": "e4ac9b5767345c7b6456a32d7934f1ee1b30de0316e33a1938a20ab4d7e975ae",
+      "standardText": "df0ed67d5bbb0d6d8f0ae0a0256e39a5b81bdcd29a7069ceab94d724511df157",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 11287,
+    "path": "weplay-hh/h.kolaric992@gmail.com/HH20260210 Manchester #3 (#11461801) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt",
+    "sha256": "4ae2f07aa56444eb413a33027cfdf352fddae90a4516f3f035c79399049e2b43"
+  },
+  "refusals": [],
+  "standardTextFile": "104c1a4d2119cc90c2c009eb8e13a0ea3b3aea9bb76e7474c7012333bf16c63d",
+  "stats": {
+    "bySite": {
+      "weplay": 7
+    },
+    "converted": 7,
+    "failed": 0,
+    "total": 7
+  }
+}

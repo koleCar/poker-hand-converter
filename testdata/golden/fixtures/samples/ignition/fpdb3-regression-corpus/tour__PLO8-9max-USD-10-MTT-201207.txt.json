@@ -1,0 +1,51 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2645486142",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "e36e0a2744c13c67ad0e405c6de6ed57850386ea65dcc7422be2492fc72573e5",
+      "standardText": "6dcee41d03f7a9ce115679b890bce58a0aec88dd55bca14fbe7f091d79c49af7",
+      "warnings": [
+        {
+          "code": "missing-button",
+          "message": "The button seat is unknown, so positions cannot be resolved."
+        },
+        {
+          "code": "streets-inferred",
+          "message": "No street markers; 1 post-flop round(s) recovered from betting closure."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1495,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__PLO8-9max-USD-10-MTT-201207.txt",
+    "sha256": "fffa62c3f999178cd28928dff03d31247262adf3f5d2eb706d60d419b5834525"
+  },
+  "refusals": [],
+  "standardTextFile": "6dcee41d03f7a9ce115679b890bce58a0aec88dd55bca14fbe7f091d79c49af7",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

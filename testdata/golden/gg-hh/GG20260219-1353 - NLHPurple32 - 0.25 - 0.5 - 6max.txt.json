@@ -1,0 +1,190 @@
+{
+  "chunks": 19,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD2739635324",
+      "index": 0,
+      "parser": "standard",
+      "phf": "a890c5ca455ec4a988bb2e77d7c7c18835bf8bbe719a7e91692e9a3c6f1137c2",
+      "standardText": "776216a387a3faa137cfdd2e2422bafded757641e6c9e5f6965a0f7746d42673",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739635178",
+      "index": 1,
+      "parser": "standard",
+      "phf": "7d6bcd9132b82409d3d33e38e96eba67e43b0ceb5727ae65aeb2455f016db8b5",
+      "standardText": "c11f1b75f313fcaa04de5d9b49a3eedd2b39d5b7056429e68f8cb3d40a2ad38f",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739635154",
+      "index": 2,
+      "parser": "standard",
+      "phf": "3e9d4e5a4a55db7562ecdd1124632cf4ffec65c8b22818d51273671809dd19c3",
+      "standardText": "8308386a9ff3405fbfef8743ee84c88955e9e8065c004feed724c24f50a93c94",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739635088",
+      "index": 3,
+      "parser": "standard",
+      "phf": "61be3fbae60016f9c7c8c1c5d7f0e18f6499fc5e66e3fbb76633ae28d21dcd5f",
+      "standardText": "5a13e0b4265ed148a46fbcf22da3383bc7d6704406587118a23c512761774e85",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739635028",
+      "index": 4,
+      "parser": "standard",
+      "phf": "b424430e9474aa193958a287c4cababb3b0cabe6584eae88fe90441d33c1b57b",
+      "standardText": "1615bd944203d5fd21b801c00d4631986bd1e25353fceef608d4eb1bc76ec773",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739634983",
+      "index": 5,
+      "parser": "standard",
+      "phf": "e1b7f8e8e2d1268e855167e38fc452d88b56e5361c25fa45ffd8556d375b019b",
+      "standardText": "1f41c965144d9d646c2a41abb4425c0e48f8dd4213ffa49d90fc865f2f1edadb",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739634884",
+      "index": 6,
+      "parser": "standard",
+      "phf": "b6f291d9d84260eee6cfb775da9884c97176c43c043946be1c296337d791df43",
+      "standardText": "79d08ac60de3a5649f67a0709f36022a062d89afae91f2c1bae189219aebd1d3",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739634786",
+      "index": 7,
+      "parser": "standard",
+      "phf": "2578710d52e4a7be60424356bfa2048086ab1860e395b4b514fee299cb5d8e76",
+      "standardText": "2408f6d7ba85dcdc121543b90b1cf7e2e79b04e126a95a2112e5f7442726957d",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739634420",
+      "index": 8,
+      "parser": "standard",
+      "phf": "8aba073b5b3759bedc8f46fb509edc046a1292b21185b92947a31194f805b7de",
+      "standardText": "f8e9f5eab969930a25d69fcf02b521244b6fc4b6e826b683a3812255b94bd4b6",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739634320",
+      "index": 9,
+      "parser": "standard",
+      "phf": "69a3ddda94b2ddbf41d2525497b40cfb23eca561a59a86470b00a758c4768db9",
+      "standardText": "fc88b31fa36bf5fad8d7ac96de85346172ef115043ece796e607fbe21cc2c367",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739634253",
+      "index": 10,
+      "parser": "standard",
+      "phf": "2f63f7c2a5d9fdc2230f52c48f96ff77cee25aca4352f93f3b1e44424fa6ba79",
+      "standardText": "3af5bf84a09a8c3143adcd2e0e8fc09365e04c1cf6a6344aafe22309f6d16f2f",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739634118",
+      "index": 11,
+      "parser": "standard",
+      "phf": "8718d86155c1771893989d0e6a27844146d67711ad1a4c82dfdca9b6dabd227e",
+      "standardText": "4f31cf5add5e71073cc5f43a735ceac1f93a87bcb1efde9ad268e64e496d2832",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739633981",
+      "index": 12,
+      "parser": "standard",
+      "phf": "548243933bbf864f1c6b07c713eb3e8f902af4cd37f403ef2eb643080b938d2e",
+      "standardText": "e6fb3cd84e716407997e846789d8a437cf07ec74a0f1e95b9d79016a817195a5",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739633920",
+      "index": 13,
+      "parser": "standard",
+      "phf": "59e54fb22da5664ef3f303910610f89afa63f1b8213972d979ec9ff081c76afa",
+      "standardText": "93bcc8e5a8518be00f384cbb1d3c81c2698a973b7a85d7bdacd9baa8283326d2",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739633836",
+      "index": 14,
+      "parser": "standard",
+      "phf": "57f199cf23abafa8ba6548b477416485fda4fdeaa442e5504213c52cf0051062",
+      "standardText": "b1b997ddc5a00b29757cbf7ec5ad8bee73d174c686be537fed926e783c79b003",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739633807",
+      "index": 15,
+      "parser": "standard",
+      "phf": "a0242779fac15078902af541f26d9982ea19d54262f6ad7a7dd810af7f7bd9dc",
+      "standardText": "3c1eae6213e6ab49d86a00357c70c32bf4e7e275d44b221f95dfe20888486a39",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739633620",
+      "index": 16,
+      "parser": "standard",
+      "phf": "7406c4e28e06f69d024f5ab537b82e6410e5c4ee6ba4fc755c4e3b7bdd1b7db5",
+      "standardText": "340518eaa5bc0b303a396ebc5700009eb3dd71ddef68862cf3722e51c043abee",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739633572",
+      "index": 17,
+      "parser": "standard",
+      "phf": "89b4083475862840de8aff1d2dfa1e51a450b6803e8210961a12737fdc817473",
+      "standardText": "7bd312addd965155a0a5489e5c9ba36036088749112190305fbfb782b8f79cfe",
+      "warnings": []
+    },
+    {
+      "handId": "HD2739633397",
+      "index": 18,
+      "parser": "standard",
+      "phf": "04b5d186e475d798ea2b4c2c649c95367e3942ae8b4081cc45e1348ce9f9b76b",
+      "standardText": "61483f386e9cb3f47f051bbe677162e4976ecfadad5460619419fcc0006668dc",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 22723,
+    "path": "gg-hh/GG20260219-1353 - NLHPurple32 - 0.25 - 0.5 - 6max.txt",
+    "sha256": "20f93fd8fb2ee2f039540ce153176924169db6e5330a427f27b8a9a248024550"
+  },
+  "refusals": [],
+  "standardTextFile": "1ffcbb19f9f90c3e467a5df757cb91c6d400e976e1b7b4f475959011da7520d5",
+  "stats": {
+    "bySite": {
+      "standard": 19
+    },
+    "converted": 19,
+    "failed": 0,
+    "total": 19
+  }
+}

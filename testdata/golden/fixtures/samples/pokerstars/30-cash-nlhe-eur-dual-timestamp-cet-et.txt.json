@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 250
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "1846552153",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "b60502c02991bea74c669e9f5b34028933db2d109751fb2355ffcf0ea0441bc0",
+      "standardText": "018421d1680c43524186c00040385a7c78ccc2e67a79718a8a1e9d8a4e1fe22d",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1484,
+    "path": "fixtures/samples/pokerstars/30-cash-nlhe-eur-dual-timestamp-cet-et.txt",
+    "sha256": "182d763ead1a9bd70d52a5494030f1a9ed3e1662c6611793a84617b92cc1d0d7"
+  },
+  "refusals": [],
+  "standardTextFile": "018421d1680c43524186c00040385a7c78ccc2e67a79718a8a1e9d8a4e1fe22d",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

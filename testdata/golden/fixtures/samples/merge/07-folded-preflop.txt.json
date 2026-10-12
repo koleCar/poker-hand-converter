@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1919,
+    "path": "fixtures/samples/merge/07-folded-preflop.txt",
+    "sha256": "341b2a248a4691a9206153a23e17b95d214777e36d8b06a103ba72271652b551"
+  },
+  "refusals": [
+    {
+      "fingerprint": "cb0e1e94a2e8086ef6f563a6a38aa2258a7aaa2d63aaf7071d1e156d501eb32c",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

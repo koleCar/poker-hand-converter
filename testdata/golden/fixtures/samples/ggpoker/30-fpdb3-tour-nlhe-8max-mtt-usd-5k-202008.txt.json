@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ggpoker",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 900
+      }
+    ],
+    "top": "ggpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "TM316262814",
+      "index": 0,
+      "parser": "ggpoker",
+      "phf": "cfe00a34cda5be92a3ed96c8b2f2211ffeaacc4d00e5b7e6d40ec1a425456e16",
+      "standardText": "0b750266c46bb672c7b5518208e6d56a0de891fc73b26626805de2ea34dbf123",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1874,
+    "path": "fixtures/samples/ggpoker/30-fpdb3-tour-nlhe-8max-mtt-usd-5k-202008.txt",
+    "sha256": "6896aa0eadb1c56091277c156923b356a8e07f7c16a22cc479931a3071ff8ff0"
+  },
+  "refusals": [],
+  "standardTextFile": "0b750266c46bb672c7b5518208e6d56a0de891fc73b26626805de2ea34dbf123",
+  "stats": {
+    "bySite": {
+      "ggpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

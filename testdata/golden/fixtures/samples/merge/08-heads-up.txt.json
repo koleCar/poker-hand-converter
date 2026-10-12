@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1464,
+    "path": "fixtures/samples/merge/08-heads-up.txt",
+    "sha256": "b22428a787b749ed855ceff9d8570b32d5a51867b4ddfc69ba349514f38aa252"
+  },
+  "refusals": [
+    {
+      "fingerprint": "5c5b1d7140002b7b3dab39cf890ee7b819332310ff82014c2ff2d91e978b27e8",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

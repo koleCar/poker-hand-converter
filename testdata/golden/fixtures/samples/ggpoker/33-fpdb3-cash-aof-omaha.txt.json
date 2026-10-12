@@ -1,0 +1,54 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "AF443780601",
+      "index": 0,
+      "parser": "standard",
+      "phf": "ca01459e83b6bec540a95c41d522ddac05ce44e9b4597ae8bc5ecb569867fa58",
+      "standardText": "d5d6ee972b9ca983131c86444f2b9b4b8b3e5075c252223477b0a8c42f603994",
+      "warnings": [
+        {
+          "code": "unknown-line",
+          "context": {
+            "line": 14
+          },
+          "message": "*** PREFLOP ***"
+        },
+        {
+          "code": "board-from-summary",
+          "message": "Board taken from the SUMMARY line."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1048,
+    "path": "fixtures/samples/ggpoker/33-fpdb3-cash-aof-omaha.txt",
+    "sha256": "0d49d9cfa0a4abaefeb09ed9137ccdd0fe13f7b890e1dd0052ae175a7b53ab7d"
+  },
+  "refusals": [],
+  "standardTextFile": "d5d6ee972b9ca983131c86444f2b9b4b8b3e5075c252223477b0a8c42f603994",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

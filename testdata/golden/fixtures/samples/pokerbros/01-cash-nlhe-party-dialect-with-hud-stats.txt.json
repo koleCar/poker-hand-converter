@@ -1,0 +1,55 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerbros",
+        "permille": 950
+      }
+    ],
+    "top": "pokerbros"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "1111111111",
+      "index": 0,
+      "parser": "pokerbros",
+      "phf": "c021d03cacdb8d71034fa1da1dc2332f005bf4bb3b1511d396448c7765de372e",
+      "standardText": "7d76103e419cf374597753e7b297393baf074a1cab88195b480dd79c1d6ef4bf",
+      "warnings": [
+        {
+          "code": "unknown-timezone",
+          "message": "Timezone \"ET\" is not in the offset table; the hand is timed as UTC."
+        },
+        {
+          "code": "ambiguous-timestamp",
+          "message": "The header time \"07:51:54 ET\" is a 12-hour clock with no AM/PM marker, so the hand may be twelve hours out."
+        },
+        {
+          "code": "hero-attribution",
+          "message": "Seat 1 is named \"Hero\" but the face-up cards were dealt to seat 3 (Player3); this converter is known to mis-attribute them."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1034,
+    "path": "fixtures/samples/pokerbros/01-cash-nlhe-party-dialect-with-hud-stats.txt",
+    "sha256": "aadd23772f03671cbebc2489753e8ee82828cdd98a169ceebcdc1b5450ca7d4a"
+  },
+  "refusals": [],
+  "standardTextFile": "7d76103e419cf374597753e7b297393baf074a1cab88195b480dd79c1d6ef4bf",
+  "stats": {
+    "bySite": {
+      "pokerbros": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

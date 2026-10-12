@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "109716666902",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "c6e5a6061100ded1a209d794c847a71307963e4562eadbb677126741e8d4d20d",
+      "standardText": "7d8703ee7afa01633ae785527a8ab913f41541c23138abefd496f32b2951d673",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 936,
+    "path": "fixtures/samples/pokerstars/14-cash-omahahilo-strange-names.txt",
+    "sha256": "925c2791cb048304a516b9e256cd2f0063e940e41cc332ce2d62510e15583883"
+  },
+  "refusals": [],
+  "standardTextFile": "7d8703ee7afa01633ae785527a8ab913f41541c23138abefd496f32b2951d673",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

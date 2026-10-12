@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ipoker",
+        "permille": 950
+      }
+    ],
+    "top": "ipoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-3311226627",
+      "index": 0,
+      "parser": "ipoker",
+      "phf": "68ff2935398ac765a9d36069b21e08410aa987ce29a42e77db7b2109f717bb06",
+      "standardText": "9e0d8feb53778dd27dfa8994aa3b010a618c79b3782b49829dbb5c5e7593c027",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2016,
+    "path": "fixtures/samples/ipoker/09-omaha-no-dp-heads-up-table.xml",
+    "sha256": "238bc603c35504640a9ccb8efe880596395c18f936272a1097ec579c95263f90"
+  },
+  "refusals": [],
+  "standardTextFile": "9e0d8feb53778dd27dfa8994aa3b010a618c79b3782b49829dbb5c5e7593c027",
+  "stats": {
+    "bySite": {
+      "ipoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

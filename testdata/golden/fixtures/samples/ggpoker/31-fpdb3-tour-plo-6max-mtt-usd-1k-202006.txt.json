@@ -1,0 +1,574 @@
+{
+  "chunks": 67,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ggpoker",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 900
+      }
+    ],
+    "top": "ggpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "TM106348078",
+      "index": 0,
+      "parser": "ggpoker",
+      "phf": "8b7aa9587a0acefc099067a653245d6f0b39cdcf5804549859916ac132de4921",
+      "standardText": "c5ca25e14ff79bc337a5a76ab59155b9b0ef29598947fbc7955b83fa5ea7208e",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348084",
+      "index": 1,
+      "parser": "ggpoker",
+      "phf": "c3920869fdd35e578ff36af006a034374c6621e46ea5773c47fe004f7c4e33bd",
+      "standardText": "f8be3e191e8be40e9dd320a8bab7b518e10dbbf1bd04719040062d617871836e",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348098",
+      "index": 2,
+      "parser": "ggpoker",
+      "phf": "c1f243837062f02768efae51b5b67d7c60cfa793cc6f7e488a132699aaf07225",
+      "standardText": "cf585b4271dfe3b83b0013581ee4f3f74a387d53d4531936e4f778d92dfbcce2",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348105",
+      "index": 3,
+      "parser": "ggpoker",
+      "phf": "bbb394959dd8a7978d80c0183382713d8aeeef585980eabeb9010665d6422103",
+      "standardText": "083d89ad6c84b6bb05106e84aa761f5a9072b52ab3887897bd3f2cad13cf8328",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348110",
+      "index": 4,
+      "parser": "ggpoker",
+      "phf": "bc41912cc7db908482b805c27304911dc7ad6c3fbc2a9472d17024ea669d0a60",
+      "standardText": "9369b7b09f09527acc2f5c21ac83bd03242f48322df3e043e6e8241563f8f8d9",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348117",
+      "index": 5,
+      "parser": "ggpoker",
+      "phf": "8c8599b8638591e19db0c586ea62d4b8d7c35c458ec5f97d3c9008bc6a907cb5",
+      "standardText": "117e636d5efc6105cddbc24436e3539a068057bb12643c98cbd7270b315d86bc",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348134",
+      "index": 6,
+      "parser": "ggpoker",
+      "phf": "7e863cf040cf7726f5bb75eba93e0208de15c90caf309fce3c47042586336ece",
+      "standardText": "8134bc653d33d2c9dc357004e702f22736563042290fbe55cef593715553f0f5",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348146",
+      "index": 7,
+      "parser": "ggpoker",
+      "phf": "c04d845161137509250984d1040fa33c6d5e360e6594081ed620eef6efc20aec",
+      "standardText": "11f0fe25d24a0cc0922b658191f7ca564525433c2331a54a1431ab974b2c2988",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348159",
+      "index": 8,
+      "parser": "ggpoker",
+      "phf": "920cebf2acad121a4e46d7b005f632457a1b98fd4c559aaa1dc37eb115d57e79",
+      "standardText": "662328399a86dbd16a4c68022d0b91a800e377045eb6ae264400c279a50ac310",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348168",
+      "index": 9,
+      "parser": "ggpoker",
+      "phf": "b71fe07590401df0c0a9117247da108ccf6ee8df9bbc6b8c2d51d7ce50f10a9b",
+      "standardText": "57eaaa381344427baa3259995577846d6ea55f0692b128c468846077145f315b",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348185",
+      "index": 10,
+      "parser": "ggpoker",
+      "phf": "1682157f9208b44e4ba1f94cce9f77df8f4034a7ce5c9abff7fe0edffa236b85",
+      "standardText": "cd9b80bf926103182b3b4c588e0033974256b041c4a574c09dc4130b4f5dd066",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348217",
+      "index": 11,
+      "parser": "ggpoker",
+      "phf": "75c58805c7a226eb7c78331db1ce080bca75b2d6f68dab8b0c18d22448a5845d",
+      "standardText": "f25a79c1eb537cef928f20b5f7306f1e715ea21065a75767bb1b182c2ba43c82",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348230",
+      "index": 12,
+      "parser": "ggpoker",
+      "phf": "e8852f50b77e732e36c6e7d7b2d23ca63cf9d94d2dc7a8e6380b0a92bd61d99f",
+      "standardText": "c1af0d0f6082f66c51ce0e0fa664f68da4eca4e8a8111fb3277e8e6490c86f56",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348248",
+      "index": 13,
+      "parser": "ggpoker",
+      "phf": "7425c625b7848dee5dddf63ccbef212dfb1f2d8ec944aebc3d7ff981a4950367",
+      "standardText": "b98997007af86a1b332c3d3a84c090f5523d123dedad2cdea36016a709f51077",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348265",
+      "index": 14,
+      "parser": "ggpoker",
+      "phf": "cd595d4d53f33110c393e5feac331dfd93c9f1921d704e9c4b2efee784a0a5c8",
+      "standardText": "b5c6082c228f66523d056e616743fcaf146795d91bb0cc93ee3d734a0f9761af",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348278",
+      "index": 15,
+      "parser": "ggpoker",
+      "phf": "fc6862cdaf07cafdaa5e116fec6a58438e29611bdae7ede7ba2006aca7c5e0b4",
+      "standardText": "2e640939d3da4de28de7762ddea1ddc01126cdef7ef72bc40efff952b51c5c6b",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348296",
+      "index": 16,
+      "parser": "ggpoker",
+      "phf": "c98db16c6e3150144face75926ec6c4b6e485781db9ca816df8463894ba2f228",
+      "standardText": "285322fec42c6bbaff0e8ed7293de728711636c2621f37ad2de3f94b48a406e4",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348320",
+      "index": 17,
+      "parser": "ggpoker",
+      "phf": "7e7c894f0fc1ff678f2334d37800df289d031c6f4364ee613bf06dcfb1b8a496",
+      "standardText": "8068e35e346a0596cad24ba9500d4c4bc371c241a10c7d2f8901d68e96c14d25",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348337",
+      "index": 18,
+      "parser": "ggpoker",
+      "phf": "b16d5b3ff9ed8c519d609fb0a90fe58ecee34fbd8e57b2382faa16ff859dba8c",
+      "standardText": "f6c76fbcb98bf3d7e30ff4acd42e836d016cb26f84c84e228e769fa7fbdf5dff",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348365",
+      "index": 19,
+      "parser": "ggpoker",
+      "phf": "e44d84cefba01673d2703b4763a6a3ad1d162e2e118250d1af5b1409e0cb9f68",
+      "standardText": "6efd7beb8de806ccb67ecc019e14f6397b11df84b93b8a8a0aac2d40f55ee731",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348391",
+      "index": 20,
+      "parser": "ggpoker",
+      "phf": "b3a8ab260a6153c84d0c2bbaf93289986493741fc4c0dcfc526708532b65d2bd",
+      "standardText": "dd86a183bb37dfb46e983fef2ea4481fada3654e0b9bda73e24dc42c7cc34680",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348398",
+      "index": 21,
+      "parser": "ggpoker",
+      "phf": "421bc368b2cd6b1b705c9a6be615b6e58923fbf61826529427d219f272c1bd04",
+      "standardText": "bf3628b0b2a12e1c78cc06e2ad9a693023055913555527d9719bbee4b562d642",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348401",
+      "index": 22,
+      "parser": "ggpoker",
+      "phf": "6b9c7b71560a0d5c39288d9730dc6d4762e9e7bacc3f7e27e2127aff75031637",
+      "standardText": "978e33e58d069f1c551e9f69eb76b8a91ffb3b35574d083b6046f2c934789f1f",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348414",
+      "index": 23,
+      "parser": "ggpoker",
+      "phf": "c4868d809ac0c4bd10f3abd28ebbaad94d3ecbfc1a4e560a33c5563e5eb34e47",
+      "standardText": "250799fe44569024a3650ba726e6dbfbf16914400844c4826c5b8816632d5ebe",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348845",
+      "index": 24,
+      "parser": "ggpoker",
+      "phf": "76adc3ce3854183337a2db4ed7016c05650a3c9a5d9d4d3df154016355359008",
+      "standardText": "cc41d51732da2a187790512afae0ced27c79986dedcf1fb1974aba322c76fa0f",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348849",
+      "index": 25,
+      "parser": "ggpoker",
+      "phf": "5f8b7fcacdd071e7609b41f06b5db77c07c5ab644c007609eeecb9deb9dbeeb1",
+      "standardText": "f77366006cfb4a15d1ef7e724f569b6e02072ce239e957aa63d823433e10aa1b",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348854",
+      "index": 26,
+      "parser": "ggpoker",
+      "phf": "fdb0507c124505d9bea2e9ae3bc5c60d82d725a1475f980bd9eebc8423a7f760",
+      "standardText": "4f640141c93496fc9a19f7d72983914c724626aa288abd01c3926659e29c7bdf",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348869",
+      "index": 27,
+      "parser": "ggpoker",
+      "phf": "9def353d69eea7eace048b252aaab3493cf31e817668cc77dc42d93b4497b281",
+      "standardText": "6108044e05f4a77c2d5f9c02a3cb2973ebc2e9e1277cb41efb6f135d33abe245",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348874",
+      "index": 28,
+      "parser": "ggpoker",
+      "phf": "b03c48599a296568a0d45c8e6759a230932123c47100281acb62d602116d3a41",
+      "standardText": "7d3b4536916c11c6a6d7ce3a82648b52d0c72fbba209392bdfbd595894759470",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348895",
+      "index": 29,
+      "parser": "ggpoker",
+      "phf": "814c1d191d5563ec84ef019b8ff7d427f1438afa614b2c165c45b9f002946b8d",
+      "standardText": "0b5bcd86f8269cbb7f4c75cc73813c7ce615f18264cd8dd3dce8f3aa036a9ead",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348904",
+      "index": 30,
+      "parser": "ggpoker",
+      "phf": "d5daced7daee4851faf7c0fcd3f7322e4efc023e51649cee1816cbee84af051d",
+      "standardText": "41e4cebd368e4d65a1835ae7162acbb2081c8b54ded03b5c6cf4b1cce2f6e6cc",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348907",
+      "index": 31,
+      "parser": "ggpoker",
+      "phf": "bc354eda22637af599123c4bb32f7bcaba8ae6477e94451f3e7ab2656208917d",
+      "standardText": "a9052cc2335931c7616278512d056656dd890980b841965c9b351d0584651429",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348924",
+      "index": 32,
+      "parser": "ggpoker",
+      "phf": "81de654f1a63d49db11c05d1d0ff23709d29d62777268b64c75b79540a4daa35",
+      "standardText": "692137b38cf9c7fe90510977fe0171a8c457e636f641ef5fc10f47145df7e3ec",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348944",
+      "index": 33,
+      "parser": "ggpoker",
+      "phf": "44733ac8d167e3817fac904c81c217a0181a148d4c9ff994f47cc36326313af3",
+      "standardText": "83390f697b01730711f80e8854688a4d375c8c3b552a5702d0ae85868ff95acb",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348953",
+      "index": 34,
+      "parser": "ggpoker",
+      "phf": "e13fd1862b8d28123fd5b121f952648dc0ff163fd1f5fdfb670154c7cf965b92",
+      "standardText": "8564c80b212b9398081392bc64da53512f216b87143108e5c10ba09ff47f6150",
+      "warnings": []
+    },
+    {
+      "handId": "TM106348960",
+      "index": 35,
+      "parser": "ggpoker",
+      "phf": "a02e9106d78a280a1564270d0b420ea1a51b1070371f2c6cd70d0e32e118637f",
+      "standardText": "294a0f915e2719e5b488448c8916842b2d913c95044d736a4223d288e88cb3a3",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366650",
+      "index": 36,
+      "parser": "ggpoker",
+      "phf": "9c1a330913417af03c8941a97b25e1085c9a011ff070e6e5ec24f53fc30572b2",
+      "standardText": "702f0bfd2c3e11396f5dd54270b465a66f02fa7b71f278b43cc84ba2d9f171b3",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366663",
+      "index": 37,
+      "parser": "ggpoker",
+      "phf": "12e83b50e085a7c2f09d822c33365fddbc86006d36d73fae4020374023990c22",
+      "standardText": "0bd250ca677d7ee6fbcd2c9a0e9d1638e99653ddefef0a9e0422c73ac5fc663e",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366689",
+      "index": 38,
+      "parser": "ggpoker",
+      "phf": "231b8218424a3198b891260db6de9299f32293452b7baadf08fa433a40681b99",
+      "standardText": "57b642aeb8e565faf232300ed4786495390fe7df53acb1d6dc060decdfd47df6",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366706",
+      "index": 39,
+      "parser": "ggpoker",
+      "phf": "d1831e40f1b96d86c59f3f149438bff82b8cd635a4907b1a5200c1bdc3506b8c",
+      "standardText": "e08c7930d0419723974ebe53b8bddf0cebd703e53c0f6965ce914d80cfa1877c",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366738",
+      "index": 40,
+      "parser": "ggpoker",
+      "phf": "071288aa2150081c8bc5a73167a7c0022f478a16ff633a59b8fc01e9df47309a",
+      "standardText": "89c2af47ff28374a0657934cc8814977d64e0bafe628678ff0b5f6711c0a95d3",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366744",
+      "index": 41,
+      "parser": "ggpoker",
+      "phf": "e6a5ab4aeedb430636fa36e0b41e1a54b35f438999175a62556d460507864b62",
+      "standardText": "57bc0196c6c4e1177a0a24e9c473da05870502cb69951b95f201f96bb2dfdff0",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366758",
+      "index": 42,
+      "parser": "ggpoker",
+      "phf": "0a87d0e1103d72d922f44a866877bb573412b5abd27bbb78dcdd65d1faaa3f25",
+      "standardText": "0d5bbf3cf43c11e3dd3b48cb1a52c391a4a2c7453f5a19f3dcc2285659bfb1ee",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366770",
+      "index": 43,
+      "parser": "ggpoker",
+      "phf": "73478122c333a17757a86855e13ee5245e37b817adebc4fea84f37631dd85e98",
+      "standardText": "c5f874a8a9b10296f4c55a7b0fcc622f5c78b272ec883f4ad368f10c00aec9d8",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366794",
+      "index": 44,
+      "parser": "ggpoker",
+      "phf": "3527f1ce1bd0f1cbd4862fc9cae2e39b407069e47afcb8838bd1a4ad5112ac13",
+      "standardText": "c0b270934d287f42494e427d0211c7365e12b40ebfb5551318e08ed4edc2cebe",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366809",
+      "index": 45,
+      "parser": "ggpoker",
+      "phf": "9ee128a92b8d659813916a78a7189c3628809f29f3825eeca6705dfc62faaefa",
+      "standardText": "acd1319606ab5618f06c9bec5cc2bad793a91ec4bba7dab194d003c0309c9eec",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366817",
+      "index": 46,
+      "parser": "ggpoker",
+      "phf": "d2ad06c036c2c454692dc601686b7793debd44065e1f2cbca7b155bacf09f656",
+      "standardText": "f9386387a954121e7ef00fac708ff802e56c9b9d080ff9468d400c6a8be44058",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366826",
+      "index": 47,
+      "parser": "ggpoker",
+      "phf": "627ee12e42d43adae3aad66e2231e92804bf2925bdee81b702982be365f5f0b6",
+      "standardText": "c4800ad0198fa43a850d04d76ba96a905820ebe54f408e105c0f62049afe479b",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366837",
+      "index": 48,
+      "parser": "ggpoker",
+      "phf": "14468897556a35c843009cf5c4593341f60c3a45c8e453c858dd61d4729369ba",
+      "standardText": "70f16e55d8f5c3d1a57e2971e43917cfda728776b6eebf28585dfe27f70378e7",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366850",
+      "index": 49,
+      "parser": "ggpoker",
+      "phf": "c927925b13f24f2ed075dd5dc4a5944491e4366746d90e41c2180c87c4290c67",
+      "standardText": "109c9fef6e81746874e278d3976bdbc39882edfe88035dd014ac22c3af1fccba",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366853",
+      "index": 50,
+      "parser": "ggpoker",
+      "phf": "0a7eaa7d1256d31d8c66e94441d46ea77179700245169eccc359733da4b45c43",
+      "standardText": "12573678191b7ba3afcd965ef1ab53b98cfc7fa5bc685b2e71a52b21ba3e4460",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366860",
+      "index": 51,
+      "parser": "ggpoker",
+      "phf": "db2e750a3afadae7117585e59451ecc7a24fac9273a9f8581a0eeca513a965aa",
+      "standardText": "81ccfb25a5e69f66e1ef013c0f30c1dfbe898bfc0f5edae699bf4650d7d00962",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366864",
+      "index": 52,
+      "parser": "ggpoker",
+      "phf": "374796776c1c03b71faf462ecf1b39c7454c2508c5cc99914baa13f1d6d5a952",
+      "standardText": "3c80c70d387bb7c1b8c37a44dfbf733b7e39de435caefaae71a09b00d53a81a2",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366869",
+      "index": 53,
+      "parser": "ggpoker",
+      "phf": "a6bfbf91c7bb4f8df52d2b3950f469f54ae3581a6b6c8774bbeeef54bb6238be",
+      "standardText": "bd4b869d9742fe5433af7f03e483c476442e0c6d86298ea42ba26e5342415cc8",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366886",
+      "index": 54,
+      "parser": "ggpoker",
+      "phf": "21b8dc72c62c9a33c9769bfcd45a4d9b7b6facaf2154cf30c7fcb12428a951b5",
+      "standardText": "4bc59facb17ceae7ac7d0a103a421fd78f8a01c7b5eb5b4a3ee687f70feedde4",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366908",
+      "index": 55,
+      "parser": "ggpoker",
+      "phf": "e1104520a3942e9f6eb610d9fd634f2ca0dd62827fcf5c1b5d17522440de745b",
+      "standardText": "8362a399ce20ea1e5bda5531ca4332c63b3ab6e9d01e1049fbeb3cf75ec3632c",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366913",
+      "index": 56,
+      "parser": "ggpoker",
+      "phf": "860808970d32084a2c767fcc250606f05bacebbb63936825379c3d1da4356f64",
+      "standardText": "89853ca310fd7b491690eec61ba87e98bee96baa7dd8cccbfd46126da96ca8ae",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366931",
+      "index": 57,
+      "parser": "ggpoker",
+      "phf": "b0d5e264256a9ca3d2da1c07669efb81f14d2f673e01c3969eee573dc5d319fb",
+      "standardText": "86a73014b813073b6039435e13d714182fbcc2c1634a653fe83ded5f34fdd690",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366945",
+      "index": 58,
+      "parser": "ggpoker",
+      "phf": "f848919138ba241a9e6e01334cc89e96637af98c91278e3a4c67e809227b4501",
+      "standardText": "a0ce7ca7f34bb0f301345ded5d2ec95a8909aafed80d2e5b5c7774c38a7879d0",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366966",
+      "index": 59,
+      "parser": "ggpoker",
+      "phf": "154e304d1d4decd5e6b03276e0cf60de4c4c2233f67ffe460c1922df7b93544f",
+      "standardText": "c4bde0f94a580d0de8ceb7c6ad65fd54b35d35991738897fd232b775abaa3d88",
+      "warnings": []
+    },
+    {
+      "handId": "TM106366984",
+      "index": 60,
+      "parser": "ggpoker",
+      "phf": "e15d903675ed984f100e9e72a6704c3c3cf63e5ca17f4d1eb27792fa460a80b4",
+      "standardText": "8354039af770a95947f5ccf439ced0b842d030af300506c3935af195a1148067",
+      "warnings": []
+    },
+    {
+      "handId": "TM106367006",
+      "index": 61,
+      "parser": "ggpoker",
+      "phf": "0aadb8b8ff4be55d05392c545a5ca5c21bc35fbe8c4944eac258a5fe8742838e",
+      "standardText": "61bc5c70689dc886c1877848b4e5be13c367acc3b86bda08b1394da33f10b69f",
+      "warnings": []
+    },
+    {
+      "handId": "TM106367015",
+      "index": 62,
+      "parser": "ggpoker",
+      "phf": "28359194e8e9b6ed42eb84a72d5ba040db3e1efc2299544779db93d75d0c8cc9",
+      "standardText": "669d4137e7ce9af3dcf95ba127ef241d4968e38daa3e2459eb2d3fa890d5fb14",
+      "warnings": []
+    },
+    {
+      "handId": "TM106367019",
+      "index": 63,
+      "parser": "ggpoker",
+      "phf": "5b83e3349cd6896c9fdae89e0964918b26bc4f63739ae4d4aa49e8c5b18a177a",
+      "standardText": "028a0caed7b52f4cf7e5f139d4027aa183e3f4d46124455618b97a257daaccf3",
+      "warnings": []
+    },
+    {
+      "handId": "TM106367026",
+      "index": 64,
+      "parser": "ggpoker",
+      "phf": "dcf7b98256aeb3e183656bb1e467ccf9d593ec339224e1ce615b49ea500ce19d",
+      "standardText": "c83885ea7fb63718058e8ccb18b434536591b566ba69d1913336e9225ee65d50",
+      "warnings": []
+    },
+    {
+      "handId": "TM106367048",
+      "index": 65,
+      "parser": "ggpoker",
+      "phf": "1ba2ef491b5884628ad4ed161c8bc39fa60580cb2341e314e3a41e79fd81ca1b",
+      "standardText": "6f233955b6c74f66c927dddcf89321d470c5b9925b92335e5e2d5cb7ddc7776b",
+      "warnings": []
+    },
+    {
+      "handId": "TM106367052",
+      "index": 66,
+      "parser": "ggpoker",
+      "phf": "4d9459f3236177570cdd36209592a8ec152d82b56c261729ba38ed1b3a2442e1",
+      "standardText": "9849593656bd52b13df9e1f15c73ea2410d72edd0bfc6d532a2c37e42d7dca09",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 89056,
+    "path": "fixtures/samples/ggpoker/31-fpdb3-tour-plo-6max-mtt-usd-1k-202006.txt",
+    "sha256": "7ad6231a840238ce82332cfd304784f6584a0467b5ae9fceb8a22c1d6be200e7"
+  },
+  "refusals": [],
+  "standardTextFile": "4ac45d57b11dbef9f91baba8372e9d11c83cadc50f71a8584995fcff76306585",
+  "stats": {
+    "bySite": {
+      "ggpoker": 67
+    },
+    "converted": 67,
+    "failed": 0,
+    "total": 67
+  }
+}

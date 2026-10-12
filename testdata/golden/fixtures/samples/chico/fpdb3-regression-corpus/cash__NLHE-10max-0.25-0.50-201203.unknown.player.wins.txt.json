@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "chico",
+        "permille": 950
+      }
+    ],
+    "top": "chico"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1275,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-0.25-0.50-201203.unknown.player.wins.txt",
+    "sha256": "3563ab769ff674ddadddc4f08eac98f0551dab5622786ebc041e264f1c05c1a2"
+  },
+  "refusals": [
+    {
+      "fingerprint": "b3c6b7310f8bb72041051975c6c4737bcc0d3d4c6a8988733dd832cd05c136bc",
+      "index": 0,
+      "message": "Line 21 is an action by somebody who is not in the seat list: \"Unknown player: raises 3.00 to 3.00\".",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unseated-actor",
+      "site": "chico",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

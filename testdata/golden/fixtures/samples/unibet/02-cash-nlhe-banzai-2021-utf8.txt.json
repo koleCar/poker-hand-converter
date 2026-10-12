@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "unibet",
+        "permille": 950
+      }
+    ],
+    "top": "unibet"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "UB-1463192545",
+      "index": 0,
+      "parser": "unibet",
+      "phf": "d236447f18ee6198ab99942ce540c7cfb022d52a4d0909e013504dc60db0e5f6",
+      "standardText": "bba3c9eda14d14a1b6df18269cdebe23b2ed199aab947af1728051e73fbe9c6b",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 891,
+    "path": "fixtures/samples/unibet/02-cash-nlhe-banzai-2021-utf8.txt",
+    "sha256": "a156356c0d3e6426125a246aa7ce0f567d832e3cac159725dd05c548e5f5d24b"
+  },
+  "refusals": [],
+  "standardTextFile": "bba3c9eda14d14a1b6df18269cdebe23b2ed199aab947af1728051e73fbe9c6b",
+  "stats": {
+    "bySite": {
+      "unibet": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

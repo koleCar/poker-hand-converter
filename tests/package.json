@@ -21,7 +21,8 @@
     "ranges:measure": "vitest run --config scripts/caller-ranges/vitest.config.ts measure",
     "ranges:villain-measure": "vitest run --config scripts/caller-ranges/vitest.config.ts villainMeasure",
     "learn:directions": "vitest run --config scripts/learn-directions/vitest.config.ts directions",
-    "learn:lab": "vitest run --config scripts/learn-directions/vitest.config.ts lab"
+    "learn:lab": "vitest run --config scripts/learn-directions/vitest.config.ts lab",
+    "golden:emit": "vitest run --config scripts/golden/vitest.config.ts"
   },
   "keywords": [],
   "author": "",

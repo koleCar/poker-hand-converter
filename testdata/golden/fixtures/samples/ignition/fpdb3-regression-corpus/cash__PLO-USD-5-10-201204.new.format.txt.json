@@ -1,0 +1,76 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2601407546",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "5247c7185c17690779e46ad6e7f9320e9e2173a5a61d766f45f67d31b6eccb66",
+      "standardText": "e5f161fecd7247aabdaa8c44992544e0b3ae912be1aa899e2bea1e7f36af0ae8",
+      "warnings": []
+    },
+    {
+      "handId": "2601407767",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "7e118fb25ab9516794dba033c4e1a6f984f3d19fd958ef39c0b2675086f1549c",
+      "standardText": "77b82c7f0ec52111f23ca5c71b50b0af548daacfc9a35a1410cb541820fb5c02",
+      "warnings": [
+        {
+          "code": "streets-inferred",
+          "message": "No street markers; 2 post-flop round(s) recovered from betting closure."
+        }
+      ]
+    },
+    {
+      "handId": "2601407966",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "d1e6020e286deca48b172eb15a79f54b88150358c920469c4303952734da89ef",
+      "standardText": "1594523faa51802ef3c028918ae5b88f68cd0696936093066bbba5f870f96818",
+      "warnings": [
+        {
+          "code": "streets-inferred",
+          "message": "No street markers; 1 post-flop round(s) recovered from betting closure."
+        }
+      ]
+    },
+    {
+      "handId": "2601408155",
+      "index": 3,
+      "parser": "ignition",
+      "phf": "f82ff126c6077076a0d591b6c8e131c8433ea71d89de60f501fff000f3c20b73",
+      "standardText": "b3e85288b1616536b962177a06b10fb2f9c5e5440bbf00f8058aa1c7652d5cd9",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 4644,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__PLO-USD-5-10-201204.new.format.txt",
+    "sha256": "217d8c88eb9cbabbc92d2fb4e4c7edf9a5689f545ab29daba62c3c883c02c5be"
+  },
+  "refusals": [],
+  "standardTextFile": "922fb25eba82eb0e9446c67bafbebf267288a284c3fa5827f28513eba8021f35",
+  "stats": {
+    "bySite": {
+      "ignition": 4
+    },
+    "converted": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

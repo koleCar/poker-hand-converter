@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "microgaming",
+        "permille": 950
+      }
+    ],
+    "top": "microgaming"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049096293",
+      "index": 0,
+      "parser": "microgaming",
+      "phf": "adceb47d0dccb9265bd2e4ff002eee1e888f6371f93c26c5a218347e901905f7",
+      "standardText": "e2218a591852213072dcdf16b0271890feaba97e391b82beed611c2a696a659d",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2717,
+    "path": "fixtures/samples/microgaming/12-showdown-show-and-muck.txt",
+    "sha256": "f8772cb2021b1033e7b73ded033dec322605713800e09a09be9bc5c98197813c"
+  },
+  "refusals": [],
+  "standardTextFile": "e2218a591852213072dcdf16b0271890feaba97e391b82beed611c2a696a659d",
+  "stats": {
+    "bySite": {
+      "microgaming": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "4300979169",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "601f2a6dc53d747b8237dc22c943d72b9f283b22a4d76b63684e9c73dea91ee0",
+      "standardText": "1cdabf804048181c4e4b5f44c3b85a31777db8d29df1ffdc06f51317d58a479b",
+      "warnings": [
+        {
+          "code": "mvs-player-hashes",
+          "message": "65=4ba52a2b2482257e014cb19c444d19d2 146=e7d59b6fbdd222c8b722bf108b360247 17=6331d383cbb91ec1a4aa9375f85c6a28 66=0dd87e8dcfe417ea5bde1614ee25b8a9 64=478b7837203149a093aa198cfc4bbcb6 63=baf18514552621e75fc941487ddb4e73 61=d7e9336d7e24b0d7a2c936686a1b554d 51=86ac9c0e33935f284beea825fdda8ce7"
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2218,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - $25-$2.50 - 202104.Ignititon.MVS.txt",
+    "sha256": "f5204b16d4fe807e9c01e6bbcedba24f8efe4999546a106189c282a8e0351b05"
+  },
+  "refusals": [],
+  "standardTextFile": "1cdabf804048181c4e4b5f44c3b85a31777db8d29df1ffdc06f51317d58a479b",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,325 @@
+{
+  "chunks": 35,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD73831080",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "00cc9e5a57267575ac8209099537e262168afc68f2c729b66f43b8c220e36893",
+      "standardText": "3fc41f9099bb061e677c1054d15df649056e5ae3448579ce1e5db758d505e524",
+      "warnings": []
+    },
+    {
+      "handId": "HD73831105",
+      "index": 1,
+      "parser": "weplay",
+      "phf": "9e1c8fb7858ea9f8e8de8d8f1fe07d889fb6a6ce982d88850a0f9e76441fff42",
+      "standardText": "1d591af91ac1de5dfd86dfba1647532b575259dac64630f8a1f19f7cf6c27b4d",
+      "warnings": []
+    },
+    {
+      "handId": "HD73831126",
+      "index": 2,
+      "parser": "weplay",
+      "phf": "9bb1e0dd5c139d2e713c54b9cf530338f8db5063a5012414d6ee0776ce590918",
+      "standardText": "df06736e706363104ba519b7b2054840fdda51d45701c47ac432b8409fa07cee",
+      "warnings": []
+    },
+    {
+      "handId": "HD73831146",
+      "index": 3,
+      "parser": "weplay",
+      "phf": "4501872c49b7cde34ae1550d2f6bf54daa04268717751ed0bb687e5968077945",
+      "standardText": "db1ba161afbb88e9277ff2ea5cd97c0201d81e23b605b2cc4331d8074b15f347",
+      "warnings": []
+    },
+    {
+      "handId": "HD73831172",
+      "index": 4,
+      "parser": "weplay",
+      "phf": "b6db2f64a1ed8db904d2df2c01c1ae77d62db50a7f1f66738a73cd64bd390de1",
+      "standardText": "f963c65ff0680df7a7e593dee3747b24e9387fdd79a3636313634a36ac277b56",
+      "warnings": []
+    },
+    {
+      "handId": "HD73831181",
+      "index": 5,
+      "parser": "weplay",
+      "phf": "854fa866adf6c9e4f2a340230dad204b95a044d14c36d1b636bedaddeb7c2256",
+      "standardText": "a1a4461fc596b1bfab80246ff96a4f55a181ea3c97383893db9709e09de037c2",
+      "warnings": []
+    },
+    {
+      "handId": "HD73831215",
+      "index": 6,
+      "parser": "weplay",
+      "phf": "30350c96d7baf28cd0ff9edcd7cc45e398d78a8b49a72269e37d8b82a7917c11",
+      "standardText": "7df58abffacbd28c61e7ab82adb40ad88275245916b6c8c6dd762a4d5e2f269f",
+      "warnings": []
+    },
+    {
+      "handId": "HD73831249",
+      "index": 7,
+      "parser": "weplay",
+      "phf": "66d7e334cc09824e33d0d82a3bf18c7b6f2fc228d87a8b6fa9fd99d16eb25183",
+      "standardText": "8f410d5bc2724ae7e2cb6ec0a8cfd10ad29c4ebd7e7918e8b04f0f7e2f72e42d",
+      "warnings": []
+    },
+    {
+      "handId": "HD73831271",
+      "index": 8,
+      "parser": "weplay",
+      "phf": "c8e0ee1f76f6311fa6208095f1dfc9c7b7c24deb4dcc93162fa593f1bd2e77a0",
+      "standardText": "b6e08d4c90254e7e03952f1a6bfe962c55f2b678c96421441070871292b13e92",
+      "warnings": []
+    },
+    {
+      "handId": "HD73831299",
+      "index": 9,
+      "parser": "weplay",
+      "phf": "406999b76221d4eaf4242e3232b3f59f42b11743a0e171c2776a23ae6591009b",
+      "standardText": "590f91efea610d7ef7580e99ba8cb91b85eb0401427f2252c63c5d967f55e7fa",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832316",
+      "index": 10,
+      "parser": "weplay",
+      "phf": "902d30fceedf6028b7c4b1d5ef2f1a6de1a6fd2a5228e61d66a9a8563c910720",
+      "standardText": "2b5877d29574c499ad79371145af0a0b5c9e22699c18b15a0311745fa9d14746",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832337",
+      "index": 11,
+      "parser": "weplay",
+      "phf": "ffbbfb32bbf7cc894294702cdb4183d992e8b1d90e9742057e15908ccd88a372",
+      "standardText": "b52b0eea45f4d59a78d1afbd191ce31c2638feb340fb32129fe0c42133c4f87e",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832349",
+      "index": 12,
+      "parser": "weplay",
+      "phf": "9f28d7136cb13d9562dfb4edfb9482cbcdda5c3852e15e13fe2124f69ea00985",
+      "standardText": "2dea76560db7510e0ebe4758ce980c4db1e029f1db6b00c64c7a2381d1c53ffb",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832354",
+      "index": 13,
+      "parser": "weplay",
+      "phf": "2a8c53c67002ae8968a5072aaf5bde499f8ee26c386d1d90ff7ca2c4b88e4b85",
+      "standardText": "e1289d4307618c423bb9ced366b5505ffe978f875787245f99c7db87a387717a",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832363",
+      "index": 14,
+      "parser": "weplay",
+      "phf": "56e97f5ea3cebcf35d414e068a0295ab52c3d6bc49e14c53e3cd1f2f5fb2609c",
+      "standardText": "408d703c9e80336ceff8df8c422773e6eb31c58ea28953ac4dda803e5275c0bf",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832369",
+      "index": 15,
+      "parser": "weplay",
+      "phf": "b9e6a136900284730b7b49cda1bfcc76dd3478950953a9b19f09b108798e896d",
+      "standardText": "9dca66f7fd4505925142678e0a58b1e2678cb8dc81d80bbaad7ff237db3fce60",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832426",
+      "index": 17,
+      "parser": "weplay",
+      "phf": "9882fd853ac529c69343461f6fd3dbde322ab7e89a60c32f247dba7698e7c034",
+      "standardText": "3528ae8740325836a8038f3a476c5e847f3af7dc6efcf9871f19c4cda4c8a3e1",
+      "warnings": [
+        {
+          "code": "button-not-seated",
+          "context": {
+            "seat": 5
+          },
+          "message": "The button is on seat 5, which is empty."
+        }
+      ]
+    },
+    {
+      "handId": "HD73832445",
+      "index": 18,
+      "parser": "weplay",
+      "phf": "3d9327b32fbe730699cb142cbfcbd33a0b21f311500bfe2ee8c1b05f27281647",
+      "standardText": "0d49962b2bb6d87ce9cc8d4f7b94f1aa32ba9fcf99b352475d2049d5eb393b9b",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832475",
+      "index": 19,
+      "parser": "weplay",
+      "phf": "6e833aea1a32a9aafc9dbe486b6fd2f1592e6f09830f4e0da5d0db0a787493cf",
+      "standardText": "f53963fdf04b28ac38223d6b54005758d6040cc9e39db35f49fe4eba0430d569",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832498",
+      "index": 20,
+      "parser": "weplay",
+      "phf": "976fe06ec35c4de9904f9408764f6d214f36453f9395517a36a2cc8548020c3e",
+      "standardText": "66ebc8dfb271e9efc2f0e607bee811bc017cb379dcf5955a8dc54ac5bc518b35",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832520",
+      "index": 21,
+      "parser": "weplay",
+      "phf": "33aa440124930d1c359e0e7e306410168e33b2944b26ca258b9949b6996f6fa3",
+      "standardText": "9fd71f4681699b05e413749c35b75d7abd3e68042575a80df72fb0abbf59b83d",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832560",
+      "index": 22,
+      "parser": "weplay",
+      "phf": "e4f64990b839eed8748a2faab882f9ae921afb75a4c0805d8685a9e0faf7a233",
+      "standardText": "217281a0604fc8346db2dd726769edb5cf41cd59e6cce0b070f0cdbd293a44cf",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832583",
+      "index": 23,
+      "parser": "weplay",
+      "phf": "32fac224e1bd24bcfdbac010dcfbe40340e49fdbad8e01016222c924d285c4fe",
+      "standardText": "d37463298b487e46a184c2285b2ff049d33951dc11298478a3397fb086b3aa9d",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832641",
+      "index": 24,
+      "parser": "weplay",
+      "phf": "1fb14c46d7fc747ce7259e6724924de502c8f967271622ae6b7fee46539b861e",
+      "standardText": "f7e4b0a29b308e7574c5144a093f76141b89a604acbb0a76fe3ea0b53c68b238",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832656",
+      "index": 25,
+      "parser": "weplay",
+      "phf": "0b5c17a762ee60c83869e90f02f66e0bc6e415a48496a5f90f1b31a629cf5af1",
+      "standardText": "36ed8c8758bb332fa1c5c35e0485cb8017b4b63e4999d1033818a7bfd8ad76c7",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832666",
+      "index": 26,
+      "parser": "weplay",
+      "phf": "1ca11d3e4bafa199e4e648022ec764b533c337736944715ad6a62eee000ae56c",
+      "standardText": "f94f09d8eeb7a464b60985ce5dd2be602c7e8545634c7efda5ea202bcf4b3051",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832716",
+      "index": 27,
+      "parser": "weplay",
+      "phf": "aa3464f6faafdb525015ef3dae67af9a1f2372db5ab403713e727d96f36da5cf",
+      "standardText": "799252cfa53962561d9931be9569faf0ee796c49c7f1877b6d7ba9b1dc1718bc",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832786",
+      "index": 28,
+      "parser": "weplay",
+      "phf": "b3d4e04a1123b73d46ef6bd1796afcb90bcb13b5e8fbdfe40b13d3111920164a",
+      "standardText": "53d7a31eb7f2d2a30c41297be7576d49323b52c60dbb5a0c25d352a596950140",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832828",
+      "index": 29,
+      "parser": "weplay",
+      "phf": "9aae2de34256b9bef90c01179a33a99369becd4457be94e3feab65c7f90ac7c3",
+      "standardText": "3170d63afa4bc16e74f0ade45dd1f08a3e927426fabc2ad6d37f06b151b411bb",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832870",
+      "index": 30,
+      "parser": "weplay",
+      "phf": "c24a0028b70bd9c74686d6014c16a6e3543fc93292c06cdc5779014ded0e2578",
+      "standardText": "9218ce9bb2db8e468b8b97ea254b5e6d759991678e0c579c0467687d2d833182",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832900",
+      "index": 31,
+      "parser": "weplay",
+      "phf": "4dda5a38f57fc101fff42508c255441d0fdeb222c069db3a13eda6276f4465a7",
+      "standardText": "f207573ca60700bce0238c3c72ffe78d23320266c59baa6ccc9527e8f5e87130",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832909",
+      "index": 32,
+      "parser": "weplay",
+      "phf": "64195a8b1fc9e6abab9f91180a0b3e4e083b50abc86c029a75156d046a53489c",
+      "standardText": "5603ffdccc41b2f35fcea6dec7ee061ecabb067e5a03ebc5454cf821c3247361",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832928",
+      "index": 33,
+      "parser": "weplay",
+      "phf": "dabd2b44f6b638e741ab8d534f3075f9debb06bb53bcaf113af61079f1ac7f4e",
+      "standardText": "293b917f2f70273e2607bef20e5e8d1b02c2314c90d2c3139b7d8cf965970fd5",
+      "warnings": []
+    },
+    {
+      "handId": "HD73832939",
+      "index": 34,
+      "parser": "weplay",
+      "phf": "1d55749909e771edabef6f506c54ee30d0fcf6e0b3154bccbd6c6495d0b228fa",
+      "standardText": "5ea10f9be65f070edede98f6f4776b04eec4e5e9434c87b9a4b7559fe11ac21e",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 39460,
+    "path": "weplay-hh/kole1992/HH20260126 Belgrade #2 (#11565800) - $0.50-$1 - Money 3 No Limit Hold_em.txt",
+    "sha256": "af7cc0306692bb34bf212bd3ce62e5a5e1f254d343494f78bb0220052478a8ef"
+  },
+  "refusals": [
+    {
+      "fingerprint": "8217895fbb7f27515ac142699492dfaec29666dd976eddd7d9d05bf44c2fdd5c",
+      "index": 16,
+      "message": "Big blind posted without a small blind (BB-only walk).",
+      "parserVersion": "2.0.0",
+      "permille": 990,
+      "reason": "bb-only-walk",
+      "site": "weplay",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": "aebff8b27357d77b9f2793695b8783ab2e7f2931fd514ae7a019b4c56b3cefe9",
+  "stats": {
+    "bySite": {
+      "weplay": 34
+    },
+    "converted": 34,
+    "failed": 1,
+    "total": 35
+  }
+}

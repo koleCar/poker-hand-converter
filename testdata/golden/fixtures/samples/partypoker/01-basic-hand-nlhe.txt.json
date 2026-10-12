@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-13550420797",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "c85e6381b4557286f8eb122f3e150311321874ddc5d9c42c5ddd56c902bc06ea",
+      "standardText": "3f5b1c0539c54749937f7a3cb2ca5af1269cac3f01dacee5f27be39222b5364b",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 790,
+    "path": "fixtures/samples/partypoker/01-basic-hand-nlhe.txt",
+    "sha256": "68c9b4c186b3d889dca24261eca84bdcd321ba98916bb4d46e9f2b7855823c82"
+  },
+  "refusals": [],
+  "standardTextFile": "3f5b1c0539c54749937f7a3cb2ca5af1269cac3f01dacee5f27be39222b5364b",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

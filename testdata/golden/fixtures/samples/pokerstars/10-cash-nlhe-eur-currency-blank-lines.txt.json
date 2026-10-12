@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "109666157973",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "9ef52ddb1cdfdea65a39676906933042a043468269022dac29f6145a37bf9d68",
+      "standardText": "2be12927243f8a787ecfc464f530da7b43ccf7c3af6ba5813749a2f34af87576",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1144,
+    "path": "fixtures/samples/pokerstars/10-cash-nlhe-eur-currency-blank-lines.txt",
+    "sha256": "58d003e557dad6d005d11990c734f48bafc33b135ba0a759187698c05d68fef7"
+  },
+  "refusals": [],
+  "standardTextFile": "2be12927243f8a787ecfc464f530da7b43ccf7c3af6ba5813749a2f34af87576",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "Windows-1252",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "microgaming",
+        "permille": 950
+      }
+    ],
+    "top": "microgaming"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049160112",
+      "index": 0,
+      "parser": "microgaming",
+      "phf": "d7135d0831601406cc04360710a3f2090c82c9e0d8511ba4501b720fc4b27250",
+      "standardText": "d894daf492e70456e2ce528cab3e7eeab37252543ab54aae8801198c3af599bf",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2953,
+    "path": "fixtures/samples/microgaming/04-pot-limit-omaha-hilo.txt",
+    "sha256": "a99ee14bc9e3932846696fca16612c11c834c4e1ba011a37f8161d3c9d49a5cf"
+  },
+  "refusals": [],
+  "standardTextFile": "d894daf492e70456e2ce528cab3e7eeab37252543ab54aae8801198c3af599bf",
+  "stats": {
+    "bySite": {
+      "microgaming": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

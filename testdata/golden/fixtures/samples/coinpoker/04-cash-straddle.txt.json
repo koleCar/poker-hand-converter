@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "191721400",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "cc70dd42196403f0857a85a8eb669df8746a8ced5d0e007bad70f6c237cdc25a",
+      "standardText": "d5bcd25a8f87cc94f84e8d28da6248444f95f5929487702b30ab9d14c20238de",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1428,
+    "path": "fixtures/samples/coinpoker/04-cash-straddle.txt",
+    "sha256": "08e8e856ca4c2541e479c0680052f966bad98776f22295f29ff42af9a9a83921"
+  },
+  "refusals": [],
+  "standardTextFile": "d5bcd25a8f87cc94f84e8d28da6248444f95f5929487702b30ab9d14c20238de",
+  "stats": {
+    "bySite": {
+      "coinpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

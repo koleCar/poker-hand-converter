@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "888poker",
+        "permille": 950
+      }
+    ],
+    "top": "888poker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "888-539304533",
+      "index": 0,
+      "parser": "888poker",
+      "phf": "da89078885aaccafb3c2d4bf59ac90d98c26d027ff332550f88bc7fa76d82ee1",
+      "standardText": "17a73a07a6d8c0fc7715d39a8a7a79c52f84d2955fdb0696ddb9343cb2bd09df",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 473,
+    "path": "fixtures/samples/888poker/14-fix-limit-no-holecards-shown.txt",
+    "sha256": "aa01b3900e9253234298bc1281e4dd8edbf1095a1b31f1ded06309fec9457bdf"
+  },
+  "refusals": [],
+  "standardTextFile": "17a73a07a6d8c0fc7715d39a8a7a79c52f84d2955fdb0696ddb9343cb2bd09df",
+  "stats": {
+    "bySite": {
+      "888poker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

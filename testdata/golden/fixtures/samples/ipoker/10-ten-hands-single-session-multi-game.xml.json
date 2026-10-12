@@ -1,0 +1,164 @@
+{
+  "chunks": 10,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ipoker",
+        "permille": 950
+      }
+    ],
+    "top": "ipoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5383652813",
+      "index": 0,
+      "parser": "ipoker",
+      "phf": "bcd9bdf95ab0584e804f1478e0d3a8180f509d2d0f2b5fd514d24a7d74c38612",
+      "standardText": "5cbefb3b584e267a0b13d232420ff6a27ec475fad99768a137a096aadaf7555a",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383653624",
+      "index": 1,
+      "parser": "ipoker",
+      "phf": "231608a01bf83f8f9761e6646d0819a5731462d1a8eccc188c798a515376efe8",
+      "standardText": "c830985fdfb6d50924ddfb2cf3b3dafa07e0a6972ce73dc2ef1c3a29bd9147a2",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383656026",
+      "index": 2,
+      "parser": "ipoker",
+      "phf": "64532d1c3e30bb20aa564b60d730968709a8aefa7993cf3a18f1e3a6eb5ea385",
+      "standardText": "22963039075a54d051e7c11fbc3598c32391afb828ed70ec2a5daed518b87624",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383656316",
+      "index": 3,
+      "parser": "ipoker",
+      "phf": "eee7c7e4176cda6690ee50623631e1eb14fc6cfaf85ccc08e3ab3e20397581b2",
+      "standardText": "97df67f2ddc769f9de0de82c2e120a532c01b7394c74804bb579c9b3d3c92841",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383658674",
+      "index": 4,
+      "parser": "ipoker",
+      "phf": "2874fadbfe051002106619169d097751f1104cb367edd8889e1d3c5218a7ec96",
+      "standardText": "a4d810fe6a77da9ebfaf2344af22b8765fd3b9c5ed3f3a2f138640a76e4c8091",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383660307",
+      "index": 5,
+      "parser": "ipoker",
+      "phf": "6fbdcdfaa1c967c8b30882dd20695efb90df83806a3344a194a5dc7f0fd14fcb",
+      "standardText": "0a97b781a76291fcfd0e5df50e03f84cfa7ac7e0ca4dde7fb8a8944c1394abd1",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383661871",
+      "index": 6,
+      "parser": "ipoker",
+      "phf": "64370f624e77f0f689c97e0e74c681c8151ef9138785e452e04da765ddcdfea8",
+      "standardText": "ecfa9b912d3c090ea2bf3eb547d65512c39f7bb78450ea207ae43276ce2116e3",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383665919",
+      "index": 7,
+      "parser": "ipoker",
+      "phf": "d48d9b0a9d779e9ff4edf59ebdae961354c05032734cd52c2180a62c35535188",
+      "standardText": "45fa25b850777d23b45af8bbb28331eb78f36d06c6cc7a315188b35d0c3fbc66",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383666380",
+      "index": 8,
+      "parser": "ipoker",
+      "phf": "d37bd02bf78817641b40e29caffa6117403067f6fbdfc0b80b1301327e4d7e32",
+      "standardText": "9efad31e90fce7313bd95edd2c8ca24750bfb4f345a237fc0867e3c36a73992d",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "IPN-5383666871",
+      "index": 9,
+      "parser": "ipoker",
+      "phf": "f7f6d9b4a29250f7947b1f6f6b64d1a5f4dd936c70c0fa40db696e52accbadd0",
+      "standardText": "bb61b5ed505077532bc28ebee8ec477366a2758e08fea650aa51bbcfdd592580",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 22449,
+    "path": "fixtures/samples/ipoker/10-ten-hands-single-session-multi-game.xml",
+    "sha256": "e794e2e17d8bfb4a48a874e00f2328501bcab55c80febc8a4625ab78557f8c89"
+  },
+  "refusals": [],
+  "standardTextFile": "496b4541d450e2a9abd4a33aab469e2d8a5480c8eeaf4d4996fe5f3b2f9ca919",
+  "stats": {
+    "bySite": {
+      "ipoker": 10
+    },
+    "converted": 10,
+    "failed": 0,
+    "total": 10
+  }
+}

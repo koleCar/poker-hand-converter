@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 2211,
+    "path": "fixtures/samples/pokerstars/46-cash-badugi-draw-streets-excerpt.txt",
+    "sha256": "043da13a860d4b4bc25bd2a32ac30991c3c801aea84808925c1fb271e68e1809"
+  },
+  "refusals": [
+    {
+      "fingerprint": "f0b21f86c27bff3167cf33f02681f8b1523cedb1c556b35c0dcb461d5f61f542",
+      "index": 0,
+      "message": "\"Badugi Limit\" is a draw game, which this parser has not been verified against. It reads Hold'em and Omaha.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "pokerstars",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

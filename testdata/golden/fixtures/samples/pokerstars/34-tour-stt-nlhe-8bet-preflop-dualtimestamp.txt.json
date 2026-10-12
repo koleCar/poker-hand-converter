@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "74759586758",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "06b6f13b8bdc33680412e9d2565733a4ee03a10cda070ac53cec7d49dab87f6f",
+      "standardText": "8ad9e96adc5fe1e44c956315931f8c395adf5b691464b8448c2b039071fc120e",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1959,
+    "path": "fixtures/samples/pokerstars/34-tour-stt-nlhe-8bet-preflop-dualtimestamp.txt",
+    "sha256": "438d037338bac01785fb629c930e4810ac7a8f4d468251454e2117de6e6f944e"
+  },
+  "refusals": [],
+  "standardTextFile": "8ad9e96adc5fe1e44c956315931f8c395adf5b691464b8448c2b039071fc120e",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

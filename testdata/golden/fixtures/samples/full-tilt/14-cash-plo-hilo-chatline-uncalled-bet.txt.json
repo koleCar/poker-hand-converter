@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "fulltilt",
+        "permille": 950
+      }
+    ],
+    "top": "fulltilt"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "33730956598",
+      "index": 0,
+      "parser": "fulltilt",
+      "phf": "ba9997e2984a9be82d828477a2b8acc351906e28a7bd32fb1d0b88ce48aff884",
+      "standardText": "afc9f2ce8d42b37a39cd365a511a2a1f5e722b90892d0e7328a7c186637f32b5",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 591,
+    "path": "fixtures/samples/full-tilt/14-cash-plo-hilo-chatline-uncalled-bet.txt",
+    "sha256": "45fe5520c06475a3f65df44f150ff9f0d080eedd397384c58b6daddcc5a1130b"
+  },
+  "refusals": [],
+  "standardTextFile": "afc9f2ce8d42b37a39cd365a511a2a1f5e722b90892d0e7328a7c186637f32b5",
+  "stats": {
+    "bySite": {
+      "fulltilt": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

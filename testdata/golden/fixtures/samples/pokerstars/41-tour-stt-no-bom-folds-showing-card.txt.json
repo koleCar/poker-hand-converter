@@ -1,0 +1,57 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "68217212777",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "f5adf40766456fb4b061c0e91332ad6b5df58c1788bf9899896a09718f99e6ec",
+      "standardText": "a6f3c495ff53109654619404f7be276df8c69f14a17fbdff1a580def9da5419c",
+      "warnings": [
+        {
+          "code": "hole-card-count",
+          "context": {
+            "player": "Player6"
+          },
+          "message": "Player6 has 1 hole cards; holdem deals 2."
+        },
+        {
+          "code": "reveal-not-serializable",
+          "context": {
+            "line": 25
+          },
+          "message": "Player6 exposed Ks while folding; standard text has no line shape for that and will not reproduce it."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1334,
+    "path": "fixtures/samples/pokerstars/41-tour-stt-no-bom-folds-showing-card.txt",
+    "sha256": "fc2742611063f98ecf61e46196ac3b4b5095c064f6301b21378ed5b0341f6d96"
+  },
+  "refusals": [],
+  "standardTextFile": "a6f3c495ff53109654619404f7be276df8c69f14a17fbdff1a580def9da5419c",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

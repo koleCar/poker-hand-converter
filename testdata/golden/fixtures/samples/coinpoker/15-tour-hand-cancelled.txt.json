@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1331,
+    "path": "fixtures/samples/coinpoker/15-tour-hand-cancelled.txt",
+    "sha256": "528f2ef7c50a2f57d960f6dbf4bb973edb3fa0e12800e8fdd7171b9cb4caaf09"
+  },
+  "refusals": [
+    {
+      "fingerprint": "366ebe89a3711cc10bad96f29228f0d1339b2833b5546c76952a49aa52aef0d0",
+      "index": 0,
+      "message": "CoinPoker cancelled the hand and refunded every stake.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "hand-cancelled",
+      "site": "coinpoker",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

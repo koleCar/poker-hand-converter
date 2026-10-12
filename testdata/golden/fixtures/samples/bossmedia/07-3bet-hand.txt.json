@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 2713,
+    "path": "fixtures/samples/bossmedia/07-3bet-hand.txt",
+    "sha256": "6fce52a8108bab1d70f0b7781f28c485e89a679f30e735e1b61c7053d744c20a"
+  },
+  "refusals": [
+    {
+      "fingerprint": "b9f9ec5c0c6dd3909c81e6b60e6ff2482301b5699b35d9b095b9b76b6c0ca262",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

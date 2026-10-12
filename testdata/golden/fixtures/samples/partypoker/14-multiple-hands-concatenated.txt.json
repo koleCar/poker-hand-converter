@@ -1,0 +1,74 @@
+{
+  "chunks": 5,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-1458965856",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "86196f58118dea747faa89d51eb3c061def5064cb073d97cf8e1ca493a41320a",
+      "standardText": "6f8d5a46d1cc68667f9c73ecee693c7f0b2b59824d0297288c8d6a830f8140c3",
+      "warnings": []
+    },
+    {
+      "handId": "PTY-1458965857",
+      "index": 1,
+      "parser": "partypoker",
+      "phf": "11a414c83dda47ddaf7834e1fde473ca0083c0d010252178e0b5865c21e3714c",
+      "standardText": "dcc7c5fbed028bd2446bc652fa9e5c2966cdc16fb8e60f5299c3d2a8833e8cf6",
+      "warnings": []
+    },
+    {
+      "handId": "PTY-1458965856",
+      "index": 2,
+      "parser": "partypoker",
+      "phf": "85bd258109d8603d57b5943e14756b3a1e5b8306c8bc50b5097d967f02b0063c",
+      "standardText": "1f9a35b699178d02e63269ef31593f9c026266b7a5b79423f335ce6bc73cf464",
+      "warnings": []
+    },
+    {
+      "handId": "PTY-1458965856",
+      "index": 3,
+      "parser": "partypoker",
+      "phf": "6800ed78abaac9ea987bf5b13447047cedcace919ef9f175929984ed2fad73a3",
+      "standardText": "359d5255a075f1ae8b6fd49179be670c398c2b14cb2c40be68ba6392eddfdfb6",
+      "warnings": []
+    },
+    {
+      "handId": "PTY-1458965856",
+      "index": 4,
+      "parser": "partypoker",
+      "phf": "ec4b828e2af985e98aef1bb1086b2b24b4f5ff1bf48df1d56a3bd62e9874f4e9",
+      "standardText": "3980e891674b36e0f8063c1b0b418545e916975ace49b398a9568a0766b1bb2d",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 4849,
+    "path": "fixtures/samples/partypoker/14-multiple-hands-concatenated.txt",
+    "sha256": "9d7620759ccf5d7ec22874c442840d9abcd211dc05dc8908c3935f3fb1f306d1"
+  },
+  "refusals": [],
+  "standardTextFile": "abe1af79935f317a61c60271022a624ddfef24c199f5d027206999ac7f7e7d0b",
+  "stats": {
+    "bySite": {
+      "partypoker": 5
+    },
+    "converted": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "888poker",
+        "permille": 950
+      }
+    ],
+    "top": "888poker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "888-349444554",
+      "index": 0,
+      "parser": "888poker",
+      "phf": "e79256c0b8ec0dc62d4fdc8f0705ee406ece5b68fcd817297b6c970fe0cc8491",
+      "standardText": "27ab50043c7ed77cedab4b000707f075ced863fea6c332f65176cdd9ea8cbaf5",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 916,
+    "path": "fixtures/samples/888poker/02-allin-summary-both-shows.txt",
+    "sha256": "24f6771f9733f09583309ac6d3a2087d9275f22fad465b570150ad3f5c4569be"
+  },
+  "refusals": [],
+  "standardTextFile": "27ab50043c7ed77cedab4b000707f075ced863fea6c332f65176cdd9ea8cbaf5",
+  "stats": {
+    "bySite": {
+      "888poker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

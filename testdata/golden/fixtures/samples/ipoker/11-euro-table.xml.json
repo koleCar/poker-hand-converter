@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ipoker",
+        "permille": 950
+      }
+    ],
+    "top": "ipoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5383308893",
+      "index": 0,
+      "parser": "ipoker",
+      "phf": "b8b05037a9fb559537ce367cb7c434e990cbd84f21b04914f0b2e1aca73304eb",
+      "standardText": "cf0dc829a801cbe27bec62b459ea2b1936aea9e27adeaff5e85e18ed582664fe",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2525,
+    "path": "fixtures/samples/ipoker/11-euro-table.xml",
+    "sha256": "ee459fa7c1694d72a31abd50e3266e1bbd96b9fd51cce8c0c4c0d27d5fe08429"
+  },
+  "refusals": [],
+  "standardTextFile": "cf0dc829a801cbe27bec62b459ea2b1936aea9e27adeaff5e85e18ed582664fe",
+  "stats": {
+    "bySite": {
+      "ipoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

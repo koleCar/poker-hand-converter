@@ -1,0 +1,50 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "runitonce",
+        "permille": 950
+      }
+    ],
+    "top": "runitonce"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "30266126",
+      "index": 0,
+      "parser": "runitonce",
+      "phf": "de833678aece9b0b9eb5a33b7c0c99fc58100751f6c29e6b34a10d0e2d0dc269",
+      "standardText": "f7f0371ed90869ae03152224ff845237bd4c90ffabce630b4bd568dfcee71cdd",
+      "warnings": [
+        {
+          "code": "uncalled-includes-promo",
+          "context": {
+            "line": 28
+          },
+          "message": "The return of 71 to Galen U includes 50 of promotional chips; 21 was actually committed and the rest stays in the pot."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1203,
+    "path": "fixtures/samples/run-it-once/01-cash-nlhe-splash-the-pot-mucked-showdown.txt",
+    "sha256": "872c2af3c75baa63bc86f6c689be312294d70ec7c4017d90f3219e7d1bcf0dba"
+  },
+  "refusals": [],
+  "standardTextFile": "f7f0371ed90869ae03152224ff845237bd4c90ffabce630b4bd568dfcee71cdd",
+  "stats": {
+    "bySite": {
+      "runitonce": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

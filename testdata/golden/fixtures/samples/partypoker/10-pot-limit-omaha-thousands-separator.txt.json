@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-13551973065",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "f40ac7b7a72a85bbf92b3ed1937a9876b5e577c424692c0dd950e494a68c2eb0",
+      "standardText": "faa722ba0d07a931ab1b0cacaf896c0bf6ac75d09fea099a8ab95d6a764a5b81",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 708,
+    "path": "fixtures/samples/partypoker/10-pot-limit-omaha-thousands-separator.txt",
+    "sha256": "32b178d4a01ef5f05a3004e04c4b2c6e48630c61a2bc8b585a6ad7f7dceb810f"
+  },
+  "refusals": [],
+  "standardTextFile": "faa722ba0d07a931ab1b0cacaf896c0bf6ac75d09fea099a8ab95d6a764a5b81",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

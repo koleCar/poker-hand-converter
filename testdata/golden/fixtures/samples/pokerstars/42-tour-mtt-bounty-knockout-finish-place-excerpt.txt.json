@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "47658722448",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "8d4c507d1d97eaeb03a92f6afa67b46ed4f1fea6be0266ba36c3088d7dec2796",
+      "standardText": "1a35a458f08dd9a2039f49d74e720df94185618c205da3c74026cab29b08ecb6",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 2034,
+    "path": "fixtures/samples/pokerstars/42-tour-mtt-bounty-knockout-finish-place-excerpt.txt",
+    "sha256": "6653ad3b6959b28dd49613944eb32ea6c9aef004c72fb7e8baaa3dcdcae890ec"
+  },
+  "refusals": [],
+  "standardTextFile": "1a35a458f08dd9a2039f49d74e720df94185618c205da3c74026cab29b08ecb6",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

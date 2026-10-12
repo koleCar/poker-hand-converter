@@ -1,0 +1,142 @@
+{
+  "chunks": 13,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ggpoker",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 900
+      }
+    ],
+    "top": "ggpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "OM190765880",
+      "index": 0,
+      "parser": "ggpoker",
+      "phf": "75c1d9dadedc1b1455d29061a7b85af1bb59c9e9b2fb9ec563d9d6072a743236",
+      "standardText": "3bc7c1315279222769cd1f7a38375a1f1a79ecd6a446363f76f1999a23ff77b5",
+      "warnings": []
+    },
+    {
+      "handId": "OM190765916",
+      "index": 1,
+      "parser": "ggpoker",
+      "phf": "27f3e9187faef7cd7907c809bd1354195e65dc236a43505b6f036a438fd27267",
+      "standardText": "43fda2deaab3cede1b8f3b2019230740f28897ee00c49840d478f9fa540ac65f",
+      "warnings": []
+    },
+    {
+      "handId": "OM190765939",
+      "index": 2,
+      "parser": "ggpoker",
+      "phf": "27ee7bf99bfe7227a2e32f7f174f0cc893e6b267011e5f09c6a7fe9c4d892448",
+      "standardText": "a52e384a106e5dffc8e9da1243eb7187ccd0086e8ea8571ea8bc495972fe66ac",
+      "warnings": []
+    },
+    {
+      "handId": "OM190765952",
+      "index": 3,
+      "parser": "ggpoker",
+      "phf": "1243b46f1bd9052156709c98694ffff23e168952dde1f9ddee50a42427077013",
+      "standardText": "65c540d789bd2ac9469c057ee4753738c0acb7ed6cb9ac6828fabb91007eed73",
+      "warnings": []
+    },
+    {
+      "handId": "OM190765984",
+      "index": 4,
+      "parser": "ggpoker",
+      "phf": "77018906ca9f390c423a896596592174cb15b1623a779bbaa1f9ef70aeede1a9",
+      "standardText": "d2b58cb809697e21778471887e590e112760cdb660d51b55ee45065c7c93e596",
+      "warnings": []
+    },
+    {
+      "handId": "OM190766005",
+      "index": 5,
+      "parser": "ggpoker",
+      "phf": "c4f6f79c1cfc31b8066e51bd3b6da27b746b8cad970e8a28bfc478f7377158fb",
+      "standardText": "fdac5f86689d2598bddd46afcc284c59b6aa1740c08bb4c6033c62066ba67d2e",
+      "warnings": []
+    },
+    {
+      "handId": "OM190766027",
+      "index": 6,
+      "parser": "ggpoker",
+      "phf": "191a3447f01a6c49c8493b70bcee4c33ae5c8a454adbf09324bcab9eadae3b5f",
+      "standardText": "e822825ff7c95eb4761c719560d74d7d52eeecfe99edda64dfaf95add1dc1ad2",
+      "warnings": []
+    },
+    {
+      "handId": "OM190766054",
+      "index": 7,
+      "parser": "ggpoker",
+      "phf": "66a3412409611499f2793029f299ee1992f636259937adf24e3c28c2de70cb5f",
+      "standardText": "76e64c54e4083ad6ad3b09ca3c25c26c0cd36c843a3bf1478e0ed9155989c9ae",
+      "warnings": []
+    },
+    {
+      "handId": "OM190766065",
+      "index": 8,
+      "parser": "ggpoker",
+      "phf": "dc0627f85fcceb596902a588071cbab764c23de3c0949b2f7c777a538f382349",
+      "standardText": "96a7d17413d3cc14e6d43855d504fbf5fc6fb535dca86a7214ff075d9eeca5ac",
+      "warnings": []
+    },
+    {
+      "handId": "OM190766091",
+      "index": 9,
+      "parser": "ggpoker",
+      "phf": "2535c640442cd9ee8564b0186fe4103adaa2fdbb0c306d492f8ab952c8723fca",
+      "standardText": "f7f2974157d546d01606ca253a52f3406b2d564e8b1f5be29b8012343e43acb3",
+      "warnings": []
+    },
+    {
+      "handId": "OM190766118",
+      "index": 10,
+      "parser": "ggpoker",
+      "phf": "8da12d7f9b058ab9e95f0a05fc2976bbc9f428927c460ee04bb9e7f1540e6082",
+      "standardText": "875b743f7b332e395385cde73229e34c11f0b419e42fdc4a01737ee7bd18a1ea",
+      "warnings": []
+    },
+    {
+      "handId": "OM190766277",
+      "index": 11,
+      "parser": "ggpoker",
+      "phf": "004237173d2b51a12e51cf5b53007c988b25236017654a6390854e48d8984029",
+      "standardText": "2680728d362e37230daacf9d96fce040f421d7c0aa7af82c4374829d58ac6271",
+      "warnings": []
+    },
+    {
+      "handId": "OM190766289",
+      "index": 12,
+      "parser": "ggpoker",
+      "phf": "1d64131b821b27093586d3648a0e4406b8ba03b2c06a8b6c14606b155d1cc9dc",
+      "standardText": "0bfc2022d514e756c330654fd2620c45802c15dfbc834982795ea9cbc7dd4b63",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 14894,
+    "path": "fixtures/samples/ggpoker/14-fpdb3-cash-plo-6max-usd-0-5-1-00-202006.txt",
+    "sha256": "73119205d52621814aafabd1a818d3ab5d539ee48e019fbc69b9c53a3e8decc4"
+  },
+  "refusals": [],
+  "standardTextFile": "2c72e2ea6939ec9c695345907af753e0eb9e32e49a4df6d1c42337065abc7e77",
+  "stats": {
+    "bySite": {
+      "ggpoker": 13
+    },
+    "converted": 13,
+    "failed": 0,
+    "total": 13
+  }
+}

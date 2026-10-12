@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ongame",
+        "permille": 950
+      }
+    ],
+    "top": "ongame"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-118630507-219",
+      "index": 0,
+      "parser": "ongame",
+      "phf": "e3f54e31d08aecf5cf39eb0d3414b9c9541b1b70a870650a7bfea966a289a2d8",
+      "standardText": "d92958ba2b10d7d460274e68ac3e9ac8c5053abd3af44d665ea53a76aa363833",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1244,
+    "path": "fixtures/samples/ongame/08-euro-table.txt",
+    "sha256": "98eff6588ed3f0622463cb2a6b28d48a74e5c8a37ec3c02fc5672afd3bfac83f"
+  },
+  "refusals": [],
+  "standardTextFile": "d92958ba2b10d7d460274e68ac3e9ac8c5053abd3af44d665ea53a76aa363833",
+  "stats": {
+    "bySite": {
+      "ongame": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

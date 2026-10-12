@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD90000002",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "19ce4c2bcd6062003a61f95be0b47eafd82c663852e7499c98eaa45bad0313de",
+      "standardText": "d14858252bd3593ed180359177383d3377b38dcbc7b349d05915e6ebda8280d4",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1170,
+    "path": "tests/test/fixtures/weplay/raise-button-open.txt",
+    "sha256": "c1758e96ac00657a8e6c29b61eced46fcfdb8cb324645b12d501f7eb991497d1"
+  },
+  "refusals": [],
+  "standardTextFile": "d14858252bd3593ed180359177383d3377b38dcbc7b349d05915e6ebda8280d4",
+  "stats": {
+    "bySite": {
+      "weplay": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

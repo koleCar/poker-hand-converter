@@ -1,0 +1,78 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ggpoker",
+        "permille": 950
+      },
+      {
+        "parser": "standard",
+        "permille": 900
+      }
+    ],
+    "top": "ggpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "SD27208848",
+      "index": 0,
+      "parser": "ggpoker",
+      "phf": "0f12a6850263f85691059b07ba8971735554de2f0fb1365673ea837937126928",
+      "standardText": "4ccacecdf847220f61f469c768a33c7e915b57aa858b9e9dc9cd8a4433110638",
+      "warnings": []
+    },
+    {
+      "handId": "SD27208838",
+      "index": 1,
+      "parser": "ggpoker",
+      "phf": "c7dcf0f974166f5723af1a7e72d9a6818d92c5c0b074a5a6d0f7e9d829923862",
+      "standardText": "f889e25c7f6cefc7bf9d9a857ae12d7c8857afbbc56092ff79b2c6bae9b8dd12",
+      "warnings": []
+    },
+    {
+      "handId": "SD27208832",
+      "index": 2,
+      "parser": "ggpoker",
+      "phf": "3eef167bcbe6e45b0827c4173b13ef5b55172bc40b3e4db046a5338d8d3b6d39",
+      "standardText": "122c460cbc587f4342622ec423680f1a9c3b387af038af0f84c6bbcb32043749",
+      "warnings": [
+        {
+          "code": "hole-card-count",
+          "context": {
+            "player": "11294517"
+          },
+          "message": "11294517 has 1 hole cards; shortdeck deals 2."
+        }
+      ]
+    },
+    {
+      "handId": "SD27208824",
+      "index": 3,
+      "parser": "ggpoker",
+      "phf": "61fddb74c3c6d53d5c698d1788baaecb0949daf3e1c3c8f8c67ff9fd618d8940",
+      "standardText": "3f985aa761968c3e053932901bc1f7fb40ea8a382e93c61bf89713d8d20591a0",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 4199,
+    "path": "fixtures/samples/ggpoker/11-fpdb3-cash-nl-shortdeck-5max-usd-0-2-202103.txt",
+    "sha256": "7c27a290221010c24b7e1d09d7b8a278644d0dbe8602d4c9a030f2c31e190967"
+  },
+  "refusals": [],
+  "standardTextFile": "af000e9b50261dca846bc7755a758e70172f63c65fc6dcef4c1a6df1371fb1a6",
+  "stats": {
+    "bySite": {
+      "ggpoker": 4
+    },
+    "converted": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

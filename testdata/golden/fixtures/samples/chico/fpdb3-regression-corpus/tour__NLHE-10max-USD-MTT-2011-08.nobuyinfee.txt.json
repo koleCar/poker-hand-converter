@@ -1,0 +1,195 @@
+{
+  "chunks": 17,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "chico",
+        "permille": 950
+      }
+    ],
+    "top": "chico"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-900218526",
+      "index": 0,
+      "parser": "chico",
+      "phf": "861c6fc0ee61fdf14cff9afa0dda2b91a783e5a5e33b8bee750408b83f327140",
+      "standardText": "0bd538cd09c56525a9447c0526bef829f900fddb048209c42e6524e9f3d7750c",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900219162",
+      "index": 1,
+      "parser": "chico",
+      "phf": "da8f3f5396141982fe7ee462bced3072831f08f13817cf03565007f3f17af261",
+      "standardText": "8cd7e5a8310352a43ee3d0fcbf40ababe5dcd3d53b79e05fb2be04f2cb147942",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900219408",
+      "index": 2,
+      "parser": "chico",
+      "phf": "61fb49be2b8115ccced39d191bbbc369f25871b0b537fe1bca86dcca09383320",
+      "standardText": "c3685642fea6db277108509b36309c123699056caa34492e1f2fa4c38e35e20e",
+      "warnings": [
+        {
+          "code": "button-not-seated",
+          "context": {
+            "seat": 2684684
+          },
+          "message": "The button is on seat 2684684, which is empty."
+        },
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-900219823",
+      "index": 3,
+      "parser": "chico",
+      "phf": "8b58c0217710d07fd17eb7a540dc4f7a250dc43a82afe1cedb3b9baf7ece90ab",
+      "standardText": "fbc21416ffc4381395018c024f65d4bf55e109334f8869fcf1c11f184407bdf4",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-900220209",
+      "index": 4,
+      "parser": "chico",
+      "phf": "dfbae38fd9ea7004bf0fab393679e4c7ee61e686a3e81c21f4e3adef10ab27ea",
+      "standardText": "50e3115c153cd1a703c0b569dfae9531fcf94f9a383e5953817498ebad58095f",
+      "warnings": [
+        {
+          "code": "board-from-summary",
+          "message": "The street markers stop after 0 cards; the rest of the board is taken from the summary, which is the only place it is written down."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-900220510",
+      "index": 5,
+      "parser": "chico",
+      "phf": "2dc0e89a3f57816243855a00175a1b939451c72dd6c973e6df73cc66ab7b06fd",
+      "standardText": "b8634c72f3120a27a8420426f9855918379a03a75c59718796929f518fbf6c48",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900220684",
+      "index": 6,
+      "parser": "chico",
+      "phf": "8399d62a6865e48161a9268dcac3d7384195e779b8f8eee3df7b2967bb1135ad",
+      "standardText": "6bb1160de07da970533a6db1029ec8f03c6d10e5e8321e147d8561b58c2593e2",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900220806",
+      "index": 7,
+      "parser": "chico",
+      "phf": "cce2187ee2a9d1a36f382c68f004140ea8fb42baa4615151909a5052a2833992",
+      "standardText": "4d1bf887c50ed0f97bb09fa4413c5aa509df3249098390b21fcec9ea85d02305",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900221098",
+      "index": 8,
+      "parser": "chico",
+      "phf": "d704312b67ef20419b4dc3aafc71c426a81d60cb6f97b42e858e8abfec2c57a0",
+      "standardText": "0a7f37929fff5ad7a75d12d8603d888cd388b6ff92490ff6abd5c941a7f865c4",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900221194",
+      "index": 9,
+      "parser": "chico",
+      "phf": "6a632af677b58e0f759d1faab7ba5bb1d96487c406cda1c9a233f81e5c7a7200",
+      "standardText": "b27bf0f1b01e3cd4bf4f4c44959cc06a5665f08f2a87ac5904676ec5898a742f",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900221545",
+      "index": 10,
+      "parser": "chico",
+      "phf": "90b23bd1212590b9b365b49be0568153126eb0945b3bbae09f80dea90530dcb9",
+      "standardText": "7614eed33030cc01acc13c5220b2620972e99549c42212fabd1999ee671f3fc1",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900221873",
+      "index": 11,
+      "parser": "chico",
+      "phf": "2d61f6aa61a34a46f710ed4bb827d5b622c0093425ae88708610b9e856b193b1",
+      "standardText": "8c4f42a9a56d91ec2ee25cf7762bbd7ca31004d2b1e6d4ba386751b9bac5f13a",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900222217",
+      "index": 12,
+      "parser": "chico",
+      "phf": "7c2241fce2d3fdfa8731a0a29f84da6ee8937e9f73c8ea9d15ce2fab56eb9cda",
+      "standardText": "e755c9d34c2ca785ad73141b03f34760338bfeba992162eb27ab43853144bd2d",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900222500",
+      "index": 13,
+      "parser": "chico",
+      "phf": "dc883ffd49bd561161394c47cfb538234efd53a52b67e1d5c6a6e72eebdde1c0",
+      "standardText": "4605158031e9025fcfb6171ea1a212a87dafa64d5dddd198c6512e118e2a737f",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900222789",
+      "index": 14,
+      "parser": "chico",
+      "phf": "182aca20299a5d0af1b657640577151c0d3c0de3555615c98471b09e47048e7e",
+      "standardText": "ae810909229063e345d8e228db8a74304d5f5e87228b90feed78356aa4d66db2",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-900223168",
+      "index": 15,
+      "parser": "chico",
+      "phf": "6f17dc21f09a8ebb7d079f8d0c68b84407278a8dcf1a8baea2cda0a67502231c",
+      "standardText": "6288ef003791d6ec802caf770a6a49551eb5a0568016517cd4a527d90d42e10a",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 25023,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/tour__NLHE-10max-USD-MTT-2011-08.nobuyinfee.txt",
+    "sha256": "a901a96bf90299af72757e968c8b3a45a443b996377e4a98dcc9e38e06d2369e"
+  },
+  "refusals": [
+    {
+      "fingerprint": "7e08e82a4abd5a685e77f37a517a57d1fe9a0b27495e9759fedc4a51af5091bd",
+      "index": 16,
+      "message": "The source reports a rake of 0 but the contested pot of 2965 minus the 2895 paid out leaves 70.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": "229c2bde0241c1f817e73ba314a415ab26a46eb12c783ce753cf65fa7585132b",
+  "stats": {
+    "bySite": {
+      "chico": 16
+    },
+    "converted": 16,
+    "failed": 1,
+    "total": 17
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ipoker",
+        "permille": 950
+      }
+    ],
+    "top": "ipoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1374,
+    "path": "fixtures/samples/ipoker/07-invalid-truncated-currency-mismatch.xml",
+    "sha256": "1014fe0df47cee985e79e5dda35247ab98d51b7a83b636e4efabec8bd275db1e"
+  },
+  "refusals": [
+    {
+      "fingerprint": "b4d217f65816c6a3ea3243f89c13e76397ccce3e75d5348090482f0e590dfc96",
+      "index": 0,
+      "message": "\"nawu\" acts but is not in <players>.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unseated-actor",
+      "site": "ipoker",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

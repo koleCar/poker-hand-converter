@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3050116136",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "b1a1f7a96bf359e62276b76e3acc8ba422d015d9a3d7b8ffb53bf8e0025aefdc",
+      "standardText": "3e1158753c8b1f3c4c7a393b69247642799add1d7e052f35b4833d60fdc687d7",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1082,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__PLO8-USD-MTT - $1-0.10 - 201409.LOW.vs.LO.txt",
+    "sha256": "1b013f8f3b1c5b162bd94d4572c880b7b9607e2d1fbaaec27e04fc2d8e571786"
+  },
+  "refusals": [],
+  "standardTextFile": "3e1158753c8b1f3c4c7a393b69247642799add1d7e052f35b4833d60fdc687d7",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

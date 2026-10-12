@@ -1,0 +1,66 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2691485457",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "d2b3c163b59cb8ffcce2573fe911ba2afb09b6011e4949ea75d3137f04af8be6",
+      "standardText": "cef6f6669f40f97a16e84bc5293d0809ddf10d8ab5a26fbfc79eb07974806adf",
+      "warnings": []
+    },
+    {
+      "handId": "2691486802",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "f073fae07bf399b4678a5cd251bba0d583fbb18ba1a6304321528df6d542553f",
+      "standardText": "8ca2e41c5967c75b76f9c0a4e04f2763abc63038a03304487005c1dfd8e3b328",
+      "warnings": []
+    },
+    {
+      "handId": "2691487708",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "3f151db9b846d117cbe4097ef1f67152a50f62f7dd1258d817fc26175dd7102c",
+      "standardText": "4c32433daac3698216addced555d34d71cec4d642a042546219abd0b69a85f78",
+      "warnings": []
+    },
+    {
+      "handId": "2691488733",
+      "index": 3,
+      "parser": "ignition",
+      "phf": "6d1f67abacaee3569084f1c3346acaf307a962669f5ed3f5b0b09e1ca6880c7b",
+      "standardText": "c522d7196a09f6c513411feebd7d4a95ef8ae260e2607f11cf12a767bb95be05",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 7811,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT (Rebuy) - $3-$0.30 - 201211.txt",
+    "sha256": "7960341d2d18dc711437583ac22eb552da7e0a15087aae1ffadbef2a3b7cbfa7"
+  },
+  "refusals": [],
+  "standardTextFile": "bed95cda3c9826e79d667de87ff68c6029e7848a9bc078ab66486dc61d5eacdf",
+  "stats": {
+    "bySite": {
+      "ignition": 4
+    },
+    "converted": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

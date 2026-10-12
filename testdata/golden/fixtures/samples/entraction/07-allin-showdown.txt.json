@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1048,
+    "path": "fixtures/samples/entraction/07-allin-showdown.txt",
+    "sha256": "6de070967554352db6e31fffbf2d51e59f85e4bbaea1d0986f856c603b55ddbc"
+  },
+  "refusals": [
+    {
+      "fingerprint": "866a00a0b2510b492e0cf80d6b004fa6d34e12a50d77a16e4fd4892091649267",
+      "index": 0,
+      "message": "YoOyYo showed a qualifying low better than any the pot paid, and was paid nothing.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "hi-lo-payout-contradiction",
+      "site": "entraction",
+      "stage": "validate"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

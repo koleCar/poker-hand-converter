@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST11",
+      "index": 0,
+      "parser": "standard",
+      "phf": "793756c137f20bdea5e72317b68e936b6125744878b631248a4574e920c241ef",
+      "standardText": "c03a7a2b37125f7cb4dad793c782bb894e83ce5351a1282d6ce61c996e72406e",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 901,
+    "path": "tests/test/fixtures/stats/11-donk-bet-removes-the-cbet-spot.txt",
+    "sha256": "ab8f95c421d62dff5f49920a9a62ee8cfed24a67f53ca6b9e4443cbbb782957d"
+  },
+  "refusals": [],
+  "standardTextFile": "c03a7a2b37125f7cb4dad793c782bb894e83ce5351a1282d6ce61c996e72406e",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

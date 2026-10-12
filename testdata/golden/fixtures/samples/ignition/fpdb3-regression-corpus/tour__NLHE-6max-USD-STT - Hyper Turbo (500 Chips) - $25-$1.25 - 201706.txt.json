@@ -1,0 +1,58 @@
+{
+  "chunks": 3,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3534392210",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "4fe2e042c3a34f352b9b6ace226a4a29fc1cca314acf8d4f1101ec9d7f8a6f9e",
+      "standardText": "2dc406389877180046e6e40289e271d435ad154e083af5605da833e07cbb0b2e",
+      "warnings": []
+    },
+    {
+      "handId": "3534392764",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "64062ce17efd0a07dd61c5add5f7ab8ef200126123a5e142f614dc4608824556",
+      "standardText": "797f130994f121cb2430cb3ec4490faa79422318aed5cb4ca38160d215768c6f",
+      "warnings": []
+    },
+    {
+      "handId": "3534392956",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "c94f1275cb091282787bed9678486c68f160a27990c507aa6ddd75193e43fec3",
+      "standardText": "1e390a9fbc411af6f306eacdb501045a8fdcfac3a78799776caaf40becd41d35",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 3936,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-6max-USD-STT - Hyper Turbo (500 Chips) - $25-$1.25 - 201706.txt",
+    "sha256": "61d23a2305d687c155c10486a0caacea7ce4f7db963ad9f3dff1f2b8d183fd1b"
+  },
+  "refusals": [],
+  "standardTextFile": "b5d9fd5ad88647812de33c0c63c5fb3e4d3966d5650b7b170f622364f66d1d15",
+  "stats": {
+    "bySite": {
+      "ignition": 3
+    },
+    "converted": 3,
+    "failed": 0,
+    "total": 3
+  }
+}

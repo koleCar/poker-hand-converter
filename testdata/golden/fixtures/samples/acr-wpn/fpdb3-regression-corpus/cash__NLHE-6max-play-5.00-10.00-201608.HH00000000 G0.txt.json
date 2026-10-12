@@ -1,0 +1,50 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-16 LE",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "698333926",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "54f5a267d0128d86882afe234e5569374eeb8b31d8b4fe7e985e042036252c8e",
+      "standardText": "5130774beba874c80f5a35d5f63b9a109f26388a7d099cace401f7ca9fd28e70",
+      "warnings": [
+        {
+          "code": "unknown-summary-line",
+          "context": {
+            "line": 61
+          },
+          "message": "�"
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2107,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-6max-play-5.00-10.00-201608.HH00000000 G0.txt",
+    "sha256": "878082e5c255087b9055d5501ecd9d0403a2e0cb5b395476b3b509b3e0410766"
+  },
+  "refusals": [],
+  "standardTextFile": "5130774beba874c80f5a35d5f63b9a109f26388a7d099cace401f7ca9fd28e70",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

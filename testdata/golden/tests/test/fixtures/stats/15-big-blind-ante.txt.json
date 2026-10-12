@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST15",
+      "index": 0,
+      "parser": "standard",
+      "phf": "b16d80bf4033903fc71b529e93389ac87287a029ff9c1f58b0e5bb2832134ed9",
+      "standardText": "1982bf539999fed26a29cdee4716c1953c8517d6d4c9e1b90a0bd43892a18077",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 863,
+    "path": "tests/test/fixtures/stats/15-big-blind-ante.txt",
+    "sha256": "395035b3edf4fd19673a27a7c61020cafbb05793dc9c3fc8a872522f1e9b69c3"
+  },
+  "refusals": [],
+  "standardTextFile": "1982bf539999fed26a29cdee4716c1953c8517d6d4c9e1b90a0bd43892a18077",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

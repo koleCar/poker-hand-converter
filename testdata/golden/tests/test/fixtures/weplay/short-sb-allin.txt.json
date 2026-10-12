@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 744,
+    "path": "tests/test/fixtures/weplay/short-sb-allin.txt",
+    "sha256": "a586f12fbce4c3b9f1d32c6d983dd01e2b0cef029495731c3e572fe62d90a394"
+  },
+  "refusals": [
+    {
+      "fingerprint": "d8855fde4221ff5df4ab01faa04f431f6842fe2f541c1a3ec4a845f30708a53b",
+      "index": 0,
+      "message": "Small blind posted all-in for less than the stated blind.",
+      "parserVersion": "2.0.0",
+      "permille": 990,
+      "reason": "short-allin-small-blind",
+      "site": "weplay",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "chunks": 3,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "4328077653",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "3c717f6b3553b2e7a01a8734402228d4fecc69f2b678feed96522a3271947f66",
+      "standardText": "de5b32d0194a59b728100308ddbaa43bff0415d693705aa056a319397a6b58bc",
+      "warnings": []
+    },
+    {
+      "handId": "4328078333",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "c125534c120f6e7e7677926492e56d9bb237b0964040df38361aa0aa4763f1db",
+      "standardText": "799b7be38522107c5eb435a9686f0458b745c7f31b9043e059ab84e44a4140f1",
+      "warnings": []
+    },
+    {
+      "handId": "4328078947",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "6bd5bb0dd193a7d8293c6a719df3e967edd15bddc9bd996d54107eb9a3329c0b",
+      "standardText": "1a5dafdcfa456f9e2b8e253bf3e1ee8ad2f8d51715d87aa8b16b2e1a1b03187e",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 5785,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - Monthly Milly - $1.000.000 Guaranteed - TT$500-$35 - 202106.txt",
+    "sha256": "a5a6bca514178fdc7e567d9527c02ec16e87dd7c62ebf641302ad02d62e004f2"
+  },
+  "refusals": [],
+  "standardTextFile": "64957f2e8e54f3f1298df17f6d419453fea56a63914ae42d2bc85ef160e2d287",
+  "stats": {
+    "bySite": {
+      "ignition": 3
+    },
+    "converted": 3,
+    "failed": 0,
+    "total": 3
+  }
+}

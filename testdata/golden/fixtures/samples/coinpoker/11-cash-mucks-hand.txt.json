@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "coinpoker",
+        "permille": 950
+      }
+    ],
+    "top": "coinpoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "352021207",
+      "index": 0,
+      "parser": "coinpoker",
+      "phf": "1efee465faed09e6887145abc3c359236b3edab66ba20f4868b196d2300607ad",
+      "standardText": "8a5c783d50107fcf0acac7739b1d4be23d25973f90be28302ac2636aad17c687",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1754,
+    "path": "fixtures/samples/coinpoker/11-cash-mucks-hand.txt",
+    "sha256": "766616c42674140561b73dadba8dbd9bdf3de18a1519704653cb17493a2ed992"
+  },
+  "refusals": [],
+  "standardTextFile": "8a5c783d50107fcf0acac7739b1d4be23d25973f90be28302ac2636aad17c687",
+  "stats": {
+    "bySite": {
+      "coinpoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1122,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-HU-USD-STT - $20-$1 - 201509.partial.hand.txt",
+    "sha256": "cdf2919cb061f69e8f5a7b1565317f20a7089bbbe9283697ef3a1b49c7341831"
+  },
+  "refusals": [
+    {
+      "fingerprint": "f224e07b8ed1edab48efed70e31f76b8666bf53cd86f5fabe348341e26878794",
+      "index": 0,
+      "message": "The chunk contains more than one hand; the export spliced them together.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "corrupt-hand",
+      "site": "ignition",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

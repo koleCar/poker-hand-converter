@@ -1,0 +1,51 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "chico",
+        "permille": 950
+      }
+    ],
+    "top": "chico"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1012408051",
+      "index": 0,
+      "parser": "chico",
+      "phf": "ba4e5f5447f08bdf695a1c2d39d345aef1a8c0e6c7d3db25d8ef97ef74fa44d3",
+      "standardText": "5480a4a48e00bfd5e0c6a8996a30af8c9a8587fb1d07768f1bf64b8f13d368d4",
+      "warnings": [
+        {
+          "code": "assumed-currency",
+          "message": "The header states no currency symbol; the amounts are read as USD, which is the only currency this network has been seen to offer."
+        },
+        {
+          "code": "unreadable-shown-cards",
+          "message": "Seat 5 is shown as [Ts 6d 6c Tc Kc], which is the made hand rather than hole cards, so no hole cards were recorded for the seat."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1387,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-USD-1.00-2.00-201204.ActionPoker.txt",
+    "sha256": "1e7207675fdf797636ff9b9eab080320a836004075a033c0c3883467c289a2c5"
+  },
+  "refusals": [],
+  "standardTextFile": "5480a4a48e00bfd5e0c6a8996a30af8c9a8587fb1d07768f1bf64b8f13d368d4",
+  "stats": {
+    "bySite": {
+      "chico": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

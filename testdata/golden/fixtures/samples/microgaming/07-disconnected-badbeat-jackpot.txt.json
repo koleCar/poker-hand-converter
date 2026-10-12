@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "microgaming",
+        "permille": 950
+      }
+    ],
+    "top": "microgaming"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5541791811",
+      "index": 0,
+      "parser": "microgaming",
+      "phf": "9cadfaf7e5ae6f87d4257804239e2857600192abb3003f440558097229cebdf6",
+      "standardText": "5ece975570310157713210193da709e0fa7fae780ed0ed51921dc4dde028ed93",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2207,
+    "path": "fixtures/samples/microgaming/07-disconnected-badbeat-jackpot.txt",
+    "sha256": "0a6fe6c873bfa0bc9ae6fcd76bde14832baa196a5f748fcecc66a00e7e4a14b6"
+  },
+  "refusals": [],
+  "standardTextFile": "5ece975570310157713210193da709e0fa7fae780ed0ed51921dc4dde028ed93",
+  "stats": {
+    "bySite": {
+      "microgaming": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

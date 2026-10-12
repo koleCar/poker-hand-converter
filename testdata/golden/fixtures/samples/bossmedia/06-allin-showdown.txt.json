@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 3307,
+    "path": "fixtures/samples/bossmedia/06-allin-showdown.txt",
+    "sha256": "9b07e3396b0b8db980f5403f3457c5b8685bdfd0733a3c761da2dfebf9e268a4"
+  },
+  "refusals": [
+    {
+      "fingerprint": "37f79f77b4a09003c71a00e87d201c8a6c4fa2f765dfd2c732dbb6e60063e274",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

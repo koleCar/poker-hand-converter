@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "113004443741",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "d58cdf7a6ca78bd04d1eed739ae02bf80b8f1cd2cf1fdf5a0a0f4dee824baf70",
+      "standardText": "c1d7731e0e6ddf0842e3440789e3bdecfa7b8d131aceebe0ff42e3e2502536e8",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1072,
+    "path": "fixtures/samples/pokerstars/19-cash-nlhe-leaves-table-mid-hand.txt",
+    "sha256": "13ce9004248ce7e330144db29031afeb01e35c89e1cf71048a461a73e6e1ea27"
+  },
+  "refusals": [],
+  "standardTextFile": "c1d7731e0e6ddf0842e3440789e3bdecfa7b8d131aceebe0ff42e3e2502536e8",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

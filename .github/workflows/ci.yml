@@ -44,6 +44,46 @@ jobs:
         run: npm test
         working-directory: tests
 
+  # The golden oracle (testdata/golden/README.md, docs/RAIL-PLAN.md R0.3): what
+  # the TypeScript pipeline concludes about every corpus file, which the Rust
+  # core is held to byte for byte. Regenerating takes seconds; if the result is
+  # not exactly what is committed, a parser change landed without its goldens
+  # (or a golden was edited by hand), and the Rust side would be diffing
+  # against a stale oracle. A separate job so it reports in a minute rather
+  # than after the corpus suite.
+  golden-fresh:
+    name: golden-fresh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - run: npm ci
+        working-directory: tests
+
+      - name: Regenerate the goldens
+        run: npm run golden:emit
+        working-directory: tests
+
+      # `git status` rather than `git diff`: it also catches a golden that is
+      # missing (a new input) or left over (an input that was removed).
+      - name: Goldens match what is committed
+        run: |
+          changes="$(git status --porcelain --untracked-files=all -- testdata/golden)"
+          if [ -n "$changes" ]; then
+            echo "::error file=testdata/golden/README.md::Goldens are stale. Run 'npm run golden:emit' in tests/ and commit testdata/golden/ in the same PR as the parser change."
+            echo "$changes" | head -100
+            git --no-pager diff --stat -- testdata/golden | tail -20
+            git --no-pager diff -- testdata/golden | head -300
+            exit 1
+          fi
+          echo "Goldens are fresh."
+
   frontend:
     name: Lint, typecheck, build
     runs-on: ubuntu-latest

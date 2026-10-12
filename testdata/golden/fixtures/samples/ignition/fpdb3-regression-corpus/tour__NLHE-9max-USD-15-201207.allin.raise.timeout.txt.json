@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2647092083",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "dc90a9f10ee1f66bb8658d06e91f2c5b847cb31327f5828f68f5a30c489bb36e",
+      "standardText": "7e1a157c73a371f44a9625392adfa01e8d197614bd7da2e6bd169f869c5e1752",
+      "warnings": [
+        {
+          "code": "missing-button",
+          "message": "The button seat is unknown, so positions cannot be resolved."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1570,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-15-201207.allin.raise.timeout.txt",
+    "sha256": "c7ff88a75823cb0f5cad291d7d2719b7508959bca488ca69f648a39a08bc9915"
+  },
+  "refusals": [],
+  "standardTextFile": "7e1a157c73a371f44a9625392adfa01e8d197614bd7da2e6bd169f869c5e1752",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

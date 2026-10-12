@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "microgaming",
+        "permille": 950
+      }
+    ],
+    "top": "microgaming"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049092880",
+      "index": 0,
+      "parser": "microgaming",
+      "phf": "17ea51f3a2a99fb1fa7e2b6ac70e2744c6cdd71f9e9a4d7129c7333b56a218f1",
+      "standardText": "36913e338db28d1caff607889c7af44286a31bfedb5dd28d05ad005f4de8b533",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1823,
+    "path": "fixtures/samples/microgaming/06-3bet-hand.txt",
+    "sha256": "56b97867d547df4837c2e32e72b95d8f31d34ca8a877efb3b464e2701fc6c5d7"
+  },
+  "refusals": [],
+  "standardTextFile": "36913e338db28d1caff607889c7af44286a31bfedb5dd28d05ad005f4de8b533",
+  "stats": {
+    "bySite": {
+      "microgaming": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

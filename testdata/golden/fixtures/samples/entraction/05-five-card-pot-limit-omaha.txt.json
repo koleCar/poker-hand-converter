@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2703545521",
+      "index": 0,
+      "parser": "entraction",
+      "phf": "2dc2bb6e992710db25d8fc5f173622d7a439562843e41bd44f5e52d95ecedee9",
+      "standardText": "22a43d50e485a36b70bba902e920e9f3d0d75b69ce714266ff5587701d763bb6",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1402,
+    "path": "fixtures/samples/entraction/05-five-card-pot-limit-omaha.txt",
+    "sha256": "f91e8cca6fb3a39aed820dde487fdd72e57a7f7d95f2c2603df42c3857788979"
+  },
+  "refusals": [],
+  "standardTextFile": "22a43d50e485a36b70bba902e920e9f3d0d75b69ce714266ff5587701d763bb6",
+  "stats": {
+    "bySite": {
+      "entraction": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

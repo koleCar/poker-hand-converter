@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD71749253",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "4ae0dc1620ebb584e62a73fc028ad15cf6340cdf509aee3d209bce4e3510fec2",
+      "standardText": "a3875014cdfa4786cf080acb24173c169763837b5463c1c5a0d0303b4aaaf965",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1457,
+    "path": "weplay-hh/h.kolaric992@gmail.com/HH20260106 Novi Sad #1 (#11375800) - $0.50-$1 - Money 3 No Limit Hold_em.txt",
+    "sha256": "c2bc7cd85e0ca8f4d97c818318b6e03d50665e7b3eea984f0884dc7c4703f82e"
+  },
+  "refusals": [],
+  "standardTextFile": "a3875014cdfa4786cf080acb24173c169763837b5463c1c5a0d0303b4aaaf965",
+  "stats": {
+    "bySite": {
+      "weplay": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

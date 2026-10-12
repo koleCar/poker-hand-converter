@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-142098466546",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "8e278de0be8c289a4c5e36bc9a6f1eca44e4b3aa992665371f45bd540e0f4ec0",
+      "standardText": "fef7b0bd5a60e64f4938a279e6b01060cca8f7e30acd44a84cc20e17665936f3",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 818,
+    "path": "fixtures/samples/partypoker/05-sitting-out-and-join-mid-hand.txt",
+    "sha256": "7ad9aa03b2a2303ac5802535cc2bf62decbe1a36ecd642dc8a0dfb377d59124b"
+  },
+  "refusals": [],
+  "standardTextFile": "fef7b0bd5a60e64f4938a279e6b01060cca8f7e30acd44a84cc20e17665936f3",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

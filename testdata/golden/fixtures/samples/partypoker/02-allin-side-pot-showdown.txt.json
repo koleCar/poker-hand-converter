@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-13549932236",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "a9ed2b02277529ff72449fa1608a8b60124b545d036b84f23f6f809da03af26d",
+      "standardText": "ff9966387eaafa4632d2c906fbd5b4a7bde485b2f55d3111b7eeb4bb2d25208c",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1316,
+    "path": "fixtures/samples/partypoker/02-allin-side-pot-showdown.txt",
+    "sha256": "b441b42015ed3212b748dbcb7edc4dbea63de4a239be010642aacc405a3a850e"
+  },
+  "refusals": [],
+  "standardTextFile": "ff9966387eaafa4632d2c906fbd5b4a7bde485b2f55d3111b7eeb4bb2d25208c",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

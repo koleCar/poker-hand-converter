@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-14209876541",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "61c85c7fee245e3bdbb6053061b489a7e7cacc6cdd20764b4dca2ff61749f8a0",
+      "standardText": "3515f58a9fa5031381fda30c54cb946d637988b6fd6a53afe339900362f40bb4",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 660,
+    "path": "fixtures/samples/partypoker/06-timebank-warning.txt",
+    "sha256": "92a957dcaf1ab3e573be8aa51b2f6934689c4bcd19d38cb80028646d3f3e0c3d"
+  },
+  "refusals": [],
+  "standardTextFile": "3515f58a9fa5031381fda30c54cb946d637988b6fd6a53afe339900362f40bb4",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "171598493667",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "213b0b8a63555b93b23566c34e97e2dfef58fecd90482a83713f52bb444150bf",
+      "standardText": "97dd4df147efe7f54fe592af3bf52a9038a012465f019b181b84b63bb12f1ae6",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1037,
+    "path": "fixtures/samples/pokerstars/31-cash-zoom-nlhe-utc-timezone.txt",
+    "sha256": "8c0d896e73bb70c82b5812a82a99174156f38c058f8d7c41a0518cbf00ce68a2"
+  },
+  "refusals": [],
+  "standardTextFile": "97dd4df147efe7f54fe592af3bf52a9038a012465f019b181b84b63bb12f1ae6",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

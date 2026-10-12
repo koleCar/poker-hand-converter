@@ -1,0 +1,50 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-16 LE",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "695367612",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "0a32dd667241240d9d561e196df9de4c09b03da7924b2dc72773d7d201c0814c",
+      "standardText": "782b854997ebd7a0cf1e7aa07475c630b1c6e2f0b0533337157229390f9c4817",
+      "warnings": [
+        {
+          "code": "unknown-summary-line",
+          "context": {
+            "line": 65
+          },
+          "message": "�"
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2227,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-2max-USD-2.20 HH00000000 T5732408-G0-201608.Turbo.txt",
+    "sha256": "28263cc0ebd4d510fa6a505db5863f343abf439a2999dd247eb194f527794ea4"
+  },
+  "refusals": [],
+  "standardTextFile": "782b854997ebd7a0cf1e7aa07475c630b1c6e2f0b0533337157229390f9c4817",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

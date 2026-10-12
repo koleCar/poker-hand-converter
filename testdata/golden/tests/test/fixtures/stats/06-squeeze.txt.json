@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST06",
+      "index": 0,
+      "parser": "standard",
+      "phf": "f0d65c61e6eac251c85139e31bca3877187f9e6dbc4288abce147540afccb5a6",
+      "standardText": "9aae671a0d8f8c23aab95ac3fe8184984168d299d551774c344a78de83525d15",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 850,
+    "path": "tests/test/fixtures/stats/06-squeeze.txt",
+    "sha256": "aaaaeaf4c3a953bc08ab9ea72cea5367bb7289b7200cf5c783224f6a6588ac3e"
+  },
+  "refusals": [],
+  "standardTextFile": "9aae671a0d8f8c23aab95ac3fe8184984168d299d551774c344a78de83525d15",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

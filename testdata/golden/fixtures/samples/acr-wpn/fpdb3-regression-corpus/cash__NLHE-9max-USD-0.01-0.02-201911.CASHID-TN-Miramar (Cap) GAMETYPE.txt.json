@@ -1,0 +1,50 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "151588328",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "e8f9ca3bd16d69b0c2d4e057b2f6d76f78a766b995d83b2b8cf73c9a41d612d7",
+      "standardText": "7745ad1b24f8d78eac8c3104c7c85ec0f9d572c9d80b40f95d7ebed3980f00a7",
+      "warnings": [
+        {
+          "code": "button-not-seated",
+          "context": {
+            "seat": 1
+          },
+          "message": "The button is on seat 1, which is empty."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1363,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-9max-USD-0.01-0.02-201911.CASHID-TN-Miramar (Cap) GAMETYPE.txt",
+    "sha256": "79173a9ca981cf967eea76016dbb4cccf00bc9c8b006099e9683f27d97d5b72f"
+  },
+  "refusals": [],
+  "standardTextFile": "7745ad1b24f8d78eac8c3104c7c85ec0f9d572c9d80b40f95d7ebed3980f00a7",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

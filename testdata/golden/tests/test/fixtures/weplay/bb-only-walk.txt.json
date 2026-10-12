@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 631,
+    "path": "tests/test/fixtures/weplay/bb-only-walk.txt",
+    "sha256": "33f938feeb034d4d99ae44edbb41926470277508832aa0f83690c21bb1ba4d29"
+  },
+  "refusals": [
+    {
+      "fingerprint": "487557839f9f7b269de5ede33d67e7a34d2ce63eee154523cba6171e5adff292",
+      "index": 0,
+      "message": "Big blind posted without a small blind (BB-only walk).",
+      "parserVersion": "2.0.0",
+      "permille": 990,
+      "reason": "bb-only-walk",
+      "site": "weplay",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

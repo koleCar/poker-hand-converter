@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "runitonce",
+        "permille": 950
+      }
+    ],
+    "top": "runitonce"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "55582352",
+      "index": 0,
+      "parser": "runitonce",
+      "phf": "c94ebc98a744fe0d85bfdca195ebe5ecce3376b05088e9989d3b4d7920ff5cdb",
+      "standardText": "da9267f89af41ae61e285e540949e4f932a09ba8c842ea81215b0cb810585172",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 981,
+    "path": "fixtures/samples/run-it-once/03-tournament-nlhe-3max-hand.txt",
+    "sha256": "0fbaee8a1015868933b476c199847b070e8004f37abcc41a1645fd0a4ab59e74"
+  },
+  "refusals": [],
+  "standardTextFile": "da9267f89af41ae61e285e540949e4f932a09ba8c842ea81215b0cb810585172",
+  "stats": {
+    "bySite": {
+      "runitonce": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

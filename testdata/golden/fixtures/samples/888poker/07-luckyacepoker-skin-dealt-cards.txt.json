@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "888poker",
+        "permille": 950
+      }
+    ],
+    "top": "888poker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "888-5512058461",
+      "index": 0,
+      "parser": "888poker",
+      "phf": "a9b8943ad67b3dec5b64541d194a4e292a69ed8d409c28a909757efd32a1d23c",
+      "standardText": "2004a20a66c0bd0c5c880614af9098583792836d7d03706a03a8b5d3abac74e4",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 580,
+    "path": "fixtures/samples/888poker/07-luckyacepoker-skin-dealt-cards.txt",
+    "sha256": "2f2652388d520aaa74cb3bb2e8af3e359b764b0f5bc12414493b8db1881515d3"
+  },
+  "refusals": [],
+  "standardTextFile": "2004a20a66c0bd0c5c880614af9098583792836d7d03706a03a8b5d3abac74e4",
+  "stats": {
+    "bySite": {
+      "888poker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

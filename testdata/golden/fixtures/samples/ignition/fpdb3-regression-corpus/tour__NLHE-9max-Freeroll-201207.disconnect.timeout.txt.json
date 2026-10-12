@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2648080702",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "de71670a1de295c15e1580966a126f48740750c82a0ca1b5d1f36102b0190afc",
+      "standardText": "ec6bc53f31fd496f43389cd8abe32f87e93dc6f975a58c626859a340bff607f2",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1913,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-Freeroll-201207.disconnect.timeout.txt",
+    "sha256": "ce2d714238e4e115cc4433a5d0d139ede6baafc57465ca18332661a09734de12"
+  },
+  "refusals": [],
+  "standardTextFile": "ec6bc53f31fd496f43389cd8abe32f87e93dc6f975a58c626859a340bff607f2",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

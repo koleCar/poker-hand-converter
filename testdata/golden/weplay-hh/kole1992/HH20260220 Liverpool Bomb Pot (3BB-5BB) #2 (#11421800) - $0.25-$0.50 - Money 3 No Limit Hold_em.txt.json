@@ -1,0 +1,106 @@
+{
+  "chunks": 9,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD76256818",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "df46988f92c46c51d889cf05c6ffadacdd6c34148f4b55d4d0d21ee4f7bf9579",
+      "standardText": "4f6463e5cbcef63bdb2f1c2f6feb27155732636bfa36e5ea6e06f321dcc5454f",
+      "warnings": []
+    },
+    {
+      "handId": "HD76256873",
+      "index": 1,
+      "parser": "weplay",
+      "phf": "65a920cb31ba21309b98fecff724ee651e54cb0d4e0d9213de50590949ab6f9f",
+      "standardText": "a0ab3ffafe2e186c21d073e48fad52ddafdf5d4beecd5a4713221dc1e332348a",
+      "warnings": []
+    },
+    {
+      "handId": "HD76256907",
+      "index": 2,
+      "parser": "weplay",
+      "phf": "92d77416545529ad42d6bab250a27126dccba1cdc1a577f1ee7531b53d8bbe3c",
+      "standardText": "fd7e64b675f5753cef7f479de51e409f8206272ec01315cc6dab61628f982a1d",
+      "warnings": []
+    },
+    {
+      "handId": "HD76256951",
+      "index": 3,
+      "parser": "weplay",
+      "phf": "b217911478d8dd61df0c56764bf3844e8a6a059214790875e1027ab6a945a693",
+      "standardText": "aae81e4309eafcded070dc36918f7738f8a1dbd477dad1bdde464773be7631e6",
+      "warnings": []
+    },
+    {
+      "handId": "HD76256992",
+      "index": 4,
+      "parser": "weplay",
+      "phf": "e4689ad577d8ba4b376361cedff9f21074d25cd328572a2f63bd325e5cd1066b",
+      "standardText": "ffa3745ad41f4720683d7873d6ed72dd8a0d72d52517f8c16d551dee4ad4f91a",
+      "warnings": []
+    },
+    {
+      "handId": "HD76257020",
+      "index": 5,
+      "parser": "weplay",
+      "phf": "7a21b923d29100b3b962ed683b8eea89e3be8c46a595ebba3f670d6db656ca12",
+      "standardText": "9d2782416e47c5e1e0020c38c28fa6daab580d735964d3959174ea1beb7f6dea",
+      "warnings": []
+    },
+    {
+      "handId": "HD76257050",
+      "index": 6,
+      "parser": "weplay",
+      "phf": "76ade6c133e827b825c72636ef5355fbb2f7d3c499b9b9984070a32571ea82b1",
+      "standardText": "04bb04510835574fc470e29cc01a0f04148b531cedefb346ed07fe12ae3c86e4",
+      "warnings": []
+    },
+    {
+      "handId": "HD76257075",
+      "index": 7,
+      "parser": "weplay",
+      "phf": "7b512d9dd14e8c1a1d362daa50e1050949a87a55bdab9e97917e42028d8f46e5",
+      "standardText": "404a002447fa84c83146832cad03f159d85fcd6da958a89918acb25a6922e6aa",
+      "warnings": []
+    },
+    {
+      "handId": "HD76257103",
+      "index": 8,
+      "parser": "weplay",
+      "phf": "1aa2d77bd4d3fd7ad41e97062e68c61ffa0b40b25fa393ea5a52ee2ad3e1bbee",
+      "standardText": "70b595e435f4fc73306fb64a09ed24872763d9a5b6fe73492fb764b07c810f58",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 12416,
+    "path": "weplay-hh/kole1992/HH20260220 Liverpool Bomb Pot (3BB-5BB) #2 (#11421800) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt",
+    "sha256": "4ed4493cc403ea1bc8a823dba88fccf6fb42a9096261d6ae47571fd79b8d66db"
+  },
+  "refusals": [],
+  "standardTextFile": "24d164c2881f9f46a8b9776d26f3625d93ae1bf946d80536d15916674898acb5",
+  "stats": {
+    "bySite": {
+      "weplay": 9
+    },
+    "converted": 9,
+    "failed": 0,
+    "total": 9
+  }
+}

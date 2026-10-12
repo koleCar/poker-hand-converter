@@ -1,0 +1,50 @@
+{
+  "chunks": 2,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "weplay",
+        "permille": 990
+      }
+    ],
+    "top": "weplay"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "HD73831348",
+      "index": 0,
+      "parser": "weplay",
+      "phf": "1efc4706bb899593f4bed30cf736ca82b88aba5333676a1c1b8187b52d910c7d",
+      "standardText": "a3afe968a2322d3ffb5b200035825c8290d43a687fa9dded7b4a5bbb80263352",
+      "warnings": []
+    },
+    {
+      "handId": "HD73831422",
+      "index": 1,
+      "parser": "weplay",
+      "phf": "329b2c6ff84e685ec28b0bbc65db8eb28655061858ce256b2bd2929b1c3b133a",
+      "standardText": "9d481a1949dc99b7dab39fdbe30bf08cb07d2451105f376337cddb845a9d10fe",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 3743,
+    "path": "weplay-hh/kole1992/HH20260126 T11264971 (#1) No Limit Hold_em $50 + $5.txt",
+    "sha256": "9bdd819ccf94d108c2fb76a12b0b736192f1245a20ed543c178d31cbff397fd0"
+  },
+  "refusals": [],
+  "standardTextFile": "49ab12c1951e645e792b37b0102387c9ac22411296f4ad359e9ab853405f0a26",
+  "stats": {
+    "bySite": {
+      "weplay": 2
+    },
+    "converted": 2,
+    "failed": 0,
+    "total": 2
+  }
+}

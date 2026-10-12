@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "partypoker",
+        "permille": 900
+      }
+    ],
+    "top": "partypoker"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-9876542165",
+      "index": 0,
+      "parser": "partypoker",
+      "phf": "9cde061e770e4e8b1360a15aaabf3aa3e603d9ed00edb7095af6550c44c1aadf",
+      "standardText": "4578f41c1a171ac4d54ad36bd6c335aa9fd9332ff682d5fb2824cc7a5720413f",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 461,
+    "path": "fixtures/samples/partypoker/13-hero-name-dealt-cards.txt",
+    "sha256": "468f6f9c16b4258b869aea91768db40660bbac3edf183706ef6d39db4ff5c6b8"
+  },
+  "refusals": [],
+  "standardTextFile": "4578f41c1a171ac4d54ad36bd6c335aa9fd9332ff682d5fb2824cc7a5720413f",
+  "stats": {
+    "bySite": {
+      "partypoker": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

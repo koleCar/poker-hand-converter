@@ -1,0 +1,54 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "pokerstars",
+        "permille": 950
+      }
+    ],
+    "top": "pokerstars"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "86008517721",
+      "index": 0,
+      "parser": "pokerstars",
+      "phf": "da3fed58e35591e48e814af8fef428acbcf32a0fa6e6e66145213f2395280104",
+      "standardText": "ba6f787eb46e8c80a3dff8b0623764157af06fb3a129504c3110d6e44d69fbf3",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        },
+        {
+          "code": "hole-card-count",
+          "context": {
+            "player": "Meelek"
+          },
+          "message": "Meelek has 1 hole cards; omaha deals 4."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1367,
+    "path": "fixtures/samples/pokerstars/21-cash-omahahilo-mucks-hand.txt",
+    "sha256": "c96ebc50c6bcf118bfd0f57e1e94b69e0efbb690137826e0090e9ba613182161"
+  },
+  "refusals": [],
+  "standardTextFile": "ba6f787eb46e8c80a3dff8b0623764157af06fb3a129504c3110d6e44d69fbf3",
+  "stats": {
+    "bySite": {
+      "pokerstars": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

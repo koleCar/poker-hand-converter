@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646492691",
+      "index": 0,
+      "parser": "entraction",
+      "phf": "c6f8180208c8010fd345d35e44d67786e9377a400cd1ec076e9090747de47bdb",
+      "standardText": "2a2ecff65a57020aed82f47d618847aa8d598cbae384cc48c62ead0c9d492f9c",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1052,
+    "path": "fixtures/samples/entraction/03-pot-limit-holdem.txt",
+    "sha256": "266c075a26d5b765883e51daee223d075ce3171a8643311059d2b160a5880c89"
+  },
+  "refusals": [],
+  "standardTextFile": "2a2ecff65a57020aed82f47d618847aa8d598cbae384cc48c62ead0c9d492f9c",
+  "stats": {
+    "bySite": {
+      "entraction": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

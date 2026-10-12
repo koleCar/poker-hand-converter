@@ -1,0 +1,212 @@
+{
+  "chunks": 17,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "chico",
+        "permille": 950
+      }
+    ],
+    "top": "chico"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1073060614",
+      "index": 4,
+      "parser": "chico",
+      "phf": "5b8cdc174a8d861524e3c5818214ed57f2216a18d308e54bd4da2bb1a9be7129",
+      "standardText": "841e34d3f270a98b12c1478c0a67be4e0588bfe2122d0aa76306b9067daa9202",
+      "warnings": [
+        {
+          "code": "board-from-summary",
+          "message": "The street markers stop after 0 cards; the rest of the board is taken from the summary, which is the only place it is written down."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-1073061094",
+      "index": 5,
+      "parser": "chico",
+      "phf": "94daa640497d40fd9db59acf14b0f390b544d2256d3d15ff92e24319925e08b2",
+      "standardText": "42b5903196476ece690f201a276c1e8a4b8012d8c66bb1128e95e5a5be4cd0ee",
+      "warnings": []
+    },
+    {
+      "handId": "CHC-1073062051",
+      "index": 7,
+      "parser": "chico",
+      "phf": "28841909fa582ef9613d39a6c7953b0a69e5892516349933fe7d4d331ab4572a",
+      "standardText": "5f1e40aa99193940d2a213aaca0e19e0da792015a5109810e35a241488b6efac",
+      "warnings": [
+        {
+          "code": "board-from-summary",
+          "message": "The street markers stop after 0 cards; the rest of the board is taken from the summary, which is the only place it is written down."
+        }
+      ]
+    },
+    {
+      "handId": "CHC-1073064926",
+      "index": 11,
+      "parser": "chico",
+      "phf": "a91d2301977786a3ae26438d997f54857d2f1be5a94974982a91b6a0bc2447f3",
+      "standardText": "5d162c367d3b050fe9513111cdfa763e5e7f85c7ea4aaa60ab8f349bd94f9195",
+      "warnings": [
+        {
+          "code": "board-from-summary",
+          "message": "The street markers stop after 4 cards; the rest of the board is taken from the summary, which is the only place it is written down."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 27349,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__PLO-10max-USD-0.05-0.10-201209.txt",
+    "sha256": "5ba2b22a0d5bd2a80e95cbd8299bde27a32dee4db55360ab530bd547d6d72379"
+  },
+  "refusals": [
+    {
+      "fingerprint": "138090b8ee36f683243dffe6258951c0fdb8a07f52ab905e1a82f36890f717c5",
+      "index": 0,
+      "message": "The source reports a rake of 0 but the contested pot of 195 minus the 190 paid out leaves 5.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "13fba91e6adc80067e764fa91e5b8511d19381cc67341931680e794c5d1f4fcf",
+      "index": 1,
+      "message": "The source reports a rake of 0 but the contested pot of 442 minus the 422 paid out leaves 20.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "4605b479086be81046c41704d90dd569d73e49143bb90ebcfbe2c6911a06bc33",
+      "index": 2,
+      "message": "The source reports a rake of 60 but the contested pot of 3441 minus the 1155 paid out leaves 2286.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "13955a9a74e5462a98317b37c885e9d5402a626934a6b3fbf6199f979c4aecc7",
+      "index": 3,
+      "message": "The source reports a rake of 0 but the contested pot of 580 minus the 555 paid out leaves 25.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "ba35dc36aa5020e4d8ca4956ac5c103bf9f2db92e26c2f7b2f8c8100734b4ec6",
+      "index": 6,
+      "message": "The source reports a rake of 0 but the contested pot of 330 minus the 315 paid out leaves 15.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "97784e6992e447597208646ae16f60017d661f76fb898352553167a208782d9a",
+      "index": 8,
+      "message": "The source reports a rake of 0 but the contested pot of 130 minus the 125 paid out leaves 5.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "fb5273038e6c6721652ca740426d2643a062bbe0363fec5e54a4b5932c67d099",
+      "index": 9,
+      "message": "The source reports a rake of 0 but the contested pot of 400 minus the 380 paid out leaves 20.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "4771ca7e0f4a2fad1107cb699cde348c7bf33b87b447ab18ce022b9882decb2b",
+      "index": 10,
+      "message": "The source reports a rake of 50 but the contested pot of 1195 minus the 955 paid out leaves 240.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "1966ba3f638fdf03c26d76a34b4df00cb48b1762f98023dd10b43e67c9a9bbe8",
+      "index": 12,
+      "message": "The source reports a rake of 0 but the contested pot of 210 minus the 200 paid out leaves 10.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "be3c07a29ed1a6b4e1468f971edb3072d981366ac09236b8e4b26ded6d098c63",
+      "index": 13,
+      "message": "The source reports a rake of 70 but the contested pot of 1865 minus the 1355 paid out leaves 510.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "8a6c97bc65ae3ea7e2a15d67ca8b4b3c63ecd2dd2103e7cd9d6ae634c13b13f0",
+      "index": 14,
+      "message": "The source reports a rake of 55 but the contested pot of 2050 minus the 1075 paid out leaves 975.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "5e256d7af2e257e9b67a25e29714517a8fb635b3cf8dc4645f9823a79c24a237",
+      "index": 15,
+      "message": "The source reports a rake of 60 but the contested pot of 3350 minus the 1140 paid out leaves 2210.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "abfea99a30f662f598ad5ef2178a4404230265a84457e6ced50b1f6388ea879c",
+      "index": 16,
+      "message": "The source reports a rake of 60 but the contested pot of 2410 minus the 2290 paid out leaves 120.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "rake-mismatch",
+      "site": "chico",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": "9cee851e45bfc2492efa6b4b199f848d5cf2438729267ae03f36e6a779cc4fa2",
+  "stats": {
+    "bySite": {
+      "chico": 4
+    },
+    "converted": 4,
+    "failed": 13,
+    "total": 17
+  }
+}

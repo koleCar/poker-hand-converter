@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "261721281",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "ca2494eaaab39762e95944820100ee2294af71b81623e4dbba46f2736b9d88f2",
+      "standardText": "b88ae9526b13f8a7bd49e6c75ab7fb30912baaa719d348372808561d985b447a",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1219,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_HandActionTests_PlayerNameWithParanthesis.txt",
+    "sha256": "fd50d50ff67cbe36cd3b5cab806825486fec3326c149f0ad5848a10d49abb0f6"
+  },
+  "refusals": [],
+  "standardTextFile": "b88ae9526b13f8a7bd49e6c75ab7fb30912baaa719d348372808561d985b447a",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

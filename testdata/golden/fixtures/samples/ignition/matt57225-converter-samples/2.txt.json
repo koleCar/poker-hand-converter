@@ -1,0 +1,58 @@
+{
+  "chunks": 3,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3453331430",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "8523a8a5358336ce7d7a0042e00dc37f1e5c34f08635ca5e9aa2f71d404dec49",
+      "standardText": "fecab7d4fdb8e8dfc54830898bec8622f1fac196315fc3c85f6f26f2316d3a37",
+      "warnings": []
+    },
+    {
+      "handId": "3452258262",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "7941918c135348790fde034f4ae58cc1fca1d8aa5749847bfa72f2250616bcdc",
+      "standardText": "661b6ee9250da8433e187c9b74f2c528e99ebce75c3442c29d74349337f1f8f8",
+      "warnings": []
+    },
+    {
+      "handId": "3598182127",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "fa8ac50a3ab86b3c700b33b7a461b1794fa44c8a2a93eb2aa1b6a1edcf1d059a",
+      "standardText": "c031e24ad5b4082de8885c0673b32b5e3f3338fc46630c3eba4e24e784f8c154",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 4075,
+    "path": "fixtures/samples/ignition/matt57225-converter-samples/2.txt",
+    "sha256": "e9c64bd71edbf95538ccfad23a479da358512dc78d48ac01fa84f2adc489db09"
+  },
+  "refusals": [],
+  "standardTextFile": "2069e5576f648a1f6dbd5e11bbd0ade0812432a08b7de25b09fe2ff6d0edd293",
+  "stats": {
+    "bySite": {
+      "ignition": 3
+    },
+    "converted": 3,
+    "failed": 0,
+    "total": 3
+  }
+}

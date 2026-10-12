@@ -1,0 +1,46 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "standard",
+        "permille": 900
+      },
+      {
+        "parser": "ggpoker",
+        "permille": 860
+      }
+    ],
+    "top": "standard"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ST03",
+      "index": 0,
+      "parser": "standard",
+      "phf": "3bbb5f803863cc23cf74f8972cc2a9dc9f3b62826ed5ead72ba55da021c6398e",
+      "standardText": "67681a8dda147bd219a4f0e373f9af04ec5f32ba83a5b5930f63aa06d773e131",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 824,
+    "path": "tests/test/fixtures/stats/03-dead-post-is-not-vpip.txt",
+    "sha256": "d9c235295cf4d522c5d97cd4237cc63c4332a0f183e5050b8a943562bffa55ef"
+  },
+  "refusals": [],
+  "standardTextFile": "67681a8dda147bd219a4f0e373f9af04ec5f32ba83a5b5930f63aa06d773e131",
+  "stats": {
+    "bySite": {
+      "standard": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

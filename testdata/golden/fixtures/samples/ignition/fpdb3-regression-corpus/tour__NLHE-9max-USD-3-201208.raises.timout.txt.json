@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "2648848668",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "9057be159d2d548af4f65d65f6d3d03f023d9ee2a19f369b7f8b863975280b0d",
+      "standardText": "5c7d42b4f618ae5bc43dcfc5db7e372d798696a28467faf24107524ecd5cd958",
+      "warnings": [
+        {
+          "code": "streets-inferred",
+          "message": "No street markers; 1 post-flop round(s) recovered from betting closure."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1723,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-3-201208.raises.timout.txt",
+    "sha256": "b07a092b363b2b455ae54ada824a3e10aacd5a37e3c8074d649a7ca3b9e83eff"
+  },
+  "refusals": [],
+  "standardTextFile": "5c7d42b4f618ae5bc43dcfc5db7e372d798696a28467faf24107524ecd5cd958",
+  "stats": {
+    "bySite": {
+      "ignition": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

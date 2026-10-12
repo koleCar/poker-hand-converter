@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ongame",
+        "permille": 950
+      }
+    ],
+    "top": "ongame"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361878619-322",
+      "index": 0,
+      "parser": "ongame",
+      "phf": "c01d2840554b1358ded80a04393c03f162280e492d8722a8cdeef7d90997ec07",
+      "standardText": "34195c4cae0ee5922debfe3806c9b060f4053acf89fbcfe09bde78573779b7e2",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 860,
+    "path": "fixtures/samples/ongame/04-pot-limit-omaha.txt",
+    "sha256": "77835178c2b2a3420b026e0e94237ded2b368931cea77f3da15da4921cfd7206"
+  },
+  "refusals": [],
+  "standardTextFile": "34195c4cae0ee5922debfe3806c9b060f4053acf89fbcfe09bde78573779b7e2",
+  "stats": {
+    "bySite": {
+      "ongame": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "entraction",
+        "permille": 950
+      }
+    ],
+    "top": "entraction"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646539198",
+      "index": 0,
+      "parser": "entraction",
+      "phf": "39dbadda2e71b4ac4d93cad60f56efa662ce1e59187a19c4a9d91e2aa144e51c",
+      "standardText": "b1254d297598c1a300e56b6e5cb30095b8ee0125f1c86e984942e8ccd2fc08a6",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1129,
+    "path": "fixtures/samples/entraction/01-basic-hand-nlhe.txt",
+    "sha256": "9a93a7c8bb26871cfb7ee324d5e6277659e88f0b9fe9b01de4cefb5cb36e2b2f"
+  },
+  "refusals": [],
+  "standardTextFile": "b1254d297598c1a300e56b6e5cb30095b8ee0125f1c86e984942e8ccd2fc08a6",
+  "stats": {
+    "bySite": {
+      "entraction": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "chunks": 4,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 7040,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__7-Stud-USD-MTT - $10-$1 - 201206.txt",
+    "sha256": "0ae8be69b56ab0f137cc9cf029971eda40685079c52046260ecfd4179a20548f"
+  },
+  "refusals": [
+    {
+      "fingerprint": "884e7e99c0f669e4fa3b697a4d063267048bfdc6b5ba35717a32c5b0363fdcd2",
+      "index": 0,
+      "message": "\"7 Card Stud\" is seven-card stud, which this parser has not been verified against. It reads Hold'em and Omaha.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "ignition",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "1146a4b206bae69b7e6fbaefa986e181e7658dab6b9f044c146ddf32137167db",
+      "index": 1,
+      "message": "\"7 Card Stud\" is seven-card stud, which this parser has not been verified against. It reads Hold'em and Omaha.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "ignition",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "06f8cb8aa85f689e515945df9958a728f4145e7cfc11c26cfaf9a2e8aac39c7e",
+      "index": 2,
+      "message": "\"7 Card Stud\" is seven-card stud, which this parser has not been verified against. It reads Hold'em and Omaha.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "ignition",
+      "stage": "parse"
+    },
+    {
+      "fingerprint": "345bacc6576c79d434ed81af139bc137f5349b5e6d78fa9ed962a010020ad43f",
+      "index": 3,
+      "message": "\"7 Card Stud\" is seven-card stud, which this parser has not been verified against. It reads Hold'em and Omaha.",
+      "parserVersion": "1.0.0",
+      "permille": 950,
+      "reason": "unsupported-variant",
+      "site": "ignition",
+      "stage": "parse"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 4,
+    "total": 4
+  }
+}

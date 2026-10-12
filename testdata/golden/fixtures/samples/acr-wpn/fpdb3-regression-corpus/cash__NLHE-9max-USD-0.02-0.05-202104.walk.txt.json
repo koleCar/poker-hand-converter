@@ -1,0 +1,42 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "acrwpn",
+        "permille": 950
+      }
+    ],
+    "top": "acrwpn"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "784373412",
+      "index": 0,
+      "parser": "acrwpn",
+      "phf": "adf69daa9816c36687bd82415ffa7a7798db9410fb101d544e638a43e912846d",
+      "standardText": "704ec46105fefc61c2561ceebb7c6d2dbc4b1fa6d0a984975c42e2f6b78ed1d3",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 1019,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-9max-USD-0.02-0.05-202104.walk.txt",
+    "sha256": "28e75f81da6df9f05420407c9ef8ab7d0b43bc0d6fa6c0f62c9360205c6834d8"
+  },
+  "refusals": [],
+  "standardTextFile": "704ec46105fefc61c2561ceebb7c6d2dbc4b1fa6d0a984975c42e2f6b78ed1d3",
+  "stats": {
+    "bySite": {
+      "acrwpn": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

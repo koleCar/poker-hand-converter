@@ -358,7 +358,11 @@ Without `.env.local` the app runs as an offline converter and says so.
 cd tests
 npm install
 npm test                     # 3188 tests over the real corpus
+npm run golden:emit          # regenerate the golden oracle (testdata/golden/README.md)
 ```
+
+A change to a parser, the serializer or the validator changes the goldens;
+commit `testdata/golden/` in the same PR, or CI's `golden-fresh` job fails.
 
 Database tests (pgTAP) run against a local Supabase stack; see
 [`docs/DATABASE.md`](docs/DATABASE.md).

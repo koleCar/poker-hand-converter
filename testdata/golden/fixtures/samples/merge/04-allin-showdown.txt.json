@@ -1,0 +1,37 @@
+{
+  "chunks": 0,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [],
+    "top": null
+  },
+  "format": "rail-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 2571,
+    "path": "fixtures/samples/merge/04-allin-showdown.txt",
+    "sha256": "b49e32812fadf943af6ff3e73266fb37d227f57bc9210c45abb27edc7d48069a"
+  },
+  "refusals": [
+    {
+      "fingerprint": "74e0ad80bd6e1f17454badb359163785f143019e1e86d58be80435351d20dea4",
+      "index": null,
+      "message": "The text does not match any hand history format we recognise.",
+      "parserVersion": "0",
+      "permille": null,
+      "reason": "unknown-site",
+      "site": null,
+      "stage": "detect"
+    }
+  ],
+  "standardTextFile": null,
+  "stats": {
+    "bySite": {},
+    "converted": 0,
+    "failed": 1,
+    "total": 1
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "chunks": 1,
+  "decode": {
+    "encoding": "UTF-8 (BOM)",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ongame",
+        "permille": 950
+      }
+    ],
+    "top": "ongame"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361850810-476",
+      "index": 0,
+      "parser": "ongame",
+      "phf": "83da237b725e31eed024776384a139b79c12794be8bdd880c58be3b1e91e2e8a",
+      "standardText": "4f0c97eddae4b1cb872dbec182ba70fcd127d814e3a36fa72144df5426c11ca2",
+      "warnings": [
+        {
+          "code": "no-hero",
+          "message": "No seat is marked as the hero."
+        }
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1269,
+    "path": "fixtures/samples/ongame/06-allin-showdown.txt",
+    "sha256": "8fd5cc5f0cb44eaa4a75b677412de04f0453eeb439c628235f0bcd2dfea6cf73"
+  },
+  "refusals": [],
+  "standardTextFile": "4f0c97eddae4b1cb872dbec182ba70fcd127d814e3a36fa72144df5426c11ca2",
+  "stats": {
+    "bySite": {
+      "ongame": 1
+    },
+    "converted": 1,
+    "failed": 0,
+    "total": 1
+  }
+}

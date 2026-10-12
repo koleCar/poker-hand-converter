@@ -1,0 +1,58 @@
+{
+  "chunks": 3,
+  "decode": {
+    "encoding": "UTF-8",
+    "problem": null
+  },
+  "detected": {
+    "candidates": [
+      {
+        "parser": "ignition",
+        "permille": 950
+      }
+    ],
+    "top": "ignition"
+  },
+  "format": "rail-golden/1",
+  "hands": [
+    {
+      "handId": "3031585570",
+      "index": 0,
+      "parser": "ignition",
+      "phf": "23611459bdf3196ddc359f2b480b4de485a3fc1ef679ec29a5bde94254ee4afb",
+      "standardText": "47b31163fbac559ddc31cb605789c361dd84d0faec6dd1ed1975b654a15e1c8e",
+      "warnings": []
+    },
+    {
+      "handId": "3031588137",
+      "index": 1,
+      "parser": "ignition",
+      "phf": "d4d54ae3bf25310e19d95a8ee0d6dccebe8299dcf0febae70591b4752149974c",
+      "standardText": "259670e666cce686a0dfbef43ce909dea56ab35a94d04a45d7916323b183d1ab",
+      "warnings": []
+    },
+    {
+      "handId": "3031589003",
+      "index": 2,
+      "parser": "ignition",
+      "phf": "1058bb5b0fa3d9b7762dfe783297453e72ebd4ddb2459192d02f06380dd509af",
+      "standardText": "a343a02380e1100c9d98ca3eead8f5ba5091270f83940558dc0d1c34dfdfc5b2",
+      "warnings": []
+    }
+  ],
+  "input": {
+    "bytes": 5782,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - $9.000 Guaranteed (DS) - $20-$2 - 201408.corrupted.lines.txt",
+    "sha256": "4fdc389d99d38fe236d4ebdfe434d45b140cb68358efaa778c880b658621d51d"
+  },
+  "refusals": [],
+  "standardTextFile": "6c9799a6455be9185d096065c8d69b4c0bb959e7b5cdb6acf92297dd8253b37e",
+  "stats": {
+    "bySite": {
+      "ignition": 3
+    },
+    "converted": 3,
+    "failed": 0,
+    "total": 3
+  }
+}
