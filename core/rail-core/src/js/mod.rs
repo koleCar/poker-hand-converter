@@ -17,11 +17,14 @@
 //!   `toFixed`, `String(n)` - emulated in integer arithmetic, because the
 //!   workspace denies float arithmetic and an amount must round exactly as the
 //!   TypeScript rounded it.
+//! - [`sort`]: `Array.prototype.sort(comparefn)` as V8 does it (TimSort),
+//!   for comparators a `NaN` makes inconsistent.
 //! - [`utf16_len`] and friends: JavaScript strings are UTF-16, so `length`,
 //!   `slice` and `charCodeAt` count code units, not `char`s or bytes.
 
 pub mod number;
 pub mod regex;
+pub mod sort;
 
 pub use self::number::JsNumber;
 
@@ -50,6 +53,35 @@ impl std::fmt::Display for JsError {
 }
 
 impl std::error::Error for JsError {}
+
+/// A JavaScript string with a lone surrogate - a UTF-16 code unit from
+/// U+D800 to U+DFFF not paired with its other half - which no Rust `String`
+/// can hold. Where the TypeScript would go on with such a string (a numeric
+/// character reference `&#xD800;`, a Base64 UTF-16 name that decodes to
+/// one), the port stops and says so instead of carrying a different string.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct LoneSurrogate;
+
+impl std::fmt::Display for LoneSurrogate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(
+            "the text holds a lone UTF-16 surrogate, which the TypeScript keeps in a \
+             JavaScript string and Rust cannot represent",
+        )
+    }
+}
+
+impl std::error::Error for LoneSurrogate {}
+
+/// UTF-16 code units as JavaScript joins them (`String.fromCharCode(...)`):
+/// `Err` when a surrogate is left unpaired.
+///
+/// # Errors
+///
+/// [`LoneSurrogate`].
+pub fn from_utf16(units: &[u16]) -> Result<String, LoneSurrogate> {
+    String::from_utf16(units).map_err(|_| LoneSurrogate)
+}
 
 /// JavaScript's `\s` (and the set `String.prototype.trim` strips): the
 /// ECMAScript WhiteSpace and LineTerminator productions.

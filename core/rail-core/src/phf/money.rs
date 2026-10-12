@@ -291,6 +291,19 @@ pub struct AmountError {
 /// hold exactly (`1 234,50 €` is 123450 cents, not 12345000). `Ok` is
 /// TypeScript's `{ ok: true, amount }`.
 pub fn parse_amount_strict(raw: &str, unit: &CurrencyUnit) -> Result<Amount, AmountError> {
+    let value = parse_amount_strict_js(raw, unit)?;
+    value.to_safe_integer().ok_or_else(|| AmountError {
+        problem: AmountProblem::NotASafeInteger,
+        text: js::trim(raw).to_owned(),
+    })
+}
+
+/// `parseAmountStrict` as the JavaScript number its `{ ok: true, amount }`
+/// carries, for a parser that goes on computing in doubles (the draft
+/// builder's rooms, `parsers::shared::p4_textroom::strict_amount`): the
+/// fractional `1.234,5.6` (183.45) and amounts beyond 2^53 included, `-0`
+/// for `-0`. Never [`AmountProblem::NotASafeInteger`].
+pub fn parse_amount_strict_js(raw: &str, unit: &CurrencyUnit) -> Result<JsNumber, AmountError> {
     let text = js::trim(raw);
     let refuse = |problem| {
         Err(AmountError {
@@ -371,11 +384,7 @@ pub fn parse_amount_strict(raw: &str, unit: &CurrencyUnit) -> Result<Amount, Amo
     if !value.is_finite() {
         return refuse(AmountProblem::NotANumber);
     }
-    let value = if negative { -value } else { value };
-    match value.to_safe_integer() {
-        Some(amount) => Ok(amount),
-        None => refuse(AmountProblem::NotASafeInteger),
-    }
+    Ok(if negative { -value } else { value })
 }
 
 /// `groupDigits`: `,` every three digits in the integer part (`21929` →

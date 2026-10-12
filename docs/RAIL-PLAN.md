@@ -925,6 +925,139 @@ under WASM; the registry records an unknown file end to end.
 
 ### R0.9 Parsers, XML — M
 - `ipoker`, `microgaming`. Choose the XML reader once (`quick-xml`), share it.
+- *As built* (§15):
+  - **Layout** (`core/rail-core/src/`): `parsers/ipoker.rs` (`IPokerParser`),
+    `parsers/microgaming.rs` (`MicroGamingParser`), and in `parsers/shared/`
+    `p2_xml.rs` (all of `p2-xml.ts`: `XmlElement` with `attr`,
+    `decode_entities`, `scan_xml`, `parse_xml`, `child`, `children`,
+    `child_text`) and `p4_textroom.rs` (all of `p4-textroom.ts`:
+    `strict_amount`, `leading_name`, `names_by_length`, `currency_symbol_of`,
+    `decode_base64_utf16` (+ `_lossy`), `expand_month`, `refuse_lossy_text`).
+    New in `js`: `js::sort::sort_by` (V8's `Array.prototype.sort`, below),
+    `LoneSurrogate`, `from_utf16`; in `phf::money`: `parse_amount_strict_js`
+    (the `ok` number of `parseAmountStrict`, fractional and beyond 2^53
+    included; `parse_amount_strict` is it plus the safe-integer check). Both
+    parsers registered in `index.ts` order.
+  - **The XML reader is the TypeScript scanner, ported; no `quick-xml`.**
+    `parseXml` has two paths - the browser's `DOMParser`, and in Node (the
+    test suite and the golden emitter, so the reference) a hand-written
+    scanner - and the scanner's leniency is behaviour no XML library has: a
+    closing tag closes whatever is open, `<!...>` (CDATA, DOCTYPE) is skipped
+    to its first `>`, text after the root and later top-level elements are
+    read and dropped, unknown entities stay as written, and the entity table
+    is an object literal (`&toString;` decodes to `function toString() {
+    [native code] }`). Holding `quick-xml` to that would have meant
+    re-implementing it on top; the port is ~300 lines, no new dependency.
+    `DOMParser` (browser only) is not ported. Vectors pin the scanner.
+  - **Shared code changed** (all earlier vectors and soaks still equal):
+    `p2_handbuilder` gained `DraftStreet::Unlisted(&'static str)` and
+    `DraftKind::Unmatched` with `object_prototype_member` - what the rooms'
+    object-literal tables (`ROUND_STREETS[no]`, `ACTION_TYPES[code]`,
+    `STREETS[type]`) return for a key naming an `Object.prototype` member: an
+    inert action that only closes its street, and a street the replay has no
+    lines for, on which any betting action throws `Cannot read properties of
+    undefined (reading 'push')` (a `parser-error`; the replay, and so
+    `draft_to_standard_text`, now return `ParseError`). Its two sorts (seats,
+    the uncalled-bet entries) now use `js::sort::sort_by`: Rust's `sort_by`
+    may panic on a comparator a `NaN` makes inconsistent.
+  - **`Array.prototype.sort` as V8 does it** (`js/sort.rs`): iPoker sorts its
+    actions by `Number(no)`, and a `NaN` (`no="abc"`) reads as "equal" to
+    everything - the order is then the engine's. V8's TimSort (runs, binary
+    insertion to `minrun`, merges with galloping, `min_gallop` 7) step for
+    step; 1 120 arrays recorded from Node (`tests/data/js-sort-vectors.*`,
+    sizes to 1 000, `NaN`, `±Infinity`) replay exactly, and a plain stable
+    sort gets over a hundred of them wrong.
+  - **Golden agreement** (`tests/golden_sites.rs`): `ipoker` **15 / 15**
+    files, **26** hands, **1** refusal (`unseated-actor`); `microgaming`
+    **12 / 12** files, **21** hands, no refusal - each fully: ranking, chunks,
+    PHF, standard text per hand and per file (both `Omaha H/L` split pots,
+    the bad-beat drop as a chip movement, the `MoneyReturned` all-in),
+    warnings, stats. Whole-file detection of the ten ported parsers equals
+    the goldens on **all 556** files. R0.5a's raw-text check now covers iPoker
+    too: each of its 26 assembled `meta.rawText` equals the Rust split's
+    chunk of the Rust-decoded file (`tests/golden_decode.rs`).
+  - **Beyond the corpus** (`tests/data/xml-vectors.{mjs,json}`, 1.8 MB, run
+    by `tests/xml_vectors.rs`): 55 `scanXml` documents and 44
+    `decodeEntities` values (prototype entities, references beyond U+10FFFF
+    and to surrogates, pairs, CDATA, comments, quotes, case), 29
+    `decodeBase64Utf16` and 72 `strictAmount` probes, both parsers' splits of
+    every corpus file and 19 edge texts, 21 detection probes, **3 888**
+    seeded edits of every corpus chunk of both rooms (attribute values from
+    per-attribute catalogues - amounts, codes, seats, names, currencies,
+    dates, game types, `Object.prototype` names -, attributes and elements
+    deleted, duplicated, moved or inserted from catalogues, element text,
+    entity and character references, CDATA, comments, declarations, tag case
+    and quotes, truncation, CRLF, one line, U+2028, a BOM), each through
+    **both** parsers - detection and outcome (1 082 iPoker and 888
+    MicroGaming hands, every refusal reason of both reached) - and the 27
+    corpus files re-encoded six ways through `rail_core::convert` (162
+    files): all equal. Two soak runs (`XML_STRESS=11`, `=29`, 38 448 cases
+    each) were equal too.
+  - **TS oddities kept**: the scanner's (above); `&#X41;` is not decoded (the
+    pattern has a lower-case `x`) and `&#1f;` is U+0001 (`parseInt` reads the
+    digit prefix); a reference beyond U+10FFFF throws, so the whole chunk is
+    `malformed-xml`, even when it sits in an element after the root; an
+    attribute named `__proto__` is dropped, a repeated one keeps its last
+    value; iPoker `type="toString"` deals its player in and does nothing
+    else, `<round no="constructor">` or MicroGaming `<Action
+    type="valueOf">` (read as a deal: it sets the river) leave a street that
+    throws on the next bet; a missing attribute prints as `undefined`
+    (`<cards type="undefined">`, `names seat undefined`); iPoker's game label
+    is one token, so `Omaha Hi-Lo PL` is an unreadable `<gametype>`
+    (`no-header`), and its unit comes from the first `$`/`€`/`£` on any
+    player's chips over `<tablecurrency>`; a duplicated player name keeps
+    its last seat and stack; a zero-sum unknown action code is dropped
+    without dealing the player in; MicroGaming's `strictAmount` keeps
+    `parseAmountStrict`'s fractional answer (`1.234,5.6` is 183.45 in the
+    draft), and a `currencysymbol` that decodes to half a surrogate pair is
+    a symbol no unit has (chips); its cross-check warnings are added after
+    the build.
+  - **Not reproducible, reported**: (1) a lone surrogate - a reference to
+    one (`&#xD800;`), or a Base64 name decoding to half a pair - which a
+    Rust `String` cannot hold. The scanner and the Base64 decoder put U+FFFD
+    in its place (one UTF-16 unit, not whitespace, no case), so every
+    comparison goes as in JavaScript, and `p2_xml::unrepresentable_outcome`
+    turns an outcome that shows the stand-in (or a source with a real U+FFFD
+    it could be confused with) into a `parser-error`; elsewhere the outcome
+    is exact (in the vectors 75 such cases, 22 outcomes answered
+    `parser-error`, the rest equal). XML forbids the reference, and the
+    browser's `DOMParser` refuses the document. (2) A seat, table size or
+    button between 2^32 and 2^53: the TypeScript's hand is valid JSON, a PHF
+    seat is `u32` here (R0.6's rule) - a `parser-error`; iPoker makes a
+    `seat="99999999999"` the table size. (3) A bad-beat drop's seat beyond
+    `u32` (the TypeScript's canonical JSON throws) is a `parser-error`.
+  - 33 TypeScript test cases translated (`tests/xml_parsers.rs`, plus the
+    reader cases of `p2Xml.test.ts` as unit tests of `p2_xml`): `p2Xml`
+    (6), the iPoker parts of `p2Parsers` (8), the MicroGaming parts of
+    `legacyNetworks` (15), `phfHiLo` (2) and the iPoker side of
+    `unibetParser`'s Unibet / iPoker boundary (2). Skipped: the replayer
+    checks (`buildReplay`), the all-in EV check (R2.2), the `DOMParser`
+    parity test (skipped in Node too), and the Ongame, Entraction and Unibet
+    parts (R0.10). `phfDetect`, `phfOmaha` and `phfPositions` have no iPoker
+    or MicroGaming part beyond `isHiLoLabel("Omaha H/L")` (R0.5a).
+  - **For R0.10**: the shared modules each parser imports, and what is
+    ported - `ongame`: `variant-lock`, `p2-partygaming` (`isoFromPartyDate`,
+    `knownZone`), `p2-handbuilder` (`buildHand`), `p4-textroom`
+    (`currencySymbolOf`, `expandMonth`, `leadingName`, `namesByLength`,
+    `strictAmount`) - all ported; `entraction`: `variant-lock`,
+    `p2-handbuilder`, `p4-textroom` (`leadingName`, `namesByLength`,
+    `refuseLossyText`, `strictAmount`) - ported; `unibet`: `p2-handbuilder`
+    (`draftToStandardText`, `formatHeaderDate`), `p4-textroom`
+    (`currencySymbolOf`, `leadingName`, `namesByLength`, `refuseLossyText`,
+    `strictAmount`), `parseStandardHand`, `variant-lock` - ported;
+    `fulltilt`: `p3-draft`, `variant-lock`, `hilo` - ported; `runitonce`:
+    `p3-draft`, `p3-stars-dialect`, `variant-lock` - ported; `acrwpn`:
+    `ps-gg-hand` (`limitFromLabel`), `variant-lock`, `p5-encoding`, and
+    **`p5-handdraft.ts` (not ported)**; `ignition`: `hilo`
+    (`checkStatedTotals`), `variant-lock` and **`p5-handdraft.ts`**;
+    `winamax` and `chico`: `variant-lock` and **`p6-handbuilder.ts` (not
+    ported)**. `leading_name`, `names_by_length`, `expand_month` and
+    `refuse_lossy_text` are held to the TypeScript by unit tests only so far;
+    `strict_amount` returns a `JsNumber`. Look for object-literal lookups
+    keyed by source text (`object_prototype_member`, `Unlisted`/`Unmatched`)
+    and numeric `.sort` comparators (`js::sort::sort_by`, never Rust's
+    `sort_by`). `xml-vectors.mjs` shows splice-based mutation by UTF-16
+    index and how to mark cases Rust cannot represent.
 
 ### R0.10 Parsers, own dialects — XL (one PR per parser)
 - `winamax`, `acrwpn` first (HUD-relevant), then `ignition`, `chico`,
@@ -1357,3 +1490,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-12 | **R0.7a done** (R0.7 split into R0.7a and R0.7b): `pokerstars` and `ggpoker` in Rust, with all of `ps-gg-hand.ts` (`StarsHandDraft`), `p3-draft.ts` and `p3-stars-dialect.ts` as reusable modules in `parsers::shared`; both registered. Goldens: `pokerstars` **45 / 45** files (108 hands, 5 refusals), `ggpoker` **24 / 24** (215 hands, 2 refusals), fully; the 39 `standard` files now with their whole ranking; whole-file detection of the ported parsers equal to the goldens on all 556 files. Beyond the corpus, held to the TypeScript (`tests/data/psgg-vectors.*`): 3 420 mutated chunks through both parsers and 164 clone-dialect cases equal (two 17 054-case soak runs too). The GG parser and `parse_standard_hand` agree on every GG cash hand. 117 TS test cases translated, `psggInvariants.ts` included. Not reproducible, reported: a straddler with no seat line (`seat: -1`) - the same `unseated-actor` refusal, reached by `BuildError::UnseatedStraddler`. |
 | 2026-10-12 | **R0.7b done, R0.7 complete** (A9: R1.1-R1.3 may start): `weplay` and `coinpoker` in Rust, registered in `index.ts` order. WePlay's normalizer computes in `JsNumber` (doubles, `%`, `toFixed`) and hands its text to `parse_standard_hand`; CoinPoker builds on `StarsHandDraft` and edits `results` after `build`. Goldens: `weplay` **128 / 128** files (6 726 hands, 96 refusals incl. one validator `chip-mismatch`), `coinpoker` **16 / 16** (21 hands, 1 refusal), fully; whole-file detection of the five ported parsers equal to the goldens on all 556 files. Beyond the corpus (`tests/data/wpcp-vectors.*`): 3 291 mutated chunks under default and strict options, WePlay's normalizer alone too, all equal (two soak runs of ~29 400 cases too); `byteCompat` reproduced against the frozen pre-PHF converter (5 983 hands: 5 783 identical, 199 in the three accepted classes, 1 dropped). 65 TS test cases translated. Not reproducible, reported: a WePlay table size, button or seat beyond `u32` (R0.6's rule). |
 | 2026-10-12 | **R0.8 done**: `partypoker`, `888poker` and `pokerbros` in Rust, registered in `index.ts` order, with all of `p2-partygaming.ts` and `p2-handbuilder.ts` as reusable modules in `parsers::shared` (the builder of iPoker, MicroGaming, Ongame, Entraction and Unibet too). The draft builder computes in `JsNumber` - amounts, seats, size and button are printed into the standard text it re-reads. Goldens: `partypoker` **15 / 15** files (18 hands, 1 refusal), `888poker` **14 / 14** (13 hands, 1 refusal), `pokerbros` **2 / 2** (2 hands), fully; whole-file detection of the eight ported parsers equal to the goldens on all 556 files. Beyond the corpus (`tests/data/p2pb-vectors.*`): 3 145 mutated chunks through all three parsers and the 31 files re-encoded six ways (UTF-16 LE/BE, Windows-1252, CRLF) through `convert`, all equal (two 31 135-case soak runs too). R0.7a's clone dialect now defers a table size or button beyond `u32` to `build` (`set_table_numbers`), so PokerBros' button correction reproduces the TypeScript. `rail-convert` built (README §8): a std-only `[[bin]]` of `rail-core`, summary / `--json` / `--text`, smoke-tested against the goldens. 36 TS test cases translated. |
+| 2026-10-12 | **R0.9 done**: `ipoker` and `microgaming` in Rust, registered in `index.ts` order, with all of `p2-xml.ts` and `p4-textroom.ts` as reusable modules in `parsers::shared`. The XML reader is the TypeScript's own scanner (the path Node runs), ported - not `quick-xml`: its leniency (a closing tag closes whatever is open, CDATA skipped to the first `>`, `Object.prototype` names as entities) is behaviour. iPoker's action order is `Array.prototype.sort` as V8 does it (`js::sort`, TimSort; 1 120 Node-recorded arrays with `NaN` replay exactly). The draft builder gained the street and the kind that the rooms' object-literal tables return for an `Object.prototype` key (`type="toString"`), and V8 sorting. Goldens: `ipoker` **15 / 15** files (26 hands, 1 refusal), `microgaming` **12 / 12** (21 hands), fully; whole-file detection of the ten ported parsers equal on all 556 files; iPoker's assembled `rawText` now checked against the Rust split. Beyond the corpus (`tests/data/xml-vectors.*`): reader, Base64 and strict-amount probes, splits, detection, **3 888** seeded XML mutations through both parsers and the 27 files re-encoded six ways, all equal (two 38 448-case soak runs too). 33 TS test cases translated. Not reproducible, reported: lone surrogates (`&#xD800;`; U+FFFD stands in, `parser-error` where it would show), seats/table sizes between 2^32 and 2^53 (`u32` in a PHF). |

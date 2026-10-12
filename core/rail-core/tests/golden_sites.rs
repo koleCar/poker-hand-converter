@@ -202,3 +202,36 @@ fn pokerbros() {
     assert_eq!(report.pending_text_hashes, 0);
     assert_eq!(report.unported_candidates, 0);
 }
+
+/// `ipoker` (R0.9): the iPoker XML samples - PL Omaha (EUR, GBP), a hand
+/// whose hero is masked, antes, the single-line and data-miner variants, a
+/// concatenated miner export, a ten-hand session, fixed-limit Hold'em,
+/// heads-up tables; one refusal (`unseated-actor`, the truncated file with
+/// an action by a player it never seated). Every hand's `meta.rawText` is
+/// the session the split assembles.
+#[test]
+fn ipoker() {
+    let report = golden::check(Selection::Parsers(&["ipoker"]));
+    assert_eq!(report.files, 15, "the set of files `ipoker` wins changed");
+    assert_eq!(report.hands, 26);
+    assert_eq!(report.refusals, 1);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `microgaming` (R0.9): NL and FL Hold'em, PL Omaha, `Omaha H/L` split
+/// pots, an all-in with `MoneyReturned`, a 3-bet, the bad-beat jackpot drop
+/// and a disconnect, a full ring, a seat sitting out, a ten-hand file, show
+/// and muck at showdown.
+#[test]
+fn microgaming() {
+    let report = golden::check(Selection::Parsers(&["microgaming"]));
+    assert_eq!(
+        report.files, 12,
+        "the set of files `microgaming` wins changed"
+    );
+    assert_eq!(report.hands, 21);
+    assert_eq!(report.refusals, 0);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}

@@ -29,7 +29,7 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 
 use crate::detect::{ParseError, ParseSkip, SiteParserContext, SkipReason};
-use crate::js::JsNumber;
+use crate::js::{self, JsNumber};
 use crate::phf::hilo::{HiLoAward, StatedAward, check_stated_halves, order_hi_lo_awards};
 use crate::phf::money::format_amount_js;
 use crate::phf::serialize::{StandardContext, parse_standard_hand, utc_fields};
@@ -44,27 +44,58 @@ pub enum DraftStreet {
     Flop,
     Turn,
     River,
+    /// Not a street: what a site parser's street table (an object literal)
+    /// gives for a key that names a member of `Object.prototype` - MicroGaming
+    /// `<Action type="toString">`, iPoker `<round no="constructor">` - carried
+    /// as `String()` of that member. The replay has no line list for it, so a
+    /// betting action on it throws (`Cannot read properties of undefined
+    /// (reading 'push')`, a `parser-error`); a reveal on it is kept.
+    Unlisted(&'static str),
 }
 
 impl DraftStreet {
-    /// The TypeScript string.
+    /// The TypeScript string (`String(street)`).
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::Preflop => "preflop",
             Self::Flop => "flop",
             Self::Turn => "turn",
             Self::River => "river",
+            Self::Unlisted(text) => text,
         }
     }
 
-    const fn index(self) -> usize {
+    const fn index(self) -> Option<usize> {
         match self {
-            Self::Preflop => 0,
-            Self::Flop => 1,
-            Self::Turn => 2,
-            Self::River => 3,
+            Self::Preflop => Some(0),
+            Self::Flop => Some(1),
+            Self::Turn => Some(2),
+            Self::River => Some(3),
+            Self::Unlisted(_) => None,
         }
     }
+}
+
+/// The member of `Object.prototype` an object-literal lookup `TABLE[key]`
+/// finds when `key` is not one of the table's own keys, as `String()` of it
+/// (what a template literal prints): `None` when there is none, which is
+/// TypeScript's `undefined`.
+pub fn object_prototype_member(key: &str) -> Option<&'static str> {
+    Some(match key {
+        "constructor" => "function Object() { [native code] }",
+        "__defineGetter__" => "function __defineGetter__() { [native code] }",
+        "__defineSetter__" => "function __defineSetter__() { [native code] }",
+        "hasOwnProperty" => "function hasOwnProperty() { [native code] }",
+        "__lookupGetter__" => "function __lookupGetter__() { [native code] }",
+        "__lookupSetter__" => "function __lookupSetter__() { [native code] }",
+        "isPrototypeOf" => "function isPrototypeOf() { [native code] }",
+        "propertyIsEnumerable" => "function propertyIsEnumerable() { [native code] }",
+        "toString" => "function toString() { [native code] }",
+        "valueOf" => "function valueOf() { [native code] }",
+        "__proto__" => "[object Object]",
+        "toLocaleString" => "function toLocaleString() { [native code] }",
+        _ => return None,
+    })
 }
 
 /// `DRAFT_STREETS`.
@@ -106,6 +137,11 @@ pub enum DraftKind {
     Allin,
     Show,
     Muck,
+    /// Not a kind: what iPoker's action table gives for a `type` that names a
+    /// member of `Object.prototype` (`type="toString"`). No case of the
+    /// replay matches it, so it writes nothing and moves no chips; it only
+    /// closes the betting street it is on, as every non-reveal does.
+    Unmatched,
 }
 
 /// `DraftAction`. `undefined` optional fields are `None` / `false`.
@@ -259,7 +295,7 @@ fn money(amount: JsNumber, unit: &CurrencyUnit, decimals: DecimalStyle) -> Strin
 
 /// `replayActions(draft)`: the action list as standard-text lines per street,
 /// with the commitments the uncalled return and the pot come from.
-fn replay_actions(draft: &HandDraft) -> Replay {
+fn replay_actions(draft: &HandDraft) -> Result<Replay, ParseError> {
     let (unit, decimals) = (&draft.unit, draft.decimals);
     let mut replay = Replay {
         lines: Default::default(),
@@ -315,10 +351,23 @@ fn replay_actions(draft: &HandDraft) -> Replay {
         // Reveals cannot close a betting street (above): a showdown reveal is
         // tagged with the street it happened on.
         if action.street != street {
-            replay.totals[street.index()] = std::mem::take(&mut commit);
+            let closed = std::mem::take(&mut commit);
+            if let Some(index) = street.index() {
+                replay.totals[index] = closed;
+            }
             street = action.street;
             bet = JsNumber::ZERO;
         }
+        if action.kind == DraftKind::Unmatched {
+            // No case of the switch matches.
+            continue;
+        }
+        let Some(line_index) = action.street.index() else {
+            // `lines.get(street)` is `undefined`, and every case pushes onto it.
+            return Err(ParseError::Bug(
+                "Cannot read properties of undefined (reading 'push')".to_owned(),
+            ));
+        };
         let player = action.player.as_str();
         let all_in = if action.all_in { " and is all-in" } else { "" };
         let already = get_or_zero(&commit, player);
@@ -330,7 +379,7 @@ fn replay_actions(draft: &HandDraft) -> Replay {
         };
         let dead = action.dead.unwrap_or(JsNumber::ZERO);
         let gross = &mut replay.gross;
-        let out = &mut replay.lines[action.street.index()];
+        let out = &mut replay.lines[line_index];
 
         match action.kind {
             DraftKind::Ante => {
@@ -435,11 +484,13 @@ fn replay_actions(draft: &HandDraft) -> Replay {
                     ));
                 }
             }
-            DraftKind::Show | DraftKind::Muck => {}
+            DraftKind::Show | DraftKind::Muck | DraftKind::Unmatched => {}
         }
     }
-    replay.totals[street.index()] = commit;
-    replay
+    if let Some(index) = street.index() {
+        replay.totals[index] = commit;
+    }
+    Ok(replay)
 }
 
 /// The uncalled bet none of these rooms prints.
@@ -455,16 +506,18 @@ struct Uncalled {
 /// nothing.
 fn derive_uncalled(replay: &Replay) -> Option<Uncalled> {
     for street in DRAFT_STREETS.iter().rev() {
-        let mut entries: Vec<&(String, JsNumber)> = replay.totals[street.index()]
+        let Some(index) = street.index() else {
+            continue;
+        };
+        let mut entries: Vec<&(String, JsNumber)> = replay.totals[index]
             .iter()
             .filter(|(_, value)| value.greater_than(JsNumber::ZERO))
             .collect();
         if entries.is_empty() {
             continue;
         }
-        // `sort((a, b) => b[1] - a[1])`: stable, descending; a `NaN`
-        // difference (`Infinity - Infinity`) is a tie, as `compare` says.
-        entries.sort_by(|a, b| b.1.compare(a.1).unwrap_or(Ordering::Equal));
+        // `sort((a, b) => b[1] - a[1])`, as V8 sorts.
+        js::sort::sort_by(&mut entries, |a, b| b.1 - a.1);
         let (player, top) = entries[0];
         let second = entries.get(1).map_or(JsNumber::ZERO, |entry| entry.1);
         return top.greater_than(second).then(|| Uncalled {
@@ -606,12 +659,24 @@ fn position_labels_for(
 }
 
 /// `capitalize(street)` of a drafted street.
-fn capitalized(street: DraftStreet) -> &'static str {
+fn capitalized(street: DraftStreet) -> String {
     match street {
-        DraftStreet::Preflop => "Preflop",
-        DraftStreet::Flop => "Flop",
-        DraftStreet::Turn => "Turn",
-        DraftStreet::River => "River",
+        DraftStreet::Preflop => "Preflop".to_owned(),
+        DraftStreet::Flop => "Flop".to_owned(),
+        DraftStreet::Turn => "Turn".to_owned(),
+        DraftStreet::River => "River".to_owned(),
+        // Unreached (a fold on such a street throws first); `capitalize`
+        // of its ASCII text all the same.
+        DraftStreet::Unlisted(text) => {
+            let mut chars = text.chars();
+            chars.next().map_or_else(String::new, |first| {
+                format!(
+                    "{}{}",
+                    js::to_upper_case(&first.to_string()),
+                    chars.as_str()
+                )
+            })
+        }
     }
 }
 
@@ -620,12 +685,13 @@ fn capitalized(street: DraftStreet) -> &'static str {
 /// `draftToStandardText(draft)`: the draft as standard text; the
 /// `inconsistent-pot` refusal when its money cannot be reconciled.
 #[allow(clippy::too_many_lines)]
-pub fn draft_to_standard_text(draft: &HandDraft) -> Result<String, ParseSkip> {
+pub fn draft_to_standard_text(draft: &HandDraft) -> Result<String, ParseError> {
     let (unit, decimals) = (&draft.unit, draft.decimals);
-    let replay = replay_actions(draft);
+    let replay = replay_actions(draft)?;
     let settlement = settle(draft, &replay)?;
     let mut seats: Vec<&DraftSeat> = draft.seats.iter().filter(|seat| seat.dealt_in).collect();
-    seats.sort_by(|a, b| a.seat.compare(b.seat).unwrap_or(Ordering::Equal));
+    // `sort((a, b) => a.seat - b.seat)`, as V8 sorts.
+    js::sort::sort_by(&mut seats, |a, b| a.seat - b.seat);
 
     let small_blind = if truthy(replay.small_blind) {
         replay.small_blind
@@ -671,7 +737,7 @@ pub fn draft_to_standard_text(draft: &HandDraft) -> Result<String, ParseSkip> {
     }
 
     // Posting lines go before `*** HOLE CARDS ***`, the rest after it.
-    let preflop = &replay.lines[DraftStreet::Preflop.index()];
+    let preflop = &replay.lines[0];
     let posting_count = preflop.iter().position(|line| !line.contains(": posts "));
     let (postings, preflop_body): (&[String], &[String]) = match posting_count {
         None => (preflop, &[]),
@@ -714,7 +780,9 @@ pub fn draft_to_standard_text(draft: &HandDraft) -> Result<String, ParseSkip> {
     board.extend(river.map(str::to_owned));
     let emit_street = |lines: &mut Vec<String>, street: DraftStreet, marker: String| {
         lines.push(marker);
-        lines.extend(replay.lines[street.index()].iter().cloned());
+        if let Some(index) = street.index() {
+            lines.extend(replay.lines[index].iter().cloned());
+        }
         if let Some(uncalled) = uncalled_on(street) {
             lines.push(uncalled_line(uncalled));
         }
@@ -950,7 +1018,7 @@ pub fn build_hand(draft: &HandDraft, ctx: &SiteParserContext<'_>) -> Result<PhfH
     hand.meta.warnings = warnings;
     if hand.game.hi_lo {
         // Whatever the room said about the halves has to agree with the cards.
-        let settlement = settle(draft, &replay_actions(draft))?;
+        let settlement = settle(draft, &replay_actions(draft)?)?;
         let stated: Vec<StatedAward> = settlement
             .collected
             .iter()
