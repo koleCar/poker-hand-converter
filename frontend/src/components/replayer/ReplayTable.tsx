@@ -251,6 +251,8 @@ export function ReplayTable({
   // is laid out by flexbox inside a container query, so where it actually is
   // depends on how many pots there are and how big the box got.
   const potsRef = useRef<HTMLDivElement | null>(null);
+  const potTotal =
+    frame.potWithBets > frame.pot ? format(frame.potWithBets, frame.potWithBetsBb) : null;
 
   // `holeCards`, not `dealtCards`: the deal block only lists the cards the room
   // printed up front (the hero's, in every format we read), while `holeCards`
@@ -364,14 +366,22 @@ export function ReplayTable({
                 key={pot.name}
                 className={`rp__pot ${index > 0 ? "rp__pot--side" : ""}`.trim()}
               >
-                <span className="rp__pot-label">{t.frames.potName(pot.name)}</span>
+                {/* A lone pile needs no name — the pill in the middle is the
+                    pot — so "Pot" is only read out. Main and Side keep theirs:
+                    there the name is the information. */}
+                <span className={frame.pots.length > 1 ? "rp__pot-label" : "rp-sr"}>
+                  {t.frames.potName(pot.name)}
+                </span>
                 <span className="rp__pot-value">{format(pot.amount, pot.amountBb)}</span>
                 {/* Outstanding bets belong to whichever pot they end up in,
                     which is not decided until they are swept, so the running
-                    total sits on the last pile rather than split across them. */}
-                {index === frame.pots.length - 1 && frame.potWithBets > frame.pot ? (
-                  <span className="rp__pot-total">
-                    {words.potTotal(format(frame.potWithBets, frame.potWithBetsBb))}
+                    total sits on the last pile rather than split across them.
+                    The number alone on the felt; the word "total" stays for
+                    a screen reader and the hover title. */}
+                {index === frame.pots.length - 1 && potTotal !== null ? (
+                  <span className="rp__pot-total" title={words.potTotal(potTotal)}>
+                    <span aria-hidden="true">{potTotal}</span>
+                    <span className="rp-sr">{words.potTotal(potTotal)}</span>
                   </span>
                 ) : null}
               </div>
