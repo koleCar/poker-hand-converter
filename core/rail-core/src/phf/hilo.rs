@@ -445,11 +445,13 @@ pub fn check_stated_halves(hand: &PhfHand, stated: &[StatedAward]) -> Vec<PhfWar
 }
 
 /// A seat's high and low winnings as a room states them (Bovada's `HI` /
-/// `LOW`), for [`check_stated_totals`].
+/// `LOW`), for [`check_stated_totals`]. JavaScript numbers, as the parser
+/// reads them (`parseAmount`): a summary figure no PHF amount can hold is
+/// still compared and printed as the TypeScript does (R0.10b).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct StatedTotals {
-    pub hi: Amount,
-    pub lo: Amount,
+    pub hi: JsNumber,
+    pub lo: JsNumber,
 }
 
 /// `checkStatedTotals(hand, stated)`: the same check for a room that states
@@ -464,7 +466,7 @@ pub fn check_stated_totals(hand: &PhfHand, stated: &[(String, StatedTotals)]) ->
             .filter(|action| action.player == *player)
             .collect();
         let unlabelled = collects.iter().any(|action| action.half.is_none());
-        if unlabelled && room.lo > 0 {
+        if unlabelled && room.lo.greater_than(JsNumber::ZERO) {
             continue;
         }
         let sum = |keep: &dyn Fn(&PhfAction) -> bool| {
@@ -477,7 +479,7 @@ pub fn check_stated_totals(hand: &PhfHand, stated: &[(String, StatedTotals)]) ->
         };
         let hi = sum(&|action| action.half != Some(PotHalf::Lo));
         let lo = sum(&|action| action.half == Some(PotHalf::Lo));
-        let (room_hi, room_lo) = (JsNumber::from_i64(room.hi), JsNumber::from_i64(room.lo));
+        let (room_hi, room_lo) = (room.hi, room.lo);
         if !hi.strict_equals(room_hi) || !lo.strict_equals(room_lo) {
             warnings.push(mismatch(format!(
                 "The room paid {player} {} high and {} low, but the hands say {} high and {} low.",
@@ -583,7 +585,10 @@ mod tests {
         );
         assert_eq!(check_no_low_stated(&subject).len(), 1);
 
-        let totals = |hi, lo| StatedTotals { hi, lo };
+        let totals = |hi, lo| StatedTotals {
+            hi: JsNumber::from_u64(hi),
+            lo: JsNumber::from_u64(lo),
+        };
         assert!(check_stated_totals(&subject, &[("alpha".to_owned(), totals(50, 0))]).is_empty());
         assert_eq!(
             check_stated_totals(&subject, &[("bravo".to_owned(), totals(50, 0))])[0].message,

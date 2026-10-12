@@ -7,6 +7,9 @@
 //! pot (`p2-handbuilder.ts`). R0.9: the XML reader (`p2-xml.ts`) and the
 //! text-room helpers (`p4-textroom.ts`). R0.10a: the builder of Winamax and
 //! Chico, which reconciles against the printed pot (`p6-handbuilder.ts`).
+//! R0.10b: the builder of Ignition and ACR / WPN, which takes the
+//! settlement the room states and checks the replay against it
+//! (`p5-handdraft.ts`).
 
 pub mod p2_handbuilder;
 pub mod p2_partygaming;
@@ -15,6 +18,7 @@ pub mod p3_draft;
 pub mod p3_stars_dialect;
 pub mod p4_textroom;
 pub mod p5_encoding;
+pub mod p5_handdraft;
 pub mod p6_handbuilder;
 pub mod ps_gg_hand;
 pub mod variant_lock;
