@@ -609,6 +609,102 @@ under WASM; the registry records an unknown file end to end.
   R0.6).
 - **Done when** golden diff is 100 % for these sites (hands, refusal reasons,
   warnings). From here, A9 lets R1.1–R1.3 start.
+- Split in two when picked up: **R0.7a** (`pokerstars`, `ggpoker` and the
+  shared PokerStars-family modules) and **R0.7b** (`weplay`, `coinpoker`).
+- *As built, R0.7a* (§15):
+  - **Layout** (`core/rail-core/src/parsers/`): `pokerstars.rs`,
+    `ggpoker.rs`, and in `shared/` `ps_gg_hand.rs` (all of `ps-gg-hand.ts`:
+    the text helpers, `parseSummarySeat` and `StarsHandDraft`), `p3_draft.rs`
+    (the re-export `p3-draft.ts` is) and `p3_stars_dialect.rs`
+    (`parseStarsFamilyBody`, for Run It Once and PokerBros, ported now and
+    held to the TypeScript by vectors until those parsers arrive). Both
+    parsers are registered in `index.ts` order.
+  - **The shared API** (for CoinPoker, Full Tilt, Run It Once, PokerBros,
+    ACR): the TypeScript's names in snake case - `to_lines`,
+    `normalize_newlines`, `strip_bom`, `MONEY`, `symbol_in`,
+    `has_unsupported_currency`, `unit_for_stakes`, `buy_in_unit_for`,
+    `detect_decimals`, `detect_pad_hour`, `parse_played_at`,
+    `limit_from_label`, `level_number_of` (`Err` beyond `u32`),
+    `parse_summary_seat` (→ `SummarySeat`), `variant_from_label`,
+    `is_hi_lo_label`; `DraftGame`, `DraftInit` (plus `parsed_at`: no clock in
+    the core), `MarkerKind`, `StarsHandDraft` with every method (`post` takes
+    `PostOptions { all_in, verb, line, raw_line }`, the others take those as
+    arguments; `warnings` is public), `build() -> Result<PhfHand,
+    BuildError>`. Rust-only helpers: `split_before_line_starts` (a
+    lookahead `split(/(?=^…)/m)`), `template_regex` (`String.raw` with
+    `${MONEY}`/`${SUFFIX}`), `number_u32`, `first_unseated_actor`, and the
+    per-site line helpers every TS file copies (`runout_index_for_label`,
+    `marker_kind`, `last_bracket_cards`, `unseated`). `parse_stars_family_body(
+    lines, &mut draft, &unit) -> Result<DialectResult, ParseError>`.
+  - **Golden agreement** (`tests/golden_sites.rs`): `pokerstars` **45 / 45**
+    files, **108** hands, **5** refusals (`unsupported-variant` 3,
+    `unsupported-hi-lo` 1, `hand-cancelled` 1); `ggpoker` **24 / 24** files,
+    **215** hands, **2** refusals (`unseated-actor`) - each fully: ranking,
+    chunks, PHF, standard text per hand and per file, warnings, refusal
+    stage, reason, message and fingerprint, stats. The 39 `standard` files now
+    match with their whole ranking (the 38 `ggpoker` 860 candidates R0.6 left
+    out). Whole-file detection of the three ported parsers agrees with the
+    goldens on **all 556** corpus files (no foreign file claimed).
+  - **Beyond the corpus** (`tests/data/psgg-vectors.{mjs,json}`, 1.3 MB, run
+    by `tests/psgg_vectors.rs`; the generator bundles the TypeScript): both
+    parsers' splits of every corpus file and of edge texts; detection probes;
+    every PokerStars and GG corpus chunk plus seeded line edits (deleted,
+    swapped, duplicated, inserted lines from a catalogue of 110 shapes both
+    grammars read, changed amounts, 54 other headers - currencies,
+    tournaments, levels, variants, spin-offs -, cut summaries, `\r`/U+2028
+    line ends, a BOM), each through both parsers: **3 420** cases (2 977
+    hands, the rest refusals), all equal; and **164** Run It Once / PokerBros
+    dialect cases. Two soak runs with other seeds (`PSGG_STRESS=<seed>`,
+    17 054 cases and 1 604 dialect cases each) were equal too.
+  - **ggpoker ≡ standard**: on every GG cash hand of the corpus (`gg-hh/`
+    and the samples), the GG parser and `parse_standard_hand` agree on the
+    projection `ggpokerParser.test.ts` checks (actions, players, pot, fees,
+    board) - translated as a test, not shared code: the TypeScript keeps two
+    readers too.
+  - **Patterns** are the TypeScript source (tests check every one, by
+    `/literal/flags` or `String.raw` body). Rewritten by hand and tested
+    against Node: `detectDecimals`' two lookaheads, the lookahead splits,
+    GG's `BUY_IN_TOKEN` `(?=\s|$)` (consumed instead: the same group 1),
+    PokerStars' `.{0,40}` detection probe (JavaScript counts UTF-16 units),
+    the multiline GG probes (run at every JavaScript line start).
+  - **TS oddities kept**: an empty Home Game tag `{}` gives no `home-game`
+    warning (falsy); GG refuses *every* hi/lo label (`unsupportedGameSkip`
+    without its list); a GG tournament `()` keeps the empty name `""` (`??`,
+    not `||`); `Dealt to` is matched on the untrimmed line, so an indented
+    one is an `unknown-line`; a rebuilt uncalled return goes after the last
+    action with the last wager's street key (after the folds on that
+    street); `posts small & big blinds` with
+    a big blind of 0 in the header books the whole post as the big blind;
+    `levelNumberOf("ıv")` is 4 (`toUpperCase` turns the dotless ı into I); a SUMMARY outcome
+    `showed` is tested for and never produced; insurance by an unseated
+    player is an `unknown-line` warning, not a refusal.
+  - **Not reproducible, reported**: a straddler with no seat line gets
+    `seat: -1` in TypeScript; here `build` returns
+    `BuildError::UnseatedStraddler` and the site parsers refuse the hand as
+    `unseated-actor` naming the first unseated actor - exactly the refusal
+    the TypeScript reaches one step later. A seat, table size, button or
+    level beyond `u32` is a `parser-error` (R0.6's rule). Warnings pushed
+    onto the draft after `build` do not reach the hand (the TypeScript shares
+    the array); no caller does it.
+  - One R0.6 test changed with the registry, not the code: a standard-text
+    file with a GG tournament and an `RC` hand now routes those two chunks to
+    `ggpoker` (0.95 over 0.9), as the TypeScript does with every parser
+    registered (recorded from Node).
+  - 117 TypeScript test cases translated (`tests/psgg_parsers.rs`): all of
+    `pokerstarsParser.test.ts` and `ggpokerParser.test.ts` except the
+    replayer checks, with `psggInvariants.ts` ported as test support; the
+    PokerStars/GG parts of `phfDetect`, `phfOmaha`, `phfHiLo` and
+    `shortDeck` (not their stats, equity and replayer checks, nor the ACR
+    file). `phfPositions`, `phfRoundTrip`, `byteCompat` and `phfCoreGaps`
+    have no PokerStars/GG part left: their parser-free halves are R0.5/R0.6,
+    the rest is WePlay (R0.7b).
+  - **For R0.7b**: WePlay wraps `parse_standard_hand` (R0.6); CoinPoker uses
+    `StarsHandDraft`, `parse_played_at`, `parse_summary_seat` and
+    `limit_from_label` from `parsers::shared::ps_gg_hand` and edits
+    `results` after `build` (fine: the hand is owned). Add each to
+    `parsers::ported()`, a line to `tests/golden_sites.rs`, and rerun
+    `ported_parsers_rank_every_corpus_file_as_the_goldens_do`, which will
+    then hold the new parser's scores on all 556 files.
 
 ### R0.8 Parsers, `*****` family — M
 - `partypoker`, `pokerstars888` (888poker), `pokerbros`.
@@ -1044,3 +1140,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-12 | **R0.5a done** (R0.5 split into R0.5a and R0.5b): `rail_core` gains the functions of `types.ts` except `assignPositions` (`phf::{money,game,hand}`), `decode_source`, the `SiteParser` trait, registry and per-mille ranking, the complete `ParseSkip` reason set (58 codes, checked against the TS source), fingerprints with JS `\s`, `variant-lock.ts`, `p5-encoding.ts`, and the `convert` / `convert_any` pipeline with positions and validation behind a trait for R0.5b. `rail_core::js` reproduces the JavaScript built-ins the reference relies on (whitespace, regular expressions translated verbatim, IEEE-754 doubles in integer arithmetic). Decoding agrees with the goldens on **556 / 556** files; the **24 unknown-site files match their goldens exactly**, fingerprints included. Golden harness for parser steps: `golden::check(Selection::Parsers(&[…]))` in `core/rail-core/tests/golden_sites.rs` (standard-text hashes pending until R0.6). 38 TS test cases translated. One TS oddity is not reproducible and is reported: `parseAmountStrict("1.234,5.6")` returns a fractional amount (183.45); Rust refuses it as `not-a-safe-integer`. |
 | 2026-10-12 | **R0.5b done**: `assignPositions`, `validateHand` (every code, message, context and order) and all of `hilo.ts` in Rust, with the evaluator they need - `cards.ts`'s `parseCard`/`extractCards` and all of `equity/evaluator.ts` and `omaha.ts` (full deck, both short-deck tables, `SHORT_DECK_RULE_BY_SITE`, Omaha high and the eight-or-better low) as `rail_core::eval`, which R2.2 builds on. Against every golden hand: positions **8 422 / 8 422**, validation **8 422 / 8 422** (no errors; all 532 warnings, 463 validator + 69 parser), hi/lo halves **22 / 22**. The corpus has 3 validate-stage refusals (`negative-stack`, `hi-lo-payout-contradiction`, `chip-mismatch`, one each); their pre-validation hands and 1 825 seeded mutations of golden hands replay the TypeScript's positions, reports and halves exactly (`tests/data/check-vectors.*`). 64 TS test cases translated. `validateHand` can throw (an unreadable card in a hi/lo showdown) and `convertAny` does not catch it, so `convert_any` now returns `Result`. |
 | 2026-10-12 | **R0.6 done**: `serialize.ts` in Rust (`rail_core::phf::serialize`): `toStandardText` with every presentation rule of `resolveTextStyle`, `toStandardTextFile`, the reader (`parseStandardHand`, `splitStandardHands`, `parseStandardText`) and the `standard` parser, registered (moved from R0.7). `golden::SERIALIZER` is on: the text hash agrees on **8 422 / 8 422** hands and the per-file hash on **556 / 556** files; the 39 files `standard` wins match their goldens fully (881 hands). Round trip over every golden hand, held to the TypeScript's answers (`tests/data/serialize-vectors.*`): the re-read hand equals the TypeScript's on 8 422 / 8 422, semantically equal on 8 097 (the TypeScript's own round trip loses something on the same 325), byte-stable on 8 421 (the same one exception); 2 460 mutations and 25 texts agree. Lookahead patterns written as code, tested against Node; V8's `Date` reading reproduced (day rollover, `24:00`). 39 TS test cases translated. Not reproducible, reported: `seat: -1` for a straddler without a seat and seat-like numbers beyond `u32` (an error here), zone-less dates (local time in JS). |
+| 2026-10-12 | **R0.7a done** (R0.7 split into R0.7a and R0.7b): `pokerstars` and `ggpoker` in Rust, with all of `ps-gg-hand.ts` (`StarsHandDraft`), `p3-draft.ts` and `p3-stars-dialect.ts` as reusable modules in `parsers::shared`; both registered. Goldens: `pokerstars` **45 / 45** files (108 hands, 5 refusals), `ggpoker` **24 / 24** (215 hands, 2 refusals), fully; the 39 `standard` files now with their whole ranking; whole-file detection of the ported parsers equal to the goldens on all 556 files. Beyond the corpus, held to the TypeScript (`tests/data/psgg-vectors.*`): 3 420 mutated chunks through both parsers and 164 clone-dialect cases equal (two 17 054-case soak runs too). The GG parser and `parse_standard_hand` agree on every GG cash hand. 117 TS test cases translated, `psggInvariants.ts` included. Not reproducible, reported: a straddler with no seat line (`seat: -1`) - the same `unseated-actor` refusal, reached by `BuildError::UnseatedStraddler`. |

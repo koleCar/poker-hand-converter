@@ -922,6 +922,10 @@ fn the_standard_parser_reads_its_own_file_through_the_pipeline() {
     let result = crate::convert_any(&file, &options).expect("no throw");
     assert_eq!(result.stats.total, 3);
     assert_eq!(result.stats.converted, 3);
+    // Since R0.7a the GG-shaped chunks - a tournament with a level, an `RC`
+    // hand id - are re-detected as `ggpoker` (0.95 over `standard`'s 0.9),
+    // which is what the TypeScript, with every parser registered, does with
+    // this file too (recorded from Node).
     assert_eq!(
         result
             .hands
@@ -931,7 +935,11 @@ fn the_standard_parser_reads_its_own_file_through_the_pipeline() {
                 h.hand.meta.site_name.as_str()
             ))
             .collect::<Vec<_>>(),
-        [("standard", "Rail standard"); 3]
+        [
+            ("standard", "Rail standard"),
+            ("ggpoker", "GGPoker"),
+            ("ggpoker", "GGPoker")
+        ]
     );
     assert_eq!(
         result.hands[0].hand.meta.original_filename.as_deref(),
