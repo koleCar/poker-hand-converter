@@ -1189,6 +1189,145 @@ under WASM; the registry records an unknown file end to end.
     `variant_lock`. `p6-vectors.mjs` shows how to record a shared builder
     directly from random drafts (numbers as `String(n)`), and how a soak
     file can live outside the repository.
+- *As built, R0.10b* (§15):
+  - **Layout** (`core/rail-core/src/parsers/`): `acrwpn.rs` (`AcrWpnParser`,
+    `WpnDialect`, `wpn_dialect`; ACR is a HUD-priority room), `ignition.rs`
+    (`IgnitionParser`) and in `shared/` `p5_handdraft.rs` (all of
+    `p5-handdraft.ts`). Both parsers registered in `index.ts` order
+    (`ignition` after `pokerbros`, `acrwpn` last); `acrwpn` declares
+    `short_deck()`, `ignition` `hi_lo_variants()` = `OMAHA_HI_LO`.
+  - **The `p5_handdraft` API**: `P5Street` (+ `P5_STREETS`), `P5Seat`,
+    `P5Kind` (with `allin` and `uncalled`), `P5Action`
+    (`P5Action::new(street, player, kind)`, the optional fields
+    `None`/`false`), `P5Collect`, `P5Tournament`, `P5Draft` (field for
+    field, snake case; the TypeScript `Map`s `statedContributions` and
+    `holeCards` are `Vec`s of pairs in insertion order), `p5_header_date`
+    (= `format_header_date`), `p5_draft_to_standard_text(&P5Draft) ->
+    Result<String, ParseSkip>` and `p5_build_hand(&P5Draft,
+    &SiteParserContext, hand_key) -> Result<PhfHand, ParseError>`. Amounts,
+    seats, the table size and the button are `JsNumber`, as in the two
+    sibling builders; `flop: Some(vec![])` is the truthy `[]`.
+  - **One shared change**: `phf::hilo::StatedTotals` holds `JsNumber`s
+    instead of `Amount`s. Ignition, its only caller, reads the summary's `HI`
+    / `LOW` with `parseAmount` - a double, compared (`room.lo > 0`, `!==`)
+    and printed (`1e+22`) as such. The hilo unit test was adapted; every
+    earlier vector and soak still passes. No other merged code changed;
+    reused: `p2_partygaming::{split_lines, iso_from_888_date}` (`Date.UTC`
+    then `toISOString`; `Invalid time value` is unreachable for these digit
+    counts and would be a `parser-error`), `p2_handbuilder::format_header_date`,
+    `p5_encoding::p5_recover_encoding`, `ps_gg_hand::{limit_from_label,
+    split_before_line_starts}`, `serialize::matches_at_line_start`,
+    `variant_lock`, `phf::hilo::check_stated_totals`.
+  - **Patterns** are the TypeScript source (tests check every literal and
+    every refusal message). Written as code and tested against Node: both
+    lookahead splits (at every JavaScript line start), Ignition's
+    `BRANDS`-built header patterns, the `m`-flag probes (WPN's `Game ID:`,
+    running pot, `RUN IT TWICE`, numeric-seat and `Game started at:`
+    probes; Ignition's brand header and `^.* : Card dealt to a spot \[`),
+    and WPN's modern detection probe, whose `m`-flag `\s*$` is written
+    `\s*(?:$|[\n\r\u2028\u2029])` - the regex crate's `$` breaks only at
+    `\n`. Every `.sort` (names and pseudonyms by length, seats by number)
+    goes through `js::sort::sort_by`.
+  - **Golden agreement** (`tests/golden_sites.rs`): `acrwpn` **76 / 76**
+    files, **144** hands, **25** refusals (`unsupported-hi-lo` 14,
+    `unsupported-variant` 5, `unnamed-actor` 3, `cancelled-hand` 2,
+    `payout-mismatch` 1) - all three dialects, the 14 UTF-16LE files, four-card
+    Omaha, the one Six Plus hand; warnings `no-hero` 44 (the validator's),
+    `unknown-summary-line` 11, `button-not-seated`, `numeric-player-ids`.
+    `ignition` **56 / 56** files, **96** hands, **12** refusals
+    (`unsupported-variant` 8, `corrupt-hand` 2, `unsupported-hi-lo` 2) -
+    hold'em, Omaha, Omaha Hi/Lo with its halves; warnings `missing-button`
+    7, `streets-inferred` 7, `derived-pot` 5, `dead-small-blind` 4,
+    `stale-level-blinds` 4, `mvs-player-hashes` 3, `no-winner` 1,
+    `lone-ante-posted-live` 1, `dead-button` 1. Each fully: ranking, chunks,
+    PHF, standard text per hand and per file, warnings, refusal stage,
+    reason, message and fingerprint, stats. Whole-file detection of the
+    fourteen ported parsers equals the goldens on **all 556** files.
+  - **Beyond the corpus** (`tests/data/p5-vectors.{mjs,json}`, 4.2 MB, run
+    by `tests/p5_vectors.rs`; the generator bundles the TypeScript): both
+    parsers' splits of every corpus file and of 15 edge texts, 37 detection
+    probes, **3 935** seeded mutations of every corpus chunk of both rooms
+    (catalogues of each grammar's lines - legacy, modern, Ignition -, other
+    headers, `Game ID:` and table lines - variants, hi/lo, Six Plus, stud,
+    tournaments, rolled-over dates, every brand, Zone Poker, `[MVS]` -,
+    changed amounts - grouped, comma decimals, thousandths, `1.2.3`, twenty
+    digits -, renamed seats, cut hands, `\r` / `\r\n` / U+2028 line ends, a
+    BOM, and 146 whose whole text is UTF-16LE read back as UTF-8), each
+    through **both** parsers - `wpn_dialect`, detection and outcome, and the
+    outcome with `cashOnly` (recorded where it differs: 1 453) - (1 070 WPN
+    and 929 Ignition hands, every refusal reason of both reached), **700**
+    seeded `P5Draft`s through `p5_draft_to_standard_text` and
+    `p5_build_hand` (mostly balanced from probes of the builder's own
+    replay - its `chip-mismatch` and `contribution-mismatch` messages carry
+    the figures -, one in five knocked out of true; 422 hands), and the 132
+    corpus files re-encoded six ways (UTF-16 LE with and without BOM, UTF-16
+    BE, Windows-1252, CRLF, UTF-8 with BOM) through `rail_core::convert`
+    (792 files, 1 440 hands): all equal. Two soak runs (`P5_STRESS=11`,
+    `=29`, 36 767 cases and 7 000 drafts each; `P5_OUT` / `P5_VECTORS` as in
+    R0.10a) were equal too.
+  - **TS oddities kept**: the builder banks an ante's `dead` nowhere, banks
+    a small blind's without a missed-blind line, puts a post's or a
+    straddle's missed blind above the deal whatever its street, replays a
+    stated return with its raw `amount` (not `toTotal`), always prints `***
+    SHOWDOWN ***`, labels `(small blind)` / `(big blind)` by the first
+    poster's name, clamps the rake to the shortfall (`Math.min`) and prints
+    `Math.max(0, rake)`, and fills summary hole cards only into players the
+    text left without; `lastStreet` is computed and never read (not
+    ported). WPN: the numeric-seat probe of `wpnDialect` reads the chunk as
+    given, not recovered; `firstMatchingLine`'s `m`-flag `^Game started at:`
+    matches after a bare `\r` or U+2028 inside a `\r?\n` line, and the
+    trimmed line must then be an anchored legacy header; the legacy header
+    is read twice (cents first) and its variant is `variantFromLabel` (not
+    `variantOf`), Omaha pot-limit and everything else no-limit; a summary
+    `Board:` fills the board only without a flop marker, and a flop of other
+    than three cards is dropped while its turn and river stay; a summary line
+    for an unseated name is skipped while its `Bets:` and `Collects:` are
+    zero; an all-zero `Bets:` column (the mined export) is no column;
+    `and is all-in` needs whitespace before it; the modern seat order is
+    re-sorted per line (a seat line after an action changes the names); a
+    `Dealt to` an unknown name is ignored. Ignition: `seatByName` and
+    `nameOf` are plain `Map.set` - a repeated pseudonym, or a seat called
+    `Hero` next to the `[ME]` seat, overwrites; a summary pseudonym is a
+    bare `startsWith` (an empty one matches everything and counts as none);
+    `Set dealer [n]` is used only without a `Dealer` seat; a lone `Ante
+    chip` is a live post; `Posts chip` caps the live share at the big blind
+    known at that line; an all-in before `*** HOLE CARDS ***` is a blind by
+    pseudonym, else a post; `Showdown ()` has no description; `Does not
+    show` mucks no cards; street closure counts reveals as money actions
+    (they add a commitment entry) and blinds as no turn; `smallBlind ||
+    level` falls back on 0; the `HI` / `LOW` check and the `[MVS]` hashes
+    are added after the build, on the hand.
+  - **Not reproducible, reported**: a seat, table size or button between
+    2^32 and 2^53 (`Seat 99999999999:`) is R0.6's `parser-error`, and a
+    draft action by an unseated name gets `seat: -1` in TypeScript - neither
+    parser produces one (both book seated names only), only hand-made
+    drafts. Amounts beyond 2^53 are unrepresentable in both (the vector test
+    compares the JSON path). Nothing else: no lone surrogate can arise (the
+    UTF-16 repair works on decoded text, and Node and Rust replace invalid
+    UTF-8 alike, one U+FFFD per maximal subpart).
+  - 30 TypeScript test cases translated (`tests/p5_parsers.rs`): all of
+    `p5Parsers.test.ts` (both corpora, per dialect, the invariants, the
+    detection boundaries) with `support/psggCorpus.ts` and
+    `psggInvariants.ts` as the loaders, the four Ignition files of
+    `phfHiLo`'s "every converted hi/lo fixture" and the ACR parts of
+    `shortDeck` (the three files, the clean short-deck hand, its standard
+    text round trip, Six Plus as Stars' `6+ Hold'em`), plus 11 unit tests in
+    the modules. Skipped: `analyzeAllIn` (R2.2), `shortDeck`'s equity, stats
+    and replayer checks (R2.1, R2.2, `buildReplay`), `shortDeckRuleFor`
+    (parser-free, R0.5b). `phfOmaha`'s ACR and Ignition labels are
+    parser-free (R0.5a); `phfDetect`, `phfPositions` and `phfCoreGaps` have
+    no part about these rooms.
+  - **For R0.10c** (`fulltilt`, `runitonce`): everything they import is
+    ported - `p3-draft` / `p3-stars-dialect` (`parse_stars_family_body`,
+    held by vectors since R0.7a), `variant_lock`, `phf::hilo`. The file
+    tool turns `\uXXXX` escapes into literal characters in Rust raw strings
+    *and* in the `.mjs` generators' JavaScript strings: grep new files for
+    non-ASCII (`[^\x00-\x7f]`) and write `\u{...}` (Rust strings) or
+    `\uXXXX` (JS, `js_regex` patterns) back. An `m`-flag pattern ending in
+    `$` that runs at line starts needs `(?:$|[\n\r\u2028\u2029])` for its
+    `$`. `p5-vectors.mjs` adds two generator tricks: an op that misreads the
+    whole text from UTF-16LE, and a second option set recorded only where
+    its outcome differs.
 
 ### R0.11 Unsupported-format registry — M
 - Core returns `Unrecognized { fingerprint, header_sample, guessed_site, confidence }`
@@ -1619,3 +1758,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-12 | **R0.8 done**: `partypoker`, `888poker` and `pokerbros` in Rust, registered in `index.ts` order, with all of `p2-partygaming.ts` and `p2-handbuilder.ts` as reusable modules in `parsers::shared` (the builder of iPoker, MicroGaming, Ongame, Entraction and Unibet too). The draft builder computes in `JsNumber` - amounts, seats, size and button are printed into the standard text it re-reads. Goldens: `partypoker` **15 / 15** files (18 hands, 1 refusal), `888poker` **14 / 14** (13 hands, 1 refusal), `pokerbros` **2 / 2** (2 hands), fully; whole-file detection of the eight ported parsers equal to the goldens on all 556 files. Beyond the corpus (`tests/data/p2pb-vectors.*`): 3 145 mutated chunks through all three parsers and the 31 files re-encoded six ways (UTF-16 LE/BE, Windows-1252, CRLF) through `convert`, all equal (two 31 135-case soak runs too). R0.7a's clone dialect now defers a table size or button beyond `u32` to `build` (`set_table_numbers`), so PokerBros' button correction reproduces the TypeScript. `rail-convert` built (README §8): a std-only `[[bin]]` of `rail-core`, summary / `--json` / `--text`, smoke-tested against the goldens. 36 TS test cases translated. |
 | 2026-10-12 | **R0.9 done**: `ipoker` and `microgaming` in Rust, registered in `index.ts` order, with all of `p2-xml.ts` and `p4-textroom.ts` as reusable modules in `parsers::shared`. The XML reader is the TypeScript's own scanner (the path Node runs), ported - not `quick-xml`: its leniency (a closing tag closes whatever is open, CDATA skipped to the first `>`, `Object.prototype` names as entities) is behaviour. iPoker's action order is `Array.prototype.sort` as V8 does it (`js::sort`, TimSort; 1 120 Node-recorded arrays with `NaN` replay exactly). The draft builder gained the street and the kind that the rooms' object-literal tables return for an `Object.prototype` key (`type="toString"`), and V8 sorting. Goldens: `ipoker` **15 / 15** files (26 hands, 1 refusal), `microgaming` **12 / 12** (21 hands), fully; whole-file detection of the ten ported parsers equal on all 556 files; iPoker's assembled `rawText` now checked against the Rust split. Beyond the corpus (`tests/data/xml-vectors.*`): reader, Base64 and strict-amount probes, splits, detection, **3 888** seeded XML mutations through both parsers and the 27 files re-encoded six ways, all equal (two 38 448-case soak runs too). 33 TS test cases translated. Not reproducible, reported: lone surrogates (`&#xD800;`; U+FFFD stands in, `parser-error` where it would show), seats/table sizes between 2^32 and 2^53 (`u32` in a PHF). |
 | 2026-10-13 | **R0.10a done** (R0.10 picked up as R0.10a-d, grouped by shared module): `winamax` and `chico` in Rust, registered in `index.ts` order, with all of `p6-handbuilder.ts` as a reusable module in `parsers::shared` (`P6Draft`, `p6_to_standard_text`, `build_p6_hand`; amounts, seats, size and button in `JsNumber`; no merged shared code changed). Goldens: `winamax` **26 / 26** files (34 hands, 1 refusal; the three Windows-1252 files convert as the app decodes them, the negative fragment stays `unknown-site`), `chico` **16 / 16** (48 hands, 20 refusals - 13 of the 17 Omaha hands headed `Hold'em Pot Limit` refused `rake-mismatch`, the 4 others read as `omaha`), fully; whole-file detection of the twelve ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p6-vectors.*`): splits, 29 detection probes, **3 003** seeded mutations through both parsers, **600** random drafts through the builder, the 42 files re-encoded seven ways (U+FFFD included), all equal (two soak runs, 29 067 cases and 6 000 drafts each, too). 33 TS test cases translated (`p6Parsers.test.ts` but the replayer). Not reproducible, reported: seats/table sizes between 2^32 and 2^53 and a draft's unseated blind (`u32` in a PHF). |
+| 2026-10-13 | **R0.10b done**: `acrwpn` (all three WPN dialects - legacy, modern, data-mined) and `ignition` in Rust, registered in `index.ts` order, with all of `p5-handdraft.ts` as a reusable module in `parsers::shared` (`P5Draft`, `p5_draft_to_standard_text`, `p5_build_hand`; amounts, seats, size and button in `JsNumber`). One shared change: `phf::hilo::StatedTotals` holds `JsNumber`s (Ignition's `HI` / `LOW` are doubles in TypeScript); all earlier vectors still equal. Goldens: `acrwpn` **76 / 76** files (144 hands, 25 refusals; the 14 UTF-16LE files, Omaha, Six Plus), `ignition` **56 / 56** (96 hands, 12 refusals; Omaha Hi/Lo with its halves, streets recovered from betting closure), fully; whole-file detection of the fourteen ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p5-vectors.*`): splits, 37 detection probes, **3 935** seeded mutations through both parsers (146 misread from UTF-16LE; `cashOnly` outcomes where they differ), **700** random drafts through the builder, the 132 files re-encoded six ways, all equal (two soak runs, 36 767 cases and 7 000 drafts each, too). 30 TS test cases translated (`p5Parsers.test.ts`, the Ignition files of `phfHiLo`, the ACR parts of `shortDeck`; not the replayer, stats or equity). Not reproducible, reported: seats/table sizes between 2^32 and 2^53 and a draft's unseated actor (`u32` in a PHF; neither parser produces one). |

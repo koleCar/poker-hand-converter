@@ -8,9 +8,11 @@
 //! the list panics on first use, and a test fails when the list stops
 //! matching `index.ts`.
 
+pub mod acrwpn;
 pub mod chico;
 pub mod coinpoker;
 pub mod ggpoker;
+pub mod ignition;
 pub mod ipoker;
 pub mod microgaming;
 pub mod partypoker;
@@ -64,6 +66,8 @@ fn ported() -> Vec<Box<dyn SiteParser>> {
         Box::new(microgaming::MicroGamingParser),
         Box::new(winamax::WinamaxParser),
         Box::new(chico::ChicoParser),
+        Box::new(ignition::IgnitionParser),
+        Box::new(acrwpn::AcrWpnParser),
     ]
 }
 

@@ -268,3 +268,34 @@ fn chico() {
     assert_eq!(report.pending_text_hashes, 0);
     assert_eq!(report.unported_candidates, 0);
 }
+
+/// `ignition` (R0.10b): Ignition, Bovada and Bodog, 2012-2022 - cash, Zone
+/// Poker, tournaments with stale level blinds, `[MVS]` headers with their
+/// per-seat hashes, a lone live ante, dead buttons and dead small blinds,
+/// the 2012 exports without street markers (streets recovered from betting
+/// closure), four-card Omaha and Omaha Hi/Lo with the summary's `HI` / `LOW`
+/// totals; refusals for stud (high and hi/lo) and two spliced hands.
+#[test]
+fn ignition() {
+    let report = golden::check(Selection::Parsers(&["ignition"]));
+    assert_eq!(report.files, 56, "the set of files `ignition` wins changed");
+    assert_eq!(report.hands, 96);
+    assert_eq!(report.refusals, 12);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `acrwpn` (R0.10b): all three WPN dialects - legacy (increment raises,
+/// the `Bets:` column cross-check, `Collects:` totals, unprinted jackpot
+/// drops, the UTF-16LE files), modern and the data-mined numeric ids -,
+/// four-card Omaha and Six Plus Hold'em; refusals for Omaha Hi/Lo, stud,
+/// run-it-twice, lost names, cancelled hands and a truncated summary.
+#[test]
+fn acrwpn() {
+    let report = golden::check(Selection::Parsers(&["acrwpn"]));
+    assert_eq!(report.files, 76, "the set of files `acrwpn` wins changed");
+    assert_eq!(report.hands, 144);
+    assert_eq!(report.refusals, 25);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
