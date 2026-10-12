@@ -25,7 +25,7 @@ use super::ps_gg_hand::{
 };
 use crate::cards::extract_cards;
 use crate::detect::ParseError;
-use crate::js;
+use crate::js::{self, JsNumber};
 use crate::phf::{
     ActionType, Amount, ChipMovementAnchor, CurrencyUnit, PhfChipMovement, PhfFees, PhfPot,
     parse_amount,
@@ -61,10 +61,16 @@ pub struct DialectResult {
     /// Seats the hand listed, for the "is the button even occupied?" check.
     pub seats: Vec<u32>,
     pub button_seat: Option<u32>,
+    /// `buttonSeat` as the JavaScript number it is (`button_seat` is `None`
+    /// when it does not fit a `u32`).
+    pub button_seat_number: Option<JsNumber>,
     /// Table name and size, so a caller can re-state the table with a fixed
     /// button.
     pub table_name: Option<String>,
     pub max_seats: u32,
+    /// `maxSeats` as the JavaScript number it is (`max_seats` is 0 when it
+    /// does not fit a `u32`).
+    pub max_seats_number: JsNumber,
     /// The source printed a `*** SUMMARY ***` block.
     pub saw_summary: bool,
     /// Seat that posted the (first) small blind, for rooms whose stated
@@ -227,8 +233,10 @@ static SITTING_OUT: LazyLock<Regex> =
 /// header into `draft`. `lines` is the whole hand including its header line
 /// (already parsed by the caller), so warning line numbers match the source.
 ///
-/// `Err` only where the TypeScript keeps a seat, table size or button as a
-/// number beyond `u32` (a `parser-error` here).
+/// `Err` only where the TypeScript keeps a seat number beyond `u32` (a
+/// `parser-error` here). A table size or button beyond `u32` is held back by
+/// [`StarsHandDraft::set_table_numbers`] and fails `build` only if nothing
+/// replaced it (R0.8: PokerBros rewrites a button on an empty seat).
 #[allow(clippy::too_many_lines)]
 pub fn parse_stars_family_body(
     lines: &[&str],
@@ -297,19 +305,29 @@ pub fn parse_stars_family_body(
         }
 
         if let Some(table) = TABLE.captures(line) {
-            result.button_seat = match table.get(4) {
-                Some(m) => Some(u32_or_bug(m.as_str(), "a button seat")?),
-                None => None,
+            // A size or button beyond `u32` is held back until the hand is
+            // built: a later table line, or the caller, may replace it.
+            let button = table
+                .get(4)
+                .filter(|m| !m.as_str().is_empty())
+                .map(|m| JsNumber::parse(m.as_str()));
+            let size = JsNumber::parse(&table[2]);
+            let size = if size.is_nan() || size.strict_equals(JsNumber::ZERO) {
+                JsNumber::ZERO
+            } else {
+                size
             };
+            result.button_seat_number = button;
+            result.button_seat =
+                button.and_then(|n| n.to_i64().and_then(|n| u32::try_from(n).ok()));
             let name = table.get(1).map_or("", |m| m.as_str());
             result.table_name = (!name.is_empty()).then(|| name.to_owned());
-            result.max_seats = u32_or_bug(&table[2], "a table size")?;
-            draft.set_table(
-                result.table_name.clone(),
-                result.max_seats,
-                result.button_seat,
-                None,
-            );
+            result.max_seats_number = size;
+            result.max_seats = size
+                .to_i64()
+                .and_then(|n| u32::try_from(n).ok())
+                .unwrap_or(0);
+            draft.set_table_numbers(result.table_name.clone(), size, button, None);
             continue;
         }
 

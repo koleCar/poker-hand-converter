@@ -10,6 +10,13 @@ repository.workspace = true
 [lints]
 workspace = true
 
+# `rail-convert <file>...` (README §8). Plain `std` plus `serde_json`, already a
+# dependency: the core gains no dependency for it, and the wasm32 build
+# (which builds every target of this package) still compiles it.
+[[bin]]
+name = "rail-convert"
+path = "src/bin/rail-convert.rs"
+
 [dependencies]
 # The TypeScript parsers are regular expressions; `regex` is the port's engine.
 # Its syntax differs from JavaScript's (no lookaround, Unicode `\s`, `\d`, `\b`

@@ -132,20 +132,20 @@ fn splits_lines_as_javascript_splits_on_cr_lf() {
 #[test]
 fn a_remainder_of_zero_is_an_exact_multiple() {
     let n = |text: &str| JsNumber::parse(text);
-    assert!(is_multiple_of(n("0"), 100));
-    assert!(is_multiple_of(-n("0"), 100));
-    assert!(is_multiple_of(n("300"), 100));
-    assert!(is_multiple_of(n("-300"), 100));
-    assert!(!is_multiple_of(n("250"), 100));
-    assert!(!is_multiple_of(n("0.5"), 100));
-    assert!(!is_multiple_of(n("Infinity"), 100));
-    assert!(!is_multiple_of(JsNumber::Nan, 100));
+    assert!(n("0").is_multiple_of(100));
+    assert!((-n("0")).is_multiple_of(100));
+    assert!(n("300").is_multiple_of(100));
+    assert!(n("-300").is_multiple_of(100));
+    assert!(!n("250").is_multiple_of(100));
+    assert!(!n("0.5").is_multiple_of(100));
+    assert!(!n("Infinity").is_multiple_of(100));
+    assert!(!JsNumber::Nan.is_multiple_of(100));
     // 2^60 = 1152921504606846976, and 1e22 (an exact double).
-    assert!(!is_multiple_of(n("1152921504606846976"), 100));
-    assert!(is_multiple_of(n("1e22"), 100));
-    assert!(!is_multiple_of(n("1e300"), 100));
-    assert!(!is_multiple_of(n("1e23"), 100));
-    assert!(!is_multiple_of(n("1180591620717411303424"), 100));
+    assert!(!n("1152921504606846976").is_multiple_of(100));
+    assert!(n("1e22").is_multiple_of(100));
+    assert!(!n("1e300").is_multiple_of(100));
+    assert!(!n("1e23").is_multiple_of(100));
+    assert!(!n("1180591620717411303424").is_multiple_of(100));
 }
 
 #[test]
