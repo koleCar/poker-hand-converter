@@ -137,7 +137,9 @@ describe("the limp tremble", () => {
     expect(strat[0 * H + seven2] + strat[1 * H + seven2]).toBeGreaterThan(0.5);
   });
 
-  it("measures NashConv in the perturbed game, and converges in it", () => {
+  // 400 iterations take ~25-32 s on a GitHub runner, right at the suite's
+  // 30 s default, so this one test gets its own budget rather than flaking.
+  it("measures NashConv in the perturbed game, and converges in it", { timeout: 120_000 }, () => {
     const early = solve(0.005, 40).solver.exploitability();
     const late = solve(0.005, 400).solver.exploitability();
     expect(late.nashConvMbb).toBeLessThan(early.nashConvMbb);
