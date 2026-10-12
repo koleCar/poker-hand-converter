@@ -24,11 +24,13 @@
 //! hashes differently is diffed line by line against its body in
 //! `testdata/golden-full/` when that tree is present (`npm run golden:emit`).
 //!
-//! Two things are compared only once they can be:
+//! The **standard text** (`standardText` of every hand, `standardTextFile` of
+//! the file) is compared through [`SERIALIZER`], the Rust `toStandardText`
+//! (R0.6). Set to `None`, it would leave those hashes out of both documents
+//! and count them as pending in the report - visibly, never silently.
 //!
-//! - **Standard text** (`standardText`, `standardTextFile`): the serializer
-//!   is R0.6. Until [`SERIALIZER`] is set, those hashes are left out of both
-//!   documents and counted as pending in the report - visibly, never silently.
+//! One thing is compared only once it can be:
+//!
 //! - **Candidates of parsers not ported yet**: a golden's ranking can name
 //!   parsers the Rust registry does not have; they are left out of the
 //!   expected ranking and counted. Everything else in the ranking, the top
@@ -48,16 +50,18 @@ use rail_core::validate::ContextValue;
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 
-/// The standard-text serializer, once ported (R0.6): one hand's text, and a
-/// file's text (`toStandardText`, `toStandardTextFile`).
+/// The standard-text serializer (R0.6): one hand's text, and a file's text (`toStandardText`, `toStandardTextFile`).
 #[derive(Clone, Copy)]
 pub struct Serializer {
     pub hand: fn(&PhfHand) -> String,
     pub file: fn(&[PhfHand]) -> String,
 }
 
-/// `None` until R0.6: standard-text hashes are pending, not compared.
-pub const SERIALIZER: Option<Serializer> = None;
+/// The serializer (R0.6): standard-text hashes are compared.
+pub const SERIALIZER: Option<Serializer> = Some(Serializer {
+    hand: rail_core::phf::serialize::to_standard_text,
+    file: rail_core::phf::serialize::to_standard_text_file,
+});
 
 /// Which corpus files a check covers, by the golden's `detected.top`.
 #[derive(Debug, Clone, Copy)]
@@ -469,7 +473,7 @@ pub fn check(selection: Selection) -> Report {
     }
     println!(
         "{selection:?}: {} files, {} hands, {} refusals match their goldens; {} standard-text \
-         hashes pending (R0.6), {} candidates of unported parsers left out",
+         hashes pending, {} candidates of unported parsers left out",
         report.files,
         report.hands,
         report.refusals,

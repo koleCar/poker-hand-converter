@@ -18,6 +18,9 @@
 //! - [`parsers`]: the site parsers and the code they share (R0.5 onwards).
 //! - [`positions`], [`validate`]: `assignPositions` and `validateHand`
 //!   (R0.5b), and [`phf::hilo`], which decides the halves of a split pot.
+//! - [`phf::serialize`]: the standard text both ways - the GG-style text
+//!   trackers import, byte for byte, and its reader behind the `standard`
+//!   parser (R0.6).
 //! - [`cards`], [`eval`]: reading cards, and hand evaluation (full deck,
 //!   short deck, Omaha high and the eight-or-better low) - what validation
 //!   and hi/lo need now, and what all-in EV (R2.2) builds on.
