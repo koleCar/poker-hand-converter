@@ -1062,6 +1062,133 @@ under WASM; the registry records an unknown file end to end.
 ### R0.10 Parsers, own dialects — XL (one PR per parser)
 - `winamax`, `acrwpn` first (HUD-relevant), then `ignition`, `chico`,
   `fulltilt`, `ongame`, `entraction`, `unibet`, `runitonce`.
+- Picked up grouped by the shared module the parsers import (one PR each):
+  **R0.10a** `winamax` + `chico` (`p6-handbuilder.ts`), **R0.10b** `acrwpn` +
+  `ignition` (`p5-handdraft.ts`), **R0.10c** `fulltilt` + `runitonce`,
+  **R0.10d** `ongame` + `entraction` + `unibet`.
+- *As built, R0.10a* (§15):
+  - **Layout** (`core/rail-core/src/parsers/`): `winamax.rs`
+    (`WinamaxParser`; Winamax is a HUD-priority room), `chico.rs`
+    (`ChicoParser`, `CHICO_PARSER_NAME`, `CONFIRMED_SKINS`,
+    `INFERRED_SKINS`) and in `shared/` `p6_handbuilder.rs` (all of
+    `p6-handbuilder.ts`). Both parsers registered in `index.ts` order
+    (`winamax`, `chico` after `ignition`).
+  - **The `p6_handbuilder` API**: `P6Street` (+ `P6_STREETS`), `P6Seat`,
+    `P6Kind`, `P6Action` (`P6Action::new(street, player, kind)`, the
+    optional fields `None`/`false`), `P6Collect`, `P6Tournament`,
+    `P6PrintedUncalled`, `P6Draft` (field for field, snake case),
+    `p6_header_date` (the same function as `format_header_date`, reused),
+    `p6_to_standard_text(&P6Draft) -> Result<String, ParseSkip>` and
+    `build_p6_hand(&P6Draft, &SiteParserContext) -> Result<PhfHand,
+    ParseError>`. As in `p2_handbuilder`, every amount, seat, table size and
+    button is a `JsNumber`: the TypeScript replays in doubles, prints the
+    results into the text it re-reads, and prints them into its refusal
+    messages (`Players put in 1e+21 but …`, `Seat 007` read as `Seat 7`).
+    The drafted streets are the four real ones (no object-literal lookup),
+    so the replay cannot throw; `flop: Some(vec![])` is the TypeScript's
+    truthy `[]` (a `*** FLOP *** []` marker).
+  - **No merged shared code changed.** Reused: `p2_partygaming::{split_lines,
+    iso_from_888_date}` (both rooms' `isoFrom` is `Date.UTC(y, m - 1, d, h,
+    mi, s)` then `toISOString`; Chico's missing seconds are `"0"`),
+    `p2_handbuilder::format_header_date`, `ps_gg_hand::split_before_line_starts`,
+    `serialize::matches_at_line_start`, `variant_lock`.
+  - **Patterns** are the TypeScript source (tests check every literal and
+    every refusal message). Written as code and tested against Node: the
+    `m`-flag detection probes and both lookahead splits (run at every
+    JavaScript line start, `\r` and U+2028/9 included), Chico's
+    `BRAND`-built headers (`new RegExp` over the escaped skin names) and its
+    split filter (`ANY_HEADER` with `m` over the first line, which may hold a
+    bare `\r`), Winamax's `assertRepresentableAmounts` (`new RegExp` per
+    known symbol), `names.sort((a, b) => b.length - a.length)` (UTF-16
+    lengths, `js::sort`), the seat-number `Map`s (`SameValueZero`, insertion
+    order).
+  - **Golden agreement** (`tests/golden_sites.rs`): `winamax` **26 / 26**
+    files, **34** hands, **1** refusal (`board-mismatch`: the street file
+    whose markers deal another flop than its summary); the three
+    Windows-1252 files convert, decoded by the app (the TypeScript suite
+    reads them as UTF-8 and refuses them `unsupported-encoding`, and so does
+    the translated suite); the corrupted negative fragment stays
+    `unknown-site`. `chico` **16 / 16** files, **48** hands, **20** refusals
+    (`rake-mismatch` 15 - 13 of the 17 Omaha hands, the 3-way all-in without
+    its side pot, the tournament hand whose summary reports a fifth of the
+    pot -, `unseated-actor`, `truncated-hand`, `unnamed-seat`,
+    `duplicate-seat` and the validator's `negative-stack` 1 each); the four
+    Omaha hands headed `Hold'em Pot Limit` are `omaha`. Each fully: ranking,
+    chunks, PHF, standard text per hand and per file, warnings
+    (`board-from-summary`, `assumed-currency`, `unreadable-shown-cards`,
+    `play-money-table`, and the validator's), refusal stage, reason, message
+    and fingerprint, stats. Whole-file detection of the twelve ported parsers
+    equals the goldens on **all 556** files.
+  - **Beyond the corpus** (`tests/data/p6-vectors.{mjs,json}`, 3.3 MB, run
+    by `tests/p6_vectors.rs`; the generator bundles the TypeScript): both
+    parsers' splits of every corpus file and of 18 edge texts, 29 detection
+    probes, **3 003** seeded mutations of every corpus chunk of both rooms
+    (catalogues of each dialect's lines, other headers and table lines -
+    currencies, five-card Omaha, hi/lo, short deck, stud, tournaments,
+    rolled-over dates, play money, the inferred skins, `Weeds (Hi/Lo)` -,
+    comma decimals, grouped and twenty-digit amounts, a swapped currency
+    glyph or U+FFFD, cut hands, `\r` / `\r\n` / U+2028 line ends, a BOM),
+    each through **both** parsers - detection and outcome (955 hands, every
+    refusal reason of both reached) -, **600** seeded `P6Draft`s through
+    `p6_to_standard_text` and `build_p6_hand` (mostly balanced from a probe
+    of the builder's own pot, one in five knocked out of true: every
+    reconciliation refusal including `payout-mismatch`, which neither room
+    reaches; 249 hands), and the 42 corpus files re-encoded seven ways
+    (UTF-16 LE with and without BOM, UTF-16 BE, Windows-1252 as is and with
+    `£`, CRLF, UTF-8 with U+FFFD for the glyphs) through `rail_core::convert`
+    (294 files, 495 hands): all equal. Two soak runs (`P6_STRESS=11`, `=29`,
+    29 067 cases and 6 000 drafts each; `P6_OUT=<path>` writes the soak file
+    elsewhere and `P6_VECTORS=<path>` points the test at it) were equal too.
+  - **TS oddities kept**: Winamax refuses every hi/lo label
+    (`unsupportedGameSkip` without a list); a stakes amount in a bad locale
+    is reported by the whole-text scan's message, not the line-1 one;
+    Winamax has no board-size check (a two-card flop marker goes to the
+    builder) and takes at most five summary cards; an action line by an
+    unseated name is an `unknown-line` warning (its chips are dropped, so the
+    pot usually refuses) - only `Dealt to` an unseated name refuses; a
+    `posts big blind … <anything but out of position>` is an `unknown-line`;
+    `Table: ''` has no table name. Chico reads every `Total pot` figure
+    through `readStake` (so an unused pot figure can refuse
+    `fractional-chips` / `unsupported-locale`) and keeps the last printed
+    rake; reads the header stakes *last*, after every body check; sorts the
+    disagreeing hole-card counts as strings (`10 and 4`); gives every `post
+    dead` the first small blind's amount, whoever posted it; a zero `ante
+    processed` un-deals a seat that acted before it; a late reveal inside
+    the summary counts once per player, an inline one before it every time;
+    summary seats are keyed `SameValueZero` (`Seat 007` and `Seat 7` merge)
+    and a credit to a seat number nobody sits in refuses even when it is 0.
+    The builder writes dead money as `posts missed blind` before the action
+    of any kind that carries it (only blinds and posts count it in the pot),
+    puts a post after the first non-post preflop line under `*** HOLE CARDS
+    ***`, and prints `*** SHOWDOWN ***` (and mucks) only when somebody
+    showed.
+  - **Not reproducible, reported**: a seat, table size or button between
+    2^32 and 2^53 (`Seat 99999999999:`, `99999999999-Max`) is R0.6's
+    `parser-error` - the TypeScript's hand is valid JSON; a blind posted by
+    an unseated name gets `seat: -1` in TypeScript (R0.7a's straddle rule,
+    `parser-error` here) - reachable only through a hand-made draft, since
+    both parsers book seated names only.
+  - 33 TypeScript test cases translated (`tests/p6_parsers.rs`): all of
+    `p6Parsers.test.ts` (both corpora, per-skin counts, the refusals, the
+    Omaha file, the detection namespace) with `support/p6Corpus.ts` as the
+    loader, plus 9 unit tests in the modules. Skipped: `assertReplays`
+    (`buildReplay`, the replayer, not ported - the round-trip half is
+    kept); "no other parser claims a Winamax or Chico sample" runs over the
+    ported parsers. `p5Parsers`, `phfDetect`, `phfHiLo`, `phfOmaha` and
+    `phfPositions` have no Winamax or Chico part; `phfCoreGaps`' Chico note
+    is the parser-free `Level -` round trip (R0.6).
+  - **For R0.10b** (`acrwpn`, `ignition`): `p5-handdraft.ts` is the third
+    sibling of the two ported builders (the room states the settlement and
+    the replay is checked against it) - port it the way `p6_handbuilder` is
+    ported: `JsNumber` amounts, seats, size and button, `Option<Vec<_>>` for
+    a truthy `[]`, `format_header_date` reused, `js::sort::sort_by` for
+    every `.sort` (including name lists by length), `SameValueZero` for
+    `Map`s keyed by numbers, string order for a bare `.sort()`. Everything
+    else they import is ported: `p5_encoding::p5_recover_encoding`,
+    `ps_gg_hand::limit_from_label`, `phf::hilo::check_stated_totals`,
+    `variant_lock`. `p6-vectors.mjs` shows how to record a shared builder
+    directly from random drafts (numbers as `String(n)`), and how a soak
+    file can live outside the repository.
 
 ### R0.11 Unsupported-format registry — M
 - Core returns `Unrecognized { fingerprint, header_sample, guessed_site, confidence }`
@@ -1491,3 +1618,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-12 | **R0.7b done, R0.7 complete** (A9: R1.1-R1.3 may start): `weplay` and `coinpoker` in Rust, registered in `index.ts` order. WePlay's normalizer computes in `JsNumber` (doubles, `%`, `toFixed`) and hands its text to `parse_standard_hand`; CoinPoker builds on `StarsHandDraft` and edits `results` after `build`. Goldens: `weplay` **128 / 128** files (6 726 hands, 96 refusals incl. one validator `chip-mismatch`), `coinpoker` **16 / 16** (21 hands, 1 refusal), fully; whole-file detection of the five ported parsers equal to the goldens on all 556 files. Beyond the corpus (`tests/data/wpcp-vectors.*`): 3 291 mutated chunks under default and strict options, WePlay's normalizer alone too, all equal (two soak runs of ~29 400 cases too); `byteCompat` reproduced against the frozen pre-PHF converter (5 983 hands: 5 783 identical, 199 in the three accepted classes, 1 dropped). 65 TS test cases translated. Not reproducible, reported: a WePlay table size, button or seat beyond `u32` (R0.6's rule). |
 | 2026-10-12 | **R0.8 done**: `partypoker`, `888poker` and `pokerbros` in Rust, registered in `index.ts` order, with all of `p2-partygaming.ts` and `p2-handbuilder.ts` as reusable modules in `parsers::shared` (the builder of iPoker, MicroGaming, Ongame, Entraction and Unibet too). The draft builder computes in `JsNumber` - amounts, seats, size and button are printed into the standard text it re-reads. Goldens: `partypoker` **15 / 15** files (18 hands, 1 refusal), `888poker` **14 / 14** (13 hands, 1 refusal), `pokerbros` **2 / 2** (2 hands), fully; whole-file detection of the eight ported parsers equal to the goldens on all 556 files. Beyond the corpus (`tests/data/p2pb-vectors.*`): 3 145 mutated chunks through all three parsers and the 31 files re-encoded six ways (UTF-16 LE/BE, Windows-1252, CRLF) through `convert`, all equal (two 31 135-case soak runs too). R0.7a's clone dialect now defers a table size or button beyond `u32` to `build` (`set_table_numbers`), so PokerBros' button correction reproduces the TypeScript. `rail-convert` built (README §8): a std-only `[[bin]]` of `rail-core`, summary / `--json` / `--text`, smoke-tested against the goldens. 36 TS test cases translated. |
 | 2026-10-12 | **R0.9 done**: `ipoker` and `microgaming` in Rust, registered in `index.ts` order, with all of `p2-xml.ts` and `p4-textroom.ts` as reusable modules in `parsers::shared`. The XML reader is the TypeScript's own scanner (the path Node runs), ported - not `quick-xml`: its leniency (a closing tag closes whatever is open, CDATA skipped to the first `>`, `Object.prototype` names as entities) is behaviour. iPoker's action order is `Array.prototype.sort` as V8 does it (`js::sort`, TimSort; 1 120 Node-recorded arrays with `NaN` replay exactly). The draft builder gained the street and the kind that the rooms' object-literal tables return for an `Object.prototype` key (`type="toString"`), and V8 sorting. Goldens: `ipoker` **15 / 15** files (26 hands, 1 refusal), `microgaming` **12 / 12** (21 hands), fully; whole-file detection of the ten ported parsers equal on all 556 files; iPoker's assembled `rawText` now checked against the Rust split. Beyond the corpus (`tests/data/xml-vectors.*`): reader, Base64 and strict-amount probes, splits, detection, **3 888** seeded XML mutations through both parsers and the 27 files re-encoded six ways, all equal (two 38 448-case soak runs too). 33 TS test cases translated. Not reproducible, reported: lone surrogates (`&#xD800;`; U+FFFD stands in, `parser-error` where it would show), seats/table sizes between 2^32 and 2^53 (`u32` in a PHF). |
+| 2026-10-13 | **R0.10a done** (R0.10 picked up as R0.10a-d, grouped by shared module): `winamax` and `chico` in Rust, registered in `index.ts` order, with all of `p6-handbuilder.ts` as a reusable module in `parsers::shared` (`P6Draft`, `p6_to_standard_text`, `build_p6_hand`; amounts, seats, size and button in `JsNumber`; no merged shared code changed). Goldens: `winamax` **26 / 26** files (34 hands, 1 refusal; the three Windows-1252 files convert as the app decodes them, the negative fragment stays `unknown-site`), `chico` **16 / 16** (48 hands, 20 refusals - 13 of the 17 Omaha hands headed `Hold'em Pot Limit` refused `rake-mismatch`, the 4 others read as `omaha`), fully; whole-file detection of the twelve ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p6-vectors.*`): splits, 29 detection probes, **3 003** seeded mutations through both parsers, **600** random drafts through the builder, the 42 files re-encoded seven ways (U+FFFD included), all equal (two soak runs, 29 067 cases and 6 000 drafts each, too). 33 TS test cases translated (`p6Parsers.test.ts` but the replayer). Not reproducible, reported: seats/table sizes between 2^32 and 2^53 and a draft's unseated blind (`u32` in a PHF). |

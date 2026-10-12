@@ -235,3 +235,36 @@ fn microgaming() {
     assert_eq!(report.pending_text_hashes, 0);
     assert_eq!(report.unported_candidates, 0);
 }
+
+/// `winamax` (R0.10a): the `hhsmithy-corpus` cash hands - NL and PL Omaha,
+/// 3-bets, all-ins with a showdown, heads-up and 6-max tables, a ten-hand
+/// file, a hero without hole cards, the Windows-1252 euro files (decoded by
+/// the app, so they convert); one refusal (`board-mismatch`, the street file
+/// whose markers and summary deal different flops). The negative fragment
+/// stays unclaimed (`unrecognised_files_are_refused_whole`).
+#[test]
+fn winamax() {
+    let report = golden::check(Selection::Parsers(&["winamax"]));
+    assert_eq!(report.files, 26, "the set of files `winamax` wins changed");
+    assert_eq!(report.hands, 34);
+    assert_eq!(report.refusals, 1);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `chico` (R0.10a): BetOnline, PayNoRake, ActionPoker and Gear Poker - cash,
+/// play money, tournaments, `post dead` / `post now`, zero antes, run-outs
+/// from the summary board, best-five shown cards; the four-card Omaha file
+/// headed `Hold'em Pot Limit` (4 hands, 13 refused `rake-mismatch`); refusals
+/// for an unknown player, a 3-way all-in without its side pot, a truncated
+/// hand, a dead stack's unnamed seat, two players in one seat, and the
+/// validator's `negative-stack`.
+#[test]
+fn chico() {
+    let report = golden::check(Selection::Parsers(&["chico"]));
+    assert_eq!(report.files, 16, "the set of files `chico` wins changed");
+    assert_eq!(report.hands, 48);
+    assert_eq!(report.refusals, 20);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
