@@ -9,8 +9,12 @@
 //! (`core/rail-core-wasm/types/phf.d.ts`) are compared with `types.ts` by
 //! `npm run phf:dts-check` in `tests/`.
 //!
-//! This module is data and (de)serialization only. Parsing, positions and
-//! validation arrive with R0.5 onwards.
+//! The types are data and (de)serialization. The functions and constants of
+//! `types.ts` (R0.5) live in submodules and are re-exported here:
+//! [`money`] (currency units, `parseAmount`, `parseAmountStrict`,
+//! `formatAmount`, buy-ins), [`game`] (variant and hi/lo labels, deck and deal
+//! size, position geometry) and [`hand`] (action, board, chip-movement and
+//! lookup helpers). `assignPositions` is `crate::positions` (R0.5b).
 //!
 //! Design rules that the rest of the model assumes (from `types.ts`):
 //!
@@ -44,12 +48,32 @@
 //! its own attribute. Every struct denies unknown fields, so a field `types.ts`
 //! gains without this model following fails loudly instead of being dropped.
 
+pub mod game;
+pub mod hand;
+pub mod money;
 mod serde_util;
 
 #[cfg(test)]
 mod dts;
 #[cfg(test)]
+pub(crate) mod test_support;
+#[cfg(test)]
 mod tests;
+
+pub use self::game::{
+    button_blind_ring, card_in_deck, dealt_in_seats, has_dead_button, hole_card_count,
+    is_hi_lo_label, position_ring, resolve_positions, variant_from_label,
+};
+pub use self::hand::{
+    all_cards, contributions_from_actions, hero_of, house_into_pot, is_button_blind,
+    is_posting_action, player_by_name, player_by_seat, primary_board, resolve_runout,
+    runout_through_street, seat_out_of_pot, second_board, total_fees,
+};
+pub use self::money::{
+    AmountError, AmountProblem, BuyIn, KnownUnit, cash_unit, cash_unit_with_minor_units,
+    chips_unit_for, format_amount, format_amount_digits, parse_amount, parse_amount_strict,
+    parse_buy_in_token, total_buy_in, unit_for_code, unit_for_symbol,
+};
 
 use serde::{Deserialize, Serialize};
 

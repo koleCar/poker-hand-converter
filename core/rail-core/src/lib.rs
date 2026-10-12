@@ -7,13 +7,31 @@
 //! reference: for every corpus file the Rust output must equal its golden
 //! output (R0.3) before anything here replaces it.
 //!
-//! - [`phf`]: the hand model (R0.4).
+//! - [`phf`]: the hand model (R0.4) and the functions of `types.ts` (R0.5).
 //! - [`canonical`]: the canonical JSON the goldens are written in, and that
 //!   PHF hashes are taken over.
+//! - [`decode`]: bytes to text, the converter's `decodeSource` (R0.5).
+//! - [`detect`]: the `SiteParser` contract, the registry and detection,
+//!   refusals and their fingerprints (R0.5).
+//! - [`convert`](mod@convert): the pipeline, `convertAny` and the file-level
+//!   driver (R0.5).
+//! - [`parsers`]: the site parsers and the code they share (R0.5 onwards).
+//! - [`positions`], [`validate`]: `assignPositions` and `validateHand`
+//!   (R0.5b; the pipeline already calls them).
+//! - [`js`]: the JavaScript semantics the reference depends on - `\s`,
+//!   regular expressions, IEEE-754 number arithmetic.
 
 pub mod canonical;
+pub mod convert;
+pub mod decode;
+pub mod detect;
+pub mod js;
+pub mod parsers;
 pub mod phf;
+pub mod positions;
+pub mod validate;
 
+pub use convert::{FileConversion, convert, convert_any};
 pub use phf::PHF_SCHEMA;
 
 #[cfg(test)]

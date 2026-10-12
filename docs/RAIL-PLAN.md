@@ -328,6 +328,112 @@ under WASM; the registry records an unknown file end to end.
   by validation.
 - **Done when** the ported unit tests pass and `assignPositions` +
   `validateHand` agree with the goldens on every golden hand.
+- Split in two when picked up: **R0.5a** (everything below except positions
+  and validation) and **R0.5b** (`assignPositions`, `validateHand`, the Hi/Lo
+  and short-deck evaluators).
+- *As built, R0.5a* (§15):
+  - **Layout** (`core/rail-core/src/`): `js/` (JavaScript semantics, below);
+    `phf/{money,game,hand}.rs` (every function and constant of `types.ts`
+    except `assignPositions`, re-exported from `phf`); `decode.rs`
+    (`decodeSource`); `detect/` (contract, registry, ranking, `ParseSkip`,
+    reason codes, fingerprints, hi/lo and short-deck backstops); `convert.rs`
+    (`convertAny` and the file driver); `parsers/` (built-in registry,
+    `shared/{p5_encoding,variant_lock}.rs`); `positions.rs` and `validate.rs`
+    (report types now, bodies in R0.5b). New dependencies: `regex`, and `sha2`
+    moved from dev to normal (fingerprints).
+  - **JavaScript semantics** (`rail_core::js`), because the TypeScript's
+    behaviour lives partly in the built-ins it calls. `is_whitespace` / `trim`
+    / `collapse_whitespace` are JS `\s` (U+FEFF yes, U+0085 no). `JsNumber` is
+    an IEEE-754 double in integer arithmetic (`Number()`, `+ - * /`,
+    `Math.round`, `toFixed`, `String(n)`), so `Math.round(Number("0.29") *
+    100)` is 29 here as there without a float operation in the workspace;
+    2 359 operations recorded from Node replay exactly
+    (`tests/data/js-number-vectors.{mjs,json}`). `js::regex::js_regex(src,
+    flags)` (and `js_regex_lazy!`) compiles a JavaScript pattern **verbatim**
+    with JS semantics on the `regex` crate: ASCII `\d \w \b`, JS `\s` and `.`,
+    ASCII-only `/i` (JS does not fold `ſ`/`K` to `s`/`k`; `regex` does),
+    Annex B literal braces; it refuses lookaround, backreferences, the `u`/`y`
+    flags and non-ASCII letters under `/i` instead of approximating them.
+    Ported patterns are asserted to still appear character for character in
+    the TypeScript source.
+  - **Decoding**: `decode_source(bytes) -> Decoded { text, encoding, problem }`,
+    `decodeSource`'s order and guards (BOM sniff, NUL-pattern UTF-16, strict
+    UTF-8, WHATWG Windows-1252 behind the 2 % / 5 % plausibility guard, lossy
+    UTF-8, binary at 5 %, one extra BOM strip, CR/CRLF → LF; each `TextDecoder`
+    call drops one BOM of its own). **556 / 556** corpus files give the
+    golden's `decode.encoding` and `decode.problem`, and every accepted hand's
+    `meta.rawText` (8 396; iPoker's 26 are assembled by the parser) is found
+    verbatim in the Rust-decoded text (`tests/golden_decode.rs`); 140 edge
+    cases recorded from the TypeScript replay exactly
+    (`tests/data/decode-vectors.{mjs,json}`).
+  - **Trait** (`detect::SiteParser`): `id`, `name`, `version` (`&'static
+    str`), `detect(&str) -> u32` (per-mille), `split_hands(&str) ->
+    Result<Vec<String>, SplitError>`, `parse_hand(&str, &SiteParserContext)
+    -> Result<PhfHand, ParseError>` where `ParseError` is `Skip(ParseSkip)` or
+    `Bug(message)` (TS: `ParseSkip` vs any other exception → `parser-error`),
+    and `hi_lo_variants()` / `short_deck()` defaulting to `&[]` / `false`.
+    `ConvertOptions` gains `parsed_at` (Rust only: no clock on
+    `wasm32-unknown-unknown`; default the golden pin), read by parsers through
+    `ctx.parsed_at()`.
+  - **Scores** are integer per-mille, `round(score × 1000)`: 0.99/0.95/0.9/
+    0.86/0.25 → 990/950/900/860/250, threshold 0.2 → 200, a forced site 1000.
+    `Registry` keeps registration order (re-registering an id replaces it in
+    place, as `Map.set` does) and ranks with a stable sort, so ties go to the
+    earlier parser. `parsers::REGISTRATION_ORDER` is `index.ts`'s order (a test
+    reads `index.ts`); the built-in registry sorts whatever is ported by it.
+  - **Reasons**: `SkipReason` is the complete set of 58 codes the TypeScript
+    throws (a test scans `frontend/src/lib` for `new ParseSkip("…")`, WePlay's
+    `Skip` records and `HI_LO_SKIP_REASON`, and fails on any difference);
+    `PipelineReason` (`unknown-site`, `split-failed`, `no-hands`,
+    `parser-error`, `invalid-hand`); `FailureReason` = either of those or
+    `Validation(code)` (a string until R0.5b). `ConversionFailure` mirrors the
+    TS record plus `index` (chunk, `None` for file-level). Fingerprints are
+    sha-256 over JS-`\s`-collapsed text; `fingerprint_sync` (the FNV fallback)
+    is ported for recognising old rows.
+  - **Pipeline**: `convert(bytes, filename) -> FileConversion { encoding,
+    problem, detected, result: Option<ConversionResult> }` and
+    `convert_any(text, &ConvertOptions) -> ConversionResult { hands, failures,
+    stats, chunks }`, `convertAny` step for step (forced site, whole-file
+    detection, split, per-chunk detection with fallback to the primary,
+    `ParseSkip`/bug, hi/lo then short-deck backstop, positions, validation,
+    `bySite` in first-seen order). With no parser registered all **24
+    unknown-site files match their goldens exactly**, fingerprints included.
+  - **How R0.5b plugs in**: positions and validation are called through the
+    `convert::HandChecks` trait (`assign_positions`, `validate_hand`); the real
+    `CoreChecks` forwards to `positions::assign_positions` and
+    `validate::validate_hand`, which `unimplemented!()` until R0.5b replaces
+    their bodies (deliberately loud: no hand can pass unvalidated). The report
+    types (`ValidationReport { problems }` with `ok()` / `errors()` /
+    `warnings()`, `ValidationProblem`, `ContextValue`) are in place; the
+    position geometry (`position_ring`, `resolve_positions`,
+    `dealt_in_seats`, `has_dead_button`, `button_blind_ring`,
+    `is_button_blind`) is ported.
+  - **Golden harness for parser steps** (`core/rail-core/tests/golden/mod.rs`):
+    `golden::check(Selection::Parsers(&["pokerstars", …]))` in
+    `tests/golden_sites.rs`, one line per site. It runs `rail_core::convert`
+    on every corpus file whose golden `detected.top` is in the set, checks the
+    input bytes against the golden, rebuilds the emitter's document (decode,
+    ranking, chunks, hands with PHF hash and warnings, refusals with stage,
+    reason, message, site, per-mille, version, fingerprint, stats) and
+    requires equality, reporting by JSON path and - with
+    `testdata/golden-full/` present - the first differing line of a PHF. The
+    standard-text hashes are **pending** until `golden::SERIALIZER` is set in
+    R0.6 (left out of both sides and counted in the printed report, never
+    silently); candidates of parsers not yet ported are left out of the
+    expected ranking and counted. `Selection::Unrecognised` (24 files) and
+    `Selection::All` exist too; `compare_file` is the single-file entry.
+  - **Not ported**: `toDisplayNumber` and `toBigBlinds` (fractional display
+    values for the replayer and share preview only; no floats in the core).
+  - **TS oddities kept, and one not**: `allCards` counts a re-dealt river
+    twice when a later runout has `flop: []` and `turn: ""` (truthiness);
+    `parseAmountStrict("1,2.3,4")` is not-a-number because `Number("1,23")` is
+    NaN; `parseAmount("1e5")` is 1500 (the `e` is stripped). Not reproducible:
+    `parseAmountStrict("1.234,5.6")` returns `{ ok: true, amount: 183.45 }` in
+    TypeScript (the decimal dot twice around a grouping comma); no PHF can hold
+    that, so Rust returns the Rust-only problem `not-a-safe-integer`.
+  - 38 TypeScript test cases translated (the parser-free ones of
+    `phfMoney`, `phfCoreGaps`, `phfDetect`, `phfOmaha`, `phfPositions`,
+    `shortDeck`), alongside 117 unit tests in all.
 
 ### R0.6 Serializer — M
 - `toStandardText` in Rust, including the style fields that make output
@@ -768,3 +874,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-12 | **R0.1 done**: Cargo workspace with the ten crates of §3.1, toolchain pinned to Rust 1.99.0, CI job `core` on Linux, macOS and Windows plus the WASM build. P1 (Rust on the development Mac) done. |
 | 2026-10-12 | **R0.3 done**: `npm run golden:emit` (`tests/scripts/golden/`) runs the converter's own path (`decodeSource` → `convertAny(text, { sourceFilename, validate: true })`) over all 556 `.txt`/`.xml` corpus files: 8 422 hands, 196 refusals, ~10–15 s. No float anywhere in PHF; output identical across runs and identical to the converter's 100-chunk batching. Full goldens are 137 MB, so **only hashes of PHF bodies are committed**: `testdata/golden/` (2.9 MB, canonical JSON, LF via `.gitattributes`) holds decode, detection (scores as integer per-mille), refusals, warnings and sha-256 of each hand's canonical PHF and standard text; `testdata/golden-full/` (gitignored) has the bodies. Canonical form = `serde_json::to_string_pretty` of a `Value` without `preserve_order`, keys in UTF-8 byte order (`testdata/golden/README.md`). CI job `golden-fresh` regenerates and fails on any difference. R0.4 adds the emitter run before `cargo test` to get the bodies. |
 | 2026-10-12 | **R0.4 done**: `rail_core::phf` mirrors `types.ts` field for field (`Amount = i64`, everything else `u32`; strict `T \| null` / `x?: T` / `x?: T \| null`; `deny_unknown_fields`), `rail_core::canonical::to_canonical_json` writes the golden form. `cargo test` round-trips **all 8 422 golden hands byte for byte** after checking `testdata/golden-full/` against the committed hashes, and fails (does not skip) without it; CI's `core` job now runs `npm run golden:emit` first on Linux, macOS and Windows. TypeScript declarations generated with ts-rs (dev-only) into `core/rail-core-wasm/types/phf.d.ts`, freshness checked by `cargo test`, identity with `types.ts` checked type by type by `npm run phf:dts-check` (`tests/scripts/phf-dts/`). No TS-side inconsistency found: every field in the corpus is declared in `types.ts`. |
+| 2026-10-12 | **R0.5a done** (R0.5 split into R0.5a and R0.5b): `rail_core` gains the functions of `types.ts` except `assignPositions` (`phf::{money,game,hand}`), `decode_source`, the `SiteParser` trait, registry and per-mille ranking, the complete `ParseSkip` reason set (58 codes, checked against the TS source), fingerprints with JS `\s`, `variant-lock.ts`, `p5-encoding.ts`, and the `convert` / `convert_any` pipeline with positions and validation behind a trait for R0.5b. `rail_core::js` reproduces the JavaScript built-ins the reference relies on (whitespace, regular expressions translated verbatim, IEEE-754 doubles in integer arithmetic). Decoding agrees with the goldens on **556 / 556** files; the **24 unknown-site files match their goldens exactly**, fingerprints included. Golden harness for parser steps: `golden::check(Selection::Parsers(&[…]))` in `core/rail-core/tests/golden_sites.rs` (standard-text hashes pending until R0.6). 38 TS test cases translated. One TS oddity is not reproducible and is reported: `parseAmountStrict("1.234,5.6")` returns a fractional amount (183.45); Rust refuses it as `not-a-safe-integer`. |
