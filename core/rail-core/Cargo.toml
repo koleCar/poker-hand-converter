@@ -1,0 +1,11 @@
+[package]
+name = "rail-core"
+description = "Rail core: hand-history decoding, detection, parsers, PHF model, validation, serializer"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
