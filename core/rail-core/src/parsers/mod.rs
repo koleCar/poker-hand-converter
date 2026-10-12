@@ -10,6 +10,8 @@
 
 pub mod coinpoker;
 pub mod ggpoker;
+pub mod ipoker;
+pub mod microgaming;
 pub mod partypoker;
 pub mod pokerbros;
 pub mod pokerstars;
@@ -56,6 +58,8 @@ fn ported() -> Vec<Box<dyn SiteParser>> {
         Box::new(partypoker::PartyPokerParser),
         Box::new(pokerstars888::Poker888Parser),
         Box::new(pokerbros::PokerBrosParser),
+        Box::new(ipoker::IPokerParser),
+        Box::new(microgaming::MicroGamingParser),
     ]
 }
 

@@ -6,13 +6,17 @@
 //! hand's `meta.rawText` (in `testdata/golden-full/`) must be text the Rust
 //! decoder produced for that file, character for character - except iPoker's,
 //! which the parser assembles (the session header followed by one `<game>`),
-//! so it is not a slice of the file.
+//! so it is not a slice of the file: since R0.9 those are checked against
+//! the Rust split of the Rust-decoded text instead (the chunk the hand came
+//! from, trimmed), which pins both the decoder and the assembly.
 
 mod golden;
 
 use std::fs;
 
 use rail_core::decode::decode_source;
+use rail_core::detect::SiteParser;
+use rail_core::parsers::ipoker::IPokerParser;
 use serde_json::Value;
 
 #[test]
@@ -60,12 +64,23 @@ fn every_corpus_file_decodes_as_the_typescript_decoded_it() {
             .unwrap_or_else(|e| panic!("read {}: {e}", full_path.display()));
         let full: Value = serde_json::from_str(&text).expect("golden-full parses");
         for (i, hand) in full["hands"].as_array().into_iter().flatten().enumerate() {
+            let raw = hand["phf"]["meta"]["rawText"].as_str().unwrap_or_default();
             if hand["parser"] == "ipoker" {
                 assembled += 1;
+                let chunks = IPokerParser.split_hands(&decoded.text).expect("split");
+                let chunk = hand["index"]
+                    .as_u64()
+                    .and_then(|index| usize::try_from(index).ok())
+                    .and_then(|index| chunks.get(index));
+                if chunk.map(|chunk| rail_core::js::trim(chunk)) != Some(raw) {
+                    failures.push(format!(
+                        "{path}: hands[{i}].meta.rawText is not the assembled chunk {}",
+                        hand["index"]
+                    ));
+                }
                 continue;
             }
             hands += 1;
-            let raw = hand["phf"]["meta"]["rawText"].as_str().unwrap_or_default();
             if !decoded.text.contains(raw) {
                 failures.push(format!(
                     "{path}: hands[{i}].meta.rawText is not in the decoded text \
@@ -82,11 +97,12 @@ fn every_corpus_file_decodes_as_the_typescript_decoded_it() {
         failures.join("\n")
     );
     println!(
-        "{agreed}/{files} files decode as recorded; {hands} hands' raw text found verbatim \
-         ({assembled} iPoker hands with assembled raw text not checked)"
+        "{agreed}/{files} files decode as recorded; {hands} hands' raw text found verbatim, \
+         {assembled} iPoker hands' assembled raw text equal to the Rust split's chunk"
     );
     assert_eq!(
         files, 556,
         "the corpus changed size; update this count with the goldens"
     );
+    assert_eq!(assembled, 26, "the iPoker hands of the corpus changed");
 }
