@@ -434,6 +434,87 @@ under WASM; the registry records an unknown file end to end.
   - 38 TypeScript test cases translated (the parser-free ones of
     `phfMoney`, `phfCoreGaps`, `phfDetect`, `phfOmaha`, `phfPositions`,
     `shortDeck`), alongside 117 unit tests in all.
+- *As built, R0.5b* (§15):
+  - **Layout** (`core/rail-core/src/`): `positions.rs` (`assignPositions`),
+    `validate.rs` (`validateHand`, `distinctCardUses`, `describeReport`),
+    `phf/hilo.rs` (all of `hilo.ts`: pot keys and groups,
+    `assignHiLoHalves`, `hiLoPayoutContradictions`, `NO_LOW_LINE`, the three
+    `check*` functions, `orderHiLoAwards` behind a `HiLoAward` trait),
+    `cards.rs` (`parseCard`, `extractCards`, `rankValue`), `eval/` (all of
+    `equity/evaluator.ts` and `equity/omaha.ts`: card index and code, the nine
+    categories, the `STANDARD`, `SHORT_DECK` and
+    `SHORT_DECK_STRAIGHT_OVER_TRIPS` tables, `evaluate_masks`, `suit_masks`,
+    `evaluate` for codes and `evaluate_indices`, `category_of`, the Omaha
+    subset masks, `evaluate_omaha`, `evaluate_omaha_low`, `ShortDeckRule`,
+    `SHORT_DECK_RULE_BY_SITE`, `short_deck_rule_for`, `short_deck_table`),
+    `phf/tags.rs` (`as_str` of `Variant`, `Street`, `ActionType`, `PotHalf`,
+    tested against the serde tags). `js`: `JsError` (a TypeScript `throw`)
+    and `JsNumber::{strict_equals, less_than, greater_than, max_of, floor}`.
+    Every sum and comparison in the validator and the hi/lo totals is
+    `JsNumber` arithmetic, and every number in a message is `String(n)`.
+  - **The evaluator lives in the core**, not in `rail-equity`, because
+    validation needs it first. **R2.2 adds on top, and changes nothing
+    here**: `enumerate.ts` (exhaustive enumeration, `mulberry32`, the Monte
+    Carlo path), `multiway.ts`, `range.ts`, `allInEv.ts` and `equity()` /
+    `EquityInputError`, calling `eval::{evaluate_masks, suit_masks,
+    omaha::{hole_pair_masks, board_triple_masks, evaluate_omaha_masks}}`
+    and `short_deck_table(short_deck_rule_for(site))`. `mulberry32` already
+    exists in the evaluator tests, in integer arithmetic (`floor(random() *
+    n)` is `(u * n) >> 32` exactly), dealing the same hands as the
+    TypeScript tests. Not ported from `cards.ts`: the starting-hand classes
+    (R2.1) and the filter-box helpers (UI).
+  - **A throw in the pipeline.** `validateHand` throws `not a card: …` when
+    the hi/lo payout check meets a card the evaluator cannot read (a shower
+    or payee with a full hand, five board cards), and `convertAny` does not
+    catch it: the whole call rejects. To reproduce that rather than invent a
+    refusal, `HandChecks::validate_hand` returns `Result<ValidationReport,
+    JsError>`, `convert_any` returns `Result<ConversionResult, JsError>` and
+    `FileConversion::result` is `Option<Result<…>>`; the golden harness
+    reports a throw as a mismatch. No corpus hand throws (parsers emit
+    cards they have read). `assign_hi_lo_halves` and
+    `hi_lo_payout_contradictions` return the same `Err`; a parser maps it to
+    `ParseError::Bug(message)`, which is TypeScript's `parser-error`.
+  - **Golden agreement** (`tests/golden_checks.rs`, needs
+    `testdata/golden-full/`): positions cleared and reassigned equal the
+    golden's on **8 422 / 8 422** hands; `validate_hand` finds no error and
+    exactly the golden warnings (code, context, message, order) on **8 422 /
+    8 422** - 532 warnings, 463 from the validator's own checks and 69 parser
+    `meta.warnings` re-reported; halves cleared and reassigned give back the
+    golden hand on **22 / 22** hi/lo hands (17 with a split); the SUMMARY
+    `(small blind)` / `(big blind)` / `(button)` oracle holds on the 6 750 GG
+    reference and WePlay hands, every table size 2-9 present; the six
+    short-deck hands validate, and fixture 12's payout (straight over trips)
+    is what GG's table ranks.
+  - **Validate-stage refusals in the corpus: 3** - `negative-stack` 1
+    (Chico, `cash__NLHE-10max-USD-0.25-0.05-201108.txt` chunk 10),
+    `hi-lo-payout-contradiction` 1 (Entraction `07-allin-showdown.txt`),
+    `chip-mismatch` 1 (WePlay `HH20260126 Manchester #3`). R0.7+ reproduces
+    them through the real parsers; their pre-validation hands (from
+    `convertAny(…, { validate: false })`) are already in the vectors, and
+    the Rust report gives each one the golden's reason and message.
+  - **Vectors** (`tests/data/check-vectors.{mjs,json}`, 1.8 MB; the
+    generator bundles the TypeScript with esbuild from `tests/node_modules`
+    and reads `testdata/golden-full/`): the hands the TypeScript unit tests
+    start from (21), the 3 refusals, and 1 825 seeded mutations of 110
+    golden hands, each with the TypeScript's positions, full report (all 18
+    reachable error codes, 28 warning codes) and hi/lo outcome (352),
+    including one throw. `tests/check_vectors.rs` replays all of them and the
+    translated tests; it needs no `golden-full`.
+  - 64 TypeScript test cases translated (`phfValidate`, the
+    `assignPositions` and corpus-oracle tests of `phfPositions`, the
+    validator tests of `phfCoreGaps`, all of `equityEvaluator`, the
+    evaluator, validator and position tests of `shortDeck` and `phfHiLo`);
+    the rest of those files is the parsers (R0.7+), the serializer (R0.6),
+    the replayer, stats (R2.1) and equity (R2.2).
+  - **TS oddities kept**: the duplicate-card check keys cards by their raw
+    text, so `Ah` and `ah` are two cards while the evaluator reads both as
+    the ace of hearts; the validator subtracts a jackpot drop from a stack it
+    never reads again; `bad-schema` is unreachable (a `PhfHand` has one
+    schema); a later runout's empty-string turn does not fall back to runout
+    0's (`??` keeps `""`), so its river is `river-without-turn`; the odd chip
+    of a non-positive big blind is 1; `assignHiLoHalves` with fewer than two
+    contenders still clears every half and re-pairs the winners. The
+    validator throwing (above) is the one with consequences.
 
 ### R0.6 Serializer — M
 - `toStandardText` in Rust, including the style fields that make output
@@ -597,6 +678,9 @@ database, on the development Mac and on a mid-range Windows laptop.
 ### R2.2 All-in EV in Rust — M
 - Port `lib/equity`; same seeds, same results; the Monte Carlo path must match
   TS exactly or within a documented tolerance agreed in the PR.
+- The evaluator (`evaluator.ts`, `omaha.ts`) is already `rail_core::eval`
+  (R0.5b); this step adds enumeration, Monte Carlo, ranges and multiway pots
+  on top of it.
 
 ### R2.3 Rollups and segments — M
 - `player_rollups` maintained in the import transaction; a rebuild command
@@ -875,3 +959,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-12 | **R0.3 done**: `npm run golden:emit` (`tests/scripts/golden/`) runs the converter's own path (`decodeSource` → `convertAny(text, { sourceFilename, validate: true })`) over all 556 `.txt`/`.xml` corpus files: 8 422 hands, 196 refusals, ~10–15 s. No float anywhere in PHF; output identical across runs and identical to the converter's 100-chunk batching. Full goldens are 137 MB, so **only hashes of PHF bodies are committed**: `testdata/golden/` (2.9 MB, canonical JSON, LF via `.gitattributes`) holds decode, detection (scores as integer per-mille), refusals, warnings and sha-256 of each hand's canonical PHF and standard text; `testdata/golden-full/` (gitignored) has the bodies. Canonical form = `serde_json::to_string_pretty` of a `Value` without `preserve_order`, keys in UTF-8 byte order (`testdata/golden/README.md`). CI job `golden-fresh` regenerates and fails on any difference. R0.4 adds the emitter run before `cargo test` to get the bodies. |
 | 2026-10-12 | **R0.4 done**: `rail_core::phf` mirrors `types.ts` field for field (`Amount = i64`, everything else `u32`; strict `T \| null` / `x?: T` / `x?: T \| null`; `deny_unknown_fields`), `rail_core::canonical::to_canonical_json` writes the golden form. `cargo test` round-trips **all 8 422 golden hands byte for byte** after checking `testdata/golden-full/` against the committed hashes, and fails (does not skip) without it; CI's `core` job now runs `npm run golden:emit` first on Linux, macOS and Windows. TypeScript declarations generated with ts-rs (dev-only) into `core/rail-core-wasm/types/phf.d.ts`, freshness checked by `cargo test`, identity with `types.ts` checked type by type by `npm run phf:dts-check` (`tests/scripts/phf-dts/`). No TS-side inconsistency found: every field in the corpus is declared in `types.ts`. |
 | 2026-10-12 | **R0.5a done** (R0.5 split into R0.5a and R0.5b): `rail_core` gains the functions of `types.ts` except `assignPositions` (`phf::{money,game,hand}`), `decode_source`, the `SiteParser` trait, registry and per-mille ranking, the complete `ParseSkip` reason set (58 codes, checked against the TS source), fingerprints with JS `\s`, `variant-lock.ts`, `p5-encoding.ts`, and the `convert` / `convert_any` pipeline with positions and validation behind a trait for R0.5b. `rail_core::js` reproduces the JavaScript built-ins the reference relies on (whitespace, regular expressions translated verbatim, IEEE-754 doubles in integer arithmetic). Decoding agrees with the goldens on **556 / 556** files; the **24 unknown-site files match their goldens exactly**, fingerprints included. Golden harness for parser steps: `golden::check(Selection::Parsers(&[…]))` in `core/rail-core/tests/golden_sites.rs` (standard-text hashes pending until R0.6). 38 TS test cases translated. One TS oddity is not reproducible and is reported: `parseAmountStrict("1.234,5.6")` returns a fractional amount (183.45); Rust refuses it as `not-a-safe-integer`. |
+| 2026-10-12 | **R0.5b done**: `assignPositions`, `validateHand` (every code, message, context and order) and all of `hilo.ts` in Rust, with the evaluator they need - `cards.ts`'s `parseCard`/`extractCards` and all of `equity/evaluator.ts` and `omaha.ts` (full deck, both short-deck tables, `SHORT_DECK_RULE_BY_SITE`, Omaha high and the eight-or-better low) as `rail_core::eval`, which R2.2 builds on. Against every golden hand: positions **8 422 / 8 422**, validation **8 422 / 8 422** (no errors; all 532 warnings, 463 validator + 69 parser), hi/lo halves **22 / 22**. The corpus has 3 validate-stage refusals (`negative-stack`, `hi-lo-payout-contradiction`, `chip-mismatch`, one each); their pre-validation hands and 1 825 seeded mutations of golden hands replay the TypeScript's positions, reports and halves exactly (`tests/data/check-vectors.*`). 64 TS test cases translated. `validateHand` can throw (an unreadable card in a hi/lo showdown) and `convertAny` does not catch it, so `convert_any` now returns `Result`. |

@@ -25,6 +25,32 @@ pub mod regex;
 
 pub use self::number::JsNumber;
 
+/// An exception the TypeScript reference throws (`throw new Error(message)`)
+/// where the port returns an error instead: the evaluator's `not a card: …`,
+/// and through it `validateHand` and `assignHiLoHalves`. Carries the
+/// `Error`'s `message`, which is what the pipeline records when it catches
+/// one (`parser-error`).
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct JsError {
+    pub message: String,
+}
+
+impl JsError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+
+impl std::fmt::Display for JsError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.message)
+    }
+}
+
+impl std::error::Error for JsError {}
+
 /// JavaScript's `\s` (and the set `String.prototype.trim` strips): the
 /// ECMAScript WhiteSpace and LineTerminator productions.
 ///

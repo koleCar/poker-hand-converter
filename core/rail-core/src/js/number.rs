@@ -552,6 +552,50 @@ impl JsNumber {
         if negative { format!("-{body}") } else { body }
     }
 
+    /// `a === b` between numbers: `NaN` equals nothing, `-0 === 0`. (The
+    /// derived `PartialEq` is structural and tells `-0` from `0`.)
+    pub fn strict_equals(self, other: Self) -> bool {
+        self.compare(other) == Some(Ordering::Equal)
+    }
+
+    /// `a < b` (false when either is `NaN`).
+    pub fn less_than(self, other: Self) -> bool {
+        self.compare(other) == Some(Ordering::Less)
+    }
+
+    /// `a > b` (false when either is `NaN`).
+    pub fn greater_than(self, other: Self) -> bool {
+        self.compare(other) == Some(Ordering::Greater)
+    }
+
+    /// `Math.max(a, b)`: `NaN` if either is, and `+0` over `-0`.
+    pub fn max_of(self, other: Self) -> Self {
+        if self.is_nan() || other.is_nan() {
+            Self::Nan
+        } else if self.greater_than(other) {
+            self
+        } else if other.greater_than(self) || self.is_sign_negative() {
+            other
+        } else {
+            self
+        }
+    }
+
+    /// `Math.floor(x)`.
+    ///
+    /// From [`round`](Self::round), which is `floor(x + 0.5)`: for a
+    /// non-integer `x` it is `floor(x)` or one more, and one more exactly
+    /// when it lands above `x`; the `- 1` is then exact, because a double
+    /// with a fraction is below 2^52 in magnitude.
+    pub fn floor(self) -> Self {
+        let rounded = self.round();
+        if rounded.greater_than(self) {
+            rounded - Self::from_i64(1)
+        } else {
+            rounded
+        }
+    }
+
     /// Numeric comparison (`None` when either side is `NaN`; `-0 == 0`).
     pub fn compare(self, other: Self) -> Option<Ordering> {
         match (self, other) {
@@ -777,6 +821,46 @@ mod tests {
 
     fn n(text: &str) -> JsNumber {
         JsNumber::parse(text)
+    }
+
+    #[test]
+    fn floor_max_and_comparisons_are_javascript_s() {
+        let s = |x: JsNumber| x.to_js_string();
+        // Math.floor
+        for (input, floor) in [
+            ("0.7", "0"),
+            ("-0.3", "-1"),
+            ("-0.5", "-1"),
+            ("2.5", "2"),
+            ("-2.5", "-3"),
+            ("5", "5"),
+            ("-7", "-7"),
+            ("4503599627370495.5", "4503599627370495"),
+            ("-4503599627370495.5", "-4503599627370496"),
+            ("9007199254740993", "9007199254740992"),
+        ] {
+            assert_eq!(s(n(input).floor()), floor, "Math.floor({input})");
+        }
+        assert!(n("-0").floor().is_sign_negative());
+        assert!(n("NaN").floor().is_nan());
+        assert_eq!(
+            s((JsNumber::from_i64(-7) / JsNumber::from_i64(10)).floor()),
+            "-1"
+        );
+        // Math.max
+        assert_eq!(s(n("1").max_of(n("-3"))), "1");
+        assert_eq!(s(n("-3").max_of(n("2"))), "2");
+        assert!(!n("-0").max_of(n("0")).is_sign_negative());
+        assert!(!n("0").max_of(n("-0")).is_sign_negative());
+        assert!(n("-0").max_of(n("-0")).is_sign_negative());
+        assert!(n("NaN").max_of(n("1")).is_nan());
+        // === , < , >
+        assert!(n("-0").strict_equals(n("0")));
+        assert!(!n("NaN").strict_equals(n("NaN")));
+        assert!(n("1").less_than(n("2")) && !n("NaN").less_than(n("2")));
+        assert!(n("2").greater_than(n("1")) && !n("2").greater_than(n("NaN")));
+        // String(-0) is "0".
+        assert_eq!(s(-JsNumber::ZERO), "0");
     }
 
     #[test]

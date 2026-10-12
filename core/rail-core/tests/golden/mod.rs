@@ -202,6 +202,12 @@ fn document(path: &str, bytes: &[u8], file: &FileConversion) -> Value {
             "stats": null,
         });
     };
+    // `convertAny` threw: the emitter would have failed, so no golden can
+    // match this; say what was thrown.
+    let result = match result {
+        Ok(result) => result,
+        Err(thrown) => return json!({ "input": input, "thrown": thrown.message }),
+    };
     let candidates: Vec<Value> = file
         .detected
         .iter()
@@ -412,7 +418,7 @@ pub fn compare_file(path: &str, golden: Value, report: &mut Report) -> Result<()
     }
     let mut paths = Vec::new();
     differences("$", &expected, &actual, &mut paths);
-    if let Some(result) = &file.result {
+    if let Some(Ok(result)) = &file.result {
         let hands = expected["hands"].as_array().map_or(0, Vec::len);
         for i in 0..hands {
             if expected["hands"][i]["phf"] != actual["hands"][i]["phf"]

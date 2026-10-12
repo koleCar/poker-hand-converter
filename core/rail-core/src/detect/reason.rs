@@ -146,8 +146,10 @@ pub enum FailureReason {
     /// A parser's [`ParseSkip`](super::ParseSkip), or the pipeline's hi/lo
     /// and short-deck backstops.
     Skip(SkipReason),
-    /// Stage `validate`: the code of the first error `validateHand` reports.
-    /// A string until the validator's code set is ported (R0.5b).
+    /// Stage `validate`: the code of the first error `validateHand` reports
+    /// (`chip-mismatch`, `negative-stack`, …), a string as the
+    /// [`ValidationProblem`](crate::validate::ValidationProblem) code it
+    /// comes from is.
     Validation(String),
 }
 

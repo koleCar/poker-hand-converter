@@ -16,8 +16,16 @@
 //! refusal (`index: None`).
 //!
 //! Positions and validation are behind [`HandChecks`], so the pipeline's own
-//! logic is testable on its own; [`CoreChecks`] - the real ones - is what
-//! [`convert`] and [`convert_any`] use (R0.5b fills them in).
+//! logic is testable on its own; [`CoreChecks`] - the real ones,
+//! [`crate::positions`] and [`crate::validate`] - is what [`convert`] and
+//! [`convert_any`] use.
+//!
+//! **A throw.** `validateHand` throws (`not a card: …`) when a hi/lo payout
+//! check meets a card the evaluator cannot read, and nothing in `convertAny`
+//! catches it: the whole call rejects, and no hand or refusal of that text
+//! comes back. That is the `Err` of [`convert_any`] (and of
+//! [`FileConversion::result`]). No corpus file does it - parsers emit cards
+//! they have read - but a hand that does is not quietly stored or refused.
 //!
 //! The converter batches `convertAny` 100 chunks at a time; R0.3 showed the
 //! whole-file call gives identical hands and refusals on every corpus file,
@@ -29,15 +37,16 @@ use crate::detect::{
     Registry, SiteParserContext, Stage, fingerprint, short_deck_skip,
     unsupported_game_skip_for_game,
 };
+use crate::js::JsError;
 use crate::phf::{PhfHand, Variant};
 use crate::validate::ValidationReport;
 
-/// Positions and validation, the two steps R0.5b ports.
+/// Positions and validation: the two checks every parsed hand goes through.
 pub trait HandChecks {
     /// `assignPositions(hand)`.
     fn assign_positions(&self, hand: &mut PhfHand);
-    /// `validateHand(hand)`.
-    fn validate_hand(&self, hand: &PhfHand) -> ValidationReport;
+    /// `validateHand(hand)`; `Err` where it throws.
+    fn validate_hand(&self, hand: &PhfHand) -> Result<ValidationReport, JsError>;
 }
 
 /// The real checks: [`crate::positions::assign_positions`] and
@@ -50,7 +59,7 @@ impl HandChecks for CoreChecks {
         crate::positions::assign_positions(hand);
     }
 
-    fn validate_hand(&self, hand: &PhfHand) -> ValidationReport {
+    fn validate_hand(&self, hand: &PhfHand) -> Result<ValidationReport, JsError> {
         crate::validate::validate_hand(hand)
     }
 }
@@ -125,7 +134,8 @@ pub struct FileConversion {
     pub problem: Option<SourceProblem>,
     /// `detectSite` on the whole decoded text, best first.
     pub detected: Vec<Candidate>,
-    pub result: Option<ConversionResult>,
+    /// `convertAny`'s result; `Err` when it throws (see the module docs).
+    pub result: Option<Result<ConversionResult, JsError>>,
 }
 
 /// The built-in parsers (`crate::parsers::builtin`) and the real checks.
@@ -176,8 +186,9 @@ pub fn convert_with(
     }
 }
 
-/// `convertAny(text, opts)` with the built-in parsers and the real checks.
-pub fn convert_any(text: &str, options: &ConvertOptions) -> ConversionResult {
+/// `convertAny(text, opts)` with the built-in parsers and the real checks;
+/// `Err` where it throws (see the module docs).
+pub fn convert_any(text: &str, options: &ConvertOptions) -> Result<ConversionResult, JsError> {
     convert_any_with(crate::parsers::builtin(), &CoreChecks, text, options)
 }
 
@@ -187,7 +198,7 @@ pub fn convert_any_with(
     checks: &dyn HandChecks,
     text: &str,
     options: &ConvertOptions,
-) -> ConversionResult {
+) -> Result<ConversionResult, JsError> {
     run(registry, checks, text, options, None)
 }
 
@@ -244,7 +255,7 @@ fn run<'r>(
     text: &str,
     options: &ConvertOptions,
     detected: Option<Vec<DetectionCandidate<'r>>>,
-) -> ConversionResult {
+) -> Result<ConversionResult, JsError> {
     let mut failures = Failures {
         list: Vec::new(),
         source_filename: options.source_filename.as_deref(),
@@ -262,7 +273,7 @@ fn run<'r>(
             format!("No parser registered for \"{site_id}\"."),
             None,
         );
-        return failures.file_level();
+        return Ok(failures.file_level());
     }
     let forced = forced.flatten().map(|parser| DetectionCandidate {
         parser,
@@ -282,7 +293,7 @@ fn run<'r>(
             "The text does not match any hand history format we recognise.".to_owned(),
             None,
         );
-        return failures.file_level();
+        return Ok(failures.file_level());
     };
 
     let chunks = match primary.parser.split_hands(text) {
@@ -296,7 +307,7 @@ fn run<'r>(
                 error.0,
                 Some(&primary),
             );
-            return failures.file_level();
+            return Ok(failures.file_level());
         }
     };
     if chunks.is_empty() {
@@ -311,7 +322,7 @@ fn run<'r>(
             ),
             Some(&primary),
         );
-        return failures.file_level();
+        return Ok(failures.file_level());
     }
 
     let context = SiteParserContext {
@@ -368,7 +379,7 @@ fn run<'r>(
         checks.assign_positions(&mut hand);
 
         let report = if options.validate {
-            let report = checks.validate_hand(&hand);
+            let report = checks.validate_hand(&hand)?;
             if !report.ok() {
                 let reason = report.errors().next().map_or(
                     FailureReason::Pipeline(PipelineReason::InvalidHand),
@@ -400,7 +411,7 @@ fn run<'r>(
     }
 
     let count = |n: usize| u32::try_from(n).unwrap_or(u32::MAX);
-    ConversionResult {
+    Ok(ConversionResult {
         stats: ConversionStats {
             total: count(chunks.len()),
             converted: count(hands.len()),
@@ -410,7 +421,7 @@ fn run<'r>(
         chunks: count(chunks.len()),
         hands,
         failures: failures.list,
-    }
+    })
 }
 
 #[cfg(test)]
@@ -502,9 +513,19 @@ mod tests {
         fn assign_positions(&self, _: &mut PhfHand) {
             self.positions.set(self.positions.get() + 1);
         }
-        fn validate_hand(&self, _: &PhfHand) -> ValidationReport {
-            ValidationReport::default()
+        fn validate_hand(&self, _: &PhfHand) -> Result<ValidationReport, JsError> {
+            Ok(ValidationReport::default())
         }
+    }
+
+    /// The pipeline, for checks that never throw.
+    fn convert_any_with(
+        registry: &Registry,
+        checks: &dyn HandChecks,
+        text: &str,
+        options: &ConvertOptions,
+    ) -> ConversionResult {
+        super::convert_any_with(registry, checks, text, options).expect("the checks do not throw")
     }
 
     fn hi_lo_hand(raw: &str) -> Result<PhfHand, ParseError> {
@@ -752,20 +773,20 @@ mod tests {
         struct Failing;
         impl HandChecks for Failing {
             fn assign_positions(&self, _: &mut PhfHand) {}
-            fn validate_hand(&self, _: &PhfHand) -> ValidationReport {
+            fn validate_hand(&self, _: &PhfHand) -> Result<ValidationReport, JsError> {
                 let problem = |code: &str, severity| ValidationProblem {
                     code: code.to_owned(),
                     message: format!("{code}!"),
                     severity,
                     context: None,
                 };
-                ValidationReport {
+                Ok(ValidationReport {
                     problems: vec![
                         problem("odd", Severity::Warning),
                         problem("chip-mismatch", Severity::Error),
                         problem("negative-stack", Severity::Error),
                     ],
-                }
+                })
             }
         }
         fn ok(_: &str) -> Result<PhfHand, ParseError> {
@@ -789,6 +810,29 @@ mod tests {
         let result = convert_any_with(&registry, &Failing, "A", &unvalidated);
         assert_eq!(result.hands.len(), 1);
         assert_eq!(result.hands[0].report, None);
+    }
+
+    #[test]
+    fn a_validator_that_throws_rejects_the_whole_conversion() {
+        struct Throwing;
+        impl HandChecks for Throwing {
+            fn assign_positions(&self, _: &mut PhfHand) {}
+            fn validate_hand(&self, _: &PhfHand) -> Result<ValidationReport, JsError> {
+                Err(JsError::new("not a card: Xx"))
+            }
+        }
+        fn ok(_: &str) -> Result<PhfHand, ParseError> {
+            Ok(test_support::hand())
+        }
+        let registry = registry(vec![fake("a", "A", ok)]);
+        let thrown = super::convert_any_with(&registry, &Throwing, "A", &ConvertOptions::default());
+        assert_eq!(thrown, Err(JsError::new("not a card: Xx")));
+        // Without validation nothing throws.
+        let unvalidated = ConvertOptions {
+            validate: false,
+            ..ConvertOptions::default()
+        };
+        assert!(super::convert_any_with(&registry, &Throwing, "A", &unvalidated).is_ok());
     }
 
     #[test]
