@@ -2,22 +2,45 @@
  * The Phase-1 HUD: the fifteen-odd numbers a player recognises, grouped the way
  * they are read.
  *
- * The rates are computed by `rates()` from `lib/stats` — the same function the
- * corpus suite asserts against — rather than by dividing here. That is not
+ * Every number comes from the display definitions (`config/stats/`, R2.4) via
+ * `STANDARD_STATS` - the same definitions the desktop app and the HUD read, held
+ * to `rates()` over the corpus - rather than from dividing here. That is not
  * ceremony: a second implementation of "3-bet percentage" in a component is a
  * second definition, and the first time the two disagree nobody will be able to
- * say which one the tests covered.
+ * say which one the tests covered (guideline §14; `statDisplay.test.ts` scans
+ * for it). A tile takes its `made / opportunities` from the definition's
+ * `pct(made, opportunities)`, the win rate its decimals and its sample floor.
  *
- * What this file decides is only which counters are worth a tile and what they
+ * What this file decides is only which statistics are worth a tile and what they
  * are called. The order is the order a player thinks in: money first (it is the
  * only number that is the point), then preflop, then postflop, then showdown.
  */
 
 import { useDict } from "../../lib/i18n/client";
-import { rates, type SeatCounters, type SeatMoney } from "../../lib/stats";
+import {
+  STANDARD_STATS,
+  statById,
+  statFull,
+  statRate,
+  statValue,
+  type DisplaySums,
+  type SeatCounters,
+  type SeatMoney,
+} from "../../lib/stats";
 import { countIn, fixedIn, numberFormat, useIntlLocale } from "./format";
 import { StatTile } from "./StatTile";
-import { winRateIsMeaningful, WIN_RATE_SAMPLE_FLOOR } from "./uncertainty";
+
+const stat = (id: string) => statById(STANDARD_STATS, id);
+const BB_PER_100 = stat("bb_per_100");
+const NET_BB = stat("net_bb");
+const AF = stat("aggression_factor");
+const AFQ = stat("aggression_frequency");
+
+/** A tile's `made` and `opportunities`: the definition's `pct(made, opportunities)`. */
+function sample(id: string, sums: DisplaySums): { made: number; opportunities: number } {
+  const rate = statRate(stat(id), sums);
+  return { made: rate?.made ?? 0, opportunities: rate?.opportunities ?? 0 };
+}
 
 interface HudGridProps {
   counters: SeatCounters;
@@ -68,11 +91,19 @@ export function HudGrid({
   const tiles = en.tiles;
   const locale = useIntlLocale();
   const count = countIn(locale);
-  const bb = numberFormat(locale, { maximumFractionDigits: 1 });
-  const bb100 = numberFormat(locale, { maximumFractionDigits: 2, signDisplay: "exceptZero" });
-  const totals = rates({ counters, money: money ?? zeroMoney(), moneyHands });
+  const bb = numberFormat(locale, { maximumFractionDigits: NET_BB.def.format.decimals });
+  const bb100 = numberFormat(locale, {
+    maximumFractionDigits: BB_PER_100.def.format.decimals,
+    signDisplay: "exceptZero",
+  });
+  const sums: DisplaySums = { counters, money: money ?? zeroMoney(), moneyHands };
+  const winRate = statValue(BB_PER_100, sums);
+  const netBb = statValue(NET_BB, sums);
+  const aggressionFactor = statValue(AF, sums);
+  const aggressionFrequency = statValue(AFQ, sums);
   const hands = counters.hands;
-  const trusted = winRateIsMeaningful(moneyHands);
+  const trusted = statFull(BB_PER_100, sums);
+  const s = (id: string) => sample(id, sums);
 
   return (
     <div className="stats-hud">
@@ -82,10 +113,10 @@ export function HudGrid({
           <span className="stats-headline__label">{t.common.winRate}</span>
           <span
             className={`stats-headline__value ${
-              money === null ? "" : (totals.bb100 ?? 0) >= 0 ? "is-up" : "is-down"
+              money === null ? "" : (winRate ?? 0) >= 0 ? "is-up" : "is-down"
             } ${trusted ? "" : "is-provisional"}`}
           >
-            {money !== null && totals.bb100 !== null ? `${bb100.format(totals.bb100)}` : "—"}
+            {money !== null && winRate !== null ? `${bb100.format(winRate)}` : "—"}
             <span className="stats-headline__unit">{t.common.bb100}</span>
           </span>
           {money === null ? (
@@ -97,7 +128,7 @@ export function HudGrid({
                variance of the per-hand result, and the engine stores sums, not
                sums of squares — so any band would be an assumed standard
                deviation dressed up as a measurement. See `uncertainty.ts`. */
-            <p className="stats-headline__note">{en.provisional(moneyHands, WIN_RATE_SAMPLE_FLOOR)}</p>
+            <p className="stats-headline__note">{en.provisional(moneyHands, BB_PER_100.def.sample.min)}</p>
           )}
         </div>
 
@@ -108,14 +139,14 @@ export function HudGrid({
           </div>
           <div>
             <dt>{t.common.result}</dt>
-            <dd>{money !== null ? t.common.bb(bb.format(totals.netBb)) : "—"}</dd>
+            <dd>{money !== null && netBb !== null ? t.common.bb(bb.format(netBb)) : "—"}</dd>
           </div>
           <div>
             <dt>{mixedCurrency ? en.currency : en.inMoney}</dt>
             <dd>
               {money !== null && currency && currencyMinorUnits ? (
                 <span className="stats-nowrap">
-                  {currencyText(totals.net, currency, currencyMinorUnits)}
+                  {currencyText(money.net, currency, currencyMinorUnits)}
                 </span>
               ) : mixedCurrency ? (
                 en.mixed
@@ -137,16 +168,16 @@ export function HudGrid({
           <h3>{en.preflop}</h3>
         </div>
         <div className="stats-grid">
-          <StatTile {...tiles.vpip} made={counters.vpip} opportunities={counters.vpip_opp} />
-          <StatTile {...tiles.pfr} made={counters.pfr} opportunities={counters.pfr_opp} />
-          <StatTile {...tiles.rfi} made={counters.rfi} opportunities={counters.rfi_opp} />
-          <StatTile {...tiles.threeBet} made={counters.three_bet} opportunities={counters.three_bet_opp} />
-          <StatTile {...tiles.foldToThreeBet} made={counters.fold_to_three_bet} opportunities={counters.fold_to_three_bet_opp} />
-          <StatTile {...tiles.fourBet} made={counters.four_bet} opportunities={counters.four_bet_opp} />
-          <StatTile {...tiles.squeeze} made={counters.squeeze} opportunities={counters.squeeze_opp} />
-          <StatTile {...tiles.coldCall} made={counters.cold_call} opportunities={counters.cold_call_opp} />
-          <StatTile {...tiles.steal} made={counters.steal} opportunities={counters.steal_opp} />
-          <StatTile {...tiles.foldToSteal} made={counters.fold_to_steal} opportunities={counters.fold_to_steal_opp} />
+          <StatTile {...tiles.vpip} {...s("vpip")} />
+          <StatTile {...tiles.pfr} {...s("pfr")} />
+          <StatTile {...tiles.rfi} {...s("rfi")} />
+          <StatTile {...tiles.threeBet} {...s("three_bet")} />
+          <StatTile {...tiles.foldToThreeBet} {...s("fold_to_three_bet")} />
+          <StatTile {...tiles.fourBet} {...s("four_bet")} />
+          <StatTile {...tiles.squeeze} {...s("squeeze")} />
+          <StatTile {...tiles.coldCall} {...s("cold_call")} />
+          <StatTile {...tiles.steal} {...s("steal")} />
+          <StatTile {...tiles.foldToSteal} {...s("fold_to_steal")} />
         </div>
       </section>
 
@@ -161,26 +192,26 @@ export function HudGrid({
           </p>
         </div>
         <div className="stats-grid">
-          <StatTile {...tiles.cbetFlop} made={counters.cbet_flop} opportunities={counters.cbet_flop_opp} />
-          <StatTile {...tiles.cbetTurn} made={counters.cbet_turn} opportunities={counters.cbet_turn_opp} />
-          <StatTile {...tiles.cbetRiver} made={counters.cbet_river} opportunities={counters.cbet_river_opp} />
-          <StatTile {...tiles.foldToCbet} made={counters.fold_to_cbet_flop} opportunities={counters.fold_to_cbet_flop_opp} />
-          <StatTile {...tiles.raiseCbet} made={counters.raise_cbet_flop} opportunities={counters.fold_to_cbet_flop_opp} />
-          <StatTile {...tiles.donkBet} made={counters.donk_flop} opportunities={counters.donk_flop_opp} />
-          <StatTile {...tiles.checkRaise} made={counters.check_raise_flop} opportunities={counters.check_raise_flop_opp} />
-          <StatTile {...tiles.sawFlop} made={counters.flop_seen} opportunities={counters.hands} />
+          <StatTile {...tiles.cbetFlop} {...s("cbet_flop")} />
+          <StatTile {...tiles.cbetTurn} {...s("cbet_turn")} />
+          <StatTile {...tiles.cbetRiver} {...s("cbet_river")} />
+          <StatTile {...tiles.foldToCbet} {...s("fold_to_cbet_flop")} />
+          <StatTile {...tiles.raiseCbet} {...s("raise_cbet_flop")} />
+          <StatTile {...tiles.donkBet} {...s("donk_flop")} />
+          <StatTile {...tiles.checkRaise} {...s("check_raise_flop")} />
+          <StatTile {...tiles.sawFlop} {...s("saw_flop")} />
         </div>
         <dl className="stats-inline">
           <div>
             <dt>{en.aggressionFactor}</dt>
-            <dd>{totals.aggressionFactor === null ? "—" : fixedIn(locale, 2)(totals.aggressionFactor)}</dd>
+            <dd>{aggressionFactor === null ? "—" : fixedIn(locale, AF.def.format.decimals)(aggressionFactor)}</dd>
           </div>
           <div>
             <dt>{en.aggressionFrequency}</dt>
             <dd>
-              {totals.aggressionFrequency === null
+              {aggressionFrequency === null
                 ? "—"
-                : `${fixedIn(locale, 1)(totals.aggressionFrequency)}%`}
+                : `${fixedIn(locale, AFQ.def.format.decimals)(aggressionFrequency)}%`}
             </dd>
           </div>
         </dl>
@@ -192,9 +223,9 @@ export function HudGrid({
           <h3>{en.showdown}</h3>
         </div>
         <div className="stats-grid">
-          <StatTile {...tiles.wwsf} made={counters.wwsf} opportunities={counters.wwsf_opp} />
-          <StatTile {...tiles.wtsd} made={counters.wtsd} opportunities={counters.wtsd_opp} />
-          <StatTile {...tiles.wsd} made={counters.wsd} opportunities={counters.wsd_opp} />
+          <StatTile {...tiles.wwsf} {...s("wwsf")} />
+          <StatTile {...tiles.wtsd} {...s("wtsd")} />
+          <StatTile {...tiles.wsd} {...s("wsd")} />
         </div>
       </section>
     </div>

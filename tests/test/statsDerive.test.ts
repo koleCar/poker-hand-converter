@@ -110,7 +110,9 @@ describe("the module stays importable from a server", () => {
   it("has all its files", () => {
     expect(sources.sort()).toEqual([
       "context.ts",
+      "definitions.ts",
       "derive.ts",
+      "display.ts",
       "index.ts",
       "mapping.ts",
       "money.ts",

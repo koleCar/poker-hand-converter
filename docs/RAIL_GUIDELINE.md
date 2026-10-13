@@ -290,7 +290,7 @@ Pravila:
 
 - Nova soba ili format = parser + golden testovi + unos u `config/sites.json`, u istom pull requestu. Od R0.12 to provjerava `cargo test`: parser bez unosa ili unos s nepostojećim parserom ruši build (`core/rail-config/tests/sites.rs`).
 - Promjene baze samo kroz migracije u `supabase/`.
-- Nova statistika = definicija u `config/stats/`, ne kod u aplikaciji ili webu.
+- Nova statistika = definicija u `config/stats/`, ne kod u aplikaciji ili webu. Od R2.4 to provjerava `npm test` u `tests/` (`statDisplay.test.ts`): pretraga izvornog koda weba i aplikacije za formulama statistika izvan definicija, s popisom postojećih iznimki koji se smije samo smanjivati.
 - Svaki pull request mora proći build za macOS i Windows.
 
 ## 15. Donesene odluke

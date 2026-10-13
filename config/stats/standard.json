@@ -1,0 +1,690 @@
+{
+  "$schema": "./stats.schema.json",
+  "version": 1,
+  "stats": [
+    {
+      "id": "hands",
+      "group": "results",
+      "players": "any",
+      "label": { "en": "Hands", "hr": "Ruke" },
+      "name": { "en": "Hands", "hr": "Ruke" },
+      "description": {
+        "en": "Hands dealt in the sample (bomb pots left out).",
+        "hr": "Podijeljene ruke u uzorku (bomb potovi nisu uključeni)."
+      },
+      "formula": "hands",
+      "format": { "unit": "count", "decimals": 0 },
+      "sample": { "of": "hands", "min": 0 },
+      "bands": [],
+      "hud": "popup"
+    },
+    {
+      "id": "bb_per_100",
+      "group": "results",
+      "players": "any",
+      "label": { "en": "bb/100", "hr": "bb/100" },
+      "name": { "en": "Win rate", "hr": "Winrate" },
+      "description": {
+        "en": "Big blinds won per 100 hands. EV-cashout hands are left out of the money and of the hand count it divides by.",
+        "hr": "Big blindovi dobiveni na 100 ruku. Ruke s EV cashoutom nisu ni u novcu ni u broju ruku kojim se dijeli."
+      },
+      "formula": "net_bb_milli / 1000 / money_hands * 100",
+      "format": { "unit": "bb_per_100", "decimals": 2 },
+      "sample": { "of": "money_hands", "min": 10000 },
+      "bands": [
+        { "below": -10, "tone": "very-low" },
+        { "below": 0, "tone": "low" },
+        { "below": 10, "tone": "normal" },
+        { "tone": "high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "allin_ev_bb_per_100",
+      "group": "results",
+      "players": "hero",
+      "label": { "en": "EV bb/100", "hr": "EV bb/100" },
+      "name": { "en": "All-in EV win rate", "hr": "All-in EV winrate" },
+      "description": {
+        "en": "Big blinds per 100 hands with the luck of all-in runouts taken out: each all-in with cards to come counts its equity share of the pot instead of the result.",
+        "hr": "Big blindovi na 100 ruku bez sreće u all-inima: svaki all-in s kartama koje dolaze broji svoj udio equityja u potu umjesto rezultata."
+      },
+      "formula": "ev_net_bb_milli / 1000 / money_hands * 100",
+      "format": { "unit": "bb_per_100", "decimals": 2 },
+      "sample": { "of": "money_hands", "min": 10000 },
+      "bands": [
+        { "below": -10, "tone": "very-low" },
+        { "below": 0, "tone": "low" },
+        { "below": 10, "tone": "normal" },
+        { "tone": "high" }
+      ],
+      "hud": "none"
+    },
+    {
+      "id": "net_bb",
+      "group": "results",
+      "players": "any",
+      "label": { "en": "bb", "hr": "bb" },
+      "name": { "en": "Result in big blinds", "hr": "Rezultat u big blindovima" },
+      "description": {
+        "en": "Total result in big blinds, summed across stakes.",
+        "hr": "Ukupni rezultat u big blindovima, zbrojen preko svih uloga."
+      },
+      "formula": "net_bb_milli / 1000",
+      "format": { "unit": "bb", "decimals": 1 },
+      "sample": { "of": "money_hands", "min": 0 },
+      "bands": [],
+      "hud": "none"
+    },
+    {
+      "id": "rake_per_100",
+      "group": "results",
+      "players": "any",
+      "label": { "en": "Rake/100", "hr": "Rake/100" },
+      "name": { "en": "Rake per 100 hands", "hr": "Rake na 100 ruku" },
+      "description": {
+        "en": "Fees paid per 100 hands, in the currency's minor units: a pot's rake is borne by the players who collected it. Only meaningful within one currency.",
+        "hr": "Plaćene naknade na 100 ruku, u najmanjim jedinicama valute: rake pota plaćaju igrači koji su ga pokupili. Ima smisla samo unutar jedne valute."
+      },
+      "formula": "rake_paid / money_hands * 100",
+      "format": { "unit": "money", "decimals": 2 },
+      "sample": { "of": "money_hands", "min": 1000 },
+      "bands": [],
+      "hud": "none"
+    },
+    {
+      "id": "vpip",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "VPIP", "hr": "VPIP" },
+      "name": { "en": "Voluntarily put money in pot", "hr": "Dobrovoljno uložen novac u pot" },
+      "description": {
+        "en": "Called, bet or raised preflop of their own accord. Blinds, antes and straddles are not voluntary; a walked big blind has no opportunity.",
+        "hr": "Call, bet ili raise preflop svojevoljno. Blindovi, ante i straddle nisu dobrovoljni; big blind kojem svi foldaju nema priliku."
+      },
+      "formula": "pct(vpip, vpip_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 100 },
+      "bands": [
+        { "below": 15, "tone": "very-low" },
+        { "below": 22, "tone": "low" },
+        { "below": 30, "tone": "normal" },
+        { "below": 40, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "panel"
+    },
+    {
+      "id": "pfr",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "PFR", "hr": "PFR" },
+      "name": { "en": "Preflop raise", "hr": "Raise preflop" },
+      "description": {
+        "en": "Raised at least once preflop, over the same hands as VPIP. A straddle is not a raise.",
+        "hr": "Barem jedan raise preflop, nad istim rukama kao VPIP. Straddle nije raise."
+      },
+      "formula": "pct(pfr, pfr_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 100 },
+      "bands": [
+        { "below": 10, "tone": "very-low" },
+        { "below": 16, "tone": "low" },
+        { "below": 22, "tone": "normal" },
+        { "below": 30, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "panel"
+    },
+    {
+      "id": "rfi",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "RFI", "hr": "RFI" },
+      "name": { "en": "Raised first in", "hr": "Prvi raise u neotvoreni pot" },
+      "description": {
+        "en": "Opened with a raise when it was folded to them: no raise and no limper before.",
+        "hr": "Otvaranje raiseom kad su svi prije foldali: bez raisea i bez limpera."
+      },
+      "formula": "pct(rfi, rfi_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 100 },
+      "bands": [
+        { "below": 15, "tone": "very-low" },
+        { "below": 25, "tone": "low" },
+        { "below": 35, "tone": "normal" },
+        { "below": 45, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "limp",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "Limp", "hr": "Limp" },
+      "name": { "en": "Limp", "hr": "Limp" },
+      "description": {
+        "en": "Called at the first decision of an unraised pot with something to call.",
+        "hr": "Call pri prvoj odluci u neraiseanom potu kad je bilo što callati."
+      },
+      "formula": "pct(limp, limp_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 100 },
+      "bands": [
+        { "below": 1, "tone": "very-low" },
+        { "below": 5, "tone": "low" },
+        { "below": 15, "tone": "normal" },
+        { "below": 30, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "iso",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "Iso", "hr": "Iso" },
+      "name": { "en": "Isolation raise", "hr": "Izolacijski raise" },
+      "description": {
+        "en": "Raised at the first decision with one or more limpers in and no raise.",
+        "hr": "Raise pri prvoj odluci kad je jedan ili više limpera u potu, bez raisea."
+      },
+      "formula": "pct(iso, iso_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 10, "tone": "very-low" },
+        { "below": 20, "tone": "low" },
+        { "below": 35, "tone": "normal" },
+        { "below": 50, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "cold_call",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "CC", "hr": "CC" },
+      "name": { "en": "Cold call", "hr": "Cold call" },
+      "description": {
+        "en": "Called a raise at the first decision with no money in yet, outside the blinds.",
+        "hr": "Call na raise pri prvoj odluci bez uloženog novca, izvan blindova."
+      },
+      "formula": "pct(cold_call, cold_call_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 5, "tone": "very-low" },
+        { "below": 10, "tone": "low" },
+        { "below": 18, "tone": "normal" },
+        { "below": 28, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "three_bet",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "3B", "hr": "3B" },
+      "name": { "en": "3-bet", "hr": "3-bet" },
+      "description": {
+        "en": "Re-raised when facing exactly one raise.",
+        "hr": "Reraise kad je pred igračem točno jedan raise."
+      },
+      "formula": "pct(three_bet, three_bet_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 100 },
+      "bands": [
+        { "below": 4, "tone": "very-low" },
+        { "below": 6, "tone": "low" },
+        { "below": 9, "tone": "normal" },
+        { "below": 13, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "panel"
+    },
+    {
+      "id": "fold_to_three_bet",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "F3B", "hr": "F3B" },
+      "name": { "en": "Fold to 3-bet", "hr": "Fold na 3-bet" },
+      "description": {
+        "en": "Folded after opening and facing a 3-bet with a decision to make.",
+        "hr": "Fold nakon otvaranja, protiv 3-beta, kad je imao odluku."
+      },
+      "formula": "pct(fold_to_three_bet, fold_to_three_bet_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 30 },
+      "bands": [
+        { "below": 35, "tone": "very-low" },
+        { "below": 45, "tone": "low" },
+        { "below": 60, "tone": "normal" },
+        { "below": 70, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "panel"
+    },
+    {
+      "id": "four_bet",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "4B", "hr": "4B" },
+      "name": { "en": "4-bet", "hr": "4-bet" },
+      "description": {
+        "en": "Raised when facing two raises (a cold 4-bet included).",
+        "hr": "Raise kad su pred igračem dva raisea (uključujući cold 4-bet)."
+      },
+      "formula": "pct(four_bet, four_bet_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 30 },
+      "bands": [
+        { "below": 3, "tone": "very-low" },
+        { "below": 6, "tone": "low" },
+        { "below": 10, "tone": "normal" },
+        { "below": 16, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "fold_to_four_bet",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "F4B", "hr": "F4B" },
+      "name": { "en": "Fold to 4-bet", "hr": "Fold na 4-bet" },
+      "description": { "en": "Folded after 3-betting and facing a 4-bet.", "hr": "Fold nakon 3-beta, protiv 4-beta." },
+      "formula": "pct(fold_to_four_bet, fold_to_four_bet_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 30, "tone": "very-low" },
+        { "below": 45, "tone": "low" },
+        { "below": 60, "tone": "normal" },
+        { "below": 75, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "squeeze",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "Sqz", "hr": "Sqz" },
+      "name": { "en": "Squeeze", "hr": "Squeeze" },
+      "description": {
+        "en": "Re-raised a raise that already had a caller.",
+        "hr": "Reraise na raise koji je već netko callao."
+      },
+      "formula": "pct(squeeze, squeeze_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 30 },
+      "bands": [
+        { "below": 3, "tone": "very-low" },
+        { "below": 5, "tone": "low" },
+        { "below": 9, "tone": "normal" },
+        { "below": 14, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "steal",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "Steal", "hr": "Steal" },
+      "name": { "en": "Steal attempt", "hr": "Pokušaj steala" },
+      "description": {
+        "en": "Raised from CO, BTN or SB when folded to, three or more dealt in, no straddle.",
+        "hr": "Raise s CO, BTN ili SB kad su svi foldali, tri ili više igrača, bez straddlea."
+      },
+      "formula": "pct(steal, steal_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 20, "tone": "very-low" },
+        { "below": 30, "tone": "low" },
+        { "below": 42, "tone": "normal" },
+        { "below": 55, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "fold_to_steal",
+      "group": "preflop",
+      "players": "any",
+      "label": { "en": "FvSt", "hr": "FvSt" },
+      "name": { "en": "Fold to steal", "hr": "Fold na steal" },
+      "description": {
+        "en": "Folded in a blind to a steal attempt at the first decision.",
+        "hr": "Fold na blindu protiv pokušaja steala pri prvoj odluci."
+      },
+      "formula": "pct(fold_to_steal, fold_to_steal_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 50, "tone": "very-low" },
+        { "below": 65, "tone": "low" },
+        { "below": 78, "tone": "normal" },
+        { "below": 88, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "saw_flop",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "Flop", "hr": "Flop" },
+      "name": { "en": "Saw flop", "hr": "Vidio/la flop" },
+      "description": {
+        "en": "Hands in which the flop was dealt and the player had not folded, of all hands dealt.",
+        "hr": "Ruke u kojima je flop podijeljen, a igrač nije foldao, od svih podijeljenih ruku."
+      },
+      "formula": "pct(flop_seen, hands)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 100 },
+      "bands": [
+        { "below": 20, "tone": "very-low" },
+        { "below": 30, "tone": "low" },
+        { "below": 40, "tone": "normal" },
+        { "below": 50, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "cbet_flop",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "CB", "hr": "CB" },
+      "name": { "en": "Continuation bet flop", "hr": "Continuation bet na flopu" },
+      "description": {
+        "en": "Bet the flop as the preflop raiser when checked to. A limped pot has no opportunity; a donk bet removes it.",
+        "hr": "Bet na flopu kao preflop raiser kad nije bilo beta. Limpani pot nema priliku; donk bet je uklanja."
+      },
+      "formula": "pct(cbet_flop, cbet_flop_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 30 },
+      "bands": [
+        { "below": 40, "tone": "very-low" },
+        { "below": 55, "tone": "low" },
+        { "below": 70, "tone": "normal" },
+        { "below": 80, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "panel"
+    },
+    {
+      "id": "cbet_turn",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "CBT", "hr": "CBT" },
+      "name": { "en": "Continuation bet turn", "hr": "Continuation bet na turnu" },
+      "description": {
+        "en": "Bet the turn after the flop continuation bet was called.",
+        "hr": "Bet na turnu nakon što je cbet na flopu callan."
+      },
+      "formula": "pct(cbet_turn, cbet_turn_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 30, "tone": "very-low" },
+        { "below": 45, "tone": "low" },
+        { "below": 60, "tone": "normal" },
+        { "below": 75, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "cbet_river",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "CBR", "hr": "CBR" },
+      "name": { "en": "Continuation bet river", "hr": "Continuation bet na riveru" },
+      "description": {
+        "en": "Bet the river after the turn continuation bet was called.",
+        "hr": "Bet na riveru nakon što je cbet na turnu callan."
+      },
+      "formula": "pct(cbet_river, cbet_river_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 30, "tone": "very-low" },
+        { "below": 45, "tone": "low" },
+        { "below": 60, "tone": "normal" },
+        { "below": 75, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "fold_to_cbet_flop",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "FCB", "hr": "FCB" },
+      "name": { "en": "Fold to flop continuation bet", "hr": "Fold na cbet na flopu" },
+      "description": {
+        "en": "Folded to a flop continuation bet that nobody had raised.",
+        "hr": "Fold na cbet na flopu koji nitko nije raiseao."
+      },
+      "formula": "pct(fold_to_cbet_flop, fold_to_cbet_flop_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 30 },
+      "bands": [
+        { "below": 30, "tone": "very-low" },
+        { "below": 40, "tone": "low" },
+        { "below": 55, "tone": "normal" },
+        { "below": 65, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "fold_to_cbet_turn",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "FCBT", "hr": "FCBT" },
+      "name": { "en": "Fold to turn continuation bet", "hr": "Fold na cbet na turnu" },
+      "description": {
+        "en": "Folded to a turn continuation bet that nobody had raised.",
+        "hr": "Fold na cbet na turnu koji nitko nije raiseao."
+      },
+      "formula": "pct(fold_to_cbet_turn, fold_to_cbet_turn_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 20 },
+      "bands": [
+        { "below": 30, "tone": "very-low" },
+        { "below": 40, "tone": "low" },
+        { "below": 55, "tone": "normal" },
+        { "below": 65, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "raise_cbet_flop",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "RCB", "hr": "RCB" },
+      "name": { "en": "Raise flop continuation bet", "hr": "Raise na cbet na flopu" },
+      "description": {
+        "en": "Raised a flop continuation bet, over the same spots as fold to continuation bet.",
+        "hr": "Raise na cbet na flopu, nad istim situacijama kao fold na cbet."
+      },
+      "formula": "pct(raise_cbet_flop, fold_to_cbet_flop_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 30 },
+      "bands": [
+        { "below": 4, "tone": "very-low" },
+        { "below": 8, "tone": "low" },
+        { "below": 14, "tone": "normal" },
+        { "below": 20, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "donk_flop",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "Donk", "hr": "Donk" },
+      "name": { "en": "Donk bet flop", "hr": "Donk bet na flopu" },
+      "description": {
+        "en": "Led into the preflop aggressor on the flop before they acted.",
+        "hr": "Bet u preflop agresora na flopu prije nego što je on odigrao."
+      },
+      "formula": "pct(donk_flop, donk_flop_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 30 },
+      "bands": [
+        { "below": 3, "tone": "very-low" },
+        { "below": 6, "tone": "low" },
+        { "below": 12, "tone": "normal" },
+        { "below": 20, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "check_raise_flop",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "XR", "hr": "XR" },
+      "name": { "en": "Check-raise flop", "hr": "Check-raise na flopu" },
+      "description": {
+        "en": "Checked the flop, then raised when the action came back against a bet.",
+        "hr": "Check na flopu, zatim raise kad se akcija vratila uz bet."
+      },
+      "formula": "pct(check_raise_flop, check_raise_flop_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 30 },
+      "bands": [
+        { "below": 4, "tone": "very-low" },
+        { "below": 8, "tone": "low" },
+        { "below": 14, "tone": "normal" },
+        { "below": 20, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "aggression_factor",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "AF", "hr": "AF" },
+      "name": { "en": "Aggression factor", "hr": "Faktor agresije" },
+      "description": {
+        "en": "Postflop bets and raises divided by calls.",
+        "hr": "Postflop betovi i raiseovi podijeljeni s callovima."
+      },
+      "formula": "sum(bet_flop, bet_turn, bet_river, raise_flop, raise_turn, raise_river) / sum(call_flop, call_turn, call_river)",
+      "format": { "unit": "ratio", "decimals": 2 },
+      "sample": {
+        "of": "sum(bet_flop, bet_turn, bet_river, raise_flop, raise_turn, raise_river, call_flop, call_turn, call_river)",
+        "min": 100
+      },
+      "bands": [
+        { "below": 1, "tone": "very-low" },
+        { "below": 2, "tone": "low" },
+        { "below": 3.5, "tone": "normal" },
+        { "below": 5, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "aggression_frequency",
+      "group": "postflop",
+      "players": "any",
+      "label": { "en": "AFq", "hr": "AFq" },
+      "name": { "en": "Aggression frequency", "hr": "Učestalost agresije" },
+      "description": {
+        "en": "Postflop bets and raises as a share of bets, raises, calls and folds.",
+        "hr": "Postflop betovi i raiseovi kao udio u betovima, raiseovima, callovima i foldovima."
+      },
+      "formula": "pct(sum(bet_flop, bet_turn, bet_river, raise_flop, raise_turn, raise_river), sum(bet_flop, bet_turn, bet_river, raise_flop, raise_turn, raise_river, call_flop, call_turn, call_river, fold_flop, fold_turn, fold_river))",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 100 },
+      "bands": [
+        { "below": 25, "tone": "very-low" },
+        { "below": 35, "tone": "low" },
+        { "below": 45, "tone": "normal" },
+        { "below": 55, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "panel"
+    },
+    {
+      "id": "wwsf",
+      "group": "showdown",
+      "players": "any",
+      "label": { "en": "WWSF", "hr": "WWSF" },
+      "name": { "en": "Won when saw flop", "hr": "Dobiveno nakon viđenog flopa" },
+      "description": {
+        "en": "Collected chips from a pot, of the hands in which they saw the flop.",
+        "hr": "Pokupljen novac iz pota, od ruku u kojima je igrač vidio flop."
+      },
+      "formula": "pct(wwsf, wwsf_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 40, "tone": "very-low" },
+        { "below": 44, "tone": "low" },
+        { "below": 50, "tone": "normal" },
+        { "below": 55, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "wtsd",
+      "group": "showdown",
+      "players": "any",
+      "label": { "en": "WTSD", "hr": "WTSD" },
+      "name": { "en": "Went to showdown", "hr": "Došao/la do showdowna" },
+      "description": {
+        "en": "Reached showdown, of the hands in which they saw the flop.",
+        "hr": "Došao/la do showdowna, od ruku u kojima je vidio/la flop."
+      },
+      "formula": "pct(wtsd, wtsd_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 50 },
+      "bands": [
+        { "below": 22, "tone": "very-low" },
+        { "below": 26, "tone": "low" },
+        { "below": 32, "tone": "normal" },
+        { "below": 38, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    },
+    {
+      "id": "wsd",
+      "group": "showdown",
+      "players": "any",
+      "label": { "en": "W$SD", "hr": "W$SD" },
+      "name": { "en": "Won money at showdown", "hr": "Dobiven novac na showdownu" },
+      "description": {
+        "en": "Collected chips from some pot, of the hands that went to showdown.",
+        "hr": "Pokupljen novac iz nekog pota, od ruku koje su došle do showdowna."
+      },
+      "formula": "pct(wsd, wsd_opp)",
+      "format": { "unit": "percent", "decimals": 1 },
+      "sample": { "min": 30 },
+      "bands": [
+        { "below": 45, "tone": "very-low" },
+        { "below": 50, "tone": "low" },
+        { "below": 55, "tone": "normal" },
+        { "below": 60, "tone": "high" },
+        { "tone": "very-high" }
+      ],
+      "hud": "popup"
+    }
+  ]
+}

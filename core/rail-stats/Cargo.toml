@@ -9,6 +9,9 @@ repository.workspace = true
 
 [dependencies]
 rail-core = { path = "../rail-core" }
+# The display definitions of config/stats/ (R2.4): parsed and validated
+# there, evaluated here.
+rail-config = { path = "../rail-config" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
 

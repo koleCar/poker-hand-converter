@@ -3871,6 +3871,142 @@ database, on the development Mac and on a mid-range Windows laptop.
   format (percent, bb/100), colour thresholds, minimum sample for full
   opacity, description. The starting set of ~30 (guideline §5).
 - Same files read by the app (Rust) and the web (TS) — one source.
+- *As built* (§15): **done** - displayed statistics are data; every shipped
+  definition prints the web's number, digit for digit, over the corpus.
+  [`docs/STATS-SPEC.md`](STATS-SPEC.md) §13 is the reference.
+  - **Files**: `config/stats/standard.json` (32 definitions) and
+    `config/stats/stats.schema.json` (draft 2020-12). A definition: `id`,
+    `group` (preflop / postflop / showdown / results), `players` (`any`, or
+    `hero` for all-in EV), `label` (the HUD's short label), `name`,
+    `description` (each `{ en, hr }`), `formula`, `format` (`unit`: percent,
+    bb_per_100, bb, ratio, count, money; `decimals` 0-6), `sample` (`of`, a
+    formula, defaulting to a `pct`'s opportunities; `min`, full opacity from
+    there), `bands` (ascending `below` thresholds -> a tone: very-low, low,
+    normal, high, very-high - a position on a scale the app, the web and
+    the HUD map to their theme), `hud` (default membership: panel, popup,
+    none).
+  - **Formula language**: numbers, counter names, `+ - * /`, unary minus,
+    parentheses, `pct(made, opportunities)` (= `made * 100 /
+    opportunities`, no value unless `opportunities > 0`, as `rates.ts`'s
+    `pct`) and `sum(a, ...)`. Nothing else - no comparisons, no other
+    functions; at most 1 000 bytes and 32 levels. Names: the 90 counters,
+    the 7 money columns, `money_hands` (what bb/100 divides by) and
+    `ev_net_bb_milli` (the hero's all-in-EV result; a definition reading it
+    must say `players: hero`). **Evaluated as JavaScript evaluates it**:
+    every operator one IEEE-754 double operation in the formula's order
+    (`rail_core::js::JsNumber` in Rust - the workspace's no-float rule holds),
+    so `pct(three_bet, three_bet_opp)` is `rates.ts`'s `(made * 100) / opp`
+    bit for bit. Exact rationals were considered and rejected: the web
+    prints doubles, and the order matters (`(23 * 100) / 80` prints "28.8",
+    `(23 / 80) * 100` "28.7"). **Text** is what the web's
+    `Intl.NumberFormat` prints at that many fraction digits - the shortest
+    round-trip decimal rounded half away from zero - not `toFixed` (which
+    rounds the exact binary value: `(-0.15).toFixed(1)` is "-0.1", the web
+    prints "-0.2"; over the vectors' 5 000 format cases `toFixed` would
+    differ 467 times). No value (`None` / `null`): division by zero, `pct`
+    over nothing, a missing input, a non-finite result.
+  - **Rust**: `rail_config::stats` (model, `formula` - tokenizer and
+    recursive-descent parser with byte offsets in its errors -,
+    `load_stats(text, Vocabulary)`: version, unique ids, names against the
+    caller's vocabulary, hero-only names, `sample.of` required unless `pct`,
+    ascending bands, non-empty strings, a count has no decimals;
+    `SHIPPED_STATS`). The crate still does not depend on the core - the
+    vocabulary comes from `rail_stats::display::vocabulary()`.
+    `rail_stats::display`: `Display::shipped()` / `load` / `compile`,
+    `DisplayStat::{value, rate, sample, full, text, tone, show}`, `Sums`
+    (counters, money, `money_hands`, `ev_net_bb_milli`), `aggregate`
+    (`rates.ts`'s, ported), `Formula` (one formula compiled - the R2.10
+    editor's preview), `format_fixed`. `rail_store`: `Totals::sums()`,
+    `HeroTotal::sums()` (with the EV result: `net_bb_milli` plus the
+    adjustment of the evaluated all-ins). rail-stats now depends on
+    rail-config; both still build for `wasm32`.
+  - **TypeScript**: `frontend/src/lib/stats/display.ts` (pure: the same
+    grammar, `parseFormula` with the Rust parser's error messages and
+    offsets, `evaluate`, `showStat`, `statRate`, `statFull`, `formatFixed`,
+    `compileStats`), `definitions.ts` (`STANDARD_STATS`, compiled at load;
+    `localized(text, locale)`), `definitions.json` - a byte-for-byte copy
+    of `config/stats/standard.json`, because the web builds from
+    `frontend/` alone (a test fails when they differ).
+  - **i18n**: a definition carries its own strings, `{ en, hr }` for
+    `label`, `name` and `description`, rather than keys into `lib/i18n`:
+    the HUD reads them in Rust without a JavaScript dictionary, the app and
+    the web read the same words, and a user's own statistic (R2.10) carries
+    what its author typed. The schema requires exactly the locales of the
+    web's `LOCALES` and the app's `Locale`, and a test compares the three.
+    The web's existing tile labels in `lib/i18n` stay (the screen did not
+    change); R4.5 moves them to the definitions.
+  - **Parity - Rust vs TypeScript vs `rates.ts`**:
+    `core/rail-stats/tests/data/display-vectors.mjs` (esbuild over the web's
+    modules, as R2.1's vectors) sums the corpus as reports do - 558 groups:
+    every golden file's seats, every directory's seats and its hero's, every
+    position's and game format's, the whole corpus's, with `aggregate`'s
+    defaults - plus 600 seeded synthetic totals (rounding ties, empty
+    samples, values up to 2^43, negative money, all-in EV), 33 formulas
+    (parse, error message, values) and 5 000 format cases. Before it writes
+    a case it checks the definition against the web: **33 582 values equal
+    to `rates()`'s (`Object.is`)** wherever `rates()` has the statistic (29
+    of the 32), **26 405 texts equal to `Intl.NumberFormat`'s**, and every
+    format case equal to `Intl`. `cargo test -p rail-stats --test display`
+    re-derives the corpus groups from `rail_stats` rows (the same totals,
+    all 99 columns), then every statistic's value (bit for bit), text, tone,
+    sample and opacity over every case: all equal. `tests/test/statDisplay.test.ts`
+    replays the file in TypeScript (the TypeScript today shows what it
+    showed; `rates()` agrees). `rail-store`'s `hero_totals_are_the_rows_sums`
+    shows every statistic over `hero_totals` (all-in EV included) as over
+    the engine's rows: equal. The 3 statistics `rates()` does not have
+    (all-in EV bb/100, rake per 100, raise flop cbet) have no web number to
+    match; raise cbet is the web tile's `raise_cbet_flop /
+    fold_to_cbet_flop_opp`.
+  - **One web change to make the numbers one**: the `/stats` tiles printed
+    the Wilson interval's `(made / n) * 100`, the breakdown `rates()`'s
+    `(made * 100) / n`; they disagreed on, e.g., 23 of 80 ("28.7" vs
+    "28.8"). The tile now prints `(made * 100) / n`, the definitions'
+    order. `HudGrid` reads every number from `STANDARD_STATS` (each tile's
+    `made / opportunities` from its definition's `pct`, AF and AFq, bb/100
+    and its 10 000-hand floor = the definition's `sample.min`, which
+    replaces `WIN_RATE_SAMPLE_FLOOR`); nothing on the screen changes but
+    that digit.
+  - **CI rules**: `cargo test` - the shipped file loads (every formula's
+    names are counters, ids unique, bands ascending; `rail_config` unit
+    tests cover each refusal and the grammar), and the vectors were written
+    from it (sha-256 of `standard.json` in their `meta`; stale vectors fail
+    with the command to run). `npm test` in `tests/` - the schema (ajv) and
+    15 refusals, `compileStats`' refusals, the web's copy, the locales, the
+    parity replay, and **guideline §14 ("a new statistic is a definition in
+    `config/stats/`")**: a scan of `frontend/src`, `app/src`,
+    `app/src-tauri/src` and `hud/` (not `lib/stats`, the engine and
+    reference) for the shapes a hard-coded statistic takes - a counter and
+    its `_opp` on one line, a division by an `_opp` counter, `pct` imported
+    from `lib/stats`, `net_bb_milli / 1000`, a `Counter::x` / `Counter::x_opp`
+    pair. Honest about its limits: a grep, not a type system; a formula over
+    several lines or behind another name passes. The files that match today
+    are listed with their count and the list may only shrink -
+    `BreakdownPanel.tsx` 6, `OpponentsPanel.tsx` 1 (both R4.5),
+    `lib/learn/pool.ts` 8 (population data for Learn), `lib/db/analysis.ts`
+    1 (villain inputs to a heuristic). `HudGrid.tsx` had 19; it reads the
+    definitions now.
+  - **For R2.5**: `sample.min` and the sample (`sample.of`, or the `pct`'s
+    opportunities) are in every definition; `DisplayStat::rate` /
+    `statRate` give `(made, opportunities)` of a `pct` for Wilson; `full`
+    is today's binary opacity rule - R2.5 adds the interval and the
+    dimming curve. The web's `confidenceOf` bands (±2 / ±6 pp) are
+    presentation in `components/stats/uncertainty.ts`, not data yet.
+    **For R2.7**: `Display::shipped()` over `Totals::sums()` /
+    `HeroTotal::sums()`; reports by group (`def.group`), `players: hero`
+    statistics only on the hero's reports; money needs the segment's
+    currency minor units (`text(value, Some(minor))`). **For R2.10**: a
+    user's statistic is a `StatDef` the editor builds; `parse_formula` gives
+    errors with byte offsets for the editor to underline, `Formula::compile`
+    + `eval` previews it; new opportunities need the predicate language
+    over decision events (the names a formula can read are only today's
+    counters). **For R2.11**: `Expr::names()` is the dependency map from a
+    definition to its counters. **For R3.8**: `hud` gives the default panel
+    (VPIP, PFR, 3B, F3B, CB, AFq) and popup; `label` is the panel's text,
+    `tone` its colour, `full` its opacity; the HUD evaluates over
+    `hud_totals(...)`'s `Totals::sums()` and may not show `players: hero`
+    statistics for villains. **For R3.9**: a user's colour bands or HUD
+    membership are an override layer keyed by `id` (`hud_layouts`), not
+    edits to the shipped file.
 
 ### R2.5 Sample reliability — S
 - Confidence interval per value (Wilson for rates) and the dimming rule from
@@ -4179,3 +4315,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R2.1 done**: the stats engine in Rust (`core/rail-stats`), `lib/stats` ported module for module (90 counters, money, the rulebook; every STATS-SPEC call as the TypeScript has it). Oracle: `npm run golden:emit` also writes `testdata/golden-stats/` (per hand the sha-256 of the canonical `statsRows(handFacts(phf))` and its seats, per file the column totals; 3.3 MB committed, 206 MB in full in the gitignored `testdata/golden-stats-full/`), checked by `golden-fresh`; no float in any row, `-0` written as 0 (none in the corpus). **8 422 / 8 422 hands, 51 464 / 51 464 rows equal to the TypeScript's**; the eight invariants of `statsInvariants.ts` on every corpus hand; the 17 spot fixtures and the corpus, short-deck and pot-type spots; 4 000 seeded mutations through both engines (50 000 in a soak) equal. Three divisions in doubles reproduced with `JsNumber`. `rows_for(&PhfHand)` is the API for R2.3; nothing wired into the app. rail-stats joins CI's wasm32 build. STATS-SPEC §12 (the port, oddities); its title now says `stats/2`. |
 | 2026-10-13 | **R2.2 done**: all-in EV in Rust (`core/rail-equity`), `lib/equity` ported - `enumerate.ts` (exhaustive enumeration, the seeded Monte Carlo, `plan`, `EquityInputError`), `range.ts`, `multiway.ts`, `allInEv.ts` - and `handEvRow` (`ev_row`, `EV_VERSION` `ev/1`). Exact representation: shares of a pot as integers in units of 1/27720 of a board (`units / (boards * 27720)`), and the TypeScript's double arithmetic after that (the equity division, `apportion`, range weights) replayed operation for operation in `JsNumber`. Oracle: `npm run golden:emit` also writes `testdata/golden-ev/` (hero row as the web stores it and the full `analyzeAllIn`, equities as `String(x)`, hashed; 3.1 MB, 5.5 MB in full gitignored), checked by `golden-fresh`. **8 121 / 8 121 rows and 8 422 / 8 422 analyses equal** (508 all-ins: 226 preflop enumerations, 11 Omaha preflop Monte Carlo, 1 short deck; 22 hi/lo declined), every equity bit for bit, Monte Carlo exact (same `mulberry32`, same Fisher-Yates); 4 500 seeded vectors (mutated hands, `equity()` requests, ranges) and a 45 000-case soak equal. `equityEnumerate`, `equityAllInEv`, `equityRange`, `equityCorpus` translated, plus the `analyzeAllIn` checks of `shortDeck` and `phfHiLo`. Release, M2 Pro: 25 ms per heads-up preflop all-in, 15 ms Omaha preflop, under 1 ms flop/turn; R2.3 should run the backfill's EV as a background pass or cache preflop matchups. `rail_core::eval` gains `#[inline]` on its hot path only; the dev profile builds rail-equity optimised. rail-equity joins CI's wasm32 build. |
 | 2026-10-13 | **R2.3 done**: local statistics in `rail-store` (migration 6). With every hand, on the import threads, `PreparedStats` (`rail_stats::stored_rows` - `handStatsRows`' rule: hero always, villains unless the room is positionally anonymised, one row per seat - the segment, the rollup scope, the EV plan); in the hand's transaction `hand_stats` + `seat_stats` (counters and money as a varint blob: the first, column-per-counter layout cost +61 % size and 21-29 % of the import's speed) and the rollup increments, summed per writer group and upserted once per key: `player_rollups` (site, player, scope, segment; `aggregate`'s default exclusions) and `hero_rollups` (segment, position, UTC day, kind). Segment = (site key, format, variant, limit, `hu`/`6max`/`full` by `maxSeats`, a cash game's currency and exact big blind or `chips`). Opaque-id villains (GGPoker, ACR/WPN mined) summed per session (`<table>@<UTC day>`), never across sessions. The hero's EV at import unless the all-in was preflop (`rail_equity::ev_row_unless_preflop`); those, and rebuilds after a `STATS_VERSION` bump or on request (new generation, cursor in `kv`, resumable), by a background `StatsWorker` paused during backfills and (EV) while tables are open. Rows equal the engine's for every corpus seat; crash test checks rows and rollups after every kill. import pipeline efficiency unchanged after the fix (local 3 threads 48 / 46 % before, 48 / 48 % after; the first push's 41-44 % on CI came from SQLite's statement journal in temp files - now `temp_store = MEMORY` - and a `RETURNING` insert), stats 17-22 µs a hand on the import threads, +18 % size; preflop all-in 26 ms in the background; rebuild ~6 500 hands/s; at 500k the HUD lookup for 9 players takes 73 µs (p99 0.24 ms), hero totals 76-127 ms. App: the pass started with the store, Settings debug panel. Preflop-matchup cache measured, not built. |
+| 2026-10-14 | **R2.4 done**: displayed statistics are data. `config/stats/standard.json` (32 definitions: the guideline §5 set plus hands, net bb, RFI, iso, cold call, squeeze, fold to 4-bet, cbet river, fold to turn cbet, raise flop cbet, saw flop, AF) and `stats.schema.json`; a definition is labels and descriptions in `en` + `hr`, a formula over the `stats/2` counters (`pct`, `sum`, `+ - * /`; evaluated in JavaScript's doubles, `JsNumber` in Rust), a format, colour bands to five tones, the sample and its full-opacity minimum, default HUD membership. `rail_config::stats` parses and validates (names against the caller's vocabulary), `rail_stats::display` evaluates (and ports `aggregate`), `rail_store` gives `Totals::sums()` / `HeroTotal::sums()` (all-in EV). The web: `lib/stats/display.ts` + `definitions.ts` (a checked copy of the file); text is `Intl.NumberFormat`'s rounding (shortest decimal, half away from zero), not `toFixed`. Parity over 558 corpus groups, 600 synthetic totals, 33 formulas and 5 000 format cases: Rust = TypeScript bit for bit, and 33 582 values = `rates()`, 26 405 texts = `Intl`. `/stats` tiles now print `(made * 100) / n` like the breakdown (they printed `(made / n) * 100`: "28.7" vs "28.8" at 23 of 80); `HudGrid` reads `STANDARD_STATS`. Guideline §14 enforced by a source scan with a shrinking allow-list. R2.4 "As built". |

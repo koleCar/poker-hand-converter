@@ -22,9 +22,12 @@
 //!   [`merge_remote`] it over the shipped one: paths, files and tables may
 //!   change, HUD policy only gets stricter, unknown ids are ignored.
 //! - [`model::Site::hud_permitted`]: compliance mode's one question (R3.10).
+//! - [`stats`]: `config/stats/`, the displayed statistics as data (R2.4):
+//!   [`stats::load_stats`], [`stats::SHIPPED_STATS`], the formula language.
 
 pub mod merge;
 pub mod model;
+pub mod stats;
 pub mod validate;
 
 use std::fmt;

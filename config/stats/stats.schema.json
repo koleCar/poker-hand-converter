@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/koleCar/poker-hand-converter/config/stats/stats.schema.json",
+  "title": "Rail statistic display definitions",
+  "description": "The statistics Rail displays, as data (docs/RAIL-PLAN.md R2.4, amendment A11; docs/STATS-SPEC.md section 13). Each is a formula over the per-seat counters of stats/2, which stay code. Read by the app and the HUD (core/rail-config parses and validates, core/rail-stats evaluates) and by the web (frontend/src/lib/stats/display.ts); both give the same number. What a schema cannot check - the formula's grammar, that every name in it is a counter, unique ids, ascending bands - core/rail-config checks at load and in CI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "stats"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": {
+      "description": "Version of this file's shape. A file of another version is refused.",
+      "const": 1
+    },
+    "stats": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/stat" }
+    }
+  },
+  "$defs": {
+    "text": {
+      "description": "A string in every language the app and the web speak (lib/i18n LOCALES: en, hr). Shipped definitions carry their own words so the HUD (Rust, no JavaScript dictionary) and user-made statistics (R2.10) read names the same way.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["en", "hr"],
+      "properties": {
+        "en": { "type": "string", "minLength": 1 },
+        "hr": { "type": "string", "minLength": 1 }
+      }
+    },
+    "formula": {
+      "description": "An expression over counter names: numbers, names, + - * /, unary minus, parentheses, pct(made, opportunities) = made * 100 / opportunities, sum(a, b, ...). Evaluated as JavaScript numbers (IEEE-754 doubles) left to right; a division by zero, pct over no opportunities, or a missing input gives no value. Names: every stats/2 counter (COUNTER_KEYS), every money column (MONEY_KEYS), money_hands, and ev_net_bb_milli (the hero's all-in EV result).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^[a-z0-9_ .,()+*/-]+$"
+    },
+    "tone": {
+      "description": "A position on the HUD's colour scale, not a colour: the app, the web and the HUD map it to their theme's tokens.",
+      "enum": ["very-low", "low", "normal", "high", "very-high"]
+    },
+    "band": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tone"],
+      "properties": {
+        "below": {
+          "description": "The band holds values below this (and at or above the previous band's). Absent on the last band, which holds the rest. A decimal with at most 15 significant digits.",
+          "type": "number"
+        },
+        "tone": { "$ref": "#/$defs/tone" }
+      }
+    },
+    "stat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "group", "players", "label", "name", "description",
+        "formula", "format", "sample", "bands", "hud"
+      ],
+      "properties": {
+        "id": {
+          "description": "Stable identifier; layouts and user overrides refer to it.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "maxLength": 64
+        },
+        "group": {
+          "description": "Where the statistic is listed.",
+          "enum": ["preflop", "postflop", "showdown", "results"]
+        },
+        "players": {
+          "description": "Whose rows it can be computed for: any player, or the hero only (all-in EV exists for the hero only).",
+          "enum": ["any", "hero"]
+        },
+        "label": {
+          "description": "The short label a HUD panel prints (VPIP, 3B, F3B).",
+          "$ref": "#/$defs/text"
+        },
+        "name": { "$ref": "#/$defs/text" },
+        "description": { "$ref": "#/$defs/text" },
+        "formula": { "$ref": "#/$defs/formula" },
+        "format": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["unit", "decimals"],
+          "properties": {
+            "unit": {
+              "description": "percent: percentage points (print with %); bb_per_100 and bb: big blinds; ratio: a plain ratio; count: a whole number; money: minor units of the sample's one currency.",
+              "enum": ["percent", "bb_per_100", "bb", "ratio", "count", "money"]
+            },
+            "decimals": {
+              "description": "Digits after the point, as the web's Intl.NumberFormat rounds them: the shortest decimal that reads back as the double, half away from zero. For money, digits of the major unit.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6
+            }
+          }
+        },
+        "sample": {
+          "description": "The sample the value stands on, for the reliability shown next to it (R2.5): full opacity from min upwards.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min"],
+          "properties": {
+            "of": {
+              "description": "A formula giving the sample size. Optional when the formula is pct(made, opportunities): then it is the opportunities.",
+              "$ref": "#/$defs/formula"
+            },
+            "min": {
+              "description": "The sample from which the value is shown at full opacity.",
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "bands": {
+          "description": "Colour thresholds in ascending order, compared with the unrounded value. Empty: no colour.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/band" }
+        },
+        "hud": {
+          "description": "Default HUD membership: the panel (4-6 statistics), the popup, or neither. The user's HUD editor (R3.9) overrides it.",
+          "enum": ["panel", "popup", "none"]
+        }
+      }
+    }
+  }
+}
