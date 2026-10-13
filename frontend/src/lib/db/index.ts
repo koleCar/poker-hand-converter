@@ -149,7 +149,7 @@ export {
   hasUsablePlayerNames,
 } from "./anonymization";
 
-export { handInsertFromPhf, type HandInsert } from "./mapping";
+export { handInsertFromPhf, storedStandardText, type HandInsert } from "./mapping";
 
 export {
   EMPTY_HAND_FILTER_FORM,

@@ -97,7 +97,7 @@ and wait here until accepted.
 | **A2** | Web upload: files to Storage, an Edge Function parses them with WASM | **Parse in the browser** (WASM core in a Web Worker, as today's TS does). Uploading the original file to Storage is an **opt-in** next to "save to library". No Edge Function on the parsing path. | The web promises — in code, in UI copy and in the README — that a dropped file never leaves the tab unless the user saves it. Edge Functions also have tight CPU-time and memory limits that a large ZIP would hit. The browser already does this work today at corpus scale. |
 | **A3** | Tailwind CSS + shared UI package | **Shared UI package with CSS Modules and the existing token layer.** No Tailwind. | ~4,400 lines of tuned CSS (the replayer's container-query layout among them) and a lint-enforced token system exist; the web's rule is "CSS Modules, not Tailwind". A shared package does not need Tailwind; it needs shared tokens and components. |
 | **A4** | Tables `profiles`, `hand_sources`, `hands`, `hand_players`, `players`, `player_stats`, `hud_layouts`, `unsupported_formats` | **Map onto the existing schema** (table in §3.5): keep `hands` and its key; `hand_stats` plays the role of `hand_players`; extend `unparsed_hands` instead of a new `unsupported_formats`; add `hand_sources`, `players`, `hud_layouts`; add `player_stats` only if the 1M-hand benchmark shows the server needs it. | Two tables for the same thing drift apart. `hand_stats` already has one row per dealt-in seat with position, stack class and every counter. |
-| **A5** | Original files in Storage; hands in Postgres | **A storage budget per hand.** Today a hand costs ~7.3 KB in `hands` (PHF + `standard_text` + `source_text`) plus ~3.9 KB in `hand_stats` with opponents on — about **11 GB per million hands**. Proposal: desktop-synced hands do not send `standard_text` (it is derived), and original text goes to Storage compressed per file, not per row. Decide before R1.8. | A HUD user with 1M hands is ordinary; at today's row size the database bill decides the subscription price. |
+| **A5** | Original files in Storage; hands in Postgres | **A storage budget per hand.** Today a hand costs ~7.3 KB in `hands` (PHF + `standard_text` + `source_text`) plus ~3.9 KB in `hand_stats` with opponents on — about **11 GB per million hands**. Proposal: desktop-synced hands do not send `standard_text` (it is derived), and original text goes to Storage compressed per file, not per row. Decide before R1.8. **Decided 2026-10-13 (Q4):** the desktop sends PHF + per-seat stats only - no `standard_text`, no `source_text`, `meta.rawText` empty; the originals stay on the user's disk and the standard text is derived on demand. Measured in R1.8: a desktop row is ~3.6 KB (PHF ~2.9 KB). | A HUD user with 1M hands is ordinary; at today's row size the database bill decides the subscription price. |
 | **A6** | Sign-in in the app (email, Google, Apple) | **Desktop sign-in through the system browser**: the app opens the web sign-in page, the web completes it (Turnstile works there), and hands the session back with PKCE through a `rail://` deep link. | Email/password sign-in requires Turnstile, which is bound to the web domain and will not run inside the app's webview. Browser sign-in also gives password managers and existing Google sessions for free. |
 | **A7** | Appendix A: every room "Planned", HUD rules "check" | **Update Appendix A** to the real state: 18 rooms already parse; WPT Global cannot (no export since June 2026); GGPoker and Ignition-family files are not written live and carry no persistent opponent names, so they are import-only whatever their policy says. | The table is what agents will read when choosing work. |
 | **A8** | — | **A table simulator** (`rail-hud-sim`) as the development and CI harness for the watcher and the HUD: windows titled like real tables, writing real corpus hands to a folder at play speed. | The HUD cannot be tested in CI against real clients, the owner develops on a Mac while the HUD starts on Windows, and the 12-table target needs a repeatable load. |
@@ -192,7 +192,7 @@ integer `id` (`files.path` stays unique) so that `hands.file_id` and
 | Guideline | Decision | Step |
 | --- | --- | --- |
 | `profiles` | existing; add `plan`, `plan_until` in Phase 6 | R6.2 |
-| `hand_sources` | new: folder or web upload, owner, device, status counters | R1.8 |
+| `hand_sources` | new: folder or web upload, owner, device, status counters (built: a watched folder per device; no paths) | R1.8 |
 | `hands` | existing; key `(owner_id, hand_key)` with `hand_key = site:hand id` | — |
 | `hand_players` | not added; `hand_stats` has one row per dealt-in seat | — |
 | `players` | new: tags and colours; `player_notes` stays (or is folded in) | R2.7 |
@@ -2973,6 +2973,151 @@ exactly once, and the same files imported twice change nothing.
 - `hand_stats` rows go through the existing `save_hand_stats`.
 - pgTAP: another user's rows can be neither read nor collided with; replays are
   no-ops; the rate limit holds.
+- *As built* (§15):
+  - **Owner decisions applied.** Q4: a desktop hand is **PHF + per-seat stats
+    only** - no `standard_text` (derived on demand), no `source_text`, and
+    `meta.rawText` sent empty (the originals stay on the user's disk).
+    Q3: the app works offline without an account; an account is needed only
+    for sync. Both written into the guideline (§4, §6) and §14.
+  - **Schema** (migration `20270428090000_desktop_ingest.sql`, additive):
+    `hands.origin` (`web` / `desktop`, default `web`, metadata-only add);
+    `standard_text` nullable, and a CHECK for every writer
+    (`hands_text_by_origin`): a web row has its standard text, a desktop
+    row has no standard text, no source text and an empty `meta.rawText`;
+    `hands_desktop_phf_size` (256 KiB). The insert policy now also requires
+    `origin = 'web'`, so the direct path (`save_hands`, PostgREST) cannot
+    write a desktop row; the statement trigger's global `hands_insert`
+    budget counts web rows only. New `hand_sources` (kind `folder` / `web`,
+    owner, device id and name, the app's local id, a label - **no path**, a
+    label with `/` or `\` is refused - site, received / inserted / duplicate
+    / rejected counters, last rejection, last ingest), RLS select-own, no
+    client write grant; `register_hand_source(device, local id, name,
+    label, site)` (definer, idempotent per account+device+folder, 120 calls
+    / 10 min, 200 sources per account).
+  - **`ingest_hands(p_source uuid, p_rows jsonb)`** - `security definer`,
+    not invoker as first planned: desktop rows may only be written here, and
+    the source counters have no client UPDATE grant; inside, the owner is
+    `auth.uid()` (explicit, and again by the trigger), the source must be the
+    caller's (the same 23503 for "unknown" and "not yours"), the budget is
+    spent first, every row is validated before one `insert ... on conflict
+    (owner_id, hand_key) do nothing`. Rows are `{hand_key, phf}`; at most 500
+    and 8 MiB per call (22023). Result: `{received, inserted, duplicates,
+    rejected, rows[i]: {handKey, status, reason?, field?}}` in input order;
+    statuses `inserted` / `duplicate` (also a repeat inside the batch, and a
+    hand already uploaded on the web) / `rejected` with `shape`, `schema`
+    (not `phf/1`), `hand-key` (not `site:id`, or not the PHF's own),
+    `raw-text`, `too-large` (256 KiB), `invalid` + the column (`field`) whose
+    `hands` rule the derived row breaks. A bad row is rejected alone; the
+    good rows of the batch go in.
+  - **The search columns are derived on the server.** `hand_row_from_phf`
+    is the SQL twin of the web's `handInsertFromPhf` (with
+    `detectAnonymization`, `handClass`, `formatAmount` for `stakes_label`,
+    `primaryBoard`, `totalFees`); `hand_row_problem` mirrors the `hands`
+    CHECKs so one bad hand cannot fail the batch's insert. Chosen over "the
+    client sends the columns and the server checks them" because checking
+    needs the same derivation anyway, it makes every desktop row's columns a
+    function of its PHF whichever client sent it (as `fast_fold` already
+    is), it keeps a third copy of the mapping out of Rust, and a later
+    column is a migration + backfill from `phf`, not an app release. Held
+    together by a **parity test**: `npm run desktop-ingest:parity` (tests/,
+    against a local stack) saves every corpus hand through `save_hands` with
+    the TypeScript row and through `ingest_hands` with only its PHF, in one
+    rolled-back transaction, and compares every column - **7 496 distinct
+    hands (8 422, 926 keys repeated across files): 0 differences, 0
+    rejected**. `npm run desktop-ingest:fixture` writes 37 of them (each
+    parser's smallest hand plus positional / opaque / short-deck ante-only /
+    run-it-twice / tournament / Omaha / fixed2 / chips / no hero / fast fold
+    / split pot / ...) into `supabase/tests/database/desktop_ingest_parity.test.sql`,
+    which CI runs. Derivation costs ~0.28 ms a hand.
+  - **Rate limits.** Desktop rows no longer spend the global `hands_insert`
+    (25 000 / 10 min for everyone - a 500k backfill would hold it for three
+    hours). Per account, charged for every row received (duplicates and
+    rejections too): **`desktop_ingest:<uid>` 150 000 / 10 min** and
+    **`desktop_ingest_day:<uid>` 2 000 000 / day**; 53400 (HTTP 500 from
+    PostgREST) when over. Measured locally: 500 hands a call in ~0.86 s
+    (median), ~410 hands/s from one client, so the 10-minute bucket is what
+    binds a backfill: **500k hands >= 34 min, 1M >= 67 min**. The daily cap
+    bounds one account at ~7 GB a day. No global desktop bucket: every call
+    from every account would queue on one counter row.
+  - **Every web reader of a desktop row** (checked): `getHand` →
+    `toHandRecord` (owner; the replayer parses `standardText`), `read_share`
+    → `lib/server/shares.ts` (`/h/[slug]`, `/embed/h/[slug]`, unfurls) and
+    `lib/db/shares.ts` → `shareClient.ts`: all now go through
+    `storedStandardText(stored, phf)` (`lib/db/mapping.ts`), which renders
+    the PHF when the row has no text (a share's redacted PHF lacks
+    `meta.rawText`; it is put back empty). `create_share` stores only the
+    hand id for a stored hand - unchanged. Published hands (`publish_hand`,
+    `scrub_phf`), analysis (`hands_needing_*`, `lib/analysis`), stats
+    (`hands_needing_stats`, `/api/stats/rebuild`, `lib/stats`) and Learn read
+    `phf` only; `search_hands` / `hands_facets` read the search columns;
+    there is no export of stored hands' standard text on the web today (the
+    converter's download serializes its own hands). Text fidelity: with
+    `meta.rawText` empty, `toStandardText` cannot read GG's presentation off
+    the source, so **220 of 8 422 corpus hands** (214 GG, 5 PokerStars, 1
+    `standard`) render differently from the stored web text (trailing space
+    on blank `Dealt to` lines, the replayed header, `SHOW DOWN`, fee
+    columns); **all 8 422 read back** as the same hand (`parseHand`). The
+    desktop keeps the full PHF locally for byte-exact export.
+  - **Stats.** `save_hand_stats` (invoker, resolves `hand_key` under RLS)
+    attaches to desktop rows; `hands_needing_stats` sees them (`hero_seat`
+    is derived), so `/api/stats/rebuild` derives their stats from the PHF
+    exactly as for web rows - nothing to change until R2.1 (pgTAP).
+  - **Rust** (`rail_sync::ingest`): `IngestRow::from_outbox` (the store's
+    canonical PHF → compact JSON with `meta.rawText` emptied; 256 KiB cap),
+    `Batch` (500 hands / 4 MiB of JSON, `Batch::split`), `IngestClient`
+    (`register_source`, `ingest`, and `*_as(&impl TokenSource)`: a fresh
+    token from `Account::access_token()` per call, one `Account::refresh()`
+    and retry after a 401, `SignedOut` when the refresh is refused),
+    `IngestReport` (`stored_keys()`, `rejections()`), `IngestError`
+    (`SignedOut`, `Unauthorized`, `RateLimited`, `UnknownSource`,
+    `Refused{status, code}`, `Transient`). **gzip request bodies do not
+    work**: PostgREST answers `PGRST102` (checked); bodies go uncompressed.
+  - **Tests.** pgTAP `desktop_ingest.test.sql` (51: grants and definer
+    settings, `hand_sources` sealed, anon / no-uid refusals, idempotent
+    registration, no path labels, replays are duplicates and store nothing,
+    counters, another account can neither read nor collide nor use the
+    source, every rejection reason in one mixed batch, the text rule from
+    every writer, budget per account and per day, a refused call writes
+    nothing, the web's global budget untouched, stats) and the generated
+    parity file (40); full suite 29 files / 980 tests green on a fresh
+    reset. Rust: 14 new in `rail-sync` (46), including a scripted HTTP
+    server for the 401 → refresh → retry path. Vitest `desktopRows.test.ts`
+    (owner and share text over the GG and sample corpora). **End to end**
+    (`cargo run -p rail-sync --example desktop_ingest_e2e`, an isolated
+    local stack, two fresh users): 522 corpus files imported with
+    `rail-store` (7 469 hands), the outbox drained through the real
+    `Account` and `IngestClient` - 16 calls, 18 s, 0 rejected, outbox
+    empty; a replay all duplicates; the second account's same hands all
+    inserted, each account sees only its own; the second account refused on
+    the first's source.
+  - **Needs the owner (production, not done here):**
+    1. Apply `20270428090000_desktop_ingest.sql` through the Management API
+       (`docs/DATABASE.md`, "Applying a migration"); the client types in this
+       PR already have `origin`, `hand_sources` and the two RPCs.
+    2. Run the isolation checks (`docs/DATABASE.md`, "Verifying the
+       isolation") plus: a direct `insert` of an `origin = 'desktop'` row with
+       a user JWT is refused (42501); `ingest_hands` from the anon key is
+       refused (401).
+    3. Deploy the web with the next promotion of `staging` to `main`
+       (`storedStandardText`) **before** any app syncs to production (R1.9);
+       until then no desktop row exists and nothing changes for the web.
+- **For R1.9**: drain `outbox_due` → `IngestRow::from_outbox` → `Batch::split`
+  → `ingest_as(&account, &source, &batch)`; mark `stored_keys()` sent, keep
+  `rejections()` out of the outbox with their reason (resending cannot help),
+  treat `Transient` with backoff, `RateLimited` by waiting (windows of 10
+  minutes and a day; the budget is charged for the whole call, so do not
+  shrink batches to squeeze in), `UnknownSource` by registering the folder
+  again (`register_source_as` is idempotent; keep the id per folder in
+  `kv`), `SignedOut` by stopping until the next sign-in, `Refused` as a bug
+  (log, do not loop). Register each watched folder with a random
+  per-installation device id and the local `sources.id`; the label is the
+  room plus the folder's last component, never a path. **Bandwidth**: a hand
+  is ~7.5 KB of JSON on the wire (canonical PHF keeps every action's
+  `rawLine`), so a 500k backfill uploads ~3.7 GB; with gzip refused by
+  PostgREST, the play-time bandwidth cap matters, and if it is too much an
+  Edge Function that accepts gzip and calls the RPC as the user is the next
+  step. Pull: web rows are `origin = 'web'` (no `hand_sources` link per
+  hand); key the cursor on `(created_at, id)`.
 
 ### R1.9 Sync worker — M
 - Outbox → batches (e.g. 500 hands, gzip) → `ingest_hands`; exponential backoff;
@@ -3265,7 +3410,7 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | **Poker clients detect overlay processes** | Users' accounts at risk | Only rooms that allow HUDs; no injection, no reading of client memory or pixels — overlays use public window APIs only |
 | **macOS permission friction**; poker clients with weak accessibility trees | "Works immediately" fails on Mac | Onboarding screen; `CGWindowList` fallback; test each allowed room's client |
 | **No Windows hardware** while the HUD starts on Windows | Phase 3 blocked | P5 now; simulator lets most work happen on the Mac |
-| **Database cost** at ~11 GB per million hands | Subscription price | A5 before R1.8 |
+| **Database cost** at ~11 GB per million hands | Subscription price | A5 decided (Q4): a desktop row is ~3.6 KB, not ~7.3 |
 | **Turnstile / auth inside the app** | Sign-in fails | A6; built in R1.7 (sign-in through the system browser) |
 | **Working-hours constraint** on the development machine | Long builds and agents slow down | CI does the heavy builds; local compute stays out of working hours |
 | **Public repository + future paid product** | Licensing surprise later | P8 |
@@ -3278,8 +3423,8 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | --- | --- | --- |
 | Q1 | ~~Accept or reject each amendment A1–A11 (§2).~~ All accepted 2026-10-12. | R0.2 |
 | Q2 | Which domain? | R1.7 |
-| Q3 | May the app be used with no account (local only), or is sign-in required? The guideline's three steps start with sign-in; local-first suggests it could be optional. R1.7 built it optional ("Use offline" on the first-run screen); requiring it is a small change. | R1.7 |
-| Q4 | Storage policy per hand (A5): drop `standard_text` for synced hands? originals to Storage always, opt-in, or never? | R1.8 |
+| Q3 | May the app be used with no account (local only), or is sign-in required? The guideline's three steps start with sign-in; local-first suggests it could be optional. R1.7 built it optional ("Use offline" on the first-run screen); requiring it is a small change. **Answered 2026-10-13:** the app works offline without an account; an account is needed only for sync (guideline §6). | R1.7 |
+| Q4 | Storage policy per hand (A5): drop `standard_text` for synced hands? originals to Storage always, opt-in, or never? **Answered 2026-10-13:** PHF + per-seat stats only; no `standard_text` (derived on demand), no `source_text`, originals never leave the user's disk (guideline §4; built in R1.8). | R1.8 |
 | Q5 | Windows test machine: a PC, or Parallels on the Mac? | Phase 3 |
 | Q6 | Which rooms first for the HUD after the compliance check? Suggested: PokerStars, Winamax, ACR. | R3.0 |
 | Q7 | Licence for the core and the app (P8). | Phase 6 |
@@ -3317,3 +3462,5 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R1.5 done**: Settings → Folders. Each watched folder with its room, state, last import, hands today, hands, files, problems and refused hands (reason codes with counts, then messages; `Reader::source_quarantine` through `files.source_id`), and its controls: on / off (hands kept), include subfolders, poll only, the room chosen by hand when detection fails, change folder, remove (a dialog says the hands stay); add a folder by hand (picker; "import everything" / "only new hands", subfolders, polling) and find the rooms' folders again. **Edit path**: one `rail-store` transaction keeps the folder's id and settings, moves the rows of the files found again under the new path **with their offsets** (a moved or copied folder continues where it stopped) and detaches the others with their hands (none found = remove + add); tested both ways in the store and on the watcher. **Room override**: `set_source_site_override` resets the files the new choice reads differently (with their quarantine) in the same transaction and the watcher reads them again; the reader records the forced parser as `files.site`. New writer methods `set_source_recursive`, `set_source_site_override`, `set_source_path`; no migration (schema stays 3). Thin Tauri commands with path checks (absolute, no `..`, an existing directory). The first-run table and import choice are shared components; `<dialog>` modals; `en` / `hr`; checked in a browser against a mocked IPC. |
 | 2026-10-13 | **R1.6 done**: the import pipeline. A rayon pool of import threads (physical cores - 1, at most 8; `Watcher::set_import_threads` as the play-time hook), live files ahead of a backfill, a large read cut into batches of 500 hands converted in parallel and committed in order with their own offsets, batches waiting together committed in one transaction with a savepoint each (crash and random-append tests green; the crash test now commits in groups). Backfill progress per folder (bytes of bytes, files, hands, time left) on `SourceStatus`, as events, in the tray ("Importing 37% · …"), on Today and the folder cards; the window reloads on `watcher-changed`. Refused hands: raw text dialog, an app-wide view by reason, "Try again after an update" (files with refusals by another parser version reset and read again). Migration 0004 rollups (`files.hands`/`quarantined`, `source_totals`, `source_days`): `Watcher::status()` 42.7 ms at 90k hands before, ~0.05 ms at 500k now. Benchmark `rail-watch --example import_bench` on a generated dataset (the corpus with permuted hand-id digits, 431 files, 19 parsers, never committed): M2 Pro 10 300 hands/s at 100k (8 threads), 9 170 at 500k (1.51 GB store, 3.18 KB/hand); the guideline's 5 000 is met there; CI's macos-latest (Apple M1 Virtual, 3 cores) measured 3 926 / 4 615 and 4 782 / 5 264 hands/s, so job `import-bench` is a regression guard calibrated to that runner: best of three runs >= 3 500 hands/s. Found on Linux CI and fixed: inotify's open events from the watcher's own reads, plus a reader that opened unchanged read-whole (iPoker) files on every look, kept two files cycling at the front of the queue (`an_unchanged_file_is_not_opened`). |
 | 2026-10-13 | **R1.7 done**: desktop sign-in through the system browser (A6). The app makes an X25519 key pair and a state per sign-in (memory only, ten minutes) and opens `/auth/desktop`; after the user signs in and confirms there, the Edge Function `desktop-handoff` (Deno, WebCrypto) verifies the caller's JWT with GoTrue, refuses unconfirmed / anonymous accounts, spends the per-account budget `claim_desktop_sign_in()` (migration `20270421090000`, 10 an hour, as the user), mints a one-time magic-link token with the service role and returns it encrypted to the app's key; the page redirects to `rail://auth/callback`, the app decrypts and redeems it at `/verify` for a session of its own. Refresh token in the OS keychain (`keyring` =3.6.3), access token in memory, background refresh with backoff, sign-out ends only the app's session. `tauri-plugin-deep-link` =2.4.10, single-instance with `deep-link`. `rail-sync::auth` (handoff, GoTrue client on reqwest + rustls/*ring*, the manager). Settings → Account, first-run step 1 with "Use offline" (Q3 open), Today and tray lines; `en` + `hr`. Tests: Rust 32 + app, Deno 17 (new CI job `functions`), pgTAP 14; end to end against a local stack (interception, replay, independence of the two sessions, sign-out, budget) and the page in a browser. Production untouched: the owner's checklist is under R1.7 *As built*. |
+| 2026-10-13 | Owner decisions: **Q3** - the app works offline without an account, an account is needed only for sync (guideline §6); **Q4** - a desktop hand is PHF + per-seat stats only, no `standard_text`, no `source_text`, originals stay on the user's disk (guideline §4; A5 decided). |
+| 2026-10-13 | **R1.8 done**: Supabase for desktop ingest (migration `20270428090000_desktop_ingest.sql`). `hands.origin` (`web` / `desktop`); `standard_text` nullable for desktop rows only, with a CHECK for every writer (no standard text, no source text, empty `meta.rawText`, PHF <= 256 KiB); the direct insert path writes web rows only. `hand_sources` (watched folder per device, counters, no paths; RLS select-own) and `register_hand_source`. `ingest_hands(p_source, p_rows)` (definer): `{hand_key, phf}` rows, every search column derived on the server by `hand_row_from_phf` (the SQL twin of `handInsertFromPhf`; parity over the corpus, 7 496 distinct hands, 0 differences), per-row `inserted` / `duplicate` / `rejected` + reason, at most 500 hands / 8 MiB a call. Budget per account: 150 000 rows / 10 min and 2 000 000 / day; desktop rows no longer spend the web's global `hands_insert`. Web readers derive the text from the PHF (`storedStandardText`: `getHand`, both share readers); stats rebuild and `save_hand_stats` work on desktop rows unchanged. `rail_sync::ingest`: rows from the outbox (rawText emptied), batches (500 / 4 MiB), `IngestClient` with a fresh token per call and one refresh on 401. Tests: pgTAP 51 + 40 (generated parity), Rust 14, vitest, end to end on a local stack (7 469 hands, 16 calls, 18 s). PostgREST refuses gzip bodies (~7.5 KB JSON a hand on the wire; noted for R1.9). Production untouched: the owner's checklist is under R1.8 *As built*. |

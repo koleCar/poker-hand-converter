@@ -1,6 +1,6 @@
 [package]
 name = "rail-sync"
-description = "Sync between the local store and Supabase: the desktop account (R1.7), later the outbox and the pull"
+description = "Sync between the local store and Supabase: the desktop account (R1.7), the ingest calls (R1.8), later the worker and the pull"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -31,7 +31,8 @@ tokio = { version = "=1.53.2", features = ["time", "sync", "macros", "rt"] }
 log = "0.4.34"
 
 [dev-dependencies]
-tokio = { version = "=1.53.2", features = ["time", "sync", "macros", "rt", "rt-multi-thread", "test-util"] }
+# `net` and `io-util`: the ingest tests' scripted HTTP server.
+tokio = { version = "=1.53.2", features = ["time", "sync", "macros", "rt", "rt-multi-thread", "test-util", "net", "io-util"] }
 
 [lints]
 workspace = true

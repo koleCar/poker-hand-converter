@@ -100,7 +100,7 @@ Početna shema, mapirana na tablice koje već postoje (A4):
 | `hud_layouts` | korisnički HUD izgledi | `id`, `user_id` | nova (Faza 3) |
 | `unparsed_hands` | registar nepodržanih i odbijenih formata (umjesto `unsupported_formats`), proširen poljima za desktop | `fingerprint` | postoji |
 
-Budžet prostora po ruci (A5): danas ruka zauzima oko 7,3 KB u `hands` i 3,9 KB u `hand_stats`, oko 11 GB na milijun ruku. Ruke iz aplikacije zato ne šalju izvedeni `standard_text`, a originalni tekst ide komprimiran po datoteci u Storage, ne po retku; točna pravila odlučuju se prije koraka R1.8.
+Budžet prostora po ruci (A5): danas ruka zauzima oko 7,3 KB u `hands` i 3,9 KB u `hand_stats`, oko 11 GB na milijun ruku. Aplikacija zato šalje samo PHF ruke i brojače po sjedalu, bez `standard_text` i bez `source_text`: originalne datoteke ostaju na korisnikovu disku, a standardni tekst se po potrebi izvodi iz PHF-a (Q4, 2026-10-13).
 
 Akcije se spremaju kao JSONB unutar `hands` umjesto retka po akciji, što drastično smanjuje broj redaka na velikim bazama; izvještaji ionako čitaju `player_stats`. Podaci o protivnicima uvijek pripadaju jednom korisniku i nikad se ne dijele među korisnicima. Sve promjene sheme idu kroz Supabase migracije u repozitoriju.
 
@@ -125,6 +125,8 @@ Početni set (oko 30 statistika):
 ## 6. Desktop aplikacija i sučelje
 
 Aplikacija ima šest jasnih ekrana, a novi korisnik do prvog HUD-a dolazi u tri koraka: prijava, potvrda pronađenih mapa, otvaranje stola.
+
+Aplikacija radi i bez interneta i bez računa; račun je potreban samo za sinkronizaciju s webom, pa je prvi korak (prijava) moguće preskočiti (Q3, 2026-10-13).
 
 | Ekran | Što korisnik tu radi |
 | --- | --- |

@@ -9,6 +9,7 @@
  */
 
 import { handClass } from "../cards";
+import { toStandardText } from "../phf/serialize";
 import {
   formatAmount,
   heroOf,
@@ -306,9 +307,39 @@ export function toHandRecord(row: Row): HandRecord {
   return {
     ...toHandSummary(row),
     phf: row.phf as PhfHand,
-    standardText: String(row.standard_text ?? ""),
+    standardText: storedStandardText(row.standard_text, row.phf),
     sourceText: str(row.source_text),
   };
+}
+
+/**
+ * A stored hand's standard text: the stored copy, or - for a hand the desktop
+ * app synced (`origin = 'desktop'`, R1.8), which stores none - rendered from
+ * its PHF.
+ *
+ * Q4 (2026-10-13): the desktop sends the PHF only, with `meta.rawText` empty
+ * (the original files stay on the user's disk). `toStandardText` reads a few
+ * presentation details off `meta.rawText` when it is in the output's dialect
+ * (GG's trailing space on a blank `Dealt to` line, a replayed header, the
+ * `SHOW DOWN` spelling, the fee columns), so a derived text can differ from
+ * the room's original in those details - 220 of the corpus's 8 422 hands,
+ * almost all GG - while every one reads back as the same hand. A share's
+ * PHF (`read_share`) has `meta.rawText` removed altogether; it is put back
+ * empty, so the owner and a share render the same text.
+ */
+export function storedStandardText(stored: unknown, phf: unknown): string {
+  if (typeof stored === "string") {
+    return stored;
+  }
+  if (!phf || typeof phf !== "object") {
+    return "";
+  }
+  const hand = phf as PhfHand;
+  try {
+    return toStandardText({ ...hand, meta: { ...hand.meta, rawText: hand.meta?.rawText ?? "" } });
+  } catch {
+    return "";
+  }
 }
 
 export function toUnparsedHand(row: Row): UnparsedHand {

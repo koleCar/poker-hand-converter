@@ -28,6 +28,7 @@
 
 import type { PhfHand } from "../phf/types";
 import { requireUserId, rpc } from "./client";
+import { storedStandardText } from "./mapping";
 import type { CreateShareInput, ResolvedShare, ShareRef } from "./types";
 
 const SLUG_PATTERN = /^[23456789abcdefghjkmnpqrstuvwxyz]{8,16}$/;
@@ -118,7 +119,8 @@ export async function resolveShare(slug: string): Promise<ResolvedShare | null> 
 
   void recordShareView(slug);
 
-  const standardText = (payload.standardText as string | null) ?? "";
+  // Null for a hand the desktop app synced (R1.8): derived from the PHF.
+  const standardText = storedStandardText(payload.standardText, payload.phf);
 
   return {
     slug: String(payload.slug),
