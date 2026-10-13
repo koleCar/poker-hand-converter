@@ -47,7 +47,11 @@
 //! files and hands: a **run** lasts while any of the folder's files is
 //! queued or being read. A run of at least [`BACKFILL_MIN_BYTES`] - a
 //! backfill, not a hand being played - is reported:
-//! [`SourceStatus::backfill`] and [`WatchEvent::Progress`].
+//! [`SourceStatus::backfill`] and [`WatchEvent::Progress`]. A run ends
+//! once, after the last of its files is read (`Progress { backfill: None }`),
+//! and the status is written before a progress event goes out: a status
+//! read on one shows what it says, or later. New bytes after the end are a
+//! new run (a new `started_at`).
 //!
 //! # Folders that go away
 //!
@@ -296,7 +300,8 @@ pub enum WatchEvent {
         error: Option<String>,
     },
     /// A folder's backfill moved on (at most every 200 ms), or ended
-    /// (`None`).
+    /// (`None`, once per backfill). [`Watcher::status`] shows it by the
+    /// time it is reported.
     Progress {
         source_id: i64,
         backfill: Option<Backfill>,
@@ -448,6 +453,7 @@ impl Watcher {
             queued: HashSet::new(),
             again: HashMap::new(),
             rechecks: BTreeSet::new(),
+            ended: Vec::new(),
             last_publish: 0,
             publish_now: true,
         };
@@ -927,6 +933,9 @@ struct Coordinator {
     again: HashMap<PathBuf, bool>,
     /// Recheck times, earliest first.
     rechecks: BTreeSet<(i64, PathBuf)>,
+    /// Folders whose backfill ended since the last publish: reported by
+    /// it, after the status shows the end.
+    ended: Vec<i64>,
     last_publish: i64,
     publish_now: bool,
 }
@@ -975,6 +984,9 @@ impl Coordinator {
     /// Let the reads in flight finish (large ones stop early: the handle
     /// set the interrupt), then end the import threads.
     fn finish(&mut self) {
+        // A backfill that ended this turn is reported (and shown over).
+        self.publish_now = true;
+        self.publish();
         while !self.in_flight.is_empty() {
             match self.messages.recv_timeout(Duration::from_millis(50)) {
                 Ok(Msg::Done(done)) => {
@@ -1725,11 +1737,11 @@ impl Coordinator {
                     ended.progress.hands,
                     time::now_ms() - ended.progress.started_at
                 );
-                let id = source.id;
-                self.emit(WatchEvent::Progress {
-                    source_id: id,
-                    backfill: None,
-                });
+                // Reported by `publish`, at the end of this turn, once the
+                // status no longer shows the run: reporting it here left a
+                // moment where the event was out and `status` still showed
+                // the run (seen on Linux CI).
+                self.ended.push(source.id);
                 self.publish_now = true;
             }
         }
@@ -1767,9 +1779,9 @@ impl Coordinator {
         }
     }
 
-    /// Copy what `status` reads into the shared state, and report the runs
-    /// that moved on - at most every [`PUBLISH_MS`], or at once after a
-    /// command.
+    /// Copy what `status` reads into the shared state, then report the runs
+    /// that ended and those that moved on - at most every [`PUBLISH_MS`],
+    /// or at once after a command or an end.
     fn publish(&mut self) {
         let now = time::now_ms();
         if !self.publish_now && now - self.last_publish < PUBLISH_MS {
@@ -1817,11 +1829,261 @@ impl Coordinator {
                 })
                 .collect();
         }
+        // Only now, with the status written: whoever reads `status` on a
+        // progress event sees what it says (or later). Ends first: a folder
+        // may have ended a backfill and started another since the last turn.
+        for source_id in std::mem::take(&mut self.ended) {
+            self.emit(WatchEvent::Progress {
+                source_id,
+                backfill: None,
+            });
+        }
         for (source_id, backfill) in progress {
             self.emit(WatchEvent::Progress {
                 source_id,
                 backfill: Some(backfill),
             });
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    //! The coordinator's run accounting driven by hand: no threads, no file
+    //! system events, no sleeping - each step is a call.
+
+    use super::*;
+
+    /// Each event the coordinator reported, with the folder's backfill as
+    /// `Watcher::status` showed it at that moment.
+    type Seen = Arc<Mutex<Vec<(WatchEvent, Option<Backfill>)>>>;
+
+    const SOURCE: i64 = 1;
+    const MB: u64 = 1024 * 1024;
+
+    /// A coordinator with no import threads (nothing is dispatched) on
+    /// `store`, and what it reports.
+    fn coordinator(store: &rail_store::Store) -> (Coordinator, Seen) {
+        let writer = store.writer().expect("writer");
+        let reader = Arc::new(
+            FileReader::new(store.path(), writer.clone(), ReadConfig::default()).expect("reader"),
+        );
+        let (inbox, messages) = mpsc::channel();
+        let shared = Arc::new(Mutex::new(Shared {
+            running: true,
+            ..Shared::default()
+        }));
+        let seen: Seen = Arc::default();
+        let on_event: OnEvent = {
+            let (seen, shared) = (Arc::clone(&seen), Arc::clone(&shared));
+            Arc::new(move |event: WatchEvent| {
+                let status = shared
+                    .lock()
+                    .expect("shared")
+                    .sources
+                    .get(&SOURCE)
+                    .and_then(|source| source.backfill);
+                seen.lock().expect("seen").push((event, status));
+            })
+        };
+        let coordinator = Coordinator {
+            config: WatchConfig::default(),
+            reader,
+            writer,
+            notifier: notify::recommended_watcher(|_: notify::Result<notify::Event>| {})
+                .expect("notifier"),
+            messages,
+            inbox,
+            pool: None,
+            threads: 1,
+            limits: Arc::default(),
+            shared,
+            paused: Arc::default(),
+            on_event,
+            sources: HashMap::new(),
+            files: HashMap::new(),
+            in_flight: HashSet::new(),
+            queue: VecDeque::new(),
+            queued: HashSet::new(),
+            again: HashMap::new(),
+            rechecks: BTreeSet::new(),
+            ended: Vec::new(),
+            last_publish: 0,
+            publish_now: true,
+        };
+        (coordinator, seen)
+    }
+
+    fn source() -> SourceRt {
+        SourceRt {
+            id: SOURCE,
+            path: PathBuf::from("hh"),
+            real_path: PathBuf::from("hh"),
+            recursive: true,
+            enabled: true,
+            poll_only: false,
+            site_override: None,
+            glob: None,
+            state: Some(SourceState::Watching),
+            error: None,
+            watched: true,
+            next_scan: i64::MAX,
+            run: None,
+        }
+    }
+
+    impl Coordinator {
+        /// `path` was queued with `size` bytes at `now`.
+        fn join(&mut self, path: &str, size: u64, now: i64) {
+            let file = self
+                .files
+                .entry(PathBuf::from(path))
+                .or_insert_with(|| FileRt::new(SOURCE));
+            file.offset.get_or_insert(0);
+            let source = self.sources.get_mut(&SOURCE).expect("source");
+            Self::join_run(source, file, size, now);
+        }
+
+        /// A read of `path` committed up to `to` and has nothing more.
+        fn read(&mut self, path: &str, to: u64) {
+            self.credit(Path::new(path), to, 1);
+            self.finish_part(Path::new(path));
+        }
+
+        /// The end of a loop turn, without the 200 ms throttle.
+        fn turn(&mut self) {
+            self.publish_now = true;
+            self.publish();
+        }
+    }
+
+    /// The folder's progress events in order (`None`: an end), each with
+    /// the status at that moment.
+    fn progress(seen: &Seen) -> Vec<(Option<Backfill>, Option<Backfill>)> {
+        seen.lock()
+            .expect("seen")
+            .iter()
+            .filter_map(|(event, status)| match event {
+                WatchEvent::Progress {
+                    source_id: SOURCE,
+                    backfill,
+                } => Some((*backfill, *status)),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// A fresh store in the temp directory (removed by the caller).
+    fn store(name: &str) -> (rail_store::Store, PathBuf) {
+        let dir = std::env::temp_dir().join(format!(
+            "rail-watch-unit-{name}-{}-{}",
+            std::process::id(),
+            time::now_ms()
+        ));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("dir");
+        (
+            rail_store::Store::open(dir.join("rail.db")).expect("store"),
+            dir,
+        )
+    }
+
+    /// The end of a backfill is on the status before it is reported, so an
+    /// app that reads `status` on the event (the tray does) sees it over.
+    /// It used to be reported at once and published at the end of the loop
+    /// turn: a status read in between still showed the run (Linux CI:
+    /// "ended", then `Some(309 of 312 files)` on the status).
+    #[test]
+    fn a_backfill_ends_once_and_the_status_shows_it_first() {
+        let (store, dir) = store("ends");
+        let (mut c, seen) = coordinator(&store);
+        c.sources.insert(SOURCE, source());
+
+        // A walk queues three files: 3 MiB, a backfill.
+        for path in ["a", "b", "c"] {
+            c.join(path, MB, 1_000);
+        }
+        c.turn();
+        c.read("a", MB);
+        c.read("b", MB / 2); // half committed, then nothing more to read
+        c.turn();
+        // The last file: the backfill ends, once.
+        c.read("c", MB);
+        c.turn();
+        // A file read again with no part in any run: nothing.
+        c.read("a", MB);
+        c.turn();
+        let events = progress(&seen);
+        let ends: Vec<_> = events.iter().filter(|(b, _)| b.is_none()).collect();
+        assert_eq!(ends.len(), 1, "{events:?}");
+        assert_eq!(*ends[0], (None, None), "the status still showed the run");
+        let last = events.iter().rev().find_map(|(b, _)| *b).expect("progress");
+        assert_eq!((last.files_done, last.files_total), (2, 3), "{last:?}");
+        assert_eq!(last.started_at, 1_000);
+        assert_eq!(last.bytes_done, 2 * MB, "a finished part counts whole");
+
+        // New bytes later are a new backfill: its own start, totals and end.
+        c.join("a", 3 * MB, 9_000);
+        c.turn();
+        c.read("a", 3 * MB);
+        c.turn();
+        let events = progress(&seen);
+        let first_end = events.iter().position(|(b, _)| b.is_none()).expect("end");
+        assert!(
+            events[first_end + 1..]
+                .iter()
+                .filter_map(|(b, _)| *b)
+                .all(|b| b.started_at == 9_000 && b.files_total == 1 && b.bytes_total == 2 * MB),
+            "progress of the ended backfill after its end: {events:?}"
+        );
+        assert_eq!(events.last(), Some(&(None, None)), "{events:?}");
+        assert_eq!(events.iter().filter(|(b, _)| b.is_none()).count(), 2);
+
+        drop(c);
+        drop(store);
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    /// A backfill that ends and a new one that starts before the status is
+    /// published again: the end is reported first, then the new one, and
+    /// the status never shows the ended one once its end is out.
+    #[test]
+    fn an_end_and_a_new_backfill_in_one_turn_are_reported_in_order() {
+        let (store, dir) = store("order");
+        let (mut c, seen) = coordinator(&store);
+        c.sources.insert(SOURCE, source());
+        c.join("a", 2 * MB, 1_000);
+        c.turn();
+        c.read("a", 2 * MB);
+        c.join("b", 2 * MB, 2_000);
+        c.turn();
+        let events = progress(&seen);
+        let tail = &events[events.len() - 2..];
+        assert_eq!(tail[0].0, None, "{events:?}");
+        assert!(
+            tail[0].1.is_some_and(|b| b.started_at == 2_000),
+            "the status at the end: {events:?}"
+        );
+        assert_eq!(tail[1].0.map(|b| b.started_at), Some(2_000), "{events:?}");
+        drop(c);
+        drop(store);
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    /// A backfill whose last file is read just before the watcher stops
+    /// still reports its end.
+    #[test]
+    fn an_end_just_before_stopping_is_reported() {
+        let (store, dir) = store("stop");
+        let (mut c, seen) = coordinator(&store);
+        c.sources.insert(SOURCE, source());
+        c.join("a", 2 * MB, 1_000);
+        c.turn();
+        c.read("a", 2 * MB);
+        c.finish();
+        assert_eq!(progress(&seen).last(), Some(&(None, None)));
+        drop(c);
+        drop(store);
+        let _ = std::fs::remove_dir_all(dir);
     }
 }

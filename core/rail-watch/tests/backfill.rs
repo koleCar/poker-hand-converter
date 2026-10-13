@@ -50,7 +50,18 @@ fn start(name: &str, workers: usize) -> Running {
         store.path(),
         store.writer().expect("writer"),
         config,
-        move |event| sink.lock().expect("events").push(event),
+        move |event| {
+            let end = matches!(event, WatchEvent::Progress { backfill: None, .. });
+            sink.lock().expect("events").push(event);
+            if end {
+                // Hold the watcher's thread a moment after an end is out:
+                // whatever it has not written to the status yet stays
+                // unwritten while the test reads it (an end used to be
+                // reported before the status was; a few microseconds on
+                // macOS, enough on Linux CI).
+                std::thread::sleep(Duration::from_millis(100));
+            }
+        },
     )
     .expect("start");
     Running {
@@ -83,15 +94,43 @@ fn fill(folder: &std::path::Path, bytes: u64) -> (u64, usize) {
     (total, files)
 }
 
+/// Import threads for the backfill test: `RAIL_WATCH_THREADS` (1 or 2 shake
+/// out timing), else 2.
+fn backfill_threads() -> usize {
+    std::env::var("RAIL_WATCH_THREADS")
+        .ok()
+        .and_then(|threads| threads.parse().ok())
+        .filter(|threads| *threads > 0)
+        .unwrap_or(2)
+}
+
+/// The folder's progress events, in order (`None`: an end).
+fn progress_of(events: &Mutex<Vec<WatchEvent>>, id: i64) -> Vec<Option<Backfill>> {
+    events
+        .lock()
+        .expect("events")
+        .iter()
+        .filter_map(|event| match event {
+            WatchEvent::Progress {
+                source_id,
+                backfill,
+            } if *source_id == id => Some(*backfill),
+            _ => None,
+        })
+        .collect()
+}
+
 #[test]
 fn a_backfill_reports_its_progress_and_ends() {
-    let running = start("backfill", 2);
+    let threads = backfill_threads();
+    let running = start("backfill", threads);
     let folder = running.dir.join("hh");
     let (bytes, files) = fill(&folder, 2 * 1024 * 1024);
     let id = running
         .watcher
         .add_source(&folder, true, Some(false))
         .expect("add");
+    let ended = || progress_of(&running.events, id).contains(&None);
     // On the folder's status while it runs (the first walk queues them all).
     let mut seen: Option<Backfill> = None;
     wait_for("the backfill on the status", 60, || {
@@ -100,32 +139,17 @@ fn a_backfill_reports_its_progress_and_ends() {
         if let Some(backfill) = source.backfill {
             seen = Some(backfill);
         }
-        seen.is_some()
-            || running
-                .events
-                .lock()
-                .expect("events")
-                .contains(&WatchEvent::Progress {
-                    source_id: id,
-                    backfill: None,
-                })
+        seen.is_some() || ended()
     });
-    let ended = || {
-        running
-            .events
-            .lock()
-            .expect("events")
-            .contains(&WatchEvent::Progress {
-                source_id: id,
-                backfill: None,
-            })
-    };
     let deadline = std::time::Instant::now() + Duration::from_secs(60);
     while !ended() && std::time::Instant::now() < deadline {
-        std::thread::sleep(Duration::from_millis(20));
+        std::thread::sleep(Duration::from_millis(5));
     }
+    // Read at once: the status shows the end by the time it is reported (it
+    // used to be published up to a loop turn later; Linux CI read
+    // `Some(309 of 312 files)` here).
+    let status = running.watcher.status().expect("status");
     if !ended() {
-        let status = running.watcher.status().expect("status");
         let events = running.events.lock().expect("events").clone();
         let imported: std::collections::BTreeMap<PathBuf, usize> =
             events.iter().fold(BTreeMap::new(), |mut map, event| {
@@ -154,22 +178,36 @@ fn a_backfill_reports_its_progress_and_ends() {
                 .find(|e| matches!(e, WatchEvent::Progress { .. }))
         );
     }
-    let reports: Vec<Backfill> = running
-        .events
-        .lock()
-        .expect("events")
+    let source = status.sources.iter().find(|s| s.id == id).expect("folder");
+    assert_eq!(source.backfill, None, "reported over, still on the status");
+    // Over: off the status, and every file read.
+    wait_for("the backfill over and every file read", 30, || {
+        let status = running.watcher.status().expect("status");
+        let source = status.sources.iter().find(|s| s.id == id).expect("folder");
+        source.backfill.is_none() && usize::try_from(source.files).ok() == Some(files)
+    });
+    let status = running.watcher.status().expect("status");
+    let source = status.sources.iter().find(|s| s.id == id).expect("folder");
+    assert!(source.hands > 0);
+    assert_eq!(status.threads, threads);
+    // Appending a hand afterwards is no backfill.
+    running.watcher.set_import_threads(Some(1));
+    assert_eq!(running.watcher.status().expect("status").threads_allowed, 1);
+    running.watcher.set_import_threads(None);
+    // Stopped: every event is out.
+    running.watcher.stop();
+
+    let events = progress_of(&running.events, id);
+    let end = events
         .iter()
-        .filter_map(|event| match event {
-            WatchEvent::Progress {
-                source_id,
-                backfill: Some(backfill),
-            } if *source_id == id => Some(*backfill),
-            _ => None,
-        })
-        .collect();
+        .position(Option::is_none)
+        .expect("the end event");
+    let reports: Vec<Backfill> = events[..end].iter().flatten().copied().collect();
     let all: Vec<Backfill> = reports.iter().copied().chain(seen).collect();
     assert!(!all.is_empty(), "no progress was reported");
+    let started_at = all[0].started_at;
     for report in &all {
+        assert_eq!(report.started_at, started_at, "one backfill: {report:?}");
         assert_eq!(report.bytes_total, bytes, "{report:?}");
         assert_eq!(
             usize::try_from(report.files_total).ok(),
@@ -182,23 +220,21 @@ fn a_backfill_reports_its_progress_and_ends() {
     // Monotonic.
     for pair in reports.windows(2) {
         assert!(pair[0].bytes_done <= pair[1].bytes_done, "{pair:?}");
+        assert!(pair[0].files_done <= pair[1].files_done, "{pair:?}");
         assert!(pair[0].hands <= pair[1].hands, "{pair:?}");
     }
-    let status = running.watcher.status().expect("status");
-    let source = status.sources.iter().find(|s| s.id == id).expect("folder");
-    assert_eq!(source.backfill, None, "over");
+    // It ended once, and nothing of it came after its end.
     assert_eq!(
-        usize::try_from(source.files).ok(),
-        Some(files),
-        "every file read"
+        events.iter().filter(|event| event.is_none()).count(),
+        1,
+        "ends: {events:?}"
     );
-    assert!(source.hands > 0);
-    assert_eq!(status.threads, 2);
-    // Appending a hand afterwards is no backfill.
-    running.watcher.set_import_threads(Some(1));
-    assert_eq!(running.watcher.status().expect("status").threads_allowed, 1);
-    running.watcher.set_import_threads(None);
-    running.watcher.stop();
+    let after: Vec<&Backfill> = events[end + 1..]
+        .iter()
+        .flatten()
+        .filter(|report| report.started_at == started_at)
+        .collect();
+    assert!(after.is_empty(), "progress after its end: {after:?}");
     drop(running.store);
 }
 
