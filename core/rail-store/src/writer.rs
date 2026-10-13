@@ -1,5 +1,8 @@
 //! The single writer: one thread owns the only write connection and takes
-//! commands from a bounded channel. Every command is one transaction.
+//! commands from a bounded channel. Every command is one transaction -
+//! except import batches waiting together in the queue, which commit
+//! together (see [`run`]'s grouping): each still in its own savepoint, so
+//! each batch is stored whole or not at all, as before.
 //!
 //! SQLite allows one writer at a time anyway; owning it on one thread means
 //! no `SQLITE_BUSY` between our own writers, a natural back-pressure point
@@ -20,6 +23,15 @@ use crate::error::{Error, Result};
 /// batch, and a full queue should push back on the readers, not buffer
 /// thousands of hands in memory.
 pub const QUEUE_DEPTH: usize = 16;
+
+/// At most this many import batches, waiting in the queue together, share
+/// one transaction (R1.6)...
+pub const GROUP_BATCHES: usize = 64;
+
+/// ...and at most about this many hands: a live hand behind a group of
+/// backfill batches waits for the group's commit (~35 ms at this size on an
+/// M2 Pro), not more.
+pub const GROUP_HANDS: usize = 2_000;
 
 /// A write job: opens its transaction on the writer's connection, commits
 /// it, and answers its caller.
@@ -47,15 +59,39 @@ impl std::fmt::Debug for WriterHandle {
     }
 }
 
+/// An import sent to the writer whose commit has not been waited for
+/// ([`WriterHandle::import_async`]).
+#[derive(Debug)]
+pub struct PendingImport {
+    answer: Receiver<Result<ImportOutcome>>,
+}
+
+impl PendingImport {
+    /// Wait for the batch's commit (or its failure).
+    pub fn wait(self) -> Result<ImportOutcome> {
+        self.answer.recv().map_err(|_| Error::WriterGone)?
+    }
+}
+
 impl WriterHandle {
     /// Commit one batch: the file's new state, its new hands (each queued in
     /// `outbox`), its refusals and its registry record, in one transaction.
     pub fn import(&self, batch: ImportBatch) -> Result<ImportOutcome> {
+        self.import_async(batch)?.wait()
+    }
+
+    /// Queue one batch and return without waiting for its commit; blocks
+    /// only while the writer's queue is full. Batches from one thread are
+    /// applied in the order they were sent, so consecutive reads of one file
+    /// can be queued back to back: each one's `from_offset` is the previous
+    /// one's `to_offset`, and if one fails (say [`Error::OffsetMismatch`]),
+    /// the ones after it fail the offset check too and store nothing.
+    pub fn import_async(&self, batch: ImportBatch) -> Result<PendingImport> {
         let (reply, answer) = mpsc::sync_channel(1);
         self.sender
             .send(Command::Import(Box::new(batch), reply))
             .map_err(|_| Error::WriterGone)?;
-        answer.recv().map_err(|_| Error::WriterGone)?
+        Ok(PendingImport { answer })
     }
 
     /// Run `job` in a transaction on the writer thread and return what it
@@ -124,19 +160,86 @@ impl Drop for Writer {
     }
 }
 
+/// An import waiting for its commit.
+type Queued = (Box<ImportBatch>, SyncSender<Result<ImportOutcome>>);
+
+/// The writer's loop. Import batches that are waiting in the queue together
+/// (a backfill: several workers, or one worker's consecutive pieces of a
+/// large file) are committed in **one transaction**, up to
+/// [`GROUP_BATCHES`] batches or about [`GROUP_HANDS`] hands: one commit
+/// instead of many, and the index and counter pages they share written
+/// once. Each batch still runs in its own savepoint: one that fails (a
+/// stale offset) is rolled back alone and answered with its error, the
+/// others commit. A crash before the commit loses the whole group, and
+/// with it every offset of the group - so R1.2's invariant (an offset moves
+/// with exactly the hands read up to it) holds per batch as before.
 fn run(mut conn: Connection, commands: &Receiver<Command>) {
     // Ends when every handle is dropped.
-    while let Ok(command) = commands.recv() {
+    let mut next = commands.recv().ok();
+    while let Some(command) = next.take() {
         match command {
             Command::Import(batch, reply) => {
-                let result = in_transaction(&mut conn, |tx| apply_import(tx, &batch));
-                let _ = reply.send(result);
+                let mut hands = batch.hands.len();
+                let mut group: Vec<Queued> = vec![(batch, reply)];
+                while group.len() < GROUP_BATCHES && hands < GROUP_HANDS {
+                    match commands.try_recv() {
+                        Ok(Command::Import(batch, reply)) => {
+                            hands += batch.hands.len();
+                            group.push((batch, reply));
+                        }
+                        Ok(other) => {
+                            next = Some(other);
+                            break;
+                        }
+                        Err(_) => break,
+                    }
+                }
+                commit_group(&mut conn, group);
             }
             Command::Write(job) => job(&mut conn),
+        }
+        if next.is_none() {
+            next = commands.recv().ok();
         }
     }
     // Leave the WAL small for the next start (best effort).
     let _ = conn.execute_batch("PRAGMA wal_checkpoint(TRUNCATE);");
+}
+
+/// Apply `group` in one transaction, each batch in a savepoint, and answer
+/// every sender once the transaction has committed (or failed: then every
+/// batch is answered with the error, none is stored).
+fn commit_group(conn: &mut Connection, group: Vec<Queued>) {
+    let mut results: Vec<Result<ImportOutcome>> = Vec::with_capacity(group.len());
+    let committed = (|| -> Result<()> {
+        let mut tx = conn.transaction()?;
+        for (batch, _) in &group {
+            let savepoint = tx.savepoint()?;
+            match apply_import(&savepoint, batch) {
+                Ok(outcome) => {
+                    savepoint.commit()?;
+                    results.push(Ok(outcome));
+                }
+                // Dropping the savepoint rolls this batch back alone.
+                Err(error) => results.push(Err(error)),
+            }
+        }
+        tx.commit()?;
+        Ok(())
+    })();
+    match committed {
+        Ok(()) => {
+            for ((_, reply), result) in group.into_iter().zip(results) {
+                let _ = reply.send(result);
+            }
+        }
+        Err(error) => {
+            let text = error.to_string();
+            for (_, reply) in group {
+                let _ = reply.send(Err(Error::Commit(text.clone())));
+            }
+        }
+    }
 }
 
 /// Run `f` in a transaction: commit on `Ok`, roll back (by drop) on `Err`.
@@ -169,8 +272,12 @@ fn to_i64(value: u64, what: &'static str) -> Result<i64> {
 ///
 /// Because all five happen in one transaction, a crash leaves either the
 /// old offset and none of this batch's rows, or the new offset and all of
-/// them.
-pub fn apply_import(tx: &Transaction<'_>, batch: &ImportBatch) -> Result<ImportOutcome> {
+/// them. Along with them the folder counters of version 4 move
+/// (`files.hands`, `source_days`; `quarantine` and `source_totals` by
+/// triggers).
+///
+/// `tx` is the open transaction (or a savepoint in one) the caller commits.
+pub fn apply_import(tx: &Connection, batch: &ImportBatch) -> Result<ImportOutcome> {
     let now = crate::time::now_ms();
     let file = &batch.file;
 
@@ -190,7 +297,7 @@ pub fn apply_import(tx: &Transaction<'_>, batch: &ImportBatch) -> Result<ImportO
         });
     }
 
-    let file_id: i64 = tx
+    let (file_id, source_id): (i64, Option<i64>) = tx
         .prepare_cached(
             "INSERT INTO files (path, source_id, size, mtime, read_offset, encoding, site,
                                 last_error, first_seen, last_import_at)
@@ -204,7 +311,7 @@ pub fn apply_import(tx: &Transaction<'_>, batch: &ImportBatch) -> Result<ImportO
                site           = coalesce(excluded.site, files.site),
                last_error     = excluded.last_error,
                last_import_at = excluded.last_import_at
-             RETURNING id",
+             RETURNING id, source_id",
         )?
         .query_row(
             params![
@@ -218,7 +325,7 @@ pub fn apply_import(tx: &Transaction<'_>, batch: &ImportBatch) -> Result<ImportO
                 file.last_error,
                 now,
             ],
-            |row| row.get(0),
+            |row| Ok((row.get(0)?, row.get(1)?)),
         )?;
 
     let mut outcome = ImportOutcome {
@@ -269,6 +376,18 @@ pub fn apply_import(tx: &Transaction<'_>, batch: &ImportBatch) -> Result<ImportO
             outcome.inserted += 1;
         } else {
             outcome.duplicates += 1;
+        }
+    }
+    if outcome.inserted > 0 {
+        tx.prepare_cached("UPDATE files SET hands = hands + ?2 WHERE id = ?1")?
+            .execute(params![file_id, outcome.inserted])?;
+        if let Some(source_id) = source_id {
+            tx.prepare_cached(
+                "INSERT INTO source_days (source_id, day, hands)
+                 VALUES (?1, date(?2 / 1000, 'unixepoch', 'localtime'), ?3)
+                 ON CONFLICT (source_id, day) DO UPDATE SET hands = hands + excluded.hands",
+            )?
+            .execute(params![source_id, now, outcome.inserted])?;
         }
     }
 

@@ -1,49 +1,35 @@
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 
+import { BackfillProgress } from "../components/BackfillProgress";
 import { useT } from "../i18n";
-import { errorText, inApp, ipc, type WatchSource, type WatchStatus } from "../lib/ipc";
+import { errorText, inApp, ipc, type WatchSource } from "../lib/ipc";
 import { screenHref, SETUP } from "../lib/router";
+import { useWatcherStatus } from "../lib/useWatcherStatus";
 import styles from "./ImportStatus.module.css";
-
-/** How often the status refreshes while the screen is open. */
-const REFRESH_MS = 3000;
 
 const number = new Intl.NumberFormat();
 const time = new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "medium" });
 
-/** The watcher (R1.3): its folders, their state and counts, pause / resume. */
+/**
+ * The watcher (R1.3): its folders, their state and counts, pause / resume,
+ * and a folder's backfill in progress (R1.6), kept current by the app's
+ * change events.
+ */
 export function ImportStatus() {
   const t = useT();
-  const [status, setStatus] = useState<WatchStatus | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { status, error: loadError, reload: load } = useWatcherStatus();
+  const [actionError, setActionError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
-  const load = useCallback(() => {
-    ipc
-      .watcherStatus()
-      .then((next) => {
-        setStatus(next);
-        setError(null);
-      })
-      .catch((e: unknown) => setError(errorText(e)));
-  }, []);
-
-  useEffect(() => {
-    if (!inApp) {
-      return;
-    }
-    load();
-    const timer = window.setInterval(load, REFRESH_MS);
-    return () => window.clearInterval(timer);
-  }, [load]);
+  const error = actionError ?? loadError;
 
   const togglePause = async (paused: boolean) => {
     setBusy(true);
     try {
       await ipc.setImportPaused(paused);
+      setActionError(null);
       load();
     } catch (e: unknown) {
-      setError(errorText(e));
+      setActionError(errorText(e));
     } finally {
       setBusy(false);
     }
@@ -110,20 +96,29 @@ export function ImportStatus() {
           </thead>
           <tbody>
             {status.sources.map((source) => (
-              <tr key={source.id}>
-                <td className={styles.mono}>{source.path}</td>
-                <td
-                  className={
-                    source.state === "unavailable" || source.state === "error" ? styles.errorCell : undefined
-                  }
-                >
-                  {d.states[source.state]}
-                </td>
-                <td className={styles.number}>{number.format(source.handsToday)}</td>
-                <td className={styles.number}>{number.format(source.hands)}</td>
-                <td>{source.lastImportAt === null ? d.never : time.format(source.lastImportAt)}</td>
-                <td>{issues(source)}</td>
-              </tr>
+              <Fragment key={source.id}>
+                <tr className={source.backfill ? styles.joined : undefined}>
+                  <td className={styles.mono}>{source.path}</td>
+                  <td
+                    className={
+                      source.state === "unavailable" || source.state === "error" ? styles.errorCell : undefined
+                    }
+                  >
+                    {d.states[source.state]}
+                  </td>
+                  <td className={styles.number}>{number.format(source.handsToday)}</td>
+                  <td className={styles.number}>{number.format(source.hands)}</td>
+                  <td>{source.lastImportAt === null ? d.never : time.format(source.lastImportAt)}</td>
+                  <td>{issues(source)}</td>
+                </tr>
+                {source.backfill && (
+                  <tr>
+                    <td colSpan={6}>
+                      <BackfillProgress backfill={source.backfill} label={t.backfill.of(source.path)} />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             ))}
           </tbody>
         </table>

@@ -38,6 +38,10 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "0003_source_site.sql",
         sql: include_str!("../migrations/0003_source_site.sql"),
     },
+    Migration {
+        name: "0004_folder_rollups.sql",
+        sql: include_str!("../migrations/0004_folder_rollups.sql"),
+    },
 ];
 
 /// The schema version this build writes.

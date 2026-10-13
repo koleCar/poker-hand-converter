@@ -18,7 +18,8 @@
 //! - `set_folder_enabled`, `set_folder_recursive`, `set_folder_poll_only`;
 //! - `remove_folder` (its hands stay);
 //! - `folder_rooms`: the rooms that can be chosen; `folder_quarantine`: a
-//!   folder's refused hands with their reasons.
+//!   folder's refused hands with their reasons (the raw text and "try
+//!   again after an update" are `quarantine.rs`, R1.6).
 
 use std::path::{Component, Path, PathBuf};
 
@@ -274,7 +275,17 @@ pub struct ReasonCount {
     count: i64,
 }
 
-/// One refused hand of a folder (no raw text: that stays in the store).
+impl ReasonCount {
+    pub const fn new(reason: String, count: i64) -> Self {
+        Self { reason, count }
+    }
+
+    pub const fn count(&self) -> i64 {
+        self.count
+    }
+}
+
+/// One refused hand (no raw text: `quarantine_raw_text` fetches it).
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RefusedHand {
@@ -284,8 +295,25 @@ pub struct RefusedHand {
     reason: String,
     message: String,
     detected_site: Option<String>,
+    /// The version of the parser that refused it (`0`: none did).
+    parser_version: String,
     /// ms since the epoch.
     last_seen: i64,
+}
+
+impl From<rail_store::read::QuarantineEntry> for RefusedHand {
+    fn from(entry: rail_store::read::QuarantineEntry) -> Self {
+        Self {
+            id: entry.id,
+            file: entry.file_path,
+            stage: entry.stage,
+            reason: entry.reason,
+            message: entry.message,
+            detected_site: entry.detected_site,
+            parser_version: entry.parser_version,
+            last_seen: entry.last_seen,
+        }
+    }
 }
 
 /// A folder's quarantine: counts per reason, and the most recent entries.
@@ -296,6 +324,9 @@ pub struct FolderQuarantine {
     entries: Vec<RefusedHand>,
     /// More entries exist than are listed.
     truncated: bool,
+    /// Refused by an older parser version: "Try again after an update"
+    /// reads them again (R1.6).
+    retryable: crate::quarantine::Retryable,
 }
 
 #[tauri::command]
@@ -318,21 +349,18 @@ pub async fn folder_quarantine(
         .source_quarantine(id, QUARANTINE_LIMIT)
         .map_err(|error| error.to_string())?
         .into_iter()
-        .map(|entry| RefusedHand {
-            id: entry.id,
-            file: entry.file_path,
-            stage: entry.stage,
-            reason: entry.reason,
-            message: entry.message,
-            detected_site: entry.detected_site,
-            last_seen: entry.last_seen,
-        })
+        .map(RefusedHand::from)
         .collect();
     let total: i64 = reasons.iter().map(|reason| reason.count).sum();
+    let retryable = reader
+        .stale_refusals(&rail_watch::Watcher::parser_versions(), Some(id))
+        .map_err(|error| error.to_string())?
+        .into();
     Ok(FolderQuarantine {
         truncated: usize::try_from(total).is_ok_and(|total| total > entries.len()),
         reasons,
         entries,
+        retryable,
     })
 }
 

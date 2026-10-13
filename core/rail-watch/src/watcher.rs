@@ -6,13 +6,23 @@
 //!   FSEvents, ReadDirectoryChangesW, inotify), the list of folders, and
 //!   what is known of every file. It turns notifications, rescans and
 //!   recheck times into "this file may have something new" and hands those
-//!   files to the workers - never the same file to two workers at once. It
+//!   files to the import threads - never the same file to two at once. It
 //!   does no file reading and no conversion itself.
-//! - **Workers** (a few, [`WatchConfig::workers`]): run
-//!   [`FileReader::poll`] - read the new bytes, convert, commit through the
-//!   store's writer. The writer's queue is bounded: when it is full the
-//!   workers block, the job queue fills, and the coordinator keeps the files
-//!   marked until a worker is free (back-pressure without unbounded memory).
+//! - **Import threads** (a rayon pool of [`WatchConfig::workers`], R1.6):
+//!   run [`FileReader::poll`] - read the new bytes, convert, commit through
+//!   the store's writer. A large read is cut into batches that convert in
+//!   parallel on the same threads (work stealing: no more threads than the
+//!   pool). At most as many files are in flight as the pool has threads
+//!   (or [`Watcher::set_import_threads`] allows); the writer's queue is
+//!   bounded, so when it is full the threads block and the coordinator
+//!   keeps the files queued (back-pressure without unbounded memory).
+//!
+//! # Which file goes first
+//!
+//! Files the OS reported (a room writing a hand) and files whose recheck
+//! time came go to the **front** of the queue; files a walk found (a
+//! backfill, a rescan) to the back. So a hand being played is read before
+//! the rest of a backfill.
 //!
 //! # When a file is looked at
 //!
@@ -27,7 +37,17 @@
 //! - for a **poll-only** folder (a network share, detected or set by the
 //!   user), only by rescan, every [`WatchConfig::poll_interval`];
 //! - at the recheck time a read asked for (a trailing hand waiting for the
-//!   quiet period, a refused tail waiting for the give-up time).
+//!   quiet period, a refused tail waiting for the give-up time, the rest of
+//!   a large read).
+//!
+//! # Backfill progress
+//!
+//! Per folder, the coordinator counts what it has to read (each queued
+//! file's size minus its stored offset) and what has been committed of it,
+//! files and hands: a **run** lasts while any of the folder's files is
+//! queued or being read. A run of at least [`BACKFILL_MIN_BYTES`] - a
+//! backfill, not a hand being played - is reported:
+//! [`SourceStatus::backfill`] and [`WatchEvent::Progress`].
 //!
 //! # Folders that go away
 //!
@@ -41,36 +61,58 @@
 //!
 //! # Stopping
 //!
-//! [`Watcher::stop`] (or dropping it) finishes the reads in progress and
-//! ends the threads. Stop the watcher **before** the store closes: closing
-//! the store waits for every handle on its writer, and the watcher holds
-//! some.
+//! [`Watcher::stop`] (or dropping it) asks large reads to stop after the
+//! batches they are committing, finishes the reads in progress and ends the
+//! threads. Stop the watcher **before** the store closes: closing the store
+//! waits for every handle on its writer, and the watcher holds some.
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender, SyncSender, TrySendError};
+use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender};
 use std::sync::{Arc, Mutex, PoisonError};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
+use notify::event::{AccessKind, AccessMode};
 use notify::{EventKind, RecursiveMode, Watcher as _};
-use rail_store::{WriterHandle, time};
+use rail_store::{ParserVersions, WriterHandle, time};
 
 use crate::error::{Error, Result};
-use crate::reader::{FileReader, FileRef, FileTrack, Polled, ReadConfig};
+use crate::reader::{FileReader, FileRef, FileTrack, ImportLimits, Polled, ReadConfig};
 use crate::scan;
+
+/// The most import threads [`default_workers`] picks.
+pub const MAX_DEFAULT_WORKERS: usize = 8;
+
+/// A run of a folder is a backfill worth showing from this many bytes to
+/// read: a hand being played is a few KB.
+pub const BACKFILL_MIN_BYTES: u64 = 1024 * 1024;
+
+/// How often the coordinator copies its state for [`Watcher::status`] and
+/// reports progress, at most.
+const PUBLISH_MS: i64 = 200;
+
+/// The default number of import threads: the machine's physical cores minus
+/// one (the poker client and the HUD keep a core), at least 1, at most
+/// [`MAX_DEFAULT_WORKERS`].
+pub fn default_workers() -> usize {
+    num_cpus::get_physical()
+        .saturating_sub(1)
+        .clamp(1, MAX_DEFAULT_WORKERS)
+}
 
 /// The service's settings.
 #[derive(Debug, Clone)]
 pub struct WatchConfig {
-    /// The reader's timing (quiet period, give-up time).
+    /// The reader's timing (quiet period, give-up time) and batch size.
     pub read: ReadConfig,
     /// Every folder is walked this often, notifications or not.
     pub rescan: Duration,
     /// A poll-only folder is walked this often.
     pub poll_interval: Duration,
-    /// Threads that read and convert.
+    /// Import threads: files read and converted in parallel, and the
+    /// batches of a large read (default [`default_workers`]).
     pub workers: usize,
     /// Mark a folder on a network volume poll-only when it is added.
     pub detect_network: bool,
@@ -87,7 +129,7 @@ impl Default for WatchConfig {
             read: ReadConfig::default(),
             rescan: Duration::from_secs(60),
             poll_interval: Duration::from_secs(3),
-            workers: 2,
+            workers: default_workers(),
             detect_network: true,
             file_globs: BTreeMap::new(),
         }
@@ -170,6 +212,24 @@ impl SourceState {
     }
 }
 
+/// A folder's backfill in progress: what it has to read and what is done
+/// (see "Backfill progress" in the module docs).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Backfill {
+    /// Bytes read and committed of `bytes_total`.
+    pub bytes_done: u64,
+    /// Bytes to read: each queued file's size minus its stored offset when
+    /// it was queued (a file that grows meanwhile adds its growth).
+    pub bytes_total: u64,
+    /// Files finished of `files_total`.
+    pub files_done: u32,
+    pub files_total: u32,
+    /// Hands stored by this run.
+    pub hands: u64,
+    /// When the run started, ms since the epoch.
+    pub started_at: i64,
+}
+
 /// One folder's status: the watcher's state and the store's counts.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SourceStatus {
@@ -191,7 +251,9 @@ pub struct SourceStatus {
     pub file_errors: u32,
     /// Files with new bytes that are not a complete hand yet.
     pub pending: u32,
-    /// From the store.
+    /// A backfill in progress (R1.6), when there is one worth showing.
+    pub backfill: Option<Backfill>,
+    /// From the store (rollups: constant cost, R1.6).
     pub files: i64,
     pub hands: i64,
     pub hands_today: i64,
@@ -205,13 +267,19 @@ pub struct SourceStatus {
 pub struct WatcherStatus {
     pub running: bool,
     pub paused: bool,
+    /// Import threads, and how many may run at once now.
+    pub threads: usize,
+    pub threads_allowed: usize,
+    /// Files waiting to be read, and being read now.
+    pub queued: usize,
+    pub reading: usize,
     pub sources: Vec<SourceStatus>,
 }
 
 /// What the watcher reports as it goes.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum WatchEvent {
-    /// A batch was committed.
+    /// A batch was committed (or the batches of a large read).
     Imported {
         source_id: Option<i64>,
         path: PathBuf,
@@ -226,6 +294,12 @@ pub enum WatchEvent {
         id: i64,
         state: SourceState,
         error: Option<String>,
+    },
+    /// A folder's backfill moved on (at most every 200 ms), or ended
+    /// (`None`).
+    Progress {
+        source_id: i64,
+        backfill: Option<Backfill>,
     },
     /// A file could not be read.
     FileError { path: PathBuf, error: String },
@@ -245,6 +319,9 @@ enum Command {
     Resume,
     /// Walk every folder now.
     Rescan,
+    /// These files (path, folder) were set back to offset 0 in the store:
+    /// read them again.
+    Reread(Vec<(PathBuf, i64)>),
     Stop,
 }
 
@@ -255,14 +332,14 @@ enum Msg {
     Cmd(Command),
 }
 
-/// A worker's answer.
+/// A read's answer.
 struct Done {
     path: PathBuf,
     track: FileTrack,
     result: Result<Polled>,
 }
 
-/// A worker's job.
+/// A read to do.
 struct Job {
     path: PathBuf,
     source_id: i64,
@@ -274,6 +351,8 @@ struct Job {
 #[derive(Debug, Default)]
 struct Shared {
     running: bool,
+    queued: usize,
+    reading: usize,
     sources: HashMap<i64, SourceShared>,
 }
 
@@ -284,6 +363,7 @@ struct SourceShared {
     file_errors: u32,
     pending: u32,
     poll_only: bool,
+    backfill: Option<Backfill>,
 }
 
 /// The running watcher. Dropping it stops it.
@@ -293,6 +373,8 @@ pub struct Watcher {
     reader: Arc<FileReader>,
     shared: Arc<Mutex<Shared>>,
     paused: Arc<AtomicBool>,
+    limits: Arc<ImportLimits>,
+    threads: usize,
     detect_network: bool,
     file_globs: BTreeMap<String, String>,
     thread: Option<JoinHandle<()>>,
@@ -302,6 +384,7 @@ impl std::fmt::Debug for Watcher {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Watcher")
             .field("paused", &self.is_paused())
+            .field("threads", &self.threads)
             .finish_non_exhaustive()
     }
 }
@@ -316,11 +399,11 @@ impl Watcher {
         config: WatchConfig,
         on_event: impl Fn(WatchEvent) + Send + Sync + 'static,
     ) -> Result<Self> {
-        let reader = Arc::new(FileReader::new(
-            store_path,
-            writer.clone(),
-            config.read.clone(),
-        )?);
+        let limits = Arc::new(ImportLimits::default());
+        let reader = Arc::new(
+            FileReader::new(store_path, writer.clone(), config.read.clone())?
+                .with_limits(Arc::clone(&limits)),
+        );
         let (inbox, messages) = mpsc::channel();
         let fs_inbox = inbox.clone();
         let notifier = notify::recommended_watcher(move |event| {
@@ -333,20 +416,15 @@ impl Watcher {
         let paused = Arc::new(AtomicBool::new(false));
         let on_event: OnEvent = Arc::new(on_event);
 
-        let workers = config.workers.max(1);
-        let (jobs, job_queue) = mpsc::sync_channel::<Job>(workers * 2);
-        let job_queue = Arc::new(Mutex::new(job_queue));
-        let mut worker_threads = Vec::new();
-        for n in 0..workers {
-            let job_queue = Arc::clone(&job_queue);
-            let reader = Arc::clone(&reader);
-            let inbox = inbox.clone();
-            let thread = thread::Builder::new()
-                .name(format!("rail-watch-worker-{n}"))
-                .spawn(move || work(&job_queue, &reader, &inbox))
-                .map_err(|error| Error::io("rail-watch-worker", error))?;
-            worker_threads.push(thread);
-        }
+        let threads = config.workers.max(1);
+        // A hook for later (docs/RAIL-PLAN.md R1.6): a lower OS priority for
+        // these threads while tables are played belongs in `start_handler`;
+        // fewer of them is `Watcher::set_import_threads`.
+        let pool = rayon::ThreadPoolBuilder::new()
+            .num_threads(threads)
+            .thread_name(|n| format!("rail-import-{n}"))
+            .build()
+            .map_err(|error| Error::io("rail-import", std::io::Error::other(error)))?;
 
         let detect_network = config.detect_network;
         let file_globs = config.file_globs.clone();
@@ -356,15 +434,22 @@ impl Watcher {
             writer: writer.clone(),
             notifier,
             messages,
-            jobs: Some(jobs),
-            workers: worker_threads,
+            inbox: inbox.clone(),
+            pool: Some(pool),
+            threads,
+            limits: Arc::clone(&limits),
             shared: Arc::clone(&shared),
             paused: Arc::clone(&paused),
             on_event,
             sources: HashMap::new(),
             files: HashMap::new(),
             in_flight: HashSet::new(),
-            dirty: HashSet::new(),
+            queue: VecDeque::new(),
+            queued: HashSet::new(),
+            again: HashMap::new(),
+            rechecks: BTreeSet::new(),
+            last_publish: 0,
+            publish_now: true,
         };
         let thread = thread::Builder::new()
             .name("rail-watch".to_owned())
@@ -376,6 +461,8 @@ impl Watcher {
             reader,
             shared,
             paused,
+            limits,
+            threads,
             detect_network,
             file_globs,
             thread: Some(thread),
@@ -391,17 +478,30 @@ impl Watcher {
     }
 
     /// Stop reading new bytes; notifications are still noted, and resuming
-    /// reads everything that changed meanwhile.
+    /// reads everything that changed meanwhile. A large read stops after
+    /// the batches it is committing.
     pub fn pause(&self) -> Result<()> {
+        self.limits.interrupt(true);
         self.send(Command::Pause)
     }
 
     pub fn resume(&self) -> Result<()> {
+        self.limits.interrupt(false);
         self.send(Command::Resume)
     }
 
     pub fn is_paused(&self) -> bool {
         self.paused.load(Ordering::SeqCst)
+    }
+
+    /// Use at most `threads` import threads at once (`None`: all of
+    /// [`WatchConfig::workers`]) - the hook for importing more gently while
+    /// tables are played (Phase 3 knows when; nothing calls it yet). Takes
+    /// effect for the next files and the next group of a large read.
+    pub fn set_import_threads(&self, threads: Option<usize>) {
+        self.limits.set_threads(threads.unwrap_or(0));
+        // Wake the coordinator so it dispatches up to the new limit.
+        let _ = self.send(Command::Rescan);
     }
 
     /// Walk every folder now.
@@ -540,6 +640,42 @@ impl Watcher {
         Ok(change)
     }
 
+    /// The parsers of this build with their versions, as the store compares
+    /// them with a refusal's.
+    pub fn parser_versions() -> ParserVersions {
+        ParserVersions::new(
+            rail_core::parsers::builtin()
+                .parsers()
+                .map(|parser| (parser.id(), parser.version())),
+        )
+    }
+
+    /// "Try again after an update" (R1.6): the files of folder `source_id`
+    /// (or of every folder) holding refused hands that an older version of
+    /// their parser refused go back to offset 0 without those refusals
+    /// ([`WriterHandle::reset_stale_refusals`]) and are read again now with
+    /// this build's parsers; hands stay and dedupe. Returns how many files
+    /// are read again.
+    pub fn retry_refused(&self, source_id: Option<i64>) -> Result<u32> {
+        let reset = self
+            .writer
+            .reset_stale_refusals(&Self::parser_versions(), source_id)?;
+        let count = u32::try_from(reset.len()).unwrap_or(u32::MAX);
+        log::info!(
+            "{count} files with refusals by an older parser version to read again{}",
+            source_id.map_or_else(String::new, |id| format!(" (folder {id})"))
+        );
+        if !reset.is_empty() {
+            self.send(Command::Reread(
+                reset
+                    .into_iter()
+                    .map(|file| (PathBuf::from(file.path), file.source_id))
+                    .collect(),
+            ))?;
+        }
+        Ok(count)
+    }
+
     /// Give a folder a new path, keeping its settings (Settings → Folders,
     /// R1.5).
     ///
@@ -604,7 +740,8 @@ impl Watcher {
         Ok(SourceMoved { change, marked })
     }
 
-    /// Every folder with its state and counts.
+    /// Every folder with its state, counts and backfill progress. Cheap at
+    /// any store size: the counts are the store's rollups (R1.6).
     pub fn status(&self) -> Result<WatcherStatus> {
         let rows = self.reader.store_reader().sources()?;
         let shared = self.shared.lock().unwrap_or_else(PoisonError::into_inner);
@@ -629,6 +766,7 @@ impl Watcher {
                     error: live.error,
                     file_errors: live.file_errors,
                     pending: live.pending,
+                    backfill: live.backfill,
                     files: row.files,
                     hands: row.hands,
                     hands_today: row.hands_today,
@@ -640,6 +778,10 @@ impl Watcher {
         Ok(WatcherStatus {
             running: shared.running,
             paused: self.is_paused(),
+            threads: self.threads,
+            threads_allowed: self.limits.cap(self.threads),
+            queued: shared.queued,
+            reading: shared.reading,
             sources,
         })
     }
@@ -650,6 +792,7 @@ impl Watcher {
     }
 
     fn shutdown(&mut self) {
+        self.limits.interrupt(true);
         let _ = self.send(Command::Stop);
         if let Some(thread) = self.thread.take() {
             let _ = thread.join();
@@ -663,30 +806,20 @@ impl Drop for Watcher {
     }
 }
 
-fn work(queue: &Mutex<Receiver<Job>>, reader: &FileReader, inbox: &Sender<Msg>) {
-    loop {
-        let job = {
-            let queue = queue.lock().unwrap_or_else(PoisonError::into_inner);
-            queue.recv()
-        };
-        let Ok(mut job) = job else {
-            return; // the coordinator closed the queue
-        };
-        let file = FileRef {
-            path: &job.path,
-            source_id: Some(job.source_id),
-            site_override: job.site_override.as_deref(),
-        };
-        let result = reader.poll(&file, &mut job.track, time::now_ms());
-        let done = Done {
-            path: job.path,
-            track: job.track,
-            result,
-        };
-        if inbox.send(Msg::Done(Box::new(done))).is_err() {
-            return;
-        }
-    }
+/// One read, on an import thread.
+fn run_job(mut job: Job, reader: &FileReader, inbox: &Sender<Msg>) {
+    let file = FileRef {
+        path: &job.path,
+        source_id: Some(job.source_id),
+        site_override: job.site_override.as_deref(),
+    };
+    let result = reader.poll(&file, &mut job.track, time::now_ms());
+    let done = Done {
+        path: job.path,
+        track: job.track,
+        result,
+    };
+    let _ = inbox.send(Msg::Done(Box::new(done)));
 }
 
 /// A folder as the coordinator runs it.
@@ -708,19 +841,64 @@ struct SourceRt {
     /// Registered with the OS notifier.
     watched: bool,
     next_scan: i64,
+    /// The backfill run in progress.
+    run: Option<Run>,
+}
+
+/// A folder's run: see "Backfill progress".
+#[derive(Debug, Clone, Copy)]
+struct Run {
+    progress: Backfill,
+    /// Big enough to report (it stays reported until it ends).
+    shown: bool,
+    /// Changed since it was last reported.
+    changed: bool,
+}
+
+/// A file's part in its folder's run.
+#[derive(Debug, Clone, Copy)]
+struct FileRun {
+    /// The stored offset when it joined.
+    start: u64,
+    /// Its size then (or later, when it grew).
+    target: u64,
+    /// Bytes of `start..target` counted as done.
+    credited: u64,
 }
 
 /// A file as the coordinator knows it.
 #[derive(Debug)]
 struct FileRt {
     source_id: i64,
-    /// `None` while a worker has it.
+    /// `None` while a read has it.
     track: Option<FileTrack>,
     /// Size and mtime at the last walk.
     walked: Option<(u64, Option<i64>)>,
     recheck_at: Option<i64>,
     error: bool,
     pending: bool,
+    /// The stored offset as last known (a walk's query, a commit).
+    offset: Option<u64>,
+    /// In its folder's run.
+    run: Option<FileRun>,
+    /// Set back in the store while a read had it: start afresh after.
+    reset: bool,
+}
+
+impl FileRt {
+    fn new(source_id: i64) -> Self {
+        Self {
+            source_id,
+            track: Some(FileTrack::default()),
+            walked: None,
+            recheck_at: None,
+            error: false,
+            pending: false,
+            offset: None,
+            run: None,
+            reset: false,
+        }
+    }
 }
 
 struct Coordinator {
@@ -729,15 +907,28 @@ struct Coordinator {
     writer: WriterHandle,
     notifier: notify::RecommendedWatcher,
     messages: Receiver<Msg>,
-    jobs: Option<SyncSender<Job>>,
-    workers: Vec<JoinHandle<()>>,
+    /// For the import threads' answers.
+    inbox: Sender<Msg>,
+    pool: Option<rayon::ThreadPool>,
+    threads: usize,
+    limits: Arc<ImportLimits>,
     shared: Arc<Mutex<Shared>>,
     paused: Arc<AtomicBool>,
     on_event: OnEvent,
     sources: HashMap<i64, SourceRt>,
     files: HashMap<PathBuf, FileRt>,
     in_flight: HashSet<PathBuf>,
-    dirty: HashSet<PathBuf>,
+    /// Files to read, in order (see "Which file goes first"), and the same
+    /// set for lookups.
+    queue: VecDeque<PathBuf>,
+    queued: HashSet<PathBuf>,
+    /// Files that changed while a read had them: queued again when it
+    /// answers (`true`: at the front).
+    again: HashMap<PathBuf, bool>,
+    /// Recheck times, earliest first.
+    rechecks: BTreeSet<(i64, PathBuf)>,
+    last_publish: i64,
+    publish_now: bool,
 }
 
 /// A folder is walked again this long after its OS watch was set.
@@ -781,17 +972,20 @@ impl Coordinator {
         self.finish();
     }
 
-    /// Close the job queue, let the workers finish their reads, and end.
+    /// Let the reads in flight finish (large ones stop early: the handle
+    /// set the interrupt), then end the import threads.
     fn finish(&mut self) {
-        self.jobs = None;
-        // Workers answer into the inbox while finishing; keep draining it so
-        // none blocks.
-        for worker in std::mem::take(&mut self.workers) {
-            while !worker.is_finished() {
-                let _ = self.messages.recv_timeout(Duration::from_millis(10));
+        while !self.in_flight.is_empty() {
+            match self.messages.recv_timeout(Duration::from_millis(50)) {
+                Ok(Msg::Done(done)) => {
+                    self.in_flight.remove(&done.path);
+                }
+                Ok(_) | Err(RecvTimeoutError::Timeout) => {}
+                Err(RecvTimeoutError::Disconnected) => break,
             }
-            let _ = worker.join();
         }
+        // Dropping the pool ends its threads (nothing is queued in it).
+        self.pool = None;
         let mut shared = self.shared.lock().unwrap_or_else(PoisonError::into_inner);
         shared.running = false;
     }
@@ -805,8 +999,8 @@ impl Coordinator {
             .values()
             .filter(|source| source.enabled)
             .map(|source| source.next_scan);
-        let rechecks = self.files.values().filter_map(|file| file.recheck_at);
-        scans.chain(rechecks).min().map(|at| at.max(now))
+        let recheck = self.rechecks.first().map(|(at, _)| *at);
+        scans.chain(recheck).min().map(|at| at.max(now))
     }
 
     fn emit(&self, event: WatchEvent) {
@@ -825,30 +1019,36 @@ impl Coordinator {
                 }
             }
             Msg::Done(done) => self.on_done(*done),
-            Msg::Cmd(Command::Reload) => self.reload(),
-            Msg::Cmd(Command::Pause) => {
-                if !self.paused.swap(true, Ordering::SeqCst) {
-                    log::info!("import paused");
-                    self.emit(WatchEvent::Paused(true));
-                }
-            }
-            Msg::Cmd(Command::Resume) => {
-                if self.paused.swap(false, Ordering::SeqCst) {
-                    log::info!("import resumed");
-                    let now = time::now_ms();
-                    for source in self.sources.values_mut() {
-                        source.next_scan = now;
+            Msg::Cmd(command) => {
+                self.publish_now = true;
+                match command {
+                    Command::Reload => self.reload(),
+                    Command::Pause => {
+                        if !self.paused.swap(true, Ordering::SeqCst) {
+                            log::info!("import paused");
+                            self.emit(WatchEvent::Paused(true));
+                        }
                     }
-                    self.emit(WatchEvent::Paused(false));
+                    Command::Resume => {
+                        if self.paused.swap(false, Ordering::SeqCst) {
+                            log::info!("import resumed");
+                            let now = time::now_ms();
+                            for source in self.sources.values_mut() {
+                                source.next_scan = now;
+                            }
+                            self.emit(WatchEvent::Paused(false));
+                        }
+                    }
+                    Command::Rescan => {
+                        let now = time::now_ms();
+                        for source in self.sources.values_mut() {
+                            source.next_scan = now;
+                        }
+                    }
+                    Command::Reread(files) => self.reread(files),
+                    Command::Stop => {}
                 }
             }
-            Msg::Cmd(Command::Rescan) => {
-                let now = time::now_ms();
-                for source in self.sources.values_mut() {
-                    source.next_scan = now;
-                }
-            }
-            Msg::Cmd(Command::Stop) => {}
         }
     }
 
@@ -873,7 +1073,7 @@ impl Coordinator {
         for id in gone {
             if let Some(source) = self.sources.remove(&id) {
                 self.unwatch(&source.path, source.watched);
-                self.files.retain(|_, file| file.source_id != id);
+                self.drop_files_of(id);
                 log::info!("stopped watching {}", source.path.display());
             }
         }
@@ -901,6 +1101,7 @@ impl Coordinator {
             if !changed {
                 continue;
             }
+            let mut run = None;
             if let Some(old) = self.sources.remove(&row.id) {
                 self.unwatch(&old.path, old.watched);
                 if reads_differently(&old) {
@@ -908,7 +1109,9 @@ impl Coordinator {
                     // path, the subfolders, the room): forget what is
                     // tracked and start from the next walk, from the
                     // offsets in the store.
-                    self.files.retain(|_, file| file.source_id != row.id);
+                    self.drop_files_of(row.id);
+                } else {
+                    run = old.run;
                 }
             }
             let mut source = SourceRt {
@@ -924,6 +1127,7 @@ impl Coordinator {
                 error: None,
                 watched: false,
                 next_scan: now,
+                run,
             };
             if source.enabled {
                 log::info!(
@@ -937,10 +1141,36 @@ impl Coordinator {
                     if source.poll_only { ", poll only" } else { "" }
                 );
             } else {
-                self.files.retain(|_, file| file.source_id != row.id);
+                self.drop_files_of(row.id);
+                source.run = None;
                 self.set_state(&mut source, SourceState::Disabled, None);
             }
             self.sources.insert(row.id, source);
+        }
+    }
+
+    /// Forget every tracked file of a folder (those a read has now are
+    /// forgotten when it answers).
+    fn drop_files_of(&mut self, id: i64) {
+        let paths: Vec<PathBuf> = self
+            .files
+            .iter()
+            .filter(|(_, file)| file.source_id == id)
+            .map(|(path, _)| path.clone())
+            .collect();
+        for path in paths {
+            if let Some(file) = self.files.remove(&path)
+                && let Some(at) = file.recheck_at
+            {
+                self.rechecks.remove(&(at, path.clone()));
+            }
+            self.queued.remove(&path);
+            self.again.remove(&path);
+        }
+        // The queue is cleaned lazily: `dispatch` skips paths not in
+        // `queued`.
+        if let Some(source) = self.sources.get_mut(&id) {
+            source.run = None;
         }
     }
 
@@ -1058,20 +1288,37 @@ impl Coordinator {
             .map(|(path, error)| format!("{}: {error}", path.display()));
         self.set_state(source, state, error);
 
+        // The store's offsets, once per walk and only when a changed file's
+        // is not known yet (the first walk, new files): a backfill's size.
+        let mut offsets: Option<HashMap<String, u64>> = None;
         let mut present = HashSet::new();
         for (path, size, mtime) in walk.files {
             present.insert(path.clone());
-            let file = self.files.entry(path.clone()).or_insert_with(|| FileRt {
-                source_id: source.id,
-                track: Some(FileTrack::default()),
-                walked: None,
-                recheck_at: None,
-                error: false,
-                pending: false,
-            });
+            let file = self
+                .files
+                .entry(path.clone())
+                .or_insert_with(|| FileRt::new(source.id));
             if file.walked != Some((size, mtime)) || file.error {
                 file.walked = Some((size, mtime));
-                self.dirty.insert(path);
+                if file.offset.is_none() {
+                    let known = offsets.get_or_insert_with(|| {
+                        self.reader
+                            .store_reader()
+                            .source_offsets(source.id)
+                            .unwrap_or_default()
+                            .into_iter()
+                            .map(|(path, offset)| (path, u64::try_from(offset).unwrap_or(0)))
+                            .collect()
+                    });
+                    file.offset = Some(
+                        known
+                            .get(&rail_store::import::path_key(&path))
+                            .copied()
+                            .unwrap_or(0),
+                    );
+                }
+                Self::join_run(source, file, size, now);
+                self.enqueue(path, false);
             }
         }
         // Files of this folder the walk did not find: let a read confirm it.
@@ -1081,7 +1328,71 @@ impl Coordinator {
             .filter(|(path, file)| file.source_id == source.id && !present.contains(*path))
             .map(|(path, _)| path.clone())
             .collect();
-        self.dirty.extend(missing);
+        for path in missing {
+            self.enqueue(path, false);
+        }
+    }
+
+    /// A file of `source` with `size` bytes is about to be read: it joins
+    /// the folder's run with what it has to read, or extends its part.
+    fn join_run(source: &mut SourceRt, file: &mut FileRt, size: u64, now: i64) {
+        let offset = file.offset.unwrap_or(0);
+        // A file smaller than its offset was truncated: read from 0.
+        let start = if size < offset { 0 } else { offset };
+        if let Some(part) = &mut file.run {
+            if size > part.target
+                && let Some(run) = &mut source.run
+            {
+                run.progress.bytes_total += size - part.target;
+                run.changed = true;
+                part.target = size;
+            }
+            return;
+        }
+        if size <= start {
+            return;
+        }
+        let run = source.run.get_or_insert_with(|| Run {
+            progress: Backfill {
+                started_at: now,
+                ..Backfill::default()
+            },
+            shown: false,
+            changed: true,
+        });
+        run.progress.files_total += 1;
+        run.progress.bytes_total += size - start;
+        run.shown |= run.progress.bytes_total >= BACKFILL_MIN_BYTES;
+        run.changed = true;
+        file.run = Some(FileRun {
+            start,
+            target: size,
+            credited: 0,
+        });
+    }
+
+    /// Queue a file to be read: at the front (a notification, a recheck)
+    /// or the back (a walk). One that a read has now is queued again when
+    /// the read answers.
+    fn enqueue(&mut self, path: PathBuf, front: bool) {
+        if self.in_flight.contains(&path) {
+            let urgent = self.again.entry(path).or_insert(false);
+            *urgent |= front;
+            return;
+        }
+        if self.queued.contains(&path) {
+            if front {
+                // Move it up: the stale entry further back is skipped.
+                self.queue.push_front(path);
+            }
+            return;
+        }
+        self.queued.insert(path.clone());
+        if front {
+            self.queue.push_front(path);
+        } else {
+            self.queue.push_back(path);
+        }
     }
 
     /// The enabled folder a path belongs to (the deepest one), with the
@@ -1102,6 +1413,18 @@ impl Coordinator {
     }
 
     fn on_fs_event(&mut self, event: &notify::Event) {
+        // A file opened or read has no new bytes; only a close after writing
+        // may mean new ones. inotify reports every open and every read-only
+        // close - the watcher's own reads among them - and acting on those
+        // made a feedback loop on Linux (R1.6): each look at a file opened
+        // it, the open woke the watcher for the same file at the front of
+        // the queue, and two such files held the import threads forever
+        // while the rest of a backfill waited.
+        if let EventKind::Access(kind) = event.kind
+            && kind != AccessKind::Close(AccessMode::Write)
+        {
+            return;
+        }
         if event.need_rescan() {
             let now = time::now_ms();
             for source in self.sources.values_mut() {
@@ -1123,56 +1446,114 @@ impl Coordinator {
                 // A new subfolder: its files may predate the OS watch on it.
                 if recursive && let Ok(walk) = scan::walk_matching(path, true, glob.as_deref()) {
                     for (file, _, _) in walk.files {
-                        self.mark(file, source_id);
+                        self.mark(file, source_id, false);
                     }
                 }
                 continue;
             }
             if scan::is_candidate_for(path, glob.as_deref()) || self.files.contains_key(path) {
-                self.mark(path.clone(), source_id);
+                self.mark(path.clone(), source_id, true);
             }
         }
     }
 
-    fn mark(&mut self, path: PathBuf, source_id: i64) {
-        self.files.entry(path.clone()).or_insert_with(|| FileRt {
-            source_id,
-            track: Some(FileTrack::default()),
-            walked: None,
-            recheck_at: None,
-            error: false,
-            pending: false,
-        });
-        self.dirty.insert(path);
+    /// A file changed (a notification; `front`) or appeared in a new
+    /// subfolder: track it, count it in its folder's run, queue it.
+    fn mark(&mut self, path: PathBuf, source_id: i64, front: bool) {
+        let file = self
+            .files
+            .entry(path.clone())
+            .or_insert_with(|| FileRt::new(source_id));
+        if let Some(source) = self.sources.get_mut(&file.source_id)
+            && let Ok(metadata) = std::fs::metadata(&path)
+        {
+            if file.offset.is_none() {
+                file.offset = Some(0);
+            }
+            Self::join_run(source, file, metadata.len(), time::now_ms());
+        }
+        self.enqueue(path, front);
+    }
+
+    /// Files the store set back to offset 0 ("try again after an update"):
+    /// read them again from their start.
+    fn reread(&mut self, files: Vec<(PathBuf, i64)>) {
+        let now = time::now_ms();
+        for (path, source_id) in files {
+            if !self
+                .sources
+                .get(&source_id)
+                .is_some_and(|source| source.enabled)
+            {
+                continue; // read when the folder is next enabled and walked
+            }
+            let file = self
+                .files
+                .entry(path.clone())
+                .or_insert_with(|| FileRt::new(source_id));
+            file.offset = Some(0);
+            file.walked = None;
+            match &mut file.track {
+                Some(track) => *track = FileTrack::default(),
+                None => file.reset = true,
+            }
+            if let (Some(source), Ok(metadata)) =
+                (self.sources.get_mut(&source_id), std::fs::metadata(&path))
+            {
+                Self::join_run(source, file, metadata.len(), now);
+            }
+            self.enqueue(path, false);
+        }
+    }
+
+    fn set_recheck(&mut self, path: &Path, at: Option<i64>) {
+        let Some(file) = self.files.get_mut(path) else {
+            return;
+        };
+        if file.recheck_at == at {
+            return;
+        }
+        if let Some(old) = file.recheck_at {
+            self.rechecks.remove(&(old, path.to_path_buf()));
+        }
+        file.recheck_at = at;
+        if let Some(at) = at {
+            self.rechecks.insert((at, path.to_path_buf()));
+        }
     }
 
     fn recheck_due(&mut self, now: i64) {
-        for (path, file) in &mut self.files {
-            if file.recheck_at.is_some_and(|at| at <= now) {
-                file.recheck_at = None;
-                self.dirty.insert(path.clone());
-            }
+        while let Some((at, _)) = self.rechecks.first()
+            && *at <= now
+        {
+            let Some((_, path)) = self.rechecks.pop_first() else {
+                break;
+            };
+            let Some(file) = self.files.get_mut(&path) else {
+                continue;
+            };
+            file.recheck_at = None;
+            self.enqueue(path, true);
         }
     }
 
-    /// Hand dirty files to free workers; what does not fit stays dirty.
+    /// Start reads of queued files, as many as may run at once.
     fn dispatch(&mut self) {
-        let Some(jobs) = self.jobs.clone() else {
+        let Some(pool) = &self.pool else {
             return;
         };
-        let ready: Vec<PathBuf> = self
-            .dirty
-            .iter()
-            .filter(|path| !self.in_flight.contains(*path))
-            .cloned()
-            .collect();
-        for path in ready {
+        let cap = self.limits.cap(self.threads);
+        while self.in_flight.len() < cap {
+            let Some(path) = self.queue.pop_front() else {
+                break;
+            };
+            if !self.queued.remove(&path) {
+                continue; // a stale entry: moved up, or its folder dropped
+            }
             let Some(file) = self.files.get_mut(&path) else {
-                self.dirty.remove(&path);
                 continue;
             };
             let Some(source) = self.sources.get(&file.source_id).filter(|s| s.enabled) else {
-                self.dirty.remove(&path);
                 continue;
             };
             let Some(track) = file.track.take() else {
@@ -1184,16 +1565,9 @@ impl Coordinator {
                 site_override: source.site_override.clone(),
                 track,
             };
-            match jobs.try_send(job) {
-                Ok(()) => {
-                    self.dirty.remove(&path);
-                    self.in_flight.insert(path);
-                }
-                Err(TrySendError::Full(job) | TrySendError::Disconnected(job)) => {
-                    file.track = Some(job.track);
-                    break;
-                }
-            }
+            self.in_flight.insert(path);
+            let (reader, inbox) = (Arc::clone(&self.reader), self.inbox.clone());
+            pool.spawn(move || run_job(job, &reader, &inbox));
         }
     }
 
@@ -1204,37 +1578,49 @@ impl Coordinator {
             result,
         } = done;
         self.in_flight.remove(&path);
+        let again = self.again.remove(&path);
         let Some(file) = self.files.get_mut(&path) else {
             return; // its folder was removed meanwhile
         };
-        file.track = Some(track);
+        file.track = Some(if std::mem::take(&mut file.reset) {
+            FileTrack::default()
+        } else {
+            track
+        });
         let source_id = file.source_id;
         if matches!(result, Ok(Polled::Gone)) {
+            self.finish_part(&path);
             self.on_gone(&path, source_id);
             return;
         }
-        let Some(file) = self.files.get_mut(&path) else {
-            return;
-        };
+        let mut recheck = None;
+        let mut inserted = 0;
+        let mut committed_to = None;
+        let mut more = false;
         match result {
             Ok(Polled::Gone) => {}
             Ok(polled) => {
-                file.error = false;
-                file.recheck_at = polled.recheck_at();
-                file.pending = matches!(
-                    polled,
-                    Polled::Waiting {
-                        recheck_at: Some(_)
-                    }
-                ) || matches!(
-                    polled,
-                    Polled::Committed {
-                        recheck_at: Some(_),
-                        ..
-                    }
-                );
+                recheck = polled.recheck_at();
+                if let Some(file) = self.files.get_mut(&path) {
+                    file.error = false;
+                    file.pending = matches!(
+                        polled,
+                        Polled::Waiting {
+                            recheck_at: Some(_)
+                        }
+                    ) || matches!(
+                        polled,
+                        Polled::Committed {
+                            recheck_at: Some(_),
+                            ..
+                        }
+                    );
+                }
                 if let Polled::Committed {
-                    outcome, from, to, ..
+                    outcome,
+                    from,
+                    to,
+                    recheck_at,
                 } = polled
                 {
                     log::debug!(
@@ -1244,9 +1630,12 @@ impl Coordinator {
                         outcome.duplicates,
                         outcome.quarantined
                     );
+                    inserted = outcome.inserted;
+                    committed_to = Some(to);
+                    more = recheck_at.is_some();
                     self.emit(WatchEvent::Imported {
                         source_id: Some(source_id),
-                        path,
+                        path: path.clone(),
                         inserted: outcome.inserted,
                         duplicates: outcome.duplicates,
                         quarantined: outcome.quarantined,
@@ -1259,13 +1648,89 @@ impl Coordinator {
                 // Permissions, I/O, the store: noted, tried again at the next
                 // rescan (not at once: no spinning on a file that cannot be
                 // read).
-                file.error = true;
-                file.recheck_at = None;
+                if let Some(file) = self.files.get_mut(&path) {
+                    file.error = true;
+                }
                 log::warn!("{}: {error}", path.display());
                 self.emit(WatchEvent::FileError {
-                    path,
+                    path: path.clone(),
                     error: error.to_string(),
                 });
+            }
+        }
+        self.set_recheck(&path, recheck);
+        if let Some(to) = committed_to {
+            self.credit(&path, to, inserted);
+        }
+        if !more {
+            self.finish_part(&path);
+        }
+        if let Some(front) = again {
+            self.enqueue(path, front);
+        }
+    }
+
+    /// A commit up to `to` of a file in a run: count its bytes and hands.
+    fn credit(&mut self, path: &Path, to: u64, inserted: u32) {
+        let Some(file) = self.files.get_mut(path) else {
+            return;
+        };
+        file.offset = Some(to);
+        let Some(source) = self.sources.get_mut(&file.source_id) else {
+            return;
+        };
+        let Some(run) = &mut source.run else {
+            return;
+        };
+        run.progress.hands += u64::from(inserted);
+        run.changed = true;
+        if let Some(part) = &mut file.run {
+            let credited = to
+                .saturating_sub(part.start)
+                .min(part.target.saturating_sub(part.start));
+            if credited > part.credited {
+                run.progress.bytes_done += credited - part.credited;
+                part.credited = credited;
+            }
+        }
+    }
+
+    /// A file has nothing more to read for now: its part of the run is
+    /// done; the run ends with its last file.
+    fn finish_part(&mut self, path: &Path) {
+        let Some(file) = self.files.get_mut(path) else {
+            return;
+        };
+        let Some(part) = file.run.take() else {
+            return;
+        };
+        let Some(source) = self.sources.get_mut(&file.source_id) else {
+            return;
+        };
+        let Some(run) = &mut source.run else {
+            return;
+        };
+        let size = part.target.saturating_sub(part.start);
+        run.progress.bytes_done += size.saturating_sub(part.credited);
+        run.progress.files_done += 1;
+        run.changed = true;
+        if run.progress.files_done >= run.progress.files_total {
+            let ended = *run;
+            source.run = None;
+            if ended.shown {
+                log::info!(
+                    "{}: backfill done, {} files, {} hands in {} ms",
+                    source.path.display(),
+                    ended.progress.files_total,
+                    ended.progress.hands,
+                    time::now_ms() - ended.progress.started_at
+                );
+                let id = source.id;
+                self.emit(WatchEvent::Progress {
+                    source_id: id,
+                    backfill: None,
+                });
+                self.publish_now = true;
             }
         }
     }
@@ -1280,15 +1745,15 @@ impl Coordinator {
             .get(&source_id)
             .is_some_and(|source| source.path.is_dir());
         if !root_there {
-            if let Some(file) = self.files.get_mut(path) {
-                file.recheck_at = None;
-            }
+            self.set_recheck(path, None);
             if let Some(source) = self.sources.get_mut(&source_id) {
                 source.next_scan = time::now_ms();
             }
             return;
         }
+        self.set_recheck(path, None);
         if let Some(mut file) = self.files.remove(path) {
+            self.queued.remove(path);
             let mut track = file.track.take().unwrap_or_default();
             let file_ref = FileRef {
                 path,
@@ -1302,31 +1767,61 @@ impl Coordinator {
         }
     }
 
-    /// Copy what `status` reads into the shared state.
-    fn publish(&self) {
+    /// Copy what `status` reads into the shared state, and report the runs
+    /// that moved on - at most every [`PUBLISH_MS`], or at once after a
+    /// command.
+    fn publish(&mut self) {
+        let now = time::now_ms();
+        if !self.publish_now && now - self.last_publish < PUBLISH_MS {
+            return;
+        }
+        self.publish_now = false;
+        self.last_publish = now;
         let mut counts: HashMap<i64, (u32, u32)> = HashMap::new();
         for file in self.files.values() {
             let entry = counts.entry(file.source_id).or_default();
             entry.0 += u32::from(file.error);
             entry.1 += u32::from(file.pending);
         }
-        let mut shared = self.shared.lock().unwrap_or_else(PoisonError::into_inner);
-        shared.sources = self
-            .sources
-            .values()
-            .map(|source| {
-                let (file_errors, pending) = counts.get(&source.id).copied().unwrap_or_default();
-                (
-                    source.id,
-                    SourceShared {
-                        state: source.state,
-                        error: source.error.clone(),
-                        file_errors,
-                        pending,
-                        poll_only: source.poll_only,
-                    },
-                )
-            })
-            .collect();
+        let mut progress = Vec::new();
+        for source in self.sources.values_mut() {
+            if let Some(run) = &mut source.run
+                && run.shown
+                && run.changed
+            {
+                run.changed = false;
+                progress.push((source.id, run.progress));
+            }
+        }
+        {
+            let mut shared = self.shared.lock().unwrap_or_else(PoisonError::into_inner);
+            shared.queued = self.queued.len();
+            shared.reading = self.in_flight.len();
+            shared.sources = self
+                .sources
+                .values()
+                .map(|source| {
+                    let (file_errors, pending) =
+                        counts.get(&source.id).copied().unwrap_or_default();
+                    (
+                        source.id,
+                        SourceShared {
+                            state: source.state,
+                            error: source.error.clone(),
+                            file_errors,
+                            pending,
+                            poll_only: source.poll_only,
+                            backfill: source.run.filter(|run| run.shown).map(|run| run.progress),
+                        },
+                    )
+                })
+                .collect();
+        }
+        for (source_id, backfill) in progress {
+            self.emit(WatchEvent::Progress {
+                source_id,
+                backfill: Some(backfill),
+            });
+        }
     }
 }

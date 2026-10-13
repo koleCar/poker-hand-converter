@@ -449,6 +449,41 @@ pub fn byte_offset_of(
     Ok(raw)
 }
 
+/// [`byte_offset_of`] for several positions (ascending) in one pass over
+/// the bytes: a large read split into many batches (R1.6) needs the byte
+/// offset of every batch boundary, and one pass per boundary would be
+/// quadratic in the file's size.
+pub fn byte_offsets_of(
+    codec: Codec,
+    bytes: &[u8],
+    at_start: bool,
+    positions: &[usize],
+) -> Result<Vec<usize>, Invalid> {
+    debug_assert!(positions.is_sorted(), "positions ascend");
+    let mut found = Vec::with_capacity(positions.len());
+    let mut out = 0;
+    let mut raw = 0;
+    for_each_output(codec, bytes, at_start, false, |ch, len| match ch {
+        Some(ch) => {
+            while found.len() < positions.len() && out >= positions[found.len()] {
+                found.push(raw);
+            }
+            if found.len() == positions.len() {
+                return ControlFlow::Break(());
+            }
+            out += ch.len_utf8();
+            raw += len;
+            ControlFlow::Continue(())
+        }
+        None => {
+            raw += len;
+            ControlFlow::Continue(())
+        }
+    })?;
+    found.resize(positions.len(), raw);
+    Ok(found)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -651,5 +686,42 @@ mod tests {
         assert_eq!(at(2), 8);
         assert_eq!(at(4), 14);
         assert_eq!(at(5), bytes.len());
+    }
+
+    /// One pass for many positions gives what one pass per position does.
+    #[test]
+    fn many_offsets_in_one_pass() {
+        let text = "\u{feff}H\u{e9}llo\r\nw\u{f6}rld\r\n\r\nzz\u{1f600}\r\n";
+        let cases: Vec<(Codec, Vec<u8>)> = vec![
+            (
+                Codec::Utf8 {
+                    bom: true,
+                    lossy: false,
+                },
+                text.as_bytes().to_vec(),
+            ),
+            (
+                Codec::Utf16 {
+                    little_endian: true,
+                    bom: true,
+                },
+                utf16le(text.trim_start_matches('\u{feff}'), true),
+            ),
+        ];
+        for (codec, bytes) in cases {
+            let piece = decode_piece(codec, &bytes, true, false).expect("piece");
+            let positions: Vec<usize> = (0..=piece.text.len() + 2)
+                .filter(|&p| p > piece.text.len() || piece.text.is_char_boundary(p))
+                .collect();
+            let one_by_one: Vec<usize> = positions
+                .iter()
+                .map(|&p| byte_offset_of(codec, &bytes, true, p).expect("offset"))
+                .collect();
+            assert_eq!(
+                byte_offsets_of(codec, &bytes, true, &positions).expect("offsets"),
+                one_by_one,
+                "{codec:?}"
+            );
+        }
     }
 }

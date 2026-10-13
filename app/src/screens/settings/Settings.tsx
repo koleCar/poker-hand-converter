@@ -6,6 +6,7 @@ import { inApp } from "../../lib/ipc";
 import { About } from "./About";
 import { Folders } from "./Folders";
 import { Preferences } from "./Preferences";
+import { RefusedAll } from "./RefusedAll";
 import styles from "./Settings.module.css";
 
 // Debug builds only: in a production bundle `import.meta.env.DEV` is `false`
@@ -20,6 +21,7 @@ export function Settings() {
       {inApp ? (
         <div className={styles.sections}>
           <Folders />
+          <RefusedAll />
           <Preferences />
           <About />
           {DevConvert && (

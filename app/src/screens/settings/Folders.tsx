@@ -3,22 +3,21 @@
  * folders with their status, and adding (the system picker: local, external
  * and network drives), changing a folder's path or room, switching it on or
  * off, recursive, poll only, removing it (its hands stay), and finding the
- * rooms' folders again. The list is `watcher_status`, refreshed every few
- * seconds; every change goes through the commands in `folder_settings.rs`.
+ * rooms' folders again. The list is `watcher_status`, refreshed when the
+ * app reports a change (`useWatcherStatus`: imports, backfill progress -
+ * R1.6); every change goes through the commands in `folder_settings.rs`.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Dialog } from "../../components/Dialog";
 import { FoundFolderTable, type FoundRow } from "../../components/FoundFolderTable";
 import { ImportChoice } from "../../components/ImportChoice";
 import { useT } from "../../i18n";
-import { errorText, ipc, type RoomChoice, type WatchSource, type WatchStatus } from "../../lib/ipc";
+import { errorText, ipc, type RoomChoice, type WatchSource } from "../../lib/ipc";
 import { screenHref, SETUP } from "../../lib/router";
+import { useWatcherStatus } from "../../lib/useWatcherStatus";
 import { FolderCard } from "./FolderCard";
 import styles from "./Folders.module.css";
-
-/** How often the list refreshes while Settings is open. */
-const REFRESH_MS = 3000;
 
 interface Notice {
   text: string;
@@ -38,8 +37,7 @@ type Search =
 export function Folders() {
   const t = useT();
   const d = t.settings.folders;
-  const [status, setStatus] = useState<WatchStatus | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const { status, error: loadError, reload: load } = useWatcherStatus();
   const [rooms, setRooms] = useState<RoomChoice[]>([]);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
@@ -48,22 +46,6 @@ export function Folders() {
   const [dialogBusy, setDialogBusy] = useState(false);
   const [dialogError, setDialogError] = useState<string | null>(null);
   const [search, setSearch] = useState<Search | null>(null);
-
-  const load = useCallback(() => {
-    ipc
-      .watcherStatus()
-      .then((next) => {
-        setStatus(next);
-        setLoadError(null);
-      })
-      .catch((e: unknown) => setLoadError(errorText(e)));
-  }, []);
-
-  useEffect(() => {
-    load();
-    const timer = window.setInterval(load, REFRESH_MS);
-    return () => window.clearInterval(timer);
-  }, [load]);
 
   useEffect(() => {
     ipc

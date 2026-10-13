@@ -38,6 +38,9 @@ pub enum Error {
     /// Another watched folder has this path already (`sources.path` is
     /// unique): a folder's path cannot be changed to it.
     PathTaken { path: String, id: i64 },
+    /// The transaction a group of import batches shared did not commit
+    /// (R1.6): none of them was stored. SQLite's message.
+    Commit(String),
 }
 
 impl fmt::Display for Error {
@@ -65,6 +68,7 @@ impl fmt::Display for Error {
             Self::PathTaken { path, id } => {
                 write!(f, "{path} is watched already (folder {id})")
             }
+            Self::Commit(error) => write!(f, "the import transaction did not commit: {error}"),
         }
     }
 }

@@ -518,3 +518,43 @@ fn a_file_nothing_claims_goes_to_the_registry_once() {
     let registry = s.store.reader().unsupported().expect("registry");
     assert_eq!(registry[0].count, 1);
 }
+
+/// R1.6: a look at a file that has not changed since it was read to its
+/// end decides from the metadata alone and does not open it - also for a
+/// file read whole every time (iPoker). On Linux every open is an inotify
+/// event; a look that opened an unchanged file woke the watcher for it
+/// again, forever, and two such files held the import threads while a
+/// backfill waited. Proven by taking read permission away: a look that
+/// opened the file would fail.
+#[cfg(unix)]
+#[test]
+fn an_unchanged_file_is_not_opened() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let s = setup("unchanged");
+    for (name, relative) in [
+        (
+            "ipoker.xml",
+            "fixtures/samples/ipoker/01-basic-hand-pl-omaha-eur.xml",
+        ),
+        ("stars.txt", STARS),
+    ] {
+        let path = s.dir.join("hh").join(name);
+        write_at(&path, &corpus(relative), T0);
+        let file = FileRef::new(&path);
+        let mut track = FileTrack::default();
+        let later = T0 + 60_000;
+        let polled = s.reader.poll(&file, &mut track, later).expect("poll");
+        assert!(
+            matches!(polled, Polled::Committed { .. }),
+            "{name}: {polled:?}"
+        );
+        if name == "ipoker.xml" {
+            assert!(track.whole_file(), "iPoker is read whole");
+        }
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o000)).expect("chmod");
+        let again = s.reader.poll(&file, &mut track, later + 1_000);
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o644)).expect("chmod back");
+        assert_eq!(again.expect("not opened"), Polled::Unchanged, "{name}");
+    }
+}

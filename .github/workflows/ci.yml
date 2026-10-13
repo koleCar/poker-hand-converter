@@ -281,6 +281,43 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+  # The import benchmark (docs/RAIL-PLAN.md R1.6). The guideline's target
+  # (§1: local import of old hands >= 5,000 hands/s) is about a user's
+  # machine and is measured on the owner's M2 Pro (10,300 hands/s at 100k
+  # hands, 8 threads; R1.6 "As built"). This job is a **regression guard**
+  # calibrated to the runner: macos-latest is an Apple M1 (Virtual) with 3
+  # cores, where R1.6 measured 3,926 and 4,615 hands/s (two runs); it fails
+  # below 3,500 hands/s, ~24 % under the better run - a slowdown of that size
+  # in conversion, the writer or the watcher, not runner noise.
+  #
+  # The example builds a GENERATED dataset of ~100k hands on the fly in the
+  # runner's temp directory (the corpus with rewritten hand ids; nothing is
+  # committed, nothing goes under testdata/ or a fixture tree), imports it
+  # through the real watcher into an empty store and prints hands stored
+  # per second. Release profile as shipped (thin LTO), cached by rust-cache.
+  # Import threads: every core of the runner (3); the app's default is
+  # physical cores - 1, capped at 8. Three runs, the best counts: a shared
+  # runner is noisy (the first run is the slowest, caches cold).
+  import-bench:
+    name: Import benchmark (macOS M1 3-core runner, regression gate 3,500 hands/s)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: import-bench
+
+      - name: Build (release)
+        run: cargo build --release --locked -p rail-watch --example import_bench
+
+      - name: Import 100k generated hands into an empty store
+        run: |
+          sysctl -n machdep.cpu.brand_string hw.ncpu hw.memsize || true
+          ./target/release/examples/import_bench \
+            --hands 100000 --workers "$(sysctl -n hw.ncpu)" --runs 3 --min-rate 3500 \
+            --dir "$RUNNER_TEMP/rail-import-bench"
+
   # The WebAssembly core and shadow mode (docs/RAIL-PLAN.md R0.13): the core
   # built for the browser with wasm-bindgen, its size held to the plan's
   # budget (< 1.5 MB gzipped), and then run next to the TypeScript pipeline

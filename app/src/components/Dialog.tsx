@@ -10,10 +10,13 @@ import styles from "./Dialog.module.css";
 export function Dialog({
   title,
   onClose,
+  wide = false,
   children,
 }: {
   title: string;
   onClose: () => void;
+  /** Room for wide content (a hand's raw text). */
+  wide?: boolean;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -30,7 +33,7 @@ export function Dialog({
   return (
     <dialog
       ref={ref}
-      className={styles.dialog}
+      className={wide ? `${styles.dialog} ${styles.wide}` : styles.dialog}
       aria-labelledby={titleId}
       onCancel={(event) => {
         // Escape: the parent decides (it unmounts the dialog).

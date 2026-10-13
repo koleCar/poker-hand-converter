@@ -1,22 +1,17 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
+import { RefusedTable, RetryRefused } from "../../components/RefusedTable";
 import { useT } from "../../i18n";
 import { errorText, ipc, type FolderQuarantine } from "../../lib/ipc";
 import styles from "./Folders.module.css";
 
 const number = new Intl.NumberFormat();
-const time = new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "short" });
-
-/** The last part of a file's path: the table shows names, the title the whole path. */
-function fileName(path: string): string {
-  const parts = path.split(/[\\/]/);
-  return parts[parts.length - 1] || path;
-}
 
 /**
  * One folder's quarantine (guideline §3: "ruke u karanteni"): counts per
- * reason code, then the most recent refused hands with their messages.
- * The raw text stays in the store.
+ * reason code, then the most recent refused hands with their messages, each
+ * with its raw text (R1.6), and "Try again after an update" when an older
+ * parser version refused some of them.
  */
 export function RefusedHands({ id, path, panelId }: { id: number; path: string; panelId: string }) {
   const t = useT();
@@ -24,7 +19,7 @@ export function RefusedHands({ id, path, panelId }: { id: number; path: string; 
   const [data, setData] = useState<FolderQuarantine | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     let live = true;
     ipc
       .folderQuarantine(id)
@@ -34,6 +29,8 @@ export function RefusedHands({ id, path, panelId }: { id: number; path: string; 
       live = false;
     };
   }, [id]);
+
+  useEffect(() => load(), [load]);
 
   const total = data?.reasons.reduce((sum, reason) => sum + reason.count, 0) ?? 0;
 
@@ -45,6 +42,7 @@ export function RefusedHands({ id, path, panelId }: { id: number; path: string; 
       {data && data.entries.length > 0 && (
         <>
           <p className={styles.hint}>{d.refusedLead}</p>
+          <RetryRefused sourceId={id} retryable={data.retryable} onDone={() => void load()} />
           <h4 className={styles.subheading}>{d.byReason}</h4>
           <ul className={styles.reasons}>
             {data.reasons.map((reason) => (
@@ -54,32 +52,7 @@ export function RefusedHands({ id, path, panelId }: { id: number; path: string; 
               </li>
             ))}
           </ul>
-          <div className={styles.scroll}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th scope="col">{d.refusedReason}</th>
-                  <th scope="col">{d.refusedMessage}</th>
-                  <th scope="col">{d.refusedFile}</th>
-                  <th scope="col">{d.refusedSeen}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.entries.map((entry) => (
-                  <tr key={entry.id}>
-                    <td>
-                      <code className={styles.code}>{entry.reason}</code>
-                    </td>
-                    <td>{entry.message}</td>
-                    <td className={styles.mono} title={entry.file}>
-                      {fileName(entry.file)}
-                    </td>
-                    <td className={styles.nowrap}>{time.format(entry.lastSeen)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RefusedTable entries={data.entries} />
           {data.truncated && <p className={styles.muted}>{d.refusedMore(data.entries.length, total)}</p>}
         </>
       )}

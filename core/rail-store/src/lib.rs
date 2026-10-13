@@ -39,9 +39,9 @@ pub mod writer;
 pub use batch::{FileState, ImportBatch, ImportOutcome, PreparedHand, Refusal, UnrecognizedFile};
 pub use error::{Error, Result};
 pub use import::{FileImport, ImportOptions, import_file};
-pub use read::{Reader, StoreStatus};
-pub use sources::{FileMove, OverrideChange, PathChange};
-pub use writer::WriterHandle;
+pub use read::{Reader, StaleRefusals, StoreStatus};
+pub use sources::{FileMove, OverrideChange, ParserVersions, PathChange, ResetFile};
+pub use writer::{PendingImport, WriterHandle};
 
 /// How long a connection waits for a lock before `SQLITE_BUSY`. Only
 /// another process (the HUD reading, a checkpoint) can hold one: our own

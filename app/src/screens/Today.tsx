@@ -11,8 +11,8 @@ const REFRESH_MS = 5000;
 
 const number = new Intl.NumberFormat();
 
-/** Today: the watcher's folders (R1.3) and the local store's counts (R1.2).
- * The session result and the import progress arrive with R1.6 and Phase 2. */
+/** Today: the watcher's folders with a backfill's progress (R1.3, R1.6) and
+ * the local store's counts (R1.2). The session result arrives in Phase 2. */
 export function Today() {
   const t = useT();
   const [status, setStatus] = useState<StoreStatus | null>(null);

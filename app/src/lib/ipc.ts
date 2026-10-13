@@ -3,6 +3,7 @@
  * in `src-tauri/src/commands.rs` or `dev.rs` (camelCase on both sides).
  */
 import { invoke, isTauri } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 
 export type Theme = "system" | "dark" | "light";
 
@@ -96,6 +97,21 @@ export interface StoreStatus {
   outbox: number;
 }
 
+/** `watch::BackfillDto`: a folder's backfill in progress (R1.6). */
+export interface Backfill {
+  /** Bytes read and committed of `bytesTotal`. */
+  bytesDone: number;
+  bytesTotal: number;
+  filesDone: number;
+  filesTotal: number;
+  /** Hands stored by this backfill. */
+  hands: number;
+  /** ms since the epoch. */
+  startedAt: number;
+  /** At the pace so far; `null` until there is a pace to go by. */
+  secondsLeft: number | null;
+}
+
 /** `watch::WatchSource`: one watched folder (R1.3). */
 export interface WatchSource {
   id: number;
@@ -122,6 +138,8 @@ export interface WatchSource {
   fileErrors: number;
   /** Files ending in a hand that is not complete yet. */
   pending: number;
+  /** A backfill in progress (R1.6), when there is one worth showing. */
+  backfill: Backfill | null;
   /** ms since the epoch. */
   lastImportAt: number | null;
 }
@@ -130,6 +148,9 @@ export interface WatchSource {
 export interface WatchStatus {
   running: boolean;
   paused: boolean;
+  /** Import threads, and how many may run at once now (R1.6). */
+  threads: number;
+  threadsAllowed: number;
   /** Set when the watcher is not running, and why. */
   error: string | null;
   sources: WatchSource[];
@@ -170,8 +191,30 @@ export interface RefusedHand {
   reason: string;
   message: string;
   detectedSite: string | null;
+  /** The version of the parser that refused it (`0`: none did). */
+  parserVersion: string;
   /** ms since the epoch. */
   lastSeen: number;
+}
+
+/** `quarantine::Retryable`: refused by an older parser version (R1.6). */
+export interface Retryable {
+  hands: number;
+  files: number;
+}
+
+/** `quarantine::QuarantineSummary`: refused hands per reason (R1.6). */
+export interface QuarantineSummary {
+  reasons: { reason: string; count: number }[];
+  total: number;
+  retryable: Retryable;
+}
+
+/** `quarantine::QuarantineList`. */
+export interface QuarantineList {
+  entries: RefusedHand[];
+  /** More match than are listed. */
+  truncated: boolean;
 }
 
 /** `folder_settings::FolderQuarantine`. */
@@ -180,6 +223,8 @@ export interface FolderQuarantine {
   entries: RefusedHand[];
   /** More entries exist than are listed. */
   truncated: boolean;
+  /** Refused by an older parser version: "Try again after an update" (R1.6). */
+  retryable: Retryable;
 }
 
 /** `dev::ConvertSummary`; debug builds only. */
@@ -229,11 +274,45 @@ export const ipc = {
   removeFolder: (id: number) => invoke<null>("remove_folder", { id }),
   folderRooms: () => invoke<RoomChoice[]>("folder_rooms"),
   folderQuarantine: (id: number) => invoke<FolderQuarantine>("folder_quarantine", { id }),
+  /** Refused hands per reason, app-wide (`sourceId: null`) or of one folder (R1.6). */
+  quarantineSummary: (sourceId: number | null) => invoke<QuarantineSummary>("quarantine_summary", { sourceId }),
+  quarantineEntries: (sourceId: number | null, reason: string | null) =>
+    invoke<QuarantineList>("quarantine_entries", { sourceId, reason }),
+  /** A refused hand's raw text; `null` when it is gone (read again meanwhile). */
+  quarantineRawText: (id: number) => invoke<string | null>("quarantine_raw_text", { id }),
+  /** Read again what an older parser refused. Returns the files read again. */
+  retryRefused: (sourceId: number | null) => invoke<number>("retry_refused", { sourceId }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),
   },
 };
+
+/**
+ * Call `onChange` whenever the watcher's status changed (an import, a
+ * folder's state, backfill progress; at most once a second). Returns the
+ * function that stops listening. Outside the app it does nothing.
+ */
+export function onWatcherChanged(onChange: () => void): () => void {
+  if (!inApp) {
+    return () => undefined;
+  }
+  let stop: (() => void) | null = null;
+  let stopped = false;
+  listen("watcher-changed", onChange)
+    .then((unlisten) => {
+      if (stopped) {
+        unlisten();
+      } else {
+        stop = unlisten;
+      }
+    })
+    .catch(() => undefined);
+  return () => {
+    stopped = true;
+    stop?.();
+  };
+}
 
 /** A rejected `invoke` carries the command's `Err(String)`. */
 export function errorText(error: unknown): string {

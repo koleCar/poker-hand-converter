@@ -38,12 +38,20 @@
   vertical-align: top;
 }
 
+.table tr.joined td {
+  border-bottom: 0;
+}
+
 .number {
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
-.table th.number {
+.table th.table tr.joined td {
+  border-bottom: 0;
+}
+
+.number {
   text-align: right;
 }
 
