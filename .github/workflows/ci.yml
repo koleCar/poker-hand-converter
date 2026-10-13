@@ -290,10 +290,22 @@ jobs:
   # (§1: local import of old hands >= 5,000 hands/s) is about a user's
   # machine and is measured on the owner's M2 Pro (10,300 hands/s at 100k
   # hands, 8 threads; R1.6 "As built"). This job is a **regression guard**
-  # calibrated to the runner: macos-latest is an Apple M1 (Virtual) with 3
-  # cores, where R1.6 measured 3,926 and 4,615 hands/s (two runs); it fails
-  # below 3,500 hands/s, ~24 % under the better run - a slowdown of that size
-  # in conversion, the writer or the watcher, not runner noise.
+  # for the import pipeline, and it gates on a ratio, not on hands/s:
+  # macos-latest is an Apple M1 (Virtual) with 3 cores whose speed moves
+  # from job to job (the same code measured best-of-runs 3,436 to 5,264
+  # hands/s), so an absolute gate failed unrelated PRs on runner noise.
+  #
+  # The example measures a REFERENCE on this runner - one thread converting
+  # the corpus (7.3k hands) from memory with rail_core, no store, no
+  # watcher, ~3 s - before the first import and after each import; a run's
+  # reference is the mean of the passes around its import (the runner's
+  # speed moves within seconds). Each run's PIPELINE EFFICIENCY = hands
+  # stored/s / (reference hands/s x import threads). A slow runner slows
+  # both; a regression in reading, the writer, the store or the watcher
+  # lowers the ratio. Best of three runs; fails below
+  # 45 % (calibrated in R1.6 "As built"), or below an absolute floor of
+  # 1,500 hands/s (a catastrophic slowdown, rail_core's own included, which
+  # the ratio cannot see since it slows the reference too).
   #
   # The example builds a GENERATED dataset of ~100k hands on the fly in the
   # runner's temp directory (the corpus with rewritten hand ids; nothing is
@@ -301,10 +313,9 @@ jobs:
   # through the real watcher into an empty store and prints hands stored
   # per second. Release profile as shipped (thin LTO), cached by rust-cache.
   # Import threads: every core of the runner (3); the app's default is
-  # physical cores - 1, capped at 8. Three runs, the best counts: a shared
-  # runner is noisy (the first run is the slowest, caches cold).
+  # physical cores - 1, capped at 8.
   import-bench:
-    name: Import benchmark (macOS M1 3-core runner, regression gate 3,500 hands/s)
+    name: Import benchmark (macOS runner, gate on pipeline efficiency vs a same-runner reference)
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -316,11 +327,12 @@ jobs:
       - name: Build (release)
         run: cargo build --release --locked -p rail-watch --example import_bench
 
-      - name: Import 100k generated hands into an empty store
+      - name: Reference conversion, then import 100k generated hands into an empty store
         run: |
           sysctl -n machdep.cpu.brand_string hw.ncpu hw.memsize || true
           ./target/release/examples/import_bench \
-            --hands 100000 --workers "$(sysctl -n hw.ncpu)" --runs 3 --min-rate 3500 \
+            --hands 100000 --workers "$(sysctl -n hw.ncpu)" --runs 3 \
+            --min-efficiency 45 --min-rate 1500 \
             --dir "$RUNNER_TEMP/rail-import-bench"
 
   # The WebAssembly core and shadow mode (docs/RAIL-PLAN.md R0.13): the core
