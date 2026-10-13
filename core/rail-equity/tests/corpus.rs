@@ -24,8 +24,8 @@ use std::time::{Duration, Instant};
 
 use rail_core::phf::{Street, Variant};
 use rail_equity::{
-    AllInEvOutcome, AllInSkipReason, Computation, EV_VERSION, EquityOptions, analyze_all_in,
-    ev_row_for,
+    AllInEvOutcome, AllInSkipReason, Computation, EV_VERSION, EquityOptions, all_in_street,
+    analyze_all_in, ev_row_for, ev_row_unless_preflop,
 };
 use serde_json::Value;
 use support::{canonical, corpus, json_files, problems, read_json, root, sha256_hex};
@@ -125,6 +125,27 @@ fn every_corpus_hand_gives_the_typescript_ev_row_and_analysis() {
             entry.hands += 1;
             entry.total += elapsed;
             entry.worst = entry.worst.max(elapsed);
+            // `all_in_street` (R2.3's cheap pre-check) names the street of
+            // every analysis that applies, and nothing for the first skips.
+            let street = all_in_street(&golden.hand);
+            match &outcome {
+                AllInEvOutcome::Applicable(ev) => {
+                    assert_eq!(street, Some(ev.street), "{where_}: all_in_street");
+                }
+                AllInEvOutcome::Skipped { reason, .. } => {
+                    if street.is_none() {
+                        assert!(
+                            matches!(
+                                reason,
+                                AllInSkipReason::HiLo
+                                    | AllInSkipReason::UnsupportedVariant
+                                    | AllInSkipReason::NoAllIn
+                            ),
+                            "{where_}: all_in_street None for {reason:?}"
+                        );
+                    }
+                }
+            }
 
             let key = match &outcome {
                 AllInEvOutcome::Applicable(ev) => {
@@ -166,6 +187,19 @@ fn every_corpus_hand_gives_the_typescript_ev_row_and_analysis() {
             }
 
             let row = ev_row_for(&golden.hand);
+            // R2.3's import path: the same row, or `None` for a preflop
+            // all-in (computed later, by `ev_row`).
+            if let Some(hero) = rail_stats::rows_for(&golden.hand)
+                .iter()
+                .find(|row| row.seat.is_hero)
+            {
+                let quick = ev_row_unless_preflop(&golden.hand, hero);
+                if all_in_street(&golden.hand) == Some(Street::Preflop) {
+                    assert_eq!(quick, None, "{where_}: a preflop all-in is left for later");
+                } else {
+                    assert_eq!(quick, row, "{where_}: ev_row_unless_preflop");
+                }
+            }
             if let Some(row) = &row {
                 rows += 1;
                 file_rows += 1;

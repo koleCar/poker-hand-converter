@@ -10,8 +10,8 @@
 //!
 //! Rules: a migration that has shipped is never edited; a change is a new
 //! file appended here. Reserved for later phases (docs/RAIL-PLAN.md §3.4,
-//! `SCHEMA.md`): `seat_stats`, `player_rollups`, `players` (Phase 2) and
-//! `hud_layouts` (Phase 3), each as the next free number when it lands.
+//! `SCHEMA.md`): `players` (Phase 2, R2.7) and `hud_layouts` (Phase 3), each
+//! as the next free number when it lands (`seat_stats` and the rollups: 6).
 
 use rusqlite::Connection;
 
@@ -45,6 +45,10 @@ pub const MIGRATIONS: &[Migration] = &[
     Migration {
         name: "0005_sync.sql",
         sql: include_str!("../migrations/0005_sync.sql"),
+    },
+    Migration {
+        name: "0006_stats.sql",
+        sql: include_str!("../migrations/0006_stats.sql"),
     },
 ];
 

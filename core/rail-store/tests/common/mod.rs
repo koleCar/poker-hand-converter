@@ -105,6 +105,243 @@ pub struct Snapshot {
     /// fingerprint -> fields and count.
     pub unsupported: BTreeMap<String, Vec<String>>,
     pub outbox: BTreeSet<String>,
+    /// The statistics (R2.3), segments by their key, generations left out.
+    pub stats: StatsSnapshot,
+}
+
+/// The statistics tables of a store (R2.3).
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct StatsSnapshot {
+    /// (hand_key, seat) -> the hand's segment key and `hand_stats` columns,
+    /// the seat's columns, its decoded counters and money.
+    pub seats: BTreeMap<(String, i64), Vec<String>>,
+    /// (site, player, scope, segment key) -> last_played_at and the sums.
+    pub players: BTreeMap<(String, String, String, String), Vec<String>>,
+    /// (segment key, position, day, kind) -> the sums.
+    pub heroes: BTreeMap<(String, String, String, i64), Vec<String>>,
+    /// hand_key -> seat, version, ev_net, ev_net_bb_milli.
+    pub ev_rows: BTreeMap<String, Vec<String>>,
+    pub ev_pending: BTreeSet<String>,
+}
+
+/// A segment's key in SQL (`g` is `segments`).
+const SEGMENT_KEY: &str = "g.site || '/' || g.game_format || '/' || g.variant || '/' || \
+                           g.limit_type || '/' || g.size_class || '/' || g.stake";
+
+/// The `hand_stats` columns a snapshot compares (not `id`, `gen`).
+const HAND_COLUMNS: &str = "d.played_at, d.stats_version, d.site_anonymization, d.site_id, \
+     d.currency_minor_units, d.player_count, d.tournament_id, d.fast_fold, d.has_straddle, \
+     d.is_bomb_pot, d.is_big_blind_ante, d.is_run_it_twice, d.has_cashout, d.is_walk, \
+     d.street_reached, d.pot_type, d.total_pot, d.house_into_pot, d.fees";
+
+/// The rollups' sum columns.
+pub fn total_columns() -> Vec<&'static str> {
+    rail_store::stats::rollup_columns().collect()
+}
+
+pub fn stats_snapshot(conn: &Connection) -> StatsSnapshot {
+    let mut snap = StatsSnapshot::default();
+    let sql = format!(
+        "SELECT d.hand_key, s.seat, {SEGMENT_KEY}, {HAND_COLUMNS}, s.player, s.scope, s.is_hero,
+                s.position, s.hole_cards, s.hand_class, s.starting_stack,
+                s.starting_stack_bb_tenths, s.totals
+         FROM seat_stats s JOIN hand_stats d ON d.id = s.hand_id
+         JOIN segments g ON g.id = d.segment_id"
+    );
+    let mut stmt = conn.prepare(&sql).expect("prepare seats");
+    let columns = stmt.column_count();
+    let mut rows = stmt.query([]).expect("seats");
+    while let Some(row) = rows.next().expect("row") {
+        let mut fields: Vec<String> = (2..columns - 1).map(|i| text(row, i)).collect();
+        let blob: Vec<u8> = row.get(columns - 1).expect("totals");
+        let values = rail_store::stats::decode_seat(&blob).expect("totals decode");
+        fields.push(format!("{:?} {:?}", values.counters, values.money));
+        snap.seats.insert(
+            (row.get(0).expect("key"), row.get(1).expect("seat")),
+            fields,
+        );
+    }
+    let totals = total_columns();
+    let sql = format!(
+        "SELECT r.site, r.player, r.scope, {SEGMENT_KEY}, r.last_played_at, {}
+         FROM player_rollups r JOIN segments g ON g.id = r.segment_id",
+        totals.join(", ")
+    );
+    let mut stmt = conn.prepare(&sql).expect("prepare players");
+    let mut rows = stmt.query([]).expect("players");
+    while let Some(row) = rows.next().expect("row") {
+        snap.players.insert(
+            (
+                row.get(0).expect("site"),
+                row.get(1).expect("player"),
+                row.get(2).expect("scope"),
+                row.get(3).expect("segment"),
+            ),
+            (4..5 + totals.len()).map(|i| text(row, i)).collect(),
+        );
+    }
+    let sql = format!(
+        "SELECT {SEGMENT_KEY}, r.position, r.day, r.kind, {}
+         FROM hero_rollups r JOIN segments g ON g.id = r.segment_id",
+        totals.join(", ")
+    );
+    let mut stmt = conn.prepare(&sql).expect("prepare heroes");
+    let mut rows = stmt.query([]).expect("heroes");
+    while let Some(row) = rows.next().expect("row") {
+        snap.heroes.insert(
+            (
+                row.get(0).expect("segment"),
+                row.get(1).expect("position"),
+                row.get(2).expect("day"),
+                row.get(3).expect("kind"),
+            ),
+            (4..4 + totals.len()).map(|i| text(row, i)).collect(),
+        );
+    }
+    let mut stmt = conn
+        .prepare("SELECT hand_key, seat, ev_version, ev_net, ev_net_bb_milli FROM ev_rows")
+        .expect("prepare ev");
+    let mut rows = stmt.query([]).expect("ev");
+    while let Some(row) = rows.next().expect("row") {
+        snap.ev_rows.insert(
+            row.get(0).expect("key"),
+            (1..5).map(|i| text(row, i)).collect(),
+        );
+    }
+    let mut stmt = conn
+        .prepare("SELECT hand_key FROM ev_pending")
+        .expect("prepare pending");
+    let mut rows = stmt.query([]).expect("pending");
+    while let Some(row) = rows.next().expect("row") {
+        snap.ev_pending.insert(row.get(0).expect("key"));
+    }
+    snap
+}
+
+/// The rollups' sums, read back.
+fn rollup_totals(row: &rusqlite::Row<'_>, first: usize) -> rail_store::Totals {
+    let mut totals = rail_store::Totals::default();
+    let count = totals.counters.len();
+    for (i, value) in totals.counters.iter_mut().enumerate() {
+        *value = row.get(first + i).expect("counter");
+    }
+    for (i, value) in totals.money.iter_mut().enumerate() {
+        *value = row.get(first + count + i).expect("money");
+    }
+    totals.money_hands = row
+        .get(first + count + totals.money.len())
+        .expect("money_hands");
+    totals
+}
+
+/// The rollups are the sums of the seat rows of the current generation:
+/// `player_rollups` per (site, player, scope, segment) with `aggregate`'s
+/// default exclusions (bomb pots out, EV-cashout money out),
+/// `hero_rollups` per (segment, position, UTC day, kind) of the hero's
+/// rows. Every column, `last_played_at` included.
+pub fn assert_rollups(conn: &Connection) {
+    use rail_store::stats::{KIND_BOMB_POT, KIND_CASHOUT, KIND_STRADDLED, decode_seat};
+    let generation: i64 = conn
+        .query_row(
+            "SELECT coalesce((SELECT CAST(value AS INTEGER) FROM kv WHERE key = 'stats.gen'), 0)",
+            [],
+            |row| row.get(0),
+        )
+        .expect("generation");
+    type PlayerKey = (String, String, String, i64);
+    let mut players: BTreeMap<PlayerKey, (rail_store::Totals, Option<String>)> = BTreeMap::new();
+    let mut heroes: BTreeMap<(i64, String, String, i64), rail_store::Totals> = BTreeMap::new();
+    let mut stmt = conn
+        .prepare(
+            "SELECT g.site, s.player, s.scope, d.segment_id, h.played_at, d.is_bomb_pot,
+                    d.has_straddle, d.has_cashout, s.is_hero, coalesce(s.position, ''), s.totals
+             FROM seat_stats s JOIN hand_stats d ON d.id = s.hand_id
+             JOIN segments g ON g.id = d.segment_id JOIN hands h ON h.hand_key = d.hand_key
+             WHERE d.gen = ?1",
+        )
+        .expect("prepare rows");
+    let mut rows = stmt.query([generation]).expect("rows");
+    while let Some(row) = rows.next().expect("row") {
+        let played: Option<String> = row.get(4).expect("played_at");
+        let bomb: bool = row.get(5).expect("bomb");
+        let straddle: bool = row.get(6).expect("straddle");
+        let cashout: bool = row.get(7).expect("cashout");
+        let values = decode_seat(&row.get::<_, Vec<u8>>(10).expect("blob")).expect("decode");
+        let segment: i64 = row.get(3).expect("segment");
+        if !bomb {
+            let (totals, last) = players
+                .entry((
+                    row.get(0).expect("site"),
+                    row.get(1).expect("player"),
+                    row.get(2).expect("scope"),
+                    segment,
+                ))
+                .or_default();
+            totals.add_seat(&values, !cashout);
+            if played > *last {
+                last.clone_from(&played);
+            }
+        }
+        if row.get::<_, bool>(8).expect("hero") {
+            let kind = (if bomb { KIND_BOMB_POT } else { 0 })
+                | (if straddle { KIND_STRADDLED } else { 0 })
+                | (if cashout { KIND_CASHOUT } else { 0 });
+            let day = played.as_deref().map_or("", |at| &at[..10]).to_owned();
+            heroes
+                .entry((segment, row.get(9).expect("position"), day, kind))
+                .or_default()
+                .add_seat(&values, true);
+        }
+    }
+    let columns = total_columns().join(", ");
+    let mut stored_players = BTreeMap::new();
+    let mut stmt = conn
+        .prepare(&format!(
+            "SELECT site, player, scope, segment_id, last_played_at, {columns} FROM player_rollups"
+        ))
+        .expect("prepare players");
+    let mut rows = stmt.query([]).expect("players");
+    while let Some(row) = rows.next().expect("row") {
+        stored_players.insert(
+            (
+                row.get(0).expect("site"),
+                row.get(1).expect("player"),
+                row.get(2).expect("scope"),
+                row.get(3).expect("segment"),
+            ),
+            (rollup_totals(row, 5), row.get(4).expect("last")),
+        );
+    }
+    assert!(
+        stored_players == players,
+        "player_rollups are not the sums of the seat rows ({} stored, {} expected)",
+        stored_players.len(),
+        players.len()
+    );
+    let mut stored_heroes = BTreeMap::new();
+    let mut stmt = conn
+        .prepare(&format!(
+            "SELECT segment_id, position, day, kind, {columns} FROM hero_rollups"
+        ))
+        .expect("prepare heroes");
+    let mut rows = stmt.query([]).expect("heroes");
+    while let Some(row) = rows.next().expect("row") {
+        stored_heroes.insert(
+            (
+                row.get(0).expect("segment"),
+                row.get(1).expect("position"),
+                row.get(2).expect("day"),
+                row.get(3).expect("kind"),
+            ),
+            rollup_totals(row, 4),
+        );
+    }
+    assert!(
+        stored_heroes == heroes,
+        "hero_rollups are not the sums of the hero's rows ({} stored, {} expected)",
+        stored_heroes.len(),
+        heroes.len()
+    );
 }
 
 fn text(row: &rusqlite::Row<'_>, index: usize) -> String {
@@ -201,12 +438,14 @@ pub fn snapshot(conn: &Connection) -> Snapshot {
         quarantine,
         unsupported,
         outbox,
+        stats: stats_snapshot(conn),
     }
 }
 
 /// `PRAGMA integrity_check` says `ok`, no foreign key is dangling, and the
 /// folder rollups of schema version 4 (`files.hands`, `files.quarantined`,
-/// `source_totals`) equal what the rows say.
+/// `source_totals`) equal what the rows say, and so do the statistics rollups
+/// of version 6 ([`assert_rollups`]).
 pub fn assert_integrity(conn: &Connection) {
     let integrity: Vec<String> = conn
         .prepare("PRAGMA integrity_check")
@@ -255,4 +494,5 @@ pub fn assert_integrity(conn: &Connection) {
         )
         .expect("orphan totals");
     assert_eq!(orphans, 0, "source_totals without a folder");
+    assert_rollups(conn);
 }

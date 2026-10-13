@@ -34,13 +34,14 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 3 | `0003_source_site.sql` | `sources.site` (R1.4) |
 | 4 | `0004_folder_rollups.sql` | `files.hands`, `files.quarantined`, `source_totals`, `source_days`, their triggers; `files_source_idx` on `(source_id, last_import_at)` (R1.6) |
 | 5 | `0005_sync.sql` | `outbox.played_at` (filled from `hands`) and `outbox_recent_idx`, `outbox_retry_idx`; `hands.pulled_at` and `hands_pulled_idx`; `sync_rejected` (R1.9) |
+| 6 | `0006_stats.sql` | `segments`, `hand_stats`, `seat_stats`, `player_rollups`, `hero_rollups`, `ev_rows`, `ev_pending` (R2.3) |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
 
 | Step | Tables |
 | --- | --- |
-| R2.1 / R2.3 (Phase 2) | `seat_stats` (one row per dealt-in seat at the current stats version, the local `hand_stats`), `player_rollups` (summed counters per site, player and segment), `players` (notes, colour tag, labels) |
+| R2.7 (Phase 2) | `players` (notes, colour tag, labels) |
 | R3.6 / R3.9 (Phase 3) | `hud_layouts` (layouts, presets, seat positions per site and table size) |
 
 ## Tables
@@ -63,6 +64,16 @@ The sync worker's keys (R1.9, `rail_sync::worker`):
 | `sync.paused` | `1` while the user paused sync |
 | `sync.cap` | the upload cap while a large backlog syncs, bytes a second, or `none` (default 1 MiB/s) |
 | `sync.declined` | the user id whose account the user chose not to upload this computer's hands to |
+
+The statistics' keys (R2.3, `rail_store::stats`):
+
+| Key | Value |
+| --- | --- |
+| `stats.gen` | the generation the rollups count (`hand_stats.gen`); a rebuild starts the next |
+| `stats.version` | the `STATS_VERSION` (`stats/2`) the current generation is derived under; another one on open starts a rebuild |
+| `stats.rebuild.cursor` | while a rebuild runs: the last `hand_key` it went through (`''` before the first page); absent otherwise |
+| `stats.rebuild.done`, `stats.rebuild.total` | its progress: hands gone through, of the hands stored when it began |
+| `ev.version` | the `EV_VERSION` (`ev/1`) every hero hand was evaluated at or is queued for; another one on open queues every hero hand again |
 
 | Column | Type | |
 | --- | --- | --- |
@@ -290,3 +301,210 @@ Settings → Account, until the user chooses "Try again" (after an update:
 | `rejected_at` | INTEGER | ms |
 
 Index: `sync_rejected_reason_idx (reason)`.
+
+## Statistics (version 6, R2.3)
+
+The local statistics: per hand the rows `rail_stats::stored_rows` keeps,
+the rollups the HUD and the reports read, and the hero's all-in EV. Written
+by `rail_store::stats`, read by `rail_store::stats_read`, rebuilt and
+completed by the background pass `rail_store::background` (`StatsWorker`).
+
+**How they are written.** A hand's rows are derived on the producer's
+thread (the import threads, the sync pull: `PreparedStats` beside the
+compressed PHF) and written by the writer **in the transaction that stores
+the hand**; the rollups get the sums of a transaction's new rows (a
+backfill's group of up to 64 batches) with one upsert per key. A duplicate
+hand writes nothing. A crash leaves a hand with all its rows and counts or
+with none (the crash test checks the rows of every stored hand and the
+rollups against the rows after every kill).
+
+**Which rows.** The writer rules of the web's `lib/db/statsRows.ts`
+(`handStatsRows`): the **hero's row always**, villains' rows always on the
+desktop (the web writes them only behind a flag), **never a villain of a
+positionally anonymised room** (Ignition: `UTG+1` is another human every
+hand), and one row per seat (two players on one seat number give the engine
+two identical rows; the first is kept, as `save_hand_stats`' `on conflict do
+nothing`).
+
+**Under which identity a row is summed** (`rail_stats::rollup_scope`,
+docs/DATABASE.md "Player identity and anonymized rooms"): a screen name
+(`site_anonymization = none`) is one person in every hand - scope `''`. An
+**opaque token** (`opaque-id`: GGPoker's hashes, ACR/WPN's data-mined
+numeric ids) is one person **within one session only**: the same human gets
+another token in another session, and summing a token across sessions
+would merge whoever wears it with whoever wore it before - a person nobody
+played. Those villains are summed per session, which a hand names by its
+table and its UTC day: scope `<table name>@<YYYY-MM-DD>`
+(`rail_stats::session_scope`; the HUD computes the scope of the table it
+draws on the same way). A session that runs past midnight UTC, or a
+tournament player moved to another table, splits in two: it under-merges,
+never over-merges. The hero is always one person (scope `''`).
+
+**Generations and rebuilds.** The rollups count the rows of one generation
+(`kv` `stats.gen`; `hand_stats.gen`). A rebuild - started on open when
+`stats.version` is not this build's `STATS_VERSION` (a version bump, or a
+store from before version 6), or by "rebuild statistics" after a definition
+change - begins the next generation in one transaction: the rollups are
+emptied and a cursor set. The background pass then goes through `hands` in
+`hand_key` order, 500 a transaction, reads each PHF back, derives its rows
+with this build's engine and replaces the older generation's rows with them,
+moving the cursor in the same transaction (resumable after a quit or a
+crash). Hands imported meanwhile are counted in the new generation at once
+and skipped by the pass. **At every commit the rollups are the sums of the
+current generation's rows**; during a rebuild they grow as the pass goes.
+Measured on the corpus (7 496 hands, debug build): ~3 s.
+
+**All-in EV.** `ev_row` (`handEvRow` of the web) needs the hero's row. A
+hand whose all-in was completed **preflop** (1.7M boards enumerated, 25-46
+ms; 20 000 sampled for Omaha) is not evaluated at import: it is queued in
+`ev_pending` and the background pass evaluates it, newest first, 8 hands a
+transaction, paused while a backfill imports or poker tables are open
+(`StatsWorker::set_backfill`, `set_tables_open`). Every other hero hand is
+evaluated at import (a flop or turn all-in: a few hundred boards; no all-in:
+the analysis's first checks, `rail_equity::all_in_street`). Only rows that
+differ from the result are stored (`applicable`: an all-in with cards to
+come, ~6 % of hero hands in the corpus); every other hero hand's row is
+`ev_net = net`, implied by its absence from both tables. An `ev.version`
+other than this build's `EV_VERSION` queues every hero hand again; a rebuild
+queues a hand again only when its hero's seat or result changed.
+
+### `segments`
+
+What statistics are summed over (docs/RAIL-PLAN.md §3.4,
+`rail_stats::Segment`): (site, game format, variant, limit, table-size
+class, stake). Rows are never deleted.
+
+| Column | Type | |
+| --- | --- | --- |
+| `id` | INTEGER PK | |
+| `site` | TEXT | the site id trimmed and lower-cased: `hand_key`'s prefix |
+| `game_format` | TEXT | `cash` / `tournament` / `sng` / `spin` |
+| `variant` | TEXT | `holdem`, `omaha`, `omaha5`, `omaha6`, `shortdeck`, ... |
+| `limit_type` | TEXT | `nl` / `pl` / `fl` |
+| `size_class` | TEXT | by the table's seats (`maxSeats`; the hand's players when under 2): `hu` (2), `6max` (3-6), `full` (7 and more) |
+| `stake` | TEXT | a cash game: `<currency>:<big blind in minor units>`, exactly (`USD:200` is $1/$2; `TCHIP:200` play money): every stake level is its own segment, and a coarser grouping is a sum at query time. A tournament format: `chips` (its blinds rise; the buy-in is a filter, not a segment) |
+
+`UNIQUE (site, game_format, variant, limit_type, size_class, stake)`.
+
+### `hand_stats`
+
+One row per hand with kept rows: the hand-level columns of the web's
+`hand_stats` that `hands` does not hold already (`played_at`, `variant`,
+`limit_type`, `game_format`, `currency`, `small_blind`, `big_blind`,
+`max_seats`, `table_name` and `site_hand_id` are `hands`'). Cascades with the
+hand.
+
+| Column | Type | |
+| --- | --- | --- |
+| `id` | INTEGER PK | what `seat_stats` refers to (an integer: 6 seat rows a hand would repeat a ~25-byte key) |
+| `hand_key` | TEXT UNIQUE → `hands` | cascades |
+| `gen` | INTEGER | the generation its rows are counted in |
+| `played_at` | TEXT NULL | `hands.played_at`, repeated: a date range reads this narrow table, never `hands` (whose rows hold the PHF; reading them made a report's partial days take seconds at 500k) |
+| `segment_id` | INTEGER | `segments.id` |
+| `stats_version` | TEXT | `stats/2` |
+| `site_anonymization` | TEXT | `none` / `positional` / `opaque-id` (`rail_stats::detect_anonymization`, the web's `detectAnonymization`) |
+| `site_id` | TEXT | `meta.siteId` as the parser wrote it |
+| `currency_minor_units`, `player_count`, `tournament_id`, `fast_fold` | | as in the engine's row |
+| `has_straddle`, `is_bomb_pot`, `is_big_blind_ante`, `is_run_it_twice`, `has_cashout`, `is_walk` | INTEGER | 0 / 1 |
+| `street_reached`, `pot_type` | TEXT | |
+| `total_pot`, `house_into_pot`, `fees` | INTEGER | minor units |
+
+Index: `hand_stats_played_idx (played_at)` - the hands of a date range (a
+report's partial days, the EV of a range; R2.7's hand lists).
+
+### `seat_stats`
+
+One row per kept seat. With `hand_stats` and `hands` it gives back the
+engine's `StatsRow` - all 133 columns - exactly (`tests/stats.rs` checks
+every corpus row against `rail_stats` byte for byte in JSON). `WITHOUT
+ROWID`; cascades with its `hand_stats` row.
+
+| Column | Type | |
+| --- | --- | --- |
+| `hand_id` | INTEGER → `hand_stats` | PK with `seat` |
+| `seat` | INTEGER | |
+| `player` | TEXT | the name as the parser wrote it (`''` for none) |
+| `scope` | TEXT | `''`, or for a villain of an `opaque-id` hand its session (`<table>@<day>`) |
+| `is_hero` | INTEGER | 0 / 1 |
+| `position` | TEXT NULL | `BTN`, `SB`, ... |
+| `hole_cards` | TEXT | the cards separated by spaces, `''` when none were seen |
+| `hand_class` | TEXT NULL | `AKs`, `77`, ... |
+| `starting_stack`, `starting_stack_bb_tenths` | INTEGER | |
+| `totals` | BLOB | the 90 counters and 7 money values (`rail_store::stats::encode_seat`): every value that is not 0 as two LEB128 varints, the column's index (counters `0..90` in `COUNTER_KEYS` order, then `MONEY_KEYS`) and the value zigzagged; ~15-40 bytes |
+
+**Why a blob.** The first version mirrored the web's table column for
+column (the hand's columns on every seat, a column per counter): 2 KB more a
+hand (3 283 → 5 297 bytes, +61 %) and 21-29 % fewer hands imported a
+second on the 100k benchmark, the writer's time going to six 133-column
+records a hand. Nothing reads a seat's counters in SQL: the rollups hold
+the sums, and the rows are read for a report's partial days, a rebuild's
+comparison and (R2.7) reports by situation, all summed in Rust.
+
+### `player_rollups`
+
+Per (site, player, scope, segment) the sums of the current generation's
+seat rows **with `aggregate`'s default exclusions**
+(`frontend/src/lib/stats/rates.ts`): bomb pots left out of everything,
+EV-cashout hands left out of the money (`money_hands` counts the hands
+whose money is in). The HUD reads one row per player and segment; a
+player's segments of a site are one range of the key. `WITHOUT ROWID`.
+
+| Column | Type | |
+| --- | --- | --- |
+| `site` | TEXT | PK: (`site`, `player`, `scope`, `segment_id`) |
+| `player` | TEXT | |
+| `scope` | TEXT | see "Under which identity" above |
+| `segment_id` | INTEGER | |
+| `last_played_at` | TEXT NULL | the newest `played_at` counted |
+| `hands`, ... `cashed_out` | INTEGER | the 90 counters, `rail_stats::COUNTER_KEYS` in order (the web's names) |
+| `won`, ... `cashout_risk` | INTEGER | the 7 money columns, `MONEY_KEYS` |
+| `money_hands` | INTEGER | the hands whose money is summed (`moneyHands`): bb/100 divides by it |
+
+### `hero_rollups`
+
+The hero's rows summed per (segment, position, UTC day, kind), **nothing
+excluded**; `kind` keeps apart what `aggregate`'s options decide on (bomb
+pot 1, straddled 2, EV cashout 4), so a report applies any of them. Reports
+sum days instead of hands. Same sum columns as `player_rollups`
+(`money_hands` = `hands` here). `WITHOUT ROWID`, PK (`segment_id`,
+`position`, `day`, `kind`).
+
+| Column | Type | |
+| --- | --- | --- |
+| `segment_id` | INTEGER | |
+| `position` | TEXT | `''` when the engine assigned none |
+| `day` | TEXT | `YYYY-MM-DD` of `played_at` (UTC), `''` for a hand without one |
+| `kind` | INTEGER | bomb pot 1 \| straddled 2 \| EV cashout 4 |
+
+### `ev_rows`
+
+The hero's all-in EV where it differs from the result (`applicable` rows of
+`rail_equity::ev_row`), at `ev_version`. Cascades with the hand.
+`WITHOUT ROWID`.
+
+| Column | Type | |
+| --- | --- | --- |
+| `hand_key` | TEXT PK → `hands` | |
+| `seat` | INTEGER | the hero's |
+| `ev_version` | TEXT | `ev/1` |
+| `ev_net`, `ev_net_bb_milli` | INTEGER | |
+
+### `ev_pending`
+
+Hands whose EV the background pass has to compute, newest (highest `id`)
+first. Cascades with the hand.
+
+| Column | Type | |
+| --- | --- | --- |
+| `id` | INTEGER PK | |
+| `hand_key` | TEXT UNIQUE → `hands` | |
+
+### Reading them (`rail_store::stats_read`)
+
+| Call | For | How |
+| --- | --- | --- |
+| `Reader::hud_totals(site, &[(player, scope)], segments)` | the HUD (R3.7): a table's players, over its segment, a set, or all of the site's | one `player_rollups` key range per player |
+| `Reader::player_rollup(site, player, scope, segment)` / `player_rollups(site, player, scope)` | a player's row in one segment / in every segment of a site | key lookups |
+| `Reader::hero_totals(&HeroFilter)` | reports (R2.7): the hero by segment and position over a date range, with `aggregate`'s options, and the all-in EV adjustment | whole UTC days from `hero_rollups`; the partial days at the two ends from the hero's rows (`hand_stats_played_idx`), so any range of UTC instants is exact (a local-time range is passed as instants); EV from `ev_rows` (few) and the queue's count |
+| `Reader::segments()`, `segment_id(&Segment)` | segment ids and back | |
+| `Reader::stats_status()` | the status line | `kv` and `count(*)` of `ev_pending` |

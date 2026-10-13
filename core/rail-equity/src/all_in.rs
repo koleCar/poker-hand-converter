@@ -794,6 +794,21 @@ pub fn analyze_all_in(hand: &PhfHand, options: &EquityOptions) -> AllInEvOutcome
     })
 }
 
+/// The street of the all-in [`analyze_all_in`] would evaluate, when it gets
+/// that far: the first checks of the analysis only (a hi/lo game, a variant
+/// without a board, no moment where two players had no decision left give
+/// `None`), without building or running the enumeration. Not part of the
+/// TypeScript; it lets a caller tell a cheap analysis from an expensive one
+/// before running it (R2.3: a **preflop** all-in enumerates 1.7M boards or
+/// samples 20 000; a flop or turn one, a few hundred at most). The analysis
+/// may still skip the hand for a later reason (hole cards not shown, ...).
+pub fn all_in_street(hand: &PhfHand) -> Option<Street> {
+    if hand.game.hi_lo || game_for(hand.game.variant).is_none() {
+        return None;
+    }
+    find_moment(hand).map(|moment| moment.action.street)
+}
+
 /// `allInEv(hand, options)`: the EV analysis, or `None` when the hand has
 /// none and `ev_net = net`.
 pub fn all_in_ev(hand: &PhfHand, options: &EquityOptions) -> Option<AllInEv> {

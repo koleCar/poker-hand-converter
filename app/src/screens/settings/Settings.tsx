@@ -13,6 +13,8 @@ import styles from "./Settings.module.css";
 // Debug builds only: in a production bundle `import.meta.env.DEV` is `false`
 // and the import is dropped, so the panel is not shipped.
 const DevConvert = import.meta.env.DEV ? lazy(() => import("./DevConvert")) : null;
+// The statistics pass's controls (R2.3), until R2.7's screens.
+const DevStats = import.meta.env.DEV ? lazy(() => import("./DevStats")) : null;
 
 export function Settings() {
   const t = useT();
@@ -26,6 +28,11 @@ export function Settings() {
           <RefusedAll />
           <Preferences />
           <About />
+          {DevStats && (
+            <Suspense fallback={null}>
+              <DevStats />
+            </Suspense>
+          )}
           {DevConvert && (
             <Suspense fallback={null}>
               <DevConvert />

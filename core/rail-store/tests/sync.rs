@@ -354,10 +354,14 @@ fn the_migration_fills_the_outbox_played_time() {
     import_file(&store, &corpus_file(CHICO), &options()).expect("import");
     store.close();
 
-    // Back to version 4's outbox (version 5 is additive).
+    // Back to version 4's outbox (versions 5 and 6 are additive).
     let conn = Connection::open(&path).expect("open");
     conn.execute_batch(
-        "DROP INDEX outbox_recent_idx;
+        "DROP TABLE ev_pending; DROP TABLE ev_rows; DROP TABLE hero_rollups;
+         DROP TABLE player_rollups; DROP TABLE seat_stats; DROP TABLE hand_stats;
+         DROP TABLE segments;
+         DELETE FROM kv WHERE key LIKE 'stats.%' OR key LIKE 'ev.%';
+         DROP INDEX outbox_recent_idx;
          DROP INDEX outbox_retry_idx;
          ALTER TABLE outbox DROP COLUMN played_at;
          DROP TABLE sync_rejected;

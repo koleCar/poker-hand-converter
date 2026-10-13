@@ -18,6 +18,7 @@ use rusqlite::{Connection, OptionalExtension, Transaction, params};
 
 use crate::batch::{ImportBatch, ImportOutcome};
 use crate::error::{Error, Result};
+use crate::stats::Pending;
 
 /// Commands waiting for the writer. Small: a command is a whole file's
 /// batch, and a full queue should push back on the readers, not buffer
@@ -213,17 +214,23 @@ fn commit_group(conn: &mut Connection, group: Vec<Queued>) {
     let mut results: Vec<Result<ImportOutcome>> = Vec::with_capacity(group.len());
     let committed = (|| -> Result<()> {
         let mut tx = conn.transaction()?;
+        // The group's rollup increments (R2.3): each batch's are taken once
+        // its savepoint commits, and added once, before the commit.
+        let mut stats = Pending::new(&tx)?;
         for (batch, _) in &group {
             let savepoint = tx.savepoint()?;
-            match apply_import(&savepoint, batch) {
+            let mut batch_stats = stats.child();
+            match apply_import_into(&savepoint, batch, &mut batch_stats) {
                 Ok(outcome) => {
                     savepoint.commit()?;
+                    stats.merge(batch_stats);
                     results.push(Ok(outcome));
                 }
                 // Dropping the savepoint rolls this batch back alone.
                 Err(error) => results.push(Err(error)),
             }
         }
+        stats.flush(&tx)?;
         tx.commit()?;
         Ok(())
     })();
@@ -265,7 +272,9 @@ fn to_i64(value: u64, what: &'static str) -> Result<i64> {
 /// 2. the file's row gets its new offset, size, mtime, encoding, site and
 ///    error;
 /// 3. each hand is inserted unless its `hand_key` is already stored, and a
-///    newly inserted hand enters `outbox`;
+///    newly inserted hand enters `outbox`, and its seat rows, EV row (or EV
+///    queue entry) and rollup increments are written (R2.3, `stats`; a
+///    duplicate adds nothing);
 /// 4. refusals go to `quarantine` (one row per file and fingerprint,
 ///    refreshed on a re-read);
 /// 5. a registry record is inserted, or its `count` bumped.
@@ -278,6 +287,19 @@ fn to_i64(value: u64, what: &'static str) -> Result<i64> {
 ///
 /// `tx` is the open transaction (or a savepoint in one) the caller commits.
 pub fn apply_import(tx: &Connection, batch: &ImportBatch) -> Result<ImportOutcome> {
+    let mut stats = Pending::new(tx)?;
+    let outcome = apply_import_into(tx, batch, &mut stats)?;
+    stats.flush(tx)?;
+    Ok(outcome)
+}
+
+/// [`apply_import`] with the rollup increments left in `stats`, for the
+/// caller to add (a group's, once per transaction).
+fn apply_import_into(
+    tx: &Connection,
+    batch: &ImportBatch,
+    stats: &mut Pending,
+) -> Result<ImportOutcome> {
     let now = crate::time::now_ms();
     let file = &batch.file;
 
@@ -374,6 +396,7 @@ pub fn apply_import(tx: &Connection, batch: &ImportBatch) -> Result<ImportOutcom
         ])?;
         if inserted == 1 {
             enqueue.execute(params![hand.hand_key, now, hand.played_at])?;
+            stats.add_hand(tx, &hand.hand_key, &hand.stats)?;
             outcome.inserted += 1;
         } else {
             outcome.duplicates += 1;

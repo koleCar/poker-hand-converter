@@ -1,8 +1,50 @@
 //! The string tags of the PHF enums, for messages that print them (the
-//! validator's `${hand.game.variant}`, `${action.type}`, …). They are the
-//! serde tags; a test holds the two to each other.
+//! validator's `${hand.game.variant}`, `${action.type}`, …, and the local
+//! store's columns). They are the serde tags; a test holds the two to each
+//! other.
 
-use super::{ActionType, PotHalf, Street, Variant};
+use super::{ActionType, GameFormat, LimitType, Position, PotHalf, Street, Variant};
+
+impl GameFormat {
+    /// `"cash"`, `"tournament"`, `"sng"` or `"spin"`.
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Cash => "cash",
+            Self::Tournament => "tournament",
+            Self::Sng => "sng",
+            Self::Spin => "spin",
+        }
+    }
+}
+
+impl LimitType {
+    /// `"nl"`, `"pl"` or `"fl"`.
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Nl => "nl",
+            Self::Pl => "pl",
+            Self::Fl => "fl",
+        }
+    }
+}
+
+impl Position {
+    /// The `Position` string, e.g. `"UTG+1"`.
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Btn => "BTN",
+            Self::Sb => "SB",
+            Self::Bb => "BB",
+            Self::Utg => "UTG",
+            Self::Utg1 => "UTG+1",
+            Self::Utg2 => "UTG+2",
+            Self::Mp => "MP",
+            Self::Lj => "LJ",
+            Self::Hj => "HJ",
+            Self::Co => "CO",
+        }
+    }
+}
 
 impl Variant {
     /// The `Variant` string, e.g. `"shortdeck"`.
@@ -132,6 +174,31 @@ mod tests {
         }
         for h in [PotHalf::Hi, PotHalf::Lo] {
             assert_eq!(h.as_str(), tag(h));
+        }
+        for f in [
+            GameFormat::Cash,
+            GameFormat::Tournament,
+            GameFormat::Sng,
+            GameFormat::Spin,
+        ] {
+            assert_eq!(f.as_str(), tag(f));
+        }
+        for l in [LimitType::Nl, LimitType::Pl, LimitType::Fl] {
+            assert_eq!(l.as_str(), tag(l));
+        }
+        for p in [
+            Position::Btn,
+            Position::Sb,
+            Position::Bb,
+            Position::Utg,
+            Position::Utg1,
+            Position::Utg2,
+            Position::Mp,
+            Position::Lj,
+            Position::Hj,
+            Position::Co,
+        ] {
+            assert_eq!(p.as_str(), tag(p));
         }
     }
 }

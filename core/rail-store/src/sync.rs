@@ -423,6 +423,7 @@ impl WriterHandle {
                  ON CONFLICT (hand_key) DO NOTHING",
             )?;
             let mut outcome = PulledOutcome::default();
+            let mut stats = crate::stats::Pending::new(tx)?;
             for hand in &hands {
                 let inserted = insert.execute(params![
                     hand.hand_key,
@@ -448,11 +449,13 @@ impl WriterHandle {
                     at_ms,
                 ])?;
                 if inserted == 1 {
+                    stats.add_hand(tx, &hand.hand_key, &hand.stats)?;
                     outcome.inserted += 1;
                 } else {
                     outcome.present += 1;
                 }
             }
+            stats.flush(tx)?;
             if let Some((key, value)) = cursor {
                 tx.execute(
                     "INSERT INTO kv (key, value, updated_at) VALUES (?1, ?2, ?3)

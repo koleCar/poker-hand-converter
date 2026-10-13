@@ -42,7 +42,13 @@ pub struct WatcherState {
 impl WatcherState {
     /// Start watching the store's enabled folders. Each import with new
     /// hands wakes the sync worker in `sync` once it exists (R1.9).
-    pub fn start(store: &StoreState, sync: crate::sync::SyncSlot) -> Self {
+    /// The statistics pass is woken by the same imports, and paused while a
+    /// folder's backfill runs (R2.3).
+    pub fn start(
+        store: &StoreState,
+        sync: crate::sync::SyncSlot,
+        stats: crate::stats::StatsState,
+    ) -> Self {
         let dirty = Arc::new(AtomicBool::new(true));
         let Some(store) = &store.store else {
             return Self {
@@ -64,11 +70,18 @@ impl WatcherState {
                 };
                 Watcher::start(store.path(), writer, config, move |event| {
                     on_event(&flag, &event);
-                    if let WatchEvent::Imported { inserted, .. } = &event
-                        && *inserted > 0
-                        && let Some(worker) = sync.get()
-                    {
-                        worker.wake();
+                    match &event {
+                        WatchEvent::Imported { inserted, .. } if *inserted > 0 => {
+                            if let Some(worker) = sync.get() {
+                                worker.wake();
+                            }
+                            stats.wake();
+                        }
+                        WatchEvent::Progress {
+                            source_id,
+                            backfill,
+                        } => stats.backfill(*source_id, backfill.is_some()),
+                        _ => {}
                     }
                 })
                 .map_err(|e| e.to_string())
@@ -244,6 +257,15 @@ pub fn spawn_tray_refresher<R: Runtime>(app: &AppHandle<R>) {
 pub fn refresh_tray<R: Runtime>(app: &AppHandle<R>, state: &WatcherState) {
     let text = strings::tray();
     let status = state.status();
+    if let Some(stats) = app.try_state::<crate::stats::StatsState>() {
+        stats.reconcile(
+            status
+                .sources
+                .iter()
+                .filter(|source| source.backfill.is_some())
+                .map(|source| source.id),
+        );
+    }
     let enabled: Vec<&WatchSource> = status
         .sources
         .iter()

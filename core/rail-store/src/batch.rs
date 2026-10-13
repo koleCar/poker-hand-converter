@@ -4,12 +4,14 @@
 //! transaction, so the offset and the hands up to it are stored together or
 //! not at all.
 //!
-//! Everything expensive - canonical JSON, zstd - happens here, on the
-//! producer's thread, not on the writer's.
+//! Everything expensive - canonical JSON, zstd, the statistics (R2.3) -
+//! happens here, on the producer's thread, not on the writer's.
 
 use rail_core::convert::{ConversionFailure, FileConversion};
 use rail_core::phf::PhfHand;
 use rail_core::unrecognized::Unrecognized;
+use rail_equity::EvRow;
+use rail_stats::{Segment, SiteAnonymization, StatsRow};
 
 use crate::error::{Error, Result};
 
@@ -71,6 +73,68 @@ pub struct PreparedHand {
     pub phf_zstd: Vec<u8>,
     /// The canonical JSON's length in bytes.
     pub phf_size: u64,
+    /// Its statistics (R2.3): derived here, on the producer's thread, and
+    /// written with the hand.
+    pub stats: PreparedStats,
+}
+
+/// What happens to a hand's all-in EV row (R2.3).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum EvPlan {
+    /// No hero row: no EV row (as on the web).
+    NoHero,
+    /// Computed here: a hand without an all-in to evaluate, or one on the
+    /// flop or turn (a few hundred boards at most).
+    Row(EvRow),
+    /// A preflop all-in: 1.7M boards to enumerate (25-46 ms) or 20 000 to
+    /// sample. Queued in `ev_pending` for the background pass.
+    Deferred,
+}
+
+/// A hand's statistics, ready for `seat_stats`, the rollups and `ev_rows`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PreparedStats {
+    pub anonymization: SiteAnonymization,
+    pub segment: Segment,
+    /// The kept rows ([`rail_stats::stored_rows`], villains included), each
+    /// with its rollup scope.
+    pub rows: Vec<(StatsRow, String)>,
+    pub ev: EvPlan,
+}
+
+impl PreparedStats {
+    /// Derive the rows a store keeps for `hand` and plan its EV row.
+    pub fn from_phf(hand: &PhfHand) -> Self {
+        let stored = rail_stats::stored_rows(hand, true);
+        let ev = match stored.rows.iter().find(|row| row.seat.is_hero) {
+            None => EvPlan::NoHero,
+            Some(hero) => {
+                rail_equity::ev_row_unless_preflop(hand, hero).map_or(EvPlan::Deferred, EvPlan::Row)
+            }
+        };
+        let anonymization = stored.anonymization;
+        Self {
+            anonymization,
+            segment: stored.segment,
+            rows: stored
+                .rows
+                .into_iter()
+                .map(|row| {
+                    let scope = rail_stats::rollup_scope(anonymization, &row);
+                    (row, scope)
+                })
+                .collect(),
+            ev,
+        }
+    }
+
+    /// The hero's row, when there is one.
+    pub fn hero(&self) -> Option<&StatsRow> {
+        self.rows
+            .iter()
+            .map(|(row, _)| row)
+            .find(|row| row.seat.is_hero)
+    }
 }
 
 /// `handKeyOf(hand)`: the site id trimmed and lower-cased, a colon, and
@@ -114,6 +178,7 @@ impl PreparedHand {
             parser_version: hand.meta.parser_version.clone(),
             phf_zstd,
             phf_size: u64::try_from(json.len()).map_err(|_| Error::OutOfRange("PHF size"))?,
+            stats: PreparedStats::from_phf(hand),
         })
     }
 }
