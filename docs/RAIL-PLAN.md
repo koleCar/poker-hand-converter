@@ -1817,6 +1817,99 @@ under WASM; the registry records an unknown file end to end.
   pipeline over the whole corpus and asserts identical results. The web keeps
   using TS until R4.1.
 - **Done when** shadow mode is green.
+- *As built* (§15):
+  - **API** (`core/rail-core-wasm`, wasm-bindgen **0.2.129**, pinned `=`):
+    `convert(bytes: Uint8Array, filename: string, optionsJson: string)
+    -> string`, `detect(bytes) -> string`, `serialize(phfJson) -> string`,
+    `anonymise(bytes) -> string`, `formats() -> string`. Bytes and JSON
+    text in, JSON text out: one string crosses the boundary per call,
+    `JSON.parse` builds the objects (0.16 s for the corpus's 76 MB of
+    result JSON), and every integer the canonical form allows parses back
+    exactly; `serde-wasm-bindgen` would cross once per field and turn `i64`
+    into `BigInt` or a lossy number. `convert`'s document is
+    `rail-convert/1`: `decode`, `detected { top, candidates }` (the goldens'
+    shape), `chunks`, `hands[] { index, handId, parser, phf, phfSha256,
+    standardText, warnings }`, `refusals[] { index, stage, reason, message,
+    site, permille, parserVersion, fingerprint, rawText, sourceFilename }`,
+    `stats`, `standardTextFile`, the R0.11 `unrecognized` record and
+    `thrown`. Options: **`parsedAt` is required** (the core has no clock;
+    a call without it throws, so a forgotten timestamp cannot become
+    1970), `siteId`, `cashOnly`, `skipBombPots`, `validate` (default true),
+    `standardText` (default true), `digests` (default false: the sha-256 of
+    each hand's canonical JSON **as Rust writes it**, for byte-identity
+    checks). `serialize` takes one PHF hand or an array (a file's text);
+    `anonymise` is R0.11's shareable sample. The core gained
+    `convert::convert_file(bytes, &ConvertOptions)` (and `_with`), of which
+    `convert` is now the special case; nothing else in `rail-core` changed.
+    The logic is `src/api.rs`, plain Rust tested natively (5 tests);
+    `src/lib.rs` is only the `#[wasm_bindgen]` shims, and the crate keeps
+    `#![forbid(unsafe_code)]` (the lint does not look into the macro's
+    expansion). The typed wrapper `js/index.ts` (`railCore(raw)` over the
+    generated `types/phf.d.ts`) takes an already loaded module, so it
+    serves both wasm-bindgen targets.
+  - **Build**: `npm run wasm:build [-- nodejs web]` in `tests/`
+    (`tests/scripts/wasm/build.mjs`): `cargo build -p rail-core-wasm
+    --target wasm32-unknown-unknown --profile wasm-release --locked`, then
+    `wasm-bindgen --target <t> --remove-name-section
+    --remove-producers-section` into `core/rail-core-wasm/pkg/<t>/`
+    (gitignored; rebuilt by CI, a pure function of sources and pinned
+    tools). The script refuses a `wasm-bindgen-cli` other than Cargo.lock's
+    version and prints `cargo install wasm-bindgen-cli --version 0.2.129
+    --locked`. Profile `wasm-release`: `opt-level = "s"`, fat LTO, one
+    codegen unit, `panic = "abort"` (measured: `"z"` is 0.80 MB gzipped but
+    1.6x slower; `3` is 1.00 MB and 8 % faster). **No `wasm-opt`**: not
+    needed for the budget, and an unpinned system binaryen would make the
+    output machine-dependent.
+  - **Size**: **2.28 MB raw, 0.77 MB gzipped** (0.55 MB brotli) against the
+    1.5 MB gzipped budget, checked by `wasm:build` (fails above it) and
+    written to `pkg/size.json`. By `twiggy` on the unstripped module: the
+    name section 0.78 MB (removed), `rail_core`'s own code 0.77 MB, data
+    segments 0.57 MB (mostly the regex engine's Unicode tables and the
+    parsers' strings), `core`/`alloc` generics 0.40 MB, `regex-automata`
+    0.22 MB, `serde_json` 0.17 MB, `aho-corasick` 0.08 MB, `sha2` 8 KB.
+    Lever if it ever matters: the regex Unicode features (they define
+    `\s`/`\w` semantics the ports rely on, so not without a golden run).
+  - **Shadow mode**: `npm run wasm:shadow` (`tests/scripts/wasm/
+    shadow.test.ts`; not in `npm test`, it needs the build). Per corpus file
+    the TypeScript side is the golden emitter's `goldenFor` (the
+    converter's path) and the WASM side one `convert`; the WASM result is
+    rewritten into the `golden-full` document and the two canonical texts
+    must be equal byte for byte (decode, ranking with per-mille, chunks,
+    every PHF in full, warnings with context, refusals, standard-text
+    hashes per hand and per file, stats). Also: each `phfSha256` (Rust's
+    canonical bytes inside WASM) equals the golden hash; refusals'
+    `rawText` / `sourceFilename` equal TypeScript's; the registry record is
+    there exactly for the unclaimed files, with the refusal's fingerprint;
+    `detect` agrees with `convert`; `serialize` of the **TypeScript**
+    hands through the strict Rust model gives the file's standard text;
+    `parsedAt` is the caller's. Result: **556 / 556 files, 8 422 hands,
+    196 refusals** equal, the 24 unrecognised files with their record.
+    `goldenFor` now also returns `convertAny`'s raw result (no output
+    change; `golden-fresh` unaffected).
+  - **Throughput** over the corpus (M-series Mac, Node 24, warm, one
+    thread): TypeScript `decodeSource` + `convertAny` **~3 150 hands/s**;
+    WASM `convert` + `JSON.parse` **~2 600-2 700 hands/s** (~2 300 with
+    standard text). The WASM core is ~15 % slower than V8 running the
+    TypeScript - most likely V8's irregexp JIT against the `regex` crate
+    compiled to wasm32 without SIMD (not profiled further); whole-file
+    detection alone is 0.65 s of the WASM pass's ~3 s. `JSON.parse` of the
+    results is 0.16 s. Not a blocker for R4.1 (the web parses in a worker,
+    a 10 000-hand file in ~3-4 s either way); the native core is the fast
+    path for the desktop.
+  - **CI**: job `wasm` (ubuntu, beside the `core` matrix): rust-cache (which
+    keeps `~/.cargo/bin`), `wasm-bindgen-cli` installed at Cargo.lock's
+    version only when the cached one differs, `npm run wasm:build` (size
+    budget), `npm run wasm:shadow`. The `core` job's plain wasm32
+    `cargo build` stays.
+  - **For R4.1**: build with `npm run wasm:build -- web` (ES module; the
+    worker awaits its default `init()` with the `.wasm` URL, then passes
+    the module to `railCore`); serve `rail_core_wasm_bg.wasm` with
+    `application/wasm` and a long cache lifetime; pass `parsedAt: new
+    Date().toISOString()`; move the build into the web's build (Vercel
+    needs Rust + the pinned wasm-bindgen-cli, or CI publishes `pkg/web` as
+    an artifact the deploy consumes - decide then); swap `phf/types.ts`
+    for `types/phf.d.ts`; keep the "zero server requests" check (the
+    `.wasm` is a static asset of the same origin).
 
 ### R0.14 Repository layout and rename — M
 - User-facing name "Rail" everywhere (app copy, metadata, package names). GitHub
@@ -2244,3 +2337,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R0.10d done, R0.10 complete - all 19 parsers in Rust**: `ongame`, `entraction` and `unibet`, registered in `index.ts` order; `parsers::ported()` is the whole registry and a test asserts `builtin()` equals `REGISTRATION_ORDER`. All three build on `p2_handbuilder` (Unibet through `draft_to_standard_text` with its own tournament first line, `$` patterns expanded as `String.prototype.replace` does). Additive shared change: `phf::money::{format_amount_digits_js, parse_buy_in_token_js}`; the `dev` profile optimises the regex and sha-256 dependencies (test speed only). Goldens: `ongame` **13 / 13** files (21 hands, 1 refusal), `entraction` **13 / 13** (21 hands, 1 refusal - the validator's `hi-lo-payout-contradiction`; three of four Hi/Lo files convert), `unibet` **5 / 5** (4 hands, 2 refusals), fully; and the Phase 0 exit check minus WASM: the whole Rust pipeline over the corpus equals every golden - **556 / 556** files, **8 422 / 8 422** hands, **196 / 196** refusals. Beyond the corpus (`tests/data/p4-vectors.*`): 78 text-room probes, splits, 35 detection probes, **6 026** seeded cases through all three parsers, the 31 files re-encoded six ways, all equal (two soak runs of 47 786 cases too). 43 TS test cases translated (`legacyNetworks` Ongame / Entraction, `unibetParser`, `phfHiLo` Entraction; not the replayer or `analyzeAllIn`). Not reproducible, reported: seats, sizes and buttons between 2^32 and 2^53. Phase 0 left: R0.11 registry, R0.12 `sites.json`, R0.13 WASM + shadow mode, R0.14 layout. |
 | 2026-10-13 | **R0.11 done** (Phase 0 part; the desktop-local `unsupported` table waits for R1.2): the core returns `FileConversion::unrecognized` - `Unrecognized { fingerprint, header_sample, guessed_site, confidence, guess_basis, shape }` - beside the unchanged `unknown-site` refusal for a file no parser claims; every golden byte-identical, the 24 unrecognised files carry a record with the golden's fingerprint, Boss Media and Merge guessed by signature at 1000. The anonymiser (`rail-anon/1`, `rail-convert --anonymise`) replaces every name its wide rules find, consistently, amounts and layout kept, 64 KiB samples: over all **556** corpus files **3 454** (file, name) pairs / **1 471** distinct names checked, none survives (no name of 3+ characters even as a substring). Migration `20270414090000_unparsed_registry.sql` (not applied to production): `unparsed_hands.origin` (`web` default) / `os` / `client_version` / `consented_at` / `anonymiser_version` / `guessed_site` / `guess_confidence`, the consent rule in the RPC and in `CHECK` constraints, `unparsed_gaps.desktop_hands` / `guessed_sites`; pgTAP 41 tests; types regenerated. `docs/unsupported-formats.md` with the weekly triage query; label `new-format`. Phase 0 left: R0.12 `sites.json`, R0.13 WASM + shadow mode, R0.14 layout. |
 | 2026-10-13 | **R0.12 done**: `config/sites.json` v1 and `config/sites.schema.json` (draft 2020-12). One entry per client (room or skin) with a `parser` field; `network` entries stand in where the clients are not yet told apart (iPoker, Chico, Ignition and the closed networks) and can never carry table data or allow a HUD; `standard` is a `format`. **22 entries**: the 19 parsers, plus WPT Global, Boss Media and Merge without one. Unknown is `null`: every `hud.allowed` `null`; 2 paths in all (PokerStars, inferred, `verified: false`); `files.live` from the README §6 starting point, unverified; every `tables` field `null`. `rail-config`: typed loader (`load`, `load_shipped`, `load_remote`), `validate` / `check_coverage`, `merge_remote` (a remote file may only make HUD policy stricter, `false` < `null` < `true`; unknown remote ids ignored; identity changes ignored), `Site::hud_permitted`; builds for wasm32 (added to CI's WebAssembly build). CI: a parser without an entry, or an entry naming a missing parser, fails `cargo test` - the guideline §14 rule is now enforced; the file is validated against its schema by ajv in `tests/`. Phase 0 left: R0.13 WASM + shadow mode, R0.14 layout. |
+| 2026-10-13 | **R0.13 done**: `rail-core-wasm` with wasm-bindgen 0.2.129 - `convert(bytes, filename, optionsJson)` (`rail-convert/1`: decode, detection, hands as PHF with optional Rust-side canonical sha-256, refusals with raw text, warnings, standard text per hand and per file, stats, the R0.11 `unrecognized` record; `parsedAt` required from the caller), `detect`, `serialize` (one hand or a file), `anonymise`, `formats`; JSON text both ways; typed wrapper `core/rail-core-wasm/js/index.ts` over `types/phf.d.ts`; `forbid(unsafe_code)` kept. `npm run wasm:build` (cargo profile `wasm-release`: `opt-level = "s"`, fat LTO, 1 CGU, abort; pinned wasm-bindgen-cli, name section removed, no wasm-opt; output gitignored): **2.28 MB raw, 0.77 MB gzipped** (budget 1.5 MB, enforced). **Shadow mode** (`npm run wasm:shadow`): the WASM core equals the TypeScript pipeline on **556 / 556** corpus files - **8 422** hands byte-identical in canonical PHF (Rust's own canonical hash = the golden's), **196** refusals with stage, reason, message and fingerprint, warnings, standard text per hand and per file; registry record on all 24 unclaimed files. Throughput: TypeScript ~3 150 hands/s, WASM ~2 600 (with `JSON.parse`). CI job `wasm` (build, budget, shadow). **Phase 0 exit, all but R0.14**: the golden diff is 100 % natively on Linux, macOS and Windows (`core` job, `every_corpus_file_matches_its_golden`) and under WASM (`wasm` job); the registry's record comes out of the core on the web path (WASM) for every unclaimed file - its write to `unparsed_hands` from the web stays the TypeScript one until R4.1, and from the desktop arrives with R1.2. Phase 0 left: R0.14 layout and rename. |

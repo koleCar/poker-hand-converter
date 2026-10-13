@@ -23,7 +23,9 @@
     "learn:directions": "vitest run --config scripts/learn-directions/vitest.config.ts directions",
     "learn:lab": "vitest run --config scripts/learn-directions/vitest.config.ts lab",
     "golden:emit": "vitest run --config scripts/golden/vitest.config.ts",
-    "phf:dts-check": "tsc -p scripts/phf-dts"
+    "phf:dts-check": "tsc -p scripts/phf-dts",
+    "wasm:build": "node scripts/wasm/build.mjs",
+    "wasm:shadow": "vitest run --config scripts/wasm/vitest.config.ts"
   },
   "keywords": [],
   "author": "",

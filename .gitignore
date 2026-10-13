@@ -27,6 +27,9 @@ pnpm-debug.log*
 
 # Rust
 /target/
+# The WebAssembly core's wasm-bindgen output (`npm run wasm:build` in tests/,
+# docs/RAIL-PLAN.md R0.13): rebuilt from source, never committed.
+/core/rail-core-wasm/pkg/
 
 # Golden oracle with PHF bodies written out (~137 MB); regenerate with
 # `npm run golden:emit` in tests/. See testdata/golden/README.md.

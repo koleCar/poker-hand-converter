@@ -387,8 +387,9 @@ What CI runs on Linux, macOS and Windows:
 cargo fmt --all --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo test --workspace --locked
-cargo build -p rail-core -p rail-core-wasm --target wasm32-unknown-unknown --locked
+cargo build -p rail-core -p rail-core-wasm -p rail-config --target wasm32-unknown-unknown --locked
 (cd tests && npm run phf:dts-check)           # Rust-generated PHF declarations = types.ts
+(cd tests && npm run wasm:build && npm run wasm:shadow)   # Linux only, CI job `wasm` (below)
 ```
 
 `cargo test` round-trips every golden hand through the Rust PHF model and
@@ -415,6 +416,18 @@ fingerprint and the core's guess (R0.11). The exit code is
 1 only when a file cannot be read (2 for a usage error); a refused hand or an
 unrecognised file is part of the result. `meta.parsedAt` is pinned to
 1970-01-01, as in the goldens: the core has no clock.
+
+The core as WebAssembly (since R0.13; the web app switches to it in R4.1),
+and shadow mode - the WASM core next to the TypeScript pipeline over the
+whole corpus, every result compared byte for byte:
+
+```bash
+cargo install wasm-bindgen-cli --version 0.2.129 --locked   # once; must match Cargo.lock
+cd tests
+npm run wasm:build           # core/rail-core-wasm/pkg/nodejs/ (gitignored); fails over 1.5 MB gzipped
+npm run wasm:build -- web    # the ES-module target the web worker will load (R4.1)
+npm run wasm:shadow          # 556 files: WASM = TypeScript; prints both throughputs
+```
 
 Coming with later steps:
 

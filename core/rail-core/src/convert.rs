@@ -157,6 +157,31 @@ pub fn convert_with(
     bytes: &[u8],
     filename: &str,
 ) -> FileConversion {
+    let options = ConvertOptions {
+        source_filename: Some(filename.to_owned()),
+        validate: true,
+        ..ConvertOptions::default()
+    };
+    convert_file_with(registry, checks, bytes, &options)
+}
+
+/// [`convert`] with the caller's options: the WebAssembly facade's entry
+/// (R0.13), which takes `parsedAt` from its caller since the core has no
+/// clock. With `options.source_filename` set, `validate: true` and the
+/// rest at their defaults it is exactly [`convert`].
+pub fn convert_file(bytes: &[u8], options: &ConvertOptions) -> FileConversion {
+    convert_file_with(crate::parsers::builtin(), &CoreChecks, bytes, options)
+}
+
+/// [`convert_file`] with a given registry and checks. A forced parser
+/// (`options.site_id`) still reports the detection ranking; the registry
+/// record is made only when nothing is forced and no parser claims the file.
+pub fn convert_file_with(
+    registry: &Registry,
+    checks: &dyn HandChecks,
+    bytes: &[u8],
+    options: &ConvertOptions,
+) -> FileConversion {
     let Decoded {
         text,
         encoding,
@@ -171,11 +196,6 @@ pub fn convert_with(
             unrecognized: None,
         };
     }
-    let options = ConvertOptions {
-        source_filename: Some(filename.to_owned()),
-        validate: true,
-        ..ConvertOptions::default()
-    };
     let candidates = registry.detect_site(&text);
     let detected = candidates
         .iter()
@@ -186,10 +206,9 @@ pub fn convert_with(
         .collect();
     // No candidate and no forced parser: `run` refuses the file whole as
     // `unknown-site`, and the registry gets its record.
-    let unrecognized = candidates
-        .is_empty()
+    let unrecognized = (candidates.is_empty() && options.site_id.is_none())
         .then(|| crate::unrecognized::unrecognized(registry, &text));
-    let result = run(registry, checks, &text, &options, Some(candidates));
+    let result = run(registry, checks, &text, options, Some(candidates));
     FileConversion {
         encoding,
         problem: None,

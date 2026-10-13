@@ -181,6 +181,51 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: cargo build -p rail-core -p rail-core-wasm -p rail-config --target wasm32-unknown-unknown --locked
 
+  # The WebAssembly core and shadow mode (docs/RAIL-PLAN.md R0.13): the core
+  # built for the browser with wasm-bindgen, its size held to the plan's
+  # budget (< 1.5 MB gzipped), and then run next to the TypeScript pipeline
+  # over every corpus file - the golden diff under WASM, which with the
+  # `core` job's native diff on three OSes is the Phase 0 exit check. A job
+  # of its own so it runs beside the `core` matrix rather than after it.
+  #
+  # wasm-bindgen-cli must be the exact version of the wasm-bindgen crate in
+  # Cargo.lock; rust-cache keeps ~/.cargo/bin, so it is compiled only when the
+  # cache is cold or the version moves.
+  wasm:
+    name: WebAssembly core, shadow mode
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - run: npm ci
+        working-directory: tests
+
+      - name: wasm-bindgen-cli (the version in Cargo.lock)
+        run: |
+          version="$(grep -A1 '^name = "wasm-bindgen"$' Cargo.lock | sed -n 's/^version = "\(.*\)"$/\1/p')"
+          if [ "$(wasm-bindgen --version 2>/dev/null)" != "wasm-bindgen $version" ]; then
+            cargo install wasm-bindgen-cli --version "$version" --locked
+          fi
+          wasm-bindgen --version
+
+      - name: Build, size budget
+        run: npm run wasm:build
+        working-directory: tests
+
+      # Every corpus file through the TypeScript pipeline and the WASM core;
+      # also prints the throughput of both.
+      - name: Shadow mode
+        run: npm run wasm:shadow
+        working-directory: tests
+
   database:
     name: Migrations and pgTAP
     runs-on: ubuntu-latest
