@@ -21,6 +21,14 @@ pub struct Tray {
     /// The status line while old hands are imported (R1.6): percent of the
     /// bytes, hands so far.
     pub status_importing: fn(u64, u64) -> String,
+    /// The account line (R1.7): signed in, with the email.
+    pub account_signed_in: fn(&str) -> String,
+    /// Signed in, but the last refresh did not reach the server.
+    pub account_offline: fn(&str) -> String,
+    pub account_signing_in: &'static str,
+    pub account_signed_out: &'static str,
+    /// A build without Supabase: no account at all.
+    pub account_offline_only: &'static str,
     pub open: &'static str,
     pub pause_import: &'static str,
     pub resume_import: &'static str,
@@ -61,6 +69,22 @@ fn importing_hr(percent: u64, hands: u64) -> String {
     format!("Uvoz {percent} % · ruke: {hands}")
 }
 
+fn signed_in_en(email: &str) -> String {
+    format!("Signed in as {email}")
+}
+
+fn offline_en(email: &str) -> String {
+    format!("{email} · offline")
+}
+
+fn signed_in_hr(email: &str) -> String {
+    format!("Prijavljen: {email}")
+}
+
+fn offline_hr(email: &str) -> String {
+    format!("{email} · izvan mreže")
+}
+
 fn watching_hr(folders: usize, hands_today: u64) -> String {
     format!("Mape: {folders} · ruke danas: {hands_today}")
 }
@@ -77,6 +101,11 @@ pub const TRAY_EN: Tray = Tray {
     status_unavailable: unavailable_en,
     status_error: "Import is not running",
     status_importing: importing_en,
+    account_signed_in: signed_in_en,
+    account_offline: offline_en,
+    account_signing_in: "Signing in in your browser…",
+    account_signed_out: "Not signed in",
+    account_offline_only: "Working offline",
     open: "Open Rail",
     pause_import: "Pause import",
     resume_import: "Resume import",
@@ -91,6 +120,11 @@ pub const TRAY_HR: Tray = Tray {
     status_unavailable: unavailable_hr,
     status_error: "Uvoz nije pokrenut",
     status_importing: importing_hr,
+    account_signed_in: signed_in_hr,
+    account_offline: offline_hr,
+    account_signing_in: "Prijava u pregledniku…",
+    account_signed_out: "Nisi prijavljen",
+    account_offline_only: "Rad bez mreže",
     open: "Otvori Rail",
     pause_import: "Pauziraj uvoz",
     resume_import: "Nastavi uvoz",
@@ -123,5 +157,13 @@ mod tests {
             "Importing 37% · 12345 hands"
         );
         assert_eq!((TRAY_HR.status_importing)(37, 5), "Uvoz 37 % · ruke: 5");
+        assert_eq!(
+            (TRAY_EN.account_signed_in)("p@example.test"),
+            "Signed in as p@example.test"
+        );
+        assert_eq!(
+            (TRAY_EN.account_offline)("p@example.test"),
+            "p@example.test · offline"
+        );
     }
 }

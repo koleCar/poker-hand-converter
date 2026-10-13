@@ -4,6 +4,7 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useT } from "../../i18n";
 import { inApp } from "../../lib/ipc";
 import { About } from "./About";
+import { Account } from "./Account";
 import { Folders } from "./Folders";
 import { Preferences } from "./Preferences";
 import { RefusedAll } from "./RefusedAll";
@@ -20,6 +21,7 @@ export function Settings() {
       <ScreenHeader title={t.screens.settings.title} lead={t.screens.settings.lead} />
       {inApp ? (
         <div className={styles.sections}>
+          <Account />
           <Folders />
           <RefusedAll />
           <Preferences />

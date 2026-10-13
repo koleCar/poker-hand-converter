@@ -73,6 +73,7 @@ export const en = {
     unsupported: "Unsupported formats",
     outbox: "Waiting to sync",
     storeFile: "Stored in",
+    account: "Account settings",
   },
 
   /** The Today screen's watcher status (R1.3). */
@@ -140,8 +141,8 @@ export const en = {
 
     signIn: {
       heading: "1. Sign in",
-      body: "Signing in will keep your hands in sync with the web. It comes in a later version; until then Rail works on this computer without an account.",
-      later: "Coming soon",
+      useOffline: "Use offline",
+      offlineChosen: "Rail works offline. You can sign in any time in Settings, Account.",
     },
 
     folders: {
@@ -169,6 +170,43 @@ export const en = {
       heading: "3. Open a table",
       body: "Play as usual. Rail reads each hand as your poker room writes it, and Today shows them arriving.",
       done: "Go to Today",
+    },
+  },
+
+  /** The desktop account (R1.7): Settings, Account; the first-run screen; Today. */
+  account: {
+    heading: "Account",
+    loading: "Loading…",
+    notConfigured:
+      "This build of Rail has no account service. Everything works on this computer; nothing is synced.",
+    signedOut:
+      "Sign in to keep your hands in sync with the web. Rail opens the sign-in page in your browser, where your password manager and Google sign-in work as usual.",
+    signIn: "Sign in in your browser",
+    waiting: (time: string) => `Finish signing in in your browser (${time} left).`,
+    waitingHint: "Already signed in on the web? Confirm there with Sign in to Rail.",
+    openAgain: "Open the page again",
+    cancel: "Cancel",
+    signedInAs: (email: string) => `Signed in as ${email}`,
+    online: "Connected.",
+    offline: "Offline. Rail keeps working and reconnects by itself.",
+    signOut: "Sign out",
+    notSignedIn: "Not signed in: your hands stay on this computer.",
+    signingInShort: "Signing in in your browser…",
+    signingOut: "Signing out…",
+    failed: (reason: string) => `That did not work: ${reason}`,
+    notices: {
+      cancelled: "Signing in was cancelled in the browser.",
+      timedOut: "Signing in took longer than ten minutes. Start again.",
+      notInProgress: "That sign-in link was for an earlier attempt, or Rail was restarted since. Start again.",
+      invalidLink: "That sign-in link was not valid. Start again.",
+      linkRejected: "That sign-in expired or was already used. Start again.",
+      offline: "Rail could not reach the server to finish signing in. Check the connection and start again.",
+      sessionEnded:
+        "You were signed out: the session ended on the server (for example after a password change). Sign in again.",
+      keychainUnavailable:
+        "Rail could not use the system keychain, so it will ask you to sign in again after it restarts.",
+      signedOutLocally: "Signed out on this computer. Rail could not reach the server to end the session there.",
+      browserFailed: "Rail could not open your browser. Use Open the page again.",
     },
   },
 

@@ -565,6 +565,20 @@ server-side; `?next=` there is validated against a fixed allow-list of relative
 paths, because an open redirect on a page that has just minted a session is an
 account-takeover vector rather than a phishing nuisance.
 
+**The desktop app signs in through this site** (R1.7, `/auth/desktop`): the
+app opens the page in the system browser with `?v=1&pub=..&state=..&t=..`
+(a public key and a random state, not secrets); the page moves them into
+`sessionStorage` and out of the address bar, has the user sign in as usual if
+needed (so `/auth/desktop` is on the `?next=` allow-list, for a Google round
+trip), asks "Sign in to the Rail app on this computer?", and on the click
+calls the Edge Function `desktop-handoff` with the user's own access token.
+What comes back is a one-time token encrypted to the app's key; the page
+redirects to `rail://auth/callback` and marks the state used. Expired (the
+app waits ten minutes; `t` is the same computer's clock), already used and
+malformed requests each get their own message. Details and the threat model:
+`docs/DATABASE.md`, "Desktop sign-in"; the page's code is
+`app/auth/desktop/` and `lib/auth/desktop.ts`.
+
 Server-side code resolves identity with **`getUser()`, never `getSession()`** —
 `getSession()` decodes the cookie without verifying the JWT signature, which is
 fine for a value this origin wrote into its own storage and wrong for input that

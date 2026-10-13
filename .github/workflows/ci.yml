@@ -223,6 +223,11 @@ jobs:
     env:
       CARGO_PROFILE_RELEASE_LTO: "false"
       CARGO_PROFILE_RELEASE_CODEGEN_UNITS: "16"
+      # The desktop sign-in (R1.7) compiles in the project's public anon key
+      # (the same value the web ships in its JavaScript). A repository
+      # *variable*, not a secret; empty until the owner sets it, and then the
+      # bundle says sign-in is not available and works offline.
+      RAIL_SUPABASE_ANON_KEY: ${{ vars.RAIL_SUPABASE_ANON_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -397,6 +402,37 @@ jobs:
 
       - name: pgTAP
         run: supabase test db
+
+  # The desktop sign-in's Edge Function (docs/RAIL-PLAN.md R1.7):
+  # supabase/functions/desktop-handoff. Format, lint, type check and the unit
+  # tests - the handoff payload (including the test vector the Rust side
+  # opens too) and the handler against a fake GoTrue. No network, no secrets,
+  # nothing deployed; the end-to-end run against a local stack is
+  # `supabase/functions/desktop-handoff/e2e.sh` (needs Docker).
+  functions:
+    name: Edge Functions (Deno)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: supabase/functions
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.6.8
+
+      - name: Format
+        run: deno fmt --check
+
+      - name: Lint
+        run: deno lint
+
+      - name: Type check
+        run: deno check desktop-handoff/*.ts desktop-handoff/testdata/*.ts
+
+      - name: Test
+        run: deno test --allow-read=.
 
   fixtures:
     name: Fixture bytes unchanged

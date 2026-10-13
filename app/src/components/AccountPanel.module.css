@@ -1,0 +1,74 @@
+/* The account panel (R1.7): Settings, Account and the first-run step 1. */
+
+.body {
+  color: var(--text-secondary);
+}
+
+.signedIn {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.muted {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.notice {
+  color: var(--warning-fg);
+  font-size: var(--font-size-sm);
+}
+
+.error {
+  color: var(--danger-fg);
+  font-size: var(--font-size-sm);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.button {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-2);
+  background: var(--accent-bg);
+  color: var(--text-on-accent);
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--accent-bg-hover);
+}
+
+.secondary {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.secondary:hover {
+  border-color: var(--border-strong);
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-link);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.button:disabled,
+.secondary:disabled,
+.link:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}

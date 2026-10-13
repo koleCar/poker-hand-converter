@@ -30,7 +30,12 @@
 //!   remove it, and its refused hands with their reasons;
 //! - the import pipeline's face (R1.6): backfill progress in the tray and
 //!   the window (`watch::CHANGED_EVENT`), refused hands app-wide with their
-//!   raw text and "Try again after an update" ([`quarantine`]).
+//!   raw text and "Try again after an update" ([`quarantine`]);
+//! - the account ([`account`], R1.7): sign-in through the system browser and
+//!   a `rail://` callback (`tauri-plugin-deep-link`; a second process started
+//!   by a link forwards it here through the single-instance plugin), the
+//!   session's refresh token in the OS keychain, refreshed in the
+//!   background, and its line in the tray.
 
 use std::sync::Mutex;
 
@@ -38,6 +43,7 @@ use tauri::{AppHandle, Manager, Runtime, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_log::{RotationStrategy, Target, TargetKind};
 
+pub mod account;
 pub mod commands;
 #[cfg(debug_assertions)]
 pub mod dev;
@@ -145,6 +151,10 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     }
     watch::spawn_tray_refresher(app);
 
+    // The account (R1.7): after the tray (it sets the account line), and
+    // before the window shows, so a link that started the app is handled.
+    account::setup(app);
+
     // The window is created hidden (`visible: false`) so a login start can
     // stay in the tray.
     if std::env::args().any(|arg| arg == MINIMIZED_ARG) {
@@ -159,11 +169,15 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
 pub fn run() {
     let builder = tauri::Builder::default()
         // Must be the first plugin: a second instance exits inside it,
-        // before anything else starts.
+        // before anything else starts. With its `deep-link` feature, a
+        // `rail://` link in the second instance's arguments (Windows, Linux)
+        // arrives here as a deep-link event (`account::setup`).
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             log::info!("second instance started: focusing this one");
             show_main_window(app);
         }))
+        // `rail://` links (R1.7), handled in Rust; no permission for the window.
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(log_plugin())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
@@ -200,6 +214,11 @@ pub fn run() {
         quarantine::quarantine_entries,
         quarantine::quarantine_raw_text,
         quarantine::retry_refused,
+        account::account_status,
+        account::account_sign_in,
+        account::account_open_sign_in_page,
+        account::account_cancel_sign_in,
+        account::account_sign_out,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -230,6 +249,11 @@ pub fn run() {
         quarantine::quarantine_entries,
         quarantine::quarantine_raw_text,
         quarantine::retry_refused,
+        account::account_status,
+        account::account_sign_in,
+        account::account_open_sign_in_page,
+        account::account_cancel_sign_in,
+        account::account_sign_out,
     ]);
 
     let app = builder

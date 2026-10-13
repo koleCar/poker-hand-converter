@@ -1,0 +1,11 @@
+{
+  "comment": "rail-desktop-handoff/1 test vector: test keys, protect nothing. Made by make_vector.ts.",
+  "appSecret": "Jl5OAuLMj5pk_2spVO-dJLpfE4wR9I2zLIEmH9mJwCE",
+  "appPublic": "B6ehHVam8CxuPEsopxrLu36r7Ur8W9cxMA1T64gRRlE",
+  "ephemeralSecret": "cUiCr0FMt_6ALFdN7c_H1UU5pLjUtblRMnzGgQmzVAA",
+  "ephemeralPublic": "xdZrL1gvbBSbfcjwcRdZ9MoqTG2uTOe8oC-oH5L0-To",
+  "state": "tajoXK6lS9kAY6fTIXAik-qiySlREK9hjoiNGcVMeQQ",
+  "nonce": "YQZ7lKmQImwNQbLm",
+  "plaintext": "{\"v\":1,\"type\":\"magiclink\",\"tokenHash\":\"5c1f3b7e0a9d4c2b8e6f1a3d5b7c9e0f2a4c6e8b0d1f3a5c7e9b2d4f\",\"userId\":\"00000000-0000-0000-0000-0000000a0a01\",\"email\":\"vector@example.test\"}",
+  "payload": "AcXWay9YL2wUm33I8HEXWfTKKkxtrkznvKAvqB-S9Pk6YQZ7lKmQImwNQbLml9UkvXHfrp5JfLAje6UCHnA1VwyBqyomECk2rkHOshgERFAlGA6BMgxNaDW21Pd1i7PAX91WYxHGtKu8cCpzyhb3qJXRSMF9CW9-_H-uatdHPnfArIcaWaP1eFjESgwFlI5HtvBEmCb8SK8tM9bsRFzY8EnjDkmnaMeflbXcuTVXVEWOSdeOGDgZhhKDPYzaVC5lzdqx8ISM3YlbQO50rIW-dL3XTmMm0yPpAtRkFmNVCE5OiDkqhBWtfV4SOEE"
+}

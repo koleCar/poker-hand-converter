@@ -102,7 +102,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | File watcher | **`core/rail-watch` (R1.3)**: FSEvents / ReadDirectoryChangesW / inotify (`notify`) + a rescan every 60 s, network folders polled; reads each file from its stored offset and imports a hand once it is complete (the next hand started, or the file quiet and the hand valid), in any of the corpus encodings; truncation, replaced, renamed and deleted files, unplugged drives; pause / resume. Proven by appending corpus files in random chunks, byte by byte included; the app runs it, tray and Today show it. **Folder discovery (R1.4)**: the rooms' default folders from `sites.json` that exist on this computer, with file counts and the last file's date, confirmed on the first-run screen with "import everything" or "only new hands"; a room's folder reads only its files. **Settings → Folders (R1.5)**: add, change path (moves keep offsets), room override, on/off, recursive, poll only, remove, per-folder status and refused hands. **Import pipeline (R1.6)**: a pool of import threads (physical cores - 1), live files first, large files cut into parallel batches, grouped commits; backfill progress in the tray, on Today and the folder cards; refused hands app-wide with their raw text and "Try again after an update"; 10 300 hands/s on an M2 Pro (target >= 5 000), guarded in CI | Sync to Supabase (R1.8-R1.9) | 1 |
 | Local database | **`core/rail-store` (R1.2)**: SQLite (bundled, WAL), embedded migrations, one writer thread committing each file read with its offset in one transaction, read pool, hands as zstd PHF deduped by `hand_key`, quarantine, unsupported-format registry, sync outbox; survives a killed process mid-import (tested on three OSes); the app opens it and Today shows its counts | Statistics, rollups and HUD layouts added (Phases 2–3) | 1 |
 | Sync | Web saves to Supabase directly | Desktop outbox → idempotent upsert; pull of web uploads | 1 |
-| Desktop sign-in | — | System browser + PKCE + `rail://` deep link | 1 |
+| Desktop sign-in | **R1.7**: the app signs in through the system browser - `/auth/desktop` on the web (Turnstile, password managers and Google work there), the Edge Function `desktop-handoff`, and a `rail://` link carrying a one-time token encrypted to a key the app keeps in memory for that sign-in; the app gets a session of its own (its own refresh-token chain), the refresh token in the OS keychain, refreshed in the background, sign-out ends only the app's session; optional ("Use offline") while Q3 is open. Tested end to end against a local stack; production needs the owner's checklist (function deploy, the anon key in the build: [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.7) | Sign in with Apple; the domain (P2) | 1 |
 | Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats` | Ported to Rust, computed at import; display stats defined in `config/stats/` | 2 |
 | Desktop UI | **App shell (R1.1)**: Tauri 2 + React in `app/` - single instance, tray, start at login, log files, settings; the six screens as placeholders; Settings, About reads the Rust core; unsigned macOS and Windows bundles from CI | Tauri 2 + React: Today, Hands, Reports, Players, HUD, Settings | 1–2 |
 | HUD | — | Separate native process, Windows first, then macOS | 3 |
@@ -245,6 +245,16 @@ offset moves in the same transaction as the hands read up to it, so a crash
 never loses or doubles a hand; `cargo test -p rail-store --test crash` kills
 an importing process at random points and checks exactly that.
 
+Since R1.7, `core/rail-sync` holds the desktop account (`rail_sync::auth`):
+the `rail://` sign-in handoff (an X25519 key pair and a `state` per sign-in,
+in memory only; the web's payload decrypts only with that key and that
+state), the three GoTrue calls (verify the one-time token, refresh, log out;
+reqwest with rustls on *ring* and the OS certificate verifier), and the
+manager: one sign-in at a time for ten minutes, refresh five minutes before
+expiry with backoff while offline, sign-out when the server refuses the
+refresh token. The sync worker (R1.9) takes its access token from
+`Account::access_token()`.
+
 ### 5.4 Statistics engine (`core/rail-stats`, Phase 2)
 
 Today's [`stats/2`](docs/STATS-SPEC.md) engine — every judgement call where
@@ -311,7 +321,11 @@ unless the user saves it still holds. The HUD exists only in the desktop app.
 ### 5.8 Supabase (`supabase/`)
 
 Project `riybwcfnclphacnfawiq`, Central EU, Postgres 17. Every query runs as the
-signed-in user under RLS; there is no service-role key in either client. Rows
+signed-in user under RLS; there is no service-role key in either client. The
+one server-side use of the service role is the Edge Function
+`supabase/functions/desktop-handoff` (R1.7), which mints a one-time sign-in
+token for the desktop app, for the signed-in caller only, from the runtime's
+own `SUPABASE_SERVICE_ROLE_KEY`. Rows
 are insert-only for clients (update and delete are refused everywhere, with a
 handful of narrow `security definer` exceptions). Full schema, threat model and
 migration procedure: [`docs/DATABASE.md`](docs/DATABASE.md).
@@ -536,6 +550,22 @@ is chosen, Q2): `settings.json` in the OS config directory, `rail.log` in
 the OS log directory (Settings, About shows both paths), and the hand store
 `rail.db` in the OS local data directory (since R1.2; the Today screen shows
 its counts and path).
+
+Signing in (since R1.7): Settings → Account (or step 1 of the first-run
+screen) opens `<web>/auth/desktop` in the default browser; after "Sign in to
+Rail" there, the browser hands the app a `rail://auth/callback` link and the
+app signs in with a session of its own. The refresh token is in the OS
+keychain (service `app.rail.desktop`, account `session@<Supabase host>`),
+never in `settings.json` or the log. Rail works without an account ("Use
+offline"). Where it signs in is compiled in: `RAIL_SUPABASE_URL` and
+`RAIL_WEB_URL` default to production, `RAIL_SUPABASE_ANON_KEY` (the public
+anon key) has no default, and a build without it says sign-in is not
+available; a debug build also reads the three at run time. `rail://` links
+reach only a bundled app on macOS (the bundle's Info.plist registers the
+scheme); in `tauri dev` on macOS the link does not come back, so the flow is
+checked end to end with `supabase/functions/desktop-handoff/e2e.sh` against
+a local Supabase stack instead (the app's code, the real function and
+GoTrue; see the script's header).
 
 CI job `app` lints and typechecks the TypeScript on Linux, runs clippy and
 the crate's tests on Linux, macOS and Windows, and attaches an unsigned

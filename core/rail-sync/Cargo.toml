@@ -1,14 +1,37 @@
 [package]
 name = "rail-sync"
-description = "Sync between the local store and Supabase"
+description = "Sync between the local store and Supabase: the desktop account (R1.7), later the outbox and the pull"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 publish.workspace = true
 repository.workspace = true
 
+# Pinned exactly, like the app's Tauri crates: these hold the desktop
+# session's secrets and talk to the auth server, so a version moves only on
+# purpose. `reqwest` and `tokio` are the versions Tauri already brings.
 [dependencies]
 rail-store = { path = "../rail-store" }
+# HTTPS to Supabase. rustls with the *ring* provider (reqwest's own
+# `rustls` feature would pull aws-lc-rs, a C/assembly build on every OS);
+# certificates are checked by the operating system's verifier
+# (rustls-platform-verifier), so a corporate root the user trusts works.
+reqwest = { version = "=0.13.5", default-features = false, features = ["rustls-no-provider", "json"] }
+rustls = { version = "=0.23.45", default-features = false, features = ["ring", "std", "tls12", "logging"] }
+# The handoff's HKDF, AES-256-GCM and randomness (already here for rustls).
+ring = "=0.17.14"
+# X25519 for the handoff: a key the app keeps in memory for one sign-in.
+x25519-dalek = { version = "=2.0.1", features = ["static_secrets"] }
+zeroize = "=1.8.2"
+base64 = "=0.22.1"
+url = "=2.5.8"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+tokio = { version = "=1.53.2", features = ["time", "sync", "macros", "rt"] }
+log = "0.4.34"
+
+[dev-dependencies]
+tokio = { version = "=1.53.2", features = ["time", "sync", "macros", "rt", "rt-multi-thread", "test-util"] }
 
 [lints]
 workspace = true

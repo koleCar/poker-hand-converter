@@ -420,3 +420,17 @@ s3_region = "env(S3_REGION)"
 s3_access_key = "env(S3_ACCESS_KEY)"
 # Configures AWS_SECRET_ACCESS_KEY for S3 bucket
 s3_secret_key = "env(S3_SECRET_KEY)"
+
+# The desktop sign-in handoff (docs/RAIL-PLAN.md R1.7).
+#
+# `verify_jwt = false` on purpose: the function refuses a call without a bearer
+# token itself and verifies the token with GoTrue (`GET /auth/v1/user`), which
+# accepts whatever the project signs with. The gateway's own check only knows
+# the legacy HS256 secret, so it rejects user tokens signed with the newer
+# asymmetric keys -- which is what this CLI's local stack issues (ES256), and
+# what the live project issues once it moves to JWT signing keys. Deploy with
+# `supabase functions deploy desktop-handoff --no-verify-jwt` (or let this file
+# set it).
+[functions.desktop-handoff]
+enabled = true
+verify_jwt = false

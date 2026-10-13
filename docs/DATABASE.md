@@ -16,6 +16,7 @@ The schema is defined by four migrations:
 | `20261026090000_forum_social.sql` | Saves, thread subscriptions, notifications, mentions, realtime, nightly reconciliation (F9, #38 / #39). See [Notifications](#notifications-and-realtime). |
 | `20261102090000_forum_moderation.sql` | Reports, mod queue, moderator and admin powers, bans, shadowbans, revisions, append-only audit, per-actor limits, spam gate (F10, #40 / #41). See [Moderation](#moderation-and-anti-abuse). |
 | `20270414090000_unparsed_registry.sql` | Rail R0.11: `unparsed_hands` becomes the unsupported-format registry for the desktop app too - `origin`, `os`, `client_version`, `consented_at`, `anonymiser_version`, `guessed_site`, `guess_confidence`, the consent rule, two more `unparsed_gaps` columns. See [`unparsed_hands`](#unparsed_hands--the-failure-corpus) and `docs/unsupported-formats.md`. |
+| `20270421090000_desktop_sign_in.sql` | Rail R1.7: `claim_desktop_sign_in()`, the per-account budget of the desktop sign-in handoff (10 an hour). The handoff itself is the Edge Function `supabase/functions/desktop-handoff`. See [Desktop sign-in](#desktop-sign-in-the-edge-function-desktop-handoff). |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -57,7 +58,7 @@ There are exactly three kinds of caller:
 | --- | --- | --- |
 | **`anon`** | Logged out, or a guest who chose to carry on without an account | `read_share(slug)` / `record_share_view(slug)`, the `profiles_public` view, `resolve_username(name)`, visible rows of `published_hands` (plus `read_published_hand` / `published_hands_by_author`), and `read_shared_analysis(surface, id, version)` — a hand's analysis, only where its owner shared it and the hand is already public to the caller. No grant on `hands` or `profiles`, no write anywhere except that one view counter. |
 | **`authenticated`** | Signed in, identified by `auth.uid()` | Their own hands, their own shares, their own corpus samples. Nobody else's, by any query. |
-| **`service_role`** | Us, from the dashboard or the Management API | Everything. Triage, cleanup, backfills. |
+| **`service_role`** | Us, from the dashboard or the Management API; and one Edge Function, `desktop-handoff` (R1.7), with the runtime's own key | Everything. Triage, cleanup, backfills. The function uses it for exactly one call: minting a one-time sign-in token for the account whose JWT called it ([Desktop sign-in](#desktop-sign-in-the-edge-function-desktop-handoff)). |
 
 The rules the schema holds to:
 
@@ -136,6 +137,7 @@ per-user counter is a strictly larger table with a cleanup job attached.
 | `lesson_results:<user>` | 300 calls (≤ 100 results each) / 10 min **per account** | `record_lesson_results()` |
 | `lesson_cards:<user>` | 120 calls (≤ 20 cards each) / 10 min **per account** | `add_lesson_cards()` |
 | `lesson_review:<user>` | 600 reviews / 10 min **per account** | `review_lesson_card()` |
+| `desktop_sign_in:<user>` | 10 handoffs / hour **per account** | `claim_desktop_sign_in()`, called by the `desktop-handoff` Edge Function as the user |
 
 `share_view` is the one per-key bucket, because the thing it protects is
 per-key: a view counter anyone can increment by holding a URL is a vanity metric
@@ -154,6 +156,43 @@ rows per `INSERT` statement, 500 hands per `save_hands()` call, 200 records per
 `ingest_rate_limit` has RLS enabled with **no policies** and all grants revoked,
 so it is invisible to the anon key; only the `security definer` functions reach
 it.
+
+### Desktop sign-in: the Edge Function `desktop-handoff`
+
+R1.7 (`docs/RAIL-PLAN.md`, amendment A6). The desktop app cannot sign in by
+itself - password sign-in needs Turnstile, which is bound to the web's
+domain - so it signs in through the web, and this is the one place a
+service-role key is used outside the dashboard.
+
+* The app opens `/auth/desktop?v=1&pub=<X25519 public key>&state=<random>&t=<time>`
+  in the system browser. The user signs in there as usual and clicks
+  "Sign in to Rail" (no silent approval: a page that approved on load would
+  sign in whatever program opened it).
+* The page calls the function with the user's own access token and
+  `{v, pub, state}`. The function refuses a call without a bearer token,
+  verifies the token with GoTrue (`GET /auth/v1/user`), refuses an
+  anonymous user, a user without an email and **an unconfirmed email** (a
+  magic link confirms the address it is for, so minting one would confirm
+  an address nobody proved), spends one unit of `claim_desktop_sign_in()`
+  **as the user**, and only then calls
+  `POST /auth/v1/admin/generate_link {type: "magiclink", email}` with the
+  service role. Nothing is emailed. It checks the token was minted for the
+  same user id.
+* It returns the token **encrypted** to `pub` (ephemeral X25519, HKDF-SHA-256,
+  AES-256-GCM, `state` as associated data). The browser only ever holds
+  ciphertext; the page redirects to `rail://auth/callback?state=..&payload=..`,
+  and only the app instance that holds the private key can open it. The app
+  redeems the token at `/auth/v1/verify`, which gives it **its own session**:
+  the browser's refresh token never reaches the app (two clients rotating one
+  refresh token would trip GoTrue's reuse detection and end both).
+* Logs carry outcomes only - no token, email, user id or body.
+* Side effect worth knowing: GoTrue keeps one magic-link/recovery token per
+  user, so a desktop sign-in invalidates a password-reset email sent
+  shortly before it.
+* `verify_jwt = false` for this function (`supabase/config.toml`): the
+  gateway's check only knows the legacy HS256 secret and rejects tokens
+  signed with asymmetric JWT keys; the function's own GoTrue check accepts
+  both.
 
 ### `security` and `search_path` on functions
 
@@ -181,6 +220,7 @@ why:
 | `resolve_share` | **definer** | Deprecated wrapper over the two above; removal on or after 2026-11-27. |
 | `phf_redact_private` | invoker | Pure jsonb→jsonb, no table access. Not granted to clients; it is an internal of `read_share`. |
 | `enforce_rate_limit` | **definer** | The counter table is unreachable from anon. Not granted to clients. |
+| `claim_desktop_sign_in` | **definer** | Calls `enforce_rate_limit`, which no client may execute; the bucket is built from `auth.uid()` alone. Executable by `authenticated` only (R1.7). |
 | `hands_rate_limit` (trigger) | **definer** | Has to call `enforce_rate_limit`, which anon cannot execute. |
 
 ---

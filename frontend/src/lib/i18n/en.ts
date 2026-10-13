@@ -35,6 +35,7 @@ import { analysisEn } from "./ns/analysis.en";
 import { chromeEn } from "./ns/chrome.en";
 import { converterEn } from "./ns/converter.en";
 import { courseEn } from "./ns/course.en";
+import { desktopEn } from "./ns/desktop.en";
 import { learnEn } from "./ns/learn.en";
 import { manualEn } from "./ns/manual.en";
 import { replayerEn } from "./ns/replayer.en";
@@ -50,6 +51,7 @@ export const en = {
   converter: converterEn,
   manual: manualEn,
   chrome: chromeEn,
+  desktop: desktopEn,
 
   brand: {
     name: "Rail",

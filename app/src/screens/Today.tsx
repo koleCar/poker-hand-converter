@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { useT } from "../i18n";
 import { errorText, inApp, ipc, type StoreStatus } from "../lib/ipc";
+import { go } from "../lib/router";
+import { useAccount } from "../lib/useAccount";
 import { ImportStatus } from "./ImportStatus";
 import styles from "./Today.module.css";
 
@@ -11,8 +13,9 @@ const REFRESH_MS = 5000;
 
 const number = new Intl.NumberFormat();
 
-/** Today: the watcher's folders with a backfill's progress (R1.3, R1.6) and
- * the local store's counts (R1.2). The session result arrives in Phase 2. */
+/** Today: who is signed in (R1.7), the watcher's folders with a backfill's
+ * progress (R1.3, R1.6) and the local store's counts (R1.2). The session
+ * result arrives in Phase 2. */
 export function Today() {
   const t = useT();
   const [status, setStatus] = useState<StoreStatus | null>(null);
@@ -64,6 +67,7 @@ export function Today() {
   return (
     <>
       <ScreenHeader title={t.screens.today.title} lead={t.screens.today.lead} />
+      <AccountLine />
       <ImportStatus />
       <section className={styles.section} aria-labelledby="today-store">
         <h2 id="today-store" className={styles.heading}>
@@ -90,5 +94,30 @@ export function Today() {
         )}
       </section>
     </>
+  );
+}
+
+/** One line: signed in as whom (and whether online), or not signed in. */
+function AccountLine() {
+  const t = useT();
+  const { account } = useAccount();
+  if (!account || account.state === "notConfigured") {
+    return null;
+  }
+  const text =
+    account.state === "signedIn"
+      ? account.online
+        ? t.account.signedInAs(account.email)
+        : `${t.account.signedInAs(account.email)} · ${t.account.offline}`
+      : account.state === "signingIn"
+        ? t.account.signingInShort
+        : t.account.notSignedIn;
+  return (
+    <p className={styles.account}>
+      <span>{text}</span>
+      <button type="button" className={styles.link} onClick={() => go("settings")}>
+        {t.today.account}
+      </button>
+    </p>
   );
 }

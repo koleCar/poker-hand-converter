@@ -100,6 +100,11 @@ export const paths = {
    */
   profile: (username: string) => `/u/${encodeURIComponent(username)}`,
   settings: () => "/settings",
+  /**
+   * Signs the Rail desktop app in through this browser (R1.7). The app opens it
+   * with `?v=1&pub=..&state=..&t=..`; see `lib/auth/desktop.ts`.
+   */
+  desktopSignIn: () => "/auth/desktop",
   /** The forum. `/` is the all-boards feed; a board has its own. */
   board: (slug: string) => `/f/${encodeURIComponent(slug)}`,
   /**
