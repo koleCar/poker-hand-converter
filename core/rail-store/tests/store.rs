@@ -497,6 +497,234 @@ fn sources_and_kv() {
     assert_eq!(store.reader().kv("missing").expect("kv"), None);
 }
 
+/// Copy corpus files into a folder and import them as that folder's.
+fn import_into(store: &Store, folder: &Path, id: i64, files: &[(&str, &str)]) {
+    fs::create_dir_all(folder).expect("folder");
+    for (name, corpus) in files {
+        let path = folder.join(name);
+        fs::copy(corpus_file(corpus), &path).expect("copy");
+        import_file(
+            store,
+            &path,
+            &ImportOptions {
+                parsed_at: Some(PARSED_AT.to_owned()),
+                source_id: Some(id),
+            },
+        )
+        .expect("import");
+    }
+}
+
+/// Settings → Folders (R1.5): recursive, and the room override - which
+/// sets back exactly the files the parser now in force reads differently,
+/// with their quarantine, and keeps every hand.
+#[test]
+fn recursive_flag_and_room_override() {
+    let dir = scratch_dir("override");
+    let store = Store::open(dir.join("rail.db")).expect("open");
+    let writer = store.writer().expect("writer");
+    let folder = dir.join("hh");
+    let id = store
+        .add_source(&path_key(&folder), true, None)
+        .expect("add");
+    import_into(
+        &store,
+        &folder,
+        id,
+        &[("chico.txt", CHICO), ("boss.txt", BOSSMEDIA)],
+    );
+    let by_name = |name: &str| {
+        store
+            .reader()
+            .source_files(id)
+            .expect("files")
+            .into_iter()
+            .find(|file| file.path.ends_with(name))
+            .expect("file")
+    };
+    assert_eq!(by_name("chico.txt").site.as_deref(), Some("chico"));
+    assert_eq!(by_name("boss.txt").site, None, "nothing claims it");
+    assert!(by_name("boss.txt").read_offset > 0);
+    assert_eq!(
+        store.reader().source_quarantine(id, 100).expect("q").len(),
+        13
+    );
+
+    // Recursive.
+    assert!(writer.set_source_recursive(id, false).expect("recursive"));
+    assert!(!store.reader().sources().expect("sources")[0].recursive);
+    assert!(!writer.set_source_recursive(id + 100, true).expect("none"));
+
+    // An override for the room that already reads the Chico file: only the
+    // file nothing claimed goes back to 0.
+    let change = writer
+        .set_source_site_override(id, Some("chico"))
+        .expect("override");
+    assert_eq!((change.found, change.reset), (true, 1));
+    let boss = by_name("boss.txt");
+    assert_eq!((boss.read_offset, boss.size, boss.site), (0, 0, None));
+    assert!(by_name("chico.txt").read_offset > 0);
+    assert_eq!(
+        store.reader().sources().expect("sources")[0]
+            .site_override
+            .as_deref(),
+        Some("chico")
+    );
+    // The same choice again changes nothing.
+    let again = writer
+        .set_source_site_override(id, Some("chico"))
+        .expect("again");
+    assert_eq!((again.found, again.reset), (true, 0));
+
+    // Another room: both files are read again; the Chico file's refusals
+    // go with it, its hands stay.
+    let change = writer
+        .set_source_site_override(id, Some("pokerstars"))
+        .expect("override");
+    assert_eq!(change.reset, 2);
+    assert!(
+        store
+            .reader()
+            .source_quarantine(id, 100)
+            .expect("q")
+            .is_empty()
+    );
+    assert_eq!(by_name("chico.txt").read_offset, 0);
+    assert_eq!(store.status().expect("status").hands, 4);
+    assert_eq!(store.reader().sources().expect("sources")[0].hands, 4);
+
+    // Back to detection: only files nothing claimed (both, now) are reset.
+    let change = writer.set_source_site_override(id, None).expect("clear");
+    assert_eq!((change.found, change.reset), (true, 2));
+    assert_eq!(
+        store.reader().sources().expect("sources")[0].site_override,
+        None
+    );
+    let missing = writer
+        .set_source_site_override(id + 100, Some("chico"))
+        .expect("no such folder");
+    assert_eq!(missing, rail_store::OverrideChange::default());
+
+    let conn = Connection::open(store.path()).expect("open");
+    assert_integrity(&conn);
+}
+
+/// A folder's path changes: the files found again under the new path keep
+/// their rows and offsets (a move); the others are detached with their
+/// hands kept (as remove + add); a row the new folder already had joins it.
+#[test]
+fn a_folder_path_changes() {
+    let dir = scratch_dir("move");
+    let store = Store::open(dir.join("rail.db")).expect("open");
+    let writer = store.writer().expect("writer");
+    let old = dir.join("old");
+    let new = dir.join("new");
+    let id = store.add_source(&path_key(&old), true, None).expect("add");
+    import_into(
+        &store,
+        &old,
+        id,
+        &[
+            ("chico.txt", CHICO),
+            ("boss.txt", BOSSMEDIA),
+            ("z.txt", CHICO),
+        ],
+    );
+    // `new/z.txt` was read before, outside any folder.
+    import_into(&store, &new, id, &[("z.txt", CHICO)]);
+    let conn = Connection::open(store.path()).expect("open");
+    conn.execute(
+        "UPDATE files SET source_id = NULL WHERE path = ?1",
+        [path_key(&new.join("z.txt"))],
+    )
+    .expect("detach");
+    let before = store.reader().source_files(id).expect("files");
+    assert_eq!(before.len(), 3);
+    let offset_of = |files: &[rail_store::read::FileSummary], path: &Path| {
+        files
+            .iter()
+            .find(|file| file.path == path_key(path))
+            .map(|file| (file.id, file.read_offset))
+    };
+    let chico_before = offset_of(&before, &old.join("chico.txt")).expect("chico");
+
+    // Another folder has the path: refused, nothing changes.
+    let other = store
+        .add_source(&path_key(&dir.join("other")), true, None)
+        .expect("other");
+    let taken = writer.set_source_path(id, &path_key(&dir.join("other")), Vec::new());
+    assert!(
+        matches!(taken, Err(Error::PathTaken { id: taken_by, .. }) if taken_by == other),
+        "{taken:?}"
+    );
+    assert_eq!(store.reader().source_files(id).expect("files").len(), 3);
+
+    let moves = vec![
+        rail_store::FileMove {
+            from: path_key(&old.join("chico.txt")),
+            to: path_key(&new.join("chico.txt")),
+        },
+        rail_store::FileMove {
+            from: path_key(&old.join("z.txt")),
+            to: path_key(&new.join("z.txt")),
+        },
+        // Not this folder's file: ignored.
+        rail_store::FileMove {
+            from: path_key(&dir.join("elsewhere.txt")),
+            to: path_key(&new.join("elsewhere.txt")),
+        },
+    ];
+    let change = writer
+        .set_source_path(id, &path_key(&new), moves)
+        .expect("move");
+    assert_eq!(
+        change,
+        rail_store::PathChange {
+            found: true,
+            moved: 1,
+            adopted: 1,
+            detached: 2,
+        }
+    );
+    let after = store.reader().source_files(id).expect("files");
+    assert_eq!(after.len(), 2);
+    assert_eq!(
+        offset_of(&after, &new.join("chico.txt")),
+        Some(chico_before),
+        "same row, same offset"
+    );
+    assert!(offset_of(&after, &new.join("z.txt")).is_some());
+    let source = store
+        .reader()
+        .sources()
+        .expect("sources")
+        .into_iter()
+        .find(|source| source.id == id)
+        .expect("folder");
+    assert_eq!(source.path, path_key(&new));
+    assert_eq!(source.status, "idle");
+    // Every hand stays; the detached files keep theirs, without a folder.
+    assert_eq!(store.status().expect("status").files, 4);
+    let files = store.reader().files().expect("files");
+    let boss = files
+        .iter()
+        .find(|file| file.path == path_key(&old.join("boss.txt")))
+        .expect("boss");
+    assert_eq!(boss.source_id, None);
+
+    // Remove + add: a folder with none of the files detaches them all.
+    let change = writer
+        .set_source_path(id, &path_key(&dir.join("empty")), Vec::new())
+        .expect("replace");
+    assert_eq!((change.moved, change.adopted, change.detached), (0, 0, 2));
+    assert!(store.reader().source_files(id).expect("files").is_empty());
+    let missing = writer
+        .set_source_path(id + 100, "/nowhere", Vec::new())
+        .expect("no such folder");
+    assert!(!missing.found);
+    assert_integrity(&conn);
+}
+
 /// Not text: the file is recorded with its error and its offset at the end,
 /// so it is not read again until it changes.
 #[test]

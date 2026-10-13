@@ -100,8 +100,14 @@ export interface StoreStatus {
 export interface WatchSource {
   id: number;
   path: string;
+  /** Switched on (a disabled folder keeps its hands). */
+  enabled: boolean;
   /** The room it is the default folder of (`sites.json` id), if known. */
   site: string | null;
+  /** That room's name in `sites.json`. */
+  siteName: string | null;
+  /** The room chosen by hand: a parser id forced for every file (R1.5). */
+  siteOverride: string | null;
   state: "watching" | "polling" | "unavailable" | "error" | "disabled";
   /** Why the folder cannot be read or watched. */
   error: string | null;
@@ -127,6 +133,53 @@ export interface WatchStatus {
   /** Set when the watcher is not running, and why. */
   error: string | null;
   sources: WatchSource[];
+}
+
+/** `folder_settings::AddedFolder`: a folder added by hand (R1.5). */
+export interface AddedOneFolder {
+  id: number;
+  path: string;
+  marked: number;
+}
+
+/** `folder_settings::FolderMoved`: what a new path did to a folder's files. */
+export interface FolderMoved {
+  /** Found again under the new path: they continue from their offsets. */
+  moved: number;
+  /** Files of the new folder read before: they keep their own offsets. */
+  adopted: number;
+  /** Not in the new folder: their hands stay, without a folder. */
+  detached: number;
+  /** Marked as read ("only new hands"). */
+  marked: number;
+}
+
+/** `folder_settings::RoomChoice`: a room a folder can be set to. */
+export interface RoomChoice {
+  /** The parser id (`sources.site_override`). */
+  parser: string;
+  name: string;
+}
+
+/** `folder_settings::RefusedHand`: one refused hand of a folder. */
+export interface RefusedHand {
+  id: number;
+  file: string;
+  stage: string;
+  /** The machine reason code (`chip-mismatch`, ...). */
+  reason: string;
+  message: string;
+  detectedSite: string | null;
+  /** ms since the epoch. */
+  lastSeen: number;
+}
+
+/** `folder_settings::FolderQuarantine`. */
+export interface FolderQuarantine {
+  reasons: { reason: string; count: number }[];
+  entries: RefusedHand[];
+  /** More entries exist than are listed. */
+  truncated: boolean;
 }
 
 /** `dev::ConvertSummary`; debug builds only. */
@@ -163,6 +216,19 @@ export const ipc = {
     invoke<AddedFolder[]>("add_folders", { folders, onlyNew }),
   /** The system folder picker; `null` when cancelled. */
   pickFolder: () => invoke<string | null>("pick_folder"),
+  /** Settings, Folders (R1.5). `pollOnly: null` decides by the volume. */
+  addFolder: (path: string, onlyNew: boolean, recursive: boolean, pollOnly: boolean | null) =>
+    invoke<AddedOneFolder>("add_folder", { path, onlyNew, recursive, pollOnly }),
+  setFolderPath: (id: number, path: string, onlyNew: boolean) =>
+    invoke<FolderMoved>("set_folder_path", { id, path, onlyNew }),
+  /** `parser: null` detects the room per file. Returns the files read again. */
+  setFolderRoom: (id: number, parser: string | null) => invoke<number>("set_folder_room", { id, parser }),
+  setFolderEnabled: (id: number, enabled: boolean) => invoke<null>("set_folder_enabled", { id, enabled }),
+  setFolderRecursive: (id: number, recursive: boolean) => invoke<null>("set_folder_recursive", { id, recursive }),
+  setFolderPollOnly: (id: number, pollOnly: boolean) => invoke<null>("set_folder_poll_only", { id, pollOnly }),
+  removeFolder: (id: number) => invoke<null>("remove_folder", { id }),
+  folderRooms: () => invoke<RoomChoice[]>("folder_rooms"),
+  folderQuarantine: (id: number) => invoke<FolderQuarantine>("folder_quarantine", { id }),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),

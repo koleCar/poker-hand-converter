@@ -408,3 +408,223 @@ fn only_new_hands_and_a_rooms_files() {
     assert_eq!(status.sources[0].files, 2);
     running.watcher.stop();
 }
+
+fn source_files(running: &Running, id: i64) -> Vec<rail_store::read::FileSummary> {
+    running.store.reader().source_files(id).expect("files")
+}
+
+/// R1.5, "Change folder": a folder whose files are found again under the
+/// new path (copied or moved) continues from the stored offsets; a folder
+/// with other files is read from scratch (or only its new hands), and the
+/// old files are detached with their hands.
+#[test]
+fn a_folder_path_changes_and_continues_where_it_stopped() {
+    let running = start("move", fast());
+    let old = running.dir.join("old");
+    fs::create_dir_all(&old).expect("folder");
+    let id = running
+        .watcher
+        .add_source(&old, true, Some(false))
+        .expect("add");
+    let stars = corpus(STARS);
+    let starts = hand_starts(&stars);
+    fs::write(old.join("table.txt"), &stars[..starts[4]]).expect("write");
+    wait_for("5 hands", 20, || hands(&running.store) == 5);
+    let before = source_files(&running, id);
+    assert_eq!(before.len(), 1);
+
+    // The folder is copied elsewhere (a new drive, say) and the room goes
+    // on writing there.
+    let new = running.dir.join("new");
+    fs::create_dir_all(&new).expect("folder");
+    fs::copy(old.join("table.txt"), new.join("table.txt")).expect("copy");
+    running.events.lock().expect("events").clear();
+    let moved = running
+        .watcher
+        .set_source_path(id, &new, false)
+        .expect("move");
+    assert_eq!(
+        (
+            moved.change.found,
+            moved.change.moved,
+            moved.change.detached,
+            moved.marked
+        ),
+        (true, 1, 0, 0)
+    );
+    let after = source_files(&running, id);
+    assert_eq!(after.len(), 1);
+    assert_eq!(
+        (after[0].id, after[0].read_offset),
+        (before[0].id, before[0].read_offset),
+        "the same row, at the same offset"
+    );
+    assert_eq!(
+        after[0].path,
+        rail_store::import::path_key(&new.join("table.txt"))
+    );
+    wait_for("watching the new path", 20, || {
+        running.watcher.status().expect("status").sources[0].path
+            == rail_store::import::path_key(&new)
+            && state_of(&running, id) == Some(SourceState::Watching)
+    });
+    append(&new.join("table.txt"), &stars[starts[4]..]);
+    wait_for("10 hands", 20, || hands(&running.store) == 10);
+    let reads: Vec<u64> = running
+        .events
+        .lock()
+        .expect("events")
+        .iter()
+        .filter_map(|event| match event {
+            WatchEvent::Imported { from, .. } => Some(*from),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        !reads.is_empty() && reads.iter().all(|from| *from > 0),
+        "continued from the offset, never from 0: {reads:?}"
+    );
+
+    // Another folder with other files: the old file is detached (its hands
+    // stay), and "only new hands" skips what is there.
+    let other = running.dir.join("other");
+    fs::create_dir_all(&other).expect("folder");
+    let winamax = corpus(WINAMAX);
+    let winamax_starts = hand_starts(&winamax);
+    fs::write(other.join("wina.txt"), &winamax[..winamax_starts[4]]).expect("write");
+    let replaced = running
+        .watcher
+        .set_source_path(id, &other, true)
+        .expect("replace");
+    assert_eq!(
+        (
+            replaced.change.moved,
+            replaced.change.detached,
+            replaced.marked
+        ),
+        (0, 1, 1)
+    );
+    wait_for("watching the other path", 20, || {
+        state_of(&running, id) == Some(SourceState::Watching)
+    });
+    std::thread::sleep(Duration::from_millis(500));
+    assert_eq!(hands(&running.store), 10, "the old hands are skipped");
+    append(&other.join("wina.txt"), &winamax[winamax_starts[4]..]);
+    wait_for("the new hands", 20, || hands(&running.store) == 15);
+    let status = running.watcher.status().expect("status");
+    assert_eq!((status.sources[0].files, status.sources[0].hands), (1, 5));
+
+    // A path another folder has is refused.
+    let second = running
+        .watcher
+        .add_source(&running.dir.join("second"), true, Some(false))
+        .expect("add");
+    assert!(
+        running
+            .watcher
+            .set_source_path(second, &other, false)
+            .is_err()
+    );
+    let missing = running
+        .watcher
+        .set_source_path(id + 100, &new, false)
+        .expect("no such folder");
+    assert!(!missing.change.found);
+    running.watcher.stop();
+}
+
+/// R1.5: the room chosen by hand is honoured on reload - the folder's files
+/// are read again with that parser - and clearing it reads them again with
+/// detection; hands stay throughout.
+#[test]
+fn a_room_override_is_honoured_and_can_be_cleared() {
+    let running = start("override", fast());
+    let folder = running.dir.join("hh");
+    fs::create_dir_all(&folder).expect("folder");
+    let id = running
+        .watcher
+        .add_source(&folder, true, Some(false))
+        .expect("add");
+    fs::write(folder.join("stars.txt"), corpus(STARS)).expect("write");
+    wait_for("the hands", 20, || hands(&running.store) == 10);
+    assert_eq!(
+        source_files(&running, id)[0].site.as_deref(),
+        Some("pokerstars")
+    );
+
+    assert!(matches!(
+        running.watcher.set_source_site_override(id, Some("nope")),
+        Err(rail_watch::Error::UnknownParser(_))
+    ));
+
+    // The wrong room, forced: the file is read again with its parser.
+    let change = running
+        .watcher
+        .set_source_site_override(id, Some("winamax"))
+        .expect("override");
+    assert_eq!((change.found, change.reset), (true, 1));
+    wait_for("the file read with the forced parser", 20, || {
+        let file = &source_files(&running, id)[0];
+        file.read_offset == file.size && file.size > 0
+    });
+    let file = &source_files(&running, id)[0];
+    assert_eq!(file.site.as_deref(), Some("winamax"), "{file:?}");
+    let status = running.watcher.status().expect("status");
+    assert_eq!(status.sources[0].site_override.as_deref(), Some("winamax"));
+    assert_eq!(hands(&running.store), 10, "hands stay");
+
+    // Back to detection: read again, as PokerStars, with nothing refused.
+    let change = running
+        .watcher
+        .set_source_site_override(id, None)
+        .expect("clear");
+    assert_eq!((change.found, change.reset), (true, 1));
+    wait_for("the file read with detection", 20, || {
+        let file = &source_files(&running, id)[0];
+        file.site.as_deref() == Some("pokerstars") && file.read_offset == file.size
+    });
+    let status = running.watcher.status().expect("status");
+    assert_eq!(status.sources[0].site_override, None);
+    assert_eq!(status.sources[0].quarantined, 0);
+    assert_eq!(hands(&running.store), 10);
+    running.watcher.stop();
+}
+
+/// R1.5: switching "recursive" off stops reading subfolders; the hands
+/// already read from them stay.
+#[test]
+fn recursive_off_reads_the_top_level_only() {
+    let running = start("recursive", fast());
+    let folder = running.dir.join("hh");
+    let sub = folder.join("sub");
+    fs::create_dir_all(&sub).expect("folders");
+    let id = running
+        .watcher
+        .add_source(&folder, true, Some(false))
+        .expect("add");
+    fs::write(sub.join("stars.txt"), corpus(STARS)).expect("write");
+    wait_for("the subfolder's hands", 20, || hands(&running.store) == 10);
+
+    assert!(
+        running
+            .watcher
+            .set_source_recursive(id, false)
+            .expect("recursive")
+    );
+    wait_for("top level only", 20, || {
+        !running.watcher.status().expect("status").sources[0].recursive
+    });
+    let winamax = corpus(WINAMAX);
+    fs::write(sub.join("wina.txt"), &winamax).expect("write");
+    std::thread::sleep(Duration::from_millis(1_000));
+    assert_eq!(hands(&running.store), 10, "the subfolder is not read");
+    fs::write(folder.join("wina.txt"), &winamax).expect("write");
+    wait_for("the top level's hands", 20, || hands(&running.store) == 20);
+    assert!(
+        !running
+            .watcher
+            .set_source_recursive(id + 100, true)
+            .expect("none")
+    );
+    running.watcher.stop();
+}

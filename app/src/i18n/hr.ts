@@ -93,6 +93,28 @@ export const hr: Dict = {
     pending: (count) => `čeka kraj ruke: ${count}`,
   },
 
+  foundFolders: {
+    room: "Soba",
+    folder: "Mapa",
+    files: "Datoteke",
+    lastHand: "Zadnja ruka",
+    watch: (path) => `Prati ${path}`,
+    atLeast: (count) => `${count}+`,
+    noFiles: "Još nema",
+    unknown: "Nepoznato",
+    watched: "Već se prati",
+    manual: "Dodali ste vi",
+    unverified: "Ova zadana mapa još nije potvrđena na stvarnoj instalaciji.",
+    notThisRoom: "Najnovije datoteke ovdje ne izgledaju kao ruke ove sobe.",
+  },
+
+  importChoice: {
+    importAll: "Uvezi sve",
+    importAllHint: "Sve ruke koje su već tu, a zatim svaku novu dok igrate.",
+    onlyNew: "Samo nove ruke",
+    onlyNewHint: "Ono što je sada tu ostaje; uvoze se samo ruke odigrane od sada.",
+  },
+
   firstRun: {
     title: "Dobro došli u Rail",
     lead: "Tri koraka do prvog HUD-a: prijava, potvrda mapa s rukama, otvaranje stola.",
@@ -110,18 +132,6 @@ export const hr: Dict = {
       searching: "Tražimo mape vaših poker soba…",
       found: (count) => `Rail je na ovom računalu pronašao mapa: ${count}.`,
       lead: "Odznačite mapu koju ne želite. Kasnije to možete promijeniti u Postavkama.",
-      room: "Soba",
-      folder: "Mapa",
-      files: "Datoteke",
-      lastHand: "Zadnja ruka",
-      watch: (path) => `Prati ${path}`,
-      atLeast: (count) => `${count}+`,
-      noFiles: "Još nema",
-      unknown: "Nepoznato",
-      watched: "Već se prati",
-      manual: "Dodali ste vi",
-      unverified: "Ova zadana mapa još nije potvrđena na stvarnoj instalaciji.",
-      notThisRoom: "Najnovije datoteke ovdje ne izgledaju kao ruke ove sobe.",
       empty: "Rail na ovom računalu nije pronašao nijednu mapu s rukama.",
       lookedFor: (rooms) => `Tražio je u zadanim mapama ovih soba: ${rooms}.`,
       noRooms: "Za ovaj sustav još nije poznata zadana mapa nijedne poker sobe.",
@@ -130,10 +140,6 @@ export const hr: Dict = {
       addManually: "Ručno dodaj mapu…",
       choosing: "Odabir…",
       existingHeading: "Ruke koje su već u ovim mapama",
-      importAll: "Uvezi sve",
-      importAllHint: "Sve ruke koje su već tu, a zatim svaku novu dok igrate.",
-      onlyNew: "Samo nove ruke",
-      onlyNewHint: "Ono što je sada tu ostaje; uvoze se samo ruke odigrane od sada.",
       confirm: (count) => `Prati mape: ${count}`,
       adding: "Dodavanje…",
       added: (count) => `Rail prati mapa: ${count}.`,
@@ -155,8 +161,108 @@ export const hr: Dict = {
 
     folders: {
       heading: "Mape s rukama",
-      body: "Ponovno potražite mape svojih poker soba ili dodajte mapu ručno.",
-      open: "Pronađi mape…",
+      body: "Rail čita nove ruke iz ovih mapa čim ih vaše poker sobe zapišu.",
+      loading: "Učitavanje mapa…",
+      notRunning: (reason) => `Uvoz nije pokrenut: ${reason}`,
+      loadFailed: (reason) => `Mape se nisu učitale: ${reason}`,
+      empty: "Još se ne prati nijedna mapa. Dodajte je ili pustite Rail da potraži mape vaših poker soba.",
+      add: "Dodaj mapu…",
+      choosing: "Odabir…",
+      findAgain: "Ponovno potraži mape",
+      setup: "Otvori ekran za postavljanje",
+      list: "Praćene mape",
+
+      search: {
+        heading: "Mape koje je Rail pronašao",
+        searching: "Tražimo mape vaših poker soba…",
+        failed: (reason) => `Traženje mapa nije uspjelo: ${reason}`,
+        noneNew: "Nema novih mapa: svaka mapa koju Rail poznaje već se prati.",
+        found: (count) => `Rail je pronašao mapa koje se još ne prate: ${count}.`,
+        existingHeading: "Ruke koje su već u ovim mapama",
+        confirm: (count) => `Prati mape: ${count}`,
+        adding: "Dodavanje…",
+        added: (count) => `Rail sada prati još mapa: ${count}.`,
+        close: "Zatvori",
+      },
+
+      room: "Soba",
+      roomFound: (name) => `${name} (pronašao Rail)`,
+      roomChosen: (name) => `${name} (odabrali ste vi)`,
+      roomDetected: "Prepoznaje se po datoteci",
+      roomAuto: "Prepoznaj po datoteci",
+      roomHint:
+        "Sobu odaberite samo ako Rail ne prepoznaje ruke iz ove mape: tada se svaka datoteka u njoj čita kao ruke te sobe.",
+      lastImport: "Zadnji uvoz",
+      never: "Nikad",
+      handsToday: "Ruke danas",
+      hands: "Ruke",
+      files: "Datoteke",
+      problems: "Problemi",
+      noProblems: "Nema",
+      fileErrors: (count) => `datoteke koje se ne mogu čitati: ${count}`,
+      pending: (count) => `datoteke koje čekaju kraj ruke: ${count}`,
+      quarantined: (count) => `odbijene ruke: ${count}`,
+
+      showRefused: (count) => `Prikaži odbijene ruke (${count})`,
+      hideRefused: "Sakrij odbijene ruke",
+      refusedHeading: (path) => `Odbijene ruke u ${path}`,
+      refusedLoading: "Učitavanje odbijenih ruku…",
+      refusedFailed: (reason) => `Odbijene ruke se nisu učitale: ${reason}`,
+      refusedEmpty: "Nema odbijenih ruku.",
+      refusedLead:
+        "Rail nije mogao pročitati ove ruke. Čuvaju se, kako bi ih kasnija verzija mogla pročitati; razlog kaže zašto.",
+      byReason: "Po razlogu",
+      refusedFile: "Datoteka",
+      refusedReason: "Razlog",
+      refusedMessage: "Detalji",
+      refusedSeen: "Zadnji put",
+      refusedMore: (shown, total) => `Prikazano je najnovijih ${shown} od ${total}.`,
+
+      settingsOf: (path) => `Postavke za ${path}`,
+      enabled: "Prati ovu mapu",
+      enabledHint: "Isključena mapa se ne čita. Njezine ruke ostaju u Railu.",
+      recursive: "Uključi podmape",
+      pollOnly: "Provjeravaj promjene periodično",
+      pollOnlyHint: "Za mrežne mape, čije obavijesti o promjenama možda ne stižu: Rail gleda svakih nekoliko sekundi.",
+      changePath: "Promijeni mapu…",
+      remove: "Ukloni…",
+      saved: "Spremljeno.",
+      roomSaved: (count) =>
+        count === 0 ? "Spremljeno." : `Spremljeno. Datoteke koje se ponovno čitaju kao ruke te sobe: ${count}.`,
+      actionFailed: (reason) => `Mapa nije promijenjena: ${reason}`,
+
+      folder: "Mapa",
+      cancel: "Odustani",
+      addHeading: "Dodaj mapu",
+      addHint: "Može bilo koja mapa: na ovom računalu, vanjskom disku ili mrežnom dijeljenju.",
+      addConfirm: "Prati ovu mapu",
+      adding: "Dodavanje…",
+      addedOne: (path) => `Rail prati ${path}.`,
+      addFailed: (reason) => `Mapa nije dodana: ${reason}`,
+      existingHeading: "Ruke koje su već u ovoj mapi",
+
+      moveHeading: "Promijeni ovu mapu",
+      moveFrom: "Sada",
+      moveTo: "Nova mapa",
+      moveBody:
+        "Ako su u novoj mapi iste datoteke (premjestili ste je ili kopirali), Rail nastavlja gdje je stao. Inače čita novu mapu, a ruke već uvezene iz stare ostaju u Railu.",
+      moveConfirm: "Koristi novu mapu",
+      moving: "Mijenjanje…",
+      moved: (moved, detached) =>
+        moved === 0
+          ? "Gotovo. Rail čita novu mapu; ruke iz stare mape ostaju u Railu."
+          : detached === 0
+            ? `Gotovo. Datoteke koje nastavljaju gdje su stale: ${moved}.`
+            : `Gotovo. Datoteke koje nastavljaju gdje su stale: ${moved}; datoteke kojih tamo nema, a ruke im ostaju: ${detached}.`,
+
+      removeHeading: "Ukloniti ovu mapu?",
+      removeBody: (hands) =>
+        hands === 0
+          ? "Rail je prestaje pratiti. Ništa se u mapi ne briše."
+          : `Rail je prestaje pratiti. Ruke koje su već uvezene iz nje (${hands}) ostaju u Railu, a ništa se u mapi ne briše.`,
+      removeConfirm: "Ukloni mapu",
+      removing: "Uklanjanje…",
+      removed: (path) => `Rail više ne prati ${path}. Njezine ruke ostaju.`,
     },
 
     appearance: {

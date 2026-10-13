@@ -57,16 +57,34 @@ version (that is `user_version`) and not the window settings (those are
 
 Watched folders. Written through `WriterHandle::add_source`,
 `remove_source`, `set_source_enabled`, `set_source_poll_only`,
-`set_source_site` and `set_source_status` (`src/sources.rs`): the watcher (R1.3) keeps `status`
-and `last_error` current; Settings → Folders (R1.5) edits the rest.
-Removing a folder keeps its files and hands (`files.source_id` becomes
-NULL).
+`set_source_recursive`, `set_source_site`, `set_source_site_override`,
+`set_source_path` and `set_source_status` (`src/sources.rs`): the watcher
+(R1.3) keeps `status` and `last_error` current; Settings → Folders (R1.5)
+edits the rest. Removing a folder keeps its files and hands
+(`files.source_id` becomes NULL).
+
+Two edits touch `files` in the same transaction (R1.5):
+
+- **`set_source_path`** (a new path for the folder): the files the watcher
+  found again under the new path (same relative path, at least as long as
+  what was read) get the new path and keep their row and `read_offset` - a
+  moved or copied folder continues where it stopped; a file the new folder
+  had a row for already keeps that row, which joins the folder; every other
+  file of the folder is detached (`source_id` NULL, hands kept), as on
+  removal. No old file found = remove + add with the same id and settings.
+  The path must not be another folder's (`PathTaken`).
+- **`set_source_site_override`** (the room chosen by hand): when the choice
+  changes, the folder's files the parser now in force reads differently go
+  back to offset 0 (size 0, no mtime, encoding or site) with their
+  `quarantine` rows, so the watcher reads them again; hands stay and dedupe.
+  With an override: every file whose `site` is not that parser; without
+  one: every file with no `site` or the old override's.
 
 | Column | Type | |
 | --- | --- | --- |
 | `id` | INTEGER PK | |
 | `path` | TEXT UNIQUE | the folder |
-| `site_override` | TEXT NULL | a forced parser id for every file under it |
+| `site_override` | TEXT NULL | a forced parser id (`rail_core` parser) for every file under it: the room chosen by hand when detection fails (R1.5) |
 | `enabled` | INTEGER | 0 / 1; a disabled folder keeps its hands |
 | `recursive` | INTEGER | 0 / 1 |
 | `status` | TEXT | the watcher's state: `idle` (never started), `watching`, `polling`, `unavailable` (not there: an unplugged drive), `error` (cannot be read or watched), `disabled` |
@@ -88,7 +106,7 @@ One row per hand-history file ever read.
 | `mtime` | INTEGER NULL | its modification time then, ms |
 | `read_offset` | INTEGER | how far it has been read: every byte before it is in `hands` / `quarantine` / `unsupported`. Moves **only** in the transaction that stores what was read up to it |
 | `encoding` | TEXT NULL | the decoder's label (`UTF-8`, `UTF-16 LE`, `Windows-1252`, ...) |
-| `site` | TEXT NULL | the parser that claimed the file (detection's top candidate) |
+| `site` | TEXT NULL | the parser that claimed the file: detection's top candidate, or the folder's `site_override` when one is set (R1.5) |
 | `last_error` | TEXT NULL | `not readable as text: <kind>` or `the core threw: <message>`; cleared by a good read |
 | `first_seen` | INTEGER | ms |
 | `last_import_at` | INTEGER NULL | ms of the last batch |

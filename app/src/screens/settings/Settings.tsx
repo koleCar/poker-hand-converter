@@ -3,8 +3,8 @@ import { lazy, Suspense } from "react";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useT } from "../../i18n";
 import { inApp } from "../../lib/ipc";
-import { screenHref, SETUP } from "../../lib/router";
 import { About } from "./About";
+import { Folders } from "./Folders";
 import { Preferences } from "./Preferences";
 import styles from "./Settings.module.css";
 
@@ -19,14 +19,7 @@ export function Settings() {
       <ScreenHeader title={t.screens.settings.title} lead={t.screens.settings.lead} />
       {inApp ? (
         <div className={styles.sections}>
-          {/* Settings, Folders proper is R1.5; until then, the first-run screen. */}
-          <section className={styles.section}>
-            <h2 className={styles.heading}>{t.settings.folders.heading}</h2>
-            <p className={styles.hint}>{t.settings.folders.body}</p>
-            <a className={styles.button} href={screenHref(SETUP)}>
-              {t.settings.folders.open}
-            </a>
-          </section>
+          <Folders />
           <Preferences />
           <About />
           {DevConvert && (

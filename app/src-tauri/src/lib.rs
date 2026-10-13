@@ -24,7 +24,10 @@
 //!   rooms' default folders, adding the confirmed ones ("import everything"
 //!   or "only new hands"), and the system folder picker
 //!   (`tauri-plugin-dialog`, called from Rust; no plugin API is exposed to
-//!   the window).
+//!   the window);
+//! - Settings, Folders ([`folder_settings`], R1.5): add a folder by hand,
+//!   change its path or room, switch it on or off, recursive, poll only,
+//!   remove it, and its refused hands with their reasons.
 
 use std::sync::Mutex;
 
@@ -35,6 +38,7 @@ use tauri_plugin_log::{RotationStrategy, Target, TargetKind};
 pub mod commands;
 #[cfg(debug_assertions)]
 pub mod dev;
+pub mod folder_settings;
 pub mod folders;
 pub mod settings;
 pub mod strings;
@@ -179,6 +183,15 @@ pub fn run() {
         folders::discover_folders,
         folders::add_folders,
         folders::pick_folder,
+        folder_settings::add_folder,
+        folder_settings::set_folder_path,
+        folder_settings::set_folder_room,
+        folder_settings::set_folder_enabled,
+        folder_settings::set_folder_recursive,
+        folder_settings::set_folder_poll_only,
+        folder_settings::remove_folder,
+        folder_settings::folder_rooms,
+        folder_settings::folder_quarantine,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -196,6 +209,15 @@ pub fn run() {
         folders::discover_folders,
         folders::add_folders,
         folders::pick_folder,
+        folder_settings::add_folder,
+        folder_settings::set_folder_path,
+        folder_settings::set_folder_room,
+        folder_settings::set_folder_enabled,
+        folder_settings::set_folder_recursive,
+        folder_settings::set_folder_poll_only,
+        folder_settings::remove_folder,
+        folder_settings::folder_rooms,
+        folder_settings::folder_quarantine,
     ]);
 
     let app = builder

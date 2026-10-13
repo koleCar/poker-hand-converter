@@ -2499,6 +2499,108 @@ exactly once, and the same files imported twice change nothing.
 - Add (picker, external and network drives), edit path, override room,
   enable/disable without deleting hands, recursive, status per folder (last
   import, hands today, errors, quarantined hands with reasons).
+- *As built* (§15):
+  - **Store** (`rail-store`, no schema change - version stays 3): new
+    `WriterHandle` writes `set_source_recursive`, `set_source_site_override`
+    and `set_source_path`, readers `Reader::source_files(id)`,
+    `source_quarantine(id, limit)` and `source_quarantine_reasons(id)` (the
+    quarantine joined through `files.source_id`), error `PathTaken`.
+    Documented in `SCHEMA.md`.
+  - **Edit path - design**: a folder keeps its id and settings; in **one
+    transaction** (`set_source_path(id, path, moves)`) the row gets the new
+    path (state back to `idle`), every file the caller found again under the
+    new path gets its new `files.path` and **keeps its row and
+    `read_offset`**, a file of the new folder that had a row already (read
+    before, from another folder or none) keeps that row, which joins the
+    folder ("adopted"), and every other file of the folder is **detached**
+    (`source_id` NULL, hands kept) as on removal. So a new path with all the
+    old files is a move (nothing is read again), one with none of them is
+    remove + add with the same settings, and a mix is both. "Found again" is
+    decided by `Watcher::set_source_path` on the disk: the same relative
+    path, a file at least as long as what was read of it. A wrong match is
+    harmless: the bytes at the offset then start no hand, and the reader
+    reads that file whole from 0 (dedupe keeps hands once). "Only new hands"
+    applies to the new folder's files without a row. A path another folder
+    has is refused. Tested both ways in the store (`a_folder_path_changes`:
+    moved, adopted, detached, path taken, missing folder, remove + add) and
+    on the real watcher (`a_folder_path_changes_and_continues_where_it_stopped`:
+    a copied folder continues from the offset - every committed read starts
+    above 0 - and imports only the appended hands; a folder with other files
+    and "only new" skips its old hands, imports the appended ones, and the
+    old file is detached with its hands).
+  - **Room override** (`sources.site_override`, a `rail_core` parser id;
+    `Watcher::set_source_site_override` refuses an id the build does not
+    have). When the choice changes, the folder's files that the parser now
+    in force reads differently go back to offset 0 with their quarantine rows
+    in the same transaction - with an override, every file whose
+    `files.site` is not that parser; cleared, every file with no site or the
+    old override's - and the watcher reload drops what it tracked of the
+    folder, so they are read again with the new choice (hands stay and
+    dedupe). For that, the reader now records **the forced parser as
+    `files.site`** under an override (before, detection's top candidate even
+    when a parser was forced; not a parsing change). Tested in the store and
+    on the watcher (forced to a wrong room the file is read again under it;
+    cleared, it is read as PokerStars again with nothing refused).
+    `discover`'s room (`sources.site`, which narrows files to the room's
+    glob) is unchanged and shown as "found by Rail".
+  - **Watcher**: `set_source_recursive`, `set_source_site_override`,
+    `set_source_path(id, path, only_new) -> SourceMoved { change, marked }`;
+    `add_source_with`'s "only new" marking is shared (`mark_existing`).
+    `SourceStatus` gains `enabled` and `site_override`. Reload now also
+    notices a **changed path**, and drops the folder's tracked files when
+    its path, recursive flag, override or glob changed (they are walked
+    again and read from the store's offsets). Known gap, documented: a file
+    a worker is reading at the very moment the room or path changes may be
+    committed under the old one (it is read with the new one when it next
+    changes). Tests: the two above plus `recursive_off_reads_the_top_level_only`.
+  - **App** (`src-tauri/src/folder_settings.rs`, thin): `add_folder(path,
+    onlyNew, recursive, pollOnly)`, `set_folder_path(id, path, onlyNew)`,
+    `set_folder_room(id, parser)`, `set_folder_enabled`,
+    `set_folder_recursive`, `set_folder_poll_only`, `remove_folder`,
+    `folder_rooms` (the 19 parsers named from `sites.json`, sorted),
+    `folder_quarantine(id)` (counts per reason and the 200 newest refused
+    hands, no raw text). Every path from the window goes through
+    `checked_folder`: absolute, no `..` component, no NUL, an existing
+    directory, rebuilt from its components (`a/./b/` is `a/b`); R1.4's
+    `add_folders` uses it too. An unknown folder id is an error.
+    `watcher_status` gains `enabled`, `siteName`, `siteOverride`.
+  - **Window**: Settings opens with **Hand-history folders**
+    (`screens/settings/Folders.tsx`, `FolderCard.tsx`, `RefusedHands.tsx`):
+    a card per folder - path, room ("found by Rail" / "chosen by you" /
+    detected per file), state, last import, hands today, hands, files,
+    problems (unreadable folder, unreadable files, a hand waiting, refused
+    hands), "Show the N refused hands" (reason codes with counts, then reason,
+    message, file and time), and its controls: watch this folder, include
+    subfolders, check for changes by polling, room (Detect per file + every
+    parser), Change folder... (picker, then a dialog explaining move vs new
+    folder, with the import choice), Remove... (a dialog saying the hands
+    stay and nothing in the folder is deleted). Above the list: Add a
+    folder... (picker, then a dialog: import choice, subfolders, polling)
+    and Find folders again (discovery; the folders not watched yet, with
+    the first-run table and import choice). Refreshed every 3 s; loading,
+    empty, error and not-running states; a polite live region reports each
+    change. The first-run screen's table and import choice are shared
+    components now (`components/FoundFolderTable.tsx`,
+    `components/ImportChoice.tsx`), plus a modal `components/Dialog.tsx` on
+    `<dialog>` (focus inside, Escape closes). Strings `en` + `hr`
+    (`settings.folders`, `foundFolders`, `importChoice`). Checked in a
+    browser against a mocked IPC with made-up folders (list, refused hands,
+    room change, add with "only new" and polling, change path refused as
+    taken, remove, find again, enable, empty state, light and dark); not in
+    a `tauri dev` window on this Mac (no real data imported).
+  - **For R1.6**: the backfill a new path, a room change or "import
+    everything" starts is still one batch per file on 2 workers; a room
+    change on a large folder resets every file read by another parser, so
+    progress events (bytes read of bytes to read per folder) belong on
+    `SourceStatus` and the folder card next to "Problems". The quarantine
+    UI exists per folder (`folder_quarantine`); R1.6's "quarantine with
+    reasons, visible in the UI" can add the raw text
+    (`Reader::quarantine_raw_text`) and a re-run after a parser update
+    (reset the files whose quarantine rows carry an older
+    `parser_version`, the same reset `set_source_site_override` does).
+    `Watcher::status()` re-reads `Reader::sources()` (per-folder counts
+    with subqueries) on every call; at 500k hands, measure it in the
+    benchmark and add a `files (source_id)`-driven rollup if it shows.
 
 ### R1.6 Import pipeline — M
 - Bounded queue → parallel parse (`rayon`) → batched transactions; progress for
@@ -2863,3 +2965,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R1.2 done**: `core/rail-store` - SQLite bundled (`rusqlite` =0.40.2) in WAL with `synchronous=NORMAL`, foreign keys, busy timeout, 16 KiB pages; embedded forward-only migrations on `user_version` (tested from empty and from every earlier version); `STRICT` schema `kv`, `sources`, `files`, `hands` (PHF canonical JSON, zstd =0.14.2), `quarantine`, `unsupported` (R0.11's registry with count and consent state), `outbox`, documented in `core/rail-store/SCHEMA.md` (Phase 2/3 tables reserved). One writer thread on a bounded channel commits each `ImportBatch` - a file's hands, refusals, registry record **and its new read offset** - in one transaction, dedupes by `hand_key` and queues every new hand in `outbox`; a read pool serves the queries (counts, today, files, folders, quarantine, outbox batches, registry). `import_file` converts a whole file with `rail_core` (R1.3's reader sends the same batches). **Exit check** (`tests/crash.rs`, Linux/macOS/Windows CI): a child importing the corpus is killed 12 times at random moments and inside an open transaction; after each kill `integrity_check` is ok and the stored hands are exactly those of the files whose offset moved; the import resumes at the next file and ends equal to a clean single import (7 496 distinct hands from 8 422). Corpus import into an empty store (M2 Pro): 2.7 s on one thread (~3 150 hands/s), 0.72 s with 8 converting threads (~11 700 hands/s; the writer itself ~59 000 hands/s); 23.1 MB, ~3.2 KB per hand. The app opens the store in `setup` under the local data directory; `store_status` feeds the Today screen. |
 | 2026-10-13 | **R1.3 done**: `core/rail-watch` - `notify` =8.2.0 (FSEvents, ReadDirectoryChangesW, inotify) plus a rescan of every folder every 60 s, network folders polled only (`sources.poll_only`, migration 0002, detected from the mount table / UNC paths), one coordinator and 2 workers committing through the store's writer (bounded queue as back-pressure); start / stop / pause / resume, folders in `sources`, status per folder and events. The incremental reader stores the offset at the **first byte of the last chunk** once the next hand has started (each chunk's own slice converts exactly as the whole file: 517 / 517 files with hands whose chunks are verbatim), or at the end after 500 ms of quiet when the last hand validates, ends with a line end and the file does not end inside a code unit (5 s without the line end, 30 s for a refused tail); iPoker-like files (chunks not verbatim) are read whole. Decoding piece by piece equals `decode_source` (BOM only at 0, UTF-16 on code units, strict UTF-8 that meets a 1252 byte re-decided; 556 / 556 files). Truncation, a replaced file (first 256 bytes), rename, deletion, unplugged folders handled. **Exit check**: 31 corpus files (all 19 parsers, UTF-8 / BOM / UTF-16 LE / Windows-1252) x LF and CRLF appended in random chunks (a third byte by byte) on a test clock import exactly their golden hands, refusals and registry record, once; all 556 x 2 in a soak. Latency append to commit: 15-24 ms when the next hand completes it, 513-522 ms for a table's last hand (the quiet period). The app starts it after the store, stops it first on exit, shows it in the tray ("Pause import" works) and on Today; a debug-only "Add a folder" button. |
 | 2026-10-13 | **R1.4 done**: folder discovery and the first-run screen. `rail_watch::discover` expands each room's `sites.json` templates for this OS (`~`, `/`, `%VAR%`, drives; `*` / `?` levels such as account folders), bounded and sorted, and reports per folder the room, file count (the room's `files.glob`, else the watcher's extensions plus a 3-file detection sample), newest file date and whether it is watched; tested on a fake home. Verified on this Mac, read-only and structure only: **WePlay** writes live `HH*.txt` files under `~/Documents/hands/<account>/` (its `HandsHistoryDir` preference; default-ness not established); **GGPoker** and **CoinPoker** write no local hand histories (verified negatives, no path). Everything else stays unverified; R0.12's test is now `only_what_was_seen_is_verified`; how to verify a room on macOS or Windows: `docs/research/VERIFYING-PATHS.md`. "Only new hands": `FileReader::mark_read` (an empty batch to the file's complete end) and `Watcher::add_source_with(.., NewSource { site, only_new, .. })`, which marks before the watcher reads. Migration 0003 `sources.site`; a folder found for a room reads only the room's `files.glob`. The app opens on the first-run screen until it is finished or skipped (`firstRunDone`): sign in (placeholder), the found folders with checkboxes, "Add a folder manually..." (the system picker, now in release builds), "Import everything" / "Only new hands", open a table; reachable from Settings and Today; `en` / `hr`. The debug-only "Add a folder" button is gone. |
+| 2026-10-13 | **R1.5 done**: Settings → Folders. Each watched folder with its room, state, last import, hands today, hands, files, problems and refused hands (reason codes with counts, then messages; `Reader::source_quarantine` through `files.source_id`), and its controls: on / off (hands kept), include subfolders, poll only, the room chosen by hand when detection fails, change folder, remove (a dialog says the hands stay); add a folder by hand (picker; "import everything" / "only new hands", subfolders, polling) and find the rooms' folders again. **Edit path**: one `rail-store` transaction keeps the folder's id and settings, moves the rows of the files found again under the new path **with their offsets** (a moved or copied folder continues where it stopped) and detaches the others with their hands (none found = remove + add); tested both ways in the store and on the watcher. **Room override**: `set_source_site_override` resets the files the new choice reads differently (with their quarantine) in the same transaction and the watcher reads them again; the reader records the forced parser as `files.site`. New writer methods `set_source_recursive`, `set_source_site_override`, `set_source_path`; no migration (schema stays 3). Thin Tauri commands with path checks (absolute, no `..`, an existing directory). The first-run table and import choice are shared components; `<dialog>` modals; `en` / `hr`; checked in a browser against a mocked IPC. |

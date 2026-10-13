@@ -119,7 +119,15 @@ impl WatcherState {
                     .map(|source| WatchSource {
                         id: source.id,
                         path: source.path,
+                        enabled: source.enabled,
+                        site_name: source.site.as_deref().and_then(|site| {
+                            crate::folders::sites()
+                                .ok()
+                                .and_then(|config| config.site(site))
+                                .map(|site| site.name.clone())
+                        }),
                         site: source.site,
+                        site_override: source.site_override,
                         state: source.state.as_str(),
                         error: source.error,
                         recursive: source.recursive,
@@ -285,8 +293,14 @@ impl WatchStatus {
 pub struct WatchSource {
     id: i64,
     path: String,
+    /// Switched on (a disabled folder keeps its hands).
+    enabled: bool,
     /// The room it is the default folder of (`sites.json` id), if known.
     site: Option<String>,
+    /// That room's name in `sites.json`.
+    site_name: Option<String>,
+    /// The room chosen by hand: a parser forced for every file (R1.5).
+    site_override: Option<String>,
     /// `watching`, `polling`, `unavailable`, `error`, `disabled`.
     state: &'static str,
     error: Option<String>,

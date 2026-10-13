@@ -30,6 +30,6 @@ pub mod watcher;
 pub use error::{Error, Result};
 pub use reader::{FileReader, FileRef, FileTrack, Polled, ReadConfig};
 pub use watcher::{
-    AddedSource, NewSource, SourceState, SourceStatus, WatchConfig, WatchEvent, Watcher,
-    WatcherStatus,
+    AddedSource, NewSource, SourceMoved, SourceState, SourceStatus, WatchConfig, WatchEvent,
+    Watcher, WatcherStatus,
 };

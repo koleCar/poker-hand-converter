@@ -18,6 +18,8 @@ pub enum Error {
     Notify(notify::Error),
     /// The watcher's threads are gone.
     Stopped,
+    /// A folder's forced parser is not one this build has.
+    UnknownParser(String),
 }
 
 impl Error {
@@ -36,6 +38,7 @@ impl fmt::Display for Error {
             Self::Store(error) => write!(f, "store: {error}"),
             Self::Notify(error) => write!(f, "file notifications: {error}"),
             Self::Stopped => f.write_str("the watcher has stopped"),
+            Self::UnknownParser(id) => write!(f, "no parser is called {id:?}"),
         }
     }
 }
@@ -46,7 +49,7 @@ impl std::error::Error for Error {
             Self::Io { source, .. } => Some(source),
             Self::Store(error) => Some(error),
             Self::Notify(error) => Some(error),
-            Self::Stopped => None,
+            Self::Stopped | Self::UnknownParser(_) => None,
         }
     }
 }

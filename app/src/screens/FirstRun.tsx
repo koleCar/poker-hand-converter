@@ -6,22 +6,15 @@
  */
 import { useEffect, useState } from "react";
 
+import { FoundFolderTable, type FoundRow } from "../components/FoundFolderTable";
+import { ImportChoice } from "../components/ImportChoice";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { useT } from "../i18n";
-import { errorText, inApp, ipc, type Discovery, type FoundFolder } from "../lib/ipc";
+import { errorText, inApp, ipc, type Discovery } from "../lib/ipc";
 import { go } from "../lib/router";
 import styles from "./FirstRun.module.css";
 
-const number = new Intl.NumberFormat();
-const day = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" });
-
-/** A row of the folder list: a folder discovery found, or one picked by hand. */
-interface Row {
-  path: string;
-  /** `null` for a folder added by hand. */
-  found: FoundFolder | null;
-  checked: boolean;
-}
+type Row = FoundRow;
 
 type Phase = "choose" | "adding" | "done";
 
@@ -115,16 +108,6 @@ export function FirstRun() {
     );
   }
 
-  const files = (found: FoundFolder) => {
-    if (found.files === 0) {
-      return d.noFiles;
-    }
-    const count = number.format(found.files);
-    return found.complete ? count : d.atLeast(count);
-  };
-  const notThisRoom = (found: FoundFolder) =>
-    found.sampleLooked !== null && found.sampleLooked > 0 && found.sampleClaimed === 0;
-
   return (
     <>
       <ScreenHeader title={t.firstRun.title} lead={t.firstRun.lead} />
@@ -151,57 +134,7 @@ export function FirstRun() {
                       {d.found(discovery.folders.length)} {d.lead}
                     </p>
                   )}
-                  <table className={styles.table}>
-                    <thead>
-                      <tr>
-                        <th scope="col">
-                          <span className={styles.srOnly}>{d.folder}</span>
-                        </th>
-                        <th scope="col">{d.room}</th>
-                        <th scope="col">{d.folder}</th>
-                        <th scope="col" className={styles.number}>
-                          {d.files}
-                        </th>
-                        <th scope="col">{d.lastHand}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows.map((row) => (
-                        <tr key={row.path}>
-                          <td>
-                            <input
-                              type="checkbox"
-                              aria-label={d.watch(row.path)}
-                              checked={row.checked || Boolean(row.found?.watched)}
-                              disabled={Boolean(row.found?.watched) || phase === "adding"}
-                              onChange={(event) => toggle(row.path, event.target.checked)}
-                            />
-                          </td>
-                          <td>
-                            {row.found ? row.found.name : d.manual}
-                            {row.found?.watched && <span className={styles.note}>{d.watched}</span>}
-                          </td>
-                          <td className={styles.mono}>
-                            {row.path}
-                            {row.found && !row.found.verified && (
-                              <span className={styles.note}>{d.unverified}</span>
-                            )}
-                            {row.found && notThisRoom(row.found) && (
-                              <span className={styles.warning}>{d.notThisRoom}</span>
-                            )}
-                          </td>
-                          <td className={styles.number}>{row.found ? files(row.found) : d.unknown}</td>
-                          <td>
-                            {row.found?.newestMs != null
-                              ? day.format(row.found.newestMs)
-                              : row.found?.files === 0
-                                ? d.noFiles
-                                : d.unknown}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <FoundFolderTable rows={rows} onToggle={toggle} disabled={phase === "adding"} />
                 </>
               )}
               {discovery && discovery.folders.length === 0 && (
@@ -228,25 +161,12 @@ export function FirstRun() {
                 </div>
               )}
               {selected.length > 0 && (
-                <fieldset className={styles.choices} disabled={phase === "adding"}>
-                  <legend>{d.existingHeading}</legend>
-                  <label className={styles.choice}>
-                    <input type="radio" name="existing" checked={!onlyNew} onChange={() => setOnlyNew(false)} />
-                    <span>
-                      {d.importAll}
-                      <br />
-                      <span className={styles.hint}>{d.importAllHint}</span>
-                    </span>
-                  </label>
-                  <label className={styles.choice}>
-                    <input type="radio" name="existing" checked={onlyNew} onChange={() => setOnlyNew(true)} />
-                    <span>
-                      {d.onlyNew}
-                      <br />
-                      <span className={styles.hint}>{d.onlyNewHint}</span>
-                    </span>
-                  </label>
-                </fieldset>
+                <ImportChoice
+                  legend={d.existingHeading}
+                  onlyNew={onlyNew}
+                  onChange={setOnlyNew}
+                  disabled={phase === "adding"}
+                />
               )}
               {error && <p className={styles.error}>{error}</p>}
               <div className={styles.actions}>
