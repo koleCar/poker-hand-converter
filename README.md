@@ -103,7 +103,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Local database | **`core/rail-store` (R1.2)**: SQLite (bundled, WAL), embedded migrations, one writer thread committing each file read with its offset in one transaction, read pool, hands as zstd PHF deduped by `hand_key`, quarantine, unsupported-format registry, sync outbox; survives a killed process mid-import (tested on three OSes); the app opens it and Today shows its counts; **R2.3**: the local statistics (seat rows, rollups per player and segment, the hero's per day, all-in EV) | `players` and HUD layouts (Phases 2–3) | 1 |
 | Sync | Web saves to Supabase directly; **R1.8**: `ingest_hands` / `hand_sources` for desktop rows (PHF only, Q4); **R1.9**: the desktop sync worker (`rail_sync::worker`) - the outbox in batches of 500 to `ingest_hands`, hands just played first, backoff while offline, the account's rate limit waited out, refused hands kept with their reason, a bandwidth cap while a large backlog syncs, resumable after a kill, never sent to another account than the store's; and the pull (`hands_since`) of the account's hands from the web and its other computers. Settings → Account, Today and the tray show it; **R1.10**: the web's `/library` and `/stats` show synced hands live (Realtime on a one-row-per-account signal, `hand_arrivals`; debounced, nothing while the tab is hidden; statistics derived without a click). Phase 1 is complete on `staging`; production needs the owner's checklist ([`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.10) | gzip uploads if bandwidth needs it | 1 |
 | Desktop sign-in | **R1.7**: the app signs in through the system browser - `/auth/desktop` on the web (Turnstile, password managers and Google work there), the Edge Function `desktop-handoff`, and a `rail://` link carrying a one-time token encrypted to a key the app keeps in memory for that sign-in; the app gets a session of its own (its own refresh-token chain), the refresh token in the OS keychain, refreshed in the background, sign-out ends only the app's session; optional ("Use offline") while Q3 is open. Tested end to end against a local stack; production needs the owner's checklist (function deploy, the anon key in the build: [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md) R1.7) | Sign in with Apple; the domain (P2) | 1 |
-| Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats`; **R2.1**: ported to Rust (`core/rail-stats`, `rows_for(&PhfHand)`), its rows equal to the TypeScript's for all 8 422 corpus hands (51 464 rows) and 4 000 seeded mutations of them; the TypeScript stays the oracle (`testdata/golden-stats/`); **R2.2**: all-in EV ported too (`core/rail-equity`, `ev_row`), its `hand_stats_ev` rows and analyses equal to the TypeScript's for every corpus hand (8 121 rows, 508 all-ins, the 11 Omaha preflop Monte Carlo ones included, equities bit for bit) and 4 500 seeded vectors (`testdata/golden-ev/`); **R2.3**: run at import on the desktop - seat rows, per-player rollups by segment and the hero's by day, written with each hand; preflop all-ins evaluated by a background pass that also rebuilds after a version bump | Display stats defined in `config/stats/` (R2.4); the desktop's screens (R2.7) | 2 |
+| Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats`; **R2.1**: ported to Rust (`core/rail-stats`, `rows_for(&PhfHand)`), its rows equal to the TypeScript's for all 8 422 corpus hands (51 464 rows) and 4 000 seeded mutations of them; the TypeScript stays the oracle (`testdata/golden-stats/`); **R2.2**: all-in EV ported too (`core/rail-equity`, `ev_row`), its `hand_stats_ev` rows and analyses equal to the TypeScript's for every corpus hand (8 121 rows, 508 all-ins, the 11 Omaha preflop Monte Carlo ones included, equities bit for bit) and 4 500 seeded vectors (`testdata/golden-ev/`); **R2.3**: run at import on the desktop - seat rows, per-player rollups by segment and the hero's by day, written with each hand; preflop all-ins evaluated by a background pass that also rebuilds after a version bump; **R2.4**: displayed statistics are data - `config/stats/standard.json` (32 definitions: formula over the counters, format, colour bands, sample, labels in `en` + `hr`, HUD membership), evaluated identically in Rust (`rail_stats::display`) and on the web (`lib/stats/display.ts`), equal to the web's `rates()` and `Intl` text over the corpus | Sample reliability (R2.5); the desktop's screens (R2.7); custom statistics (R2.10) | 2 |
 | Desktop UI | **App shell (R1.1)**: Tauri 2 + React in `app/` - single instance, tray, start at login, log files, settings; the six screens as placeholders; Settings, About reads the Rust core; unsigned macOS and Windows bundles from CI | Tauri 2 + React: Today, Hands, Reports, Players, HUD, Settings | 1–2 |
 | HUD | — | Separate native process, Windows first, then macOS | 3 |
 | Web app | **Live**: converter, library, replayer, stats, sessions, notes, all-in EV, analysis, Learn, forum, share links | Parses with the WASM core; reads desktop-synced hands live | 4 |
@@ -329,6 +329,20 @@ bump. The HUD's lookup for a table of 9 players takes well under a
 millisecond at 500k hands. Schema and rules:
 [`core/rail-store/SCHEMA.md`](core/rail-store/SCHEMA.md) "Statistics".
 
+*As built (R2.4):* what is displayed is data.
+[`config/stats/standard.json`](config/stats/standard.json) holds 32
+definitions (the starting set above plus hands, result in bb, RFI, iso, cold
+call, squeeze, fold to 4-bet, river cbet, fold to turn cbet, raise flop cbet,
+saw flop, AF): a formula over the counters in a small language (`pct(three_bet,
+three_bet_opp)`, `net_bb_milli / 1000 / money_hands * 100`; names, `+ - * /`,
+`pct`, `sum`, nothing else), a format, colour bands, the sample behind the
+value and its minimum for full opacity, labels and descriptions in English and
+Croatian, and default HUD membership. The app and the HUD evaluate it in Rust,
+the web in TypeScript, both in JavaScript's arithmetic, so every number is the
+web's to the last digit ([`docs/STATS-SPEC.md`](docs/STATS-SPEC.md) §13). A
+new statistic is a definition, not code; a test scans the web and the app
+for formulas written anywhere else.
+
 ### 5.5 Desktop app (`app/`, Tauri 2 + React + TypeScript, Phases 1–2)
 
 Six screens:
@@ -525,7 +539,11 @@ and regenerate the stats mutation vectors with
 (R2.2): `cargo test -p rail-equity` compares every golden hand's EV row and
 analysis with `testdata/golden-ev/`; after a change to
 `frontend/src/lib/equity`, commit the regenerated `testdata/golden-ev/` and
-run `node core/rail-equity/tests/data/ev-vectors.mjs`. After changing the model,
+run `node core/rail-equity/tests/data/ev-vectors.mjs`. After a change to
+`config/stats/standard.json` or `frontend/src/lib/stats/display.ts` (R2.4),
+copy the file to `frontend/src/lib/stats/definitions.json` and run
+`node core/rail-stats/tests/data/display-vectors.mjs`; `cargo test -p
+rail-stats --test display` replays it. After changing the model,
 regenerate its TypeScript declarations with
 `RAIL_UPDATE_DTS=1 cargo test -p rail-core --lib phf::dts`.
 

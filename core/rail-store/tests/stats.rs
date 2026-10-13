@@ -11,6 +11,7 @@ use std::sync::OnceLock;
 use std::time::{Duration, Instant};
 
 use rail_core::phf::PhfHand;
+use rail_stats::display::{AggregateOptions, Display, Sums, aggregate};
 use rail_stats::{
     COUNTER_KEYS, DIMENSION_COLUMNS, MONEY_KEYS, Segment, SiteAnonymization, StatsRow,
     session_scope, stored_rows,
@@ -818,6 +819,56 @@ fn hero_totals_are_the_rows_sums() {
         let applicable: i64 = got.values().map(|v| v.1).sum();
         eprintln!("{filter:?}: {hands} hero hands, {applicable} all-ins evaluated");
     }
+
+    // The display definitions (R2.4) over the hero's totals, all-in EV
+    // included, say what they say over the engine's rows summed by
+    // `aggregate` with the EV rows' adjustment.
+    let display = Display::shipped().expect("the shipped definitions");
+    let mut got = Sums {
+        ev_net_bb_milli: Some(0),
+        ..Sums::default()
+    };
+    for total in reader
+        .hero_totals(&HeroFilter::default())
+        .expect("hero totals")
+    {
+        got.add(&total.sums());
+    }
+    let mut want = aggregate(
+        heroes.iter().map(|(_, row, _)| row),
+        AggregateOptions::default(),
+    );
+    let adjustment: i64 = heroes
+        .iter()
+        .filter(|(_, row, _)| !row.hand.is_bomb_pot && !row.hand.has_cashout)
+        .filter_map(|(_, row, ev)| {
+            ev.as_ref()
+                .filter(|ev| ev.applicable && ev.seat == row.seat.seat)
+                .map(|ev| ev.ev_net_bb_milli - row.seat.money.net_bb_milli)
+        })
+        .sum();
+    want.ev_net_bb_milli = Some(want.money[3] + adjustment);
+    assert_eq!(got, want);
+    assert_ne!(adjustment, 0, "the corpus's hero has evaluated all-ins");
+    for stat in &display.stats {
+        assert_eq!(
+            stat.show(&got, None),
+            stat.show(&want, None),
+            "{}",
+            stat.id()
+        );
+    }
+    let text = |id: &str| {
+        display
+            .get(id)
+            .and_then(|stat| stat.show(&got, None).text)
+            .unwrap_or_default()
+    };
+    eprintln!(
+        "hero: {} bb/100, {} all-in EV bb/100",
+        text("bb_per_100"),
+        text("allin_ev_bb_per_100")
+    );
     store.close();
 }
 

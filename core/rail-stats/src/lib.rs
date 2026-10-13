@@ -23,6 +23,9 @@
 //! - For a store (R2.3): [`anonymization`] (`detectAnonymization`),
 //!   [`segment`] (what rollups sum over), [`stored`] (which rows a store
 //!   keeps - `handStatsRows` - and the identity they are summed under).
+//! - [`display`] (R2.4): the displayed statistics of `config/stats/`,
+//!   formulas over summed counters evaluated as the web evaluates them, and
+//!   `rates.ts`'s `aggregate`.
 //!
 //! Integers only: amounts are `i64` minor units, counters `u32`. The three
 //! divisions the TypeScript does in doubles (`net_bb_milli`,
@@ -33,6 +36,7 @@ pub mod anonymization;
 pub mod context;
 pub mod counters;
 pub mod derive;
+pub mod display;
 pub mod mapping;
 pub mod money;
 pub mod postflop;

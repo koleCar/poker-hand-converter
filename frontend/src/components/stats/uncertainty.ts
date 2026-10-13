@@ -56,7 +56,11 @@ export function wilson(made: number, opportunities: number): Interval | null {
   const low = Math.max(0, centre - spread) * 100;
   const high = Math.min(1, centre + spread) * 100;
   return {
-    value: p * 100,
+    // `(made * 100) / n`, not `p * 100`: the display definitions' and
+    // `rates()`'s order of operations, so a tile prints the digit the
+    // breakdown and the desktop app print (23 of 80 is 28.75, "28.8";
+    // `(23 / 80) * 100` is 28.749999999999996, "28.7").
+    value: Math.min(Math.max((made * 100) / n, 0), 100),
     low,
     high,
     margin: (high - low) / 2,
@@ -92,8 +96,10 @@ export function confidenceOf(interval: Interval | null): Confidence {
   return "noise";
 }
 
-/**
- * Whether a win rate is worth reading yet.
+/*
+ * Whether a win rate is worth reading yet is the `bb_per_100` definition's
+ * `sample.min` in `config/stats/standard.json` (10 000 money hands), read with
+ * `statFull` (R2.4); the reasoning stays here, next to the intervals.
  *
  * **No interval is offered for bb/100, on purpose.** A confidence interval on a
  * win rate needs the variance of the per-hand result, and the engine stores
@@ -108,8 +114,3 @@ export function confidenceOf(interval: Interval | null): Confidence {
  * wide enough to contain both "winning player" and "losing player" for most
  * people reading it.
  */
-export const WIN_RATE_SAMPLE_FLOOR = 10_000;
-
-export function winRateIsMeaningful(hands: number): boolean {
-  return hands >= WIN_RATE_SAMPLE_FLOOR;
-}

@@ -3251,6 +3251,7 @@ version = "0.0.0"
 name = "rail-stats"
 version = "0.0.0"
 dependencies = [
+ "rail-config",
  "rail-core",
  "serde",
  "serde_json",

@@ -28,6 +28,7 @@ Implementation:
 | `frontend/src/lib/stats/money.ts` | `won` / `contributed` / `net` / `rake_paid` |
 | `frontend/src/lib/stats/mapping.ts` | the flat row and the checked-in column list |
 | `frontend/src/lib/stats/rates.ts` | summing rows, and rates at read time |
+| `frontend/src/lib/stats/display.ts` | the display definitions of `config/stats/` evaluated (§13) |
 | `tests/test/statsDerive.test.ts` | the corpus-wide property suite |
 | `tests/test/statsSpots.test.ts` | one pinned hand per hard case |
 | `tests/test/support/statsInvariants.ts` | the invariants, as pure functions |
@@ -597,7 +598,7 @@ module layout mirrors the TypeScript file for file:
 | `preflop.ts`, `postflop.ts`, `showdown.ts`, `money.ts` | the modules of the same names |
 | `derive.ts` | `rail_stats::derive` (`hand_facts`, `pot_type_of`, `hand_class`) |
 | `mapping.ts` | `rail_stats::mapping` (`StatsRow`, `stats_rows`, `StatsRow::to_json`) |
-| `rates.ts` | not yet: rollups and rates are R2.3-R2.5 |
+| `rates.ts` | `aggregate`: `rail_stats::display::aggregate` (R2.4); the rates: the display definitions of §13 (`rail_stats::display`), equal to `rates()` |
 
 `rail_stats::rows_for(&hand)` is `statsRows(handFacts(hand))`.
 
@@ -633,3 +634,76 @@ Where the port has to choose, it chooses the TypeScript's arithmetic:
   hand alone, with the same rows;
 - two players sharing a seat number give two rows for that seat, both
   describing the last such player, as the TypeScript's `Map`s do.
+
+---
+
+## 13. Display definitions (`config/stats/`)
+
+The counters above are code: each one is a judgement call, ported and
+golden-tested. What a screen or the HUD **shows** is data (amendment A11,
+docs/RAIL-PLAN.md R2.4): `config/stats/standard.json`, checked by
+`config/stats/stats.schema.json`, read by the desktop app and the HUD in Rust
+(`rail_config::stats` parses and validates, `rail_stats::display` evaluates)
+and by the web (`frontend/src/lib/stats/display.ts`, over `definitions.json`,
+a checked copy). A new displayed statistic is a definition there, not a
+division in a component (guideline §14; `tests/test/statDisplay.test.ts`
+scans for the latter).
+
+A definition:
+
+| Field | Meaning |
+| --- | --- |
+| `id` | stable, `[a-z][a-z0-9_]*`; layouts and user overrides refer to it |
+| `group` | `preflop`, `postflop`, `showdown`, `results` |
+| `players` | `any`, or `hero` (all-in EV exists for the hero only) |
+| `label`, `name`, `description` | `{ "en": ..., "hr": ... }`: the HUD's short label, the full name, one sentence |
+| `formula` | the value, over the counters (below) |
+| `format` | `unit` (`percent`, `bb_per_100`, `bb`, `ratio`, `count`, `money` in minor units) and `decimals` (0-6) |
+| `sample` | `of` (a formula; defaults to a `pct`'s opportunities) and `min`: full opacity from `min` up |
+| `bands` | ascending `{ "below": x, "tone": t }`, the last without `below`; tones `very-low` .. `very-high` are positions on a scale, not colours |
+| `hud` | default membership: `panel` (4-6), `popup`, `none` |
+
+**The formula language.** Numbers, names, `+ - * /` (left-associative, `*`
+and `/` first), unary minus, parentheses, `pct(made, opportunities)` and
+`sum(a, b, ...)`. Names: every counter of §6 (`COUNTER_KEYS`), every money
+column of §7 (`MONEY_KEYS`, summed over the money rows only), `money_hands`
+(the hands whose money is counted - what bb/100 divides by, because EV
+cashouts are out of the money, §7.3) and `ev_net_bb_milli` (the hero's
+`net_bb_milli` with each evaluated all-in's luck taken out, §7.7). Nothing
+else is reachable: no comparisons, no conditionals, no other functions; at
+most 1 000 bytes and 32 levels of nesting.
+
+**Arithmetic is JavaScript's**, because the web prints doubles. Every input is
+a `number` (sums of counters and money are integers far below 2^53, so exact);
+every operator is one IEEE-754 double operation, in the formula's order (Rust:
+`rail_core::js::JsNumber`). `pct(made, opp)` is `(made * 100) / opp` and has
+no value unless `opp > 0`, exactly `rates.ts`'s `pct`; `a / b` has none when
+`b` is 0; a missing input (`ev_net_bb_milli` for a villain) or a non-finite
+result has none either, and a screen shows a dash. The order is part of the
+definition: `(23 * 100) / 80` is 28.75 and prints "28.8" at one decimal,
+`(23 / 80) * 100` is 28.749999999999996 and prints "28.7".
+
+**Text is the web's `Intl.NumberFormat`** at `decimals` minimum and maximum
+fraction digits (`formatFixed` / `format_fixed`): the shortest decimal that
+reads back as the double, rounded half away from zero, with a minus sign on
+any negative value ("-0.0" for -0.04). Not `Number.prototype.toFixed`, which
+rounds the double's exact binary value: `(-0.15).toFixed(1)` is "-0.1", every
+browser's `Intl` prints "-0.2". A UI may localise the decimal mark; the digits
+are these. Bands compare the unrounded value.
+
+The starting set (32):
+
+| Group | Statistics (formula) |
+| --- | --- |
+| results | hands (`hands`), bb/100 (`net_bb_milli / 1000 / money_hands * 100`), all-in EV bb/100 (`ev_net_bb_milli / ...`, hero), result in bb (`net_bb_milli / 1000`), rake per 100 (`rake_paid / money_hands * 100`, money) |
+| preflop | VPIP, PFR, RFI, limp, iso, cold call, 3-bet, fold to 3-bet, 4-bet, fold to 4-bet, squeeze, steal, fold to steal - each `pct(x, x_opp)` |
+| postflop | saw flop (`pct(flop_seen, hands)`), cbet flop / turn / river, fold to flop / turn cbet, raise flop cbet (`pct(raise_cbet_flop, fold_to_cbet_flop_opp)`), donk flop, check-raise flop, AF (`sum(bets, raises) / sum(calls)`, sample: bets + raises + calls), AFq (`pct(bets + raises, bets + raises + calls + folds)`) |
+| showdown | WWSF, WTSD, W$SD - `pct(x, x_opp)` |
+
+Every one `rates.ts` also computes (29 of 32) gives the same double over the
+corpus and 600 synthetic totals, and the same text as `Intl`
+(`core/rail-stats/tests/data/display-vectors.mjs` checks before it writes;
+`cargo test -p rail-stats --test display` and `statDisplay.test.ts` replay).
+The thresholds and minimum samples are starting values for 6-max no-limit,
+for the user to change (R3.9 keeps a user's changes as an override by `id`).
+

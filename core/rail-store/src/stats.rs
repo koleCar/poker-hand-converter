@@ -279,6 +279,17 @@ impl Totals {
             .map(|index| self.money[index])
     }
 
+    /// The inputs of a display definition (`rail_stats::display`, R2.4),
+    /// without all-in EV (see [`crate::stats_read::HeroTotal::sums`]).
+    pub fn sums(&self) -> rail_stats::display::Sums {
+        rail_stats::display::Sums {
+            counters: self.counters,
+            money: self.money,
+            money_hands: self.money_hands,
+            ev_net_bb_milli: None,
+        }
+    }
+
     /// Read the counters, money and `money_hands` from `row`, starting at
     /// column `first` (the order of [`rollup_columns`]).
     pub(crate) fn from_row(row: &rusqlite::Row<'_>, first: usize) -> rusqlite::Result<Self> {

@@ -5,7 +5,14 @@
  * PhfHand ──handFacts()──▶ HandFacts ──statsRows()──▶ StatsRow[]  (one per seat)
  *                                                          │
  *                                                    aggregate() + rates()
+ *                                                          │
+ *                               STANDARD_STATS ──showStat()──▶ value, text, tone, sample
  * ```
+ *
+ * What is *displayed* is data (R2.4): `display.ts` evaluates the definitions
+ * of `config/stats/` (`definitions.json`, a copy) over `aggregate`'s totals,
+ * digit for digit as the desktop app's Rust does. A new displayed statistic
+ * is a definition there, not a division in a component.
  *
  * All **semantics** live here, in TypeScript, where they can be run against the
  * 413-file corpus in `tests/test/`. All **arithmetic** belongs in SQL, where
@@ -85,3 +92,39 @@ export {
   type StatsRates,
   type StatsTotals,
 } from "./rates";
+
+export {
+  EXTRA_NAMES,
+  FormulaError,
+  HERO_ONLY_NAMES,
+  STATS_FILE_VERSION,
+  VARIABLE_NAMES,
+  compileStats,
+  evaluate,
+  formulaNames,
+  parseFormula,
+  printFormula,
+  showStat,
+  statById,
+  statFull,
+  statRate,
+  statSample,
+  statText,
+  statTone,
+  statValue,
+  type DisplayStat,
+  type DisplaySums,
+  type Expr,
+  type HudPlace,
+  type Shown,
+  type StatBand,
+  type StatDefinition,
+  type StatGroup,
+  type StatPlayers,
+  type StatText,
+  type StatTone,
+  type StatUnit,
+  type StatsFile,
+} from "./display";
+
+export { STANDARD_STATS, localized } from "./definitions";

@@ -101,6 +101,20 @@ pub struct HeroTotal {
     pub ev: EvAdjust,
 }
 
+impl HeroTotal {
+    /// The inputs of a display definition (`rail_stats::display`, R2.4),
+    /// with the all-in EV result: `net_bb_milli` plus the adjustment of the
+    /// evaluated all-ins (hands still queued count at their result).
+    pub fn sums(&self) -> rail_stats::display::Sums {
+        let mut sums = self.totals.sums();
+        sums.ev_net_bb_milli = self
+            .totals
+            .money("net_bb_milli")
+            .map(|net| net + self.ev.bb_milli);
+        sums
+    }
+}
+
 /// Where the statistics stand, for the status line.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StatsStatus {
