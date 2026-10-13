@@ -19,6 +19,7 @@ The schema is defined by four migrations:
 | `20270421090000_desktop_sign_in.sql` | Rail R1.7: `claim_desktop_sign_in()`, the per-account budget of the desktop sign-in handoff (10 an hour). The handoff itself is the Edge Function `supabase/functions/desktop-handoff`. See [Desktop sign-in](#desktop-sign-in-the-edge-function-desktop-handoff). |
 | `20270428090000_desktop_ingest.sql` | Rail R1.8: hands synced by the desktop app. `hands.origin`, `standard_text` nullable for desktop rows only (Q4: PHF only, no standard or source text), `hand_sources`, `register_hand_source`, `ingest_hands` (every search column derived from the PHF on the server), per-account desktop budgets. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). |
 | `20270505090000_desktop_pull.sql` | Rail R1.9: the desktop sync worker's pull. `hands_since(p_after_created, p_after_id, p_limit)` (invoker, the caller's rows by keyset `(created_at, id)`, ids / keys / origins only, rows at least a minute old) and its index `hands_owner_created_idx`. See [The desktop pull](#the-desktop-pull-hands_since). |
+| `20270512090000_hand_arrivals.sql` | Rail R1.10: live arrival on the web. `hand_arrivals` (one row per account, bumped once per insert statement on `hands` by the statement trigger `hands_signal_arrival`: a counter, how many hands, their origin, the time; no hand content), select-own RLS, in the `supabase_realtime` publication; `hands` stays out of it. See [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -233,6 +234,7 @@ why:
 | `register_hand_source` | **definer** | `hand_sources` has no client write grant. Owner from `auth.uid()`; updates only the descriptive columns of the caller's own row. `authenticated` only (R1.8). |
 | `hand_row_from_phf`, `hand_row_problem`, `phf_*` helpers | invoker | Pure: the PHF-to-row mapping and the constraint mirror `ingest_hands` uses. No client may execute them. |
 | `hands_since` | invoker | Reads the caller's own rows (explicit `owner_id = auth.uid()` and RLS): ids, times, keys, origins. `authenticated` only (R1.9). |
+| `hands_signal_arrival` (trigger) | **definer** | `hand_arrivals` has no client write grant and `save_hands` runs as the caller. Reads only the statement's transition table, upserts one row per owner in it; a failure is swallowed so it never fails a save. No client may execute it (R1.10). |
 
 ---
 
@@ -418,7 +420,7 @@ the commenter, anyone who muted the thread (a mute silences replies and
 mentions too), a banned account, and — for everyone — nobody at all when the
 commenter is shadowbanned.
 
-**Realtime**, for exactly two things:
+**Realtime**, for exactly three things:
 
 * the unread badge — Postgres Changes on `notifications`, filtered
   `user_id=eq.<uid>`. `notifications` is in the `supabase_realtime`
@@ -430,6 +432,21 @@ commenter is shadowbanned.
   Not Postgres Changes: RLS per subscriber per row on a hot table is the
   scaling cliff. Public, because the payload is a count and a seq; skipped for
   a shadowbanned author.
+* live arrival of hands on `/library` and `/stats` (Rail R1.10) - Postgres
+  Changes on `hand_arrivals`, one row per account, filtered
+  `owner_id=eq.<uid>`; `hands` itself is not published. See
+  [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals).
+
+**What a socket gets for a table it cannot select (measured in R1.10).**
+Realtime does not run RLS for a subscriber whose role lacks SELECT on the
+table's columns; it sends that subscriber a content-free `"Error 401:
+Unauthorized"` notice for **every** change of the table instead (measured
+on `hand_arrivals` before its anon grant; `realtime.apply_rls` checks column
+privileges first). `notifications` has no `anon` grant, so by the same path
+an anonymous socket subscribed to it learns *when* anybody gets a
+notification - no ids, no content. `hand_arrivals` avoids it with a `SELECT` grant to `anon` and no
+policy for it (anon reads zero rows, so Realtime sends anon nothing).
+`notifications` is unchanged here; the same one-line grant would close it.
 
 **Nightly** (`pg_cron`, created by the migration where it can be):
 `recount_forum_counters()` + `recount_forum_karma()` at 03:17, and
@@ -1062,6 +1079,76 @@ visit every settled row once in order (ties on `created_at` included),
 desktop and web rows alike, never another account's, a fresh row hidden
 until it settles and then found after the cursor, the page size clamped.
 
+### Live arrival on the web: `hand_arrivals`
+
+`20270512090000_hand_arrivals.sql` (Rail R1.10). The web's `/library` and
+`/stats` refresh on their own when hands land in the account - a desktop
+`ingest_hands` call (up to 500 hands) or a `save_hands` call from another
+tab. The client side is `components/live/useHandArrivals.ts` (the
+subscription) and `lib/live/arrivals.ts` (when a signal becomes a refetch).
+
+**Why not Postgres Changes on `hands`.** Realtime decodes every published
+row with wal2json and sends the whole record: the PHF (~2.9 KB, up to
+256 KiB) and, on web rows, the standard and source text - ~2 MB to every
+open tab for a 500-hand batch, to say "refresh". A column list on the
+publication does not help: Realtime reads the slot with wal2json's
+`add-tables`, which ignores column lists. Every insert - a 500 000-hand
+backfill - would also be decoded and checked against RLS once per
+subscriber per row. And with `hands` out of the publication, no filter, no
+setting and no Realtime bug can put a hand on a socket.
+
+**The signal.** `hand_arrivals` holds **one row per account**: `id` (a
+random uuid primary key), `owner_id` (unique), `seq` (bumped per signal),
+`hands` (how many the statement added), `origin` (`web` / `desktop`),
+`arrived_at`. The statement-level trigger `hands_signal_arrival` (after
+insert on `hands`, after `hands_rate_limit_after_insert`, reading the
+transition table) upserts it once per owner per **statement**: one
+`ingest_hands` call is one change of ~320 bytes on the wire, whatever its
+size; a call that added nothing (all duplicates) signals nothing. The
+trigger swallows its own failure - a live signal must never fail a save;
+the page re-reads on reconnect. The first arrival is an INSERT, every later
+one an UPDATE; the client listens for both.
+
+**Who receives what** (the threat model's question; checked end to end by
+`npm run realtime:arrivals` in `tests/`, against a local stack):
+
+| Subscriber | Receives |
+| --- | --- |
+| A, filter `owner_id=eq.A` | A's changes |
+| A, filter `owner_id=eq.B` (forged) | nothing: Realtime re-reads each INSERT / UPDATE as the subscriber, and the select-own policy hides B's row |
+| A, no filter | A's changes only, same reason |
+| `anon`, no filter | nothing: `anon` has a SELECT grant and no policy (without the grant it would get a content-free 401 notice per change; see [Notifications and realtime](#notifications-and-realtime)) |
+| anyone listening for DELETE, no filter | when an account is deleted (the cascade is the only delete), the deleted row's primary key - a random uuid, not the owner. RLS cannot be applied to a row that is gone, which is why the key is not `owner_id` |
+
+What a subscriber learns is its own row: that its own library grew, by how
+much, from where. Nothing about any hand and nothing about anyone else.
+
+**Cost.** One row per account, one upsert per insert statement (a row lock
+on that account's row until the inserting transaction commits: two
+`ingest_hands` calls of one account from two computers queue on it for the
+rest of the call, as they already queue on their source counters). Realtime
+work is per signal, not per hand.
+
+**The web** debounces (a refetch 1.5 s after the last signal; while a
+backfill keeps signalling, after 5 s, then 10, 20 and at most every 30 s),
+does nothing while the tab is hidden (one refetch when it is shown again),
+treats a reconnect as a signal (events in the gap are lost), and removes the
+channel on unmount and sign-out. `/library` re-reads the first page in
+place, or shows "N new hands - show" past it; `/stats` re-reads quietly and
+runs `/api/stats/rebuild` for the new hands. "Hands arriving from <device>"
+under the library heading reads `hand_sources.last_ingest_at` (select-own),
+shown for ten minutes after the last sync.
+
+`supabase/tests/database/hand_arrivals.test.sql` (29): RLS on, the one
+select-own policy, grants (no client writes; anon reads nothing), the
+random primary key, `hand_arrivals` in the publication and `hands` not, the
+columns a change carries, the trigger's definer settings and grants and
+that it is per statement; one `ingest_hands` call and one `save_hands` call
+are one signal each with their count and origin, all duplicates is no
+signal, each account reads only its own row and a forged owner finds
+nothing, a client cannot insert, bump or delete a signal, and a failing
+signal does not fail the save.
+
 ## Verifying the isolation
 
 A migration returning `201` proves the SQL ran, not that two accounts are
@@ -1518,6 +1605,7 @@ over-permissioned** and the migration revokes first, then grants.
 | `shares` | **none** | **none** | **none**. Sealed. `create_share` / `read_share` / `record_share_view` only. |
 | `ingest_rate_limit` | **none** | **none** | **none**. Internal. |
 | `hand_sources` | **none** | `SELECT` | `hand_sources_owner_select` (`owner_id = (select auth.uid())`). Written only by `register_hand_source` and `ingest_hands`. |
+| `hand_arrivals` | `SELECT` | `SELECT` | `hand_arrivals_own_select` (`to authenticated`, `owner_id = (select auth.uid())`); none for `anon`, so anon reads zero rows. Written only by the `hands_signal_arrival` trigger. The anon grant is for Realtime: see [Live arrival on the web](#live-arrival-on-the-web-hand_arrivals). |
 
 Why `anon` keeps a `SELECT` *grant* on `unparsed_hands` while having none on
 `hands`: a missing grant raises `42501` before RLS is consulted, and

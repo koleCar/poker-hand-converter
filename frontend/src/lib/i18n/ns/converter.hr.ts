@@ -208,6 +208,13 @@ export const converterHr: Dict["converter"] = {
     previous: "← Prethodna",
     next: "Sljedeća →",
     page: (page: number, pages: number) => `Stranica ${num(page)} od ${num(pages)}`,
+    liveNew: (count: number) =>
+      count > 0
+        ? `${num(count)} ${plural(count, "nova ruka", "nove ruke", "novih ruku")} — prikaži`
+        : "Nove ruke — prikaži",
+    syncing: (device: string | null) =>
+      device ? `Ruke stižu s računala ${device}` : "Ruke stižu iz desktop aplikacije",
+    syncingTitle: (time: string) => `Zadnja sinkronizacija: ${time}`,
   },
 
   list: {

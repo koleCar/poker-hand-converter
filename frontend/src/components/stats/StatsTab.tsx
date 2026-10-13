@@ -14,6 +14,13 @@
  * missing from its schema cache; `isMissingSchemaError` is that check, and it is
  * a code rather than a string match so the first PostgREST rewording does not
  * turn a clear explanation back into a stack trace.
+ *
+ * Live arrival (Rail R1.10): hands synced by the desktop app while the screen
+ * is open re-read the numbers in place - no "Loading…" in between - and the
+ * ones without statistics get them derived (`/api/stats/rebuild`) without a
+ * click. A desktop row is PHF only, which is all the rebuild reads. One
+ * catch-up at a time: batches that land during one fold into a single next
+ * round.
  */
 
 "use client";
@@ -36,6 +43,7 @@ import {
 } from "../../lib/db";
 import { useAuth } from "../../lib/auth";
 import { useDict } from "../../lib/i18n/client";
+import type { ArrivalBatch } from "../../lib/live/arrivals";
 import { BreakdownPanel } from "./BreakdownPanel";
 import { HandMatrix } from "./HandMatrix";
 import { HudGrid } from "./HudGrid";
@@ -48,6 +56,8 @@ import "../../styles/stats.css";
 interface StatsTabProps {
   /** Bumped by the shell after an upload lands, so the numbers follow it. */
   refreshToken?: number;
+  /** The latest live batch from the shell (`AppFrame`, R1.10); null until one arrives. */
+  arrival?: ArrivalBatch | null;
 }
 
 type Status = "idle" | "loading" | "ready" | "not-installed" | "error";
@@ -64,7 +74,7 @@ const GRAPH_BUCKETS = 60;
 const STATS_TABLE = "hand_stats";
 const STATS_MIGRATION = "supabase/migrations/20261005090000_hand_stats.sql";
 
-export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
+export function StatsTab({ refreshToken = 0, arrival = null }: StatsTabProps) {
   const t = useDict().stats;
   const en = t.tab;
   const auth = useAuth();
@@ -82,9 +92,15 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
   /** Bumped on every successful load, so the panels below reload with the numbers. */
   const [generation, setGeneration] = useState(0);
 
-  const load = useCallback(async (): Promise<StatsCoverage | null> => {
-    setStatus("loading");
-    setMessage(null);
+  /**
+   * `quiet` re-reads behind the numbers on screen (the live path, and after a
+   * rebuild): no "Loading…" in between, and a failure keeps what is shown.
+   */
+  const load = useCallback(async (quiet = false): Promise<StatsCoverage | null> => {
+    if (!quiet) {
+      setStatus("loading");
+      setMessage(null);
+    }
     try {
       // Coverage first: it is one small grouped count, and it is what decides
       // the default scope. Then the two reports in parallel — they read the
@@ -108,6 +124,9 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
       setStatus("ready");
       return nextCoverage;
     } catch (error) {
+      if (quiet) {
+        return null;
+      }
       if (isMissingSchemaError(error)) {
         setStatus("not-installed");
         return null;
@@ -128,7 +147,7 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
         setRebuild({ status: "running", progress: next }),
       );
       setRebuild({ status: "done", progress });
-      await load();
+      await load(true);
     } catch (error) {
       setRebuild({
         status: "error",
@@ -152,6 +171,41 @@ export function StatsTab({ refreshToken = 0 }: StatsTabProps) {
       }
     });
   }, [auth.isSignedIn, load, refreshToken, runRebuild]);
+
+  // Live batches. A batch that lands while a catch-up runs only marks that
+  // another round is needed, so a backfill streaming in costs one re-read
+  // (and one rebuild, when hands lack statistics) per round, never per batch.
+  const catchingUp = useRef(false);
+  const catchUpAgain = useRef(false);
+  const catchUp = useCallback(async () => {
+    if (catchingUp.current) {
+      catchUpAgain.current = true;
+      return;
+    }
+    catchingUp.current = true;
+    try {
+      do {
+        catchUpAgain.current = false;
+        const loaded = await load(true);
+        if (loaded && loaded.missing + loaded.stale + loaded.evMissing > 0) {
+          await runRebuild();
+        }
+      } while (catchUpAgain.current);
+    } finally {
+      catchingUp.current = false;
+    }
+  }, [load, runRebuild]);
+
+  const handledArrival = useRef(0);
+  useEffect(() => {
+    if (!arrival || arrival.seq === handledArrival.current) {
+      return;
+    }
+    handledArrival.current = arrival.seq;
+    if (isDatabaseConfigured && auth.isSignedIn) {
+      void catchUp();
+    }
+  }, [arrival, auth.isSignedIn, catchUp]);
 
   const behind = coverage ? coverage.missing + coverage.stale + coverage.evMissing : 0;
   const filters = useMemo(() => scopeFilters(scope, coverage?.stakes ?? []), [scope, coverage]);

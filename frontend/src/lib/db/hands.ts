@@ -307,6 +307,43 @@ export async function countHands(): Promise<number> {
   }
 }
 
+/** The computer that most recently synced hands into the account. */
+export interface DesktopSync {
+  /** The device's own name, as the app reported it; null if it sent none. */
+  deviceName: string | null;
+  /** When that device last called `ingest_hands` (duplicates count too). */
+  lastIngestAt: string;
+}
+
+/**
+ * The account's most recent desktop sync, from `hand_sources` (Rail R1.8 /
+ * R1.10): one row per watched folder per device, readable by its owner only.
+ * Null when no desktop app has synced into this account, when signed out, and
+ * on a database without the desktop migration - it feeds a passive "a
+ * computer is syncing" line, so it never throws.
+ */
+export async function latestDesktopSync(): Promise<DesktopSync | null> {
+  if (!isDatabaseConfigured || !(await currentUserId())) {
+    return null;
+  }
+  try {
+    const { data, error } = await requireDb()
+      .from("hand_sources")
+      .select("device_name, last_ingest_at")
+      .eq("kind", "folder")
+      .not("last_ingest_at", "is", null)
+      .order("last_ingest_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error || !data?.last_ingest_at) {
+      return null;
+    }
+    return { deviceName: data.device_name, lastIngestAt: data.last_ingest_at };
+  } catch {
+    return null;
+  }
+}
+
 /** One page of hands for a single filter-free listing; a thin `searchHands` alias. */
 export async function listRecentHands(limit = 25): Promise<HandSummary[]> {
   const { rows } = await searchHands({ sort: "played_desc" }, { offset: 0, limit });

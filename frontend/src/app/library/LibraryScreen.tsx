@@ -10,12 +10,15 @@ import { ReplayerTab } from "../../components/ReplayerTab";
  * with no saved hands and no hand parked by the converter is sent to
  * `/convert`, because the tab is hidden for them and the address has to agree
  * with the bar.
+ *
+ * `live`: hands synced by the desktop app (or saved in another tab) show up
+ * without a reload (Rail R1.10).
  */
 export function LibraryScreen() {
   return (
-    <AppFrame tab="library" redirectWhenEmpty>
-      {({ refreshToken, onHandsSaved }) => (
-        <ReplayerTab refreshToken={refreshToken} onHandsSaved={onHandsSaved} />
+    <AppFrame tab="library" redirectWhenEmpty live>
+      {({ refreshToken, onHandsSaved, arrival }) => (
+        <ReplayerTab refreshToken={refreshToken} onHandsSaved={onHandsSaved} arrival={arrival} />
       )}
     </AppFrame>
   );
