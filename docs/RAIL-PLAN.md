@@ -1468,6 +1468,158 @@ under WASM; the registry records an unknown file end to end.
     characters in `.mjs` and Markdown (not in Rust `"\u{...}"` strings):
     escape non-ASCII afterwards.
 
+- *As built, R0.10d* (§15) - **R0.10 complete: all 19 parsers are in Rust**:
+  - **Layout** (`core/rail-core/src/parsers/`): `ongame.rs`
+    (`OngameParser`), `entraction.rs` (`EntractionParser`), `unibet.rs`
+    (`UnibetParser`), each with its source and unit tests. Registered in
+    `index.ts` order (`unibet`, `ongame`, `entraction` after `coinpoker`);
+    `entraction` declares `hi_lo_variants()` = `OMAHA_HI_LO`, the other two
+    none (every hi/lo label refused). `parsers::ported()` now holds all 19,
+    and a new test asserts that `builtin()` is exactly `REGISTRATION_ORDER`
+    (which the existing test reads from `index.ts`).
+  - **All three build on `p2_handbuilder`**: Ongame and Entraction through
+    `build_hand`, Unibet through `draft_to_standard_text` with its own
+    tournament first line, then `parse_standard_hand`. Draft amounts, seats,
+    sizes and buttons are `JsNumber`; the cross-checks (`pot-mismatch`,
+    `rake-mismatch`, `net-result-mismatch`, `payback-mismatch`,
+    `uncalled-mismatch`, `negative-rake`) compare and print JavaScript
+    numbers. A seat or size beyond `u32` reaches the standard-text reader,
+    which gives R0.6's `parser-error` where the TypeScript returns its hand;
+    no refusal can come after it, so no stand-ins were needed (unlike Full
+    Tilt's `SeatNumbers`). Nothing these parsers read sizes an allocation,
+    so the generator needs no guard.
+  - **Shared code changed, additively** (all earlier vectors and soaks still
+    equal): `phf::money::{format_amount_digits_js, parse_buy_in_token_js}`
+    (Unibet prints its header blinds and the tournament buy-in again, from
+    doubles). `p4_textroom` was not touched: `leading_name`,
+    `names_by_length`, `expand_month`, `refuse_lossy_text` and
+    `currency_symbol_of` are now held by recorded vectors too (78 probes).
+    Not shared code but worth knowing: the workspace `dev` profile now
+    optimises `regex`, `regex-automata`, `regex-syntax`, `aho-corasick`,
+    `memchr` and `sha2` (opt-level 3; our crates stay unoptimised with
+    overflow checks) - `golden_sites` at two threads went from 46 s to 31 s
+    with the whole-corpus test included (23 s without it), so CI gets the
+    exit check below for less than it paid before.
+  - **Patterns** are the TypeScript source (tests check every literal and
+    every message). Written as code and tested against Node: the `m`-flag
+    detection probes and the three lookahead splits at every JavaScript line
+    start (Ongame's `m`-flag `\s*$` as `\s*(?:$|[\n\r` plus U+2028 and
+    U+2029 `])`), Unibet's `HERO_SEAT` (first match at a line start),
+    Entraction's `isoFromEntractionDate` (`Date.UTC` then the stated
+    offset), Unibet's `isoAt` (`new Date(...).toISOString()`:
+    `parse_instant`, the `RangeError` as `Invalid time value`), and
+    `String.prototype.replace`'s `GetSubstitution` for Unibet's tournament
+    line (`$$`, `$&`, `` $` ``, `$'`, `$n` / `$nn`, `$<`).
+  - **Golden agreement** (`tests/golden_sites.rs`): `ongame` **13 / 13**
+    files, **21** hands, **1** refusal (`unsupported-hi-lo`, the
+    `OMAHA_HI_LO` table); `entraction` **13 / 13**, **21** hands, **1**
+    refusal (the validator's `hi-lo-payout-contradiction` on
+    `07-allin-showdown.txt`, which shares its hand number with
+    `08-euro-table.txt` - three of the four Hi/Lo files convert, halves
+    from the cards); `unibet` **5 / 5**, **4** hands, **2** refusals
+    (`no-winner`, `tournament-summary`; the Windows-1252 file converts as
+    the app decodes it). Each fully: ranking, chunks, PHF, standard text per
+    hand and per file, warnings (the validator's `no-hero` 42), refusal
+    stage, reason, message and fingerprint, stats.
+  - **The Phase 0 exit check, minus WASM**:
+    `every_corpus_file_matches_its_golden` runs the whole Rust pipeline
+    (`Selection::All`, the complete registry) over the corpus and matches
+    every golden fully: **556 / 556** files, **8 422 / 8 422** hands,
+    **196 / 196** refusals, no pending text hash, no unported candidate.
+    About 23 s of a debug run on one thread.
+  - **Beyond the corpus** (`tests/data/p4-vectors.{mjs,json}`, 3.4 MB, run
+    by `tests/p4_vectors.rs`; the generator bundles the TypeScript):
+    78 text-room probes; the three parsers' splits of every corpus file and
+    of 19 edge texts (Unibet's split throwing on a date V8 rejects), 35
+    detection probes, **6 026** cases - seeded edits of every corpus chunk of
+    the three rooms (catalogues of each grammar's lines, Ongame `Table:`
+    lines, Entraction and Unibet headers - variants, limits, hi/lo, stud,
+    short deck, currencies and codes, chips, comma decimals, play money,
+    tournaments with `$` patterns in id and buy-in, `Total prize`, dates
+    V8 rolls over or rejects -, changed amounts, renamed seats, a glyph
+    turned into U+FFFD, cut hands, `\r` / `\r\n` / U+2028 line ends, a BOM,
+    UTF-16LE read as UTF-8) plus every catalogued header against every
+    chunk, each through **all three** parsers - detection and outcome, and
+    the outcome with `cashOnly` where it differs (265) - (1 276 Ongame,
+    1 310 Entraction and 714 Unibet hands; every refusal reason of the
+    three reached but `normalized-unparseable`), and the 31 corpus files
+    re-encoded six ways (UTF-16 LE with and without BOM, UTF-16 BE,
+    Windows-1252, CRLF, UTF-8 with BOM) through `rail_core::convert` (186
+    files, 276 hands): all equal. Two soak runs (`P4_STRESS=11`, `=29`,
+    47 786 cases each; `P4_OUT` / `P4_VECTORS` as in R0.10a) were equal too.
+  - **TS oddities kept** - Ongame: the seat pass reads a seat line anywhere
+    before `Summary:` and the action pass skips every seat-shaped line; the
+    refusals read the normalised game name (`OMAHA_HI_LO` as `OMAHA HI
+    LO`) while the label is `variantOf` of the raw token; summary reveals
+    are tagged with the last street a marker dealt, and `net:` or shown
+    cards count only for a seated name (otherwise `unknown-line`); `Players
+    in round` becomes the table size when it is above the fallback
+    (`Math.max`); an unknown month leaves `playedAt` null without a warning,
+    an unknown zone warns and reads UTC; the stakes are read after
+    `no-winner` and `board-size`; `statedPot` sums every pot line and is
+    checked only when above 0; `doesn't show [..]` is a muck with cards,
+    `shows` without cards a show with none. Entraction: `HEADER` over the
+    whole text claims only a text that is one header line, files are
+    claimed by the `m` probe; the last `Players(max N)` anywhere wins; a
+    cumulative board takes the fourth card for the turn and the fifth for
+    the river, so a short line leaves them null; a blind line by an
+    unseated name falls through every other shape to `unknown-line`; a
+    `Dealer` naming nobody warns and a later one resets the button; the
+    last `Payback` is checked against the first derived return; `Game
+    ended` rolls fields over and reads years 0-99 as 19xx; the label's
+    hi/lo flag comes from the raw word. Unibet: `readHeader` throws
+    `Invalid time value` for a date V8 rejects - in `splitHands` too, so one
+    such header makes the whole file `split-failed`, in `parseHand` a
+    `parser-error`; `24:00:00` is the next day and `02/30` rolls into
+    March; the tournament line goes through `replace` with a template, so a
+    `$1` buy-in (`formatAmount` drops `.00`) or `$&`, `` $` ``, `$'`, `$$`,
+    `$nn` in a tournament id expand as JavaScript expands them; `sittingOut`
+    is computed and never read; tournament stacks with a symbol warn
+    `unexpected-currency` and stay chips, and a chips header tolerates
+    `25.00`; `posts small & big blinds` is live `min(bigBlind || amount,
+    amount)` with the largest big blind posted on an earlier line; a `Dealt
+    to` a non-hero who neither showed nor mucked is a muck reveal at the end
+    of the stream on the last street, and without a session token the one
+    known hand's owner becomes the hero and loses the *first* muck by that
+    name (possibly their own `mucks` line); only collectors and players with
+    a `Dealt` line are dealt in; `collectedIncludesUncalled` is the absence
+    of an `Uncalled bet returned` line; summary figures are strict (an
+    `ambiguous-amount` can come from `Total pot`), the prize pool lenient
+    (`parseAmount`); the fallback sizes include 3 and 4.
+  - **Not reproducible, reported**: a seat, table size or button between
+    2^32 and 2^53 (`Seat 99999999999:`, `Players in round: 99999999999`,
+    `99999999999-max`) - the TypeScript's hand is valid JSON, Rust's reader
+    gives R0.6's `parser-error` (42 of the 6 026 committed cases, 472 and
+    457 in the soaks, counted by the vector test). Amounts beyond 2^53 are
+    unrepresentable in both (the test compares the JSON path). No lone
+    surrogate can arise.
+  - 43 TypeScript test cases translated (`tests/p4_parsers.rs`): the Ongame
+    and Entraction parts of `legacyNetworks.test.ts` (both corpora - five
+    `it.each` per room as loops -, the five specifics each, and the shared
+    namespace with all three rooms ported: no claim on another room's
+    sample, attribution by the text, Entraction and Unibet kept apart),
+    all of `unibetParser.test.ts` but its iPoker side (R0.9) - corpus,
+    both header generations, Omaha and the summary export, `cashOnly`, the
+    two encodings, the iPoker samples scoring 0, the shared namespace -
+    with `support/p4Corpus.ts` as the loader (a `TextDecoder`: the BOM is
+    dropped, the Windows-1252 file reads with U+FFFD and is refused
+    `lossy-encoding` there), and the Entraction parts of `phfHiLo` (the
+    contradicted payout, the three converted files), plus 10 unit tests (9
+    in the parser modules, 1 for the registry). Skipped: "replays without a
+    negative stack" of the three rooms (`buildReplay`) and `phfHiLo`'s
+    `analyzeAllIn` (R2.2). `p2Parsers`, `p2Xml`, `phfDetect`, `phfOmaha`, `phfPositions` and
+    `phfCoreGaps` have no part about these rooms beyond labels (R0.5a) and
+    a Unibet-style header read by the standard reader (R0.6).
+  - **What remains for the Phase 0 exit**: **R0.11** the unsupported-format
+    registry (`Unrecognized { fingerprint, header_sample, guessed_site,
+    confidence }`; the 24 files of `Selection::Unrecognised` are its corpus
+    and `detect::fingerprint` is ported), **R0.12** `config/sites.json` v1
+    (one entry per id of `REGISTRATION_ORDER`, and the CI rule both ways),
+    **R0.13** the WASM build and shadow mode (the golden diff under WASM:
+    `every_corpus_file_matches_its_golden` is the native half; the vector
+    files are a ready second corpus for the shadow harness), **R0.14** the
+    rename and repository layout.
+
 ### R0.11 Unsupported-format registry — M
 - Core returns `Unrecognized { fingerprint, header_sample, guessed_site, confidence }`
   for files no parser claims.
@@ -1899,3 +2051,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R0.10a done** (R0.10 picked up as R0.10a-d, grouped by shared module): `winamax` and `chico` in Rust, registered in `index.ts` order, with all of `p6-handbuilder.ts` as a reusable module in `parsers::shared` (`P6Draft`, `p6_to_standard_text`, `build_p6_hand`; amounts, seats, size and button in `JsNumber`; no merged shared code changed). Goldens: `winamax` **26 / 26** files (34 hands, 1 refusal; the three Windows-1252 files convert as the app decodes them, the negative fragment stays `unknown-site`), `chico` **16 / 16** (48 hands, 20 refusals - 13 of the 17 Omaha hands headed `Hold'em Pot Limit` refused `rake-mismatch`, the 4 others read as `omaha`), fully; whole-file detection of the twelve ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p6-vectors.*`): splits, 29 detection probes, **3 003** seeded mutations through both parsers, **600** random drafts through the builder, the 42 files re-encoded seven ways (U+FFFD included), all equal (two soak runs, 29 067 cases and 6 000 drafts each, too). 33 TS test cases translated (`p6Parsers.test.ts` but the replayer). Not reproducible, reported: seats/table sizes between 2^32 and 2^53 and a draft's unseated blind (`u32` in a PHF). |
 | 2026-10-13 | **R0.10b done**: `acrwpn` (all three WPN dialects - legacy, modern, data-mined) and `ignition` in Rust, registered in `index.ts` order, with all of `p5-handdraft.ts` as a reusable module in `parsers::shared` (`P5Draft`, `p5_draft_to_standard_text`, `p5_build_hand`; amounts, seats, size and button in `JsNumber`). One shared change: `phf::hilo::StatedTotals` holds `JsNumber`s (Ignition's `HI` / `LOW` are doubles in TypeScript); all earlier vectors still equal. Goldens: `acrwpn` **76 / 76** files (144 hands, 25 refusals; the 14 UTF-16LE files, Omaha, Six Plus), `ignition` **56 / 56** (96 hands, 12 refusals; Omaha Hi/Lo with its halves, streets recovered from betting closure), fully; whole-file detection of the fourteen ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p5-vectors.*`): splits, 37 detection probes, **3 935** seeded mutations through both parsers (146 misread from UTF-16LE; `cashOnly` outcomes where they differ), **700** random drafts through the builder, the 132 files re-encoded six ways, all equal (two soak runs, 36 767 cases and 7 000 drafts each, too). 30 TS test cases translated (`p5Parsers.test.ts`, the Ignition files of `phfHiLo`, the ACR parts of `shortDeck`; not the replayer, stats or equity). Not reproducible, reported: seats/table sizes between 2^32 and 2^53 and a draft's unseated actor (`u32` in a PHF; neither parser produces one). |
 | 2026-10-13 | **R0.10c done**: `fulltilt` and `runitonce` in Rust, registered in `index.ts` order; Full Tilt reads its own grammar into `StarsHandDraft`, Run It Once its body through R0.7a's clone dialect. One additive shared change: `StarsHandDraft::showdown_marker_at` (the TypeScript's runout `-1` of `*** SHOW DOWN 0 ***`); all earlier vectors still equal. Goldens: `fulltilt` **13 / 13** files (21 hands, 1 refusal `no-seat-block`; both header generations, run-it-twice, Omaha H/L halves), `runitonce` **4 / 4** (2 hands, 2 refusals: the Omaha splash file `unsupported-variant`, the tournament summary `no-hands`), fully; whole-file detection of the sixteen ported parsers equal on all 556 files. Beyond the corpus (`tests/data/p3-vectors.*`): splits, 25 detection probes, **4 251** seeded mutations through both parsers (168 misread from UTF-16LE; `cashOnly` outcomes where they differ), the 17 files re-encoded six ways, all equal (two soak runs of 42 231 cases too). Numbers beyond `u32` (seats, size, button, runout index, and runout `-1`) are carried as stand-ins and reported as R0.6's `parser-error` only where the TypeScript returns its hand. 42 TS test cases translated (`p3Parsers.test.ts` Full Tilt / Run It Once parts, Full Tilt's `phfHiLo`; not the replayer or `analyzeAllIn`). Not reproducible, reported: a Full Tilt marker numbered past 10 000 (the TypeScript allocates a runout per index), and a Run It Once seat line beyond `u32`, which stops the shared dialect at that line (R0.7a) where the TypeScript may refuse later or drop a duplicate. |
+| 2026-10-13 | **R0.10d done, R0.10 complete - all 19 parsers in Rust**: `ongame`, `entraction` and `unibet`, registered in `index.ts` order; `parsers::ported()` is the whole registry and a test asserts `builtin()` equals `REGISTRATION_ORDER`. All three build on `p2_handbuilder` (Unibet through `draft_to_standard_text` with its own tournament first line, `$` patterns expanded as `String.prototype.replace` does). Additive shared change: `phf::money::{format_amount_digits_js, parse_buy_in_token_js}`; the `dev` profile optimises the regex and sha-256 dependencies (test speed only). Goldens: `ongame` **13 / 13** files (21 hands, 1 refusal), `entraction` **13 / 13** (21 hands, 1 refusal - the validator's `hi-lo-payout-contradiction`; three of four Hi/Lo files convert), `unibet` **5 / 5** (4 hands, 2 refusals), fully; and the Phase 0 exit check minus WASM: the whole Rust pipeline over the corpus equals every golden - **556 / 556** files, **8 422 / 8 422** hands, **196 / 196** refusals. Beyond the corpus (`tests/data/p4-vectors.*`): 78 text-room probes, splits, 35 detection probes, **6 026** seeded cases through all three parsers, the 31 files re-encoded six ways, all equal (two soak runs of 47 786 cases too). 43 TS test cases translated (`legacyNetworks` Ongame / Entraction, `unibetParser`, `phfHiLo` Entraction; not the replayer or `analyzeAllIn`). Not reproducible, reported: seats, sizes and buttons between 2^32 and 2^53. Phase 0 left: R0.11 registry, R0.12 `sites.json`, R0.13 WASM + shadow mode, R0.14 layout. |

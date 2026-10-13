@@ -11,9 +11,9 @@
 //! R2.2), `p2Xml`'s `DOMParser` path (the browser's; Node - the reference -
 //! has none, and that test is skipped there too, so "uses the scanner when
 //! the host has no DOMParser" is all the port is), and the Ongame, Entraction
-//! and Unibet parts (R0.10). `phfDetect`, `phfOmaha` and `phfPositions` have
-//! no iPoker or MicroGaming part beyond `isHiLoLabel("Omaha H/L")`, which is
-//! parser-free (R0.5a). One Rust test per TypeScript `it` (an `it.each` is
+//! and Unibet parts (R0.10d, `p4_parsers.rs`). `phfDetect`, `phfOmaha` and
+//! `phfPositions` have no iPoker or MicroGaming part beyond
+//! `isHiLoLabel("Omaha H/L")`, which is parser-free (R0.5a). One Rust test per TypeScript `it` (an `it.each` is
 //! one loop), named after it.
 
 mod psgg_support;
@@ -428,7 +428,7 @@ fn ipoker_does_not_claim_pokerstars_or_ggpoker_text() {
 /* ================================================ unibetParser.test.ts */
 
 /// "routes a Unibet-branded iPoker export to the iPoker parser" (the Unibet
-/// half - `unibet` not among the candidates - holds trivially until R0.10).
+/// half - `unibet` not among the candidates - is real since R0.10d).
 #[test]
 fn routes_a_unibet_branded_ipoker_export_to_the_ipoker_parser() {
     let holdem = rail_core::js::regex::js_regex(r"Holdem\s+(?:NL|PL|L)\b", "");
@@ -466,7 +466,7 @@ fn does_not_let_the_ipoker_parser_claim_unibet_plain_text() {
 /// The MicroGaming dialect signature.
 static MG_DIALECT: LazyLock<Regex> =
     rail_core::js_regex_lazy!(r#"<Game\s+hhversion="\d+"\s+id="\d+""#, "i");
-/// The other two rooms' signatures (their parsers are R0.10).
+/// The other two rooms' signatures (their tests are in `p4_parsers.rs`).
 static ONGAME_DIALECT: LazyLock<Regex> =
     rail_core::js_regex_lazy!(r"^\*{5}\s*History for hand\s", "");
 static ENTRACTION_DIALECT: LazyLock<Regex> =
@@ -702,7 +702,7 @@ fn drops_a_seat_that_was_sitting_out_rather_than_shifting_the_ring() {
 }
 
 /// "no legacy-network parser claims a %s sample" - the MicroGaming part
-/// (Ongame and Entraction are R0.10).
+/// (all three rooms: `p4_parsers.rs`).
 #[test]
 fn no_microgaming_parser_claims_another_rooms_sample() {
     let mut claims = Vec::new();
@@ -720,7 +720,7 @@ fn no_microgaming_parser_claims_another_rooms_sample() {
 
 /// "goes by the text when a sample is filed under the wrong room": every file
 /// of the three directories has a dialect; the MicroGaming ones go to
-/// `microgaming` (the other two rooms' parsers are R0.10).
+/// `microgaming` (all three rooms: `p4_parsers.rs`).
 #[test]
 fn goes_by_the_text_when_a_sample_is_filed_under_the_wrong_room() {
     for file in all_files() {
