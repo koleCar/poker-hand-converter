@@ -35,6 +35,9 @@ pub enum Error {
     Canonical(String),
     /// The writer thread is gone (it panicked, or the store was closed).
     WriterGone,
+    /// Another watched folder has this path already (`sources.path` is
+    /// unique): a folder's path cannot be changed to it.
+    PathTaken { path: String, id: i64 },
 }
 
 impl fmt::Display for Error {
@@ -59,6 +62,9 @@ impl fmt::Display for Error {
             Self::Corrupt(what) => write!(f, "corrupt stored data: {what}"),
             Self::Canonical(error) => write!(f, "canonical JSON: {error}"),
             Self::WriterGone => f.write_str("the store's writer thread has stopped"),
+            Self::PathTaken { path, id } => {
+                write!(f, "{path} is watched already (folder {id})")
+            }
         }
     }
 }

@@ -192,7 +192,7 @@ pub async fn add_folders(
             only_new,
             ..NewSource::default()
         };
-        let path = PathBuf::from(&folder.path);
+        let path = crate::folder_settings::checked_folder(&folder.path)?;
         let result = watcher
             .with(|watcher| watcher.add_source_with(&path, &options))?
             .map_err(|error| format!("{}: {error}", folder.path))?;

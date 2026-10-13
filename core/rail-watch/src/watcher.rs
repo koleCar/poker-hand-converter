@@ -131,6 +131,17 @@ pub struct AddedSource {
     pub marked: u32,
 }
 
+/// What [`Watcher::set_source_path`] did.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct SourceMoved {
+    /// The store's side: files moved with their offsets, adopted, detached
+    /// (`found: false` when there is no such folder).
+    pub change: rail_store::PathChange,
+    /// Files of the new folder stored as read without importing them
+    /// ("only new hands").
+    pub marked: u32,
+}
+
 /// What the watcher is doing with a folder.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SourceState {
@@ -164,10 +175,15 @@ impl SourceState {
 pub struct SourceStatus {
     pub id: i64,
     pub path: String,
+    /// Switched on (a disabled folder keeps its hands).
+    pub enabled: bool,
     pub recursive: bool,
     pub poll_only: bool,
     /// The room it is the default folder of (`sources.site`), if known.
     pub site: Option<String>,
+    /// The parser forced for every file of it (`sources.site_override`),
+    /// the user's choice when detection fails.
+    pub site_override: Option<String>,
     pub state: SourceState,
     /// Why the folder is unavailable or in error.
     pub error: Option<String>,
@@ -425,36 +441,44 @@ impl Watcher {
         if let Some(site) = &options.site {
             self.writer.set_source_site(id, Some(site))?;
         }
-        let mut marked = 0;
-        if options.only_new {
-            let glob = options
-                .site
-                .as_ref()
-                .and_then(|site| self.file_globs.get(site))
-                .map(String::as_str);
-            // A folder that is not there (yet) has nothing to skip.
-            if let Ok(walk) = scan::walk_matching(path, options.recursive, glob) {
-                for (file, _, _) in walk.files {
-                    let file_ref = FileRef {
-                        path: &file,
-                        source_id: Some(id),
-                        site_override: None,
-                    };
-                    match self.reader.mark_read(&file_ref) {
-                        Ok(true) => marked += 1,
-                        Ok(false) => {}
-                        // Read in full later instead: better than lost.
-                        Err(error) => log::warn!("{}: not skipped: {error}", file.display()),
-                    }
-                }
-            }
-            log::info!(
-                "{}: {marked} existing files marked as read (only new hands)",
-                path.display()
-            );
-        }
+        let marked = if options.only_new {
+            self.mark_existing(id, path, options.recursive, options.site.as_deref())
+        } else {
+            0
+        };
         self.send(Command::Reload)?;
         Ok(AddedSource { id, marked })
+    }
+
+    /// "Only new hands": store the folder's matching files that the store
+    /// has no row for as read to their end ([`FileReader::mark_read`]).
+    /// Returns how many were marked.
+    fn mark_existing(&self, id: i64, path: &Path, recursive: bool, site: Option<&str>) -> u32 {
+        let glob = site
+            .and_then(|site| self.file_globs.get(site))
+            .map(String::as_str);
+        let mut marked = 0;
+        // A folder that is not there (yet) has nothing to skip.
+        if let Ok(walk) = scan::walk_matching(path, recursive, glob) {
+            for (file, _, _) in walk.files {
+                let file_ref = FileRef {
+                    path: &file,
+                    source_id: Some(id),
+                    site_override: None,
+                };
+                match self.reader.mark_read(&file_ref) {
+                    Ok(true) => marked += 1,
+                    Ok(false) => {}
+                    // Read in full later instead: better than lost.
+                    Err(error) => log::warn!("{}: not skipped: {error}", file.display()),
+                }
+            }
+        }
+        log::info!(
+            "{}: {marked} existing files marked as read (only new hands)",
+            path.display()
+        );
+        marked
     }
 
     /// Stop watching a folder and forget it; its hands stay.
@@ -478,6 +502,108 @@ impl Watcher {
         Ok(found)
     }
 
+    /// Watch a folder's subfolders too, or only its top level. Files read
+    /// from subfolders before keep their hands.
+    pub fn set_source_recursive(&self, id: i64, recursive: bool) -> Result<bool> {
+        let found = self.writer.set_source_recursive(id, recursive)?;
+        self.send(Command::Reload)?;
+        Ok(found)
+    }
+
+    /// Read every file of a folder with one parser (a `rail_core` parser
+    /// id), or `None` to detect the room per file again - the user's choice
+    /// when detection fails. The files the new choice reads differently are
+    /// read again from their start
+    /// ([`WriterHandle::set_source_site_override`]); hands stay and dedupe.
+    ///
+    /// A file a worker is reading at that very moment may be committed with
+    /// the old choice; it is read with the new one when it next changes.
+    pub fn set_source_site_override(
+        &self,
+        id: i64,
+        parser: Option<&str>,
+    ) -> Result<rail_store::OverrideChange> {
+        if let Some(parser) = parser
+            && rail_core::parsers::builtin().get(parser).is_none()
+        {
+            return Err(Error::UnknownParser(parser.to_owned()));
+        }
+        let change = self.writer.set_source_site_override(id, parser)?;
+        if change.found {
+            log::info!(
+                "folder {id}: room {}, {} files to read again",
+                parser.unwrap_or("detected per file"),
+                change.reset
+            );
+        }
+        self.send(Command::Reload)?;
+        Ok(change)
+    }
+
+    /// Give a folder a new path, keeping its settings (Settings → Folders,
+    /// R1.5).
+    ///
+    /// Each file the folder has read is looked for under the new path at
+    /// the same relative path; one that is there, a file at least as long
+    /// as what was read of it, is taken to be the same file (a folder moved
+    /// or copied, a drive mounted elsewhere): its row moves with its offset
+    /// and the watcher continues where it stopped. The rest are detached
+    /// with their hands kept, so a folder with none of the old files is
+    /// remove + add with the same settings. Should the file found differ
+    /// after all, the reader notices (the bytes at the offset start no
+    /// hand) and reads it whole from 0, with dedupe keeping hands once.
+    ///
+    /// `only_new`: the new folder's files that no row covers are marked as
+    /// read ("only new hands", as when adding a folder); otherwise they are
+    /// imported. Fails with the store's `PathTaken` when another folder has
+    /// the path.
+    pub fn set_source_path(&self, id: i64, path: &Path, only_new: bool) -> Result<SourceMoved> {
+        let Some(row) = self
+            .reader
+            .store_reader()
+            .sources()?
+            .into_iter()
+            .find(|row| row.id == id)
+        else {
+            return Ok(SourceMoved::default());
+        };
+        let old = PathBuf::from(&row.path);
+        let mut moves = Vec::new();
+        for file in self.reader.store_reader().source_files(id)? {
+            let Ok(relative) = Path::new(&file.path).strip_prefix(&old) else {
+                continue;
+            };
+            let candidate = path.join(relative);
+            let read = u64::try_from(file.read_offset).unwrap_or(u64::MAX);
+            let same = std::fs::metadata(&candidate)
+                .is_ok_and(|metadata| metadata.is_file() && metadata.len() >= read);
+            if same {
+                moves.push(rail_store::FileMove {
+                    from: file.path,
+                    to: rail_store::import::path_key(&candidate),
+                });
+            }
+        }
+        let change = self
+            .writer
+            .set_source_path(id, &rail_store::import::path_key(path), moves)?;
+        let marked = if only_new && change.found {
+            self.mark_existing(id, path, row.recursive, row.site.as_deref())
+        } else {
+            0
+        };
+        log::info!(
+            "folder {id}: {} -> {}: {} files moved, {} adopted, {} detached, {marked} marked",
+            old.display(),
+            path.display(),
+            change.moved,
+            change.adopted,
+            change.detached
+        );
+        self.send(Command::Reload)?;
+        Ok(SourceMoved { change, marked })
+    }
+
     /// Every folder with its state and counts.
     pub fn status(&self) -> Result<WatcherStatus> {
         let rows = self.reader.store_reader().sources()?;
@@ -494,9 +620,11 @@ impl Watcher {
                 SourceStatus {
                     id: row.id,
                     path: row.path,
+                    enabled: row.enabled,
                     recursive: row.recursive,
                     poll_only: row.poll_only || live.poll_only,
                     site: row.site,
+                    site_override: row.site_override,
                     state,
                     error: live.error,
                     file_errors: live.file_errors,
@@ -758,20 +886,28 @@ impl Coordinator {
                 .as_ref()
                 .and_then(|site| self.config.file_globs.get(site))
                 .cloned();
-            let changed = self.sources.get(&row.id).is_none_or(|known| {
-                known.enabled != row.enabled
-                    || known.poll_only != poll_only
+            // What decides which files are read, and how.
+            let reads_differently = |known: &SourceRt| {
+                known.path != path
                     || known.recursive != row.recursive
                     || known.site_override != row.site_override
                     || known.glob != glob
+            };
+            let changed = self.sources.get(&row.id).is_none_or(|known| {
+                known.enabled != row.enabled
+                    || known.poll_only != poll_only
+                    || reads_differently(known)
             });
             if !changed {
                 continue;
             }
             if let Some(old) = self.sources.remove(&row.id) {
                 self.unwatch(&old.path, old.watched);
-                if old.glob != glob {
-                    // Other files are read now: start from the next walk.
+                if reads_differently(&old) {
+                    // Other files, or the same ones read another way (a new
+                    // path, the subfolders, the room): forget what is
+                    // tracked and start from the next walk, from the
+                    // offsets in the store.
                     self.files.retain(|_, file| file.source_id != row.id);
                 }
             }

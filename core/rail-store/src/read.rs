@@ -123,16 +123,27 @@ impl Reader {
 
     /// Every file with its counts, most recently imported first.
     pub fn files(&self) -> Result<Vec<FileSummary>> {
+        self.files_where("?1 IS NULL", None)
+    }
+
+    /// The files of one watched folder (`files.source_id`), with their
+    /// counts, most recently imported first.
+    pub fn source_files(&self, source_id: i64) -> Result<Vec<FileSummary>> {
+        self.files_where("f.source_id = ?1", Some(source_id))
+    }
+
+    fn files_where(&self, filter: &str, source_id: Option<i64>) -> Result<Vec<FileSummary>> {
         self.with(|conn| {
-            let mut stmt = conn.prepare_cached(
+            let mut stmt = conn.prepare_cached(&format!(
                 "SELECT f.id, f.path, f.source_id, f.size, f.read_offset, f.encoding, f.site,
                         f.last_error, f.last_import_at,
                         (SELECT count(*) FROM hands h WHERE h.file_id = f.id),
                         (SELECT count(*) FROM quarantine q WHERE q.file_id = f.id)
                  FROM files f
-                 ORDER BY f.last_import_at DESC, f.path",
-            )?;
-            let rows = stmt.query_map([], |row| {
+                 WHERE {filter}
+                 ORDER BY f.last_import_at DESC, f.path"
+            ))?;
+            let rows = stmt.query_map([source_id], |row| {
                 Ok(FileSummary {
                     id: row.get(0)?,
                     path: row.get(1)?,
@@ -194,16 +205,48 @@ impl Reader {
     /// The quarantine, most recent first, without the raw text (see
     /// [`Reader::quarantine_raw_text`]).
     pub fn quarantine(&self, limit: u32) -> Result<Vec<QuarantineEntry>> {
+        self.quarantine_where("?2 IS NULL", None, limit)
+    }
+
+    /// The quarantine of one watched folder (its files' refusals, through
+    /// `files.source_id`), most recent first, without the raw text.
+    pub fn source_quarantine(&self, source_id: i64, limit: u32) -> Result<Vec<QuarantineEntry>> {
+        self.quarantine_where("f.source_id = ?2", Some(source_id), limit)
+    }
+
+    /// One watched folder's quarantined chunks per reason code, most
+    /// frequent first.
+    pub fn source_quarantine_reasons(&self, source_id: i64) -> Result<Vec<(String, i64)>> {
         self.with(|conn| {
             let mut stmt = conn.prepare_cached(
+                "SELECT q.reason, count(*) AS n
+                 FROM quarantine q JOIN files f ON f.id = q.file_id
+                 WHERE f.source_id = ?1
+                 GROUP BY q.reason
+                 ORDER BY n DESC, q.reason",
+            )?;
+            let rows = stmt.query_map([source_id], |row| Ok((row.get(0)?, row.get(1)?)))?;
+            Ok(rows.collect::<Result<_, _>>()?)
+        })
+    }
+
+    fn quarantine_where(
+        &self,
+        filter: &str,
+        source_id: Option<i64>,
+        limit: u32,
+    ) -> Result<Vec<QuarantineEntry>> {
+        self.with(|conn| {
+            let mut stmt = conn.prepare_cached(&format!(
                 "SELECT q.id, f.path, q.read_offset, q.chunk_index, q.fingerprint, q.stage,
                         q.reason, q.message, q.detected_site, q.parser_version, q.first_seen,
                         q.last_seen
                  FROM quarantine q JOIN files f ON f.id = q.file_id
+                 WHERE {filter}
                  ORDER BY q.last_seen DESC, q.id DESC
-                 LIMIT ?1",
-            )?;
-            let rows = stmt.query_map([limit], |row| {
+                 LIMIT ?1"
+            ))?;
+            let rows = stmt.query_map(params![limit, source_id], |row| {
                 Ok(QuarantineEntry {
                     id: row.get(0)?,
                     file_path: row.get(1)?,

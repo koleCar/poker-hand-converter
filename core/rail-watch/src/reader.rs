@@ -797,6 +797,14 @@ impl FileReader {
             },
             conversion,
         )?;
+        // Under the folder's forced parser the file is that parser's,
+        // whatever detection would say (R1.5: a change of the room reads
+        // again exactly the files another parser read).
+        if let Some(forced) = ctx.file.site_override
+            && rail_core::parsers::builtin().get(forced).is_some()
+        {
+            batch.file.site = Some(forced.to_owned());
+        }
         // `unsupported.count` goes up on every batch that carries the
         // record: only a file's first read (or one after truncation) does.
         if !ctx.fresh {

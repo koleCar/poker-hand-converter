@@ -107,6 +107,30 @@ export const en = {
     pending: (count: number) => `${count} waiting for the hand to finish`,
   },
 
+  /** Folders discovery found, as the first-run screen and Settings list them. */
+  foundFolders: {
+    room: "Room",
+    folder: "Folder",
+    files: "Files",
+    lastHand: "Last hand",
+    watch: (path: string) => `Watch ${path}`,
+    atLeast: (count: string) => `${count}+`,
+    noFiles: "None yet",
+    unknown: "Unknown",
+    watched: "Already watched",
+    manual: "Added by you",
+    unverified: "This default folder has not been confirmed on a real install yet.",
+    notThisRoom: "The newest files here do not look like this room's hand histories.",
+  },
+
+  /** "Import everything" or "Only new hands", wherever a folder is added. */
+  importChoice: {
+    importAll: "Import everything",
+    importAllHint: "Every hand already there, then each new hand as you play.",
+    onlyNew: "Only new hands",
+    onlyNewHint: "Leave what is there now; import only hands played from now on.",
+  },
+
   /** The first-run screen (R1.4; guideline §3 and §6). */
   firstRun: {
     title: "Welcome to Rail",
@@ -126,18 +150,6 @@ export const en = {
       found: (count: number) =>
         count === 1 ? "Rail found 1 folder on this computer." : `Rail found ${count} folders on this computer.`,
       lead: "Untick a folder to leave it out. You can change this later in Settings.",
-      room: "Room",
-      folder: "Folder",
-      files: "Files",
-      lastHand: "Last hand",
-      watch: (path: string) => `Watch ${path}`,
-      atLeast: (count: string) => `${count}+`,
-      noFiles: "None yet",
-      unknown: "Unknown",
-      watched: "Already watched",
-      manual: "Added by you",
-      unverified: "This default folder has not been confirmed on a real install yet.",
-      notThisRoom: "The newest files here do not look like this room's hand histories.",
       empty: "Rail did not find any hand-history folders on this computer.",
       lookedFor: (rooms: string) => `It looked in the default folders of: ${rooms}.`,
       noRooms: "No poker room's default folder is known for this system yet.",
@@ -146,10 +158,6 @@ export const en = {
       addManually: "Add a folder manually…",
       choosing: "Choosing…",
       existingHeading: "Hands already in these folders",
-      importAll: "Import everything",
-      importAllHint: "Every hand already there, then each new hand as you play.",
-      onlyNew: "Only new hands",
-      onlyNewHint: "Leave what is there now; import only hands played from now on.",
       confirm: (count: number) => (count === 1 ? "Watch 1 folder" : `Watch ${count} folders`),
       adding: "Adding…",
       added: (count: number) => (count === 1 ? "Rail is watching 1 folder." : `Rail is watching ${count} folders.`),
@@ -169,10 +177,119 @@ export const en = {
     saveFailed: (reason: string) => `Could not save the change: ${reason}`,
     unavailable: "Settings are only available inside the Rail app.",
 
+    /** Settings, Folders (R1.5; guideline §3 "Upravljanje mapama"). */
     folders: {
       heading: "Hand-history folders",
-      body: "Look for your poker rooms' folders again, or add one by hand.",
-      open: "Find folders…",
+      body: "Rail reads new hands from these folders as your poker rooms write them.",
+      loading: "Loading folders…",
+      notRunning: (reason: string) => `Import is not running: ${reason}`,
+      loadFailed: (reason: string) => `Could not load the folders: ${reason}`,
+      empty: "No folders are watched yet. Add one, or let Rail look for your poker rooms' folders.",
+      add: "Add a folder…",
+      choosing: "Choosing…",
+      findAgain: "Find folders again",
+      setup: "Open the setup screen",
+      list: "Watched folders",
+
+      search: {
+        heading: "Folders Rail found",
+        searching: "Looking for your poker rooms' folders…",
+        failed: (reason: string) => `Could not look for folders: ${reason}`,
+        noneNew: "No new folders found: every folder Rail knows of is already watched.",
+        found: (count: number) =>
+          count === 1 ? "Rail found 1 folder that is not watched yet." : `Rail found ${count} folders that are not watched yet.`,
+        existingHeading: "Hands already in these folders",
+        confirm: (count: number) => (count === 1 ? "Watch 1 folder" : `Watch ${count} folders`),
+        adding: "Adding…",
+        added: (count: number) => (count === 1 ? "Rail is watching 1 more folder." : `Rail is watching ${count} more folders.`),
+        close: "Close",
+      },
+
+      room: "Room",
+      roomFound: (name: string) => `${name} (found by Rail)`,
+      roomChosen: (name: string) => `${name} (chosen by you)`,
+      roomDetected: "Detected per file",
+      roomAuto: "Detect per file",
+      roomHint:
+        "Choose a room only if Rail does not recognise this folder's hands: every file in it is then read as that room's.",
+      lastImport: "Last import",
+      never: "Never",
+      handsToday: "Hands today",
+      hands: "Hands",
+      files: "Files",
+      problems: "Problems",
+      noProblems: "None",
+      fileErrors: (count: number) => (count === 1 ? "1 file cannot be read" : `${count} files cannot be read`),
+      pending: (count: number) =>
+        count === 1 ? "1 file is waiting for its hand to finish" : `${count} files are waiting for their hand to finish`,
+      quarantined: (count: number) => (count === 1 ? "1 hand refused" : `${count} hands refused`),
+
+      showRefused: (count: number) => (count === 1 ? "Show the refused hand" : `Show the ${count} refused hands`),
+      hideRefused: "Hide refused hands",
+      refusedHeading: (path: string) => `Refused hands in ${path}`,
+      refusedLoading: "Loading refused hands…",
+      refusedFailed: (reason: string) => `Could not load the refused hands: ${reason}`,
+      refusedEmpty: "No refused hands.",
+      refusedLead:
+        "Rail could not read these hands. They are kept, so a later version can read them; the reason says why.",
+      byReason: "By reason",
+      refusedFile: "File",
+      refusedReason: "Reason",
+      refusedMessage: "Details",
+      refusedSeen: "Last seen",
+      refusedMore: (shown: number, total: number) => `Showing the ${shown} most recent of ${total}.`,
+
+      settingsOf: (path: string) => `Settings for ${path}`,
+      enabled: "Watch this folder",
+      enabledHint: "Switched off, the folder is not read. Its hands stay in Rail.",
+      recursive: "Include subfolders",
+      pollOnly: "Check for changes by polling",
+      pollOnlyHint: "For network folders, whose change notifications may not arrive: Rail looks every few seconds.",
+      changePath: "Change folder…",
+      remove: "Remove…",
+      saved: "Saved.",
+      roomSaved: (count: number) =>
+        count === 0
+          ? "Saved."
+          : count === 1
+            ? "Saved. 1 file is read again as this room's."
+            : `Saved. ${count} files are read again as this room's.`,
+      actionFailed: (reason: string) => `Could not change the folder: ${reason}`,
+
+      folder: "Folder",
+      cancel: "Cancel",
+      addHeading: "Add a folder",
+      addHint: "Any folder works, on this computer, an external drive or a network share.",
+      addConfirm: "Watch this folder",
+      adding: "Adding…",
+      addedOne: (path: string) => `Rail is watching ${path}.`,
+      addFailed: (reason: string) => `Could not add the folder: ${reason}`,
+      existingHeading: "Hands already in this folder",
+
+      moveHeading: "Change this folder",
+      moveFrom: "Now",
+      moveTo: "New folder",
+      moveBody:
+        "If the new folder holds the same files (you moved or copied it), Rail continues where it stopped. Otherwise it reads the new folder, and the hands already imported from the old one stay in Rail.",
+      moveConfirm: "Use the new folder",
+      moving: "Changing…",
+      moved: (moved: number, detached: number) =>
+        moved === 0
+          ? "Done. Rail reads the new folder; the old folder's hands stay in Rail."
+          : detached === 0
+            ? `Done. ${moved === 1 ? "1 file continues" : `${moved} files continue`} where it stopped.`
+            : `Done. ${moved === 1 ? "1 file continues" : `${moved} files continue`} where it stopped; ${
+                detached === 1 ? "1 file was" : `${detached} files were`
+              } not found there, and its hands stay in Rail.`,
+
+      removeHeading: "Remove this folder?",
+      removeBody: (hands: number) =>
+        hands === 0
+          ? "Rail stops watching it. Nothing in the folder is deleted."
+          : `Rail stops watching it. The ${hands === 1 ? "hand" : `${hands} hands`} already imported from it stay in Rail, and nothing in the folder is deleted.`,
+      removeConfirm: "Remove folder",
+      removing: "Removing…",
+      removed: (path: string) => `Rail no longer watches ${path}. Its hands stay.`,
     },
 
     appearance: {

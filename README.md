@@ -99,7 +99,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Parsers | **19 parsers in TypeScript**, run in the browser; **all 19 also in Rust** (R0.6–R0.10d), and the whole Rust pipeline equals the TypeScript on every corpus file (556 files, 8 422 hands, 196 refusals); not yet used by the web (WASM and shadow mode are R0.13) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
 | Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads); since R0.11 the Rust core's `Unrecognized` record and anonymiser, and the table's desktop fields and consent rule ([`docs/unsupported-formats.md`](docs/unsupported-formats.md)); since R1.2 the desktop's local registry (`unsupported` in `rail-store`, count and consent state) | Unknown files from watched folders recorded (R1.3), consented uploads after sign-in (R1.7+) | 0–1 |
 | `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; since R1.4 the first observations from a real install (macOS: WePlay's folder and live files, GGPoker's and CoinPoker's "no local files"), everything else still unverified; table data unknown (`null`), every HUD policy unknown | Every room's paths verified on real installs ([how](docs/research/VERIFYING-PATHS.md)), window data (R3.3, R3.11), HUD policy from the compliance check (R3.0) | 0–3 |
-| File watcher | **`core/rail-watch` (R1.3)**: FSEvents / ReadDirectoryChangesW / inotify (`notify`) + a rescan every 60 s, network folders polled; reads each file from its stored offset and imports a hand once it is complete (the next hand started, or the file quiet and the hand valid), in any of the corpus encodings; truncation, replaced, renamed and deleted files, unplugged drives; pause / resume. Proven by appending corpus files in random chunks, byte by byte included; the app runs it, tray and Today show it. **Folder discovery (R1.4)**: the rooms' default folders from `sites.json` that exist on this computer, with file counts and the last file's date, confirmed on the first-run screen with "import everything" or "only new hands"; a room's folder reads only its files | Settings → Folders (R1.5) | 1 |
+| File watcher | **`core/rail-watch` (R1.3)**: FSEvents / ReadDirectoryChangesW / inotify (`notify`) + a rescan every 60 s, network folders polled; reads each file from its stored offset and imports a hand once it is complete (the next hand started, or the file quiet and the hand valid), in any of the corpus encodings; truncation, replaced, renamed and deleted files, unplugged drives; pause / resume. Proven by appending corpus files in random chunks, byte by byte included; the app runs it, tray and Today show it. **Folder discovery (R1.4)**: the rooms' default folders from `sites.json` that exist on this computer, with file counts and the last file's date, confirmed on the first-run screen with "import everything" or "only new hands"; a room's folder reads only its files. **Settings → Folders (R1.5)**: add, change path (moves keep offsets), room override, on/off, recursive, poll only, remove, per-folder status and refused hands | Import pipeline at scale (R1.6) | 1 |
 | Local database | **`core/rail-store` (R1.2)**: SQLite (bundled, WAL), embedded migrations, one writer thread committing each file read with its offset in one transaction, read pool, hands as zstd PHF deduped by `hand_key`, quarantine, unsupported-format registry, sync outbox; survives a killed process mid-import (tested on three OSes); the app opens it and Today shows its counts | Statistics, rollups and HUD layouts added (Phases 2–3) | 1 |
 | Sync | Web saves to Supabase directly | Desktop outbox → idempotent upsert; pull of web uploads | 1 |
 | Desktop sign-in | — | System browser + PKCE + `rail://` deep link | 1 |
@@ -206,7 +206,17 @@ files in a bounded walk and dates the newest; the first-run screen lists
 them for one-click confirmation, and "only new hands" marks the files there
 as read without importing them. Few folders are verified on a real install
 yet - see [`docs/research/VERIFYING-PATHS.md`](docs/research/VERIFYING-PATHS.md)
-for what was seen and how to check a room. The folder settings are R1.5.
+for what was seen and how to check a room.
+
+Since R1.5, Settings → Folders lists every watched folder with its room,
+state, last import, hands today, problems and refused hands (by reason
+code, with messages), and edits it: add a folder by hand ("import
+everything" or "only new hands"), change its path (a moved or copied
+folder continues from its stored offsets; another folder is read from
+scratch and the old files keep their hands), choose its room when
+detection fails (the folder's files are read again with that parser),
+switch it on or off, recursive, poll only, remove it (hands stay), and
+find the rooms' folders again.
 
 ### 5.3 Local database and sync (`core/rail-store`, `core/rail-sync`, Phase 1)
 
@@ -492,8 +502,8 @@ neither the panel nor its commands. The watcher (since R1.3) starts with
 the app and reads the folders it is given. On first launch (since R1.4) the
 window opens on the first-run screen: the hand-history folders Rail found,
 to confirm with one click ("import everything" or "only new hands"), or a
-folder added by hand; it stays reachable from Settings until Settings →
-Folders (R1.5) exists. The Today screen shows each folder's state and
+folder added by hand. Settings → Folders (since R1.5) manages the watched
+folders afterwards. The Today screen shows each folder's state and
 counts, and the tray's "Pause import" pauses it. Settings, logs and the login item live
 under the app identifier `app.rail.desktop` (provisional until the domain
 is chosen, Q2): `settings.json` in the OS config directory, `rail.log` in

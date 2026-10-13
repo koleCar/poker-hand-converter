@@ -1,0 +1,31 @@
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.choices legend {
+  margin-bottom: var(--space-2);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.choice input {
+  margin-top: var(--space-1);
+  accent-color: var(--accent-bg);
+}
+
+.hint {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
