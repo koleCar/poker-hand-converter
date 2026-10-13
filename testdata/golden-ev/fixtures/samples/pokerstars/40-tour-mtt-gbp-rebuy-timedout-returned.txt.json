@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "64603934169",
+      "index": 0,
+      "phf": "17fe56d8312c1fdd795dc2ee399e366adc78b2cccac8ca27de8f845dfbb4e131",
+      "reason": "no-all-in",
+      "row": "6999d27f94255194302031a5e6dbd29f96fe3ba241ee41f66cf8875cc2e3c0ba"
+    }
+  ],
+  "input": {
+    "bytes": 1518,
+    "path": "fixtures/samples/pokerstars/40-tour-mtt-gbp-rebuy-timedout-returned.txt",
+    "sha256": "558c1c631b60d0e528bb328338cbd0d500b3db565998b4c32b0038f75a647eae"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -60,
+    "ev_net_bb_milli": -3000
+  }
+}

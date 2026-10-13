@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "9d2847a3868f34bda4d96d87fa6aba64a4be0601a0e9cd77d3889a792f027195",
+      "handId": "888-280096744",
+      "index": 0,
+      "phf": "6ffa88be5dfed094ed3679a2a39ca88248d9d079b5bf3ab431753eee53d93a21",
+      "reason": null,
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 658,
+    "path": "fixtures/samples/888poker/09-fix-limit-holdem.txt",
+    "sha256": "f9b9a36b84e1677108e3eb682864dccb89b60b66dcd557fa04468272cd73d655"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

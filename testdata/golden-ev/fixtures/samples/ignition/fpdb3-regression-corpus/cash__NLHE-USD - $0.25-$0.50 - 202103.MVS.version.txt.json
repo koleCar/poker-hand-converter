@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd768da51010452de5636a740ee287dd365069ed07f221a222b236eec1d1ca74",
+      "handId": "4086249181",
+      "index": 0,
+      "phf": "f01f345619c65a2054d8864a1d01cd90cc09cb90238ca97323b12e51e9e6c0ae",
+      "reason": null,
+      "row": "2a4a61c017478e810ec007ba2421293e3b0a1ec7e6a112b913a4d29ceb605cc8"
+    }
+  ],
+  "input": {
+    "bytes": 1721,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD - $0.25-$0.50 - 202103.MVS.version.txt",
+    "sha256": "bb0e8f62489659671c3cb923bc80c239139d37f09ee2cf67ba19057090cd5fa7"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 12266,
+    "ev_net_bb_milli": 245320
+  }
+}

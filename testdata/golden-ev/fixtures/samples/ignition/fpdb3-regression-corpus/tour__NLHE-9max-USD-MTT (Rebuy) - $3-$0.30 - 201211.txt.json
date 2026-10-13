@@ -1,0 +1,51 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "2691485457",
+      "index": 0,
+      "phf": "d2b3c163b59cb8ffcce2573fe911ba2afb09b6011e4949ea75d3137f04af8be6",
+      "reason": "no-all-in",
+      "row": "4d8b9818574a2743dc95186b4e1d5af02cdc3313fd74f45dbf10db338c79c4aa"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "2691486802",
+      "index": 1,
+      "phf": "f073fae07bf399b4678a5cd251bba0d583fbb18ba1a6304321528df6d542553f",
+      "reason": "no-all-in",
+      "row": "56c5bbb4e1b04f11406d2b33d400c39ffa120b60b62013e63f22ab84fec47a5b"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "2691487708",
+      "index": 2,
+      "phf": "3f151db9b846d117cbe4097ef1f67152a50f62f7dd1258d817fc26175dd7102c",
+      "reason": "no-all-in",
+      "row": "ad07212ff2debae148d56b5fb12d6ecad572d6467333ed079527c156967409e8"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "2691488733",
+      "index": 3,
+      "phf": "6d1f67abacaee3569084f1c3346acaf307a962669f5ed3f5b0b09e1ca6880c7b",
+      "reason": "no-all-in",
+      "row": "9c9373ccecb7c3f4a4a1e5ef6dc069841054b8cd81d54cf20990855d1b354b64"
+    }
+  ],
+  "input": {
+    "bytes": 7811,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT (Rebuy) - $3-$0.30 - 201211.txt",
+    "sha256": "7960341d2d18dc711437583ac22eb552da7e0a15087aae1ffadbef2a3b7cbfa7"
+  },
+  "outcomes": {
+    "no-all-in": 4
+  },
+  "rows": 4,
+  "totals": {
+    "ev_net": 50,
+    "ev_net_bb_milli": 2500
+  }
+}

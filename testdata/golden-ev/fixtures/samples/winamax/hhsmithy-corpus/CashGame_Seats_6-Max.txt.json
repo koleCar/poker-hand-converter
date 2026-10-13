@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "WMX-5340841-606-1383796241",
+      "index": 0,
+      "phf": "7a3472870c730241fc48116fb0e79459e1e94c9ff74b1986c095270d493859c0",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 644,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_Seats_6-Max.txt",
+    "sha256": "8d0ca3cf4803c33ff0337e9973d5d0301b8019abe919c000c0b895b31bf83d0e"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

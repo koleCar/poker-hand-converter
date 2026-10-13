@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "a15d36a74d5b1662d55f1db903d39e3e6dba0b7f6a266c013491460b17bff340",
+      "handId": "184522293",
+      "index": 0,
+      "phf": "7b56ea319381b3fc23443e5c0254534007a28726b2eb1bc854158abc76ccea88",
+      "reason": null,
+      "row": "458ebe16101c81c402bddc9e8ac6109db1373e4d7edcd1a13496685c58460a69"
+    }
+  ],
+  "input": {
+    "bytes": 1640,
+    "path": "fixtures/samples/coinpoker/14-tour-satellite-seats-gtd.txt",
+    "sha256": "092c0ac9e746b3e09f27749be35b202dda6a48915a5893fcba30ba8afa49943c"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -13,
+    "ev_net_bb_milli": -130
+  }
+}

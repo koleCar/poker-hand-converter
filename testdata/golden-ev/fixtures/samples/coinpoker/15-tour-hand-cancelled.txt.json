@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1331,
+    "path": "fixtures/samples/coinpoker/15-tour-hand-cancelled.txt",
+    "sha256": "528f2ef7c50a2f57d960f6dbf4bb973edb3fa0e12800e8fdd7171b9cb4caaf09"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

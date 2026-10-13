@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "3d87bd9dc2c5828e2cc6cff8df9733c33fb868809a8f026c310850a3041a29ed",
+      "handId": "TM2697462",
+      "index": 0,
+      "phf": "071ae2dbb586ce7c849264e12f3bf03ccae0236e33faa28f0589dd41fb9a0470",
+      "reason": null,
+      "row": "f223633ad1724b24b99e5b0314d0ae55d23ab788a9c99e559d1e2148e8f2fbf5"
+    }
+  ],
+  "input": {
+    "bytes": 1280,
+    "path": "fixtures/samples/ggpoker/32-fpdb3-tour-plo-nlo-6max-mtt-usd-8-40-202104-ko.txt",
+    "sha256": "ad18245f75db84dbb4e229ec71e47d62270d4d8f8d57560a26d44ee19daf203a"
+  },
+  "outcomes": {
+    "applicable/monte-carlo": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 2590,
+    "ev_net_bb_milli": 1036
+  }
+}

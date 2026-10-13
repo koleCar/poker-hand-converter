@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST10",
+      "index": 0,
+      "phf": "45e3df2474a99c4c113bc06b9893b2825590cad101216b5a38b5f4eb784bb514",
+      "reason": "no-all-in",
+      "row": "6d0186bf7e18c61e104168e16241885a7ebd61473aac258d2153f96de98dfd0e"
+    }
+  ],
+  "input": {
+    "bytes": 1006,
+    "path": "tests/test/fixtures/stats/10-raised-flop-cbet-ends-the-chain.txt",
+    "sha256": "a516607982be742b8ad5e4f7660ea91c70b9ab99c05734396f5eedfb91eac210"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 1550,
+    "ev_net_bb_milli": 15500
+  }
+}

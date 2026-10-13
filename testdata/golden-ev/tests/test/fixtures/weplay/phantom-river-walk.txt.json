@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD79415709",
+      "index": 0,
+      "phf": "06d4efb51d48831295809f1818d1a1d7303467fd0f5f0a57a11cca44e060f4bc",
+      "reason": "no-all-in",
+      "row": "4f4c721d7e96ad925db6785fd20b619792a3531bf97dfa36139d86437974a221"
+    }
+  ],
+  "input": {
+    "bytes": 839,
+    "path": "tests/test/fixtures/weplay/phantom-river-walk.txt",
+    "sha256": "5c312226f78d028788fb4a14602da8e1d465f46ff43141754724b55d6e88b760"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -100,
+    "ev_net_bb_milli": -500
+  }
+}

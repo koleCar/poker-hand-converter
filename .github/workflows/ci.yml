@@ -72,17 +72,18 @@ jobs:
 
       # `git status` rather than `git diff`: it also catches a golden that is
       # missing (a new input) or left over (an input that was removed). The
-      # stats goldens (R2.1, testdata/golden-stats/) come out of the same run:
-      # a change to lib/stats lands with them, as a parser change lands with
+      # stats goldens (R2.1, testdata/golden-stats/) and the all-in EV goldens
+      # (R2.2, testdata/golden-ev/) come out of the same run: a change to
+      # lib/stats or lib/equity lands with them, as a parser change lands with
       # testdata/golden/.
       - name: Goldens match what is committed
         run: |
-          changes="$(git status --porcelain --untracked-files=all -- testdata/golden testdata/golden-stats)"
+          changes="$(git status --porcelain --untracked-files=all -- testdata/golden testdata/golden-stats testdata/golden-ev)"
           if [ -n "$changes" ]; then
-            echo "::error file=testdata/golden/README.md::Goldens are stale. Run 'npm run golden:emit' in tests/ and commit testdata/golden/ and testdata/golden-stats/ in the same PR as the parser or stats change."
+            echo "::error file=testdata/golden/README.md::Goldens are stale. Run 'npm run golden:emit' in tests/ and commit testdata/golden/, testdata/golden-stats/ and testdata/golden-ev/ in the same PR as the parser, stats or equity change."
             echo "$changes" | head -100
-            git --no-pager diff --stat -- testdata/golden testdata/golden-stats | tail -20
-            git --no-pager diff -- testdata/golden testdata/golden-stats | head -300
+            git --no-pager diff --stat -- testdata/golden testdata/golden-stats testdata/golden-ev | tail -20
+            git --no-pager diff -- testdata/golden testdata/golden-stats testdata/golden-ev | head -300
             exit 1
           fi
           echo "Goldens are fresh."
@@ -138,7 +139,9 @@ jobs:
   # The test checks those bodies against the committed hashes before using
   # them, and fails rather than skips when they are missing. The stats golden
   # diff (R2.1, core/rail-stats/tests/corpus.rs) reads the same bodies and
-  # compares rail-stats' rows with the hashes in testdata/golden-stats/.
+  # compares rail-stats' rows with the hashes in testdata/golden-stats/; the
+  # all-in EV diff (R2.2, core/rail-equity/tests/corpus.rs) does the same
+  # against testdata/golden-ev/.
   #
   # The desktop app's crate (`rail-app`, app/src-tauri) is left out of clippy
   # and test here and has its own job, `app`, below: on Linux Tauri needs the
@@ -190,7 +193,7 @@ jobs:
 
       - name: WebAssembly build
         if: matrix.os == 'ubuntu-latest'
-        run: cargo build -p rail-core -p rail-core-wasm -p rail-config -p rail-stats --target wasm32-unknown-unknown --locked
+        run: cargo build -p rail-core -p rail-core-wasm -p rail-config -p rail-stats -p rail-equity --target wasm32-unknown-unknown --locked
 
   # The desktop app (docs/RAIL-PLAN.md R1.1): Tauri 2 in app/. Every pull
   # request gets an unsigned bundle for macOS and Windows to download and try

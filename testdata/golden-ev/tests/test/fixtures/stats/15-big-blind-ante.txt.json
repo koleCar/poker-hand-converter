@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST15",
+      "index": 0,
+      "phf": "b16d80bf4033903fc71b529e93389ac87287a029ff9c1f58b0e5bb2832134ed9",
+      "reason": "no-all-in",
+      "row": "cb0c28798767e60331ea7a0b0049ca0abc7ffd26cf8ef7a2b4c6fa94c9fc4eeb"
+    }
+  ],
+  "input": {
+    "bytes": 863,
+    "path": "tests/test/fixtures/stats/15-big-blind-ante.txt",
+    "sha256": "395035b3edf4fd19673a27a7c61020cafbb05793dc9c3fc8a872522f1e9b69c3"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 750,
+    "ev_net_bb_milli": 7500
+  }
+}

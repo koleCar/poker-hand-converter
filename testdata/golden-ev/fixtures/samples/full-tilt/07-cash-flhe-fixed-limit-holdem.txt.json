@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33729180182",
+      "index": 0,
+      "phf": "d8c1a7a1def8fd73f9a772f34f9a9417eb8db2234b5a8091c336507e0524105d",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 713,
+    "path": "fixtures/samples/full-tilt/07-cash-flhe-fixed-limit-holdem.txt",
+    "sha256": "2c22a57563e3d22a814fcb7ba2310159520fa857e8dab19e4a4432ceb67fd188"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

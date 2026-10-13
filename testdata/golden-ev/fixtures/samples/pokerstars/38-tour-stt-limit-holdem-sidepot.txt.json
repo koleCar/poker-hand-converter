@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "45201040897",
+      "index": 0,
+      "phf": "f7dc206aa49c8732780271c37e2313d1e70b6757918600cd17449c33c21551be",
+      "reason": "no-all-in",
+      "row": "87e7df8198c0fb97ab1158b11c4198e1778538c5aeb2dbda2a2350e69e893903"
+    }
+  ],
+  "input": {
+    "bytes": 1852,
+    "path": "fixtures/samples/pokerstars/38-tour-stt-limit-holdem-sidepot.txt",
+    "sha256": "df62f3bd2e596fd2b6c1005601b1668f8149b301af751917dd4b5a079c3df409"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -360,
+    "ev_net_bb_milli": -3600
+  }
+}

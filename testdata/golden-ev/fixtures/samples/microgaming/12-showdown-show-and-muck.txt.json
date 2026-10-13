@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "6a7a3202fac594d74c21125cfce675488679555c67b591619527b3da01598ac2",
+      "handId": "MG-5049096293",
+      "index": 0,
+      "phf": "adceb47d0dccb9265bd2e4ff002eee1e888f6371f93c26c5a218347e901905f7",
+      "reason": null,
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 2717,
+    "path": "fixtures/samples/microgaming/12-showdown-show-and-muck.txt",
+    "sha256": "f8772cb2021b1033e7b73ded033dec322605713800e09a09be9bc5c98197813c"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

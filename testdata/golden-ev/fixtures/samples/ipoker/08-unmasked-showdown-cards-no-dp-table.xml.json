@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "157884662ade3f684b81e8cb6eab81615cd34a2ae891a1a15255139bd1705869",
+      "handId": "IPN-3311227441",
+      "index": 0,
+      "phf": "e1bc7830fd5ee162cd05523b24dafbb1bbe0776ab4150fc5cfbc129c230b9c7f",
+      "reason": null,
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 2463,
+    "path": "fixtures/samples/ipoker/08-unmasked-showdown-cards-no-dp-table.xml",
+    "sha256": "a267055e4fc8718dc52a1ca39ba14e2dbb7313a0c1577825e8fb9911b52cb7f5"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

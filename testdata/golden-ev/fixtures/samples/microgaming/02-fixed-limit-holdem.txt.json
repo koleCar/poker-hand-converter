@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "MG-5049104353",
+      "index": 0,
+      "phf": "d0c814af95f9079068acfc6677451fc5c53077465c993cc13e13472efe5db861",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1981,
+    "path": "fixtures/samples/microgaming/02-fixed-limit-holdem.txt",
+    "sha256": "c8f51946c7a8d3cf578fc03727d9732e1b27782f6e2473af4f48ca1890fc7221"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

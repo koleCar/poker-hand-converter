@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "cf4b237e5f51439f24c6a3cf2fd5aac7bfa824a964a9e8f15e45098a8cd7a816",
+      "handId": "4300979169",
+      "index": 0,
+      "phf": "601f2a6dc53d747b8237dc22c943d72b9f283b22a4d76b63684e9c73dea91ee0",
+      "reason": null,
+      "row": "4a44c1d262ee16d8f534249a0c98ee81097271106cb1ec7972e985318e26c903"
+    }
+  ],
+  "input": {
+    "bytes": 2218,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - $25-$2.50 - 202104.Ignititon.MVS.txt",
+    "sha256": "f5204b16d4fe807e9c01e6bbcedba24f8efe4999546a106189c282a8e0351b05"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 4935,
+    "ev_net_bb_milli": 32900
+  }
+}

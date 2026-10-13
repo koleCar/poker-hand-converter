@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 3307,
+    "path": "fixtures/samples/bossmedia/06-allin-showdown.txt",
+    "sha256": "9b07e3396b0b8db980f5403f3457c5b8685bdfd0733a3c761da2dfebf9e268a4"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

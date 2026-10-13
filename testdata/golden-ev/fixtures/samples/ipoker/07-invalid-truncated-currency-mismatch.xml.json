@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1374,
+    "path": "fixtures/samples/ipoker/07-invalid-truncated-currency-mismatch.xml",
+    "sha256": "1014fe0df47cee985e79e5dda35247ab98d51b7a83b636e4efabec8bd275db1e"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

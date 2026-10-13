@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "37415c97706a8e1b414ed5a6efda975c888743d288da4f53290e3e93cdd1569d",
+      "handId": "CHC-1605375848",
+      "index": 0,
+      "phf": "f9ad944bb44cd24692cace9acab64cceb3eccc5de46bfe32a504036bd047c79e",
+      "reason": "no-street-to-come",
+      "row": "0e28dc6f6e4ac53d2f5754661bc2683fca283876a711827e157651c6a3d06a4c"
+    }
+  ],
+  "input": {
+    "bytes": 1827,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-USD-0.01-0.02-201605.winner.no.show.txt",
+    "sha256": "136d09220dec34d07f909450aec7b7d1b9fd8aecb9e3b1a61d4c7e45c4d5d711"
+  },
+  "outcomes": {
+    "no-street-to-come": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

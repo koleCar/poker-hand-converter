@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "37415c97706a8e1b414ed5a6efda975c888743d288da4f53290e3e93cdd1569d",
+      "handId": "888-349444554",
+      "index": 0,
+      "phf": "e79256c0b8ec0dc62d4fdc8f0705ee406ece5b68fcd817297b6c970fe0cc8491",
+      "reason": "no-street-to-come",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 916,
+    "path": "fixtures/samples/888poker/02-allin-summary-both-shows.txt",
+    "sha256": "24f6771f9733f09583309ac6d3a2087d9275f22fad465b570150ad3f5c4569be"
+  },
+  "outcomes": {
+    "no-street-to-come": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

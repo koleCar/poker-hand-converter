@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "113004443741",
+      "index": 0,
+      "phf": "d58cdf7a6ca78bd04d1eed739ae02bf80b8f1cd2cf1fdf5a0a0f4dee824baf70",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1072,
+    "path": "fixtures/samples/pokerstars/19-cash-nlhe-leaves-table-mid-hand.txt",
+    "sha256": "13ce9004248ce7e330144db29031afeb01e35c89e1cf71048a461a73e6e1ea27"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

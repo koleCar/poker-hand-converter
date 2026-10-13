@@ -1,0 +1,43 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "3453331430",
+      "index": 0,
+      "phf": "8523a8a5358336ce7d7a0042e00dc37f1e5c34f08635ca5e9aa2f71d404dec49",
+      "reason": "no-all-in",
+      "row": "1be2c212e05e20e24832af4df4c71bf40c9bc7ba2385169b0fbac225e285c266"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "3452258262",
+      "index": 1,
+      "phf": "7941918c135348790fde034f4ae58cc1fca1d8aa5749847bfa72f2250616bcdc",
+      "reason": "no-all-in",
+      "row": "4af392c47ac3e7a0b2c99bf28f3451e827cbc8036a85c3894bd38fb18c510636"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "3598182127",
+      "index": 2,
+      "phf": "fa8ac50a3ab86b3c700b33b7a461b1794fa44c8a2a93eb2aa1b6a1edcf1d059a",
+      "reason": "no-all-in",
+      "row": "9863637d4e663333d3bf74b01b0fe02006130c4322918918306dbe270cb8d9b8"
+    }
+  ],
+  "input": {
+    "bytes": 4075,
+    "path": "fixtures/samples/ignition/matt57225-converter-samples/2.txt",
+    "sha256": "e9c64bd71edbf95538ccfad23a479da358512dc78d48ac01fa84f2adc489db09"
+  },
+  "outcomes": {
+    "no-all-in": 3
+  },
+  "rows": 3,
+  "totals": {
+    "ev_net": -18,
+    "ev_net_bb_milli": -100
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "WMX-5285192-1130-1382664338",
+      "index": 0,
+      "phf": "412451df1db62c399123ad7f6dd25006ea9775cd08659a09a97dbc78192bd9bb",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 664,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_GameTypeTests_NoLimitHoldem.txt",
+    "sha256": "e55f781d4cffcec2328fb8b6abb9acc2c717c6437b9ddf875ecac0023d58dc98"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

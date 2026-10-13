@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109681289672",
+      "index": 0,
+      "phf": "2d7c2176570d48fcec688b82ad3c9d363640cf9fec3ca3d27fcf946a6ac98c78",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1181,
+    "path": "fixtures/samples/pokerstars/13-cash-nlhe-disconnected-no-summary.txt",
+    "sha256": "2dd89f75960409361daba50507c6b02fe541d35168d9c626efd683e84963bb57"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

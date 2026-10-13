@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-13549974403",
+      "index": 0,
+      "phf": "af1887f9dd2a9fc8ef16412199ab2806f998fa6b17ddb7799b9843de4ce76bce",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 786,
+    "path": "fixtures/samples/partypoker/09-fixed-limit-holdem.txt",
+    "sha256": "5d1da477216ea57d682a256d1d9e9c209d776dfcff2daba6e7c8227f08291b7f"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "109680525613",
+      "index": 0,
+      "phf": "8aad6c2ae370024d3e45b39793fc54df65add48c344991014ff630ae21f52124",
+      "reason": "hi-lo",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1760,
+    "path": "fixtures/samples/pokerstars/26-cash-nolimit-omahahilo.txt",
+    "sha256": "aecf7b7379fdf463044aa2b127a66c95c79d5ce37c4b7f7ea77415255389a382"
+  },
+  "outcomes": {
+    "hi-lo": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

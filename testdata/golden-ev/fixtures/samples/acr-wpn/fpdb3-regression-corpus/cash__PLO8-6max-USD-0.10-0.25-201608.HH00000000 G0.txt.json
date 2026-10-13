@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 14241,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO8-6max-USD-0.10-0.25-201608.HH00000000 G0.txt",
+    "sha256": "540dab337e81eba831c84c64d2f3956cb5ccf5f8b532cf49e742473f885e12a8"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

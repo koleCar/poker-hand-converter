@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "8ebb6e0d95e3d5118d7cd201579c5bb72f6e9f948e1660dec55b1ccb9aed8bb3",
+      "handId": "2656154797",
+      "index": 0,
+      "phf": "5ea70a8f162c9a09bc484d5ed364ffce2a7d1cde81c6ae635416fc27291ba761",
+      "reason": null,
+      "row": "6003402dbbd1c59b918745063813ffbd2933d9008e59a0c0838da96676bcbbb8"
+    }
+  ],
+  "input": {
+    "bytes": 1234,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-USD-1.00-STT-201208. - $1-$0.10 - .txt",
+    "sha256": "ff46ef9612318d08c6dbd9c73bc3557879c5f51b34f24ead62fbd5c4203451d7"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -323,
+    "ev_net_bb_milli": -808
+  }
+}

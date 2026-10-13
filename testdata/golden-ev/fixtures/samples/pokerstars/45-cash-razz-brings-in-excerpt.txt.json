@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1590,
+    "path": "fixtures/samples/pokerstars/45-cash-razz-brings-in-excerpt.txt",
+    "sha256": "65923380ac38ea6a764b13447e0754b27944e50cc36d03303cd5edea364ae703"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

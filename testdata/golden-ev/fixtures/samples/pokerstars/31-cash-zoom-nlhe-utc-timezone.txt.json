@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "171598493667",
+      "index": 0,
+      "phf": "213b0b8a63555b93b23566c34e97e2dfef58fecd90482a83713f52bb444150bf",
+      "reason": "no-all-in",
+      "row": "dfde6cb32b1843f0efa5bc8ef9cbb4c478d7bc61ce89ada084b8203da7bc09ee"
+    }
+  ],
+  "input": {
+    "bytes": 1037,
+    "path": "fixtures/samples/pokerstars/31-cash-zoom-nlhe-utc-timezone.txt",
+    "sha256": "8c0d896e73bb70c82b5812a82a99174156f38c058f8d7c41a0518cbf00ce68a2"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -1,
+    "ev_net_bb_milli": -500
+  }
+}

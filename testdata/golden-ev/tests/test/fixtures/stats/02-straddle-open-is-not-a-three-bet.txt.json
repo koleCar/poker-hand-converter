@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST02",
+      "index": 0,
+      "phf": "ee0c34eae4a1a48c3774d253d1e062d77b8e586208775c77d836a94f3c0993f5",
+      "reason": "no-all-in",
+      "row": "32377c4503ae5965df312df7598b8cdd41062377ac0d7ce3a62bda2c5fe84730"
+    }
+  ],
+  "input": {
+    "bytes": 845,
+    "path": "tests/test/fixtures/stats/02-straddle-open-is-not-a-three-bet.txt",
+    "sha256": "bfafd0c279574fc03660c779a4502243d2add0bb558121144150603a5e18f155"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 350,
+    "ev_net_bb_milli": 3500
+  }
+}

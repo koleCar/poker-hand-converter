@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "UB-1558006027",
+      "index": 0,
+      "phf": "9e51d0df6db2b149081c7ace93a0407ae9392ec777be00dc4c0f25a6c6c3c4a6",
+      "reason": "no-all-in",
+      "row": "b65b192012a1fb2f803f229c758198149eb4ffe185b59811ec5a037f33ead9aa"
+    }
+  ],
+  "input": {
+    "bytes": 2050,
+    "path": "fixtures/samples/unibet/03-cash-plo-2026-two-hands-anonymised.txt",
+    "sha256": "46cc2119978a80ebc674caadb5550e53ba68f0ebee06d81d915d5ab4dda9f2f9"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 9,
+    "ev_net_bb_milli": 1800
+  }
+}

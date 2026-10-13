@@ -1,0 +1,35 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "56397699000",
+      "index": 0,
+      "phf": "ef1f364e9be6c884305de3233dc2b4488c1272a205ea98f07103c72c79bc5806",
+      "reason": "no-all-in",
+      "row": "e931921333c72e4157ed408d72eb3a717348ae7f80791154111e1b56262e6f1e"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "56397717005",
+      "index": 1,
+      "phf": "2fdcb882fc99476c77804a22385b11126b93f94f62594df80b904cc923e18f03",
+      "reason": "no-all-in",
+      "row": "41963d73c49516f3e703844a791226210dedb10ab6b96738784ff5db29866bb2"
+    }
+  ],
+  "input": {
+    "bytes": 2247,
+    "path": "fixtures/samples/pokerstars/48-cash-nlhe-thirdparty-export-trailing-whitespace.txt",
+    "sha256": "f9ca52fcdf1664e67cb05edb4815f827c65f20a5e5ac1bd2390de281e840a3c9"
+  },
+  "outcomes": {
+    "no-all-in": 2
+  },
+  "rows": 2,
+  "totals": {
+    "ev_net": -8,
+    "ev_net_bb_milli": -4000
+  }
+}

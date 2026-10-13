@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261641541",
+      "index": 0,
+      "phf": "24584a85a412ef54c9a434d2fe37c243986d239953ca7262b8f2a1fadf7ff126",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1769,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_GeneralHands_GeneralHand.txt",
+    "sha256": "7a882246101870954af3c4ee6218f01ab0619baf6cdfc558c707dfcbb248834a"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "WMX-5334663-1379-1383796492",
+      "index": 0,
+      "phf": "47db80303ba51c84e9fd01adf5d8d6c2ae8f16859c41298da5247ad0b5cc7826",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1277,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_PlayerTests_OmahaShowdown.txt",
+    "sha256": "156fd02746f15ffb54c42125b997282595a36f72d30f8a6b8f85c48bd3310f04"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

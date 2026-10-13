@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "3589791199",
+      "index": 0,
+      "phf": "e43d49fc695246ad7a0f1fcd1e8b6ae618d3f4d5d1ee13c0f4a18412cdb34d2e",
+      "reason": "no-all-in",
+      "row": "2d0b6060cc0b2065565fca0dbde54b633ce5ca2c1e037b2543ec5218cd0e0795"
+    }
+  ],
+  "input": {
+    "bytes": 1283,
+    "path": "fixtures/samples/ignition/matt57225-converter-samples/1.txt",
+    "sha256": "0ea39729fcb3a42ae8202917b96bce6a883fecacf9223259ac993a2ad836e87d"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

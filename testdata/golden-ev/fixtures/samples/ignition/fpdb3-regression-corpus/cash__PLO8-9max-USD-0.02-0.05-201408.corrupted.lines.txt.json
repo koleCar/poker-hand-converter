@@ -1,0 +1,43 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "2902233667",
+      "index": 0,
+      "phf": "3acd64295c8ec1d1f28169b55feb536a2f32567a4305c049f4842c6703b14226",
+      "reason": "hi-lo",
+      "row": "7fcce20210afdd387695833eff2ca3d4f01f75a19817e51369cdb9792fcea30b"
+    },
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "2902234353",
+      "index": 1,
+      "phf": "a61fa0840f2d6519d80930f900f75b1355917301309a721acbc9c65648d3b83a",
+      "reason": "hi-lo",
+      "row": "bd1d264acaedd101f5d23f89e581712f23204be90291e43f92127b173f63c4c0"
+    },
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "2902235417",
+      "index": 2,
+      "phf": "a0d1016dd737f267f4eb480487ed2bff330d997580851ac161df1c061869535c",
+      "reason": "hi-lo",
+      "row": "c068d2b9d38ca9c54fee2c9f664ca759910b82049e3adeac1ee4f9f05858956f"
+    }
+  ],
+  "input": {
+    "bytes": 6214,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__PLO8-9max-USD-0.02-0.05-201408.corrupted.lines.txt",
+    "sha256": "e7b9168850b4bcf24ca27a74041b760760dcc041e86fac226b892deb383e8fc0"
+  },
+  "outcomes": {
+    "hi-lo": 3
+  },
+  "rows": 3,
+  "totals": {
+    "ev_net": -5,
+    "ev_net_bb_milli": -1000
+  }
+}

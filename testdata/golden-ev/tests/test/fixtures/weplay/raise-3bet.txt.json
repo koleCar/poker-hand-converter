@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD90000003",
+      "index": 0,
+      "phf": "19001e07e7268a2d4cbcf8d6ffb323c022cf6563bb0160e104fd0257fc62bc9e",
+      "reason": "no-all-in",
+      "row": "d17dec2d8e96ae64641dbc5c77d28d89d549112f851ae475016e1786e0ce9098"
+    }
+  ],
+  "input": {
+    "bytes": 1184,
+    "path": "tests/test/fixtures/weplay/raise-3bet.txt",
+    "sha256": "0e86fb2a0df6dbfd72a2f0700547a2838cb88d4c285625a0e63b939000d5d9bd"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 300,
+    "ev_net_bb_milli": 3000
+  }
+}

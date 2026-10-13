@@ -1,0 +1,76 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75322558",
+      "index": 0,
+      "phf": "c107f0681d044df64ac3fc72d335bb365694d976c201fb794ad51de4977ace89",
+      "reason": "no-all-in",
+      "row": "43393f025e5b94efc22186f78cc54dfaebc1a7f0fe8cf98e3cc8ef154e09e2db"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75322643",
+      "index": 1,
+      "phf": "d8d090445abf724edfcdc296da350e08c480de2fe29cc08ef97d8de27e4585ac",
+      "reason": "no-all-in",
+      "row": "c1fee98d29ef7c45a21821bb41fc9617be8cb4e7fc67a78b11f722904e1f6574"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75322674",
+      "index": 2,
+      "phf": "3a9f6e64bee557e7641167f4f4094f7bc4bd35b64225b19702af9db907de9704",
+      "reason": "no-all-in",
+      "row": "cc7a2885452b097ae0452ec5a3c3e5999fc747df21635e0df852d78f14cff3f3"
+    },
+    {
+      "analysis": "6e5b61cad83d4b498fa0be3b19f2c66d9518c6aaffe6b0d9ffad029b044f2f25",
+      "handId": "HD75322701",
+      "index": 3,
+      "phf": "195e979c4c11fc2f8c5c59f61def2b84cc74a15b0483870856b3c7776d4db860",
+      "reason": null,
+      "row": "0845a879b877f84a16661ac97e471dde88e28feb2f214bcafe679168d418091f"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75322725",
+      "index": 4,
+      "phf": "edb5bff6c3442da12235b8f3f1532252c32eff6d669916aee302531859fab6cc",
+      "reason": "no-all-in",
+      "row": "17efad69e8004299f27f6a625eb37cc955f301de2e0c8e285c518ccd7a1fa043"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75322748",
+      "index": 5,
+      "phf": "d16f22c599078b91b6515cca71a10b4b099da5630199d85366a03ab108b71efe",
+      "reason": "no-all-in",
+      "row": "6d75f559b918eedfcbbcda7b75627ae39e152abd425c98e23514068620dbcefe"
+    },
+    {
+      "analysis": "b39dfcb5a46d001bde136d2f8e4e129261b598e865f5235804aff6edd92ab844",
+      "handId": "HD75322772",
+      "index": 6,
+      "phf": "e4ac9b5767345c7b6456a32d7934f1ee1b30de0316e33a1938a20ab4d7e975ae",
+      "reason": null,
+      "row": "4140f0b8149ad7f1d02f34c5e5a924895170373ff0ac47e5eba159a6ef42fe25"
+    }
+  ],
+  "input": {
+    "bytes": 11287,
+    "path": "weplay-hh/h.kolaric992@gmail.com/HH20260210 Manchester #3 (#11461801) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt",
+    "sha256": "4ae2f07aa56444eb413a33027cfdf352fddae90a4516f3f035c79399049e2b43"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 2,
+    "no-all-in": 5
+  },
+  "rows": 7,
+  "totals": {
+    "ev_net": -352,
+    "ev_net_bb_milli": -7040
+  }
+}

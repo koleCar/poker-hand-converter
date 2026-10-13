@@ -67,6 +67,14 @@ opt-level = 3
 [profile.dev.package.sha2]
 opt-level = 3
 
+# rail-equity (R2.2): its tests enumerate every all-in of the corpus, 226 of
+# them preflop (1.4-1.7M boards each); unoptimised that is minutes per run.
+# Optimised, with debug assertions and overflow checks still on (only the
+# opt-level changes). The evaluator's hot functions in rail-core are
+# `#[inline]`, so they are compiled here, at this level, too.
+[profile.dev.package.rail-equity]
+opt-level = 3
+
 # rail-store's C (R1.2): SQLite and zstd compiled at -O0 make the store's
 # tests (the corpus imports and the crash test) several times slower.
 [profile.dev.package.libsqlite3-sys]

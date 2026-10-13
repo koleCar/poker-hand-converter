@@ -1,0 +1,107 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73726291",
+      "index": 0,
+      "phf": "cc50b29e86467bd9cbf4a97c63ff82e52ae7fc1b33d5f74d1b5b6011ad0ebe0b",
+      "reason": "no-all-in",
+      "row": "0ba3407b8abcf1b04a71bf6fa8c52ce231360453ab8c91266d5f2a855e5561ae"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73727355",
+      "index": 1,
+      "phf": "7c3b9d674b26dc53d94b06bc2ca62554e9d5b53f0744fdfd248945daa36e3254",
+      "reason": "no-all-in",
+      "row": "0f82d31b488b8cfe98dffcabde0726a9c2457fcaa2654c19d261befff3bd5214"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73727394",
+      "index": 2,
+      "phf": "9a0524156c1655563eb40cbf7aa5d54a685ee60852335ac21f61c2a33b31adb8",
+      "reason": "no-all-in",
+      "row": "2a45a37024a0187297d5cdd4327fcc6abfd2c47101f8ce923c041ab05c79a27f"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73727473",
+      "index": 3,
+      "phf": "7e1facf092c4d90f7b73befbcd174c1b8e6ff106d5672294eccfc68c12c5b8fd",
+      "reason": "no-all-in",
+      "row": "903061f1df538e0529db37bac0406356da4663165ba29aaf6c8f314ef2462c1d"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73727507",
+      "index": 4,
+      "phf": "d967e237f7fe75940a728426e4fd74422343a4c739e002b1dbe28ae478e33503",
+      "reason": "no-all-in",
+      "row": "3e3676028c0cb49adb52ea3e1c03c225a3770496212c306153b53348ba985569"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73727526",
+      "index": 5,
+      "phf": "7ba327ddc9bfe7539d89a385a9dff95172c599434ec3a21b44bc7cb0760f8215",
+      "reason": "no-all-in",
+      "row": "7ae67d9c178eb0ad1671b9db60c778d59ac8de7ff5061f00abfbc1753cad660f"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73727562",
+      "index": 6,
+      "phf": "75622d8acaba87e71adef3e4f8387b19c1c66dff6a65c150b6b21eb27c7ed06b",
+      "reason": "no-all-in",
+      "row": "846d8ec4f538043c28adb3fdfceb4cfd4ce0ac2649d8007865a1560397f1f0e9"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73727607",
+      "index": 7,
+      "phf": "5abdbb133b99d29e401256c60e745c448f39f83a152424ced485b66dcb2bf326",
+      "reason": "no-all-in",
+      "row": "ad76c704968320053fadc1edfb954f6df41774bb839f320b52197283732ddb3e"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73727640",
+      "index": 8,
+      "phf": "360579326a730e76651822fd9576ebbc4c14c536369f8a591fb241cd5903e332",
+      "reason": "no-all-in",
+      "row": "8c1cc487fda5ecc45b9367094f4ae1bc6d105609d7d882c271869b932d5d5021"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73727673",
+      "index": 9,
+      "phf": "fd7467641858d8d1ac7afe1b10d84e285bbb890f8fe5b7e5eb4c7ac10022fec4",
+      "reason": "no-all-in",
+      "row": "5d80c7b7954a67fdd4c821a5a815e8be1e1ba359c42fc5fa6743efecbae5a9d3"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD73727708",
+      "index": 10,
+      "phf": "9a32ffd5a4022626312e82b5a7594468b132f5b8881aa5f9c6ac183a0b120288",
+      "reason": "no-all-in",
+      "row": "773f12cabeec3b3f98d166caafac1e5b53647618c27a84eb6efe1c314da56d40"
+    }
+  ],
+  "input": {
+    "bytes": 14515,
+    "path": "weplay-hh/kole1992/HH20260125 Manchester #2 (#11459801) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt",
+    "sha256": "9390a16aee10d89417c211e52e2671cfbd57b89d2b2191f889b1e5c32c75b9ba"
+  },
+  "outcomes": {
+    "no-all-in": 11
+  },
+  "rows": 11,
+  "totals": {
+    "ev_net": 193,
+    "ev_net_bb_milli": 3860
+  }
+}

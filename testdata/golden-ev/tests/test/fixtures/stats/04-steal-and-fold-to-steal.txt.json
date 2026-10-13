@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST04",
+      "index": 0,
+      "phf": "b624387d54cd82cfc1a3bf69d50194cf919e83d1a95701d5ed947ef7842a4f90",
+      "reason": "no-all-in",
+      "row": "32e9240de5c93c6027dd3268d46e766e1ea27c2f82ca577644406ad94e0b3357"
+    }
+  ],
+  "input": {
+    "bytes": 841,
+    "path": "tests/test/fixtures/stats/04-steal-and-fold-to-steal.txt",
+    "sha256": "44499b70bc8ca1e4781e2f8c32a7ac04846800bfbf4d89548df7132b47df0af4"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 150,
+    "ev_net_bb_milli": 1500
+  }
+}

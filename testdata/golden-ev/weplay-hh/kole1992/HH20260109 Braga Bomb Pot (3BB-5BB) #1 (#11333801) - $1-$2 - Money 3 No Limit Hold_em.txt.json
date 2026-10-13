@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "37415c97706a8e1b414ed5a6efda975c888743d288da4f53290e3e93cdd1569d",
+      "handId": "HD72101874",
+      "index": 1,
+      "phf": "23b0e8ea1686028e553931a42374e8b2a8db5e080cf9de7db1efc4fb53ba5aee",
+      "reason": "no-street-to-come",
+      "row": "23d66cd49844940940cfdacb9103277fa78b1a95f73011a73868f3dd6e734034"
+    }
+  ],
+  "input": {
+    "bytes": 2951,
+    "path": "weplay-hh/kole1992/HH20260109 Braga Bomb Pot (3BB-5BB) #1 (#11333801) - $1-$2 - Money 3 No Limit Hold_em.txt",
+    "sha256": "23e5e1b675521c88eb0517c419e944ffcc32a8100e3dbce9136d29dac05fbc76"
+  },
+  "outcomes": {
+    "no-street-to-come": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -20000,
+    "ev_net_bb_milli": -100000
+  }
+}

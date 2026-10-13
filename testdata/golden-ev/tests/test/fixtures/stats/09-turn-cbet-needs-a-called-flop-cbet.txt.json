@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST09",
+      "index": 0,
+      "phf": "b5586aa8503e3e95957aa6c5a1521398c19d0814069cde16f7ef5b120e5399a3",
+      "reason": "no-all-in",
+      "row": "7afef54d8f76f2417b050265dc68186bc3a8a869d1372576847dd86b1d192da9"
+    }
+  ],
+  "input": {
+    "bytes": 985,
+    "path": "tests/test/fixtures/stats/09-turn-cbet-needs-a-called-flop-cbet.txt",
+    "sha256": "49c93b7bd6bc04b14cf4de0716649d72f1a605934067729011327510fcf93a7c"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 750,
+    "ev_net_bb_milli": 7500
+  }
+}

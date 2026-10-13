@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "37415c97706a8e1b414ed5a6efda975c888743d288da4f53290e3e93cdd1569d",
+      "handId": "41888200000",
+      "index": 0,
+      "phf": "56fee34f834ec53bfb46b3911049c9d4f2db9ce6e56179181cab1e2466531cae",
+      "reason": "no-street-to-come",
+      "row": "5f12021ce9fe68fa681ae2693602f1382f6045d24a5428373e474f07d29dfb5e"
+    }
+  ],
+  "input": {
+    "bytes": 1035,
+    "path": "fixtures/samples/pokerstars/35-tour-husng-nlhe-match-round-level.txt",
+    "sha256": "5c95f017026b104f04318821806a42efee5030475df0a2e61361088dfbf5532d"
+  },
+  "outcomes": {
+    "no-street-to-come": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 1490,
+    "ev_net_bb_milli": 14900
+  }
+}

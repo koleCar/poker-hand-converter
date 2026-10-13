@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ENT-2646539198",
+      "index": 0,
+      "phf": "39dbadda2e71b4ac4d93cad60f56efa662ce1e59187a19c4a9d91e2aa144e51c",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1129,
+    "path": "fixtures/samples/entraction/01-basic-hand-nlhe.txt",
+    "sha256": "9a93a7c8bb26871cfb7ee324d5e6277659e88f0b9fe9b01de4cefb5cb36e2b2f"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

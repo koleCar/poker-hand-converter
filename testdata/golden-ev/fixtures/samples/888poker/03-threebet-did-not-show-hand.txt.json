@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "888-280083902",
+      "index": 0,
+      "phf": "46c59b606b3f55fd9717c2c33c67981e6374307c89c6c81b87e719eb349a759c",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 955,
+    "path": "fixtures/samples/888poker/03-threebet-did-not-show-hand.txt",
+    "sha256": "fc6ad9c34c5fe5ff3f269771ec90517517381390404c4be9b4897a46e398681b"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

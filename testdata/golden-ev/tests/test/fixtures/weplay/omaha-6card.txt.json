@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 777,
+    "path": "tests/test/fixtures/weplay/omaha-6card.txt",
+    "sha256": "78c12a3d830b919f0d5e2512273f049f48adb054c75721839c5d36ea9f591cf5"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

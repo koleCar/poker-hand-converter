@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "352021042",
+      "index": 0,
+      "phf": "498e4e8ecce6a789703e516b821bd23dd93197cd2e981509cd8c001333a5488b",
+      "reason": "no-all-in",
+      "row": "af7e3af9633873e29c504292b75ffe5ada654600f59ad44449f3b88248d06e19"
+    }
+  ],
+  "input": {
+    "bytes": 1438,
+    "path": "fixtures/samples/coinpoker/03-cash-showdown-shows-desc.txt",
+    "sha256": "1a232b6005fbd7c15496bff6c84d213ec7c14ded3d2bc4a7641d327c2945590b"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -1,
+    "ev_net_bb_milli": -500
+  }
+}

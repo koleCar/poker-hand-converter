@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "6970d26fe1ba1225caef197bee0d2e46eebe21eb83a933221b7d7e4d945a0e83",
+      "handId": "261402183",
+      "index": 0,
+      "phf": "501bc5391cbc7c5c4a0ec58d1dc8daba6822e06686439c48017f56d00cd83d00",
+      "reason": "unknown-hole-cards",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1051,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_PlayerTests_OmahaShowdown.txt",
+    "sha256": "f451b63a7d95dd73684a9c3cc5b9c0c4c41139284a39837da816fedd1688eb07"
+  },
+  "outcomes": {
+    "unknown-hole-cards": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-1458965856",
+      "index": 0,
+      "phf": "86196f58118dea747faa89d51eb3c061def5064cb073d97cf8e1ca493a41320a",
+      "reason": "no-all-in",
+      "row": "c41bc58745370a64735684a0c9b0cc88cbab3bb0cab2de35bf5187ee63bba765"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-1458965857",
+      "index": 1,
+      "phf": "11a414c83dda47ddaf7834e1fde473ca0083c0d010252178e0b5865c21e3714c",
+      "reason": "no-all-in",
+      "row": "8052cb4f146addf16e06e1510536d0227bd75187b4101bf3c0f7a109fd67bbb1"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-1458965856",
+      "index": 2,
+      "phf": "85bd258109d8603d57b5943e14756b3a1e5b8306c8bc50b5097d967f02b0063c",
+      "reason": "no-all-in",
+      "row": "25b2e0572494973ac5816949f22248a10f151bfbf8bd9fd8631c46b5dd2eda40"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-1458965856",
+      "index": 3,
+      "phf": "6800ed78abaac9ea987bf5b13447047cedcace919ef9f175929984ed2fad73a3",
+      "reason": "no-all-in",
+      "row": "25b2e0572494973ac5816949f22248a10f151bfbf8bd9fd8631c46b5dd2eda40"
+    },
+    {
+      "analysis": "073ebc03ad1f89b854145199cc93cfee4bd896192bea15b532f0608075709f2c",
+      "handId": "PTY-1458965856",
+      "index": 4,
+      "phf": "ec4b828e2af985e98aef1bb1086b2b24b4f5ff1bf48df1d56a3bd62e9874f4e9",
+      "reason": null,
+      "row": "e9a3eb422faa19937fddbce1b4df8ee7253d981fe908e35dfa6c3beb6ac32a26"
+    }
+  ],
+  "input": {
+    "bytes": 4849,
+    "path": "fixtures/samples/partypoker/14-multiple-hands-concatenated.txt",
+    "sha256": "9d7620759ccf5d7ec22874c442840d9abcd211dc05dc8908c3935f3fb1f306d1"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1,
+    "no-all-in": 4
+  },
+  "rows": 5,
+  "totals": {
+    "ev_net": -291,
+    "ev_net_bb_milli": -72750
+  }
+}

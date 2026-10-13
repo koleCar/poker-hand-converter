@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "888-441695827",
+      "index": 0,
+      "phf": "ce663844e8933e6454882a63edd2e925298a94d198100b05d9e578edf0e3061e",
+      "reason": "hi-lo",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 792,
+    "path": "fixtures/samples/888poker/05-omaha-hilo-summary-hi-lo-split.txt",
+    "sha256": "8bc4c60e4fee988be4a4c0cfbd9159e79c01b338f2ab7cc0773be4550645b9ce"
+  },
+  "outcomes": {
+    "hi-lo": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

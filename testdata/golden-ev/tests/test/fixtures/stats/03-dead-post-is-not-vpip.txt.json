@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST03",
+      "index": 0,
+      "phf": "3bbb5f803863cc23cf74f8972cc2a9dc9f3b62826ed5ead72ba55da021c6398e",
+      "reason": "no-all-in",
+      "row": "7eb9469d0ee13dbf8f899894bf2d9091caf3f96c83d6fb21a655b03746ded973"
+    }
+  ],
+  "input": {
+    "bytes": 824,
+    "path": "tests/test/fixtures/stats/03-dead-post-is-not-vpip.txt",
+    "sha256": "d9c235295cf4d522c5d97cd4237cc63c4332a0f183e5050b8a943562bffa55ef"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -100,
+    "ev_net_bb_milli": -1000
+  }
+}

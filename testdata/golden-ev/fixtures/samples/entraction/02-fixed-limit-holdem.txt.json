@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ENT-2646494612",
+      "index": 0,
+      "phf": "38d487ec0bb78ae6b16e07b3f81578b5a6ed8aa22f22acedb981c5f2834a457f",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1040,
+    "path": "fixtures/samples/entraction/02-fixed-limit-holdem.txt",
+    "sha256": "a0805ff33cc8217d1b2a1bf9e28edb551e298dc32ad248202d6dc026680c95a3"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

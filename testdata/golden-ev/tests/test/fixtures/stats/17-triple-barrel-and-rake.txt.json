@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST17",
+      "index": 0,
+      "phf": "5c0efc203abfd1e899d51a710b6e02deb9b7947ddef866b2c055189ab7e080ae",
+      "reason": "no-all-in",
+      "row": "df1fab7ed9de1c9284171c671223fb743502260cc8beff251705fdecc96e663d"
+    }
+  ],
+  "input": {
+    "bytes": 1065,
+    "path": "tests/test/fixtures/stats/17-triple-barrel-and-rake.txt",
+    "sha256": "d457819fa106467b89bbeffe6c1a5e80beb8d3b26cff146b275882ce0ce55966"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 1514,
+    "ev_net_bb_milli": 15140
+  }
+}

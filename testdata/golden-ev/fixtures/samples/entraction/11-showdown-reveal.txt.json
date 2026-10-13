@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ENT-2646501423",
+      "index": 0,
+      "phf": "4deae029e0e69012acdcc7d866c40b05874569ff5c6916d7b64fa1410656d5fe",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1285,
+    "path": "fixtures/samples/entraction/11-showdown-reveal.txt",
+    "sha256": "13d259942e072b4e2d36385ad86fd0fc09a26f2250212e28f0fdee37c38ca9e4"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

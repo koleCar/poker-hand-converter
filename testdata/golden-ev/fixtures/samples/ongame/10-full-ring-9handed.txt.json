@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-244303234-150",
+      "index": 0,
+      "phf": "81a2be1438c305bcc0524b99cc4f578e641c27262054bced290872c292deef22",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1405,
+    "path": "fixtures/samples/ongame/10-full-ring-9handed.txt",
+    "sha256": "e2690c5db76548672c75cb75b9efd8ba08190058591d75e57a2f088358522fef"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

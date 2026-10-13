@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "UB-1558006464",
+      "index": 0,
+      "phf": "e612aa0c9321950bc83ceb713b0dae6faba82286059ec21030285aaed0ebc95f",
+      "reason": "no-all-in",
+      "row": "5650944dfe53c2e39c47bcaf737e6b953149e8ae6bdce9b18f7d4013e4e0825e"
+    }
+  ],
+  "input": {
+    "bytes": 1162,
+    "path": "fixtures/samples/unibet/04-tournament-nlhe-2026-anonymised.txt",
+    "sha256": "24981c72a4871942c666122bca602bf0ee097884fa4291102ce91d4fb36c6084"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 150,
+    "ev_net_bb_milli": 3000
+  }
+}

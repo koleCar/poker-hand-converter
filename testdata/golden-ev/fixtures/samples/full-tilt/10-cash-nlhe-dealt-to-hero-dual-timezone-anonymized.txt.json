@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "98765421548",
+      "index": 0,
+      "phf": "259ec0a3438190d85e80c3a055a7635e77ef4df2bdd8c7a26eef72406c5d01b5",
+      "reason": "no-all-in",
+      "row": "9e0b30351262d277789c7d99bf52cf5ee052d0ddfbb5818e2191e0645ab8354a"
+    }
+  ],
+  "input": {
+    "bytes": 1312,
+    "path": "fixtures/samples/full-tilt/10-cash-nlhe-dealt-to-hero-dual-timezone-anonymized.txt",
+    "sha256": "47726f6694de957fdad587c421e7eb66f96108627e9ed931d1826ce0aae8b3a1"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -400,
+    "ev_net_bb_milli": -1000
+  }
+}

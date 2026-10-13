@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "2641146259",
+      "index": 0,
+      "phf": "c79d26244112292d4016c536e90067ba973b5f96a327fda4e71c4cfa4c207db5",
+      "reason": "hi-lo",
+      "row": "e15787798d4f2c39bab88e3a8b7a4dfae4a9dab83904def7b8c24c7ba463fccd"
+    }
+  ],
+  "input": {
+    "bytes": 2060,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__PLO8-USD-MTT - $10-$1 - 201207.allin.call.pf.txt",
+    "sha256": "5c94bfd62fbc2ceba4020f6043b07ba30114fb198cad675ab0f134e8c6cdfe9a"
+  },
+  "outcomes": {
+    "hi-lo": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -90,
+    "ev_net_bb_milli": -600
+  }
+}

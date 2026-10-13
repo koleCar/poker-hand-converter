@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "844b3c1179dc18e807d572dbbdee3661d967d40af3bed0d82917de35bfde1ac0",
+      "handId": "35456787343",
+      "index": 0,
+      "phf": "e6aed3ab2b70f3eb81e07411f7de2297d6e7151f1e7367e1fd9a134430b3e3c7",
+      "reason": null,
+      "row": "d6156d1a229f5fc77c4934695ea9b9e9e75c40d4162f05db8c19217b9638dd23"
+    }
+  ],
+  "input": {
+    "bytes": 2250,
+    "path": "fixtures/samples/full-tilt/02-cash-nlhe-cap-run-it-twice.txt",
+    "sha256": "2f9871e14360064d98d0945d76184a9958d3f369fd22f6f15275bb7e20061650"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

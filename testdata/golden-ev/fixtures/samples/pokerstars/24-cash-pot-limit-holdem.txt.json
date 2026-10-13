@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109680643860",
+      "index": 0,
+      "phf": "5a4fed20ef2fa566bd1f29f9dcda4202dd9666d88544fc58cd8dfe7e6f30f9bc",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 754,
+    "path": "fixtures/samples/pokerstars/24-cash-pot-limit-holdem.txt",
+    "sha256": "fd45f8b0f6da04e216778a42880abf41d65a18764dfc2e9a1e881cdbb73b4161"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

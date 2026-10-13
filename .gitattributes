@@ -18,6 +18,8 @@ tests/test/fixtures/** -text -diff
 testdata/golden/** text eol=lf
 # The stats goldens (R2.1) likewise.
 testdata/golden-stats/** text eol=lf
+# And the all-in EV goldens (R2.2).
+testdata/golden-ev/** text eol=lf
 
 # TypeScript declarations generated from the Rust PHF model (docs/RAIL-PLAN.md
 # R0.4). A cargo test compares them byte for byte with what the model renders,

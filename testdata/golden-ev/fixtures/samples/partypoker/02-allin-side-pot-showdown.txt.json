@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "37415c97706a8e1b414ed5a6efda975c888743d288da4f53290e3e93cdd1569d",
+      "handId": "PTY-13549932236",
+      "index": 0,
+      "phf": "a9ed2b02277529ff72449fa1608a8b60124b545d036b84f23f6f809da03af26d",
+      "reason": "no-street-to-come",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1316,
+    "path": "fixtures/samples/partypoker/02-allin-side-pot-showdown.txt",
+    "sha256": "b441b42015ed3212b748dbcb7edc4dbea63de4a239be010642aacc405a3a850e"
+  },
+  "outcomes": {
+    "no-street-to-come": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

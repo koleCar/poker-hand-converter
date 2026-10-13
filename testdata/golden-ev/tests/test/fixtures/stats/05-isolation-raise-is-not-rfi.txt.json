@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST05",
+      "index": 0,
+      "phf": "86112d8a22e166bc617241b322e2ac5e93bee7e6e1a004e650a5f2aac8c4259d",
+      "reason": "no-all-in",
+      "row": "c2f70133d72e852e93cef82ef7067ef2f5efdb0a9767f1c8bb70bf884c450aeb"
+    }
+  ],
+  "input": {
+    "bytes": 836,
+    "path": "tests/test/fixtures/stats/05-isolation-raise-is-not-rfi.txt",
+    "sha256": "c0e2b0441c55dcef3684373b6a8a04d116bc8450b94230fef20ed1bcacb989af"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 250,
+    "ev_net_bb_milli": 2500
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "888-5512058461",
+      "index": 0,
+      "phf": "a9b8943ad67b3dec5b64541d194a4e292a69ed8d409c28a909757efd32a1d23c",
+      "reason": "no-all-in",
+      "row": "a909a6ffbaa695ed40cfe314a0e8002519dbe0e4dd087eb850666586dc9ae516"
+    }
+  ],
+  "input": {
+    "bytes": 580,
+    "path": "fixtures/samples/888poker/07-luckyacepoker-skin-dealt-cards.txt",
+    "sha256": "2f2652388d520aaa74cb3bb2e8af3e359b764b0f5bc12414493b8db1881515d3"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -200,
+    "ev_net_bb_milli": -500
+  }
+}

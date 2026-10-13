@@ -1,0 +1,36 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "CHC-1014850512",
+      "index": 0,
+      "phf": "a22433a18d41d50793dc7e697541b5b65cadc066a64fd9b3e2876bc132865446",
+      "reason": "no-all-in",
+      "row": "e8ddb869ad7e44e16701bddbc81c142cc7be3bb85bc8e48e0984f7afc127d501"
+    },
+    {
+      "analysis": "9536e83755fb835c98a2ffc1788cbb37e87245360a3bf3fe993d9576e5b3b158",
+      "handId": "CHC-1014850775",
+      "index": 1,
+      "phf": "646857aba276762fe25c338a7878706c2f3ba08373ffebf9d1a4dd2a0fbd4afc",
+      "reason": "unknown-hole-cards",
+      "row": "9eab65855c7b5212ecd1b504cf2be5758a34b1f698fced45684091a4ffcbc2d6"
+    }
+  ],
+  "input": {
+    "bytes": 2400,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-play-10-20-201204.GearPoker.txt",
+    "sha256": "60d32032f2f0160dcbf633aedcb2cad6091a190e69abffccdc914564664d3477"
+  },
+  "outcomes": {
+    "no-all-in": 1,
+    "unknown-hole-cards": 1
+  },
+  "rows": 2,
+  "totals": {
+    "ev_net": -920,
+    "ev_net_bb_milli": -46000
+  }
+}

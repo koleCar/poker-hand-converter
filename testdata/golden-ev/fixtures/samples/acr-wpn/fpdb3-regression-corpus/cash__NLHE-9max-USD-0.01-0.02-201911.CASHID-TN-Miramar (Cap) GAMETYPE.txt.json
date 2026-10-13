@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "151588328",
+      "index": 0,
+      "phf": "e8f9ca3bd16d69b0c2d4e057b2f6d76f78a766b995d83b2b8cf73c9a41d612d7",
+      "reason": "no-all-in",
+      "row": "db9a19bae7d198c3898e3f6fede56de905b621337766f8cad08162cc77c8b2ed"
+    }
+  ],
+  "input": {
+    "bytes": 1363,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-9max-USD-0.01-0.02-201911.CASHID-TN-Miramar (Cap) GAMETYPE.txt",
+    "sha256": "79173a9ca981cf967eea76016dbb4cccf00bc9c8b006099e9683f27d97d5b72f"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 59,
+    "ev_net_bb_milli": 29500
+  }
+}

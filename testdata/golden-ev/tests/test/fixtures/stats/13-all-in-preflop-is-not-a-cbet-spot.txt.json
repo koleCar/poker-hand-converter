@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "5d1c1a14fbc2f179eeb9a4253d3fe1fa44735c4e7412304479a4ac0025fdee57",
+      "handId": "ST13",
+      "index": 0,
+      "phf": "2eeabab3feb919d788488824ec3a43c060a7b55597c805617a0fa3d8aa5ba5f6",
+      "reason": null,
+      "row": "31a69c166fe914beb33ed238ba8e450b5acb858f0e7da36c1c56136480a71720"
+    }
+  ],
+  "input": {
+    "bytes": 1074,
+    "path": "tests/test/fixtures/stats/13-all-in-preflop-is-not-a-cbet-spot.txt",
+    "sha256": "c4aa9eb9edca12084fe925f54188df63a0b8b9f309bc4cfb0c076109e9188803"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -89,
+    "ev_net_bb_milli": -890
+  }
+}

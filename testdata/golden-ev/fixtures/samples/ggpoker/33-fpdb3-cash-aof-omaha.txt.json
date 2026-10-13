@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "04fc030c24efdbecce272b83b879bb62bf1366ce27ca287c2262bc1ef9b570d7",
+      "handId": "AF443780601",
+      "index": 0,
+      "phf": "ca01459e83b6bec540a95c41d522ddac05ce44e9b4597ae8bc5ecb569867fa58",
+      "reason": null,
+      "row": "83b44f33e469949879bd97fdf53b69a090c89b0b106fd5b9d09d7c029dcb9dc2"
+    }
+  ],
+  "input": {
+    "bytes": 1048,
+    "path": "fixtures/samples/ggpoker/33-fpdb3-cash-aof-omaha.txt",
+    "sha256": "0d49d9cfa0a4abaefeb09ed9137ccdd0fe13f7b890e1dd0052ae175a7b53ab7d"
+  },
+  "outcomes": {
+    "applicable/monte-carlo": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 35,
+    "ev_net_bb_milli": 1750
+  }
+}

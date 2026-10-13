@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "132630000000",
+      "index": 0,
+      "phf": "99b3c6019364ddbf11b7f4cd17ae1588f9328621f78dadf91f0361004e9090ad",
+      "reason": "no-all-in",
+      "row": "6e427cbdeb58bdc955afeb97dfb1263d3c60678805f8a6d6a9decdb70abc787a"
+    }
+  ],
+  "input": {
+    "bytes": 1410,
+    "path": "fixtures/samples/pokerstars/32-cash-zoom-plo-wet-et-header.txt",
+    "sha256": "9268c8ef7e7f5349b783bc86caf115195cd517adc781050cf67afdee0df42d4c"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

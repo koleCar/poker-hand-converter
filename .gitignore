@@ -36,6 +36,8 @@ pnpm-debug.log*
 /testdata/golden-full/
 # The stats engine's rows written out (R2.1); same command.
 /testdata/golden-stats-full/
+# The all-in EV rows and analyses written out (R2.2); same command.
+/testdata/golden-ev-full/
 
 # Desktop app (app/): the Vite output is app/dist/ (covered above); Tauri
 # regenerates its capability schemas on every build. Rust output goes to the

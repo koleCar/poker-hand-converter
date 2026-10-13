@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 3432,
+    "path": "fixtures/samples/bossmedia/01-basic-hand-omaha.txt",
+    "sha256": "47ee5ffab6c64c8e6aa9ea51255cf10442d9495ac0bb2ef4c59e469885352f8a"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

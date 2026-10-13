@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "b2ff1055ccfdd6a188bfaa57cac1913ee61a9c9cd080e46a7764141f16b7237c",
+      "handId": "1171217378123557259",
+      "index": 0,
+      "phf": "c2e75f18476e053702b05826b40e130e282e8cd05670d88aedc76ce29c8095e6",
+      "reason": null,
+      "row": "6539f1eafda45b2d8d9507bb6219c253cff2d85bcdce3a031e6f7cfb1440f8a5"
+    }
+  ],
+  "input": {
+    "bytes": 1260,
+    "path": "fixtures/samples/ggpoker/12-fpdb3-cash-nl-shortdeck-5max-usd-100-202104-internal.txt",
+    "sha256": "72bee2eb34afeed91ca0916b882565ab39155e8f39f1750c6d003f121c073dba"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -10000,
+    "ev_net_bb_milli": -1000
+  }
+}

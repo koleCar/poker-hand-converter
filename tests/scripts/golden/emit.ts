@@ -42,6 +42,7 @@ import { toStandardText, toStandardTextFile } from "../../../frontend/src/lib/ph
 import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
 import { validateHand } from "../../../frontend/src/lib/phf/validate.js";
 import { canonicalJson, compareUtf8 } from "./canonical.js";
+import { evGoldenFor } from "./ev.js";
 import { statsGoldenFor, type GoldenHandInput } from "./stats.js";
 
 export const ROOT = join(import.meta.dirname, "../../..");
@@ -53,6 +54,10 @@ export const GOLDEN_FULL_DIR = join(ROOT, "testdata/golden-full");
 export const STATS_GOLDEN_DIR = join(ROOT, "testdata/golden-stats");
 /** Gitignored: the same with every row written out. */
 export const STATS_GOLDEN_FULL_DIR = join(ROOT, "testdata/golden-stats-full");
+/** Committed: the hero's all-in EV row and the EV analysis per hand as hashes (R2.2, `ev.ts`). */
+export const EV_GOLDEN_DIR = join(ROOT, "testdata/golden-ev");
+/** Gitignored: the same with every row and analysis written out. */
+export const EV_GOLDEN_FULL_DIR = join(ROOT, "testdata/golden-ev-full");
 
 /** Bumped whenever the shape of a golden file changes. */
 export const GOLDEN_FORMAT = "rail-golden/1";
@@ -303,6 +308,16 @@ export interface EmitReport {
   statsSummaryBytes: number;
   statsFullBytes: number;
   statsNegativeZeros: number;
+  /** Hands with an EV row (a hero), of which `evApplicable` had an all-in to adjust. */
+  evRows: number;
+  evApplicable: number;
+  /** Applicable analyses that sampled (Omaha preflop), short-deck ones, hands declined as hi/lo. */
+  evMonteCarlo: number;
+  evShortDeck: number;
+  evHiLo: number;
+  evNegativeZeros: number;
+  evSummaryBytes: number;
+  evFullBytes: number;
 }
 
 /** Regenerates both trees, and removes goldens whose input is gone. */
@@ -319,9 +334,24 @@ export async function emitAll(): Promise<EmitReport> {
     statsSummaryBytes: 0,
     statsFullBytes: 0,
     statsNegativeZeros: 0,
+    evRows: 0,
+    evApplicable: 0,
+    evMonteCarlo: 0,
+    evShortDeck: 0,
+    evHiLo: 0,
+    evNegativeZeros: 0,
+    evSummaryBytes: 0,
+    evFullBytes: 0,
   };
 
-  for (const dir of [GOLDEN_DIR, GOLDEN_FULL_DIR, STATS_GOLDEN_DIR, STATS_GOLDEN_FULL_DIR]) {
+  for (const dir of [
+    GOLDEN_DIR,
+    GOLDEN_FULL_DIR,
+    STATS_GOLDEN_DIR,
+    STATS_GOLDEN_FULL_DIR,
+    EV_GOLDEN_DIR,
+    EV_GOLDEN_FULL_DIR,
+  ]) {
     const wanted = new Set(inputs.map((input) => join(dir, `${input}.json`)));
     for (const stale of existingJson(dir)) {
       if (!wanted.has(stale)) {
@@ -338,11 +368,16 @@ export async function emitAll(): Promise<EmitReport> {
     const stats = statsGoldenFor(input, golden.summary.input as Record<string, unknown>, golden.statsInput);
     const statsSummary = canonical(input, stats.summary);
     const statsFull = canonical(input, stats.full);
+    const ev = evGoldenFor(input, golden.summary.input as Record<string, unknown>, golden.statsInput);
+    const evSummary = canonical(input, ev.summary);
+    const evFull = canonical(input, ev.full);
     for (const [dir, text] of [
       [GOLDEN_DIR, summary],
       [GOLDEN_FULL_DIR, full],
       [STATS_GOLDEN_DIR, statsSummary],
       [STATS_GOLDEN_FULL_DIR, statsFull],
+      [EV_GOLDEN_DIR, evSummary],
+      [EV_GOLDEN_FULL_DIR, evFull],
     ] as const) {
       const out = join(dir, `${input}.json`);
       mkdirSync(dirname(out), { recursive: true });
@@ -357,6 +392,14 @@ export async function emitAll(): Promise<EmitReport> {
     report.statsSummaryBytes += Buffer.byteLength(statsSummary);
     report.statsFullBytes += Buffer.byteLength(statsFull);
     report.statsNegativeZeros += stats.negativeZeros;
+    report.evRows += ev.rows;
+    report.evApplicable += ev.applicable;
+    report.evMonteCarlo += ev.monteCarlo;
+    report.evShortDeck += ev.shortDeck;
+    report.evHiLo += ev.hiLo;
+    report.evNegativeZeros += ev.negativeZeros;
+    report.evSummaryBytes += Buffer.byteLength(evSummary);
+    report.evFullBytes += Buffer.byteLength(evFull);
   }
   return report;
 }

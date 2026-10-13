@@ -3574,6 +3574,121 @@ database, on the development Mac and on a mid-range Windows laptop.
 - The evaluator (`evaluator.ts`, `omaha.ts`) is already `rail_core::eval`
   (R0.5b); this step adds enumeration, Monte Carlo, ranges and multiway pots
   on top of it.
+- *As built* (§15): **done** - every corpus hand's stored row and full
+  analysis equal to the TypeScript's: **8 121 / 8 121** `hand_stats_ev` rows
+  (every hand with a hero; 498 applicable), **8 422 / 8 422** analyses (508
+  all-ins: 226 preflop enumerations, 11 Omaha preflop Monte Carlo, 147 flop,
+  124 turn; 1 short deck; 22 hi/lo declined), every equity bit for bit. No
+  tolerance anywhere, Monte Carlo included.
+  - **Exact representation.** The enumeration is integers: each board's pot
+    is `UNIT = 27720` (lcm 1..12), a tie of `k` gives each `UNIT / k`, and a
+    player's share of a pot is `units / (boards * UNIT)` exactly
+    (`EquityResult::units`, `EvPot::equity_units`, `AllInEv::denominator`) -
+    the same integers the TypeScript accumulates in doubles, where they are
+    exact too (below 2^53 for any request under 3.2e11 boards). The
+    TypeScript leaves the integers once, `acc / (boards * UNIT)`, and from
+    then on computes in doubles: the pot split (`apportion`: the equities
+    summed, `w * |amount| / sum`, `floor`, the fractional parts and the
+    largest-remainder order), range weights (`0.5`, `per = weight /
+    runouts`, the running sums), the sampler's `random() * sum`. The port
+    performs each of those IEEE-754 operations in `rail_core::js::JsNumber`
+    (correctly rounded, integer arithmetic), in the TypeScript's order, so
+    the doubles - and every share derived from them - are the TypeScript's.
+    Exact rationals instead would differ from the TypeScript wherever double
+    rounding decides a largest-remainder tie; emulating the doubles cannot.
+    `ev_net` is an integer (sums of shares); `ev_net_bb_milli` is
+    `rail_stats::to_bb_milli` (R2.1, exact).
+  - **Monte Carlo exactly.** `Mulberry32` is the TypeScript PRNG in 32-bit
+    integer arithmetic, `Math.floor(random() * n)` is `(u * n) >> 32`
+    (exact for `n < 2^21`), and the partial Fisher-Yates over the stub is the
+    TypeScript's step for step, so a seeded run samples the same boards.
+    Omaha preflop (the corpus's 11 cases, and 234 + 610 sampled vector
+    cases) matches exactly.
+  - **`core/rail-equity`**: `enumerate` (`equity`, `plan`, `EquityRequest`
+    / `EquityOptions` / `EquityResult`, `EquityInputError` with the
+    TypeScript's messages, `Mulberry32`, `hole_cards_for`, `table_for`),
+    `range` (`parse_range`, `ClassWeights` in `Map` order, `class_combos`,
+    `all_classes`, `range_combos`, `range_share`, `strongest_of_range`,
+    `equity_vs_range`), `multiway` (`equity_vs_ranges`), `all_in`
+    (`analyze_all_in`, `all_in_ev`, `ev_net_by_seat`, `apportion`,
+    `AllInEvOutcome::to_json` - the golden's shape), `row` (`ev_row`,
+    `ev_row_for`, `EvRow`). Builds on `rail_core::eval`; the only change
+    there is `#[inline]` on `evaluate_masks`, `evaluate_omaha_masks` and
+    three table accessors (no behaviour change, every rail-core vector
+    green), so the hot path compiles at rail-equity's optimisation level -
+    the workspace's dev profile now builds rail-equity at `opt-level = 3`
+    (debug assertions and overflow checks stay on); unoptimised, its corpus
+    test took 150 s, now ~20 s. Depends on rail-stats only for `ev_row`
+    (the hero's `StatsRow`, `to_bb_milli`). Builds for `wasm32` (CI's
+    WebAssembly build). Nothing wired into the app.
+  - **Oracle.** `npm run golden:emit` also writes `testdata/golden-ev/`
+    (`tests/scripts/golden/ev.ts`, format `rail-ev-golden/1`,
+    [`testdata/golden/README.md`](../testdata/golden/README.md) "All-in EV
+    goldens"): per hand the hero's row as the web writes it (`handEvRow` of
+    the first hero row of `handStatsRows`, null without a hero) and
+    `analyzeAllIn` with the default options, equities as `String(x)`, both
+    hashed, plus the skip reason in clear and per-file outcome counts and row
+    totals; 3.1 MB committed, 5.5 MB in full in the gitignored
+    `testdata/golden-ev-full/`; `golden-fresh` checks it. The emitter now
+    runs ~70 s instead of ~20 s: every all-in is computed twice (the
+    analysis, then `handEvRow`), 226 of them preflop enumerations at ~50 ms
+    in Node.
+  - **Tests**: the golden diff and `equityCorpus.test.ts`'s identities on
+    every applicable hand (Σ evNet = Σ net from rail-stats, one evNet per
+    stats seat, every pot paid out exactly, equities summing to 1 - exactly,
+    as rationals) and on the corpus outside `fixtures/samples/` with its
+    sampled options (`tests/corpus.rs`); `equityEnumerate`,
+    `equityAllInEv`, `equityRange` translated, with the `analyzeAllIn`
+    checks R2.1 left in `shortDeck` (the 36-card turn all-in, GG's fixture
+    12 flipping favourite under the other rule) and `phfHiLo` (every
+    converted hi/lo hand declined) (`tests/enumerate.rs`, `all_in.rs`,
+    `range.rs`); 4 500 seeded vectors through both engines
+    (`tests/data/ev-vectors.mjs`, `tests/vectors.rs`): 1 500 mutated golden
+    hands (analysis with random options, and the row with the defaults; 664
+    applicable, 234 sampled), 1 500 `equity()`/`plan()` requests (every
+    game, side pots, both short-deck rules, bad cards and indices; 610
+    sampled, 311 refused) and 1 500 range cases (`parseRange` over token
+    junk, `rangeShare`, `equityVsRange`, `equityVsRanges`,
+    `strongestOfRange`), all equal; a 45 000-case soak (`EV_STRESS`) equal
+    too. Not translated: `equityRange`'s "parses every placeholder range
+    the analysis falls back to" (reads `lib/analysis`, not ported).
+  - **Performance** (release, M2 Pro, per all-in, the corpus's): heads-up
+    preflop enumeration (1.7M boards) 25 ms mean, 44 ms worst; 3-way
+    preflop 46 ms; Omaha preflop Monte Carlo (20 000 boards) 15 ms
+    heads-up, 21 ms 3-way; flop 0.2 ms; turn 0.03 ms; a hand without an
+    all-in 0.03 ms. The TypeScript: ~50 ms heads-up preflop. Preflop
+    all-ins are the whole cost: 2.7 % of the corpus's hands (more than a
+    typical player's history, which is mostly hands without a shown
+    all-in), and at that rate a 100 000-hand backfill would spend ~70 s of
+    CPU on EV - ~8 s of wall time over the import threads, next to ~10 s
+    for the import itself at 10 300 hands/s. Fine for live hands (one
+    all-in is 25 ms); for the backfill R2.3 should either run EV as its own
+    background pass after the hands are in (as the web's rebuild does) or
+    cache: a preflop matchup's equity depends only on the hands up to suit
+    relabelling, so a cache keyed by the suit-canonical hands (and the
+    short-deck rule) serves every repeat exactly.
+  - **TypeScript oddities reproduced, not fixed**: `choose` in `range.ts`
+    and `multiway.ts` has no guard, so a negative deck count (45+ dead
+    cards) gives the generalized binomial and can make `"auto"` enumerate;
+    `parseRange` ignores a third `:` part (`AQs:0.5:3` is half of AQs), and
+    reading past the end of a token (`A`, `+`, `:0.5`) is a JavaScript
+    `TypeError` there, `RangeError::Type` here; `apportion`'s `sign * part`
+    can be `-0`, which every caller adds into a sum (no `-0` reaches a row);
+    an all-in hand's row is `applicable` for every seat in the stream, a hero
+    who folded before it included (`ev_net = -contributed`, as in GG's
+    fixture 12); with two players on one seat, the seat's hole cards and
+    name come from the first (`find`) and its stack from the last (`new
+    Map`). Not
+    reproducible, and refused instead: a `WeightedCombo` card index past 51
+    (the TypeScript reads `undefined` out of its arrays; Rust says `not a
+    card: N`). The Rust API takes `trials`, `seed` and `exhaustive_limit` as
+    integers (`u64`, `u32`, `u64`), where the TypeScript coerces any number.
+  - **For R2.3**: `rail_equity::ev_row(&hand, &hero_stats_row) -> EvRow`
+    (or `ev_row_for(&hand)`, which derives the stats rows itself and takes
+    the first hero row, as the web's rebuild does), `EvRow { hand_key, seat,
+    ev_version, applicable, ev_net, ev_net_bb_milli }`, `EV_VERSION` =
+    `"ev/1"`; `analyze_all_in(&hand, &EquityOptions::default())` for the
+    replayer's pots and equities. Rows always use the default options.
 
 ### R2.3 Rollups and segments — M
 - `player_rollups` maintained in the import transaction; a rebuild command
@@ -3890,3 +4005,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R1.9 done, Phase 1's exit criterion met on a local stack**: the sync worker (`rail_sync::worker`). Outbox in send order - hands queued in the last 15 min newest played first, then the backlog oldest due first (store migration 0005: `outbox.played_at` + covering index) - in batches of 500 per watched folder (`hand_sources` registered once, device id random in `kv`) to `ingest_hands`; inserted / duplicate leave the outbox, rejected go to `sync_rejected` with the reason (UI counts per reason, Try again); offline = backoff 5 s to 10 min with jitter and per-hand attempts; the rate limit waited out by window then probed with one hand; 401 refresh once; resumable and idempotent. Upload cap while > 2 000 hands wait (default 1 MB/s, user setting; tables-open hook). Account safety: the store's owner in `kv`, every token from `Account::access_token_for(owner)`, signed out = nothing sent, another account = nothing sent or pulled until the user uploads this computer's hands to it or keeps them apart. Pull of every row of the account the store lacks (web and other computers): `hands_since` keyset (migration `20270505090000_desktop_pull.sql`, invoker, keys only, rows a minute old) then PHF for missing keys; pulled hands never queued. App: Settings → Account Sync panel, Today line, tray line, Sync now / Pause / cap, `en` + `hr`. Tests: store 5, sync 13 worker tests on a scripted server, pgTAP 17 (suite 997). End to end: killed mid-sync and resumed, server = store (7 469, once each; ~270 hands/s, 7.5 KB a hand); 58 live hands through the watcher visible as the user in 0.5-5.9 s through a network cut mid-batch, once each; a web hand pulled into a second store. Remaining for Phase 1: R1.10; production checklist under R1.9 *As built*. |
 | 2026-10-13 | **R1.10 done, Phase 1 complete on `staging`**: live arrival on the web. Migration `20270512090000_hand_arrivals.sql`: `hand_arrivals`, one row per account bumped once per insert statement on `hands` by the statement trigger `hands_signal_arrival` (count, origin, time; no hand content; ~320 bytes a change), select-own RLS, in `supabase_realtime`; `hands` deliberately not published (whole-row payloads with the PHF, per-row RLS on every backfill). Measured: a role without SELECT gets a content-free 401 notice per change, so `anon` has SELECT and no policy (`notifications` has the same exposure, noted, not changed); DELETE (account removal only) shows a random id. Web: `lib/live/arrivals.ts` (debounce 1.5 s, max wait 5 s backing off to 30 s, nothing while hidden, resync on reconnect), `useHandArrivals` (token before join, INSERT + UPDATE filtered to the owner, removed on unmount / sign-out), `AppFrame live` on `/library` and `/stats` only; the library re-reads page 1 in place or offers "N new hands - show", "Hands arriving from <device>" from `hand_sources`; stats re-read quietly and rebuild for new hands without a click. Tests: pgTAP 29 (suite 31 files / 1 026), vitest 12, `npm run realtime:arrivals` 15 / 15 on an isolated stack (A sees its own; a forged or missing filter and anon see nothing of others), browser end to end. The consolidated production checklist for R1.7-R1.10 is under R1.10. |
 | 2026-10-13 | **R2.1 done**: the stats engine in Rust (`core/rail-stats`), `lib/stats` ported module for module (90 counters, money, the rulebook; every STATS-SPEC call as the TypeScript has it). Oracle: `npm run golden:emit` also writes `testdata/golden-stats/` (per hand the sha-256 of the canonical `statsRows(handFacts(phf))` and its seats, per file the column totals; 3.3 MB committed, 206 MB in full in the gitignored `testdata/golden-stats-full/`), checked by `golden-fresh`; no float in any row, `-0` written as 0 (none in the corpus). **8 422 / 8 422 hands, 51 464 / 51 464 rows equal to the TypeScript's**; the eight invariants of `statsInvariants.ts` on every corpus hand; the 17 spot fixtures and the corpus, short-deck and pot-type spots; 4 000 seeded mutations through both engines (50 000 in a soak) equal. Three divisions in doubles reproduced with `JsNumber`. `rows_for(&PhfHand)` is the API for R2.3; nothing wired into the app. rail-stats joins CI's wasm32 build. STATS-SPEC §12 (the port, oddities); its title now says `stats/2`. |
+| 2026-10-13 | **R2.2 done**: all-in EV in Rust (`core/rail-equity`), `lib/equity` ported - `enumerate.ts` (exhaustive enumeration, the seeded Monte Carlo, `plan`, `EquityInputError`), `range.ts`, `multiway.ts`, `allInEv.ts` - and `handEvRow` (`ev_row`, `EV_VERSION` `ev/1`). Exact representation: shares of a pot as integers in units of 1/27720 of a board (`units / (boards * 27720)`), and the TypeScript's double arithmetic after that (the equity division, `apportion`, range weights) replayed operation for operation in `JsNumber`. Oracle: `npm run golden:emit` also writes `testdata/golden-ev/` (hero row as the web stores it and the full `analyzeAllIn`, equities as `String(x)`, hashed; 3.1 MB, 5.5 MB in full gitignored), checked by `golden-fresh`. **8 121 / 8 121 rows and 8 422 / 8 422 analyses equal** (508 all-ins: 226 preflop enumerations, 11 Omaha preflop Monte Carlo, 1 short deck; 22 hi/lo declined), every equity bit for bit, Monte Carlo exact (same `mulberry32`, same Fisher-Yates); 4 500 seeded vectors (mutated hands, `equity()` requests, ranges) and a 45 000-case soak equal. `equityEnumerate`, `equityAllInEv`, `equityRange`, `equityCorpus` translated, plus the `analyzeAllIn` checks of `shortDeck` and `phfHiLo`. Release, M2 Pro: 25 ms per heads-up preflop all-in, 15 ms Omaha preflop, under 1 ms flop/turn; R2.3 should run the backfill's EV as a background pass or cache preflop matchups. `rail_core::eval` gains `#[inline]` on its hot path only; the dev profile builds rail-equity optimised. rail-equity joins CI's wasm32 build. |

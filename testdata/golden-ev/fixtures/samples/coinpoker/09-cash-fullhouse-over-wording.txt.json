@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "352028090",
+      "index": 0,
+      "phf": "97937e2e022a6a69d4fa61717be023132ed2a79a2f25dcc135804dcd70049ae6",
+      "reason": "no-all-in",
+      "row": "9697926a346dd681373a8b32455aba979591a4f9d1d2df2c701e314e55430066"
+    }
+  ],
+  "input": {
+    "bytes": 1477,
+    "path": "fixtures/samples/coinpoker/09-cash-fullhouse-over-wording.txt",
+    "sha256": "ec91df2be4dd28e0b0c71c66f2fb6e3a4f32a5fa45e61fff4b1956862f1e14d4"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -121,
+    "ev_net_bb_milli": -60500
+  }
+}

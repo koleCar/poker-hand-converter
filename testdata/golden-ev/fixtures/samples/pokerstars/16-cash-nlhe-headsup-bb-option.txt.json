@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109676258573",
+      "index": 0,
+      "phf": "2bbe6ecb59b5717aad5e4ea91d5e48a4e375d83a58220d73a1c6543d92008ee8",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 804,
+    "path": "fixtures/samples/pokerstars/16-cash-nlhe-headsup-bb-option.txt",
+    "sha256": "216fdc4998ecff9f87ab56a2aa6076de2e80c1c55f1ca4fec4ed6e1459f6cc2e"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

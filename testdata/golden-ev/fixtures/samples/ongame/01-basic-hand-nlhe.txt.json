@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-361850810-474",
+      "index": 0,
+      "phf": "0f7793184370b4a69329790a66882b81b0a188acfbe1428d816978a8db908408",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 995,
+    "path": "fixtures/samples/ongame/01-basic-hand-nlhe.txt",
+    "sha256": "13338b477d6e9d95162c0d1e8f21b77c3f6ecbc260e8d10541d33a19443b6db5"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

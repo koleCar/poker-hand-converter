@@ -249,6 +249,60 @@ in the same `npm run golden:emit` run, at `testdata/golden-stats/<input path>.js
 through both engines; regenerate it after a change to `lib/stats` or to the
 goldens.
 
+## All-in EV goldens (R2.2)
+
+What the TypeScript equity engine (`frontend/src/lib/equity`) concludes about
+every accepted hand, written by `tests/scripts/golden/ev.ts` in the same
+`npm run golden:emit` run, at `testdata/golden-ev/<input path>.json`.
+`core/rail-equity` is correct for a hand when both hashes match
+(`core/rail-equity/tests/corpus.rs`).
+
+```jsonc
+{
+  "evVersion": "ev/1",                // EV_VERSION
+  "format": "rail-ev-golden/1",
+  "hands": [                          // the PHF golden's hands, in the same order
+    {
+      "analysis": "b2ff…",            // committed: sha256 of canonicalJson(analysis); full: the analysis
+      "handId": "1171217378123557259",
+      "index": 0,                     // chunk index, as in the PHF golden
+      "phf": "c2e7…",                 // sha256 of the canonical PHF it was derived from
+      "reason": null,                 // the skip reason in clear, null when there is an all-in to adjust
+      "row": "6539…"                  // committed: sha256 of canonicalJson(row); full: the row; null without a hero
+    }
+  ],
+  "input": { "bytes": 1260, "path": "…", "sha256": "…" },
+  "outcomes": { "applicable/exhaustive": 1 },   // per file: hands per skip reason / per method
+  "rows": 1,                          // hands with a row (a hero)
+  "totals": { "ev_net": -10000, "ev_net_bb_milli": -1000 }   // the rows' columns summed
+}
+```
+
+- **The row** is the hero's `hand_stats_ev` row exactly as the web writes it:
+  `handEvRow(hand, hero)` for the first hero row of `handStatsRows(hand)`
+  (`app/api/stats/rebuild/route.ts`) - `hand_key`, `seat`, `ev_version`,
+  `applicable`, `ev_net`, `ev_net_bb_milli`. Every hand with a hero has one,
+  `applicable: false` included (`ev_net = net`).
+- **The analysis** is `analyzeAllIn(hand)` with the default options (the ones
+  stored rows use): `{ applicable: false, reason, detail }`, or the street,
+  action index, board, method, boards, pots (amount, gross, eligible seats,
+  equities, shares) and every seat's contribution, `evWon` and `evNet`.
+- **Equities are written as `String(x)`**, the shortest decimal that reads
+  back as that double, because canonical JSON refuses floats. Rust prints
+  the same string for the same double (`JsNumber::to_js_string`), so the hash
+  holds the port to the TypeScript's doubles bit for bit.
+- **`-0`** (an `ev_net_bb_milli` of a loss under half a thousandth of a big
+  blind) would be written as `0`; none occurs in the corpus.
+- **Size.** 3.1 MB committed (hashes), 5.5 MB in full in the gitignored
+  `testdata/golden-ev-full/`. The emitter computes every all-in twice (once
+  for the analysis, once inside `handEvRow`), which is most of the extra
+  ~50 s the run takes now.
+
+`core/rail-equity/tests/data/ev-vectors.json` (written by `ev-vectors.mjs`
+next to it) adds seeded mutations of golden hands, random `equity()` requests
+and range requests run through both engines; regenerate it after a change to
+`lib/equity` or to the goldens.
+
 ## Notes for the Rust port
 
 - **R0.4, `T | null` vs `T?`.** PHF distinguishes a field that is always

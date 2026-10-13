@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "1377529121",
+      "index": 0,
+      "phf": "06bdf3c3f665106d75048c0eb666c16312abf44ec84b986d566197d6d385bfdd",
+      "reason": "no-all-in",
+      "row": "473fea06505f49a65eeb71fd7a0204e8f60bf95d1eb870c6d12c01ee371db7ed"
+    }
+  ],
+  "input": {
+    "bytes": 1374,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__6+Holdem-6-max-USD-0.02-0.05-201902.HH00000000 G0.txt",
+    "sha256": "f917ea28279dfce40c580cf7380be6350f0d76817c3fff674b1b6b9e2fad294b"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 27,
+    "ev_net_bb_milli": 5400
+  }
+}

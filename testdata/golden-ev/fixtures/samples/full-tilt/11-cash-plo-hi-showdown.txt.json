@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727560890",
+      "index": 0,
+      "phf": "13fc53a9a7688fa8da8abe795c9064de300417c24a9b394f7ddb3e300b0058cb",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 997,
+    "path": "fixtures/samples/full-tilt/11-cash-plo-hi-showdown.txt",
+    "sha256": "977cd5ae280eb8c45f6e8e3fefc4ed5d4788c570c0e34d426753b802ff0e08a3"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

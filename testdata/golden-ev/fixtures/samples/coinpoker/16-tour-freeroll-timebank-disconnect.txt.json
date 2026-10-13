@@ -1,0 +1,52 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "875217e01b1d2214d7db828e8ec29b091603af0df6488da5b402ed7ff43fec2c",
+      "handId": "177956038",
+      "index": 0,
+      "phf": "36f4757be5b751eec4ff5b52d28ba67fb2570106aba13205c3d3ea37483603ee",
+      "reason": null,
+      "row": "d0787f400b9d559a5f012c110edf6da83c2a56c09a8a1853e1559381f1b4373a"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "177958604",
+      "index": 1,
+      "phf": "9aa1c75b402edb0e798aabb34bc77181e6bf6ed2147d966fbf17ed70b34dccc0",
+      "reason": "no-all-in",
+      "row": "ff2df1e12355da79b31224b8b197b45061a7053e9e0bcc7373610ac40399a08f"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "177958730",
+      "index": 2,
+      "phf": "c5cfe0e3d25ad6273e4847d73294036161408c4a5aa6f4d43cd1b1cf2f97a2c7",
+      "reason": "no-all-in",
+      "row": "311f031c2cdf88bdedeb3b3c6c8771082f00665d757d80d26cc49a15a0ec12fd"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "177959001",
+      "index": 3,
+      "phf": "c071d10c4abde20d6bc63fdbba85a69619e7e4d6d983a81d6b4e745568c6b4c7",
+      "reason": "no-all-in",
+      "row": "a551e1bc388e2f5808a680ccfafbd784a5739d8457506604d237853d558c1056"
+    }
+  ],
+  "input": {
+    "bytes": 5722,
+    "path": "fixtures/samples/coinpoker/16-tour-freeroll-timebank-disconnect.txt",
+    "sha256": "ef3c3aacb0855c87b8b7763ce992347e13d4db58798a7803db4b6af735695a48"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1,
+    "no-all-in": 3
+  },
+  "rows": 4,
+  "totals": {
+    "ev_net": -352,
+    "ev_net_bb_milli": -3520
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "68217077",
+      "index": 0,
+      "phf": "f2f53ebc653343ea54a0cd6fa616bc209406270370c050a6b9cdb765523fa265",
+      "reason": "no-all-in",
+      "row": "e5715cc9815296435797e840c4196c5e9c96813b11bdf2085b8ac5c58dcbdea5"
+    }
+  ],
+  "input": {
+    "bytes": 863,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-6max-USD-0.05-0.10-201906.RUSHID-TN-Blitz Poker GAMETYPE.txt",
+    "sha256": "8547dff729944dfa03f5ead35a0964aff8b88d4c9523242b16617ef2cd1d2b0c"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -10,
+    "ev_net_bb_milli": -1000
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "8326b0945f39f649e57a97dbe20679fbf5eacc86b213887d4d84472b5b45690c",
+      "handId": "OM260919438",
+      "index": 0,
+      "phf": "b957d1b94b5b152a9c103f72758bac86dede13bf605ace27590c71be3e1453c3",
+      "reason": null,
+      "row": "d485220edb67e6f2115508b6d57fd22c372f10c3eecd30a5c287d69d5a1fcc52"
+    }
+  ],
+  "input": {
+    "bytes": 1801,
+    "path": "fixtures/samples/ggpoker/17-fpdb3-cash-plo-6max-usd-2-5-202106-run-it-thrice.txt",
+    "sha256": "bb869ca222bf60ee50963b0b1a79577528fd2738381b62ba571408964138195d"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -4682,
+    "ev_net_bb_milli": -9364
+  }
+}

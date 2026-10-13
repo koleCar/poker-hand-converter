@@ -47,6 +47,7 @@ pub fn board_triple_masks(board: &[u8]) -> Vec<[u32; 4]> {
 
 /// `evaluateOmahaMasks`: the best value over every hole pair × board triple;
 /// `None` (TypeScript: `-1`) when either list is empty.
+#[inline]
 pub fn evaluate_omaha_masks(
     table: &RankingTable,
     pairs: &[[u32; 4]],

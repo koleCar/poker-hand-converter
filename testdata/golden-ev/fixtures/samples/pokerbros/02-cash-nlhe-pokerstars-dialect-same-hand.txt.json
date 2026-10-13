@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "37415c97706a8e1b414ed5a6efda975c888743d288da4f53290e3e93cdd1569d",
+      "handId": "1616183514566",
+      "index": 0,
+      "phf": "cb426b7b5a5f89ada85ca9b0e0a5578f3aae22d22ee821b3f5ba49fac746aae8",
+      "reason": "no-street-to-come",
+      "row": "6d22fd6c41236779e0ca27c32abfe66b3e0fed2c37b5a75b40232dc488eaa67f"
+    }
+  ],
+  "input": {
+    "bytes": 1199,
+    "path": "fixtures/samples/pokerbros/02-cash-nlhe-pokerstars-dialect-same-hand.txt",
+    "sha256": "39f3dc665146d80079625e777da9456dee1e802070f39807bffc502dc9b6cd0f"
+  },
+  "outcomes": {
+    "no-street-to-come": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -12240,
+    "ev_net_bb_milli": -122400
+  }
+}
