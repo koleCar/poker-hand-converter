@@ -269,6 +269,9 @@ pub struct WatcherStatus {
     /// Import threads, and how many may run at once now.
     pub threads: usize,
     pub threads_allowed: usize,
+    /// Files waiting to be read, and being read now.
+    pub queued: usize,
+    pub reading: usize,
     pub sources: Vec<SourceStatus>,
 }
 
@@ -347,6 +350,8 @@ struct Job {
 #[derive(Debug, Default)]
 struct Shared {
     running: bool,
+    queued: usize,
+    reading: usize,
     sources: HashMap<i64, SourceShared>,
 }
 
@@ -774,6 +779,8 @@ impl Watcher {
             paused: self.is_paused(),
             threads: self.threads,
             threads_allowed: self.limits.cap(self.threads),
+            queued: shared.queued,
+            reading: shared.reading,
             sources,
         })
     }
@@ -1775,6 +1782,8 @@ impl Coordinator {
         }
         {
             let mut shared = self.shared.lock().unwrap_or_else(PoisonError::into_inner);
+            shared.queued = self.queued.len();
+            shared.reading = self.in_flight.len();
             shared.sources = self
                 .sources
                 .values()

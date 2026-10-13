@@ -139,8 +139,10 @@ fn a_backfill_reports_its_progress_and_ends() {
             .filter(|e| matches!(e, WatchEvent::FileError { .. }))
             .collect();
         panic!(
-            "the backfill did not end: status {:?}; {} files imported (max {} times), \
+            "the backfill did not end: {} queued, {} reading; status {:?}; {} files imported (max {} times), \
              {} files copied, {} events, errors {errors:?}, last progress {:?}",
+            status.queued,
+            status.reading,
             status.sources,
             imported.len(),
             imported.values().max().copied().unwrap_or(0),
