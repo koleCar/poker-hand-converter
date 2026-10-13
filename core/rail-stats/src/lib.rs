@@ -20,12 +20,16 @@
 //! - [`preflop`], [`postflop`], [`showdown`], [`money`]: the counter walks.
 //! - [`derive`]: [`hand_facts`] (`derive.ts`).
 //! - [`mapping`]: the flat row ([`StatsRow`], `mapping.ts`).
+//! - For a store (R2.3): [`anonymization`] (`detectAnonymization`),
+//!   [`segment`] (what rollups sum over), [`stored`] (which rows a store
+//!   keeps - `handStatsRows` - and the identity they are summed under).
 //!
 //! Integers only: amounts are `i64` minor units, counters `u32`. The three
 //! divisions the TypeScript does in doubles (`net_bb_milli`,
 //! `starting_stack_bb_tenths`, the fee split) go through
 //! [`rail_core::js::JsNumber`], so they round as the browser rounds.
 
+pub mod anonymization;
 pub mod context;
 pub mod counters;
 pub mod derive;
@@ -33,7 +37,13 @@ pub mod mapping;
 pub mod money;
 pub mod postflop;
 pub mod preflop;
+pub mod segment;
 pub mod showdown;
+pub mod stored;
+
+pub use anonymization::{SiteAnonymization, detect_anonymization};
+pub use segment::{Segment, SizeClass, Stake, site_key};
+pub use stored::{StoredRows, rollup_scope, session_scope, stored_rows};
 
 pub use counters::{
     COUNTER_COUNT, COUNTER_KEYS, Counter, LEG_SETS, MONEY_KEYS, OPPORTUNITY_PAIRS, STREET_CHAINS,

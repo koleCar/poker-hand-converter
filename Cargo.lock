@@ -3261,7 +3261,10 @@ dependencies = [
 name = "rail-store"
 version = "0.0.0"
 dependencies = [
+ "log",
  "rail-core",
+ "rail-equity",
+ "rail-stats",
  "rusqlite",
  "serde_json",
  "zstd",

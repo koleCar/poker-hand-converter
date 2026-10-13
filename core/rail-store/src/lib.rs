@@ -19,6 +19,11 @@
 //!   UI; WAL readers never wait for the writer.
 //! - **Import** ([`import`]): `import_file` runs `rail_core` on a whole file
 //!   and commits it; R1.3's incremental reader sends the same batches.
+//! - **Statistics** (R2.3, [`stats`], [`stats_read`], [`background`]): a
+//!   hand's seat rows, rollup increments and EV row are derived with the
+//!   hand (on the producer's thread) and written in its transaction; a
+//!   background pass computes the expensive EV rows (preflop all-ins) and
+//!   rebuilds everything after a version bump.
 //!
 //! The schema is documented table by table in `SCHEMA.md`.
 
@@ -27,21 +32,30 @@ use std::time::Duration;
 
 use rusqlite::{Connection, OpenFlags, params};
 
+pub mod background;
 pub mod batch;
 pub mod error;
 pub mod import;
 pub mod migrate;
 pub mod read;
 pub mod sources;
+pub mod stats;
+pub mod stats_read;
 pub mod sync;
 pub mod time;
 pub mod writer;
 
-pub use batch::{FileState, ImportBatch, ImportOutcome, PreparedHand, Refusal, UnrecognizedFile};
+pub use background::{Activity, StatsWorker, WorkerStatus};
+pub use batch::{
+    EvPlan, FileState, ImportBatch, ImportOutcome, PreparedHand, PreparedSeat, PreparedStats,
+    Refusal, UnrecognizedFile,
+};
 pub use error::{Error, Result};
 pub use import::{FileImport, ImportOptions, import_file};
 pub use read::{Reader, StaleRefusals, StoreStatus};
 pub use sources::{FileMove, OverrideChange, ParserVersions, PathChange, ResetFile};
+pub use stats::{Exclusions, RebuildState, SeatValues, Totals};
+pub use stats_read::{EvAdjust, HeroFilter, HeroTotal, Rollup, SegmentRow, StatsStatus};
 pub use sync::{OutboxEntry, PulledOutcome, Rejection, SyncCounts};
 pub use writer::{PendingImport, WriterHandle};
 
@@ -100,6 +114,14 @@ fn open_write_connection(path: &Path) -> Result<Connection> {
     }
     conn.pragma_update(None, "synchronous", "NORMAL")?;
     conn.pragma_update(None, "foreign_keys", true)?;
+    // Each import batch runs in a savepoint (R1.6), and SQLite copies every
+    // page a savepoint first changes into a statement journal - a temporary
+    // file once it passes 64 KiB, opened, written and closed per group of
+    // batches. In memory instead: with R2.3's statistics a batch touches
+    // several times more pages, and those file calls were a third of the
+    // writer's time (measured; the import threads lost the CPU to it on a
+    // 3-core runner). A group's journal is a few MB.
+    conn.pragma_update(None, "temp_store", "MEMORY")?;
     Ok(conn)
 }
 
@@ -116,6 +138,9 @@ impl Store {
         }
         let mut conn = open_write_connection(&path)?;
         migrate::migrate(&mut conn)?;
+        // Statistics of another version (or none yet): a rebuild is started,
+        // the background pass (`StatsWorker`) does it.
+        stats::ensure_current(&mut conn)?;
         let writer = writer::Writer::start(conn)?;
         let reader = Reader::open(&path, READERS)?;
         Ok(Self {

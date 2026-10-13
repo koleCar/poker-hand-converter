@@ -31,7 +31,10 @@
 //!   moved - no hand without its file's offset, no offset without its
 //!   hands - and every one of them is in the outbox;
 //! - the quarantine and the registry are exactly those files' refusals and
-//!   records, each registry count the number of such files.
+//!   records, each registry count the number of such files;
+//! - (R2.3) the seat rows, EV rows and EV queue are exactly those hands'
+//!   (as a clean import has them), and the rollups equal the sums of the
+//!   seat rows (`player_rollups` and `hero_rollups`, every column).
 //!
 //! The next child resumes: it skips every file already committed (the skip
 //! count it reports equals the stored count) and goes on with the next.
@@ -54,7 +57,7 @@ use rail_store::Store;
 use rail_store::import::{ImportOptions, is_unchanged, path_key, whole_file_batch};
 use rusqlite::Connection;
 
-use common::{PARSED_AT, Rng, assert_integrity, corpus_files, scratch_dir, snapshot};
+use common::{PARSED_AT, Rng, Snapshot, assert_integrity, corpus_files, scratch_dir, snapshot};
 
 /// The child's database path; unset, [`child_import`] does nothing.
 const CHILD_DB: &str = "RAIL_STORE_CRASH_CHILD_DB";
@@ -268,7 +271,7 @@ fn run_child(db: &Path, kill: Kill) -> Run {
 
 /// The store is exactly the sum of the files whose offset moved. Returns
 /// how many files it holds.
-fn check_consistent(db: &Path, expected: &BTreeMap<String, Expected>) -> u64 {
+fn check_consistent(db: &Path, expected: &BTreeMap<String, Expected>, reference: &Snapshot) -> u64 {
     let conn = Connection::open(db).expect("open after the kill");
     // A kill before the last migration committed leaves an older schema (or
     // none: version 0 is an empty file). Each migration is one transaction and
@@ -326,6 +329,41 @@ fn check_consistent(db: &Path, expected: &BTreeMap<String, Expected>) -> u64 {
         "stored hands are not exactly the committed files' hands"
     );
     assert_eq!(snap.outbox, hands, "every stored hand is in the outbox");
+    // R2.3: the statistics went in with their hands - every stored hand's
+    // seat rows, EV row or EV queue entry, as a clean import has them, and
+    // nothing of a hand that is not stored (the rollups are checked against
+    // the rows by `assert_integrity`).
+    let stats = &reference.stats;
+    assert_eq!(
+        snap.stats.seats,
+        stats
+            .seats
+            .iter()
+            .filter(|((key, _), _)| hands.contains(key))
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect(),
+        "seat rows are exactly the stored hands' rows"
+    );
+    assert_eq!(
+        snap.stats.ev_rows,
+        stats
+            .ev_rows
+            .iter()
+            .filter(|(key, _)| hands.contains(*key))
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect(),
+        "EV rows are exactly the stored hands' rows"
+    );
+    assert_eq!(
+        snap.stats.ev_pending,
+        stats
+            .ev_pending
+            .iter()
+            .filter(|key| hands.contains(*key))
+            .cloned()
+            .collect(),
+        "the EV queue holds exactly the stored hands' preflop all-ins"
+    );
     assert_eq!(
         snap.quarantine.keys().cloned().collect::<BTreeSet<_>>(),
         refusals
@@ -395,7 +433,7 @@ fn crash_mid_import_is_consistent_and_resumes() {
         };
         let run = run_child(&db, kill);
         let on_disk = if db.exists() {
-            check_consistent(&db, &expected)
+            check_consistent(&db, &expected, &reference)
         } else {
             0
         };
@@ -461,7 +499,7 @@ fn crash_mid_import_is_consistent_and_resumes() {
     );
     let conn = Connection::open(&db).expect("open");
     assert_integrity(&conn);
-    check_consistent(&db, &expected);
+    check_consistent(&db, &expected, &reference);
     let resumed = snapshot(&conn);
     assert_eq!(
         resumed.hands.keys().collect::<Vec<_>>(),

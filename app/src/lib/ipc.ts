@@ -307,6 +307,20 @@ export type AccountStatus =
   /** `online`: the last refresh reached the server. */
   | { state: "signedIn"; email: string; userId: string; online: boolean; notice: AccountNotice | null };
 
+/** `stats::StatsStatusDto`: the background statistics pass (R2.3). */
+export interface StatsStatus {
+  activity: "idle" | "rebuilding" | "computing" | "paused-backfill" | "paused-tables" | "stopped";
+  /** A rebuild in progress: hands done, of hands to do. */
+  rebuildDone: number | null;
+  rebuildTotal: number | null;
+  /** Hands waiting for their all-in EV. */
+  evPending: number;
+  /** EV rows computed since the app started, and the time it took. */
+  evComputed: number;
+  evMillis: number;
+  lastError: string | null;
+}
+
 /** False in a plain browser (`npm run dev` without Tauri). */
 export const inApp = isTauri();
 
@@ -361,6 +375,12 @@ export const ipc = {
   /** Upload this computer's hands to the account signed in now, or keep them apart. */
   syncAnswerAccount: (upload: boolean) => invoke<SyncStatus>("sync_answer_account", { upload }),
   syncRetryRejected: () => invoke<SyncStatus>("sync_retry_rejected"),
+  /** The statistics pass (R2.3). */
+  statsStatus: () => invoke<StatsStatus>("stats_status"),
+  /** Rebuild every hand's statistics in the background; returns the hands to go through. */
+  statsRebuild: () => invoke<number>("stats_rebuild"),
+  /** Compute every hero hand's all-in EV again; returns the hands queued. */
+  statsRecomputeEv: () => invoke<number>("stats_recompute_ev"),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),

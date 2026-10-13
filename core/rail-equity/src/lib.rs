@@ -31,8 +31,8 @@ pub mod range;
 pub mod row;
 
 pub use all_in::{
-    AllInEv, AllInEvOutcome, AllInSkipReason, EV_VERSION, EvPot, EvSeat, all_in_ev, analyze_all_in,
-    apportion, ev_net_by_seat,
+    AllInEv, AllInEvOutcome, AllInSkipReason, EV_VERSION, EvPot, EvSeat, all_in_ev, all_in_street,
+    analyze_all_in, apportion, ev_net_by_seat,
 };
 pub use enumerate::{
     Computation, DEFAULT_EXHAUSTIVE_LIMIT, DEFAULT_SEED, DEFAULT_TRIALS, EquityGame,
@@ -48,4 +48,4 @@ pub use range::{
     RangeEquityResult, RangeError, WeightedCombo, all_classes, class_combos, equity_vs_range,
     parse_range, range_combos, range_share, strongest_of_range,
 };
-pub use row::{EvRow, ev_row, ev_row_for};
+pub use row::{EvRow, ev_row, ev_row_for, ev_row_unless_preflop};

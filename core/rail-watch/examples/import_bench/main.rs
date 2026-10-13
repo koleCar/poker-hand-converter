@@ -17,7 +17,9 @@
 //!    per second. It is `rail_core` alone, the CPU work an import thread
 //!    does per hand before the store, so it moves with the machine's speed
 //!    (a shared CI runner's included) and not with the pipeline. It is
-//!    measured again after every import.
+//!    measured again after every import. Printed beside it, not part of
+//!    it: what the statistics (R2.3, `PreparedStats::from_phf`) add to an
+//!    import thread's work per hand.
 //! 3. Opens an **empty** store, starts the real watcher (`Watcher::start`,
 //!    the app's pipeline: walk, workers, conversion, the one writer) and adds
 //!    the dataset's folder with "import everything" - the backfill a user
@@ -167,6 +169,7 @@ fn main() {
     let workers = args.workers.unwrap_or(WatchConfig::default().workers);
     let (mut best_rate, mut best_reference, mut best_efficiency) = (0, 0, 0);
     let mut before = reference_rate(&selection);
+    stats_cost(&selection);
     best_reference = best_reference.max(before);
     for run in 1..=args.runs.max(1) {
         if args.runs > 1 {
@@ -240,6 +243,39 @@ fn reference_rate(selection: &dataset::Selection) -> u64 {
         elapsed.as_secs_f64()
     );
     rate
+}
+
+/// What the statistics (R2.3) add to an import thread's work per hand:
+/// `PreparedStats::from_phf` (the kept rows, the segment, the scopes, the EV
+/// row unless the all-in was preflop) over the templates' hands, against
+/// their conversion. Printed only; the reference above stays `rail_core`.
+fn stats_cost(selection: &dataset::Selection) {
+    let mut hands = Vec::new();
+    let started = Instant::now();
+    for template in &selection.templates {
+        let conversion = convert_file(&template.bytes, &dataset::options(&template.relative));
+        if let Some(Ok(result)) = conversion.result {
+            hands.extend(result.hands.into_iter().map(|converted| converted.hand));
+        }
+    }
+    let convert = started.elapsed();
+    let started = Instant::now();
+    let mut deferred = 0_u64;
+    for hand in &hands {
+        if rail_store::PreparedStats::from_phf(hand).ev == rail_store::EvPlan::Deferred {
+            deferred += 1;
+        }
+    }
+    let stats = started.elapsed();
+    let n = u128::try_from(hands.len().max(1)).expect("hands");
+    println!(
+        "statistics: {} us a hand ({} hands; their conversion {} us a hand, so +{} %); \
+         {deferred} preflop all-ins left to the background pass",
+        stats.as_micros() / n,
+        hands.len(),
+        convert.as_micros() / n,
+        stats.as_micros() * 100 / convert.as_micros().max(1)
+    );
 }
 
 /// `rate / (reference x workers)`, in percent.

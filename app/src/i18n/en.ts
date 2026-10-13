@@ -450,6 +450,31 @@ export const en = {
     time: "Time",
   },
 
+  /** Debug builds: the background statistics pass (R2.3). */
+  devStats: {
+    heading: "Developer: statistics",
+    note: "Debug builds only. The background pass that rebuilds the statistics and computes the all-in EV of preflop all-ins.",
+    activity: "Doing",
+    activities: {
+      idle: "Nothing",
+      rebuilding: "Rebuilding the statistics",
+      computing: "Computing all-in EV",
+      "paused-backfill": "Waiting for the import to finish",
+      "paused-tables": "All-in EV waits while tables are open",
+      stopped: "Stopped",
+    },
+    rebuild: "Rebuild",
+    rebuildProgress: (done: number, total: number) => `${done} of ${total} hands`,
+    none: "None",
+    evPending: "Hands waiting for all-in EV",
+    evComputed: "All-in EV computed",
+    evTime: (n: number, ms: number) => `${n} hands in ${(ms / 1000).toFixed(1)} s`,
+    rebuildButton: "Rebuild statistics",
+    evButton: "Compute all-in EV again",
+    rebuildStarted: (n: number) => `Rebuilding the statistics of ${n} hands.`,
+    evQueued: (n: number) => `${n} hands queued for all-in EV.`,
+  },
+
   /** A folder's backfill in progress, on Today and the folder cards (R1.6). */
   backfill: {
     of: (path: string) => `Importing the hands in ${path}`,

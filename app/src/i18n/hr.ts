@@ -419,6 +419,30 @@ export const hr: Dict = {
     time: "Vrijeme",
   },
 
+  devStats: {
+    heading: "Za razvoj: statistike",
+    note: "Samo u debug buildu. Pozadinski posao koji ponovno gradi statistike i računa all-in EV preflop all-inova.",
+    activity: "Radi",
+    activities: {
+      idle: "Ništa",
+      rebuilding: "Ponovno gradi statistike",
+      computing: "Računa all-in EV",
+      "paused-backfill": "Čeka da uvoz završi",
+      "paused-tables": "All-in EV čeka dok su stolovi otvoreni",
+      stopped: "Zaustavljen",
+    },
+    rebuild: "Ponovna izgradnja",
+    rebuildProgress: (done, total) => `${done} od ${total} ruku`,
+    none: "Nema",
+    evPending: "Ruke koje čekaju all-in EV",
+    evComputed: "Izračunan all-in EV",
+    evTime: (n, ms) => `${n} ruku u ${(ms / 1000).toFixed(1)} s`,
+    rebuildButton: "Ponovno izgradi statistike",
+    evButton: "Ponovno izračunaj all-in EV",
+    rebuildStarted: (n) => `Ponovno se grade statistike ${n} ruku.`,
+    evQueued: (n) => `${n} ruku čeka all-in EV.`,
+  },
+
   backfill: {
     of: (path) => `Uvoz ruku iz mape ${path}`,
     title: (percent) => `Uvoz starih ruku: ${percent} %`,

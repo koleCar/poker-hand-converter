@@ -39,7 +39,11 @@
 //! - sync ([`sync`], R1.9): the worker that sends the outbox to Supabase and
 //!   pulls the account's other hands, woken by imports and account changes,
 //!   with its line in the tray and its controls in Settings → Account. It is
-//!   stopped on exit with the watcher, before the store closes.
+//!   stopped on exit with the watcher, before the store closes;
+//! - the statistics pass ([`stats`], R2.3): rebuilds the local statistics
+//!   after a stats version bump (or when asked from Settings) and computes
+//!   the all-in EV of preflop all-ins in the background; woken by imports,
+//!   paused while a backfill runs, stopped on exit with the watcher.
 
 use std::sync::Mutex;
 
@@ -55,6 +59,7 @@ pub mod folder_settings;
 pub mod folders;
 pub mod quarantine;
 pub mod settings;
+pub mod stats;
 pub mod strings;
 pub mod sync;
 pub mod tray;
@@ -146,7 +151,12 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     // writer. Without a store it does not start; the tray and the Today
     // screen say so.
     let sync_slot = sync::SyncSlot::default();
-    let watcher = watch::WatcherState::start(&store, std::sync::Arc::clone(&sync_slot));
+    // The statistics pass (R2.3), before the watcher: imports wake it and a
+    // backfill pauses it.
+    let stats = stats::StatsState::start(&store);
+    let watcher =
+        watch::WatcherState::start(&store, std::sync::Arc::clone(&sync_slot), stats.clone());
+    app.manage(stats);
     app.manage(store);
     app.manage(watcher);
 
@@ -233,6 +243,9 @@ pub fn run() {
         sync::sync_set_cap,
         sync::sync_answer_account,
         sync::sync_retry_rejected,
+        stats::stats_status,
+        stats::stats_rebuild,
+        stats::stats_recompute_ev,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -274,6 +287,9 @@ pub fn run() {
         sync::sync_set_cap,
         sync::sync_answer_account,
         sync::sync_retry_rejected,
+        stats::stats_status,
+        stats::stats_rebuild,
+        stats::stats_recompute_ev,
     ]);
 
     let app = builder
@@ -292,14 +308,17 @@ pub fn run() {
         .expect("the Tauri app could not be built");
 
     app.run(|app, event| match event {
-        // The watcher and the sync worker first: the store waits for their
-        // writer handles.
+        // The watcher, the sync worker and the statistics pass first: the
+        // store waits for their writer handles.
         tauri::RunEvent::Exit => {
             if let Some(sync) = app.try_state::<sync::SyncState>() {
                 sync.stop();
             }
             if let Some(watcher) = app.try_state::<watch::WatcherState>() {
                 watcher.stop();
+            }
+            if let Some(stats) = app.try_state::<stats::StatsState>() {
+                stats.stop();
             }
         }
         // macOS: a click on the Dock icon while the window is hidden.

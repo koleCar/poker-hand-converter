@@ -169,8 +169,8 @@ table that has not produced a hand yet shows "waiting for first hand".
 | `hands` | hand key, site, played_at, format, stakes, table, hero seat, PHF (zstd), parser version | `hand_key` |
 | `quarantine` | refused hands: file, offset, stage, reason, message, raw text | `id` |
 | `unsupported` | registry (R0.11): header sample, guessed site, OS, client version, count, first seen, consent state | fingerprint |
-| `seat_stats` | one row per dealt-in seat at the current stats version — the local `hand_stats` | `(hand_key, seat)` |
-| `player_rollups` | summed counters per (player, segment) for the HUD and reports | `(site, player, segment)` |
+| `seat_stats` | one row per dealt-in seat at the current stats version — the local `hand_stats` (built: `hand_stats` per hand + `seat_stats` per seat, R2.3) | `(hand_key, seat)` (built: `(hand_id, seat)`) |
+| `player_rollups` | summed counters per (player, segment) for the HUD and reports | `(site, player, segment)` (built: `(site, player, scope, segment)`; the hero's per day in `hero_rollups`) |
 | `players` | notes, colour tag, labels | `(site, name)` |
 | `hud_layouts` | layouts, presets, seat positions per (site, table size) | `id` |
 | `outbox` | hands not yet synced, attempts, last error | `hand_key` |
@@ -180,12 +180,27 @@ A *segment* is (site, game format, variant, limit, table-size class, stake
 bucket). Reports filter and sum over segments; the HUD reads one row per player
 for the segment of the current table.
 
+As built in R2.3 (`rail_stats::Segment`, `core/rail-store/SCHEMA.md`
+"Statistics"): **site** is the site id trimmed and lower-cased (`hand_key`'s
+prefix); **table-size class** is by the table's seats (`maxSeats`, the hand's
+players when under 2): `hu` (2), `6max` (3-6), `full` (7+); **stake** is,
+for a cash game, the unit's code and the big blind in its minor units,
+exactly (`USD:200` = $1/$2, `TCHIP:200` play money): each stake level is its
+own bucket, coarser groupings (micro, NL2-NL5) are sums at query time, which
+a coarse key could not be split back from; for the tournament formats it is
+`chips` (blinds rise; the buy-in is a filter, not a segment). The rollups
+are `player_rollups` (site, player, scope, segment) and `hero_rollups`
+(segment, position, UTC day, kind); the seat rows are `hand_stats` +
+`seat_stats` (counters in a compact blob), and the hero's all-in EV is
+`ev_rows` / `ev_pending` (R2.3 *As built*).
+
 Built in R1.2 (`core/rail-store`, every table and column in
 `core/rail-store/SCHEMA.md`): `kv`, `sources`, `files`, `hands`,
 `quarantine`, `unsupported`, `outbox`; `files` and `quarantine` have an
 integer `id` (`files.path` stays unique) so that `hands.file_id` and
-`quarantine.file_id` are small. `seat_stats`, `player_rollups`, `players`
-(Phase 2) and `hud_layouts` (Phase 3) come as later migrations.
+`quarantine.file_id` are small. `seat_stats`, `player_rollups` and their
+companions came with R2.3 (migration 6); `players` (R2.7) and `hud_layouts`
+(Phase 3) come as later migrations.
 
 ### 3.5 Supabase mapping
 
@@ -3693,6 +3708,163 @@ database, on the development Mac and on a mid-range Windows laptop.
 ### R2.3 Rollups and segments — M
 - `player_rollups` maintained in the import transaction; a rebuild command
   (after a stats version bump); the segment definition from §3.4.
+- *As built* (§15): **done** - local statistics in the store, written with
+  every hand, rebuilt and completed in the background; every table in
+  [`core/rail-store/SCHEMA.md`](../core/rail-store/SCHEMA.md) "Statistics".
+  - **Schema** (store migration 6, tested from every earlier version):
+    `segments`; `hand_stats` (per hand: the statistics' hand-level columns
+    `hands` does not hold, `played_at` (indexed), the segment, the
+    generation `gen`); `seat_stats` (per kept seat: name, scope, hero,
+    position, cards, stacks, and the 90 counters + 7 money values as one
+    blob, `encode_seat`: the non-zero values as varint pairs, ~15-40
+    bytes); `player_rollups` (site, player, scope, segment); `hero_rollups`
+    (segment, position, UTC day, kind); `ev_rows` (the hero's applicable
+    all-in EV), `ev_pending` (the EV queue). `hand_stats` + `seat_stats` +
+    `hands` give back the engine's `StatsRow`, all 133 columns, byte for
+    byte in JSON for every corpus row (`tests/stats.rs`). **The first
+    version mirrored the web's `hand_stats` column for column** (hand
+    columns on every seat, a column per counter): +2 KB a hand (3 283 →
+    5 297 bytes, +61 %) and 21-29 % fewer hands imported a second; the
+    blob layout costs +590 bytes a hand (3 872, +18 %), `hand_stats`'s
+    `played_at` index included. That index came from measuring: reading
+    `played_at` from `hands` (whose rows hold the PHF) made a report's
+    partial days take 6 s at 500k; from `hand_stats` they take 0.08 s.
+  - **Segment** (`rail_stats::Segment`, pure, tested; §3.4): site key, game
+    format, variant, limit, table-size class by `maxSeats` (`hu` 2, `6max`
+    3-6, `full` 7+; the players when `maxSeats` < 2), stake = a cash game's
+    currency and exact big blind in minor units (`USD:200`; every stake
+    level its own bucket, coarser groupings are sums at query time), or
+    `chips` for the tournament formats. The corpus has 191 segments.
+  - **Rows and identities** (`rail_stats::stored_rows`, `rollup_scope`,
+    `detect_anonymization` - the web's `detectAnonymization` ported):
+    `handStatsRows`' rule - hero always, villains always on the desktop,
+    never a villain of a positionally anonymised room (Ignition) - and one
+    row per seat (two players on one seat: the first, as `save_hand_stats`'
+    `on conflict do nothing`). **Opaque-id rooms** (GGPoker hashes, ACR/WPN
+    mined ids): a token is one person within one session only
+    (docs/DATABASE.md), so summing it across sessions would invent a
+    person; such villains are summed per session, scope `<table>@<UTC
+    day>` (the HUD computes the same scope for its table), which
+    under-merges (a session past midnight UTC, a tournament table change)
+    and never over-merges. Screen names and the hero: scope `''`. Corpus:
+    6 541 / 34 632 hero / villain rows of `none` hands, 636 / 3 048
+    `opaque-id`, 92 / 0 `positional`.
+  - **Rollups** apply `aggregate`'s defaults (`rates.ts`): bomb pots out of
+    `player_rollups` entirely, EV-cashout hands out of their money,
+    `money_hands` counted (bb/100 divides by it). `hero_rollups` exclude
+    nothing and keep a `kind` (bomb pot 1 | straddled 2 | cashout 4) in the
+    key, so a report applies any of `aggregate`'s options exactly.
+  - **Import path**: `PreparedHand::from_phf` derives `PreparedStats` (the
+    kept rows with their scopes, the segment, the EV plan) on the import
+    threads; the writer writes `hand_stats` + `seat_stats` in the hand's
+    transaction and sums the rollup increments in memory per **group**
+    (`writer::commit_group`: each batch's sums taken once its savepoint
+    commits, added with one upsert per key before the commit). Duplicates
+    add nothing (`tests/stats.rs`, files again under other names and pulled
+    hands). The sync pull (`import_pulled`) writes them the same way. The
+    crash test (R1.2) now also checks, after every kill, that the seat rows,
+    EV rows and EV queue are exactly those of the stored hands and that both
+    rollup tables equal the sums of the rows (`common::assert_rollups`,
+    every column), and the final store equals a clean import, statistics
+    included.
+  - **Throughput: the import's pipeline efficiency is back where it was.**
+    The first push lost it: CI's import benchmark (3 threads on the 3-vCPU
+    macOS runner) measured **44 / 41 / 39 %** against **59-67 %** before
+    R2.3, a failed gate. Profiled (`sample`, the writer thread), a third of
+    the writer's busy time went to **SQLite's statement journal**: every
+    import batch runs in a savepoint (R1.6), every page a savepoint first
+    changes is copied to that journal, and past 64 KiB it is a temporary
+    file - opened, written and closed per group of batches; R2.3's rows
+    touch several times more pages per batch. Fixes: **`PRAGMA temp_store =
+    MEMORY`** on the write connection (the journal stays in memory; a
+    group's is a few MB), **`hand_stats` inserted with `execute` and
+    `last_insert_rowid`** (its `RETURNING id` through `query_row` spent a
+    third of the insert in the statement's reset), and the seat blob, the
+    cards' text and the values summed computed on the import threads
+    (`PreparedSeat`), so the writer only binds and adds. The rollups were
+    already summed in memory per group of batches (one upsert per key and
+    transaction). Local, 100k, 3 threads, interleaved, the owner's M2 Pro
+    under load 7-9: **before R2.3 48 / 46 % (4 628 / 4 428 hands/s); the
+    first push 42 / 41 % (4 175 / 3 857); now 48 / 48 % (4 687 / 4 741)**.
+    The reference is unchanged (`rail_core`'s conversion only); the
+    statistics' own cost on the import threads, 17-22 µs a hand (+3-6 % of
+    the conversion), is printed beside it and counted against the
+    pipeline, not hidden in the reference. Earlier measurements of the first
+    push under heavier load (11-15): 8 threads 6 621 / 7 168 → 5 908 /
+    6 335 hands/s; 500k 5 308 hands/s, database 1.84 GB (3 866 bytes a
+    hand).
+  - **All-in EV**: `rail_equity::ev_row_unless_preflop` (new, with
+    `all_in_street`: the analysis's first checks only; the rows equal
+    `ev_row`'s for every corpus hand) computes the hero's EV row at import
+    unless the all-in was completed preflop; those (195 of the 7 321
+    template hands; 13 265 of 497 809 at 500k, 2.7 %) wait in `ev_pending`.
+    Only applicable rows are stored (438 of 7 269 corpus hero hands);
+    another hero hand's row is `ev_net = net`, implied. **Background pass**
+    (`rail_store::background`, `StatsWorker`): one thread; the rebuild
+    first, then the EV queue newest first, 8 hands a transaction; paused
+    while a backfill imports (`set_backfill`; the app tracks the watcher's
+    backfill events and reconciles from its status) and its EV part while
+    tables are open (`set_tables_open`, the HUD's hook); woken by imports;
+    progress in `stats_status`. Measured at 500k (release, same load):
+    **26-27 ms of computing per preflop all-in, ~2 150-2 250 a minute** -
+    the 500k store's 13 265 take ~6 minutes of one core after the backfill. The
+    exact preflop-matchup cache was measured and **not built**: the
+    corpus's 226 exhaustive preflop all-ins have 182 distinct suit-canonical
+    matchups, and the repeats are mostly the corpus's repeated files; at a
+    real player's volume (~3 % of hands) repeats of a 47k-class space are
+    rare, and Monte Carlo (Omaha) is not invariant under suit relabelling
+    with a fixed seed anyway.
+  - **Rebuild**: `begin_rebuild` (on open when `stats.version` is not this
+    build's `STATS_VERSION`, e.g. a store from before R2.3; or
+    `StatsWorker::rebuild_stats`, a debug button in Settings until R2.7)
+    starts generation n+1 and empties the rollups; the pass derives every
+    hand again from its stored PHF in `hand_key` order, 500 a transaction,
+    the cursor in `kv` (resumable), skipping hands imported meanwhile
+    (already counted). An EV row is kept unless the hero's seat or result
+    changed. **6 100-6 950 hands/s at 500k** (one thread, release): 72-82 s
+    for 500k. Tested: a rebuild reproduces the import exactly; imports
+    during a rebuild count once; an older store (version 5 with hands) gets
+    the same statistics as an import; "compute EV again" (`requeue_ev`, what
+    an `EV_VERSION` bump does on open) queues every hero hand and the pass
+    gives the same rows.
+  - **Queries** (`rail_store::stats_read`): `hud_totals`, `player_rollup`,
+    `player_rollups`, `hero_totals` (`HeroFilter`: segments, positions, UTC
+    instants, `aggregate`'s options; whole days from `hero_rollups`, partial
+    days and EV from the rows), `segments`, `stats_status`. Measured on the
+    500k store with 300 000 made-up players added to `player_rollups` (the
+    dataset rewrites ids, not names; `examples/stats_queries.rs`), release:
+    **HUD lookup for 9 players: median 73 µs, p99 0.22-0.24 ms** (first
+    call 0.6 ms; the table's segment or all the site's alike); one rollup
+    6 µs; a player's segments 18 µs; **hero totals**: everything (470k hero
+    hands, 241 segment-position groups) 127 ms, a date range with partial
+    days at both ends 78 ms, 3 segments x 3 positions over a range 76 ms -
+    the benchmark's days are 69 copies of the corpus's, so its partial days
+    hold ~50 times a real day's hands; most of the 127 ms is the EV
+    adjustment's ~29k lookups (stored rows and the queue); status 7 µs.
+  - **App**: `rail-app` starts the pass after the store (`stats.rs`), the
+    watcher wakes it and pauses it during backfills, it stops on exit
+    before the store closes; commands `stats_status`, `stats_rebuild`,
+    `stats_recompute_ev`; Settings shows a debug-only panel (status, two
+    buttons; `en` + `hr`).
+  - **For R2.4**: a definition's formula reads `Totals::get(Counter)` and
+    `money_hands` (bb/100 = `net_bb_milli / 10 / money_hands`);
+    `Counter::from_name` resolves names. **For R2.7**: reports by position
+    and date are `hero_totals`; by situation (pot type, street, stack
+    depth) scan the hero's `seat_stats` through `hand_stats_played_idx`
+    and sum in Rust (`decode_seat`); a villain's profile by position needs
+    a `seat_stats (player)` index or a per-position rollup (not built;
+    measure its import cost); `players` is the next migration. **For R2.9**:
+    rewrite player names in the benchmark dataset for real rollup
+    cardinality (`stats_queries --pad` stands in); gate the HUD lookup and
+    `hero_totals` at 1M. **For R3.7**: on `hand_imported`, `hud_totals(site,
+    players, segments)` from the HUD's own read-only `Reader`; an opaque-id
+    villain's scope is `session_scope(table, played_at)`; the HUD should
+    call `StatsWorker::set_tables_open` (through the app) while it draws.
+    **For R2.11** (targeted recompute, guideline §5 "ciljani preračun"):
+    today a definition change rebuilds everything (~75 s at 500k); the
+    generation mechanism works per hand, so a targeted pass can rebuild
+    only the hands a changed counter can touch, or rewrite only the
+    affected counters of each blob and roll them up again.
 
 ### R2.4 `config/stats/` display definitions — M
 - Schema: id, name, short label, formula over counters (`3bet / 3bet_opp`),
@@ -4006,3 +4178,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R1.10 done, Phase 1 complete on `staging`**: live arrival on the web. Migration `20270512090000_hand_arrivals.sql`: `hand_arrivals`, one row per account bumped once per insert statement on `hands` by the statement trigger `hands_signal_arrival` (count, origin, time; no hand content; ~320 bytes a change), select-own RLS, in `supabase_realtime`; `hands` deliberately not published (whole-row payloads with the PHF, per-row RLS on every backfill). Measured: a role without SELECT gets a content-free 401 notice per change, so `anon` has SELECT and no policy (`notifications` has the same exposure, noted, not changed); DELETE (account removal only) shows a random id. Web: `lib/live/arrivals.ts` (debounce 1.5 s, max wait 5 s backing off to 30 s, nothing while hidden, resync on reconnect), `useHandArrivals` (token before join, INSERT + UPDATE filtered to the owner, removed on unmount / sign-out), `AppFrame live` on `/library` and `/stats` only; the library re-reads page 1 in place or offers "N new hands - show", "Hands arriving from <device>" from `hand_sources`; stats re-read quietly and rebuild for new hands without a click. Tests: pgTAP 29 (suite 31 files / 1 026), vitest 12, `npm run realtime:arrivals` 15 / 15 on an isolated stack (A sees its own; a forged or missing filter and anon see nothing of others), browser end to end. The consolidated production checklist for R1.7-R1.10 is under R1.10. |
 | 2026-10-13 | **R2.1 done**: the stats engine in Rust (`core/rail-stats`), `lib/stats` ported module for module (90 counters, money, the rulebook; every STATS-SPEC call as the TypeScript has it). Oracle: `npm run golden:emit` also writes `testdata/golden-stats/` (per hand the sha-256 of the canonical `statsRows(handFacts(phf))` and its seats, per file the column totals; 3.3 MB committed, 206 MB in full in the gitignored `testdata/golden-stats-full/`), checked by `golden-fresh`; no float in any row, `-0` written as 0 (none in the corpus). **8 422 / 8 422 hands, 51 464 / 51 464 rows equal to the TypeScript's**; the eight invariants of `statsInvariants.ts` on every corpus hand; the 17 spot fixtures and the corpus, short-deck and pot-type spots; 4 000 seeded mutations through both engines (50 000 in a soak) equal. Three divisions in doubles reproduced with `JsNumber`. `rows_for(&PhfHand)` is the API for R2.3; nothing wired into the app. rail-stats joins CI's wasm32 build. STATS-SPEC §12 (the port, oddities); its title now says `stats/2`. |
 | 2026-10-13 | **R2.2 done**: all-in EV in Rust (`core/rail-equity`), `lib/equity` ported - `enumerate.ts` (exhaustive enumeration, the seeded Monte Carlo, `plan`, `EquityInputError`), `range.ts`, `multiway.ts`, `allInEv.ts` - and `handEvRow` (`ev_row`, `EV_VERSION` `ev/1`). Exact representation: shares of a pot as integers in units of 1/27720 of a board (`units / (boards * 27720)`), and the TypeScript's double arithmetic after that (the equity division, `apportion`, range weights) replayed operation for operation in `JsNumber`. Oracle: `npm run golden:emit` also writes `testdata/golden-ev/` (hero row as the web stores it and the full `analyzeAllIn`, equities as `String(x)`, hashed; 3.1 MB, 5.5 MB in full gitignored), checked by `golden-fresh`. **8 121 / 8 121 rows and 8 422 / 8 422 analyses equal** (508 all-ins: 226 preflop enumerations, 11 Omaha preflop Monte Carlo, 1 short deck; 22 hi/lo declined), every equity bit for bit, Monte Carlo exact (same `mulberry32`, same Fisher-Yates); 4 500 seeded vectors (mutated hands, `equity()` requests, ranges) and a 45 000-case soak equal. `equityEnumerate`, `equityAllInEv`, `equityRange`, `equityCorpus` translated, plus the `analyzeAllIn` checks of `shortDeck` and `phfHiLo`. Release, M2 Pro: 25 ms per heads-up preflop all-in, 15 ms Omaha preflop, under 1 ms flop/turn; R2.3 should run the backfill's EV as a background pass or cache preflop matchups. `rail_core::eval` gains `#[inline]` on its hot path only; the dev profile builds rail-equity optimised. rail-equity joins CI's wasm32 build. |
+| 2026-10-13 | **R2.3 done**: local statistics in `rail-store` (migration 6). With every hand, on the import threads, `PreparedStats` (`rail_stats::stored_rows` - `handStatsRows`' rule: hero always, villains unless the room is positionally anonymised, one row per seat - the segment, the rollup scope, the EV plan); in the hand's transaction `hand_stats` + `seat_stats` (counters and money as a varint blob: the first, column-per-counter layout cost +61 % size and 21-29 % of the import's speed) and the rollup increments, summed per writer group and upserted once per key: `player_rollups` (site, player, scope, segment; `aggregate`'s default exclusions) and `hero_rollups` (segment, position, UTC day, kind). Segment = (site key, format, variant, limit, `hu`/`6max`/`full` by `maxSeats`, a cash game's currency and exact big blind or `chips`). Opaque-id villains (GGPoker, ACR/WPN mined) summed per session (`<table>@<UTC day>`), never across sessions. The hero's EV at import unless the all-in was preflop (`rail_equity::ev_row_unless_preflop`); those, and rebuilds after a `STATS_VERSION` bump or on request (new generation, cursor in `kv`, resumable), by a background `StatsWorker` paused during backfills and (EV) while tables are open. Rows equal the engine's for every corpus seat; crash test checks rows and rollups after every kill. import pipeline efficiency unchanged after the fix (local 3 threads 48 / 46 % before, 48 / 48 % after; the first push's 41-44 % on CI came from SQLite's statement journal in temp files - now `temp_store = MEMORY` - and a `RETURNING` insert), stats 17-22 µs a hand on the import threads, +18 % size; preflop all-in 26 ms in the background; rebuild ~6 500 hands/s; at 500k the HUD lookup for 9 players takes 73 µs (p99 0.24 ms), hero totals 76-127 ms. App: the pass started with the store, Settings debug panel. Preflop-matchup cache measured, not built. |

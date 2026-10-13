@@ -252,7 +252,11 @@ fn rollups_are_built_from_an_older_store() {
     }
     let mut conn = Connection::open(&path).expect("open");
     conn.execute_batch(
-        "DROP INDEX outbox_recent_idx; DROP INDEX outbox_retry_idx;
+        "DROP TABLE ev_pending; DROP TABLE ev_rows; DROP TABLE hero_rollups;
+         DROP TABLE hand_stats;
+         DROP TABLE player_rollups; DROP TABLE seat_stats; DROP TABLE segments;
+         DELETE FROM kv WHERE key LIKE 'stats.%' OR key LIKE 'ev.%';
+         DROP INDEX outbox_recent_idx; DROP INDEX outbox_retry_idx;
          ALTER TABLE outbox DROP COLUMN played_at; DROP TABLE sync_rejected;
          DROP INDEX hands_pulled_idx; ALTER TABLE hands DROP COLUMN pulled_at;
          DROP TRIGGER sources_totals_row; DROP TRIGGER files_totals_insert;
