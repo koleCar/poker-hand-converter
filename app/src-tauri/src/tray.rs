@@ -1,8 +1,10 @@
 //! The tray (Windows notification area, macOS menu bar) icon and its menu.
 //!
-//! The menu's first line is a disabled status line: what the watcher (R1.3)
-//! is doing ("Watching 2 folders · 37 hands today", "Import paused"), set
-//! through [`set_status`] by `watch::refresh_tray`. "Pause import" pauses
+//! The menu's first two lines are disabled. The status line says what the
+//! watcher (R1.3) is doing ("Watching 2 folders · 37 hands today", "Import
+//! paused"), set through [`set_status`] by `watch::refresh_tray`; the account
+//! line under it (R1.7: "Signed in as ...", "Not signed in") through
+//! [`set_account`] by `account::refresh_tray`. "Pause import" pauses
 //! and resumes the watcher (its text follows, [`set_pause_text`]); it is
 //! enabled when there is something to pause.
 
@@ -16,6 +18,7 @@ use crate::strings;
 pub const TRAY_ID: &str = "rail";
 
 const STATUS: &str = "status";
+const ACCOUNT: &str = "account";
 const OPEN: &str = "open";
 const PAUSE_IMPORT: &str = "pause-import";
 const QUIT: &str = "quit";
@@ -23,6 +26,7 @@ const QUIT: &str = "quit";
 /// The menu items other code changes, kept as app state.
 pub struct TrayMenu<R: Runtime> {
     status: MenuItem<R>,
+    account: MenuItem<R>,
     pause_import: MenuItem<R>,
 }
 
@@ -31,6 +35,7 @@ impl<R: Runtime> std::fmt::Debug for TrayMenu<R> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("TrayMenu")
             .field("status", self.status.id())
+            .field("account", self.account.id())
             .field("pause_import", self.pause_import.id())
             .finish()
     }
@@ -40,6 +45,8 @@ impl<R: Runtime> std::fmt::Debug for TrayMenu<R> {
 pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
     let text = strings::tray();
     let status = MenuItem::with_id(app, STATUS, text.status_idle, false, None::<&str>)?;
+    // The account (R1.7), set by `account::refresh_tray`.
+    let account = MenuItem::with_id(app, ACCOUNT, text.account_signed_out, false, None::<&str>)?;
     let open = MenuItem::with_id(app, OPEN, text.open, true, None::<&str>)?;
     // Enabled once the watcher runs with a folder (`watch::refresh_tray`).
     let pause_import =
@@ -49,6 +56,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
         app,
         &[
             &status,
+            &account,
             &PredefinedMenuItem::separator(app)?,
             &open,
             &pause_import,
@@ -94,6 +102,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
 
     app.manage(TrayMenu {
         status,
+        account,
         pause_import,
     });
     Ok(())
@@ -104,6 +113,14 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
 pub fn set_status<R: Runtime>(app: &AppHandle<R>, text: &str) -> tauri::Result<()> {
     match app.try_state::<TrayMenu<R>>() {
         Some(menu) => menu.status.set_text(text),
+        None => Ok(()),
+    }
+}
+
+/// Replace the account line (R1.7): "Signed in as ...", "Not signed in".
+pub fn set_account<R: Runtime>(app: &AppHandle<R>, text: &str) -> tauri::Result<()> {
+    match app.try_state::<TrayMenu<R>>() {
+        Some(menu) => menu.account.set_text(text),
         None => Ok(()),
     }
 }

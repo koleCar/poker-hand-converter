@@ -1,0 +1,27 @@
+/* `/auth/desktop`: one card, the question and its buttons. Tokens only. */
+
+.card {
+  display: grid;
+  gap: 12px;
+  max-width: 62ch;
+  margin: 0 auto;
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.question {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

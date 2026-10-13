@@ -60,6 +60,7 @@ export const hr: Dict = {
     unsupported: "Nepodržani formati",
     outbox: "Čeka sinkronizaciju",
     storeFile: "Spremljeno u",
+    account: "Postavke računa",
   },
 
   watch: {
@@ -123,8 +124,8 @@ export const hr: Dict = {
 
     signIn: {
       heading: "1. Prijava",
-      body: "Prijava će usklađivati vaše ruke s webom. Dolazi u jednoj od sljedećih verzija; do tada Rail radi na ovom računalu bez računa.",
-      later: "Uskoro",
+      useOffline: "Koristi bez računa",
+      offlineChosen: "Rail radi bez računa. Prijaviti se možete bilo kada u Postavkama, Račun.",
     },
 
     folders: {
@@ -151,6 +152,41 @@ export const hr: Dict = {
       heading: "3. Otvorite stol",
       body: "Igrajte kao i inače. Rail čita svaku ruku čim je soba zapiše, a ekran Danas pokazuje kako stižu.",
       done: "Idi na Danas",
+    },
+  },
+
+  account: {
+    heading: "Račun",
+    loading: "Učitavanje…",
+    notConfigured: "Ova verzija Raila nema uslugu računa. Sve radi na ovom računalu; ništa se ne sinkronizira.",
+    signedOut:
+      "Prijavite se da vam ruke budu usklađene s webom. Rail otvara stranicu za prijavu u pregledniku, gdje upravitelj lozinki i prijava Googleom rade kao inače.",
+    signIn: "Prijavite se u pregledniku",
+    waiting: (time: string) => `Dovršite prijavu u pregledniku (još ${time}).`,
+    waitingHint: "Već ste prijavljeni na webu? Potvrdite ondje gumbom Prijavi Rail.",
+    openAgain: "Ponovno otvori stranicu",
+    cancel: "Odustani",
+    signedInAs: (email: string) => `Prijavljeni ste kao ${email}`,
+    online: "Povezano.",
+    offline: "Izvan mreže. Rail radi dalje i sam se ponovno povezuje.",
+    signOut: "Odjava",
+    notSignedIn: "Niste prijavljeni: ruke ostaju na ovom računalu.",
+    signingInShort: "Prijava u pregledniku…",
+    signingOut: "Odjavljivanje…",
+    failed: (reason: string) => `Nije uspjelo: ${reason}`,
+    notices: {
+      cancelled: "Prijava je otkazana u pregledniku.",
+      timedOut: "Prijava je trajala dulje od deset minuta. Pokušajte ponovno.",
+      notInProgress: "Taj link za prijavu bio je za raniji pokušaj ili je Rail u međuvremenu ponovno pokrenut. Pokušajte ponovno.",
+      invalidLink: "Taj link za prijavu nije valjan. Pokušajte ponovno.",
+      linkRejected: "Ta prijava je istekla ili je već iskorištena. Pokušajte ponovno.",
+      offline: "Rail nije mogao doći do poslužitelja da dovrši prijavu. Provjerite vezu i pokušajte ponovno.",
+      sessionEnded:
+        "Odjavljeni ste: sesija je završena na poslužitelju (npr. nakon promjene lozinke). Prijavite se ponovno.",
+      keychainUnavailable:
+        "Rail ne može koristiti sistemski spremnik ključeva, pa će nakon ponovnog pokretanja tražiti prijavu.",
+      signedOutLocally: "Odjavljeni ste na ovom računalu. Rail nije mogao doći do poslužitelja da ondje završi sesiju.",
+      browserFailed: "Rail nije mogao otvoriti preglednik. Upotrijebite Ponovno otvori stranicu.",
     },
   },
 

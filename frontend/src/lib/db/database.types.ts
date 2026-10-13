@@ -2438,6 +2438,7 @@ export type Database = {
       analysis_version_of: { Args: { p_filters: Json }; Returns: string }
       can_moderate_board: { Args: { p_board_id: string }; Returns: boolean }
       can_moderate_post: { Args: { p_public_id: string }; Returns: boolean }
+      claim_desktop_sign_in: { Args: never; Returns: undefined }
       create_comment: {
         Args: {
           p_anchor_action?: number

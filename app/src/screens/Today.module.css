@@ -53,3 +53,21 @@
   font-family: var(--font-family-mono);
   word-break: break-all;
 }
+
+.account {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  color: var(--text-secondary);
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-link);
+  cursor: pointer;
+  text-decoration: underline;
+}

@@ -34,6 +34,8 @@ rail-core = { path = "../../core/rail-core" }
 rail-config = { path = "../../core/rail-config" }
 rail-store = { path = "../../core/rail-store" }
 rail-watch = { path = "../../core/rail-watch" }
+# The desktop account (R1.7): the handoff, GoTrue, the refresh loop.
+rail-sync = { path = "../../core/rail-sync" }
 tauri = { version = "=2.11.5", features = ["tray-icon"] }
 tauri-plugin-log = "=2.9.1"
 # The first-run screen's "Add a folder manually..." folder picker (R1.4,
@@ -43,7 +45,20 @@ tauri-plugin-dialog = "=2.7.3"
 log = "0.4.34"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
-tauri-plugin-single-instance = "=2.4.4"
+# `deep-link`: a `rail://` link that starts a second process (Windows, Linux)
+# is forwarded to the running one and arrives as a deep-link event (R1.7).
+tauri-plugin-single-instance = { version = "=2.4.4", features = ["deep-link"] }
+# `rail://` links (R1.7, the sign-in callback). 2.4.10 is the last release
+# for tauri 2.10/2.11; 2.5 and later need tauri 2.12. Called from Rust only;
+# no plugin permission for the window.
+tauri-plugin-deep-link = "=2.4.10"
+# The session's refresh token in the OS keychain (R1.7): macOS Keychain,
+# Windows Credential Manager. Linux (not shipped) gets keyring's in-memory
+# store, so a Linux build signs in for one run only.
+keyring = { version = "=3.6.3", features = ["apple-native", "windows-native"] }
+# Opens the sign-in page in the default browser (R1.7).
+open = "=5.3.3"
+url = "=2.5.8"
 tauri-plugin-autostart = "=2.5.1"
 # `tauri` 2.11.5 asks for its own sub-crates with caret requirements, so a
 # fresh resolve pulls the 2.12 line of these, which does not compile against

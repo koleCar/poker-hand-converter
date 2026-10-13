@@ -40,6 +40,10 @@ const ALLOWED: ReadonlySet<string> = new Set([
   paths.notifications(),
   paths.saved(),
   paths.mod(),
+  // The desktop app's sign-in page (R1.7): a Google sign-in started there has
+  // to come back to it. Its request (`pub`, `state`) waits in sessionStorage,
+  // not in the URL, so the path alone is enough.
+  paths.desktopSignIn(),
 ]);
 
 /**

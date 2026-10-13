@@ -1,17 +1,21 @@
 /**
  * The first-run screen (R1.4; guideline §3 "Prvo pokretanje", §6): three
- * steps to the first HUD - sign in (R1.7, a placeholder for now), confirm
- * the hand-history folders Rail found, open a table. Shown on first launch
- * (`settings.firstRunDone`), reachable later from Settings (`#/setup`).
+ * steps to the first HUD - sign in (R1.7: through the browser, or "Use
+ * offline" - whether an account is required is open question Q3, so the app
+ * works without one), confirm the hand-history folders Rail found, open a
+ * table. Shown on first launch (`settings.firstRunDone`), reachable later
+ * from Settings (`#/setup`).
  */
 import { useEffect, useState } from "react";
 
+import { AccountPanel } from "../components/AccountPanel";
 import { FoundFolderTable, type FoundRow } from "../components/FoundFolderTable";
 import { ImportChoice } from "../components/ImportChoice";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { useT } from "../i18n";
 import { errorText, inApp, ipc, type Discovery } from "../lib/ipc";
 import { go } from "../lib/router";
+import { useAccount } from "../lib/useAccount";
 import styles from "./FirstRun.module.css";
 
 type Row = FoundRow;
@@ -28,6 +32,10 @@ export function FirstRun() {
   const [added, setAdded] = useState(0);
   const [picking, setPicking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const account = useAccount();
+  const [offline, setOffline] = useState(false);
+  const accountState = account.account?.state;
+  const signInCurrent = !offline && (accountState === "signedOut" || accountState === "signingIn");
 
   useEffect(() => {
     if (!inApp) {
@@ -112,15 +120,26 @@ export function FirstRun() {
     <>
       <ScreenHeader title={t.firstRun.title} lead={t.firstRun.lead} />
       <ol className={styles.steps}>
-        <li className={styles.step}>
-          <div className={styles.row}>
-            <h2 className={styles.heading}>{t.firstRun.signIn.heading}</h2>
-            <span className={styles.badge}>{t.firstRun.signIn.later}</span>
-          </div>
-          <p className={styles.body}>{t.firstRun.signIn.body}</p>
+        <li className={styles.step} aria-current={signInCurrent ? "step" : undefined}>
+          <h2 className={styles.heading}>{t.firstRun.signIn.heading}</h2>
+          {offline && accountState !== "signedIn" ? (
+            <p className={styles.muted}>{t.firstRun.signIn.offlineChosen}</p>
+          ) : (
+            <AccountPanel
+              account={account.account}
+              error={account.error}
+              busy={account.busy}
+              run={account.run}
+              allowSignOut={false}
+            >
+              <button type="button" className={styles.link} onClick={() => setOffline(true)}>
+                {t.firstRun.signIn.useOffline}
+              </button>
+            </AccountPanel>
+          )}
         </li>
 
-        <li className={styles.step} aria-current={phase === "done" ? undefined : "step"}>
+        <li className={styles.step} aria-current={signInCurrent || phase === "done" ? undefined : "step"}>
           <h2 className={styles.heading}>{d.heading}</h2>
           {phase === "done" ? (
             <p className={styles.success}>{d.added(added)}</p>

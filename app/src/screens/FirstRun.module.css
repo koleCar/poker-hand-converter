@@ -26,14 +26,6 @@
   font-size: var(--font-size-lg);
 }
 
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -57,14 +49,6 @@
 
 .success {
   color: var(--success-fg);
-}
-
-.badge {
-  padding: var(--space-0-5) var(--space-2);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
-  color: var(--text-tertiary);
-  font-size: var(--font-size-xs);
 }
 
 .button {

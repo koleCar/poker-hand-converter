@@ -2790,6 +2790,180 @@ exactly once, and the same files imported twice change nothing.
 - The app works offline after the first sign-in. Whether it may be used with no
   account at all is open question Q3.
 - Supabase redirect allow-list gets the new page; Google enabled (P7).
+- *As built* (§15):
+  - **Design: an encrypted one-time token, not a code exchange.** The app
+    makes a fresh **X25519 key pair and a 32-byte `state`** per sign-in, in
+    memory only, for ten minutes, and opens
+    `<web>/auth/desktop?v=1&pub=<public key>&state=<state>&t=<unix time>` in
+    the default browser. The page (`frontend/src/app/auth/desktop/`, strings
+    in `lib/i18n/ns/desktop.*.ts`) has the user sign in as on the web
+    (Turnstile, password managers, Google), shows "Sign in to the Rail app
+    on this computer with this account?" with the account's email, and on
+    the click calls the Edge Function **`desktop-handoff`**
+    (`supabase/functions/desktop-handoff/`, Deno, WebCrypto only, no
+    third-party code) with the user's access token. The function verifies
+    the token with GoTrue (`GET /auth/v1/user`), refuses anonymous,
+    email-less and **unconfirmed** accounts (a magic link confirms its
+    address), spends one unit of the per-account budget
+    `claim_desktop_sign_in()` (migration `20270421090000`, 10 an hour, called
+    **as the user**), mints a one-time magic-link token with the runtime's
+    service role (`admin/generate_link`, nothing emailed), checks it is for
+    the same user id, and returns it **sealed to `pub`** (ephemeral X25519,
+    HKDF-SHA-256, AES-256-GCM, `state` as associated data;
+    `rail-desktop-handoff/1`, `core/rail-sync/src/auth/handoff.rs` and
+    `handoff.ts`, one shared test vector). The page redirects to
+    `rail://auth/callback?state=..&payload=..`; the app checks `state`,
+    decrypts, and redeems the token at `POST /auth/v1/verify`, which gives it
+    **a session of its own** (its own refresh-token chain; the browser's
+    refresh token never reaches the app - copying it would make GoTrue's
+    reuse detection end both). A6's "PKCE" is realised by the key pair: the
+    secret that proves the caller is the app that started the flow never
+    leaves the app, as with a PKCE verifier, and nothing in the link is
+    usable without it.
+  - **Why not the alternatives.** Supabase's own PKCE flow exists only for
+    OAuth providers and email links, not for "hand this browser's session to
+    another client", and a `rail://` redirect from GoTrue would carry an
+    authorisation code any program registered for `rail` could redeem
+    (GoTrue's PKCE verifier would then sit in the browser, not the app). A
+    code table plus a redeem RPC (code in the link, verifier at redemption)
+    is equally safe but needs a table with cleanup and an **unauthenticated**
+    redeem endpoint holding the service role, plus the same `generate_link`
+    call; the sealed payload needs neither: one authenticated endpoint, no
+    server state beyond the rate-limit counter.
+  - **Threats.** *Interception* (another program registered for `rail`): it
+    gets ciphertext it cannot open; a second app instance's own sign-in has
+    a different key and state (checked end to end). *Replay*: the app takes
+    its pending sign-in out at the first callback with the right `state`,
+    whatever the outcome, so a link works once; GoTrue's token is
+    single-use too (checked: a second `/verify` is refused); the page marks
+    a state used, so a reload cannot send it again. *Lifetime*: the key pair
+    lives ten minutes in the app's memory (Rail restarted = the link finds
+    nothing); the page refuses a request older than ten minutes (same
+    machine, same clock). *CSRF / silent approval*: the function needs the
+    user's bearer token (no cookie, so another origin cannot call it as the
+    user), and the page never approves on load - a program that opens the
+    page with its own key still needs the user's click, and the page says
+    which account and to continue only if they just chose Sign in in Rail.
+    The page can only be framed by its own origin (`frame-ancestors 'self'`)
+    and sends no referrer. *Login CSRF* (a program that reads the address
+    bar's `pub` and `state` could seal a token for its own account to them):
+    needs code running as the user on that machine already; Settings and
+    Today show which account is signed in. *Token storage*: the refresh
+    token, user id and email are one keychain entry (`keyring` =3.6.3; macOS
+    Keychain, Windows Credential Manager; service `app.rail.desktop`,
+    account `session@<Supabase host>`, so a debug build against a local
+    stack never touches the real entry); the access token stays in memory;
+    tokens are `Secret` values whose `Debug` prints nothing; the function
+    logs outcome codes only; all Supabase calls are made from Rust, never
+    from the webview. A keychain that refuses still signs in for the run
+    (the notice says so). *Abuse*: 10 handoffs an hour per account.
+  - **App** (`app/src-tauri/src/account.rs`): `tauri-plugin-deep-link`
+    =2.4.10 (the last release for tauri 2.10/2.11; 2.5+ needs 2.12) registers
+    `rail` (`plugins.deep-link` in `tauri.conf.json`: the macOS bundle's
+    Info.plist, the Windows installer, and at run time on Windows/Linux);
+    `tauri-plugin-single-instance` gains its `deep-link` feature, so a link
+    that starts a second process (Windows) arrives in the running one; only
+    `rail://auth/...` is acted on. `open` =5.3.3 opens the browser. Commands
+    `account_status`, `account_sign_in`, `account_open_sign_in_page`,
+    `account_cancel_sign_in`, `account_sign_out`; event `account-changed`;
+    a second, disabled tray line ("Signed in as ...", "Not signed in",
+    "Working offline"). Window: Settings → Account (sign in, waiting with a
+    countdown, open the page again, cancel, signed in / offline, sign out,
+    each notice), the first-run screen's step 1 (the same panel plus "Use
+    offline"; Q3 stays open, so nothing requires an account), a line on
+    Today. Strings `en` + `hr`.
+  - **`rail-sync`** (`core/rail-sync/src/auth/`): `handoff` (key pair,
+    state, URL, strict callback parsing, decryption; `ring` for HKDF / AES-GCM
+    / randomness, `x25519-dalek` =2.0.1), `gotrue` (verify, refresh, logout
+    with `scope=local`: reqwest =0.13.5 with rustls =0.23.45 on the *ring*
+    provider - not aws-lc-rs - and the OS certificate verifier; no
+    redirects followed), `account` (the manager: one sign-in at a time,
+    refresh five minutes before expiry on the monotonic clock, backoff 30 s
+    doubling to 10 min while offline, signed out with a notice when GoTrue
+    refuses the refresh token, the refresh token rewritten to the keychain
+    as soon as it rotates, refresh / sign-in / sign-out serialised so a
+    refresh token is never sent twice). Configuration: `RAIL_SUPABASE_URL`
+    and `RAIL_WEB_URL` (default production), `RAIL_SUPABASE_ANON_KEY` (no
+    default: a build without it is "not configured" and works offline),
+    compiled in with `option_env!`; a debug build also reads them at run
+    time.
+  - **Tests.** Rust: 32 in `rail-sync` (handoff: tampering, wrong key, wrong
+    state, low-order point, content, strict callbacks, the Deno-made vector;
+    the manager against a fake GoTrue: completion, wrong state, no sign-in
+    in progress, cancel, verify refused / offline, another user's session,
+    rotation, refused refresh, offline, sign-out with and without an access
+    token, restore from the store, another project's entry ignored, broken
+    keychain, ten-minute timeout and the refresh loop on paused time), plus
+    the app's config and tray strings. Deno: 17 (`deno test
+    supabase/functions/`: payload round trip, tampering, the vector byte for
+    byte, request validation, the handler against a fake GoTrue - no JWT,
+    bad JWT, malformed body, unconfirmed / anonymous / email-less, budget,
+    a token for another account, CORS preflight, logs without secrets).
+    pgTAP: `desktop_sign_in.test.sql`, 14. CI: new job `functions` (Deno
+    fmt, lint, check, test; no secrets). **End to end, locally**
+    (`supabase/functions/desktop-handoff/e2e.sh <workdir>`: an isolated
+    stack with the function served, a fresh confirmed user, then
+    `cargo run -p rail-sync --example desktop_sign_in_e2e`): no JWT and a
+    forged JWT refused, the app signed in as the web user with its own
+    session, the link useless to a second app instance and spent after one
+    use, the one-time token refused the second time, refreshing the app and
+    the browser in turn ends neither, signing the app out ends only its
+    session, the eleventh handoff in an hour refused - all passed. The web
+    page was driven in a browser against the same stack (sign in with the
+    captcha test key, confirm, the `rail://` link's payload opened with the
+    test key; reload = "already sent", old `t` = "expired", malformed =
+    "incomplete", cancel), and the app's panels against a mocked IPC. Not
+    done here: a bundled app receiving a real `rail://` link (macOS routes
+    links to bundled apps only; no `tauri build` locally) - try it on the
+    CI bundle once production has the function.
+  - **Local-stack pitfall.** The repository's `supabase/.temp/gotrue-version`
+    pins the linked project's GoTrue (v2.187.0); with CLI 2.75's local keys
+    (an ES256 signing key beside the legacy HS256 service key) that GoTrue
+    refuses the service-role key on every admin call ("signing method HS256
+    is invalid"), so `generate_link` fails. Delete `.temp` in the stack's
+    copy (the CLI's default GoTrue, v2.186.0, accepts both). The same keys
+    are why the function runs with `verify_jwt = false`: the gateway's
+    legacy check rejects ES256 user tokens.
+  - **Needs the owner (production, not done here):**
+    1. Apply migration `20270421090000_desktop_sign_in.sql` (Management API,
+       `docs/DATABASE.md`); the client types in this PR already list
+       `claim_desktop_sign_in`.
+    2. Deploy the function: `supabase functions deploy desktop-handoff
+       --project-ref riybwcfnclphacnfawiq --no-verify-jwt` (no secrets to
+       set: it uses the runtime's `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
+       `SUPABASE_SERVICE_ROLE_KEY`).
+    3. Deploy the web (`/auth/desktop` reaches production with the next
+       promotion of `staging` to `main`).
+    4. Build the app with `RAIL_SUPABASE_ANON_KEY` = the public anon key
+       (the same value as Vercel's `NEXT_PUBLIC_SUPABASE_ANON_KEY`): a
+       repository **variable** (Settings, Secrets and variables, Actions,
+       Variables; not a secret). The CI `app` job already passes
+       `vars.RAIL_SUPABASE_ANON_KEY` to the build, so PR bundles sign in once
+       it is set (empty until then: "not configured"); the release workflow
+       (§12) must pass it too.
+       When the domain (P2/Q2) is chosen, set `RAIL_WEB_URL` too.
+    5. Redirect allow-list: **nothing new** - GoTrue never redirects to
+       `rail://` (the page does), and `/auth/callback?next=/auth/desktop` is
+       covered by the existing `https://poker-hand-converter.vercel.app/**`
+       entry. Add the domain's `/auth/callback**` when P2 lands.
+    6. Turnstile: nothing new (the page is on the web domain the widget
+       already allows).
+    7. Optional: Google (P7) - the page offers whatever the web's sign-in
+       dialog offers.
+    8. Before turning email confirmation on (Resend domain), note that the
+       function refuses unconfirmed accounts: users signed in unconfirmed
+       (`mailer_allow_unverified_email_sign_ins`) must confirm before the
+       app can sign in.
+  - **For R1.8 / R1.9**: take the bearer token from
+    `Account::access_token()` (refreshes when under 30 s remain; `None` when
+    signed out or offline - then keep the outbox and retry later); never
+    cache it across calls. A `401` from PostgREST means the session was
+    revoked: call `Account::refresh()`, which signs the app out (with a
+    notice) when GoTrue refuses. The account's id is in `AccountStatus`
+    (`userId`); the server takes the owner from `auth.uid()` anyway. Sync
+    only while signed in; signing out should stop the worker, and signing
+    in as another account must not send the previous account's outbox
+    (tag outbox rows with the user id or clear them on account change).
 
 ### R1.8 Supabase for desktop ingest — M
 - Migrations: `hand_sources`; `ingest_hands(rows jsonb)` (invoker; insert …
@@ -3092,7 +3266,7 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | **macOS permission friction**; poker clients with weak accessibility trees | "Works immediately" fails on Mac | Onboarding screen; `CGWindowList` fallback; test each allowed room's client |
 | **No Windows hardware** while the HUD starts on Windows | Phase 3 blocked | P5 now; simulator lets most work happen on the Mac |
 | **Database cost** at ~11 GB per million hands | Subscription price | A5 before R1.8 |
-| **Turnstile / auth inside the app** | Sign-in fails | A6 |
+| **Turnstile / auth inside the app** | Sign-in fails | A6; built in R1.7 (sign-in through the system browser) |
 | **Working-hours constraint** on the development machine | Long builds and agents slow down | CI does the heavy builds; local compute stays out of working hours |
 | **Public repository + future paid product** | Licensing surprise later | P8 |
 
@@ -3104,7 +3278,7 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | --- | --- | --- |
 | Q1 | ~~Accept or reject each amendment A1–A11 (§2).~~ All accepted 2026-10-12. | R0.2 |
 | Q2 | Which domain? | R1.7 |
-| Q3 | May the app be used with no account (local only), or is sign-in required? The guideline's three steps start with sign-in; local-first suggests it could be optional. | R1.7 |
+| Q3 | May the app be used with no account (local only), or is sign-in required? The guideline's three steps start with sign-in; local-first suggests it could be optional. R1.7 built it optional ("Use offline" on the first-run screen); requiring it is a small change. | R1.7 |
 | Q4 | Storage policy per hand (A5): drop `standard_text` for synced hands? originals to Storage always, opt-in, or never? | R1.8 |
 | Q5 | Windows test machine: a PC, or Parallels on the Mac? | Phase 3 |
 | Q6 | Which rooms first for the HUD after the compliance check? Suggested: PokerStars, Winamax, ACR. | R3.0 |
@@ -3142,3 +3316,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R1.4 done**: folder discovery and the first-run screen. `rail_watch::discover` expands each room's `sites.json` templates for this OS (`~`, `/`, `%VAR%`, drives; `*` / `?` levels such as account folders), bounded and sorted, and reports per folder the room, file count (the room's `files.glob`, else the watcher's extensions plus a 3-file detection sample), newest file date and whether it is watched; tested on a fake home. Verified on this Mac, read-only and structure only: **WePlay** writes live `HH*.txt` files under `~/Documents/hands/<account>/` (its `HandsHistoryDir` preference; default-ness not established); **GGPoker** and **CoinPoker** write no local hand histories (verified negatives, no path). Everything else stays unverified; R0.12's test is now `only_what_was_seen_is_verified`; how to verify a room on macOS or Windows: `docs/research/VERIFYING-PATHS.md`. "Only new hands": `FileReader::mark_read` (an empty batch to the file's complete end) and `Watcher::add_source_with(.., NewSource { site, only_new, .. })`, which marks before the watcher reads. Migration 0003 `sources.site`; a folder found for a room reads only the room's `files.glob`. The app opens on the first-run screen until it is finished or skipped (`firstRunDone`): sign in (placeholder), the found folders with checkboxes, "Add a folder manually..." (the system picker, now in release builds), "Import everything" / "Only new hands", open a table; reachable from Settings and Today; `en` / `hr`. The debug-only "Add a folder" button is gone. |
 | 2026-10-13 | **R1.5 done**: Settings → Folders. Each watched folder with its room, state, last import, hands today, hands, files, problems and refused hands (reason codes with counts, then messages; `Reader::source_quarantine` through `files.source_id`), and its controls: on / off (hands kept), include subfolders, poll only, the room chosen by hand when detection fails, change folder, remove (a dialog says the hands stay); add a folder by hand (picker; "import everything" / "only new hands", subfolders, polling) and find the rooms' folders again. **Edit path**: one `rail-store` transaction keeps the folder's id and settings, moves the rows of the files found again under the new path **with their offsets** (a moved or copied folder continues where it stopped) and detaches the others with their hands (none found = remove + add); tested both ways in the store and on the watcher. **Room override**: `set_source_site_override` resets the files the new choice reads differently (with their quarantine) in the same transaction and the watcher reads them again; the reader records the forced parser as `files.site`. New writer methods `set_source_recursive`, `set_source_site_override`, `set_source_path`; no migration (schema stays 3). Thin Tauri commands with path checks (absolute, no `..`, an existing directory). The first-run table and import choice are shared components; `<dialog>` modals; `en` / `hr`; checked in a browser against a mocked IPC. |
 | 2026-10-13 | **R1.6 done**: the import pipeline. A rayon pool of import threads (physical cores - 1, at most 8; `Watcher::set_import_threads` as the play-time hook), live files ahead of a backfill, a large read cut into batches of 500 hands converted in parallel and committed in order with their own offsets, batches waiting together committed in one transaction with a savepoint each (crash and random-append tests green; the crash test now commits in groups). Backfill progress per folder (bytes of bytes, files, hands, time left) on `SourceStatus`, as events, in the tray ("Importing 37% · …"), on Today and the folder cards; the window reloads on `watcher-changed`. Refused hands: raw text dialog, an app-wide view by reason, "Try again after an update" (files with refusals by another parser version reset and read again). Migration 0004 rollups (`files.hands`/`quarantined`, `source_totals`, `source_days`): `Watcher::status()` 42.7 ms at 90k hands before, ~0.05 ms at 500k now. Benchmark `rail-watch --example import_bench` on a generated dataset (the corpus with permuted hand-id digits, 431 files, 19 parsers, never committed): M2 Pro 10 300 hands/s at 100k (8 threads), 9 170 at 500k (1.51 GB store, 3.18 KB/hand); the guideline's 5 000 is met there; CI's macos-latest (Apple M1 Virtual, 3 cores) measured 3 926 / 4 615 and 4 782 / 5 264 hands/s, so job `import-bench` is a regression guard calibrated to that runner: best of three runs >= 3 500 hands/s. Found on Linux CI and fixed: inotify's open events from the watcher's own reads, plus a reader that opened unchanged read-whole (iPoker) files on every look, kept two files cycling at the front of the queue (`an_unchanged_file_is_not_opened`). |
+| 2026-10-13 | **R1.7 done**: desktop sign-in through the system browser (A6). The app makes an X25519 key pair and a state per sign-in (memory only, ten minutes) and opens `/auth/desktop`; after the user signs in and confirms there, the Edge Function `desktop-handoff` (Deno, WebCrypto) verifies the caller's JWT with GoTrue, refuses unconfirmed / anonymous accounts, spends the per-account budget `claim_desktop_sign_in()` (migration `20270421090000`, 10 an hour, as the user), mints a one-time magic-link token with the service role and returns it encrypted to the app's key; the page redirects to `rail://auth/callback`, the app decrypts and redeems it at `/verify` for a session of its own. Refresh token in the OS keychain (`keyring` =3.6.3), access token in memory, background refresh with backoff, sign-out ends only the app's session. `tauri-plugin-deep-link` =2.4.10, single-instance with `deep-link`. `rail-sync::auth` (handoff, GoTrue client on reqwest + rustls/*ring*, the manager). Settings → Account, first-run step 1 with "Use offline" (Q3 open), Today and tray lines; `en` + `hr`. Tests: Rust 32 + app, Deno 17 (new CI job `functions`), pgTAP 14; end to end against a local stack (interception, replay, independence of the two sessions, sign-out, budget) and the page in a browser. Production untouched: the owner's checklist is under R1.7 *As built*. |

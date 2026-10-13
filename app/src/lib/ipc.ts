@@ -243,6 +243,29 @@ export interface ConvertSummary {
   millis: number;
 }
 
+/** `rail_sync::auth::Notice`: something to tell the user once (R1.7). */
+export type AccountNotice =
+  | "cancelled"
+  | "timedOut"
+  | "notInProgress"
+  | "invalidLink"
+  | "linkRejected"
+  | "offline"
+  | "sessionEnded"
+  | "keychainUnavailable"
+  | "signedOutLocally"
+  | "browserFailed";
+
+/** `rail_sync::auth::AccountStatus`: the desktop account (R1.7). */
+export type AccountStatus =
+  /** This build has no account service: Rail works on this computer only. */
+  | { state: "notConfigured" }
+  | { state: "signedOut"; notice: AccountNotice | null }
+  /** Waiting for the browser; `url` is the page, to open again. */
+  | { state: "signingIn"; url: string; secondsLeft: number; notice: AccountNotice | null }
+  /** `online`: the last refresh reached the server. */
+  | { state: "signedIn"; email: string; userId: string; online: boolean; notice: AccountNotice | null };
+
 /** False in a plain browser (`npm run dev` without Tauri). */
 export const inApp = isTauri();
 
@@ -282,6 +305,12 @@ export const ipc = {
   quarantineRawText: (id: number) => invoke<string | null>("quarantine_raw_text", { id }),
   /** Read again what an older parser refused. Returns the files read again. */
   retryRefused: (sourceId: number | null) => invoke<number>("retry_refused", { sourceId }),
+  /** The account (R1.7). Signing in opens the web's sign-in page in the default browser. */
+  accountStatus: () => invoke<AccountStatus>("account_status"),
+  accountSignIn: () => invoke<AccountStatus>("account_sign_in"),
+  accountOpenSignInPage: () => invoke<AccountStatus>("account_open_sign_in_page"),
+  accountCancelSignIn: () => invoke<AccountStatus>("account_cancel_sign_in"),
+  accountSignOut: () => invoke<AccountStatus>("account_sign_out"),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),
@@ -294,12 +323,21 @@ export const ipc = {
  * function that stops listening. Outside the app it does nothing.
  */
 export function onWatcherChanged(onChange: () => void): () => void {
+  return onAppEvent("watcher-changed", onChange);
+}
+
+/** Call `onChange` whenever the account's status changed (R1.7). */
+export function onAccountChanged(onChange: () => void): () => void {
+  return onAppEvent("account-changed", onChange);
+}
+
+function onAppEvent(name: string, onChange: () => void): () => void {
   if (!inApp) {
     return () => undefined;
   }
   let stop: (() => void) | null = null;
   let stopped = false;
-  listen("watcher-changed", onChange)
+  listen(name, onChange)
     .then((unlisten) => {
       if (stopped) {
         unlisten();
