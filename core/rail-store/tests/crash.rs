@@ -270,6 +270,36 @@ fn run_child(db: &Path, kill: Kill) -> Run {
 /// how many files it holds.
 fn check_consistent(db: &Path, expected: &BTreeMap<String, Expected>) -> u64 {
     let conn = Connection::open(db).expect("open after the kill");
+    // A kill before the last migration committed leaves an older schema (or
+    // none: version 0 is an empty file). Each migration is one transaction and
+    // nothing is imported until the store is open, so such a file must be
+    // sound and hold no hands; the next child finishes the migration.
+    let version: u32 = conn
+        .query_row("PRAGMA user_version", [], |row| row.get(0))
+        .expect("user_version");
+    if version < rail_store::migrate::LATEST {
+        let integrity: String = conn
+            .query_row("PRAGMA integrity_check", [], |row| row.get(0))
+            .expect("integrity_check");
+        assert_eq!(
+            integrity, "ok",
+            "integrity_check at schema version {version}"
+        );
+        let has_hands: bool = conn
+            .query_row(
+                "SELECT count(*) > 0 FROM sqlite_master WHERE type = 'table' AND name = 'hands'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("sqlite_master");
+        if has_hands {
+            let stored: i64 = conn
+                .query_row("SELECT count(*) FROM hands", [], |row| row.get(0))
+                .expect("count hands");
+            assert_eq!(stored, 0, "hands stored before the schema was complete");
+        }
+        return 0;
+    }
     assert_integrity(&conn);
     let snap = snapshot(&conn);
 
