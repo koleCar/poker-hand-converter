@@ -22,7 +22,15 @@ rail-store = { path = "../rail-store" }
 # shapes and latencies are part of the watcher's behaviour.
 notify = { version = "=8.2.0", default-features = false, features = ["macos_fsevent"] }
 log = "0.4.34"
+# The import threads (R1.6): files in parallel, and the batches of one large
+# read in parallel on the same threads (work stealing, no oversubscription).
+rayon = "=1.12.0"
+# Physical cores, for the default number of import threads (logical cores
+# double-count SMT siblings, which add little to this CPU-bound work).
+num_cpus = "=1.17.0"
 
 [dev-dependencies]
 serde_json = "1.0.154"
+# Tests write to the store from outside (an older parser version's refusal).
+rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled"] }
 sha2 = "0.11.0"

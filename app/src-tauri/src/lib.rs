@@ -27,7 +27,10 @@
 //!   the window);
 //! - Settings, Folders ([`folder_settings`], R1.5): add a folder by hand,
 //!   change its path or room, switch it on or off, recursive, poll only,
-//!   remove it, and its refused hands with their reasons.
+//!   remove it, and its refused hands with their reasons;
+//! - the import pipeline's face (R1.6): backfill progress in the tray and
+//!   the window (`watch::CHANGED_EVENT`), refused hands app-wide with their
+//!   raw text and "Try again after an update" ([`quarantine`]).
 
 use std::sync::Mutex;
 
@@ -40,6 +43,7 @@ pub mod commands;
 pub mod dev;
 pub mod folder_settings;
 pub mod folders;
+pub mod quarantine;
 pub mod settings;
 pub mod strings;
 pub mod tray;
@@ -192,6 +196,10 @@ pub fn run() {
         folder_settings::remove_folder,
         folder_settings::folder_rooms,
         folder_settings::folder_quarantine,
+        quarantine::quarantine_summary,
+        quarantine::quarantine_entries,
+        quarantine::quarantine_raw_text,
+        quarantine::retry_refused,
         dev::dev_pick_file,
         dev::convert_file,
     ]);
@@ -218,6 +226,10 @@ pub fn run() {
         folder_settings::remove_folder,
         folder_settings::folder_rooms,
         folder_settings::folder_quarantine,
+        quarantine::quarantine_summary,
+        quarantine::quarantine_entries,
+        quarantine::quarantine_raw_text,
+        quarantine::retry_refused,
     ]);
 
     let app = builder

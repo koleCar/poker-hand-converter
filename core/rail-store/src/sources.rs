@@ -48,7 +48,108 @@ pub struct OverrideChange {
     pub reset: u32,
 }
 
+/// A file set back to offset 0 to be read again
+/// ([`WriterHandle::reset_stale_refusals`]).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ResetFile {
+    /// `files.path`.
+    pub path: String,
+    /// Its folder.
+    pub source_id: i64,
+}
+
+/// The parsers this build has with their versions, for comparing a
+/// refusal's `parser_version` with today's: a JSON object `{ "id":
+/// "version", ... }` for SQLite's `json_each`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParserVersions(String);
+
+impl ParserVersions {
+    /// From `(parser id, version)` pairs.
+    pub fn new<'a>(versions: impl IntoIterator<Item = (&'a str, &'a str)>) -> Self {
+        let body: Vec<String> = versions
+            .into_iter()
+            .map(|(id, version)| format!("{}:{}", json_string(id), json_string(version)))
+            .collect();
+        Self(format!("{{{}}}", body.join(",")))
+    }
+
+    /// The JSON object.
+    pub fn as_json(&self) -> &str {
+        &self.0
+    }
+}
+
+/// `text` as a JSON string literal.
+fn json_string(text: &str) -> String {
+    let mut out = String::with_capacity(text.len() + 2);
+    out.push('"');
+    for ch in text.chars() {
+        match ch {
+            '"' | '\\' => {
+                out.push('\\');
+                out.push(ch);
+            }
+            ch if u32::from(ch) < 0x20 => out.push_str(&format!("\\u{:04x}", u32::from(ch))),
+            ch => out.push(ch),
+        }
+    }
+    out.push('"');
+    out
+}
+
+/// The files (of watched folders; of one folder when `?2` is set) with a
+/// refusal made by a parser whose version is not this build's (`?1`, a
+/// [`ParserVersions`] object). A refusal with no parser (`detected_site`
+/// NULL, version `0`) or by a parser this build does not have is not
+/// stale: reading it again would refuse it the same way.
+pub(crate) const STALE_FILES: &str = "SELECT DISTINCT q.file_id FROM quarantine q
+     JOIN files f ON f.id = q.file_id
+     WHERE f.source_id IS NOT NULL AND (?2 IS NULL OR f.source_id = ?2)
+       AND EXISTS (SELECT 1 FROM json_each(?1) j
+                    WHERE j.key = q.detected_site AND j.value <> q.parser_version)";
+
 impl WriterHandle {
+    /// "Try again after an update" (R1.6): every file of a watched folder
+    /// (of folder `source_id`, or of all of them) holding a refused hand
+    /// that an older (or other) version of its parser refused goes back to
+    /// offset 0 with its quarantine rows, in one transaction - the reset a
+    /// change of room does ([`WriterHandle::set_source_site_override`]).
+    /// The watcher then reads them again with today's parsers; hands stay
+    /// and dedupe, refusals that remain are recorded anew. Returns the
+    /// files reset.
+    pub fn reset_stale_refusals(
+        &self,
+        versions: &ParserVersions,
+        source_id: Option<i64>,
+    ) -> Result<Vec<ResetFile>> {
+        let versions = versions.as_json().to_owned();
+        self.write(move |tx| {
+            let files: Vec<(i64, String, i64)> = tx
+                .prepare(&format!(
+                    "SELECT f.id, f.path, f.source_id FROM files f WHERE f.id IN ({STALE_FILES})"
+                ))?
+                .query_map(params![versions, source_id], |row| {
+                    Ok((row.get(0)?, row.get(1)?, row.get(2)?))
+                })?
+                .collect::<Result<_, _>>()?;
+            let mut delete = tx.prepare_cached("DELETE FROM quarantine WHERE file_id = ?1")?;
+            let mut reset = tx.prepare_cached(
+                "UPDATE files SET read_offset = 0, size = 0, mtime = NULL, encoding = NULL,
+                                  site = NULL, last_error = NULL
+                 WHERE id = ?1",
+            )?;
+            for (id, _, _) in &files {
+                delete.execute([id])?;
+                reset.execute([id])?;
+            }
+            Ok(files
+                .into_iter()
+                .map(|(_, path, source_id)| ResetFile { path, source_id })
+                .collect())
+        })
+    }
+
     /// Add a watched folder, or return the id it already has (an existing
     /// row is left as it is).
     pub fn add_source(
@@ -260,6 +361,7 @@ fn move_source(
         ..PathChange::default()
     };
     let mut kept: HashSet<i64> = HashSet::new();
+    let mut adopted_from: Vec<i64> = Vec::new();
     for file in moves {
         let row: Option<i64> = tx
             .query_row(
@@ -290,6 +392,12 @@ fn move_source(
                 change.moved += 1;
             }
             Some(other) => {
+                let previous: Option<i64> = tx.query_row(
+                    "SELECT source_id FROM files WHERE id = ?1",
+                    [other],
+                    |row| row.get(0),
+                )?;
+                adopted_from.extend(previous.filter(|previous| *previous != id));
                 tx.execute(
                     "UPDATE files SET source_id = ?2 WHERE id = ?1",
                     params![other, id],
@@ -307,5 +415,30 @@ fn move_source(
         tx.execute("UPDATE files SET source_id = NULL WHERE id = ?1", [row])?;
         change.detached += 1;
     }
+    // "Hands today" follows the files that moved, here and in the folders
+    // an adopted file came from (the other days are never shown).
+    for source in std::iter::once(id).chain(adopted_from) {
+        refresh_today(tx, source)?;
+    }
     Ok(change)
+}
+
+/// Recount a folder's `source_days` row for today from its files' hands
+/// (after files changed folders; the writer keeps it as hands arrive).
+fn refresh_today(tx: &Transaction<'_>, source_id: i64) -> Result<()> {
+    tx.execute(
+        "DELETE FROM source_days WHERE source_id = ?1 AND day = date('now', 'localtime')",
+        [source_id],
+    )?;
+    tx.execute(
+        "INSERT INTO source_days (source_id, day, hands)
+         SELECT ?1, date('now', 'localtime'), count(*)
+         FROM hands h JOIN files f ON f.id = h.file_id
+         WHERE f.source_id = ?1
+           AND h.imported_at >= CAST(strftime('%s', 'now', 'localtime', 'start of day', 'utc')
+                                     AS INTEGER) * 1000
+         HAVING count(*) > 0",
+        [source_id],
+    )?;
+    Ok(())
 }

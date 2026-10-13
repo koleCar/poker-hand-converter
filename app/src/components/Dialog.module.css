@@ -11,6 +11,10 @@
   box-shadow: var(--shadow-2);
 }
 
+.wide {
+  width: min(900px, calc(100vw - var(--space-8)));
+}
+
 .dialog:not([open]) {
   display: none;
 }

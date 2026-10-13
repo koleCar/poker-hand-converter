@@ -12,9 +12,9 @@
 //! - [`scan`]: which files of a folder are read (a room's `files.glob`, or
 //!   the hand-history extensions), and network volumes.
 //! - [`watcher`]: the service the app runs - OS notifications (`notify`)
-//!   plus a periodic rescan, polling only for network folders, a small
-//!   worker pool, pause / resume, folders in the store's `sources`, status
-//!   events.
+//!   plus a periodic rescan, polling only for network folders, a pool of
+//!   import threads (rayon, R1.6) with live files first, pause / resume,
+//!   folders in the store's `sources`, backfill progress, status events.
 //! - [`discover`]: the rooms' default folders from `config/sites.json` that
 //!   exist here, with file counts and the newest file's date.
 //!
@@ -28,8 +28,8 @@ pub mod scan;
 pub mod watcher;
 
 pub use error::{Error, Result};
-pub use reader::{FileReader, FileRef, FileTrack, Polled, ReadConfig};
+pub use reader::{FileReader, FileRef, FileTrack, ImportLimits, Polled, ReadConfig};
 pub use watcher::{
-    AddedSource, NewSource, SourceMoved, SourceState, SourceStatus, WatchConfig, WatchEvent,
-    Watcher, WatcherStatus,
+    AddedSource, Backfill, NewSource, SourceMoved, SourceState, SourceStatus, WatchConfig,
+    WatchEvent, Watcher, WatcherStatus, default_workers,
 };

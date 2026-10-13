@@ -281,6 +281,36 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+  # The import benchmark (docs/RAIL-PLAN.md R1.6; guideline §1: local import
+  # of old hands >= 5,000 hands/s), on the macOS runner the plan names. The
+  # example builds a GENERATED dataset of ~100k hands on the fly in the
+  # runner's temp directory (the corpus with rewritten hand ids; nothing is
+  # committed, nothing goes under testdata/ or a fixture tree), imports it
+  # through the real watcher into an empty store, and fails when fewer than
+  # 5,000 hands are stored per second. Release profile as shipped (thin LTO),
+  # cached by rust-cache. Import threads: every core of the runner (3 on
+  # macos-latest); the app's default is physical cores - 1, capped at 8.
+  # Two runs, the better one counts: a shared runner is noisy.
+  import-bench:
+    name: Import benchmark (macOS, >= 5,000 hands/s)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: import-bench
+
+      - name: Build (release)
+        run: cargo build --release --locked -p rail-watch --example import_bench
+
+      - name: Import 100k generated hands into an empty store
+        run: |
+          sysctl -n machdep.cpu.brand_string hw.ncpu hw.memsize || true
+          ./target/release/examples/import_bench \
+            --hands 100000 --workers "$(sysctl -n hw.ncpu)" --runs 2 --min-rate 5000 \
+            --dir "$RUNNER_TEMP/rail-import-bench"
+
   # The WebAssembly core and shadow mode (docs/RAIL-PLAN.md R0.13): the core
   # built for the browser with wasm-bindgen, its size held to the plan's
   # budget (< 1.5 MB gzipped), and then run next to the TypeScript pipeline

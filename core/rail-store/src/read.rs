@@ -137,8 +137,7 @@ impl Reader {
             let mut stmt = conn.prepare_cached(&format!(
                 "SELECT f.id, f.path, f.source_id, f.size, f.read_offset, f.encoding, f.site,
                         f.last_error, f.last_import_at,
-                        (SELECT count(*) FROM hands h WHERE h.file_id = f.id),
-                        (SELECT count(*) FROM quarantine q WHERE q.file_id = f.id)
+                        f.hands, f.quarantined
                  FROM files f
                  WHERE {filter}
                  ORDER BY f.last_import_at DESC, f.path"
@@ -162,24 +161,25 @@ impl Reader {
         })
     }
 
-    /// Every watched folder with its counts.
+    /// Every watched folder with its counts. Constant cost per folder
+    /// whatever the number of hands: the counts are the rollups of schema
+    /// version 4 (`source_totals`, `source_days`), the newest import one
+    /// index seek.
     pub fn sources(&self) -> Result<Vec<SourceSummary>> {
         self.with(|conn| {
-            let mut stmt = conn.prepare_cached(&format!(
+            let mut stmt = conn.prepare_cached(
                 "SELECT s.id, s.path, s.site_override, s.enabled, s.recursive, s.status,
                         s.last_error, s.poll_only,
-                        (SELECT count(*) FROM files f WHERE f.source_id = s.id),
-                        (SELECT count(*) FROM hands h JOIN files f ON f.id = h.file_id
-                          WHERE f.source_id = s.id),
-                        (SELECT count(*) FROM hands h JOIN files f ON f.id = h.file_id
-                          WHERE f.source_id = s.id AND h.imported_at >= {TODAY_START_MS}),
-                        (SELECT count(*) FROM quarantine q JOIN files f ON f.id = q.file_id
-                          WHERE f.source_id = s.id),
+                        coalesce(t.files, 0), coalesce(t.hands, 0),
+                        coalesce((SELECT d.hands FROM source_days d
+                                   WHERE d.source_id = s.id
+                                     AND d.day = date('now', 'localtime')), 0),
+                        coalesce(t.quarantined, 0),
                         (SELECT max(f.last_import_at) FROM files f WHERE f.source_id = s.id),
                         s.site
-                 FROM sources s
-                 ORDER BY s.path"
-            ))?;
+                 FROM sources s LEFT JOIN source_totals t ON t.source_id = s.id
+                 ORDER BY s.path",
+            )?;
             let rows = stmt.query_map([], |row| {
                 Ok(SourceSummary {
                     id: row.get(0)?,
@@ -198,6 +198,50 @@ impl Reader {
                     last_import_at: row.get(12)?,
                 })
             })?;
+            Ok(rows.collect::<Result<_, _>>()?)
+        })
+    }
+
+    /// The folder counts recomputed from the rows themselves, the way R1.5
+    /// counted them (a join per folder; slow on a large store): what
+    /// [`Reader::sources`]' rollups must equal. For tests and checks.
+    /// `hands_today` here is the hands imported since local midnight whose
+    /// file is the folder's now; the rollup counts them for the folder that
+    /// stored them (the same unless a file changed folders today).
+    pub fn sources_recounted(&self) -> Result<Vec<SourceCounts>> {
+        self.with(|conn| {
+            let mut stmt = conn.prepare_cached(&format!(
+                "SELECT s.id,
+                        (SELECT count(*) FROM files f WHERE f.source_id = s.id),
+                        (SELECT count(*) FROM hands h JOIN files f ON f.id = h.file_id
+                          WHERE f.source_id = s.id),
+                        (SELECT count(*) FROM hands h JOIN files f ON f.id = h.file_id
+                          WHERE f.source_id = s.id AND h.imported_at >= {TODAY_START_MS}),
+                        (SELECT count(*) FROM quarantine q JOIN files f ON f.id = q.file_id
+                          WHERE f.source_id = s.id)
+                 FROM sources s
+                 ORDER BY s.path"
+            ))?;
+            let rows = stmt.query_map([], |row| {
+                Ok(SourceCounts {
+                    id: row.get(0)?,
+                    files: row.get(1)?,
+                    hands: row.get(2)?,
+                    hands_today: row.get(3)?,
+                    quarantined: row.get(4)?,
+                })
+            })?;
+            Ok(rows.collect::<Result<_, _>>()?)
+        })
+    }
+
+    /// The stored read offset of every file of a folder, by path: what the
+    /// watcher needs to know how many bytes a backfill has to read.
+    pub fn source_offsets(&self, source_id: i64) -> Result<Vec<(String, i64)>> {
+        self.with(|conn| {
+            let mut stmt =
+                conn.prepare_cached("SELECT path, read_offset FROM files WHERE source_id = ?1")?;
+            let rows = stmt.query_map([source_id], |row| Ok((row.get(0)?, row.get(1)?)))?;
             Ok(rows.collect::<Result<_, _>>()?)
         })
     }
@@ -246,23 +290,58 @@ impl Reader {
                  ORDER BY q.last_seen DESC, q.id DESC
                  LIMIT ?1"
             ))?;
-            let rows = stmt.query_map(params![limit, source_id], |row| {
-                Ok(QuarantineEntry {
-                    id: row.get(0)?,
-                    file_path: row.get(1)?,
-                    read_offset: row.get(2)?,
-                    chunk_index: row.get(3)?,
-                    fingerprint: row.get(4)?,
-                    stage: row.get(5)?,
-                    reason: row.get(6)?,
-                    message: row.get(7)?,
-                    detected_site: row.get(8)?,
-                    parser_version: row.get(9)?,
-                    first_seen: row.get(10)?,
-                    last_seen: row.get(11)?,
-                })
-            })?;
+            let rows = stmt.query_map(params![limit, source_id], quarantine_row)?;
             Ok(rows.collect::<Result<_, _>>()?)
+        })
+    }
+
+    /// The quarantine filtered by folder and / or reason code, most recent
+    /// first, without the raw text: the app-wide "Refused hands" view
+    /// (R1.6) lists one reason at a time.
+    pub fn quarantine_filtered(
+        &self,
+        source_id: Option<i64>,
+        reason: Option<&str>,
+        limit: u32,
+    ) -> Result<Vec<QuarantineEntry>> {
+        self.with(|conn| {
+            let mut stmt = conn.prepare_cached(
+                "SELECT q.id, f.path, q.read_offset, q.chunk_index, q.fingerprint, q.stage,
+                        q.reason, q.message, q.detected_site, q.parser_version, q.first_seen,
+                        q.last_seen
+                 FROM quarantine q JOIN files f ON f.id = q.file_id
+                 WHERE (?2 IS NULL OR f.source_id = ?2) AND (?3 IS NULL OR q.reason = ?3)
+                 ORDER BY q.last_seen DESC, q.id DESC
+                 LIMIT ?1",
+            )?;
+            let rows = stmt.query_map(params![limit, source_id, reason], quarantine_row)?;
+            Ok(rows.collect::<Result<_, _>>()?)
+        })
+    }
+
+    /// Refused hands (rows) and files that "Try again after an update"
+    /// would read again: refusals of watched folders' files (of one folder
+    /// when `source_id` is set) made by a parser version other than this
+    /// build's (see [`crate::WriterHandle::reset_stale_refusals`]).
+    pub fn stale_refusals(
+        &self,
+        versions: &crate::ParserVersions,
+        source_id: Option<i64>,
+    ) -> Result<StaleRefusals> {
+        self.with(|conn| {
+            let (hands, files): (i64, i64) = conn.query_row(
+                &format!(
+                    "SELECT count(*), count(DISTINCT q.file_id) FROM quarantine q
+                     WHERE q.file_id IN ({})
+                       AND EXISTS (SELECT 1 FROM json_each(?1) j
+                                    WHERE j.key = q.detected_site
+                                      AND j.value <> q.parser_version)",
+                    crate::sources::STALE_FILES
+                ),
+                params![versions.as_json(), source_id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )?;
+            Ok(StaleRefusals { hands, files })
         })
     }
 
@@ -364,6 +443,23 @@ impl Reader {
     }
 }
 
+fn quarantine_row(row: &Row<'_>) -> rusqlite::Result<QuarantineEntry> {
+    Ok(QuarantineEntry {
+        id: row.get(0)?,
+        file_path: row.get(1)?,
+        read_offset: row.get(2)?,
+        chunk_index: row.get(3)?,
+        fingerprint: row.get(4)?,
+        stage: row.get(5)?,
+        reason: row.get(6)?,
+        message: row.get(7)?,
+        detected_site: row.get(8)?,
+        parser_version: row.get(9)?,
+        first_seen: row.get(10)?,
+        last_seen: row.get(11)?,
+    })
+}
+
 fn unsupported_row(row: &Row<'_>) -> rusqlite::Result<UnsupportedEntry> {
     Ok(UnsupportedEntry {
         fingerprint: row.get(0)?,
@@ -447,6 +543,26 @@ pub struct SourceSummary {
     pub hands_today: i64,
     pub quarantined: i64,
     pub last_import_at: Option<i64>,
+}
+
+/// A folder's counts, recomputed from the rows ([`Reader::sources_recounted`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SourceCounts {
+    pub id: i64,
+    pub files: i64,
+    pub hands: i64,
+    pub hands_today: i64,
+    pub quarantined: i64,
+}
+
+/// What "Try again after an update" would read again
+/// ([`Reader::stale_refusals`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct StaleRefusals {
+    /// Refused hands an older parser version refused.
+    pub hands: i64,
+    /// Files holding them.
+    pub files: i64,
 }
 
 /// A refused chunk, for the list (raw text separately).

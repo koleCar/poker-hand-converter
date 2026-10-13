@@ -234,6 +234,27 @@ pub fn convert_any_with(
     run(registry, checks, text, options, None)
 }
 
+/// [`convert_any`] for a caller that has already run
+/// [`Registry::detect_site`] on this same `text` with the built-in parsers
+/// (the desktop's incremental reader does, to split the text before it
+/// converts it): the same result, without detecting twice - which is what
+/// [`convert_file_with`] does with its own detection. `detected` must be
+/// `crate::parsers::builtin().detect_site(text)`; with `options.site_id`
+/// set it is not used, as in [`convert_any`].
+pub fn convert_any_detected<'r>(
+    text: &str,
+    options: &ConvertOptions,
+    detected: Vec<DetectionCandidate<'r>>,
+) -> Result<ConversionResult, JsError> {
+    run(
+        crate::parsers::builtin(),
+        &CoreChecks,
+        text,
+        options,
+        Some(detected),
+    )
+}
+
 /// Collects failures the way `convertAny`'s `fail` does.
 struct Failures<'o> {
     list: Vec<ConversionFailure>,
@@ -872,5 +893,28 @@ mod tests {
         let file = convert_with(&Registry::new(), &Passing::default(), b"", "empty.txt");
         assert_eq!(file.problem, Some(SourceProblem::Empty));
         assert!(file.result.is_none() && file.detected.is_empty());
+    }
+
+    /// Handing over the detection the caller already ran on the same text
+    /// changes nothing in the result (corpus files of three formats).
+    #[test]
+    fn convert_any_detected_equals_convert_any() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        for file in [
+            "fixtures/samples/partypoker/14-multiple-hands-concatenated.txt",
+            "fixtures/samples/888poker/13-invalid-hand-truncated-flop.txt",
+            "fixtures/samples/pokerbros/02-cash-nlhe-pokerstars-dialect-same-hand.txt",
+        ] {
+            let bytes = std::fs::read(root.join(file)).expect("corpus file");
+            let text = decode_source(&bytes).text;
+            let options = ConvertOptions::default();
+            let detected = crate::parsers::builtin().detect_site(&text);
+            assert!(!detected.is_empty(), "{file}");
+            assert_eq!(
+                super::convert_any_detected(&text, &options, detected),
+                super::convert_any(&text, &options),
+                "{file}"
+            );
+        }
     }
 }

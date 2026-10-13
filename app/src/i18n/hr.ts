@@ -212,10 +212,6 @@ export const hr: Dict = {
       refusedLead:
         "Rail nije mogao pročitati ove ruke. Čuvaju se, kako bi ih kasnija verzija mogla pročitati; razlog kaže zašto.",
       byReason: "Po razlogu",
-      refusedFile: "Datoteka",
-      refusedReason: "Razlog",
-      refusedMessage: "Detalji",
-      refusedSeen: "Zadnji put",
       refusedMore: (shown, total) => `Prikazano je najnovijih ${shown} od ${total}.`,
 
       settingsOf: (path) => `Postavke za ${path}`,
@@ -315,6 +311,59 @@ export const hr: Dict = {
     time: "Vrijeme",
   },
 
+  backfill: {
+    of: (path) => `Uvoz ruku iz mape ${path}`,
+    title: (percent) => `Uvoz starih ruku: ${percent} %`,
+    estimating: "Procjenjuje se preostalo vrijeme…",
+    left: (seconds) =>
+      seconds < 60
+        ? "Još manje od minute"
+        : seconds < 5400
+          ? `Još oko ${Math.round(seconds / 60)} min`
+          : `Još oko ${Math.round(seconds / 3600)} h`,
+    detail: (mbDone, mbTotal, filesDone, filesTotal, hands) =>
+      `${mbDone} od ${mbTotal} MB · datoteke: ${filesDone} od ${filesTotal} · ruke dosad: ${hands}`,
+  },
+
+  refused: {
+    heading: "Odbijene ruke",
+    lead: "Ruke koje Rail nije mogao pročitati, iz svih mapa. Čuvaju se s tekstom, pa ih novija verzija može pročitati.",
+    loading: "Učitavanje odbijenih ruku…",
+    loadFailed: (reason) => `Odbijene ruke nisu učitane: ${reason}`,
+    none: "Nema odbijenih ruku.",
+    total: (count) => `Odbijene ruke: ${count}.`,
+    byReason: "Po razlogu",
+    pickReason: "Odaberi razlog da vidiš njegove ruke.",
+    ofReason: (reason) => `Ruke odbijene kao ${reason}`,
+    more: (shown, total) => `Prikazano je ${shown} najnovijih od ${total}.`,
+    reason: "Razlog",
+    details: "Pojedinosti",
+    file: "Datoteka",
+    seen: "Zadnji put",
+    text: "Tekst",
+    showText: "Prikaži tekst",
+    showTextOf: (file) => `Prikaži tekst odbijene ruke iz datoteke ${file}`,
+    textHeading: "Odbijena ruka",
+    textLabel: "Ruka kako ju je soba zapisala",
+    textLoading: "Učitavanje teksta…",
+    textFailed: (reason) => `Tekst nije učitan: ${reason}`,
+    gone: "Ova ruka više nije odbijena: ponovno je pročitana.",
+    parser: "Parser",
+    parserVersion: (parser, version) => `${parser}, verzija ${version}`,
+    noParser: "Nijedan parser je nije prepoznao",
+    copy: "Kopiraj tekst",
+    copied: "Kopirano.",
+    copyFailed: "Kopiranje nije uspjelo. Označi tekst i kopiraj ga sam.",
+    close: "Zatvori",
+    retry: "Pokušaj ponovno nakon nadogradnje",
+    retrying: "Ponovno čitanje…",
+    retryHint: (hands, files) =>
+      `Ruke odbijene u starijoj verziji parsera: ${hands} (datoteke: ${files}). Ova ih verzija možda može pročitati.`,
+    upToDate: "Ove su ruke odbili parseri ove verzije.",
+    retried: (files) => (files === 0 ? "Nema ničeg za ponovno čitanje." : `Ponovno se čitaju datoteke: ${files}.`),
+    retryFailed: (reason) => `Ponovno čitanje nije uspjelo: ${reason}`,
+  },
+
   tray: {
     tooltip: "Rail",
     statusIdle: "Još se ne prate mape",
@@ -322,6 +371,7 @@ export const hr: Dict = {
     statusPaused: "Uvoz je pauziran",
     statusUnavailable: (folders) => `Mape koje se ne mogu čitati: ${folders}`,
     statusError: "Uvoz nije pokrenut",
+    statusImporting: (percent, hands) => `Uvoz ${percent} % · ruke: ${hands}`,
     open: "Otvori Rail",
     pauseImport: "Pauziraj uvoz",
     resumeImport: "Nastavi uvoz",

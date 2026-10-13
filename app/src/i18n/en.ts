@@ -233,10 +233,6 @@ export const en = {
       refusedLead:
         "Rail could not read these hands. They are kept, so a later version can read them; the reason says why.",
       byReason: "By reason",
-      refusedFile: "File",
-      refusedReason: "Reason",
-      refusedMessage: "Details",
-      refusedSeen: "Last seen",
       refusedMore: (shown: number, total: number) => `Showing the ${shown} most recent of ${total}.`,
 
       settingsOf: (path: string) => `Settings for ${path}`,
@@ -343,6 +339,64 @@ export const en = {
     time: "Time",
   },
 
+  /** A folder's backfill in progress, on Today and the folder cards (R1.6). */
+  backfill: {
+    of: (path: string) => `Importing the hands in ${path}`,
+    title: (percent: number) => `Importing old hands: ${percent}%`,
+    estimating: "Estimating the time left…",
+    left: (seconds: number) =>
+      seconds < 60
+        ? "Less than a minute left"
+        : seconds < 5400
+          ? `About ${Math.round(seconds / 60)} min left`
+          : `About ${Math.round(seconds / 3600)} h left`,
+    detail: (mbDone: string, mbTotal: string, filesDone: string, filesTotal: string, hands: string) =>
+      `${mbDone} of ${mbTotal} MB · ${filesDone} of ${filesTotal} files · ${hands} hands so far`,
+  },
+
+  /** Refused hands: the app-wide view in Settings, the raw text, "try again" (R1.6). */
+  refused: {
+    heading: "Refused hands",
+    lead: "Hands Rail could not read, from every folder. They are kept with their text, so a later version can read them.",
+    loading: "Loading refused hands…",
+    loadFailed: (reason: string) => `Could not load the refused hands: ${reason}`,
+    none: "No refused hands.",
+    total: (count: number) => (count === 1 ? "1 hand was refused." : `${count} hands were refused.`),
+    byReason: "By reason",
+    pickReason: "Choose a reason to see its hands.",
+    ofReason: (reason: string) => `Hands refused as ${reason}`,
+    more: (shown: number, total: number) => `Showing the ${shown} most recent of ${total}.`,
+    reason: "Reason",
+    details: "Details",
+    file: "File",
+    seen: "Last seen",
+    text: "Text",
+    showText: "Show text",
+    showTextOf: (file: string) => `Show the text of the refused hand in ${file}`,
+    textHeading: "Refused hand",
+    textLabel: "The hand as the room wrote it",
+    textLoading: "Loading the text…",
+    textFailed: (reason: string) => `Could not load the text: ${reason}`,
+    gone: "This hand is no longer refused: it was read again.",
+    parser: "Parser",
+    parserVersion: (parser: string, version: string) => `${parser}, version ${version}`,
+    noParser: "No parser recognised it",
+    copy: "Copy the text",
+    copied: "Copied.",
+    copyFailed: "Could not copy. Select the text and copy it yourself.",
+    close: "Close",
+    retry: "Try again after an update",
+    retrying: "Reading again…",
+    retryHint: (hands: number, files: number) =>
+      `${hands === 1 ? "1 hand was" : `${hands} hands were`} refused by an older version of ${
+        hands === 1 ? "its parser" : "their parsers"
+      } (${files === 1 ? "1 file" : `${files} files`}). This version may read ${hands === 1 ? "it" : "them"}.`,
+    upToDate: "These hands were refused by this version's parsers.",
+    retried: (files: number) =>
+      files === 0 ? "Nothing to read again." : files === 1 ? "1 file is being read again." : `${files} files are being read again.`,
+    retryFailed: (reason: string) => `Could not read them again: ${reason}`,
+  },
+
   /** Mirrored in `src-tauri/src/strings.rs`; not used by the window. */
   tray: {
     tooltip: "Rail",
@@ -355,6 +409,8 @@ export const en = {
     statusUnavailable: (folders: number) =>
       folders === 1 ? "1 folder cannot be read" : `${folders} folders cannot be read`,
     statusError: "Import is not running",
+    statusImporting: (percent: number, hands: number) =>
+      `Importing ${percent}% · ${hands === 1 ? "1 hand" : `${hands} hands`}`,
     open: "Open Rail",
     pauseImport: "Pause import",
     resumeImport: "Resume import",

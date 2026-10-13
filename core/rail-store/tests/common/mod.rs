@@ -204,7 +204,9 @@ pub fn snapshot(conn: &Connection) -> Snapshot {
     }
 }
 
-/// `PRAGMA integrity_check` says `ok` and no foreign key is dangling.
+/// `PRAGMA integrity_check` says `ok`, no foreign key is dangling, and the
+/// folder rollups of schema version 4 (`files.hands`, `files.quarantined`,
+/// `source_totals`) equal what the rows say.
 pub fn assert_integrity(conn: &Connection) {
     let integrity: Vec<String> = conn
         .prepare("PRAGMA integrity_check")
@@ -220,4 +222,37 @@ pub fn assert_integrity(conn: &Connection) {
         })
         .expect("foreign_key_check");
     assert_eq!(dangling, 0, "foreign_key_check");
+    let files_off: i64 = conn
+        .query_row(
+            "SELECT count(*) FROM files f
+             WHERE f.hands <> (SELECT count(*) FROM hands h WHERE h.file_id = f.id)
+                OR f.quarantined <> (SELECT count(*) FROM quarantine q WHERE q.file_id = f.id)",
+            [],
+            |row| row.get(0),
+        )
+        .expect("file counters");
+    assert_eq!(files_off, 0, "files.hands / files.quarantined");
+    let sources_off: i64 = conn
+        .query_row(
+            "SELECT count(*) FROM sources s LEFT JOIN source_totals t ON t.source_id = s.id
+             WHERE t.source_id IS NULL
+                OR t.files <> (SELECT count(*) FROM files f WHERE f.source_id = s.id)
+                OR t.hands <> (SELECT coalesce(sum(f.hands), 0) FROM files f
+                                WHERE f.source_id = s.id)
+                OR t.quarantined <> (SELECT coalesce(sum(f.quarantined), 0) FROM files f
+                                      WHERE f.source_id = s.id)",
+            [],
+            |row| row.get(0),
+        )
+        .expect("folder totals");
+    assert_eq!(sources_off, 0, "source_totals");
+    let orphans: i64 = conn
+        .query_row(
+            "SELECT count(*) FROM source_totals t
+             WHERE NOT EXISTS (SELECT 1 FROM sources s WHERE s.id = t.source_id)",
+            [],
+            |row| row.get(0),
+        )
+        .expect("orphan totals");
+    assert_eq!(orphans, 0, "source_totals without a folder");
 }

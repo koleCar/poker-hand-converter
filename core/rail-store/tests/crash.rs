@@ -5,7 +5,10 @@
 //! The test re-runs its own test binary as a child process (the ignored
 //! test [`child_import`], which does nothing unless [`CHILD_DB`] is set).
 //! The child imports every corpus file into one store, in order, printing a
-//! line after each committed file. The parent kills it - `SIGKILL` on Unix,
+//! line after each committed file. It converts six files at a time and
+//! sends their batches together (`import_async`), so they wait in the
+//! writer's queue together and commit in one grouped transaction, each in
+//! its savepoint (R1.6) - a kill then loses the whole group or nothing. The parent kills it - `SIGKILL` on Unix,
 //! `TerminateProcess` on Windows (`Child::kill`): no chance to clean up.
 //! Two kinds of kill, chosen at random:
 //!
@@ -47,8 +50,8 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::Duration;
 
+use rail_store::Store;
 use rail_store::import::{ImportOptions, is_unchanged, path_key, whole_file_batch};
-use rail_store::{FileImport, Store, import_file};
 use rusqlite::Connection;
 
 use common::{PARSED_AT, Rng, assert_integrity, corpus_files, scratch_dir, snapshot};
@@ -60,6 +63,8 @@ const CHILD_DB: &str = "RAIL_STORE_CRASH_CHILD_DB";
 const CHILD_HOLD_AFTER: &str = "RAIL_STORE_CRASH_HOLD_AFTER";
 /// A held batch has at least this many hands.
 const HOLD_MIN_HANDS: usize = 20;
+/// The child converts this many files, then sends their batches at once.
+const WINDOW: usize = 6;
 
 const COMMITTED: &str = "RAIL-STORE-COMMITTED";
 const SKIPPED: &str = "RAIL-STORE-SKIPPED";
@@ -90,11 +95,27 @@ fn child_import() {
         .ok()
         .and_then(|n| n.parse().ok());
     let store = Store::open(PathBuf::from(db)).expect("open the store");
+    let writer = store.writer().expect("writer");
     let mut committed = 0;
+    // Converted batches not sent yet: sent together, so they wait in the
+    // writer's queue together and commit in one grouped transaction (R1.6).
+    let mut window: Vec<(String, rail_store::ImportBatch)> = Vec::new();
+    let flush = |window: &mut Vec<(String, rail_store::ImportBatch)>, committed: &mut u64| {
+        let pending: Vec<_> = window
+            .drain(..)
+            .map(|(shown, batch)| (shown, writer.import_async(batch).expect("queue")))
+            .collect();
+        for (shown, pending) in pending {
+            pending.wait().expect("import");
+            say(&format!("{COMMITTED} {shown}"));
+            *committed += 1;
+        }
+    };
     for path in corpus_files() {
-        let shown = path.display();
+        let shown = path.display().to_string();
         match hold_after {
-            Some(n) if committed >= n => {
+            Some(n) if committed + u64::try_from(window.len()).expect("small") >= n => {
+                flush(&mut window, &mut committed);
                 if is_unchanged(&store, &path).expect("state") {
                     say(&format!("{SKIPPED} {shown}"));
                     continue;
@@ -105,17 +126,23 @@ fn child_import() {
                 }
                 store.import(batch).expect("import");
                 say(&format!("{COMMITTED} {shown}"));
+                committed += 1;
             }
-            _ => match import_file(&store, &path, &options()).expect("import") {
-                FileImport::Imported(_) => say(&format!("{COMMITTED} {shown}")),
-                FileImport::Unchanged => {
+            _ => {
+                if is_unchanged(&store, &path).expect("state") {
                     say(&format!("{SKIPPED} {shown}"));
                     continue;
                 }
-            },
+                let batch = whole_file_batch(&path, &options()).expect("batch");
+                window.push((shown, batch));
+                if window.len() >= WINDOW {
+                    flush(&mut window, &mut committed);
+                }
+            }
         }
-        committed += 1;
     }
+    flush(&mut window, &mut committed);
+    drop(writer);
     store.close();
     say(DONE);
 }

@@ -40,6 +40,7 @@ fn fast() -> WatchConfig {
             settle_ms: 300,
             give_up_ms: 1_000,
             parsed_at: Some(PINNED_PARSED_AT.to_owned()),
+            ..ReadConfig::default()
         },
         // Notifications must do the work: no rescan during a test.
         rescan: Duration::from_secs(600),

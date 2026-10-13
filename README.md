@@ -99,7 +99,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Parsers | **19 parsers in TypeScript**, run in the browser; **all 19 also in Rust** (R0.6–R0.10d), and the whole Rust pipeline equals the TypeScript on every corpus file (556 files, 8 422 hands, 196 refusals); not yet used by the web (WASM and shadow mode are R0.13) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
 | Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads); since R0.11 the Rust core's `Unrecognized` record and anonymiser, and the table's desktop fields and consent rule ([`docs/unsupported-formats.md`](docs/unsupported-formats.md)); since R1.2 the desktop's local registry (`unsupported` in `rail-store`, count and consent state) | Unknown files from watched folders recorded (R1.3), consented uploads after sign-in (R1.7+) | 0–1 |
 | `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; since R1.4 the first observations from a real install (macOS: WePlay's folder and live files, GGPoker's and CoinPoker's "no local files"), everything else still unverified; table data unknown (`null`), every HUD policy unknown | Every room's paths verified on real installs ([how](docs/research/VERIFYING-PATHS.md)), window data (R3.3, R3.11), HUD policy from the compliance check (R3.0) | 0–3 |
-| File watcher | **`core/rail-watch` (R1.3)**: FSEvents / ReadDirectoryChangesW / inotify (`notify`) + a rescan every 60 s, network folders polled; reads each file from its stored offset and imports a hand once it is complete (the next hand started, or the file quiet and the hand valid), in any of the corpus encodings; truncation, replaced, renamed and deleted files, unplugged drives; pause / resume. Proven by appending corpus files in random chunks, byte by byte included; the app runs it, tray and Today show it. **Folder discovery (R1.4)**: the rooms' default folders from `sites.json` that exist on this computer, with file counts and the last file's date, confirmed on the first-run screen with "import everything" or "only new hands"; a room's folder reads only its files. **Settings → Folders (R1.5)**: add, change path (moves keep offsets), room override, on/off, recursive, poll only, remove, per-folder status and refused hands | Import pipeline at scale (R1.6) | 1 |
+| File watcher | **`core/rail-watch` (R1.3)**: FSEvents / ReadDirectoryChangesW / inotify (`notify`) + a rescan every 60 s, network folders polled; reads each file from its stored offset and imports a hand once it is complete (the next hand started, or the file quiet and the hand valid), in any of the corpus encodings; truncation, replaced, renamed and deleted files, unplugged drives; pause / resume. Proven by appending corpus files in random chunks, byte by byte included; the app runs it, tray and Today show it. **Folder discovery (R1.4)**: the rooms' default folders from `sites.json` that exist on this computer, with file counts and the last file's date, confirmed on the first-run screen with "import everything" or "only new hands"; a room's folder reads only its files. **Settings → Folders (R1.5)**: add, change path (moves keep offsets), room override, on/off, recursive, poll only, remove, per-folder status and refused hands. **Import pipeline (R1.6)**: a pool of import threads (physical cores - 1), live files first, large files cut into parallel batches, grouped commits; backfill progress in the tray, on Today and the folder cards; refused hands app-wide with their raw text and "Try again after an update"; a CI benchmark holds >= 5 000 hands/s | Sync to Supabase (R1.8-R1.9) | 1 |
 | Local database | **`core/rail-store` (R1.2)**: SQLite (bundled, WAL), embedded migrations, one writer thread committing each file read with its offset in one transaction, read pool, hands as zstd PHF deduped by `hand_key`, quarantine, unsupported-format registry, sync outbox; survives a killed process mid-import (tested on three OSes); the app opens it and Today shows its counts | Statistics, rollups and HUD layouts added (Phases 2–3) | 1 |
 | Sync | Web saves to Supabase directly | Desktop outbox → idempotent upsert; pull of web uploads | 1 |
 | Desktop sign-in | — | System browser + PKCE + `rail://` deep link | 1 |
@@ -217,6 +217,18 @@ scratch and the old files keep their hands), choose its room when
 detection fails (the folder's files are read again with that parser),
 switch it on or off, recursive, poll only, remove it (hands stay), and
 find the rooms' folders again.
+
+Since R1.6 the import scales: files are read on a pool of import threads
+(physical cores minus one, at most 8), files the room is writing go before
+a backfill, a file with many hands is committed in batches of 500 converted
+in parallel (each batch with its own offset, so a crash keeps a prefix),
+and batches waiting together share one transaction. A backfill shows its
+progress (bytes read of bytes to read, files, hands, time left) in the
+tray, on Today and on the folder's card. Refused hands can be opened as
+the raw text the room wrote, listed app-wide by reason (Settings, Refused
+hands), and read again after an update ("Try again after an update" resets
+the files whose hands an older parser version refused). Folder counts are
+kept as rollups, so the folder list costs the same at a million hands.
 
 ### 5.3 Local database and sync (`core/rail-store`, `core/rail-sync`, Phase 1)
 
@@ -460,6 +472,19 @@ converted in parallel and fed to the one writer):
 
 ```bash
 cargo run --release -p rail-store --example import_corpus -- [threads] [db]
+```
+
+The import benchmark (since R1.6; CI's `import-bench` job gates it at
+5 000 hands/s on macOS): builds a **generated** dataset of about `--hands`
+hands in a temporary directory - the corpus copied with every hand id's
+digits permuted, labelled `GENERATED.md`, removed afterwards, never
+committed - and imports it through the real watcher into an empty store;
+prints hands stored per second, the cost of `Watcher::status()`, and the
+database size:
+
+```bash
+cargo run --release -p rail-watch --example import_bench -- \
+    [--hands 100000] [--workers N] [--runs 1] [--min-rate 5000] [--dir PATH] [--keep]
 ```
 
 The core as WebAssembly (since R0.13; the web app switches to it in R4.1),

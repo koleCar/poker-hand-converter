@@ -59,6 +59,20 @@
 //! text before it is the same in either reading); anything else is re-read
 //! from 0.
 //!
+//! # A large read
+//!
+//! A read with many complete hands (the backfill of a big file, or a file
+//! that grew a lot while import was paused) is not one batch: the hands
+//! the next hand's start proves complete are cut at hand starts into
+//! batches of at most [`ReadConfig::batch_hands`] hands, converted in
+//! parallel on the import threads (rayon; as many at a time as
+//! [`ImportLimits::threads`] allows) and committed **in order**, each with
+//! its own offsets - batch *k* starts where batch *k - 1* ended, so the
+//! store's offset rule holds for each, and a crash keeps a prefix of them.
+//! The last hand is read by the next look, at once. Between groups of
+//! batches the reader stops early when [`ImportLimits::interrupt`] is set
+//! (pause, stop), with what it committed so far.
+//!
 //! # Truncation, rotation, deletion
 //!
 //! A file smaller than its stored offset was truncated or replaced: it is
@@ -70,14 +84,21 @@
 
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
+use std::ops::Range;
 use std::path::Path;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
-use rail_core::convert::{Candidate, ConversionResult, FileConversion, convert_any};
+use rail_core::convert::{
+    Candidate, ConversionResult, FileConversion, convert_any, convert_any_detected,
+};
+use rail_core::decode::Encoding;
 use rail_core::detect::{ConvertOptions, DetectionCandidate, FORCED_PERMILLE};
 use rail_core::js::JsError;
 use rail_store::import::path_key;
 use rail_store::read::StoredFile;
 use rail_store::{FileState, ImportBatch, ImportOutcome, Reader, WriterHandle, time};
+use rayon::prelude::*;
 
 use crate::codec::{self, Codec, Decision};
 use crate::error::{Error, Result};
@@ -104,7 +125,16 @@ pub struct ReadConfig {
     /// `meta.parsedAt` for every hand; `None` stamps the current time.
     /// Tests pin it.
     pub parsed_at: Option<String>,
+    /// A read with more complete hands than this is committed as several
+    /// batches of at most this many, converted in parallel (see "A large
+    /// read" in the module docs).
+    pub batch_hands: usize,
 }
+
+/// [`ReadConfig::batch_hands`]' default: a few hundred hands convert in
+/// ~0.2 s on one thread, so a group of batches on every thread commits a
+/// few times a second, and a pause takes effect as quickly.
+pub const BATCH_HANDS: usize = 500;
 
 impl Default for ReadConfig {
     fn default() -> Self {
@@ -113,7 +143,49 @@ impl Default for ReadConfig {
             settle_ms: 5_000,
             give_up_ms: 30_000,
             parsed_at: None,
+            batch_hands: BATCH_HANDS,
         }
+    }
+}
+
+/// What the watcher can change while a read runs: how many import threads
+/// a large read may use at once, and a request to stop early.
+#[derive(Debug, Default)]
+pub struct ImportLimits {
+    /// 0: every thread of the pool the read runs on.
+    threads: AtomicUsize,
+    interrupt: AtomicBool,
+}
+
+impl ImportLimits {
+    /// Use at most `threads` threads at once (0: all of them).
+    pub fn set_threads(&self, threads: usize) {
+        self.threads.store(threads, Ordering::Relaxed);
+    }
+
+    /// The threads a large read uses at once: the limit, within the pool
+    /// it runs on (rayon's current pool, or the global one).
+    pub fn threads(&self) -> usize {
+        self.cap(rayon::current_num_threads())
+    }
+
+    /// The limit within a pool of `pool` threads (at least 1).
+    pub fn cap(&self, pool: usize) -> usize {
+        let pool = pool.max(1);
+        match self.threads.load(Ordering::Relaxed) {
+            0 => pool,
+            limit => limit.min(pool),
+        }
+    }
+
+    /// Ask reads in progress to stop after the batches they are committing
+    /// (`true`: pause or stop), or let them run.
+    pub fn interrupt(&self, stop: bool) {
+        self.interrupt.store(stop, Ordering::SeqCst);
+    }
+
+    pub fn interrupted(&self) -> bool {
+        self.interrupt.load(Ordering::SeqCst)
     }
 }
 
@@ -168,6 +240,8 @@ pub struct TrackStats {
     /// Encoding switches that kept the offset (UTF-8 to Windows-1252 or to
     /// lossy UTF-8).
     pub recoded: u32,
+    /// Large reads committed as several batches.
+    pub splits: u32,
 }
 
 /// The result of one look at a file.
@@ -180,7 +254,9 @@ pub enum Polled {
     /// New bytes, but no complete hand yet. Look again at `recheck_at`
     /// (ms) even without a change; `None`: only on a change.
     Waiting { recheck_at: Option<i64> },
-    /// A batch was committed.
+    /// A batch was committed (or several in a row: a large read, R1.6;
+    /// `outcome` is their sum, `from` the first one's start, `to` the last
+    /// one's end).
     Committed {
         outcome: ImportOutcome,
         from: u64,
@@ -213,6 +289,37 @@ enum Step {
         head: Option<Vec<u8>>,
         recheck_at: Option<i64>,
     },
+    /// A large read: several batches, converted in parallel.
+    Split(Box<Split>),
+}
+
+/// A large read cut into batches at hand starts ("A large read").
+#[derive(Debug)]
+struct Split {
+    /// The decoded text of the read.
+    text: String,
+    options: ConvertOptions,
+    encoding: Encoding,
+    detected: Vec<Candidate>,
+    codec: Codec,
+    head: Option<Vec<u8>>,
+    /// The file's state for every batch (offsets set per piece).
+    file: FileState,
+    /// The folder's forced parser, recorded as the file's site.
+    forced: Option<String>,
+    pieces: Vec<SplitPiece>,
+}
+
+/// One batch of a [`Split`].
+#[derive(Debug, Clone)]
+struct SplitPiece {
+    /// Its text within [`Split::text`].
+    text: Range<usize>,
+    /// Its bytes in the file.
+    from: u64,
+    to: u64,
+    /// The chunks (hands) it holds.
+    chunks: usize,
 }
 
 /// What [`FileReader::interpret`] concluded.
@@ -252,6 +359,7 @@ pub struct FileReader {
     config: ReadConfig,
     reader: Reader,
     writer: WriterHandle,
+    limits: Arc<ImportLimits>,
 }
 
 /// One read's facts, passed around while it is interpreted.
@@ -275,7 +383,20 @@ impl FileReader {
             config,
             reader: Reader::open(store_path, 2)?,
             writer,
+            limits: Arc::default(),
         })
+    }
+
+    /// Share `limits` (the watcher's) instead of this reader's own.
+    #[must_use]
+    pub fn with_limits(mut self, limits: Arc<ImportLimits>) -> Self {
+        self.limits = limits;
+        self
+    }
+
+    /// The limits large reads follow.
+    pub fn limits(&self) -> &Arc<ImportLimits> {
+        &self.limits
     }
 
     pub const fn config(&self) -> &ReadConfig {
@@ -307,6 +428,7 @@ impl FileReader {
                 Step::Restart => return Ok(Polled::Waiting { recheck_at: None }),
                 Step::Unchanged => return Ok(Polled::Unchanged),
                 Step::Waiting(recheck_at) => return Ok(Polled::Waiting { recheck_at }),
+                Step::Split(split) => return self.commit_split(*split, track, now),
                 Step::Commit {
                     batch,
                     codec,
@@ -695,6 +817,19 @@ impl FileReader {
             track.whole_file = false;
         }
         let n = chunks.len();
+        // Many complete hands: several batches ("A large read").
+        if let Some(starts) = starts.as_ref()
+            && !track.whole_file
+            && n > 1
+            && n - 1 > config.batch_hands.max(1)
+            && let Some(split) = self.plan_split(ctx, bytes, at_start, codec, starts, head.clone())
+        {
+            let mut split = split;
+            split.text = text.to_owned();
+            split.options = options;
+            split.detected = detected;
+            return Ok(Interpreted::Step(Step::Split(Box::new(split))));
+        }
         let byte_at = |position: usize| -> u64 {
             codec::byte_offset_of(codec, bytes, at_start, position)
                 .map_or(end, |offset| ctx.start + len_u64(offset))
@@ -731,8 +866,9 @@ impl FileReader {
             );
         }
 
-        // Quiet: everything, if the last chunk is done.
-        let result = match convert_any(text, &options) {
+        // Quiet: everything, if the last chunk is done. Detection ran on
+        // this very text above: handed over, not run again.
+        let result = match convert_any_detected(text, &options, candidates.clone()) {
             Ok(result) => result,
             Err(error) => {
                 return self.commit(ctx, end, &conversion(Err(error)), Some(codec), head, None);
@@ -771,6 +907,177 @@ impl FileReader {
             }
             _ => Ok(Interpreted::Step(Step::Waiting(Some(recheck_at)))),
         }
+    }
+
+    /// Cut the complete hands of a read (every chunk but the last) into
+    /// batches of at most [`ReadConfig::batch_hands`] at hand starts, with
+    /// each batch's byte offsets. `None` when the offsets cannot be mapped
+    /// (then the read goes on as one batch).
+    fn plan_split(
+        &self,
+        ctx: &ReadCtx<'_>,
+        bytes: &[u8],
+        at_start: bool,
+        codec: Codec,
+        starts: &[usize],
+        head: Option<Vec<u8>>,
+    ) -> Option<Split> {
+        let size = self.config.batch_hands.max(1);
+        let complete = starts.len() - 1;
+        // Text positions where batches start (after the first, which starts
+        // where the read does), and where the last one ends.
+        let mut cuts: Vec<usize> = (size..complete).step_by(size).map(|i| starts[i]).collect();
+        cuts.push(starts[complete]);
+        let offsets = codec::byte_offsets_of(codec, bytes, at_start, &cuts).ok()?;
+        let mut pieces = Vec::with_capacity(cuts.len());
+        let (mut text_from, mut byte_from, mut first_chunk) = (0, ctx.start, 0);
+        for (k, (&cut, &offset)) in cuts.iter().zip(&offsets).enumerate() {
+            let to = ctx.start + len_u64(offset);
+            let last_chunk = if k + 1 == cuts.len() {
+                complete
+            } else {
+                (k + 1) * size
+            };
+            pieces.push(SplitPiece {
+                text: text_from..cut,
+                from: byte_from,
+                to,
+                chunks: last_chunk - first_chunk,
+            });
+            (text_from, byte_from, first_chunk) = (cut, to, last_chunk);
+        }
+        let forced = ctx
+            .file
+            .site_override
+            .filter(|forced| rail_core::parsers::builtin().get(forced).is_some())
+            .map(str::to_owned);
+        Some(Split {
+            text: String::new(),
+            options: ConvertOptions::default(),
+            encoding: codec.encoding(),
+            detected: Vec::new(),
+            codec,
+            head,
+            file: FileState {
+                path: path_key(ctx.file.path),
+                source_id: ctx.file.source_id,
+                from_offset: ctx.start,
+                to_offset: ctx.start,
+                size: ctx.size,
+                mtime_ms: ctx.mtime,
+                encoding: None,
+                site: None,
+                last_error: None,
+            },
+            forced,
+            pieces,
+        })
+    }
+
+    /// Convert a split read's batches, as many at a time as the limits
+    /// allow (in parallel on the current rayon pool), and commit each group
+    /// in order - queued back to back, so the writer commits a group in one
+    /// transaction, each batch in its savepoint. Stops early on an
+    /// interrupt, a stale offset (someone else moved it: the next look
+    /// reads again from the store's offset) or a batch that does not split
+    /// as the whole did (then the file is read whole from now on, as the
+    /// one-batch path does). The rest of the file - its last hand at least -
+    /// is looked at again at once.
+    fn commit_split(&self, split: Split, track: &mut FileTrack, now: i64) -> Result<Polled> {
+        let mut total = ImportOutcome::default();
+        let mut done: Option<(u64, u64)> = None;
+        let mut first = true;
+        'groups: for group in split.pieces.chunks(self.limits.threads().max(1)) {
+            if !first && self.limits.interrupted() {
+                break;
+            }
+            let batches: Vec<Option<Result<ImportBatch>>> = group
+                .par_iter()
+                .map(|piece| self.split_batch(&split, piece))
+                .collect();
+            let mut pending = Vec::with_capacity(batches.len());
+            let mut whole = false;
+            for (piece, batch) in group.iter().zip(batches) {
+                match batch {
+                    Some(batch) => pending.push((piece, self.writer.import_async(batch?)?)),
+                    None => {
+                        whole = true;
+                        break;
+                    }
+                }
+            }
+            for (piece, pending) in pending {
+                match pending.wait() {
+                    Ok(outcome) => {
+                        track.stats.commits += 1;
+                        if first {
+                            track.codec = Some(split.codec);
+                            if split.head.is_some() {
+                                track.head.clone_from(&split.head);
+                            }
+                            first = false;
+                        }
+                        total.file_id = outcome.file_id;
+                        total.inserted += outcome.inserted;
+                        total.duplicates += outcome.duplicates;
+                        total.quarantined += outcome.quarantined;
+                        total.unrecognized |= outcome.unrecognized;
+                        done = Some((done.map_or(piece.from, |(from, _)| from), piece.to));
+                    }
+                    Err(rail_store::Error::OffsetMismatch { .. }) => break 'groups,
+                    Err(error) => return Err(error.into()),
+                }
+            }
+            if whole {
+                track.whole_file = true;
+                break;
+            }
+        }
+        track.stats.splits += 1;
+        Ok(match done {
+            Some((from, to)) => Polled::Committed {
+                outcome: total,
+                from,
+                to,
+                recheck_at: Some(now),
+            },
+            None => Polled::Waiting {
+                recheck_at: Some(now),
+            },
+        })
+    }
+
+    /// One batch of a split read; `None` when its text does not split into
+    /// its own chunks (then nothing of it is committed).
+    fn split_batch(&self, split: &Split, piece: &SplitPiece) -> Option<Result<ImportBatch>> {
+        let result = convert_any(&split.text[piece.text.clone()], &split.options);
+        if let Ok(result) = &result
+            && usize::try_from(result.chunks).ok() != Some(piece.chunks)
+        {
+            return None;
+        }
+        let conversion = FileConversion {
+            encoding: split.encoding,
+            problem: None,
+            detected: split.detected.clone(),
+            result: Some(result),
+            unrecognized: None,
+        };
+        let file = FileState {
+            from_offset: piece.from,
+            to_offset: piece.to,
+            ..split.file.clone()
+        };
+        Some(
+            ImportBatch::from_conversion(file, &conversion)
+                .map(|mut batch| {
+                    if split.forced.is_some() {
+                        batch.file.site.clone_from(&split.forced);
+                    }
+                    batch
+                })
+                .map_err(Error::from),
+        )
     }
 
     /// The batch for `conversion`, read from `ctx.start` to `to`.

@@ -20,7 +20,10 @@ app's local data directory (`app_local_data_dir`): on macOS
   the Unix epoch (UTC); sizes and offsets are `INTEGER` bytes; booleans are
   `0` / `1`. `played_at` is the PHF's ISO text (sorts as time).
 - **One writer**: every write goes through the writer thread; a batch (one
-  read of one file) is one transaction.
+  read of one file) is one transaction - or, when several batches wait in
+  the writer's queue together (a backfill), one savepoint each inside one
+  shared transaction (R1.6): each batch is still stored whole or not at
+  all, with its own offset.
 
 ## Migrations
 
@@ -29,6 +32,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | 1 | `0001_initial.sql` | `kv`, `sources`, `files`, `hands`, `quarantine`, `unsupported`, `outbox` |
 | 2 | `0002_source_poll_only.sql` | `sources.poll_only` (R1.3) |
 | 3 | `0003_source_site.sql` | `sources.site` (R1.4) |
+| 4 | `0004_folder_rollups.sql` | `files.hands`, `files.quarantined`, `source_totals`, `source_days`, their triggers; `files_source_idx` on `(source_id, last_import_at)` (R1.6) |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
@@ -110,6 +114,45 @@ One row per hand-history file ever read.
 | `last_error` | TEXT NULL | `not readable as text: <kind>` or `the core threw: <message>`; cleared by a good read |
 | `first_seen` | INTEGER | ms |
 | `last_import_at` | INTEGER NULL | ms of the last batch |
+| `hands` | INTEGER | (version 4) hands this file delivered first (`hands.file_id`); the writer adds a batch's new hands in the batch's transaction |
+| `quarantined` | INTEGER | (version 4) its `quarantine` rows, kept by the triggers `quarantine_count_insert` / `_delete` |
+
+Index: `files_source_idx` on `(source_id, last_import_at)` (version 4; was
+`(source_id)`): a folder's files and its newest import are one seek.
+
+### `source_totals` (version 4)
+
+Per watched folder, the sums of its files' counters, so the folder list
+(`Reader::sources`, `Watcher::status`) costs the same at a million hands
+as at a hundred (R1.5's per-folder join took 40 ms at 90 000 hands and grew
+with them; now ~0.05 ms). A row per `sources` row (trigger
+`sources_totals_row`), kept by triggers on `files` (`files_totals_insert`,
+`_delete`, `_update` on `source_id`, `hands`, `quarantined`): a file that
+moves to another folder, is detached or adopted (R1.5's
+`set_source_path`, removal) takes its counts along. Cascades with the
+folder. Tests compare it with the rows after every change
+(`tests/common::assert_integrity`, the crash test included).
+
+| Column | Type | |
+| --- | --- | --- |
+| `source_id` | INTEGER PK → `sources` | cascades |
+| `files` | INTEGER | files with this `source_id` |
+| `hands` | INTEGER | sum of their `files.hands` |
+| `quarantined` | INTEGER | sum of their `files.quarantined` |
+
+### `source_days` (version 4)
+
+Hands a folder stored per local day: "hands today" without counting the
+day's hands (a backfill day has all of them). The writer adds a batch's new
+hands to `(source_id, date(imported_at, 'localtime'))`; `set_source_path`
+recounts today's row of the folders whose files moved. Cascades with the
+folder. `WITHOUT ROWID`.
+
+| Column | Type | |
+| --- | --- | --- |
+| `source_id` | INTEGER → `sources` | PK with `day` |
+| `day` | TEXT | `YYYY-MM-DD`, local |
+| `hands` | INTEGER | |
 
 ### `hands`
 
@@ -159,7 +202,7 @@ parser claims is not here: that file goes to `unsupported`.
 | `message` | TEXT | human readable |
 | `detected_site` | TEXT NULL | the parser that refused it |
 | `detection_permille` | INTEGER NULL | its score |
-| `parser_version` | TEXT | `0` when no parser was involved |
+| `parser_version` | TEXT | `0` when no parser was involved. "Try again after an update" (R1.6, `WriterHandle::reset_stale_refusals`) resets the files of watched folders holding a row whose parser (`detected_site`) has another version in this build: offset 0, their quarantine rows deleted, as a room change does |
 | `raw_text` | TEXT | the chunk |
 | `first_seen`, `last_seen` | INTEGER | ms |
 

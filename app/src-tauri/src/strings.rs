@@ -18,6 +18,9 @@ pub struct Tray {
     pub status_unavailable: fn(usize) -> String,
     /// The status line when the store or the watcher did not start.
     pub status_error: &'static str,
+    /// The status line while old hands are imported (R1.6): percent of the
+    /// bytes, hands so far.
+    pub status_importing: fn(u64, u64) -> String,
     pub open: &'static str,
     pub pause_import: &'static str,
     pub resume_import: &'static str,
@@ -46,6 +49,18 @@ fn unavailable_en(folders: usize) -> String {
     }
 }
 
+fn importing_en(percent: u64, hands: u64) -> String {
+    if hands == 1 {
+        format!("Importing {percent}% · 1 hand")
+    } else {
+        format!("Importing {percent}% · {hands} hands")
+    }
+}
+
+fn importing_hr(percent: u64, hands: u64) -> String {
+    format!("Uvoz {percent} % · ruke: {hands}")
+}
+
 fn watching_hr(folders: usize, hands_today: u64) -> String {
     format!("Mape: {folders} · ruke danas: {hands_today}")
 }
@@ -61,6 +76,7 @@ pub const TRAY_EN: Tray = Tray {
     status_paused: "Import paused",
     status_unavailable: unavailable_en,
     status_error: "Import is not running",
+    status_importing: importing_en,
     open: "Open Rail",
     pause_import: "Pause import",
     resume_import: "Resume import",
@@ -74,6 +90,7 @@ pub const TRAY_HR: Tray = Tray {
     status_paused: "Uvoz je pauziran",
     status_unavailable: unavailable_hr,
     status_error: "Uvoz nije pokrenut",
+    status_importing: importing_hr,
     open: "Otvori Rail",
     pause_import: "Pauziraj uvoz",
     resume_import: "Nastavi uvoz",
@@ -101,5 +118,10 @@ mod tests {
         );
         assert_eq!((TRAY_EN.status_unavailable)(2), "2 folders cannot be read");
         assert_eq!((TRAY_HR.status_watching)(2, 5), "Mape: 2 · ruke danas: 5");
+        assert_eq!(
+            (TRAY_EN.status_importing)(37, 12_345),
+            "Importing 37% · 12345 hands"
+        );
+        assert_eq!((TRAY_HR.status_importing)(37, 5), "Uvoz 37 % · ruke: 5");
     }
 }

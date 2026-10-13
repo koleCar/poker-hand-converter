@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 
+import { BackfillProgress } from "../../components/BackfillProgress";
 import { useT } from "../../i18n";
 import type { RoomChoice, WatchSource } from "../../lib/ipc";
 import styles from "./Folders.module.css";
@@ -97,6 +98,8 @@ export function FolderCard({
           </dd>
         </div>
       </dl>
+
+      {source.backfill && <BackfillProgress backfill={source.backfill} label={t.backfill.of(source.path)} />}
 
       {source.quarantined > 0 && (
         <div>
