@@ -97,7 +97,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | --- | --- | --- | --- |
 | Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer; empty Rust workspace in place (R0.1) | Same format, defined in Rust and exported to TypeScript | 0 |
 | Parsers | **19 parsers in TypeScript**, run in the browser; **all 19 also in Rust** (R0.6–R0.10d), and the whole Rust pipeline equals the TypeScript on every corpus file (556 files, 8 422 hands, 196 refusals); not yet used by the web (WASM and shadow mode are R0.13) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
-| Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads) | Same registry fed by the desktop too, with consent and anonymisation | 0 |
+| Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads); since R0.11 the Rust core's `Unrecognized` record and anonymiser, and the table's desktop fields and consent rule ([`docs/unsupported-formats.md`](docs/unsupported-formats.md)) | The desktop app's local registry and consented uploads (R1.2) | 0 |
 | `config/sites.json` | — | Paths, formats, window titles and HUD policy per room | 0–1 |
 | File watcher | — | FSEvents / ReadDirectoryChangesW + periodic rescan | 1 |
 | Local database | — | SQLite (WAL), cache for HUD and offline | 1 |
@@ -279,7 +279,7 @@ migration procedure: [`docs/DATABASE.md`](docs/DATABASE.md).
 | `player_stats` | new in Phase 2, only if the 1M-hand benchmark needs it server-side |
 | `hand_sources` | new in Phase 1 |
 | `hud_layouts` | new in Phase 3 |
-| `unsupported_formats` | the existing `unparsed_hands` corpus, extended in Phase 0 |
+| `unsupported_formats` | the existing `unparsed_hands` corpus, extended in Phase 0 (R0.11: `origin`, `os`, `client_version`, `consented_at`) |
 
 ---
 
@@ -404,9 +404,12 @@ parsers since R0.10d):
 cargo run -p rail-core --bin rail-convert -- <file>...          # per file: encoding, detected parsers, hands, refusals
 cargo run -p rail-core --bin rail-convert -- --json <file>...   # stdout: each file's hands as a canonical PHF array
 cargo run -p rail-core --bin rail-convert -- --text <file>...   # stdout: each file's standard text, byte for byte
+cargo run -p rail-core --bin rail-convert -- --anonymise <file>...  # stdout: a shareable sample, player names replaced
 ```
 
-With `--json` or `--text` the per-file summary goes to stderr. The exit code is
+With `--json`, `--text` or `--anonymise` the per-file summary goes to stderr.
+A file no parser claims gets an `unrecognized:` line: its registry
+fingerprint and the core's guess (R0.11). The exit code is
 1 only when a file cannot be read (2 for a usage error); a refused hand or an
 unrecognised file is part of the result. `meta.parsedAt` is pinned to
 1970-01-01, as in the goldens: the core has no clock.
@@ -487,4 +490,5 @@ of each decision and risks are in [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md).
 | What does room X's format look like? | `docs/research/hh-formats/<room>.md` |
 | Which formats are alike? | [`docs/research/FORMAT-MATRIX.md`](docs/research/FORMAT-MATRIX.md) |
 | Which room next? | [`docs/research/COVERAGE-PLAN.md`](docs/research/COVERAGE-PLAN.md) |
+| Which formats can we not read, and how is that triaged? | [`docs/unsupported-formats.md`](docs/unsupported-formats.md) |
 | Where did this sample come from? | `fixtures/samples/<room>/SOURCES.md` |

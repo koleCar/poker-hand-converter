@@ -2,7 +2,7 @@
 //! line (README §8).
 //!
 //! ```text
-//! rail-convert [--json | --text] <file>...
+//! rail-convert [--json | --text | --anonymise] <file>...
 //! ```
 //!
 //! Each file is decoded, detected, split, parsed, positioned and validated
@@ -12,8 +12,11 @@
 //! of hands and every refusal (chunk, stage, reason, message). With `--json`
 //! stdout is each file's hands as the canonical PHF JSON array (the goldens'
 //! form, `meta.parsedAt` pinned to 1970-01-01: the core has no clock), with
-//! `--text` each file's standard text (`toStandardTextFile`, byte for byte);
-//! the summaries then go to stderr.
+//! `--text` each file's standard text (`toStandardTextFile`, byte for byte),
+//! with `--anonymise` each file's shareable sample - player names replaced,
+//! amounts and layout kept, cut at 64 KiB (R0.11, `rail_core::anonymise`);
+//! the summaries then go to stderr. A file no parser claims gets an
+//! `unrecognized:` line with its registry record's fingerprint and guess.
 //!
 //! The exit code is 1 when a file cannot be read, 2 for a usage error, and 0
 //! otherwise - a refused hand or an unrecognised file is a result, not an
@@ -31,13 +34,14 @@ use rail_core::canonical::to_canonical_json;
 use rail_core::phf::PhfHand;
 use rail_core::phf::serialize::to_standard_text_file;
 
-const USAGE: &str = "usage: rail-convert [--json | --text] <file>...";
+const USAGE: &str = "usage: rail-convert [--json | --text | --anonymise] <file>...";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Output {
     Summary,
     Json,
     Text,
+    Anonymise,
 }
 
 fn summary(path: &str, conversion: &FileConversion) -> String {
@@ -57,6 +61,19 @@ fn summary(path: &str, conversion: &FileConversion) -> String {
             .join(", ")
     };
     out.push_str(&format!("  detected: {detected}\n"));
+    if let Some(record) = &conversion.unrecognized {
+        let guess = match (&record.guessed_site, record.guess_basis) {
+            (Some(site), Some(basis)) => {
+                format!("{site} {} ({})", record.confidence, basis.as_str())
+            }
+            _ => "none".to_owned(),
+        };
+        out.push_str(&format!(
+            "  unrecognized: {} {}, guess: {guess}\n",
+            record.shape.as_str(),
+            record.fingerprint
+        ));
+    }
     match &conversion.result {
         None => {}
         Some(Err(thrown)) => out.push_str(&format!("  conversion threw: {thrown}\n")),
@@ -96,6 +113,7 @@ fn main() -> ExitCode {
         match arg.as_str() {
             "--json" if output == Output::Summary => output = Output::Json,
             "--text" if output == Output::Summary => output = Output::Text,
+            "--anonymise" if output == Output::Summary => output = Output::Anonymise,
             "-h" | "--help" => {
                 println!("{USAGE}");
                 return ExitCode::SUCCESS;
@@ -143,6 +161,15 @@ fn main() -> ExitCode {
             Output::Text => {
                 eprint!("{}", summary(path, &conversion));
                 stdout.write_all(to_standard_text_file(&hands_of(&conversion)).as_bytes())
+            }
+            Output::Anonymise => {
+                eprint!("{}", summary(path, &conversion));
+                let text = rail_core::decode::decode_source(&bytes).text;
+                stdout.write_all(
+                    rail_core::anonymise::shareable_sample(&text)
+                        .text
+                        .as_bytes(),
+                )
             }
         };
         if let Err(error) = written {

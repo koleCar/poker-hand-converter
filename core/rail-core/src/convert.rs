@@ -39,6 +39,7 @@ use crate::detect::{
 };
 use crate::js::JsError;
 use crate::phf::{PhfHand, Variant};
+use crate::unrecognized::Unrecognized;
 use crate::validate::ValidationReport;
 
 /// Positions and validation: the two checks every parsed hand goes through.
@@ -136,6 +137,11 @@ pub struct FileConversion {
     pub detected: Vec<Candidate>,
     /// `convertAny`'s result; `Err` when it throws (see the module docs).
     pub result: Option<Result<ConversionResult, JsError>>,
+    /// Rust only (R0.11): set exactly when no parser claims the file - the
+    /// result is then the one file-level `unknown-site` refusal, and this is
+    /// the unsupported-format registry's record of it, with the refusal's
+    /// fingerprint. Not part of the golden document.
+    pub unrecognized: Option<Unrecognized>,
 }
 
 /// The built-in parsers (`crate::parsers::builtin`) and the real checks.
@@ -162,6 +168,7 @@ pub fn convert_with(
             problem,
             detected: Vec::new(),
             result: None,
+            unrecognized: None,
         };
     }
     let options = ConvertOptions {
@@ -177,12 +184,18 @@ pub fn convert_with(
             permille: candidate.permille,
         })
         .collect();
+    // No candidate and no forced parser: `run` refuses the file whole as
+    // `unknown-site`, and the registry gets its record.
+    let unrecognized = candidates
+        .is_empty()
+        .then(|| crate::unrecognized::unrecognized(registry, &text));
     let result = run(registry, checks, &text, &options, Some(candidates));
     FileConversion {
         encoding,
         problem: None,
         detected,
         result: Some(result),
+        unrecognized,
     }
 }
 

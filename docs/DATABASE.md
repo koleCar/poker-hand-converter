@@ -15,6 +15,7 @@ The schema is defined by four migrations:
 | `20261019090000_forum_core.sql` | Boards, posts, threaded and anchored comments, votes, ranking, audit, search (F8, #32–#34, #37). See [The forum](#the-forum). |
 | `20261026090000_forum_social.sql` | Saves, thread subscriptions, notifications, mentions, realtime, nightly reconciliation (F9, #38 / #39). See [Notifications](#notifications-and-realtime). |
 | `20261102090000_forum_moderation.sql` | Reports, mod queue, moderator and admin powers, bans, shadowbans, revisions, append-only audit, per-actor limits, spam gate (F10, #40 / #41). See [Moderation](#moderation-and-anti-abuse). |
+| `20270414090000_unparsed_registry.sql` | Rail R0.11: `unparsed_hands` becomes the unsupported-format registry for the desktop app too - `origin`, `os`, `client_version`, `consented_at`, `anonymiser_version`, `guessed_site`, `guess_confidence`, the consent rule, two more `unparsed_gaps` columns. See [`unparsed_hands`](#unparsed_hands--the-failure-corpus) and `docs/unsupported-formats.md`. |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -71,6 +72,7 @@ The rules the schema holds to:
 | 7 | A share slug is a capability URL, and works for anyone | `shares` has no grants and no policies at all. `read_share(slug)` is the only door, takes an exact slug, and is `security definer` — so it deliberately reads past the owner policy on `hands`. That *is* the feature: send someone a link and they replay the hand with no account. |
 | 7a | A capability URL means the **payload** is the boundary | There is no authentication step left to tighten once the slug is out, so the only control is what the function returns. `read_share` names every output key; it never does `select to_jsonb(row)`. See [Share resolution](#share-resolution-read_share--record_share_view). |
 | 8 | Raw uploads are not public | `unparsed_hands.raw_text` is verbatim hand history somebody uploaded. It is readable only by its submitter. The row itself stays globally deduped, because `occurrences` is the entire point of the table. |
+| 8a | A desktop sample leaves the machine only anonymised, and only with consent | A desktop row (`origin = 'desktop'`) must carry `consented_at`, `anonymiser_version`, `os` and `client_version` and be at most 64 KiB: the RPC skips a record without them and a `CHECK` constraint refuses such a row from any writer. The database cannot see that a text is anonymised; the client sends only `rail_core::anonymise` output (tested over the whole corpus), and `anonymiser_version` lets rows from a faulty version be found and deleted. |
 | 9 | Junk volume is bounded | `CHECK` constraints cap text sizes and validate shapes; a statement-level trigger enforces a global insert-rate budget. |
 
 Anything destructive (deleting junk, retiring corpus rows, editing triage
@@ -171,7 +173,8 @@ why:
 | --- | --- | --- |
 | `save_hands` | invoker | Inserts must stay subject to the `hands` RLS policy and the rate-limit trigger. |
 | `search_hands`, `get_hand`, `hands_facets`, `unparsed_summary` | invoker | Read-only; RLS already allows public select. |
-| `record_conversion_failures` | **definer** | Anon has `SELECT` but no `INSERT`/`UPDATE` on `unparsed_hands`, precisely so a caller cannot forge an occurrence count or flip `status`. This is the only write path and it whitelists the columns it touches. |
+| `record_conversion_failures` | **definer** | Anon has `SELECT` but no `INSERT`/`UPDATE` on `unparsed_hands`, precisely so a caller cannot forge an occurrence count or flip `status`. This is the only write path and it whitelists the columns it touches. Since R0.11 it also cannot be made to forge `origin` or `consented_at` on an existing row: a repeat never rewrites them. |
+| `unparsed_consent_instant` | invoker | Parses a client's consent time without raising (ISO 8601 with a zone, not in the future, not before 2026). No client may execute it; only the definer above calls it. |
 | `create_share` | **definer** | `shares` is sealed from clients. The function generates the slug itself, so a caller cannot choose one — and because being definer means RLS on `hands` does not apply inside it, it checks `owner_id` by hand. |
 | `read_share` | **definer** | Reads a sealed table, and reads past the owner policy on `hands` — that is the feature. Keyed strictly by slug equality, returns exactly one row, and projects its output columns by name because RLS cannot help inside a definer body. |
 | `record_share_view` | **definer** | `views` is an `UPDATE`, and no client role has `UPDATE` on any table. Touches two columns on one row selected by slug equality. |
@@ -1067,14 +1070,30 @@ table is the backlog for "which site do we support next".
 | `occurrences` | How often this exact text has been submitted. The impact signal. |
 | `first_seen_at` / `last_seen_at` | How long it has been a problem, and whether it still is. |
 | `submitted_by` | The account that **first** submitted this sample, and the only one that can read `raw_text` back. Later submitters bump `occurrences` without taking over the row: re-attributing it would silently move read access between accounts. Rows collected before accounts existed have `null` here and are readable only by the service role. |
+| `origin` (enum `unparsed_origin`) | `web` (default; verbatim `raw_text`) or `desktop` (anonymised `raw_text`). Which client **created** the row; never changed afterwards. R0.11. |
+| `os`, `client_version` | The last desktop client that reported the fingerprint (`windows` / `macos` / `linux`; a version string). Refreshed on every desktop repeat, also on a web row. Required on a desktop row. |
+| `consented_at` | When the user agreed to share the sample. Required on a desktop row, never set on a web row, set at insert only (it describes `raw_text`, which a repeat never rewrites). Not after `first_seen_at` + 5 minutes. |
+| `anonymiser_version` | The anonymiser that produced `raw_text` (`rail-anon/1`). Required on a desktop row; `null` means verbatim. |
+| `guessed_site`, `guess_confidence` | For a file no parser claims: the core's guess - a detector below the threshold, or a known format's signature (`bossmedia`, `merge`). Separate from `detected_site`, which names the parser that refused a hand and groups `unparsed_gaps`. |
 
 Mirrors the `ConversionFailure` interface in `frontend/src/lib/phf/detect.ts`
-exactly, plus `status` / `notes` / counters.
+exactly, plus `status` / `notes` / counters, plus the R0.11 registry fields
+the desktop app sends (`docs/unsupported-formats.md`).
+
+The consent rule is two `CHECK` constraints, `unparsed_desktop_consent` (a
+desktop row has consent, anonymiser version, OS and client version) and
+`unparsed_desktop_sample_size` (at most 64 KiB), with
+`unparsed_consent_before_sample`, `unparsed_os_ok`,
+`unparsed_client_version_ok`, `unparsed_anonymiser_version_ok`,
+`unparsed_guessed_site_len` and `unparsed_guess_confidence_ok` for shapes.
+pgTAP: `supabase/tests/database/unparsed_registry.test.sql`.
 
 ### `unparsed_gaps` (view)
 
 `unparsed_hands` rolled up by `(detected_site, stage, reason, status)` with
-`distinct_hands`, `total_occurrences` and first/last seen. Declared
+`distinct_hands`, `total_occurrences` and first/last seen, and since R0.11
+`desktop_hands` (rows created by the desktop app) and `guessed_sites` (the
+distinct `guessed_site` values, sorted). Declared
 `security_invoker = true`, so the base table's RLS still applies to whoever
 selects from it.
 
@@ -1201,7 +1220,7 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 | `search_hands(p_filters jsonb, p_limit int, p_offset int)` | `authenticated` | `{total, limit, offset, rows}` | The whole browse filter set, sorted, paginated, **with the total count**, in one call. Scoped to the caller by RLS, not by a filter — there is no filter key that could ask for anyone else's hands. Sort keys are whitelisted, so the query stays on an index. Heavy columns (`phf`, `standard_text`, `source_text`) are excluded: a page of 50 hands should be kilobytes. |
 | `get_hand(p_id uuid)` | `authenticated` | full row as jsonb | The payload, fetched only when a hand is actually opened. `null` for an unknown id *and* for another account's id — indistinguishable by design. |
 | `hands_facets()` | `authenticated` | jsonb | Every distinct filter value the browse UI offers — sites, heroes, tables, stakes, variants, limit types, formats, hand classes, streets, the `played_at` range — for the caller's own hands. A site you have never played is not a useful filter to offer. |
-| `record_conversion_failures(p_failures jsonb)` | `authenticated` | `{received, created, updated, skipped}` | Upserts `ConversionFailure` records by fingerprint, incrementing `occurrences` atomically and recording the first submitter. Truncates over-long fields and skips malformed records rather than failing the batch: losing a sample we cannot reproduce is worse than storing a lossy one. Never writes `status` or `notes`. Max 200 per call. |
+| `record_conversion_failures(p_failures jsonb)` | `authenticated` | `{received, created, updated, skipped}` | Upserts `ConversionFailure` records by fingerprint, incrementing `occurrences` atomically and recording the first submitter. Truncates over-long fields and skips malformed records rather than failing the batch: losing a sample we cannot reproduce is worse than storing a lossy one. Never writes `status` or `notes`. Max 200 per call. Optional keys since R0.11: `origin` (`web` when absent; an unknown value skips the record), `os`, `clientVersion`, `consentedAt`, `anonymiserVersion`, `guessedSite`, `guessConfidence`. A `desktop` record without a valid `consentedAt`, `anonymiserVersion`, `os` and `clientVersion`, or over 64 KiB, is skipped. |
 | `unparsed_summary(p_limit int)` | `anon`, `authenticated` | jsonb | `unparsed_gaps` ordered by impact, plus totals and a `byStatus` breakdown. `security invoker`, so a client sees only its own submissions; the cross-corpus answer to "which converter next" is a service-role query. |
 | `create_share(p_hand_id, p_phf, p_standard_text, p_title)` | `authenticated` | `{id, slug}` | Allocates a slug (retrying on collision) and inserts one row owned by the caller. **Refuses a `p_hand_id` the caller does not own** — it is `security definer`, so this check is not optional. |
 | `read_share(p_slug text)` | `anon`, `authenticated` | jsonb or `null` | Resolves a slug to `{slug, title, views, createdAt, handId, phf, standardText}` and nothing else, ignoring ownership entirely — a link works for anyone, which is the point. `stable`, no side effects. `null` for unknown *or* malformed slugs, deliberately indistinguishable, so probing tells an attacker nothing. |
@@ -1648,6 +1667,10 @@ schema change.
 ---
 
 ## Triaging the unparsed corpus into new parsers
+
+The weekly pass over this - the two queries, the `new-format` issue label,
+and the formats we know of without a sample - is in
+`docs/unsupported-formats.md`.
 
 The corpus exists so that "we cannot convert this site yet" becomes a work item
 instead of a shrug. The loop:
