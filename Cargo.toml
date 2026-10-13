@@ -69,3 +69,15 @@ opt-level = 3
 [profile.release]
 lto = "thin"
 codegen-units = 1
+
+# The WebAssembly core (R0.13, `npm run wasm:build` in tests/): one download
+# per visitor, so size first. Fat LTO and one codegen unit let the linker
+# drop what the facade does not reach; `panic = "abort"` is what wasm32 does
+# anyway and drops the unwinding tables. Opt level chosen by measurement
+# (docs/RAIL-PLAN.md R0.13 as built).
+[profile.wasm-release]
+inherits = "release"
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"

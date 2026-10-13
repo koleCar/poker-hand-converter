@@ -37,6 +37,7 @@ import {
   detectSite,
   type ConversionFailure,
 } from "../../../frontend/src/lib/parsers/index.js";
+import type { ConversionResult } from "../../../frontend/src/lib/phf/detect.js";
 import { toStandardText, toStandardTextFile } from "../../../frontend/src/lib/phf/serialize.js";
 import type { PhfHand } from "../../../frontend/src/lib/phf/types.js";
 import { validateHand } from "../../../frontend/src/lib/phf/validate.js";
@@ -116,6 +117,12 @@ export interface GoldenFile {
   full: Record<string, unknown>;
   hands: number;
   refusals: number;
+  /**
+   * `convertAny`'s own result, `null` when the source could not be decoded.
+   * Not written anywhere; the WASM shadow mode (`tests/scripts/wasm/`)
+   * compares what the documents leave out, such as a refusal's `rawText`.
+   */
+  result: ConversionResult | null;
 }
 
 /** Canonical text with the input path on any error, so a float is easy to find. */
@@ -150,7 +157,7 @@ export async function goldenFor(path: string): Promise<GoldenFile> {
       standardTextFile: null,
       stats: null,
     };
-    return { summary: doc, full: doc, hands: 0, refusals: 0 };
+    return { summary: doc, full: doc, hands: 0, refusals: 0, result: null };
   }
 
   const text = decoded.text;
@@ -253,6 +260,7 @@ export async function goldenFor(path: string): Promise<GoldenFile> {
     full: { ...rest, hands: fullHands },
     hands: result.hands.length,
     refusals: refusals.length,
+    result,
   };
 }
 
