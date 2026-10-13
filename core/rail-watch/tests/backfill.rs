@@ -110,7 +110,7 @@ fn a_backfill_reports_its_progress_and_ends() {
                     backfill: None,
                 })
     });
-    wait_for("the end of the backfill", 120, || {
+    let ended = || {
         running
             .events
             .lock()
@@ -119,7 +119,39 @@ fn a_backfill_reports_its_progress_and_ends() {
                 source_id: id,
                 backfill: None,
             })
-    });
+    };
+    let deadline = std::time::Instant::now() + Duration::from_secs(60);
+    while !ended() && std::time::Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(20));
+    }
+    if !ended() {
+        let status = running.watcher.status().expect("status");
+        let events = running.events.lock().expect("events").clone();
+        let imported: std::collections::BTreeMap<PathBuf, usize> =
+            events.iter().fold(BTreeMap::new(), |mut map, event| {
+                if let WatchEvent::Imported { path, .. } = event {
+                    *map.entry(path.clone()).or_default() += 1;
+                }
+                map
+            });
+        let errors: Vec<&WatchEvent> = events
+            .iter()
+            .filter(|e| matches!(e, WatchEvent::FileError { .. }))
+            .collect();
+        panic!(
+            "the backfill did not end: status {:?}; {} files imported (max {} times), \
+             {} files copied, {} events, errors {errors:?}, last progress {:?}",
+            status.sources,
+            imported.len(),
+            imported.values().max().copied().unwrap_or(0),
+            files,
+            events.len(),
+            events
+                .iter()
+                .rev()
+                .find(|e| matches!(e, WatchEvent::Progress { .. }))
+        );
+    }
     let reports: Vec<Backfill> = running
         .events
         .lock()
