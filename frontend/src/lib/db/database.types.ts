@@ -563,6 +563,63 @@ export type Database = {
           },
         ]
       }
+      hand_sources: {
+        Row: {
+          created_at: string
+          device_id: string | null
+          device_name: string | null
+          hands_duplicate: number
+          hands_inserted: number
+          hands_received: number
+          hands_rejected: number
+          id: string
+          kind: Database["public"]["Enums"]["hand_source_kind"]
+          label: string | null
+          last_ingest_at: string | null
+          last_rejection: string | null
+          local_id: string | null
+          owner_id: string
+          site: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_id?: string | null
+          device_name?: string | null
+          hands_duplicate?: number
+          hands_inserted?: number
+          hands_received?: number
+          hands_rejected?: number
+          id?: string
+          kind: Database["public"]["Enums"]["hand_source_kind"]
+          label?: string | null
+          last_ingest_at?: string | null
+          last_rejection?: string | null
+          local_id?: string | null
+          owner_id: string
+          site?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string | null
+          device_name?: string | null
+          hands_duplicate?: number
+          hands_inserted?: number
+          hands_received?: number
+          hands_rejected?: number
+          id?: string
+          kind?: Database["public"]["Enums"]["hand_source_kind"]
+          label?: string | null
+          last_ingest_at?: string | null
+          last_rejection?: string | null
+          local_id?: string | null
+          owner_id?: string
+          site?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hand_stats: {
         Row: {
           bet_flop: number
@@ -1056,6 +1113,7 @@ export type Database = {
           id: string
           limit_type: string | null
           max_seats: number | null
+          origin: Database["public"]["Enums"]["hand_origin"]
           owner_id: string
           parser_version: string | null
           phf: Json
@@ -1073,7 +1131,7 @@ export type Database = {
           source_filename: string | null
           source_text: string | null
           stakes_label: string | null
-          standard_text: string
+          standard_text: string | null
           street_reached: string | null
           table_name: string | null
           total_pot: number | null
@@ -1103,6 +1161,7 @@ export type Database = {
           id?: string
           limit_type?: string | null
           max_seats?: number | null
+          origin?: Database["public"]["Enums"]["hand_origin"]
           owner_id: string
           parser_version?: string | null
           phf: Json
@@ -1120,7 +1179,7 @@ export type Database = {
           source_filename?: string | null
           source_text?: string | null
           stakes_label?: string | null
-          standard_text: string
+          standard_text?: string | null
           street_reached?: string | null
           table_name?: string | null
           total_pot?: number | null
@@ -1150,6 +1209,7 @@ export type Database = {
           id?: string
           limit_type?: string | null
           max_seats?: number | null
+          origin?: Database["public"]["Enums"]["hand_origin"]
           owner_id?: string
           parser_version?: string | null
           phf?: Json
@@ -1167,7 +1227,7 @@ export type Database = {
           source_filename?: string | null
           source_text?: string | null
           stakes_label?: string | null
-          standard_text?: string
+          standard_text?: string | null
           street_reached?: string | null
           table_name?: string | null
           total_pot?: number | null
@@ -2592,6 +2652,67 @@ export type Database = {
         Args: { p_post_public_id: string; p_seq?: number }
         Returns: Json
       }
+      hand_row_from_phf: {
+        Args: { p_phf: Json }
+        Returns: {
+          ante: number | null
+          big_blind: number | null
+          board_cards: string[]
+          created_at: string
+          currency: string
+          currency_minor_units: number
+          currency_symbol: string | null
+          fast_fold: string | null
+          game_format: Database["public"]["Enums"]["game_format"]
+          hand_key: string
+          hero_cards: string[]
+          hero_hand_class: string | null
+          hero_name: string | null
+          hero_position: string | null
+          hero_profit: number | null
+          hero_seat: number | null
+          id: string
+          limit_type: string | null
+          max_seats: number | null
+          origin: Database["public"]["Enums"]["hand_origin"]
+          owner_id: string
+          parser_version: string | null
+          phf: Json
+          played_at: string | null
+          player_count: number | null
+          player_names: string[]
+          player_positions: string[]
+          rake: number | null
+          schema_version: string
+          showdown_positions: string[]
+          site: string
+          site_anonymization: Database["public"]["Enums"]["site_anonymization"]
+          site_hand_id: string | null
+          small_blind: number | null
+          source_filename: string | null
+          source_text: string | null
+          stakes_label: string | null
+          standard_text: string | null
+          street_reached: string | null
+          table_name: string | null
+          total_pot: number | null
+          tournament_id: string | null
+          variant: string | null
+          went_to_showdown: boolean
+          winner_positions: string[]
+          winners: string[]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "hands"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      hand_row_problem: {
+        Args: { r: Database["public"]["Tables"]["hands"]["Row"] }
+        Returns: string
+      }
       hand_stats_counter_keys: { Args: never; Returns: string[] }
       hand_stats_filter_sql: { Args: never; Returns: string }
       hand_stats_money_keys: { Args: never; Returns: string[] }
@@ -2629,6 +2750,7 @@ export type Database = {
           phf: Json
         }[]
       }
+      ingest_hands: { Args: { p_rows: Json; p_source: string }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
       is_board_moderator: { Args: { p_board_id: string }; Returns: boolean }
       is_card_array: { Args: { p_cards: string[] }; Returns: boolean }
@@ -2743,12 +2865,28 @@ export type Database = {
         Args: { p_positions: string[] }
         Returns: string[]
       }
+      phf_format_amount: {
+        Args: {
+          p_amount: number
+          p_decimals: string
+          p_minor: number
+          p_symbol: string
+        }
+        Returns: string
+      }
+      phf_hand_class: { Args: { p_cards: string[] }; Returns: string }
       phf_is_scrubbed: { Args: { p_phf: Json }; Returns: boolean }
+      phf_js_whitespace: { Args: never; Returns: string }
       phf_redact_private: { Args: { p_phf: Json }; Returns: Json }
       phf_replace_names: {
         Args: { p_map: Json; p_text: string }
         Returns: string
       }
+      phf_site_anonymization: {
+        Args: { p_phf: Json }
+        Returns: Database["public"]["Enums"]["site_anonymization"]
+      }
+      phf_text_array: { Args: { p_value: Json }; Returns: string[] }
       poll_hides_answer: { Args: { p_post: string }; Returns: boolean }
       poll_phf: {
         Args: { p_hide_hero: boolean; p_phf: Json; p_stop: number }
@@ -2794,6 +2932,16 @@ export type Database = {
       record_trainer_results: { Args: { p_rows: Json }; Returns: Json }
       recount_forum_counters: { Args: never; Returns: Json }
       recount_forum_karma: { Args: never; Returns: number }
+      register_hand_source: {
+        Args: {
+          p_device_id: string
+          p_device_name?: string
+          p_label?: string
+          p_local_id: string
+          p_site?: string
+        }
+        Returns: string
+      }
       report_content: {
         Args: {
           p_details?: string
@@ -2935,6 +3083,8 @@ export type Database = {
     Enums: {
       conversion_stage: "split" | "detect" | "parse" | "validate" | "serialize"
       game_format: "cash" | "tournament" | "sng" | "spin"
+      hand_origin: "web" | "desktop"
+      hand_source_kind: "folder" | "web"
       profile_role: "member" | "moderator" | "admin"
       publish_mode: "pseudonyms" | "positions" | "as-imported"
       site_anonymization: "none" | "positional" | "opaque-id"
@@ -3069,6 +3219,8 @@ export const Constants = {
     Enums: {
       conversion_stage: ["split", "detect", "parse", "validate", "serialize"],
       game_format: ["cash", "tournament", "sng", "spin"],
+      hand_origin: ["web", "desktop"],
+      hand_source_kind: ["folder", "web"],
       profile_role: ["member", "moderator", "admin"],
       publish_mode: ["pseudonyms", "positions", "as-imported"],
       site_anonymization: ["none", "positional", "opaque-id"],

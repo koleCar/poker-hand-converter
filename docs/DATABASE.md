@@ -17,6 +17,7 @@ The schema is defined by four migrations:
 | `20261102090000_forum_moderation.sql` | Reports, mod queue, moderator and admin powers, bans, shadowbans, revisions, append-only audit, per-actor limits, spam gate (F10, #40 / #41). See [Moderation](#moderation-and-anti-abuse). |
 | `20270414090000_unparsed_registry.sql` | Rail R0.11: `unparsed_hands` becomes the unsupported-format registry for the desktop app too - `origin`, `os`, `client_version`, `consented_at`, `anonymiser_version`, `guessed_site`, `guess_confidence`, the consent rule, two more `unparsed_gaps` columns. See [`unparsed_hands`](#unparsed_hands--the-failure-corpus) and `docs/unsupported-formats.md`. |
 | `20270421090000_desktop_sign_in.sql` | Rail R1.7: `claim_desktop_sign_in()`, the per-account budget of the desktop sign-in handoff (10 an hour). The handoff itself is the Edge Function `supabase/functions/desktop-handoff`. See [Desktop sign-in](#desktop-sign-in-the-edge-function-desktop-handoff). |
+| `20270428090000_desktop_ingest.sql` | Rail R1.8: hands synced by the desktop app. `hands.origin`, `standard_text` nullable for desktop rows only (Q4: PHF only, no standard or source text), `hand_sources`, `register_hand_source`, `ingest_hands` (every search column derived from the PHF on the server), per-account desktop budgets. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). |
 
 Later migrations not listed above (`share_spoilers`, `omaha_hand_class`,
 `hand_stats`, `hand_stats_prune`) carry their own reasoning in their headers.
@@ -35,6 +36,7 @@ the app touches Supabase.
 - [Notifications and realtime](#notifications-and-realtime)
 - [Moderation and anti-abuse](#moderation-and-anti-abuse)
 - [Hand analysis](#hand-analysis-hand_analysis-decision_analysis)
+- [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands)
 - [RLS policies and grants](#rls-policies-and-grants)
 - [Indexes and the queries they serve](#indexes-and-the-queries-they-serve)
 - [Applying a migration](#applying-a-migration)
@@ -74,6 +76,7 @@ The rules the schema holds to:
 | 7a | A capability URL means the **payload** is the boundary | There is no authentication step left to tighten once the slug is out, so the only control is what the function returns. `read_share` names every output key; it never does `select to_jsonb(row)`. See [Share resolution](#share-resolution-read_share--record_share_view). |
 | 8 | Raw uploads are not public | `unparsed_hands.raw_text` is verbatim hand history somebody uploaded. It is readable only by its submitter. The row itself stays globally deduped, because `occurrences` is the entire point of the table. |
 | 8a | A desktop sample leaves the machine only anonymised, and only with consent | A desktop row (`origin = 'desktop'`) must carry `consented_at`, `anonymiser_version`, `os` and `client_version` and be at most 64 KiB: the RPC skips a record without them and a `CHECK` constraint refuses such a row from any writer. The database cannot see that a text is anonymised; the client sends only `rail_core::anonymise` output (tested over the whole corpus), and `anonymiser_version` lets rows from a faulty version be found and deleted. |
+| 8b | A desktop hand is its PHF and nothing else, and only one door writes it | Q4: a row with `origin = 'desktop'` has no `standard_text`, no `source_text` and an empty `meta.rawText` (CHECK `hands_text_by_origin`, any writer). The insert policy admits `origin = 'web'` only, so `ingest_hands` (definer) is the one way in, and it derives every search column from the PHF itself: a desktop client cannot set them. |
 | 9 | Junk volume is bounded | `CHECK` constraints cap text sizes and validate shapes; a statement-level trigger enforces a global insert-rate budget. |
 
 Anything destructive (deleting junk, retiring corpus rows, editing triage
@@ -124,7 +127,7 @@ per-user counter is a strictly larger table with a cleanup job attached.
 
 | Bucket | Budget | Enforced by |
 | --- | --- | --- |
-| `hands_insert` | 25 000 rows / 10 min | `hands_rate_limit()` statement trigger |
+| `hands_insert` | 25 000 **web** rows / 10 min (desktop rows are not counted since R1.8) | `hands_rate_limit()` statement trigger |
 | `unparsed_insert` | 5 000 records / 10 min | `record_conversion_failures()` |
 | `share_create` | 300 shares / hour | `create_share()` |
 | `share_view:<slug>` | 600 views / hour **per slug** | `record_share_view()` |
@@ -138,6 +141,9 @@ per-user counter is a strictly larger table with a cleanup job attached.
 | `lesson_cards:<user>` | 120 calls (≤ 20 cards each) / 10 min **per account** | `add_lesson_cards()` |
 | `lesson_review:<user>` | 600 reviews / 10 min **per account** | `review_lesson_card()` |
 | `desktop_sign_in:<user>` | 10 handoffs / hour **per account** | `claim_desktop_sign_in()`, called by the `desktop-handoff` Edge Function as the user |
+| `desktop_ingest:<user>` | 150 000 rows / 10 min **per account** | `ingest_hands()`, every row received (duplicates and rejections too) |
+| `desktop_ingest_day:<user>` | 2 000 000 rows / day **per account** | `ingest_hands()` |
+| `hand_source:<user>` | 120 registrations / 10 min **per account** | `register_hand_source()` |
 
 `share_view` is the one per-key bucket, because the thing it protects is
 per-key: a view counter anyone can increment by holding a URL is a vanity metric
@@ -222,6 +228,9 @@ why:
 | `enforce_rate_limit` | **definer** | The counter table is unreachable from anon. Not granted to clients. |
 | `claim_desktop_sign_in` | **definer** | Calls `enforce_rate_limit`, which no client may execute; the bucket is built from `auth.uid()` alone. Executable by `authenticated` only (R1.7). |
 | `hands_rate_limit` (trigger) | **definer** | Has to call `enforce_rate_limit`, which anon cannot execute. |
+| `ingest_hands` | **definer** | Desktop rows may only be written here (the insert policy refuses them on the direct path) and the source counters have no client UPDATE grant. Owner from `auth.uid()`, source checked to be the caller's, budget spent first, every column but `hand_key` and `phf` derived on the server. `authenticated` only (R1.8). |
+| `register_hand_source` | **definer** | `hand_sources` has no client write grant. Owner from `auth.uid()`; updates only the descriptive columns of the caller's own row. `authenticated` only (R1.8). |
+| `hand_row_from_phf`, `hand_row_problem`, `phf_*` helpers | invoker | Pure: the PHF-to-row mapping and the constraint mirror `ingest_hands` uses. No client may execute them. |
 
 ---
 
@@ -945,6 +954,77 @@ SM-2 on review (pass: a day, fail: relearned in ten minutes); another
 account's card; isolation; the plan's lesson task done only for the passing
 account; anon reads and writes nothing.
 
+## Desktop ingest: `hand_sources` and `ingest_hands`
+
+`20270428090000_desktop_ingest.sql` (Rail R1.8, `docs/RAIL-PLAN.md`). The
+desktop app keeps every hand in its local store and syncs it here; this is
+the server side of that.
+
+**What a desktop row is (Q4, 2026-10-13).** The PHF and nothing else:
+`standard_text` and `source_text` are null and `meta.rawText` is empty. The
+originals stay on the user's disk; the standard text is rendered from the
+PHF wherever the web needs it (`storedStandardText` in `lib/db/mapping.ts`:
+`getHand`, `read_share` on both the page and the client). A row is ~3.6 KB
+(PHF ~2.9 KB) against ~7.3 KB for a web row. With `meta.rawText` empty the
+serializer cannot read a room's presentation quirks off the source, so 220 of
+the corpus's 8 422 hands (almost all GG) render with small differences from
+the room's text (trailing space on blank `Dealt to` lines, a replayed header,
+`SHOW DOWN`, fee columns); every one reads back as the same hand. Per-seat
+statistics go through `save_hand_stats` as for web rows; until the Rust
+stats engine (R2.1) the web's `/api/stats/rebuild` derives them from the PHF,
+which works for desktop rows unchanged.
+
+**`hand_sources`.** One row per folder the app watches on one device
+(`kind = 'folder'`; `web` is reserved for web uploads, R4.2). The app's
+random per-installation `device_id`, its own `local_id` for the folder, a
+device name, a label (room plus the folder's last component - **never a
+path**: `/` or `\` is refused) and the site; received / inserted / duplicate
+/ rejected counters, the last rejection and the last ingest, maintained by
+`ingest_hands`. Readable by its owner; no client write grant;
+`register_hand_source` is idempotent, 200 sources per account. Hands do not
+point at their source (16 bytes a hand for a link nothing reads yet);
+`hands.origin` is what the pull (R1.9) needs.
+
+**`ingest_hands(p_source, p_rows)`.** At most 500 rows and 8 MiB per call
+(22023 otherwise); the source must be the caller's (23503, the same for
+"unknown" and "not yours"); the budget is spent before anything is written
+(53400; per account, see [Rate limiting](#rate-limiting)). Each row is
+`{hand_key, phf}`. **The server derives every search column** from the PHF
+with `hand_row_from_phf()`, the SQL twin of `handInsertFromPhf`
+(`lib/db/mapping.ts`) - so a desktop row's columns are a function of its PHF
+whoever sent it, as `fast_fold` already was - and checks the derived row
+against the `hands` rules with `hand_row_problem()`, so one bad hand is
+rejected alone instead of failing the insert. Then one `insert ... on
+conflict (owner_id, hand_key) do nothing`. The answer lists every row in
+input order:
+
+| `status` | Meaning |
+| --- | --- |
+| `inserted` | New in the caller's library. |
+| `duplicate` | Already there (sent before, uploaded on the web, or earlier in the same batch). Nothing rewritten. |
+| `rejected` | With `reason`: `shape` (not an object, or the PHF lacks what the mapping reads), `schema` (not `phf/1`), `hand-key` (not `site:id`, or not the PHF's own key), `raw-text` (Q4), `too-large` (over 256 KiB), `invalid` (plus `field`: the column whose rule the derived row breaks). |
+
+**The mapping is held to the TypeScript by a test.** `npm run
+desktop-ingest:parity` (tests/, needs `RAIL_PARITY_PSQL` pointing at a local
+stack's `psql`) saves every corpus hand through `save_hands` with the
+TypeScript row and through `ingest_hands` with only its PHF, in one
+rolled-back transaction, and compares every column: 7 496 distinct hands, 0
+differences. `npm run desktop-ingest:fixture` regenerates
+`supabase/tests/database/desktop_ingest_parity.test.sql` (37 hands covering
+every parser and the mapping's special cases), which CI runs. **Change
+`handInsertFromPhf` and `hand_row_from_phf` together**, and run both.
+
+### Tests
+
+`supabase/tests/database/desktop_ingest.test.sql`: definer settings and
+grants, `hand_sources` sealed, refusals, idempotent registration, path
+labels refused, replays are duplicates and store nothing, counters, another
+account can neither read, collide with nor use a source, every rejection
+reason in one mixed batch, the text rule from every writer, both budgets, a
+refused call writes nothing, the web's global budget untouched, the stats
+rebuild and `save_hand_stats` on desktop rows.
+`supabase/tests/database/desktop_ingest_parity.test.sql`: generated, above.
+
 ## Verifying the isolation
 
 A migration returning `201` proves the SQL ran, not that two accounts are
@@ -1018,8 +1098,8 @@ Three representations are stored on purpose:
 | Column | What it is | Why it exists |
 | --- | --- | --- |
 | `phf jsonb` | The canonical PHF v1 document (`frontend/src/lib/phf/types.ts`) | Source of truth. The replayer reads this. |
-| `standard_text text` | GG-style rendering, derived from `phf` | Holdem Manager import is byte-sensitive; storing the render means we never re-serialize, and never risk a serializer change silently altering an old export. |
-| `source_text text` | The original site text | So a hand can be **re-converted** after a parser bug is fixed, without asking the user for the file again. |
+| `standard_text text` | GG-style rendering, derived from `phf`. **Null on desktop rows** (R1.8, Q4): readers render it from `phf` (`storedStandardText` in `lib/db/mapping.ts`) | Holdem Manager import is byte-sensitive; storing the render means we never re-serialize, and never risk a serializer change silently altering an old export. |
+| `source_text text` | The original site text. Null on desktop rows: the originals stay on the user's disk (Q4) | So a hand can be **re-converted** after a parser bug is fixed, without asking the user for the file again. |
 
 Everything after those three is a **denormalized search layer**: derivable from
 `phf`, but only indexable if it lives in its own column.
@@ -1064,6 +1144,7 @@ Everything after those three is a **denormalized search layer**: derivable from
 | `winners` | text[] | `results.winners` | Deduped player names. |
 | `source_filename` | text | `meta.originalFilename` | "Which file did this come from". |
 | `created_at` | timestamptz | server `now()` | Set by the normalizing trigger, not the client: a row cannot be backdated. |
+| `origin` | enum `hand_origin` | — | `web` (`save_hands`) or `desktop` (`ingest_hands`, R1.8). Decides the text rule below; the direct insert path can only write `web`. |
 
 **Triggers**
 
@@ -1088,6 +1169,8 @@ Everything after those three is a **denormalized search layer**: derivable from
 | `hands_hero_position_ok` | `hero_position` is in the PHF `Position` vocabulary. |
 | `hands_player_positions_ok`, `hands_showdown_positions_ok`, `hands_winner_positions_ok` | Same vocabulary, ≤ 24 entries each. |
 | `hands_positional_anonymity` | A `positional` hand carries **no** `player_names` and **no** `winners`. See [Player identity](#player-identity-and-anonymized-rooms). |
+| `hands_text_by_origin` | A web row has `standard_text`; a desktop row has no `standard_text`, no `source_text` and an empty `phf.meta.rawText` (Q4). |
+| `hands_desktop_phf_size` | A desktop row's `phf` is at most 256 KiB. |
 
 ### `unparsed_hands` — the failure corpus
 
@@ -1269,6 +1352,8 @@ if (!hasUsablePlayerNames(row.anonymization)) {
 | `enforce_rate_limit(...)` | `service_role` | void | Internal. |
 | `generate_share_slug(int)` | `service_role` | text | Internal. |
 | `phf_redact_private(jsonb)` | `service_role` | jsonb | Internal. Strips the private keys from a PHF document's `meta`. |
+| `register_hand_source(p_device_id, p_local_id, p_device_name, p_label, p_site)` | `authenticated` | uuid | Registers (or renames) a folder the desktop app watches; idempotent per account + device + local id. No paths: a label with `/` or `\` is 22023. R1.8. |
+| `ingest_hands(p_source uuid, p_rows jsonb)` | `authenticated` | `{received, inserted, duplicates, rejected, rows}` | Desktop sync: `{hand_key, phf}` rows into the caller's library from one of their sources, every search column derived from the PHF. See [Desktop ingest](#desktop-ingest-hand_sources-and-ingest_hands). R1.8. |
 
 `search_hands` filter keys (all optional): `site`, `board[]`, `heroCards[]`,
 `heroHandClasses[]`, `heroName`, `player`, `tableName`, `variant`, `limitType`,
@@ -1389,11 +1474,12 @@ over-permissioned** and the migration revokes first, then grants.
 
 | Table | `anon` | `authenticated` | Policies |
 | --- | --- | --- | --- |
-| `hands` | **none** | `SELECT`, `INSERT` | `hands_owner_select` / `hands_owner_insert`, both `owner_id = (select auth.uid())`. No `UPDATE`/`DELETE` policy — with RLS on and no permissive policy, both are refused regardless of grants, for owners too. |
+| `hands` | **none** | `SELECT`, `INSERT` | `hands_owner_select` / `hands_owner_insert`, both `owner_id = (select auth.uid())`; the insert policy also requires `origin = 'web'` (R1.8: desktop rows only through `ingest_hands`). No `UPDATE`/`DELETE` policy — with RLS on and no permissive policy, both are refused regardless of grants, for owners too. |
 | `unparsed_hands` | `SELECT` | `SELECT` | `unparsed_own_select` (`submitted_by = (select auth.uid())`). Writes go through the definer RPC; a direct `INSERT` would let a caller invent an occurrence count or set `status = 'wontfix'` on someone else's row. |
 | `unparsed_gaps` (view) | `SELECT` | `SELECT` | `security_invoker`, so the base table's policy applies. |
 | `shares` | **none** | **none** | **none**. Sealed. `create_share` / `read_share` / `record_share_view` only. |
 | `ingest_rate_limit` | **none** | **none** | **none**. Internal. |
+| `hand_sources` | **none** | `SELECT` | `hand_sources_owner_select` (`owner_id = (select auth.uid())`). Written only by `register_hand_source` and `ingest_hands`. |
 
 Why `anon` keeps a `SELECT` *grant* on `unparsed_hands` while having none on
 `hands`: a missing grant raises `42501` before RLS is consulted, and

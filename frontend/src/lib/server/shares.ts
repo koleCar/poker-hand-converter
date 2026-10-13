@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { storedStandardText } from "../db/mapping";
 import type { PhfHand } from "../phf/types";
 import { getServerSupabase } from "../supabase/server";
 
@@ -83,7 +84,8 @@ export const readShare = cache(async (slug: string): Promise<ShareReadResult> =>
   }
 
   const payload = data as Record<string, unknown>;
-  const standardText = (payload.standardText as string | null) ?? "";
+  // Null for a hand the desktop app synced (R1.8): derived from the PHF.
+  const standardText = storedStandardText(payload.standardText, payload.phf);
 
   return {
     status: "ok",
