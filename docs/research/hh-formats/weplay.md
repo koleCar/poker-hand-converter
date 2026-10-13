@@ -689,6 +689,14 @@ account into a directory named after the account's email or screen name.
 Default export directory: **not determined** — the in-repo corpus was delivered
 as a directory tree, not captured from a client install. *(Unverified.)*
 
+Seen on a macOS install (R1.4, 2026-10-13, WePlay 2.0, revision 26.7.2): the
+client writes these files **live** into the folder its `HandsHistoryDir`
+preference names (domain `com.infinity-poker.Weplay`), there
+`~/Documents/hands/<account>/` - each file born on the day in its name and
+written to while the table ran. Whether `~/Documents/hands` is the client's
+default or a chosen folder is still not established
+([`../VERIFYING-PATHS.md`](../VERIFYING-PATHS.md)).
+
 ---
 
 ## 13. Gotchas

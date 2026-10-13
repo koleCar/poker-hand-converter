@@ -86,6 +86,7 @@ export const en = {
     pause: "Pause import",
     resume: "Resume import",
     noFolders: "No folders are watched yet.",
+    findFolders: "Find hand-history folders…",
     folder: "Folder",
     status: "Status",
     handsToday: "Today",
@@ -106,10 +107,73 @@ export const en = {
     pending: (count: number) => `${count} waiting for the hand to finish`,
   },
 
+  /** The first-run screen (R1.4; guideline §3 and §6). */
+  firstRun: {
+    title: "Welcome to Rail",
+    lead: "Three steps to your first HUD: sign in, confirm your hand-history folders, open a table.",
+    unavailable: "Setup is only available inside the Rail app.",
+    skip: "Skip for now",
+
+    signIn: {
+      heading: "1. Sign in",
+      body: "Signing in will keep your hands in sync with the web. It comes in a later version; until then Rail works on this computer without an account.",
+      later: "Coming soon",
+    },
+
+    folders: {
+      heading: "2. Confirm your hand-history folders",
+      searching: "Looking for your poker rooms' folders…",
+      found: (count: number) =>
+        count === 1 ? "Rail found 1 folder on this computer." : `Rail found ${count} folders on this computer.`,
+      lead: "Untick a folder to leave it out. You can change this later in Settings.",
+      room: "Room",
+      folder: "Folder",
+      files: "Files",
+      lastHand: "Last hand",
+      watch: (path: string) => `Watch ${path}`,
+      atLeast: (count: string) => `${count}+`,
+      noFiles: "None yet",
+      unknown: "Unknown",
+      watched: "Already watched",
+      manual: "Added by you",
+      unverified: "This default folder has not been confirmed on a real install yet.",
+      notThisRoom: "The newest files here do not look like this room's hand histories.",
+      empty: "Rail did not find any hand-history folders on this computer.",
+      lookedFor: (rooms: string) => `It looked in the default folders of: ${rooms}.`,
+      noRooms: "No poker room's default folder is known for this system yet.",
+      verifying:
+        "We are checking each room's default folder on real installs, so this list grows with updates. If your room saves hand histories somewhere else, add the folder yourself.",
+      addManually: "Add a folder manually…",
+      choosing: "Choosing…",
+      existingHeading: "Hands already in these folders",
+      importAll: "Import everything",
+      importAllHint: "Every hand already there, then each new hand as you play.",
+      onlyNew: "Only new hands",
+      onlyNewHint: "Leave what is there now; import only hands played from now on.",
+      confirm: (count: number) => (count === 1 ? "Watch 1 folder" : `Watch ${count} folders`),
+      adding: "Adding…",
+      added: (count: number) => (count === 1 ? "Rail is watching 1 folder." : `Rail is watching ${count} folders.`),
+      discoverFailed: (reason: string) => `Could not look for folders: ${reason}`,
+      addFailed: (reason: string) => `Could not add the folders: ${reason}`,
+    },
+
+    table: {
+      heading: "3. Open a table",
+      body: "Play as usual. Rail reads each hand as your poker room writes it, and Today shows them arriving.",
+      done: "Go to Today",
+    },
+  },
+
   settings: {
     loading: "Loading…",
     saveFailed: (reason: string) => `Could not save the change: ${reason}`,
     unavailable: "Settings are only available inside the Rail app.",
+
+    folders: {
+      heading: "Hand-history folders",
+      body: "Look for your poker rooms' folders again, or add one by hand.",
+      open: "Find folders…",
+    },
 
     appearance: {
       heading: "Appearance",
@@ -160,10 +224,6 @@ export const en = {
     error: (message: string) => `The core threw: ${message}`,
     millis: (ms: number) => `${ms} ms`,
     time: "Time",
-    addFolder: "Add a folder to watch…",
-    addFolderNote:
-      "Debug builds only: watches a folder (with its subfolders) until first-run setup and Settings, Folders exist.",
-    adding: "Choosing…",
   },
 
   /** Mirrored in `src-tauri/src/strings.rs`; not used by the window. */

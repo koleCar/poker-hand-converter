@@ -103,16 +103,58 @@ fn every_hud_policy_is_unknown_until_r3_0() {
     }
 }
 
-/// Unknown is null, not a guess: nothing is verified before R1.4 (paths,
-/// files) and R3.3 / R3.11 (tables) look at real installs.
+/// The `files` blocks seen on a real install (R1.4, macOS, 2026-10-13):
+/// WePlay writes live; GGPoker and CoinPoker write no local hand histories
+/// (verified negatives, no path).
+const VERIFIED_FILES: &[&str] = &["ggpoker", "coinpoker", "weplay"];
+
+/// The folders seen on a real install: (site, OS).
+const VERIFIED_PATHS: &[(&str, &str)] = &[("weplay", "macos")];
+
+/// Unknown is null, not a guess: only what R1.4 saw on a real install is
+/// verified (the lists above, each with its date and an "Observed on"
+/// source); every other path and `files` block stays unverified, and no
+/// table data is verified before R3.3 / R3.11 look at real windows.
 #[test]
-fn nothing_is_verified_yet() {
+fn only_what_was_seen_is_verified() {
     let config = load_shipped(&REGISTRATION_ORDER).expect("valid");
     for site in &config.sites {
-        for entry in site.paths.windows.iter().chain(&site.paths.macos) {
-            assert!(!entry.verified && entry.checked_at.is_none(), "{}", site.id);
+        for (os, entries) in [
+            ("windows", &site.paths.windows),
+            ("macos", &site.paths.macos),
+        ] {
+            let seen = VERIFIED_PATHS.contains(&(site.id.as_str(), os));
+            for entry in entries {
+                if seen {
+                    assert!(entry.verified, "{} {os}", site.id);
+                    assert!(entry.checked_at.is_some(), "{} {os}", site.id);
+                    assert!(entry.source.starts_with("Observed on "), "{} {os}", site.id);
+                } else {
+                    assert!(
+                        !entry.verified && entry.checked_at.is_none(),
+                        "{} {os}",
+                        site.id
+                    );
+                }
+            }
+            if seen {
+                assert!(!entries.is_empty(), "{} {os}", site.id);
+            }
         }
-        assert!(!site.files.verified, "{}", site.id);
+        let files_seen = VERIFIED_FILES.contains(&site.id.as_str());
+        assert_eq!(site.files.verified, files_seen, "{}", site.id);
+        if files_seen {
+            assert!(site.files.source.starts_with("Observed on "), "{}", site.id);
+            assert!(site.files.live.is_some(), "{}", site.id);
+            // A client that writes nothing locally has no folder to find.
+            if site.files.live == Some(false) {
+                assert!(
+                    site.paths.windows.is_empty() && site.paths.macos.is_empty(),
+                    "{}",
+                    site.id
+                );
+            }
+        }
         assert!(
             !site.tables.verified && site.tables.is_unknown(),
             "{}",

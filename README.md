@@ -98,8 +98,8 @@ Performance targets (guideline §1, measured from Phase 2):
 | Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer; empty Rust workspace in place (R0.1) | Same format, defined in Rust and exported to TypeScript | 0 |
 | Parsers | **19 parsers in TypeScript**, run in the browser; **all 19 also in Rust** (R0.6–R0.10d), and the whole Rust pipeline equals the TypeScript on every corpus file (556 files, 8 422 hands, 196 refusals); not yet used by the web (WASM and shadow mode are R0.13) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
 | Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads); since R0.11 the Rust core's `Unrecognized` record and anonymiser, and the table's desktop fields and consent rule ([`docs/unsupported-formats.md`](docs/unsupported-formats.md)); since R1.2 the desktop's local registry (`unsupported` in `rail-store`, count and consent state) | Unknown files from watched folders recorded (R1.3), consented uploads after sign-in (R1.7+) | 0–1 |
-| `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; paths, live files and table data mostly unknown (`null`), every HUD policy unknown | Paths verified on real installs (R1.4), window data (R3.3, R3.11), HUD policy from the compliance check (R3.0) | 0–3 |
-| File watcher | **`core/rail-watch` (R1.3)**: FSEvents / ReadDirectoryChangesW / inotify (`notify`) + a rescan every 60 s, network folders polled; reads each file from its stored offset and imports a hand once it is complete (the next hand started, or the file quiet and the hand valid), in any of the corpus encodings; truncation, replaced, renamed and deleted files, unplugged drives; pause / resume. Proven by appending corpus files in random chunks, byte by byte included; the app runs it, tray and Today show it | Folder discovery on first run (R1.4), Settings → Folders (R1.5) | 1 |
+| `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; since R1.4 the first observations from a real install (macOS: WePlay's folder and live files, GGPoker's and CoinPoker's "no local files"), everything else still unverified; table data unknown (`null`), every HUD policy unknown | Every room's paths verified on real installs ([how](docs/research/VERIFYING-PATHS.md)), window data (R3.3, R3.11), HUD policy from the compliance check (R3.0) | 0–3 |
+| File watcher | **`core/rail-watch` (R1.3)**: FSEvents / ReadDirectoryChangesW / inotify (`notify`) + a rescan every 60 s, network folders polled; reads each file from its stored offset and imports a hand once it is complete (the next hand started, or the file quiet and the hand valid), in any of the corpus encodings; truncation, replaced, renamed and deleted files, unplugged drives; pause / resume. Proven by appending corpus files in random chunks, byte by byte included; the app runs it, tray and Today show it. **Folder discovery (R1.4)**: the rooms' default folders from `sites.json` that exist on this computer, with file counts and the last file's date, confirmed on the first-run screen with "import everything" or "only new hands"; a room's folder reads only its files | Settings → Folders (R1.5) | 1 |
 | Local database | **`core/rail-store` (R1.2)**: SQLite (bundled, WAL), embedded migrations, one writer thread committing each file read with its offset in one transaction, read pool, hands as zstd PHF deduped by `hand_key`, quarantine, unsupported-format registry, sync outbox; survives a killed process mid-import (tested on three OSes); the app opens it and Today shows its counts | Statistics, rollups and HUD layouts added (Phases 2–3) | 1 |
 | Sync | Web saves to Supabase directly | Desktop outbox → idempotent upsert; pull of web uploads | 1 |
 | Desktop sign-in | — | System browser + PKCE + `rail://` deep link | 1 |
@@ -198,8 +198,15 @@ one piece at a time (UTF-8, BOM, UTF-16 on code-unit boundaries,
 Windows-1252). `cargo test -p rail-watch --test random_append` appends
 corpus files of every parser and encoding to a watched file in random
 chunks, byte by byte included, and requires exactly their golden hands,
-once (`RAIL_WATCH_FILES=all` for the whole corpus). First-run discovery and
-the folder settings are R1.4 and R1.5.
+once (`RAIL_WATCH_FILES=all` for the whole corpus).
+
+Since R1.4, `rail_watch::discover` finds the rooms' default folders from
+`config/sites.json` (account folders included), counts their hand-history
+files in a bounded walk and dates the newest; the first-run screen lists
+them for one-click confirmation, and "only new hands" marks the files there
+as read without importing them. Few folders are verified on a real install
+yet - see [`docs/research/VERIFYING-PATHS.md`](docs/research/VERIFYING-PATHS.md)
+for what was seen and how to check a room. The folder settings are R1.5.
 
 ### 5.3 Local database and sync (`core/rail-store`, `core/rail-sync`, Phase 1)
 
@@ -311,6 +318,9 @@ sourced compliance check of every room, and only that check goes into
 [`config/sites.json`](config/sites.json). That file (since R0.12) carries
 this table's live-file column as unverified starting points and
 `hud.allowed: null` - unknown, which the HUD treats as no - for every room.
+Since R1.4 three clients were looked at on a real macOS install: WePlay
+writes its files live (import only all the same), GGPoker and CoinPoker
+write none locally ([`docs/research/VERIFYING-PATHS.md`](docs/research/VERIFYING-PATHS.md)).
 
 | Room or network | Parser | Live files | HUD (to verify) |
 | --- | --- | --- | --- |
@@ -322,7 +332,7 @@ this table's live-file column as unverified starting points and
 | iPoker network | ✅ | per skin | per skin |
 | Winning Poker Network (ACR) | ✅ | yes | likely allowed |
 | WPT Global | — (no export exists since June 2026) | no | not applicable |
-| CoinPoker | ✅ | to verify | to verify |
+| CoinPoker | ✅ | no — shown in the client from its server (macOS, seen R1.4) | to verify |
 | Unibet Poker | ✅ | to verify | to verify |
 | Chico network | ✅ | to verify | to verify |
 | Ignition / Bodog / Bovada | ✅ | no — anonymous tables | not useful |
@@ -479,10 +489,12 @@ Closing the window hides it; Rail stays in the tray (menu bar), and "Quit
 Rail" there ends it. In a debug build (`tauri dev`), Settings has a
 developer panel that runs the core on a picked file; release builds have
 neither the panel nor its commands. The watcher (since R1.3) starts with
-the app and reads the folders it is given; until first-run discovery (R1.4)
-and Settings → Folders (R1.5) exist, a debug build has an "Add a folder to
-watch..." button on the Today screen, which also shows each folder's state
-and counts, and the tray's "Pause import" pauses it. Settings, logs and the login item live
+the app and reads the folders it is given. On first launch (since R1.4) the
+window opens on the first-run screen: the hand-history folders Rail found,
+to confirm with one click ("import everything" or "only new hands"), or a
+folder added by hand; it stays reachable from Settings until Settings →
+Folders (R1.5) exists. The Today screen shows each folder's state and
+counts, and the tray's "Pause import" pauses it. Settings, logs and the login item live
 under the app identifier `app.rail.desktop` (provisional until the domain
 is chosen, Q2): `settings.json` in the OS config directory, `rail.log` in
 the OS log directory (Settings, About shows both paths), and the hand store
@@ -576,3 +588,4 @@ of each decision and risks are in [`docs/RAIL-PLAN.md`](docs/RAIL-PLAN.md).
 | Which room next? | [`docs/research/COVERAGE-PLAN.md`](docs/research/COVERAGE-PLAN.md) |
 | Which formats can we not read, and how is that triaged? | [`docs/unsupported-formats.md`](docs/unsupported-formats.md) |
 | Where did this sample come from? | `fixtures/samples/<room>/SOURCES.md` |
+| Where does room X keep its hand histories, and how do I check? | [`docs/research/VERIFYING-PATHS.md`](docs/research/VERIFYING-PATHS.md) |

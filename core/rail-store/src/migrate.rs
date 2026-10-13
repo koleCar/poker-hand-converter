@@ -34,6 +34,10 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "0002_source_poll_only.sql",
         sql: include_str!("../migrations/0002_source_poll_only.sql"),
     },
+    Migration {
+        name: "0003_source_site.sql",
+        sql: include_str!("../migrations/0003_source_site.sql"),
+    },
 ];
 
 /// The schema version this build writes.

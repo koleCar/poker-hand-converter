@@ -8,6 +8,7 @@
 
 mod common;
 
+use std::collections::BTreeMap;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -17,7 +18,7 @@ use std::time::{Duration, Instant};
 use common::*;
 use rail_core::detect::PINNED_PARSED_AT;
 use rail_store::Store;
-use rail_watch::{ReadConfig, SourceState, WatchConfig, WatchEvent, Watcher};
+use rail_watch::{NewSource, ReadConfig, SourceState, WatchConfig, WatchEvent, Watcher};
 
 const STARS: &str = "fixtures/samples/pokerstars/27-cash-multi-hand-file-blank-line-separator.txt";
 const WINAMAX: &str =
@@ -45,6 +46,7 @@ fn fast() -> WatchConfig {
         poll_interval: Duration::from_millis(200),
         workers: 2,
         detect_network: false,
+        file_globs: BTreeMap::new(),
     }
 }
 
@@ -351,5 +353,58 @@ fn latency_from_append_to_commit() {
     );
     assert!(first < Duration::from_secs(2), "{first:?}");
     assert!(second < Duration::from_secs(3), "{second:?}");
+    running.watcher.stop();
+}
+
+/// R1.4: a folder added for a room reads only the room's files
+/// (`files.glob`), and "only new hands" skips what is there when it is
+/// added - the hands written afterwards come in, the old ones never do.
+#[test]
+fn only_new_hands_and_a_rooms_files() {
+    let config = WatchConfig {
+        file_globs: BTreeMap::from([("pokerstars".to_owned(), "HH*.txt".to_owned())]),
+        ..fast()
+    };
+    let running = start("only-new", config);
+    let folder = running.dir.join("hh");
+    fs::create_dir_all(&folder).expect("folder");
+    let stars = corpus(STARS);
+    let starts = hand_starts(&stars);
+    // Five hands already there; a text file that is not the room's.
+    let old = folder.join("HH20260101 old table.txt");
+    fs::write(&old, &stars[..starts[4]]).expect("write");
+    fs::write(folder.join("notes.txt"), corpus(WINAMAX)).expect("write");
+
+    let added = running
+        .watcher
+        .add_source_with(
+            &folder,
+            &NewSource {
+                recursive: true,
+                poll_only: Some(false),
+                site: Some("pokerstars".to_owned()),
+                only_new: true,
+            },
+        )
+        .expect("add");
+    assert_eq!(added.marked, 1, "only the room's file is marked");
+    wait_for("the folder is watched", 20, || {
+        state_of(&running, added.id) == Some(SourceState::Watching)
+    });
+    std::thread::sleep(Duration::from_millis(500));
+    assert_eq!(hands(&running.store), 0, "the old hands are skipped");
+
+    // The table goes on: its next five hands come in.
+    append(&old, &stars[starts[4]..]);
+    wait_for("the new hands", 20, || hands(&running.store) == 5);
+    // A new table of the room: all of it.
+    fs::write(folder.join("HH20260102 new table.txt"), corpus(WINAMAX)).expect("write");
+    wait_for("the new file", 20, || hands(&running.store) == 15);
+    std::thread::sleep(Duration::from_millis(500));
+    assert_eq!(hands(&running.store), 15, "notes.txt is not the room's");
+
+    let status = running.watcher.status().expect("status");
+    assert_eq!(status.sources[0].site.as_deref(), Some("pokerstars"));
+    assert_eq!(status.sources[0].files, 2);
     running.watcher.stop();
 }

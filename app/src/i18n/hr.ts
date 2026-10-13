@@ -72,6 +72,7 @@ export const hr: Dict = {
     pause: "Pauziraj uvoz",
     resume: "Nastavi uvoz",
     noFolders: "Još se ne prati nijedna mapa.",
+    findFolders: "Pronađi mape s rukama…",
     folder: "Mapa",
     status: "Stanje",
     handsToday: "Danas",
@@ -92,10 +93,71 @@ export const hr: Dict = {
     pending: (count) => `čeka kraj ruke: ${count}`,
   },
 
+  firstRun: {
+    title: "Dobro došli u Rail",
+    lead: "Tri koraka do prvog HUD-a: prijava, potvrda mapa s rukama, otvaranje stola.",
+    unavailable: "Postavljanje je dostupno samo unutar aplikacije Rail.",
+    skip: "Preskoči zasad",
+
+    signIn: {
+      heading: "1. Prijava",
+      body: "Prijava će usklađivati vaše ruke s webom. Dolazi u jednoj od sljedećih verzija; do tada Rail radi na ovom računalu bez računa.",
+      later: "Uskoro",
+    },
+
+    folders: {
+      heading: "2. Potvrdite mape s rukama",
+      searching: "Tražimo mape vaših poker soba…",
+      found: (count) => `Rail je na ovom računalu pronašao mapa: ${count}.`,
+      lead: "Odznačite mapu koju ne želite. Kasnije to možete promijeniti u Postavkama.",
+      room: "Soba",
+      folder: "Mapa",
+      files: "Datoteke",
+      lastHand: "Zadnja ruka",
+      watch: (path) => `Prati ${path}`,
+      atLeast: (count) => `${count}+`,
+      noFiles: "Još nema",
+      unknown: "Nepoznato",
+      watched: "Već se prati",
+      manual: "Dodali ste vi",
+      unverified: "Ova zadana mapa još nije potvrđena na stvarnoj instalaciji.",
+      notThisRoom: "Najnovije datoteke ovdje ne izgledaju kao ruke ove sobe.",
+      empty: "Rail na ovom računalu nije pronašao nijednu mapu s rukama.",
+      lookedFor: (rooms) => `Tražio je u zadanim mapama ovih soba: ${rooms}.`,
+      noRooms: "Za ovaj sustav još nije poznata zadana mapa nijedne poker sobe.",
+      verifying:
+        "Zadane mape svake sobe provjeravamo na stvarnim instalacijama, pa ovaj popis raste s novim verzijama. Ako vaša soba sprema ruke negdje drugdje, dodajte mapu sami.",
+      addManually: "Ručno dodaj mapu…",
+      choosing: "Odabir…",
+      existingHeading: "Ruke koje su već u ovim mapama",
+      importAll: "Uvezi sve",
+      importAllHint: "Sve ruke koje su već tu, a zatim svaku novu dok igrate.",
+      onlyNew: "Samo nove ruke",
+      onlyNewHint: "Ono što je sada tu ostaje; uvoze se samo ruke odigrane od sada.",
+      confirm: (count) => `Prati mape: ${count}`,
+      adding: "Dodavanje…",
+      added: (count) => `Rail prati mapa: ${count}.`,
+      discoverFailed: (reason) => `Traženje mapa nije uspjelo: ${reason}`,
+      addFailed: (reason) => `Mape nisu dodane: ${reason}`,
+    },
+
+    table: {
+      heading: "3. Otvorite stol",
+      body: "Igrajte kao i inače. Rail čita svaku ruku čim je soba zapiše, a ekran Danas pokazuje kako stižu.",
+      done: "Idi na Danas",
+    },
+  },
+
   settings: {
     loading: "Učitavanje…",
     saveFailed: (reason) => `Promjena nije spremljena: ${reason}`,
     unavailable: "Postavke su dostupne samo unutar aplikacije Rail.",
+
+    folders: {
+      heading: "Mape s rukama",
+      body: "Ponovno potražite mape svojih poker soba ili dodajte mapu ručno.",
+      open: "Pronađi mape…",
+    },
 
     appearance: {
       heading: "Izgled",
@@ -145,10 +207,6 @@ export const hr: Dict = {
     error: (message) => `Jezgra je bacila iznimku: ${message}`,
     millis: (ms) => `${ms} ms`,
     time: "Vrijeme",
-    addFolder: "Dodaj mapu za praćenje…",
-    addFolderNote:
-      "Samo u debug buildu: prati mapu (s podmapama) dok ne postoje prvo pokretanje i Postavke, Mape.",
-    adding: "Odabir…",
   },
 
   tray: {

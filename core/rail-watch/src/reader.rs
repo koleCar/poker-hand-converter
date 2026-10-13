@@ -351,6 +351,66 @@ impl FileReader {
         self.reset_row(file)
     }
 
+    /// "Only new hands" (R1.4): store a file as read up to its current end
+    /// without importing anything in it, so that only what the room writes
+    /// from now on is read. One batch with no hands, `from_offset` 0 and
+    /// `to_offset` the end of what is complete (a writer cut inside a UTF-16
+    /// code unit or a UTF-8 sequence leaves that tail for the next read),
+    /// with the encoding the core decides on the whole file - the next read
+    /// continues from there as after any commit.
+    ///
+    /// A file the store already has a row for is left alone (it is being
+    /// read, or was), as is an empty one; returns whether it was marked.
+    ///
+    /// A hand the room is writing at that moment is cut: the next read
+    /// starts inside it, which no parser claims, and the file is then read
+    /// whole from 0 (see the module docs) - that one file's old hands come
+    /// in after all. Files whose hands cannot be read from an offset
+    /// (iPoker) are read whole whenever they change, too.
+    pub fn mark_read(&self, file: &FileRef<'_>) -> Result<bool> {
+        let key = path_key(file.path);
+        if self.reader.file_state(&key)?.is_some() {
+            return Ok(false);
+        }
+        let metadata = match std::fs::metadata(file.path) {
+            Ok(metadata) if metadata.is_file() => metadata,
+            Ok(_) => return Ok(false),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+            Err(error) => return Err(Error::io(file.path, error)),
+        };
+        let mtime = metadata.modified().ok().and_then(time::system_time_ms);
+        let bytes = std::fs::read(file.path).map_err(|error| Error::io(file.path, error))?;
+        if bytes.is_empty() {
+            return Ok(false);
+        }
+        let (encoding, complete) = match codec::decide(&bytes) {
+            Decision::Text(codec) => (
+                Some(codec.encoding().label().to_owned()),
+                codec::complete_len(codec, &bytes),
+            ),
+            // Not text (binary, nothing but a BOM): nothing to continue.
+            Decision::Problem(_) => (None, bytes.len()),
+        };
+        let size = u64::try_from(bytes.len()).unwrap_or(u64::MAX);
+        self.writer.import(ImportBatch {
+            file: FileState {
+                path: key,
+                source_id: file.source_id,
+                from_offset: 0,
+                to_offset: u64::try_from(complete).unwrap_or(size),
+                size,
+                mtime_ms: mtime,
+                encoding,
+                site: None,
+                last_error: None,
+            },
+            hands: Vec::new(),
+            refusals: Vec::new(),
+            unrecognized: None,
+        })?;
+        Ok(true)
+    }
+
     /// Set the file's row to offset 0, size 0 (if it has one).
     fn reset_row(&self, file: &FileRef<'_>) -> Result<()> {
         let key = path_key(file.path);

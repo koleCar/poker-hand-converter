@@ -36,8 +36,9 @@ rail-store = { path = "../../core/rail-store" }
 rail-watch = { path = "../../core/rail-watch" }
 tauri = { version = "=2.11.5", features = ["tray-icon"] }
 tauri-plugin-log = "=2.9.1"
-# Only the debug build registers it: the dev-only "convert a file" panel
-# picks its file with it (see `dev.rs`).
+# The first-run screen's "Add a folder manually..." folder picker (R1.4,
+# `folders.rs`) and the debug-only "convert a file" panel (`dev.rs`); called
+# from Rust, not exposed to the window.
 tauri-plugin-dialog = "=2.7.3"
 log = "0.4.34"
 serde = { version = "1.0.229", features = ["derive"] }

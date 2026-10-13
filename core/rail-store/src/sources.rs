@@ -64,6 +64,20 @@ impl WriterHandle {
         })
     }
 
+    /// The room whose default folder this is (a `config/sites.json` id, as
+    /// discovery found it - R1.4), or `None`. Names the room and narrows the
+    /// files read to its `files.glob`; not a parser override. Returns
+    /// whether the folder exists.
+    pub fn set_source_site(&self, id: i64, site: Option<&str>) -> Result<bool> {
+        let site = site.map(str::to_owned);
+        self.write(move |tx| {
+            Ok(tx.execute(
+                "UPDATE sources SET site = ?2 WHERE id = ?1",
+                params![id, site],
+            )? == 1)
+        })
+    }
+
     /// The watcher's state of a folder (`watching`, `polling`,
     /// `unavailable`, `disabled`, ...) and why it cannot be watched, if it
     /// cannot. Unchanged values are not rewritten.

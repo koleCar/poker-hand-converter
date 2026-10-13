@@ -1,15 +1,12 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useT } from "../i18n";
 import { errorText, inApp, ipc, type WatchSource, type WatchStatus } from "../lib/ipc";
+import { screenHref, SETUP } from "../lib/router";
 import styles from "./ImportStatus.module.css";
 
 /** How often the status refreshes while the screen is open. */
 const REFRESH_MS = 3000;
-
-// Debug builds only: in a production bundle `import.meta.env.DEV` is `false`
-// and the import is dropped, so the button is not shipped.
-const DevAddFolder = import.meta.env.DEV ? lazy(() => import("./DevAddFolder")) : null;
 
 const number = new Intl.NumberFormat();
 const time = new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "medium" });
@@ -87,7 +84,14 @@ export function ImportStatus() {
       {status?.running && (
         <p className={status.paused ? styles.warning : styles.muted}>{status.paused ? d.paused : d.running}</p>
       )}
-      {status?.running && status.sources.length === 0 && <p className={styles.muted}>{d.noFolders}</p>}
+      {status?.running && status.sources.length === 0 && (
+        <p className={styles.muted}>
+          {d.noFolders}{" "}
+          <a className={styles.link} href={screenHref(SETUP)}>
+            {d.findFolders}
+          </a>
+        </p>
+      )}
       {status && status.sources.length > 0 && (
         <table className={styles.table}>
           <thead>
@@ -123,11 +127,6 @@ export function ImportStatus() {
             ))}
           </tbody>
         </table>
-      )}
-      {inApp && DevAddFolder && status?.running && (
-        <Suspense fallback={null}>
-          <DevAddFolder onAdded={load} />
-        </Suspense>
       )}
     </section>
   );

@@ -7,7 +7,9 @@
 //! and Rail's own `format`; every `rail_core` parser is named by at least one
 //! entry, and a few entries name no parser (WPT Global, Boss Media, Merge).
 //! Its shape is `config/sites.schema.json`; [`model`] mirrors it field for
-//! field. Unknown is `null`, never a guess: until R1.4 no path is verified,
+//! field. Unknown is `null`, never a guess: a path or a `files` block is
+//! `verified` only once it was seen on a real install (R1.4: WePlay's macOS
+//! folder and files, GGPoker's and CoinPoker's "no local files" on macOS),
 //! and until R3.0 every `hud.allowed` is `null`, which the HUD reads as no.
 //!
 //! Pure functions only - no file system, no network. The app embeds
