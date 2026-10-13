@@ -421,6 +421,13 @@ File naming and the client's default export directory are **not determined** —
 the corpus came from a third party's HUD logs, not a captured client install.
 **(inferred: unverified.)**
 
+Seen on a macOS install (R1.4, 2026-10-13, CoinPoker 1.25.0): after tables
+were played, **no hand-history file exists locally** - not in the client's
+data or log folders (its per-table logs carry no hand header) nor in
+`~/Documents`; the client shows hand history fetched from its server. Whether
+a client setting turns on a local export was not checked
+([`../VERIFYING-PATHS.md`](../VERIFYING-PATHS.md)).
+
 ---
 
 ## 13. Gotchas

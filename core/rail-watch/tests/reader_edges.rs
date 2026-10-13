@@ -163,6 +163,66 @@ fn a_hand_is_complete_when_the_next_starts_or_the_file_is_quiet() {
     assert_eq!(hands(&s.store), 5);
 }
 
+/// "Only new hands" (R1.4): a file marked as read imports nothing of what
+/// it held, then exactly the hands written after it.
+#[test]
+fn a_file_marked_as_read_imports_only_what_follows() {
+    let s = setup("mark");
+    let bytes = corpus(STARS);
+    let starts = hand_starts(&bytes);
+    let path = s.dir.join("hh/stars.txt");
+    let file = FileRef::new(&path);
+    let mut track = FileTrack::default();
+    let quiet = s.config.quiet_ms;
+
+    write_at(&path, &bytes[..starts[4]], T0);
+    assert!(s.reader.mark_read(&file).expect("mark"));
+    assert_eq!(offset(&s.store, &path), starts[4] as u64);
+    assert_eq!(hands(&s.store), 0);
+    // Marked once: a file the store has a row for is left alone.
+    assert!(!s.reader.mark_read(&file).expect("mark again"));
+    assert_eq!(
+        s.reader.poll(&file, &mut track, T0 + quiet).expect("poll"),
+        Polled::Unchanged
+    );
+
+    append_at(&path, &bytes[starts[4]..], T0 + 1_000);
+    let polled = s
+        .reader
+        .poll(&file, &mut track, T0 + 1_000 + quiet)
+        .expect("poll");
+    let (from, _, inserted, duplicates) = committed(&polled);
+    assert_eq!((from, inserted, duplicates), (starts[4] as u64, 5, 0));
+    assert_eq!(hands(&s.store), 5);
+
+    // A missing or empty file is not marked.
+    let empty = s.dir.join("hh/empty.txt");
+    write_at(&empty, b"", T0);
+    assert!(!s.reader.mark_read(&FileRef::new(&empty)).expect("empty"));
+    let missing = s.dir.join("hh/missing.txt");
+    assert!(
+        !s.reader
+            .mark_read(&FileRef::new(&missing))
+            .expect("missing")
+    );
+}
+
+/// A UTF-16 file cut inside a code unit is marked to the last whole unit:
+/// the next read starts on a unit boundary.
+#[test]
+fn a_utf16_file_is_marked_to_a_whole_code_unit() {
+    let s = setup("mark-utf16");
+    let path = s.dir.join("hh/utf16.txt");
+    let mut bytes = vec![0xff, 0xfe];
+    for unit in "PokerStars Hand #1: text\n".encode_utf16() {
+        bytes.extend(unit.to_le_bytes());
+    }
+    bytes.push(b'P');
+    write_at(&path, &bytes, T0);
+    assert!(s.reader.mark_read(&FileRef::new(&path)).expect("mark"));
+    assert_eq!(offset(&s.store, &path), (bytes.len() - 1) as u64);
+}
+
 #[test]
 fn a_hand_without_a_line_end_waits_to_settle() {
     let s = setup("settle");

@@ -229,7 +229,8 @@ shared.
 }
 ```
 
-Paths here are illustrative until R1.4 verifies them on real installs. The app
+Paths here are illustrative; R1.4 verified the first ones on real installs
+(see *As built, R1.4*; how: `docs/research/VERIFYING-PATHS.md`). The app
 ships a copy and fetches updates from the web origin over HTTPS; a downloaded
 file is schema-validated and may only make HUD policy *stricter* than the
 shipped copy, never looser, until a new signed release says otherwise.
@@ -2364,6 +2365,135 @@ exactly once, and the same files imported twice change nothing.
   client is installed. No source covers PokerStars' regional clients yet.
 - First-run screen: found folders with file count and date of the last hand;
   one click to confirm; "import everything" vs "only new hands".
+- *As built* (§15):
+  - **What was verified** (macOS, this development Mac, 2026-10-13; read
+    only, structure only - no hand, name or account left the machine; how
+    to repeat it for any room on macOS or Windows:
+    [`docs/research/VERIFYING-PATHS.md`](research/VERIFYING-PATHS.md)).
+    **GGPoker** (`GGPoker.app`, bundle `com.nsuslab.ncf.launcher.live.ggpcom`,
+    launcher 1.0, game module 1.0.0.480): no hand-history file anywhere in
+    its data folders (UI assets, caches, settings databases of a few KB),
+    `~/Library` or `~/Documents`, no preference naming one - a **verified
+    negative**: `files.live: false`, `verified: true`, no path (PokerCraft
+    downloads go wherever the user saves them; the glob `*.txt` is their
+    names). **CoinPoker** (`CoinPoker.app` 1.25.0, Electron lobby + Unity
+    tables): tables had been played (per-table client logs), still no
+    hand-history file locally (the logs are diagnostics without a hand
+    header); the client fetches hand history from its server - a verified
+    negative too (`live: false`, no glob, no path; whether a client setting
+    enables a local export was not looked for). **WePlay** (`Weplay.app`
+    2.0, revision 26.7.2; installed too, so checked as well): files
+    `HH<date> ....txt` under `~/Documents/hands/<account>/`, the folder
+    the client's `HandsHistoryDir` preference names; each file was born on
+    the day its name says and written for 1-222 minutes after - **live**.
+    Recorded as `paths.macos: ["~/Documents/hands/*"]` (verified, with the
+    caveat that the folder may be the user's choice, not the default),
+    `files.glob: "HH*.txt"`, `live: true`. Everything else stays
+    `verified: false`; R0.12's `nothing_is_verified_yet` is now
+    `only_what_was_seen_is_verified`, which lists exactly these three
+    `files` blocks and the one path, requires an "Observed on" source and a
+    date on them, no path for a client with `live: false`, and holds every
+    other entry (and every `tables` block) unverified. No network entry was
+    split and no skin added (no such client installed). The real write
+    pattern for `quiet_ms` (whole hand at once? trailing blank lines?) was
+    **not** observed: that needs a capture during play.
+  - **Discovery** (`rail_watch::discover`, native only): `discover(config,
+    env, watched, limits) -> Vec<Found>`; `Found { site, name, path,
+    template, verified, glob, files, complete, newest_ms, sample, watched
+    }`. Templates are cut at `/` (macOS: `~` from `Env::home`, or `/`) or
+    `\` (Windows: `%VAR%` from `Env`'s variables, case-insensitive, or a
+    drive); `*` / `?` levels match existing folders (ASCII case ignored,
+    hidden ones only for a pattern starting with a dot, links to folders
+    followed), sorted, at most `Limits::matches` (32) per level; `.` / `..`
+    refused, an unset variable or no home expands to nothing; a folder two
+    templates or rooms name is reported once. Each folder is walked to
+    `Limits::depth` (3) levels and `Limits::entries` (20 000) entries,
+    sorted (deterministic; `complete: false` and a lower-bound count past
+    the bound); files are the room's `files.glob`, or the watcher's
+    extensions when unknown - and then the **newest 3** are sampled: their
+    first 64 KiB through `decode_source` and `detect_site`, `Sample {
+    looked, claimed }` = how many the room's parser wins (the screen warns
+    when none). The last hand's date is the newest counted file's mtime (no
+    file is parsed). `Env::current()` (OS, `HOME` / `USERPROFILE`, the
+    environment) or `Env::new(os, home).with_var(..)` for tests;
+    `file_globs(config)` for the watcher. Tests (`tests/discover.rs`, fake
+    home, all OSes): macOS account levels and globs, Windows variables and
+    drives, sampling with corpus files, the bounds, watched folders, the
+    shipped file (nothing on an empty home; WePlay's folder found).
+  - **"Only new hands"**: `FileReader::mark_read(file)` commits one batch
+    with no hands, `from_offset` 0 and `to_offset` the end of the complete
+    bytes (a UTF-16 half unit or a cut UTF-8 sequence is left), the
+    encoding the core decides on the whole file; a file with a row already,
+    an empty or a missing file is left alone. The next read continues from
+    there like after any commit. `Watcher::add_source_with(path,
+    &NewSource { recursive, poll_only, site, only_new })` stores the folder
+    (and `site`), marks its matching files **before** the watcher reloads
+    (so none is read in between) and returns `AddedSource { id, marked }`;
+    `add_source` is that with defaults. Caveats (documented on the method):
+    a hand being written at that moment is cut, its file then cannot
+    continue from the offset and is read whole (its old hands come in);
+    iPoker-like files are read whole whenever they change. Tests: a marked
+    file imports exactly the hands appended after it (`reader_edges.rs`),
+    UTF-16 marked to a whole unit; the watcher with "only new" skips a
+    folder's five existing hands, then imports the five appended and a new
+    file's ten (`watcher.rs`).
+  - **Files per room**: migration **0003** `sources.site` (the `sites.json`
+    id discovery found the folder for; NULL for a folder added by hand -
+    not a parser override), `WriterHandle::set_source_site`,
+    `SourceSummary.site`, `SourceStatus.site`. `WatchConfig::file_globs`
+    (id -> glob, the app fills it from the shipped file): a folder with a
+    `site` whose room has a glob reads only matching files - walks,
+    notifications and new subfolders alike (`scan::is_candidate_for`,
+    `walk_matching`, `name_matches`: `*`, `?`, ASCII case ignored); other
+    folders keep `.txt` / `.xml` / `.log`. Changing a folder's room drops
+    its tracked files and walks again.
+  - **App**: `folders.rs` - `discover_folders` (discovery over the shipped
+    `sites.json` for this OS, watched folders from the watcher, plus the
+    rooms looked for, for the empty state), `add_folders(folders, onlyNew)`
+    (`add_source_with` per folder; recursive; poll-only on a network
+    volume; an unknown room id is dropped), `pick_folder` (the system
+    picker; `tauri-plugin-dialog` is now registered in release builds too,
+    still called from Rust only - no plugin permission for the window);
+    `set_first_run_done`; settings gain `firstRunDone` (absent = false, so
+    an install from before R1.4 sees the screen once). **First-run
+    screen** (`#/setup`, `screens/FirstRun.tsx`; outside the sidebar, which
+    highlights Settings): opened at start while `firstRunDone` is false,
+    reachable from Settings ("Hand-history folders", Find folders...) and
+    from Today when no folder is watched. Three steps (guideline §6): 1
+    sign in - a "coming soon" placeholder (R1.7); 2 the found folders as a
+    table (room, folder, files - "N+" when the walk stopped - last-hand
+    date), each with a checkbox, ticked unless already watched; a note on
+    a folder whose template is unverified and a warning when sampling found
+    none of the room's files; "Add a folder manually..." adds a picked
+    folder to the list; "Import everything" (default) or "Only new hands";
+    one button watches all ticked folders; an empty state names the rooms
+    looked for and says their folders are being verified; "Skip for now";
+    3 open a table, then "Go to Today" (sets `firstRunDone`). Strings in
+    `en` and `hr`. R1.3's debug-only "Add a folder" button and
+    `dev_add_folder` are gone. Checked in a browser against a mocked IPC
+    (found, empty, manual add, only new, confirm, done); not in a `tauri
+    dev` window on this Mac (no real data imported).
+  - **For R1.5** (Settings → Folders): the list is `Watcher::status()`
+    (now with `site` - show the room's name from `sites.json`); add = the
+    picker plus `add_source_with` (offer "only new" there too);
+    `remove_source` / `set_source_enabled` / `set_source_poll_only` exist;
+    still missing: editing a folder's path (`UPDATE sources SET path` and a
+    reload - the files' rows keep their old paths, so either move them in
+    the same transaction or treat it as remove + add), the room override
+    (`site_override`, a writer method), the room itself (`set_source_site`
+    exists; reload notices a changed glob), and the recursive flag (a
+    writer method). Per-folder quarantine: `Reader::quarantine` joined
+    through `files.source_id`. Re-running discovery from there is
+    `discover_folders` (watched folders are already flagged). Reading the
+    folder from a client preference (WePlay's `HandsHistoryDir`) rather
+    than the template would make discovery exact for a user who moved it -
+    worth doing per room once more clients are seen. **macOS privacy
+    prompts**: discovery reads `~/Documents/hands` (WePlay), and macOS asks
+    the user once whether Rail may access the Documents folder (TCC; a
+    denial means nothing is found there, silently) - expected, since the
+    watcher needs the same access, but the first-run screen could say why
+    before it asks; `~/Library/Application Support` asks nothing. Check this
+    on the signed build (P3), where the prompt names the app.
 
 ### R1.5 Settings → Folders — M
 - Add (picker, external and network drives), edit path, override room,
@@ -2497,7 +2627,8 @@ database, on the development Mac and on a mid-range Windows laptop.
   those first. The `tables` block (process names, a title regex with a
   `table` group, `seatLayouts`, `preferredSeat`) stays `null` until R3.3 /
   R3.6 / R3.11 read it from the clients, which also relax the tables part
-  of `nothing_is_verified_yet`.
+  of `only_what_was_seen_is_verified` (R0.12's `nothing_is_verified_yet`,
+  renamed in R1.4).
 - Repeat before every release (checklist in §12).
 
 ### R3.1 Table simulator (`rail-hud-sim`) — M
@@ -2731,3 +2862,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R1.1 done**: Tauri 2 app shell in `app/` (crate `rail-app` in the workspace; Vite + React + TypeScript with its own lockfile). Single instance, tray with a status menu (Open Rail, Pause import as a disabled placeholder, Quit Rail; closing the window hides it to the tray), start at login (off by default, a setting, `--minimized` at login), log files in the OS log directory (5 MB x 5), crash-safe versioned `settings.json` (temp file, fsync, rename; 8 tests). Six screens as hash routes with a sidebar, English strings through `app/src/i18n/` (`hr` prepared), CSS Modules over a copy of the web's token layer (A3), dark/light/system theme. Settings, About calls `core_info`: 19 parsers, `phf/1`, 22 `sites.json` entries via `rail_config::load_shipped`; a debug-only `convert_file` runs `rail_core::convert` on a picked file. Pinned: tauri 2.11.5 (its sub-crates held on the 2.11 line, see *As built*), CLI 2.11.4, api 2.11.1, React 19.2.8, Vite 7.3.6. CI job `app`: TS/CSS lint and typecheck plus clippy and tests on Linux (WebKitGTK installed); clippy, tests and an unsigned bundle on macOS (`.dmg`, arm64, ad-hoc signed; not universal, see *As built*) and Windows (NSIS), artifacts kept 7 days; the `core` job excludes `rail-app`. |
 | 2026-10-13 | **R1.2 done**: `core/rail-store` - SQLite bundled (`rusqlite` =0.40.2) in WAL with `synchronous=NORMAL`, foreign keys, busy timeout, 16 KiB pages; embedded forward-only migrations on `user_version` (tested from empty and from every earlier version); `STRICT` schema `kv`, `sources`, `files`, `hands` (PHF canonical JSON, zstd =0.14.2), `quarantine`, `unsupported` (R0.11's registry with count and consent state), `outbox`, documented in `core/rail-store/SCHEMA.md` (Phase 2/3 tables reserved). One writer thread on a bounded channel commits each `ImportBatch` - a file's hands, refusals, registry record **and its new read offset** - in one transaction, dedupes by `hand_key` and queues every new hand in `outbox`; a read pool serves the queries (counts, today, files, folders, quarantine, outbox batches, registry). `import_file` converts a whole file with `rail_core` (R1.3's reader sends the same batches). **Exit check** (`tests/crash.rs`, Linux/macOS/Windows CI): a child importing the corpus is killed 12 times at random moments and inside an open transaction; after each kill `integrity_check` is ok and the stored hands are exactly those of the files whose offset moved; the import resumes at the next file and ends equal to a clean single import (7 496 distinct hands from 8 422). Corpus import into an empty store (M2 Pro): 2.7 s on one thread (~3 150 hands/s), 0.72 s with 8 converting threads (~11 700 hands/s; the writer itself ~59 000 hands/s); 23.1 MB, ~3.2 KB per hand. The app opens the store in `setup` under the local data directory; `store_status` feeds the Today screen. |
 | 2026-10-13 | **R1.3 done**: `core/rail-watch` - `notify` =8.2.0 (FSEvents, ReadDirectoryChangesW, inotify) plus a rescan of every folder every 60 s, network folders polled only (`sources.poll_only`, migration 0002, detected from the mount table / UNC paths), one coordinator and 2 workers committing through the store's writer (bounded queue as back-pressure); start / stop / pause / resume, folders in `sources`, status per folder and events. The incremental reader stores the offset at the **first byte of the last chunk** once the next hand has started (each chunk's own slice converts exactly as the whole file: 517 / 517 files with hands whose chunks are verbatim), or at the end after 500 ms of quiet when the last hand validates, ends with a line end and the file does not end inside a code unit (5 s without the line end, 30 s for a refused tail); iPoker-like files (chunks not verbatim) are read whole. Decoding piece by piece equals `decode_source` (BOM only at 0, UTF-16 on code units, strict UTF-8 that meets a 1252 byte re-decided; 556 / 556 files). Truncation, a replaced file (first 256 bytes), rename, deletion, unplugged folders handled. **Exit check**: 31 corpus files (all 19 parsers, UTF-8 / BOM / UTF-16 LE / Windows-1252) x LF and CRLF appended in random chunks (a third byte by byte) on a test clock import exactly their golden hands, refusals and registry record, once; all 556 x 2 in a soak. Latency append to commit: 15-24 ms when the next hand completes it, 513-522 ms for a table's last hand (the quiet period). The app starts it after the store, stops it first on exit, shows it in the tray ("Pause import" works) and on Today; a debug-only "Add a folder" button. |
+| 2026-10-13 | **R1.4 done**: folder discovery and the first-run screen. `rail_watch::discover` expands each room's `sites.json` templates for this OS (`~`, `/`, `%VAR%`, drives; `*` / `?` levels such as account folders), bounded and sorted, and reports per folder the room, file count (the room's `files.glob`, else the watcher's extensions plus a 3-file detection sample), newest file date and whether it is watched; tested on a fake home. Verified on this Mac, read-only and structure only: **WePlay** writes live `HH*.txt` files under `~/Documents/hands/<account>/` (its `HandsHistoryDir` preference; default-ness not established); **GGPoker** and **CoinPoker** write no local hand histories (verified negatives, no path). Everything else stays unverified; R0.12's test is now `only_what_was_seen_is_verified`; how to verify a room on macOS or Windows: `docs/research/VERIFYING-PATHS.md`. "Only new hands": `FileReader::mark_read` (an empty batch to the file's complete end) and `Watcher::add_source_with(.., NewSource { site, only_new, .. })`, which marks before the watcher reads. Migration 0003 `sources.site`; a folder found for a room reads only the room's `files.glob`. The app opens on the first-run screen until it is finished or skipped (`firstRunDone`): sign in (placeholder), the found folders with checkboxes, "Add a folder manually..." (the system picker, now in release builds), "Import everything" / "Only new hands", open a table; reachable from Settings and Today; `en` / `hr`. The debug-only "Add a folder" button is gone. |

@@ -517,6 +517,12 @@ exactly) to the first hand's time; files are per-table, per-session exports cont
 (19-69 in this corpus) separated by exactly one blank line. Encoding: ASCII, LF line endings
 (confirmed via `od -c`/`grep -c $'\r'` — zero CR bytes across the whole corpus), no BOM.
 
+Seen on a macOS install (R1.4, 2026-10-13, GGPoker launcher 1.0, game module 1.0.0.480): the
+client keeps **no hand-history file locally** - its data folders hold UI assets, caches and small
+settings databases - so these files exist only as PokerCraft downloads, wherever the user saves
+them; there is no default folder for Rail to watch
+([`../VERIFYING-PATHS.md`](../VERIFYING-PATHS.md)).
+
 ## 13. Gotchas
 
 - **The `*** SHOWDOWN ***` block fires on every hand that reaches a resolution, not only on hands

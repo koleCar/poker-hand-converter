@@ -46,7 +46,7 @@
 //! the store waits for every handle on its writer, and the watcher holds
 //! some.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender, SyncSender, TrySendError};
@@ -74,6 +74,11 @@ pub struct WatchConfig {
     pub workers: usize,
     /// Mark a folder on a network volume poll-only when it is added.
     pub detect_network: bool,
+    /// `files.glob` per `sites.json` id ([`crate::discover::file_globs`]): a
+    /// folder whose `sources.site` has one reads only the files matching it
+    /// ([`scan::is_candidate_for`]); every other folder reads
+    /// [`scan::EXTENSIONS`]. Empty: no narrowing.
+    pub file_globs: BTreeMap<String, String>,
 }
 
 impl Default for WatchConfig {
@@ -84,8 +89,46 @@ impl Default for WatchConfig {
             poll_interval: Duration::from_secs(3),
             workers: 2,
             detect_network: true,
+            file_globs: BTreeMap::new(),
         }
     }
+}
+
+/// How a folder is added ([`Watcher::add_source_with`]).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NewSource {
+    /// Its subfolders too.
+    pub recursive: bool,
+    /// `None`: poll only when it is on a network volume.
+    pub poll_only: Option<bool>,
+    /// The room it is the default folder of (`sites.json` id), as discovery
+    /// found it: stored as `sources.site`, narrows the files read to the
+    /// room's `files.glob`.
+    pub site: Option<String>,
+    /// "Only new hands": the files there now are stored as read to their
+    /// end without importing them ([`FileReader::mark_read`]); `false`
+    /// imports everything, from offset 0.
+    pub only_new: bool,
+}
+
+impl Default for NewSource {
+    fn default() -> Self {
+        Self {
+            recursive: true,
+            poll_only: None,
+            site: None,
+            only_new: false,
+        }
+    }
+}
+
+/// What [`Watcher::add_source_with`] did.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AddedSource {
+    /// The folder's id in `sources`.
+    pub id: i64,
+    /// Files stored as read without importing them ("only new hands").
+    pub marked: u32,
 }
 
 /// What the watcher is doing with a folder.
@@ -123,6 +166,8 @@ pub struct SourceStatus {
     pub path: String,
     pub recursive: bool,
     pub poll_only: bool,
+    /// The room it is the default folder of (`sources.site`), if known.
+    pub site: Option<String>,
     pub state: SourceState,
     /// Why the folder is unavailable or in error.
     pub error: Option<String>,
@@ -233,6 +278,7 @@ pub struct Watcher {
     shared: Arc<Mutex<Shared>>,
     paused: Arc<AtomicBool>,
     detect_network: bool,
+    file_globs: BTreeMap<String, String>,
     thread: Option<JoinHandle<()>>,
 }
 
@@ -287,6 +333,7 @@ impl Watcher {
         }
 
         let detect_network = config.detect_network;
+        let file_globs = config.file_globs.clone();
         let coordinator = Coordinator {
             config,
             reader: Arc::clone(&reader),
@@ -314,6 +361,7 @@ impl Watcher {
             shared,
             paused,
             detect_network,
+            file_globs,
             thread: Some(thread),
         };
         watcher.send(Command::Reload)?;
@@ -349,16 +397,64 @@ impl Watcher {
     /// whether it is on a network volume. Returns its id; a folder already
     /// there keeps its row and id.
     pub fn add_source(&self, path: &Path, recursive: bool, poll_only: Option<bool>) -> Result<i64> {
-        let poll_only =
-            poll_only.unwrap_or_else(|| self.detect_network && scan::is_network_path(path));
+        let options = NewSource {
+            recursive,
+            poll_only,
+            ..NewSource::default()
+        };
+        Ok(self.add_source_with(path, &options)?.id)
+    }
+
+    /// Watch a folder as `options` say: its room (`sources.site`, which
+    /// narrows its files to the room's `files.glob`) and whether the files
+    /// already there are imported or only what is written from now on
+    /// ([`NewSource::only_new`]). The files are marked before the watcher
+    /// takes the folder up, so none of their hands is read in between. A
+    /// folder already there keeps its row and id; its room is updated, and
+    /// "only new" leaves the files it already has rows for alone.
+    pub fn add_source_with(&self, path: &Path, options: &NewSource) -> Result<AddedSource> {
+        let poll_only = options
+            .poll_only
+            .unwrap_or_else(|| self.detect_network && scan::is_network_path(path));
         let id = self.writer.add_source(
             &rail_store::import::path_key(path),
-            recursive,
+            options.recursive,
             None,
             poll_only,
         )?;
+        if let Some(site) = &options.site {
+            self.writer.set_source_site(id, Some(site))?;
+        }
+        let mut marked = 0;
+        if options.only_new {
+            let glob = options
+                .site
+                .as_ref()
+                .and_then(|site| self.file_globs.get(site))
+                .map(String::as_str);
+            // A folder that is not there (yet) has nothing to skip.
+            if let Ok(walk) = scan::walk_matching(path, options.recursive, glob) {
+                for (file, _, _) in walk.files {
+                    let file_ref = FileRef {
+                        path: &file,
+                        source_id: Some(id),
+                        site_override: None,
+                    };
+                    match self.reader.mark_read(&file_ref) {
+                        Ok(true) => marked += 1,
+                        Ok(false) => {}
+                        // Read in full later instead: better than lost.
+                        Err(error) => log::warn!("{}: not skipped: {error}", file.display()),
+                    }
+                }
+            }
+            log::info!(
+                "{}: {marked} existing files marked as read (only new hands)",
+                path.display()
+            );
+        }
         self.send(Command::Reload)?;
-        Ok(id)
+        Ok(AddedSource { id, marked })
     }
 
     /// Stop watching a folder and forget it; its hands stay.
@@ -400,6 +496,7 @@ impl Watcher {
                     path: row.path,
                     recursive: row.recursive,
                     poll_only: row.poll_only || live.poll_only,
+                    site: row.site,
                     state,
                     error: live.error,
                     file_errors: live.file_errors,
@@ -476,6 +573,8 @@ struct SourceRt {
     enabled: bool,
     poll_only: bool,
     site_override: Option<String>,
+    /// The room's `files.glob` (from `sources.site`): which files are read.
+    glob: Option<String>,
     state: Option<SourceState>,
     error: Option<String>,
     /// Registered with the OS notifier.
@@ -654,17 +753,27 @@ impl Coordinator {
             let path = PathBuf::from(&row.path);
             let poll_only = row.poll_only
                 || (self.config.detect_network && row.enabled && scan::is_network_path(&path));
+            let glob = row
+                .site
+                .as_ref()
+                .and_then(|site| self.config.file_globs.get(site))
+                .cloned();
             let changed = self.sources.get(&row.id).is_none_or(|known| {
                 known.enabled != row.enabled
                     || known.poll_only != poll_only
                     || known.recursive != row.recursive
                     || known.site_override != row.site_override
+                    || known.glob != glob
             });
             if !changed {
                 continue;
             }
             if let Some(old) = self.sources.remove(&row.id) {
                 self.unwatch(&old.path, old.watched);
+                if old.glob != glob {
+                    // Other files are read now: start from the next walk.
+                    self.files.retain(|_, file| file.source_id != row.id);
+                }
             }
             let mut source = SourceRt {
                 id: row.id,
@@ -674,6 +783,7 @@ impl Coordinator {
                 enabled: row.enabled,
                 poll_only,
                 site_override: row.site_override,
+                glob,
                 state: None,
                 error: None,
                 watched: false,
@@ -782,7 +892,8 @@ impl Coordinator {
         if just_watched {
             source.next_scan = now + WATCH_SETTLE_MS;
         }
-        let walk = match scan::walk(&source.path, source.recursive) {
+        let walk = match scan::walk_matching(&source.path, source.recursive, source.glob.as_deref())
+        {
             Ok(walk) => walk,
             Err(error) => {
                 // Not there, or not readable: say so, try at the next rescan.
@@ -866,6 +977,7 @@ impl Coordinator {
                 continue;
             };
             let (source_id, recursive) = (source.id, source.recursive);
+            let glob = source.glob.clone();
             let path = &path;
             let folder_created = matches!(
                 event.kind,
@@ -873,14 +985,14 @@ impl Coordinator {
             ) || (matches!(event.kind, EventKind::Create(_)) && path.is_dir());
             if folder_created {
                 // A new subfolder: its files may predate the OS watch on it.
-                if recursive && let Ok(walk) = scan::walk(path, true) {
+                if recursive && let Ok(walk) = scan::walk_matching(path, true, glob.as_deref()) {
                     for (file, _, _) in walk.files {
                         self.mark(file, source_id);
                     }
                 }
                 continue;
             }
-            if scan::is_candidate(path) || self.files.contains_key(path) {
+            if scan::is_candidate_for(path, glob.as_deref()) || self.files.contains_key(path) {
                 self.mark(path.clone(), source_id);
             }
         }

@@ -107,6 +107,21 @@ pub fn set_theme(settings: State<'_, SettingsState>, theme: Theme) -> Result<Set
     })
 }
 
+/// The first-run screen was finished or skipped (`true`), or should show
+/// again at the next start (`false`).
+#[tauri::command]
+pub fn set_first_run_done(
+    settings: State<'_, SettingsState>,
+    done: bool,
+) -> Result<Settings, String> {
+    settings.with(|store| {
+        store
+            .update(|s| s.first_run_done = done)
+            .cloned()
+            .map_err(|error| error.to_string())
+    })
+}
+
 /// Turn start-at-login on or off: the OS login item first, then the setting,
 /// so the setting never claims what the OS refused.
 #[tauri::command]

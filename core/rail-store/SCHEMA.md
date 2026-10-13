@@ -28,6 +28,7 @@ app's local data directory (`app_local_data_dir`): on macOS
 | --- | --- | --- |
 | 1 | `0001_initial.sql` | `kv`, `sources`, `files`, `hands`, `quarantine`, `unsupported`, `outbox` |
 | 2 | `0002_source_poll_only.sql` | `sources.poll_only` (R1.3) |
+| 3 | `0003_source_site.sql` | `sources.site` (R1.4) |
 
 Reserved for later steps, each as the next free number when it lands (the
 numbers are not fixed in advance; the order is):
@@ -55,8 +56,8 @@ version (that is `user_version`) and not the window settings (those are
 ### `sources`
 
 Watched folders. Written through `WriterHandle::add_source`,
-`remove_source`, `set_source_enabled`, `set_source_poll_only` and
-`set_source_status` (`src/sources.rs`): the watcher (R1.3) keeps `status`
+`remove_source`, `set_source_enabled`, `set_source_poll_only`,
+`set_source_site` and `set_source_status` (`src/sources.rs`): the watcher (R1.3) keeps `status`
 and `last_error` current; Settings → Folders (R1.5) edits the rest.
 Removing a folder keeps its files and hands (`files.source_id` becomes
 NULL).
@@ -72,6 +73,7 @@ NULL).
 | `last_error` | TEXT NULL | why the folder cannot be watched |
 | `added_at` | INTEGER | ms |
 | `poll_only` | INTEGER | 0 / 1 (version 2): read by polling, without OS notifications - a network share, detected when the folder is added, or set by the user |
+| `site` | TEXT NULL | (version 3) the `config/sites.json` id of the room whose default folder this is, as first-run discovery found it (R1.4); names the room and narrows the files read to the room's `files.glob`. Not a parser override. NULL for a folder added by hand |
 
 ### `files`
 

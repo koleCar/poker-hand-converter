@@ -456,8 +456,17 @@ fn sources_and_kv() {
     writer
         .set_source_status(id, "unavailable", Some("gone"))
         .expect("status");
+    // Discovery's room (R1.4).
+    assert_eq!(store.reader().sources().expect("sources")[0].site, None);
+    assert!(writer.set_source_site(id, Some("weplay")).expect("site"));
+    assert!(
+        !writer
+            .set_source_site(id + 100, None)
+            .expect("no such folder")
+    );
     let source = &store.reader().sources().expect("sources")[0];
     assert!(source.poll_only && !source.enabled);
+    assert_eq!(source.site.as_deref(), Some("weplay"));
     assert_eq!(
         (source.status.as_str(), source.last_error.as_deref()),
         ("unavailable", Some("gone"))

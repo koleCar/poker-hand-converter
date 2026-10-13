@@ -49,6 +49,11 @@ pub struct Settings {
     /// Start Rail when the user logs in (`tauri-plugin-autostart`). Off by
     /// default; the OS login item is reconciled with this on every start.
     pub start_at_login: bool,
+    /// The first-run screen (R1.4: confirm the found folders) was finished
+    /// or skipped. Until then the window opens on it; Settings reaches it
+    /// again at any time. A file from before R1.4 lacks the field, so that
+    /// install sees the screen once.
+    pub first_run_done: bool,
 }
 
 impl Default for Settings {
@@ -57,6 +62,7 @@ impl Default for Settings {
             version: VERSION,
             theme: Theme::default(),
             start_at_login: false,
+            first_run_done: false,
         }
     }
 }
@@ -302,8 +308,23 @@ mod tests {
         let value: serde_json::Value = serde_json::from_str(&text).expect("json");
         assert_eq!(
             value,
-            serde_json::json!({ "version": VERSION, "theme": "dark", "startAtLogin": false })
+            serde_json::json!({
+                "version": VERSION,
+                "theme": "dark",
+                "startAtLogin": false,
+                "firstRunDone": false
+            })
         );
+    }
+
+    #[test]
+    fn the_first_run_flag_round_trips_and_defaults_to_not_done() {
+        let dir = TempDir::new();
+        write_atomic(&dir.file(), br#"{"version":1,"theme":"dark"}"#).expect("write");
+        let (mut store, _) = Store::load(dir.file());
+        assert!(!store.get().first_run_done, "a file from before R1.4");
+        store.update(|s| s.first_run_done = true).expect("save");
+        assert!(Store::load(dir.file()).0.get().first_run_done);
     }
 
     #[test]

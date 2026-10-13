@@ -164,7 +164,8 @@ impl Reader {
                           WHERE f.source_id = s.id AND h.imported_at >= {TODAY_START_MS}),
                         (SELECT count(*) FROM quarantine q JOIN files f ON f.id = q.file_id
                           WHERE f.source_id = s.id),
-                        (SELECT max(f.last_import_at) FROM files f WHERE f.source_id = s.id)
+                        (SELECT max(f.last_import_at) FROM files f WHERE f.source_id = s.id),
+                        s.site
                  FROM sources s
                  ORDER BY s.path"
             ))?;
@@ -178,6 +179,7 @@ impl Reader {
                     status: row.get(5)?,
                     last_error: row.get(6)?,
                     poll_only: row.get(7)?,
+                    site: row.get(13)?,
                     files: row.get(8)?,
                     hands: row.get(9)?,
                     hands_today: row.get(10)?,
@@ -394,6 +396,9 @@ pub struct SourceSummary {
     pub last_error: Option<String>,
     /// Read by polling, without change notifications (a network share).
     pub poll_only: bool,
+    /// The room whose default folder this is (`config/sites.json` id), as
+    /// discovery found it; `None` for a folder added by hand.
+    pub site: Option<String>,
     pub files: i64,
     pub hands: i64,
     pub hands_today: i64,

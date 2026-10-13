@@ -2,9 +2,10 @@
 //! right after the store, reported in the tray's status line and on the
 //! Today screen, paused and resumed from the tray ("Pause import").
 //!
-//! Folders come from the store's `sources`; until the first-run discovery
-//! (R1.4) and Settings → Folders (R1.5) exist, a debug build adds one with
-//! the developer's "Add folder" button (`dev.rs`).
+//! Folders come from the store's `sources`, added by the first-run screen
+//! (`folders.rs`, R1.4) and later by Settings → Folders (R1.5). A folder
+//! found for a room reads only the room's files (`files.glob` of the
+//! shipped `sites.json`, [`WatchConfig::file_globs`]).
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, PoisonError};
@@ -43,7 +44,13 @@ impl WatcherState {
             .map_err(|e| e.to_string())
             .and_then(|writer| {
                 let flag = Arc::clone(&dirty);
-                Watcher::start(store.path(), writer, WatchConfig::default(), move |event| {
+                let config = WatchConfig {
+                    file_globs: crate::folders::sites()
+                        .map(rail_watch::discover::file_globs)
+                        .unwrap_or_default(),
+                    ..WatchConfig::default()
+                };
+                Watcher::start(store.path(), writer, config, move |event| {
                     on_event(&flag, &event);
                 })
                 .map_err(|e| e.to_string())
@@ -80,6 +87,11 @@ impl WatcherState {
         }
     }
 
+    /// Have the tray redrawn (folders were added).
+    pub fn mark_dirty(&self) {
+        self.dirty.store(true, Ordering::Relaxed);
+    }
+
     /// Stop it (on exit): before the store closes, which waits for the
     /// watcher's handles on its writer.
     pub fn stop(&self) {
@@ -107,6 +119,7 @@ impl WatcherState {
                     .map(|source| WatchSource {
                         id: source.id,
                         path: source.path,
+                        site: source.site,
                         state: source.state.as_str(),
                         error: source.error,
                         recursive: source.recursive,
@@ -272,6 +285,8 @@ impl WatchStatus {
 pub struct WatchSource {
     id: i64,
     path: String,
+    /// The room it is the default folder of (`sites.json` id), if known.
+    site: Option<String>,
     /// `watching`, `polling`, `unavailable`, `error`, `disabled`.
     state: &'static str,
     error: Option<String>,

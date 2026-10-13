@@ -75,9 +75,9 @@
         "glob": "*.txt",
         "encoding": "auto",
         "live": false,
-        "verified": false,
-        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
-        "notes": "Hands are downloaded afterwards, not written while playing; the in-repo files (gg-hh/) are such downloads, named GG<date>-<time> - <table> - <sb> - <bb> - <n>max.txt."
+        "verified": true,
+        "source": "Observed on a macOS install, 2026-10-13: GGPoker.app (bundle com.nsuslab.ncf.launcher.live.ggpcom, launcher 1.0, game module 1.0.0.480). No hand-history file anywhere in its data folders (~/Library/Application Support/GGPCOM and com.nsuslab.ncf.launcher.live.ggpcom: UI assets, caches and a few-kilobyte settings databases), ~/Library or ~/Documents; its preferences name no hand-history folder. The glob is the file names of the PokerCraft downloads in gg-hh/.",
+        "notes": "Hands are downloaded afterwards from PokerCraft, not written while playing, and saved wherever the user puts the download - so there is no default folder (paths stay empty: a verified negative, macOS). The in-repo files (gg-hh/) are such downloads, named GG<date>-<time> - <table> - <sb> - <bb> - <n>max.txt. The Windows client was not looked at."
       },
       "tables": {
         "process": {
@@ -332,10 +332,10 @@
       "files": {
         "glob": null,
         "encoding": "auto",
-        "live": null,
-        "verified": false,
-        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
-        "notes": "File names and the default folder are not determined; the corpus came from a third party's HUD logs (docs/research/hh-formats/coinpoker.md section 12)."
+        "live": false,
+        "verified": true,
+        "source": "Observed on a macOS install, 2026-10-13: CoinPoker.app 1.25.0 (bundle com.coinpoker.desktopapprelease; an Electron lobby with a Unity table client). Tables had been played (per-table client logs in ~/Library/Logs/CoinPoker), yet no hand-history file exists in its data folders (~/Library/Application Support/CoinPoker, com.CoinPoker.CoinPoker), ~/Library/Logs/CoinPoker (client diagnostics, no hand header in any of them) or ~/Documents; its preferences name no hand-history folder. The client fetches hand history from its server and shows it in the app.",
+        "notes": "No local hand histories on macOS with the client as installed (a verified negative: no path, no glob). Whether a setting in the client's screens turns on a local export was not looked for; the corpus came from a third party's HUD logs (docs/research/hh-formats/coinpoker.md section 12). The Windows client was not looked at."
       },
       "tables": {
         "process": {
@@ -510,15 +510,22 @@
       "skins": [],
       "paths": {
         "windows": [],
-        "macos": []
+        "macos": [
+          {
+            "path": "~/Documents/hands/*",
+            "verified": true,
+            "source": "Observed on a macOS install, 2026-10-13: Weplay.app 2.0 (bundle poker.weplay.desktop, client revision 26.7.2). The folder the client's HandsHistoryDir preference names (preference domain com.infinity-poker.Weplay), with one subfolder per account (* is the account's e-mail or screen name) holding the files. Whether it is the client's default or was chosen in the client is not established.",
+            "checkedAt": "2026-10-13"
+          }
+        ]
       },
       "files": {
-        "glob": "*.txt",
+        "glob": "HH*.txt",
         "encoding": "auto",
-        "live": null,
-        "verified": false,
-        "source": "No source for live writing; glob from the real corpus file names (docs/research/hh-formats/weplay.md section 12)",
-        "notes": "One file per table per day; the default export folder is not determined."
+        "live": true,
+        "verified": true,
+        "source": "Observed on a macOS install, 2026-10-13 (Weplay.app 2.0, revision 26.7.2): every file is named HH<YYYYMMDD> ... .txt (docs/research/hh-formats/weplay.md section 12), was created on the day its name gives, and was written to for 1 to 222 minutes after it was created - the client writes hands while the table is played.",
+        "notes": "One file per table per day. The folder is a client preference (HandsHistoryDir); a later discovery could read it rather than rely on the observed folder. The Windows client was not looked at."
       },
       "tables": {
         "process": {

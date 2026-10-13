@@ -6,18 +6,30 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 /// Extensions of hand-history files (lower case). Every corpus file is
-/// `.txt` or `.xml`; some clients write `.log`. R1.4 narrows this per room
-/// with `sites.json`'s `files.glob` once the folders are verified.
+/// `.txt` or `.xml`; some clients write `.log`. A folder discovery found for
+/// a room whose `sites.json` entry has a `files.glob` reads only the files
+/// that match it instead ([`is_candidate_for`], R1.4).
 pub const EXTENSIONS: &[&str] = &["txt", "xml", "log"];
 
 /// Whether a file is one the watcher reads: a hand-history extension, not
 /// hidden, not an editor's backup.
 pub fn is_candidate(path: &Path) -> bool {
+    is_candidate_for(path, None)
+}
+
+/// [`is_candidate`] for a folder whose room names its files: with a
+/// `glob` (`sites.json`'s `files.glob`, e.g. `HH*.txt`) a file is read when
+/// its name matches it, whatever the extension; without one, by
+/// [`EXTENSIONS`]. Hidden files and editors' backups never are.
+pub fn is_candidate_for(path: &Path, glob: Option<&str>) -> bool {
     let Some(name) = path.file_name().and_then(|name| name.to_str()) else {
         return false;
     };
     if name.starts_with('.') || name.ends_with('~') {
         return false;
+    }
+    if let Some(glob) = glob {
+        return name_matches(glob, name);
     }
     path.extension()
         .and_then(|ext| ext.to_str())
@@ -26,6 +38,39 @@ pub fn is_candidate(path: &Path) -> bool {
                 .iter()
                 .any(|known| ext.eq_ignore_ascii_case(known))
         })
+}
+
+/// A file or folder name against a pattern of `sites.json`: `*` is any run
+/// of characters (none included), `?` one character, anything else itself,
+/// ASCII case ignored (the default file systems of macOS and Windows ignore
+/// case). No brackets, no braces, no path separators.
+pub fn name_matches(pattern: &str, name: &str) -> bool {
+    let pattern: Vec<char> = pattern.chars().collect();
+    let name: Vec<char> = name.chars().collect();
+    // The classic two-pointer match with one backtrack point per `*`.
+    let (mut p, mut n) = (0, 0);
+    let mut star: Option<(usize, usize)> = None;
+    while n < name.len() {
+        match pattern.get(p) {
+            Some('*') => {
+                star = Some((p, n));
+                p += 1;
+            }
+            Some(&c) if c == '?' || c.eq_ignore_ascii_case(&name[n]) => {
+                p += 1;
+                n += 1;
+            }
+            _ => match star {
+                Some((star_p, star_n)) => {
+                    p = star_p + 1;
+                    n = star_n + 1;
+                    star = Some((star_p, star_n + 1));
+                }
+                None => return false,
+            },
+        }
+    }
+    pattern[p..].iter().all(|&c| c == '*')
 }
 
 /// What a walk of a folder found.
@@ -42,6 +87,11 @@ pub struct Walk {
 /// followed (a link loop cannot make the walk endless). Fails only when
 /// `root` itself cannot be read.
 pub fn walk(root: &Path, recursive: bool) -> io::Result<Walk> {
+    walk_matching(root, recursive, None)
+}
+
+/// [`walk`] with the files chosen by [`is_candidate_for`] `glob`.
+pub fn walk_matching(root: &Path, recursive: bool, glob: Option<&str>) -> io::Result<Walk> {
     let mut walk = Walk::default();
     let mut stack = vec![root.to_path_buf()];
     let mut first = true;
@@ -77,7 +127,7 @@ pub fn walk(root: &Path, recursive: bool) -> io::Result<Walk> {
                 }
                 continue;
             }
-            if !is_candidate(&path) {
+            if !is_candidate_for(&path, glob) {
                 continue;
             }
             // A link to a file is read like the file.
@@ -223,6 +273,43 @@ mod tests {
         assert!(!is_candidate(Path::new("/x/notes.txt~")));
         assert!(!is_candidate(Path::new("/x/rail.db")));
         assert!(!is_candidate(Path::new("/x/noext")));
+    }
+
+    #[test]
+    fn a_room_glob_narrows_the_candidates() {
+        let glob = Some("HH*.txt");
+        assert!(is_candidate_for(
+            Path::new("/x/HH20260101 T (#1).txt"),
+            glob
+        ));
+        assert!(is_candidate_for(Path::new("/x/hh20260101.TXT"), glob));
+        assert!(!is_candidate_for(Path::new("/x/notes.txt"), glob));
+        assert!(!is_candidate_for(Path::new("/x/HH1.xml"), glob));
+        assert!(!is_candidate_for(Path::new("/x/.HH1.txt"), glob));
+        // A glob may name an extension the default list does not have.
+        assert!(is_candidate_for(Path::new("/x/a.hh"), Some("*.hh")));
+    }
+
+    #[test]
+    fn names_match_patterns() {
+        for (pattern, name, expected) in [
+            ("*", "", true),
+            ("*", "anything", true),
+            ("*.txt", "a.txt", true),
+            ("*.txt", "a.txt.bak", false),
+            ("PokerStars*", "PokerStars.EU", true),
+            ("PokerStars*", "pokerstars", true),
+            ("PokerStars*", "Poker", false),
+            ("a?c", "abc", true),
+            ("a?c", "ac", false),
+            ("*a*b*", "xxaxxbxx", true),
+            ("*a*b", "xxaxxbxxc", false),
+            ("HH*", "HH", true),
+            ("", "", true),
+            ("", "a", false),
+        ] {
+            assert_eq!(name_matches(pattern, name), expected, "{pattern} {name}");
+        }
     }
 
     #[test]

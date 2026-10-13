@@ -165,14 +165,11 @@ pub fn without_incomplete_utf8_tail(bytes: &[u8]) -> usize {
     len
 }
 
-/// The core's encoding decision for a file whose first `bytes` have been
-/// written (a read from offset 0), and whether the text is lossy UTF-8.
-pub fn decide(bytes: &[u8]) -> Decision {
-    let sniffed = decode_source(bytes);
-    // Decided again without what the writer may not have finished: half a
-    // UTF-16 unit or pair (which the core would count as a replacement
-    // character, and a short file as binary), or a cut UTF-8 sequence.
-    let complete = match Codec::from_encoding(sniffed.encoding, false) {
+/// The length of `bytes` (from offset 0) without what a writer may not have
+/// finished in `codec`: half a UTF-16 unit or a lone lead surrogate, or a
+/// cut UTF-8 sequence. Windows-1252 has no such tail.
+pub fn complete_len(codec: Codec, bytes: &[u8]) -> usize {
+    match codec {
         Codec::Utf16 { little_endian, .. } => {
             let even = bytes.len() - bytes.len() % 2;
             let last = bytes.get(even.saturating_sub(2)..even).map(|unit| {
@@ -188,6 +185,20 @@ pub fn decide(bytes: &[u8]) -> Decision {
                 even
             }
         }
+        Codec::Utf8 { .. } => without_incomplete_utf8_tail(bytes),
+        Codec::Windows1252 => bytes.len(),
+    }
+}
+
+/// The core's encoding decision for a file whose first `bytes` have been
+/// written (a read from offset 0), and whether the text is lossy UTF-8.
+pub fn decide(bytes: &[u8]) -> Decision {
+    let sniffed = decode_source(bytes);
+    // Decided again without what the writer may not have finished: half a
+    // UTF-16 unit or pair (which the core would count as a replacement
+    // character, and a short file as binary), or a cut UTF-8 sequence.
+    let complete = match Codec::from_encoding(sniffed.encoding, false) {
+        utf16 @ Codec::Utf16 { .. } => complete_len(utf16, bytes),
         _ => without_incomplete_utf8_tail(bytes),
     };
     let decoded = if complete == bytes.len() {

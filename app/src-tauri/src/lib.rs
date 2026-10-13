@@ -19,7 +19,12 @@
 //!   `sources` into the store, reports in the tray's status line, and is
 //!   paused and resumed from the tray; the Today screen shows its folders
 //!   (`watcher_status`). It is stopped on exit before anything else, since
-//!   the store waits for the watcher's handles on its writer.
+//!   the store waits for the watcher's handles on its writer;
+//! - the first-run screen's commands ([`folders`], R1.4): discovery of the
+//!   rooms' default folders, adding the confirmed ones ("import everything"
+//!   or "only new hands"), and the system folder picker
+//!   (`tauri-plugin-dialog`, called from Rust; no plugin API is exposed to
+//!   the window).
 
 use std::sync::Mutex;
 
@@ -30,6 +35,7 @@ use tauri_plugin_log::{RotationStrategy, Target, TargetKind};
 pub mod commands;
 #[cfg(debug_assertions)]
 pub mod dev;
+pub mod folders;
 pub mod settings;
 pub mod strings;
 pub mod tray;
@@ -154,25 +160,28 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
             Some(vec![MINIMIZED_ARG]),
-        ));
+        ))
+        // The folder picker of the first-run screen (and the dev panel's
+        // file picker), called from Rust only.
+        .plugin(tauri_plugin_dialog::init());
 
     #[cfg(debug_assertions)]
-    let builder =
-        builder
-            .plugin(tauri_plugin_dialog::init())
-            .invoke_handler(tauri::generate_handler![
-                commands::core_info,
-                commands::app_info,
-                commands::get_settings,
-                commands::set_theme,
-                commands::set_start_at_login,
-                commands::store_status,
-                watch::watcher_status,
-                watch::set_import_paused,
-                dev::dev_pick_file,
-                dev::convert_file,
-                dev::dev_add_folder,
-            ]);
+    let builder = builder.invoke_handler(tauri::generate_handler![
+        commands::core_info,
+        commands::app_info,
+        commands::get_settings,
+        commands::set_theme,
+        commands::set_start_at_login,
+        commands::set_first_run_done,
+        commands::store_status,
+        watch::watcher_status,
+        watch::set_import_paused,
+        folders::discover_folders,
+        folders::add_folders,
+        folders::pick_folder,
+        dev::dev_pick_file,
+        dev::convert_file,
+    ]);
     #[cfg(not(debug_assertions))]
     let builder = builder.invoke_handler(tauri::generate_handler![
         commands::core_info,
@@ -180,9 +189,13 @@ pub fn run() {
         commands::get_settings,
         commands::set_theme,
         commands::set_start_at_login,
+        commands::set_first_run_done,
         commands::store_status,
         watch::watcher_status,
         watch::set_import_paused,
+        folders::discover_folders,
+        folders::add_folders,
+        folders::pick_folder,
     ]);
 
     let app = builder
