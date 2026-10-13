@@ -9,3 +9,16 @@ repository.workspace = true
 
 [lints]
 workspace = true
+
+# Pure functions only (no file system, no network): the app fetches the
+# remote copy and hands the text in. Builds for wasm32 too (CI).
+[dependencies]
+# A table's title pattern is checked to compile here; the HUD (R3.3) uses the
+# same engine to match it.
+regex = "1.13.1"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+
+[dev-dependencies]
+# The CI rule of R0.12 compares config/sites.json with the Rust registry.
+rail-core = { path = "../rail-core" }

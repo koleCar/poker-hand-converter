@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/koleCar/poker-hand-converter/config/sites.schema.json",
+  "title": "Rail sites.json",
+  "description": "One entry per poker client (room or skin) Rail knows, or per network where the clients are not yet known, plus Rail's own format. docs/RAIL-PLAN.md section 3.6 and R0.12. Loaded and checked further by core/rail-config (unique ids, parser ids against the Rust registry, regular expressions). Unknown is null, never a guess.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "sites"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": {
+      "description": "Version of this file's shape. A downloaded file of another version is refused.",
+      "const": 1
+    },
+    "sites": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/site" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "date": {
+      "description": "A calendar date, YYYY-MM-DD.",
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "nonEmpty": { "type": "string", "minLength": 1 },
+    "site": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "name", "kind", "parser", "network", "operating", "skins",
+        "paths", "files", "tables", "hud", "anonymisation", "docs", "notes"
+      ],
+      "properties": {
+        "id": {
+          "description": "Stable key of this entry. Never reused for another client.",
+          "$ref": "#/$defs/id"
+        },
+        "name": { "$ref": "#/$defs/nonEmpty" },
+        "kind": {
+          "description": "room: one client a player installs (a room or a skin). network: several clients we cannot yet tell apart; a placeholder that R1.4 / R3.0 split into rooms, and that a HUD never attaches to. format: not a client at all (Rail's own text).",
+          "enum": ["room", "network", "format"]
+        },
+        "parser": {
+          "description": "Id of the rail-core parser that reads this client's files, or null when no parser exists (docs/unsupported-formats.md).",
+          "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }]
+        },
+        "network": {
+          "description": "The network a room belongs to, as a label; null when none or unknown.",
+          "type": ["string", "null"]
+        },
+        "operating": {
+          "description": "Whether the client still exists: true, false (closed), null (not established by our sources).",
+          "type": ["boolean", "null"]
+        },
+        "skins": {
+          "description": "For a network entry: the brands it stands for, with where each name comes from in notes.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/nonEmpty" }
+        },
+        "paths": { "$ref": "#/$defs/paths" },
+        "files": { "$ref": "#/$defs/files" },
+        "tables": { "$ref": "#/$defs/tables" },
+        "hud": { "$ref": "#/$defs/hud" },
+        "anonymisation": {
+          "description": "What player names in this client's files are (docs/DATABASE.md, Player identity and anonymized rooms): the site-level default of frontend/src/lib/db/anonymization.ts. null when no parser reads the files.",
+          "enum": ["none", "positional", "opaque-id", null]
+        },
+        "docs": {
+          "description": "Repository paths of the research behind this entry.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/nonEmpty" }
+        },
+        "notes": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "room" } } },
+          "else": {
+            "properties": {
+              "hud": { "properties": { "allowed": { "not": { "const": true } } } },
+              "tables": {
+                "properties": {
+                  "process": {
+                    "properties": { "windows": { "type": "null" }, "macos": { "type": "null" } }
+                  },
+                  "title": { "type": "null" },
+                  "seatLayouts": { "type": "null" },
+                  "preferredSeat": { "type": "null" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "parser": { "type": "string" } } },
+          "then": { "properties": { "anonymisation": { "type": "string" } } }
+        }
+      ]
+    },
+    "paths": {
+      "description": "Default hand-history folders per OS. A path names a folder: %NAME% is a Windows environment variable, ~ the home folder, * one folder level (an account name). Empty when unknown.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["windows", "macos"],
+      "properties": {
+        "windows": { "type": "array", "items": { "$ref": "#/$defs/windowsPath" } },
+        "macos": { "type": "array", "items": { "$ref": "#/$defs/macosPath" } }
+      }
+    },
+    "pathEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "verified", "source", "checkedAt"],
+      "properties": {
+        "path": { "$ref": "#/$defs/nonEmpty" },
+        "verified": {
+          "description": "true only once the folder was seen on a real install (R1.4), with checkedAt.",
+          "type": "boolean"
+        },
+        "source": {
+          "description": "Where the path comes from, or how it was verified.",
+          "$ref": "#/$defs/nonEmpty"
+        },
+        "checkedAt": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }
+      },
+      "if": { "properties": { "verified": { "const": true } } },
+      "then": { "properties": { "checkedAt": { "$ref": "#/$defs/date" } } }
+    },
+    "windowsPath": {
+      "allOf": [
+        { "$ref": "#/$defs/pathEntry" },
+        { "properties": { "path": { "pattern": "^(%[A-Za-z_][A-Za-z0-9_]*%|[A-Za-z]:)\\\\" } } }
+      ]
+    },
+    "macosPath": {
+      "allOf": [
+        { "$ref": "#/$defs/pathEntry" },
+        { "properties": { "path": { "pattern": "^(~/|/)" } } }
+      ]
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["glob", "encoding", "live", "verified", "source", "notes"],
+      "properties": {
+        "glob": {
+          "description": "File-name pattern inside a folder; null when unknown.",
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "encoding": {
+          "description": "How Rail decodes the files. auto: rail-core's decode_source sniffs BOM, UTF-16 and Windows-1252 per file.",
+          "enum": ["auto", "utf-8", "utf-16le", "windows-1252"]
+        },
+        "live": {
+          "description": "Whether the client writes hand histories to disk while you play, which a HUD needs. null when unknown.",
+          "type": ["boolean", "null"]
+        },
+        "verified": {
+          "description": "Whether glob and live were checked against a real install.",
+          "type": "boolean"
+        },
+        "source": { "$ref": "#/$defs/nonEmpty" },
+        "notes": { "type": "string" }
+      }
+    },
+    "tables": {
+      "description": "What the HUD needs to find and read a table window (R3.3, R3.6, R3.11). null fields are unknown.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["process", "title", "seatLayouts", "preferredSeat", "verified", "source"],
+      "properties": {
+        "process": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["windows", "macos"],
+          "properties": {
+            "windows": { "$ref": "#/$defs/processNames" },
+            "macos": { "$ref": "#/$defs/processNames" }
+          }
+        },
+        "title": {
+          "description": "Regular expression (Rust regex syntax) over a table window's title, with a named group 'table' (and optionally 'stakes').",
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "seatLayouts": {
+          "description": "Table size (2-10) to layout id.",
+          "oneOf": [
+            {
+              "type": "object",
+              "propertyNames": { "pattern": "^([2-9]|10)$" },
+              "additionalProperties": { "$ref": "#/$defs/nonEmpty" }
+            },
+            { "type": "null" }
+          ]
+        },
+        "preferredSeat": {
+          "description": "Whether the client rotates the table so the hero always sits in one place.",
+          "type": ["boolean", "null"]
+        },
+        "verified": { "type": "boolean" },
+        "source": { "type": ["string", "null"] }
+      }
+    },
+    "processNames": {
+      "oneOf": [
+        { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/nonEmpty" } },
+        { "type": "null" }
+      ]
+    },
+    "hud": {
+      "description": "The room's HUD policy. allowed: true only after R3.0's dated, sourced check; false prohibited; null unknown, which the HUD treats as prohibited (guideline section 7).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed", "source", "checkedAt", "notes"],
+      "properties": {
+        "allowed": { "type": ["boolean", "null"] },
+        "source": { "type": ["string", "null"] },
+        "checkedAt": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "notes": { "type": "string" }
+      },
+      "if": { "properties": { "allowed": { "const": true } } },
+      "then": {
+        "properties": {
+          "source": { "type": "string", "pattern": "^https://" },
+          "checkedAt": { "$ref": "#/$defs/date" }
+        }
+      }
+    }
+  }
+}

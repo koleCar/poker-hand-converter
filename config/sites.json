@@ -1,0 +1,980 @@
+{
+  "$schema": "./sites.schema.json",
+  "version": 1,
+  "sites": [
+    {
+      "id": "pokerstars",
+      "name": "PokerStars",
+      "kind": "room",
+      "parser": "pokerstars",
+      "network": null,
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [
+          {
+            "path": "%LOCALAPPDATA%\\PokerStars\\HandHistory\\*",
+            "verified": false,
+            "source": "docs/research/hh-formats/pokerstars.md section 12: inferred from tracker-support documentation, not from an install; * is the account name",
+            "checkedAt": null
+          }
+        ],
+        "macos": [
+          {
+            "path": "~/Library/Application Support/PokerStars/HandHistory/*",
+            "verified": false,
+            "source": "docs/research/hh-formats/pokerstars.md section 12: inferred from tracker-support documentation, not from an install; * is the account name",
+            "checkedAt": null
+          }
+        ]
+      },
+      "files": {
+        "glob": "*.txt",
+        "encoding": "auto",
+        "live": true,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check; glob from the client-produced file names in docs/research/hh-formats/pokerstars.md section 12",
+        "notes": "Local saving is reported to be off by default (inferred, same section). Regional clients (.eu, .fr, .es, .it, ...) and their folders are not covered by any source."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Starting point: likely allowed (README section 6). Not a policy until R3.0."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/pokerstars.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ggpoker",
+      "name": "GGPoker",
+      "kind": "room",
+      "parser": "ggpoker",
+      "network": "GG Network",
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": "*.txt",
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
+        "notes": "Hands are downloaded afterwards, not written while playing; the in-repo files (gg-hh/) are such downloads, named GG<date>-<time> - <table> - <sb> - <bb> - <n>max.txt."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Starting point: likely prohibited (README section 6); import only whatever the policy says, since files are not live and opponents are hashed."
+      },
+      "anonymisation": "opaque-id",
+      "docs": [
+        "docs/research/hh-formats/ggpoker.md"
+      ],
+      "notes": "Natural8, BestPoker and ClubGG are GG skins with no real sample (docs/unsupported-formats.md); they get entries of their own once a file confirms the grammar."
+    },
+    {
+      "id": "winamax",
+      "name": "Winamax",
+      "kind": "room",
+      "parser": "winamax",
+      "network": null,
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": true,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
+        "notes": "No real export file name or folder is known (docs/research/hh-formats/winamax.md section 12)."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Starting point: likely allowed (README section 6). Not a policy until R3.0."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/winamax.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "888poker",
+      "name": "888poker",
+      "kind": "room",
+      "parser": "888poker",
+      "network": null,
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": null,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
+        "notes": "No default export folder or file name found in any source (docs/research/hh-formats/888poker.md section 12)."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Starting point: to verify (README section 6)."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/888poker.md"
+      ],
+      "notes": "Parser verified on the 2012-15 files of the corpus."
+    },
+    {
+      "id": "partypoker",
+      "name": "partypoker",
+      "kind": "room",
+      "parser": "partypoker",
+      "network": null,
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": null,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
+        "notes": "No default export folder or file name found in any source (docs/research/hh-formats/partypoker.md section 12)."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Starting point: likely prohibited (README section 6)."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/partypoker.md"
+      ],
+      "notes": "Parser verified on the 2012-15 files of the corpus."
+    },
+    {
+      "id": "ipoker",
+      "name": "iPoker network",
+      "kind": "network",
+      "parser": "ipoker",
+      "network": "iPoker",
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": null,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check; live files and HUD policy differ per skin",
+        "notes": "A secondary source says hands are saved as .txt or .xml with tournaments in a Tournament subfolder; not verified (docs/research/hh-formats/ipoker.md section 12)."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Per skin (README section 6). A network entry: split into one room entry per skin before any HUD policy applies."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/ipoker.md"
+      ],
+      "notes": "No skin name appears in the files, so the skins cannot be told apart from the text; which skins exist today is for R1.4 / R3.0."
+    },
+    {
+      "id": "acr",
+      "name": "Americas Cardroom (ACR)",
+      "kind": "room",
+      "parser": "acrwpn",
+      "network": "Winning Poker Network",
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": true,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
+        "notes": "Encoding varies per file, UTF-16LE included (docs/research/hh-formats/acr-wpn.md section 12)."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Starting point: likely allowed (README section 6). Not a policy until R3.0."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/acr-wpn.md"
+      ],
+      "notes": "The data-mined dialect writes numeric ids for names; such hands are opaque-id per hand (warning numeric-player-ids). Black Chip Poker, True Poker and Ya Poker are named as WPN skins in the research and write the same text; they get entries when R1.4 finds their clients."
+    },
+    {
+      "id": "coinpoker",
+      "name": "CoinPoker",
+      "kind": "room",
+      "parser": "coinpoker",
+      "network": null,
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": null,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
+        "notes": "File names and the default folder are not determined; the corpus came from a third party's HUD logs (docs/research/hh-formats/coinpoker.md section 12)."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Starting point: to verify (README section 6)."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/coinpoker.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "unibet",
+      "name": "Unibet Poker",
+      "kind": "room",
+      "parser": "unibet",
+      "network": null,
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": null,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
+        "notes": "Whether the current client writes hand histories at all is unconfirmed (docs/research/hh-formats/unibet.md section 12)."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Starting point: to verify (README section 6)."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/unibet.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "chico",
+      "name": "Chico network",
+      "kind": "network",
+      "parser": "chico",
+      "network": "Chico",
+      "operating": null,
+      "skins": [
+        "BetOnline Poker",
+        "PayNoRake",
+        "ActionPoker.com",
+        "Gear Poker",
+        "Tiger Gaming",
+        "SportsBetting.ag Poker"
+      ],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": null,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
+        "notes": "No real file-name convention recovered (docs/research/hh-formats/chico.md section 12)."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Starting point: to verify (README section 6). A network entry: split into one room entry per skin before any HUD policy applies."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/chico.md"
+      ],
+      "notes": "The first four skin names are printed in real files; Tiger Gaming and SportsBetting.ag Poker only in a parser's source. Which skins operate today is not established."
+    },
+    {
+      "id": "ignition",
+      "name": "Ignition / Bodog / Bovada",
+      "kind": "network",
+      "parser": "ignition",
+      "network": null,
+      "operating": null,
+      "skins": [
+        "Ignition",
+        "Bovada",
+        "Bodog"
+      ],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "README section 6 / guideline Appendix A (A7): a starting point to verify, not a check",
+        "notes": "Anonymous tables (positional names), so import only."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Starting point: a HUD has no use here, every name is a position (README section 6)."
+      },
+      "anonymisation": "positional",
+      "docs": [
+        "docs/research/hh-formats/ignition-bodog-bovada.md"
+      ],
+      "notes": "Brand strings seen in real files: Ignition, Bovada, Bodog, Bodog.com, Bodog.eu, Bodog UK."
+    },
+    {
+      "id": "weplay",
+      "name": "WePlay",
+      "kind": "room",
+      "parser": "weplay",
+      "network": null,
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": "*.txt",
+        "encoding": "auto",
+        "live": null,
+        "verified": false,
+        "source": "No source for live writing; glob from the real corpus file names (docs/research/hh-formats/weplay.md section 12)",
+        "notes": "One file per table per day; the default export folder is not determined."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Import only (README section 6)."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/weplay.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "pokerbros",
+      "name": "PokerBros",
+      "kind": "room",
+      "parser": "pokerbros",
+      "network": null,
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "docs/research/hh-formats/pokerbros.md section 1: a mobile-only app with an in-app viewer of the last 6 days; no desktop client",
+        "notes": "No raw export sample exists."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Import only (README section 6); there is no desktop client to attach to."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/pokerbros.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "microgaming",
+      "name": "MicroGaming network",
+      "kind": "network",
+      "parser": "microgaming",
+      "network": "MicroGaming",
+      "operating": false,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "docs/research/hh-formats/legacy-networks.md: the room is closed, so no client writes files",
+        "notes": "Import of old files only."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Import only: the network shut down in 2016."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/legacy-networks.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "fulltilt",
+      "name": "Full Tilt Poker",
+      "kind": "room",
+      "parser": "fulltilt",
+      "network": null,
+      "operating": false,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "docs/research/hh-formats/full-tilt.md section 1: the room is closed, so no client writes files",
+        "notes": "Import of old files only."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Import only: no live site exists."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/full-tilt.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ongame",
+      "name": "Ongame network",
+      "kind": "network",
+      "parser": "ongame",
+      "network": "Ongame",
+      "operating": false,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "docs/research/hh-formats/legacy-networks.md: the room is closed, so no client writes files",
+        "notes": "Import of old files only."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Import only: the network was shut down through the mid-2010s."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/legacy-networks.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "entraction",
+      "name": "Entraction",
+      "kind": "network",
+      "parser": "entraction",
+      "network": "Entraction",
+      "operating": false,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "docs/research/hh-formats/legacy-networks.md: the room is closed, so no client writes files",
+        "notes": "Import of old files only."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Import only: the network was wound down around 2014-15."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/legacy-networks.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "runitonce",
+      "name": "Run It Once Poker",
+      "kind": "room",
+      "parser": "runitonce",
+      "network": null,
+      "operating": false,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "docs/research/hh-formats/run-it-once.md section 1: the room is closed, so no client writes files",
+        "notes": "Import of old files only."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Import only: closed in 2022."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/research/hh-formats/run-it-once.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "standard",
+      "name": "Rail standard",
+      "kind": "format",
+      "parser": "standard",
+      "network": null,
+      "operating": null,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": null,
+        "verified": false,
+        "source": "Not a client: Rail's own standard text (docs/PHF-SPEC.md), re-imported from a file Rail or the web converter wrote",
+        "notes": "Names are whatever the original room wrote; anonymisation is decided per hand."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Not a room."
+      },
+      "anonymisation": "none",
+      "docs": [
+        "docs/PHF-SPEC.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "wpt-global",
+      "name": "WPT Global",
+      "kind": "room",
+      "parser": null,
+      "network": null,
+      "operating": true,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "docs/research/hh-formats/wpt-global.md section 1 (deepfold.co, June 2026): hand-history export was removed; there was never a local folder",
+        "notes": "Only exports e-mailed before June 2026 can exist; no real sample. The GGPoker parser refuses WPT Global branding on purpose."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "Not applicable while the room writes no files (README section 6)."
+      },
+      "anonymisation": null,
+      "docs": [
+        "docs/research/hh-formats/wpt-global.md",
+        "docs/unsupported-formats.md"
+      ],
+      "notes": "No parser: docs/unsupported-formats.md, Formats known without a sample."
+    },
+    {
+      "id": "bossmedia",
+      "name": "Boss Media",
+      "kind": "network",
+      "parser": null,
+      "network": "Boss Media",
+      "operating": false,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "docs/research/hh-formats/legacy-networks.md: the room is closed, so no client writes files",
+        "notes": "Import of old files only."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "No parser; the network was folded into Microgaming's platform."
+      },
+      "anonymisation": null,
+      "docs": [
+        "docs/research/hh-formats/legacy-networks.md",
+        "docs/unsupported-formats.md"
+      ],
+      "notes": "Sample, no parser: card suits cannot be solved from the corpus (docs/unsupported-formats.md). The unsupported-format registry guesses it by signature (rail_core::unrecognized::KNOWN_FORMATS)."
+    },
+    {
+      "id": "merge",
+      "name": "Merge Gaming network",
+      "kind": "network",
+      "parser": null,
+      "network": "Merge",
+      "operating": false,
+      "skins": [],
+      "paths": {
+        "windows": [],
+        "macos": []
+      },
+      "files": {
+        "glob": null,
+        "encoding": "auto",
+        "live": false,
+        "verified": false,
+        "source": "docs/research/hh-formats/legacy-networks.md: the room is closed, so no client writes files",
+        "notes": "Import of old files only."
+      },
+      "tables": {
+        "process": {
+          "windows": null,
+          "macos": null
+        },
+        "title": null,
+        "seatLayouts": null,
+        "preferredSeat": null,
+        "verified": false,
+        "source": null
+      },
+      "hud": {
+        "allowed": null,
+        "source": null,
+        "checkedAt": null,
+        "notes": "No parser; the network shut down in 2017."
+      },
+      "anonymisation": null,
+      "docs": [
+        "docs/research/hh-formats/legacy-networks.md",
+        "docs/unsupported-formats.md"
+      ],
+      "notes": "Sample, no parser (docs/unsupported-formats.md). The unsupported-format registry guesses it by signature (rail_core::unrecognized::KNOWN_FORMATS)."
+    }
+  ]
+}

@@ -109,6 +109,12 @@ dependencies = [
 [[package]]
 name = "rail-config"
 version = "0.0.0"
+dependencies = [
+ "rail-core",
+ "regex",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "rail-core"

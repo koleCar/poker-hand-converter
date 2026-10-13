@@ -98,7 +98,7 @@ Performance targets (guideline §1, measured from Phase 2):
 | Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer; empty Rust workspace in place (R0.1) | Same format, defined in Rust and exported to TypeScript | 0 |
 | Parsers | **19 parsers in TypeScript**, run in the browser; **all 19 also in Rust** (R0.6–R0.10d), and the whole Rust pipeline equals the TypeScript on every corpus file (556 files, 8 422 hands, 196 refusals); not yet used by the web (WASM and shadow mode are R0.13) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
 | Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads); since R0.11 the Rust core's `Unrecognized` record and anonymiser, and the table's desktop fields and consent rule ([`docs/unsupported-formats.md`](docs/unsupported-formats.md)) | The desktop app's local registry and consented uploads (R1.2) | 0 |
-| `config/sites.json` | — | Paths, formats, window titles and HUD policy per room | 0–1 |
+| `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; paths, live files and table data mostly unknown (`null`), every HUD policy unknown | Paths verified on real installs (R1.4), window data (R3.3, R3.11), HUD policy from the compliance check (R3.0) | 0–3 |
 | File watcher | — | FSEvents / ReadDirectoryChangesW + periodic rescan | 1 |
 | Local database | — | SQLite (WAL), cache for HUD and offline | 1 |
 | Sync | Web saves to Supabase directly | Desktop outbox → idempotent upsert; pull of web uploads | 1 |
@@ -291,7 +291,9 @@ in Phase 0. "Live files" is whether the client writes hand histories to disk
 while you play, which a HUD needs. **The HUD and live-file columns are a
 starting point to verify, not a policy**: Phase 3 opens with a dated,
 sourced compliance check of every room, and only that check goes into
-`config/sites.json`.
+[`config/sites.json`](config/sites.json). That file (since R0.12) carries
+this table's live-file column as unverified starting points and
+`hud.allowed: null` - unknown, which the HUD treats as no - for every room.
 
 | Room or network | Parser | Live files | HUD (to verify) |
 | --- | --- | --- | --- |
@@ -332,7 +334,7 @@ Today, and where each part is going (the move is a planned step,
 | `frontend/` | `web/` | Next.js web app (Vercel root directory moves with it) |
 | `frontend/src/components`, `src/styles/tokens` | `packages/ui/` | Shared components and design tokens |
 | `supabase/` | `supabase/` | Migrations, RLS, pgTAP tests |
-| — | `config/` | `sites.json` and `stats/` |
+| `config/sites.json` (R0.12) | `config/` | `sites.json` and its schema; `stats/` |
 | `fixtures/`, `gg-hh/`, `weplay-hh/`, `tests/test/fixtures/` | `testdata/` | Real corpus and goldens (moved with a byte-hash check) |
 | `tests/` | `tests/` | TypeScript harness; the oracle until the port is complete |
 | `docs/` | `docs/` | Guideline, plan, specs, research |
@@ -434,7 +436,9 @@ until the owner accepts them.
 From the guideline (§14):
 
 - A new room or format is a parser + golden tests + an entry in
-  `config/sites.json`, in the same pull request.
+  `config/sites.json`, in the same pull request. Enforced since R0.12:
+  `cargo test` fails on a parser without an entry and on an entry naming a
+  parser that does not exist (`core/rail-config/tests/sites.rs`).
 - Database changes only through migrations in `supabase/`.
 - A new statistic is a definition in `config/stats/`, not code in the app or
   the web.

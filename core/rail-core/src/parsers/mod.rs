@@ -6,7 +6,9 @@
 //! because detection ties keep registration order, so the Rust registry has to
 //! rank the same way whichever subset is ported. A parser id that is not in
 //! the list panics on first use, and a test fails when the list stops
-//! matching `index.ts`.
+//! matching `index.ts`. Every parser id also needs an entry in
+//! `config/sites.json` (R0.12): `rail-config`'s tests fail on a parser
+//! without one, and on an entry naming a parser that is not here.
 
 pub mod acrwpn;
 pub mod chico;
