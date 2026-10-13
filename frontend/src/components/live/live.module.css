@@ -1,0 +1,25 @@
+/* Live arrival on the web (Rail R1.10): the library's "a computer is syncing"
+   line and its "N new hands" button. */
+
+.syncing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85em;
+}
+
+.dot {
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: 50%;
+  background: var(--success-fg);
+  flex: none;
+}
+
+.fresh {
+  justify-self: start;
+  align-self: flex-start;
+  border-color: var(--accent-border);
+}

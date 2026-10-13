@@ -10,6 +10,14 @@
  * converter's "Replay" button parks a hand in `sessionStorage` and navigates
  * here, because a converted hand is not in the library yet and has nowhere else
  * to be shown.
+ *
+ * Live arrival (Rail R1.10): hands synced by the desktop app, or saved in
+ * another tab, reach this list without a reload. On the first page the list
+ * and its count re-read in place, quietly, once per debounced batch (see
+ * `lib/live/arrivals.ts`). Past the first page the rows are left where the
+ * reader is and a "N new hands — show" button appears instead, because
+ * shifting a page under somebody reading it is worse than a click. A line
+ * under the heading says when a computer is syncing into the account.
  */
 
 "use client";
@@ -19,12 +27,16 @@ import { useAuth } from "../lib/auth";
 import {
   getHand,
   isDatabaseConfigured,
+  latestDesktopSync,
   rebuildStats,
   saveHand,
   searchHands,
+  type DesktopSync,
   type HandSummary,
 } from "../lib/db";
-import { useDict } from "../lib/i18n/client";
+import { useDict, useLocale } from "../lib/i18n/client";
+import { INTL_LOCALE } from "../lib/i18n/dictionaries";
+import type { ArrivalBatch } from "../lib/live/arrivals";
 import { getParser, parseHand, toStandardText } from "../lib/phf";
 import type { PhfHand } from "../lib/phf/types";
 import { PENDING_HAND_KEY, type PendingHand } from "./converter/handoff";
@@ -39,8 +51,16 @@ import { Icon } from "./ui/Icon";
 import { ReplayViewer } from "./replayer/ReplayViewer";
 import { PublishHandButton } from "./share/PublishHandButton";
 import { ShareHandButton } from "./share/ShareHandButton";
+import liveStyles from "./live/live.module.css";
 
 const PAGE_SIZE = 25;
+
+/**
+ * How long after a desktop sync the "hands arriving" line stays up. The app
+ * sends a played hand within seconds and backfills in batches every second or
+ * two, so ten quiet minutes means it has stopped.
+ */
+const SYNC_FRESH_MS = 10 * 60 * 1000;
 
 /** `standard` is our own re-import format, not a room, so it is not a label. */
 function siteLabel(id: string): string | null {
@@ -107,9 +127,11 @@ interface ReplayerTabProps {
    * answers by bumping `refreshToken`, which reruns the search below.
    */
   onHandsSaved: () => void;
+  /** The latest live batch from the shell (`AppFrame`, R1.10); null until one arrives. */
+  arrival?: ArrivalBatch | null;
 }
 
-export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
+export function ReplayerTab({ refreshToken, onHandsSaved, arrival = null }: ReplayerTabProps) {
   const en = useDict();
   const t = en.converter.library;
   const auth = useAuth();
@@ -120,17 +142,29 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
   const [loading, setLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
 
+  /** Hands that arrived live while the reader was past the first page. */
+  const [fresh, setFresh] = useState<{ hands: number } | null>(null);
+  const [desktopSync, setDesktopSync] = useState<DesktopSync | null>(null);
+  const [syncNow, setSyncNow] = useState(() => Date.now());
+  const locale = INTL_LOCALE[useLocale()];
+
   const [loaded, setLoaded] = useState<LoadedHand | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  /**
+   * `quiet` is the live path: no loading state, and a failure leaves the rows
+   * that are on screen alone - the next batch or a reload tries again.
+   */
   const runSearch = useCallback(
-    async (nextFilters: ReplayerFilterForm, nextPage: number) => {
+    async (nextFilters: ReplayerFilterForm, nextPage: number, quiet = false) => {
       if (!isDatabaseConfigured) {
         return;
       }
-      setLoading(true);
-      setListError(null);
+      if (!quiet) {
+        setLoading(true);
+        setListError(null);
+      }
       try {
         const result = await searchHands(toHandFilters(nextFilters), {
           offset: nextPage * PAGE_SIZE,
@@ -138,12 +172,19 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
         });
         setRows(result.rows);
         setTotal(result.total);
+        // Whatever arrived is in this answer now (its total, at least).
+        setFresh(null);
       } catch (err) {
+        if (quiet) {
+          return;
+        }
         setListError(err instanceof Error ? err.message : t.loadFailed);
         setRows([]);
         setTotal(0);
       } finally {
-        setLoading(false);
+        if (!quiet) {
+          setLoading(false);
+        }
       }
     },
     [t],
@@ -156,6 +197,59 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
     void runSearch(filters, page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, refreshToken, auth.isSignedIn]);
+
+  // A live batch: re-read the first page in place, or count it for the button.
+  const handledArrival = useRef(0);
+  useEffect(() => {
+    if (!arrival || arrival.seq === handledArrival.current) {
+      return;
+    }
+    handledArrival.current = arrival.seq;
+    if (page === 0) {
+      void runSearch(filters, 0, true);
+    } else {
+      setFresh((current) => ({ hands: (current?.hands ?? 0) + arrival.hands }));
+    }
+    // `filters` and `page` are read at the moment the batch lands; the batch,
+    // not their changes, is what this effect answers.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [arrival]);
+
+  // The "a computer is syncing" line: on sign-in, and again whenever a
+  // desktop batch lands. Signing out clears it with the list.
+  const userId = auth.isSignedIn ? (auth.user?.id ?? null) : null;
+  const desktopBatch = arrival?.desktop || arrival?.resync ? arrival.seq : 0;
+  useEffect(() => {
+    let active = true;
+    const read = userId ? latestDesktopSync() : Promise.resolve(null);
+    void read.then((next) => {
+      if (!active) return;
+      setDesktopSync(next);
+      setSyncNow(Date.now());
+    });
+    return () => {
+      active = false;
+    };
+  }, [userId, desktopBatch]);
+
+  const syncAge = desktopSync ? syncNow - Date.parse(desktopSync.lastIngestAt) : Number.POSITIVE_INFINITY;
+  const syncing = syncAge < SYNC_FRESH_MS;
+  // Take the line down once it goes stale, without waiting for a batch.
+  useEffect(() => {
+    if (!syncing) return;
+    const timer = setTimeout(() => setSyncNow(Date.now()), Math.max(1000, SYNC_FRESH_MS - syncAge + 1000));
+    return () => clearTimeout(timer);
+  }, [syncing, syncAge]);
+
+  function showFresh() {
+    setFresh(null);
+    // Newest first is the default order: the new hands are on the first page.
+    if (filters.sort === "played_desc" && page !== 0) {
+      setPage(0);
+    } else {
+      void runSearch(filters, page);
+    }
+  }
 
   function applyFilters(next: ReplayerFilterForm) {
     setFilters(next);
@@ -298,6 +392,15 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
                   ? t.privateToAccount
                   : t.count(total)}
             </p>
+            {auth.isSignedIn && syncing && desktopSync ? (
+              <p
+                className={liveStyles.syncing}
+                title={t.syncingTitle(new Date(desktopSync.lastIngestAt).toLocaleString(locale))}
+              >
+                <span className={liveStyles.dot} aria-hidden="true" />
+                {t.syncing(desktopSync.deviceName)}
+              </p>
+            ) : null}
           </div>
         </header>
 
@@ -326,6 +429,12 @@ export function ReplayerTab({ refreshToken, onHandsSaved }: ReplayerTabProps) {
             />
 
             {listError ? <p className="notice notice--error">{listError}</p> : null}
+
+            {fresh && auth.isSignedIn ? (
+              <button type="button" className={`btn btn--sm ${liveStyles.fresh}`} onClick={showFresh}>
+                {t.liveNew(fresh.hands)}
+              </button>
+            ) : null}
 
             <HandList
               rows={rows}

@@ -563,6 +563,33 @@ export type Database = {
           },
         ]
       }
+      hand_arrivals: {
+        Row: {
+          arrived_at: string
+          hands: number
+          id: string
+          origin: Database["public"]["Enums"]["hand_origin"]
+          owner_id: string
+          seq: number
+        }
+        Insert: {
+          arrived_at?: string
+          hands: number
+          id?: string
+          origin: Database["public"]["Enums"]["hand_origin"]
+          owner_id: string
+          seq?: number
+        }
+        Update: {
+          arrived_at?: string
+          hands?: number
+          id?: string
+          origin?: Database["public"]["Enums"]["hand_origin"]
+          owner_id?: string
+          seq?: number
+        }
+        Relationships: []
+      }
       hand_sources: {
         Row: {
           created_at: string

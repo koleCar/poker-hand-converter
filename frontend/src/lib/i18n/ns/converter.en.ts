@@ -231,6 +231,12 @@ export const converterEn = {
     previous: "← Previous",
     next: "Next →",
     page: (page: number, pages: number) => `Page ${num(page)} of ${num(pages)}`,
+    /** Hands that arrived live while the reader is past the first page (R1.10). */
+    liveNew: (count: number) => (count > 0 ? `${num(count)} new ${hands(count)} — show` : "New hands — show"),
+    /** A desktop app synced into this account in the last few minutes. */
+    syncing: (device: string | null) =>
+      device ? `Hands arriving from ${device}` : "Hands arriving from the desktop app",
+    syncingTitle: (time: string) => `Last sync: ${time}`,
   },
 
   /** `HandList`. */

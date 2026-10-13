@@ -8,6 +8,8 @@ import { markSignInOffered, useAuth, wasSignInOffered } from "../../lib/auth";
 import { countHands } from "../../lib/db";
 import { paths } from "../../lib/routes";
 import { isSupabaseConfigured } from "../../lib/supabase/config";
+import type { ArrivalBatch } from "../../lib/live/arrivals";
+import { useHandArrivals } from "../live/useHandArrivals";
 
 /**
  * Everything the three signed-in screens share, minus the screen.
@@ -30,6 +32,13 @@ export interface AppFrameContext {
   /** Bumped whenever hands are saved; tabs re-query on change. */
   refreshToken: number;
   onHandsSaved: () => void;
+  /**
+   * The latest batch of hands that arrived live (Rail R1.10): from the
+   * desktop app or another tab. Null until something arrives, and always null
+   * on a screen that is not `live`. Its `seq` changes once per debounced
+   * batch, never per hand.
+   */
+  arrival: ArrivalBatch | null;
 }
 
 interface AppFrameProps {
@@ -47,10 +56,16 @@ interface AppFrameProps {
    * they asked by pretending they did not.
    */
   redirectWhenEmpty?: boolean;
+  /**
+   * Listen for hands arriving in the account while the screen is open
+   * (Realtime, `components/live/useHandArrivals.ts`). True for `/library` and
+   * `/stats`; never for the converter, whose promise is no server requests.
+   */
+  live?: boolean;
   children: (context: AppFrameContext) => ReactNode;
 }
 
-export function AppFrame({ tab, redirectWhenEmpty = false, children }: AppFrameProps) {
+export function AppFrame({ tab, redirectWhenEmpty = false, live = false, children }: AppFrameProps) {
   const router = useRouter();
   const [refreshToken, setRefreshToken] = useState(0);
   const [storedCount, setStoredCount] = useState<number | null>(null);
@@ -64,6 +79,22 @@ export function AppFrame({ tab, redirectWhenEmpty = false, children }: AppFrameP
   }, [auth.isSignedIn]);
 
   useEffect(refreshCount, [refreshCount, refreshToken]);
+
+  // Hands arriving live move the chip and are handed to the screen. Keyed by
+  // the account, so a sign-out or a switch drops the subscription and the
+  // last account's batch with it.
+  const liveUser = live && isSupabaseConfigured && auth.isSignedIn ? (auth.user?.id ?? null) : null;
+  const [arrival, setArrival] = useState<{ user: string; batch: ArrivalBatch } | null>(null);
+  const onArrival = useCallback(
+    (batch: ArrivalBatch) => {
+      if (!liveUser) return;
+      setArrival({ user: liveUser, batch });
+      refreshCount();
+    },
+    [liveUser, refreshCount],
+  );
+  useHandArrivals(liveUser, onArrival);
+  const currentArrival = arrival && arrival.user === liveUser ? arrival.batch : null;
 
   /**
    * Who gets a hand history, and when the answer is known.
@@ -141,7 +172,7 @@ export function AppFrame({ tab, redirectWhenEmpty = false, children }: AppFrameP
       {/* Rendered while the answer is still unknown — the tabs have their own
           loading states, and unmounting once `settled` says no keeps the
           redirect from flashing a library on the way out. */}
-      {holdForRedirect ? null : children({ refreshToken, onHandsSaved })}
+      {holdForRedirect ? null : children({ refreshToken, onHandsSaved, arrival: currentArrival })}
     </AppShell>
   );
 }

@@ -193,6 +193,7 @@ integer `id` (`files.path` stays unique) so that `hands.file_id` and
 | --- | --- | --- |
 | `profiles` | existing; add `plan`, `plan_until` in Phase 6 | R6.2 |
 | `hand_sources` | new: folder or web upload, owner, device, status counters (built: a watched folder per device; no paths) | R1.8 |
+| `hand_arrivals` | new (not in the guideline): one row per account, bumped once per insert statement on `hands`; the web's Realtime signal, so `hands` stays out of the publication | R1.10 |
 | `hands` | existing; key `(owner_id, hand_key)` with `hand_key = site:hand id` | — |
 | `hand_players` | not added; `hand_stats` has one row per dealt-in seat | — |
 | `players` | new: tags and colours; `player_notes` stays (or is folded in) | R2.7 |
@@ -2966,7 +2967,7 @@ exactly once, and the same files imported twice change nothing.
     copy (the CLI's default GoTrue, v2.186.0, accepts both). The same keys
     are why the function runs with `verify_jwt = false`: the gateway's
     legacy check rejects ES256 user tokens.
-  - **Needs the owner (production, not done here):**
+  - **Needs the owner (production, not done here; all of it is in the Phase 1 production checklist under R1.10):**
     1. Apply migration `20270421090000_desktop_sign_in.sql` (Management API,
        `docs/DATABASE.md`); the client types in this PR already list
        `claim_desktop_sign_in`.
@@ -3132,7 +3133,7 @@ exactly once, and the same files imported twice change nothing.
     empty; a replay all duplicates; the second account's same hands all
     inserted, each account sees only its own; the second account refused on
     the first's source.
-  - **Needs the owner (production, not done here):**
+  - **Needs the owner (production, not done here; all of it is in the Phase 1 production checklist under R1.10):**
     1. Apply `20270428090000_desktop_ingest.sql` through the Management API
        (`docs/DATABASE.md`, "Applying a migration"); the client types in this
        PR already have `origin`, `hand_sources` and the two RPCs.
@@ -3329,7 +3330,7 @@ exactly once, and the same files imported twice change nothing.
     app has synced to production yet). Not done here: a bundled app synced
     against production; a 500k-hand backfill end to end (the store's send
     order is measured at 1M; the budget arithmetic is above).
-  - **Needs the owner (production, not done here):**
+  - **Needs the owner (production, not done here; all of it is in the Phase 1 production checklist under R1.10):**
     1. Everything still open under R1.7 and R1.8 *As built* (the R1.8
        migration, the `desktop-handoff` function, the web's
        `storedStandardText` promoted **before** any app syncs, the anon key
@@ -3352,6 +3353,131 @@ exactly once, and the same files imported twice change nothing.
 ### R1.10 Live arrival on the web — S
 - `/library` and `/stats` subscribe through Realtime to the user's own new rows
   and refresh; RLS applies to Realtime as well.
+- *As built* (§15):
+  - **Decided: a signal table, not `hands` in the publication.** Postgres
+    Changes on `hands` would send whole rows - the PHF (~2.9 KB, up to
+    256 KiB) and a web row's texts - so a 500-hand batch is ~2 MB to every
+    open tab, to say "refresh"; a column list on the publication does not
+    help (Realtime reads the slot through wal2json's `add-tables`, which
+    ignores column lists); and every insert, a 500 000-hand backfill
+    included, would be decoded and checked against RLS per subscriber per
+    row. Migration `20270512090000_hand_arrivals.sql`: **`hand_arrivals`**,
+    one row per account (`id` a random uuid primary key, `owner_id` unique,
+    `seq`, `hands`, `origin`, `arrived_at`), upserted by the statement-level
+    trigger **`hands_signal_arrival`** (after insert on `hands`, after the
+    rate-limit trigger, from the transition table; definer, empty
+    `search_path`, not executable by clients; a failure is swallowed so a
+    signal never fails a save). One `ingest_hands` call or one `save_hands`
+    call = **one change of ~320 bytes**, whatever its size; a call of
+    duplicates only = none. RLS select-own; in `supabase_realtime`;
+    `hands` is not.
+  - **Privacy (measured, not assumed).** Realtime re-reads every INSERT and
+    UPDATE as the subscriber, so a forged filter (`owner_id=eq.<B>`) or no
+    filter at all delivers only the subscriber's own row. Two findings on
+    the way: (1) a role **without SELECT** on the table is not run through
+    RLS but sent a content-free `"Error 401: Unauthorized"` notice for every
+    change - an anonymous socket would learn *when* anybody stores hands -
+    so `anon` has SELECT and no policy (reads zero rows; Realtime sends it
+    nothing). `notifications` has the same exposure today (no anon grant);
+    noted in `docs/DATABASE.md`, not changed here. (2) DELETE changes cannot
+    be checked by RLS and go to every unfiltered DELETE listener with the
+    primary key: the only delete is an account's removal (cascade), and the
+    key is a random uuid, not the owner.
+  - **Web.** `lib/live/arrivals.ts` (pure, no framework): signals become a
+    refetch **1.5 s after the last one**; a burst that never goes quiet
+    still refreshes after **5 s**, and each refresh forced that way doubles
+    the next wait to at most **30 s** (a long backfill costs a refetch every
+    30 s, never one per batch), reset by the first quiet flush; **nothing
+    while the tab is hidden**, one refetch when shown; a reconnect after an
+    error, a timeout or a close is a resync signal.
+    `components/live/useHandArrivals.ts`: the user's token on the socket
+    before the join (the bell's rule), INSERT + UPDATE on `hand_arrivals`
+    filtered `owner_id=eq.<uid>`, channel removed on unmount, sign-out or
+    another account. `AppFrame` takes `live` (true for `/library` and
+    `/stats` only; never `/convert`) and passes the latest batch down; the
+    hand count chip follows. **`/library`**: on the first page the list and
+    its count re-read in place, quietly (no loading state; a failed quiet
+    read keeps the rows); past the first page the rows stay and a "N new
+    hands - show" button appears (to the first page when sorted newest
+    first). "Hands arriving from <device>" under the heading from
+    `hand_sources.last_ingest_at` (`latestDesktopSync`, select-own), for ten
+    minutes after the last sync. **`/stats`**: a batch re-reads coverage and
+    the numbers without "Loading..." and, when hands lack statistics, runs
+    `/api/stats/rebuild` - no click; one catch-up at a time, batches landing
+    during one fold into one more round. Strings `en` + `hr`, CSS module
+    `live.module.css`.
+  - **Tests.** pgTAP `hand_arrivals.test.sql` (29); full suite 31 files /
+    1 026 on a fresh reset; `database.types.ts` regenerated. Vitest
+    `liveArrivals.test.ts` (12: debounce, a burst folded, max wait, the
+    5/10/20/30 s back-off and its reset, hidden then shown, resync, dispose,
+    the payload reader). **Realtime end to end**, `npm run
+    realtime:arrivals` (`tests/scripts/realtime-arrivals/check.mjs`, local
+    stacks only): 15 / 15 on an isolated stack (`rail-r110-live`, ports
+    5612x) - A's own subscription gets exactly one change per call (INSERT
+    500 desktop, then UPDATE 1 web; none for a replay of duplicates), A
+    with B's filter gets nothing, A unfiltered only A's, B only B's, anon
+    nothing; the first change ~0.1-0.3 s after the call returns; payloads
+    322 / 359 bytes; B's deletion shows an unfiltered listener only a random
+    id. **Browser** (signed in as A against the same stack, `next dev`):
+    `/stats` went from 500 to 2 000 hands with statistics derived and the
+    chip from 501 to 2 001 while 3 x 500 hands came in for A and 2 x 300
+    for B (B's never counted); `/library` page 1 updated in place (2 001 to
+    3 001, B's 200 not counted) with "Hands arriving from Test MacBook"; on
+    page 2, "500 new hands - show" took the reader to page 1 with 3 501;
+    four batches over 10 s while the tab reported hidden cost no request,
+    then exactly one refresh (search + count) when shown.
+  - **Phase 1 is complete on `staging`** (R1.1-R1.10; the exit criterion
+    met on a local stack in R1.9). Nothing of R1.7-R1.10 is in production
+    yet.
+- **Phase 1 production checklist (R1.7-R1.10; needs the owner, not done by
+  any step).** It replaces the lists under R1.7, R1.8 and R1.9 *As built*.
+  In this order:
+  1. **Migrations**, through the Management API (`docs/DATABASE.md`,
+     "Applying a migration"; first list what production already has and
+     apply every missing one in filename order - at least these four):
+     `20270421090000_desktop_sign_in.sql` (R1.7),
+     `20270428090000_desktop_ingest.sql` (R1.8),
+     `20270505090000_desktop_pull.sql` (R1.9; builds
+     `hands_owner_created_idx` on `hands`, a moment's write lock at today's
+     size), `20270512090000_hand_arrivals.sql` (R1.10; a statement trigger
+     on `hands`, `hand_arrivals` added to `supabase_realtime`). The client
+     types on `staging` already have all of them.
+  2. **Edge Function**: `supabase functions deploy desktop-handoff
+     --project-ref riybwcfnclphacnfawiq --no-verify-jwt` (no secrets to
+     set; it uses the runtime's `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
+     `SUPABASE_SERVICE_ROLE_KEY`).
+  3. **Checks as two real users** (never the PAT): the isolation checks of
+     `docs/DATABASE.md` ("Verifying the isolation"); a direct `insert` of an
+     `origin = 'desktop'` row with a user JWT is refused (42501);
+     `ingest_hands` and `hands_since` from the anon key are refused (401 /
+     42501); `hands_since()` returns only the caller's rows;
+     `select tablename from pg_publication_tables where pubname =
+     'supabase_realtime'` lists `notifications` and `hand_arrivals` and
+     **not `hands`**; as A on `/library` in one browser, B saving a hand in
+     another changes nothing for A, and A saving one in a second tab
+     updates the first within ~2 s. (`npm run realtime:arrivals` refuses
+     non-local URLs on purpose: it creates and deletes users.)
+  4. **Promote `staging` to `main`** (the web: `/auth/desktop`,
+     `storedStandardText`, live arrival) - **after** step 1 and **before**
+     any app syncs to production. Without the R1.10 migration the web still
+     works (the subscription never fires, the sync line stays hidden).
+  5. **Build variable**: the repository variable `RAIL_SUPABASE_ANON_KEY` =
+     the public anon key (Settings, Secrets and variables, Actions,
+     Variables; not a secret); the CI `app` job already passes it, the
+     release workflow (§12) must too. `RAIL_WEB_URL` once the domain (P2/Q2)
+     is chosen.
+  6. **Auth settings**: nothing new for the redirect allow-list or
+     Turnstile (R1.7); when the domain lands, add its `/auth/callback**`.
+     Before turning email confirmation on (Resend domain): the handoff
+     refuses unconfirmed accounts, so users signed in unconfirmed must
+     confirm before the app can sign in. Optional: Google (P7).
+  7. **Realtime**: nothing to configure (already on for `notifications`).
+     Optional and separate: `grant select on public.notifications to anon`
+     closes the 401-notice exposure found in R1.10 (`docs/DATABASE.md`,
+     "Notifications and realtime") - as a migration on `staging` first.
+  8. **First real sync**: a bundled app from CI against production, a small
+     folder first - hands appear on `/library` live, statistics are derived
+     on `/stats`, the account's budget (150 000 / 10 min) is not hit.
 
 ---
 
@@ -3688,3 +3814,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R1.6 fix, backfill end before the status** (Linux CI: `a_backfill_reports_its_progress_and_ends` read `Some(309 of 312 files)` on the status right after `Progress { None }`): the coordinator reported a backfill's end from the read's answer and wrote the status at the end of the loop turn, so a status read in between showed the last published progress (no backfill ran on; a run cannot come back once over). An end is now reported by `publish` after the status is written (ends before new progress; flushed on stop). New deterministic `watcher::tests` (the coordinator driven by hand, red before); the backfill test checks the status at once on the end (its sink holds the watcher 100 ms there: old code 10 / 10 red with the CI values), waits for "over and every file read", and fails on a second end or progress of the same `started_at` after it; `RAIL_WATCH_THREADS` picks its import threads. Stress on macOS: 60 / 60 runs (30 each at 1 and 2 threads) plus 40 / 40 with four copies at once. |
 | 2026-10-13 | **Import benchmark gate: a ratio, not hands/s** (R1.6 "As built"). The absolute gate (best of three >= 3 500 hands/s on the 3-core M1 runner) failed R1.7's PR, which does not touch the import path, at 3 436 hands/s: the runner's speed moves between jobs (best of three 3 436 - 5 264 on the same code) and within one (2 954 - 4 666). `import_bench` now measures a reference on the same runner - one thread converting the corpus (7 321 hands) from memory with `rail_core`, before the first import and after each one - and gates on the pipeline efficiency, hands stored/s / (reference x threads), best of three, **>= 45 %** (`--min-efficiency`); measured 59 / 62 / 67 % on jobs whose absolute rate was 3 339 - 4 071; plus a floor of **1 500 hands/s** (`--min-rate`) for a catastrophic slowdown, `rail_core`'s own included, which the ratio cannot see. Job renamed; the guideline's >= 5 000 stays measured on the owner's M2 Pro (10 300). No change to importing or parsing. |
 | 2026-10-13 | **R1.9 done, Phase 1's exit criterion met on a local stack**: the sync worker (`rail_sync::worker`). Outbox in send order - hands queued in the last 15 min newest played first, then the backlog oldest due first (store migration 0005: `outbox.played_at` + covering index) - in batches of 500 per watched folder (`hand_sources` registered once, device id random in `kv`) to `ingest_hands`; inserted / duplicate leave the outbox, rejected go to `sync_rejected` with the reason (UI counts per reason, Try again); offline = backoff 5 s to 10 min with jitter and per-hand attempts; the rate limit waited out by window then probed with one hand; 401 refresh once; resumable and idempotent. Upload cap while > 2 000 hands wait (default 1 MB/s, user setting; tables-open hook). Account safety: the store's owner in `kv`, every token from `Account::access_token_for(owner)`, signed out = nothing sent, another account = nothing sent or pulled until the user uploads this computer's hands to it or keeps them apart. Pull of every row of the account the store lacks (web and other computers): `hands_since` keyset (migration `20270505090000_desktop_pull.sql`, invoker, keys only, rows a minute old) then PHF for missing keys; pulled hands never queued. App: Settings → Account Sync panel, Today line, tray line, Sync now / Pause / cap, `en` + `hr`. Tests: store 5, sync 13 worker tests on a scripted server, pgTAP 17 (suite 997). End to end: killed mid-sync and resumed, server = store (7 469, once each; ~270 hands/s, 7.5 KB a hand); 58 live hands through the watcher visible as the user in 0.5-5.9 s through a network cut mid-batch, once each; a web hand pulled into a second store. Remaining for Phase 1: R1.10; production checklist under R1.9 *As built*. |
+| 2026-10-13 | **R1.10 done, Phase 1 complete on `staging`**: live arrival on the web. Migration `20270512090000_hand_arrivals.sql`: `hand_arrivals`, one row per account bumped once per insert statement on `hands` by the statement trigger `hands_signal_arrival` (count, origin, time; no hand content; ~320 bytes a change), select-own RLS, in `supabase_realtime`; `hands` deliberately not published (whole-row payloads with the PHF, per-row RLS on every backfill). Measured: a role without SELECT gets a content-free 401 notice per change, so `anon` has SELECT and no policy (`notifications` has the same exposure, noted, not changed); DELETE (account removal only) shows a random id. Web: `lib/live/arrivals.ts` (debounce 1.5 s, max wait 5 s backing off to 30 s, nothing while hidden, resync on reconnect), `useHandArrivals` (token before join, INSERT + UPDATE filtered to the owner, removed on unmount / sign-out), `AppFrame live` on `/library` and `/stats` only; the library re-reads page 1 in place or offers "N new hands - show", "Hands arriving from <device>" from `hand_sources`; stats re-read quietly and rebuild for new hands without a click. Tests: pgTAP 29 (suite 31 files / 1 026), vitest 12, `npm run realtime:arrivals` 15 / 15 on an isolated stack (A sees its own; a forged or missing filter and anon see nothing of others), browser end to end. The consolidated production checklist for R1.7-R1.10 is under R1.10. |
