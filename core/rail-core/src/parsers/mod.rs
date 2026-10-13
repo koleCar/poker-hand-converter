@@ -11,6 +11,7 @@
 pub mod acrwpn;
 pub mod chico;
 pub mod coinpoker;
+pub mod fulltilt;
 pub mod ggpoker;
 pub mod ignition;
 pub mod ipoker;
@@ -19,6 +20,7 @@ pub mod partypoker;
 pub mod pokerbros;
 pub mod pokerstars;
 pub mod pokerstars888;
+pub mod runitonce;
 pub mod shared;
 pub mod standard;
 pub mod weplay;
@@ -68,6 +70,8 @@ fn ported() -> Vec<Box<dyn SiteParser>> {
         Box::new(chico::ChicoParser),
         Box::new(ignition::IgnitionParser),
         Box::new(acrwpn::AcrWpnParser),
+        Box::new(fulltilt::FullTiltParser),
+        Box::new(runitonce::RunItOnceParser),
     ]
 }
 

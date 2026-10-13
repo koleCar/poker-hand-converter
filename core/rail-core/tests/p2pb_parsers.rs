@@ -746,8 +746,9 @@ fn no_pokerbros_parser_claims_another_rooms_sample() {
 
 #[test]
 fn no_other_parser_claims_a_pokerbros_sample() {
-    // Full Tilt and Run It Once (R0.10) are not ported; nothing ported may
-    // claim the PokerBros samples.
+    // The TypeScript lets the other two rooms of `p3Parsers.test.ts` (Full
+    // Tilt, Run It Once) claim them; neither does, so nothing but PokerBros
+    // may (their side of the check is `tests/p3_parsers.rs`).
     let mut claims = Vec::new();
     for file in sample_files("pokerbros") {
         for (id, _) in ranked(&file.text) {

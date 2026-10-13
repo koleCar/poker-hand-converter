@@ -299,3 +299,35 @@ fn acrwpn() {
     assert_eq!(report.pending_text_hashes, 0);
     assert_eq!(report.unported_candidates, 0);
 }
+
+/// `fulltilt` (R0.10c): both header generations (2011 and 2014), the
+/// `of`-phrased uncalled return, `and is capped`, run-it-twice with its
+/// numbered markers and per-runout SUMMARY blocks, fixed-limit blinds from
+/// what was posted, a seat sitting out, table chat, a ten-hand file, PL Omaha
+/// Hi and both Omaha H/L tables with the room's own `high` / `low` labels;
+/// one refusal (`no-seat-block`, the summary-only fragment). The headerless
+/// fragment stays unclaimed (`unrecognised_files_are_refused_whole`).
+#[test]
+fn fulltilt() {
+    let report = golden::check(Selection::Parsers(&["fulltilt"]));
+    assert_eq!(report.files, 13, "the set of files `fulltilt` wins changed");
+    assert_eq!(report.hands, 21);
+    assert_eq!(report.refusals, 1);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}
+
+/// `runitonce` (R0.10c): the cash hand with Splash The Pot (house money and
+/// the inflated uncalled return), the 3-max tournament hand (a name and no
+/// level, `[hero]`, `*** SHOWDOWN ***`, the uncalled return hoisted above the
+/// showdown), the Omaha splash hand refused `unsupported-variant`, and the
+/// tournament summary file claimed with no hands.
+#[test]
+fn runitonce() {
+    let report = golden::check(Selection::Parsers(&["runitonce"]));
+    assert_eq!(report.files, 4, "the set of files `runitonce` wins changed");
+    assert_eq!(report.hands, 2);
+    assert_eq!(report.refusals, 2);
+    assert_eq!(report.pending_text_hashes, 0);
+    assert_eq!(report.unported_candidates, 0);
+}

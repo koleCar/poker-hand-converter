@@ -1,8 +1,8 @@
 //! The PokerStars line grammar as the rooms that cloned it speak it
 //! (`frontend/src/lib/parsers/shared/p3-stars-dialect.ts`): Run It Once and
 //! PokerBros' PokerStars-family export. Ported with the PokerStars parser
-//! (R0.7) so the two rooms that read it (R0.8, R0.10) find it in place; until
-//! they arrive it is exercised by its own tests only.
+//! (R0.7) so the two rooms that read it found it in place: PokerBros (R0.8)
+//! and Run It Once (R0.10c).
 //!
 //! The differences it absorbs: `Table ID '…' 6-Max` (RIO) next to
 //! `Table '…' 6-max`, `*** SHOWDOWN ***` next to `*** SHOW DOWN ***`, a
