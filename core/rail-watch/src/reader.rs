@@ -619,6 +619,19 @@ impl FileReader {
         {
             return Ok(Step::Unchanged);
         }
+        // A file read whole, unchanged since: nothing to do - decided from
+        // the metadata alone, without opening it (R1.6: on Linux every open
+        // is an inotify event, and a look that opens an unchanged file
+        // would wake the watcher for it again, forever).
+        if track.whole_file
+            && stored.is_some_and(|s| {
+                stored_offset == size
+                    && u64::try_from(s.size).ok() == Some(size)
+                    && s.mtime_ms == mtime
+            })
+        {
+            return Ok(Step::Unchanged);
+        }
         let mut start = stored_offset;
         let fresh = stored_offset == 0;
         // Truncated (or replaced by something shorter), or replaced by
@@ -629,13 +642,6 @@ impl FileReader {
             return Ok(Step::Restart);
         }
         if track.whole_file {
-            if stored.is_some_and(|s| {
-                stored_offset == size
-                    && u64::try_from(s.size).ok() == Some(size)
-                    && s.mtime_ms == mtime
-            }) {
-                return Ok(Step::Unchanged);
-            }
             if quiet < self.config.quiet_ms {
                 return Ok(Step::Waiting(Some(last_change + self.config.quiet_ms)));
             }

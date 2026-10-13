@@ -74,6 +74,7 @@ use std::sync::{Arc, Mutex, PoisonError};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
+use notify::event::{AccessKind, AccessMode};
 use notify::{EventKind, RecursiveMode, Watcher as _};
 use rail_store::{ParserVersions, WriterHandle, time};
 
@@ -1412,6 +1413,18 @@ impl Coordinator {
     }
 
     fn on_fs_event(&mut self, event: &notify::Event) {
+        // A file opened or read has no new bytes; only a close after writing
+        // may mean new ones. inotify reports every open and every read-only
+        // close - the watcher's own reads among them - and acting on those
+        // made a feedback loop on Linux (R1.6): each look at a file opened
+        // it, the open woke the watcher for the same file at the front of
+        // the queue, and two such files held the import threads forever
+        // while the rest of a backfill waited.
+        if let EventKind::Access(kind) = event.kind
+            && kind != AccessKind::Close(AccessMode::Write)
+        {
+            return;
+        }
         if event.need_rescan() {
             let now = time::now_ms();
             for source in self.sources.values_mut() {
