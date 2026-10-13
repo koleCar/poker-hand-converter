@@ -1,0 +1,43 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "4405041788",
+      "index": 0,
+      "phf": "9bd32e22fa389fe91ce946e6e63b47d1f582b99a78829382bd02ebc6cdc76e79",
+      "reason": "no-all-in",
+      "row": "c2cf95992a30df71ad62a9c4e2b83aa9331d298a1af93e64fd32fefa544f4e32"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "4405043072",
+      "index": 1,
+      "phf": "238ef953001dfda12bf6a1dfea1a925e6c44658671380acf70c96ab979f642b7",
+      "reason": "no-all-in",
+      "row": "9e980e1d1f683afcd0e23e1774e66e459d42a75984dd1ec76b919ba972578d03"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "4405044327",
+      "index": 2,
+      "phf": "3f54757e33247b2a2b80cd46776d5fb6f9946b3ec6c61f36c28a6903384b2098",
+      "reason": "no-all-in",
+      "row": "53c1e4091127535ce6d8896fbff4cad2936763a7be69df6b1b45c28bfa0cddea"
+    }
+  ],
+  "input": {
+    "bytes": 5864,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - GSPO9 High Roller Tune-Up - $50.000 Gtd - $300-$25 - 202110.txt",
+    "sha256": "872f1e117a482931b06e0bacc14d88c9d32c1513103c6a287303bea9b42eaaa3"
+  },
+  "outcomes": {
+    "no-all-in": 3
+  },
+  "rows": 3,
+  "totals": {
+    "ev_net": -90,
+    "ev_net_bb_milli": -300
+  }
+}

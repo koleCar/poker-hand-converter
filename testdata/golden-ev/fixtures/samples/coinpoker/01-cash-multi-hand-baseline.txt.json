@@ -1,0 +1,52 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "256459677",
+      "index": 0,
+      "phf": "46d9c5eabbf1749d7b4af8d3b2e65c34d143e91b8da9739f2affea7ff3557628",
+      "reason": "no-all-in",
+      "row": "081cf2c8fb4f3c4f70b5739fe25f0e24aaafafca8f12c1d8fdff7b01f64c497b"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "256460002",
+      "index": 1,
+      "phf": "97f29ec17382660bb0307ccbba619d55d9bb5940507d897c93c49a5bf555d193",
+      "reason": "no-all-in",
+      "row": "143c8eac0f2207cca30d1f57e70b7ea82b501f63c9821b8e821e599ca59800f3"
+    },
+    {
+      "analysis": "575560a4b1947fffc0d72b28a1626fb863c6c686675095f62e402816cf9d4c1a",
+      "handId": "352695201",
+      "index": 2,
+      "phf": "e13901892ec8ea552697ba50e4e584001a4d10bca8966ba596ab75024b328f4b",
+      "reason": null,
+      "row": "99e53addcfc97e909de8a8b8fb09ee4ef02e85f73358e71a4144791f4878eafe"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "352675127",
+      "index": 3,
+      "phf": "07c04bb03acb6ca211c51592430e75d239a9f26993ddb659ed1db815edcf8f1e",
+      "reason": "no-all-in",
+      "row": "69faa883f6658d282e34cefea6cbaf61ddf89487fd9987730c998036185014ea"
+    }
+  ],
+  "input": {
+    "bytes": 5406,
+    "path": "fixtures/samples/coinpoker/01-cash-multi-hand-baseline.txt",
+    "sha256": "3472a8cc97c235296f4cf0cd703e0062c89decdfd9b743c625305fd09f5f847f"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1,
+    "no-all-in": 3
+  },
+  "rows": 4,
+  "totals": {
+    "ev_net": -60,
+    "ev_net_bb_milli": -30000
+  }
+}

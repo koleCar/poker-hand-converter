@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-361878619-322",
+      "index": 0,
+      "phf": "c01d2840554b1358ded80a04393c03f162280e492d8722a8cdeef7d90997ec07",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 860,
+    "path": "fixtures/samples/ongame/04-pot-limit-omaha.txt",
+    "sha256": "77835178c2b2a3420b026e0e94237ded2b368931cea77f3da15da4921cfd7206"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

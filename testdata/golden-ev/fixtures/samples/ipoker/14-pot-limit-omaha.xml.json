@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383652813",
+      "index": 0,
+      "phf": "3c75b7038bf84ebdb48746ee3c5cf585020b44ca859117ebfcee21e502569c47",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 2274,
+    "path": "fixtures/samples/ipoker/14-pot-limit-omaha.xml",
+    "sha256": "c56bf426ee5b7f29cfd9e3a52297c5f87effb693669866ff769f935423d00279"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

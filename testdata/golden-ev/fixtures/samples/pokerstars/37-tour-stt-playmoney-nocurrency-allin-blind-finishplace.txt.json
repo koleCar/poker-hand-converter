@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "9f8e5f64bb5f034630d7106aaffe32e2cd1257c545cfcb46bbb39966aa808030",
+      "handId": "75726253875",
+      "index": 0,
+      "phf": "d366af62d03dad9bf1ddc27acba79406c73c7874bc6814007535cbd19836cd79",
+      "reason": null,
+      "row": "fbd1da9acc4d05df37fd53a51baf51df711dd78b44d2a5c644b96a69f2c42fa4"
+    }
+  ],
+  "input": {
+    "bytes": 1682,
+    "path": "fixtures/samples/pokerstars/37-tour-stt-playmoney-nocurrency-allin-blind-finishplace.txt",
+    "sha256": "d03b4ffa9609255d9ea84fe6fb112ab87a3bf8b5e7a252c46a48d6bc3cd4614d"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 1157,
+    "ev_net_bb_milli": 38567
+  }
+}

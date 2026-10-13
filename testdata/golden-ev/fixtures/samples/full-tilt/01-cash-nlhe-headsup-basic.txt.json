@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727950903",
+      "index": 0,
+      "phf": "fa1e7829cdf5f6384f9d7f2a00fe0dd2464afefd3218712cecc90f250db44928",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 689,
+    "path": "fixtures/samples/full-tilt/01-cash-nlhe-headsup-basic.txt",
+    "sha256": "94b91a03e7408c89656fbd471c7fc93206722c49a3cbabb73c94d3892b6c8d69"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

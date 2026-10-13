@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "109713978619",
+      "index": 0,
+      "phf": "cfde25f19188a2dcca8f77f57c053f0a166b6cda6f4452021df7151b67c976e7",
+      "reason": "hi-lo",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 2258,
+    "path": "fixtures/samples/pokerstars/15-cash-omahahilo-limit-hi-lo-split.txt",
+    "sha256": "d1edaad6dfc3b128d114a5533abe1752d9d702c20cb95680e4c09797f7bdb347"
+  },
+  "outcomes": {
+    "hi-lo": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

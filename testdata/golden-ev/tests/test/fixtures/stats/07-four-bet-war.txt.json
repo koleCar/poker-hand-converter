@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST07",
+      "index": 0,
+      "phf": "cbb7d7433561a9505f6dcafd221f3af6cd6da8ffd8e449082b5c1a19adce4685",
+      "reason": "no-all-in",
+      "row": "af1fc094569b8cf115749b1187937190d849d1c67e43538622824d526b17a78e"
+    }
+  ],
+  "input": {
+    "bytes": 872,
+    "path": "tests/test/fixtures/stats/07-four-bet-war.txt",
+    "sha256": "dd2bfed20d6e6933b723345ac9dab323bd9c0f1dd50354748a041b826ccb7242"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 1050,
+    "ev_net_bb_milli": 10500
+  }
+}

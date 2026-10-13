@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "ENT-2646515978",
+      "index": 0,
+      "phf": "10949acaa967093d0ad065313330fb2fc2301c3ad98ec5466fd313b41fc721d6",
+      "reason": "hi-lo",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1139,
+    "path": "fixtures/samples/entraction/06-fixed-limit-omaha-hilo.txt",
+    "sha256": "468a67b473d716b970ff37e1d9e716ce8f3d56558672746ab29dde5fb68c80df"
+  },
+  "outcomes": {
+    "hi-lo": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

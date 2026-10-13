@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109681344065",
+      "index": 0,
+      "phf": "74835a7ee5c7d10a6b7091c72130e011bb2f9c9a9472cf07106c703df6f4b12a",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1489,
+    "path": "fixtures/samples/pokerstars/01-cash-nlhe-6max-ante.txt",
+    "sha256": "b8a31e325e009ab96127baaeddf6b781622e5c6eb03ac48711e5c6f1cc311365"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

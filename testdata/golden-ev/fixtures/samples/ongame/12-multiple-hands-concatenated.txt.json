@@ -1,0 +1,99 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-362037295-54",
+      "index": 0,
+      "phf": "0e93ba23baed836c480d922c009b5e41cd85d5e044cfc9d4f2bf6b08387b61b7",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-362037295-55",
+      "index": 1,
+      "phf": "56b73b1b5a46f1ac419d0b96064dd43ecab66595aee946ce833a6a103c83d291",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-362037295-56",
+      "index": 2,
+      "phf": "b2f5705e46da277b27f6fd135bd669924faef02eaa1de9d6051d6964980fc2d3",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-362037295-57",
+      "index": 3,
+      "phf": "3f4d7d0a6bd19149eb1463faabbcb33af5dbe2b55510da1c36411be1f900a57f",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-362037295-58",
+      "index": 4,
+      "phf": "383027dfcdbc1c7bd1eedba64fa663fc45869776d05b76a638522500c75b0048",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-362037295-59",
+      "index": 5,
+      "phf": "42b7df14a9b82ecac81c85a542320e4b07816552b214e957bdf5c2851cd175cf",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-362037295-60",
+      "index": 6,
+      "phf": "82ec29ed51dc593bd0ac0b61cc757b045b15820d1c4a418cd3376758514f0105",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-362037295-61",
+      "index": 7,
+      "phf": "ccba470145677450f24dcfa51d23a89330d7fd16db6cb8312ad7d80112575e11",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-362037295-62",
+      "index": 8,
+      "phf": "b83bc9545e513a4ee5dc54e45b64b44ff70663b7c49282500b658a4e3bc9c18c",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-362037295-63",
+      "index": 9,
+      "phf": "332a157ab508788e16112f2d24ccea5abc0291628af84f9dbe1ea2a37883818c",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 9972,
+    "path": "fixtures/samples/ongame/12-multiple-hands-concatenated.txt",
+    "sha256": "2dbe1e632b4a07eef69d8ef7d1e0330f1e4b4eb0569a462c5c9f716421b4363b"
+  },
+  "outcomes": {
+    "no-all-in": 10
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

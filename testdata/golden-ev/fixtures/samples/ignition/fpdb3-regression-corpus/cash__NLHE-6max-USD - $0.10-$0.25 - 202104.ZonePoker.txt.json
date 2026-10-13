@@ -1,0 +1,43 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "4101241030",
+      "index": 0,
+      "phf": "e087988e7e8742bb17b671f958c82d205cf045579c41cea2795409c96c28edad",
+      "reason": "no-all-in",
+      "row": "5919f27b28cbd7bef7727131801911a54f2ff22bf4266ec92325672e7f585612"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "4101241126",
+      "index": 1,
+      "phf": "11f4d3f6831aab53df9720c66d4db2696bd579a68d2a2e00aa018a8ae7d80fcf",
+      "reason": "no-all-in",
+      "row": "83bcc322797d4ec2c7c07f404bd771469e1843e83d65cf766bbbfb454b85bc07"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "4101241231",
+      "index": 2,
+      "phf": "0b54429fbb29dd373c38637b54a4b2cc4b1bc3b8cb02d135292e612c9c89d73f",
+      "reason": "no-all-in",
+      "row": "78cdf902c7fc1ec27461f70bc4299c382862809371f2c27f14643a2ed37d8ba5"
+    }
+  ],
+  "input": {
+    "bytes": 3831,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-6max-USD - $0.10-$0.25 - 202104.ZonePoker.txt",
+    "sha256": "420c8df6dfba137663da5810c8b23413585f48c0684d9133ac1c56aa7d56a647"
+  },
+  "outcomes": {
+    "no-all-in": 3
+  },
+  "rows": 3,
+  "totals": {
+    "ev_net": -35,
+    "ev_net_bb_milli": -1400
+  }
+}

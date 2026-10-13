@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "fc98d54aeefd510a6acac19cde1df8167782701085ca7fd3213ed424b2c9afd9",
+      "handId": "WMX-5313422-1-1383828693",
+      "index": 0,
+      "phf": "dc00c3d28b215b40205a2ceb14abeaf124dae964bae62aab91210ed0d626de7c",
+      "reason": null,
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 965,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_GameTypeTests_PotLimitOmaha.txt",
+    "sha256": "c7979b82d19e5c360a6c139c5ba5b37a2eac1852d697f7ded3b8ec78e8277a16"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

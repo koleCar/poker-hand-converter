@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "2725384529",
+      "index": 0,
+      "phf": "8ed164d50ff41663f9238a0e6bd1bc9fecb5f26d8f0c4ce5bab6c671a6b1cd2a",
+      "reason": "no-all-in",
+      "row": "0705bda4b9aef76d9ec80b31fe0947768d7bbf0eea7f80585584ebd52853618a"
+    }
+  ],
+  "input": {
+    "bytes": 1364,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__FLHE-9max-USD - $8-$16 - 201307.all.in.blind.txt",
+    "sha256": "87ec51b6f959ea5f91473f416086cb29649b5d83f9aef38a986b39b59ce8074b"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -8800,
+    "ev_net_bb_milli": -11000
+  }
+}

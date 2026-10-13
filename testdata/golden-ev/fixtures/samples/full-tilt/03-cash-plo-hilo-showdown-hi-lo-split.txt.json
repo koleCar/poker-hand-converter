@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "33730957082",
+      "index": 0,
+      "phf": "670d685fcafe48ba2503415afe4332417188c224ffa37ab1d5f3a0f9afdddd8b",
+      "reason": "hi-lo",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1369,
+    "path": "fixtures/samples/full-tilt/03-cash-plo-hilo-showdown-hi-lo-split.txt",
+    "sha256": "159a3c37ef1034a689dfc553490679c51ffe61099cdd0d63b638104c242900db"
+  },
+  "outcomes": {
+    "hi-lo": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

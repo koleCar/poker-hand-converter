@@ -9,6 +9,11 @@ repository.workspace = true
 
 [dependencies]
 rail-core = { path = "../rail-core" }
+rail-stats = { path = "../rail-stats" }
+serde_json = "1.0.154"
+
+[dev-dependencies]
+sha2 = "0.11.0"
 
 [lints]
 workspace = true

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727539525",
+      "index": 0,
+      "phf": "b3c6baceb887556fe313e97091c34664ec1717acda8898630acb70b755c85863",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1309,
+    "path": "fixtures/samples/full-tilt/04-cash-nlhe-disconnect-reconnect-timeout-standup.txt",
+    "sha256": "2da68bfeeb97c2c8bd63abd15350f62b257ff5d68f16031b9e298629988af929"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

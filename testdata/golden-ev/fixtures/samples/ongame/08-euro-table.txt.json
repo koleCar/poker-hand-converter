@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-118630507-219",
+      "index": 0,
+      "phf": "e3f54e31d08aecf5cf39eb0d3414b9c9541b1b70a870650a7bfea966a289a2d8",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1244,
+    "path": "fixtures/samples/ongame/08-euro-table.txt",
+    "sha256": "98eff6588ed3f0622463cb2a6b28d48a74e5c8a37ec3c02fc5672afd3bfac83f"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

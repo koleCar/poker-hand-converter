@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-361920831-66",
+      "index": 0,
+      "phf": "b9e2ed8f674f95f6e6419b619035f94b78afeaffdfd00ccad3756eab25d085a7",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 766,
+    "path": "fixtures/samples/ongame/11-no-hole-cards-visible.txt",
+    "sha256": "5d47aba15e33293fe7d7e0f638970522fa351b5c977e7e4dda0dacc1f9b9568e"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

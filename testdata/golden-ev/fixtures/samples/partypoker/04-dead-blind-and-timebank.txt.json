@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-14507003662",
+      "index": 0,
+      "phf": "a52ef4566c2173c6903379a3449c66cbf1ed269c753f19f45e0bf5f48159867b",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1306,
+    "path": "fixtures/samples/partypoker/04-dead-blind-and-timebank.txt",
+    "sha256": "5bc95feb6d588c4f29773511b24509b97e273f3d76293bbd77d6a4f259a3122f"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

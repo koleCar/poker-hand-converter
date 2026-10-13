@@ -1,0 +1,52 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "4370494854",
+      "index": 0,
+      "phf": "aab320ac3027900a5808cea134c37ea6f1d735780a8354ab6fa0db661a755a23",
+      "reason": "no-all-in",
+      "row": "c80b1b32192b0f2e5942d84384d12bd659e5c6d8e0348ac359958817c130e6b0"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "4370495444",
+      "index": 1,
+      "phf": "bb1851209f986a33449512124ac21c7d0752eef8b839ed43ba117172c949c004",
+      "reason": "no-all-in",
+      "row": "3f791262c3ac1323cb73c105d366d48a62ee4cb44b6e1cadd80f7b8add9ac51b"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "4370495877",
+      "index": 2,
+      "phf": "51bf157bc6898e75e1e881442cd35ed13198c58e6b14ac03a025ed5af5db39aa",
+      "reason": "no-all-in",
+      "row": "35a7a34c6c504b57a37f2ace7d36e6ae66134f135846c4a036b417dbc2f51195"
+    },
+    {
+      "analysis": "67935a26e35b5351a7d9b235cfc108e04b5d487b4a1a1ca796827f4b885f8caf",
+      "handId": "4370496336",
+      "index": 3,
+      "phf": "fb9ce39837f7a803f40488a8eee7a1653a80649d1a23b98a51c15926bdd32d63",
+      "reason": null,
+      "row": "0a89e3197e14b7f586543983b28fff005e0df0f415f956e621b7f148920bf7cc"
+    }
+  ],
+  "input": {
+    "bytes": 6911,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - SMPO Super Duper High Roller No.145 - $150.000 Gtd - $1,000-$55 - 202108.txt",
+    "sha256": "aced36c11fa6135f97b721c95b5cfefd77cd7f2c149b64a8e93b1751e8efb3d2"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1,
+    "no-all-in": 3
+  },
+  "rows": 4,
+  "totals": {
+    "ev_net": -7510,
+    "ev_net_bb_milli": -3755
+  }
+}

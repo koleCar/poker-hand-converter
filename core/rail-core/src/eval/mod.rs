@@ -100,6 +100,7 @@ impl HandCategory {
 
     /// The index into [`HAND_CATEGORIES`] (the TypeScript constants
     /// `HIGH_CARD` = 0 .. `STRAIGHT_FLUSH` = 8).
+    #[inline]
     const fn index(self) -> usize {
         match self {
             Self::HighCard => 0,
@@ -235,11 +236,13 @@ impl PartialEq for RankingTable {
 
 impl RankingTable {
     /// `table.straight[mask]`.
+    #[inline]
     pub fn straight(&self, mask: u32) -> u8 {
         self.straight[at(mask)]
     }
 
     /// `table.shift[category]`.
+    #[inline]
     pub fn shift(&self, category: HandCategory) -> u32 {
         self.shift[category.index()]
     }
@@ -444,6 +447,7 @@ pub fn short_deck_table(rule: ShortDeckRule) -> &'static RankingTable {
 /// four suit masks describe. The hot path; at most seven cards (see
 /// `evaluator.ts` for why the evaluation order below then holds for every
 /// table).
+#[inline]
 pub fn evaluate_masks(table: &RankingTable, s: u32, h: u32, d: u32, c: u32) -> u32 {
     let pop = |mask: u32| POP[at(mask)];
     let top = |mask: u32| TOP[at(mask)];

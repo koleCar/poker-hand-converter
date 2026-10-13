@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 650,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_ValidHandTests_InValidHand.txt",
+    "sha256": "0fcbb630439603c1231aa2891c1233aae218003bf46fe9cca540b5f206a4b622"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

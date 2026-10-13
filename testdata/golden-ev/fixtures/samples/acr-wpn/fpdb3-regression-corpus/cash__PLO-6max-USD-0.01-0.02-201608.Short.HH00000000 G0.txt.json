@@ -1,0 +1,35 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "693980441",
+      "index": 0,
+      "phf": "0b1e18086ff773751acf06582ac6d5c4867c2c31c2420aca0b7f38c680eb0f0b",
+      "reason": "no-all-in",
+      "row": "9524b0bbc78cb468cb27caeaa6f07d5eec6736536a07ec5c2be1b340a168b373"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "693980591",
+      "index": 1,
+      "phf": "c00ee0d1da797c5fef85122a83bbadc404ef2b1a4d8ca9369eaaeba197429f99",
+      "reason": "no-all-in",
+      "row": "4a060a7d616b19faff75b92e8e93f97753f4825be6af7b90684efb614492b22f"
+    }
+  ],
+  "input": {
+    "bytes": 8111,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__PLO-6max-USD-0.01-0.02-201608.Short.HH00000000 G0.txt",
+    "sha256": "346bb588e793e88d89fee8dc609e4b3d94b18fdd19a45d0710d7b8eba1f90008"
+  },
+  "outcomes": {
+    "no-all-in": 2
+  },
+  "rows": 2,
+  "totals": {
+    "ev_net": -4,
+    "ev_net_bb_milli": -2000
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 4406,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__7-Stud-USD-2.00-4.00-201205.txt",
+    "sha256": "72008d12d712cd675a730b921c527e9939bb1ba4421b335454dc585fc01cd925"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

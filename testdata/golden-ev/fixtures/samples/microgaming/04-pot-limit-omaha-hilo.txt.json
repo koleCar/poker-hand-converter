@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "MG-5049160112",
+      "index": 0,
+      "phf": "d7135d0831601406cc04360710a3f2090c82c9e0d8511ba4501b720fc4b27250",
+      "reason": "hi-lo",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 2953,
+    "path": "fixtures/samples/microgaming/04-pot-limit-omaha-hilo.txt",
+    "sha256": "a99ee14bc9e3932846696fca16612c11c834c4e1ba011a37f8161d3c9d49a5cf"
+  },
+  "outcomes": {
+    "hi-lo": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

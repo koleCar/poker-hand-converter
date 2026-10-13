@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST01",
+      "index": 0,
+      "phf": "b3a39b3f7d0c613069f9b06b7ba8d68651ecde349c6f3e9307ab7a94104b777a",
+      "reason": "no-all-in",
+      "row": "d8f926476127f8d8f3c9d83e7d04aee37af232887287ab754b206d12d5ec5da5"
+    }
+  ],
+  "input": {
+    "bytes": 824,
+    "path": "tests/test/fixtures/stats/01-walk.txt",
+    "sha256": "84d708f4f015166b7afa397bef12e4e297ed342438668ed84ae0e23e711003c3"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 50,
+    "ev_net_bb_milli": 500
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "a25e55c6f264bb0363d040b1c544a45f7fbd8d00adf96ff4b031baf39b295c4d",
+      "handId": "HD73831348",
+      "index": 0,
+      "phf": "1efc4706bb899593f4bed30cf736ca82b88aba5333676a1c1b8187b52d910c7d",
+      "reason": null,
+      "row": "112d212dada732ac03260d57ad16b73e20d0489c3767e1fd0fd7c5eb33a1b61c"
+    },
+    {
+      "analysis": "210c3fc6db33743c46f561168a7360fcb7cb8a99390afa376e60d3c57ceb9ad8",
+      "handId": "HD73831422",
+      "index": 1,
+      "phf": "329b2c6ff84e685ec28b0bbc65db8eb28655061858ce256b2bd2929b1c3b133a",
+      "reason": null,
+      "row": "53f9ed19e224f364858db31dfd4f61a0bdc453f7108499109b2315390a547931"
+    }
+  ],
+  "input": {
+    "bytes": 3743,
+    "path": "weplay-hh/kole1992/HH20260126 T11264971 (#1) No Limit Hold_em $50 + $5.txt",
+    "sha256": "9bdd819ccf94d108c2fb76a12b0b736192f1245a20ed543c178d31cbff397fd0"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 2
+  },
+  "rows": 2,
+  "totals": {
+    "ev_net": -23983,
+    "ev_net_bb_milli": -4797
+  }
+}

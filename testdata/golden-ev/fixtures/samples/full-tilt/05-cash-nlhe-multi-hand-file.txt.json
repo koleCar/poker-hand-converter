@@ -1,0 +1,99 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727523266",
+      "index": 0,
+      "phf": "c61fd71480c8d2a82cc8f37aaa5c52d2b597338cb9c522f4f7192bfe462473cc",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727523266",
+      "index": 1,
+      "phf": "c61fd71480c8d2a82cc8f37aaa5c52d2b597338cb9c522f4f7192bfe462473cc",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727525247",
+      "index": 2,
+      "phf": "072fe89f18aba64d2529b5966d9d4bdcd8e19e26dfde0f264d82ca2509640c8b",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727525247",
+      "index": 3,
+      "phf": "072fe89f18aba64d2529b5966d9d4bdcd8e19e26dfde0f264d82ca2509640c8b",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727528605",
+      "index": 4,
+      "phf": "f4c03c4668c54a51ed39e9740f61287b824840bdb3ce24bc092b9aa53c7c7113",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727528605",
+      "index": 5,
+      "phf": "f4c03c4668c54a51ed39e9740f61287b824840bdb3ce24bc092b9aa53c7c7113",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727531727",
+      "index": 6,
+      "phf": "fdfb9ba9fdbd47215f28ed2f95bb6d0e5d8dfe4b682d7d021a28a75198c269c5",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727531727",
+      "index": 7,
+      "phf": "fdfb9ba9fdbd47215f28ed2f95bb6d0e5d8dfe4b682d7d021a28a75198c269c5",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727537504",
+      "index": 8,
+      "phf": "e74603809ea7200ff9b7794d194da5b89ec64ff07d3eb1046f0a42fab7f130bc",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "33727537504",
+      "index": 9,
+      "phf": "e74603809ea7200ff9b7794d194da5b89ec64ff07d3eb1046f0a42fab7f130bc",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 14148,
+    "path": "fixtures/samples/full-tilt/05-cash-nlhe-multi-hand-file.txt",
+    "sha256": "18148100f5c44445359586bdaa69bd93d98748a061badec099e436bfb9ddefa1"
+  },
+  "outcomes": {
+    "no-all-in": 10
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109673992001",
+      "index": 0,
+      "phf": "c8284d54193085d0ee5ba8402d4d0e9210d81e4a207e36359a69c5361f76cead",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109674128046",
+      "index": 1,
+      "phf": "8a797795ba4a36383a9511f6ca48fe31b519cf03f221e43002996ae756febfc2",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109674148786",
+      "index": 2,
+      "phf": "ea1ce3e54881695739ec8db4ba91b63fe28adda6e78ecfcb86e8c2a71a5b4d13",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109673533027",
+      "index": 3,
+      "phf": "bcf5efb9f422c71861cf746e63f282cb6ad8643864f52f2a4a6a2f403cbb2e39",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109673554313",
+      "index": 4,
+      "phf": "414b82f6671322349119226ba6a899a363f42b143869c19c944de5c5f4849ab9",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109673561342",
+      "index": 5,
+      "phf": "55e7962d44b9599b2fede8ecb87ce6cf01b0bf515cd4a33522ebeb43eaa44976",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109673572373",
+      "index": 6,
+      "phf": "be8bfbf6a585ef53081d7e1cf4fca1ea01c53d1bb5e86fde1f0869bdc50e7d31",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109673589735",
+      "index": 7,
+      "phf": "d3d457b0bfa1f532096c83be2b91572ee4c3fe18cc83de292c51b07c78cef2f8",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109673602306",
+      "index": 8,
+      "phf": "c4706d591ced0f7b4033004c8b970a6208c54e2b857b82a0faa7571b1c33a068",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109673610680",
+      "index": 9,
+      "phf": "bf7fafbf00cccd1edc7dd61f83ba78e800423c9842f1e0f3bfec72f2fd8c12e4",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 13037,
+    "path": "fixtures/samples/pokerstars/27-cash-multi-hand-file-blank-line-separator.txt",
+    "sha256": "cf855ac899086405a4dc96d788348e1fa44134ec1af1f07191531a586a1bd081"
+  },
+  "outcomes": {
+    "no-all-in": 10
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

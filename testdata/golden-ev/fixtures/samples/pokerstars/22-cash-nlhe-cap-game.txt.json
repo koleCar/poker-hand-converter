@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109680936246",
+      "index": 0,
+      "phf": "87fe0ea40cb79b26a518507594081281871fbec4a773cbb9e6d963b018d63ca5",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 754,
+    "path": "fixtures/samples/pokerstars/22-cash-nlhe-cap-game.txt",
+    "sha256": "5283fb589c2bd4275f907afc8308776e0c73471a234dd85ad93c03b36500db02"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

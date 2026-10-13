@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109679365424",
+      "index": 0,
+      "phf": "e4b747917b73f5b61ded7447c27fb2ad68ca2ab26666c5ea066e920f0dbd58fc",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1326,
+    "path": "fixtures/samples/pokerstars/23-cash-fixed-limit-holdem.txt",
+    "sha256": "c9f17a2fd1d49776b4d2b7c6745ef77ba7d394df3025799e53bc937178533fdb"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

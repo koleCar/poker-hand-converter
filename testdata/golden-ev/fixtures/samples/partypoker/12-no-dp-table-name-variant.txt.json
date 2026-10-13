@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-11617233792",
+      "index": 0,
+      "phf": "a67ec38626223fdf39e556a76b6272085a0540819c39e7ac1f58a66bf9175fbc",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 584,
+    "path": "fixtures/samples/partypoker/12-no-dp-table-name-variant.txt",
+    "sha256": "6d236f7011cc8af5cdb4d68e8a15fa0130d0bb3918fcc4654fed5023af09dfed"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

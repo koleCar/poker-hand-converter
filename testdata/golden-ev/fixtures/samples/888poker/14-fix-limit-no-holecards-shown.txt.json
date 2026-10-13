@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "888-539304533",
+      "index": 0,
+      "phf": "da89078885aaccafb3c2d4bf59ac90d98c26d027ff332550f88bc7fa76d82ee1",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 473,
+    "path": "fixtures/samples/888poker/14-fix-limit-no-holecards-shown.txt",
+    "sha256": "aa01b3900e9253234298bc1281e4dd8edbf1095a1b31f1ded06309fec9457bdf"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

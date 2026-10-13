@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383308893",
+      "index": 0,
+      "phf": "b8b05037a9fb559537ce367cb7c434e990cbd84f21b04914f0b2e1aca73304eb",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 2525,
+    "path": "fixtures/samples/ipoker/11-euro-table.xml",
+    "sha256": "ee459fa7c1694d72a31abd50e3266e1bbd96b9fd51cce8c0c4c0d27d5fe08429"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

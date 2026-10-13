@@ -34,6 +34,13 @@ describe("golden oracle", () => {
         `testdata/golden-stats-full ${(report.statsFullBytes / 1e6).toFixed(1)} MB, ` +
         `${report.statsNegativeZeros} -0 written as 0`,
     );
+    console.log(
+      `golden ev: ${report.evRows} rows, ${report.evApplicable} applicable, ` +
+        `${report.evMonteCarlo} Monte Carlo, ${report.evShortDeck} short deck, ${report.evHiLo} hi/lo declined, ` +
+        `testdata/golden-ev ${(report.evSummaryBytes / 1e6).toFixed(1)} MB, ` +
+        `testdata/golden-ev-full ${(report.evFullBytes / 1e6).toFixed(1)} MB, ` +
+        `${report.evNegativeZeros} -0 written as 0`,
+    );
     expect(report.files).toBeGreaterThan(500);
   });
 });

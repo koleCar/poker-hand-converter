@@ -1,0 +1,92 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD76256818",
+      "index": 0,
+      "phf": "df46988f92c46c51d889cf05c6ffadacdd6c34148f4b55d4d0d21ee4f7bf9579",
+      "reason": "no-all-in",
+      "row": "a4c8b2d7474a7e34e95913ffd9b81b01cd798b370756a6ad174c753ff7c621df"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD76256873",
+      "index": 1,
+      "phf": "65a920cb31ba21309b98fecff724ee651e54cb0d4e0d9213de50590949ab6f9f",
+      "reason": "no-all-in",
+      "row": "9be2990cc594c1c89819f8331710615f77944f732c40a206f7a4c823e1533b63"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD76256907",
+      "index": 2,
+      "phf": "92d77416545529ad42d6bab250a27126dccba1cdc1a577f1ee7531b53d8bbe3c",
+      "reason": "no-all-in",
+      "row": "87e9d164514f447489712a6ca34c0d1521cd8df552416b95a6c5bab094c7932a"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD76256951",
+      "index": 3,
+      "phf": "b217911478d8dd61df0c56764bf3844e8a6a059214790875e1027ab6a945a693",
+      "reason": "no-all-in",
+      "row": "47894316069136bf72d298d1c8838a647b0c802a5a750ceca354fcc65eaa739a"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD76256992",
+      "index": 4,
+      "phf": "e4689ad577d8ba4b376361cedff9f21074d25cd328572a2f63bd325e5cd1066b",
+      "reason": "no-all-in",
+      "row": "fbdb1407ff016727589fb6d25c4cb01594adc2f15c3b69adeb1e667595286ba9"
+    },
+    {
+      "analysis": "8adacad1d7edc6da9d316efef627de85d85c3750a74f1d577f9bc4c7655cb238",
+      "handId": "HD76257020",
+      "index": 5,
+      "phf": "7a21b923d29100b3b962ed683b8eea89e3be8c46a595ebba3f670d6db656ca12",
+      "reason": null,
+      "row": "3f107f12767632e9be8dc4c5c70116fbcbc3a9eac6983416bf6fb7313678a475"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD76257050",
+      "index": 6,
+      "phf": "76ade6c133e827b825c72636ef5355fbb2f7d3c499b9b9984070a32571ea82b1",
+      "reason": "no-all-in",
+      "row": "1e077716a67535ca70e64780e84c2dd126c73d10b4f4f4f0eaa4e8cc428dfe32"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD76257075",
+      "index": 7,
+      "phf": "7b512d9dd14e8c1a1d362daa50e1050949a87a55bdab9e97917e42028d8f46e5",
+      "reason": "no-all-in",
+      "row": "fc24650030007c67422e2c495c00e2270265e3b0a713e9801a0f5c776c294cee"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD76257103",
+      "index": 8,
+      "phf": "1aa2d77bd4d3fd7ad41e97062e68c61ffa0b40b25fa393ea5a52ee2ad3e1bbee",
+      "reason": "no-all-in",
+      "row": "e23a2c6672ee4c189853ca58d87b00a45345d0203bd93a5f40aa305dfee3cc5a"
+    }
+  ],
+  "input": {
+    "bytes": 12416,
+    "path": "weplay-hh/kole1992/HH20260220 Liverpool Bomb Pot (3BB-5BB) #2 (#11421800) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt",
+    "sha256": "4ed4493cc403ea1bc8a823dba88fccf6fb42a9096261d6ae47571fd79b8d66db"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1,
+    "no-all-in": 8
+  },
+  "rows": 9,
+  "totals": {
+    "ev_net": -745,
+    "ev_net_bb_milli": -14900
+  }
+}

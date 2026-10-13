@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-361709806-1",
+      "index": 0,
+      "phf": "003fe33aa04a56de652eaca82233ac35cc691cc8880f6c8671abd8208bf02d02",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 579,
+    "path": "fixtures/samples/ongame/02-fixed-limit-holdem.txt",
+    "sha256": "ef57715e82ac46095873c0a5cda3e835787b05d709c95b469748f1f065e19b79"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

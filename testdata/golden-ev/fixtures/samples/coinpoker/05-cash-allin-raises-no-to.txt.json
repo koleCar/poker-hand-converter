@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "6e6b3019ca0c1d519f40851d7740fb6c9f6640e861f5952e8770a4d43b342b3a",
+      "handId": "352024761",
+      "index": 0,
+      "phf": "8ef04048e4b81ccf27ea52c0b6310dd717d8941c7b931caf658049f41b10f8bd",
+      "reason": null,
+      "row": "5c1df1ee95a756057578daba4eba85d6bca04ad830f4436a8c000dfae071e075"
+    }
+  ],
+  "input": {
+    "bytes": 1388,
+    "path": "fixtures/samples/coinpoker/05-cash-allin-raises-no-to.txt",
+    "sha256": "6328f2047d5b6521010320df9deafc5c15a310bfa7e469dc80b8dec5d39b7508"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -2,
+    "ev_net_bb_milli": -1000
+  }
+}

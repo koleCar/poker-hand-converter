@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "TM2917910182",
+      "index": 2,
+      "phf": "a6ebf3d6a05678448a85a37678a878629894f22f98d40503bc6d1e653bb4dd58",
+      "reason": "no-all-in",
+      "row": "47e9bbb2add0c776ffb046e66daa0c611ce5b49634a69f255e8a810f64586d61"
+    }
+  ],
+  "input": {
+    "bytes": 3844,
+    "path": "fixtures/samples/ggpoker/34-fpdb3-cash-nlh-cash-6max.txt",
+    "sha256": "e0ac42b8935189a86dba430b15495d4d2311afc97669cfd596f37ab6b081435f"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 27,
+    "ev_net_bb_milli": 13500
+  }
+}

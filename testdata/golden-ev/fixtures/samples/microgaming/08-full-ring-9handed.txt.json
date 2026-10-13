@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "MG-5049101693",
+      "index": 0,
+      "phf": "7c9ffc25c4d55fff66e4c30e3cd2e9a565706bec3ed58288bd0b543b69d1c3d2",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 2936,
+    "path": "fixtures/samples/microgaming/08-full-ring-9handed.txt",
+    "sha256": "5ae6550ce4040484fb0e73eb83bf7bfa5e3f34f075f9be8b7b4de3124863e164"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

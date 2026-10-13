@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "73b512a8cac647bc2258e6740028d7aa501aa13cb54635c0394bd71eee6c541e",
+      "handId": "2605762685",
+      "index": 0,
+      "phf": "6c5af5e2b2b2dab013528e02a1e6a6e732775fe84deb7fb40147537e50358c49",
+      "reason": null,
+      "row": "185c100d7cb6b40a72e3436bd75dc34d170f51fab5104d0d3abb770464a6e457"
+    }
+  ],
+  "input": {
+    "bytes": 1508,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__PLO-USD-2.00-4.00-201205.multiway.allin.txt",
+    "sha256": "96a51ffceca6c0eed1e73ee1d2bc639c42934c41f8e0d19a6e5ba9e350e4a1ed"
+  },
+  "outcomes": {
+    "applicable/monte-carlo": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 5015,
+    "ev_net_bb_milli": 12538
+  }
+}

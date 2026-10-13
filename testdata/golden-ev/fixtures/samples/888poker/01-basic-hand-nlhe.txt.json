@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "888-349736402",
+      "index": 0,
+      "phf": "bc99875a93f8a6b24a22802d8087b27b298f4289965ba0683b1c4e1fa9ba6538",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 564,
+    "path": "fixtures/samples/888poker/01-basic-hand-nlhe.txt",
+    "sha256": "1104f1b88c3ce697fa04445ecfdde45cc2f31482e71e4deef06a08a2ae29a875"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

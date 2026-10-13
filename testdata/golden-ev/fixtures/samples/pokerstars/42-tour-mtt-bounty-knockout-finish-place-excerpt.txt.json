@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "118a3938997e7a66edc0c5899b2c2d83ce033b333fc6a36d47e4adaefbd1f6ba",
+      "handId": "47658722448",
+      "index": 0,
+      "phf": "8d4c507d1d97eaeb03a92f6afa67b46ed4f1fea6be0266ba36c3088d7dec2796",
+      "reason": null,
+      "row": "cc413b2aefdc885bd92013468f5f4350654f7fa630c2912cfb262ba39d1d3657"
+    }
+  ],
+  "input": {
+    "bytes": 2034,
+    "path": "fixtures/samples/pokerstars/42-tour-mtt-bounty-knockout-finish-place-excerpt.txt",
+    "sha256": "6653ad3b6959b28dd49613944eb32ea6c9aef004c72fb7e8baaa3dcdcae890ec"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 20567,
+    "ev_net_bb_milli": 34278
+  }
+}

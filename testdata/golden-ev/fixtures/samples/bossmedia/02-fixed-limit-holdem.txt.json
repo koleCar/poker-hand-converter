@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1799,
+    "path": "fixtures/samples/bossmedia/02-fixed-limit-holdem.txt",
+    "sha256": "7130adfb78522c2e67b417e20921d087f7db2f02d215674c9059f4853408f85b"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

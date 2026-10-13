@@ -1,0 +1,35 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "215486308040",
+      "index": 0,
+      "phf": "474866c37125943cff28c98a74436d20516458c1c9a87bd8e644e35eeaac1f56",
+      "reason": "no-all-in",
+      "row": "e85dcb5cd2606eb9dab0468ba23ef2d810e2c12c7bac48a9b578394fd03524a5"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "215486319095",
+      "index": 1,
+      "phf": "4c17345084e97e6dae37b9a3047a1a3e535bf972052f3e73ef2aa42b6b3a945b",
+      "reason": "no-all-in",
+      "row": "ee79da9652fc36d2266fa478858cc0a7344df8b7de0f11bcdebbca27bfb2ddb2"
+    }
+  ],
+  "input": {
+    "bytes": 2123,
+    "path": "fixtures/samples/pokerstars/33-cash-homegame-playmoney-nlhe.txt",
+    "sha256": "86c05c8d8753cd8dbd67b3765126abd258f25492bdc79f24e8ddd10df691fb51"
+  },
+  "outcomes": {
+    "no-all-in": 2
+  },
+  "rows": 2,
+  "totals": {
+    "ev_net": -150,
+    "ev_net_bb_milli": -1500
+  }
+}

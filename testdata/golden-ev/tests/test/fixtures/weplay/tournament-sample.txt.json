@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75876391",
+      "index": 0,
+      "phf": "25e62003ebddfa9d82805543e3c22c4b553028ffcb425fdae5666c27e7c63269",
+      "reason": "no-all-in",
+      "row": "fd8aab1a8a61eccc91762042985ed86e157376bbd1fa2bb25c162b4613fb5e4f"
+    }
+  ],
+  "input": {
+    "bytes": 1380,
+    "path": "tests/test/fixtures/weplay/tournament-sample.txt",
+    "sha256": "f6a7863f4e056594ff4764eb67fce9b2bfd49d8098b1e68a53f292a0546352fa"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 2530,
+    "ev_net_bb_milli": 8433
+  }
+}

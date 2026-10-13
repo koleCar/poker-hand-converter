@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD90000005",
+      "index": 0,
+      "phf": "12d1fc33a9dc0ee1828b2896fc97785c9771d8b279e1a946202de936b42d810e",
+      "reason": "no-all-in",
+      "row": "108074f6985dd3badcacd124d23d6db3a85f9340ec822c78491a04d5446ab786"
+    }
+  ],
+  "input": {
+    "bytes": 1088,
+    "path": "tests/test/fixtures/weplay/hidden-showdown-cards.txt",
+    "sha256": "508d06b75d0fe4eb62629ce2efc4a38717e31654d65a4fdaa152e6071ad53efb"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -25,
+    "ev_net_bb_milli": -500
+  }
+}

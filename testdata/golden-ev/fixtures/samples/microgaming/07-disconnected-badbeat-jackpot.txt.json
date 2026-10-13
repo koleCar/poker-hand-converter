@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "MG-5541791811",
+      "index": 0,
+      "phf": "9cadfaf7e5ae6f87d4257804239e2857600192abb3003f440558097229cebdf6",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 2207,
+    "path": "fixtures/samples/microgaming/07-disconnected-badbeat-jackpot.txt",
+    "sha256": "0a6fe6c873bfa0bc9ae6fcd76bde14832baa196a5f748fcecc66a00e7e4a14b6"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

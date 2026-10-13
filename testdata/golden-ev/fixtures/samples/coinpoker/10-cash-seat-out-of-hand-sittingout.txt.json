@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "352026582",
+      "index": 0,
+      "phf": "0822ec05cc3443baf4e97dd56adfc48ffc8a709d953ce90d320eb0ea285d081c",
+      "reason": "no-all-in",
+      "row": "040cb9e4c0a7443d3f6b66349b5608aa4ac0d0a23dc70dbb658421581b942779"
+    }
+  ],
+  "input": {
+    "bytes": 1311,
+    "path": "fixtures/samples/coinpoker/10-cash-seat-out-of-hand-sittingout.txt",
+    "sha256": "5ca142aebfbe9a1464d6880c48ecff2fd8e776b2d7538d831bf3d1a8480535e5"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -1,
+    "ev_net_bb_milli": -500
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "MG-5049092037",
+      "index": 0,
+      "phf": "d66828da412c254a225a544efc4db47b60ffbcfacf4df3e9eab2d4251aaca462",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1736,
+    "path": "fixtures/samples/microgaming/01-basic-hand-nlhe.txt",
+    "sha256": "479fb4cb86560ab941b630de25fa0f96d4fa5fc68d8b4018df8ea7f67e858724"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

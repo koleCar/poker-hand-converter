@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "OG-R5-361991211-178",
+      "index": 0,
+      "phf": "ddf83666fcb519b33d34718826b64dd2f315d04b8955a71b77cdc7211ec4db95",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1087,
+    "path": "fixtures/samples/ongame/03-omaha-showdown.txt",
+    "sha256": "ec575ac75e9e97e67c9fe070803ca9ffd7828dd1fbb4fde9d89ac625e86ebb1c"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

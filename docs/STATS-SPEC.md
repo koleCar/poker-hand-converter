@@ -478,6 +478,20 @@ visible drift in a figure quoted to two decimal places.
 `bb/100 = sum(net_bb_milli) / 1000 / money_hands * 100`. Note `money_hands`, not
 `hands`: the two differ whenever the sample contains an EV cashout.
 
+### 7.7 All-in EV is the same money divided differently
+
+`hand_stats_ev` (`lib/equity/allInEv.ts`, versioned separately as `ev/1`)
+splits each pot at the moment of an all-in by equity instead of by the board
+that came. It reads the awarded total the way §7.1 does and takes the fees off
+every pot at the same rate, so `Σ evNet` over the seats equals `Σ net` - the
+identity above holds for EV too, and `equityCorpus.test.ts` asserts it on
+every corpus hand. A hand with no all-in to adjust still gets a row, with
+`ev_net = net`. The Rust port (`core/rail-equity`, docs/RAIL-PLAN.md R2.2)
+computes equity as exact integer shares of 1/27720 of a board, replays the
+TypeScript's double arithmetic for the pot split in `JsNumber`, and is held
+to the TypeScript's rows and analyses for every corpus hand
+(`testdata/golden-ev/`).
+
 ---
 
 ## 8. Bomb pots

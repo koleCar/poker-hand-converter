@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST16",
+      "index": 0,
+      "phf": "7acf619b48e723723dd3e3303b8af461cebc4f519403dffec8079cce894b7bcc",
+      "reason": "no-all-in",
+      "row": "707e33cfd224d8d6dc6d4113e7874c261c8b8628b3abfc607d420e4447fb019a"
+    }
+  ],
+  "input": {
+    "bytes": 941,
+    "path": "tests/test/fixtures/stats/16-fold-to-cbet-legs.txt",
+    "sha256": "d39c5b7c10cc7297868a0ffdd7d2e6420aa0ec26434ad90d3048c32ed30818e1"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -800,
+    "ev_net_bb_milli": -8000
+  }
+}

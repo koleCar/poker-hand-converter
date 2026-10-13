@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "185484049",
+      "index": 0,
+      "phf": "3f784bdf4bfed2e7e88269917e08f8b876e62fdb972964df12a7c44fff3cf443",
+      "reason": "no-all-in",
+      "row": "b96f6075d5b2a404f6f7ed00d4f47c8a4c8f67742cf87da97308db5bc1253941"
+    }
+  ],
+  "input": {
+    "bytes": 1299,
+    "path": "fixtures/samples/coinpoker/13-tour-pko-bounty.txt",
+    "sha256": "db36b7083b964e0ddd96ccf59f77c12de94f2b2960b588337675561eadf3f9a3"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -13,
+    "ev_net_bb_milli": -130
+  }
+}

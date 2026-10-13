@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 156,
+    "path": "fixtures/samples/full-tilt/09-cash-fragment-ante-posting.txt",
+    "sha256": "869ceef4548a8debcf0269c53f8edc0e847b1ec66f7c653584bbeefb54db3410"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

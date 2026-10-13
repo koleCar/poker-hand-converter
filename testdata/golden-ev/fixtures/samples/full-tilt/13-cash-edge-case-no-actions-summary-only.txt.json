@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 502,
+    "path": "fixtures/samples/full-tilt/13-cash-edge-case-no-actions-summary-only.txt",
+    "sha256": "1431d39c6a6cb88cb2c777b86986c0e4748482bfc4c013e4f9e6dc1bc9981653"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

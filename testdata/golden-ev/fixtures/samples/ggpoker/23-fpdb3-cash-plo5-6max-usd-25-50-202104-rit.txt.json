@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "1191a7bbb436c81d4e3dc3613d68f35f5c46b6aa67123003efc374d2f177518a",
+      "handId": "OM785467",
+      "index": 0,
+      "phf": "4fd1575d9f8aee4a609f4efdc59243de060e1935b6a4ee1d7ce1d59dc7f8a0b6",
+      "reason": null,
+      "row": "9a16e8b6052994df2b5f4f8425a42d7fe28dac586fcadcadcd0357a792361517"
+    }
+  ],
+  "input": {
+    "bytes": 1649,
+    "path": "fixtures/samples/ggpoker/23-fpdb3-cash-plo5-6max-usd-25-50-202104-rit.txt",
+    "sha256": "c1d838b8c2cf16c34c9bcecbce0029158e8f02f1d5bbff4b765e46cfa7c29ee5"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 47808,
+    "ev_net_bb_milli": 9562
+  }
+}

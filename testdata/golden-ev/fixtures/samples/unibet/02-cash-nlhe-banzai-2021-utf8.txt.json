@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "UB-1463192545",
+      "index": 0,
+      "phf": "d236447f18ee6198ab99942ce540c7cfb022d52a4d0909e013504dc60db0e5f6",
+      "reason": "no-all-in",
+      "row": "9b6dafd5668e4be661d6f4c777c9906f8ed430624077ea592631a6cdb62bd256"
+    }
+  ],
+  "input": {
+    "bytes": 891,
+    "path": "fixtures/samples/unibet/02-cash-nlhe-banzai-2021-utf8.txt",
+    "sha256": "a156356c0d3e6426125a246aa7ce0f567d832e3cac159725dd05c548e5f5d24b"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 15,
+    "ev_net_bb_milli": 1500
+  }
+}

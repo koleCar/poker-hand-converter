@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-9876542165",
+      "index": 0,
+      "phf": "9cde061e770e4e8b1360a15aaabf3aa3e603d9ed00edb7095af6550c44c1aadf",
+      "reason": "no-all-in",
+      "row": "884770a478cd236be616a0045c664d690ce2fee9e2948af38854be39ba50faec"
+    }
+  ],
+  "input": {
+    "bytes": 461,
+    "path": "fixtures/samples/partypoker/13-hero-name-dealt-cards.txt",
+    "sha256": "468f6f9c16b4258b869aea91768db40660bbac3edf183706ef6d39db4ff5c6b8"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 1,
+    "ev_net_bb_milli": 500
+  }
+}

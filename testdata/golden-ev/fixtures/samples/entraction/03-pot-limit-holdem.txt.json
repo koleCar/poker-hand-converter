@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ENT-2646492691",
+      "index": 0,
+      "phf": "c6f8180208c8010fd345d35e44d67786e9377a400cd1ec076e9090747de47bdb",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1052,
+    "path": "fixtures/samples/entraction/03-pot-limit-holdem.txt",
+    "sha256": "266c075a26d5b765883e51daee223d075ce3171a8643311059d2b160a5880c89"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

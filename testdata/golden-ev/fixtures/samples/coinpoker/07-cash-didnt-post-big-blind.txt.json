@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "352034259",
+      "index": 0,
+      "phf": "0554555eb19ea39e938961381f4db65ca812cf3a11d4e1a77d8be6a19fbebdf5",
+      "reason": "no-all-in",
+      "row": "812b0d1f54b98b39d0b6c9f2a017677f525d4849fdbe07bc3f90fd9c7b9f584d"
+    }
+  ],
+  "input": {
+    "bytes": 1104,
+    "path": "fixtures/samples/coinpoker/07-cash-didnt-post-big-blind.txt",
+    "sha256": "2472aad2ecfd9f1dcd984ad1a94f4b286e6c98c5454ff326ae9ba3faf86b029d"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

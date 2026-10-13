@@ -1,0 +1,100 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383652813",
+      "index": 0,
+      "phf": "bcd9bdf95ab0584e804f1478e0d3a8180f509d2d0f2b5fd514d24a7d74c38612",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "a9f7fb2bd073e82a0b92f6b65483aac2341ecd9594239570e1a8210b90844310",
+      "handId": "IPN-5383653624",
+      "index": 1,
+      "phf": "231608a01bf83f8f9761e6646d0819a5731462d1a8eccc188c798a515376efe8",
+      "reason": null,
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383656026",
+      "index": 2,
+      "phf": "64532d1c3e30bb20aa564b60d730968709a8aefa7993cf3a18f1e3a6eb5ea385",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383656316",
+      "index": 3,
+      "phf": "eee7c7e4176cda6690ee50623631e1eb14fc6cfaf85ccc08e3ab3e20397581b2",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383658674",
+      "index": 4,
+      "phf": "2874fadbfe051002106619169d097751f1104cb367edd8889e1d3c5218a7ec96",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383660307",
+      "index": 5,
+      "phf": "6fbdcdfaa1c967c8b30882dd20695efb90df83806a3344a194a5dc7f0fd14fcb",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383661871",
+      "index": 6,
+      "phf": "64370f624e77f0f689c97e0e74c681c8151ef9138785e452e04da765ddcdfea8",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383665919",
+      "index": 7,
+      "phf": "d48d9b0a9d779e9ff4edf59ebdae961354c05032734cd52c2180a62c35535188",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383666380",
+      "index": 8,
+      "phf": "d37bd02bf78817641b40e29caffa6117403067f6fbdfc0b80b1301327e4d7e32",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383666871",
+      "index": 9,
+      "phf": "f7f6d9b4a29250f7947b1f6f6b64d1a5f4dd936c70c0fa40db696e52accbadd0",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 22449,
+    "path": "fixtures/samples/ipoker/10-ten-hands-single-session-multi-game.xml",
+    "sha256": "e794e2e17d8bfb4a48a874e00f2328501bcab55c80febc8a4625ab78557f8c89"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1,
+    "no-all-in": 9
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

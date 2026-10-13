@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "ab0a9f8ea3c45a17e054bdf1179533737dfd6c732310a2950383b4fe1c39fa41",
+      "handId": "OG-R5-361850810-476",
+      "index": 0,
+      "phf": "83da237b725e31eed024776384a139b79c12794be8bdd880c58be3b1e91e2e8a",
+      "reason": null,
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1269,
+    "path": "fixtures/samples/ongame/06-allin-showdown.txt",
+    "sha256": "8fd5cc5f0cb44eaa4a75b677412de04f0453eeb439c628235f0bcd2dfea6cf73"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

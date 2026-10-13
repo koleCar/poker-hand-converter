@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "352023091",
+      "index": 0,
+      "phf": "055afe88dad215d4677a20912f6f24ad4477346c692a598d15f5826b6c2f0eff",
+      "reason": "no-all-in",
+      "row": "5f64e8dd252e0e4fd74045dd4d2bfe359030e06aa53abe3c025b1891ebfef0c1"
+    }
+  ],
+  "input": {
+    "bytes": 1596,
+    "path": "fixtures/samples/coinpoker/08-cash-three-of-kind-typo.txt",
+    "sha256": "c94027e0885a5df2043367480ef21053f0ba3db6bb4f9d5b3dba7abe4bfbfc5e"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -2,
+    "ev_net_bb_milli": -1000
+  }
+}

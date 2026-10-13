@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-142098466546",
+      "index": 0,
+      "phf": "8e278de0be8c289a4c5e36bc9a6f1eca44e4b3aa992665371f45bd540e0f4ec0",
+      "reason": "no-all-in",
+      "row": "f9eaff8ed2adc3bde0025d1362f6b0a997a63bfa9adfc941d1a866ea8c04042b"
+    }
+  ],
+  "input": {
+    "bytes": 818,
+    "path": "fixtures/samples/partypoker/05-sitting-out-and-join-mid-hand.txt",
+    "sha256": "7ad9aa03b2a2303ac5802535cc2bf62decbe1a36ecd642dc8a0dfb377d59124b"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -2,
+    "ev_net_bb_milli": -1000
+  }
+}

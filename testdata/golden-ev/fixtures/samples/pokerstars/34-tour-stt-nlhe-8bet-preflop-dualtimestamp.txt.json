@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "44a9f9eed5f04c1dac75f9d070e89c0769b0bd7bac353a53ba5859c107a3ebf0",
+      "handId": "74759586758",
+      "index": 0,
+      "phf": "06b6f13b8bdc33680412e9d2565733a4ee03a10cda070ac53cec7d49dab87f6f",
+      "reason": null,
+      "row": "b153c7b8602d0531cab63d5cd16aa73e5e85f024ed89327988ae3e64276e4ea7"
+    }
+  ],
+  "input": {
+    "bytes": 1959,
+    "path": "fixtures/samples/pokerstars/34-tour-stt-nlhe-8bet-preflop-dualtimestamp.txt",
+    "sha256": "438d037338bac01785fb629c930e4810ac7a8f4d468251454e2117de6e6f944e"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -23,
+    "ev_net_bb_milli": -1150
+  }
+}

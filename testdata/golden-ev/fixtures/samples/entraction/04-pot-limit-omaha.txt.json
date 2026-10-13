@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ENT-2646630562",
+      "index": 0,
+      "phf": "eef2e72327c92349fea6a8d186d1eb2ace63ea36a4962abc5072f49188ab115c",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 911,
+    "path": "fixtures/samples/entraction/04-pot-limit-omaha.txt",
+    "sha256": "d227411c88b9bf07188c13176057a949f44a57f61513c85512d0b706fdf366c6"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "ST12",
+      "index": 0,
+      "phf": "069364cbd532d38ebac2a6713523209cb964d67b706d56240cf15d3af37393e7",
+      "reason": "no-all-in",
+      "row": "e59b7dfe46ee77e3e4c8c942ecbd92fc86553bc0191aaee94cd6c0b88ec1fb2b"
+    }
+  ],
+  "input": {
+    "bytes": 906,
+    "path": "tests/test/fixtures/stats/12-limped-pot-has-no-cbet.txt",
+    "sha256": "9f781c9613672d8cee88cf3aa56ff53bc8221ae38825acc9fc695b67af0219be"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -100,
+    "ev_net_bb_milli": -1000
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "3031585570",
+      "index": 0,
+      "phf": "23611459bdf3196ddc359f2b480b4de485a3fc1ef679ec29a5bde94254ee4afb",
+      "reason": "no-all-in",
+      "row": "89714a45f8b1e32fd3159aef03db95a9239de20a3c1a48bcaa41ba6e0e364f12"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "3031588137",
+      "index": 1,
+      "phf": "d4d54ae3bf25310e19d95a8ee0d6dccebe8299dcf0febae70591b4752149974c",
+      "reason": "no-all-in",
+      "row": "43a44d0f83a789e763d6973c56e9d89f361be131c3beec4a9518881e7057524a"
+    },
+    {
+      "analysis": "eb6c15ec5ab440679cefd45292760bd39fb66807b4620003575c1ebdccfe423f",
+      "handId": "3031589003",
+      "index": 2,
+      "phf": "1058bb5b0fa3d9b7762dfe783297453e72ebd4ddb2459192d02f06380dd509af",
+      "reason": null,
+      "row": "ea3534712c5c3690d89d7e8b32f0128266dce197e821256669ecf9c4ad0bed4a"
+    }
+  ],
+  "input": {
+    "bytes": 5782,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - $9.000 Guaranteed (DS) - $20-$2 - 201408.corrupted.lines.txt",
+    "sha256": "4fdc389d99d38fe236d4ebdfe434d45b140cb68358efaa778c880b658621d51d"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1,
+    "no-all-in": 2
+  },
+  "rows": 3,
+  "totals": {
+    "ev_net": 30,
+    "ev_net_bb_milli": 1500
+  }
+}

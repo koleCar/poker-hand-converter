@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "86015904171",
+      "index": 0,
+      "phf": "d993bb7aa6929b4728b4e2035aab21aa757dd4a5a5fc8481e31b9e345f3d1f58",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1244,
+    "path": "fixtures/samples/pokerstars/04-cash-nlhe-playername-slashes-brackets.txt",
+    "sha256": "d4021989cece36a247782dc883b38be1ba488d939acf6c77a3cc0cf48624f2d1"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

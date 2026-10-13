@@ -1,0 +1,51 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "SD27208848",
+      "index": 0,
+      "phf": "0f12a6850263f85691059b07ba8971735554de2f0fb1365673ea837937126928",
+      "reason": "no-all-in",
+      "row": "db74e976866ec9b5b0a8af1911901ad323005619a04edaa297e7128a246e2f80"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "SD27208838",
+      "index": 1,
+      "phf": "c7dcf0f974166f5723af1a7e72d9a6818d92c5c0b074a5a6d0f7e9d829923862",
+      "reason": "no-all-in",
+      "row": "8e607ad78dfa095fdc52a079e62f6b15235c6d78f044652566b60b0a5af3deae"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "SD27208832",
+      "index": 2,
+      "phf": "3eef167bcbe6e45b0827c4173b13ef5b55172bc40b3e4db046a5338d8d3b6d39",
+      "reason": "no-all-in",
+      "row": "45ec75306714f2a5fd9ecd21f2319772686a00942375c77dde92c2fcddf39527"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "SD27208824",
+      "index": 3,
+      "phf": "61fddb74c3c6d53d5c698d1788baaecb0949daf3e1c3c8f8c67ff9fd618d8940",
+      "reason": "no-all-in",
+      "row": "32873422aeeffb33a0b186e86afa23078d891c5cd9ec60fbaf0bf694e910380a"
+    }
+  ],
+  "input": {
+    "bytes": 4199,
+    "path": "fixtures/samples/ggpoker/11-fpdb3-cash-nl-shortdeck-5max-usd-0-2-202103.txt",
+    "sha256": "7c27a290221010c24b7e1d09d7b8a278644d0dbe8602d4c9a030f2c31e190967"
+  },
+  "outcomes": {
+    "no-all-in": 4
+  },
+  "rows": 4,
+  "totals": {
+    "ev_net": -12,
+    "ev_net_bb_milli": -6000
+  }
+}

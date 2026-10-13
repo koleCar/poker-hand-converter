@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "109663597247",
+      "index": 0,
+      "phf": "b9c254ec457664bdbe13730945c2318b21d5244437233e1fb67ff9d18efed305",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 784,
+    "path": "fixtures/samples/pokerstars/25-cash-pot-limit-omaha.txt",
+    "sha256": "1d024665ed9522ceb298cb2a3942288b8704a610163ef976c624a099a38e31df"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

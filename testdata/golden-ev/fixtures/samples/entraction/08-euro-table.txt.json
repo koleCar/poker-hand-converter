@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "71b90296bea4e9bc37fd6ed9a78afe040a3ccc2cf3b9d2175424e7a1869f8c5d",
+      "handId": "ENT-2646515969",
+      "index": 0,
+      "phf": "fc9e17af712104bdc2220ea61066912efa76ad2f0f51bd11f35679731de8f1a6",
+      "reason": "hi-lo",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1290,
+    "path": "fixtures/samples/entraction/08-euro-table.txt",
+    "sha256": "b0bbce2e29e74b3005d6421dc16074cfced020a98b1b6a2d75ab61c743dc4434"
+  },
+  "outcomes": {
+    "hi-lo": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

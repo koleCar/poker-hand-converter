@@ -1,0 +1,51 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5382871187",
+      "index": 0,
+      "phf": "e5efe112d12cee243d380c9db7db4842fc5d8ab779150b9c9b2f91cf6e985e70",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383845527",
+      "index": 1,
+      "phf": "d93fe98cf438b1cba133321b6ad24372d0be2ee3c9158f6870b6af05aae7a9c1",
+      "reason": "no-all-in",
+      "row": "876be69d1458730d4c793749488de233f4fc9f548e11c252e6f52aa404ac0b64"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383888874",
+      "index": 2,
+      "phf": "f03adc3d340926c77246e3027b04d99f020231d78fd1092f54ed4975ce10c43d",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "IPN-5383352629",
+      "index": 3,
+      "phf": "dd8818d9135c68c21c0618fc854301a4e82cf89d7ef3db568bd568aa45e97701",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 8016,
+    "path": "fixtures/samples/ipoker/06-minerformat-concatenated-documents.xml",
+    "sha256": "8966b0b86644d3d5417dcb0d341b59f6afa5e64be3ff95cccb95e84a06e4a358"
+  },
+  "outcomes": {
+    "no-all-in": 4
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 1340,
+    "ev_net_bb_milli": 13400
+  }
+}

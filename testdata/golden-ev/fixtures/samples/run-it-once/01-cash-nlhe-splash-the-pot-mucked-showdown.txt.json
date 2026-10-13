@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "30266126",
+      "index": 0,
+      "phf": "de833678aece9b0b9eb5a33b7c0c99fc58100751f6c29e6b34a10d0e2d0dc269",
+      "reason": "no-all-in",
+      "row": "960824ae16ad594b1870571652315403b52462634e755461adb99e116f53fbe6"
+    }
+  ],
+  "input": {
+    "bytes": 1203,
+    "path": "fixtures/samples/run-it-once/01-cash-nlhe-splash-the-pot-mucked-showdown.txt",
+    "sha256": "872c2af3c75baa63bc86f6c689be312294d70ec7c4017d90f3219e7d1bcf0dba"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

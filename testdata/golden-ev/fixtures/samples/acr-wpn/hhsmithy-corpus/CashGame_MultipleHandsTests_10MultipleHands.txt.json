@@ -1,0 +1,99 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261441531",
+      "index": 0,
+      "phf": "a9dbe0698ba24eeb2a0a0e72e7270f3227b570be559040328235941876e096a7",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261441726",
+      "index": 1,
+      "phf": "bcf88dd8fb3794f3058b8492f752ec018a51190fa062266ac0add825eb172dcb",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261441841",
+      "index": 2,
+      "phf": "23e6e2ea4f04c5d8ad0f3bdaf429eb0617d456a42004fde1b99b9e37cde2b73b",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261442074",
+      "index": 3,
+      "phf": "5040c1234c74d8d947ab2e571cb675e0b91663086631cbd0436dd259889f8d7a",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261442219",
+      "index": 4,
+      "phf": "f63137b1234178541a519d7454cff7d37f14909458bb1af14599e4843cf1fcab",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261442490",
+      "index": 5,
+      "phf": "8ac631a854a9ad64d6e1104399c7a36c85e3e38c91d798e1c66f6f9739d813cb",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261442762",
+      "index": 6,
+      "phf": "658ac02ac7104a6e1d23f6896fe3bfb02d724b656f92f1be7fc5076689c387bb",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261442843",
+      "index": 7,
+      "phf": "7918e3aae3b4392831aec3abc824de198875e06306964eaf7b597cd10924efa7",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261443201",
+      "index": 8,
+      "phf": "24ec7c1d6092116730e43c4e23e8f22b0d9d594e8feceb0ecc901e25dd8579a6",
+      "reason": "no-all-in",
+      "row": null
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "261443389",
+      "index": 9,
+      "phf": "6ad7f2eb6fa59b31083bc86ae8ef9dcce55120a28335a37a4cba1b088bc6723b",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 11906,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_MultipleHandsTests_10MultipleHands.txt",
+    "sha256": "15d99b86818380e3ee1bd0247859ff934ccd1b5975d331ccc2661f62b28e4925"
+  },
+  "outcomes": {
+    "no-all-in": 10
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

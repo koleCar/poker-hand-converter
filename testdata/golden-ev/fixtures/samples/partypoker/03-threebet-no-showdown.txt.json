@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-13550695573",
+      "index": 0,
+      "phf": "aefeec9d8ce7074b29ddee0f1f098a30fa0bae26e9f270a1761dc3799d6161fe",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 651,
+    "path": "fixtures/samples/partypoker/03-threebet-no-showdown.txt",
+    "sha256": "3dc6a8d7a6b1a66a616c4abb210db468105b8691182f661a8fef43b5ab80e0ec"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "875217e01b1d2214d7db828e8ec29b091603af0df6488da5b402ed7ff43fec2c",
+      "handId": "177956038",
+      "index": 0,
+      "phf": "7ec8778d7a49258e041dca254fcb6e12c4e8035e2b6921cb7d761e2e922cbf11",
+      "reason": null,
+      "row": "d0787f400b9d559a5f012c110edf6da83c2a56c09a8a1853e1559381f1b4373a"
+    }
+  ],
+  "input": {
+    "bytes": 1650,
+    "path": "fixtures/samples/coinpoker/12-tour-mtt-ante-play-chips.txt",
+    "sha256": "d4c27baa0bd3f25ca59153006b0c502962cd4934958eef899c0654bd846ce3c1"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -13,
+    "ev_net_bb_milli": -130
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "MG-5049094146",
+      "index": 0,
+      "phf": "2b5b5dbd8be6d0140265bcbdc755aa8546658867e2fc1ea2d1928a6c26b1ba00",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1897,
+    "path": "fixtures/samples/microgaming/10-sitting-out.txt",
+    "sha256": "6e03174617fc2dbe7e765842f449d90f367d64c53cc42ec4d13bf06325b6f232"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

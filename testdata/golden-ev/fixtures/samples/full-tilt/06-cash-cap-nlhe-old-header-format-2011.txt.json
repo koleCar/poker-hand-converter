@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "28617512574",
+      "index": 0,
+      "phf": "e70a6290a644960bf43e05138e11200cfa71ecf4a0ec250c810a50b6f4a6ae08",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1104,
+    "path": "fixtures/samples/full-tilt/06-cash-cap-nlhe-old-header-format-2011.txt",
+    "sha256": "53a44d3a03b9ad141eebf05483294814c222fbef54c82a35f29ef15b52fdb635"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

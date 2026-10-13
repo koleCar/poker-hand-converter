@@ -1,0 +1,16 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1765,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__7Stud-8max-USD-0.04-0.08-201907.CASHID-TN-Gorham GAMETYPE.txt",
+    "sha256": "4b558445e316e373e1c55d7526e48a78eac6f3457727c7ed4d4fea1839cfb781"
+  },
+  "outcomes": {},
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

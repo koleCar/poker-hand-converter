@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "37415c97706a8e1b414ed5a6efda975c888743d288da4f53290e3e93cdd1569d",
+      "handId": "33730111975",
+      "index": 0,
+      "phf": "1b08dcd66d8eced913ea50200ae0f887852b909b3cf9e8e6c8647ae2adb507ba",
+      "reason": "no-street-to-come",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 1072,
+    "path": "fixtures/samples/full-tilt/12-cash-nlhe-allin-showdown.txt",
+    "sha256": "e51d3e59aeceebe7080f009cb5dc27b18a086df97f4d8fafeae362db37fda5d8"
+  },
+  "outcomes": {
+    "no-street-to-come": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

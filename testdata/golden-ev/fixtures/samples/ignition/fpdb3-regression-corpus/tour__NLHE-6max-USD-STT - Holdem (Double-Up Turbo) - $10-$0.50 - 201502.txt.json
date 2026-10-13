@@ -1,0 +1,52 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "39ebc141ac0b0e861ec312fb8fc09e83f3b62e90126b61585001c70096247664",
+      "handId": "3152351569",
+      "index": 0,
+      "phf": "e6ee118970827758d6c9bc596940b97dda85d351375894a630d828d1b72d81d4",
+      "reason": null,
+      "row": "95eb20f89f4dbb006cb3bcce951a763963120c5e5364555ad9aa212d39f9bb49"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "3152351864",
+      "index": 1,
+      "phf": "35af3bbd473f64950bb3eea4bd1596e38ee75ce8a14b5e89def8283ee1cf084d",
+      "reason": "no-all-in",
+      "row": "07e60e16587d733128951eb2766fb09db4e32ebc18399c01ccb5d3b296321fce"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "3152352052",
+      "index": 2,
+      "phf": "7c285092d78caf87de7f03238e8676e0dab3bf1855cc79de8f8e1085b39d0f4e",
+      "reason": "no-all-in",
+      "row": "a62eabf7bd3439d84e96d585365009d0b83c502eda2565691f4497b8b51268b5"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "3152352139",
+      "index": 3,
+      "phf": "5fe0b369d3bfa8b0194d2a039922485c6d176b2076e7ca283819d368e47096c3",
+      "reason": "no-all-in",
+      "row": "3ce64c7f26c3e506676e468f2cd8570026f0d5af3f3e645d12f386836d241b30"
+    }
+  ],
+  "input": {
+    "bytes": 4985,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-6max-USD-STT - Holdem (Double-Up Turbo) - $10-$0.50 - 201502.txt",
+    "sha256": "e1e488ce21987e1c24a74a24ba86f5ed3f508557f37630fa4ce81efe036d4ae9"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1,
+    "no-all-in": 3
+  },
+  "rows": 4,
+  "totals": {
+    "ev_net": 10,
+    "ev_net_bb_milli": 500
+  }
+}

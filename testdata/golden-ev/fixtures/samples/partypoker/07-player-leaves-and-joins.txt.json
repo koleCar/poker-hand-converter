@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "PTY-1420500000",
+      "index": 0,
+      "phf": "c8a01bb0738e043eebfec4b49379280ad0589574a27207150fdd2b94fa7e62ab",
+      "reason": "no-all-in",
+      "row": "3c8bf26ba7105911a5a34e6bf246aeb13df134335eb1b95eb374dd02afdfeed3"
+    }
+  ],
+  "input": {
+    "bytes": 979,
+    "path": "fixtures/samples/partypoker/07-player-leaves-and-joins.txt",
+    "sha256": "8b74b645843a048241b8041746d986387b175d6ca7911989100799686cc85bd2"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": 26,
+    "ev_net_bb_milli": 13000
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "a69a50ce059f1d40c9a079a4b5e2e87674182a0df4842a5888c912ce5f61bfe5",
+      "handId": "IPN-3311226627",
+      "index": 0,
+      "phf": "68ff2935398ac765a9d36069b21e08410aa987ce29a42e77db7b2109f717bb06",
+      "reason": null,
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 2016,
+    "path": "fixtures/samples/ipoker/09-omaha-no-dp-heads-up-table.xml",
+    "sha256": "238bc603c35504640a9ccb8efe880596395c18f936272a1097ec579c95263f90"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

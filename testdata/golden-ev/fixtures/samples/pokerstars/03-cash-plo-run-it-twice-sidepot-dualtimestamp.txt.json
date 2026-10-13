@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "7109d40b1e6d7d4d5fbd61a868721a92b2d2577616cc7f13141ac7ef1dbe996c",
+      "handId": "124689908714",
+      "index": 0,
+      "phf": "c1c058286b5f9e9951d3027b5f3372c9fa200f84500f1ad51b49e5630116079f",
+      "reason": null,
+      "row": "54b9d0cc37125bbb0b57693300cac316250e22e8cf767d4e71ed5bb4bf2cdb89"
+    }
+  ],
+  "input": {
+    "bytes": 2084,
+    "path": "fixtures/samples/pokerstars/03-cash-plo-run-it-twice-sidepot-dualtimestamp.txt",
+    "sha256": "5117b5fb0c6f2cae9a2248b0647a26afddc2dafbc973a029c6f97b69d4732ac2"
+  },
+  "outcomes": {
+    "applicable/exhaustive": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -1000,
+    "ev_net_bb_milli": -500
+  }
+}

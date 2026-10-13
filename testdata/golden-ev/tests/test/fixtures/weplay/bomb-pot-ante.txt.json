@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD90000004",
+      "index": 0,
+      "phf": "8c824382552b2439625a75f0e7f26fe2811e622813f4755ca30aea0fcf94c5b7",
+      "reason": "no-all-in",
+      "row": "820f1a40210b75ed5cc5335d44c1dd385c1ee8af07d5a353e8fe86ac656b8cb0"
+    }
+  ],
+  "input": {
+    "bytes": 800,
+    "path": "tests/test/fixtures/weplay/bomb-pot-ante.txt",
+    "sha256": "87fe125841b256d199acd0d72a3a49cbf85a64d75bb4ef3e821045afaf955ff7"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -181,
+    "ev_net_bb_milli": -3620
+  }
+}

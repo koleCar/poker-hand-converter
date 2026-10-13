@@ -1,0 +1,195 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426032",
+      "index": 0,
+      "phf": "59ce6b92ccc636353ade3d2d9077ed7536805ff3232920b22d7f1108008325ec",
+      "reason": "no-all-in",
+      "row": "1e45ff5b3f02fea8f17b90aede01ef710af050a5c87386411a71df48aa18d282"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426061",
+      "index": 1,
+      "phf": "3d116141cfd81e4508d8cff5ea22a5d3907bd5bff1e68e217d83960c71c708a6",
+      "reason": "no-all-in",
+      "row": "5df9ad6303ffcd3f65ec068e1d7d315cef8ca96fed8c81ae048b36b9dc4d0ae0"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426097",
+      "index": 2,
+      "phf": "b7e136de3591f59c65c92ba357e686d8db2a643edcc8b7137b206fca9b7136a8",
+      "reason": "no-all-in",
+      "row": "e3d5bfb3fe9c6d2811711bcd83fcb2186cf17f8704f1310f682d9db3277f8b28"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426136",
+      "index": 3,
+      "phf": "72b43c94da05de672311b1d7fae761bd703a00fb54267a9156bfa673fd58162b",
+      "reason": "no-all-in",
+      "row": "609db5a9911a9222ea6ec83c69329d17b47911b4b56db010aeb905943e5d01b6"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426176",
+      "index": 4,
+      "phf": "323b4612a8ecbed2a21cd55179a3a2e3f41db53872cc0c5328e0e25a92ef37ef",
+      "reason": "no-all-in",
+      "row": "b72e90e5ee389bceeb1adb9e5993a5102905feefaace19764334745ae1a129d7"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426205",
+      "index": 5,
+      "phf": "f13a74a5185da37fe0333625e020f91fc46c55c43631d5fedddf4ddcf12734e3",
+      "reason": "no-all-in",
+      "row": "d6e08957fae3db263f8aec93acd6c64de08c4e9a13e7ca7acfcc620a9b57e245"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426240",
+      "index": 6,
+      "phf": "58a23ff2131c31d44850336f73af4362318f0c97ed3868720c21828c73b5f4f9",
+      "reason": "no-all-in",
+      "row": "948747fe64efaa9c046bf25cc45f603183afdc92f5466c2485094e6daf387a19"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426256",
+      "index": 7,
+      "phf": "92e5877a24ec3592086af2965506ead3fde8af1b5671428b2ceedfb080ec0df3",
+      "reason": "no-all-in",
+      "row": "dd1bc46f4236f7eed1996f2d7d61e1b75f03f6c0d9c525754a83861faba86614"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426263",
+      "index": 8,
+      "phf": "5e10faaee520881f82a46d1e5c2676a6dd1d44badb2a1454fcf233631a69702a",
+      "reason": "no-all-in",
+      "row": "7321e94f8914ed1b6c59666a344c6308ab13e8ab8ec7d103fb18363210aedca3"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426297",
+      "index": 9,
+      "phf": "9876550bbfb922361bdd1e3189040dbc0034627ab93af2df8697db35cebefbd1",
+      "reason": "no-all-in",
+      "row": "557f325f6f6a01f5650695ac05ed8e385dfffa2cfbc38f83a3ce4908650d417e"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75426304",
+      "index": 10,
+      "phf": "9a1d4fda480370244be3117614c69692e8a0a75829efee9029b0d21e42f270c6",
+      "reason": "no-all-in",
+      "row": "707d614976b6355cda4073f6f537808ca4b2c6b491b965de1235d16f7eff3adb"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427328",
+      "index": 11,
+      "phf": "13e1f1ded27ac7f55b107bad9ec7e5f7b753dbe30d016678376e6c12c4ea6397",
+      "reason": "no-all-in",
+      "row": "a2b4429391a5e9fb35ec2697433b9ae006bcae96e4dfccf43294032b0f025f67"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427346",
+      "index": 12,
+      "phf": "bc578bb138907bc64eda1f579140f88359176d332d7da967e38543357da399d8",
+      "reason": "no-all-in",
+      "row": "4bfc48a47a9e5b0a5e59a154bc482cfbfb2f14422aa084e43a495839f4243c85"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427356",
+      "index": 13,
+      "phf": "bb56b45edea435f45c0e6cad5996a553e6a549e61a7603f47e462f91164b8758",
+      "reason": "no-all-in",
+      "row": "76b39c29f517ce728b4917d4b7579e00efee4d86a9ba00143d57d2c35ec7155d"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427366",
+      "index": 14,
+      "phf": "3efd02bf9537877a0aa7d4f0a5e39df5f1b1c5579f407e87c57d7d296165e61b",
+      "reason": "no-all-in",
+      "row": "34de16f78325347e2293a18d48764aca5be6a6aa7cd478704b8cf19e0bd98f03"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427380",
+      "index": 15,
+      "phf": "9a477484590ddee2d4dc77a293a0fd93ae96e3c81bd1b379a5cc4337917bb52a",
+      "reason": "no-all-in",
+      "row": "390d5d5514cdbfe34a991187628706af1cfe71eac5da0917b04bcff33847f6a2"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427401",
+      "index": 16,
+      "phf": "fb0582fff216b4ae8751383450ac75ff82debfcc4fbd4c2f4618f7694e03b012",
+      "reason": "no-all-in",
+      "row": "7dcc57854638ab879f81cd0008270c78d2400c20b70015d29cf7cb34e25f926f"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427406",
+      "index": 17,
+      "phf": "019c969af39745f062013dc583156e74547ed4f6cd26b4e34f9fa837347b877c",
+      "reason": "no-all-in",
+      "row": "e512c58b8df97dc57f0b43ce17369acc700814b8e2d92171e1ce0bc3c120bb87"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427415",
+      "index": 18,
+      "phf": "54e03d8da2acc810037fae29fa641e4dedb0e6df9e6500f2500fb74b66f04523",
+      "reason": "no-all-in",
+      "row": "32b04102f4b0dc5fd4f0034e45fc804218c0600a83c1f9c47f9cab31d90f564d"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427423",
+      "index": 19,
+      "phf": "3eac261791837f1f6bbdc443d6807fe6a5829bffaa7fe9ee78249aaf81039b7c",
+      "reason": "no-all-in",
+      "row": "b9fd5d7220330b3a227167cb2ddaf2d2cfb79ac49dc3fdf8a0b3bea0ec141f2f"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427464",
+      "index": 20,
+      "phf": "10927e89636d46b51aeebd9af803f76498edd62e8ae45dc5fb18320a9cee1822",
+      "reason": "no-all-in",
+      "row": "ce26b03db329f3100cc45bd6bef85b4b8322d269adda0ea48d43ae2cc77ef8fb"
+    },
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "HD75427478",
+      "index": 21,
+      "phf": "86c1fb92cb7405319d0d651732b949944afb926696b806657214b98a3a5ea762",
+      "reason": "no-all-in",
+      "row": "40b7fcf35838e1da8b065c9e22fb24ff3c03eb5c2e90cafdc694925a40b5071d"
+    }
+  ],
+  "input": {
+    "bytes": 20813,
+    "path": "weplay-hh/kole1992/HH20260211 Novi Sad #2 (#11373804) - $0.50-$1 - Money 3 No Limit Hold_em.txt",
+    "sha256": "0b4ea60da20acb240387d03f087ec0f582d7a45779a853a0cae375d912623269"
+  },
+  "outcomes": {
+    "no-all-in": 22
+  },
+  "rows": 22,
+  "totals": {
+    "ev_net": -968,
+    "ev_net_bb_milli": -9680
+  }
+}

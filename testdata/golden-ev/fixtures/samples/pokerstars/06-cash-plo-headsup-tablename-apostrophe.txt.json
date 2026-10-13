@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "62279382715",
+      "index": 0,
+      "phf": "39f630a334547e836d79a7ece4d95f4fb46655304af9ea7cd580a28e3e649997",
+      "reason": "no-all-in",
+      "row": null
+    }
+  ],
+  "input": {
+    "bytes": 561,
+    "path": "fixtures/samples/pokerstars/06-cash-plo-headsup-tablename-apostrophe.txt",
+    "sha256": "ea75bd42a2ca86e495ec2d6313b6e793bb32147e9de89389cef5ac28ac9efcb7"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 0,
+  "totals": {
+    "ev_net": 0,
+    "ev_net_bb_milli": 0
+  }
+}

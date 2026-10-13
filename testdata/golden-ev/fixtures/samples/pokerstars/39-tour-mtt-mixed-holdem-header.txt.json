@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "dd654322b74201a17812aeccabf4abf00c2c14970c13b0cb0a234bb739d6c39c",
+      "handId": "47282250043",
+      "index": 0,
+      "phf": "d9196236a676386c3c88ec59267653dfafcbacc4ca3682aa60480c7da914da96",
+      "reason": "no-all-in",
+      "row": "8b37e1295bb0ce9f61892f857446248bd207d82da1f97d712a351501c4ccdfda"
+    }
+  ],
+  "input": {
+    "bytes": 1241,
+    "path": "fixtures/samples/pokerstars/39-tour-mtt-mixed-holdem-header.txt",
+    "sha256": "1d04fc2e089e9c6b112c57fd651940a688859e5bf839cb8cb75befe8d4842dc8"
+  },
+  "outcomes": {
+    "no-all-in": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -40,
+    "ev_net_bb_milli": -500
+  }
+}

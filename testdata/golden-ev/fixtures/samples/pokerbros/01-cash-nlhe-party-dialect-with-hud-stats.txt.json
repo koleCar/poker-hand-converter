@@ -1,0 +1,27 @@
+{
+  "evVersion": "ev/1",
+  "format": "rail-ev-golden/1",
+  "hands": [
+    {
+      "analysis": "37415c97706a8e1b414ed5a6efda975c888743d288da4f53290e3e93cdd1569d",
+      "handId": "1111111111",
+      "index": 0,
+      "phf": "c021d03cacdb8d71034fa1da1dc2332f005bf4bb3b1511d396448c7765de372e",
+      "reason": "no-street-to-come",
+      "row": "678e6716188f1029514afb1afa9683d1cd4ca1733b28f73fc2324b63acbc0e8a"
+    }
+  ],
+  "input": {
+    "bytes": 1034,
+    "path": "fixtures/samples/pokerbros/01-cash-nlhe-party-dialect-with-hud-stats.txt",
+    "sha256": "aadd23772f03671cbebc2489753e8ee82828cdd98a169ceebcdc1b5450ca7d4a"
+  },
+  "outcomes": {
+    "no-street-to-come": 1
+  },
+  "rows": 1,
+  "totals": {
+    "ev_net": -12240,
+    "ev_net_bb_milli": -122400
+  }
+}
