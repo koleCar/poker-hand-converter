@@ -1,6 +1,7 @@
 //! The commands the window calls (`invoke` in `app/src/lib/ipc.ts`, whose
 //! types mirror these). JSON field names are camelCase on both sides.
 
+use std::path::PathBuf;
 use std::sync::{Mutex, PoisonError};
 
 use rail_core::detect::SiteParser;
@@ -152,9 +153,125 @@ pub fn reconcile_login_item<R: Runtime>(app: &AppHandle<R>, wanted: bool) {
     }
 }
 
+/// The local store (R1.2), as app state. `store` is `None` when it did not
+/// open (`error` says why); the app runs on, and the Today screen shows it.
+#[derive(Debug)]
+pub struct StoreState {
+    pub path: PathBuf,
+    pub store: Option<rail_store::Store>,
+    pub error: Option<String>,
+}
+
+impl StoreState {
+    /// Open (create, migrate) the store at `path`.
+    pub fn open(path: PathBuf) -> Self {
+        match rail_store::Store::open(&path) {
+            Ok(store) => {
+                log::info!("store open at {}", path.display());
+                Self {
+                    path,
+                    store: Some(store),
+                    error: None,
+                }
+            }
+            Err(error) => {
+                log::error!("the store at {} did not open: {error}", path.display());
+                Self {
+                    path,
+                    store: None,
+                    error: Some(error.to_string()),
+                }
+            }
+        }
+    }
+
+    /// What the Today screen shows.
+    pub fn status(&self) -> StoreStatus {
+        let path = self.path.display().to_string();
+        let counts = match &self.store {
+            Some(store) => store.status().map_err(|error| error.to_string()),
+            None => Err(self
+                .error
+                .clone()
+                .unwrap_or_else(|| "the store is not open".to_owned())),
+        };
+        match counts {
+            Ok(counts) => StoreStatus {
+                path,
+                error: None,
+                schema_version: counts.schema_version,
+                hands: counts.hands,
+                hands_today: counts.hands_today,
+                files: counts.files,
+                files_with_errors: counts.files_with_errors,
+                sources: counts.sources,
+                quarantined: counts.quarantined,
+                unsupported: counts.unsupported,
+                outbox: counts.outbox,
+            },
+            Err(error) => StoreStatus {
+                path,
+                error: Some(error),
+                ..StoreStatus::default()
+            },
+        }
+    }
+}
+
+/// The store's counts (`rail_store::StoreStatus`), or why there are none.
+#[derive(Debug, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoreStatus {
+    path: String,
+    /// Set when the store is not open or the counts failed.
+    error: Option<String>,
+    schema_version: u32,
+    hands: u64,
+    /// Stored since local midnight.
+    hands_today: u64,
+    files: u64,
+    files_with_errors: u64,
+    /// Watched folders (R1.3 / R1.5).
+    sources: u64,
+    quarantined: u64,
+    /// Formats no parser reads (R0.11's registry).
+    unsupported: u64,
+    /// Hands waiting to be synced (R1.9).
+    outbox: u64,
+}
+
+/// The local store's counts for the Today screen. Async: it runs off the
+/// main thread, so a slow count never blocks the window.
+#[tauri::command]
+pub async fn store_status(store: State<'_, StoreState>) -> Result<StoreStatus, String> {
+    Ok(store.status())
+}
+
 #[cfg(test)]
 mod tests {
-    use super::core_info;
+    use super::{StoreState, core_info};
+
+    /// The store opens (creating its directory), migrates, and reports
+    /// counts; one that cannot open reports why instead.
+    #[test]
+    fn store_state_opens_and_reports() {
+        let dir = std::env::temp_dir().join(format!("rail-app-store-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let state = StoreState::open(dir.join("data").join(rail_store::FILE_NAME));
+        let status = state.status();
+        assert_eq!(status.error, None);
+        assert_eq!(status.schema_version, rail_store::migrate::LATEST);
+        assert_eq!((status.hands, status.files, status.outbox), (0, 0, 0));
+        drop(state);
+
+        // A directory where the file should be: it cannot open.
+        let blocked = dir.join("blocked");
+        std::fs::create_dir_all(&blocked).expect("dir");
+        let state = StoreState::open(blocked);
+        assert!(state.store.is_none());
+        assert!(state.status().error.is_some());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 
     /// The shell reaches the core and the shipped config: every built-in
     /// parser, and a `sites.json` that loads against them.

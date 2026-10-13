@@ -180,6 +180,13 @@ A *segment* is (site, game format, variant, limit, table-size class, stake
 bucket). Reports filter and sum over segments; the HUD reads one row per player
 for the segment of the current table.
 
+Built in R1.2 (`core/rail-store`, every table and column in
+`core/rail-store/SCHEMA.md`): `kv`, `sources`, `files`, `hands`,
+`quarantine`, `unsupported`, `outbox`; `files` and `quarantine` have an
+integer `id` (`files.path` stays unique) so that `hands.file_id` and
+`quarantine.file_id` are small. `seat_stats`, `player_rollups`, `players`
+(Phase 2) and `hud_layouts` (Phase 3) come as later migrations.
+
 ### 3.5 Supabase mapping
 
 | Guideline | Decision | Step |
@@ -2020,6 +2027,133 @@ exactly once, and the same files imported twice change nothing.
   state (see *As built, R0.11*, "For R1.2").
 - **Done when** a crash mid-import (killed process) leaves the database
   consistent and the import resumes where it stopped.
+- *As built* (§15):
+  - **Crate** `core/rail-store` (`#![forbid(unsafe_code)]`, workspace lints,
+    native only - not in any wasm32 build): `rusqlite` **=0.40.2**
+    (`bundled`, `cache`; SQLite from `libsqlite3-sys` 0.38.2, compiled in)
+    and `zstd` **=0.14.2**. The dev profile optimises `libsqlite3-sys` and
+    `zstd-sys` (test speed only).
+  - **Connection**: WAL, `synchronous = NORMAL` (a commit survives a killed
+    process; an OS crash or power cut may lose the last commits, never
+    consistency), `foreign_keys = ON`, 5 s busy timeout, **16 KiB pages**
+    (measured: with 4 KiB pages a compressed PHF of ~2.5 KB spills into a
+    mostly empty overflow page and the corpus store is 35 % larger). A file
+    whose `user_version` is above the build's is refused before anything
+    touches it.
+  - **Migrations** (`src/migrate.rs`): SQL files in `migrations/` compiled
+    in, version = `PRAGMA user_version`, forward-only, each applied in one
+    transaction with its version bump. `0001_initial.sql` is the §3.4
+    schema without the Phase 2/3 tables (reserved, in order, in
+    `SCHEMA.md`). Tested from an empty file and from every earlier version
+    (same `sqlite_schema` as from empty, rows kept), idempotent, newer
+    refused.
+  - **Schema** (`SCHEMA.md`, `STRICT` tables, times in ms since the epoch):
+    `kv`; `sources`; `files` (path, source, size, mtime, `read_offset`,
+    encoding, site, last error); `hands` (`hand_key` = the web's
+    `handKeyOf`, `<siteId>:<handKey>`; site, hand id, `played_at`, format,
+    variant, limit, currency and blinds/ante (the stakes), table, max
+    seats, hero seat and name, schema and parser version, **canonical PHF
+    zstd level 3** + its size, first delivering file, `imported_at`,
+    `synced_at`); `quarantine` (file, read offset, chunk index,
+    fingerprint, stage, reason, message, parser, raw text; one row per
+    file and fingerprint, refreshed on a re-read - the file-level
+    `unknown-site` refusal is not quarantined, the file goes to the
+    registry); `unsupported` (R0.11's *For R1.2*: keyed by fingerprint, the
+    `Unrecognized` fields, last file path and encoding, `count`,
+    `first_seen` / `last_seen`, `consented_at`, `sent_at`,
+    `anonymiser_version`, with a `CHECK` that nothing is marked sent
+    without consent and an anonymiser version); `outbox` (hand key,
+    attempts, last error, `next_attempt_at`).
+  - **Writer**: one thread owns the write connection, fed by a bounded
+    channel (16 commands) of `Import(ImportBatch)` and generic `Write`
+    jobs; `WriterHandle` is cloneable for other threads, every call blocks
+    until its transaction commits. An `ImportBatch { file: FileState {
+    path, source_id, from_offset, to_offset, size, mtime, encoding, site,
+    last_error }, hands, refusals, unrecognized }` commits in **one
+    transaction**: the offset check (the stored offset must equal
+    `from_offset`, or `from_offset` is 0 - a re-read; else
+    `OffsetMismatch` and nothing is written), the file row with the new
+    offset, `INSERT ... ON CONFLICT (hand_key) DO NOTHING` per hand with an
+    `outbox` row for each one actually inserted, quarantine upserts, the
+    registry upsert (`count + 1`). Canonical JSON and zstd run on the
+    producer's thread, not the writer's.
+  - **Readers**: a pool of 4 read-only (`query_only`) connections; queries
+    `status` (hands, today since local midnight by SQLite's `localtime`,
+    files, files with errors, folders, quarantined, unsupported, outbox),
+    `hands_imported_since`, `file_state`, `files`, `sources` (with
+    per-folder counts for R1.5), `quarantine` + `quarantine_reasons` +
+    `quarantine_raw_text`, `outbox_due`, `unsupported`, `hand_phf`, `kv`.
+    Writes besides import: `add_source`, `set_kv`, `outbox_mark_sent`
+    (deletes, sets `synced_at`), `outbox_mark_failed` (attempts + 1, error,
+    next attempt), `unsupported_consent`, `unsupported_mark_sent`.
+  - **Import helper** (`src/import.rs`): `import_file(store, path,
+    options)` skips a file whose stored offset equals its size and whose
+    mtime is unchanged, else reads it whole, runs
+    `rail_core::convert::convert_file` (`parsedAt` = now, or pinned by
+    the caller) and commits one batch from 0 to the bytes read;
+    `whole_file_batch` and `convert_bytes(FileState, ...)` are the seams.
+  - **Exit check** (`tests/crash.rs`, in `cargo test` on Linux, macOS and
+    Windows): the test binary re-runs itself as a child that imports the
+    556 corpus files; the parent kills it (`Child::kill`: SIGKILL /
+    `TerminateProcess`) 12 times - at random moments (after a random number
+    of commits plus 0-25 ms, or 0-60 ms after spawn, which can land in the
+    migration), and **inside an open transaction** (the child applies a
+    20+ hand batch with the store's own `apply_import` and waits there).
+    After each kill: `integrity_check` ok, no dangling foreign key, every
+    file row at its end, the stored hands **exactly** the union of the
+    stored files' hands (no hand without its offset, no offset without its
+    hands), all of them in the outbox, quarantine and registry counts
+    exactly those files'; a held batch leaves nothing. The next child must
+    skip exactly the stored files and continue with the next. The final
+    store equals a clean single import (every hand's PHF, files, offsets,
+    quarantine, registry, outbox; 7 496 distinct hands from 8 422
+    converted - the corpus repeats hands across files). Seeded
+    (`RAIL_STORE_CRASH_SEED`), ~45 s in a debug build; locally 12-kill and
+    40-kill runs passed, 7 of the 40 inside a transaction. Plus 12 tests
+    of migrations, pragmas, dedupe, the offset rule, the registry, the
+    outbox, sources, an unreadable file, and readers beside the writer from
+    several threads.
+  - **App** (`app/src-tauri`): `setup` opens the store after the settings
+    as managed state `StoreState` (an error is logged and reported, the
+    shell still starts) at `app_local_data_dir()/rail.db` - the *local*
+    data directory: on Windows `app_data_dir` is the roaming profile,
+    no place for a large database; on macOS the two are the same. Command
+    `store_status` (async), shown on the **Today** screen as count tiles
+    and the file's path, refreshed every 5 s; strings in `app/src/i18n/`
+    (`en`, `hr`). One test opens a store through `StoreState`.
+  - **Performance** (`cargo run --release -p rail-store --example
+    import_corpus -- [threads]`, M2 Pro, release without LTO): the whole
+    corpus (556 files, 10.6 MB, 8 422 hands) into an empty store - **one
+    thread 2.7 s, ~3 150 hands/s; 8 converting threads feeding the one
+    writer 0.72 s, ~11 700 hands/s**. The writer's share is small: 142 ms
+    of the single-threaded run (~59 000 hands/s committed); conversion and
+    compression are the rest. Database **23.1 MB, ~3.2 KB per stored
+    hand** (canonical PHF averages 12.8 KB - it carries the raw text -
+    and zstd takes it to 2.5 KB).
+  - **For R1.3**: the watcher reads from `reader().file_state(path)`'s
+    `read_offset` to the last complete hand and sends `ImportBatch {
+    file: FileState { from_offset: stored, to_offset, size, mtime, .. },
+    .. }` via `ImportBatch::from_conversion` - the writer refuses a batch
+    whose `from_offset` is not the stored offset, so a stale or reordered
+    read cannot move the offset wrongly; a truncated or rotated file is
+    re-read with `from_offset: 0` (always accepted; dedupe keeps hands
+    once, quarantine rows are refreshed). Note that `unsupported.count`
+    goes up on every read that ends in the registry, so the incremental
+    reader should only send `unrecognized` for a file's first read (or a
+    re-read from 0). Folders go in `sources` (`add_source`; batches carry
+    `source_id`); start the watcher after the store in `setup` and use
+    `store.writer()` from its thread. A UTF-16 file's offset is in bytes.
+  - **For R1.6**: parallel conversion is already the shape (`examples/
+    import_corpus.rs`); add rayon, progress and the CI benchmark. If the
+    writer ever becomes the bottleneck, group several queued batches in
+    one transaction (each still with its own offset). A zstd dictionary
+    trained on PHF would shrink the store well below 3.2 KB per hand
+    (A5).
+  - **For R1.9**: `outbox_due(now, limit)` returns the PHF JSON with each
+    key, oldest first; `outbox_mark_sent` / `outbox_mark_failed(keys,
+    error, next_attempt_at)` - the backoff is the worker's; sync cursors in
+    `kv`. Registry uploads: `unsupported` rows with `consented_at` and no
+    `sent_at`, then `unsupported_mark_sent`.
 
 ### R1.3 Watcher and incremental reader — L
 - `notify` for OS events, plus a rescan every 60 s; network drives poll only.
@@ -2411,3 +2545,4 @@ and Rust in the same PR during the port, with the goldens regenerated by
 | 2026-10-13 | **R0.12 done**: `config/sites.json` v1 and `config/sites.schema.json` (draft 2020-12). One entry per client (room or skin) with a `parser` field; `network` entries stand in where the clients are not yet told apart (iPoker, Chico, Ignition and the closed networks) and can never carry table data or allow a HUD; `standard` is a `format`. **22 entries**: the 19 parsers, plus WPT Global, Boss Media and Merge without one. Unknown is `null`: every `hud.allowed` `null`; 2 paths in all (PokerStars, inferred, `verified: false`); `files.live` from the README §6 starting point, unverified; every `tables` field `null`. `rail-config`: typed loader (`load`, `load_shipped`, `load_remote`), `validate` / `check_coverage`, `merge_remote` (a remote file may only make HUD policy stricter, `false` < `null` < `true`; unknown remote ids ignored; identity changes ignored), `Site::hud_permitted`; builds for wasm32 (added to CI's WebAssembly build). CI: a parser without an entry, or an entry naming a missing parser, fails `cargo test` - the guideline §14 rule is now enforced; the file is validated against its schema by ajv in `tests/`. Phase 0 left: R0.13 WASM + shadow mode, R0.14 layout. |
 | 2026-10-13 | **R0.13 done**: `rail-core-wasm` with wasm-bindgen 0.2.129 - `convert(bytes, filename, optionsJson)` (`rail-convert/1`: decode, detection, hands as PHF with optional Rust-side canonical sha-256, refusals with raw text, warnings, standard text per hand and per file, stats, the R0.11 `unrecognized` record; `parsedAt` required from the caller), `detect`, `serialize` (one hand or a file), `anonymise`, `formats`; JSON text both ways; typed wrapper `core/rail-core-wasm/js/index.ts` over `types/phf.d.ts`; `forbid(unsafe_code)` kept. `npm run wasm:build` (cargo profile `wasm-release`: `opt-level = "s"`, fat LTO, 1 CGU, abort; pinned wasm-bindgen-cli, name section removed, no wasm-opt; output gitignored): **2.28 MB raw, 0.77 MB gzipped** (budget 1.5 MB, enforced). **Shadow mode** (`npm run wasm:shadow`): the WASM core equals the TypeScript pipeline on **556 / 556** corpus files - **8 422** hands byte-identical in canonical PHF (Rust's own canonical hash = the golden's), **196** refusals with stage, reason, message and fingerprint, warnings, standard text per hand and per file; registry record on all 24 unclaimed files. Throughput: TypeScript ~3 150 hands/s, WASM ~2 600 (with `JSON.parse`). CI job `wasm` (build, budget, shadow). **Phase 0 exit, all but R0.14**: the golden diff is 100 % natively on Linux, macOS and Windows (`core` job, `every_corpus_file_matches_its_golden`) and under WASM (`wasm` job); the registry's record comes out of the core on the web path (WASM) for every unclaimed file - its write to `unparsed_hands` from the web stays the TypeScript one until R4.1, and from the desktop arrives with R1.2. Phase 0 left: R0.14 layout and rename. |
 | 2026-10-13 | **R1.1 done**: Tauri 2 app shell in `app/` (crate `rail-app` in the workspace; Vite + React + TypeScript with its own lockfile). Single instance, tray with a status menu (Open Rail, Pause import as a disabled placeholder, Quit Rail; closing the window hides it to the tray), start at login (off by default, a setting, `--minimized` at login), log files in the OS log directory (5 MB x 5), crash-safe versioned `settings.json` (temp file, fsync, rename; 8 tests). Six screens as hash routes with a sidebar, English strings through `app/src/i18n/` (`hr` prepared), CSS Modules over a copy of the web's token layer (A3), dark/light/system theme. Settings, About calls `core_info`: 19 parsers, `phf/1`, 22 `sites.json` entries via `rail_config::load_shipped`; a debug-only `convert_file` runs `rail_core::convert` on a picked file. Pinned: tauri 2.11.5 (its sub-crates held on the 2.11 line, see *As built*), CLI 2.11.4, api 2.11.1, React 19.2.8, Vite 7.3.6. CI job `app`: TS/CSS lint and typecheck plus clippy and tests on Linux (WebKitGTK installed); clippy, tests and an unsigned bundle on macOS (`.dmg`, arm64, ad-hoc signed; not universal, see *As built*) and Windows (NSIS), artifacts kept 7 days; the `core` job excludes `rail-app`. |
+| 2026-10-13 | **R1.2 done**: `core/rail-store` - SQLite bundled (`rusqlite` =0.40.2) in WAL with `synchronous=NORMAL`, foreign keys, busy timeout, 16 KiB pages; embedded forward-only migrations on `user_version` (tested from empty and from every earlier version); `STRICT` schema `kv`, `sources`, `files`, `hands` (PHF canonical JSON, zstd =0.14.2), `quarantine`, `unsupported` (R0.11's registry with count and consent state), `outbox`, documented in `core/rail-store/SCHEMA.md` (Phase 2/3 tables reserved). One writer thread on a bounded channel commits each `ImportBatch` - a file's hands, refusals, registry record **and its new read offset** - in one transaction, dedupes by `hand_key` and queues every new hand in `outbox`; a read pool serves the queries (counts, today, files, folders, quarantine, outbox batches, registry). `import_file` converts a whole file with `rail_core` (R1.3's reader sends the same batches). **Exit check** (`tests/crash.rs`, Linux/macOS/Windows CI): a child importing the corpus is killed 12 times at random moments and inside an open transaction; after each kill `integrity_check` is ok and the stored hands are exactly those of the files whose offset moved; the import resumes at the next file and ends equal to a clean single import (7 496 distinct hands from 8 422). Corpus import into an empty store (M2 Pro): 2.7 s on one thread (~3 150 hands/s), 0.72 s with 8 converting threads (~11 700 hands/s; the writer itself ~59 000 hands/s); 23.1 MB, ~3.2 KB per hand. The app opens the store in `setup` under the local data directory; `store_status` feeds the Today screen. |

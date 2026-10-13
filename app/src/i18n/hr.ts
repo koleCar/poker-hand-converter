@@ -45,6 +45,23 @@ export const hr: Dict = {
     },
   },
 
+  today: {
+    heading: "Tvoje ruke",
+    loading: "Učitavanje…",
+    unavailable: "Spremište ruku dostupno je samo unutar aplikacije Rail.",
+    storeError: (reason) => `Spremište ruku nije otvoreno: ${reason}`,
+    empty: "Još nema ruku. Rail ih uvozi iz mapa s poviješću ruku čim ih postaviš.",
+    hands: "Spremljene ruke",
+    handsToday: "Uvezeno danas",
+    files: "Pročitane datoteke",
+    filesWithErrors: "Datoteke s greškom",
+    folders: "Praćene mape",
+    quarantined: "Odbijene ruke",
+    unsupported: "Nepodržani formati",
+    outbox: "Čeka sinkronizaciju",
+    storeFile: "Spremljeno u",
+  },
+
   settings: {
     loading: "Učitavanje…",
     saveFailed: (reason) => `Promjena nije spremljena: ${reason}`,

@@ -97,10 +97,10 @@ Performance targets (guideline §1, measured from Phase 2):
 | --- | --- | --- | --- |
 | Hand format | **PHF `phf/1`**, TypeScript types, validator, serializer; empty Rust workspace in place (R0.1) | Same format, defined in Rust and exported to TypeScript | 0 |
 | Parsers | **19 parsers in TypeScript**, run in the browser; **all 19 also in Rust** (R0.6–R0.10d), and the whole Rust pipeline equals the TypeScript on every corpus file (556 files, 8 422 hands, 196 refusals); not yet used by the web (WASM and shadow mode are R0.13) | Rail core in Rust: native in the app, WebAssembly on the web | 0 |
-| Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads); since R0.11 the Rust core's `Unrecognized` record and anonymiser, and the table's desktop fields and consent rule ([`docs/unsupported-formats.md`](docs/unsupported-formats.md)) | The desktop app's local registry and consented uploads (R1.2) | 0 |
+| Unsupported-format registry | `unparsed_hands` corpus + `unparsed_gaps` view (web uploads); since R0.11 the Rust core's `Unrecognized` record and anonymiser, and the table's desktop fields and consent rule ([`docs/unsupported-formats.md`](docs/unsupported-formats.md)); since R1.2 the desktop's local registry (`unsupported` in `rail-store`, count and consent state) | Unknown files from watched folders recorded (R1.3), consented uploads after sign-in (R1.7+) | 0–1 |
 | `config/sites.json` | **v1 (R0.12)**: one entry per client (22: the 19 parsers, plus WPT Global, Boss Media, Merge), JSON Schema, `core/rail-config` loader, validator and remote-merge rule; paths, live files and table data mostly unknown (`null`), every HUD policy unknown | Paths verified on real installs (R1.4), window data (R3.3, R3.11), HUD policy from the compliance check (R3.0) | 0–3 |
 | File watcher | — | FSEvents / ReadDirectoryChangesW + periodic rescan | 1 |
-| Local database | — | SQLite (WAL), cache for HUD and offline | 1 |
+| Local database | **`core/rail-store` (R1.2)**: SQLite (bundled, WAL), embedded migrations, one writer thread committing each file read with its offset in one transaction, read pool, hands as zstd PHF deduped by `hand_key`, quarantine, unsupported-format registry, sync outbox; survives a killed process mid-import (tested on three OSes); the app opens it and Today shows its counts | Statistics, rollups and HUD layouts added (Phases 2–3) | 1 |
 | Sync | Web saves to Supabase directly | Desktop outbox → idempotent upsert; pull of web uploads | 1 |
 | Desktop sign-in | — | System browser + PKCE + `rail://` deep link | 1 |
 | Statistics engine | **`stats/2`** in TypeScript, ~90 counters, rows in `hand_stats` | Ported to Rust, computed at import; display stats defined in `config/stats/` | 2 |
@@ -198,6 +198,12 @@ reports only add up ready numbers. Every imported hand enters an outbox; the
 sync worker sends batches to Supabase as an idempotent insert keyed by the
 dedupe key (hands are immutable, so there are no conflicts), and pulls hands
 that arrived through the web.
+
+Built so far (R1.2): `core/rail-store`, its tables documented in
+[`core/rail-store/SCHEMA.md`](core/rail-store/SCHEMA.md). A file's read
+offset moves in the same transaction as the hands read up to it, so a crash
+never loses or doubles a hand; `cargo test -p rail-store --test crash` kills
+an importing process at random points and checks exactly that.
 
 ### 5.4 Statistics engine (`core/rail-stats`, Phase 2)
 
@@ -417,6 +423,14 @@ fingerprint and the core's guess (R0.11). The exit code is
 unrecognised file is part of the result. `meta.parsedAt` is pinned to
 1970-01-01, as in the goldens: the core has no clock.
 
+The local store (since R1.2): import the whole corpus into an empty store
+and print the time, hands per second and database size (`threads` files are
+converted in parallel and fed to the one writer):
+
+```bash
+cargo run --release -p rail-store --example import_corpus -- [threads] [db]
+```
+
 The core as WebAssembly (since R0.13; the web app switches to it in R4.1),
 and shadow mode - the WASM core next to the TypeScript pipeline over the
 whole corpus, every result compared byte for byte:
@@ -456,7 +470,9 @@ developer panel that runs the core on a picked file; release builds have
 neither the panel nor its commands. Settings, logs and the login item live
 under the app identifier `app.rail.desktop` (provisional until the domain
 is chosen, Q2): `settings.json` in the OS config directory, `rail.log` in
-the OS log directory (Settings, About shows both paths).
+the OS log directory (Settings, About shows both paths), and the hand store
+`rail.db` in the OS local data directory (since R1.2; the Today screen shows
+its counts and path).
 
 CI job `app` lints and typechecks the TypeScript on Linux, runs clippy and
 the crate's tests on Linux, macOS and Windows, and attaches an unsigned
