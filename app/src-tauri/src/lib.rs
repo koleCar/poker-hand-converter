@@ -10,11 +10,14 @@
 //!   setting; a login start passes [`MINIMIZED_ARG`] and stays in the tray;
 //! - log files in the OS log directory, rotated (`tauri-plugin-log`), and
 //!   panics logged there too;
-//! - crash-safe settings ([`settings`]).
+//! - crash-safe settings ([`settings`]);
+//! - the local store (`rail-store`, R1.2), opened in `setup` under the app's
+//!   local data directory and managed as [`commands::StoreState`]; the Today
+//!   screen shows its counts (`store_status`).
 //!
-//! Where the next steps plug in: the local store (R1.2) is opened in
-//! `setup` next to the settings and managed as state; the watcher (R1.3)
-//! starts after it and reports through [`tray::set_status`].
+//! Where the next steps plug in: the watcher (R1.3) starts after the store
+//! in `setup`, feeds it through `StoreState`'s writer handle, and reports
+//! through [`tray::set_status`].
 
 use std::sync::Mutex;
 
@@ -100,6 +103,17 @@ fn setup<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error
     let start_at_login = store.get().start_at_login;
     app.manage(commands::SettingsState(Mutex::new(store)));
 
+    // The local store (R1.2): hands, quarantine, registry, outbox. In the
+    // data directory, not the config one (which holds settings.json only),
+    // and the *local* one: on Windows `app_data_dir` is the roaming profile
+    // (%APPDATA%), which a domain may copy at every logon - no place for a
+    // database of gigabytes; `app_local_data_dir` is %LOCALAPPDATA%. On
+    // macOS the two are the same folder.
+    // A store that does not open is logged and reported by `store_status`;
+    // the shell still starts, so the user sees why.
+    let store_path = app.path().app_local_data_dir()?.join(rail_store::FILE_NAME);
+    app.manage(commands::StoreState::open(store_path));
+
     commands::reconcile_login_item(app, start_at_login);
     tray::build(app)?;
 
@@ -138,6 +152,7 @@ pub fn run() {
                 commands::get_settings,
                 commands::set_theme,
                 commands::set_start_at_login,
+                commands::store_status,
                 dev::dev_pick_file,
                 dev::convert_file,
             ]);
@@ -148,6 +163,7 @@ pub fn run() {
         commands::get_settings,
         commands::set_theme,
         commands::set_start_at_login,
+        commands::store_status,
     ]);
 
     let app = builder

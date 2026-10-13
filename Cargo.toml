@@ -67,6 +67,13 @@ opt-level = 3
 [profile.dev.package.sha2]
 opt-level = 3
 
+# rail-store's C (R1.2): SQLite and zstd compiled at -O0 make the store's
+# tests (the corpus imports and the crash test) several times slower.
+[profile.dev.package.libsqlite3-sys]
+opt-level = 3
+[profile.dev.package.zstd-sys]
+opt-level = 3
+
 [profile.release]
 lto = "thin"
 codegen-units = 1

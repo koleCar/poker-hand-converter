@@ -29,6 +29,22 @@ export interface AppInfo {
   debug: boolean;
 }
 
+/** `commands::StoreStatus`: the local store's counts (R1.2). */
+export interface StoreStatus {
+  path: string;
+  /** Set when the store did not open or the counts failed. */
+  error: string | null;
+  schemaVersion: number;
+  hands: number;
+  handsToday: number;
+  files: number;
+  filesWithErrors: number;
+  sources: number;
+  quarantined: number;
+  unsupported: number;
+  outbox: number;
+}
+
 /** `dev::ConvertSummary`; debug builds only. */
 export interface ConvertSummary {
   fileName: string;
@@ -54,6 +70,7 @@ export const ipc = {
   getSettings: () => invoke<Settings>("get_settings"),
   setTheme: (theme: Theme) => invoke<Settings>("set_theme", { theme }),
   setStartAtLogin: (enabled: boolean) => invoke<Settings>("set_start_at_login", { enabled }),
+  storeStatus: () => invoke<StoreStatus>("store_status"),
   dev: {
     pickFile: () => invoke<string | null>("dev_pick_file"),
     convertFile: (path: string) => invoke<ConvertSummary>("convert_file", { path }),

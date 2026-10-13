@@ -57,6 +57,24 @@ export const en = {
     },
   },
 
+  /** The Today screen's import status: the local store's counts (R1.2). */
+  today: {
+    heading: "Your hands",
+    loading: "Loading…",
+    unavailable: "The hand store is only available inside the Rail app.",
+    storeError: (reason: string) => `The hand store did not open: ${reason}`,
+    empty: "No hands yet. Rail imports them from your hand-history folders once they are set up.",
+    hands: "Hands stored",
+    handsToday: "Imported today",
+    files: "Files read",
+    filesWithErrors: "Files with errors",
+    folders: "Folders watched",
+    quarantined: "Hands refused",
+    unsupported: "Unsupported formats",
+    outbox: "Waiting to sync",
+    storeFile: "Stored in",
+  },
+
   settings: {
     loading: "Loading…",
     saveFailed: (reason: string) => `Could not save the change: ${reason}`,

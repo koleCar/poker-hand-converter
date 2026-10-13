@@ -1,14 +1,23 @@
 [package]
 name = "rail-store"
-description = "Local SQLite store: hands, quarantine, counters, rollups, sync outbox"
+description = "Local SQLite store: hands, quarantine, unsupported formats, sync outbox"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 publish.workspace = true
 repository.workspace = true
-
-[dependencies]
-rail-core = { path = "../rail-core" }
+# Native only (the app and the HUD). Never built for wasm32: CI's WebAssembly
+# build names its packages with `-p` and this is not one of them, and the
+# bundled SQLite and zstd are C.
 
 [lints]
 workspace = true
+
+[dependencies]
+rail-core = { path = "../rail-core" }
+# Pinned exactly (R1.2): the SQLite library is compiled in (`bundled`), so
+# its version - and with it the file format's behaviour, WAL included - is
+# this crate's choice, not the machine's. `cache` is `prepare_cached`.
+rusqlite = { version = "=0.40.2", default-features = false, features = ["bundled", "cache"] }
+# A hand's canonical PHF is stored zstd-compressed (docs/RAIL-PLAN.md §3.4).
+zstd = { version = "=0.14.2", default-features = false }
