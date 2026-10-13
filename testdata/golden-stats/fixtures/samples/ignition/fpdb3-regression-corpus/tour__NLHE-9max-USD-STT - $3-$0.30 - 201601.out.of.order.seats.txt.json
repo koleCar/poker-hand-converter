@@ -1,0 +1,60 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3325954749",
+      "index": 0,
+      "phf": "65b68c03913ba5682a106c14324a2c2504c6dd34eb71214714408cc262630adb",
+      "rows": "8cf2afae5c606c9d90992f5c1246fce18fd21b4b662d0bd09c61cda87f770d1c",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2103,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-STT - $3-$0.30 - 201601.out.of.order.seats.txt",
+    "sha256": "586a608e4e0f2fb28adcda5c21a6a173c1e7090771b2cd0e01bcceb8d3c1388a"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "cold_call_opp": 4,
+    "contributed": 220,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 9,
+    "iso": 1,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 9,
+    "rfi_opp": 2,
+    "squeeze_opp": 2,
+    "steal_opp": 1,
+    "three_bet_opp": 7,
+    "vpip": 3,
+    "vpip_opp": 9,
+    "won": 220,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

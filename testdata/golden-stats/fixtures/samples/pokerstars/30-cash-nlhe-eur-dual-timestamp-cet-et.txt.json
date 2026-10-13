@@ -1,0 +1,67 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "1846552153",
+      "index": 0,
+      "phf": "b60502c02991bea74c669e9f5b34028933db2d109751fb2355ffcf0ea0441bc0",
+      "rows": "6b9be3770ca371ed3f17f6bd00e0fe545fb95bfdcf2c72fa0eadc2c21869828c",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1484,
+    "path": "fixtures/samples/pokerstars/30-cash-nlhe-eur-dual-timestamp-cet-et.txt",
+    "sha256": "182d763ead1a9bd70d52a5494030f1a9ed3e1662c6611793a84617b92cc1d0d7"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn_opp": 1,
+    "check_river": 2,
+    "check_turn": 2,
+    "cold_call": 1,
+    "cold_call_opp": 1,
+    "contributed": 3700,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 6,
+    "limp_opp": 3,
+    "net": -240,
+    "net_bb_milli": -1200,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rake_paid": 240,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "squeeze_opp": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 3460,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

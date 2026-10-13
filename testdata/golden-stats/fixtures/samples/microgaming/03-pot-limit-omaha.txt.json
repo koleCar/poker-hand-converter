@@ -1,0 +1,62 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049133154",
+      "index": 0,
+      "phf": "858d13d02d5cacf42942c735e29489dc437ab9ce8708b1ca7ad5f4b94770d0ce",
+      "rows": "9a28815cd06ad13946195b5907f5f0b7380f086992d4e1f11c8ca8a0d39e94e8",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2596,
+    "path": "fixtures/samples/microgaming/03-pot-limit-omaha.txt",
+    "sha256": "628e76d2a347997e59f5ecd8515903dfc9c4493774e295ae2ecffd6f14829db0"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn_opp": 1,
+    "check_raise_river_opp": 1,
+    "check_river": 1,
+    "check_turn": 2,
+    "contributed": 1800,
+    "flop_seen": 2,
+    "fold_river": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 6,
+    "iso": 1,
+    "iso_opp": 4,
+    "limp": 1,
+    "limp_opp": 5,
+    "net": -90,
+    "net_bb_milli": -900,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rake_paid": 90,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 1710,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

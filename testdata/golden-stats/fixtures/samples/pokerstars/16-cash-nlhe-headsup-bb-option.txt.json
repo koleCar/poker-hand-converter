@@ -1,0 +1,56 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109676258573",
+      "index": 0,
+      "phf": "2bbe6ecb59b5717aad5e4ea91d5e48a4e375d83a58220d73a1c6543d92008ee8",
+      "rows": "da4fb5840f4c1d07c6741f5e122ce33feb05a67809da7702ea2017da5e3668e3",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 804,
+    "path": "fixtures/samples/pokerstars/16-cash-nlhe-headsup-bb-option.txt",
+    "sha256": "216fdc4998ecff9f87ab56a2aa6076de2e80c1c55f1ca4fec4ed6e1459f6cc2e"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_turn": 1,
+    "contributed": 1400,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_turn": 1,
+    "hands": 2,
+    "iso": 1,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 2,
+    "net": -50,
+    "net_bb_milli": -500,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rake_paid": 50,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 1350,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

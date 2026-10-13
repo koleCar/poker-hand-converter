@@ -1,0 +1,39 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "86183965766",
+      "index": 0,
+      "phf": "6fbf94a83483f1a7937e9d2cbe5ac27f396e011dead1b8786dd47bc9717196b8",
+      "rows": "934fcefbe4692add56c662b8af6f4f22283c6e5828c2dbd9cf54572ed76ac187",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1398,
+    "path": "fixtures/samples/pokerstars/36-tour-stt-mixed-pl-preflop-nl-postflop.txt",
+    "sha256": "e4fc317d94e48cb60a7b2921cb890a433a2bc42e89119b9098d63c40f53aee49"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 20,
+    "hands": 9,
+    "limp_opp": 8,
+    "pfr_opp": 8,
+    "rfi_opp": 8,
+    "steal_opp": 3,
+    "vpip_opp": 8,
+    "won": 20
+  }
+}

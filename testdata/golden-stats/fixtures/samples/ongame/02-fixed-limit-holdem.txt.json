@@ -1,0 +1,31 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361709806-1",
+      "index": 0,
+      "phf": "003fe33aa04a56de652eaca82233ac35cc691cc8880f6c8671abd8208bf02d02",
+      "rows": "1b83ab440ca88707eeb84186fa10acf31baa029d9fd34ef6622a1b830a1c7433",
+      "seats": [
+        5,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 579,
+    "path": "fixtures/samples/ongame/02-fixed-limit-holdem.txt",
+    "sha256": "ef57715e82ac46095873c0a5cda3e835787b05d709c95b469748f1f065e19b79"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 50,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr_opp": 1,
+    "rfi_opp": 1,
+    "vpip_opp": 1,
+    "won": 50
+  }
+}

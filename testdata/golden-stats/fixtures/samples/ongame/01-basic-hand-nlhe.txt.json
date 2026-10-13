@@ -1,0 +1,56 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361850810-474",
+      "index": 0,
+      "phf": "0f7793184370b4a69329790a66882b81b0a188acfbe1428d816978a8db908408",
+      "rows": "ad9642d23cc887cac48cf4f6bfea8369eb7370cd5c52b7ce298285e90694e115",
+      "seats": [
+        1,
+        2,
+        7,
+        8,
+        9,
+        10
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 995,
+    "path": "fixtures/samples/ongame/01-basic-hand-nlhe.txt",
+    "sha256": "13338b477d6e9d95162c0d1e8f21b77c3f6ecbc260e8d10541d33a19443b6db5"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "contributed": 400,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal_opp": 1,
+    "hands": 6,
+    "limp_opp": 5,
+    "net": -20,
+    "net_bb_milli": -200,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rake_paid": 20,
+    "rfi": 1,
+    "rfi_opp": 5,
+    "steal": 1,
+    "steal_opp": 3,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 380,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

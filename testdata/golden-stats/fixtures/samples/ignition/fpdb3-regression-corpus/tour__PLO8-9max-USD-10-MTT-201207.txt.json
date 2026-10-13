@@ -1,0 +1,59 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2645486142",
+      "index": 0,
+      "phf": "e36e0a2744c13c67ad0e405c6de6ed57850386ea65dcc7422be2492fc72573e5",
+      "rows": "8ac71dd842f798181c35427e9f6a6a7e523959fec6fd4146a6ad4b2e486c9b19",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1495,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__PLO8-9max-USD-10-MTT-201207.txt",
+    "sha256": "fffa62c3f999178cd28928dff03d31247262adf3f5d2eb706d60d419b5834525"
+  },
+  "rows": 8,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 450,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 8,
+    "limp_opp": 6,
+    "pfr": 1,
+    "pfr_opp": 8,
+    "rfi": 1,
+    "rfi_opp": 6,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "vpip": 2,
+    "vpip_opp": 8,
+    "won": 450,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

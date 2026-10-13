@@ -1,0 +1,65 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST10",
+      "index": 0,
+      "phf": "45e3df2474a99c4c113bc06b9893b2825590cad101216b5a38b5f4eb784bb514",
+      "rows": "cd252c75cd55f93ab9ef030fa5d2c991c026264dd19eae0529f306fa7fb30a12",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1006,
+    "path": "tests/test/fixtures/stats/10-raised-flop-cbet-ends-the-chain.txt",
+    "sha256": "a516607982be742b8ad5e4f7660ea91c70b9ab99c05734396f5eedfb91eac210"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_turn": 1,
+    "cold_call_opp": 1,
+    "contributed": 3050,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "fold_turn": 1,
+    "hands": 6,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 3050,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

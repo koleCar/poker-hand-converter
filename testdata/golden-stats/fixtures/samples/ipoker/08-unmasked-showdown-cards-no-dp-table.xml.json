@@ -1,0 +1,58 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-3311227441",
+      "index": 0,
+      "phf": "e1bc7830fd5ee162cd05523b24dafbb1bbe0776ab4150fc5cfbc129c230b9c7f",
+      "rows": "1755c20d702bfae870af49dbbdc537252538d9a36475a21af39a35a6735304ee",
+      "seats": [
+        1,
+        8,
+        10
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2463,
+    "path": "fixtures/samples/ipoker/08-unmasked-showdown-cards-no-dp-table.xml",
+    "sha256": "a267055e4fc8718dc52a1ca39ba14e2dbb7313a0c1577825e8fb9911b52cb7f5"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_four_bet": 1,
+    "contributed": 53200,
+    "five_bet_opp": 2,
+    "flop_seen": 2,
+    "fold_to_four_bet_opp": 1,
+    "fold_to_steal_opp": 1,
+    "four_bet": 1,
+    "four_bet_opp": 1,
+    "hands": 3,
+    "limp_opp": 1,
+    "net": -200,
+    "net_bb_milli": -200,
+    "pfr": 3,
+    "pfr_opp": 3,
+    "rake_paid": 200,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "three_bet_vs_steal": 1,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 3,
+    "won": 53000,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

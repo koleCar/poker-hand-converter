@@ -1,0 +1,64 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-244303234-150",
+      "index": 0,
+      "phf": "81a2be1438c305bcc0524b99cc4f578e641c27262054bced290872c292deef22",
+      "rows": "84482b999b2b96b6cc062361158295e8c20af5f7fa5443a7aa1f8cee00725cb6",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1405,
+    "path": "fixtures/samples/ongame/10-full-ring-9handed.txt",
+    "sha256": "e2690c5db76548672c75cb75b9efd8ba08190058591d75e57a2f088358522fef"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_turn": 1,
+    "call_steal": 2,
+    "cbet_flop_opp": 1,
+    "check_flop": 3,
+    "check_raise_turn": 1,
+    "check_raise_turn_opp": 1,
+    "check_turn": 1,
+    "contributed": 2300,
+    "donk_flop_opp": 2,
+    "flop_seen": 3,
+    "fold_to_steal_opp": 2,
+    "fold_turn": 2,
+    "hands": 9,
+    "limp_opp": 7,
+    "net": -115,
+    "net_bb_milli": -1150,
+    "pfr": 1,
+    "pfr_opp": 9,
+    "raise_turn": 1,
+    "rake_paid": 115,
+    "rfi": 1,
+    "rfi_opp": 7,
+    "squeeze_opp": 1,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "turn_seen": 3,
+    "vpip": 3,
+    "vpip_opp": 9,
+    "won": 2185,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

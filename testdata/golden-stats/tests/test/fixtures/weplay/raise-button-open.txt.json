@@ -1,0 +1,41 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD90000002",
+      "index": 0,
+      "phf": "19ce4c2bcd6062003a61f95be0b47eafd82c663852e7499c98eaa45bad0313de",
+      "rows": "a9fd99a306fdb8c7ab296c6ccb72b73e1a37c721db5bb5e7f751fc3299f3b1ac",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1170,
+    "path": "tests/test/fixtures/weplay/raise-button-open.txt",
+    "sha256": "c1758e96ac00657a8e6c29b61eced46fcfdb8cb324645b12d501f7eb991497d1"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 3,
+    "contributed": 250,
+    "hands": 7,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 7,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "three_bet_opp": 5,
+    "vpip": 1,
+    "vpip_opp": 7,
+    "won": 250
+  }
+}

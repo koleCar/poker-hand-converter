@@ -1,0 +1,56 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "1296393662",
+      "index": 0,
+      "phf": "8dbf8079f70e2319dab018d04071aa705c869b2d8dd289bc28825e366c3aa142",
+      "rows": "b67d2b447d67e1acef38a763a338fda62c77f7dcbe57a7fea12fa628648b4e35",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1641,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-8max-NA-0-0-202207.GTD.txt",
+    "sha256": "d108a94b772cce189660349b1432b783bf2a14596055fb4d3203c6e0955b1a46"
+  },
+  "rows": 8,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 3,
+    "check_turn": 3,
+    "cold_call": 1,
+    "cold_call_opp": 4,
+    "contributed": 46200,
+    "donk_flop_opp": 1,
+    "flop_seen": 3,
+    "fold_river": 2,
+    "hands": 8,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 8,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 3,
+    "squeeze_opp": 5,
+    "three_bet_opp": 6,
+    "turn_seen": 3,
+    "vpip": 3,
+    "vpip_opp": 8,
+    "won": 46200,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

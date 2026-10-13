@@ -1,0 +1,12 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 657,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_StreetTests_Flop.txt",
+    "sha256": "fa3f84197e853a8dc615d04ab27736a45fb4af0915afd6af9184854e4bd0e951"
+  },
+  "rows": 0,
+  "statsVersion": "stats/2",
+  "totals": {}
+}

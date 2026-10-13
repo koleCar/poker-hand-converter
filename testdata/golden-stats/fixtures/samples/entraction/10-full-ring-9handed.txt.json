@@ -1,0 +1,35 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646782758",
+      "index": 0,
+      "phf": "302d67f8e5d79ed2decfeb2091cc5dbcbbbb2df6d53aa157004150554cd83330",
+      "rows": "0ad13e8b2d60a021fa594ff415f576498a08d47f10706b6318d40a9d72ec9f83",
+      "seats": [
+        5,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 597,
+    "path": "fixtures/samples/entraction/10-full-ring-9handed.txt",
+    "sha256": "9c55ab052c522d7a7ada92e253962894726e8fe5a930a3528892cf7b9f692b80"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 800,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 800
+  }
+}

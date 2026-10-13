@@ -1,0 +1,53 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST11",
+      "index": 0,
+      "phf": "793756c137f20bdea5e72317b68e936b6125744878b631248a4574e920c241ef",
+      "rows": "b9cbd75109138e49900474726dd20a520ebbaf5ce3873ee58d64a57f84bef3d0",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 901,
+    "path": "tests/test/fixtures/stats/11-donk-bet-removes-the-cbet-spot.txt",
+    "sha256": "ab8f95c421d62dff5f49920a9a62ee8cfed24a67f53ca6b9e4443cbbb782957d"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_steal": 1,
+    "cold_call_opp": 1,
+    "contributed": 650,
+    "donk_flop": 1,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 6,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 650,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

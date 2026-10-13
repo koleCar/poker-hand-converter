@@ -1,0 +1,65 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "74759586758",
+      "index": 0,
+      "phf": "06b6f13b8bdc33680412e9d2565733a4ee03a10cda070ac53cec7d49dab87f6f",
+      "rows": "da889cf638c3f3c165b74e0bfc6601d00a70780675b3ccb08461c1bb148e9f01",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1959,
+    "path": "fixtures/samples/pokerstars/34-tour-stt-nlhe-8bet-preflop-dualtimestamp.txt",
+    "sha256": "438d037338bac01785fb629c930e4810ac7a8f4d468251454e2117de6e6f944e"
+  },
+  "rows": 10,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 3540,
+    "five_bet": 1,
+    "five_bet_opp": 4,
+    "flop_seen": 2,
+    "fold_to_four_bet_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet": 1,
+    "four_bet_opp": 1,
+    "hands": 10,
+    "iso": 1,
+    "iso_opp": 7,
+    "limp": 3,
+    "limp_opp": 8,
+    "pfr": 2,
+    "pfr_opp": 10,
+    "raise_vs_four_bet": 1,
+    "raise_vs_three_bet": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "squeeze": 1,
+    "squeeze_opp": 4,
+    "three_bet": 1,
+    "three_bet_opp": 5,
+    "turn_seen": 2,
+    "vpip": 5,
+    "vpip_opp": 10,
+    "won": 3540,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

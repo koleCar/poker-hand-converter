@@ -1,0 +1,177 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3534011697",
+      "index": 0,
+      "phf": "3255e57130b6b3bd8d46e374d29290e9bd3208b4be6773ebd9d818346859c868",
+      "rows": "aff7219e79c351ab70ca758d46469371b89978ff0aadb94ad6e61f15f2b1cb3d",
+      "seats": [
+        1,
+        7,
+        8,
+        9,
+        10,
+        12
+      ]
+    },
+    {
+      "handId": "3534013264",
+      "index": 1,
+      "phf": "e01e5fad3cb200b2f1fe71551b21343d06a72792b88907fc421b21ae1a537a68",
+      "rows": "2ef02e28a40b9797277a8d66a5de9cddadc53370cce8382f176d224163e96be0",
+      "seats": [
+        1,
+        7,
+        8,
+        9,
+        10,
+        12,
+        14,
+        16
+      ]
+    },
+    {
+      "handId": "3534013634",
+      "index": 2,
+      "phf": "7770f62ca59c50cd05a985ba6646b5209a8ada41fb6845d3436cdcebe7112435",
+      "rows": "56adc8c7a6a4b24fd4df21102ed08cf3bc48cae2680816bd7ce5e9b852c4b3ea",
+      "seats": [
+        1,
+        7,
+        8,
+        9,
+        10,
+        12,
+        14,
+        16,
+        18
+      ]
+    },
+    {
+      "handId": "3534014376",
+      "index": 3,
+      "phf": "2f6677b068990bb22fb293b72e0c0312db1c651dc2413c3d5920048a07266da0",
+      "rows": "53afe467a3eefdebff0eb4ba0b89023c0b9d7d71cf52f2ac3c0a242e7fd18f6f",
+      "seats": [
+        1,
+        7,
+        8,
+        9,
+        10,
+        12,
+        14,
+        16,
+        18
+      ]
+    },
+    {
+      "handId": "3534015122",
+      "index": 4,
+      "phf": "35c1e547fe947f9d3bfe03c25490e23cce2dafcae271498a6064e830badeb674",
+      "rows": "ce3c51a47ab89f42a71e8c887454db3eb76fc7e10c86632030e53448f11924d0",
+      "seats": [
+        4,
+        9,
+        10,
+        19
+      ]
+    },
+    {
+      "handId": "3534015248",
+      "index": 5,
+      "phf": "db4a4219163527c0e8061e51c0cb643d1816e71c337a3686e7eec51fd47592df",
+      "rows": "c6481cb62414cf50b6ddde1d951d10f933dc300132fc16c5a4a1c25d10a0ea90",
+      "seats": [
+        4,
+        9,
+        10,
+        19,
+        21,
+        22
+      ]
+    },
+    {
+      "handId": "3534015780",
+      "index": 6,
+      "phf": "6c1983ff9007814a621d3b7fd6085039d39b8f44d55c6ad0fc900d169b4c7afe",
+      "rows": "851758b4863d296c7183e239f3aba50e1d20aa8574bd13fa9a8703fffefc2cc7",
+      "seats": [
+        4,
+        5,
+        9,
+        10,
+        19,
+        21,
+        22
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 10265,
+    "path": "fixtures/samples/ignition/matt57225-converter-samples/3.txt",
+    "sha256": "d93b44d8536c7638814179e87a430b65acb279bb0150306dbc716f9c61fe5403"
+  },
+  "rows": 49,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 4,
+    "bet_river": 3,
+    "bet_turn": 2,
+    "call_cbet_flop": 1,
+    "call_flop": 2,
+    "call_steal": 1,
+    "call_three_bet": 1,
+    "call_turn": 2,
+    "cbet_flop": 3,
+    "cbet_flop_opp": 5,
+    "cbet_turn_opp": 1,
+    "check_flop": 5,
+    "check_raise_flop_opp": 2,
+    "check_raise_river": 1,
+    "check_raise_river_opp": 3,
+    "check_raise_turn_opp": 1,
+    "check_river": 3,
+    "check_turn": 3,
+    "cold_call": 3,
+    "cold_call_opp": 22,
+    "contributed": 6092,
+    "donk_flop_opp": 2,
+    "donk_river_opp": 1,
+    "donk_turn_opp": 2,
+    "flop_seen": 13,
+    "fold_flop": 2,
+    "fold_river": 3,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 3,
+    "fold_to_steal_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "fold_turn": 1,
+    "four_bet_opp": 2,
+    "hands": 49,
+    "limp_opp": 15,
+    "pfr": 7,
+    "pfr_opp": 48,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "raise_river": 1,
+    "rfi": 6,
+    "rfi_opp": 15,
+    "river_seen": 8,
+    "squeeze_opp": 15,
+    "steal": 1,
+    "steal_opp": 7,
+    "three_bet": 1,
+    "three_bet_opp": 32,
+    "turn_seen": 9,
+    "vpip": 13,
+    "vpip_opp": 48,
+    "won": 6092,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 13,
+    "wwsf": 6,
+    "wwsf_opp": 13
+  }
+}

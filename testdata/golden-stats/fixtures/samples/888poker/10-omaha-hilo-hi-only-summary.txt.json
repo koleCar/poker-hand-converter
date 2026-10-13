@@ -1,0 +1,66 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-441698247",
+      "index": 0,
+      "phf": "47b2b1810662a4f02a4a225a652babe46f1eb727093a227dbebd3dd891c66f9a",
+      "rows": "1e62f32b2350fb8c6f26d6e7ecc95b44974cb66cdf9604366b947de2e45350bd",
+      "seats": [
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 777,
+    "path": "fixtures/samples/888poker/10-omaha-hilo-hi-only-summary.txt",
+    "sha256": "266d9d173111779c42212e34a16d402fa6a87dd5ec5a9384ed69d01636c0836b"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 850,
+    "donk_flop_opp": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 3,
+    "limp_opp": 1,
+    "net": -42,
+    "net_bb_milli": -420,
+    "pfr": 1,
+    "pfr_opp": 3,
+    "rake_paid": 42,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 3,
+    "won": 808,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

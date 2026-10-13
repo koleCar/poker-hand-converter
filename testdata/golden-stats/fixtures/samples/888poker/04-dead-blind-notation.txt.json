@@ -1,0 +1,51 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-359567819",
+      "index": 0,
+      "phf": "ca7efe8a9d836a1406578b024a03b517c9bcc7b53b4f97292559839e27aa8a01",
+      "rows": "b49ea3564926694c9f9443c05174b859328ccc29056376bea1d5b46fe2aab7ff",
+      "seats": [
+        1,
+        2,
+        4,
+        6,
+        7,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 897,
+    "path": "fixtures/samples/888poker/04-dead-blind-notation.txt",
+    "sha256": "c2b09cf0c15c5d330b96400b0a56b6ef34ada696b72586ea6a25cd35c8944f80"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 600,
+    "flop_seen": 2,
+    "hands": 6,
+    "limp_opp": 4,
+    "net": -30,
+    "net_bb_milli": -150,
+    "pfr_opp": 6,
+    "rake_paid": 30,
+    "rfi_opp": 6,
+    "river_seen": 2,
+    "steal_opp": 3,
+    "turn_seen": 2,
+    "vpip_opp": 6,
+    "won": 570,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

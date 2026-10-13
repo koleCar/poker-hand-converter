@@ -1,0 +1,60 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-118630507-219",
+      "index": 0,
+      "phf": "0cb7699671e8e5e88b39c2c24a2ad10306f5da63c6b1716830736c76f8dbfda8",
+      "rows": "46cdf6780efa0fdefb49df2d3a9a97bcb282138b4e371b222d16fcd72966c922",
+      "seats": [
+        3,
+        4,
+        5,
+        6,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1244,
+    "path": "fixtures/samples/ongame/13-ongameit-localized.txt",
+    "sha256": "98eff6588ed3f0622463cb2a6b28d48a74e5c8a37ec3c02fc5672afd3bfac83f"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_river": 1,
+    "call_turn": 1,
+    "check_flop": 3,
+    "check_raise_turn_opp": 2,
+    "check_turn": 2,
+    "contributed": 2200,
+    "donk_river": 1,
+    "donk_river_opp": 1,
+    "flop_seen": 3,
+    "fold_turn": 1,
+    "hands": 6,
+    "iso_opp": 5,
+    "limp": 2,
+    "limp_opp": 5,
+    "net": -122,
+    "net_bb_milli": -1220,
+    "pfr_opp": 6,
+    "rake_paid": 122,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "turn_seen": 3,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 2078,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

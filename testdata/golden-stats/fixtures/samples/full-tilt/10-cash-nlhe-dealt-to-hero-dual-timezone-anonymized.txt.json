@@ -1,0 +1,59 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "98765421548",
+      "index": 0,
+      "phf": "259ec0a3438190d85e80c3a055a7635e77ef4df2bdd8c7a26eef72406c5d01b5",
+      "rows": "2d49647b4d80dd2d456ce504a6643a4185594394ec7e28f0b4a7c9fc61981175",
+      "seats": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1312,
+    "path": "fixtures/samples/full-tilt/10-cash-nlhe-dealt-to-hero-dual-timezone-anonymized.txt",
+    "sha256": "47726f6694de957fdad587c421e7eb66f96108627e9ed931d1826ce0aae8b3a1"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_turn": 1,
+    "call_three_bet": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "cold_call_opp": 1,
+    "contributed": 4800,
+    "flop_seen": 2,
+    "fold_to_steal_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "fold_turn": 1,
+    "four_bet_opp": 2,
+    "hands": 5,
+    "limp_opp": 2,
+    "net": -240,
+    "net_bb_milli": -600,
+    "pfr": 2,
+    "pfr_opp": 5,
+    "rake_paid": 240,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet": 1,
+    "three_bet_opp": 2,
+    "three_bet_vs_steal": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 4560,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-9876542165",
+      "index": 0,
+      "phf": "9cde061e770e4e8b1360a15aaabf3aa3e603d9ed00edb7095af6550c44c1aadf",
+      "rows": "f526d3591fff4da058ef74a30e3e084dec4822df80914e82520aaae084085457",
+      "seats": [
+        3,
+        4
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 461,
+    "path": "fixtures/samples/partypoker/13-hero-name-dealt-cards.txt",
+    "sha256": "468f6f9c16b4258b869aea91768db40660bbac3edf183706ef6d39db4ff5c6b8"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 2,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr_opp": 1,
+    "rfi_opp": 1,
+    "vpip_opp": 1,
+    "won": 2
+  }
+}

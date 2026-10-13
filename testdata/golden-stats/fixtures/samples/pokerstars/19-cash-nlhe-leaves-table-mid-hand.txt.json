@@ -1,0 +1,40 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "113004443741",
+      "index": 0,
+      "phf": "d58cdf7a6ca78bd04d1eed739ae02bf80b8f1cd2cf1fdf5a0a0f4dee824baf70",
+      "rows": "e9501b2c42aa8a6efaa6cd25bf3421ca96d2cc525ffb8705ac3ce97ebfea340e",
+      "seats": [
+        3,
+        4,
+        5,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1072,
+    "path": "fixtures/samples/pokerstars/19-cash-nlhe-leaves-table-mid-hand.txt",
+    "sha256": "13ce9004248ce7e330144db29031afeb01e35c89e1cf71048a461a73e6e1ea27"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 3,
+    "contributed": 250,
+    "hands": 6,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 5,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 250
+  }
+}

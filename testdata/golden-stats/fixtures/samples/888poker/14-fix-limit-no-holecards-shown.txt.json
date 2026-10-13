@@ -1,0 +1,33 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-539304533",
+      "index": 0,
+      "phf": "da89078885aaccafb3c2d4bf59ac90d98c26d027ff332550f88bc7fa76d82ee1",
+      "rows": "d0e5a9144062109680d7bd6c3fb35122e142dc34cbd741c9f5cc9ef5ad0a34db",
+      "seats": [
+        1,
+        2,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 473,
+    "path": "fixtures/samples/888poker/14-fix-limit-no-holecards-shown.txt",
+    "sha256": "aa01b3900e9253234298bc1281e4dd8edbf1095a1b31f1ded06309fec9457bdf"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 150,
+    "hands": 3,
+    "limp_opp": 2,
+    "pfr_opp": 2,
+    "rfi_opp": 2,
+    "steal_opp": 2,
+    "vpip_opp": 2,
+    "won": 150
+  }
+}

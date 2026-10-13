@@ -1,0 +1,57 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2697696244",
+      "index": 0,
+      "phf": "b2c58c63e8ad4413722048a2adb54381d960687fc4d9f78aac90ccd6167d53d0",
+      "rows": "d6e30e99d3a92e6073a5eeb56c7e2981ca4bc269dc63b6cd44ffd5633c57e4a0",
+      "seats": [
+        1,
+        3,
+        4,
+        5,
+        6,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1850,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - No Limit Holdem (Rebuy) - $2-$0.25 - 201301.allin.ante.txt",
+    "sha256": "6ac40bf03bd1ed8d66ba17a125d4dd42fa5a417069a04c0a27a01409dd56fdc1"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call": 1,
+    "cold_call_opp": 3,
+    "contributed": 124844,
+    "flop_seen": 3,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 4,
+    "hands": 7,
+    "limp_opp": 1,
+    "pfr": 2,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 3,
+    "squeeze": 1,
+    "squeeze_opp": 2,
+    "three_bet": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 3,
+    "vpip": 3,
+    "vpip_opp": 6,
+    "won": 124844,
+    "wsd": 1,
+    "wsd_opp": 3,
+    "wtsd": 3,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

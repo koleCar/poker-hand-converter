@@ -1,0 +1,68 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-7331600-91-1427188257",
+      "index": 0,
+      "phf": "5fad5faea36f4345887645a8590460969edc06d2d86341e8412da7e19aa11bec",
+      "rows": "192b2d86b49a19a713c4672b754518d9a46f3b7655dae9f58cda98b827eb3c7a",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 984,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_Limits_Limit3.txt",
+    "sha256": "44c3b4824fd8e477cf0ea2fe81e3b68cd0caf5cd8244f460bfaecae0a9a2da8b"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "call_steal": 1,
+    "call_turn": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 1,
+    "cold_call_opp": 1,
+    "contributed": 72500,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_river": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 5,
+    "limp_opp": 2,
+    "net": -300,
+    "net_bb_milli": -300,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 300,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 72200,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "1356882665",
+      "index": 0,
+      "phf": "119dd417a01914bc2d16453af4b96f0b4da31209592bccb82d731bd1e6feedea",
+      "rows": "c30ba19b30f77e14753985fd8643fc5f0fc9c4f5beb0880e648e789ddd0e3fa9",
+      "seats": [
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1791,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-NA-0-0 HH20190118 T9360380-G0-201901.txt",
+    "sha256": "16a7aab0fd8632e44376b58a6190f7fa2a19026736e7385f8d20105ab0cecf27"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 150,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 7,
+    "limp_opp": 4,
+    "pfr": 1,
+    "pfr_opp": 7,
+    "rfi": 1,
+    "rfi_opp": 4,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "vpip": 1,
+    "vpip_opp": 7,
+    "won": 150
+  }
+}

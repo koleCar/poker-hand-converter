@@ -1,0 +1,36 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2690849153",
+      "index": 0,
+      "phf": "efaefd35d6e0b447324a6cfb47875505e450b5843cb553667c1f3cfbc656b4c9",
+      "rows": "48f90eaeb03c8dd6b54da06e702a6c2ed7f826af58b99c274a275db3008ea0c4",
+      "seats": [
+        1,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 944,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-10-201211.ante.all.in.txt",
+    "sha256": "c41282b91b117982c195b4b9d2301902e5c6f108064da9195e1f60ca155679ad"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 332,
+    "flop_seen": 2,
+    "hands": 2,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "won": 332,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

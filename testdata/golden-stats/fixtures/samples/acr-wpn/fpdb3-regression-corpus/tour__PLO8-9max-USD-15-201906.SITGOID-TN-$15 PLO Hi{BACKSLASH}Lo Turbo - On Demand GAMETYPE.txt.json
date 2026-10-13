@@ -1,0 +1,12 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1891,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__PLO8-9max-USD-15-201906.SITGOID-TN-$15 PLO Hi{BACKSLASH}Lo Turbo - On Demand GAMETYPE.txt",
+    "sha256": "0cddd469b81f054a76692256d65c304e324e627d6acd9ee7e337f34eff48a22d"
+  },
+  "rows": 0,
+  "statsVersion": "stats/2",
+  "totals": {}
+}

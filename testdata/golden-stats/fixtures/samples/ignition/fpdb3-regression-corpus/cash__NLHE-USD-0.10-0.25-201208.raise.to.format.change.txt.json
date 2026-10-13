@@ -1,0 +1,45 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2628482935",
+      "index": 0,
+      "phf": "44bae47cd632a0a90ec5921efa1709cd5c169d874af35073f3dd0b262ff7851c",
+      "rows": "a00707a3d84eefebb2e4cade2a51436df4f156275a8208912e474c8dd8eaeed3",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1111,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__NLHE-USD-0.10-0.25-201208.raise.to.format.change.txt",
+    "sha256": "cacd7f53c4e8eb6f578aaa762ba617396d2b0326450826fbb2c27ee91301bfa1"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 200,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 1,
+    "hands": 5,
+    "iso": 1,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 5,
+    "pfr": 2,
+    "pfr_opp": 5,
+    "rfi_opp": 4,
+    "steal_opp": 3,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 200
+  }
+}

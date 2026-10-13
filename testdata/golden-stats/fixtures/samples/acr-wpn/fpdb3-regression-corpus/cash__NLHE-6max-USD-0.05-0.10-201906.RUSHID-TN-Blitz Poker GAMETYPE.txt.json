@@ -1,0 +1,40 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "68217077",
+      "index": 0,
+      "phf": "f2f53ebc653343ea54a0cd6fa616bc209406270370c050a6b9cdb765523fa265",
+      "rows": "8852b7a31068ffb2375553d12a8a94b61f215001fe85566db11ed641f0ada6b2",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 863,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-6max-USD-0.05-0.10-201906.RUSHID-TN-Blitz Poker GAMETYPE.txt",
+    "sha256": "8547dff729944dfa03f5ead35a0964aff8b88d4c9523242b16617ef2cd1d2b0c"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 2,
+    "contributed": 25,
+    "hands": 6,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "three_bet_opp": 4,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 25
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD79415709",
+      "index": 0,
+      "phf": "06d4efb51d48831295809f1818d1a1d7303467fd0f5f0a57a11cca44e060f4bc",
+      "rows": "d5035cf4e63a1d163f40a35131853c097bb7304895b85136eda71928a21d2ef9",
+      "seats": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 839,
+    "path": "tests/test/fixtures/weplay/phantom-river-walk.txt",
+    "sha256": "5c312226f78d028788fb4a14602da8e1d465f46ff43141754724b55d6e88b760"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 200,
+    "hands": 5,
+    "limp_opp": 4,
+    "pfr_opp": 4,
+    "rfi_opp": 4,
+    "steal_opp": 3,
+    "vpip_opp": 4,
+    "won": 200
+  }
+}

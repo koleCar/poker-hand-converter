@@ -1,0 +1,42 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "61777648755",
+      "index": 0,
+      "phf": "7be43e5e7389c69100d983c8390d67e07d826f7de00fe68e8b92544c1ed29ded",
+      "rows": "cdcc2491f9adf7d66d63238807d074db3a8cfe1bb3d7bd8c4b85337fcdeb1dff",
+      "seats": [
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 907,
+    "path": "fixtures/samples/pokerstars/07-cash-nlhe-dual-timestamp-pt-et-2011.txt",
+    "sha256": "7f6ca3b55f558df4309ae58e945f7d606fc7d4e219afcc662dfc246154565a5a"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 250,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 4,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 4,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "vpip": 1,
+    "vpip_opp": 4,
+    "won": 250
+  }
+}

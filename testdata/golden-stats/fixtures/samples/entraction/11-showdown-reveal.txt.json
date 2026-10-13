@@ -1,0 +1,68 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646501423",
+      "index": 0,
+      "phf": "4deae029e0e69012acdcc7d866c40b05874569ff5c6916d7b64fa1410656d5fe",
+      "rows": "9151ad4b9c3de5c14ab9dfb9381a121a0ae9b65bb75dc374aad6dc09acdcb3bd",
+      "seats": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1285,
+    "path": "fixtures/samples/entraction/11-showdown-reveal.txt",
+    "sha256": "13d259942e072b4e2d36385ad86fd0fc09a26f2250212e28f0fdee37c38ca9e4"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 1248,
+    "donk_flop_opp": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 5,
+    "limp_opp": 3,
+    "net": -62,
+    "net_bb_milli": -620,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "rake_paid": 62,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 1186,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

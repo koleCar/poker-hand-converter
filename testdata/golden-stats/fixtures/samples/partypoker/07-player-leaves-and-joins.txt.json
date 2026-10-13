@@ -1,0 +1,56 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-1420500000",
+      "index": 0,
+      "phf": "c8a01bb0738e043eebfec4b49379280ad0589574a27207150fdd2b94fa7e62ab",
+      "rows": "a4afe5a6b5642546dda966b92b4f67983671c9cab0d705e3f2a6afad4b0df7ba",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 979,
+    "path": "fixtures/samples/partypoker/07-player-leaves-and-joins.txt",
+    "sha256": "8b74b645843a048241b8041746d986387b175d6ca7911989100799686cc85bd2"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "call_turn": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 54,
+    "flop_seen": 3,
+    "fold_flop": 1,
+    "fold_river": 1,
+    "hands": 5,
+    "iso_opp": 3,
+    "limp": 2,
+    "limp_opp": 4,
+    "net": -2,
+    "net_bb_milli": -1000,
+    "pfr_opp": 5,
+    "rake_paid": 2,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 52,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "TM600571038",
+      "index": 0,
+      "phf": "09fe63b38de966ced2a8f64a2ba5a66eeb8e28fdcf1dc66520007dfdfccc93e6",
+      "rows": "91a918505d9c1fccf2de471c421934174a577d5cebd3b71b59328e10a4fe703a",
+      "seats": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1829,
+    "path": "fixtures/samples/ggpoker/27-fpdb3-tour-nlhe-8max-mtt-usd-1050-202104-extra-space.txt",
+    "sha256": "5ebaea005932d1b789a6b6d72947760f0f9974f1611dd50efad7e6f1950f98d8"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "call_river": 1,
+    "call_turn": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_raise_river_opp": 1,
+    "check_river": 1,
+    "cold_call_opp": 4,
+    "contributed": 28315,
+    "donk_flop_opp": 1,
+    "donk_turn": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 7,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 7,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet_opp": 6,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 7,
+    "won": 28315,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

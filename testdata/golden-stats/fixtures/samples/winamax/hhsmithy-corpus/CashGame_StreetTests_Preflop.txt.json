@@ -1,0 +1,31 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-5281566-215-1382586698",
+      "index": 0,
+      "phf": "4fee334220d7b85a233852bf8c0129e98e97d0084a396cc90bc59a8353599e40",
+      "rows": "bd49f4ff134116be4f14eaecf6d71dd7abf4d13cf52d97fd2ea1f268f68208e3",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 494,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_StreetTests_Preflop.txt",
+    "sha256": "3c50b7bbfeac26a311f7d779dcb8126b01a9e715bc0f966dcde9b33b04f16915"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 100,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr_opp": 1,
+    "rfi_opp": 1,
+    "vpip_opp": 1,
+    "won": 100
+  }
+}

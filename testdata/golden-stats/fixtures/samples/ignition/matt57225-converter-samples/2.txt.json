@@ -1,0 +1,79 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3453331430",
+      "index": 0,
+      "phf": "8523a8a5358336ce7d7a0042e00dc37f1e5c34f08635ca5e9aa2f71d404dec49",
+      "rows": "09750939de271a88e8970fa2960aa256cbce7bc0876c98845951ae784a04e626",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "handId": "3452258262",
+      "index": 1,
+      "phf": "7941918c135348790fde034f4ae58cc1fca1d8aa5749847bfa72f2250616bcdc",
+      "rows": "6d932488b7d4a6092975a17bd818c4f0fdd92a5812ac40275185b2be0decdcf5",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "handId": "3598182127",
+      "index": 2,
+      "phf": "fa8ac50a3ab86b3c700b33b7a461b1794fa44c8a2a93eb2aa1b6a1edcf1d059a",
+      "rows": "df3bd4daa0e577522df3369a395b0c3ee878869752898f1306f3888d1bcaaa26",
+      "seats": [
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 4075,
+    "path": "fixtures/samples/ignition/matt57225-converter-samples/2.txt",
+    "sha256": "e9c64bd71edbf95538ccfad23a479da358512dc78d48ac01fa84f2adc489db09"
+  },
+  "rows": 15,
+  "statsVersion": "stats/2",
+  "totals": {
+    "check_flop": 4,
+    "check_river": 4,
+    "check_turn": 4,
+    "contributed": 84,
+    "flop_seen": 4,
+    "hands": 15,
+    "iso_opp": 3,
+    "limp": 3,
+    "limp_opp": 12,
+    "net": -1,
+    "net_bb_milli": -200,
+    "pfr_opp": 13,
+    "rake_paid": 1,
+    "rfi_opp": 10,
+    "river_seen": 4,
+    "steal_opp": 5,
+    "turn_seen": 4,
+    "vpip": 3,
+    "vpip_opp": 13,
+    "won": 83,
+    "wsd": 4,
+    "wsd_opp": 4,
+    "wtsd": 4,
+    "wtsd_opp": 4,
+    "wwsf": 4,
+    "wwsf_opp": 4
+  }
+}

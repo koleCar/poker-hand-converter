@@ -1,0 +1,55 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109666157973",
+      "index": 0,
+      "phf": "9ef52ddb1cdfdea65a39676906933042a043468269022dac29f6145a37bf9d68",
+      "rows": "de3f8376d0fcfc80da5e9f7e17c467fa1167f82dee4740dfccc5d0f1e03efe73",
+      "seats": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1144,
+    "path": "fixtures/samples/pokerstars/10-cash-nlhe-eur-currency-blank-lines.txt",
+    "sha256": "58d003e557dad6d005d11990c734f48bafc33b135ba0a759187698c05d68fef7"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 1,
+    "cold_call": 1,
+    "cold_call_opp": 2,
+    "contributed": 1350,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "hands": 5,
+    "limp_opp": 1,
+    "net": -61,
+    "net_bb_milli": -610,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "raise_flop": 1,
+    "rake_paid": 61,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "squeeze_opp": 2,
+    "three_bet_opp": 4,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 1289,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

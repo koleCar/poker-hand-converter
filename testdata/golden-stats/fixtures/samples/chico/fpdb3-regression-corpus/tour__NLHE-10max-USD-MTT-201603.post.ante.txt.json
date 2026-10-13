@@ -1,0 +1,60 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1587461647",
+      "index": 0,
+      "phf": "64e147c89a3cf36f457d0377847e8b5b1211bd56084e9ffd2606cc9534bc5c70",
+      "rows": "d5253d6be37d26bda8d89434bc54f195cd1295ed913767005af2bf4062311e4b",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1826,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/tour__NLHE-10max-USD-MTT-201603.post.ante.txt",
+    "sha256": "7126dd35d20ba29846becf2d02bd09acebdecdb7e3cc0b71bbbc8cba51bda12c"
+  },
+  "rows": 10,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_turn": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_raise_river_opp": 1,
+    "check_river": 1,
+    "contributed": 1200,
+    "flop_seen": 2,
+    "fold_river": 1,
+    "hands": 10,
+    "iso": 1,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 9,
+    "pfr": 1,
+    "pfr_opp": 10,
+    "rfi_opp": 8,
+    "river_seen": 2,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 10,
+    "won": 1200,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

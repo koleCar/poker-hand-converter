@@ -1,0 +1,35 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "78782145143",
+      "index": 0,
+      "phf": "757a003fc9987ae5c74d61ed46561f7d08159edc2ed5df63fb03fe6a455b24a1",
+      "rows": "1b884885f89b1a1204a07e375135ea7a931f197d80fd14f44c3a19f7ceac2042",
+      "seats": [
+        2,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 618,
+    "path": "fixtures/samples/pokerstars/11-cash-nlhe-gbp-currency-cr-only-lineendings.txt",
+    "sha256": "78bebc111fa6b9068c146875b895bf13a36435b9d7d6253d4ea1acb6683eb513"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 50,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 50
+  }
+}

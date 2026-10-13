@@ -1,0 +1,52 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "33727560890",
+      "index": 0,
+      "phf": "13fc53a9a7688fa8da8abe795c9064de300417c24a9b394f7ddb3e300b0058cb",
+      "rows": "b45bf0b2e41e8f05456f8ca9f92d63409d2a0867fab0189174377f0535df78dd",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 997,
+    "path": "fixtures/samples/full-tilt/11-cash-plo-hi-showdown.txt",
+    "sha256": "977cd5ae280eb8c45f6e8e3fefc4ed5d4788c570c0e34d426753b802ff0e08a3"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 600,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -30,
+    "net_bb_milli": -300,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rake_paid": 30,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 570,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

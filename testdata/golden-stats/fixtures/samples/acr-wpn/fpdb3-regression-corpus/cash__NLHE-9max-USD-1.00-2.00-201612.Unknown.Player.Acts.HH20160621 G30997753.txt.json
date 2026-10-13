@@ -1,0 +1,12 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 3318,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-9max-USD-1.00-2.00-201612.Unknown.Player.Acts.HH20160621 G30997753.txt",
+    "sha256": "908962657d775f54bc9c04a221cb0f042c17660fd6fd7eb40c65db72a14d95f1"
+  },
+  "rows": 0,
+  "statsVersion": "stats/2",
+  "totals": {}
+}

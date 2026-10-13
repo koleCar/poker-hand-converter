@@ -1,0 +1,67 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "695367612",
+      "index": 0,
+      "phf": "0a32dd667241240d9d561e196df9de4c09b03da7924b2dc72773d7d201c0814c",
+      "rows": "b45e483b8ebf4565256369d9e949b68c2940ccf94f813dc1b139dc815670e074",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2227,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-2max-USD-2.20 HH00000000 T5732408-G0-201608.Turbo.txt",
+    "sha256": "28263cc0ebd4d510fa6a505db5863f343abf439a2999dd247eb194f527794ea4"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_cbet_flop": 1,
+    "call_cbet_turn": 1,
+    "call_flop": 1,
+    "call_river": 1,
+    "call_three_bet": 1,
+    "call_turn": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_river": 1,
+    "cbet_river_opp": 1,
+    "cbet_turn": 1,
+    "cbet_turn_opp": 1,
+    "contributed": 3000,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_cbet_river_opp": 1,
+    "fold_to_cbet_turn_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr": 2,
+    "pfr_opp": 2,
+    "raise_cbet_river": 1,
+    "raise_river": 2,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 3000,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

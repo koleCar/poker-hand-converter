@@ -1,0 +1,71 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "56397699000",
+      "index": 0,
+      "phf": "ef1f364e9be6c884305de3233dc2b4488c1272a205ea98f07103c72c79bc5806",
+      "rows": "3e31c884bb08d89a465b5a53692d92d953d8e15eb2686105f01d4de6bc523892",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ]
+    },
+    {
+      "handId": "56397717005",
+      "index": 1,
+      "phf": "2fdcb882fc99476c77804a22385b11126b93f94f62594df80b904cc923e18f03",
+      "rows": "6b833e54039dd0f008c8a4b3b5258128276c8e86a69580b98c7d494f645334a6",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2247,
+    "path": "fixtures/samples/pokerstars/48-cash-nlhe-thirdparty-export-trailing-whitespace.txt",
+    "sha256": "f9ca52fcdf1664e67cb05edb4815f827c65f20a5e5ac1bd2390de281e840a3c9"
+  },
+  "rows": 10,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 2,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 2,
+    "check_flop": 4,
+    "check_raise_flop_opp": 4,
+    "contributed": 40,
+    "donk_flop_opp": 2,
+    "flop_seen": 6,
+    "fold_flop": 4,
+    "fold_to_cbet_flop": 2,
+    "fold_to_cbet_flop_opp": 2,
+    "hands": 10,
+    "iso": 2,
+    "iso_opp": 4,
+    "limp": 3,
+    "limp_opp": 7,
+    "net": -2,
+    "net_bb_milli": -1000,
+    "pfr": 2,
+    "pfr_opp": 10,
+    "rake_paid": 2,
+    "rfi_opp": 3,
+    "squeeze_opp": 3,
+    "steal_opp": 1,
+    "three_bet_opp": 6,
+    "vpip": 6,
+    "vpip_opp": 10,
+    "won": 38,
+    "wtsd_opp": 6,
+    "wwsf": 2,
+    "wwsf_opp": 6
+  }
+}

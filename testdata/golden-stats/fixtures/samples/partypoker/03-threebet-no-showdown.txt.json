@@ -1,0 +1,53 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-13550695573",
+      "index": 0,
+      "phf": "aefeec9d8ce7074b29ddee0f1f098a30fa0bae26e9f270a1761dc3799d6161fe",
+      "rows": "d345a667b7af9e53801b3e552110aaad5dfe98b9283dceb7f039f35d2c1c5ef2",
+      "seats": [
+        2,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 651,
+    "path": "fixtures/samples/partypoker/03-threebet-no-showdown.txt",
+    "sha256": "3dc6a8d7a6b1a66a616c4abb210db468105b8691182f661a8fef43b5ab80e0ec"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_three_bet": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "contributed": 320,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -16,
+    "net_bb_milli": -1600,
+    "pfr": 2,
+    "pfr_opp": 2,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 16,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 304,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-361991211-178",
+      "index": 0,
+      "phf": "ddf83666fcb519b33d34718826b64dd2f315d04b8955a71b77cdc7211ec4db95",
+      "rows": "77587dfa7687be881b5d3f5f095a48b6ae8e425962837f3dbe93d3b2bea904ef",
+      "seats": [
+        3,
+        4,
+        5,
+        6,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1087,
+    "path": "fixtures/samples/ongame/03-omaha-showdown.txt",
+    "sha256": "ec575ac75e9e97e67c9fe070803ca9ffd7828dd1fbb4fde9d89ac625e86ebb1c"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_river": 1,
+    "call_turn": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_raise_river_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_river": 1,
+    "check_turn": 1,
+    "cold_call_opp": 2,
+    "contributed": 21500,
+    "donk_flop_opp": 1,
+    "donk_river_opp": 1,
+    "flop_seen": 2,
+    "hands": 5,
+    "limp_opp": 1,
+    "net": -300,
+    "net_bb_milli": -600,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "rake_paid": 300,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet_opp": 4,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 21200,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

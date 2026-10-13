@@ -1,0 +1,60 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-539448454",
+      "index": 0,
+      "phf": "3e19f2178e07dcc8be243602317921f2c10f76038c974e153b1d0c2529054a4f",
+      "rows": "6f8e5a1ae9408198e4e1309fca35c247ccd34eefb8e0079d73d89b1ebdadc47a",
+      "seats": [
+        4,
+        6,
+        7,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 662,
+    "path": "fixtures/samples/888poker/12-six-max-thousands-separator.txt",
+    "sha256": "242fc1f1b2b5f4ecb44ce14a55c30c7b37cf941618245cd8a587b92b87b986df"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 10500,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 4,
+    "limp_opp": 2,
+    "net": -250,
+    "net_bb_milli": -250,
+    "pfr": 1,
+    "pfr_opp": 4,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 250,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "vpip": 2,
+    "vpip_opp": 4,
+    "won": 10250,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

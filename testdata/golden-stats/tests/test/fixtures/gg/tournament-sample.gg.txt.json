@@ -1,0 +1,51 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD75876391",
+      "index": 0,
+      "phf": "5aa7dc78455a2791013ef68da7681eaa4e44c00696c801b7825dfc3f58b112d9",
+      "rows": "0d466f1a4c16b39e1f948d35dcb292630d57dfa56c357e8e0e9226dd88da34f2",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1411,
+    "path": "tests/test/fixtures/gg/tournament-sample.gg.txt",
+    "sha256": "28e62f3e97daf53cf61e9f4718520be65d4118fc5a0edffb6a52645ab8813f76"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call": 2,
+    "cold_call_opp": 6,
+    "contributed": 3215,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 4,
+    "hands": 9,
+    "limp_opp": 1,
+    "net_bb_milli": -1,
+    "pfr": 2,
+    "pfr_opp": 9,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "squeeze": 1,
+    "squeeze_opp": 5,
+    "three_bet": 1,
+    "three_bet_opp": 7,
+    "vpip": 4,
+    "vpip_opp": 9,
+    "won": 3215
+  }
+}

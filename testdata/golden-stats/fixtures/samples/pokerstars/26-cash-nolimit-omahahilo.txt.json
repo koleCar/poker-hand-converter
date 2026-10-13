@@ -1,0 +1,63 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109680525613",
+      "index": 0,
+      "phf": "8aad6c2ae370024d3e45b39793fc54df65add48c344991014ff630ae21f52124",
+      "rows": "f1cdcbbc6dd9f88c55287a87bbafdf54a621064a463688151cefb92d17cc7b91",
+      "seats": [
+        1,
+        3,
+        4,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1760,
+    "path": "fixtures/samples/pokerstars/26-cash-nolimit-omahahilo.txt",
+    "sha256": "aecf7b7379fdf463044aa2b127a66c95c79d5ce37c4b7f7ea77415255389a382"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_river": 1,
+    "call_turn": 2,
+    "check_flop": 4,
+    "check_raise_river_opp": 1,
+    "check_raise_turn_opp": 3,
+    "check_river": 1,
+    "check_turn": 3,
+    "contributed": 2000,
+    "donk_river": 1,
+    "donk_river_opp": 2,
+    "flop_seen": 4,
+    "fold_river": 1,
+    "fold_turn": 1,
+    "hands": 6,
+    "iso_opp": 5,
+    "limp": 3,
+    "limp_opp": 5,
+    "net": -90,
+    "net_bb_milli": -900,
+    "pfr_opp": 6,
+    "rake_paid": 90,
+    "rfi_opp": 1,
+    "river_seen": 3,
+    "turn_seen": 4,
+    "vpip": 3,
+    "vpip_opp": 6,
+    "won": 1910,
+    "wsd": 2,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 4,
+    "wwsf": 2,
+    "wwsf_opp": 4
+  }
+}

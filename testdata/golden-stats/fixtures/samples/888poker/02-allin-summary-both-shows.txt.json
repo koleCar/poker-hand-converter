@@ -1,0 +1,57 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-349444554",
+      "index": 0,
+      "phf": "e79256c0b8ec0dc62d4fdc8f0705ee406ece5b68fcd817297b6c970fe0cc8491",
+      "rows": "06ac191d864b40ed1f625db4c411a7d778c188b193ac8e69412eb6d403a7ca95",
+      "seats": [
+        1,
+        4,
+        6,
+        7,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 916,
+    "path": "fixtures/samples/888poker/02-allin-summary-both-shows.txt",
+    "sha256": "24f6771f9733f09583309ac6d3a2087d9275f22fad465b570150ad3f5c4569be"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_river": 1,
+    "call_turn": 1,
+    "check_flop": 3,
+    "contributed": 20150,
+    "flop_seen": 3,
+    "fold_turn": 1,
+    "hands": 5,
+    "iso_opp": 3,
+    "limp": 1,
+    "limp_opp": 3,
+    "net": -400,
+    "net_bb_milli": -4000,
+    "pfr_opp": 5,
+    "raise_river": 1,
+    "rake_paid": 400,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal_opp": 1,
+    "turn_seen": 3,
+    "vpip": 1,
+    "vpip_opp": 5,
+    "won": 19750,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

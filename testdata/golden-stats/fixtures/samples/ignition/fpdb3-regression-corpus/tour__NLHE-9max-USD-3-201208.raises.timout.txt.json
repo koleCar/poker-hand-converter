@@ -1,0 +1,62 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2648848668",
+      "index": 0,
+      "phf": "9057be159d2d548af4f65d65f6d3d03f023d9ee2a19f369b7f8b863975280b0d",
+      "rows": "4683bb8b2dbc6992ff7dbd151ce18e79091297442bc42cadfddd656d38025031",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1723,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-3-201208.raises.timout.txt",
+    "sha256": "b07a092b363b2b455ae54ada824a3e10aacd5a37e3c8074d649a7ca3b9e83eff"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cold_call_opp": 2,
+    "contributed": 5300,
+    "five_bet": 1,
+    "five_bet_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_four_bet_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet": 1,
+    "four_bet_opp": 1,
+    "hands": 9,
+    "limp_opp": 5,
+    "pfr": 2,
+    "pfr_opp": 9,
+    "raise_vs_four_bet": 1,
+    "raise_vs_three_bet": 1,
+    "rfi": 1,
+    "rfi_opp": 5,
+    "three_bet": 1,
+    "three_bet_opp": 4,
+    "vpip": 2,
+    "vpip_opp": 9,
+    "won": 5300,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

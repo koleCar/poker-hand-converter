@@ -1,0 +1,63 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "47282250043",
+      "index": 0,
+      "phf": "d9196236a676386c3c88ec59267653dfafcbacc4ca3682aa60480c7da914da96",
+      "rows": "9df945dc6187df7309ff1e5c11237773226f2922b585b69e805de3c5368dffa9",
+      "seats": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1241,
+    "path": "fixtures/samples/pokerstars/39-tour-mtt-mixed-holdem-header.txt",
+    "sha256": "1d04fc2e089e9c6b112c57fd651940a688859e5bf839cb8cb75befe8d4842dc8"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "call_flop": 1,
+    "call_river": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_turn": 2,
+    "cold_call_opp": 2,
+    "contributed": 520,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 5,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "squeeze_opp": 1,
+    "three_bet_opp": 4,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 520,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

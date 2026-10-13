@@ -1,0 +1,35 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2647361051",
+      "index": 0,
+      "phf": "a063ea55253769b552d88434cbcc4e524b5e67f8f98c9a1fb0731d167672ad61",
+      "rows": "c5e7a35d87e5006f36e136afaa11d84b0d1b7d9188cfa2596422e08dd518458d",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 612,
+    "path": "fixtures/samples/entraction/09-heads-up.txt",
+    "sha256": "20b5c07e292dd211af468c975e2d939f75d1227196bdfbb20855375f2ad87833"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 3000,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 3000
+  }
+}

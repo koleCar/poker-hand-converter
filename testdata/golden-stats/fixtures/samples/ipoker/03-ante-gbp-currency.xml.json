@@ -1,0 +1,49 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5384038435",
+      "index": 0,
+      "phf": "1d4eca7c516b561871cb1752480fe331042cb77c24cda91f39eb86b59ddd794e",
+      "rows": "0a85e3d37966751318252e5dc0c9f9ed92d7afcb990e8708defe0d86bfb95393",
+      "seats": [
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2762,
+    "path": "fixtures/samples/ipoker/03-ante-gbp-currency.xml",
+    "sha256": "735cf479f2e3abd46906a91188a7195837e8bc65031c2ade4a45bcb9c716e205"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "check_flop": 2,
+    "check_turn": 2,
+    "contributed": 26,
+    "flop_seen": 2,
+    "fold_river": 1,
+    "hands": 3,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 2,
+    "net": -1,
+    "net_bb_milli": -100,
+    "pfr_opp": 3,
+    "rake_paid": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal_opp": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 3,
+    "won": 25,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1014850512",
+      "index": 0,
+      "phf": "a22433a18d41d50793dc7e697541b5b65cadc066a64fd9b3e2876bc132865446",
+      "rows": "7d92b7cb720fdb9f4fa2ac341aac36fd2010f194452d73512091e7ba90096575",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "handId": "CHC-1014850775",
+      "index": 1,
+      "phf": "646857aba276762fe25c338a7878706c2f3ba08373ffebf9d1a4dd2a0fbd4afc",
+      "rows": "2c0aff29548d4baab20a9e30729e8786122fb7a4664072e3f981f7cd99a2dac4",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2400,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-play-10-20-201204.GearPoker.txt",
+    "sha256": "60d32032f2f0160dcbf633aedcb2cad6091a190e69abffccdc914564664d3477"
+  },
+  "rows": 19,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "cold_call_opp": 2,
+    "contributed": 1940,
+    "flop_seen": 2,
+    "fold_turn": 1,
+    "hands": 19,
+    "iso_opp": 8,
+    "limp": 1,
+    "limp_opp": 14,
+    "pfr": 1,
+    "pfr_opp": 19,
+    "rfi": 1,
+    "rfi_opp": 7,
+    "steal_opp": 2,
+    "three_bet_opp": 4,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 19,
+    "won": 1940,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

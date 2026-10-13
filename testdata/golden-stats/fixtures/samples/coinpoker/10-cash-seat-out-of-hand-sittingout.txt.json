@@ -1,0 +1,58 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "352026582",
+      "index": 0,
+      "phf": "0822ec05cc3443baf4e97dd56adfc48ffc8a709d953ce90d320eb0ea285d081c",
+      "rows": "96749145167c85d6c6b678e94bfeaabdd0ca8dae27a80b178dd290b951a1d39c",
+      "seats": [
+        1,
+        2,
+        3,
+        5,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1311,
+    "path": "fixtures/samples/coinpoker/10-cash-seat-out-of-hand-sittingout.txt",
+    "sha256": "5ca142aebfbe9a1464d6880c48ecff2fd8e776b2d7538d831bf3d1a8480535e5"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "call_steal": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_turn": 2,
+    "contributed": 16,
+    "flop_seen": 2,
+    "fold_river": 1,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 3,
+    "hands": 5,
+    "limp_opp": 2,
+    "net": -1,
+    "net_bb_milli": -500,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "rake_paid": 1,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "squeeze_opp": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 15,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

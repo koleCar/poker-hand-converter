@@ -1,0 +1,31 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "33730956598",
+      "index": 0,
+      "phf": "ba9997e2984a9be82d828477a2b8acc351906e28a7bd32fb1d0b88ce48aff884",
+      "rows": "e95375a17db320c4a8d5b6ad74d47c1af369cb4286334912a05f78a03ce0e9d0",
+      "seats": [
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 591,
+    "path": "fixtures/samples/full-tilt/14-cash-plo-hilo-chatline-uncalled-bet.txt",
+    "sha256": "45fe5520c06475a3f65df44f150ff9f0d080eedd397384c58b6daddcc5a1130b"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 100,
+    "hands": 2,
+    "limp_opp": 1,
+    "pfr_opp": 1,
+    "rfi_opp": 1,
+    "vpip_opp": 1,
+    "won": 100
+  }
+}

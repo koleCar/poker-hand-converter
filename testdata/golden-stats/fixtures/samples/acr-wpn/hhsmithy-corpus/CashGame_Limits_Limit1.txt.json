@@ -1,0 +1,66 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "261477404",
+      "index": 0,
+      "phf": "25115ad6fccd53c971053f824ff8961f7baabb35a862edc2f0d67ce6a4fe0f90",
+      "rows": "f5148a3a3ca8a761cbcf5ecb7c300d0d7f93e78b64fab1f550e3bf11faf916b7",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1910,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_Limits_Limit1.txt",
+    "sha256": "9fccd7bc790da68fca457c80eaea2d29280b0bb41d2da368436852977efbc131"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_river": 1,
+    "call_turn": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 3,
+    "check_raise_river": 1,
+    "check_raise_river_opp": 1,
+    "check_river": 1,
+    "cold_call": 1,
+    "cold_call_opp": 3,
+    "contributed": 51400,
+    "donk_flop_opp": 1,
+    "flop_seen": 3,
+    "fold_turn": 1,
+    "hands": 6,
+    "limp_opp": 1,
+    "net": -325,
+    "net_bb_milli": -812,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "raise_river": 1,
+    "rake_paid": 325,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "squeeze_opp": 3,
+    "three_bet_opp": 5,
+    "turn_seen": 3,
+    "vpip": 3,
+    "vpip_opp": 6,
+    "won": 51075,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

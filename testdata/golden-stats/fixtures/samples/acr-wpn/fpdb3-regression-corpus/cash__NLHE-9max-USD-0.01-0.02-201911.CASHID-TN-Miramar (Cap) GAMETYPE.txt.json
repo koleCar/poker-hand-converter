@@ -1,0 +1,62 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "151588328",
+      "index": 0,
+      "phf": "e8f9ca3bd16d69b0c2d4e057b2f6d76f78a766b995d83b2b8cf73c9a41d612d7",
+      "rows": "91501ee5aa75f9ea8495bbb2da0653cfa5e8f9119d3f318546c8a077af084d99",
+      "seats": [
+        2,
+        3,
+        6,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1363,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__NLHE-9max-USD-0.01-0.02-201911.CASHID-TN-Miramar (Cap) GAMETYPE.txt",
+    "sha256": "79173a9ca981cf967eea76016dbb4cccf00bc9c8b006099e9683f27d97d5b72f"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "call_steal": 2,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 125,
+    "donk_flop": 1,
+    "donk_flop_opp": 2,
+    "flop_seen": 3,
+    "fold_flop": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 4,
+    "limp_opp": 2,
+    "net": -6,
+    "net_bb_milli": -3000,
+    "pfr": 1,
+    "pfr_opp": 4,
+    "raise_flop": 1,
+    "rake_paid": 6,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "squeeze_opp": 1,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 4,
+    "won": 119,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST08",
+      "index": 0,
+      "phf": "c4dda6bbea68d89b8685c52d25c411d4e123dcb10dac210ea066009b92e586cf",
+      "rows": "da87b64f13bcc29d4b12689ba295869d73edf2e253e94065410c064baf6c0f50",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1098,
+    "path": "tests/test/fixtures/stats/08-blind-defence-is-not-a-cold-call.txt",
+    "sha256": "3cfba058697e35a9a0537315c88f2ac22bbd4221df9ad5f7d168da3d90d02606"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_steal": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 3,
+    "check_river": 3,
+    "check_turn": 3,
+    "cold_call": 1,
+    "cold_call_opp": 1,
+    "contributed": 950,
+    "donk_flop_opp": 1,
+    "flop_seen": 3,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 6,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 3,
+    "squeeze_opp": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 3,
+    "vpip": 3,
+    "vpip_opp": 6,
+    "won": 950,
+    "wsd": 1,
+    "wsd_opp": 3,
+    "wtsd": 3,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

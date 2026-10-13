@@ -1,0 +1,53 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646492691",
+      "index": 0,
+      "phf": "c6f8180208c8010fd345d35e44d67786e9377a400cd1ec076e9090747de47bdb",
+      "rows": "030e53692da49b08e1e5422f006bb7e5e361bf4dbec84861366b12e416a128ad",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1052,
+    "path": "fixtures/samples/entraction/03-pot-limit-holdem.txt",
+    "sha256": "266c075a26d5b765883e51daee223d075ce3171a8643311059d2b160a5880c89"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_turn": 1,
+    "check_flop": 2,
+    "check_raise_river_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_river": 1,
+    "check_turn": 1,
+    "contributed": 1000,
+    "donk_river_opp": 1,
+    "flop_seen": 2,
+    "fold_river": 1,
+    "hands": 2,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 1,
+    "net": -50,
+    "net_bb_milli": -250,
+    "pfr_opp": 2,
+    "rake_paid": 50,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 950,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

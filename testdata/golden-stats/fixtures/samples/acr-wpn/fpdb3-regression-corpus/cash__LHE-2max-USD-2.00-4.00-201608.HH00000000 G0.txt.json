@@ -1,0 +1,51 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "693968595",
+      "index": 0,
+      "phf": "9a5a4456bf837596dcb1c545f3ce38abaddbd1aa3a94a9774393e08816f0b83f",
+      "rows": "fbebd8f4ac1fab1becd0ee61bbc5f79f25e88bc33125761c22aeee92c45dc7b1",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1733,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/cash__LHE-2max-USD-2.00-4.00-201608.HH00000000 G0.txt",
+    "sha256": "64d2c7c75f9830e2595e6d8a19fd6ce04ad713e76f2a881dece6994527012281"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 800,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -15,
+    "net_bb_milli": -37,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rake_paid": 15,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 785,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

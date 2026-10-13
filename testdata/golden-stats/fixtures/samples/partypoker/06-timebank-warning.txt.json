@@ -1,0 +1,41 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "PTY-14209876541",
+      "index": 0,
+      "phf": "61c85c7fee245e3bdbb6053061b489a7e7cacc6cdd20764b4dca2ff61749f8a0",
+      "rows": "1c8e0c9d24388b7f26c30a4e6d3a1e448c6e80e05f53cdee41a9baece7d2b07b",
+      "seats": [
+        3,
+        4
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 660,
+    "path": "fixtures/samples/partypoker/06-timebank-warning.txt",
+    "sha256": "92a957dcaf1ab3e573be8aa51b2f6934689c4bcd19d38cb80028646d3f3e0c3d"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "contributed": 12,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "hands": 2,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 1,
+    "pfr_opp": 2,
+    "raise_flop": 1,
+    "rfi_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 12,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

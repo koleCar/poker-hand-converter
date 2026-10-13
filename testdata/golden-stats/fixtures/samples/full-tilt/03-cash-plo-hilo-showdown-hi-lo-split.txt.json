@@ -1,0 +1,62 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "33730957082",
+      "index": 0,
+      "phf": "670d685fcafe48ba2503415afe4332417188c224ffa37ab1d5f3a0f9afdddd8b",
+      "rows": "61f86fbfe74889d74c7926878245a7a5d074756984502f152b69513d601ad18e",
+      "seats": [
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1369,
+    "path": "fixtures/samples/full-tilt/03-cash-plo-hilo-showdown-hi-lo-split.txt",
+    "sha256": "159a3c37ef1034a689dfc553490679c51ffe61099cdd0d63b638104c242900db"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "call_four_bet": 1,
+    "contributed": 12410,
+    "donk_flop": 1,
+    "donk_flop_opp": 1,
+    "five_bet_opp": 2,
+    "flop_seen": 2,
+    "fold_to_four_bet_opp": 1,
+    "fold_to_steal_opp": 1,
+    "four_bet": 1,
+    "four_bet_opp": 1,
+    "hands": 3,
+    "limp_opp": 1,
+    "net": -100,
+    "net_bb_milli": -1000,
+    "pfr": 3,
+    "pfr_opp": 3,
+    "rake_paid": 100,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "three_bet_vs_steal": 1,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 3,
+    "won": 12310,
+    "wsd": 2,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 2,
+    "wwsf_opp": 2
+  }
+}

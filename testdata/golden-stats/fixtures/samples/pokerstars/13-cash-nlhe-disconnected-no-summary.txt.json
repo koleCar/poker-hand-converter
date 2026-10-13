@@ -1,0 +1,58 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109681289672",
+      "index": 0,
+      "phf": "2d7c2176570d48fcec688b82ad3c9d363640cf9fec3ca3d27fcf946a6ac98c78",
+      "rows": "6eaf0bd27ef9b8c9614bcc898792d4c8cbedeabbd4bc54997261e3131b9b845e",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1181,
+    "path": "fixtures/samples/pokerstars/13-cash-nlhe-disconnected-no-summary.txt",
+    "sha256": "2dd89f75960409361daba50507c6b02fe541d35168d9c626efd683e84963bb57"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 3,
+    "check_raise_river_opp": 2,
+    "check_river": 2,
+    "check_turn": 3,
+    "cold_call_opp": 3,
+    "contributed": 102,
+    "donk_flop_opp": 2,
+    "flop_seen": 3,
+    "fold_river": 2,
+    "hands": 6,
+    "limp_opp": 1,
+    "net": -5,
+    "net_bb_milli": -500,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rake_paid": 5,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 3,
+    "squeeze_opp": 1,
+    "three_bet_opp": 5,
+    "turn_seen": 3,
+    "vpip": 3,
+    "vpip_opp": 6,
+    "won": 97,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

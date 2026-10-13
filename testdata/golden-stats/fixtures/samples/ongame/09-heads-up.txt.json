@@ -1,0 +1,45 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "OG-R5-362053496-2",
+      "index": 0,
+      "phf": "f48a3b70757c31d06053954b2f53843e483d7b584a3235e0c2025e3669ac9f2b",
+      "rows": "55f77f88eb831fa5e64deeedd81df0194b36a3715e93eeea8bdcabcee4372eba",
+      "seats": [
+        2,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 654,
+    "path": "fixtures/samples/ongame/09-heads-up.txt",
+    "sha256": "ede4f89d29622e13b3ecf9ba7a03f4d6bbd6fbce19a5440868176c7f387984b8"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 20,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "hands": 2,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 1,
+    "net": -1,
+    "net_bb_milli": -100,
+    "pfr_opp": 2,
+    "rake_paid": 1,
+    "rfi_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 19,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

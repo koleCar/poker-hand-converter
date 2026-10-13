@@ -1,0 +1,40 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD90000001",
+      "index": 0,
+      "phf": "0a17d87c123f03fc7e2b526f84444eee47f0d325dbdf90cf946b8c450458ad99",
+      "rows": "09badcbd5d8f5f3f9afc14cf96855e3d15874a753fb97aa1d077475ca077043c",
+      "seats": [
+        2,
+        5,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 768,
+    "path": "tests/test/fixtures/weplay/raise-sb-open.txt",
+    "sha256": "6470930f7f0da481cfe852fbcf560536239b04a5f7c9b9d37fe66068b49820cc"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 200,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 1,
+    "hands": 3,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 3,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 1,
+    "vpip": 1,
+    "vpip_opp": 3,
+    "won": 200
+  }
+}

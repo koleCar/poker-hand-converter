@@ -1,0 +1,36 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "352034259",
+      "index": 0,
+      "phf": "0554555eb19ea39e938961381f4db65ca812cf3a11d4e1a77d8be6a19fbebdf5",
+      "rows": "4c97d06efceef790f43f1e7cf1e8c6f7e457ffb8c655668e5729927073fe6d29",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1104,
+    "path": "fixtures/samples/coinpoker/07-cash-didnt-post-big-blind.txt",
+    "sha256": "2472aad2ecfd9f1dcd984ad1a94f4b286e6c98c5454ff326ae9ba3faf86b029d"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 3,
+    "hands": 6,
+    "limp_opp": 5,
+    "pfr_opp": 5,
+    "rfi_opp": 5,
+    "steal_opp": 3,
+    "vpip_opp": 5,
+    "won": 3
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2648080702",
+      "index": 0,
+      "phf": "de71670a1de295c15e1580966a126f48740750c82a0ca1b5d1f36102b0190afc",
+      "rows": "1958cdbe9377796ccba49197479b4b3c3dcdfaa58ee701e7a9553259c4e6aa5f",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1913,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-Freeroll-201207.disconnect.timeout.txt",
+    "sha256": "ce2d714238e4e115cc4433a5d0d139ede6baafc57465ca18332661a09734de12"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call": 1,
+    "cold_call_opp": 5,
+    "contributed": 8912,
+    "flop_seen": 3,
+    "hands": 9,
+    "iso": 1,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 9,
+    "rfi_opp": 1,
+    "river_seen": 3,
+    "squeeze_opp": 5,
+    "three_bet_opp": 8,
+    "turn_seen": 3,
+    "vpip": 4,
+    "vpip_opp": 9,
+    "won": 8912,
+    "wsd": 1,
+    "wsd_opp": 3,
+    "wtsd": 3,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3670655814",
+      "index": 0,
+      "phf": "b176d63b5d691ace0f171cf8e4c91adeb0eacd509bc11769ddae6b949c4efaae",
+      "rows": "744f98f0dc490adc5ec4ff7bcaa37c2ff27b067f00684be4640f0f431104f978",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1290,
+    "path": "fixtures/samples/ignition/matt57225-converter-samples/4.txt",
+    "sha256": "0c003b50f154cdd72fde0072f8c87b1a5b59358f1bf7dd25d1fb29f34f688a74"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_raise_flop_opp": 2,
+    "cold_call": 1,
+    "cold_call_opp": 3,
+    "contributed": 87,
+    "donk_flop_opp": 1,
+    "donk_turn": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 3,
+    "fold_flop": 1,
+    "fold_turn": 1,
+    "hands": 6,
+    "limp_opp": 1,
+    "net": -4,
+    "net_bb_milli": -800,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rake_paid": 4,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "squeeze_opp": 2,
+    "three_bet_opp": 5,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 6,
+    "won": 83,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

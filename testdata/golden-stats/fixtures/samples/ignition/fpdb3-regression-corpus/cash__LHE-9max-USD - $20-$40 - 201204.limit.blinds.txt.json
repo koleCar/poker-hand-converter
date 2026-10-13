@@ -1,0 +1,57 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2599656336",
+      "index": 0,
+      "phf": "043a0da9326d138d1bd534dcb00e22609a2f321604392ed0223181cc030ebe9a",
+      "rows": "bc53b34da1d5a74622f311de5561f46dc0916244e7c63a82394ed4c1afe260e0",
+      "seats": [
+        1,
+        3,
+        4,
+        5,
+        6,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1417,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/cash__LHE-9max-USD - $20-$40 - 201204.limit.blinds.txt",
+    "sha256": "9d6b7abcb1710fe324f26f32f876fce57e633f6756c5543345738c23af9e0648"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "contributed": 11000,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 1,
+    "hands": 7,
+    "limp_opp": 5,
+    "net": -300,
+    "net_bb_milli": -150,
+    "pfr": 1,
+    "pfr_opp": 7,
+    "rake_paid": 300,
+    "rfi": 1,
+    "rfi_opp": 6,
+    "steal": 1,
+    "steal_opp": 3,
+    "three_bet_opp": 2,
+    "vpip": 2,
+    "vpip_opp": 7,
+    "won": 10700,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

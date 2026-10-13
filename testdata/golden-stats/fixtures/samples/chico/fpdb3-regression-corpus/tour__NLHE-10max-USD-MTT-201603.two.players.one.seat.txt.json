@@ -1,0 +1,12 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [],
+  "input": {
+    "bytes": 1712,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/tour__NLHE-10max-USD-MTT-201603.two.players.one.seat.txt",
+    "sha256": "b6b614497e1685bfae701bfdf2a67a535cddcba1b04562dc7701dd95bb90f757"
+  },
+  "rows": 0,
+  "statsVersion": "stats/2",
+  "totals": {}
+}

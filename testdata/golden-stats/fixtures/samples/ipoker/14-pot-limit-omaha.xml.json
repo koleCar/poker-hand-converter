@@ -1,0 +1,53 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "IPN-5383652813",
+      "index": 0,
+      "phf": "3c75b7038bf84ebdb48746ee3c5cf585020b44ca859117ebfcee21e502569c47",
+      "rows": "ed2693d86d91565a52b3c50924a14c354d96d9d221ba0261e1dc97ae7142e544",
+      "seats": [
+        3,
+        8,
+        10
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2274,
+    "path": "fixtures/samples/ipoker/14-pot-limit-omaha.xml",
+    "sha256": "c56bf426ee5b7f29cfd9e3a52297c5f87effb693669866ff769f935423d00279"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "contributed": 600,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal_opp": 1,
+    "hands": 3,
+    "limp_opp": 2,
+    "net": -30,
+    "net_bb_milli": -300,
+    "pfr": 1,
+    "pfr_opp": 3,
+    "rake_paid": 30,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 3,
+    "won": 570,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

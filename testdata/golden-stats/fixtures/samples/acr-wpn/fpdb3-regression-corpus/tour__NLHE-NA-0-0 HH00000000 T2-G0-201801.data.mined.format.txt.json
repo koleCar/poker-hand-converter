@@ -1,0 +1,54 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "270567990173",
+      "index": 0,
+      "phf": "50e5b4ed0f10693883040547019f9da93304e8d3232e7b49a86eb024a88e72bb",
+      "rows": "cf56035babf0ee84d50b1ae4245c9f879df8b37e7ebd2ad4668cce14e677a89f",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2502,
+    "path": "fixtures/samples/acr-wpn/fpdb3-regression-corpus/tour__NLHE-NA-0-0 HH00000000 T2-G0-201801.data.mined.format.txt",
+    "sha256": "6cec8bb9147b3a7630f84e9afb200c401fb45107ccbc5858e0841d81007e17d7"
+  },
+  "rows": 8,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "call_river": 1,
+    "check_flop": 5,
+    "check_turn": 5,
+    "contributed": 58000,
+    "flop_seen": 5,
+    "fold_river": 3,
+    "hands": 8,
+    "iso_opp": 7,
+    "limp": 4,
+    "limp_opp": 7,
+    "pfr_opp": 8,
+    "rfi_opp": 1,
+    "river_seen": 5,
+    "turn_seen": 5,
+    "vpip": 4,
+    "vpip_opp": 8,
+    "won": 58000,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 5,
+    "wwsf": 1,
+    "wwsf_opp": 5
+  }
+}

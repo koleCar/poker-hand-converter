@@ -1,0 +1,55 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-5343878-96-1383820687",
+      "index": 0,
+      "phf": "9c71a6cf607efcf213b6d2c3893ded9106466c42c3fbc3818c639edbb328e567",
+      "rows": "df8fa450967da1c0565d78b176cf01d1cfaa6cccf8075df1bc58179215f09398",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1014,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_HandActionTests_AllInHandWithShowdown.txt",
+    "sha256": "6b75b1029003149ce5876dc21b9a6b20d264842e5f2cc9634c82d2ca22169905"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_three_bet": 1,
+    "cold_call_opp": 2,
+    "contributed": 4645,
+    "flop_seen": 2,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 3,
+    "hands": 5,
+    "limp_opp": 1,
+    "net": -300,
+    "net_bb_milli": -6000,
+    "pfr": 2,
+    "pfr_opp": 5,
+    "rake_paid": 300,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet": 1,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 5,
+    "won": 4345,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

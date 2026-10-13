@@ -1,0 +1,48 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "888-349695084",
+      "index": 0,
+      "phf": "6334123f2e2355544b39c64eafd0953f77422b6f328d279ac41ec815d5ff8d03",
+      "rows": "3ee165c01716e840812e77e0372c34d3e48d349792bec168308f01c673dcee75",
+      "seats": [
+        4,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 620,
+    "path": "fixtures/samples/888poker/11-heads-up.txt",
+    "sha256": "f6f7f217f1dd714b42ad48d2450e26cdc147fea21efadbc671f94390ecbd9724"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_turn": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "contributed": 400,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_turn": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -20,
+    "net_bb_milli": -200,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rake_paid": 20,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 380,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

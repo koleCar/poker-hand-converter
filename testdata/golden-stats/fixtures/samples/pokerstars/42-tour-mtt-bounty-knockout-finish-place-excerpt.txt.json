@@ -1,0 +1,62 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "47658722448",
+      "index": 0,
+      "phf": "8d4c507d1d97eaeb03a92f6afa67b46ed4f1fea6be0266ba36c3088d7dec2796",
+      "rows": "5b8bb5f9514cd77d0fbd16a98df80e8a0860e542b9d2d9bc19b6a897c819085e",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2034,
+    "path": "fixtures/samples/pokerstars/42-tour-mtt-bounty-knockout-finish-place-excerpt.txt",
+    "sha256": "6653ad3b6959b28dd49613944eb32ea6c9aef004c72fb7e8baaa3dcdcae890ec"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 1,
+    "cold_call": 1,
+    "cold_call_opp": 4,
+    "contributed": 61962,
+    "flop_seen": 2,
+    "hands": 9,
+    "limp_opp": 3,
+    "net_bb_milli": -3,
+    "pfr": 1,
+    "pfr_opp": 9,
+    "raise_flop": 2,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "squeeze_opp": 4,
+    "three_bet_opp": 6,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 9,
+    "won": 61962,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

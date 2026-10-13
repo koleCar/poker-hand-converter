@@ -1,0 +1,63 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "258592516",
+      "index": 0,
+      "phf": "89f72e7aa84c2123a2d73f2a89d0117dc006c93f00aad5a605fe187804504ddf",
+      "rows": "9555abe1f980da1b3e7dc9ef33e57fc7d89b243eace2dedf8ed4e7b6eb507ce4",
+      "seats": [
+        1,
+        4,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1311,
+    "path": "fixtures/samples/acr-wpn/hhsmithy-corpus/CashGame_StreetTests_Turn.txt",
+    "sha256": "c65d7f3c884c7191b95f71f9754027f71b270f7bbd25a3eb2ff75a23b5c9e8a2"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 8200,
+    "donk_flop_opp": 1,
+    "donk_turn": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "fold_turn": 1,
+    "hands": 3,
+    "limp_opp": 1,
+    "net": -200,
+    "net_bb_milli": -500,
+    "pfr": 1,
+    "pfr_opp": 3,
+    "raise_turn": 1,
+    "rake_paid": 200,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 3,
+    "won": 8000,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

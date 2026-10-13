@@ -1,0 +1,62 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "MG-5049096293",
+      "index": 0,
+      "phf": "adceb47d0dccb9265bd2e4ff002eee1e888f6371f93c26c5a218347e901905f7",
+      "rows": "8e3035ccf8656ba130174e664342b0766361810bb81ce1cfba54ca87037f689b",
+      "seats": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 2717,
+    "path": "fixtures/samples/microgaming/12-showdown-show-and-muck.txt",
+    "sha256": "f8772cb2021b1033e7b73ded033dec322605713800e09a09be9bc5c98197813c"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 2,
+    "cold_call": 1,
+    "cold_call_opp": 2,
+    "contributed": 130,
+    "donk_flop_opp": 1,
+    "flop_seen": 3,
+    "fold_flop": 1,
+    "hands": 5,
+    "limp_opp": 1,
+    "net": -10,
+    "net_bb_milli": -5000,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "raise_flop": 1,
+    "rake_paid": 10,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "squeeze_opp": 2,
+    "three_bet_opp": 4,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 5,
+    "won": 120,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

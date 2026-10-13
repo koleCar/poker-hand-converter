@@ -1,0 +1,186 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD75322558",
+      "index": 0,
+      "phf": "c107f0681d044df64ac3fc72d335bb365694d976c201fb794ad51de4977ace89",
+      "rows": "931e20bac05c231cdb371a6f6296c35c65dcb8d3decced32e742495720176b24",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "HD75322643",
+      "index": 1,
+      "phf": "d8d090445abf724edfcdc296da350e08c480de2fe29cc08ef97d8de27e4585ac",
+      "rows": "39f4d9662fcca4bf730a6fbd69b56d16475071c79b3089a003240eb4b7095832",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD75322674",
+      "index": 2,
+      "phf": "3a9f6e64bee557e7641167f4f4094f7bc4bd35b64225b19702af9db907de9704",
+      "rows": "36268aa606213fad69a34f39bf03e4eb37cc33a225fe9c940bab8d0111801f96",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD75322701",
+      "index": 3,
+      "phf": "195e979c4c11fc2f8c5c59f61def2b84cc74a15b0483870856b3c7776d4db860",
+      "rows": "068ad5868ac975a550db4669b5a0c25e42407bf3ffd582364d1fb0be21e35377",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD75322725",
+      "index": 4,
+      "phf": "edb5bff6c3442da12235b8f3f1532252c32eff6d669916aee302531859fab6cc",
+      "rows": "0616540b37b4116568333bd0248f2971648ec7b672fb78274851f04475baf780",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD75322748",
+      "index": 5,
+      "phf": "d16f22c599078b91b6515cca71a10b4b099da5630199d85366a03ab108b71efe",
+      "rows": "fae6ddd60fc5cd7bb5b23921b77561b2a9c19db13a401178592be18a3177df91",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD75322772",
+      "index": 6,
+      "phf": "e4ac9b5767345c7b6456a32d7934f1ee1b30de0316e33a1938a20ab4d7e975ae",
+      "rows": "f95e1fd73068e7782b6c1850104f0770fa2788218c277243bf43358e78352b84",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 11287,
+    "path": "weplay-hh/h.kolaric992@gmail.com/HH20260210 Manchester #3 (#11461801) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt",
+    "sha256": "4ae2f07aa56444eb413a33027cfdf352fddae90a4516f3f035c79399049e2b43"
+  },
+  "rows": 55,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 4,
+    "bet_river": 2,
+    "bet_turn": 4,
+    "call_cbet_flop": 1,
+    "call_flop": 3,
+    "call_three_bet": 1,
+    "call_turn": 3,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 4,
+    "check_flop": 12,
+    "check_raise_flop_opp": 6,
+    "check_raise_turn": 1,
+    "check_raise_turn_opp": 1,
+    "check_river": 3,
+    "check_turn": 4,
+    "cold_call": 5,
+    "cold_call_opp": 22,
+    "contributed": 9589,
+    "donk_flop": 1,
+    "donk_flop_opp": 8,
+    "donk_turn": 2,
+    "donk_turn_opp": 3,
+    "five_bet_opp": 1,
+    "flop_seen": 21,
+    "fold_flop": 6,
+    "fold_river": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 2,
+    "fold_turn": 2,
+    "four_bet": 1,
+    "four_bet_opp": 10,
+    "hands": 55,
+    "iso": 4,
+    "iso_opp": 10,
+    "limp": 6,
+    "limp_opp": 19,
+    "net": -476,
+    "net_bb_milli": -9520,
+    "pfr": 9,
+    "pfr_opp": 55,
+    "raise_flop": 1,
+    "raise_turn": 2,
+    "rake_paid": 476,
+    "rfi": 2,
+    "rfi_opp": 11,
+    "river_seen": 11,
+    "squeeze": 1,
+    "squeeze_opp": 15,
+    "three_bet": 2,
+    "three_bet_opp": 32,
+    "turn_seen": 14,
+    "vpip": 23,
+    "vpip_opp": 55,
+    "won": 9113,
+    "wsd": 3,
+    "wsd_opp": 7,
+    "wtsd": 7,
+    "wtsd_opp": 21,
+    "wwsf": 7,
+    "wwsf_opp": 21
+  }
+}

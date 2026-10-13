@@ -1,0 +1,51 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109663597247",
+      "index": 0,
+      "phf": "b9c254ec457664bdbe13730945c2318b21d5244437233e1fb67ff9d18efed305",
+      "rows": "822629617b7e058f802507fd302a6cd506c0fdfcda3c144dbee3833b7b5831be",
+      "seats": [
+        1,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 784,
+    "path": "fixtures/samples/pokerstars/25-cash-pot-limit-omaha.txt",
+    "sha256": "1d024665ed9522ceb298cb2a3942288b8704a610163ef976c624a099a38e31df"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 72,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -3,
+    "net_bb_milli": -300,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rake_paid": 3,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 69,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109716666902",
+      "index": 0,
+      "phf": "c6e5a6061100ded1a209d794c847a71307963e4562eadbb677126741e8d4d20d",
+      "rows": "fac8467c497a46db2d8636dbd1e86a6489accd5b2d723c172e992b9ec53afbe1",
+      "seats": [
+        1,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 936,
+    "path": "fixtures/samples/pokerstars/14-cash-omahahilo-strange-names.txt",
+    "sha256": "925c2791cb048304a516b9e256cd2f0063e940e41cc332ce2d62510e15583883"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 250,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 5,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 5,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "vpip": 1,
+    "vpip_opp": 5,
+    "won": 250
+  }
+}

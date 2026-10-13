@@ -1,0 +1,61 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1605375848",
+      "index": 0,
+      "phf": "f9ad944bb44cd24692cace9acab64cceb3eccc5de46bfe32a504036bd047c79e",
+      "rows": "e3b5f80723a194c10f22b34812ed9412857dffd2eb9f5f7fff207f98a46a89c6",
+      "seats": [
+        0,
+        1,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1827,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-USD-0.01-0.02-201605.winner.no.show.txt",
+    "sha256": "136d09220dec34d07f909450aec7b7d1b9fd8aecb9e3b1a61d4c7e45c4d5d711"
+  },
+  "rows": 8,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_river": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 3,
+    "check_turn": 3,
+    "contributed": 75,
+    "flop_seen": 4,
+    "fold_river": 2,
+    "hands": 8,
+    "iso": 1,
+    "iso_opp": 6,
+    "limp": 3,
+    "limp_opp": 7,
+    "net": -4,
+    "net_bb_milli": -2000,
+    "pfr": 1,
+    "pfr_opp": 8,
+    "rake_paid": 4,
+    "rfi_opp": 1,
+    "river_seen": 4,
+    "squeeze_opp": 3,
+    "three_bet_opp": 4,
+    "turn_seen": 4,
+    "vpip": 5,
+    "vpip_opp": 8,
+    "won": 71,
+    "wsd": 2,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 4,
+    "wwsf": 2,
+    "wwsf_opp": 4
+  }
+}

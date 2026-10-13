@@ -1,0 +1,44 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST04",
+      "index": 0,
+      "phf": "b624387d54cd82cfc1a3bf69d50194cf919e83d1a95701d5ed947ef7842a4f90",
+      "rows": "fac8d4b30e3ccdae9687fc4ca370e1ef9e0412347eb6877fbaabbe9dcbd76846",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 841,
+    "path": "tests/test/fixtures/stats/04-steal-and-fold-to-steal.txt",
+    "sha256": "44499b70bc8ca1e4781e2f8c32a7ac04846800bfbf4d89548df7132b47df0af4"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 250,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 6,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 250
+  }
+}

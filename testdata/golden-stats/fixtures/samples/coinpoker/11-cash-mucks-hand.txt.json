@@ -1,0 +1,59 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "352021207",
+      "index": 0,
+      "phf": "1efee465faed09e6887145abc3c359236b3edab66ba20f4868b196d2300607ad",
+      "rows": "3bbf0cc1d368226b41b9fa3befaf6d80a518d3646149e9e749b46b85ff70092f",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1754,
+    "path": "fixtures/samples/coinpoker/11-cash-mucks-hand.txt",
+    "sha256": "766616c42674140561b73dadba8dbd9bdf3de18a1519704653cb17493a2ed992"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_turn": 1,
+    "call_turn": 3,
+    "check_flop": 5,
+    "check_raise_turn_opp": 3,
+    "check_river": 4,
+    "check_turn": 3,
+    "contributed": 26,
+    "donk_river_opp": 2,
+    "flop_seen": 5,
+    "fold_turn": 1,
+    "hands": 7,
+    "iso_opp": 5,
+    "limp": 3,
+    "limp_opp": 5,
+    "net": -1,
+    "net_bb_milli": -500,
+    "pfr_opp": 7,
+    "rake_paid": 1,
+    "rfi_opp": 2,
+    "river_seen": 4,
+    "turn_seen": 5,
+    "vpip": 3,
+    "vpip_opp": 7,
+    "won": 25,
+    "wsd": 1,
+    "wsd_opp": 4,
+    "wtsd": 4,
+    "wtsd_opp": 5,
+    "wwsf": 1,
+    "wwsf_opp": 5
+  }
+}

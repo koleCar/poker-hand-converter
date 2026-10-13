@@ -1,0 +1,132 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3412667991",
+      "index": 0,
+      "phf": "096302552ea8d8fd647131953b3e8acb710909f48ae236ddee2889e8f3fb418c",
+      "rows": "abab013f6b648503ad865135b22b6f3db71f60c37bf5dcc1bae5c84be25c5c35",
+      "seats": [
+        6,
+        25,
+        35,
+        44,
+        65,
+        75,
+        92,
+        107,
+        111
+      ]
+    },
+    {
+      "handId": "3412669652",
+      "index": 1,
+      "phf": "015427386c4a9b3e42b1d4d3c14a082baea2737e6416c24bb4144d857d801bc7",
+      "rows": "53b86cec95803670ccd0c66060ea8d5348ee7ed41698758f48ed011444ff9b69",
+      "seats": [
+        6,
+        25,
+        35,
+        44,
+        65,
+        75,
+        92,
+        107,
+        127
+      ]
+    },
+    {
+      "handId": "3412670390",
+      "index": 2,
+      "phf": "7809c28354629347847843dc9389e54955335d910205684c9b37eb7418f07847",
+      "rows": "5d4bdb19dff6081766c9f62c543134cf3b7d4884095e9e31868116fc6bd48e16",
+      "seats": [
+        6,
+        25,
+        35,
+        44,
+        65,
+        75,
+        92,
+        107,
+        127
+      ]
+    },
+    {
+      "handId": "3412671880",
+      "index": 3,
+      "phf": "b91074f9ede81a0c6893a03e5a79fc14baedd9466105f7bfdad43be2bf133d14",
+      "rows": "348ffae27f6ee72029323c332f4f9998b45f0aa86b2ec1ac7a14586c426a74dc",
+      "seats": [
+        6,
+        25,
+        35,
+        44,
+        65,
+        75,
+        92,
+        107,
+        127
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 7888,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-MTT - $2.000 Guaranteed (10.000 Chips) - $3-$0.30 - 201606.MTT.max.seats.txt",
+    "sha256": "6b0b71e2772bf3620e75bed44f9ef768ec823d01d7557d358f176c8b0c548613"
+  },
+  "rows": 36,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 3,
+    "bet_river": 1,
+    "bet_turn": 2,
+    "call_flop": 4,
+    "call_river": 1,
+    "call_turn": 1,
+    "cbet_flop_opp": 2,
+    "check_flop": 7,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 4,
+    "check_river": 4,
+    "check_turn": 4,
+    "cold_call": 4,
+    "cold_call_opp": 13,
+    "contributed": 22264,
+    "donk_flop": 1,
+    "donk_flop_opp": 2,
+    "donk_turn_opp": 2,
+    "flop_seen": 15,
+    "fold_flop": 5,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "fold_turn": 2,
+    "four_bet_opp": 4,
+    "hands": 36,
+    "iso": 2,
+    "iso_opp": 6,
+    "limp": 5,
+    "limp_opp": 16,
+    "pfr": 4,
+    "pfr_opp": 36,
+    "raise_flop": 2,
+    "rfi": 1,
+    "rfi_opp": 11,
+    "river_seen": 6,
+    "squeeze": 1,
+    "squeeze_opp": 8,
+    "steal_opp": 2,
+    "three_bet": 1,
+    "three_bet_opp": 19,
+    "turn_seen": 9,
+    "vpip": 15,
+    "vpip_opp": 36,
+    "won": 22264,
+    "wsd": 2,
+    "wsd_opp": 6,
+    "wtsd": 6,
+    "wtsd_opp": 15,
+    "wwsf": 4,
+    "wwsf_opp": 15
+  }
+}

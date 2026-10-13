@@ -1,0 +1,61 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-5281577-472-1382586721",
+      "index": 0,
+      "phf": "ddc92631ad1a7262c53d39fcc55799d1cb683b3c20dacee66778f43bbbeaac4e",
+      "rows": "b846273866fa0cee4ce112f9f46eaed30b5617c91b5d213ede72d76d10a5b47d",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 742,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_StreetTests_Turn.txt",
+    "sha256": "36257926b82152c17aa0dbeeb56c4c98987e55f83dfc21e8459fbc8ae2fdc2de"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn": 1,
+    "cbet_turn_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_turn": 1,
+    "contributed": 1300,
+    "donk_flop_opp": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_cbet_turn": 1,
+    "fold_to_cbet_turn_opp": 1,
+    "fold_turn": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -85,
+    "net_bb_milli": -850,
+    "pfr": 1,
+    "pfr_opp": 2,
+    "rake_paid": 85,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 1215,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

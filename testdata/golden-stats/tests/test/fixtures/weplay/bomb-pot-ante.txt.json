@@ -1,0 +1,37 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD90000004",
+      "index": 0,
+      "phf": "8c824382552b2439625a75f0e7f26fe2811e622813f4755ca30aea0fcf94c5b7",
+      "rows": "f82daed8dc151a3fa2f8107903c4980d37f4ec88d6098231f311bc55c6f88a8f",
+      "seats": [
+        4,
+        6,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 800,
+    "path": "tests/test/fixtures/weplay/bomb-pot-ante.txt",
+    "sha256": "87fe125841b256d199acd0d72a3a49cbf85a64d75bb4ef3e821045afaf955ff7"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "contributed": 543,
+    "flop_seen": 3,
+    "fold_flop": 2,
+    "hands": 3,
+    "net": -13,
+    "net_bb_milli": -260,
+    "rake_paid": 13,
+    "won": 530,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

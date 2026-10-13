@@ -1,0 +1,70 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1002060530",
+      "index": 0,
+      "phf": "c4189d2f4c39c48f8b1b302de04f45a48892a4013da75e916f9aac35ee9cad14",
+      "rows": "c7096bd2e3e6c7cdc93b41d3d5e8f1e69456abfd525d9e1bb9a46048125f2cec",
+      "seats": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1568,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-0.25-0.50-201204.post.now.txt",
+    "sha256": "fbb5bef28e0c2610dc59ffea13290874618664ad2a119d20ab8e546c8296305e"
+  },
+  "rows": 10,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_cbet_flop": 1,
+    "call_cbet_turn": 1,
+    "call_flop": 1,
+    "call_turn": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn": 1,
+    "cbet_turn_opp": 1,
+    "contributed": 5050,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_cbet_turn_opp": 1,
+    "hands": 10,
+    "iso": 1,
+    "iso_opp": 6,
+    "limp": 3,
+    "limp_opp": 7,
+    "net": -252,
+    "net_bb_milli": -5040,
+    "pfr": 1,
+    "pfr_opp": 10,
+    "rake_paid": 252,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "squeeze_opp": 3,
+    "three_bet_opp": 6,
+    "turn_seen": 2,
+    "vpip": 4,
+    "vpip_opp": 10,
+    "won": 4798,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

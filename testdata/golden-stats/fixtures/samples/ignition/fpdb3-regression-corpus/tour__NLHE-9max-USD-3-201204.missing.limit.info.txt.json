@@ -1,0 +1,58 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "2607979051",
+      "index": 0,
+      "phf": "bac0036f489b197db3fa0f558f684ab7a826100a3283439c100d26fe5e7218d1",
+      "rows": "da12305b444d032f961861b6775624576da8f5490c50209ca4becb8e663ac3db",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1638,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__NLHE-9max-USD-3-201204.missing.limit.info.txt",
+    "sha256": "52e1ede8a261fc0b9c05a11d0600feb1c258dd584386e3aad1501d976c3ae494"
+  },
+  "rows": 9,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "cold_call": 1,
+    "cold_call_opp": 2,
+    "contributed": 950,
+    "donk_flop_opp": 1,
+    "flop_seen": 3,
+    "fold_flop": 2,
+    "fold_to_cbet_flop": 2,
+    "fold_to_cbet_flop_opp": 2,
+    "hands": 9,
+    "limp_opp": 5,
+    "pfr": 1,
+    "pfr_opp": 9,
+    "rfi": 1,
+    "rfi_opp": 5,
+    "squeeze_opp": 2,
+    "three_bet_opp": 4,
+    "vpip": 3,
+    "vpip_opp": 9,
+    "won": 950,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

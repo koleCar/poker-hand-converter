@@ -1,0 +1,53 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "55582352",
+      "index": 0,
+      "phf": "c94ebc98a744fe0d85bfdca195ebe5ecce3376b05088e9989d3b4d7920ff5cdb",
+      "rows": "86a54028b437c4d20ac565210d11e27438199079e3b9aa8de8eb3e55cca2c6d7",
+      "seats": [
+        1,
+        3,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 981,
+    "path": "fixtures/samples/run-it-once/03-tournament-nlhe-3max-hand.txt",
+    "sha256": "0fbaee8a1015868933b476c199847b070e8004f37abcc41a1645fd0a4ab59e74"
+  },
+  "rows": 3,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_turn": 1,
+    "call_steal": 2,
+    "cbet_flop_opp": 1,
+    "check_flop": 3,
+    "check_raise_turn_opp": 2,
+    "check_turn": 2,
+    "contributed": 120,
+    "donk_flop_opp": 2,
+    "flop_seen": 3,
+    "fold_to_steal_opp": 2,
+    "fold_turn": 2,
+    "hands": 3,
+    "limp_opp": 1,
+    "pfr": 1,
+    "pfr_opp": 3,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "squeeze_opp": 1,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 2,
+    "turn_seen": 3,
+    "vpip": 3,
+    "vpip_opp": 3,
+    "won": 120,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

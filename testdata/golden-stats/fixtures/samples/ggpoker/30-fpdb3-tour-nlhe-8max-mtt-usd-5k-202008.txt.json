@@ -1,0 +1,62 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "TM316262814",
+      "index": 0,
+      "phf": "cfe00a34cda5be92a3ed96c8b2f2211ffeaacc4d00e5b7e6d40ec1a425456e16",
+      "rows": "bf97b00de4a9afbac91db08663a86b8fccfbb4e7a43653d7a7ef56be30686c9e",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1874,
+    "path": "fixtures/samples/ggpoker/30-fpdb3-tour-nlhe-8max-mtt-usd-5k-202008.txt",
+    "sha256": "6896aa0eadb1c56091277c156923b356a8e07f7c16a22cc479931a3071ff8ff0"
+  },
+  "rows": 8,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 2,
+    "cold_call": 1,
+    "cold_call_opp": 3,
+    "contributed": 96804,
+    "donk_flop_opp": 1,
+    "flop_seen": 3,
+    "fold_flop": 1,
+    "hands": 8,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 8,
+    "raise_flop": 1,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "squeeze_opp": 3,
+    "three_bet_opp": 5,
+    "turn_seen": 2,
+    "vpip": 3,
+    "vpip_opp": 8,
+    "won": 96804,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 3,
+    "wwsf": 1,
+    "wwsf_opp": 3
+  }
+}

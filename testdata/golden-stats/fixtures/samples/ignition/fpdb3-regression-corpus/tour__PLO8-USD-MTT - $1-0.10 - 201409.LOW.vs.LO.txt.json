@@ -1,0 +1,46 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "3050116136",
+      "index": 0,
+      "phf": "b1a1f7a96bf359e62276b76e3acc8ba422d015d9a3d7b8ffb53bf8e0025aefdc",
+      "rows": "e9ffd29b45aaadc6ec726b197881c157831c0dc3749603d921e5422f7cf2ceda",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1082,
+    "path": "fixtures/samples/ignition/fpdb3-regression-corpus/tour__PLO8-USD-MTT - $1-0.10 - 201409.LOW.vs.LO.txt",
+    "sha256": "1b013f8f3b1c5b162bd94d4572c880b7b9607e2d1fbaaec27e04fc2d8e571786"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "check_flop": 2,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 60,
+    "flop_seen": 2,
+    "hands": 2,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 1,
+    "pfr_opp": 2,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 2,
+    "won": 60,
+    "wsd": 2,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 2,
+    "wwsf_opp": 2
+  }
+}

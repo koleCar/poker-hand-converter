@@ -1,0 +1,36 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST03",
+      "index": 0,
+      "phf": "3bbb5f803863cc23cf74f8972cc2a9dc9f3b62826ed5ead72ba55da021c6398e",
+      "rows": "29b2a413b8557bf700d5775af63708cc1048a788932727332263b728a8403c3c",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 824,
+    "path": "tests/test/fixtures/stats/03-dead-post-is-not-vpip.txt",
+    "sha256": "d9c235295cf4d522c5d97cd4237cc63c4332a0f183e5050b8a943562bffa55ef"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "contributed": 200,
+    "hands": 6,
+    "limp_opp": 5,
+    "pfr_opp": 5,
+    "rfi_opp": 5,
+    "steal_opp": 3,
+    "vpip_opp": 5,
+    "won": 200
+  }
+}

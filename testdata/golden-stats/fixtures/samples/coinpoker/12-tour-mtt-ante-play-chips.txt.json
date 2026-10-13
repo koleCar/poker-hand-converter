@@ -1,0 +1,52 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "177956038",
+      "index": 0,
+      "phf": "7ec8778d7a49258e041dca254fcb6e12c4e8035e2b6921cb7d761e2e922cbf11",
+      "rows": "557cce947d8c5f78c72973cc3ccb35deea705d3f2295398db5b50a39fe25c534",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1650,
+    "path": "fixtures/samples/coinpoker/12-tour-mtt-ante-play-chips.txt",
+    "sha256": "d4c27baa0bd3f25ca59153006b0c502962cd4934958eef899c0654bd846ce3c1"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call": 1,
+    "cold_call_opp": 2,
+    "contributed": 10215,
+    "flop_seen": 2,
+    "hands": 7,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 7,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "river_seen": 2,
+    "squeeze_opp": 2,
+    "three_bet_opp": 4,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 7,
+    "won": 10215,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

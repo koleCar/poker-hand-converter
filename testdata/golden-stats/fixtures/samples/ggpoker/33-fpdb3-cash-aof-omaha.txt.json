@@ -1,0 +1,51 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "AF443780601",
+      "index": 0,
+      "phf": "ca01459e83b6bec540a95c41d522ddac05ce44e9b4597ae8bc5ecb569867fa58",
+      "rows": "a8ed4e21f687bb5f74d97ed55372e2ec15d2f53790b832238a55c645ac04af19",
+      "seats": [
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1048,
+    "path": "fixtures/samples/ggpoker/33-fpdb3-cash-aof-omaha.txt",
+    "sha256": "0d49d9cfa0a4abaefeb09ed9137ccdd0fe13f7b890e1dd0052ae175a7b53ab7d"
+  },
+  "rows": 4,
+  "statsVersion": "stats/2",
+  "totals": {
+    "call_steal": 1,
+    "contributed": 210,
+    "flop_seen": 2,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "hands": 4,
+    "limp_opp": 2,
+    "pfr": 1,
+    "pfr_opp": 4,
+    "rfi": 1,
+    "rfi_opp": 2,
+    "river_seen": 2,
+    "steal": 1,
+    "steal_opp": 2,
+    "three_bet_opp": 2,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 4,
+    "won": 210,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "191721400",
+      "index": 0,
+      "phf": "cc70dd42196403f0857a85a8eb669df8746a8ced5d0e007bad70f6c237cdc25a",
+      "rows": "eafbf57bbdfae57e76a6d2031d5c3fbe4f9ad0617b0322ce7fe1c2e25fb9872b",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1428,
+    "path": "fixtures/samples/coinpoker/04-cash-straddle.txt",
+    "sha256": "08e8e856ca4c2541e479c0680052f966bad98776f22295f29ff42af9a9a83921"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "call_flop": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_river": 2,
+    "check_turn": 2,
+    "contributed": 21,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "hands": 7,
+    "iso_opp": 3,
+    "limp": 1,
+    "limp_opp": 6,
+    "net": -1,
+    "net_bb_milli": -500,
+    "pfr_opp": 7,
+    "rake_paid": 1,
+    "rfi_opp": 4,
+    "river_seen": 2,
+    "turn_seen": 2,
+    "vpip": 1,
+    "vpip_opp": 7,
+    "won": 20,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

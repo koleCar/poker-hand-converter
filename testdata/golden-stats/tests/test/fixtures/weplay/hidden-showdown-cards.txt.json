@@ -1,0 +1,62 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD90000005",
+      "index": 0,
+      "phf": "12d1fc33a9dc0ee1828b2896fc97785c9771d8b279e1a946202de936b42d810e",
+      "rows": "73308567c7b08bbcc88e25644209b34e0082e6d51320b990a01332de3340921d",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1088,
+    "path": "tests/test/fixtures/weplay/hidden-showdown-cards.txt",
+    "sha256": "508d06b75d0fe4eb62629ce2efc4a38717e31654d65a4fdaa152e6071ad53efb"
+  },
+  "rows": 5,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "cold_call": 1,
+    "cold_call_opp": 2,
+    "contributed": 1350,
+    "donk_flop_opp": 1,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "fold_to_cbet_flop": 1,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_three_bet": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 4,
+    "hands": 5,
+    "limp_opp": 1,
+    "net": -67,
+    "net_bb_milli": -1340,
+    "pfr": 2,
+    "pfr_opp": 5,
+    "rake_paid": 67,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "squeeze": 1,
+    "squeeze_opp": 1,
+    "three_bet": 1,
+    "three_bet_opp": 2,
+    "vpip": 3,
+    "vpip_opp": 5,
+    "won": 1283,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

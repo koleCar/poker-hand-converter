@@ -1,0 +1,68 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ST09",
+      "index": 0,
+      "phf": "b5586aa8503e3e95957aa6c5a1521398c19d0814069cde16f7ef5b120e5399a3",
+      "rows": "2b036e5278c885afe555df27dd1487e74e83831aebb91cf9118e11f569bdea4c",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 985,
+    "path": "tests/test/fixtures/stats/09-turn-cbet-needs-a-called-flop-cbet.txt",
+    "sha256": "49c93b7bd6bc04b14cf4de0716649d72f1a605934067729011327510fcf93a7c"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_turn": 1,
+    "call_cbet_flop": 1,
+    "call_flop": 1,
+    "call_steal": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_turn": 1,
+    "cbet_turn_opp": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "check_raise_turn_opp": 1,
+    "check_turn": 1,
+    "cold_call_opp": 1,
+    "contributed": 1450,
+    "donk_flop_opp": 1,
+    "donk_turn_opp": 1,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_cbet_turn": 1,
+    "fold_to_cbet_turn_opp": 1,
+    "fold_to_steal": 1,
+    "fold_to_steal_opp": 2,
+    "fold_turn": 1,
+    "hands": 6,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 6,
+    "won": 1450,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "CHC-1593704164",
+      "index": 0,
+      "phf": "f6bb2b19c70f711a880d535e45207614d18ebdca062b4c4bed7caddf0f630ad2",
+      "rows": "b16765f2e022d49a95a4d045284f5c0d308594200d10eeeaeb54233dfbd0d143",
+      "seats": [
+        0,
+        2,
+        3,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1582,
+    "path": "fixtures/samples/chico/fpdb3-regression-corpus/cash__NLHE-10max-0.01-0.02-201604.zero.ante.txt",
+    "sha256": "253b05eae5309cf621ceb2565ab0dfd7ba1be7214816656dd364fb6e74805960"
+  },
+  "rows": 7,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "check_flop": 1,
+    "check_raise_flop_opp": 1,
+    "contributed": 4,
+    "flop_seen": 2,
+    "fold_flop": 1,
+    "hands": 7,
+    "iso_opp": 1,
+    "limp": 1,
+    "limp_opp": 6,
+    "pfr_opp": 7,
+    "rfi_opp": 6,
+    "steal_opp": 3,
+    "vpip": 1,
+    "vpip_opp": 7,
+    "won": 4,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

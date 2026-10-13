@@ -1,0 +1,69 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646515978",
+      "index": 0,
+      "phf": "10949acaa967093d0ad065313330fb2fc2301c3ad98ec5466fd313b41fc721d6",
+      "rows": "3abd108c9aaa59081c32ede6dc56962ef79845079a1ad3d727294376818cfc8a",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1139,
+    "path": "fixtures/samples/entraction/06-fixed-limit-omaha-hilo.txt",
+    "sha256": "468a67b473d716b970ff37e1d9e716ce8f3d56558672746ab29dde5fb68c80df"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 1,
+    "bet_river": 1,
+    "bet_turn": 1,
+    "call_cbet_flop": 1,
+    "call_cbet_river": 1,
+    "call_cbet_turn": 1,
+    "call_flop": 1,
+    "call_river": 1,
+    "call_three_bet": 1,
+    "call_turn": 1,
+    "cbet_flop": 1,
+    "cbet_flop_opp": 1,
+    "cbet_river": 1,
+    "cbet_river_opp": 1,
+    "cbet_turn": 1,
+    "cbet_turn_opp": 1,
+    "contributed": 160000,
+    "flop_seen": 2,
+    "fold_to_cbet_flop_opp": 1,
+    "fold_to_cbet_river_opp": 1,
+    "fold_to_cbet_turn_opp": 1,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -150,
+    "net_bb_milli": -15,
+    "pfr": 2,
+    "pfr_opp": 2,
+    "rake_paid": 150,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 159850,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}

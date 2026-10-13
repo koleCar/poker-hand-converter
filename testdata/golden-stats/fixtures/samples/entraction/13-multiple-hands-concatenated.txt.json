@@ -1,0 +1,158 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "ENT-2646500717",
+      "index": 0,
+      "phf": "b448c4f41ee0a8832720453133602bc35a3cacf29c971347096380bda04fcf3b",
+      "rows": "6093de387a1017cae8017548484f2071eea8d274136c5601cb9eb6f40a1af2e3",
+      "seats": [
+        1,
+        2
+      ]
+    },
+    {
+      "handId": "ENT-2646505732",
+      "index": 1,
+      "phf": "113215a4d8f36805a8566f1f3b64580e6a920bdae0245e10b5fe32abdb244ad9",
+      "rows": "f591b7ea48e98255c47a814cb21dbaf6fe478a2b63b7dea44d92b84ade46da42",
+      "seats": [
+        1,
+        2
+      ]
+    },
+    {
+      "handId": "ENT-2646505738",
+      "index": 2,
+      "phf": "975b1a1c3b389161a341fd39425c62e2391d69cc306ea27c50d8270dba20087c",
+      "rows": "cb75fd8ec09e67038b2d9a0ce17749679f063c0ed0e090ee76c2d3c1b26ea782",
+      "seats": [
+        1,
+        2
+      ]
+    },
+    {
+      "handId": "ENT-2646505757",
+      "index": 3,
+      "phf": "437ad0bfa0f93f829915a58dc23a1891c67118d9e727fc963bb9340654ef79f4",
+      "rows": "c8b308d4faffab323ae64c70434dc41768df7d4d8ac4590c39f3b232f32a070a",
+      "seats": [
+        1,
+        2
+      ]
+    },
+    {
+      "handId": "ENT-2646505763",
+      "index": 4,
+      "phf": "138694a45c348bdaabc8d1576620678d7c48e6d168884c3bd387c6b61b2d8f60",
+      "rows": "805863f309a938393d9f45140e9fde4209d93c57c8570f74ea39d2b5d9916979",
+      "seats": [
+        1,
+        2
+      ]
+    },
+    {
+      "handId": "ENT-2646505793",
+      "index": 5,
+      "phf": "cdd40d5019ec9362a05fcaa15bd45c55d9ed897f890024dd503c8cd6ffbe9834",
+      "rows": "95c1856223f04e8972ce7f300e3c3380f3e5c3bb116d89403e4567ac75ddfba3",
+      "seats": [
+        1,
+        2
+      ]
+    },
+    {
+      "handId": "ENT-2646505796",
+      "index": 6,
+      "phf": "a073ff509b7a9f96f4b2e286ccb3e67a7934d04d130ff34288144070527a0b0a",
+      "rows": "4cfd877644434ad0302ebb623195f410256fe16321b95289d5700d788d0bd620",
+      "seats": [
+        1,
+        2
+      ]
+    },
+    {
+      "handId": "ENT-2646505827",
+      "index": 7,
+      "phf": "e769d8e7888e05dddc7f3ed60778fdc3922a104fe711897857ae3b3552d88fc6",
+      "rows": "e2afadd6474cab93c7315d344a44f00b09cd2386add694578f9d7a24ba0b0f53",
+      "seats": [
+        1,
+        2
+      ]
+    },
+    {
+      "handId": "ENT-2646505835",
+      "index": 8,
+      "phf": "ab7c3515233d296877e9fe3852cb25be12f4ad64b9595a7bfaa6135a8ecfca38",
+      "rows": "66e40cd809697f7807797095dcfec88e6a98a8c70470326c845f58f5f60d86d5",
+      "seats": [
+        1,
+        2
+      ]
+    },
+    {
+      "handId": "ENT-2646505855",
+      "index": 9,
+      "phf": "fe465224e19eeaa86f88fcc59562821dfffd1988e363cd57dfc5c5f289a9aba0",
+      "rows": "4d86ff15faaacfc8bf848e78f129e49c71062ea5361648dfbfee85853e6e70f8",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 7432,
+    "path": "fixtures/samples/entraction/13-multiple-hands-concatenated.txt",
+    "sha256": "479c13109f38a3b35369e2dba7056ddf84c38fd31d43db6c317ee3af2fa61142"
+  },
+  "rows": 20,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 3,
+    "bet_river": 2,
+    "bet_turn": 1,
+    "call_cbet_flop": 2,
+    "call_flop": 2,
+    "cbet_flop": 3,
+    "cbet_flop_opp": 4,
+    "cbet_turn": 1,
+    "cbet_turn_opp": 2,
+    "check_flop": 5,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 3,
+    "check_raise_turn_opp": 1,
+    "check_turn": 5,
+    "contributed": 240000,
+    "donk_flop_opp": 4,
+    "donk_turn_opp": 2,
+    "flop_seen": 8,
+    "fold_flop": 1,
+    "fold_river": 2,
+    "fold_to_cbet_flop_opp": 3,
+    "fold_to_cbet_turn": 1,
+    "fold_to_cbet_turn_opp": 1,
+    "fold_turn": 1,
+    "hands": 20,
+    "limp_opp": 10,
+    "net": -600,
+    "net_bb_milli": -120,
+    "pfr": 8,
+    "pfr_opp": 18,
+    "raise_cbet_flop": 1,
+    "raise_flop": 1,
+    "rake_paid": 600,
+    "rfi": 8,
+    "rfi_opp": 10,
+    "river_seen": 4,
+    "three_bet_opp": 8,
+    "turn_seen": 6,
+    "vpip": 12,
+    "vpip_opp": 18,
+    "won": 239400,
+    "wtsd_opp": 8,
+    "wwsf": 4,
+    "wwsf_opp": 8
+  }
+}

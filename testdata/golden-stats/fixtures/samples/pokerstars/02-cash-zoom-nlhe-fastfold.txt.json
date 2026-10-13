@@ -1,0 +1,44 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "109664415396",
+      "index": 0,
+      "phf": "c5b8557f61016aab0a693619e2ae52b093b8208c74e7d51057f7510f72ffe0a3",
+      "rows": "93661a663495ec7b08034d5d79af23a818675d8ab56be3907578c117534c42b2",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 1052,
+    "path": "fixtures/samples/pokerstars/02-cash-zoom-nlhe-fastfold.txt",
+    "sha256": "72ae3939a79027f4d1278217b12908f40e14ab9b29a304731ea44f1591197e80"
+  },
+  "rows": 6,
+  "statsVersion": "stats/2",
+  "totals": {
+    "cold_call_opp": 1,
+    "contributed": 250,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "hands": 6,
+    "limp_opp": 3,
+    "pfr": 1,
+    "pfr_opp": 6,
+    "rfi": 1,
+    "rfi_opp": 3,
+    "steal": 1,
+    "steal_opp": 1,
+    "three_bet_opp": 3,
+    "vpip": 1,
+    "vpip_opp": 6,
+    "won": 250
+  }
+}

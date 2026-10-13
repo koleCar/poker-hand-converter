@@ -1,0 +1,316 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "HD73726026",
+      "index": 0,
+      "phf": "a415b9392d6add1227c63f1333c582668d1959e95fe99de7515268ab59de13a9",
+      "rows": "1ccfc24a10fd3e5dfb1487b4dcfe7840a992a0aeeaacb17f7f2ab72188919fa9",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD73726055",
+      "index": 1,
+      "phf": "a3030716d03dc7d9ab7c30350f7b6c73b16ce3fc25cf681da768fb08be0bfa9d",
+      "rows": "9bd38e638e7bc974e1d3ae00dd31f7b28cc1edc32b43146e4d9aa5b134502902",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD73726109",
+      "index": 2,
+      "phf": "095180baf470b9c458c4b4d0a03d9fda425aa12773c10f41aa9a1825fbb9ce43",
+      "rows": "54c912a7c737c7adb647c8469114df6c4eb12831b05d59b0a6da80bd5608b03a",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "HD73726176",
+      "index": 3,
+      "phf": "b703ed162b5eca6123185a8745aefd9b3e104444d2b9dbdee31b591b1c3f494b",
+      "rows": "6e0a282907691475cf0623944d2b35e6e537cc4bd827d76b1ef7a1c3ede66a80",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "HD73726203",
+      "index": 4,
+      "phf": "a4c991c693ea5b64da99336c1931d79a323abe3ea8cb2913df8014bc9f9ecc79",
+      "rows": "75eeac795558046ab06b98636d15fe3ea5debacb5f30d60c78efc12e0e201bb0",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "HD73726227",
+      "index": 5,
+      "phf": "c166f1b6d4e1b38e71d21ef805f8ee3c0135398a23da7b00595b3969521db18b",
+      "rows": "e57bb640af7d7a347359306e5003d4afd126820b84f657ca0a811ab530d30377",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "HD73726254",
+      "index": 6,
+      "phf": "fa3c2b10811b8fcfd0d9e9e705c0a416d7a83e482855a55d2cbe228898542f3c",
+      "rows": "3ba621bc44024e6a44bcbe7a526804703c15334a01c22165e090ba664b8b196b",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "handId": "HD73726269",
+      "index": 7,
+      "phf": "de098b637403aede2991717beedffe0027726d29aa7ddb8472733e095d7fd6be",
+      "rows": "f42f556937c5ca8b61e99fa2e882b3e745c04ad1e1646ef1d84e0d29f80760f0",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD73727318",
+      "index": 8,
+      "phf": "1a0b56805db31288d2e80d81ee9711c6348417d3c26e078e8bd73b264f68477b",
+      "rows": "80f8e8cd05138225be17ba50e6e9d34f886dd390e29ea6ab062e1ba58e3f0e7a",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD73727397",
+      "index": 10,
+      "phf": "de6362fd625c089fce5d8d4dd89f23327cad91f4e44d2d06da53dd31c3165eac",
+      "rows": "c81d8298c378a2c3fed172e5b58cfa9f5b258443f162171a20f57a29c6227c21",
+      "seats": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD73727458",
+      "index": 11,
+      "phf": "bfcab76b327b9325f8efc8c9632b4a3bb4aef3a62ea58bf0f8b97cce6c4e0019",
+      "rows": "2ee4068284f2670fa38d0dfe0a828f5096a325c5167a17248ce18ea28b4b3ec7",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD73727497",
+      "index": 12,
+      "phf": "150b7606698ea2fdb8efd6a25d911abfdaed5a80a6af02603a6eb4aa930ec329",
+      "rows": "ddbdf2eebbd5a9c83d9f21de2dc0bd7b6c72d61e3d1204be8353ce31241ac1d6",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD73727584",
+      "index": 13,
+      "phf": "01ebdfc56e7da9238a980d0e94d5c2ae9e169b7757008df067bbb7472ff0a828",
+      "rows": "1e73ce7993ee21a5c5ffd450c19ecac43852a6a473e7d657c463a868efe22ec5",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD73727658",
+      "index": 14,
+      "phf": "1d407a75ab17ea8b8ab5d7a953949c39a082a97eed63bdf5ac6744bc3bc9c847",
+      "rows": "ce3f06b55d5d6d7067a89e0da5658e95da32453635d1868662f2a4bdf858fb19",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "handId": "HD73727682",
+      "index": 15,
+      "phf": "ebbd88714f4ab0043416425ea608069da862ee8fbc524006a7c885836436aba9",
+      "rows": "c207fe3eaf58744cfc61e4fba1883dc81f0c18ea2aca79b0e1d363314f250b17",
+      "seats": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 22281,
+    "path": "weplay-hh/kole1992/HH20260125 Manchester #1 (#11555801) - $0.25-$0.50 - Money 3 No Limit Hold_em.txt",
+    "sha256": "e874d40a0aa6ec74aaddc8e7f121bdae28ae81ca805cca94398637a1be915cbf"
+  },
+  "rows": 114,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_flop": 9,
+    "bet_river": 4,
+    "bet_turn": 3,
+    "call_cbet_flop": 1,
+    "call_flop": 6,
+    "call_river": 1,
+    "call_turn": 2,
+    "cbet_flop": 5,
+    "cbet_flop_opp": 7,
+    "cbet_turn_opp": 1,
+    "check_flop": 11,
+    "check_raise_flop": 1,
+    "check_raise_flop_opp": 9,
+    "check_raise_river_opp": 4,
+    "check_raise_turn_opp": 2,
+    "check_river": 4,
+    "check_turn": 6,
+    "cold_call": 6,
+    "cold_call_opp": 28,
+    "contributed": 21849,
+    "donk_flop": 2,
+    "donk_flop_opp": 8,
+    "donk_river_opp": 2,
+    "donk_turn_opp": 4,
+    "five_bet_opp": 1,
+    "flop_seen": 28,
+    "fold_flop": 10,
+    "fold_river": 3,
+    "fold_to_cbet_flop": 3,
+    "fold_to_cbet_flop_opp": 5,
+    "fold_to_steal": 2,
+    "fold_to_steal_opp": 2,
+    "fold_to_three_bet": 2,
+    "fold_to_three_bet_opp": 2,
+    "fold_turn": 1,
+    "four_bet": 1,
+    "four_bet_opp": 8,
+    "hands": 114,
+    "iso": 6,
+    "iso_opp": 20,
+    "limp": 9,
+    "limp_opp": 55,
+    "net": -1025,
+    "net_bb_milli": -20500,
+    "pfr": 18,
+    "pfr_opp": 114,
+    "raise_cbet_flop": 1,
+    "raise_flop": 2,
+    "rake_paid": 1025,
+    "rfi": 8,
+    "rfi_opp": 38,
+    "river_seen": 12,
+    "squeeze": 2,
+    "squeeze_opp": 18,
+    "steal": 1,
+    "steal_opp": 6,
+    "three_bet": 3,
+    "three_bet_opp": 61,
+    "turn_seen": 14,
+    "vpip": 36,
+    "vpip_opp": 114,
+    "won": 20824,
+    "wsd": 3,
+    "wsd_opp": 6,
+    "wtsd": 6,
+    "wtsd_opp": 28,
+    "wwsf": 11,
+    "wwsf_opp": 28
+  }
+}

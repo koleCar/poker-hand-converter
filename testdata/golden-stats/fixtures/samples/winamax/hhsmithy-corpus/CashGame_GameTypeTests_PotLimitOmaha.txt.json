@@ -1,0 +1,56 @@
+{
+  "format": "rail-stats-golden/1",
+  "hands": [
+    {
+      "handId": "WMX-5313422-1-1383828693",
+      "index": 0,
+      "phf": "dc00c3d28b215b40205a2ceb14abeaf124dae964bae62aab91210ed0d626de7c",
+      "rows": "f8b1d725a7d7f2e70550baf35537cc73286670df71d3f6d59396995bfdb1dcb7",
+      "seats": [
+        1,
+        2
+      ]
+    }
+  ],
+  "input": {
+    "bytes": 965,
+    "path": "fixtures/samples/winamax/hhsmithy-corpus/CashGame_GameTypeTests_PotLimitOmaha.txt",
+    "sha256": "c7979b82d19e5c360a6c139c5ba5b37a2eac1852d697f7ded3b8ec78e8277a16"
+  },
+  "rows": 2,
+  "statsVersion": "stats/2",
+  "totals": {
+    "bet_turn": 1,
+    "call_three_bet": 1,
+    "call_turn": 1,
+    "cbet_flop_opp": 1,
+    "check_flop": 2,
+    "contributed": 4000,
+    "flop_seen": 2,
+    "fold_to_three_bet_opp": 1,
+    "four_bet_opp": 1,
+    "hands": 2,
+    "limp_opp": 1,
+    "net": -150,
+    "net_bb_milli": -3000,
+    "pfr": 2,
+    "pfr_opp": 2,
+    "raise_turn": 1,
+    "rake_paid": 150,
+    "rfi": 1,
+    "rfi_opp": 1,
+    "river_seen": 2,
+    "three_bet": 1,
+    "three_bet_opp": 1,
+    "turn_seen": 2,
+    "vpip": 2,
+    "vpip_opp": 2,
+    "won": 3850,
+    "wsd": 1,
+    "wsd_opp": 2,
+    "wtsd": 2,
+    "wtsd_opp": 2,
+    "wwsf": 1,
+    "wwsf_opp": 2
+  }
+}
